@@ -1,0 +1,124 @@
+# Directus 11.17.4 tham chiếu: dùng để chạy test đối chiếu với app mới.
+# App mới (NestJS) sẽ trỏ vào cùng Postgres, Redis và MinIO ở đây.
+#
+#   cd dev/directus-reference
+#   docker compose up -d
+#
+# Cổng:
+#   Directus  http://localhost:8055   (admin: xem ADMIN_EMAIL/ADMIN_PASSWORD trong .env)
+#   Postgres  localhost:5432
+#   Redis     localhost:6379
+#   MinIO     http://localhost:9000 (API), http://localhost:9001 (console)
+
+name: directus-reference
+
+services:
+  postgres:
+    image: postgis/postgis:16-3.4-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER} -d ${DB_DATABASE}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6379:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio:
+    image: minio/minio
+    command: server /data --console-address ':9001'
+    environment:
+      MINIO_ROOT_USER: ${STORAGE_S3_KEY}
+      MINIO_ROOT_PASSWORD: ${STORAGE_S3_SECRET}
+    ports:
+      - '9000:9000'
+      - '9001:9001'
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  minio-init:
+    image: minio/mc
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 $${STORAGE_S3_KEY} $${STORAGE_S3_SECRET} &&
+      mc mb --ignore-existing local/$${STORAGE_S3_BUCKET}
+      "
+    environment:
+      STORAGE_S3_KEY: ${STORAGE_S3_KEY}
+      STORAGE_S3_SECRET: ${STORAGE_S3_SECRET}
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET}
+
+  directus:
+    image: directus/directus:11.17.4
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+    ports:
+      - '8055:8055'
+    environment:
+      PUBLIC_URL: http://localhost:8055
+      SECRET: ${SECRET}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+      DB_CLIENT: pg
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_DATABASE: ${DB_DATABASE}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+
+      REDIS: redis://redis:6379
+      CACHE_ENABLED: 'true'
+      CACHE_STORE: redis
+      CACHE_AUTO_PURGE: 'true'
+      RATE_LIMITER_ENABLED: 'false'
+      RATE_LIMITER_STORE: redis
+
+      STORAGE_LOCATIONS: s3
+      STORAGE_S3_DRIVER: s3
+      STORAGE_S3_KEY: ${STORAGE_S3_KEY}
+      STORAGE_S3_SECRET: ${STORAGE_S3_SECRET}
+      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET}
+      STORAGE_S3_REGION: us-east-1
+      STORAGE_S3_ENDPOINT: http://minio:9000
+      STORAGE_S3_FORCE_PATH_STYLE: 'true'
+
+      # Giống phạm vi app mới: không làm Realtime WebSocket.
+      WEBSOCKETS_ENABLED: 'false'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  postgres-data:
+  minio-data:
