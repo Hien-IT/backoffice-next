@@ -19,6 +19,15 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Flows | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy. |
 | FE | **Viết mới** bằng Vue 3 + **PrimeVue**, giữ nguyên luồng màn hình của Directus. |
 | Extensions | **Chưa làm** trong giai đoạn này. |
+| Biến môi trường | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy. |
+| Ngôn ngữ | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**. |
+| Runtime | **Node 22 + pnpm 10**, giống Directus. |
+| CI | **GitHub Actions**. Coverage tối thiểu **80% BE, 60% FE**. |
+| DB chính | **PostgreSQL**: chạy đủ test ở mọi PR. MySQL, SQLite chạy bộ rút gọn. MSSQL, Oracle, CockroachDB chạy hằng đêm. |
+| Hiệu năng | p95 latency và throughput **không tệ hơn Directus quá 10%**. |
+| Ngôn ngữ giao diện | **vi-VN và en-US**. |
+| Giám sát | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`). |
+| Thương hiệu | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...). |
 | Phạm vi | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.** |
 
 ---
@@ -111,12 +120,13 @@ V. Kiểm thử đối chiếu là bắt buộc
 - Mỗi endpoint phải có test chạy với cả Directus thật và app mới, rồi so sánh status, body và tác động lên DB.
 - Tái sử dụng bộ test trong directus/tests/blackbox (copy sang, cấu hình URL để chạy với cả hai app).
 - Không coi feature là xong khi còn khác biệt chưa được ghi lại và chấp nhận trong spec.
-- CI chạy tối thiểu Postgres, MySQL và SQLite. Các DB khác chạy theo lịch.
+- PostgreSQL là DB chính: mọi PR chạy đủ test đối chiếu trên Postgres. MySQL và SQLite chạy bộ test rút gọn ở mọi PR. MSSQL, Oracle, CockroachDB chạy đủ test hằng đêm.
 
 VI. Kiến trúc
-- Nx monorepo: apps/api (NestJS), apps/web (Vue 3 + PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
+- Node 22 và pnpm 10 (giống Directus). Nx monorepo: apps/api (NestJS), apps/web (Vue 3 + PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
 - BE: mỗi service của Directus tương ứng một provider NestJS. Controller mỏng, logic nằm trong service. Truy cập DB bằng Knex, không dùng ORM.
 - FE: viết mới bằng Composition API, giữ nguyên luồng màn hình, route và hành vi của Directus app. Được copy logic hoặc composable từ directus/app khi cần.
+- FE hỗ trợ hai ngôn ngữ giao diện vi-VN và en-US, copy từ directus/app/src/lang. Kiến trúc i18n vẫn cho phép thêm ngôn ngữ sau.
 - TypeScript strict, ESLint, Prettier. Mỗi thay đổi có test.
 
 VII. Triển khai đa instance
@@ -128,7 +138,31 @@ VII. Triển khai đa instance
 - Có /server/health cho readiness và liveness probe. Khi nhận SIGTERM, ngừng nhận request mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
 - FE và BE nên đặt chung một domain: /admin/* vào FE, các path API còn lại vào BE, giống bố cục của Directus.
 
-VIII. Ngoài phạm vi giai đoạn này
+VIII. Kế thừa toàn bộ biến môi trường của Directus
+- BE đọc toàn bộ biến môi trường Directus 11.17.4 hỗ trợ (danh sách và giá trị mặc định trong directus/packages/env/src/constants/defaults.ts và directus-variables.ts), kể cả biến động như DB_*, STORAGE_<LOCATION>_*, AUTH_<PROVIDER>_*, EMAIL_*, CACHE_*, REDIS_*.
+- Giữ nguyên tên biến, giá trị mặc định và cách đọc: tiền tố ép kiểu (string:, number:, regex:, array:, json:, boolean:), hậu tố _FILE để đọc secret từ file, CONFIG_PATH với file .env, .json, .yaml, .js.
+- Không đổi tên biến khi đổi thương hiệu, không tạo biến mới thay thế biến đã có. Biến chỉ app mới cần thì dùng tiền tố BACKOFFICE_ và phải có giá trị mặc định an toàn.
+- Biến Directus mà app mới chưa hỗ trợ: ghi cảnh báo khi khởi động, không dừng app.
+- Khi deploy, cùng một file .env, ConfigMap, Secret đang dùng cho Directus phải chạy được ngay cho BE mới mà không cần khai báo lại. FE nhận cấu hình lúc chạy từ chính các biến này (ví dụ PUBLIC_URL).
+
+IX. Đổi thương hiệu Directus thành Backoffice
+- Trong app mới, chữ "Directus" mà người dùng hoặc lập trình viên nhìn thấy được đổi thành "Backoffice", miễn là không ảnh hưởng luồng hoạt động hay khả năng chạy song song.
+- Được đổi: tên hiển thị, tiêu đề trang, logo, favicon, chuỗi dịch i18n, email template, tên mặc định khi project_name trống (ví dụ nhãn issuer TFA), header X-Powered-By, tiêu đề tài liệu OpenAPI, log message, tên package nội bộ (@directus/* copy sang thành @backoffice/*), tên class, biến, comment trong code mới, key localStorage của FE.
+- Giữ nguyên vì ảnh hưởng luồng hoặc tương thích: tên bảng và cột directus_*, tên collection hệ thống trong API (directus_users...), JWT issuer 'directus', tên cookie mặc định (directus_refresh_token, directus_session_token), namespace Redis mặc định (directus:bus, directus:lock, system-cache), giá trị mặc định METRICS_NAME_PREFIX 'directus_' (để dashboard giám sát dùng chung cho cả hai app), tên biến môi trường, tên event, mã lỗi, tên type GraphQL, thư viện bên thứ ba (@directus/sdk), dữ liệu trong DB (không sửa project_name hay settings đang dùng chung).
+- Giữ license notice của Directus và comment ghi nguồn ở các file copy hoặc port. License BSL yêu cầu điều này.
+- Khi không chắc một chỗ đổi tên có ảnh hưởng luồng hay không: giữ nguyên và ghi vào danh sách cần xác nhận.
+- Test đối chiếu được bỏ qua các khác biệt do đổi thương hiệu, nhưng phải liệt kê rõ trong danh sách khác biệt được chấp nhận.
+
+X. Chất lượng, quy trình và vận hành
+- Ngôn ngữ: spec.md, plan.md, tasks.md và tài liệu viết tiếng Việt. Tên biến, comment, commit message và PR viết tiếng Anh. Commit theo Conventional Commits.
+- CI trên GitHub Actions. Mỗi PR phải pass: lint, typecheck, unit test, test đối chiếu với Directus, E2E (với FE), build Docker image.
+- Coverage tối thiểu: 80% cho apps/api và libs BE, 60% cho apps/web. Dưới ngưỡng thì không merge.
+- Bảo mật trong CI: quét dependency (pnpm audit, Dependabot), quét secret (gitleaks), phân tích mã (CodeQL). Không commit secret.
+- Hiệu năng: với cùng request và dữ liệu, p95 latency và throughput của BE mới không tệ hơn Directus quá 10%. Đo bằng benchmark tự động (autocannon, giống directus/tests/blackbox) cho các endpoint chính: items, auth, files, assets.
+- Giám sát: log JSON bằng pino, cùng biến LOG_LEVEL, LOG_STYLE như Directus, mỗi request có request id. Endpoint /metrics định dạng Prometheus, cùng biến METRICS_* và cùng tên metric như Directus.
+- Mọi khác biệt so với Directus phải ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
+
+XI. Ngoài phạm vi giai đoạn này
 - Realtime WebSocket: /websocket, GraphQL subscription, collaborative editing, system logs realtime. /server/info trả websocket: false, giống Directus khi WEBSOCKETS_ENABLED=false. App web ẩn các tính năng này như Directus app.
 - Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...), visual editing, telemetry.
 
@@ -172,7 +206,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 001: Nền tảng workspace và kết nối hệ thống
 
 ```text
-/speckit.specify Nền tảng cho app mới clone Directus 11.17.4. Cần có monorepo chứa app API, app web và các thư viện dùng chung. API đọc cấu hình từ cùng các biến môi trường như Directus (tham chiếu directus/api/src/env và packages/env), kết nối được tới mọi loại DB mà Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) và tới Redis. Khi khởi động, API đọc bảng directus_migrations và so với danh sách migration của Directus 11.17.4. Nếu thiếu hoặc thừa migration, API dừng và báo rõ migration nào lệch. API không bao giờ tạo hay sửa bảng directus_*. Có các endpoint /server/ping, /server/health, /server/info, /server/specs/oas trả về giống Directus. Lỗi trả về đúng format errors[] và mã lỗi của Directus (tham chiếu packages/errors). Có bộ test đối chiếu: cùng request gửi tới Directus thật và app mới, rồi so sánh kết quả. Tiêu chí chấp nhận: chạy app mới cạnh Directus trên cùng DB và Redis, các endpoint /server/* trả về giống nhau, và DB không bị thay đổi.
+/speckit.specify Nền tảng cho app mới clone Directus 11.17.4. Cần có monorepo chứa app API, app web và các thư viện dùng chung. API đọc toàn bộ biến môi trường của Directus với cùng tên, cùng giá trị mặc định, cùng tiền tố ép kiểu (string:, number:, regex:, array:, json:, boolean:), hậu tố _FILE và CONFIG_PATH (file .env, .json, .yaml, .js), biến chưa hỗ trợ thì chỉ cảnh báo (tham chiếu directus/packages/env). Một file .env đang chạy được cho Directus phải chạy được ngay cho API mới. kết nối được tới mọi loại DB mà Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) và tới Redis. Khi khởi động, API đọc bảng directus_migrations và so với danh sách migration của Directus 11.17.4. Nếu thiếu hoặc thừa migration, API dừng và báo rõ migration nào lệch. API không bao giờ tạo hay sửa bảng directus_*. Có các endpoint /server/ping, /server/health, /server/info, /server/specs/oas trả về giống Directus. Lỗi trả về đúng format errors[] và mã lỗi của Directus (tham chiếu packages/errors). Log JSON giống Directus (LOG_LEVEL, LOG_STYLE, có request id) và endpoint /metrics Prometheus theo METRICS_*. Có bộ test đối chiếu: cùng request gửi tới Directus thật và app mới, rồi so sánh kết quả. Có pipeline GitHub Actions chạy lint, typecheck, unit test kèm ngưỡng coverage, test đối chiếu (Postgres đủ, MySQL và SQLite rút gọn), quét bảo mật và benchmark so với Directus. Tên hiển thị, log, header X-Powered-By và package nội bộ dùng tên Backoffice. Tiêu chí chấp nhận: chạy app mới bằng đúng file .env của Directus, cạnh Directus trên cùng DB và Redis; các endpoint /server/* trả về giống nhau, ngoại trừ các khác biệt do đổi thương hiệu đã liệt kê; DB không bị thay đổi.
 ```
 
 ### 002: Schema overview và cache dùng chung
@@ -238,7 +272,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 012: Khung app web và đăng nhập
 
 ```text
-/speckit.specify Xây app web quản trị mới thay cho Directus app, giữ nguyên luồng sử dụng. Người dùng đăng nhập bằng email và mật khẩu, TFA hoặc SSO, rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời, cập nhật hồ sơ, theme sáng/tối và đa ngôn ngữ (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA hoặc SSO, rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời, cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
 ```
 
 ### 013: Bộ interfaces và displays
@@ -280,7 +314,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 019: Đóng gói và triển khai đa instance
 
 ```text
-/speckit.specify Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không cần sticky session, có readiness và liveness probe qua /server/health, tắt máy an toàn khi nhận SIGTERM (ngừng nhận request, chạy nốt request đang dở, đóng kết nối DB và Redis). Định tuyến chung một domain: /admin/* vào FE, các path còn lại vào BE. Cung cấp docker-compose cho máy dev (Directus 11.17.4, BE 2 replica, FE, Postgres, Redis, MinIO làm S3) và manifest Kubernetes hoặc Helm chart cho môi trường thật (Deployment, Service, Ingress, HPA cho BE, ConfigMap và Secret dùng cùng tên biến như Directus). Tiêu chí chấp nhận: với BE 3 replica cộng 1 Directus, các bài test sau đều đạt: đăng nhập rồi gọi API lần lượt vào từng replica; sửa schema ở một replica thì replica khác thấy ngay; flow theo lịch chỉ chạy một lần mỗi lượt; upload TUS nhiều chunk qua các replica khác nhau vẫn thành công; tắt một replica khi đang tải không làm lỗi request.
+/speckit.specify Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không cần sticky session, có readiness và liveness probe qua /server/health, tắt máy an toàn khi nhận SIGTERM (ngừng nhận request, chạy nốt request đang dở, đóng kết nối DB và Redis). Định tuyến chung một domain: /admin/* vào FE, các path còn lại vào BE. Cung cấp docker-compose cho máy dev (Directus 11.17.4, BE 2 replica, FE, Postgres, Redis, MinIO làm S3) và manifest Kubernetes hoặc Helm chart cho môi trường thật (Deployment, Service, Ingress, HPA cho BE, dùng lại nguyên ConfigMap và Secret đang cấp cho Directus, không khai báo lại biến). Thay một instance Directus bằng BE mới chỉ cần đổi image, giữ nguyên toàn bộ biến môi trường. Tiêu chí chấp nhận: với BE 3 replica cộng 1 Directus, các bài test sau đều đạt: đăng nhập rồi gọi API lần lượt vào từng replica; sửa schema ở một replica thì replica khác thấy ngay; flow theo lịch chỉ chạy một lần mỗi lượt; upload TUS nhiều chunk qua các replica khác nhau vẫn thành công; tắt một replica khi đang tải không làm lỗi request.
 ```
 
 ---
@@ -291,12 +325,12 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 **BE (001–011):**
 ```text
-/speckit.plan Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. <thêm phần riêng của feature>
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. <thêm phần riêng của feature>
 ```
 
 **FE (012–018):**
 ```text
-/speckit.plan Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, PrimeVue (theme tùy chỉnh gần giao diện Directus), vue-i18n dùng file dịch copy từ directus/app/src/lang, gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng PrimeVue. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. <thêm phần riêng của feature>
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, PrimeVue (theme tùy chỉnh gần giao diện Directus), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng PrimeVue. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
 ```
 
 ---
