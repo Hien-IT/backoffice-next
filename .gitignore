@@ -22,3 +22,6 @@ coverage/
 # OS / editor
 .DS_Store
 *.log
+
+# graphify (rebuilt locally by git hooks)
+graphify-out/

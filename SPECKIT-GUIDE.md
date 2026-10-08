@@ -27,6 +27,13 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Hiệu năng | p95 latency và throughput **không tệ hơn Directus quá 10%**. |
 | Ngôn ngữ giao diện | **vi-VN và en-US**. |
 | Giám sát | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`). |
+| SSO | Chỉ **OpenID Connect**. LDAP, OAuth2, SAML chưa làm. |
+| Storage | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm. |
+| Email | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo. |
+| Flow Run Script | **Có**, chạy trong sandbox isolated-vm giống Directus. |
+| Layouts | Table, Cards, Calendar, Kanban, Map: đủ cả 5. |
+| Quy mô | **Lớn**: 200–2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi. |
+| Thiết bị | **Desktop và tablet** (từ 768px), Chrome, Edge, Firefox, Safari bản mới. |
 | Thương hiệu | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...). |
 | Phạm vi | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.** |
 
@@ -126,6 +133,7 @@ VI. Kiến trúc
 - Node 22 và pnpm 10 (giống Directus). Nx monorepo: apps/api (NestJS), apps/web (Vue 3 + PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
 - BE: mỗi service của Directus tương ứng một provider NestJS. Controller mỏng, logic nằm trong service. Truy cập DB bằng Knex, không dùng ORM.
 - FE: viết mới bằng Composition API, giữ nguyên luồng màn hình, route và hành vi của Directus app. Được copy logic hoặc composable từ directus/app khi cần.
+- FE hỗ trợ desktop và tablet (màn hình từ 768px) trên Chrome, Edge, Firefox, Safari bản mới.
 - FE hỗ trợ hai ngôn ngữ giao diện vi-VN và en-US, copy từ directus/app/src/lang. Kiến trúc i18n vẫn cho phép thêm ngôn ngữ sau.
 - TypeScript strict, ESLint, Prettier. Mỗi thay đổi có test.
 
@@ -159,10 +167,13 @@ X. Chất lượng, quy trình và vận hành
 - Coverage tối thiểu: 80% cho apps/api và libs BE, 60% cho apps/web. Dưới ngưỡng thì không merge.
 - Bảo mật trong CI: quét dependency (pnpm audit, Dependabot), quét secret (gitleaks), phân tích mã (CodeQL). Không commit secret.
 - Hiệu năng: với cùng request và dữ liệu, p95 latency và throughput của BE mới không tệ hơn Directus quá 10%. Đo bằng benchmark tự động (autocannon, giống directus/tests/blackbox) cho các endpoint chính: items, auth, files, assets.
+- Quy mô thiết kế: tới 2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi. Benchmark và test hiệu năng dùng dữ liệu ở quy mô này.
 - Giám sát: log JSON bằng pino, cùng biến LOG_LEVEL, LOG_STYLE như Directus, mỗi request có request id. Endpoint /metrics định dạng Prometheus, cùng biến METRICS_* và cùng tên metric như Directus.
+- Không gửi email: mọi chỗ Directus gửi mail (quên mật khẩu, mời user, operation Send Email, email thông báo) vẫn chạy đúng luồng và trả về như Directus, chỉ bỏ qua bước gửi và ghi log cảnh báo.
 - Mọi khác biệt so với Directus phải ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
 
 XI. Ngoài phạm vi giai đoạn này
+- SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect). Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3). Gửi email.
 - Realtime WebSocket: /websocket, GraphQL subscription, collaborative editing, system logs realtime. /server/info trả websocket: false, giống Directus khi WEBSOCKETS_ENABLED=false. App web ẩn các tính năng này như Directus app.
 - Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...), visual editing, telemetry.
 
@@ -218,13 +229,13 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 003: Xác thực và phiên đăng nhập
 
 ```text
-/speckit.specify Người dùng đăng nhập vào app mới bằng email và mật khẩu đã có trong directus_users, nhận access token và refresh token giống hệt Directus (cùng SECRET, cùng payload JWT, cùng TTL ACCESS_TOKEN_TTL và REFRESH_TOKEN_TTL). Hỗ trợ ba chế độ json, cookie, session như Directus, với cùng tên cookie. Session lưu trong directus_sessions. Token cấp ở Directus dùng được ở app mới và ngược lại. Hỗ trợ: /auth/login, /auth/refresh, /auth/logout, /auth/password/request, /auth/password/reset, static token của user, xác thực hai lớp (TFA, /users/me/tfa/*), kiểm tra trạng thái user (active, suspended, invited), giới hạn đăng nhập sai (LOGIN_STALL_TIME, rate limiter dùng chung Redis). Đăng nhập SSO (OAuth2, OpenID, LDAP, SAML) theo các biến AUTH_* giống Directus. Tham chiếu directus/api/src/auth, services/authentication.ts, controllers/auth.ts. Tiêu chí chấp nhận: bộ test blackbox auth của Directus chạy qua trên app mới, và token dùng chéo được giữa hai bên.
+/speckit.specify Người dùng đăng nhập vào app mới bằng email và mật khẩu đã có trong directus_users, nhận access token và refresh token giống hệt Directus (cùng SECRET, cùng payload JWT, cùng TTL ACCESS_TOKEN_TTL và REFRESH_TOKEN_TTL). Hỗ trợ ba chế độ json, cookie, session như Directus, với cùng tên cookie. Session lưu trong directus_sessions. Token cấp ở Directus dùng được ở app mới và ngược lại. Hỗ trợ: /auth/login, /auth/refresh, /auth/logout, /auth/password/request, /auth/password/reset, static token của user, xác thực hai lớp (TFA, /users/me/tfa/*), kiểm tra trạng thái user (active, suspended, invited), giới hạn đăng nhập sai (LOGIN_STALL_TIME, rate limiter dùng chung Redis). Đăng nhập SSO chỉ hỗ trợ OpenID Connect (Azure AD/Entra ID, Keycloak...) theo các biến AUTH_* giống Directus. Provider cấu hình driver ldap, oauth2 hoặc saml thì bị bỏ qua và ghi cảnh báo khi khởi động. /auth/password/request trả về giống Directus nhưng không gửi email, chỉ ghi log. Tham chiếu directus/api/src/auth, services/authentication.ts, controllers/auth.ts. Tiêu chí chấp nhận: bộ test blackbox auth của Directus chạy qua trên app mới, và token dùng chéo được giữa hai bên.
 ```
 
 ### 004: Phân quyền
 
 ```text
-/speckit.specify App mới áp dụng đúng mô hình phân quyền của Directus 11: users, roles (có cây role lồng nhau), policies, access (gán policy cho role hoặc user), permissions theo collection và action (create, read, update, delete, share) với filter điều kiện, danh sách field, validation, preset, cùng các cờ admin_access, app_access, ip_access, enforce_tfa. Accountability của mỗi request được tính giống Directus, kể cả biến động $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES, $NOW. Cung cấp các endpoint /users, /roles, /policies, /access, /permissions (gồm /permissions/me và /policies/me/globals), CRUD giống Directus. Kết quả phân quyền được cache dùng chung Redis với Directus. Tham chiếu directus/api/src/permissions và các service users, roles, policies, access, permissions. Tiêu chí chấp nhận: với cùng user và dữ liệu, mọi request đọc và ghi bị chặn hoặc cho phép giống hệt Directus.
+/speckit.specify App mới áp dụng đúng mô hình phân quyền của Directus 11: users, roles (có cây role lồng nhau), policies, access (gán policy cho role hoặc user), permissions theo collection và action (create, read, update, delete, share) với filter điều kiện, danh sách field, validation, preset, cùng các cờ admin_access, app_access, ip_access, enforce_tfa. Accountability của mỗi request được tính giống Directus, kể cả biến động $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES, $NOW. Cung cấp các endpoint /users, /roles, /policies, /access, /permissions (gồm /permissions/me và /policies/me/globals), CRUD giống Directus. /users/invite tạo user trạng thái invited giống Directus nhưng không gửi email, chỉ ghi log. Kết quả phân quyền được cache dùng chung Redis với Directus. Tham chiếu directus/api/src/permissions và các service users, roles, policies, access, permissions. Tiêu chí chấp nhận: với cùng user và dữ liệu, mọi request đọc và ghi bị chặn hoặc cho phép giống hệt Directus.
 ```
 
 ### 005: Engine truy vấn và CRUD items
@@ -242,7 +253,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 007: Files, folders, assets
 
 ```text
-/speckit.specify Người dùng tải file lên, quản lý file và thư mục qua /files, /folders, và lấy file qua /assets/:id giống hệt Directus. Hỗ trợ upload multipart, upload resumable qua TUS, import từ URL, metadata ảnh (EXIF, IPTC, kích thước), và các storage location cấu hình bằng STORAGE_* giống Directus (local, S3, GCS, Azure, Cloudinary, Supabase). Asset hỗ trợ transform (width, height, fit, quality, format, withoutEnlargement, key preset, transforms) với cùng cách đặt tên file phát sinh như Directus, để hai app dùng chung file đã sinh. Áp dụng ASSETS_* (giới hạn transform, cache-control) và phân quyền file giống Directus. Tham chiếu directus/api/src/services/files.ts, assets.ts, tus, packages/storage*. Tiêu chí chấp nhận: file tải lên ở app này xem và tải được ở app kia, và URL asset có transform trả về ảnh giống nhau.
+/speckit.specify Người dùng tải file lên, quản lý file và thư mục qua /files, /folders, và lấy file qua /assets/:id giống hệt Directus. Hỗ trợ upload multipart, upload resumable qua TUS, import từ URL, metadata ảnh (EXIF, IPTC, kích thước), và các storage location cấu hình bằng STORAGE_* giống Directus. Chỉ hỗ trợ driver local và s3 (gồm dịch vụ tương thích S3 như MinIO). Nếu cấu hình driver khác (gcs, azure, cloudinary, supabase) thì dừng khi khởi động và báo rõ location nào không hỗ trợ. Asset hỗ trợ transform (width, height, fit, quality, format, withoutEnlargement, key preset, transforms) với cùng cách đặt tên file phát sinh như Directus, để hai app dùng chung file đã sinh. Áp dụng ASSETS_* (giới hạn transform, cache-control) và phân quyền file giống Directus. Tham chiếu directus/api/src/services/files.ts, assets.ts, tus, packages/storage*. Tiêu chí chấp nhận: file tải lên ở app này xem và tải được ở app kia, và URL asset có transform trả về ảnh giống nhau.
 ```
 
 ### 008: Activity, revisions, versions, comments
@@ -254,13 +265,13 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 009: Flows và tự động hóa
 
 ```text
-/speckit.specify App mới chạy flows giống hệt Directus. Flow và operation lưu trong directus_flows và directus_operations. Hỗ trợ các trigger: event (hook action và filter trên items và các collection hệ thống, cùng tên event như Directus), schedule (cron), webhook (/flows/trigger/:id, GET/POST, đồng bộ hoặc bất đồng bộ), manual (nút bấm trên item) và another flow. Hỗ trợ mọi operation có sẵn: condition, exec, item-create/read/update/delete, json-web-token, log, mail, notification, request, sleep, transform, trigger flow, throw error. Hỗ trợ dữ liệu $trigger, $last, $accountability, $env và nhánh resolve/reject. Flow theo lịch dùng lock trên Redis, nên khi cả Directus và app mới cùng chạy thì mỗi lượt chỉ một bên thực thi. Khi flow thay đổi ở app này, app kia nạp lại flow qua bus. Log chạy flow ghi vào activity và revisions giống Directus. Tham chiếu directus/api/src/flows.ts, operations, services/flows.ts, operations.ts. Tiêu chí chấp nhận: cùng một flow cho kết quả giống nhau ở hai app, và flow theo lịch không bị chạy hai lần.
+/speckit.specify App mới chạy flows giống hệt Directus. Flow và operation lưu trong directus_flows và directus_operations. Hỗ trợ các trigger: event (hook action và filter trên items và các collection hệ thống, cùng tên event như Directus), schedule (cron), webhook (/flows/trigger/:id, GET/POST, đồng bộ hoặc bất đồng bộ), manual (nút bấm trên item) và another flow. Hỗ trợ mọi operation có sẵn: condition, exec, item-create/read/update/delete, json-web-token, log, mail, notification, request, sleep, transform, trigger flow, throw error. Operation exec (Run Script) chạy JavaScript trong sandbox isolated-vm với giới hạn FLOWS_RUN_SCRIPT_MAX_MEMORY và FLOWS_RUN_SCRIPT_TIMEOUT giống Directus. Operation mail không gửi email, chỉ ghi log và trả kết quả thành công như khi gửi xong. Hỗ trợ dữ liệu $trigger, $last, $accountability, $env và nhánh resolve/reject. Flow theo lịch dùng lock trên Redis, nên khi cả Directus và app mới cùng chạy thì mỗi lượt chỉ một bên thực thi. Khi flow thay đổi ở app này, app kia nạp lại flow qua bus. Log chạy flow ghi vào activity và revisions giống Directus. Tham chiếu directus/api/src/flows.ts, operations, services/flows.ts, operations.ts. Tiêu chí chấp nhận: cùng một flow cho kết quả giống nhau ở hai app, và flow theo lịch không bị chạy hai lần.
 ```
 
 ### 010: Collection hệ thống còn lại
 
 ```text
-/speckit.specify App mới cung cấp các endpoint hệ thống còn lại giống hệt Directus: /settings (cài đặt dự án, theme, branding), /presets (preset và bookmark của layout), /notifications (gồm gửi email thông báo), /shares (chia sẻ item bằng link, mật khẩu, thời hạn, số lần xem, đăng nhập bằng share), /translations (chuỗi dịch tùy chỉnh), /dashboards và /panels (insights), /extensions (chỉ trả danh sách rỗng hoặc tối thiểu, vì chưa hỗ trợ extension), /utils (hash/generate, hash/verify, random/string, sort, revert, cache/clear, import, export với CSV, JSON, XML, YAML), và gửi mail theo EMAIL_* giống Directus. Tham chiếu các service tương ứng trong directus/api/src/services. Tiêu chí chấp nhận: blackbox test của các endpoint này chạy qua trên app mới.
+/speckit.specify App mới cung cấp các endpoint hệ thống còn lại giống hệt Directus: /settings (cài đặt dự án, theme, branding), /presets (preset và bookmark của layout), /notifications (lưu và hiển thị trong app, không gửi email), /shares (chia sẻ item bằng link, mật khẩu, thời hạn, số lần xem, đăng nhập bằng share), /translations (chuỗi dịch tùy chỉnh), /dashboards và /panels (insights), /extensions (chỉ trả danh sách rỗng hoặc tối thiểu, vì chưa hỗ trợ extension), /utils (hash/generate, hash/verify, random/string, sort, revert, cache/clear, import, export với CSV, JSON, XML, YAML), Không gửi email: mọi chỗ Directus gửi mail thì bỏ qua bước gửi và ghi log cảnh báo, phần còn lại của luồng chạy như cũ. Tham chiếu các service tương ứng trong directus/api/src/services. Tiêu chí chấp nhận: blackbox test của các endpoint này chạy qua trên app mới.
 ```
 
 ### 011: GraphQL
@@ -272,7 +283,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 012: Khung app web và đăng nhập
 
 ```text
-/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA hoặc SSO, rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời, cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA hoặc SSO OpenID Connect, rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
 ```
 
 ### 013: Bộ interfaces và displays
@@ -284,13 +295,13 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 014: Module Content
 
 ```text
-/speckit.specify Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, map, kanban, tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Tham chiếu directus/app/src/modules/content và layouts. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
+/speckit.specify Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Danh sách phải mượt với collection khoảng 10 triệu bản ghi (phân trang và đếm phía server). Tham chiếu directus/app/src/modules/content và layouts. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
 ```
 
 ### 015: Module Files và Users
 
 ```text
-/speckit.specify Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước, sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo và mời user, sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền giống Directus. Tham chiếu directus/app/src/modules/files và users. Tiêu chí chấp nhận: các luồng chính của hai module chạy giống Directus.
+/speckit.specify Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước, sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo user, mời user (không gửi email), sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền giống Directus. Tham chiếu directus/app/src/modules/files và users. Tiêu chí chấp nhận: các luồng chính của hai module chạy giống Directus.
 ```
 
 ### 016: Module Settings
@@ -335,7 +346,51 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 ---
 
-## 8. Mẹo khi chạy
+## 8. Chọn model cho từng bước
+
+Đổi model trong Claude Code bằng `/model opus`, `/model sonnet`, `/model haiku`. Đổi mức suy nghĩ bằng `/effort`.
+
+**Các model dùng trong dự án** (giá API theo 1 triệu token, tham khảo để so sánh chi phí):
+
+| Model | Đặc điểm | Context | Giá vào / ra |
+|---|---|---|---|
+| **Opus 5.5** | Mạnh nhất trong các model dùng được, model mặc định. Tăng `/effort` khi việc khó. | 1M | $4 / $20 |
+| **Sonnet 5.5** | Nhanh, đủ tốt cho code thường ngày. | 1M | $2 / $10 |
+| **Haiku 4.5** | Rẻ và nhanh nhất, cho việc đơn giản. | 200K | $1 / $5 |
+
+Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó, dùng Opus 5.5 với effort cao (`xhigh` hoặc `max`) cho các bước khó.
+
+**Nguyên tắc:** lỗi ở bước đầu (spec, plan) lan sang mọi bước sau, nên đầu tư effort cao ở đầu quy trình. Bước làm theo khuôn có sẵn thì dùng model rẻ hơn.
+
+**Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và **013, 014** (FE).
+
+| Bước | Feature lõi | Feature còn lại | Lý do |
+|---|---|---|---|
+| `/speckit.constitution` | Opus 5.5, effort high | – | Chạy một lần. Prompt đã viết sẵn chi tiết, chỉ cần soạn lại cho đúng template. |
+| `/speckit.specify` | Opus 5.5, effort high | Opus 5.5, effort high | Phải đọc code tham chiếu trong `directus/` để viết đúng hành vi. |
+| `/speckit.clarify` | **Opus 5.5, effort xhigh** | Opus 5.5, effort high | Tìm chỗ mơ hồ cần suy luận sâu về luồng của Directus. |
+| `/speckit.plan` | **Opus 5.5, effort max** | Opus 5.5, effort xhigh | Bước quan trọng nhất: quyết định cách port, giữ tương thích DB, cache, token. |
+| `/speckit.checklist` | Sonnet 5.5 | Sonnet 5.5 | Làm theo khuôn có sẵn. |
+| `/speckit.tasks` | Opus 5.5, effort high | Sonnet 5.5 | Feature lõi có nhiều phụ thuộc, cần sắp thứ tự cẩn thận. |
+| `/speckit.analyze` | **Opus 5.5, effort xhigh** | Opus 5.5, effort high | Bắt chỗ spec, plan, tasks không khớp nhau trước khi code. |
+| `/speckit.implement` | **Opus 5.5, effort xhigh**. Tăng lên max cho phần port logic phức tạp (apply-query, run-ast, payload, permissions, flows, GraphQL schema). | Opus 5.5, effort high. Sonnet 5.5 cho component FE, boilerplate, test lặp lại. | Đọc nhiều code gốc và phải giữ hành vi giống hệt. |
+| Sửa lỗi test đối chiếu | Opus 5.5, effort xhigh, tăng lên max nếu sửa 2 lần chưa được | Opus 5.5, effort high | So khác biệt với Directus cần đọc kỹ cả hai bên. |
+| `/speckit.status` | Haiku 4.5 | Haiku 4.5 | Chỉ đọc trạng thái. |
+
+**Khi Opus 5.5 effort max vẫn chưa làm tốt** (thường gặp ở 005 và 009):
+- Tách feature thành các phần nhỏ hơn. Ví dụ 005 tách thành "đọc và query" và "ghi và payload". 009 tách thành "trigger và engine" và "các operation".
+- Trong prompt, chỉ thẳng file Directus cần đọc, thay vì để model tự tìm.
+- Cho model chạy test đối chiếu sau mỗi task thay vì cuối feature, để lỗi được phát hiện sớm.
+
+**Lưu ý:**
+- **Không dùng `/speckit.quick` cho dự án này.** Lệnh này gộp nhiều bước, nên bỏ qua các điểm kiểm tra mà feature cần giữ tương thích phải có.
+- **Không dùng Haiku 4.5 cho bước nào phải đọc code Directus.** Context 200K không đủ cho các module lớn.
+- **Đổi model giữa các bước thì nên mở session mới,** hoặc ít nhất chạy `/clear`, để model mới đọc lại spec và plan từ file thay vì dựa vào hội thoại cũ.
+- Effort càng cao thì mỗi lượt càng lâu và tốn token hơn. Dùng `max` cho các ô in đậm, không đặt mặc định cho mọi việc.
+
+---
+
+## 9. Mẹo khi chạy
 
 - **Chạy `/speckit.clarify` cho feature 003, 004, 005, 009.** Đây là những phần dễ hiểu sai nhất.
 - **Chạy `/speckit.analyze` trước `/speckit.implement`** để bắt lỗi spec, plan, tasks không khớp nhau.
@@ -345,11 +400,11 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 ---
 
-## 9. Rủi ro cần lưu ý
+## 10. Rủi ro cần lưu ý
 
 | Rủi ro | Ghi chú |
 |---|---|
-| **License BSL 1.1** | Directus chỉ được dùng production miễn phí khi tổng doanh thu, ngân sách hoặc vốn dưới 5 triệu USD/năm (tính cả công ty liên kết). Copy code sang app mới vẫn chịu license này. Cần pháp chế duyệt hoặc mua license trước khi chạy production. |
+||
 | Lệch phiên bản | Khi nâng Directus lên bản mới, app mới phải cập nhật theo, vì DB dùng chung. Khóa Directus ở 11.17.4 cho đến khi app mới hỗ trợ bản tiếp theo. |
 | Cache và bus | Sai một cache key hay tên kênh là hai app hiển thị dữ liệu cũ. Feature 002 phải test kỹ hai chiều. |
 | Realtime trên Directus | App mới không có WebSocket. Nếu Directus vẫn bật `WEBSOCKETS_ENABLED=true`, người dùng Directus app vẫn có collaborative editing, nhưng không thấy người đang sửa cùng item bằng app mới. Muốn hai bên giống nhau thì tắt WebSocket trên Directus. |
