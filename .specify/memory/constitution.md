@@ -1,50 +1,232 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report
+- Version change: (template, chưa có) → 1.0.0
+- Modified principles: không (lần ban hành đầu tiên)
+- Added principles:
+  I. Directus là nguồn tham chiếu, chỉ đọc
+  II. Dùng chung database với Directus
+  III. API giống hệt Directus
+  IV. Chạy song song an toàn
+  V. Kiểm thử đối chiếu là bắt buộc
+  VI. Kiến trúc
+  VII. Triển khai đa instance
+  VIII. Kế thừa toàn bộ biến môi trường của Directus
+  IX. Đổi thương hiệu Directus thành Backoffice
+  X. Chất lượng, quy trình và vận hành
+- Added sections: "XI. Ngoài phạm vi giai đoạn này", "Quy trình phát triển và cổng kiểm tra", "Governance"
+- Removed sections: không
+- Templates:
+  ✅ .specify/templates/plan-template.md (Constitution Check điền cổng I–XI)
+  ✅ .specify/templates/spec-template.md (thêm mục "Khác biệt so với Directus")
+  ✅ .specify/templates/tasks-template.md (test là bắt buộc, thêm test đối chiếu)
+  ✅ .specify/templates/checklist-template.md, agent-file-template.md (không tham chiếu nguyên tắc, không cần sửa)
+  ✅ .claude/commands/speckit.tasks.md (bỏ "Tests are OPTIONAL", test là bắt buộc)
+  ✅ .claude/commands/speckit.*.md còn lại (tham chiếu constitution chung, không cần sửa)
+  ✅ SPECKIT-GUIDE.md (prompt nguồn của constitution, đã khớp)
+- Deferred TODOs: không
+-->
+
+# Backoffice Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Directus là nguồn tham chiếu, chỉ đọc
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+- KHÔNG ĐƯỢC sửa, xóa hay tạo file trong thư mục `directus/`.
+- ĐƯỢC copy code từ `directus/` sang `apps/` và `libs/`. File copy hoặc port PHẢI ghi đường dẫn
+  file gốc trong comment đầu file (ví dụ `// Ported from directus/api/src/services/items.ts`).
+- Hành vi chuẩn là hành vi của Directus 11.17.4 (api 35.2.0, app 15.10.0). Khi spec không nói rõ,
+  app mới PHẢI làm giống Directus.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+Lý do: `directus/` là mốc so sánh cho mọi test đối chiếu. Sửa nó làm mất mốc so sánh.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Dùng chung database với Directus
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+- App mới dùng chung DB với một Directus đang chạy.
+- KHÔNG ĐƯỢC tạo, sửa, xóa bảng hay cột hệ thống `directus_*`. KHÔNG ĐƯỢC chạy migration hệ thống.
+  Chỉ Directus được migrate.
+- Khi khởi động, app mới PHẢI đối chiếu bảng `directus_migrations` với danh sách migration của
+  11.17.4. Nếu lệch, app PHẢI dừng và báo lỗi rõ ràng (migration thiếu hoặc thừa).
+- Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid,
+  ngày giờ, JSON) PHẢI có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
+- ĐƯỢC tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+Lý do: hai app chạy trên cùng một DB. Một bên đổi schema hệ thống hoặc định dạng dữ liệu thì bên
+kia hỏng.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. API giống hệt Directus
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+- REST API PHẢI giữ nguyên: path; query (`fields`, `filter`, `search`, `sort`, `limit`, `offset`,
+  `page`, `meta`, `aggregate`, `groupBy`, `deep`, `alias`, `export`); response `{data, meta}`;
+  lỗi `{errors: [{message, extensions: {code}}]}`; HTTP status; header; tên cookie.
+- `@directus/sdk` và mọi client đang gọi Directus PHẢI trỏ sang app mới được mà không cần sửa.
+- GraphQL (`/graphql`, `/graphql/system`) PHẢI tương thích, trừ subscription.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+Lý do: client hiện có là tiêu chí chấp nhận. Mọi khác biệt API đều là lỗi, trừ khi đã ghi nhận
+theo Nguyên tắc X.
+
+### IV. Chạy song song an toàn
+
+- Dùng chung `SECRET` và cách ký JWT. Token do app này cấp PHẢI dùng được ở app kia.
+- Dùng chung Redis: cùng namespace, cache key, kênh bus, rate limiter. Thay đổi schema hoặc
+  permission ở app nào thì cache ở app kia cũng PHẢI bị xóa.
+- Flow theo lịch PHẢI dùng lock trên Redis, mỗi lượt chỉ một instance chạy. Flow theo sự kiện chạy
+  ở instance nhận request.
+- KHÔNG ĐƯỢC giả định là instance duy nhất. KHÔNG ĐƯỢC giữ state quan trọng trong bộ nhớ của một
+  process.
+- PHẢI đọc cùng tên biến môi trường như Directus (`DB_*`, `SECRET`, `REDIS*`, `CACHE_*`,
+  `STORAGE_*`, `PUBLIC_URL`...).
+
+Lý do: người dùng và request có thể đi vào bất kỳ instance nào, Directus hoặc app mới.
+
+### V. Kiểm thử đối chiếu là bắt buộc (NON-NEGOTIABLE)
+
+- Mỗi endpoint PHẢI có test chạy với cả Directus thật và app mới, rồi so sánh status, body và tác
+  động lên DB.
+- Tái sử dụng bộ test trong `directus/tests/blackbox` (copy sang, cấu hình URL để chạy với cả hai
+  app).
+- Feature CHƯA xong khi còn khác biệt chưa được ghi lại và chấp nhận trong spec.
+- PostgreSQL là DB chính: mọi PR PHẢI chạy đủ test đối chiếu trên Postgres. MySQL và SQLite chạy bộ
+  test rút gọn ở mọi PR. MSSQL, Oracle, CockroachDB chạy đủ test hằng đêm.
+
+Lý do: "giống Directus" chỉ kiểm chứng được bằng cách chạy cùng request trên cả hai app.
+
+### VI. Kiến trúc
+
+- Node 22 và pnpm 10 (giống Directus). Nx monorepo: `apps/api` (NestJS), `apps/web` (Vue 3 +
+  PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
+- BE: mỗi service của Directus tương ứng một provider NestJS. Controller mỏng, logic nằm trong
+  service. Truy cập DB bằng Knex, KHÔNG dùng ORM.
+- FE: viết mới bằng Composition API, giữ nguyên luồng màn hình, route và hành vi của Directus app.
+  ĐƯỢC copy logic hoặc composable từ `directus/app` khi cần.
+- FE hỗ trợ desktop và tablet (màn hình từ 768px) trên Chrome, Edge, Firefox, Safari bản mới.
+- FE hỗ trợ hai ngôn ngữ giao diện vi-VN và en-US, copy từ `directus/app/src/lang`. Kiến trúc i18n
+  PHẢI cho phép thêm ngôn ngữ sau.
+- TypeScript strict, ESLint, Prettier. Mỗi thay đổi PHẢI có test.
+
+Lý do: bám cấu trúc service và Knex của Directus giúp port code trực tiếp và giữ đúng SQL sinh ra.
+
+### VII. Triển khai đa instance
+
+- FE build ra file tĩnh, chạy trong một container nginx. URL API và cấu hình PHẢI đọc lúc chạy
+  (runtime config), KHÔNG ghi cứng lúc build. Một image dùng cho mọi môi trường.
+- BE PHẢI chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus,
+  tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
+- Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và
+  lock upload TUS. KHÔNG dùng cache hay lock trong bộ nhớ process.
+- File và ảnh đã transform PHẢI lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng
+  chung). KHÔNG dùng storage local riêng từng container.
+- Khởi động nhiều replica cùng lúc PHẢI an toàn: chỉ đọc và kiểm tra migration, KHÔNG ghi gì vào
+  bảng hệ thống khi khởi động.
+- PHẢI có `/server/health` cho readiness và liveness probe. Khi nhận SIGTERM: ngừng nhận request
+  mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
+- FE và BE nên đặt chung một domain: `/admin/*` vào FE, các path API còn lại vào BE, giống bố cục
+  của Directus.
+
+Lý do: hệ thống chạy trên nhiều container ngang hàng, có thể bị tắt hoặc thêm bất kỳ lúc nào.
+
+### VIII. Kế thừa toàn bộ biến môi trường của Directus
+
+- BE PHẢI đọc toàn bộ biến môi trường Directus 11.17.4 hỗ trợ (danh sách và giá trị mặc định trong
+  `directus/packages/env/src/constants/defaults.ts` và `directus-variables.ts`), kể cả biến động
+  như `DB_*`, `STORAGE_<LOCATION>_*`, `AUTH_<PROVIDER>_*`, `EMAIL_*`, `CACHE_*`, `REDIS_*`.
+- Giữ nguyên tên biến, giá trị mặc định và cách đọc: tiền tố ép kiểu (`string:`, `number:`,
+  `regex:`, `array:`, `json:`, `boolean:`), hậu tố `_FILE` để đọc secret từ file, `CONFIG_PATH` với
+  file `.env`, `.json`, `.yaml`, `.js`.
+- KHÔNG đổi tên biến khi đổi thương hiệu. KHÔNG tạo biến mới thay thế biến đã có. Biến chỉ app mới
+  cần PHẢI dùng tiền tố `BACKOFFICE_` và PHẢI có giá trị mặc định an toàn.
+- Biến Directus mà app mới chưa hỗ trợ: ghi cảnh báo khi khởi động, KHÔNG dừng app.
+- Khi deploy, cùng một file `.env`, ConfigMap, Secret đang dùng cho Directus PHẢI chạy được ngay
+  cho BE mới mà không cần khai báo lại. FE nhận cấu hình lúc chạy từ chính các biến này (ví dụ
+  `PUBLIC_URL`).
+
+Lý do: đội vận hành chỉ duy trì một bộ cấu hình cho cả hai app.
+
+### IX. Đổi thương hiệu Directus thành Backoffice
+
+- Trong app mới, chữ "Directus" mà người dùng hoặc lập trình viên nhìn thấy PHẢI đổi thành
+  "Backoffice", miễn là không ảnh hưởng luồng hoạt động hay khả năng chạy song song.
+- ĐƯỢC đổi: tên hiển thị, tiêu đề trang, logo, favicon, chuỗi dịch i18n, email template, tên mặc
+  định khi `project_name` trống (ví dụ nhãn issuer TFA), header `X-Powered-By`, tiêu đề tài liệu
+  OpenAPI, log message, tên package nội bộ (`@directus/*` copy sang thành `@backoffice/*`), tên
+  class, biến, comment trong code mới, key localStorage của FE.
+- PHẢI giữ nguyên vì ảnh hưởng luồng hoặc tương thích: tên bảng và cột `directus_*`; tên collection
+  hệ thống trong API (`directus_users`...); JWT issuer `directus`; tên cookie mặc định
+  (`directus_refresh_token`, `directus_session_token`); namespace Redis mặc định (`directus:bus`,
+  `directus:lock`, `system-cache`); giá trị mặc định `METRICS_NAME_PREFIX` `directus_` (để dashboard
+  giám sát dùng chung cho cả hai app); tên biến môi trường; tên event; mã lỗi; tên type GraphQL;
+  thư viện bên thứ ba (`@directus/sdk`); dữ liệu trong DB (không sửa `project_name` hay settings
+  đang dùng chung).
+- Khi không chắc một chỗ đổi tên có ảnh hưởng luồng hay không: giữ nguyên và ghi vào danh sách cần
+  xác nhận.
+- Test đối chiếu ĐƯỢC bỏ qua các khác biệt do đổi thương hiệu, nhưng PHẢI liệt kê rõ trong danh sách
+  khác biệt được chấp nhận.
+
+Lý do: thương hiệu chỉ là lớp hiển thị. Định danh kỹ thuật dùng chung với Directus phải giữ nguyên.
+
+### X. Chất lượng, quy trình và vận hành
+
+- Ngôn ngữ: `spec.md`, `plan.md`, `tasks.md` và tài liệu viết tiếng Việt. Tên biến, comment, commit
+  message và PR viết tiếng Anh. Commit theo Conventional Commits.
+- CI trên GitHub Actions. Mỗi PR PHẢI pass: lint, typecheck, unit test, test đối chiếu với Directus,
+  E2E (với FE), build Docker image.
+- Coverage tối thiểu: 80% cho `apps/api` và libs BE, 60% cho `apps/web`. Dưới ngưỡng thì không
+  merge.
+- Bảo mật trong CI: quét dependency (pnpm audit, Dependabot), quét secret (gitleaks), phân tích mã
+  (CodeQL). KHÔNG commit secret.
+- Hiệu năng: với cùng request và dữ liệu, p95 latency và throughput của BE mới KHÔNG được tệ hơn
+  Directus quá 10%. Đo bằng benchmark tự động (autocannon, giống `directus/tests/blackbox`) cho các
+  endpoint chính: items, auth, files, assets.
+- Quy mô thiết kế: tới 2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi. Benchmark
+  và test hiệu năng dùng dữ liệu ở quy mô này.
+- Giám sát: log JSON bằng pino, cùng biến `LOG_LEVEL`, `LOG_STYLE` như Directus, mỗi request có
+  request id. Endpoint `/metrics` định dạng Prometheus, cùng biến `METRICS_*` và cùng tên metric
+  như Directus.
+- Không gửi email: mọi chỗ Directus gửi mail (quên mật khẩu, mời user, operation Send Email, email
+  thông báo) vẫn PHẢI chạy đúng luồng và trả về như Directus, chỉ bỏ qua bước gửi và ghi log cảnh
+  báo.
+- Mọi khác biệt so với Directus PHẢI ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
+
+Lý do: ngưỡng đo được giúp quyết định merge khách quan, không dựa vào cảm nhận.
+
+## XI. Ngoài phạm vi giai đoạn này
+
+- SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect).
+- Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3).
+- Gửi email (xem Nguyên tắc X).
+- Realtime WebSocket: `/websocket`, GraphQL subscription, collaborative editing, system logs
+  realtime. `/server/info` trả `websocket: false`, giống Directus khi `WEBSOCKETS_ENABLED=false`.
+  App web ẩn các tính năng này như Directus app.
+- Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...),
+  visual editing, telemetry.
+
+Spec hoặc plan chạm vào các mục trên PHẢI dừng lại và hỏi trước. Hành vi của app mới với các mục
+này PHẢI giống Directus khi tính năng đó tắt.
+
+## Quy trình phát triển và cổng kiểm tra
+
+- `/speckit.plan` PHẢI điền mục "Constitution Check" với từng nguyên tắc I–XI (đạt / vi phạm có lý
+  do). Kiểm tra lại sau Phase 1.
+- `spec.md` PHẢI có mục "Khác biệt so với Directus", gồm cả khác biệt do đổi thương hiệu (IX) và
+  danh sách tên cần xác nhận.
+- `tasks.md` PHẢI có task test đối chiếu cho mỗi endpoint thêm hoặc sửa (V), và test cho mỗi thay
+  đổi (VI).
+- Reviewer PHẢI từ chối PR khi: có file trong `directus/` bị đổi; có ghi vào bảng hoặc cột hệ thống
+  `directus_*` ngoài luồng API của Directus; có cache, lock hoặc state quan trọng trong bộ nhớ
+  process; có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X.
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+- Constitution này đứng trên mọi quy ước và tài liệu khác của dự án. Khi mâu thuẫn, làm theo
+  constitution.
+- Sửa constitution: mọi thay đổi PHẢI ghi lý do (trong Sync Impact Report ở đầu file và trong PR),
+  tăng phiên bản theo semver, và cập nhật các template liên quan trong `.specify/templates/`.
+- Quy tắc phiên bản:
+  - MAJOR: bỏ hoặc định nghĩa lại một nguyên tắc theo cách không tương thích.
+  - MINOR: thêm nguyên tắc hoặc mục mới, hoặc mở rộng đáng kể nội dung.
+  - PATCH: làm rõ câu chữ, sửa lỗi chính tả, không đổi ý nghĩa.
+- Thay đổi constitution PHẢI được tech lead duyệt trong PR.
+- Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
+  "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+**Version**: 1.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08

@@ -100,6 +100,21 @@
 - **[Entity 1]**: [What it represents, key attributes without implementation]
 - **[Entity 2]**: [What it represents, relationships to other entities]
 
+## Khác biệt so với Directus *(mandatory)*
+
+<!--
+  Constitution III, IX, X: every behavior that differs from Directus 11.17.4 MUST be listed here
+  with a reason and tech lead approval. Write "Không có" if none.
+-->
+
+| Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
+|----------|------------------|---------|-------|-----------------------------------------------|
+| [e.g., header X-Powered-By] | Directus | Backoffice | Nguyên tắc IX | đổi thương hiệu |
+
+**Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
+
+- [Không có / danh sách]
+
 ## Success Criteria *(mandatory)*
 
 <!--

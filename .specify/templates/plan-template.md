@@ -31,7 +31,20 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-[Gates determined based on constitution file]
+Check each principle in `.specify/memory/constitution.md` (v1.0.0). Mark PASS, or VIOLATION with
+a row in Complexity Tracking.
+
+- [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
+- [ ] II. No DDL/migration on `directus_*`; written data matches Directus format
+- [ ] III. REST/GraphQL path, query, response, error, status, header, cookie identical to Directus
+- [ ] IV. Shared SECRET/JWT/Redis keys; no critical in-process state; scheduled flows use Redis lock
+- [ ] V. Parity tests (Directus vs new app) planned for every endpoint added or changed
+- [ ] VI. Nx layout, NestJS provider per Directus service, Knex (no ORM), Vue 3 Composition API
+- [ ] VII. Multi-instance safe: runtime FE config, shared storage, read-only startup, graceful SIGTERM
+- [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default
+- [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
+- [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
+- [ ] XI. Nothing out of scope (LDAP/OAuth2/SAML, non-S3 storage, websockets, extensions, AI/MCP...)
 
 ## Project Structure
 
