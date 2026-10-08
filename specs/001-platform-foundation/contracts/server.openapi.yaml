@@ -1,0 +1,237 @@
+# Contract cho feature 001: hành vi phải GIỐNG Directus 11.17.4 với request public.
+# Nguồn hành vi: directus/api/src/app.ts, controllers/server.ts, services/server.ts,
+# services/specifications.ts, controllers/metrics.ts, middleware/error-handler.ts.
+# Khác biệt được chấp nhận: xem bảng "Khác biệt so với Directus" trong spec.md.
+openapi: 3.0.3
+info:
+  title: Backoffice API - feature 001 (server endpoints)
+  version: 001
+  description: >
+    Contract kiểm thử cho các endpoint của feature 001. Mọi response phải trùng Directus 11.17.4
+    (status, header được so, body) trừ các dòng trong danh sách khác biệt. Mọi response có header
+    `X-Powered-By: Backoffice` (Directus: `Directus`).
+servers:
+  - url: http://localhost:8055
+x-router-behavior: >
+  Giống Directus (đã đo): đường dẫn không phân biệt hoa thường, bỏ qua dấu `/` cuối; HEAD được hỗ trợ;
+  `If-None-Match` trùng ETag trả 304 (kèm ETag, Cache-Control, Vary nếu có); phương thức khác GET tới
+  /server/* trả 404 ROUTE_NOT_FOUND (không có 405); OPTIONS tới route của router (info, health,
+  specs/oas) trả 200 `Allow: GET,HEAD` body `GET,HEAD`, riêng OPTIONS /server/ping trả 404; GET / trả
+  302 `Location: ./admin` khi ROOT_REDIRECT mặc định.
+paths:
+  /server/ping:
+    get:
+      operationId: ping
+      summary: Phục vụ trước bước xác thực và sau rate limiter.
+      responses:
+        '200':
+          description: Luôn trả `pong`.
+          headers:
+            Content-Type:
+              schema: { type: string, example: text/html; charset=utf-8 }
+          content:
+            text/html:
+              schema: { type: string, enum: [pong] }
+        '304':
+          description: Request có `If-None-Match` trùng ETag.
+        '400':
+          $ref: '#/components/responses/InvalidPayload'
+        '429':
+          $ref: '#/components/responses/RequestsExceeded'
+        '500':
+          $ref: '#/components/responses/Internal'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+  /server/health:
+    get:
+      operationId: health
+      summary: Kiểm tra DB, cache, rate limiter, storage (và email luôn ok).
+      description: >
+        Request public (và mọi request ở feature 001, xem FR-044) chỉ nhận `{status}`.
+        Dạng đầy đủ (`releaseId`, `serviceId`, `checks`) dành cho admin, làm ở feature 003/004.
+      responses:
+        '200':
+          description: '`ok` hoặc `warn`.'
+          headers:
+            Content-Type:
+              schema: { type: string, example: application/health+json; charset=utf-8 }
+            Cache-Control:
+              schema: { type: string, enum: [no-cache] }
+            Vary:
+              schema: { type: string, enum: ['Origin, Cache-Control'] }
+          content:
+            application/health+json:
+              schema: { $ref: '#/components/schemas/HealthPublic' }
+        '503':
+          description: '`error` (thành phần lỗi, hoặc server đang tắt).'
+          content:
+            application/health+json:
+              schema: { $ref: '#/components/schemas/HealthPublic' }
+  /server/info:
+    get:
+      operationId: serverInfo
+      responses:
+        '200':
+          description: Thông tin dự án từ `directus_settings`.
+          headers:
+            Cache-Control:
+              schema: { type: string, example: no-cache }
+            Vary:
+              schema: { type: string, enum: ['Origin, Cache-Control'] }
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [data]
+                properties:
+                  data: { $ref: '#/components/schemas/ServerInfoPublic' }
+  /server/specs/oas:
+    get:
+      operationId: oas
+      description: >
+        Chỉ tồn tại khi `OPENAPI_ENABLED` khác `false` (khi tắt: 404 ROUTE_NOT_FOUND).
+        Body là tài liệu OpenAPI 3.0.1 do Directus sinh động cho người dùng public: `info.title`
+        `Dynamic API Specification`; `info.version` là `object-hash({now: <ISO thời điểm request>, user})`
+        nên đổi theo từng request (test đối chiếu bỏ qua trường này và ETag của response này);
+        `servers[0].url` là `PUBLIC_URL`, riêng khi `PUBLIC_URL` = `/` thì là giá trị header Host;
+        `servers[0].description` đổi thương hiệu; `paths`, `tags`, `components.schemas` lọc theo schema
+        và quyền đọc của policy public. DB mặc định (không có quyền public nào) cho ra tags
+        `Assets`, `Authentication`, `Server`, 10 path, schemas `Query` và `x-metadata`.
+      responses:
+        '200':
+          description: Tài liệu OpenAPI (JSON).
+          content:
+            application/json:
+              schema: { type: object, required: [openapi, info, servers, paths, tags, components] }
+        '404':
+          $ref: '#/components/responses/RouteNotFound'
+  /metrics:
+    get:
+      operationId: metrics
+      description: >
+        Chỉ tồn tại khi `METRICS_ENABLED=true` (khi tắt: 404 ROUTE_NOT_FOUND). Ở feature 001 chỉ
+        chấp nhận `Authorization: Metrics <token>` với token trong `METRICS_TOKENS`.
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema: { type: string, example: Metrics my-metrics-token }
+      responses:
+        '200':
+          description: Định dạng text Prometheus. Tên metric xem contracts/observability.md.
+          headers:
+            Content-Type:
+              schema: { type: string, example: text/plain; charset=utf-8 }
+            Cache-Control:
+              schema: { type: string, enum: [no-cache] }
+          content:
+            text/plain:
+              schema: { type: string }
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/RouteNotFound'
+components:
+  schemas:
+    HealthPublic:
+      type: object
+      additionalProperties: false
+      required: [status]
+      properties:
+        status: { type: string, enum: [ok, warn, error] }
+    ServerInfoPublic:
+      type: object
+      required: [project, setupCompleted]
+      properties:
+        project:
+          type: object
+          description: >
+            Đúng 17 key theo thứ tự dưới đây (`public_background` ở cuối vì là quan hệ m2o, Directus gắn
+            sau). Thứ tự key phải giống để ETag (hash của body) trùng. Giá trị lấy từ DB, không đổi
+            thương hiệu.
+          properties:
+            project_name: { type: string, nullable: true }
+            project_descriptor: { type: string, nullable: true }
+            project_logo: { type: string, format: uuid, nullable: true }
+            project_color: { type: string, nullable: true }
+            default_appearance: { type: string, nullable: true }
+            default_theme_light: { type: string, nullable: true }
+            default_theme_dark: { type: string, nullable: true }
+            theme_light_overrides: { type: object, nullable: true }
+            theme_dark_overrides: { type: object, nullable: true }
+            default_language: { type: string, nullable: true }
+            public_foreground: { type: string, format: uuid, nullable: true }
+            public_favicon: { type: string, format: uuid, nullable: true }
+            public_note: { type: string, nullable: true }
+            custom_css: { type: string, nullable: true }
+            public_registration: { type: boolean }
+            public_registration_verify_email: { type: boolean }
+            public_background:
+              type: object
+              nullable: true
+              properties:
+                id: { type: string, format: uuid }
+                type: { type: string, nullable: true }
+        setupCompleted: { type: boolean }
+        version:
+          type: string
+          example: 11.17.4
+          description: Chỉ có khi chưa có user nào (`setupCompleted` = false).
+    Error:
+      type: object
+      required: [errors]
+      properties:
+        errors:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [message, extensions]
+            properties:
+              message: { type: string }
+              extensions:
+                type: object
+                required: [code]
+                properties:
+                  code: { type: string }
+  responses:
+    RouteNotFound:
+      description: '`Route <path> doesn''t exist.`, extensions `{path, code: ROUTE_NOT_FOUND}`.'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+          example:
+            errors:
+              - message: Route /nope doesn't exist.
+                extensions: { path: /nope, code: ROUTE_NOT_FOUND }
+    Forbidden:
+      description: "`You don't have permission to access this.`, code FORBIDDEN."
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    InvalidPayload:
+      description: >
+        `Invalid payload. <reason>.`, code INVALID_PAYLOAD. Gặp khi body JSON sai, vượt
+        `MAX_PAYLOAD_SIZE`, hoặc gửi token bằng cả query `access_token` và header Bearer.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RequestsExceeded:
+      description: >
+        `Too many requests, retry after <ms>.`, code REQUESTS_EXCEEDED, extensions `{limit, reset}`,
+        header `Retry-After` (giây).
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ServiceUnavailable:
+      description: >
+        `Service "api" is unavailable. Under pressure.`, code SERVICE_UNAVAILABLE (pressure limiter),
+        header `Retry-After` khi đặt `PRESSURE_LIMITER_RETRY_AFTER`.
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    Internal:
+      description: '`An unexpected error occurred.`, code INTERNAL_SERVER_ERROR (người không phải admin).'
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
