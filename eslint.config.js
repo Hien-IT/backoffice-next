@@ -26,6 +26,7 @@ export default tseslint.config(
 	{
 		languageOptions: { globals: { ...globals.node } },
 		rules: {
+			'no-console': 'error',
 			'@typescript-eslint/no-explicit-any': 'off',
 			'@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_' }],
 		},

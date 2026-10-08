@@ -1,0 +1,54 @@
+[
+	{
+		"source": "packages/types/src/accountability.ts",
+		"dest": "libs/types/src/accountability.ts"
+	},
+	{
+		"source": "packages/types/src/database.ts",
+		"dest": "libs/types/src/database.ts"
+	},
+	{
+		"source": "packages/types/src/error.ts",
+		"dest": "libs/types/src/error.ts"
+	},
+	{
+		"source": "packages/types/src/fields.ts",
+		"dest": "libs/types/src/fields.ts"
+	},
+	{
+		"source": "packages/types/src/filter.ts",
+		"dest": "libs/types/src/filter.ts"
+	},
+	{
+		"source": "packages/types/src/index.ts",
+		"dest": "libs/types/src/index.ts"
+	},
+	{
+		"source": "packages/types/src/misc.ts",
+		"dest": "libs/types/src/misc.ts"
+	},
+	{
+		"source": "packages/types/src/permissions.ts",
+		"dest": "libs/types/src/permissions.ts"
+	},
+	{
+		"source": "packages/types/src/query.ts",
+		"dest": "libs/types/src/query.ts"
+	},
+	{
+		"source": "packages/types/src/relations.ts",
+		"dest": "libs/types/src/relations.ts"
+	},
+	{
+		"source": "packages/types/src/schema.ts",
+		"dest": "libs/types/src/schema.ts"
+	},
+	{
+		"source": "packages/types/src/services.ts",
+		"dest": "libs/types/src/services.ts"
+	},
+	{
+		"source": "packages/types/src/storage.ts",
+		"dest": "libs/types/src/storage.ts"
+	}
+]

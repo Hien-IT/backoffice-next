@@ -1,0 +1,66 @@
+[
+	{
+		"source": "packages/schema/src/dialects/cockroachdb.ts",
+		"dest": "libs/schema/src/dialects/cockroachdb.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/mssql.test.ts",
+		"dest": "libs/schema/src/dialects/mssql.test.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/mssql.ts",
+		"dest": "libs/schema/src/dialects/mssql.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/mysql.ts",
+		"dest": "libs/schema/src/dialects/mysql.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/oracledb.ts",
+		"dest": "libs/schema/src/dialects/oracledb.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/postgres.ts",
+		"dest": "libs/schema/src/dialects/postgres.ts"
+	},
+	{
+		"source": "packages/schema/src/dialects/sqlite.ts",
+		"dest": "libs/schema/src/dialects/sqlite.ts"
+	},
+	{
+		"source": "packages/schema/src/index.ts",
+		"dest": "libs/schema/src/index.ts"
+	},
+	{
+		"source": "packages/schema/src/types/column.ts",
+		"dest": "libs/schema/src/types/column.ts"
+	},
+	{
+		"source": "packages/schema/src/types/foreign-key.ts",
+		"dest": "libs/schema/src/types/foreign-key.ts"
+	},
+	{
+		"source": "packages/schema/src/types/overview.ts",
+		"dest": "libs/schema/src/types/overview.ts"
+	},
+	{
+		"source": "packages/schema/src/types/schema-inspector.ts",
+		"dest": "libs/schema/src/types/schema-inspector.ts"
+	},
+	{
+		"source": "packages/schema/src/types/table.ts",
+		"dest": "libs/schema/src/types/table.ts"
+	},
+	{
+		"source": "packages/schema/src/utils/extract-max-length.ts",
+		"dest": "libs/schema/src/utils/extract-max-length.ts"
+	},
+	{
+		"source": "packages/schema/src/utils/extract-type.ts",
+		"dest": "libs/schema/src/utils/extract-type.ts"
+	},
+	{
+		"source": "packages/schema/src/utils/strip-quotes.ts",
+		"dest": "libs/schema/src/utils/strip-quotes.ts"
+	}
+]

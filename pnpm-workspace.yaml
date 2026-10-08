@@ -84,6 +84,7 @@ catalog:
   '@aws-sdk/lib-storage': 3.928.0
   '@smithy/node-http-handler': 4.4.5
   '@shopify/semaphore': 3.1.0
+  '@ngneat/falso': 8.0.2
   '@tus/utils': 0.6.0
   swagger-cli: 4.0.4
   # Web

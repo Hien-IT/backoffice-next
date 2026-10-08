@@ -1,0 +1,38 @@
+[
+	{
+		"source": "packages/constants/src/activity.ts",
+		"dest": "libs/constants/src/activity.ts"
+	},
+	{
+		"source": "packages/constants/src/extensions.ts",
+		"dest": "libs/constants/src/extensions.ts"
+	},
+	{
+		"source": "packages/constants/src/fields.ts",
+		"dest": "libs/constants/src/fields.ts"
+	},
+	{
+		"source": "packages/constants/src/files.ts",
+		"dest": "libs/constants/src/files.ts"
+	},
+	{
+		"source": "packages/constants/src/index.ts",
+		"dest": "libs/constants/src/index.ts"
+	},
+	{
+		"source": "packages/constants/src/injection.ts",
+		"dest": "libs/constants/src/injection.ts"
+	},
+	{
+		"source": "packages/constants/src/number.ts",
+		"dest": "libs/constants/src/number.ts"
+	},
+	{
+		"source": "packages/constants/src/permissions.ts",
+		"dest": "libs/constants/src/permissions.ts"
+	},
+	{
+		"source": "packages/constants/src/regex.ts",
+		"dest": "libs/constants/src/regex.ts"
+	}
+]

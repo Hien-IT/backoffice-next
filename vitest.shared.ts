@@ -9,6 +9,8 @@ export interface SharedVitestOptions {
 	environment?: 'node' | 'happy-dom';
 	include?: string[];
 	exclude?: string[];
+	/** Extra files left out of the coverage measure (each use must say why). */
+	coverageExclude?: string[];
 }
 
 export function createVitestConfig(options: SharedVitestOptions): UserConfig {
@@ -26,7 +28,7 @@ export function createVitestConfig(options: SharedVitestOptions): UserConfig {
 				provider: 'v8',
 				reporter: ['text', 'lcov'],
 				include: ['src/**'],
-				exclude: ['src/**/*.test.ts', 'src/**/*.d.ts'],
+				exclude: ['src/**/*.test.ts', 'src/**/*.d.ts', ...(options.coverageExclude ?? [])],
 				thresholds: { lines: t, functions: t, branches: t, statements: t },
 			},
 		},

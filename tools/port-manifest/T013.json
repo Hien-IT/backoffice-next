@@ -1,0 +1,182 @@
+[
+	{
+		"source": "packages/env/src/constants/defaults.ts",
+		"dest": "libs/env/src/constants/defaults.ts"
+	},
+	{
+		"source": "packages/env/src/constants/directus-variables.ts",
+		"dest": "libs/env/src/constants/directus-variables.ts"
+	},
+	{
+		"source": "packages/env/src/constants/env-types.ts",
+		"dest": "libs/env/src/constants/env-types.ts"
+	},
+	{
+		"source": "packages/env/src/constants/type-map.ts",
+		"dest": "libs/env/src/constants/type-map.ts"
+	},
+	{
+		"source": "packages/env/src/index.ts",
+		"dest": "libs/env/src/index.ts"
+	},
+	{
+		"source": "packages/env/src/lib/cast.test.ts",
+		"dest": "libs/env/src/lib/cast.test.ts"
+	},
+	{
+		"source": "packages/env/src/lib/cast.ts",
+		"dest": "libs/env/src/lib/cast.ts"
+	},
+	{
+		"source": "packages/env/src/lib/create-env.test.ts",
+		"dest": "libs/env/src/lib/create-env.test.ts"
+	},
+	{
+		"source": "packages/env/src/lib/create-env.ts",
+		"dest": "libs/env/src/lib/create-env.ts"
+	},
+	{
+		"source": "api/src/utils/get-config-from-env.test.ts",
+		"dest": "libs/env/src/lib/get-config-from-env.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-config-from-env.ts",
+		"dest": "libs/env/src/lib/get-config-from-env.ts"
+	},
+	{
+		"source": "packages/env/src/lib/read-configuration-from-file.test.ts",
+		"dest": "libs/env/src/lib/read-configuration-from-file.test.ts"
+	},
+	{
+		"source": "packages/env/src/lib/read-configuration-from-file.ts",
+		"dest": "libs/env/src/lib/read-configuration-from-file.ts"
+	},
+	{
+		"source": "packages/env/src/lib/use-env.test.ts",
+		"dest": "libs/env/src/lib/use-env.test.ts"
+	},
+	{
+		"source": "packages/env/src/lib/use-env.ts",
+		"dest": "libs/env/src/lib/use-env.ts"
+	},
+	{
+		"source": "packages/env/src/types/env-type.ts",
+		"dest": "libs/env/src/types/env-type.ts"
+	},
+	{
+		"source": "packages/env/src/types/env.ts",
+		"dest": "libs/env/src/types/env.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-config-path.test.ts",
+		"dest": "libs/env/src/utils/get-config-path.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-config-path.ts",
+		"dest": "libs/env/src/utils/get-config-path.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-default-type.test.ts",
+		"dest": "libs/env/src/utils/get-default-type.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-default-type.ts",
+		"dest": "libs/env/src/utils/get-default-type.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-file-extension.test.ts",
+		"dest": "libs/env/src/utils/get-file-extension.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/get-file-extension.ts",
+		"dest": "libs/env/src/utils/get-file-extension.ts"
+	},
+	{
+		"source": "packages/env/src/utils/guess-type.test.ts",
+		"dest": "libs/env/src/utils/guess-type.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/guess-type.ts",
+		"dest": "libs/env/src/utils/guess-type.ts"
+	},
+	{
+		"source": "packages/env/src/utils/has-cast-prefix.test.ts",
+		"dest": "libs/env/src/utils/has-cast-prefix.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/has-cast-prefix.ts",
+		"dest": "libs/env/src/utils/has-cast-prefix.ts"
+	},
+	{
+		"source": "packages/env/src/utils/is-directus-variable.test.ts",
+		"dest": "libs/env/src/utils/is-directus-variable.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/is-directus-variable.ts",
+		"dest": "libs/env/src/utils/is-directus-variable.ts"
+	},
+	{
+		"source": "packages/env/src/utils/is-file-key.test.ts",
+		"dest": "libs/env/src/utils/is-file-key.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/is-file-key.ts",
+		"dest": "libs/env/src/utils/is-file-key.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-dotenv.test.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-dotenv.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-dotenv.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-dotenv.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-javascript.test.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-javascript.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-javascript.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-javascript.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-json.test.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-json.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-json.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-json.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-process.test.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-process.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-process.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-process.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-yaml.test.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-yaml.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/read-configuration-from-yaml.ts",
+		"dest": "libs/env/src/utils/read-configuration-from-yaml.ts"
+	},
+	{
+		"source": "packages/env/src/utils/remove-file-suffix.test.ts",
+		"dest": "libs/env/src/utils/remove-file-suffix.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/remove-file-suffix.ts",
+		"dest": "libs/env/src/utils/remove-file-suffix.ts"
+	},
+	{
+		"source": "packages/env/src/utils/try-json.test.ts",
+		"dest": "libs/env/src/utils/try-json.test.ts"
+	},
+	{
+		"source": "packages/env/src/utils/try-json.ts",
+		"dest": "libs/env/src/utils/try-json.ts"
+	}
+]

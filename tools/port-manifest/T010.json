@@ -1,0 +1,118 @@
+[
+	{
+		"source": "packages/utils/node/get-node-env.test.ts",
+		"dest": "libs/utils/src/node/get-node-env.test.ts"
+	},
+	{
+		"source": "packages/utils/node/get-node-env.ts",
+		"dest": "libs/utils/src/node/get-node-env.ts"
+	},
+	{
+		"source": "packages/utils/node/index.ts",
+		"dest": "libs/utils/src/node/index.ts"
+	},
+	{
+		"source": "packages/utils/node/ip-blocklist.test.ts",
+		"dest": "libs/utils/src/node/ip-blocklist.test.ts"
+	},
+	{
+		"source": "packages/utils/node/ip-blocklist.ts",
+		"dest": "libs/utils/src/node/ip-blocklist.ts"
+	},
+	{
+		"source": "packages/utils/node/ip-in-networks.test.ts",
+		"dest": "libs/utils/src/node/ip-in-networks.test.ts"
+	},
+	{
+		"source": "packages/utils/node/ip-in-networks.ts",
+		"dest": "libs/utils/src/node/ip-in-networks.ts"
+	},
+	{
+		"source": "packages/utils/node/require-yaml.ts",
+		"dest": "libs/utils/src/node/require-yaml.ts"
+	},
+	{
+		"source": "packages/utils/shared/array-helpers.test.ts",
+		"dest": "libs/utils/src/shared/array-helpers.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/array-helpers.ts",
+		"dest": "libs/utils/src/shared/array-helpers.ts"
+	},
+	{
+		"source": "packages/utils/shared/defaults.test.ts",
+		"dest": "libs/utils/src/shared/defaults.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/defaults.ts",
+		"dest": "libs/utils/src/shared/defaults.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-date-time-formatted.test.ts",
+		"dest": "libs/utils/src/shared/get-date-time-formatted.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-date-time-formatted.ts",
+		"dest": "libs/utils/src/shared/get-date-time-formatted.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-redacted-string.test.ts",
+		"dest": "libs/utils/src/shared/get-redacted-string.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-redacted-string.ts",
+		"dest": "libs/utils/src/shared/get-redacted-string.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-relation-type.test.ts",
+		"dest": "libs/utils/src/shared/get-relation-type.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-relation-type.ts",
+		"dest": "libs/utils/src/shared/get-relation-type.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-relation.test.ts",
+		"dest": "libs/utils/src/shared/get-relation.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-relation.ts",
+		"dest": "libs/utils/src/shared/get-relation.ts"
+	},
+	{
+		"source": "packages/utils/shared/index.ts",
+		"dest": "libs/utils/src/shared/index.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-object.test.ts",
+		"dest": "libs/utils/src/shared/is-object.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-object.ts",
+		"dest": "libs/utils/src/shared/is-object.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-json.test.ts",
+		"dest": "libs/utils/src/shared/parse-json.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-json.ts",
+		"dest": "libs/utils/src/shared/parse-json.ts"
+	},
+	{
+		"source": "packages/utils/shared/to-array.test.ts",
+		"dest": "libs/utils/src/shared/to-array.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/to-array.ts",
+		"dest": "libs/utils/src/shared/to-array.ts"
+	},
+	{
+		"source": "packages/utils/shared/to-boolean.test.ts",
+		"dest": "libs/utils/src/shared/to-boolean.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/to-boolean.ts",
+		"dest": "libs/utils/src/shared/to-boolean.ts"
+	}
+]

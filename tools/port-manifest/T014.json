@@ -1,0 +1,18 @@
+[
+	{
+		"source": "packages/pressure/src/express.ts",
+		"dest": "libs/pressure/src/express.ts"
+	},
+	{
+		"source": "packages/pressure/src/index.ts",
+		"dest": "libs/pressure/src/index.ts"
+	},
+	{
+		"source": "packages/pressure/src/monitor.test.ts",
+		"dest": "libs/pressure/src/monitor.test.ts"
+	},
+	{
+		"source": "packages/pressure/src/monitor.ts",
+		"dest": "libs/pressure/src/monitor.ts"
+	}
+]

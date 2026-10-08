@@ -1,0 +1,14 @@
+// Ported from directus/packages/constants/src/activity.ts
+export enum Action {
+	CREATE = 'create',
+	UPDATE = 'update',
+	DELETE = 'delete',
+	REVERT = 'revert',
+	VERSION_SAVE = 'version_save',
+	COMMENT = 'comment',
+	UPLOAD = 'upload',
+	LOGIN = 'login',
+	LOGOUT = 'logout',
+	RUN = 'run',
+	INSTALL = 'install',
+}

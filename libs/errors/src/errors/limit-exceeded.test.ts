@@ -1,0 +1,15 @@
+// Ported from directus/packages/errors/src/errors/limit-exceeded.test.ts
+import { beforeEach, expect, test } from 'vitest';
+import { type LimitExceededErrorExtensions, messageConstructor } from './limit-exceeded.js';
+
+let sample: LimitExceededErrorExtensions;
+
+beforeEach(() => {
+	sample = {
+		category: 'Test category',
+	};
+});
+
+test('Constructs message', () => {
+	expect(messageConstructor(sample)).toBe(`${sample.category} limit exceeded.`);
+});

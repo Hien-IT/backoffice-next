@@ -1,0 +1,222 @@
+[
+	{
+		"source": "packages/errors/src/codes.ts",
+		"dest": "libs/errors/src/codes.ts"
+	},
+	{
+		"source": "packages/errors/src/create-error.test.ts",
+		"dest": "libs/errors/src/create-error.test.ts"
+	},
+	{
+		"source": "packages/errors/src/create-error.ts",
+		"dest": "libs/errors/src/create-error.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/contains-null-values.test.ts",
+		"dest": "libs/errors/src/errors/contains-null-values.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/contains-null-values.ts",
+		"dest": "libs/errors/src/errors/contains-null-values.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/content-too-large.ts",
+		"dest": "libs/errors/src/errors/content-too-large.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/email-limit-exceeded.test.ts",
+		"dest": "libs/errors/src/errors/email-limit-exceeded.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/email-limit-exceeded.ts",
+		"dest": "libs/errors/src/errors/email-limit-exceeded.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/forbidden.ts",
+		"dest": "libs/errors/src/errors/forbidden.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/hit-rate-limit.test.ts",
+		"dest": "libs/errors/src/errors/hit-rate-limit.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/hit-rate-limit.ts",
+		"dest": "libs/errors/src/errors/hit-rate-limit.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/illegal-asset-transformation.ts",
+		"dest": "libs/errors/src/errors/illegal-asset-transformation.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/index.ts",
+		"dest": "libs/errors/src/errors/index.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/internal.ts",
+		"dest": "libs/errors/src/errors/internal.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-credentials.ts",
+		"dest": "libs/errors/src/errors/invalid-credentials.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-foreign-key.test.ts",
+		"dest": "libs/errors/src/errors/invalid-foreign-key.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-foreign-key.ts",
+		"dest": "libs/errors/src/errors/invalid-foreign-key.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-invite.ts",
+		"dest": "libs/errors/src/errors/invalid-invite.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-ip.ts",
+		"dest": "libs/errors/src/errors/invalid-ip.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-otp.ts",
+		"dest": "libs/errors/src/errors/invalid-otp.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-path-parameter.ts",
+		"dest": "libs/errors/src/errors/invalid-path-parameter.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-payload.test.ts",
+		"dest": "libs/errors/src/errors/invalid-payload.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-payload.ts",
+		"dest": "libs/errors/src/errors/invalid-payload.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-provider-config.ts",
+		"dest": "libs/errors/src/errors/invalid-provider-config.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-provider.ts",
+		"dest": "libs/errors/src/errors/invalid-provider.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-query.test.ts",
+		"dest": "libs/errors/src/errors/invalid-query.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-query.ts",
+		"dest": "libs/errors/src/errors/invalid-query.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/invalid-token.ts",
+		"dest": "libs/errors/src/errors/invalid-token.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/limit-exceeded.test.ts",
+		"dest": "libs/errors/src/errors/limit-exceeded.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/limit-exceeded.ts",
+		"dest": "libs/errors/src/errors/limit-exceeded.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/method-not-allowed.ts",
+		"dest": "libs/errors/src/errors/method-not-allowed.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/not-null-violation.test.ts",
+		"dest": "libs/errors/src/errors/not-null-violation.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/not-null-violation.ts",
+		"dest": "libs/errors/src/errors/not-null-violation.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/out-of-date.ts",
+		"dest": "libs/errors/src/errors/out-of-date.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/range-not-satisfiable.test.ts",
+		"dest": "libs/errors/src/errors/range-not-satisfiable.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/range-not-satisfiable.ts",
+		"dest": "libs/errors/src/errors/range-not-satisfiable.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/record-not-unique.test.ts",
+		"dest": "libs/errors/src/errors/record-not-unique.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/record-not-unique.ts",
+		"dest": "libs/errors/src/errors/record-not-unique.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/route-not-found.ts",
+		"dest": "libs/errors/src/errors/route-not-found.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/service-unavailable.ts",
+		"dest": "libs/errors/src/errors/service-unavailable.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/timeout.ts",
+		"dest": "libs/errors/src/errors/timeout.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/token-expired.ts",
+		"dest": "libs/errors/src/errors/token-expired.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/unexpected-response.ts",
+		"dest": "libs/errors/src/errors/unexpected-response.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/unprocessable-content.ts",
+		"dest": "libs/errors/src/errors/unprocessable-content.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/unsupported-media-type.test.ts",
+		"dest": "libs/errors/src/errors/unsupported-media-type.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/unsupported-media-type.ts",
+		"dest": "libs/errors/src/errors/unsupported-media-type.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/user-suspended.ts",
+		"dest": "libs/errors/src/errors/user-suspended.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/value-out-of-range.test.ts",
+		"dest": "libs/errors/src/errors/value-out-of-range.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/value-out-of-range.ts",
+		"dest": "libs/errors/src/errors/value-out-of-range.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/value-too-long.test.ts",
+		"dest": "libs/errors/src/errors/value-too-long.test.ts"
+	},
+	{
+		"source": "packages/errors/src/errors/value-too-long.ts",
+		"dest": "libs/errors/src/errors/value-too-long.ts"
+	},
+	{
+		"source": "packages/errors/src/index.ts",
+		"dest": "libs/errors/src/index.ts"
+	},
+	{
+		"source": "packages/errors/src/is-directus-error.test.ts",
+		"dest": "libs/errors/src/is-backoffice-error.test.ts"
+	},
+	{
+		"source": "packages/errors/src/is-directus-error.ts",
+		"dest": "libs/errors/src/is-backoffice-error.ts"
+	},
+	{
+		"source": "packages/errors/src/types.ts",
+		"dest": "libs/errors/src/types.ts"
+	}
+]
