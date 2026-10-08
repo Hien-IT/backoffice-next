@@ -1,0 +1,39 @@
+{
+	"name": "backoffice",
+	"private": true,
+	"type": "module",
+	"packageManager": "pnpm@10.27.0",
+	"engines": {
+		"node": "22",
+		"pnpm": ">=10 <11"
+	},
+	"scripts": {
+		"build": "nx run-many -t build",
+		"lint": "nx run-many -t lint",
+		"typecheck": "nx run-many -t typecheck",
+		"test": "nx run-many -t test",
+		"format": "prettier --write .",
+		"check-port-headers": "node tools/check-port-headers.mjs",
+		"test:tools": "node --test tools/*.test.mjs"
+	},
+	"devDependencies": {
+		"@eslint/js": "catalog:",
+		"@nx/eslint": "catalog:",
+		"@nx/js": "catalog:",
+		"@nx/vite": "catalog:",
+		"@nx/vitest": "catalog:",
+		"@types/node": "catalog:",
+		"@vitest/coverage-v8": "catalog:",
+		"eslint": "catalog:",
+		"eslint-config-prettier": "catalog:",
+		"eslint-plugin-vue": "catalog:",
+		"globals": "catalog:",
+		"nx": "catalog:",
+		"prettier": "catalog:",
+		"typescript": "catalog:",
+		"typescript-eslint": "catalog:",
+		"unplugin-swc": "catalog:",
+		"@swc/core": "catalog:",
+		"vitest": "catalog:"
+	}
+}

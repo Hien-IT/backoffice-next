@@ -1,0 +1,5 @@
+[
+	{ "source": ".npmrc", "dest": ".npmrc" },
+	{ "source": ".editorconfig", "dest": ".editorconfig" },
+	{ "source": ".prettierrc.json", "dest": ".prettierrc.json", "header": false }
+]

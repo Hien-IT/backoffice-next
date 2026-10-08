@@ -8,13 +8,15 @@ out-tsc/
 coverage/
 
 # Nx
-.nx/cache/
-.nx/workspace-data/
+.nx/
+*.tsbuildinfo
+test.db
 
 # Env and secrets
 .env
 .env.*
 !.env.example
+!tests/parity/env/*.env
 
 # Claude Code local settings
 .claude/settings.local.json
