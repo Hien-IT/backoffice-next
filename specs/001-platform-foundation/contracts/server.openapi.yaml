@@ -5,19 +5,23 @@
 openapi: 3.0.3
 info:
   title: Backoffice API - feature 001 (server endpoints)
-  version: 001
+  version: '001'
   description: >
     Contract kiểm thử cho các endpoint của feature 001. Mọi response phải trùng Directus 11.17.4
-    (status, header được so, body) trừ các dòng trong danh sách khác biệt. Mọi response có header
-    `X-Powered-By: Backoffice` (Directus: `Directus`).
+    (status, header được so, body) trừ các dòng trong danh sách khác biệt. Mọi response đi qua middleware
+    `X-Powered-By` có header `X-Powered-By: Backoffice` (Directus: `Directus`); riêng `503
+    SERVICE_UNAVAILABLE` của pressure limiter (chạy trước) không có `X-Powered-By`, CSP, COOP, HSTS, giống
+    Directus. Mọi path (kể cả /metrics) có thể trả 400 INVALID_PAYLOAD, 429 REQUESTS_EXCEEDED,
+    500 INTERNAL_SERVER_ERROR, 503 SERVICE_UNAVAILABLE như /server/ping; chỉ liệt kê ở /server/ping.
 servers:
   - url: http://localhost:8055
 x-router-behavior: >
   Giống Directus (đã đo): đường dẫn không phân biệt hoa thường, bỏ qua dấu `/` cuối; HEAD được hỗ trợ;
   `If-None-Match` trùng ETag trả 304 (kèm ETag, Cache-Control, Vary nếu có); phương thức khác GET tới
-  /server/* trả 404 ROUTE_NOT_FOUND (không có 405); OPTIONS tới route của router (info, health,
-  specs/oas) trả 200 `Allow: GET,HEAD` body `GET,HEAD`, riêng OPTIONS /server/ping trả 404; GET / trả
-  302 `Location: ./admin` khi ROOT_REDIRECT mặc định.
+  /server/* trả 404 ROUTE_NOT_FOUND (không có 405; riêng /server/setup là D-14); OPTIONS tới route của
+  router (info, health, specs/oas, /metrics khi bật) trả 200 `Allow: GET,HEAD` body `GET,HEAD`;
+  OPTIONS /server/setup, /server/specs/graphql là D-14, D-15; OPTIONS /server/ping, /, /robots.txt trả
+  404; GET / trả 302 `Location: ./admin` khi ROOT_REDIRECT mặc định.
 paths:
   /server/ping:
     get:
@@ -64,6 +68,11 @@ paths:
               schema: { $ref: '#/components/schemas/HealthPublic' }
         '503':
           description: '`error` (thành phần lỗi, hoặc server đang tắt).'
+          headers:
+            Cache-Control:
+              schema: { type: string, enum: [no-cache] }
+            Vary:
+              schema: { type: string, enum: ['Origin, Cache-Control'] }
           content:
             application/health+json:
               schema: { $ref: '#/components/schemas/HealthPublic' }
@@ -100,6 +109,11 @@ paths:
       responses:
         '200':
           description: Tài liệu OpenAPI (JSON).
+          headers:
+            Cache-Control:
+              schema: { type: string, enum: [no-cache] }
+            Vary:
+              schema: { type: string, enum: ['Origin, Cache-Control'] }
           content:
             application/json:
               schema: { type: object, required: [openapi, info, servers, paths, tags, components] }
@@ -111,11 +125,8 @@ paths:
       description: >
         Chỉ tồn tại khi `METRICS_ENABLED=true` (khi tắt: 404 ROUTE_NOT_FOUND). Ở feature 001 chỉ
         chấp nhận `Authorization: Metrics <token>` với token trong `METRICS_TOKENS`.
-      parameters:
-        - in: header
-          name: Authorization
-          required: true
-          schema: { type: string, example: Metrics my-metrics-token }
+      security:
+        - MetricsToken: []
       responses:
         '200':
           description: Định dạng text Prometheus. Tên metric xem contracts/observability.md.
@@ -124,6 +135,8 @@ paths:
               schema: { type: string, example: text/plain; charset=utf-8 }
             Cache-Control:
               schema: { type: string, enum: [no-cache] }
+            Vary:
+              schema: { type: string, enum: ['Origin, Cache-Control'] }
           content:
             text/plain:
               schema: { type: string }
@@ -132,6 +145,12 @@ paths:
         '404':
           $ref: '#/components/responses/RouteNotFound'
 components:
+  securitySchemes:
+    MetricsToken:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Giá trị `Metrics <token>`, token trong `METRICS_TOKENS`.
   schemas:
     HealthPublic:
       type: object

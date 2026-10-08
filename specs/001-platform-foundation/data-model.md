@@ -11,9 +11,9 @@ Directus (mục 4).
 | Bảng | Cột đọc | Dùng ở | SQL (giống Directus) |
 |------|---------|--------|----------------------|
 | `directus_migrations` | `version` | Kiểm tra khi khởi động (FR-031) | `select version from directus_migrations` |
-| `directus_collections` | tồn tại bảng; `collection`, `singleton`, `note`, `sort_field`, `accountability` | `isInstalled()` (FR-030); SchemaOverview (OAS) | `hasTable` của inspector; `select collection, singleton, note, sort_field, accountability from directus_collections` |
-| `directus_fields` | `id`, `collection`, `field`, `special`, `note`, `validation`, `searchable` | SchemaOverview (OAS) | `select id, collection, field, special, note, validation, searchable from directus_fields` |
-| `directus_relations` | mọi cột | SchemaOverview (OAS) | `select * from directus_relations` |
+| `directus_collections` | tồn tại bảng; `collection`, `singleton`, `note`, `sort_field`, `accountability` | `isInstalled()` (FR-030); SchemaOverview (OAS; `/server/info` khi không có dòng settings) | `hasTable` của inspector; `select collection, singleton, note, sort_field, accountability from directus_collections` |
+| `directus_fields` | `id`, `collection`, `field`, `special`, `note`, `validation`, `searchable` | SchemaOverview (OAS; `/server/info` khi không có dòng settings) | `select id, collection, field, special, note, validation, searchable from directus_fields` |
+| `directus_relations` | mọi cột | SchemaOverview (OAS; `/server/info` khi không có dòng settings) | `select * from directus_relations` |
 | `directus_users` | có dòng hay không | `setupCompleted` của `/server/info` | `select * from directus_users limit 1` |
 | `directus_settings` | 16 field của `/server/info`, `public_background`, `id` | `/server/info` | `select ... from directus_settings order by id asc limit 1` |
 | `directus_files` | `id`, `type` | `public_background` của `/server/info` | `select id, type from directus_files where id in (?)` |
@@ -21,7 +21,7 @@ Directus (mục 4).
 | `directus_policies` | `id`, `ip_access` | Quyền public (OAS) | `select id, ip_access from directus_policies where id in (...)` |
 | `directus_permissions` | mọi cột | Quyền public (OAS) | `select * from directus_permissions where policy in (...) [and action = 'read'] order by id` |
 | File hệ thống (chỉ đọc tên) | Tên file trong `MIGRATIONS_PATH` và `<EXTENSIONS_PATH>/migrations` | Migration tùy biến (FR-031) | `readdir`, không mở, không `import` |
-| Catalog của DB | bảng, cột, khóa ngoại | SchemaOverview (OAS); kiểm tra PostGIS/Spatialite; collation MySQL | Câu truy vấn của `@backoffice/schema` (port `@directus/schema`); `pg_proc`, `pragma_function_list`; `information_schema` |
+| Catalog của DB | bảng, cột, khóa ngoại | SchemaOverview (OAS; `/server/info` khi không có dòng settings); kiểm tra PostGIS/Spatialite; collation MySQL | Câu truy vấn của `@backoffice/schema` (port `@directus/schema`); `pg_proc`, `pragma_function_list`; `information_schema` |
 
 Quy tắc chuyển đổi giá trị khi đọc (theo `special` của `@directus/system-data`):
 
@@ -46,6 +46,8 @@ Quy tắc chuyển đổi giá trị khi đọc (theo `special` của `@directus
 - **Danh sách biến chưa hỗ trợ**: key có trong process hoặc file (key `X_FILE` tính theo `X`), là biến
   Directus (`DIRECTUS_VARIABLES`), không thuộc nhóm A (hỗ trợ) hoặc B (không áp dụng cho API) của
   `contracts/config.md` §5 → log một dòng `warn` gồm tên A–Z, mỗi tên một lần. Giá trị mặc định không tính.
+  Riêng `SERVE_APP`: không vào dòng này; chỉ cảnh báo ở dòng riêng khi có mặt và giá trị sau ép kiểu là
+  `true` (`contracts/config.md` §5).
 
 ### 2.2 Danh sách migration và kết quả so sánh
 
@@ -53,7 +55,7 @@ Quy tắc chuyển đổi giá trị khi đọc (theo `special` của `@directus
 MigrationCheck {
   required: string[]   // 101 version của Directus 11.17.4 (hằng số) + version tùy biến
   custom: string[]     // phần trước dấu '-' của file trong MIGRATIONS_PATH (có '-', .js/.cjs/.mjs) và
-                       // <EXTENSIONS_PATH>/migrations (.js); bỏ trùng; thư mục thiếu/rỗng → rỗng
+                       // <EXTENSIONS_PATH>/migrations (mọi .js; không có '-' thì cả tên file); bỏ trùng; thư mục thiếu/rỗng → rỗng
   completed: string[]  // directus_migrations.version
   missing: string[]    // required - completed, sắp xếp tăng dần
   extra: string[]      // completed - required, sắp xếp tăng dần
@@ -72,7 +74,7 @@ MigrationCheck {
 
 Mọi request đều là public (FR-044). Feature 003 thay bằng accountability thật.
 
-### 2.4 SchemaOverview (chỉ khi gọi `/server/specs/oas`)
+### 2.4 SchemaOverview (khi gọi `/server/specs/oas`; ở `/server/info` chỉ khi `directus_settings` không có dòng nào)
 
 Cùng kiểu `SchemaOverview` của Directus (`@directus/types`):
 
@@ -128,12 +130,12 @@ Chuyển trạng thái:
 |---|---|---|
 | `<p>db_<DB_CLIENT>_connection_errors` | Counter | `database` |
 | `<p>db_<DB_CLIENT>_response_time_ms` (bucket 1, 10, 20, 40, 60, 80, 100, 200, 500, 750, 1000) | Histogram | `database` |
-| `<p>cache_<CACHE_STORE>_connection_errors` | Counter | `cache` |
+| `<p>cache_<CACHE_STORE>_connection_errors` | Counter | `cache` và `CACHE_ENABLED=true` (với `CACHE_STORE=redis` cần có cấu hình Redis) |
 | `<p>redis_connection_errors` | Counter | `redis` (khi có cấu hình Redis) |
 | `<p>storage_<location>_connection_errors` | Counter | `storage` |
 
 Sinh theo `METRICS_SCHEDULE` (cron), mỗi process một lần chạy cùng lúc (khóa trong process 10 phút như
-Directus, chỉ chống chạy chồng trong một process).
+Directus, chỉ chống chạy chồng trong một process; ngoại lệ Nguyên tắc VII ghi ở Complexity Tracking của plan).
 
 ## 3. Dữ liệu của bộ test đối chiếu
 
@@ -142,16 +144,19 @@ Directus, chỉ chống chạy chồng trong một process).
 ```text
 AcceptedDifference {
   id: string                 // cột "Mã" trong bảng "Khác biệt so với Directus" của spec (D-01, D-09.3...)
+  feature: string            // spec đã thêm mục, ví dụ '001'; mã chỉ duy nhất trong spec đó
   removeAt?: string          // số feature (cột "Gỡ khi"), chỉ với khác biệt tạm thời
-  endpoints: string[]        // ví dụ ['*'] hoặc ['GET /server/specs/oas']
-  location: { header: string } | { jsonPointer: string }
-  directus: Matcher          // giá trị hoặc regex phía Directus
-  backoffice: Matcher        // giá trị hoặc regex phía API mới
+  kind: 'http' | 'doc'       // 'doc': khác biệt ngoài response HTTP (log, package, migration, khởi động); bộ so sánh bỏ qua
+  endpoints?: string[]       // chỉ với 'http', ví dụ ['*'] hoặc ['GET /server/specs/oas']
+  location?: { status: true } | { header: string } | { jsonPointer: string }   // chỉ với 'http'; jsonPointer '' là cả body
+  directus?: Matcher         // giá trị hoặc regex phía Directus
+  backoffice?: Matcher       // giá trị hoặc regex phía API mới
   reason: string
 }
 ```
 
-Ràng buộc: mỗi `id` phải có trong bảng của spec feature đã thêm nó; `removeAt` phải khớp cột "Gỡ khi";
+Ràng buộc: mỗi `id` phải có trong bảng của `specs/<feature>-*/spec.md` ghi ở `feature` (mã trùng ở spec
+khác không tính); `removeAt` phải khớp cột "Gỡ khi" của bảng đó;
 mục còn lại sau khi spec của feature `removeAt` có `Status: Done` làm `accepted-differences.test.ts`
 fail (FR-101). Khác biệt không khớp dòng nào làm test đối chiếu fail.
 
@@ -168,8 +173,9 @@ fail (FR-101). Khác biệt không khớp dòng nào làm test đối chiếu fa
 DbSnapshot {
   vendor: string
   tables: { name: string; columns: { name, type, nullable, default }[]; rowCount: number;
-            checksum: string /* SHA-256 các dòng, ORDER BY khóa chính */ }[]   // mọi bảng, không chỉ directus_*
-  indexes: string[]          // tên index của mọi bảng
+            checksum: string /* SHA-256 các dòng, ORDER BY khóa chính; không có khóa chính thì ORDER BY mọi cột */ }[]   // mọi bảng, không chỉ directus_*
+  indexes: { table: string; name: string; columns: string[]; unique: boolean }[]   // mọi index của mọi bảng
+  foreignKeys: { table, column, foreignKeyTable, foreignKeyColumn, constraintName }[]   // qua inspector.foreignKeys()
 }
 ```
 
@@ -183,5 +189,6 @@ Hai snapshot (trước và sau khi API mới chạy) phải bằng nhau tuyệt 
 | Rate limiter (`RATE_LIMITER_STORE`) | `rlflx:<ip>`, `rlflx:global-rate-limit` | Mỗi request khi bật rate limiter | Đếm chung với Directus |
 | Rate limiter | `rlflx:directus-health-<nanoid5>` | Gọi `/server/health` khi bật rate limiter | Consume rồi delete |
 | Redis | `directus-metric-<uuid>` (theo `METRICS_HEALTH_CHECK_PREFIX`) | Mỗi lượt sinh metric | Set rồi del |
+| Cache (`CACHE_STORE`) | key `<METRICS_HEALTH_CHECK_PREFIX><uuid>` trong namespace `CACHE_NAMESPACE` | Mỗi lượt sinh metric khi metric cache bật | Set rồi xóa ngay, TTL 5 ms (`cache.set(key, '1', 5)`) |
 | Storage (mỗi location) | `directus-health-file` | Gọi `/server/health` | Ghi đè cùng một file |
 | Storage (mỗi location) | `directus-metric-file` | Mỗi lượt sinh metric | Ghi đè cùng một file |

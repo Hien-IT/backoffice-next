@@ -51,7 +51,9 @@ cạnh Directus. Máy dev macOS.
 **Project Type**: Monorepo web (API + app web + thư viện dùng chung + project test).
 
 **Performance Goals**: p95 latency và request/giây của `/server/ping`, `/server/health`,
-`/server/info` không tệ hơn Directus quá 10% (SC-006). `/server/specs/oas` đo từ feature 002.
+`/server/info` không tệ hơn Directus quá 10% (SC-006). `/server/specs/oas` so với Directus chạy
+`CACHE_SCHEMA=false` (container `directus-nocache`), cùng ngưỡng 10%; từ feature 002 so với Directus
+mặc định.
 
 **Constraints**:
 - Không ghi DB (FR-022), chạy được với tài khoản DB chỉ có SELECT (FR-024). Khởi động chỉ đọc, an
@@ -81,11 +83,12 @@ có research, data model, contracts (kết quả dưới đây là lần 2).
 - [x] **III. API giống hệt** — PASS có ghi nhận. Path, status, header, body, lỗi như Directus. Mọi khác
   biệt (đổi thương hiệu, phần tạm thời chờ 003/004/005/011) nằm trong bảng "Khác biệt so với Directus"
   của spec. Rủi ro Express 5 được xử lý bằng cấu hình (research R4) và test đối chiếu.
-- [x] **IV. Chạy song song an toàn** — PASS. Rate limiter dùng cùng thư viện, cùng `keyPrefix`, nên đếm
-  chung key Redis với Directus. Không giữ state quan trọng trong process: schema và quyền không cache;
-  khóa chống chạy chồng job metrics trong process giống Directus và không phải state dùng chung. JWT,
-  bus, cache schema không có trong feature này. Cấu hình `memory` chỉ chạy khi env chọn, kèm cảnh báo
-  (FR-023, quyết định Q5).
+- [x] **IV. Chạy song song an toàn** — PASS có ngoại lệ ghi ở Complexity Tracking (khóa job metrics
+  trong process). Rate limiter dùng cùng thư viện, cùng `keyPrefix`, nên đếm chung key Redis với
+  Directus. Không giữ state quan trọng trong process: schema và quyền không cache; khóa chống chạy
+  chồng job metrics trong process giống Directus, là ngoại lệ Nguyên tắc VII ghi ở Complexity Tracking.
+  JWT, bus, cache schema không có trong feature này. Store `memory` (mặc định của Directus) vẫn chạy,
+  kèm cảnh báo một instance (FR-023, quyết định Q5).
 - [x] **V. Kiểm thử đối chiếu** — PASS. Có test đối chiếu cho `/server/ping`, `/server/health`,
   `/server/info`, `/server/specs/oas`, `/metrics`, 404, lỗi payload, rate limit. Mỗi PR chạy Postgres
   đủ, MySQL và SQLite rút gọn. MariaDB, MSSQL, Oracle, CockroachDB (và Postgres 10, MySQL 5) chạy hằng
@@ -97,7 +100,8 @@ có research, data model, contracts (kết quả dưới đây là lần 2).
   Composition API + PrimeVue + Pinia + Vue Router. TypeScript strict, ESLint, Prettier, mỗi thay đổi
   có test. Hạ tầng Directus viết dạng hàm dùng chung (`useEnv`, `useLogger`, `getDatabase`, `useRedis`)
   giữ nguyên dạng hàm để port sát code gốc, và được bọc thành provider để inject vào service.
-- [x] **VII. Đa instance** — PASS. Khởi động chỉ đọc; `/server/health` cho probe; SIGTERM qua terminus
+- [x] **VII. Đa instance** — PASS có ngoại lệ ghi ở Complexity Tracking (khóa job metrics trong
+  process). Khởi động chỉ đọc; `/server/health` cho probe; SIGTERM qua terminus
   (ngừng nhận, chạy nốt, đóng DB và Redis). Storage dùng location cấu hình chung. Web đọc
   `config.json` lúc chạy. Image API giữ thư mục làm việc `/directus` để đường dẫn tương đối trong cấu
   hình trỏ cùng chỗ (research R20).
@@ -109,8 +113,9 @@ có research, data model, contracts (kết quả dưới đây là lần 2).
   message, tên package `@backoffice/*`, tên lớp lỗi. Giữ: bảng `directus_*`, mã lỗi, `METRICS_NAME_PREFIX`,
   key kiểm tra `directus-health-*`, `directus-metric-*`, giá trị trong DB, phiên bản `11.17.4` báo cho
   client.
-- [x] **X. Chất lượng và vận hành** — PASS. CI: lint, typecheck, unit + coverage (80% BE, 60% web), đối
-  chiếu, E2E khói cho web, build image, `pnpm audit`, gitleaks, CodeQL, Dependabot, benchmark ≤ 10%.
+- [x] **X. Chất lượng và vận hành** — PASS có ngoại lệ ghi ở Complexity Tracking (quy mô benchmark).
+  CI: lint, typecheck, unit + coverage (80% BE, 60% web), đối chiếu, E2E khói cho web, build image,
+  `pnpm audit`, gitleaks, CodeQL, Dependabot, benchmark ≤ 10%.
   Log pino và metric giống Directus. Không gửi email. Khác biệt có trong spec, tech lead duyệt ở PR.
 - [x] **XI. Ngoài phạm vi** — PASS. Không khởi tạo WebSocket, extension, AI/MCP, deployment, telemetry,
   không tạo mail transport. Việc đọc tên file trong `EXTENSIONS_PATH/migrations` chỉ để so migration,
@@ -132,8 +137,9 @@ specs/001-platform-foundation/
 │   ├── startup.md            # thứ tự kiểm tra khi khởi động, message, mã thoát, tắt máy
 │   └── observability.md      # log và metrics
 ├── checklists/
-│   └── requirements.md
-└── tasks.md             # Phase 2 (/speckit.tasks, chưa tạo)
+│   ├── requirements.md
+│   └── parity-safety-config.md
+└── tasks.md             # Phase 2 (/speckit.tasks)
 ```
 
 ### Source Code (repository root)
@@ -148,6 +154,13 @@ backoffice-next/
 ├── .prettierrc.json             # copy directus/.prettierrc.json
 ├── .editorconfig                # copy directus/.editorconfig (tab)
 ├── .nvmrc                       # 22
+├── .npmrc                       # 3 dòng của directus/.npmrc
+├── .prettierignore
+├── .dockerignore
+├── .gitleaks.toml               # allowlist env test
+├── vitest.shared.ts             # createVitestConfig (ngưỡng coverage)
+├── tools/                       # port-manifest/, check-port-headers.mjs, check-package-names.mjs,
+│                                # guard-directus-unchanged.mjs, generate-migration-list.mjs (kèm *.test.mjs)
 ├── apps/
 │   ├── api/                     # @backoffice/api — NestJS 12
 │   │   ├── Dockerfile           # node:22-alpine, WORKDIR /directus, chạy `node main.js`
@@ -172,23 +185,25 @@ backoffice-next/
 │   │       ├── logger/                    # createLogger, createExpressLogger, redactQuery
 │   │       ├── metrics/                   # createMetrics, useMetrics, metrics.module.ts
 │   │       ├── schedules/metrics.ts
-│   │       ├── middleware/                # cors, extract-token, public-accountability, rate-limiter-ip,
+│   │       ├── middleware/                # cors, extract-token, public-accountability (port create-default-accountability), rate-limiter-ip,
 │   │       │                              # rate-limiter-global, json-body, respond (headers),
 │   │       │                              # router-options (OPTIONS như Router con của Express 4)
 │   │       ├── errors/                    # error-handler.filter.ts (port error-handler.ts + not-found)
 │   │       ├── schema/                    # get-database-schema.ts, get-local-type.ts, get-default-value.ts,
 │   │       │                              # get-field-system-rows.ts, read-relations.ts
 │   │       ├── permissions/               # fetch-public-policies.ts, fetch-permissions.ts,
-│   │       │                              # fetch-allowed-field-map.ts, filter-policies-by-ip.ts,
-│   │       │                              # create-default-accountability.ts
+│   │       │                              # fetch-allowed-field-map.ts, filter-policies-by-ip.ts
 │   │       ├── services/                  # server.service.ts, settings.service.ts, specifications.service.ts
 │   │       ├── controllers/               # server.controller.ts, metrics.controller.ts
 │   │       └── utils/                     # get-ip-from-req, url, get-address, validate-env, reduce-schema,
 │   │                                      # get-milliseconds, async-handler
 │   ├── web/                     # @backoffice/web — Vue 3 khung
 │   │   ├── Dockerfile           # nginx:alpine phục vụ dist ở /admin (hoàn thiện ở 019)
+│   │   ├── nginx.conf
+│   │   ├── docker/40-config.sh  # sinh config.json từ env lúc container khởi động
+│   │   ├── vite.config.ts       # base /admin/
 │   │   ├── public/config.json   # cấu hình chạy mặc định (URL API)
-│   │   └── src/                 # main.ts, App.vue, router, store, i18n (en-US), runtime-config.ts
+│   │   └── src/                 # main.ts, App.vue, router, store, i18n (en-US, vi-VN copy từ directus/app/src/lang), runtime-config.ts
 │   └── web-e2e/                 # Playwright: mở /admin, thấy "Backoffice"
 ├── libs/                        # mỗi lib port từ directus/packages/<cùng tên>, kèm test gốc
 │   ├── env/                     # @backoffice/env (+ getConfigFromEnv)
@@ -206,15 +221,19 @@ backoffice-next/
 │   ├── storage-driver-s3/       # @backoffice/storage-driver-s3
 │   └── pressure/                # @backoffice/pressure
 ├── tests/
-│   ├── parity/                  # @backoffice/parity-tests
-│   │   ├── docker-compose.yml   # DB theo vendor (profile), redis, minio, directus:11.17.4, backoffice-api
+│   ├── parity/                  # @backoffice/parity-tests (target `test`: unit, không Docker; `parity`: cần Docker)
+│   │   ├── docker-compose.yml   # DB theo vendor (profile), redis, minio, directus:11.17.4, backoffice-api; profile ratelimit, cors-hsts, pressure, metrics
 │   │   ├── env/<vendor>.env     # một file env cho CẢ HAI app
 │   │   ├── accepted-differences.ts
-│   │   └── src/                 # parity.ts, normalizers.ts, db-snapshot.ts, server/*.test.ts,
-│   │                            # methods.test.ts, conditional.test.ts, startup.test.ts,
-│   │                            # db-unchanged.test.ts, readonly-account.test.ts, redis-down.test.ts,
-│   │                            # accepted-differences.test.ts
-│   └── benchmark/               # @backoffice/benchmark: run.ts (autocannon, p95, so sánh 10%)
+│   │   ├── README.md
+│   │   ├── vitest.config.ts, vitest.parity.config.ts
+│   │   └── src/                 # parity.ts, normalizers.ts, db-snapshot.ts, request-set.ts, spec-differences.ts,
+│   │                            # get-dbs-to-test.ts, config.ts, await-connection.ts, parity-report.test.ts, vendors.test.ts,
+│   │                            # server/{ping,health,info,oas,headers,methods,conditional,errors}.test.ts,
+│   │                            # startup/{startup,config-files,shutdown}.test.ts, startup/temp-db.ts,
+│   │                            # observability/{metrics,logs}.test.ts, db-unchanged.test.ts,
+│   │                            # readonly-account.test.ts, redis-down.test.ts, accepted-differences.test.ts
+│   └── benchmark/               # @backoffice/benchmark: run.ts (autocannon, p95, so sánh 10%), docker-compose.yml (directus-nocache)
 ├── dev/directus-reference/      # thêm anchor x-directus-environment + service backoffice-api (profile)
 └── .github/
     ├── workflows/ci.yml, nightly.yml, codeql.yml
@@ -253,13 +272,14 @@ của Nest. Test đối chiếu và benchmark là project riêng dưới `tests/
 | `api/src/metrics/**`, `api/src/schedules/metrics.ts`, `api/src/controllers/metrics.ts` | cùng đường dẫn | Bỏ nhánh PM2 |
 | `api/src/middleware/{cors,extract-token,rate-limiter-ip,rate-limiter-global,error-handler,respond}.ts` | `apps/api/src/middleware/*`, `apps/api/src/errors/*` | `respond` chỉ phần header (cache để 005) |
 | `api/src/controllers/not-found.ts` | `apps/api/src/errors/error-handler.filter.ts` | Ánh xạ 404 của Nest |
-| `api/src/controllers/server.ts` | `apps/api/src/controllers/server.controller.ts` | Không có `/setup`, `/specs/graphql` |
+| `api/src/controllers/server.ts` | `apps/api/src/controllers/server.controller.ts` | Không có `/setup`, `/specs/graphql` (mọi phương thức, D-14, D-15) |
 | `api/src/services/server.ts` | `apps/api/src/services/server.service.ts` | Email check cố định `ok` |
 | `api/src/services/settings.ts` + `items.ts:readSingleton` | `apps/api/src/services/settings.service.ts` | Bản rút gọn (research R16.2) |
 | `api/src/services/specifications.ts` | `apps/api/src/services/specifications.service.ts` | Chỉ phần `oas` |
 | `api/src/utils/get-schema.ts` (`getDatabaseSchema`), `get-local-type.ts`, `get-default-value.ts`, `get-field-system-rows.ts` | `apps/api/src/schema/*` | Không cache |
 | `api/src/services/relations.ts` (`readAll`, `stitchRelations`) | `apps/api/src/schema/read-relations.ts` | Đọc bằng knex |
-| `api/src/permissions/{lib/fetch-policies,lib/fetch-permissions,utils/filter-policies-by-ip,utils/create-default-accountability,modules/fetch-allowed-field-map/*}.ts` | `apps/api/src/permissions/*` | Đọc bằng knex (research R16.4) |
+| `api/src/permissions/{lib/fetch-policies,lib/fetch-permissions,utils/filter-policies-by-ip,modules/fetch-allowed-field-map/*}.ts` | `apps/api/src/permissions/*` | Đọc bằng knex (research R16.4) |
+| `api/src/permissions/utils/create-default-accountability.ts`, `api/src/middleware/authenticate.ts:20-26` | `apps/api/src/middleware/public-accountability.ts` | Luôn public (R16.1) |
 | `api/src/utils/{reduce-schema,get-ip-from-req,url,get-address,validate-env,get-milliseconds,async-handler}.ts` | `apps/api/src/utils/*` | |
 | `tests/blackbox/common/{get-dbs-to-test,config}.ts`, `utils/await-connection.ts`, `tests/db/routes/server/*.test.ts` | `tests/parity/src/**` | Chuyển sang `parity()` |
 
@@ -273,7 +293,7 @@ Các phần dưới đây cho kết quả giống Directus với endpoint của 
 | Accountability | Luôn public, bỏ qua token | 003 |
 | Đọc `directus_settings` | 3 câu SQL + `cast-boolean`/`cast-json` | 005 (ItemsService) |
 | Đọc quyền public | SQL trực tiếp, không cache | 004 |
-| SchemaOverview | Dựng mỗi lần gọi OAS, không cache, không bus | 002 |
+| SchemaOverview | Dựng mỗi lần gọi OAS (và `/server/info` khi không có dòng settings), không cache, không bus | 002 |
 | `respond` | Chỉ header `Cache-Control: no-cache`, `Vary` | 005 |
 | Hook `request.error`, `request.not_found` | Chưa gọi | 009 |
 
@@ -282,6 +302,8 @@ Các phần dưới đây cho kết quả giống Directus với endpoint của 
 | Vi phạm | Vì sao cần | Phương án đơn giản hơn bị loại vì |
 |---------|------------|-----------------------------------|
 | Nguyên tắc VIII (câu "biến Directus chưa hỗ trợ: ghi cảnh báo, KHÔNG dừng app") bị lệch ở FR-034 / D-16: API dừng khi `STORAGE_<LOC>_DRIVER` là `gcs`, `azure`, `cloudinary`, `supabase` | Đã chốt khi làm rõ spec (phương án A) và khớp prompt feature 007 trong `SPECKIT-GUIDE.md`. Storage là tài nguyên dùng chung: chạy tiếp với driver không hỗ trợ thì mọi upload hỏng âm thầm và health báo lỗi mơ hồ. Nguyên tắc XI xếp storage ngoài phạm vi | Chỉ cảnh báo và chạy tiếp (bị loại: instance đánh dấu sẵn sàng nhưng không phục vụ được file). Cần tech lead duyệt trong PR (Nguyên tắc X). Nếu muốn đồng bộ chữ nghĩa, sửa Nguyên tắc VIII theo quy trình Governance (PATCH hoặc MINOR) |
+| Nguyên tắc X (benchmark dùng dữ liệu ở quy mô 2.000 user đồng thời, collection 10 triệu bản ghi) bị lệch: T095 đo 50 kết nối trên DB mặc định | Endpoint của 001 (`/server/ping`, `/server/health`, `/server/info`, `/server/specs/oas`) không đọc collection người dùng, kết quả không phụ thuộc số bản ghi; endpoint chính của Nguyên tắc X (items, auth, files, assets) chưa có. Runner CI không chịu được 2.000 kết nối | Đo ngay ở quy mô thiết kế (bị loại: không đo thêm được gì cho `/server/*`, làm job benchmark chậm và dao động). Benchmark quy mô thiết kế làm cùng feature items, auth, files, assets. Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| Nguyên tắc VII ("KHÔNG dùng cache hay lock trong bộ nhớ process") bị lệch: khóa `lockedAt` chống chạy chồng job metrics (T090) nằm trong process | Port nguyên `directus/api/src/schedules/metrics.ts`; metric sinh theo từng node, khóa chỉ chống hai lượt chạy chồng trong cùng process, không phải state dùng chung giữa instance | Khóa Redis (bị loại: chỉ một instance sinh metric, các instance khác thiếu metric, lệch Directus). Cần tech lead duyệt trong PR (Nguyên tắc X) |
 
 Rủi ro đã biết (không phải vi phạm), theo dõi trong tasks:
 
@@ -292,5 +314,5 @@ Rủi ro đã biết (không phải vi phạm), theo dõi trong tasks:
 | Benchmark trên runner CI dao động | Fail giả | Đo luân phiên nhiều vòng, lấy trung vị (R18) |
 | Thứ tự collection trong OAS không xác định | Test đối chiếu chập chờn | Chuẩn hóa thứ tự `tags`, so object không theo thứ tự key (R16.5) |
 | `/server/specs/oas` công khai dựng lại schema mỗi request (chưa có cache, FR-049) | Có thể bị dùng để làm quá tải DB | Chấp nhận tới feature 002, giống Directus khi `CACHE_SCHEMA=false`; pressure limiter mặc định bật, rate limiter nên bật khi mở Internet; benchmark so với Directus `CACHE_SCHEMA=false` |
-| `OPTIONS` khác Directus vì Nest gắn route thẳng vào app | Lệch `Allow` và status | Middleware `router-options` (R4), `methods.test.ts` |
+| `OPTIONS` khác Directus vì Nest gắn route thẳng vào app | Lệch `Allow` và status | Middleware `router-options` (R4), `methods.test.ts`, `observability/metrics.test.ts` |
 | `X`/`X_FILE` phụ thuộc thứ tự key | Cấu hình lạ cho kết quả khác nhau giữa môi trường | Dùng nguyên thuật toán Directus, golden test (R6), khuyến nghị không đặt cả hai |

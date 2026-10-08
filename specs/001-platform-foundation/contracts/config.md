@@ -32,7 +32,7 @@ table" cho unit test `libs/env/src/lib/directus-compat.test.ts`: nếu bản por
 | Process env đặt `SECRET` trước `SECRET_FILE` | nội dung file | |
 | `X_FILE` mà `X` không phải biến Directus (ví dụ `X_FILE=/cfg/secret.txt`) | Giữ nguyên `X_FILE`, không tạo `X` | |
 | Giá trị có tiền tố ép kiểu (`SECRET_FILE=string:/cfg/secret.txt`) | Tiền tố áp lên nội dung file | |
-| File trong `X_FILE` không đọc được | Dừng với lỗi: `Failed to read value from file "<path>", defined in environment variable "<X_FILE>".` | |
+| File trong `X_FILE` không đọc được | Dừng với lỗi: `Failed to read value from file "<giá trị thô>", defined in environment variable "<X_FILE>".` (giá trị thô gồm cả tiền tố: `SECRET_FILE=string:/cfg/missing` cho `"string:/cfg/missing"`, theo `create-env.ts`) | |
 
 ## 3. Ép kiểu (đã đo)
 
@@ -52,6 +52,9 @@ table" cho unit test `libs/env/src/lib/directus-compat.test.ts`: nếu bản por
 | File | Kết quả |
 |------|---------|
 | `.json` sai cú pháp | Dừng, `SyntaxError: <path>: Expected property name or '}' in JSON...` |
+| `.yaml`/`.yml` sai cú pháp | Dừng, `YAMLException` của `js-yaml` (lỗi gốc); theo mã nguồn, T028 đo lại trên image |
+| `.yaml` rỗng hoặc top-level không phải object | Dừng, `Error: YAML configuration file does not contain an object` (theo `read-configuration-from-yaml.ts`) |
+| `.json` top-level không phải object (ví dụ mảng) | Dừng, `Error: JSON configuration file does not contain an object` (theo `read-configuration-from-json.ts`) |
 | `.js` export số (không phải hàm hoặc object) | Dừng, `Error: Invalid JS configuration file export type. Requires one of "function", "object", received: "undefined"` |
 | `.js` export hàm | Gọi với `process.env`, dùng object trả về |
 | `regex:` sai cú pháp | Như mục 3 |
@@ -67,13 +70,13 @@ xuất hiện một lần, sắp xếp A–Z, không bao giờ in giá trị.
 
 | Nhóm | Hành vi | Biến (mẫu tên, đầy đủ ở feature 001) |
 |------|---------|----------------------------------------|
-| **A. Hỗ trợ** | Đọc và dùng | `CONFIG_PATH`, `HOST`, `PORT`, `PUBLIC_URL`, `LOG_LEVEL`, `LOG_STYLE`, `LOG_HTTP_IGNORE_PATHS`, `LOGGER_.+`, `MAX_PAYLOAD_SIZE`, `ROOT_REDIRECT`, `OPENAPI_ENABLED`, `QUERYSTRING_MAX_PARSE_DEPTH`, `QUERYSTRING_ARRAY_LIMIT`, `ROBOTS_TXT`, `TEMP_PATH`, `SERVER_.+`, `DB_.+`, `SECRET`, `SESSION_COOKIE_NAME`, `REDIS`, `REDIS_ENABLED`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB`, `IP_TRUST_PROXY`, `IP_CUSTOM_HEADER`, `CONTENT_SECURITY_POLICY_.+`, `CROSS_ORIGIN_OPENER_POLICY_ENABLED`, `CROSS_ORIGIN_OPENER_POLICY`, `HSTS_.+`, `CORS_ENABLED`, `CORS_ORIGIN`, `CORS_METHODS`, `CORS_ALLOWED_HEADERS`, `CORS_EXPOSED_HEADERS`, `CORS_CREDENTIALS`, `CORS_MAX_AGE`, `RATE_LIMITER_.+`, `CACHE_ENABLED`, `CACHE_TTL`, `CACHE_NAMESPACE`, `CACHE_STORE`, `CACHE_HEALTHCHECK_THRESHOLD`, `STORAGE_LOCATIONS`, `STORAGE_.+_DRIVER`, `STORAGE_.+_ROOT`, `STORAGE_.+_KEY`, `STORAGE_.+_SECRET`, `STORAGE_.+_BUCKET`, `STORAGE_.+_REGION`, `STORAGE_.+_ENDPOINT`, `STORAGE_.+_ACL`, `STORAGE_.+_SERVER_SIDE_ENCRYPTION`, `STORAGE_.+_SERVER_SIDE_ENCRYPTION_KMS_KEY_ID`, `STORAGE_.+_HEALTHCHECK_THRESHOLD`, `METRICS_ENABLED`, `METRICS_SCHEDULE`, `METRICS_TOKENS`, `METRICS_SERVICES`, `METRICS_HEALTH_CHECK_PREFIX`, `METRICS_NAME_PREFIX`, `EXTENSIONS_PATH`, `EXTENSIONS_LOCATION`, `MIGRATIONS_PATH` |
+| **A. Hỗ trợ** | Đọc và dùng | `CONFIG_PATH`, `HOST`, `PORT`, `PUBLIC_URL`, `LOG_LEVEL`, `LOG_STYLE`, `LOG_HTTP_IGNORE_PATHS`, `LOGGER_.+`, `MAX_PAYLOAD_SIZE`, `ROOT_REDIRECT`, `OPENAPI_ENABLED`, `QUERYSTRING_MAX_PARSE_DEPTH`, `QUERYSTRING_ARRAY_LIMIT`, `ROBOTS_TXT`, `TEMP_PATH`, `SERVER_.+`, `DB_.+`, `SECRET`, `SESSION_COOKIE_NAME`, `REDIS`, `REDIS_ENABLED`, `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB`, `IP_TRUST_PROXY`, `IP_CUSTOM_HEADER`, `CONTENT_SECURITY_POLICY_.+`, `CROSS_ORIGIN_OPENER_POLICY_ENABLED`, `CROSS_ORIGIN_OPENER_POLICY`, `HSTS_.+`, `CORS_ENABLED`, `CORS_ORIGIN`, `CORS_METHODS`, `CORS_ALLOWED_HEADERS`, `CORS_EXPOSED_HEADERS`, `CORS_CREDENTIALS`, `CORS_MAX_AGE`, `RATE_LIMITER_.+` (trừ `RATE_LIMITER_REGISTRATION_.+`, `RATE_LIMITER_EMAIL_.+`), `CACHE_ENABLED`, `CACHE_TTL`, `CACHE_NAMESPACE`, `CACHE_STORE`, `CACHE_HEALTHCHECK_THRESHOLD`, `STORAGE_LOCATIONS`, `STORAGE_.+_DRIVER`, `STORAGE_.+_ROOT`, `STORAGE_.+_KEY`, `STORAGE_.+_SECRET`, `STORAGE_.+_BUCKET`, `STORAGE_.+_REGION`, `STORAGE_.+_ENDPOINT`, `STORAGE_.+_ACL`, `STORAGE_.+_SERVER_SIDE_ENCRYPTION`, `STORAGE_.+_SERVER_SIDE_ENCRYPTION_KMS_KEY_ID`, `STORAGE_.+_HEALTHCHECK_THRESHOLD`, `METRICS_ENABLED`, `METRICS_SCHEDULE`, `METRICS_TOKENS`, `METRICS_SERVICES`, `METRICS_HEALTH_CHECK_PREFIX`, `METRICS_NAME_PREFIX`, `EXTENSIONS_PATH`, `EXTENSIONS_LOCATION`, `MIGRATIONS_PATH` |
 | **B. Không áp dụng cho API** | Bỏ qua, **không** cảnh báo (chỉ lệnh `bootstrap` và CLI của Directus dùng, API mới không có CLI) | `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_TOKEN`, `PROJECT_OWNER` |
-| **C. Chưa hỗ trợ** | Cảnh báo | Mọi biến còn lại của `DIRECTUS_VARIABLES`, ví dụ `AUTH_.+`, `EMAIL_.+`, `WEBSOCKETS_.+`, `GRAPHQL_.+`, `FILES_.+`, `ASSETS_.+`, `ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_.+`, `CACHE_SCHEMA*`, `CACHE_AUTO_PURGE*`, `CACHE_SYSTEM_TTL`, `REDIS_*_NAMESPACE`, `FLOWS_.+`, `TELEMETRY*`, `MCP_ENABLED`, `AI_.+`, `SYNCHRONIZATION_.+`, `HASH_.+`, `SERVE_APP` (xem dưới) |
+| **C. Chưa hỗ trợ** | Cảnh báo | Mọi biến còn lại của `DIRECTUS_VARIABLES`, ví dụ `AUTH_.+`, `EMAIL_.+`, `WEBSOCKETS_.+`, `GRAPHQL_.+`, `FILES_.+`, `ASSETS_.+`, `ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_.+`, `CACHE_SCHEMA*`, `CACHE_AUTO_PURGE*`, `CACHE_SYSTEM_TTL`, `REDIS_*_NAMESPACE`, `FLOWS_.+`, `TELEMETRY*`, `MCP_ENABLED`, `AI_.+`, `SYNCHRONIZATION_.+`, `HASH_.+`, `RATE_LIMITER_REGISTRATION_.+`, `RATE_LIMITER_EMAIL_.+` (gồm `RATE_LIMITER_EMAIL_FLOWS_.+`; đăng ký và email chưa có), `SERVE_APP` (không vào dòng cảnh báo nhóm C, xem dưới) |
 
-- **`SERVE_APP`**: mặc định của Directus là `true`. API mới chỉ cảnh báo khi biến này có mặt trong
-  cấu hình thô và có giá trị `true` (đặt tường minh); không đặt thì không cảnh báo. Dù đặt hay không,
-  `/admin` và `/admin/*` trả `404 ROUTE_NOT_FOUND`.
+- **`SERVE_APP`**: mặc định của Directus là `true`. API mới chỉ cảnh báo (dòng 4 của `contracts/startup.md`, không
+  phải dòng 3) khi key `SERVE_APP` có mặt trong cấu hình thô và giá trị sau ép kiểu là `true`; `false` hoặc không đặt
+  thì không cảnh báo. Dù đặt hay không, `/admin` và `/admin/*` trả `404 ROUTE_NOT_FOUND`.
 - Biến không thuộc `DIRECTUS_VARIABLES` (ví dụ `PATH`, `HOME`, `STORAGE_S3_FORCE_PATH_STYLE`,
   `UNIX_SOCKET_PATH`) không bao giờ bị cảnh báo. `UNIX_SOCKET_PATH`, `STORAGE_S3_FORCE_PATH_STYLE`
   vẫn được đọc và dùng như Directus.

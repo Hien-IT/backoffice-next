@@ -126,11 +126,11 @@ tập header ở FR-104 và body theo quy tắc ở FR-103.
 8. **Given** request kèm token (hợp lệ hay không), **When** gọi `/server/info`, `/server/health`,
    `/server/specs/oas`, `/metrics`, **Then** ở feature này API mới trả như request public. Phần dành cho user
    đã đăng nhập và admin được làm ở feature 003/004 (khác biệt tạm thời, đã liệt kê).
-9. **Given** bất kỳ response nào của API mới, **When** đọc header, **Then** `X-Powered-By` là
-   `Backoffice`.
+9. **Given** bất kỳ response nào của API mới (trừ `503` của pressure limiter, FR-045), **When** đọc
+   header, **Then** `X-Powered-By` là `Backoffice`.
 10. **Given** request không phải `GET` tới một route `/server/*` (ví dụ `POST /server/ping`,
     `POST /server/health`), **When** gọi, **Then** nhận `404 ROUTE_NOT_FOUND`, không có `405`, giống
-    Directus (đã đo). Riêng `OPTIONS` tới route của router (`/server/info`, `/server/health`,
+    Directus (đã đo; riêng `/server/setup` là D-14). Riêng `OPTIONS` tới route của router (`/server/info`, `/server/health`,
     `/server/specs/oas`, `/metrics` khi bật) nhận `200` với `Allow: GET,HEAD`; `OPTIONS /server/ping`
     nhận `404`.
 11. **Given** request `HEAD` hoặc request `GET` kèm `If-None-Match` trùng `ETag` đã nhận, **When** gọi
@@ -246,8 +246,8 @@ hai app và so tên metric.
 ### User Story 6 - Pipeline CI chặn thay đổi không đạt chuẩn (Priority: P2)
 
 Mỗi pull request tự động chạy lint, typecheck, unit test kèm ngưỡng coverage, test đối chiếu
-(Postgres đủ, MySQL và SQLite rút gọn), quét bảo mật và benchmark so với Directus. PR không đạt
-bất kỳ bước nào thì không merge được.
+(Postgres đủ, MySQL và SQLite rút gọn), E2E khói cho app web, quét bảo mật, benchmark so với
+Directus và build image. PR không đạt bất kỳ bước nào thì không merge được.
 
 **Why this priority**: Cổng chất lượng cần có từ feature đầu tiên để mọi feature sau được kiểm tra
 cùng một cách (Nguyên tắc X).
@@ -259,7 +259,7 @@ secret giả, một PR làm response `/server/info` khác Directus. Cả bốn �
 
 1. **Given** một PR, **When** pipeline chạy, **Then** có các bước riêng: lint, typecheck, unit test
    kèm coverage, test đối chiếu Postgres (đủ), MySQL (rút gọn), SQLite (rút gọn), quét dependency,
-   quét secret, phân tích mã, benchmark, build image.
+   quét secret, phân tích mã, benchmark, E2E (app web), build image.
 2. **Given** coverage của API hoặc libs BE dưới 80%, hoặc của app web dưới 60%, **When** pipeline
    chạy, **Then** bước unit test fail.
 3. **Given** PR có thay đổi trong `directus/`, **When** pipeline chạy, **Then** pipeline fail.
@@ -300,17 +300,19 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   xem FR-016 và `contracts/config.md`). Khuyến nghị không đặt cả hai.
 - Giá trị ép kiểu không hợp lệ: `number:abc` thành `NaN`, `boolean:xyz` thành `false`, `json:` hỏng giữ
   chuỗi gốc, `regex:` sai cú pháp làm API dừng khi khởi động (đã đo, `contracts/config.md` §3).
-- File trong `X_FILE` không đọc được: API mới dừng với lỗi nêu tên biến và đường dẫn, giống
-  Directus.
+- File trong `X_FILE` không đọc được: API mới dừng với lỗi nêu tên biến và giá trị thô của nó (đường dẫn, kể cả
+  tiền tố ép kiểu nếu có), giống Directus.
 - `CONFIG_PATH` trỏ tới file không tồn tại: bỏ qua file, chỉ dùng biến môi trường của process,
   giống Directus.
 - File `.js` cấu hình export một hàm nhận `env` hoặc export object: đọc được cả hai dạng như
   Directus. Export kiểu khác, file `.json` hoặc `.yaml` sai cú pháp: API dừng với lỗi gốc (FR-013).
-- Biến có tên dạng `LOGGER_*`, `DB_*`, `REDIS_*` không có trong danh sách mặc định: vẫn được nhận
-  là biến Directus, giống `directus-variables.ts`.
+- Biến có tên dạng `LOGGER_*`, `DB_*` không có trong danh sách mặc định: vẫn được nhận là biến Directus (mẫu
+  `LOGGER_.+`, `DB_.+` của `directus-variables.ts`). Với Redis chỉ các tên liệt kê (`REDIS`, `REDIS_ENABLED`,
+  `REDIS_HOST`, `REDIS_PORT`, `REDIS_USERNAME`, `REDIS_PASSWORD`, `REDIS_DB`, `REDIS_*_NAMESPACE`) là biến Directus;
+  `REDIS_FOO` thì không (không mở rộng `REDIS_FOO_FILE`, không cảnh báo), giống Directus.
 - Biến không phải của Directus (ví dụ `PATH`, `HOME`): không cảnh báo.
-- `SECRET` trống hoặc ngắn hơn 32 byte: ghi cảnh báo giống Directus; khi trống, token không dùng
-  chéo được với Directus, cảnh báo phải nói rõ điều này.
+- `SECRET` trống hoặc ngắn hơn 32 byte: ghi cảnh báo giống Directus (nguyên văn); khi trống, ghi thêm một dòng nói
+  rõ token không dùng chéo được với Directus (FR-033, D-18).
 - `PUBLIC_URL` không phải URL tuyệt đối: ghi cảnh báo giống Directus.
 - Postgres chưa có PostGIS, SQLite chưa có Spatialite: ghi cảnh báo giống Directus, vẫn chạy.
 - Không có `REDIS*` hoặc store là `memory`: vẫn chạy, ghi cảnh báo chỉ an toàn với một instance
@@ -322,7 +324,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 - Bảng `directus_settings` chưa có dòng nào (chỉ xảy ra khi bị xóa tay, vì migration `20250613A` của
   Directus luôn tạo một dòng): `/server/info` trả các field có giá trị mặc định khác null của cột,
   giống Directus.
-- Request tới path chưa có ở API mới: trả `404` với lỗi `ROUTE_NOT_FOUND` đúng format Directus.
+- Request tới path chưa có ở API mới: trả `404` với lỗi `ROUTE_NOT_FOUND` đúng format Directus (kèm token sai
+  hoặc query sai: xem D-10, D-12).
 - Body JSON sai cú pháp hoặc vượt `MAX_PAYLOAD_SIZE`: trả `INVALID_PAYLOAD` hoặc lỗi kích thước
   giống Directus.
 - Bật rate limiter (`RATE_LIMITER_ENABLED`, `RATE_LIMITER_GLOBAL_ENABLED`): vượt giới hạn trả
@@ -335,8 +338,9 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 - `directus_migrations` có migration tùy biến: hợp lệ nếu file cùng version có trong `MIGRATIONS_PATH`
   hoặc `EXTENSIONS_PATH/migrations`, kèm cảnh báo (FR-031, FR-035). File có trong thư mục nhưng version
   chưa có trong DB (Directus chưa kịp chạy): tính là thiếu, API dừng.
-- Thư mục migration tùy biến không tồn tại, rỗng, hoặc chứa file không đúng mẫu (không có dấu `-`,
-  sai phần mở rộng): không có version tùy biến nào được tính từ file đó (FR-031).
+- Thư mục migration tùy biến không tồn tại hoặc rỗng: không có version tùy biến nào. Ở `MIGRATIONS_PATH`, file
+  không có dấu `-` hoặc sai phần mở rộng bị bỏ qua. Ở `EXTENSIONS_PATH/migrations`, mọi file `.js` đều được tính như
+  Directus; file không có `-` (ví dụ `utils.js`) cho version là cả tên file, nên bị báo thiếu và API dừng (FR-031, D-05).
 
 ## Requirements *(mandatory)*
 
@@ -398,19 +402,21 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   phiên chạy khi mở kết nối (SQLite `PRAGMA foreign_keys`, CockroachDB `SET serial_normalization` và
   `SET default_int_size`, Oracle `ALTER SESSION SET NLS_*`) được phép, vì chỉ đổi trạng thái của chính
   kết nối đó, không đổi dữ liệu hay schema.
-- **FR-023**: Khi không có cấu hình Redis, hoặc `CACHE_STORE`/`RATE_LIMITER_STORE` là `memory`, API
-  PHẢI vẫn khởi động và ghi cảnh báo nêu rõ cấu hình này chỉ an toàn khi chạy một instance
-  (Nguyên tắc VII).
+- **FR-023**: Khi không có cấu hình Redis, hoặc `CACHE_STORE` là `memory` (kể cả giá trị mặc định, và cả khi
+  `CACHE_ENABLED=false`, vì Directus luôn dựng cache hệ thống và lock cache trên store này), hoặc
+  `RATE_LIMITER_STORE` là `memory` khi `RATE_LIMITER_ENABLED` hoặc `RATE_LIMITER_GLOBAL_ENABLED` bật, API PHẢI
+  vẫn khởi động và ghi cảnh báo nêu rõ cấu hình này chỉ an toàn khi chạy một instance (Nguyên tắc VII).
 - **FR-024**: API ở feature này PHẢI chạy được khi tài khoản DB chỉ có quyền đọc (không cần INSERT,
   UPDATE, DELETE hay DDL). Đây là cách chứng minh FR-022 ở tầng DB, kiểm bằng một role chỉ có SELECT
   trên Postgres ở bộ `full`.
 - **FR-025**: Khởi động KHÔNG kiểm tra Redis và KHÔNG dừng khi Redis không truy cập được, giống Directus
   (client Redis tự thử kết nối lại). Lỗi Redis hiện qua: `/server/health` (`cache:responseTime` là
   `error` khi `CACHE_ENABLED` và `CACHE_STORE=redis`; `rateLimiter:responseTime` khi bật rate limiter
-  dùng Redis), metric `<prefix>redis_connection_errors`, và log `warn` có tiền tố `[cache]`. Khi
+  dùng Redis), metric `<prefix>redis_connection_errors`, và log `warn` có tiền tố `[cache]` khi `CACHE_ENABLED=true` (các dòng `[system-cache]`,
+  `[deployment-cache]`, `[lock-cache]` của Directus chưa có, D-20). Khi
   `RATE_LIMITER_STORE=redis` mà Redis không truy cập được, mọi request đi qua rate limiter (kể cả
   `/server/ping`) nhận `500 INTERNAL_SERVER_ERROR`, giống Directus (suy từ code, test đối chiếu
-  `redis-down` xác nhận).
+  `server/errors.test.ts` với profile `ratelimit` xác nhận).
 
 **Kiểm tra khi khởi động**
 
@@ -421,14 +427,16 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   hai nơi, giống Directus: `MIGRATIONS_PATH` (mặc định `./migrations`; nơi Directus chạy migration tùy
   biến; chỉ tính file có dấu `-` và đuôi `.js`, `.cjs` hoặc `.mjs`) và `EXTENSIONS_PATH/migrations`
   (nơi bước kiểm tra khởi động của Directus tìm; chỉ tính file đuôi `.js`). Version là phần tên file
-  trước dấu `-` đầu tiên; thư mục không tồn tại hoặc rỗng thì không có version; version trùng chỉ tính
+  trước dấu `-` đầu tiên (file `.js` không có `-` ở `EXTENSIONS_PATH/migrations` cho version là cả tên file, như
+  `split('-')[0]` của Directus); thư mục không tồn tại hoặc rỗng thì không có version; version trùng chỉ tính
   một lần; so sánh phân biệt chữ hoa chữ thường. Nếu thiếu hoặc thừa, API PHẢI dừng với mã thoát khác 0
   và log liệt kê từng version thiếu và từng version thừa. API chỉ đọc tên file, KHÔNG thực thi file
   migration nào.
 - **FR-032**: Các bước kiểm tra khi khởi động PHẢI chỉ đọc, an toàn khi nhiều instance khởi động
   cùng lúc.
-- **FR-033**: API PHẢI ghi các cảnh báo khởi động như Directus: thiếu hoặc `SECRET` ngắn,
-  `PUBLIC_URL` không tuyệt đối, thiếu PostGIS hoặc Spatialite.
+- **FR-033**: API PHẢI ghi các cảnh báo khởi động như Directus, nguyên văn: thiếu hoặc `SECRET` ngắn,
+  `PUBLIC_URL` không tuyệt đối, thiếu PostGIS hoặc Spatialite. Khi `SECRET` thiếu, API ghi thêm một dòng `[mới]`
+  (D-18) nói token ký bằng `SECRET` ngẫu nhiên không được Directus chấp nhận.
 - **FR-034**: Nếu `STORAGE_LOCATIONS` có location dùng driver khác `local` và `s3`, API PHẢI dừng
   khi khởi động với mã thoát khác 0, log nêu tên location và driver không hỗ trợ.
 - **FR-035**: Khi danh sách chuẩn có version tùy biến, API PHẢI ghi một cảnh báo khi khởi động
@@ -468,7 +476,9 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   process nhận request mang thông tin xác thực (header Bearer, query `access_token` hoặc cookie phiên
   `SESSION_COOKIE_NAME`), API PHẢI ghi một cảnh báo `warn` nói rõ xác thực chưa khả dụng và request được
   xử lý như public; các lần sau ghi mức `debug`.
-- **FR-045**: Mọi response PHẢI có header `X-Powered-By: Backoffice`. Các header bảo mật
+- **FR-045**: Mọi response đi qua middleware `X-Powered-By` PHẢI có header `X-Powered-By: Backoffice`; riêng `503
+  SERVICE_UNAVAILABLE` của pressure limiter (chạy trước mọi middleware khác) không có `X-Powered-By`, header bảo mật
+  và log HTTP, giống Directus. Các header bảo mật
   (`CONTENT_SECURITY_POLICY_*`, `CROSS_ORIGIN_OPENER_POLICY*`, `HSTS_*`), CORS (`CORS_*`),
   `ROOT_REDIRECT` và `/robots.txt` (`ROBOTS_TXT`) PHẢI giống Directus; tập header được so sánh ở
   FR-104.
@@ -481,7 +491,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 
 - **FR-048**: Router PHẢI cho hành vi HTTP giống Directus (đã đo): đường dẫn không phân biệt chữ hoa
   chữ thường và bỏ qua dấu `/` cuối; `HEAD` được hỗ trợ; request có điều kiện (`If-None-Match` trùng
-  `ETag`) trả `304`; phương thức khác `GET` tới `/server/*` trả `404 ROUTE_NOT_FOUND`; `OPTIONS` tới
+  `ETag`) trả `304`; phương thức khác `GET` tới `/server/*` trả `404 ROUTE_NOT_FOUND` (riêng
+  `/server/setup`, `/server/specs/graphql` là khác biệt D-14, D-15); `OPTIONS` tới
   route của router (`/server/info`, `/server/health`, `/server/specs/oas`, và `/metrics` khi bật) trả
   `200` với `Allow: GET,HEAD` và body `GET,HEAD`, còn `OPTIONS` tới route gắn trực tiếp vào app
   (`/server/ping`, `/`, `/robots.txt`) trả `404`; `GET /` trả `302` tới `ROOT_REDIRECT`.
@@ -496,7 +507,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   với cùng mã lỗi, cùng message, cùng HTTP status như `directus/packages/errors`. Với message có phần
   phụ thuộc thời điểm (`REQUESTS_EXCEEDED`: `Too many requests, retry after <thời gian>.`,
   `extensions.reset`, header `Retry-After`), phép so sánh chỉ kiểm định dạng và `extensions.limit`.
-- **FR-051**: Path không tồn tại PHẢI trả `ROUTE_NOT_FOUND` (`404`), giống Directus.
+- **FR-051**: Path không tồn tại PHẢI trả `ROUTE_NOT_FOUND` (`404`), giống Directus; khi request kèm token sai, query
+  sai, hoặc DB mất kết nối với `CACHE_SCHEMA=false`, Directus trả lỗi khác trước khi tới 404 (khác biệt D-10, D-12, D-13).
 
 **Log**
 
@@ -517,11 +529,12 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 
 **Vận hành**
 
-- **FR-080**: Khi nhận SIGINT, SIGTERM, SIGHUP, API PHẢI theo đúng trình tự của Directus: chuyển
+- **FR-080**: Khi nhận SIGINT, SIGTERM, SIGHUP, API PHẢI theo trình tự tắt máy của Directus (terminus): chuyển
   `/server/health` sang `error`; ngừng nhận kết nối mới và đóng kết nối rảnh; request đang chạy được
   tối đa `SERVER_SHUTDOWN_TIMEOUT` ms (mặc định 1000), hết hạn thì kết nối còn lại bị đóng (request dở
-  bị cắt); đóng kết nối DB và Redis; rồi kết thúc bằng chính tín hiệu đã nhận (mã thoát 143 với
-  SIGTERM). Lỗi trong lúc tắt máy: log và thoát mã 1.
+  bị cắt); đóng kết nối DB; rồi kết thúc bằng chính tín hiệu đã nhận (mã thoát 143 với SIGTERM). Thêm so
+  với Directus (Nguyên tắc VII; Directus không làm): dừng cron metrics và đóng kết nối Redis trước khi kết
+  thúc. Lỗi trong lúc tắt máy: thoát mã 1, không ghi log (giống Directus: terminus không được truyền `logger`).
 - **FR-081**: API PHẢI lắng nghe theo `HOST`, `PORT` (hoặc `UNIX_SOCKET_PATH`) như Directus.
 
 **Đổi thương hiệu**
@@ -545,7 +558,9 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   spec của feature "Gỡ khi" đã có `Status: Done`. Test đối chiếu của mục tạm thời được giữ nguyên và
   phải đạt khi mục bị gỡ.
 - **FR-102**: Bộ test PHẢI chạy được trên Postgres, MySQL, MariaDB, SQLite, MSSQL, Oracle và
-  CockroachDB, tái sử dụng cách tổ chức của `directus/tests/blackbox`.
+  CockroachDB, tái sử dụng cách tổ chức của `directus/tests/blackbox`. Bộ rút gọn (`PARITY_SUITE=reduced`)
+  gồm ping, health, info, lỗi (404, payload) và các ca router của FR-048 (`methods`, `conditional`); bộ
+  đầy đủ chạy mọi test đối chiếu.
 - **FR-103**: "Giống Directus" nghĩa là: cùng status; mỗi header trong tập FR-104 giống (hoặc là khác
   biệt được chấp nhận); body JSON bằng nhau theo cấu trúc (không phụ thuộc thứ tự key của object, có
   phụ thuộc thứ tự phần tử của mảng, trừ mảng được chuẩn hóa ở FR-105); body không phải JSON (`pong`,
@@ -565,8 +580,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 **CI**
 
 - **FR-110**: Pipeline PR PHẢI chạy: lint, typecheck, unit test với ngưỡng coverage (80% API và
-  libs BE, 60% app web), test đối chiếu (Postgres đủ, MySQL và SQLite rút gọn), quét dependency,
-  quét secret, phân tích mã, benchmark so với Directus, build image.
+  libs BE, 60% app web), test đối chiếu (Postgres đủ, MySQL và SQLite rút gọn), E2E (app web, Playwright,
+  kịch bản khói), quét dependency, quét secret, phân tích mã, benchmark so với Directus, build image.
 - **FR-111**: Pipeline PHẢI fail khi có file trong `directus/` bị đổi.
 - **FR-112**: Pipeline hằng đêm PHẢI chạy đủ test đối chiếu trên MariaDB, MSSQL, Oracle, CockroachDB,
   và trên các phiên bản cũ mà Directus kiểm thử (Postgres 10, MySQL 5).
@@ -601,15 +616,17 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 | D-07 | Thành phần `email:connection` trong `/server/health` | Kiểm tra kết nối mail transport | Luôn `ok`, không kết nối mail server | Nguyên tắc X: không gửi email. Tránh để cấu hình mail làm instance bị đánh dấu không sẵn sàng | ngoài phạm vi | — |
 | D-08 | `SERVE_APP` và route `/admin` | Phục vụ app quản trị ở `/admin` | `/admin` và `/admin/*` trả `404 ROUTE_NOT_FOUND`; chỉ cảnh báo khi `SERVE_APP=true` được đặt tường minh. App web chạy container riêng | Nguyên tắc VII | khác | — |
 | D-09 | Route chưa làm ở feature này (bản đồ ở dưới) | Có | `404 ROUTE_NOT_FOUND` | Mỗi route thuộc feature riêng | ngoài phạm vi (tạm thời) | theo bản đồ |
-| D-10 | Request kèm token tới `/server/info`, `/server/health`, `/server/specs/oas`, `/metrics` | Token sai: `401 INVALID_CREDENTIALS`. Token đúng: info đầy đủ, health chi tiết cho admin, OAS theo quyền user, `/metrics` cho admin | Trả như request public, ghi cảnh báo lần đầu mỗi process (FR-044) | Xác thực thuộc feature 003, phân quyền thuộc 004 (đã chốt Q1: A) | ngoài phạm vi (tạm thời) | 004 |
+| D-10 | Request kèm token (Bearer, `access_token`, cookie phiên) tới mọi route sau bước `authenticate` của Directus: `/server/info`, `/server/health`, `/server/specs/oas`, `/metrics`, path lạ, route của D-09, phương thức khác `GET` tới `/server/*`, `/admin` | Token sai: `401 INVALID_CREDENTIALS` (kể cả ở path lạ). Token đúng: info đầy đủ, health chi tiết cho admin, OAS theo quyền user, `/metrics` cho admin | Bỏ qua token: route `/server/*` trả như request public, `/metrics` trả `403` khi thiếu `Metrics <token>`, path lạ trả `404`; ghi cảnh báo lần đầu mỗi process (FR-044) | Xác thực thuộc feature 003, phân quyền thuộc 004 (đã chốt Q1: A) | ngoài phạm vi (tạm thời) | 004 |
 | D-11 | Cache response khi `CACHE_ENABLED=true` cho `/server/info`, `/server/specs/oas` | Lưu response vào cache; khi `CACHE_AUTO_PURGE=false` trả `Cache-Control: public, max-age=<CACHE_TTL>`; có header `CACHE_STATUS_HEADER`; OAS giữ nguyên `info.version` trong TTL | Không cache, `Cache-Control: no-cache` | Cache response làm ở feature 005 | ngoài phạm vi (tạm thời) | 005 |
-| D-12 | Query string trên `/server/*` (`fields`, `limit`, `filter`, `export`...) | Kiểm tra query, có thể trả `400 INVALID_QUERY` (đã đo: `?limit=abc`, `?filter={bad`) hoặc file export | Bỏ qua query string | Kiểm tra query và export làm ở feature 005 | ngoài phạm vi (tạm thời) | 005 |
-| D-13 | `/server/health` khi DB mất kết nối và `CACHE_SCHEMA=false` | `500 INTERNAL_SERVER_ERROR` (bước dựng schema lỗi trước khi tới health) | `503` với `{"status":"error"}` | Health dùng cho probe, không dựng schema. Với `CACHE_SCHEMA=true` (mặc định) hai bên giống nhau | khác | — |
-| D-14 | `POST /server/setup` | Có | `404 ROUTE_NOT_FOUND` | Ghi `directus_users` và `directus_settings` (feature 004 và 010) | ngoài phạm vi (tạm thời) | 010 |
-| D-15 | `GET /server/specs/graphql[/:scope]` | Có | `404 ROUTE_NOT_FOUND` | GraphQL thuộc feature 011 | ngoài phạm vi (tạm thời) | 011 |
+| D-12 | Query string trên mọi route sau bước `sanitizeQuery` của Directus (`/server/*`, `/metrics`, path lạ, `/admin`): `fields`, `limit`, `filter`, `export`... | Kiểm tra query, có thể trả `400 INVALID_QUERY` (đã đo: `?limit=abc`, `?filter={bad`), kể cả trên path lạ và `/metrics`, hoặc file export | Bỏ qua query string | Kiểm tra query và export làm ở feature 005 | ngoài phạm vi (tạm thời) | 005 |
+| D-13 | Route sau middleware `schema` của Directus (`/server/health`, `/metrics`, path lạ, `/admin`) khi DB mất kết nối và `CACHE_SCHEMA=false` | `500 INTERNAL_SERVER_ERROR` (bước dựng schema lỗi trước khi tới route) | `/server/health`: `503` với `{"status":"error"}`; `/metrics` trả như bình thường; path lạ `404` | Health dùng cho probe, không dựng schema; middleware `schema` chạy mọi request thuộc feature 002. Với `CACHE_SCHEMA=true` (mặc định) hai bên giống nhau | khác | — |
+| D-14 | `/server/setup` (mọi phương thức) | `POST`: tạo admin khi chưa có user, `403 FORBIDDEN` khi đã có; `OPTIONS` → `200 Allow: POST` | `404 ROUTE_NOT_FOUND` | Ghi `directus_users` và `directus_settings` (feature 004 và 010) | ngoài phạm vi (tạm thời) | 010 |
+| D-15 | `/server/specs/graphql[/:scope]` (`GET`, `HEAD`, `OPTIONS`) | Có khi `GRAPHQL_INTROSPECTION` khác `false` (mặc định bật); `OPTIONS` → `200 Allow: GET,HEAD` | `404 ROUTE_NOT_FOUND` | GraphQL thuộc feature 011 | ngoài phạm vi (tạm thời) | 011 |
 | D-16 | Storage driver `gcs`, `azure`, `cloudinary`, `supabase` | Hỗ trợ | Dừng khi khởi động, báo rõ location | Nguyên tắc XI. Trái chữ Nguyên tắc VIII ("biến chưa hỗ trợ chỉ cảnh báo"), đã ghi ở Complexity Tracking của plan, cần tech lead duyệt trong PR (Nguyên tắc X) | ngoài phạm vi | — |
 | D-17 | WebSocket, extension, AI/MCP, deployment | Khởi tạo khi khởi động; route `/mcp` và `/ai` (mặc định bật), `/deployments`, `/deployments/webhooks` tồn tại | Không khởi tạo, các route đó trả `404 ROUTE_NOT_FOUND`, biến liên quan chỉ cảnh báo | Nguyên tắc XI | ngoài phạm vi | — |
-| D-18 | Dòng log thêm khi khởi động | Không có | Phiên bản Backoffice, biến chưa hỗ trợ, cấu hình một instance, gợi ý khi migration lệch, cảnh báo token bị bỏ qua | Giúp vận hành (đánh dấu `[mới]` ở `contracts/startup.md`) | khác | — |
+| D-18 | Dòng log thêm (khi khởi động và khi nhận request mang token) | Không có | Khi khởi động: phiên bản Backoffice, biến chưa hỗ trợ, `SERVE_APP` bị bỏ qua, cấu hình một instance, gợi ý khi migration lệch, migration tùy biến, `SECRET` ngẫu nhiên không dùng chéo với Directus (đánh dấu `[mới]` ở `contracts/startup.md`). Lần đầu mỗi process nhận request mang token: cảnh báo token bị bỏ qua (đánh dấu `[mới]` ở `contracts/observability.md`) | Giúp vận hành | khác | — |
+| D-19 | Image Docker và cách trả metric | Image chạy `bootstrap` rồi `pm2-runtime` (`PM2_INSTANCES`); dưới PM2, `/metrics` trả bản gộp các process, chụp ở mỗi lượt `METRICS_SCHEDULE` | Image chạy `node main.js` một process, không `bootstrap`, không PM2; `/metrics` trả giá trị hiện tại của process đó | Nguyên tắc II (không bootstrap ghi DB), VII (scale bằng replica). FR-103 không so giá trị metric | khác | — |
+| D-20 | Log khi Redis không truy cập được với `CACHE_STORE=redis` | Log `warn` tiền tố `[system-cache]`, `[deployment-cache]`, `[lock-cache]` (luôn có), thêm `[cache]` khi `CACHE_ENABLED=true` | Chỉ `[cache]` khi `CACHE_ENABLED=true` | Cache hệ thống, lock cache thuộc feature 002 | ngoài phạm vi (tạm thời) | 002 |
 
 Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác biệt được chấp nhận):
 
@@ -663,8 +680,10 @@ chỗ).
   request). Benchmark items, auth, files, assets được thêm khi các feature đó xong.
 - Dòng `Status` ở đầu spec chuyển từ `Draft` sang `Done` trong PR merge feature vào `main`; kiểm tra
   hết hạn của khác biệt tạm thời (FR-101) dựa vào giá trị này.
-- Môi trường chạy test đối chiếu cục bộ là `dev/directus-reference` (Directus, Postgres có PostGIS,
-  Redis, MinIO).
+- Bộ test đối chiếu chạy trên môi trường riêng `tests/parity/docker-compose.yml` (Postgres 13 PostGIS và các DB
+  của Assumptions, Redis, MinIO, Directus, API mới). `dev/directus-reference` (Directus, Postgres 16 PostGIS, Redis,
+  MinIO) chỉ để thử bằng tay (`quickstart.md` §2–§4); Postgres 16 ngoài danh sách phiên bản cam kết ở trên nên
+  kết quả ở đó không phải cổng kiểm tra.
 
 ## Success Criteria *(mandatory)*
 
@@ -689,7 +708,8 @@ chỗ).
   không tệ hơn Directus quá 10% với cùng tải. `/server/specs/oas` được so với Directus chạy
   `CACHE_SCHEMA=false` (FR-049) với cùng ngưỡng 10%; từ feature 002 được so với Directus cấu hình mặc
   định.
-- **SC-007**: Một PR vi phạm bất kỳ cổng nào (lint, typecheck, coverage, test đối chiếu, bảo mật,
-  benchmark, sửa `directus/`) đều bị chặn merge.
+- **SC-007**: Một PR vi phạm bất kỳ cổng nào (lint, typecheck, coverage, test đối chiếu, E2E (app web),
+  bảo mật, benchmark, build image, sửa `directus/`) đều bị chặn merge.
 - **SC-008**: Lập trình viên mới clone repo, cài dependency và chạy được build, lint, test toàn
-  workspace trong không quá 15 phút trên máy dev thông thường.
+  workspace trong không quá 15 phút, đo trong container `node:22` sạch (không cache pnpm và Nx), 4 vCPU,
+  8 GB RAM, hoặc trên runner `ubuntu-latest` của GitHub.

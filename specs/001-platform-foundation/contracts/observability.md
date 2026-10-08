@@ -28,19 +28,22 @@ Dòng log HTTP khi `LOG_STYLE=raw` (cấu trúc mặc định của pino-http):
 
 - `req.id`: request id do pino-http sinh, số tăng dần trong từng process (quyết định Q5). Không đọc
   header `X-Request-Id`, không trả header nào thêm.
-- Che giá trị: `req.headers.authorization`, `req.headers.cookie` (chuỗi `REDACTED_TEXT` của
-  `@directus/utils`); `access_token` trong `req.url` bị thay bằng cùng chuỗi đó.
+- Che giá trị (như Directus): `req.headers.authorization`, `req.headers.cookie` (chuỗi `REDACTED_TEXT` của
+  `@directus/utils`); khi `LOG_STYLE=raw` che thêm `req.query.access_token` và `res.headers['set-cookie']`;
+  `access_token` trong `req.url` bị thay bằng cùng chuỗi đó.
 - Log không bao giờ chứa giá trị `SECRET`, `DB_PASSWORD`, `STORAGE_*_SECRET`, token (FR-062). Cảnh báo
   biến chưa hỗ trợ chỉ ghi tên biến.
 - Không có log định tuyến của Nest ("Mapped {...} route"), vì Directus không có.
 - `[mới]` Request mang thông tin xác thực (header Bearer, query `access_token`, cookie phiên): lần đầu
   mỗi process ghi `warn` `Request carried credentials, but authentication is not available in this
   version; treating the request as public.`; các lần sau ghi `debug` (FR-044).
-- Khi Redis không truy cập được: log `warn` có tiền tố `[cache]` (từ Keyv), health và metric như FR-025.
+- Khi Redis không truy cập được: log `warn` có tiền tố `[cache]` (từ Keyv) khi `CACHE_ENABLED=true`; Directus còn ghi
+  `[system-cache]`, `[deployment-cache]`, `[lock-cache]` mà API mới chưa có (D-20); health và metric như FR-025.
 
-Kiểm thử: chạy API với `LOG_STYLE=raw`, gửi request có `Authorization`, `Cookie`, `?access_token=`, so
-tập key của dòng log với Directus (bỏ giá trị `time`, `pid`, `hostname`, `remotePort`, `responseTime`,
-`req.id`), và kiểm tra giá trị nhạy cảm đã bị che.
+Kiểm thử: chạy cả hai app với `LOG_STYLE=raw`, gửi `GET /server/ping` (Directus phục vụ trước bước xác thực nên token
+không đổi response) một lần kèm `Authorization`, `Cookie`, một lần kèm `?access_token=`; so tập key đệ quy của dòng log
+HTTP (gồm `req.headers`, `req.query`, `res.headers`) với Directus sau khi bỏ `time`, `pid`, `hostname`, `remotePort`,
+`responseTime`, `req.id`, và kiểm tra giá trị nhạy cảm đã bị che.
 
 ## 2. Metrics
 
@@ -65,10 +68,11 @@ Tên metric và help text (giống hệt Directus):
 
 - Histogram thời gian truy vấn DB được ghi ở mọi câu truy vấn knex (sự kiện `query-response`).
 - Không bật `collectDefaultMetrics` (Directus không bật).
-- Mỗi container trả metric của chính process đó (không gộp kiểu PM2).
+- Mỗi container trả metric của chính process đó (không gộp kiểu PM2, khác biệt D-19).
 
-Response `/metrics`: `200`, `Content-Type: text/plain; charset=utf-8`, `Cache-Control: no-cache`, body
-là `register.metrics()` của prom-client. Token sai hoặc thiếu: `403 FORBIDDEN`.
+Response `/metrics`: `200`, `Content-Type: text/plain; charset=utf-8`, `Cache-Control: no-cache`,
+`Vary: Origin, Cache-Control`, body là `register.metrics()` của prom-client. `OPTIONS /metrics` (khi bật) trả
+`200 Allow: GET,HEAD` body `GET,HEAD`; `HEAD` được hỗ trợ (FR-048). Token sai hoặc thiếu: `403 FORBIDDEN`.
 
 Kiểm thử: bật `METRICS_ENABLED=true` cùng `METRICS_TOKENS` ở cả hai app, chờ một lượt
 `METRICS_SCHEDULE`, scrape cả hai, so tập tên metric và help text (giá trị đo không so).

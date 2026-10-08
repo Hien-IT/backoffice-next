@@ -36,8 +36,8 @@
   ngôn ngữ hay thư viện.
 - Câu hỏi Q1 (request có token tới /server/*) đã chốt: A. Đã cập nhật US2 kịch bản 8, FR-043,
   FR-044 và bảng khác biệt.
-- Hai mục trong "Cần xác nhận" (số phiên bản trả về, migration tùy biến) đang dùng mặc định an toàn,
-  không chặn `/speckit.plan`.
+- Hai mục từng nằm trong "Cần xác nhận" (số phiên bản trả về, migration tùy biến) đã chốt thành FR-047 và
+  FR-031/FR-035; spec hiện ghi "Cần xác nhận: Không có".
 - Cập nhật khi lập plan (2026-10-08): sửa số migration (101), sửa FR-047 (`info.version` của OpenAPI là
   hash theo request), mở rộng FR-044 sang `/metrics`, thêm 4 dòng khác biệt (mô tả OpenAPI, cache
   response, query string, health khi `CACHE_SCHEMA=false`), thu hẹp SC-006, thêm giả định dựng schema

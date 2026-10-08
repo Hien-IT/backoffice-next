@@ -45,7 +45,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
 - **Cờ TypeScript**: kế thừa đúng bộ cờ của `@directus/tsconfig` 4.0.0 (`strict`,
   `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitOverride`,
   `noPropertyAccessFromIndexSignature`, `noUnusedLocals`, `verbatimModuleSyntax`,
-  `module`/`moduleResolution` `Node16`, `target` ES2022), để code port không phải sửa kiểu. `apps/api`
+  `module`/`moduleResolution` `Node16`, `target` ES2022; đây là ví dụ, `tsconfig.base.json` copy đủ cờ
+  của `configs/base` và `configs/node22`, gồm `isolatedDeclarations: true`), để code port không phải sửa kiểu. `apps/api`
   bật thêm `experimentalDecorators`, `emitDecoratorMetadata` và tắt `isolatedDeclarations` (giống
   `directus/api/tsconfig.json`). Lớp được inject PHẢI import dạng giá trị, không `import type`.
 - **Đã cân nhắc**: NestJS 11 CommonJS (bị loại: phải `require()` các package ESM, khác cách viết của
@@ -71,7 +72,9 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   `/robots.txt` gắn thẳng vào app nên rơi xuống 404. Nest gắn route thẳng vào app, nên `OPTIONS` tới
   `/server/info` sẽ thành 404, lệch Directus. Cách xử lý: một middleware `routerOptions` đăng ký trước
   route Nest, với đúng các path của router (`/server/info`, `/server/health`, `/server/specs/oas` khi
-  `OPENAPI_ENABLED`, `/metrics` khi `METRICS_ENABLED`), trả `Allow: GET,HEAD` và body `GET,HEAD` như
+  `OPENAPI_ENABLED`, `/metrics` khi `METRICS_ENABLED`; KHÔNG gồm `/server/setup`, `/server/specs/graphql`
+  của router Directus vì hai route này ngoài phạm vi, `OPTIONS` tới chúng là khác biệt D-14, D-15), trả
+  `Allow: GET,HEAD` và body `GET,HEAD` như
   `sendOptionsResponse` của Express. Test `methods.test.ts` kiểm cả hai nhóm.
 - **Ghi chú cho feature sau**: Express 5 dùng `cookie` và `send` bản mới. Feature 003 (cookie) và 007
   (asset) PHẢI có test đối chiếu header `Set-Cookie`, `Content-Range`, `Content-Disposition`.
@@ -93,7 +96,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   9. `GET /server/ping` (route Express thuần, trước bước xác thực)
   10. accountability public (thay `authenticate` ở feature này, xem R16)
   11. route Nest: `/server/info`, `/server/health`, `/server/specs/oas`, `/metrics`
-  12. 404 và xử lý lỗi (R14)
+  12. 404 và xử lý lỗi (R14): 404 do Nest sinh sau route của nó; KHÔNG gắn handler 404 vào Express
+      trước `NestFactory.create`
 - **Không port ở feature này**: `authenticate` thật (003), `schema` middleware chạy mọi request
   (002), `sanitizeQuery` (005), `cache` và phần ghi cache của `respond` (005), `requestCounter`
   (telemetry, Nguyên tắc XI), route extension, WebSocket, AI, MCP, deployment webhook.
@@ -111,8 +115,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   chứa nhóm A và B dưới dạng regex và phải trùng bảng đó (có unit test). Khi khởi động, lấy các key
   trong cấu hình thô (process + file `CONFIG_PATH`; key `X_FILE` tính theo `X`; không tính giá trị
   mặc định) mà `isDirectusVariable(key)` đúng nhưng không thuộc nhóm A hoặc B, ghi một dòng `warn`
-  liệt kê tên A–Z (không ghi giá trị). Riêng `SERVE_APP`: chỉ cảnh báo khi có mặt trong cấu hình
-  thô và bằng `true`. Mỗi feature sau chuyển biến từ C sang A trong cùng PR.
+  liệt kê tên A–Z (không ghi giá trị). Riêng `SERVE_APP`: không vào dòng cảnh báo trên; cảnh báo ở
+  dòng riêng khi có mặt trong cấu hình thô và giá trị sau ép kiểu bằng `true`. Mỗi feature sau chuyển biến từ C sang A trong cùng PR.
 - **Hành vi đã đo trên image Directus 11.17.4** (thứ tự `X`/`X_FILE`, ép kiểu không hợp lệ, lỗi file
   cấu hình, đường dẫn tương đối): ghi ở `contracts/config.md` §1–§4 và mã hóa thành
   `libs/env/src/lib/directus-compat.test.ts`. Phát hiện quan trọng: khi cùng đặt `X` và `X_FILE`, key
@@ -125,7 +129,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
 ## R7. Kết nối DB
 
 - **Quyết định**: Port `getDatabase()`, `getDatabaseClient()`, `hasDatabaseConnection()`,
-  `validateDatabaseConnection()`, `validateDatabaseCharset()`, `isInstalled()`,
+  `validateDatabaseConnection()`, `validateDatabaseCharset()` (gọi không `await` ngay khi tạo knex, như
+  Directus), `isInstalled()`,
   `validateDatabaseExtensions()` từ `directus/api/src/database/index.ts`, cùng `validateEnv`,
   `GeometryHelper.supported()` (chỉ phần kiểm tra PostGIS/Spatialite). Dùng `knex@3.1.0` và driver
   đúng bản Directus: `pg@8.16.3` (Postgres, CockroachDB), `mysql2@3.15.3`, `sqlite3@5.1.7`,
@@ -148,15 +153,17 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   - Version tùy biến: đọc tên file ở hai nơi. (1) `MIGRATIONS_PATH` (mặc định `./migrations`), nơi
     `database/migrations/run.ts` của Directus tìm migration tùy biến để chạy, lọc `name.includes('-')`
     và `/\.(c|m)?js$/`. (2) `<getExtensionsPath()>/migrations`, nơi `validateMigrations` của Directus
-    tìm, lọc `.js`. Cắt phần trước dấu `-` đầu tiên. Chỉ đọc tên, không `import`. (Phát hiện khi rà
+    tìm, lọc `.js`. Cắt phần trước dấu `-` đầu tiên (`split('-')[0]`; file ở nơi (2) không có `-` thì
+    version là cả tên file, như Directus). Chỉ đọc tên, không `import`. (Phát hiện khi rà
     checklist: Directus có hai nơi khác nhau; chỉ đọc nơi thứ hai như bản nháp đầu sẽ coi migration
     tùy biến đã chạy là "thừa".)
   - So sánh: `missing = chuẩn ∪ tùy biến − DB`, `extra = DB − (chuẩn ∪ tùy biến)`. Có phần tử nào thì
     log `error` liệt kê theo thứ tự tăng dần, rồi `process.exit(1)`. Có version tùy biến thì log
     `warn` (FR-035). Không thử lại, không chờ (FR-036): lệch thì thoát mã 1 và log kèm gợi ý "nếu
     Directus đang migrate thì khởi động lại sau".
-- **Đã kiểm tra**: DB tham chiếu (`dev/directus-reference`) có đúng 101 dòng, từ `20201028A` tới
-  `20260211A`. Spec ghi "103" là nhầm (103 là số file, gồm `run.ts` và `run.test.ts`) và đã được sửa.
+- **Đã kiểm tra**: DB tham chiếu (`dev/directus-reference`, Postgres 16, ngoài danh sách cam kết; số
+  dòng do danh sách migration quyết định, không phụ thuộc phiên bản Postgres, T068 kiểm lại bằng thư mục
+  migration) có đúng 101 dòng, từ `20201028A` tới `20260211A`. Spec ghi "103" là nhầm (103 là số file, gồm `run.ts` và `run.test.ts`) và đã được sửa.
 - **Lý do**: Danh sách tĩnh không phụ thuộc việc đóng gói thư mục `directus/` vào image. Test chống
   lệch giữ danh sách đúng khi nâng phiên bản Directus.
 
@@ -167,13 +174,15 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
     `directus/api/src/redis`.
   - Cache: `keyv@5.5.3` và `@keyv/redis@3.0.1`, namespace `CACHE_NAMESPACE`, port phần `getCache()`
     của `directus/api/src/cache.ts` cần cho health check và metrics. Bus và cache schema để
-    feature 002.
+    feature 002. Không dựng cache hệ thống, lock cache nên không có log `[system-cache]`,
+    `[deployment-cache]`, `[lock-cache]` (D-20).
   - Rate limiter: `rate-limiter-flexible@7.2.0`, port `directus/api/src/rate-limiter.ts` và hai
     middleware `rate-limiter-ip.ts`, `rate-limiter-global.ts` (gồm kiểm tra cấu hình global phải lớn
     hơn IP). Cùng `keyPrefix` mặc định, nên key Redis trùng với Directus (`rlflx:<ip>`,
     `rlflx:global-rate-limit`) và hai app đếm chung.
-  - Cảnh báo FR-023: khi `redisConfigAvailable()` sai, hoặc `CACHE_STORE`/`RATE_LIMITER_STORE` là
-    `memory`.
+  - Cảnh báo FR-023: khi `redisConfigAvailable()` sai; hoặc `CACHE_STORE` là `memory` (giá trị hiệu lực, kể cả
+    mặc định, không phụ thuộc `CACHE_ENABLED`); hoặc `RATE_LIMITER_STORE` là `memory` khi bật rate limiter IP
+    hoặc toàn cục.
 - **Lý do**: Dùng đúng thư viện và đúng bản của Directus là điều kiện để key và giá trị trong Redis
   giống nhau (Nguyên tắc IV).
 
@@ -205,7 +214,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
 
 - **Quyết định**: Port `directus/api/src/logger/index.ts` (bỏ nhánh WebSocket logs): `pino@9.7.0`,
   `pino-http@10.5.0`, `pino-http-print@3.1.0`, `pino-pretty@13.1.2`, cùng redact
-  (`authorization`, `cookie`, `access_token` trong URL), `LOGGER_*`, `LOGGER_HTTP_*`, `LOG_LEVEL`,
+  (`req.headers.authorization`, `req.headers.cookie`; khi `LOG_STYLE=raw` thêm `req.query.access_token`,
+  `res.headers['set-cookie']`; `access_token` trong URL), `LOGGER_*`, `LOGGER_HTTP_*`, `LOG_LEVEL`,
   `LOG_STYLE`, `LOG_HTTP_IGNORE_PATHS`. Request id là `req.id` mặc định của pino-http (số tăng dần
   trong process), đúng quyết định Q5.
 - Logger nội bộ của Nest: truyền một `LoggerService` bọc pino, chỉ chuyển `warn`, `error`, `fatal`;
@@ -221,9 +231,10 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   `<prefix>db_<client>_response_time_ms` với cùng bucket, `<prefix>cache_<store>_connection_errors`,
   `<prefix>redis_connection_errors`, `<prefix>storage_<location>_connection_errors`), cùng help text,
   cùng `METRICS_SCHEDULE`, `METRICS_SERVICES`, `METRICS_HEALTH_CHECK_PREFIX`. `/metrics` nhận
-  `Authorization: Metrics <token>` theo `METRICS_TOKENS`, trả `text/plain`, `Cache-Control: no-cache`.
+  `Authorization: Metrics <token>` theo `METRICS_TOKENS`, trả `text/plain`, `Cache-Control: no-cache`,
+  `Vary: Origin, Cache-Control`.
 - Bỏ nhánh PM2 (`AggregatorRegistry`, `pm2.sendDataToProcessId`): mỗi container API chạy một process
-  Node, Prometheus scrape từng container.
+  Node, Prometheus scrape từng container. Khác biệt D-19.
 - **Đã cân nhắc**: `collectDefaultMetrics()` của prom-client (bị loại: Directus không bật, thêm vào sẽ
   khác tên metric).
 
@@ -238,7 +249,8 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
     nhiều lỗi, cùng status dự phòng 500, ẩn lỗi lạ với người không phải admin, thêm `stack` khi
     `NODE_ENV=development`, header `Allow` cho `METHOD_NOT_ALLOWED`.
   - Route không khớp: Nest ném `NotFoundException` từ handler 404 nội bộ. Filter đổi nó thành
-    `RouteNotFoundError({ path: req.path })` → `404`, `Route <path> doesn't exist.`.
+    `RouteNotFoundError({ path: req.path })` → `404`, `Route <path> doesn't exist.`. Không có handler
+    404 riêng trong `app-pipeline.ts`: middleware Express gắn trước route Nest nên sẽ chặn mọi route.
   - Lỗi từ middleware Express (body parser, rate limiter, pressure, `extractToken`) đi qua handler
     lỗi mà Nest gắn vào Express, nên cũng tới filter này.
   - Hook `request.error` và `request.not_found` của Directus chưa có (emitter thuộc feature 009).
@@ -253,14 +265,16 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   (`keepAliveTimeout`, `headersTimeout`, `requestTimeout`...), lắng nghe theo `HOST`/`PORT` hoặc
   `UNIX_SOCKET_PATH`, log `Server started at http://<address>`. Tắt máy dùng
   `@godaddy/terminus@4.12.1` như `directus/api/src/server.ts`: tín hiệu `SIGINT`, `SIGTERM`, `SIGHUP`,
-  `timeout` = `SERVER_SHUTDOWN_TIMEOUT`, `beforeShutdown` đặt `SERVER_ONLINE = false`, `onSignal` dừng
-  job metrics, `knex.destroy()`, đóng các kết nối Redis, `onShutdown` log
+  `timeout` = `SERVER_SHUTDOWN_TIMEOUT`, `beforeShutdown` đặt `SERVER_ONLINE = false`, `onSignal` gọi
+  `knex.destroy()` như Directus và thêm (Nguyên tắc VII, Directus không làm) dừng job metrics, đóng các
+  kết nối Redis, `onShutdown` log
   `Backoffice shut down OK. Bye bye!`.
 - **Ngữ nghĩa đã xác minh từ mã nguồn terminus 4.12.1 và stoppable 1.1.0** (FR-080): trình tự là
   `beforeShutdown` → `server.stop()` → `onSignal` → `onShutdown`. `server.stop()` đóng listener và đóng
   kết nối rảnh; sau `timeout` ms các kết nối còn lại bị `end()` rồi `destroy()` (request dở bị cắt). Cuối
   cùng terminus gỡ handler và gửi lại chính tín hiệu (`process.kill(pid, signal)`), nên process kết thúc
-  bằng tín hiệu (143 với SIGTERM), không phải mã 0; lỗi trong lúc tắt thì thoát mã 1. Cổng bị chiếm:
+  bằng tín hiệu (143 với SIGTERM), không phải mã 0; lỗi trong lúc tắt thì thoát mã 1, không log (Directus không truyền
+  `logger` cho terminus, giữ như vậy). Cổng bị chiếm:
   log `Port <port> is already in use` rồi thoát mã 1 (`server.ts`).
 - Không dùng `app.enableShutdownHooks()` của Nest để không có hai bộ xử lý tín hiệu.
 - **Lý do**: FR-080, FR-081, Nguyên tắc VII.
@@ -308,8 +322,8 @@ theo thứ tự yêu cầu, rồi `public_background`.
     `cast-csv`) + `systemRelationRows` + `inspector.foreignKeys()` + `stitchRelations` của
     `services/relations.ts`.
   - Mỗi lần gọi `/server/specs/oas` dựng schema mới. Cache trong process, khóa Redis
-    `schemaCache--preparing` và bus `schemaChanged` thuộc feature 002. `/server/info` và
-    `/server/health` không cần schema nên không dựng.
+    `schemaCache--preparing` và bus `schemaChanged` thuộc feature 002. `/server/health` không cần schema nên
+    không dựng; `/server/info` chỉ dựng khi không có dòng settings (R16.2).
 - **Lý do**: Đây là phần đọc thuần, feature 002 dùng lại nguyên vẹn và chỉ thêm cache. Phần này kéo
   vào 001 vì quyết định Q1 (OAS cho public).
 
@@ -346,13 +360,15 @@ theo thứ tự yêu cầu, rồi `public_background`.
   collection theo câu truy vấn của inspector (không có ORDER BY). Bộ so sánh của test đối chiếu bỏ
   qua `info.version` và ETag của `/server/specs/oas`, so object không phụ thuộc thứ tự key, và sắp
   xếp mảng `tags` theo `name` trước khi so. Đây là bước chuẩn hóa, không phải khác biệt hành vi.
-- Đã kiểm chứng trên DB tham chiếu: OAS public dài 12.661 byte, tags `Assets`, `Authentication`,
+- Đã kiểm chứng trên DB tham chiếu (Postgres 16; kết quả do metadata schema quyết định, test đối chiếu
+  T048 chạy lại trên Postgres 13): OAS public dài 12.661 byte, tags `Assets`, `Authentication`,
   `Server`, 10 path, schemas `Query`, `x-metadata`, có 2 chỗ chữ "Directus" (mô tả server và mô tả tag
   `Server`).
 
-**R16.6 Các bước Directus làm ở mọi request mà API mới bỏ qua.** Middleware `schema` gọi `getSchema()`
-cho mọi route sau `/server/ping`. API mới chỉ dựng schema ở `/server/specs/oas`. Không có khác biệt
-nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCHEMA=false` (đã ghi trong spec).
+**R16.6 Các bước Directus làm ở mọi request mà API mới bỏ qua.** Directus chạy `authenticate`, `schema`,
+`sanitizeQuery` cho mọi route sau `/server/ping` (gồm `/metrics`, path lạ, `/admin`). API mới không port ba
+middleware này (R5) nên có khác biệt nhìn thấy được trên các route đó: token sai (D-10), query sai (D-12),
+DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
 
 ## R17. Bộ test đối chiếu
 
@@ -363,31 +379,39 @@ nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCH
   - Image DB trong `tests/blackbox/docker-compose.yml`.
   - Test `/server/ping`, `/server/health` trong `tests/db/routes/server/*.test.ts`, chuyển sang hàm
     `parity()`.
-- **Cách chạy**: mỗi vendor có một file env (`tests/parity/env/<vendor>.env`). Docker Compose chạy DB,
+- **Cách chạy**: target `parity-tests:parity` (cần Docker); target `parity-tests:test` chỉ chạy unit
+  test của bộ so sánh. Mỗi vendor có một file env (`tests/parity/env/<vendor>.env`). Docker Compose chạy DB,
   Redis, MinIO, Directus 11.17.4 (image chính thức `directus/directus:11.17.4`, tự bootstrap DB) và
   API mới (image build từ repo), cả hai đọc **cùng file env đó** (chứng minh SC-001). API mới chỉ
-  khởi động sau khi Directus healthy.
+  khởi động sau khi Directus healthy. Mỗi profile (`ratelimit`, `cors-hsts`, `pressure`, `metrics`) thêm
+  một cặp Directus + API mới riêng (cổng riêng, cùng DB và Redis, `CACHE_NAMESPACE` riêng); cặp chính
+  không đổi env, nên bật nhiều profile cùng lúc an toàn.
 - **Hàm `parity(req)`**: gửi cùng request (cùng header Host) tới `DIRECTUS_URL` và `BACKOFFICE_URL`, so
   status, tập header FR-104 và body theo FR-103. Trước khi so, áp các bộ chuẩn hóa FR-105 (loại
   `info.version` và `ETag` của OAS, sắp `tags` và `paths` theo tên, chỉ so định dạng `Retry-After`) và
   danh sách khác biệt được chấp nhận.
-- **Danh sách khác biệt được chấp nhận**: `tests/parity/accepted-differences.ts`. Mỗi dòng có `id`
-  (cột "Mã" của bảng "Khác biệt so với Directus", ví dụ `D-01`, `D-09.3`), endpoint, vị trí (JSON pointer
-  hoặc tên header), giá trị mong đợi ở hai bên, và `removeAt` (số feature, chỉ với khác biệt tạm thời).
-  `accepted-differences.test.ts` đọc bảng trong `spec.md` của mọi feature và fail khi: một `id` không có
-  trong bảng; `removeAt` không khớp cột "Gỡ khi"; hoặc spec của feature `removeAt` đã có `Status: Done`
-  mà mục vẫn còn.
+- **Danh sách khác biệt được chấp nhận**: `tests/parity/accepted-differences.ts` (kiểu ở data-model
+  §3.1). Mỗi dòng có `id` (cột "Mã" của bảng "Khác biệt so với Directus", ví dụ `D-01`, `D-09.3`),
+  `feature` (spec đã thêm mục, ví dụ `001`), `kind` (`http`: khác biệt trong response; `doc`: log,
+  package, migration, khởi động, bộ so sánh bỏ qua), với `http` thêm `endpoints`, vị trí (`status`, tên
+  header, hoặc JSON pointer; `''` là cả body) và giá trị mong đợi ở hai bên, cùng `reason` và `removeAt`
+  (số feature, chỉ với khác biệt tạm thời). `accepted-differences.test.ts` đọc bảng trong `spec.md` của
+  feature ghi ở `feature` và fail khi: một `id` không có trong bảng đó; `removeAt` không khớp cột "Gỡ
+  khi"; hoặc spec của feature `removeAt` đã có `Status: Done` mà mục vẫn còn.
 - **Snapshot DB** (SC-003): hàm chụp danh sách mọi bảng (không chỉ `directus_*`), cột (qua schema
-  inspector), index và checksum dữ liệu từng bảng (SELECT có ORDER BY khóa chính, băm SHA-256). Không
+  inspector), định nghĩa index (cột, unique), khóa ngoại và checksum dữ liệu từng bảng (SELECT có ORDER
+  BY khóa chính, bảng không có khóa chính thì ORDER BY mọi cột; băm SHA-256). Không
   chụp trạng thái phiên kết nối. Kịch bản kiểm tra riêng: dừng
-  Directus, chụp, khởi động API mới, gửi toàn bộ request, gửi SIGTERM, chụp lại, so sánh. Như vậy chỉ
+  mọi container Directus (kể cả của profile), chụp, khởi động API mới, gửi toàn bộ request, gửi SIGTERM, chụp lại, so sánh. Như vậy chỉ
   API mới tác động lên DB trong khoảng đo.
-- **Rút gọn và đầy đủ**: biến `PARITY_SUITE=full|reduced`. Ở feature này, `reduced` gồm ping, health,
-  info, lỗi 404, các ca router (`methods.test.ts`, `conditional.test.ts`); `full` thêm OAS, metrics, rate
-  limiter, snapshot DB, kịch bản khởi động, `redis-down.test.ts` (dừng container Redis, kiểm FR-025),
-  `readonly-account.test.ts` (role chỉ SELECT trên Postgres, FR-024).
-- **Kịch bản khởi động** (US3, FR-034, FR-036): chạy file build của API trên DB tạm (Postgres:
-  `CREATE DATABASE ... TEMPLATE`; SQLite: copy file), sửa `directus_migrations` của DB tạm (đây là
+- **Rút gọn và đầy đủ**: biến `PARITY_SUITE=full|reduced` (FR-102). `full` chạy mọi `*.test.ts` của target `parity`.
+  `reduced` chỉ chạy `server/{ping,health,info,errors,methods,conditional}.test.ts`; trong các file đó, ca cần dừng
+  container hoặc profile riêng (`ratelimit`, `cors-hsts`, `pressure`, `metrics`) chỉ chạy ở `full`. `redis-down.test.ts`
+  (dừng Redis, API vẫn khởi động, FR-025) và `readonly-account.test.ts` (role chỉ SELECT trên Postgres, FR-024) thuộc `full`.
+- **Kịch bản khởi động** (US3, FR-034, FR-036): chạy file build của API trên DB tạm (Postgres: sau khi
+  Directus bootstrap, tạo một lần DB mẫu `directus_template` bằng `pg_dump | psql`, không có kết nối nào,
+  rồi `CREATE DATABASE <tạm> TEMPLATE directus_template`, vì Postgres từ chối TEMPLATE khi DB nguồn còn
+  kết nối; SQLite: copy file), sửa `directus_migrations` của DB tạm (đây là
   test ghi, không phải API ghi), kiểm tra mã thoát và log. Gồm cả migration tùy biến ở `MIGRATIONS_PATH`
   và `EXTENSIONS_PATH/migrations`, cổng bị chiếm, file cấu hình lỗi, ba instance khởi động cùng lúc.
   Việc ghi `CREATE DATABASE`, sửa `directus_migrations` do test, không do API.
@@ -408,7 +432,9 @@ nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCH
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request
   (FR-049, SC-006). Từ feature 002 chuyển sang so với Directus mặc định.
 - **Giảm nhiễu trên CI**: hai app chạy trên cùng runner, cùng DB và Redis, đo luân phiên; số vòng và
-  thời gian chỉnh bằng `BENCH_ROUNDS`, `BENCH_DURATION`.
+  thời gian chỉnh bằng `BENCH_ROUNDS`, `BENCH_DURATION`. Target `benchmark:env-up` dựng môi trường
+  (Compose `include` môi trường đối chiếu Postgres và thêm `directus-nocache`); `benchmark:run` không tự
+  dựng.
 
 ## R19. CI trên GitHub Actions
 
@@ -416,12 +442,20 @@ nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCH
   - `ci.yml` (pull request và push `main`):
     - `guard-directus`: fail nếu `git diff --name-only <base>...HEAD` có đường dẫn `directus/`.
     - `quality`: `pnpm install --frozen-lockfile`, `nx affected -t lint typecheck test build`
-      (trên `main` chạy `run-many`). Coverage dùng `@vitest/coverage-v8@3.2.4` với `thresholds` 80%
-      cho `apps/api` và libs BE, 60% cho `apps/web`; dưới ngưỡng thì Vitest trả mã lỗi.
-    - `parity` (matrix): `postgres` + `full`, `mysql` + `reduced`, `sqlite3` + `reduced`.
+      (trên `main` chạy `run-many`), `pnpm run check-port-headers`, `pnpm run check-package-names`,
+      `swagger-cli validate` cho `specs/*/contracts/*.openapi.yaml`. Target `test` không cần Docker
+      (`parity-tests:test` chỉ chạy unit test). Coverage dùng `@vitest/coverage-v8@3.2.4` với `thresholds` 80%
+      cho `apps/api` và libs BE, 60% cho `apps/web`; `createVitestConfig` bật `coverage.enabled`, nên target `test` luôn kiểm ngưỡng và
+      dưới ngưỡng thì Vitest trả mã lỗi.
+    - `parity` (matrix: `parity-tests:env-up --vendor=<vendor> [--profiles=...]`, `parity-tests:parity
+      --vendor=<vendor>`, cuối job `parity-tests:env-down`): `postgres` + `full` (bật thêm profile
+      `ratelimit`, `cors-hsts`, `pressure`, `metrics`), `mysql` + `reduced`, `sqlite3` + `reduced`.
     - `guard-differences`: chạy `accepted-differences.test.ts` (mã khớp spec, mục tạm thời hết hạn).
-    - `benchmark`: Postgres, sau `parity`.
+    - `benchmark`: Postgres, sau `parity` (`benchmark:env-up`, `benchmark:run`).
     - `docker`: build image `apps/api` và `apps/web`.
+    - `e2e`: sau `docker`, chạy image web và API trên Postgres đã được
+      Directus bootstrap (`parity-tests:env-up --vendor=postgres`), chạy smoke test Playwright của `apps/web-e2e`
+      (`nx run web-e2e:e2e`).
     - `security`: `pnpm audit --prod --audit-level=high`, gitleaks (chạy image
       `ghcr.io/gitleaks/gitleaks`, không dùng action có giấy phép).
   - `codeql.yml`: `github/codeql-action` cho `javascript-typescript`, chạy ở pull request, push `main`
@@ -442,7 +476,9 @@ nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCH
 ## R20. Image Docker của API
 
 - **Quyết định**: `apps/api/Dockerfile` theo khuôn `directus/Dockerfile`: `node:22-alpine`, build với
-  `python3 build-base` (cho `sqlite3`), `pnpm deploy --prod`, chạy bằng user `node`. Giữ thư mục làm
+  `python3 build-base` (cho `sqlite3`), `pnpm --filter @backoffice/api deploy --legacy --prod dist` (như
+  `directus/Dockerfile`; pnpm 10 từ chối `deploy` khi thiếu `--legacy` và không bật
+  `inject-workspace-packages`), chạy bằng user `node`. Giữ thư mục làm
   việc `/directus` và cùng biến mặc định của image Directus (`DB_CLIENT=sqlite3`,
   `DB_FILENAME=/directus/database/database.sqlite`, `NODE_ENV=production`). KHÔNG chạy
   `bootstrap`, KHÔNG dùng PM2: lệnh chạy là `node main.js`.
@@ -453,10 +489,14 @@ nhìn thấy được, trừ trường hợp DB mất kết nối khi `CACHE_SCH
 ## R21. App web khung
 
 - **Quyết định**: `apps/web`: Vue 3.5, Vite 7.3, `@vitejs/plugin-vue` 6.0.1, PrimeVue 5.0 với
-  `@primeuix/themes` 3.0, Pinia 3.0, Vue Router 4.6 (cùng major với Directus app để copy composable
-  dễ), vue-i18n 11. Khi khởi động, app đọc `config.json` cạnh `index.html` (base `/admin/`) để lấy URL
+  `@primeuix/themes` 3.0, Pinia 3.0, Vue Router 4.6 (cùng major với Directus app), vue-i18n 11. Pinia 3.0
+  và Vite 7.3 khác major với Directus app (Pinia 2.3.1, Vite 8.0.8 trong `directus/pnpm-workspace.yaml`):
+  app khung chưa copy store hay composable nào của Directus app; feature 012 chốt lại khi bắt đầu copy. Khi khởi động, app đọc `config.json` cạnh `index.html` (base `/admin/`) để lấy URL
   API; dev server phục vụ file mặc định. Chỉ có một trang khung hiển thị "Backoffice" và kết quả
-  `GET /server/ping`. Test: Vitest 3.2.4 + `@vue/test-utils` 2.4.6 + `happy-dom`, ngưỡng 60%.
+  `GET /server/ping`. i18n: en-US, vi-VN copy các key cần từ
+  `directus/app/src/lang/translations/{en-US,vi-VN}.yaml` (Nguyên tắc VI), có header port; thêm ngôn ngữ
+  bằng một file mới. Test: Vitest 3.2.4 + `@vue/test-utils` 2.4.6 + `happy-dom`, ngưỡng 60%; E2E khói
+  `apps/web-e2e` (Playwright 1.64) chạy ở job `e2e` của CI.
 - **Lý do**: FR-003. Mọi màn hình nghiệp vụ thuộc feature 012 trở đi.
 
 ## R22. Chất lượng code

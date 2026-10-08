@@ -28,7 +28,7 @@
 - [x] CHK009 Quy tắc đổi thương hiệu chữ "Directus" có đủ cụ thể để phân biệt chữ chỉ app (đổi) với tên bảng `directus_*`, `@directus/sdk`, dữ liệu trong DB (giữ) không? Dòng "Log message có chữ Directus" trong bảng khác biệt không liệt kê message nào được loại trừ. [Clarity, Spec §FR-090, §Khác biệt]
   - Đã xử lý: FR-090 thành quy tắc (đổi khi chỉ chính app, giữ khi là bảng, SDK, dữ liệu DB, biến, mã lỗi, hoặc Directus thật), D-03 trỏ tới `contracts/`; message ngoài hai contract giữ nguyên văn Directus.
 - [x] CHK010 Mỗi dòng trong bảng "Khác biệt so với Directus" có mã định danh để khớp với `accepted-differences` của bộ test (FR-101) không? Bảng hiện không có cột mã, trong khi plan và research giả định có `id`. [Traceability, Spec §FR-101, Research R17]
-  - Đã xử lý: Bảng khác biệt có cột "Mã" (D-01 đến D-18, D-09.1 đến D-09.9) và cột "Gỡ khi"; FR-101 và data-model §3.1 dùng mã này.
+  - Đã xử lý: Bảng khác biệt có cột "Mã" (D-01 đến D-20, D-09.1 đến D-09.9) và cột "Gỡ khi"; FR-101 và data-model §3.1 dùng mã này.
 
 ## Phạm vi DB và kiểm thử
 
@@ -44,7 +44,7 @@
 - [x] CHK014 "Chỉ đọc" (FR-022, FR-032) có định nghĩa rõ cho các câu lệnh cấp phiên chạy khi kết nối (SQLite `PRAGMA foreign_keys`, CockroachDB `SET`, Oracle `ALTER SESSION`) không, và snapshot của SC-003 có phủ chúng không? [Ambiguity, Spec §FR-022, §FR-032, §SC-003, Research R7]
   - Đã xử lý: FR-022 liệt kê các câu lệnh cấp phiên được phép; SC-003 loại trạng thái phiên khỏi bản chụp.
 - [x] CHK015 Có quy định API phải chạy được (hoặc không đòi quyền ghi) với tài khoản DB chỉ đọc không? [Gap, Dependency]
-  - Đã xử lý: FR-024 và US1 kịch bản 10: API phải chạy với tài khoản chỉ SELECT, kiểm bằng role Postgres ở bộ `full`. **Quyết định mặc định của tôi, cần bạn xác nhận.**
+  - Đã xử lý: FR-024 và US1 kịch bản 10: API phải chạy với tài khoản chỉ SELECT, kiểm bằng role Postgres ở bộ `full`. **Đã xác nhận ngày 2026-10-08.**
 - [x] CHK016 US1 kịch bản 9 và SC-003 có nói rõ chỉ phủ bảng `directus_*`, hay cả bảng dữ liệu người dùng? [Clarity, Spec §US1.9, §SC-003]
   - Đã xử lý: FR-022, US1.9 và SC-003 phủ mọi bảng; snapshot (data-model §3.3) chụp mọi bảng.
 - [x] CHK017 Yêu cầu phục hồi khi Directus đang nâng cấp dở (đã chạy một phần migration) và orchestrator khởi động lại API có được quy định không: thoát luôn hay chờ và thử lại? [Gap, Recovery, Spec §US3]
@@ -52,7 +52,7 @@
 - [x] CHK018 Thời gian chờ kết nối DB và Redis khi khởi động (DB chưa sẵn sàng) có được quy định không? SC-004 ("dừng trong 10 giây") có tính cả thời gian chờ kết nối không, và đo từ lúc nào? [Ambiguity, Spec §SC-004, §FR-030, §US3.7]
   - Đã xử lý: FR-036 và SC-004: 10 giây áp dụng khi DB truy cập được; DB không truy cập được thì theo thời gian chờ của pool (mặc định 60 giây, đã xác minh trong knex 3.1.0).
 - [x] CHK019 Hành vi khi Redis không kết nối được lúc khởi động có được viết cụ thể, thay vì "xử lý giống Directus" (không nêu Directus làm gì)? [Ambiguity, Spec §Edge Cases]
-  - Đã xử lý: FR-025: không kiểm tra Redis lúc khởi động, không dừng, lỗi hiện qua health, metric, log. Phần "mọi request nhận 500 khi rate limiter Redis chết" suy từ code, có test `redis-down` xác nhận.
+  - Đã xử lý: FR-025: không kiểm tra Redis lúc khởi động, không dừng, lỗi hiện qua health, metric, log. Phần "mọi request nhận 500 khi rate limiter Redis chết" suy từ code, có test `server/errors.test.ts` (profile `ratelimit`, T050) xác nhận.
 - [x] CHK020 Quy tắc lấy version từ tên file migration tùy biến có xét các đầu vào biên không (file không có dấu `-`, trùng version, phần mở rộng khác `.js`, thư mục rỗng)? [Completeness, Spec §FR-031]
   - Đã xử lý: FR-031 quy định hai thư mục, bộ lọc tên file, cách lấy version, thư mục thiếu hoặc rỗng, trùng version, phân biệt hoa thường.
 - [x] CHK021 "Không có xung đột" khi nhiều instance khởi động cùng lúc (US3 kịch bản 8) có đo được không, tức nêu xung đột nào và quan sát bằng cách nào? [Measurability, Spec §US3.8]
@@ -94,10 +94,29 @@
 - [x] CHK036 SC-006 loại `/server/specs/oas` khỏi benchmark. Có yêu cầu hiệu năng thay thế cho giai đoạn này không? [Gap, Spec §SC-006]
   - Đã xử lý: SC-006 và Assumptions: OAS so với Directus `CACHE_SCHEMA=false` (container `directus-nocache`), cùng ngưỡng 10%.
 
+## Cổng CI (Nguyên tắc X)
+
+- [x] CHK037 Lint, typecheck, unit test kèm ngưỡng coverage (80% `apps/api` và libs BE, 60% `apps/web`) có là bước bắt buộc của mỗi PR không? [Coverage, Spec §FR-110, Constitution X]
+  - Đã xử lý: FR-110, US6.2; job `quality` (T097); ngưỡng đặt ở T016, T096, T102.
+- [x] CHK038 Test đối chiếu Postgres (đủ), MySQL và SQLite (rút gọn) có chạy ở mỗi PR, và bộ rút gọn có được định nghĩa ở một chỗ không? [Clarity, Spec §FR-102, §FR-110]
+  - Đã xử lý: FR-102 định nghĩa bộ rút gọn; job `parity` (T097); T082 chọn file.
+- [x] CHK039 E2E cho app web có là cổng PR không? [Coverage, Spec §FR-110, Constitution X]
+  - Đã xử lý: FR-110, SC-007; job `e2e` (T097) chạy smoke test T101 trên image của job `docker`.
+- [x] CHK040 Build Docker image (`apps/api`, `apps/web`) có là cổng PR không? [Coverage, Spec §FR-110]
+  - Đã xử lý: job `docker` (T097).
+- [x] CHK041 Quét bảo mật đủ ba loại (dependency: `pnpm audit`, Dependabot; secret: gitleaks; phân tích mã: CodeQL) chưa? [Coverage, Spec §FR-110]
+  - Đã xử lý: job `security` (T097), `codeql.yml`, `dependabot.yml`, `.gitleaks.toml` (T098); repo private không có Code Security thì dùng Semgrep CE và ghi Complexity Tracking.
+- [x] CHK042 Benchmark ngưỡng 10% có cổng tự động không, và chỗ lệch quy mô thiết kế (2.000 user, 10 triệu bản ghi) đã ghi chưa? [Measurability, Spec §FR-113, §SC-006, Constitution X]
+  - Đã xử lý: FR-113; T093, T095, job `benchmark` (T097); ngoại lệ quy mô ghi ở Complexity Tracking của plan, tech lead duyệt (T112).
+- [x] CHK043 Sửa `directus/` có bị chặn tự động không? [Coverage, Spec §FR-111, Constitution I]
+  - Đã xử lý: FR-111; T092, T094, job `guard-directus` (T097).
+- [x] CHK044 DB chỉ chạy hằng đêm (MariaDB, MSSQL, Oracle, CockroachDB, Postgres 10, MySQL 5) có lịch và cách báo lỗi không? [Coverage, Spec §FR-112, §SC-001]
+  - Đã xử lý: FR-112; `nightly.yml` (T098), tải artifact log khi fail.
+
 ## Notes
 
-- Rà lại ngày 2026-10-08, sau khi sửa spec, plan, research, data-model, quickstart và contracts. Cả 36 mục
-  đạt. Mỗi mục có dòng "Đã xử lý" trỏ tới chỗ trả lời.
+- Rà lại ngày 2026-10-08, sau khi sửa spec, plan, research, data-model, quickstart và contracts. Cả 44 mục
+  đạt (CHK037–CHK044 thêm khi rà cổng CI). Mỗi mục có dòng "Đã xử lý" trỏ tới chỗ trả lời.
 - Việc rà lại có đo thực tế trên Directus 11.17.4 (cổng 8055 và image Docker), nên 4 điều trong bản nháp
   trước là **sai** và đã sửa:
   1. Khi cùng đặt `X` và `X_FILE`, key xuất hiện sau thắng, không phải "file luôn thắng" (CHK027).
@@ -115,6 +134,6 @@
 - Còn mở ngoài phạm vi spec (không chặn `/speckit.tasks`):
   - **CHK024**: ngoại lệ FR-034 so với Nguyên tắc VIII chờ tech lead duyệt trong PR, hoặc sửa chữ Nguyên tắc
     VIII qua quy trình Governance.
-  - **CHK019**: kết luận "rate limiter Redis chết thì mọi request nhận 500" suy từ code, chưa chạy thử.
+  - **CHK019**: kết luận "rate limiter Redis chết thì mọi request nhận 500" suy từ code, chưa chạy thử; T050 xác nhận.
 - Không có mục nào kiểm tra hành vi của code. Khi tasks được tạo, mỗi mục "Đã xử lý" trở thành nguồn cho
   một test đối chiếu hoặc unit test.
