@@ -3,9 +3,8 @@
 ---
 
 > [!NOTE]\
-> We’re planning an update to the Directus source code license and would love your feedback.\
+
 > Take a look at our community post and share your thoughts!\
-> [🔗 Directus License Revision: Community Feedback Requested](https://community.directus.io/t/directus-license-revision-community-feedback-requested/2125)
 
 ---
 
@@ -76,27 +75,9 @@ Directus is made possible with support from our passionate core team, talented c
 
 <br />
 
-## 📄 Understanding Our License
 
-Directus is licensed under [the Business Source License (BSL) 1.1](./license) with a permissive additional use grant.
-For most users, it operates just like open source! Here's what that means for you:
 
-### Free for Most Users
-
-If your organization has less than $5M in annual revenue and/or funding combined, you can use Directus freely in any way
-you'd like. Build that side project, launch your startup, or experiment with the platform — no strings attached.
-
-### Enterprise Usage
-
-For larger organizations (>$5M in annual revenue/funding) using Directus in production, we require a commercial license.
-This model helps us maintain a sustainable balance: keeping Directus free for the majority of our community while
-ensuring larger organizations who benefit from the platform contribute to its continued development.
 
 ### Why This Approach?
 
-We believe in making powerful data tools accessible to everyone. This license lets us:
-
-- Keep Directus free for individuals, startups, and smaller companies
-- Maintain active development and strong support
-- Continue improving the platform for everyone
-- Stay sustainable as an independent project
+We believe in making powerful data tools accessible to everyone. 

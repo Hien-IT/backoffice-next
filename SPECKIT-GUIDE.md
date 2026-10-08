@@ -157,7 +157,7 @@ IX. Đổi thương hiệu Directus thành Backoffice
 - Trong app mới, chữ "Directus" mà người dùng hoặc lập trình viên nhìn thấy được đổi thành "Backoffice", miễn là không ảnh hưởng luồng hoạt động hay khả năng chạy song song.
 - Được đổi: tên hiển thị, tiêu đề trang, logo, favicon, chuỗi dịch i18n, email template, tên mặc định khi project_name trống (ví dụ nhãn issuer TFA), header X-Powered-By, tiêu đề tài liệu OpenAPI, log message, tên package nội bộ (@directus/* copy sang thành @backoffice/*), tên class, biến, comment trong code mới, key localStorage của FE.
 - Giữ nguyên vì ảnh hưởng luồng hoặc tương thích: tên bảng và cột directus_*, tên collection hệ thống trong API (directus_users...), JWT issuer 'directus', tên cookie mặc định (directus_refresh_token, directus_session_token), namespace Redis mặc định (directus:bus, directus:lock, system-cache), giá trị mặc định METRICS_NAME_PREFIX 'directus_' (để dashboard giám sát dùng chung cho cả hai app), tên biến môi trường, tên event, mã lỗi, tên type GraphQL, thư viện bên thứ ba (@directus/sdk), dữ liệu trong DB (không sửa project_name hay settings đang dùng chung).
-- Giữ license notice của Directus và comment ghi nguồn ở các file copy hoặc port. License BSL yêu cầu điều này.
+
 - Khi không chắc một chỗ đổi tên có ảnh hưởng luồng hay không: giữ nguyên và ghi vào danh sách cần xác nhận.
 - Test đối chiếu được bỏ qua các khác biệt do đổi thương hiệu, nhưng phải liệt kê rõ trong danh sách khác biệt được chấp nhận.
 
