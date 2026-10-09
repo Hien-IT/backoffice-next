@@ -33,7 +33,10 @@ export function hostDbEnv(vendor: Vendor): Record<string, string> {
 
 export interface RunningApi {
 	child: ChildProcess;
+	/** Raw stdout + stderr. */
 	output: () => string;
+	/** stdout + stderr with each JSON log line (LOG_STYLE=raw) replaced by its `msg`. */
+	text: () => string;
 	exited: Promise<{ code: number | null; signal: NodeJS.Signals | null }>;
 }
 
@@ -53,7 +56,19 @@ export function runApi(env: Record<string, string>, cwd = mkdtempSync(join(tmpdi
 		child.on('exit', (code, signal) => resolve({ code, signal })),
 	);
 
-	return { child, output: () => output, exited };
+	const text = () =>
+		output
+			.split('\n')
+			.map((line) => {
+				try {
+					return String(JSON.parse(line).msg ?? line);
+				} catch {
+					return line;
+				}
+			})
+			.join('\n');
+
+	return { child, output: () => output, text, exited };
 }
 
 /** Waits until GET /server/ping answers pong on `port`, or the process exits. */

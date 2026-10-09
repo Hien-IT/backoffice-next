@@ -1,0 +1,42 @@
+[
+	{
+		"source": "api/src/database/helpers/geometry/dialects/mssql.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/dialects/mysql.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/dialects/oracle.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/dialects/redshift.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/redshift.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/helpers/geometry/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/index.ts",
+		"dest": "apps/api/src/database/helpers/geometry/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/geometry/types.ts",
+		"dest": "apps/api/src/database/helpers/geometry/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/index.ts",
+		"dest": "apps/api/src/database/helpers/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/types.ts",
+		"dest": "apps/api/src/database/helpers/types.ts"
+	}
+]

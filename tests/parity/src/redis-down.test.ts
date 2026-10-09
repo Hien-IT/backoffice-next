@@ -31,5 +31,5 @@ afterAll(async () => {
 
 test('starts and answers pong while Redis is down', async () => {
 	expect(await waitForPing(api, port), api.output()).toBe(true);
-	expect(api.output()).toContain('Server started at');
+	expect(api.text()).toContain('Server started at');
 });

@@ -1,5 +1,4 @@
-// Ported from directus/api/src/database/index.ts (isInstalled, validateMigrations and validateDatabaseExtensions
-// arrive with US3; validateMigrations is rewritten in validate-migrations.ts, FR-031)
+// Ported from directus/api/src/database/index.ts (validateMigrations is rewritten in validate-migrations.ts, FR-031)
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';
 import type { SchemaInspector } from '@backoffice/schema';
@@ -13,6 +12,7 @@ import { useLogger } from '../logger/index.js';
 import { useMetrics } from '../metrics/index.js';
 import { getConfigFromEnv } from '../utils/get-config-from-env.js';
 import { validateEnv } from '../utils/validate-env.js';
+import { getHelpers } from './helpers/index.js';
 
 type QueryInfo = Partial<Knex.Sql> & {
 	sql: Knex.Sql['sql'];
@@ -266,6 +266,40 @@ export function getDatabaseClient(database?: Knex): DatabaseClient {
 	}
 
 	throw new Error(`Couldn't extract database client`);
+}
+
+export async function isInstalled(): Promise<boolean> {
+	const inspector = getSchemaInspector();
+
+	// The existence of a directus_collections table alone isn't a "proper" check to see if everything
+	// is installed correctly of course, but it's safe enough to assume that this collection only
+	// exists when Directus is properly installed.
+	return await inspector.hasTable('directus_collections');
+}
+
+/**
+ * These database extensions should be optional, so we don't throw or return any problem states when they don't
+ */
+export async function validateDatabaseExtensions(): Promise<void> {
+	const logger = useLogger();
+	const database = getDatabase();
+	const client = getDatabaseClient(database);
+	const helpers = getHelpers(database);
+	const geometrySupport = await helpers.st.supported();
+
+	if (!geometrySupport) {
+		switch (client) {
+			case 'postgres':
+				logger.warn(`PostGIS isn't installed. Geometry type support will be limited.`);
+				break;
+			case 'sqlite':
+				logger.warn(`Spatialite isn't installed. Geometry type support will be limited.`);
+				break;
+			default:
+				logger.warn(`Geometry type not supported on ${client}`);
+				break;
+		}
+	}
 }
 
 async function validateDatabaseCharset(database?: Knex): Promise<void> {

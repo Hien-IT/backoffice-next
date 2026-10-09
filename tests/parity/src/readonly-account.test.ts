@@ -45,6 +45,6 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 			expect(res.status, `${req.path}: ${res.text}`).not.toBe(500);
 		}
 
-		expect(api.output()).not.toMatch(/permission denied/i);
+		expect(api.text()).not.toMatch(/permission denied/i);
 	});
 });

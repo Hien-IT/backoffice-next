@@ -54,9 +54,9 @@ test(
 		const { code, signal } = await api!.exited;
 		expect(signal).toBe('SIGTERM');
 		expect(code).toBe(null);
-		expect(api!.output()).toContain('Shutting down...');
-		expect(api!.output()).toContain('Database connections destroyed');
-		expect(api!.output()).toContain('Backoffice shut down OK. Bye bye!');
+		expect(api!.text()).toContain('Shutting down...');
+		expect(api!.text()).toContain('Database connections destroyed');
+		expect(api!.text()).toContain('Backoffice shut down OK. Bye bye!');
 	},
 );
 

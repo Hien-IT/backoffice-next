@@ -103,7 +103,7 @@ describe('X_FILE and cast prefixes', () => {
 		});
 
 		expect(await waitForPing(api, port), api.output()).toBe(true);
-		expect(api.output()).not.toContain('"SECRET" env variable is missing');
+		expect(api.text()).not.toContain('"SECRET" env variable is missing');
 	});
 });
 
@@ -135,6 +135,6 @@ describe('broken configuration stops with the original error and a non-zero exit
 		const api = start({ ...db, ...env() });
 		const { code } = await api.exited;
 		expect(code).not.toBe(0);
-		expect(api.output()).toContain(message);
+		expect(api.text()).toContain(message);
 	});
 });

@@ -306,3 +306,35 @@ describe('MySQL collation check (validateDatabaseCharset, called without await l
 		);
 	});
 });
+
+describe('isInstalled and validateDatabaseExtensions', () => {
+	test('isInstalled checks directus_collections through the inspector', async () => {
+		const { default: realKnex } = await vi.importActual<typeof import('knex')>('knex');
+		const db = realKnex({ client: 'sqlite3', connection: { filename: ':memory:' }, useNullAsDefault: true });
+		const { mod } = await load({ DB_CLIENT: 'sqlite3', DB_FILENAME: ':memory:' }, db as any);
+		mod.getDatabase();
+		expect(await mod.isInstalled()).toBe(false);
+		await db.schema.createTable('directus_collections', (t) => t.string('collection'));
+		expect(await mod.isInstalled()).toBe(true);
+		await db.destroy();
+	});
+
+	test.each([
+		['Client_PG', "PostGIS isn't installed. Geometry type support will be limited."],
+		['Client_SQLite3', "Spatialite isn't installed. Geometry type support will be limited."],
+	])('%s without geometry support warns', async (client, message) => {
+		const db = fakeKnex(client);
+		db.select = vi.fn(() => ({ from: () => ({ where: async () => [] }) }));
+		const { mod } = await load(client === 'Client_PG' ? pg : { DB_CLIENT: 'sqlite3', DB_FILENAME: 'a.db' }, db);
+		await mod.validateDatabaseExtensions();
+		expect(logger.warn).toHaveBeenCalledWith(message);
+	});
+
+	test('with geometry support: no warning', async () => {
+		const db = fakeKnex('Client_PG');
+		db.select = vi.fn(() => ({ from: () => ({ where: async () => [{ oid: 1 }] }) }));
+		const { mod } = await load(pg, db);
+		await mod.validateDatabaseExtensions();
+		expect(logger.warn).not.toHaveBeenCalled();
+	});
+});

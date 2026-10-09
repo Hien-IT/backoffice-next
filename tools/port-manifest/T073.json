@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/extensions/lib/get-extensions-path.ts",
+		"dest": "apps/api/src/extensions/lib/get-extensions-path.ts"
+	}
+]
