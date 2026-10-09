@@ -192,6 +192,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     # Starts after Directus has bootstrapped the database (the API never writes it).
     depends_on:
       directus: { condition: service_healthy }
@@ -226,6 +227,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
     env_file:
@@ -264,6 +266,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
     env_file:
@@ -302,6 +305,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
     env_file:
@@ -340,6 +344,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
     env_file:

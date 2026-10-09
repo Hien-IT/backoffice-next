@@ -128,6 +128,7 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
     depends_on:
       directus:
         condition: service_healthy

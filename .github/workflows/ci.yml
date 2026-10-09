@@ -124,9 +124,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f apps/api/Dockerfile -t backoffice-api:ci .
-      - run: docker build -f apps/web/Dockerfile -t backoffice-web:ci .
-      - run: docker save backoffice-api:ci backoffice-web:ci | gzip > images.tar.gz
+      - run: docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci .
+      - run: docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .
+      - run: docker save hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci | gzip > images.tar.gz
       - uses: actions/upload-artifact@v4
         with:
           name: images
@@ -153,8 +153,8 @@ jobs:
       - name: start the API and web containers
         run: |
           docker run -d --name api --network parity-postgres_default --env-file tests/parity/env/postgres.env \
-            -e CORS_ENABLED=true -e CORS_ORIGIN=true -p 8057:8055 backoffice-api:ci
-          docker run -d --name web -e PUBLIC_URL=http://127.0.0.1:8057 -p 8080:8080 backoffice-web:ci
+            -e CORS_ENABLED=true -e CORS_ORIGIN=true -p 8057:8055 hiennd23/backoffice-api:ci
+          docker run -d --name web -e PUBLIC_URL=http://127.0.0.1:8057 -p 8080:8080 hiennd23/backoffice-web:ci
           for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8057/server/ping && break; sleep 2; done
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web-e2e

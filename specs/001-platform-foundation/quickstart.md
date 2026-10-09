@@ -176,11 +176,11 @@ Image web (nginx không root, cổng 8080) lấy URL API từ biến `PUBLIC_URL
 (Nguyên tắc VIII), mặc định `/`:
 
 ```bash
-docker build -f apps/web/Dockerfile -t backoffice-web .
+docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web .
 ```
 
 ```bash
-docker run --rm -p 8080:8080 -e PUBLIC_URL=http://localhost:8056 backoffice-web
+docker run --rm -p 8080:8080 -e PUBLIC_URL=http://localhost:8056 hiennd23/backoffice-web
 ```
 
 Mở `http://localhost:8080/admin/`; chạy e2e với image này: `BASE_URL=http://127.0.0.1:8080 pnpm nx run web-e2e:e2e`.
