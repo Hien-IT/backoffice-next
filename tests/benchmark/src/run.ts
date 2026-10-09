@@ -1,12 +1,17 @@
 // Benchmark of the new API against Directus 11.17.4 (FR-113, SC-006, R18). Needs `benchmark:env-up` first.
-// For each endpoint: 5 s warm-up, then BENCH_ROUNDS rounds alternating Directus and Backoffice, BENCH_DURATION
-// seconds each, 50 connections; p95 from every response time, compared on the median of the rounds.
+// For each endpoint: 5 s warm-up, then two phases of BENCH_ROUNDS rounds alternating Directus and Backoffice,
+// BENCH_DURATION seconds each, compared on the median of the rounds (SC-006 "same load"):
+// - throughput: 50 connections, as many requests as each app answers (req/s);
+// - latency: the same fixed rate for both apps, RATE_SHARE of the Directus req/s; p95 from every response time.
+// With a fixed number of connections the faster app also receives more requests per second, which loads the shared
+// DB, Redis and MinIO more and raises its own p95; a fixed rate compares both under the same load.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import {
 	compare,
 	createLatencyHistogram,
 	gatePasses,
+	median,
 	percentile,
 	recordLatency,
 	type Round,
@@ -21,6 +26,7 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
 const WARMUP = 5;
 const CONNECTIONS = 50;
+const RATE_SHARE = 0.8;
 
 // /server/specs/oas: Backoffice builds the schema on every request until feature 002, so the reference is Directus
 // with CACHE_SCHEMA=false. It is measured but does not fail the run (D-22): Directus still reads policies and
@@ -32,12 +38,12 @@ const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
 	{ path: '/server/specs/oas', directus: DIRECTUS_NOCACHE, notBlocking: 'D-22, until feature 002' },
 ];
 
-async function measure(baseUrl: string, path: string, duration: number): Promise<Round> {
+async function measure(baseUrl: string, path: string, duration: number, overallRate?: number): Promise<Round> {
 	const histogram = createLatencyHistogram();
+	const url = new URL(path, baseUrl).href;
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
-		const instance = autocannon({ url: new URL(path, baseUrl).href, connections: CONNECTIONS, duration }, (err, res) =>
-			err ? reject(err) : resolve(res),
-		);
+		const options = { url, connections: CONNECTIONS, duration, ...(overallRate ? { overallRate } : {}) };
+		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
 
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
@@ -49,21 +55,37 @@ async function measure(baseUrl: string, path: string, duration: number): Promise
 	};
 }
 
+/** One round per index: req/s from the throughput phase, p95 from the fixed-rate phase, errors from both. */
+function combine(throughput: Round[], latency: Round[]): Round[] {
+	return throughput.map((t, i) => ({ rps: t.rps, p95: latency[i]!.p95, errors: t.errors + latency[i]!.errors }));
+}
+
 const verdicts: Verdict[] = [];
 
 for (const endpoint of ENDPOINTS) {
 	await measure(endpoint.directus, endpoint.path, WARMUP);
 	await measure(BACKOFFICE, endpoint.path, WARMUP);
 
-	const directus: Round[] = [];
-	const backoffice: Round[] = [];
+	const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
 	for (let i = 0; i < ROUNDS; i++) {
-		directus.push(await measure(endpoint.directus, endpoint.path, DURATION));
-		backoffice.push(await measure(BACKOFFICE, endpoint.path, DURATION));
+		throughput.directus.push(await measure(endpoint.directus, endpoint.path, DURATION));
+		throughput.backoffice.push(await measure(BACKOFFICE, endpoint.path, DURATION));
 	}
 
-	const verdict = compare(endpoint.path, directus, backoffice);
+	const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
+	const latency = { directus: [] as Round[], backoffice: [] as Round[] };
+
+	for (let i = 0; i < ROUNDS; i++) {
+		latency.directus.push(await measure(endpoint.directus, endpoint.path, DURATION, rate));
+		latency.backoffice.push(await measure(BACKOFFICE, endpoint.path, DURATION, rate));
+	}
+
+	const verdict = compare(
+		`${endpoint.path} (p95 at ${rate} req/s)`,
+		combine(throughput.directus, latency.directus),
+		combine(throughput.backoffice, latency.backoffice),
+	);
 	verdicts.push(endpoint.notBlocking ? { ...verdict, notBlocking: endpoint.notBlocking } : verdict);
 }
 

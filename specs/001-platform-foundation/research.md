@@ -423,10 +423,16 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
 ## R18. Benchmark
 
 - **Quyết định**: `tests/benchmark` dùng `autocannon@8.0.0` (cùng bản blackbox) qua API lập trình. Với
-  mỗi endpoint: khởi động nóng 5 s, rồi 3 vòng luân phiên Directus và API mới, mỗi vòng 20 s,
-  50 kết nối. p95 tính từ sự kiện `response` của autocannon (thời gian từng request) bằng
-  `hdr-histogram-js` (autocannon chỉ có sẵn p90, p97.5, p99). Lấy trung vị 3 vòng; fail khi p95 của
-  API mới lớn hơn Directus quá 10% hoặc số request/giây nhỏ hơn quá 10%.
+  mỗi endpoint: khởi động nóng 5 s, rồi hai pha, mỗi pha 3 vòng (CI: 5) luân phiên Directus và API mới, mỗi
+  vòng 20 s:
+  - throughput: 50 kết nối, mỗi app nhận bao nhiêu request trả lời bấy nhiêu (req/s);
+  - độ trễ: cả hai app nhận cùng một tốc độ cố định (`overallRate`) bằng 80% req/s trung vị của Directus ở pha
+    throughput; p95 tính từ sự kiện `response` (thời gian từng request) bằng `hdr-histogram-js` (autocannon chỉ
+    có sẵn p90, p97.5, p99).
+  Lấy trung vị các vòng; fail khi p95 của API mới lớn hơn Directus quá 10% hoặc req/s nhỏ hơn quá 10%.
+  Đo p95 ở tốc độ cố định vì SC-006 so "với cùng tải": với số kết nối cố định, app nhanh hơn nhận nhiều request
+  hơn mỗi giây, làm DB, Redis, MinIO dùng chung bận hơn và tự kéo p95 của nó lên (đo trên CI 2026-10-09:
+  `/server/health` Backoffice 333 req/s so với 191 nhưng p95 cao hơn 16%).
 - **Phạm vi ở feature này**: `/server/ping`, `/server/health`, `/server/info` so với Directus cấu hình
   mặc định. `/server/specs/oas` so với một container Directus thứ hai chạy `CACHE_SCHEMA=false`
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request
