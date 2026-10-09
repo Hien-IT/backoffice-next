@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/database/index.ts",
+		"dest": "apps/api/src/database/index.ts"
+	}
+]

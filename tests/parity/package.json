@@ -10,11 +10,12 @@
 	},
 	"devDependencies": {
 		"@backoffice/schema": "workspace:*",
+		"get-port": "catalog:",
 		"knex": "catalog:",
-		"pg": "catalog:",
 		"mysql2": "catalog:",
+		"oracledb": "catalog:",
+		"pg": "catalog:",
 		"sqlite3": "catalog:",
-		"tedious": "catalog:",
-		"oracledb": "catalog:"
+		"tedious": "catalog:"
 	}
 }

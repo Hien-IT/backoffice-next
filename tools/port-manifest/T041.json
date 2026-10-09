@@ -1,0 +1,30 @@
+[
+	{
+		"source": "api/src/redis/index.ts",
+		"dest": "apps/api/src/redis/index.ts"
+	},
+	{
+		"source": "api/src/redis/lib/create-redis.test.ts",
+		"dest": "apps/api/src/redis/lib/create-redis.test.ts"
+	},
+	{
+		"source": "api/src/redis/lib/create-redis.ts",
+		"dest": "apps/api/src/redis/lib/create-redis.ts"
+	},
+	{
+		"source": "api/src/redis/lib/use-redis.test.ts",
+		"dest": "apps/api/src/redis/lib/use-redis.test.ts"
+	},
+	{
+		"source": "api/src/redis/lib/use-redis.ts",
+		"dest": "apps/api/src/redis/lib/use-redis.ts"
+	},
+	{
+		"source": "api/src/redis/utils/redis-config-available.test.ts",
+		"dest": "apps/api/src/redis/utils/redis-config-available.test.ts"
+	},
+	{
+		"source": "api/src/redis/utils/redis-config-available.ts",
+		"dest": "apps/api/src/redis/utils/redis-config-available.ts"
+	}
+]

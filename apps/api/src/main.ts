@@ -1,4 +1,6 @@
-import { createApp } from './app.js';
+import { startServer } from './server.js';
+import { runStartupChecks } from './startup/run-startup-checks.js';
 
-// Startup checks, version log and listen are added by US1 (T044) and US3 (T076).
-await createApp();
+// A configuration error thrown here is printed by Node, which exits with code 1 (contracts/startup.md row 1).
+await runStartupChecks();
+await startServer();

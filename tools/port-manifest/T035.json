@@ -1,0 +1,6 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/server/ping.test.ts",
+		"dest": "tests/parity/src/server/ping.test.ts"
+	}
+]
