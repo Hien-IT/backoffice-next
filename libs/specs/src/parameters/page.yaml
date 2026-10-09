@@ -1,0 +1,7 @@
+# Ported from directus/packages/specs/src/parameters/page.yaml
+description: Cursor for use in pagination. Often used in combination with limit.
+in: query
+name: page
+required: false
+schema:
+  type: integer

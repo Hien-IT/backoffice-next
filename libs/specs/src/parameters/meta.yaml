@@ -1,0 +1,7 @@
+# Ported from directus/packages/specs/src/parameters/meta.yaml
+description: What metadata to return in the response.
+in: query
+name: meta
+required: false
+schema:
+  type: string

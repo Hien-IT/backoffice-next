@@ -9,3 +9,4 @@ export * from './is-object.js';
 export * from './parse-json.js';
 export * from './to-array.js';
 export * from './to-boolean.js';
+export * from './normalize-path.js';

@@ -1,0 +1,28 @@
+{
+	"name": "@backoffice/system-data",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.lib.json && node -e \"require('fs').cpSync('src','dist',{recursive:true,filter:(s)=>!s.endsWith('.ts')})\"",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"lint": "eslint src"
+	},
+	"dependencies": {
+		"js-yaml": "catalog:"
+	},
+	"devDependencies": {
+		"@types/js-yaml": "catalog:"
+	}
+}

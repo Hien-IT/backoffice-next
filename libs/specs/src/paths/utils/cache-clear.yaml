@@ -1,0 +1,10 @@
+# Ported from directus/packages/specs/src/paths/utils/cache-clear.yaml
+post:
+  summary: Clear Cache
+  description: Resets both the data and schema cache of Backoffice.
+  operationId: clear-cache
+  responses:
+    '200':
+      description: Successful request
+  tags:
+    - Utilities

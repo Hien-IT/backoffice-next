@@ -1,0 +1,8 @@
+# Ported from directus/packages/specs/src/parameters/version.yaml
+name: version
+description: >
+  Retrieve an item's state from a specific Content Version. The value corresponds to the "key" of the Content Version.
+in: query
+required: false
+schema:
+  type: string

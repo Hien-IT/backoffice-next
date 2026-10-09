@@ -1,0 +1,37 @@
+{
+	"name": "@backoffice/storage-driver-s3",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"exports": {
+		".": {
+			"types": "./dist/index.d.ts",
+			"default": "./dist/index.js"
+		},
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "tsc -p tsconfig.lib.json",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"lint": "eslint src"
+	},
+	"dependencies": {
+		"@aws-sdk/client-s3": "catalog:",
+		"@aws-sdk/lib-storage": "catalog:",
+		"@backoffice/storage": "workspace:*",
+		"@backoffice/utils": "workspace:*",
+		"@shopify/semaphore": "catalog:",
+		"@smithy/node-http-handler": "catalog:",
+		"@tus/utils": "catalog:",
+		"ms": "catalog:"
+	},
+	"devDependencies": {
+		"@backoffice/types": "workspace:*",
+		"@ngneat/falso": "catalog:",
+		"@types/ms": "catalog:"
+	}
+}

@@ -1,0 +1,426 @@
+[
+	{
+		"source": "packages/specs/index.d.ts",
+		"dest": "libs/specs/index.d.ts"
+	},
+	{
+		"source": "packages/specs/index.js",
+		"dest": "libs/specs/index.js"
+	},
+	{
+		"source": "packages/specs/src/components/activity.yaml",
+		"dest": "libs/specs/src/components/activity.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/collection.yaml",
+		"dest": "libs/specs/src/components/collection.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/comment.yaml",
+		"dest": "libs/specs/src/components/comment.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/diff.yaml",
+		"dest": "libs/specs/src/components/diff.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/extension.yaml",
+		"dest": "libs/specs/src/components/extension.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/field.yaml",
+		"dest": "libs/specs/src/components/field.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/file.yaml",
+		"dest": "libs/specs/src/components/file.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/flow.yaml",
+		"dest": "libs/specs/src/components/flow.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/folder.yaml",
+		"dest": "libs/specs/src/components/folder.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/item.yaml",
+		"dest": "libs/specs/src/components/item.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/operation.yaml",
+		"dest": "libs/specs/src/components/operation.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/permissions.yaml",
+		"dest": "libs/specs/src/components/permissions.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/preset.yaml",
+		"dest": "libs/specs/src/components/preset.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/relation.yaml",
+		"dest": "libs/specs/src/components/relation.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/revision.yaml",
+		"dest": "libs/specs/src/components/revision.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/role.yaml",
+		"dest": "libs/specs/src/components/role.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/schema.yaml",
+		"dest": "libs/specs/src/components/schema.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/setting.yaml",
+		"dest": "libs/specs/src/components/setting.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/user.yaml",
+		"dest": "libs/specs/src/components/user.yaml"
+	},
+	{
+		"source": "packages/specs/src/components/version.yaml",
+		"dest": "libs/specs/src/components/version.yaml"
+	},
+	{
+		"source": "packages/specs/src/definitions/query.yaml",
+		"dest": "libs/specs/src/definitions/query.yaml"
+	},
+	{
+		"source": "packages/specs/src/openapi.yaml",
+		"dest": "libs/specs/src/openapi.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/collection.yaml",
+		"dest": "libs/specs/src/parameters/collection.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/export.yaml",
+		"dest": "libs/specs/src/parameters/export.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/fields.yaml",
+		"dest": "libs/specs/src/parameters/fields.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/filter.yaml",
+		"dest": "libs/specs/src/parameters/filter.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/id.yaml",
+		"dest": "libs/specs/src/parameters/id.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/limit.yaml",
+		"dest": "libs/specs/src/parameters/limit.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/meta.yaml",
+		"dest": "libs/specs/src/parameters/meta.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/offset.yaml",
+		"dest": "libs/specs/src/parameters/offset.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/page.yaml",
+		"dest": "libs/specs/src/parameters/page.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/search.yaml",
+		"dest": "libs/specs/src/parameters/search.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/sort.yaml",
+		"dest": "libs/specs/src/parameters/sort.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/uuid.yaml",
+		"dest": "libs/specs/src/parameters/uuid.yaml"
+	},
+	{
+		"source": "packages/specs/src/parameters/version.yaml",
+		"dest": "libs/specs/src/parameters/version.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/activity/activities.yaml",
+		"dest": "libs/specs/src/paths/activity/activities.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/activity/activity.yaml",
+		"dest": "libs/specs/src/paths/activity/activity.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/assets/assets.yaml",
+		"dest": "libs/specs/src/paths/assets/assets.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/login.yaml",
+		"dest": "libs/specs/src/paths/auth/login.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/logout.yaml",
+		"dest": "libs/specs/src/paths/auth/logout.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/oauth-provider.yaml",
+		"dest": "libs/specs/src/paths/auth/oauth-provider.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/oauth.yaml",
+		"dest": "libs/specs/src/paths/auth/oauth.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/password-request.yaml",
+		"dest": "libs/specs/src/paths/auth/password-request.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/password-reset.yaml",
+		"dest": "libs/specs/src/paths/auth/password-reset.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/auth/refresh.yaml",
+		"dest": "libs/specs/src/paths/auth/refresh.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/collections/collection.yaml",
+		"dest": "libs/specs/src/paths/collections/collection.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/collections/collections.yaml",
+		"dest": "libs/specs/src/paths/collections/collections.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/comments/comment.yaml",
+		"dest": "libs/specs/src/paths/comments/comment.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/comments/comments.yaml",
+		"dest": "libs/specs/src/paths/comments/comments.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/extensions/list.yaml",
+		"dest": "libs/specs/src/paths/extensions/list.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/extensions/update-bundle.yaml",
+		"dest": "libs/specs/src/paths/extensions/update-bundle.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/extensions/update.yaml",
+		"dest": "libs/specs/src/paths/extensions/update.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/fields/collection-field.yaml",
+		"dest": "libs/specs/src/paths/fields/collection-field.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/fields/collection-fields.yaml",
+		"dest": "libs/specs/src/paths/fields/collection-fields.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/fields/fields.yaml",
+		"dest": "libs/specs/src/paths/fields/fields.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/files/file.yaml",
+		"dest": "libs/specs/src/paths/files/file.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/files/files.yaml",
+		"dest": "libs/specs/src/paths/files/files.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/flows/flow.yaml",
+		"dest": "libs/specs/src/paths/flows/flow.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/flows/flows.yaml",
+		"dest": "libs/specs/src/paths/flows/flows.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/folders/folder.yaml",
+		"dest": "libs/specs/src/paths/folders/folder.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/folders/folders.yaml",
+		"dest": "libs/specs/src/paths/folders/folders.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/items/item.yaml",
+		"dest": "libs/specs/src/paths/items/item.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/items/items.yaml",
+		"dest": "libs/specs/src/paths/items/items.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/operations/operation.yaml",
+		"dest": "libs/specs/src/paths/operations/operation.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/operations/operations.yaml",
+		"dest": "libs/specs/src/paths/operations/operations.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/permissions/permission.yaml",
+		"dest": "libs/specs/src/paths/permissions/permission.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/permissions/permissions-me.yaml",
+		"dest": "libs/specs/src/paths/permissions/permissions-me.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/permissions/permissions.yaml",
+		"dest": "libs/specs/src/paths/permissions/permissions.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/presets/preset.yaml",
+		"dest": "libs/specs/src/paths/presets/preset.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/presets/presets.yaml",
+		"dest": "libs/specs/src/paths/presets/presets.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/relations/relation.yaml",
+		"dest": "libs/specs/src/paths/relations/relation.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/relations/relations.yaml",
+		"dest": "libs/specs/src/paths/relations/relations.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/revisions/revision.yaml",
+		"dest": "libs/specs/src/paths/revisions/revision.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/revisions/revisions.yaml",
+		"dest": "libs/specs/src/paths/revisions/revisions.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/roles/role.yaml",
+		"dest": "libs/specs/src/paths/roles/role.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/roles/roles.yaml",
+		"dest": "libs/specs/src/paths/roles/roles.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/schema/apply.yaml",
+		"dest": "libs/specs/src/paths/schema/apply.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/schema/diff.yaml",
+		"dest": "libs/specs/src/paths/schema/diff.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/schema/snapshot.yaml",
+		"dest": "libs/specs/src/paths/schema/snapshot.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/server/info.yaml",
+		"dest": "libs/specs/src/paths/server/info.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/server/ping.yaml",
+		"dest": "libs/specs/src/paths/server/ping.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/settings/settings.yaml",
+		"dest": "libs/specs/src/paths/settings/settings.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/invite-accept.yaml",
+		"dest": "libs/specs/src/paths/users/invite-accept.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/invite.yaml",
+		"dest": "libs/specs/src/paths/users/invite.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/me-tfa-disable.yaml",
+		"dest": "libs/specs/src/paths/users/me-tfa-disable.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/me-tfa-enable.yaml",
+		"dest": "libs/specs/src/paths/users/me-tfa-enable.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/me-tracking.yaml",
+		"dest": "libs/specs/src/paths/users/me-tracking.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/me.yaml",
+		"dest": "libs/specs/src/paths/users/me.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/user.yaml",
+		"dest": "libs/specs/src/paths/users/user.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/users/users.yaml",
+		"dest": "libs/specs/src/paths/users/users.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/cache-clear.yaml",
+		"dest": "libs/specs/src/paths/utils/cache-clear.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/export.yaml",
+		"dest": "libs/specs/src/paths/utils/export.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/hash-generate.yaml",
+		"dest": "libs/specs/src/paths/utils/hash-generate.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/hash-verify.yaml",
+		"dest": "libs/specs/src/paths/utils/hash-verify.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/import.yaml",
+		"dest": "libs/specs/src/paths/utils/import.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/random.yaml",
+		"dest": "libs/specs/src/paths/utils/random.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/utils/sort.yaml",
+		"dest": "libs/specs/src/paths/utils/sort.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/versions/compare.yaml",
+		"dest": "libs/specs/src/paths/versions/compare.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/versions/promote.yaml",
+		"dest": "libs/specs/src/paths/versions/promote.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/versions/save.yaml",
+		"dest": "libs/specs/src/paths/versions/save.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/versions/version.yaml",
+		"dest": "libs/specs/src/paths/versions/version.yaml"
+	},
+	{
+		"source": "packages/specs/src/paths/versions/versions.yaml",
+		"dest": "libs/specs/src/paths/versions/versions.yaml"
+	},
+	{
+		"source": "packages/specs/src/responses/notFoundError.yaml",
+		"dest": "libs/specs/src/responses/notFoundError.yaml"
+	},
+	{
+		"source": "packages/specs/src/responses/unauthorizedError.yaml",
+		"dest": "libs/specs/src/responses/unauthorizedError.yaml"
+	}
+]

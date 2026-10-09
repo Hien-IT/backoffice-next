@@ -3,3 +3,4 @@ export * from './get-node-env.js';
 export * from './ip-blocklist.js';
 export * from './ip-in-networks.js';
 export * from './require-yaml.js';
+export * from './is-readable-stream.js';

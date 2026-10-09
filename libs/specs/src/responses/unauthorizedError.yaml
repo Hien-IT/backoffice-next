@@ -1,0 +1,15 @@
+# Ported from directus/packages/specs/src/responses/unauthorizedError.yaml
+description: 'Error: Unauthorized request'
+content:
+  application/json:
+    schema:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: integer
+              format: int64
+            message:
+              type: string

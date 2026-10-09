@@ -1,0 +1,15 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": [
+			"node"
+		]
+	},
+	"include": [
+		"src"
+	],
+	"//": "The ported Directus test file is not type-checked (Directus builds with tsdown and never type-checks it); it still runs in vitest.",
+	"exclude": [
+		"src/index.test.ts"
+	]
+}

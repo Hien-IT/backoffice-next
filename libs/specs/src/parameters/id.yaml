@@ -1,0 +1,7 @@
+# Ported from directus/packages/specs/src/parameters/id.yaml
+description: Index
+name: id
+in: path
+required: true
+schema:
+  type: integer

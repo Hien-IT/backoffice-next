@@ -28,6 +28,10 @@
 		"dest": "libs/utils/src/node/ip-in-networks.ts"
 	},
 	{
+		"source": "packages/utils/node/is-readable-stream.ts",
+		"dest": "libs/utils/src/node/is-readable-stream.ts"
+	},
+	{
 		"source": "packages/utils/node/require-yaml.ts",
 		"dest": "libs/utils/src/node/require-yaml.ts"
 	},
@@ -90,6 +94,14 @@
 	{
 		"source": "packages/utils/shared/is-object.ts",
 		"dest": "libs/utils/src/shared/is-object.ts"
+	},
+	{
+		"source": "packages/utils/shared/normalize-path.test.ts",
+		"dest": "libs/utils/src/shared/normalize-path.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/normalize-path.ts",
+		"dest": "libs/utils/src/shared/normalize-path.ts"
 	},
 	{
 		"source": "packages/utils/shared/parse-json.test.ts",

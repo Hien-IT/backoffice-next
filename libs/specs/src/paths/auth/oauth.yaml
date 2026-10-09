@@ -1,0 +1,24 @@
+# Ported from directus/packages/specs/src/paths/auth/oauth.yaml
+get:
+  tags:
+    - Authentication
+  operationId: oauth
+  summary: List OAuth Providers
+  description: List configured OAuth providers.
+  responses:
+    '200':
+      description: Successful request
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              public:
+                type: boolean
+              data:
+                type: array
+                example: ['github', 'facebook']
+                items:
+                  type: string
+    '401':
+      $ref: '../../openapi.yaml#/components/responses/UnauthorizedError'

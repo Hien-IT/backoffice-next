@@ -1,0 +1,26 @@
+[
+	{
+		"source": "packages/storage-driver-local/src/index.test.ts",
+		"dest": "libs/storage-driver-local/src/index.test.ts"
+	},
+	{
+		"source": "packages/storage-driver-local/src/index.ts",
+		"dest": "libs/storage-driver-local/src/index.ts"
+	},
+	{
+		"source": "packages/storage-driver-s3/src/index.test.ts",
+		"dest": "libs/storage-driver-s3/src/index.test.ts"
+	},
+	{
+		"source": "packages/storage-driver-s3/src/index.ts",
+		"dest": "libs/storage-driver-s3/src/index.ts"
+	},
+	{
+		"source": "packages/storage/src/index.test.ts",
+		"dest": "libs/storage/src/index.test.ts"
+	},
+	{
+		"source": "packages/storage/src/index.ts",
+		"dest": "libs/storage/src/index.ts"
+	}
+]

@@ -1,0 +1,170 @@
+[
+	{
+		"source": "packages/system-data/src/app-access-permissions/app-access-permissions.yaml",
+		"dest": "libs/system-data/src/app-access-permissions/app-access-permissions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/app-access-permissions/index.ts",
+		"dest": "libs/system-data/src/app-access-permissions/index.ts"
+	},
+	{
+		"source": "packages/system-data/src/app-access-permissions/schema-access-permissions.yaml",
+		"dest": "libs/system-data/src/app-access-permissions/schema-access-permissions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/collections/collections.yaml",
+		"dest": "libs/system-data/src/collections/collections.yaml"
+	},
+	{
+		"source": "packages/system-data/src/collections/index.test.ts",
+		"dest": "libs/system-data/src/collections/index.test.ts"
+	},
+	{
+		"source": "packages/system-data/src/collections/index.ts",
+		"dest": "libs/system-data/src/collections/index.ts"
+	},
+	{
+		"source": "packages/system-data/src/fields/_defaults.yaml",
+		"dest": "libs/system-data/src/fields/_defaults.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/access.yaml",
+		"dest": "libs/system-data/src/fields/access.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/activity.yaml",
+		"dest": "libs/system-data/src/fields/activity.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/collections.yaml",
+		"dest": "libs/system-data/src/fields/collections.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/comments.yaml",
+		"dest": "libs/system-data/src/fields/comments.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/dashboards.yaml",
+		"dest": "libs/system-data/src/fields/dashboards.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/deployment-projects.yaml",
+		"dest": "libs/system-data/src/fields/deployment-projects.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/deployment-runs.yaml",
+		"dest": "libs/system-data/src/fields/deployment-runs.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/deployment.yaml",
+		"dest": "libs/system-data/src/fields/deployment.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/extensions.yaml",
+		"dest": "libs/system-data/src/fields/extensions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/fields.yaml",
+		"dest": "libs/system-data/src/fields/fields.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/files.yaml",
+		"dest": "libs/system-data/src/fields/files.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/flows.yaml",
+		"dest": "libs/system-data/src/fields/flows.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/folders.yaml",
+		"dest": "libs/system-data/src/fields/folders.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/index.test.ts",
+		"dest": "libs/system-data/src/fields/index.test.ts"
+	},
+	{
+		"source": "packages/system-data/src/fields/index.ts",
+		"dest": "libs/system-data/src/fields/index.ts"
+	},
+	{
+		"source": "packages/system-data/src/fields/migrations.yaml",
+		"dest": "libs/system-data/src/fields/migrations.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/notifications.yaml",
+		"dest": "libs/system-data/src/fields/notifications.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/operations.yaml",
+		"dest": "libs/system-data/src/fields/operations.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/panels.yaml",
+		"dest": "libs/system-data/src/fields/panels.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/permissions.yaml",
+		"dest": "libs/system-data/src/fields/permissions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/policies.yaml",
+		"dest": "libs/system-data/src/fields/policies.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/presets.yaml",
+		"dest": "libs/system-data/src/fields/presets.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/relations.yaml",
+		"dest": "libs/system-data/src/fields/relations.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/revisions.yaml",
+		"dest": "libs/system-data/src/fields/revisions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/roles.yaml",
+		"dest": "libs/system-data/src/fields/roles.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/sessions.yaml",
+		"dest": "libs/system-data/src/fields/sessions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/settings.yaml",
+		"dest": "libs/system-data/src/fields/settings.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/shares.yaml",
+		"dest": "libs/system-data/src/fields/shares.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/translations.yaml",
+		"dest": "libs/system-data/src/fields/translations.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/users.yaml",
+		"dest": "libs/system-data/src/fields/users.yaml"
+	},
+	{
+		"source": "packages/system-data/src/fields/versions.yaml",
+		"dest": "libs/system-data/src/fields/versions.yaml"
+	},
+	{
+		"source": "packages/system-data/src/index.ts",
+		"dest": "libs/system-data/src/index.ts"
+	},
+	{
+		"source": "packages/system-data/src/relations/index.ts",
+		"dest": "libs/system-data/src/relations/index.ts"
+	},
+	{
+		"source": "packages/system-data/src/relations/relations.yaml",
+		"dest": "libs/system-data/src/relations/relations.yaml"
+	},
+	{
+		"source": "packages/system-data/src/types.ts",
+		"dest": "libs/system-data/src/types.ts"
+	}
+]
