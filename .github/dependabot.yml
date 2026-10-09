@@ -1,0 +1,13 @@
+# Weekly dependency updates (T098). Libraries pinned to the versions of Directus 11.17.4 (pnpm-workspace.yaml
+# catalog) only move together with Directus: close those PRs unless the parity tests and the plan allow it.
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 5
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

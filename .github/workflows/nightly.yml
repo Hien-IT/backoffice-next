@@ -1,0 +1,46 @@
+# Nightly parity on the other vendors and the older versions Directus tests (T098, R19).
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 18 * * *' # 01:00 Asia/Ho_Chi_Minh
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NX_NO_CLOUD: 'true'
+  NX_DAEMON: 'false'
+  PARITY_SUITE: full
+
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        vendor: [maria, mssql, oracle, cockroachdb, postgres10, mysql5, mysql, sqlite3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run api:build
+      - run:
+          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=ratelimit,cors-hsts,pressure,metrics
+      - run: pnpm nx run parity-tests:parity --vendor=${{ matrix.vendor }} --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-${{ matrix.vendor }} logs --no-color > parity-${{ matrix.vendor }}.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: nightly-parity-${{ matrix.vendor }}-logs
+          path: tests/parity/parity-${{ matrix.vendor }}.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=${{ matrix.vendor }}

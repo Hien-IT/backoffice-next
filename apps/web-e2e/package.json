@@ -1,0 +1,9 @@
+{
+	"name": "@backoffice/web-e2e",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"devDependencies": {
+		"@playwright/test": "catalog:"
+	}
+}

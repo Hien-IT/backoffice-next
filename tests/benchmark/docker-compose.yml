@@ -1,0 +1,22 @@
+# Benchmark environment (T095, R18): the Postgres parity environment (Directus 8155, Backoffice 8156) plus
+# `directus-nocache` (8655) with CACHE_SCHEMA=false, the reference for /server/specs/oas while Backoffice builds the
+# schema on every request (FR-049, SC-006). Postgres only.
+include:
+  - ../parity/docker-compose.yml
+
+services:
+  directus-nocache:
+    image: directus/directus:11.17.4
+    env_file: ../parity/env/postgres.env
+    environment:
+      CACHE_SCHEMA: 'false'
+      CACHE_NAMESPACE: benchmark-nocache
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8655:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1:8055/server/ping']
+      interval: 3s
+      timeout: 5s
+      retries: 100

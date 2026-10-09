@@ -1,0 +1,16 @@
+# gitleaks configuration (CI job `security`, T098). Default rules, plus an allowlist for test-only credentials
+# (parity environment files, the local Directus reference) and the read-only Directus source.
+[extend]
+useDefault = true
+
+[allowlist]
+description = "Test-only credentials and the read-only Directus reference"
+paths = [
+  '''^directus/''',
+  '''^tests/parity/env/[^/]+\.env$''',
+  '''^dev/directus-reference/''',
+  '''(^|/)node_modules/''',
+  '''(^|/)(dist|coverage|graphify-out)/''',
+]
+# Example values of the OpenAPI spec ported from Directus (libs/specs), not credentials.
+regexes = ['''^7RwVrquB5dPmfbrI1rcWy$''']

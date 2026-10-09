@@ -1,4 +1,4 @@
-import { chmodSync, mkdirSync, mkdtempSync } from 'node:fs';
+import { mkdirSync, mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { useEnv } from '@backoffice/env';
@@ -36,9 +36,8 @@ test('no warning when every directory is usable', async () => {
 
 test('warns like Directus for the SQLite, upload and extensions directories', async () => {
 	const dir = mkdtempSync(join(tmpdir(), 'storage-'));
-	const readOnly = join(dir, 'ro');
-	mkdirSync(readOnly);
-	chmodSync(readOnly, 0o500);
+	// A missing directory, not chmod: root (CI containers) can write to a read-only directory.
+	const readOnly = join(dir, 'missing-database');
 
 	vi.mocked(useEnv).mockReturnValue({
 		DB_CLIENT: 'sqlite3',
@@ -56,8 +55,6 @@ test('warns like Directus for the SQLite, upload and extensions directories', as
 		`Upload directory (${join(dir, 'missing-uploads')}) is not read/writeable!`,
 		`Extensions directory (${join(dir, 'missing-extensions')}) is not readable!`,
 	]);
-
-	chmodSync(readOnly, 0o700);
 });
 
 test('extensions directory is not checked when EXTENSIONS_LOCATION is set', async () => {

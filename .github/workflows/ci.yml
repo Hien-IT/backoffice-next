@@ -1,0 +1,183 @@
+# Quality gates of Principle X (T097, R19). Every job must pass before a pull request can merge: mark them as
+# required status checks in the branch protection of `main` (see tests/parity/README.md).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+permissions:
+  contents: read
+
+env:
+  NX_NO_CLOUD: 'true'
+  NX_DAEMON: 'false'
+
+jobs:
+  guard-directus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: directus/ is unchanged (FR-111)
+        run:
+          node tools/guard-directus-unchanged.mjs ${{ github.event_name == 'pull_request' && format('origin/{0}',
+          github.base_ref) || github.event.before }}
+
+  quality:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: lint, typecheck, test (coverage gates), build
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm nx affected -t lint typecheck test build --base=origin/${{ github.base_ref }} --head=HEAD
+          else
+            pnpm nx run-many -t lint typecheck test build
+          fi
+      - run: pnpm run test:tools
+      - run: pnpm run check-port-headers
+      - run: pnpm run check-package-names
+      - name: OpenAPI contracts are valid
+        run: |
+          for f in specs/*/contracts/*.openapi.yaml; do
+            pnpm --filter @backoffice/specs exec swagger-cli validate "$GITHUB_WORKSPACE/$f"
+          done
+
+  guard-differences:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - name: accepted differences match the specs and none has expired (FR-101)
+        run: pnpm --filter @backoffice/parity-tests exec vitest run src/accepted-differences.test.ts
+
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { vendor: postgres, suite: full, profiles: 'ratelimit,cors-hsts,pressure,metrics' }
+          - { vendor: mysql, suite: reduced, profiles: '' }
+          - { vendor: sqlite3, suite: reduced, profiles: '' }
+    env:
+      PARITY_SUITE: ${{ matrix.suite }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # Startup scenarios and the read-only account run the built API on the host.
+      - run: pnpm nx run api:build
+      - run: pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=${{ matrix.profiles }}
+      - run: pnpm nx run parity-tests:parity --vendor=${{ matrix.vendor }} --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-${{ matrix.vendor }} logs --no-color > parity-${{ matrix.vendor }}.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: parity-${{ matrix.vendor }}-logs
+          path: tests/parity/parity-${{ matrix.vendor }}.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=${{ matrix.vendor }}
+
+  benchmark:
+    needs: parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: pnpm nx run benchmark:run --output-style=static
+      - if: always()
+        run: pnpm nx run benchmark:env-down
+
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -f apps/api/Dockerfile -t backoffice-api:ci .
+      - run: docker build -f apps/web/Dockerfile -t backoffice-web:ci .
+      - run: docker save backoffice-api:ci backoffice-web:ci | gzip > images.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: images
+          path: images.tar.gz
+          retention-days: 1
+
+  e2e:
+    needs: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      # Postgres bootstrapped by Directus 11.17.4, then the API and web images built by the `docker` job.
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres
+      - name: start the API and web containers
+        run: |
+          docker run -d --name api --network parity-postgres_default --env-file tests/parity/env/postgres.env \
+            -e CORS_ENABLED=true -e CORS_ORIGIN=true -p 8057:8055 backoffice-api:ci
+          docker run -d --name web -e API_URL=http://127.0.0.1:8057 -p 8080:80 backoffice-web:ci
+          for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8057/server/ping && break; sleep 2; done
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: apps/web-e2e
+      - run: pnpm nx run web-e2e:e2e
+        env:
+          BASE_URL: http://127.0.0.1:8080
+          API_URL: http://127.0.0.1:8057
+      - name: container logs
+        if: failure()
+        run: docker logs api; docker logs web
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=postgres
+
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm audit --prod --audit-level=high
+      - name: gitleaks
+        run:
+          docker run --rm -w /repo -v "$PWD:/repo:ro" ghcr.io/gitleaks/gitleaks:v8.28.0 dir . --config .gitleaks.toml
+          --redact --no-banner

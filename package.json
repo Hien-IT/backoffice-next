@@ -14,12 +14,15 @@
 		"test": "nx run-many -t test",
 		"format": "prettier --write .",
 		"check-port-headers": "node tools/check-port-headers.mjs",
-		"test:tools": "node --test tools/*.test.mjs"
+		"test:tools": "node --test tools/*.test.mjs",
+		"check-package-names": "node tools/check-package-names.mjs",
+		"guard-directus": "node tools/guard-directus-unchanged.mjs"
 	},
 	"devDependencies": {
 		"@eslint/js": "catalog:",
 		"@nx/eslint": "catalog:",
 		"@nx/js": "catalog:",
+		"@nx/playwright": "catalog:",
 		"@nx/vite": "catalog:",
 		"@nx/vitest": "catalog:",
 		"@types/node": "catalog:",

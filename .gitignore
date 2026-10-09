@@ -27,3 +27,7 @@ test.db
 
 # graphify (rebuilt locally by git hooks)
 graphify-out/
+
+# Playwright
+test-results/
+playwright-report/

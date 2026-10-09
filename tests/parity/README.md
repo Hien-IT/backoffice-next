@@ -64,3 +64,10 @@ GET /server/info: 1 unaccepted difference(s)
    - `kind: 'doc'`: khác biệt ngoài HTTP (log, package, migration, khởi động); bộ so sánh bỏ qua.
 3. `src/accepted-differences.test.ts` kiểm tra mỗi mục có trong bảng của đúng spec, `removeAt` khớp, và fail khi spec
    của feature `removeAt` đã `Status: Done` mà mục vẫn còn: lúc đó xoá mục và sửa API cho giống Directus.
+
+## Chặn merge trên GitHub
+
+Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`. Để job fail thì PR không merge được, vào
+Settings → Branches → branch protection của `main`, bật "Require status checks to pass before merging" và chọn các
+check: `guard-directus`, `quality`, `guard-differences`, `parity (postgres, …)`, `parity (mysql, …)`,
+`parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`, `security`, `semgrep`.

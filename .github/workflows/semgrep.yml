@@ -1,0 +1,21 @@
+# Static analysis (T098). The repository is private without GitHub Code Security, so Semgrep CE replaces CodeQL
+# (R19; plan.md Complexity Tracking).
+name: Semgrep
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 19 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  semgrep:
+    runs-on: ubuntu-latest
+    container: semgrep/semgrep:1.140.0
+    steps:
+      - uses: actions/checkout@v4
+      - run: semgrep scan --config p/typescript --error --metrics=off apps libs tests tools

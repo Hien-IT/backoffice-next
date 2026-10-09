@@ -1,0 +1,26 @@
+{
+	"name": "benchmark",
+	"$schema": "../../node_modules/nx/schemas/project-schema.json",
+	"projectType": "application",
+	"targets": {
+		"env-up": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres up -d --build --wait",
+				"cwd": "tests/benchmark"
+			}
+		},
+		"env-down": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres down -v --remove-orphans",
+				"cwd": "tests/benchmark"
+			}
+		},
+		"run": {
+			"executor": "nx:run-commands",
+			"options": { "command": "node src/run.ts", "cwd": "tests/benchmark" },
+			"cache": false
+		}
+	}
+}

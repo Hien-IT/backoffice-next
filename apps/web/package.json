@@ -1,0 +1,26 @@
+{
+	"name": "@backoffice/web",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"serve": "vite",
+		"build": "vite build",
+		"typecheck": "vue-tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"lint": "eslint src"
+	},
+	"dependencies": {
+		"pinia": "catalog:",
+		"vue": "catalog:",
+		"vue-i18n": "catalog:",
+		"vue-router": "catalog:"
+	},
+	"devDependencies": {
+		"@vitejs/plugin-vue": "catalog:",
+		"@vue/test-utils": "catalog:",
+		"happy-dom": "catalog:",
+		"vite": "catalog:",
+		"vue-tsc": "catalog:"
+	}
+}
