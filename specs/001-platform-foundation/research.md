@@ -488,7 +488,8 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   (và `10-3.2-alpine` cho `postgres10`), `mysql:8` (và `mysql:5` cho `mysql5`), `mariadb:11.4`, `mcr.microsoft.com/mssql/server:2022-latest`,
   `cockroachdb/cockroach:latest-v24.3`, Oracle `gvenzl/oracle-xe:21-slim-faststart` (image blackbox
   `quillbuilduser/oracle-18-xe-micro-sq` cũ và không còn bảo trì), `redis:7-alpine` (giống
-  `dev/directus-reference`), `minio/minio`.
+  `dev/directus-reference`), `cgr.dev/chainguard/minio` (có sẵn `mc` cho bước tạo bucket; `minio/minio`, `minio/mc`
+  của blackbox không còn trên Docker Hub, CI không tải được).
 
 ## R20. Image Docker của API
 

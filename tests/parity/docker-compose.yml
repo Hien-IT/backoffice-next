@@ -155,7 +155,8 @@ services:
       retries: 60
 
   minio:
-    image: minio/minio:latest
+    # minio/minio and minio/mc are no longer on Docker Hub; Chainguard's MinIO image also ships mc and a shell.
+    image: cgr.dev/chainguard/minio:latest
     command: server /data
     environment:
       MINIO_ROOT_USER: minioadmin
@@ -169,7 +170,7 @@ services:
       retries: 60
 
   minio-init:
-    image: minio/mc:latest
+    image: cgr.dev/chainguard/minio:latest
     depends_on:
       minio: { condition: service_healthy }
     entrypoint: >

@@ -73,7 +73,8 @@ services:
       retries: 20
 
   minio:
-    image: minio/minio
+    # minio/minio and minio/mc are no longer on Docker Hub; Chainguard's MinIO image also ships mc and a shell.
+    image: cgr.dev/chainguard/minio:latest
     command: server /data --console-address ':9001'
     environment:
       MINIO_ROOT_USER: ${STORAGE_S3_KEY}
@@ -90,7 +91,7 @@ services:
       retries: 20
 
   minio-init:
-    image: minio/mc
+    image: cgr.dev/chainguard/minio:latest
     depends_on:
       minio:
         condition: service_healthy
