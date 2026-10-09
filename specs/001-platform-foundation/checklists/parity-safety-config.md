@@ -105,7 +105,7 @@
 - [x] CHK040 Build Docker image (`apps/api`, `apps/web`) có là cổng PR không? [Coverage, Spec §FR-110]
   - Đã xử lý: job `docker` (T097).
 - [x] CHK041 Quét bảo mật đủ ba loại (dependency: `pnpm audit`, Dependabot; secret: gitleaks; phân tích mã: CodeQL) chưa? [Coverage, Spec §FR-110]
-  - Đã xử lý: job `security` (T097), `codeql.yml`, `dependabot.yml`, `.gitleaks.toml` (T098); repo private không có Code Security thì dùng Semgrep CE và ghi Complexity Tracking.
+  - Đã xử lý: job `security` (T097), `semgrep.yml` (Semgrep CE thay CodeQL vì repo private, ghi ở Complexity Tracking), `dependabot.yml`, `.gitleaks.toml` (T098).
 - [x] CHK042 Benchmark ngưỡng 10% có cổng tự động không, và chỗ lệch quy mô thiết kế (2.000 user, 10 triệu bản ghi) đã ghi chưa? [Measurability, Spec §FR-113, §SC-006, Constitution X]
   - Đã xử lý: FR-113; T093, T095, job `benchmark` (T097); ngoại lệ quy mô ghi ở Complexity Tracking của plan, tech lead duyệt (T112).
 - [x] CHK043 Sửa `directus/` có bị chặn tự động không? [Coverage, Spec §FR-111, Constitution I]

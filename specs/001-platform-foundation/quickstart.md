@@ -169,7 +169,21 @@ rồi tải lại: app gọi URL mới.
 pnpm nx run web-e2e:e2e
 ```
 
-Mong đợi: smoke test Playwright đạt (US7).
+Mong đợi: smoke test Playwright đạt (US7). Lần đầu cài trình duyệt: `pnpm --filter @backoffice/web-e2e exec playwright
+install chromium`.
+
+Image web (nginx không root, cổng 8080) lấy URL API từ biến `PUBLIC_URL` của Directus lúc container khởi động
+(Nguyên tắc VIII), mặc định `/`:
+
+```bash
+docker build -f apps/web/Dockerfile -t backoffice-web .
+```
+
+```bash
+docker run --rm -p 8080:8080 -e PUBLIC_URL=http://localhost:8056 backoffice-web
+```
+
+Mở `http://localhost:8080/admin/`; chạy e2e với image này: `BASE_URL=http://127.0.0.1:8080 pnpm nx run web-e2e:e2e`.
 
 ## 11. Dọn dẹp
 

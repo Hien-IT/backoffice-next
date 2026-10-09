@@ -1,0 +1,3 @@
+[
+	{ "source": "api/src/app.ts", "dest": "apps/api/src/app-pipeline.ts" }
+]

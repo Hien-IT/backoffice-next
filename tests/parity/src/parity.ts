@@ -139,11 +139,21 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 		if (name.startsWith('access-control-')) names.add(name);
 	}
 
+	// A body holding time-dependent values (FR-105) has a time-dependent ETag: compare its length part only.
+	const timeDependent = [directus, backoffice].some(
+		(c) => c.isJson && JSON.stringify(normalizeBody(path, c.json)) !== JSON.stringify(c.json),
+	);
+
 	for (const name of [...names].sort()) {
 		if (name === 'etag' && NO_ETAG.some((r) => r.test(path))) continue;
 
-		const a = normalizeHeader(name, directus.headers[name]);
-		const b = normalizeHeader(name, backoffice.headers[name]);
+		let a = normalizeHeader(name, directus.headers[name]);
+		let b = normalizeHeader(name, backoffice.headers[name]);
+
+		if (name === 'etag' && timeDependent) {
+			a = a?.replace(/-[^-"]+"$/, '-<hash>"');
+			b = b?.replace(/-[^-"]+"$/, '-<hash>"');
+		}
 
 		if (a !== b) differences.push({ kind: 'header', location: name, directus: a, backoffice: b });
 	}

@@ -43,7 +43,7 @@ catalog:
   '@types/express': 5.0.3
   knex: 3.1.0
   pg: 8.16.3
-  mysql2: 3.15.3
+  mysql2: 3.22.6 # security patch, Directus 11.17.4 has 3.15.3 (plan.md Complexity Tracking)
   sqlite3: 5.1.7
   tedious: 18.6.1
   oracledb: 6.10.0
@@ -67,20 +67,20 @@ catalog:
   '@types/body-parser': 1.19.6
   qs: 6.14.2
   '@types/qs': 6.14.0
-  proxy-addr: 2.0.7
+  proxy-addr: 2.0.8 # security patch, Directus 11.17.4 has 2.0.7
   '@types/proxy-addr': 2.0.3
   object-hash: 3.0.0
   '@types/object-hash': 3.0.6
   lodash-es: 4.18.1
   '@types/lodash-es': 4.17.12
-  nanoid: 5.1.6
+  nanoid: 5.1.16 # security patch, Directus 11.17.4 has 5.1.6
   ms: 2.1.3
   '@types/ms': 2.1.0
   bytes: 3.1.2
   '@types/bytes': 3.1.5
   camelcase: 8.0.0
   dotenv: 17.2.3
-  js-yaml: 4.1.1
+  js-yaml: 4.3.2 # security patch, Directus 11.17.4 has 4.1.1
   '@types/js-yaml': 4.0.9
   fs-extra: 11.3.2
   '@types/fs-extra': 11.0.4
@@ -93,7 +93,7 @@ catalog:
   swagger-cli: 4.0.4
   openapi3-ts: 4.5.0
   # Web
-  vue: 3.5.24
+  vue: 3.5.43 # security patch
   vite: 7.3.0
   '@vitejs/plugin-vue': 6.0.1
   pinia: 3.0.3
@@ -114,3 +114,22 @@ onlyBuiltDependencies:
   - nx
   - oracledb
   - sqlite3
+
+# Security patches of transitive dependencies (plan.md Complexity Tracking).
+overrides:
+  fast-xml-parser@>=5.0.0 <5.5.6: 5.5.12 # via @aws-sdk/client-s3
+
+# tar 6 comes with sqlite3 5.1.7 (same as Directus 11.17.4); only sqlite3/deps/extract.js loads it, to unpack the
+# bundled SQLite source when node-gyp builds from source. Runtime code never loads it, and tar 7 would change major
+# under sqlite3. Accepted in plan.md Complexity Tracking.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-34x7-hfp2-rc4v
+    - GHSA-8qq5-rm4j-mr97
+    - GHSA-83g3-92jg-28cx
+    - GHSA-qffp-2rhf-9h96
+    - GHSA-9ppj-qmqm-q256
+    - GHSA-r6q2-hw4h-h46w
+    - GHSA-23hp-3jrh-7fpw
+    - GHSA-8x88-c5mf-7j5w
+    - GHSA-r292-9mhp-454m

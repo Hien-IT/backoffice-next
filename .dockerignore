@@ -10,3 +10,10 @@ dist
 **/dist
 .nx
 specs
+
+# Secrets and local env files never enter an image
+.env
+.env.*
+**/.env
+**/.env.*
+**/*.env

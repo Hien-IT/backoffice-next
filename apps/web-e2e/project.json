@@ -6,7 +6,7 @@
 	"targets": {
 		"e2e": {
 			"executor": "@nx/playwright:playwright",
-			"options": { "config": "apps/web-e2e/playwright.config.ts" },
+			"options": { "config": "apps/web-e2e/playwright.config.ts", "skipInstall": true },
 			"cache": false
 		}
 	}

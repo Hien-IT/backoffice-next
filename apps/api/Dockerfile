@@ -2,12 +2,12 @@
 # Follows directus/Dockerfile (research R20), without `bootstrap` and PM2: one Node process per container.
 # Build context: repository root.
 
-ARG NODE_VERSION=22
+ARG NODE_VERSION=22.23.3-alpine3.24
 
 ####################################################################################################
 ## Build
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION} AS builder
 
 RUN npm install --global corepack@latest
 
@@ -36,7 +36,7 @@ EOF
 ####################################################################################################
 ## Runtime
 
-FROM node:${NODE_VERSION}-alpine AS runtime
+FROM node:${NODE_VERSION} AS runtime
 
 USER node
 

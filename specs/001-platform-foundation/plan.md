@@ -27,13 +27,15 @@ ESM (`"type": "module"`), pnpm 10.27.0.
 - Workspace: Nx 23.3 (`@nx/js`, `@nx/nest`, `@nx/vite`, `@nx/vitest`, `@nx/eslint`, `@nx/playwright`).
 - API: NestJS 12.1 (`@nestjs/platform-express`, Express 5.2), biên dịch SWC 1.16 (`@nx/js:swc`).
 - Cùng phiên bản Directus 11.17.4 (vì quyết định dữ liệu dùng chung hoặc hành vi nhìn thấy được):
-  knex 3.1.0, pg 8.16.3, mysql2 3.15.3, sqlite3 5.1.7, tedious 18.6.1, oracledb 6.10.0, ioredis 5.8.2,
+  knex 3.1.0, pg 8.16.3, sqlite3 5.1.7, tedious 18.6.1, oracledb 6.10.0, ioredis 5.8.2,
   keyv 5.5.3, @keyv/redis 3.0.1, rate-limiter-flexible 7.2.0, pino 9.7.0, pino-http 10.5.0,
   pino-http-print 3.1.0, pino-pretty 13.1.2, prom-client 15.1.3, cron 4.3.4, @godaddy/terminus 4.12.1,
-  helmet 8.1.0, cors 2.8.5, cookie-parser 1.4.7, body-parser 1.20.3, qs 6.14.2, proxy-addr 2.0.7,
-  object-hash 3.0.0, lodash-es 4.18.1, nanoid 5.1.6, ms 2.1.3, bytes 3.1.2, camelcase 8.0.0,
-  dotenv 17.2.3, js-yaml 4.1.1, @aws-sdk/client-s3 3.928.0, @aws-sdk/lib-storage 3.928.0,
+  helmet 8.1.0, cors 2.8.5, cookie-parser 1.4.7, body-parser 1.20.3, qs 6.14.2,
+  object-hash 3.0.0, lodash-es 4.18.1, ms 2.1.3, bytes 3.1.2, camelcase 8.0.0,
+  dotenv 17.2.3, @aws-sdk/client-s3 3.928.0, @aws-sdk/lib-storage 3.928.0,
   @smithy/node-http-handler 4.4.5, swagger-cli 4.0.4.
+- Khác Directus vì bản vá bảo mật (T107, Complexity Tracking): mysql2 3.22.6 (Directus 3.15.3), proxy-addr 2.0.8
+  (2.0.7), nanoid 5.1.16 (5.1.6), js-yaml 4.3.2 (4.1.1); override fast-xml-parser 5.5.12.
 - Web: Vue 3.5, Vite 7.3, Pinia 3.0, Vue Router 4.6, vue-i18n 11. Thư viện UI: Reka UI 2.8.2 (constitution 1.1.0)
   và Tailwind CSS 4.3.3 qua `@tailwindcss/vite` 4.3.3 (style riêng của Backoffice), thêm ở feature 012 khi có
   component đầu tiên; khung 001 không cần thư viện UI.
@@ -54,7 +56,8 @@ cạnh Directus. Máy dev macOS.
 
 **Performance Goals**: p95 latency và request/giây của `/server/ping`, `/server/health`,
 `/server/info` không tệ hơn Directus quá 10% (SC-006). `/server/specs/oas` so với Directus chạy
-`CACHE_SCHEMA=false` (container `directus-nocache`), cùng ngưỡng 10%; từ feature 002 so với Directus
+`CACHE_SCHEMA=false` và `CACHE_ENABLED=false` (container `directus-nocache`; cache response là D-11), cùng
+ngưỡng 10%; từ feature 002 so với Directus
 mặc định.
 
 **Constraints**:
@@ -66,13 +69,13 @@ mặc định.
 - Không gửi email (health luôn báo `email:connection` ok).
 
 **Scale/Scope**: Thiết kế cho nhiều replica ngang hàng, tới 2.000 người dùng đồng thời (Nguyên tắc X).
-Feature này: 5 endpoint, 13 thư viện, 1 app API, 1 app web khung, 2 project test.
+Feature này: 5 endpoint, 13 thư viện chạy cùng API (thêm `libs/schema-builder` chỉ dùng trong test), 1 app API, 1 app web khung, 2 project test.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Đối chiếu `.specify/memory/constitution.md` v1.0.0. Kiểm lần 1 trước khi nghiên cứu; kiểm lần 2 sau khi
+Đối chiếu `.specify/memory/constitution.md` v1.1.0 (kiểm lại ở T110 sau khi đổi Nguyên tắc VI). Kiểm lần 1 trước khi nghiên cứu; kiểm lần 2 sau khi
 có research, data model, contracts (kết quả dưới đây là lần 2).
 
 - [x] **I. Directus chỉ đọc** — PASS. Không sửa file nào trong `directus/`; job CI `guard-directus`
@@ -115,9 +118,10 @@ có research, data model, contracts (kết quả dưới đây là lần 2).
   message, tên package `@backoffice/*`, tên lớp lỗi. Giữ: bảng `directus_*`, mã lỗi, `METRICS_NAME_PREFIX`,
   key kiểm tra `directus-health-*`, `directus-metric-*`, giá trị trong DB, phiên bản `11.17.4` báo cho
   client.
-- [x] **X. Chất lượng và vận hành** — PASS có ngoại lệ ghi ở Complexity Tracking (quy mô benchmark).
+- [x] **X. Chất lượng và vận hành** — PASS có ngoại lệ ghi ở Complexity Tracking (quy mô benchmark, Semgrep
+  thay CodeQL, phiên bản vá bảo mật, bỏ qua cảnh báo `tar`, phép đo coverage).
   CI: lint, typecheck, unit + coverage (80% BE, 60% web), đối chiếu, E2E khói cho web, build image,
-  `pnpm audit`, gitleaks, CodeQL, Dependabot, benchmark ≤ 10%.
+  `pnpm audit`, gitleaks, Semgrep CE (thay CodeQL), Dependabot, benchmark ≤ 10%.
   Log pino và metric giống Directus. Không gửi email. Khác biệt có trong spec, tech lead duyệt ở PR.
 - [x] **XI. Ngoài phạm vi** — PASS. Không khởi tạo WebSocket, extension, AI/MCP, deployment, telemetry,
   không tạo mail transport. Việc đọc tên file trong `EXTENSIONS_PATH/migrations` chỉ để so migration,
@@ -200,7 +204,7 @@ backoffice-next/
 │   │       └── utils/                     # get-ip-from-req, url, get-address, validate-env, reduce-schema,
 │   │                                      # get-milliseconds, async-handler
 │   ├── web/                     # @backoffice/web — Vue 3 khung
-│   │   ├── Dockerfile           # nginx:alpine phục vụ dist ở /admin (hoàn thiện ở 019)
+│   │   ├── Dockerfile           # nginx-unprivileged (uid 101, cổng 8080) phục vụ dist ở /admin (hoàn thiện ở 019)
 │   │   ├── nginx.conf
 │   │   ├── docker/40-config.sh  # sinh config.json từ env lúc container khởi động
 │   │   ├── vite.config.ts       # base /admin/
@@ -221,7 +225,8 @@ backoffice-next/
 │   ├── storage/                 # @backoffice/storage
 │   ├── storage-driver-local/    # @backoffice/storage-driver-local
 │   ├── storage-driver-s3/       # @backoffice/storage-driver-s3
-│   └── pressure/                # @backoffice/pressure
+│   ├── pressure/                # @backoffice/pressure
+│   └── schema-builder/          # @backoffice/schema-builder: dựng SchemaOverview cho test, không vào image
 ├── tests/
 │   ├── parity/                  # @backoffice/parity-tests (target `test`: unit, không Docker; `parity`: cần Docker)
 │   │   ├── docker-compose.yml   # DB theo vendor (profile), redis, minio, directus:11.17.4, backoffice-api; profile ratelimit, cors-hsts, pressure, metrics
@@ -238,7 +243,7 @@ backoffice-next/
 │   └── benchmark/               # @backoffice/benchmark: run.ts (autocannon, p95, so sánh 10%), docker-compose.yml (directus-nocache)
 ├── dev/directus-reference/      # thêm anchor x-directus-environment + service backoffice-api (profile)
 └── .github/
-    ├── workflows/ci.yml, nightly.yml, codeql.yml
+    ├── workflows/ci.yml, nightly.yml, semgrep.yml
     └── dependabot.yml
 ```
 
@@ -261,6 +266,7 @@ của Nest. Test đối chiếu và benchmark là project riêng dưới `tests/
 | `packages/specs/src/**` | `libs/specs/src/**` | Đổi "Directus" trong mô tả; build swagger-cli |
 | `packages/storage*/src/**` (local, s3) | `libs/storage*/src/**` | Nguyên vẹn |
 | `packages/pressure/src/**` | `libs/pressure/src/**` | Nguyên vẹn |
+| `packages/schema-builder/src/**` | `libs/schema-builder/src/**` | Chỉ dùng trong test (T062) |
 | `packages/utils/{shared,node}/*` (phần cần) | `libs/utils/src/{shared,node}/*` | Chỉ file được dùng |
 | `packages/types/src/*` (phần cần) | `libs/types/src/*` | Chỉ kiểu được dùng |
 | `api/src/app.ts` (phần middleware) | `apps/api/src/app-pipeline.ts` | Bỏ phần ngoài phạm vi |
@@ -308,6 +314,9 @@ Các phần dưới đây cho kết quả giống Directus với endpoint của 
 | Nguyên tắc VII ("KHÔNG dùng cache hay lock trong bộ nhớ process") bị lệch: khóa `lockedAt` chống chạy chồng job metrics (T090) nằm trong process | Port nguyên `directus/api/src/schedules/metrics.ts`; metric sinh theo từng node, khóa chỉ chống hai lượt chạy chồng trong cùng process, không phải state dùng chung giữa instance | Khóa Redis (bị loại: chỉ một instance sinh metric, các instance khác thiếu metric, lệch Directus). Cần tech lead duyệt trong PR (Nguyên tắc X) |
 | Nguyên tắc X (coverage 80% cho libs BE) đo trên phần chạy được không cần DB: `libs/schema` loại 5 dialect máy chủ (`postgres`, `cockroachdb`, `mysql`, `mssql`, `oracledb`) khỏi phép đo unit | Các dialect này chỉ chạy được với DB thật; port nguyên từ Directus, Directus cũng không có unit test cho chúng. Chúng được kiểm bằng `tests/parity` trên từng vendor (PR: Postgres, MySQL; hằng đêm: MariaDB, MSSQL, Oracle, CockroachDB). Phần còn lại (SQLite với DB thật trong bộ nhớ, `createInspector`, utils) đạt > 90%. `libs/schema-builder` (chỉ dùng trong test, không vào image), `tests/parity` và `tests/benchmark` là công cụ test, không thuộc phép đo | Mock chuỗi query của knex cho từng dialect (bị loại: test giòn, không chứng minh được câu SQL chạy đúng trên DB). Cần tech lead duyệt trong PR (Nguyên tắc X) |
 | Nguyên tắc X (CodeQL) bị thay: repo private không có GitHub Code Security nên CodeQL không chạy | Vẫn cần quét tĩnh mã nguồn trên mỗi PR (R19) | Dùng Semgrep CE (`.github/workflows/semgrep.yml`, bộ luật `p/typescript`) thay CodeQL. Bật lại CodeQL khi repo có GitHub Code Security. Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| Phiên bản thư viện khác Directus 11.17.4 vì bản vá bảo mật (T107): `proxy-addr` 2.0.8 (Directus 2.0.7, critical: giả mạo IP qua IPv6 ánh xạ IPv4), `mysql2` 3.22.6 (3.15.3), `nanoid` 5.1.16 (5.1.6), `js-yaml` 4.3.2 (4.1.1), `vue` 3.5.43, override `fast-xml-parser` 5.5.12 (qua `@aws-sdk/client-s3`) | `pnpm audit --prod --audit-level=high` là cổng CI (Nguyên tắc X); các bản cũ có lỗi high/critical. Cùng major, chỉ vá lỗi; chạy lại test đối chiếu: Postgres full, MySQL reduced, MariaDB reduced đạt; MySQL full fail đúng 4 test như khi dùng `mysql2` 3.15.3 (lỗi có sẵn, không do nâng bản) | Giữ đúng bản Directus và bỏ qua cảnh báo (bị loại: giữ lỗ hổng critical ở `proxy-addr`, ảnh hưởng IP allow list và rate limiter). Khi nâng Directus tham chiếu thì so lại các bản này. Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| `pnpm audit` bỏ qua 9 cảnh báo high/critical của `tar` 6 (`auditConfig.ignoreGhsas` trong `pnpm-workspace.yaml`) | `tar` 6 đi kèm `sqlite3` 5.1.7 (cùng bản Directus). Chỉ `sqlite3/deps/extract.js` dùng nó để giải nén mã nguồn SQLite có sẵn trong package khi node-gyp build; code chạy không nạp `tar`, không giải nén dữ liệu từ bên ngoài | Override `tar` 7 (bị loại: đổi major dưới `sqlite3`, có thể hỏng bước build từ mã nguồn). Gỡ khi `sqlite3` dùng `tar` đã vá. Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| Nguyên tắc VII (nhiều instance PHẢI dùng Redis) được nới: store `memory` (mặc định của Directus cho rate limiter, cache) vẫn chạy, chỉ ghi cảnh báo một instance (FR-023, Q5) | Nguyên tắc VIII: cùng file env của Directus phải chạy được ngay; Directus chạy với store `memory` thì API mới cũng phải chạy. Cảnh báo cho vận hành biết cần Redis khi chạy nhiều instance | Dừng khi không có Redis (bị loại: lệch Directus, hỏng cấu hình một instance đang chạy). Cần tech lead duyệt trong PR (Nguyên tắc X) |
 
 Rủi ro đã biết (không phải vi phạm), theo dõi trong tasks:
 
@@ -316,6 +325,7 @@ Rủi ro đã biết (không phải vi phạm), theo dõi trong tasks:
 | Express 5 (Nest 12) khác Express 4.21.2 (Directus) | Lệch header hoặc thông báo lỗi | Cấu hình body parser, query parser (R4); test đối chiếu có ca trailing slash, chữ hoa, `OPTIONS`, `HEAD`, phương thức sai, `GET /` |
 | Repo private không có GitHub Code Security | CodeQL không chạy | Đã xảy ra: thay bằng Semgrep CE, ghi ở Complexity Tracking (R19) |
 | Benchmark trên runner CI dao động | Fail giả | Đo luân phiên nhiều vòng, lấy trung vị (R18) |
+| `/server/specs/oas` public dựng schema mỗi request, rate limiter mặc định tắt (FR-049) | Gọi nhiều lần làm tốn DB | Môi trường mở ra Internet bật `RATE_LIMITER_ENABLED`; feature 002 thêm cache schema, 005 thêm cache response |
 | Thứ tự collection trong OAS không xác định | Test đối chiếu chập chờn | Chuẩn hóa thứ tự `tags`, so object không theo thứ tự key (R16.5) |
 | `/server/specs/oas` công khai dựng lại schema mỗi request (chưa có cache, FR-049) | Có thể bị dùng để làm quá tải DB | Chấp nhận tới feature 002, giống Directus khi `CACHE_SCHEMA=false`; pressure limiter mặc định bật, rate limiter nên bật khi mở Internet; benchmark so với Directus `CACHE_SCHEMA=false` |
 | `OPTIONS` khác Directus vì Nest gắn route thẳng vào app | Lệch `Allow` và status | Middleware `router-options` (R4), `methods.test.ts`, `observability/metrics.test.ts` |

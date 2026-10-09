@@ -191,6 +191,29 @@ describe('compare()', () => {
 			{ kind: 'body', location: '/errors/0/extensions/limit', directus: 5, backoffice: 6 },
 		]);
 	});
+
+	test('rate limit body from the Redis store: reset is a date, the ETag is compared by length only', () => {
+		const body = (reset: string) => ({ errors: [{ extensions: { code: 'REQUESTS_EXCEEDED', reset } }] });
+		const a = {
+			...base,
+			isJson: true,
+			headers: { etag: 'W/"96-6Z69u48KId6LmKfcLlaGDXn5kH4"' },
+			json: body('2026-10-09T14:36:09.597Z'),
+		};
+		const b = { ...a, headers: { etag: 'W/"96-4pXepL/cjQuKQAQVoET0eu6Zg0E"' }, json: body('2026-10-09T14:36:09.596Z') };
+
+		expect(compare('GET /x', a, b)).toEqual([]);
+		expect(compare('GET /x', a, { ...b, headers: { etag: 'W/"97-4pXepL/cjQuKQAQVoET0eu6Zg0E"' } })).toEqual([
+			{ kind: 'header', location: 'etag', directus: 'W/"96-<hash>"', backoffice: 'W/"97-<hash>"' },
+		]);
+	});
+
+	test('the ETag of a time-independent body is compared in full', () => {
+		const a = { ...base, isJson: true, headers: { etag: 'W/"2-aaa"' }, json: { a: 1 } };
+		expect(compare('GET /x', a, { ...a, headers: { etag: 'W/"2-bbb"' } })).toEqual([
+			{ kind: 'header', location: 'etag', directus: 'W/"2-aaa"', backoffice: 'W/"2-bbb"' },
+		]);
+	});
 });
 
 describe('diffJson()', () => {

@@ -14,7 +14,7 @@ export default defineConfig({
 		? {}
 		: {
 				webServer: {
-					command: 'pnpm --filter @backoffice/web exec vite --port 4200 --strictPort',
+					command: 'pnpm --filter @backoffice/web exec vite --host 127.0.0.1 --port 4200 --strictPort',
 					url: `${baseURL}/admin/`,
 					reuseExistingServer: true,
 				},

@@ -53,7 +53,7 @@ description: "Danh sách task cho feature 001: Nền tảng workspace và kết 
 **Purpose**: Dựng workspace Nx + pnpm, cấu hình chất lượng và công cụ kiểm tra file port. Làm xong là `pnpm install` và `pnpm nx show projects` chạy được.
 
 - [X] T001 Tạo `package.json` gốc (`name: backoffice`, `private: true`, `packageManager: pnpm@10.27.0`, `engines: {node: "22", pnpm: ">=10 <11"}`, script `build`/`lint`/`typecheck`/`test`/`format`/`check-port-headers` gọi `nx run-many` hoặc công cụ tương ứng, FR-004), `.nvmrc` (`22`) và `.npmrc` (copy 3 dòng của `directus/.npmrc`: `engine-strict=true`, `shell-emulator=true`, `save-prefix=''`)
-- [X] T002 Tạo `pnpm-workspace.yaml` (`packages: [apps/*, libs/*, tests/*]`) kèm `catalog:` ghim đúng phiên bản trong `plan.md` §Technical Context và `research.md` R1–R22 (knex 3.1.0, pg 8.16.3, mysql2 3.15.3, sqlite3 5.1.7, tedious 18.6.1, oracledb 6.10.0, ioredis 5.8.2, keyv 5.5.3, @keyv/redis 3.0.1, rate-limiter-flexible 7.2.0, pino 9.7.0, pino-http 10.5.0, pino-http-print 3.1.0, pino-pretty 13.1.2, prom-client 15.1.3, cron 4.3.4, @godaddy/terminus 4.12.1, helmet 8.1.0, cors 2.8.5, cookie-parser 1.4.7, body-parser 1.20.3, qs 6.14.2, proxy-addr 2.0.7, object-hash 3.0.0, lodash-es 4.18.1, nanoid 5.1.6, ms 2.1.3, bytes 3.1.2, camelcase 8.0.0, dotenv 17.2.3, js-yaml 4.1.1, AWS SDK 3.928.0, swagger-cli 4.0.4; nx 23.3.0 cùng @nx/js, @nx/nest, @nx/vite, @nx/vitest, @nx/eslint, @nx/playwright; @nestjs/* 12.1.x, typescript 5.9.3, vitest 3.2.4, @vitest/coverage-v8 3.2.4, unplugin-swc 2.0.0, @swc/core 1.16.13, eslint 9.39.1, prettier 3.6.2, vue 3.5.x, vite 7.3.x, pinia 3.0.x, vue-router 4.6.x, vue-i18n 11.x, @playwright/test 1.64.x, autocannon 8.0.0)
+- [X] T002 Tạo `pnpm-workspace.yaml` (`packages: [apps/*, libs/*, tests/*]`) kèm `catalog:` ghim đúng phiên bản trong `plan.md` §Technical Context và `research.md` R1–R22 (knex 3.1.0, pg 8.16.3, mysql2 3.15.3 (T107 nâng 3.22.6), sqlite3 5.1.7, tedious 18.6.1, oracledb 6.10.0, ioredis 5.8.2, keyv 5.5.3, @keyv/redis 3.0.1, rate-limiter-flexible 7.2.0, pino 9.7.0, pino-http 10.5.0, pino-http-print 3.1.0, pino-pretty 13.1.2, prom-client 15.1.3, cron 4.3.4, @godaddy/terminus 4.12.1, helmet 8.1.0, cors 2.8.5, cookie-parser 1.4.7, body-parser 1.20.3, qs 6.14.2, proxy-addr 2.0.7 (T107 nâng 2.0.8), object-hash 3.0.0, lodash-es 4.18.1, nanoid 5.1.6 (T107 nâng 5.1.16), ms 2.1.3, bytes 3.1.2, camelcase 8.0.0, dotenv 17.2.3, js-yaml 4.1.1 (T107 nâng 4.3.2), AWS SDK 3.928.0, swagger-cli 4.0.4; nx 23.3.0 cùng @nx/js, @nx/nest, @nx/vite, @nx/vitest, @nx/eslint, @nx/playwright; @nestjs/* 12.1.x, typescript 5.9.3, vitest 3.2.4, @vitest/coverage-v8 3.2.4, unplugin-swc 2.0.0, @swc/core 1.16.13, eslint 9.39.1, prettier 3.6.2, vue 3.5.x, vite 7.3.x, pinia 3.0.x, vue-router 4.6.x, vue-i18n 11.x, @playwright/test 1.64.x, autocannon 8.0.0)
 - [X] T003 Tạo `nx.json` (cache cho `build`, `lint`, `typecheck`, `test`; `namedInputs`; `targetDefaults` với `dependsOn: ["^build"]`) và `tsconfig.base.json` copy đủ bộ cờ của `@directus/tsconfig` 4.0.0 (`configs/base` + `configs/node22`; gồm `isolatedDeclarations: true`, `allowUnreachableCode: false`, `allowUnusedLabels: false`, `forceConsistentCasingInFileNames: true`, `allowSyntheticDefaultImports: true`, `strict`, `exactOptionalPropertyTypes`, `noUncheckedIndexedAccess`, `noImplicitOverride`, `noPropertyAccessFromIndexSignature`, `noUnusedLocals`, `noUnusedParameters`, `noImplicitReturns`, `noFallthroughCasesInSwitch`, `verbatimModuleSyntax`, `module`/`moduleResolution` `Node16`, `target` ES2022, `lib` ES2023, `declaration`, `esModuleInterop`, `skipLibCheck`)
 - [X] T004 [P] Tạo `eslint.config.js` (ESLint 9 flat config: `@eslint/js`, `typescript-eslint`, `eslint-plugin-vue`, `eslint-config-prettier`), `.prettierrc.json` và `.editorconfig` (copy `directus/.prettierrc.json`, `directus/.editorconfig`: tab, printWidth 120, singleQuote), `.prettierignore`
 - [X] T005 [P] Cập nhật `.gitignore` (thêm `.nx/`, `*.tsbuildinfo`, `test.db`; GIỮ file env của test bằng ngoại lệ `!tests/parity/env/*.env` vì `.env.*` đang bị bỏ qua) và tạo `.dockerignore` gốc (`node_modules`, `.git`, `directus`, `dev`, `graphify-out`, `coverage`, `dist`)
@@ -303,7 +303,7 @@ description: "Danh sách task cho feature 001: Nền tảng workspace và kết 
 
 - [X] T102 [P] [US7] Tạo project `apps/web` (`@backoffice/web`): `package.json`, `project.json` (`"name": "web"`; target `serve`, `build`, `test`, `lint`, `typecheck`), `vite.config.ts` (Vite 7.3, `@vitejs/plugin-vue`, `base: '/admin/'`), `index.html`, `tsconfig.json`, `vitest.config.ts` (ngưỡng coverage 60), `eslint` theo `eslint-plugin-vue`
 - [X] T103 [US7] Viết `apps/web/src/main.ts`, `App.vue` (Composition API, `<script setup lang="ts">`, hiển thị "Backoffice" và kết quả ping), `router/index.ts`, `stores/server.ts` (Pinia), `i18n/index.ts` (vue-i18n 11, mỗi ngôn ngữ một file, thêm ngôn ngữ sau không sửa code khác) và `i18n/{en-US,vi-VN}.ts` (copy đúng các key khung cần từ `directus/app/src/lang/translations/{en-US,vi-VN}.yaml`, dòng đầu `// Ported from directus/app/src/lang/translations/<lang>.yaml`, ghi `tools/port-manifest/T103.json`; chữ "Directus" chỉ app đổi thành "Backoffice"), `runtime-config.ts` và `public/config.json` mặc định (không dùng thư viện UI: PrimeVue 5 bị loại vì license thương mại, Reka UI thêm ở feature 012; constitution 1.1.0)
-- [X] T104 [US7] Tạo `apps/web/Dockerfile` (nginx:alpine phục vụ build ở `/admin`, fallback `index.html` cho route SPA, script `apps/web/docker/40-config.sh` sinh `config.json` từ biến môi trường lúc container khởi động để một image dùng cho mọi môi trường; Nguyên tắc VII, FR-003) và `apps/web/nginx.conf`; tạo project `apps/web-e2e` (`project.json` có `"name": "web-e2e"` và target `e2e` của `@nx/playwright`, `playwright.config.ts` đọc `BASE_URL`, mặc định dev server của `apps/web`)
+- [X] T104 [US7] Tạo `apps/web/Dockerfile` (nginx:alpine, T107 đổi sang `nginxinc/nginx-unprivileged` để không chạy root, phục vụ build ở `/admin`, fallback `index.html` cho route SPA, script `apps/web/docker/40-config.sh` sinh `config.json` từ biến môi trường lúc container khởi động để một image dùng cho mọi môi trường; Nguyên tắc VII, FR-003) và `apps/web/nginx.conf`; tạo project `apps/web-e2e` (`project.json` có `"name": "web-e2e"` và target `e2e` của `@nx/playwright`, `playwright.config.ts` đọc `BASE_URL`, mặc định dev server của `apps/web`)
 - [X] T105 [US7] Xác nhận US7 và SC-008: trên máy sạch (container `node:22`, 4 vCPU, 8 GB RAM, không cache pnpm và Nx) chạy `corepack enable && pnpm install && pnpm nx run-many -t build lint typecheck test`, đo thời gian (≤ 15 phút), chạy `pnpm run check-port-headers` và `pnpm run check-package-names`; xác nhận mọi project đạt
 
 **Checkpoint**: Mọi user story hoạt động; workspace dùng được bằng lệnh thống nhất.
@@ -314,13 +314,13 @@ description: "Danh sách task cho feature 001: Nền tảng workspace và kết 
 
 **Purpose**: Rà soát chéo, tài liệu, bảo mật và đóng feature.
 
-- [ ] T106 [P] Viết `README.md` gốc (tiếng Việt, ngắn): yêu cầu (Node 22, pnpm 10), lệnh build/lint/test, cách chạy API cạnh Directus (`quickstart.md`), quy tắc port file (comment nguồn, `tools/port-manifest/`), quy tắc không sửa `directus/`
-- [ ] T107 Rà bảo mật: Dockerfile của api và web (user không root, ghim phiên bản base image, không copy `.env`), `.dockerignore`, `pnpm audit`, gitleaks cục bộ, xác nhận log không chứa secret (FR-062) bằng test `logs.test.ts`
+- [X] T106 [P] Viết `README.md` gốc (tiếng Việt, ngắn): yêu cầu (Node 22, pnpm 10), lệnh build/lint/test, cách chạy API cạnh Directus (`quickstart.md`), quy tắc port file (comment nguồn, `tools/port-manifest/`), quy tắc không sửa `directus/`
+- [X] T107 Rà bảo mật: Dockerfile của api và web (user không root, ghim phiên bản base image, không copy `.env`), `.dockerignore`, `pnpm audit`, gitleaks cục bộ, xác nhận log không chứa secret (FR-062) bằng test `logs.test.ts`
 - [ ] T108 Chạy toàn bộ `quickstart.md` §1–§11 từ đầu trên máy sạch; ghi kết quả benchmark nền vào `specs/001-platform-foundation/research.md` R18; xác nhận SC-001 đến SC-008 từng mục
-- [ ] T109 Xác nhận `git diff --stat directus/` rỗng (Nguyên tắc I); `pnpm run check-port-headers` đạt; không còn `STUB` trong `apps/api/src/metrics`
-- [ ] T110 Chạy `/speckit.analyze` để kiểm tra spec, plan, tasks khớp nhau trước khi merge; cập nhật mục "Constitution Check" của `plan.md` nếu có thay đổi
-- [ ] T111 Cập nhật đồ thị tri thức theo `CLAUDE.md`: chạy `graphify update .`; cập nhật mục Active Technologies của `CLAUDE.md` cho đúng thực tế
-- [ ] T112 Trong PR merge vào `main`: đặt `Status: Done` ở đầu `specs/001-platform-foundation/spec.md` (kích hoạt kiểm tra hết hạn của khác biệt tạm thời, FR-101); tech lead duyệt các ngoại lệ ở Complexity Tracking của `plan.md`: FR-034/D-16 (Nguyên tắc VIII), quy mô benchmark (Nguyên tắc X), khóa job metrics trong process (Nguyên tắc VII)
+- [X] T109 Xác nhận `git diff --stat directus/` rỗng (Nguyên tắc I); `pnpm run check-port-headers` đạt; không còn `STUB` trong `apps/api/src/metrics`
+- [X] T110 Chạy `/speckit.analyze` để kiểm tra spec, plan, tasks khớp nhau trước khi merge; cập nhật mục "Constitution Check" của `plan.md` nếu có thay đổi
+- [X] T111 Cập nhật đồ thị tri thức theo `CLAUDE.md`: chạy `graphify update .`; cập nhật mục Active Technologies của `CLAUDE.md` cho đúng thực tế
+- [ ] T112 Trong PR merge vào `main`: đặt `Status: Done` ở đầu `specs/001-platform-foundation/spec.md` (kích hoạt kiểm tra hết hạn của khác biệt tạm thời, FR-101); tech lead duyệt mọi ngoại lệ ở Complexity Tracking của `plan.md`: FR-034/D-16 (Nguyên tắc VIII), quy mô benchmark (Nguyên tắc X), khóa job metrics trong process (Nguyên tắc VII), phép đo coverage của libs (Nguyên tắc X), Semgrep CE thay CodeQL (Nguyên tắc X), phiên bản vá bảo mật khác Directus (Nguyên tắc X), bỏ qua cảnh báo `tar` của `pnpm audit` (Nguyên tắc X), store `memory` khi chạy nhiều instance (Nguyên tắc VII); và Nguyên tắc VI của constitution 1.1.0 (Reka UI thay PrimeVue)
 
 ---
 
@@ -418,6 +418,14 @@ Task: T040  # Port directus/api/src/database/index.ts sang apps/api/src/database
 | FR-110, FR-112 | T097, T098, T096, T101, T104 |
 | FR-111 | T092, T094 |
 | FR-113 | T093, T095 |
+| SC-001 | T029, T039, T082, T097, T098 (hằng đêm), T108 |
+| SC-002 | T046–T051, T078–T084 |
+| SC-003 | T036, T037 |
+| SC-004 | T067, T068, T072 |
+| SC-005 | T086–T091 |
+| SC-006 | T093, T095, T108 |
+| SC-007 | T097, T099 |
+| SC-008 | T105 |
 
 ## Notes
 

@@ -377,8 +377,9 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   thuộc nhóm A (hỗ trợ) hoặc nhóm B (không áp dụng cho API) trong `contracts/config.md` §5. Khi có biến
   như vậy, API PHẢI ghi đúng một cảnh báo khi khởi động, liệt kê tên (sắp xếp A–Z, mỗi tên một lần,
   không bao giờ ghi giá trị), và tiếp tục chạy. Giá trị mặc định không tính là "đã đặt".
-- **FR-015**: Biến chỉ API mới cần PHẢI có tiền tố `BACKOFFICE_` và giá trị mặc định an toàn. Feature
-  này KHÔNG thêm biến nào thay thế biến Directus đã có.
+- **FR-015**: Biến chỉ API mới hoặc app web mới cần PHẢI có tiền tố `BACKOFFICE_` và giá trị mặc định an
+  toàn. Feature này KHÔNG thêm biến nào thay thế biến Directus đã có. Container app web lấy URL API từ biến
+  Directus `PUBLIC_URL` lúc khởi động (Nguyên tắc VIII), mặc định `/`.
 - **FR-016**: Khi cùng đặt `X` và `X_FILE` (với `X` là biến Directus), giá trị cuối do thứ tự khai báo
   quyết định: key xuất hiện sau thắng. API mới PHẢI cho kết quả y hệt Directus bằng cách dùng cùng thuật
   toán (đã đo trên Directus 11.17.4: `SECRET_FILE` rồi `SECRET` cho `SECRET`; `SECRET` rồi
@@ -576,7 +577,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   `/server/specs/oas` (hash theo thời điểm request) bị loại khỏi phép so sánh; thứ tự `tags` và `paths`
   của OpenAPI (theo thứ tự truy vấn catalog DB, không có ORDER BY) được chuẩn hóa bằng sắp xếp theo
   tên trước khi so; `servers[0].url` phụ thuộc header Host nên test gửi cùng header Host tới cả hai;
-  `Retry-After`, `reset`, `observedValue` chỉ so định dạng hoặc kiểu.
+  `Retry-After`, `reset` (số, hoặc chuỗi ngày khi rate limiter dùng Redis), `observedValue` chỉ so định
+  dạng hoặc kiểu; `ETag` của response có các giá trị này chỉ so phần độ dài.
 
 **CI**
 
@@ -628,6 +630,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 | D-18 | Dòng log thêm (khi khởi động và khi nhận request mang token) | Không có | Khi khởi động: phiên bản Backoffice, biến chưa hỗ trợ, `SERVE_APP` bị bỏ qua, cấu hình một instance, gợi ý khi migration lệch, migration tùy biến, `SECRET` ngẫu nhiên không dùng chéo với Directus (đánh dấu `[mới]` ở `contracts/startup.md`). Lần đầu mỗi process nhận request mang token: cảnh báo token bị bỏ qua (đánh dấu `[mới]` ở `contracts/observability.md`) | Giúp vận hành | khác | — |
 | D-19 | Image Docker và cách trả metric | Image chạy `bootstrap` rồi `pm2-runtime` (`PM2_INSTANCES`); dưới PM2, `/metrics` trả bản gộp các process, chụp ở mỗi lượt `METRICS_SCHEDULE` | Image chạy `node main.js` một process, không `bootstrap`, không PM2; `/metrics` trả giá trị hiện tại của process đó | Nguyên tắc II (không bootstrap ghi DB), VII (scale bằng replica). FR-103 không so giá trị metric | khác | — |
 | D-20 | Log khi Redis không truy cập được với `CACHE_STORE=redis` | Log `warn` tiền tố `[system-cache]`, `[deployment-cache]`, `[lock-cache]` (luôn có), thêm `[cache]` khi `CACHE_ENABLED=true` | Chỉ `[cache]` khi `CACHE_ENABLED=true` | Cache hệ thống, lock cache thuộc feature 002 | ngoài phạm vi (tạm thời) | 002 |
+| D-21 | Lấy IP client qua proxy tin cậy khi địa chỉ ở dạng IPv4 ánh xạ IPv6 (`::ffff:a.b.c.d`) | `proxy-addr` 2.0.7: kiểm tra tin cậy có lỗi giả mạo IP (cảnh báo critical của `pnpm audit`) | `proxy-addr` 2.0.8 đã vá: IP dạng này được kiểm như IPv4 | Bản vá bảo mật (T107, Complexity Tracking của plan); chỉ khác khi `IP_TRUST_PROXY` tin một dải mạng và request đi qua địa chỉ dạng này. Test đối chiếu hiện có không gặp trường hợp này | khác (gỡ khi Directus tham chiếu dùng `proxy-addr` ≥ 2.0.8) | — |
 
 Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác biệt được chấp nhận):
 
@@ -677,8 +680,8 @@ chỗ).
 - Request id trong log theo cách sinh mặc định của Directus (FR-061), nên chỉ duy nhất trong một
   process. Truy request giữa các instance dựa vào thời điểm, instance và path, không dựa vào id.
 - Benchmark của feature này đo `/server/ping`, `/server/health`, `/server/info` với Directus cấu hình
-  mặc định, và `/server/specs/oas` với Directus chạy `CACHE_SCHEMA=false` (cùng cách dựng schema mỗi
-  request). Benchmark items, auth, files, assets được thêm khi các feature đó xong.
+  mặc định, và `/server/specs/oas` với Directus chạy `CACHE_SCHEMA=false` và `CACHE_ENABLED=false` (cùng cách
+  dựng schema và sinh OAS mỗi request; cache response là D-11). Benchmark items, auth, files, assets được thêm khi các feature đó xong.
 - Dòng `Status` ở đầu spec chuyển từ `Draft` sang `Done` trong PR merge feature vào `main`; kiểm tra
   hết hạn của khác biệt tạm thời (FR-101) dựa vào giá trị này.
 - Bộ test đối chiếu chạy trên môi trường riêng `tests/parity/docker-compose.yml` (Postgres 13 PostGIS và các DB
@@ -707,7 +710,7 @@ chỗ).
   tên metric khớp 100% với Directus cho cùng `METRICS_SERVICES`.
 - **SC-006**: p95 latency và throughput của API mới ở `/server/ping`, `/server/health`, `/server/info`
   không tệ hơn Directus quá 10% với cùng tải. `/server/specs/oas` được so với Directus chạy
-  `CACHE_SCHEMA=false` (FR-049) với cùng ngưỡng 10%; từ feature 002 được so với Directus cấu hình mặc
+  `CACHE_SCHEMA=false` và `CACHE_ENABLED=false` (FR-049, D-11) với cùng ngưỡng 10%; từ feature 002 được so với Directus cấu hình mặc
   định.
 - **SC-007**: Một PR vi phạm bất kỳ cổng nào (lint, typecheck, coverage, test đối chiếu, E2E (app web),
   bảo mật, benchmark, build image, sửa `directus/`) đều bị chặn merge.

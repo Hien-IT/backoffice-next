@@ -107,9 +107,9 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
 ## R6. Đọc cấu hình
 
 - **Quyết định**: Port toàn bộ `directus/packages/env` thành `libs/env` (`@backoffice/env`), gồm cả
-  test. Giữ API `useEnv()`, `createEnv()`, `cast()`, `getConfigFromEnv` (port từ
-  `directus/api/src/utils/get-config-from-env.ts`, đặt trong `@backoffice/env`). Phụ thuộc
-  `dotenv@17.2.3`, `js-yaml@4.1.1`, `lodash-es@4.18.1`, `camelcase@8.0.0`.
+  test. Giữ API `useEnv()`, `createEnv()`, `cast()`, và `getConfigFromEnv` (port từ
+  `directus/api/src/utils/get-config-from-env.ts`, đặt ở `apps/api/src/utils/` như Directus). Phụ thuộc
+  `dotenv@17.2.3`, `js-yaml@4.3.2` (Directus 4.1.1; bản vá bảo mật T107), `lodash-es@4.18.1`, `camelcase@8.0.0`.
 - **Danh sách biến đã hỗ trợ** (FR-014): nguồn sự thật là `contracts/config.md` §5 (nhóm A hỗ trợ,
   nhóm B không áp dụng cho API, nhóm C chưa hỗ trợ). `apps/api/src/config/supported-variables.ts`
   chứa nhóm A và B dưới dạng regex và phải trùng bảng đó (có unit test). Khi khởi động, lấy các key
@@ -133,7 +133,7 @@ lỗi). Phiên bản công cụ build và test kiểm tra trên npm ngày 2026-1
   Directus), `isInstalled()`,
   `validateDatabaseExtensions()` từ `directus/api/src/database/index.ts`, cùng `validateEnv`,
   `GeometryHelper.supported()` (chỉ phần kiểm tra PostGIS/Spatialite). Dùng `knex@3.1.0` và driver
-  đúng bản Directus: `pg@8.16.3` (Postgres, CockroachDB), `mysql2@3.15.3`, `sqlite3@5.1.7`,
+  đúng bản Directus: `pg@8.16.3` (Postgres, CockroachDB), `mysql2@3.22.6` (Directus 3.15.3; bản vá bảo mật T107), `sqlite3@5.1.7`,
   `tedious@18.6.1`, `oracledb@6.10.0` (chế độ thin, không cần Oracle Instant Client).
 - Giữ nguyên các xử lý theo DB: SQLite `PRAGMA foreign_keys = ON`; CockroachDB
   `serial_normalization`, `default_int_size`; Oracle `NLS_*_FORMAT`; MySQL đổi client sang `mysql2`
@@ -435,6 +435,22 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   thời gian chỉnh bằng `BENCH_ROUNDS`, `BENCH_DURATION`. Target `benchmark:env-up` dựng môi trường
   (Compose `include` môi trường đối chiếu Postgres và thêm `directus-nocache`); `benchmark:run` không tự
   dựng.
+- **Container tham chiếu `directus-nocache`**: `CACHE_SCHEMA=false` và `CACHE_ENABLED=false`. Chỉ tắt
+  `CACHE_SCHEMA` thì Directus vẫn dựng schema mỗi request (middleware `schema` chạy trước `cache`) nhưng trả OAS
+  từ cache response (D-11), bỏ qua bước sinh OAS mà API mới làm mỗi request; phép so khi đó không cùng việc
+  (đo T108: Directus 150 req/s khi có cache response, 118 req/s khi tắt).
+- **Kết quả nền (T108, 2026-10-09, máy dev Apple Silicon, Docker, 3 vòng × 20 s, 50 kết nối)**: image
+  Directus chỉ có amd64, nên đo với mọi container ở amd64 (`DOCKER_DEFAULT_PLATFORM=linux/amd64`, cả hai app
+  chạy giả lập như nhau). Lần đo khi API mới chạy native arm64 không công bằng, không dùng làm nền.
+
+  | Endpoint | p95 Directus (ms) | p95 Backoffice (ms) | req/s Directus | req/s Backoffice | Kết quả |
+  | --- | --- | --- | --- | --- | --- |
+  | `/server/ping` | 27.5 | 18.9 | 2093 | 3018 | đạt |
+  | `/server/health` | 507.6 | 497.4 | 196 | 343 | đạt |
+  | `/server/info` | 180.6 | 58.4 | 304 | 1054 | đạt |
+  | `/server/specs/oas` (so với `directus-nocache`) | 470.0 | 432.6 | 118 | 125 | đạt |
+
+  Số đo trên máy giả lập; nền chính thức lấy từ job `benchmark` của CI (runner amd64).
 
 ## R19. CI trên GitHub Actions
 
@@ -458,15 +474,16 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
       (`nx run web-e2e:e2e`).
     - `security`: `pnpm audit --prod --audit-level=high`, gitleaks (chạy image
       `ghcr.io/gitleaks/gitleaks`, không dùng action có giấy phép).
-  - `codeql.yml`: `github/codeql-action` cho `javascript-typescript`, chạy ở pull request, push `main`
-    và hằng tuần.
+  - `semgrep.yml`: Semgrep CE (`p/typescript`) chạy ở pull request, push `main` và hằng tuần. Kế hoạch ban
+    đầu là `codeql.yml` (`github/codeql-action`, `javascript-typescript`); repo private không có GitHub Code
+    Security nên đã thay (rủi ro bên dưới, Complexity Tracking của plan).
   - `nightly.yml`: hằng đêm, `parity` + `full` cho `maria`, `mssql`, `oracle`, `cockroachdb`, và các
     bản cũ Directus kiểm thử `postgres10`, `mysql5` (cùng `mysql`, `sqlite3` bản `full`). MariaDB
     không có trong danh sách của Nguyên tắc V; thêm vào hằng đêm vì FR-020 hứa hỗ trợ.
   - `.github/dependabot.yml`: npm (pnpm) và GitHub Actions, hằng tuần.
 - **Rủi ro**: CodeQL miễn phí cho repo public. Nếu `Hien-IT/backoffice-next` là repo private không có
   GitHub Code Security thì thay bằng Semgrep CE (`semgrep scan --config p/typescript`) và ghi vào
-  Complexity Tracking.
+  Complexity Tracking. Đã xảy ra (GitHub API trả 404 cho repo khi chưa đăng nhập).
 - **Image DB cho CI**: lấy từ `directus/tests/blackbox/docker-compose.yml`: `postgis/postgis:13-3.4-alpine`
   (và `10-3.2-alpine` cho `postgres10`), `mysql:8` (và `mysql:5` cho `mysql5`), `mariadb:11.4`, `mcr.microsoft.com/mssql/server:2022-latest`,
   `cockroachdb/cockroach:latest-v24.3`, Oracle `gvenzl/oracle-xe:21-slim-faststart` (image blackbox

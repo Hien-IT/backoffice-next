@@ -240,4 +240,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason: 'No system, deployment or lock cache yet: no [system-cache]/[deployment-cache]/[lock-cache] logs.',
 	},
+	{
+		id: 'D-21',
+		feature: '001',
+		kind: 'doc',
+		reason:
+			'proxy-addr 2.0.8 (security patch): IPv4-mapped IPv6 addresses behind a trusted proxy; no parity request uses one.',
+	},
 ];

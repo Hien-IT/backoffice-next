@@ -1,0 +1,3 @@
+[
+	{ "source": "tests/blackbox/tests/db/routes/server/health.test.ts", "dest": "tests/parity/src/server/health.test.ts" }
+]

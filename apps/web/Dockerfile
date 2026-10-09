@@ -3,9 +3,9 @@
 # the environment (docker/40-config.sh), so one image serves every environment (Principle VII).
 # Build context: repository root.
 
-ARG NODE_VERSION=22
+ARG NODE_VERSION=22.23.3-alpine3.24
 
-FROM node:${NODE_VERSION}-alpine AS builder
+FROM node:${NODE_VERSION} AS builder
 
 RUN npm install --global corepack@latest
 
@@ -24,10 +24,11 @@ COPY --chown=node:node . .
 RUN pnpm install --recursive --offline --frozen-lockfile --filter '@backoffice/web...' \
 	&& pnpm --filter @backoffice/web run build
 
-FROM nginx:1.28.0-alpine AS runtime
+# Runs as the unprivileged nginx user (uid 101) on port 8080; it owns the build so 40-config.sh can write config.json.
+FROM nginxinc/nginx-unprivileged:1.28.0-alpine AS runtime
 
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --chmod=755 apps/web/docker/40-config.sh /docker-entrypoint.d/40-config.sh
-COPY --from=builder /build/apps/web/dist /usr/share/nginx/html/admin
+COPY --from=builder --chown=101:101 /build/apps/web/dist /usr/share/nginx/html/admin
 
-EXPOSE 80
+EXPOSE 8080

@@ -38,6 +38,8 @@ export function normalizeOas(body: unknown): unknown {
 /** extensions.reset, observedValue and the REQUESTS_EXCEEDED message depend on time: keep their type or shape. */
 export function normalizeDeep(value: unknown, key?: string): unknown {
 	if (key === 'reset' && typeof value === 'number') return '<number>';
+	// The Redis store answers with a date (ISO string) instead of a number.
+	if (key === 'reset' && typeof value === 'string' && !Number.isNaN(Date.parse(value))) return '<date>';
 	if (key === 'observedValue') return `<${typeof value}>`;
 
 	if (key === 'message' && typeof value === 'string' && value.startsWith('Too many requests, retry after ')) {

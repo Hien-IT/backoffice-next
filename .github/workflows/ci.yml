@@ -154,14 +154,13 @@ jobs:
         run: |
           docker run -d --name api --network parity-postgres_default --env-file tests/parity/env/postgres.env \
             -e CORS_ENABLED=true -e CORS_ORIGIN=true -p 8057:8055 backoffice-api:ci
-          docker run -d --name web -e API_URL=http://127.0.0.1:8057 -p 8080:80 backoffice-web:ci
+          docker run -d --name web -e PUBLIC_URL=http://127.0.0.1:8057 -p 8080:8080 backoffice-web:ci
           for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8057/server/ping && break; sleep 2; done
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web-e2e
       - run: pnpm nx run web-e2e:e2e
         env:
           BASE_URL: http://127.0.0.1:8080
-          API_URL: http://127.0.0.1:8057
       - name: container logs
         if: failure()
         run: docker logs api; docker logs web
