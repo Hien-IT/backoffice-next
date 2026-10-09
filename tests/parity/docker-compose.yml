@@ -5,6 +5,10 @@
 #   pnpm nx run parity-tests:env-down --vendor=postgres
 #
 # Host ports follow directus/tests/blackbox: DB 6100+, Redis 6108, MinIO 8881. Apps: Directus 8155, Backoffice 8156.
+#
+# Profiles ratelimit, cors-hsts, pressure (and metrics, US5) each add ONE MORE PAIR of containers (Directus +
+# Backoffice) with the vendor env file plus env/profile-<name>.env, on their own ports and CACHE_NAMESPACE. The main
+# pair never changes, so several profiles can run at once. Pairs start after the main Directus has bootstrapped.
 
 x-app: &app
   env_file: ./env/${TEST_DB:-postgres}.env
@@ -85,3 +89,105 @@ services:
       interval: 3s
       timeout: 5s
       retries: 60
+
+  directus-ratelimit:
+    profiles: [ratelimit]
+    image: directus/directus:11.17.4
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-ratelimit.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8255:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-ratelimit:
+    profiles: [ratelimit]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-ratelimit.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8256:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  directus-cors-hsts:
+    profiles: [cors-hsts]
+    image: directus/directus:11.17.4
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-cors-hsts.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8355:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-cors-hsts:
+    profiles: [cors-hsts]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-cors-hsts.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8356:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  directus-pressure:
+    profiles: [pressure]
+    image: directus/directus:11.17.4
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-pressure.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8455:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -S --spider http://127.0.0.1:8055/server/ping 2>&1 | grep -qE "HTTP/1.1 (200|503)"']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-pressure:
+    profiles: [pressure]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-pressure.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8456:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -S --spider http://127.0.0.1:8055/server/ping 2>&1 | grep -qE "HTTP/1.1 (200|503)"']
+      interval: 3s
+      timeout: 5s
+      retries: 100

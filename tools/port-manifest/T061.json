@@ -1,0 +1,30 @@
+[
+	{
+		"source": "api/src/permissions/lib/fetch-permissions.ts",
+		"dest": "apps/api/src/permissions/lib/fetch-permissions.ts"
+	},
+	{
+		"source": "api/src/permissions/lib/fetch-policies.ts",
+		"dest": "apps/api/src/permissions/lib/fetch-policies.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.ts"
+	},
+	{
+		"source": "api/src/permissions/types.ts",
+		"dest": "apps/api/src/permissions/types.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/filter-policies-by-ip.test.ts",
+		"dest": "apps/api/src/permissions/utils/filter-policies-by-ip.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/filter-policies-by-ip.ts",
+		"dest": "apps/api/src/permissions/utils/filter-policies-by-ip.ts"
+	},
+	{
+		"source": "api/src/utils/reduce-schema.ts",
+		"dest": "apps/api/src/utils/reduce-schema.ts"
+	}
+]

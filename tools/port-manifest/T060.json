@@ -1,0 +1,34 @@
+[
+	{
+		"source": "api/src/utils/get-schema.ts",
+		"dest": "apps/api/src/schema/get-database-schema.ts"
+	},
+	{
+		"source": "api/src/utils/get-default-value.ts",
+		"dest": "apps/api/src/schema/get-default-value.ts"
+	},
+	{
+		"source": "api/src/utils/get-field-system-rows.ts",
+		"dest": "apps/api/src/schema/get-field-system-rows.ts"
+	},
+	{
+		"source": "api/src/utils/get-local-type.ts",
+		"dest": "apps/api/src/schema/get-local-type.ts"
+	},
+	{
+		"source": "api/src/services/relations.ts",
+		"dest": "apps/api/src/schema/read-relations.ts"
+	},
+	{
+		"source": "api/src/services/payload.ts",
+		"dest": "apps/api/src/utils/cast-on-read.ts"
+	},
+	{
+		"source": "api/src/utils/get-auth-providers.test.ts",
+		"dest": "apps/api/src/utils/get-auth-providers.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-auth-providers.ts",
+		"dest": "apps/api/src/utils/get-auth-providers.ts"
+	}
+]

@@ -31,6 +31,7 @@ catalog:
   supertest: 7.1.4
   axios: 1.15.0
   get-port: 7.1.0
+  knex-mock-client: 3.0.2
   '@types/supertest': 6.0.3
   # API
   '@nestjs/common': 12.1.2

@@ -1,0 +1,38 @@
+[
+	{
+		"source": "api/src/services/specifications.test.ts",
+		"dest": "apps/api/src/services/specifications.service.test.ts"
+	},
+	{
+		"source": "api/src/services/specifications.ts",
+		"dest": "apps/api/src/services/specifications.service.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/builder.test.ts",
+		"dest": "libs/schema-builder/src/builder.test.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/builder.ts",
+		"dest": "libs/schema-builder/src/builder.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/collection.ts",
+		"dest": "libs/schema-builder/src/collection.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/defaults.ts",
+		"dest": "libs/schema-builder/src/defaults.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/field.ts",
+		"dest": "libs/schema-builder/src/field.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/index.ts",
+		"dest": "libs/schema-builder/src/index.ts"
+	},
+	{
+		"source": "packages/schema-builder/src/relation.ts",
+		"dest": "libs/schema-builder/src/relation.ts"
+	}
+]

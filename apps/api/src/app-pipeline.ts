@@ -14,6 +14,7 @@ import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
 import { createJsonBody } from './middleware/json-body.js';
 import publicAccountability from './middleware/public-accountability.js';
+import { createRouterOptions } from './middleware/router-options.js';
 import rateLimiterGlobal from './middleware/rate-limiter-global.js';
 import rateLimiter from './middleware/rate-limiter-ip.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
@@ -152,6 +153,8 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 	app.use(publicAccountability);
 
 	for (const middleware of options.beforeRoutes ?? []) app.use(middleware);
+
+	app.use(createRouterOptions());
 
 	// Nest mounts its routes, its 404 handler and the error filter after this point (main.ts).
 	return app;

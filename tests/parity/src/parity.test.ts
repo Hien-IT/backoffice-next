@@ -227,3 +227,68 @@ describe('matches()', () => {
 		expect(matches(matcher as never, value)).toBe(expected);
 	});
 });
+
+describe('accepted differences: when, any, RegExp pointers', () => {
+	const base = (status: number, json: unknown) => ({
+		status,
+		json,
+		isJson: true,
+		text: JSON.stringify(json),
+		headers: {},
+	});
+
+	test('`when.directusStatus` gates an `any` entry', async () => {
+		const { classify } = await import('./parity.js');
+		const entry: AcceptedDifference = {
+			id: 'D-10',
+			feature: '001',
+			kind: 'http',
+			endpoints: ['*'],
+			location: { any: true },
+			when: { directusStatus: 401 },
+			reason: 't',
+		};
+		const diffs: Difference[] = [{ kind: 'status', location: '', directus: 401, backoffice: 200 }];
+		expect(classify('GET /server/info', diffs, [entry], base(401, {})).accepted).toHaveLength(1);
+		expect(classify('GET /server/info', diffs, [entry], base(403, {})).differences).toHaveLength(1);
+	});
+
+	test('`when.directusCode` reads errors[0].extensions.code', async () => {
+		const { classify } = await import('./parity.js');
+		const entry: AcceptedDifference = {
+			id: 'D-12',
+			feature: '001',
+			kind: 'http',
+			endpoints: ['*'],
+			location: { any: true },
+			when: { directusCode: 'INVALID_QUERY' },
+			reason: 't',
+		};
+		const diffs: Difference[] = [{ kind: 'status', location: '', directus: 400, backoffice: 200 }];
+		expect(
+			classify('GET /x', diffs, [entry], base(400, { errors: [{ extensions: { code: 'INVALID_QUERY' } }] })).accepted,
+		).toHaveLength(1);
+		expect(
+			classify('GET /x', diffs, [entry], base(400, { errors: [{ extensions: { code: 'OTHER' } }] })).accepted,
+		).toHaveLength(0);
+	});
+
+	test('RegExp JSON pointer', async () => {
+		const { classify } = await import('./parity.js');
+		const entry: AcceptedDifference = {
+			id: 'D-02',
+			feature: '001',
+			kind: 'http',
+			endpoints: ['GET /server/specs/oas'],
+			location: { jsonPointer: /^\/tags\/\d+\/description$/ },
+			directus: /Directus/,
+			backoffice: /Backoffice/,
+			reason: 't',
+		};
+		const diffs: Difference[] = [
+			{ kind: 'body', location: '/tags/3/description', directus: 'Directus server', backoffice: 'Backoffice server' },
+		];
+		expect(classify('GET /server/specs/oas', diffs, [entry]).accepted).toHaveLength(1);
+		expect(classify('GET /server/info', diffs, [entry]).accepted).toHaveLength(0);
+	});
+});

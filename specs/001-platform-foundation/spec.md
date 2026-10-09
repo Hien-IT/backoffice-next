@@ -410,9 +410,10 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   UPDATE, DELETE hay DDL). Đây là cách chứng minh FR-022 ở tầng DB, kiểm bằng một role chỉ có SELECT
   trên Postgres ở bộ `full`.
 - **FR-025**: Khởi động KHÔNG kiểm tra Redis và KHÔNG dừng khi Redis không truy cập được, giống Directus
-  (client Redis tự thử kết nối lại). Lỗi Redis hiện qua: `/server/health` (`cache:responseTime` là
-  `error` khi `CACHE_ENABLED` và `CACHE_STORE=redis`; `rateLimiter:responseTime` khi bật rate limiter
-  dùng Redis), metric `<prefix>redis_connection_errors`, và log `warn` có tiền tố `[cache]` khi `CACHE_ENABLED=true` (các dòng `[system-cache]`,
+  (client Redis tự thử kết nối lại). Lỗi Redis hiện qua: `/server/health` (khi `CACHE_ENABLED` và
+  `CACHE_STORE=redis`, request health không trả lời trong 60 giây vì client Redis giữ lệnh trong hàng đợi chờ
+  kết nối lại; Directus 11.17.4 cũng vậy, đã đo, test `server/health.test.ts`), metric
+  `<prefix>redis_connection_errors`, và log `warn` có tiền tố `[cache]` khi `CACHE_ENABLED=true` (các dòng `[system-cache]`,
   `[deployment-cache]`, `[lock-cache]` của Directus chưa có, D-20). Khi
   `RATE_LIMITER_STORE=redis` mà Redis không truy cập được, mọi request đi qua rate limiter (kể cả
   `/server/ping`) nhận `500 INTERNAL_SERVER_ERROR`, giống Directus (suy từ code, test đối chiếu

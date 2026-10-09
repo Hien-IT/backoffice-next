@@ -10,6 +10,8 @@ export interface ParityRequest {
 	path: string;
 	headers?: Record<string, string>;
 	body?: string | Record<string, unknown> | unknown[];
+	/** Give up after this many ms; no answer is captured as status 0 (compared like any status). */
+	timeoutMs?: number;
 }
 
 export interface Captured {
@@ -110,6 +112,14 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 		});
 
 		request.on('error', reject);
+
+		if (req.timeoutMs !== undefined) {
+			request.setTimeout(req.timeoutMs, () => {
+				request.destroy();
+				resolve({ status: 0, headers: {}, text: '', json: undefined, isJson: false });
+			});
+		}
+
 		if (body !== undefined) request.write(body);
 		request.end();
 	});
@@ -191,10 +201,18 @@ export function matches(matcher: Matcher | undefined, value: unknown): boolean {
 function endpointMatches(patterns: string[] | undefined, endpoint: string): boolean {
 	if (!patterns) return false;
 
-	return patterns.some((p) => {
-		if (p === '*') return true;
-		if (p.endsWith('*')) return endpoint.toLowerCase().startsWith(p.slice(0, -1).toLowerCase());
-		return endpoint.toLowerCase() === p.toLowerCase();
+	const lower = endpoint.toLowerCase();
+	const path = lower.slice(lower.indexOf(' ') + 1);
+
+	return patterns.some((pattern) => {
+		if (pattern === '*') return true;
+
+		// '* /path' matches every method; a trailing '*' matches a prefix.
+		const p = pattern.toLowerCase();
+		const [subject, target] = p.startsWith('* ') ? [path, p.slice(2)] : [lower, p];
+
+		if (target.endsWith('*')) return subject.startsWith(target.slice(0, -1));
+		return subject === target;
 	});
 }
 
@@ -202,20 +220,23 @@ export function findAccepted(
 	accepted: AcceptedDifference[],
 	endpoint: string,
 	difference: Difference,
+	directus?: Pick<Captured, 'status' | 'json'>,
 ): AcceptedDifference | undefined {
 	return accepted.find((d) => {
 		if (d.kind !== 'http' || !d.location || !endpointMatches(d.endpoints, endpoint)) return false;
 
+		if (d.when?.directusStatus !== undefined && directus?.status !== d.when.directusStatus) return false;
+		if (d.when?.directusCode !== undefined && errorCode(directus?.json) !== d.when.directusCode) return false;
+
 		const loc = d.location;
+
+		if ('any' in loc) return true;
 
 		if ('status' in loc) {
 			if (difference.kind !== 'status') return false;
 		} else if ('header' in loc) {
 			if (difference.kind !== 'header' || difference.location !== loc.header.toLowerCase()) return false;
-		} else if (
-			difference.kind !== 'body' ||
-			!(difference.location === loc.jsonPointer || difference.location.startsWith(`${loc.jsonPointer}/`))
-		) {
+		} else if (difference.kind !== 'body' || !pointerMatches(loc.jsonPointer, difference.location)) {
 			return false;
 		}
 
@@ -223,15 +244,25 @@ export function findAccepted(
 	});
 }
 
+function pointerMatches(pointer: string | RegExp, location: string): boolean {
+	if (pointer instanceof RegExp) return pointer.test(location);
+	return location === pointer || location.startsWith(`${pointer}/`);
+}
+
+function errorCode(json: unknown): string | undefined {
+	return (json as { errors?: { extensions?: { code?: string } }[] } | undefined)?.errors?.[0]?.extensions?.code;
+}
+
 export function classify(
 	endpoint: string,
 	differences: Difference[],
 	accepted: AcceptedDifference[],
+	directus?: Pick<Captured, 'status' | 'json'>,
 ): Pick<ParityResult, 'differences' | 'accepted'> {
 	const result: Pick<ParityResult, 'differences' | 'accepted'> = { differences: [], accepted: [] };
 
 	for (const difference of differences) {
-		const hit = findAccepted(accepted, endpoint, difference);
+		const hit = findAccepted(accepted, endpoint, difference, directus);
 		if (hit) result.accepted.push({ ...difference, id: hit.id });
 		else result.differences.push(difference);
 	}
@@ -254,7 +285,12 @@ export async function parity(req: ParityRequest, options: ParityOptions = {}): P
 
 	const [directus, backoffice] = await Promise.all([capture(directusUrl, withHost), capture(backofficeUrl, withHost)]);
 
-	return { endpoint, directus, backoffice, ...classify(endpoint, compare(endpoint, directus, backoffice), accepted) };
+	return {
+		endpoint,
+		directus,
+		backoffice,
+		...classify(endpoint, compare(endpoint, directus, backoffice), accepted, directus),
+	};
 }
 
 /** Human-readable report of unaccepted differences (US4.2): endpoint, location, both values. */
@@ -274,4 +310,23 @@ export function report(result: Pick<ParityResult, 'endpoint' | 'differences'>): 
 export function assertParity(result: ParityResult): void {
 	const text = report(result);
 	if (text) throw new Error(text);
+}
+
+/**
+ * For timing-dependent responses only (/server/health compares response times with thresholds): retries while
+ * the two sides differ, so a slow first answer of either app does not fail the comparison.
+ */
+export async function parityStable(
+	req: ParityRequest,
+	options: ParityOptions = {},
+	attempts = 3,
+): Promise<ParityResult> {
+	let result = await parity(req, options);
+
+	for (let i = 1; i < attempts && result.differences.length > 0; i++) {
+		await new Promise((resolve) => setTimeout(resolve, 1000));
+		result = await parity(req, options);
+	}
+
+	return result;
 }

@@ -1,5 +1,9 @@
 import { Module } from '@nestjs/common';
+import { ServerController } from './controllers/server.controller.js';
+import { infrastructureProviders, serviceProviders } from './providers.js';
 
-// Controllers and providers are registered by the user stories (US2: server, US5: metrics).
-@Module({})
+@Module({
+	controllers: [ServerController],
+	providers: [...infrastructureProviders, ...serviceProviders],
+})
 export class AppModule {}

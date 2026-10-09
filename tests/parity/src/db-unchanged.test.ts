@@ -12,6 +12,7 @@ import { requestSet } from './request-set.js';
 
 const [vendor] = getDbsToTest();
 let db: Knex;
+let stopped: string[] = [];
 
 beforeAll(() => {
 	db = knex(knexConfig[vendor!]);
@@ -19,16 +20,30 @@ beforeAll(() => {
 
 afterAll(async () => {
 	await db.destroy();
-	compose('start', 'directus', 'backoffice-api');
+	// Restart every container this test stopped (profile pairs included), main Directus first.
+	compose('start', ...stopped);
 	await awaitDirectusConnection(process.env['DIRECTUS_URL']!, 60, 2000);
 	await awaitDirectusConnection(process.env['BACKOFFICE_URL']!, 60, 2000);
-});
+
+	// Profile pairs: any HTTP answer counts (the pressure pair always answers 503).
+	for (const key of Object.keys(process.env).filter((k) => /^(DIRECTUS|BACKOFFICE)_URL_/.test(k))) {
+		for (let i = 0; i < 60; i++) {
+			const status = await fetch(new URL('/server/ping', process.env[key])).then(
+				(r) => r.status,
+				() => 0,
+			);
+			if (status === 200 || status === 503) break;
+			await new Promise((r) => setTimeout(r, 2000));
+		}
+	}
+}, 300_000);
 
 test('schema and data of every table are identical before and after the API runs', { timeout: 300_000 }, async () => {
 	// Stop every Directus container (profile pairs included) and the API.
 	const services = compose('ps', '--services')
 		.split('\n')
 		.filter((s) => s.startsWith('directus') || s.startsWith('backoffice-api'));
+	stopped = services;
 	compose('stop', ...services);
 
 	const before = await snapshot(db);

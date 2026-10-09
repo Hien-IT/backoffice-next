@@ -1,0 +1,34 @@
+[
+	{
+		"source": "api/src/storage/get-storage-driver.test.ts",
+		"dest": "apps/api/src/storage/get-storage-driver.test.ts"
+	},
+	{
+		"source": "api/src/storage/get-storage-driver.ts",
+		"dest": "apps/api/src/storage/get-storage-driver.ts"
+	},
+	{
+		"source": "api/src/storage/index.test.ts",
+		"dest": "apps/api/src/storage/index.test.ts"
+	},
+	{
+		"source": "api/src/storage/index.ts",
+		"dest": "apps/api/src/storage/index.ts"
+	},
+	{
+		"source": "api/src/storage/register-drivers.test.ts",
+		"dest": "apps/api/src/storage/register-drivers.test.ts"
+	},
+	{
+		"source": "api/src/storage/register-drivers.ts",
+		"dest": "apps/api/src/storage/register-drivers.ts"
+	},
+	{
+		"source": "api/src/storage/register-locations.test.ts",
+		"dest": "apps/api/src/storage/register-locations.test.ts"
+	},
+	{
+		"source": "api/src/storage/register-locations.ts",
+		"dest": "apps/api/src/storage/register-locations.ts"
+	}
+]

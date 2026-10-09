@@ -7,12 +7,19 @@ const cwd = fileURLToPath(new URL('..', import.meta.url));
 /** `docker compose` on the running parity environment of TEST_DB (project parity-<vendor>). */
 export function compose(...args: string[]): string {
 	const [vendor] = getDbsToTest();
-	return execFileSync('docker', ['compose', '-p', `parity-${vendor}`, '-f', 'docker-compose.yml', ...args], {
-		cwd,
-		env: { ...process.env, TEST_DB: vendor },
-		encoding: 'utf8',
-		stdio: ['ignore', 'pipe', 'pipe'],
-	});
+	// Every profile is enabled so that commands naming profile services (stop/start of the pairs) reach them.
+	const profiles = [vendor!, 'ratelimit', 'cors-hsts', 'pressure', 'metrics'].flatMap((p) => ['--profile', p]);
+
+	return execFileSync(
+		'docker',
+		['compose', '-p', `parity-${vendor}`, '-f', 'docker-compose.yml', ...profiles, ...args],
+		{
+			cwd,
+			env: { ...process.env, TEST_DB: vendor },
+			encoding: 'utf8',
+			stdio: ['ignore', 'pipe', 'pipe'],
+		},
+	);
 }
 
 /** Container logs of a service (stdout + stderr). */

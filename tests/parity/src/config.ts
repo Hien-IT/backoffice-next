@@ -76,3 +76,13 @@ export const names: Record<Vendor, string> = {
 
 /** Host ports of the two apps in tests/parity/docker-compose.yml (one vendor at a time). */
 export const appPorts = { directus: 8155, backoffice: 8156 } as const;
+
+/** Host ports of the profile pairs (docker-compose.yml, T065 and T091). */
+export const profilePorts = {
+	ratelimit: { directus: 8255, backoffice: 8256 },
+	'cors-hsts': { directus: 8355, backoffice: 8356 },
+	pressure: { directus: 8455, backoffice: 8456 },
+	metrics: { directus: 8555, backoffice: 8556 },
+} as const;
+
+export type Profile = keyof typeof profilePorts;
