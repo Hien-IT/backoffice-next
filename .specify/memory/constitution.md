@@ -1,5 +1,15 @@
 <!--
-Sync Impact Report
+Sync Impact Report (1.1.0, 2026-10-09)
+- Version change: 1.0.0 → 1.1.0
+- Modified principles: VI. Kiến trúc: thư viện UI của `apps/web` đổi từ PrimeVue sang Reka UI. Lý do: từ bản
+  5.0 PrimeVue chuyển sang license thương mại PrimeUI (cần license key, bản miễn phí chỉ cho tổ chức dưới
+  1 triệu USD doanh thu và dưới 5 lập trình viên). Reka UI (MIT, headless) là thư viện Directus app đang dùng
+  (`reka-ui` 2.8.2), nên giữ được hành vi component như Directus, còn giao diện là style riêng của Backoffice.
+  MINOR: đổi lựa chọn công nghệ trong
+  nguyên tắc, chưa có code FE nào phụ thuộc PrimeVue.
+- Templates: ✅ không template nào nhắc PrimeVue; ✅ SPECKIT-GUIDE.md, CLAUDE.md đã sửa theo.
+
+Sync Impact Report (1.0.0)
 - Version change: (template, chưa có) → 1.0.0
 - Modified principles: không (lần ban hành đầu tiên)
 - Added principles:
@@ -94,7 +104,7 @@ Lý do: "giống Directus" chỉ kiểm chứng được bằng cách chạy cù
 ### VI. Kiến trúc
 
 - Node 22 và pnpm 10 (giống Directus). Nx monorepo: `apps/api` (NestJS), `apps/web` (Vue 3 +
-  PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
+  Reka UI + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
 - BE: mỗi service của Directus tương ứng một provider NestJS. Controller mỏng, logic nằm trong
   service. Truy cập DB bằng Knex, KHÔNG dùng ORM.
 - FE: viết mới bằng Composition API, giữ nguyên luồng màn hình, route và hành vi của Directus app.
@@ -229,4 +239,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-08
+**Version**: 1.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-09

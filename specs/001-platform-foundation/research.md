@@ -488,8 +488,13 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
 
 ## R21. App web khung
 
-- **Quyết định**: `apps/web`: Vue 3.5, Vite 7.3, `@vitejs/plugin-vue` 6.0.1, PrimeVue 5.0 với
-  `@primeuix/themes` 3.0, Pinia 3.0, Vue Router 4.6 (cùng major với Directus app), vue-i18n 11. Pinia 3.0
+- **Quyết định**: `apps/web`: Vue 3.5, Vite 7.3, `@vitejs/plugin-vue` 6.0.1, Pinia 3.0, Vue Router 4.6
+  (cùng major với Directus app), vue-i18n 11. Thư viện UI: Reka UI 2.8.2 (MIT, headless, cùng bản
+  `directus/pnpm-workspace.yaml`) giữ hành vi component như Directus; style riêng của Backoffice bằng
+  Tailwind CSS 4.3.3 (MIT, `@tailwindcss/vite` 4.3.3, hỗ trợ Vite 7). Màu, font và theme sáng/tối đặt bằng
+  CSS variable để áp `project_color`, logo và theme trong `directus_settings` như Directus. Cả hai thêm ở
+  feature 012 khi có component đầu tiên; khung chỉ có một trang nên chưa cài. Ban đầu chọn PrimeVue 5.0, bị loại ngày 2026-10-09 vì PrimeVue 5 dùng license thương mại
+  PrimeUI (cần license key; constitution 1.1.0). Pinia 3.0
   và Vite 7.3 khác major với Directus app (Pinia 2.3.1, Vite 8.0.8 trong `directus/pnpm-workspace.yaml`):
   app khung chưa copy store hay composable nào của Directus app; feature 012 chốt lại khi bắt đầu copy. Khi khởi động, app đọc `config.json` cạnh `index.html` (base `/admin/`) để lấy URL
   API; dev server phục vụ file mặc định. Chỉ có một trang khung hiển thị "Backoffice" và kết quả

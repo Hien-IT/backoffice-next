@@ -34,7 +34,9 @@ ESM (`"type": "module"`), pnpm 10.27.0.
   object-hash 3.0.0, lodash-es 4.18.1, nanoid 5.1.6, ms 2.1.3, bytes 3.1.2, camelcase 8.0.0,
   dotenv 17.2.3, js-yaml 4.1.1, @aws-sdk/client-s3 3.928.0, @aws-sdk/lib-storage 3.928.0,
   @smithy/node-http-handler 4.4.5, swagger-cli 4.0.4.
-- Web: Vue 3.5, Vite 7.3, PrimeVue 5.0 + @primeuix/themes 3.0, Pinia 3.0, Vue Router 4.6, vue-i18n 11.
+- Web: Vue 3.5, Vite 7.3, Pinia 3.0, Vue Router 4.6, vue-i18n 11. Thư viện UI: Reka UI 2.8.2 (constitution 1.1.0)
+  và Tailwind CSS 4.3.3 qua `@tailwindcss/vite` 4.3.3 (style riêng của Backoffice), thêm ở feature 012 khi có
+  component đầu tiên; khung 001 không cần thư viện UI.
 
 **Storage**: DB dùng chung với Directus (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB),
 **chỉ đọc** ở feature này. Redis dùng chung (rate limiter, cache, key kiểm tra). Storage location
@@ -97,7 +99,7 @@ có research, data model, contracts (kết quả dưới đây là lần 2).
   endpoint tương ứng.
 - [x] **VI. Kiến trúc** — PASS. Nx, Node 22, pnpm 10, NestJS (controller mỏng; `ServerService`,
   `SettingsService`, `SpecificationService`, `MetricsService` là provider), Knex không ORM, Vue 3
-  Composition API + PrimeVue + Pinia + Vue Router. TypeScript strict, ESLint, Prettier, mỗi thay đổi
+  Composition API + Pinia + Vue Router (Reka UI từ feature 012, constitution 1.1.0). TypeScript strict, ESLint, Prettier, mỗi thay đổi
   có test. Hạ tầng Directus viết dạng hàm dùng chung (`useEnv`, `useLogger`, `getDatabase`, `useRedis`)
   giữ nguyên dạng hàm để port sát code gốc, và được bọc thành provider để inject vào service.
 - [x] **VII. Đa instance** — PASS có ngoại lệ ghi ở Complexity Tracking (khóa job metrics trong
@@ -304,14 +306,15 @@ Các phần dưới đây cho kết quả giống Directus với endpoint của 
 | Nguyên tắc VIII (câu "biến Directus chưa hỗ trợ: ghi cảnh báo, KHÔNG dừng app") bị lệch ở FR-034 / D-16: API dừng khi `STORAGE_<LOC>_DRIVER` là `gcs`, `azure`, `cloudinary`, `supabase` | Đã chốt khi làm rõ spec (phương án A) và khớp prompt feature 007 trong `SPECKIT-GUIDE.md`. Storage là tài nguyên dùng chung: chạy tiếp với driver không hỗ trợ thì mọi upload hỏng âm thầm và health báo lỗi mơ hồ. Nguyên tắc XI xếp storage ngoài phạm vi | Chỉ cảnh báo và chạy tiếp (bị loại: instance đánh dấu sẵn sàng nhưng không phục vụ được file). Cần tech lead duyệt trong PR (Nguyên tắc X). Nếu muốn đồng bộ chữ nghĩa, sửa Nguyên tắc VIII theo quy trình Governance (PATCH hoặc MINOR) |
 | Nguyên tắc X (benchmark dùng dữ liệu ở quy mô 2.000 user đồng thời, collection 10 triệu bản ghi) bị lệch: T095 đo 50 kết nối trên DB mặc định | Endpoint của 001 (`/server/ping`, `/server/health`, `/server/info`, `/server/specs/oas`) không đọc collection người dùng, kết quả không phụ thuộc số bản ghi; endpoint chính của Nguyên tắc X (items, auth, files, assets) chưa có. Runner CI không chịu được 2.000 kết nối | Đo ngay ở quy mô thiết kế (bị loại: không đo thêm được gì cho `/server/*`, làm job benchmark chậm và dao động). Benchmark quy mô thiết kế làm cùng feature items, auth, files, assets. Cần tech lead duyệt trong PR (Nguyên tắc X) |
 | Nguyên tắc VII ("KHÔNG dùng cache hay lock trong bộ nhớ process") bị lệch: khóa `lockedAt` chống chạy chồng job metrics (T090) nằm trong process | Port nguyên `directus/api/src/schedules/metrics.ts`; metric sinh theo từng node, khóa chỉ chống hai lượt chạy chồng trong cùng process, không phải state dùng chung giữa instance | Khóa Redis (bị loại: chỉ một instance sinh metric, các instance khác thiếu metric, lệch Directus). Cần tech lead duyệt trong PR (Nguyên tắc X) |
-| Nguyên tắc X (coverage 80% cho libs BE) đo trên phần chạy được không cần DB: `libs/schema` loại 5 dialect máy chủ (`postgres`, `cockroachdb`, `mysql`, `mssql`, `oracledb`) khỏi phép đo unit | Các dialect này chỉ chạy được với DB thật; port nguyên từ Directus, Directus cũng không có unit test cho chúng. Chúng được kiểm bằng `tests/parity` trên từng vendor (PR: Postgres, MySQL; hằng đêm: MariaDB, MSSQL, Oracle, CockroachDB). Phần còn lại (SQLite với DB thật trong bộ nhớ, `createInspector`, utils) đạt > 90% | Mock chuỗi query của knex cho từng dialect (bị loại: test giòn, không chứng minh được câu SQL chạy đúng trên DB). Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| Nguyên tắc X (coverage 80% cho libs BE) đo trên phần chạy được không cần DB: `libs/schema` loại 5 dialect máy chủ (`postgres`, `cockroachdb`, `mysql`, `mssql`, `oracledb`) khỏi phép đo unit | Các dialect này chỉ chạy được với DB thật; port nguyên từ Directus, Directus cũng không có unit test cho chúng. Chúng được kiểm bằng `tests/parity` trên từng vendor (PR: Postgres, MySQL; hằng đêm: MariaDB, MSSQL, Oracle, CockroachDB). Phần còn lại (SQLite với DB thật trong bộ nhớ, `createInspector`, utils) đạt > 90%. `libs/schema-builder` (chỉ dùng trong test, không vào image), `tests/parity` và `tests/benchmark` là công cụ test, không thuộc phép đo | Mock chuỗi query của knex cho từng dialect (bị loại: test giòn, không chứng minh được câu SQL chạy đúng trên DB). Cần tech lead duyệt trong PR (Nguyên tắc X) |
+| Nguyên tắc X (CodeQL) bị thay: repo private không có GitHub Code Security nên CodeQL không chạy | Vẫn cần quét tĩnh mã nguồn trên mỗi PR (R19) | Dùng Semgrep CE (`.github/workflows/semgrep.yml`, bộ luật `p/typescript`) thay CodeQL. Bật lại CodeQL khi repo có GitHub Code Security. Cần tech lead duyệt trong PR (Nguyên tắc X) |
 
 Rủi ro đã biết (không phải vi phạm), theo dõi trong tasks:
 
 | Rủi ro | Ảnh hưởng | Cách xử lý |
 |--------|-----------|------------|
 | Express 5 (Nest 12) khác Express 4.21.2 (Directus) | Lệch header hoặc thông báo lỗi | Cấu hình body parser, query parser (R4); test đối chiếu có ca trailing slash, chữ hoa, `OPTIONS`, `HEAD`, phương thức sai, `GET /` |
-| Repo private không có GitHub Code Security | CodeQL không chạy | Thay bằng Semgrep CE và ghi vào bảng này khi xảy ra (R19) |
+| Repo private không có GitHub Code Security | CodeQL không chạy | Đã xảy ra: thay bằng Semgrep CE, ghi ở Complexity Tracking (R19) |
 | Benchmark trên runner CI dao động | Fail giả | Đo luân phiên nhiều vòng, lấy trung vị (R18) |
 | Thứ tự collection trong OAS không xác định | Test đối chiếu chập chờn | Chuẩn hóa thứ tự `tags`, so object không theo thứ tự key (R16.5) |
 | `/server/specs/oas` công khai dựng lại schema mỗi request (chưa có cache, FR-049) | Có thể bị dùng để làm quá tải DB | Chấp nhận tới feature 002, giống Directus khi `CACHE_SCHEMA=false`; pressure limiter mặc định bật, rate limiter nên bật khi mở Internet; benchmark so với Directus `CACHE_SCHEMA=false` |

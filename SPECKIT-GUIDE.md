@@ -17,7 +17,7 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Auth | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token. |
 | Cache | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay. |
 | Flows | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy. |
-| FE | **Viết mới** bằng Vue 3 + **PrimeVue**, giữ nguyên luồng màn hình của Directus. |
+| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. |
 | Extensions | **Chưa làm** trong giai đoạn này. |
 | Biến môi trường | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy. |
 | Ngôn ngữ | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**. |
@@ -53,7 +53,7 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 |---|---|---|
 | `/speckit.specify` | Viết spec: **làm gì và vì sao** | Không ghi tech stack ở đây. Mô tả hành vi, luồng, tiêu chí chấp nhận. |
 | `/speckit.clarify` | Claude hỏi tối đa 5 câu để làm rõ spec | Nên chạy với feature lớn. |
-| `/speckit.plan` | Viết plan kỹ thuật: **làm thế nào** | Đây là chỗ ghi NestJS, Knex, PrimeVue, file Directus cần tham chiếu. |
+| `/speckit.plan` | Viết plan kỹ thuật: **làm thế nào** | Đây là chỗ ghi NestJS, Knex, Reka UI, file Directus cần tham chiếu. |
 | `/speckit.checklist` | Tạo checklist kiểm tra chất lượng yêu cầu | Tùy chọn. |
 | `/speckit.tasks` | Chia plan thành task có thứ tự | |
 | `/speckit.analyze` | Kiểm tra spec, plan, tasks có khớp nhau không | Chạy trước khi implement. |
@@ -130,7 +130,7 @@ V. Kiểm thử đối chiếu là bắt buộc
 - PostgreSQL là DB chính: mọi PR chạy đủ test đối chiếu trên Postgres. MySQL và SQLite chạy bộ test rút gọn ở mọi PR. MSSQL, Oracle, CockroachDB chạy đủ test hằng đêm.
 
 VI. Kiến trúc
-- Node 22 và pnpm 10 (giống Directus). Nx monorepo: apps/api (NestJS), apps/web (Vue 3 + PrimeVue + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
+- Node 22 và pnpm 10 (giống Directus). Nx monorepo: apps/api (NestJS), apps/web (Vue 3 + Reka UI + Pinia + Vue Router), libs dùng chung (types, filter, validation, utils).
 - BE: mỗi service của Directus tương ứng một provider NestJS. Controller mỏng, logic nằm trong service. Truy cập DB bằng Knex, không dùng ORM.
 - FE: viết mới bằng Composition API, giữ nguyên luồng màn hình, route và hành vi của Directus app. Được copy logic hoặc composable từ directus/app khi cần.
 - FE hỗ trợ desktop và tablet (màn hình từ 768px) trên Chrome, Edge, Firefox, Safari bản mới.
@@ -341,7 +341,7 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 **FE (012–018):**
 ```text
-/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, PrimeVue (theme tùy chỉnh gần giao diện Directus), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng PrimeVue. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style riêng của Backoffice; màu và theme qua CSS variable để áp project_color, theme sáng/tối trong settings), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
 ```
 
 ---
