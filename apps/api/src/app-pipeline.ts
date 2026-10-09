@@ -14,10 +14,12 @@ import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
 import { createJsonBody } from './middleware/json-body.js';
 import publicAccountability from './middleware/public-accountability.js';
+import rateLimiterGlobal from './middleware/rate-limiter-global.js';
+import rateLimiter from './middleware/rate-limiter-ip.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
 
 export interface ExpressAppOptions {
-	/** Rate limiters (global, then IP), mounted between `/robots.txt` and `/server/ping` like Directus. */
+	/** Rate limiters mounted between `/robots.txt` and `/server/ping`; default: global then IP, when enabled. */
 	rateLimiters?: RequestHandler[];
 	/** Middleware mounted after the public accountability, right before the Nest routes. */
 	beforeRoutes?: RequestHandler[];
@@ -137,7 +139,13 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 		res.send(env['ROBOTS_TXT']);
 	});
 
-	for (const limiter of options.rateLimiters ?? []) app.use(limiter);
+	// use the rate limiter - all routes for now
+	const rateLimiters = options.rateLimiters ?? [
+		...(env['RATE_LIMITER_GLOBAL_ENABLED'] === true ? [rateLimiterGlobal] : []),
+		...(env['RATE_LIMITER_ENABLED'] === true ? [rateLimiter] : []),
+	];
+
+	for (const limiter of rateLimiters) app.use(limiter);
 
 	app.get('/server/ping', (_req, res) => res.send('pong'));
 

@@ -20,6 +20,10 @@ export async function runStartupChecks(): Promise<void> {
 	warnUnsupportedVariables();
 	warnSingleInstance();
 
+	// Row 6: the rate limiter modules validate their configuration when loaded (exit 1 when invalid), like Directus.
+	await import('../middleware/rate-limiter-global.js');
+	await import('../middleware/rate-limiter-ip.js');
+
 	// Rows 7–8: required DB_* variables (validateEnv inside getDatabase) and the connection.
 	await validateDatabaseConnection();
 }

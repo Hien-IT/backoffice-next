@@ -69,10 +69,11 @@ describe('createServer', () => {
 		await mod.createServer();
 		const order: string[] = [];
 		destroy.mockImplementation(async () => order.push('knex.destroy'));
-		mod.onServerShutdown(() => order.push('metrics.stop'));
+		const { onServerShutdown } = await import('./shutdown.js');
+		onServerShutdown(() => order.push('metrics.stop'));
 		// Same module instance as server.ts (modules are reset per test).
 		const { _cache } = await import('./redis/lib/use-redis.js');
-		_cache.redis = { quit: vi.fn(async () => order.push('redis.quit')) } as any;
+		_cache.redis = { disconnect: vi.fn(() => order.push('redis.disconnect')) } as any;
 
 		expect(mod.SERVER_ONLINE).toBe(true);
 		await terminusOptions().beforeShutdown();
@@ -80,7 +81,7 @@ describe('createServer', () => {
 		expect(logger.info).toHaveBeenCalledWith('Shutting down...');
 
 		await terminusOptions().onSignal();
-		expect(order).toEqual(['knex.destroy', 'metrics.stop', 'redis.quit']);
+		expect(order).toEqual(['knex.destroy', 'redis.disconnect', 'metrics.stop']);
 		expect(logger.info).toHaveBeenCalledWith('Database connections destroyed');
 
 		await terminusOptions().onShutdown();

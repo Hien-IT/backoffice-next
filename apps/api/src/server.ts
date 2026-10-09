@@ -11,17 +11,11 @@ import { createApp } from './app.js';
 import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
 import { _cache as redisCache } from './redis/lib/use-redis.js';
+import { runShutdownTasks } from './shutdown.js';
 import { getAddress } from './utils/get-address.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
 
 export let SERVER_ONLINE = true;
-
-/** Extra resources to close on shutdown (rate limiter and cache clients, metrics job), Principle VII. */
-const shutdownTasks: (() => unknown)[] = [];
-
-export function onServerShutdown(task: () => unknown): void {
-	shutdownTasks.push(task);
-}
 
 export async function createServer(): Promise<http.Server> {
 	const env = useEnv();
@@ -63,8 +57,8 @@ export async function createServer(): Promise<http.Server> {
 		logger.info('Database connections destroyed');
 
 		// Backoffice: also stop the metrics job and close Redis connections before exiting (Principle VII).
-		for (const task of shutdownTasks) await task();
-		await redisCache.redis?.quit();
+		redisCache.redis?.disconnect();
+		await runShutdownTasks();
 	}
 
 	async function onShutdown() {

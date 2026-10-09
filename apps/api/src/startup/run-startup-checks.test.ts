@@ -12,8 +12,11 @@ vi.mock('../config/warn-single-instance.js');
 vi.mock('../config/warn-unsupported-variables.js');
 vi.mock('../database/index.js');
 vi.mock('../logger/index.js');
+// Loading these modules validates the rate limiter configuration (row 6).
+vi.mock('../middleware/rate-limiter-global.js', () => (order.push('rate-limiter-global'), { default: vi.fn() }));
+vi.mock('../middleware/rate-limiter-ip.js', () => (order.push('rate-limiter-ip'), { default: vi.fn() }));
 
-const order: string[] = [];
+const order: string[] = vi.hoisted(() => []);
 const logger = { info: vi.fn((m: string) => order.push(`info ${m}`)) };
 
 beforeEach(() => {
@@ -27,7 +30,15 @@ beforeEach(() => {
 
 test('runs the steps in the order of contracts/startup.md', async () => {
 	await runStartupChecks();
-	expect(order).toEqual(['env', `info ${VERSION_LOG_LINE}`, 'unsupported', 'single-instance', 'db']);
+	expect(order).toEqual([
+		'env',
+		`info ${VERSION_LOG_LINE}`,
+		'unsupported',
+		'single-instance',
+		'rate-limiter-global',
+		'rate-limiter-ip',
+		'db',
+	]);
 });
 
 test('a configuration error stops before anything else', async () => {

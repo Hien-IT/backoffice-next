@@ -11,7 +11,7 @@ vi.mock('@backoffice/env', async (importOriginal) => {
 	return { ...actual, useEnv: vi.fn(actual.useEnv) };
 });
 
-const logger = { warn: vi.fn(), debug: vi.fn(), error: vi.fn(), info: vi.fn(), fatal: vi.fn() };
+const logger = vi.hoisted(() => ({ warn: vi.fn(), debug: vi.fn(), error: vi.fn(), info: vi.fn(), fatal: vi.fn() }));
 
 vi.mock('./logger/index.js', () => ({
 	useLogger: () => logger,

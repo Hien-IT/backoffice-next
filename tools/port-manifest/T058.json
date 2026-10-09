@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/cache.ts",
+		"dest": "apps/api/src/cache.ts"
+	},
+	{
+		"source": "api/src/middleware/rate-limiter-global.ts",
+		"dest": "apps/api/src/middleware/rate-limiter-global.ts"
+	},
+	{
+		"source": "api/src/middleware/rate-limiter-ip.ts",
+		"dest": "apps/api/src/middleware/rate-limiter-ip.ts"
+	},
+	{
+		"source": "api/src/rate-limiter.ts",
+		"dest": "apps/api/src/rate-limiter.ts"
+	}
+]
