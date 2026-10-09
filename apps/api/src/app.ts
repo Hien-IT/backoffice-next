@@ -6,6 +6,7 @@ import { AppModule } from './app.module.js';
 import { type ExpressAppOptions, createExpressApp } from './app-pipeline.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
+import metricsSchedule from './schedules/metrics.js';
 
 export interface App {
 	nest: NestExpressApplication;
@@ -24,6 +25,9 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 	nest.useGlobalFilters(new ErrorHandlerFilter());
 
 	await nest.init();
+
+	// Like Directus at the end of createApp; the job is stopped by the shutdown tasks.
+	await metricsSchedule();
 
 	return { nest, express };
 }

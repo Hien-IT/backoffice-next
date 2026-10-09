@@ -34,7 +34,7 @@ beforeEach(() => {
 	vi.resetModules();
 	vi.clearAllMocks();
 	vi.mocked(useLogger).mockReturnValue(logger as any);
-	vi.mocked(useMetrics).mockReturnValue({ getDatabaseResponseMetric: () => ({ observe }) });
+	vi.mocked(useMetrics).mockReturnValue({ getDatabaseResponseMetric: () => ({ observe }) } as any);
 });
 
 afterEach(() => vi.restoreAllMocks());

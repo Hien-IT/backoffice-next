@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/schedules/metrics.ts",
+		"dest": "apps/api/src/schedules/metrics.ts"
+	},
+	{
+		"source": "api/src/schedules/metrics.test.ts",
+		"dest": "apps/api/src/schedules/metrics.test.ts"
+	},
+	{
+		"source": "api/src/utils/schedule.ts",
+		"dest": "apps/api/src/utils/schedule.ts"
+	},
+	{
+		"source": "api/src/controllers/metrics.ts",
+		"dest": "apps/api/src/controllers/metrics.controller.ts"
+	}
+]

@@ -26,8 +26,16 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 		await admin.raw(`grant select on all tables in schema public to ${ROLE}`);
 
 		port = await getPort();
-		// Same configuration as the shared env file, only the DB account differs.
-		api = runApi({ ...hostDbEnv('postgres'), DB_USER: ROLE, DB_PASSWORD: 'readonly', PORT: String(port) });
+		// Same configuration as the shared env file, only the DB account differs; metrics on (T091) with a run every second.
+		api = runApi({
+			...hostDbEnv('postgres'),
+			DB_USER: ROLE,
+			DB_PASSWORD: 'readonly',
+			PORT: String(port),
+			METRICS_ENABLED: 'true',
+			METRICS_TOKENS: 'readonly-token',
+			METRICS_SCHEDULE: '* * * * * *',
+		});
 	}, 60_000);
 
 	afterAll(async () => {
@@ -40,10 +48,22 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 	test('starts and serves every request without 500 or permission errors', async () => {
 		expect(await waitForPing(api, port), api.output()).toBe(true);
 
-		for (const req of requestSet()) {
+		for (const req of [
+			...requestSet({ metrics: true }),
+			{ path: '/metrics', headers: { authorization: 'Metrics readonly-token' } },
+		]) {
 			const res = await capture(`http://127.0.0.1:${port}`, req);
 			expect(res.status, `${req.path}: ${res.text}`).not.toBe(500);
 		}
+
+		// At least one metric run (database, cache, Redis and storage checks) with the read-only account.
+		await new Promise((r) => setTimeout(r, 2500));
+		const metrics = await capture(`http://127.0.0.1:${port}`, {
+			path: '/metrics',
+			headers: { authorization: 'Metrics readonly-token' },
+		});
+		expect(metrics.status).toBe(200);
+		expect(metrics.text).toMatch(/directus_db_pg_connection_errors 0/);
 
 		expect(api.text()).not.toMatch(/permission denied/i);
 	});

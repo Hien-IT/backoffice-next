@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/metrics/index.ts",
+		"dest": "apps/api/src/metrics/index.ts"
+	},
+	{
+		"source": "api/src/metrics/lib/create-metrics.ts",
+		"dest": "apps/api/src/metrics/lib/create-metrics.ts"
+	},
+	{
+		"source": "api/src/metrics/lib/use-metrics.ts",
+		"dest": "apps/api/src/metrics/lib/use-metrics.ts"
+	},
+	{
+		"source": "api/src/metrics/lib/use-metrics.test.ts",
+		"dest": "apps/api/src/metrics/lib/use-metrics.test.ts"
+	},
+	{
+		"source": "api/src/metrics/types/metric.ts",
+		"dest": "apps/api/src/metrics/types/metric.ts"
+	}
+]

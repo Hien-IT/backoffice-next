@@ -1,4 +1,24 @@
-// STUB: replaced by the full port of directus/api/src/metrics in US5 (T089).
-type MetricsStub = { getDatabaseResponseMetric(): { observe(value: number): void } | undefined };
+// Ported from directus/api/src/metrics/lib/use-metrics.ts
+import { useEnv } from '@backoffice/env';
+import { toBoolean } from '@backoffice/utils';
+import { createMetrics } from './create-metrics.js';
 
-export const useMetrics = (): MetricsStub | undefined => undefined;
+export const _cache: {
+	metrics: ReturnType<typeof createMetrics> | undefined;
+} = { metrics: undefined };
+
+export const useMetrics = () => {
+	const env = useEnv();
+
+	if (!toBoolean(env['METRICS_ENABLED'])) {
+		return;
+	}
+
+	if (_cache.metrics) {
+		return _cache.metrics;
+	}
+
+	_cache.metrics = createMetrics();
+
+	return _cache.metrics;
+};
