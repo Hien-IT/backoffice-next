@@ -587,7 +587,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   kịch bản khói), quét dependency, quét secret, phân tích mã, benchmark so với Directus, build image.
 - **FR-111**: Pipeline PHẢI fail khi có file trong `directus/` bị đổi.
 - **FR-112**: Pipeline hằng đêm PHẢI chạy đủ test đối chiếu trên MariaDB, MSSQL, Oracle, CockroachDB,
-  và trên các phiên bản cũ mà Directus kiểm thử (Postgres 10, MySQL 5).
+  và trên các phiên bản cũ mà Directus kiểm thử (Postgres 10, MySQL 5). Tạm hoãn: lịch chạy tắt tới khi xong mọi
+  chức năng, chỉ chạy tay (Complexity Tracking của plan).
 - **FR-113**: Bước benchmark PHẢI fail khi p95 latency hoặc throughput của API mới tệ hơn Directus
   quá 10% cho cùng request và dữ liệu.
 

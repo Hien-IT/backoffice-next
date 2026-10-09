@@ -464,6 +464,16 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   `directus_permissions` hai lần vì chưa có permissions cache, D-20); `/server/health` cả hai chỉ `SELECT 1`.
   Quyết định: OAS đo nhưng không chặn tới feature 002 (D-22); CI chạy `BENCH_ROUNDS=5`.
 
+  **Nền chính thức (CI `ubuntu-latest`, 2026-10-09, commit `5df1693`, 5 vòng × 20 s mỗi pha, p95 ở 80% req/s của
+  Directus)**:
+
+  | Endpoint | p95 Directus (ms) | p95 Backoffice (ms) | req/s Directus | req/s Backoffice | Kết quả |
+  | --- | --- | --- | --- | --- | --- |
+  | `/server/ping` (1774 req/s) | 36.0 | 25.7 | 2217 | 3184 | đạt |
+  | `/server/health` (239 req/s) | 379.6 | 347.9 | 299 | 358 | đạt |
+  | `/server/info` (462 req/s) | 175.0 | 78.5 | 577 | 1131 | đạt |
+  | `/server/specs/oas` (50 req/s) | 1373.2 | 1464.3 | 63 | 61 | đạt (+6,6%, D-22 vẫn miễn chặn) |
+
 ## R19. CI trên GitHub Actions
 
 - **Quyết định**: `.github/workflows/`:
@@ -492,7 +502,8 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   - `semgrep.yml`: Semgrep CE (`p/typescript`) chạy ở pull request, push `main` và hằng tuần. Kế hoạch ban
     đầu là `codeql.yml` (`github/codeql-action`, `javascript-typescript`); repo private không có GitHub Code
     Security nên đã thay (rủi ro bên dưới, Complexity Tracking của plan).
-  - `nightly.yml`: hằng đêm, `parity` + `full` cho `maria`, `mssql`, `oracle`, `cockroachdb`, và các
+  - `nightly.yml` (lịch hằng đêm tạm tắt, chỉ chạy tay tới khi xong mọi chức năng; Complexity Tracking): `parity` +
+    `full` cho `maria`, `mssql`, `oracle`, `cockroachdb`, và các
     bản cũ Directus kiểm thử `postgres10`, `mysql5` (cùng `mysql`, `sqlite3` bản `full`). MariaDB
     không có trong danh sách của Nguyên tắc V; thêm vào hằng đêm vì FR-020 hứa hỗ trợ.
   - `.github/dependabot.yml`: npm (pnpm) và GitHub Actions, hằng tuần.

@@ -316,11 +316,11 @@ description: "Danh sách task cho feature 001: Nền tảng workspace và kết 
 
 - [X] T106 [P] Viết `README.md` gốc (tiếng Việt, ngắn): yêu cầu (Node 22, pnpm 10), lệnh build/lint/test, cách chạy API cạnh Directus (`quickstart.md`), quy tắc port file (comment nguồn, `tools/port-manifest/`), quy tắc không sửa `directus/`
 - [X] T107 Rà bảo mật: Dockerfile của api và web (user không root, ghim phiên bản base image, không copy `.env`), `.dockerignore`, `pnpm audit`, gitleaks cục bộ, xác nhận log không chứa secret (FR-062) bằng test `logs.test.ts`
-- [ ] T108 Chạy toàn bộ `quickstart.md` §1–§11 từ đầu trên máy sạch; ghi kết quả benchmark nền vào `specs/001-platform-foundation/research.md` R18; xác nhận SC-001 đến SC-008 từng mục
+- [X] T108 Chạy toàn bộ `quickstart.md` §1–§11 từ đầu trên máy sạch; ghi kết quả benchmark nền vào `specs/001-platform-foundation/research.md` R18; xác nhận SC-001 đến SC-008 từng mục. Kết quả 2026-10-09/10: §1 máy sạch `node:22` 49 s; §2–§4 so tay đạt; §5–§7, §9 parity Postgres full đạt (cả trên CI); §8 benchmark trên CI đạt cả 4 endpoint (R18); §10 e2e đạt (dev server và container); §11 dọn xong. SC-001 xác nhận trên Postgres, MySQL, SQLite; các vendor khác tạm hoãn (FR-112, Complexity Tracking)
 - [X] T109 Xác nhận `git diff --stat directus/` rỗng (Nguyên tắc I); `pnpm run check-port-headers` đạt; không còn `STUB` trong `apps/api/src/metrics`
 - [X] T110 Chạy `/speckit.analyze` để kiểm tra spec, plan, tasks khớp nhau trước khi merge; cập nhật mục "Constitution Check" của `plan.md` nếu có thay đổi
 - [X] T111 Cập nhật đồ thị tri thức theo `CLAUDE.md`: chạy `graphify update .`; cập nhật mục Active Technologies của `CLAUDE.md` cho đúng thực tế
-- [ ] T112 Trong PR merge vào `main`: đặt `Status: Done` ở đầu `specs/001-platform-foundation/spec.md` (kích hoạt kiểm tra hết hạn của khác biệt tạm thời, FR-101); tech lead duyệt mọi ngoại lệ ở Complexity Tracking của `plan.md`: FR-034/D-16 (Nguyên tắc VIII), quy mô benchmark (Nguyên tắc X), khóa job metrics trong process (Nguyên tắc VII), phép đo coverage của libs (Nguyên tắc X), Semgrep CE thay CodeQL (Nguyên tắc X), phiên bản vá bảo mật khác Directus (Nguyên tắc X), bỏ qua cảnh báo `tar` của `pnpm audit` (Nguyên tắc X), store `memory` khi chạy nhiều instance (Nguyên tắc VII), benchmark `/server/specs/oas` không chặn CI tới 002 (D-22, Nguyên tắc X), quy trình merge thẳng `main` không có PR và branch protection (Nguyên tắc X); và Nguyên tắc VI của constitution 1.1.0 (Reka UI thay PrimeVue)
+- [ ] T112 Trong PR merge vào `main`: đặt `Status: Done` ở đầu `specs/001-platform-foundation/spec.md` (kích hoạt kiểm tra hết hạn của khác biệt tạm thời, FR-101); tech lead duyệt mọi ngoại lệ ở Complexity Tracking của `plan.md`: FR-034/D-16 (Nguyên tắc VIII), quy mô benchmark (Nguyên tắc X), khóa job metrics trong process (Nguyên tắc VII), phép đo coverage của libs (Nguyên tắc X), Semgrep CE thay CodeQL (Nguyên tắc X), phiên bản vá bảo mật khác Directus (Nguyên tắc X), bỏ qua cảnh báo `tar` của `pnpm audit` (Nguyên tắc X), store `memory` khi chạy nhiều instance (Nguyên tắc VII), benchmark `/server/specs/oas` không chặn CI tới 002 (D-22, Nguyên tắc X), quy trình merge thẳng `main` không có PR và branch protection (Nguyên tắc X), tạm hoãn chạy hằng đêm các vendor khác (Nguyên tắc V, FR-112); và Nguyên tắc VI của constitution 1.1.0 (Reka UI thay PrimeVue)
 
 ---
 
@@ -418,7 +418,7 @@ Task: T040  # Port directus/api/src/database/index.ts sang apps/api/src/database
 | FR-110, FR-112 | T097, T098, T096, T101, T104 |
 | FR-111 | T092, T094 |
 | FR-113 | T093, T095 |
-| SC-001 | T029, T039, T082, T097, T098 (hằng đêm), T108 |
+| SC-001 | T029, T039, T082, T097, T098 (hằng đêm, tạm hoãn), T108 |
 | SC-002 | T046–T051, T078–T084 |
 | SC-003 | T036, T037 |
 | SC-004 | T067, T068, T072 |
