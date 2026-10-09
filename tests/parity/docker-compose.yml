@@ -146,6 +146,10 @@ services:
 
   redis:
     image: redis:7-alpine
+    # The container keeps running (so the name `redis` stays in Docker DNS) while redisDown() stops only the server:
+    # a stopped container drops out of DNS and clients wait on DNS timeouts (EAI_AGAIN), slow and uneven on CI.
+    command: ['sh', '-c', 'while :; do [ -f /tmp/down ] || redis-server --save "" --appendonly no; sleep 0.2; done']
+    stop_grace_period: 1s
     ports:
       - '6108:6379'
     healthcheck:

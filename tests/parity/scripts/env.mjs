@@ -1,7 +1,7 @@
 // pnpm nx run parity-tests:env-up --vendor=postgres [--profiles=ratelimit,cors-hsts]
 // pnpm nx run parity-tests:env-down --vendor=postgres
 import { spawnSync } from 'node:child_process';
-import { mkdirSync, rmSync } from 'node:fs';
+import { chmodSync, mkdirSync, rmSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 
 const [action] = process.argv.slice(2);
@@ -34,6 +34,8 @@ const command =
 if (action === 'up') {
 	rmSync('.data/sqlite', { recursive: true, force: true });
 	mkdirSync('.data/sqlite', { recursive: true });
+	// Both containers run as uid 1000 (node), the CI runner user is another uid: let them create the file.
+	chmodSync('.data/sqlite', 0o777);
 }
 
 const result = spawnSync('docker', command, { stdio: 'inherit', env: { ...process.env, TEST_DB: values.vendor } });

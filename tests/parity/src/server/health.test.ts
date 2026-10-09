@@ -1,7 +1,7 @@
 // Ported from directus/tests/blackbox/tests/db/routes/server/health.test.ts (public user only: the admin and
 // logged-in variants wait for features 003/004, D-10; the GraphQL part waits for 011).
 import { beforeAll, describe, expect, it } from 'vitest';
-import { compose } from '../docker.js';
+import { compose, redisDown, redisUp } from '../docker.js';
 import { assertParity, capture, parity, parityStable } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
@@ -51,7 +51,7 @@ describe('/server', () => {
 			'Redis down with CACHE_STORE=redis → neither app answers (measured on Directus 11.17.4, FR-025)',
 			{ timeout: 120_000 },
 			async () => {
-				compose('stop', 'redis');
+				redisDown();
 
 				try {
 					const result = await parity({ path: '/server/health', timeoutMs: 15_000 });
@@ -59,7 +59,7 @@ describe('/server', () => {
 					expect(result.directus.status).toBe(0);
 					expect(result.backoffice.status).toBe(0);
 				} finally {
-					compose('start', 'redis');
+					await redisUp();
 					await new Promise((r) => setTimeout(r, 3000));
 				}
 			},

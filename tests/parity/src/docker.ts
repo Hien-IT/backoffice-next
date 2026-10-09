@@ -32,3 +32,24 @@ export function exitCode(service: string): number {
 	const id = compose('ps', '-a', '-q', service).trim();
 	return Number(execFileSync('docker', ['inspect', '-f', '{{.State.ExitCode}}', id], { encoding: 'utf8' }).trim());
 }
+
+/** Stops the Redis server inside the running `redis` container: clients get ECONNREFUSED (see docker-compose.yml). */
+export function redisDown(): void {
+	compose('exec', '-T', 'redis', 'sh', '-c', 'touch /tmp/down; redis-cli shutdown nosave || true');
+}
+
+/** Starts the Redis server again and waits until it answers PING. */
+export async function redisUp(): Promise<void> {
+	compose('exec', '-T', 'redis', 'rm', '-f', '/tmp/down');
+
+	for (let i = 0; i < 50; i++) {
+		try {
+			if (compose('exec', '-T', 'redis', 'redis-cli', 'ping').includes('PONG')) return;
+		} catch {
+			// not up yet
+		}
+		await new Promise((r) => setTimeout(r, 200));
+	}
+
+	throw new Error('Redis did not come back');
+}

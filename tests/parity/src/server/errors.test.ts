@@ -1,7 +1,7 @@
 // T050: error format and codes (FR-050, FR-051), routes not built yet (D-09.*, D-15, D-17), query and token
 // differences (D-10, D-12), rate limiting on shared Redis keys (FR-046) and the pressure limiter (FR-045).
 import { describe, expect, it } from 'vitest';
-import { compose } from '../docker.js';
+import { redisDown, redisUp } from '../docker.js';
 import { assertParity, capture, parity } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
@@ -127,7 +127,7 @@ describe.runIf(suite === 'full' && profileUrls('ratelimit'))('rate limiter (prof
 		'Redis down → every request through the limiter (including /server/ping) answers 500 (FR-025)',
 		{ timeout: 120_000 },
 		async () => {
-			compose('stop', 'redis');
+			redisDown();
 
 			try {
 				const result = await parity({ path: '/server/ping', headers: { 'x-forwarded-for': '10.2.2.2' } }, urls());
@@ -135,7 +135,7 @@ describe.runIf(suite === 'full' && profileUrls('ratelimit'))('rate limiter (prof
 				expect(result.backoffice.status).toBe(500);
 				expect((result.backoffice.json as any).errors[0].extensions.code).toBe('INTERNAL_SERVER_ERROR');
 			} finally {
-				compose('start', 'redis');
+				await redisUp();
 			}
 		},
 	);
