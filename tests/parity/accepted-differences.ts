@@ -247,4 +247,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'proxy-addr 2.0.8 (security patch): IPv4-mapped IPv6 addresses behind a trusted proxy; no parity request uses one.',
 	},
+	{
+		id: 'D-22',
+		feature: '001',
+		removeAt: '002',
+		kind: 'doc',
+		reason: 'No permissions cache yet: /server/specs/oas is benchmarked but does not fail the run (tests/benchmark).',
+	},
 ];

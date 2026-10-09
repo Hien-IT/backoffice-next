@@ -452,6 +452,12 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
 
   Số đo trên máy giả lập; nền chính thức lấy từ job `benchmark` của CI (runner amd64).
 
+  Trên CI (`ubuntu-latest`, 2026-10-09, 3 vòng × 20 s), hai lần chạy cùng code: `/server/specs/oas` p95 Backoffice
+  cao hơn 11% rồi 21% (req/s 45/45, 31/32); `/server/health` +6% rồi +24%. Riêng Directus, p95 OAS dao động 36%
+  giữa hai lần. Đếm SQL mỗi request OAS: Directus 8, Backoffice 14 (đọc lại `directus_access`, `directus_policies`,
+  `directus_permissions` hai lần vì chưa có permissions cache, D-20); `/server/health` cả hai chỉ `SELECT 1`.
+  Quyết định: OAS đo nhưng không chặn tới feature 002 (D-22); CI chạy `BENCH_ROUNDS=5`.
+
 ## R19. CI trên GitHub Actions
 
 - **Quyết định**: `.github/workflows/`:

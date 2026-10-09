@@ -1,5 +1,14 @@
 import { describe, expect, test } from 'vitest';
-import { compare, createLatencyHistogram, median, percentile, recordLatency, table, type Round } from './compare.ts';
+import {
+	compare,
+	createLatencyHistogram,
+	gatePasses,
+	median,
+	percentile,
+	recordLatency,
+	table,
+	type Round,
+} from './compare.ts';
 
 const round = (p95: number, rps: number, errors = 0): Round => ({ p95, rps, errors });
 const same = [round(10, 1000), round(12, 900), round(11, 950)];
@@ -68,5 +77,18 @@ describe('compare (median of the rounds, 10% tolerance)', () => {
 		const text = table([compare('/a', same, same), compare('/b', [round(10, 1000)], [round(20, 1000)])]);
 		expect(text).toContain('| /a | 11 | 11 | 950 | 950 | ok |');
 		expect(text).toMatch(/\| \/b \| 10 \| 20 \| 1000 \| 1000 \| FAIL: p95/);
+	});
+});
+
+describe('non-blocking endpoints (accepted differences)', () => {
+	test('a failing non-blocking endpoint is reported but does not fail the run; a blocking one does', () => {
+		const slow = { ...compare('/server/specs/oas', [round(10, 100)], [round(20, 50)]), notBlocking: 'D-22' };
+		const ok = compare('/server/ping', same, same);
+		const failing = compare('/server/health', [round(10, 100)], [round(20, 50)]);
+
+		expect(gatePasses([ok, slow])).toBe(true);
+		expect(gatePasses([ok, slow, failing])).toBe(false);
+		expect(table([slow])).toContain('| not blocking (D-22): p95 20 ms');
+		expect(table([failing])).toContain('| FAIL: p95 20 ms');
 	});
 });

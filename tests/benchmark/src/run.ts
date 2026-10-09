@@ -6,6 +6,7 @@ import autocannon from 'autocannon';
 import {
 	compare,
 	createLatencyHistogram,
+	gatePasses,
 	percentile,
 	recordLatency,
 	type Round,
@@ -22,12 +23,13 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 
 // /server/specs/oas: Backoffice builds the schema on every request until feature 002, so the reference is Directus
-// with CACHE_SCHEMA=false.
-const ENDPOINTS = [
+// with CACHE_SCHEMA=false. It is measured but does not fail the run (D-22): Directus still reads policies and
+// permissions from its permissions cache, which comes with feature 002 (D-20).
+const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
 	{ path: '/server/ping', directus: DIRECTUS },
 	{ path: '/server/health', directus: DIRECTUS },
 	{ path: '/server/info', directus: DIRECTUS },
-	{ path: '/server/specs/oas', directus: DIRECTUS_NOCACHE },
+	{ path: '/server/specs/oas', directus: DIRECTUS_NOCACHE, notBlocking: 'D-22, until feature 002' },
 ];
 
 async function measure(baseUrl: string, path: string, duration: number): Promise<Round> {
@@ -61,7 +63,8 @@ for (const endpoint of ENDPOINTS) {
 		backoffice.push(await measure(BACKOFFICE, endpoint.path, DURATION));
 	}
 
-	verdicts.push(compare(endpoint.path, directus, backoffice));
+	const verdict = compare(endpoint.path, directus, backoffice);
+	verdicts.push(endpoint.notBlocking ? { ...verdict, notBlocking: endpoint.notBlocking } : verdict);
 }
 
 const report = table(verdicts);
@@ -69,4 +72,4 @@ process.stdout.write(`${report}\n`);
 if (process.env['GITHUB_STEP_SUMMARY'])
 	appendFileSync(process.env['GITHUB_STEP_SUMMARY'], `## Benchmark\n\n${report}\n`);
 
-process.exit(verdicts.every((v) => v.ok) ? 0 : 1);
+process.exit(gatePasses(verdicts) ? 0 : 1);

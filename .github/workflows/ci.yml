@@ -116,7 +116,10 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run benchmark:env-up
+      # 5 rounds instead of 3: the shared runner varies more than the 10% tolerance between runs.
       - run: pnpm nx run benchmark:run --output-style=static
+        env:
+          BENCH_ROUNDS: 5
       - if: always()
         run: pnpm nx run benchmark:env-down
 

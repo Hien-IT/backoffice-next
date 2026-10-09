@@ -19,6 +19,8 @@ export interface Verdict {
 	backoffice: { p95: number; rps: number };
 	ok: boolean;
 	reasons: string[];
+	/** Accepted difference (spec code and reason) that keeps a failing endpoint from failing the run. */
+	notBlocking?: string;
 }
 
 /** Response times are recorded in microseconds (hdr histograms hold integers). */
@@ -72,11 +74,16 @@ export function compare(path: string, directus: Round[], backoffice: Round[], to
 	return { path, directus: d, backoffice: b, ok: reasons.length === 0, reasons };
 }
 
+/** The run passes when every endpoint is within tolerance or its failure is an accepted, non-blocking difference. */
+export function gatePasses(verdicts: Verdict[]): boolean {
+	return verdicts.every((v) => v.ok || v.notBlocking !== undefined);
+}
+
 /** Markdown table of the verdicts (stdout and the GitHub job summary). */
 export function table(verdicts: Verdict[]): string {
 	const rows = verdicts.map(
 		(v) =>
-			`| ${v.path} | ${v.directus.p95} | ${v.backoffice.p95} | ${v.directus.rps} | ${v.backoffice.rps} | ${v.ok ? 'ok' : `FAIL: ${v.reasons.join('; ')}`} |`,
+			`| ${v.path} | ${v.directus.p95} | ${v.backoffice.p95} | ${v.directus.rps} | ${v.backoffice.rps} | ${result(v)} |`,
 	);
 
 	return [
@@ -84,4 +91,10 @@ export function table(verdicts: Verdict[]): string {
 		'| --- | --- | --- | --- | --- | --- |',
 		...rows,
 	].join('\n');
+}
+
+function result(v: Verdict): string {
+	if (v.ok) return 'ok';
+	const reasons = v.reasons.join('; ');
+	return v.notBlocking ? `not blocking (${v.notBlocking}): ${reasons}` : `FAIL: ${reasons}`;
 }
