@@ -474,6 +474,9 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
       (`nx run web-e2e:e2e`).
     - `security`: `pnpm audit --prod --audit-level=high`, gitleaks (chạy image
       `ghcr.io/gitleaks/gitleaks`, không dùng action có giấy phép).
+    - `publish` (chỉ khi push `main`, sau khi mọi job trên đạt): nạp image đã test từ artifact của job
+      `docker`, gắn tag `latest` và mã commit, push `hiennd23/backoffice-api`, `hiennd23/backoffice-web` lên
+      Docker Hub. Cần secret `DOCKERHUB_USERNAME`, `DOCKERHUB_TOKEN`.
   - `semgrep.yml`: Semgrep CE (`p/typescript`) chạy ở pull request, push `main` và hằng tuần. Kế hoạch ban
     đầu là `codeql.yml` (`github/codeql-action`, `javascript-typescript`); repo private không có GitHub Code
     Security nên đã thay (rủi ro bên dưới, Complexity Tracking của plan).
