@@ -1,0 +1,5 @@
+[
+	{ "source": "tests/blackbox/common/config.ts", "dest": "tests/parity/src/config.ts" },
+	{ "source": "tests/blackbox/common/get-dbs-to-test.ts", "dest": "tests/parity/src/get-dbs-to-test.ts" },
+	{ "source": "tests/blackbox/utils/await-connection.ts", "dest": "tests/parity/src/await-connection.ts" }
+]

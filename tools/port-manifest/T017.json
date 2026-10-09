@@ -1,0 +1,58 @@
+[
+	{
+		"source": "api/src/utils/async-handler.test.ts",
+		"dest": "apps/api/src/utils/async-handler.test.ts"
+	},
+	{
+		"source": "api/src/utils/async-handler.ts",
+		"dest": "apps/api/src/utils/async-handler.ts"
+	},
+	{
+		"source": "api/src/utils/get-address.test.ts",
+		"dest": "apps/api/src/utils/get-address.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-address.ts",
+		"dest": "apps/api/src/utils/get-address.ts"
+	},
+	{
+		"source": "api/src/utils/get-config-from-env.test.ts",
+		"dest": "apps/api/src/utils/get-config-from-env.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-config-from-env.ts",
+		"dest": "apps/api/src/utils/get-config-from-env.ts"
+	},
+	{
+		"source": "api/src/utils/get-ip-from-req.test.ts",
+		"dest": "apps/api/src/utils/get-ip-from-req.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-ip-from-req.ts",
+		"dest": "apps/api/src/utils/get-ip-from-req.ts"
+	},
+	{
+		"source": "api/src/utils/get-milliseconds.test.ts",
+		"dest": "apps/api/src/utils/get-milliseconds.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-milliseconds.ts",
+		"dest": "apps/api/src/utils/get-milliseconds.ts"
+	},
+	{
+		"source": "api/src/utils/url.test.ts",
+		"dest": "apps/api/src/utils/url.test.ts"
+	},
+	{
+		"source": "api/src/utils/url.ts",
+		"dest": "apps/api/src/utils/url.ts"
+	},
+	{
+		"source": "api/src/utils/validate-env.test.ts",
+		"dest": "apps/api/src/utils/validate-env.test.ts"
+	},
+	{
+		"source": "api/src/utils/validate-env.ts",
+		"dest": "apps/api/src/utils/validate-env.ts"
+	}
+]

@@ -36,14 +36,6 @@
 		"dest": "libs/env/src/lib/create-env.ts"
 	},
 	{
-		"source": "api/src/utils/get-config-from-env.test.ts",
-		"dest": "libs/env/src/lib/get-config-from-env.test.ts"
-	},
-	{
-		"source": "api/src/utils/get-config-from-env.ts",
-		"dest": "libs/env/src/lib/get-config-from-env.ts"
-	},
-	{
 		"source": "packages/env/src/lib/read-configuration-from-file.test.ts",
 		"dest": "libs/env/src/lib/read-configuration-from-file.test.ts"
 	},

@@ -12,6 +12,39 @@
 
 name: directus-reference
 
+# One environment for both apps: the API reads exactly the Directus config (SC-001).
+x-directus-environment: &directus-environment
+  PUBLIC_URL: http://localhost:8055
+  SECRET: ${SECRET}
+  ADMIN_EMAIL: ${ADMIN_EMAIL}
+  ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+
+  DB_CLIENT: pg
+  DB_HOST: postgres
+  DB_PORT: 5432
+  DB_DATABASE: ${DB_DATABASE}
+  DB_USER: ${DB_USER}
+  DB_PASSWORD: ${DB_PASSWORD}
+
+  REDIS: redis://redis:6379
+  CACHE_ENABLED: 'true'
+  CACHE_STORE: redis
+  CACHE_AUTO_PURGE: 'true'
+  RATE_LIMITER_ENABLED: 'false'
+  RATE_LIMITER_STORE: redis
+
+  STORAGE_LOCATIONS: s3
+  STORAGE_S3_DRIVER: s3
+  STORAGE_S3_KEY: ${STORAGE_S3_KEY}
+  STORAGE_S3_SECRET: ${STORAGE_S3_SECRET}
+  STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET}
+  STORAGE_S3_REGION: us-east-1
+  STORAGE_S3_ENDPOINT: http://minio:9000
+  STORAGE_S3_FORCE_PATH_STYLE: 'true'
+
+  # Giống phạm vi app mới: không làm Realtime WebSocket.
+  WEBSOCKETS_ENABLED: 'false'
+
 services:
   postgres:
     image: postgis/postgis:16-3.4-alpine
@@ -82,37 +115,24 @@ services:
         condition: service_completed_successfully
     ports:
       - '8055:8055'
-    environment:
-      PUBLIC_URL: http://localhost:8055
-      SECRET: ${SECRET}
-      ADMIN_EMAIL: ${ADMIN_EMAIL}
-      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    environment: *directus-environment
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 5s
+      timeout: 5s
+      retries: 30
 
-      DB_CLIENT: pg
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: ${DB_DATABASE}
-      DB_USER: ${DB_USER}
-      DB_PASSWORD: ${DB_PASSWORD}
-
-      REDIS: redis://redis:6379
-      CACHE_ENABLED: 'true'
-      CACHE_STORE: redis
-      CACHE_AUTO_PURGE: 'true'
-      RATE_LIMITER_ENABLED: 'false'
-      RATE_LIMITER_STORE: redis
-
-      STORAGE_LOCATIONS: s3
-      STORAGE_S3_DRIVER: s3
-      STORAGE_S3_KEY: ${STORAGE_S3_KEY}
-      STORAGE_S3_SECRET: ${STORAGE_S3_SECRET}
-      STORAGE_S3_BUCKET: ${STORAGE_S3_BUCKET}
-      STORAGE_S3_REGION: us-east-1
-      STORAGE_S3_ENDPOINT: http://minio:9000
-      STORAGE_S3_FORCE_PATH_STYLE: 'true'
-
-      # Giống phạm vi app mới: không làm Realtime WebSocket.
-      WEBSOCKETS_ENABLED: 'false'
+  backoffice-api:
+    profiles: [backoffice]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      directus:
+        condition: service_healthy
+    ports:
+      - '8056:8055'
+    environment: *directus-environment
     healthcheck:
       test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
       interval: 5s

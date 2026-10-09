@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/controllers/not-found.ts",
+		"dest": "apps/api/src/errors/error-handler.filter.ts"
+	},
+	{
+		"source": "api/src/middleware/error-handler.test.ts",
+		"dest": "apps/api/src/errors/error-handler.test.ts"
+	},
+	{
+		"source": "api/src/middleware/error-handler.ts",
+		"dest": "apps/api/src/errors/error-handler.ts"
+	}
+]

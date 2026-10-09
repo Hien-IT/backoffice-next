@@ -1,0 +1,30 @@
+[
+	{
+		"source": "api/src/middleware/cors.ts",
+		"dest": "apps/api/src/middleware/cors.ts"
+	},
+	{
+		"source": "api/src/middleware/extract-token.test.ts",
+		"dest": "apps/api/src/middleware/extract-token.test.ts"
+	},
+	{
+		"source": "api/src/middleware/extract-token.ts",
+		"dest": "apps/api/src/middleware/extract-token.ts"
+	},
+	{
+		"source": "api/src/app.ts",
+		"dest": "apps/api/src/middleware/json-body.ts"
+	},
+	{
+		"source": "api/src/middleware/authenticate.ts",
+		"dest": "apps/api/src/middleware/public-accountability.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/create-default-accountability.ts",
+		"dest": "apps/api/src/permissions/utils/create-default-accountability.ts"
+	},
+	{
+		"source": "api/src/types/express.d.ts",
+		"dest": "apps/api/src/types/express.d.ts"
+	}
+]

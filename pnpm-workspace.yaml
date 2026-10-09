@@ -29,6 +29,8 @@ catalog:
   globals: 16.5.0
   prettier: 3.6.2
   supertest: 7.1.4
+  axios: 1.15.0
+  get-port: 7.1.0
   '@types/supertest': 6.0.3
   # API
   '@nestjs/common': 12.1.2
@@ -61,6 +63,7 @@ catalog:
   cookie-parser: 1.4.7
   '@types/cookie-parser': 1.4.10
   body-parser: 1.20.3
+  '@types/body-parser': 1.19.6
   qs: 6.14.2
   '@types/qs': 6.14.0
   proxy-addr: 2.0.7

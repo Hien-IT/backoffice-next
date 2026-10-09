@@ -1,0 +1,20 @@
+{
+	"name": "@backoffice/parity-tests",
+	"version": "0.0.0",
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"test": "vitest run",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"lint": "eslint src scripts accepted-differences.ts"
+	},
+	"devDependencies": {
+		"@backoffice/schema": "workspace:*",
+		"knex": "catalog:",
+		"pg": "catalog:",
+		"mysql2": "catalog:",
+		"sqlite3": "catalog:",
+		"tedious": "catalog:",
+		"oracledb": "catalog:"
+	}
+}

@@ -206,7 +206,7 @@ backoffice-next/
 │   │   └── src/                 # main.ts, App.vue, router, store, i18n (en-US, vi-VN copy từ directus/app/src/lang), runtime-config.ts
 │   └── web-e2e/                 # Playwright: mở /admin, thấy "Backoffice"
 ├── libs/                        # mỗi lib port từ directus/packages/<cùng tên>, kèm test gốc
-│   ├── env/                     # @backoffice/env (+ getConfigFromEnv)
+│   ├── env/                     # @backoffice/env
 │   ├── errors/                  # @backoffice/errors
 │   ├── utils/                   # @backoffice/utils (phần cần: toArray, toBoolean, isObject, parseJSON,
 │   │                            #   getRelation, getRelationType, REDACTED_TEXT, getNodeEnv, ipInNetworks...)
@@ -251,7 +251,7 @@ của Nest. Test đối chiếu và benchmark là project riêng dưới `tests/
 | Nguồn (`directus/`) | Đích | Ghi chú |
 |---------------------|------|---------|
 | `packages/env/src/**` | `libs/env/src/**` | Nguyên vẹn, kèm test |
-| `api/src/utils/get-config-from-env.ts` | `libs/env/src/lib/get-config-from-env.ts` | Dùng chung cho api và lib |
+| `api/src/utils/get-config-from-env.ts` | `apps/api/src/utils/get-config-from-env.ts` | Giữ chỗ như Directus: test port mock `@backoffice/env` mà hàm này vẫn chạy thật |
 | `packages/errors/src/**` | `libs/errors/src/**` | Đổi tên `DirectusError` → `BackofficeError` |
 | `packages/schema/src/**` | `libs/schema/src/**` | Nguyên vẹn |
 | `packages/system-data/src/**` | `libs/system-data/src/**` | YAML đọc bằng js-yaml thay vì unplugin-yaml |

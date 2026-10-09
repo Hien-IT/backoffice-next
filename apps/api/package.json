@@ -1,0 +1,60 @@
+{
+	"name": "@backoffice/api",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/main.js",
+	"files": [
+		"dist"
+	],
+	"scripts": {
+		"build": "swc src -d dist --strip-leading-paths --config-file .swcrc --ignore '**/*.test.ts' --ignore '**/*.d.ts'",
+		"typecheck": "tsc -p tsconfig.json --noEmit",
+		"test": "vitest run",
+		"lint": "eslint src",
+		"serve": "node dist/main.js"
+	},
+	"dependencies": {
+		"@backoffice/constants": "workspace:*",
+		"@backoffice/env": "workspace:*",
+		"@backoffice/errors": "workspace:*",
+		"@backoffice/pressure": "workspace:*",
+		"@backoffice/schema": "workspace:*",
+		"@backoffice/types": "workspace:*",
+		"@backoffice/utils": "workspace:*",
+		"@nestjs/common": "catalog:",
+		"@nestjs/core": "catalog:",
+		"@nestjs/platform-express": "catalog:",
+		"body-parser": "catalog:",
+		"cookie-parser": "catalog:",
+		"cors": "catalog:",
+		"express": "catalog:",
+		"helmet": "catalog:",
+		"lodash-es": "catalog:",
+		"ms": "catalog:",
+		"pino": "catalog:",
+		"pino-http": "catalog:",
+		"pino-http-print": "catalog:",
+		"pino-pretty": "catalog:",
+		"proxy-addr": "catalog:",
+		"qs": "catalog:",
+		"reflect-metadata": "catalog:",
+		"rxjs": "catalog:",
+		"camelcase": "catalog:"
+	},
+	"devDependencies": {
+		"@swc/cli": "catalog:",
+		"@types/body-parser": "catalog:",
+		"@types/cookie-parser": "catalog:",
+		"@types/cors": "catalog:",
+		"@types/express": "catalog:",
+		"@types/lodash-es": "catalog:",
+		"@types/ms": "catalog:",
+		"@types/proxy-addr": "catalog:",
+		"@types/qs": "catalog:",
+		"@types/supertest": "catalog:",
+		"axios": "catalog:",
+		"get-port": "catalog:",
+		"supertest": "catalog:"
+	}
+}

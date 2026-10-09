@@ -1,0 +1,87 @@
+# Parity environment: one database vendor (profile), Redis, MinIO, Directus 11.17.4 and Backoffice.
+# Both apps read the same env file (tests/parity/env/<vendor>.env), which proves SC-001.
+#
+#   pnpm nx run parity-tests:env-up --vendor=postgres
+#   pnpm nx run parity-tests:env-down --vendor=postgres
+#
+# Host ports follow directus/tests/blackbox: DB 6100+, Redis 6108, MinIO 8881. Apps: Directus 8155, Backoffice 8156.
+
+x-app: &app
+  env_file: ./env/${TEST_DB:-postgres}.env
+  depends_on:
+    postgres: { condition: service_healthy, required: false }
+    redis: { condition: service_healthy }
+    minio-init: { condition: service_completed_successfully }
+
+services:
+  postgres:
+    profiles: [postgres]
+    image: postgis/postgis:13-3.4-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: directus
+    ports:
+      - '6100:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d directus']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - '6108:6379'
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  minio:
+    image: minio/minio:latest
+    command: server /data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - '8881:9000'
+    healthcheck:
+      test: ['CMD', 'mc', 'ready', 'local']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  minio-init:
+    image: minio/mc:latest
+    depends_on:
+      minio: { condition: service_healthy }
+    entrypoint: >
+      /bin/sh -c "mc alias set local http://minio:9000 minioadmin minioadmin && mc mb --ignore-existing local/directus"
+
+  directus:
+    <<: *app
+    image: directus/directus:11.17.4
+    ports:
+      - '8155:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    # Starts after Directus has bootstrapped the database (the API never writes it).
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8156:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60

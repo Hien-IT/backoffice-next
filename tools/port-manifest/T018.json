@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/logger/index.ts",
+		"dest": "apps/api/src/logger/index.ts"
+	},
+	{
+		"source": "api/src/logger/redact-query.test.ts",
+		"dest": "apps/api/src/logger/redact-query.test.ts"
+	},
+	{
+		"source": "api/src/logger/redact-query.ts",
+		"dest": "apps/api/src/logger/redact-query.ts"
+	},
+	{
+		"source": "api/src/types/pino-http-print.d.ts",
+		"dest": "apps/api/src/types/pino-http-print.d.ts"
+	}
+]

@@ -1,0 +1,16 @@
+// Ported from directus/api/src/logger/redact-query.ts
+import { REDACTED_TEXT } from '@backoffice/utils';
+
+export function redactQuery(originalPath: string) {
+	try {
+		const url = new URL(originalPath, 'http://example.com/');
+
+		if (url.searchParams.has('access_token')) {
+			url.searchParams.set('access_token', REDACTED_TEXT);
+		}
+
+		return url.pathname + url.search;
+	} catch {
+		return originalPath;
+	}
+}

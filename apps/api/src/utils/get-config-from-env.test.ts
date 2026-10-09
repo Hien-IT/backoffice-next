@@ -1,9 +1,9 @@
 // Ported from directus/api/src/utils/get-config-from-env.test.ts
-import { useEnv } from './use-env.js';
+import { useEnv } from '@backoffice/env';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { getConfigFromEnv } from './get-config-from-env.js';
 
-vi.mock('./use-env.js');
+vi.mock('@backoffice/env');
 
 beforeEach(() => {
 	vi.mocked(useEnv).mockReturnValue({

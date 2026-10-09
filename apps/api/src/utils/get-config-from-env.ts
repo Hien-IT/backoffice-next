@@ -1,5 +1,5 @@
 // Ported from directus/api/src/utils/get-config-from-env.ts
-import { useEnv } from './use-env.js';
+import { useEnv } from '@backoffice/env';
 import { toArray } from '@backoffice/utils';
 import camelcase from 'camelcase';
 import { set } from 'lodash-es';

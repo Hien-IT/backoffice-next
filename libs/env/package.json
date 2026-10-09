@@ -22,7 +22,6 @@
 	"dependencies": {
 		"@backoffice/constants": "workspace:*",
 		"@backoffice/utils": "workspace:*",
-		"camelcase": "catalog:",
 		"dotenv": "catalog:",
 		"lodash-es": "catalog:"
 	},
