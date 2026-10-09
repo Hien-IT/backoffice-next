@@ -1,5 +1,6 @@
-# Quality gates of Principle X (T097, R19). Every job must pass before a pull request can merge: mark them as
-# required status checks in the branch protection of `main` (see tests/parity/README.md).
+# Quality gates of Principle X (T097, R19). Runs on pull requests and on every push to main. The project merges
+# straight into main and fixes a red job in the next commit (SC-007; no branch protection on this plan, see
+# tests/parity/README.md).
 name: CI
 
 on:

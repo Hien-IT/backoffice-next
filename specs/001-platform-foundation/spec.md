@@ -245,9 +245,9 @@ hai app và so tên metric.
 
 ### User Story 6 - Pipeline CI chặn thay đổi không đạt chuẩn (Priority: P2)
 
-Mỗi pull request tự động chạy lint, typecheck, unit test kèm ngưỡng coverage, test đối chiếu
-(Postgres đủ, MySQL và SQLite rút gọn), E2E khói cho app web, quét bảo mật, benchmark so với
-Directus và build image. PR không đạt bất kỳ bước nào thì không merge được.
+Mỗi pull request và mỗi lần push `main` tự động chạy lint, typecheck, unit test kèm ngưỡng coverage, test đối
+chiếu (Postgres đủ, MySQL và SQLite rút gọn), E2E khói cho app web, quét bảo mật, benchmark so với Directus và
+build image. Bước nào không đạt thì CI báo fail ở job đó và được sửa ngay ở commit tiếp theo (SC-007).
 
 **Why this priority**: Cổng chất lượng cần có từ feature đầu tiên để mọi feature sau được kiểm tra
 cùng một cách (Nguyên tắc X).
@@ -582,7 +582,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 
 **CI**
 
-- **FR-110**: Pipeline PR PHẢI chạy: lint, typecheck, unit test với ngưỡng coverage (80% API và
+- **FR-110**: Pipeline (pull request và push `main`) PHẢI chạy: lint, typecheck, unit test với ngưỡng coverage (80% API và
   libs BE, 60% app web), test đối chiếu (Postgres đủ, MySQL và SQLite rút gọn), E2E (app web, Playwright,
   kịch bản khói), quét dependency, quét secret, phân tích mã, benchmark so với Directus, build image.
 - **FR-111**: Pipeline PHẢI fail khi có file trong `directus/` bị đổi.
@@ -714,8 +714,10 @@ chỗ).
   `CACHE_SCHEMA=false` và `CACHE_ENABLED=false` (FR-049, D-11) với cùng ngưỡng 10%, tạm không chặn CI tới feature 002
   (D-22); từ feature 002 được so với Directus cấu hình mặc
   định.
-- **SC-007**: Một PR vi phạm bất kỳ cổng nào (lint, typecheck, coverage, test đối chiếu, E2E (app web),
-  bảo mật, benchmark, build image, sửa `directus/`) đều bị chặn merge.
+- **SC-007**: Một thay đổi vi phạm bất kỳ cổng nào (lint, typecheck, coverage, test đối chiếu, E2E (app web),
+  bảo mật, benchmark, build image, sửa `directus/`) đều làm CI fail ở job tương ứng, trên PR và trên mỗi lần
+  push `main`. Quy trình của dự án: merge thẳng vào `main`, CI chạy sau push, job đỏ được sửa ngay ở commit tiếp
+  theo; repo không bật branch protection (Complexity Tracking của plan).
 - **SC-008**: Lập trình viên mới clone repo, cài dependency và chạy được build, lint, test toàn
   workspace trong không quá 15 phút, đo trong container `node:22` sạch (không cache pnpm và Nx), 4 vCPU,
   8 GB RAM, hoặc trên runner `ubuntu-latest` của GitHub.

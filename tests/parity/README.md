@@ -65,9 +65,11 @@ GET /server/info: 1 unaccepted difference(s)
 3. `src/accepted-differences.test.ts` kiểm tra mỗi mục có trong bảng của đúng spec, `removeAt` khớp, và fail khi spec
    của feature `removeAt` đã `Status: Done` mà mục vẫn còn: lúc đó xoá mục và sửa API cho giống Directus.
 
-## Chặn merge trên GitHub
+## CI và quy trình merge
 
-Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`. Để job fail thì PR không merge được, vào
-Settings → Branches → branch protection của `main`, bật "Require status checks to pass before merging" và chọn các
-check: `guard-directus`, `quality`, `guard-differences`, `parity (postgres, …)`, `parity (mysql, …)`,
-`parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`, `security`, `semgrep`.
+Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`, trên pull request và mỗi lần push `main`.
+Dự án merge thẳng vào `main` (repo private gói GitHub Free không có branch protection): sau mỗi lần push, xem kết
+quả bằng `gh run list --branch main` và sửa job đỏ ở commit tiếp theo. Khi repo có gói hỗ trợ branch protection, bật
+"Require status checks to pass before merging" cho `main` với các check: `guard-directus`, `quality`,
+`guard-differences`, `parity (postgres, …)`, `parity (mysql, …)`, `parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`,
+`security`, `semgrep`.
