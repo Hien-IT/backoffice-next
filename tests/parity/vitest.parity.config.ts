@@ -1,12 +1,10 @@
 import { defineConfig } from 'vitest/config';
+import { parseSuite, suiteFiles } from './src/suite.js';
 
 // Target `parity`: runs against Directus and Backoffice started by `parity-tests:env-up`.
 export default defineConfig({
 	test: {
-		include: [
-			'src/{server,startup,observability}/**/*.test.ts',
-			'src/{db-unchanged,readonly-account,redis-down}.test.ts',
-		],
+		include: suiteFiles(parseSuite()),
 		globalSetup: ['src/global-setup.ts'],
 		fileParallelism: false,
 		testTimeout: 30_000,

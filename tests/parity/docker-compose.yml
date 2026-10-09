@@ -12,8 +12,18 @@
 
 x-app: &app
   env_file: ./env/${TEST_DB:-postgres}.env
+  # SQLite: both apps open the same database file (ignored by the other vendors).
+  volumes:
+    - ./.data/sqlite:/directus/database/sqlite
   depends_on:
     postgres: { condition: service_healthy, required: false }
+    postgres10: { condition: service_healthy, required: false }
+    mysql: { condition: service_healthy, required: false }
+    mysql5: { condition: service_healthy, required: false }
+    maria: { condition: service_healthy, required: false }
+    mssql: { condition: service_healthy, required: false }
+    oracle: { condition: service_healthy, required: false }
+    cockroachdb: { condition: service_healthy, required: false }
     redis: { condition: service_healthy }
     minio-init: { condition: service_completed_successfully }
 
@@ -29,6 +39,108 @@ services:
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U postgres -d directus']
       interval: 2s
+      timeout: 5s
+      retries: 60
+
+  postgres10:
+    profiles: [postgres10]
+    image: postgis/postgis:10-3.2-alpine
+    environment:
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: directus
+    ports:
+      - '6101:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U postgres -d directus']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  mysql:
+    profiles: [mysql]
+    image: mysql:8
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: directus
+    ports:
+      - '6102:3306'
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -psecret --silent']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  mysql5:
+    profiles: [mysql5]
+    image: mysql:5
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: directus
+    ports:
+      - '6103:3306'
+    healthcheck:
+      test: ['CMD-SHELL', 'mysqladmin ping -h 127.0.0.1 -psecret --silent']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  maria:
+    profiles: [maria]
+    image: mariadb:11.4
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: secret
+      MYSQL_DATABASE: directus
+    ports:
+      - '6104:3306'
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh', '--connect', '--innodb_initialized']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  mssql:
+    profiles: [mssql]
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: Test@123
+      MSSQL_PID: Express
+    ports:
+      - '6105:1433'
+    healthcheck:
+      test: ['CMD-SHELL', '/opt/mssql-tools18/bin/sqlcmd -C -S localhost -U sa -P Test@123 -Q "select 1" || exit 1']
+      interval: 5s
+      timeout: 10s
+      retries: 60
+
+  # Blackbox uses the unmaintained Oracle 18 image; CI uses Oracle XE 21 slim (spec Assumptions).
+  oracle:
+    profiles: [oracle]
+    image: gvenzl/oracle-xe:21-slim-faststart
+    environment:
+      ORACLE_PASSWORD: secretpassword
+      APP_USER: secretsysuser
+      APP_USER_PASSWORD: secretpassword
+    ports:
+      - '6106:1521'
+    shm_size: '1gb'
+    healthcheck:
+      test: ['CMD', 'healthcheck.sh']
+      interval: 10s
+      timeout: 10s
+      retries: 60
+
+  cockroachdb:
+    profiles: [cockroachdb]
+    image: cockroachdb/cockroach:latest-v24.3
+    command: start-single-node --cluster-name=example-single-node --insecure --store=type=mem,size=4GB
+    ports:
+      - '6107:26257'
+    healthcheck:
+      test: ['CMD', 'cockroach', 'sql', '--insecure', '-e', 'select 1']
+      interval: 3s
       timeout: 5s
       retries: 60
 
@@ -93,6 +205,8 @@ services:
   directus-ratelimit:
     profiles: [ratelimit]
     image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-ratelimit.env
@@ -111,6 +225,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-ratelimit.env
@@ -127,6 +243,8 @@ services:
   directus-cors-hsts:
     profiles: [cors-hsts]
     image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cors-hsts.env
@@ -145,6 +263,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cors-hsts.env
@@ -161,6 +281,8 @@ services:
   directus-pressure:
     profiles: [pressure]
     image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-pressure.env
@@ -179,6 +301,8 @@ services:
     build:
       context: ../..
       dockerfile: apps/api/Dockerfile
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-pressure.env

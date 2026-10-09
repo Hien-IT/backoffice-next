@@ -8,7 +8,7 @@ import { afterAll, afterEach, beforeAll, describe, expect, test } from 'vitest';
 import { snapshot } from '../db-snapshot.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import { type RunningApi, hostDbEnv, runApi, stopApi, waitForPing } from './run-api.js';
-import { connect, createTempDb, dropTempDb } from './temp-db.js';
+import { connect, createTempDb, dropTempDb, tempDbEnv } from './temp-db.js';
 
 const [vendor] = getDbsToTest();
 const running: RunningApi[] = [];
@@ -36,7 +36,7 @@ async function tempDb(
 }
 
 function start(database: string, env: Record<string, string> = {}, port?: number) {
-	const api = runApi({ ...hostDbEnv(vendor!), DB_DATABASE: database, PORT: String(port ?? 0), ...env });
+	const api = runApi({ ...hostDbEnv(vendor!), ...tempDbEnv(database), PORT: String(port ?? 0), ...env });
 	running.push(api);
 	return api;
 }
@@ -49,7 +49,7 @@ afterAll(async () => {
 	for (const name of temps) await dropTempDb(name);
 });
 
-describe.runIf(vendor === 'postgres')('startup checks', () => {
+describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', () => {
 	beforeAll(async () => {
 		await createTempDb('startup_warmup');
 		temps.push('startup_warmup');
@@ -112,7 +112,7 @@ describe.runIf(vendor === 'postgres')('startup checks', () => {
 			);
 
 			const port = await getPort();
-			const api = runApi({ ...hostDbEnv(vendor!), DB_DATABASE: database, PORT: String(port) }, cwd);
+			const api = runApi({ ...hostDbEnv(vendor!), ...tempDbEnv(database), PORT: String(port) }, cwd);
 			running.push(api);
 
 			expect(await waitForPing(api, port), api.output()).toBe(true);
@@ -129,7 +129,13 @@ describe.runIf(vendor === 'postgres')('startup checks', () => {
 	});
 
 	test('database unreachable → exit 1, "Can\'t connect to the database." (US3.7)', async () => {
-		const api = start('directus', { DB_PORT: String(await getPort()), DB_POOL__ACQUIRE_TIMEOUT_MILLIS: '2000' });
+		const unreachable =
+			vendor === 'sqlite3'
+				? { DB_FILENAME: '/nonexistent-dir/data.db' }
+				: { DB_DATABASE: 'directus', DB_PORT: String(await getPort()), DB_POOL__ACQUIRE_TIMEOUT_MILLIS: '2000' };
+
+		const api = runApi({ ...hostDbEnv(vendor!), ...unreachable, PORT: '0' });
+		running.push(api);
 		expect((await api.exited).code).toBe(1);
 		expect(api.text()).toContain("Can't connect to the database.");
 	});
@@ -168,7 +174,8 @@ describe.runIf(vendor === 'postgres')('startup checks', () => {
 
 		const ports = [await getPort(), await getPort(), await getPort()];
 		const ok = ports.map((p) => start(good, {}, p));
-		expect(await Promise.all(ok.map((a, i) => waitForPing(a, ports[i]!)))).toEqual([true, true, true]);
+		const pinged = await Promise.all(ok.map((a, i) => waitForPing(a, ports[i]!)));
+		expect(pinged, ok.map((a) => a.output()).join('\n---\n')).toEqual([true, true, true]);
 		await Promise.all(running.splice(0).map(stopApi));
 
 		expect(await snapshotOf(mismatched)).toEqual(before.bad);

@@ -87,8 +87,38 @@ async function indexes(db: Knex, tables: string[]): Promise<DbSnapshot['indexes'
 			unique: Boolean(r.unique),
 			columns: r.columns.split(','),
 		}));
+	} else if (client === 'Client_MSSQL') {
+		const rows = await db.raw(`
+			select t.name as [table], i.name as name, i.is_unique as [unique],
+				string_agg(c.name, ',') within group (order by ic.key_ordinal) as columns
+			from sys.indexes i
+			join sys.tables t on t.object_id = i.object_id
+			join sys.index_columns ic on ic.object_id = i.object_id and ic.index_id = i.index_id
+			join sys.columns c on c.object_id = ic.object_id and c.column_id = ic.column_id
+			where i.name is not null
+			group by t.name, i.name, i.is_unique`);
+
+		out = rows.map((r: any) => ({
+			table: r.table,
+			name: r.name,
+			unique: Boolean(r.unique),
+			columns: r.columns.split(','),
+		}));
+	} else if (client === 'Client_Oracledb' || client === 'Client_Oracle') {
+		const rows = await db.raw(`
+			select i.table_name as "table", i.index_name as "name", i.uniqueness as "uniqueness",
+				listagg(c.column_name, ',') within group (order by c.column_position) as "columns"
+			from user_indexes i join user_ind_columns c on c.index_name = i.index_name
+			group by i.table_name, i.index_name, i.uniqueness`);
+
+		out = rows.map((r: any) => ({
+			table: r.table,
+			name: r.name,
+			unique: r.uniqueness === 'UNIQUE',
+			columns: r.columns.split(','),
+		}));
 	} else {
-		throw new Error(`Index snapshot not implemented for ${client} (T084)`);
+		throw new Error(`Index snapshot not implemented for ${client}`);
 	}
 
 	return out.sort((a, b) => `${a.table}.${a.name}`.localeCompare(`${b.table}.${b.name}`));
