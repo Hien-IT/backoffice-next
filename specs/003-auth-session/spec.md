@@ -64,6 +64,9 @@ OpenID; feature này tự viết test đối chiếu cho các luồng đó (FR-1
   (SC-007).
 - Q: D-10 (route `/server/*`, `/metrics` bỏ qua token) gỡ ở 003 tới mức nào? → A: Giữ D-10 tới feature 004 như đã
   hẹn; 003 chỉ xác thực token ở route của chính nó (US3, FR-030 đến FR-033).
+- Q (khi lập plan): Session của user SAML (đăng nhập ở Directus) refresh hoặc logout ở app mới thì sao? → A: Làm đúng
+  chữ Nguyên tắc XI: như Directus khi tắt SAML, trả `503 INVALID_PROVIDER_CONFIG`; app mới không đăng ký provider
+  `saml` (FR-023, FR-078, D-24).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -361,9 +364,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - Provider OpenID thiếu biến bắt buộc, hoặc `ROLE_MAPPING` là mảng: lỗi khi khởi động giống Directus.
   `ISSUER_DISCOVERY_MUST_SUCCEED` (mặc định bật) và IdP không truy cập được lúc khởi động: process thoát, giống
   Directus.
-- User có session tạo ở Directus với provider SAML (bị bỏ qua ở app mới), refresh hoặc logout ở app mới: chạy như
-  Directus (FR-078). Provider trong `directus_users.provider` không còn trong `AUTH_PROVIDERS` (ở cả hai app): refresh,
-  logout trả `503 INVALID_PROVIDER_CONFIG` như Directus.
+- User có session tạo ở Directus với provider SAML (bị bỏ qua ở app mới), refresh hoặc logout ở app mới: trả
+  `503 INVALID_PROVIDER_CONFIG` như Directus khi provider không được cấu hình (FR-078). Cũng vậy với provider trong
+  `directus_users.provider` không còn trong `AUTH_PROVIDERS` (ở cả hai app).
 - Luồng SSO OpenID hoặc OAuth2 bắt đầu ở một bên rồi callback rơi vào bên kia (load balancer không dùng sticky
   session, Nguyên tắc VII): thành công như khi chạy trọn ở một bên, vì cookie `openid.<provider>`, `oauth2.<provider>`
   ký bằng `SECRET` chung và có cùng nội dung.
@@ -419,7 +422,7 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   claim `session` của JWT trong session cookie. Không có token thì trả `400 INVALID_PAYLOAD` với cùng `reason`.
 - **FR-021**: Refresh PHẢI làm đúng `AuthenticationService.refresh`: chỉ nhận session chưa hết hạn, share trong khoảng
   `date_start`, `date_end`; user không `active` thì xóa session và trả `USER_SUSPENDED` hoặc `INVALID_CREDENTIALS`
-  (sau `LOGIN_STALL_TIME`); gọi bước refresh của provider (FR-074, FR-077, FR-078); dùng `next_token` nếu có, ngược lại sinh
+  (sau `LOGIN_STALL_TIME`); gọi bước refresh của provider (FR-074, FR-077; provider không được đăng ký thì `503 INVALID_PROVIDER_CONFIG`, FR-078); dùng `next_token` nếu có, ngược lại sinh
   token mới; ở `json` và `cookie` đổi token và hạn (`REFRESH_TOKEN_TTL`) của dòng cũ; ở `session` giữ dòng cũ thêm
   `SESSION_REFRESH_GRACE_PERIOD`, ghi `next_token` và tạo dòng mới hạn `SESSION_COOKIE_TTL`, để các refresh đồng thời
   (ở một hoặc hai app) nhận cùng session mới; token của share có `share`, `role: null`, `app_access` và
@@ -427,8 +430,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - **FR-022**: Logout PHẢI tìm session nối với user (session của share không bị xóa, giống Directus), gọi bước logout
   của provider, ghi activity `logout`, xóa dòng session, xóa cookie refresh và cookie session mà request có gửi, và
   trả response giống Directus.
-- **FR-023**: Logout của user thuộc provider driver `saml` (bị bỏ qua ở app mới, FR-070) PHẢI chạy như Directus
-  (FR-078).
+- **FR-023**: Logout của user thuộc provider không được đăng ký ở app mới (gồm `saml`, FR-070) PHẢI trả lỗi như Directus
+  khi provider không được cấu hình (FR-078).
 
 **Xác thực request**
 
@@ -456,7 +459,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   prefix, kết nối Redis) với `duration: 0`, số lượt bằng setting `auth_login_attempts`, key là id user; chạy cả khi
   `RATE_LIMITER_ENABLED=false`. Với `RATE_LIMITER_STORE=redis`, key và giá trị PHẢI giống Directus để hai app đếm
   chung. Hết lượt thì chuyển user sang `suspended`, ghi activity `update` và revision với delta `{status: "suspended"}`,
-  đặt bộ đếm về 0. Lỗi rate limiter khác PHẢI trả `503 SERVICE_UNAVAILABLE` (`Rate limiter unreachable`).
+  đặt bộ đếm về 0. Lỗi rate limiter khác PHẢI trả `503 SERVICE_UNAVAILABLE` (`Rate limiter unreachable`). Với
+  `RATE_LIMITER_STORE=memory`, mỗi process đếm riêng như Directus; cảnh báo "chỉ an toàn khi chạy một instance" của
+  feature 001 áp dụng cả khi `RATE_LIMITER_ENABLED=false` (chỉnh khi lập plan: bộ đếm này luôn chạy).
 - **FR-042**: User `invited`, `draft`, `suspended`, `archived` PHẢI không đăng nhập được, không refresh được, và không
   dùng được static token, giống Directus.
 
@@ -533,8 +538,10 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   kiểm bind user, tìm user theo thuộc tính (có escape giá trị), lấy nhóm và role, tạo hoặc cập nhật user, kiểm mật khẩu
   bằng bind với DN của user, từ chối tài khoản có cờ khóa trong `userAccountControl`, chuyển lỗi LDAP thành
   `INVALID_CREDENTIALS` hoặc `SERVICE_UNAVAILABLE` như Directus. Refresh PHẢI kiểm lại tài khoản trên LDAP như Directus.
-- **FR-078**: Logout và refresh session của user thuộc provider `saml` (bị bỏ qua ở app mới) PHẢI chạy như Directus, vì
-  bước logout và refresh của driver SAML trong Directus không làm gì.
+- **FR-078**: App mới KHÔNG đăng ký provider `saml`. Refresh và logout session của user thuộc provider `saml` (hoặc
+  provider không có trong `AUTH_PROVIDERS`) PHẢI trả `503 INVALID_PROVIDER_CONFIG` và log `error`
+  `Auth provider not configured`, giống Directus khi provider đó không được cấu hình (Nguyên tắc XI: hành vi như
+  Directus khi tính năng tắt). Session không bị xóa, như Directus.
 
 **Dữ liệu ghi vào DB**
 
@@ -544,7 +551,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `item`, `ip`, `user_agent`, `origin`).
 - **FR-081**: App mới chỉ ghi DB trong các luồng của feature này và chỉ vào các bảng, cột ở FR-080. Test
   `db-unchanged` và `readonly-account` của bộ test đối chiếu PHẢI được sửa theo: DB không đổi với mọi request ngoài các
-  luồng này; với tài khoản DB chỉ có quyền đọc, các luồng ghi lỗi giống Directus chạy với tài khoản đó.
+  luồng này; với tài khoản DB chỉ có quyền đọc, mọi request không ghi DB (gồm `GET /auth`, đăng nhập sai, refresh với
+  token sai) vẫn chạy không lỗi `500` (chỉnh khi lập plan: test này chỉ chạy app mới, không có Directus để so luồng
+  ghi).
 - **FR-082**: Các lần ghi `directus_users` của feature này (đặt lại mật khẩu, khóa user, SSO) PHẢI cho cùng dòng
   `directus_users`, `directus_activity`, `directus_revisions` như `UsersService` của Directus với cùng accountability
   (có activity và revision khi Directus ghi; không có khi accountability là `null` như luồng SSO), dù endpoint
@@ -557,7 +566,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `REFRESH_TOKEN_COOKIE_DOMAIN`, `REFRESH_TOKEN_COOKIE_SECURE` (`false`), `REFRESH_TOKEN_COOKIE_SAME_SITE` (`lax`),
   `SESSION_COOKIE_TTL` (`1d`), `SESSION_COOKIE_NAME` (`directus_session_token`), `SESSION_COOKIE_DOMAIN`,
   `SESSION_COOKIE_SECURE` (`false`), `SESSION_COOKIE_SAME_SITE` (`lax`), `SESSION_REFRESH_GRACE_PERIOD` (`10s`),
-  `LOGIN_STALL_TIME` (`500`), `PASSWORD_RESET_URL_ALLOW_LIST`, `AUTH_PROVIDERS`, `AUTH_DISABLE_DEFAULT` (`false`),
+  `LOGIN_STALL_TIME` (`500`), `PASSWORD_RESET_URL_ALLOW_LIST`, `HASH_*` (tham số argon2 khi đặt lại mật khẩu),
+  `USERS_ADMIN_ACCESS_LIMIT`, `USERS_APP_ACCESS_LIMIT`, `USERS_API_ACCESS_LIMIT` (kiểm số user khi ghi `directus_users`)
+  (hai nhóm này thêm khi lập plan), `AUTH_PROVIDERS`, `AUTH_DISABLE_DEFAULT` (`false`),
   `AUTH_ALLOWED_PUBLIC_URLS`, và `AUTH_<PROVIDER>_*` của provider `local`, `openid`, `oauth2`, `ldap`. Các biến này PHẢI được gỡ khỏi
   nhóm "chưa hỗ trợ" của feature 001. `AUTH_<PROVIDER>_*` của provider `saml` (gồm `AUTH_<PROVIDER>_IDP*`,
   `AUTH_<PROVIDER>_SP*`) chỉ có cảnh báo ở FR-070.
@@ -612,7 +623,7 @@ Khác biệt mới:
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
 | D-23 | Email đặt lại mật khẩu (`POST /auth/password/request`) | Gửi email chứa link đặt lại qua `EMAIL_*` | Không gửi, ghi log `warn` có email người nhận, không có token hay link (FR-062). Response và thời gian trả về giống Directus | Nguyên tắc X | ngoài phạm vi | — |
-| D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session SAML có sẵn chạy như Directus (FR-078) | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — |
+| D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session của user SAML trả `503 INVALID_PROVIDER_CONFIG` như Directus khi tắt SAML (FR-078); hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — |
 | D-25 | Issuer trong `otpauth_url` khi `project_name` trống | `Directus` | `Backoffice` | Nguyên tắc IX (nhãn issuer TFA được liệt kê) | đổi thương hiệu | — |
 | D-26 | Event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` (filter và action) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 (phần flow) |
 
