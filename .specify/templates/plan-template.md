@@ -45,7 +45,7 @@ a row in Complexity Tracking.
 - [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
 - [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
-- [ ] XI. Nothing out of scope (LDAP/OAuth2/SAML, non-S3 storage, websockets, extensions, AI/MCP...)
+- [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, extensions, AI/MCP...)
 
 ## Project Structure
 

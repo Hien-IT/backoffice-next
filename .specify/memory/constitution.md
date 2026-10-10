@@ -1,4 +1,16 @@
 <!--
+Sync Impact Report (1.3.0, 2026-10-10)
+- Version change: 1.2.0 → 1.3.0
+- Modified sections: XI. Ngoài phạm vi giai đoạn này: "SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect)" đổi
+  thành "SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP)". Lý do: app mới dùng chung `.env` với Directus; nếu Directus
+  có provider OAuth2 hoặc LDAP mà app mới bỏ qua, request refresh của người dùng SSO rơi vào app mới sẽ lỗi và người
+  dùng bị đăng xuất. Chủ dự án chọn khi clarify feature 003 (hỗ trợ đầy đủ OAuth2, LDAP ngay trong 003).
+  MINOR: thu hẹp danh sách ngoài phạm vi (mở rộng phạm vi); mọi thứ hợp lệ theo 1.2.0 vẫn hợp lệ.
+- Added/removed sections: không
+- Templates: ✅ .specify/templates/plan-template.md (dòng XI của Constitution Check); ✅ SPECKIT-GUIDE.md (bảng tóm
+  tắt và prompt nguồn của constitution); ✅ spec, tasks, checklist template không nhắc mục này.
+- Deferred TODOs: cần tech lead duyệt thay đổi này (mục Governance).
+
 Sync Impact Report (1.2.0, 2026-10-10)
 - Version change: 1.1.0 → 1.2.0
 - Modified principles: VII. Triển khai đa instance: câu "KHÔNG dùng cache hay lock trong bộ nhớ process"
@@ -217,7 +229,7 @@ Lý do: ngưỡng đo được giúp quyết định merge khách quan, không d
 
 ## XI. Ngoài phạm vi giai đoạn này
 
-- SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect).
+- SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP).
 - Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3).
 - Gửi email (xem Nguyên tắc X).
 - Realtime WebSocket: `/websocket`, GraphQL subscription, collaborative editing, system logs
@@ -256,4 +268,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-10
+**Version**: 1.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-10

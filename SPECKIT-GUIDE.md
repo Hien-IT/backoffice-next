@@ -27,7 +27,7 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Hiệu năng | p95 latency và throughput **không tệ hơn Directus quá 10%**. |
 | Ngôn ngữ giao diện | **vi-VN và en-US**. |
 | Giám sát | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`). |
-| SSO | Chỉ **OpenID Connect**. LDAP, OAuth2, SAML chưa làm. |
+| SSO | **OpenID Connect, OAuth2, LDAP** (từ constitution 1.3.0). SAML chưa làm. |
 | Storage | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm. |
 | Email | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo. |
 | Flow Run Script | **Có**, chạy trong sandbox isolated-vm giống Directus. |
@@ -173,7 +173,7 @@ X. Chất lượng, quy trình và vận hành
 - Mọi khác biệt so với Directus phải ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
 
 XI. Ngoài phạm vi giai đoạn này
-- SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect). Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3). Gửi email.
+- SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP). Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3). Gửi email.
 - Realtime WebSocket: /websocket, GraphQL subscription, collaborative editing, system logs realtime. /server/info trả websocket: false, giống Directus khi WEBSOCKETS_ENABLED=false. App web ẩn các tính năng này như Directus app.
 - Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...), visual editing, telemetry.
 
@@ -283,7 +283,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 ### 012: Khung app web và đăng nhập
 
 ```text
-/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA hoặc SSO OpenID Connect, rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
 ```
 
 ### 013: Bộ interfaces và displays
