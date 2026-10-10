@@ -1,4 +1,18 @@
 <!--
+Sync Impact Report (1.2.0, 2026-10-10)
+- Version change: 1.1.0 → 1.2.0
+- Modified principles: VII. Triển khai đa instance: câu "KHÔNG dùng cache hay lock trong bộ nhớ process"
+  đổi thành "KHÔNG dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache trong process
+  chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi instance, như Directus."
+  Câu tương ứng của Reviewer ở "Quy trình phát triển và cổng kiểm tra" sửa theo. Lý do: Directus 11.17.4
+  giữ SchemaOverview, lớp local của permissions cache (và cache GraphQL schema) trong bộ nhớ process và xóa
+  qua bus Redis; feature 002, 004, 011 cần làm giống. Chủ dự án yêu cầu khi phân tích feature 002.
+  MINOR: mở rộng hướng dẫn của một nguyên tắc; mọi thứ hợp lệ theo 1.1.0 vẫn hợp lệ.
+- Added/removed sections: không
+- Templates: ✅ .specify/templates/plan-template.md (dòng VII của Constitution Check);
+  ✅ SPECKIT-GUIDE.md (prompt nguồn của constitution); ✅ spec, tasks, checklist template không nhắc câu này.
+- Deferred TODOs: không
+
 Sync Impact Report (1.1.0, 2026-10-09)
 - Version change: 1.0.0 → 1.1.0
 - Modified principles: VI. Kiến trúc: thư viện UI của `apps/web` đổi từ PrimeVue sang Reka UI. Lý do: từ bản
@@ -123,7 +137,9 @@ Lý do: bám cấu trúc service và Knex của Directus giúp port code trực 
 - BE PHẢI chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus,
   tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
 - Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và
-  lock upload TUS. KHÔNG dùng cache hay lock trong bộ nhớ process.
+  lock upload TUS. KHÔNG dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache
+  trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi
+  instance, như Directus.
 - File và ảnh đã transform PHẢI lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng
   chung). KHÔNG dùng storage local riêng từng container.
 - Khởi động nhiều replica cùng lúc PHẢI an toàn: chỉ đọc và kiểm tra migration, KHÔNG ghi gì vào
@@ -222,8 +238,9 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - `tasks.md` PHẢI có task test đối chiếu cho mỗi endpoint thêm hoặc sửa (V), và test cho mỗi thay
   đổi (VI).
 - Reviewer PHẢI từ chối PR khi: có file trong `directus/` bị đổi; có ghi vào bảng hoặc cột hệ thống
-  `directus_*` ngoài luồng API của Directus; có cache, lock hoặc state quan trọng trong bộ nhớ
-  process; có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X.
+  `directus_*` ngoài luồng API của Directus; có lock hoặc state quan trọng trong bộ nhớ process, hoặc
+  cache trong process không dựng lại được từ DB/Redis hay không bị xóa qua bus Redis (Nguyên tắc VII);
+  có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X.
 
 ## Governance
 
@@ -239,4 +256,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-09
+**Version**: 1.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-10

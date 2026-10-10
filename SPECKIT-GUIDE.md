@@ -140,7 +140,7 @@ VI. Kiến trúc
 VII. Triển khai đa instance
 - FE build ra file tĩnh, chạy trong một container nginx. URL API và cấu hình được đọc lúc chạy (runtime config), không ghi cứng lúc build, để một image dùng cho mọi môi trường.
 - BE chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus, tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
-- Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và lock upload TUS. Không dùng cache hay lock trong bộ nhớ process.
+- Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và lock upload TUS. Không dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi instance, như Directus.
 - File và ảnh đã transform lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng chung). Không dùng storage local riêng từng container.
 - Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động.
 - Có /server/health cho readiness và liveness probe. Khi nhận SIGTERM, ngừng nhận request mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
