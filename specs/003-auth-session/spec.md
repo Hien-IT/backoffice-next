@@ -35,8 +35,8 @@ Directus, coi mọi request là public và cảnh báo một lần mỗi process
 `INVALID_CREDENTIALS`, `INVALID_OTP`, `INVALID_TOKEN`, `TOKEN_EXPIRED`, `USER_SUSPENDED`, `INVALID_PROVIDER(_CONFIG)`
 trong `libs/errors`. Route `/auth` đang trả `404` (D-09.1). Các biến `ACCESS_TOKEN_TTL`, `REFRESH_TOKEN_*`,
 `SESSION_COOKIE_*` (trừ `SESSION_COOKIE_NAME`), `LOGIN_STALL_TIME`, `PASSWORD_RESET_URL_ALLOW_LIST`, `AUTH_*` đang ở
-nhóm "chưa hỗ trợ" và được cảnh báo khi khởi động. Feature này thay `public-accountability` bằng bước xác thực thật, gỡ
-D-09.1 và D-10 (thu hẹp, xem mục Khác biệt), và bỏ cảnh báo "token bị bỏ qua" của D-18.
+nhóm "chưa hỗ trợ" và được cảnh báo khi khởi động. Feature này thêm bước xác thực thật cho route của chính nó và gỡ
+D-09.1. D-10 và cảnh báo "token bị bỏ qua" của D-18 giữ nguyên tới feature 004.
 
 **Bộ test blackbox auth của Directus** (`directus/tests/blackbox`): `tests/common/auth/login.test.ts`,
 `tests/common/auth/refresh.test.ts`, `tests/common/auth/oauth-redirect.test.ts`, `oauth-multi-domain.test.ts`,
@@ -59,6 +59,11 @@ OpenID; feature này tự viết test đối chiếu cho các luồng đó (FR-1
   Directus có provider OAuth2, LDAP thì app mới cũng hỗ trợ đầy đủ như Directus (đăng nhập, callback, refresh). SAML vẫn
   bỏ qua. Làm luôn trong feature 003. Constitution sửa thành 1.3.0: Nguyên tắc XI chỉ còn SAML ngoài phạm vi (FR-070,
   FR-076, FR-077, D-24).
+- Q: Benchmark auth dùng dữ liệu và tải cỡ nào, có chặn CI không? → A: Dữ liệu quy mô thiết kế (2.000 user, mỗi user có
+  session), tải 2.000 kết nối đồng thời, đo `POST /auth/login`, `POST /auth/refresh` và một request mang token; chặn CI
+  (SC-007).
+- Q: D-10 (route `/server/*`, `/metrics` bỏ qua token) gỡ ở 003 tới mức nào? → A: Giữ D-10 tới feature 004 như đã
+  hẹn; 003 chỉ xác thực token ở route của chính nó (US3, FR-030 đến FR-033).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -142,28 +147,32 @@ refresh ở app mới với token đó trả `401 INVALID_CREDENTIALS`. Lặp l�
 
 ---
 
-### User Story 3 - Mọi request được xác thực bằng token như Directus (Priority: P1)
+### User Story 3 - Route của feature này xác thực token như Directus (Priority: P1)
 
-Mọi route của app mới nhận token theo đúng cách của Directus: header `Authorization: Bearer <token>`, query
-`access_token`, session cookie, và static token của user (`directus_users.token`). Request có token hợp lệ chạy với
-quyền của user đó (user, role, cây role, `admin`, `app`); request không có token chạy với quyền public.
+Mọi route của feature này (`/auth/*` và `POST /users/me/tfa/generate`, route duy nhất cần đăng nhập) nhận token theo
+đúng cách của Directus: header
+`Authorization: Bearer <token>`, query `access_token`, session cookie, và static token của user
+(`directus_users.token`). Request có token hợp lệ chạy với quyền của user đó (user, role, cây role, `admin`, `app`);
+request không có token chạy với quyền public. Các route đã có từ feature 001 (`/server/*`, `/metrics`, path lạ) vẫn
+bỏ qua token như D-10 tới feature 004 (Clarifications).
 
-**Why this priority**: Không có bước này thì token đăng nhập vô dụng: mọi endpoint của app mới vẫn coi request là
-public. Các feature sau (phân quyền, items, files) dựa vào accountability tính ở bước này.
+**Why this priority**: Đây là bằng chứng phía app mới rằng access token, session cookie và static token do Directus cấp
+được nhận đúng. Feature 004 mở rộng bước này ra mọi route và dựa vào accountability tính ở đây.
 
-**Independent Test**: Gọi các endpoint đã có của app mới (ví dụ `/server/info`, `/server/health`, `/server/specs/oas`,
-TFA ở US5) với từng loại token, với token hết hạn, token sai chữ ký, token của Directus và static token. So status,
-body và header với Directus.
+**Independent Test**: Gọi `POST /users/me/tfa/generate` của app mới và của Directus với từng loại token, với token hết
+hạn, token sai chữ ký, token của bên kia và static token. So status, body và header. Gọi `/server/info` của app mới
+với token: kết quả vẫn như request public (D-10).
 
 **Acceptance Scenarios**:
 
-1. **Given** access token hợp lệ trong header `Authorization: Bearer`, **When** gọi endpoint, **Then** request chạy
-   với accountability của user đó, giống Directus (ví dụ `/server/info` trả thêm các trường dành cho user đăng nhập
-   hoặc admin).
-2. **Given** token trong query `access_token`, **When** gọi endpoint, **Then** kết quả giống khi dùng header.
-3. **Given** token vừa trong header vừa trong query, **When** gọi endpoint, **Then** trả `400 INVALID_PAYLOAD` với
-   cùng `reason` như Directus. Session cookie không tính vào quy tắc này: có header hoặc query thì dùng chúng, bỏ
-   qua cookie.
+1. **Given** access token hợp lệ trong header `Authorization: Bearer`, **When** gọi `POST /users/me/tfa/generate`,
+   **Then** request chạy với accountability của user đó, giống Directus (secret sinh cho đúng user; thiếu `password`
+   thì `400 INVALID_PAYLOAD` như Directus).
+2. **Given** token trong query `access_token`, hoặc trong session cookie, **When** gọi route đó, **Then** kết quả giống
+   khi dùng header.
+3. **Given** token vừa trong header vừa trong query, **When** gọi bất kỳ route nào, **Then** trả `400 INVALID_PAYLOAD`
+   với cùng `reason` như Directus (đã có từ feature 001). Session cookie không tính vào quy tắc này: có header hoặc query
+   thì dùng chúng, bỏ qua cookie.
 4. **Given** chuỗi không phải JWT của Directus (không có `iss: "directus"`), **When** dùng làm token, **Then** app
    mới coi là static token và tìm user `active` có `token` bằng chuỗi đó; không có thì trả
    `401 INVALID_CREDENTIALS`.
@@ -174,6 +183,9 @@ body và header với Directus.
 7. **Given** access token của user đã bị chuyển sang `suspended` sau khi token được cấp, **When** dùng token đó trước
    khi hết hạn, **Then** app mới xử lý giống Directus (JWT không kiểm lại trạng thái user; chỉ static token và
    refresh kiểm trạng thái).
+8. **Given** token bất kỳ (đúng hoặc sai), **When** gọi `/server/info`, `/server/health`, `/server/specs/oas`,
+   `/metrics` hoặc path lạ của app mới, **Then** app mới vẫn trả như request public và ghi cảnh báo "token bị bỏ qua"
+   một lần mỗi process, như D-10 và D-18 của feature 001, tới feature 004.
 
 ---
 
@@ -352,6 +364,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - User có session tạo ở Directus với provider SAML (bị bỏ qua ở app mới), refresh hoặc logout ở app mới: chạy như
   Directus (FR-078). Provider trong `directus_users.provider` không còn trong `AUTH_PROVIDERS` (ở cả hai app): refresh,
   logout trả `503 INVALID_PROVIDER_CONFIG` như Directus.
+- Luồng SSO OpenID hoặc OAuth2 bắt đầu ở một bên rồi callback rơi vào bên kia (load balancer không dùng sticky
+  session, Nguyên tắc VII): thành công như khi chạy trọn ở một bên, vì cookie `openid.<provider>`, `oauth2.<provider>`
+  ký bằng `SECRET` chung và có cùng nội dung.
 - LDAP hoặc IdP không truy cập được khi đăng nhập hoặc refresh: lỗi giống driver của Directus
   (`503 SERVICE_UNAVAILABLE` hoặc `401 INVALID_CREDENTIALS`).
 - Request refresh hoặc logout với token trong cả body và cookie: chọn theo `mode` và quy tắc của Directus
@@ -417,8 +432,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 
 **Xác thực request**
 
-- **FR-030**: App mới PHẢI thay middleware `public-accountability` bằng bước `authenticate` giống Directus, chạy ở
-  cùng vị trí trong pipeline. Với JWT của Directus (`iss: "directus"`): kiểm chữ ký và hạn, kiểm có đủ claim `role`,
+- **FR-030**: App mới PHẢI có bước `authenticate` giống Directus, áp dụng cho mọi route của feature này (`GET /auth`,
+  `/auth/*`, `POST /users/me/tfa/generate`), để token sai gửi kèm các route này bị từ chối như Directus. Với JWT của Directus (`iss: "directus"`): kiểm chữ ký và hạn, kiểm có đủ claim `role`,
   `app_access`, `admin_access`; nếu có claim `session` thì kiểm dòng session (token, user, share, chưa hết hạn); gán
   `user`, `role`, `roles`, `admin`, `app`, `session`, `share`. Với chuỗi khác: coi là static token, tìm user `active`
   có `token` bằng chuỗi đó.
@@ -426,9 +441,11 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   lỗi khác khi kiểm JWT `503 SERVICE_UNAVAILABLE`; static token không khớp hoặc session không còn
   `401 INVALID_CREDENTIALS`. Khi lỗi `INVALID_CREDENTIALS` hoặc `INVALID_TOKEN` đến từ session cookie, response PHẢI
   xóa cookie đó.
-- **FR-032**: Accountability tính ở bước này PHẢI được mọi route đã có dùng (`/server/info`, `/server/health`,
-  `/server/specs/oas`, `/metrics`, route TFA), cho cùng kết quả như Directus với cùng token.
-- **FR-033**: Cảnh báo "token bị bỏ qua" (FR-044 của feature 001) PHẢI bị gỡ.
+- **FR-032**: Các route đã có từ feature 001 (`/server/info`, `/server/health`, `/server/specs/oas`, `/metrics`, path
+  lạ) PHẢI giữ hành vi D-10 (bỏ qua token, trả như request public) và cảnh báo "token bị bỏ qua" (FR-044 của feature
+  001) tới feature 004. Feature 004 áp dụng bước `authenticate` cho mọi route và gỡ D-10.
+- **FR-033**: Bước `authenticate` của feature này PHẢI là cùng một bước mà feature 004 sẽ áp dụng cho mọi route (cùng
+  vị trí trong pipeline của Directus), không phải một cách kiểm token riêng cho route TFA.
 
 **Trạng thái user, thời gian chờ và giới hạn đăng nhập sai**
 
@@ -556,7 +573,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   app mới, và chạy lại nguyên bản ở feature 004.
 - **FR-101**: Bộ test PHẢI có ma trận dùng chéo: mỗi loại token (access token chế độ `json`, `cookie`, `session`;
   refresh token; session cookie; static token; token đặt lại mật khẩu) cấp ở bên này dùng được ở bên kia, theo cả
-  hai chiều. Secret TFA sinh ở app mới bật được ở Directus, và TFA bật ở Directus dùng được khi đăng nhập ở app mới.
+  hai chiều. Ở app mới, access token, session cookie và static token được kiểm qua `POST /users/me/tfa/generate`
+  (route duy nhất cần đăng nhập ở feature này); ở Directus, qua cùng route đó. Ma trận có cả luồng SSO OpenID và
+  OAuth2 bắt đầu ở bên này, callback ở bên kia, theo cả hai chiều. Secret TFA sinh ở app mới bật được ở Directus, và TFA bật ở Directus dùng được khi đăng nhập ở app mới.
 - **FR-102**: Bộ test PHẢI có ca đối chiếu cho logout, quên và đặt lại mật khẩu, đăng nhập với TFA và
   `/users/me/tfa/generate`, trạng thái user,
   `LOGIN_STALL_TIME`, bộ đếm đăng nhập sai dùng chung qua Redis, cảnh báo provider `saml` bị bỏ qua, luồng OpenID và
@@ -586,8 +605,7 @@ Thay đổi với bảng khác biệt của feature 001:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09 | Gỡ D-09.1 (`/auth`). Tách `/users/me/tfa/generate` khỏi D-09.2 (làm ở feature này). Thêm D-09.10: `/users/me/tfa/enable`, `/users/me/tfa/disable`, `/users/:pk/tfa/disable`, gỡ khi 005. Các route `/users` còn lại vẫn trả `404` tới feature 004 | FR-001 đến FR-075, FR-051 |
-| D-10 | Thu hẹp: token được xác thực và accountability tính như Directus (token sai trả lỗi như Directus, token đúng cho info đầy đủ, health chi tiết cho admin, `/metrics` cho admin). Chỉ còn các khác biệt do mô hình quyền chưa đủ (feature 004); plan liệt kê cụ thể | FR-030 đến FR-032 |
-| D-18 | Bỏ cảnh báo "token bị bỏ qua". Các dòng log khác giữ nguyên | FR-033 |
+| D-10 | Giữ tới feature 004 cho các route đã có từ 001. Route mới của feature này (`/auth/*`, `POST /users/me/tfa/generate`) xử lý token như Directus | FR-030 đến FR-033 |
 
 Khác biệt mới:
 
@@ -640,7 +658,9 @@ Khác biệt mới:
   salt của hash).
 - **SC-006**: Đội vận hành dùng nguyên file `.env` của Directus: không thêm hoặc đổi dòng cấu hình nào; mỗi provider bị
   bỏ qua cho đúng 1 dòng cảnh báo khi khởi động và app vẫn chạy.
-- **SC-007**: p95 latency và throughput của `POST /auth/login` và `POST /auth/refresh` không tệ hơn Directus quá 10% với
-  cùng tải và cùng cấu hình (Nguyên tắc X).
+- **SC-007**: Với dữ liệu quy mô thiết kế (2.000 user `active`, mỗi user có một session còn hạn) và tải 2.000 kết nối
+  đồng thời, p95 latency và throughput của `POST /auth/login`, `POST /auth/refresh` và một request mang access token
+  (đo chi phí bước xác thực) không tệ hơn Directus quá 10% với cùng dữ liệu và cùng cấu hình (Nguyên tắc X). Benchmark
+  này chặn CI.
 - **SC-008**: Người dùng đi hết luồng SSO của mỗi driver (OpenID, OAuth2, LDAP) ở app mới với IdP hoặc LDAP thử nghiệm,
   rồi refresh và dùng phiên đó ở Directus, và ngược lại: 100% kịch bản của User Story 7 đạt.
