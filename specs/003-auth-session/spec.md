@@ -321,7 +321,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 4. **Given** `AUTH_LDAP_DRIVER=ldap` với `CLIENT_URL`, `BIND_DN`, `BIND_PASSWORD`, `USER_DN`, **When** gọi
    `POST /auth/login/ldap` với `identifier` và `password` đúng (và `mode`, `otp` như đăng nhập thường), **Then** user
    được tìm theo DN trong `external_identifier`, được tạo hoặc cập nhật (role theo nhóm ở `GROUP_DN` khớp tên role, thông
-   tin theo `SYNC_USER_INFO`) giống Directus, và response giống `/auth/login`. Sai mật khẩu, không thấy user, hoặc tài
+   tin theo `SYNC_USER_INFO`) giống Directus, và response giống router LDAP của Directus (khác `/auth/login` ở chế độ
+   `session`: body có cả `access_token`). Sai mật khẩu, không thấy user, hoặc tài
    khoản bị khóa trên LDAP (`userAccountControl`) trả `401 INVALID_CREDENTIALS`.
 5. **Given** user chưa có và `ALLOW_PUBLIC_REGISTRATION` tắt, hoặc (OpenID) `REQUIRE_VERIFIED_EMAIL` bật mà email chưa
    xác minh, **When** callback, **Then** đăng nhập bị từ chối giống Directus (chuyển hướng tới `redirect` kèm `reason`,
@@ -406,7 +407,7 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 
 **Access token**
 
-- **FR-010**: Access token PHẢI là JWT ký bằng `SECRET` với cùng thuật toán, issuer `directus`, thời hạn
+- **FR-010**: Access token PHẢI là JWT ký bằng `SECRET` với cùng thuật toán (HS256, mặc định của `jsonwebtoken`), issuer `directus`, thời hạn
   `ACCESS_TOKEN_TTL` (hoặc `SESSION_COOKIE_TTL` ở chế độ `session`), và đúng các claim của Directus: `id`, `role`,
   `app_access`, `admin_access`, `enforce_tfa` (chỉ khi user chưa bật TFA và một policy gắn với role của user có
   `enforce_tfa: true`, đúng truy vấn của Directus), `session` (chế độ `session`), `share` (session của share). `app_access`
@@ -430,6 +431,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - **FR-022**: Logout PHẢI tìm session nối với user (session của share không bị xóa, giống Directus), gọi bước logout
   của provider, ghi activity `logout`, xóa dòng session, xóa cookie refresh và cookie session mà request có gửi, và
   trả response giống Directus.
+- **FR-024**: Mọi chỗ Directus xóa cookie (logout, bước `authenticate`, callback SSO) PHẢI cho header `Set-Cookie`
+  giống `res.clearCookie` của Express 4.21.2 mà Directus dùng: cookie rỗng, `Path=/`, và khi xóa bằng tùy chọn của
+  cookie refresh hoặc session thì vẫn giữ `Max-Age` bằng TTL và `Expires` ở tương lai (thêm khi xử lý checklist).
 - **FR-023**: Logout của user thuộc provider không được đăng ký ở app mới (gồm `saml`, FR-070) PHẢI trả lỗi như Directus
   khi provider không được cấu hình (FR-078).
 
@@ -449,6 +453,10 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   001) tới feature 004. Feature 004 áp dụng bước `authenticate` cho mọi route và gỡ D-10.
 - **FR-033**: Bước `authenticate` của feature này PHẢI là cùng một bước mà feature 004 sẽ áp dụng cho mọi route (cùng
   vị trí trong pipeline của Directus), không phải một cách kiểm token riêng cho route TFA.
+- **FR-034**: `OPTIONS` tới route của feature này PHẢI trả `200`, header `Allow` và body như router Express của
+  Directus (`/auth` → `GET,HEAD`; route chỉ `POST` → `POST`; bắt đầu SSO → `GET,HEAD`; callback SSO →
+  `POST,GET,HEAD`). `HEAD` tới route `GET` chạy như `GET` không có body. Path không có route trả `404`, giống Directus
+  (thêm khi xử lý checklist).
 
 **Trạng thái user, thời gian chờ và giới hạn đăng nhập sai**
 
@@ -461,7 +469,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   chung. Hết lượt thì chuyển user sang `suspended`, ghi activity `update` và revision với delta `{status: "suspended"}`,
   đặt bộ đếm về 0. Lỗi rate limiter khác PHẢI trả `503 SERVICE_UNAVAILABLE` (`Rate limiter unreachable`). Với
   `RATE_LIMITER_STORE=memory`, mỗi process đếm riêng như Directus; cảnh báo "chỉ an toàn khi chạy một instance" của
-  feature 001 áp dụng cả khi `RATE_LIMITER_ENABLED=false` (chỉnh khi lập plan: bộ đếm này luôn chạy).
+  feature 001 áp dụng cả khi `RATE_LIMITER_ENABLED=false` (chỉnh khi lập plan: bộ đếm này luôn chạy). Rate limiter
+  theo IP và rate limiter toàn cục của 001 (khi bật) áp dụng cho mọi route của feature này, trước bộ đếm theo user,
+  giống Directus.
 - **FR-042**: User `invited`, `draft`, `suspended`, `archived` PHẢI không đăng nhập được, không refresh được, và không
   dùng được static token, giống Directus.
 
@@ -520,7 +530,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `external_identifier`; tạo user (khi được đăng ký công khai và email đạt yêu cầu) hoặc cập nhật `auth_data`, role,
   thông tin user với cùng payload như Directus; rồi đi qua luồng đăng nhập chung (FR-002 đến FR-005, FR-041, FR-053);
   `invalid_grant` khi chưa `prompt` thì chuyển hướng lại với `prompt=true`; lỗi khác chuyển về `redirect` kèm `reason`;
-  `enforce_tfa` thì chuyển tới `/admin/tfa-setup`; trả phiên theo `MODE` (mặc định `session`).
+  `enforce_tfa` thì chuyển tới `/admin/tfa-setup`; trả phiên theo `MODE` (mặc định `session`). Như Directus, khi
+  `SYNC_USER_INFO` bật thì mỗi lần đăng nhập SSO xóa mọi session cũ của user (vì payload có `email`), và khi payload có
+  `role` thì xóa cache hệ thống (`clearSystemCache`) ở mỗi lần đăng nhập (contracts/db-writes.md §7).
 - **FR-074**: Khi đăng nhập lại hoặc refresh user OpenID hoặc OAuth2 có `auth_data.refreshToken`, app mới PHẢI làm mới
   token với IdP và lưu refresh token mới vào `auth_data` như Directus; `invalid_grant` trả `403 INVALID_TOKEN`.
 - **FR-075**: `GET /auth` PHẢI trả `data` (danh sách `name`, `label`, `driver`, `icon`, lọc `sessionOnly` như
@@ -542,6 +554,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   provider không có trong `AUTH_PROVIDERS`) PHẢI trả `503 INVALID_PROVIDER_CONFIG` và log `error`
   `Auth provider not configured`, giống Directus khi provider đó không được cấu hình (Nguyên tắc XI: hành vi như
   Directus khi tính năng tắt). Session không bị xóa, như Directus.
+- **FR-079**: Tên provider trong path `/auth/login/<provider>` PHẢI so không phân biệt hoa thường, chọn provider đầu
+  tiên khớp theo thứ tự `AUTH_PROVIDERS`, như router Express của Directus (thêm khi xử lý checklist).
 
 **Dữ liệu ghi vào DB**
 
@@ -666,12 +680,16 @@ Khác biệt mới:
   bị khóa khi chỉ chạy Directus.
 - **SC-005**: Với mỗi luồng ghi DB (đăng nhập, refresh ba chế độ, logout, khóa user, đặt lại mật khẩu, SSO), các
   dòng app mới ghi giống 100% dòng Directus ghi cho cùng request, trừ giá trị sinh ngẫu nhiên (id, token, thời điểm,
-  salt của hash).
+  salt của hash). Đạt trên Postgres, MySQL, SQLite ở mỗi lần push. `data`, `delta` của revision so sau khi parse JSON,
+  không so thứ tự key.
 - **SC-006**: Đội vận hành dùng nguyên file `.env` của Directus: không thêm hoặc đổi dòng cấu hình nào; mỗi provider bị
-  bỏ qua cho đúng 1 dòng cảnh báo khi khởi động và app vẫn chạy.
+  bỏ qua cho đúng 1 dòng cảnh báo provider khi khởi động và app vẫn chạy. Biến chỉ SAML dùng (`AUTH_<P>_IDP*`,
+  `AUTH_<P>_SP*`) vẫn được liệt kê trong dòng "biến chưa hỗ trợ" chung của 001; dòng đó không tính là cảnh báo provider.
 - **SC-007**: Với dữ liệu quy mô thiết kế (2.000 user `active`, mỗi user có một session còn hạn) và tải 2.000 kết nối
-  đồng thời, p95 latency và throughput của `POST /auth/login`, `POST /auth/refresh` và một request mang access token
-  (đo chi phí bước xác thực) không tệ hơn Directus quá 10% với cùng dữ liệu và cùng cấu hình (Nguyên tắc X). Benchmark
-  này chặn CI.
+  đồng thời, p95 latency và throughput của `POST /auth/login`, `POST /auth/refresh` (chế độ `json`) và một request
+  mang access token không tệ hơn Directus quá 10% với cùng dữ liệu và cùng cấu hình (Nguyên tắc X). Request mang token
+  là `POST /users/me/tfa/generate` của user provider khác `default` (trả `200`, không ghi DB), vì đây là route duy nhất
+  cần đăng nhập ở feature này. Mọi response khác `2xx` và mọi request quá 120 giây tính là lỗi; một vòng có lỗi thì vòng
+  đó không đạt. Benchmark này chặn CI.
 - **SC-008**: Người dùng đi hết luồng SSO của mỗi driver (OpenID, OAuth2, LDAP) ở app mới với IdP hoặc LDAP thử nghiệm,
   rồi refresh và dùng phiên đó ở Directus, và ngược lại: 100% kịch bản của User Story 7 đạt.

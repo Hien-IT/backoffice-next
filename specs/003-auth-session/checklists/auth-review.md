@@ -8,14 +8,14 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
 
 ## Bảo mật
 
-- [ ] CHK001 - FR-010 ghi "cùng thuật toán" mà không nêu tên thuật toán ký JWT. Spec có cần nêu thẳng (HS256), để
+- [x] CHK001 - FR-010 ghi "cùng thuật toán" mà không nêu tên thuật toán ký JWT. Spec có cần nêu thẳng (HS256), để
   reviewer kiểm được mà không phải đọc code Directus? [Clarity, Spec §FR-010]
-- [ ] CHK002 - FR-062 cho phép ghi email người nhận vào log. Spec có nêu rõ việc này chấp nhận được về dữ liệu cá nhân
+- [x] CHK002 - FR-062 cho phép ghi email người nhận vào log. Spec có nêu rõ việc này chấp nhận được về dữ liệu cá nhân
   (email là PII), hay cần che một phần email? [Ambiguity, Spec §FR-062]
 - [ ] CHK003 - Việc che `authorization`, `cookie`, `set-cookie`, `access_token` trong log chỉ ghi ở
   contracts/startup-logs.md. Spec có cần một yêu cầu riêng, để token không bao giờ xuất hiện trong log của các luồng
   mới? [Gap, Spec §FR-062]
-- [ ] CHK004 - Rate limiter theo IP của 001 có áp dụng cho `/auth/login`, `/auth/refresh`, `/auth/password/*` không?
+- [x] CHK004 - Rate limiter theo IP của 001 có áp dụng cho `/auth/login`, `/auth/refresh`, `/auth/password/*` không?
   Quan hệ giữa nó và bộ đếm theo user (FR-041) có được ghi rõ không? [Gap, Spec §FR-041]
 - [ ] CHK005 - Mọi nhánh phải chờ `LOGIN_STALL_TIME` và mọi nhánh không chờ đã được liệt kê đủ, ở cả `/auth/login` của
   LDAP (không chờ khi lỗi payload) lẫn `/auth/refresh`? [Completeness, Spec §FR-040, contracts/auth-api.md §2.1]
@@ -36,14 +36,14 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
 
 ## Tương thích Directus
 
-- [ ] CHK013 - Header `Set-Cookie` khi xóa cookie (cookie rỗng còn `Max-Age`, như Express 4.21.2) chỉ có ở plan và
+- [x] CHK013 - Header `Set-Cookie` khi xóa cookie (cookie rỗng còn `Max-Age`, như Express 4.21.2) chỉ có ở plan và
   contracts. Spec có cần một yêu cầu thẳng cho chi tiết này, vì SC-001 so thuộc tính `Set-Cookie`? [Gap, Spec §FR-022,
   §SC-001]
-- [ ] CHK014 - Hành vi `OPTIONS` và `HEAD` của các route mới (header `Allow`) chỉ có ở contracts/auth-api.md §6. Spec
+- [x] CHK014 - Hành vi `OPTIONS` và `HEAD` của các route mới (header `Allow`) chỉ có ở contracts/auth-api.md §6. Spec
   có cần yêu cầu tương ứng như FR-048 của 001? [Gap]
-- [ ] CHK015 - Việc so tên provider không phân biệt hoa thường trong `/auth/login/<provider>` có được nêu ở spec?
+- [x] CHK015 - Việc so tên provider không phân biệt hoa thường trong `/auth/login/<provider>` có được nêu ở spec?
   [Gap, Spec §FR-001, §FR-072]
-- [ ] CHK016 - Body của `/auth/login` chế độ `session` khác nhau giữa driver `local` (chỉ `expires`) và `ldap` (có
+- [x] CHK016 - Body của `/auth/login` chế độ `session` khác nhau giữa driver `local` (chỉ `expires`) và `ldap` (có
   `access_token`). Spec có nêu khác biệt này, hay chỉ ghi "response giống `/auth/login`"? [Consistency, Spec §US7.4,
   contracts/auth-api.md §3]
 - [ ] CHK017 - Danh sách mã lỗi và status của mọi endpoint mới có đủ ở một nơi, và spec với contracts/auth-api.md §2.1
@@ -63,13 +63,13 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
 
 ## Dữ liệu DB
 
-- [ ] CHK024 - SC-005 không nêu vendor nào phải đạt, trong khi plan ghi Postgres, MySQL, SQLite. Spec có cần nêu thẳng
+- [x] CHK024 - SC-005 không nêu vendor nào phải đạt, trong khi plan ghi Postgres, MySQL, SQLite. Spec có cần nêu thẳng
   danh sách vendor? [Clarity, Spec §SC-005]
-- [ ] CHK025 - Cách so `data` và `delta` của revision (parse JSON, không so thứ tự key) có được nêu ở spec, hay chỉ ở
+- [x] CHK025 - Cách so `data` và `delta` của revision (parse JSON, không so thứ tự key) có được nêu ở spec, hay chỉ ở
   research R6? [Clarity, Spec §SC-005]
-- [ ] CHK026 - Việc SSO có `SYNC_USER_INFO` xóa mọi session của user ở mỗi lần đăng nhập (giống Directus) có được nêu ở
+- [x] CHK026 - Việc SSO có `SYNC_USER_INFO` xóa mọi session của user ở mỗi lần đăng nhập (giống Directus) có được nêu ở
   spec? [Gap, Spec §FR-073, contracts/db-writes.md §7]
-- [ ] CHK027 - Việc SSO đổi `role` gọi xóa cache hệ thống ở mỗi lần đăng nhập có được nêu, kèm ảnh hưởng hiệu năng?
+- [x] CHK027 - Việc SSO đổi `role` gọi xóa cache hệ thống ở mỗi lần đăng nhập có được nêu, kèm ảnh hưởng hiệu năng?
   [Gap, Spec §FR-073]
 - [ ] CHK028 - Spec có định nghĩa hành vi khi một bước ghi lỗi giữa chừng (ví dụ đã thêm session nhưng ghi activity
   lỗi), và nói rõ là giống Directus, không rollback? [Gap, Recovery]
@@ -84,16 +84,16 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
 
 ## Vận hành
 
-- [ ] CHK033 - SC-006 ghi "đúng 1 dòng cảnh báo cho mỗi provider bị bỏ qua", trong khi biến `AUTH_<P>_IDP*`,
+- [x] CHK033 - SC-006 ghi "đúng 1 dòng cảnh báo cho mỗi provider bị bỏ qua", trong khi biến `AUTH_<P>_IDP*`,
   `AUTH_<P>_SP*` còn nằm trong dòng "biến chưa hỗ trợ" chung. Hai yêu cầu này có mâu thuẫn không? [Conflict, Spec
   §SC-006, contracts/config.md §2]
 - [ ] CHK034 - Hướng dẫn vận hành cho hệ thống có user SAML (định tuyến `/auth/*` của họ về Directus) có được ghi thành
   yêu cầu tài liệu, hay chỉ nằm trong bảng D-24? [Gap, Spec §FR-078]
 - [ ] CHK035 - Hành vi khi IdP OpenID không truy cập được lúc khởi động ở nhiều replica cùng lúc (process thoát, có thể
   khởi động lại liên tục) có được ghi là rủi ro vận hành đã chấp nhận? [Edge Case, Spec §Edge Cases]
-- [ ] CHK036 - SC-007 nói "một request mang access token" nhưng spec không nêu endpoint nào (plan chọn
+- [x] CHK036 - SC-007 nói "một request mang access token" nhưng spec không nêu endpoint nào (plan chọn
   `POST /users/me/tfa/generate`). Endpoint đo có cần ghi vào spec? [Clarity, Spec §SC-007]
-- [ ] CHK037 - SC-007 có nêu cách xử lý request còn dở hoặc timeout ở 2.000 kết nối (tính là lỗi hay không), để cổng
+- [x] CHK037 - SC-007 có nêu cách xử lý request còn dở hoặc timeout ở 2.000 kết nối (tính là lỗi hay không), để cổng
   benchmark đo được khách quan? [Measurability, Spec §SC-007]
 - [ ] CHK038 - Có yêu cầu về thời gian chạy tối đa của CI (parity với profile `sso`, test thời gian chờ, job benchmark
   mới) không? [Gap, Non-Functional]
@@ -108,4 +108,15 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
 ## Notes
 
 - Đánh dấu `[x]` khi mục đạt. Mục không đạt thì sửa spec, plan hoặc contracts, rồi ghi ngắn lý do ở đây.
+- Xử lý ngày 2026-10-10 (sửa spec):
+  - CHK001: FR-010 nêu HS256.
+  - CHK002: đã chốt ở Clarifications (Q log quên mật khẩu = A: ghi email, không ghi token).
+  - CHK004: FR-041 nêu rate limiter IP và toàn cục áp dụng cho route auth.
+  - CHK013: thêm FR-024. CHK014: thêm FR-034. CHK015: thêm FR-079.
+  - CHK016: US7.4 nêu body chế độ `session` của LDAP.
+  - CHK024, CHK025: SC-005 nêu vendor và cách so JSON.
+  - CHK026, CHK027: FR-073 nêu việc xóa session và xóa cache hệ thống khi SSO. Chưa định lượng ảnh hưởng hiệu năng.
+  - CHK033: SC-006 tách dòng cảnh báo provider khỏi dòng "biến chưa hỗ trợ".
+  - CHK036, CHK037: SC-007 nêu endpoint đo và cách tính lỗi.
+  - Còn mở: các mục chưa đánh dấu, để reviewer quyết.
 - Mỗi lần chạy `/speckit.checklist` tạo một file mới; file này không thay `requirements.md`.
