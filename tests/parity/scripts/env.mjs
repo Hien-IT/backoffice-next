@@ -16,7 +16,7 @@ const { values } = parseArgs({
 });
 
 // `down` enables every profile, otherwise the containers of the profile pairs would keep running.
-const ALL_PROFILES = ['ratelimit', 'cors-hsts', 'pressure', 'metrics'];
+const ALL_PROFILES = ['ratelimit', 'cors-hsts', 'pressure', 'metrics', 'multi', 'cache-config'];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [
 	'compose',

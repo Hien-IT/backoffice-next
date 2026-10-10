@@ -1,0 +1,66 @@
+[
+	{
+		"source": "packages/memory/src/cache/index.ts",
+		"dest": "libs/memory/src/cache/index.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/types/class.ts",
+		"dest": "libs/memory/src/cache/types/class.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/types/config.ts",
+		"dest": "libs/memory/src/cache/types/config.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/types/index.ts",
+		"dest": "libs/memory/src/cache/types/index.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/create.test.ts",
+		"dest": "libs/memory/src/cache/lib/create.test.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/create.ts",
+		"dest": "libs/memory/src/cache/lib/create.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/define.test.ts",
+		"dest": "libs/memory/src/cache/lib/define.test.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/define.ts",
+		"dest": "libs/memory/src/cache/lib/define.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/index.ts",
+		"dest": "libs/memory/src/cache/lib/index.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/local.test.ts",
+		"dest": "libs/memory/src/cache/lib/local.test.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/local.ts",
+		"dest": "libs/memory/src/cache/lib/local.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/multi.test.ts",
+		"dest": "libs/memory/src/cache/lib/multi.test.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/multi.ts",
+		"dest": "libs/memory/src/cache/lib/multi.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/redis.test.ts",
+		"dest": "libs/memory/src/cache/lib/redis.test.ts"
+	},
+	{
+		"source": "packages/memory/src/cache/lib/redis.ts",
+		"dest": "libs/memory/src/cache/lib/redis.ts"
+	},
+	{
+		"source": "packages/memory/src/index.ts",
+		"dest": "libs/memory/src/index.ts"
+	}
+]

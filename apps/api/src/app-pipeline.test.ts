@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { type App, createApp } from './app.js';
 import { useLogger } from './logger/index.js';
 import { CREDENTIALS_IGNORED_MESSAGE, resetCredentialsWarning } from './middleware/public-accountability.js';
+import { getSchema } from './schema/get-database-schema.js';
 
 vi.mock('@backoffice/env', async (importOriginal) => {
 	const actual = await importOriginal<typeof env>();
@@ -12,6 +13,11 @@ vi.mock('@backoffice/env', async (importOriginal) => {
 });
 
 const logger = vi.hoisted(() => ({ warn: vi.fn(), debug: vi.fn(), error: vi.fn(), info: vi.fn(), fatal: vi.fn() }));
+
+// The schema step (feature 002) runs on every route but /server/ping and /server/health; no database here.
+vi.mock('./schema/get-database-schema.js', () => ({
+	getSchema: vi.fn(async () => ({ collections: {}, relations: [] })),
+}));
 
 vi.mock('./logger/index.js', () => ({
 	useLogger: () => logger,
@@ -220,4 +226,28 @@ test('rate limiters are mounted before /server/ping', async () => {
 	const res = await (await start({}, { rateLimiters: [limiter] })).get('/server/ping');
 	expect(res.status).toBe(429);
 	expect(limiter).toHaveBeenCalledOnce();
+});
+
+// Feature 002: schema step (contracts/request-pipeline.md, FR-021, FR-022)
+describe('schema step', () => {
+	test.each(['/server/ping', '/server/health', '/SERVER/health/'])('%s does not build the schema', async (path) => {
+		await (await start()).get(path);
+		expect(getSchema).not.toHaveBeenCalled();
+	});
+
+	test.each([
+		['GET', '/server/info'],
+		['GET', '/nope'],
+		['OPTIONS', '/server/info'],
+	])('%s %s gets the schema', async (method, path) => {
+		await (await start())[method.toLowerCase() as 'get' | 'options'](path);
+		expect(getSchema).toHaveBeenCalled();
+	});
+
+	test('a failing schema step → 500 INTERNAL_SERVER_ERROR', async () => {
+		vi.mocked(getSchema).mockRejectedValueOnce(new Error('database down'));
+		const res = await (await start()).get('/nope');
+		expect(res.status).toBe(500);
+		expect(res.body.errors[0].extensions.code).toBe('INTERNAL_SERVER_ERROR');
+	});
 });

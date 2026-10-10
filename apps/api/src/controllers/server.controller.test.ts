@@ -1,10 +1,8 @@
 import { useEnv } from '@backoffice/env';
 import { beforeEach, expect, test, vi } from 'vitest';
-import { getSchema } from '../schema/get-database-schema.js';
 import { ServerController } from './server.controller.js';
 
 vi.mock('@backoffice/env');
-vi.mock('../schema/get-database-schema.js');
 // Only used as DI tokens here; the real modules load the rate limiters (and the logger) at import time.
 vi.mock('../services/server.service.js', () => ({ ServerService: class {} }));
 vi.mock('../services/specifications.service.js', () => ({ SpecificationService: class {} }));
@@ -20,17 +18,15 @@ function res() {
 
 const serverService = { serverInfo: vi.fn(), health: vi.fn() };
 const oas = { generate: vi.fn() };
-const controller = () =>
-	new ServerController(
-		() => serverService as any,
-		() => ({ oas }) as any,
-	);
-const req = { accountability: { role: null }, headers: { host: 'h' }, path: '/server/specs/oas' } as any;
+const serverFactory = vi.fn((_options: unknown) => serverService as any);
+const specificationFactory = vi.fn((_options: unknown) => ({ oas }) as any);
+const controller = () => new ServerController(serverFactory, specificationFactory);
+const schema = { collections: {}, relations: [] };
+const req = { accountability: { role: null }, headers: { host: 'h' }, path: '/server/specs/oas', schema } as any;
 
 beforeEach(() => {
 	vi.clearAllMocks();
 	vi.mocked(useEnv).mockReturnValue({});
-	vi.mocked(getSchema).mockResolvedValue({ collections: {}, relations: [] });
 });
 
 test('GET /server/info → {data}, no-cache', async () => {
@@ -39,6 +35,8 @@ test('GET /server/info → {data}, no-cache', async () => {
 	await controller().info(req, r);
 	expect(r.json).toHaveBeenCalledWith({ data: { project: {} } });
 	expect(r.headers).toEqual({ 'Cache-Control': 'no-cache', Vary: 'Origin, Cache-Control' });
+	// FR-023: the schema of the request (schema middleware), not a fresh one
+	expect(serverFactory).toHaveBeenCalledWith({ accountability: req.accountability, schema });
 });
 
 test('GET /server/health → application/health+json; 503 on error', async () => {
@@ -60,6 +58,7 @@ test('GET /server/specs/oas → generated spec with the Host header; 404 when OP
 	const r = res();
 	await controller().oas(req, r);
 	expect(oas.generate).toHaveBeenCalledWith('h');
+	expect(specificationFactory).toHaveBeenCalledWith({ accountability: req.accountability, schema });
 	expect(r.json).toHaveBeenCalledWith({ openapi: '3.0.1' });
 
 	vi.mocked(useEnv).mockReturnValue({ OPENAPI_ENABLED: false });

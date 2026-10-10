@@ -194,10 +194,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-13',
 		feature: '001',
 		kind: 'http',
-		endpoints: ['GET /server/health', 'GET /metrics'],
+		endpoints: ['GET /server/health'],
 		location: { any: true },
 		when: { directusStatus: 500 },
-		reason: 'Health does not build the schema; differs only with CACHE_SCHEMA=false and the database down.',
+		reason:
+			'Health does not build the schema; differs only with the database down and no schema in memory (CACHE_SCHEMA=false or an empty cache). Other routes build it like Directus since feature 002.',
 	},
 	{
 		id: 'D-14',

@@ -19,6 +19,7 @@
 		"@backoffice/env": "workspace:*",
 		"@backoffice/errors": "workspace:*",
 		"@backoffice/format-title": "workspace:*",
+		"@backoffice/memory": "workspace:*",
 		"@backoffice/pressure": "workspace:*",
 		"@backoffice/schema": "workspace:*",
 		"@backoffice/specs": "workspace:*",

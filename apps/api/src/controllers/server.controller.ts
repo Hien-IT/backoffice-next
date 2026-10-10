@@ -6,7 +6,6 @@ import { Controller, Get, Inject, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { respond } from '../middleware/respond.js';
 import type { ServiceFactory } from '../providers.js';
-import { getSchema } from '../schema/get-database-schema.js';
 import { ServerService } from '../services/server.service.js';
 import { SpecificationService } from '../services/specifications.service.js';
 
@@ -22,10 +21,9 @@ export class ServerController {
 		// Directus only mounts this route when OPENAPI_ENABLED !== false (FR-043).
 		if (useEnv()['OPENAPI_ENABLED'] === false) throw new RouteNotFoundError({ path: req.path });
 
-		// No schema cache before feature 002: a fresh schema per request, like Directus with CACHE_SCHEMA=false (FR-049).
 		const service = this.specificationService({
 			accountability: req.accountability ?? null,
-			schema: await getSchema(),
+			schema: req.schema,
 		});
 
 		res.locals['payload'] = await service.oas.generate(req.headers.host);
@@ -34,7 +32,7 @@ export class ServerController {
 
 	@Get('info')
 	async info(@Req() req: Request, @Res() res: Response): Promise<void> {
-		const service = this.serverService({ accountability: req.accountability ?? null });
+		const service = this.serverService({ accountability: req.accountability ?? null, schema: req.schema });
 
 		const data = await service.serverInfo();
 		res.locals['payload'] = { data };

@@ -51,6 +51,8 @@ catalog:
   keyv: 5.5.3
   '@keyv/redis': 3.0.1
   rate-limiter-flexible: 7.2.0
+  lru-cache: 11.2.2
+  '@sesamecare-oss/redlock': 1.4.0
   pino: 9.7.0
   pino-http: 10.5.0
   pino-http-print: 3.1.0

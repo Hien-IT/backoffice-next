@@ -64,10 +64,10 @@ có cache schema, khóa và bus giống Directus trong một process.
 **Purpose**: Thêm phụ thuộc cùng bản Directus, tạo khung `@backoffice/memory` và hạ tầng test đối chiếu cho nhiều
 instance và namespace riêng.
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` hai phụ thuộc, đúng bản `directus/pnpm-workspace.yaml`:
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` hai phụ thuộc, đúng bản `directus/pnpm-workspace.yaml`:
   `lru-cache: 11.2.2` và `'@sesamecare-oss/redlock': 1.4.0`. Chạy `pnpm install` để cập nhật `pnpm-lock.yaml`. Chạy
   `pnpm audit --prod --audit-level=high`; nếu có cảnh báo mới, ghi lại và báo trước khi đi tiếp (Nguyên tắc X).
-- [ ] T002 Tạo khung `libs/memory` theo mẫu `libs/pressure`:
+- [X] T002 Tạo khung `libs/memory` theo mẫu `libs/pressure`:
   - `package.json`: `@backoffice/memory`, ESM, `exports` gồm `"."` và `"./package.json"`; dependencies
     `@backoffice/utils: workspace:*`, `ioredis`, `lru-cache`, `@sesamecare-oss/redlock` (đều `catalog:`).
   - `tsconfig.json`, `tsconfig.lib.json`, `vitest.config.ts` (`createVitestConfig({ coverageThreshold: 80 })`).
@@ -75,7 +75,7 @@ instance và namespace riêng.
 
   Thêm `"@backoffice/memory": "workspace:*"` vào dependencies của `apps/api/package.json`. Kiểm:
   `pnpm nx show projects` có `@backoffice/memory`, và `node tools/check-package-names.mjs` pass. (sau T001)
-- [ ] T003 [P] Hạ tầng compose của test đối chiếu.
+- [X] T003 [P] Hạ tầng compose của test đối chiếu.
   - `tests/parity/docker-compose.yml`:
     - Thêm service `backoffice-api-2`: profile `multi`, cấu hình như `backoffice-api`, cổng `8157:8055`.
     - Thêm cặp `directus-cache-config` và `backoffice-api-cache-config`: profile `cache-config`, cổng `8755` và
@@ -91,7 +91,7 @@ instance và namespace riêng.
     `cache-config` như các cặp có sẵn.
   - `.github/workflows/ci.yml`: dòng `postgres` của matrix `parity` có `profiles:
     'ratelimit,cors-hsts,pressure,metrics,multi,cache-config'`.
-- [ ] T004 [P] Helper Redis cho test đối chiếu: `tests/parity/src/redis.ts`. Thêm `ioredis` (`catalog:`) vào
+- [X] T004 [P] Helper Redis cho test đối chiếu: `tests/parity/src/redis.ts`. Thêm `ioredis` (`catalog:`) vào
   `tests/parity/package.json`. Helper gồm:
   - `redis()`: client tới Redis của môi trường (cổng host `6108` như `docker-compose.yml`).
   - `decodeMessage(buf)`: gunzip khi độ dài ≥ 19 và 3 byte đầu là `1f 8b 08`, rồi `JSON.parse` (contracts/redis.md
@@ -121,39 +121,39 @@ chung.
 **Điều kiện** (đã đạt 2026-10-10): constitution 1.2.0 (Nguyên tắc VII cho phép cache trong process được xóa qua
 bus Redis) và dòng Complexity Tracking của `plan.md` đã được tech lead duyệt, và nằm trên `main`.
 
-- [ ] T005 [P] Port `directus/packages/utils/shared/get-simple-hash.ts` và test của nó sang
+- [X] T005 [P] Port `directus/packages/utils/shared/get-simple-hash.ts` và test của nó sang
   `libs/utils/src/shared/get-simple-hash.ts` (+ `.test.ts`). Export từ `libs/utils/src/shared/index.ts`. Ghi manifest.
-- [ ] T006 [P] Port `directus/packages/utils/node/process-id.ts` và test sang `libs/utils/src/node/process-id.ts`
+- [X] T006 [P] Port `directus/packages/utils/node/process-id.ts` và test sang `libs/utils/src/node/process-id.ts`
   (+ `.test.ts`). Export từ `libs/utils/src/node/index.ts`. Ghi manifest.
-- [ ] T007 Port `directus/packages/memory/src/utils/**` (8 file và 8 file test) sang `libs/memory/src/utils/**`.
+- [X] T007 Port `directus/packages/memory/src/utils/**` (8 file và 8 file test) sang `libs/memory/src/utils/**`.
   `parseJSON` lấy từ `@backoffice/utils`. Ghi manifest. (sau T002)
-- [ ] T008 [P] Port `directus/packages/memory/src/bus/**` (kèm test) sang `libs/memory/src/bus/**`. Thêm
+- [X] T008 [P] Port `directus/packages/memory/src/bus/**` (kèm test) sang `libs/memory/src/bus/**`. Thêm
   `disconnect(): Promise<void>` vào interface `Bus` (`types/class.ts`):
   - `BusRedis`: gọi `quit()` trên kết nối `sub`;
   - `BusLocal`: không làm gì.
 
   Comment `// Backoffice: close the subscriber connection on shutdown (Principle VII, research R6)`. Thêm test cho
   `disconnect()`. Ghi manifest. (sau T007)
-- [ ] T009 [P] Port `directus/packages/memory/src/kv/**` (kèm test) sang `libs/memory/src/kv/**`. Ghi manifest.
+- [X] T009 [P] Port `directus/packages/memory/src/kv/**` (kèm test) sang `libs/memory/src/kv/**`. Ghi manifest.
   (sau T007)
-- [ ] T010 Port `directus/packages/memory/src/cache/**` (kèm test) sang `libs/memory/src/cache/**`.
+- [X] T010 Port `directus/packages/memory/src/cache/**` (kèm test) sang `libs/memory/src/cache/**`.
   - Thêm `disconnect()` vào `CacheMulti` (gọi `this.bus.disconnect()`), có comment `Backoffice:` và test.
   - `libs/memory/src/index.ts` export `bus`, `cache`, `kv`. Không có `limiter` (research R1).
   - Ghi manifest. Chạy `pnpm nx run @backoffice/memory:test` (coverage ≥ 80%).
   - (sau T006, T008, T009)
-- [ ] T011 [P] Port `directus/api/src/bus/index.ts`, `lib/use-bus.ts`, `lib/use-bus.test.ts` sang `apps/api/src/bus/**`.
+- [X] T011 [P] Port `directus/api/src/bus/index.ts`, `lib/use-bus.ts`, `lib/use-bus.test.ts` sang `apps/api/src/bus/**`.
   Khi tạo bus Redis, đăng ký `onServerShutdown(() => bus.disconnect())` (`apps/api/src/shutdown.ts`); thêm ca test
   cho việc đăng ký. Ghi manifest. (sau T010)
-- [ ] T012 [P] Port `directus/api/src/lock/index.ts`, `lib/use-lock.ts`, `lib/use-lock.test.ts` sang
+- [X] T012 [P] Port `directus/api/src/lock/index.ts`, `lib/use-lock.ts`, `lib/use-lock.test.ts` sang
   `apps/api/src/lock/**`. Ghi manifest. (sau T010)
-- [ ] T013 [P] Port `directus/api/src/utils/freeze-schema.ts` và test sang `apps/api/src/utils/freeze-schema.ts`
+- [X] T013 [P] Port `directus/api/src/utils/freeze-schema.ts` và test sang `apps/api/src/utils/freeze-schema.ts`
   (+ `.test.ts`). Ghi manifest.
-- [ ] T014 [P] Thêm 10 biến của `contracts/config.md` vào `apps/api/src/config/supported-variables.ts`. Sửa test của
+- [X] T014 [P] Thêm 10 biến của `contracts/config.md` vào `apps/api/src/config/supported-variables.ts`. Sửa test của
   danh sách này để kiểm:
   - 10 biến đó không còn bị cảnh báo;
   - 5 biến cache response (`CACHE_AUTO_PURGE_IGNORE_LIST`, `CACHE_CONTROL_S_MAXAGE`, `CACHE_STATUS_HEADER`,
     `CACHE_VALUE_MAX_SIZE`, `CACHE_SKIP_ALLOWED`) vẫn bị cảnh báo.
-- [ ] T015 Mở rộng `apps/api/src/cache.ts` theo `directus/api/src/cache.ts` (research R3).
+- [X] T015 Mở rộng `apps/api/src/cache.ts` theo `directus/api/src/cache.ts` (research R3).
   - `getCache()` trả đủ 5 instance của contracts/redis.md §5 (`cache`, `systemCache`, `deploymentCache`,
     `localSchemaCache`, `lockCache`), cùng namespace và TTL. Log lỗi với tiền tố `[cache]`, `[system-cache]`,
     `[deployment-cache]`, `[schema-cache]`, `[lock-cache]`. Đăng ký `onServerShutdown` disconnect cho mỗi instance
@@ -170,7 +170,7 @@ bus Redis) và dòng Complexity Tracking của `plan.md` đã được tech lead
     - freeze bật: trả cùng object đã đóng băng;
     - freeze tắt: trả bản sao khác tham chiếu, sửa được.
   - (sau T013)
-- [ ] T016 Port `getSchema` đầy đủ (`directus/api/src/utils/get-schema.ts:22-114`) vào
+- [X] T016 Port `getSchema` đầy đủ (`directus/api/src/utils/get-schema.ts:22-114`) vào
   `apps/api/src/schema/get-database-schema.ts`, thay `getSchema` rút gọn của 001.
   - Gồm: `database`, `bypassCache`, `attempt`, `MAX_ATTEMPTS = 3`; khóa `schemaCache--preparing` qua `useLock()`;
     message `schemaCache--done` qua `useBus()`; `CACHE_SCHEMA_MAX_ITERATIONS`, `CACHE_SCHEMA_SYNC_TIMEOUT`; log
@@ -188,7 +188,7 @@ bus Redis) và dòng Complexity Tracking của `plan.md` đã được tech lead
     - lượt ≥ `CACHE_SCHEMA_MAX_ITERATIONS` thì xóa khóa;
     - dựng lỗi thì vẫn phát `{schema:null}` và xóa khóa.
   - (sau T011, T012, T015)
-- [ ] T017 Bước `schema` và `cache` trong pipeline (contracts/request-pipeline.md).
+- [X] T017 Bước `schema` và `cache` trong pipeline (contracts/request-pipeline.md).
   - Port `directus/api/src/middleware/schema.ts` sang `apps/api/src/middleware/schema.ts`. Thêm điều kiện bỏ qua
     `/server/health` với mọi phương thức, khớp không phân biệt hoa thường và cho phép một `/` cuối (D-13, FR-022).
   - Port `directus/api/src/middleware/cache.ts` sang `apps/api/src/middleware/cache.ts`. Chỉ giữ `getCache()` rồi
@@ -200,22 +200,22 @@ bus Redis) và dòng Complexity Tracking của `plan.md` đã được tech lead
     - `/server/info`, `/metrics`, path lạ, `OPTIONS /server/info` có gọi;
     - lỗi của `getSchema` trả `500 INTERNAL_SERVER_ERROR`.
   - Ghi manifest. (sau T016)
-- [ ] T018 Dùng `req.schema` thay cho `getSchema()` (FR-023):
+- [X] T018 Dùng `req.schema` thay cho `getSchema()` (FR-023):
   - `apps/api/src/controllers/server.controller.ts`: OAS dùng `schema: req.schema`; info truyền schema cho
     `ServerService`.
   - `apps/api/src/services/server.service.ts`, `apps/api/src/services/settings.service.ts`: nhận schema qua options,
     bỏ lời gọi `getSchema()` trong `defaults()`.
   - Sửa `server.controller.test.ts`, `settings.service.test.ts` và test của `server.service.ts`.
   - (sau T017)
-- [ ] T019 Giữ CI xanh khi bước `schema` đã chạy ở mọi route:
+- [X] T019 Giữ CI xanh khi bước `schema` đã chạy ở mọi route:
   - `tests/parity/accepted-differences.ts`: D-13 chỉ còn `endpoints: ['GET /server/health']`, sửa `reason`.
   - `tests/parity/src/server/health.test.ts`, ca "database down": giữ phần so `/server/health` (vẫn thuộc D-13).
     Thêm vào cùng ca: trước khi tắt DB, `PUBLISH directus:bus:schemaChanged {}` để cache trống (dùng `redis()` của
     `src/redis.ts`, T004). Khi DB tắt, so `GET /server/info` và `GET /parity-unknown-path`: cả hai app trả
     `500 INTERNAL_SERVER_ERROR` (FR-021, D-13 thu hẹp, US3.2). Timeout dùng như ca health có sẵn. Không test nào
     khác so `/metrics` hay path lạ khi DB tắt.
-  - `tests/parity/src/redis-down.test.ts`: gọi `GET /server/info` ở cả hai app trước khi tắt Redis, để các ca có sẵn
-    chạy với cache schema đã ấm.
+  - Redis tắt: không cần sửa. Các ca Redis tắt có sẵn (`redis-down.test.ts`, `server/errors.test.ts`,
+    `server/health.test.ts`) chỉ gọi `/server/ping` và `/server/health`, không đi qua bước `schema` (ghi khi làm).
   - Chạy `pnpm nx run parity-tests:parity --vendor=postgres` (bộ full) và `node tools/check-port-headers.mjs`. Commit
     phase 2 chỉ sau khi cả hai đạt.
   - (sau T018)

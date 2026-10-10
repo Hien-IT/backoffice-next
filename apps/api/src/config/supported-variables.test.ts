@@ -66,3 +66,30 @@ test('isNotApplicable', () => {
 	expect(isNotApplicable('ADMIN_EMAIL')).toBe(true);
 	expect(isNotApplicable('PORT')).toBe(false);
 });
+
+// Feature 002 (specs/002 contracts/config.md): schema, system, lock and permissions cache variables are supported;
+// the response cache variables stay unsupported until feature 005.
+test.each([
+	'CACHE_SCHEMA',
+	'CACHE_SCHEMA_MAX_ITERATIONS',
+	'CACHE_SCHEMA_SYNC_TIMEOUT',
+	'CACHE_SCHEMA_FREEZE_ENABLED',
+	'CACHE_SYSTEM_TTL',
+	'CACHE_DEPLOYMENT_TTL',
+	'CACHE_AUTO_PURGE',
+	'REDIS_BUS_NAMESPACE',
+	'REDIS_LOCK_NAMESPACE',
+	'REDIS_PERMISSIONS_NAMESPACE',
+])('%s is supported', (name) => {
+	expect(isSupported(name)).toBe(true);
+});
+
+test.each([
+	'CACHE_AUTO_PURGE_IGNORE_LIST',
+	'CACHE_CONTROL_S_MAXAGE',
+	'CACHE_STATUS_HEADER',
+	'CACHE_VALUE_MAX_SIZE',
+	'CACHE_SKIP_ALLOWED',
+])('%s is still unsupported', (name) => {
+	expect(isSupported(name)).toBe(false);
+});

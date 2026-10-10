@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/lock/index.ts",
+		"dest": "apps/api/src/lock/index.ts"
+	},
+	{
+		"source": "api/src/lock/lib/use-lock.test.ts",
+		"dest": "apps/api/src/lock/lib/use-lock.test.ts"
+	},
+	{
+		"source": "api/src/lock/lib/use-lock.ts",
+		"dest": "apps/api/src/lock/lib/use-lock.ts"
+	}
+]

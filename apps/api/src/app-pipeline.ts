@@ -1,5 +1,5 @@
 // Ported from directus/api/src/app.ts (the Express middleware chain, in the same order; research R5).
-// Not ported here: authenticate (003), schema (002), sanitizeQuery and cache (005), requestCounter (telemetry),
+// Not ported here: authenticate (003), sanitizeQuery and the response cache (005), requestCounter (telemetry),
 // extensions, WebSocket, AI/MCP, deployment webhooks and SERVE_APP (D-08, D-17).
 import { useEnv } from '@backoffice/env';
 import { ServiceUnavailableError } from '@backoffice/errors';
@@ -10,11 +10,13 @@ import { contentSecurityPolicy, crossOriginOpenerPolicy, hsts } from 'helmet';
 import { merge } from 'lodash-es';
 import qs from 'qs';
 import { createExpressLogger } from './logger/index.js';
+import checkCacheMiddleware from './middleware/cache.js';
 import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
 import { createJsonBody } from './middleware/json-body.js';
 import publicAccountability from './middleware/public-accountability.js';
 import { createRouterOptions } from './middleware/router-options.js';
+import schema from './middleware/schema.js';
 import rateLimiterGlobal from './middleware/rate-limiter-global.js';
 import rateLimiter from './middleware/rate-limiter-ip.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
@@ -151,6 +153,10 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 	app.get('/server/ping', (_req, res) => res.send('pong'));
 
 	app.use(publicAccountability);
+
+	app.use(schema);
+
+	app.use(checkCacheMiddleware);
 
 	for (const middleware of options.beforeRoutes ?? []) app.use(middleware);
 

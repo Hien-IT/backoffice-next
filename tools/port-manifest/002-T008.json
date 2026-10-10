@@ -1,0 +1,46 @@
+[
+	{
+		"source": "packages/memory/src/bus/index.ts",
+		"dest": "libs/memory/src/bus/index.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/types/class.ts",
+		"dest": "libs/memory/src/bus/types/class.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/types/config.ts",
+		"dest": "libs/memory/src/bus/types/config.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/types/index.ts",
+		"dest": "libs/memory/src/bus/types/index.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/create.test.ts",
+		"dest": "libs/memory/src/bus/lib/create.test.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/create.ts",
+		"dest": "libs/memory/src/bus/lib/create.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/index.ts",
+		"dest": "libs/memory/src/bus/lib/index.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/local.test.ts",
+		"dest": "libs/memory/src/bus/lib/local.test.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/local.ts",
+		"dest": "libs/memory/src/bus/lib/local.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/redis.test.ts",
+		"dest": "libs/memory/src/bus/lib/redis.test.ts"
+	},
+	{
+		"source": "packages/memory/src/bus/lib/redis.ts",
+		"dest": "libs/memory/src/bus/lib/redis.ts"
+	}
+]

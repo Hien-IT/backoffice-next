@@ -83,6 +83,10 @@ export const profilePorts = {
 	'cors-hsts': { directus: 8355, backoffice: 8356 },
 	pressure: { directus: 8455, backoffice: 8456 },
 	metrics: { directus: 8555, backoffice: 8556 },
+	'cache-config': { directus: 8755, backoffice: 8756 },
 } as const;
+
+/** Host port of the second Backoffice instance of the main pair (profile `multi`, feature 002). */
+export const secondBackofficePort = 8157;
 
 export type Profile = keyof typeof profilePorts;

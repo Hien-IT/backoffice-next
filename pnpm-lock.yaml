@@ -51,6 +51,9 @@ catalogs:
     '@playwright/test':
       specifier: 1.64.0
       version: 1.64.0
+    '@sesamecare-oss/redlock':
+      specifier: 1.4.0
+      version: 1.4.0
     '@shopify/semaphore':
       specifier: 3.1.0
       version: 3.1.0
@@ -189,6 +192,9 @@ catalogs:
     lodash-es:
       specifier: 4.18.1
       version: 4.18.1
+    lru-cache:
+      specifier: 11.2.2
+      version: 11.2.2
     ms:
       specifier: 2.1.3
       version: 2.1.3
@@ -368,6 +374,9 @@ importers:
       '@backoffice/format-title':
         specifier: workspace:*
         version: link:../../libs/format-title
+      '@backoffice/memory':
+        specifier: workspace:*
+        version: link:../../libs/memory
       '@backoffice/pressure':
         specifier: workspace:*
         version: link:../../libs/pressure
@@ -632,6 +641,21 @@ importers:
 
   libs/format-title: {}
 
+  libs/memory:
+    dependencies:
+      '@backoffice/utils':
+        specifier: workspace:*
+        version: link:../utils
+      '@sesamecare-oss/redlock':
+        specifier: 'catalog:'
+        version: 1.4.0(ioredis@5.8.2)
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.8.2
+      lru-cache:
+        specifier: 'catalog:'
+        version: 11.2.2
+
   libs/pressure:
     dependencies:
       '@backoffice/utils':
@@ -789,6 +813,9 @@ importers:
       get-port:
         specifier: 'catalog:'
         version: 7.1.0
+      ioredis:
+        specifier: 'catalog:'
+        version: 5.8.2
       knex:
         specifier: 'catalog:'
         version: 3.1.0(mysql2@3.22.6(@types/node@22.13.14))(pg@8.16.3)(sqlite3@5.1.7)(tedious@18.6.1)
@@ -2529,6 +2556,12 @@ packages:
     resolution: {integrity: sha512-qTv4bG+eKJKifzxNJevMUh8L6CjJrz9/Kn1IbP2F5bo0tBzNIR7HMg4vni6XmDzcKUl00lHHY+J5ZgjbGiujOQ==}
     cpu: [x64]
     os: [win32]
+
+  '@sesamecare-oss/redlock@1.4.0':
+    resolution: {integrity: sha512-2z589R+yxKLN4CgKxP1oN4dsg6Y548SE4bVYam/R0kHk7Q9VrQ9l66q+k1ehhSLLY4or9hcchuF9/MhuuZdjJg==}
+    engines: {node: '>=16'}
+    peerDependencies:
+      ioredis: '>=5'
 
   '@shopify/semaphore@3.1.0':
     resolution: {integrity: sha512-LxonkiWEu12FbZhuOMhsdocpxCqm7By8C/2U9QgNuEoXUx2iMrlXjJv3p93RwfNC6TrdlNRo17gRer1z1309VQ==}
@@ -4778,6 +4811,10 @@ packages:
 
   lru-cache@10.4.3:
     resolution: {integrity: sha512-JNAzZcXrCt42VGLuYz0zfAzDfAvJWW6AfYlDBQyDV5DClI2m5sAmK+OIO7s59XfsRsWHp02jAJrRadPRGTt6SQ==}
+
+  lru-cache@11.2.2:
+    resolution: {integrity: sha512-F9ODfyqML2coTIsQpSkRHnLSZMtkU8Q+mSfcaIyKwy58u+8k5nvAYeiNhsyMARvzNcXJ9QfWVrcPsC9e9rAxtg==}
+    engines: {node: 20 || >=22}
 
   lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
@@ -8513,6 +8550,10 @@ snapshots:
   '@rollup/rollup-win32-x64-msvc@4.64.3':
     optional: true
 
+  '@sesamecare-oss/redlock@1.4.0(ioredis@5.8.2)':
+    dependencies:
+      ioredis: 5.8.2
+
   '@shopify/semaphore@3.1.0': {}
 
   '@sindresorhus/is@5.6.0': {}
@@ -11049,6 +11090,8 @@ snapshots:
   lowercase-keys@3.0.0: {}
 
   lru-cache@10.4.3: {}
+
+  lru-cache@11.2.2: {}
 
   lru-cache@5.1.1:
     dependencies:

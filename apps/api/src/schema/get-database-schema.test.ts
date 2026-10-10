@@ -1,8 +1,12 @@
 import { useEnv } from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
-import type { Knex } from 'knex';
+import type { SchemaOverview } from '@backoffice/types';
+import knex, { type Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createDirectusDb } from '../../test/directus-db.js';
+import { _cache as busCache, useBus } from '../bus/lib/use-bus.js';
+import { _resetCache } from '../cache.js';
+import { _cache as lockCache, useLock } from '../lock/lib/use-lock.js';
 import { useLogger } from '../logger/index.js';
 import { getDatabaseSchema, getSchema } from './get-database-schema.js';
 
@@ -114,8 +118,115 @@ describe('getDatabaseSchema (SQLite, real queries)', () => {
 		expect(author.meta).toMatchObject({ one_allowed_collections: ['a', 'b'] });
 		expect(relations.some((r) => r.collection === 'directus_users' && r.field === 'role')).toBe(true);
 	});
+});
 
-	test('getSchema() builds a fresh schema from the given database', async () => {
-		expect(Object.keys((await getSchema({ database: db })).collections)).toContain('articles');
+// getSchema with the in-memory cache, lock and bus (contracts/redis.md §2). No Redis in the env: the lock and the
+// bus are the local ones of @backoffice/memory, which follow the same protocol in one process.
+describe('getSchema (cache, lock, bus)', () => {
+	const LOCK = 'schemaCache--preparing';
+	const DONE = 'schemaCache--done';
+	let queries: number;
+	let messages: { schema: SchemaOverview | null }[];
+
+	const env = (extra: Record<string, unknown> = {}) =>
+		vi.mocked(useEnv).mockReturnValue({
+			DB_EXCLUDE_TABLES: ['spatial_ref_sys'],
+			CACHE_SCHEMA: true,
+			CACHE_SCHEMA_MAX_ITERATIONS: 100,
+			CACHE_SCHEMA_SYNC_TIMEOUT: 30,
+			...extra,
+		});
+
+	/** Lets getSchema reach its subscription, then publishes on the bus like another process would. */
+	const publishLater = async (payload: { schema: SchemaOverview | null }) => {
+		await new Promise((r) => setTimeout(r, 5));
+		await useBus().publish(DONE, payload);
+	};
+
+	beforeEach(async () => {
+		_resetCache();
+		busCache.bus = undefined;
+		lockCache.lock = undefined;
+		env();
+		queries = 0;
+		messages = [];
+		db.on('query', () => queries++);
+		await useBus().subscribe(DONE, (m: { schema: SchemaOverview | null }) => messages.push(m));
+	});
+
+	test('process with turn 1 builds the schema, publishes it and deletes the lock', async () => {
+		const schema = await getSchema({ database: db });
+		expect(Object.keys(schema.collections)).toContain('articles');
+		expect(messages).toHaveLength(1);
+		expect(messages[0]!.schema).toBe(schema);
+		expect(await useLock().has(LOCK)).toBe(false);
+	});
+
+	test('the next call uses the in-memory schema without a query', async () => {
+		await getSchema({ database: db });
+		const before = queries;
+		const again = await getSchema({ database: db });
+		expect(queries).toBe(before);
+		expect(Object.keys(again.collections)).toContain('articles');
+		expect(messages).toHaveLength(1);
+	});
+
+	test('CACHE_SCHEMA=false builds on every call and never touches the lock or the bus', async () => {
+		env({ CACHE_SCHEMA: false });
+		const increment = vi.spyOn(useLock(), 'increment');
+		await getSchema({ database: db });
+		const first = queries;
+		await getSchema({ database: db });
+		expect(queries).toBe(first * 2);
+		expect(increment).not.toHaveBeenCalled();
+		expect(messages).toHaveLength(0);
+	});
+
+	test('bypassCache builds even when a schema is cached', async () => {
+		await getSchema({ database: db });
+		const before = queries;
+		await getSchema({ database: db, bypassCache: true });
+		expect(queries).toBeGreaterThan(before);
+	});
+
+	test('turn 2 waits for schemaCache--done and uses the schema another process built', async () => {
+		const other = { collections: {}, relations: [] } as SchemaOverview;
+		await useLock().increment(LOCK);
+		const [schema] = await Promise.all([getSchema({ database: db }), publishLater({ schema: other })]);
+		expect(schema).toEqual(other);
+		expect(queries).toBe(0);
+		expect(logger.trace).toHaveBeenCalledWith('Schema cache is prepared in another process, waiting for result.');
+	});
+
+	test('{schema: null} makes the waiting process retry and build the schema itself', async () => {
+		await useLock().increment(LOCK);
+
+		const pending = getSchema({ database: db });
+		await new Promise((r) => setTimeout(r, 5));
+		await useLock().delete(LOCK);
+		await useBus().publish(DONE, { schema: null });
+
+		expect(Object.keys((await pending).collections)).toContain('articles');
+	});
+
+	test('no message within CACHE_SCHEMA_SYNC_TIMEOUT: retries, then fails after 3 attempts', async () => {
+		await useLock().increment(LOCK);
+		await expect(getSchema({ database: db })).rejects.toThrow('Failed to get Schema information: hit infinite loop');
+		expect(await useLock().get(LOCK)).toBe(4);
+	});
+
+	test('turn >= CACHE_SCHEMA_MAX_ITERATIONS deletes the lock, so the retry builds the schema', async () => {
+		env({ CACHE_SCHEMA_MAX_ITERATIONS: 2 });
+		await useLock().increment(LOCK);
+		const schema = await getSchema({ database: db });
+		expect(Object.keys(schema.collections)).toContain('articles');
+	});
+
+	test('a failed build still publishes {schema: null} and deletes the lock', async () => {
+		const broken = knex({ client: 'sqlite3', connection: { filename: ':memory:' }, useNullAsDefault: true });
+		await broken.destroy();
+		await expect(getSchema({ database: broken })).rejects.toThrow();
+		expect(messages).toEqual([{ schema: null }]);
+		expect(await useLock().has(LOCK)).toBe(false);
 	});
 });

@@ -1,0 +1,4 @@
+[
+	{ "source": "api/src/middleware/schema.ts", "dest": "apps/api/src/middleware/schema.ts" },
+	{ "source": "api/src/middleware/cache.ts", "dest": "apps/api/src/middleware/cache.ts" }
+]

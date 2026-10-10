@@ -1,0 +1,50 @@
+[
+	{
+		"source": "packages/memory/src/kv/index.ts",
+		"dest": "libs/memory/src/kv/index.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/types/class.ts",
+		"dest": "libs/memory/src/kv/types/class.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/types/config.ts",
+		"dest": "libs/memory/src/kv/types/config.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/types/index.ts",
+		"dest": "libs/memory/src/kv/types/index.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/types/lock.ts",
+		"dest": "libs/memory/src/kv/types/lock.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/create.test.ts",
+		"dest": "libs/memory/src/kv/lib/create.test.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/create.ts",
+		"dest": "libs/memory/src/kv/lib/create.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/index.ts",
+		"dest": "libs/memory/src/kv/lib/index.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/local.test.ts",
+		"dest": "libs/memory/src/kv/lib/local.test.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/local.ts",
+		"dest": "libs/memory/src/kv/lib/local.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/redis.test.ts",
+		"dest": "libs/memory/src/kv/lib/redis.test.ts"
+	},
+	{
+		"source": "packages/memory/src/kv/lib/redis.ts",
+		"dest": "libs/memory/src/kv/lib/redis.ts"
+	}
+]

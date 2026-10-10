@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/bus/index.ts",
+		"dest": "apps/api/src/bus/index.ts"
+	},
+	{
+		"source": "api/src/bus/lib/use-bus.test.ts",
+		"dest": "apps/api/src/bus/lib/use-bus.test.ts"
+	},
+	{
+		"source": "api/src/bus/lib/use-bus.ts",
+		"dest": "apps/api/src/bus/lib/use-bus.ts"
+	}
+]

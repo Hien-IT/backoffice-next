@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/utils/freeze-schema.ts",
+		"dest": "apps/api/src/utils/freeze-schema.ts"
+	},
+	{
+		"source": "api/src/utils/freeze-schema.test.ts",
+		"dest": "apps/api/src/utils/freeze-schema.test.ts"
+	}
+]

@@ -1,11 +1,14 @@
 // Ported from directus/tests/blackbox/tests/db/routes/server/health.test.ts (public user only: the admin and
 // logged-in variants wait for features 003/004, D-10; the GraphQL part waits for 011).
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { compose, redisDown, redisUp } from '../docker.js';
 import { assertParity, capture, parity, parityStable } from '../parity.js';
 import { profileUrls } from '../profiles.js';
+import { closeRedis, redis } from '../redis.js';
 
 const suite = process.env['PARITY_SUITE'] ?? 'full';
+
+afterAll(() => closeRedis());
 
 describe('/server', () => {
 	describe('GET /health', () => {
@@ -65,7 +68,11 @@ describe('/server', () => {
 			},
 		);
 
-		it.runIf(suite === 'full')('database down → 503 {"status":"error"} on both', { timeout: 120_000 }, async () => {
+		it.runIf(suite === 'full')('database down → 503 {"status":"error"} on both', { timeout: 240_000 }, async () => {
+			// Feature 002: empty the schema cache of every process first, so the routes after the schema step have to
+			// build it while the database is down (FR-021, US3.2). /server/health skips that step (D-13).
+			await redis().publish('directus:bus:schemaChanged', '{}');
+			await new Promise((r) => setTimeout(r, 200));
 			compose('stop', 'postgres');
 
 			try {
@@ -73,6 +80,14 @@ describe('/server', () => {
 				assertParity(result);
 				expect(result.backoffice.status).toBe(503);
 				expect(result.backoffice.json).toEqual({ status: 'error' });
+
+				// D-13 narrowed by feature 002: every other route builds the schema and fails like Directus.
+				for (const path of ['/server/info', '/parity-unknown-path']) {
+					const other = await parity({ path, timeoutMs: 60_000 });
+					assertParity(other);
+					expect(other.backoffice.status, path).toBe(500);
+					expect((other.backoffice.json as any).errors[0].extensions.code).toBe('INTERNAL_SERVER_ERROR');
+				}
 			} finally {
 				compose('start', 'postgres');
 				await new Promise((r) => setTimeout(r, 5000));

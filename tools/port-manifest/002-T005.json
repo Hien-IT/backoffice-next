@@ -1,0 +1,10 @@
+[
+	{
+		"source": "packages/utils/shared/get-simple-hash.ts",
+		"dest": "libs/utils/src/shared/get-simple-hash.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-simple-hash.test.ts",
+		"dest": "libs/utils/src/shared/get-simple-hash.test.ts"
+	}
+]

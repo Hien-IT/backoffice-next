@@ -4,7 +4,6 @@
 import type { AbstractServiceOptions, SchemaOverview } from '@backoffice/types';
 import type { Knex } from 'knex';
 import getDatabase from '../database/index.js';
-import { getSchema } from '../schema/get-database-schema.js';
 import { castBoolean, castJson } from '../utils/cast-on-read.js';
 
 /** The 16 plain fields of /server/info, in request order; `public_background` (m2o to files) comes last (FR-042). */
@@ -72,7 +71,8 @@ export class SettingsService {
 
 	/** No settings row (only when deleted by hand): the column defaults that are not null, in schema order. */
 	private async defaults(): Promise<Record<string, unknown>> {
-		const schema = this.schema ?? (await getSchema({ database: this.knex }));
+		// The schema of the request (schema middleware, feature 002); Directus requires it too.
+		const schema = this.schema!;
 		const collection = schema.collections['directus_settings']!;
 		const defaults: Record<string, unknown> = {};
 

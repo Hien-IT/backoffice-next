@@ -1,0 +1,70 @@
+[
+	{
+		"source": "packages/memory/src/utils/buffer-to-uint8array.test.ts",
+		"dest": "libs/memory/src/utils/buffer-to-uint8array.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/buffer-to-uint8array.ts",
+		"dest": "libs/memory/src/utils/buffer-to-uint8array.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/compress.test.ts",
+		"dest": "libs/memory/src/utils/compress.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/compress.ts",
+		"dest": "libs/memory/src/utils/compress.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/index.ts",
+		"dest": "libs/memory/src/utils/index.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/is-compressed.test.ts",
+		"dest": "libs/memory/src/utils/is-compressed.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/is-compressed.ts",
+		"dest": "libs/memory/src/utils/is-compressed.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/serialize.test.ts",
+		"dest": "libs/memory/src/utils/serialize.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/serialize.ts",
+		"dest": "libs/memory/src/utils/serialize.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/string-to-uint8array.test.ts",
+		"dest": "libs/memory/src/utils/string-to-uint8array.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/string-to-uint8array.ts",
+		"dest": "libs/memory/src/utils/string-to-uint8array.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/uint8array-to-buffer.test.ts",
+		"dest": "libs/memory/src/utils/uint8array-to-buffer.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/uint8array-to-buffer.ts",
+		"dest": "libs/memory/src/utils/uint8array-to-buffer.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/uint8array-to-string.test.ts",
+		"dest": "libs/memory/src/utils/uint8array-to-string.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/uint8array-to-string.ts",
+		"dest": "libs/memory/src/utils/uint8array-to-string.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/with-namespace.test.ts",
+		"dest": "libs/memory/src/utils/with-namespace.test.ts"
+	},
+	{
+		"source": "packages/memory/src/utils/with-namespace.ts",
+		"dest": "libs/memory/src/utils/with-namespace.ts"
+	}
+]

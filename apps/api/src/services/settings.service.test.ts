@@ -1,6 +1,8 @@
 import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { createInspector } from '@backoffice/schema';
 import { createDirectusDb } from '../../test/directus-db.js';
+import { getDatabaseSchema } from '../schema/get-database-schema.js';
 import { PROJECT_FIELDS, SettingsService } from './settings.service.js';
 
 vi.mock('../logger/index.js', () => ({ useLogger: () => ({ warn: vi.fn(), trace: vi.fn() }) }));
@@ -56,7 +58,8 @@ describe('readProjectInfo (readSingleton of directus_settings)', () => {
 	});
 
 	test('no settings row → non-null column defaults of the requested fields, in schema order', async () => {
-		const project = await new SettingsService({ knex: db }).readProjectInfo();
+		const schema = await getDatabaseSchema(db, createInspector(db));
+		const project = await new SettingsService({ knex: db, schema }).readProjectInfo();
 
 		expect(project).toEqual({
 			project_name: 'Directus',
