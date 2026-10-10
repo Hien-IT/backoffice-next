@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/utils/get-accountability-for-token.ts",
+		"dest": "apps/api/src/utils/get-accountability-for-token.ts"
+	},
+	{
+		"source": "api/src/utils/get-accountability-for-token.test.ts",
+		"dest": "apps/api/src/utils/get-accountability-for-token.test.ts"
+	},
+	{
+		"source": "api/src/middleware/authenticate.ts",
+		"dest": "apps/api/src/middleware/authenticate.ts"
+	},
+	{
+		"source": "api/src/middleware/authenticate.test.ts",
+		"dest": "apps/api/src/middleware/authenticate.test.ts"
+	}
+]

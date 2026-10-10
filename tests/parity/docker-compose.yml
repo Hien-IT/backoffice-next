@@ -418,3 +418,64 @@ services:
       interval: 3s
       timeout: 5s
       retries: 60
+
+  # Feature 003: SSO pair. `idp` is the test identity provider (tests/parity/idp/server.mjs, research R10); OpenLDAP
+  # and the OAuth2/LDAP providers are added with Phase 9 (T062).
+  idp:
+    profiles: [sso]
+    image: node:22-alpine
+    command: ['node', '/idp/server.mjs']
+    volumes:
+      - ./idp:/idp:ro
+    environment:
+      PORT: '9000'
+      IDP_ISSUER: http://idp:9000
+      IDP_CLIENTS: '{"parity-client":"parity-secret"}'
+    ports:
+      - '6110:9000'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9000/health || exit 1']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  directus-sso:
+    profiles: [sso]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-sso.env
+    depends_on:
+      directus: { condition: service_healthy }
+      idp: { condition: service_healthy }
+    ports:
+      - '8955:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-sso:
+    profiles: [sso]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-sso.env
+    depends_on:
+      directus: { condition: service_healthy }
+      idp: { condition: service_healthy }
+    ports:
+      - '8956:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60

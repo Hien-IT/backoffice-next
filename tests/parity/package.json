@@ -6,16 +6,20 @@
 	"scripts": {
 		"test": "vitest run",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
-		"lint": "eslint src scripts accepted-differences.ts"
+		"lint": "eslint src scripts idp accepted-differences.ts"
 	},
 	"devDependencies": {
 		"@backoffice/schema": "workspace:*",
 		"@backoffice/types": "workspace:*",
+		"@types/jsonwebtoken": "catalog:",
 		"get-port": "catalog:",
 		"ioredis": "catalog:",
+		"jsonwebtoken": "catalog:",
 		"knex": "catalog:",
+		"ldapts": "catalog:",
 		"mysql2": "catalog:",
 		"oracledb": "catalog:",
+		"otplib": "catalog:",
 		"pg": "catalog:",
 		"sqlite3": "catalog:",
 		"tedious": "catalog:"

@@ -1,5 +1,6 @@
 // Ported from directus/api/src/middleware/authenticate.ts (lines 20-26: the default accountability only).
-// Feature 003 replaces this middleware with the real `authenticate`; until then every request is public (FR-044).
+// Feature 003 mounts the real `authenticate` on its own routes (D-10 of spec 003); every other route stays public
+// (FR-044) until feature 004 replaces this middleware.
 import type { RequestHandler } from 'express';
 import { useLogger } from '../logger/index.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';

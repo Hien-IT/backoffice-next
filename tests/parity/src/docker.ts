@@ -8,10 +8,9 @@ const cwd = fileURLToPath(new URL('..', import.meta.url));
 export function compose(...args: string[]): string {
 	const [vendor] = getDbsToTest();
 	// Every profile is enabled so that commands naming profile services (stop/start of the pairs) reach them.
-	const profiles = [vendor!, 'ratelimit', 'cors-hsts', 'pressure', 'metrics', 'multi', 'cache-config'].flatMap((p) => [
-		'--profile',
-		p,
-	]);
+	const profiles = [vendor!, 'ratelimit', 'cors-hsts', 'pressure', 'metrics', 'multi', 'cache-config', 'sso'].flatMap(
+		(p) => ['--profile', p],
+	);
 
 	return execFileSync(
 		'docker',

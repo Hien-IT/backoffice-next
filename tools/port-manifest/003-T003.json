@@ -1,0 +1,26 @@
+[
+	{
+		"source": "packages/types/src/events.ts",
+		"dest": "libs/types/src/events.ts"
+	},
+	{
+		"source": "packages/types/src/items.ts",
+		"dest": "libs/types/src/items.ts"
+	},
+	{
+		"source": "packages/types/src/authentication.ts",
+		"dest": "libs/types/src/authentication.ts"
+	},
+	{
+		"source": "packages/types/src/payload.ts",
+		"dest": "libs/types/src/payload.ts"
+	},
+	{
+		"source": "packages/types/src/users.ts",
+		"dest": "libs/types/src/users.ts"
+	},
+	{
+		"source": "packages/types/src/policies.ts",
+		"dest": "libs/types/src/policies.ts"
+	}
+]

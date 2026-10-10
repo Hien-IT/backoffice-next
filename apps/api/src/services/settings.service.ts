@@ -1,10 +1,11 @@
 // Ported from directus/api/src/services/items.ts (readSingleton, items.ts:1190-1231) for directus_settings, as
 // called by ServerService.serverInfo. Runs the SQL Directus' AST engine produces for that query (research R16.2);
 // feature 005 replaces it with the real ItemsService and the /server/info parity tests keep guarding the output.
-import type { AbstractServiceOptions, SchemaOverview } from '@backoffice/types';
+import type { AbstractServiceOptions, Item, Query, SchemaOverview } from '@backoffice/types';
 import type { Knex } from 'knex';
 import getDatabase from '../database/index.js';
 import { castBoolean, castJson } from '../utils/cast-on-read.js';
+import { ItemsService } from './items.service.js';
 
 /** The 16 plain fields of /server/info, in request order; `public_background` (m2o to files) comes last (FR-042). */
 export const PROJECT_FIELDS = [
@@ -67,6 +68,14 @@ export class SettingsService {
 	private async readFile(id: string): Promise<{ id: string; type: string | null } | null> {
 		const file = await this.knex.select('id', 'type').from('directus_files').whereIn('id', [id]).first();
 		return file ?? null;
+	}
+
+	/**
+	 * ItemsService.readSingleton of directus_settings (SettingsService extends ItemsService in Directus), as
+	 * AuthenticationService and UsersService call it for `auth_login_attempts` and `auth_password_policy` (spec 003).
+	 */
+	async readSingleton(query: Query): Promise<Partial<Item>> {
+		return new ItemsService('directus_settings', { knex: this.knex, schema: this.schema! }).readSingleton(query);
 	}
 
 	/** No settings row (only when deleted by hand): the column defaults that are not null, in schema order. */

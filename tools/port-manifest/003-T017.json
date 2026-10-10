@@ -1,0 +1,70 @@
+[
+	{
+		"source": "api/src/utils/transaction.ts",
+		"dest": "apps/api/src/utils/transaction.ts"
+	},
+	{
+		"source": "api/src/utils/validate-keys.ts",
+		"dest": "apps/api/src/utils/validate-keys.ts"
+	},
+	{
+		"source": "api/src/utils/validate-keys.test.ts",
+		"dest": "apps/api/src/utils/validate-keys.test.ts"
+	},
+	{
+		"source": "api/src/utils/is-valid-uuid.ts",
+		"dest": "apps/api/src/utils/is-valid-uuid.ts"
+	},
+	{
+		"source": "api/src/utils/is-valid-uuid.test.ts",
+		"dest": "apps/api/src/utils/is-valid-uuid.test.ts"
+	},
+	{
+		"source": "api/src/utils/validate-user-count-integrity.ts",
+		"dest": "apps/api/src/utils/validate-user-count-integrity.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/fetch-access-lookup.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/fetch-access-lookup.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/fetch-access-roles.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/fetch-access-roles.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/fetch-access-roles.test.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/fetch-access-roles.test.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/fetch-active-users.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/fetch-active-users.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/fetch-user-count.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/fetch-user-count.ts"
+	},
+	{
+		"source": "api/src/utils/fetch-user-count/get-user-count-query.ts",
+		"dest": "apps/api/src/utils/fetch-user-count/get-user-count-query.ts"
+	},
+	{
+		"source": "api/src/telemetry/utils/check-user-limits.ts",
+		"dest": "apps/api/src/telemetry/utils/check-user-limits.ts"
+	},
+	{
+		"source": "api/src/telemetry/utils/check-user-limits.test.ts",
+		"dest": "apps/api/src/telemetry/utils/check-user-limits.test.ts"
+	},
+	{
+		"source": "api/src/telemetry/utils/should-check-user-limits.ts",
+		"dest": "apps/api/src/telemetry/utils/should-check-user-limits.ts"
+	},
+	{
+		"source": "api/src/telemetry/utils/should-check-user-limits.test.ts",
+		"dest": "apps/api/src/telemetry/utils/should-check-user-limits.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-remaining-admin/validate-remaining-admin-count.ts",
+		"dest": "apps/api/src/permissions/modules/validate-remaining-admin/validate-remaining-admin-count.ts"
+	}
+]

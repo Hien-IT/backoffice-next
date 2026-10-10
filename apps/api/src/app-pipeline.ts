@@ -1,5 +1,5 @@
 // Ported from directus/api/src/app.ts (the Express middleware chain, in the same order; research R5).
-// Not ported here: authenticate (003), sanitizeQuery and the response cache (005), requestCounter (telemetry),
+// `authenticate` runs only on the routes of feature 003 (D-10 of spec 003). Not ported here: sanitizeQuery and the response cache (005), requestCounter (telemetry),
 // extensions, WebSocket, AI/MCP, deployment webhooks and SERVE_APP (D-08, D-17).
 import { useEnv } from '@backoffice/env';
 import { ServiceUnavailableError } from '@backoffice/errors';
@@ -13,6 +13,7 @@ import { createExpressLogger } from './logger/index.js';
 import checkCacheMiddleware from './middleware/cache.js';
 import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
+import authenticate from './middleware/authenticate.js';
 import { createJsonBody } from './middleware/json-body.js';
 import publicAccountability from './middleware/public-accountability.js';
 import { createRouterOptions } from './middleware/router-options.js';
@@ -24,9 +25,11 @@ import { getConfigFromEnv } from './utils/get-config-from-env.js';
 export interface ExpressAppOptions {
 	/** Rate limiters mounted between `/robots.txt` and `/server/ping`; default: global then IP, when enabled. */
 	rateLimiters?: RequestHandler[];
-	/** Middleware mounted after the public accountability, right before the Nest routes. */
+	/** Middleware mounted after the accountability step, right before the Nest routes. */
 	beforeRoutes?: RequestHandler[];
 }
+
+const AUTHENTICATED_PATHS = /^\/(auth(\/|$)|users\/me\/tfa\/generate\/?$)/i;
 
 export function createExpressApp(options: ExpressAppOptions = {}): Express {
 	const env = useEnv();
@@ -152,7 +155,11 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 
 	app.get('/server/ping', (_req, res) => res.send('pong'));
 
-	app.use(publicAccountability);
+	// ponytail: D-10 of spec 003 — only the routes of feature 003 authenticate, every other route stays public with a
+	// warning; feature 004 mounts `authenticate` for every route and removes publicAccountability.
+	app.use((req, res, next) =>
+		(AUTHENTICATED_PATHS.test(req.path) ? authenticate : publicAccountability)(req, res, next),
+	);
 
 	app.use(schema);
 

@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/services/items.ts",
+		"dest": "apps/api/src/services/items.service.ts"
+	},
+	{
+		"source": "api/src/services/activity.ts",
+		"dest": "apps/api/src/services/activity.service.ts"
+	},
+	{
+		"source": "api/src/services/revisions.ts",
+		"dest": "apps/api/src/services/revisions.service.ts"
+	},
+	{
+		"source": "api/src/utils/should-clear-cache.ts",
+		"dest": "apps/api/src/utils/should-clear-cache.ts"
+	},
+	{
+		"source": "api/src/utils/should-clear-cache.test.ts",
+		"dest": "apps/api/src/utils/should-clear-cache.test.ts"
+	}
+]

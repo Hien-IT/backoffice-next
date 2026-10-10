@@ -1,0 +1,30 @@
+[
+	{
+		"source": "api/src/database/errors/translate.ts",
+		"dest": "apps/api/src/database/errors/translate.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/mssql.ts",
+		"dest": "apps/api/src/database/errors/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/mysql.ts",
+		"dest": "apps/api/src/database/errors/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/oracle.ts",
+		"dest": "apps/api/src/database/errors/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/postgres.ts",
+		"dest": "apps/api/src/database/errors/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/errors/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/errors/dialects/types.ts",
+		"dest": "apps/api/src/database/errors/dialects/types.ts"
+	}
+]

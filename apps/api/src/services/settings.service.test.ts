@@ -71,3 +71,23 @@ describe('readProjectInfo (readSingleton of directus_settings)', () => {
 		});
 	});
 });
+
+describe('readSingleton (feature 003)', () => {
+	test('reads auth settings like ItemsService.readSingleton, with the schema defaults without a row', async () => {
+		const { createAuthDb } = await import('../../test/directus-db.js');
+		const authDb = await createAuthDb();
+		const schema = await getDatabaseSchema(authDb, createInspector(authDb));
+		const service = new SettingsService({ knex: authDb, schema });
+
+		expect(await service.readSingleton({ fields: ['auth_login_attempts'] })).toEqual({ auth_login_attempts: 25 });
+
+		await authDb('directus_settings').insert({ auth_login_attempts: 3, auth_password_policy: '/^.{8,}$/' });
+
+		expect(await service.readSingleton({ fields: ['auth_login_attempts', 'auth_password_policy'] })).toEqual({
+			auth_login_attempts: 3,
+			auth_password_policy: '/^.{8,}$/',
+		});
+
+		await authDb.destroy();
+	});
+});

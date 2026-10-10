@@ -9,6 +9,7 @@ import { validateStorage } from '../utils/validate-storage.js';
 import { VERSION_LOG_LINE } from '../version.js';
 import { runStartupChecks } from './run-startup-checks.js';
 import { validateStorageDrivers } from './validate-storage-drivers.js';
+import { registerAuthProviders } from '../auth.js';
 
 vi.mock('@backoffice/env');
 vi.mock('../config/warn-single-instance.js');
@@ -18,6 +19,7 @@ vi.mock('../database/validate-migrations.js');
 vi.mock('../logger/index.js');
 vi.mock('../utils/validate-storage.js');
 vi.mock('./validate-storage-drivers.js');
+vi.mock('../auth.js');
 
 const order: string[] = vi.hoisted(() => []);
 
@@ -48,6 +50,7 @@ beforeEach(() => {
 	vi.mocked(validateDatabaseExtensions).mockImplementation(async () => void order.push('extensions'));
 	vi.mocked(validateStorageDrivers).mockImplementation(() => void order.push('storage-drivers'));
 	vi.mocked(validateStorage).mockImplementation(async () => void order.push('storage'));
+	vi.mocked(registerAuthProviders).mockImplementation(async () => void order.push('auth-providers'));
 	exit = vi
 		.spyOn(process, 'exit')
 		.mockImplementation(((code: number) => (order.push(`exit ${code}`), undefined)) as never);
@@ -69,6 +72,7 @@ test('runs the steps in the order of contracts/startup.md §1', async () => {
 		'extensions',
 		'storage-drivers',
 		'storage',
+		'auth-providers',
 	]);
 });
 

@@ -4,10 +4,12 @@ export const REDUCED_FILES = [
 	...['ping', 'health', 'info', 'errors', 'methods', 'conditional'].map((f) => `src/server/${f}.test.ts`),
 	// Feature 002 (FR-040): the SchemaOverview comparison runs on every vendor of every push.
 	'src/schema/overview.test.ts',
+	// Feature 003: dates, JSON and booleans written by the auth flows differ per vendor (research R11).
+	...['login', 'login-db', 'refresh', 'logout', 'password'].map((f) => `src/auth/${f}.test.ts`),
 ];
 
 export const FULL_FILES = [
-	'src/{server,startup,observability,schema}/**/*.test.ts',
+	'src/{server,startup,observability,schema,auth}/**/*.test.ts',
 	'src/{db-unchanged,readonly-account,redis-down}.test.ts',
 ];
 

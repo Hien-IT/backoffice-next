@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/permissions/lib/fetch-roles-tree.ts",
+		"dest": "apps/api/src/permissions/lib/fetch-roles-tree.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-global-access/fetch-global-access.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-global-access/fetch-global-access.ts"
+	}
+]

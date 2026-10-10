@@ -96,3 +96,85 @@ export async function createDirectusDb(): Promise<Knex> {
 }
 
 export const PUBLIC_POLICY = 'abf8a154-5b1c-4a46-ac9c-7300570f4f17';
+
+/**
+ * Feature 003: the tables and columns the auth flows read and write, on top of createDirectusDb (columns as created
+ * by the Directus 11.17.4 migrations, reduced to what the auth code touches).
+ */
+export async function createAuthDb(): Promise<Knex> {
+	const db = await createDirectusDb();
+
+	await db.schema.alterTable('directus_users', (t) => {
+		t.string('first_name', 50);
+		t.string('last_name', 50);
+		t.string('password', 255);
+		t.string('status', 16).notNullable().defaultTo('active');
+		t.uuid('role');
+		t.string('token', 255).unique();
+		t.timestamp('last_access');
+		t.string('tfa_secret', 255);
+		t.string('provider', 128).notNullable().defaultTo('default');
+		t.string('external_identifier', 255).unique();
+		t.json('auth_data');
+		t.boolean('email_notifications').defaultTo(true);
+	});
+
+	await db.schema.alterTable('directus_policies', (t) => {
+		t.boolean('admin_access').notNullable().defaultTo(false);
+		t.boolean('app_access').notNullable().defaultTo(false);
+		t.boolean('enforce_tfa').notNullable().defaultTo(false);
+	});
+
+	await db.schema.createTable('directus_roles', (t) => {
+		t.uuid('id').primary();
+		t.string('name', 100);
+		t.uuid('parent');
+	});
+
+	await db.schema.createTable('directus_sessions', (t) => {
+		t.string('token', 64).primary();
+		t.uuid('user');
+		t.timestamp('expires').notNullable();
+		t.string('ip', 255);
+		t.string('user_agent');
+		t.uuid('share');
+		t.string('origin');
+		t.string('next_token', 64);
+	});
+
+	await db.schema.createTable('directus_shares', (t) => {
+		t.uuid('id').primary();
+		t.timestamp('date_start');
+		t.timestamp('date_end');
+	});
+
+	await db.schema.createTable('directus_activity', (t) => {
+		t.increments('id');
+		t.string('action', 45).notNullable();
+		t.uuid('user');
+		t.timestamp('timestamp').notNullable().defaultTo(db.fn.now());
+		t.string('ip', 50);
+		t.string('user_agent');
+		t.string('collection', 64).notNullable();
+		t.string('item', 255).notNullable();
+		t.string('origin');
+	});
+
+	await db.schema.createTable('directus_revisions', (t) => {
+		t.increments('id');
+		t.integer('activity').notNullable();
+		t.string('collection', 64).notNullable();
+		t.string('item', 255).notNullable();
+		t.json('data');
+		t.json('delta');
+		t.integer('parent');
+		t.uuid('version');
+	});
+
+	await db.schema.alterTable('directus_settings', (t) => {
+		t.integer('auth_login_attempts').defaultTo(25);
+		t.string('auth_password_policy', 100);
+	});
+
+	return db;
+}

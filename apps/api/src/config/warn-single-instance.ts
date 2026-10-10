@@ -14,12 +14,8 @@ export function getSingleInstanceReasons(): string[] {
 	// Directus always builds its system and lock caches on CACHE_STORE, whatever CACHE_ENABLED says.
 	if (env['CACHE_STORE'] === 'memory') reasons.push('CACHE_STORE is "memory"');
 
-	if (
-		env['RATE_LIMITER_STORE'] === 'memory' &&
-		(env['RATE_LIMITER_ENABLED'] === true || env['RATE_LIMITER_GLOBAL_ENABLED'] === true)
-	) {
-		reasons.push('RATE_LIMITER_STORE is "memory"');
-	}
+	// The failed-login counter always runs on RATE_LIMITER_STORE (FR-041 of spec 003), whatever the limiters say.
+	if (env['RATE_LIMITER_STORE'] === 'memory') reasons.push('RATE_LIMITER_STORE is "memory"');
 
 	return reasons;
 }

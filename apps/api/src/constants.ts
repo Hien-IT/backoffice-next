@@ -1,6 +1,8 @@
 import { useEnv } from '@backoffice/env';
 import { toBoolean } from '@backoffice/utils';
 import bytes from 'bytes';
+import type { CookieOptions } from 'express';
+import { getMilliseconds } from './utils/get-milliseconds.js';
 
 /** Version reported to clients (`/server/info`, `/server/health` releaseId), FR-047. */
 export const DIRECTUS_COMPAT_VERSION = '11.17.4';
@@ -22,3 +24,34 @@ export const RESUMABLE_UPLOADS = {
 };
 
 export const ALIAS_TYPES = ['alias', 'o2m', 'm2m', 'm2a', 'o2a', 'files', 'translations'];
+
+/** directus/api/src/constants.ts: name of the email/password provider, never part of AUTH_PROVIDERS. */
+export const DEFAULT_AUTH_PROVIDER = 'default';
+
+/**
+ * REFRESH_COOKIE_OPTIONS and SESSION_COOKIE_OPTIONS of directus/api/src/constants.ts (lines 66-80), built on use
+ * instead of at import (research R15), with the same values.
+ */
+export function refreshCookieOptions(): CookieOptions {
+	const env = useEnv();
+
+	return {
+		httpOnly: true,
+		domain: env['REFRESH_TOKEN_COOKIE_DOMAIN'] as string,
+		maxAge: getMilliseconds(env['REFRESH_TOKEN_TTL'] as string),
+		secure: Boolean(env['REFRESH_TOKEN_COOKIE_SECURE']),
+		sameSite: (env['REFRESH_TOKEN_COOKIE_SAME_SITE'] || 'strict') as 'lax' | 'strict' | 'none',
+	};
+}
+
+export function sessionCookieOptions(): CookieOptions {
+	const env = useEnv();
+
+	return {
+		httpOnly: true,
+		domain: env['SESSION_COOKIE_DOMAIN'] as string,
+		maxAge: getMilliseconds(env['SESSION_COOKIE_TTL'] as string),
+		secure: Boolean(env['SESSION_COOKIE_SECURE']),
+		sameSite: (env['SESSION_COOKIE_SAME_SITE'] || 'strict') as 'lax' | 'strict' | 'none',
+	};
+}

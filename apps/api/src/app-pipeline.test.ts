@@ -1,10 +1,12 @@
 import * as env from '@backoffice/env';
 import type { RequestHandler } from 'express';
+import jwt from 'jsonwebtoken';
 import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { type App, createApp } from './app.js';
 import { useLogger } from './logger/index.js';
 import { CREDENTIALS_IGNORED_MESSAGE, resetCredentialsWarning } from './middleware/public-accountability.js';
+import getDatabase from './database/index.js';
 import { getSchema } from './schema/get-database-schema.js';
 
 vi.mock('@backoffice/env', async (importOriginal) => {
@@ -18,6 +20,11 @@ const logger = vi.hoisted(() => ({ warn: vi.fn(), debug: vi.fn(), error: vi.fn()
 vi.mock('./schema/get-database-schema.js', () => ({
 	getSchema: vi.fn(async () => ({ collections: {}, relations: [] })),
 }));
+
+vi.mock('./database/index.js', async (importOriginal) => {
+	const original = await importOriginal<typeof import('./database/index.js')>();
+	return { ...original, default: vi.fn(original.default) };
+});
 
 vi.mock('./logger/index.js', () => ({
 	useLogger: () => logger,
@@ -214,6 +221,38 @@ describe('public accountability (FR-044)', () => {
 
 	test('no warning without credentials', async () => {
 		await (await start()).get('/nope');
+		expect(useLogger().warn).not.toHaveBeenCalled();
+	});
+});
+
+// Feature 003: authenticate on the auth routes only (D-10 of spec 003)
+describe('accountability step', () => {
+	const whoami: RequestHandler = (req, res, next) =>
+		req.path.toLowerCase().startsWith('/auth/x') || req.path === '/server/whoami' ? res.json(req.accountability) : next();
+
+	// Signed with another secret: 403 INVALID_TOKEN like Directus (an unknown static token is 401), no query.
+	const foreign = jwt.sign({ id: 'u', role: null, app_access: false, admin_access: false }, 'other', { issuer: 'directus' });
+
+	test('an invalid token on /auth/* is rejected; other routes stay public and warn', async () => {
+		const agent = await start({}, { beforeRoutes: [whoami] });
+
+		// getAccountabilityForToken opens the default connection on every call, like Directus; no query runs here.
+		vi.mocked(getDatabase).mockReturnValueOnce({} as never);
+		const auth = await agent.get('/AUTH/x').set('Authorization', `Bearer ${foreign}`);
+		expect(auth.status).toBe(403);
+		expect(auth.body.errors[0].extensions.code).toBe('INVALID_TOKEN');
+
+		const other = await agent.get('/server/whoami').set('Authorization', `Bearer ${foreign}`);
+		expect(other.status).toBe(200);
+		expect(other.body).toMatchObject({ user: null, admin: false });
+		expect(useLogger().warn).toHaveBeenCalledWith(CREDENTIALS_IGNORED_MESSAGE);
+	});
+
+	test('without a token both are public', async () => {
+		const agent = await start({}, { beforeRoutes: [whoami] });
+		vi.mocked(getDatabase).mockReturnValueOnce({} as never);
+		expect((await agent.get('/auth/x')).body).toMatchObject({ user: null, role: null, admin: false });
+		expect((await agent.get('/server/whoami')).body).toMatchObject({ user: null, role: null, admin: false });
 		expect(useLogger().warn).not.toHaveBeenCalled();
 	});
 });

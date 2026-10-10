@@ -1,4 +1,5 @@
 import { useEnv } from '@backoffice/env';
+import { registerAuthProviders } from '../auth.js';
 import { warnSingleInstance } from '../config/warn-single-instance.js';
 import { warnUnsupportedVariables } from '../config/warn-unsupported-variables.js';
 import { isInstalled, validateDatabaseConnection, validateDatabaseExtensions } from '../database/index.js';
@@ -67,4 +68,7 @@ export async function runStartupChecks(): Promise<void> {
 	// Row 15 [new], then row 16
 	validateStorageDrivers();
 	await validateStorage();
+
+	// Row 16b (feature 003, contracts/startup-logs.md): auth providers, like createApp of Directus
+	await registerAuthProviders();
 }

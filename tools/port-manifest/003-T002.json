@@ -1,0 +1,8 @@
+[
+	{ "source": "packages/validation/src/index.ts", "dest": "libs/validation/src/index.ts" },
+	{ "source": "packages/validation/src/utils/index.ts", "dest": "libs/validation/src/utils/index.ts" },
+	{ "source": "packages/validation/src/utils/joi-to-error-extensions.ts", "dest": "libs/validation/src/utils/joi-to-error-extensions.ts" },
+	{ "source": "packages/validation/src/errors/index.ts", "dest": "libs/validation/src/errors/index.ts" },
+	{ "source": "packages/validation/src/errors/failed-validation.ts", "dest": "libs/validation/src/errors/failed-validation.ts" },
+	{ "source": "packages/validation/src/errors/failed-validation.test.ts", "dest": "libs/validation/src/errors/failed-validation.test.ts" }
+]

@@ -36,3 +36,20 @@ test('respects OPENAPI_ENABLED and METRICS_ENABLED; other methods pass through',
 	expect((await app({ METRICS_ENABLED: true }).options('/metrics')).status).toBe(200);
 	expect((await app({}).get('/server/info')).status).toBe(404);
 });
+
+// Feature 003 (FR-034): the login routers of the default and the local providers answer POST.
+test('OPTIONS of the local login routes → Allow: POST', async () => {
+	const env = { AUTH_PROVIDERS: 'local2,sso', AUTH_LOCAL2_DRIVER: 'local', AUTH_SSO_DRIVER: 'openid' };
+
+	for (const path of ['/auth/login', '/AUTH/login/', '/auth/login/LOCAL2', '/auth/login/local2/']) {
+		const res = await app(env).options(path);
+		expect(res.headers['allow'], path).toBe('POST');
+		expect(res.text).toBe('POST');
+	}
+
+	for (const path of ['/auth/login/local2/x', '/auth/login/default', '/auth/login/nope']) {
+		expect((await app(env).options(path)).status, path).toBe(404);
+	}
+
+	expect((await app({ ...env, AUTH_DISABLE_DEFAULT: true }).options('/auth/login')).status).toBe(404);
+});

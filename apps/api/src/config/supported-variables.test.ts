@@ -56,7 +56,7 @@ test.each([
 	['RATE_LIMITER_GLOBAL_ENABLED', true],
 	['RATE_LIMITER_REGISTRATION_ENABLED', false],
 	['RATE_LIMITER_EMAIL_FLOWS_POINTS', false],
-	['AUTH_PROVIDERS', false],
+	['AUTH_PROVIDERS', true],
 	['SERVE_APP', false],
 ])('isSupported(%s) = %s', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
@@ -85,11 +85,30 @@ test.each([
 });
 
 test.each([
-	'CACHE_AUTO_PURGE_IGNORE_LIST',
 	'CACHE_CONTROL_S_MAXAGE',
 	'CACHE_STATUS_HEADER',
 	'CACHE_VALUE_MAX_SIZE',
 	'CACHE_SKIP_ALLOWED',
 ])('%s is still unsupported', (name) => {
 	expect(isSupported(name)).toBe(false);
+});
+
+// Feature 003 (specs/003 contracts/config.md): auth variables are supported, except the saml-only ones and email,
+// registration and invites.
+test.each([
+	['ACCESS_TOKEN_TTL', true],
+	['SESSION_REFRESH_GRACE_PERIOD', true],
+	['HASH_MEMORY_COST', true],
+	['MAX_BATCH_MUTATION', true],
+	['CACHE_AUTO_PURGE_IGNORE_LIST', true],
+	['AUTH_KEYCLOAK_ISSUER_URL', true],
+	['AUTH_KEYCLOAK_CLIENT_HTTP_TIMEOUT', true],
+	['AUTH_LDAP_BIND_DN', true],
+	['AUTH_SAML_IDP_METADATA', false],
+	['AUTH_SAML_SP_METADATA', false],
+	['EMAIL_TRANSPORT', false],
+	['USER_INVITE_TOKEN_TTL', false],
+	['REGISTER_STALL_TIME', false],
+])('feature 003: isSupported(%s) = %s', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
 });

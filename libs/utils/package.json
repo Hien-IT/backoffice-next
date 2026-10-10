@@ -25,7 +25,8 @@
 	},
 	"dependencies": {
 		"@backoffice/types": "workspace:*",
-		"js-yaml": "catalog:"
+		"js-yaml": "catalog:",
+		"knex": "catalog:"
 	},
 	"devDependencies": {
 		"@ngneat/falso": "catalog:",

@@ -28,14 +28,15 @@ test('CACHE_STORE=memory warns even when CACHE_ENABLED=false', () => {
 		REDIS: 'redis://r',
 		CACHE_ENABLED: false,
 		CACHE_STORE: 'memory',
-		RATE_LIMITER_STORE: 'memory',
+		RATE_LIMITER_STORE: 'redis',
 		RATE_LIMITER_ENABLED: false,
 	});
 	expect(getSingleInstanceReasons()).toEqual(['CACHE_STORE is "memory"']);
 });
 
-test('RATE_LIMITER_STORE=memory counts only when a rate limiter is on', () => {
-	env({ REDIS: 'redis://r', CACHE_STORE: 'redis', RATE_LIMITER_STORE: 'memory', RATE_LIMITER_GLOBAL_ENABLED: true });
+// Feature 003: the failed-login counter always uses RATE_LIMITER_STORE (specs/003 contracts/config.md §3).
+test('RATE_LIMITER_STORE=memory counts even with every rate limiter off', () => {
+	env({ REDIS: 'redis://r', CACHE_STORE: 'redis', RATE_LIMITER_STORE: 'memory', RATE_LIMITER_ENABLED: false });
 	expect(getSingleInstanceReasons()).toEqual(['RATE_LIMITER_STORE is "memory"']);
 });
 

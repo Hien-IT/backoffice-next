@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/authentication.ts",
+		"dest": "apps/api/src/services/authentication.service.ts"
+	},
+	{
+		"source": "api/src/services/authentication.test.ts",
+		"dest": "apps/api/src/services/authentication.service.test.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/local.ts",
+		"dest": "apps/api/src/auth/drivers/local.ts"
+	}
+]

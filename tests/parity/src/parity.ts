@@ -12,6 +12,8 @@ export interface ParityRequest {
 	body?: string | Record<string, unknown> | unknown[];
 	/** Give up after this many ms; no answer is captured as status 0 (compared like any status). */
 	timeoutMs?: number;
+	/** Applied to both responses before the comparison, for values only this request knows how to compare. */
+	normalize?: (captured: Captured) => Captured;
 }
 
 export interface Captured {
@@ -55,6 +57,7 @@ export const COMPARED_HEADERS = [
 	'allow',
 	'location',
 	'retry-after',
+	'set-cookie',
 	'content-security-policy',
 	'cross-origin-opener-policy',
 	'strict-transport-security',
@@ -92,7 +95,9 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 				const out: Record<string, string> = {};
 
 				for (const [name, value] of Object.entries(res.headers)) {
-					if (value !== undefined) out[name.toLowerCase()] = Array.isArray(value) ? value.join(', ') : value;
+					// Set-Cookie values contain ", " (Expires), so they are joined with a newline instead.
+					const separator = name.toLowerCase() === 'set-cookie' ? '\n' : ', ';
+					if (value !== undefined) out[name.toLowerCase()] = Array.isArray(value) ? value.join(separator) : value;
 				}
 
 				let json: unknown = undefined;
@@ -234,6 +239,7 @@ export function findAccepted(
 ): AcceptedDifference | undefined {
 	return accepted.find((d) => {
 		if (d.kind !== 'http' || !d.location || !endpointMatches(d.endpoints, endpoint)) return false;
+		if (endpointMatches(d.excludeEndpoints, endpoint)) return false;
 
 		if (d.when?.directusStatus !== undefined && directus?.status !== d.when.directusStatus) return false;
 		if (d.when?.directusCode !== undefined && errorCode(directus?.json) !== d.when.directusCode) return false;
@@ -293,13 +299,14 @@ export async function parity(req: ParityRequest, options: ParityOptions = {}): P
 	// Same Host on both sides so URLs built from it (OAS servers[0].url) can match (FR-105).
 	const withHost: ParityRequest = { ...req, headers: { host: new URL(directusUrl).host, ...req.headers } };
 
-	const [directus, backoffice] = await Promise.all([capture(directusUrl, withHost), capture(backofficeUrl, withHost)]);
+	const captured = await Promise.all([capture(directusUrl, withHost), capture(backofficeUrl, withHost)]);
+	const [directus, backoffice] = req.normalize ? captured.map(req.normalize) : captured;
 
 	return {
 		endpoint,
-		directus,
-		backoffice,
-		...classify(endpoint, compare(endpoint, directus, backoffice), accepted, directus),
+		directus: directus!,
+		backoffice: backoffice!,
+		...classify(endpoint, compare(endpoint, directus!, backoffice!), accepted, directus),
 	};
 }
 

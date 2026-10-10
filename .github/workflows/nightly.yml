@@ -32,7 +32,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run api:build
       - run:
-          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=ratelimit,cors-hsts,pressure,metrics
+          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=ratelimit,cors-hsts,pressure,metrics,sso
       - run: pnpm nx run parity-tests:parity --vendor=${{ matrix.vendor }} --output-style=static
       - name: container logs
         if: failure()

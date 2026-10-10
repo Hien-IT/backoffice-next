@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/types/auth.ts",
+		"dest": "apps/api/src/types/auth.ts"
+	},
+	{
+		"source": "api/src/types/rolemap.ts",
+		"dest": "apps/api/src/types/rolemap.ts"
+	},
+	{
+		"source": "api/src/types/index.ts",
+		"dest": "apps/api/src/types/index.ts"
+	}
+]

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/auth.ts",
+		"dest": "apps/api/src/auth.ts"
+	},
+	{
+		"source": "api/src/auth/auth.ts",
+		"dest": "apps/api/src/auth/auth.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/index.ts",
+		"dest": "apps/api/src/auth/drivers/index.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/local.ts",
+		"dest": "apps/api/src/auth/drivers/local.ts"
+	}
+]

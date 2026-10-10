@@ -70,23 +70,23 @@ Phase 9 có thể tách thành feature con nếu cần giữ mỗi lần merge n
 **Purpose**: Thêm phụ thuộc cùng bản Directus, lib `@backoffice/validation`, kiểu dùng chung, profile `sso` và helper
 test đối chiếu cho luồng có trạng thái.
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml`, đúng bản `directus/pnpm-workspace.yaml`: `jsonwebtoken: 9.0.3`,
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml`, đúng bản `directus/pnpm-workspace.yaml`: `jsonwebtoken: 9.0.3`,
   `'@types/jsonwebtoken': 9.0.10`, `argon2: 0.44.0`, `otplib: 12.0.1`, `openid-client: 5.7.1`, `ldapts: 8.1.3`,
   `joi: 18.0.1`, `flat: 6.0.1`. Thêm các gói này vào `apps/api/package.json` (types vào devDependencies). Chạy
   `pnpm install`, rồi `pnpm audit --prod --audit-level=high`; có cảnh báo mới thì ghi lại và báo trước khi đi tiếp
   (research R1).
-- [ ] T002 [P] Tạo `libs/validation` theo mẫu `libs/pressure`: `package.json` (`@backoffice/validation`, ESM, phụ thuộc
+- [X] T002 [P] Tạo `libs/validation` theo mẫu `libs/pressure`: `package.json` (`@backoffice/validation`, ESM, phụ thuộc
   `@backoffice/errors`, `@backoffice/types`, `joi`), `tsconfig*.json`, `vitest.config.ts` (coverage 80%). Port
   `directus/packages/validation/src/**` kèm test và `__snapshots__`. Thêm `"@backoffice/validation": "workspace:*"`
   vào `apps/api/package.json`. Chạy `node tools/check-package-names.mjs` và test của lib. Ghi manifest. (sau T001)
-- [ ] T003 [P] Port phần kiểu cần dùng sang `libs/types/src/`: `Item`, `PrimaryKey`, `MutationOptions`,
+- [X] T003 [P] Port phần kiểu cần dùng sang `libs/types/src/`: `Item`, `PrimaryKey`, `MutationOptions`,
   `MutationTracker` từ `packages/types/src/items.ts`; `LoginResult` từ `authentication.ts`; `PayloadAction`, kiểu của
   `transformers` từ `payload.ts`; `UserIntegrityCheckFlag` từ `users.ts`. Export từ `libs/types/src/index.ts`. Mở rộng
   `libs/types/src/index.test.ts` cho các export mới. Ghi manifest.
-- [ ] T004 [P] Kiểm build image với `argon2` native: `docker build -f apps/api/Dockerfile .` sau T001, chạy container,
+- [X] T004 [P] Kiểm build image với `argon2` native: `docker build -f apps/api/Dockerfile .` sau T001, chạy container,
   gọi `node -e "require('argon2')"` trong đó. Lỗi thì sửa `apps/api/Dockerfile` (cài build tools ở stage builder như
   Directus) và ghi vào "Ghi chú khi làm" (research R1, rủi ro).
-- [ ] T005 [P] IdP giả lập: `tests/parity/idp/server.mjs`, chỉ dùng `node:http`, `node:crypto` (research R10).
+- [X] T005 [P] IdP giả lập: `tests/parity/idp/server.mjs`, chỉ dùng `node:http`, `node:crypto` (research R10).
   - Khóa RS256 sinh khi khởi động. Endpoint: `/.well-known/openid-configuration`, `/jwks`, `/authorize` (tự duyệt, trả
     `302` về `redirect_uri` với `code`, `state`; chọn user theo query `user`), `/token` (`authorization_code` với PKCE
     `S256` và `plain`; `refresh_token`; Basic hoặc `client_secret_post`), `/userinfo` (Bearer), `/health`.
@@ -95,7 +95,7 @@ test đối chiếu cho luồng có trạng thái.
   - id_token có `iss`, `sub`, `aud`, `exp`, `iat`, `nonce`; issuer lấy từ env `IDP_ISSUER`.
   - Unit test `tests/parity/idp/server.test.mjs` (chạy trong target `test`, không cần Docker): discovery, PKCE đúng và
     sai, refresh, `invalid_grant`.
-- [ ] T006 Profile `sso` của môi trường đối chiếu (research R10, R11).
+- [X] T006 Profile `sso` của môi trường đối chiếu (research R10, R11).
   - `tests/parity/docker-compose.yml`, profile `sso`:
     - `idp`: `node:22-alpine`, mount `./idp`, lệnh `node /idp/server.mjs`, cổng `6110:9000`, healthcheck `wget /health`;
     - `directus-sso` (8955) và `backoffice-api-sso` (8956) theo mẫu cặp `ratelimit`, `env_file` vendor +
@@ -112,7 +112,7 @@ test đối chiếu cho luồng có trạng thái.
   - Thêm `sso` vào `ALL_PROFILES` (`tests/parity/scripts/env.mjs`), `compose()` (`src/docker.ts`), kiểu `Profile` và bảng
     cổng (`src/config.ts`), URL trong `src/global-setup.ts`, `src/profiles.ts`.
   - `.github/workflows/ci.yml`: dòng `postgres` của matrix `parity` thêm `sso` vào `profiles`; `nightly.yml` cũng vậy.
-- [ ] T007 [P] `tests/parity/src/parity.ts`, `src/normalizers.ts`: thêm `set-cookie` vào `COMPARED_HEADERS` và hook
+- [X] T007 [P] `tests/parity/src/parity.ts`, `src/normalizers.ts`: thêm `set-cookie` vào `COMPARED_HEADERS` và hook
   `normalize?: (res) => res` vào `ParityRequest` (research R11):
   - `normalizeSetCookie`: tách từng cookie; giá trị thành `<empty>`, `<jwt>`, `<token64>` hoặc giữ nguyên; giữ
     `Max-Age`, `Domain`, `Path`, `HttpOnly`, `Secure`, `SameSite`; `Expires` thành `<past>` hoặc `<future>`;
@@ -120,7 +120,7 @@ test đối chiếu cho luồng có trạng thái.
     `refresh_token` bằng `<token64>` khi đúng 64 ký tự `A-Za-z0-9_-`;
   - `normalizeLocation`: thay giá trị `state`, `nonce`, `code_challenge`, `code` bằng dấu hiệu.
   - Unit test `src/normalizers.test.ts` cho cả ba hàm, kể cả cookie rỗng có `Max-Age` (research R4).
-- [ ] T008 [P] Helper luồng có trạng thái trong `tests/parity/src/auth/` (research R6, R11). Thêm `ldapts`, `otplib`,
+- [X] T008 [P] Helper luồng có trạng thái trong `tests/parity/src/auth/` (research R6, R11). Thêm `ldapts`, `otplib`,
   `jsonwebtoken` (`catalog:`) vào `tests/parity/package.json`.
   - `fixtures.ts`: tạo qua API Directus (`directus-api.ts`) role, policy (admin, app, không app), user (mỗi trạng thái),
     static token, share; `setSettings()` có `restore()`; tên user có hậu tố theo app để mỗi bên có fixture riêng.
@@ -131,7 +131,7 @@ test đối chiếu cho luồng có trạng thái.
   - `tokens.ts`: `decodeJwt`, `signResetToken(email, passwordHash)` (dùng `SECRET` của env và `getSimpleHash` chép
     từ `libs/utils`), `totp(secret)`.
   - Unit test `src/auth/helpers.test.ts` cho phần không cần Docker (chuẩn hóa, so transcript, token).
-- [ ] T009 `tests/parity/src/suite.ts`: thêm `src/auth/**/*.test.ts` vào `FULL`; thêm `src/auth/login.test.ts`,
+- [X] T009 `tests/parity/src/suite.ts`: thêm `src/auth/**/*.test.ts` vào `FULL`; thêm `src/auth/login.test.ts`,
   `refresh.test.ts`, `logout.test.ts`, `password.test.ts` vào `REDUCED`. Test SSO dùng `describe.runIf` theo profile
   `sso` (`profileUrls()`). (sau T008)
 
@@ -146,66 +146,66 @@ provider với driver `local`, bước `authenticate`.
 
 **Điều kiện**: constitution 1.3.0 (Phase 9: OAuth2, LDAP) đã được tech lead duyệt ngày 2026-10-10.
 
-- [ ] T010 [P] Port `directus/packages/utils/node/fetch-roles-tree.ts` và `fetch-global-access/**` (kèm test) sang
+- [X] T010 [P] Port `directus/packages/utils/node/fetch-roles-tree.ts` và `fetch-global-access/**` (kèm test) sang
   `libs/utils/src/node/`. Export từ `libs/utils/src/node/index.ts`. Ghi manifest.
-- [ ] T011 [P] Port sang `apps/api/src/utils/` kèm test gốc: `jwt.ts`, `get-secret.ts`, `is-directus-jwt.ts`,
+- [X] T011 [P] Port sang `apps/api/src/utils/` kèm test gốc: `jwt.ts`, `get-secret.ts`, `is-directus-jwt.ts`,
   `verify-session-jwt.ts`, `stall.ts`, `is-url-allowed.ts`, `generate-hash.ts`, `encrypt.ts`. Ghi manifest.
-- [ ] T012 [P] `apps/api/src/constants.ts`: thêm `DEFAULT_AUTH_PROVIDER = 'default'`, getter `REFRESH_COOKIE_OPTIONS`,
+- [X] T012 [P] `apps/api/src/constants.ts`: thêm `DEFAULT_AUTH_PROVIDER = 'default'`, getter `REFRESH_COOKIE_OPTIONS`,
   `SESSION_COOKIE_OPTIONS` (giá trị như `directus/api/src/constants.ts:66-80`, research R15). Thêm
   `apps/api/src/utils/clear-cookie.ts` (`// Backoffice:` cách xóa cookie của Express 4.21.2, research R4) và test so
   header với chuỗi mong đợi (cookie rỗng, `Max-Age`, `Expires` tương lai; không options thì `Expires` 1970).
-- [ ] T013 [P] Port `directus/api/src/types/auth.ts`, `types/rolemap.ts` sang `apps/api/src/types/`. Ghi manifest.
-- [ ] T014 Port `permissions/lib/fetch-roles-tree.ts` và `permissions/modules/fetch-global-access/fetch-global-access.ts`
+- [X] T013 [P] Port `directus/api/src/types/auth.ts`, `types/rolemap.ts` sang `apps/api/src/types/`. Ghi manifest.
+- [X] T014 Port `permissions/lib/fetch-roles-tree.ts` và `permissions/modules/fetch-global-access/fetch-global-access.ts`
   sang `apps/api/src/permissions/`, dùng `withCache` của 002 (namespace `roles-tree`, `global-access`,
   `global-access-roles`, `global-access-user`). Test: key và giá trị cache đúng như hàm gốc với mock Redis. Ghi
   manifest. (sau T010)
-- [ ] T015 [P] Port `database/helpers/date/**` (đủ dialect, kèm test nếu có) và phần `formatUUID` của
+- [X] T015 [P] Port `database/helpers/date/**` (đủ dialect, kèm test nếu có) và phần `formatUUID` của
   `database/helpers/schema/**` (lớp gốc và dialect override `formatUUID`; comment `ponytail:` phần còn lại ở 006) sang
   `apps/api/src/database/helpers/`. Sửa `getHelpers` (`database/helpers/index.ts`) trả thêm `date`, `schema`. Test
   `writeTimestamp`, `formatUUID` theo vendor. Ghi manifest.
-- [ ] T016 [P] Port `database/errors/translate.ts` và `dialects/*` (kèm test gốc) sang `apps/api/src/database/errors/`.
+- [X] T016 [P] Port `database/errors/translate.ts` và `dialects/*` (kèm test gốc) sang `apps/api/src/database/errors/`.
   Ghi manifest.
-- [ ] T017 [P] Port kèm test gốc: `utils/transaction.ts`, `utils/validate-keys.ts`,
+- [X] T017 [P] Port kèm test gốc: `utils/transaction.ts`, `utils/validate-keys.ts`,
   `utils/validate-user-count-integrity.ts`, `utils/fetch-user-count/**`, `telemetry/utils/check-user-limits.ts`,
   `telemetry/utils/should-check-user-limits.ts`,
   `permissions/modules/validate-remaining-admin/validate-remaining-admin-count.ts`. Ghi manifest. (sau T003)
-- [ ] T018 Port rút gọn `services/payload.ts` sang `apps/api/src/services/payload.service.ts` (research R5): đủ 13
+- [X] T018 Port rút gọn `services/payload.ts` sang `apps/api/src/services/payload.service.ts` (research R5): đủ 13
   `transformers`, `processValues`, `processField`, `processGeometries`, `processDates`, `prepareDelta`. Gọi tới
   `processM2O`, `processA2O`, `processO2M`, `processAggregates` thì ném `Error('... is not available before feature
   005')`, có comment `ponytail:`. Port các ca của `directus/api/src/services/payload.test.ts` áp dụng cho phần này.
   Ghi manifest. (sau T011, T015)
-- [ ] T019 Port rút gọn `services/items.ts` sang `apps/api/src/services/items.service.ts`: `createOne`, `createMany`
+- [X] T019 Port rút gọn `services/items.ts` sang `apps/api/src/services/items.service.ts`: `createOne`, `createMany`
   (khóa chính bằng `returning`, dự phòng `max`), `readOne`, `readMany`, `readSingleton` (field phẳng), `updateOne`,
   `updateMany` (activity, revision, snapshot không quan hệ, `validateUserCountIntegrity`, `translateDatabaseError`,
   `transaction`). Accountability không phải admin, payload lồng quan hệ, query có `filter`/`deep`/`aggregate` thì ném
   lỗi như T018. Thêm `services/activity.service.ts`, `services/revisions.service.ts` (lớp con, như Directus). Port các ca
   áp dụng của `items.test.ts`; thêm test cho snapshot và revision với `knex-mock-client`. Ghi manifest. (sau T016,
   T017, T018)
-- [ ] T020 `apps/api/src/services/settings.service.ts`: thêm `readSingleton({ fields })` cùng SQL với
+- [X] T020 `apps/api/src/services/settings.service.ts`: thêm `readSingleton({ fields })` cùng SQL với
   `readProjectInfo` (`ORDER BY id LIMIT 1`, mặc định theo schema khi không có dòng). Test với `knex-mock-client`.
   (sau T019)
-- [ ] T021 Port rút gọn `services/users.ts` sang `apps/api/src/services/users.service.ts`: `createOne`, `updateOne`,
+- [X] T021 Port rút gọn `services/users.ts` sang `apps/api/src/services/users.service.ts`: `createOne`, `updateOne`,
   `updateMany`, `checkUniqueEmails`, `checkPasswordPolicy` (dùng `@backoffice/validation`), `clearUserSessions`,
   `getUserByEmail`, `clearCaches` (gọi `clearSystemCache` của 002). Port các ca áp dụng của `users.test.ts`. Ghi
   manifest. (sau T002, T019, T020)
-- [ ] T022 Port `services/tfa.ts` sang `apps/api/src/services/tfa.service.ts`: `verifyOTP`, `generateTFA`; issuer mặc
+- [X] T022 Port `services/tfa.ts` sang `apps/api/src/services/tfa.service.ts`: `verifyOTP`, `generateTFA`; issuer mặc
   định `Backoffice` (`// Backoffice:` D-25); `enableTFA`, `disableTFA` không port (comment `ponytail:` FR-051, 005).
   Test: secret và `otpauth_url` có định dạng của `otplib`, issuer theo `project_name`. Ghi manifest. (sau T019)
-- [ ] T023 Registry provider (research R9): port `directus/api/src/auth.ts` sang `apps/api/src/auth.ts`, `auth/auth.ts`,
+- [X] T023 Registry provider (research R9): port `directus/api/src/auth.ts` sang `apps/api/src/auth.ts`, `auth/auth.ts`,
   `auth/drivers/index.ts`, `auth/drivers/local.ts` (lớp `LocalAuthDriver`; handler login viết ở T029).
   - Driver `saml` không tạo instance, log `warn` `[mới]` (contracts/startup-logs.md §1).
   - Gọi `registerAuthProviders()` ở bước 16b của `apps/api/src/startup/run-startup-checks.ts`, sau `validateStorage`.
   - Test: tên `default` thì thoát mã 1; thiếu driver, driver lạ thì `warn`; `saml` thì `warn` và `getAuthProvider('saml')`
     ném `INVALID_PROVIDER_CONFIG`; `AUTH_DISABLE_DEFAULT`.
   - Ghi manifest. (sau T021)
-- [ ] T024 Port `utils/get-accountability-for-token.ts` (kèm test gốc) và `middleware/authenticate.ts` (kèm
+- [X] T024 Port `utils/get-accountability-for-token.ts` (kèm test gốc) và `middleware/authenticate.ts` (kèm
   `authenticate.test.ts` gốc, bỏ ca event `authenticate`) sang `apps/api/src/`. `authenticate` dùng `clearCookie` của
   T012. Ghi manifest. (sau T011, T012, T014)
-- [ ] T025 `apps/api/src/app-pipeline.ts`: ở chỗ `app.use(publicAccountability)`, chọn `authenticate` cho path khớp
+- [X] T025 `apps/api/src/app-pipeline.ts`: ở chỗ `app.use(publicAccountability)`, chọn `authenticate` cho path khớp
   `^/auth(/|$)` hoặc `^/users/me/tfa/generate/?$` (không phân biệt hoa thường), `publicAccountability` cho path khác;
-  comment `ponytail:` (D-10, 004). Cập nhật comment đầu file. Test bằng supertest: token sai tới `/auth/x` trả `401`,
+  comment `ponytail:` (D-10, 004). Cập nhật comment đầu file. Test bằng supertest: token sai tới `/auth/x` trả lỗi (JWT ký sai: `403 INVALID_TOKEN` như Directus),
   tới `/server/info` vẫn public và có cảnh báo; không token thì cả hai public. (sau T024)
-- [ ] T026 [P] `apps/api/src/config/supported-variables.ts`: chuyển biến của contracts/config.md §1 sang nhóm A; biến
+- [X] T026 [P] `apps/api/src/config/supported-variables.ts`: chuyển biến của contracts/config.md §1 sang nhóm A; biến
   §2 giữ nhóm C. `apps/api/src/config/warn-single-instance.ts`: lý do `RATE_LIMITER_STORE is "memory"` không còn
   phụ thuộc `RATE_LIMITER_ENABLED` (contracts/config.md §3). Sửa test của hai file theo.
 
@@ -222,28 +222,28 @@ provider với driver `local`, bước `authenticate`.
 
 ### Tests for User Story 1
 
-- [ ] T027 [P] [US1] `tests/parity/src/auth/login.test.ts`: port phần REST của
+- [X] T027 [P] [US1] `tests/parity/src/auth/login.test.ts`: port phần REST của
   `directus/tests/blackbox/tests/common/auth/login.test.ts` (4 user, sai mật khẩu, email không có, email sai định dạng,
   thiếu mật khẩu) lên `parity()` với `normalizeTokens`, `normalizeSetCookie`. Thêm: ba chế độ (body, `Set-Cookie`,
   claims, `ttl`), email khác hoa thường, `mode` lạ, `otp` không phải chuỗi, `/auth/login/local2`, `AUTH_DISABLE_DEFAULT`
   thì `404` (unit test), access token của app mới dùng được ở `GET /users/me` của Directus.
-- [ ] T028 [P] [US1] `tests/parity/src/auth/login-db.test.ts`: `scenario()` + `captureDbEffects()` cho đăng nhập ba chế
+- [X] T028 [P] [US1] `tests/parity/src/auth/login-db.test.ts`: `scenario()` + `captureDbEffects()` cho đăng nhập ba chế
   độ (contracts/db-writes.md §1): session, activity `login`, `last_access`, dọn session hết hạn. Thêm file này vào
   `REDUCED` của `suite.ts`.
 
 ### Implementation for User Story 1
 
-- [ ] T029 [US1] Port `AuthenticationService.login` sang `apps/api/src/services/authentication.service.ts` (cả bộ đếm
+- [X] T029 [US1] Port `AuthenticationService.login` sang `apps/api/src/services/authentication.service.ts` (cả bộ đếm
   đăng nhập sai, khóa user, OTP, `enforce_tfa`, research R7). Limiter tạo ở lần gọi đầu. Không phát `auth.login`,
   `auth.jwt`. Port handler login của `createLocalAuthRouter` vào `apps/api/src/auth/drivers/local.ts`. Port các ca
   `login` của `directus/api/src/services/authentication.test.ts`. Thêm unit test: rate limiter lỗi thì trả `503` và
   không chờ `LOGIN_STALL_TIME`. Ghi manifest. (sau T014, T022, T023)
-- [ ] T030 [US1] `apps/api/src/controllers/auth.controller.ts` (`@Controller('auth')`): `POST login` (provider
+- [X] T030 [US1] `apps/api/src/controllers/auth.controller.ts` (`@Controller('auth')`): `POST login` (provider
   `default`, `404` khi `AUTH_DISABLE_DEFAULT`) và `POST login/:provider` cho driver `local` (so tên không phân biệt hoa
   thường theo thứ tự `AUTH_PROVIDERS`, FR-079; driver khác hoặc không có thì `RouteNotFoundError`). Đăng ký
   controller và factory `AuthenticationService` trong `app.module.ts`, `providers.ts`. Test controller bằng supertest.
   (sau T029)
-- [ ] T031 [US1] `apps/api/src/middleware/router-options.ts`: `OPTIONS` của `/auth/login` và `/auth/login/<local>` trả
+- [X] T031 [US1] `apps/api/src/middleware/router-options.ts`: `OPTIONS` của `/auth/login` và `/auth/login/<local>` trả
   `Allow: POST` (FR-034). Test. (sau T030)
 - [ ] T032 [US1] `tests/parity/accepted-differences.ts`: xóa D-09.1; D-10 loại `/auth` và `/auth/*` (nếu không, D-10
   che mọi ca Directus trả `401` ở route auth). Chạy `accepted-differences.test.ts` cùng T027, T028 trên Postgres, MySQL,
@@ -547,4 +547,26 @@ Task: "T061 ldap.ts"
 
 ## Ghi chú khi làm
 
-(trống)
+- T001: `joi` lên 18.2.6 thay vì 17.13.3 của Directus (advisory high GHSA-6h2x-m376-mqjq; tiền lệ `nanoid` ở 001).
+  Thêm `date-fns` 4.1.0 và `wellknown` 0.5.0 (cùng phiên bản Directus) cho helper ngày giờ và `PayloadService`.
+- T004: image build được, `argon2.hash` chạy trong container; không cần sửa `apps/api/Dockerfile`.
+- T005, T008: unit test của IdP giả lập ở `tests/parity/src/idp.test.ts`, của helper luồng ở
+  `tests/parity/src/auth-helpers.test.ts` (chạy trong target `test` có sẵn, không cần Docker).
+- T017: `check-user-limits` đọc env trong hàm (Directus đọc ở cấp module; quy ước của repo cấm `useEnv` cấp module).
+- T019, T026: `ItemsService` đọc `MAX_BATCH_MUTATION`, `shouldClearCache` đọc `CACHE_AUTO_PURGE_IGNORE_LIST`; hai biến
+  này chuyển sang nhóm A cùng các biến của contracts/config.md §1.
+- T021: thêm `createAuthDb()` vào `apps/api/test/directus-db.ts` (bảng `directus_*` mà service auth ghi, trên SQLite).
+- T025: JWT ký bằng secret khác tới `/auth/*` trả `403 INVALID_TOKEN` như Directus (static token không tồn tại mới là
+  `401 INVALID_CREDENTIALS`). Test của pipeline mock `getDatabase` vì vitest nạp `knex.mjs` (không có `knex.default`);
+  Node chạy bản CJS nên `knex.default` của `database/index.ts` (giống Directus) vẫn đúng.
+- T026: test `warn-unsupported-variables` đổi biến mẫu nhóm C từ `AUTH_PROVIDERS` sang `EMAIL_TRANSPORT`. Danh sách nhóm
+  A trong `specs/001-platform-foundation/contracts/config.md` §5 có thêm biến của 003 (như 002 đã làm).
+- T029: port cả `refresh`, `updateStatefulSession`, `logout`, `verifyPassword` cùng lúc với `login` (một lần biến đổi
+  file gốc); T036 còn lại phần test và controller. `updatedPayload`, `customClaims` giữ tên như Directus (bằng payload
+  gốc vì không có filter event, D-26) để dễ so với bản gốc khi nâng phiên bản.
+- T030: Nest trả `201` cho `@Post`; route auth đặt `@HttpCode(200)` như Directus. Handler login của driver tự tạo
+  `AuthenticationService` như router gốc, nên factory trong `providers.ts` để tới T037 (refresh, logout dùng nó).
+- T032: guard `accepted-differences.test.ts` đòi D-09.1 còn trong danh sách tới khi 003 Done. Thay vì xóa, D-09.1 có
+  `excludeEndpoints` (trường mới) loại route đã làm: `/auth/login*` ở T032; T037 thêm `refresh`, `logout`; T051 thêm
+  `password/*`; US7 thêm `GET /auth` và callback; xóa hẳn khi mọi route `/auth` đã làm. D-10 loại `/auth`, `/auth/*`.
+  `snapshotOf` bỏ `X-Powered-By` (D-01) như `parity()`.

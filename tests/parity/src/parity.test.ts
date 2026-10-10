@@ -276,6 +276,23 @@ describe('accepted differences: when, any, RegExp pointers', () => {
 		expect(classify('GET /server/info', diffs, [entry], base(403, {})).differences).toHaveLength(1);
 	});
 
+	test('`excludeEndpoints` leaves endpoints out (D-10 and the auth routes of feature 003)', async () => {
+		const { classify } = await import('./parity.js');
+		const entry: AcceptedDifference = {
+			id: 'D-10',
+			feature: '001',
+			kind: 'http',
+			endpoints: ['*'],
+			excludeEndpoints: ['* /auth', '* /auth/*'],
+			location: { any: true },
+			reason: 't',
+		};
+		const diffs: Difference[] = [{ kind: 'status', location: '', directus: 401, backoffice: 200 }];
+		expect(classify('GET /server/info', diffs, [entry]).accepted).toHaveLength(1);
+		expect(classify('POST /AUTH/login', diffs, [entry]).differences).toHaveLength(1);
+		expect(classify('GET /auth', diffs, [entry]).differences).toHaveLength(1);
+	});
+
 	test('`when.directusCode` reads errors[0].extensions.code', async () => {
 		const { classify } = await import('./parity.js');
 		const entry: AcceptedDifference = {

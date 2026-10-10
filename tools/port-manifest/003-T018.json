@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/payload.ts",
+		"dest": "apps/api/src/services/payload.service.ts"
+	},
+	{
+		"source": "api/src/services/payload.test.ts",
+		"dest": "apps/api/src/services/payload.service.test.ts"
+	}
+]

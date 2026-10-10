@@ -21,6 +21,8 @@ Tên, mặc định và cách ép kiểu giống Directus 11.17.4 (`libs/env`, p
 | `PASSWORD_RESET_URL_ALLOW_LIST` | không có | Kiểm `reset_url` |
 | `HASH_.+` | không có (mặc định của argon2) | Tham số `argon2.hash` (`HASH_RAW` bị bỏ như Directus) |
 | `USERS_ADMIN_ACCESS_LIMIT`, `USERS_APP_ACCESS_LIMIT`, `USERS_API_ACCESS_LIMIT` | `Infinity` | Kiểm số user khi ghi `directus_users` (`validateUserCountIntegrity`) |
+| `MAX_BATCH_MUTATION` | `Infinity` | Số item tối đa mỗi lần ghi của `ItemsService` |
+| `CACHE_AUTO_PURGE_IGNORE_LIST` | `directus_activity,directus_presets` | Collection không xóa cache khi ghi (`shouldClearCache`) |
 | `AUTH_PROVIDERS` | `''` | Danh sách provider |
 | `AUTH_DISABLE_DEFAULT` | `false` | Tắt `/auth/login` của provider `default` |
 | `AUTH_ALLOWED_PUBLIC_URLS` | không có | Chọn callback URL theo origin |

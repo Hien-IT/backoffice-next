@@ -84,6 +84,7 @@ export const profilePorts = {
 	pressure: { directus: 8455, backoffice: 8456 },
 	metrics: { directus: 8555, backoffice: 8556 },
 	'cache-config': { directus: 8755, backoffice: 8756 },
+	sso: { directus: 8955, backoffice: 8956 },
 } as const;
 
 /** Host port of the second Backoffice instance of the main pair (profile `multi`, feature 002). */

@@ -1,0 +1,50 @@
+[
+	{
+		"source": "api/src/database/helpers/date/index.ts",
+		"dest": "apps/api/src/database/helpers/date/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/types.ts",
+		"dest": "apps/api/src/database/helpers/date/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/dialects/default.ts",
+		"dest": "apps/api/src/database/helpers/date/dialects/default.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/dialects/mssql.ts",
+		"dest": "apps/api/src/database/helpers/date/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/dialects/mysql.ts",
+		"dest": "apps/api/src/database/helpers/date/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/dialects/oracle.ts",
+		"dest": "apps/api/src/database/helpers/date/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/helpers/date/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/helpers/date/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/types.ts",
+		"dest": "apps/api/src/database/helpers/schema/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/default.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/default.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/mssql.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/index.ts",
+		"dest": "apps/api/src/database/helpers/schema/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/index.ts",
+		"dest": "apps/api/src/database/helpers/index.ts"
+	}
+]

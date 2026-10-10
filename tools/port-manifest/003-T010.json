@@ -1,0 +1,42 @@
+[
+	{
+		"source": "packages/utils/node/fetch-roles-tree.ts",
+		"dest": "libs/utils/src/node/fetch-roles-tree.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-roles-tree.test.ts",
+		"dest": "libs/utils/src/node/fetch-roles-tree.test.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/fetch-global-access.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/fetch-global-access.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/fetch-global-access.test.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/fetch-global-access.test.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/utils/fetch-global-access-for-query.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/utils/fetch-global-access-for-query.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/utils/fetch-global-access-for-query.test.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/utils/fetch-global-access-for-query.test.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/lib/fetch-global-access-for-roles.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/lib/fetch-global-access-for-roles.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/lib/fetch-global-access-for-roles.test.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/lib/fetch-global-access-for-roles.test.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/lib/fetch-global-access-for-user.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/lib/fetch-global-access-for-user.ts"
+	},
+	{
+		"source": "packages/utils/node/fetch-global-access/lib/fetch-global-access-for-user.test.ts",
+		"dest": "libs/utils/src/node/fetch-global-access/lib/fetch-global-access-for-user.test.ts"
+	}
+]

@@ -13,6 +13,8 @@ export type AcceptedDifference = {
 	kind: 'http' | 'doc';
 	/** 'METHOD /path', '* /path' (any method), a trailing '*' for a prefix, or '*' for every endpoint. */
 	endpoints?: string[];
+	/** Endpoints left out of `endpoints`, same syntax. */
+	excludeEndpoints?: string[];
 	/** `any`: every difference of the matching responses (use with `when`); a RegExp pointer matches many paths. */
 	location?: { status: true } | { header: string } | { jsonPointer: string | RegExp } | { any: true };
 	/** Only for responses where Directus answered this status / error code (e.g. D-10: 401 on an invalid token). */
@@ -76,6 +78,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '003',
 		kind: 'http',
 		endpoints: route('/auth'),
+		// Feature 003 compares each auth route once built; the entry goes when every /auth route is.
+		excludeEndpoints: route('/auth/login'),
 		location: { any: true },
 		reason: 'Built by feature 003.',
 	},
@@ -167,6 +171,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '004',
 		kind: 'http',
 		endpoints: ['*'],
+		// Feature 003 authenticates its own routes (D-10 of spec 003).
+		excludeEndpoints: route('/auth'),
 		location: { any: true },
 		when: { directusStatus: 401 },
 		reason: 'Tokens are ignored until authentication (003) and permissions (004): requests are answered as public.',

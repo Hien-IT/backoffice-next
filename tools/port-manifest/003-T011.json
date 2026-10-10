@@ -1,0 +1,54 @@
+[
+	{
+		"source": "api/src/utils/jwt.ts",
+		"dest": "apps/api/src/utils/jwt.ts"
+	},
+	{
+		"source": "api/src/utils/jwt.test.ts",
+		"dest": "apps/api/src/utils/jwt.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-secret.ts",
+		"dest": "apps/api/src/utils/get-secret.ts"
+	},
+	{
+		"source": "api/src/utils/is-directus-jwt.ts",
+		"dest": "apps/api/src/utils/is-directus-jwt.ts"
+	},
+	{
+		"source": "api/src/utils/is-directus-jwt.test.ts",
+		"dest": "apps/api/src/utils/is-directus-jwt.test.ts"
+	},
+	{
+		"source": "api/src/utils/verify-session-jwt.ts",
+		"dest": "apps/api/src/utils/verify-session-jwt.ts"
+	},
+	{
+		"source": "api/src/utils/stall.ts",
+		"dest": "apps/api/src/utils/stall.ts"
+	},
+	{
+		"source": "api/src/utils/stall.test.ts",
+		"dest": "apps/api/src/utils/stall.test.ts"
+	},
+	{
+		"source": "api/src/utils/is-url-allowed.ts",
+		"dest": "apps/api/src/utils/is-url-allowed.ts"
+	},
+	{
+		"source": "api/src/utils/is-url-allowed.test.ts",
+		"dest": "apps/api/src/utils/is-url-allowed.test.ts"
+	},
+	{
+		"source": "api/src/utils/generate-hash.ts",
+		"dest": "apps/api/src/utils/generate-hash.ts"
+	},
+	{
+		"source": "api/src/utils/encrypt.ts",
+		"dest": "apps/api/src/utils/encrypt.ts"
+	},
+	{
+		"source": "api/src/utils/encrypt.test.ts",
+		"dest": "apps/api/src/utils/encrypt.test.ts"
+	}
+]
