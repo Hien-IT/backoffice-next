@@ -59,8 +59,11 @@ docker compose -f dev/directus-reference/docker-compose.yml exec redis redis-cli
 
 Kết quả mong đợi:
 
-- Key `permissions:policies-…` và `permissions:raw-permissions-…`.
-- Kênh `directus:bus:schemaChanged` và `permissions:multi-cache`.
+- Có key `permissions:policies-…` và `permissions:raw-permissions-…` (app mới ghi đúng các key này cho request
+  public). Directus còn ghi thêm key khác, ví dụ `permissions:policies-ip-access-…` (khóa cache response, D-11) và
+  `permissions:global-access-…`, `permissions:roles-tree-…` khi có request của admin.
+- Kênh `directus:bus:schemaChanged` và `permissions:multi-cache`. Directus còn nghe `directus:bus:flows`,
+  `directus:bus:extensions.reload`, `directus:bus:websocket.event`; app mới không nghe các kênh này (ngoài phạm vi).
 - Kênh `directus:bus:schemaCache--done` chỉ xuất hiện trong lúc có process đang chờ.
 
 So với [contracts/redis.md](./contracts/redis.md).

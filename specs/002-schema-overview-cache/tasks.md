@@ -650,3 +650,5 @@ Task: "captureSchema / replaySchema in tests/parity/src/schema/capture.ts"
   `accepted-differences.test.ts` nay bỏ qua mã đã được feature `Done` gỡ).
 - Độ trễ đo ở local (Docker Desktop, Directus giả lập amd64): Directus → app mới 20–25 ms, app mới → Directus 57 ms;
   Redis mất với cache trống: cả hai trả `500` sau khoảng 12 s.
+- T029: trên SQLite, bước tạo 3 bảng bị bỏ qua bằng SQL từ host không chạy (file DB thuộc container, runner Linux
+  không ghi được); hành vi bỏ qua các bảng này kiểm trên Postgres và MySQL.
