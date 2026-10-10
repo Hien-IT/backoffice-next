@@ -633,3 +633,6 @@ Task: "T061 ldap.ts"
   `sso` đặt `AUTH_OIDC*_ISSUER_DISCOVERY_MUST_SUCCEED=false` và `AUTH_OIDC*_CLIENT_HTTP_TIMEOUT=10000` (chung cho hai
   app; discovery lỗi thì thử lại ở lần đăng nhập đầu). Ca thoát khi discovery lỗi vẫn được kiểm ở
   `startup/auth-providers.test.ts`.
+- CI (run 38077738639): ca "Redis down" của `server/health.test.ts` (001) phụ thuộc thứ tự file: Directus chạy bước
+  schema cả ở `/server/health` (D-13), nên khi test trước đã xóa schema trong bộ nhớ thì nó trả `500` ngay thay vì
+  chờ Redis. Test nay gọi `/server/info` ở cả hai app trước khi tắt Redis, đúng điều kiện lúc đo trên Directus.

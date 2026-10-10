@@ -54,6 +54,12 @@ describe('/server', () => {
 			'Redis down with CACHE_STORE=redis → neither app answers (measured on Directus 11.17.4, FR-025)',
 			{ timeout: 120_000 },
 			async () => {
+				// Directus runs the schema step on /server/health: without a schema in memory (an earlier test emptied
+				// it) it needs Redis and fails at once (D-13). Build it in every process first, as when this was measured.
+				for (const url of [process.env['DIRECTUS_URL']!, process.env['BACKOFFICE_URL']!]) {
+					await capture(url, { path: '/server/info' });
+				}
+
 				redisDown();
 
 				try {
