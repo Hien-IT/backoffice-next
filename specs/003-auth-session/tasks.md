@@ -628,3 +628,8 @@ Task: "T061 ldap.ts"
   rồi xóa role này).
 - Bộ đối chiếu `full` trên Postgres chạy cục bộ: 40 file, 325 ca đạt (trước khi bỏ `/auth` khỏi ca "chưa làm" của
   `errors.test.ts`), rồi các file đổi ở Phase 10 đạt 34/34.
+- CI (run 38074801197): discovery OpenID của `backoffice-api-sso` quá 3,5 s (timeout mặc định của openid-client) khi
+  runner đang khởi động mọi container, app thoát như Directus với `ISSUER_DISCOVERY_MUST_SUCCEED` mặc định. Profile
+  `sso` đặt `AUTH_OIDC*_ISSUER_DISCOVERY_MUST_SUCCEED=false` và `AUTH_OIDC*_CLIENT_HTTP_TIMEOUT=10000` (chung cho hai
+  app; discovery lỗi thì thử lại ở lần đăng nhập đầu). Ca thoát khi discovery lỗi vẫn được kiểm ở
+  `startup/auth-providers.test.ts`.
