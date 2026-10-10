@@ -608,15 +608,16 @@ Task: "T061 ldap.ts"
 - T063: D-24 gồm danh sách provider của `GET /auth` (kèm `etag`), `/auth/login/saml*`, và refresh, logout khi app mới
   trả `INVALID_PROVIDER_CONFIG` (`when.backofficeCode`, trường mới). D-09.1 loại mọi route `/auth` (guard gỡ khi 003
   Done). Harness chuẩn hóa body text của redirect như header `Location` và `auth_data.refreshToken`.
-- T064: đọc mã autocannon 8.0.0: `Client#destroy` gỡ listener `error` trước khi hủy kết nối, nên request còn dở lúc
-  hết `duration` bị bỏ, không tính là lỗi hay timeout; giữ `duration` như `run.ts`. `timeout` 120 s cho hàng đợi
-  đăng nhập (argon2 4 luồng và `LOGIN_STALL_TIME`).
-- T064 (đo thử cục bộ): ở 2.000 kết nối, máy arm64 với Directus chạy giả lập qua Docker Desktop không trả được request
-  nào trong 10 s, nên số liệu chỉ lấy từ CI; không có lỗi nào được tính dù hàng nghìn request còn dở (xác nhận cách
-  đọc mã ở trên). autocannon reset `context` mỗi lần duyệt hết `requests` (ở đây là mỗi request), nên trạng thái để
-  ngoài context: user và access token xoay vòng, refresh token qua một hàng đợi (request lấy một, response trả token
-  mới). Khi `overallRate` nhỏ hơn số kết nối, autocannon giảm số kết nối xuống bằng `overallRate`: pha đo p95 chạy
-  với ít kết nối, pha thông lượng đủ 2.000.
+- T064: đo theo `amount`, không theo `duration`. Trên CI (run 38082463685), ở 2.000 kết nối không request đăng nhập
+  nào xong trong vòng 20 s ở cả hai app: mọi request đi qua hàng đợi pool DB và argon2 cùng nhịp, xong gần như cùng
+  lúc. Request bị bỏ khi hết vòng vẫn chạy trên server và dồn sang các vòng, các endpoint sau (Directus vẫn còn xử lý
+  đăng nhập của vòng đầu tới khi job kết thúc). Nay pha thông lượng gửi 2.000 kết nối × 1 đăng nhập (× 5 với refresh
+  và TFA) rồi chờ hết, req/s = số request / thời gian tới response cuối (autocannon chỉ dừng ở nhịp mỗi giây, nên không
+  dùng thời gian của nó); pha p95 gửi `tốc độ × BENCH_DURATION` request ở tốc độ cố định; `timeout` 300 s. Mỗi lần đo
+  in một dòng tiến độ; bảng kết quả in trước khi dọn dữ liệu; CI in trạng thái container và log khi job lỗi.
+  autocannon reset `context` mỗi lần duyệt hết `requests`, nên trạng thái để ngoài context: user và access token xoay
+  vòng, refresh token qua một hàng đợi. Khi `overallRate` nhỏ hơn số kết nối, autocannon giảm số kết nối xuống bằng
+  `overallRate`.
 - T065: seed ở `tests/benchmark/src/seed-auth.ts` (xóa user, session, activity đã tạo khi xong); số kết nối đổi được
   bằng `BENCH_CONNECTIONS` (mặc định 2.000) để đo thử cục bộ.
 - T067: thêm vào bộ request chung `GET /auth`, đăng nhập và `password/request` với email không có (không chạm bộ đếm

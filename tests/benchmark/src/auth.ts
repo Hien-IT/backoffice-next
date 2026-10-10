@@ -1,10 +1,14 @@
 // Benchmark of the auth routes against Directus 11.17.4 (SC-007, research R12 of spec 003), like run.ts: per endpoint a
-// warm-up, then BENCH_ROUNDS rounds alternating the apps in two phases (throughput, then p95 at 80% of the Directus
-// req/s), compared by compare.ts (10%, a round with errors fails). 2,000 connections. autocannon resets the request
-// context each time a connection loops over `requests` (here: every request), so state lives outside it: users and
-// access tokens go round-robin, refresh tokens through a pool (a request takes one, its answer gives the next).
-// Requests still open when a round ends are dropped by autocannon without counting as errors (Client#destroy
-// removes the error listeners first; T064). Needs `benchmark:env-up` first.
+// warm-up, then BENCH_ROUNDS rounds alternating the apps in two phases, compared by compare.ts (10%, a round with
+// errors fails):
+// - throughput: 2,000 connections send their requests at once (one login, five refreshes or TFA generations each);
+//   req/s = requests / time until the last answer;
+// - latency: p95 at a fixed rate of 80% of the Directus req/s, for BENCH_DURATION seconds of requests.
+// Rounds count requests (`amount`), not time: at 2,000 connections no login answers within a 20 s round (every request
+// moves through the DB pool and argon2 queues in step), and the requests a timed round drops keep the server busy in
+// the next rounds (seen on CI, T064). autocannon resets the request context each time a connection loops over
+// `requests`, so state lives outside it: users and access tokens go round-robin, refresh tokens through a pool (a
+// request takes one, its answer gives the next). Needs `benchmark:env-up` first.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import jwt from 'jsonwebtoken';
@@ -26,13 +30,15 @@ const BACKOFFICE = process.env['BACKOFFICE_URL'] ?? 'http://127.0.0.1:8156';
 const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
 const CONNECTIONS = Number(process.env['BENCH_CONNECTIONS'] ?? 2000);
-const WARMUP = 5;
+const WARMUP = 200;
 const RATE_SHARE = 0.8;
-// A login waits for argon2 (4 threads) and LOGIN_STALL_TIME behind up to 2,000 others: never a timeout.
-const TIMEOUT = 120;
+// The last of 2,000 logins answers after all the others (argon2 on 4 threads, the DB pool): never a timeout.
+const TIMEOUT = 300;
 
 interface Endpoint {
 	name: string;
+	/** Requests per connection in the throughput phase: logins are slow enough with one, the others need more. */
+	perConnection: number;
 	/** Requests of one measured run; called right before it (refresh takes a fresh batch of sessions). */
 	requests: () => Promise<autocannon.Request[]>;
 }
@@ -43,6 +49,7 @@ function endpoints(seeded: Seed): Endpoint[] {
 	return [
 		{
 			name: 'POST /auth/login',
+			perConnection: 1,
 			requests: async () => {
 				let next = 0;
 
@@ -61,6 +68,7 @@ function endpoints(seeded: Seed): Endpoint[] {
 		},
 		{
 			name: 'POST /auth/refresh (json)',
+			perConnection: 5,
 			requests: async () => {
 				const pool = await sessions(seeded);
 
@@ -81,6 +89,7 @@ function endpoints(seeded: Seed): Endpoint[] {
 			// The authenticate step: a signed access token of a user of another provider, answered without a password
 			// and without writing (the only route of feature 003 that needs a user).
 			name: 'POST /users/me/tfa/generate',
+			perConnection: 5,
 			requests: async () => {
 				const tokens = seeded.provider.map((id) =>
 					jwt.sign({ id, role: seeded.role, app_access: true, admin_access: false }, SECRET, {
@@ -108,27 +117,36 @@ function endpoints(seeded: Seed): Endpoint[] {
 	];
 }
 
-async function measure(baseUrl: string, endpoint: Endpoint, duration: number, overallRate?: number): Promise<Round> {
+async function measure(baseUrl: string, endpoint: Endpoint, amount: number, overallRate?: number): Promise<Round> {
 	const histogram = createLatencyHistogram();
 	const requests = await endpoint.requests();
+
+	// autocannon ends a run on its next one-second tick: time the rounds up to the last answer instead.
+	const start = performance.now();
+	let last = start;
 
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
 		const options = {
 			url: baseUrl,
-			connections: CONNECTIONS,
-			duration,
+			connections: Math.min(CONNECTIONS, amount),
+			amount,
 			timeout: TIMEOUT,
 			requests,
 			...(overallRate ? { overallRate } : {}),
 		};
 
 		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
-		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
+		instance.on('response', (_client, _status, _bytes, responseTime) => {
+			recordLatency(histogram, responseTime);
+			last = performance.now();
+		});
 	});
+
+	const seconds = Math.max(0.001, (last - start) / 1000);
 
 	const round = {
 		p95: percentile(histogram, 95),
-		rps: Math.round(result.requests.average),
+		rps: Math.round(result.requests.total / seconds),
 		errors: result.errors + result.timeouts + result.non2xx,
 	};
 
@@ -139,7 +157,8 @@ async function measure(baseUrl: string, endpoint: Endpoint, duration: number, ov
 		.join(' ');
 
 	process.stdout.write(
-		`${endpoint.name} ${app} ${overallRate ? `@${overallRate} req/s` : 'throughput'} ${duration}s: ` +
+		`${endpoint.name} ${app} ${overallRate ? `@${overallRate} req/s` : 'throughput'} ${amount} requests in ` +
+			`${seconds.toFixed(1)} s: ` +
 			`${round.rps} req/s, p95 ${round.p95} ms, errors ${result.errors}, timeouts ${result.timeouts}, ${codes}\n`,
 	);
 
@@ -160,16 +179,16 @@ try {
 		const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
 		for (let i = 0; i < ROUNDS; i++) {
-			throughput.directus.push(await measure(DIRECTUS, endpoint, DURATION));
-			throughput.backoffice.push(await measure(BACKOFFICE, endpoint, DURATION));
+			throughput.directus.push(await measure(DIRECTUS, endpoint, CONNECTIONS * endpoint.perConnection));
+			throughput.backoffice.push(await measure(BACKOFFICE, endpoint, CONNECTIONS * endpoint.perConnection));
 		}
 
 		const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
 		const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
 		for (let i = 0; i < ROUNDS; i++) {
-			latency.directus.push(await measure(DIRECTUS, endpoint, DURATION, rate));
-			latency.backoffice.push(await measure(BACKOFFICE, endpoint, DURATION, rate));
+			latency.directus.push(await measure(DIRECTUS, endpoint, rate * DURATION, rate));
+			latency.backoffice.push(await measure(BACKOFFICE, endpoint, rate * DURATION, rate));
 		}
 
 		verdicts.push(
