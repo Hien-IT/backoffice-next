@@ -652,3 +652,6 @@ Task: "captureSchema / replaySchema in tests/parity/src/schema/capture.ts"
   Redis mất với cache trống: cả hai trả `500` sau khoảng 12 s.
 - T029: trên SQLite, bước tạo 3 bảng bị bỏ qua bằng SQL từ host không chạy (file DB thuộc container, runner Linux
   không ghi được); hành vi bỏ qua các bảng này kiểm trên Postgres và MySQL.
+- T039: `/server/info` cũng so với `directus-noresponsecache`. Lần chạy CI đầu (run 38038497056) so với Directus của cặp
+  chính (`CACHE_ENABLED=true`, trả GET từ cache response, D-11): 318 so với 355 req/s (thấp hơn 10,4%). Directus cấu
+  hình mặc định không có cache response, đúng mốc "cấu hình mặc định" của SC-005 và SC-006 (001).

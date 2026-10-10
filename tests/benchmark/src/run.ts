@@ -28,13 +28,14 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 const RATE_SHARE = 0.8;
 
-// /server/specs/oas: the reference is Directus with its default caching for this route: schema and permissions
+// /server/info and /server/specs/oas: the reference is Directus with its default caching: schema and permissions
 // caches on, response cache off (CACHE_ENABLED=false, its default; the response cache comes with feature 005, D-11).
-// Since feature 002 Backoffice caches the schema and permissions the same way, so the 10% gate applies (SC-005).
+// The main parity Directus runs with CACHE_ENABLED=true and answers these GETs from its response cache, which
+// Backoffice does not have yet. Since feature 002 both build the schema step the same way (SC-005).
 const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
 	{ path: '/server/ping', directus: DIRECTUS },
 	{ path: '/server/health', directus: DIRECTUS },
-	{ path: '/server/info', directus: DIRECTUS },
+	{ path: '/server/info', directus: DIRECTUS_NORESPONSECACHE },
 	{ path: '/server/specs/oas', directus: DIRECTUS_NORESPONSECACHE },
 ];
 

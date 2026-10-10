@@ -244,7 +244,8 @@ Test blackbox của Directus chưa dùng lại được ở feature này, vì c�
 - **Decision**: Trong `tests/benchmark`:
   - Container tham chiếu bỏ `CACHE_SCHEMA=false`, giữ `CACHE_ENABLED=false` để Directus không trả OAS từ cache
     response (D-11, 005). Đổi tên `directus-nocache` thành `directus-noresponsecache`.
-  - `run.ts` bỏ `notBlocking` của OAS.
+  - `run.ts` bỏ `notBlocking` của OAS. `/server/info` cũng so với container này (chỉnh khi làm T039: Directus của
+    cặp chính trả `/server/info` từ cache response).
   - Xóa dòng D-22 khỏi `accepted-differences.ts`. Dòng Complexity Tracking tương ứng của 001 hết hiệu lực.
 - **Rationale**: SC-005 ("so với Directus cấu hình mặc định", mặc định `CACHE_ENABLED=false`). Hai bên cùng cache
   schema và permissions, cùng `cloneDeep` mỗi request.
