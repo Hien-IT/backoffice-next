@@ -1,0 +1,3 @@
+# Semgrep CE (T098 of feature 001). Unit tests sign JWTs with literal test secrets (jwt-hardcode findings); the code
+# they test is still scanned.
+**/*.test.ts

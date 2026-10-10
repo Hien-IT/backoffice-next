@@ -41,7 +41,7 @@ test('respects OPENAPI_ENABLED and METRICS_ENABLED; other methods pass through',
 test('OPTIONS of the auth routes → Allow: POST', async () => {
 	const env = { AUTH_PROVIDERS: 'local2,sso', AUTH_LOCAL2_DRIVER: 'local', AUTH_SSO_DRIVER: 'openid' };
 
-	for (const path of ['/auth/refresh', '/auth/Logout/', '/auth/login', '/AUTH/login/', '/auth/login/LOCAL2', '/auth/login/local2/']) {
+	for (const path of ['/users/me/tfa/generate/', '/auth/password/request', '/auth/password/reset/', '/auth/refresh', '/auth/Logout/', '/auth/login', '/AUTH/login/', '/auth/login/LOCAL2', '/auth/login/local2/']) {
 		const res = await app(env).options(path);
 		expect(res.headers['allow'], path).toBe('POST');
 		expect(res.text).toBe('POST');

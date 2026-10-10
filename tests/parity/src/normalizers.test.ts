@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
 	normalizeBody,
+	normalizeDeep,
 	normalizeHeader,
 	normalizeJwt,
 	normalizeLocation,
@@ -106,4 +107,12 @@ describe('Location', () => {
 		);
 		expect(normalizeHeader('location', './?prompt=true')).toBe('./?prompt=true');
 	});
+});
+
+test('TFA secret and otpauth URL', () => {
+	expect(
+		normalizeDeep({
+			data: { secret: 'JBSWY3DPEHPK3PXP', otpauth_url: 'otpauth://totp/P:a%40b.c?secret=JBSWY3DPEHPK3PXP&issuer=P' },
+		}),
+	).toEqual({ data: { secret: '<base32>', otpauth_url: 'otpauth://totp/P:a%40b.c?secret=<base32>&issuer=P' } });
 });

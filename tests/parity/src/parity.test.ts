@@ -291,6 +291,10 @@ describe('accepted differences: when, any, RegExp pointers', () => {
 		expect(classify('GET /server/info', diffs, [entry]).accepted).toHaveLength(1);
 		expect(classify('POST /AUTH/login', diffs, [entry]).differences).toHaveLength(1);
 		expect(classify('GET /auth', diffs, [entry]).differences).toHaveLength(1);
+
+		const toggle = { ...entry, endpoints: ['* /users/*/tfa/disable'], excludeEndpoints: [] };
+		expect(classify('POST /users/abc/tfa/disable', diffs, [toggle]).accepted).toHaveLength(1);
+		expect(classify('POST /users/abc/tfa/enable', diffs, [toggle]).differences).toHaveLength(1);
 	});
 
 	test('`when.directusCode` reads errors[0].extensions.code', async () => {

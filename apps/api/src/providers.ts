@@ -7,6 +7,8 @@ import { AuthenticationService } from './services/authentication.service.js';
 import { ServerService } from './services/server.service.js';
 import { SettingsService } from './services/settings.service.js';
 import { SpecificationService } from './services/specifications.service.js';
+import { TFAService } from './services/tfa.service.js';
+import { UsersService } from './services/users.service.js';
 
 /**
  * Infrastructure written as shared functions in Directus (useEnv, useLogger, getDatabase, useRedis) stays a
@@ -54,6 +56,16 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: SpecificationService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new SpecificationService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: TFAService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new TFAService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: UsersService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new UsersService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 ];

@@ -20,6 +20,8 @@ export function compose(...args: string[]): string {
 			env: { ...process.env, TEST_DB: vendor },
 			encoding: 'utf8',
 			stdio: ['ignore', 'pipe', 'pipe'],
+			// `logs` of a long-running environment passes the 1 MB default (ENOBUFS).
+			maxBuffer: 256 * 1024 * 1024,
 		},
 	);
 }

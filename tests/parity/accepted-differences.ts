@@ -11,7 +11,7 @@ export type AcceptedDifference = {
 	removeAt?: string;
 	/** 'doc': outside HTTP responses (logs, packages, migrations, startup); the comparer ignores it. */
 	kind: 'http' | 'doc';
-	/** 'METHOD /path', '* /path' (any method), a trailing '*' for a prefix, or '*' for every endpoint. */
+	/** 'METHOD /path', '* /path' (any method), '*' in a path for any characters, or '*' for every endpoint. */
 	endpoints?: string[];
 	/** Endpoints left out of `endpoints`, same syntax. */
 	excludeEndpoints?: string[];
@@ -25,6 +25,12 @@ export type AcceptedDifference = {
 };
 
 const route = (...paths: string[]) => paths.flatMap((p) => [`* ${p}`, `* ${p}/*`]);
+
+const TFA_GENERATE = ['* /users/me/tfa/generate', '* /users/me/tfa/generate/'];
+const TFA_TOGGLE = ['* /users/me/tfa/enable', '* /users/me/tfa/disable', '* /users/*/tfa/disable'].flatMap((p) => [
+	p,
+	`${p}/`,
+]);
 
 export const acceptedDifferences: AcceptedDifference[] = [
 	{
@@ -79,7 +85,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'http',
 		endpoints: route('/auth'),
 		// Feature 003 compares each auth route once built; the entry goes when every /auth route is.
-		excludeEndpoints: route('/auth/login', '/auth/refresh', '/auth/logout'),
+		excludeEndpoints: route('/auth/login', '/auth/refresh', '/auth/logout', '/auth/password'),
 		location: { any: true },
 		reason: 'Built by feature 003.',
 	},
@@ -89,6 +95,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '004',
 		kind: 'http',
 		endpoints: route('/users', '/roles', '/policies', '/access', '/permissions'),
+		// Built by feature 003 (D-09 of spec 003); enabling and disabling TFA is D-09.10.
+		excludeEndpoints: [...TFA_GENERATE, ...TFA_TOGGLE],
 		location: { any: true },
 		reason: 'Built by feature 004.',
 	},
@@ -172,7 +180,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'http',
 		endpoints: ['*'],
 		// Feature 003 authenticates its own routes (D-10 of spec 003).
-		excludeEndpoints: route('/auth'),
+		excludeEndpoints: [...route('/auth'), ...TFA_GENERATE],
 		location: { any: true },
 		when: { directusStatus: 401 },
 		reason: 'Tokens are ignored until authentication (003) and permissions (004): requests are answered as public.',
@@ -246,5 +254,33 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason:
 			'proxy-addr 2.0.8 (security patch): IPv4-mapped IPv6 addresses behind a trusted proxy; no parity request uses one.',
+	},
+	// Feature 003
+	{
+		id: 'D-09.10',
+		feature: '003',
+		removeAt: '005',
+		kind: 'http',
+		endpoints: TFA_TOGGLE,
+		location: { any: true },
+		reason: 'Enabling and disabling TFA checks permissions through ItemsService (feature 005).',
+	},
+	{ id: 'D-23', feature: '003', kind: 'doc', reason: 'No password reset email: a log line without token or link.' },
+	{
+		id: 'D-25',
+		feature: '003',
+		kind: 'http',
+		endpoints: TFA_GENERATE,
+		location: { jsonPointer: '/data/otpauth_url' },
+		directus: /issuer=Directus$/,
+		backoffice: /issuer=Backoffice$/,
+		reason: 'TFA issuer label when project_name is empty (Principle IX).',
+	},
+	{
+		id: 'D-26',
+		feature: '003',
+		removeAt: '009',
+		kind: 'doc',
+		reason: 'No auth.login, auth.jwt, auth.create, auth.update or authenticate events (flows: feature 009).',
 	},
 ];

@@ -76,6 +76,13 @@ describe('encrypt/decrypt (AES-256-GCM with scrypt KDF, v1 envelope)', () => {
 		await expect(decrypt(tampered, key)).rejects.toThrow();
 	});
 
+	// Backoffice: authTagLength 16 (Semgrep gcm-no-tag-length)
+	it('throws when the tag is truncated', async () => {
+		const parts = (await encrypt('payload', 'short-tag-key')).split('||');
+		parts[8] = Buffer.from(parts[8]!, 'base64').subarray(0, 4).toString('base64');
+		await expect(decrypt(parts.join('||'), 'short-tag-key')).rejects.toThrow();
+	});
+
 	it('handles empty plaintext', async () => {
 		const key = 'empty-key';
 		const plaintext = '';

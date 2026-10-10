@@ -1,7 +1,8 @@
-// POST /auth/login and /auth/login/:provider end to end (pipeline, controller, driver, service) on the SQLite auth
-// test database. Parity with Directus is checked by tests/parity/src/auth/login*.test.ts.
+// The routes of feature 003 end to end (pipeline, authenticate, controllers, drivers, services) on the SQLite auth
+// test database. Parity with Directus is checked by tests/parity/src/auth/*.test.ts.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
+import { getSimpleHash } from '@backoffice/utils';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import type { Knex } from 'knex';
@@ -10,6 +11,7 @@ import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createAuthDb } from '../../test/directus-db.js';
 import { type App, createApp } from '../app.js';
 import { registerAuthProviders } from '../auth.js';
+import { useLogger } from '../logger/index.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
 
@@ -30,7 +32,10 @@ vi.mock('../schema/get-database-schema.js', async (importOriginal) => {
 
 vi.mock('../logger/index.js', () => {
 	const logger = { warn: vi.fn(), debug: vi.fn(), error: vi.fn(), info: vi.fn(), fatal: vi.fn(), trace: vi.fn() };
-	return { useLogger: () => logger, createExpressLogger: () => (_req: unknown, _res: unknown, next: () => void) => next() };
+	return {
+		useLogger: () => logger,
+		createExpressLogger: () => (_req: unknown, _res: unknown, next: () => void) => next(),
+	};
 });
 
 const defaults = (await vi.importActual<typeof env>('@backoffice/env')).useEnv();
@@ -64,7 +69,9 @@ beforeEach(async () => {
 	await state.db('directus_roles').insert({ id: ROLE, name: 'Editor' });
 
 	await state.db('directus_users').insert({ id: USER, email: 'User@Example.com', password, role: ROLE });
-	await state.db('directus_users').insert({ id: LOCAL2_USER, email: 'other@example.com', password, provider: 'local2' });
+	await state
+		.db('directus_users')
+		.insert({ id: LOCAL2_USER, email: 'other@example.com', password, provider: 'local2' });
 });
 
 afterEach(async () => {
@@ -106,7 +113,9 @@ describe('POST /auth/login', () => {
 
 		expect(Object.keys(res.body.data).sort()).toEqual(['access_token', 'expires']);
 		expect(res.headers['set-cookie']).toEqual([
-			expect.stringMatching(/^directus_refresh_token=[\w-]{64}; Max-Age=604800; Path=\/; Expires=.+; HttpOnly; SameSite=Lax$/),
+			expect.stringMatching(
+				/^directus_refresh_token=[\w-]{64}; Max-Age=604800; Path=\/; Expires=.+; HttpOnly; SameSite=Lax$/,
+			),
 		]);
 	});
 
@@ -115,7 +124,9 @@ describe('POST /auth/login', () => {
 
 		expect(res.body).toEqual({ data: { expires: 86_400_000 } });
 		const cookie = res.headers['set-cookie']![0]!;
-		expect(cookie).toMatch(/^directus_session_token=[^;]+; Max-Age=86400; Path=\/; Expires=.+; HttpOnly; SameSite=Lax$/);
+		expect(cookie).toMatch(
+			/^directus_session_token=[^;]+; Max-Age=86400; Path=\/; Expires=.+; HttpOnly; SameSite=Lax$/,
+		);
 
 		const claims = jwt.verify(cookie.split(/[=;]/)[1]!, SECRET) as Record<string, unknown>;
 		expect(await state.db('directus_sessions').where({ token: claims['session'] }).first()).toBeTruthy();
@@ -130,7 +141,10 @@ describe('POST /auth/login', () => {
 
 		const invalid = await agent.post('/auth/login').send({ email: 'not-an-email', password: 'x' });
 		expect(invalid.status).toBe(400);
-		expect(invalid.body.errors[0].extensions).toEqual({ code: 'INVALID_PAYLOAD', reason: '"email" must be a valid email' });
+		expect(invalid.body.errors[0].extensions).toEqual({
+			code: 'INVALID_PAYLOAD',
+			reason: '"email" must be a valid email',
+		});
 	});
 
 	test('AUTH_DISABLE_DEFAULT: 404', async () => {
@@ -216,7 +230,9 @@ describe('POST /auth/refresh', () => {
 		const agent = await start();
 		const share = 'e0000000-0000-4000-8000-000000000001';
 		await state.db('directus_shares').insert({ id: share });
-		await state.db('directus_sessions').insert({ token: 's'.repeat(64), share, expires: new Date(Date.now() + 60_000) });
+		await state
+			.db('directus_sessions')
+			.insert({ token: 's'.repeat(64), share, expires: new Date(Date.now() + 60_000) });
 
 		const res = await agent.post('/auth/refresh').send({ refresh_token: 's'.repeat(64) });
 		expect(res.status).toBe(200);
@@ -277,5 +293,131 @@ describe('POST /auth/logout', () => {
 	test('no token: 400', async () => {
 		const res = await (await start()).post('/auth/logout').send({});
 		expect(res.status).toBe(400);
+	});
+});
+
+describe('POST /users/me/tfa/generate', () => {
+	const generate = (agent: Awaited<ReturnType<typeof start>>) => agent.post('/users/me/tfa/generate');
+
+	test('with the access token as Bearer, query parameter or session cookie', async () => {
+		const agent = await start();
+		const { access_token } = (await agent.post('/auth/login').send(login)).body.data;
+
+		const res = await generate(agent).set('Authorization', `Bearer ${access_token}`).send({ password: 'secret' });
+		expect(res.status).toBe(200);
+		expect(res.body.data.secret).toMatch(/^[A-Z2-7]+$/);
+		expect(res.body.data.otpauth_url).toBe(
+			`otpauth://totp/Backoffice:User%40Example.com?secret=${res.body.data.secret}&period=30&digits=6&algorithm=SHA1&issuer=Backoffice`,
+		);
+
+		const query = await agent.post(`/users/me/tfa/generate?access_token=${access_token}`).send({ password: 'secret' });
+		expect(query.status).toBe(200);
+
+		const session = (await agent.post('/auth/login').send({ ...login, mode: 'session' })).headers['set-cookie']![0]!;
+		const cookie = await generate(agent).set('Cookie', session.split(';')[0]!).send({ password: 'secret' });
+		expect(cookie.status).toBe(200);
+	});
+
+	test('errors: no token 401, no or wrong password, TFA already on', async () => {
+		const agent = await start();
+		const { access_token } = (await agent.post('/auth/login').send(login)).body.data;
+		const bearer = `Bearer ${access_token}`;
+
+		const anonymous = await generate(agent).send({ password: 'secret' });
+		expect(anonymous.status).toBe(401);
+		expect(anonymous.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');
+
+		const noPassword = await generate(agent).set('Authorization', bearer).send({});
+		expect(noPassword.status).toBe(400);
+		expect(noPassword.body.errors[0].extensions.reason).toBe('"password" is required');
+
+		expect((await generate(agent).set('Authorization', bearer).send({ password: 'nope' })).status).toBe(401);
+
+		await state.db('directus_users').update({ tfa_secret: 'X' }).where({ id: USER });
+		const enabled = await generate(agent).set('Authorization', bearer).send({ password: 'secret' });
+		expect(enabled.status).toBe(400);
+		expect(enabled.body.errors[0].extensions.reason).toBe('TFA Secret is already set for this user');
+	});
+
+	test('a static token; an expired token 401 TOKEN_EXPIRED', async () => {
+		const agent = await start();
+		await state.db('directus_users').update({ token: 'static-token' }).where({ id: USER });
+
+		expect(
+			(await generate(agent).set('Authorization', 'Bearer static-token').send({ password: 'secret' })).status,
+		).toBe(200);
+
+		const expired = jwt.sign({ id: USER, role: ROLE, app_access: false, admin_access: false }, SECRET, {
+			issuer: 'directus',
+			expiresIn: -1,
+		});
+
+		const res = await generate(agent).set('Authorization', `Bearer ${expired}`).send({ password: 'secret' });
+		expect(res.status).toBe(401);
+		expect(res.body.errors[0].extensions.code).toBe('TOKEN_EXPIRED');
+	});
+});
+
+describe('POST /auth/password/request and /auth/password/reset', () => {
+	const resetToken = async (scope = 'password-reset') => {
+		const { password } = await state.db('directus_users').where({ id: USER }).first();
+		return jwt.sign({ email: 'User@Example.com', scope, hash: getSimpleHash('' + password) }, SECRET, {
+			expiresIn: '1d',
+			issuer: 'directus',
+		});
+	};
+
+	test('request: 204 with a log line naming the user and no token; unknown email 204 too', async () => {
+		const agent = await start();
+
+		const res = await agent.post('/auth/password/request').send({ email: 'user@example.com' });
+		expect(res.status).toBe(204);
+		expect(useLogger().warn).toHaveBeenCalledWith(
+			'[email] Password reset email to "User@Example.com" was not sent: Backoffice does not send email.',
+		);
+
+		expect((await agent.post('/auth/password/request').send({ email: 'nobody@example.com' })).status).toBe(204);
+	});
+
+	test('request errors: no email 400, reset_url outside the allow list 400', async () => {
+		const agent = await start();
+
+		const missing = await agent.post('/auth/password/request').send({});
+		expect(missing.body.errors[0].extensions).toEqual({ code: 'INVALID_PAYLOAD', reason: '"email" field is required' });
+
+		const url = await agent
+			.post('/auth/password/request')
+			.send({ email: 'user@example.com', reset_url: 'https://evil.example' });
+		expect(url.status).toBe(400);
+		expect(url.body.errors[0].extensions.reason).toBe('URL "https://evil.example" can\'t be used to reset passwords');
+	});
+
+	test('reset: the password changes, every session goes, the token works once', async () => {
+		const agent = await start();
+		await agent.post('/auth/login').send(login);
+		const token = await resetToken();
+
+		expect((await agent.post('/auth/password/reset').send({ token, password: 'new-secret' })).status).toBe(204);
+		expect(await state.db('directus_sessions').where({ user: USER })).toEqual([]);
+		expect((await agent.post('/auth/login').send({ ...login, password: 'new-secret' })).status).toBe(200);
+
+		const again = await agent.post('/auth/password/reset').send({ token, password: 'other' });
+		expect(again.status).toBe(403);
+		expect(again.body.errors[0].extensions.code).toBe('FORBIDDEN');
+	});
+
+	test('reset errors: missing fields 400, another scope 403, password policy 400', async () => {
+		const agent = await start();
+
+		expect((await agent.post('/auth/password/reset').send({ password: 'x' })).status).toBe(400);
+		expect((await agent.post('/auth/password/reset').send({ token: 'x' })).status).toBe(400);
+		expect(
+			(await agent.post('/auth/password/reset').send({ token: await resetToken('invite'), password: 'x' })).status,
+		).toBe(403);
+
+		await state.db('directus_settings').insert({ auth_password_policy: '/^.{8,}$/' });
+		const weak = await agent.post('/auth/password/reset').send({ token: await resetToken(), password: 'short' });
+		expect(weak.status).toBe(400);
+		expect(weak.body.errors[0].extensions.code).toBe('FAILED_VALIDATION');
 	});
 });

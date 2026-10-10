@@ -67,17 +67,27 @@ export async function captureDbEffects(userId: string, fn: () => Promise<unknown
 
 const DATE_COLUMNS = new Set(['timestamp', 'expires', 'last_access']);
 
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+	typeof value === 'object' && value !== null && !Array.isArray(value);
+
 function normalizeValue(column: string, value: unknown): unknown {
 	if (value === null || value === undefined) return value ?? null;
 	if (DATE_COLUMNS.has(column)) return '<date>';
 	if (typeof value === 'string' && (column === 'token' || column === 'next_token')) return tokenKind(value);
 	if (column === 'password' && typeof value === 'string') return value.replace(/\$[^$]+\$[^$]+$/, '$<salt>$<hash>');
-	if ((column === 'data' || column === 'delta') && typeof value === 'string') {
+	if (column === 'data' || column === 'delta') {
+		let parsed = value;
+
 		try {
-			return JSON.parse(value);
+			if (typeof value === 'string') parsed = JSON.parse(value);
 		} catch {
 			return value;
 		}
+
+		// Revision snapshots carry the same columns (last_access, password, ...): same markers.
+		return isRecord(parsed)
+			? Object.fromEntries(Object.entries(parsed).map(([k, v]) => [k, normalizeValue(k, v)]))
+			: parsed;
 	}
 
 	return value;

@@ -213,6 +213,8 @@ export function matches(matcher: Matcher | undefined, value: unknown): boolean {
 	return Object.is(matcher, value) || JSON.stringify(matcher) === JSON.stringify(value);
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
 function endpointMatches(patterns: string[] | undefined, endpoint: string): boolean {
 	if (!patterns) return false;
 
@@ -222,12 +224,13 @@ function endpointMatches(patterns: string[] | undefined, endpoint: string): bool
 	return patterns.some((pattern) => {
 		if (pattern === '*') return true;
 
-		// '* /path' matches every method; a trailing '*' matches a prefix.
+		// '* /path' matches every method.
 		const p = pattern.toLowerCase();
 		const [subject, target] = p.startsWith('* ') ? [path, p.slice(2)] : [lower, p];
 
-		if (target.endsWith('*')) return subject.startsWith(target.slice(0, -1));
-		return subject === target;
+		// '*' matches any run of characters (a trailing one: a prefix; '/users/*/tfa/disable': any user).
+		const regex = new RegExp(`^${target.split('*').map(escapeRegExp).join('.*')}$`);
+		return regex.test(subject);
 	});
 }
 

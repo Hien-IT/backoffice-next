@@ -61,7 +61,10 @@ describe('POST /auth/login', () => {
 
 	describe('incorrect credentials and payloads', () => {
 		it.each([
-			['wrong password: 401 INVALID_CREDENTIALS', () => ({ email: users['admin']!.email, password: `${PASSWORD}typo` })],
+			[
+				'wrong password: 401 INVALID_CREDENTIALS',
+				() => ({ email: users['admin']!.email, password: `${PASSWORD}typo` }),
+			],
 			['unknown email: 401 INVALID_CREDENTIALS', () => ({ email: 'nobody-parity@example.com', password: PASSWORD })],
 			['invalid email: 400 INVALID_PAYLOAD', () => ({ email: 'invalid@email', password: PASSWORD })],
 			['no password: 400 INVALID_PAYLOAD', () => ({ email: users['admin']!.email })],
@@ -108,7 +111,10 @@ describe.runIf(suite === 'full' && profileUrls('sso'))('POST /auth/login/:provid
 	});
 
 	it('a user of another provider: 401 at /auth/login/local2 and at /auth/login', async () => {
-		const other = await parity(login({ email: users['app']!.email, password: PASSWORD }, '/auth/login/local2'), options());
+		const other = await parity(
+			login({ email: users['app']!.email, password: PASSWORD }, '/auth/login/local2'),
+			options(),
+		);
 		assertParity(other);
 		expect(other.directus.status).toBe(401);
 

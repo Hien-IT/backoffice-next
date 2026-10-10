@@ -2,17 +2,19 @@
 // file (research R3 of spec 003): a provider without a handler for the method and path is a 404, like a request that
 // falls through the Express routers.
 import { useEnv } from '@backoffice/env';
-import { InvalidPayloadError, RouteNotFoundError } from '@backoffice/errors';
+import { ErrorCode, InvalidPayloadError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
 import type { Accountability } from '@backoffice/types';
 import { Controller, HttpCode, Inject, Param, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { memoize } from 'lodash-es';
 import { createLocalAuthRouter } from '../auth/drivers/local.js';
 import { DEFAULT_AUTH_PROVIDER, refreshCookieOptions, sessionCookieOptions } from '../constants.js';
+import { useLogger } from '../logger/index.js';
 import { respond } from '../middleware/respond.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import type { ServiceFactory } from '../providers.js';
 import { AuthenticationService } from '../services/authentication.service.js';
+import { UsersService } from '../services/users.service.js';
 import type { AuthenticationMode } from '../types/auth.js';
 import { clearCookie } from '../utils/clear-cookie.js';
 import { getAuthProviders } from '../utils/get-auth-providers.js';
@@ -77,6 +79,7 @@ export class AuthController {
 	constructor(
 		@Inject(AuthenticationService)
 		private readonly authenticationService: ServiceFactory<AuthenticationService>,
+		@Inject(UsersService) private readonly usersService: ServiceFactory<UsersService>,
 	) {}
 
 	// Nest answers POST with 201 by default; Directus answers 200.
@@ -174,6 +177,44 @@ export class AuthController {
 			clearCookie(res, env['SESSION_COOKIE_NAME'] as string, sessionCookieOptions());
 		}
 
+		respond(res);
+	}
+
+	@Post('password/request')
+	@HttpCode(200)
+	async passwordRequest(@Req() req: Request, @Res() res: Response): Promise<void> {
+		if (typeof req.body.email !== 'string') {
+			throw new InvalidPayloadError({ reason: `"email" field is required` });
+		}
+
+		const service = this.usersService({ accountability: requestAccountability(req), schema: req.schema });
+
+		try {
+			await service.requestPasswordReset(req.body.email, req.body.reset_url || null);
+		} catch (err: any) {
+			if (isBackofficeError(err, ErrorCode.InvalidPayload)) {
+				throw err;
+			} else {
+				useLogger().warn(err, `[email] ${err}`);
+			}
+		}
+
+		respond(res);
+	}
+
+	@Post('password/reset')
+	@HttpCode(200)
+	async passwordReset(@Req() req: Request, @Res() res: Response): Promise<void> {
+		if (typeof req.body.token !== 'string') {
+			throw new InvalidPayloadError({ reason: `"token" field is required` });
+		}
+
+		if (typeof req.body.password !== 'string') {
+			throw new InvalidPayloadError({ reason: `"password" field is required` });
+		}
+
+		const service = this.usersService({ accountability: requestAccountability(req), schema: req.schema });
+		await service.resetPassword(req.body.token, req.body.password);
 		respond(res);
 	}
 }

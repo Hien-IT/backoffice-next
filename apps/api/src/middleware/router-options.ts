@@ -19,7 +19,8 @@ export function createRouterOptions(): RequestHandler {
 		...(env['OPENAPI_ENABLED'] !== false ? [[/^\/server\/specs\/oas\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
 		...(env['METRICS_ENABLED'] === true ? [[/^\/metrics\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
 		// Feature 003: the auth router (research R3 of spec 003, FR-034).
-		[/^\/auth\/(refresh|logout)\/?$/i, 'POST'],
+		[/^\/auth\/(refresh|logout|password\/request|password\/reset)\/?$/i, 'POST'],
+		[/^\/users\/me\/tfa\/generate\/?$/i, 'POST'],
 		...(env['AUTH_DISABLE_DEFAULT'] ? [] : [[/^\/auth\/login\/?$/i, 'POST'] as [RegExp, string]]),
 		...getAuthProviders()
 			.filter((provider) => provider.driver === 'local')

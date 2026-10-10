@@ -70,7 +70,8 @@ export const decrypt = async (encryptedText: string, password: string): Promise<
 	const iv = Buffer.from(ivB64, 'base64');
 	const tag = Buffer.from(tagB64, 'base64');
 
-	const decipher = crypto.createDecipheriv('aes-256-gcm', keyBuf, iv);
+	// Backoffice: a 16-byte tag only (what getAuthTag gives), so a truncated tag is refused (Semgrep gcm-no-tag-length).
+	const decipher = crypto.createDecipheriv('aes-256-gcm', keyBuf, iv, { authTagLength: 16 });
 	decipher.setAuthTag(tag);
 
 	let plaintext = decipher.update(cipherText, 'base64', 'utf8');

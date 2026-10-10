@@ -1,13 +1,23 @@
 // Ported from directus/api/src/services/users.ts (subset, research R5 of spec 003): create and update with the same
 // checks and side effects as Directus (unique emails, password policy, user integrity, sessions, caches). Invites,
-// registration, delete and reads come with feature 004; password reset is added by T050.
-import { RecordNotUniqueError, InvalidPayloadError } from '@backoffice/errors';
+// registration, delete and reads come with feature 004.
+import { performance } from 'perf_hooks';
+import { useEnv } from '@backoffice/env';
+import { ForbiddenError, RecordNotUniqueError, InvalidPayloadError } from '@backoffice/errors';
 import type { AbstractServiceOptions, Item, MutationOptions, PrimaryKey } from '@backoffice/types';
 import { UserIntegrityCheckFlag } from '@backoffice/types';
+import { getSimpleHash } from '@backoffice/utils';
 import { FailedValidationError, joiValidationErrorItemToErrorExtensions } from '@backoffice/validation';
 import Joi from 'joi';
 import { clearSystemCache } from '../cache.js';
+import { DEFAULT_AUTH_PROVIDER } from '../constants.js';
 import getDatabase from '../database/index.js';
+import { useLogger } from '../logger/index.js';
+import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
+import { getSecret } from '../utils/get-secret.js';
+import isUrlAllowed from '../utils/is-url-allowed.js';
+import { verifyJWT } from '../utils/jwt.js';
+import { stall } from '../utils/stall.js';
 import { ItemsService } from './items.service.js';
 import { SettingsService } from './settings.service.js';
 
@@ -61,6 +71,18 @@ export class UsersService extends ItemsService {
 	 * Check if the provided password matches the strictness as configured in
 	 * directus_settings.auth_password_policy
 	 */
+	private async getUserByEmail(
+		email: string,
+	): Promise<
+		{ id: string; role: string; status: string; password: string; email: string; provider: string } | undefined
+	> {
+		return this.knex
+			.select('id', 'role', 'status', 'password', 'email', 'provider')
+			.from('directus_users')
+			.whereRaw(`LOWER(??) = ?`, ['email', email.toLowerCase()])
+			.first();
+	}
+
 	private async checkPasswordPolicy(passwords: string[]): Promise<void> {
 		const settingsService = new SettingsService({
 			schema: this.schema,
@@ -287,5 +309,68 @@ export class UsersService extends ItemsService {
 		if (this.cache && opts?.autoPurgeCache !== false) {
 			await this.cache.clear();
 		}
+	}
+
+	async requestPasswordReset(email: string, url: string | null): Promise<void> {
+		const STALL_TIME = 500;
+		const timeStart = performance.now();
+
+		if (url && isUrlAllowed(url, useEnv()['PASSWORD_RESET_URL_ALLOW_LIST'] as string) === false) {
+			throw new InvalidPayloadError({ reason: `URL "${url}" can't be used to reset passwords` });
+		}
+
+		const user = await this.getUserByEmail(email);
+
+		if (user?.status !== 'active') {
+			await stall(STALL_TIME, timeStart);
+			throw new ForbiddenError();
+		}
+
+		if (user.provider !== DEFAULT_AUTH_PROVIDER) {
+			await stall(STALL_TIME, timeStart);
+			throw new ForbiddenError();
+		}
+
+		// Backoffice: no email (FR-062 of spec 003, Principle X), so no token or link either: a log line in place of
+		// MailService.send, without the token. Reset tokens are still accepted by resetPassword below.
+		useLogger().warn(`[email] Password reset email to "${user.email}" was not sent: Backoffice does not send email.`);
+
+		await stall(STALL_TIME, timeStart);
+	}
+
+	async resetPassword(token: string, password: string): Promise<void> {
+		const { email, scope, hash } = verifyJWT(token, getSecret()) as {
+			email: string;
+			scope: string;
+			hash: string;
+		};
+
+		if (scope !== 'password-reset' || !hash) throw new ForbiddenError();
+
+		const opts: MutationOptions = {};
+
+		try {
+			await this.checkPasswordPolicy([password]);
+		} catch (err: any) {
+			opts.preMutationError = err;
+		}
+
+		const user = await this.getUserByEmail(email);
+
+		if (user?.status !== 'active' || hash !== getSimpleHash('' + user.password)) {
+			throw new ForbiddenError();
+		}
+
+		// Allow unauthenticated update
+		const service = new UsersService({
+			knex: this.knex,
+			schema: this.schema,
+			accountability: {
+				...(this.accountability ?? createDefaultAccountability()),
+				admin: true, // We need to skip permissions checks for the update call below
+			},
+		});
+
+		await service.updateOne(user.id, { password, status: 'active' }, opts);
 	}
 }

@@ -41,6 +41,9 @@ export function normalizeOas(body: unknown): unknown {
 export function normalizeDeep(value: unknown, key?: string): unknown {
 	if (key === 'access_token' && typeof value === 'string') return normalizeJwt(value);
 	if (key === 'refresh_token' && typeof value === 'string') return tokenKind(value);
+	// TFA secrets are random (POST /users/me/tfa/generate): keep the base32 shape and the otpauth URL around them.
+	if (key === 'secret' && typeof value === 'string' && /^[A-Z2-7]+$/.test(value)) return '<base32>';
+	if (key === 'otpauth_url' && typeof value === 'string') return value.replace(/secret=[A-Z2-7]+/, 'secret=<base32>');
 	if (key === 'reset' && typeof value === 'number') return '<number>';
 	// The Redis store answers with a date (ISO string) instead of a number.
 	if (key === 'reset' && typeof value === 'string' && !Number.isNaN(Date.parse(value))) return '<date>';

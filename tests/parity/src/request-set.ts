@@ -8,9 +8,18 @@ export function requestSet(options: { metrics?: boolean } = {}): ParityRequest[]
 	const paths = ['/server/ping', '/server/health', '/server/info', '/server/specs/oas', '/', '/robots.txt', '/nope'];
 	if (options.metrics) paths.push('/metrics');
 
-	return paths.flatMap((path) => [
-		{ path },
-		{ path, headers: { authorization: 'Bearer invalid-token' } },
-		{ path: `${path}${path.includes('?') ? '&' : '?'}access_token=invalid-token` },
-	]);
+	return [
+		...paths.flatMap((path) => [
+			{ path },
+			{ path, headers: { authorization: 'Bearer invalid-token' } },
+			{ path: `${path}${path.includes('?') ? '&' : '?'}access_token=invalid-token` },
+		]),
+		// Feature 003: the route that needs a user refuses a wrong token before reading or writing anything else.
+		{
+			method: 'POST',
+			path: '/users/me/tfa/generate',
+			headers: { authorization: 'Bearer invalid-token' },
+			body: { password: 'x' },
+		},
+	];
 }

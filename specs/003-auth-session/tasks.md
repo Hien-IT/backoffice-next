@@ -293,24 +293,24 @@ provider với driver `local`, bước `authenticate`.
 
 ### Tests for User Story 3
 
-- [ ] T038 [P] [US3] `tests/parity/src/auth/authenticate.test.ts`: US3.1 đến US3.8 trên `POST /users/me/tfa/generate`
+- [X] T038 [P] [US3] `tests/parity/src/auth/authenticate.test.ts`: US3.1 đến US3.8 trên `POST /users/me/tfa/generate`
   (Bearer, `access_token`, cookie session, static token, hai cách cùng lúc, JWT hết hạn, sai chữ ký, thiếu claim,
   session đã xóa kèm xóa cookie, user bị khóa sau khi có token) và token bất kỳ tới `/server/info`, `/metrics`, path lạ
   vẫn như public (D-10).
-- [ ] T039 [P] [US3] `tests/parity/src/auth/token-matrix.test.ts`: `matrix()` cho mọi loại token của FR-101 (access
+- [X] T039 [P] [US3] `tests/parity/src/auth/token-matrix.test.ts`: `matrix()` cho mọi loại token của FR-101 (access
   token ba chế độ, refresh token, cookie session, static token, token đặt lại mật khẩu tự ký, session của share) theo 4 cặp; token bị thu
   hồi ở một bên bị bên kia từ chối ở request kế tiếp (SC-002).
 
 ### Implementation for User Story 3
 
-- [ ] T040 [US3] `apps/api/src/controllers/users.controller.ts` (`@Controller('users')`): `POST me/tfa/generate`, port
+- [X] T040 [US3] `apps/api/src/controllers/users.controller.ts` (`@Controller('users')`): `POST me/tfa/generate`, port
   từ `directus/api/src/controllers/users.ts:330-369`, dùng `TFAService` (T022) và `verifyPassword` (T036). Đăng ký
   trong `app.module.ts`, `providers.ts`. `OPTIONS` `Allow: POST` trong `router-options.ts`. Test supertest. (sau T036)
-- [ ] T041 [US3] `tests/parity/accepted-differences.ts`: D-10 loại thêm `/users/me/tfa/generate`; D-09.2
+- [X] T041 [US3] `tests/parity/accepted-differences.ts`: D-10 loại thêm `/users/me/tfa/generate`; D-09.2
   loại `/users/me/tfa/generate`; thêm D-09.10 (`/users/me/tfa/enable`, `/users/me/tfa/disable`, `/users/*/tfa/disable`,
   gỡ ở 005) và D-25 (`jsonPointer` `/data/otpauth_url` khi `project_name` trống). Chạy `accepted-differences.test.ts`
   và toàn bộ test 001, 002; lỗi lộ ra sau khi thu hẹp D-10 thì sửa ở app. (sau T040)
-- [ ] T042 [US3] `tests/parity/src/request-set.ts`: thêm `POST /users/me/tfa/generate` với token sai vào bộ request chung
+- [X] T042 [US3] `tests/parity/src/request-set.ts`: thêm `POST /users/me/tfa/generate` với token sai vào bộ request chung
   (để `db-unchanged`, `readonly-account` dùng). (sau T040)
 
 **Checkpoint**: MVP xong (US1 đến US3): đăng nhập, giữ phiên, nhận token chéo hai bên.
@@ -324,16 +324,16 @@ sửa).
 
 **Independent Test**: spec US4.
 
-- [ ] T043 [P] [US4] `tests/parity/src/auth/user-status.test.ts`: user `invited`, `draft`, `suspended`, `archived`, user
+- [X] T043 [P] [US4] `tests/parity/src/auth/user-status.test.ts`: user `invited`, `draft`, `suspended`, `archived`, user
   provider khác `default` (US4.1, US4.2); static token của user không `active` (FR-042).
-- [ ] T044 [P] [US4] `tests/parity/src/auth/login-attempts.test.ts`: `auth_login_attempts = 3` (đặt qua Directus,
+- [X] T044 [P] [US4] `tests/parity/src/auth/login-attempts.test.ts`: `auth_login_attempts = 3` (đặt qua Directus,
   `restore()` ở `afterAll`), sai xen kẽ hai app, user bị khóa đúng ở cùng lần thử như khi chỉ chạy Directus (SC-004);
   activity và revision của lần khóa (contracts/db-writes.md §3); `null` thì không khóa; key `rlflx:<userId>` trên Redis
   giống nhau ở hai bên.
-- [ ] T045 [P] [US4] `tests/parity/src/auth/stall.test.ts` (chỉ Postgres full, timeout riêng): mọi nhánh của FR-040 trả
+- [X] T045 [P] [US4] `tests/parity/src/auth/stall.test.ts` (chỉ Postgres full, timeout riêng): mọi nhánh của FR-040 trả
   sau ít nhất `LOGIN_STALL_TIME`; 50 lần tuần tự mỗi loại, trung vị "email không có" và "sai mật khẩu" lệch không quá
   50 ms ở mỗi app (SC-003).
-- [ ] T046 [US4] Sửa `apps/api/src/services/authentication.service.ts` cho tới khi T043 đến T045 đạt; ghi khác biệt tìm
+- [X] T046 [US4] Sửa `apps/api/src/services/authentication.service.ts` cho tới khi T043 đến T045 đạt; ghi khác biệt tìm
   được vào "Ghi chú khi làm". (sau T043, T044, T045)
 
 ---
@@ -344,11 +344,11 @@ sửa).
 
 **Independent Test**: spec US5.
 
-- [ ] T047 [P] [US5] `tests/parity/src/auth/tfa.test.ts`: US5.1 đến US5.6. Secret sinh ở app mới bật ở Directus
+- [X] T047 [P] [US5] `tests/parity/src/auth/tfa.test.ts`: US5.1 đến US5.6. Secret sinh ở app mới bật ở Directus
   (`/users/me/tfa/enable` của Directus), đăng nhập ở app mới bằng `totp(secret)`; thiếu hoặc sai OTP `401 INVALID_OTP`;
   lỗi của `generate` (chưa đăng nhập, thiếu hoặc sai mật khẩu, đã bật, không email, user SSO); `enforce_tfa` trong token;
   ba route bật, tắt ở app mới trả `404` (D-09.10).
-- [ ] T048 [US5] Sửa `services/tfa.service.ts`, `services/authentication.service.ts`, `controllers/users.controller.ts`
+- [X] T048 [US5] Sửa `services/tfa.service.ts`, `services/authentication.service.ts`, `controllers/users.controller.ts`
   cho tới khi T047 đạt. (sau T047)
 
 ---
@@ -361,7 +361,7 @@ sửa).
 
 ### Tests for User Story 6
 
-- [ ] T049 [P] [US6] `tests/parity/src/auth/password.test.ts`: US6.1 đến US6.6. `request` với email có, không có, user
+- [X] T049 [P] [US6] `tests/parity/src/auth/password.test.ts`: US6.1 đến US6.6. `request` với email có, không có, user
   không `active`, SSO, thiếu email, `reset_url` ngoài allow list (status, body, thời gian ≥ 500 ms); log của app mới có
   dòng `[email] Password reset email to ...` và không có token (FR-062); `reset` với token tự ký (T008), mọi lỗi,
   `auth_password_policy` (đặt qua Directus, `restore()`), sau khi đổi thì mọi session bị xóa và đăng nhập được ở cả hai
@@ -369,12 +369,12 @@ sửa).
 
 ### Implementation for User Story 6
 
-- [ ] T050 [US6] Port `requestPasswordReset`, `resetPassword` vào `apps/api/src/services/users.service.ts`: bước gửi mail
+- [X] T050 [US6] Port `requestPasswordReset`, `resetPassword` vào `apps/api/src/services/users.service.ts`: bước gửi mail
   thay bằng log `warn` `[mới]` có email, không có token hay link (`// Backoffice:` FR-062, Nguyên tắc X). Unit test:
   token ký đúng định dạng của Directus (spy `jwt.sign`), log không chứa token. Ghi manifest. (sau T021)
-- [ ] T051 [US6] `apps/api/src/controllers/auth.controller.ts`: `POST password/request` (bắt lỗi khác `INVALID_PAYLOAD`,
+- [X] T051 [US6] `apps/api/src/controllers/auth.controller.ts`: `POST password/request` (bắt lỗi khác `INVALID_PAYLOAD`,
   log `[email] <lỗi>`, trả `204`), `POST password/reset`; `OPTIONS` `Allow: POST`. Test supertest. (sau T050)
-- [ ] T052 [US6] `tests/parity/accepted-differences.ts`: D-23 (`kind: 'doc'`). Chạy T049 trên Postgres, MySQL, SQLite.
+- [X] T052 [US6] `tests/parity/accepted-differences.ts`: D-23 (`kind: 'doc'`). Chạy T049 trên Postgres, MySQL, SQLite.
   (sau T051)
 
 ---
@@ -577,3 +577,20 @@ Task: "T061 ldap.ts"
   Directus rồi xóa.
 - T036: `authentication.test.ts` gốc chỉ có ca `login`; `refresh`, `logout` được phủ bằng test supertest trên SQLite
   (`apps/api/src/controllers/auth.controller.test.ts`) và test đối chiếu.
+- T039: ma trận gồm access token ba chế độ và session bị logout ở bên cấp; refresh chéo, logout chéo, share nằm ở
+  T033 đến T035; token đặt lại mật khẩu tự ký đưa vào `password.test.ts` (Phase 8, khi có route).
+- T041: `endpoints` của khác biệt nhận `*` ở giữa path (`/users/*/tfa/disable`). Ô "Gỡ khi" của D-26 trong spec ghi
+  `009` (phần "flow" đã ở cột Loại) để guard đọc được. Normalizer giữ dạng base32 của `secret` TFA và `otpauth_url`.
+- Semgrep (CI): `encrypt.ts` gọi `createDecipheriv` với `authTagLength: 16` (`Backoffice:`; tag do `getAuthTag` sinh
+  luôn 16 byte nên giá trị Directus đã mã hóa vẫn giải được, tag bị cắt thì bị từ chối). `.semgrepignore` bỏ
+  `**/*.test.ts` (secret JWT viết cứng trong test là dương tính giả).
+- T044: trạng thái user đọc từ DB, không qua `GET /users/:id` của Directus (env đối chiếu bật `CACHE_ENABLED`, response
+  cache trả bản cũ vì khóa user ghi thẳng bằng knex, không xóa cache).
+- T046, T048: không phải sửa service; T043 đến T045, T047 đạt ngay trên Postgres (T045 chạy cục bộ cũng đạt, kết quả
+  chính thức lấy từ CI).
+- T047: bật TFA ở Directus cần quyền sửa `directus_users` (quyền tối thiểu của app chỉ cho đọc), nên user của ca này có
+  role admin.
+- T050: không ký token và không dựng link đặt lại (chỉ dùng cho email); unit test "spy `jwt.sign`" thay bằng ca
+  đối chiếu: token tự ký theo định dạng Directus được cả hai app nhận (`password.test.ts`), và log không có token.
+- `captureDbEffects`: cột ngày trong JSON `data`, `delta` của revision cũng thành `<date>`. `compose()` của
+  `tests/parity/src/docker.ts` có `maxBuffer` 256 MB (log của môi trường chạy lâu vượt 1 MB, `ENOBUFS`).
