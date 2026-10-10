@@ -637,3 +637,10 @@ Task: "T061 ldap.ts"
 - CI (run 38077738639): ca "Redis down" của `server/health.test.ts` (001) phụ thuộc thứ tự file: Directus chạy bước
   schema cả ở `/server/health` (D-13), nên khi test trước đã xóa schema trong bộ nhớ thì nó trả `500` ngay thay vì
   chờ Redis. Test nay gọi `/server/info` ở cả hai app trước khi tắt Redis, đúng điều kiện lúc đo trên Directus.
+- T066, số liệu CI đầu tiên (run 38091453025, 2.000 kết nối, đo theo `amount`; job bị hủy ở 60 phút giữa pha p95
+  của TFA): hai app ngang nhau. Đăng nhập 10 req/s cả hai (2.000 request mất khoảng 205 s mỗi vòng, argon2 trên runner
+  4 nhân), refresh 122 đến 140 (Directus) so với 127 đến 147 (app mới), TFA 219 đến 232 so với 237 đến 248; p95 ở tốc
+  độ cố định: đăng nhập 846 đến 885 ms so với 819 đến 857 ms, refresh 805 đến 897 so với 776 đến 885. Pressure
+  limiter (mặc định bật ở cả hai) trả `503` ở vài vòng của cả hai app (Directus 39 và 168, app mới 137 và một vòng
+  đăng nhập 1.538), nên quy tắc "vòng có lỗi thì trượt" làm cổng đỏ ngẫu nhiên. Thời gian cần cho 5 vòng khoảng 75 đến
+  80 phút, quá timeout 60 phút. Chờ chủ dự án chọn cách đo (SC-007).
