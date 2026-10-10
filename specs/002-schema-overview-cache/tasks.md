@@ -493,7 +493,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
 
 **Purpose**: Gỡ khác biệt tạm thời, bật lại cổng benchmark, kiểm tra toàn bộ và đóng feature.
 
-- [ ] T038 [P] Gỡ D-20 và D-22 khỏi `tests/parity/accepted-differences.ts`. Chạy `tests/parity/src/accepted-differences.test.ts`.
+- [X] T038 [P] Gỡ D-20 và D-22 khỏi `tests/parity/accepted-differences.ts`. Chạy `tests/parity/src/accepted-differences.test.ts`.
   Nếu bảng "Khác biệt so với Directus" của spec 002 (cột `Mã | Thay đổi | Lý do`) làm `src/spec-differences.ts` đọc
   sai, sửa parser và test của nó.
 - [X] T039 [P] Benchmark `/server/specs/oas` chặn CI (SC-005, research R12).
@@ -510,7 +510,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
   - helper `src/redis.ts` (`flushSharedCaches`, `traceRedis`), và vì sao phải xóa cache dùng chung giữa hai lần chụp;
   - thư mục `src/schema/`;
   - lệnh `clearSystemCacheIn`.
-- [ ] T041 Chạy kiểm tra toàn bộ:
+- [X] T041 Chạy kiểm tra toàn bộ:
   - `pnpm nx run-many -t lint typecheck test` (coverage ≥ 80% cho `api`, `@backoffice/memory`, `@backoffice/utils`);
   - `node tools/check-port-headers.mjs`, `node tools/check-package-names.mjs`, `node tools/guard-directus-unchanged.mjs`;
   - `pnpm audit --prod --audit-level=high`;
@@ -519,10 +519,10 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
   - parity MySQL và SQLite reduced.
 
   Sửa tới khi đạt.
-- [ ] T042 Chạy `specs/002-schema-overview-cache/quickstart.md` §2–§3 bằng tay trên `dev/directus-reference`. Sửa
+- [X] T042 Chạy `specs/002-schema-overview-cache/quickstart.md` §2–§3 bằng tay trên `dev/directus-reference`. Sửa
   quickstart nếu lệch.
-- [ ] T043 [P] Chạy `graphify update .` sau khi đổi code (CLAUDE.md của dự án).
-- [ ] T044 Đóng feature:
+- [X] T043 [P] Chạy `graphify update .` sau khi đổi code (CLAUDE.md của dự án).
+- [X] T044 Đóng feature:
   - đổi `**Status**: Draft` thành `**Status**: Done` trong `specs/002-schema-overview-cache/spec.md`;
   - push `main` và theo dõi CI tới khi mọi job xanh.
   - (sau T038–T043)
@@ -655,3 +655,7 @@ Task: "captureSchema / replaySchema in tests/parity/src/schema/capture.ts"
 - T039: `/server/info` cũng so với `directus-noresponsecache`. Lần chạy CI đầu (run 38038497056) so với Directus của cặp
   chính (`CACHE_ENABLED=true`, trả GET từ cache response, D-11): 318 so với 355 req/s (thấp hơn 10,4%). Directus cấu
   hình mặc định không có cache response, đúng mốc "cấu hình mặc định" của SC-005 và SC-006 (001).
+- T041: CI run 38040958532 xanh mọi job. Benchmark (p95 ms Directus/Backoffice, req/s): ping 62,7/47,0 (1212/1609),
+  health 422,1/352,8 (184/285), info 304,1/220,7 (234/322), OAS 222,1/221,3 (285/288).
+- T042: chạy phần lệnh Redis của quickstart §3 trên môi trường đối chiếu và sửa kết quả mong đợi; chưa chạy phần thao
+  tác bằng tay trên giao diện admin của `dev/directus-reference` (các luồng này có trong `sync.test.ts`).

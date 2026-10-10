@@ -235,24 +235,10 @@ export const acceptedDifferences: AcceptedDifference[] = [
 	{ id: 'D-18', feature: '001', kind: 'doc', reason: 'Additional startup and credential log lines.' },
 	{ id: 'D-19', feature: '001', kind: 'doc', reason: 'One process per container, no bootstrap or PM2.' },
 	{
-		id: 'D-20',
-		feature: '001',
-		removeAt: '002',
-		kind: 'doc',
-		reason: 'No system, deployment or lock cache yet: no [system-cache]/[deployment-cache]/[lock-cache] logs.',
-	},
-	{
 		id: 'D-21',
 		feature: '001',
 		kind: 'doc',
 		reason:
 			'proxy-addr 2.0.8 (security patch): IPv4-mapped IPv6 addresses behind a trusted proxy; no parity request uses one.',
-	},
-	{
-		id: 'D-22',
-		feature: '001',
-		removeAt: '002',
-		kind: 'doc',
-		reason: 'No permissions cache yet: /server/specs/oas is benchmarked but does not fail the run (tests/benchmark).',
 	},
 ];
