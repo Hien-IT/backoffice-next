@@ -126,11 +126,24 @@ async function measure(baseUrl: string, endpoint: Endpoint, duration: number, ov
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 
-	return {
+	const round = {
 		p95: percentile(histogram, 95),
 		rps: Math.round(result.requests.average),
 		errors: result.errors + result.timeouts + result.non2xx,
 	};
+
+	// Progress in the job log: which app and phase, and what failed (status codes, connection errors, timeouts).
+	const app = baseUrl === DIRECTUS ? 'Directus' : 'Backoffice';
+	const codes = Object.entries(result.statusCodeStats ?? {})
+		.map(([code, { count }]) => `${code}:${count}`)
+		.join(' ');
+
+	process.stdout.write(
+		`${endpoint.name} ${app} ${overallRate ? `@${overallRate} req/s` : 'throughput'} ${duration}s: ` +
+			`${round.rps} req/s, p95 ${round.p95} ms, errors ${result.errors}, timeouts ${result.timeouts}, ${codes}\n`,
+	);
+
+	return round;
 }
 
 const combine = (throughput: Round[], latency: Round[]): Round[] =>
@@ -168,12 +181,13 @@ try {
 		);
 	}
 } finally {
-	await cleanup(seeded);
+	const report = table(verdicts);
+	process.stdout.write(`${report}\n`);
+	if (process.env['GITHUB_STEP_SUMMARY'])
+		appendFileSync(process.env['GITHUB_STEP_SUMMARY'], `## Benchmark auth (${CONNECTIONS} connections)\n\n${report}\n`);
+
+	// A failed cleanup (an app down) must not hide the results above.
+	await cleanup(seeded).catch((err) => process.stderr.write(`cleanup failed: ${err}\n`));
 }
 
-const report = table(verdicts);
-process.stdout.write(`${report}\n`);
-if (process.env['GITHUB_STEP_SUMMARY'])
-	appendFileSync(process.env['GITHUB_STEP_SUMMARY'], `## Benchmark auth (${CONNECTIONS} connections)\n\n${report}\n`);
-
-process.exit(gatePasses(verdicts) ? 0 : 1);
+process.exit(verdicts.length === endpoints(seeded).length && gatePasses(verdicts) ? 0 : 1);

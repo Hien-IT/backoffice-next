@@ -140,6 +140,12 @@ jobs:
       - run: pnpm nx run benchmark:auth --output-style=static
         env:
           BENCH_ROUNDS: 5
+      - name: container state and logs
+        if: failure()
+        run: |
+          docker inspect -f '{{.Name}} {{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' $(docker ps -aq)
+          docker logs --tail 300 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 300 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
