@@ -245,7 +245,7 @@ provider với driver `local`, bước `authenticate`.
   (sau T029)
 - [X] T031 [US1] `apps/api/src/middleware/router-options.ts`: `OPTIONS` của `/auth/login` và `/auth/login/<local>` trả
   `Allow: POST` (FR-034). Test. (sau T030)
-- [ ] T032 [US1] `tests/parity/accepted-differences.ts`: xóa D-09.1; D-10 loại `/auth` và `/auth/*` (nếu không, D-10
+- [X] T032 [US1] `tests/parity/accepted-differences.ts`: xóa D-09.1; D-10 loại `/auth` và `/auth/*` (nếu không, D-10
   che mọi ca Directus trả `401` ở route auth). Chạy `accepted-differences.test.ts` cùng T027, T028 trên Postgres, MySQL,
   SQLite; mọi khác biệt lộ ra phải sửa ở app. (sau T030, T031)
 
@@ -261,23 +261,23 @@ provider với driver `local`, bước `authenticate`.
 
 ### Tests for User Story 2
 
-- [ ] T033 [P] [US2] `tests/parity/src/auth/refresh.test.ts`: port phần REST của
+- [X] T033 [P] [US2] `tests/parity/src/auth/refresh.test.ts`: port phần REST của
   `directus/tests/blackbox/tests/common/auth/refresh.test.ts` lên `scenario()`. Thêm: thiếu token, token hết hạn hoặc
   đã logout, user `suspended` (`USER_SUSPENDED`) và trạng thái khác, refresh chéo hai chiều ở ba chế độ, refresh đồng
   thời chế độ `session` một request mỗi app nhận cùng session mới (US2.3, đạt cả ít nhất 10 lần thử), `captureDbEffects()` (contracts/db-writes.md
   §2).
-- [ ] T034 [P] [US2] `tests/parity/src/auth/logout.test.ts`: logout ba chế độ, `Set-Cookie` xóa cookie (cookie rỗng
+- [X] T034 [P] [US2] `tests/parity/src/auth/logout.test.ts`: logout ba chế độ, `Set-Cookie` xóa cookie (cookie rỗng
   còn `Max-Age`, FR-024), logout ở bên này làm refresh ở bên kia `401`, activity `logout`, thiếu token `400`.
-- [ ] T035 [P] [US2] `tests/parity/src/auth/shares.test.ts`: share tạo qua Directus, session lấy bằng
+- [X] T035 [P] [US2] `tests/parity/src/auth/shares.test.ts`: share tạo qua Directus, session lấy bằng
   `POST /shares/auth` của Directus, refresh ở app mới (claims `share`, `role: null`), share hết hạn hoặc chưa tới
   `date_start` thì `401`; logout của share không xóa session (contracts/db-writes.md §4).
 
 ### Implementation for User Story 2
 
-- [ ] T036 [US2] Port `refresh`, `updateStatefulSession`, `logout`, `verifyPassword` vào
+- [X] T036 [US2] Port `refresh`, `updateStatefulSession`, `logout`, `verifyPassword` vào
   `apps/api/src/services/authentication.service.ts`, kèm các ca tương ứng của `authentication.test.ts`. Ghi manifest.
   (sau T029)
-- [ ] T037 [US2] `apps/api/src/controllers/auth.controller.ts`: `POST refresh`, `POST logout` (port `getCurrentMode`,
+- [X] T037 [US2] `apps/api/src/controllers/auth.controller.ts`: `POST refresh`, `POST logout` (port `getCurrentMode`,
   `getCurrentRefreshToken`, xóa cookie bằng `clearCookie`); `OPTIONS` `Allow: POST` cho hai path trong
   `router-options.ts`. Test supertest. (sau T036)
 
@@ -570,3 +570,10 @@ Task: "T061 ldap.ts"
   `excludeEndpoints` (trường mới) loại route đã làm: `/auth/login*` ở T032; T037 thêm `refresh`, `logout`; T051 thêm
   `password/*`; US7 thêm `GET /auth` và callback; xóa hẳn khi mọi route `/auth` đã làm. D-10 loại `/auth`, `/auth/*`.
   `snapshotOf` bỏ `X-Powered-By` (D-01) như `parity()`.
+- T033: refresh đồng thời chế độ `session` (US2.3) bỏ qua trên MySQL, MariaDB: không có `UPDATE ... RETURNING`, nên
+  chính Directus cũng tạo hai session khi hai request cùng lúc (`updatedSession.length` không phải mảng). Helper luồng
+  dùng chung ở `tests/parity/src/auth/flows.ts`.
+- T035: share cần collection người dùng (khóa ngoại tới `directus_collections`); test tạo collection tạm qua API
+  Directus rồi xóa.
+- T036: `authentication.test.ts` gốc chỉ có ca `login`; `refresh`, `logout` được phủ bằng test supertest trên SQLite
+  (`apps/api/src/controllers/auth.controller.test.ts`) và test đối chiếu.

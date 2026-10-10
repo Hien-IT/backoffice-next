@@ -79,7 +79,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'http',
 		endpoints: route('/auth'),
 		// Feature 003 compares each auth route once built; the entry goes when every /auth route is.
-		excludeEndpoints: route('/auth/login'),
+		excludeEndpoints: route('/auth/login', '/auth/refresh', '/auth/logout'),
 		location: { any: true },
 		reason: 'Built by feature 003.',
 	},

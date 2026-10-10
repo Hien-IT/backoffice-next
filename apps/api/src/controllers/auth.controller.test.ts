@@ -161,3 +161,121 @@ describe('POST /auth/login/:provider', () => {
 		expect((await agent.post('/auth/login/default').send(login)).status).toBe(404);
 	});
 });
+
+describe('POST /auth/refresh', () => {
+	test('json: a new token pair; the session row takes the new token', async () => {
+		const agent = await start();
+		const first = (await agent.post('/auth/login').send(login)).body.data;
+
+		const res = await agent.post('/auth/refresh').send({ refresh_token: first.refresh_token });
+		expect(res.status).toBe(200);
+		expect(res.body.data.refresh_token).not.toBe(first.refresh_token);
+		expect(jwt.verify(res.body.data.access_token, SECRET)).toMatchObject({ id: USER, role: ROLE });
+
+		const tokens = (await state.db('directus_sessions').where({ user: USER })).map((s) => s.token);
+		expect(tokens).toEqual([res.body.data.refresh_token]);
+
+		const reused = await agent.post('/auth/refresh').send({ refresh_token: first.refresh_token });
+		expect(reused.status).toBe(401);
+		expect(reused.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');
+	});
+
+	test('cookie: the refresh token from and to the cookie', async () => {
+		const agent = await start();
+		const cookie = (await agent.post('/auth/login').send({ ...login, mode: 'cookie' })).headers['set-cookie']![0]!;
+
+		const res = await agent.post('/auth/refresh').set('Cookie', cookie.split(';')[0]!);
+		expect(res.status).toBe(200);
+		expect(Object.keys(res.body.data).sort()).toEqual(['access_token', 'expires']);
+		expect(res.headers['set-cookie']![0]).toMatch(/^directus_refresh_token=[\w-]{64}; Max-Age=604800;/);
+	});
+
+	test('session: a new session, the old one kept for the grace period and pointing to it', async () => {
+		const agent = await start();
+		const cookie = (await agent.post('/auth/login').send({ ...login, mode: 'session' })).headers['set-cookie']![0]!;
+		const pair = cookie.split(';')[0]!;
+		const oldSession = (jwt.decode(pair.split('=')[1]!) as { session: string }).session;
+
+		const res = await agent.post('/auth/refresh').send({ mode: 'session' }).set('Cookie', pair);
+		expect(res.status).toBe(200);
+		expect(res.body).toEqual({ data: { expires: 86_400_000 } });
+
+		const newSession = (jwt.decode(res.headers['set-cookie']![0]!.split(/[=;]/)[1]!) as { session: string }).session;
+		const old = await state.db('directus_sessions').where({ token: oldSession }).first();
+		expect(old.next_token).toBe(newSession);
+		expect(new Date(old.expires).getTime()).toBeLessThanOrEqual(Date.now() + 10_000);
+
+		// A second refresh with the old cookie within the grace period gets the same new session.
+		const again = await agent.post('/auth/refresh').send({ mode: 'session' }).set('Cookie', pair);
+		expect((jwt.decode(again.headers['set-cookie']![0]!.split(/[=;]/)[1]!) as { session: string }).session).toBe(
+			newSession,
+		);
+	});
+
+	test('a share session: share claims, no user', async () => {
+		const agent = await start();
+		const share = 'e0000000-0000-4000-8000-000000000001';
+		await state.db('directus_shares').insert({ id: share });
+		await state.db('directus_sessions').insert({ token: 's'.repeat(64), share, expires: new Date(Date.now() + 60_000) });
+
+		const res = await agent.post('/auth/refresh').send({ refresh_token: 's'.repeat(64) });
+		expect(res.status).toBe(200);
+
+		const claims = jwt.verify(res.body.data.access_token, SECRET) as Record<string, unknown>;
+		expect(claims).toMatchObject({ share, role: null, app_access: false, admin_access: false });
+		expect(claims).not.toHaveProperty('id');
+	});
+
+	test('no token 400; suspended user 401 USER_SUSPENDED and the session deleted', async () => {
+		const agent = await start();
+
+		const missing = await agent.post('/auth/refresh').send({});
+		expect(missing.status).toBe(400);
+		expect(missing.body.errors[0].extensions).toEqual({
+			code: 'INVALID_PAYLOAD',
+			reason: 'The refresh token is required in either the payload or cookie',
+		});
+
+		const { refresh_token } = (await agent.post('/auth/login').send(login)).body.data;
+		await state.db('directus_users').update({ status: 'suspended' }).where({ id: USER });
+
+		const suspended = await agent.post('/auth/refresh').send({ refresh_token });
+		expect(suspended.status).toBe(401);
+		expect(suspended.body.errors[0].extensions.code).toBe('USER_SUSPENDED');
+		expect(await state.db('directus_sessions').where({ token: refresh_token })).toEqual([]);
+	});
+});
+
+describe('POST /auth/logout', () => {
+	test('json: 204, the session deleted, activity `logout`', async () => {
+		const agent = await start();
+		const { refresh_token } = (await agent.post('/auth/login').send(login)).body.data;
+
+		const res = await agent.post('/auth/logout').send({ refresh_token });
+		expect(res.status).toBe(204);
+		expect(res.headers['set-cookie']).toBeUndefined();
+		expect(await state.db('directus_sessions').where({ token: refresh_token })).toEqual([]);
+		expect((await state.db('directus_activity').orderBy('id', 'desc').first()).action).toBe('logout');
+	});
+
+	test('cookie and session: the cookie cleared like Express 4 (empty, Max-Age kept)', async () => {
+		const agent = await start();
+
+		const cookie = (await agent.post('/auth/login').send({ ...login, mode: 'cookie' })).headers['set-cookie']![0]!;
+		const res = await agent.post('/auth/logout').set('Cookie', cookie.split(';')[0]!);
+		expect(res.status).toBe(204);
+		expect(res.headers['set-cookie']).toEqual([
+			expect.stringMatching(/^directus_refresh_token=; Max-Age=604800; Path=\/; Expires=.+; HttpOnly; SameSite=Lax$/),
+		]);
+
+		const session = (await agent.post('/auth/login').send({ ...login, mode: 'session' })).headers['set-cookie']![0]!;
+		const out = await agent.post('/auth/logout').send({ mode: 'session' }).set('Cookie', session.split(';')[0]!);
+		expect(out.status).toBe(204);
+		expect(out.headers['set-cookie']![0]).toMatch(/^directus_session_token=; Max-Age=86400; Path=\//);
+	});
+
+	test('no token: 400', async () => {
+		const res = await (await start()).post('/auth/logout').send({});
+		expect(res.status).toBe(400);
+	});
+});

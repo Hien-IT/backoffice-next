@@ -18,7 +18,8 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/server\/health\/?$/i, 'GET,HEAD'],
 		...(env['OPENAPI_ENABLED'] !== false ? [[/^\/server\/specs\/oas\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
 		...(env['METRICS_ENABLED'] === true ? [[/^\/metrics\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
-		// Feature 003: the login routers of the local providers (research R3 of spec 003, FR-034).
+		// Feature 003: the auth router (research R3 of spec 003, FR-034).
+		[/^\/auth\/(refresh|logout)\/?$/i, 'POST'],
 		...(env['AUTH_DISABLE_DEFAULT'] ? [] : [[/^\/auth\/login\/?$/i, 'POST'] as [RegExp, string]]),
 		...getAuthProviders()
 			.filter((provider) => provider.driver === 'local')

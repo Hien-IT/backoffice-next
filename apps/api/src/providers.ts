@@ -3,6 +3,7 @@ import type { Provider } from '@nestjs/common';
 import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
+import { AuthenticationService } from './services/authentication.service.js';
 import { ServerService } from './services/server.service.js';
 import { SettingsService } from './services/settings.service.js';
 import { SpecificationService } from './services/specifications.service.js';
@@ -29,6 +30,11 @@ export const infrastructureProviders: Provider[] = [
 ];
 
 export const serviceProviders: Provider[] = [
+	{
+		provide: AuthenticationService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new AuthenticationService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
 	{
 		provide: ServerService,
 		useFactory:
