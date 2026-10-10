@@ -99,7 +99,7 @@ Chi tiết quyết định: [research.md](./research.md). Dữ liệu: [data-mod
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Đối chiếu `.specify/memory/constitution.md` v1.3.0 (sửa Nguyên tắc XI khi clarify 003; chờ tech lead duyệt). Kiểm lần
+Đối chiếu `.specify/memory/constitution.md` v1.3.0 (sửa Nguyên tắc XI khi clarify 003; tech lead đã duyệt 2026-10-10). Kiểm lần
 1 trước research: không có vi phạm chưa giải thích. Kết quả dưới đây là lần 2, sau research, data model và contracts.
 
 - [x] **I. Directus chỉ đọc**: PASS.
@@ -292,8 +292,9 @@ backoffice-next/
 ## Complexity Tracking
 
 Không có vi phạm mới. Các ngoại lệ đã duyệt của 001, 002 vẫn áp dụng, nhất là dòng 8 của 001: store `memory` và cảnh
-báo một instance, nay gồm cả bộ đếm đăng nhập sai. Constitution 1.3.0 (Nguyên tắc XI: OAuth2, LDAP vào phạm vi) và các
-khác biệt D-09.10, D-23 đến D-26 cần tech lead duyệt (Nguyên tắc X, Governance).
+báo một instance, nay gồm cả bộ đếm đăng nhập sai. Constitution 1.3.0 (Nguyên tắc XI: OAuth2, LDAP vào phạm vi) đã được
+tech lead duyệt ngày 2026-10-10 (chủ dự án xác nhận; quy trình không có PR). Các khác biệt D-09.10, D-23 đến D-26 cần
+tech lead duyệt trước khi đóng feature (Nguyên tắc X, T072).
 
 Rủi ro đã biết, theo dõi trong tasks:
 

@@ -144,8 +144,7 @@ provider với driver `local`, bước `authenticate`.
 
 **⚠️ CRITICAL**: Chưa xong phase này thì không làm user story nào.
 
-**Điều kiện**: constitution 1.3.0 được tech lead duyệt trước khi làm Phase 9 (OAuth2, LDAP). Phase 1 đến 8 không phụ
-thuộc điều kiện này.
+**Điều kiện**: constitution 1.3.0 (Phase 9: OAuth2, LDAP) đã được tech lead duyệt ngày 2026-10-10.
 
 - [ ] T010 [P] Port `directus/packages/utils/node/fetch-roles-tree.ts` và `fetch-global-access/**` (kèm test) sang
   `libs/utils/src/node/`. Export từ `libs/utils/src/node/index.ts`. Ghi manifest.
@@ -386,7 +385,7 @@ sửa).
 
 **Independent Test**: spec US7 với profile `sso`.
 
-**Điều kiện**: constitution 1.3.0 đã được tech lead duyệt.
+**Điều kiện**: đạt (constitution 1.3.0 duyệt ngày 2026-10-10).
 
 ### Tests for User Story 7
 
@@ -466,7 +465,7 @@ sửa).
   `specs/001-platform-foundation/contracts/startup.md` (dòng 5, bước 16b, 16c); `README` của `tests/parity` (profile
   `sso`, helper mới); chạy `graphify update .`.
 - [ ] T072 Đóng feature: CI xanh mọi job (gồm `benchmark-auth`), coverage ≥ 80%; `spec.md` `Status: Done`; ghi kết quả
-  benchmark và CI run vào "Ghi chú khi làm"; tech lead duyệt D-09.10, D-23 đến D-26 và constitution 1.3.0. (sau tất cả)
+  benchmark và CI run vào "Ghi chú khi làm"; tech lead duyệt D-09.10, D-23 đến D-26. (sau tất cả)
 
 ---
 
@@ -481,7 +480,7 @@ sửa).
 - **US3 (Phase 5)**: sau T036 (US2) vì route TFA dùng `verifyPassword`.
 - **US4, US5 (Phase 6, 7)**: sau US1; US5 sau US3 (route `generate`).
 - **US6 (Phase 8)**: sau Phase 2 và T030 (controller có sẵn).
-- **US7 (Phase 9)**: sau US1 và điều kiện constitution 1.3.0.
+- **US7 (Phase 9)**: sau US1.
 - **Polish (Phase 10)**: T064 đến T066 sau US1 đến US3; còn lại sau mọi story.
 
 ### Within Each User Story
@@ -533,7 +532,7 @@ Task: "T061 ldap.ts"
 2. + US1 + US2 + US3: MVP.
 3. + US4 + US5: chống dò mật khẩu, TFA.
 4. + US6: quên và đặt lại mật khẩu.
-5. + US7: SSO (sau khi constitution 1.3.0 được duyệt).
+5. + US7: SSO.
 6. + Polish: benchmark 2.000 kết nối chặn CI, đóng feature.
 
 ---

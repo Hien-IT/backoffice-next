@@ -9,7 +9,7 @@ Sync Impact Report (1.3.0, 2026-10-10)
 - Added/removed sections: không
 - Templates: ✅ .specify/templates/plan-template.md (dòng XI của Constitution Check); ✅ SPECKIT-GUIDE.md (bảng tóm
   tắt và prompt nguồn của constitution); ✅ spec, tasks, checklist template không nhắc mục này.
-- Deferred TODOs: cần tech lead duyệt thay đổi này (mục Governance).
+- Deferred TODOs: không. Tech lead đã duyệt ngày 2026-10-10 (chủ dự án xác nhận; quy trình không có PR).
 
 Sync Impact Report (1.2.0, 2026-10-10)
 - Version change: 1.1.0 → 1.2.0
