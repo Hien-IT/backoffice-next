@@ -211,7 +211,7 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
     không ghi DB từ host, nên chạy được cả trên SQLite của CI Linux.
   - Bộ đếm sai và thời gian chờ chạy tuần tự (`fileParallelism: false` đã có). Test đổi `auth_login_attempts` thì trả
     lại giá trị cũ ở `afterAll`.
-  - `suite.ts`: thêm `src/auth/**` vào full. Reduced (MySQL, SQLite) thêm `login`, `refresh`, `logout`, `password`, vì
+  - `suite.ts`: thêm `src/auth/**` vào full. Reduced (MySQL, SQLite) thêm `login`, `login-db`, `refresh`, `logout`, `password`, vì
     định dạng ngày giờ và JSON khác theo vendor. Test SSO cần profile `sso`, chạy trên Postgres full và nightly.
   - `accepted-differences.ts`:
     - xóa D-09.1;

@@ -378,6 +378,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - Session cookie chứa chuỗi không phải JWT của Directus khi refresh ở chế độ `session`: coi như không có refresh token
   (`400 INVALID_PAYLOAD`), giống Directus.
 - `User-Agent` dài hơn 1024 ký tự: cắt còn 1024 trước khi lưu, giống Directus.
+- Một bước ghi DB lỗi giữa chừng, giống Directus: đăng nhập không chạy trong transaction, nên ghi activity lỗi sau khi
+  đã thêm session thì session vẫn còn và request trả `500`. Đặt lại mật khẩu thì cập nhật user, activity và revision
+  nằm chung một transaction (lỗi thì rollback); bước xóa session chạy sau transaction (contracts/db-writes.md §1, §5).
 - IP lưu trong session và activity lấy theo `IP_TRUST_PROXY`, `IP_CUSTOM_HEADER` giống Directus.
 
 ## Requirements *(mandatory)*
@@ -536,7 +539,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - **FR-074**: Khi đăng nhập lại hoặc refresh user OpenID hoặc OAuth2 có `auth_data.refreshToken`, app mới PHẢI làm mới
   token với IdP và lưu refresh token mới vào `auth_data` như Directus; `invalid_grant` trả `403 INVALID_TOKEN`.
 - **FR-075**: `GET /auth` PHẢI trả `data` (danh sách `name`, `label`, `driver`, `icon`, lọc `sessionOnly` như
-  Directus) và `disableDefault`, không có provider `saml`.
+  Directus) và `disableDefault`, không có provider `saml`. Chỉ `GET /auth` lọc `saml`; option của field
+  `directus_users.provider` (feature 006) vẫn giữ đủ danh sách như Directus.
 - **FR-076**: Provider OAuth2 PHẢI đọc cùng các biến như Directus: `CLIENT_ID`, `CLIENT_SECRET`, `CLIENT_*`,
   `AUTHORIZE_URL`, `ACCESS_URL`, `PROFILE_URL`, `SCOPE`, `PARAMS`, `PLAIN_CODE_CHALLENGE`, `IDENTIFIER_KEY`,
   `EMAIL_KEY`, `FIRST_NAME_KEY`, `LAST_NAME_KEY`, `ALLOW_PUBLIC_REGISTRATION`, `DEFAULT_ROLE_ID`, `ROLE_MAPPING`,
@@ -689,7 +693,7 @@ Khác biệt mới:
   đồng thời, p95 latency và throughput của `POST /auth/login`, `POST /auth/refresh` (chế độ `json`) và một request
   mang access token không tệ hơn Directus quá 10% với cùng dữ liệu và cùng cấu hình (Nguyên tắc X). Request mang token
   là `POST /users/me/tfa/generate` của user provider khác `default` (trả `200`, không ghi DB), vì đây là route duy nhất
-  cần đăng nhập ở feature này. Mọi response khác `2xx` và mọi request quá 120 giây tính là lỗi; một vòng có lỗi thì vòng
-  đó không đạt. Benchmark này chặn CI.
+  cần đăng nhập ở feature này. Mọi response khác `2xx` và mọi request quá 120 giây tính là lỗi; có lỗi ở bất kỳ vòng
+  nào thì endpoint đó không đạt, như cổng benchmark của 001 (`tests/benchmark/src/compare.ts`). Benchmark này chặn CI.
 - **SC-008**: Người dùng đi hết luồng SSO của mỗi driver (OpenID, OAuth2, LDAP) ở app mới với IdP hoặc LDAP thử nghiệm,
   rồi refresh và dùng phiên đó ở Directus, và ngược lại: 100% kịch bản của User Story 7 đạt.

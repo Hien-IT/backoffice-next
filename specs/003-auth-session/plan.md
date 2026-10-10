@@ -68,7 +68,7 @@ Chi tiết quyết định: [research.md](./research.md). Dữ liệu: [data-mod
   `clear-cookie`, lọc `saml`).
 - `tests/parity`:
   - Postgres full: profile `sso` mới (IdP giả lập, OpenLDAP, cặp 8955/8956);
-  - MySQL và SQLite reduced: thêm `login`, `refresh`, `logout`, `password`;
+  - MySQL và SQLite reduced: thêm `login`, `login-db`, `refresh`, `logout`, `password`;
   - runner `scenario()`, `matrix()` và helper `db-effects` (research R11).
 - `tests/benchmark`: script `auth.ts` với 2.000 kết nối, job CI `benchmark-auth` (research R12).
 
@@ -233,7 +233,7 @@ backoffice-next/
 │       ├── startup/auth-providers.test.ts      # MỚI: cảnh báo saml, tên default, driver lạ (contracts/startup-logs.md)
 │       └── auth/
 │           ├── fixtures.ts, scenario.ts, db-effects.ts, tokens.ts   # MỚI: helper (R6, R11)
-│           ├── login.test.ts, refresh.test.ts, logout.test.ts       # US1, US2 (port blackbox)
+│           ├── login.test.ts, login-db.test.ts, refresh.test.ts, logout.test.ts   # US1, US2 (port blackbox)
 │           ├── authenticate.test.ts, token-matrix.test.ts           # US3, FR-101
 │           ├── user-status.test.ts, login-attempts.test.ts, stall.test.ts   # US4, SC-003, SC-004
 │           ├── tfa.test.ts, password.test.ts, shares.test.ts        # US5, US6, FR-021

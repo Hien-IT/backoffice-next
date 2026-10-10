@@ -54,7 +54,7 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
   ở FR-030 có khớp D-10 và D-09.10? [Consistency, Spec §FR-030, §FR-032, Khác biệt]
 - [ ] CHK020 - Mỗi khác biệt D-23 đến D-26 và D-09.10 có đủ cột "Gỡ khi" và lý do, theo cách test
   `accepted-differences` cần? [Completeness, Spec §Khác biệt]
-- [ ] CHK021 - D-24 lọc `saml` khỏi `GET /auth` nhưng giữ nguyên danh sách provider trong option của field
+- [x] CHK021 - D-24 lọc `saml` khỏi `GET /auth` nhưng giữ nguyên danh sách provider trong option của field
   `directus_users.provider`. Spec có ghi điều này để 006 không bị lệch? [Gap, Spec §FR-075, D-24]
 - [ ] CHK022 - Ma trận dùng chéo (FR-101) có liệt kê đủ loại token, gồm session của share và cookie trạng thái SSO
   dùng ở instance khác? [Coverage, Spec §FR-101, §SC-002]
@@ -71,7 +71,7 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
   spec? [Gap, Spec §FR-073, contracts/db-writes.md §7]
 - [x] CHK027 - Việc SSO đổi `role` gọi xóa cache hệ thống ở mỗi lần đăng nhập có được nêu, kèm ảnh hưởng hiệu năng?
   [Gap, Spec §FR-073]
-- [ ] CHK028 - Spec có định nghĩa hành vi khi một bước ghi lỗi giữa chừng (ví dụ đã thêm session nhưng ghi activity
+- [x] CHK028 - Spec có định nghĩa hành vi khi một bước ghi lỗi giữa chừng (ví dụ đã thêm session nhưng ghi activity
   lỗi), và nói rõ là giống Directus, không rollback? [Gap, Recovery]
 - [ ] CHK029 - Chi tiết "revision khi khóa user ghi `status: active` trong `data`" có được nêu là cố ý giống Directus, để
   reviewer không coi là lỗi? [Clarity, Spec §US4.4, contracts/db-writes.md §3]
@@ -118,5 +118,7 @@ chạy `/speckit.tasks`. Checklist này kiểm phần viết, không kiểm code
   - CHK026, CHK027: FR-073 nêu việc xóa session và xóa cache hệ thống khi SSO. Chưa định lượng ảnh hưởng hiệu năng.
   - CHK033: SC-006 tách dòng cảnh báo provider khỏi dòng "biến chưa hỗ trợ".
   - CHK036, CHK037: SC-007 nêu endpoint đo và cách tính lỗi.
+  - CHK021: FR-075 nêu chỉ `GET /auth` lọc `saml`. CHK028: Edge Cases nêu hành vi khi ghi DB lỗi giữa chừng
+    (sau `/speckit.analyze`).
   - Còn mở: các mục chưa đánh dấu, để reviewer quyết.
 - Mỗi lần chạy `/speckit.checklist` tạo một file mới; file này không thay `requirements.md`.
