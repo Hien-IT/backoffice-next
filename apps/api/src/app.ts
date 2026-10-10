@@ -4,6 +4,7 @@ import { ExpressAdapter, type NestExpressApplication } from '@nestjs/platform-ex
 import type { Express } from 'express';
 import { AppModule } from './app.module.js';
 import { type ExpressAppOptions, createExpressApp } from './app-pipeline.js';
+import { subscribeSchemaChanged } from './cache.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
 import metricsSchedule from './schedules/metrics.js';
@@ -15,6 +16,9 @@ export interface App {
 
 /** Builds the Express pipeline, mounts the Nest routes on it and initialises Nest (no listen). */
 export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
+	// Directus subscribes when its cache module loads; Backoffice does it here, before any request (feature 002)
+	subscribeSchemaChanged();
+
 	const express = createExpressApp(options);
 
 	const nest = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(express), {

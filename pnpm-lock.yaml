@@ -810,6 +810,9 @@ importers:
       '@backoffice/schema':
         specifier: workspace:*
         version: link:../../libs/schema
+      '@backoffice/types':
+        specifier: workspace:*
+        version: link:../../libs/types
       get-port:
         specifier: 'catalog:'
         version: 7.1.0

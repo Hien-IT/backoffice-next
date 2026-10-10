@@ -238,7 +238,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T020 [P] [US1] Helper `tests/parity/src/schema/clear-system-cache.ts` (research R8).
+- [X] T020 [P] [US1] Helper `tests/parity/src/schema/clear-system-cache.ts` (research R8).
   - Hàm `clearSystemCacheIn(service, opts?)` chạy, qua `compose` của `src/docker.ts`:
     `exec -T <service> node --input-type=module -e "<script>"`.
   - Script: import `/directus/dist/cache.js` và `/directus/dist/redis/index.js`, rồi `await clearSystemCache(opts)`
@@ -246,7 +246,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
     `process.exit(0)`.
   - Ném lỗi kèm stderr khi mã thoát khác 0.
   - Kiểm đường dẫn `dist` thật trong image `hiennd23/backoffice-api:local` trước khi dùng.
-- [ ] T021 [US1] Test đối chiếu `tests/parity/src/schema/sync.test.ts` (US1.1–US1.4, SC-001). Cần profile `multi`;
+- [X] T021 [US1] Test đối chiếu `tests/parity/src/schema/sync.test.ts` (US1.1–US1.4, SC-001). Cần profile `multi`;
   bỏ qua kèm thông báo khi không có `BACKOFFICE_URL_2`.
   - `beforeAll`, qua `directusRequest` của `src/directus-api.ts`:
     - tạo collection `parity_sync` (khóa `id`, field `title`);
@@ -265,7 +265,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
   - In độ trễ đo được.
   - `afterAll` dọn collection, quyền và cột.
   - (sau T020)
-- [ ] T022 [P] [US1] Test đối chiếu `tests/parity/src/schema/permissions-cache.test.ts` (FR-019, gỡ D-22).
+- [X] T022 [P] [US1] Test đối chiếu `tests/parity/src/schema/permissions-cache.test.ts` (FR-019, gỡ D-22).
   - `beforeAll`, qua Directus API: tạo collection `parity_perm` và quyền public `read` có `fields`, `validation`,
     `presets` khác `null`, và `permissions` là filter tĩnh (ví dụ `{"title":{"_nnull":true}}`). Filter KHÔNG chứa
     biến `$CURRENT_USER`, `$CURRENT_ROLE`, `$CURRENT_POLICIES`, `$NOW`, vì xử lý biến động thuộc feature 004.
@@ -279,7 +279,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
 
 ### Implementation for User Story 1
 
-- [ ] T023 [US1] Port permissions cache.
+- [X] T023 [US1] Port permissions cache.
   - `directus/api/src/permissions/cache.ts` sang `apps/api/src/permissions/cache.ts`:
     - `useCache` qua `defineCache` của `@backoffice/memory`;
     - cấu hình tính khi gọi lần đầu: không Redis là `local` 500 key; có Redis là `multi`, namespace
@@ -290,7 +290,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
     `apps/api/src/permissions/utils/`.
   - Test `apps/api/src/permissions/cache.test.ts` cho hai cấu hình.
   - Ghi manifest.
-- [ ] T024 [P] [US1] Đưa đọc quyền qua cache (research R5, contracts/redis.md §4).
+- [X] T024 [P] [US1] Đưa đọc quyền qua cache (research R5, contracts/redis.md §4).
   - Tạo `apps/api/src/permissions/utils/fetch-raw-permissions.ts`:
     - `fetchRawPermissions = withCache('raw-permissions', _fetchRawPermissions, prepareArg)`, với `prepareArg` đúng
       như `directus/api/src/permissions/utils/fetch-raw-permissions.ts:7-17`;
@@ -308,7 +308,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
     - đúng 2 key `raw-permissions-…` cho hai bộ đối số của đường OAS.
   - Ghi manifest.
   - (sau T023)
-- [ ] T025 [P] [US1] `clearSystemCache` và bộ nhận `schemaChanged` trong `apps/api/src/cache.ts`, theo
+- [X] T025 [P] [US1] `clearSystemCache` và bộ nhận `schemaChanged` trong `apps/api/src/cache.ts`, theo
   contracts/redis.md §3.
   - `clearSystemCache` làm đủ 4 bước theo đúng thứ tự: `system-cache-lock` TTL 10000; `await clearPermissionCache()`;
     publish không await.
@@ -322,7 +322,7 @@ ngược lại (FR-016 đến FR-020, SC-001). Permissions cache dùng chung v�
     - bộ nhận chỉ xóa `cache` khi `CACHE_STORE=memory`, `CACHE_AUTO_PURGE=true` và `autoPurgeCache !== false`;
     - không đăng ký khi không có Redis.
   - (sau T023)
-- [ ] T026 [US1] Chạy `sync.test.ts` và `permissions-cache.test.ts` trên Postgres
+- [X] T026 [US1] Chạy `sync.test.ts` và `permissions-cache.test.ts` trên Postgres
   (`pnpm nx run parity-tests:env-up --vendor=postgres --profiles=multi`) tới khi đạt.
   - Lệch giá trị permissions cache thì sửa phần đọc ở T024, kèm unit test. Không chuẩn hóa trong test.
   - Ghi độ trễ đo được vào commit message.
@@ -341,7 +341,7 @@ và phát lại message chéo.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T027 [P] [US2] Fixture schema `tests/parity/src/schema/fixture.ts`, tạo qua API của Directus bằng
+- [X] T027 [P] [US2] Fixture schema `tests/parity/src/schema/fixture.ts`, tạo qua API của Directus bằng
   `directusRequest`: `POST /collections` kèm `fields`, `POST /relations`. Directus tự xử lý khác biệt giữa vendor, nên
   không cần file snapshot.
   - Hàm `createFixture()` tạo các collection `parity_overview_*` gồm:
@@ -352,7 +352,7 @@ và phát lại message chéo.
     - field presentation (`special: ['alias','no-data']`), field group;
     - `validation` lưu dạng chuỗi JSON, `note`, `sort_field`, `singleton: true`, `accountability: null`.
   - Hàm `dropFixture()` xóa tất cả.
-- [ ] T028 [P] [US2] Helper `tests/parity/src/schema/capture.ts` (research R9).
+- [X] T028 [P] [US2] Helper `tests/parity/src/schema/capture.ts` (research R9).
   - `captureSchema(appUrl, { busNs, lockNs })`, theo thứ tự:
     1. `UNLINK <lockNs>:schemaCache--preparing`;
     2. `SUBSCRIBE <busNs>:schemaCache--done`;
@@ -366,7 +366,7 @@ và phát lại message chéo.
     4. `PUBLISH` nguyên `raw`;
     5. trả response, rồi `UNLINK` khóa.
   - Thời hạn 15 s.
-- [ ] T029 [US2] Test đối chiếu `tests/parity/src/schema/overview.test.ts` (US2.1–US2.5, FR-008, FR-012, FR-040).
+- [X] T029 [US2] Test đối chiếu `tests/parity/src/schema/overview.test.ts` (US2.1–US2.5, FR-008, FR-012, FR-040).
   - `beforeAll`: `createFixture()`, rồi tạo bằng SQL các bảng `parity_no_pk` (không khóa chính), `"parity with space"`
     và `sysdiagrams` (nằm trong `DB_EXCLUDE_TABLES` mặc định), kèm cột cho mỗi bảng.
   - Ca 1: `captureSchema(DIRECTUS_URL)` bằng `captureSchema(BACKOFFICE_URL)` theo `toStrictEqual`, gồm thứ tự
@@ -380,9 +380,9 @@ và phát lại message chéo.
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] `tests/parity/src/suite.ts`: thêm `src/schema/overview.test.ts` vào `REDUCED_FILES` và
+- [X] T030 [US2] `tests/parity/src/suite.ts`: thêm `src/schema/overview.test.ts` vào `REDUCED_FILES` và
   `src/schema/**/*.test.ts` vào `FULL_FILES`. Sửa test của danh sách suite nếu có.
-- [ ] T031 [US2] Chạy `overview.test.ts` trên Postgres (full), MySQL và SQLite (reduced).
+- [X] T031 [US2] Chạy `overview.test.ts` trên Postgres (full), MySQL và SQLite (reduced).
   - Sửa mọi lệch trong `apps/api/src/schema/*` (`get-local-type.ts`, `get-default-value.ts`, `read-relations.ts`,
     `get-database-schema.ts`) cho tới khi đạt. Không chuẩn hóa trong test.
   - Mỗi chỗ sửa có unit test trong file test tương ứng.
@@ -402,7 +402,7 @@ giống Directus (FR-011 đến FR-013, SC-003).
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T032 [P] [US3] Test đối chiếu `tests/parity/src/schema/build-once.test.ts`.
+- [X] T032 [P] [US3] Test đối chiếu `tests/parity/src/schema/build-once.test.ts`.
   - Số lần dựng là số message trên kênh `schemaCache--done`. Process nguồn là IP của lệnh `PUBLISH` trong
     `traceRedis`.
   - Ca 1 (SC-003):
@@ -424,7 +424,7 @@ giống Directus (FR-011 đến FR-013, SC-003).
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Chạy `build-once.test.ts` trên Postgres (`--profiles=multi,cache-config`).
+- [X] T033 [US3] Chạy `build-once.test.ts` trên Postgres (`--profiles=multi,cache-config`).
   - Lệch Directus thì sửa `getSchema` (T016), kèm unit test. Không có cài đặt mới ngoài Phase 2.
   - Ghi số lần dựng đo được vào commit message.
   - (sau T032)
@@ -443,7 +443,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T034 [P] [US4] Test đối chiếu `tests/parity/src/schema/redis-trace.test.ts` (US4.2, US4.3, SC-004, FR-033).
+- [X] T034 [P] [US4] Test đối chiếu `tests/parity/src/schema/redis-trace.test.ts` (US4.2, US4.3, SC-004, FR-033).
   Chạy trên cặp `cache-config`.
   - Sửa `tests/parity/src/directus-api.ts`: `directusRequest` nhận thêm `baseUrl` tùy chọn (mặc định
     `DIRECTUS_URL`), để gọi Directus của cặp `cache-config`.
@@ -465,14 +465,14 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
     - không có key hay kênh nào dưới `directus:`, `permissions:` hay `sets:namespace:system-cache`;
     - `PUBSUB NUMSUB parity:bus:schemaChanged parity-permissions:multi-cache` mỗi kênh ≥ 2.
   - (sau T020)
-- [ ] T035 [P] [US4] Thêm ca vào `tests/parity/src/redis-down.test.ts` (FR-024, US4.5, gỡ D-20).
+- [X] T035 [P] [US4] Thêm ca vào `tests/parity/src/redis-down.test.ts` (FR-024, US4.5, gỡ D-20).
   - Ca cache còn: làm ấm cache, rồi `redisDown()`. `GET /server/info` và `GET /server/specs/oas` ở hai app cùng 200.
   - Ca cache trống: `PUBLISH directus:bus:schemaChanged {}`, rồi `redisDown()`. `GET /server/info` ở hai app cùng
     `500`; chờ tối đa 60 s, không khẳng định thời gian.
   - Log: sau khi Redis tắt, log của mỗi app có tiền tố `[system-cache]`, `[deployment-cache]`, `[lock-cache]` và
     `[cache]`. Env đối chiếu có `CACHE_ENABLED=true`.
   - Bật lại Redis và chờ hai app trả 200.
-- [ ] T036 [P] [US4] Test khởi động trên host `tests/parity/src/startup/cache-schema.test.ts`, dùng
+- [X] T036 [P] [US4] Test khởi động trên host `tests/parity/src/startup/cache-schema.test.ts`, dùng
   `src/startup/run-api.ts` (US4.1, US4.4).
   - Với `CACHE_SCHEMA=false`: `traceRedis` quanh 2 request `/server/info` không có lệnh nào chứa `schemaCache--`.
   - Với `CACHE_SCHEMA_FREEZE_ENABLED=true`: `/server/specs/oas` và `/server/info` trả như Directus cấu hình mặc định.
@@ -481,7 +481,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
 
 ### Implementation for User Story 4
 
-- [ ] T037 [US4] Chạy `redis-trace.test.ts`, `redis-down.test.ts`, `startup/cache-schema.test.ts` trên Postgres
+- [X] T037 [US4] Chạy `redis-trace.test.ts`, `redis-down.test.ts`, `startup/cache-schema.test.ts` trên Postgres
   (`--profiles=multi,cache-config`). Sửa lệch trong `apps/api/src/{cache.ts,bus,lock,permissions,schema}`, kèm unit
   test. (sau T034, T035, T036)
 
@@ -496,7 +496,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
 - [ ] T038 [P] Gỡ D-20 và D-22 khỏi `tests/parity/accepted-differences.ts`. Chạy `tests/parity/src/accepted-differences.test.ts`.
   Nếu bảng "Khác biệt so với Directus" của spec 002 (cột `Mã | Thay đổi | Lý do`) làm `src/spec-differences.ts` đọc
   sai, sửa parser và test của nó.
-- [ ] T039 [P] Benchmark `/server/specs/oas` chặn CI (SC-005, research R12).
+- [X] T039 [P] Benchmark `/server/specs/oas` chặn CI (SC-005, research R12).
   - `tests/benchmark/docker-compose.yml`: đổi `directus-nocache` thành `directus-noresponsecache`. Bỏ `CACHE_SCHEMA:
     'false'`, giữ `CACHE_ENABLED: 'false'`, đặt `CACHE_NAMESPACE: benchmark-noresponsecache`, giữ cổng 8655.
   - `tests/benchmark/src/run.ts`: OAS dùng container này, bỏ `notBlocking`, sửa comment đầu file. Đổi tên biến URL
@@ -505,7 +505,7 @@ Directus. Chạy `redis-down.test.ts`: hành vi và log khi Redis mất giống 
   - Chạy benchmark với `BENCH_ROUNDS=5`, ghi p95 và req/s vào commit message.
   - Nếu vượt 10%: đếm câu SQL mỗi request OAS ở hai app (log câu lệnh của Postgres) và tìm nguyên nhân. Chỉ đề xuất
     nới cổng khi tech lead duyệt.
-- [ ] T040 [P] Cập nhật `tests/parity/README.md`:
+- [X] T040 [P] Cập nhật `tests/parity/README.md`:
   - profile `multi` và `cache-config`;
   - helper `src/redis.ts` (`flushSharedCaches`, `traceRedis`), và vì sao phải xóa cache dùng chung giữa hai lần chụp;
   - thư mục `src/schema/`;
@@ -633,3 +633,20 @@ Task: "captureSchema / replaySchema in tests/parity/src/schema/capture.ts"
   R10).
 - US1.5 (không Redis) chỉ có unit test ở 002 (T025). Test đối chiếu tương ứng là ca `REDIS_ENABLED=false` của
   blackbox `schema-cache.test.ts`, copy ở 006.
+
+## Ghi chú khi làm (2026-10-10)
+
+- T022: Directus còn ghi key `permissions:policies-ip-access-*` từ khóa của cache response (`utils/get-cache-key.ts`,
+  D-11, feature 005); test bỏ key này khỏi phép so. Các key `policies`, `raw-permissions` bằng nhau sâu ở hai bên.
+- T021, T022: Directus trả GET từ cache response (`CACHE_ENABLED=true` trong env đối chiếu, D-11), và
+  `schemaChanged` không xóa cache response trên Redis; helper `oasComponent` và `flushSharedCaches` xóa nó trước khi đọc.
+- T027: field thêm từng cái qua `POST /fields` (tạo collection kèm nhiều field một lần bị Directus từ chối).
+- T030: thêm `schema` vào glob của `FULL_FILES` thay vì liệt kê file.
+- T035: các ca FR-024 nằm ở `tests/parity/src/schema/redis-down.test.ts` và chạy trên cặp `cache-config`, với
+  `CACHE_ENABLED=false` trong `env/profile-cache-config.env`: cache response của Directus đọc Redis và treo khi Redis
+  mất, che hành vi cần so. `redis-down.test.ts` có sẵn chỉ kiểm khởi động trên host nên không sửa.
+- T034: `UNLINK`/`DEL` nhiều key được tách từng key, `SCAN` lấy mẫu `MATCH`, vì thứ tự và con trỏ phụ thuộc trạng thái.
+- T038 làm cùng T044: gỡ D-20, D-22 khỏi registry chỉ hợp lệ khi spec 002 đã `Done` (guard
+  `accepted-differences.test.ts` nay bỏ qua mã đã được feature `Done` gỡ).
+- Độ trễ đo ở local (Docker Desktop, Directus giả lập amd64): Directus → app mới 20–25 ms, app mới → Directus 57 ms;
+  Redis mất với cache trống: cả hai trả `500` sau khoảng 12 s.

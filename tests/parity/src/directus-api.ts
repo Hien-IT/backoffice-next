@@ -16,8 +16,13 @@ async function login(): Promise<string> {
 	return token;
 }
 
-export async function directusRequest(method: string, path: string, body?: unknown): Promise<any> {
-	const res = await fetch(new URL(path, process.env['DIRECTUS_URL']), {
+export async function directusRequest(
+	method: string,
+	path: string,
+	body?: unknown,
+	baseUrl = process.env['DIRECTUS_URL'],
+): Promise<any> {
+	const res = await fetch(new URL(path, baseUrl), {
 		method,
 		headers: {
 			authorization: `Bearer ${await login()}`,

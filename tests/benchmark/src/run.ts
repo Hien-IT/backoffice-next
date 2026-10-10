@@ -20,7 +20,7 @@ import {
 } from './compare.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
-const DIRECTUS_NOCACHE = process.env['DIRECTUS_NOCACHE_URL'] ?? 'http://127.0.0.1:8655';
+const DIRECTUS_NORESPONSECACHE = process.env['DIRECTUS_NORESPONSECACHE_URL'] ?? 'http://127.0.0.1:8655';
 const BACKOFFICE = process.env['BACKOFFICE_URL'] ?? 'http://127.0.0.1:8156';
 const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
@@ -28,14 +28,14 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 const RATE_SHARE = 0.8;
 
-// /server/specs/oas: Backoffice builds the schema on every request until feature 002, so the reference is Directus
-// with CACHE_SCHEMA=false. It is measured but does not fail the run (D-22): Directus still reads policies and
-// permissions from its permissions cache, which comes with feature 002 (D-20).
+// /server/specs/oas: the reference is Directus with its default caching for this route: schema and permissions
+// caches on, response cache off (CACHE_ENABLED=false, its default; the response cache comes with feature 005, D-11).
+// Since feature 002 Backoffice caches the schema and permissions the same way, so the 10% gate applies (SC-005).
 const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
 	{ path: '/server/ping', directus: DIRECTUS },
 	{ path: '/server/health', directus: DIRECTUS },
 	{ path: '/server/info', directus: DIRECTUS },
-	{ path: '/server/specs/oas', directus: DIRECTUS_NOCACHE, notBlocking: 'D-22, until feature 002' },
+	{ path: '/server/specs/oas', directus: DIRECTUS_NORESPONSECACHE },
 ];
 
 async function measure(baseUrl: string, path: string, duration: number, overallRate?: number): Promise<Round> {

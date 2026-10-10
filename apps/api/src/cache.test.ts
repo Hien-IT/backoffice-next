@@ -1,12 +1,27 @@
 import { useEnv } from '@backoffice/env';
 import type { SchemaOverview } from '@backoffice/types';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
-import { _resetCache, getCache, getMemorySchemaCache, setMemorySchemaCache } from './cache.js';
+import { useBus } from './bus/index.js';
+import {
+	_resetCache,
+	clearSystemCache,
+	getCache,
+	getMemorySchemaCache,
+	setMemorySchemaCache,
+	subscribeSchemaChanged,
+} from './cache.js';
 import { useLogger } from './logger/index.js';
+import { clearCache as clearPermissionCache } from './permissions/cache.js';
+import { redisConfigAvailable } from './redis/index.js';
 import { runShutdownTasks } from './shutdown.js';
 
 vi.mock('@backoffice/env');
 vi.mock('./logger/index.js');
+vi.mock('./bus/index.js');
+vi.mock('./permissions/cache.js');
+vi.mock('./redis/index.js');
+
+const bus = { publish: vi.fn(async () => {}), subscribe: vi.fn(async () => {}) };
 
 const logger = { warn: vi.fn() };
 
@@ -14,6 +29,8 @@ beforeEach(() => {
 	vi.clearAllMocks();
 	_resetCache();
 	vi.mocked(useLogger).mockReturnValue(logger as any);
+	vi.mocked(useBus).mockReturnValue(bus as any);
+	vi.mocked(redisConfigAvailable).mockReturnValue(false);
 });
 
 test('no cache when CACHE_ENABLED is false', () => {
@@ -148,5 +165,95 @@ describe('memory schema cache', () => {
 		const frozen = Object.freeze(schema());
 		setMemorySchemaCache(frozen);
 		expect(getMemorySchemaCache()).toBe(frozen);
+	});
+});
+
+// Feature 002: clearSystemCache and the schemaChanged handler (contracts/redis.md §3)
+const overview = (): SchemaOverview => ({ collections: {}, relations: [] });
+
+describe('clearSystemCache', () => {
+	beforeEach(() => {
+		vi.mocked(useEnv).mockReturnValue({ CACHE_STORE: 'memory', CACHE_NAMESPACE: 'ns' });
+	});
+
+	test('clears the system cache, the schema caches and the permissions cache, then publishes schemaChanged', async () => {
+		const { systemCache, localSchemaCache, lockCache } = getCache();
+		await systemCache.set('a', 1);
+		await localSchemaCache.set('b', 2);
+		setMemorySchemaCache(overview());
+		const lockSet = vi.spyOn(lockCache, 'set');
+
+		await clearSystemCache({ autoPurgeCache: false });
+
+		expect(lockSet).toHaveBeenCalledWith('system-cache-lock', true, 10000);
+		expect(await lockCache.get('system-cache-lock')).toBeUndefined();
+		expect(await systemCache.get('a')).toBeUndefined();
+		expect(await localSchemaCache.get('b')).toBeUndefined();
+		expect(getMemorySchemaCache()).toBeUndefined();
+		expect(clearPermissionCache).toHaveBeenCalledOnce();
+		expect(bus.publish).toHaveBeenCalledWith('schemaChanged', { autoPurgeCache: false });
+	});
+
+	test('leaves the system cache alone while system-cache-lock is set, unless forced', async () => {
+		const { systemCache, lockCache } = getCache();
+		await systemCache.set('a', 1);
+		await lockCache.set('system-cache-lock', true);
+
+		await clearSystemCache();
+		expect(await systemCache.get('a')).toBe(1);
+		expect(bus.publish).toHaveBeenCalledWith('schemaChanged', { autoPurgeCache: undefined });
+
+		await clearSystemCache({ forced: true });
+		expect(await systemCache.get('a')).toBeUndefined();
+	});
+});
+
+describe('schemaChanged handler', () => {
+	const handler = async (message: unknown) => {
+		const call = bus.subscribe.mock.calls.find((c) => (c as unknown[])[0] === 'schemaChanged') as unknown[];
+		await (call[1] as (m: unknown) => Promise<void>)(message);
+	};
+
+	test('not registered without Redis', () => {
+		subscribeSchemaChanged();
+		expect(bus.subscribe).not.toHaveBeenCalled();
+	});
+
+	test('registered once; clears the in-memory and local schema caches', async () => {
+		vi.mocked(redisConfigAvailable).mockReturnValue(true);
+		vi.mocked(useEnv).mockReturnValue({ CACHE_STORE: 'redis', CACHE_NAMESPACE: 'ns' });
+		subscribeSchemaChanged();
+		subscribeSchemaChanged();
+		expect(bus.subscribe).toHaveBeenCalledOnce();
+
+		vi.mocked(useEnv).mockReturnValue({ CACHE_STORE: 'memory', CACHE_NAMESPACE: 'ns' });
+		const { localSchemaCache } = getCache();
+		await localSchemaCache.set('b', 2);
+		setMemorySchemaCache(overview());
+
+		await handler({});
+		expect(getMemorySchemaCache()).toBeUndefined();
+		expect(await localSchemaCache.get('b')).toBeUndefined();
+	});
+
+	test('clears the response cache only with CACHE_STORE=memory, CACHE_AUTO_PURGE and autoPurgeCache !== false', async () => {
+		vi.mocked(redisConfigAvailable).mockReturnValue(true);
+		const env = {
+			CACHE_ENABLED: true,
+			CACHE_STORE: 'memory',
+			CACHE_NAMESPACE: 'ns',
+			CACHE_TTL: '5m',
+			CACHE_AUTO_PURGE: true,
+		};
+		vi.mocked(useEnv).mockReturnValue(env);
+		subscribeSchemaChanged();
+		const { cache } = getCache();
+
+		await cache!.set('k', 1);
+		await handler({ autoPurgeCache: false });
+		expect(await cache!.get('k')).toBe(1);
+
+		await handler({});
+		expect(await cache!.get('k')).toBeUndefined();
 	});
 });

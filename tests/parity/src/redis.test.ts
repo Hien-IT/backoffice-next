@@ -1,6 +1,6 @@
 import { gzipSync } from 'node:zlib';
 import { expect, test } from 'vitest';
-import { decodeMessage, parseMonitorLine } from './redis.js';
+import { decodeMessage, expandKeys, parseMonitorLine } from './redis.js';
 
 test('decodeMessage reads plain JSON', () => {
 	expect(decodeMessage(Buffer.from('{"autoPurgeCache":false}'))).toEqual({ autoPurgeCache: false });
@@ -31,6 +31,9 @@ test('parseMonitorLine keeps the client address, the command and its key or chan
 		command: 'evalsha',
 		key: 'permissions:x',
 	});
+	const unlink = parseMonitorLine('1.2 [0 10.0.0.2:5] "UNLINK" "p:b" "p:a"')!;
+	expect(expandKeys(unlink)).toEqual(['unlink p:a', 'unlink p:b']);
+	expect(parseMonitorLine('1.2 [0 10.0.0.2:5] "SCAN" "13" "MATCH" "p:*" "COUNT" "100"')).toMatchObject({ key: 'p:*' });
 	expect(parseMonitorLine('1.2 [0 10.0.0.2:5] "PING"')).toEqual({ client: '10.0.0.2', command: 'ping', key: '' });
 	expect(parseMonitorLine('OK')).toBeUndefined();
 });

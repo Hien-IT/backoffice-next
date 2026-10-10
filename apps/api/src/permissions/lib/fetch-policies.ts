@@ -1,20 +1,23 @@
-// Ported from directus/api/src/permissions/lib/fetch-policies.ts (no `withCache`: permissions are not cached in
-// feature 001). AccessService is replaced by the same reads with knex (research R16.4); feature 004 ports the
-// full permissions module.
+// Ported from directus/api/src/permissions/lib/fetch-policies.ts. AccessService is replaced by the same reads with
+// knex (research R16.4 of feature 001); feature 004 ports the full permissions module. Cached in the shared
+// permissions cache like Directus (feature 002).
 import type { Accountability } from '@backoffice/types';
 import type { Context } from '../types.js';
 import { castCsv } from '../../utils/cast-on-read.js';
 import { filterPoliciesByIp } from '../utils/filter-policies-by-ip.js';
+import { withCache } from '../utils/with-cache.js';
 
 export interface AccessRow {
 	policy: { id: string; ip_access: string[] | null };
 	role: string | null;
 }
 
+export const fetchPolicies = withCache('policies', _fetchPolicies, ({ roles, user, ip }) => ({ roles, user, ip }));
+
 /**
  * Fetch the policies associated with the current user accountability
  */
-export async function fetchPolicies(
+export async function _fetchPolicies(
 	{ roles, user, ip }: Pick<Accountability, 'user' | 'roles' | 'ip'>,
 	{ knex }: Context,
 ): Promise<string[]> {

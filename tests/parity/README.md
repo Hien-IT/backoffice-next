@@ -22,22 +22,44 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `TEST_DB` và thắng biến có sẵn. Mỗi vendor một compose project `parity-<vendor>`, cấu hình chung cho cả hai app ở
   `env/<vendor>.env`.
 - `PARITY_SUITE=full` (mặc định): mọi file test. `PARITY_SUITE=reduced`: chỉ
-  `src/server/{ping,health,info,errors,methods,conditional}.test.ts`, bỏ các ca cần dừng container hoặc profile riêng.
-- Profile riêng (chỉ dùng ở `full`), bật bằng `env-up --profiles=ratelimit,cors-hsts,pressure,metrics`:
+  `src/server/{ping,health,info,errors,methods,conditional}.test.ts` và `src/schema/overview.test.ts`, bỏ các ca cần
+  dừng container hoặc profile riêng.
+- Profile riêng (chỉ dùng ở `full`), bật bằng
+  `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config`:
 
-  | Profile     | Directus | Backoffice | Cấu hình                    |
-  | ----------- | -------- | ---------- | --------------------------- |
-  | (chính)     | 8155     | 8156       | `env/<vendor>.env`          |
-  | `ratelimit` | 8255     | 8256       | `env/profile-ratelimit.env` |
-  | `cors-hsts` | 8355     | 8356       | `env/profile-cors-hsts.env` |
-  | `pressure`  | 8455     | 8456       | `env/profile-pressure.env`  |
-  | `metrics`   | 8555     | 8556       | `env/profile-metrics.env`   |
+  | Profile        | Directus | Backoffice | Cấu hình                                                       |
+  | -------------- | -------- | ---------- | -------------------------------------------------------------- |
+  | (chính)        | 8155     | 8156       | `env/<vendor>.env`                                             |
+  | `ratelimit`    | 8255     | 8256       | `env/profile-ratelimit.env`                                    |
+  | `cors-hsts`    | 8355     | 8356       | `env/profile-cors-hsts.env`                                    |
+  | `pressure`     | 8455     | 8456       | `env/profile-pressure.env`                                     |
+  | `metrics`      | 8555     | 8556       | `env/profile-metrics.env`                                      |
+  | `cache-config` | 8755     | 8756       | `env/profile-cache-config.env`                                 |
+  | `multi`        | —        | 8157       | `env/<vendor>.env` (instance Backoffice thứ hai của cặp chính) |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
 - Chạy một file: `pnpm nx run parity-tests:parity --vendor=postgres -- src/server/info.test.ts`.
 - So với một API đang chạy ngoài Docker: đặt `BACKOFFICE_URL` (hoặc `DIRECTUS_URL`) trước khi chạy.
 - Unit test của chính bộ so sánh (không cần Docker): `pnpm nx test parity-tests`.
+
+### Test schema và cache dùng chung (feature 002)
+
+- `src/schema/`: so SchemaOverview hai bên (`overview`), đồng bộ schema và quyền (`sync`), dựng schema một lần
+  (`build-once`), giá trị permissions cache (`permissions-cache`), tập lệnh Redis (`redis-trace`), Redis mất
+  (`redis-down`).
+- `src/redis.ts`:
+  - `decodeMessage` đọc message và giá trị của `@directus/memory` (gzip khi có header gzip);
+  - `flushSharedCaches` xóa permissions cache, cache response của Directus và schema trong bộ nhớ của mọi process;
+  - `traceRedis` ghi mọi lệnh qua `MONITOR`; `containerAddress` cho IP container để lọc theo app.
+- Hai app dùng chung permissions cache và trao đổi schema qua bus. Test so kết quả tính toán của hai app phải gọi
+  `flushSharedCaches()` giữa hai lần chụp, nếu không app sau đọc giá trị app trước vừa ghi và che lỗi của chính nó.
+- `src/schema/capture.ts`: lấy SchemaOverview của một app từ message `schemaCache--done` mà nó phát khi dựng schema, và
+  phát lại message đó cho app kia.
+- `src/schema/clear-system-cache.ts`: `clearSystemCacheIn(service)` chạy `clearSystemCache()` của bản build trong
+  container app mới, không qua HTTP (chiều "app mới đổi schema" cho tới feature 006).
+- Directus trả GET từ cache response khi `CACHE_ENABLED=true` (D-11). Helper `oasComponent` xóa cache này trước khi đọc
+  OAS, vì `schemaChanged` không xóa cache response nằm trên Redis.
 
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.
@@ -67,9 +89,8 @@ GET /server/info: 1 unaccepted difference(s)
 
 ## CI và quy trình merge
 
-Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`, trên pull request và mỗi lần push `main`.
-Dự án merge thẳng vào `main` (repo private gói GitHub Free không có branch protection): sau mỗi lần push, xem kết
-quả bằng `gh run list --branch main` và sửa job đỏ ở commit tiếp theo. Khi repo có gói hỗ trợ branch protection, bật
-"Require status checks to pass before merging" cho `main` với các check: `guard-directus`, `quality`,
-`guard-differences`, `parity (postgres, …)`, `parity (mysql, …)`, `parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`,
-`security`, `semgrep`.
+Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`, trên pull request và mỗi lần push `main`. Dự án
+merge thẳng vào `main` (repo private gói GitHub Free không có branch protection): sau mỗi lần push, xem kết quả bằng
+`gh run list --branch main` và sửa job đỏ ở commit tiếp theo. Khi repo có gói hỗ trợ branch protection, bật "Require
+status checks to pass before merging" cho `main` với các check: `guard-directus`, `quality`, `guard-differences`,
+`parity (postgres, …)`, `parity (mysql, …)`, `parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`, `security`, `semgrep`.

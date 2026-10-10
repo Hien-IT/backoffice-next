@@ -3,7 +3,9 @@
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { getSimpleHash } from '@backoffice/utils';
 import { PUBLIC_POLICY, createDirectusDb } from '../../test/directus-db.js';
+import { _resetCache, useCache } from './cache.js';
 import { fetchPermissions } from './lib/fetch-permissions.js';
 import { fetchPolicies } from './lib/fetch-policies.js';
 import { fetchAllowedFieldMap } from './modules/fetch-allowed-field-map/fetch-allowed-field-map.js';
@@ -17,6 +19,8 @@ const schema = new SchemaBuilder().collection('articles', (c) => c.field('id').i
 const ctx = () => ({ knex: db, schema });
 
 beforeEach(async () => {
+	// The permissions cache (feature 002) is local without Redis; empty it so each test reads its own tables.
+	_resetCache();
 	db = await createDirectusDb();
 
 	await db('directus_policies').insert([
@@ -135,5 +139,41 @@ describe('fetchAllowedFieldMap', () => {
 			ctx(),
 		);
 		expect(map).toEqual({ articles: ['id'] });
+	});
+});
+
+// Feature 002: the shared permissions cache (contracts/redis.md §4, research R5)
+describe('permissions cache', () => {
+	const publicAccountability = { roles: [], user: null, ip: '1.2.3.4', app: false, role: null };
+
+	test('a second call with the same arguments does not query the database', async () => {
+		let queries = 0;
+		db.on('query', () => queries++);
+
+		const policies = await fetchPolicies(publicAccountability, ctx());
+		await fetchPermissions({ action: 'read', policies, accountability: publicAccountability }, ctx());
+		const first = queries;
+
+		expect(await fetchPolicies(publicAccountability, ctx())).toEqual(policies);
+		await fetchPermissions({ action: 'read', policies, accountability: publicAccountability }, ctx());
+		expect(queries).toBe(first);
+	});
+
+	test('keys are those Directus computes on the public OAS path', async () => {
+		const policies = await fetchPolicies(publicAccountability, ctx());
+		await fetchPermissions({ action: 'read', policies, accountability: publicAccountability }, ctx());
+		await fetchPermissions({ policies, accountability: publicAccountability }, ctx());
+		// withCache does not await set()
+		await new Promise((r) => setTimeout(r, 10));
+
+		const cache = useCache();
+		const hash = (args: unknown) => getSimpleHash(JSON.stringify(args));
+		expect(await cache.get(`policies-${hash({ roles: [], user: null, ip: '1.2.3.4' })}`)).toEqual(policies);
+		expect(
+			await cache.get(`raw-permissions-${hash({ policies, action: 'read', accountability: { app: false } })}`),
+		).toBeInstanceOf(Array);
+		expect(await cache.get(`raw-permissions-${hash({ policies, accountability: { app: false } })}`)).toBeInstanceOf(
+			Array,
+		);
 	});
 });

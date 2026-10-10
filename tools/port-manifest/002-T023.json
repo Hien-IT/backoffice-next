@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/permissions/utils/with-cache.ts",
+		"dest": "apps/api/src/permissions/utils/with-cache.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/with-cache.test.ts",
+		"dest": "apps/api/src/permissions/utils/with-cache.test.ts"
+	},
+	{
+		"source": "api/src/permissions/cache.ts",
+		"dest": "apps/api/src/permissions/cache.ts"
+	}
+]

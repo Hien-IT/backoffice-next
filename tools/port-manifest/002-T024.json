@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/permissions/utils/fetch-raw-permissions.ts",
+		"dest": "apps/api/src/permissions/utils/fetch-raw-permissions.ts"
+	}
+]

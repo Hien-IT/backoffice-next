@@ -48,7 +48,13 @@ test('the accepted differences match the spec tables (FR-101)', () => {
 });
 
 test('every code of the 001 table is listed (no forgotten difference)', () => {
-	const codes = [...readSpecDifferences('001')!.codes.keys()].filter((c) => c !== 'D-09');
+	// A temporary difference leaves the list when the feature that removes it is Done (feature 002: D-20, D-22).
+	const removed = (code: string) => {
+		const removeAt = readSpecDifferences('001')!.codes.get(code);
+		return removeAt !== undefined && removeAt !== '' && readSpecDifferences(removeAt)?.status === 'Done';
+	};
+
+	const codes = [...readSpecDifferences('001')!.codes.keys()].filter((c) => c !== 'D-09' && !removed(c));
 	const listed = new Set(acceptedDifferences.map((d) => d.id));
 	expect(codes.filter((c) => !listed.has(c))).toEqual([]);
 });

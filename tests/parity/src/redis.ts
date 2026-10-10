@@ -11,7 +11,12 @@ let client: Redis | undefined;
 
 /** Shared client of the test process. */
 export function redis(): Redis {
-	client ??= new Redis(REDIS_URL, { lazyConnect: false, maxRetriesPerRequest: 3 });
+	if (!client) {
+		client = new Redis(REDIS_URL, { maxRetriesPerRequest: 3 });
+		// Some tests stop the Redis server on purpose (redisDown): reconnection errors are expected there.
+		client.on('error', () => undefined);
+	}
+
 	return client;
 }
 
@@ -25,6 +30,19 @@ export async function closeRedis(): Promise<void> {
 	client = undefined;
 }
 
+/**
+ * Deletes Directus' response cache (Keyv namespace CACHE_NAMESPACE, store Redis in the parity env). With
+ * CACHE_ENABLED=true Directus answers GET requests from it (D-11, feature 005), which would hide schema changes that
+ * are announced without an auto purge (schemaChanged alone does not purge a Redis response cache).
+ */
+export async function clearResponseCache(cacheNs = 'system-cache'): Promise<void> {
+	const r = redis();
+
+	for await (const keys of r.scanStream({ match: `sets:namespace:${cacheNs}:*`, count: 500 })) {
+		if ((keys as string[]).length > 0) await r.unlink(...(keys as string[]));
+	}
+}
+
 /** Decodes a value written by @directus/memory or @backoffice/memory: gzip when it starts with the gzip header. */
 export function decodeMessage(buf: Buffer): unknown {
 	if (buf.length === 0) return undefined;
@@ -32,19 +50,27 @@ export function decodeMessage(buf: Buffer): unknown {
 	return JSON.parse(data.toString('utf8'));
 }
 
-export type Namespaces = { busNs?: string; permNs?: string };
+export type Namespaces = { busNs?: string; permNs?: string; cacheNs?: string };
 
 /**
  * Clears what both apps share in Redis, so the next request of one app computes its own values instead of reading
  * those the other app wrote: permissions cache (Redis keys and, through `multi-cache`, the local layer of every
  * process) and the in-memory schema of every process (`schemaChanged`).
  */
-export async function flushSharedCaches({ busNs = 'directus:bus', permNs = 'permissions' }: Namespaces = {}) {
+export async function flushSharedCaches({
+	busNs = 'directus:bus',
+	permNs = 'permissions',
+	cacheNs = 'system-cache',
+}: Namespaces = {}) {
 	const r = redis();
 	await r.publish(`${permNs}:multi-cache`, JSON.stringify({ type: 'clear', origin: 'parity-test' }));
 
-	for await (const keys of r.scanStream({ match: `${permNs}:*`, count: 500 })) {
-		if ((keys as string[]).length > 0) await r.unlink(...(keys as string[]));
+	// Permissions cache, and Directus' response cache (CACHE_ENABLED=true in the parity env, D-11): a cached OAS
+	// response would skip the permission reads.
+	for (const match of [`${permNs}:*`, `sets:namespace:${cacheNs}:*`]) {
+		for await (const keys of r.scanStream({ match, count: 500 })) {
+			if ((keys as string[]).length > 0) await r.unlink(...(keys as string[]));
+		}
 	}
 
 	await r.publish(`${busNs}:schemaChanged`, '{}');
@@ -70,11 +96,29 @@ export function parseMonitorLine(line: string): TracedCommand | undefined {
 	const command = args[0]?.toLowerCase();
 	if (!command) return undefined;
 
-	// EVALSHA/EVAL: the key follows the script and the number of keys.
-	const key = command === 'evalsha' || command === 'eval' ? (args[3] ?? '') : (args[1] ?? '');
+	// EVALSHA/EVAL: the key follows the script and the number of keys. UNLINK/DEL: every key, sorted, since the
+	// order of a batch depends on SCAN or KEYS (split them with `expandKeys`). SCAN: the MATCH pattern, not the cursor.
+	const matchAt = args.findIndex((a) => a.toLowerCase() === 'match');
+	const key =
+		command === 'evalsha' || command === 'eval'
+			? (args[3] ?? '')
+			: command === 'unlink' || command === 'del'
+				? args.slice(1).sort().join(' ')
+				: command === 'scan'
+					? matchAt > 0
+						? (args[matchAt + 1] ?? '')
+						: ''
+					: (args[1] ?? '');
 	const client = address.startsWith('unix:') ? address : address.slice(0, address.lastIndexOf(':'));
 
 	return { client, command, key: KEYED.test(command) ? key : '' };
+}
+
+/** One `<command> <key>` per key: UNLINK and DEL carry several keys. */
+export function expandKeys({ command, key }: TracedCommand): string[] {
+	return command === 'unlink' || command === 'del'
+		? key.split(' ').map((k) => `${command} ${k}`)
+		: [`${command} ${key}`];
 }
 
 /** Runs `fn` while a MONITOR connection records every command; returns them parsed. */

@@ -1,13 +1,16 @@
-// Ported from directus/api/src/cache.ts: getCache() with its five Keyv instances and the in-memory schema cache
-// (feature 002). clearSystemCache and the `schemaChanged` subscription come with T025. flushCaches,
-// set/getSystemCache and set/getCacheValue* come with their first caller (005, 006; research R3).
-// Backoffice: env is read when getCache() first runs, not at module load, and Redis-backed instances are
-// disconnected on shutdown (Principle VII).
+// Ported from directus/api/src/cache.ts: getCache() with its five Keyv instances, clearSystemCache, the
+// `schemaChanged` subscription and the in-memory schema cache (feature 002). flushCaches, set/getSystemCache and
+// set/getCacheValue* come with their first caller (005, 006; research R3).
+// Backoffice: env is read when a function first runs, not at module load, so the subscription is made by
+// subscribeSchemaChanged() from createApp(); Redis-backed instances are disconnected on shutdown (Principle VII).
 import { createRequire } from 'node:module';
 import { useEnv } from '@backoffice/env';
 import type { SchemaOverview } from '@backoffice/types';
 import Keyv, { type KeyvOptions } from 'keyv';
+import { useBus } from './bus/index.js';
 import { useLogger } from './logger/index.js';
+import { clearCache as clearPermissionCache } from './permissions/cache.js';
+import { redisConfigAvailable } from './redis/index.js';
 import { onServerShutdown } from './shutdown.js';
 import { freezeSchema, unfreezeSchema } from './utils/freeze-schema.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
@@ -23,8 +26,30 @@ let lockCache: Keyv | null = null;
 
 let localSchemaCache: Keyv | null = null;
 let memorySchemaCache: Readonly<SchemaOverview> | null = null;
+let messengerSubscribed = false;
 
 type Store = 'memory' | 'redis';
+
+interface CacheMessage {
+	autoPurgeCache: boolean | undefined;
+}
+
+/** The `schemaChanged` handler of Directus' cache.ts, registered once per process when Redis is configured. */
+export function subscribeSchemaChanged(): void {
+	if (!redisConfigAvailable() || messengerSubscribed) return;
+
+	messengerSubscribed = true;
+	const env = useEnv();
+
+	useBus().subscribe<CacheMessage>('schemaChanged', async (opts) => {
+		if (env['CACHE_STORE'] === 'memory' && env['CACHE_AUTO_PURGE'] && cache && opts?.['autoPurgeCache'] !== false) {
+			await cache.clear();
+		}
+
+		await localSchemaCache?.clear();
+		memorySchemaCache = null;
+	});
+}
 
 export function getCache(): {
 	cache: Keyv | null;
@@ -66,6 +91,28 @@ export function getCache(): {
 	return { cache, systemCache, deploymentCache, localSchemaCache, lockCache };
 }
 
+export async function clearSystemCache(opts?: {
+	forced?: boolean | undefined;
+	autoPurgeCache?: false | undefined;
+}): Promise<void> {
+	const { systemCache, localSchemaCache, lockCache } = getCache();
+
+	// Flush system cache when forced or when system cache lock not set
+	if (opts?.forced || !(await lockCache.get('system-cache-lock'))) {
+		await lockCache.set('system-cache-lock', true, 10000);
+		await systemCache.clear();
+		await lockCache.delete('system-cache-lock');
+	}
+
+	await localSchemaCache.clear();
+	memorySchemaCache = null;
+
+	// Since a lot of cached permission function rely on the schema it needs to be cleared as well
+	await clearPermissionCache();
+
+	useBus().publish<CacheMessage>('schemaChanged', { autoPurgeCache: opts?.autoPurgeCache });
+}
+
 export function setMemorySchemaCache(schema: SchemaOverview) {
 	if (Object.isFrozen(schema)) {
 		memorySchemaCache = schema;
@@ -94,6 +141,7 @@ export function _resetCache(): void {
 	lockCache = null;
 	localSchemaCache = null;
 	memorySchemaCache = null;
+	messengerSubscribed = false;
 }
 
 function getKeyvInstance(store: Store, ttl: number | undefined, namespaceSuffix?: string): Keyv {
