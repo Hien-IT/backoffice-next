@@ -124,6 +124,14 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 	// autocannon ends a run on its next one-second tick: time the rounds up to the last answer instead.
 	const start = performance.now();
 	let last = start;
+	let answers = 0;
+	const app = baseUrl === DIRECTUS ? 'Directus' : 'Backoffice';
+
+	// A long round shows where it stands in the job log.
+	const ticker = setInterval(() => {
+		const elapsed = ((performance.now() - start) / 1000).toFixed(0);
+		process.stdout.write(`  ${endpoint.name} ${app}: ${answers}/${amount} answers after ${elapsed} s\n`);
+	}, 15_000);
 
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
 		const options = {
@@ -131,6 +139,8 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 			connections: Math.min(CONNECTIONS, amount),
 			amount,
 			timeout: TIMEOUT,
+			// Connection errors do not count toward `amount`: stop a round the server keeps refusing.
+			bailout: CONNECTIONS,
 			requests,
 			...(overallRate ? { overallRate } : {}),
 		};
@@ -139,8 +149,9 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 		instance.on('response', (_client, _status, _bytes, responseTime) => {
 			recordLatency(histogram, responseTime);
 			last = performance.now();
+			answers++;
 		});
-	});
+	}).finally(() => clearInterval(ticker));
 
 	const seconds = Math.max(0.001, (last - start) / 1000);
 
@@ -151,7 +162,6 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 	};
 
 	// Progress in the job log: which app and phase, and what failed (status codes, connection errors, timeouts).
-	const app = baseUrl === DIRECTUS ? 'Directus' : 'Backoffice';
 	const codes = Object.entries(result.statusCodeStats ?? {})
 		.map(([code, { count }]) => `${code}:${count}`)
 		.join(' ');

@@ -137,13 +137,15 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run benchmark:env-up
-      - run: pnpm nx run benchmark:auth --output-style=static
+      # stream: the progress lines show while a round runs (static holds them until the task ends).
+      - run: pnpm nx run benchmark:auth --output-style=stream
         env:
           BENCH_ROUNDS: 5
       - name: container state and logs
         if: failure()
         run: |
           docker inspect -f '{{.Name}} {{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' $(docker ps -aq)
+          docker logs benchmark-directus-1 2>&1 | grep -iE 'pm2|exited|heap|sigkill|sigterm|out of memory' | tail -50
           docker logs --tail 300 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
           docker logs --tail 300 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
