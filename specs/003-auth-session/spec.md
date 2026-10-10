@@ -135,7 +135,8 @@ refresh ở app mới với token đó trả `401 INVALID_CREDENTIALS`. Lặp l�
    refresh mới được đặt và body có `access_token`, `expires`.
 3. **Given** session cookie (chế độ `session`), **When** refresh, **Then** app mới làm giống Directus: dòng session cũ
    giữ thêm `SESSION_REFRESH_GRACE_PERIOD` (mặc định 10 giây) và trỏ `next_token` sang dòng mới; hai request refresh
-   đồng thời với cùng session cũ (tới cùng một bên hoặc mỗi bên một request) nhận cùng session mới.
+   đồng thời với cùng session cũ (tới cùng một bên hoặc mỗi bên một request) nhận cùng session mới, trong 100% của ít
+   nhất 10 lần thử.
 4. **Given** không có refresh token trong body lẫn cookie, **When** refresh hoặc logout, **Then** trả
    `400 INVALID_PAYLOAD` với cùng `reason` như Directus.
 5. **Given** refresh token đã hết hạn, không tồn tại, hoặc đã logout, **When** refresh, **Then** trả
@@ -214,8 +215,8 @@ Directus và app mới. User bị `suspended` đúng ở lần thử giống khi
    payload sai, user không active, OTP sai), **Then** response trả về sau ít nhất 500 mili giây tính từ lúc nhận
    request. Đăng nhập thành công cũng chờ như vậy, giống Directus.
 4. **Given** setting `auth_login_attempts` là `N` và rate limiter dùng chung Redis, **When** tổng số lần đăng nhập sai
-   ở cả hai app vượt `N`, **Then** user bị chuyển `suspended`, có activity `update` và revision ghi `status:
-   suspended`, giống Directus; bộ đếm reset về 0 sau lần đăng nhập thành công hoặc khi user bị khóa.
+   ở cả hai app vượt `N`, **Then** user bị chuyển `suspended`, có activity `update` và revision với delta `status:
+   suspended`, giống Directus (`data` của revision là bản đọc lúc đăng nhập, còn `status: active`, cũng giống Directus); bộ đếm reset về 0 sau lần đăng nhập thành công hoặc khi user bị khóa.
 5. **Given** `auth_login_attempts` là `null`, **When** đăng nhập sai nhiều lần, **Then** không khóa user.
 6. **Given** `auth_login_attempts` khác `null` và rate limiter không truy cập được (Redis lỗi), **When** đăng nhập, **Then** trả
    `503 SERVICE_UNAVAILABLE` với cùng `reason` như Directus.
@@ -355,7 +356,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   share) bị xóa, giống Directus.
 - User bị xóa trong lúc còn session: refresh trả `401 INVALID_CREDENTIALS`.
 - Đổi mật khẩu bằng reset ở một bên: mọi session của user bị xóa, refresh ở bên kia thất bại. Access token đã cấp vẫn
-  dùng được tới khi hết hạn (trừ token chế độ `session`, vì dòng session đã bị xóa).
+  dùng được tới khi hết hạn, tối đa `ACCESS_TOKEN_TTL` (mặc định 15 phút), trừ token chế độ `session` vì dòng session
+  đã bị xóa. Giống Directus; đây là rủi ro đã chấp nhận của JWT không trạng thái.
 - Static token trùng nhau giữa hai user, hoặc user có static token nhưng không `active`: xử lý theo đúng truy vấn của
   Directus (lấy dòng đầu tiên của user `active`).
 - `AUTH_DISABLE_DEFAULT=true`: không có route `/auth/login` cho provider `default`, `GET /auth` trả
@@ -364,7 +366,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 - Provider thiếu `DRIVER` hoặc driver lạ: log `warn` giống Directus, provider bị bỏ qua.
 - Provider OpenID thiếu biến bắt buộc, hoặc `ROLE_MAPPING` là mảng: lỗi khi khởi động giống Directus.
   `ISSUER_DISCOVERY_MUST_SUCCEED` (mặc định bật) và IdP không truy cập được lúc khởi động: process thoát, giống
-  Directus.
+  Directus. Nhiều replica cùng khởi động khi IdP lỗi sẽ cùng thoát và được khởi động lại liên tục; đây là rủi ro đã chấp
+  nhận như Directus. Muốn app vẫn chạy khi IdP lỗi thì đặt `ISSUER_DISCOVERY_MUST_SUCCEED=false`.
+- Mã OTP đúng dùng lại trong cửa sổ hợp lệ vẫn được chấp nhận, giống Directus (`otplib` không lưu mã đã dùng).
 - User có session tạo ở Directus với provider SAML (bị bỏ qua ở app mới), refresh hoặc logout ở app mới: trả
   `503 INVALID_PROVIDER_CONFIG` như Directus khi provider không được cấu hình (FR-078). Cũng vậy với provider trong
   `directus_users.provider` không còn trong `AUTH_PROVIDERS` (ở cả hai app).
@@ -386,6 +390,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 ## Requirements *(mandatory)*
 
 ### Functional Requirements
+
+Danh sách lỗi đầy đủ theo từng endpoint (status, mã, message) nằm ở `contracts/auth-api.md` §2.1; các FR dưới đây và
+contract đó phải khớp nhau.
 
 **Đăng nhập bằng email và mật khẩu**
 
@@ -465,7 +472,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 
 - **FR-040**: Mọi nhánh mà Directus chờ `LOGIN_STALL_TIME` (mặc định `500` mili giây) PHẢI chờ như vậy ở app mới:
   đăng nhập thành công, lỗi payload, lỗi danh tính, trạng thái, provider, mật khẩu, OTP, và lỗi refresh do trạng thái
-  user. Nhánh Directus không chờ (ví dụ `503` của rate limiter) thì app mới cũng không chờ.
+  user. Nhánh Directus không chờ thì app mới cũng không chờ: `503` của rate limiter, và lỗi payload của
+  `/auth/login/<provider>` driver `ldap` (router LDAP của Directus không chờ). `/auth/password/request` chờ 500 mili giây
+  cố định (FR-060), không theo `LOGIN_STALL_TIME`.
 - **FR-041**: App mới PHẢI có bộ đếm đăng nhập sai giống Directus: tạo bằng cấu hình `RATE_LIMITER_*` (store, key
   prefix, kết nối Redis) với `duration: 0`, số lượt bằng setting `auth_login_attempts`, key là id user; chạy cả khi
   `RATE_LIMITER_ENABLED=false`. Với `RATE_LIMITER_STORE=redis`, key và giá trị PHẢI giống Directus để hai app đếm
@@ -509,6 +518,9 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   với quyền admin), và xóa mọi session của user. Token do Directus sinh PHẢI dùng được ở app mới và ngược lại.
 - **FR-062**: Dòng log `warn` thay cho email đặt lại mật khẩu PHẢI có email người nhận và lý do không gửi. Dòng log
   KHÔNG ĐƯỢC chứa token hay link đặt lại mật khẩu, ở mọi mức log. Người dùng cần đặt lại mật khẩu thì liên hệ admin.
+- **FR-063**: Log của mọi luồng trong feature này KHÔNG ĐƯỢC chứa access token, refresh token, static token, mật khẩu,
+  mã OTP, secret TFA hay JWT trạng thái SSO. Log HTTP giữ việc che `authorization`, `cookie`, `set-cookie` và query
+  `access_token` như 001 (thêm khi xử lý checklist).
 
 **SSO (OpenID Connect, OAuth2, LDAP) và danh sách provider**
 
@@ -523,8 +535,11 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `SYNC_USER_INFO`, `MODE`, `LOGIN_TIMEOUT`, `COOKIE_SECURE`, `REDIRECT_ALLOW_LIST`, `LABEL`, `ICON`, cùng
   `AUTH_ALLOWED_PUBLIC_URLS`, với cùng mặc định, cùng kiểm cấu hình khi khởi động và cùng lỗi như Directus.
 - **FR-072**: `GET /auth/login/<provider>` của OpenID và OAuth2 PHẢI kiểm `redirect` như `resolveLoginRedirect`
-  (`400 INVALID_PAYLOAD` khi không hợp lệ), tính callback URL như `generateCallbackUrl`, đặt cookie `openid.<provider>`
-  hoặc `oauth2.<provider>` (JWT chứa verifier, redirect, prompt, otp, callbackUrl, hạn `LOGIN_TIMEOUT` mặc định 5 phút)
+  (`400 INVALID_PAYLOAD` khi không hợp lệ): không có thì là `/`; URL tương đối phải giữ nguyên origin (ví dụ `//host`
+  bị từ chối); URL tuyệt đối phải là `http` hoặc `https` và cùng giao thức, host với `PUBLIC_URL`, trừ khi khớp
+  `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`. Tính callback URL như `generateCallbackUrl`, đặt cookie `openid.<provider>`
+  hoặc `oauth2.<provider>` (`HttpOnly`, `SameSite=Lax`, `Secure` theo `AUTH_<PROVIDER>_COOKIE_SECURE`, không
+  `Max-Age`; JWT chứa verifier, redirect, prompt, otp, callbackUrl, hạn `LOGIN_TIMEOUT` mặc định 5 phút)
   và chuyển hướng tới IdP với cùng tham số; OpenID không dựng được URL thì chuyển về
   `PUBLIC_URL/admin/login?reason=SERVICE_UNAVAILABLE`, giống Directus.
 - **FR-073**: `/auth/login/<provider>/callback` của OpenID và OAuth2 PHẢI làm đúng driver tương ứng của Directus: `POST`
@@ -551,7 +566,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   `MAIL_ATTRIBUTE`, `FIRST_NAME_ATTRIBUTE`, `LAST_NAME_ATTRIBUTE`, `GROUP_DN`, `GROUP_ATTRIBUTE` (mặc định `member`),
   `GROUP_SCOPE`, `DEFAULT_ROLE_ID`, `SYNC_USER_INFO`, `LABEL`, `ICON`. `POST /auth/login/<provider>` PHẢI kiểm payload
   (`identifier`, `password` bắt buộc, `mode`, `otp`) và đi qua luồng đăng nhập chung giống driver LDAP của Directus:
-  kiểm bind user, tìm user theo thuộc tính (có escape giá trị), lấy nhóm và role, tạo hoặc cập nhật user, kiểm mật khẩu
+  kiểm bind user, tìm user theo thuộc tính (giá trị `identifier` và giá trị thành viên nhóm escape theo RFC 4515 bằng
+  `escapeFilterValue` của `ldapts`; tên thuộc tính kiểm bằng `validateLDAPAttribute`, như Directus), lấy nhóm và role, tạo hoặc cập nhật user, kiểm mật khẩu
   bằng bind với DN của user, từ chối tài khoản có cờ khóa trong `userAccountControl`, chuyển lỗi LDAP thành
   `INVALID_CREDENTIALS` hoặc `SERVICE_UNAVAILABLE` như Directus. Refresh PHẢI kiểm lại tài khoản trên LDAP như Directus.
 - **FR-078**: App mới KHÔNG đăng ký provider `saml`. Refresh và logout session của user thuộc provider `saml` (hoặc
@@ -564,7 +580,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
 **Dữ liệu ghi vào DB**
 
 - **FR-080**: Mọi dòng app mới ghi (`directus_sessions`, `directus_activity`, `directus_revisions`, các cột
-  `directus_users`: `last_access`, `status`, `password`, `auth_data`, user mới tạo bằng SSO) PHẢI có cùng
+  `directus_users`: `last_access`, `status`, `password`, `auth_data`, `role`, `first_name`, `last_name`, `email`, user
+  mới tạo bằng SSO) PHẢI có cùng
   định dạng như Directus ghi cho cùng request (kiểu ngày giờ, JSON, uuid, hash argon2, giá trị `action`, `collection`,
   `item`, `ip`, `user_agent`, `origin`).
 - **FR-081**: App mới chỉ ghi DB trong các luồng của feature này và chỉ vào các bảng, cột ở FR-080. Test
@@ -601,7 +618,8 @@ lại. Đặt thêm một provider `saml`: app mới khởi động, ghi cảnh 
   002) và chạy với cả Directus và app mới. Ca nào gọi `/users/me` (feature 004) thì kiểm token bằng endpoint đã có ở
   app mới, và chạy lại nguyên bản ở feature 004.
 - **FR-101**: Bộ test PHẢI có ma trận dùng chéo: mỗi loại token (access token chế độ `json`, `cookie`, `session`;
-  refresh token; session cookie; static token; token đặt lại mật khẩu) cấp ở bên này dùng được ở bên kia, theo cả
+  refresh token; session cookie; static token; token đặt lại mật khẩu; session của share) cấp ở bên này dùng được ở bên
+  kia, theo cả
   hai chiều. Ở app mới, access token, session cookie và static token được kiểm qua `POST /users/me/tfa/generate`
   (route duy nhất cần đăng nhập ở feature này); ở Directus, qua cùng route đó. Ma trận có cả luồng SSO OpenID và
   OAuth2 bắt đầu ở bên này, callback ở bên kia, theo cả hai chiều. Secret TFA sinh ở app mới bật được ở Directus, và TFA bật ở Directus dùng được khi đăng nhập ở app mới.
@@ -634,7 +652,7 @@ Thay đổi với bảng khác biệt của feature 001:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09 | Gỡ D-09.1 (`/auth`). Tách `/users/me/tfa/generate` khỏi D-09.2 (làm ở feature này). Thêm D-09.10: `/users/me/tfa/enable`, `/users/me/tfa/disable`, `/users/:pk/tfa/disable`, gỡ khi 005. Các route `/users` còn lại vẫn trả `404` tới feature 004 | FR-001 đến FR-075, FR-051 |
-| D-10 | Giữ tới feature 004 cho các route đã có từ 001. Route mới của feature này (`/auth/*`, `POST /users/me/tfa/generate`) xử lý token như Directus | FR-030 đến FR-033 |
+| D-10 | Giữ tới feature 004 cho các route đã có từ 001 (`/server/*`, `/metrics`, path lạ, route của D-09). Route mới của feature này (`GET /auth`, `/auth/*`, `POST /users/me/tfa/generate`) xử lý token như Directus | FR-030 đến FR-033 |
 
 Khác biệt mới:
 
@@ -643,6 +661,7 @@ Khác biệt mới:
 | D-23 | Email đặt lại mật khẩu (`POST /auth/password/request`) | Gửi email chứa link đặt lại qua `EMAIL_*` | Không gửi, ghi log `warn` có email người nhận, không có token hay link (FR-062). Response và thời gian trả về giống Directus | Nguyên tắc X | ngoài phạm vi | — |
 | D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session của user SAML trả `503 INVALID_PROVIDER_CONFIG` như Directus khi tắt SAML (FR-078); hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — |
 | D-25 | Issuer trong `otpauth_url` khi `project_name` trống | `Directus` | `Backoffice` | Nguyên tắc IX (nhãn issuer TFA được liệt kê) | đổi thương hiệu | — |
+| D-09.10 | `POST /users/me/tfa/enable`, `POST /users/me/tfa/disable`, `POST /users/:pk/tfa/disable` | Bật, tắt TFA (kiểm quyền qua `ItemsService`) | `404 ROUTE_NOT_FOUND` | Cần kiểm quyền và revision theo quyền đọc (005), Clarifications | ngoài phạm vi (tạm thời) | 005 |
 | D-26 | Event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` (filter và action) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 (phần flow) |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
@@ -667,6 +686,13 @@ Khác biệt mới:
 - Các phần sau không thuộc feature này: đăng nhập và token qua GraphQL (011); xác thực WebSocket (Nguyên tắc XI);
   `/shares/auth` (010; refresh session của share có sẵn trong DB thì thuộc feature này, FR-021); `/users/me`,
   `/users/register`, `/users/invite`, `/users/invite/accept` và đặt static token cho user (004).
+- Dọn session hết hạn ở mỗi lần đăng nhập không giới hạn số dòng, giống Directus; chi phí ở quy mô thiết kế nằm trong
+  benchmark SC-007.
+- Tài liệu triển khai (feature 019) ghi: hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus (D-24).
+- Khi SIGTERM, app mới đóng DB và Redis như 001; kết nối LDAP và kết nối tới IdP không có bước đóng riêng, process thoát
+  sau bước tắt của `@godaddy/terminus`, giống Directus.
+- Không thêm metric cho auth: Directus 11.17.4 không có metric này.
+- Phần OAuth2, LDAP (FR-076, FR-077) chỉ merge khi tech lead đã duyệt constitution 1.3.0.
 - Feature này ghi `directus_users`, `directus_activity`, `directus_revisions` cho đúng các luồng ở FR-082 mà chưa có
   `ItemsService` đầy đủ; feature 005 thay phần ghi này bằng service chung và chạy lại test đối chiếu của feature này.
 
@@ -679,7 +705,8 @@ Khác biệt mới:
 - **SC-002**: 100% ca của ma trận dùng chéo (FR-101) đạt theo cả hai chiều: token cấp ở một bên được bên kia nhận, và
   token bị thu hồi (logout, đặt lại mật khẩu, user bị khóa) ở một bên bị bên kia từ chối từ request kế tiếp.
 - **SC-003**: Mọi response của `POST /auth/login` ở các nhánh của FR-040 trả sau ít nhất `LOGIN_STALL_TIME`. Trên 50 lần thử mỗi loại, trung vị
-  thời gian trả về của "email không tồn tại" và "sai mật khẩu" lệch nhau không quá 50 mili giây.
+  thời gian trả về của "email không tồn tại" và "sai mật khẩu" lệch nhau không quá 50 mili giây. Các nhánh khác (user
+  không `active`, OTP sai) chỉ kiểm ngưỡng tối thiểu ở câu đầu, vì cùng đi qua bước chờ.
 - **SC-004**: Với `auth_login_attempts = N` và đăng nhập sai xen kẽ giữa Directus và app mới, user bị khóa đúng ở lần thử
   bị khóa khi chỉ chạy Directus.
 - **SC-005**: Với mỗi luồng ghi DB (đăng nhập, refresh ba chế độ, logout, khóa user, đặt lại mật khẩu, SSO), các

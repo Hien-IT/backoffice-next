@@ -265,7 +265,7 @@ thuộc điều kiện này.
 - [ ] T033 [P] [US2] `tests/parity/src/auth/refresh.test.ts`: port phần REST của
   `directus/tests/blackbox/tests/common/auth/refresh.test.ts` lên `scenario()`. Thêm: thiếu token, token hết hạn hoặc
   đã logout, user `suspended` (`USER_SUSPENDED`) và trạng thái khác, refresh chéo hai chiều ở ba chế độ, refresh đồng
-  thời chế độ `session` một request mỗi app nhận cùng session mới (US2.3), `captureDbEffects()` (contracts/db-writes.md
+  thời chế độ `session` một request mỗi app nhận cùng session mới (US2.3, đạt cả ít nhất 10 lần thử), `captureDbEffects()` (contracts/db-writes.md
   §2).
 - [ ] T034 [P] [US2] `tests/parity/src/auth/logout.test.ts`: logout ba chế độ, `Set-Cookie` xóa cookie (cookie rỗng
   còn `Max-Age`, FR-024), logout ở bên này làm refresh ở bên kia `401`, activity `logout`, thiếu token `400`.
@@ -299,7 +299,7 @@ thuộc điều kiện này.
   session đã xóa kèm xóa cookie, user bị khóa sau khi có token) và token bất kỳ tới `/server/info`, `/metrics`, path lạ
   vẫn như public (D-10).
 - [ ] T039 [P] [US3] `tests/parity/src/auth/token-matrix.test.ts`: `matrix()` cho mọi loại token của FR-101 (access
-  token ba chế độ, refresh token, cookie session, static token, token đặt lại mật khẩu tự ký) theo 4 cặp; token bị thu
+  token ba chế độ, refresh token, cookie session, static token, token đặt lại mật khẩu tự ký, session của share) theo 4 cặp; token bị thu
   hồi ở một bên bị bên kia từ chối ở request kế tiếp (SC-002).
 
 ### Implementation for User Story 3
@@ -457,7 +457,8 @@ sửa).
   FR-081. Chạy trên Postgres full.
 - [ ] T068 [P] `tests/parity/src/observability/logs.test.ts`: port ca cookie của
   `directus/tests/blackbox/tests/common/logger/redact.test.ts` (đăng nhập chế độ `json` không có cookie trong log; chế
-  độ `cookie`, `session` thì `cookie`/`set-cookie` bị che).
+  độ `cookie`, `session` thì `cookie`/`set-cookie` bị che). Thêm FR-063: sau khi chạy đăng nhập, refresh, TFA, đặt lại
+  mật khẩu và SSO, log của app mới không chứa giá trị token, refresh token, mật khẩu, OTP, secret TFA nào đã dùng.
 - [ ] T069 [P] `tests/parity/src/schema/permissions-cache.test.ts`: so thêm key và giá trị của `roles-tree`,
   `global-access`, `global-access-roles`, `global-access-user` sau một request có token ở mỗi app (research R8).
 - [ ] T070 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu và `dev/directus-reference`; sửa quickstart nếu lệch.

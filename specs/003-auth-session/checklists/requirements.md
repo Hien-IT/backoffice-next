@@ -38,3 +38,5 @@
   they are the compatibility contract with Directus 11.17.4 (Constitution I, III, IV, VIII, IX), not implementation
   choices. Same convention as specs 001 and 002.
 - SC-007 mentions p95 latency because Constitution X defines the benchmark gate for auth endpoints in those terms.
+- Rà lại ngày 2026-10-10 sau khi xử lý `checklists/auth-review.md` và `/speckit.analyze` (thêm FR-024, FR-034, FR-063,
+  FR-079, dòng D-09.10): mọi mục vẫn đạt.
