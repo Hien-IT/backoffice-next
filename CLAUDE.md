@@ -11,6 +11,7 @@ Rules:
 ## Active Technologies
 - TypeScript 5.9.3 (strict flags of @directus/tsconfig 4.0.0), Node.js 22 LTS, ESM, pnpm 10.27, Nx 23; API: NestJS 12 (Express 5) + Knex 3.1, ioredis, pino, prom-client; Web: Vue 3.5 + Pinia + Vue Router (Reka UI + Tailwind CSS 4 from feature 012); tests: Vitest 3.2.4, Playwright, autocannon (001-platform-foundation)
 - Shared DB with Directus 11.17.4 (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB), read-only in 001; shared Redis and storage (local, S3) (001-platform-foundation)
+- @backoffice/memory (port of @directus/memory: Redis bus, kv, multi cache; lru-cache 11.2.2, @sesamecare-oss/redlock 1.4.0); in-process SchemaOverview cache shared with Directus via Redis lock/bus (002-schema-overview-cache)
 
 ## Recent Changes
 - 001-platform-foundation: Added Nx monorepo, NestJS 12 API with ported @directus/env, errors, schema, storage libs, /server/* endpoints, parity tests against Directus
