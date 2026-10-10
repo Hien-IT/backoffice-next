@@ -3,7 +3,7 @@
 import http from 'node:http';
 import https from 'node:https';
 import type { AcceptedDifference, Matcher } from '../accepted-differences.js';
-import { normalizeBody, normalizeHeader } from './normalizers.js';
+import { normalizeBody, normalizeHeader, normalizeText } from './normalizers.js';
 
 export interface ParityRequest {
 	method?: string;
@@ -165,7 +165,7 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 
 	if (directus.isJson && backoffice.isJson) {
 		diffJson(normalizeBody(path, directus.json), normalizeBody(path, backoffice.json), '', differences);
-	} else if (directus.text !== backoffice.text) {
+	} else if (normalizeText(directus.text) !== normalizeText(backoffice.text)) {
 		differences.push({ kind: 'body', location: '', directus: directus.text, backoffice: backoffice.text });
 	}
 
@@ -239,6 +239,7 @@ export function findAccepted(
 	endpoint: string,
 	difference: Difference,
 	directus?: Pick<Captured, 'status' | 'json'>,
+	backoffice?: Pick<Captured, 'status' | 'json'>,
 ): AcceptedDifference | undefined {
 	return accepted.find((d) => {
 		if (d.kind !== 'http' || !d.location || !endpointMatches(d.endpoints, endpoint)) return false;
@@ -246,6 +247,7 @@ export function findAccepted(
 
 		if (d.when?.directusStatus !== undefined && directus?.status !== d.when.directusStatus) return false;
 		if (d.when?.directusCode !== undefined && errorCode(directus?.json) !== d.when.directusCode) return false;
+		if (d.when?.backofficeCode !== undefined && errorCode(backoffice?.json) !== d.when.backofficeCode) return false;
 
 		const loc = d.location;
 
@@ -277,11 +279,12 @@ export function classify(
 	differences: Difference[],
 	accepted: AcceptedDifference[],
 	directus?: Pick<Captured, 'status' | 'json'>,
+	backoffice?: Pick<Captured, 'status' | 'json'>,
 ): Pick<ParityResult, 'differences' | 'accepted'> {
 	const result: Pick<ParityResult, 'differences' | 'accepted'> = { differences: [], accepted: [] };
 
 	for (const difference of differences) {
-		const hit = findAccepted(accepted, endpoint, difference, directus);
+		const hit = findAccepted(accepted, endpoint, difference, directus, backoffice);
 		if (hit) result.accepted.push({ ...difference, id: hit.id });
 		else result.differences.push(difference);
 	}
@@ -309,7 +312,7 @@ export async function parity(req: ParityRequest, options: ParityOptions = {}): P
 		endpoint,
 		directus: directus!,
 		backoffice: backoffice!,
-		...classify(endpoint, compare(endpoint, directus!, backoffice!), accepted, directus),
+		...classify(endpoint, compare(endpoint, directus!, backoffice!), accepted, directus, backoffice),
 	};
 }
 

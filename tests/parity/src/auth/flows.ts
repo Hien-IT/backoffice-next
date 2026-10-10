@@ -21,6 +21,17 @@ export function cookiePair(res: Captured): string {
 	return header.split('\n')[0]!.split(';')[0]!;
 }
 
+/** `name=value` of the Set-Cookie named `name`. */
+export function cookieNamed(res: Captured, name: string): string {
+	const pair = res.headers['set-cookie']
+		?.split('\n')
+		.map((cookie) => cookie.split(';')[0]!)
+		.find((p) => p.startsWith(`${name}=`));
+
+	if (!pair) throw new Error(`no ${name} cookie (status ${res.status})`);
+	return pair;
+}
+
 /** Claims and ttl of the JWT in a Set-Cookie (normalizeSetCookie only keeps its kind). */
 export const cookieJwt = (res: Captured): unknown => normalizeJwt(cookiePair(res).split('=')[1]!);
 

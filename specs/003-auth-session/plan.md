@@ -296,7 +296,7 @@ báo một instance, nay gồm cả bộ đếm đăng nhập sai. Constitution 
 tech lead duyệt ngày 2026-10-10 (chủ dự án xác nhận; quy trình không có PR). Các khác biệt D-09.10, D-23 đến D-26 cần
 tech lead duyệt trước khi đóng feature (Nguyên tắc X, T072).
 
-`joi` dùng 18.2.6 thay vì 17.13.3 của Directus: bản vá bảo mật (advisory high GHSA-6h2x-m376-mqjq), cùng cách xử lý
+`joi` dùng 18.2.6 thay vì 18.0.1 của Directus: bản vá bảo mật (advisory high GHSA-6h2x-m376-mqjq), cùng cách xử lý
 `nanoid` ở 001. API `joi` dùng trong `libs/validation` không đổi giữa hai bản; test gốc của Directus chạy qua.
 
 Rủi ro đã biết, theo dõi trong tasks:

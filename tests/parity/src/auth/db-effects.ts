@@ -75,6 +75,12 @@ function normalizeValue(column: string, value: unknown): unknown {
 	if (DATE_COLUMNS.has(column)) return '<date>';
 	if (typeof value === 'string' && (column === 'token' || column === 'next_token')) return tokenKind(value);
 	if (column === 'password' && typeof value === 'string') return value.replace(/\$[^$]+\$[^$]+$/, '$<salt>$<hash>');
+	// SSO providers keep the refresh token of the IdP: random, keep its presence.
+	if (column === 'auth_data') {
+		const data = typeof value === 'string' ? JSON.parse(value) : value;
+		return isRecord(data) && 'refreshToken' in data ? { ...data, refreshToken: '<idp-token>' } : data;
+	}
+
 	if (column === 'data' || column === 'delta') {
 		let parsed = value;
 

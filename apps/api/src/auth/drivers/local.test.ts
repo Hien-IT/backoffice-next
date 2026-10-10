@@ -1,9 +1,13 @@
 import argon2 from 'argon2';
 import knex from 'knex';
 import { createTracker, MockClient } from 'knex-mock-client';
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import type { User } from '../../types/index.js';
 import { LocalAuthDriver } from './local.js';
+
+// local.ts → AuthenticationService → auth.ts → drivers/index.ts → oauth2.ts extends LocalAuthDriver: loading local.ts
+// first (only in this test) meets the cycle, so the service, unused here, is mocked.
+vi.mock('../../services/authentication.service.js', () => ({ AuthenticationService: vi.fn() }));
 
 const db = knex({ client: MockClient });
 const tracker = createTracker(db);

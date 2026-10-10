@@ -6,6 +6,7 @@ import {
 	normalizeJwt,
 	normalizeLocation,
 	normalizeSetCookie,
+	normalizeText,
 	tokenKind,
 } from './normalizers.js';
 
@@ -115,4 +116,11 @@ test('TFA secret and otpauth URL', () => {
 			data: { secret: 'JBSWY3DPEHPK3PXP', otpauth_url: 'otpauth://totp/P:a%40b.c?secret=JBSWY3DPEHPK3PXP&issuer=P' },
 		}),
 	).toEqual({ data: { secret: '<base32>', otpauth_url: 'otpauth://totp/P:a%40b.c?secret=<base32>&issuer=P' } });
+});
+
+test('text body of a redirect: random SSO parameters like the Location header', () => {
+	expect(normalizeText('Found. Redirecting to http://idp/authorize?state=abc&nonce=def&scope=x')).toBe(
+		'Found. Redirecting to http://idp/authorize?state=%3Cstate%3E&nonce=%3Cnonce%3E&scope=x',
+	);
+	expect(normalizeText('plain')).toBe('plain');
 });

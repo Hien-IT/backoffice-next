@@ -4,10 +4,15 @@
 import { useEnv } from '@backoffice/env';
 import { ErrorCode, InvalidPayloadError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
 import type { Accountability } from '@backoffice/types';
-import { Controller, HttpCode, Inject, Param, Post, Req, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, Inject, Param, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { memoize } from 'lodash-es';
-import { createLocalAuthRouter } from '../auth/drivers/local.js';
+import {
+	createLDAPAuthRouter,
+	createLocalAuthRouter,
+	createOAuth2AuthRouter,
+	createOpenIDAuthRouter,
+} from '../auth/drivers/index.js';
 import { DEFAULT_AUTH_PROVIDER, refreshCookieOptions, sessionCookieOptions } from '../constants.js';
 import { useLogger } from '../logger/index.js';
 import { respond } from '../middleware/respond.js';
@@ -58,6 +63,31 @@ function getCurrentRefreshToken(req: Request, mode: AuthenticationMode): string 
 	return undefined;
 }
 
+type Handler = (req: Request, res: Response) => Promise<void>;
+
+/** What the Express router of a driver answers (research R3): local and ldap log in by POST, SSO starts by GET. */
+interface DriverRoutes {
+	login?: { post?: Handler; get?: Handler };
+	callback?: { post: Handler; get: Handler };
+}
+
+function createDriverRoutes(name: string, driver: string): DriverRoutes {
+	switch (driver) {
+		case 'local':
+			return { login: { post: createLocalAuthRouter(name).login } };
+		case 'ldap':
+			return { login: { post: createLDAPAuthRouter(name).login } };
+		case 'oauth2':
+		case 'openid': {
+			const router = (driver === 'openid' ? createOpenIDAuthRouter : createOAuth2AuthRouter)(name);
+			return { login: { get: router.login }, callback: { post: router.callbackPost, get: router.callback } };
+		}
+	}
+
+	// Backoffice: no router for saml (D-24 of spec 003) nor for unknown drivers, like Directus logs and skips them.
+	return {};
+}
+
 /** The accountability the refresh and logout handlers of Directus build (not the one of `authenticate`). */
 function requestAccountability(req: Request): Accountability {
 	const accountability: Accountability = createDefaultAccountability({ ip: getIPFromReq(req) });
@@ -75,6 +105,37 @@ function requestAccountability(req: Request): Accountability {
 export class AuthController {
 	// Directus builds each driver router once, when the controller module loads.
 	private readonly localRouter = memoize(createLocalAuthRouter);
+
+	private readonly driverRoutes = memoize(createDriverRoutes, (name, driver) => `${driver}:${name}`);
+
+	/** The routes of the provider named in the path: Express matches mount paths case-insensitively, in order. */
+	private routesOf(name: string): DriverRoutes {
+		const provider = getAuthProviders().find((p) => p.name.toLowerCase() === name.toLowerCase());
+		return provider ? this.driverRoutes(provider.name, provider.driver) : {};
+	}
+
+	private async run(handler: Handler | undefined, req: Request, res: Response): Promise<void> {
+		if (!handler) throw new RouteNotFoundError({ path: req.path });
+
+		await handler(req, res);
+
+		// Redirects answer by themselves; the other handlers leave the payload for respond, like the routers.
+		if (!res.headersSent) respond(res);
+	}
+
+	@Get()
+	async providers(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const sessionOnly =
+			'sessionOnly' in req.query && (req.query['sessionOnly'] === '' || Boolean(req.query['sessionOnly']));
+
+		res.locals['payload'] = {
+			// Backoffice: saml providers are not registered (D-24 of spec 003)
+			data: getAuthProviders({ sessionOnly }).filter((provider) => provider.driver !== 'saml'),
+			disableDefault: useEnv()['AUTH_DISABLE_DEFAULT'],
+		};
+
+		respond(res);
+	}
 
 	constructor(
 		@Inject(AuthenticationService)
@@ -95,13 +156,23 @@ export class AuthController {
 	@Post('login/:provider')
 	@HttpCode(200)
 	async loginProvider(@Param('provider') name: string, @Req() req: Request, @Res() res: Response): Promise<void> {
-		// Express matches mount paths case-insensitively, in the order of AUTH_PROVIDERS (FR-079).
-		const provider = getAuthProviders().find((p) => p.name.toLowerCase() === name.toLowerCase());
+		await this.run(this.routesOf(name).login?.post, req, res);
+	}
 
-		if (provider?.driver !== 'local') throw new RouteNotFoundError({ path: req.path });
+	@Get('login/:provider')
+	async startLogin(@Param('provider') name: string, @Req() req: Request, @Res() res: Response): Promise<void> {
+		await this.run(this.routesOf(name).login?.get, req, res);
+	}
 
-		await this.localRouter(provider.name).login(req, res);
-		respond(res);
+	@Post('login/:provider/callback')
+	@HttpCode(200)
+	async callbackPost(@Param('provider') name: string, @Req() req: Request, @Res() res: Response): Promise<void> {
+		await this.run(this.routesOf(name).callback?.post, req, res);
+	}
+
+	@Get('login/:provider/callback')
+	async callback(@Param('provider') name: string, @Req() req: Request, @Res() res: Response): Promise<void> {
+		await this.run(this.routesOf(name).callback?.get, req, res);
 	}
 
 	@Post('refresh')

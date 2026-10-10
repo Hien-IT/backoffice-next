@@ -419,8 +419,8 @@ services:
       timeout: 5s
       retries: 60
 
-  # Feature 003: SSO pair. `idp` is the test identity provider (tests/parity/idp/server.mjs, research R10); OpenLDAP
-  # and the OAuth2/LDAP providers are added with Phase 9 (T062).
+  # Feature 003: SSO pair. `idp` is the test identity provider (tests/parity/idp/server.mjs, research R10), also the
+  # OAuth2 provider `oauthmock`; `ldap` is the OpenLDAP of directus/tests/blackbox/docker-compose.yml.
   idp:
     profiles: [sso]
     image: node:22-alpine
@@ -439,6 +439,18 @@ services:
       timeout: 5s
       retries: 30
 
+  # Admin DN cn=Manager,dc=my-domain,dc=com, password `secret`, base DN dc=my-domain,dc=com (blackbox defaults).
+  ldap:
+    profiles: [sso]
+    image: cleanstart/openldap:latest
+    ports:
+      - '6109:389'
+    healthcheck:
+      test: ['CMD', 'ldapsearch', '-x', '-H', 'ldap://localhost:389', '-b', '', '-s', 'base', '(objectClass=*)']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
   directus-sso:
     profiles: [sso]
     image: directus/directus:11.17.4
@@ -450,6 +462,7 @@ services:
     depends_on:
       directus: { condition: service_healthy }
       idp: { condition: service_healthy }
+      ldap: { condition: service_healthy }
     ports:
       - '8955:8055'
     healthcheck:
@@ -472,6 +485,7 @@ services:
     depends_on:
       directus: { condition: service_healthy }
       idp: { condition: service_healthy }
+      ldap: { condition: service_healthy }
     ports:
       - '8956:8055'
     healthcheck:

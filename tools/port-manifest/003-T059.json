@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/auth/drivers/openid.ts",
+		"dest": "apps/api/src/auth/drivers/openid.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/openid.test.ts",
+		"dest": "apps/api/src/auth/drivers/openid.test.ts"
+	}
+]

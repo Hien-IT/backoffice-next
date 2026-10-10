@@ -124,6 +124,25 @@ jobs:
       - if: always()
         run: pnpm nx run benchmark:env-down
 
+  # Feature 003 (SC-007, research R12): auth routes with 2,000 connections, beside `benchmark`.
+  benchmark-auth:
+    needs: parity
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: pnpm nx run benchmark:auth --output-style=static
+        env:
+          BENCH_ROUNDS: 5
+      - if: always()
+        run: pnpm nx run benchmark:env-down
+
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -189,7 +208,7 @@ jobs:
   # Needs the repository secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (Docker Hub access token, Read & Write).
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [guard-directus, quality, guard-differences, parity, benchmark, docker, e2e, security]
+    needs: [guard-directus, quality, guard-differences, parity, benchmark, benchmark-auth, docker, e2e, security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

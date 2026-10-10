@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/auth/drivers/oauth2.ts",
+		"dest": "apps/api/src/auth/drivers/oauth2.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/oauth2.test.ts",
+		"dest": "apps/api/src/auth/drivers/oauth2.test.ts"
+	}
+]

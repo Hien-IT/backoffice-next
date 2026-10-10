@@ -22,10 +22,10 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `TEST_DB` và thắng biến có sẵn. Mỗi vendor một compose project `parity-<vendor>`, cấu hình chung cho cả hai app ở
   `env/<vendor>.env`.
 - `PARITY_SUITE=full` (mặc định): mọi file test. `PARITY_SUITE=reduced`: chỉ
-  `src/server/{ping,health,info,errors,methods,conditional}.test.ts` và `src/schema/overview.test.ts`, bỏ các ca cần
-  dừng container hoặc profile riêng.
+  `src/server/{ping,health,info,errors,methods,conditional}.test.ts`, `src/schema/overview.test.ts` và
+  `src/auth/{login,login-db,refresh,logout,password}.test.ts`, bỏ các ca cần dừng container hoặc profile riêng.
 - Profile riêng (chỉ dùng ở `full`), bật bằng
-  `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config`:
+  `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso`:
 
   | Profile        | Directus | Backoffice | Cấu hình                                                       |
   | -------------- | -------- | ---------- | -------------------------------------------------------------- |
@@ -36,6 +36,7 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   | `metrics`      | 8555     | 8556       | `env/profile-metrics.env`                                      |
   | `cache-config` | 8755     | 8756       | `env/profile-cache-config.env`                                 |
   | `multi`        | —        | 8157       | `env/<vendor>.env` (instance Backoffice thứ hai của cặp chính) |
+  | `sso`          | 8955     | 8956       | `env/profile-sso.env` (IdP giả lập 6110, OpenLDAP 6109)        |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
@@ -60,6 +61,21 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   container app mới, không qua HTTP (chiều "app mới đổi schema" cho tới feature 006).
 - Directus trả GET từ cache response khi `CACHE_ENABLED=true` (D-11). Helper `oasComponent` xóa cache này trước khi đọc
   OAS, vì `schemaChanged` không xóa cache response nằm trên Redis.
+
+### Test đăng nhập và phiên (feature 003)
+
+- `src/auth/`: đăng nhập, refresh, logout, share, TFA, đặt lại mật khẩu, trạng thái user, bộ đếm đăng nhập sai,
+  `LOGIN_STALL_TIME` (chỉ Postgres full), ma trận token, SSO OpenID, OAuth2, LDAP (profile `sso`).
+- Luồng có trạng thái không dùng `parity()` (một refresh token không được gửi cho hai app cùng lúc):
+  - `scenario()` chạy cùng các bước ở Directus rồi ở Backoffice, mỗi app một fixture (`createUserPerApp`), rồi so hai
+    bản ghi sau khi `alias()` thay id, email bằng nhãn;
+  - `matrix()` cấp token ở một app và dùng ở app kia, đủ 4 cặp;
+  - `captureDbEffects()` đọc từ host (chỉ `SELECT`) dòng session, activity, revision, user mà một bước ghi.
+- Fixture (user, role, policy, setting) tạo qua API Directus (`src/auth/fixtures.ts`), vì `/users` tới feature 004 mới
+  có ở app mới; `setSettings()` trả hàm khôi phục.
+- `src/auth/flows.ts`: đăng nhập theo chế độ, gửi lại token theo chế độ (`withToken`), lấy cookie. `src/auth/sso.ts`:
+  đi qua IdP giả lập (`tests/parity/idp/server.mjs`); `src/auth/tokens.ts`: token đặt lại mật khẩu tự ký, OTP.
+- Directus bật `CACHE_ENABLED` ở môi trường này: đọc trạng thái user từ DB, không qua `GET /users/:id` (cache cũ).
 
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.

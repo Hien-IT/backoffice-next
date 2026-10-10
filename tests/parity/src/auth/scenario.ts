@@ -2,7 +2,7 @@
 // once (one refresh token would be used twice). A scenario runs the same steps against Directus, then against
 // Backoffice, each with its own fixture, and compares the two transcripts after normalization.
 import { capture, COMPARED_HEADERS, type Captured, type Difference, diffJson, type ParityRequest } from '../parity.js';
-import { normalizeBody, normalizeHeader } from '../normalizers.js';
+import { normalizeBody, normalizeHeader, normalizeText } from '../normalizers.js';
 import { type App, APPS, type Urls } from './fixtures.js';
 
 export interface Snapshot {
@@ -25,7 +25,7 @@ export function snapshotOf(path: string, captured: Captured): Snapshot {
 	return {
 		status: captured.status,
 		headers,
-		body: captured.isJson ? normalizeBody(path, captured.json) : captured.text,
+		body: captured.isJson ? normalizeBody(path, captured.json) : normalizeText(captured.text),
 	};
 }
 

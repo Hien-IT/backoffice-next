@@ -421,3 +421,67 @@ describe('POST /auth/password/request and /auth/password/reset', () => {
 		expect(weak.body.errors[0].extensions.code).toBe('FAILED_VALIDATION');
 	});
 });
+
+describe('SSO and LDAP routes (research R3)', () => {
+	const sso = {
+		PUBLIC_URL: 'http://localhost:8055',
+		AUTH_PROVIDERS: 'local2,gh,dir,saml',
+		AUTH_GH_DRIVER: 'oauth2',
+		AUTH_GH_CLIENT_ID: 'id',
+		AUTH_GH_CLIENT_SECRET: 'secret',
+		AUTH_GH_AUTHORIZE_URL: 'https://idp.example/authorize',
+		AUTH_GH_ACCESS_URL: 'https://idp.example/token',
+		AUTH_GH_PROFILE_URL: 'https://idp.example/userinfo',
+		AUTH_DIR_DRIVER: 'ldap',
+		AUTH_DIR_CLIENT_URL: 'ldap://127.0.0.1:1',
+		AUTH_DIR_BIND_DN: 'cn=admin',
+		AUTH_DIR_BIND_PASSWORD: 'secret',
+		AUTH_DIR_USER_DN: 'ou=users',
+		AUTH_SAML_DRIVER: 'saml',
+	};
+
+	test('GET /auth lists the providers without saml', async () => {
+		const res = await (await start(sso)).get('/auth');
+		expect(res.status).toBe(200);
+		expect(res.body.data.map((p: { name: string }) => p.name)).toEqual(['local2', 'gh', 'dir']);
+		expect(res.body.disableDefault).toBe(false);
+	});
+
+	test('oauth2: GET starts the flow, POST callback is a 303 to the GET callback, bad cookie 401, POST login 404', async () => {
+		const agent = await start(sso);
+
+		const begin = await agent.get('/auth/login/GH?redirect=/admin');
+		expect(begin.status).toBe(302);
+		expect(begin.headers['location']).toMatch(/^https:\/\/idp\.example\/authorize\?/);
+		expect(begin.headers['set-cookie']![0]).toMatch(/^oauth2\.gh=[^;]+; Path=\/; HttpOnly; SameSite=Lax$/);
+
+		const posted = await agent.post('/auth/login/gh/callback').type('form').send({ code: 'c', state: 's' });
+		expect(posted.status).toBe(303);
+		expect(posted.headers['location']).toBe('./callback?code=c&state=s');
+
+		// Unlike openid, oauth2 answers 401 for a missing or bad state cookie (like Directus).
+		const noCookie = await agent.get('/auth/login/gh/callback?code=c').set('Cookie', 'oauth2.gh=bad');
+		expect(noCookie.status).toBe(401);
+		expect(noCookie.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');
+
+		expect((await agent.post('/auth/login/gh').send({})).status).toBe(404);
+	});
+
+	test('ldap: POST validates the payload; no GET or callback; saml and unknown providers 404', async () => {
+		const agent = await start(sso);
+
+		const invalid = await agent.post('/auth/login/dir').send({ identifier: 'x' });
+		expect(invalid.status).toBe(400);
+		expect(invalid.body.errors[0].extensions.reason).toBe('"password" is required');
+
+		for (const [method, path] of [
+			['get', '/auth/login/dir'],
+			['get', '/auth/login/dir/callback'],
+			['get', '/auth/login/saml'],
+			['post', '/auth/login/saml'],
+			['get', '/auth/login/local2'],
+		] as const) {
+			expect((await agent[method](path)).status, `${method} ${path}`).toBe(404);
+		}
+	});
+});

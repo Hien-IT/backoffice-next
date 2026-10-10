@@ -53,3 +53,23 @@ test('OPTIONS of the auth routes → Allow: POST', async () => {
 
 	expect((await app({ ...env, AUTH_DISABLE_DEFAULT: true }).options('/auth/login')).status).toBe(404);
 });
+
+test('OPTIONS of GET /auth and the SSO and LDAP providers', async () => {
+	const env = {
+		AUTH_PROVIDERS: 'sso,gh,dir,saml',
+		AUTH_SSO_DRIVER: 'openid',
+		AUTH_GH_DRIVER: 'oauth2',
+		AUTH_DIR_DRIVER: 'ldap',
+		AUTH_SAML_DRIVER: 'saml',
+	};
+
+	const allow = async (path: string) => (await app(env).options(path)).headers['allow'];
+
+	expect(await allow('/auth')).toBe('GET,HEAD');
+	expect(await allow('/auth/login/SSO')).toBe('GET,HEAD');
+	expect(await allow('/auth/login/sso/callback/')).toBe('POST,GET,HEAD');
+	expect(await allow('/auth/login/gh/callback')).toBe('POST,GET,HEAD');
+	expect(await allow('/auth/login/dir')).toBe('POST');
+	expect((await app(env).options('/auth/login/dir/callback')).status).toBe(404);
+	expect((await app(env).options('/auth/login/saml')).status).toBe(404);
+});

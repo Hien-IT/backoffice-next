@@ -19,7 +19,18 @@
 		},
 		"run": {
 			"executor": "nx:run-commands",
-			"options": { "command": "node src/run.ts", "cwd": "tests/benchmark" },
+			"options": {
+				"command": "node src/run.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
+		},
+		"auth": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/auth.ts",
+				"cwd": "tests/benchmark"
+			},
 			"cache": false
 		}
 	}

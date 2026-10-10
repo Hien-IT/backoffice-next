@@ -297,6 +297,25 @@ describe('accepted differences: when, any, RegExp pointers', () => {
 		expect(classify('POST /users/abc/tfa/enable', diffs, [toggle]).differences).toHaveLength(1);
 	});
 
+	test('`when.backofficeCode` reads the code of the Backoffice answer (D-24)', async () => {
+		const { classify } = await import('./parity.js');
+		const entry: AcceptedDifference = {
+			id: 'D-24',
+			feature: '003',
+			kind: 'http',
+			endpoints: ['POST /auth/refresh'],
+			location: { any: true },
+			when: { backofficeCode: 'INVALID_PROVIDER_CONFIG' },
+			reason: 't',
+		};
+		const diffs: Difference[] = [{ kind: 'status', location: '', directus: 200, backoffice: 503 }];
+		const code = (c: string) => base(503, { errors: [{ extensions: { code: c } }] });
+		expect(
+			classify('POST /auth/refresh', diffs, [entry], base(200, {}), code('INVALID_PROVIDER_CONFIG')).accepted,
+		).toHaveLength(1);
+		expect(classify('POST /auth/refresh', diffs, [entry], base(200, {}), code('OTHER')).accepted).toHaveLength(0);
+	});
+
 	test('`when.directusCode` reads errors[0].extensions.code', async () => {
 		const { classify } = await import('./parity.js');
 		const entry: AcceptedDifference = {

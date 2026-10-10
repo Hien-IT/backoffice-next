@@ -35,20 +35,31 @@ export function createIdpServer({ issuer, clients = {} } = {}) {
 
 	const state = {
 		users: new Map(), // sub -> claims
-		codes: new Map(), // code -> { sub, clientId, redirectUri, nonce, challenge, method }
+		codes: new Map(), // code -> { sub, clientId, redirectUri, nonce, challenge, method, openid }
 		accessTokens: new Map(), // token -> sub
-		refreshTokens: new Map(), // token -> { sub, clientId }
+		refreshTokens: new Map(), // token -> { sub, clientId, openid }
 		failNextRefresh: false,
 	};
 
 	const base = () => issuer;
 
-	function issueTokens(sub, clientId, nonce) {
+	// An id_token only for the openid scope, like a real provider (openid-client's oauthCallback refuses one).
+	function issueTokens(sub, clientId, nonce, openid = true) {
 		const now = Math.floor(Date.now() / 1000);
 		const accessToken = randomBytes(24).toString('base64url');
 		const refreshToken = randomBytes(24).toString('base64url');
 		state.accessTokens.set(accessToken, sub);
-		state.refreshTokens.set(refreshToken, { sub, clientId });
+		state.refreshTokens.set(refreshToken, { sub, clientId, openid });
+
+		const tokens = {
+			access_token: accessToken,
+			token_type: 'Bearer',
+			expires_in: 3600,
+			refresh_token: refreshToken,
+			scope: openid ? 'openid profile email' : 'email',
+		};
+
+		if (!openid) return tokens;
 
 		const idToken = signJwt(
 			{ iss: base(), sub, aud: clientId, iat: now, exp: now + 300, ...(nonce ? { nonce } : {}) },
@@ -56,14 +67,7 @@ export function createIdpServer({ issuer, clients = {} } = {}) {
 			kid,
 		);
 
-		return {
-			access_token: accessToken,
-			token_type: 'Bearer',
-			expires_in: 3600,
-			refresh_token: refreshToken,
-			id_token: idToken,
-			scope: 'openid profile email',
-		};
+		return { ...tokens, id_token: idToken };
 	}
 
 	function clientFrom(req, form) {
@@ -121,6 +125,7 @@ export function createIdpServer({ issuer, clients = {} } = {}) {
 					nonce: url.searchParams.get('nonce'),
 					challenge: url.searchParams.get('code_challenge'),
 					method: url.searchParams.get('code_challenge_method') ?? 'plain',
+					openid: (url.searchParams.get('scope') ?? '').split(' ').includes('openid'),
 				});
 
 				const target = new URL(redirectUri);
@@ -152,7 +157,7 @@ export function createIdpServer({ issuer, clients = {} } = {}) {
 						return send(res, 400, { error: 'invalid_grant', error_description: 'PKCE verification failed' });
 					}
 
-					return send(res, 200, issueTokens(entry.sub, client.id, entry.nonce));
+					return send(res, 200, issueTokens(entry.sub, client.id, entry.nonce, entry.openid));
 				}
 
 				if (form.get('grant_type') === 'refresh_token') {
@@ -164,7 +169,7 @@ export function createIdpServer({ issuer, clients = {} } = {}) {
 					}
 
 					state.refreshTokens.delete(form.get('refresh_token'));
-					return send(res, 200, issueTokens(entry.sub, client.id));
+					return send(res, 200, issueTokens(entry.sub, client.id, undefined, entry.openid));
 				}
 
 				return send(res, 400, { error: 'unsupported_grant_type' });

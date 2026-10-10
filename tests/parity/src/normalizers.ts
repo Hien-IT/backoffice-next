@@ -145,3 +145,11 @@ export function normalizeLocation(value: string): string {
 		? url.toString()
 		: `${url.pathname}${url.search}${url.hash}`.replace(/^\//, value.startsWith('./') ? './' : '/');
 }
+
+/** Text body of an Express redirect ("Found. Redirecting to <url>"): the URL like the Location header. */
+export function normalizeText(text: string): string {
+	return text.replace(
+		/^(.+\. Redirecting to )(\S+)$/,
+		(_m, prefix: string, url: string) => prefix + normalizeLocation(url),
+	);
+}

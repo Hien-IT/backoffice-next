@@ -389,41 +389,41 @@ sửa).
 
 ### Tests for User Story 7
 
-- [ ] T053 [P] [US7] `tests/parity/src/auth/providers.test.ts`: `GET /auth` (kể cả `?sessionOnly`), app mới không liệt kê
+- [X] T053 [P] [US7] `tests/parity/src/auth/providers.test.ts`: `GET /auth` (kể cả `?sessionOnly`), app mới không liệt kê
   `saml` (D-24); `/auth/login/saml` `404`; refresh và logout của user SAML (fixture tạo qua Directus với
   `provider: 'saml'`, fixture riêng để điều kiện của D-24 không che ca refresh khác) trả `503 INVALID_PROVIDER_CONFIG`
   ở app mới (FR-078); `OPTIONS` của mọi path ở contracts/auth-api.md §6; `HEAD /auth` trả như `GET` không có body,
   `HEAD /auth/login/oidc` trả `302` và đặt cookie `openid.oidc` như Directus (FR-034).
-- [ ] T054 [P] [US7] `tests/parity/src/auth/sso-oauth2.test.ts`: port `oauth-redirect.test.ts`, `oauth-multi-domain.test.ts`
+- [X] T054 [P] [US7] `tests/parity/src/auth/sso-oauth2.test.ts`: port `oauth-redirect.test.ts`, `oauth-multi-domain.test.ts`
   của blackbox (provider `github`, `Host` `localhost:8955` cho ca subpath) lên `parity()` với `normalizeLocation`; luồng
   đủ với `oauthmock` (tạo user, cập nhật, `MODE=json`, cookie sai `401`, `invalid_grant` khi refresh `403`); bắt đầu ở
   app này, callback ở app kia (cả hai chiều); so `Set-Cookie` của callback: xóa cookie trạng thái (`Expires` 1970) và
   đặt cookie theo `MODE` (FR-024, contracts/auth-api.md §4).
-- [ ] T055 [P] [US7] `tests/parity/src/auth/sso-openid.test.ts`: provider `oidc`: bắt đầu (cookie `openid.oidc`, tham số
+- [X] T055 [P] [US7] `tests/parity/src/auth/sso-openid.test.ts`: provider `oidc`: bắt đầu (cookie `openid.oidc`, tham số
   authorize), callback `GET` và `POST` (`303`), tạo user, đăng ký công khai tắt hoặc email chưa xác minh, `ROLE_MAPPING`,
   `SYNC_USER_INFO` (xóa session cũ, contracts/db-writes.md §7), `enforce_tfa` chuyển `/admin/tfa-setup`, `invalid_grant`
   chuyển `prompt=true`, refresh với IdP, callback chéo hai chiều (SC-008); so `Set-Cookie` của callback: xóa cookie
   trạng thái (`Expires` 1970) và đặt cookie session hoặc refresh theo `MODE` (FR-024, contracts/auth-api.md §4).
-- [ ] T056 [P] [US7] `tests/parity/src/auth/sso-ldap.test.ts`: port `directus/tests/blackbox/tests/common/auth/ldap.test.ts`
+- [X] T056 [P] [US7] `tests/parity/src/auth/sso-ldap.test.ts`: port `directus/tests/blackbox/tests/common/auth/ldap.test.ts`
   (seed bằng `ldapts`; phần `/users/me` gọi ở Directus với token của app mới); thêm role theo nhóm (`GROUP_DN`), refresh
   kiểm lại LDAP, payload sai không chờ, chế độ `session` có `access_token` trong body.
-- [ ] T057 [P] [US7] `tests/parity/src/startup/auth-providers.test.ts`: chạy app mới trên host (`runApi`) với provider
+- [X] T057 [P] [US7] `tests/parity/src/startup/auth-providers.test.ts`: chạy app mới trên host (`runApi`) với provider
   `saml`, tên `default`, driver lạ, thiếu driver, OpenID thiếu biến, `ROLE_MAPPING` là mảng, IdP không truy cập được
   với `ISSUER_DISCOVERY_MUST_SUCCEED` mặc định và `false`; so message, mức log, mã thoát với contracts/startup-logs.md §1.
 
 ### Implementation for User Story 7
 
-- [ ] T058 [P] [US7] Port `auth/utils/generate-callback-url.ts`, `auth/utils/resolve-login-redirect.ts` (kèm test gốc)
+- [X] T058 [P] [US7] Port `auth/utils/generate-callback-url.ts`, `auth/utils/resolve-login-redirect.ts` (kèm test gốc)
   sang `apps/api/src/auth/utils/`. Ghi manifest.
-- [ ] T059 [US7] Port `auth/drivers/openid.ts` (kèm `openid.test.ts` gốc, bỏ ca event): lớp `OpenIDAuthDriver` và
+- [X] T059 [US7] Port `auth/drivers/openid.ts` (kèm `openid.test.ts` gốc, bỏ ca event): lớp `OpenIDAuthDriver` và
   handler bắt đầu, callback (thay `createOpenIDAuthRouter`, research R3), `clearCookie`, `urlencoded` của `body-parser`
   1.20.3 cho `POST` callback (research R4). Ghi manifest. (sau T023, T029, T058)
-- [ ] T060 [P] [US7] Port `auth/drivers/oauth2.ts` (kèm `oauth2.test.ts` gốc) như T059. Ghi manifest. (sau T023, T029,
+- [X] T060 [P] [US7] Port `auth/drivers/oauth2.ts` (kèm `oauth2.test.ts` gốc) như T059. Ghi manifest. (sau T023, T029,
   T058)
-- [ ] T061 [P] [US7] Port `auth/drivers/ldap.ts` (kèm `ldap.test.ts` gốc, gồm ca `userAccountControl`): lớp
+- [X] T061 [P] [US7] Port `auth/drivers/ldap.ts` (kèm `ldap.test.ts` gốc, gồm ca `userAccountControl`): lớp
   `LDAPAuthDriver` và handler login (không chờ khi lỗi payload; chế độ `session` có `access_token`). Ghi manifest.
   (sau T023, T029)
-- [ ] T062 [US7] Bước đầu: thêm vào profile `sso` (T006) service `ldap` (`cleanstart/openldap:latest`, cổng `6109:389`,
+- [X] T062 [US7] Bước đầu: thêm vào profile `sso` (T006) service `ldap` (`cleanstart/openldap:latest`, cổng `6109:389`,
   healthcheck `ldapsearch` như `directus/tests/blackbox/docker-compose.yml`; kéo không được thì `osixia/openldap:1.5.0`,
   ghi lại theo research R10), `depends_on` `ldap` healthy cho cặp `sso`, và provider `oauthmock` (driver `oauth2`, URL của
   `idp`, `IDENTIFIER_KEY=sub`, `MODE=json`), `github`, `ldap` (như `directus/tests/blackbox/common/config.ts`, LDAP trỏ
@@ -432,7 +432,7 @@ sửa).
   `POST login/:provider` (thêm driver `ldap`), `POST` và `GET login/:provider/callback` theo bảng research R3; đăng ký
   driver `openid`, `oauth2`, `ldap` trong `auth.ts`; `router-options.ts` thêm path SSO (FR-034). Test supertest cho bảng
   route. (sau T059, T060, T061)
-- [ ] T063 [US7] `tests/parity/accepted-differences.ts`: D-24 gồm `GET /auth` (phần tử `saml`), `* /auth/login/saml*`, và
+- [X] T063 [US7] `tests/parity/accepted-differences.ts`: D-24 gồm `GET /auth` (phần tử `saml`), `* /auth/login/saml*`, và
   `POST /auth/refresh`, `POST /auth/logout` khi session thuộc user `provider: 'saml'`, chỉ khi app mới trả
   `503 INVALID_PROVIDER_CONFIG`; D-26 (`kind: 'doc'`). Chạy T053 đến T057 trên profile `sso`. (sau T062)
 
@@ -440,10 +440,10 @@ sửa).
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T064 [P] Benchmark auth, bước đo thử (research R12, rủi ro): chạy autocannon 2.000 kết nối với `POST /auth/login`
+- [X] T064 [P] Benchmark auth, bước đo thử (research R12, rủi ro): chạy autocannon 2.000 kết nối với `POST /auth/login`
   trên môi trường benchmark, xem request còn dở lúc hết vòng có bị tính là lỗi không, và chọn `duration` hay `amount`.
   Ghi kết quả vào "Ghi chú khi làm".
-- [ ] T065 Benchmark auth (SC-007): `tests/benchmark/src/seed-auth.ts` (role, policy qua API Directus; 2.000 user
+- [X] T065 Benchmark auth (SC-007): `tests/benchmark/src/seed-auth.ts` (role, policy qua API Directus; 2.000 user
   `default` chung một hash; 2.000 user provider `benchmark`; lô session mỗi vòng, bằng knex trên Postgres) và
   `tests/benchmark/src/auth.ts` (3 endpoint, 2.000 kết nối, `timeout` 120 s, ngữ cảnh theo kết nối, `compare.ts`, cổng
   10%). Dùng nguyên quy tắc lỗi của `compare.ts`: lỗi ở bất kỳ vòng nào thì endpoint không đạt; T064 chọn `amount` thì
@@ -451,17 +451,17 @@ sửa).
   `tests/benchmark/package.json`. (sau T064, Phase 3 đến 5)
 - [ ] T066 `.github/workflows/ci.yml`: job `benchmark-auth` (sau `parity`, song song `benchmark`, timeout 60 phút,
   `BENCH_ROUNDS=5`), là điều kiện của `publish`. Ghi thời gian chạy thật vào "Ghi chú khi làm". (sau T065)
-- [ ] T067 [P] `tests/parity/src/db-unchanged.test.ts`, `readonly-account.test.ts`: thêm request auth không ghi DB
+- [X] T067 [P] `tests/parity/src/db-unchanged.test.ts`, `readonly-account.test.ts`: thêm request auth không ghi DB
   (`GET /auth`, đăng nhập sai, refresh với token sai, `password/request` với email không có, TFA với token sai) theo
   FR-081. Chạy trên Postgres full.
-- [ ] T068 [P] `tests/parity/src/observability/logs.test.ts`: port ca cookie của
+- [X] T068 [P] `tests/parity/src/observability/logs.test.ts`: port ca cookie của
   `directus/tests/blackbox/tests/common/logger/redact.test.ts` (đăng nhập chế độ `json` không có cookie trong log; chế
   độ `cookie`, `session` thì `cookie`/`set-cookie` bị che). Thêm FR-063: sau khi chạy đăng nhập, refresh, TFA, đặt lại
   mật khẩu và SSO, log của app mới không chứa giá trị token, refresh token, mật khẩu, OTP, secret TFA nào đã dùng.
-- [ ] T069 [P] `tests/parity/src/schema/permissions-cache.test.ts`: so thêm key và giá trị của `roles-tree`,
+- [X] T069 [P] `tests/parity/src/schema/permissions-cache.test.ts`: so thêm key và giá trị của `roles-tree`,
   `global-access`, `global-access-roles`, `global-access-user` sau một request có token ở mỗi app (research R8).
-- [ ] T070 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu và `dev/directus-reference`; sửa quickstart nếu lệch.
-- [ ] T071 Đồng bộ tài liệu: bảng khác biệt của spec 001 (D-09.1 gỡ ở 003; D-10, D-18 giữ tới 004) và
+- [X] T070 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu và `dev/directus-reference`; sửa quickstart nếu lệch.
+- [X] T071 Đồng bộ tài liệu: bảng khác biệt của spec 001 (D-09.1 gỡ ở 003; D-10, D-18 giữ tới 004) và
   `specs/001-platform-foundation/contracts/startup.md` (dòng 5, bước 16b, 16c); `README` của `tests/parity` (profile
   `sso`, helper mới); chạy `graphify update .`.
 - [ ] T072 Đóng feature: CI xanh mọi job (gồm `benchmark-auth`), coverage ≥ 80%; `spec.md` `Status: Done`; ghi kết quả
@@ -547,7 +547,7 @@ Task: "T061 ldap.ts"
 
 ## Ghi chú khi làm
 
-- T001: `joi` lên 18.2.6 thay vì 17.13.3 của Directus (advisory high GHSA-6h2x-m376-mqjq; tiền lệ `nanoid` ở 001).
+- T001: `joi` lên 18.2.6 thay vì 18.0.1 của Directus (advisory high GHSA-6h2x-m376-mqjq; tiền lệ `nanoid` ở 001).
   Thêm `date-fns` 4.1.0 và `wellknown` 0.5.0 (cùng phiên bản Directus) cho helper ngày giờ và `PayloadService`.
 - T004: image build được, `argon2.hash` chạy trong container; không cần sửa `apps/api/Dockerfile`.
 - T005, T008: unit test của IdP giả lập ở `tests/parity/src/idp.test.ts`, của helper luồng ở
@@ -594,3 +594,37 @@ Task: "T061 ldap.ts"
   đối chiếu: token tự ký theo định dạng Directus được cả hai app nhận (`password.test.ts`), và log không có token.
 - `captureDbEffects`: cột ngày trong JSON `data`, `delta` của revision cũng thành `<date>`. `compose()` của
   `tests/parity/src/docker.ts` có `maxBuffer` 256 MB (log của môi trường chạy lâu vượt 1 MB, `ENOBUFS`).
+- T058 đến T061: router của driver thành object handler (`login`, `callbackPost`, `callback`) bằng biến đổi cơ học
+  từ file gốc; controller gọi `respond` khi handler chưa trả lời (redirect tự trả lời). Test gốc chạy qua (openid 51,
+  oauth2 58, ldap 64 ca), chỉ đổi chỗ lấy handler từ `router.stack` và bỏ ca event (D-26).
+- T055: callback openid luôn chuyển hướng (kể cả khi không có `redirect`, `resolveLoginRedirect` cho `/`), nên không
+  có ca trả JSON. OAuth2 trả `401` khi cookie trạng thái sai, openid chuyển về `/admin/login?reason=...`: hai bên
+  giống Directus.
+- T054: IdP giả lập chỉ trả `id_token` khi scope có `openid` (như IdP thật); `oauthCallback` của openid-client từ
+  chối `id_token`.
+- T056: `AUTH_LDAP_GROUP_DN` thêm vào `env/profile-sso.env` (cấu hình blackbox không có) cho ca role theo nhóm. Lần
+  đăng nhập LDAP đầu tạo user, nên ca gửi cùng lúc tới hai app đăng nhập trước một lần ở Directus (tránh hai app
+  cùng tạo một user).
+- T063: D-24 gồm danh sách provider của `GET /auth` (kèm `etag`), `/auth/login/saml*`, và refresh, logout khi app mới
+  trả `INVALID_PROVIDER_CONFIG` (`when.backofficeCode`, trường mới). D-09.1 loại mọi route `/auth` (guard gỡ khi 003
+  Done). Harness chuẩn hóa body text của redirect như header `Location` và `auth_data.refreshToken`.
+- T064: đọc mã autocannon 8.0.0: `Client#destroy` gỡ listener `error` trước khi hủy kết nối, nên request còn dở lúc
+  hết `duration` bị bỏ, không tính là lỗi hay timeout; giữ `duration` như `run.ts`. `timeout` 120 s cho hàng đợi
+  đăng nhập (argon2 4 luồng và `LOGIN_STALL_TIME`).
+- T064 (đo thử cục bộ): ở 2.000 kết nối, máy arm64 với Directus chạy giả lập qua Docker Desktop không trả được request
+  nào trong 10 s, nên số liệu chỉ lấy từ CI; không có lỗi nào được tính dù hàng nghìn request còn dở (xác nhận cách
+  đọc mã ở trên). autocannon reset `context` mỗi lần duyệt hết `requests` (ở đây là mỗi request), nên trạng thái để
+  ngoài context: user và access token xoay vòng, refresh token qua một hàng đợi (request lấy một, response trả token
+  mới). Khi `overallRate` nhỏ hơn số kết nối, autocannon giảm số kết nối xuống bằng `overallRate`: pha đo p95 chạy
+  với ít kết nối, pha thông lượng đủ 2.000.
+- T065: seed ở `tests/benchmark/src/seed-auth.ts` (xóa user, session, activity đã tạo khi xong); số kết nối đổi được
+  bằng `BENCH_CONNECTIONS` (mặc định 2.000) để đo thử cục bộ.
+- T067: thêm vào bộ request chung `GET /auth`, đăng nhập và `password/request` với email không có (không chạm bộ đếm
+  đăng nhập sai), refresh với token không có.
+- T070: §3.4 của quickstart thêm lệnh `ldapadd` tạo user thử (OpenLDAP của profile khởi động trống); `env-up` của §1
+  bật mọi profile của bộ `full`. Test `errors.test.ts` của 001 bỏ `/auth` khỏi danh sách "chưa làm".
+- T070: chạy quickstart §2 trên cặp chính của môi trường đối chiếu (Directus 8155, app mới 8156) thay cho
+  `dev/directus-reference` (cùng image, cùng cấu hình); §3 thêm bước tạo role mặc định của provider SSO, LDAP (test tạo
+  rồi xóa role này).
+- Bộ đối chiếu `full` trên Postgres chạy cục bộ: 40 file, 325 ca đạt (trước khi bỏ `/auth` khỏi ca "chưa làm" của
+  `errors.test.ts`), rồi các file đổi ở Phase 10 đạt 34/34.

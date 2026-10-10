@@ -1,6 +1,10 @@
 // T088, US5, contracts/observability.md §1: HTTP log lines with LOG_STYLE=raw on the `metrics` profile pair.
 import { randomUUID } from 'node:crypto';
-import { describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { closeHostDb, hostDb } from '../auth/db-effects.js';
+import { type App, cleanupFixtures, createUserPerApp, PASSWORD, type User } from '../auth/fixtures.js';
+import { cookiePair, type Mode, MODES, post, withToken } from '../auth/flows.js';
+import { signResetToken } from '../auth/tokens.js';
 import { logs } from '../docker.js';
 import { capture } from '../parity.js';
 import { profileUrls } from '../profiles.js';
@@ -69,5 +73,81 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('HTTP log lines (LOG_
 		}
 
 		expect(logs('backoffice-api-metrics')).not.toMatch(/log-secret-\d/);
+	});
+});
+
+// Feature 003: the cookie part of directus/tests/blackbox/tests/common/logger/redact.test.ts (REST), and FR-063: no
+// token, refresh token, password, OTP or TFA secret used in the auth flows shows up in the logs of the new app.
+describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_STYLE=raw)', () => {
+	const urls = () => profileUrls('metrics')!;
+	let users: Record<App, User>;
+
+	beforeAll(async () => {
+		users = await createUserPerApp('logs');
+	}, 60_000);
+
+	afterAll(async () => {
+		await cleanupFixtures();
+		await closeHostDb();
+	}, 60_000);
+
+	/** Login in `mode` then POST /auth/refresh?probe=<uuid> with what the login gave; returns the refresh log line. */
+	async function refreshLine(app: App, mode: Mode) {
+		const url = app === 'directus' ? urls().directusUrl! : urls().backofficeUrl!;
+		const service = app === 'directus' ? 'directus-metrics' : 'backoffice-api-metrics';
+		const user = users[app];
+		const login = await capture(url, post('/auth/login', { email: user.email, password: PASSWORD, mode }));
+		const probe = randomUUID();
+		const req = withToken(`/auth/refresh?probe=${probe}`, login, mode);
+		const res = await capture(url, req);
+		expect(res.status, `${app} ${mode}`).toBe(200);
+		return httpLine(service, probe);
+	}
+
+	it.each(MODES)(
+		'refresh in %s mode: cookie and set-cookie redacted like Directus',
+		{ timeout: 60_000 },
+		async (mode) => {
+			const [d, b] = [await refreshLine('directus', mode), await refreshLine('backoffice', mode)];
+
+			expect(b.req.headers.cookie).toBe(d.req.headers.cookie);
+			expect(b.res.headers?.['set-cookie']).toBe(d.res.headers?.['set-cookie']);
+			expect(b.req.headers.cookie).toBe(mode === 'json' ? undefined : '--redacted--');
+		},
+	);
+
+	it('no secret of the auth flows in the logs of the new app (FR-063)', { timeout: 60_000 }, async () => {
+		const url = urls().backofficeUrl!;
+		const user = users.backoffice;
+		const secrets = [PASSWORD];
+
+		const json = (await capture(url, post('/auth/login', { email: user.email, password: PASSWORD }))).json as any;
+		secrets.push(json.data.access_token, json.data.refresh_token);
+
+		const refreshed = (await capture(url, post('/auth/refresh', { refresh_token: json.data.refresh_token })))
+			.json as any;
+		secrets.push(refreshed.data.access_token, refreshed.data.refresh_token);
+
+		const session = await capture(url, post('/auth/login', { email: user.email, password: PASSWORD, mode: 'session' }));
+		secrets.push(cookiePair(session).split('=')[1]!);
+
+		const tfa = await capture(url, {
+			...post('/users/me/tfa/generate', { password: PASSWORD }),
+			headers: { authorization: `Bearer ${refreshed.data.access_token}` },
+		});
+
+		secrets.push((tfa.json as any).data.secret);
+		await capture(url, post('/auth/login', { email: user.email, password: PASSWORD, otp: '123456' }));
+
+		await capture(url, post('/auth/password/request', { email: user.email }));
+		const hash = (await hostDb()('directus_users').select('password').where({ id: user.id }).first()).password;
+		const resetToken = signResetToken(user.email, hash);
+		secrets.push(resetToken, 'new-log-password');
+		await capture(url, post('/auth/password/reset', { token: resetToken, password: 'new-log-password' }));
+
+		await new Promise((r) => setTimeout(r, 1000));
+		const output = logs('backoffice-api-metrics');
+
+		for (const secret of secrets) expect(output.includes(secret), secret.slice(0, 12)).toBe(false);
 	});
 });

@@ -3,7 +3,7 @@ import { useEnv } from '@backoffice/env';
 import { InvalidProviderConfigError } from '@backoffice/errors';
 import { toArray } from '@backoffice/utils';
 import type { AuthDriver } from './auth/auth.js';
-import { LocalAuthDriver } from './auth/drivers/index.js';
+import { LDAPAuthDriver, LocalAuthDriver, OAuth2AuthDriver, OpenIDAuthDriver } from './auth/drivers/index.js';
 import { DEFAULT_AUTH_PROVIDER } from './constants.js';
 import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
@@ -85,7 +85,16 @@ function getProviderInstance(
 		case 'local':
 			return new LocalAuthDriver(options, config);
 
-		// ponytail: openid, oauth2 and ldap are registered with Phase 9 of feature 003 (T059-T062).
+		case 'oauth2':
+			return new OAuth2AuthDriver(options, config);
+
+		case 'openid':
+			return new OpenIDAuthDriver(options, config);
+
+		case 'ldap':
+			return new LDAPAuthDriver(options, config);
+
+		// Backoffice: no SAMLAuthDriver (Principle XI), registerAuthProviders skips the saml driver.
 	}
 
 	return undefined;

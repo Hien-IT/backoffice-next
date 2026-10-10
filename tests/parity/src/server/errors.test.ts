@@ -57,8 +57,8 @@ describe('errors', () => {
 		expect(result.backoffice.status).toBe(404);
 	});
 
+	// /auth is built by feature 003 (src/auth/*.test.ts).
 	it.each([
-		'/auth',
 		'/users',
 		'/items/directus_users',
 		'/collections',

@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/auth/drivers/ldap.ts",
+		"dest": "apps/api/src/auth/drivers/ldap.ts"
+	},
+	{
+		"source": "api/src/auth/drivers/ldap.test.ts",
+		"dest": "apps/api/src/auth/drivers/ldap.test.ts"
+	}
+]

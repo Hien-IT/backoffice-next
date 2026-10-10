@@ -23,7 +23,12 @@ const json = async (res: Response | Promise<Response>): Promise<any> => (await r
 const post = (path: string, body: string, headers: Record<string, string> = {}) =>
 	fetch(`${base}${path}`, { method: 'POST', body, headers });
 
-async function authorize(user: string, verifier: string, method: 'S256' | 'plain' = 'S256') {
+async function authorize(
+	user: string,
+	verifier: string,
+	method: 'S256' | 'plain' = 'S256',
+	scope = 'openid profile email',
+) {
 	const challenge = method === 'S256' ? createHash('sha256').update(verifier).digest('base64url') : verifier;
 
 	const url = new URL(`${base}/authorize`);
@@ -34,6 +39,7 @@ async function authorize(user: string, verifier: string, method: 'S256' | 'plain
 		nonce: 'nn',
 		code_challenge: challenge,
 		code_challenge_method: method,
+		scope,
 		user,
 	}).toString();
 
@@ -86,6 +92,23 @@ describe('test IdP', () => {
 
 		const info = await fetch(`${base}/userinfo`, { headers: { Authorization: `Bearer ${tokens.access_token}` } });
 		expect(await info.json()).toEqual({ sub: 'alice', email: 'alice@example.com' });
+	});
+
+	test('no id token without the openid scope (OAuth2 providers)', async () => {
+		await post('/__users', JSON.stringify({ sub: 'bob', claims: {} }));
+		const { location } = await authorize('bob', 'verifier-0123456789', 'S256', 'email');
+
+		const tokens = await json(
+			token({
+				grant_type: 'authorization_code',
+				code: location.searchParams.get('code')!,
+				redirect_uri: 'http://app/cb',
+				code_verifier: 'verifier-0123456789',
+			}),
+		);
+
+		expect(tokens.access_token).toBeTruthy();
+		expect(tokens.id_token).toBeUndefined();
 	});
 
 	test('rejects a wrong PKCE verifier, an unknown user and a wrong client', async () => {

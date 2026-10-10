@@ -17,8 +17,8 @@ export type AcceptedDifference = {
 	excludeEndpoints?: string[];
 	/** `any`: every difference of the matching responses (use with `when`); a RegExp pointer matches many paths. */
 	location?: { status: true } | { header: string } | { jsonPointer: string | RegExp } | { any: true };
-	/** Only for responses where Directus answered this status / error code (e.g. D-10: 401 on an invalid token). */
-	when?: { directusStatus?: number; directusCode?: string };
+	/** Only for responses where Directus (or Backoffice) answered this status / error code (e.g. D-10: 401 on an invalid token). */
+	when?: { directusStatus?: number; directusCode?: string; backofficeCode?: string };
 	directus?: Matcher;
 	backoffice?: Matcher;
 	reason: string;
@@ -84,8 +84,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '003',
 		kind: 'http',
 		endpoints: route('/auth'),
-		// Feature 003 compares each auth route once built; the entry goes when every /auth route is.
-		excludeEndpoints: route('/auth/login', '/auth/refresh', '/auth/logout', '/auth/password'),
+		// Feature 003 built every /auth route: nothing left here; the guard drops the entry once 003 is Done.
+		excludeEndpoints: route('/auth'),
 		location: { any: true },
 		reason: 'Built by feature 003.',
 	},
@@ -266,6 +266,39 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'Enabling and disabling TFA checks permissions through ItemsService (feature 005).',
 	},
 	{ id: 'D-23', feature: '003', kind: 'doc', reason: 'No password reset email: a log line without token or link.' },
+	{
+		id: 'D-24',
+		feature: '003',
+		kind: 'http',
+		endpoints: ['GET /auth', 'GET /auth/', 'HEAD /auth'],
+		location: { jsonPointer: /^\/data(\/|$)/ },
+		reason: 'saml providers are not listed (Principle XI); providers.test.ts checks the rest of the list.',
+	},
+	{
+		id: 'D-24',
+		feature: '003',
+		kind: 'http',
+		endpoints: ['GET /auth', 'GET /auth/', 'HEAD /auth'],
+		location: { header: 'etag' },
+		reason: 'The ETag of the shorter provider list.',
+	},
+	{
+		id: 'D-24',
+		feature: '003',
+		kind: 'http',
+		endpoints: route('/auth/login/saml'),
+		location: { any: true },
+		reason: 'No saml routes (Principle XI).',
+	},
+	{
+		id: 'D-24',
+		feature: '003',
+		kind: 'http',
+		endpoints: ['POST /auth/refresh', 'POST /auth/logout'],
+		when: { backofficeCode: 'INVALID_PROVIDER_CONFIG' },
+		location: { any: true },
+		reason: 'Sessions of saml users: INVALID_PROVIDER_CONFIG like Directus without the provider (FR-078).',
+	},
 	{
 		id: 'D-25',
 		feature: '003',

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/auth/utils/generate-callback-url.ts",
+		"dest": "apps/api/src/auth/utils/generate-callback-url.ts"
+	},
+	{
+		"source": "api/src/auth/utils/generate-callback-url.test.ts",
+		"dest": "apps/api/src/auth/utils/generate-callback-url.test.ts"
+	},
+	{
+		"source": "api/src/auth/utils/resolve-login-redirect.ts",
+		"dest": "apps/api/src/auth/utils/resolve-login-redirect.ts"
+	},
+	{
+		"source": "api/src/auth/utils/resolve-login-redirect.test.ts",
+		"dest": "apps/api/src/auth/utils/resolve-login-redirect.test.ts"
+	}
+]

@@ -22,9 +22,25 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/auth\/(refresh|logout|password\/request|password\/reset)\/?$/i, 'POST'],
 		[/^\/users\/me\/tfa\/generate\/?$/i, 'POST'],
 		...(env['AUTH_DISABLE_DEFAULT'] ? [] : [[/^\/auth\/login\/?$/i, 'POST'] as [RegExp, string]]),
-		...getAuthProviders()
-			.filter((provider) => provider.driver === 'local')
-			.map((provider): [RegExp, string] => [new RegExp(`^/auth/login/${escapeRegExp(provider.name)}/?$`, 'i'), 'POST']),
+		[/^\/auth\/?$/i, 'GET,HEAD'],
+		...getAuthProviders().flatMap((provider): [RegExp, string][] => {
+			const login = `^/auth/login/${escapeRegExp(provider.name)}`;
+
+			// The methods each driver router answers, in route order, HEAD added after GET (research R3).
+			switch (provider.driver) {
+				case 'local':
+				case 'ldap':
+					return [[new RegExp(`${login}/?$`, 'i'), 'POST']];
+				case 'openid':
+				case 'oauth2':
+					return [
+						[new RegExp(`${login}/?$`, 'i'), 'GET,HEAD'],
+						[new RegExp(`${login}/callback/?$`, 'i'), 'POST,GET,HEAD'],
+					];
+				default:
+					return [];
+			}
+		}),
 	];
 
 	return (req, res, next) => {
