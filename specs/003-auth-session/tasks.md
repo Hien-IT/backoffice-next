@@ -449,7 +449,7 @@ sửa).
   10%). Dùng nguyên quy tắc lỗi của `compare.ts`: lỗi ở bất kỳ vòng nào thì endpoint không đạt; T064 chọn `amount` thì
   quy tắc này vẫn giữ. Thêm target `auth` vào `tests/benchmark/project.json`, phụ thuộc `jsonwebtoken`, `knex`, `pg` vào
   `tests/benchmark/package.json`. (sau T064, Phase 3 đến 5)
-- [ ] T066 `.github/workflows/ci.yml`: job `benchmark-auth` (sau `parity`, song song `benchmark`, timeout 60 phút,
+- [X] T066 `.github/workflows/ci.yml`: job `benchmark-auth` (sau `parity`, song song `benchmark`, timeout 60 phút,
   `BENCH_ROUNDS=5`), là điều kiện của `publish`. Ghi thời gian chạy thật vào "Ghi chú khi làm". (sau T065)
 - [X] T067 [P] `tests/parity/src/db-unchanged.test.ts`, `readonly-account.test.ts`: thêm request auth không ghi DB
   (`GET /auth`, đăng nhập sai, refresh với token sai, `password/request` với email không có, TFA với token sai) theo
@@ -464,7 +464,7 @@ sửa).
 - [X] T071 Đồng bộ tài liệu: bảng khác biệt của spec 001 (D-09.1 gỡ ở 003; D-10, D-18 giữ tới 004) và
   `specs/001-platform-foundation/contracts/startup.md` (dòng 5, bước 16b, 16c); `README` của `tests/parity` (profile
   `sso`, helper mới); chạy `graphify update .`.
-- [ ] T072 Đóng feature: CI xanh mọi job (gồm `benchmark-auth`), coverage ≥ 80%; `spec.md` `Status: Done`; ghi kết quả
+- [X] T072 Đóng feature: CI xanh mọi job (gồm `benchmark-auth`), coverage ≥ 80%; `spec.md` `Status: Done`; ghi kết quả
   benchmark và CI run vào "Ghi chú khi làm"; tech lead duyệt D-09.10, D-23 đến D-26. (sau tất cả)
 
 ---
@@ -652,3 +652,9 @@ Task: "T061 ldap.ts"
 - 2026-10-11, chủ dự án chọn: hai job benchmark ra khỏi `ci.yml`, sang `.github/workflows/benchmark.yml` (thứ Hai
   02:00 giờ Việt Nam và `workflow_dispatch`), không còn chặn `publish` (plan.md Complexity Tracking). T066, T072 nay
   dùng một lần chạy xanh của workflow Benchmark thay cho job trong CI.
+- Đóng feature (2026-10-11): chủ dự án cho đóng khi chưa có lần chạy xanh của benchmark auth với cấu hình cuối (tắt
+  pressure limiter, 3 vòng) và của CI sau khi GitHub Actions bị chặn vì hạn mức thanh toán. Lần CI chạy đủ gần nhất (run
+  38091453025): mọi job xanh trừ benchmark. Chạy cục bộ (`pnpm run ci:local`, script mới `tools/ci-local.sh`): guard,
+  quality (77/77), guard-differences, audit, build xanh; đối chiếu Postgres `full` đã chạy cục bộ ở phần trên. T066 chưa
+  có thời gian chạy thật của `benchmark-auth`: lấy ở lần chạy đầu của workflow `Benchmark`. D-09.1 xóa khỏi
+  `accepted-differences.ts` (guard đòi gỡ khi 003 Done).

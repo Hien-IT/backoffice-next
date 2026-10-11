@@ -31,3 +31,5 @@ graphify-out/
 # Playwright
 test-results/
 playwright-report/
+# tools/ci-local.sh
+.ci-local/

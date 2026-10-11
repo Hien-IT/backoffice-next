@@ -79,17 +79,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.1',
-		feature: '001',
-		removeAt: '003',
-		kind: 'http',
-		endpoints: route('/auth'),
-		// Feature 003 built every /auth route: nothing left here; the guard drops the entry once 003 is Done.
-		excludeEndpoints: route('/auth'),
-		location: { any: true },
-		reason: 'Built by feature 003.',
-	},
-	{
 		id: 'D-09.2',
 		feature: '001',
 		removeAt: '004',
