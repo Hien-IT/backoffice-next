@@ -25,7 +25,7 @@ pnpm nx run parity-tests:env-up --vendor=postgres --profiles=cache-mem,cache-mem
 ```
 
 ```bash
-PARITY_SUITE=cache pnpm nx run parity-tests:parity --vendor=postgres
+pnpm nx run parity-tests:parity-cache --vendor=postgres
 ```
 
 ```bash

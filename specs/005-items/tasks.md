@@ -219,7 +219,7 @@ contracts/parity-blackbox.md §1 đến §3, §6).
   `tests_extensions_log` của `no-relation` (extension, D-17). Ghi manifest kèm số khối đã bỏ. (sau T016)
 - [X] T020 [P] [US2] Copy nguyên `m2m.test.ts`, `m2a.test.ts`, `relational-json.test.ts`, `json-fields.test.ts`,
   `singleton.test.ts`, `case-when.test.ts`, `conceal-filter.test.ts`, `hash-filter.test.ts`. Ghi manifest. (sau T016)
-- [ ] T021 [US2] Chạy `PARITY_SUITE=blackbox` trên Postgres đủ ba kiểu khóa, rồi MySQL và SQLite (đủ và
+- [X] T021 [US2] Chạy `PARITY_SUITE=blackbox` trên Postgres đủ ba kiểu khóa, rồi MySQL và SQLite (đủ và
   `PARITY_BLACKBOX_PK_TYPES=integer`): ca fail ở lượt `directus` ghi vào `known-failures.ts` theo vendor kèm lần chạy
   đối chứng; ca fail chỉ ở lượt `backoffice` là lỗi của app mới, sửa engine hoặc route (ghi R-xx nếu là hành vi
   Directus). Ghi thời gian mỗi lượt vào "Ghi chú khi làm". (sau T017 đến T020)
@@ -417,10 +417,10 @@ D-26, D-29.
   trong path, message `TypeError` của lỗi `500` export csv, export xml và yaml khi không có payload, charset của
   `Content-Type` export, R-10 nếu T044 đã đo); nếu số đo khác dự kiến thì sửa luôn ca kiểm và ghi vào "Ghi chú khi
   làm"; `checklists/items-review.md` ghi một dòng Notes về lần cập nhật này.
-- [ ] T052 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
+- [X] T052 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
   `tests/parity/README.md` (mục "Test items (feature 005)": suite `blackbox` hai lượt, `PARITY_BLACKBOX_*`, năm cặp,
   `known-failures.ts`, header `no-store` của bộ so sánh). Chạy `graphify update .`. (sau T048 đến T051)
-- [ ] T053 Chạy lại đủ `parity-matrix.yml` (ma trận quyền 004 và `blackbox-full`) với `respond`, `cache`, `Emitter` mới
+- [X] T053 Chạy lại đủ `parity-matrix.yml` (ma trận quyền 004 và `blackbox-full`) với `respond`, `cache`, `Emitter` mới
   (FR-047, SC-001, SC-009); ghi kết quả vào "Ghi chú khi làm". (sau T052)
 - [ ] T054 Đóng feature: CI xanh mọi job (`quality`, `guard-*`, `parity` ba vendor, `parity-blackbox`, `parity-cache`,
   `parity-matrix-rotating`, `e2e-directus-app`, `docker`, `security`), coverage ≥ 80% `apps/api`; `benchmark-items` đã
@@ -589,5 +589,11 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   `schema/permissions-cache.test.ts` mang kỳ vọng D-11 (app mới nay cũng ghi `policies-ip-access` và `raw-permissions`
   như Directus, đã sửa), ca TFA lệch cửa sổ OTP (chạy lại hai lần đạt); E2E 7/7 qua proxy. Lưu ý local: tạo lại container
   `backoffice-api` sau khi proxy đã chạy làm nginx giữ IP cũ, phải khởi động lại `proxy`.
+- T052: quickstart §1 chạy theo từng lệnh ở trên (lệnh bộ `cache` đổi sang target `parity-cache`); §2 đúng như ghi
+  (`MISS` ở app mới rồi `HIT` ở Directus, `Content-Disposition` và file CSV); README của bộ đối chiếu có mục feature 005.
+- T021, T053 (700ecfb): `parity-matrix.yml` xanh: bốn shard ma trận quyền 004 (334 đến 411 giây) với `respond`,
+  `cache`, `Emitter` mới; `blackbox-full` đủ ba kiểu khóa, cả hai lượt: MySQL 819 giây, SQLite 490 giây (bước blackbox).
+  CI 700ecfb xanh mọi job: `parity-blackbox` (Postgres) 913 giây, `parity-cache` 411 giây, `parity` Postgres `full`
+  911 giây, MySQL, SQLite `reduced` kèm blackbox `integer` 372 và 487 giây, `e2e-directus-app` 350 giây.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)
