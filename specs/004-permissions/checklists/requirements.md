@@ -39,5 +39,8 @@
 - `/speckit.clarify` 2026-10-11 (3 câu): kiểm chứng engine (FR-104, FR-105), SC-008 tự động bằng Playwright qua
   reverse proxy (FR-106), proxy định tuyến theo danh sách route đã làm. Sửa thêm theo tiền lệ: FR-083 (xóa cache dữ
   liệu dùng chung khi ghi), SC-001 (bộ rút gọn trên MySQL, SQLite theo Nguyên tắc V).
+- `/speckit.plan` 2026-10-11: thêm Clarifications "Q (khi lập plan)" và D-31 (`getService` cho collection hệ thống
+  chưa có service riêng). Plan, research, data-model, contracts, quickstart đã tạo; Constitution Check đạt cả 11
+  nguyên tắc, không có vi phạm mới.
 - Đã kiểm lại với code Directus: luồng `registerUser` (nhánh tắt đăng ký trả ngay, không chờ), `inviteUser` (lỗi URL
   chỉ ném ở bước ghi), key cache `filter-context-*`.

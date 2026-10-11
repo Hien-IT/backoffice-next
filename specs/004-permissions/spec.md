@@ -75,6 +75,10 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
   `/extensions`... của 006, 008, 010)? → A: Định tuyến theo danh sách route đã làm: chỉ route của 001 đến 004
   (`/auth`, `/server`, `/metrics`, `/users`, `/roles`, `/policies`, `/access`, `/permissions`) về app mới; mọi path
   khác, kể cả `/admin`, về Directus. Mỗi feature sau thêm route của mình vào danh sách (FR-106).
+- Q (khi lập plan): Ghi lồng và đọc lồng từ năm collection vào collection hệ thống chưa có service riêng (ví dụ
+  `avatar` → `directus_files`) xử lý thế nào khi `getService()` của Directus trả service riêng? → A: Dùng
+  `ItemsService` chung cho các collection đó tới khi feature tương ứng port service (D-31); `directus_*` không có
+  service ở Directus vẫn bị cấm như Directus.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -621,6 +625,7 @@ Khác biệt mới:
 | D-28 | Email xác minh đăng ký (`POST /users/register`) | Gửi email chứa link xác minh | Không gửi, ghi log như D-27 (FR-063). Response, thời gian chờ và dữ liệu ghi giống Directus | Nguyên tắc X | ngoài phạm vi | — |
 | D-29 | Event `users.*`, `roles.*`, `policies.*`, `access.*`, `permissions.*` (filter và action, `create`, `update`, `delete`) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
 | D-30 | Thông điệp bus `websocket.event` khi ghi năm collection | Instance Directus bật WebSocket đẩy thay đổi tới client đang subscribe | App mới không đẩy; client realtime nối vào Directus không thấy thay đổi user, role, policy, access, permission do app mới ghi | Bus `websocket.event` làm ở feature 005 (Clarifications) | ngoài phạm vi (tạm thời) | 005 |
+| D-31 | Ghi lồng từ payload của năm collection vào `directus_files`, `folders`, `comments`, `notifications`, `shares`, `translations`, `dashboards`, `panels`, `flows`, `operations`, `versions`, `settings` (ví dụ `avatar` tạo lồng file) | Đi qua service riêng của collection đó (`FilesService`...) với kiểm tra và tác động riêng | Đi qua `ItemsService` chung (kiểm quyền, activity, revision như mọi collection; không có kiểm tra riêng của service đó). Đọc lồng không khác | Service riêng thuộc feature 007 đến 010 (Clarifications khi lập plan) | ngoài phạm vi (tạm thời) | 010 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

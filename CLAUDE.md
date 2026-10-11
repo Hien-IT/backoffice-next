@@ -13,6 +13,7 @@ Rules:
 - Shared DB with Directus 11.17.4 (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB), read-only in 001; shared Redis and storage (local, S3) (001-platform-foundation)
 - @backoffice/memory (port of @directus/memory: Redis bus, kv, multi cache; lru-cache 11.2.2, @sesamecare-oss/redlock 1.4.0); in-process SchemaOverview cache shared with Directus via Redis lock/bus (002-schema-overview-cache)
 - Auth: jsonwebtoken 9.0.3, argon2 0.44.0, otplib 12.0.1, openid-client 5.7.1, ldapts 8.1.3, joi 18.2.6 (security patch, Directus has 18.0.1), flat 6.0.1 (otherwise the same versions as Directus 11.17.4); @backoffice/validation (port of @directus/validation); writes directus_sessions/activity/revisions and shares SECRET, sessions and Redis login-attempt counters with Directus (003-auth-session)
+- Permissions: full port of the Directus read/write engine (get-ast-from-query, run-ast, ItemsService, PayloadService, MetaService, dialect helpers) and permissions modules; snappy 7.3.3 (cache value compression), ip-matching 2.1.2; shared permissions cache namespaces and data-cache clearing; Directus app E2E through an nginx reverse proxy with Playwright 1.64.0 (004-permissions)
 
 ## Recent Changes
 - 001-platform-foundation: Added Nx monorepo, NestJS 12 API with ported @directus/env, errors, schema, storage libs, /server/* endpoints, parity tests against Directus
