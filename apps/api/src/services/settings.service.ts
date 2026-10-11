@@ -1,6 +1,6 @@
 // Ported from directus/api/src/services/items.ts (readSingleton, items.ts:1190-1231) for directus_settings, as
 // called by ServerService.serverInfo. Runs the SQL Directus' AST engine produces for that query (research R16.2);
-// feature 005 replaces it with the real ItemsService and the /server/info parity tests keep guarding the output.
+// SettingsService of feature 010 replaces it (D-31 of spec 004) and the /server/info parity tests keep guarding the output.
 import type { AbstractServiceOptions, Item, Query, SchemaOverview } from '@backoffice/types';
 import type { Knex } from 'knex';
 import getDatabase from '../database/index.js';

@@ -22,10 +22,18 @@ vi.mock('@backoffice/env', () => ({
 	}),
 }));
 
-// translateDatabaseError asks the client of the default connection, like Directus.
+// translateDatabaseError asks the client of the default connection, and ItemsService puts the default connection in
+// the context of its action events (emitter stand-in, feature 004), like Directus.
 vi.mock('../database/index.js', async (importOriginal) => {
 	const original = await importOriginal<typeof import('../database/index.js')>();
-	return { ...original, getDatabaseClient: (database?: Knex) => (database ? original.getDatabaseClient(database) : 'sqlite') };
+	const getDatabase = () => db;
+
+	return {
+		...original,
+		default: getDatabase,
+		getDatabase,
+		getDatabaseClient: (database?: Knex) => (database ? original.getDatabaseClient(database) : 'sqlite'),
+	};
 });
 
 let db: Knex;

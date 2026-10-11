@@ -5,7 +5,6 @@ import request from 'supertest';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { type App, createApp } from './app.js';
 import { useLogger } from './logger/index.js';
-import { CREDENTIALS_IGNORED_MESSAGE, resetCredentialsWarning } from './middleware/public-accountability.js';
 import getDatabase from './database/index.js';
 import { getSchema } from './schema/get-database-schema.js';
 
@@ -43,7 +42,9 @@ async function start(overrides: Record<string, unknown> = {}, options: Parameter
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	resetCredentialsWarning();
+	// authenticate (every route since feature 004) opens the default connection on each request, like Directus;
+	// without a token no query runs, so a placeholder is enough.
+	vi.mocked(getDatabase).mockReturnValue({} as never);
 });
 
 afterEach(async () => {
@@ -183,49 +184,7 @@ describe('404 and errors', () => {
 	});
 });
 
-describe('public accountability (FR-044)', () => {
-	test('warns once per process, then logs at debug', async () => {
-		const agent = await start(
-			{},
-			{
-				beforeRoutes: [(req, res, next) => (req.path === '/whoami' ? res.json(req.accountability) : next())],
-			},
-		);
-
-		const first = await agent
-			.get('/whoami')
-			.set('Authorization', 'Bearer x')
-			.set('User-Agent', 'ua')
-			.set('Origin', 'o');
-		expect(first.body).toMatchObject({
-			role: null,
-			user: null,
-			roles: [],
-			admin: false,
-			app: false,
-			userAgent: 'ua',
-			origin: 'o',
-		});
-		expect(useLogger().warn).toHaveBeenCalledWith(CREDENTIALS_IGNORED_MESSAGE);
-
-		await agent.get('/whoami?access_token=x');
-		expect(useLogger().warn).toHaveBeenCalledTimes(1);
-		expect(useLogger().debug).toHaveBeenCalledWith(CREDENTIALS_IGNORED_MESSAGE);
-	});
-
-	test('session cookie counts as credentials', async () => {
-		const agent = await start();
-		await agent.get('/nope').set('Cookie', 'directus_session_token=abc');
-		expect(useLogger().warn).toHaveBeenCalledWith(CREDENTIALS_IGNORED_MESSAGE);
-	});
-
-	test('no warning without credentials', async () => {
-		await (await start()).get('/nope');
-		expect(useLogger().warn).not.toHaveBeenCalled();
-	});
-});
-
-// Feature 003: authenticate on the auth routes only (D-10 of spec 003)
+// Feature 004: authenticate on every route like Directus (D-10 and the D-18 warning of spec 001 are gone)
 describe('accountability step', () => {
 	const whoami: RequestHandler = (req, res, next) =>
 		req.path.toLowerCase().startsWith('/auth/x') || req.path === '/server/whoami' ? res.json(req.accountability) : next();
@@ -233,27 +192,60 @@ describe('accountability step', () => {
 	// Signed with another secret: 403 INVALID_TOKEN like Directus (an unknown static token is 401), no query.
 	const foreign = jwt.sign({ id: 'u', role: null, app_access: false, admin_access: false }, 'other', { issuer: 'directus' });
 
-	test('an invalid token on /auth/* is rejected; other routes stay public and warn', async () => {
+	test.each(['/AUTH/x', '/server/whoami', '/nope'])('an invalid token on %s is rejected with 403 INVALID_TOKEN', async (path) => {
 		const agent = await start({}, { beforeRoutes: [whoami] });
 
-		// getAccountabilityForToken opens the default connection on every call, like Directus; no query runs here.
-		vi.mocked(getDatabase).mockReturnValueOnce({} as never);
-		const auth = await agent.get('/AUTH/x').set('Authorization', `Bearer ${foreign}`);
-		expect(auth.status).toBe(403);
-		expect(auth.body.errors[0].extensions.code).toBe('INVALID_TOKEN');
-
-		const other = await agent.get('/server/whoami').set('Authorization', `Bearer ${foreign}`);
-		expect(other.status).toBe(200);
-		expect(other.body).toMatchObject({ user: null, admin: false });
-		expect(useLogger().warn).toHaveBeenCalledWith(CREDENTIALS_IGNORED_MESSAGE);
+		const res = await agent.get(path).set('Authorization', `Bearer ${foreign}`);
+		expect(res.status).toBe(403);
+		expect(res.body.errors[0].extensions.code).toBe('INVALID_TOKEN');
+		expect(useLogger().warn).not.toHaveBeenCalled();
 	});
 
-	test('without a token both are public', async () => {
+	test('without a token every route is public, with user agent and origin', async () => {
 		const agent = await start({}, { beforeRoutes: [whoami] });
-		vi.mocked(getDatabase).mockReturnValueOnce({} as never);
 		expect((await agent.get('/auth/x')).body).toMatchObject({ user: null, role: null, admin: false });
-		expect((await agent.get('/server/whoami')).body).toMatchObject({ user: null, role: null, admin: false });
+
+		expect((await agent.get('/server/whoami').set('User-Agent', 'ua').set('Origin', 'o')).body).toMatchObject({
+			user: null,
+			role: null,
+			roles: [],
+			admin: false,
+			app: false,
+			userAgent: 'ua',
+			origin: 'o',
+		});
+
 		expect(useLogger().warn).not.toHaveBeenCalled();
+	});
+
+	test('/server/ping answers before authenticate, so an invalid token is ignored there', async () => {
+		const res = await (await start()).get('/server/ping').set('Authorization', `Bearer ${foreign}`);
+		expect(res.status).toBe(200);
+	});
+});
+
+// Feature 004: sanitizeQuery after the schema step on every route (D-12 of spec 001 now only covers `export`)
+describe('query step', () => {
+	const query: RequestHandler = (req, res, next) => (req.path === '/server/query' ? res.json(req.sanitizedQuery) : next());
+
+	test('an invalid query is rejected with 400 INVALID_QUERY on any route', async () => {
+		const agent = await start({}, { beforeRoutes: [query] });
+
+		for (const path of ['/server/query?filter={bad', '/nope?limit=abc', '/server/info?meta=nope']) {
+			const res = await agent.get(path);
+			expect(res.status, path).toBe(400);
+			expect(res.body.errors[0].extensions.code, path).toBe('INVALID_QUERY');
+		}
+	});
+
+	test('a valid query is sanitized; no query gives an empty object', async () => {
+		const agent = await start({}, { beforeRoutes: [query] });
+		expect((await agent.get('/server/query?fields=id,title&limit=2&sort=-id')).body).toEqual({
+			fields: ['id', 'title'],
+			limit: 2,
+			sort: ['-id'],
+		});
+		expect((await agent.get('/server/query')).body).toEqual({});
 	});
 });
 

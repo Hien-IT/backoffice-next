@@ -1,0 +1,886 @@
+[
+	{
+		"source": "api/src/database/get-ast-from-query/get-ast-from-query.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/get-ast-from-query.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/lib/convert-wildcards.test.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/lib/convert-wildcards.test.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/lib/convert-wildcards.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/lib/convert-wildcards.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/lib/parse-fields.test.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/lib/parse-fields.test.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/lib/parse-fields.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/lib/parse-fields.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-allowed-sort.test.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-allowed-sort.test.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-allowed-sort.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-allowed-sort.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-deep-query.test.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-deep-query.test.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-deep-query.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-deep-query.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-related-collection.test.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-related-collection.test.ts"
+	},
+	{
+		"source": "api/src/database/get-ast-from-query/utils/get-related-collection.ts",
+		"dest": "apps/api/src/database/get-ast-from-query/utils/get-related-collection.ts"
+	},
+	{
+		"source": "api/src/database/helpers/capabilities/dialects/default.ts",
+		"dest": "apps/api/src/database/helpers/capabilities/dialects/default.ts"
+	},
+	{
+		"source": "api/src/database/helpers/capabilities/dialects/mysql.ts",
+		"dest": "apps/api/src/database/helpers/capabilities/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/capabilities/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/capabilities/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/capabilities/index.ts",
+		"dest": "apps/api/src/database/helpers/capabilities/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/capabilities/types.ts",
+		"dest": "apps/api/src/database/helpers/capabilities/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/mssql.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/mysql.test.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/mysql.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/mysql.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/oracle.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/postgres.test.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/postgres.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/helpers/fn/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/index.ts",
+		"dest": "apps/api/src/database/helpers/fn/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/json/parse-function.test.ts",
+		"dest": "apps/api/src/database/helpers/fn/json/parse-function.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/json/parse-function.ts",
+		"dest": "apps/api/src/database/helpers/fn/json/parse-function.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/types.test.ts",
+		"dest": "apps/api/src/database/helpers/fn/types.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/fn/types.ts",
+		"dest": "apps/api/src/database/helpers/fn/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/dialects/default.ts",
+		"dest": "apps/api/src/database/helpers/number/dialects/default.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/dialects/mssql.ts",
+		"dest": "apps/api/src/database/helpers/number/dialects/mssql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/dialects/oracle.ts",
+		"dest": "apps/api/src/database/helpers/number/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/number/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/helpers/number/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/index.ts",
+		"dest": "apps/api/src/database/helpers/number/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/types.ts",
+		"dest": "apps/api/src/database/helpers/number/types.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/utils/decimal-limit.ts",
+		"dest": "apps/api/src/database/helpers/number/utils/decimal-limit.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/utils/maybe-stringify-big-int.ts",
+		"dest": "apps/api/src/database/helpers/number/utils/maybe-stringify-big-int.ts"
+	},
+	{
+		"source": "api/src/database/helpers/number/utils/number-in-range.ts",
+		"dest": "apps/api/src/database/helpers/number/utils/number-in-range.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/cockroachdb.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/cockroachdb.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/cockroachdb.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/cockroachdb.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/default.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/default.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/mssql.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/mssql.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/mysql.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/mysql.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/mysql.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/mysql.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/oracle.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/oracle.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/oracle.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/oracle.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/postgres.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/postgres.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/sqlite.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/sqlite.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/dialects/sqlite.ts",
+		"dest": "apps/api/src/database/helpers/schema/dialects/sqlite.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/types.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/types.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/utils/prep-query-params.test.ts",
+		"dest": "apps/api/src/database/helpers/schema/utils/prep-query-params.test.ts"
+	},
+	{
+		"source": "api/src/database/helpers/schema/utils/prep-query-params.ts",
+		"dest": "apps/api/src/database/helpers/schema/utils/prep-query-params.ts"
+	},
+	{
+		"source": "api/src/database/helpers/sequence/dialects/default.ts",
+		"dest": "apps/api/src/database/helpers/sequence/dialects/default.ts"
+	},
+	{
+		"source": "api/src/database/helpers/sequence/dialects/postgres.ts",
+		"dest": "apps/api/src/database/helpers/sequence/dialects/postgres.ts"
+	},
+	{
+		"source": "api/src/database/helpers/sequence/index.ts",
+		"dest": "apps/api/src/database/helpers/sequence/index.ts"
+	},
+	{
+		"source": "api/src/database/helpers/sequence/types.ts",
+		"dest": "apps/api/src/database/helpers/sequence/types.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/add-join.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/add-join.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/add-join.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/add-join.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/aggregate.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/aggregate.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/aggregate.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/aggregate.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/get-filter-type.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/get-filter-type.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/get-filter-type.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/get-filter-type.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/index.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/index.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/index.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/index.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/operator.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/operator.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/operator.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/operator.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/validate-operator.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/validate-operator.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/filter/validate-operator.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/filter/validate-operator.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/get-filter-path.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/get-filter-path.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/get-filter-path.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/get-filter-path.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/get-operation.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/get-operation.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/get-operation.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/get-operation.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/index.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/index.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/join-filter-with-cases.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/join-filter-with-cases.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/join-filter-with-cases.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/join-filter-with-cases.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/mock.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/mock.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/pagination.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/pagination.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/pagination.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/pagination.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/search.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/search.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/search.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/search.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/sort.test.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/sort.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/apply-query/sort.ts",
+		"dest": "apps/api/src/database/run-ast/lib/apply-query/sort.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/get-db-query.ts",
+		"dest": "apps/api/src/database/run-ast/lib/get-db-query.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/lib/parse-current-level.ts",
+		"dest": "apps/api/src/database/run-ast/lib/parse-current-level.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/modules/fetch-permitted-ast-root-fields.ts",
+		"dest": "apps/api/src/database/run-ast/modules/fetch-permitted-ast-root-fields.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/run-ast.ts",
+		"dest": "apps/api/src/database/run-ast/run-ast.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/types.ts",
+		"dest": "apps/api/src/database/run-ast/types.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/apply-case-when.ts",
+		"dest": "apps/api/src/database/run-ast/utils/apply-case-when.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/apply-function-to-column-name.test.ts",
+		"dest": "apps/api/src/database/run-ast/utils/apply-function-to-column-name.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/apply-function-to-column-name.ts",
+		"dest": "apps/api/src/database/run-ast/utils/apply-function-to-column-name.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/apply-parent-filters.ts",
+		"dest": "apps/api/src/database/run-ast/utils/apply-parent-filters.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/generate-alias.test.ts",
+		"dest": "apps/api/src/database/run-ast/utils/generate-alias.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/generate-alias.ts",
+		"dest": "apps/api/src/database/run-ast/utils/generate-alias.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/get-column-pre-processor.ts",
+		"dest": "apps/api/src/database/run-ast/utils/get-column-pre-processor.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/get-column.test.ts",
+		"dest": "apps/api/src/database/run-ast/utils/get-column.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/get-column.ts",
+		"dest": "apps/api/src/database/run-ast/utils/get-column.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/get-field-alias.ts",
+		"dest": "apps/api/src/database/run-ast/utils/get-field-alias.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/get-inner-query-column-pre-processor.ts",
+		"dest": "apps/api/src/database/run-ast/utils/get-inner-query-column-pre-processor.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/merge-with-parent-items.test.ts",
+		"dest": "apps/api/src/database/run-ast/utils/merge-with-parent-items.test.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/merge-with-parent-items.ts",
+		"dest": "apps/api/src/database/run-ast/utils/merge-with-parent-items.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/remove-temporary-fields.ts",
+		"dest": "apps/api/src/database/run-ast/utils/remove-temporary-fields.ts"
+	},
+	{
+		"source": "api/src/database/run-ast/utils/with-preprocess-bindings.ts",
+		"dest": "apps/api/src/database/run-ast/utils/with-preprocess-bindings.ts"
+	},
+	{
+		"source": "api/src/middleware/sanitize-query.ts",
+		"dest": "apps/api/src/middleware/sanitize-query.ts"
+	},
+	{
+		"source": "api/src/middleware/use-collection.ts",
+		"dest": "apps/api/src/middleware/use-collection.ts"
+	},
+	{
+		"source": "api/src/middleware/validate-batch.test.ts",
+		"dest": "apps/api/src/middleware/validate-batch.test.ts"
+	},
+	{
+		"source": "api/src/middleware/validate-batch.ts",
+		"dest": "apps/api/src/middleware/validate-batch.ts"
+	},
+	{
+		"source": "api/src/permissions/lib/fetch-permissions.test.ts",
+		"dest": "apps/api/src/permissions/lib/fetch-permissions.test.ts"
+	},
+	{
+		"source": "api/src/permissions/lib/fetch-policies.test.ts",
+		"dest": "apps/api/src/permissions/lib/fetch-policies.test.ts"
+	},
+	{
+		"source": "api/src/permissions/lib/with-app-minimal-permissions.test.ts",
+		"dest": "apps/api/src/permissions/lib/with-app-minimal-permissions.test.ts"
+	},
+	{
+		"source": "api/src/permissions/lib/with-app-minimal-permissions.ts",
+		"dest": "apps/api/src/permissions/lib/with-app-minimal-permissions.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-accountability-policy-globals/fetch-accountability-policy-globals.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-collections/fetch-allowed-collections.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-collections/fetch-allowed-collections.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-collections/fetch-allowed-collections.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-collections/fetch-allowed-collections.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-fields/fetch-allowed-fields.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-fields/fetch-allowed-fields.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-allowed-fields/fetch-allowed-fields.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-allowed-fields/fetch-allowed-fields.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-inconsistent-field-map/fetch-inconsistent-field-map.test.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-inconsistent-field-map/fetch-inconsistent-field-map.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-inconsistent-field-map/fetch-inconsistent-field-map.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-inconsistent-field-map/fetch-inconsistent-field-map.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/fetch-policies-ip-access/fetch-policies-ip-access.ts",
+		"dest": "apps/api/src/permissions/modules/fetch-policies-ip-access/fetch-policies-ip-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/extract-fields-from-children.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/extract-fields-from-children.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/extract-fields-from-children.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/extract-fields-from-children.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/extract-fields-from-query.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/extract-fields-from-query.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/extract-fields-from-query.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/extract-fields-from-query.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/field-map-from-ast.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/field-map-from-ast.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/field-map-from-ast.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/field-map-from-ast.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/get-cases.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/get-cases.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/inject-cases.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/inject-cases.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/lib/inject-cases.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/lib/inject-cases.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/process-ast.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/process-ast.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/process-ast.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/process-ast.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/types.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/types.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/collections-in-field-map.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/collections-in-field-map.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/collections-in-field-map.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/collections-in-field-map.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/context-has-dynamic-variables.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/context-has-dynamic-variables.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/context-has-dynamic-variables.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/context-has-dynamic-variables.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/dedupe-access.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/dedupe-access.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/dedupe-access.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/dedupe-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/extract-paths-from-query.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/extract-paths-from-query.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/extract-paths-from-query.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/extract-paths-from-query.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/find-related-collection.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/find-related-collection.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/find-related-collection.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/find-related-collection.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/flatten-filter.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/flatten-filter.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/flatten-filter.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/flatten-filter.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/format-a2o-key.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/format-a2o-key.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/format-a2o-key.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/format-a2o-key.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/get-info-for-path.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/get-info-for-path.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/get-info-for-path.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/get-info-for-path.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/has-item-permissions.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/has-item-permissions.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/has-item-permissions.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/has-item-permissions.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/stringify-query-path.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/stringify-query-path.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/stringify-query-path.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/stringify-query-path.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/validate-path/create-error.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/validate-path/create-error.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/validate-path/validate-path-existence.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/validate-path/validate-path-existence.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/validate-path/validate-path-existence.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/validate-path/validate-path-existence.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/validate-path/validate-path-permissions.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/validate-path/validate-path-permissions.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-ast/utils/validate-path/validate-path-permissions.ts",
+		"dest": "apps/api/src/permissions/modules/process-ast/utils/validate-path/validate-path-permissions.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-payload/lib/is-field-nullable.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-payload/lib/is-field-nullable.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-payload/lib/is-field-nullable.ts",
+		"dest": "apps/api/src/permissions/modules/process-payload/lib/is-field-nullable.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-payload/process-payload.test.ts",
+		"dest": "apps/api/src/permissions/modules/process-payload/process-payload.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/process-payload/process-payload.ts",
+		"dest": "apps/api/src/permissions/modules/process-payload/process-payload.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/lib/validate-collection-access.test.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/lib/validate-collection-access.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/lib/validate-collection-access.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/lib/validate-collection-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/lib/validate-item-access.test.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/lib/validate-item-access.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/lib/validate-item-access.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/lib/validate-item-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/validate-access.test.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/validate-access.test.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-access/validate-access.ts",
+		"dest": "apps/api/src/permissions/modules/validate-access/validate-access.ts"
+	},
+	{
+		"source": "api/src/permissions/modules/validate-remaining-admin/validate-remaining-admin-users.ts",
+		"dest": "apps/api/src/permissions/modules/validate-remaining-admin/validate-remaining-admin-users.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/default-permission.ts",
+		"dest": "apps/api/src/permissions/utils/default-permission.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/extract-required-dynamic-variable-context.test.ts",
+		"dest": "apps/api/src/permissions/utils/extract-required-dynamic-variable-context.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/extract-required-dynamic-variable-context.ts",
+		"dest": "apps/api/src/permissions/utils/extract-required-dynamic-variable-context.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/fetch-dynamic-variable-data.test.ts",
+		"dest": "apps/api/src/permissions/utils/fetch-dynamic-variable-data.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/fetch-dynamic-variable-data.ts",
+		"dest": "apps/api/src/permissions/utils/fetch-dynamic-variable-data.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/fetch-share-info.ts",
+		"dest": "apps/api/src/permissions/utils/fetch-share-info.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/get-permissions-for-share.test.ts",
+		"dest": "apps/api/src/permissions/utils/get-permissions-for-share.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/get-permissions-for-share.ts",
+		"dest": "apps/api/src/permissions/utils/get-permissions-for-share.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/get-unaliased-field-key.ts",
+		"dest": "apps/api/src/permissions/utils/get-unaliased-field-key.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/merge-fields.test.ts",
+		"dest": "apps/api/src/permissions/utils/merge-fields.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/merge-fields.ts",
+		"dest": "apps/api/src/permissions/utils/merge-fields.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/merge-permissions.test.ts",
+		"dest": "apps/api/src/permissions/utils/merge-permissions.test.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/merge-permissions.ts",
+		"dest": "apps/api/src/permissions/utils/merge-permissions.ts"
+	},
+	{
+		"source": "api/src/permissions/utils/process-permissions.ts",
+		"dest": "apps/api/src/permissions/utils/process-permissions.ts"
+	},
+	{
+		"source": "api/src/services/access.ts",
+		"dest": "apps/api/src/services/access.service.ts"
+	},
+	{
+		"source": "api/src/services/index.ts",
+		"dest": "apps/api/src/services/index.ts"
+	},
+	{
+		"source": "api/src/services/items.test.ts",
+		"dest": "apps/api/src/services/items.service.test.ts"
+	},
+	{
+		"source": "api/src/services/meta.test.ts",
+		"dest": "apps/api/src/services/meta.service.test.ts"
+	},
+	{
+		"source": "api/src/services/meta.ts",
+		"dest": "apps/api/src/services/meta.service.ts"
+	},
+	{
+		"source": "api/src/services/permissions.ts",
+		"dest": "apps/api/src/services/permissions.service.ts"
+	},
+	{
+		"source": "api/src/services/policies.ts",
+		"dest": "apps/api/src/services/policies.service.ts"
+	},
+	{
+		"source": "api/src/services/presets.ts",
+		"dest": "apps/api/src/services/presets.service.ts"
+	},
+	{
+		"source": "api/src/services/roles.test.ts",
+		"dest": "apps/api/src/services/roles.service.test.ts"
+	},
+	{
+		"source": "api/src/services/roles.ts",
+		"dest": "apps/api/src/services/roles.service.ts"
+	},
+	{
+		"source": "api/src/types/ast.ts",
+		"dest": "apps/api/src/types/ast.ts"
+	},
+	{
+		"source": "api/src/types/meta.ts",
+		"dest": "apps/api/src/types/meta.ts"
+	},
+	{
+		"source": "api/src/utils/calculate-field-depth.test.ts",
+		"dest": "apps/api/src/utils/calculate-field-depth.test.ts"
+	},
+	{
+		"source": "api/src/utils/calculate-field-depth.ts",
+		"dest": "apps/api/src/utils/calculate-field-depth.ts"
+	},
+	{
+		"source": "api/src/utils/compress.ts",
+		"dest": "apps/api/src/utils/compress.ts"
+	},
+	{
+		"source": "api/src/utils/filter-items.test.ts",
+		"dest": "apps/api/src/utils/filter-items.test.ts"
+	},
+	{
+		"source": "api/src/utils/filter-items.ts",
+		"dest": "apps/api/src/utils/filter-items.ts"
+	},
+	{
+		"source": "api/src/utils/get-accountability-for-role.test.ts",
+		"dest": "apps/api/src/utils/get-accountability-for-role.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-accountability-for-role.ts",
+		"dest": "apps/api/src/utils/get-accountability-for-role.ts"
+	},
+	{
+		"source": "api/src/utils/get-collection-from-alias.test.ts",
+		"dest": "apps/api/src/utils/get-collection-from-alias.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-collection-from-alias.ts",
+		"dest": "apps/api/src/utils/get-collection-from-alias.ts"
+	},
+	{
+		"source": "api/src/utils/get-column-path.test.ts",
+		"dest": "apps/api/src/utils/get-column-path.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-column-path.ts",
+		"dest": "apps/api/src/utils/get-column-path.ts"
+	},
+	{
+		"source": "api/src/utils/get-default-index-name.ts",
+		"dest": "apps/api/src/utils/get-default-index-name.ts"
+	},
+	{
+		"source": "api/src/utils/get-field-relational-depth.test.ts",
+		"dest": "apps/api/src/utils/get-field-relational-depth.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-field-relational-depth.ts",
+		"dest": "apps/api/src/utils/get-field-relational-depth.ts"
+	},
+	{
+		"source": "api/src/utils/get-service.ts",
+		"dest": "apps/api/src/utils/get-service.ts"
+	},
+	{
+		"source": "api/src/utils/parse-filter-key.test.ts",
+		"dest": "apps/api/src/utils/parse-filter-key.test.ts"
+	},
+	{
+		"source": "api/src/utils/parse-filter-key.ts",
+		"dest": "apps/api/src/utils/parse-filter-key.ts"
+	},
+	{
+		"source": "api/src/utils/parse-numeric-string.ts",
+		"dest": "apps/api/src/utils/parse-numeric-string.ts"
+	},
+	{
+		"source": "api/src/utils/sanitize-query.test.ts",
+		"dest": "apps/api/src/utils/sanitize-query.test.ts"
+	},
+	{
+		"source": "api/src/utils/sanitize-query.ts",
+		"dest": "apps/api/src/utils/sanitize-query.ts"
+	},
+	{
+		"source": "api/src/utils/split-fields.test.ts",
+		"dest": "apps/api/src/utils/split-fields.test.ts"
+	},
+	{
+		"source": "api/src/utils/split-fields.ts",
+		"dest": "apps/api/src/utils/split-fields.ts"
+	},
+	{
+		"source": "api/src/utils/validate-query.test.ts",
+		"dest": "apps/api/src/utils/validate-query.test.ts"
+	},
+	{
+		"source": "api/src/utils/validate-query.ts",
+		"dest": "apps/api/src/utils/validate-query.ts"
+	}
+]

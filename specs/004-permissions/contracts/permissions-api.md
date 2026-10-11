@@ -105,6 +105,10 @@ giá trị sai kiểu, toán tử lạ, `alias` sai, độ sâu quan hệ quá `
 
 ## 5. Lỗi (mã, status, message)
 
+Với `INVALID_PAYLOAD`, `INVALID_QUERY`, `UNPROCESSABLE_CONTENT`, chuỗi trong bảng là `extensions.reason`; message đầy đủ
+do lớp lỗi của `@directus/errors` dựng: `Invalid payload. <reason>.`, `Invalid query. <reason>.`,
+`Can't process content. <reason>.`. `FORBIDDEN` có `reason` thì message chính là `reason`.
+
 | Mã | Status | Message | Khi |
 |----|--------|---------|-----|
 | `FORBIDDEN` | 403 | `You don't have permission to access this.` | mặc định: đọc theo id không ra dòng; `validateKeys`; `GET /roles/me`, `GET /permissions/me` không đăng nhập; không admin ở `/users/:pk/tfa/disable`; đăng ký tắt hoặc email bị lọc |

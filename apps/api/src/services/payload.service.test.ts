@@ -1,4 +1,4 @@
-// Ported from directus/api/src/services/payload.test.ts (the parts of the PayloadService subset, research R5 of spec 003)
+// Ported from directus/api/src/services/payload.test.ts
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import type { Accountability, Item, PayloadAction } from '@backoffice/types';
 import type { Knex } from 'knex';
@@ -11,9 +11,9 @@ import { getHelpers } from '../database/helpers/index.js';
 import { useLogger } from '../logger/index.js';
 import { decrypt, encrypt } from '../utils/encrypt.js';
 import { getSecret } from '../utils/get-secret.js';
-import { PayloadService } from './payload.service.js';
+import { PayloadService } from './index.js';
 
-vi.mock('../database/index.js', () => ({
+vi.mock('../database/index', () => ({
 	getDatabaseClient: vi.fn().mockReturnValue('sqlite'),
 }));
 
@@ -656,20 +656,190 @@ describe('Integration Tests', () => {
 			});
 		});
 
-		describe('processJsonFunctionResults (Backoffice: needs the fn helpers of feature 005)', () => {
-			test('Does nothing when aliasMap is empty', () => {
-				const service = new PayloadService('test', { knex: db, schema: { collections: {}, relations: [] } });
-				const payload = [{ a: '{"b":1}' }];
-				service.processJsonFunctionResults(payload, {});
-				expect(payload).toEqual([{ a: '{"b":1}' }]);
+		describe('processJsonFunctionResults', () => {
+			let service: PayloadService;
+
+			beforeEach(() => {
+				service = new PayloadService('test', {
+					knex: db,
+					schema: { collections: {}, relations: [] },
+				});
 			});
 
-			test('Throws for json() aliases, and the nested relational writes throw too', async () => {
-				const service = new PayloadService('test', { knex: db, schema: { collections: {}, relations: [] } });
-				expect(() => service.processJsonFunctionResults([{}], { a: 'json(data, b)' })).toThrow('feature 005');
-				await expect(service.processM2O()).rejects.toThrow('feature 005');
-				await expect(service.processA2O()).rejects.toThrow('feature 005');
-				await expect(service.processO2M()).rejects.toThrow('feature 005');
+			test('Parses stringified JSON objects from json() function results', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_color_json: '{"r":255,"g":0,"b":0}',
+					},
+				];
+
+				const aliasMap = {
+					metadata_color_json: 'json(metadata.color)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.metadata_color_json).toEqual({ r: 255, g: 0, b: 0 });
+			});
+
+			test('Parses stringified JSON arrays from json() function results', () => {
+				const payload = [
+					{
+						id: 1,
+						data_items_json: '[{"name":"item1"},{"name":"item2"}]',
+					},
+				];
+
+				const aliasMap = {
+					data_items_json: 'json(data.items)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.data_items_json).toEqual([{ name: 'item1' }, { name: 'item2' }]);
+			});
+
+			test('Preserves string values that are not JSON objects/arrays', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_name_json: 'John Doe',
+					},
+				];
+
+				const aliasMap = {
+					metadata_name_json: 'json(metadata.name)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.metadata_name_json).toBe('John Doe');
+			});
+
+			test('Preserves already parsed objects', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_color_json: { r: 255, g: 0, b: 0 },
+					},
+				];
+
+				const aliasMap = {
+					metadata_color_json: 'json(metadata.color)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.metadata_color_json).toEqual({ r: 255, g: 0, b: 0 });
+			});
+
+			test('Handles malformed JSON gracefully', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_data_json: '{invalid json}',
+					},
+				];
+
+				const aliasMap = {
+					metadata_data_json: 'json(metadata.data)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				// Should keep the original string value when parsing fails
+				expect(payload[0]!.metadata_data_json).toBe('{invalid json}');
+			});
+
+			test('Does nothing when aliasMap is empty', () => {
+				const payload = [
+					{
+						id: 1,
+						name: 'test',
+					},
+				];
+
+				service.processJsonFunctionResults(payload, {});
+
+				expect(payload).toEqual(payload);
+			});
+
+			test('Only processes fields from json() functions', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_color_json: '{"r":255,"g":0,"b":0}',
+						date_created_year: '2024',
+					},
+				];
+
+				const aliasMap = {
+					metadata_color_json: 'json(metadata.color)',
+					date_created_year: 'year(date_created)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				// JSON field should be parsed
+				expect(payload[0]!.metadata_color_json).toEqual({ r: 255, g: 0, b: 0 });
+				// Non-JSON function field should remain unchanged
+				expect(payload[0]!.date_created_year).toBe('2024');
+			});
+
+			test('Handles multiple json() fields in a single payload', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_color_json: '{"r":255,"g":0,"b":0}',
+						data_settings_json: '{"theme":"dark","locale":"en"}',
+					},
+				];
+
+				const aliasMap = {
+					metadata_color_json: 'json(metadata.color)',
+					data_settings_json: 'json(data.settings)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.metadata_color_json).toEqual({ r: 255, g: 0, b: 0 });
+				expect(payload[0]!.data_settings_json).toEqual({ theme: 'dark', locale: 'en' });
+			});
+
+			test('Handles null values', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_color_json: null,
+					},
+				];
+
+				const aliasMap = {
+					metadata_color_json: 'json(metadata.color)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				expect(payload[0]!.metadata_color_json).toBeNull();
+			});
+
+			test('Parses numeric strings as strings, not numbers', () => {
+				const payload = [
+					{
+						id: 1,
+						metadata_value_json: '123',
+					},
+				];
+
+				const aliasMap = {
+					metadata_value_json: 'json(metadata.value)',
+				};
+
+				service.processJsonFunctionResults(payload, aliasMap);
+
+				// Numeric strings should remain as strings since parseJSON returns primitives
+				expect(payload[0]!.metadata_value_json).toBe('123');
 			});
 		});
 

@@ -1,13 +1,13 @@
-// Ported from directus/api/src/services/items.ts (subset, research R5 of spec 003): create, read and update of flat
-// fields, with the same SQL effects, activity and revisions as Directus. Feature 005 ports the rest (permissions
-// checks, query engine, nested relational writes, delete, upsert, versions) and replaces this file.
-// Events are not emitted (D-26 of spec 003).
+// Ported from directus/api/src/services/items.ts
 import { Action } from '@backoffice/constants';
 import { useEnv } from '@backoffice/env';
 import { ErrorCode, ForbiddenError, InvalidPayloadError, isBackofficeError } from '@backoffice/errors';
+import { isSystemCollection } from '@backoffice/system-data';
 import type {
+	AbstractService,
 	AbstractServiceOptions,
 	Accountability,
+	ActionEventParams,
 	Item as AnyItem,
 	MutationOptions,
 	MutationTracker,
@@ -20,26 +20,32 @@ import { UserIntegrityCheckFlag } from '@backoffice/types';
 import { getRelationsForCollection } from '@backoffice/utils';
 import type Keyv from 'keyv';
 import type { Knex } from 'knex';
-import { assign, clone, cloneDeep, difference, isPlainObject, omit, pick, without } from 'lodash-es';
+import { assign, clone, cloneDeep, difference, omit, pick, without } from 'lodash-es';
 import { getCache } from '../cache.js';
 import { translateDatabaseError } from '../database/errors/translate.js';
+import { getAstFromQuery } from '../database/get-ast-from-query/get-ast-from-query.js';
 import { getHelpers } from '../database/helpers/index.js';
 import getDatabase, { getDatabaseClient } from '../database/index.js';
+import { runAst } from '../database/run-ast/run-ast.js';
+import emitter from '../emitter.js';
+import { processAst } from '../permissions/modules/process-ast/process-ast.js';
+import { processPayload } from '../permissions/modules/process-payload/process-payload.js';
+import { validateAccess } from '../permissions/modules/validate-access/validate-access.js';
 import { shouldClearCache } from '../utils/should-clear-cache.js';
 import { transaction } from '../utils/transaction.js';
 import { validateKeys } from '../utils/validate-keys.js';
 import { validateUserCountIntegrity } from '../utils/validate-user-count-integrity.js';
+import { handleVersion } from '../utils/versioning/handle-version.js';
 import { PayloadService } from './payload.service.js';
 
-/** Backoffice: what this subset cannot do yet throws, so a later feature never relies on it silently. */
-export function notAvailable(what: string): Error {
-	return new Error(`ItemsService: ${what} is not available before feature 005`);
-}
 
-export class ItemsService<Item extends AnyItem = AnyItem, Collection extends string = string> {
+export class ItemsService<Item extends AnyItem = AnyItem, Collection extends string = string>
+	implements AbstractService<Item>
+{
 	collection: Collection;
 	knex: Knex;
 	accountability: Accountability | null;
+	eventScope: string;
 	schema: SchemaOverview;
 	cache: Keyv<any> | null;
 	nested: string[];
@@ -48,6 +54,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 		this.collection = collection;
 		this.knex = options.knex || getDatabase();
 		this.accountability = options.accountability || null;
+		this.eventScope = isSystemCollection(this.collection) ? this.collection.substring(9) : 'items';
 		this.schema = options.schema;
 		this.cache = getCache().cache;
 		this.nested = options.nested ?? [];
@@ -81,6 +88,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 	}
 
 	createMutationTracker(initialCount = 0): MutationTracker {
+		// Backoffice: env is read when called, not when the module loads (convention of feature 001).
 		const maxCount = Number(useEnv()['MAX_BATCH_MUTATION']);
 		let mutationCount = initialCount;
 		return {
@@ -97,27 +105,21 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 		};
 	}
 
-	/**
-	 * Backoffice: validateAccess and processPayload (permissions module, feature 004) are not ported. Admin and
-	 * internal (null) accountability skip the permission checks like in Directus.
-	 * ponytail: the admin field validation of processPayload (non-nullable fields, `validation` rules) is skipped; the
-	 * payloads of feature 003 (password, status, auth_data, SSO user fields) carry neither. Feature 005 ports it.
-	 */
-	private assertNoPermissionChecks(): void {
-		if (this.accountability && this.accountability.admin !== true) {
-			throw notAvailable('a write or read with permission checks');
-		}
-	}
+	async getKeysByQuery(query: Query): Promise<PrimaryKey[]> {
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+		const readQuery = cloneDeep(query);
+		readQuery.fields = [primaryKeyField];
 
-	/** Backoffice: nested relational writes (processM2O/A2O/O2M) come with feature 005. */
-	private assertFlatPayload(payload: AnyItem): void {
-		for (const field of getRelationsForCollection(this.schema, this.collection)) {
-			const value = payload[field];
+		// Allow unauthenticated access
+		const itemsService = new ItemsService(this.collection, {
+			knex: this.knex,
+			schema: this.schema,
+		});
 
-			if (Array.isArray(value) || isPlainObject(value)) {
-				throw notAvailable(`a nested relational payload ("${field}")`);
-			}
-		}
+		// We read the IDs of the items based on the query, and then run `updateMany`. `updateMany` does it's own
+		// permissions check for the keys, so we don't have to make this an authenticated read
+		const items = await itemsService.readByQuery(readQuery);
+		return items.map((item: AnyItem) => item[primaryKeyField]).filter((pk) => pk);
 	}
 
 	/**
@@ -130,8 +132,6 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 			opts.mutationTracker.trackMutations(1);
 		}
 
-		this.assertNoPermissionChecks();
-
 		const primaryKeyField = this.schema.collections[this.collection]!.primary;
 		const fields = Object.keys(this.schema.collections[this.collection]!.fields);
 
@@ -140,13 +140,60 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 			.map((field) => field.field);
 
 		const payload: AnyItem = cloneDeep(data);
-		this.assertFlatPayload(payload);
+		let actionHookPayload = payload;
+		const nestedActionEvents: ActionEventParams[] = [];
 
+		/**
+		 * By wrapping the logic in a transaction, we make sure we automatically roll back all the
+		 * changes in the DB if any of the parts contained within throws an error. This also means
+		 * that any errors thrown in any nested relational changes will bubble up and cancel the whole
+		 * update tree
+		 */
 		const primaryKey: PrimaryKey = await transaction(this.knex, async (trx) => {
+			// Run all hooks that are attached to this event so the end user has the chance to augment the
+			// item that is about to be saved
+			const payloadAfterHooks =
+				opts.emitEvents !== false
+					? await emitter.emitFilter(
+							this.eventScope === 'items'
+								? ['items.create', `${this.collection}.items.create`]
+								: `${this.eventScope}.create`,
+							payload,
+							{
+								collection: this.collection,
+							},
+							{
+								database: trx,
+								schema: this.schema,
+								accountability: this.accountability,
+							},
+						)
+					: payload;
+
+			const payloadWithPresets = this.accountability
+				? await processPayload(
+						{
+							accountability: this.accountability,
+							action: 'create',
+							collection: this.collection,
+							payload: payloadAfterHooks,
+							nested: this.nested,
+						},
+						{
+							knex: trx,
+							schema: this.schema,
+						},
+					)
+				: payloadAfterHooks;
+
 			if (opts.preMutationError) {
 				throw opts.preMutationError;
 			}
 
+			// Ensure the action hook payload has the post filter hook + preset changes
+			actionHookPayload = payloadWithPresets;
+
+			// We're creating new services instances so they can use the transaction as their Knex interface
 			const payloadService = new PayloadService(this.collection, {
 				accountability: this.accountability,
 				knex: trx,
@@ -155,15 +202,35 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				overwriteDefaults: opts.overwriteDefaults,
 			});
 
-			const payloadWithoutAliases = pick(payload, without(fields, ...aliases));
+			const {
+				payload: payloadWithM2O,
+				revisions: revisionsM2O,
+				nestedActionEvents: nestedActionEventsM2O,
+				userIntegrityCheckFlags: userIntegrityCheckFlagsM2O,
+			} = await payloadService.processM2O(payloadWithPresets, opts);
+
+			const {
+				payload: payloadWithA2O,
+				revisions: revisionsA2O,
+				nestedActionEvents: nestedActionEventsA2O,
+				userIntegrityCheckFlags: userIntegrityCheckFlagsA2O,
+			} = await payloadService.processA2O(payloadWithM2O, opts);
+
+			const payloadWithoutAliases = pick(payloadWithA2O, without(fields, ...aliases));
 			const payloadWithTypeCasting = await payloadService.processValues('create', payloadWithoutAliases);
 
 			// The primary key can already exist in the payload.
+			// In case of manual string / UUID primary keys it's always provided at this point.
+			// In case of an (big) integer primary key, it might be provided as the user can specify the value manually.
 			let primaryKey: undefined | PrimaryKey = payloadWithTypeCasting[primaryKeyField];
 
 			if (primaryKey) {
 				validateKeys(this.schema, this.collection, primaryKeyField, primaryKey);
 			}
+
+			// If a PK of type number was provided, although the PK is set the auto_increment,
+			// depending on the database, the sequence might need to be reset to protect future PK collisions.
+			let autoIncrementSequenceNeedsToBeReset = false;
 
 			const pkField = this.schema.collections[this.collection]!.fields[primaryKeyField];
 
@@ -174,8 +241,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				['integer', 'bigInteger'].includes(pkField.type) &&
 				pkField.defaultValue === 'AUTO_INCREMENT'
 			) {
-				// ponytail: resetting the sequence after a manual integer key needs the sequence helper (feature 005).
-				throw notAvailable('a manual auto-increment primary key');
+				autoIncrementSequenceNeedsToBeReset = true;
 			}
 
 			try {
@@ -202,12 +268,12 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 			} catch (err: any) {
 				const dbError = await translateDatabaseError(err, data);
 
-				if (isBackofficeError(dbError, ErrorCode.RecordNotUnique) && (dbError as any).extensions.primaryKey) {
+				if (isBackofficeError(dbError, ErrorCode.RecordNotUnique) && dbError.extensions.primaryKey) {
 					// This is a MySQL specific thing we need to handle here, since MySQL does not return the field name
 					// if the unique constraint is the primary key
-					(dbError as any).extensions.field = pkField?.field ?? null;
+					dbError.extensions.field = pkField?.field ?? null;
 
-					delete (dbError as any).extensions.primaryKey;
+					delete dbError.extensions.primaryKey;
 				}
 
 				throw dbError;
@@ -220,12 +286,30 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				// Fetching it with max should be safe, as we're in the context of the current transaction
 				const result = await trx.max(primaryKeyField, { as: 'id' }).from(this.collection).first();
 				primaryKey = result.id;
+
+				// Set the primary key on the input item, in order for the "after" event hook to be able
+				// to read from it
+				actionHookPayload[primaryKeyField] = primaryKey;
 			}
 
 			// At this point, the primary key is guaranteed to be set.
 			primaryKey = primaryKey as PrimaryKey;
 
-			const userIntegrityCheckFlags = opts.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None;
+			const {
+				revisions: revisionsO2M,
+				nestedActionEvents: nestedActionEventsO2M,
+				userIntegrityCheckFlags: userIntegrityCheckFlagsO2M,
+			} = await payloadService.processO2M(payloadWithPresets, primaryKey, opts);
+
+			nestedActionEvents.push(...nestedActionEventsM2O);
+			nestedActionEvents.push(...nestedActionEventsA2O);
+			nestedActionEvents.push(...nestedActionEventsO2M);
+
+			const userIntegrityCheckFlags =
+				(opts.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None) |
+				userIntegrityCheckFlagsM2O |
+				userIntegrityCheckFlagsA2O |
+				userIntegrityCheckFlagsO2M;
 
 			if (userIntegrityCheckFlags) {
 				if (opts.onRequireUserIntegrityCheck) {
@@ -268,7 +352,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 
 					const relationalFields = getRelationsForCollection(this.schema, this.collection);
 
-					const revisionPayload = await payloadService.prepareDelta(omit(payload, relationalFields));
+					const revisionPayload = await payloadService.prepareDelta(omit(payloadWithPresets, relationalFields));
 
 					const revision = await revisionsService.createOne({
 						activity: activity,
@@ -278,10 +362,21 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 						delta: revisionPayload,
 					});
 
+					// Make sure to set the parent field of the child-revision rows
+					const childrenRevisions = [...revisionsM2O, ...revisionsA2O, ...revisionsO2M];
+
+					if (childrenRevisions.length > 0) {
+						await revisionsService.updateMany(childrenRevisions, { parent: revision });
+					}
+
 					if (opts.onRevisionCreate) {
 						opts.onRevisionCreate(revision);
 					}
 				}
+			}
+
+			if (autoIncrementSequenceNeedsToBeReset) {
+				await getHelpers(trx).sequence.resetAutoIncrementSequence(this.collection, primaryKeyField);
 			}
 
 			if (opts.onItemCreate) {
@@ -290,6 +385,39 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 
 			return primaryKey;
 		});
+
+		if (opts.emitEvents !== false) {
+			const actionEvent = {
+				event:
+					this.eventScope === 'items'
+						? ['items.create', `${this.collection}.items.create`]
+						: `${this.eventScope}.create`,
+				meta: {
+					payload: actionHookPayload,
+					key: primaryKey,
+					collection: this.collection,
+				},
+				context: {
+					database: getDatabase(),
+					schema: this.schema,
+					accountability: this.accountability,
+				},
+			};
+
+			if (opts.bypassEmitAction) {
+				opts.bypassEmitAction(actionEvent);
+			} else {
+				emitter.emitAction(actionEvent.event, actionEvent.meta, actionEvent.context);
+			}
+
+			for (const nestedActionEvent of nestedActionEvents) {
+				if (opts.bypassEmitAction) {
+					opts.bypassEmitAction(nestedActionEvent);
+				} else {
+					emitter.emitAction(nestedActionEvent.event, nestedActionEvent.meta, nestedActionEvent.context);
+				}
+			}
+		}
 
 		if (shouldClearCache(this.cache, opts, this.collection)) {
 			await this.cache.clear();
@@ -306,12 +434,13 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 	async createMany(data: Partial<Item>[], opts: MutationOptions = {}): Promise<PrimaryKey[]> {
 		if (!opts.mutationTracker) opts.mutationTracker = this.createMutationTracker();
 
-		const primaryKeys = await transaction(this.knex, async (knex) => {
+		const { primaryKeys, nestedActionEvents } = await transaction(this.knex, async (knex) => {
 			const service = this.fork({ knex });
 
 			let userIntegrityCheckFlags = opts.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None;
 
 			const primaryKeys: PrimaryKey[] = [];
+			const nestedActionEvents: ActionEventParams[] = [];
 
 			const pkField = this.schema.collections[this.collection]!.primary;
 
@@ -328,6 +457,7 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 					...(opts || {}),
 					autoPurgeCache: false,
 					onRequireUserIntegrityCheck: (flags) => (userIntegrityCheckFlags |= flags),
+					bypassEmitAction: (params) => nestedActionEvents.push(params),
 					mutationTracker: opts.mutationTracker,
 					overwriteDefaults: opts.overwriteDefaults?.[index],
 					bypassAutoIncrementSequenceReset,
@@ -344,8 +474,18 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				}
 			}
 
-			return primaryKeys;
+			return { primaryKeys, nestedActionEvents };
 		});
+
+		if (opts.emitEvents !== false) {
+			for (const nestedActionEvent of nestedActionEvents) {
+				if (opts.bypassEmitAction) {
+					opts.bypassEmitAction(nestedActionEvent);
+				} else {
+					emitter.emitAction(nestedActionEvent.event, nestedActionEvent.meta, nestedActionEvent.context);
+				}
+			}
+		}
 
 		if (shouldClearCache(this.cache, opts, this.collection)) {
 			await this.cache.clear();
@@ -356,45 +496,88 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 
 	/**
 	 * Get items by query.
-	 *
-	 * Backoffice: the SQL the AST engine of Directus produces for flat fields of one collection, filtered by primary
-	 * key, sorted by primary key, then the read processing (specials, dates, geometries) of PayloadService.
-	 * ponytail: only `fields` (flat names or `*`, alias fields left out like run-ast does), a primary key filter
-	 * (from readOne/readMany) and `limit`; relational fields, `sort`, `search`, `aggregate`... come with feature 005.
 	 */
-	async readByQuery(query: Query, _opts?: QueryOptions): Promise<Item[]> {
-		this.assertNoPermissionChecks();
+	async readByQuery(query: Query, opts?: QueryOptions): Promise<Item[]> {
+		const updatedQuery =
+			opts?.emitEvents !== false
+				? await emitter.emitFilter(
+						this.eventScope === 'items'
+							? ['items.query', `${this.collection}.items.query`]
+							: `${this.eventScope}.query`,
+						query,
+						{
+							collection: this.collection,
+						},
+						{
+							database: this.knex,
+							schema: this.schema,
+							accountability: this.accountability,
+						},
+					)
+				: query;
 
-		const collection = this.schema.collections[this.collection]!;
-		const { fields, filter, limit, ...rest } = query;
-		const requested = fields ?? ['*'];
-
-		const unsupported = Object.entries(rest).filter(([, value]) => value !== undefined);
-		if (unsupported.length > 0) throw notAvailable(`query.${unsupported[0]![0]}`);
-
-		const names = requested.flatMap((field) => (field === '*' ? Object.keys(collection.fields) : [field]));
-
-		if (names.some((field) => field.includes('.'))) throw notAvailable('relational fields in query.fields');
-
-		const columns = [...new Set(names)].filter(
-			(field) => collection.fields[field] && collection.fields[field]!.alias !== true,
+		let ast = await getAstFromQuery(
+			{
+				collection: this.collection,
+				query: updatedQuery,
+				accountability: this.accountability,
+			},
+			{
+				schema: this.schema,
+				knex: this.knex,
+			},
 		);
 
-		const keys = keysOfFilter(filter, collection.primary);
-		const dbQuery = this.knex.select(columns).from(this.collection).orderBy(collection.primary, 'asc');
+		ast = await processAst(
+			{ ast, action: 'read', accountability: this.accountability },
+			{ knex: this.knex, schema: this.schema },
+		);
 
-		if (keys) dbQuery.whereIn(collection.primary, keys);
-		if (limit !== undefined && limit !== null && limit !== -1) dbQuery.limit(limit);
-
-		const records = await dbQuery;
-
-		const payloadService = new PayloadService(this.collection, {
-			accountability: this.accountability,
+		const records = await runAst(ast, this.schema, this.accountability, {
 			knex: this.knex,
-			schema: this.schema,
+			// GraphQL requires relational keys to be returned regardless
+			stripNonRequested: opts?.stripNonRequested !== undefined ? opts.stripNonRequested : true,
 		});
 
-		return (await payloadService.processValues('read', records)) as Item[];
+		// TODO when would this happen?
+		if (records === null) {
+			throw new ForbiddenError();
+		}
+
+		const filteredRecords =
+			opts?.emitEvents !== false
+				? await emitter.emitFilter(
+						this.eventScope === 'items' ? ['items.read', `${this.collection}.items.read`] : `${this.eventScope}.read`,
+						records,
+						{
+							query: updatedQuery,
+							collection: this.collection,
+						},
+						{
+							database: this.knex,
+							schema: this.schema,
+							accountability: this.accountability,
+						},
+					)
+				: records;
+
+		if (opts?.emitEvents !== false) {
+			emitter.emitAction(
+				this.eventScope === 'items' ? ['items.read', `${this.collection}.items.read`] : `${this.eventScope}.read`,
+				{
+					payload: filteredRecords,
+					query: updatedQuery,
+					collection: this.collection,
+				},
+				{
+					database: this.knex || getDatabase(),
+					schema: this.schema,
+					accountability: this.accountability,
+				},
+			);
+		}
+
+		return filteredRecords as Item[];
 	}
 
 	/**
@@ -406,12 +589,16 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 		const primaryKeyField = this.schema.collections[this.collection]!.primary;
 		validateKeys(this.schema, this.collection, primaryKeyField, key);
 
-		if (query.version && query.version !== 'main') throw notAvailable('content versions');
-
 		const filterWithKey = assign({}, query.filter, { [primaryKeyField]: { _eq: key } });
 		const queryWithKey = assign({}, query, { filter: filterWithKey });
 
-		const results = await this.readByQuery(queryWithKey, opts);
+		let results: Item[] = [];
+
+		if (query.version && query.version !== 'main') {
+			results = [await handleVersion(this, key, queryWithKey, opts)];
+		} else {
+			results = await this.readByQuery(queryWithKey, opts);
+		}
 
 		if (results.length === 0) {
 			throw new ForbiddenError();
@@ -443,6 +630,17 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 	}
 
 	/**
+	 * Update multiple items by query.
+	 *
+	 * Uses `this.updateMany` under the hood.
+	 */
+	async updateByQuery(query: Query, data: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey[]> {
+		const keys = await this.getKeysByQuery(query);
+
+		return keys.length ? await this.updateMany(keys, data, opts) : [];
+	}
+
+	/**
 	 * Update a single item by primary key.
 	 *
 	 * Uses `this.updateMany` under the hood.
@@ -450,6 +648,60 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 	async updateOne(key: PrimaryKey, data: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey> {
 		await this.updateMany([key], data, opts);
 		return key;
+	}
+
+	/**
+	 * Update multiple items in a single transaction.
+	 *
+	 * Uses `this.updateOne` under the hood.
+	 */
+	async updateBatch(data: Partial<Item>[], opts: MutationOptions = {}): Promise<PrimaryKey[]> {
+		if (!Array.isArray(data)) {
+			throw new InvalidPayloadError({ reason: 'Input should be an array of items' });
+		}
+
+		if (!opts.mutationTracker) opts.mutationTracker = this.createMutationTracker();
+
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+
+		const keys: PrimaryKey[] = [];
+
+		try {
+			await transaction(this.knex, async (knex) => {
+				const service = this.fork({ knex });
+
+				let userIntegrityCheckFlags = opts.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None;
+
+				for (const index in data) {
+					const item = data[index]!;
+					const primaryKey = item[primaryKeyField];
+					if (!primaryKey) throw new InvalidPayloadError({ reason: `Item in update misses primary key` });
+
+					const combinedOpts: MutationOptions = {
+						autoPurgeCache: false,
+						...opts,
+						overwriteDefaults: opts.overwriteDefaults?.[index],
+						onRequireUserIntegrityCheck: (flags) => (userIntegrityCheckFlags |= flags),
+					};
+
+					keys.push(await service.updateOne(primaryKey, omit(item, primaryKeyField), combinedOpts));
+				}
+
+				if (userIntegrityCheckFlags) {
+					if (opts.onRequireUserIntegrityCheck) {
+						opts.onRequireUserIntegrityCheck(userIntegrityCheckFlags);
+					} else {
+						await validateUserCountIntegrity({ flags: userIntegrityCheckFlags, knex });
+					}
+				}
+			});
+		} finally {
+			if (shouldClearCache(this.cache, opts, this.collection)) {
+				await this.cache.clear();
+			}
+		}
+
+		return keys;
 	}
 
 	/**
@@ -472,12 +724,63 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 			.map((field) => field.field);
 
 		const payload: Partial<AnyItem> = cloneDeep(data);
+		const nestedActionEvents: ActionEventParams[] = [];
+
+		// Run all hooks that are attached to this event so the end user has the chance to augment the
+		// item that is about to be saved
+		const payloadAfterHooks =
+			opts.emitEvents !== false
+				? await emitter.emitFilter(
+						this.eventScope === 'items'
+							? ['items.update', `${this.collection}.items.update`]
+							: `${this.eventScope}.update`,
+						payload,
+						{
+							keys,
+							collection: this.collection,
+						},
+						{
+							database: this.knex,
+							schema: this.schema,
+							accountability: this.accountability,
+						},
+					)
+				: payload;
 
 		// Sort keys to ensure that the order is maintained
 		keys.sort();
 
-		this.assertNoPermissionChecks();
-		this.assertFlatPayload(payload);
+		if (this.accountability) {
+			await validateAccess(
+				{
+					accountability: this.accountability,
+					action: 'update',
+					collection: this.collection,
+					primaryKeys: keys,
+					fields: Object.keys(payloadAfterHooks),
+				},
+				{
+					schema: this.schema,
+					knex: this.knex,
+				},
+			);
+		}
+
+		const payloadWithPresets = this.accountability
+			? await processPayload(
+					{
+						accountability: this.accountability,
+						action: 'update',
+						collection: this.collection,
+						payload: payloadAfterHooks,
+						nested: this.nested,
+					},
+					{
+						knex: this.knex,
+						schema: this.schema,
+					},
+				)
+			: payloadAfterHooks;
 
 		if (opts.preMutationError) {
 			throw opts.preMutationError;
@@ -492,7 +795,21 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				overwriteDefaults: opts.overwriteDefaults,
 			});
 
-			const payloadWithoutAliasAndPK = pick(payload, without(fields, primaryKeyField, ...aliases));
+			const {
+				payload: payloadWithM2O,
+				revisions: revisionsM2O,
+				nestedActionEvents: nestedActionEventsM2O,
+				userIntegrityCheckFlags: userIntegrityCheckFlagsM2O,
+			} = await payloadService.processM2O(payloadWithPresets, opts);
+
+			const {
+				payload: payloadWithA2O,
+				revisions: revisionsA2O,
+				nestedActionEvents: nestedActionEventsA2O,
+				userIntegrityCheckFlags: userIntegrityCheckFlagsA2O,
+			} = await payloadService.processA2O(payloadWithM2O, opts);
+
+			const payloadWithoutAliasAndPK = pick(payloadWithA2O, without(fields, primaryKeyField, ...aliases));
 			const payloadWithTypeCasting = await payloadService.processValues('update', payloadWithoutAliasAndPK);
 
 			if (Object.keys(payloadWithTypeCasting).length > 0) {
@@ -503,7 +820,26 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 				}
 			}
 
-			const userIntegrityCheckFlags = opts.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None;
+			const childrenRevisions = [...revisionsM2O, ...revisionsA2O];
+
+			let userIntegrityCheckFlags =
+				opts.userIntegrityCheckFlags ??
+				UserIntegrityCheckFlag.None | userIntegrityCheckFlagsM2O | userIntegrityCheckFlagsA2O;
+
+			nestedActionEvents.push(...nestedActionEventsM2O);
+			nestedActionEvents.push(...nestedActionEventsA2O);
+
+			for (const key of keys) {
+				const {
+					revisions,
+					nestedActionEvents: nestedActionEventsO2M,
+					userIntegrityCheckFlags: userIntegrityCheckFlagsO2M,
+				} = await payloadService.processO2M(payloadWithA2O, key, opts);
+
+				childrenRevisions.push(...revisions);
+				nestedActionEvents.push(...nestedActionEventsO2M);
+				userIntegrityCheckFlags |= userIntegrityCheckFlagsO2M;
+			}
 
 			if (userIntegrityCheckFlags) {
 				if (opts?.onRequireUserIntegrityCheck) {
@@ -577,9 +913,21 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 
 					const revisionIDs = await revisionsService.createMany(revisions);
 
-					for (const revisionID of revisionIDs) {
+					for (let i = 0; i < revisionIDs.length; i++) {
+						const revisionID = revisionIDs[i]!;
+
 						if (opts.onRevisionCreate) {
 							opts.onRevisionCreate(revisionID);
+						}
+
+						if (i === 0) {
+							// In case of a nested relational creation/update in a updateMany, the nested m2o/a2o
+							// creation is only done once. We treat the first updated item as the "main" update,
+							// with all other revisions on the current level as regular "flat" updates, and
+							// nested revisions as children of this first "root" item.
+							if (childrenRevisions.length > 0) {
+								await revisionsService.updateMany(childrenRevisions, { parent: revisionID });
+							}
 						}
 					}
 				}
@@ -590,7 +938,251 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 			await this.cache.clear();
 		}
 
+		if (opts.emitEvents !== false) {
+			const actionEvent = {
+				event:
+					this.eventScope === 'items'
+						? ['items.update', `${this.collection}.items.update`]
+						: `${this.eventScope}.update`,
+				meta: {
+					payload: payloadWithPresets,
+					keys,
+					collection: this.collection,
+				},
+				context: {
+					database: getDatabase(),
+					schema: this.schema,
+					accountability: this.accountability,
+				},
+			};
+
+			if (opts.bypassEmitAction) {
+				opts.bypassEmitAction(actionEvent);
+			} else {
+				emitter.emitAction(actionEvent.event, actionEvent.meta, actionEvent.context);
+			}
+
+			for (const nestedActionEvent of nestedActionEvents) {
+				if (opts.bypassEmitAction) {
+					opts.bypassEmitAction(nestedActionEvent);
+				} else {
+					emitter.emitAction(nestedActionEvent.event, nestedActionEvent.meta, nestedActionEvent.context);
+				}
+			}
+		}
+
 		return keys;
+	}
+
+	/**
+	 * Upsert a single item.
+	 *
+	 * Uses `this.createOne` / `this.updateOne` under the hood.
+	 */
+	async upsertOne(payload: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey> {
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+		const primaryKey: PrimaryKey | undefined = payload[primaryKeyField];
+
+		if (primaryKey) {
+			validateKeys(this.schema, this.collection, primaryKeyField, primaryKey);
+		}
+
+		const exists =
+			primaryKey &&
+			!!(await this.knex
+				.select(primaryKeyField)
+				.from(this.collection)
+				.where({ [primaryKeyField]: primaryKey })
+				.first());
+
+		if (exists) {
+			const { [primaryKeyField]: _, ...data } = payload;
+			return await this.updateOne(primaryKey as PrimaryKey, data as Partial<Item>, opts);
+		} else {
+			return await this.createOne(payload, opts);
+		}
+	}
+
+	/**
+	 * Upsert many items.
+	 *
+	 * Uses `this.upsertOne` under the hood.
+	 */
+	async upsertMany(payloads: Partial<Item>[], opts: MutationOptions = {}): Promise<PrimaryKey[]> {
+		if (!opts.mutationTracker) opts.mutationTracker = this.createMutationTracker();
+
+		const primaryKeys = await transaction(this.knex, async (knex) => {
+			const service = this.fork({ knex });
+
+			const primaryKeys: PrimaryKey[] = [];
+
+			for (const index in payloads) {
+				const payload = payloads[index]!;
+
+				const primaryKey = await service.upsertOne(payload, {
+					...(opts || {}),
+					overwriteDefaults: opts.overwriteDefaults?.[index],
+					autoPurgeCache: false,
+				});
+
+				primaryKeys.push(primaryKey);
+			}
+
+			return primaryKeys;
+		});
+
+		if (shouldClearCache(this.cache, opts, this.collection)) {
+			await this.cache.clear();
+		}
+
+		return primaryKeys;
+	}
+
+	/**
+	 * Delete multiple items by query.
+	 *
+	 * Uses `this.deleteMany` under the hood.
+	 */
+	async deleteByQuery(query: Query, opts?: MutationOptions): Promise<PrimaryKey[]> {
+		const keys = await this.getKeysByQuery(query);
+
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+		validateKeys(this.schema, this.collection, primaryKeyField, keys);
+
+		return keys.length ? await this.deleteMany(keys, opts) : [];
+	}
+
+	/**
+	 * Delete a single item by primary key.
+	 *
+	 * Uses `this.deleteMany` under the hood.
+	 */
+	async deleteOne(key: PrimaryKey, opts?: MutationOptions): Promise<PrimaryKey> {
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+		validateKeys(this.schema, this.collection, primaryKeyField, key);
+
+		await this.deleteMany([key], opts);
+		return key;
+	}
+
+	/**
+	 * Delete multiple items by primary key.
+	 */
+	async deleteMany(keys: PrimaryKey[], opts: MutationOptions = {}): Promise<PrimaryKey[]> {
+		if (!opts.mutationTracker) opts.mutationTracker = this.createMutationTracker();
+
+		if (!opts.bypassLimits) {
+			opts.mutationTracker.trackMutations(keys.length);
+		}
+
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
+		validateKeys(this.schema, this.collection, primaryKeyField, keys);
+
+		const keysAfterHooks =
+			opts.emitEvents !== false
+				? await emitter.emitFilter(
+						this.eventScope === 'items'
+							? ['items.delete', `${this.collection}.items.delete`]
+							: `${this.eventScope}.delete`,
+						keys,
+						{
+							collection: this.collection,
+						},
+						{
+							database: this.knex,
+							schema: this.schema,
+							accountability: this.accountability,
+						},
+					)
+				: keys;
+
+		if (this.accountability) {
+			await validateAccess(
+				{
+					accountability: this.accountability,
+					action: 'delete',
+					collection: this.collection,
+					primaryKeys: keysAfterHooks,
+				},
+				{
+					knex: this.knex,
+					schema: this.schema,
+				},
+			);
+		}
+
+		if (opts.preMutationError) {
+			throw opts.preMutationError;
+		}
+
+		await transaction(this.knex, async (trx) => {
+			await trx(this.collection).whereIn(primaryKeyField, keysAfterHooks).delete();
+
+			if (opts.userIntegrityCheckFlags) {
+				if (opts.onRequireUserIntegrityCheck) {
+					opts.onRequireUserIntegrityCheck(opts.userIntegrityCheckFlags);
+				} else {
+					await validateUserCountIntegrity({ flags: opts.userIntegrityCheckFlags, knex: trx });
+				}
+			}
+
+			if (
+				opts.skipTracking !== true &&
+				this.accountability &&
+				this.schema.collections[this.collection]!.accountability !== null
+			) {
+				const { ActivityService } = await import('./activity.service.js');
+
+				const activityService = new ActivityService({
+					knex: trx,
+					schema: this.schema,
+				});
+
+				await activityService.createMany(
+					keysAfterHooks.map((key) => ({
+						action: Action.DELETE,
+						user: this.accountability!.user,
+						collection: this.collection,
+						ip: this.accountability!.ip,
+						user_agent: this.accountability!.userAgent,
+						origin: this.accountability!.origin,
+						item: key,
+					})),
+					{ bypassLimits: true },
+				);
+			}
+		});
+
+		if (shouldClearCache(this.cache, opts, this.collection)) {
+			await this.cache.clear();
+		}
+
+		if (opts.emitEvents !== false) {
+			const actionEvent = {
+				event:
+					this.eventScope === 'items'
+						? ['items.delete', `${this.collection}.items.delete`]
+						: `${this.eventScope}.delete`,
+				meta: {
+					payload: keysAfterHooks,
+					keys: keysAfterHooks,
+					collection: this.collection,
+				},
+				context: {
+					database: getDatabase(),
+					schema: this.schema,
+					accountability: this.accountability,
+				},
+			};
+
+			if (opts.bypassEmitAction) {
+				opts.bypassEmitAction(actionEvent);
+			} else {
+				emitter.emitAction(actionEvent.event, actionEvent.meta, actionEvent.context);
+			}
+		}
+
+		return keysAfterHooks;
 	}
 
 	/**
@@ -599,11 +1191,20 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 	async readSingleton(query: Query, opts?: QueryOptions): Promise<Partial<Item>> {
 		query = clone(query);
 
-		if (query.version && query.version !== 'main') throw notAvailable('content versions');
-
 		query.limit = 1;
 
-		const record = (await this.readByQuery(query, opts))[0];
+		let record;
+
+		if (query.version && query.version !== 'main') {
+			const primaryKeyField = this.schema.collections[this.collection]!.primary;
+			const key = (await this.knex.select(primaryKeyField).from(this.collection).first())?.[primaryKeyField];
+
+			if (key) {
+				record = await handleVersion(this, key, query, opts);
+			}
+		} else {
+			record = (await this.readByQuery(query, opts))[0];
+		}
 
 		if (!record) {
 			let fields = Object.entries(this.schema.collections[this.collection]!.fields);
@@ -629,31 +1230,21 @@ export class ItemsService<Item extends AnyItem = AnyItem, Collection extends str
 
 		return record;
 	}
-}
 
-/**
- * Backoffice: primary keys of the filters readOne and readMany build (`{ pk: { _eq } }`,
- * `{ _and: [{ pk: { _in } }, {}] }`), undefined without a filter; any other filter needs the query engine (005).
- */
-function keysOfFilter(filter: Query['filter'], primaryKey: string): PrimaryKey[] | undefined {
-	if (!filter || Object.keys(filter).length === 0) return undefined;
+	/**
+	 * Upsert/treat collection as singleton.
+	 *
+	 * Uses `this.createOne` / `this.updateOne` under the hood.
+	 */
+	async upsertSingleton(data: Partial<Item>, opts?: MutationOptions): Promise<PrimaryKey> {
+		const primaryKeyField = this.schema.collections[this.collection]!.primary;
 
-	const single = (part: Record<string, any>): PrimaryKey[] | undefined => {
-		const condition = part[primaryKey];
-		if (Object.keys(part).length !== 1 || !isPlainObject(condition)) return undefined;
-		if ('_eq' in condition) return [condition['_eq']];
-		if ('_in' in condition && Array.isArray(condition['_in'])) return condition['_in'];
-		return undefined;
-	};
+		const record = await this.knex.select(primaryKeyField).from(this.collection).limit(1).first();
 
-	const and = (filter as Record<string, any>)['_and'];
+		if (record) {
+			return await this.updateOne(record[primaryKeyField], data, opts);
+		}
 
-	const keys = Array.isArray(and)
-		? and.filter((part) => Object.keys(part).length > 0).length === 1
-			? single(and.find((part) => Object.keys(part).length > 0))
-			: undefined
-		: single(filter as Record<string, any>);
-
-	if (!keys) throw notAvailable('a filter other than the primary key');
-	return keys;
+		return await this.createOne(data, opts);
+	}
 }

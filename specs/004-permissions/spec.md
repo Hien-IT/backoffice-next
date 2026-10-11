@@ -851,6 +851,9 @@ Khác biệt mới:
 ## Assumptions
 
 - Phiên bản chuẩn là Directus 11.17.4 (api 35.2.0). Khi spec không nói rõ, làm như code Directus.
+- Chuỗi lỗi ghi trong spec sau `400 INVALID_PAYLOAD`, `400 INVALID_QUERY`, `422 UNPROCESSABLE_CONTENT` là `reason`; message
+  đầy đủ có tiền tố của lớp lỗi (`Invalid payload. <reason>.`, `Invalid query. <reason>.`,
+  `Can't process content. <reason>.`), như `@directus/errors`. `403 FORBIDDEN` có `reason` thì message là `reason`.
 - Hành vi không an toàn của Directus phát hiện trong lúc làm cũng được tái tạo (Clarifications): người phát hiện thêm
   một dòng vào bảng "Rủi ro chấp nhận" (mã R-xx, bằng chứng file và dòng, hệ quả) và ca thể hiện trong bộ đối chiếu; chỉ
   lệch khi chủ dự án yêu cầu, khi đó ghi thành khác biệt D-xx.

@@ -187,11 +187,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-12',
 		feature: '001',
 		removeAt: '005',
-		kind: 'http',
-		endpoints: ['*'],
-		location: { any: true },
-		when: { directusCode: 'INVALID_QUERY' },
-		reason: 'Query validation and export come with feature 005.',
+		// Query validation runs on every route since feature 004; only `?export=` is left and no parity request sends it.
+		kind: 'doc',
+		reason: 'Export of results as a file (`export` query) comes with feature 005.',
 	},
 	{
 		id: 'D-13',

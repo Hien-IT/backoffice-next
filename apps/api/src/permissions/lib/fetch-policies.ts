@@ -1,9 +1,6 @@
-// Ported from directus/api/src/permissions/lib/fetch-policies.ts. AccessService is replaced by the same reads with
-// knex (research R16.4 of feature 001); feature 004 ports the full permissions module. Cached in the shared
-// permissions cache like Directus (feature 002).
-import type { Accountability } from '@backoffice/types';
+// Ported from directus/api/src/permissions/lib/fetch-policies.ts
+import type { Accountability, Filter } from '@backoffice/types';
 import type { Context } from '../types.js';
-import { castCsv } from '../../utils/cast-on-read.js';
 import { filterPoliciesByIp } from '../utils/filter-policies-by-ip.js';
 import { withCache } from '../utils/with-cache.js';
 
@@ -19,36 +16,28 @@ export const fetchPolicies = withCache('policies', _fetchPolicies, ({ roles, use
  */
 export async function _fetchPolicies(
 	{ roles, user, ip }: Pick<Accountability, 'user' | 'roles' | 'ip'>,
-	{ knex }: Context,
+	context: Context,
 ): Promise<string[]> {
-	const query = knex.select('role', 'policy', 'id').from('directus_access');
+	const { AccessService } = await import('../../services/access.service.js');
+	const accessService = new AccessService(context);
+
+	let roleFilter: Filter;
 
 	if (roles.length === 0) {
 		// Users without role assumes the Public role permissions along with their attached policies
-		query.where((q) => q.whereNull('role').whereNull('user'));
+		roleFilter = { _and: [{ role: { _null: true } }, { user: { _null: true } }] };
 	} else {
-		query.whereIn('role', roles);
+		roleFilter = { role: { _in: roles } };
 	}
 
 	// If the user is not null, we also want to include the policies attached to the user
-	if (user) query.orWhere('user', user);
+	const filter = user ? { _or: [{ user: { _eq: user } }, roleFilter] } : roleFilter;
 
-	// directus_access sorts by its `sort` field, like ItemsService.readByQuery without an explicit sort.
-	const access: { role: string | null; policy: string }[] = await query.orderBy('sort');
-
-	const policyIds = [...new Set(access.map((row) => row.policy).filter(Boolean))];
-
-	const policies: { id: string; ip_access: unknown }[] = policyIds.length
-		? await knex.select('id', 'ip_access').from('directus_policies').whereIn('id', policyIds)
-		: [];
-
-	const accessRows: AccessRow[] = access.map((row) => {
-		const policy = policies.find((p) => p.id === row.policy);
-		return {
-			role: row.role,
-			policy: { id: row.policy, ip_access: (castCsv(policy?.ip_access ?? null) as string[] | null) ?? null },
-		};
-	});
+	const accessRows = (await accessService.readByQuery({
+		filter,
+		fields: ['policy.id', 'policy.ip_access', 'role'],
+		limit: -1,
+	})) as AccessRow[];
 
 	const filteredAccessRows = filterPoliciesByIp(accessRows, ip);
 

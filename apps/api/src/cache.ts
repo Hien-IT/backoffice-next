@@ -1,6 +1,7 @@
 // Ported from directus/api/src/cache.ts: getCache() with its five Keyv instances, clearSystemCache, the
-// `schemaChanged` subscription and the in-memory schema cache (feature 002). flushCaches, set/getSystemCache and
-// set/getCacheValue* come with their first caller (005, 006; research R3).
+// `schemaChanged` subscription and the in-memory schema cache (feature 002); setCacheValue, getCacheValue (feature 004,
+// cache of dynamic variable data). flushCaches, set/getSystemCache and the *WithExpiry/*WithTTL helpers come with their
+// first caller (005, 006; research R3 of spec 002).
 // Backoffice: env is read when a function first runs, not at module load, so the subscription is made by
 // subscribeSchemaChanged() from createApp(); Redis-backed instances are disconnected on shutdown (Principle VII).
 import { createRequire } from 'node:module';
@@ -12,6 +13,7 @@ import { useLogger } from './logger/index.js';
 import { clearCache as clearPermissionCache } from './permissions/cache.js';
 import { redisConfigAvailable } from './redis/index.js';
 import { onServerShutdown } from './shutdown.js';
+import { compress, decompress } from './utils/compress.js';
 import { freezeSchema, unfreezeSchema } from './utils/freeze-schema.js';
 import { getConfigFromEnv } from './utils/get-config-from-env.js';
 import { getMilliseconds } from './utils/get-milliseconds.js';
@@ -134,6 +136,23 @@ export function getMemorySchemaCache(): Readonly<SchemaOverview> | undefined {
 }
 
 /** Test helper. */
+export async function setCacheValue(
+	cache: Keyv,
+	key: string,
+	value: Record<string, any> | Record<string, any>[],
+	ttl?: number,
+) {
+	const compressed = await compress(value);
+	await cache.set(key, compressed, ttl);
+}
+
+export async function getCacheValue(cache: Keyv, key: string): Promise<any> {
+	const value = await cache.get(key);
+	if (!value) return undefined;
+	const decompressed = await decompress(value);
+	return decompressed;
+}
+
 export function _resetCache(): void {
 	cache = null;
 	systemCache = null;

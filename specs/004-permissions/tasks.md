@@ -135,86 +135,86 @@ của 003; `authenticate` cho mọi path; `sanitizeQuery` vào pipeline. Mọi u
 
 **⚠️ CRITICAL**: Chưa xong phase này thì không làm user story nào. Kết thúc bằng T034 (chạy lại bộ 001 đến 003).
 
-- [ ] T010 [P] Port `database/helpers/{capabilities,number,sequence,fn}/**` (gồm `fn/json/parse-function.ts`, đủ dialect,
+- [X] T010 [P] Port `database/helpers/{capabilities,number,sequence,fn}/**` (gồm `fn/json/parse-function.ts`, đủ dialect,
   kèm test gốc) sang `apps/api/src/database/helpers/`. Sửa `apps/api/src/database/helpers/index.ts`: `getHelpers()` trả
   `{ date, st, schema, sequence, number, capabilities }`, thêm `getFunctions(knex, schema)`, đúng ánh xạ dialect của
   Directus. Ghi manifest. (sau T004)
-- [ ] T011 [P] Port đủ `database/helpers/schema/**` (mọi dialect, `utils/prep-query-params.ts`, cả phương thức DDL) và
+- [X] T011 [P] Port đủ `database/helpers/schema/**` (mọi dialect, `utils/prep-query-params.ts`, cả phương thức DDL) và
   `database/helpers/geometry/**` (đủ phương thức `asText`, `fromGeoJSON`, `intersects*`, `collect`...) kèm test gốc, thay
   bản rút gọn của 003 (`formatUUID`) và 001 (`supported`). Ghi manifest. (sau T001)
-- [ ] T012 [P] Port sang `apps/api/src/` kèm test gốc: `types/ast.ts`, `utils/split-fields.ts`,
+- [X] T012 [P] Port sang `apps/api/src/` kèm test gốc: `types/ast.ts`, `utils/split-fields.ts`,
   `utils/calculate-field-depth.ts`, `utils/get-field-relational-depth.ts`, `utils/get-column-path.ts`,
   `utils/get-collection-from-alias.ts`, `utils/parse-filter-key.ts`, `utils/parse-numeric-string.ts`,
   `utils/filter-items.ts`, `utils/get-accountability-for-role.ts`. Ghi manifest. (sau T002)
-- [ ] T013 [P] `apps/api/src/emitter.ts` (`// Backoffice:` stub, research R8): `emitFilter(event, payload, meta,
+- [X] T013 [P] `apps/api/src/emitter.ts` (`// Backoffice:` stub, research R8): `emitFilter(event, payload, meta,
   context)` trả `payload`, `emitAction(...)` không làm gì, cùng chữ ký với `directus/api/src/emitter.ts`. Test
   `apps/api/src/emitter.test.ts`.
-- [ ] T014 [P] `apps/api/src/cache.ts`: thêm `setCacheValue`, `getCacheValue` như `directus/api/src/cache.ts:150-170`;
+- [X] T014 [P] `apps/api/src/cache.ts`: thêm `setCacheValue`, `getCacheValue` như `directus/api/src/cache.ts:150-170`;
   port `utils/compress.ts` (`snappy` + `compress` của T004). Test: giá trị nén giống byte với vector lấy từ Directus (gửi tới
   Directus của môi trường đối chiếu một request có permission dùng `$CURRENT_USER.<field>`, đọc giá trị
   `filter-context-*` trong Redis, chép vào test cùng đầu vào), và đọc lại được. Ghi manifest. (sau T001, T004)
-- [ ] T015 [P] Port sang `apps/api/src/permissions/utils/` kèm test gốc: `default-permission.ts`, `merge-fields.ts`,
+- [X] T015 [P] Port sang `apps/api/src/permissions/utils/` kèm test gốc: `default-permission.ts`, `merge-fields.ts`,
   `merge-permissions.ts`, `get-unaliased-field-key.ts`, `process-permissions.ts`,
   `extract-required-dynamic-variable-context.ts`. Ghi manifest. (sau T002)
-- [ ] T016 Port sang `apps/api/src/permissions/modules/` kèm test gốc: `fetch-allowed-fields`, `fetch-allowed-collections`,
+- [X] T016 Port sang `apps/api/src/permissions/modules/` kèm test gốc: `fetch-allowed-fields`, `fetch-allowed-collections`,
   `fetch-inconsistent-field-map`, `fetch-policies-ip-access` (`withCache('policies-ip-access')`),
   `fetch-accountability-collection-access`, `fetch-accountability-policy-globals`,
   `validate-remaining-admin/validate-remaining-admin-users.ts`. Ghi manifest. (sau T015)
-- [ ] T017 Port `permissions/modules/process-ast/**` (17 file: `process-ast.ts`, `lib/*`, `utils/*` gồm
+- [X] T017 Port `permissions/modules/process-ast/**` (17 file: `process-ast.ts`, `lib/*`, `utils/*` gồm
   `validate-path/*`) kèm 18 file test gốc sang `apps/api/src/permissions/modules/process-ast/`. Message lỗi giữ nguyên
   (contracts/permissions-api.md §5). Ghi manifest. (sau T012, T016)
-- [ ] T018 Port `database/get-ast-from-query/**` (6 file) kèm 6 file test gốc sang
+- [X] T018 Port `database/get-ast-from-query/**` (6 file) kèm 6 file test gốc sang
   `apps/api/src/database/get-ast-from-query/`. Ghi manifest. (sau T012, T016)
-- [ ] T019 Port `database/run-ast/lib/apply-query/**` (`index.ts`, `filter/*`, `add-join.ts`, `sort.ts`, `search.ts`,
+- [X] T019 Port `database/run-ast/lib/apply-query/**` (`index.ts`, `filter/*`, `add-join.ts`, `sort.ts`, `search.ts`,
   `aggregate.ts`, `pagination.ts`, `join-filter-with-cases.ts`, `get-filter-path.ts`, `get-operation.ts`, `mock.ts`)
   kèm test gốc sang `apps/api/src/database/run-ast/lib/apply-query/`. Ghi manifest. (sau T010, T011, T012)
-- [ ] T020 Port phần còn lại của `database/run-ast/**` (`run-ast.ts`, `types.ts`, `README.md`, `lib/get-db-query.ts`,
+- [X] T020 Port phần còn lại của `database/run-ast/**` (`run-ast.ts`, `types.ts`, `README.md`, `lib/get-db-query.ts`,
   `lib/parse-current-level.ts`, `modules/fetch-permitted-ast-root-fields.ts`, `utils/*` gồm `apply-case-when.ts`,
   `merge-with-parent-items.ts`, `generate-alias.ts`) kèm test gốc. Giữ vòng import của Directus (research R4). Ghi
   manifest. (sau T017, T018, T019)
-- [ ] T021 Port `permissions/modules/process-payload/**` và `permissions/modules/validate-access/**` (gồm
+- [X] T021 Port `permissions/modules/process-payload/**` và `permissions/modules/validate-access/**` (gồm
   `lib/validate-item-access.ts`, `lib/validate-collection-access.ts`) kèm test gốc. Ghi manifest. (sau T003, T020)
-- [ ] T022 Thay `apps/api/src/services/payload.service.ts` bằng bản port đủ của `directus/api/src/services/payload.ts`
+- [X] T022 Thay `apps/api/src/services/payload.service.ts` bằng bản port đủ của `directus/api/src/services/payload.ts`
   (`processM2O`, `processA2O`, `processO2M` (mảng và `{create, update, delete}`), ghi geometry, `processJsonFunctionResults`,
   import động `get-service`). Thay test bằng `directus/api/src/services/payload.test.ts` (929 dòng), giữ các ca riêng của
   003 còn đúng. Xóa stub `Promise<never>` và comment "feature 005". Ghi manifest. (sau T010, T011, T013)
-- [ ] T023 Thay `apps/api/src/services/items.service.ts` bằng bản port đủ của `directus/api/src/services/items.ts`
+- [X] T023 Thay `apps/api/src/services/items.service.ts` bằng bản port đủ của `directus/api/src/services/items.ts`
   (1.249 dòng: `getKeysByQuery`, `upsert*`, `updateBatch`, `updateByQuery`, `deleteOne`, `deleteMany`, `deleteByQuery`,
   `upsertSingleton`, `processAst`, `processPayload`, `validateAccess`, `resetAutoIncrementSequence`, emitter stub).
   Nhánh `query.version` khác `main`: ném `Error('versions are not available before feature 008')` với `// ponytail:`
   (research R4). Xóa `notAvailable`, `assertNoPermissionChecks`, `assertFlatPayload`, `keysOfFilter` và mọi chữ "feature
   005" trong header của `items.service.ts`, `settings.service.ts`, `tfa.service.ts`, `users.controller.ts`. Thay test
   bằng `directus/api/src/services/items.test.ts`, giữ ca 003 còn đúng. Ghi manifest. (sau T020, T021, T022)
-- [ ] T024 [P] Port `directus/api/src/services/access.ts` sang `apps/api/src/services/access.service.ts`; test mới
+- [X] T024 [P] Port `directus/api/src/services/access.ts` sang `apps/api/src/services/access.service.ts`; test mới
   `access.service.test.ts` (`knex-mock-client`): cờ toàn vẹn (`UserLimits` khi tạo, `All` khi sửa, xóa), điểm xóa cache
   (luôn xóa cache dữ liệu vì không chuyển `opts`, FR-082). Ghi manifest. (sau T023)
-- [ ] T025 [P] Port `services/policies.ts` sang `apps/api/src/services/policies.service.ts` (kiểm `ip_access` bằng
+- [X] T025 [P] Port `services/policies.ts` sang `apps/api/src/services/policies.service.ts` (kiểm `ip_access` bằng
   `ip-matching`, chỉ xóa cache quyền khi tạo, xóa cache khi sửa bốn cờ, cờ toàn vẹn); test mới `policies.service.test.ts`
   (giá trị `ip_access` hợp lệ và không hợp lệ, message lỗi, bảng FR-082). Ghi manifest. (sau T023)
-- [ ] T026 [P] Port `services/permissions.ts` sang `apps/api/src/services/permissions.service.ts` (`readByQuery` thêm
+- [X] T026 [P] Port `services/permissions.ts` sang `apps/api/src/services/permissions.service.ts` (`readByQuery` thêm
   quyền tối thiểu của app, `getItemPermissions`, xóa cache ở mọi thao tác ghi); test mới `permissions.service.test.ts`.
   Ghi manifest. (sau T023)
-- [ ] T027 Port `services/presets.ts` sang `apps/api/src/services/presets.service.ts` và `services/roles.ts` sang
+- [X] T027 Port `services/presets.ts` sang `apps/api/src/services/presets.service.ts` và `services/roles.ts` sang
   `apps/api/src/services/roles.service.ts` (`validateRoleNesting`, xóa dây chuyền trong một transaction, xóa cache)
   kèm `roles.test.ts` gốc. Ghi manifest. (sau T024)
-- [ ] T028 Port `utils/get-service.ts` sang `apps/api/src/utils/get-service.ts` với ba nhóm của research R6 (service đã
+- [X] T028 Port `utils/get-service.ts` sang `apps/api/src/utils/get-service.ts` với ba nhóm của research R6 (service đã
   có; `ItemsService` chung cho collection hệ thống chưa port service, `// Backoffice:` D-31; `ForbiddenError` cho
   `directus_*` còn lại). Test mới `get-service.test.ts`. Ghi manifest. (sau T024 đến T027)
-- [ ] T029 Thay bản rút gọn của 002, 003 trong `apps/api/src/permissions/`: `lib/fetch-policies.ts` (qua
+- [X] T029 Thay bản rút gọn của 002, 003 trong `apps/api/src/permissions/`: `lib/fetch-policies.ts` (qua
   `AccessService`), `utils/fetch-raw-permissions.ts` (qua `PermissionsService`, `lib/with-app-minimal-permissions.ts`),
   `lib/fetch-permissions.ts` (biến động, share), `utils/fetch-dynamic-variable-data.ts` (cache dữ liệu
   `filter-context-*`, T014), `utils/fetch-share-info.ts` (`withCache('share-info')`), `utils/get-permissions-for-share.ts`;
   kèm test gốc (`fetch-permissions`, `fetch-policies`, `with-app-minimal-permissions`, `fetch-dynamic-variable-data`,
   `get-permissions-for-share`). Key cache giữ đúng công thức của 002 (contracts/cache.md §1, R-01). Ghi manifest. (sau
   T014, T026, T028)
-- [ ] T030 Port `services/meta.ts` sang `apps/api/src/services/meta.service.ts` kèm `meta.test.ts` gốc (499 dòng). Ghi
+- [X] T030 Port `services/meta.ts` sang `apps/api/src/services/meta.service.ts` kèm `meta.test.ts` gốc (499 dòng). Ghi
   manifest. (sau T019, T021)
-- [ ] T031 Port `utils/sanitize-query.ts`, `utils/validate-query.ts` sang `apps/api/src/utils/` kèm test gốc. Ghi
+- [X] T031 Port `utils/sanitize-query.ts`, `utils/validate-query.ts` sang `apps/api/src/utils/` kèm test gốc. Ghi
   manifest. (sau T029)
-- [ ] T032 Port `middleware/sanitize-query.ts`, `middleware/validate-batch.ts` (thành hàm async
+- [X] T032 Port `middleware/sanitize-query.ts`, `middleware/validate-batch.ts` (thành hàm async
   `validateBatch(scope)(req)`, `// Backoffice:` research R3), `middleware/use-collection.ts` (hàm) sang
   `apps/api/src/middleware/`, kèm `validate-batch.test.ts` gốc chuyển sang hàm. Ghi manifest. (sau T031)
-- [ ] T033 Pipeline (research R2, FR-001, FR-005):
+- [X] T033 Pipeline (research R2, FR-001, FR-005):
   - `apps/api/src/app-pipeline.ts`: thay nhánh chọn theo path bằng `app.use(authenticate)` cho mọi path (sau
     `/server/ping`); thêm `sanitizeQuery` ngay sau `schema`, trước `checkCacheMiddleware`; xóa
     `apps/api/src/middleware/public-accountability.ts` và test của nó (D-10, cảnh báo D-18).
@@ -637,3 +637,24 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 - T009: thêm bộ `matrix` (`PARITY_SUITE=matrix`, target `parity-tests:parity-matrix`); `full` loại `matrix.test.ts` và
   `matrix-reduced.test.ts` qua `exclude` (giữ `configDefaults.exclude`). Checkpoint Phase 1: typecheck, lint của 20
   project và test của `api`, `utils`, `types`, `parity-tests` (87 ca) đạt.
+- T010, T011: thêm `database/helpers/dialects.test.ts` (snapshot SQL của `fn`, `st`, `number`, `capabilities`, `sequence`,
+  `schema` cho bảy dialect, 371 snapshot) vì Directus chỉ có test cho vài helper; giữ coverage `apps/api` trên 80%.
+- T014: test byte so với giá trị Directus ghi vào `filter-context-*` cần môi trường đối chiếu, chuyển sang test đối chiếu
+  cache của T069; unit test chỉ kiểm vòng nén, giải nén và `setCacheValue`/`getCacheValue`.
+- T022, T023: `services/index.ts` chỉ export các service đã có (access, activity, items, meta, payload, permissions,
+  policies, presets, revisions, roles, users); export `server`, `auth`, `specs`, `settings`, `tfa` kéo theo `app.module` và
+  làm hỏng mock DB của test service. `handleVersion` là stub ném `Error` (ponytail, 008).
+- T024: Directus đặt `reason` của `UnprocessableContentError` là "Cannot remove the last admin user from the system.",
+  `message` có tiền tố "Can't process content. " (đã ghi ở Assumptions của spec và contracts §5). Cache: `clearSystemCache`
+  gọi một lần mỗi thao tác ghi; cache dữ liệu luôn xóa vì `opts` không chuyển tiếp (FR-082).
+- T029: `fetch-share-info.ts` đọc qua `ItemsService('directus_shares')` (`SharesService` thuộc feature sau, D-31).
+- T031: `validate-query.ts` dựng schema Joi lúc gọi lần đầu và dựng lại khi `QUERY_LIMIT_MAX` đổi (Directus dựng lúc
+  import; repo cấm `useEnv()` ở cấp module). `@ts-ignore` của Directus đổi thành `@ts-expect-error` theo lint.
+- T032: không đổi `validate-batch`, `use-collection` thành hàm như R3; giữ nguyên middleware của Directus và thêm
+  `utils/run-middleware.ts` (gọi middleware Express trong controller NestJS, resolve khi `next()`, reject khi
+  `next(err)`), ít sửa code gốc hơn.
+- T033: `authenticate` chạy cho mọi path trừ `/server/ping`, nên test pipeline mock kết nối DB mặc định (Directus cũng
+  mở kết nối mỗi request). D-12 thành entry `doc` (chỉ còn `export`, không request đối chiếu nào gửi); D-10 giữ tới T038.
+  Manifest chung `tools/port-manifest/004-T010-T033.json` (221 file); bỏ `public-accountability.ts` khỏi `T020.json`.
+  Checkpoint: typecheck, lint, `check-port-headers` (893 file) đạt; `apps/api` 188 file, 1.983 test đạt, coverage
+  85,22 / 86,42 / 88,8 / 85,22; `@backoffice/utils` 435 test đạt.

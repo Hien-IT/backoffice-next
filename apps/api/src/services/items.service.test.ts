@@ -1,275 +1,191 @@
-// Tests of the ItemsService subset of feature 003 (research R5), on SQLite with directus_* like tables.
+// Ported from directus/api/src/services/items.test.ts
 import { SchemaBuilder } from '@backoffice/schema-builder';
-import type { Accountability, SchemaOverview } from '@backoffice/types';
+import { UserIntegrityCheckFlag } from '@backoffice/types';
 import knex, { type Knex } from 'knex';
-import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
-import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
-import { ItemsService } from './items.service.js';
-import { RevisionsService } from './revisions.service.js';
+import { createTracker, MockClient, Tracker } from 'knex-mock-client';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, type MockedFunction, test, vi } from 'vitest';
+import { getDatabaseClient } from '../database/index.js';
+import { validateUserCountIntegrity } from '../utils/validate-user-count-integrity.js';
+import { handleVersion } from '../utils/versioning/handle-version.js';
+import { ItemsService } from './index.js';
 
-vi.mock('../cache.js', () => ({ getCache: () => ({ cache: null }) }));
-
-// translateDatabaseError asks the client of the default connection, like Directus.
-vi.mock('../database/index.js', async (importOriginal) => {
-	const original = await importOriginal<typeof import('../database/index.js')>();
-	return { ...original, getDatabaseClient: (database?: Knex) => (database ? original.getDatabaseClient(database) : 'sqlite') };
-});
-
-vi.mock('@backoffice/env', () => ({
-	useEnv: () => ({ MAX_BATCH_MUTATION: Infinity, CACHE_AUTO_PURGE: false, USERS_ADMIN_ACCESS_LIMIT: Infinity }),
+vi.mock('../database/index', () => ({
+	default: vi.fn(),
+	getDatabaseClient: vi.fn().mockReturnValue('postgres'),
 }));
 
-let db: Knex;
-let schema: SchemaOverview;
+vi.mock('../utils/validate-user-count-integrity.js');
+vi.mock('../utils/versioning/handle-version.js', { spy: true });
 
-const admin: Accountability = {
-	...createDefaultAccountability({ ip: '10.0.0.1' }),
-	userAgent: 'test-agent',
-	origin: 'http://example.com',
-	admin: true,
-};
+const schema = new SchemaBuilder()
+	.collection('test', (c) => {
+		c.field('id').id();
+	})
+	.collection('directus_versions', (c) => {
+		c.field('id').id();
+		c.field('item').string();
+		c.field('collection').string();
+		c.field('key').string();
+	})
+	.build();
 
-beforeAll(async () => {
-	db = knex({ client: 'sqlite3', connection: { filename: ':memory:' }, useNullAsDefault: true });
+describe('Integration Tests', () => {
+	let db: MockedFunction<Knex>;
+	let tracker: Tracker;
 
-	await db.schema.createTable('directus_roles', (t) => t.uuid('id').primary());
-
-	await db.schema.createTable('directus_users', (t) => {
-		t.uuid('id').primary();
-		t.string('email').unique();
-		t.string('password');
-		t.string('status').defaultTo('active');
-		t.uuid('role').references('id').inTable('directus_roles');
-		t.boolean('email_notifications').defaultTo(true);
-		t.json('auth_data');
-		t.timestamp('last_access');
+	beforeAll(async () => {
+		db = vi.mocked(knex.default({ client: MockClient }));
+		tracker = createTracker(db);
 	});
 
-	await db.schema.createTable('directus_activity', (t) => {
-		t.increments('id');
-		t.string('action');
-		t.uuid('user');
-		t.timestamp('timestamp');
-		t.string('ip');
-		t.string('user_agent');
-		t.string('collection');
-		t.string('item');
-		t.string('origin');
+	beforeEach(() => {
+		tracker.on.any('test').response({});
 	});
 
-	await db.schema.createTable('directus_revisions', (t) => {
-		t.increments('id');
-		t.integer('activity');
-		t.string('collection');
-		t.string('item');
-		t.json('data');
-		t.json('delta');
-		t.integer('parent');
+	afterEach(() => {
+		tracker.reset();
 	});
 
-	await db.schema.createTable('directus_settings', (t) => {
-		t.increments('id');
-		t.integer('auth_login_attempts').defaultTo(25);
-	});
+	describe('Services / Items', () => {
+		let service: ItemsService;
 
-	schema = new SchemaBuilder()
-		.collection('directus_roles', (c) => c.field('id').uuid().primary())
-		.collection('directus_users', (c) => {
-			c.field('id').uuid().primary();
-			c.field('email').string();
-			c.field('password').hash().options({ special: ['hash', 'conceal'] });
-			c.field('status').string().options({ defaultValue: 'active' });
-			c.field('role').m2o('directus_roles');
-			c.field('email_notifications').boolean().options({ special: ['cast-boolean'] });
-			c.field('auth_data').json().options({ special: ['cast-json'] });
-			c.field('last_access').timestamp();
-		})
-		.collection('directus_activity', (c) => {
-			c.field('id').id();
-			c.field('action').string();
-			c.field('user').uuid().options({ special: [] });
-			c.field('timestamp').timestamp().options({ special: ['date-created'] });
-			c.field('ip').string();
-			c.field('user_agent').string();
-			c.field('collection').string();
-			c.field('item').string();
-			c.field('origin').string();
-		})
-		.collection('directus_revisions', (c) => {
-			c.field('id').id();
-			c.field('activity').integer();
-			c.field('collection').string();
-			c.field('item').string();
-			c.field('data').json().options({ special: ['cast-json'] });
-			c.field('delta').json().options({ special: ['cast-json'] });
-			c.field('parent').integer();
-		})
-		.collection('directus_settings', (c) => {
-			c.field('id').id();
-			c.field('auth_login_attempts').integer().options({ defaultValue: 25 });
-		})
-		.build();
-
-	schema.collections['directus_activity']!.accountability = null;
-	schema.collections['directus_revisions']!.accountability = null;
-});
-
-beforeEach(async () => {
-	for (const table of ['directus_revisions', 'directus_activity', 'directus_users', 'directus_settings']) {
-		await db(table).delete();
-	}
-});
-
-afterAll(() => db.destroy());
-
-const users = (accountability: Accountability | null = null) =>
-	new ItemsService('directus_users', { knex: db, schema, accountability });
-
-describe('createOne', () => {
-	test('generates the uuid, writes the row and no activity without accountability', async () => {
-		const id = await users().createOne({ email: 'a@example.com' });
-
-		expect(id).toMatch(/^[0-9a-f-]{36}$/);
-		expect(await db('directus_users').where({ id }).first()).toMatchObject({ email: 'a@example.com', status: 'active' });
-		expect(await db('directus_activity').count({ n: '*' }).first()).toEqual({ n: 0 });
-	});
-
-	test('with accountability: activity `create` and a revision with the prepared payload', async () => {
-		const id = await users(admin).createOne({ email: 'b@example.com', password: 'secret', role: null });
-		const activity = await db('directus_activity').first();
-		const revision = await db('directus_revisions').first();
-
-		expect(activity).toMatchObject({
-			action: 'create',
-			user: null,
-			ip: '10.0.0.1',
-			user_agent: 'test-agent',
-			origin: 'http://example.com',
-			collection: 'directus_users',
-			item: id,
+		beforeEach(() => {
+			service = new ItemsService('test', {
+				knex: db,
+				schema,
+			});
 		});
 
-		expect(activity.timestamp).not.toBeNull();
-		expect(revision).toMatchObject({ activity: activity.id, collection: 'directus_users', item: id });
-		// Relational fields are left out, concealed fields are masked (prepareDelta of Directus).
-		expect(JSON.parse(revision.data)).toEqual({ email: 'b@example.com', password: '**********' });
-		expect(revision.delta).toBe(revision.data);
-	});
-
-	test('translates unique violations and throws the pre-mutation error', async () => {
-		await users().createOne({ email: 'dup@example.com' });
-
-		await expect(users().createOne({ email: 'dup@example.com' })).rejects.toMatchObject({
-			code: 'RECORD_NOT_UNIQUE',
+		afterEach(() => {
+			vi.clearAllMocks();
 		});
 
-		await expect(users().createOne({ email: 'x@example.com' }, { preMutationError: new Error('policy') as never })).rejects.toThrow(
-			'policy',
-		);
-	});
+		describe('read with version "test"', () => {
+			test('on readOne', async () => {
+				vi.mocked(handleVersion).mockReturnValueOnce(new Promise((resolve) => resolve([{ id: 1 }])));
 
-	test('createMany returns the keys in order', async () => {
-		const keys = await users().createMany([{ email: 'c1@example.com' }, { email: 'c2@example.com' }]);
-		expect(keys).toHaveLength(2);
-		expect((await db('directus_users').whereIn('id', keys)).map((u) => u.email).sort()).toEqual([
-			'c1@example.com',
-			'c2@example.com',
-		]);
-	});
+				await service.readOne(1, { version: 'test' });
 
-	test('integer keys come from returning or max(id) (RevisionsService defaults)', async () => {
-		const service = new RevisionsService({ knex: db, schema });
-		const [first, second] = await service.createMany([{ collection: 'x', item: '1' }, { collection: 'x', item: '2' }]);
-		expect(second).toBe(Number(first) + 1);
-	});
-});
+				expect(handleVersion).toHaveBeenCalled();
+			});
 
-describe('read', () => {
-	test('reads flat fields with the read processing (conceal, booleans, JSON)', async () => {
-		const id = await users().createOne({ email: 'r@example.com', password: 'secret', auth_data: '{"refreshToken":"t"}' });
-		const user = await users().readOne(id, { fields: ['email', 'password', 'email_notifications', 'auth_data'] });
+			test('on readSingleton', async () => {
+				vi.mocked(handleVersion).mockReturnValueOnce(new Promise((resolve) => resolve([{ id: 1 }])));
 
-		expect(user).toEqual({
-			email: 'r@example.com',
-			password: '**********',
-			email_notifications: true,
-			auth_data: { refreshToken: 't' },
+				vi.spyOn(db, 'select').mockReturnValueOnce({
+					from: () => ({
+						first: async () => ({ id: 1 }),
+					}),
+				} as any);
+
+				await service.readSingleton({ version: 'test' });
+
+				expect(handleVersion).toHaveBeenCalled();
+			});
 		});
 
-		expect(await users().readMany([id], { fields: ['*'] })).toHaveLength(1);
-	});
+		describe('read with version "main"', () => {
+			test('on readOne', async () => {
+				service.readByQuery = vi.fn(async () => [{ id: 1 }]);
 
-	test('readSingleton returns the schema defaults without a row', async () => {
-		const settings = new ItemsService('directus_settings', { knex: db, schema });
-		expect(await settings.readSingleton({ fields: ['auth_login_attempts'] })).toEqual({ auth_login_attempts: 25 });
+				await service.readOne(1, { version: 'main' });
 
-		await db('directus_settings').insert({ auth_login_attempts: 3 });
-		expect(await settings.readSingleton({ fields: ['auth_login_attempts'] })).toEqual({ auth_login_attempts: 3 });
-	});
+				expect(handleVersion).not.toHaveBeenCalled();
+			});
 
-	test('readOne of an unknown key is forbidden', async () => {
-		await expect(users().readOne('00000000-0000-4000-8000-000000000000')).rejects.toMatchObject({ code: 'FORBIDDEN' });
-	});
-});
+			test('on readSingleton', async () => {
+				service.readByQuery = vi.fn(async () => [{ id: 1 }]);
 
-describe('updateMany', () => {
-	test('with accountability: hashes, writes activity `update` and a revision with the snapshot', async () => {
-		const id = await users().createOne({ email: 'u@example.com', password: 'old' });
-		await users(admin).updateOne(id, { password: 'new', status: 'active' });
+				await service.readSingleton({ version: 'main' });
 
-		const row = await db('directus_users').where({ id }).first();
-		expect(row.password).toMatch(/^\$argon2id\$/);
-
-		const activity = await db('directus_activity').first();
-		expect(activity).toMatchObject({ action: 'update', item: id, ip: '10.0.0.1' });
-
-		const revision = await db('directus_revisions').first();
-		expect(JSON.parse(revision.delta)).toEqual({ password: '**********', status: 'active' });
-
-		expect(JSON.parse(revision.data)).toEqual({
-			id,
-			email: 'u@example.com',
-			password: '**********',
-			status: 'active',
-			email_notifications: true,
-			auth_data: null,
-			last_access: null,
+				expect(handleVersion).not.toHaveBeenCalled();
+			});
 		});
-	});
 
-	test('without accountability: no activity; an empty payload updates nothing', async () => {
-		const id = await users().createOne({ email: 'n@example.com' });
-		await users().updateOne(id, { status: 'suspended' });
-		await users().updateOne(id, {});
+		describe('createOne', () => {
+			it('should validate user count if requested', async () => {
+				await service.createOne({}, { userIntegrityCheckFlags: UserIntegrityCheckFlag.All });
 
-		expect((await db('directus_users').where({ id }).first()).status).toBe('suspended');
-		expect(await db('directus_activity').count({ n: '*' }).first()).toEqual({ n: 0 });
-	});
-});
+				expect(validateUserCountIntegrity).toHaveBeenCalled();
+			});
 
-describe('user integrity check (items.test.ts of Directus)', () => {
-	test('createOne and updateMany pass the flags to the callback when given', async () => {
-		const onRequire = vi.fn();
-		const id = await users().createOne({ email: 'f@example.com' }, { userIntegrityCheckFlags: 2, onRequireUserIntegrityCheck: onRequire });
-		await users().updateOne(id, { status: 'active' }, { userIntegrityCheckFlags: 2, onRequireUserIntegrityCheck: onRequire });
-		expect(onRequire).toHaveBeenNthCalledWith(1, 2);
-		expect(onRequire).toHaveBeenNthCalledWith(2, 2);
-	});
-});
+			it('should use includeTriggerModifications for MS SQL', async () => {
+				vi.mocked(getDatabaseClient).mockReturnValue('mssql');
 
-describe('parts that come with feature 005', () => {
-	test('content versions throw', async () => {
-		await expect(users().readOne('00000000-0000-4000-8000-000000000000', { version: 'draft' })).rejects.toThrow('feature 005');
-		await expect(users().readSingleton({ version: 'draft' })).rejects.toThrow('feature 005');
-	});
+				const mockReturning = vi.fn().mockResolvedValue([{ id: 1 }]);
 
-	test('throw instead of skipping permissions, nested writes or other filters', async () => {
-		const user: Accountability = { ...admin, admin: false, user: 'u' };
+				const mockQuery = {
+					insert: vi.fn().mockReturnThis(),
+					into: vi.fn().mockReturnThis(),
+					returning: mockReturning,
+				};
 
-		await expect(users(user).createOne({ email: 'p@example.com' })).rejects.toThrow('feature 005');
-		await expect(users().createOne({ email: 'q@example.com', role: { id: 'x' } })).rejects.toThrow('feature 005');
-		await expect(users().readByQuery({ filter: { email: { _eq: 'a' } } })).rejects.toThrow('feature 005');
-		await expect(users().readByQuery({ sort: ['email'] })).rejects.toThrow('feature 005');
-		await expect(users().readByQuery({ fields: ['role.id'] })).rejects.toThrow('feature 005');
+				const transactionSpy = vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
+					const trx = { ...db, ...mockQuery };
+					return await callback(trx as any);
+				});
+
+				await service.createOne({ name: 'Test' });
+
+				expect(mockReturning).toHaveBeenCalledWith('id', { includeTriggerModifications: true });
+
+				transactionSpy.mockRestore();
+			});
+
+			it('should not use includeTriggerModifications for non-MS SQL', async () => {
+				vi.mocked(getDatabaseClient).mockReturnValue('postgres');
+
+				const mockReturning = vi.fn().mockResolvedValue([{ id: 1 }]);
+
+				const mockQuery = {
+					insert: vi.fn().mockReturnThis(),
+					into: vi.fn().mockReturnThis(),
+					returning: mockReturning,
+				};
+
+				const transactionSpy = vi.spyOn(db, 'transaction').mockImplementation(async (callback) => {
+					const trx = { ...db, ...mockQuery };
+					return await callback(trx as any);
+				});
+
+				await service.createOne({ name: 'Test' });
+
+				expect(mockReturning).toHaveBeenCalledWith('id', undefined);
+
+				transactionSpy.mockRestore();
+			});
+		});
+
+		describe('createMany', () => {
+			it('should validate user count if requested', async () => {
+				await service.createMany([{}], { userIntegrityCheckFlags: UserIntegrityCheckFlag.All });
+
+				expect(validateUserCountIntegrity).toHaveBeenCalled();
+			});
+		});
+
+		describe('updateBatch', () => {
+			it('should validate user count if requested', async () => {
+				await service.updateBatch([{ id: 1 }], { userIntegrityCheckFlags: UserIntegrityCheckFlag.All });
+
+				expect(validateUserCountIntegrity).toHaveBeenCalled();
+			});
+		});
+
+		describe('updateMany', () => {
+			it('should validate user count if requested', async () => {
+				await service.updateMany([1], {}, { userIntegrityCheckFlags: UserIntegrityCheckFlag.All });
+
+				expect(validateUserCountIntegrity).toHaveBeenCalled();
+			});
+		});
+
+		describe('deleteMany', () => {
+			it('should validate user count if requested', async () => {
+				await service.deleteMany([1], { userIntegrityCheckFlags: UserIntegrityCheckFlag.All });
+
+				expect(validateUserCountIntegrity).toHaveBeenCalled();
+			});
+		});
 	});
 });

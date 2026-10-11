@@ -1,5 +1,5 @@
 // Ported from directus/api/src/app.ts (the Express middleware chain, in the same order; research R5).
-// `authenticate` runs only on the routes of feature 003 (D-10 of spec 003). Not ported here: sanitizeQuery and the response cache (005), requestCounter (telemetry),
+// `authenticate` and `sanitizeQuery` run on every route like Directus (feature 004). Not ported here: the response cache (005), requestCounter (telemetry),
 // extensions, WebSocket, AI/MCP, deployment webhooks and SERVE_APP (D-08, D-17).
 import { useEnv } from '@backoffice/env';
 import { ServiceUnavailableError } from '@backoffice/errors';
@@ -15,8 +15,8 @@ import cors from './middleware/cors.js';
 import extractToken from './middleware/extract-token.js';
 import authenticate from './middleware/authenticate.js';
 import { createJsonBody } from './middleware/json-body.js';
-import publicAccountability from './middleware/public-accountability.js';
 import { createRouterOptions } from './middleware/router-options.js';
+import sanitizeQuery from './middleware/sanitize-query.js';
 import schema from './middleware/schema.js';
 import rateLimiterGlobal from './middleware/rate-limiter-global.js';
 import rateLimiter from './middleware/rate-limiter-ip.js';
@@ -28,8 +28,6 @@ export interface ExpressAppOptions {
 	/** Middleware mounted after the accountability step, right before the Nest routes. */
 	beforeRoutes?: RequestHandler[];
 }
-
-const AUTHENTICATED_PATHS = /^\/(auth(\/|$)|users\/me\/tfa\/generate\/?$)/i;
 
 export function createExpressApp(options: ExpressAppOptions = {}): Express {
 	const env = useEnv();
@@ -155,13 +153,11 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 
 	app.get('/server/ping', (_req, res) => res.send('pong'));
 
-	// ponytail: D-10 of spec 003 — only the routes of feature 003 authenticate, every other route stays public with a
-	// warning; feature 004 mounts `authenticate` for every route and removes publicAccountability.
-	app.use((req, res, next) =>
-		(AUTHENTICATED_PATHS.test(req.path) ? authenticate : publicAccountability)(req, res, next),
-	);
+	app.use(authenticate);
 
 	app.use(schema);
+
+	app.use(sanitizeQuery);
 
 	app.use(checkCacheMiddleware);
 

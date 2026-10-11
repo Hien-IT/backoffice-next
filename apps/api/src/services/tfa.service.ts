@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/tfa.ts (verifyOTP and generateTFA). enableTFA and disableTFA write
-// tfa_secret through ItemsService with the permissions of the user, so they come with feature 005 (FR-051 of spec 003).
+// tfa_secret through ItemsService with the permissions of the user; they come with task T053 of feature 004 (FR-048).
 import { InvalidPayloadError } from '@backoffice/errors';
 import type { AbstractServiceOptions, PrimaryKey } from '@backoffice/types';
 import type { Knex } from 'knex';

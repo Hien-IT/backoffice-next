@@ -16,10 +16,6 @@
 		"dest": "apps/api/src/middleware/json-body.ts"
 	},
 	{
-		"source": "api/src/middleware/authenticate.ts",
-		"dest": "apps/api/src/middleware/public-accountability.ts"
-	},
-	{
 		"source": "api/src/permissions/utils/create-default-accountability.ts",
 		"dest": "apps/api/src/permissions/utils/create-default-accountability.ts"
 	},

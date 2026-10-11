@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/users.ts (lines 330-369: POST /users/me/tfa/generate only). The other
-// /users routes come with feature 004 (D-09.2); enabling and disabling TFA with feature 005 (D-09.10 of spec 003).
+// /users routes, enabling and disabling TFA included, come with US4 of feature 004 (D-09.2, D-09.10 of spec 003).
 import { InvalidCredentialsError, InvalidPayloadError } from '@backoffice/errors';
 import { Controller, HttpCode, Inject, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';

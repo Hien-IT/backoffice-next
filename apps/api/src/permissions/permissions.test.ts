@@ -1,6 +1,9 @@
-// fetchPolicies, fetchPermissions and fetchAllowedFieldMap on real SQLite tables (knex replaces AccessService and
-// PermissionsService in feature 001, research R16.4).
+// fetchPolicies, fetchPermissions and fetchAllowedFieldMap on real SQLite tables. Feature 004 reads them through
+// AccessService and PermissionsService like Directus (the knex shortcut of features 001 and 002 is gone), so the schema
+// is the one of the database (system collections and relations) plus the `articles` collection of the test.
+import { createInspector } from '@backoffice/schema';
 import { SchemaBuilder } from '@backoffice/schema-builder';
+import type { SchemaOverview } from '@backoffice/types';
 import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { getSimpleHash } from '@backoffice/utils';
@@ -8,6 +11,7 @@ import { PUBLIC_POLICY, createDirectusDb } from '../../test/directus-db.js';
 import { _resetCache, useCache } from './cache.js';
 import { fetchPermissions } from './lib/fetch-permissions.js';
 import { fetchPolicies } from './lib/fetch-policies.js';
+import { getDatabaseSchema } from '../schema/get-database-schema.js';
 import { fetchAllowedFieldMap } from './modules/fetch-allowed-field-map/fetch-allowed-field-map.js';
 
 const POLICY_B = '11111111-1111-4111-8111-111111111111';
@@ -15,13 +19,16 @@ const POLICY_IP = '22222222-2222-4222-8222-222222222222';
 const ROLE = '33333333-3333-4333-8333-333333333333';
 
 let db: Knex;
-const schema = new SchemaBuilder().collection('articles', (c) => c.field('id').id()).build();
+let schema: SchemaOverview;
+const articles = new SchemaBuilder().collection('articles', (c) => c.field('id').id()).build();
 const ctx = () => ({ knex: db, schema });
 
 beforeEach(async () => {
 	// The permissions cache (feature 002) is local without Redis; empty it so each test reads its own tables.
 	_resetCache();
 	db = await createDirectusDb();
+	const database = await getDatabaseSchema(db, createInspector(db));
+	schema = { collections: { ...database.collections, ...articles.collections }, relations: database.relations };
 
 	await db('directus_policies').insert([
 		{ id: PUBLIC_POLICY, name: '$t:public_label', ip_access: null },
@@ -138,7 +145,8 @@ describe('fetchAllowedFieldMap', () => {
 			{ accountability: { roles: [], user: null, role: null, ip: null, admin: true, app: false }, action: 'read' },
 			ctx(),
 		);
-		expect(map).toEqual({ articles: ['id'] });
+		expect(map['articles']).toEqual(['id']);
+		expect(Object.keys(map)).toEqual(Object.keys(schema.collections));
 	});
 });
 

@@ -1,0 +1,25 @@
+// Ported from directus/api/src/database/run-ast/lib/apply-query/filter/validate-operator.ts
+import { InvalidQueryError } from '@backoffice/errors';
+import type { ClientFilterOperator, Type } from '@backoffice/types';
+import { getFilterOperatorsForType } from '@backoffice/utils';
+
+export function validateOperator(type: Type, filterOperator: string, special?: string[]) {
+	if (filterOperator.startsWith('_')) {
+		filterOperator = filterOperator.slice(1);
+	}
+
+	if (!getFilterOperatorsForType(type).includes(filterOperator as ClientFilterOperator)) {
+		throw new InvalidQueryError({
+			reason: `"${type}" field type does not contain the "_${filterOperator}" filter operator`,
+		});
+	}
+
+	if (
+		special?.includes('conceal') &&
+		!getFilterOperatorsForType('hash').includes(filterOperator as ClientFilterOperator)
+	) {
+		throw new InvalidQueryError({
+			reason: `Field with "conceal" special does not allow the "_${filterOperator}" filter operator`,
+		});
+	}
+}

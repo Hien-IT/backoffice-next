@@ -1,0 +1,2474 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`capabilities of cockroachdb > flags 1`] = `
+{
+  "columnPosition": true,
+  "deduplication": false,
+}
+`;
+
+exports[`capabilities of mssql > flags 1`] = `
+{
+  "columnPosition": false,
+  "deduplication": true,
+}
+`;
+
+exports[`capabilities of mysql > flags 1`] = `
+{
+  "columnPosition": true,
+  "deduplication": true,
+}
+`;
+
+exports[`capabilities of oracle > flags 1`] = `
+{
+  "columnPosition": false,
+  "deduplication": true,
+}
+`;
+
+exports[`capabilities of postgres > flags 1`] = `
+{
+  "columnPosition": true,
+  "deduplication": false,
+}
+`;
+
+exports[`capabilities of redshift > flags 1`] = `
+{
+  "columnPosition": true,
+  "deduplication": false,
+}
+`;
+
+exports[`capabilities of sqlite > flags 1`] = `
+{
+  "columnPosition": false,
+  "deduplication": true,
+}
+`;
+
+exports[`fn helper of cockroachdb > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "json_array_length("articles"."tags")",
+}
+`;
+
+exports[`fn helper of cockroachdb > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "color",
+    "name",
+  ],
+  "sql": ""articles"."tags"::json->:1->:2",
+}
+`;
+
+exports[`fn helper of cockroachdb > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > parseJsonResult() 1`] = `"{"a":1}"`;
+
+exports[`fn helper of cockroachdb > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of cockroachdb > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of cockroachdb > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "(SELECT COUNT(*) FROM OPENJSON("articles"."tags", '$'))",
+}
+`;
+
+exports[`fn helper of mssql > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(day, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(day, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(hour, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(hour, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "$.color.name",
+    "$.color.name",
+  ],
+  "sql": "COALESCE(JSON_QUERY("articles"."tags", :1), JSON_VALUE("articles"."tags", :2))",
+}
+`;
+
+exports[`fn helper of mssql > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(minute, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(minute, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(month, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(month, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > parseJsonResult() 1`] = `
+{
+  "a": 1,
+}
+`;
+
+exports[`fn helper of mssql > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(second, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(second, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(week, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(week, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(weekday, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(weekday, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mssql > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(year, "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of mssql > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "DATEPART(year, "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "JSON_LENGTH("articles"."tags")",
+}
+`;
+
+exports[`fn helper of mysql > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "DAYOFMONTH("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "DAYOFMONTH("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "HOUR("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "HOUR("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "$.color.name",
+  ],
+  "sql": "JSON_UNQUOTE(JSON_EXTRACT("articles"."tags", :1))",
+}
+`;
+
+exports[`fn helper of mysql > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "MINUTE("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "MINUTE("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "MONTH("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "MONTH("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > parseJsonResult() 1`] = `
+{
+  "a": 1,
+}
+`;
+
+exports[`fn helper of mysql > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "SECOND("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "SECOND("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "WEEK("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "WEEK("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "DAYOFWEEK("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "DAYOFWEEK("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "YEAR("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of mysql > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "YEAR("articles"."date_created")",
+}
+`;
+
+exports[`fn helper of oracle > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "json_value("articles"."tags", '$.size()')",
+}
+`;
+
+exports[`fn helper of oracle > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'DD')",
+}
+`;
+
+exports[`fn helper of oracle > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'DD')",
+}
+`;
+
+exports[`fn helper of oracle > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'HH24')",
+}
+`;
+
+exports[`fn helper of oracle > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'HH24')",
+}
+`;
+
+exports[`fn helper of oracle > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "$.color.name",
+    "$.color.name",
+  ],
+  "sql": "COALESCE(JSON_QUERY("articles"."tags", :1), JSON_VALUE("articles"."tags", :2))",
+}
+`;
+
+exports[`fn helper of oracle > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'MI')",
+}
+`;
+
+exports[`fn helper of oracle > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'MI')",
+}
+`;
+
+exports[`fn helper of oracle > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'MM')",
+}
+`;
+
+exports[`fn helper of oracle > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'MM')",
+}
+`;
+
+exports[`fn helper of oracle > parseJsonResult() 1`] = `
+{
+  "a": 1,
+}
+`;
+
+exports[`fn helper of oracle > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'SS')",
+}
+`;
+
+exports[`fn helper of oracle > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'SS')",
+}
+`;
+
+exports[`fn helper of oracle > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'IW')",
+}
+`;
+
+exports[`fn helper of oracle > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'IW')",
+}
+`;
+
+exports[`fn helper of oracle > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'D')",
+}
+`;
+
+exports[`fn helper of oracle > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'D')",
+}
+`;
+
+exports[`fn helper of oracle > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created" AT TIME ZONE 'UTC', 'IYYY')",
+}
+`;
+
+exports[`fn helper of oracle > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "TO_CHAR("articles"."date_created", 'IYYY')",
+}
+`;
+
+exports[`fn helper of postgres > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "json_array_length("articles"."tags")",
+}
+`;
+
+exports[`fn helper of postgres > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "color",
+    "name",
+  ],
+  "sql": ""articles"."tags"::json->:1->:2",
+}
+`;
+
+exports[`fn helper of postgres > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > parseJsonResult() 1`] = `"{"a":1}"`;
+
+exports[`fn helper of postgres > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of postgres > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of postgres > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "json_array_length("articles"."tags")",
+}
+`;
+
+exports[`fn helper of redshift > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DAY FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(HOUR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "color",
+    "name",
+  ],
+  "sql": ""articles"."tags"::json->:1->:2",
+}
+`;
+
+exports[`fn helper of redshift > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MINUTE FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(MONTH FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > parseJsonResult() 1`] = `"{"a":1}"`;
+
+exports[`fn helper of redshift > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(SECOND FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(WEEK FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(DOW FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of redshift > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created" AT TIME ZONE 'UTC')",
+}
+`;
+
+exports[`fn helper of redshift > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "EXTRACT(YEAR FROM "articles"."date_created")",
+}
+`;
+
+exports[`fn helper of sqlite > count() of a JSON field 1`] = `
+{
+  "bindings": [],
+  "sql": "json_array_length("articles"."tags", '$')",
+}
+`;
+
+exports[`fn helper of sqlite > day() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%d', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > day() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%d', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > hour() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%H', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > hour() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%H', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > json() of a nested path 1`] = `
+{
+  "bindings": [
+    "$.color.name",
+  ],
+  "sql": "json_extract("articles"."tags", :1)",
+}
+`;
+
+exports[`fn helper of sqlite > minute() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%M', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > minute() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%M', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > month() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%m', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > month() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%m', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > parseJsonResult() 1`] = `
+{
+  "a": 1,
+}
+`;
+
+exports[`fn helper of sqlite > second() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%S', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > second() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%S', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > week() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%W', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > week() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%W', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > weekday() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%w', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > weekday() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%w', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > year() 1`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%Y', "articles"."date_created" / 1000, 'unixepoch') AS INTEGER)",
+}
+`;
+
+exports[`fn helper of sqlite > year() 2`] = `
+{
+  "bindings": [],
+  "sql": "CAST(strftime('%Y', "articles"."date_created" / 1000, 'unixepoch', 'localtime') AS INTEGER)",
+}
+`;
+
+exports[`geometry helper of cockroachdb > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location") as "location_alias"",
+}
+`;
+
+exports[`geometry helper of cockroachdb > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location")",
+}
+`;
+
+exports[`geometry helper of cockroachdb > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of cockroachdb > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of cockroachdb > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(st_collect("articles"."location"))",
+}
+`;
+
+exports[`geometry helper of cockroachdb > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of cockroachdb > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": ""articles"."location" && st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of cockroachdb > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1",
+}
+`;
+
+exports[`geometry helper of cockroachdb > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "NOT 1",
+}
+`;
+
+exports[`geometry helper of cockroachdb > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location geometry(Point, 4326)",
+]
+`;
+
+exports[`geometry helper of cockroachdb > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of cockroachdb > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT "articles"."location" && st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of mssql > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "\`articles\`.\`location\`.STAsText() as \`location_alias\`",
+}
+`;
+
+exports[`geometry helper of mssql > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "\`articles\`.\`location\`.STAsText()",
+}
+`;
+
+exports[`geometry helper of mssql > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "geometry::STGeomFromText(?, 4326)",
+}
+`;
+
+exports[`geometry helper of mssql > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "geometry::STGeomFromText(?, 4326)",
+}
+`;
+
+exports[`geometry helper of mssql > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "geometry::CollectionAggregate(\`articles\`.\`location\`).STAsText()",
+}
+`;
+
+exports[`geometry helper of mssql > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "\`articles\`.\`location\`.STIntersects(geometry::STGeomFromText(?, 4326)) = 1",
+}
+`;
+
+exports[`geometry helper of mssql > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "\`articles\`.\`location\`.STEnvelope().STIntersects(geometry::STGeomFromText(?, 4326).STEnvelope()) = 1",
+}
+`;
+
+exports[`geometry helper of mssql > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1 = 1",
+}
+`;
+
+exports[`geometry helper of mssql > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "1 = 0",
+}
+`;
+
+exports[`geometry helper of mssql > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location geometry",
+]
+`;
+
+exports[`geometry helper of mssql > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "\`articles\`.\`location\`.STIntersects(geometry::STGeomFromText(?, 4326)) = 0",
+}
+`;
+
+exports[`geometry helper of mssql > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "\`articles\`.\`location\`.STEnvelope().STIntersects(geometry::STGeomFromText(?, 4326).STEnvelope()) = 0",
+}
+`;
+
+exports[`geometry helper of mysql > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location") as "location_alias"",
+}
+`;
+
+exports[`geometry helper of mysql > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location")",
+}
+`;
+
+exports[`geometry helper of mysql > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "st_geomfromtext($1)",
+}
+`;
+
+exports[`geometry helper of mysql > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "st_geomfromtext($1)",
+}
+`;
+
+exports[`geometry helper of mysql > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "concat('geometrycollection(', group_concat(st_astext("articles"."location") as "location" separator ', '), ')'",
+}
+`;
+
+exports[`geometry helper of mysql > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext($1))",
+}
+`;
+
+exports[`geometry helper of mysql > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext($1))",
+}
+`;
+
+exports[`geometry helper of mysql > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1",
+}
+`;
+
+exports[`geometry helper of mysql > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "NOT 1",
+}
+`;
+
+exports[`geometry helper of mysql > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location Point",
+]
+`;
+
+exports[`geometry helper of mysql > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext($1))",
+}
+`;
+
+exports[`geometry helper of mysql > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext($1))",
+}
+`;
+
+exports[`geometry helper of oracle > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "sdo_util.to_wktgeometry([articles].[location]) as [location_alias]",
+}
+`;
+
+exports[`geometry helper of oracle > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "sdo_util.to_wktgeometry([articles].[location])",
+}
+`;
+
+exports[`geometry helper of oracle > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "sdo_geometry(@p0, 4326)",
+}
+`;
+
+exports[`geometry helper of oracle > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "sdo_geometry(@p0, 4326)",
+}
+`;
+
+exports[`geometry helper of oracle > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "concat('geometrycollection(', listagg(sdo_util.to_wktgeometry([articles].[location]) as [location], ', '), ')'",
+}
+`;
+
+exports[`geometry helper of oracle > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "sdo_overlapbdyintersect([articles].[location], sdo_geometry(@p0, 4326)) = 'TRUE'",
+}
+`;
+
+exports[`geometry helper of oracle > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "sdo_overlapbdyintersect(sdo_geom.sdo_mbr([articles].[location]), sdo_geom.sdo_mbr(sdo_geometry(@p0, 4326))) = 'TRUE'",
+}
+`;
+
+exports[`geometry helper of oracle > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1 = 'TRUE'",
+}
+`;
+
+exports[`geometry helper of oracle > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "1 = 'FALSE'",
+}
+`;
+
+exports[`geometry helper of oracle > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location sdo_geometry",
+]
+`;
+
+exports[`geometry helper of oracle > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "sdo_overlapbdyintersect([articles].[location], sdo_geometry(@p0, 4326)) = 'FALSE'",
+}
+`;
+
+exports[`geometry helper of oracle > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "sdo_overlapbdyintersect(sdo_geom.sdo_mbr([articles].[location]), sdo_geom.sdo_mbr(sdo_geometry(@p0, 4326))) = 'FALSE'",
+}
+`;
+
+exports[`geometry helper of postgres > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location") as "location_alias"",
+}
+`;
+
+exports[`geometry helper of postgres > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location")",
+}
+`;
+
+exports[`geometry helper of postgres > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "st_geomfromtext(:1, 4326)",
+}
+`;
+
+exports[`geometry helper of postgres > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "st_geomfromtext(:1, 4326)",
+}
+`;
+
+exports[`geometry helper of postgres > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(st_collect("articles"."location"))",
+}
+`;
+
+exports[`geometry helper of postgres > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext(:1, 4326))",
+}
+`;
+
+exports[`geometry helper of postgres > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": ""articles"."location" && st_geomfromtext(:1, 4326)",
+}
+`;
+
+exports[`geometry helper of postgres > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1",
+}
+`;
+
+exports[`geometry helper of postgres > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "NOT 1",
+}
+`;
+
+exports[`geometry helper of postgres > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location geometry(Point, 4326)",
+]
+`;
+
+exports[`geometry helper of postgres > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext(:1, 4326))",
+}
+`;
+
+exports[`geometry helper of postgres > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT "articles"."location" && st_geomfromtext(:1, 4326)",
+}
+`;
+
+exports[`geometry helper of redshift > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location") as "location_alias"",
+}
+`;
+
+exports[`geometry helper of redshift > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "st_astext("articles"."location")",
+}
+`;
+
+exports[`geometry helper of redshift > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of redshift > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "st_geomfromtext($1, 4326)",
+}
+`;
+
+exports[`geometry helper of redshift > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(st_collect("articles"."location"))",
+}
+`;
+
+exports[`geometry helper of redshift > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of redshift > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of redshift > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1",
+}
+`;
+
+exports[`geometry helper of redshift > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "NOT 1",
+}
+`;
+
+exports[`geometry helper of redshift > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location geometry",
+]
+`;
+
+exports[`geometry helper of redshift > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of redshift > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects("articles"."location", st_geomfromtext($1, 4326))",
+}
+`;
+
+exports[`geometry helper of sqlite > column, text and GeoJSON conversions 1`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(\`articles\`.\`location\`) as \`location_alias\`",
+}
+`;
+
+exports[`geometry helper of sqlite > column, text and GeoJSON conversions 2`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(\`articles\`.\`location\`)",
+}
+`;
+
+exports[`geometry helper of sqlite > column, text and GeoJSON conversions 3`] = `
+{
+  "bindings": [
+    "POINT(1 2)",
+  ],
+  "sql": "st_geomfromtext(?, 4326)",
+}
+`;
+
+exports[`geometry helper of sqlite > column, text and GeoJSON conversions 4`] = `
+{
+  "bindings": [
+    "POINT (1 2)",
+  ],
+  "sql": "st_geomfromtext(?, 4326)",
+}
+`;
+
+exports[`geometry helper of sqlite > column, text and GeoJSON conversions 5`] = `
+{
+  "bindings": [],
+  "sql": "st_astext(st_collect(\`articles\`.\`location\`))",
+}
+`;
+
+exports[`geometry helper of sqlite > intersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects(\`articles\`.\`location\`, st_geomfromtext(?, 4326))",
+}
+`;
+
+exports[`geometry helper of sqlite > intersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "st_intersects(\`articles\`.\`location\`, st_geomfromtext(?, 4326))",
+}
+`;
+
+exports[`geometry helper of sqlite > isTrue(), isFalse() and createColumn() 1`] = `
+{
+  "bindings": [],
+  "sql": "1",
+}
+`;
+
+exports[`geometry helper of sqlite > isTrue(), isFalse() and createColumn() 2`] = `
+{
+  "bindings": [],
+  "sql": "NOT 1",
+}
+`;
+
+exports[`geometry helper of sqlite > isTrue(), isFalse() and createColumn() 3`] = `
+[
+  "location Point",
+]
+`;
+
+exports[`geometry helper of sqlite > nintersects() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects(\`articles\`.\`location\`, st_geomfromtext(?, 4326))",
+}
+`;
+
+exports[`geometry helper of sqlite > nintersects_bbox() 1`] = `
+{
+  "bindings": [
+    "POLYGON ((0 0, 0 1, 1 1, 0 0))",
+  ],
+  "sql": "NOT st_intersects(\`articles\`.\`location\`, st_geomfromtext(?, 4326))",
+}
+`;
+
+exports[`number helper of cockroachdb > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of cockroachdb > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of cockroachdb > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of cockroachdb > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of cockroachdb > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of cockroachdb > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of cockroachdb > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of cockroachdb > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of mssql > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from [articles] where [id] = @p0 or [articles].[n] = @p1",
+}
+`;
+
+exports[`number helper of mssql > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of mssql > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from [articles] where [id] = @p0 or [articles].[n] = @p1",
+}
+`;
+
+exports[`number helper of mssql > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of mssql > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from [articles] where [id] = @p0 or [articles].[n] = @p1",
+}
+`;
+
+exports[`number helper of mssql > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of mssql > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from [articles] where [id] = @p0 or [articles].[n] = @p1",
+}
+`;
+
+exports[`number helper of mssql > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of mysql > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of mysql > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of mysql > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of mysql > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of mysql > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of mysql > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of mysql > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of mysql > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of oracle > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from "articles" where "id" = :1 or "articles"."n" = :2",
+}
+`;
+
+exports[`number helper of oracle > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of oracle > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from "articles" where "id" = :1 or "articles"."n" = :2",
+}
+`;
+
+exports[`number helper of oracle > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of oracle > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from "articles" where "id" = :1 or "articles"."n" = :2",
+}
+`;
+
+exports[`number helper of oracle > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of oracle > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from "articles" where "id" = :1 or "articles"."n" = :2",
+}
+`;
+
+exports[`number helper of oracle > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of postgres > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of postgres > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of postgres > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of postgres > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of postgres > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of postgres > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of postgres > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of postgres > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of redshift > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of redshift > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of redshift > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of redshift > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of redshift > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of redshift > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of redshift > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from "articles" where "id" = $1 or "articles"."n" = $2",
+}
+`;
+
+exports[`number helper of redshift > search condition and validity of a integer 2`] = `true`;
+
+exports[`number helper of sqlite > search condition and validity of a bigInteger 1`] = `
+{
+  "bindings": [
+    1,
+    "9007199254740993",
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of sqlite > search condition and validity of a bigInteger 2`] = `true`;
+
+exports[`number helper of sqlite > search condition and validity of a decimal 1`] = `
+{
+  "bindings": [
+    1,
+    1.5,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of sqlite > search condition and validity of a decimal 2`] = `true`;
+
+exports[`number helper of sqlite > search condition and validity of a float 1`] = `
+{
+  "bindings": [
+    1,
+    2.25,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of sqlite > search condition and validity of a float 2`] = `true`;
+
+exports[`number helper of sqlite > search condition and validity of a integer 1`] = `
+{
+  "bindings": [
+    1,
+    5,
+  ],
+  "sql": "select * from \`articles\` where \`id\` = ? or \`articles\`.\`n\` = ?",
+}
+`;
+
+exports[`number helper of sqlite > search condition and validity of a integer 2`] = `true`;
+
+exports[`schema helper of cockroachdb > column change hooks 1`] = `false`;
+
+exports[`schema helper of cockroachdb > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of cockroachdb > column change hooks 3`] = `[]`;
+
+exports[`schema helper of cockroachdb > database size 1`] = `1024`;
+
+exports[`schema helper of cockroachdb > database size 2`] = `
+[
+  "select round(SUM(range_size_mb) * 1024 * 1024, 0) AS size from [SHOW RANGES FROM database "undefined"]",
+]
+`;
+
+exports[`schema helper of cockroachdb > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of cockroachdb > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+  "sort_title",
+]
+`;
+
+exports[`schema helper of cockroachdb > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    25,
+    50,
+  ],
+  "sql": "select * from "articles" limit $1 offset $2",
+}
+`;
+
+exports[`schema helper of cockroachdb > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of cockroachdb > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select ?, ?",
+}
+`;
+
+exports[`schema helper of cockroachdb > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of cockroachdb > names and limits 1`] = `
+{
+  "column": 64,
+  "constraint": "articles_author_foreign_replaced",
+  "index": "articles_title_status_index",
+  "table": 64,
+  "unique": "a_very_long_collection_name_for_index_names__5acb6bc3_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`schema helper of mssql > column change hooks 1`] = `false`;
+
+exports[`schema helper of mssql > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of mssql > column change hooks 3`] = `[]`;
+
+exports[`schema helper of mssql > database size 1`] = `1024`;
+
+exports[`schema helper of mssql > database size 2`] = `
+[
+  "SELECT SUM(size) * 8192 AS size FROM sys.database_files;",
+]
+`;
+
+exports[`schema helper of mssql > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+  "[articles].[title]",
+]
+`;
+
+exports[`schema helper of mssql > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+  "[articles].[title]",
+]
+`;
+
+exports[`schema helper of mssql > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    50,
+    25,
+  ],
+  "sql": "select * from [articles] order by 1 asc offset @p0 rows fetch next @p1 rows only",
+}
+`;
+
+exports[`schema helper of mssql > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of mssql > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select @p0, @p1",
+}
+`;
+
+exports[`schema helper of mssql > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of mssql > names and limits 1`] = `
+{
+  "column": 128,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 128,
+  "unique": "a_very_long_collection_name_for_index_names_a_very_long_field_name_unique",
+  "uuid": "0B0E9FF7-3C1B-4C13-8C13-6C0C8A1C6A9B",
+}
+`;
+
+exports[`schema helper of mysql > column change hooks 1`] = `false`;
+
+exports[`schema helper of mysql > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of mysql > column change hooks 3`] = `[]`;
+
+exports[`schema helper of mysql > database size 1`] = `1024`;
+
+exports[`schema helper of mysql > database size 2`] = `
+[
+  "select sum(\`size\`) as \`size\` from (select data_length + index_length AS size from \`information_schema\`.\`TABLES\` where \`table_schema\` = ?) as \`size\`",
+]
+`;
+
+exports[`schema helper of mysql > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of mysql > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+  "sort_title",
+]
+`;
+
+exports[`schema helper of mysql > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    25,
+    50,
+  ],
+  "sql": "select * from \`articles\` limit ? offset ?",
+}
+`;
+
+exports[`schema helper of mysql > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of mysql > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select ?, ?",
+}
+`;
+
+exports[`schema helper of mysql > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of mysql > names and limits 1`] = `
+{
+  "column": 64,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 64,
+  "unique": "a_very_long_collection_name_for_index_names_a_v__5acb6bc3_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`schema helper of oracle > column change hooks 1`] = `false`;
+
+exports[`schema helper of oracle > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of oracle > column change hooks 3`] = `[]`;
+
+exports[`schema helper of oracle > database size 1`] = `null`;
+
+exports[`schema helper of oracle > database size 2`] = `
+[
+  "select SUM(bytes) from dba_segments",
+]
+`;
+
+exports[`schema helper of oracle > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+  ""articles"."title"",
+]
+`;
+
+exports[`schema helper of oracle > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+  ""articles"."title"",
+]
+`;
+
+exports[`schema helper of oracle > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    75,
+    50,
+  ],
+  "sql": "select * from (select row_.*, ROWNUM rownum_ from (select * from "articles") row_ where rownum <= :1) where rownum_ > :2",
+}
+`;
+
+exports[`schema helper of oracle > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS VARCHAR2(255))"`;
+
+exports[`schema helper of oracle > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select :1, :2",
+}
+`;
+
+exports[`schema helper of oracle > limit, offset, a2o cast and bindings 4`] = `
+{
+  "1": 1,
+  "2": "a",
+  "3": null,
+}
+`;
+
+exports[`schema helper of oracle > names and limits 1`] = `
+{
+  "column": 128,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 128,
+  "unique": "a_very_long_collection_name_for_index_names_a_very_long_field_name_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`schema helper of postgres > column change hooks 1`] = `false`;
+
+exports[`schema helper of postgres > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of postgres > column change hooks 3`] = `[]`;
+
+exports[`schema helper of postgres > database size 1`] = `null`;
+
+exports[`schema helper of postgres > database size 2`] = `[]`;
+
+exports[`schema helper of postgres > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of postgres > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+  "sort_title",
+]
+`;
+
+exports[`schema helper of postgres > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    25,
+    50,
+  ],
+  "sql": "select * from "articles" limit $1 offset $2",
+}
+`;
+
+exports[`schema helper of postgres > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of postgres > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select ?, ?",
+}
+`;
+
+exports[`schema helper of postgres > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of postgres > names and limits 1`] = `
+{
+  "column": 64,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 64,
+  "unique": "a_very_long_collection_name_for_index_names_a___5acb6bc3_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`schema helper of redshift > column change hooks 1`] = `false`;
+
+exports[`schema helper of redshift > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of redshift > column change hooks 3`] = `[]`;
+
+exports[`schema helper of redshift > database size 1`] = `null`;
+
+exports[`schema helper of redshift > database size 2`] = `[]`;
+
+exports[`schema helper of redshift > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of redshift > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of redshift > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    25,
+    50,
+  ],
+  "sql": "select * from "articles" limit $1 offset $2",
+}
+`;
+
+exports[`schema helper of redshift > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of redshift > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select ?, ?",
+}
+`;
+
+exports[`schema helper of redshift > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of redshift > names and limits 1`] = `
+{
+  "column": 64,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 64,
+  "unique": "a_very_long_collection_name_for_index_names__5acb6bc3_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`schema helper of sqlite > column change hooks 1`] = `true`;
+
+exports[`schema helper of sqlite > column change hooks 2`] = `"string"`;
+
+exports[`schema helper of sqlite > column change hooks 3`] = `
+[
+  "PRAGMA foreign_keys",
+  "PRAGMA foreign_keys = OFF",
+  "PRAGMA foreign_keys = ON",
+]
+`;
+
+exports[`schema helper of sqlite > database size 1`] = `1024`;
+
+exports[`schema helper of sqlite > database size 2`] = `
+[
+  "SELECT page_count * page_size as "size" FROM pragma_page_count(), pragma_page_size();",
+]
+`;
+
+exports[`schema helper of sqlite > inner sort fields of a grouped query (relational sort: false) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of sqlite > inner sort fields of a grouped query (relational sort: true) 1`] = `
+[
+  "articles.id",
+]
+`;
+
+exports[`schema helper of sqlite > limit, offset, a2o cast and bindings 1`] = `
+{
+  "bindings": [
+    25,
+    50,
+  ],
+  "sql": "select * from \`articles\` limit ? offset ?",
+}
+`;
+
+exports[`schema helper of sqlite > limit, offset, a2o cast and bindings 2`] = `"CAST(?? AS CHAR(255))"`;
+
+exports[`schema helper of sqlite > limit, offset, a2o cast and bindings 3`] = `
+{
+  "bindings": [
+    1,
+    "a",
+  ],
+  "sql": "select ?, ?",
+}
+`;
+
+exports[`schema helper of sqlite > limit, offset, a2o cast and bindings 4`] = `
+[
+  1,
+  "a",
+  null,
+]
+`;
+
+exports[`schema helper of sqlite > names and limits 1`] = `
+{
+  "column": 64,
+  "constraint": "articles_author_foreign",
+  "index": "articles_title_status_index",
+  "table": 64,
+  "unique": "a_very_long_collection_name_for_index_names_a_very_long_field_name_unique",
+  "uuid": "0b0e9ff7-3c1b-4c13-8c13-6c0c8a1c6a9b",
+}
+`;
+
+exports[`sequence helper of cockroachdb > resetAutoIncrementSequence() 1`] = `[]`;
+
+exports[`sequence helper of mssql > resetAutoIncrementSequence() 1`] = `[]`;
+
+exports[`sequence helper of mysql > resetAutoIncrementSequence() 1`] = `[]`;
+
+exports[`sequence helper of oracle > resetAutoIncrementSequence() 1`] = `[]`;
+
+exports[`sequence helper of postgres > resetAutoIncrementSequence() 1`] = `
+[
+  "WITH sequence_infos AS (SELECT pg_get_serial_sequence($1, $2) AS seq_name, MAX("id") as max_val FROM "articles") SELECT SETVAL(seq_name, max_val) FROM sequence_infos;",
+]
+`;
+
+exports[`sequence helper of redshift > resetAutoIncrementSequence() 1`] = `[]`;
+
+exports[`sequence helper of sqlite > resetAutoIncrementSequence() 1`] = `[]`;
