@@ -52,8 +52,10 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
   - `validateBatch`, `useCollection` port thành hàm async gọi ở đầu handler (`await validateBatch('read')(req)`), thay
     cho middleware Express: biến đổi cơ học như 003 làm với router của driver, không phụ thuộc cách Nest khớp path
     cho middleware. Lỗi ném ra đi qua `ErrorHandlerFilter` như mọi route.
-  - `GET /:pk` của `/users`, `/policies`, `/access`, `/permissions`: `req.path.endsWith('me')` thì ném
-    `RouteNotFoundError({ path })`, tương đương router Express rơi qua `notFoundHandler` (contracts §1 dòng 5).
+  - `GET /:pk` của `/users`, `/policies`, `/access`, `/permissions`: `req.path.endsWith('me')` thì không đọc gì và
+    gọi `respond(res)` không payload → `204` không body. Ở Directus `next()` chuyển sang `respond` đứng sau trong cùng
+    route (đã đọc `controllers/access.ts:83-98`, `users.ts:127-141`), nên không rơi xuống `notFoundHandler`
+    (contracts §1 dòng 5).
   - `OPTIONS`: thêm bảng contracts §3 vào `middleware/router-options.ts`.
   - Service vào controller qua factory trong `providers.ts` (`UsersService` đã có; thêm `RolesService`,
     `PoliciesService`, `AccessService`, `PermissionsService`, `MetaService`). Engine, `getService`, service lồng dùng

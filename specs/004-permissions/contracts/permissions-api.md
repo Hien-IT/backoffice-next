@@ -15,7 +15,7 @@ Thứ tự đăng ký (quyết định route nào khớp trước và header `Al
 | 2 | `GET /` | `validateBatch('read')` (đặt `req.body = {}`) | `readByQuery(sanitizedQuery)` + `MetaService.getMetaForQuery` → `{ data, meta }` |
 | 3 | `SEARCH /` | `validateBatch('read')` | `body.query` (nếu có) thay query string (qua `sanitizeQuery` + `validateQuery`); body phải khớp `{ keys?: (string|number)[], query?: object }` |
 | 4 | `GET /me`... | — | route riêng của từng controller (§2) |
-| 5 | `GET /:pk` | — | `readOne(pk, sanitizedQuery)`; ở `/users`, `/policies`, `/access`, `/permissions`: `req.path.endsWith('me')` thì `next()` (không có route sau → `404 ROUTE_NOT_FOUND`, kể cả `/users/some`) |
+| 5 | `GET /:pk` | — | `readOne(pk, sanitizedQuery)`; ở `/users`, `/policies`, `/access`, `/permissions`: `req.path.endsWith('me')` thì `next()` sang `respond` của cùng route (không có payload → `204` không body, không phải `404`; ví dụ `GET /access/me`, `GET /users/some`); `GET /roles/:pk` không có nhánh này |
 | 6 | `PATCH /` | `validateBatch('update')` | mảng → `updateBatch`; `{ keys, data }` → `updateMany`; `{ query, data }` → `updateByQuery`; `keys` xor `query`; `data` bắt buộc. Đọc lại bằng `readMany`; `FORBIDDEN` → `204` |
 | 7 | `PATCH /:pk` | — | `updateOne`; đọc lại; `FORBIDDEN` → `204` |
 | 8 | `DELETE /` | `validateBatch('delete')` | mảng khóa → `deleteMany`; `{ keys }` → `deleteMany`; `{ query }` → `deleteByQuery`. `204` |
@@ -122,7 +122,7 @@ giá trị sai kiểu, toán tử lạ, `alias` sai, độ sâu quan hệ quá `
 | `INVALID_CREDENTIALS` | 401 | | không `user` ở `/users/me*`, `/users/me/tfa/*`; static token sai |
 | `TOKEN_EXPIRED` | 401; `INVALID_TOKEN` | 403 | JWT, token mời, token xác minh |
 | `REQUESTS_EXCEEDED` | 429 | + `Retry-After` | limiter đăng ký |
-| `ROUTE_NOT_FOUND` | 404 | | path không khớp, kể cả `GET /<x>/…me` của §1 dòng 5 |
+| `ROUTE_NOT_FOUND` | 404 | | path không khớp route nào của router (ví dụ `GET /users/a/b`); `GET /<x>/<pk kết thúc bằng me>` ở §1 dòng 5 trả `204`, không phải `404` |
 
 Thứ tự ném lỗi (FR-033): hook filter (không có, D-29) → kiểm quyền → `preMutationError` của service (email, mật khẩu,
 URL mời) → ghi DB → kiểm toàn vẹn số user (trong transaction) → xóa cache → đọc lại.
