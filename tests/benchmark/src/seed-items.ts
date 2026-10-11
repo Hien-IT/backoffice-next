@@ -1,5 +1,5 @@
 // Seed of the items benchmark (feature 005, FR-048, SC-006, research R11), Postgres only. Through the Directus API:
-// bench_categories (100 rows) and bench_articles (title, indexed status, body, indexed m2o category, date_created) with
+// bench_categories (100 rows) and bench_articles (title, indexed status, body, indexed m2o category, indexed date_created) with
 // the o2m alias categories.articles, a user with a read policy filtered on status = published (part of the fields) and
 // create, update and delete on its rows, and an admin user, both with a static token. With knex on the host:
 // BENCH_ITEMS_ROWS rows (10 million by default) in one INSERT ... SELECT FROM generate_series, then BENCH_DELETE_ROWS
@@ -58,7 +58,8 @@ export async function seed(): Promise<ItemsSeed> {
 			{ field: 'status', type: 'string', schema: { is_indexed: true } },
 			{ field: 'body', type: 'text' },
 			{ field: 'category', type: 'integer', schema: { is_indexed: true }, meta: { special: ['m2o'] } },
-			{ field: 'date_created', type: 'timestamp', meta: { special: ['date-created'] } },
+			// Indexed: the list sorts on it; without the index each fresh read sorts 5 million rows (first CI run).
+			{ field: 'date_created', type: 'timestamp', schema: { is_indexed: true }, meta: { special: ['date-created'] } },
 		],
 	});
 

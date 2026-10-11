@@ -216,7 +216,7 @@ thông điệp bus, không dựng client WebSocket.
 - **Quyết định**: `tests/benchmark/src/{items,seed-items}.ts`, target `benchmark:items`, job `benchmark-items` trong
   `benchmark.yml` (hằng tuần, bấm tay, không chặn CI). Seed (Postgres): tạo qua API của Directus collection
   `bench_categories` (100 dòng) và `bench_articles` (field `title` string, `status` string có index, `body` text,
-  `category` m2o có index, `date_created`), alias o2m `categories.articles`; nạp 10 triệu dòng bằng một câu
+  `category` m2o có index, `date_created` có index vì danh sách sắp theo nó), alias o2m `categories.articles`; nạp 10 triệu dòng bằng một câu
   `INSERT INTO bench_articles ... SELECT ... FROM generate_series(1, 10000000)` qua knex trên host (không cần thư viện
   COPY), thêm 200.000 dòng dành cho `DELETE` (mỗi app một dải id). Kịch bản autocannon (mẫu `permissions.ts`: warm-up,
   `BENCH_ROUNDS` lượt xen kẽ, throughput 50 kết nối rồi p95 ở 80% req/s của Directus, so bằng `compare.ts`):

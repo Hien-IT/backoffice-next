@@ -595,5 +595,11 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   `cache`, `Emitter` mới; `blackbox-full` đủ ba kiểu khóa, cả hai lượt: MySQL 819 giây, SQLite 490 giây (bước blackbox).
   CI 700ecfb xanh mọi job: `parity-blackbox` (Postgres) 913 giây, `parity-cache` 411 giây, `parity` Postgres `full`
   911 giây, MySQL, SQLite `reduced` kèm blackbox `integer` 372 và 487 giây, `e2e-directus-app` 350 giây.
+- T048 lần chạy đầu (benchmark.yml, 700ecfb, runner GitHub): seed 304 giây, `bench_articles` 1,37 GiB kèm index, đĩa
+  còn 82 GB; job 2.299 giây. Đọc từ cache (`HIT`) và ghi của admin đạt, app mới nhanh hơn ở mọi dòng. Đọc tươi lỗi ở cả
+  hai app: danh sách sắp theo `date_created` không có index nên mỗi request sắp 5 triệu dòng, quá timeout 10 giây của
+  autocannon, rồi đọc theo id xếp hàng sau các truy vấn đó. Sửa seed: index `date_created` (research R11, contracts §8).
+  `POST` của user: p95 380 so với 311 ms (+22%) dù req/s cao hơn; job `benchmark` của 001: `/server/health` p95 311 so
+  với 271 ms (+15%). Chạy lại sau khi sửa để xem hai dòng này là nhiễu hay thật.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)

@@ -96,7 +96,7 @@ với cặp chính, nên fixture tạo qua cặp nào cũng được.
 
 | Mục | Giá trị |
 |-----|---------|
-| Dữ liệu | `bench_categories` 100 dòng; `bench_articles` 10.000.000 dòng (`generate_series`), index `status`, `category`; thêm 200.000 dòng cho `DELETE` (dải id riêng mỗi app) |
+| Dữ liệu | `bench_categories` 100 dòng; `bench_articles` 10.000.000 dòng (`generate_series`), index `status`, `category`, `date_created`; thêm 200.000 dòng cho `DELETE` (dải id riêng mỗi app) |
 | Kịch bản | list có filter, sort, limit, m2o; by id; `POST`; `PATCH`; `DELETE`; × {admin, user filter quyền} |
 | Chế độ | tươi (`Cache-Control: no-store`), `HIT` (lặp cùng `GET`, không header) |
 | Đo | như `permissions.ts`: warm-up 5 s, `BENCH_ROUNDS` lượt xen kẽ, throughput 50 kết nối, p95 ở 80% req/s Directus, ngưỡng 10% (`compare.ts`) |
