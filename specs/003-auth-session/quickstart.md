@@ -26,12 +26,15 @@ pnpm nx run parity-tests:parity --vendor=postgres
 Benchmark auth (2.000 kết nối, chỉ Postgres):
 
 ```bash
-pnpm nx run benchmark:env-up
+pnpm nx run benchmark:env-up-auth
 ```
 
 ```bash
 pnpm nx run benchmark:auth
 ```
+
+`env-up-auth` tắt pressure limiter của cả hai app (`tests/benchmark/auth.compose.yml`). Trên máy arm64, Directus chạy
+giả lập nên số liệu chỉ có ý nghĩa trên CI; đo thử nhỏ hơn bằng `BENCH_CONNECTIONS=200 BENCH_ROUNDS=1`.
 
 ## 2. Thử bằng tay với Directus tham chiếu
 

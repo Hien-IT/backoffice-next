@@ -1,0 +1,10 @@
+# Auth benchmark (SC-007, spec 003): at 2,000 connections the pressure limiter of both apps (on by default, the same
+# @directus/pressure rules) sheds some rounds with 503 at random, which fails a round. The owner chose to measure raw
+# capacity: off for both apps here only; its behaviour is compared by the parity tests (profile `pressure`).
+services:
+  directus:
+    environment:
+      PRESSURE_LIMITER_ENABLED: 'false'
+  backoffice-api:
+    environment:
+      PRESSURE_LIMITER_ENABLED: 'false'

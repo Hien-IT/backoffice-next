@@ -643,4 +643,6 @@ Task: "T061 ldap.ts"
   độ cố định: đăng nhập 846 đến 885 ms so với 819 đến 857 ms, refresh 805 đến 897 so với 776 đến 885. Pressure
   limiter (mặc định bật ở cả hai) trả `503` ở vài vòng của cả hai app (Directus 39 và 168, app mới 137 và một vòng
   đăng nhập 1.538), nên quy tắc "vòng có lỗi thì trượt" làm cổng đỏ ngẫu nhiên. Thời gian cần cho 5 vòng khoảng 75 đến
-  80 phút, quá timeout 60 phút. Chờ chủ dự án chọn cách đo (SC-007).
+  80 phút, quá timeout 60 phút. Chủ dự án chọn: tắt pressure limiter cho cả hai app ở môi trường benchmark auth
+  (`tests/benchmark/auth.compose.yml`, target `benchmark:env-up-auth`) và 3 vòng (`BENCH_ROUNDS=3` ở job CI); SC-007,
+  R12, quickstart cập nhật theo.

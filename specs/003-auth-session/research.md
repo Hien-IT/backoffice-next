@@ -249,6 +249,9 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
 - **Lý do**: Người dùng chọn tải 2.000 kết nối đồng thời và chặn CI. Đăng nhập bị giới hạn bởi argon2 chạy trên thread
   pool (4 luồng) và thời gian chờ 500 ms ở cả hai app, nên so sánh vẫn công bằng. Hàng đợi khoảng 2.000 / req/s giây,
   cần `timeout` lớn để không tính thành lỗi.
+- **Cập nhật khi chạy CI (2026-10-11)**: đo theo `amount` (mỗi vòng chờ hết response; vòng theo thời gian để lại request
+  dở dồn sang vòng sau), `timeout` 300 s, pressure limiter tắt cho cả hai app (`tests/benchmark/auth.compose.yml`) và 3
+  vòng, theo lựa chọn của chủ dự án (Clarifications của spec). Chi tiết ở "Ghi chú khi làm" của tasks.md (T064, T066).
 - **Rủi ro**:
   - Autocannon có tính request còn dở lúc hết vòng là lỗi không `[Suy luận]`. Task đầu của phần benchmark kiểm việc
     này; nếu có thì đo theo `amount` thay cho `duration`.

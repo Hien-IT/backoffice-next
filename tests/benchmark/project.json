@@ -17,6 +17,13 @@
 				"cwd": "tests/benchmark"
 			}
 		},
+		"env-up-auth": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "docker compose -p benchmark -f docker-compose.yml -f auth.compose.yml --profile postgres up -d --build --wait",
+				"cwd": "tests/benchmark"
+			}
+		},
 		"run": {
 			"executor": "nx:run-commands",
 			"options": {

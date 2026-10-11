@@ -136,11 +136,12 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - run: pnpm nx run benchmark:env-up
+      # Pressure limiter off for both apps, 3 rounds: owner's choice for SC-007 (tasks.md T066, spec 003).
+      - run: pnpm nx run benchmark:env-up-auth
       # stream: the progress lines show while a round runs (static holds them until the task ends).
       - run: pnpm nx run benchmark:auth --output-style=stream
         env:
-          BENCH_ROUNDS: 5
+          BENCH_ROUNDS: 3
       - name: container state and logs
         if: failure()
         run: |
