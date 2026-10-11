@@ -171,6 +171,15 @@ export async function createAuthDb(): Promise<Knex> {
 		t.uuid('version');
 	});
 
+	// Feature 004: RolesService.deleteMany removes the presets of the role.
+	await db.schema.createTable('directus_presets', (t) => {
+		t.increments('id');
+		t.string('bookmark', 255);
+		t.uuid('user');
+		t.uuid('role');
+		t.string('collection', 64);
+	});
+
 	await db.schema.alterTable('directus_settings', (t) => {
 		t.integer('auth_login_attempts').defaultTo(25);
 		t.string('auth_password_policy', 100);

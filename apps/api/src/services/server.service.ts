@@ -1,21 +1,21 @@
-// Ported from directus/api/src/services/server.ts. Feature 001 serves public requests only (FR-044): the part of
-// serverInfo for logged-in users comes with feature 003, setup with 010. `email:connection` is always ok, no mail
-// transport is created (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047).
+// Ported from directus/api/src/services/server.ts. Setup comes with feature 010. `email:connection` is always ok, no
+// mail transport is created (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047).
 import { Readable } from 'node:stream';
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';
 import type { AbstractServiceOptions, Accountability } from '@backoffice/types';
-import { toArray } from '@backoffice/utils';
+import { toArray, toBoolean } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { merge } from 'lodash-es';
 import { getCache } from '../cache.js';
-import { DIRECTUS_COMPAT_VERSION } from '../constants.js';
+import { DIRECTUS_COMPAT_VERSION, FILE_UPLOADS, RESUMABLE_UPLOADS } from '../constants.js';
 import getDatabase, { hasDatabaseConnection } from '../database/index.js';
 import { useLogger } from '../logger/index.js';
 import { rateLimiterGlobal } from '../middleware/rate-limiter-global.js';
 import { rateLimiter } from '../middleware/rate-limiter-ip.js';
 import { SERVER_ONLINE } from '../server.js';
 import { getStorage } from '../storage/index.js';
+import { getAllowedLogLevels } from '../utils/get-allowed-log-levels.js';
 import { SettingsService } from './settings.service.js';
 
 export class ServerService {
@@ -46,7 +46,90 @@ export class ServerService {
 
 		info['setupCompleted'] = setupComplete;
 
-		// Feature 003: the fields for logged-in users (mcp_enabled, ai_enabled, files, rateLimit, websocket...).
+		if (this.accountability?.user) {
+			const env = useEnv();
+
+			info['mcp_enabled'] = toBoolean(env['MCP_ENABLED'] ?? true);
+			info['ai_enabled'] = toBoolean(env['AI_ENABLED'] ?? true);
+
+			info['files'] = {
+				mimeTypeAllowList: toArray(env['FILES_MIME_TYPE_ALLOW_LIST'] as string | string[]),
+			};
+
+			if (env['RATE_LIMITER_ENABLED']) {
+				info['rateLimit'] = {
+					points: env['RATE_LIMITER_POINTS'],
+					duration: env['RATE_LIMITER_DURATION'],
+				};
+			} else {
+				info['rateLimit'] = false;
+			}
+
+			if (env['RATE_LIMITER_GLOBAL_ENABLED']) {
+				info['rateLimitGlobal'] = {
+					points: env['RATE_LIMITER_GLOBAL_POINTS'],
+					duration: env['RATE_LIMITER_GLOBAL_DURATION'],
+				};
+			} else {
+				info['rateLimitGlobal'] = false;
+			}
+
+			info['extensions'] = {
+				limit: env['EXTENSIONS_LIMIT'] ?? null,
+			};
+
+			info['queryLimit'] = {
+				default: env['QUERY_LIMIT_DEFAULT'],
+				max: Number.isFinite(env['QUERY_LIMIT_MAX']) ? env['QUERY_LIMIT_MAX'] : -1,
+			};
+
+			if (toBoolean(env['WEBSOCKETS_ENABLED'])) {
+				info['websocket'] = {};
+
+				info['websocket'].rest = toBoolean(env['WEBSOCKETS_REST_ENABLED'])
+					? {
+							authentication: env['WEBSOCKETS_REST_AUTH'],
+							path: env['WEBSOCKETS_REST_PATH'],
+						}
+					: false;
+
+				info['websocket'].graphql = toBoolean(env['WEBSOCKETS_GRAPHQL_ENABLED'])
+					? {
+							authentication: env['WEBSOCKETS_GRAPHQL_AUTH'],
+							path: env['WEBSOCKETS_GRAPHQL_PATH'],
+						}
+					: false;
+
+				info['websocket'].heartbeat = toBoolean(env['WEBSOCKETS_HEARTBEAT_ENABLED'])
+					? env['WEBSOCKETS_HEARTBEAT_PERIOD']
+					: false;
+
+				info['websocket'].collaborativeEditing = toBoolean(env['WEBSOCKETS_COLLAB_ENABLED']);
+
+				info['websocket'].logs =
+					toBoolean(env['WEBSOCKETS_LOGS_ENABLED']) && this.accountability.admin
+						? {
+								allowedLogLevels: getAllowedLogLevels((env['WEBSOCKETS_LOGS_LEVEL'] as string) || 'info'),
+							}
+						: false;
+			} else {
+				info['websocket'] = false;
+			}
+
+			if (FILE_UPLOADS.MAX_CONCURRENCY && FILE_UPLOADS.MAX_CONCURRENCY !== Infinity) {
+				info['uploads'] = {
+					maxConcurrency: FILE_UPLOADS.MAX_CONCURRENCY,
+				};
+			}
+
+			if (RESUMABLE_UPLOADS.ENABLED) {
+				info['uploads'] = {
+					...info['uploads'],
+					tus: true,
+					chunkSize: RESUMABLE_UPLOADS.CHUNK_SIZE,
+				};
+			}
+		}
 
 		if (this.accountability?.user || !setupComplete) info['version'] = DIRECTUS_COMPAT_VERSION;
 

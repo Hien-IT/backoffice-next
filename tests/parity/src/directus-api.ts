@@ -21,6 +21,9 @@ async function login(app: AppName): Promise<string> {
 	return token;
 }
 
+/** Access token of the admin of `app`, issued by that app (cached per process). */
+export const adminToken = login;
+
 /** Base URL of the main pair for an app (set by global-setup). */
 export function appUrl(app: AppName): string {
 	const url = process.env[app === 'directus' ? 'DIRECTUS_URL' : 'BACKOFFICE_URL'];

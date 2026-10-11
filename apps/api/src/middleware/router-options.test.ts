@@ -41,7 +41,17 @@ test('respects OPENAPI_ENABLED and METRICS_ENABLED; other methods pass through',
 test('OPTIONS of the auth routes → Allow: POST', async () => {
 	const env = { AUTH_PROVIDERS: 'local2,sso', AUTH_LOCAL2_DRIVER: 'local', AUTH_SSO_DRIVER: 'openid' };
 
-	for (const path of ['/users/me/tfa/generate/', '/auth/password/request', '/auth/password/reset/', '/auth/refresh', '/auth/Logout/', '/auth/login', '/AUTH/login/', '/auth/login/LOCAL2', '/auth/login/local2/']) {
+	for (const path of [
+		'/users/me/tfa/generate/',
+		'/auth/password/request',
+		'/auth/password/reset/',
+		'/auth/refresh',
+		'/auth/Logout/',
+		'/auth/login',
+		'/AUTH/login/',
+		'/auth/login/LOCAL2',
+		'/auth/login/local2/',
+	]) {
 		const res = await app(env).options(path);
 		expect(res.headers['allow'], path).toBe('POST');
 		expect(res.text).toBe('POST');
@@ -72,4 +82,26 @@ test('OPTIONS of GET /auth and the SSO and LDAP providers', async () => {
 	expect(await allow('/auth/login/dir')).toBe('POST');
 	expect((await app(env).options('/auth/login/dir/callback')).status).toBe(404);
 	expect((await app(env).options('/auth/login/saml')).status).toBe(404);
+});
+
+// Feature 004 (contracts/permissions-api.md §3).
+test.each([
+	['/roles', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/Policies/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/access', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/permissions', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/users/me', 'GET,HEAD,PATCH,DELETE'],
+	['/roles/me', 'GET,HEAD,PATCH,DELETE'],
+	['/policies/abc', 'GET,HEAD,PATCH,DELETE'],
+	['/access/abc/', 'GET,HEAD,PATCH,DELETE'],
+	['/permissions/me', 'GET,HEAD,PATCH,DELETE'],
+	['/policies/me/globals', 'GET,HEAD'],
+	['/permissions/me/articles', 'GET,HEAD'],
+	['/permissions/me/articles/1', 'GET,HEAD'],
+])('OPTIONS %s → Allow: %s', async (path, allow) => {
+	expect((await app({}).options(path)).headers['allow']).toBe(allow);
+});
+
+test.each(['/roles/a/b', '/access/a/b', '/permissions/me/a/b/c'])('OPTIONS %s → not handled (404)', async (path) => {
+	expect((await app({}).options(path)).status).toBe(404);
 });

@@ -222,7 +222,7 @@ của 003; `authenticate` cho mọi path; `sanitizeQuery` vào pipeline. Mọi u
     `?limit=abc` → `400 INVALID_QUERY`).
   - `tests/parity/accepted-differences.ts`: D-12 thu hẹp còn `export` (`excludeEndpoints` hoặc `directus` matcher theo
     query `export`); chạy `src/accepted-differences.test.ts`. (sau T032)
-- [ ] T034 Checkpoint (FR-105): chạy toàn bộ unit test, rồi `pnpm nx run parity-tests:parity --vendor=postgres` (bộ
+- [X] T034 Checkpoint (FR-105): chạy toàn bộ unit test, rồi `pnpm nx run parity-tests:parity --vendor=postgres` (bộ
   `full` của 001 đến 003, kể cả `src/auth/**`) và `reduced` trên MySQL, SQLite. Sửa lỗi do engine mới cho tới khi xanh;
   ca nào đổi kết quả do D-10, D-12 được gỡ thì sửa test cho đúng Directus. Ghi số ca và thời gian vào "Ghi chú khi làm".
   (sau T033)
@@ -240,17 +240,17 @@ xử lý token như Directus.
 
 ### Tests for User Story 1
 
-- [ ] T035 [P] [US1] `tests/parity/src/permissions/accountability.test.ts`: US1.1 đến US1.7 (cây role ba tầng, admin qua
+- [X] T035 [P] [US1] `tests/parity/src/permissions/accountability.test.ts`: US1.1 đến US1.7 (cây role ba tầng, admin qua
   policy gắn user, gỡ admin khi token còn hạn, đổi role khi token còn hạn và với static token, share `GET /users/me`),
   với token JWT ba chế độ, static token, share, không token. Dùng `scenario()` khi đổi dữ liệu.
-- [ ] T036 [P] [US1] Sửa `tests/parity/src/server/errors.test.ts` (bỏ `/users` khỏi danh sách "chưa làm"; token sai tới
+- [X] T036 [P] [US1] Sửa `tests/parity/src/server/errors.test.ts` (bỏ `/users` khỏi danh sách "chưa làm"; token sai tới
   route 001 nay `401`/`403` như Directus) và thêm `tests/parity/src/permissions/server-routes.test.ts`: `/server/info`,
   `/server/health`, `/metrics`, `/server/specs/oas` với token admin, user thường, token sai, token hết hạn (US1.4, US1.5,
   FR-004), path trước `authenticate` (`/`, `/robots.txt`, `/server/ping`) bỏ qua token sai.
 
 ### Implementation for User Story 1
 
-- [ ] T037 [US1] Route `me`:
+- [X] T037 [US1] Route `me`:
   - `apps/api/src/controllers/users.controller.ts`: `GET /users/me` (share → `{share}`, không user → `401`, `FORBIDDEN`
     khi đọc → `{id}`) dùng `UsersService.readOne` và `req.sanitizedQuery`.
   - `apps/api/src/controllers/roles.controller.ts` (mới): `GET /roles/me` (FR-044).
@@ -259,7 +259,7 @@ xử lý token như Directus.
     `Allow` của ba path trong `middleware/router-options.ts`.
   - Test controller supertest trên SQLite (`createDirectusDb()`): `apps/api/src/controllers/{roles,policies}.controller.test.ts`
     và ca mới trong `users.controller.test.ts`. (sau T034)
-- [ ] T038 [US1] `tests/parity/accepted-differences.ts`: D-10 thêm `excludeEndpoints` phủ mọi route (giữ entry tới khi
+- [X] T038 [US1] `tests/parity/accepted-differences.ts`: D-10 thêm `excludeEndpoints` phủ mọi route (giữ entry tới khi
   004 Done vì guard bắt mã 001); D-09.2 loại `GET /users/me`, `GET /roles/me`, `GET /policies/me/globals`. Sửa cột "App
   mới" của D-10 trong `specs/001-platform-foundation/spec.md` ("từ feature 004 mọi route xử lý token như Directus").
   Chạy guard. (sau T035 đến T037)
@@ -276,32 +276,32 @@ xử lý token như Directus.
 
 ### Tests for User Story 3
 
-- [ ] T039 [P] [US3] `tests/parity/src/permissions/roles.test.ts`: CRUD mọi dạng (`POST` một và mảng, `GET`, `SEARCH` bỏ
+- [X] T039 [P] [US3] `tests/parity/src/permissions/roles.test.ts`: CRUD mọi dạng (`POST` một và mảng, `GET`, `SEARCH` bỏ
   qua `keys`, `GET /:pk` không có nhánh `me`, `PATCH` mảng, `{keys,data}`, `{query,data}`, `DELETE` mảng, `{keys}`,
   `{query}`), US3.1 (hai message vòng), US3.2 (xóa dây chuyền, so DB bằng `captureDbEffects`), ghi lồng `users`,
   `policies`, `children`, `OPTIONS`, lỗi `validateBatch`, `MAX_BATCH_MUTATION`.
-- [ ] T040 [P] [US3] `tests/parity/src/permissions/policies.test.ts`: CRUD, US3.4 (`ip_access` hợp lệ, `*`, mask, kiểu
+- [X] T040 [P] [US3] `tests/parity/src/permissions/policies.test.ts`: CRUD, US3.4 (`ip_access` hợp lệ, `*`, mask, kiểu
   sai), US3.5 (`PATCH /policies/:id` với `permissions: {create, update, delete}`), US3.3 (xóa policy admin cuối, đặt
   `admin_access=false` → `422`, DB không đổi), `SEARCH` có `keys`, `GET /policies/me` (`204`, FR-047).
-- [ ] T041 [P] [US3] `tests/parity/src/permissions/access.test.ts`: CRUD, dòng public (`role`, `user` đều `null`), cả
+- [X] T041 [P] [US3] `tests/parity/src/permissions/access.test.ts`: CRUD, dòng public (`role`, `user` đều `null`), cả
   `role` và `user`, gỡ access của policy admin cuối → `422`, `GET /access/me` → `204`.
-- [ ] T042 [P] [US3] `tests/parity/src/permissions/permissions.test.ts`: CRUD và batch, US3.7 (`limit` luôn `-1`, `meta`),
+- [X] T042 [P] [US3] `tests/parity/src/permissions/permissions.test.ts`: CRUD và batch, US3.7 (`limit` luôn `-1`, `meta`),
   US2.8 (user `app` thấy quyền tối thiểu của app, `id: null`), `GET /permissions/<pk kết thúc bằng me>` → `204`.
-- [ ] T043 [P] [US3] `tests/parity/src/permissions/blackbox-common.test.ts`: port phần `createRole()` (3 ca) của
+- [X] T043 [P] [US3] `tests/parity/src/permissions/blackbox-common.test.ts`: port phần `createRole()` (3 ca) của
   `directus/tests/blackbox/common/common.test.ts` lên `scenario()`, fixture chạy bằng API của từng app (FR-100).
 
 ### Implementation for User Story 3
 
-- [ ] T044 [US3] `apps/api/src/controllers/roles.controller.ts`, `access.controller.ts`: đủ route CRUD theo thứ tự đăng
+- [X] T044 [US3] `apps/api/src/controllers/roles.controller.ts`, `access.controller.ts`: đủ route CRUD theo thứ tự đăng
   ký của `directus/api/src/controllers/{roles,access}.ts` (contracts/permissions-api.md §1), `@Search()`,
   `@HttpCode(200)` cho `POST`, `validateBatch` dạng hàm, đọc lại sau ghi (`FORBIDDEN` → `204`), `MetaService` cho
   danh sách, nhánh `endsWith('me')` của access trả `204` (FR-047). Test controller supertest. Ghi manifest. (sau T037)
-- [ ] T045 [US3] `apps/api/src/controllers/policies.controller.ts`, `permissions.controller.ts`: đủ route CRUD như T044;
+- [X] T045 [US3] `apps/api/src/controllers/policies.controller.ts`, `permissions.controller.ts`: đủ route CRUD như T044;
   `/permissions` luôn `limit: -1` (cả `meta`), `req.singleton`. Factory `AccessService`, `PermissionsService`,
   `MetaService` trong `providers.ts`; đăng ký controller. Test controller supertest. Ghi manifest. (sau T044)
-- [ ] T046 [US3] `apps/api/src/middleware/router-options.ts`: `Allow` của `/roles`, `/policies`, `/access`,
+- [X] T046 [US3] `apps/api/src/middleware/router-options.ts`: `Allow` của `/roles`, `/policies`, `/access`,
   `/permissions` và path con theo contracts/permissions-api.md §3; test `router-options.test.ts`. (sau T045)
-- [ ] T047 [US3] `tests/parity/accepted-differences.ts`: D-09.2 loại route của `/roles`, `/policies`, `/access`,
+- [X] T047 [US3] `tests/parity/accepted-differences.ts`: D-09.2 loại route của `/roles`, `/policies`, `/access`,
   `/permissions` (trừ `/permissions/me*`, US6). Sửa tới khi T039 đến T043 đạt; chạy guard. (sau T039 đến T046)
 
 **Checkpoint**: Lượt 1 xong. T039 đến T043 đạt trên Postgres; `roles.test.ts` đạt trên MySQL, SQLite. Commit, push, CI
@@ -658,3 +658,28 @@ Task: "T043 blackbox-common.test.ts (createRole)"
   Manifest chung `tools/port-manifest/004-T010-T033.json` (221 file); bỏ `public-accountability.ts` khỏi `T020.json`.
   Checkpoint: typecheck, lint, `check-port-headers` (893 file) đạt; `apps/api` 188 file, 1.983 test đạt, coverage
   85,22 / 86,42 / 88,8 / 85,22; `@backoffice/utils` 435 test đạt.
+- T034: bộ `full` trên Postgres 326 ca, 7 phút 47 giây; 6 ca đỏ đều là ca khẳng định khác biệt cũ (D-10: token sai ở
+  `/nope`, `POST /server/ping`, `/server/health`, `/metrics`; D-12: `/metrics?limit=abc`): app mới nay trả giống
+  Directus, đã sửa test theo Directus (`server/errors`, `health`, `info`, `oas`, `observability/metrics`). Chạy lại năm
+  file: 44 ca đạt. `reduced` trên MySQL, SQLite chạy cùng checkpoint cuối lượt 1 (một lần dựng môi trường mỗi vendor).
+- T036: `/server/info` cho user đăng nhập thiếu nhánh của Directus (`mcp_enabled`, `files`, `rateLimit`, `queryLimit`,
+  `websocket`, `uploads`...; 001 ghi "làm ở 003" nhưng chưa làm): port vào `server.service.ts`, kèm
+  `utils/get-allowed-log-levels.ts` và `FILE_UPLOADS` (getter) trong `constants.ts`. `/server/specs/oas` cho user đăng
+  nhập lộ mô tả trong `components.schemas` đã đổi thương hiệu từ 001: mở rộng D-02 (sửa bảng 001 và bảng của spec này,
+  cần tech lead duyệt ở T086).
+- T037 đến T046: controller Nest cho `/roles`, `/policies`, `/access`, `/permissions` theo đúng thứ tự route của router
+  Directus; `useCollection` gắn bằng `AppModule.configure`; `validateBatch` qua `runMiddleware`; `/permissions/me*` để
+  US6. Fixture SQLite thêm bảng `directus_presets` (xóa role xóa preset). Admin luôn có `app` (`app ||= admin ||
+  app_access`), nên đọc `/permissions` của admin cũng nối quyền tối thiểu của app (không có `id`).
+- T039 đến T043: helper `tests/parity/src/permissions/flow.ts` (mỗi app chạy cùng các bước bằng admin của nó, ghi response,
+  dòng DB, activity, revision; id thay bằng nhãn). Directus `keys.sort()` trong `updateMany`, `deleteMany` nên thứ tự
+  activity theo UUID ngẫu nhiên: so activity, revision như tập hợp. `total_count` khác nhau vì fixture tạo lần lượt ở
+  hai app: dùng `meta=filter_count`. Ca admin cuối (US3.3) kiểm trước rằng admin khởi tạo là admin `active` duy nhất
+  (`last-admin.ts`), nếu không thì báo lỗi thay vì để Directus xóa policy admin. `MAX_BATCH_MUTATION` chưa có profile
+  (giá trị mặc định `Infinity`), chưa kiểm ở T039.
+- T035: Directus của môi trường đối chiếu bật response cache (`CACHE_ENABLED=true`), khóa theo user, path, query (không
+  theo token hay role): sau khi đổi role, gọi `/roles/me` bằng static token cùng query với lần gọi JWT trước đó thì
+  Directus trả lại response cũ. Đây là D-11 (005), không phải accountability; các lần gọi của US1.7 dùng query khác nhau.
+  `/server/health` của admin có `observedValue` theo thời gian nên ETag khác theo độ dài body: so mọi thứ trừ ETag.
+- Checkpoint lượt 1 (Postgres, máy local): bộ `full` 47 file, 386 ca đạt (1 todo), 8 phút 2 giây. MySQL, SQLite chạy
+  `reduced` (gồm `accountability`, `roles`) trên CI sau khi push.

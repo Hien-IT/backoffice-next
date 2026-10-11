@@ -1,5 +1,6 @@
 // T050: error format and codes (FR-050, FR-051), routes not built yet (D-09.*, D-15, D-17), query and token
-// differences (D-10, D-12), rate limiting on shared Redis keys (FR-046) and the pressure limiter (FR-045).
+// checks on every route (D-10 removed, D-12 narrowed by feature 004), rate limiting on shared Redis keys (FR-046) and
+// the pressure limiter (FR-045).
 import { describe, expect, it } from 'vitest';
 import { redisDown, redisUp } from '../docker.js';
 import { assertParity, capture, parity } from '../parity.js';
@@ -39,39 +40,32 @@ describe('errors', () => {
 	});
 
 	it.each(['/server/info?limit=abc', '/nope?limit=abc', '/server/info?filter={bad'])(
-		'%s: Directus 400 INVALID_QUERY, Backoffice ignores the query (D-12)',
+		'%s → 400 INVALID_QUERY on both',
 		async (path) => {
 			const result = await parity({ path });
 			assertParity(result);
-			expect((result.directus.json as any).errors[0].extensions.code).toBe('INVALID_QUERY');
+			expect((result.backoffice.json as any).errors[0].extensions.code).toBe('INVALID_QUERY');
 		},
 	);
 
 	it.each([
 		['GET', '/nope'],
 		['POST', '/server/ping'],
-	])('%s %s with an invalid token: Directus 401, Backoffice 404 (D-10)', async (method, path) => {
+	])('%s %s with an unknown token → 401 INVALID_CREDENTIALS on both', async (method, path) => {
 		const result = await parity({ method, path, headers: { authorization: 'Bearer invalid' } });
 		assertParity(result);
-		expect(result.directus.status).toBe(401);
-		expect(result.backoffice.status).toBe(404);
+		expect(result.backoffice.status).toBe(401);
 	});
 
-	// /auth is built by feature 003 (src/auth/*.test.ts).
-	it.each([
-		'/users',
-		'/items/directus_users',
-		'/collections',
-		'/files',
-		'/activity',
-		'/flows',
-		'/settings',
-		'/graphql',
-	])('%s is not built yet → 404 on Backoffice (D-09.*)', async (path) => {
-		const result = await parity({ path });
-		assertParity(result);
-		expect(result.backoffice.status).toBe(404);
-	});
+	// /auth is built by feature 003 (src/auth/*.test.ts), /users, /roles, /policies, /access, /permissions by 004.
+	it.each(['/items/directus_users', '/collections', '/files', '/activity', '/flows', '/settings', '/graphql'])(
+		'%s is not built yet → 404 on Backoffice (D-09.*)',
+		async (path) => {
+			const result = await parity({ path });
+			assertParity(result);
+			expect(result.backoffice.status).toBe(404);
+		},
+	);
 
 	it.each(['/mcp', '/ai/chat', '/deployments', '/server/specs/graphql'])(
 		'%s out of scope → 404 on Backoffice (D-17, D-15)',

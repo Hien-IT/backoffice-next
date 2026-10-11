@@ -1,7 +1,7 @@
 // T088, US5, contracts/observability.md §2: /metrics on the `metrics` profile pair (METRICS_ENABLED, a 5 s schedule).
 // Metric values differ by nature (FR-103 compares names and help texts only).
 import { describe, expect, it } from 'vitest';
-import { assertParity, capture, parity } from '../parity.js';
+import { assertParity, capture, parity, type ParityRequest } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
 const suite = process.env['PARITY_SUITE'] ?? 'full';
@@ -73,21 +73,19 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('/metrics enabled (pr
 		},
 	);
 
-	it('Bearer token → Directus 401, Backoffice 403 (D-10)', async () => {
-		const result = await parity({ path: '/metrics', headers: { authorization: 'Bearer invalid' } }, urls());
+	// Feature 004 removed D-10 and narrowed D-12: the token and the query are read like Directus.
+	it.each<ParityRequest>([
+		{ path: '/metrics', headers: { authorization: 'Bearer invalid' } },
+		{ path: '/metrics?access_token=invalid' },
+	])('unknown token ($path) → 401 INVALID_CREDENTIALS on both', async (req) => {
+		const result = await parity(req, urls());
 		assertParity(result);
-		expect(result.accepted.map((a) => a.id)).toContain('D-10');
+		expect(result.backoffice.status).toBe(401);
 	});
 
-	it('?access_token= → Directus 401, Backoffice 403 (D-10)', async () => {
-		const result = await parity({ path: '/metrics?access_token=invalid' }, urls());
-		assertParity(result);
-		expect(result.backoffice.status).toBe(403);
-	});
-
-	it('/metrics?limit=abc → Directus 400 INVALID_QUERY, Backoffice ignores the query (D-12)', async () => {
+	it('/metrics?limit=abc → 400 INVALID_QUERY on both', async () => {
 		const result = await parity({ path: '/metrics?limit=abc', headers: TOKEN }, urls());
 		assertParity(result);
-		expect(result.accepted.map((a) => a.id)).toContain('D-12');
+		expect((result.backoffice.json as any).errors[0].extensions.code).toBe('INVALID_QUERY');
 	});
 });

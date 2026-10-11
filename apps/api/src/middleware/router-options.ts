@@ -21,6 +21,12 @@ export function createRouterOptions(): RequestHandler {
 		// Feature 003: the auth router (research R3 of spec 003, FR-034).
 		[/^\/auth\/(refresh|logout|password\/request|password\/reset)\/?$/i, 'POST'],
 		[/^\/users\/me\/tfa\/generate\/?$/i, 'POST'],
+		// Feature 004 (contracts/permissions-api.md §3): every route of the Directus router that matches the path.
+		[/^\/(roles|policies|access|permissions)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+		[/^\/users\/me\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/(roles|policies|access|permissions)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/policies\/me\/globals\/?$/i, 'GET,HEAD'],
+		[/^\/permissions\/me\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
 		...(env['AUTH_DISABLE_DEFAULT'] ? [] : [[/^\/auth\/login\/?$/i, 'POST'] as [RegExp, string]]),
 		[/^\/auth\/?$/i, 'GET,HEAD'],
 		...getAuthProviders().flatMap((provider): [RegExp, string][] => {

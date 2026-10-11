@@ -23,6 +23,16 @@ export const RESUMABLE_UPLOADS = {
 	},
 };
 
+/** FILE_UPLOADS of directus/api/src/constants.ts, as getters like RESUMABLE_UPLOADS. */
+export const FILE_UPLOADS = {
+	get MAX_SIZE(): number | null {
+		return bytes.parse(useEnv()['FILES_MAX_UPLOAD_SIZE'] as string);
+	},
+	get MAX_CONCURRENCY(): number {
+		return Number(useEnv()['FILES_MAX_UPLOAD_CONCURRENCY']);
+	},
+};
+
 export const ALIAS_TYPES = ['alias', 'o2m', 'm2m', 'm2a', 'o2a', 'files', 'translations'];
 
 /** directus/api/src/constants.ts: name of the email/password provider, never part of AUTH_PROVIDERS. */

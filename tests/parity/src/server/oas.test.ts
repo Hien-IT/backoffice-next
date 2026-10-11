@@ -15,10 +15,10 @@ describe('/server/specs/oas (public)', () => {
 		expect(result.accepted.some((d) => d.id === 'D-02')).toBe(true);
 	});
 
-	it('invalid token: Directus 401, Backoffice public spec (D-10)', async () => {
+	it('unknown token → 401 on both', async () => {
 		const result = await parity({ path: '/server/specs/oas', headers: { authorization: 'Bearer invalid' } });
 		assertParity(result);
-		expect(result.directus.status).toBe(401);
+		expect(result.backoffice.status).toBe(401);
 	});
 
 	describe('a collection readable by the public policy (created through the Directus REST API)', () => {

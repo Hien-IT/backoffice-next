@@ -6,8 +6,9 @@ export const REDUCED_FILES = [
 	'src/schema/overview.test.ts',
 	// Feature 003: dates, JSON and booleans written by the auth flows differ per vendor (research R11).
 	...['login', 'login-db', 'refresh', 'logout', 'password'].map((f) => `src/auth/${f}.test.ts`),
-	// Feature 004 (SC-001): the reduced permission matrix and the CRUD flows whose dates and JSON differ per vendor.
-	...['matrix-reduced', 'users', 'roles', 'write-rules'].map((f) => `src/permissions/${f}.test.ts`),
+	// Feature 004 (SC-001): the reduced permission matrix, the accountability of US1 and the CRUD flows whose dates and
+	// JSON differ per vendor.
+	...['matrix-reduced', 'accountability', 'users', 'roles', 'write-rules'].map((f) => `src/permissions/${f}.test.ts`),
 ];
 
 export const FULL_FILES = [

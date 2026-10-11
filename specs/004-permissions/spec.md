@@ -809,6 +809,7 @@ Thay đổi với bảng khác biệt của các feature trước:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09.2 | Gỡ: `/users`, `/roles`, `/policies`, `/access`, `/permissions` làm ở feature này (trừ D-09.10) | FR-041 đến FR-073 |
+| D-02 | Mở rộng: mô tả trong `components.schemas` (user đăng nhập thấy schema của collection hệ thống) cũng đổi thương hiệu | FR-004, Nguyên tắc IX |
 | D-10 | Gỡ: mọi route xử lý token như Directus | FR-001, FR-004 |
 | D-18 | Bỏ dòng cảnh báo "token bị bỏ qua"; giữ phần log khởi động | FR-001 |
 | D-09.10 | Gỡ: bật, tắt TFA làm ở feature này (Clarifications) | FR-048 |

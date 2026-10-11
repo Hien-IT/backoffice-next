@@ -162,3 +162,72 @@ describe('health', () => {
 		expect(await new ServerService({}).health()).toEqual({ status: 'error' });
 	});
 });
+
+describe('serverInfo (logged-in user)', () => {
+	const env = {
+		QUERY_LIMIT_DEFAULT: 100,
+		QUERY_LIMIT_MAX: Infinity,
+		FILES_MIME_TYPE_ALLOW_LIST: '*/*',
+		FILES_MAX_UPLOAD_CONCURRENCY: Infinity,
+		RATE_LIMITER_ENABLED: true,
+		RATE_LIMITER_POINTS: 50,
+		RATE_LIMITER_DURATION: 1,
+	};
+
+	test('limits, files, extensions and websocket flags, then version', async () => {
+		vi.mocked(useEnv).mockReturnValue(env);
+
+		const info = await new ServerService({
+			knex: knexWithUsers(true),
+			accountability: { user: 'u', admin: false } as any,
+		}).serverInfo();
+
+		expect(info).toEqual({
+			project: { project_name: 'P' },
+			setupCompleted: true,
+			mcp_enabled: true,
+			ai_enabled: true,
+			files: { mimeTypeAllowList: ['*/*'] },
+			rateLimit: { points: 50, duration: 1 },
+			rateLimitGlobal: false,
+			extensions: { limit: null },
+			queryLimit: { default: 100, max: -1 },
+			websocket: false,
+			version: '11.17.4',
+		});
+	});
+
+	test('websocket logs for admins only; upload concurrency and TUS', async () => {
+		vi.mocked(useLogger).mockReturnValue({ levels: { values: { info: 30, error: 50, debug: 20 } } } as any);
+
+		vi.mocked(useEnv).mockReturnValue({
+			...env,
+			WEBSOCKETS_ENABLED: true,
+			WEBSOCKETS_REST_ENABLED: true,
+			WEBSOCKETS_REST_AUTH: 'handshake',
+			WEBSOCKETS_REST_PATH: '/websocket',
+			WEBSOCKETS_HEARTBEAT_ENABLED: true,
+			WEBSOCKETS_HEARTBEAT_PERIOD: 30,
+			WEBSOCKETS_LOGS_ENABLED: true,
+			FILES_MAX_UPLOAD_CONCURRENCY: 5,
+			TUS_ENABLED: true,
+			TUS_CHUNK_SIZE: '8mb',
+		});
+
+		const read = (admin: boolean) =>
+			new ServerService({ knex: knexWithUsers(true), accountability: { user: 'u', admin } as any }).serverInfo();
+
+		const admin = await read(true);
+
+		expect(admin['websocket']).toEqual({
+			rest: { authentication: 'handshake', path: '/websocket' },
+			graphql: false,
+			heartbeat: 30,
+			collaborativeEditing: false,
+			logs: { allowedLogLevels: { info: 30, error: 50 } },
+		});
+
+		expect(admin['uploads']).toEqual({ maxConcurrency: 5, tus: true, chunkSize: 8_388_608 });
+		expect((await read(false))['websocket'].logs).toBe(false);
+	});
+});

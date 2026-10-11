@@ -3,7 +3,12 @@ import type { Provider } from '@nestjs/common';
 import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
+import { AccessService } from './services/access.service.js';
 import { AuthenticationService } from './services/authentication.service.js';
+import { MetaService } from './services/meta.service.js';
+import { PermissionsService } from './services/permissions.service.js';
+import { PoliciesService } from './services/policies.service.js';
+import { RolesService } from './services/roles.service.js';
 import { ServerService } from './services/server.service.js';
 import { SettingsService } from './services/settings.service.js';
 import { SpecificationService } from './services/specifications.service.js';
@@ -33,8 +38,33 @@ export const infrastructureProviders: Provider[] = [
 
 export const serviceProviders: Provider[] = [
 	{
+		provide: AccessService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new AccessService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: AuthenticationService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new AuthenticationService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: MetaService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new MetaService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: PermissionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new PermissionsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: PoliciesService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new PoliciesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: RolesService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new RolesService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

@@ -48,7 +48,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '001',
 		kind: 'http',
 		endpoints: ['GET /server/specs/oas'],
-		location: { jsonPointer: /^\/(servers\/\d+|tags\/\d+|paths\/.+)\/description$/ },
+		// Feature 004: logged-in users see the schemas of system collections, whose field descriptions are rebranded too.
+		location: { jsonPointer: /^\/(servers\/\d+|tags\/\d+|paths\/.+|components\/schemas\/.+)\/description$/ },
 		directus: /Directus/,
 		backoffice: /Backoffice/,
 		reason: 'Rebranding of the OpenAPI descriptions (Principle IX).',
@@ -83,9 +84,15 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '001',
 		removeAt: '004',
 		kind: 'http',
-		endpoints: route('/users', '/roles', '/policies', '/access', '/permissions'),
+		// Feature 004 builds /roles, /policies, /access, /permissions (US3), GET /users/me, /roles/me,
+		// /policies/me/globals (US1); /users (US4) and /permissions/me* (US6) are left.
+		endpoints: [...route('/users'), '* /permissions/me', '* /permissions/me/*'],
 		// Built by feature 003 (D-09 of spec 003); enabling and disabling TFA is D-09.10.
-		excludeEndpoints: [...TFA_GENERATE, ...TFA_TOGGLE],
+		excludeEndpoints: [
+			...TFA_GENERATE,
+			...TFA_TOGGLE,
+			...['GET', 'HEAD', 'OPTIONS'].flatMap((m) => [`${m} /users/me`, `${m} /users/me/`]),
+		],
 		location: { any: true },
 		reason: 'Built by feature 004.',
 	},
@@ -168,8 +175,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '004',
 		kind: 'http',
 		endpoints: ['*'],
-		// Feature 003 authenticates its own routes (D-10 of spec 003).
-		excludeEndpoints: [...route('/auth'), ...TFA_GENERATE],
+		// Every route reads the token like Directus since feature 004; the entry stays until 004 is Done because the
+		// guard requires every code of the 001 table (spec 004, research R10).
+		excludeEndpoints: ['*'],
 		location: { any: true },
 		when: { directusStatus: 401 },
 		reason: 'Tokens are ignored until authentication (003) and permissions (004): requests are answered as public.',

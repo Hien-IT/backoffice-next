@@ -1,5 +1,5 @@
-// Ported from directus/tests/blackbox/tests/db/routes/server/health.test.ts (public user only: the admin and
-// logged-in variants wait for features 003/004, D-10; the GraphQL part waits for 011).
+// Ported from directus/tests/blackbox/tests/db/routes/server/health.test.ts (public user; the admin and logged-in
+// variants are in permissions/server-routes.test.ts; the GraphQL part waits for 011).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { compose, redisDown, redisUp } from '../docker.js';
 import { assertParity, capture, parity, parityStable } from '../parity.js';
@@ -30,12 +30,10 @@ describe('/server', () => {
 			expect(result.backoffice.headers['vary']).toBe('Origin, Cache-Control');
 		});
 
-		it('with an invalid token: Directus 401, Backoffice answers as public (D-10)', async () => {
+		it('with an unknown token → 401 INVALID_CREDENTIALS on both', async () => {
 			const result = await parity({ path: '/server/health', headers: { authorization: 'Bearer invalid-token' } });
 			assertParity(result);
-			expect(result.directus.status).toBe(401);
-			expect(result.backoffice.json).toEqual({ status: 'ok' });
-			expect(result.accepted.some((d) => d.id === 'D-10')).toBe(true);
+			expect(result.backoffice.status).toBe(401);
 		});
 
 		it.runIf(suite === 'full' && profileUrls('ratelimit'))(

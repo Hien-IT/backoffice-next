@@ -35,14 +35,14 @@ describe('/server/info (public)', () => {
 		expect(result.backoffice.headers['etag']).toBe(result.directus.headers['etag']);
 	});
 
-	it('invalid token: Directus 401, Backoffice public body (D-10)', async () => {
+	it('unknown token → 401 on both', async () => {
 		for (const req of [
 			{ path: '/server/info', headers: { authorization: 'Bearer invalid' } },
 			{ path: '/server/info?access_token=invalid' },
 		]) {
 			const result = await parity(req);
 			assertParity(result);
-			expect(result.directus.status).toBe(401);
+			expect(result.backoffice.status).toBe(401);
 		}
 	});
 

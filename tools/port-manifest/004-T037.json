@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/controllers/roles.ts",
+		"dest": "apps/api/src/controllers/roles.controller.ts"
+	},
+	{
+		"source": "api/src/controllers/policies.ts",
+		"dest": "apps/api/src/controllers/policies.controller.ts"
+	}
+]
