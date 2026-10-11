@@ -1,0 +1,3 @@
+[
+	{ "source": "tests/blackbox/common/functions.ts", "dest": "tests/parity/src/permissions/fixtures.ts" }
+]

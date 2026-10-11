@@ -5,15 +5,32 @@
 	"targets": {
 		"env-up": {
 			"executor": "nx:run-commands",
-			"options": { "command": "node scripts/env.mjs up", "cwd": "tests/parity" }
+			"options": {
+				"command": "node scripts/env.mjs up",
+				"cwd": "tests/parity"
+			}
 		},
 		"env-down": {
 			"executor": "nx:run-commands",
-			"options": { "command": "node scripts/env.mjs down", "cwd": "tests/parity" }
+			"options": {
+				"command": "node scripts/env.mjs down",
+				"cwd": "tests/parity"
+			}
 		},
 		"parity": {
 			"executor": "nx:run-commands",
-			"options": { "command": "node scripts/parity.mjs", "cwd": "tests/parity" },
+			"options": {
+				"command": "node scripts/parity.mjs",
+				"cwd": "tests/parity"
+			},
+			"cache": false
+		},
+		"parity-matrix": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "PARITY_SUITE=matrix node scripts/parity.mjs",
+				"cwd": "tests/parity"
+			},
 			"cache": false
 		}
 	}

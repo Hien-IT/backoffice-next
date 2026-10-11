@@ -103,7 +103,7 @@ sang nhóm A, và dựng helper test đối chiếu cho phân quyền.
   `MAX_RELATIONAL_DEPTH`, `RELATIONAL_BATCH_SIZE`, `MAX_JSON_QUERY_DEPTH`); đổi mẫu
   `RATE_LIMITER_(?!REGISTRATION_|EMAIL_).+` thành `RATE_LIMITER_(?!EMAIL_).+`. Sửa
   `apps/api/src/config/supported-variables.test.ts` và §5 của `specs/001-platform-foundation/contracts/config.md`.
-- [ ] T007 [P] Helper đối chiếu cho phân quyền:
+- [X] T007 [P] Helper đối chiếu cho phân quyền:
   - `tests/parity/src/directus-api.ts`: thêm `appRequest(app: 'directus' | 'backoffice', method, path, body?)` (đăng
     nhập admin của từng app, cache token); giữ `directusRequest` cũ gọi `appRequest('directus', ...)`.
   - `tests/parity/src/permissions/fixtures.ts`: port `CreateRole`, `CreateUser`, `CreatePolicy`, `CreatePermission`
@@ -112,13 +112,13 @@ sang nhóm A, và dựng helper test đối chiếu cho phân quyền.
     `enforce_tfa`), access gắn role, user, public, user theo trạng thái, static token, share (qua API Directus, như T035
     của 003), field tùy biến và collection người dùng (qua `/collections`, `/fields` của Directus), `cleanup()`.
   - Unit test phần không cần Docker trong `tests/parity/src/permissions-helpers.test.ts`.
-- [ ] T008 [P] `tests/parity/src/permissions/matrix.ts`: sinh ô ma trận FR-101 từ năm danh sách giá trị (không viết
+- [X] T008 [P] `tests/parity/src/permissions/matrix.ts`: sinh ô ma trận FR-101 từ năm danh sách giá trị (không viết
   tay), nhóm theo (accountability, cấu hình permission, `ip_access`) thành 650 nhóm fixture, mỗi nhóm 30 ô (5 action × 6
   collection); bộ request cố định theo action (FR-101 mục 4); chọn shard bằng `PARITY_MATRIX_SHARD=<i>/<n>`; hàm
   `eachChoice()` cho bộ rút gọn (mỗi giá trị của mỗi chiều ít nhất một lần, action `read`, `update`, collection
   `directus_users`). Unit test: đúng 19.500 ô, shard phủ đủ và không trùng, `eachChoice` phủ đủ giá trị
   (`tests/parity/src/permissions-matrix.test.ts`).
-- [ ] T009 `tests/parity/src/suite.ts`: thêm `src/permissions/**/*.test.ts` vào `FULL_FILES` trừ `matrix.test.ts` và
+- [X] T009 `tests/parity/src/suite.ts`: thêm `src/permissions/**/*.test.ts` vào `FULL_FILES` trừ `matrix.test.ts` và
   `matrix-reduced.test.ts` (Postgres đã chạy shard của ma trận đủ); thêm
   `src/permissions/{matrix-reduced,users,roles,write-rules}.test.ts` vào `REDUCED_FILES`. Thêm target
   `parity-matrix` vào `tests/parity/project.json` (chạy `src/permissions/matrix.test.ts` với `PARITY_MATRIX_SHARD`).
@@ -632,3 +632,8 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 - T006: `MAX_RELATIONAL_DEPTH` không thuộc `DIRECTUS_VARIABLES` (chỉ có trong defaults), nên không đưa vào nhóm A (test
   bắt mọi mẫu nhóm A phải là biến Directus); nó chưa bao giờ bị cảnh báo và vẫn được đọc. Sửa
   `warn-unsupported-variables.test.ts` (limiter đăng ký không còn ở nhóm C).
+- T007: `directus-api.ts` có `appRequest(app, ...)`; `directusRequest` giữ chữ ký cũ (gọi `appRequest('directus', ...)`).
+  `fixtures.ts` nhận app làm fixture; `cleanup()` xóa qua Directus, bỏ dòng access đã mất theo policy (cascade).
+- T009: thêm bộ `matrix` (`PARITY_SUITE=matrix`, target `parity-tests:parity-matrix`); `full` loại `matrix.test.ts` và
+  `matrix-reduced.test.ts` qua `exclude` (giữ `configDefaults.exclude`). Checkpoint Phase 1: typecheck, lint của 20
+  project và test của `api`, `utils`, `types`, `parity-tests` (87 ca) đạt.
