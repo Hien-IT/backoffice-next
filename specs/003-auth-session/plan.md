@@ -296,6 +296,11 @@ báo một instance, nay gồm cả bộ đếm đăng nhập sai. Constitution 
 tech lead duyệt ngày 2026-10-10 (chủ dự án xác nhận; quy trình không có PR). Các khác biệt D-09.10, D-23 đến D-26 cần
 tech lead duyệt trước khi đóng feature (Nguyên tắc X, T072). Đã duyệt ngày 2026-10-11 (chủ dự án xác nhận trong chat).
 
+Benchmark (`benchmark`, `benchmark-auth`) chuyển khỏi CI sang `.github/workflows/benchmark.yml` (hằng tuần và bấm tay),
+không còn là điều kiện của `publish`: mỗi lần chạy tốn khoảng 75 phút runner, vượt hạn mức Actions của repo private khi
+chạy ở mọi lần push. Lệch Nguyên tắc X (benchmark là cổng chặn); chủ dự án chọn ngày 2026-10-11. Muốn chặn lại thì thêm
+hai job vào `needs` của `publish` trong `ci.yml` (cần đủ phút Actions hoặc self-hosted runner).
+
 `joi` dùng 18.2.6 thay vì 18.0.1 của Directus: bản vá bảo mật (advisory high GHSA-6h2x-m376-mqjq), cùng cách xử lý
 `nanoid` ở 001. API `joi` dùng trong `libs/validation` không đổi giữa hai bản; test gốc của Directus chạy qua.
 

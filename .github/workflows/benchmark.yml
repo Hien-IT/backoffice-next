@@ -1,0 +1,66 @@
+# Benchmarks against Directus 11.17.4 (FR-113 of spec 001, SC-007 of spec 003), out of CI since 2026-10-11: about
+# 75 minutes of runners per run, too many for the Actions minutes of the private repo on every push (owner's choice,
+# plan.md Complexity Tracking of spec 003). Weekly, and by hand with workflow_dispatch before a release.
+name: Benchmark
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 19 * * 0' # Monday 02:00 Asia/Ho_Chi_Minh
+
+concurrency:
+  group: benchmark
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+env:
+  NX_NO_CLOUD: 'true'
+  NX_DAEMON: 'false'
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      # 5 rounds instead of 3: the shared runner varies more than the 10% tolerance between runs.
+      - run: pnpm nx run benchmark:run --output-style=static
+        env:
+          BENCH_ROUNDS: 5
+      - if: always()
+        run: pnpm nx run benchmark:env-down
+
+  # Feature 003 (SC-007, research R12): auth routes with 2,000 connections, beside `benchmark`.
+  benchmark-auth:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # Pressure limiter off for both apps, 3 rounds: owner's choice for SC-007 (tasks.md T066, spec 003).
+      - run: pnpm nx run benchmark:env-up-auth
+      # stream: the progress lines show while a round runs (static holds them until the task ends).
+      - run: pnpm nx run benchmark:auth --output-style=stream
+        env:
+          BENCH_ROUNDS: 3
+      - name: container state and logs
+        if: failure()
+        run: |
+          docker inspect -f '{{.Name}} {{.State.Status}} exit={{.State.ExitCode}} oom={{.State.OOMKilled}}' $(docker ps -aq)
+          docker logs benchmark-directus-1 2>&1 | grep -iE 'pm2|exited|heap|sigkill|sigterm|out of memory' | tail -50
+          docker logs --tail 300 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 300 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
+      - if: always()
+        run: pnpm nx run benchmark:env-down

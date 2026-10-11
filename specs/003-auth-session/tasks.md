@@ -649,3 +649,6 @@ Task: "T061 ldap.ts"
 - T072: chủ dự án (tech lead) duyệt D-09.10, D-23 đến D-26 ngày 2026-10-11. Còn: CI xanh mọi job (GitHub Actions bị
   chặn vì hết hạn mức thanh toán; chạy lại run 38101382154 sau khi tăng spending limit), ghi thời gian `benchmark-auth`
   (T066), rồi `spec.md` `Status: Done` và xóa D-09.1 khỏi `tests/parity/accepted-differences.ts`.
+- 2026-10-11, chủ dự án chọn: hai job benchmark ra khỏi `ci.yml`, sang `.github/workflows/benchmark.yml` (thứ Hai
+  02:00 giờ Việt Nam và `workflow_dispatch`), không còn chặn `publish` (plan.md Complexity Tracking). T066, T072 nay
+  dùng một lần chạy xanh của workflow Benchmark thay cho job trong CI.
