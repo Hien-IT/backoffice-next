@@ -118,7 +118,8 @@ sang nhóm A, và dựng helper test đối chiếu cho phân quyền.
   `eachChoice()` cho bộ rút gọn (mỗi giá trị của mỗi chiều ít nhất một lần, action `read`, `update`, collection
   `directus_users`). Unit test: đúng 19.500 ô, shard phủ đủ và không trùng, `eachChoice` phủ đủ giá trị
   (`tests/parity/src/permissions-matrix.test.ts`).
-- [ ] T009 `tests/parity/src/suite.ts`: thêm `src/permissions/**/*.test.ts` vào `FULL_FILES` trừ `matrix.test.ts`; thêm
+- [ ] T009 `tests/parity/src/suite.ts`: thêm `src/permissions/**/*.test.ts` vào `FULL_FILES` trừ `matrix.test.ts` và
+  `matrix-reduced.test.ts` (Postgres đã chạy shard của ma trận đủ); thêm
   `src/permissions/{matrix-reduced,users,roles,write-rules}.test.ts` vào `REDUCED_FILES`. Thêm target
   `parity-matrix` vào `tests/parity/project.json` (chạy `src/permissions/matrix.test.ts` với `PARITY_MATRIX_SHARD`).
   (sau T007, T008)
@@ -149,8 +150,9 @@ của 003; `authenticate` cho mọi path; `sanitizeQuery` vào pipeline. Mọi u
   context)` trả `payload`, `emitAction(...)` không làm gì, cùng chữ ký với `directus/api/src/emitter.ts`. Test
   `apps/api/src/emitter.test.ts`.
 - [ ] T014 [P] `apps/api/src/cache.ts`: thêm `setCacheValue`, `getCacheValue` như `directus/api/src/cache.ts:150-170`;
-  port `utils/compress.ts` (`snappy` + `compress` của T004). Test: giá trị nén giống byte với một vector sinh từ hàm của
-  Directus (chép giá trị mong đợi vào test), và đọc lại được. Ghi manifest. (sau T001, T004)
+  port `utils/compress.ts` (`snappy` + `compress` của T004). Test: giá trị nén giống byte với vector lấy từ Directus (gửi tới
+  Directus của môi trường đối chiếu một request có permission dùng `$CURRENT_USER.<field>`, đọc giá trị
+  `filter-context-*` trong Redis, chép vào test cùng đầu vào), và đọc lại được. Ghi manifest. (sau T001, T004)
 - [ ] T015 [P] Port sang `apps/api/src/permissions/utils/` kèm test gốc: `default-permission.ts`, `merge-fields.ts`,
   `merge-permissions.ts`, `get-unaliased-field-key.ts`, `process-permissions.ts`,
   `extract-required-dynamic-variable-context.ts`. Ghi manifest. (sau T002)
@@ -317,8 +319,14 @@ xanh trước lượt 2.
 
 - [ ] T048 [P] [US4] `tests/parity/src/permissions/users.test.ts`: CRUD mọi dạng, `SEARCH` bỏ qua `keys`, US4.1 đến US4.8,
   FR-053 (admin đổi mật khẩu user khác; user tự đổi bằng token `json` mất mọi session; chế độ `session` giữ session hiện
-  tại), FR-052, FR-054 (`422`, `LIMIT_EXCEEDED` với `USERS_ADMIN_ACCESS_LIMIT` ở profile riêng hoặc env tạm), static
-  token đặt qua `/users` dùng được ở cả hai app (FR-051), `GET /users/some` → `204`.
+  tại), FR-052, FR-054 (`422`; `LIMIT_EXCEEDED` ở profile mới `user-limits`), static token đặt qua `/users` dùng được ở
+  cả hai app (FR-051), `GET /users/some` → `204`. Profile `user-limits` tạo trong task này:
+  - cặp `directus-user-limits` (8855), `backoffice-api-user-limits` (8856) trong `tests/parity/docker-compose.yml`, theo
+    mẫu cặp `ratelimit`; `tests/parity/env/profile-user-limits.env`: `USERS_ADMIN_ACCESS_LIMIT=2`,
+    `USERS_APP_ACCESS_LIMIT=3`, `USERS_API_ACCESS_LIMIT=2`;
+  - thêm vào `ALL_PROFILES` (`scripts/env.mjs`), `src/config.ts`, `src/profiles.ts`, `src/global-setup.ts`, và danh sách
+    profile của dòng Postgres trong `.github/workflows/ci.yml`;
+  - ca giới hạn đếm user `active` hiện có, tạo thêm tới khi vượt từng giới hạn, chạy tuần tự, dọn ở `afterAll`.
 - [ ] T049 [P] [US4] `tests/parity/src/permissions/tfa-toggle.test.ts`: FR-048 (secret sinh ở bên này bật ở bên kia theo
   hai chiều, lỗi `TFA Secret is already set...`, `"otp" is invalid`, user chưa bật TFA, `/users/:pk/tfa/disable` không
   phải admin → `403`, user không admin cần quyền `update` field `tfa_secret`). Sửa `tests/parity/src/auth/tfa.test.ts`
@@ -369,13 +377,17 @@ xanh trước lượt 2.
 
 - [ ] T058 [US2] `tests/parity/src/permissions/matrix.test.ts`: chạy các ô của shard hiện tại (`PARITY_MATRIX_SHARD`), ô
   đọc bằng `parity()`, ô ghi bằng `scenario()` + `captureDbEffects`, kèm ca riêng FR-035, US1.7, R-01. Đo thời gian một
-  nhóm fixture, chọn số shard `n` để mỗi shard dưới 60 phút, ghi `n` và tổng phút CI ước tính vào "Ghi chú khi làm"; nếu
-  tổng phút mỗi lần push vượt hạn mức GitHub Actions thì báo chủ dự án trước khi bật T060. (sau T008, T047, T054)
+  nhóm fixture, chọn số shard `n` để mỗi shard dưới 60 phút, ghi `n` và tổng phút của một lần chạy đủ vào "Ghi chú khi làm".
+  (sau T008, T047, T054)
 - [ ] T059 [US2] `tests/parity/src/permissions/matrix-reduced.test.ts`: ô của `eachChoice()` (T008), chạy trong bộ
   `reduced` trên MySQL, SQLite. (sau T058)
-- [ ] T060 [US2] `.github/workflows/ci.yml`: job `parity-matrix` (Postgres, `strategy.matrix.shard: [1..n]`,
-  `fail-fast: false`, timeout 60 phút, `api:build` + `env-up` như job `parity`, `PARITY_MATRIX_SHARD=${{ matrix.shard }}/n`),
-  thêm vào `needs` của `publish`; `tools/ci-local.sh` thêm bước chạy các shard tuần tự. (sau T058)
+- [ ] T060 [US2] CI cho ma trận (SC-001, Clarifications khi analyze):
+  - `.github/workflows/ci.yml`: job `parity-matrix-rotating` (Postgres, timeout 60 phút, `api:build` + `env-up` như job
+    `parity`) chạy một shard `PARITY_MATRIX_SHARD=$(( ${{ github.run_number }} % n + 1 ))/n` (bash) mỗi lần push; thêm vào `needs` của
+    `publish`.
+  - `.github/workflows/parity-matrix.yml` (mới): `workflow_dispatch` và lịch hằng tuần; job `parity-matrix`
+    (`strategy.matrix.shard: [1..n]`, `fail-fast: false`, timeout 60 phút) chạy đủ mọi shard; không chặn `publish`.
+  - `tools/ci-local.sh`: bước chạy một shard; thêm lệnh chạy đủ ma trận vào `quickstart.md` §1. (sau T058)
 - [ ] T061 [US2] Sửa engine, module quyền, service cho tới khi T055 đến T059 đạt 100% trên ba vendor. Mỗi lệch do hành vi
   Directus không an toàn: tái tạo và thêm R-xx vào spec (quy ước); mỗi lệch khác: sửa app mới, không chuẩn hóa trong
   test. Ghi danh sách lỗi đã sửa vào "Ghi chú khi làm". (sau T055 đến T059)
@@ -393,8 +405,10 @@ thay email.
 
 - [ ] T062 [P] [US5] `tests/parity/src/permissions/invite-register.test.ts`: US5.1 đến US5.8, token mời và token xác minh
   ký ở bên này dùng ở bên kia theo hai chiều (test tự ký token theo định dạng Directus vì không có email), thời gian chờ
-  `REGISTER_STALL_TIME` ở đúng nhánh (trung vị lệch hai app không quá 50 ms trên 20 lần), `429` + `Retry-After` dùng chung
-  Redis (profile `ratelimit` hoặc env riêng), log `warn` có email, không có token. Đổi settings đăng ký thì trả lại ở
+  `REGISTER_STALL_TIME` ở đúng nhánh (SC-009), log `warn` có email, không có token. Limiter đăng ký mặc định bật và dùng
+  chung Redis ở môi trường đối chiếu (`RATE_LIMITER_STORE=redis`): mỗi ca gửi header `X-Forwarded-For` riêng (ví dụ
+  `10.44.<số ca>.1`; `IP_TRUST_PROXY` mặc định `true` nên `req.ip` lấy từ header) để có bộ đếm `rlflx:<ip>` riêng; ca
+  `429` dùng một IP riêng, gửi 6 lần trong 60 giây ở hai app xen kẽ, so status và `Retry-After`. Đổi settings đăng ký thì trả lại ở
   `afterAll`.
 - [ ] T063 [US5] `apps/api/src/services/users.service.ts`: port `inviteUrl`, `inviteUser`, `acceptInvite`; thay
   `mailService.send` bằng log `warn` theo research R9 (D-27); test ca gốc của `users.test.ts` (mời, mời lại, đổi role,
@@ -497,7 +511,8 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
   của spec.
 - [ ] T085 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
   `tests/parity/README.md` (profile `app`, `appRequest`, ma trận và shard, proxy). Chạy `graphify update .`.
-- [ ] T086 Đóng feature: CI xanh mọi job (gồm `parity-matrix`, `e2e-directus-app`), coverage ≥ 80% cho `apps/api`,
+- [ ] T086 Đóng feature: CI xanh mọi job (gồm `parity-matrix-rotating`, `e2e-directus-app`), một lần chạy đủ
+  `parity-matrix.yml` xanh (SC-001), coverage ≥ 80% cho `apps/api`,
   `libs/utils`, `libs/types`; xóa entry D-09.2, D-10 khỏi `tests/parity/accepted-differences.ts`; `spec.md`
   `Status: Done`; tech lead duyệt D-27 đến D-31, R-01 đến R-03 và các sửa bảng 001, 003 (Nguyên tắc X); cập nhật memory
   dự án. (sau tất cả)
@@ -579,7 +594,7 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 ### Lượt 2 (Phase 5 đến 11)
 
 1. US4 (MVP: năm endpoint đủ CRUD).
-2. US2: ma trận tích đầy đủ, job `parity-matrix`; đây là tiêu chí chấp nhận.
+2. US2: ma trận tích đầy đủ (shard xoay vòng mỗi push, đủ ma trận ở `parity-matrix.yml`); đây là tiêu chí chấp nhận.
 3. US5, US6, US7.
 4. Phase 10: E2E app Directus, cổng CI mới.
 5. Polish, đóng feature (T086).

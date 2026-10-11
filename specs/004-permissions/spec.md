@@ -69,7 +69,7 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
   của `directus_users`; chạy lại toàn bộ parity của 003 với engine mới ngay ở 004 (thay cho hẹn ở 005). Blackbox
   items, query, relational vẫn ở 005 (FR-104, FR-105).
 - Q: SC-008 (app Directus trỏ vào app mới) kiểm bằng tay hay tự động? → A: Tự động: thêm reverse proxy vào môi
-  trường đối chiếu (`/admin/*` về Directus, còn lại về app mới) và test Playwright chạy app Directus qua proxy ở CI,
+  trường đối chiếu (định tuyến theo danh sách route ở câu dưới) và test Playwright chạy app Directus qua proxy ở CI,
   là cổng mới chặn merge (FR-106, SC-008).
 - Q: Proxy định tuyến thế nào khi app Directus còn gọi các route chưa làm (`/collections`, `/settings`,
   `/extensions`... của 006, 008, 010)? → A: Định tuyến theo danh sách route đã làm: chỉ route của 001 đến 004
@@ -86,6 +86,9 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
   chấp nhận" kèm bằng chứng (file, dòng của Directus); chỉ lệch khi chủ dự án yêu cầu (Assumptions).
 - Q (rà checklist): Quy tắc phủ của ma trận quyền (SC-001)? → A: Tích đầy đủ năm chiều đã liệt kê ở FR-101 trên Postgres;
   bộ rút gọn trên MySQL, SQLite (mỗi giá trị của mỗi chiều ít nhất một lần); chia job CI để mỗi job dưới 60 phút.
+- Q (khi analyze): Ma trận đủ 19.500 ô chạy lúc nào, khi chạy ở mọi lần push có thể vượt hạn mức phút GitHub Actions? →
+  A: Mỗi lần push chạy một shard xoay vòng cộng bộ rút gọn; đủ ma trận chạy ở workflow riêng (hằng tuần và bấm tay), bắt
+  buộc xanh trước khi đóng feature và trước mỗi lần nâng phiên bản Directus (SC-001).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -354,7 +357,7 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - `GET /users/me` khi user không được đọc chính mình: trả `{"data": {"id": "<id>"}}`.
 - Biến động trỏ tới field không có (`$CURRENT_USER.not_exist`): giải thành `null` như Directus.
 - `$NOW` với điều chỉnh sai cú pháp: dùng thời điểm hiện tại như Directus.
-- Batch vượt `MAX_BATCH_MUTATION`: `400` message `Exceeded max batch mutation limit`.
+- Batch vượt `MAX_BATCH_MUTATION`: `400` message `Exceeded max batch mutation limit of <n>`.
 - Mời lại user đã `invited` cùng role với `invite_url` ngoài allow list: không có lỗi URL vì lỗi này chỉ được ném ở bước
   ghi, mà trường hợp này không ghi gì; Directus vẫn gửi mail, app mới ghi log (D-27). Trả `204`.
 - Policy bị xóa: dòng access và permission của nó bị DB xóa theo khóa ngoại `ON DELETE CASCADE`, không ghi activity cho
@@ -440,7 +443,8 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   với `CASE WHEN` của Directus). Field được cho phép bởi permission không filter luôn có giá trị.
 - **FR-023**: Đọc theo id không ra dòng nào PHẢI trả `403 FORBIDDEN` message `You don't have permission to access
   this.`; đọc danh sách không ra dòng trả `[]`; `meta` (`total_count`, `filter_count`) PHẢI tính giống Directus cho
-  user không phải admin.
+  user không phải admin: đếm theo filter quyền (`getCases`), `total_count` là đếm với filter rỗng, dùng `countDistinct`
+  theo khóa chính khi có join, như `MetaService`.
 
 **Kiểm quyền ghi**
 
@@ -624,8 +628,9 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-095**: App mới PHẢI hỗ trợ với cùng tên, mặc định và cách ép kiểu như Directus 11.17.4:
   `USER_INVITE_TOKEN_TTL` (`7d`), `USER_INVITE_URL_ALLOW_LIST`, `USER_REGISTER_URL_ALLOW_LIST`, `REGISTER_STALL_TIME`
   (`750`), `EMAIL_VERIFICATION_TOKEN_TTL` (`7d`), `RATE_LIMITER_REGISTRATION_ENABLED` (`true`),
-  `RATE_LIMITER_REGISTRATION_POINTS` (`5`), `RATE_LIMITER_REGISTRATION_DURATION` (`60`). Các biến này PHẢI được gỡ khỏi
-  nhóm "chưa hỗ trợ" của feature 001.
+  `RATE_LIMITER_REGISTRATION_POINTS` (`5`), `RATE_LIMITER_REGISTRATION_DURATION` (`60`), `QUERY_LIMIT_DEFAULT`
+  (`100`), `QUERY_LIMIT_MAX`, `MAX_RELATIONAL_DEPTH` (`10`), `RELATIONAL_BATCH_SIZE` (`25000`), `MAX_JSON_QUERY_DEPTH`
+  (`10`). Các biến này PHẢI được gỡ khỏi nhóm "chưa hỗ trợ" của feature 001.
 
 **Kiểm thử đối chiếu**
 
@@ -772,7 +777,9 @@ Khác biệt mới:
   theo quy tắc chuẩn hóa của bộ đối chiếu), cùng các header mà bộ đối chiếu so (FR-104 của 001: `content-type`,
   `cache-control`, `vary`, `etag`, `allow`, `location`, `retry-after`, `set-cookie`, `access-control-*`, CSP, COOP,
   HSTS; trừ khác biệt đã chấp nhận) và cùng thay đổi DB ở Directus và app mới:
-  - Postgres: tích đầy đủ của FR-101 ở mỗi lần push, chia thành nhiều job CI song song để mỗi job dưới 60 phút;
+  - Postgres, mỗi lần push: một shard của tích đầy đủ, xoay vòng theo số lần chạy CI, cộng bộ rút gọn;
+  - Postgres, tích đầy đủ (mọi shard, mỗi shard dưới 60 phút): workflow riêng chạy hằng tuần và bấm tay, PHẢI xanh trước
+    khi đóng feature và trước mỗi lần nâng phiên bản Directus (Clarifications);
   - MySQL, SQLite: bộ rút gọn ở mỗi lần push, trong đó mỗi giá trị của mỗi chiều FR-101 xuất hiện ít nhất một lần, với
     action `read` và `update` trên `directus_users`;
   - MSSQL, Oracle, CockroachDB: tích đầy đủ theo lịch đêm (Nguyên tắc V; lịch đêm đang tắt theo quyết định của 001).
@@ -782,8 +789,9 @@ Khác biệt mới:
   cho thông điệp bus `multi-cache`, `schemaChanged` tới instance kia: Directus cũng xóa bản trong bộ nhớ process của
   instance khác một cách bất đồng bộ (cùng khoảng chờ với `flushSharedCaches` của bộ đối chiếu).
 - **SC-004**: Với cùng accountability và cache trống, tập key `permissions:*` và giá trị hai app ghi trùng nhau 100%.
-- **SC-005**: Với mỗi luồng ghi (CRUD năm collection, mời, nhận lời mời, đăng ký, xác minh), các dòng app mới ghi
-  giống 100% dòng Directus ghi cho cùng request, trừ giá trị sinh ngẫu nhiên (id, token, thời điểm, salt của hash).
+- **SC-005**: Với mỗi luồng ghi (CRUD năm collection kể cả ghi lồng, xóa dây chuyền khi xóa role, xóa policy, bật tắt
+  TFA, `track/page`, mời, nhận lời mời, đăng ký, xác minh), các dòng app mới ghi giống 100% dòng Directus ghi cho cùng
+  request, trừ giá trị sinh ngẫu nhiên (id, token, thời điểm, salt của hash).
 - **SC-006**: Với dữ liệu quy mô thiết kế (2.000 user, cây role ba tầng, mỗi user ít nhất ba policy, permission dùng
   biến động), p95 latency và throughput của `GET /users/me`, `GET /permissions/me` và `GET /users` (user không phải
   admin, có filter quyền) không tệ hơn Directus quá 10% (Nguyên tắc X), đo ở workflow benchmark hằng tuần.
@@ -793,3 +801,5 @@ Khác biệt mới:
   001 đến 004 vào app mới, còn lại vào Directus) mở được module User và màn hình quyền (Settings > Access Policies,
   Roles), thực hiện được thêm, sửa, xóa user, role, policy, quyền, và DB sau mỗi kịch bản giống khi proxy trỏ mọi route
   về Directus (trừ giá trị sinh ngẫu nhiên).
+- **SC-009**: Mọi nhánh chờ của `POST /users/register` (FR-063) trả sau ít nhất `REGISTER_STALL_TIME`. Trên 20 lần thử mỗi
+  nhánh, trung vị thời gian trả về của hai app lệch nhau không quá 50 mili giây.

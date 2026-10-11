@@ -71,7 +71,7 @@ trước. Mục `[Conflict]` và `[Gap]` đã đối chiếu với spec, plan v�
 - [x] CHK023 (đã giải: FR-100) [P1] FR-100 ("port `common/common.test.ts`") có mâu thuẫn với phạm vi vì file đó còn ca tạo collection, field,
   item, xóa field dùng `/collections`, `/fields` của feature 006 (D-09.4) không, và phần nào được port đã xác định
   chưa? [Conflict, Spec §FR-100, D-09.4]
-- [ ] CHK024 SC-005 có liệt kê đủ luồng ghi (bật, tắt TFA, `track/page`, các bước xóa dây chuyền khi xóa role, xóa policy do
+- [x] CHK024 (đã giải: SC-005) SC-005 có liệt kê đủ luồng ghi (bật, tắt TFA, `track/page`, các bước xóa dây chuyền khi xóa role, xóa policy do
   khóa ngoại, ghi lồng) hay chỉ CRUD, mời, đăng ký, xác minh? [Coverage, Gap, Spec §SC-005, FR-048, FR-070]
 - [ ] CHK025 Tiêu chí đạt của FR-105 (chạy lại bộ 003) có gắn với đường cơ sở, gồm các ca được phép bỏ qua theo vendor (ví dụ
   refresh đồng thời trên MySQL)? [Measurability, Spec §FR-105]
@@ -124,7 +124,7 @@ trước. Mục `[Conflict]` và `[Gap]` đã đối chiếu với spec, plan v�
   [Gap, Spec §FR-041, FR-042]
 - [ ] CHK045 Cách tính `meta` (`total_count`, `filter_count`) cho người không phải admin có được nêu (đếm theo filter quyền), thay
   vì chỉ "giống Directus"? [Ambiguity, Spec §FR-023]
-- [ ] CHK046 Các biến quy định giới hạn query (`QUERY_LIMIT_DEFAULT`, `QUERY_LIMIT_MAX`, `MAX_RELATIONAL_DEPTH`,
+- [x] CHK046 (đã giải: FR-095) Các biến quy định giới hạn query (`QUERY_LIMIT_DEFAULT`, `QUERY_LIMIT_MAX`, `MAX_RELATIONAL_DEPTH`,
   `RELATIONAL_BATCH_SIZE`, `MAX_JSON_QUERY_DEPTH`, `QUERYSTRING_*`) có nằm trong yêu cầu về biến môi trường, hay FR-095 chỉ
   có nhóm mời, đăng ký? [Gap, Spec §FR-040, FR-095]
 - [ ] CHK047 Cú pháp query chấp nhận (ký hiệu ngoặc vuông của `qs`, chuỗi JSON của SDK, giới hạn độ sâu và số phần tử mảng) có
@@ -142,7 +142,7 @@ trước. Mục `[Conflict]` và `[Gap]` đã đối chiếu với spec, plan v�
   như Directus? [Gap, Spec §FR-060]
 - [ ] CHK052 Các biến thể token mời và token xác minh sai (chữ ký, hết hạn, scope, user đã đổi trạng thái) có bảng kết quả (status,
   mã) trong spec, không chỉ rải ở US5? [Completeness, Spec §FR-062, FR-064, US5.4]
-- [ ] CHK053 Yêu cầu thời gian chờ có nêu đo trên nhánh nào, dung sai bao nhiêu (so với `REGISTER_STALL_TIME`), và liệu hai app
+- [x] CHK053 (đã giải: SC-009) Yêu cầu thời gian chờ có nêu đo trên nhánh nào, dung sai bao nhiêu (so với `REGISTER_STALL_TIME`), và liệu hai app
   phải lệch nhau không quá bao nhiêu (như SC-003 của 003)? [Measurability, Spec §FR-063, US5.5, US5.6]
 - [ ] CHK054 Quy tắc `status` hợp lệ và các chuyển trạng thái được phép của user (`draft`, `archived`, `unverified`, `invited`)
   có được nêu, hay chỉ dựa vào hành vi Directus mà không có ca chấp nhận? [Completeness, Spec §Key Entities, US4]

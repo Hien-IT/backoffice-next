@@ -250,10 +250,14 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
     năm danh sách giá trị (không viết tay); ô nhóm theo (accountability, cấu hình permission, `ip_access`) thành 650 nhóm
     fixture, mỗi nhóm dựng fixture một lần rồi chạy 30 ô (5 action × 6 collection). Ô đọc dùng `parity()`; ô ghi dùng
     `scenario()` với fixture riêng mỗi app và dọn dữ liệu sau ô. `PARITY_MATRIX_SHARD=<i>/<n>` chọn nhóm theo chỉ số để
-    chia job CI; job `parity-matrix` (Postgres) chạy `n` shard song song, `n` chọn sau khi đo ở task đầu của Phase 5 để
-    mỗi shard dưới 60 phút. `matrix-reduced.test.ts` (MySQL, SQLite) chọn ô sao cho mỗi giá trị của mỗi chiều xuất hiện
+    chia job CI. Mỗi push, job `parity-matrix-rotating` (Postgres) chạy một shard `run_number % n + 1`; workflow
+    `parity-matrix.yml` (hằng tuần, bấm tay) chạy đủ `n` shard song song và phải xanh trước khi đóng feature, trước mỗi
+    lần nâng Directus (Clarifications khi analyze). `n` chọn sau khi đo ở task đầu của Phase 6 để mỗi shard dưới 60 phút. `matrix-reduced.test.ts` (MySQL, SQLite) chọn ô sao cho mỗi giá trị của mỗi chiều xuất hiện
     ít nhất một lần, chỉ action `read`, `update`, collection `directus_users`.
-  - `suite.ts`: `src/permissions/**` trừ `matrix.test.ts` vào `full` (ma trận chạy ở job `parity-matrix`); `reduced`
+  - Profile `user-limits` (cặp 8855/8856, `USERS_*_ACCESS_LIMIT` nhỏ) cho ca `LIMIT_EXCEEDED`: giới hạn đọc từ env nên
+    cần cặp app riêng; test đếm user `active` hiện có rồi tạo thêm tới khi vượt.
+  - Limiter đăng ký mặc định bật và dùng chung Redis: mỗi ca đăng ký gửi `X-Forwarded-For` riêng để có bộ đếm riêng.
+  - `suite.ts`: `src/permissions/**` trừ `matrix.test.ts`, `matrix-reduced.test.ts` vào `full`; `reduced`
     thêm `matrix-reduced`, `users`, `roles`, `write-rules`.
   - Ca cross-app dùng `flushSharedCaches()` giữa hai lần chụp khi so giá trị tính toán (002); với response cache của
     Directus (`CACHE_ENABLED=true`, `CACHE_AUTO_PURGE=true` trong env đối chiếu): ghi qua API nên cache được xóa; đọc

@@ -47,12 +47,12 @@ response cache của Directus; app mới xóa dù không đọc, D-11); **A** = 
 | Service | Thao tác | Xóa | Điều kiện |
 |---------|----------|-----|-----------|
 | `ItemsService` (mọi collection) | create, update, delete | A | sau khi ghi, ngoài transaction |
-| `AccessService` | createOne | S + D | luôn (sau create) |
+| `AccessService` | createOne | S + D | luôn (sau create); D luôn xóa vì `clearCaches()` không nhận `opts` của lệnh |
 | | updateMany, deleteMany | S + D | luôn |
 | `PoliciesService` | createOne | P | luôn |
 | | updateMany | S + D | khi payload có `admin_access`, `app_access`, `ip_access` hoặc `enforce_tfa` |
 | | deleteMany | S + D | luôn |
-| `PermissionsService` | createOne, createMany, updateBatch, updateMany, upsertMany, deleteMany | S + D | luôn |
+| `PermissionsService` | createOne, createMany, updateBatch, updateMany, upsertMany, deleteMany | S + D | luôn; D trừ khi lệnh có `autoPurgeCache: false` |
 | `RolesService` | updateMany | S + D | khi payload có `parent` |
 | | deleteMany | S + D | luôn |
 | `UsersService` | updateMany | S + D | khi `role` thay đổi (đã có từ 003) |
