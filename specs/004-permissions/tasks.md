@@ -514,7 +514,7 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
   của spec.
 - [X] T085 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
   `tests/parity/README.md` (profile `app`, `appRequest`, ma trận và shard, proxy). Chạy `graphify update .`.
-- [ ] T086 Đóng feature: CI xanh mọi job (gồm `parity-matrix-rotating`, `e2e-directus-app`), một lần chạy đủ
+- [X] T086 Đóng feature: CI xanh mọi job (gồm `parity-matrix-rotating`, `e2e-directus-app`), một lần chạy đủ
   `parity-matrix.yml` xanh (SC-001), coverage ≥ 80% cho `apps/api`,
   `libs/utils`, `libs/types`; xóa entry D-09.2, D-10 khỏi `tests/parity/accepted-differences.ts`; `spec.md`
   `Status: Done`; tech lead duyệt D-27 đến D-31, R-01 đến R-06 và các sửa bảng 001, 003 (Nguyên tắc X); cập nhật memory
@@ -738,6 +738,10 @@ Task: "T043 blackbox-common.test.ts (createRole)"
   ms, 69 / 293 req/s; `GET /permissions/me` 449 / 175 ms, 166 / 621 req/s; `GET /users?filter[status][_eq]=active`
   757 / 316 ms, 61 / 247 req/s (Directus / app mới), cả ba `ok`. Bước dọn đăng nhập lại vì lần chạy dài hơn
   `ACCESS_TOKEN_TTL`.
+- T086: CI xanh mọi job ở 2359a1a (sau khi repo chuyển public, GitHub Actions hết bị chặn vì billing);
+  `parity-matrix.yml` chạy tay một lần, 4 shard xanh, khoảng 6 phút mỗi shard; coverage `apps/api` 85,88% dòng; tech lead
+  duyệt D-27 đến D-31, R-01 đến R-06 và các sửa bảng 001, 003 ngày 2026-10-11; xóa D-09.2, D-10 cùng lúc với
+  `Status: Done`.
 - T059: bộ rút gọn đạt trên MySQL (169) và SQLite (168). Trên DB mới id permission nhỏ (2, 3, 204) trùng `sort`, status
   HTTP: flow chỉ gán nhãn số ở vị trí id (key `id`, phần tử mảng, cả chuỗi, đoạn path). Dọn fixture dùng `SEARCH` (danh
   sách id dài vượt cỡ URL).

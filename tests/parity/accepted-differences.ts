@@ -76,18 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.2',
-		feature: '001',
-		removeAt: '004',
-		kind: 'http',
-		// Feature 004 builds every route of /users, /roles, /policies, /access, /permissions: the entry matches nothing
-		// and stays until 004 is Done because the guard requires every code of the 001 table (research R10).
-		endpoints: ['*'],
-		excludeEndpoints: ['*'],
-		location: { any: true },
-		reason: 'Built by feature 004.',
-	},
-	{
 		id: 'D-09.3',
 		feature: '001',
 		removeAt: '005',
@@ -159,19 +147,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		endpoints: route('/graphql'),
 		location: { any: true },
 		reason: 'Built by feature 011.',
-	},
-	{
-		id: 'D-10',
-		feature: '001',
-		removeAt: '004',
-		kind: 'http',
-		endpoints: ['*'],
-		// Every route reads the token like Directus since feature 004; the entry stays until 004 is Done because the
-		// guard requires every code of the 001 table (spec 004, research R10).
-		excludeEndpoints: ['*'],
-		location: { any: true },
-		when: { directusStatus: 401 },
-		reason: 'Tokens are ignored until authentication (003) and permissions (004): requests are answered as public.',
 	},
 	{
 		id: 'D-11',
