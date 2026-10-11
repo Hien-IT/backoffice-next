@@ -8,15 +8,28 @@ import { snapshot } from './db-snapshot.js';
 import { compose } from './docker.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { capture } from './parity.js';
-import { requestSet } from './request-set.js';
+import { signAccessToken } from './auth/tokens.js';
+import { cleanup, createUser } from './permissions/fixtures.js';
+import { type RequestSetAccounts, requestSet } from './request-set.js';
 
 const [vendor] = getDbsToTest();
 let db: Knex;
 let stopped: string[] = [];
+let accounts: RequestSetAccounts;
 
-beforeAll(() => {
+// Feature 004: a user and the admin's JWT are made before the snapshot (the user through Directus while it runs).
+beforeAll(async () => {
 	db = knex(knexConfig[vendor!]);
-});
+	const user = await createUser('directus', 'parity-request-set', { role: null });
+	const admin = await db('directus_users').where({ email: 'admin@example.com' }).first();
+
+	accounts = {
+		adminJwt: signAccessToken({ id: admin.id, role: admin.role, app_access: true, admin_access: true }),
+		adminId: admin.id,
+		userToken: user.token,
+		userId: user.id,
+	};
+}, 60_000);
 
 afterAll(async () => {
 	await db.destroy();
@@ -24,6 +37,7 @@ afterAll(async () => {
 	compose('start', ...stopped);
 	await awaitDirectusConnection(process.env['DIRECTUS_URL']!, 60, 2000);
 	await awaitDirectusConnection(process.env['BACKOFFICE_URL']!, 60, 2000);
+	await cleanup();
 
 	// Profile pairs: any HTTP answer counts (the pressure pair always answers 503).
 	for (const key of Object.keys(process.env).filter((k) => /^(DIRECTUS|BACKOFFICE)_URL_/.test(k))) {
@@ -51,7 +65,7 @@ test('schema and data of every table are identical before and after the API runs
 	compose('start', 'backoffice-api');
 	await awaitDirectusConnection(process.env['BACKOFFICE_URL']!, 60, 1000);
 
-	for (const req of requestSet({ metrics: services.includes('backoffice-api-metrics') })) {
+	for (const req of requestSet({ metrics: services.includes('backoffice-api-metrics'), accounts })) {
 		await capture(process.env['BACKOFFICE_URL']!, req);
 	}
 

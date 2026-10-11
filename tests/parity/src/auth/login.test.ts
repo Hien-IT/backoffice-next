@@ -79,19 +79,16 @@ describe('POST /auth/login', () => {
 		});
 	});
 
-	it('an access token of the new app works at GET /users/me of Directus', async () => {
+	it('an access token of the new app works at GET /users/me of both apps (FR-100 of spec 004)', async () => {
 		const user = users['app']!;
 		const res = await capture(process.env['BACKOFFICE_URL']!, login({ email: user.email, password: PASSWORD }));
 		const token = (res.json as { data: { access_token: string } }).data.access_token;
 		expect(decodeJwt(token)).toMatchObject({ id: user.id, iss: 'directus' });
 
-		const me = await capture(process.env['DIRECTUS_URL']!, {
-			path: '/users/me?fields=id,email',
-			headers: { authorization: `Bearer ${token}` },
-		});
-
-		expect(me.status).toBe(200);
-		expect(me.json).toEqual({ data: { id: user.id, email: user.email } });
+		const me = await parity({ path: '/users/me?fields=id,email', headers: { authorization: `Bearer ${token}` } });
+		assertParity(me);
+		expect(me.backoffice.status).toBe(200);
+		expect(me.backoffice.json).toEqual({ data: { id: user.id, email: user.email } });
 	});
 });
 

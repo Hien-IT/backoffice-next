@@ -1,18 +1,27 @@
-// Ported from directus/api/src/services/users.ts (subset, research R5 of spec 003): create and update with the same
-// checks and side effects as Directus (unique emails, password policy, user integrity, sessions, caches). Invites,
-// registration, delete and reads come with feature 004.
+// Ported from directus/api/src/services/users.ts
+// Backoffice: no MailService (Principle X): where Directus sends an invitation or a verification email, a `warn` log
+// line names the recipient, without token or link (research R9 of spec 004, D-27, D-28).
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';
-import { ForbiddenError, RecordNotUniqueError, InvalidPayloadError } from '@backoffice/errors';
-import type { AbstractServiceOptions, Item, MutationOptions, PrimaryKey } from '@backoffice/types';
+import { ForbiddenError, InvalidInviteError, InvalidPayloadError, RecordNotUniqueError } from '@backoffice/errors';
+import type {
+	AbstractServiceOptions,
+	Item,
+	MutationOptions,
+	PrimaryKey,
+	RegisterUserInput,
+	User,
+} from '@backoffice/types';
 import { UserIntegrityCheckFlag } from '@backoffice/types';
-import { getSimpleHash } from '@backoffice/utils';
+import { getSimpleHash, toArray, validatePayload } from '@backoffice/utils';
 import { FailedValidationError, joiValidationErrorItemToErrorExtensions } from '@backoffice/validation';
 import Joi from 'joi';
+import { isEmpty } from 'lodash-es';
 import { clearSystemCache } from '../cache.js';
 import { DEFAULT_AUTH_PROVIDER } from '../constants.js';
 import getDatabase from '../database/index.js';
 import { useLogger } from '../logger/index.js';
+import { validateRemainingAdminUsers } from '../permissions/modules/validate-remaining-admin/validate-remaining-admin-users.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import { getSecret } from '../utils/get-secret.js';
 import isUrlAllowed from '../utils/is-url-allowed.js';
@@ -301,6 +310,187 @@ export class UsersService extends ItemsService {
 		}
 
 		return result;
+	}
+
+	/**
+	 * Delete multiple users by primary key
+	 */
+	override async deleteMany(keys: PrimaryKey[], opts: MutationOptions = {}): Promise<PrimaryKey[]> {
+		if (opts?.onRequireUserIntegrityCheck) {
+			opts.onRequireUserIntegrityCheck(opts?.userIntegrityCheckFlags ?? UserIntegrityCheckFlag.None);
+		} else {
+			try {
+				await validateRemainingAdminUsers({ excludeUsers: keys }, { knex: this.knex, schema: this.schema });
+			} catch (err: any) {
+				opts.preMutationError = err;
+			}
+		}
+
+		// Manual constraint, see https://github.com/directus/directus/pull/19912
+		await this.knex('directus_comments').update({ user_updated: null }).whereIn('user_updated', keys);
+		await this.knex('directus_notifications').update({ sender: null }).whereIn('sender', keys);
+		await this.knex('directus_versions').update({ user_updated: null }).whereIn('user_updated', keys);
+
+		await super.deleteMany(keys, opts);
+		await this.clearUserSessions(keys);
+
+		return keys;
+	}
+
+	// Backoffice: `_subject` was the subject of the mail (D-27).
+	async inviteUser(
+		email: string | string[],
+		role: string,
+		url: string | null,
+		_subject?: string | null,
+	): Promise<void> {
+		const opts: MutationOptions = {};
+
+		try {
+			if (url && isUrlAllowed(url, useEnv()['USER_INVITE_URL_ALLOW_LIST'] as string) === false) {
+				throw new InvalidPayloadError({ reason: `URL "${url}" can't be used to invite users` });
+			}
+		} catch (err: any) {
+			opts.preMutationError = err;
+		}
+
+		const emails = toArray(email);
+
+		for (const email of emails) {
+			// Check if user is known
+			const user = await this.getUserByEmail(email);
+
+			// Create user first to verify uniqueness if unknown
+			if (isEmpty(user)) {
+				await this.createOne({ email, role, status: 'invited' }, opts);
+
+				// For known users update role if changed
+			} else if (user!.status === 'invited' && user!.role !== role) {
+				await this.updateOne(user!.id, { role }, opts);
+			}
+
+			// Send invite for new and already invited users
+			if (isEmpty(user) || user!.status === 'invited') {
+				// Backoffice: a log line in place of mailService.send (D-27).
+				useLogger().warn(
+					`[email] Invitation email to "${user?.email ?? email}" was not sent: Backoffice does not send email.`,
+				);
+			}
+		}
+	}
+
+	async acceptInvite(token: string, password: string): Promise<void> {
+		const { email, scope } = verifyJWT(token, getSecret()) as {
+			email: string;
+			scope: string;
+		};
+
+		if (scope !== 'invite') throw new ForbiddenError();
+
+		const user = await this.getUserByEmail(email);
+
+		if (user?.status !== 'invited') {
+			throw new InvalidInviteError();
+		}
+
+		// Allow unauthenticated update
+		const service = new UsersService({
+			knex: this.knex,
+			schema: this.schema,
+		});
+
+		await service.updateOne(user.id, { password, status: 'active' });
+	}
+
+	async registerUser(input: RegisterUserInput) {
+		const env = useEnv();
+
+		if (
+			input.verification_url &&
+			isUrlAllowed(input.verification_url, env['USER_REGISTER_URL_ALLOW_LIST'] as string) === false
+		) {
+			throw new InvalidPayloadError({
+				reason: `URL "${input.verification_url}" can't be used to verify registered users`,
+			});
+		}
+
+		const STALL_TIME = env['REGISTER_STALL_TIME'] as number;
+		const timeStart = performance.now();
+		const serviceOptions: AbstractServiceOptions = { accountability: this.accountability, schema: this.schema };
+		const settingsService = new SettingsService(serviceOptions);
+
+		const settings = await settingsService.readSingleton({
+			fields: [
+				'public_registration',
+				'public_registration_verify_email',
+				'public_registration_role',
+				'public_registration_email_filter',
+			],
+		});
+
+		if (settings?.['public_registration'] == false) {
+			throw new ForbiddenError();
+		}
+
+		const publicRegistrationRole = settings?.['public_registration_role'] ?? null;
+		const hasEmailVerification = settings?.['public_registration_verify_email'];
+		const emailFilter = settings?.['public_registration_email_filter'];
+		const first_name = input.first_name ?? null;
+		const last_name = input.last_name ?? null;
+
+		const partialUser: Partial<User> = {
+			// Required fields
+			email: input.email,
+			password: input.password,
+			role: publicRegistrationRole,
+			status: hasEmailVerification ? 'unverified' : 'active',
+			// Optional fields
+			first_name,
+			last_name,
+		};
+
+		if (emailFilter && validatePayload(emailFilter, { email: input.email }).length !== 0) {
+			await stall(STALL_TIME, timeStart);
+			throw new ForbiddenError();
+		}
+
+		const user = await this.getUserByEmail(input.email);
+
+		if (isEmpty(user)) {
+			await this.createOne(partialUser);
+		}
+		// We want to be able to re-send the verification email
+		else if (user!.status !== ('unverified' satisfies User['status'])) {
+			// To avoid giving attackers infos about registered emails we dont fail for violated unique constraints
+			await stall(STALL_TIME, timeStart);
+			return;
+		}
+
+		if (hasEmailVerification) {
+			// Backoffice: a log line in place of the verification token, URL and mailService.send (D-28).
+			useLogger().warn(`[email] Verification email to "${input.email}" was not sent: Backoffice does not send email.`);
+		}
+
+		await stall(STALL_TIME, timeStart);
+	}
+
+	async verifyRegistration(token: string): Promise<string> {
+		const { email, scope } = verifyJWT(token, useEnv()['SECRET'] as string) as {
+			email: string;
+			scope: string;
+		};
+
+		if (scope !== 'pending-registration') throw new ForbiddenError();
+
+		const user = await this.getUserByEmail(email);
+
+		if (user?.status !== ('unverified' satisfies User['status'])) {
+			throw new InvalidPayloadError({ reason: 'Invalid verification code' });
+		}
+
+		await this.updateOne(user.id, { status: 'active' });
+
+		return user.id;
 	}
 
 	private async clearCaches(opts?: MutationOptions) {

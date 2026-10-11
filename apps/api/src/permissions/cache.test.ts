@@ -60,3 +60,19 @@ test('clearCache clears the cache', async () => {
 	await clearCache();
 	expect(await useCache().get('k')).toBeUndefined();
 });
+
+test('FR-084: without Redis, clearSystemCache of this process clears the local cache and tells the local bus', async () => {
+	vi.mocked(redisConfigAvailable).mockReturnValue(false);
+	vi.mocked(useEnv).mockReturnValue({ CACHE_STORE: 'memory', CACHE_NAMESPACE: 'ns' });
+
+	const { clearSystemCache } = await import('../cache.js');
+	const { useBus } = await import('../bus/index.js');
+	const messages: unknown[] = [];
+	await useBus().subscribe('schemaChanged', async (message: unknown) => void messages.push(message));
+
+	await useCache().set('k', 1);
+	await clearSystemCache();
+
+	expect(await useCache().get('k')).toBeUndefined();
+	expect(messages).toEqual([{ autoPurgeCache: undefined }]);
+});

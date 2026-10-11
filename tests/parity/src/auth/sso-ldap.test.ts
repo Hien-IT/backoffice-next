@@ -142,15 +142,20 @@ describe.runIf(suite === 'full' && profileUrls('sso'))('/auth/login/ldap (profil
 		expect(performance.now() - start).toBeLessThan(500);
 	});
 
-	it('a token of the new app reads the user at GET /users/me of Directus', async () => {
+	it('a token of the new app reads the user at GET /users/me of both apps (FR-100 of spec 004)', async () => {
 		const uid = await ldapUser('ldap-me');
 		const res = await capture(sso().backoffice, login(uid));
 		const token = (res.json as any).data.access_token;
 
-		const me = await capture(sso().directus, { path: '/users/me', headers: { authorization: `Bearer ${token}` } });
+		const me = await parity(
+			{ path: '/users/me', headers: { authorization: `Bearer ${token}` } },
+			{ directusUrl: sso().directus, backofficeUrl: sso().backoffice },
+		);
+
 		// The default role reads nothing but the id of the user.
-		expect(me.status).toBe(200);
-		expect((me.json as any).data).toEqual({ id: (await userOf(uid)).id });
+		assertParity(me);
+		expect(me.backoffice.status).toBe(200);
+		expect((me.backoffice.json as any).data).toEqual({ id: (await userOf(uid)).id });
 	});
 
 	it('role by group: the role named like an LDAP group of the user', async () => {

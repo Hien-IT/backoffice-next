@@ -63,9 +63,11 @@ step quality quality
 step guard-differences pnpm --filter @backoffice/parity-tests exec vitest run src/accepted-differences.test.ts
 step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
-step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso
+step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits
 step parity-mysql-reduced parity mysql reduced ''
 step parity-sqlite3-reduced parity sqlite3 reduced ''
+# One shard of the permission matrix (feature 004); PARITY_MATRIX_SHARD=<i>/4 picks another, unset runs the whole matrix.
+step parity-matrix sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres && PARITY_MATRIX_SHARD=${PARITY_MATRIX_SHARD:-1/4} pnpm nx run parity-tests:parity-matrix --vendor=postgres --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 step docker sh -c 'docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci . && docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .'
 step e2e e2e
 

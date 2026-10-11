@@ -5,7 +5,9 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { knexConfig } from './config.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { capture } from './parity.js';
-import { requestSet } from './request-set.js';
+import { signAccessToken } from './auth/tokens.js';
+import { cleanup, createUser } from './permissions/fixtures.js';
+import { type RequestSetAccounts, requestSet } from './request-set.js';
 import { type RunningApi, hostDbEnv, runApi, stopApi, waitForPing } from './startup/run-api.js';
 
 const [vendor] = getDbsToTest();
@@ -15,9 +17,18 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 	let admin: Knex;
 	let api: RunningApi;
 	let port: number;
+	let accounts: RequestSetAccounts;
 
 	beforeAll(async () => {
 		admin = knex(knexConfig.postgres);
+		const user = await createUser('directus', 'parity-readonly', { role: null });
+		const adminUser = await admin('directus_users').where({ email: 'admin@example.com' }).first();
+		accounts = {
+			adminJwt: signAccessToken({ id: adminUser.id, role: adminUser.role, app_access: true, admin_access: true }),
+			adminId: adminUser.id,
+			userToken: user.token,
+			userId: user.id,
+		};
 		await admin.raw(`drop owned by ${ROLE} cascade`).catch(() => undefined);
 		await admin.raw(`drop role if exists ${ROLE}`);
 		await admin.raw(`create role ${ROLE} login password 'readonly'`);
@@ -43,13 +54,14 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 		await admin.raw(`drop owned by ${ROLE} cascade`);
 		await admin.raw(`drop role if exists ${ROLE}`);
 		await admin.destroy();
+		await cleanup();
 	});
 
 	test('starts and serves every request without 500 or permission errors', async () => {
 		expect(await waitForPing(api, port), api.output()).toBe(true);
 
 		for (const req of [
-			...requestSet({ metrics: true }),
+			...requestSet({ metrics: true, accounts }),
 			{ path: '/metrics', headers: { authorization: 'Metrics readonly-token' } },
 		]) {
 			const res = await capture(`http://127.0.0.1:${port}`, req);

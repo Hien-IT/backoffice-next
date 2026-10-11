@@ -19,7 +19,8 @@ beforeEach(() => {
 	let id = 0;
 
 	responder = (call) => {
-		if (call.url.endsWith('/auth/login')) return { body: { data: { access_token: `token-${new URL(call.url).host}` } } };
+		if (call.url.endsWith('/auth/login'))
+			return { body: { data: { access_token: `token-${new URL(call.url).host}` } } };
 		if (call.method === 'GET') return { body: { data: [] } };
 		if (call.method === 'DELETE') return { status: 204 };
 		return { body: { data: { id: `id-${++id}`, ...call.body } } };
@@ -64,7 +65,9 @@ describe('appRequest', () => {
 
 	test('throws with status and body on an error response', async () => {
 		responder = (call) =>
-			call.url.endsWith('/auth/login') ? { body: { data: { access_token: 't' } } } : { status: 403, body: { errors: [] } };
+			call.url.endsWith('/auth/login')
+				? { body: { data: { access_token: 't' } } }
+				: { status: 403, body: { errors: [] } };
 
 		const { appRequest } = await import('./directus-api.js');
 		await expect(appRequest('backoffice', 'GET', '/users')).rejects.toThrow('backoffice GET /users: 403');

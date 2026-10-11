@@ -27,10 +27,6 @@ export type AcceptedDifference = {
 const route = (...paths: string[]) => paths.flatMap((p) => [`* ${p}`, `* ${p}/*`]);
 
 const TFA_GENERATE = ['* /users/me/tfa/generate', '* /users/me/tfa/generate/'];
-const TFA_TOGGLE = ['* /users/me/tfa/enable', '* /users/me/tfa/disable', '* /users/*/tfa/disable'].flatMap((p) => [
-	p,
-	`${p}/`,
-]);
 
 export const acceptedDifferences: AcceptedDifference[] = [
 	{
@@ -84,15 +80,10 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '001',
 		removeAt: '004',
 		kind: 'http',
-		// Feature 004 builds /roles, /policies, /access, /permissions (US3), GET /users/me, /roles/me,
-		// /policies/me/globals (US1); /users (US4) and /permissions/me* (US6) are left.
-		endpoints: [...route('/users'), '* /permissions/me', '* /permissions/me/*'],
-		// Built by feature 003 (D-09 of spec 003); enabling and disabling TFA is D-09.10.
-		excludeEndpoints: [
-			...TFA_GENERATE,
-			...TFA_TOGGLE,
-			...['GET', 'HEAD', 'OPTIONS'].flatMap((m) => [`${m} /users/me`, `${m} /users/me/`]),
-		],
+		// Feature 004 builds every route of /users, /roles, /policies, /access, /permissions: the entry matches nothing
+		// and stays until 004 is Done because the guard requires every code of the 001 table (research R10).
+		endpoints: ['*'],
+		excludeEndpoints: ['*'],
 		location: { any: true },
 		reason: 'Built by feature 004.',
 	},
@@ -251,15 +242,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 			'proxy-addr 2.0.8 (security patch): IPv4-mapped IPv6 addresses behind a trusted proxy; no parity request uses one.',
 	},
 	// Feature 003
-	{
-		id: 'D-09.10',
-		feature: '003',
-		removeAt: '005',
-		kind: 'http',
-		endpoints: TFA_TOGGLE,
-		location: { any: true },
-		reason: 'Enabling and disabling TFA checks permissions through ItemsService (feature 005).',
-	},
 	{ id: 'D-23', feature: '003', kind: 'doc', reason: 'No password reset email: a log line without token or link.' },
 	{
 		id: 'D-24',
@@ -310,5 +292,23 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '009',
 		kind: 'doc',
 		reason: 'No auth.login, auth.jwt, auth.create, auth.update or authenticate events (flows: feature 009).',
+	},
+	// Feature 004
+	{ id: 'D-27', feature: '004', kind: 'doc', reason: 'No invitation email: a warn log line naming the recipient.' },
+	{ id: 'D-28', feature: '004', kind: 'doc', reason: 'No verification email after registration: a warn log line.' },
+	{
+		id: 'D-29',
+		feature: '004',
+		removeAt: '009',
+		kind: 'doc',
+		reason: 'No hook events of the five collections (filter, action).',
+	},
+	{ id: 'D-30', feature: '004', removeAt: '005', kind: 'doc', reason: 'No websocket.event bus message after writes.' },
+	{
+		id: 'D-31',
+		feature: '004',
+		removeAt: '010',
+		kind: 'doc',
+		reason: 'Nested writes into system collections without their own service go through ItemsService.',
 	},
 ];

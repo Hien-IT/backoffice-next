@@ -317,7 +317,7 @@ xanh trước lượt 2.
 
 ### Tests for User Story 4
 
-- [ ] T048 [P] [US4] `tests/parity/src/permissions/users.test.ts`: CRUD mọi dạng, `SEARCH` bỏ qua `keys`, US4.1 đến US4.8,
+- [X] T048 [P] [US4] `tests/parity/src/permissions/users.test.ts`: CRUD mọi dạng, `SEARCH` bỏ qua `keys`, US4.1 đến US4.8,
   FR-053 (admin đổi mật khẩu user khác; user tự đổi bằng token `json` mất mọi session; chế độ `session` giữ session hiện
   tại), FR-052, FR-054 (`422`; `LIMIT_EXCEEDED` ở profile mới `user-limits`), static token đặt qua `/users` dùng được ở
   cả hai app (FR-051), chính sách mật khẩu rỗng, bọc `/.../`, regex sai (FR-051), `status` ngoài danh sách lựa chọn
@@ -328,27 +328,27 @@ xanh trước lượt 2.
   - thêm vào `ALL_PROFILES` (`scripts/env.mjs`), `src/config.ts`, `src/profiles.ts`, `src/global-setup.ts`, và danh sách
     profile của dòng Postgres trong `.github/workflows/ci.yml`;
   - ca giới hạn đếm user `active` hiện có, tạo thêm tới khi vượt từng giới hạn, chạy tuần tự, dọn ở `afterAll`.
-- [ ] T049 [P] [US4] `tests/parity/src/permissions/tfa-toggle.test.ts`: FR-048 (secret sinh ở bên này bật ở bên kia theo
+- [X] T049 [P] [US4] `tests/parity/src/permissions/tfa-toggle.test.ts`: FR-048 (secret sinh ở bên này bật ở bên kia theo
   hai chiều, lỗi `TFA Secret is already set...`, `"otp" is invalid`, user chưa bật TFA, `/users/:pk/tfa/disable` không
   phải admin → `403`, user không admin cần quyền `update` field `tfa_secret`). Sửa `tests/parity/src/auth/tfa.test.ts`
   (ba route không còn `404`).
-- [ ] T050 [P] [US4] `blackbox-common.test.ts`: thêm phần `createUser()` (4 ca). Chạy lại nguyên bản các khẳng định
+- [X] T050 [P] [US4] `blackbox-common.test.ts`: thêm phần `createUser()` (4 ca). Chạy lại nguyên bản các khẳng định
   `/users/me` của `tests/parity/src/auth/{sso-ldap,login,refresh}.test.ts` đã kiểm qua Directus ở 003, đổi về app mới
   (FR-100).
 
 ### Implementation for User Story 4
 
-- [ ] T051 [US4] `apps/api/src/services/users.service.ts`: port phần còn lại của `directus/api/src/services/users.ts`
+- [X] T051 [US4] `apps/api/src/services/users.service.ts`: port phần còn lại của `directus/api/src/services/users.ts`
   trừ mời và đăng ký: `deleteMany` (`validateRemainingAdminUsers`, đặt `null` ba khóa ngoại, xóa session), đúng
   `updateMany` theo FR-053; port các ca còn thiếu của `users.test.ts` gốc. Ghi manifest. (sau T034)
-- [ ] T052 [US4] `apps/api/src/controllers/users.controller.ts`: đủ route CRUD như T044, `PATCH /users/me`,
+- [X] T052 [US4] `apps/api/src/controllers/users.controller.ts`: đủ route CRUD như T044, `PATCH /users/me`,
   `PATCH /users/me/track/page` (`UsersService` không accountability, `autoPurgeCache: false`), nhánh `endsWith('me')` →
   `204`; `Allow` trong `router-options.ts`; test controller supertest. (sau T045, T051)
-- [ ] T053 [US4] `apps/api/src/services/tfa.service.ts`: port `enableTFA`, `disableTFA`; route `POST /users/me/tfa/enable`,
+- [X] T053 [US4] `apps/api/src/services/tfa.service.ts`: port `enableTFA`, `disableTFA`; route `POST /users/me/tfa/enable`,
   `POST /users/me/tfa/disable`, `POST /users/:pk/tfa/disable` trong `users.controller.ts` (thứ tự và dấu `/` cuối như
   file gốc); test. Sửa ô "Gỡ khi" của D-09.10 trong `specs/003-auth-session/spec.md` thành `004`, xóa entry D-09.10 khỏi
   `tests/parity/accepted-differences.ts`; chạy guard. Ghi manifest. (sau T052)
-- [ ] T054 [US4] `tests/parity/accepted-differences.ts`: D-09.2 loại mọi route `/users` đã làm. Sửa tới khi T048 đến T050
+- [X] T054 [US4] `tests/parity/accepted-differences.ts`: D-09.2 loại mọi route `/users` đã làm. Sửa tới khi T048 đến T050
   đạt. (sau T048 đến T053)
 
 **Checkpoint**: năm endpoint có đủ CRUD; fixture blackbox chạy được trên app mới (MVP).
@@ -363,14 +363,14 @@ xanh trước lượt 2.
 
 ### Tests for User Story 2
 
-- [ ] T055 [P] [US2] `tests/parity/src/permissions/read-rules.test.ts`: US2.1, US2.2 (`CASE WHEN`), US2.3 (`$NOW(-1 day)`,
+- [X] T055 [P] [US2] `tests/parity/src/permissions/read-rules.test.ts`: US2.1, US2.2 (`CASE WHEN`), US2.3 (`$NOW(-1 day)`,
   dữ liệu cách xa ranh giới), US2.6, US2.7, US2.8, FR-020 đến FR-023 (field quan hệ không được đọc bị bỏ khi mở rộng
   `*`, thứ tự mặc định khi không `sort`, `meta` cho người không admin), FR-016 (bảng lọc IP).
-- [ ] T056 [P] [US2] `tests/parity/src/permissions/write-rules.test.ts`: US2.4, US2.5, FR-030 đến FR-035 (preset theo thứ
+- [X] T056 [P] [US2] `tests/parity/src/permissions/write-rules.test.ts`: US2.4, US2.5, FR-030 đến FR-035 (preset theo thứ
   tự policy, validation AND, `_submitted`, field không cho phép, ghi lồng kiểm từng tầng theo FR-037, tự sửa `role`, sửa
   và xóa khóa không tồn tại theo FR-036), FR-017 (bảng gộp), FR-005 (thứ tự
   lỗi khi nhiều lỗi), ghi nhiều item nguyên tử, so DB bằng `captureDbEffects`.
-- [ ] T057 [P] [US2] `tests/parity/src/permissions/query.test.ts`: FR-040 trên năm endpoint với admin và user có quyền một
+- [X] T057 [P] [US2] `tests/parity/src/permissions/query.test.ts`: FR-040 trên năm endpoint với admin và user có quyền một
   phần: `fields` (wildcard, lồng m2o, o2m, alias), `filter` (mọi nhóm toán tử, `_some`, `_none`, hàm ngày giờ, qua quan
   hệ), `search`, `sort`, `limit`, `offset`, `page`, `meta`, `aggregate`, `groupBy`, `deep`, `backlink`, cú pháp `qs` và
   JSON, `SEARCH` với `body.query`; các ca `400 INVALID_QUERY` của `validateQuery`.
@@ -383,7 +383,7 @@ xanh trước lượt 2.
   (sau T008, T047, T054)
 - [ ] T059 [US2] `tests/parity/src/permissions/matrix-reduced.test.ts`: ô của `eachChoice()` (T008), chạy trong bộ
   `reduced` trên MySQL, SQLite. (sau T058)
-- [ ] T060 [US2] CI cho ma trận (SC-001, Clarifications khi analyze):
+- [X] T060 [US2] CI cho ma trận (SC-001, Clarifications khi analyze):
   - `.github/workflows/ci.yml`: job `parity-matrix-rotating` (Postgres, timeout 60 phút, `api:build` + `env-up` như job
     `parity`) chạy một shard `PARITY_MATRIX_SHARD=$(( ${{ github.run_number }} % n + 1 ))/n` (bash) mỗi lần push; thêm vào `needs` của
     `publish`.
@@ -405,7 +405,7 @@ thay email.
 
 **Independent Test**: spec US5.
 
-- [ ] T062 [P] [US5] `tests/parity/src/permissions/invite-register.test.ts`: US5.1 đến US5.8, token mời và token xác minh
+- [X] T062 [P] [US5] `tests/parity/src/permissions/invite-register.test.ts`: US5.1 đến US5.8, token mời và token xác minh
   ký ở bên này dùng ở bên kia theo hai chiều (test tự ký token theo định dạng Directus vì không có email), thời gian chờ
   `REGISTER_STALL_TIME` ở đúng nhánh (SC-009), mọi dòng của bảng lỗi token ở FR-062, FR-064, mời nhiều email có email
   lỗi ở giữa (FR-060), log `warn` có email, không có token. Limiter đăng ký mặc định bật và dùng
@@ -413,13 +413,13 @@ thay email.
   `10.44.<số ca>.1`; `IP_TRUST_PROXY` mặc định `true` nên `req.ip` lấy từ header) để có bộ đếm `rlflx:<ip>` riêng; ca
   `429` dùng một IP riêng, gửi 6 lần trong 60 giây ở hai app xen kẽ, so status và `Retry-After`. Đổi settings đăng ký thì trả lại ở
   `afterAll`.
-- [ ] T063 [US5] `apps/api/src/services/users.service.ts`: port `inviteUrl`, `inviteUser`, `acceptInvite`; thay
+- [X] T063 [US5] `apps/api/src/services/users.service.ts`: port `inviteUrl`, `inviteUser`, `acceptInvite`; thay
   `mailService.send` bằng log `warn` theo research R9 (D-27); test ca gốc của `users.test.ts` (mời, mời lại, đổi role,
   `acceptInvite` lỗi). Ghi manifest. (sau T051)
-- [ ] T064 [US5] Port `registerUser`, `verifyRegistration` (log thay email, D-28) và
+- [X] T064 [US5] Port `registerUser`, `verifyRegistration` (log thay email, D-28) và
   `middleware/rate-limiter-registration.ts` (limiter tạo ở request đầu, đọc env trong hàm, research R11) kèm test. Ghi
   manifest. (sau T063)
-- [ ] T065 [US5] Route `POST /users/invite`, `POST /users/invite/accept`, `POST /users/register` (sau `checkRateLimit`),
+- [X] T065 [US5] Route `POST /users/invite`, `POST /users/invite/accept`, `POST /users/register` (sau `checkRateLimit`),
   `GET /users/register/verify-email` (chuyển hướng) trong `users.controller.ts`, `Allow` trong `router-options.ts`, test
   controller. Thêm entry `doc` D-27, D-28 (feature `004`) vào `tests/parity/accepted-differences.ts`; chạy guard. Sửa tới
   khi T062 đạt. (sau T052, T064)
@@ -432,13 +432,13 @@ thay email.
 
 **Independent Test**: spec US6.
 
-- [ ] T066 [P] [US6] `tests/parity/src/permissions/me.test.ts`: US6.1 đến US6.5 với các user của ma trận (admin, user
+- [X] T066 [P] [US6] `tests/parity/src/permissions/me.test.ts`: US6.1 đến US6.5 với các user của ma trận (admin, user
   quyền một phần, public, share, policy có `enforce_tfa` qua role cha và gắn user, policy `enforce_tfa` bị lọc IP),
   singleton `directus_settings`.
-- [ ] T067 [P] [US6] `tests/parity/src/permissions/check-item-permissions.test.ts`: port
+- [X] T067 [P] [US6] `tests/parity/src/permissions/check-item-permissions.test.ts`: port
   `directus/tests/blackbox/tests/db/routes/permissions/check-item-permissions.{test,seed}.ts` (collection người dùng tạo
   qua API Directus, permission tạo bằng fixture `CreatePermission` của từng app).
-- [ ] T068 [US6] `apps/api/src/controllers/permissions.controller.ts`: `GET /permissions/me`
+- [X] T068 [US6] `apps/api/src/controllers/permissions.controller.ts`: `GET /permissions/me`
   (`fetchAccountabilityCollectionAccess`, `403` khi không user, role, share), `GET /permissions/me/:collection/:pk?`
   (`getItemPermissions`), đăng ký trước `GET /:pk` như file gốc; `Allow`; test controller. D-09.2 loại hai route này.
   Sửa tới khi T066, T067 đạt. (sau T045)
@@ -451,15 +451,15 @@ thay email.
 
 **Independent Test**: spec US7.
 
-- [ ] T069 [P] [US7] `tests/parity/src/schema/permissions-cache.test.ts`: so key và giá trị của đủ 8 namespace (thêm
+- [X] T069 [P] [US7] `tests/parity/src/schema/permissions-cache.test.ts`: so key và giá trị của đủ 8 namespace (thêm
   `policies-ip-access` nay không bỏ qua, `share-info`) và `filter-context-*` (khi `CACHE_ENABLED=true`) sau cùng request ở
   mỗi app, cache trống trước mỗi lần (SC-004).
-- [ ] T070 [P] [US7] `tests/parity/src/permissions/cache-cross.test.ts`: mỗi dòng bảng FR-082 (kể cả qua ghi lồng) ở mỗi
+- [X] T070 [P] [US7] `tests/parity/src/permissions/cache-cross.test.ts`: mỗi dòng bảng FR-082 (kể cả qua ghi lồng) ở mỗi
   app, kiểm key `permissions:*` và `<CACHE_NAMESPACE>:*` bị xóa; SC-003: request tới app kia từ 200 ms sau response dùng
   quyền mới, 20 lần mỗi chiều; FR-083 (`track/page` không xóa cache dữ liệu).
-- [ ] T071 [P] [US7] `tests/parity/src/redis-down.test.ts`: thêm ca FR-085 (request cần quyền và thao tác ghi quyền khi
+- [X] T071 [P] [US7] `tests/parity/src/redis-down.test.ts`: thêm ca FR-085 (request cần quyền và thao tác ghi quyền khi
   Redis không dùng được) so status, mã lỗi với Directus; DB sau thao tác ghi giống nhau.
-- [ ] T072 [US7] Unit test FR-084 trong `apps/api/src/permissions/cache.test.ts` và `apps/api/src/cache.test.ts` (store
+- [X] T072 [US7] Unit test FR-084 trong `apps/api/src/permissions/cache.test.ts` và `apps/api/src/cache.test.ts` (store
   `memory`, không Redis: xóa cache của chính process, phát `schemaChanged` local). Sửa app mới tới khi T069 đến T072 đạt.
 
 ---
@@ -469,12 +469,12 @@ thay email.
 **Purpose**: Cổng CI mới: app Directus 11.17.4 chạy qua proxy (route 001 đến 004 vào app mới) làm được mọi thao tác quản
 trị user, role, policy, quyền với cùng tác động DB như khi chỉ có Directus (contracts/proxy-e2e.md).
 
-- [ ] T073 Reverse proxy: `tests/parity/proxy/backoffice-routes.txt` (`auth`, `server`, `metrics`, `users`, `roles`,
+- [X] T073 Reverse proxy: `tests/parity/proxy/backoffice-routes.txt` (`auth`, `server`, `metrics`, `users`, `roles`,
   `policies`, `access`, `permissions`), `tests/parity/proxy/nginx.conf.template`, `tests/parity/scripts/proxy-conf.mjs`
   (sinh `nginx.conf`, unit test trong `tests/parity/src/proxy-conf.test.ts`), service `proxy` (profile `app`,
   `nginx:1.27-alpine`, cổng `8160`, log có `$upstream_addr`) trong `tests/parity/docker-compose.yml`; thêm `app` vào
   `ALL_PROFILES` (`scripts/env.mjs`), `src/config.ts`, `src/profiles.ts`, `src/global-setup.ts`.
-- [ ] T074 [P] Dự án `tests/directus-app-e2e` theo mẫu `apps/web-e2e`: `project.json` (target `e2e`),
+- [X] T074 [P] Dự án `tests/directus-app-e2e` theo mẫu `apps/web-e2e`: `project.json` (target `e2e`),
   `playwright.config.ts` (`BASE_URL` bắt buộc, chromium, `retries: 1` ở CI), `package.json` (`@playwright/test`, `knex`,
   `pg` qua `catalog:`), `tsconfig.json`; helper `src/helpers/login.ts`, `src/helpers/db-rows.ts` (chụp và chuẩn hóa dòng
   mới của bảy bảng, như `db-effects` của 003), `src/helpers/proxy-log.ts`. Thêm vào `pnpm-workspace.yaml` nếu cần.
@@ -506,10 +506,10 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
   target `permissions` trong `tests/benchmark/project.json`, job `benchmark-permissions` trong
   `.github/workflows/benchmark.yml` (hằng tuần, bấm tay, không chặn `publish`). Chạy một lần; ghi số liệu vào "Ghi chú
   khi làm".
-- [ ] T083 [P] Đồng bộ bảng khác biệt (research R10): `specs/001-platform-foundation/spec.md` (D-09.6 thêm query `version`;
+- [X] T083 [P] Đồng bộ bảng khác biệt (research R10): `specs/001-platform-foundation/spec.md` (D-09.6 thêm query `version`;
   D-11 nay gồm `GET` của năm endpoint; D-12 chỉ còn `export`); `tests/parity/accepted-differences.ts` thêm entry `doc`
   D-29, D-30, D-31 (feature `004`); chạy guard.
-- [ ] T084 [P] `SPECKIT-GUIDE.md`: sửa bảng lộ trình và prompt của feature 005 (005 không còn port engine; chỉ `/items`,
+- [X] T084 [P] `SPECKIT-GUIDE.md`: sửa bảng lộ trình và prompt của feature 005 (005 không còn port engine; chỉ `/items`,
   singleton, response cache, `export`, event, bus `websocket.event`, blackbox items, query, relational) theo Assumptions
   của spec.
 - [ ] T085 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
@@ -683,3 +683,49 @@ Task: "T043 blackbox-common.test.ts (createRole)"
   `/server/health` của admin có `observedValue` theo thời gian nên ETag khác theo độ dài body: so mọi thứ trừ ETag.
 - Checkpoint lượt 1 (Postgres, máy local): bộ `full` 47 file, 386 ca đạt (1 todo), 8 phút 2 giây. MySQL, SQLite chạy
   `reduced` (gồm `accountability`, `roles`) trên CI sau khi push.
+- CI của lượt 1 (`cf3395c` trên `main`) không chạy: GitHub Actions từ chối mọi job ("recent account payments have
+  failed or your spending limit needs to be increased"), cả lần chạy đóng 003 trước đó. Chạy thay ở máy local: MySQL
+  `reduced` 14 file, 140 ca đạt (18 bỏ qua theo vendor); SQLite `reduced` mọi file của lượt 1 đạt.
+- T051: `deleteMany` của `UsersService` port nguyên bản; fixture SQLite thêm `directus_comments`,
+  `directus_notifications`, `directus_versions` (chỉ cột khóa ngoại tới user) và cột `last_page` của `directus_users`.
+- T052, T053: `users.controller.ts` đủ route theo thứ tự router Directus (trừ mời, đăng ký của US5); `TFAService` thêm
+  `enableTFA`, `disableTFA` (ghi `tfa_secret` qua `ItemsService` với quyền của user). Bỏ entry D-09.10, sửa ô "Gỡ khi" của
+  D-09.10 trong spec 003 thành `004`; D-09.2 chỉ còn `POST /users/invite`, `/users/invite/accept`, `/users/register`,
+  `GET /users/register/verify-email` (US5) và `/permissions/me*` (US6).
+- T048: profile `user-limits` (8855, 8856) thêm vào compose, `env/profile-user-limits.env`, `config.ts` (global-setup và
+  `profiles.ts` đọc từ đây), `ALL_PROFILES`, CI. Ca giới hạn: Directus chạy trước rồi đặt `suspended` cho user của nó để
+  app mới bắt đầu từ cùng số đếm.
+- T063 đến T065: `inviteUser`, `acceptInvite`, `registerUser`, `verifyRegistration` port nguyên bản; chỗ gửi mail thay
+  bằng `warn` `[email] Invitation email to "<email>" ...` / `Verification email ...` (không token, không link; vì vậy
+  không port `inviteUrl` và phần ký token xác minh). Limiter đăng ký tạo ở request đầu (R11). Fixture SQLite thêm
+  `public_registration_role`, `public_registration_email_filter`. Entry `doc` D-27, D-28.
+- T068: `GET /permissions/me`, `GET /permissions/me/:collection/:pk?` (Nest: hai path cho tham số tùy chọn của Express 4).
+  D-09.2 không còn khớp request nào (`excludeEndpoints: ['*']`), giữ tới khi 004 Done như D-10.
+- T062, T066, T067 (Postgres): `invite-register` 14 ca, `me` và `check-item-permissions` 11 ca đạt. Token tự ký theo
+  định dạng Directus được gắn nhãn trong transcript; helper `flow.nameExact()` cho OTP.
+- T055 đến T057: `read-rules` (8 ca), `write-rules` (4), `query` (15: năm endpoint × admin, user một phần, public; mỗi ca
+  khoảng 40 query gồm qs, JSON, hàm, `_some`, `_none`, `deep`, `aggregate`, `SEARCH`, 13 query sai) đạt trên Postgres.
+  Đo được: không có quyền `read` thì đọc theo id trả message "access collection ... Queried in root." (không phải
+  "access this."); "access this." chỉ khi có quyền mà filter loại dòng. Đã sửa câu chữ US2.6 của spec theo Directus.
+- T058: harness `matrix-harness.ts`: mỗi nhóm dựng fixture một lần ở Directus (policy 25 dòng quyền cho năm collection ×
+  năm action; `directus_users-custom` dùng chung dòng quyền của `directus_users`, khác ở field tùy biến trong request);
+  ô đọc, share so bằng `parity()` trên đích dùng chung; ô tạo, sửa, xóa chạy ở từng app trên đích riêng, so response và
+  dòng ghi. Hai lỗi harness đã gặp: tên theo app phải cùng độ dài (`backoffice` dài hơn `directus` làm local-part email
+  quá 64 ký tự chỉ ở một bên) và hai dòng `directus_access` cùng `sort` trả về theo thứ tự UUID ngẫu nhiên. Đo: 65
+  nhóm khoảng 2,1 đến 2,8 phút trên máy local (Directus chạy giả lập amd64), cả ma trận khoảng 25 phút; chọn n = 4
+  cho CI (`parity-matrix-rotating`, `parity-matrix.yml`).
+- T069 đến T072: key cache dữ liệu của Directus có dạng `sets:namespace:<CACHE_NAMESPACE>:<CACHE_NAMESPACE>:<key>`
+  (Keyv); giá trị `filter-context-*` giống từng byte (`expires` của Keyv tùy thời điểm). Directus ghi thêm một entry
+  `raw-permissions` từ `permissionsCacheable()` của bước `respond` (response cache, D-11). FR-082 với
+  `CACHE_AUTO_PURGE=true`: mọi lệnh ghi qua engine đều xóa cache dữ liệu (FR-083), trừ `track/page`. FR-085: entry của
+  cache quyền chỉ nằm trong bộ nhớ của process ghi sau cùng (`CacheMulti.set` báo process khác bỏ key), nên ca Redis
+  down đo từng app sau khi chính app đó làm nóng; khi đó hai app như nhau (đọc đã nóng trả `403`; lệnh ghi ghi dòng rồi
+  treo ở bước xóa cache).
+- T073, T074: proxy nginx (`proxy/`, `scripts/proxy-conf.mjs` sinh `nginx.conf` lúc `env-up`, test
+  `src/proxy-conf.test.ts`), profile `app` (cổng 8160, `PROXY_URL` ở global-setup); dự án `tests/directus-app-e2e`
+  (Playwright, helper đăng nhập, chụp dòng DB, đọc log proxy).
+- T080, T081, T083, T084: `request-set.ts` thêm request của năm endpoint với JWT admin ký sẵn và static token của user
+  tạo trước khi chụp DB; ca log FR-092; bảng 001 (D-09.6, D-11, D-12) và entry `doc` D-29 đến D-31; `SPECKIT-GUIDE.md`
+  (005 không port lại engine).
+- T082: `tests/benchmark/src/{seed-permissions,permissions}.ts`, target `benchmark:permissions`, job
+  `benchmark-permissions`. Mốc so là Directus không response cache (`directus-noresponsecache`, D-11).

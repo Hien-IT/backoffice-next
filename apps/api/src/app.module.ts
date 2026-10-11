@@ -30,5 +30,6 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
 		consumer.apply(useCollection('directus_roles')).forRoutes(RolesController);
+		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 	}
 }

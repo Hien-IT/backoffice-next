@@ -1,5 +1,5 @@
-// Feature 003, US5.1 to US5.6: TFA. The new app generates secrets and checks OTPs at login; enabling and disabling
-// TFA stay at Directus until feature 005 (D-09.10), so secrets made by the new app are enabled through Directus.
+// Feature 003, US5.1 to US5.6: TFA. The new app generates secrets and checks OTPs at login; a secret made by the new
+// app is enabled through Directus. Enabling and disabling at the new app: permissions/tfa-toggle.test.ts (feature 004).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { directusRequest } from '../directus-api.js';
 import { assertParity, capture, parity, type ParityRequest } from '../parity.js';
@@ -121,11 +121,9 @@ describe('TFA', () => {
 	});
 
 	it.each(['/users/me/tfa/enable', '/users/me/tfa/disable', `/users/00000000-0000-4000-8000-000000000000/tfa/disable`])(
-		'US5.6: POST %s at the new app: 404 until feature 005 (D-09.10)',
+		'US5.6: POST %s without a token: 401 at both apps (built by feature 004, D-09.10 removed)',
 		async (path) => {
-			const res = await capture(process.env['BACKOFFICE_URL']!, post(path, {}));
-			expect(res.status).toBe(404);
-			expect((res.json as any).errors[0].extensions.code).toBe('ROUTE_NOT_FOUND');
+			await expectParity(post(path, {}), 401, 'INVALID_CREDENTIALS');
 		},
 	);
 });

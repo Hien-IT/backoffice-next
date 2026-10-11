@@ -90,6 +90,8 @@ export async function createDirectusDb(): Promise<Knex> {
 		t.text('custom_css');
 		t.boolean('public_registration').notNullable().defaultTo(false);
 		t.boolean('public_registration_verify_email').defaultTo(true);
+		t.uuid('public_registration_role');
+		t.json('public_registration_email_filter');
 	});
 
 	return db;
@@ -112,6 +114,7 @@ export async function createAuthDb(): Promise<Knex> {
 		t.uuid('role');
 		t.string('token', 255).unique();
 		t.timestamp('last_access');
+		t.string('last_page', 255);
 		t.string('tfa_secret', 255);
 		t.string('provider', 128).notNullable().defaultTo('default');
 		t.string('external_identifier', 255).unique();
@@ -178,6 +181,22 @@ export async function createAuthDb(): Promise<Knex> {
 		t.uuid('user');
 		t.uuid('role');
 		t.string('collection', 64);
+	});
+
+	// Feature 004: UsersService.deleteMany sets these references to null (directus/directus#19912).
+	await db.schema.createTable('directus_comments', (t) => {
+		t.uuid('id').primary();
+		t.uuid('user_updated');
+	});
+
+	await db.schema.createTable('directus_notifications', (t) => {
+		t.increments('id');
+		t.uuid('sender');
+	});
+
+	await db.schema.createTable('directus_versions', (t) => {
+		t.uuid('id').primary();
+		t.uuid('user_updated');
 	});
 
 	await db.schema.alterTable('directus_settings', (t) => {

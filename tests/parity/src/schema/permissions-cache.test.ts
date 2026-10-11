@@ -2,6 +2,16 @@
 // once decoded, so each can read what the other wrote (contracts/redis.md §4).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { cleanupFixtures, createRole, createUser, PASSWORD } from '../auth/fixtures.js';
+import { appRequest } from '../directus-api.js';
+import {
+	attachPolicy,
+	cleanup,
+	createPolicy,
+	createRoleTree,
+	createShare,
+	createUser as createPermissionUser,
+	createUserCollection,
+} from '../permissions/fixtures.js';
 import { closeRedis, decodeMessage, flushSharedCaches, redis } from '../redis.js';
 import { createPublicCollection, dropCollections } from './helpers.js';
 
@@ -59,6 +69,7 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 	afterAll(async () => {
 		await dropCollections(['parity_perm']);
 		await cleanupFixtures();
+		await cleanup();
 		await closeRedis();
 	}, 60_000);
 
@@ -128,6 +139,96 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 			'permissions:global-access-user',
 			'permissions:roles-tree',
 		]);
+		expect(backoffice).toStrictEqual(directus);
+	});
+
+	// Feature 004 (T069, SC-004): a request whose permissions resolve $CURRENT_USER.<relation>.<field> writes every
+	// namespace of withCache plus the filter-context-* entry of the data cache (CACHE_ENABLED=true), compressed like
+	// Directus (snappy). `policies-ip-access` is only read by the key of the response cache (005, D-11).
+	it('dynamic variables through a relation: same permissions entries, filter-context bytes equal', async () => {
+		const { leaf } = await createRoleTree('directus', 'parity-cache-dynamic');
+		const own = { role: { name: { _eq: '$CURRENT_USER.role.name' } } };
+
+		await attachPolicy(
+			'directus',
+			await createPolicy('directus', 'parity-cache-dynamic', {
+				permissions: [{ collection: 'directus_users', action: 'read', fields: ['id', 'email'], permissions: own }],
+			}),
+			{ role: leaf },
+		);
+
+		const user = await createPermissionUser('directus', 'parity-cache-dynamic', { role: leaf });
+
+		const read = (url: string) => () =>
+			fetch(new URL('/users?fields=id', url), { headers: { authorization: `Bearer ${user.token}` } });
+
+		const entriesOf = async (url: string) => {
+			const r = redis();
+
+			for await (const keys of r.scanStream({
+				match: 'sets:namespace:system-cache:system-cache:filter-context-*',
+				count: 500,
+			})) {
+				if ((keys as string[]).length > 0) await r.unlink(...(keys as string[]));
+			}
+
+			const permissions = await permissionsCacheOf(url, read(url));
+			const data: Record<string, string> = {};
+
+			for await (const keys of r.scanStream({
+				match: 'sets:namespace:system-cache:system-cache:filter-context-*',
+				count: 500,
+			})) {
+				// Keyv stores {value, expires}: the compressed value byte for byte, expires depends on the time of the write.
+				for (const key of keys as string[]) {
+					const { value, expires } = JSON.parse((await r.getBuffer(key))!.toString('utf8'));
+					data[key] = `${value} expires:${typeof expires}`;
+				}
+			}
+
+			return {
+				permissions: Object.fromEntries(
+					Object.entries(permissions).filter(([key]) => !key.startsWith('permissions:policies-ip-access-')),
+				),
+				data,
+			};
+		};
+
+		const directus = await entriesOf(DIRECTUS);
+		const backoffice = await entriesOf(BACKOFFICE);
+
+		expect(Object.keys(directus.data)).toHaveLength(1);
+		expect(backoffice.data).toStrictEqual(directus.data);
+
+		// Directus' respond step also asks permissionsCacheable() whether the response may be cached (response cache,
+		// D-11 until 005): one more raw-permissions entry. Every entry Backoffice writes is one Directus writes.
+		const extra = Object.keys(directus.permissions).filter((key) => !(key in backoffice.permissions));
+		expect(extra.map((key) => key.replace(/-[0-9a-f]+$/, ''))).toEqual(['permissions:raw-permissions']);
+		for (const [key, value] of Object.entries(backoffice.permissions))
+			expect(value, key).toStrictEqual(directus.permissions[key]);
+	});
+
+	it('a share token: the share-info entry like Directus', async () => {
+		const collection = await createUserCollection(`parity_cache_share_${Date.now().toString(36)}`);
+		const item = (await appRequest('directus', 'POST', `/items/${collection}`, {})).data.id;
+		const share = await createShare(collection, item);
+		const auth = await fetch(new URL('/shares/auth', DIRECTUS), {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify({ share }),
+		});
+		const { access_token } = ((await auth.json()) as { data: { access_token: string } }).data;
+
+		const me = (url: string) => () =>
+			fetch(new URL('/permissions/me', url), { headers: { authorization: `Bearer ${access_token}` } });
+
+		const shareInfo = (entries: Record<string, unknown>) =>
+			Object.fromEntries(Object.entries(entries).filter(([key]) => key.startsWith('permissions:share-info-')));
+
+		const directus = shareInfo(await permissionsCacheOf(DIRECTUS, me(DIRECTUS)));
+		const backoffice = shareInfo(await permissionsCacheOf(BACKOFFICE, me(BACKOFFICE)));
+
+		expect(Object.keys(directus)).toHaveLength(1);
 		expect(backoffice).toStrictEqual(directus);
 	});
 });

@@ -39,6 +39,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"permissions": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/permissions.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }

@@ -126,3 +126,26 @@ test('POST many, PATCH array, DELETE array', async () => {
 test('GET /permissions/<pk ending in me> answers 204', async () => {
 	expect((await (await start()).get('/permissions/xme').set('Authorization', admin())).status).toBe(204);
 });
+
+test('GET /permissions/me: 403 without user, role or share; the collection access of the admin', async () => {
+	const agent = await start();
+
+	expect((await agent.get('/permissions/me')).status).toBe(403);
+
+	const me = await agent.get('/permissions/me').set('Authorization', admin());
+	expect(me.status).toBe(200);
+	expect(me.body.data['directus_users']).toMatchObject({ read: { access: 'full' } });
+});
+
+test('GET /permissions/me/:collection and /:collection/:pk answer the item permissions', async () => {
+	const agent = await start();
+
+	const collection = await agent.get('/permissions/me/directus_users').set('Authorization', admin());
+	expect(collection.body.data).toMatchObject({ update: { access: true }, delete: { access: true } });
+
+	const item = await agent.get(`/permissions/me/directus_users/${ADMIN}`).set('Authorization', admin());
+	expect(item.status).toBe(200);
+	expect(item.body.data).toMatchObject({ update: { access: true } });
+
+	expect((await agent.get('/permissions/me/directus_users')).status).toBe(403);
+});

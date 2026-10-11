@@ -165,7 +165,9 @@ quyền, action và request. So status, body, và tác động DB (với request
 5. **Given** quyền `update` filter theo `$CURRENT_USER.department`, **When** sửa item ngoài phòng ban của mình,
    **Then** trả `403 FORBIDDEN` với cùng message như Directus, và DB không đổi.
 6. **Given** user không có quyền `read` một collection, **When** đọc một item theo id, **Then** trả `403 FORBIDDEN`
-   message `You don't have permission to access this.`, dù item có tồn tại hay không, giống Directus.
+   message `You don't have permission to access collection "<c>" or it does not exist. Queried in root.`; **Given** user
+   có quyền `read` nhưng filter loại dòng đó, **Then** message `You don't have permission to access this.`; cả hai dù
+   item có tồn tại hay không, giống Directus (đo ở T055).
 7. **Given** policy có `ip_access` không chứa IP của request, **When** user gửi request, **Then** permission của policy
    đó không được dùng (kể cả khi IP không xác định được); cờ `admin`, `app` theo bảng FR-016 (khác ở R-01, R-02), giống
    Directus.

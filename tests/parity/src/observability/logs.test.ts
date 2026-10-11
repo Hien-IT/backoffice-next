@@ -4,7 +4,9 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { type App, cleanupFixtures, createUserPerApp, PASSWORD, type User } from '../auth/fixtures.js';
 import { cookiePair, type Mode, MODES, post, withToken } from '../auth/flows.js';
-import { signResetToken } from '../auth/tokens.js';
+import { sharedSecret, signResetToken, totp } from '../auth/tokens.js';
+import { appRequest } from '../directus-api.js';
+import jwt from 'jsonwebtoken';
 import { logs } from '../docker.js';
 import { capture } from '../parity.js';
 import { profileUrls } from '../profiles.js';
@@ -150,4 +152,98 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 
 		for (const secret of secrets) expect(output.includes(secret), secret.slice(0, 12)).toBe(false);
 	});
+
+	// Feature 004 (FR-092): the flows of users, invites, registration and TFA write no secret in the logs of the new
+	// app, and the revisions mask the concealed fields.
+	it(
+		'no secret of the user flows of feature 004 in the logs; concealed fields masked in revisions',
+		{ timeout: 60_000 },
+		async () => {
+			const url = urls().backofficeUrl!;
+			const sign = (payload: object) => jwt.sign(payload, sharedSecret(), { issuer: 'directus', expiresIn: '1h' });
+			const login = async (email: string, password: string) =>
+				((await capture(url, post('/auth/login', { email, password }))).json as any).data.access_token as string;
+			const adminToken = await login('admin@example.com', 'password');
+			const admin = { authorization: `Bearer ${adminToken}` };
+			const run = randomUUID().slice(0, 8);
+			const secrets: string[] = [];
+
+			// Static token and password set through /users, then the password changed by the user.
+			const staticToken = `log-static-${run}`;
+			const email = `log-user-${run}@example.com`;
+			const created = await capture(url, {
+				...post('/users', { email, password: `log-pass-${run}`, token: staticToken }),
+				headers: admin,
+			});
+			const userId = (created.json as any).data.id;
+			secrets.push(staticToken, `log-pass-${run}`);
+
+			await capture(url, {
+				method: 'PATCH',
+				path: '/users/me',
+				body: { password: `log-pass2-${run}` },
+				headers: { authorization: `Bearer ${staticToken}` },
+			});
+			secrets.push(`log-pass2-${run}`);
+
+			// TFA enabled then disabled with OTPs.
+			const user = { authorization: `Bearer ${staticToken}` };
+			const generated = (
+				await capture(url, { ...post('/users/me/tfa/generate', { password: `log-pass2-${run}` }), headers: user })
+			).json as any;
+			const secret = generated.data.secret as string;
+			const otp = totp(secret);
+			secrets.push(secret);
+			await capture(url, { ...post('/users/me/tfa/enable', { secret, otp }), headers: user });
+			await capture(url, { ...post('/users/me/tfa/disable', { otp: totp(secret) }), headers: user });
+
+			// Invite and accept with the invite token.
+			const roles = await appRequest('directus', 'GET', '/roles?limit=1&fields=id');
+			const invited = `log-invite-${run}@example.com`;
+			await capture(url, { ...post('/users/invite', { email: invited, role: roles.data[0].id }), headers: admin });
+			const inviteToken = sign({ email: invited, scope: 'invite' });
+			secrets.push(inviteToken, `log-invite-pass-${run}`);
+			await capture(url, post('/users/invite/accept', { token: inviteToken, password: `log-invite-pass-${run}` }));
+
+			// Registration and verification (public registration with verification for the time of the case).
+			const { data: settings } = await appRequest(
+				'directus',
+				'GET',
+				'/settings?fields=public_registration,public_registration_verify_email',
+			);
+			await appRequest('directus', 'PATCH', '/settings', {
+				public_registration: true,
+				public_registration_verify_email: true,
+			});
+
+			try {
+				const registered = `log-register-${run}@example.com`;
+				await capture(url, {
+					...post('/users/register', { email: registered, password: `log-register-pass-${run}` }),
+					headers: { 'x-forwarded-for': `10.45.${Number.parseInt(run.slice(0, 2), 16)}.1` },
+				});
+				const verifyToken = sign({ email: registered, scope: 'pending-registration' });
+				secrets.push(`log-register-pass-${run}`, verifyToken);
+				await capture(url, { path: `/users/register/verify-email?token=${verifyToken}` });
+			} finally {
+				await appRequest('directus', 'PATCH', '/settings', settings);
+			}
+
+			await new Promise((r) => setTimeout(r, 1000));
+			const output = logs('backoffice-api-metrics');
+
+			for (const s of secrets) expect(output.includes(s), s.slice(0, 16)).toBe(false);
+			expect(output).toContain(`Invitation email to "${invited}"`);
+
+			// Revisions of the user written by the new app: password, token and tfa_secret masked.
+			const revisions = await hostDb()('directus_revisions')
+				.where({ collection: 'directus_users', item: userId })
+				.select('data', 'delta');
+			const text = JSON.stringify(revisions);
+			for (const s of [staticToken, `log-pass-${run}`, secret]) expect(text.includes(s), s.slice(0, 16)).toBe(false);
+			expect(text).toContain('**********');
+
+			await appRequest('directus', 'DELETE', '/users', { query: { filter: { email: { _contains: run } } } });
+		},
+	);
 });

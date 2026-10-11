@@ -1,17 +1,19 @@
-// Ported from directus/api/src/services/tfa.ts (verifyOTP and generateTFA). enableTFA and disableTFA write
-// tfa_secret through ItemsService with the permissions of the user; they come with task T053 of feature 004 (FR-048).
+// Ported from directus/api/src/services/tfa.ts
 import { InvalidPayloadError } from '@backoffice/errors';
 import type { AbstractServiceOptions, PrimaryKey } from '@backoffice/types';
 import type { Knex } from 'knex';
 import { authenticator } from 'otplib';
 import { DEFAULT_AUTH_PROVIDER } from '../constants.js';
 import getDatabase from '../database/index.js';
+import { ItemsService } from './items.service.js';
 
 export class TFAService {
 	knex: Knex;
+	itemsService: ItemsService;
 
 	constructor(options: AbstractServiceOptions) {
 		this.knex = options.knex || getDatabase();
+		this.itemsService = new ItemsService('directus_users', options);
 	}
 
 	async verifyOTP(key: PrimaryKey, otp: string, secret?: string): Promise<boolean> {
@@ -59,5 +61,29 @@ export class TFAService {
 			// Backoffice: issuer label when project_name is empty (D-25 of spec 003, Principle IX)
 			url: authenticator.keyuri(accountName, project?.project_name || 'Backoffice', secret),
 		};
+	}
+
+	async enableTFA(key: PrimaryKey, otp: string, secret: string): Promise<void> {
+		const user = await this.knex.select('tfa_secret', 'provider').from('directus_users').where({ id: key }).first();
+
+		const requiresPassword = user?.['provider'] === DEFAULT_AUTH_PROVIDER;
+
+		if (user?.tfa_secret !== null) {
+			throw new InvalidPayloadError({ reason: 'TFA Secret is already set for this user' });
+		}
+
+		if (!requiresPassword && user?.provider === DEFAULT_AUTH_PROVIDER) {
+			throw new InvalidPayloadError({ reason: 'This method is only available for OAuth users' });
+		}
+
+		if (!authenticator.check(otp, secret)) {
+			throw new InvalidPayloadError({ reason: `"otp" is invalid` });
+		}
+
+		await this.itemsService.updateOne(key, { tfa_secret: secret });
+	}
+
+	async disableTFA(key: PrimaryKey): Promise<void> {
+		await this.itemsService.updateOne(key, { tfa_secret: null });
 	}
 }

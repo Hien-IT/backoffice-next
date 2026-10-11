@@ -1,0 +1,47 @@
+# Feature 004 (SC-001): every shard of the full permission matrix (FR-101), weekly and by hand. Must be green once
+# before the feature closes (T086); does not gate `publish` (ci.yml runs one rotating shard per push).
+name: Parity matrix
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * 0'
+
+permissions:
+  contents: read
+
+env:
+  NX_NO_CLOUD: 'true'
+
+jobs:
+  parity-matrix:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+    env:
+      PARITY_SUITE: matrix
+      PARITY_MATRIX_SHARD: ${{ matrix.shard }}/4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run api:build
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres
+      - run: pnpm nx run parity-tests:parity-matrix --vendor=postgres --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-postgres logs --no-color > parity-matrix-${{ matrix.shard }}.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: parity-matrix-${{ matrix.shard }}-logs
+          path: tests/parity/parity-matrix-${{ matrix.shard }}.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=postgres

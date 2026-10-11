@@ -192,7 +192,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 002 | Schema overview và cache dùng chung | 001 | BE |
 | 003 | Xác thực và phiên đăng nhập | 002 | BE |
 | 004 | Phân quyền (roles, policies, permissions, users) | 003 | BE |
-| 005 | Engine truy vấn và CRUD items | 004 | BE |
+| 005 | CRUD items, response cache, export, event (engine đã port ở 004) | 004 | BE |
 | 006 | Quản lý data model (collections, fields, relations, schema) | 005 | BE |
 | 007 | Files, folders, assets | 005 | BE |
 | 008 | Activity, revisions, versions, comments | 005 | BE |
@@ -238,10 +238,13 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 /speckit.specify App mới áp dụng đúng mô hình phân quyền của Directus 11: users, roles (có cây role lồng nhau), policies, access (gán policy cho role hoặc user), permissions theo collection và action (create, read, update, delete, share) với filter điều kiện, danh sách field, validation, preset, cùng các cờ admin_access, app_access, ip_access, enforce_tfa. Accountability của mỗi request được tính giống Directus, kể cả biến động $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES, $NOW. Cung cấp các endpoint /users, /roles, /policies, /access, /permissions (gồm /permissions/me và /policies/me/globals), CRUD giống Directus. /users/invite tạo user trạng thái invited giống Directus nhưng không gửi email, chỉ ghi log. Kết quả phân quyền được cache dùng chung Redis với Directus. Tham chiếu directus/api/src/permissions và các service users, roles, policies, access, permissions. Tiêu chí chấp nhận: với cùng user và dữ liệu, mọi request đọc và ghi bị chặn hoặc cho phép giống hệt Directus.
 ```
 
-### 005: Engine truy vấn và CRUD items
+### 005: CRUD items, response cache, export, event
+
+Engine đọc và ghi (`ItemsService`, `PayloadService`, `MetaService`, `get-ast-from-query`, `run-ast`, `apply-query`,
+dialect helper) và kiểm query đã port đủ ở feature 004. Feature này chỉ thêm phần còn lại.
 
 ```text
-/speckit.specify Người dùng thao tác dữ liệu của mọi collection qua /items/:collection giống hệt Directus: đọc danh sách, đọc theo id, tạo, sửa, xóa từng cái hoặc hàng loạt, collection singleton. Hỗ trợ đầy đủ query: fields (gồm wildcard, field quan hệ lồng nhau, $thumbnail), filter (mọi toán tử _eq, _neq, _in, _between, _contains, _icontains, _null, _empty, _some, _none, toán tử geometry, _and, _or), search, sort, limit, offset, page, meta (total_count, filter_count), aggregate, groupBy, deep, alias, backlink, và các hàm ngày giờ (year(), month()...). Ghi dữ liệu xử lý payload giống Directus: special fields (uuid, hash, cast-json, date-created, date-updated, user-created, user-updated, conceal, m2o, o2m, m2m, m2a), validation theo field và permission, ghi lồng quan hệ trong một transaction, sort field. Mỗi thao tác ghi tạo activity và revision giống Directus, và phát cùng tên event như Directus (items.create, items.update...) để flow dùng được. Mỗi thao tác ghi cũng đẩy sự kiện lên kênh bus websocket.event của Directus (cùng format như directus/api/src/websocket/controllers/hooks.ts), để client realtime đang kết nối vào Directus vẫn nhận được thay đổi phát sinh từ app mới. Tham chiếu directus/api/src/services/items.ts, payload.ts, database/run-ast (gồm run-ast/lib/apply-query). Tiêu chí chấp nhận: bộ blackbox test items, query và relational của Directus chạy qua trên app mới với Postgres, MySQL và SQLite.
+/speckit.specify Người dùng thao tác dữ liệu của mọi collection qua /items/:collection giống hệt Directus: đọc danh sách, đọc theo id, tạo, sửa, xóa từng cái hoặc hàng loạt, SEARCH, collection singleton. Engine đọc ghi (ItemsService, PayloadService, MetaService, run-ast, apply-query) và kiểm query đã port ở feature 004, nên feature này dùng lại, không port lại. Thêm: cache response khi CACHE_ENABLED=true (CACHE_TTL, CACHE_AUTO_PURGE, CACHE_STATUS_HEADER, Cache-Control, dùng chung key với Directus, gỡ D-11), xuất file qua query export (json, csv, xml, yaml, gỡ D-12), phát cùng tên event như Directus (items.create, items.update... và event của năm collection hệ thống, gỡ D-29 phần filter và action cho flow), và đẩy sự kiện lên kênh bus websocket.event của Directus (cùng format như directus/api/src/websocket/controllers/hooks.ts, gỡ D-30). Tham chiếu directus/api/src/controllers/items.ts, middleware/respond.ts, middleware/cache.ts, utils/get-cache-key.ts, services/import-export, emitter.ts. Tiêu chí chấp nhận: bộ blackbox test items, query và relational của Directus chạy qua trên app mới với Postgres, MySQL và SQLite.
 ```
 
 ### 006: Quản lý data model
@@ -378,7 +381,7 @@ Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó,
 | `/speckit.status` | Haiku 4.5 | Haiku 4.5 | Chỉ đọc trạng thái. |
 
 **Khi Opus 5.5 effort max vẫn chưa làm tốt** (thường gặp ở 005 và 009):
-- Tách feature thành các phần nhỏ hơn. Ví dụ 005 tách thành "đọc và query" và "ghi và payload". 009 tách thành "trigger và engine" và "các operation".
+- Tách feature thành các phần nhỏ hơn. Ví dụ 009 tách thành "trigger và engine" và "các operation" (004 đã port engine đọc ghi trong hai lượt).
 - Trong prompt, chỉ thẳng file Directus cần đọc, thay vì để model tự tìm.
 - Cho model chạy test đối chiếu sau mỗi task thay vì cuối feature, để lỗi được phát hiện sớm.
 
@@ -394,7 +397,7 @@ Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó,
 
 - **Chạy `/speckit.clarify` cho feature 003, 004, 005, 009.** Đây là những phần dễ hiểu sai nhất.
 - **Chạy `/speckit.analyze` trước `/speckit.implement`** để bắt lỗi spec, plan, tasks không khớp nhau.
-- **Feature lớn (005, 013, 014) nên tách nhỏ hơn** nếu tasks.md quá dài (trên khoảng 60 task). Ví dụ 005 tách thành "đọc và query" và "ghi và payload".
+- **Feature lớn (004, 013, 014) nên chia lượt** nếu tasks.md quá dài (trên khoảng 60 task), như 004 chia hai lượt implement, mỗi lượt commit và đối chiếu xanh.
 - **Theo dõi tiến độ:** `/speckit.status` cho biết feature hiện tại đang ở bước nào.
 - **Mỗi feature làm xong** thì chạy test đối chiếu, rồi merge branch trước khi sang feature sau.
 

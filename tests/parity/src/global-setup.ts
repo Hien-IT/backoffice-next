@@ -1,5 +1,5 @@
 import { awaitDirectusConnection } from './await-connection.js';
-import { appPorts, type Profile, profilePorts, secondBackofficePort } from './config.js';
+import { appPorts, type Profile, profilePorts, proxyPort, secondBackofficePort } from './config.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { profileEnvKeys } from './profiles.js';
 
@@ -22,6 +22,9 @@ export default async function setup(): Promise<void> {
 
 	await awaitDirectusConnection(process.env['DIRECTUS_URL'], 60, 2000);
 	await awaitDirectusConnection(process.env['BACKOFFICE_URL'], 60, 2000);
+
+	const proxy = `http://127.0.0.1:${proxyPort}`;
+	if (await answers(proxy)) process.env['PROXY_URL'] ??= proxy;
 
 	const second = `http://127.0.0.1:${secondBackofficePort}`;
 	if (await answers(second)) process.env['BACKOFFICE_URL_2'] ??= second;

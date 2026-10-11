@@ -20,6 +20,8 @@ export interface Flow {
 	req(method: string, path: string, body?: ParityRequest['body'], headers?: Record<string, string>): Promise<Captured>;
 	/** Labels an id made by the flow (`<label>` in the transcript). */
 	name(id: string | number, label: string): void;
+	/** Labels a value only where a whole string equals it (an OTP, short values that could occur inside others). */
+	nameExact(value: string, label: string): void;
 	/** Records rows of a table (all columns or `columns`), ordered by `orderBy` (or the primary key). */
 	rows(table: string, where: (q: any) => any, options?: { orderBy?: string; columns?: string[] }): Promise<void>;
 	/** Records the activity and revisions written on the permission tables since the flow started. */
@@ -36,6 +38,8 @@ function normalizeRow(row: Record<string, unknown>): Record<string, unknown> {
 
 	for (const [key, value] of Object.entries(row)) {
 		if (DATE.test(key) && value !== null) out[key] = '<date>';
+		else if (key === 'password' && typeof value === 'string' && value.startsWith('$argon2')) out[key] = '<argon2>';
+		else if (key === 'token' && typeof value === 'string' && /^[\w-]{64}$/.test(value)) out[key] = '<session>';
 		else if (key === 'ip' || key === 'user_agent' || key === 'origin') out[key] = value === null ? null : `<${key}>`;
 		else if (typeof value === 'string' && /^[[{]/.test(value)) {
 			try {
@@ -54,6 +58,7 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 	const aliases: Record<string, string> = {};
 	// Numeric ids (directus_permissions) are replaced as whole tokens only, never inside another value (a UUID).
 	const numeric: Record<string, string> = {};
+	const exact: Record<string, string> = {};
 	const entries: unknown[] = [];
 	const token = await adminToken(ctx.app);
 	const lastActivity = await maxId('directus_activity');
@@ -74,6 +79,10 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 
 			entries.push({ request: `${method} ${path}`, body, response: snapshotOf(path.split('?')[0]!, res) });
 			return res;
+		},
+
+		nameExact(value, label) {
+			exact[value] = `<${label}>`;
 		},
 
 		name(id, label) {
@@ -125,6 +134,7 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 
 			const numbers = JSON.parse(JSON.stringify(entries), (_key, value) => {
 				if (typeof value === 'number') return numeric[String(value)] ?? value;
+				if (typeof value === 'string' && exact[value]) return exact[value];
 				return typeof value === 'string' ? token(value) : value;
 			});
 

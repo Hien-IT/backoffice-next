@@ -3,6 +3,7 @@
 import { spawnSync } from 'node:child_process';
 import { chmodSync, mkdirSync, rmSync } from 'node:fs';
 import { parseArgs } from 'node:util';
+import { writeNginxConf } from './proxy-conf.mjs';
 
 const [action] = process.argv.slice(2);
 
@@ -16,7 +17,17 @@ const { values } = parseArgs({
 });
 
 // `down` enables every profile, otherwise the containers of the profile pairs would keep running.
-const ALL_PROFILES = ['ratelimit', 'cors-hsts', 'pressure', 'metrics', 'multi', 'cache-config', 'sso'];
+const ALL_PROFILES = [
+	'ratelimit',
+	'cors-hsts',
+	'pressure',
+	'metrics',
+	'multi',
+	'cache-config',
+	'sso',
+	'user-limits',
+	'app',
+];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [
 	'compose',
@@ -32,6 +43,8 @@ const command =
 
 // SQLite database shared by both apps (bind mount); recreated on every env-up.
 if (action === 'up') {
+	// Profile `app` (feature 004): the reverse proxy reads proxy/nginx.conf, generated from the route list.
+	writeNginxConf();
 	rmSync('.data/sqlite', { recursive: true, force: true });
 	mkdirSync('.data/sqlite', { recursive: true });
 	// Both containers run as uid 1000 (node), the CI runner user is another uid: let them create the file.

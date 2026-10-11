@@ -85,7 +85,12 @@ export const profilePorts = {
 	metrics: { directus: 8555, backoffice: 8556 },
 	'cache-config': { directus: 8755, backoffice: 8756 },
 	sso: { directus: 8955, backoffice: 8956 },
+	// Feature 004 (T048): user limits.
+	'user-limits': { directus: 8855, backoffice: 8856 },
 } as const;
+
+/** Host port of the reverse proxy in front of both apps (profile `app`, feature 004, contracts/proxy-e2e.md). */
+export const proxyPort = 8160;
 
 /** Host port of the second Backoffice instance of the main pair (profile `multi`, feature 002). */
 export const secondBackofficePort = 8157;

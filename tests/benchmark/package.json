@@ -13,6 +13,7 @@
 		"@types/jsonwebtoken": "catalog:",
 		"autocannon": "catalog:",
 		"hdr-histogram-js": "catalog:",
+		"ioredis": "catalog:",
 		"jsonwebtoken": "catalog:",
 		"knex": "catalog:",
 		"pg": "catalog:"

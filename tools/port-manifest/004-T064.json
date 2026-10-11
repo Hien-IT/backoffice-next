@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/middleware/rate-limiter-registration.ts",
+		"dest": "apps/api/src/middleware/rate-limiter-registration.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/permissions/check-item-permissions.test.ts",
+		"dest": "tests/parity/src/permissions/check-item-permissions.test.ts"
+	}
+]

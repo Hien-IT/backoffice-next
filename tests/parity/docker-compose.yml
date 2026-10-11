@@ -247,6 +247,62 @@ services:
       timeout: 5s
       retries: 100
 
+  # Feature 004 (FR-106): the routes of the new app go to it, the rest to Directus (proxy/backoffice-routes.txt).
+  proxy:
+    profiles: [app]
+    image: nginx:1.27-alpine
+    volumes:
+      - ./proxy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      directus: { condition: service_healthy }
+      backoffice-api: { condition: service_healthy }
+    ports:
+      - '8160:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  directus-user-limits:
+    profiles: [user-limits]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-user-limits.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8855:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-user-limits:
+    profiles: [user-limits]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-user-limits.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8856:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
   directus-cors-hsts:
     profiles: [cors-hsts]
     image: directus/directus:11.17.4

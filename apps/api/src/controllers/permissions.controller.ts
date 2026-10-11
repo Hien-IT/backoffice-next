@@ -1,13 +1,14 @@
 // Ported from directus/api/src/controllers/permissions.ts
 // Backoffice: one Nest handler per Directus route, in the same order; `router.use(useCollection(...))` is applied by
 // AppModule.configure, `validateBatch` runs through runMiddleware (research R3), `next()` to `respond` is respond().
-// GET /me and GET /me/:collection/:pk? come with US6 of feature 004 (D-09.2 keeps them until then).
-import { ErrorCode, isBackofficeError } from '@backoffice/errors';
+import { ErrorCode, ForbiddenError, isBackofficeError } from '@backoffice/errors';
 import type { PrimaryKey } from '@backoffice/types';
 import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res, Search } from '@nestjs/common';
 import type { Request, Response } from 'express';
+import getDatabase from '../database/index.js';
 import { respond } from '../middleware/respond.js';
 import { validateBatch } from '../middleware/validate-batch.js';
+import { fetchAccountabilityCollectionAccess } from '../permissions/modules/fetch-accountability-collection-access/fetch-accountability-collection-access.js';
 import type { ServiceFactory } from '../providers.js';
 import { MetaService } from '../services/meta.service.js';
 import { PermissionsService } from '../services/permissions.service.js';
@@ -98,6 +99,20 @@ export class PermissionsController {
 		const meta = await metaService.getMetaForQuery('directus_permissions', temporaryQuery);
 
 		res.locals['payload'] = { data: result, meta };
+		return respond(res);
+	}
+
+	@Get('me')
+	async readMe(@Req() req: Request, @Res() res: Response): Promise<void> {
+		if (!req.accountability?.user && !req.accountability?.role && !req.accountability?.share)
+			throw new ForbiddenError();
+
+		const result = await fetchAccountabilityCollectionAccess(req.accountability, {
+			schema: req.schema,
+			knex: getDatabase(),
+		});
+
+		res.locals['payload'] = { data: result };
 		return respond(res);
 	}
 
@@ -202,6 +217,23 @@ export class PermissionsController {
 		});
 
 		await service.deleteOne(req.params['pk'] as string);
+
+		return respond(res);
+	}
+
+	// Directus: '/me/:collection/:pk?' (Express 4 optional parameter).
+	@Get(['me/:collection', 'me/:collection/:pk'])
+	async readItemPermissions(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const { collection, pk } = req.params as { collection: string; pk?: string };
+
+		const service = this.permissionsService({
+			accountability: req.accountability,
+			schema: req.schema,
+		});
+
+		const itemPermissions = await service.getItemPermissions(collection!, pk);
+
+		res.locals['payload'] = { data: itemPermissions };
 
 		return respond(res);
 	}
