@@ -63,6 +63,18 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
   tới đâu? → A: Port đủ engine đọc và ghi lồng quan hệ ở feature 004, dùng cho năm collection hệ thống; gỡ luôn D-09.10
   (bật, tắt TFA). Feature 005 chỉ còn route `/items`, singleton, response cache, `export`, event, bus `websocket.event`
   và bộ blackbox items, query, relational (FR-040, FR-048).
+- Q: Engine đọc, ghi port ở 004 được kiểm chứng thế nào khi bộ blackbox items, query, relational còn ở 005? → A: Port
+  unit test của engine từ Directus (`get-ast-from-query`, `run-ast`, `apply-query`, `process-ast`, `process-payload`,
+  `validate-access`, `parse-filter`, `payload`); parity trên năm collection hệ thống và field tùy biến (kể cả quan hệ)
+  của `directus_users`; chạy lại toàn bộ parity của 003 với engine mới ngay ở 004 (thay cho hẹn ở 005). Blackbox
+  items, query, relational vẫn ở 005 (FR-104, FR-105).
+- Q: SC-008 (app Directus trỏ vào app mới) kiểm bằng tay hay tự động? → A: Tự động: thêm reverse proxy vào môi
+  trường đối chiếu (`/admin/*` về Directus, còn lại về app mới) và test Playwright chạy app Directus qua proxy ở CI,
+  là cổng mới chặn merge (FR-106, SC-008).
+- Q: Proxy định tuyến thế nào khi app Directus còn gọi các route chưa làm (`/collections`, `/settings`,
+  `/extensions`... của 006, 008, 010)? → A: Định tuyến theo danh sách route đã làm: chỉ route của 001 đến 004
+  (`/auth`, `/server`, `/metrics`, `/users`, `/roles`, `/policies`, `/access`, `/permissions`) về app mới; mọi path
+  khác, kể cả `/admin`, về Directus. Mỗi feature sau thêm route của mình vào danh sách (FR-106).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -516,6 +528,11 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-082**: App mới PHẢI xóa cache ở đúng các điểm Directus xóa (`clearSystemCache`: cache hệ thống, schema trong
   process, cache quyền, thông điệp bus `schemaChanged`): tạo, sửa, xóa access; tạo policy (chỉ cache quyền), sửa
   policy (bốn cờ), xóa policy; mọi thao tác ghi permission; sửa `parent` role, xóa role; sửa `role` của user.
+- **FR-083**: Ở mỗi điểm Directus xóa cache dữ liệu (response cache trong Redis, namespace `CACHE_NAMESPACE`): các điểm
+  ở FR-082 trừ tạo policy, và mọi thao tác ghi khi `CACHE_AUTO_PURGE=true` (trừ collection trong
+  `CACHE_AUTO_PURGE_IGNORE_LIST` và lệnh có `autoPurgeCache: false` như `track/page`), app mới PHẢI xóa cache dữ liệu
+  dùng chung đó dù chính nó chưa trả response từ cache (D-11), để Directus không trả dữ liệu cũ sau khi ghi ở app mới
+  (Nguyên tắc IV; cùng cách 003 đã làm khi đổi `role` của user).
 
 **Dữ liệu ghi vào DB**
 
@@ -551,6 +568,21 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-103**: Bộ test PHẢI có ca đối chiếu cho mời, nhận lời mời, đăng ký, xác minh email, rate limiter đăng ký, token
   mời và token xác minh dùng chéo hai chiều, bật và tắt TFA (secret sinh ở bên này bật ở bên kia, theo cả hai chiều),
   và query đủ loại (FR-040) trên năm endpoint với user admin và user có quyền một phần.
+- **FR-104**: Unit test của engine trong Directus PHẢI được port cùng với code (Clarifications): `database/get-ast-from-query`,
+  `database/run-ast` (gồm `apply-query`, `apply-case-when`), `permissions/modules/process-ast`, `process-payload`,
+  `validate-access`, `permissions/utils/*`, `services/payload`, `services/items`, `packages/utils/shared/parse-filter`
+  và các file liên quan. Các nhánh năm collection hệ thống không chạm tới (m2a, hàm ngày giờ, aggregate, geometry) PHẢI
+  được phủ bằng unit test này.
+- **FR-105**: Toàn bộ bộ test đối chiếu của feature 003 PHẢI chạy lại và đạt sau khi `ItemsService`, `PayloadService`,
+  `UsersService` rút gọn của 003 được thay bằng engine đầy đủ (thay cho hẹn "feature 005 thay phần ghi này" trong
+  Assumptions của spec 003).
+- **FR-106**: Môi trường đối chiếu PHẢI có một reverse proxy định tuyến theo danh sách route đã làm: `/auth`,
+  `/server`, `/metrics`, `/users`, `/roles`, `/policies`, `/access`, `/permissions` (và các path con) về app mới; mọi
+  path khác, kể cả `/admin` và các route chưa làm (D-09.3 đến D-09.9), về Directus (Clarifications). Danh sách này là
+  một file cấu hình trong môi trường đối chiếu mà mỗi feature sau bổ sung. Bộ test Playwright PHẢI chạy app Directus
+  11.17.4 qua proxy này ở CI: đăng nhập, mở module User, tạo, sửa, xóa một user; mở Settings > Access Policies và
+  Roles, tạo role con của role có sẵn, tạo policy với permission (có filter, field, preset), gán policy cho role và cho
+  user, sửa, xóa; so dòng DB với cùng thao tác khi proxy trỏ về Directus. Test này là cổng chặn merge (Clarifications).
 
 ### Key Entities
 
@@ -623,7 +655,9 @@ Khác biệt mới:
 ### Measurable Outcomes
 
 - **SC-001**: 100% ô của ma trận quyền (FR-101) cho cùng status, mã lỗi, message, body (trừ giá trị sinh ngẫu nhiên)
-  và cùng thay đổi DB ở Directus và app mới, trên Postgres, MySQL và SQLite ở mỗi lần push.
+  và cùng thay đổi DB ở Directus và app mới: đủ ma trận trên Postgres ở mỗi lần push; bộ rút gọn (ít nhất một ô mỗi
+  nhóm của FR-101) trên MySQL và SQLite ở mỗi lần push; đủ ma trận trên MSSQL, Oracle, CockroachDB theo lịch đêm
+  (Nguyên tắc V; lịch đêm đang tắt theo quyết định của 001).
 - **SC-002**: 100% ca port ở FR-100 và FR-103 đạt với cả hai app.
 - **SC-003**: Sau một thao tác ghi role, policy, access, permission hoặc role của user ở một app, request đầu tiên gửi
   tới app kia sau khi response trả về dùng quyền mới, trong 100% của ít nhất 20 lần thử mỗi chiều.
@@ -635,6 +669,7 @@ Khác biệt mới:
   admin, có filter quyền) không tệ hơn Directus quá 10% (Nguyên tắc X), đo ở workflow benchmark hằng tuần.
 - **SC-007**: Đội vận hành dùng nguyên file `.env` của Directus: không thêm hoặc đổi dòng cấu hình nào; các biến ở FR-095
   không còn trong dòng cảnh báo "biến chưa hỗ trợ".
-- **SC-008**: App Directus 11.17.4 trỏ vào app mới (qua load balancer chung) mở được module User và màn hình quyền
-  (Settings > Access Policies, Roles) và thực hiện được thêm, sửa, xóa user, role, policy, quyền như khi trỏ vào
-  Directus.
+- **SC-008**: 100% kịch bản Playwright của FR-106 đạt ở CI: app Directus 11.17.4 chạy qua reverse proxy (route của
+  001 đến 004 vào app mới, còn lại vào Directus) mở được module User và màn hình quyền (Settings > Access Policies,
+  Roles), thực hiện được thêm, sửa, xóa user, role, policy, quyền, và DB sau mỗi kịch bản giống khi proxy trỏ mọi route
+  về Directus (trừ giá trị sinh ngẫu nhiên).

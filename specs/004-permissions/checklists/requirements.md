@@ -36,5 +36,8 @@
   code hay cách lưu trữ của app mới.
 - Marker duy nhất (FR-040, phạm vi engine) đã giải ở Clarifications 2026-10-11: port đủ engine ở 004. Đã cập nhật
   FR-040, FR-048 (TFA), FR-103, bảng khác biệt (D-09.10, D-11, D-12, D-30) và Assumptions.
+- `/speckit.clarify` 2026-10-11 (3 câu): kiểm chứng engine (FR-104, FR-105), SC-008 tự động bằng Playwright qua
+  reverse proxy (FR-106), proxy định tuyến theo danh sách route đã làm. Sửa thêm theo tiền lệ: FR-083 (xóa cache dữ
+  liệu dùng chung khi ghi), SC-001 (bộ rút gọn trên MySQL, SQLite theo Nguyên tắc V).
 - Đã kiểm lại với code Directus: luồng `registerUser` (nhánh tắt đăng ký trả ngay, không chờ), `inviteUser` (lỗi URL
   chỉ ném ở bước ghi), key cache `filter-context-*`.
