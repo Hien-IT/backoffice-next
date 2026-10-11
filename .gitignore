@@ -33,3 +33,6 @@ test-results/
 playwright-report/
 # tools/ci-local.sh
 .ci-local/
+
+# Local storage written by unit tests (default STORAGE_LOCAL_ROOT)
+apps/api/uploads/

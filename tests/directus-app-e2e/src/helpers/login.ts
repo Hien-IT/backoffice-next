@@ -8,5 +8,6 @@ export async function login(page: Page, baseURL: string): Promise<void> {
 	await page.locator('input[type="email"]').fill(ADMIN.email);
 	await page.locator('input[type="password"]').fill(ADMIN.password);
 	await page.locator('button[type="submit"]').click();
-	await expect(page).not.toHaveURL(/\/admin\/login/, { timeout: 30_000 });
+	// The scenarios clear last_page first, so the app opens the content module after signing in.
+	await expect(page).toHaveURL(/\/admin\/content/, { timeout: 30_000 });
 }

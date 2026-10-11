@@ -23,9 +23,11 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `env/<vendor>.env`.
 - `PARITY_SUITE=full` (mặc định): mọi file test. `PARITY_SUITE=reduced`: chỉ
   `src/server/{ping,health,info,errors,methods,conditional}.test.ts`, `src/schema/overview.test.ts` và
-  `src/auth/{login,login-db,refresh,logout,password}.test.ts`, bỏ các ca cần dừng container hoặc profile riêng.
+  `src/auth/{login,login-db,refresh,logout,password}.test.ts` và
+  `src/permissions/{matrix-reduced,accountability,users,roles,write-rules}.test.ts`, bỏ các ca cần dừng container hoặc
+  profile riêng. `PARITY_SUITE=matrix`: ma trận quyền (xem dưới).
 - Profile riêng (chỉ dùng ở `full`), bật bằng
-  `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso`:
+  `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app`:
 
   | Profile        | Directus | Backoffice | Cấu hình                                                       |
   | -------------- | -------- | ---------- | -------------------------------------------------------------- |
@@ -37,6 +39,8 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   | `cache-config` | 8755     | 8756       | `env/profile-cache-config.env`                                 |
   | `multi`        | —        | 8157       | `env/<vendor>.env` (instance Backoffice thứ hai của cặp chính) |
   | `sso`          | 8955     | 8956       | `env/profile-sso.env` (IdP giả lập 6110, OpenLDAP 6109)        |
+  | `user-limits`  | 8855     | 8856       | `env/profile-user-limits.env` (`USERS_*_ACCESS_LIMIT` thấp)    |
+  | `app`          | —        | —          | reverse proxy nginx 8160 trước cặp chính (`proxy/`)            |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
@@ -73,9 +77,28 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   - `captureDbEffects()` đọc từ host (chỉ `SELECT`) dòng session, activity, revision, user mà một bước ghi.
 - Fixture (user, role, policy, setting) tạo qua API Directus (`src/auth/fixtures.ts`), vì `/users` tới feature 004 mới
   có ở app mới; `setSettings()` trả hàm khôi phục.
-- `src/auth/flows.ts`: đăng nhập theo chế độ, gửi lại token theo chế độ (`withToken`), lấy cookie. `src/auth/sso.ts`:
-  đi qua IdP giả lập (`tests/parity/idp/server.mjs`); `src/auth/tokens.ts`: token đặt lại mật khẩu tự ký, OTP.
+- `src/auth/flows.ts`: đăng nhập theo chế độ, gửi lại token theo chế độ (`withToken`), lấy cookie. `src/auth/sso.ts`: đi
+  qua IdP giả lập (`tests/parity/idp/server.mjs`); `src/auth/tokens.ts`: token đặt lại mật khẩu tự ký, OTP.
 - Directus bật `CACHE_ENABLED` ở môi trường này: đọc trạng thái user từ DB, không qua `GET /users/:id` (cache cũ).
+
+### Test phân quyền (feature 004)
+
+- `src/permissions/`: accountability, CRUD `/users`, `/roles`, `/policies`, `/access`, `/permissions`, mời, đăng ký,
+  TFA, `/permissions/me`, quy tắc đọc ghi, query, cache dùng chéo, port blackbox (`createRole()`, `createUser()`,
+  `check-item-permissions`).
+- Fixture của luồng ghi tạo bằng API của chính app đang thử (`appRequest(app, ...)` ở `src/directus-api.ts`,
+  `src/permissions/fixtures.ts` nhận app làm tham số); fixture chỉ đọc tạo qua Directus. `cleanup()` xóa qua Directus.
+- `src/permissions/flow.ts`: mỗi app chạy cùng các bước bằng admin của nó; response, dòng DB, activity, revision ghi vào
+  transcript, id thay bằng nhãn (`name()`, `nameExact()` cho OTP). Activity, revision so như tập hợp vì Directus sắp
+  khóa (`keys.sort()`). Tên theo app nên cùng độ dài (ma trận dùng `dir`, `bac`).
+- Ma trận quyền (FR-101): `src/permissions/matrix.ts` sinh 650 nhóm (accountability × cấu hình quyền × `ip_access`), mỗi
+  nhóm 30 ô; `matrix-harness.ts` chạy một nhóm. `PARITY_MATRIX_SHARD=<i>/<n>` chọn shard
+  (`pnpm nx run parity-tests:parity-matrix --vendor=postgres`); không đặt thì chạy đủ. `matrix-reduced.test.ts`
+  (`eachChoice()`) chạy trong bộ `reduced`.
+- Profile `app`: `scripts/proxy-conf.mjs` sinh `proxy/nginx.conf` từ `proxy/backoffice-routes.txt` lúc `env-up`; log có
+  `$upstream_addr`. Playwright ở `tests/directus-app-e2e` (`BASE_URL=http://127.0.0.1:8160`).
+- Directus của môi trường này bật response cache (khóa theo user, path, query): ca đổi role khi token còn hạn dùng query
+  khác nhau giữa các lần gọi (D-11).
 
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.

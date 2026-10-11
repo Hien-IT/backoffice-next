@@ -137,6 +137,40 @@ jobs:
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
 
+  # Feature 004 (FR-106, SC-008): the Directus app 11.17.4 through the reverse proxy (routes of 001 to 004 to the new
+  # app), driven by Playwright; the rows of each scenario are compared with a run at Directus alone.
+  e2e-directus-app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run api:build
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app
+      - run: pnpm exec playwright install --with-deps chromium
+        working-directory: tests/directus-app-e2e
+      - run: pnpm nx run directus-app-e2e:e2e --output-style=static
+        env:
+          BASE_URL: http://127.0.0.1:8160
+          CI: 'true'
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-postgres logs --no-color > e2e-directus-app.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-directus-app
+          path: |
+            tests/parity/e2e-directus-app.log
+            tests/directus-app-e2e/test-results
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=postgres
+
   docker:
     runs-on: ubuntu-latest
     steps:
@@ -202,7 +236,8 @@ jobs:
   # Needs the repository secrets DOCKERHUB_USERNAME and DOCKERHUB_TOKEN (Docker Hub access token, Read & Write).
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [guard-directus, quality, guard-differences, parity, parity-matrix-rotating, docker, e2e, security]
+    needs:
+      [guard-directus, quality, guard-differences, parity, parity-matrix-rotating, e2e-directus-app, docker, e2e, security]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

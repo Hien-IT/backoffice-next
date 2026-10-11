@@ -94,12 +94,17 @@ export async function changesSince(before: Snapshot): Promise<unknown> {
 		changes[table] = { added: added.map(drop), changed: changed.map(drop), removed: removed.map(drop) };
 	}
 
-	changes['activity'] = await hostDb()
+	const activity = (await hostDb()
 		.select('action', 'collection', 'item')
 		.from('directus_activity')
 		.where('id', '>', before.activity)
 		.whereIn('collection', TABLES)
-		.orderBy('id');
+		.orderBy('id')) as Row[];
+
+	// directus_permissions keys are serial numbers: their value depends on the rows of earlier runs.
+	changes['activity'] = activity.map((row) =>
+		row['collection'] === 'directus_permissions' ? { ...row, item: '<serial>' } : row,
+	);
 
 	// Normalized in one pass so markers follow the order of appearance in the whole result.
 	return normalize(changes);

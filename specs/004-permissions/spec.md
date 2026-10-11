@@ -712,8 +712,9 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-092**: Giá trị nhạy cảm PHẢI được che như Directus: `password`, `token`, `tfa_secret` (special `conceal`) thành
   `**********` (hoặc `null` khi trống) trong response và trong `data`, `delta` của revision (`prepareDelta` đọc qua
   `processValues('read')`); activity không chứa payload. Log của app mới KHÔNG được chứa mật khẩu, static token,
-  `tfa_secret`, OTP, token mời, token xác minh hay link chứa chúng; dòng log thay email (FR-061, FR-063) chỉ có email
-  người nhận, như quyết định FR-062 của 003; log request che header `authorization`, cookie như 001.
+  `tfa_secret`, OTP, token mời, token xác minh hay link chứa chúng, trừ `token` trong URL của
+  `GET /users/register/verify-email` ở dòng log HTTP, như Directus (R-06); dòng log thay email (FR-061, FR-063) chỉ có
+  email người nhận, như quyết định FR-062 của 003; log request che header `authorization`, cookie như 001.
 
 **Biến môi trường**
 
@@ -850,6 +851,7 @@ Khác biệt mới:
 | R-03 | Xóa cache sau khi ghi quyền chạy sau commit; nếu bước xóa lỗi (Redis không dùng được), dữ liệu đã ghi vẫn giữ và bản quyền cũ có thể còn trong lớp bộ nhớ process của instance khác (không TTL) tới lần xóa kế tiếp | `services/{access,policies,permissions,roles,users}.ts` (`clearCaches` sau `super.*`); `permissions/cache.ts` (lớp local chỉ có `maxKeys`) | Quyền đã thu hồi có thể còn hiệu lực ở instance khác trong sự cố Redis |
 | R-04 | Kiểm "còn ít nhất một admin" chạy trong transaction sau khi ghi, không khóa dòng: hai thao tác đồng thời (hai admin cùng xóa hoặc hạ quyền nhau, hai request cùng tạo admin sát giới hạn) có thể cùng đạt `[Suy luận: tùy mức cô lập của DB, Postgres mặc định READ COMMITTED]` | `utils/validate-user-count-integrity.ts`; lời gọi trong `services/items.ts` (`createOne`, `updateMany`, `deleteMany`) | Hệ thống có thể còn 0 admin `active`, hoặc vượt `USERS_*_ACCESS_LIMIT`. Không có ca kiểm tự động (không tái tạo ổn định được) |
 | R-05 | `withCache` đọc, tính rồi ghi mà không kiểm phiên bản: một request tính quyền từ dữ liệu cũ, ghi vào cache ngay sau lần xóa của thao tác đổi quyền, sẽ để lại bản cũ tới lần xóa kế tiếp | `permissions/utils/with-cache.ts` | Quyền cũ có thể còn hiệu lực sau khi đổi quyền (hiếm, cần hai request chen đúng lúc). Không có ca kiểm tự động |
+| R-06 | Dòng log HTTP ghi nguyên URL và `query` của request; `redactQuery` chỉ che `access_token`, nên `GET /users/register/verify-email?token=<JWT>` để lại token xác minh trong log (đo ở T081, cả hai app) | `logger/index.ts` (serializer `req`); `logger/redact-query.ts` | Người đọc được log có thể kích hoạt tài khoản đăng ký chưa xác minh trong thời hạn `EMAIL_VERIFICATION_TOKEN_TTL` |
 
 ## Assumptions
 

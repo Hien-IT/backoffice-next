@@ -70,6 +70,8 @@ step parity-sqlite3-reduced parity sqlite3 reduced ''
 step parity-matrix sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres && PARITY_MATRIX_SHARD=${PARITY_MATRIX_SHARD:-1/4} pnpm nx run parity-tests:parity-matrix --vendor=postgres --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 step docker sh -c 'docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci . && docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .'
 step e2e e2e
+# Feature 004: the Directus app through the reverse proxy (profile app).
+step e2e-directus-app sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app && BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 
 printf '\n'
 printf '%s\n' "${results[@]}"

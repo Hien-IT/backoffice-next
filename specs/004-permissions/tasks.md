@@ -377,7 +377,7 @@ xanh trước lượt 2.
 
 ### Implementation for User Story 2
 
-- [ ] T058 [US2] `tests/parity/src/permissions/matrix.test.ts`: chạy các ô của shard hiện tại (`PARITY_MATRIX_SHARD`), ô
+- [X] T058 [US2] `tests/parity/src/permissions/matrix.test.ts`: chạy các ô của shard hiện tại (`PARITY_MATRIX_SHARD`), ô
   đọc bằng `parity()`, ô ghi bằng `scenario()` + `captureDbEffects`, kèm ca riêng FR-035, US1.7, R-01. Đo thời gian một
   nhóm fixture, chọn số shard `n` để mỗi shard dưới 60 phút, ghi `n` và tổng phút của một lần chạy đủ vào "Ghi chú khi làm".
   (sau T008, T047, T054)
@@ -390,7 +390,7 @@ xanh trước lượt 2.
   - `.github/workflows/parity-matrix.yml` (mới): `workflow_dispatch` và lịch hằng tuần; job `parity-matrix`
     (`strategy.matrix.shard: [1..n]`, `fail-fast: false`, timeout 60 phút) chạy đủ mọi shard; không chặn `publish`.
   - `tools/ci-local.sh`: bước chạy một shard; thêm lệnh chạy đủ ma trận vào `quickstart.md` §1. (sau T058)
-- [ ] T061 [US2] Sửa engine, module quyền, service cho tới khi T055 đến T059 đạt 100% trên ba vendor. Mỗi lệch do hành vi
+- [X] T061 [US2] Sửa engine, module quyền, service cho tới khi T055 đến T059 đạt 100% trên ba vendor. Mỗi lệch do hành vi
   Directus không an toàn: tái tạo và thêm R-xx vào spec (quy ước); mỗi lệch khác: sửa app mới, không chuẩn hóa trong
   test. Ghi danh sách lỗi đã sửa vào "Ghi chú khi làm". (sau T055 đến T059)
 
@@ -478,16 +478,16 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
   `playwright.config.ts` (`BASE_URL` bắt buộc, chromium, `retries: 1` ở CI), `package.json` (`@playwright/test`, `knex`,
   `pg` qua `catalog:`), `tsconfig.json`; helper `src/helpers/login.ts`, `src/helpers/db-rows.ts` (chụp và chuẩn hóa dòng
   mới của bảy bảng, như `db-effects` của 003), `src/helpers/proxy-log.ts`. Thêm vào `pnpm-workspace.yaml` nếu cần.
-- [ ] T075 `tests/directus-app-e2e/src/login.spec.ts` và `routing.spec.ts`: đăng nhập qua proxy, app nạp xong; mọi request
+- [X] T075 `tests/directus-app-e2e/src/login.spec.ts` và `routing.spec.ts`: đăng nhập qua proxy, app nạp xong; mọi request
   tới route trong danh sách đi vào app mới, route khác vào Directus. Ghi các route app gọi ngoài contracts/proxy-e2e.md §1
   vào "Ghi chú khi làm". (sau T073, T074, T054)
-- [ ] T076 [P] `tests/directus-app-e2e/src/users.spec.ts`: tạo, sửa, mời, xóa user qua module User; chạy với `BASE_URL`
+- [X] T076 [P] `tests/directus-app-e2e/src/users.spec.ts`: tạo, sửa, mời, xóa user qua module User; chạy với `BASE_URL`
   proxy rồi Directus, so dòng DB. (sau T075, T065)
-- [ ] T077 [P] `tests/directus-app-e2e/src/roles.spec.ts`: tạo role, đặt `parent`, gán policy, xóa. So DB như T076. (sau
+- [X] T077 [P] `tests/directus-app-e2e/src/roles.spec.ts`: tạo role, đặt `parent`, gán policy, xóa. So DB như T076. (sau
   T075)
-- [ ] T078 [P] `tests/directus-app-e2e/src/policies.spec.ts`: tạo policy app access, thêm permission có filter
+- [X] T078 [P] `tests/directus-app-e2e/src/policies.spec.ts`: tạo policy app access, thêm permission có filter
   `$CURRENT_USER`, field một phần, preset; gán user; đổi tên; xóa. So DB như T076. (sau T075)
-- [ ] T079 `.github/workflows/ci.yml`: job `e2e-directus-app` (timeout 30 phút; `api:build`, `env-up --vendor=postgres
+- [X] T079 `.github/workflows/ci.yml`: job `e2e-directus-app` (timeout 30 phút; `api:build`, `env-up --vendor=postgres
   --profiles=app`, `playwright install --with-deps chromium` trong `tests/directus-app-e2e`, `nx run
   directus-app-e2e:e2e`, log container khi lỗi, `env-down`), thêm vào `needs` của `publish`; `tools/ci-local.sh` thêm
   bước. (sau T076 đến T078)
@@ -496,10 +496,10 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
 
 ## Phase 11: Polish & Cross-Cutting Concerns
 
-- [ ] T080 [P] `tests/parity/src/request-set.ts`, `db-unchanged.test.ts`, `readonly-account.test.ts` (FR-091): thêm
+- [X] T080 [P] `tests/parity/src/request-set.ts`, `db-unchanged.test.ts`, `readonly-account.test.ts` (FR-091): thêm
   `GET`/`SEARCH` của năm endpoint, route `me`, `OPTIONS`, request bị chặn trước bước ghi (contracts/db-writes.md §7) với
   static token của một user tạo trước khi chụp DB.
-- [ ] T081 [P] `tests/parity/src/observability/logs.test.ts` (FR-092): sau mời, đăng ký, xác minh, bật tắt TFA, đổi mật
+- [X] T081 [P] `tests/parity/src/observability/logs.test.ts` (FR-092): sau mời, đăng ký, xác minh, bật tắt TFA, đổi mật
   khẩu, log của app mới không chứa mật khẩu, static token, `tfa_secret`, OTP, token mời, token xác minh; revision có
   `**********` ở field `conceal`.
 - [ ] T082 [P] Benchmark SC-006 (research R14): `tests/benchmark/src/seed-permissions.ts`, `tests/benchmark/src/permissions.ts`,
@@ -512,12 +512,12 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
 - [X] T084 [P] `SPECKIT-GUIDE.md`: sửa bảng lộ trình và prompt của feature 005 (005 không còn port engine; chỉ `/items`,
   singleton, response cache, `export`, event, bus `websocket.event`, blackbox items, query, relational) theo Assumptions
   của spec.
-- [ ] T085 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
+- [X] T085 Chạy quickstart.md §1 đến §3 trên môi trường đối chiếu; sửa quickstart nếu lệch. Cập nhật
   `tests/parity/README.md` (profile `app`, `appRequest`, ma trận và shard, proxy). Chạy `graphify update .`.
 - [ ] T086 Đóng feature: CI xanh mọi job (gồm `parity-matrix-rotating`, `e2e-directus-app`), một lần chạy đủ
   `parity-matrix.yml` xanh (SC-001), coverage ≥ 80% cho `apps/api`,
   `libs/utils`, `libs/types`; xóa entry D-09.2, D-10 khỏi `tests/parity/accepted-differences.ts`; `spec.md`
-  `Status: Done`; tech lead duyệt D-27 đến D-31, R-01 đến R-03 và các sửa bảng 001, 003 (Nguyên tắc X); cập nhật memory
+  `Status: Done`; tech lead duyệt D-27 đến D-31, R-01 đến R-06 và các sửa bảng 001, 003 (Nguyên tắc X); cập nhật memory
   dự án. (sau tất cả)
 
 ---
@@ -727,5 +727,19 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 - T080, T081, T083, T084: `request-set.ts` thêm request của năm endpoint với JWT admin ký sẵn và static token của user
   tạo trước khi chụp DB; ca log FR-092; bảng 001 (D-09.6, D-11, D-12) và entry `doc` D-29 đến D-31; `SPECKIT-GUIDE.md`
   (005 không port lại engine).
+- T081: log HTTP của cả hai app ghi nguyên URL và `query` của `GET /users/register/verify-email?token=<JWT>`
+  (`redactQuery` của Directus chỉ che `access_token`): giữ như Directus, ghi rủi ro R-06, FR-092 loại trừ dòng này; test
+  kiểm token chỉ nằm ở đúng dòng đó ở cả hai app. Cần tech lead duyệt ở T086.
+- T085: quickstart §1 (bộ đầy đủ Postgres, ma trận), §2 (từng bước, hai app như nhau), §3 (5 spec E2E) đạt. Sửa
+  quickstart: URL có `[...]` cần `curl -g`.
 - T082: `tests/benchmark/src/{seed-permissions,permissions}.ts`, target `benchmark:permissions`, job
   `benchmark-permissions`. Mốc so là Directus không response cache (`directus-noresponsecache`, D-11).
+- T058, T061: ma trận đủ trên Postgres (10 shard × 65 nhóm, mỗi shard thêm hai ca FR-035, R-01): 670 ca đạt, tổng
+  khoảng 30 phút (1,6 đến 5,1 phút mỗi shard; shard chậm khi Directus giả lập amd64 bị tải). Không cần sửa engine.
+- T075 đến T079: app Directus qua proxy: 5 spec đạt (đăng nhập, định tuyến, users, roles, policies), mỗi spec chạy
+  qua proxy rồi chỉ Directus và so dòng DB. Ghi nhận khi viết: admin chưa đặt project owner thì app hiện hộp nhắc
+  BSL ở mọi trang; "Remind Later" chỉ đặt cookie `license-banner-dismissed` (bị xóa mỗi lần đăng nhập) nên test đặt
+  cookie này sau khi đăng nhập, không bấm chấp nhận điều khoản. App mở `last_page` sau khi đăng nhập: test xóa
+  `last_page` của admin trước mỗi lượt. Lưu ở Directus là "save and quit". Route app gọi vào app mới khi nạp và mở
+  Settings: `/auth`, `/auth/login`, `/auth/refresh`, `/server/info`, `/users/me`, `/users`, `/roles`, `/roles/me`,
+  `/policies`, `/policies/me/globals`, `/permissions/me`, `PATCH /users/me/track/page` (khớp contracts/proxy-e2e.md §1).

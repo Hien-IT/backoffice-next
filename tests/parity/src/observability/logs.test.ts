@@ -167,6 +167,7 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 			const admin = { authorization: `Bearer ${adminToken}` };
 			const run = randomUUID().slice(0, 8);
 			const secrets: string[] = [];
+			let verify = '';
 
 			// Static token and password set through /users, then the password changed by the user.
 			const staticToken = `log-static-${run}`;
@@ -178,11 +179,12 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 			const userId = (created.json as any).data.id;
 			secrets.push(staticToken, `log-pass-${run}`);
 
+			// The admin changes the password (a user without role may not update its own row).
 			await capture(url, {
 				method: 'PATCH',
-				path: '/users/me',
+				path: `/users/${userId}`,
 				body: { password: `log-pass2-${run}` },
-				headers: { authorization: `Bearer ${staticToken}` },
+				headers: admin,
 			});
 			secrets.push(`log-pass2-${run}`);
 
@@ -223,8 +225,10 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 					headers: { 'x-forwarded-for': `10.45.${Number.parseInt(run.slice(0, 2), 16)}.1` },
 				});
 				const verifyToken = sign({ email: registered, scope: 'pending-registration' });
-				secrets.push(`log-register-pass-${run}`, verifyToken);
-				await capture(url, { path: `/users/register/verify-email?token=${verifyToken}` });
+				secrets.push(`log-register-pass-${run}`);
+				verify = `/users/register/verify-email?token=${verifyToken}`;
+				await capture(url, { path: verify });
+				await capture(urls().directusUrl!, { path: verify });
 			} finally {
 				await appRequest('directus', 'PATCH', '/settings', settings);
 			}
@@ -233,7 +237,19 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 			const output = logs('backoffice-api-metrics');
 
 			for (const s of secrets) expect(output.includes(s), s.slice(0, 16)).toBe(false);
-			expect(output).toContain(`Invitation email to "${invited}"`);
+
+			// R-06: like Directus (redactQuery only masks access_token), the HTTP log line keeps the URL of the
+			// verification request, token included; no other line has it.
+			const linesWith = (service: string) =>
+				logs(service)
+					.split('\n')
+					.filter((l) => l.includes(verify));
+			expect(linesWith('directus-metrics').length).toBeGreaterThan(0);
+			expect(linesWith('backoffice-api-metrics')).toHaveLength(1);
+			const token = verify.split('=')[1]!;
+			expect(linesWith('backoffice-api-metrics')[0]).toContain(`"query":{"token":"${token}"}`);
+			expect(output.split('\n').filter((l) => l.includes(token) && !l.includes(verify))).toEqual([]);
+			expect(output).toContain(`Invitation email to \\"${invited}\\"`);
 
 			// Revisions of the user written by the new app: password, token and tfa_secret masked.
 			const revisions = await hostDb()('directus_revisions')

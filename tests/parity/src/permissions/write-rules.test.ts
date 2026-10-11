@@ -4,6 +4,7 @@
 // rows written are compared.
 import { afterAll, describe, it } from 'vitest';
 import { closeHostDb } from '../auth/db-effects.js';
+import { appRequest } from '../directus-api.js';
 import { urls } from '../auth/fixtures.js';
 import { assertSameTranscripts, scenario } from '../auth/scenario.js';
 import {
@@ -18,6 +19,23 @@ import {
 import { startFlow } from './flow.js';
 
 afterAll(async () => {
+	// Rows the flows made (the fixtures of fixtures.ts are removed by cleanup()).
+	const json = (value: unknown) => encodeURIComponent(JSON.stringify(value));
+
+	for (const [path, field] of [
+		['/users', 'email'],
+		['/policies', 'name'],
+		['/roles', 'name'],
+	] as const) {
+		const filter = json({
+			_or: ['parity-write', 'nomatch-parity-write', 'bad-parity-write', 'parity-x-'].map((p) => ({
+				[field]: { _starts_with: p },
+			})),
+		});
+		const { data } = await appRequest('directus', 'GET', `${path}?filter=${filter}&fields=id&limit=-1`);
+		if (data.length) await appRequest('directus', 'DELETE', path, { keys: data.map((r: any) => r.id) });
+	}
+
 	await cleanup();
 	await closeHostDb();
 }, 60_000);
