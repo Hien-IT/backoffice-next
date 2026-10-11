@@ -45,7 +45,7 @@ afterEach(() => {
 	vi.unstubAllGlobals();
 });
 
-const writes = () => calls.filter((c) => !c.url.endsWith('/auth/login') && c.method !== 'GET');
+const writes = () => calls.filter((c) => !c.url.endsWith('/auth/login') && c.method !== 'GET' && c.method !== 'SEARCH');
 
 describe('appRequest', () => {
 	test('logs in once per app and sends that app its own admin token', async () => {
@@ -148,8 +148,8 @@ describe('feature 004 fixtures', () => {
 		responder = (call) => {
 			if (call.url.endsWith('/auth/login')) return { body: { data: { access_token: 't' } } };
 
-			if (call.method === 'GET') {
-				const keys: string[] = JSON.parse(new URL(call.url).searchParams.get('filter') ?? '{}').id?._in ?? [];
+			if (call.method === 'SEARCH') {
+				const keys: string[] = call.body.query.filter.id._in;
 				return { body: { data: keys.filter((key) => key !== 'id-5').map((id) => ({ id })) } };
 			}
 
