@@ -320,7 +320,8 @@ xanh trước lượt 2.
 - [ ] T048 [P] [US4] `tests/parity/src/permissions/users.test.ts`: CRUD mọi dạng, `SEARCH` bỏ qua `keys`, US4.1 đến US4.8,
   FR-053 (admin đổi mật khẩu user khác; user tự đổi bằng token `json` mất mọi session; chế độ `session` giữ session hiện
   tại), FR-052, FR-054 (`422`; `LIMIT_EXCEEDED` ở profile mới `user-limits`), static token đặt qua `/users` dùng được ở
-  cả hai app (FR-051), `GET /users/some` → `204`. Profile `user-limits` tạo trong task này:
+  cả hai app (FR-051), chính sách mật khẩu rỗng, bọc `/.../`, regex sai (FR-051), `status` ngoài danh sách lựa chọn
+  (FR-055), `GET /users/some` → `204`. Profile `user-limits` tạo trong task này:
   - cặp `directus-user-limits` (8855), `backoffice-api-user-limits` (8856) trong `tests/parity/docker-compose.yml`, theo
     mẫu cặp `ratelimit`; `tests/parity/env/profile-user-limits.env`: `USERS_ADMIN_ACCESS_LIMIT=2`,
     `USERS_APP_ACCESS_LIMIT=3`, `USERS_API_ACCESS_LIMIT=2`;
@@ -366,7 +367,8 @@ xanh trước lượt 2.
   dữ liệu cách xa ranh giới), US2.6, US2.7, US2.8, FR-020 đến FR-023 (field quan hệ không được đọc bị bỏ khi mở rộng
   `*`, thứ tự mặc định khi không `sort`, `meta` cho người không admin), FR-016 (bảng lọc IP).
 - [ ] T056 [P] [US2] `tests/parity/src/permissions/write-rules.test.ts`: US2.4, US2.5, FR-030 đến FR-035 (preset theo thứ
-  tự policy, validation AND, `_submitted`, field không cho phép, ghi lồng kiểm từng tầng, tự sửa `role`), FR-005 (thứ tự
+  tự policy, validation AND, `_submitted`, field không cho phép, ghi lồng kiểm từng tầng theo FR-037, tự sửa `role`, sửa
+  và xóa khóa không tồn tại theo FR-036), FR-017 (bảng gộp), FR-005 (thứ tự
   lỗi khi nhiều lỗi), ghi nhiều item nguyên tử, so DB bằng `captureDbEffects`.
 - [ ] T057 [P] [US2] `tests/parity/src/permissions/query.test.ts`: FR-040 trên năm endpoint với admin và user có quyền một
   phần: `fields` (wildcard, lồng m2o, o2m, alias), `filter` (mọi nhóm toán tử, `_some`, `_none`, hàm ngày giờ, qua quan
@@ -405,7 +407,8 @@ thay email.
 
 - [ ] T062 [P] [US5] `tests/parity/src/permissions/invite-register.test.ts`: US5.1 đến US5.8, token mời và token xác minh
   ký ở bên này dùng ở bên kia theo hai chiều (test tự ký token theo định dạng Directus vì không có email), thời gian chờ
-  `REGISTER_STALL_TIME` ở đúng nhánh (SC-009), log `warn` có email, không có token. Limiter đăng ký mặc định bật và dùng
+  `REGISTER_STALL_TIME` ở đúng nhánh (SC-009), mọi dòng của bảng lỗi token ở FR-062, FR-064, mời nhiều email có email
+  lỗi ở giữa (FR-060), log `warn` có email, không có token. Limiter đăng ký mặc định bật và dùng
   chung Redis ở môi trường đối chiếu (`RATE_LIMITER_STORE=redis`): mỗi ca gửi header `X-Forwarded-For` riêng (ví dụ
   `10.44.<số ca>.1`; `IP_TRUST_PROXY` mặc định `true` nên `req.ip` lấy từ header) để có bộ đếm `rlflx:<ip>` riêng; ca
   `429` dùng một IP riêng, gửi 6 lần trong 60 giây ở hai app xen kẽ, so status và `Retry-After`. Đổi settings đăng ký thì trả lại ở
