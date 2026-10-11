@@ -1,0 +1,66 @@
+[
+	{
+		"source": "packages/utils/shared/get-relation-info.ts",
+		"dest": "libs/utils/src/shared/get-relation-info.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-relation-info.test.ts",
+		"dest": "libs/utils/src/shared/get-relation-info.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/deep-map.ts",
+		"dest": "libs/utils/src/shared/deep-map.ts"
+	},
+	{
+		"source": "packages/utils/shared/deep-map.test.ts",
+		"dest": "libs/utils/src/shared/deep-map.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/deep-map-with-schema.ts",
+		"dest": "libs/utils/src/shared/deep-map-with-schema.ts"
+	},
+	{
+		"source": "packages/utils/shared/deep-map-with-schema.test.ts",
+		"dest": "libs/utils/src/shared/deep-map-with-schema.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-filter-operators-for-type.ts",
+		"dest": "libs/utils/src/shared/get-filter-operators-for-type.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-filter-operators-for-type.test.ts",
+		"dest": "libs/utils/src/shared/get-filter-operators-for-type.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-functions-for-type.ts",
+		"dest": "libs/utils/src/shared/get-functions-for-type.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-output-type-for-function.ts",
+		"dest": "libs/utils/src/shared/get-output-type-for-function.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-filter-function-path.ts",
+		"dest": "libs/utils/src/shared/parse-filter-function-path.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-filter-function-path.test.ts",
+		"dest": "libs/utils/src/shared/parse-filter-function-path.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-endpoint.ts",
+		"dest": "libs/utils/src/shared/get-endpoint.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-endpoint.test.ts",
+		"dest": "libs/utils/src/shared/get-endpoint.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/compress.ts",
+		"dest": "libs/utils/src/shared/compress.ts"
+	},
+	{
+		"source": "packages/utils/shared/compress.test.ts",
+		"dest": "libs/utils/src/shared/compress.test.ts"
+	}
+]

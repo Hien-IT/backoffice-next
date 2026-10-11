@@ -47,6 +47,7 @@
 		"flat": "catalog:",
 		"helmet": "catalog:",
 		"ioredis": "catalog:",
+		"ip-matching": "catalog:",
 		"joi": "catalog:",
 		"jsonwebtoken": "catalog:",
 		"keyv": "catalog:",
@@ -72,6 +73,7 @@
 		"rate-limiter-flexible": "catalog:",
 		"reflect-metadata": "catalog:",
 		"rxjs": "catalog:",
+		"snappy": "catalog:",
 		"sqlite3": "catalog:",
 		"tedious": "catalog:",
 		"wellknown": "catalog:"

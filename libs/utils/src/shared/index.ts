@@ -1,4 +1,4 @@
-// Ported from directus/packages/utils/shared/index.ts (subset: only the helpers features 001 and 002 use)
+// Ported from directus/packages/utils/shared/index.ts (subset: only the helpers features 001 to 004 use)
 export * from './array-helpers.js';
 export * from './defaults.js';
 export * from './get-date-time-formatted.js';
@@ -11,3 +11,22 @@ export * from './to-array.js';
 export * from './to-boolean.js';
 export * from './normalize-path.js';
 export * from './get-simple-hash.js';
+export * from './adjust-date.js';
+export { compress, decompress } from './compress.js';
+export * from './deep-map.js';
+export * from './functions.js';
+export * from './generate-joi.js';
+export * from './get-endpoint.js';
+export * from './get-filter-operators-for-type.js';
+export * from './get-functions-for-type.js';
+export * from './get-output-type-for-function.js';
+export * from './get-with-arrays.js';
+export * from './inject-function-results.js';
+export * from './is-detailed-update-syntax.js';
+export * from './is-dynamic-variable.js';
+export * from './parse-filter-function-path.js';
+export * from './parse-filter.js';
+export * from './parse-now.js';
+export * from './validate-payload.js';
+export * from './get-relation-info.js';
+export * from './deep-map-with-schema.js';

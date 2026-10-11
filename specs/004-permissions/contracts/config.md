@@ -18,7 +18,7 @@ trợ", có cảnh báo) sang nhóm A ("hỗ trợ") trong `apps/api/src/config/
 | `RATE_LIMITER_REGISTRATION_DURATION` | `60` | |
 | `QUERY_LIMIT_DEFAULT` | `100` | `sanitizeQuery` (thêm khi lập plan; `sanitizeQuery` cần) |
 | `QUERY_LIMIT_MAX` | không có | `sanitizeQuery` (thêm khi lập plan) |
-| `MAX_RELATIONAL_DEPTH` | `10` | `validateQuery` (thêm khi lập plan) |
+| `MAX_RELATIONAL_DEPTH` | `10` | `validateQuery`. Không thuộc `DIRECTUS_VARIABLES` nên không có trong nhóm A, C và không bao giờ bị cảnh báo; vẫn được đọc như Directus |
 | `RELATIONAL_BATCH_SIZE` | `25000` | `run-ast` (đọc o2m theo lô; thêm khi lập plan) |
 | `MAX_JSON_QUERY_DEPTH` | `10` | `helpers/fn/json/parse-function` (hàm `json()` trong fields; thêm khi lập plan) |
 

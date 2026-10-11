@@ -1,0 +1,5 @@
+[
+	{ "source": "packages/types/src/users.ts", "dest": "libs/types/src/users.ts" },
+	{ "source": "packages/types/src/events.ts", "dest": "libs/types/src/events.ts" },
+	{ "source": "packages/types/src/services.ts", "dest": "libs/types/src/services.ts" }
+]

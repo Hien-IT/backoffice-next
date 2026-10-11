@@ -24,12 +24,20 @@
 		"lint": "eslint src"
 	},
 	"dependencies": {
+		"@backoffice/constants": "workspace:*",
+		"@backoffice/errors": "workspace:*",
+		"@backoffice/system-data": "workspace:*",
 		"@backoffice/types": "workspace:*",
+		"date-fns": "catalog:",
+		"joi": "catalog:",
 		"js-yaml": "catalog:",
-		"knex": "catalog:"
+		"knex": "catalog:",
+		"lodash-es": "catalog:"
 	},
 	"devDependencies": {
+		"@backoffice/schema-builder": "workspace:*",
 		"@ngneat/falso": "catalog:",
-		"@types/js-yaml": "catalog:"
+		"@types/js-yaml": "catalog:",
+		"@types/lodash-es": "catalog:"
 	}
 }

@@ -720,7 +720,8 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   (`750`), `EMAIL_VERIFICATION_TOKEN_TTL` (`7d`), `RATE_LIMITER_REGISTRATION_ENABLED` (`true`),
   `RATE_LIMITER_REGISTRATION_POINTS` (`5`), `RATE_LIMITER_REGISTRATION_DURATION` (`60`), `QUERY_LIMIT_DEFAULT`
   (`100`), `QUERY_LIMIT_MAX`, `MAX_RELATIONAL_DEPTH` (`10`), `RELATIONAL_BATCH_SIZE` (`25000`), `MAX_JSON_QUERY_DEPTH`
-  (`10`). Các biến này PHẢI được gỡ khỏi nhóm "chưa hỗ trợ" của feature 001.
+  (`10`). Các biến này PHẢI được gỡ khỏi nhóm "chưa hỗ trợ" của feature 001 (`MAX_RELATIONAL_DEPTH` không thuộc danh
+  sách biến của Directus nên chưa bao giờ bị cảnh báo; chỉ cần được đọc).
 
 **Kiểm thử đối chiếu**
 

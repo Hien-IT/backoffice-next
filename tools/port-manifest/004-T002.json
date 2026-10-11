@@ -1,0 +1,42 @@
+[
+	{
+		"source": "packages/utils/shared/parse-filter.ts",
+		"dest": "libs/utils/src/shared/parse-filter.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-filter.test.ts",
+		"dest": "libs/utils/src/shared/parse-filter.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-now.ts",
+		"dest": "libs/utils/src/shared/parse-now.ts"
+	},
+	{
+		"source": "packages/utils/shared/parse-now.test.ts",
+		"dest": "libs/utils/src/shared/parse-now.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/adjust-date.ts",
+		"dest": "libs/utils/src/shared/adjust-date.ts"
+	},
+	{
+		"source": "packages/utils/shared/adjust-date.test.ts",
+		"dest": "libs/utils/src/shared/adjust-date.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-with-arrays.ts",
+		"dest": "libs/utils/src/shared/get-with-arrays.ts"
+	},
+	{
+		"source": "packages/utils/shared/get-with-arrays.test.ts",
+		"dest": "libs/utils/src/shared/get-with-arrays.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-dynamic-variable.ts",
+		"dest": "libs/utils/src/shared/is-dynamic-variable.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-dynamic-variable.test.ts",
+		"dest": "libs/utils/src/shared/is-dynamic-variable.test.ts"
+	}
+]

@@ -54,7 +54,7 @@ test.each([
 	['STORAGE_S3_DRIVER', true],
 	['RATE_LIMITER_POINTS', true],
 	['RATE_LIMITER_GLOBAL_ENABLED', true],
-	['RATE_LIMITER_REGISTRATION_ENABLED', false],
+	['RATE_LIMITER_REGISTRATION_ENABLED', true],
 	['RATE_LIMITER_EMAIL_FLOWS_POINTS', false],
 	['AUTH_PROVIDERS', true],
 	['SERVE_APP', false],
@@ -93,8 +93,7 @@ test.each([
 	expect(isSupported(name)).toBe(false);
 });
 
-// Feature 003 (specs/003 contracts/config.md): auth variables are supported, except the saml-only ones and email,
-// registration and invites.
+// Feature 003 (specs/003 contracts/config.md): auth variables are supported, except the saml-only ones and email.
 test.each([
 	['ACCESS_TOKEN_TTL', true],
 	['SESSION_REFRESH_GRACE_PERIOD', true],
@@ -107,8 +106,24 @@ test.each([
 	['AUTH_SAML_IDP_METADATA', false],
 	['AUTH_SAML_SP_METADATA', false],
 	['EMAIL_TRANSPORT', false],
-	['USER_INVITE_TOKEN_TTL', false],
-	['REGISTER_STALL_TIME', false],
 ])('feature 003: isSupported(%s) = %s', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
+});
+
+// Feature 004 (specs/004 contracts/config.md): invites, registration and the query engine; email stays unsupported.
+test.each([
+	['USER_INVITE_TOKEN_TTL', true],
+	['USER_INVITE_URL_ALLOW_LIST', true],
+	['USER_REGISTER_URL_ALLOW_LIST', true],
+	['REGISTER_STALL_TIME', true],
+	['EMAIL_VERIFICATION_TOKEN_TTL', true],
+	['RATE_LIMITER_REGISTRATION_POINTS', true],
+	['QUERY_LIMIT_DEFAULT', true],
+	['QUERY_LIMIT_MAX', true],
+	['RELATIONAL_BATCH_SIZE', true],
+	['MAX_JSON_QUERY_DEPTH', true],
+	['RATE_LIMITER_EMAIL_ENABLED', false],
+	['EMAIL_FROM', false],
+])('feature 004: isSupported(%s) = %s', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });

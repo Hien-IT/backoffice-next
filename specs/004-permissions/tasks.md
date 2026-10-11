@@ -78,26 +78,26 @@ collection.
 **Purpose**: Thêm phụ thuộc cùng bản Directus, port các hàm `@directus/utils` mà engine dùng, chuyển biến môi trường
 sang nhóm A, và dựng helper test đối chiếu cho phân quyền.
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `snappy: 7.3.3`,
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `snappy: 7.3.3`,
   `ip-matching: 2.1.2`, `'@types/wellknown': 0.5.8` (nếu chưa có). Thêm `snappy`, `ip-matching` vào
   `apps/api/package.json` (types vào devDependencies). Chạy `pnpm install`, `pnpm audit --prod --audit-level=high`;
   build image `docker build -f apps/api/Dockerfile .` để kiểm `snappy` (native) chạy trên alpine; ghi kết quả vào
   "Ghi chú khi làm" (research R1).
-- [ ] T002 [P] Port sang `libs/utils/src/shared/` kèm test gốc từ `directus/packages/utils/shared/`: `parse-filter.ts`
+- [X] T002 [P] Port sang `libs/utils/src/shared/` kèm test gốc từ `directus/packages/utils/shared/`: `parse-filter.ts`
   (`parseFilter`, `parsePreset`), `parse-now.ts`, `adjust-date.ts`, `get-with-arrays.ts`, `is-dynamic-variable.ts`.
   Export từ `libs/utils/src/shared/index.ts`. Ghi manifest. (sau T001)
-- [ ] T003 [P] Port sang `libs/utils/src/shared/` kèm test gốc: `validate-payload.ts`, `generate-joi.ts`,
+- [X] T003 [P] Port sang `libs/utils/src/shared/` kèm test gốc: `validate-payload.ts`, `generate-joi.ts`,
   `inject-function-results.ts`, `functions.ts`, `is-detailed-update-syntax.ts`. Message Joi phải giống Directus
   (`@backoffice/validation` của 003). Export. Ghi manifest. (sau T001)
-- [ ] T004 [P] Port sang `libs/utils/src/shared/` kèm test gốc: `get-relation-info.ts`, `deep-map.ts`,
+- [X] T004 [P] Port sang `libs/utils/src/shared/` kèm test gốc: `get-relation-info.ts`, `deep-map.ts`,
   `deep-map-with-schema.ts`, `get-filter-operators-for-type.ts`, `get-functions-for-type.ts`,
   `get-output-type-for-function.ts`, `parse-filter-function-path.ts`, `get-endpoint.ts`, `compress.ts` (nén JSON theo
   key). Export. Ghi manifest. (sau T001)
-- [ ] T005 [P] `libs/types/src/`: port đủ `services.ts` (`MutationOptions`, `QueryOptions`, `AbstractServiceOptions`...),
+- [X] T005 [P] `libs/types/src/`: port đủ `services.ts` (`MutationOptions`, `QueryOptions`, `AbstractServiceOptions`...),
   `users.ts`, `events.ts` từ `directus/packages/types/src/` và các kiểu engine dùng còn thiếu (query, permissions,
   accountability `share`, `CollectionAccess`, `Globals`, `GlobalAccess`). Chạy `pnpm nx run-many -t typecheck`. Ghi
   manifest.
-- [ ] T006 [P] `apps/api/src/config/supported-variables.ts`: chuyển sang nhóm A theo contracts/config.md §1
+- [X] T006 [P] `apps/api/src/config/supported-variables.ts`: chuyển sang nhóm A theo contracts/config.md §1
   (`USER_INVITE_TOKEN_TTL`, `USER_INVITE_URL_ALLOW_LIST`, `USER_REGISTER_URL_ALLOW_LIST`, `REGISTER_STALL_TIME`,
   `EMAIL_VERIFICATION_TOKEN_TTL`, `RATE_LIMITER_REGISTRATION_*`, `QUERY_LIMIT_DEFAULT`, `QUERY_LIMIT_MAX`,
   `MAX_RELATIONAL_DEPTH`, `RELATIONAL_BATCH_SIZE`, `MAX_JSON_QUERY_DEPTH`); đổi mẫu
@@ -617,4 +617,18 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 
 ## Ghi chú khi làm
 
-- (chưa có)
+- T001: thêm `snappy` 7.3.3, `ip-matching` 2.1.2 vào catalog và `apps/api`. `pnpm audit --prod --audit-level=high` không đổi
+  so với trước (không có cảnh báo mới). Image `apps/api/Dockerfile` build được; trong container `require('snappy')` nén
+  được và `ip-matching` chạy.
+- T002 đến T004: code gốc của Directus không qua typecheck strict của repo ở hai chỗ: `functions.ts` và
+  `get-output-type-for-function.ts` khai báo `Record<FieldFunction, ...>` nhưng thiếu khóa `json`; thêm ép kiểu
+  `// Backoffice:` (giá trị lúc chạy giữ nguyên). `parse-filter.test.ts` truyền accountability thiếu field: thêm
+  `as Parameters<typeof parseFilter>[1]`. `deep-map-with-schema.test.ts` import `getRelation` tương đối thay vì tự import
+  package. 435 test của `@backoffice/utils` đạt, coverage đủ ngưỡng.
+- T005: chỉ port `AbstractService` của `services.ts`; phần còn lại của file mô tả service cho extension và cần kiểu của
+  `graphql`, `nodemailer`, `archiver` (ngoài phạm vi). `users.ts`, `events.ts` port đủ. Kiểu engine cần (đã quét 192 file
+  sẽ port) chỉ thiếu `AbstractService`, `ActionHandler`, `FilterHandler`, `InitHandler`, `RegisterUserInput`, `Role`,
+  `User`.
+- T006: `MAX_RELATIONAL_DEPTH` không thuộc `DIRECTUS_VARIABLES` (chỉ có trong defaults), nên không đưa vào nhóm A (test
+  bắt mọi mẫu nhóm A phải là biến Directus); nó chưa bao giờ bị cảnh báo và vẫn được đọc. Sửa
+  `warn-unsupported-variables.test.ts` (limiter đăng ký không còn ở nhóm C).

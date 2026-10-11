@@ -43,7 +43,7 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'CORS_CREDENTIALS',
 	'CORS_MAX_AGE',
 	// Registration and email rate limiters belong to features not built yet (group C).
-	'RATE_LIMITER_(?!REGISTRATION_|EMAIL_).+',
+	'RATE_LIMITER_(?!EMAIL_).+',
 	'CACHE_ENABLED',
 	'CACHE_TTL',
 	'CACHE_NAMESPACE',
@@ -140,6 +140,16 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'AUTH_.+_GROUP_SCOPE',
 	'AUTH_.+_REDIRECT_ALLOW_LIST',
 	'AUTH_.+_COOKIE_SECURE',
+	// Feature 004: invites, registration and the query engine (specs/004 contracts/config.md)
+	'USER_INVITE_TOKEN_TTL',
+	'USER_INVITE_URL_ALLOW_LIST',
+	'USER_REGISTER_URL_ALLOW_LIST',
+	'REGISTER_STALL_TIME',
+	'EMAIL_VERIFICATION_TOKEN_TTL',
+	'QUERY_LIMIT_DEFAULT',
+	'QUERY_LIMIT_MAX',
+	'RELATIONAL_BATCH_SIZE',
+	'MAX_JSON_QUERY_DEPTH',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

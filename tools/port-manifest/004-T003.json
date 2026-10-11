@@ -1,0 +1,42 @@
+[
+	{
+		"source": "packages/utils/shared/validate-payload.ts",
+		"dest": "libs/utils/src/shared/validate-payload.ts"
+	},
+	{
+		"source": "packages/utils/shared/validate-payload.test.ts",
+		"dest": "libs/utils/src/shared/validate-payload.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/generate-joi.ts",
+		"dest": "libs/utils/src/shared/generate-joi.ts"
+	},
+	{
+		"source": "packages/utils/shared/generate-joi.test.ts",
+		"dest": "libs/utils/src/shared/generate-joi.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/inject-function-results.ts",
+		"dest": "libs/utils/src/shared/inject-function-results.ts"
+	},
+	{
+		"source": "packages/utils/shared/inject-function-results.test.ts",
+		"dest": "libs/utils/src/shared/inject-function-results.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/functions.ts",
+		"dest": "libs/utils/src/shared/functions.ts"
+	},
+	{
+		"source": "packages/utils/shared/functions.test.ts",
+		"dest": "libs/utils/src/shared/functions.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-detailed-update-syntax.ts",
+		"dest": "libs/utils/src/shared/is-detailed-update-syntax.ts"
+	},
+	{
+		"source": "packages/utils/shared/is-detailed-update-syntax.test.ts",
+		"dest": "libs/utils/src/shared/is-detailed-update-syntax.test.ts"
+	}
+]

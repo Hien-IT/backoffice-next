@@ -42,14 +42,14 @@ test('X_FILE counts as X, each name once; defaults are not counted', () => {
 	expect(getUnsupportedVariables({})).toEqual([]);
 });
 
-test('registration and email rate limiters are group C', () => {
+test('email rate limiters are group C; the registration limiter is supported since feature 004', () => {
 	expect(
 		getUnsupportedVariables({
 			RATE_LIMITER_REGISTRATION_ENABLED: 'true',
 			RATE_LIMITER_EMAIL_ENABLED: 'true',
 			RATE_LIMITER_POINTS: '5',
 		}),
-	).toEqual(['RATE_LIMITER_EMAIL_ENABLED', 'RATE_LIMITER_REGISTRATION_ENABLED']);
+	).toEqual(['RATE_LIMITER_EMAIL_ENABLED']);
 });
 
 test('no warning without unsupported variables', () => {
