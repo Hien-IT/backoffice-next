@@ -9,31 +9,49 @@ export const REDUCED_FILES = [
 	// Feature 004 (SC-001): the reduced permission matrix, the accountability of US1 and the CRUD flows whose dates and
 	// JSON differ per vendor.
 	...['matrix-reduced', 'accountability', 'users', 'roles', 'write-rules'].map((f) => `src/permissions/${f}.test.ts`),
+	// Feature 005: the /items flows, whose dates, JSON and keys differ per vendor.
+	'src/items/crud.test.ts',
 ];
 
 export const FULL_FILES = [
 	'src/{server,startup,observability,schema,auth,permissions}/**/*.test.ts',
 	'src/{db-unchanged,readonly-account,redis-down}.test.ts',
+	// Feature 005: /items and export on the main pair.
+	'src/items/{crud,export}.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */
 export const MATRIX_FILES = ['src/permissions/matrix.test.ts'];
 
+/**
+ * Feature 005 (research R5): the response cache configurations and the WebSocket pair (job parity-cache, profiles
+ * cache-mem, cache-mem-purge, cache-redis, cache-redis-purge, websocket).
+ */
+export const CACHE_FILES = ['src/items/{cache-blackbox,cache-cross,cache-redis-down,bus}.test.ts'];
+
+/**
+ * Feature 005 (research R6): the port of directus/tests/blackbox items, query and relational files. Run by
+ * scripts/parity.mjs with src/items/blackbox/vitest.blackbox.config.ts, once per app (PARITY_BLACKBOX_APP).
+ */
+export const BLACKBOX_FILES = ['src/items/blackbox/**/*.test.ts'];
+
 /** Not in `full`: the full matrix has its own target, and Postgres already runs matrix shards. */
 export const FULL_EXCLUDED_FILES = ['src/permissions/matrix.test.ts', 'src/permissions/matrix-reduced.test.ts'];
 
-export type Suite = 'full' | 'reduced' | 'matrix';
+export type Suite = 'full' | 'reduced' | 'matrix' | 'blackbox' | 'cache';
 
 export function parseSuite(value = process.env['PARITY_SUITE']): Suite {
 	if (value === undefined || value === '' || value === 'full') return 'full';
 	if (value === 'reduced') return 'reduced';
-	if (value === 'matrix') return 'matrix';
-	throw new Error(`PARITY_SUITE must be "full", "reduced" or "matrix", got "${value}"`);
+	if (value === 'matrix' || value === 'blackbox' || value === 'cache') return value;
+	throw new Error(`PARITY_SUITE must be "full", "reduced", "matrix", "blackbox" or "cache", got "${value}"`);
 }
 
 export function suiteFiles(suite: Suite): string[] {
 	if (suite === 'reduced') return REDUCED_FILES;
 	if (suite === 'matrix') return MATRIX_FILES;
+	if (suite === 'blackbox') return BLACKBOX_FILES;
+	if (suite === 'cache') return CACHE_FILES;
 	return FULL_FILES;
 }
 

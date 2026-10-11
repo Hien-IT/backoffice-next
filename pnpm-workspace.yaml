@@ -109,6 +109,16 @@ catalog:
   # Permissions (feature 004), same versions as Directus 11.17.4
   snappy: 7.3.3
   ip-matching: 2.1.2
+  # Items (feature 005), same versions as Directus 11.17.4
+  json2csv: 5.0.7
+  '@types/json2csv': 5.0.7
+  js2xmlparser: 5.0.0
+  eventemitter2: 6.4.9
+  # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
+  json-to-graphql-query: 2.3.0
+  seedrandom: 3.0.5
+  '@types/seedrandom': 3.0.8
+  uuid: 11.1.0
   # Web
   vue: 3.5.43 # security patch
   vite: 7.3.0

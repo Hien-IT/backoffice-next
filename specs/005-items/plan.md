@@ -191,7 +191,7 @@ backoffice-next/
 │   ├── scripts/parity.mjs                      # SỬA: suite blackbox chạy hai lượt
 │   ├── vitest.parity.config.ts                 # SỬA: suite blackbox, cache
 │   ├── src/{suite,config,parity,request-set,global-setup}.ts   # SỬA
-│   ├── src/redis-down.test.ts                  # SỬA: ca CACHE_ENABLED=true (cặp cache-redis)
+│   ├── src/items/cache-redis-down.test.ts      # MỚI: Redis của cặp cache-redis dừng (FR-016, R-10)
 │   └── src/items/
 │       ├── crud.test.ts, export.test.ts, cache-blackbox.test.ts, cache-cross.test.ts, bus.test.ts   # MỚI (R9)
 │       └── blackbox/                           # MỚI (R6, contracts/parity-blackbox.md §1, §2)

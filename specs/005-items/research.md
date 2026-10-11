@@ -185,7 +185,7 @@ thông điệp bus, không dựng client WebSocket.
   - `bus.test.ts`: subscribe `websocket.event` bằng ioredis trên namespace bus của cặp `websocket`, chạy chuỗi thao tác
     ghi FR-045 ở từng app, so chuỗi thông điệp (chuẩn hóa id); ở cặp chính kiểm 0 thông điệp.
   - `request-set.ts` thêm request đọc `/items/<collection>` (có `export`) cho `db-unchanged`, `readonly-account`.
-  - `redis-down.test.ts` thêm hai ca ở cặp `cache-redis`. Cặp này có service `redis-cache` riêng (cổng host 6109,
+  - `src/items/cache-redis-down.test.ts` (mới, suite `cache`) có hai ca ở cặp `cache-redis`. Cặp này có service `redis-cache` riêng (cổng host 6109,
     `REDIS` của cặp trỏ tới), nên dừng được mà không ảnh hưởng cặp khác. Ca thứ nhất là cache dữ liệu khi Redis dừng
     (FR-016, T033). Ca thứ hai là R-10, `publish` bus khi Redis dừng (T044). Cặp `cache-config` giữ `CACHE_ENABLED=false`.
   - `blackbox-common.test.ts` của 004 giữ nguyên (fixture riêng theo app).

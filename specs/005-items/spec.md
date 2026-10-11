@@ -317,8 +317,8 @@ chạy proxy trỏ mọi route về Directus.
 - Cache và biến động: dữ liệu cho `$CURRENT_USER.<field>` đổi không xóa cache (FR-014 của 004), nên bản response cache
   cũng cũ tới hết TTL ở cả hai app.
 - Redis không dùng được khi `CACHE_ENABLED=true`, `CACHE_STORE=redis`: lỗi đọc, ghi cache ghi log `warn` `[cache]` và
-  tiếp tục như `MISS`; thời gian chờ và status cuối cùng giống Directus đo trong cùng điều kiện (FR-085 của 004,
-  `redis-down.test.ts`).
+  tiếp tục như `MISS`; status và mã lỗi giống Directus đo trong cùng điều kiện, theo quy tắc so của FR-016
+  (`src/items/cache-redis-down.test.ts`).
 - `CACHE_STORE=memory`: cache của từng process; `schemaChanged` với `autoPurgeCache` xóa ở instance khác như 004
   (FR-084).
 - Export với `SEARCH`, `POST`, `PATCH` (response có `data`): cũng xuất file, giống Directus; export với response `204`
@@ -434,7 +434,7 @@ chạy proxy trỏ mọi route về Directus.
   `CACHE_ENABLED=true`, theo quy tắc so của FR-085 (004): cùng status và mã lỗi, hoặc cả hai không trả trong timeout
   của bộ đối chiếu (15 giây cho đọc, 20 giây cho ghi); cùng dòng log `warn` `[cache]`; dữ liệu đã ghi giữ nguyên. Thời
   gian chờ không so, vì phụ thuộc chuỗi kết nối lại của ioredis (004 đã đo: `/server/health` khi Redis down là "không
-  trả" hoặc `500` tùy retry xong trước timeout, hai app như nhau). Ca này thêm vào `redis-down.test.ts` của 002.
+  trả" hoặc `500` tùy retry xong trước timeout, hai app như nhau). Ca này nằm trong `src/items/cache-redis-down.test.ts` (suite `cache`), cùng cách so với `redis-down.test.ts` của 002, 004.
 - **FR-017**: `CACHE_STATUS_HEADER` (mặc định không có header), `CACHE_VALUE_MAX_SIZE` (`false`), `CACHE_SKIP_ALLOWED`
   (`false`), `CACHE_CONTROL_S_MAXAGE` (`0`) PHẢI được đọc với cùng tên, mặc định, ép kiểu như Directus và gỡ khỏi nhóm
   "chưa hỗ trợ" của 001.

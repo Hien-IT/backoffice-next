@@ -27,7 +27,7 @@ export class ServerController {
 		});
 
 		res.locals['payload'] = await service.oas.generate(req.headers.host);
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Get('info')
@@ -36,7 +36,7 @@ export class ServerController {
 
 		const data = await service.serverInfo();
 		res.locals['payload'] = { data };
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Get('health')
@@ -49,6 +49,6 @@ export class ServerController {
 
 		if (data['status'] === 'error') res.status(503);
 		res.locals['payload'] = data;
-		respond(res);
+		await respond(req, res);
 	}
 }

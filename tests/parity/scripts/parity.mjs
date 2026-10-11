@@ -1,4 +1,4 @@
-// pnpm nx run parity-tests:parity --vendor=postgres  (PARITY_SUITE=full|reduced)
+// pnpm nx run parity-tests:parity --vendor=postgres  (PARITY_SUITE=full|reduced|matrix|blackbox|cache)
 import { spawnSync } from 'node:child_process';
 import { parseArgs } from 'node:util';
 
@@ -10,8 +10,22 @@ const { values, positionals } = parseArgs({
 
 // --vendor wins over an existing TEST_DB.
 const env = { ...process.env, TEST_DB: values.vendor ?? process.env.TEST_DB ?? 'postgres' };
-const result = spawnSync('pnpm', ['exec', 'vitest', 'run', '-c', 'vitest.parity.config.ts', ...positionals], {
-	stdio: 'inherit',
-	env,
-});
-process.exit(result.status ?? 1);
+
+const vitest = (config, extraEnv = {}) =>
+	spawnSync('pnpm', ['exec', 'vitest', 'run', '-c', config, ...positionals], {
+		stdio: 'inherit',
+		env: { ...env, ...extraEnv },
+	}).status ?? 1;
+
+// Feature 005 (research R6): the blackbox port runs unchanged once against each app; the Directus run proves the port.
+if (env.PARITY_SUITE === 'blackbox') {
+	for (const app of ['backoffice', 'directus']) {
+		process.stdout.write(`\n=== blackbox items, query and relational at ${app} ===\n\n`);
+		const status = vitest('src/items/blackbox/vitest.blackbox.config.ts', { PARITY_BLACKBOX_APP: app });
+		if (status !== 0) process.exit(status);
+	}
+
+	process.exit(0);
+}
+
+process.exit(vitest('vitest.parity.config.ts'));

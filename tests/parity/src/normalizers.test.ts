@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
 	normalizeBody,
+	normalizeContentDisposition,
 	normalizeDeep,
 	normalizeHeader,
 	normalizeJwt,
@@ -123,4 +124,19 @@ test('text body of a redirect: random SSO parameters like the Location header', 
 		'Found. Redirecting to http://idp/authorize?state=%3Cstate%3E&nonce=%3Cnonce%3E&scope=x',
 	);
 	expect(normalizeText('plain')).toBe('plain');
+});
+
+describe('normalizeContentDisposition (feature 005)', () => {
+	test.each([
+		['attachment; filename="articles 20261011-93005.csv"', 'attachment; filename="articles <timestamp>.csv"'],
+		['attachment; filename="Export 20261011-000.json"', 'attachment; filename="Export <timestamp>.json"'],
+		[
+			'attachment; filename="a 20261011-123456.yaml"; filename*=UTF-8\'\'a',
+			'attachment; filename="a <timestamp>.yaml"; filename*=UTF-8\'\'a',
+		],
+		['attachment; filename="no-date.csv"', 'attachment; filename="no-date.csv"'],
+	])('%s', (value, expected) => {
+		expect(normalizeContentDisposition(value)).toBe(expected);
+		expect(normalizeHeader('content-disposition', value)).toBe(expected);
+	});
 });

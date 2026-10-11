@@ -67,8 +67,7 @@ test('isNotApplicable', () => {
 	expect(isNotApplicable('PORT')).toBe(false);
 });
 
-// Feature 002 (specs/002 contracts/config.md): schema, system, lock and permissions cache variables are supported;
-// the response cache variables stay unsupported until feature 005.
+// Feature 002 (specs/002 contracts/config.md): schema, system, lock and permissions cache variables are supported.
 test.each([
 	'CACHE_SCHEMA',
 	'CACHE_SCHEMA_MAX_ITERATIONS',
@@ -84,13 +83,21 @@ test.each([
 	expect(isSupported(name)).toBe(true);
 });
 
+// Feature 005 (specs/005 contracts/config.md): the response cache variables and the three variables that decide whether
+// the websocket.event bus bridge is registered; the other WebSocket variables stay unsupported (Principle XI).
 test.each([
-	'CACHE_CONTROL_S_MAXAGE',
-	'CACHE_STATUS_HEADER',
-	'CACHE_VALUE_MAX_SIZE',
-	'CACHE_SKIP_ALLOWED',
-])('%s is still unsupported', (name) => {
-	expect(isSupported(name)).toBe(false);
+	['CACHE_CONTROL_S_MAXAGE', true],
+	['CACHE_STATUS_HEADER', true],
+	['CACHE_VALUE_MAX_SIZE', true],
+	['CACHE_SKIP_ALLOWED', true],
+	['WEBSOCKETS_ENABLED', true],
+	['WEBSOCKETS_REST_ENABLED', true],
+	['WEBSOCKETS_GRAPHQL_ENABLED', true],
+	['WEBSOCKETS_REST_AUTH', false],
+	['WEBSOCKETS_HEARTBEAT_ENABLED', false],
+	['EXPORT_BATCH_SIZE', false],
+])('isSupported(%s) = %s (feature 005)', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
 });
 
 // Feature 003 (specs/003 contracts/config.md): auth variables are supported, except the saml-only ones and email.

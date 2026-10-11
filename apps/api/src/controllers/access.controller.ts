@@ -48,13 +48,13 @@ export class AccessController {
 			}
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get()
@@ -91,12 +91,12 @@ export class AccessController {
 		const meta = await metaService.getMetaForQuery('directus_access', req.sanitizedQuery);
 
 		res.locals['payload'] = { data: result, meta };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get(':pk')
 	async readOne(@Req() req: Request, @Res() res: Response): Promise<void> {
-		if (req.path.endsWith('me')) return respond(res);
+		if (req.path.endsWith('me')) return respond(req, res);
 
 		const service = this.accessService({
 			accountability: req.accountability,
@@ -106,7 +106,7 @@ export class AccessController {
 		const record = await service.readOne(req.params['pk'] as string, req.sanitizedQuery);
 
 		res.locals['payload'] = { data: record };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch()
@@ -134,13 +134,13 @@ export class AccessController {
 			res.locals['payload'] = { data: result };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch(':pk')
@@ -157,13 +157,13 @@ export class AccessController {
 			res.locals['payload'] = { data: item || null };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete()
@@ -184,7 +184,7 @@ export class AccessController {
 			await service.deleteByQuery(sanitizedQuery);
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete(':pk')
@@ -196,6 +196,6 @@ export class AccessController {
 
 		await service.deleteOne(req.params['pk'] as string);
 
-		return respond(res);
+		return respond(req, res);
 	}
 }

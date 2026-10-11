@@ -150,6 +150,14 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'QUERY_LIMIT_MAX',
 	'RELATIONAL_BATCH_SIZE',
 	'MAX_JSON_QUERY_DEPTH',
+	// Feature 005: response cache and the condition of the websocket.event bus bridge (specs/005 contracts/config.md)
+	'CACHE_STATUS_HEADER',
+	'CACHE_VALUE_MAX_SIZE',
+	'CACHE_SKIP_ALLOWED',
+	'CACHE_CONTROL_S_MAXAGE',
+	'WEBSOCKETS_ENABLED',
+	'WEBSOCKETS_REST_ENABLED',
+	'WEBSOCKETS_GRAPHQL_ENABLED',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

@@ -48,13 +48,13 @@ export class RolesController {
 			}
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get()
@@ -84,7 +84,7 @@ export class RolesController {
 		const meta = await metaService.getMetaForQuery('directus_roles', req.sanitizedQuery);
 
 		res.locals['payload'] = { data: records || null, meta };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get('me')
@@ -105,13 +105,13 @@ export class RolesController {
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
 				res.locals['payload'] = { data: req.accountability.roles.map((id) => ({ id })) };
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get(':pk')
@@ -124,7 +124,7 @@ export class RolesController {
 		const record = await service.readOne(req.params['pk'] as string, req.sanitizedQuery);
 
 		res.locals['payload'] = { data: record || null };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch()
@@ -152,13 +152,13 @@ export class RolesController {
 			res.locals['payload'] = { data: result };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch(':pk')
@@ -175,13 +175,13 @@ export class RolesController {
 			res.locals['payload'] = { data: item || null };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete()
@@ -202,7 +202,7 @@ export class RolesController {
 			await service.deleteByQuery(sanitizedQuery);
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete(':pk')
@@ -214,6 +214,6 @@ export class RolesController {
 
 		await service.deleteOne(req.params['pk'] as string);
 
-		return respond(res);
+		return respond(req, res);
 	}
 }

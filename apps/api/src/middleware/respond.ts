@@ -1,8 +1,8 @@
-// Ported from directus/api/src/middleware/respond.ts (header part only). Response caching (CACHE_ENABLED,
-// CACHE_AUTO_PURGE, CACHE_STATUS_HEADER) and exports (?export=) come with feature 005 (D-11, D-12).
-import type { Response } from 'express';
+// Ported from directus/api/src/middleware/respond.ts (header part only). Feature 005 adds the export of files (T027)
+// and the response cache (T036); `req` is taken now so every caller already passes it.
+import type { Request, Response } from 'express';
 
-export function respond(res: Response): void {
+export async function respond(_req: Request, res: Response): Promise<void> {
 	// Don't cache anything by default
 	res.setHeader('Cache-Control', 'no-cache');
 	res.setHeader('Vary', 'Origin, Cache-Control');

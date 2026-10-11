@@ -62,6 +62,8 @@ export const COMPARED_HEADERS = [
 	'cross-origin-opener-policy',
 	'strict-transport-security',
 	'x-powered-by',
+	// Feature 005 (FR-044): export file names.
+	'content-disposition',
 ];
 
 const NO_ETAG = [/^\/server\/specs\/oas$/i, /^\/metrics$/i];

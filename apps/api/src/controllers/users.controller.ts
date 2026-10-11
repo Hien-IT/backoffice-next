@@ -82,13 +82,13 @@ export class UsersController {
 			}
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get()
@@ -118,7 +118,7 @@ export class UsersController {
 		const meta = await metaService.getMetaForQuery('directus_users', req.sanitizedQuery);
 
 		res.locals['payload'] = { data: item || null, meta };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get('me')
@@ -130,7 +130,7 @@ export class UsersController {
 				},
 			};
 
-			return respond(res);
+			return respond(req, res);
 		}
 
 		if (!req.accountability?.user) {
@@ -148,18 +148,18 @@ export class UsersController {
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
 				res.locals['payload'] = { data: { id: req.accountability.user } };
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get(':pk')
 	async readOne(@Req() req: Request, @Res() res: Response): Promise<void> {
-		if (req.path.endsWith('me')) return respond(res);
+		if (req.path.endsWith('me')) return respond(req, res);
 
 		const service = this.usersService({
 			accountability: req.accountability,
@@ -169,7 +169,7 @@ export class UsersController {
 		const items = await service.readOne(req.params['pk'] as string, req.sanitizedQuery);
 
 		res.locals['payload'] = { data: items || null };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch('me')
@@ -187,7 +187,7 @@ export class UsersController {
 		const item = await service.readOne(primaryKey, req.sanitizedQuery);
 
 		res.locals['payload'] = { data: item || null };
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch('me/track/page')
@@ -203,7 +203,7 @@ export class UsersController {
 		const service = this.usersService({ schema: req.schema });
 		await service.updateOne(req.accountability.user, { last_page: req.body.last_page }, { autoPurgeCache: false });
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch()
@@ -231,13 +231,13 @@ export class UsersController {
 			res.locals['payload'] = { data: result };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Patch(':pk')
@@ -254,13 +254,13 @@ export class UsersController {
 			res.locals['payload'] = { data: item || null };
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {
-				return respond(res);
+				return respond(req, res);
 			}
 
 			throw error;
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete()
@@ -281,7 +281,7 @@ export class UsersController {
 			await service.deleteByQuery(sanitizedQuery);
 		}
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Delete(':pk')
@@ -293,7 +293,7 @@ export class UsersController {
 
 		await service.deleteOne(req.params['pk'] as string);
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post('invite')
@@ -308,7 +308,7 @@ export class UsersController {
 		});
 
 		await service.inviteUser(req.body.email, req.body.role, req.body.invite_url || null);
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post('invite/accept')
@@ -323,7 +323,7 @@ export class UsersController {
 		});
 
 		await service.acceptInvite(req.body.token, req.body.password);
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post('me/tfa/generate')
@@ -362,7 +362,7 @@ export class UsersController {
 		const { url, secret } = await service.generateTFA(req.accountability.user, requiresPassword);
 
 		res.locals['payload'] = { data: { secret, otpauth_url: url } };
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Post('me/tfa/enable')
@@ -387,7 +387,7 @@ export class UsersController {
 
 		await service.enableTFA(req.accountability.user, req.body.otp, req.body.secret);
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post('me/tfa/disable')
@@ -413,7 +413,7 @@ export class UsersController {
 		}
 
 		await service.disableTFA(req.accountability.user);
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post(':pk/tfa/disable')
@@ -433,7 +433,7 @@ export class UsersController {
 		});
 
 		await service.disableTFA(req.params['pk'] as string);
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Post('register')
@@ -447,7 +447,7 @@ export class UsersController {
 		const usersService = this.usersService({ accountability: null, schema: req.schema });
 		await usersService.registerUser(value);
 
-		return respond(res);
+		return respond(req, res);
 	}
 
 	@Get('register/verify-email')

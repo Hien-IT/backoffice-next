@@ -77,18 +77,18 @@ export trước, nhánh cache sau (cùng một file, hai bước).
 **Purpose**: Thêm thư viện cùng bản Directus, chuyển bảy biến sang nhóm A, dựng năm cặp profile và sửa bộ so sánh cho
 cache dùng chung (Clarifications, research R1, R4, R5).
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `json2csv: 5.0.7`,
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `json2csv: 5.0.7`,
   `'@types/json2csv': 5.0.7`, `js2xmlparser: 5.0.0`, `eventemitter2: 6.4.9`, `json-to-graphql-query: 2.3.0`,
   `seedrandom: 3.0.5`, `'@types/seedrandom': 3.0.8`. `apps/api/package.json`: `json2csv`, `js2xmlparser`, `js-yaml`,
   `eventemitter2` (types vào devDependencies). `tests/parity/package.json`: `supertest`, `@types/supertest`,
   `json-to-graphql-query`, `seedrandom`, `@types/seedrandom`. Chạy `pnpm install`, `pnpm audit --prod
   --audit-level=high`; ghi kết quả audit vào "Ghi chú khi làm" (research R1).
-- [ ] T002 [P] `apps/api/src/config/supported-variables.ts`: chuyển sang nhóm A theo contracts/config.md §1
+- [X] T002 [P] `apps/api/src/config/supported-variables.ts`: chuyển sang nhóm A theo contracts/config.md §1
   (`CACHE_STATUS_HEADER`, `CACHE_VALUE_MAX_SIZE`, `CACHE_SKIP_ALLOWED`, `CACHE_CONTROL_S_MAXAGE`, `WEBSOCKETS_ENABLED`,
   `WEBSOCKETS_REST_ENABLED`, `WEBSOCKETS_GRAPHQL_ENABLED`) với comment `// Feature 005`. Sửa
   `apps/api/src/config/supported-variables.test.ts` (bảy biến không còn cảnh báo; `WEBSOCKETS_REST_AUTH` vẫn cảnh báo)
   và §5 của `specs/001-platform-foundation/contracts/config.md`.
-- [ ] T003 [P] Env profile của môi trường đối chiếu (contracts/config.md §3; env của cặp chính đổi ở T037): tạo
+- [X] T003 [P] Env profile của môi trường đối chiếu (contracts/config.md §3; env của cặp chính đổi ở T037): tạo
   `tests/parity/env/profile-cache-mem.env`, `profile-cache-mem-purge.env`, `profile-cache-redis.env`,
   `profile-cache-redis-purge.env` (research R5: `CACHE_ENABLED=true`, `CACHE_STORE`, `CACHE_AUTO_PURGE`,
   `CACHE_STATUS_HEADER=x-cache-status`, `CACHE_SKIP_ALLOWED=false` (ghi đè `true` của env vendor từ T037),
@@ -98,21 +98,22 @@ cache dùng chung (Clarifications, research R1, R4, R5).
   `WEBSOCKETS_REST_ENABLED=true` để đo R-10) và `profile-websocket.env`
   (`WEBSOCKETS_ENABLED=true`, `WEBSOCKETS_REST_ENABLED=true`); sửa ghi chú D-11 trong `profile-cache-config.env`
   (giữ `CACHE_ENABLED=false` vì `redis-down`).
-- [ ] T004 `tests/parity/docker-compose.yml`: năm cặp profile `cache-mem` (9055, 9056), `cache-mem-purge` (9155, 9156),
+- [X] T004 `tests/parity/docker-compose.yml`: năm cặp profile `cache-mem` (9055, 9056), `cache-mem-purge` (9155, 9156),
   `cache-redis` (9255, 9256, kèm service `redis-cache` cổng host 6109 để dừng trong `redis-down`), `cache-redis-purge`
   (9355, 9356), `websocket` (9455, 9456), mẫu `cache-config`; `tests/parity/scripts/env.mjs` thêm vào `ALL_PROFILES`;
-  `tests/parity/src/config.ts` `profilePorts` thêm năm dòng (global-setup và profiles.ts tự nhận). Unit test
-  `tests/parity/src/config.test.ts` nếu có, hoặc ca mới trong `proxy-conf.test.ts` kiểm cổng không trùng. (sau T003)
-- [ ] T005 [P] Bộ so sánh, phần export (contracts/parity-blackbox.md §4): `COMPARED_HEADERS` thêm `content-disposition`;
+  `tests/parity/src/config.ts` `profilePorts` thêm năm dòng và `cacheRedisPort` (global-setup và profiles.ts tự nhận).
+  Test trong `tests/parity/src/vendors.test.ts`: cổng không trùng, cổng của compose khớp `config.ts`, mỗi cặp có file env.
+  (sau T003)
+- [X] T005 [P] Bộ so sánh, phần export (contracts/parity-blackbox.md §4): `COMPARED_HEADERS` thêm `content-disposition`;
   `tests/parity/src/normalizers.ts` thay `\d{8}-\d{1,6}` trong `content-disposition` bằng `<timestamp>`; test trong
   `normalizers.test.ts`. Phần cache của bộ so sánh làm ở T037.
-- [ ] T006 [P] `tests/parity/src/suite.ts`: suite `blackbox` (`src/items/blackbox/**/*.test.ts`, chạy bằng
-  `vitest.blackbox.config.ts` của T017) và `cache` (`src/items/{cache-blackbox,cache-cross,bus}.test.ts`,
-  `src/redis-down.test.ts`); `FULL_FILES` thêm `src/items/{crud,export}.test.ts`, loại hai suite trên;
-  `REDUCED_FILES` thêm `src/items/crud.test.ts`; `parseSuite` nhận bốn giá trị + `blackbox`. `tests/parity/scripts/parity.mjs`:
+- [X] T006 [P] `tests/parity/src/suite.ts`: suite `blackbox` (`BLACKBOX_FILES`, chạy bằng
+  `src/items/blackbox/vitest.blackbox.config.ts` của T016) và `cache` (`CACHE_FILES`:
+  `src/items/{cache-blackbox,cache-cross,cache-redis-down,bus}.test.ts`); `FULL_FILES` thêm `src/items/{crud,export}.test.ts`;
+  `REDUCED_FILES` thêm `src/items/crud.test.ts`; `parseSuite` nhận năm giá trị. `tests/parity/scripts/parity.mjs`:
   suite `blackbox` chạy vitest hai lượt với `PARITY_BLACKBOX_APP=backoffice` rồi `directus`, dừng ở lượt đầu lỗi;
-  `tests/parity/project.json` thêm target `parity-blackbox`, `parity-cache`. Unit test `suite.test.ts` (mới) cho
-  `suiteFiles`.
+  `tests/parity/project.json` thêm target `parity-blackbox`, `parity-cache`. Test trong `src/vendors.test.ts` (đã có
+  test chọn suite).
 - [ ] T007 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `items` (sinh lại `nginx.conf` bằng
   `scripts/proxy-conf.mjs`; `proxy-conf.test.ts` thêm ca `/items/x` về app mới, `/items` không có collection cũng về
   app mới).
@@ -126,12 +127,12 @@ mười container và `global-setup` đặt URL năm cặp.
 
 **Purpose**: Hai thay đổi mọi story đều cần.
 
-- [ ] T008 `apps/api/src/middleware/respond.ts`: đổi chữ ký thành `respond(req: Request, res: Response)` (giữ nội dung
+- [X] T008 `apps/api/src/middleware/respond.ts`: đổi chữ ký thành `respond(req: Request, res: Response)` (giữ nội dung
   header như 004, chưa cache, chưa export; comment nêu T028, T036 thay đủ); sửa 82 chỗ gọi `respond(res)` → `respond(req,
   res)` trong `apps/api/src/controllers/{auth,server,users,roles,policies,access,permissions}.controller.ts` (grep
   `respond(res)` phải về 0); `respond.test.ts` sửa theo. Chạy `pnpm nx run api:test`, rồi `parity --vendor=postgres`
   (suite `full`) để chắc không route nào đổi hành vi (research R2).
-- [ ] T009 [P] Port `apps/api/src/middleware/collection-exists.ts` từ `directus/api/src/middleware/collection-exists.ts`
+- [X] T009 [P] Port `apps/api/src/middleware/collection-exists.ts` từ `directus/api/src/middleware/collection-exists.ts`
   (dùng `systemCollectionRows` của `@backoffice/system-data`, `createCollectionForbiddenError` của
   `permissions/modules/process-ast/utils/validate-path/create-error.ts`); test mới
   `apps/api/src/middleware/collection-exists.test.ts` (không có param; collection lạ → `403` đúng message; collection
@@ -297,7 +298,7 @@ D-11.
   (US3.5, nhánh `false`); `GET /server/health` gọi chéo hai app không bao giờ `HIT` và không có key trong Redis (FR-014);
   `CACHE_VALUE_MAX_SIZE=1kb` ở `cache-redis`; Referer
   `<PUBLIC_URL>/admin` với `CACHE_AUTO_PURGE` false và true; `HEAD`; dấu `/` cuối (CHK013, ghi kết quả vào spec).
-- [ ] T033 [P] [US3] `tests/parity/src/redis-down.test.ts`: ca `CACHE_ENABLED=true` ở cặp `cache-redis` (dừng
+- [ ] T033 [P] [US3] `tests/parity/src/items/cache-redis-down.test.ts` (mới, suite `cache`): ca `CACHE_ENABLED=true` ở cặp `cache-redis` (dừng
   `redis-cache`, `GET` ở hai app: status, thời gian, log `[cache] Couldn't read key`; bật lại, `MISS` rồi `HIT`); ghi dung
   sai đo được vào spec FR-016 (CHK012).
 
@@ -363,7 +364,7 @@ D-26, D-29.
   gọi `registerWebSocketEvents()` sau khi Nest init khi `toBoolean(WEBSOCKETS_ENABLED)` và
   (`toBoolean(WEBSOCKETS_REST_ENABLED)` hoặc `toBoolean(WEBSOCKETS_GRAPHQL_ENABLED)`), comment trỏ
   `websocket/controllers/rest.ts:18`, `graphql.ts:26`, `server.ts:104`. Ghi manifest. (sau T040 đỏ, T042)
-- [ ] T044 [US5] `tests/parity/src/redis-down.test.ts`: ca R-10 ở cặp `cache-redis` (có `redis-cache` riêng và bật
+- [ ] T044 [US5] `tests/parity/src/items/cache-redis-down.test.ts`: ca R-10 ở cặp `cache-redis` (có `redis-cache` riêng và bật
   `WEBSOCKETS_ENABLED` theo T003). Tạo collection qua Directus của cặp; dừng `redis-cache`; ghi một item ở từng app;
   kiểm request trả `200`. Chờ hết chuỗi kết nối lại của ioredis, đo process còn sống (`/server/ping`) và đọc log. Bật lại
   `redis-cache`. Ở `afterAll`, dù ca đạt hay lỗi: nếu một app không trả `/server/ping` thì chạy
@@ -511,5 +512,13 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
 
 ## Ghi chú khi làm
 
-- (ghi kết quả audit T001, file đã sửa ở T005, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044,
-  seed và số liệu benchmark T048, kết quả T053 tại đây)
+- T001: `pnpm audit --prod --audit-level=high` không có advisory mới từ `json2csv`, `js2xmlparser`, `eventemitter2`,
+  `js-yaml` (14 advisory, đều có từ trước và đã nằm trong `auditConfig.ignoreGhsas` hoặc dưới ngưỡng). Parity thêm `uuid`
+  11.1.0 (`seed-functions.ts` của blackbox dùng `v5`) và `@backoffice/utils` (`getFilterOperatorsForType`), ngoài danh
+  sách của T001.
+- T008: 82 lời gọi `respond(res)` trong 7 controller đổi thành `respond(req, res)` (`return` hoặc `await`); `respond`
+  thành hàm `async` ngay từ bây giờ vì bản đủ của Directus là `async` (T027, T036). Unit test API: 194 file, 2.069 ca
+  đạt, coverage 85,9%.
+- T007 commit cùng T013: thêm `items` vào proxy khi `/items` chưa có sẽ làm app Directus qua proxy nhận `404`.
+- (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
+  benchmark T048, kết quả T053 tại đây)

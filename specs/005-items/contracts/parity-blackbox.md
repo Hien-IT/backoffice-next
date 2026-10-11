@@ -40,7 +40,7 @@ src/items/
 | `full` | như cũ + `src/items/{crud,export}.test.ts` | 1 | job `parity` Postgres |
 | `reduced` | như cũ + `src/items/crud.test.ts` | 1 | job `parity` MySQL, SQLite |
 | `blackbox` | `src/items/blackbox/**` | 2: `PARITY_BLACKBOX_APP=backoffice` rồi `directus` (`parity.mjs` lặp) | job `parity-blackbox` (Postgres, đủ ba kiểu khóa); job `parity` MySQL, SQLite với `PARITY_BLACKBOX_PK_TYPES=integer` (rút gọn); `parity-matrix.yml` job `blackbox-full` cho MySQL, SQLite đủ (hằng tuần) |
-| `cache` | `src/items/{cache-blackbox,cache-cross,bus}.test.ts`, `src/redis-down.test.ts` (ca mới) | 1 | job `parity-cache` (Postgres) với profile `cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket` |
+| `cache` | `src/items/{cache-blackbox,cache-cross,cache-redis-down,bus}.test.ts` | 1 | job `parity-cache` (Postgres) với profile `cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket` |
 | `matrix` | không đổi | | |
 
 ## 4. Bộ so sánh

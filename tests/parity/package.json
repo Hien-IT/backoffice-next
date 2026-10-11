@@ -11,17 +11,26 @@
 	"devDependencies": {
 		"@backoffice/schema": "workspace:*",
 		"@backoffice/types": "workspace:*",
+		"@backoffice/utils": "workspace:*",
 		"@types/jsonwebtoken": "catalog:",
+		"@types/lodash-es": "catalog:",
+		"@types/seedrandom": "catalog:",
+		"@types/supertest": "catalog:",
 		"get-port": "catalog:",
 		"ioredis": "catalog:",
+		"json-to-graphql-query": "catalog:",
 		"jsonwebtoken": "catalog:",
 		"knex": "catalog:",
 		"ldapts": "catalog:",
+		"lodash-es": "catalog:",
 		"mysql2": "catalog:",
 		"oracledb": "catalog:",
 		"otplib": "catalog:",
 		"pg": "catalog:",
+		"seedrandom": "catalog:",
 		"sqlite3": "catalog:",
-		"tedious": "catalog:"
+		"supertest": "catalog:",
+		"tedious": "catalog:",
+		"uuid": "catalog:"
 	}
 }

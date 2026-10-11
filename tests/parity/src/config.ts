@@ -87,7 +87,16 @@ export const profilePorts = {
 	sso: { directus: 8955, backoffice: 8956 },
 	// Feature 004 (T048): user limits.
 	'user-limits': { directus: 8855, backoffice: 8856 },
+	// Feature 005 (research R5): response cache configurations and the WebSocket pair.
+	'cache-mem': { directus: 9055, backoffice: 9056 },
+	'cache-mem-purge': { directus: 9155, backoffice: 9156 },
+	'cache-redis': { directus: 9255, backoffice: 9256 },
+	'cache-redis-purge': { directus: 9355, backoffice: 9356 },
+	websocket: { directus: 9455, backoffice: 9456 },
 } as const;
+
+/** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
+export const cacheRedisPort = 6109;
 
 /** Host port of the reverse proxy in front of both apps (profile `app`, feature 004, contracts/proxy-e2e.md). */
 export const proxyPort = 8160;

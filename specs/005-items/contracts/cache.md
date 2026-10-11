@@ -84,7 +84,7 @@ Không đổi so với 004 (FR-082, FR-083, FR-084): `shouldClearCache(cache, op
 ## 7. Redis không dùng được (FR-016)
 
 `cache.get` ném → bước 4 hoặc 6 của §2 (`MISS`); `cache.set` ném → §3 (log, vẫn trả). Thời gian chờ do ioredis (cùng
-cấu hình với Directus); ca đo ở `redis-down.test.ts` với cặp `cache-redis` (research R9).
+cấu hình với Directus); ca đo ở `src/items/cache-redis-down.test.ts` với cặp `cache-redis` (research R9).
 
 ## 8. Bộ đối chiếu (Clarifications, FR-043)
 

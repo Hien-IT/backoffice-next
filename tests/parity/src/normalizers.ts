@@ -7,7 +7,16 @@ export function normalizeHeader(name: string, value: string | undefined): string
 	if (name === 'location') return normalizeLocation(value);
 	if (name === 'retry-after')
 		return /^\d+$/.test(value) ? '<seconds>' : Number.isNaN(Date.parse(value)) ? value : '<http-date>';
+	if (name === 'content-disposition') return normalizeContentDisposition(value);
 	return value;
+}
+
+/**
+ * Feature 005 (contracts/export.md §2): export file names end with getDateTimeFormatted() (YYYYMMDD-HMS, hours, minutes
+ * and seconds not padded), which differs between two requests; the `filename*=` part is compared as it is.
+ */
+export function normalizeContentDisposition(value: string): string {
+	return value.replace(/ \d{8}-\d{1,6}(?=\.\w+"?(;|$))/, ' <timestamp>');
 }
 
 export function normalizeBody(path: string, body: unknown): unknown {

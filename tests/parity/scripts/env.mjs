@@ -27,6 +27,12 @@ const ALL_PROFILES = [
 	'sso',
 	'user-limits',
 	'app',
+	// Feature 005 (research R5)
+	'cache-mem',
+	'cache-mem-purge',
+	'cache-redis',
+	'cache-redis-purge',
+	'websocket',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

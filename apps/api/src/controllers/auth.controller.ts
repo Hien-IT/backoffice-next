@@ -120,7 +120,7 @@ export class AuthController {
 		await handler(req, res);
 
 		// Redirects answer by themselves; the other handlers leave the payload for respond, like the routers.
-		if (!res.headersSent) respond(res);
+		if (!res.headersSent) await respond(req, res);
 	}
 
 	@Get()
@@ -134,7 +134,7 @@ export class AuthController {
 			disableDefault: useEnv()['AUTH_DISABLE_DEFAULT'],
 		};
 
-		respond(res);
+		await respond(req, res);
 	}
 
 	constructor(
@@ -150,7 +150,7 @@ export class AuthController {
 		if (useEnv()['AUTH_DISABLE_DEFAULT']) throw new RouteNotFoundError({ path: req.path });
 
 		await this.localRouter(DEFAULT_AUTH_PROVIDER).login(req, res);
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Post('login/:provider')
@@ -215,7 +215,7 @@ export class AuthController {
 		}
 
 		res.locals['payload'] = { data: payload };
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Post('logout')
@@ -248,7 +248,7 @@ export class AuthController {
 			clearCookie(res, env['SESSION_COOKIE_NAME'] as string, sessionCookieOptions());
 		}
 
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Post('password/request')
@@ -270,7 +270,7 @@ export class AuthController {
 			}
 		}
 
-		respond(res);
+		await respond(req, res);
 	}
 
 	@Post('password/reset')
@@ -286,6 +286,6 @@ export class AuthController {
 
 		const service = this.usersService({ accountability: requestAccountability(req), schema: req.schema });
 		await service.resetPassword(req.body.token, req.body.password);
-		respond(res);
+		await respond(req, res);
 	}
 }
