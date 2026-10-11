@@ -4,6 +4,7 @@
 // from their files: ServerService loads the HTTP server module, and the others are not item services here yet.
 export * from './access.service.js';
 export * from './activity.service.js';
+export * from './import-export.service.js';
 export * from './items.service.js';
 export * from './meta.service.js';
 export * from './payload.service.js';

@@ -9,7 +9,7 @@ pnpm nx run-many -t test -p api
 ```
 
 ```bash
-pnpm nx run parity-tests:env-up --vendor=postgres --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app
+pnpm nx run parity-tests:env-up --vendor=postgres --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app,blackbox
 ```
 
 ```bash
@@ -17,7 +17,7 @@ pnpm nx run parity-tests:parity --vendor=postgres
 ```
 
 ```bash
-PARITY_SUITE=blackbox pnpm nx run parity-tests:parity --vendor=postgres
+pnpm nx run parity-tests:parity-blackbox --vendor=postgres
 ```
 
 ```bash
@@ -37,7 +37,9 @@ BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e
   `collection-exists`, `items.controller`, `emitter`, `websocket/controllers/hooks`.
 - Dòng 2, 3: môi trường đối chiếu chính (cache bật, `CACHE_SKIP_ALLOWED=true`) và bộ `full`, nay có
   `src/items/crud.test.ts`, `export.test.ts` và chạy lại toàn bộ 001 đến 004 với `respond` mới (FR-047).
-- Dòng 4: bộ blackbox items, query, relational port từ Directus, hai lượt (`backoffice` rồi `directus`); thêm
+- Dòng 4: bộ blackbox items, query, relational port từ Directus, hai lượt (`backoffice` rồi `directus`) trên cặp
+  `blackbox` (cần `--profiles=blackbox` ở `env-up`), chạy sau dòng 3: seed của nó thêm admin vào cùng database, nên
+  `db-unchanged.test.ts` của dòng 3 chạy sau đó sẽ dừng với lỗi và cần `env-down`, `env-up` lại; thêm
   `PARITY_BLACKBOX_PK_TYPES=integer` để chạy bộ rút gọn (MySQL, SQLite ở CI). Với `--vendor=mysql` hoặc `sqlite3`:
   `env-up` không cần profile.
 - Dòng 5, 6: năm cặp profile của cache và WebSocket, rồi bộ `cache` (port `cache.test.ts`, `cache-purge.test.ts`, ca

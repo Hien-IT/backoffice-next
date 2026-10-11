@@ -117,6 +117,14 @@ thông điệp bus, không dựng client WebSocket.
   - Sửa cơ học trong file test, mỗi chỗ có `// Backoffice:`: bỏ các khối WebSocket (`createWebSocketConn`,
     `createWebSocketGql`, `getMessages`, các `expect` trên `wsMessages*`): 6 chỗ ở `no-relation`, 4 ở `m2o`, 4 ở `o2m`
     (Nguyên tắc XI, D-17). Giữ nguyên mọi khẳng định REST và GraphQL.
+  - Chạy trên cặp profile `blackbox` (9555, 9556), env `env/profile-blackbox.env` chép từ
+    `directus/tests/blackbox/common/config.ts`, vì nhiều khẳng định phụ thuộc env đó (`MAX_BATCH_MUTATION=100`,
+    `QUERY_LIMIT_DEFAULT=90`, `MAX_RELATIONAL_DEPTH=5`, không response cache). Quyết định khi làm T016.
+  - Chỗ phải sửa ngoài khối WebSocket, mỗi chỗ có `// Backoffice:`: `case-when.seed.ts` tạo collection, relation và
+    `case-when.test.ts` gọi `/comments` qua `getSetupUrl`; hai ca "Verify ... action hook run" của `no-relation.test.ts`
+    đọc `tests_extensions_log` (extension test của Directus, D-17) bị bỏ; `00-seed.test.ts` xóa user, policy và
+    collection của `case-when` trước mỗi lượt (bộ gốc chạy trên DB mới). Typecheck chỉ các shim (Directus không
+    typecheck bộ blackbox: code gốc lỗi với cờ strict của `@directus/tsconfig`).
   - Shim `common/` thay cho bản gốc (alias `@common/*` trong `vitest.blackbox.config.ts`): `config.ts` với
     `getUrl(vendor)` trả URL của app đang thử (`PARITY_BLACKBOX_APP`, `backoffice` hoặc `directus`) và `getUrl` của
     Directus cho `functions.ts` phần collection, field, relation (`CreateCollection`, `CreateField*`, `CreateRelation`,

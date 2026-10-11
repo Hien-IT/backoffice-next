@@ -1,5 +1,11 @@
 {
 	"extends": "../../tsconfig.base.json",
-	"compilerOptions": { "types": ["node"], "noEmit": true, "isolatedDeclarations": false, "declaration": false },
-	"include": ["src", "accepted-differences.ts"]
+	"compilerOptions": {
+		"types": ["node"],
+		"noEmit": true,
+		"isolatedDeclarations": false,
+		"declaration": false
+	},
+	"include": ["src", "accepted-differences.ts"],
+	"exclude": ["src/items/blackbox"]
 }

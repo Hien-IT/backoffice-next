@@ -1,0 +1,27 @@
+{
+	// Feature 005 (research R6): the files under tests/ and the copied helpers of common/ are directus/tests/blackbox
+	// verbatim; Directus runs them through vitest and never typechecks them (they fail the strict flags of
+	// @directus/tsconfig), so only the shims written for the parity port are typechecked here. Bundler resolution like
+	// the blackbox suite (extensionless imports, @common/* and @utils/* aliases).
+	"extends": "../../../../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		"noEmit": true,
+		"isolatedDeclarations": false,
+		"declaration": false,
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"paths": {
+			"@common/*": ["./common/*"],
+			"@utils/*": ["./utils/*"]
+		}
+	},
+	"files": [
+		"common/config.ts",
+		"common/get-dbs-to-test.ts",
+		"common/transport.ts",
+		"common/types.ts",
+		"sequencer.ts",
+		"vitest.blackbox.config.ts"
+	]
+}

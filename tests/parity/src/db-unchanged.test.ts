@@ -21,6 +21,12 @@ let accounts: RequestSetAccounts;
 // Feature 004: a user and the admin's JWT are made before the snapshot (the user through Directus while it runs).
 beforeAll(async () => {
 	db = knex(knexConfig[vendor!]);
+	// The request set deletes the admin, refused only while it is the last admin; the blackbox seed (feature 005) adds
+	// admins to the same database, so a run after it would delete the admin: run the blackbox on a fresh env-up after.
+	const adminPolicies = await db('directus_policies').where({ admin_access: true }).count({ n: '*' });
+	if (Number(adminPolicies[0]?.['n']) !== 1) {
+		throw new Error('more than one admin policy: run env-down and env-up (the blackbox seed adds admins)');
+	}
 	const user = await createUser('directus', 'parity-request-set', { role: null });
 	// Feature 005: a user collection with one item for the /items reads (contracts/parity-blackbox.md §4).
 	const collection = await createUserCollection(`parity_request_set_items_${Date.now().toString(36)}`, [

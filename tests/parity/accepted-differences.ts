@@ -160,7 +160,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-12',
 		feature: '001',
 		removeAt: '005',
-		// Query validation runs on every route since feature 004; only `?export=` is left and no parity request sends it.
+		// Export is built by feature 005 (src/items/export.test.ts, ?export= in the request set); the guard keeps this
+		// entry until 005 is Done (T054).
 		kind: 'doc',
 		reason: 'Export of results as a file (`export` query) comes with feature 005.',
 	},

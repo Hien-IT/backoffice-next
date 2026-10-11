@@ -1,0 +1,54 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/items/case-when.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/case-when.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/conceal-filter.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/conceal-filter.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/hash-filter.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/hash-filter.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/json-fields.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/json-fields.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2a.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2a.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2m.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2m.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2o.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2o.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/no-relation.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/no-relation.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/o2m.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/o2m.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/relational-json.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/relational-json.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/seed-all-field-types.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/seed-all-field-types.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/seed-relational-fields.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/seed-relational-fields.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/singleton.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/singleton.seed.ts"
+	}
+]

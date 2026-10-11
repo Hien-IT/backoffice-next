@@ -29,10 +29,15 @@ có charset; ca FR-044 đo và là nguồn cuối.
 
 ## 3. Trường hợp biên (FR-021, đo trong bộ đối chiếu)
 
+Đo ở Postgres, hai app cùng giá trị (T025, 2026-10-11). Mảng gồm nhiều dòng: mỗi dòng nằm trong một phần tử `data` con
+(`js2xmlparser` 5.0.0); object: các field là con trực tiếp của `data`. Lỗi `500` của csv với admin có message
+`Cannot read properties of undefined (reading 'length')` (chưa đo với người không phải admin, dự kiến `An unexpected
+error occurred.` theo error handler 001).
+
 | Trường hợp | `json` | `csv`, `csv_utf8` | `xml` | `yaml` |
 |------------|--------|-------------------|-------|--------|
-| `data` là mảng rỗng | `[]` | `''` | theo `js2xmlparser` | `[]\n` |
-| không có payload (`204`) | `null` | `500 INTERNAL_SERVER_ERROR` (`input.length` của `undefined`) | đo | đo |
+| `data` là mảng rỗng | `[]` | `''` | `<?xml version='1.0'?>\n<data/>` | `[]\n` |
+| không có payload (`204`) | `200`, `null` | `500 INTERNAL_SERVER_ERROR`, `Content-Type: text/csv; charset=utf-8` giữ nguyên | `200`, `<?xml version='1.0'?>\n<data>undefined</data>` | `200`, body rỗng |
 | `data` là object (một item, singleton, `/server/info`) | object thụt lề | một dòng CSV | gốc `data` với con | object |
 | giá trị lồng (m2o mở rộng) | lồng | cột `a.b` (flatten một cấp cho object; mảng giữ JSON) | lồng | lồng |
 

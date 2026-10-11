@@ -1,0 +1,94 @@
+[
+	{
+		"source": "tests/blackbox/common/seed-functions.ts",
+		"dest": "tests/parity/src/items/blackbox/common/seed-functions.ts"
+	},
+	{
+		"source": "tests/blackbox/common/variables.ts",
+		"dest": "tests/parity/src/items/blackbox/common/variables.ts"
+	},
+	{
+		"source": "tests/blackbox/utils/prepare-request.ts",
+		"dest": "tests/parity/src/items/blackbox/utils/prepare-request.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/query/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/query/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/query/filter/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/query/filter/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/alias/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/alias/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/big-integer/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/big-integer/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/boolean/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/boolean/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/csv/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/csv/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/date/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/date/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/date-time/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/date-time/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/decimal/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/decimal/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/float/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/float/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/geometry/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/geometry/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/hash/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/hash/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/integer/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/integer/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/json/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/json/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/string/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/string/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/text/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/text/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/time/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/time/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/timestamp/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/timestamp/index.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/schema/uuid/index.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/schema/uuid/index.ts"
+	}
+]

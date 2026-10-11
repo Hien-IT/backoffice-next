@@ -13,10 +13,10 @@ export function normalizeHeader(name: string, value: string | undefined): string
 
 /**
  * Feature 005 (contracts/export.md §2): export file names end with getDateTimeFormatted() (YYYYMMDD-HMS, hours, minutes
- * and seconds not padded), which differs between two requests; the `filename*=` part is compared as it is.
+ * and seconds not padded), which differs between two requests; also inside the `filename*=` part (names outside ASCII).
  */
 export function normalizeContentDisposition(value: string): string {
-	return value.replace(/ \d{8}-\d{1,6}(?=\.\w+"?(;|$))/, ' <timestamp>');
+	return value.replace(/( |%20)\d{8}-\d{1,6}(?=\.\w+"?(;|$))/g, '$1<timestamp>');
 }
 
 export function normalizeBody(path: string, body: unknown): unknown {

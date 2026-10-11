@@ -78,9 +78,14 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { vendor: postgres, suite: full, profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits' }
-          - { vendor: mysql, suite: reduced, profiles: '' }
-          - { vendor: sqlite3, suite: reduced, profiles: '' }
+          - {
+              vendor: postgres,
+              suite: full,
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits',
+            }
+          # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.
+          - { vendor: mysql, suite: reduced, profiles: 'blackbox', blackbox: integer }
+          - { vendor: sqlite3, suite: reduced, profiles: 'blackbox', blackbox: integer }
     env:
       PARITY_SUITE: ${{ matrix.suite }}
     steps:
@@ -94,6 +99,10 @@ jobs:
       - run: pnpm nx run api:build
       - run: pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=${{ matrix.profiles }}
       - run: pnpm nx run parity-tests:parity --vendor=${{ matrix.vendor }} --output-style=static
+      - if: matrix.blackbox
+        run: pnpm nx run parity-tests:parity-blackbox --vendor=${{ matrix.vendor }} --output-style=static
+        env:
+          PARITY_BLACKBOX_PK_TYPES: ${{ matrix.blackbox }}
       - name: container logs
         if: failure()
         working-directory: tests/parity
@@ -105,6 +114,32 @@ jobs:
           path: tests/parity/parity-${{ matrix.vendor }}.log
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=${{ matrix.vendor }}
+
+  # Feature 005 (spec FR-040, FR-041, research R6): the port of the Directus blackbox items, query and relational files,
+  # every key type, once at the new app then once at Directus, on the blackbox pair (env of directus/tests/blackbox).
+  parity-blackbox:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=blackbox
+      - run: pnpm nx run parity-tests:parity-blackbox --vendor=postgres --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-postgres logs --no-color > parity-blackbox.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: parity-blackbox-logs
+          path: tests/parity/parity-blackbox.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=postgres
 
   # Feature 004 (SC-001): one shard of the full permission matrix per push, rotating with the run number; the whole
   # matrix runs in parity-matrix.yml (weekly and by hand). n = 4 shards of about 6 minutes (tasks.md, T058).
@@ -237,7 +272,18 @@ jobs:
   publish:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs:
-      [guard-directus, quality, guard-differences, parity, parity-matrix-rotating, e2e-directus-app, docker, e2e, security]
+      [
+        guard-directus,
+        quality,
+        guard-differences,
+        parity,
+        parity-blackbox,
+        parity-matrix-rotating,
+        e2e-directus-app,
+        docker,
+        e2e,
+        security,
+      ]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

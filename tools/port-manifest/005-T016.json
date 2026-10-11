@@ -1,0 +1,26 @@
+[
+	{
+		"source": "tests/blackbox/common/config.ts",
+		"dest": "tests/parity/src/items/blackbox/common/config.ts"
+	},
+	{
+		"source": "tests/blackbox/common/get-dbs-to-test.ts",
+		"dest": "tests/parity/src/items/blackbox/common/get-dbs-to-test.ts"
+	},
+	{
+		"source": "tests/blackbox/common/transport.ts",
+		"dest": "tests/parity/src/items/blackbox/common/transport.ts"
+	},
+	{
+		"source": "tests/blackbox/common/types.ts",
+		"dest": "tests/parity/src/items/blackbox/common/types.ts"
+	},
+	{
+		"source": "tests/blackbox/common/functions.ts",
+		"dest": "tests/parity/src/items/blackbox/common/functions.ts"
+	},
+	{
+		"source": "tests/blackbox/setup/sequencer.ts",
+		"dest": "tests/parity/src/items/blackbox/sequencer.ts"
+	}
+]

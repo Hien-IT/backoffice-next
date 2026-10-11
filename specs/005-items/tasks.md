@@ -192,35 +192,38 @@ contracts/parity-blackbox.md §1 đến §3, §6).
 
 **Independent Test**: `PARITY_SUITE=blackbox parity --vendor=postgres|mysql|sqlite3` xanh cả hai lượt.
 
-- [ ] T016 [US2] Harness `tests/parity/src/items/blackbox/`: `vitest.blackbox.config.ts` (alias `@common` →
-  `./common`, `globalSetup` của parity, `fileParallelism: false`, sequencer `00-seed.test.ts` trước, `testTimeout`
-  60 s); `sequencer.ts` (rút gọn từ `directus/tests/blackbox/setup/sequencer.ts`); shim `common/config.ts`
-  (`getUrl(vendor)` theo `PARITY_BLACKBOX_APP`, `getDirectusUrl()`), `common/get-dbs-to-test.ts` (re-export của parity),
-  `common/transport.ts` (`requestGraphQL` về Directus, có comment D-09.9), `common/functions.ts` (port
-  `directus/tests/blackbox/common/functions.ts`: hàm collection, field, relation gọi Directus; item, role, user, policy,
-  permission gọi app đang thử; `DisableTestCachingSetup`, `EnableTestCaching`, `ClearCaches` rỗng), `known-failures.ts`
-  (`{ vendor, file, name, run }[]`, hàm `skipKnown(vendor, file, name)`). Unit test phần không cần Docker:
-  `tests/parity/src/items/blackbox-harness.test.ts` (`getUrl` theo env, `PRIMARY_KEY_TYPES` theo `PARITY_BLACKBOX_PK_TYPES`,
-  sequencer đặt seed trước). (sau T006)
-- [ ] T017 [P] [US2] Copy nguyên kèm header `// Ported from directus/tests/blackbox/...`: `common/seed-functions.ts`,
+- [X] T016 [US2] Harness `tests/parity/src/items/blackbox/`: `vitest.blackbox.config.ts` (root `tests/parity`, alias
+  `@common`, `@utils`, `globalSetup` của parity, `fileParallelism: false`, sequencer `00-seed.test.ts` trước,
+  `testTimeout` 60 s); `sequencer.ts` (rút gọn từ `setup/sequencer.ts`); shim `common/config.ts` (`getUrl` theo
+  `PARITY_BLACKBOX_APP` trong cặp `blackbox`, `getSetupUrl()` là Directus của cặp, `config.envs` đọc
+  `env/profile-blackbox.env`), `common/get-dbs-to-test.ts` (của parity), `common/transport.ts` (`requestGraphQL` về
+  Directus, D-09.9), `common/types.ts` (bỏ type WebSocket), `common/functions.ts` (copy; hàm data model, role, user,
+  policy, permission, version gọi `getSetupUrl`; `CreateItem`, `ReadItem`, `UpdateItem` gọi app đang thử). Cặp profile
+  `blackbox` (9555, 9556, `env/profile-blackbox.env` chép env của `directus/tests/blackbox/common/config.ts`) trong
+  `docker-compose.yml`, `scripts/env.mjs`, `src/config.ts`. `src/items/blackbox/tsconfig.json` typecheck các shim
+  (bundler resolution); thư mục loại khỏi typecheck chính vì code copy không qua được cờ strict, như ở Directus.
+  `known-failures.ts` chưa cần (lượt Directus trên Postgres đạt đủ). (sau T006)
+- [X] T017 [P] [US2] Copy nguyên kèm header `// Ported from directus/tests/blackbox/...`: `common/seed-functions.ts`,
   `common/types.ts`, `common/variables.ts` (bỏ `DEFAULT_DB_TABLES`; `PRIMARY_KEY_TYPES` đọc `PARITY_BLACKBOX_PK_TYPES`),
   `tests/db/query/index.ts`, `tests/db/query/filter/index.ts`, `tests/db/schema/index.ts` và 18 thư mục
   `tests/db/schema/<kiểu>/index.ts` (trừ `timezone`) vào `tests/parity/src/items/blackbox/`. Ghi manifest. (sau T016)
-- [ ] T018 [P] [US2] Copy nguyên 11 seed `tests/db/routes/items/*.seed.ts`, `seed-all-field-types.ts`,
+- [X] T018 [P] [US2] Copy nguyên 11 seed `tests/db/routes/items/*.seed.ts`, `seed-all-field-types.ts`,
   `seed-relational-fields.ts` và `00-seed.test.ts` (mới: tạo qua Directus role, policy, access, user có static token cho
-  `USER.ADMIN`, `APP_ACCESS`, `API_ONLY`, `NO_ROLE`, `TESTS_FLOW` nếu chưa có; rồi gọi `seedDBStructure()` của từng seed
-  như `seed-database.test.ts`). Ghi manifest. (sau T016)
-- [ ] T019 [P] [US2] Copy `no-relation.test.ts`, `m2o.test.ts`, `o2m.test.ts`: bỏ 6, 4, 4 khối WebSocket
+  `USER.ADMIN`, `APP_ACCESS`, `API_ONLY`, `NO_ROLE`, `TESTS_FLOW` nếu chưa có; xóa collection, user, policy của
+  `case-when` từ lượt trước; rồi gọi `seedDBStructure()` của từng seed như `seed-database.test.ts`). `case-when.seed.ts`
+  tạo collection, relation qua `getSetupUrl`; `case-when.test.ts` gọi `/comments` (008) qua `getSetupUrl`. Ghi manifest. (sau T016)
+- [X] T019 [P] [US2] Copy `no-relation.test.ts`, `m2o.test.ts`, `o2m.test.ts`: bỏ 6, 4, 4 khối WebSocket
   (`createWebSocketConn`, `createWebSocketGql`, `getMessages`, `expect` trên `wsMessages*`, `conn.close`,
   `client.dispose`) mỗi chỗ một dòng `// Backoffice: WebSocket assertions removed (Principle XI, D-17)`; bỏ import
-  tương ứng; giữ mọi khẳng định REST và GraphQL. Ghi manifest kèm số khối đã bỏ. (sau T016)
-- [ ] T020 [P] [US2] Copy nguyên `m2m.test.ts`, `m2a.test.ts`, `relational-json.test.ts`, `json-fields.test.ts`,
+  tương ứng; giữ mọi khẳng định REST và GraphQL. Đã bỏ 328, 294, 296 dòng (25, 14, 14 chỗ) và hai ca đọc
+  `tests_extensions_log` của `no-relation` (extension, D-17). Ghi manifest kèm số khối đã bỏ. (sau T016)
+- [X] T020 [P] [US2] Copy nguyên `m2m.test.ts`, `m2a.test.ts`, `relational-json.test.ts`, `json-fields.test.ts`,
   `singleton.test.ts`, `case-when.test.ts`, `conceal-filter.test.ts`, `hash-filter.test.ts`. Ghi manifest. (sau T016)
 - [ ] T021 [US2] Chạy `PARITY_SUITE=blackbox` trên Postgres đủ ba kiểu khóa, rồi MySQL và SQLite (đủ và
   `PARITY_BLACKBOX_PK_TYPES=integer`): ca fail ở lượt `directus` ghi vào `known-failures.ts` theo vendor kèm lần chạy
   đối chứng; ca fail chỉ ở lượt `backoffice` là lỗi của app mới, sửa engine hoặc route (ghi R-xx nếu là hành vi
   Directus). Ghi thời gian mỗi lượt vào "Ghi chú khi làm". (sau T017 đến T020)
-- [ ] T022 [US2] CI: `.github/workflows/ci.yml` job `parity-blackbox` (Postgres, `env-up --vendor=postgres`,
+- [X] T022 [US2] CI: `.github/workflows/ci.yml` job `parity-blackbox` (Postgres, `env-up --vendor=postgres`,
   `PARITY_SUITE=blackbox`, timeout 60 phút, log container, `env-down`, vào `needs` của `publish`); job `parity` cho
   `mysql`, `sqlite3` thêm bước `PARITY_SUITE=blackbox PARITY_BLACKBOX_PK_TYPES=integer`;
   `.github/workflows/parity-matrix.yml` thêm job `blackbox-full` (matrix `mysql`, `sqlite3`, đủ ba kiểu khóa);
@@ -238,26 +241,26 @@ contracts/parity-blackbox.md §1 đến §3, §6).
 
 ### Tests for User Story 4
 
-- [ ] T023 [P] [US4] Port `apps/api/src/services/import-export.service.test.ts` từ
+- [X] T023 [P] [US4] Port `apps/api/src/services/import-export.service.test.ts` từ
   `directus/api/src/services/import-export.test.ts` (chỉ phần `transform`; phần `exportToFile`, import bỏ với ghi chú
   010). Ghi manifest.
-- [ ] T024 [P] [US4] `apps/api/src/middleware/respond.test.ts`: ca export từng định dạng (header `Content-Disposition`
+- [X] T024 [P] [US4] `apps/api/src/middleware/respond.test.ts`: ca export từng định dạng (header `Content-Disposition`
   với tên `<collection> <YYYYMMDD-HMS>` và `Export ...` khi không collection, `Content-Type`, body qua `transform`,
   `200` khi không payload với `json` → `null`, `csv` → ném lỗi, `Cache-Control: no-cache`, `HEAD`).
-- [ ] T025 [P] [US4] `tests/parity/src/items/export.test.ts`: ma trận FR-044 (5 định dạng × 12 nguồn) so status,
+- [X] T025 [P] [US4] `tests/parity/src/items/export.test.ts`: ma trận FR-044 (5 định dạng × 12 nguồn) so status,
   `content-type`, `content-disposition` chuẩn hóa, body từng byte sau chuẩn hóa (quy tắc Assumptions); ghi kết quả đo
   của xml, yaml với payload `204` và của `500` csv (CHK020) vào contracts/export.md §3 và spec FR-021.
 
 ### Implementation for User Story 4
 
-- [ ] T026 [US4] Port `apps/api/src/services/import-export.service.ts` (`ExportService`: constructor và `transform`) từ
+- [X] T026 [US4] Port `apps/api/src/services/import-export.service.ts` (`ExportService`: constructor và `transform`) từ
   `directus/api/src/services/import-export.ts`; export từ `services/index.ts`; factory trong `providers.ts` (dùng ở
   `respond`). Ghi manifest. (sau T023 đỏ)
-- [ ] T027 [US4] `apps/api/src/middleware/respond.ts`: nhánh export của `directus/api/src/middleware/respond.ts`
+- [X] T027 [US4] `apps/api/src/middleware/respond.ts`: nhánh export của `directus/api/src/middleware/respond.ts`
   (`getDateTimeFormatted` của `@backoffice/utils`, `res.attachment`, `Content-Type` theo định dạng, `transform`), đặt sau
   phần header (nhánh cache đến ở T036). Ghi manifest (nguồn `middleware/respond.ts`, cùng file đích, task T036 bổ sung).
   (sau T024 đỏ, T026)
-- [ ] T028 [US4] `tests/parity/src/request-set.ts` thêm `GET /items/<c>?export=csv` và `?export=json`. Sổ khác biệt:
+- [X] T028 [US4] `tests/parity/src/request-set.ts` thêm `GET /items/<c>?export=csv` và `?export=json`. Sổ khác biệt:
   xóa entry `D-12`; dòng D-12 trong `specs/001-platform-foundation/spec.md` và dòng D-12
   của bảng "Thay đổi" trong `specs/004-permissions/spec.md` ghi "Gỡ ở 005"; chạy guard. (sau T025 xanh)
 
@@ -525,5 +528,24 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   đặt `req.body = {}`; câu "thiếu body → `400`" ở FR-041 của 004 không đúng); path `%` sai trả `500` `Failed to decode
   param`; `meta` của singleton chỉ có khi query có `meta`. `createUserCollection` nhận khóa uuid và meta;
   `flow.activity()` nhận danh sách collection.
+- T016 đến T020 (Postgres local, ba kiểu khóa): lượt `backoffice` 9.579 ca đạt, 10 bỏ qua. Lượt `directus` đầu tiên
+  bị ngắt giữa chừng vì `db-unchanged.test.ts` chạy song song dừng mọi container; seed blackbox thêm admin vào cùng
+  database nên ca `DELETE /users/<admin>` của request set (chờ lỗi "admin cuối") xóa thật admin. `db-unchanged` nay
+  dừng sớm khi có hơn một policy admin; quickstart ghi thứ tự chạy (CI không bị vì blackbox Postgres là job riêng).
+- Sửa 001: `src/server/errors.test.ts` bỏ `/items/directus_users` khỏi danh sách "chưa làm → 404" (CI đỏ ở 333ac75),
+  thêm ca `403 FORBIDDEN` ở cả hai app.
+- T023: test mới, không phải port (`import-export.test.ts` của Directus không có ca `transform`), nên không có
+  manifest. Kết quả thật của thư viện: `js2xmlparser` 5.0.0 bọc mỗi dòng của mảng trong một phần tử `data` con;
+  `json2csv` 5.0.7 thêm cột `author` riêng khi một dòng có object `null` ở field mà dòng khác có object.
+- T026: không thêm factory ở `providers.ts`: `respond` là hàm thường và gọi `new ExportService(...)` như Directus;
+  `ExportService` export từ `services/index.ts`.
+- T024 đến T027: unit test API 197 file, 2.109 ca đạt, coverage 86,1%. `server.controller.test.ts` thêm
+  `sanitizedQuery: {}` vào request giả (middleware thật luôn đặt).
+- T025: 56 ca đạt trên Postgres local (11 nguồn × 5 định dạng, một ca `400`). Bỏ ca `fields` có hàm trên
+  `date_created`: dùng field `published` kiểu `timestamp`. `normalizeContentDisposition` thay cả mốc thời gian trong
+  `filename*=` (tên ngoài ASCII), vì hai request có thể rơi vào hai giây khác nhau. Giá trị đo ghi ở contracts/export.md §3
+  và FR-021.
+- T028: guard `accepted-differences.test.ts` bắt mọi mã của bảng 001 còn trong danh sách tới khi 005 `Done`, nên entry
+  `D-12` giữ tới T054 (chỉ sửa comment), như D-09.3 ở T015.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)

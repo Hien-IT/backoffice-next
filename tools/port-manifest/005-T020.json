@@ -1,0 +1,34 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/items/case-when.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/case-when.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/conceal-filter.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/conceal-filter.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/hash-filter.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/hash-filter.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/json-fields.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/json-fields.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2a.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2a.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2m.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2m.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/relational-json.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/relational-json.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/singleton.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/singleton.test.ts"
+	}
+]

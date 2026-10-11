@@ -34,9 +34,11 @@ quality() {
 }
 
 parity() {
-	local vendor=$1 suite=$2 profiles=$3
+	local vendor=$1 suite=$2 profiles=$3 blackbox=$4
 	PARITY_SUITE=$suite pnpm nx run parity-tests:env-up --vendor="$vendor" --profiles="$profiles" &&
-		PARITY_SUITE=$suite pnpm nx run parity-tests:parity --vendor="$vendor" --output-style=static
+		PARITY_SUITE=$suite pnpm nx run parity-tests:parity --vendor="$vendor" --output-style=static &&
+		# Feature 005: the reduced blackbox port (key types in $blackbox) after the reduced suite of MySQL and SQLite.
+		{ [ -z "$blackbox" ] || PARITY_BLACKBOX_PK_TYPES=$blackbox pnpm nx run parity-tests:parity-blackbox --vendor="$vendor" --output-style=static; }
 	local code=$?
 	(cd tests/parity && docker compose -p "parity-$vendor" logs --no-color >"../../$LOG/parity-$vendor-containers.log" 2>&1)
 	pnpm nx run parity-tests:env-down --vendor="$vendor"
@@ -64,8 +66,9 @@ step guard-differences pnpm --filter @backoffice/parity-tests exec vitest run sr
 step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits
-step parity-mysql-reduced parity mysql reduced ''
-step parity-sqlite3-reduced parity sqlite3 reduced ''
+step parity-blackbox parity postgres blackbox blackbox
+step parity-mysql-reduced parity mysql reduced blackbox integer
+step parity-sqlite3-reduced parity sqlite3 reduced blackbox integer
 # One shard of the permission matrix (feature 004); PARITY_MATRIX_SHARD=<i>/4 picks another, unset runs the whole matrix.
 step parity-matrix sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres && PARITY_MATRIX_SHARD=${PARITY_MATRIX_SHARD:-1/4} pnpm nx run parity-tests:parity-matrix --vendor=postgres --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 step docker sh -c 'docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci . && docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .'

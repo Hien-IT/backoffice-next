@@ -1,0 +1,14 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/items/m2o.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/m2o.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/no-relation.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/no-relation.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/items/o2m.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/items/o2m.test.ts"
+	}
+]

@@ -93,6 +93,8 @@ export const profilePorts = {
 	'cache-redis': { directus: 9255, backoffice: 9256 },
 	'cache-redis-purge': { directus: 9355, backoffice: 9356 },
 	websocket: { directus: 9455, backoffice: 9456 },
+	// Feature 005 (research R6): the env of directus/tests/blackbox for the port of its items files.
+	blackbox: { directus: 9555, backoffice: 9556 },
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */

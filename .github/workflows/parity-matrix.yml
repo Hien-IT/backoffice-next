@@ -1,5 +1,7 @@
 # Feature 004 (SC-001): every shard of the full permission matrix (FR-101), weekly and by hand. Must be green once
 # before the feature closes (T086); does not gate `publish` (ci.yml runs one rotating shard per push).
+# Feature 005 (spec FR-041): the full blackbox port (every key type) on MySQL and SQLite, which run the reduced one
+# (integer keys) on every push; must be green before 005 closes.
 name: Parity matrix
 
 on:
@@ -45,3 +47,31 @@ jobs:
           path: tests/parity/parity-matrix-${{ matrix.shard }}.log
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
+
+  blackbox-full:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        vendor: [mysql, sqlite3]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=blackbox
+      - run: pnpm nx run parity-tests:parity-blackbox --vendor=${{ matrix.vendor }} --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-${{ matrix.vendor }} logs --no-color > blackbox-${{ matrix.vendor }}.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: blackbox-${{ matrix.vendor }}-logs
+          path: tests/parity/blackbox-${{ matrix.vendor }}.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=${{ matrix.vendor }}

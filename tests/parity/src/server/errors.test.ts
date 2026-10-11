@@ -57,8 +57,15 @@ describe('errors', () => {
 		expect(result.backoffice.status).toBe(401);
 	});
 
+	// /items is built by feature 005: a system collection is refused before any read, as in Directus.
+	it('/items/directus_users → 403 FORBIDDEN on both (built by 005)', async () => {
+		const result = await parity({ path: '/items/directus_users' });
+		assertParity(result);
+		expect(result.backoffice.status).toBe(403);
+	});
+
 	// /auth is built by feature 003 (src/auth/*.test.ts), /users, /roles, /policies, /access, /permissions by 004.
-	it.each(['/items/directus_users', '/collections', '/files', '/activity', '/flows', '/settings', '/graphql'])(
+	it.each(['/collections', '/files', '/activity', '/flows', '/settings', '/graphql'])(
 		'%s is not built yet → 404 on Backoffice (D-09.*)',
 		async (path) => {
 			const result = await parity({ path });

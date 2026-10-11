@@ -101,6 +101,9 @@ function itemRequests(accounts: RequestSetAccounts, items: NonNullable<RequestSe
 		]),
 		{ method: 'OPTIONS', path: list },
 		{ method: 'OPTIONS', path: one },
+		// Feature 005 (D-12): the list as a file.
+		{ path: `${list}?export=csv&sort=id`, headers: admin },
+		{ path: `${list}?export=json&sort=id`, headers: admin },
 		{ path: '/items/nope', headers: admin },
 		{ path: '/items/directus_users', headers: admin },
 		{ method: 'SEARCH', path: list, headers: admin },

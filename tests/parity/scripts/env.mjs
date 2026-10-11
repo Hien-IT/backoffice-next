@@ -33,6 +33,7 @@ const ALL_PROFILES = [
 	'cache-redis',
 	'cache-redis-purge',
 	'websocket',
+	'blackbox',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

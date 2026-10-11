@@ -22,16 +22,18 @@ src/items/
 
 | Hàm gốc | Shim |
 |---------|------|
-| `getUrl(vendor)` | URL của app đang thử: `PARITY_BLACKBOX_APP` (`backoffice` mặc định, `directus`) → `BACKOFFICE_URL` / `DIRECTUS_URL` |
-| `CreateCollection`, `DeleteCollection`, `CreateField`, `DeleteField`, `CreateRelation`, `CreateFieldM2O`, `CreateFieldO2M`, `CreateFieldM2M`, `CreateFieldM2A` | gọi `DIRECTUS_URL` (D-09.4, 006) |
+| `getUrl(vendor)` | URL của app đang thử trong cặp `blackbox`: `PARITY_BLACKBOX_APP` (`backoffice` mặc định, `directus`) → `BACKOFFICE_URL_BLACKBOX` / `DIRECTUS_URL_BLACKBOX` |
+| (mới) `getSetupUrl()` | Directus của cặp `blackbox` |
+| `config.envs[vendor]` | giá trị của `env/profile-blackbox.env` (`MAX_BATCH_MUTATION`...) |
+| `CreateCollection`, `DeleteCollection`, `CreateField`, `DeleteField`, `CreateRelation`, `CreateFieldM2O`, `CreateFieldO2M`, `CreateFieldM2M`, `CreateFieldM2A` | gọi `getSetupUrl()` (D-09.4, 006) |
 | `CreateItem`, `ReadItem`, `UpdateItem`, `CreateRole`, `CreateUser`, `CreatePolicy`, `CreatePermission`, `DeletePermission` | gọi app đang thử |
-| `requestGraphQL(host, ...)` | bỏ `host`, gọi `DIRECTUS_URL` (D-09.9; 011 đổi về app đang thử) |
+| `requestGraphQL(host, ...)` | bỏ `host`, gọi `getSetupUrl()` (D-09.9; 011 đổi về app đang thử) |
 | `createWebSocketConn`, `createWebSocketGql` | không có; khối dùng chúng bị bỏ trong file test (ghi `// Backoffice:`) |
 | `PRIMARY_KEY_TYPES` | `PARITY_BLACKBOX_PK_TYPES` (csv) hoặc đủ `integer,uuid,string` |
 | `vendors` | `getDbsToTest()` của parity (một vendor) |
 | `USER.*` | giữ nguyên hằng; `00-seed.test.ts` tạo user với đúng `token` qua Directus nếu chưa có |
 | `DisableTestCachingSetup`, `EnableTestCaching`, `ClearCaches` | không làm gì (cặp chính `CACHE_AUTO_PURGE=true`; `/utils/cache/clear` thuộc 010) |
-| (mới) `known-failures.ts` | ca fail trên chính Directus theo vendor: `{ vendor, file, name, run }`; `it.skipIf` đọc từ đây; là đường cơ sở của SC-001 (FR-040) |
+| (khi cần) `known-failures.ts` | ca fail trên chính Directus theo vendor: `{ vendor, file, name, run }`; là đường cơ sở của SC-001 (FR-040). Chưa tạo: lượt Directus trên Postgres đạt đủ |
 
 ## 3. Lượt chạy và suite
 
@@ -60,16 +62,17 @@ src/items/
 | `cache-redis` | 9255 | 9256 | `profile-cache-redis.env` (+ `redis-cache` riêng để dừng trong `redis-down`, R9) |
 | `cache-redis-purge` | 9355 | 9356 | `profile-cache-redis-purge.env` |
 | `websocket` | 9455 | 9456 | `profile-websocket.env` |
+| `blackbox` | 9555 | 9556 | `profile-blackbox.env`: env của `directus/tests/blackbox/common/config.ts` (`CACHE_ENABLED=false`, `MAX_BATCH_MUTATION=100`, `QUERY_LIMIT_DEFAULT=90`, `MAX_RELATIONAL_DEPTH=5`, `MAX_PAYLOAD_SIZE=10mb`) |
 
-Fixture của bốn cặp `cache-*` tạo qua Directus của chính cặp đó. Cặp `websocket` dùng chung Redis, bus và namespace
+Fixture của bốn cặp `cache-*` tạo qua Directus của chính cặp đó. Cặp `blackbox` dùng chung Redis, bus, namespace với cặp chính. Cặp `websocket` dùng chung Redis, bus và namespace
 với cặp chính, nên fixture tạo qua cặp nào cũng được.
 
 ## 6. CI (`.github/workflows`)
 
 | Job | Vendor | Lệnh | Chặn `publish` |
 |-----|--------|------|----------------|
-| `parity` (sửa) | postgres `full`; mysql, sqlite3 `reduced` + `blackbox` rút gọn | như cũ + `PARITY_SUITE=blackbox PARITY_BLACKBOX_PK_TYPES=integer` cho hai vendor rút gọn | có |
-| `parity-blackbox` (mới) | postgres | `env-up --vendor=postgres`; `PARITY_SUITE=blackbox parity` | có |
+| `parity` (sửa) | postgres `full`; mysql, sqlite3 `reduced` + `blackbox` rút gọn | như cũ; mysql, sqlite3 thêm profile `blackbox` và bước `parity-blackbox` với `PARITY_BLACKBOX_PK_TYPES=integer` | có |
+| `parity-blackbox` (mới) | postgres | `env-up --vendor=postgres --profiles=blackbox`; `parity-blackbox` | có |
 | `parity-cache` (mới) | postgres | `env-up --profiles=cache-mem,...,websocket`; `PARITY_SUITE=cache parity` | có |
 | `e2e-directus-app` (sửa) | postgres | thêm `items.spec.ts` | có |
 | `parity-matrix.yml` `blackbox-full` (mới) | mysql, sqlite3 | `PARITY_SUITE=blackbox` đủ ba kiểu khóa | không (xanh trước khi Done) |

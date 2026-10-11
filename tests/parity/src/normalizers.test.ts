@@ -134,6 +134,10 @@ describe('normalizeContentDisposition (feature 005)', () => {
 			'attachment; filename="a 20261011-123456.yaml"; filename*=UTF-8\'\'a',
 			'attachment; filename="a <timestamp>.yaml"; filename*=UTF-8\'\'a',
 		],
+		[
+			'attachment; filename="parity_xu?t 20261011-93005.csv"; filename*=UTF-8\'\'parity_xu%E1%BA%A5t%2020261011-93005.csv',
+			'attachment; filename="parity_xu?t <timestamp>.csv"; filename*=UTF-8\'\'parity_xu%E1%BA%A5t%20<timestamp>.csv',
+		],
 		['attachment; filename="no-date.csv"', 'attachment; filename="no-date.csv"'],
 	])('%s', (value, expected) => {
 		expect(normalizeContentDisposition(value)).toBe(expected);

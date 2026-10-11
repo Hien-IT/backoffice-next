@@ -459,9 +459,10 @@ chạy proxy trỏ mọi route về Directus.
   `Cache-Control: no-cache`. Không có giới hạn riêng cho export: số dòng theo `limit` của query (`limit=-1` lấy hết,
   `QUERY_LIMIT_MAX` của 004), toàn bộ nội dung dựng trong bộ nhớ, như Directus. `HEAD` với `export` trả header như `GET`
   không body.
-- **FR-021**: Trường hợp lỗi PHẢI giống Directus đo trong cùng điều kiện. Dự kiến khi payload không có `data`: `csv` →
-  `500 INTERNAL_SERVER_ERROR` (`input.length` của `undefined`); `json` → body `null`; `xml`, `yaml` chưa rõ. T025 đo và
-  ghi lại giá trị thật; mỗi trường hợp có ca trong bộ đối chiếu (FR-044). Lỗi `500` của `csv` đi qua error handler
+- **FR-021**: Trường hợp lỗi PHẢI giống Directus đo trong cùng điều kiện. Đo ở T025 khi payload không có `data` (response `204`):
+  `csv`, `csv_utf8` → `500 INTERNAL_SERVER_ERROR` (`input.length` của `undefined`); `json` → `200`, body `null`; `xml` →
+  `200`, `<?xml version='1.0'?>\n<data>undefined</data>`; `yaml` → `200`, body rỗng; mỗi trường hợp có ca trong bộ đối
+  chiếu (FR-044). Lỗi `500` của `csv` đi qua error handler
   (001): body `{"errors": [{"message": ..., "extensions": {"code": "INTERNAL_SERVER_ERROR"}}]}` với message của
   `TypeError` (dự kiến `Cannot read properties of undefined (reading 'length')`) khi accountability là admin, `An
   unexpected error occurred.` khi không; header `Content-Disposition: attachment; ...` và `Content-Type: text/csv` đặt
@@ -506,7 +507,9 @@ chạy proxy trỏ mọi route về Directus.
 
 - **FR-040**: Bộ đối chiếu PHẢI port các file items, query, relational ở đầu spec (11 file test, seed, bộ sinh filter
   `tests/db/query/filter` và `tests/db/schema/<kiểu>` trừ `timezone`), copy nguyên và chạy nguyên bản hai lượt, một lượt
-  với URL của app mới và một lượt với URL của Directus (lượt Directus chứng minh bản port trung thành); seed tạo
+  với URL của app mới và một lượt với URL của Directus (lượt Directus chứng minh bản port trung thành), trên một cặp
+  profile `blackbox` có env giống `directus/tests/blackbox/common/config.ts` (các khẳng định phụ thuộc
+  `MAX_BATCH_MUTATION`, `QUERY_LIMIT_DEFAULT`, `MAX_RELATIONAL_DEPTH`); seed tạo
   collection, field, relation qua API của Directus (D-09.4) và tạo item qua API của app đang thử. Các ca xen GraphQL và
   WebSocket trong cùng `it`: khẳng định GraphQL (`requestGraphQL`) gửi về Directus tới feature 011 (D-09.9), khối
   WebSocket (`createWebSocketConn`, `createWebSocketGql`, `getMessages`) bỏ hẳn kèm ghi chú (Nguyên tắc XI, D-17); mọi
@@ -541,8 +544,8 @@ chạy proxy trỏ mọi route về Directus.
 - **FR-044**: Bộ đối chiếu PHẢI có ca export cho mỗi định dạng (`json`, `csv`, `csv_utf8`, `xml`, `yaml`) × (danh sách
   có field quan hệ lồng m2o và o2m, một item, singleton, danh sách rỗng, `aggregate` với `groupBy`, `fields` có hàm
   (`year(date_created)`), `SEARCH`, `GET /users`, `GET /server/info`, response `204`, giá trị lạ `400`, tên collection có
-  ký tự ngoài ASCII): so status, `content-type`, `content-disposition` (thay phần `YYYYMMDD-HMS` bằng dấu hiệu; phần
-  `filename*=` so nguyên), và body từng byte sau khi thay id, uuid và thời điểm sinh ngẫu nhiên bằng dấu hiệu theo kiểu
+  ký tự ngoài ASCII): so status, `content-type`, `content-disposition` (thay phần `YYYYMMDD-HMS` bằng dấu hiệu,
+  cả trong phần `filename*=`), và body từng byte sau khi thay id, uuid và thời điểm sinh ngẫu nhiên bằng dấu hiệu theo kiểu
   (quy tắc so của 004 áp cho body dạng chuỗi).
 - **FR-045**: Bộ đối chiếu PHẢI subscribe kênh `websocket.event` của Redis và so chuỗi thông điệp hai app phát cho cùng
   chuỗi thao tác ghi (tạo một, nhiều; sửa một, nhiều, lô, theo query; xóa một, nhiều, theo query; ghi lồng; singleton;

@@ -818,7 +818,7 @@ Thay đổi với bảng khác biệt của các feature trước:
 | D-18 | Bỏ dòng cảnh báo "token bị bỏ qua"; giữ phần log khởi động | FR-001 |
 | D-09.10 | Gỡ: bật, tắt TFA làm ở feature này (Clarifications) | FR-048 |
 | D-11 | Giữ tới 005; nay áp cả cho `GET` của năm endpoint (không cache response, `Cache-Control: no-cache`) | Clarifications |
-| D-12 | Thu hẹp: kiểm query (`sanitizeQuery`, `validateQuery`) làm ở feature này trên mọi route; chỉ còn `export` (xuất file) tới 005 | FR-040 |
+| D-12 | Thu hẹp: kiểm query (`sanitizeQuery`, `validateQuery`) làm ở feature này trên mọi route; chỉ còn `export` (xuất file) tới 005. Gỡ ở 005 | FR-040 |
 
 Sửa bảng của spec cũ đi cùng feature này: ô "Gỡ khi" của D-09.10 trong spec 003 thành `004` (T053); dòng D-09.6, D-11,
 D-12 trong spec 001 theo bảng trên (T083); cột "App mới" của D-10 trong spec 001 (T038). Entry D-09.2, D-10 xóa khỏi

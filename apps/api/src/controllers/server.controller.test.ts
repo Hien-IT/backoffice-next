@@ -22,7 +22,13 @@ const serverFactory = vi.fn((_options: unknown) => serverService as any);
 const specificationFactory = vi.fn((_options: unknown) => ({ oas }) as any);
 const controller = () => new ServerController(serverFactory, specificationFactory);
 const schema = { collections: {}, relations: [] };
-const req = { accountability: { role: null }, headers: { host: 'h' }, path: '/server/specs/oas', schema } as any;
+const req = {
+	accountability: { role: null },
+	headers: { host: 'h' },
+	path: '/server/specs/oas',
+	schema,
+	sanitizedQuery: {},
+} as any;
 
 beforeEach(() => {
 	vi.clearAllMocks();
