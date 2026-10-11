@@ -141,7 +141,7 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 
 	// Feature 004 (T069, SC-004): a request whose permissions resolve $CURRENT_USER.<relation>.<field> writes every
 	// namespace of withCache plus the filter-context-* entry of the data cache (CACHE_ENABLED=true), compressed like
-	// Directus (snappy). `policies-ip-access` is only read by the key of the response cache (005, D-11).
+	// Directus (snappy). `policies-ip-access` is read by the key of the response cache (feature 005).
 	it('dynamic variables through a relation: same permissions entries, filter-context bytes equal', async () => {
 		const { leaf } = await createRoleTree('directus', 'parity-cache-dynamic');
 		const own = { role: { name: { _eq: '$CURRENT_USER.role.name' } } };

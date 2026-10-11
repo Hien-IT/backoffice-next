@@ -76,14 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.3',
-		feature: '001',
-		removeAt: '005',
-		// Feature 005 built /items: the entry no longer hides any response and leaves when 005 is Done (T054).
-		kind: 'doc',
-		reason: 'Built by feature 005.',
-	},
-	{
 		id: 'D-09.4',
 		feature: '001',
 		removeAt: '006',
@@ -146,24 +138,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		endpoints: route('/graphql'),
 		location: { any: true },
 		reason: 'Built by feature 011.',
-	},
-	{
-		id: 'D-11',
-		feature: '001',
-		removeAt: '005',
-		// The response cache is built by feature 005 (src/items/cache-*.test.ts); `doc` so it hides no Cache-Control
-		// difference; the guard keeps this entry until 005 is Done (T054).
-		kind: 'doc',
-		reason: 'Response cache (CACHE_ENABLED) comes with feature 005.',
-	},
-	{
-		id: 'D-12',
-		feature: '001',
-		removeAt: '005',
-		// Export is built by feature 005 (src/items/export.test.ts, ?export= in the request set); the guard keeps this
-		// entry until 005 is Done (T054).
-		kind: 'doc',
-		reason: 'Export of results as a file (`export` query) comes with feature 005.',
 	},
 	{
 		id: 'D-13',

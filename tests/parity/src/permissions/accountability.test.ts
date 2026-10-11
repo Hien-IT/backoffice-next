@@ -184,8 +184,8 @@ describe('US1.7: role changed while a token is still valid', () => {
 		const jwtBodies = await sameMe(bearer(token));
 		expect(jwtBodies['/roles/me']).toEqual({ data: [{ id: tree.root }, { id: tree.middle }, { id: tree.leaf }] });
 
-		// Directus caches responses per user, path and query (CACHE_ENABLED, D-11 until feature 005): each call of the
-		// same user uses another query so the answer comes from the accountability, not from that cache.
+		// Both apps cache responses per user, path and query (CACHE_ENABLED, feature 005): each call of the same user
+		// uses another query so the answer comes from the accountability, not from that cache.
 		const staticBodies = await sameMe(bearer(mover.token), '?fields=id');
 		expect(staticBodies['/roles/me']).toEqual({ data: [{ id: other.root }, { id: other.middle }, { id: other.leaf }] });
 

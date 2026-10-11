@@ -1,7 +1,7 @@
 // Feature 002, FR-024 and US4.5 (removes D-20): with Redis down, a process with the schema in memory keeps serving;
 // with an empty schema cache the lock step fails after the ioredis retries and both answer 500. Both log the errors
 // of their Keyv caches with the same prefixes. Runs on the cache-config pair, which has CACHE_ENABLED=false so the
-// response cache of Directus (D-11) does not touch Redis on these requests.
+// response cache (feature 005) does not touch Redis on these requests.
 import { afterAll, describe, expect, it } from 'vitest';
 import { logs, redisDown, redisUp } from '../docker.js';
 import { assertParity, parity } from '../parity.js';

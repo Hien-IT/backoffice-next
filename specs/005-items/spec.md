@@ -2,7 +2,8 @@
 
 **Feature Branch**: `005-items`
 **Created**: 2026-10-11
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt gỡ D-09.3, D-11, D-12, D-30, thu hẹp D-26, D-29, rủi ro R-07 đến R-10, cách làm của `unhandled-rejection.ts` (như pm2) và các sửa bảng của spec 001, 003, 004 ngày 2026-10-12 (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "Người dùng thao tác dữ liệu của mọi collection qua /items/:collection giống hệt Directus: đọc danh sách, đọc theo id, tạo, sửa, xóa từng cái hoặc hàng loạt, SEARCH, collection singleton. Engine đọc ghi (ItemsService, PayloadService, MetaService, run-ast, apply-query) và kiểm query đã port ở feature 004, nên feature này dùng lại, không port lại. Thêm: cache response khi CACHE_ENABLED=true (CACHE_TTL, CACHE_AUTO_PURGE, CACHE_STATUS_HEADER, Cache-Control, dùng chung key với Directus, gỡ D-11), xuất file qua query export (json, csv, xml, yaml, gỡ D-12), phát cùng tên event như Directus (items.create, items.update... và event của năm collection hệ thống, gỡ D-29 phần filter và action cho flow), và đẩy sự kiện lên kênh bus websocket.event của Directus (cùng format như directus/api/src/websocket/controllers/hooks.ts, gỡ D-30). Tham chiếu directus/api/src/controllers/items.ts, middleware/respond.ts, middleware/cache.ts, utils/get-cache-key.ts, services/import-export, emitter.ts. Tiêu chí chấp nhận: bộ blackbox test items, query và relational của Directus chạy qua trên app mới với Postgres, MySQL và SQLite."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):

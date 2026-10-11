@@ -31,9 +31,9 @@ export async function closeRedis(): Promise<void> {
 }
 
 /**
- * Deletes Directus' response cache (Keyv namespace CACHE_NAMESPACE, store Redis in the parity env). With
- * CACHE_ENABLED=true Directus answers GET requests from it (D-11, feature 005), which would hide schema changes that
- * are announced without an auto purge (schemaChanged alone does not purge a Redis response cache).
+ * Deletes the response cache both apps share (Keyv namespace CACHE_NAMESPACE, store Redis in the parity env). With
+ * CACHE_ENABLED=true both answer GET requests from it (feature 005), which would hide schema changes that are
+ * announced without an auto purge (schemaChanged alone does not purge a Redis response cache).
  */
 export async function clearResponseCache(cacheNs = 'system-cache'): Promise<void> {
 	const r = redis();
@@ -65,8 +65,8 @@ export async function flushSharedCaches({
 	const r = redis();
 	await r.publish(`${permNs}:multi-cache`, JSON.stringify({ type: 'clear', origin: 'parity-test' }));
 
-	// Permissions cache, and Directus' response cache (CACHE_ENABLED=true in the parity env, D-11): a cached OAS
-	// response would skip the permission reads.
+	// Permissions cache, and the shared response cache (CACHE_ENABLED=true in the parity env, feature 005): a cached
+	// OAS response would skip the permission reads.
 	for (const match of [`${permNs}:*`, `sets:namespace:${cacheNs}:*`]) {
 		for await (const keys of r.scanStream({ match, count: 500 })) {
 			if ((keys as string[]).length > 0) await r.unlink(...(keys as string[]));

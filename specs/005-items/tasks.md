@@ -400,7 +400,7 @@ D-26, D-29.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T048 [P] Benchmark items (research R11, contracts/parity-blackbox.md §8): `tests/benchmark/src/seed-items.ts`
+- [X] T048 [P] Benchmark items (research R11, contracts/parity-blackbox.md §8): `tests/benchmark/src/seed-items.ts`
   (collection qua API Directus với `is_indexed`; 10 triệu dòng bằng `INSERT ... SELECT generate_series` qua knex;
   200.000 dòng cho `DELETE` chia hai dải; user có policy filter `status = published`; pool id), `tests/benchmark/src/items.ts`
   (5 kịch bản × 2 user × 2 chế độ, mẫu `permissions.ts`, `compare.ts` 10%), target `items` trong
@@ -422,7 +422,7 @@ D-26, D-29.
   `known-failures.ts`, header `no-store` của bộ so sánh). Chạy `graphify update .`. (sau T048 đến T051)
 - [X] T053 Chạy lại đủ `parity-matrix.yml` (ma trận quyền 004 và `blackbox-full`) với `respond`, `cache`, `Emitter` mới
   (FR-047, SC-001, SC-009); ghi kết quả vào "Ghi chú khi làm". (sau T052)
-- [ ] T054 Đóng feature: CI xanh mọi job (`quality`, `guard-*`, `parity` ba vendor, `parity-blackbox`, `parity-cache`,
+- [X] T054 Đóng feature: CI xanh mọi job (`quality`, `guard-*`, `parity` ba vendor, `parity-blackbox`, `parity-cache`,
   `parity-matrix-rotating`, `e2e-directus-app`, `docker`, `security`), coverage ≥ 80% `apps/api`; `benchmark-items` đã
   chạy; không còn entry `removeAt: '005'` trong `accepted-differences.ts`; `spec.md` `Status: Done`; tech lead duyệt
   bảng khác biệt (D-09.3, D-11, D-12, D-30 gỡ; D-26, D-29 thu hẹp), R-07 đến R-10 và các sửa bảng 001, 003, 004 (Nguyên
@@ -601,5 +601,12 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   autocannon, rồi đọc theo id xếp hàng sau các truy vấn đó. Sửa seed: index `date_created` (research R11, contracts §8).
   `POST` của user: p95 380 so với 311 ms (+22%) dù req/s cao hơn; job `benchmark` của 001: `/server/health` p95 311 so
   với 271 ms (+15%). Chạy lại sau khi sửa để xem hai dòng này là nhiễu hay thật.
+- T048 lần chạy thứ hai (cca48ad, index `date_created`): seed 213 giây, 1,74 GiB kèm index; job 2.203 giây; 14/14 dòng
+  đạt ngưỡng 10%, app mới có req/s cao hơn ở mọi dòng và p95 thấp hơn ở 13 dòng (`POST` của user 203 so với 193 ms). Job
+  `benchmark` của 001 đỏ hai lần ở `/server/health` (p95 +15%, +17%): ngoài phạm vi 005, đã tách thành task riêng.
+- T054: CI xanh mọi job ở 700ecfb, d6e72b7; `parity-matrix.yml` xanh (T053); coverage `apps/api` 86,3% dòng; tech lead
+  duyệt ngày 2026-10-12 gỡ D-09.3, D-11, D-12, D-30, thu hẹp D-26, D-29, R-07 đến R-10, cách làm của
+  `unhandled-rejection.ts` và các sửa bảng 001, 003, 004; xóa entry D-09.3, D-11, D-12 cùng lúc với `Status: Done`; sửa
+  các comment còn mô tả cache response là của riêng Directus.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)
