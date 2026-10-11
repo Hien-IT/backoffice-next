@@ -195,7 +195,7 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: images
       - run: gunzip -c images.tar.gz | docker load
@@ -240,7 +240,7 @@ jobs:
       [guard-directus, quality, guard-differences, parity, parity-matrix-rotating, e2e-directus-app, docker, e2e, security]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           name: images
       - run: gunzip -c images.tar.gz | docker load
