@@ -49,7 +49,7 @@ describe('/server', () => {
 		);
 
 		it.runIf(suite === 'full')(
-			'Redis down with CACHE_STORE=redis → neither app answers (measured on Directus 11.17.4, FR-025)',
+			'Redis down with CACHE_STORE=redis → the same outcome at both apps: no answer or 500 (FR-025)',
 			{ timeout: 120_000 },
 			async () => {
 				// Directus runs the schema step on /server/health: without a schema in memory (an earlier test emptied
@@ -63,8 +63,9 @@ describe('/server', () => {
 				try {
 					const result = await parity({ path: '/server/health', timeoutMs: 15_000 });
 					assertParity(result);
-					expect(result.directus.status).toBe(0);
-					expect(result.backoffice.status).toBe(0);
+					// No answer within the timeout, or 500 once the ioredis retries (about 10 s) end first: both apps alike.
+					expect([0, 500]).toContain(result.directus.status);
+					expect(result.backoffice.status).toBe(result.directus.status);
 				} finally {
 					await redisUp();
 					await new Promise((r) => setTimeout(r, 3000));

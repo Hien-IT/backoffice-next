@@ -119,7 +119,7 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 
 			// Directus sorts the keys of a batch (`keys.sort()` in ItemsService), so the order of the rows follows random
 			// ids: the rows are compared as sets (sorted in transcript()), a revision names its activity by content.
-			const label = new Map(activity.map((a) => [a.id, `${a.action} ${a.collection} ${a.item}`]));
+			const label = new Map(activity.map((a) => [a.id, `${a.action} ${a.collection}/${a.item}`]));
 
 			entries.push({
 				activity: activity.map(({ id: _id, ...a }) => normalizeRow(a)),
@@ -128,12 +128,14 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 		},
 
 		transcript() {
-			// Ids are replaced everywhere at the end, so a label also covers the responses before it was given. A number
-			// equal to a numeric id is replaced too: ids of a flow are far above the small numbers it writes (sort).
-			const token = (value: string) => value.replace(/(?<![\w-])\d+(?![\w-])/g, (n) => numeric[n] ?? n);
+			// Ids are replaced everywhere at the end, so a label also covers the responses before it was given. On a fresh
+			// DB a permission id is small like a status, a `sort` or a limit, so a number is replaced only where it is an
+			// id: under `id`, in an array (`keys`, policy `permissions`), a whole string (`item`) or a path segment.
+			const token = (value: string) => value.replace(/(?<=^|\/)\d+(?=$|[/?])/g, (n) => numeric[n] ?? n);
 
-			const numbers = JSON.parse(JSON.stringify(entries), (_key, value) => {
-				if (typeof value === 'number') return numeric[String(value)] ?? value;
+			const numbers = JSON.parse(JSON.stringify(entries), (key, value) => {
+				if (typeof value === 'number')
+					return key === 'id' || /^\d+$/.test(key) ? (numeric[String(value)] ?? value) : value;
 				if (typeof value === 'string' && exact[value]) return exact[value];
 				return typeof value === 'string' ? token(value) : value;
 			});

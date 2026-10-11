@@ -10,6 +10,10 @@ import { closeRedis, redis } from '../redis.js';
 
 const suite = process.env['PARITY_SUITE'] ?? 'full';
 const pair = profileUrls('cache-config');
+const CHANNEL = 'parity:bus:schemaChanged';
+let subscribers = 0;
+
+const numsub = async () => Number(((await redis().pubsub('NUMSUB', CHANNEL)) as [string, number])[1]);
 
 async function bothAnswer(): Promise<void> {
 	for (let i = 0; i < 60; i++) {
@@ -35,6 +39,7 @@ describe.runIf(suite === 'full' && pair)('Redis down (FR-024, profile cache-conf
 
 	it('schema in memory: both keep answering', { timeout: 120_000 }, async () => {
 		await parity({ path: '/server/info' }, pair);
+		subscribers = await numsub();
 		redisDown();
 
 		try {
@@ -48,7 +53,10 @@ describe.runIf(suite === 'full' && pair)('Redis down (FR-024, profile cache-conf
 	});
 
 	it('empty schema cache: both answer 500 once the lock step fails', { timeout: 180_000 }, async () => {
-		await redis().publish('parity:bus:schemaChanged', '{}');
+		// The apps answer from memory before their bus subscribers are back after the previous case: wait for them, or
+		// the message is lost and the schema stays.
+		for (let i = 0; i < 60 && (await numsub()) < subscribers; i++) await new Promise((r) => setTimeout(r, 500));
+		await redis().publish(CHANNEL, '{}');
 		await new Promise((resolve) => setTimeout(resolve, 300));
 		redisDown();
 

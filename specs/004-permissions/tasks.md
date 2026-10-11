@@ -381,7 +381,7 @@ xanh trước lượt 2.
   đọc bằng `parity()`, ô ghi bằng `scenario()` + `captureDbEffects`, kèm ca riêng FR-035, US1.7, R-01. Đo thời gian một
   nhóm fixture, chọn số shard `n` để mỗi shard dưới 60 phút, ghi `n` và tổng phút của một lần chạy đủ vào "Ghi chú khi làm".
   (sau T008, T047, T054)
-- [ ] T059 [US2] `tests/parity/src/permissions/matrix-reduced.test.ts`: ô của `eachChoice()` (T008), chạy trong bộ
+- [X] T059 [US2] `tests/parity/src/permissions/matrix-reduced.test.ts`: ô của `eachChoice()` (T008), chạy trong bộ
   `reduced` trên MySQL, SQLite. (sau T058)
 - [X] T060 [US2] CI cho ma trận (SC-001, Clarifications khi analyze):
   - `.github/workflows/ci.yml`: job `parity-matrix-rotating` (Postgres, timeout 60 phút, `api:build` + `env-up` như job
@@ -502,7 +502,7 @@ trị user, role, policy, quyền với cùng tác động DB như khi chỉ có
 - [X] T081 [P] `tests/parity/src/observability/logs.test.ts` (FR-092): sau mời, đăng ký, xác minh, bật tắt TFA, đổi mật
   khẩu, log của app mới không chứa mật khẩu, static token, `tfa_secret`, OTP, token mời, token xác minh; revision có
   `**********` ở field `conceal`.
-- [ ] T082 [P] Benchmark SC-006 (research R14): `tests/benchmark/src/seed-permissions.ts`, `tests/benchmark/src/permissions.ts`,
+- [X] T082 [P] Benchmark SC-006 (research R14): `tests/benchmark/src/seed-permissions.ts`, `tests/benchmark/src/permissions.ts`,
   target `permissions` trong `tests/benchmark/project.json`, job `benchmark-permissions` trong
   `.github/workflows/benchmark.yml` (hằng tuần, bấm tay, không chặn `publish`). Chạy một lần; ghi số liệu vào "Ghi chú
   khi làm".
@@ -733,7 +733,18 @@ Task: "T043 blackbox-common.test.ts (createRole)"
 - T085: quickstart §1 (bộ đầy đủ Postgres, ma trận), §2 (từng bước, hai app như nhau), §3 (5 spec E2E) đạt. Sửa
   quickstart: URL có `[...]` cần `curl -g`.
 - T082: `tests/benchmark/src/{seed-permissions,permissions}.ts`, target `benchmark:permissions`, job
-  `benchmark-permissions`. Mốc so là Directus không response cache (`directus-noresponsecache`, D-11).
+  `benchmark-permissions`. Mốc so là Directus không response cache (`directus-noresponsecache`, D-11). Lần chạy
+  trên máy dev (5 vòng, khoảng 20 phút; Directus chạy giả lập amd64 nên chậm hơn thật): `GET /users/me` p95 982 / 284
+  ms, 69 / 293 req/s; `GET /permissions/me` 449 / 175 ms, 166 / 621 req/s; `GET /users?filter[status][_eq]=active`
+  757 / 316 ms, 61 / 247 req/s (Directus / app mới), cả ba `ok`. Bước dọn đăng nhập lại vì lần chạy dài hơn
+  `ACCESS_TOKEN_TTL`.
+- T059: bộ rút gọn đạt trên MySQL (169) và SQLite (168). Trên DB mới id permission nhỏ (2, 3, 204) trùng `sort`, status
+  HTTP: flow chỉ gán nhãn số ở vị trí id (key `id`, phần tử mảng, cả chuỗi, đoạn path). Dọn fixture dùng `SEARCH` (danh
+  sách id dài vượt cỡ URL).
+- CI lần đầu sau khi repo public: test `@backoffice/env` (mock `node:fs`) hỏng vì `getEndpoint` của `@backoffice/utils`
+  kéo `system-data` đọc YAML lúc import; `loadYaml` lấy `fs` qua `process.getBuiltinModule`. Hai ca Redis down: chờ đủ
+  subscriber của bus trước khi publish `schemaChanged`; `/server/health` khi Redis down là "không trả" hoặc `500` tùy
+  retry của ioredis có xong trước timeout không, hai app như nhau.
 - T058, T061: ma trận đủ trên Postgres (10 shard × 65 nhóm, mỗi shard thêm hai ca FR-035, R-01): 670 ca đạt, tổng
   khoảng 30 phút (1,6 đến 5,1 phút mỗi shard; shard chậm khi Directus giả lập amd64 bị tải). Không cần sửa engine.
 - T075 đến T079: app Directus qua proxy: 5 spec đạt (đăng nhập, định tuyến, users, roles, policies), mỗi spec chạy

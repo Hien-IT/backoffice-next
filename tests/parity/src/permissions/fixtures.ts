@@ -266,11 +266,10 @@ export async function cleanup(): Promise<void> {
 
 /** Access rows go away with their policy (ON DELETE CASCADE), so only delete what is still there. */
 async function deleteExisting(path: string, keys: string[]): Promise<void> {
-	const { data } = await appRequest(
-		'directus',
-		'GET',
-		`${path}?filter=${json({ id: { _in: keys } })}&fields=id&limit=-1`,
-	);
+	// SEARCH: hundreds of keys in a GET filter pass the URL size the server accepts.
+	const { data } = await appRequest('directus', 'SEARCH', path, {
+		query: { filter: { id: { _in: keys } }, fields: ['id'], limit: -1 },
+	});
 	const existing = (data as { id: string }[]).map((row) => row.id);
 	if (existing.length) await appRequest('directus', 'DELETE', path, existing);
 }

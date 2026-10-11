@@ -128,6 +128,8 @@ export async function cleanup(seeded: Seed): Promise<void> {
 	await db('directus_roles').where('name', 'like', `${seeded.tag}-branch-%`).delete();
 	await db('directus_roles').where('name', 'like', like).delete();
 	const policies = (await db('directus_policies').select('id').where('name', 'like', like)).map((p) => p.id);
+	// A run lasts longer than ACCESS_TOKEN_TTL: log in again.
+	adminToken = undefined;
 	for (const id of policies) await directus('DELETE', `/policies/${id}`);
 	await db.destroy();
 }
