@@ -114,7 +114,7 @@ cache dùng chung (Clarifications, research R1, R4, R5).
   suite `blackbox` chạy vitest hai lượt với `PARITY_BLACKBOX_APP=backoffice` rồi `directus`, dừng ở lượt đầu lỗi;
   `tests/parity/project.json` thêm target `parity-blackbox`, `parity-cache`. Test trong `src/vendors.test.ts` (đã có
   test chọn suite).
-- [ ] T007 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `items` (sinh lại `nginx.conf` bằng
+- [X] T007 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `items` (sinh lại `nginx.conf` bằng
   `scripts/proxy-conf.mjs`; `proxy-conf.test.ts` thêm ca `/items/x` về app mới, `/items` không có collection cũng về
   app mới).
 
@@ -150,37 +150,36 @@ mười container và `global-setup` đặt URL năm cặp.
 
 ### Tests for User Story 1
 
-- [ ] T010 [P] [US1] `tests/parity/src/items/crud.test.ts`: `scenario()` + `startFlow` của 004 trên collection tạo bằng
+- [X] T010 [P] [US1] `tests/parity/src/items/crud.test.ts`: `scenario()` + `startFlow` của 004 trên collection tạo bằng
   `createUserCollection` (có o2m, m2o, singleton): US1.1 đến US1.7 (tạo lồng, `POST` mảng, `GET` có `filter`, `sort`,
   `fields=*.*`, `meta=*`, `SEARCH` với `body.query` và `body.keys`, `PATCH` ba dạng, `DELETE` ba dạng, singleton bốn
   route, collection lạ và hệ thống ở mọi method, `204` khi không quyền đọc, thứ tự lỗi, `OPTIONS`, `HEAD`, dấu `/` cuối,
   mảng rỗng và `{keys: []}` (CHK001), `?version=x` (CHK004), tên collection có chữ hoa (CHK006)); so response, activity,
   revision, dòng DB. Ghi kết quả đo của CHK001, CHK004, CHK006 vào spec (Edge Cases) khi xanh.
-- [ ] T011 [P] [US1] `apps/api/src/controllers/items.controller.test.ts`: supertest qua app Nest trên SQLite
+- [X] T011 [P] [US1] `apps/api/src/controllers/items.controller.test.ts`: supertest qua app Nest trên SQLite
   (`createDirectusDb()` như `roles.controller.test.ts`, tạo một bảng người dùng và một singleton bằng knex kèm dòng
   `directus_collections`, `directus_fields`): tám route, singleton (`404` của `POST` và `PATCH /:pk`, `PATCH /` upsert),
   `403` collection lạ trước `validateBatch`, `403` collection hệ thống, `204` khi đọc lại `403`, `404` cho `/items` và
   `/items/a/b/c`, `OPTIONS` hai path.
-- [ ] T012 [P] [US1] `tests/parity/src/request-set.ts`, `db-unchanged.test.ts`, `readonly-account.test.ts`: thêm request
+- [X] T012 [P] [US1] `tests/parity/src/request-set.ts`, `db-unchanged.test.ts`, `readonly-account.test.ts`: thêm request
   đọc của contracts/parity-blackbox.md §4 (`GET /items/<c>` ba accountability, `GET
   /items/<c>/<pk>`, `SEARCH` không body, `OPTIONS`, `/items/nope`, `/items/directus_users`) với collection tạo trước khi
   chụp DB (`createUserCollection` qua Directus).
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Port `apps/api/src/controllers/items.controller.ts` từ `directus/api/src/controllers/items.ts`: Nest
+- [X] T013 [US1] Port `apps/api/src/controllers/items.controller.ts` từ `directus/api/src/controllers/items.ts`: Nest
   `@Controller('items')`, tám handler cùng thứ tự (research R2), `collectionExists` và `validateBatch` qua
   `runMiddleware`, kiểm `isSystemCollection` trước body, singleton theo FR-003, đọc lại bằng `req.sanitizedQuery`,
   `respond(req, res)`; `apps/api/src/providers.ts` thêm factory `ItemsService` nhận `collection`; `app.module.ts` đăng
   ký controller (không `useCollection`). Ghi manifest. (sau T008, T009, T011 đỏ)
-- [ ] T014 [US1] `apps/api/src/middleware/router-options.ts`: hai dòng `/items` theo contracts/items-api.md §3;
+- [X] T014 [US1] `apps/api/src/middleware/router-options.ts`: hai dòng `/items` theo contracts/items-api.md §3;
   `router-options.test.ts` thêm ca. (sau T013)
-- [ ] T015 [US1] Sổ khác biệt: xóa entry `D-09.3` khỏi `tests/parity/accepted-differences.ts`; không thêm entry `http`
-  cho `version` (một entry theo `INTERNAL_SERVER_ERROR` trên `GET /items/*` sẽ che lỗi `500` thật). Ca `version` của
-  T010 khẳng định riêng kết quả từng app (Directus `403` hoặc bản lưu, app mới `500`, FR-004) ngoài bộ so sánh, kèm
-  comment D-09.6. Dòng D-09.3 của bản đồ trong `specs/001-platform-foundation/spec.md` ghi "Gỡ ở 005"; chạy
-  `guard-differences` (`accepted-differences.test.ts`).
-  (sau T010, T013)
+- [X] T015 [US1] Sổ khác biệt: entry `D-09.3` của `tests/parity/accepted-differences.ts` đổi sang `kind: 'doc'` (không
+  còn che response nào của `/items`); guard bắt mọi mã của bảng 001 phải còn tới khi 005 `Done`, nên entry xóa hẳn ở
+  T054, như D-09.2 ở 004. Không thêm entry `http` cho `version` (một entry theo `INTERNAL_SERVER_ERROR` trên
+  `GET /items/*` sẽ che lỗi `500` thật): ca `version` của T010 khẳng định riêng kết quả từng app (Directus `403`, app
+  mới `500`, FR-004) ngoài bộ so sánh. Chạy `guard-differences` (`accepted-differences.test.ts`). (sau T010, T013)
 
 **Checkpoint**: T010 đạt ở Postgres (`full`), MySQL và SQLite (`reduced`); T011, T012 xanh.
 
@@ -520,5 +519,11 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   thành hàm `async` ngay từ bây giờ vì bản đủ của Directus là `async` (T027, T036). Unit test API: 194 file, 2.069 ca
   đạt, coverage 85,9%.
 - T007 commit cùng T013: thêm `items` vào proxy khi `/items` chưa có sẽ làm app Directus qua proxy nhận `404`.
+- T010 đến T014: `crud.test.ts` 9 ca đạt trên Postgres local. Hai lỗi tìm được và đã sửa: `path` trong lỗi `404` của
+  singleton phải là path của router con (`/<singleton>`, Directus gắn router ở `/items`); test thiếu `deep` ở `SEARCH`
+  có `keys` (o2m không sắp theo khóa uuid ngẫu nhiên). Đo được: `SEARCH` không body trả `200` (body-parser 1.20.3 luôn
+  đặt `req.body = {}`; câu "thiếu body → `400`" ở FR-041 của 004 không đúng); path `%` sai trả `500` `Failed to decode
+  param`; `meta` của singleton chỉ có khi query có `meta`. `createUserCollection` nhận khóa uuid và meta;
+  `flow.activity()` nhận danh sách collection.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)

@@ -9,13 +9,16 @@ import { createCollectionForbiddenError } from '../permissions/modules/process-a
 import asyncHandler from '../utils/async-handler.js';
 
 const collectionExists: RequestHandler = asyncHandler(async (req, _res, next) => {
-	if (!req.params['collection']) return next();
+	// Backoffice: Express 5 types a route param as string | string[] (wildcards); `:collection` is always a string.
+	const collection = req.params['collection'] as string | undefined;
 
-	if (req.params['collection'] in req.schema.collections === false) {
-		throw createCollectionForbiddenError('', req.params['collection']);
+	if (!collection) return next();
+
+	if (collection in req.schema.collections === false) {
+		throw createCollectionForbiddenError('', collection);
 	}
 
-	req.collection = req.params['collection'];
+	req.collection = collection;
 
 	const systemCollectionRow = systemCollectionRows.find((collection) => {
 		return collection?.collection === req.collection;

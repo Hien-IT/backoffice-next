@@ -121,13 +121,14 @@ header và các dòng DB.
    **Then** mọi khóa được sửa trong một transaction, đọc lại bằng `readMany`, lỗi giữa chừng rollback cả lô; `DELETE
    /items/articles` với mảng, `{keys}`, `{query}` trả `204`.
 4. **Given** collection singleton `settings_page`, **When** `GET /items/settings_page`, **Then** trả object (giá trị mặc
-   định khi chưa có dòng) kèm `meta`; **When** `PATCH /items/settings_page` với payload, **Then** tạo hoặc sửa dòng duy
+   định khi chưa có dòng), kèm `meta` khi query có `meta`; **When** `PATCH /items/settings_page` với payload, **Then** tạo hoặc sửa dòng duy
    nhất và trả lại nó; **When** `POST /items/settings_page` hoặc `PATCH /items/settings_page/1`, **Then** `404
    ROUTE_NOT_FOUND`, giống Directus.
 5. **Given** collection không có trong schema, **When** gọi bất kỳ method nào của `/items/<c>` (kể cả admin), **Then**
    `403 FORBIDDEN` message `You don't have permission to access collection "<c>" or it does not exist. Queried in root.`;
    **Given** collection hệ thống (`/items/directus_users`), **Then** `403 FORBIDDEN` message `You don't have permission
-   to access this.`, trước mọi kiểm tra body.
+   to access this.`, sau `collectionExists` và, với `SEARCH`, `PATCH /`, `DELETE /`, sau `validateBatch` (body sai ở ba
+   route đó trả `400` trước), như thứ tự của `controllers/items.ts`.
 6. **Given** user có quyền `create` nhưng không có quyền `read`, **When** tạo item, **Then** trả `204` không body (lần
    đọc lại bị `403`), như FR-041 của 004.
 7. **Given** cùng request vượt `MAX_BATCH_MUTATION`, sai body (`validateBatch`), sai query (`400 INVALID_QUERY`), token
@@ -289,7 +290,7 @@ chạy proxy trỏ mọi route về Directus.
 - Singleton: `GET /items/<singleton>/<pk>`, `DELETE /items/<singleton>`, `DELETE /items/<singleton>/<pk>` không bị chặn
   (Directus không có nhánh riêng); `PATCH /items/<singleton>` mà lần đọc lại bị `403` thì trả `403` (không `204`, vì
   Directus không bọc `readSingleton` trong `try`); `GET /items/<singleton>` khi bảng trống trả object giá trị mặc định của
-  field và `meta`.
+  field (`meta` chỉ khi query có `meta`).
 - `GET /items/<c>` có body JSON `{"keys": [...]}` (client gửi body với `GET`): đọc theo `keys` như `SEARCH`, giống Directus.
 - `?version=<key>` trên `/items` trước feature 008: giữ D-09.6 theo FR-004 (`GET /:pk` và singleton: Directus `403` hoặc
   bản lưu, app mới `500`; danh sách: như nhau).
@@ -303,7 +304,7 @@ chạy proxy trỏ mọi route về Directus.
 - Tên collection trong path: router giải mã `%xx` (`decodeURIComponent`) trước khi `collectionExists` tra
   `schema.collections`, so khớp chính xác, phân biệt hoa thường (`/items/Articles` với collection `articles` → `403`).
   Chuỗi `%` sai (`/items/%E0%A4%A`): router ném lỗi không phải lỗi Directus nên error handler trả `500
-  INTERNAL_SERVER_ERROR`; dự kiến từ đọc code, đo ở T010.
+  INTERNAL_SERVER_ERROR` (admin thấy message `Failed to decode param '%E0%A4%A'`); đã đo ở T010, hai app như nhau.
 - Key cache (FR-011): `path` là pathname chưa giải mã của `originalUrl`, nên `/items/a` và `/items/a/` là hai key;
   `query` là `req.sanitizedQuery`: request không có query string có `{}`, có bất kỳ tham số nào (kể cả tham số lạ) thì
   thêm giá trị mặc định (`fields: ["*"]`...), nên `/items/a` và `/items/a?foo=1` khác key, còn `?foo=1` và `?bar=2` cùng
@@ -358,15 +359,20 @@ chạy proxy trỏ mọi route về Directus.
   `DELETE /:collection/:pk`. Mỗi route dùng `ItemsService` đã có với `accountability` và `schema` của request, đọc lại
   bằng `req.sanitizedQuery` (`readOne` cho một item, `readMany(keys)` cho nhiều), trả `204` không body khi lần đọc lại bị
   `403` hoặc không có payload; `GET`, `SEARCH` trả `{meta, data}` với `meta` của `MetaService`. Mọi quy tắc chung của
-  FR-041 của 004 (transaction một lô, `validateAccess` trước khi ghi, `SEARCH` thiếu body, `validateKeys`,
-  `MAX_BATCH_MUTATION`) áp dụng nguyên.
+  FR-041 của 004 (transaction một lô, `validateAccess` trước khi ghi, `validateKeys`, `MAX_BATCH_MUTATION`) áp dụng
+  nguyên. `SEARCH` không có body đọc như `GET`: body-parser 1.20.3 (bản `express.json` của Directus, app mới dùng
+  cùng bản) luôn đặt `req.body = {}`, nên nhánh `Payload in body is required` của `validateBatch` không chạy qua HTTP
+  (câu tương ứng ở FR-041 của 004 không khớp code; đã đo ở T010: `SEARCH /users` và `SEARCH /items/<c>` không body
+  trả `200` ở cả hai app).
 - **FR-002**: Middleware `collectionExists` PHẢI chạy đầu tiên trên mọi route `/items`: collection không có trong
   `req.schema.collections` → `403 FORBIDDEN` với message `You don't have permission to access collection "<c>" or it does
   not exist. Queried in root.` (cùng hàm tạo lỗi với `processAst`); nếu có thì đặt `req.collection` và `req.singleton`
   (cờ `singleton` của `systemCollectionRows` cho collection hệ thống, của schema cho collection người dùng). Sau đó mỗi
   handler PHẢI trả `403 FORBIDDEN` (message mặc định `You don't have permission to access this.`) khi collection là
-  collection hệ thống (`isSystemCollection`), trước khi đọc body.
-- **FR-003**: Singleton PHẢI giống Directus: `GET /:collection` → `readSingleton(req.sanitizedQuery)` kèm `meta`;
+  collection hệ thống (`isSystemCollection`), trước khi gọi service; với `SEARCH`, `PATCH /`, `DELETE /` bước này đứng
+  sau `validateBatch` như router của Directus.
+- **FR-003**: Singleton PHẢI giống Directus: `GET /:collection` → `readSingleton(req.sanitizedQuery)`, kèm `meta` khi
+  query có `meta` (như danh sách);
   `PATCH /:collection` → `upsertSingleton(body)` rồi `readSingleton` (lỗi `403` của lần đọc lại trả `403`);
   `validateBatch('update')`, `validateBatch('delete')` bỏ qua kiểm body khi `req.singleton` (chỉ `SEARCH` và scope
   `read` vẫn kiểm; `validate-batch.ts:14`), nên body object của `PATCH /:collection` không bị `400`; `POST /:collection`

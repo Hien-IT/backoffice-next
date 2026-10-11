@@ -24,8 +24,8 @@ export interface Flow {
 	nameExact(value: string, label: string): void;
 	/** Records rows of a table (all columns or `columns`), ordered by `orderBy` (or the primary key). */
 	rows(table: string, where: (q: any) => any, options?: { orderBy?: string; columns?: string[] }): Promise<void>;
-	/** Records the activity and revisions written on the permission tables since the flow started. */
-	activity(): Promise<void>;
+	/** Records the activity and revisions written on the permission tables (or `collections`) since the flow started. */
+	activity(collections?: string[]): Promise<void>;
 	transcript(): unknown;
 }
 
@@ -99,12 +99,12 @@ export async function startFlow(ctx: ScenarioContext): Promise<Flow> {
 			entries.push({ table, rows: rows.map(normalizeRow) });
 		},
 
-		async activity() {
+		async activity(collections = SYSTEM_TABLES) {
 			const activity = await hostDb()
 				.select('id', 'action', 'collection', 'item')
 				.from('directus_activity')
 				.where('id', '>', lastActivity)
-				.whereIn('collection', SYSTEM_TABLES)
+				.whereIn('collection', collections)
 				.orderBy('id');
 
 			const revisions = await hostDb()

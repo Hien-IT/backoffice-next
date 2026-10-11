@@ -79,9 +79,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-09.3',
 		feature: '001',
 		removeAt: '005',
-		kind: 'http',
-		endpoints: route('/items'),
-		location: { any: true },
+		// Feature 005 built /items: the entry no longer hides any response and leaves when 005 is Done (T054).
+		kind: 'doc',
 		reason: 'Built by feature 005.',
 	},
 	{

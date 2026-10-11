@@ -6,7 +6,8 @@ import { knexConfig } from './config.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { capture } from './parity.js';
 import { signAccessToken } from './auth/tokens.js';
-import { cleanup, createUser } from './permissions/fixtures.js';
+import { appRequest } from './directus-api.js';
+import { cleanup, createUser, createUserCollection } from './permissions/fixtures.js';
 import { type RequestSetAccounts, requestSet } from './request-set.js';
 import { type RunningApi, hostDbEnv, runApi, stopApi, waitForPing } from './startup/run-api.js';
 
@@ -22,12 +23,17 @@ describe.runIf(vendor === 'postgres')('read-only database account', () => {
 	beforeAll(async () => {
 		admin = knex(knexConfig.postgres);
 		const user = await createUser('directus', 'parity-readonly', { role: null });
+		// Feature 005: a user collection with one item for the /items reads (contracts/parity-blackbox.md §4).
+		const collection = await createUserCollection(`parity_readonly_items_${Date.now().toString(36)}`, [
+			{ field: 'title', type: 'string' },
+		]);
 		const adminUser = await admin('directus_users').where({ email: 'admin@example.com' }).first();
 		accounts = {
 			adminJwt: signAccessToken({ id: adminUser.id, role: adminUser.role, app_access: true, admin_access: true }),
 			adminId: adminUser.id,
 			userToken: user.token,
 			userId: user.id,
+			items: { collection, id: (await appRequest('directus', 'POST', `/items/${collection}`, { title: 'x' })).data.id },
 		};
 		await admin.raw(`drop owned by ${ROLE} cascade`).catch(() => undefined);
 		await admin.raw(`drop role if exists ${ROLE}`);

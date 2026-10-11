@@ -5,6 +5,7 @@ import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
 import { AccessService } from './services/access.service.js';
 import { AuthenticationService } from './services/authentication.service.js';
+import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
@@ -29,6 +30,12 @@ export const REDIS = Symbol('REDIS');
 /** Directus creates its services per request with the request accountability and schema; so do these factories. */
 export type ServiceFactory<T, O = ConstructorParameters<new (...args: any[]) => T>[0]> = (options?: O) => T;
 
+/** ItemsService takes the collection first, like `new ItemsService(req.collection, options)` in Directus. */
+export type ItemsServiceFactory = (
+	collection: string,
+	options: Omit<ConstructorParameters<typeof ItemsService>[1], 'knex'>,
+) => ItemsService;
+
 export const infrastructureProviders: Provider[] = [
 	{ provide: ENV, useValue: useEnv },
 	{ provide: LOGGER, useValue: useLogger },
@@ -45,6 +52,14 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: AuthenticationService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new AuthenticationService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: ItemsService,
+		useFactory:
+			(db: typeof getDatabase): ItemsServiceFactory =>
+			(collection, options) =>
+				new ItemsService(collection, { knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

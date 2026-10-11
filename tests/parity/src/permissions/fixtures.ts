@@ -214,21 +214,30 @@ export async function createUser(
 	return { id: user.id, email, password, token };
 }
 
-/** A user collection made through Directus (/collections is feature 006), removed by cleanup(). */
-export async function createUserCollection(name: string, fields: Record<string, unknown>[] = []): Promise<string> {
+/**
+ * A user collection made through Directus (/collections is feature 006), removed by cleanup(). Feature 005: a uuid
+ * primary key (random ids never collide with numbers of the transcripts) and the collection meta (`singleton`).
+ */
+export async function createUserCollection(
+	name: string,
+	fields: Record<string, unknown>[] = [],
+	options: { primaryKey?: 'integer' | 'uuid'; meta?: Record<string, unknown> } = {},
+): Promise<string> {
+	const id =
+		options.primaryKey === 'uuid'
+			? { field: 'id', type: 'uuid', meta: { hidden: true, special: ['uuid'] }, schema: { is_primary_key: true } }
+			: {
+					field: 'id',
+					type: 'integer',
+					meta: { hidden: true },
+					schema: { is_primary_key: true, has_auto_increment: true },
+				};
+
 	await appRequest('directus', 'POST', '/collections', {
 		collection: name,
 		schema: {},
-		meta: { hidden: true },
-		fields: [
-			{
-				field: 'id',
-				type: 'integer',
-				meta: { hidden: true },
-				schema: { is_primary_key: true, has_auto_increment: true },
-			},
-			...fields,
-		],
+		meta: { hidden: true, ...options.meta },
+		fields: [id, ...fields],
 	});
 
 	created.collections.push(name);

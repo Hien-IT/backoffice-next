@@ -1,6 +1,7 @@
 import { type MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { AccessController } from './controllers/access.controller.js';
 import { AuthController } from './controllers/auth.controller.js';
+import { ItemsController } from './controllers/items.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RolesController } from './controllers/roles.controller.js';
@@ -15,6 +16,7 @@ import { infrastructureProviders, serviceProviders } from './providers.js';
 	controllers: [
 		AccessController,
 		AuthController,
+		ItemsController,
 		PermissionsController,
 		PoliciesController,
 		RolesController,

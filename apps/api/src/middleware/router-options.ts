@@ -30,6 +30,9 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/users\/register\/verify-email\/?$/i, 'GET,HEAD'],
 		[/^\/policies\/me\/globals\/?$/i, 'GET,HEAD'],
 		[/^\/permissions\/me\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
+		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
+		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
+		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		...(env['AUTH_DISABLE_DEFAULT'] ? [] : [[/^\/auth\/login\/?$/i, 'POST'] as [RegExp, string]]),
 		[/^\/auth\/?$/i, 'GET,HEAD'],
 		...getAuthProviders().flatMap((provider): [RegExp, string][] => {

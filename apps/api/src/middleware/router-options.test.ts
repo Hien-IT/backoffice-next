@@ -115,3 +115,20 @@ test.each([
 test.each(['/roles/a/b', '/access/a/b', '/permissions/me/a/b/c'])('OPTIONS %s → not handled (404)', async (path) => {
 	expect((await app({}).options(path)).status).toBe(404);
 });
+
+// Feature 005 (contracts/items-api.md §3): the methods of controllers/items.ts in route order, HEAD after GET.
+test.each([
+	['/items/articles', 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
+	['/items/articles/', 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
+	['/items/no_such_collection', 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
+	['/items/articles/1', 'GET,HEAD,PATCH,DELETE'],
+	['/items/articles/1/', 'GET,HEAD,PATCH,DELETE'],
+])('OPTIONS %s → Allow: %s', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test.each(['/items', '/items/', '/items/a/b/c'])('OPTIONS %s → not handled (404)', async (path) => {
+	expect((await app({}).options(path)).status).toBe(404);
+});

@@ -6,6 +6,8 @@ export interface RequestSetAccounts {
 	adminId: string;
 	userToken: string;
 	userId: string;
+	/** Feature 005: a user collection with one item, made before the snapshot. */
+	items?: { collection: string; id: string | number };
 }
 
 /**
@@ -35,6 +37,7 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },
 		...(options.accounts ? permissionRequests(options.accounts) : []),
+		...(options.accounts?.items ? itemRequests(options.accounts, options.accounts.items) : []),
 	];
 }
 
@@ -76,5 +79,36 @@ function permissionRequests(accounts: RequestSetAccounts): ParityRequest[] {
 		{ method: 'POST', path: '/users/me/tfa/enable', headers: user, body: { secret: 'x' } },
 		{ method: 'POST', path: '/users/me/tfa/disable', headers: user, body: { otp: '000000' } },
 		{ method: 'PATCH', path: '/users/me/track/page', headers: user, body: {} },
+	];
+}
+
+/**
+ * Feature 005 (contracts/parity-blackbox.md §4): reads of /items as the admin, a user without permissions and the
+ * public, OPTIONS, collections that do not answer, and writes refused before any write. The export requests come
+ * with the export of feature 005 (T028).
+ */
+function itemRequests(accounts: RequestSetAccounts, items: NonNullable<RequestSetAccounts['items']>): ParityRequest[] {
+	const admin = { authorization: `Bearer ${accounts.adminJwt}` };
+	const user = { authorization: `Bearer ${accounts.userToken}` };
+	const list = `/items/${items.collection}`;
+	const one = `${list}/${items.id}`;
+
+	return [
+		...[admin, user, {}].flatMap((headers) => [
+			{ path: `${list}?limit=2&meta=*`, headers },
+			{ method: 'SEARCH', path: list, headers, body: { query: { limit: 1 } } },
+			{ path: one, headers },
+		]),
+		{ method: 'OPTIONS', path: list },
+		{ method: 'OPTIONS', path: one },
+		{ path: '/items/nope', headers: admin },
+		{ path: '/items/directus_users', headers: admin },
+		{ method: 'SEARCH', path: list, headers: admin },
+		// Refused before the write: no permission, a system collection, an invalid batch body.
+		{ method: 'POST', path: list, headers: user, body: { id: 'request-set' } },
+		{ method: 'PATCH', path: one, headers: user, body: {} },
+		{ method: 'DELETE', path: list, headers: user, body: [items.id] },
+		{ method: 'PATCH', path: '/items/directus_users', headers: admin, body: { keys: [accounts.userId], data: {} } },
+		{ method: 'PATCH', path: list, headers: admin, body: { data: {} } },
 	];
 }

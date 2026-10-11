@@ -9,7 +9,8 @@ import { compose } from './docker.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
 import { capture } from './parity.js';
 import { signAccessToken } from './auth/tokens.js';
-import { cleanup, createUser } from './permissions/fixtures.js';
+import { appRequest } from './directus-api.js';
+import { cleanup, createUser, createUserCollection } from './permissions/fixtures.js';
 import { type RequestSetAccounts, requestSet } from './request-set.js';
 
 const [vendor] = getDbsToTest();
@@ -21,6 +22,10 @@ let accounts: RequestSetAccounts;
 beforeAll(async () => {
 	db = knex(knexConfig[vendor!]);
 	const user = await createUser('directus', 'parity-request-set', { role: null });
+	// Feature 005: a user collection with one item for the /items reads (contracts/parity-blackbox.md §4).
+	const collection = await createUserCollection(`parity_request_set_items_${Date.now().toString(36)}`, [
+		{ field: 'title', type: 'string' },
+	]);
 	const admin = await db('directus_users').where({ email: 'admin@example.com' }).first();
 
 	accounts = {
@@ -28,6 +33,7 @@ beforeAll(async () => {
 		adminId: admin.id,
 		userToken: user.token,
 		userId: user.id,
+		items: { collection, id: (await appRequest('directus', 'POST', `/items/${collection}`, { title: 'x' })).data.id },
 	};
 }, 60_000);
 
