@@ -87,7 +87,7 @@ thông điệp bus, không dựng client WebSocket.
   |---------|-----------------------------|-----------|
   | `cache-mem` | 9055, 9056 | `CACHE_ENABLED=true`, `CACHE_STORE=memory`, `CACHE_AUTO_PURGE=false`, `CACHE_NAMESPACE=parity-cache-mem` |
   | `cache-mem-purge` | 9155, 9156 | như trên, `CACHE_AUTO_PURGE=true`, namespace `parity-cache-mem-purge` |
-  | `cache-redis` | 9255, 9256 | `CACHE_STORE=redis`, `CACHE_AUTO_PURGE=false`, namespace `parity-cache-redis`, `REDIS` trỏ service `redis-cache` riêng (cổng host 6109), `CACHE_VALUE_MAX_SIZE=1kb`, `WEBSOCKETS_ENABLED=true`, `WEBSOCKETS_REST_ENABLED=true` (R-10, R9) |
+  | `cache-redis` | 9255, 9256 | `CACHE_STORE=redis`, `CACHE_AUTO_PURGE=false`, namespace `parity-cache-redis`, `REDIS` trỏ service `redis-cache` riêng (cổng host 6111; 6109 là LDAP, 6110 là MinIO), `CACHE_VALUE_MAX_SIZE=1kb`, `WEBSOCKETS_ENABLED=true`, `WEBSOCKETS_REST_ENABLED=true` (R-10, R9) |
   | `cache-redis-purge` | 9355, 9356 | `CACHE_STORE=redis`, `CACHE_AUTO_PURGE=true`, namespace `parity-cache-redis-purge` |
   | `websocket` | 9455, 9456 | `WEBSOCKETS_ENABLED=true`, `WEBSOCKETS_REST_ENABLED=true`; cache, bus, namespace như cặp chính |
 
@@ -193,7 +193,7 @@ thông điệp bus, không dựng client WebSocket.
   - `bus.test.ts`: subscribe `websocket.event` bằng ioredis trên namespace bus của cặp `websocket`, chạy chuỗi thao tác
     ghi FR-045 ở từng app, so chuỗi thông điệp (chuẩn hóa id); ở cặp chính kiểm 0 thông điệp.
   - `request-set.ts` thêm request đọc `/items/<collection>` (có `export`) cho `db-unchanged`, `readonly-account`.
-  - `src/items/cache-redis-down.test.ts` (mới, suite `cache`) có hai ca ở cặp `cache-redis`. Cặp này có service `redis-cache` riêng (cổng host 6109,
+  - `src/items/cache-redis-down.test.ts` (mới, suite `cache`) có hai ca ở cặp `cache-redis`. Cặp này có service `redis-cache` riêng (cổng host 6111,
     `REDIS` của cặp trỏ tới), nên dừng được mà không ảnh hưởng cặp khác. Ca thứ nhất là cache dữ liệu khi Redis dừng
     (FR-016, T033). Ca thứ hai là R-10, `publish` bus khi Redis dừng (T044). Cặp `cache-config` giữ `CACHE_ENABLED=false`.
   - `blackbox-common.test.ts` của 004 giữ nguyên (fixture riêng theo app).

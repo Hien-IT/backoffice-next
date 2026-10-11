@@ -1,12 +1,34 @@
+import { useEnv } from '@backoffice/env';
 import type { NextFunction, Request, Response } from 'express';
 import express from 'express';
 import request from 'supertest';
-import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
+import { getCache, setCacheValue } from '../cache.js';
+import { useLogger } from '../logger/index.js';
+import { getCacheKey } from '../utils/get-cache-key.js';
+import { permissionsCacheable } from '../utils/permissions-cacheable.js';
 import { respond } from './respond.js';
 
+vi.mock('@backoffice/env');
+vi.mock('../cache.js');
 vi.mock('../database/index.js', () => ({ default: vi.fn() }));
+vi.mock('../logger/index.js');
+vi.mock('../utils/get-cache-key.js');
+vi.mock('../utils/permissions-cacheable.js');
 
-const req = { sanitizedQuery: {} } as Request;
+const logger = { warn: vi.fn() };
+const cache = { name: 'data cache' };
+
+beforeEach(() => {
+	vi.clearAllMocks();
+	vi.mocked(useEnv).mockReturnValue({ CACHE_TTL: '5m', CACHE_VALUE_MAX_SIZE: false });
+	vi.mocked(useLogger).mockReturnValue(logger as any);
+	vi.mocked(getCache).mockReturnValue({ cache: null } as any);
+	vi.mocked(getCacheKey).mockResolvedValue('key');
+	vi.mocked(permissionsCacheable).mockResolvedValue(true);
+});
+
+const req = { method: 'GET', originalUrl: '/items/a', sanitizedQuery: {}, get: vi.fn() } as unknown as Request;
 
 function res(payload: unknown) {
 	const r: any = { locals: { payload }, setHeader: vi.fn(), json: vi.fn(), end: vi.fn() };
@@ -28,6 +50,133 @@ test('JSON payload, Buffer payload, no payload (204); always no-cache and Vary',
 	const empty = res(undefined);
 	await respond(req, empty);
 	expect(empty.status).toHaveBeenCalledWith(204);
+});
+
+describe('response cache (spec FR-012, contracts/cache.md §5)', () => {
+	const env = {
+		CACHE_ENABLED: true,
+		CACHE_TTL: '5m',
+		CACHE_VALUE_MAX_SIZE: false,
+		CACHE_CONTROL_S_MAXAGE: 0,
+		CACHE_AUTO_PURGE: false,
+	};
+
+	beforeEach(() => {
+		vi.mocked(useEnv).mockReturnValue(env);
+		vi.mocked(getCache).mockReturnValue({ cache } as any);
+	});
+
+	const get = (extra: Record<string, unknown> = {}) =>
+		({ ...req, collection: 'a', schema: {}, ...extra }) as unknown as Request;
+
+	test('GET: stores the payload for CACHE_TTL and its expiry, public without role, private with one', async () => {
+		vi.spyOn(Date, 'now').mockReturnValue(1000);
+		const r = res({ data: [1] });
+		await respond(get(), r);
+
+		expect(setCacheValue).toHaveBeenCalledWith(cache, 'key', { data: [1] }, 300_000);
+		expect(setCacheValue).toHaveBeenCalledWith(cache, 'key__expires_at', { exp: 301_000 });
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=300, s-maxage=0');
+		expect(r.setHeader).toHaveBeenCalledWith('Vary', 'Origin, Cache-Control');
+		expect(r.json).toHaveBeenCalledWith({ data: [1] });
+		expect(permissionsCacheable).toHaveBeenCalledWith('a', { knex: undefined, schema: {} }, undefined);
+
+		const withRole = res({ data: [1] });
+		await respond(get({ accountability: { role: 'r' } }), withRole);
+		expect(withRole.setHeader).toHaveBeenCalledWith('Cache-Control', 'private, max-age=300, s-maxage=0');
+		vi.mocked(Date.now).mockRestore();
+	});
+
+	test.each([
+		['a method other than GET', { method: 'POST' }, {}],
+		['a path under /auth', { originalUrl: '/auth/login' }, {}],
+		['CACHE_ENABLED=false', {}, { CACHE_ENABLED: false }],
+		['export', { sanitizedQuery: { export: 'json' } }, {}],
+		['res.locals.cache = false', {}, {}, false],
+		['a payload above CACHE_VALUE_MAX_SIZE', {}, { CACHE_VALUE_MAX_SIZE: '5b' }],
+	])('not stored: %s → no-cache', async (_name, extra, envExtra, localsCache?: boolean) => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, ...envExtra });
+		const r = res({ data: [1] });
+		if (localsCache === false) r.locals.cache = false;
+		r.attachment = vi.fn();
+		r.set = vi.fn();
+		r.send = vi.fn();
+
+		await respond(get(extra), r);
+
+		expect(setCacheValue).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
+	});
+
+	test('not stored: no data cache', async () => {
+		vi.mocked(getCache).mockReturnValue({ cache: null } as any);
+		const r = res({ data: [1] });
+		await respond(get(), r);
+		expect(setCacheValue).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
+	});
+
+	test('not stored: read permissions with $NOW (permissionsCacheable false)', async () => {
+		vi.mocked(permissionsCacheable).mockResolvedValue(false);
+		const r = res({ data: [1] });
+		await respond(get(), r);
+		expect(setCacheValue).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
+	});
+
+	test('CACHE_VALUE_MAX_SIZE that bytes cannot parse → no limit', async () => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, CACHE_VALUE_MAX_SIZE: 'lots' });
+		await respond(get(), res({ data: [1] }));
+		expect(setCacheValue).toHaveBeenCalledTimes(2);
+	});
+
+	test('a write error → warn, the response is still sent', async () => {
+		const error = new Error('down');
+		vi.mocked(setCacheValue).mockRejectedValueOnce(error);
+		const r = res({ data: [1] });
+		await respond(get(), r);
+		expect(logger.warn).toHaveBeenCalledWith(error, "[cache] Couldn't set key key. Error: down");
+		expect(r.json).toHaveBeenCalledWith({ data: [1] });
+	});
+
+	test('CACHE_AUTO_PURGE=true: stored, no-cache', async () => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, CACHE_AUTO_PURGE: true });
+		const r = res({ data: [1] });
+		await respond(get(), r);
+		expect(setCacheValue).toHaveBeenCalledTimes(2);
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-cache');
+	});
+
+	test('Cache-Control: no-store with CACHE_SKIP_ALLOWED: stored, no-store', async () => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, CACHE_SKIP_ALLOWED: true });
+		const r = res({ data: [1] });
+		await respond(get({ get: vi.fn((name: string) => (name === 'cache-control' ? 'no-store' : undefined)) }), r);
+		expect(setCacheValue).toHaveBeenCalledTimes(2);
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'no-store');
+	});
+
+	test('res.locals.cacheInstance and cacheTTL: own instance, no global settings (assets, feature 007)', async () => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, CACHE_ENABLED: false, CACHE_AUTO_PURGE: true });
+		const own = { name: 'own' };
+		const r = res({ data: [1] });
+		r.locals.cacheInstance = own;
+		r.locals.cacheTTL = 10_000;
+
+		await respond(get({ method: 'POST' }), r);
+
+		expect(setCacheValue).toHaveBeenCalledWith(own, 'key', { data: [1] }, 10_000);
+		expect(permissionsCacheable).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=10');
+	});
+
+	test('res.locals.cacheTTL alone: header only, nothing stored', async () => {
+		vi.mocked(useEnv).mockReturnValue({ ...env, CACHE_ENABLED: false });
+		const r = res({ data: [1] });
+		r.locals.cacheTTL = 10_000;
+		await respond(get(), r);
+		expect(setCacheValue).not.toHaveBeenCalled();
+		expect(r.setHeader).toHaveBeenCalledWith('Cache-Control', 'public, max-age=10');
+	});
 });
 
 describe('export (spec FR-020, FR-021)', () => {

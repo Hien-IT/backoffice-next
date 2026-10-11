@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/websocket/controllers/hooks.ts",
+		"dest": "apps/api/src/websocket/controllers/hooks.ts"
+	},
+	{
+		"source": "api/src/websocket/messages.ts",
+		"dest": "apps/api/src/websocket/messages.ts"
+	}
+]

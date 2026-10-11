@@ -141,6 +141,35 @@ jobs:
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
 
+  # Feature 005 (spec FR-042, research R5): the response cache shared with Directus on the four cache pairs (memory,
+  # memory with purge, Redis, Redis with purge) and the WebSocket pair: the port of the Directus cache blackbox tests,
+  # the cases across apps, Redis down and the websocket.event bus.
+  parity-cache:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run:
+          pnpm nx run parity-tests:env-up --vendor=postgres
+          --profiles=cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
+      - run: pnpm nx run parity-tests:parity-cache --vendor=postgres --output-style=static
+      - name: container logs
+        if: failure()
+        working-directory: tests/parity
+        run: docker compose -p parity-postgres logs --no-color > parity-cache.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: parity-cache-logs
+          path: tests/parity/parity-cache.log
+      - if: always()
+        run: pnpm nx run parity-tests:env-down --vendor=postgres
+
   # Feature 004 (SC-001): one shard of the full permission matrix per push, rotating with the run number; the whole
   # matrix runs in parity-matrix.yml (weekly and by hand). n = 4 shards of about 6 minutes (tasks.md, T058).
   parity-matrix-rotating:
@@ -278,6 +307,7 @@ jobs:
         guard-differences,
         parity,
         parity-blackbox,
+        parity-cache,
         parity-matrix-rotating,
         e2e-directus-app,
         docker,

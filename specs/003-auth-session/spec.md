@@ -665,7 +665,7 @@ Khác biệt mới:
 | D-24 | Provider driver `saml` | Đăng ký provider, có route `/auth/login/<provider>`, có trong `GET /auth` | Bỏ qua, log `warn` khi khởi động; route trả `404`; không có trong `GET /auth`. Refresh và logout session của user SAML trả `503 INVALID_PROVIDER_CONFIG` như Directus khi tắt SAML (FR-078); hệ thống có user SAML phải định tuyến `/auth/*` của họ về Directus | Nguyên tắc XI (1.3.0) | ngoài phạm vi | — |
 | D-25 | Issuer trong `otpauth_url` khi `project_name` trống | `Directus` | `Backoffice` | Nguyên tắc IX (nhãn issuer TFA được liệt kê) | đổi thương hiệu | — |
 | D-09.10 | `POST /users/me/tfa/enable`, `POST /users/me/tfa/disable`, `POST /users/:pk/tfa/disable` | Bật, tắt TFA (kiểm quyền qua `ItemsService`) | `404 ROUTE_NOT_FOUND` | Cần kiểm quyền và revision theo quyền đọc (004, sửa từ 005 theo spec 004), Clarifications | ngoài phạm vi (tạm thời) | 004 |
-| D-26 | Event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` (filter và action) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
+| D-26 | Event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` (filter và action) | Phát cho extension và flow | Không phát; từ feature 005 phát như Directus, chỉ còn flow theo event chưa chạy (thu hẹp ở 005) | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

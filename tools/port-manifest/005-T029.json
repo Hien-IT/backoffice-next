@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/utils/get-cache-key.test.ts",
+		"dest": "apps/api/src/utils/get-cache-key.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-cache-headers.test.ts",
+		"dest": "apps/api/src/utils/get-cache-headers.test.ts"
+	},
+	{
+		"source": "api/src/utils/should-skip-cache.test.ts",
+		"dest": "apps/api/src/utils/should-skip-cache.test.ts"
+	},
+	{
+		"source": "api/src/utils/permissions-cacheable.test.ts",
+		"dest": "apps/api/src/utils/permissions-cacheable.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-string-byte-size.test.ts",
+		"dest": "apps/api/src/utils/get-string-byte-size.test.ts"
+	}
+]

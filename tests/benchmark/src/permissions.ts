@@ -2,7 +2,8 @@
 // endpoint a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95 at 80% of
 // the Directus req/s, compared by compare.ts (10%). Requests carry the static tokens of 2,000 seeded users in turn,
 // and the permissions cache is emptied before every round so the recomputation is measured too. The reference is
-// Directus without response cache (directus-noresponsecache, D-11). Needs `benchmark:env-up` first.
+// Directus of the main pair; every request sends Cache-Control: no-store so neither app answers from the shared
+// response cache (feature 005, research R10). Needs `benchmark:env-up` first.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import { Redis } from 'ioredis';
@@ -19,7 +20,7 @@ import {
 } from './compare.ts';
 import { cleanup, type Seed, seed } from './seed-permissions.ts';
 
-const DIRECTUS = process.env['DIRECTUS_NORESPONSECACHE_URL'] ?? 'http://127.0.0.1:8655';
+const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
 const BACKOFFICE = process.env['BACKOFFICE_URL'] ?? 'http://127.0.0.1:8156';
 const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 5);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
@@ -54,7 +55,11 @@ async function measure(seeded: Seed, baseUrl: string, path: string, duration: nu
 					path,
 					setupRequest: (req: any) => ({
 						...req,
-						headers: { ...req.headers, authorization: `Bearer ${seeded.tokens[next++ % seeded.tokens.length]}` },
+						headers: {
+							...req.headers,
+							'cache-control': 'no-store',
+							authorization: `Bearer ${seeded.tokens[next++ % seeded.tokens.length]}`,
+						},
 					}),
 				},
 			],

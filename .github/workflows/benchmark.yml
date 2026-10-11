@@ -82,3 +82,25 @@ jobs:
           BENCH_ROUNDS: 5
       - if: always()
         run: pnpm nx run benchmark:env-down
+
+  # Feature 005 (FR-048, research R11): /items on 10 million rows, fresh and from the shared response cache, beside the
+  # others. The seed loads the rows with generate_series in a few minutes.
+  benchmark-items:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: df -h /
+      - run: pnpm nx run benchmark:items --output-style=static
+        env:
+          BENCH_ROUNDS: 3
+      - if: always()
+        run: df -h /
+      - if: always()
+        run: pnpm nx run benchmark:env-down

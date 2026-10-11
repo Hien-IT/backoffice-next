@@ -98,7 +98,7 @@ export const profilePorts = {
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
-export const cacheRedisPort = 6109;
+export const cacheRedisPort = 6111;
 
 /** Host port of the reverse proxy in front of both apps (profile `app`, feature 004, contracts/proxy-e2e.md). */
 export const proxyPort = 8160;

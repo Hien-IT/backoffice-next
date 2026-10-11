@@ -1,23 +1,6 @@
-# Benchmark environment (T095, R18): the Postgres parity environment (Directus 8155, Backoffice 8156) plus
-# `directus-noresponsecache` (8655), the reference for /server/specs/oas: Directus with CACHE_ENABLED=false (its default),
-# otherwise it answers the OAS from its response cache (D-11, response cache comes with feature 005) and skips
-# generating it. Schema and permissions caches stay on, like Backoffice since feature 002 (SC-005). Postgres only.
+# Benchmark environment (T095, R18): the Postgres parity environment (Directus 8155, Backoffice 8156). Postgres only.
+# Feature 005 (research R10): both apps share the response cache; every benchmark request sends Cache-Control: no-store
+# (the vendor env sets CACHE_SKIP_ALLOWED=true), so neither answers from it and the Directus of the main pair is the
+# reference. The former `directus-noresponsecache` (8655, CACHE_ENABLED=false) is gone.
 include:
   - ../parity/docker-compose.yml
-
-services:
-  directus-noresponsecache:
-    image: directus/directus:11.17.4
-    env_file: ../parity/env/postgres.env
-    environment:
-      CACHE_ENABLED: 'false'
-      CACHE_NAMESPACE: benchmark-noresponsecache
-    depends_on:
-      directus: { condition: service_healthy }
-    ports:
-      - '8655:8055'
-    healthcheck:
-      test: ['CMD-SHELL', 'wget -q --spider http://127.0.0.1:8055/server/ping']
-      interval: 3s
-      timeout: 5s
-      retries: 100

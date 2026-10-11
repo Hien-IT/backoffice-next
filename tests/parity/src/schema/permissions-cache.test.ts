@@ -74,18 +74,15 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 	}, 60_000);
 
 	it('same keys and equal values on both sides for the public OAS request', async () => {
-		// `policies-ip-access` is written by the cache key of Directus' response cache (utils/get-cache-key.ts), which
-		// comes with feature 005 (D-11): not part of this comparison.
-		const directus = Object.fromEntries(
-			Object.entries(await permissionsCacheOf(DIRECTUS)).filter(
-				([key]) => !key.startsWith('permissions:policies-ip-access-'),
-			),
-		);
+		// `policies-ip-access` comes from the cache key of the response cache (utils/get-cache-key.ts), at both apps since
+		// feature 005.
+		const directus = await permissionsCacheOf(DIRECTUS);
 		const backoffice = await permissionsCacheOf(BACKOFFICE);
 
 		const names = Object.keys(directus).map((k) => k.replace(/-[0-9a-f]+$/, ''));
 		expect(names.sort()).toEqual([
 			'permissions:policies',
+			'permissions:policies-ip-access',
 			'permissions:raw-permissions',
 			'permissions:raw-permissions',
 		]);
@@ -186,12 +183,7 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 				}
 			}
 
-			return {
-				permissions: Object.fromEntries(
-					Object.entries(permissions).filter(([key]) => !key.startsWith('permissions:policies-ip-access-')),
-				),
-				data,
-			};
+			return { permissions, data };
 		};
 
 		const directus = await entriesOf(DIRECTUS);
@@ -200,10 +192,9 @@ describe.runIf(suite === 'full')('shared permissions cache (FR-019)', () => {
 		expect(Object.keys(directus.data)).toHaveLength(1);
 		expect(backoffice.data).toStrictEqual(directus.data);
 
-		// Directus' respond step also asks permissionsCacheable() whether the response may be cached (response cache,
-		// D-11 until 005): one more raw-permissions entry. Every entry Backoffice writes is one Directus writes.
-		const extra = Object.keys(directus.permissions).filter((key) => !(key in backoffice.permissions));
-		expect(extra.map((key) => key.replace(/-[0-9a-f]+$/, ''))).toEqual(['permissions:raw-permissions']);
+		// Since feature 005 both respond steps ask permissionsCacheable() and both cache keys read policies-ip-access:
+		// the same entries with the same values.
+		expect(Object.keys(backoffice.permissions).sort()).toEqual(Object.keys(directus.permissions).sort());
 		for (const [key, value] of Object.entries(backoffice.permissions))
 			expect(value, key).toStrictEqual(directus.permissions[key]);
 	});

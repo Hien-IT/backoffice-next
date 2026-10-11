@@ -1,4 +1,6 @@
 import 'reflect-metadata';
+import { useEnv } from '@backoffice/env';
+import { toBoolean } from '@backoffice/utils';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter, type NestExpressApplication } from '@nestjs/platform-express';
 import type { Express } from 'express';
@@ -8,6 +10,7 @@ import { subscribeSchemaChanged } from './cache.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
 import metricsSchedule from './schedules/metrics.js';
+import { registerWebSocketEvents } from './websocket/controllers/hooks.js';
 
 export interface App {
 	nest: NestExpressApplication;
@@ -33,5 +36,24 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 	// Like Directus at the end of createApp; the job is stopped by the shutdown tasks.
 	await metricsSchedule();
 
+	registerWebSocketBridge();
+
 	return { nest, express };
+}
+
+/**
+ * Directus registers the websocket.event bus bridge when it creates its REST (websocket/controllers/rest.ts:18) or
+ * GraphQL (graphql.ts:26) WebSocket controller, in createServer (server.ts:104). Backoffice opens no WebSocket
+ * (Principle XI, spec FR-033) but publishes the same messages under the same condition, so the Directus instances that
+ * hold the clients push the changes made here (feature 005, D-30).
+ */
+export function registerWebSocketBridge(): void {
+	const env = useEnv();
+
+	if (
+		toBoolean(env['WEBSOCKETS_ENABLED']) &&
+		(toBoolean(env['WEBSOCKETS_REST_ENABLED']) || toBoolean(env['WEBSOCKETS_GRAPHQL_ENABLED']))
+	) {
+		registerWebSocketEvents();
+	}
 }

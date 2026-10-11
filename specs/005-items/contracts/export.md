@@ -14,8 +14,8 @@ Nguồn: `directus/api/src/middleware/respond.ts` (phần export), `services/imp
 | `yaml` | `.yaml` | `text/yaml` | `text/yaml; charset=utf-8` | `js-yaml.dump(data)` |
 | khác | — | — | — | `400 INVALID_QUERY` ở `validateQuery` (004) |
 
-Cột "trả" là `[Suy luận]` từ cách Express `res.send(string)` thêm `charset=utf-8` khi `Content-Type` dạng text và chưa
-có charset; ca FR-044 đo và là nguồn cuối.
+Cột "trả" đo ở T025 (ca FR-044, hai app như nhau): Express `res.send(string)` thêm `charset=utf-8` khi `Content-Type`
+dạng text và chưa có charset.
 
 ## 2. Tên file và header
 
@@ -31,8 +31,8 @@ có charset; ca FR-044 đo và là nguồn cuối.
 
 Đo ở Postgres, hai app cùng giá trị (T025, 2026-10-11). Mảng gồm nhiều dòng: mỗi dòng nằm trong một phần tử `data` con
 (`js2xmlparser` 5.0.0); object: các field là con trực tiếp của `data`. Lỗi `500` của csv với admin có message
-`Cannot read properties of undefined (reading 'length')` (chưa đo với người không phải admin, dự kiến `An unexpected
-error occurred.` theo error handler 001).
+`Cannot read properties of undefined (reading 'length')` (chưa đo với người không phải admin; error handler 001
+trả `An unexpected error occurred.` cho lỗi không xác định khi không phải admin).
 
 | Trường hợp | `json` | `csv`, `csv_utf8` | `xml` | `yaml` |
 |------------|--------|-------------------|-------|--------|

@@ -23,6 +23,8 @@ const specificationFactory = vi.fn((_options: unknown) => ({ oas }) as any);
 const controller = () => new ServerController(serverFactory, specificationFactory);
 const schema = { collections: {}, relations: [] };
 const req = {
+	method: 'GET',
+	originalUrl: '/server/info',
 	accountability: { role: null },
 	headers: { host: 'h' },
 	path: '/server/specs/oas',
@@ -51,6 +53,8 @@ test('GET /server/health → application/health+json; 503 on error', async () =>
 	await controller().health(req, r);
 	expect(r.headers['Content-Type']).toBe('application/health+json');
 	expect(r.status).not.toHaveBeenCalled();
+	// Never stored in the response cache (spec FR-014), as directus/api/src/controllers/server.ts.
+	expect(r.locals.cache).toBe(false);
 
 	serverService.health.mockResolvedValue({ status: 'error' });
 	r = res();

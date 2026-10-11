@@ -16,6 +16,8 @@ const RUNS = [
 export async function bothRuns(
 	browser: Browser,
 	scenario: (page: Page, url: string, tag: string) => Promise<void>,
+	/** User collections the scenario writes, compared like the system tables. */
+	tables: string[] = [],
 ): Promise<Record<string, unknown>> {
 	const out: Record<string, unknown> = {};
 	const run = Date.now().toString(36);
@@ -26,7 +28,7 @@ export async function bothRuns(
 		const page = await context.newPage();
 		// The app opens last_page after signing in: start every run from the content module.
 		await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
-		const before = await snapshot();
+		const before = await snapshot(tables);
 
 		try {
 			await login(page, url());
@@ -41,7 +43,7 @@ export async function bothRuns(
 		}
 
 		out[label] = JSON.parse(
-			JSON.stringify(await changesSince(before))
+			JSON.stringify(await changesSince(before, tables))
 				.split(tag)
 				.join('e2e-<run>'),
 		);

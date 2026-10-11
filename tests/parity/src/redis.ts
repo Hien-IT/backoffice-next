@@ -1,6 +1,6 @@
 // Redis helpers for the feature 002 parity tests (specs/002-schema-overview-cache/contracts/redis.md).
 // The test process talks to the Redis of the environment through its host port, like the apps do inside Docker.
-import { execFileSync } from 'node:child_process';
+import { execFileSync, spawn } from 'node:child_process';
 import { gunzipSync } from 'node:zlib';
 import { Redis } from 'ioredis';
 import { compose } from './docker.js';
@@ -121,14 +121,33 @@ export function expandKeys({ command, key }: TracedCommand): string[] {
 		: [`${command} ${key}`];
 }
 
-/** Runs `fn` while a MONITOR connection records every command; returns them parsed. */
+/**
+ * Runs `fn` while `redis-cli MONITOR` in the redis container records every command; returns them parsed. Not ioredis'
+ * monitor(): with bus traffic it can take a MONITOR line for a reply and throw "Command queue state error" from its
+ * socket handler (CI, feature 005).
+ */
 export async function traceRedis(fn: () => Promise<unknown>): Promise<TracedCommand[]> {
-	const monitor = await newConnection().monitor();
+	const child = spawn('docker', ['exec', compose('ps', '-q', 'redis').trim(), 'redis-cli', 'monitor']);
 	const lines: TracedCommand[] = [];
+	let rest = '';
 
-	monitor.on('monitor', (time: string, args: string[], source: string) => {
-		const parsed = parseMonitorLine(`${time} [0 ${source}] ${args.map((a) => JSON.stringify(a)).join(' ')}`);
-		if (parsed) lines.push(parsed);
+	await new Promise<void>((resolve, reject) => {
+		child.stdout.setEncoding('utf8');
+
+		child.stdout.on('data', (chunk: string) => {
+			const parts = (rest + chunk).split('\n');
+			rest = parts.pop()!;
+
+			for (const line of parts) {
+				// redis-cli prints OK once MONITOR runs.
+				if (line.trim() === 'OK') resolve();
+				const parsed = parseMonitorLine(line);
+				if (parsed) lines.push(parsed);
+			}
+		});
+
+		child.on('error', reject);
+		child.on('exit', (code) => reject(new Error(`redis-cli monitor exited with ${code}`)));
 	});
 
 	try {
@@ -136,7 +155,7 @@ export async function traceRedis(fn: () => Promise<unknown>): Promise<TracedComm
 		// MONITOR output trails the commands slightly.
 		await new Promise((resolve) => setTimeout(resolve, 300));
 	} finally {
-		monitor.disconnect();
+		child.kill();
 	}
 
 	return lines;

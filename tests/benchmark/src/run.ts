@@ -20,7 +20,6 @@ import {
 } from './compare.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
-const DIRECTUS_NORESPONSECACHE = process.env['DIRECTUS_NORESPONSECACHE_URL'] ?? 'http://127.0.0.1:8655';
 const BACKOFFICE = process.env['BACKOFFICE_URL'] ?? 'http://127.0.0.1:8156';
 const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
@@ -28,22 +27,27 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 const RATE_SHARE = 0.8;
 
-// /server/info and /server/specs/oas: the reference is Directus with its default caching: schema and permissions
-// caches on, response cache off (CACHE_ENABLED=false, its default; the response cache comes with feature 005, D-11).
-// The main parity Directus runs with CACHE_ENABLED=true and answers these GETs from its response cache, which
-// Backoffice does not have yet. Since feature 002 both build the schema step the same way (SC-005).
+// Every request sends Cache-Control: no-store (feature 005, research R10): both apps skip the shared response cache
+// (CACHE_SKIP_ALLOWED=true in the vendor env) and build each answer. Since feature 002 both build the schema step the
+// same way (SC-005).
 const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
 	{ path: '/server/ping', directus: DIRECTUS },
 	{ path: '/server/health', directus: DIRECTUS },
-	{ path: '/server/info', directus: DIRECTUS_NORESPONSECACHE },
-	{ path: '/server/specs/oas', directus: DIRECTUS_NORESPONSECACHE },
+	{ path: '/server/info', directus: DIRECTUS },
+	{ path: '/server/specs/oas', directus: DIRECTUS },
 ];
 
 async function measure(baseUrl: string, path: string, duration: number, overallRate?: number): Promise<Round> {
 	const histogram = createLatencyHistogram();
 	const url = new URL(path, baseUrl).href;
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
-		const options = { url, connections: CONNECTIONS, duration, ...(overallRate ? { overallRate } : {}) };
+		const options = {
+			url,
+			connections: CONNECTIONS,
+			duration,
+			headers: { 'cache-control': 'no-store' },
+			...(overallRate ? { overallRate } : {}),
+		};
 		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
 
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));

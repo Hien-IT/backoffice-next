@@ -2,7 +2,7 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import type { AcceptedDifference } from '../accepted-differences.js';
-import { assertParity, compare, diffJson, matches, parity, report, type Difference } from './parity.js';
+import { assertParity, capture, compare, diffJson, matches, parity, report, type Difference } from './parity.js';
 
 type Handler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
 
@@ -354,4 +354,15 @@ describe('accepted differences: when, any, RegExp pointers', () => {
 		expect(classify('GET /server/specs/oas', diffs, [entry]).accepted).toHaveLength(1);
 		expect(classify('GET /server/info', diffs, [entry]).accepted).toHaveLength(0);
 	});
+});
+
+test('capture() sends Cache-Control: no-store on GET and HEAD unless the request sets one (feature 005, R4)', async () => {
+	const url = await serve((req, res) => {
+		res.writeHead(200, { 'content-type': 'application/json' });
+		res.end(req.method === 'HEAD' ? undefined : JSON.stringify(req.headers['cache-control'] ?? null));
+	});
+
+	expect((await capture(url, { path: '/' })).json).toBe('no-store');
+	expect((await capture(url, { path: '/', headers: { 'Cache-Control': 'max-age=0' } })).json).toBe('max-age=0');
+	expect((await capture(url, { method: 'POST', path: '/' })).json).toBeNull();
 });

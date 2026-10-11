@@ -1,22 +1,119 @@
-// Backoffice: stand-in for directus/api/src/emitter.ts with the same API. Events are not emitted (D-29 of spec 004,
-// research R8): extensions are out of scope (Principle XI) and flows come with feature 009, which replaces this file
-// with the real port. Ported services keep every emitter call of Directus so they stay line-for-line comparable.
-import type { EventContext } from '@backoffice/types';
+// Ported from directus/api/src/emitter.ts
+// Backoffice: no extension registers hooks here (Principle XI); the listeners are the websocket.event bus bridge
+// (websocket/controllers/hooks.ts, feature 005) and, from feature 009, flows.
+import type { ActionHandler, EventContext, FilterHandler, InitHandler } from '@backoffice/types';
+import ee2 from 'eventemitter2';
+import getDatabase from './database/index.js';
+import { useLogger } from './logger/index.js';
 
 export class Emitter {
-	/** Directus runs the filter hooks registered for the events; none can be registered here, so the payload is kept. */
-	public async emitFilter<T>(
-		_event: string | string[],
-		payload: T,
-		_meta: Record<string, any>,
-		_context: EventContext | null = null,
-	): Promise<T> {
-		return payload;
+	private filterEmitter;
+	private actionEmitter;
+	private initEmitter;
+
+	constructor() {
+		const emitterOptions = {
+			wildcard: true,
+			verboseMemoryLeak: true,
+			delimiter: '.',
+
+			// This will ignore the "unspecified event" error
+			ignoreErrors: true,
+		};
+
+		this.filterEmitter = new ee2.EventEmitter2(emitterOptions);
+		this.actionEmitter = new ee2.EventEmitter2(emitterOptions);
+		this.initEmitter = new ee2.EventEmitter2(emitterOptions);
 	}
 
-	public emitAction(_event: string | string[], _meta: Record<string, any>, _context: EventContext | null = null): void {}
+	private getDefaultContext(): EventContext {
+		return {
+			database: getDatabase(),
+			accountability: null,
+			schema: null,
+		};
+	}
 
-	public async emitInit(_event: string, _meta: Record<string, any>): Promise<void> {}
+	public async emitFilter<T>(
+		event: string | string[],
+		payload: T,
+		meta: Record<string, any>,
+		context: EventContext | null = null,
+	): Promise<T> {
+		const events = Array.isArray(event) ? event : [event];
+
+		const eventListeners = events.map((event) => ({
+			event,
+			listeners: this.filterEmitter.listeners(event) as FilterHandler<T>[],
+		}));
+
+		let updatedPayload = payload;
+
+		for (const { event, listeners } of eventListeners) {
+			for (const listener of listeners) {
+				const result = await listener(updatedPayload, { event, ...meta }, context ?? this.getDefaultContext());
+
+				if (result !== undefined) {
+					updatedPayload = result;
+				}
+			}
+		}
+
+		return updatedPayload;
+	}
+
+	public emitAction(event: string | string[], meta: Record<string, any>, context: EventContext | null = null): void {
+		const logger = useLogger();
+		const events = Array.isArray(event) ? event : [event];
+
+		for (const event of events) {
+			this.actionEmitter.emitAsync(event, { event, ...meta }, context ?? this.getDefaultContext()).catch((err) => {
+				logger.warn(`An error was thrown while executing action "${event}"`);
+				logger.warn(err);
+			});
+		}
+	}
+
+	public async emitInit(event: string, meta: Record<string, any>): Promise<void> {
+		const logger = useLogger();
+
+		try {
+			await this.initEmitter.emitAsync(event, { event, ...meta });
+		} catch (err: any) {
+			logger.warn(`An error was thrown while executing init "${event}"`);
+			logger.warn(err);
+		}
+	}
+
+	public onFilter<T = unknown>(event: string, handler: FilterHandler<T>): void {
+		this.filterEmitter.on(event, handler);
+	}
+
+	public onAction(event: string, handler: ActionHandler): void {
+		this.actionEmitter.on(event, handler);
+	}
+
+	public onInit(event: string, handler: InitHandler): void {
+		this.initEmitter.on(event, handler);
+	}
+
+	public offFilter<T = unknown>(event: string, handler: FilterHandler<T>): void {
+		this.filterEmitter.off(event, handler);
+	}
+
+	public offAction(event: string, handler: ActionHandler): void {
+		this.actionEmitter.off(event, handler);
+	}
+
+	public offInit(event: string, handler: InitHandler): void {
+		this.initEmitter.off(event, handler);
+	}
+
+	public offAll(): void {
+		this.filterEmitter.removeAllListeners();
+		this.actionEmitter.removeAllListeners();
+		this.initEmitter.removeAllListeners();
+	}
 }
 
 const emitter = new Emitter();

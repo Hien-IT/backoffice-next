@@ -64,6 +64,8 @@ export const COMPARED_HEADERS = [
 	'x-powered-by',
 	// Feature 005 (FR-044): export file names.
 	'content-disposition',
+	// Feature 005 (research R4): CACHE_STATUS_HEADER of the env files, HIT or MISS at both apps.
+	'x-cache-status',
 ];
 
 const NO_ETAG = [/^\/server\/specs\/oas$/i, /^\/metrics$/i];
@@ -75,6 +77,16 @@ export function endpointOf(req: ParityRequest): string {
 export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> {
 	const url = new URL(req.path, baseUrl);
 	const headers: Record<string, string> = { ...req.headers };
+	const method = (req.method ?? 'GET').toUpperCase();
+
+	// Feature 005 (research R4): fresh reads at both apps, the env files set CACHE_SKIP_ALLOWED=true; a request that sets
+	// its own Cache-Control (the cache tests) keeps it.
+	if (
+		(method === 'GET' || method === 'HEAD') &&
+		!Object.keys(headers).some((h) => h.toLowerCase() === 'cache-control')
+	) {
+		headers['cache-control'] = 'no-store';
+	}
 	let body: string | undefined;
 
 	if (req.body !== undefined) {
@@ -87,7 +99,7 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 	const client = url.protocol === 'https:' ? https : http;
 
 	return new Promise((resolve, reject) => {
-		const request = client.request(url, { method: req.method ?? 'GET', headers }, (res) => {
+		const request = client.request(url, { method, headers }, (res) => {
 			const chunks: Buffer[] = [];
 			res.on('data', (chunk: Buffer) => chunks.push(chunk));
 			res.on('error', reject);

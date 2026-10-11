@@ -25,22 +25,29 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `src/server/{ping,health,info,errors,methods,conditional}.test.ts`, `src/schema/overview.test.ts` và
   `src/auth/{login,login-db,refresh,logout,password}.test.ts` và
   `src/permissions/{matrix-reduced,accountability,users,roles,write-rules}.test.ts`, bỏ các ca cần dừng container hoặc
-  profile riêng. `PARITY_SUITE=matrix`: ma trận quyền (xem dưới).
+  profile riêng. `PARITY_SUITE=matrix`: ma trận quyền (xem dưới). `PARITY_SUITE=blackbox` và `PARITY_SUITE=cache`:
+  feature 005 (xem dưới).
 - Profile riêng (chỉ dùng ở `full`), bật bằng
   `env-up --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app`:
 
-  | Profile        | Directus | Backoffice | Cấu hình                                                       |
-  | -------------- | -------- | ---------- | -------------------------------------------------------------- |
-  | (chính)        | 8155     | 8156       | `env/<vendor>.env`                                             |
-  | `ratelimit`    | 8255     | 8256       | `env/profile-ratelimit.env`                                    |
-  | `cors-hsts`    | 8355     | 8356       | `env/profile-cors-hsts.env`                                    |
-  | `pressure`     | 8455     | 8456       | `env/profile-pressure.env`                                     |
-  | `metrics`      | 8555     | 8556       | `env/profile-metrics.env`                                      |
-  | `cache-config` | 8755     | 8756       | `env/profile-cache-config.env`                                 |
-  | `multi`        | —        | 8157       | `env/<vendor>.env` (instance Backoffice thứ hai của cặp chính) |
-  | `sso`          | 8955     | 8956       | `env/profile-sso.env` (IdP giả lập 6110, OpenLDAP 6109)        |
-  | `user-limits`  | 8855     | 8856       | `env/profile-user-limits.env` (`USERS_*_ACCESS_LIMIT` thấp)    |
-  | `app`          | —        | —          | reverse proxy nginx 8160 trước cặp chính (`proxy/`)            |
+  | Profile             | Directus | Backoffice | Cấu hình                                                              |
+  | ------------------- | -------- | ---------- | --------------------------------------------------------------------- |
+  | (chính)             | 8155     | 8156       | `env/<vendor>.env`                                                    |
+  | `ratelimit`         | 8255     | 8256       | `env/profile-ratelimit.env`                                           |
+  | `cors-hsts`         | 8355     | 8356       | `env/profile-cors-hsts.env`                                           |
+  | `pressure`          | 8455     | 8456       | `env/profile-pressure.env`                                            |
+  | `metrics`           | 8555     | 8556       | `env/profile-metrics.env`                                             |
+  | `cache-config`      | 8755     | 8756       | `env/profile-cache-config.env`                                        |
+  | `multi`             | —        | 8157       | `env/<vendor>.env` (instance Backoffice thứ hai của cặp chính)        |
+  | `sso`               | 8955     | 8956       | `env/profile-sso.env` (IdP giả lập 6110, OpenLDAP 6109)               |
+  | `user-limits`       | 8855     | 8856       | `env/profile-user-limits.env` (`USERS_*_ACCESS_LIMIT` thấp)           |
+  | `app`               | —        | —          | reverse proxy nginx 8160 trước cặp chính (`proxy/`)                   |
+  | `cache-mem`         | 9055     | 9056       | `env/profile-cache-mem.env` (bộ `cache`, feature 005)                 |
+  | `cache-mem-purge`   | 9155     | 9156       | `env/profile-cache-mem-purge.env`                                     |
+  | `cache-redis`       | 9255     | 9256       | `env/profile-cache-redis.env` (Redis riêng `redis-cache` 6111)        |
+  | `cache-redis-purge` | 9355     | 9356       | `env/profile-cache-redis-purge.env`                                   |
+  | `websocket`         | 9455     | 9456       | `env/profile-websocket.env` (`WEBSOCKETS_ENABLED=true`)               |
+  | `blackbox`          | 9555     | 9556       | `env/profile-blackbox.env` (bộ `blackbox`, env của Directus blackbox) |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
@@ -63,8 +70,11 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   phát lại message đó cho app kia.
 - `src/schema/clear-system-cache.ts`: `clearSystemCacheIn(service)` chạy `clearSystemCache()` của bản build trong
   container app mới, không qua HTTP (chiều "app mới đổi schema" cho tới feature 006).
-- Directus trả GET từ cache response khi `CACHE_ENABLED=true` (D-11). Helper `oasComponent` xóa cache này trước khi đọc
-  OAS, vì `schemaChanged` không xóa cache response nằm trên Redis.
+- Cả hai app trả GET từ cache response dùng chung khi `CACHE_ENABLED=true` (feature 005, D-11 đã gỡ). Env vendor đặt
+  `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status`, và `capture()` gửi `Cache-Control: no-store` cho
+  `GET`, `HEAD` khi request không tự đặt: mọi lần đọc của bộ so sánh là đọc mới ở cả hai app (vẫn ghi cache), header
+  `x-cache-status` được so (FR-043). Helper `oasComponent` vẫn xóa cache trước khi đọc OAS, vì `schemaChanged` không xóa
+  cache response nằm trên Redis. Các cấu hình cache khác chạy ở năm cặp của bộ `cache` (`src/items/cache-*.test.ts`).
 
 ### Test đăng nhập và phiên (feature 003)
 
@@ -97,8 +107,27 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   (`eachChoice()`) chạy trong bộ `reduced`.
 - Profile `app`: `scripts/proxy-conf.mjs` sinh `proxy/nginx.conf` từ `proxy/backoffice-routes.txt` lúc `env-up`; log có
   `$upstream_addr`. Playwright ở `tests/directus-app-e2e` (`BASE_URL=http://127.0.0.1:8160`).
-- Directus của môi trường này bật response cache (khóa theo user, path, query): ca đổi role khi token còn hạn dùng query
-  khác nhau giữa các lần gọi (D-11).
+- Hai app của môi trường này bật response cache dùng chung (khóa theo user, path, query): ca đổi role khi token còn hạn
+  dùng query khác nhau giữa các lần gọi, vì request của fixture (`appRequest`) không gửi `no-store`.
+
+### Test items (feature 005)
+
+- `src/items/crud.test.ts`, `export.test.ts`: `/items` và `?export=` trên cặp chính (bộ `full`; `crud` cả ở `reduced`).
+- Bộ `blackbox` (`pnpm nx run parity-tests:parity-blackbox --vendor=<vendor>`, cần `env-up --profiles=blackbox`): bản
+  copy của `directus/tests/blackbox` (items, query, relational) ở `src/items/blackbox/`, chạy hai lượt trên cặp
+  `blackbox`: `PARITY_BLACKBOX_APP=backoffice` rồi `directus`. Setup (data model, role, user, GraphQL, `/comments`) luôn
+  qua Directus của cặp (`getSetupUrl()`), request được thử qua app của lượt (`getUrl()`).
+  `PARITY_BLACKBOX_PK_TYPES=integer` chạy bộ rút gọn (MySQL, SQLite ở CI). Chưa cần `known-failures.ts`: lượt `directus`
+  đạt đủ trên Postgres, MySQL, SQLite. Seed thêm admin vào cùng database, nên chạy bộ này sau `full`; `db-unchanged`
+  dừng sớm khi thấy hơn một policy admin.
+- Bộ `cache` (`pnpm nx run parity-tests:parity-cache --vendor=postgres`, cần `env-up` với năm profile cache và
+  `websocket`): port `cache.test.ts`, `cache-purge.test.ts` của Directus lên bốn cặp cache (`cache-blackbox`), ca dùng
+  chéo key và giá trị (`cache-cross`), Redis của cặp dừng và R-10 (`cache-redis-down`), thông điệp `websocket.event`
+  (`bus`). Fixture của cặp cache tạo qua Directus của cặp; sau khi đổi schema gọi `POST /utils/cache/clear?system` ở
+  Directus của mọi cặp (mỗi cặp một bus).
+- Cặp chính đặt `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status`; `capture()` gửi
+  `Cache-Control: no-store` cho `GET`, `HEAD` khi request chưa đặt, nên bộ so sánh luôn đọc mới ở cả hai app và so
+  header `x-cache-status`.
 
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.

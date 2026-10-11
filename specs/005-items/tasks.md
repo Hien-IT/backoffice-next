@@ -99,7 +99,7 @@ cache dùng chung (Clarifications, research R1, R4, R5).
   (`WEBSOCKETS_ENABLED=true`, `WEBSOCKETS_REST_ENABLED=true`); sửa ghi chú D-11 trong `profile-cache-config.env`
   (giữ `CACHE_ENABLED=false` vì `redis-down`).
 - [X] T004 `tests/parity/docker-compose.yml`: năm cặp profile `cache-mem` (9055, 9056), `cache-mem-purge` (9155, 9156),
-  `cache-redis` (9255, 9256, kèm service `redis-cache` cổng host 6109 để dừng trong `redis-down`), `cache-redis-purge`
+  `cache-redis` (9255, 9256, kèm service `redis-cache` cổng host 6111 để dừng trong `redis-down`), `cache-redis-purge`
   (9355, 9356), `websocket` (9455, 9456), mẫu `cache-config`; `tests/parity/scripts/env.mjs` thêm vào `ALL_PROFILES`;
   `tests/parity/src/config.ts` `profilePorts` thêm năm dòng và `cacheRedisPort` (global-setup và profiles.ts tự nhận).
   Test trong `tests/parity/src/vendors.test.ts`: cổng không trùng, cổng của compose khớp `config.ts`, mỗi cặp có file env.
@@ -277,18 +277,18 @@ D-11.
 
 ### Tests for User Story 3
 
-- [ ] T029 [P] [US3] Port test gốc vào `apps/api/src/utils/`: `get-cache-key.test.ts`, `get-cache-headers.test.ts`,
+- [X] T029 [P] [US3] Port test gốc vào `apps/api/src/utils/`: `get-cache-key.test.ts`, `get-cache-headers.test.ts`,
   `should-skip-cache.test.ts`, `permissions-cacheable.test.ts` từ `directus/api/src/utils/` (sửa mock `directus/version`
   thành `DIRECTUS_COMPAT_VERSION`, bỏ ca flow trigger với ghi chú 009). Ghi manifest.
-- [ ] T030 [P] [US3] `apps/api/src/middleware/cache.test.ts` (thay bản 12 dòng): method khác `GET`, `CACHE_ENABLED=false`,
+- [X] T030 [P] [US3] `apps/api/src/middleware/cache.test.ts` (thay bản 12 dòng): method khác `GET`, `CACHE_ENABLED=false`,
   skip → `MISS`, lỗi đọc → `warn` + `MISS`, `HIT` (header, body, route không chạy, chỉ header của middleware và
   Express), `MISS`; `respond.test.ts` thêm ca lưu theo từng điều kiện FR-012 (a đến g), lỗi ghi → `warn`, bảng
   `Cache-Control` của contracts/cache.md §5, `cacheInstance`/`cacheTTL`.
-- [ ] T031 [P] [US3] `tests/parity/src/items/cache-blackbox.test.ts`: port `directus/tests/blackbox/tests/db/app/cache.{test,seed}.ts`
+- [X] T031 [P] [US3] `tests/parity/src/items/cache-blackbox.test.ts`: port `directus/tests/blackbox/tests/db/app/cache.{test,seed}.ts`
   và `tests/db/routes/permissions/cache-purge.{test,seed}.ts` lên bốn cặp (`describe.each` bốn profile ×
   `APP_NAMES`, `describe.skipIf` khi profile không chạy; seed qua Directus của cặp; collection bỏ qua tên
   `test_cache_ignored`); giữ khẳng định gốc (`x-cache-status`). Ghi manifest.
-- [ ] T032 [P] [US3] `tests/parity/src/items/cache-cross.test.ts` (FR-042). Mọi fixture của bốn cặp cache (collection,
+- [X] T032 [P] [US3] `tests/parity/src/items/cache-cross.test.ts` (FR-042). Mọi fixture của bốn cặp cache (collection,
   field, policy, permission, user) tạo qua Directus của chính cặp đó (`profileUrls(profile).directusUrl`). Lý do: cặp
   có bus và namespace quyền riêng, `cache-redis` còn có Redis riêng, nên tạo qua cặp chính thì cache schema và cache
   quyền của cặp không bị xóa. Các ca: cùng key và giá trị với cache trống (xóa
@@ -300,24 +300,24 @@ D-11.
   (US3.5, nhánh `false`); `GET /server/health` gọi chéo hai app không bao giờ `HIT` và không có key trong Redis (FR-014);
   `CACHE_VALUE_MAX_SIZE=1kb` ở `cache-redis`; Referer
   `<PUBLIC_URL>/admin` với `CACHE_AUTO_PURGE` false và true; `HEAD`; dấu `/` cuối (CHK013, ghi kết quả vào spec).
-- [ ] T033 [P] [US3] `tests/parity/src/items/cache-redis-down.test.ts` (mới, suite `cache`): ca `CACHE_ENABLED=true` ở cặp `cache-redis` (dừng
+- [X] T033 [P] [US3] `tests/parity/src/items/cache-redis-down.test.ts` (mới, suite `cache`): ca `CACHE_ENABLED=true` ở cặp `cache-redis` (dừng
   `redis-cache`, `GET` ở hai app: status, thời gian, log `[cache] Couldn't read key`; bật lại, `MISS` rồi `HIT`); ghi dung
   sai đo được vào spec FR-016 (CHK012).
 
 ### Implementation for User Story 3
 
-- [ ] T034 [US3] Port vào `apps/api/src/utils/`: `get-cache-key.ts` (bỏ `getFlowManager`, `getGraphqlQueryAndVariables`
+- [X] T034 [US3] Port vào `apps/api/src/utils/`: `get-cache-key.ts` (bỏ `getFlowManager`, `getGraphqlQueryAndVariables`
   với `// Backoffice:` 009, 011; `version` = `DIRECTUS_COMPAT_VERSION`), `get-cache-headers.ts`, `should-skip-cache.ts`
   (`Url` của `utils/url.ts`, `getEndpoint` của `@backoffice/utils`), `permissions-cacheable.ts`, `get-string-byte-size.ts`
   từ `directus/api/src/utils/`. Ghi manifest. (sau T029 đỏ)
-- [ ] T035 [US3] Thay `apps/api/src/middleware/cache.ts` bằng port đủ của `directus/api/src/middleware/cache.ts` (bỏ
+- [X] T035 [US3] Thay `apps/api/src/middleware/cache.ts` bằng port đủ của `directus/api/src/middleware/cache.ts` (bỏ
   `useBufferedCounter`, ghi chú D-17). Ghi manifest. (sau T030 đỏ, T034)
-- [ ] T036 [US3] `apps/api/src/middleware/respond.ts`: nhánh cache (điều kiện lưu, `setCacheValue` hai key,
+- [X] T036 [US3] `apps/api/src/middleware/respond.ts`: nhánh cache (điều kiện lưu, `setCacheValue` hai key,
   `getCacheControlHeader`, `cacheInstance`, `cacheTTL`, `CACHE_VALUE_MAX_SIZE`, `permissionsCacheable`), hoàn tất port
   của `middleware/respond.ts`. Ghi manifest. Cùng task: `apps/api/src/controllers/server.controller.ts` đặt
   `res.locals['cache'] = false` trong handler `GET /server/health` trước `respond`, như
   `directus/api/src/controllers/server.ts:88` (FR-014); thêm test vào `server.controller.test.ts`. (sau T030 đỏ, T034)
-- [ ] T037 [US3] Bật so sánh cache ở cặp chính (FR-043, research R4), cùng một commit:
+- [X] T037 [US3] Bật so sánh cache ở cặp chính (FR-043, research R4), cùng một commit:
   - Thêm `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status` vào chín file `tests/parity/env/<vendor>.env`.
   - `tests/parity/src/parity.ts` `send()`: header mặc định `cache-control: no-store` cho `GET`, `HEAD` khi request chưa
     đặt; `COMPARED_HEADERS` thêm `x-cache-status`; test trong `parity.test.ts`.
@@ -326,7 +326,7 @@ D-11.
     `tests/parity/src/**` và ghi các file đã sửa vào "Ghi chú khi làm".
   Sau đó chạy `parity` Postgres `full` và `reduced` MySQL, SQLite (FR-047 lần một); chạy T031, T032, T033 với năm cặp. Ghi vào "Ghi chú khi làm" các key đo được của 10
   query mẫu (research R3). (sau T035, T036)
-- [ ] T038 [US3] CI và sổ sách: `.github/workflows/ci.yml` job `parity-cache` (Postgres, `env-up
+- [X] T038 [US3] CI và sổ sách: `.github/workflows/ci.yml` job `parity-cache` (Postgres, `env-up
   --profiles=cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket`, `PARITY_SUITE=cache`, timeout 45 phút,
   vào `needs` của `publish`); `tools/ci-local.sh` thêm bước; xóa entry `D-11`; dòng D-11 trong
   `specs/001-platform-foundation/spec.md` và dòng D-11 của bảng "Thay đổi" trong `specs/004-permissions/spec.md` ghi
@@ -345,34 +345,34 @@ D-26, D-29.
 
 ### Tests for User Story 5
 
-- [ ] T039 [P] [US5] `apps/api/src/emitter.test.ts` (thay bản stub): `emitFilter` chạy listener tuần tự và lấy kết quả
+- [X] T039 [P] [US5] `apps/api/src/emitter.test.ts` (thay bản stub): `emitFilter` chạy listener tuần tự và lấy kết quả
   khác `undefined`, context mặc định, `emitAction` không chờ và `warn` hai dòng khi listener ném, `emitInit`, wildcard
   `items.*`, `off*`, `offAll`.
-- [ ] T040 [P] [US5] `apps/api/src/websocket/controllers/hooks.test.ts`: ánh xạ `items.create|update|delete` và
+- [X] T040 [P] [US5] `apps/api/src/websocket/controllers/hooks.test.ts`: ánh xạ `items.create|update|delete` và
   `users.update` thành thông điệp (payload mặc định `{}`, `[]`), không đăng ký `sessions`, `migrations`, hook riêng
   `fields.*`, `files.upload`, `relations.delete`, `items.sort`, đăng ký một lần (`actionsRegistered`), `publish` lên
   `useBus()` kênh `websocket.event`; test điều kiện đăng ký trong `apps/api/src/app.test.ts` (ba tổ hợp `WEBSOCKETS_*`).
-- [ ] T041 [P] [US5] `tests/parity/src/items/bus.test.ts` (FR-045): subscriber ioredis trên kênh bus của cặp
+- [X] T041 [P] [US5] `tests/parity/src/items/bus.test.ts` (FR-045): subscriber ioredis trên kênh bus của cặp
   `websocket` (đọc cách `@backoffice/memory` đặt tên kênh và mã hóa thông điệp trong `libs/memory/src/bus/lib/redis.ts`),
   chuỗi thao tác của contracts/events-bus.md §5 ở từng app, chốt sau response + 2 giây, so sau chuẩn hóa id; cặp chính:
   0 thông điệp.
 
 ### Implementation for User Story 5
 
-- [ ] T042 [US5] Thay `apps/api/src/emitter.ts` bằng port đủ của `directus/api/src/emitter.ts` (`eventemitter2`); giữ
+- [X] T042 [US5] Thay `apps/api/src/emitter.ts` bằng port đủ của `directus/api/src/emitter.ts` (`eventemitter2`); giữ
   `useEmitter`, `default`. Ghi manifest. (sau T039 đỏ)
-- [ ] T043 [US5] `apps/api/src/websocket/messages.ts` (type `WebSocketEvent` thuần, ghi chú không zod) và port
+- [X] T043 [US5] `apps/api/src/websocket/messages.ts` (type `WebSocketEvent` thuần, ghi chú không zod) và port
   `apps/api/src/websocket/controllers/hooks.ts` từ `directus/api/src/websocket/controllers/hooks.ts`; `apps/api/src/app.ts`
   gọi `registerWebSocketEvents()` sau khi Nest init khi `toBoolean(WEBSOCKETS_ENABLED)` và
   (`toBoolean(WEBSOCKETS_REST_ENABLED)` hoặc `toBoolean(WEBSOCKETS_GRAPHQL_ENABLED)`), comment trỏ
   `websocket/controllers/rest.ts:18`, `graphql.ts:26`, `server.ts:104`. Ghi manifest. (sau T040 đỏ, T042)
-- [ ] T044 [US5] `tests/parity/src/items/cache-redis-down.test.ts`: ca R-10 ở cặp `cache-redis` (có `redis-cache` riêng và bật
+- [X] T044 [US5] `tests/parity/src/items/cache-redis-down.test.ts`: ca R-10 ở cặp `cache-redis` (có `redis-cache` riêng và bật
   `WEBSOCKETS_ENABLED` theo T003). Tạo collection qua Directus của cặp; dừng `redis-cache`; ghi một item ở từng app;
   kiểm request trả `200`. Chờ hết chuỗi kết nối lại của ioredis, đo process còn sống (`/server/ping`) và đọc log. Bật lại
   `redis-cache`. Ở `afterAll`, dù ca đạt hay lỗi: nếu một app không trả `/server/ping` thì chạy
   `docker compose -p parity-<vendor> restart` hai service của cặp, rồi chờ `/server/ping` của cả hai (tối đa 120 giây).
   Ghi kết quả vào spec R-10 và bỏ nhãn `[Suy luận]`, kể cả việc có phải khởi động lại hay không. (sau T033, T043)
-- [ ] T045 [US5] Sổ khác biệt (research R10): xóa entry `D-30`; sửa `reason` của `D-26`, `D-29` (giữ `removeAt: '009'`);
+- [X] T045 [US5] Sổ khác biệt (research R10): xóa entry `D-30`; sửa `reason` của `D-26`, `D-29` (giữ `removeAt: '009'`);
   dòng D-26 trong `specs/003-auth-session/spec.md` và dòng D-29, D-30 trong `specs/004-permissions/spec.md` thu hẹp hoặc
   gỡ theo bảng của spec 005; chạy guard. (sau T041 xanh)
 
@@ -386,12 +386,12 @@ D-26, D-29.
 
 **Independent Test**: spec US6; `items.spec.ts` đạt ở job `e2e-directus-app`.
 
-- [ ] T046 [US6] `tests/directus-app-e2e/src/items.spec.ts`: `beforeAll` tạo collection `e2e_articles` (`title`,
+- [X] T046 [US6] `tests/directus-app-e2e/src/items.spec.ts`: `beforeAll` tạo collection `e2e_articles` (`title`,
   `body`) qua API của Directus; `bothRuns`: tạo item ở `/admin/content/e2e_articles/+` (chờ `POST /items/e2e_articles`),
   sửa (`PATCH`), xóa, tạo hai item rồi chọn cả hai và xóa hàng loạt (`DELETE` mảng), sidebar Export → CSV → "Download
   file" → `page.waitForEvent('download')`, lưu file; so dòng DB và nội dung file hai lượt (bỏ `<timestamp>`, thay id);
   `afterAll` xóa collection. (sau T015, T028)
-- [ ] T047 [P] [US6] `tests/directus-app-e2e/src/routing.spec.ts`: khẳng định `/items/*` tới app mới (`$upstream_addr`),
+- [X] T047 [P] [US6] `tests/directus-app-e2e/src/routing.spec.ts`: khẳng định `/items/*` tới app mới (`$upstream_addr`),
   gồm `GET /items/e2e_articles?export=csv&access_token=...`. (sau T007)
 
 **Checkpoint**: SC-008; job `e2e-directus-app` xanh.
@@ -407,13 +407,13 @@ D-26, D-29.
   `tests/benchmark/project.json`, job `benchmark-items` trong `.github/workflows/benchmark.yml` (timeout 120 phút). Chạy
   một lần; ghi thời gian seed, đĩa, số liệu vào "Ghi chú khi làm"; nếu runner không chứa nổi, báo chủ dự án
   (Assumptions).
-- [ ] T049 [P] `tests/benchmark/src/{run,auth,permissions}.ts`: tham chiếu Directus cặp chính với header
+- [X] T049 [P] `tests/benchmark/src/{run,auth,permissions}.ts`: tham chiếu Directus cặp chính với header
   `Cache-Control: no-store` (cặp chính có `CACHE_SKIP_ALLOWED=true`) thay `directus-noresponsecache`; xóa service
   `directus-noresponsecache` khỏi `tests/benchmark/docker-compose.yml` và ghi chú D-11 trong các file đó (research R10).
-- [ ] T050 [P] `tests/parity/src/observability/logs.test.ts`: log `warn` `[cache] Couldn't set key` và `Couldn't read key`
+- [X] T050 [P] `tests/parity/src/observability/logs.test.ts`: log `warn` `[cache] Couldn't set key` và `Couldn't read key`
   không chứa token hay nội dung payload; log khi listener action lỗi đúng hai dòng (FR-030); dòng log HTTP của request
   `export` có `access_token` trong URL chỉ như Directus (R-06 của 004).
-- [ ] T051 [P] `specs/005-items/spec.md`: thay các chỗ "dự kiến" bằng số đo của T010, T025, T032, T033 (chuỗi `%` sai
+- [X] T051 [P] `specs/005-items/spec.md`: thay các chỗ "dự kiến" bằng số đo của T010, T025, T032, T033 (chuỗi `%` sai
   trong path, message `TypeError` của lỗi `500` export csv, export xml và yaml khi không có payload, charset của
   `Content-Type` export, R-10 nếu T044 đã đo); nếu số đo khác dự kiến thì sửa luôn ca kiểm và ghi vào "Ghi chú khi
   làm"; `checklists/items-review.md` ghi một dòng Notes về lần cập nhật này.
@@ -547,5 +547,47 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   và FR-021.
 - T028: guard `accepted-differences.test.ts` bắt mọi mã của bảng 001 còn trong danh sách tới khi 005 `Done`, nên entry
   `D-12` giữ tới T054 (chỉ sửa comment), như D-09.3 ở T015.
+- T021: CI của 294938d: MySQL và SQLite chạy `reduced` rồi blackbox khóa `integer` đều xanh (bước blackbox 256 giây ở
+  MySQL, 156 giây ở SQLite, cả hai lượt). Postgres local đủ ba kiểu khóa: 804 giây cho hai lượt, mỗi lượt 9.579 ca đạt.
+  Job `parity-blackbox` đỏ lần đầu vì `@backoffice/utils` chưa build: target `parity-blackbox`, `parity-cache` thêm
+  `dependsOn: ["^build"]`. `blackbox-full` của `parity-matrix.yml` chạy ở T053.
+- T029, T034: test port giữ nguyên hash của Directus (mock version `1.2.3` qua `DIRECTUS_COMPAT_VERSION`), nên key của
+  app mới bằng key Directus cho cùng request. Bỏ ca GraphQL (011) và flow trigger (009) cùng code của chúng.
+- T030, T035, T036: `cache.test.ts` 11 ca, `respond.test.ts` 24 ca; `server.controller.ts` đặt `res.locals.cache = false`
+  ở `/server/health`. Manifest T036 không có: T027 đã ghi cùng nguồn và đích.
+- T031: `/utils/cache/clear` và `/presets` (010) gửi tới Directus của cặp; collection bỏ qua tên `test_cache_ignored`;
+  mỗi ca làm rỗng collection qua Directus trước (`CACHE_VALUE_MAX_SIZE=1kb` ở `cache-redis`). Ca `updateBatch` lấy đúng
+  5 id đầu như bản gốc: response tạo hàng loạt của `/permissions` có thêm quyền tối thiểu của app (không có `id`).
+- T032: key và giá trị giống từng byte (trừ `expires` của Keyv); `HIT` chéo 20 lần; `$NOW` và `CACHE_VALUE_MAX_SIZE`
+  không lưu ở cả hai; `ip_access` khớp cho key khác và vẫn `HIT` chéo; `/server/health` không lưu; `HEAD` không đọc
+  không lưu; dấu `/` cuối là key khác (CHK013, ghi vào spec). Đổi schema phải gọi `POST /utils/cache/clear?system` ở
+  Directus của mọi cặp (không có `?system` chỉ xóa cache dữ liệu).
+- T033, T044 (đo, Postgres): đọc khi `redis-cache` dừng, mỗi app ngay sau khi chính nó làm nóng cache dùng chung: cả hai
+  không trả trong 15 giây. R-10: ghi trả `200` ở cả hai; `publish` bị từ chối sau khoảng 10 giây; Directus chạy dưới
+  `pm2-runtime` nên process sống, app mới (`node` trần) thoát. Sửa: `apps/api/src/unhandled-rejection.ts` làm như pm2;
+  sau sửa hai app sống, không phải khởi động lại. Ghi vào spec FR-016 và R-10.
+- `redis-cache` đổi cổng host 6109 → 6111 (6109 là LDAP, 6110 là IdP); `vendors.test.ts` kiểm mọi cổng host của compose.
+- CI 294938d: `parity (postgres, full)` đỏ ở `src/schema/redis-trace.test.ts` (002): MONITOR của ioredis lấy dòng
+  MONITOR làm reply ("Command queue state error") khi bus nhiều lệnh. `traceRedis()` nay chạy `redis-cli monitor` trong
+  container `redis`.
+- T037: chín file `env/<vendor>.env` thêm hai biến; `capture()` gửi `no-store` mặc định; không test nào của 001 đến 004
+  phải đổi kỳ vọng `no-cache` (`/server/health` không lưu nên vẫn `no-cache`, `/metrics` không qua `respond`).
+- T038: entry `D-11` đổi sang `kind: 'doc'` và giữ tới T054 (guard), như D-12. Job `parity-cache` vào `needs` của
+  `publish`.
+- T039 đến T043: emitter port đủ (9 ca); `registerWebSocketBridge()` trong `app.ts` (4 ca điều kiện); `hooks.test.ts`
+  9 ca. `bus.test.ts`: mỗi thao tác ghi, hai app phát cùng chuỗi `websocket.event` (activity, revision, rồi item; cả
+  `password` dạng rõ của `users.create`, R-07) sau khi thay khóa serial (`directus_activity`, `directus_revisions`,
+  `directus_permissions`, `parent` của revision) và uuid; cặp chính không có thông điệp.
+- T045: entry `D-30` xóa (mã của bảng 004, guard chỉ giữ mã của bảng 001); `D-26`, `D-29` đổi `reason` còn phần flow.
+- T046, T047: helper E2E nhận thêm bảng collection người dùng (`bothRuns(..., tables)`); export tải về bắt qua popup của
+  `window.open`.
+- T048, T049: `tests/benchmark/src/{seed-items,items}.ts`, target `benchmark:items`, job `benchmark-items`; benchmark bỏ
+  service `directus-noresponsecache`, mọi request gửi `Cache-Control: no-store` tới Directus cặp chính.
+- T050: ca dòng log HTTP của `?export=json&access_token=` (cặp `metrics`); log app mới trong lúc Redis dừng không có
+  token hay payload. Log hai dòng khi listener action lỗi kiểm ở `emitter.test.ts` (không có listener nào ném ở app).
+- Kiểm local (Postgres, 2026-10-12): bộ `cache` 157/157 (234 giây); bộ `full` 541/545 rồi 3 ca lỗi chạy lại đạt: hai ca
+  `schema/permissions-cache.test.ts` mang kỳ vọng D-11 (app mới nay cũng ghi `policies-ip-access` và `raw-permissions`
+  như Directus, đã sửa), ca TFA lệch cửa sổ OTP (chạy lại hai lần đạt); E2E 7/7 qua proxy. Lưu ý local: tạo lại container
+  `backoffice-api` sau khi proxy đã chạy làm nginx giữ IP cũ, phải khởi động lại `proxy`.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)

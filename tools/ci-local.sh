@@ -67,6 +67,7 @@ step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits
 step parity-blackbox parity postgres blackbox blackbox
+step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
 step parity-mysql-reduced parity mysql reduced blackbox integer
 step parity-sqlite3-reduced parity sqlite3 reduced blackbox integer
 # One shard of the permission matrix (feature 004); PARITY_MATRIX_SHARD=<i>/4 picks another, unset runs the whole matrix.

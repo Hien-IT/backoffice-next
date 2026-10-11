@@ -817,7 +817,7 @@ Thay đổi với bảng khác biệt của các feature trước:
 | D-10 | Gỡ: mọi route xử lý token như Directus | FR-001, FR-004 |
 | D-18 | Bỏ dòng cảnh báo "token bị bỏ qua"; giữ phần log khởi động | FR-001 |
 | D-09.10 | Gỡ: bật, tắt TFA làm ở feature này (Clarifications) | FR-048 |
-| D-11 | Giữ tới 005; nay áp cả cho `GET` của năm endpoint (không cache response, `Cache-Control: no-cache`) | Clarifications |
+| D-11 | Giữ tới 005; nay áp cả cho `GET` của năm endpoint (không cache response, `Cache-Control: no-cache`). Gỡ ở 005 | Clarifications |
 | D-12 | Thu hẹp: kiểm query (`sanitizeQuery`, `validateQuery`) làm ở feature này trên mọi route; chỉ còn `export` (xuất file) tới 005. Gỡ ở 005 | FR-040 |
 
 Sửa bảng của spec cũ đi cùng feature này: ô "Gỡ khi" của D-09.10 trong spec 003 thành `004` (T053); dòng D-09.6, D-11,
@@ -831,8 +831,8 @@ Khác biệt mới:
 |----|----------|------------------|---------|-------|------|--------|
 | D-27 | Email mời user (`POST /users/invite`) | Gửi email chứa link mời qua `EMAIL_*` | Không gửi, ghi log `warn` có email người nhận, không có token hay link (FR-061). Response và dữ liệu ghi giống Directus | Nguyên tắc X | ngoài phạm vi | — |
 | D-28 | Email xác minh đăng ký (`POST /users/register`) | Gửi email chứa link xác minh | Không gửi, ghi log như D-27 (FR-063). Response, thời gian chờ và dữ liệu ghi giống Directus | Nguyên tắc X | ngoài phạm vi | — |
-| D-29 | Event `users.*`, `roles.*`, `policies.*`, `access.*`, `permissions.*` (filter và action, `create`, `update`, `delete`) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
-| D-30 | Thông điệp bus `websocket.event` khi ghi năm collection | Instance Directus bật WebSocket đẩy thay đổi tới client đang subscribe | App mới không đẩy; client realtime nối vào Directus không thấy thay đổi user, role, policy, access, permission do app mới ghi | Bus `websocket.event` làm ở feature 005 (Clarifications) | ngoài phạm vi (tạm thời) | 005 |
+| D-29 | Event `users.*`, `roles.*`, `policies.*`, `access.*`, `permissions.*` (filter và action, `create`, `update`, `delete`) | Phát cho extension và flow | Không phát; từ feature 005 phát như Directus, chỉ còn flow theo event chưa chạy (thu hẹp ở 005) | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
+| D-30 | Thông điệp bus `websocket.event` khi ghi năm collection | Instance Directus bật WebSocket đẩy thay đổi tới client đang subscribe | App mới không đẩy; client realtime nối vào Directus không thấy thay đổi user, role, policy, access, permission do app mới ghi | Bus `websocket.event` làm ở feature 005 (Clarifications); Gỡ ở 005 | ngoài phạm vi (tạm thời) | 005 |
 | D-31 | Ghi lồng từ payload của năm collection vào collection hệ thống có service riêng chưa port. Quan hệ hệ thống của năm collection chỉ với tới `directus_files` (`directus_users.avatar`, m2o); các collection khác (`folders`, `comments`, `notifications`, `shares`, `translations`, `dashboards`, `panels`, `flows`, `operations`, `versions`, `settings`) chỉ với tới qua field quan hệ do quản trị viên thêm vào năm collection | Đi qua service riêng của collection đó (`FilesService`...) với kiểm tra và tác động riêng | Đi qua `ItemsService` chung (kiểm quyền, activity, revision như mọi collection; không có kiểm tra riêng của service đó). Đọc lồng không khác | Service riêng thuộc feature 007 đến 010 (Clarifications khi lập plan) | ngoài phạm vi (tạm thời) | 010 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):

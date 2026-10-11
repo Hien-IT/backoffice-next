@@ -151,9 +151,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-11',
 		feature: '001',
 		removeAt: '005',
-		kind: 'http',
-		endpoints: ['GET /server/info', 'GET /server/specs/oas'],
-		location: { header: 'cache-control' },
+		// The response cache is built by feature 005 (src/items/cache-*.test.ts); `doc` so it hides no Cache-Control
+		// difference; the guard keeps this entry until 005 is Done (T054).
+		kind: 'doc',
 		reason: 'Response cache (CACHE_ENABLED) comes with feature 005.',
 	},
 	{
@@ -266,7 +266,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '003',
 		removeAt: '009',
 		kind: 'doc',
-		reason: 'No auth.login, auth.jwt, auth.create, auth.update or authenticate events (flows: feature 009).',
+		// Narrowed by feature 005: the events are emitted like Directus (the real emitter); only flows are missing.
+		reason: 'Flows triggered by auth.login, auth.jwt, auth.create, auth.update or authenticate do not run (009).',
 	},
 	// Feature 004
 	{ id: 'D-27', feature: '004', kind: 'doc', reason: 'No invitation email: a warn log line naming the recipient.' },
@@ -276,9 +277,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '004',
 		removeAt: '009',
 		kind: 'doc',
-		reason: 'No hook events of the five collections (filter, action).',
+		// Narrowed by feature 005: the filter and action events are emitted like Directus; only flows are missing.
+		reason: 'Flows triggered by events of the five collections do not run at the new app (009).',
 	},
-	{ id: 'D-30', feature: '004', removeAt: '005', kind: 'doc', reason: 'No websocket.event bus message after writes.' },
 	{
 		id: 'D-31',
 		feature: '004',

@@ -1,0 +1,21 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/app/cache.test.ts",
+		"dest": "tests/parity/src/items/cache-blackbox.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/app/cache.seed.ts",
+		"dest": "tests/parity/src/items/cache-blackbox.test.ts",
+		"header": false
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/permissions/cache-purge.test.ts",
+		"dest": "tests/parity/src/items/cache-blackbox.test.ts",
+		"header": false
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/permissions/cache-purge.seed.ts",
+		"dest": "tests/parity/src/items/cache-blackbox.test.ts",
+		"header": false
+	}
+]

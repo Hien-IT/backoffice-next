@@ -49,6 +49,7 @@ export class ServerController {
 
 		if (data['status'] === 'error') res.status(503);
 		res.locals['payload'] = data;
+		res.locals['cache'] = false;
 		await respond(req, res);
 	}
 }

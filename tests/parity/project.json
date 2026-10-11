@@ -39,6 +39,7 @@
 				"command": "PARITY_SUITE=blackbox node scripts/parity.mjs",
 				"cwd": "tests/parity"
 			},
+			"dependsOn": ["^build"],
 			"cache": false
 		},
 		"parity-cache": {
@@ -47,6 +48,7 @@
 				"command": "PARITY_SUITE=cache node scripts/parity.mjs",
 				"cwd": "tests/parity"
 			},
+			"dependsOn": ["^build"],
 			"cache": false
 		}
 	}

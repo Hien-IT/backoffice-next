@@ -88,7 +88,7 @@ uuid, alias, geometry); `tests/db/app/cache.test.ts` (6 ca × 4 cấu hình cach
 - Q (rà nốt 7 mục còn mở của `items-review.md` trước `/speckit.implement`): giải được từ code Directus không? → A: Có:
   lô rỗng, tên collection trong path, quy tắc key cache (Edge Cases); `version` (FR-004, D-09.6, khẳng định riêng); quy
   tắc so khi Redis dừng theo FR-085 của 004 (FR-016); body và header của lỗi `500` export csv (FR-021); thuật ngữ (Key
-  Entities). Chỗ còn ghi "dự kiến" được đo ở T010, T025.
+  Entities). Chỗ còn ghi "dự kiến" đã đo ở T010, T025 và thay bằng số đo (T051).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -216,15 +216,15 @@ rỗng, `SEARCH`, `/users`, `/server/info`) ở hai app; so status, header và b
 
 1. **Given** `GET /items/articles?export=csv&fields=id,title,author.name,tags.tags_id.tag`, **When** gọi, **Then** `200`,
    `Content-Disposition: attachment; filename="articles <YYYYMMDD-HMS>.csv"`, cùng `Content-Type` và cùng nội dung như
-   Directus. Giá trị dự kiến, chốt bằng phép đo của T025: `text/csv; charset=utf-8`; tiêu đề
+   Directus. Đo ở T025, hai app như nhau: `text/csv; charset=utf-8`; tiêu đề
    `id,title,author.name,tags` (object lồng thành cột `a.b`, mảng giữ JSON trong ô). `csv_utf8` thêm BOM và cùng tên `.csv`.
 2. **Given** `export=json`, **Then** body là JSON thụt lề bằng tab của `data`; `export=xml` là XML gốc `<data>`;
    `export=yaml` là YAML; `Content-Type` lần lượt `application/json`, `text/xml`, `text/yaml` (kèm charset như Directus).
 3. **Given** `GET /server/info?export=json`, **Then** tên file `Export <YYYYMMDD-HMS>.json` (không có collection), nội
    dung là `data` của `/server/info`.
 4. **Given** danh sách rỗng với `export=csv`, **Then** body rỗng, `200`; **Given** request không có payload (`204` khi
-   không export) với `export=csv`, **Then** cùng kết quả như Directus (đo trong bộ đối chiếu, dự kiến `500` do lỗi
-   `input.length`; `export=json` trả `null`).
+   không export) với `export=csv`, **Then** cùng kết quả như Directus (đo ở T025: `500` do lỗi
+   `input.length`; `export=json` trả `200` với `null`).
 5. **Given** `export=pdf`, **Then** `400 INVALID_QUERY` từ `validateQuery` (đã có từ 004).
 6. **Given** `CACHE_ENABLED=true`, **When** gọi với `export`, **Then** không lưu, không trả từ cache; `Cache-Control:
    no-cache`.
@@ -332,6 +332,8 @@ chạy proxy trỏ mọi route về Directus.
 - Request bằng token share và request public cùng `path`, `query`: cùng key cache (R-09).
 - `OPTIONS`, `HEAD`, dấu `/` cuối trên `/items/*`: như FR-049 của 004 (`Allow` theo thứ tự đăng ký của
   `controllers/items.ts`).
+- Dấu `/` cuối với cache (CHK013, đo ở T032): `GET /items/<c>/` là key khác `GET /items/<c>` (pathname khác), nên lần đầu
+  `MISS` rồi `HIT`, như nhau ở hai app.
 
 ### Truy vết user story và requirement
 
@@ -441,6 +443,11 @@ chạy proxy trỏ mọi route về Directus.
   của bộ đối chiếu (15 giây cho đọc, 20 giây cho ghi); cùng dòng log `warn` `[cache]`; dữ liệu đã ghi giữ nguyên. Thời
   gian chờ không so, vì phụ thuộc chuỗi kết nối lại của ioredis (004 đã đo: `/server/health` khi Redis down là "không
   trả" hoặc `500` tùy retry xong trước timeout, hai app như nhau). Ca này nằm trong `src/items/cache-redis-down.test.ts` (suite `cache`), cùng cách so với `redis-down.test.ts` của 002, 004.
+  Đo ở T033 (Postgres, cặp `cache-redis`, mỗi app đo ngay sau khi chính nó làm nóng cache dùng chung như FR-085 của 004):
+  `GET` khi Redis của cặp dừng không trả trong 15 giây ở cả hai app; không app nào ghi `[cache] Couldn't read key`, cả
+  hai ghi `warn` `[cache] Error: connect ECONNREFUSED` từ event `error` của Keyv. Nếu không làm nóng riêng từng app thì
+  kết quả phụ thuộc process nào ghi cache quyền sau cùng (app mới trả `500` sau 10,6 giây khi lớp nhớ của nó còn, Directus
+  treo khi phải đọc Redis), nên bộ đối chiếu luôn làm nóng riêng.
 - **FR-017**: `CACHE_STATUS_HEADER` (mặc định không có header), `CACHE_VALUE_MAX_SIZE` (`false`), `CACHE_SKIP_ALLOWED`
   (`false`), `CACHE_CONTROL_S_MAXAGE` (`0`) PHẢI được đọc với cùng tên, mặc định, ép kiểu như Directus và gỡ khỏi nhóm
   "chưa hỗ trợ" của 001.
@@ -464,7 +471,7 @@ chạy proxy trỏ mọi route về Directus.
   `200`, `<?xml version='1.0'?>\n<data>undefined</data>`; `yaml` → `200`, body rỗng; mỗi trường hợp có ca trong bộ đối
   chiếu (FR-044). Lỗi `500` của `csv` đi qua error handler
   (001): body `{"errors": [{"message": ..., "extensions": {"code": "INTERNAL_SERVER_ERROR"}}]}` với message của
-  `TypeError` (dự kiến `Cannot read properties of undefined (reading 'length')`) khi accountability là admin, `An
+  `TypeError` (đo ở T025: `Cannot read properties of undefined (reading 'length')`) khi accountability là admin, `An
   unexpected error occurred.` khi không; header `Content-Disposition: attachment; ...` và `Content-Type: text/csv` đặt
   trước khi lỗi vẫn giữ, vì `res.json` không đổi `Content-Type` đã có và `res.send` chỉ thêm `charset=utf-8`; stack chỉ
   ở log (`logger.error`), không so. Chỉ `transform` được port; `exportToFile`, `ImportService` (chạy nền, ghi `directus_files`, thông báo)
@@ -639,7 +646,7 @@ Khác biệt mới:
 | R-07 | `meta.payload` của action event `*.create`, `*.update` là payload sau preset nhưng trước `processValues` (hash, conceal), nên `users.create`, `users.update` mang `password` dạng rõ, `token`, `tfa_secret` tới mọi listener action và lên bus `websocket.event` (chỉ `directus_sessions` bị loại; `directus_activity`, `directus_revisions` cũng được publish, payload của `revisions.create` đã che theo FR-092 của 004). Chủ dự án chọn tái tạo (Clarifications) | `services/items.ts:142,193,395` (`actionHookPayload = payloadWithPresets` trước `processValues('create')` ở dòng 219; tương tự `update` dòng 812); `websocket/controllers/hooks.ts:24` | Mật khẩu rõ đi qua Redis pub/sub và tới instance Directus bật WebSocket, tới client đã subscribe `directus_users` có quyền đọc (Directus lọc theo quyền đọc ở phía subscriber). Không ghi log |
 | R-08 | Response cache khóa theo `user`, `path`, `query` (và `ip` khi khớp `ip_access`), không theo role hay policy; với `CACHE_AUTO_PURGE=false` (mặc định) mọi thao tác ghi dữ liệu không xóa cache | `utils/get-cache-key.ts`; `utils/should-clear-cache.ts` | Client đọc được dữ liệu cũ tới `CACHE_TTL` (mặc định 5 phút) sau khi ghi ở bất kỳ app nào; đây là thiết kế của Directus, ghi để đội vận hành biết |
 | R-09 | Key cache không chứa `share`, `session`, `role`: request bằng token share có `user: null` nên cùng key với request public cùng `path`, `query`; `permissionsCacheable` không xét share | `utils/get-cache-key.ts:48` (`user: req.accountability?.user \|\| null`); `middleware/cache.ts` không có nhánh share | Request public có thể nhận bản cache do request share tạo (dữ liệu của item được share, chỉ khi public cũng được đọc collection đó với cùng query) và ngược lại, tới hết `CACHE_TTL`. Chỉ xảy ra khi `CACHE_ENABLED=true`; share có từ 010 nên ca đo thuộc 010 |
-| R-10 | `registerAction` gọi `messenger.publish(...)` không `await`, không `catch`; khi Redis không dùng được, ioredis xếp lệnh vào hàng đợi offline rồi từ chối sau `maxRetriesPerRequest` (mặc định 20) lần kết nối lại; promise bị từ chối không ai bắt; hai app không đăng ký `process.on('unhandledRejection')` | `websocket/controllers/hooks.ts:191-193`; `packages/memory/src/bus/lib/redis.ts` (`publish` `await this.pub.publish`); `redis/lib/create-redis.ts` không đặt tùy chọn retry | `[Suy luận]` Node 22 mặc định kết thúc process khi promise bị từ chối không ai bắt, nên instance (Directus hoặc app mới, chỉ khi bật WebSocket) có thể tắt sau một thao tác ghi trong sự cố Redis kéo dài; request đó đã trả xong. Đo ở `redis-down` với cặp `cache-redis` (FR-016, T044) và ghi kết quả vào spec |
+| R-10 | `registerAction` gọi `messenger.publish(...)` không `await`, không `catch`; khi Redis không dùng được, ioredis xếp lệnh vào hàng đợi offline rồi từ chối sau `maxRetriesPerRequest` (mặc định 20) lần kết nối lại; promise bị từ chối không ai bắt; hai app không đăng ký `process.on('unhandledRejection')` | `websocket/controllers/hooks.ts:191-193`; `packages/memory/src/bus/lib/redis.ts` (`publish` `await this.pub.publish`); `redis/lib/create-redis.ts` không đặt tùy chọn retry | Đo ở T044 (Postgres, cặp `cache-redis`): ghi khi Redis dừng trả `200` ở cả hai app; `publish` bị từ chối sau khoảng 10 giây (`MaxRetriesPerRequestError`) và không ai bắt. Image Directus chạy dưới `pm2-runtime`, pm2 ghi `You have triggered an unhandledRejection, ...` lên stderr và giữ process; app mới chạy `node` trần nên process thoát. Sửa: `apps/api/src/unhandled-rejection.ts` làm như pm2; nay hai app ghi cùng dòng log, không process nào thoát, không phải khởi động lại |
 
 ## Assumptions
 

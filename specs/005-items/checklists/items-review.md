@@ -142,4 +142,8 @@ trước. Mục `[Conflict]`, `[Gap]` đã đối chiếu với spec, plan, cont
 - 2026-10-11 (trước `/speckit.implement`): giải nốt 7 mục còn mở (CHK001, CHK004, CHK006, CHK012, CHK013, CHK015,
   CHK020) bằng đọc code Directus và sửa spec (Edge Cases, FR-004, FR-016, FR-021, Key Entities). Chỗ còn ghi "dự kiến"
   (chuỗi `%` sai, message `TypeError`, export xml, yaml khi không có payload) được đo ở T010, T025. Mọi mục đã giải.
+- 2026-10-12 (T051): các chỗ "dự kiến" đã thay bằng số đo của T010, T025, T032, T033, T044: `%` sai trả `500`
+  `Failed to decode param`; export csv không payload trả `500` với message `TypeError` ở trên; xml, yaml không payload
+  trả `200`; charset `utf-8` do Express thêm; dấu `/` cuối là key khác (CHK013); Redis dừng: cả hai không trả trong
+  15 giây (CHK012); R-10 đo xong (FR-016, R-10, contracts/export.md §1, §3).
 - Mỗi lần chạy `/speckit.checklist` tạo một file mới; checklist `requirements.md` (chất lượng spec chung) giữ nguyên.

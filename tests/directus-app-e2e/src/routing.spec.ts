@@ -54,3 +54,63 @@ test('requests of the route list reach the new app, the others Directus', async 
 	];
 	process.stdout.write(`routes answered by the new app:\n${toBackoffice.sort().join('\n')}\n`);
 });
+
+// Feature 005 (T047): the content module and the CSV export (window.open of ?export=csv&access_token=...) go to the
+// new app.
+test('/items requests, the CSV export with access_token included, reach the new app', async ({ page, baseURL }) => {
+	const collection = 'e2e_routing_items';
+	const auth = async () => {
+		const res = await fetch(`${baseURL}/auth/login`, {
+			method: 'POST',
+			headers: { 'content-type': 'application/json' },
+			body: JSON.stringify(ADMIN),
+		});
+		return ((await res.json()) as any).data.access_token as string;
+	};
+	const token = await auth();
+	const api = (method: string, path: string, body?: unknown) =>
+		fetch(`${baseURL}${path}`, {
+			method,
+			headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
+			...(body === undefined ? {} : { body: JSON.stringify(body) }),
+		});
+
+	await api('DELETE', `/collections/${collection}`);
+	await api('POST', '/collections', {
+		collection,
+		schema: {},
+		meta: {},
+		fields: [
+			{
+				field: 'id',
+				type: 'integer',
+				meta: { hidden: true },
+				schema: { is_primary_key: true, has_auto_increment: true },
+			},
+			{ field: 'title', type: 'string' },
+		],
+	});
+
+	try {
+		const since = new Date().toISOString();
+		await login(page, baseURL!);
+		await dismissOwnerDialog(page);
+		await page.goto(`${baseURL}/admin/content/${collection}`);
+		await page.waitForLoadState('networkidle');
+
+		const exported = await fetch(`${baseURL}/items/${collection}?export=csv&limit=-1&access_token=${token}`);
+		expect(exported.status).toBe(200);
+		expect(exported.headers.get('content-disposition')).toMatch(new RegExp(`^attachment; filename="${collection} `));
+
+		const addresses = {
+			directus: containerAddress('parity-postgres-directus-1'),
+			backoffice: containerAddress('parity-postgres-backoffice-api-1'),
+		};
+		const items = proxyLog(since).filter((e) => e.path.startsWith('/items/'));
+
+		expect(items.some((e) => e.path.includes('export=csv'))).toBe(true);
+		expect(items.filter((e) => upstreamOf(e, addresses) !== 'backoffice')).toEqual([]);
+	} finally {
+		await api('DELETE', `/collections/${collection}`);
+	}
+});

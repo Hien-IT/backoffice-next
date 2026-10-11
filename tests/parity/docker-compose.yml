@@ -558,7 +558,7 @@ services:
     command: ['sh', '-c', 'while :; do [ -f /tmp/down ] || redis-server --save "" --appendonly no; sleep 0.2; done']
     stop_grace_period: 1s
     ports:
-      - '6109:6379'
+      - '6111:6379'
     healthcheck:
       test: ['CMD', 'redis-cli', 'ping']
       interval: 2s

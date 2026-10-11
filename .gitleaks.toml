@@ -9,6 +9,10 @@ paths = [
   '''^directus/''',
   '''^tests/parity/env/[^/]+\.env$''',
   '''^dev/directus-reference/''',
+  # Feature 005: the copy of directus/tests/blackbox (fixed ids and static tokens of its test users) and the cache keys
+  # (object-hash values) that the ported get-cache-key test expects.
+  '''^tests/parity/src/items/blackbox/''',
+  '''^apps/api/src/utils/get-cache-key\.test\.ts$''',
   '''(^|/)node_modules/''',
   '''(^|/)(dist|coverage|graphify-out)/''',
 ]

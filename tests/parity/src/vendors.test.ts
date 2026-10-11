@@ -73,6 +73,12 @@ function publishedPort(service: string): number | undefined {
 	return match ? Number(match[1]) : undefined;
 }
 
+test('every host port published in docker-compose.yml is used once (feature 005: redis-cache met the LDAP port)', () => {
+	const ports = [...compose.matchAll(/- '(\d+):\d+'/g)].map((m) => m[1]);
+	expect(ports.filter((p, i) => ports.indexOf(p) !== i)).toEqual([]);
+	expect(publishedPort('redis-cache')).toBe(cacheRedisPort);
+});
+
 // Feature 005 (T004): the ports of config.ts match docker-compose.yml and every pair has its env file.
 test.each(Object.entries(profilePorts))('profile %s: compose ports and env file', (profile, ports) => {
 	expect(publishedPort(`directus-${profile}`)).toBe(ports.directus);

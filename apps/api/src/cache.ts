@@ -135,7 +135,7 @@ export function getMemorySchemaCache(): Readonly<SchemaOverview> | undefined {
 	return undefined;
 }
 
-/** Test helper. */
+/** Compressed like Directus (snappy), so both apps read what the other wrote. */
 export async function setCacheValue(
 	cache: Keyv,
 	key: string,

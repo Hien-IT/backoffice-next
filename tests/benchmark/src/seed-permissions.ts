@@ -22,7 +22,7 @@ export const db: Knex = knex({
 
 let adminToken: string | undefined;
 
-async function directus(method: string, path: string, body?: unknown): Promise<any> {
+export async function directus(method: string, path: string, body?: unknown): Promise<any> {
 	if (!adminToken) {
 		const res = await fetch(`${DIRECTUS}/auth/login`, {
 			method: 'POST',
@@ -38,6 +38,12 @@ async function directus(method: string, path: string, body?: unknown): Promise<a
 		headers: { authorization: `Bearer ${adminToken}`, 'content-type': 'application/json' },
 		...(body === undefined ? {} : { body: JSON.stringify(body) }),
 	});
+
+	// A run lasts longer than ACCESS_TOKEN_TTL: log in again once (feature 005, items benchmark).
+	if (res.status === 401 && adminToken) {
+		adminToken = undefined;
+		return directus(method, path, body);
+	}
 
 	if (!res.ok) throw new Error(`${method} ${path}: ${res.status} ${await res.text()}`);
 	return res.status === 204 ? undefined : res.json();

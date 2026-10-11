@@ -31,10 +31,11 @@ export interface Snapshot {
 
 const keyOf = (row: Row) => String(row['id']);
 
-export async function snapshot(): Promise<Snapshot> {
+/** `extra`: user collections a scenario writes too (feature 005, items.spec.ts). */
+export async function snapshot(extra: string[] = []): Promise<Snapshot> {
 	const tables: Record<string, Map<string, Row>> = {};
 
-	for (const table of TABLES) {
+	for (const table of [...TABLES, ...extra]) {
 		const rows = (await hostDb().select('*').from(table)) as Row[];
 		tables[table] = new Map(rows.map((row) => [keyOf(row), row]));
 	}
@@ -44,8 +45,8 @@ export async function snapshot(): Promise<Snapshot> {
 }
 
 /** Rows added, changed or removed since `before`, and the activity and revisions written since, normalized. */
-export async function changesSince(before: Snapshot): Promise<unknown> {
-	const after = await snapshot();
+export async function changesSince(before: Snapshot, extra: string[] = []): Promise<unknown> {
+	const after = await snapshot(extra);
 	const markers = new Map<string, string>();
 	const mark = (value: string) => {
 		if (!markers.has(value)) markers.set(value, `<id${markers.size + 1}>`);
@@ -80,7 +81,7 @@ export async function changesSince(before: Snapshot): Promise<unknown> {
 
 	const changes: Record<string, unknown> = {};
 
-	for (const table of TABLES) {
+	for (const table of [...TABLES, ...extra]) {
 		const old = before.tables[table]!;
 		const now = after.tables[table]!;
 		const added = [...now.entries()].filter(([key]) => !old.has(key)).map(([, row]) => row);
@@ -98,12 +99,15 @@ export async function changesSince(before: Snapshot): Promise<unknown> {
 		.select('action', 'collection', 'item')
 		.from('directus_activity')
 		.where('id', '>', before.activity)
-		.whereIn('collection', TABLES)
+		.whereIn('collection', [...TABLES, ...extra])
 		.orderBy('id')) as Row[];
 
-	// directus_permissions keys are serial numbers: their value depends on the rows of earlier runs.
+	// directus_permissions keys and those of the extra collections are serial numbers: their value depends on the rows of
+	// earlier runs.
 	changes['activity'] = activity.map((row) =>
-		row['collection'] === 'directus_permissions' ? { ...row, item: '<serial>' } : row,
+		row['collection'] === 'directus_permissions' || extra.includes(row['collection'] as string)
+			? { ...row, item: '<serial>' }
+			: row,
 	);
 
 	// Normalized in one pass so markers follow the order of appearance in the whole result.

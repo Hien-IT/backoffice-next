@@ -76,6 +76,23 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('HTTP log lines (LOG_
 
 		expect(logs('backoffice-api-metrics')).not.toMatch(/log-secret-\d/);
 	});
+
+	// Feature 005 (T050, R-06 of 004): an export opened by the app carries access_token in the URL; the HTTP log line
+	// redacts it like Directus.
+	it('?export=json&access_token=: the same line as Directus, the token redacted', { timeout: 30_000 }, async () => {
+		const probe = randomUUID();
+		const req = { path: `/server/info?probe=${probe}&export=json&access_token=log-secret-4` };
+
+		await capture(urls().directusUrl!, req);
+		await capture(urls().backofficeUrl!, req);
+
+		const [d, b] = [await httpLine('directus-metrics', probe), await httpLine('backoffice-api-metrics', probe)];
+
+		expect(keyPaths(b)).toEqual(keyPaths(d));
+		expect([b.msg, b.res.statusCode, b.req.url]).toEqual([d.msg, d.res.statusCode, d.req.url]);
+		expect(b.req.url).toContain('access_token=--redacted--');
+		expect(logs('backoffice-api-metrics')).not.toContain('log-secret-4');
+	});
 });
 
 // Feature 003: the cookie part of directus/tests/blackbox/tests/common/logger/redact.test.ts (REST), and FR-063: no

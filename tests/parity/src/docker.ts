@@ -19,6 +19,12 @@ export function compose(...args: string[]): string {
 		'sso',
 		'user-limits',
 		'app',
+		// Feature 005 (research R5): the cache pairs, their Redis (redis-cache) and the WebSocket pair.
+		'cache-mem',
+		'cache-mem-purge',
+		'cache-redis',
+		'cache-redis-purge',
+		'websocket',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(
@@ -46,18 +52,21 @@ export function exitCode(service: string): number {
 	return Number(execFileSync('docker', ['inspect', '-f', '{{.State.ExitCode}}', id], { encoding: 'utf8' }).trim());
 }
 
-/** Stops the Redis server inside the running `redis` container: clients get ECONNREFUSED (see docker-compose.yml). */
-export function redisDown(): void {
-	compose('exec', '-T', 'redis', 'sh', '-c', 'touch /tmp/down; redis-cli shutdown nosave || true');
+/**
+ * Stops the Redis server inside the running container (`redis`, or `redis-cache` of the cache-redis pair): clients get
+ * ECONNREFUSED (see docker-compose.yml).
+ */
+export function redisDown(service = 'redis'): void {
+	compose('exec', '-T', service, 'sh', '-c', 'touch /tmp/down; redis-cli shutdown nosave || true');
 }
 
 /** Starts the Redis server again and waits until it answers PING. */
-export async function redisUp(): Promise<void> {
-	compose('exec', '-T', 'redis', 'rm', '-f', '/tmp/down');
+export async function redisUp(service = 'redis'): Promise<void> {
+	compose('exec', '-T', service, 'rm', '-f', '/tmp/down');
 
 	for (let i = 0; i < 50; i++) {
 		try {
-			if (compose('exec', '-T', 'redis', 'redis-cli', 'ping').includes('PONG')) return;
+			if (compose('exec', '-T', service, 'redis-cli', 'ping').includes('PONG')) return;
 		} catch {
 			// not up yet
 		}
