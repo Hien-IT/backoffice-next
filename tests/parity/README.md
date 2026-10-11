@@ -109,4 +109,5 @@ Workflow `.github/workflows/ci.yml` chạy test đối chiếu ở job `parity`,
 merge thẳng vào `main` (repo private gói GitHub Free không có branch protection): sau mỗi lần push, xem kết quả bằng
 `gh run list --branch main` và sửa job đỏ ở commit tiếp theo. Khi repo có gói hỗ trợ branch protection, bật "Require
 status checks to pass before merging" cho `main` với các check: `guard-directus`, `quality`, `guard-differences`,
-`parity (postgres, …)`, `parity (mysql, …)`, `parity (sqlite3, …)`, `benchmark`, `docker`, `e2e`, `security`, `semgrep`.
+`parity (postgres, …)`, `parity (mysql, …)`, `parity (sqlite3, …)`, `docker`, `e2e`, `security`, `semgrep`. Hai job
+benchmark (`benchmark`, `benchmark-auth`) chạy ở workflow `Benchmark` (hằng tuần và bấm tay), không chặn merge.

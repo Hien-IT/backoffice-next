@@ -26,6 +26,7 @@ pnpm install
 | Chạy app web (`/admin/`) | `pnpm nx serve web` |
 | Test đối chiếu với Directus | `pnpm nx run parity-tests:env-up --vendor=postgres` rồi `pnpm nx run parity-tests:parity --vendor=postgres` |
 | Benchmark | `pnpm nx run benchmark:env-up` rồi `pnpm nx run benchmark:run` |
+| Benchmark auth (2.000 kết nối) | `pnpm nx run benchmark:env-up-auth` rồi `pnpm nx run benchmark:auth` |
 | E2E web | `pnpm nx run web-e2e:e2e` |
 | Kiểm tra quy tắc repo | `pnpm run check-port-headers`, `pnpm run check-package-names`, `pnpm run test:tools` |
 
