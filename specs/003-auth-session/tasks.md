@@ -646,3 +646,6 @@ Task: "T061 ldap.ts"
   80 phút, quá timeout 60 phút. Chủ dự án chọn: tắt pressure limiter cho cả hai app ở môi trường benchmark auth
   (`tests/benchmark/auth.compose.yml`, target `benchmark:env-up-auth`) và 3 vòng (`BENCH_ROUNDS=3` ở job CI); SC-007,
   R12, quickstart cập nhật theo.
+- T072: chủ dự án (tech lead) duyệt D-09.10, D-23 đến D-26 ngày 2026-10-11. Còn: CI xanh mọi job (GitHub Actions bị
+  chặn vì hết hạn mức thanh toán; chạy lại run 38101382154 sau khi tăng spending limit), ghi thời gian `benchmark-auth`
+  (T066), rồi `spec.md` `Status: Done` và xóa D-09.1 khỏi `tests/parity/accepted-differences.ts`.

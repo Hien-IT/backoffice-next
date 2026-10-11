@@ -294,7 +294,7 @@ backoffice-next/
 Không có vi phạm mới. Các ngoại lệ đã duyệt của 001, 002 vẫn áp dụng, nhất là dòng 8 của 001: store `memory` và cảnh
 báo một instance, nay gồm cả bộ đếm đăng nhập sai. Constitution 1.3.0 (Nguyên tắc XI: OAuth2, LDAP vào phạm vi) đã được
 tech lead duyệt ngày 2026-10-10 (chủ dự án xác nhận; quy trình không có PR). Các khác biệt D-09.10, D-23 đến D-26 cần
-tech lead duyệt trước khi đóng feature (Nguyên tắc X, T072).
+tech lead duyệt trước khi đóng feature (Nguyên tắc X, T072). Đã duyệt ngày 2026-10-11 (chủ dự án xác nhận trong chat).
 
 `joi` dùng 18.2.6 thay vì 18.0.1 của Directus: bản vá bảo mật (advisory high GHSA-6h2x-m376-mqjq), cùng cách xử lý
 `nanoid` ở 001. API `joi` dùng trong `libs/validation` không đổi giữa hai bản; test gốc của Directus chạy qua.
