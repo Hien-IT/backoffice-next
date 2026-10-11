@@ -246,8 +246,15 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
   - `request-set.ts`: thêm `GET`/`SEARCH` của năm endpoint và route `me` với static token của một user fixture tạo
     trước khi chụp DB (`db-unchanged` chạy không có Directus; static token không ghi DB), `OPTIONS`, và các request bị
     chặn trước bước ghi (contracts/db-writes.md §7).
-  - `suite.ts`: `src/permissions/**` vào `full`; `reduced` thêm `matrix-reduced` (ít nhất một ô mỗi nhóm của FR-101,
-    SC-001), `users`, `roles`, `write-rules`.
+  - Ma trận FR-101 là tích đầy đủ (Clarifications rà checklist): 10 × 13 × 5 × 5 × 6 = 19.500 ô. `matrix.ts` sinh ô từ
+    năm danh sách giá trị (không viết tay); ô nhóm theo (accountability, cấu hình permission, `ip_access`) thành 650 nhóm
+    fixture, mỗi nhóm dựng fixture một lần rồi chạy 30 ô (5 action × 6 collection). Ô đọc dùng `parity()`; ô ghi dùng
+    `scenario()` với fixture riêng mỗi app và dọn dữ liệu sau ô. `PARITY_MATRIX_SHARD=<i>/<n>` chọn nhóm theo chỉ số để
+    chia job CI; job `parity-matrix` (Postgres) chạy `n` shard song song, `n` chọn sau khi đo ở task đầu của Phase 5 để
+    mỗi shard dưới 60 phút. `matrix-reduced.test.ts` (MySQL, SQLite) chọn ô sao cho mỗi giá trị của mỗi chiều xuất hiện
+    ít nhất một lần, chỉ action `read`, `update`, collection `directus_users`.
+  - `suite.ts`: `src/permissions/**` trừ `matrix.test.ts` vào `full` (ma trận chạy ở job `parity-matrix`); `reduced`
+    thêm `matrix-reduced`, `users`, `roles`, `write-rules`.
   - Ca cross-app dùng `flushSharedCaches()` giữa hai lần chụp khi so giá trị tính toán (002); với response cache của
     Directus (`CACHE_ENABLED=true`, `CACHE_AUTO_PURGE=true` trong env đối chiếu): ghi qua API nên cache được xóa; đọc
     trạng thái từ DB như 003 (T044).
@@ -255,8 +262,10 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
     (FR-100 của 003).
 - **Lý do**: FR-100 đến FR-105, SC-001, SC-005. Fixture qua API của chính app được kiểm là cách duy nhất so luồng ghi
   lồng (`CreatePermission`).
-- **Rủi ro**: Ma trận lớn; Postgres full có thể thêm 10 đến 15 phút `[Suy luận]`; task đầu của Phase 5 đo và tách file
-  để `fileParallelism: false` không làm quá timeout 60 phút (tách job CI nếu cần).
+- **Rủi ro**: 19.500 ô, mỗi ô ít nhất hai request (một mỗi app), ô ghi thêm dựng và dọn fixture: `[Suy luận]` vài giờ
+  chạy tuần tự, nên phải chia nhiều shard; mỗi lần push tốn nhiều phút GitHub Actions (repo private, đã từng bị chặn vì
+  hạn mức ngày 2026-10-11). Task đầu của Phase 5 đo thời gian một nhóm fixture rồi chốt số shard; nếu tổng phút vượt hạn
+  mức thì báo chủ dự án trước khi bật job.
 
 ## R14. Benchmark (SC-006)
 

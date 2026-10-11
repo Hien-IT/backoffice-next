@@ -79,6 +79,13 @@ cache của feature 005); `tests/db/app/cache.test.ts` (`PATCH /users/me/track/p
   `avatar` → `directus_files`) xử lý thế nào khi `getService()` của Directus trả service riêng? → A: Dùng
   `ItemsService` chung cho các collection đó tới khi feature tương ứng port service (D-31); `directus_*` không có
   service ở Directus vẫn bị cấm như Directus.
+- Q (rà checklist): Key cache `global-access` của Directus không chứa IP, nên cờ `admin`, `app` tính ở request đầu tiên
+  được dùng cho mọi IP (chặn `ip_access` của policy admin có thể bị vô hiệu). App mới làm gì? → A: Tái tạo y hệt (cùng
+  key, cùng hành vi), ghi là rủi ro chấp nhận R-01, cần tech lead duyệt.
+- Q (rà checklist): Gặp thêm hành vi Directus không an toàn trong lúc làm thì sao? → A: Luôn tái tạo; ghi vào bảng "Rủi ro
+  chấp nhận" kèm bằng chứng (file, dòng của Directus); chỉ lệch khi chủ dự án yêu cầu (Assumptions).
+- Q (rà checklist): Quy tắc phủ của ma trận quyền (SC-001)? → A: Tích đầy đủ năm chiều đã liệt kê ở FR-101 trên Postgres;
+  bộ rút gọn trên MySQL, SQLite (mỗi giá trị của mỗi chiều ít nhất một lần); chia job CI để mỗi job dưới 60 phút.
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -117,6 +124,10 @@ token share và không token. So status, body và header.
    INVALID_TOKEN` hoặc `401 TOKEN_EXPIRED` như Directus, thay vì trả như request public.
 6. **Given** token share (role `null`, có `share`), **When** gọi `GET /users/me`, **Then** trả `{"data": {"share":
    "<id>"}}` giống Directus.
+7. **Given** user bị chuyển từ role `A` sang role `B` ở Directus, **When** gọi app mới bằng access token cấp trước khi
+   đổi (còn hạn), **Then** `role` và `roles` vẫn theo claim cũ (cây role của `A`), `admin`, `app` tính lại theo user và
+   cây role `A`, giống Directus; sau khi refresh (token mới có `role: B`) thì theo `B`. Với static token, request kế tiếp
+   dùng ngay `B`.
 
 ---
 
@@ -152,8 +163,9 @@ quyền, action và request. So status, body, và tác động DB (với request
    **Then** trả `403 FORBIDDEN` với cùng message như Directus, và DB không đổi.
 6. **Given** user không có quyền `read` một collection, **When** đọc một item theo id, **Then** trả `403 FORBIDDEN`
    message `You don't have permission to access this.`, dù item có tồn tại hay không, giống Directus.
-7. **Given** policy có `ip_access` không chứa IP của request, **When** user gửi request, **Then** policy đó bị bỏ qua
-   khi tính quyền, giống Directus (kể cả khi IP không xác định được).
+7. **Given** policy có `ip_access` không chứa IP của request, **When** user gửi request, **Then** permission của policy
+   đó không được dùng (kể cả khi IP không xác định được); cờ `admin`, `app` theo bảng FR-016 (khác ở R-01, R-02), giống
+   Directus.
 8. **Given** user có `app_access` (qua policy), **When** gọi `GET /permissions`, **Then** kết quả có thêm các dòng
    quyền tối thiểu của app (`id: null`, `system: true`), giống Directus.
 
@@ -329,7 +341,9 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - Request không token: cờ `admin`, `app` luôn `false`; quyền theo policy public.
 - Cây role có vòng (dữ liệu hỏng do ghi thẳng DB): báo lỗi giống Directus (`Recursion encountered`).
 - Không xác định được IP của request: `fetchPolicies` bỏ mọi policy có `ip_access`, nhưng cờ admin và app vẫn tính cả
-  policy đó (hai chỗ của Directus xử lý khác nhau, app mới giữ nguyên).
+  policy đó (FR-016, R-02).
+- Cùng user gọi từ IP được phép rồi từ IP bị cấm khi policy admin có `ip_access`: cờ `admin` của lần đầu được dùng lại
+  (FR-016, R-01).
 - Claim `enforce_tfa` trong JWT lúc đăng nhập chỉ xét policy của role trực tiếp; `/policies/me/globals` xét mọi policy
   sau khi lọc IP. Giữ nguyên cả hai.
 - Đọc theo id một item không tồn tại và một item không có quyền: cùng `403`.
@@ -359,14 +373,28 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   D-18 phần cảnh báo).
 - **FR-002**: Accountability PHẢI có cùng các trường và giá trị như Directus: `user`, `role`, `roles` (cây role từ gốc
   tới role của user, rỗng khi không có role), `admin`, `app`, `ip`, `userAgent` (cắt 1024 ký tự), `origin`, `session`,
-  `share`. `admin` và `app` PHẢI tính lại từ policy ở mỗi request (cây role và policy gắn vào user, gộp bằng OR, lọc
-  theo IP), không lấy từ claim JWT.
+  `share`. Nguồn của từng trường như `getAccountabilityForToken`:
+  - JWT: `user`, `role` lấy từ claim `id`, `role`, giữ nguyên tới khi token hết hạn hoặc được refresh, kể cả khi role của
+    user đã đổi trong DB; `session`, `share` từ claim cùng tên;
+  - static token: `user`, `role` đọc từ `directus_users` (user `active` có `token` khớp) ở mỗi request;
+  - mọi loại: `roles` là cây role của `role`; `admin`, `app` tính lại ở mỗi request bằng `fetchGlobalAccess` (cây role và
+    policy gắn vào user, gộp bằng OR, lọc IP theo FR-016), không lấy claim `admin_access`, `app_access` của JWT;
+  - `ip` theo `getIPFromReq` (đã có từ 001): `req.ip` theo `IP_TRUST_PROXY`, thay bằng header `IP_CUSTOM_HEADER` khi
+    header đó là IP hợp lệ, bỏ tiền tố `::ffff:`; `null` khi không có.
 - **FR-003**: Token share PHẢI cho accountability `role: null`, `roles: []`, `user: null`, `share: <id>`. Quyền `read`
   của share PHẢI tính như `getPermissionsForShare` (giao quyền của người tạo share và role của share, sinh filter trỏ
   về item được share qua quan hệ); action khác dùng policy public.
 - **FR-004**: Các route đã có PHẢI dùng accountability như Directus: `/server/info` (thêm thông tin khi có user,
   `version` khi có user), `/server/health` (chi tiết cho admin), `/metrics` (admin, hoặc header `Metrics <token>` khớp
   `METRICS_TOKENS`), `/server/specs/oas` (theo quyền đọc), `/auth/*` và `/users/me/tfa/generate` (như feature 003).
+  Các path Directus trả lời trước bước `authenticate` (`GET /`, `GET /robots.txt`, `GET /server/ping`) vẫn không đọc
+  token.
+- **FR-005**: Khi một request có nhiều lỗi, lỗi trả về PHẢI theo thứ tự các bước của Directus: (1) `extractToken`: token
+  gửi bằng hai cách → `400 INVALID_PAYLOAD`; (2) rate limiter → `429`; (3) `authenticate`: token sai hoặc hết hạn →
+  `401`/`403`; (4) `sanitizeQuery`, `validateQuery` → `400 INVALID_QUERY`; (5) route: không khớp → `404
+  ROUTE_NOT_FOUND`, kiểm body (`validateBatch`, Joi) → `400 INVALID_PAYLOAD`, kiểm đăng nhập của route (`401`, `403`);
+  (6) service: kiểm quyền → `403`; (7) lỗi kiểm dữ liệu để dành (`preMutationError`: email, mật khẩu, URL) → `400`; (8)
+  ghi DB (lỗi DB đã dịch); (9) kiểm toàn vẹn số user → `422 UNPROCESSABLE_CONTENT` hoặc `403 LIMIT_EXCEEDED`.
 
 **Policy, permission và biến động**
 
@@ -392,6 +420,13 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   cache.
 - **FR-015**: Accountability `admin` PHẢI bỏ qua kiểm quyền như Directus, trừ kiểm collection tồn tại (collection
   không có thì `403` cả với admin). Accountability `null` (luồng nội bộ) PHẢI bỏ qua kiểm quyền.
+- **FR-016**: Lọc IP PHẢI giống Directus ở từng nơi dùng, kể cả chỗ không nhất quán (rủi ro chấp nhận R-01, R-02):
+
+  | Nơi dùng | Hàm Directus | Lọc IP | Khi `ip` là `null` | Cache |
+  |----------|--------------|--------|--------------------|-------|
+  | Policy dùng cho permission, `GET /permissions/me`, `enforce_tfa` của `GET /policies/me/globals` | `fetchPolicies` → `filterPoliciesByIp` | Có | Bỏ mọi policy có `ip_access` | `policies`, có `ip` trong hash |
+  | Cờ `admin`, `app` của accountability; claim `admin_access`, `app_access` lúc đăng nhập (003) | `fetchGlobalAccess` | Có, ở lớp `global-access-roles`, `global-access-user` | Không bỏ policy | `global-access` **không** có `ip` trong hash (R-01) |
+  | Claim `enforce_tfa` lúc đăng nhập (003) | Truy vấn policy của role trực tiếp | Không | — | Không cache |
 
 **Kiểm quyền đọc**
 
@@ -424,6 +459,10 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   để dành `preMutationError`), ghi DB, kiểm toàn vẹn số user trong cùng transaction.
 - **FR-034**: Action `share` PHẢI được lưu, đọc và kiểm như action khác; dùng ở `GET /permissions/me/:collection/:pk`
   (feature này) và khi tạo share (feature 010).
+- **FR-035**: Như Directus, không có quy tắc cứng nào chặn user tự sửa `role`, `status` hay policy gắn vào chính mình
+  (qua `PATCH /users/me`, `PATCH /users/:pk` hoặc ghi lồng vào `directus_access`); chỉ permission quyết định. Quy tắc
+  cứng duy nhất là FR-052 (`tfa_secret`, `provider`, `external_identifier`). Ma trận FR-101 PHẢI có ca user được
+  `update` field `role` của chính mình (filter `$CURRENT_USER`) và ca không được.
 
 **Endpoint**
 
@@ -457,7 +496,10 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-046**: `GET /policies/me/globals` PHẢI trả `{app_access, admin_access, enforce_tfa}` (`enforce_tfa` đúng khi một
   policy ở FR-010 có `enforce_tfa = true`); không user và không role, hoặc gặp `403`, trả `200` với `{"app_access":
   false}`.
-- **FR-047**: Route lạ của năm controller (ví dụ `GET /access/me`) PHẢI trả giống Directus.
+- **FR-047**: `GET /users/<pk>`, `GET /policies/<pk>`, `GET /access/<pk>`, `GET /permissions/<pk>` với `<pk>` kết thúc
+  bằng `me` mà không khớp route riêng (ví dụ `GET /access/me`, `GET /users/some`) PHẢI trả `204` không body như Directus
+  (handler bỏ qua và chuyển sang `respond`, `controllers/access.ts:83-98`). `GET /roles/<pk>` không có nhánh này. Path
+  không khớp route nào của năm controller (ví dụ `GET /users/a/b`) trả `404 ROUTE_NOT_FOUND`.
 - **FR-048**: `POST /users/me/tfa/enable` (cần `secret`, `otp`), `POST /users/me/tfa/disable` (cần `otp`) và `POST
   /users/:pk/tfa/disable` (chỉ admin) PHẢI giống Directus: kiểm OTP như `TFAService`, ghi `tfa_secret` qua engine ghi
   với accountability của người gọi (nên người không phải admin cần quyền `update` field `tfa_secret` như ở Directus),
@@ -474,8 +516,11 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   PHẢI dùng được để gọi Directus và app mới.
 - **FR-052**: Payload có `tfa_secret` PHẢI bị từ chối với mọi người; `provider`, `external_identifier` bị từ chối với
   người không phải admin; khi được đổi thì `auth_data` về `null`; message giống Directus.
-- **FR-053**: Sau khi sửa: `status` khác `active` xóa mọi session của user; đổi `email` hoặc `password` xóa session trừ
-  session hiện tại; đổi `role` xóa cache hệ thống và cache quyền. Sau khi xóa user: đặt `null` cho
+- **FR-053**: Sau khi sửa: `status` khác `active` xóa mọi session của các user bị sửa; nếu không, đổi `email` hoặc
+  `password` xóa mọi session của các user bị sửa trừ session có `token` bằng claim `session` của request (chỉ có khi
+  request dùng chế độ `session`). Hệ quả, giống Directus: admin sửa user khác thì mọi session của user đó bị xóa; user tự
+  đổi mật khẩu bằng token chế độ `json` hoặc `cookie` cũng mất mọi session, kể cả refresh token đang dùng. Đổi `role`
+  xóa cache theo FR-082. Sau khi xóa user: đặt `null` cho
   `directus_comments.user_updated`, `directus_notifications.sender`, `directus_versions.user_updated` trước khi xóa, và
   xóa session của user.
 - **FR-054**: Kiểm toàn vẹn số user PHẢI giống `validateUserCountIntegrity` cho mọi thao tác ghi user, role, policy,
@@ -508,17 +553,16 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 
 **Quy tắc riêng của role, policy, access, permission**
 
-- **FR-070**: Sửa `parent` của role PHẢI kiểm vòng như `validateRoleNesting` (hai message ở US3), rồi xóa cache hệ
-  thống và cache quyền. Xóa role PHẢI làm đúng thứ tự trong một transaction: xóa access của role, xóa preset của role,
-  chuyển user của role sang `suspended` và `role = null`, đặt `parent = null` cho role con, xóa role, kiểm toàn vẹn,
-  xóa cache. Các bước này chạy với accountability của người gọi như Directus.
+- **FR-070**: Sửa `parent` của role PHẢI kiểm vòng như `validateRoleNesting` (hai message ở US3), rồi xóa cache theo
+  FR-082. Xóa role PHẢI làm đúng thứ tự trong một transaction: xóa access của role, xóa preset của role, chuyển user của
+  role sang `suspended` và `role = null`, đặt `parent = null` cho role con, xóa role, kiểm toàn vẹn; sau đó xóa cache
+  theo FR-082. Các bước này chạy với accountability của người gọi như Directus.
 - **FR-071**: `ip_access` của policy PHẢI được kiểm như Directus (`null`, `[]`, hoặc mảng IP, dải IP, CIDR; không
-  `*`, không mask). Tạo policy chỉ xóa cache quyền; sửa `admin_access`, `app_access`, `ip_access`, `enforce_tfa` xóa
-  cache hệ thống và cache quyền; xóa policy luôn xóa cache.
+  `*`, không mask). Xóa cache theo FR-082.
 - **FR-072**: Dòng access PHẢI chấp nhận `role`, `user`, cả hai hoặc không cái nào (policy public), chỉ `policy` bắt
-  buộc. Mọi thao tác ghi access PHẢI xóa cache hệ thống và cache quyền.
+  buộc. Xóa cache theo FR-082.
 - **FR-073**: `GET /permissions` với accountability `app = true` PHẢI thêm quyền tối thiểu của app, lọc theo `filter`
-  của request. Mọi thao tác ghi permission PHẢI xóa cache hệ thống, cache quyền và cache dữ liệu.
+  của request. Xóa cache theo FR-082.
 
 **Cache quyền**
 
@@ -529,14 +573,37 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 - **FR-081**: Kho cache PHẢI giống Directus: có Redis thì cache hai lớp (bộ nhớ process tối đa 100 key, Redis namespace
   `REDIS_PERMISSIONS_NAMESPACE`, mặc định `permissions`, TTL `CACHE_SYSTEM_TTL`), không Redis thì bộ nhớ process tối đa
   500 key. Mỗi lần ghi, xóa PHẢI phát thông điệp bus như `@directus/memory` để mọi instance bỏ bản trong bộ nhớ.
-- **FR-082**: App mới PHẢI xóa cache ở đúng các điểm Directus xóa (`clearSystemCache`: cache hệ thống, schema trong
-  process, cache quyền, thông điệp bus `schemaChanged`): tạo, sửa, xóa access; tạo policy (chỉ cache quyền), sửa
-  policy (bốn cờ), xóa policy; mọi thao tác ghi permission; sửa `parent` role, xóa role; sửa `role` của user.
-- **FR-083**: Ở mỗi điểm Directus xóa cache dữ liệu (response cache trong Redis, namespace `CACHE_NAMESPACE`): các điểm
-  ở FR-082 trừ tạo policy, và mọi thao tác ghi khi `CACHE_AUTO_PURGE=true` (trừ collection trong
-  `CACHE_AUTO_PURGE_IGNORE_LIST` và lệnh có `autoPurgeCache: false` như `track/page`), app mới PHẢI xóa cache dữ liệu
-  dùng chung đó dù chính nó chưa trả response từ cache (D-11), để Directus không trả dữ liệu cũ sau khi ghi ở app mới
-  (Nguyên tắc IV; cùng cách 003 đã làm khi đổi `role` của user).
+- **FR-082**: Đây là nguồn duy nhất về điểm xóa cache của năm collection (thuật ngữ ở Key Entities). App mới PHẢI xóa
+  đúng các loại cache Directus xóa, sau khi transaction ghi đã commit:
+
+  | Thao tác | Cache hệ thống + cache schema + cache quyền (`clearSystemCache`, bus `schemaChanged`) | Chỉ cache quyền | Cache dữ liệu |
+  |----------|------|------|------|
+  | Tạo, sửa, xóa access | Có | — | Có |
+  | Tạo policy | — | Có | — |
+  | Sửa policy có `admin_access`, `app_access`, `ip_access` hoặc `enforce_tfa` trong payload | Có | — | Có |
+  | Sửa policy không có bốn field trên | — | — | — |
+  | Xóa policy | Có | — | Có |
+  | Mọi thao tác ghi permission | Có | — | Có |
+  | Sửa role có `parent` trong payload; xóa role | Có | — | Có |
+  | Sửa user có `role` trong payload | Có | — | Có |
+
+  Cột "Cache dữ liệu" áp dụng khi `CACHE_ENABLED=true` và lệnh không có `autoPurgeCache: false` (riêng access luôn xóa,
+  vì `AccessService` không chuyển tùy chọn của lệnh), không phụ thuộc `CACHE_AUTO_PURGE`. Bảng áp dụng cả khi thao tác tới gián tiếp qua ghi lồng (ví dụ `PATCH /policies/:id` với
+  `permissions`, `PATCH /roles/:id` với `users` hoặc `policies`), vì ghi lồng đi qua service riêng của collection đó
+  (`getService`), như Directus.
+- **FR-083**: Ngoài FR-082, mọi thao tác ghi qua engine (mọi collection) PHẢI xóa cache dữ liệu như `shouldClearCache`:
+  khi `CACHE_AUTO_PURGE=true`, trừ collection trong `CACHE_AUTO_PURGE_IGNORE_LIST` và lệnh có `autoPurgeCache: false`
+  (`PATCH /users/me/track/page`). App mới xóa cache dữ liệu dùng chung dù chính nó chưa trả response từ cache (D-11), để
+  Directus không trả dữ liệu cũ sau khi ghi ở app mới (Nguyên tắc IV; cùng cách 003 đã làm khi đổi `role` của user).
+- **FR-084**: Khi `CACHE_STORE=memory` hoặc không cấu hình Redis, app mới PHẢI làm như Directus: cache dữ liệu và lớp
+  bộ nhớ của cache quyền là riêng từng process; FR-082, FR-083 chỉ xóa được cache của chính process; instance khác chỉ
+  được báo qua bus `schemaChanged` (bus local khi không có Redis), và chỉ xóa cache dữ liệu khi store `memory` với
+  `CACHE_AUTO_PURGE=true`. Cấu hình này đã có cảnh báo một instance (001); FR-102 và SC-003 chỉ áp dụng khi dùng chung
+  Redis.
+- **FR-085**: Khi Redis không dùng được lúc đọc, ghi hoặc xóa cache quyền, cache dữ liệu, app mới PHẢI cho cùng kết quả
+  (status, mã lỗi) như Directus đo trong cùng điều kiện (cùng `@backoffice/memory`, cùng cấu hình ioredis). Bước xóa
+  cache chạy sau khi transaction đã commit, nên dữ liệu đã ghi được giữ dù bước xóa lỗi (rủi ro chấp nhận R-03). Bộ
+  đối chiếu thêm ca này vào `redis-down.test.ts` của 002.
 
 **Dữ liệu ghi vào DB**
 
@@ -546,6 +613,11 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   `user_agent`, `origin`).
 - **FR-091**: Test `db-unchanged` và `readonly-account` của bộ test đối chiếu PHẢI được sửa theo: DB không đổi với mọi
   request đọc; với tài khoản DB chỉ đọc, mọi request đọc của feature này vẫn chạy không lỗi `500`.
+- **FR-092**: Giá trị nhạy cảm PHẢI được che như Directus: `password`, `token`, `tfa_secret` (special `conceal`) thành
+  `**********` (hoặc `null` khi trống) trong response và trong `data`, `delta` của revision (`prepareDelta` đọc qua
+  `processValues('read')`); activity không chứa payload. Log của app mới KHÔNG được chứa mật khẩu, static token,
+  `tfa_secret`, OTP, token mời, token xác minh hay link chứa chúng; dòng log thay email (FR-061, FR-063) chỉ có email
+  người nhận, như quyết định FR-062 của 003; log request che header `authorization`, cookie như 001.
 
 **Biến môi trường**
 
@@ -557,16 +629,32 @@ xóa và app kia tính lại quyền ở request kế tiếp.
 
 **Kiểm thử đối chiếu**
 
-- **FR-100**: Bộ test đối chiếu PHẢI port `common/common.test.ts`, các fixture của `common/functions.ts` (chạy được với
-  cả hai app), `check-item-permissions.test.ts`, và chạy lại nguyên bản các khẳng định `/users/me` của `ldap.test.ts`,
-  `login.test.ts`, `refresh.test.ts` đã hoãn từ feature 003 (FR-100 của 003). `cache-purge.test.ts` và
-  `tests/db/app/cache.test.ts` cần response cache (D-11) nên port ở feature 005.
-- **FR-101**: Bộ test PHẢI có ma trận quyền chạy với cả hai app trên cùng DB, gồm ít nhất: loại accountability (không
-  token, user không role, role một tầng, role lồng ba tầng, policy gắn vào user, admin qua role, admin qua user, `app`
-  có và không, static token, token share); cấu hình permission (không có, đủ quyền, filter thường, filter với từng biến
-  động và `$NOW(...)`, danh sách field một phần và `*`, validation, preset, nhiều policy khác field và filter cùng một
-  collection); `ip_access` (khớp, không khớp, dải, CIDR); action `create`, `read`, `update`, `delete`, `share`; trên năm
-  collection hệ thống và trên field tùy biến (kể cả field quan hệ) thêm vào `directus_users` qua API của Directus.
+- **FR-100**: Bộ test đối chiếu PHẢI port: phần `createRole()` (3 ca) và `createUser()` (4 ca) của
+  `common/common.test.ts`; các fixture `CreateRole`, `CreateUser`, `CreatePolicy`, `CreatePermission`,
+  `DeletePermission` của `common/functions.ts` (chạy được với cả hai app); `check-item-permissions.test.ts`; và chạy lại
+  nguyên bản các khẳng định `/users/me` của `ldap.test.ts`, `login.test.ts`, `refresh.test.ts` đã hoãn từ feature 003
+  (FR-100 của 003). Phần `createCollection()`, `createField()`, `createFieldM2O()`, `createFieldO2M()`, `createItem()`,
+  `deleteField()`, `deleteCollection()` của `common.test.ts` cần `/collections`, `/fields`, `/items` (D-09.3, D-09.4)
+  nên port ở feature 006. `cache-purge.test.ts` và `tests/db/app/cache.test.ts` cần response cache (D-11) nên port ở
+  feature 005.
+- **FR-101**: Bộ test PHẢI có ma trận quyền chạy với cả hai app trên cùng DB. Ma trận là **tích đầy đủ** của năm chiều
+  sau (Clarifications); mỗi ô có một cấu hình fixture và một bộ request cố định theo action:
+  1. Accountability (10): không token; user không role; user role một tầng không `app_access`; user role một tầng có
+     `app_access`; user role lồng ba tầng (permission đặt ở role gốc, giữa, lá); user có policy gắn trực tiếp (không qua
+     role); admin qua policy của role; admin qua policy gắn user; static token của user role một tầng; token share (share
+     do Directus tạo trên một collection người dùng).
+  2. Cấu hình permission của collection và action trong ô (13): không có; đủ quyền (filter rỗng, `fields: ["*"]`); filter
+     so với hằng; `$CURRENT_USER`; `$CURRENT_ROLE`; `$CURRENT_ROLES`; `$CURRENT_POLICIES`; `$CURRENT_USER.<quan hệ>.<field>`;
+     `$NOW(-1 day)`; danh sách field một phần; validation; preset; hai policy cùng collection và action với field và filter
+     khác nhau.
+  3. `ip_access` của policy mang permission (5): `null`; IP đơn khớp; IP đơn không khớp; dải `a-b` khớp; CIDR không khớp.
+  4. Action (5): `create` (`POST` một item), `read` (`GET` danh sách với `fields=*` và `GET /:pk`), `update`
+     (`PATCH /:pk`), `delete` (`DELETE /:pk`), `share` (`GET /permissions/me/<collection>/<pk>`).
+  5. Collection (6): `directus_users` (field hệ thống); `directus_users` (field tùy biến thêm qua API của Directus, gồm m2o
+     tới một collection người dùng); `directus_roles`; `directus_policies`; `directus_access`; `directus_permissions`.
+
+  Ngoài tích trên, ma trận PHẢI có các ca riêng của FR-035 (tự sửa `role`), US1.7 (đổi role khi token còn hạn) và R-01
+  (cùng user gọi từ IP được phép rồi từ IP bị cấm khi policy admin có `ip_access`).
 - **FR-102**: Bộ test PHẢI có ca dùng chéo cache: thay đổi quyền ở bên này có hiệu lực ở bên kia theo cả hai chiều, và
   so tập key `permissions:*` hai app ghi (mở rộng `src/schema/permissions-cache.test.ts` của feature 002).
 - **FR-103**: Bộ test PHẢI có ca đối chiếu cho mời, nhận lời mời, đăng ký, xác minh email, rate limiter đăng ký, token
@@ -601,7 +689,15 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   `delete`, `share`), `permissions` (filter), `validation`, `presets`, `fields`.
 - **Accountability**: danh tính của một request (FR-002), không lưu DB.
 - **Quyền tối thiểu của app**: bộ permission cố định trong code Directus 11.17.4, thêm cho user có `app_access`.
-- **Cache quyền**: key `permissions:<namespace>-<hash>` trong Redis và bản trong bộ nhớ process (FR-080, FR-081).
+- **Các loại cache** (dùng đúng tên này trong spec, plan, tasks):
+  - *Cache quyền*: kết quả các hàm `withCache` (8 namespace), key `permissions:<namespace>-<hash>` trong Redis cộng lớp
+    bộ nhớ process (FR-080, FR-081); xóa bằng `clearCache` của `permissions/cache.ts`.
+  - *Cache hệ thống*: Keyv `<CACHE_NAMESPACE>_system` của `getCache().systemCache`; xóa trong `clearSystemCache`.
+  - *Cache schema*: SchemaOverview trong process và trong `localSchemaCache` (002); xóa trong `clearSystemCache` và qua bus
+    `schemaChanged`.
+  - *Cache dữ liệu*: Keyv `getCache().cache` (namespace `CACHE_NAMESPACE`, store `CACHE_STORE`), chỉ có khi
+    `CACHE_ENABLED=true`; chứa response cache của Directus (app mới chưa đọc, D-11) và `filter-context-*` (FR-014).
+  - `clearSystemCache` xóa cache hệ thống, cache schema, cache quyền và phát `schemaChanged`; không xóa cache dữ liệu.
 - **Token mời, token xác minh**: JWT scope `invite`, `pending-registration`, không lưu DB.
 
 ## Khác biệt so với Directus *(mandatory)*
@@ -625,7 +721,7 @@ Khác biệt mới:
 | D-28 | Email xác minh đăng ký (`POST /users/register`) | Gửi email chứa link xác minh | Không gửi, ghi log như D-27 (FR-063). Response, thời gian chờ và dữ liệu ghi giống Directus | Nguyên tắc X | ngoài phạm vi | — |
 | D-29 | Event `users.*`, `roles.*`, `policies.*`, `access.*`, `permissions.*` (filter và action, `create`, `update`, `delete`) | Phát cho extension và flow | Không phát | Extension ngoài phạm vi (Nguyên tắc XI); flow theo event thuộc feature 009 | ngoài phạm vi (flow: tạm thời) | 009 |
 | D-30 | Thông điệp bus `websocket.event` khi ghi năm collection | Instance Directus bật WebSocket đẩy thay đổi tới client đang subscribe | App mới không đẩy; client realtime nối vào Directus không thấy thay đổi user, role, policy, access, permission do app mới ghi | Bus `websocket.event` làm ở feature 005 (Clarifications) | ngoài phạm vi (tạm thời) | 005 |
-| D-31 | Ghi lồng từ payload của năm collection vào `directus_files`, `folders`, `comments`, `notifications`, `shares`, `translations`, `dashboards`, `panels`, `flows`, `operations`, `versions`, `settings` (ví dụ `avatar` tạo lồng file) | Đi qua service riêng của collection đó (`FilesService`...) với kiểm tra và tác động riêng | Đi qua `ItemsService` chung (kiểm quyền, activity, revision như mọi collection; không có kiểm tra riêng của service đó). Đọc lồng không khác | Service riêng thuộc feature 007 đến 010 (Clarifications khi lập plan) | ngoài phạm vi (tạm thời) | 010 |
+| D-31 | Ghi lồng từ payload của năm collection vào collection hệ thống có service riêng chưa port. Quan hệ hệ thống của năm collection chỉ với tới `directus_files` (`directus_users.avatar`, m2o); các collection khác (`folders`, `comments`, `notifications`, `shares`, `translations`, `dashboards`, `panels`, `flows`, `operations`, `versions`, `settings`) chỉ với tới qua field quan hệ do quản trị viên thêm vào năm collection | Đi qua service riêng của collection đó (`FilesService`...) với kiểm tra và tác động riêng | Đi qua `ItemsService` chung (kiểm quyền, activity, revision như mọi collection; không có kiểm tra riêng của service đó). Đọc lồng không khác | Service riêng thuộc feature 007 đến 010 (Clarifications khi lập plan) | ngoài phạm vi (tạm thời) | 010 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -633,9 +729,22 @@ Khác biệt mới:
   `/admin/users/<id>`, `/admin/login`, `/users/register/verify-email` trong link và chuyển hướng, namespace Redis
   `permissions`, tên cache `filter-context-*` giữ nguyên vì ảnh hưởng luồng (Nguyên tắc IX).
 
+**Rủi ro chấp nhận (tái tạo từ Directus)**: app mới làm giống Directus 11.17.4 kể cả các hành vi không an toàn dưới đây
+(Clarifications, Assumptions). Mỗi dòng cần tech lead duyệt khi đóng feature (Nguyên tắc X). Đường dẫn tính từ
+`directus/api/src`.
+
+| Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
+|----|----------------------|------------|--------|
+| R-01 | Key cache `global-access` không chứa IP: mọi chỗ gọi truyền context `{ knex }`, nên `ip` trong hash là `undefined`. Cờ `admin`, `app` tính ở request đầu tiên của một cặp user, cây role được dùng cho mọi IP tới khi cache quyền bị xóa | `permissions/modules/fetch-global-access/fetch-global-access.ts:14-18`; `utils/get-accountability-for-token.ts:39,61`; `services/authentication.ts:221` | Policy admin hoặc app có `ip_access`: request từ IP bị cấm có thể nhận `admin: true` (hoặc IP được phép bị từ chối) cho tới lần xóa cache kế tiếp. Lớp bộ nhớ process không có TTL; Redis theo `CACHE_SYSTEM_TTL` (mặc định không hết hạn) |
+| R-02 | Khi request không có IP, `fetchPolicies` bỏ mọi policy có `ip_access` nhưng `fetchGlobalAccess` vẫn tính chúng vào `admin`, `app` | `permissions/utils/filter-policies-by-ip.ts`; `directus/packages/utils/node/fetch-global-access/` | User có thể là admin nhưng không có permission thường của policy đó. Chỉ xảy ra khi Express không xác định được `req.ip` |
+| R-03 | Xóa cache sau khi ghi quyền chạy sau commit; nếu bước xóa lỗi (Redis không dùng được), dữ liệu đã ghi vẫn giữ và bản quyền cũ có thể còn trong lớp bộ nhớ process của instance khác (không TTL) tới lần xóa kế tiếp | `services/{access,policies,permissions,roles,users}.ts` (`clearCaches` sau `super.*`); `permissions/cache.ts` (lớp local chỉ có `maxKeys`) | Quyền đã thu hồi có thể còn hiệu lực ở instance khác trong sự cố Redis |
+
 ## Assumptions
 
 - Phiên bản chuẩn là Directus 11.17.4 (api 35.2.0). Khi spec không nói rõ, làm như code Directus.
+- Hành vi không an toàn của Directus phát hiện trong lúc làm cũng được tái tạo (Clarifications): người phát hiện thêm
+  một dòng vào bảng "Rủi ro chấp nhận" (mã R-xx, bằng chứng file và dòng, hệ quả) và ca thể hiện trong bộ đối chiếu; chỉ
+  lệch khi chủ dự án yêu cầu, khi đó ghi thành khác biệt D-xx.
 - Directus và app mới dùng cùng `SECRET`, DB, Redis và `.env`. Môi trường đối chiếu dùng Redis chung, `CACHE_ENABLED=true`
   như feature 003, `RATE_LIMITER_STORE=redis`.
 - Log thay email (D-27, D-28) không chứa token hay link, giống quyết định FR-062 của feature 003: link trong log cho
@@ -659,13 +768,19 @@ Khác biệt mới:
 
 ### Measurable Outcomes
 
-- **SC-001**: 100% ô của ma trận quyền (FR-101) cho cùng status, mã lỗi, message, body (trừ giá trị sinh ngẫu nhiên)
-  và cùng thay đổi DB ở Directus và app mới: đủ ma trận trên Postgres ở mỗi lần push; bộ rút gọn (ít nhất một ô mỗi
-  nhóm của FR-101) trên MySQL và SQLite ở mỗi lần push; đủ ma trận trên MSSQL, Oracle, CockroachDB theo lịch đêm
-  (Nguyên tắc V; lịch đêm đang tắt theo quyết định của 001).
+- **SC-001**: 100% ô của ma trận quyền (FR-101) cho cùng status, mã lỗi, message, body (trừ giá trị sinh ngẫu nhiên,
+  theo quy tắc chuẩn hóa của bộ đối chiếu), cùng các header mà bộ đối chiếu so (FR-104 của 001: `content-type`,
+  `cache-control`, `vary`, `etag`, `allow`, `location`, `retry-after`, `set-cookie`, `access-control-*`, CSP, COOP,
+  HSTS; trừ khác biệt đã chấp nhận) và cùng thay đổi DB ở Directus và app mới:
+  - Postgres: tích đầy đủ của FR-101 ở mỗi lần push, chia thành nhiều job CI song song để mỗi job dưới 60 phút;
+  - MySQL, SQLite: bộ rút gọn ở mỗi lần push, trong đó mỗi giá trị của mỗi chiều FR-101 xuất hiện ít nhất một lần, với
+    action `read` và `update` trên `directus_users`;
+  - MSSQL, Oracle, CockroachDB: tích đầy đủ theo lịch đêm (Nguyên tắc V; lịch đêm đang tắt theo quyết định của 001).
 - **SC-002**: 100% ca port ở FR-100 và FR-103 đạt với cả hai app.
-- **SC-003**: Sau một thao tác ghi role, policy, access, permission hoặc role của user ở một app, request đầu tiên gửi
-  tới app kia sau khi response trả về dùng quyền mới, trong 100% của ít nhất 20 lần thử mỗi chiều.
+- **SC-003**: Sau một thao tác ghi role, policy, access, permission hoặc role của user ở một app, request gửi tới app
+  kia từ 200 ms sau khi response trả về dùng quyền mới, trong 100% của ít nhất 20 lần thử mỗi chiều. 200 ms là thời gian
+  cho thông điệp bus `multi-cache`, `schemaChanged` tới instance kia: Directus cũng xóa bản trong bộ nhớ process của
+  instance khác một cách bất đồng bộ (cùng khoảng chờ với `flushSharedCaches` của bộ đối chiếu).
 - **SC-004**: Với cùng accountability và cache trống, tập key `permissions:*` và giá trị hai app ghi trùng nhau 100%.
 - **SC-005**: Với mỗi luồng ghi (CRUD năm collection, mời, nhận lời mời, đăng ký, xác minh), các dòng app mới ghi
   giống 100% dòng Directus ghi cho cùng request, trừ giá trị sinh ngẫu nhiên (id, token, thời điểm, salt của hash).

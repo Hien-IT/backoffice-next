@@ -62,8 +62,9 @@ Chi tiết quyết định: [research.md](./research.md). Dữ liệu: [data-mod
 - Vitest 3.2.4: test port từ Directus (`get-ast-from-query`, `run-ast`, helper, `permissions/**`, `items`, `payload`,
   `meta`, `users`, `roles`, `sanitize-query`, `validate-query`, `validate-batch`, `@directus/utils`) và test mới cho
   năm controller, ba service không có test gốc, `emitter`, `get-service` (research R15).
-- `tests/parity`: thư mục `src/permissions/` (research R13); Postgres `full` thêm profile `app`; MySQL, SQLite
-  `reduced` thêm `matrix-reduced`, `users`, `roles`, `write-rules`; `request-set` thêm request đọc của 004;
+- `tests/parity`: thư mục `src/permissions/` (research R13); Postgres `full` thêm profile `app`; ma trận tích đầy đủ
+  chạy ở job mới `parity-matrix` chia shard; MySQL, SQLite `reduced` thêm `matrix-reduced`, `users`, `roles`,
+  `write-rules`; `request-set` thêm request đọc của 004;
   `errors.test.ts`, `permissions-cache.test.ts`, `accepted-differences.ts` sửa theo research R10.
 - `tests/directus-app-e2e`: Playwright qua reverse proxy, job CI `e2e-directus-app` chặn merge
   ([contracts/proxy-e2e.md](./contracts/proxy-e2e.md)).
@@ -241,7 +242,7 @@ backoffice-next/
 │   └── project.json                            # SỬA: target permissions
 ├── tools/port-manifest/004-T*.json             # MỚI: header check
 ├── tools/ci-local.sh                           # SỬA: bước e2e-directus-app
-├── .github/workflows/ci.yml                    # SỬA: parity postgres thêm profile app; job e2e-directus-app; publish.needs
+├── .github/workflows/ci.yml                    # SỬA: parity postgres thêm profile app; job parity-matrix (shard); job e2e-directus-app; publish.needs
 ├── .github/workflows/benchmark.yml             # SỬA: job benchmark-permissions
 ├── specs/001-platform-foundation/spec.md       # SỬA: dòng D-09.6, D-10, D-11, D-12 (R10); contracts/config.md §5
 └── specs/003-auth-session/spec.md              # SỬA: ô "Gỡ khi" của D-09.10 → 004 (R10)
@@ -310,7 +311,8 @@ Rủi ro đã biết, theo dõi trong tasks:
 | `snappy` cần build native trên alpine | Build Docker lỗi | Task build image kiểm sớm (R1); dự phòng `[Suy luận]`: bản dựng sẵn musl của napi-rs |
 | Engine port nguyên nhưng SQL lệch theo vendor (MySQL, SQLite ở `reduced`) | Ma trận quyền đỏ ở một vendor | Test gốc của helper dialect; `matrix-reduced` chạy mỗi push; nightly cho vendor còn lại |
 | Vòng import ESM (`run-ast` ↔ `payload` ↔ `get-service` ↔ `items`, `helpers/fn` ↔ `run-ast`) hỏng khi build bằng swc hoặc vitest | Lỗi "cannot access before initialization" | Giữ import động của Directus (`get-service` trong `payload`); unit test engine chạy sớm ở Phase 2 (R4) |
-| Ma trận quyền làm Postgres full vượt 60 phút | Job `parity` quá hạn | Task đầu của Phase 5 đo thời gian; tách job CI theo thư mục nếu cần (R13) |
+| Ma trận tích đầy đủ (19.500 ô) chạy mỗi push | Job quá 60 phút; tốn nhiều phút GitHub Actions | Job `parity-matrix` chia shard (`PARITY_MATRIX_SHARD`); task đầu của Phase 5 đo rồi chốt số shard; báo chủ dự án nếu vượt hạn mức phút (R13) |
+| Tái tạo lỗ hổng của Directus (R-01 đến R-03) | Hành vi không an toàn có trong app mới | Theo quyết định của chủ dự án; mỗi R-xx có ca thể hiện trong ma trận; tech lead duyệt khi đóng feature |
 | Guard `accepted-differences` đỏ khi sửa bảng 001, 003 hoặc `removeAt` (D-09.10) | CI đỏ | Sửa spec và entry trong cùng commit (R10); xóa D-09.2, D-10, D-09.10 khi đóng feature |
 | Nest khớp route khác Express 4 (`/users/me` vs `/:pk`, `endsWith('me')`, trailing slash của `/me/tfa/generate/`) | `404`/`403` lệch | Test controller supertest + parity `OPTIONS`, route lạ (R3, R15) |
 | App Directus gọi route ngoài dự kiến qua proxy | Playwright đỏ không do app mới | Quy tắc A: mọi path lạ về Directus; `routing.spec.ts` kiểm upstream (R12) |
