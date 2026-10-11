@@ -38,7 +38,7 @@ jobs:
         if: failure()
         working-directory: tests/parity
         run: docker compose -p parity-${{ matrix.vendor }} logs --no-color > parity-${{ matrix.vendor }}.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: nightly-parity-${{ matrix.vendor }}-logs

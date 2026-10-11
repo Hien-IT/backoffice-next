@@ -38,7 +38,7 @@ jobs:
         if: failure()
         working-directory: tests/parity
         run: docker compose -p parity-postgres logs --no-color > parity-matrix-${{ matrix.shard }}.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: parity-matrix-${{ matrix.shard }}-logs

@@ -98,7 +98,7 @@ jobs:
         if: failure()
         working-directory: tests/parity
         run: docker compose -p parity-${{ matrix.vendor }} logs --no-color > parity-${{ matrix.vendor }}.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: parity-${{ matrix.vendor }}-logs
@@ -129,7 +129,7 @@ jobs:
         if: failure()
         working-directory: tests/parity
         run: docker compose -p parity-postgres logs --no-color > parity-matrix.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: parity-matrix-logs
@@ -161,7 +161,7 @@ jobs:
         if: failure()
         working-directory: tests/parity
         run: docker compose -p parity-postgres logs --no-color > e2e-directus-app.log
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: e2e-directus-app
@@ -178,7 +178,7 @@ jobs:
       - run: docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci .
       - run: docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .
       - run: docker save hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci | gzip > images.tar.gz
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: images
           path: images.tar.gz
