@@ -6,17 +6,26 @@ import { randomUUID } from 'node:crypto';
 import type { Permission, PrimaryKey, Query } from '@backoffice/types';
 import { omit } from 'lodash-es';
 import request from 'supertest';
-import { afterAll, beforeEach, describe, expect, it } from 'vitest';
-import { type Env, getSetupUrl, getUrl } from './config';
+import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { type Env, getDirectusUrl, getSetupUrl, getUrl } from './config';
 import vendors, { type Vendor } from './get-dbs-to-test';
 import type { PrimaryKeyType } from './types';
 import { ROLE, USER } from './variables';
 
-// Backoffice (feature 006, research R7): TEST_NO_CACHE picks the node with CACHE_SCHEMA=false in Directus' setup;
-// the shim has no such node (config.ts), both apps clear their schema through the bus after every change.
+// Backoffice (feature 006, research R7): TEST_NO_CACHE picks the node with CACHE_SCHEMA=false in Directus' setup, so
+// the tests that change the database behind the apps' back (afterEach hooks with knex) never read a stale schema. The
+// shim has no such node (config.ts): both apps keep their schema cache and clear it through the bus after every change
+// they make, and this hook clears it after each test (it runs after the file's own afterEach hooks, which are inner)
+// through Directus of the pair (/utils is feature 010), whose schemaChanged message reaches both apps.
 export function DisableTestCachingSetup() {
 	beforeEach(async () => {
 		process.env['TEST_NO_CACHE'] = 'true';
+	});
+
+	afterEach(async () => {
+		await request(getDirectusUrl())
+			.post('/utils/cache/clear?system')
+			.set('Authorization', `Bearer ${USER.TESTS_FLOW.TOKEN}`);
 	});
 
 	afterAll(async () => {
@@ -33,7 +42,9 @@ export function ClearCaches() {
 				EnableTestCaching();
 
 				// Assert
-				const response = await request(getSetupUrl(vendor))
+				// Backoffice: /utils is feature 010, so the clear goes to Directus whichever app made the model; the
+				// schemaChanged message of the shared bus clears both apps.
+				const response = await request(getDirectusUrl())
 					.post(`/utils/cache/clear?system`)
 					.set('Authorization', `Bearer ${USER.TESTS_FLOW.TOKEN}`);
 

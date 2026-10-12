@@ -1,10 +1,9 @@
 // Ported from directus/tests/blackbox/common/variables.ts
-// Backoffice: PRIMARY_KEY_TYPES follows PARITY_BLACKBOX_PK_TYPES (reduced suite).
+// Backoffice: PRIMARY_KEY_TYPES follows PARITY_BLACKBOX_PK_TYPES (reduced suite). Feature 006: DEFAULT_DB_TABLES
+// leaves out tests_flow_data and tests_flow_completed, the tables of the tests flow of Directus' setup (not ported).
 import type { PrimaryKeyType } from './types';
 
 export const DEFAULT_DB_TABLES = [
-	'tests_flow_data',
-	'tests_flow_completed',
 	'directus_activity',
 	'directus_collections',
 	'directus_dashboards',
