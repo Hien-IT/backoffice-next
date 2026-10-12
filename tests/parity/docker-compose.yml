@@ -216,6 +216,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     # Starts after Directus has bootstrapped the database (the API never writes it).
     depends_on:
       directus: { condition: service_healthy }
@@ -252,6 +253,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -310,6 +312,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -351,6 +354,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -392,6 +396,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -433,6 +438,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -454,6 +460,7 @@ services:
     <<: *app
     profiles: [multi]
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     depends_on:
       directus: { condition: service_healthy }
     ports:
@@ -490,6 +497,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -565,6 +573,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -625,6 +634,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -666,6 +676,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -708,6 +719,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -750,6 +762,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -791,6 +804,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -833,6 +847,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -877,6 +892,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -922,6 +938,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -967,6 +984,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -1010,6 +1028,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -1055,6 +1074,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads
@@ -1098,6 +1118,7 @@ services:
       context: ../..
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
       - uploads:/directus/uploads

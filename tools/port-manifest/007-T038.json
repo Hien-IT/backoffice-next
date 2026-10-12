@@ -1,0 +1,1 @@
+[{ "source": "tests/e2e/tests/endpoints/assets/assets.test.ts", "dest": "tests/parity/src/files/e2e-assets.test.ts" }]

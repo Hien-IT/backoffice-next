@@ -84,6 +84,13 @@ write(
 );
 // Wider than ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION (6000): transformations of it must fail like Directus.
 write('image-wide.png', await gradient(7000, 4, 3).png({ compressionLevel: 9 }).toBuffer());
+// 42 million pixels, above limitInputPixels (6000²); one colour so the file stays small (FR-037).
+write(
+	'image-huge.png',
+	await sharp({ create: { width: 7000, height: 6000, channels: 3, background: '#3366cc' } })
+		.png({ compressionLevel: 9, palette: true })
+		.toBuffer(),
+);
 // Cut in the middle of the entropy-coded data, for ASSETS_INVALID_IMAGE_SENSITIVITY_LEVEL.
 write('photo-truncated.jpg', photo.subarray(0, Math.floor(photo.length / 2)));
 

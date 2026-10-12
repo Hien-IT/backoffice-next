@@ -143,6 +143,12 @@ test('every app container mounts the shared uploads volume and waits for files-f
 	expect(publishedPort('files-fixtures')).toBe(8882);
 });
 
+test('feature 007 (research R2): every Backoffice container runs on linux/amd64, like the Directus image', () => {
+	const services = compose.split(/\n(?= {2}\S)/).filter((b) => b.includes('image: hiennd23/backoffice-api'));
+	expect(services.length).toBeGreaterThan(20);
+	expect(services.filter((b) => !/^\s+platform: linux\/amd64/m.test(b))).toEqual([]);
+});
+
 test('PARITY_STORAGES selects the storage locations', () => {
 	expect(getStorages(undefined)).toEqual(['local', 's3']);
 	expect(getStorages('')).toEqual(['local', 's3']);

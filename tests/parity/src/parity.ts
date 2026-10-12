@@ -62,6 +62,11 @@ export interface ParityOptions {
 	directusUrl?: string;
 	backofficeUrl?: string;
 	accepted?: AcceptedDifference[];
+	/**
+	 * Feature 007 (R-17): Directus first, then Backoffice. A new derived asset is written to the shared storage by the
+	 * first request; sent at once, one app can stream the object the other is still writing.
+	 */
+	sequential?: boolean;
 }
 
 /** FR-104: headers compared. `etag` is skipped for OAS and /metrics (FR-105); x-powered-by is D-01. */
@@ -346,7 +351,9 @@ export async function parity(req: ParityRequest, options: ParityOptions = {}): P
 	// Same Host on both sides so URLs built from it (OAS servers[0].url) can match (FR-105).
 	const withHost: ParityRequest = { ...req, headers: { host: new URL(directusUrl).host, ...req.headers } };
 
-	const captured = await Promise.all([capture(directusUrl, withHost), capture(backofficeUrl, withHost)]);
+	const captured = options.sequential
+		? [await capture(directusUrl, withHost), await capture(backofficeUrl, withHost)]
+		: await Promise.all([capture(directusUrl, withHost), capture(backofficeUrl, withHost)]);
 	const [directus, backoffice] = req.normalize ? captured.map(req.normalize) : captured;
 
 	return {

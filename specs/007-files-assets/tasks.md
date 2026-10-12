@@ -312,7 +312,7 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
 
 **Independent Test**: `parity --vendor=postgres` với `src/files/{transform-matrix,assets,e2e-assets}.test.ts`.
 
-- [ ] T035 [US2] `tests/parity/src/files/transform-matrix.test.ts` (so cả `Content-Type` sau đổi định dạng, FR-039):
+- [X] T035 [US2] `tests/parity/src/files/transform-matrix.test.ts` (so cả `Content-Type` sau đổi định dạng, FR-039):
   **ca đầu** tải `fixtures/assets/image.jpg` ở mỗi app
   và so output của `?width=50` (và các ca khác của e2e `assets.test.ts`) với `img_50x50.jpg`... của Directus (R2); lệch
   thì dừng, ghi sha256, kích thước, `sharp.versions` của hai image vào "Ghi chú khi làm", hỏi tech lead
@@ -323,18 +323,18 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
   so trạng thái cuối); ảnh 7000×100 và jpeg cắt cụt trên cặp `assets-limit`; ảnh có `width`/`height` trong dòng nhỏ hơn
   thật (sửa dòng bằng `PATCH`) đo status (`500`, ghi vào spec FR-037 thay "đo ở task"). Bằng chứng R-17 vào spec. (sau
   T027)
-- [ ] T036 [US2] `tests/parity/src/files/assets.test.ts` phần transform: `ASSET_TRANSFORM_QUERY_KEYS` (key lạ bị bỏ),
+- [X] T036 [US2] `tests/parity/src/files/assets.test.ts` phần transform: `ASSET_TRANSFORM_QUERY_KEYS` (key lạ bị bỏ),
   `transforms` không phải mảng, quá `ASSETS_TRANSFORM_MAX_OPERATIONS`, method lạ, tham số sharp sai (`400`); ba chế độ
   `storage_asset_transform` × `key` có/không/lạ × tham số tự do (sửa `directus_settings` qua Directus, trả lại sau);
   `transforms=[]` vượt chế độ (R-16, bằng chứng vào spec); `withoutEnlargement=false` cùng tên object; file không phải
   ảnh (pdf, svg, gif) trả nguyên bản; `format=auto` ba `Accept` với `Vary`; trên cặp `assets-stress`: `503` busy
   (`MAX_CONCURRENT=1`, hai request song song), `503` timeout (`100ms`, không còn object dở); trên cặp `assets-limit`:
   `HEAD` với transform sinh file (chụp storage). (sau T021)
-- [ ] T037 [P] [US2] `apps/api/src/controllers/assets.controller.test.ts` phần transform: ba chế độ, `transforms=[]`,
+- [X] T037 [P] [US2] `apps/api/src/controllers/assets.controller.test.ts` phần transform: ba chế độ, `transforms=[]`,
   gộp preset với query, `format=auto` theo `Accept`, `Range` bị bỏ khi có transform (cùng file với T024 của US1).
-- [ ] T038 [P] [US2] Viết lại `directus/tests/e2e/tests/endpoints/assets/assets.test.ts` thành
+- [X] T038 [P] [US2] Viết lại `directus/tests/e2e/tests/endpoints/assets/assets.test.ts` thành
   `tests/parity/src/files/e2e-assets.test.ts` theo `scenario()`, giữ `toMatchFile` với fixture (so byte).
-- [ ] T039 [US2] Sửa lệch phát hiện ở T035 đến T038 trong `assets.service.ts`, `transformations.ts`,
+- [X] T039 [US2] Sửa lệch phát hiện ở T035 đến T038 trong `assets.service.ts`, `transformations.ts`,
   `assets.controller.ts` (chỉ lỗi port, không đổi hành vi); chạy `parity --vendor=postgres` `full` và `reduced` MySQL,
   SQLite: phase xanh. (sau T035 đến T038)
 
@@ -638,5 +638,16 @@ Task: "storage-capture.ts (T019)"
   e2e `files` viết lại thành `e2e-files.test.ts`, `e2e-files-old.test.ts` (12 ca, cả hai app, hai storage). Proxy:
   `files`, `folders`, `assets` thêm vào `backoffice-routes.txt`. Playwright chưa chạy cục bộ (máy chưa có trình duyệt
   Playwright, cài cần tải về): job `e2e-directus-app` của CI kiểm.
+- T035 (cổng byte, research R2): cả Directus và app mới trả đúng từng byte 4 ảnh kết quả của
+  `directus/tests/e2e/tests/endpoints/assets`. Ma trận lệch ở mọi ca có AVIF khi app mới chạy arm64 cục bộ; một
+  container amd64 của app mới trùng byte AVIF với Directus (bộ mã hóa aom khác theo kiến trúc). Compose ghim
+  `platform: linux/amd64` cho 21 service app mới (giống image Directus; không đổi gì trên CI amd64); sau đó ma trận đạt
+  85/85: trùng byte, trùng tên object phát sinh, app kia dùng lại không ghi object mới (SC-004, SC-005). Đo FR-037:
+  dòng không có kích thước thì `?width=` trả file gốc (`resolvePreset` bỏ `resize`), `?format=` gặp `400`, dòng ghi nhỏ
+  hơn ảnh thật 7000×6000 gặp `500` (fixture `image-huge.png`).
+- T036: `ASSETS_TRANSFORM_TIMEOUT` bị kẹp tối thiểu 1 giây (100 ms thành 1 s); ca timeout dùng blur 80 trên 6000×6000.
+  Ca busy theo `limit.test.ts` của Directus (30 request đồng thời, mỗi app một dải kích thước vì app thứ hai dùng lại
+  file phát sinh của app đầu). R-16, R-17 đo và ghi vào spec. `parity()` thêm `sequential` cho request có transform.
+- T037 làm cùng T024 (`assets.controller.test.ts`); T039 không có lỗi port cần sửa.
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
   để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`. Đã thêm ở T034.
