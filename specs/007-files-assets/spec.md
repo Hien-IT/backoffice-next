@@ -486,13 +486,14 @@ MinIO.
 
 - **FR-060**: `POST /files/import` PHẢI kiểm body như Directus, kiểm quyền tạo, tải bằng URL đã encode, tự giải nén
   gzip, deflate, br (encoding khác, kể cả `gzip, br` hay `zstd`, lưu nguyên dạng nén), lấy tên theo URL cuối sau chuyển
-  hướng (`basename(pathname)`: đường dẫn `/` hoặc rỗng cho tên rỗng, `title` rỗng, đuôi lấy theo mime; `%` hỏng làm
-  `decodeURI` ném ngoài `try` → `500`, đo ở task), `type` theo `Content-Type` trước `;` hoặc `application/octet-stream`,
+  hướng (`basename(pathname)`: đường dẫn `/` hoặc rỗng cho tên rỗng, `title` rỗng, đuôi lấy theo mime; `%` hỏng bị
+  `encodeURL` thoát thành `%25` trước khi gửi nên không tới `decodeURI`: nguồn trả `404` và import trả `503`, đo T043), `type` theo `Content-Type` trước `;` hoặc `application/octet-stream`,
   kiểm mime theo `FILES_MIME_TYPE_ALLOW_LIST` trước rồi `filterMimeType` (mỗi danh sách khớp một mẫu minimatch là đủ,
   chỉ so header, không đọc nội dung; `data.type` đè `type` sau khi kiểm), rồi lưu như upload (FR-011). Quyền: kiểm
   `create` mức collection trước khi tải; field trong `data` kiểm ở `createOne`; thay file (`data.id`) kiểm `update` sau
   khi đã tải xong về tên tạm. Lỗi tải (`ftp:`, `file:`, URL hỏng, không nối được) trả `503 SERVICE_UNAVAILABLE`
-  (`external-file`); URL `data:` không có `request` nên lỗi ngoài `try` → `500` (đo ở task); theo chuyển hướng tối đa 21
+  (`external-file`); URL `data:` không có `request` nên lỗi ngoài `try` → `500 INTERNAL_SERVER_ERROR` với message lỗi JavaScript
+  (đo T043, cả hai app); theo chuyển hướng tối đa 21
   lần (mặc định của follow-redirects, axios không đặt), mỗi hop dùng lại agent kiểm IP. Không giới hạn kích thước và
   thời gian tải, kể cả sau giải nén (R-14).
 - **FR-061**: Mọi kết nối của import PHẢI bị kiểm IP theo `IMPORT_IP_DENY_LIST` như `agentWithIpValidation` (IP literal
@@ -586,7 +587,7 @@ Khác biệt mới: Không có.
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
 | R-13 | Xóa, thay file, đổi tên xóa object theo tiền tố với tiền tố khác nhau mỗi đường (xóa: tên không thư mục không đuôi; thay file: khóa chính; đổi tên: `thư mục/tên`); driver local so không phân biệt hoa thường và đệ quy | `services/files.ts:483-486` (`deleteMany`), `:207` (`uploadOne`), `:419-426` (`updateMany`); `storage-driver-local/src/index.ts:98-113` | Với `filename_disk` mặc định (uuid) không ảnh hưởng; đặt tay tên ngắn xóa cả object khác (`photo.jpg` xóa `photography.png`); tên có thư mục con để lại object gốc mồ côi và file phát sinh cũ. Tái tạo (FR-012, FR-014, FR-016); đo ở `files.test.ts` |
-| R-14 | Import từ URL không đặt timeout và không giới hạn kích thước (kiểm `truncated` chỉ có với busboy; axios `maxContentLength: -1`, `timeout: 0`, stream bỏ qua kiểm) | `services/files.ts:183`, `request/index.ts:17`; axios `defaults` | URL trả chậm hoặc file rất lớn giữ request và ghi storage tới khi phía kia đóng; giải nén cũng không giới hạn. Tái tạo (FR-060); đo ở `import.test.ts` (ca file lớn vừa phải, không đo treo) |
+| R-14 | Import từ URL không đặt timeout và không giới hạn kích thước (kiểm `truncated` chỉ có với busboy; axios `maxContentLength: -1`, `timeout: 0`, stream bỏ qua kiểm) | `services/files.ts:183`, `request/index.ts:17`; axios `defaults` | URL trả chậm hoặc file rất lớn giữ request và ghi storage tới khi phía kia đóng; giải nén cũng không giới hạn. Tái tạo (FR-060); đo T043 (`import.test.ts`): file 50 MB import được ở cả hai app, dòng và object giống nhau; không đo treo |
 | R-15 | Thay file (multipart, import) sửa dòng (`filename_disk`, `type`) trong transaction riêng trước khi xóa object cũ theo tiền tố và chuyển tên tạm; lỗi sau đó chỉ xóa file tạm, không rollback dòng | `services/files.ts:204-216` | Lỗi storage giữa chừng để lại dòng trỏ tới object không tồn tại và nội dung cũ đã mất; khoảng giữa các bước app kia trả `403` hoặc file cũ. Tái tạo (FR-012); đo ở `files.test.ts` bằng ca thay file khác đuôi và so trạng thái |
 | R-16 | `GET /assets` với `transforms=[]` (mảng rỗng) đi qua trước mọi kiểm `storage_asset_transform`, nên tham số tự do vẫn được áp ở chế độ `presets`, `none` và `key` lạ không bị chặn ở `all` | `controllers/assets.ts:230-235`; đo 2026-10-13 (T036, `assets.test.ts` "storage_asset_transform=none"): `?width=12&transforms=[]` trả `200` ở chế độ `none` trên Directus 11.17.4 và app mới, `?width=12` trả `400` | Giới hạn transform của settings bị vượt bằng một tham số thêm. Tái tạo (FR-030) |
 | R-17 | Sinh file phát sinh không khóa: kiểm `exists` rồi ghi thẳng vào tên đích (driver local không ghi tạm); sinh lỗi xóa object đích | `services/assets.ts:311, 379, 382`; `storage-driver-local/src/index.ts:81-86`; đo 2026-10-13 (T036): cùng URL gửi đồng thời tới hai app trên `local`, một bên trả `200` với 0 byte; ngay sau `503` timeout của một app, object rỗng còn trong chốc lát và app kia trả `200` 0 byte | Trên `local` request đồng thời có thể stream file dở với `Content-Length` sai hoặc bị xóa khi đang đọc; trên S3 hai app cùng sinh, bản sau thắng. Tái tạo (FR-036); bộ đối chiếu gửi request có transform lần lượt (`parity({ sequential: true })`), ca song song chỉ so trạng thái cuối (`transform-matrix.test.ts` "R-17") |

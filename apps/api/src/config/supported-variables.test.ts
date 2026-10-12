@@ -134,3 +134,19 @@ test.each([
 ])('feature 004: isSupported(%s) = %s', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });
+
+// Feature 007 (spec FR-072): the file variables are read now; import of items and the drivers out of scope are not.
+test.each([
+	['ASSETS_CACHE_TTL', true],
+	['ASSETS_TRANSFORM_MAX_CONCURRENT', true],
+	['FILES_MAX_UPLOAD_SIZE', true],
+	['FILE_METADATA_ALLOW_LIST', true],
+	['IMPORT_IP_DENY_LIST', true],
+	['SYNCHRONIZATION_STORE', true],
+	['IMPORT_TIMEOUT', false],
+	['IMPORT_MAX_CONCURRENCY', false],
+	['STORAGE_GCS_KEY_FILENAME', false],
+	['STORAGE_AZURE_CONTAINER_NAME', false],
+])('feature 007: isSupported(%s) is %s', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
+});

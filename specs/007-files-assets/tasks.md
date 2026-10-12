@@ -389,7 +389,7 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
 
 **Independent Test**: `parity --vendor=postgres` với `src/files/import.test.ts` (cần `files-fixtures`).
 
-- [ ] T043 [P] [US5] `tests/parity/src/files/import.test.ts`: import `http://files-fixtures/photo.jpg` (so dòng và object
+- [X] T043 [P] [US5] `tests/parity/src/files/import.test.ts`: import `http://files-fixtures/photo.jpg` (so dòng và object
   với upload multipart cùng file), `/gz/photo.jpg.gz` (giải nén), `/redirect/` (tên theo URL cuối), `data`
   (`title`, `folder`, `id` thay file), `options.filterMimeType` khớp/không, URL thiếu `400`; chặn:
   `http://127.0.0.1:8055/`, `http://169.254.169.254/`, `http://[::1]/`, tên miền `localhost` → `503` không dòng; `ftp://`,
@@ -397,10 +397,10 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
   spec FR-060 thay "đo ở task"); URL không `Content-Type` và đường dẫn `/` (tên rỗng, đuôi theo mime); encoding `zstd`
   giả (nginx `add_header`) lưu nguyên; R-14: file 50 MB từ fixtures (sinh lúc chạy) import được không giới hạn (không đo
   treo). Bằng chứng R-14 vào spec.
-- [ ] T044 [US5] `apps/api/src/controllers/files.controller.test.ts` thêm ca `POST /import`: Joi (`url` bắt buộc,
+- [X] T044 [US5] `apps/api/src/controllers/files.controller.test.ts` thêm ca `POST /import`: Joi (`url` bắt buộc,
   `options.filterMimeType` mảng), gọi `importOne(url, data, options)`, `Forbidden` khi đọc lại → `204`. (cùng file với
   T023)
-- [ ] T045 [US5] `tests/parity/src/files/cross-use.test.ts` thêm chiều import (import ở A, tải ở B, cả hai driver);
+- [X] T045 [US5] `tests/parity/src/files/cross-use.test.ts` thêm chiều import (import ở A, tải ở B, cả hai driver);
   `apps/api/src/request/is-denied-ip.test.ts` thêm ca `IMPORT_IP_DENY_LIST` rỗng (không chặn) và một mục hỏng (chặn tất)
   nếu test gốc chưa có; chạy `parity --vendor=postgres` `full`: T043 đến T045 xanh. (sau T043, T044)
 
@@ -415,11 +415,11 @@ lại dừng khởi động với driver ngoài phạm vi, health, info với ha
 
 **Independent Test**: `pnpm nx run api:test` (config) và `parity --vendor=postgres` với `src/startup/storage.test.ts`.
 
-- [ ] T046 [P] [US6] `apps/api/src/config/supported-variables.ts` thêm khối `// Feature 007` theo contracts/tus-storage.md
+- [X] T046 [P] [US6] `apps/api/src/config/supported-variables.ts` thêm khối `// Feature 007` theo contracts/tus-storage.md
   §4 (25 mẫu, gồm `ASSETS_CONTENT_SECURITY_POLICY.*`, `STORAGE_.+_FORCE_PATH_STYLE`...); `supported-variables.test.ts`
   thêm ca từng biến thuộc nhóm A và `IMPORT_TIMEOUT`, `STORAGE_X_CONTAINER_NAME` vẫn nhóm C;
   `warn-unsupported-variables.test.ts` kiểm env của parity (`STORAGE_S3_FORCE_PATH_STYLE=true`) không còn cảnh báo.
-- [ ] T047 [P] [US6] `tests/parity/src/startup/storage.test.ts` (sửa hoặc tạo): app mới khởi động với
+- [X] T047 [P] [US6] `tests/parity/src/startup/storage.test.ts` (sửa hoặc tạo): app mới khởi động với
   `STORAGE_LOCATIONS=local,s3,cloud` + `STORAGE_CLOUD_DRIVER=gcs` (container tạm qua `run-api.ts`) thoát mã 1 trước khi
   mở cổng, log có tên location, driver, danh sách hỗ trợ (SC-006, D-16); với `local,s3`: `/server/health` có hai key
   `storage:*:responseTime` ở cả hai app, `/server/info` `uploads` như Directus (`FILES_MAX_UPLOAD_CONCURRENCY`,
@@ -658,3 +658,16 @@ Task: "storage-capture.ts (T019)"
   `directus-sync:clock:tus-cleanup:*` có trong Redis. Thay file TUS giữ đuôi cũ (`<id>.jpg` với type `image/png`).
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
   để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`. Đã thêm ở T034.
+- T043 đến T045: `import.test.ts` 23 ca (scenario, so dòng và object), `cross-use` thêm chiều import (12 ca hai
+  storage). Đo trên Directus 11.17.4: `ftp:`, `file:`, URL hỏng, IP bị chặn, host không tồn tại `503`; `data:` `500` với
+  message lỗi JavaScript; `%zz` bị `encodeURL` thoát thành `%25zz` nên nguồn trả `404` và import `503` (spec FR-060 sửa
+  "đo ở task"); R-14: 50 MB import được ở cả hai app. Ca controller của T044 và ca `IMPORT_IP_DENY_LIST` rỗng, hỏng của
+  T045 đã có từ T023 và test gốc của `is-denied-ip`.
+- T046: nhóm A chỉ nhận tên có trong `DIRECTUS_VARIABLES` (test của 001), nên khối `// Feature 007` có 16 tên, không
+  phải 25 mẫu như contracts ghi lúc đầu: `TUS_*`, `FILES_MIME_TYPE_ALLOW_LIST`, `ASSETS_CONTENT_SECURITY_POLICY_*` và
+  tùy chọn S3 không thuộc danh sách Directus nên vốn không cảnh báo (contracts/tus-storage.md §4 sửa theo, dòng nhóm A
+  của contracts/config.md spec 001 thêm 16 tên).
+- T047: ca khởi động ở `startup.test.ts` (location `gcs` giữa `local,s3` thoát 1 trước khi mở cổng; biến file, asset,
+  TUS, S3 không vào dòng cảnh báo, `IMPORT_TIMEOUT` vẫn vào), ca đối chiếu ở `startup/storage.test.ts` (health admin hai
+  key `storage:*`, `/server/info` `files`, `uploads` ở cặp chính và `cors-hsts`, upload không `storage` vào `local`).
+  Đo: `/server/info` chỉ có `uploads` khi bật TUS (cặp chính có `FILES_MAX_UPLOAD_CONCURRENCY` mặc định vô hạn).

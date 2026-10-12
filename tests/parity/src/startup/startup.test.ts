@@ -14,6 +14,16 @@ const [vendor] = getDbsToTest();
 const running: RunningApi[] = [];
 const temps: string[] = [];
 
+/** An s3 location that is never reached: startup only validates the drivers and the local roots. */
+const S3_LOCATION = {
+	STORAGE_S3_DRIVER: 's3',
+	STORAGE_S3_KEY: 'key',
+	STORAGE_S3_SECRET: 'secret',
+	STORAGE_S3_BUCKET: 'bucket',
+	STORAGE_S3_REGION: 'us-east-1',
+	STORAGE_S3_ENDPOINT: 'http://127.0.0.1:9',
+};
+
 const MISMATCH_HEADER = 'Database migrations do not match Directus 11.17.4.';
 const HINT = 'If Directus is still migrating, restart Backoffice after it finishes.';
 
@@ -146,6 +156,54 @@ describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', 
 		expect(api.text()).toContain(
 			'Storage location "files" uses driver "gcs", which is not supported by Backoffice. Supported drivers: local, s3.',
 		);
+	});
+
+	// Feature 007 (SC-006, FR-071): one unsupported location among supported ones stops the app before it listens.
+	test('local,s3 and a gcs location → exit 1 before listening, only that location named', async () => {
+		const port = await getPort();
+		const api = start(
+			await tempDb('gcs_many'),
+			{ ...S3_LOCATION, STORAGE_LOCATIONS: 'local,s3,cloud', STORAGE_CLOUD_DRIVER: 'gcs' },
+			port,
+		);
+
+		expect(await waitForPing(api, port)).toBe(false);
+		expect((await api.exited).code).toBe(1);
+		expect(api.text()).toContain(
+			'Storage location "cloud" uses driver "gcs", which is not supported by Backoffice. Supported drivers: local, s3.',
+		);
+		expect(api.text()).not.toMatch(/location "(local|s3)"/);
+	});
+
+	// Feature 007 (FR-072, T046): the file, asset and TUS variables are read, so only the ones still unsupported warn.
+	test('file, asset, TUS and S3 variables → no unsupported-variable warning for them', async () => {
+		const port = await getPort();
+		const api = start(
+			await tempDb('files_vars'),
+			{
+				...S3_LOCATION,
+				STORAGE_LOCATIONS: 'local,s3',
+				STORAGE_S3_FORCE_PATH_STYLE: 'true',
+				FILES_MAX_UPLOAD_SIZE: '10mb',
+				FILES_MIME_TYPE_ALLOW_LIST: 'image/*',
+				ASSETS_CACHE_TTL: '1h',
+				ASSETS_TRANSFORM_MAX_CONCURRENT: '2',
+				TUS_ENABLED: 'true',
+				TUS_CHUNK_SIZE: '1mb',
+				IMPORT_IP_DENY_LIST: '0.0.0.0',
+				SYNCHRONIZATION_STORE: 'memory',
+				IMPORT_TIMEOUT: '1s',
+			},
+			port,
+		);
+
+		expect(await waitForPing(api, port)).toBe(true);
+		const warning = api
+			.text()
+			.split('\n')
+			.find((line) => line.includes('IMPORT_TIMEOUT'));
+		expect(warning).toBeDefined();
+		expect(warning).not.toMatch(/STORAGE_|FILES_|ASSETS_|TUS_|IMPORT_IP_DENY_LIST|SYNCHRONIZATION_/);
 	});
 
 	test('port already in use → exit 1, "Port <port> is already in use"', async () => {

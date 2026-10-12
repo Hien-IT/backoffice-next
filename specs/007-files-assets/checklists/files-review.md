@@ -24,7 +24,7 @@ hành vi.
 
 ### A1. Tải lên và đặt tên object
 
-- [x] CHK001 (đã giải có điều kiện, chờ đo T020: FR-011 ghi biểu thức đuôi của Directus; mime không ánh xạ cho `<id>.false`) [P1] Yêu
+- [x] CHK001 (đã giải, đo T020: FR-011 ghi biểu thức đuôi của Directus; mime không ánh xạ cho `<id>.false`) [P1] Yêu
   cầu về `filename_disk` có nêu kết quả khi `filename_download` không có đuôi và mime không ánh xạ được đuôi (object tên
   `<id>` không đuôi), và cách đặt tên file phát sinh, xóa theo tiền tố áp lên file đó? [Gap, Spec §FR-011, §FR-035]
 - [x] CHK002 (đã giải: FR-013 giữ thư mục con; FR-014, FR-016 nêu tiền tố từng đường; FR-035 file phát sinh ở gốc; Edge
@@ -152,13 +152,13 @@ hành vi.
 - [x] CHK036 (đã giải: FR-061 nêu cách mở rộng `0.0.0.0`, IPv6, IPv4-mapped; NAT64, 6to4 không có test) [P1] Danh sách
   IP bị chặn có nêu cách xử lý IPv6 (`::1`, `::`, IPv4-mapped `::ffff:127.0.0.1`) và nghĩa của `0.0.0.0` với interface
   IPv6 không? [Coverage, Spec §FR-061, US5 ca 2]
-- [x] CHK037 (đã giải có điều kiện, chờ đo T043: FR-060 nêu `ftp:`, `file:`, URL hỏng `503`; `data:` `500`; 21 lần chuyển hướng) URL không
+- [x] CHK037 (đã giải, đo T043: `ftp:`, `file:`, URL hỏng, IP bị chặn `503`; `data:` `500`; 21 lần chuyển hướng) URL không
   phải `http`/`https` (`file:`, `ftp:`, `data:`), URL không hợp lệ, và số lần chuyển hướng tối đa có được nêu kết quả
   (status, mã lỗi, không tạo dòng)? [Gap, Spec §FR-060]
 - [x] CHK038 (đã giải: FR-061 nêu một mục lỗi chặn mọi request, danh sách rỗng không chặn gì) "Cấu hình
   `IMPORT_IP_DENY_LIST` lỗi thì chặn" có định nghĩa thế nào là lỗi (chuỗi rỗng, dải sai, CIDR sai) và chặn toàn bộ hay
   chỉ mục lỗi? [Clarity, Spec §FR-061]
-- [x] CHK039 (đã giải có điều kiện, chờ đo T043: FR-060 nêu tên rỗng, `Content-Type` thiếu, encoding khác lưu nguyên; `%` hỏng `500`)
+- [x] CHK039 (đã giải, đo T043: tên rỗng, `Content-Type` thiếu, encoding khác lưu nguyên; `%` hỏng thành `503` vì `encodeURL`)
   Tên file khi URL cuối không có basename (kết thúc `/`), `Content-Type` thiếu, và `Content-Encoding` không thuộc gzip,
   deflate, br có được nêu kết quả (`filename_download`, đuôi, nội dung lưu)? [Edge Case, Spec §FR-060, US5 ca 1]
 - [x] CHK040 (đã giải: FR-060 nêu khớp một mẫu, thứ tự, chỉ so header, `data.type` đè sau kiểm) Ngữ nghĩa

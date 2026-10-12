@@ -158,6 +158,25 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'WEBSOCKETS_ENABLED',
 	'WEBSOCKETS_REST_ENABLED',
 	'WEBSOCKETS_GRAPHQL_ENABLED',
+	// Feature 007: files, assets, URL import, the synchronized TUS cleanup (specs/007 contracts/tus-storage.md §4). TUS_*,
+	// FILES_MIME_TYPE_ALLOW_LIST and the S3 options outside this list are not Directus-listed variables: no warning either.
+	// FILES_CONTENT_TYPE_ALLOW_LIST is listed by Directus but read by neither app.
+	'FILE_METADATA_ALLOW_LIST',
+	'FILES_MAX_UPLOAD_SIZE',
+	'FILES_MAX_UPLOAD_CONCURRENCY',
+	'FILES_CONTENT_TYPE_ALLOW_LIST',
+	'FILES_DELETE_ORIGINAL_ON_MOVE',
+	'ASSETS_CACHE_TTL',
+	'ASSETS_CACHE_REVALIDATE',
+	'ASSETS_TRANSFORM_MAX_CONCURRENT',
+	'ASSETS_TRANSFORM_IMAGE_MAX_DIMENSION',
+	'ASSETS_TRANSFORM_MAX_OPERATIONS',
+	'ASSETS_TRANSFORM_TIMEOUT',
+	'ASSETS_CONTENT_SECURITY_POLICY',
+	'ASSETS_INVALID_IMAGE_SENSITIVITY_LEVEL',
+	'IMPORT_IP_DENY_LIST',
+	'SYNCHRONIZATION_STORE',
+	'SYNCHRONIZATION_NAMESPACE',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

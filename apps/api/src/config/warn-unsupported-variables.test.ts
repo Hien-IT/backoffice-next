@@ -87,3 +87,20 @@ test('defaults to the real raw configuration', () => {
 	warnUnsupportedVariables();
 	expect(logger.warn.mock.calls[0]?.[0]).toContain('TELEMETRY');
 });
+
+// Feature 007: the files section of tests/parity/env/postgres.env warns about nothing.
+test('feature 007: storage, files, assets and TUS settings of the parity env are not reported', () => {
+	expect(
+		getUnsupportedVariables({
+			STORAGE_LOCATIONS: 'local,s3',
+			STORAGE_LOCAL_DRIVER: 'local',
+			STORAGE_S3_FORCE_PATH_STYLE: 'true',
+			FILES_MAX_UPLOAD_SIZE: '30mb',
+			FILES_MIME_TYPE_ALLOW_LIST: 'image/*',
+			ASSETS_CACHE_REVALIDATE: 'true',
+			TUS_ENABLED: 'true',
+			SYNCHRONIZATION_STORE: 'redis',
+			IMPORT_TIMEOUT: '1h',
+		}),
+	).toEqual(['IMPORT_TIMEOUT']);
+});

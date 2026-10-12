@@ -74,6 +74,20 @@ describe.each(getStorages())('cross use on %s (SC-003)', (storage) => {
 		expect(await listObjects(storage, written['id'])).toEqual([]);
 	});
 
+	it.each(APPS)('URL import at %s: the other app downloads the same bytes (FR-082)', async (writer) => {
+		const res = await request(writer, 'POST', '/files/import', {
+			body: JSON.stringify({ url: 'http://files-fixtures/photo.jpg', data: { storage } }),
+			headers: { 'content-type': 'application/json' },
+		});
+
+		const { data } = (await res.json()) as { data: Record<string, any> };
+		created.push(data['id']);
+		expect(data['storage']).toBe(storage);
+
+		const download = await request(other(writer), 'GET', `/assets/${data['id']}`);
+		expect(sha(await download.arrayBuffer())).toBe(sha(fixture('photo.jpg')));
+	});
+
 	it.each(APPS)('JSON row at %s: the other app reads and updates it', async (writer) => {
 		const reader = other(writer);
 
