@@ -1,0 +1,18 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/fields/crud.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/fields/crud.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/fields/crud.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/fields/crud.seed.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/fields/change-fields.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/fields/change-fields.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/fields/change-fields.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/fields/change-fields.seed.ts"
+	}
+]

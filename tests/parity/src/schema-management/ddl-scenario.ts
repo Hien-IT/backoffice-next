@@ -69,11 +69,28 @@ async function run(db: Knex, app: AppName, steps: ParityRequest[], options: DdlS
 	return { responses, model };
 }
 
-/** Deletes the user collections of `tables` through `app`, last created first; missing ones are skipped. */
+/**
+ * Deletes the user collections of `tables` through `app`, last created first; missing ones are skipped. A collection
+ * another table still points at cannot be dropped (the DROP TABLE fails, like at Directus), so passes repeat while one
+ * of them deletes something.
+ */
 export async function cleanupTables(app: AppName, tables: string[]): Promise<void> {
-	for (const table of [...tables].reverse()) {
-		if (table.startsWith('directus_')) continue;
-		await appRequest(app, 'DELETE', `/collections/${table}`).catch(() => undefined);
+	let left = [...tables].reverse().filter((table) => !table.startsWith('directus_'));
+
+	while (left.length > 0) {
+		const failed: string[] = [];
+
+		for (const table of left) {
+			const deleted = await appRequest(app, 'DELETE', `/collections/${table}`).then(
+				() => true,
+				(error: Error) => /: 403 /.test(error.message), // not there (any more)
+			);
+
+			if (!deleted) failed.push(table);
+		}
+
+		if (failed.length === left.length) return;
+		left = failed;
 	}
 }
 

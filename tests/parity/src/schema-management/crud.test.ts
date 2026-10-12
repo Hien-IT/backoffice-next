@@ -244,7 +244,9 @@ describe('collections (in sequence on the shared database)', () => {
 		'R-11: PATCH /collections/directus_users adds a metadata row like Directus',
 		async () => {
 			// Host writes are not possible on SQLite in CI (memory: bind mount permissions); the row is removed from the host.
-			const removeRow = async () => db('directus_collections').where({ collection: 'directus_users' }).delete();
+			const removeRow = async () => {
+				await db('directus_collections').where({ collection: 'directus_users' }).delete();
+			};
 
 			await ddlScenario(
 				db,

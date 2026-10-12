@@ -1,0 +1,10 @@
+[
+	{
+		"source": "tests/blackbox/common/common.test.ts",
+		"dest": "tests/parity/src/items/blackbox/common/common.test.ts"
+	},
+	{
+		"source": "tests/blackbox/common/common.seed.ts",
+		"dest": "tests/parity/src/items/blackbox/common/common.seed.ts"
+	}
+]

@@ -83,7 +83,8 @@ describe.runIf(suite === 'full' && BACKOFFICE_2)(
 
 		it('a diff applied through the new app', async () => {
 			const snapshot = (await backoffice('GET', '/schema/snapshot')).data;
-			await backoffice('POST', `/fields/${C}`, { field: 'extra', type: 'string' });
+			// With meta: a column without a directus_fields row is not in snapshots (getSnapshot drops meta === null).
+			await backoffice('POST', `/fields/${C}`, { field: 'extra', type: 'string', meta: {} });
 			await othersFollow('field added before the apply');
 
 			const { data } = await backoffice('POST', '/schema/diff', snapshot);

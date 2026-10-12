@@ -7,6 +7,7 @@ import { BaseSequencer, type TestSpecification } from 'vitest/node';
 
 const BEFORE = [
 	'/00-seed.test.ts',
+	'/common/common.test.ts',
 	'/tests/db/routes/schema/schema.test.ts',
 	'/tests/db/routes/collections/crud.test.ts',
 	'/tests/db/routes/fields/change-fields.test.ts',

@@ -1041,6 +1041,9 @@ importers:
       '@backoffice/utils':
         specifier: workspace:*
         version: link:../../libs/utils
+      '@types/js-yaml':
+        specifier: 'catalog:'
+        version: 4.0.9
       '@types/jsonwebtoken':
         specifier: 'catalog:'
         version: 9.0.10
@@ -1059,6 +1062,9 @@ importers:
       ioredis:
         specifier: 'catalog:'
         version: 5.8.2
+      js-yaml:
+        specifier: 'catalog:'
+        version: 4.3.2
       json-to-graphql-query:
         specifier: 'catalog:'
         version: 2.3.0

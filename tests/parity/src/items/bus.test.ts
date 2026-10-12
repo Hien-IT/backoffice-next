@@ -49,8 +49,15 @@ async function call(base: string, method: string, path: string, body?: unknown) 
 	return text ? JSON.parse(text) : undefined;
 }
 
-// Serial keys: their value depends on the rows written before (activity, revisions, permissions).
-const SERIAL = new Set(['directus_activity', 'directus_revisions', 'directus_permissions']);
+// Serial keys: their value depends on the rows written before (activity, revisions, permissions; feature 006 the
+// metadata rows of fields and relations).
+const SERIAL = new Set([
+	'directus_activity',
+	'directus_revisions',
+	'directus_permissions',
+	'directus_fields',
+	'directus_relations',
+]);
 
 function serials(message: any): any {
 	const out = structuredClone(message);
@@ -66,6 +73,12 @@ function serials(message: any): any {
 		if ('activity' in payload) payload.activity = '<serial>';
 		if (out.collection === 'directus_revisions' && 'parent' in payload) payload.parent = '<serial>';
 		if (SERIAL.has(payload.collection) && 'item' in payload) payload.item = '<serial>';
+		// Feature 006: the action payload of a directus_relations row carries its key.
+		if (SERIAL.has(out.collection) && typeof payload.key === 'number') payload.key = '<serial>';
+		// Feature 006: the revision of a directus_fields or directus_relations row holds the row with its id.
+		if (SERIAL.has(payload.collection) && payload.data && typeof payload.data === 'object' && 'id' in payload.data) {
+			payload.data.id = '<serial>';
+		}
 	}
 
 	return out;

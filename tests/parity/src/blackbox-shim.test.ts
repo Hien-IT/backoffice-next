@@ -28,7 +28,7 @@ afterEach(() => {
 });
 
 const env = (values: Record<string, string>) =>
-	({ postgres: { ...config.envs.postgres, ...values } }) as unknown as typeof config.envs;
+	({ postgres: { ...config.envs['postgres'], ...values } }) as unknown as typeof config.envs;
 
 describe('blackbox shim (feature 006)', () => {
 	test('getUrl: the app under test of the blackbox pair, or the node an env names by URL or TZ', () => {

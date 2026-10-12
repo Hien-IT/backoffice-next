@@ -17,7 +17,8 @@ const P = 'parity_sm_schema';
 const A = `${P}_a`;
 const B = `${P}_b`;
 const NEW = `${P}_new`;
-const TABLES = [A, B, NEW];
+// Deleted last first (cleanupTables): A before B, which A's foreign key points at.
+const TABLES = [B, A, NEW];
 
 let db: Knex;
 let admin: string;

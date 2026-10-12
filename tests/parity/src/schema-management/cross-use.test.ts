@@ -84,10 +84,9 @@ describe.each([
 			translations: [{ label: 'Xin chào' }],
 		});
 
-		// The singleton answers as an object at the other app too.
-		expect((await appRequest(user, 'GET', `/items/${P}singleton`)).data).toEqual(
-			expect.objectContaining({ motto: null }),
-		);
+		// The singleton answers the same object at both apps.
+		const singleton = await appRequest(user, 'GET', `/items/${P}singleton`);
+		expect(singleton).toEqual(await appRequest(builder, 'GET', `/items/${P}singleton`));
 	});
 
 	it('deleting the archive and sort fields at the other app clears them in directus_collections (US3.5)', async () => {

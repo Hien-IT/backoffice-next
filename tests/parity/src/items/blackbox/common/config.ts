@@ -7,7 +7,7 @@
 // node with CACHE_SCHEMA=false) is not used, both apps clear their schema through the bus after every change.
 import { readFileSync } from 'node:fs';
 import { knexConfig } from '../../../config.js';
-import { allVendors, type Vendor } from './get-dbs-to-test';
+import { allVendors, type Vendor } from './get-dbs-to-test.js';
 
 export type Env = Record<Vendor, Record<string, string>>;
 

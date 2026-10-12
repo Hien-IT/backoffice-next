@@ -9,6 +9,7 @@ import { CreatePolicy, CreateRole, CreateUser } from './common/functions';
 import vendors from './common/get-dbs-to-test';
 import { ROLE, TEST_USERS, USER } from './common/variables';
 // Feature 006: the seeds of the data model files (they delete their own collections first, so a rerun starts clean).
+import * as common from './common/common.seed';
 import * as changeFields from './tests/db/routes/fields/change-fields.seed';
 import * as fieldsCrud from './tests/db/routes/fields/crud.seed';
 import * as caseWhen from './tests/db/routes/items/case-when.seed';
@@ -144,6 +145,7 @@ describe('Seed database structure', () => {
 		['o2m', o2m],
 		['relational-json', relationalJson],
 		['singleton', singleton],
+		['common', common],
 		['schema', schema],
 		['change-fields', changeFields],
 		['fields/crud', fieldsCrud],
