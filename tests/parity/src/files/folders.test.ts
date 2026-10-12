@@ -21,10 +21,14 @@ afterAll(async () => {
 	await closeHostDb();
 }, 120_000);
 
-const byName = (c: Captured): Captured => {
-	const data = (c.json as { data?: { name: string }[] } | undefined)?.data;
+/** `data` of a response in the order of `ids` (rows come back in primary key order: random uuids on MySQL and SQLite). */
+const inOrder = (c: Captured, ids: (string | undefined)[]): Captured => {
+	const data = (c.json as { data?: { id: string }[] } | undefined)?.data;
 	if (!Array.isArray(data)) return c;
-	return { ...c, json: { ...(c.json as object), data: [...data].sort((x, y) => x.name.localeCompare(y.name)) } };
+	return {
+		...c,
+		json: { ...(c.json as object), data: [...data].sort((x, y) => ids.indexOf(x.id) - ids.indexOf(y.id)) },
+	};
 };
 
 describe('/folders (US3)', () => {
@@ -46,7 +50,7 @@ describe('/folders (US3)', () => {
 				],
 			});
 
-			// Rows come back in primary key order (random uuids on MySQL and SQLite): name the ids and sort by name.
+			// Rows come back in primary key order (random uuids on MySQL and SQLite): name the ids by `name`.
 			const created = ((children.json as any)?.data ?? []) as { id: string; name: string }[];
 			const [a, b] = ['a', 'b'].map((n) => created.find((f) => f.name === n)?.id);
 			folders.push(rootId!, a!, b!);
@@ -69,12 +73,12 @@ describe('/folders (US3)', () => {
 
 			return {
 				root: snap(root, '/folders', ids),
-				children: snap(byName(children), '/folders', ids),
+				children: snap(inOrder(children, [a, b]), '/folders', ids),
 				list: snap(list, '/folders', ids),
-				search: snap(byName(search), '/folders', ids),
+				search: snap(inOrder(search, [a, b]), '/folders', ids),
 				one: snap(one, '/folders/:pk', ids),
 				renamed: snap(renamed, '/folders/:pk', ids),
-				batch: snap(batch, '/folders', ids),
+				batch: snap(inOrder(batch, [a, b]), '/folders', ids),
 				rows: JSON.parse(JSON.stringify(rows).replaceAll(rootId!, '<root>').replaceAll(name, '<name>')),
 				removed: removed.status,
 			};

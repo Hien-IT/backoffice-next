@@ -463,7 +463,7 @@ lại dừng khởi động với driver ngoài phạm vi, health, info với ha
 **Purpose**: Playwright module Files, benchmark, README, sổ khác biệt, đóng feature (FR-083, FR-084, research R9, R10,
 R12).
 
-- [ ] T053 [P] `tests/directus-app-e2e/src/files.spec.ts` (Playwright qua proxy, profile `app`): tải lên qua input file,
+- [X] T053 [P] `tests/directus-app-e2e/src/files.spec.ts` (Playwright qua proxy, profile `app`): tải lên qua input file,
   import URL `http://files-fixtures/photo.jpg`, xem trước (thumbnail `system-*` tải về `200`), sửa title, tạo thư mục, di
   chuyển, xóa, tải zip thư mục; `items.spec.ts` thêm ca layout cards hiển thị thumbnail; `routing.spec.ts` thêm `/files`,
   `/folders`, `/assets` về app mới (`proxy-log`).
@@ -682,3 +682,13 @@ Task: "storage-capture.ts (T019)"
   `assets-stress` và `PARITY_STORAGES=local,s3`; `parity-matrix.yml` (blackbox-full) và `nightly.yml` thêm hai cặp,
   `PARITY_STORAGES=local,s3`; `ci-local.sh` tương ứng. Sửa kèm: `folders.test.ts` đặt tên id theo `name` và sắp `data`
   theo tên (MySQL, SQLite trả dòng theo khóa uuid ngẫu nhiên; CI đỏ ở commit T040-T042).
+- T053: `files.spec.ts` (upload qua input file, import URL, xem trước, sửa title, tạo thư mục, di chuyển, zip thư mục qua
+  menu "Download Folder", xóa) ghi cùng dòng `directus_files`, `directus_folders`, activity qua proxy và ở Directus một
+  mình; thumbnail `system-medium-cover` của layout cards kiểm trong thư mục mới (chỉ có file của lượt chạy, thư viện gốc
+  sắp `-uploaded_on` đặt các dòng không `uploaded_on` lên đầu), thay cho ca cards của `items.spec.ts`. `routing.spec.ts`
+  mở thêm `/admin/files`. Chạy cục bộ bằng Chrome đã cài (config tạm `channel: 'chrome'`, không tải trình duyệt): 9/9
+  spec xanh. Ghi nhận: nginx của profile `app` giữ IP cũ sau `env-up` tạo lại container (app gọi nhầm cặp có TUS), restart
+  `proxy` trước khi chạy; `bothRuns` xóa data cache của Directus sau khi xóa `last_page` trong DB (response cache giữ
+  `/users/me` cũ). Sửa kèm sau CI: `folders.test.ts` sắp `data` theo id (batch), `env.mjs` tạo `.data/files-runtime`
+  trước compose (Docker tạo bằng root trên Linux: EACCES khi ghi `big.bin`), `concurrency.test.ts` bỏ qua SQLite + MinIO
+  vì Directus 11.17.4 fail chính ca này (CI run 38299949458).

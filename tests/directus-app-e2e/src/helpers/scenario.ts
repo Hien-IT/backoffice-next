@@ -28,6 +28,8 @@ export async function bothRuns(
 		const page = await context.newPage();
 		// The app opens last_page after signing in: start every run from the content module.
 		await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
+		// That update bypasses the response cache (CACHE_ENABLED=true) where /users/me may still hold the last page.
+		await clearDataCache();
 		const before = await snapshot(tables);
 
 		try {
@@ -50,4 +52,14 @@ export async function bothRuns(
 	}
 
 	return out;
+}
+
+async function clearDataCache(): Promise<void> {
+	const login = await fetch(`${DIRECTUS_URL}/auth/login`, {
+		method: 'POST',
+		headers: { 'content-type': 'application/json' },
+		body: JSON.stringify(ADMIN),
+	});
+	const token = ((await login.json()) as any).data.access_token as string;
+	await fetch(`${DIRECTUS_URL}/utils/cache/clear`, { method: 'POST', headers: { authorization: `Bearer ${token}` } });
 }

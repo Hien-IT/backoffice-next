@@ -64,6 +64,8 @@ if (action === 'up') {
 	mkdirSync('.data/sqlite', { recursive: true });
 	// Both containers run as uid 1000 (node), the CI runner user is another uid: let them create the file.
 	chmodSync('.data/sqlite', 0o777);
+	// Feature 007: files-fixtures serves this directory; made by the runner before Docker would make it as root.
+	mkdirSync('.data/files-runtime', { recursive: true });
 }
 
 const env = { ...process.env, TEST_DB: values.vendor };
