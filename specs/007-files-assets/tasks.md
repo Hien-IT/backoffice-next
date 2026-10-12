@@ -436,18 +436,18 @@ lại dừng khởi động với driver ngoài phạm vi, health, info với ha
 
 **Independent Test**: `parity-blackbox --vendor=postgres` (`PARITY_STORAGES=local,s3`) và MySQL, SQLite (`s3`).
 
-- [ ] T048 [US7] Shim `tests/parity/src/items/blackbox/common/config.ts`: `getStorages()` đọc `PARITY_STORAGES`
+- [X] T048 [US7] Shim `tests/parity/src/items/blackbox/common/config.ts`: `getStorages()` đọc `PARITY_STORAGES`
   (`local,s3`), bảng `nodeUrl` thêm cặp `assets-limit`; `config.test.ts` thêm ca; `global-setup` đặt URL cặp mới.
-- [ ] T049 [P] [US7] Port `directus/tests/blackbox/tests/common/assets/{read,format,limit,concurrency,cache-revalidate}.test.ts`
+- [X] T049 [P] [US7] Port `directus/tests/blackbox/tests/common/assets/{read,format,limit,concurrency,cache-revalidate}.test.ts`
   vào `tests/parity/src/items/blackbox/tests/common/assets/` (sửa `// Backoffice:`: `storages` → `getStorages()`, URL
   qua shim, `limit`, `concurrency`, `cache-revalidate` dùng cặp `assets-limit` qua `nodeUrl`; fixture ảnh copy kèm).
   Ghi manifest. (sau T048)
-- [ ] T050 [P] [US7] Port `directus/tests/blackbox/tests/db/routes/files/{storage,tus}.test.ts` vào
+- [X] T050 [P] [US7] Port `directus/tests/blackbox/tests/db/routes/files/{storage,tus}.test.ts` vào
   `tests/parity/src/items/blackbox/tests/db/routes/files/` (`storages` → `getStorages()`, `tus` dùng cặp `assets-limit`,
   `tus-js-client`). Ghi manifest. (sau T048)
-- [ ] T051 [P] [US7] Port `directus/tests/blackbox/tests/db/routes/collections/files.test.ts` và, nếu 001 chưa port,
+- [X] T051 [P] [US7] Port `directus/tests/blackbox/tests/db/routes/collections/files.test.ts` và, nếu 001 chưa port,
   `tests/db/routes/server/health.test.ts` vào cùng cây. Ghi manifest. (sau T048)
-- [ ] T052 [US7] CI: `.github/workflows/ci.yml` job `parity` (Postgres `full` hai shard: thêm profile `assets-limit`,
+- [X] T052 [US7] CI: `.github/workflows/ci.yml` job `parity` (Postgres `full` hai shard: thêm profile `assets-limit`,
   `assets-stress`, `PARITY_STORAGES=local,s3`; MySQL, SQLite `reduced`: `PARITY_STORAGES=s3`), job `parity-blackbox`
   (profile `assets-limit`, `PARITY_STORAGES=local,s3`); `parity-matrix.yml` và `nightly.yml` đặt `PARITY_STORAGES=local,s3`;
   `tools/ci-local.sh` bước tương ứng. Chạy `parity-blackbox --vendor=postgres` hai lượt và `reduced` MySQL, SQLite; ca
@@ -671,3 +671,14 @@ Task: "storage-capture.ts (T019)"
   TUS, S3 không vào dòng cảnh báo, `IMPORT_TIMEOUT` vẫn vào), ca đối chiếu ở `startup/storage.test.ts` (health admin hai
   key `storage:*`, `/server/info` `files`, `uploads` ở cặp chính và `cors-hsts`, upload không `storage` vào `local`).
   Đo: `/server/info` chỉ có `uploads` khi bật TUS (cặp chính có `FILES_MAX_UPLOAD_CONCURRENCY` mặc định vô hạn).
+- T048 đến T052: shim xuất `getStorages()` (tên `minio` của Directus là `s3`), `paths.cwd` = `tests/parity/fixtures`,
+  `nodeUrl` nhận `assets-limit`, `assets-stress` (test trong `blackbox-shim.test.ts`). 8 file port xanh ở cả hai lượt
+  (Directus, app mới) trên Postgres, `local` và `s3`: 56 ca mỗi lượt kể cả seed. `// Backoffice:` trong port:
+  `cache-revalidate` dùng hai cặp thay hai node tự spawn; `tus` thay `Location` (PUBLIC_URL chung là Directus chính,
+  TUS tắt) bằng app đang test qua `httpStack`; `storage` tìm dòng của POST theo cả `description` vì các file assets
+  chạy trước tải cùng ảnh; `concurrency` chạy `autocannon` của `tests/parity` (devDependency mới, bản catalog 8.0.0).
+  `health.test.ts` đã port ở 001 (`tests/parity/src/server/health.test.ts`). Không ca nào fail trên chính Directus ở
+  Postgres nên chưa có `it.skipIf`; MySQL, SQLite (`s3`) kiểm trên CI. CI: `parity-blackbox` thêm cặp `assets-limit`,
+  `assets-stress` và `PARITY_STORAGES=local,s3`; `parity-matrix.yml` (blackbox-full) và `nightly.yml` thêm hai cặp,
+  `PARITY_STORAGES=local,s3`; `ci-local.sh` tương ứng. Sửa kèm: `folders.test.ts` đặt tên id theo `name` và sắp `data`
+  theo tên (MySQL, SQLite trả dòng theo khóa uuid ngẫu nhiên; CI đỏ ở commit T040-T042).

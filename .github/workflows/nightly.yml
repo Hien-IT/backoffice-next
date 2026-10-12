@@ -14,6 +14,8 @@ env:
   NX_NO_CLOUD: 'true'
   NX_DAEMON: 'false'
   PARITY_SUITE: full
+  # Feature 007: files and assets on both storages.
+  PARITY_STORAGES: local,s3
 
 jobs:
   parity:
@@ -34,7 +36,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run api:build
       - run:
-          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=ratelimit,cors-hsts,pressure,metrics,sso
+          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }}
+          --profiles=ratelimit,cors-hsts,pressure,metrics,sso,assets-limit,assets-stress
       - run: pnpm nx run parity-tests:parity --vendor=${{ matrix.vendor }} --output-style=static
       - name: container logs
         if: failure()

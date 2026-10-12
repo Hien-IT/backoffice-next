@@ -68,7 +68,7 @@ step build-api pnpm nx run api:build
 # Feature 007: files and assets on `local` and MinIO for Postgres, MinIO only for MySQL and SQLite (PARITY_STORAGES).
 PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress
 # Feature 006: the nodes of schema-cache.test.ts and of the timezone files are profile pairs.
-step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america
+PARITY_STORAGES=local,s3 step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress
 step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
 PARITY_STORAGES=s3 step parity-mysql-reduced parity mysql reduced blackbox,assets-limit,assets-stress integer
 PARITY_STORAGES=s3 step parity-sqlite3-reduced parity sqlite3 reduced blackbox,assets-limit,assets-stress integer

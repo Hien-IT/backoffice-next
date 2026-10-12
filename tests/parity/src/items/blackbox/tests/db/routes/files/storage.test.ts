@@ -1,0 +1,131 @@
+// Ported from directus/tests/blackbox/tests/db/routes/files/storage.test.ts
+import { createReadStream } from 'fs';
+import { join } from 'path';
+import { getStorages, getUrl, paths } from '@common/config';
+import vendors from '@common/get-dbs-to-test';
+import { USER } from '@common/variables';
+import request from 'supertest';
+import { describe, expect, it } from 'vitest';
+
+const assetsDirectory = [paths.cwd, 'assets'];
+// Backoffice: `local` and `s3` of the parity env (PARITY_STORAGES), `minio` is `s3` (T048).
+const storages = getStorages();
+
+const imageFile = {
+	name: 'directus.png',
+	type: 'image/png',
+	filesize: '7136',
+	title: 'Directus',
+	description: 'The Directus Logo',
+};
+
+const imageFilePath = join(...assetsDirectory, imageFile.name);
+
+describe('/files', () => {
+	describe('POST /files', () => {
+		describe.each(storages)('Storage: %s', (storage) => {
+			it.each(vendors)('%s', async (vendor) => {
+				// Action
+				const response = await request(getUrl(vendor))
+					.post('/files')
+					.set('Authorization', `Bearer ${USER.ADMIN.TOKEN}`)
+					.field('storage', storage)
+					.field('title', imageFile.title)
+					.field('description', imageFile.description)
+					.attach('file', createReadStream(imageFilePath));
+
+				// Normalize filesize to string as bigint returns as a string
+				response.body.data.filesize = String(response.body.data.filesize);
+
+				// Assert
+				expect(response.statusCode).toBe(200);
+
+				expect(response.body.data).toEqual(
+					expect.objectContaining({
+						filesize: imageFile.filesize,
+						type: imageFile.type,
+						filename_download: imageFile.name,
+						filename_disk: expect.any(String),
+						storage: storage,
+						title: imageFile.title,
+						description: imageFile.description,
+						id: expect.any(String),
+					}),
+				);
+			});
+		});
+	});
+
+	describe('PATCH /files/:id', () => {
+		describe.each(storages)('Storage: %s', (storage) => {
+			it.each(vendors)('%s', async (vendor) => {
+				// Setup
+				const readResponse = await request(getUrl(vendor))
+					.get('/files')
+					.set('Authorization', `Bearer ${USER.ADMIN.TOKEN}`)
+					.query({
+						// Backoffice: the description too, so the row of the POST above is found after the assets files uploaded
+						// the same image without one (the port runs every file against one database, in path order).
+						filter: {
+							filename_download: { _eq: imageFile.name },
+							storage: { _eq: storage },
+							description: { _eq: imageFile.description },
+						},
+						fields: ['id'],
+						limit: 1,
+					});
+
+				expect(readResponse.statusCode).toBe(200);
+
+				// Action
+				const response = await request(getUrl(vendor))
+					.patch(`/files/${readResponse.body.data[0].id}`)
+					.set('Authorization', `Bearer ${USER.ADMIN.TOKEN}`)
+					.attach('file', createReadStream(imageFilePath));
+
+				expect(response.statusCode).toBe(200);
+
+				// Normalize filesize to string as bigint returns as a string
+				response.body.data.filesize = String(response.body.data.filesize);
+
+				// Assert
+				expect(response.statusCode).toBe(200);
+
+				expect(response.body.data).toEqual(
+					expect.objectContaining({
+						filesize: imageFile.filesize,
+						type: imageFile.type,
+						filename_download: imageFile.name,
+						filename_disk: expect.any(String),
+						storage: storage,
+						title: imageFile.title,
+						description: imageFile.description,
+						id: expect.any(String),
+					}),
+				);
+			});
+		});
+	});
+
+	describe('DELETE /files/:id', () => {
+		describe.each(storages)('Storage: %s', (storage) => {
+			it.each(vendors)('%s', async (vendor) => {
+				// Setup
+				const insertResponse = await request(getUrl(vendor))
+					.post('/files')
+					.set('Authorization', `Bearer ${USER.ADMIN.TOKEN}`)
+					.field('storage', storage)
+					.attach('file', createReadStream(imageFilePath));
+
+				// Action
+				const response = await request(getUrl(vendor))
+					.delete(`/files/${insertResponse.body.data.id}`)
+					.set('Authorization', `Bearer ${USER.ADMIN.TOKEN}`);
+
+				// Assert
+				expect(response.statusCode).toEqual(204);
+				expect(response.body.data).toBe(undefined);
+			});
+		});
+	});
+});

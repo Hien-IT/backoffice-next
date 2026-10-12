@@ -5,7 +5,7 @@ import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { setSettings, urls } from '../auth/fixtures.js';
 import { assertSameTranscripts, scenario } from '../auth/scenario.js';
 import { appRequest } from '../directus-api.js';
-import { assertParity, parity } from '../parity.js';
+import { assertParity, type Captured, parity } from '../parity.js';
 import { admin, call, fixture, idsOf, multipart, snap } from './helpers.js';
 import { folderRows } from './storage-capture.js';
 
@@ -20,6 +20,12 @@ afterAll(async () => {
 		await appRequest('directus', 'DELETE', `/folders/${id}`).catch(() => undefined);
 	await closeHostDb();
 }, 120_000);
+
+const byName = (c: Captured): Captured => {
+	const data = (c.json as { data?: { name: string }[] } | undefined)?.data;
+	if (!Array.isArray(data)) return c;
+	return { ...c, json: { ...(c.json as object), data: [...data].sort((x, y) => x.name.localeCompare(y.name)) } };
+};
 
 describe('/folders (US3)', () => {
 	it('create one and many, read, search, update, delete with their rows', async () => {
@@ -40,7 +46,9 @@ describe('/folders (US3)', () => {
 				],
 			});
 
-			const [a, b] = idsOf(children);
+			// Rows come back in primary key order (random uuids on MySQL and SQLite): name the ids and sort by name.
+			const created = ((children.json as any)?.data ?? []) as { id: string; name: string }[];
+			const [a, b] = ['a', 'b'].map((n) => created.find((f) => f.name === n)?.id);
 			folders.push(rootId!, a!, b!);
 			const ids = { root: rootId!, a: a!, b: b!, name };
 
@@ -61,9 +69,9 @@ describe('/folders (US3)', () => {
 
 			return {
 				root: snap(root, '/folders', ids),
-				children: snap(children, '/folders', ids),
+				children: snap(byName(children), '/folders', ids),
 				list: snap(list, '/folders', ids),
-				search: snap(search, '/folders', ids),
+				search: snap(byName(search), '/folders', ids),
 				one: snap(one, '/folders/:pk', ids),
 				renamed: snap(renamed, '/folders/:pk', ids),
 				batch: snap(batch, '/folders', ids),

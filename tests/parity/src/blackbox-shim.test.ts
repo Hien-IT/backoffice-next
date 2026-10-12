@@ -1,6 +1,15 @@
 // Feature 006 (T045, research R7): which app each URL of the blackbox shim names (@common/config of the port).
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import config, { getSetupUrl, getUrl, hasProfile, nodeUrl } from './items/blackbox/common/config.js';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
+import config, {
+	getSetupUrl,
+	getStorages,
+	getUrl,
+	hasProfile,
+	nodeUrl,
+	paths,
+} from './items/blackbox/common/config.js';
 
 const URLS: Record<string, string> = {
 	DIRECTUS_URL_BLACKBOX: 'http://d-blackbox',
@@ -13,6 +22,8 @@ const URLS: Record<string, string> = {
 	BACKOFFICE_URL_TZ_ASIA: 'http://b-asia',
 	DIRECTUS_URL_TZ_AMERICA: 'http://d-america',
 	BACKOFFICE_URL_TZ_AMERICA: 'http://b-america',
+	DIRECTUS_URL_ASSETS_LIMIT: 'http://d-limit',
+	BACKOFFICE_URL_ASSETS_LIMIT: 'http://b-limit',
 };
 
 const saved = { ...process.env };
@@ -57,6 +68,15 @@ describe('blackbox shim (feature 006)', () => {
 			'http://d-nomsg',
 			'http://b-nomsg',
 		]);
+	});
+
+	test('feature 007: storages from PARITY_STORAGES, the assets-limit node, the fixtures of the assets files', () => {
+		process.env['PARITY_STORAGES'] = 's3';
+		expect(getStorages()).toEqual(['s3']);
+		delete process.env['PARITY_STORAGES'];
+		expect(getStorages()).toEqual(['local', 's3']);
+		expect([nodeUrl('assets-limit', 1), nodeUrl('assets-limit', 2)]).toEqual(['http://b-limit', 'http://d-limit']);
+		expect(existsSync(join(paths.cwd, 'assets', 'directus.png'))).toBe(true);
 	});
 
 	test('hasProfile and the host databases', () => {

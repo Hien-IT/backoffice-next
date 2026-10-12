@@ -1,0 +1,22 @@
+[
+	{
+		"source": "tests/blackbox/tests/common/assets/read.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/assets/read.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/assets/format.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/assets/format.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/assets/limit.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/assets/limit.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/assets/concurrency.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/assets/concurrency.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/assets/cache-revalidate.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/assets/cache-revalidate.test.ts"
+	}
+]

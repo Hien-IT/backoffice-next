@@ -1,0 +1,6 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/collections/files.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/collections/files.test.ts"
+	}
+]

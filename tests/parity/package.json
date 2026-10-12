@@ -18,6 +18,7 @@
 		"@types/lodash-es": "catalog:",
 		"@types/seedrandom": "catalog:",
 		"@types/supertest": "catalog:",
+		"autocannon": "catalog:",
 		"fflate": "catalog:",
 		"get-port": "catalog:",
 		"ioredis": "catalog:",

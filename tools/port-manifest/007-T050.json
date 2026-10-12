@@ -1,0 +1,10 @@
+[
+	{
+		"source": "tests/blackbox/tests/db/routes/files/storage.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/files/storage.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/files/tus.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/files/tus.test.ts"
+	}
+]

@@ -14,6 +14,8 @@ permissions:
 
 env:
   NX_NO_CLOUD: 'true'
+  # Feature 007: files and assets on both storages here (the push runs MySQL and SQLite on MinIO only).
+  PARITY_STORAGES: local,s3
 
 jobs:
   parity-matrix:
@@ -68,7 +70,7 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run:
           pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }}
-          --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america
+          --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress
       - run: pnpm nx run parity-tests:parity-blackbox --vendor=${{ matrix.vendor }} --output-style=static
       - name: container logs
         if: failure()

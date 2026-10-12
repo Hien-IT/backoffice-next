@@ -5,8 +5,16 @@
 // Feature 006 (research R7): the files that start their own Directus nodes get the profile pairs instead: an env with
 // URL (schema-cache.test.ts, through nodeUrl) or with TZ (the two timezone files) names the node; TEST_NO_CACHE (the
 // node with CACHE_SCHEMA=false) is not used, both apps clear their schema through the bus after every change.
+// Feature 007 (T048): the `local` and `minio` storages of the files and assets files are `local` and `s3` here
+// (getStorages, PARITY_STORAGES); the two nodes cache-revalidate.test.ts spawns are the assets-limit (revalidate) and
+// assets-stress (ASSETS_CACHE_TTL=1h) pairs; paths.cwd holds the `assets` directory of the image fixtures.
 import { readFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { knexConfig } from '../../../config.js';
+
+export { getStorages } from '../../../config.js';
+
+export const paths = { cwd: fileURLToPath(new URL('../../../../fixtures', import.meta.url)) };
 import { allVendors, type Vendor } from './get-dbs-to-test.js';
 
 export type Env = Record<Vendor, Record<string, string>>;
@@ -39,7 +47,10 @@ const pairUrl = (app: App, profile: string) =>
 	url(`${app === 'directus' ? 'DIRECTUS' : 'BACKOFFICE'}_URL_${profile.toUpperCase().replace(/-/g, '_')}`);
 
 /** The node of a profile pair: 1 is the app under test, 2 the other app of the pair (schema-cache.test.ts). */
-export function nodeUrl(profile: 'schema-cache' | 'schema-cache-nomsg', node: 1 | 2): string {
+export function nodeUrl(
+	profile: 'schema-cache' | 'schema-cache-nomsg' | 'assets-limit' | 'assets-stress',
+	node: 1 | 2,
+): string {
 	const app = appUnderTest();
 	return pairUrl(node === 1 ? app : app === 'directus' ? 'backoffice' : 'directus', profile);
 }
