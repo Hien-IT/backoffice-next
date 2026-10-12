@@ -79,24 +79,41 @@ jobs:
       matrix:
         include:
           # `full` on Postgres in two shards (about 12 minutes of tests in one job), each with its own environment.
+          # Feature 007 (spec Clarifications): Postgres runs the files and assets tests on `local` and MinIO, MySQL and
+          # SQLite on MinIO only; the assets-limit and assets-stress pairs serve the narrower files configuration.
           - {
               vendor: postgres,
               suite: full,
               shard: 1,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress',
+              storages: 'local,s3',
             }
           - {
               vendor: postgres,
               suite: full,
               shard: 2,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress',
+              storages: 'local,s3',
             }
           # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.
-          - { vendor: mysql, suite: reduced, profiles: 'blackbox', blackbox: integer }
-          - { vendor: sqlite3, suite: reduced, profiles: 'blackbox', blackbox: integer }
+          - {
+              vendor: mysql,
+              suite: reduced,
+              profiles: 'blackbox,assets-limit,assets-stress',
+              blackbox: integer,
+              storages: s3,
+            }
+          - {
+              vendor: sqlite3,
+              suite: reduced,
+              profiles: 'blackbox,assets-limit,assets-stress',
+              blackbox: integer,
+              storages: s3,
+            }
     env:
       PARITY_SUITE: ${{ matrix.suite }}
       PARITY_SHARD: ${{ matrix.shard && format('{0}/2', matrix.shard) || '' }}
+      PARITY_STORAGES: ${{ matrix.storages }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
