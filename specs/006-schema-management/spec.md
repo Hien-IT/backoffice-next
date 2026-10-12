@@ -419,8 +419,8 @@ API của app mới.
   bằng app mới, mọi ca vẫn đạt ở cả hai app (Clarifications).
 - **FR-065**: PHẢI có benchmark `GET /collections`, `GET /fields`, `GET /relations`, `GET /schema/snapshot` và `POST
   /schema/diff` (snapshot của chính data model đó, kết quả `204`) ở hai app, với token admin và token user có quyền đọc
-  một phần, trên data model cỡ lớn (khoảng 200 collection, 3.000 field, 300 relation, dựng qua API). Chạy ở workflow
-  benchmark hằng tuần, không chặn CI (Clarifications).
+  một phần, trên data model cỡ lớn (60 collection, khoảng 930 field, 59 relation, dựng qua API; snapshot dưới
+  `MAX_PAYLOAD_SIZE` mặc định 1 MB). Chạy ở workflow benchmark hằng tuần, không chặn CI (Clarifications).
 
 ### Key Entities
 
@@ -492,7 +492,10 @@ Khác biệt mới:
   có CLI schema; pipeline deploy dùng CLI của Directus trên cùng DB hoặc gọi route `/schema/*` (Clarifications). Không
   phải khác biệt API (Nguyên tắc III chỉ nói REST và GraphQL).
 - Benchmark chỉ đo các route đọc và snapshot, diff (FR-065); thao tác ghi DDL hiếm và phụ thuộc DB nên không đo. Quy
-  mô data model của benchmark (200 collection, 3.000 field, 300 relation) là giả định, chỉnh khi lập plan nếu cần.
+  mô ban đầu (200 collection, 3.000 field, 300 relation) đã chỉnh sau lần đo đầu (T054, 2026-10-12): snapshot 2,5 MB
+  vượt `MAX_PAYLOAD_SIZE` mặc định nên `POST /schema/diff` trả `400` ở cả hai app; còn 60 collection (snapshot khoảng
+  770 KB). `GET /schema/snapshot`, `POST /schema/diff` đo với 5 kết nối: 50 kết nối xếp hàng quá timeout 10 giây ở cả
+  hai app.
 
 ## Success Criteria *(mandatory)*
 

@@ -3,7 +3,8 @@
 // at 80% of the Directus req/s, compared by compare.ts (10%). Scenarios: GET /collections, /fields, /relations (the
 // requests the Directus app makes when it starts) as an admin and as a user who reads part of the model, fresh
 // (Cache-Control: no-store) and from the shared response cache; GET /schema/snapshot and POST /schema/diff of that
-// snapshot (204) as an admin. Needs `benchmark:env-up` first.
+// snapshot (204) as an admin, with HEAVY_CONNECTIONS: an admin operation of a few hundred ms of CPU per request, which
+// 50 connections queue past the 10 s autocannon timeout at both apps. Needs `benchmark:env-up` first.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import {
@@ -26,6 +27,7 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 10);
 const WARMUP = 5;
 const CONNECTIONS = 50;
+const HEAVY_CONNECTIONS = 5;
 const RATE_SHARE = 0.8;
 
 type App = 'directus' | 'backoffice';
@@ -37,6 +39,7 @@ interface Scenario {
 	body?: string;
 	user: 'admin' | 'user';
 	fresh: boolean;
+	connections?: number;
 }
 
 function scenarios(seeded: SchemaSeed): Scenario[] {
@@ -49,7 +52,14 @@ function scenarios(seeded: SchemaSeed): Scenario[] {
 	}
 
 	for (const fresh of [true, false]) {
-		out.push({ name: '/schema/snapshot', method: 'GET', path: '/schema/snapshot', user: 'admin', fresh });
+		out.push({
+			name: '/schema/snapshot',
+			method: 'GET',
+			path: '/schema/snapshot',
+			user: 'admin',
+			fresh,
+			connections: HEAVY_CONNECTIONS,
+		});
 	}
 
 	out.push({
@@ -59,6 +69,7 @@ function scenarios(seeded: SchemaSeed): Scenario[] {
 		body: JSON.stringify(seeded.snapshot),
 		user: 'admin',
 		fresh: true,
+		connections: HEAVY_CONNECTIONS,
 	});
 
 	return out;
@@ -71,7 +82,7 @@ async function measure(seeded: SchemaSeed, s: Scenario, app: App, duration: numb
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
 		const options = {
 			url: `${app === 'directus' ? DIRECTUS : BACKOFFICE}${s.path}`,
-			connections: CONNECTIONS,
+			connections: s.connections ?? CONNECTIONS,
 			duration,
 			method: s.method,
 			...(s.body ? { body: s.body } : {}),

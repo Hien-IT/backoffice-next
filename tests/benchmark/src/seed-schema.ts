@@ -1,11 +1,13 @@
 // Seed of the data model benchmark (feature 006, FR-065, SC-007, research R10), through the Directus API: COLLECTIONS
 // collections of FIELDS fields each (every common type, with metadata), each but the first with a many-to-one field to
-// the previous one, an o2m alias on every other target (about 200 collections, 3,000 fields, 300 relation rows by
-// default); a user who reads READABLE collections with part of their fields, and an admin user, both with a static token.
+// the previous one, an o2m alias on every other target (60 collections, about 930 fields, 59 relation rows by default:
+// the snapshot stays under the default MAX_PAYLOAD_SIZE of 1 MB, which POST /schema/diff needs; 200 collections gave a
+// 2.5 MB snapshot, 400 at both apps); a user who reads READABLE collections with part of their fields, and an admin user,
+// both with a static token.
 import { randomBytes } from 'node:crypto';
 import { db, directus } from './seed-permissions.ts';
 
-const COLLECTIONS = Number(process.env['BENCH_SCHEMA_COLLECTIONS'] ?? 200);
+const COLLECTIONS = Number(process.env['BENCH_SCHEMA_COLLECTIONS'] ?? 60);
 const READABLE = Math.min(COLLECTIONS, Number(process.env['BENCH_SCHEMA_READABLE'] ?? 50));
 const TYPES = [
 	'string',

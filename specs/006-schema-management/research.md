@@ -211,7 +211,8 @@ người dùng, index) làm như Directus và sửa constitution; so DDL nối t
   Kịch bản (`Scenario` của `items.ts`: warm-up, `BENCH_ROUNDS` lượt xen kẽ, so bằng `compare()` 10%): `GET /collections`,
   `GET /fields`, `GET /relations`, `GET /schema/snapshot` (admin, user), `POST /schema/diff` với snapshot hiện tại
   (admin, trả `204`); chế độ tươi (`Cache-Control: no-store`) và `HIT`. Số 200/3.000/300 là giả định của spec; đo lần
-  đầu rồi chỉnh.
+  đầu rồi chỉnh. Đã chỉnh (T054): 60 collection (snapshot dưới 1 MB, `MAX_PAYLOAD_SIZE` mặc định), snapshot và diff
+  chạy 5 kết nối.
 - **Lý do**: Clarifications (B), SC-007.
 - **Đã cân nhắc**: Đo thao tác ghi DDL: bị loại (Clarifications).
 

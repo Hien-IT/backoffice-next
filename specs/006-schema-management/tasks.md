@@ -573,5 +573,13 @@ Task: "blackbox-common phần data model (T051)"
   SC-005 xem T041.
 - T053: cùng run, `parity-blackbox` lượt Directus 15 phút, lượt app mới 11 phút; `parity` MySQL rút gọn 11 phút, SQLite
   rút gọn 7 phút (sau khi sửa quyền `data.db`).
+- T054 lần đầu (run 38241267853, 200 collection, seed 76 s, 3.098 field, 199 relation): snapshot 2,5 MB vượt
+  `MAX_PAYLOAD_SIZE` mặc định 1 MB, `POST /schema/diff` trả `400` ở cả hai app (đo local); `GET /schema/snapshot`,
+  `GET /fields` tươi với 50 kết nối xếp hàng quá timeout 10 giây ở cả hai app (local: Directus không trả response nào
+  trong 5 giây, app mới p50 4 giây). Chỉnh: 60 collection (928 field, 59 relation, seed 18 s local), snapshot và diff
+  5 kết nối. `benchmark-items` (feature 005) cùng run lệch một dòng 10,6% (user, cached); các dòng khác đạt.
+- T053 `blackbox-full` (run 38242839809): lượt `SETUP_APP=directus` xanh ở MySQL, SQLite; lượt `SETUP_APP=backoffice`
+  463 ca đỏ ở cả hai vendor vì `requestGraphQL` gửi tới `getSetupUrl()` (app mới chưa có GraphQL, `404`); sửa thành
+  `getDirectusUrl()`, chạy lại local SQLite (seed bằng app mới, 3 file): 150 ca đạt.
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)
