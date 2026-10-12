@@ -398,7 +398,8 @@ MinIO.
   giống Directus.
 - **FR-021**: Thư mục PHẢI dùng CRUD chuẩn như `FoldersService`; xóa thư mục để khóa ngoại hệ thống đặt `folder`,
   `storage_default_folder` về `null`; xóa thư mục còn thư mục con gặp lỗi khóa ngoại (`parent` không `on_delete`) không
-  được dịch: `500 INTERNAL_SERVER_ERROR` như Directus (status thật theo vendor đo ở task); `buildTree` cho zip kiểm quyền
+  được dịch: `500 INTERNAL_SERVER_ERROR` như Directus (đo T028 trên Postgres: `500`, message là câu lỗi khóa ngoại
+  của DB ở cả hai app; vendor khác đo ở nightly); `buildTree` cho zip kiểm quyền
   đọc thư mục gốc với user không phải admin và khử trùng tên như Directus.
 
 **Asset**

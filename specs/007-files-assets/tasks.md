@@ -271,31 +271,31 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
 
 ### Tests for User Story 3
 
-- [ ] T028 [P] [US3] `tests/parity/src/files/folders.test.ts`: CRUD, `meta`, `SEARCH`, `OPTIONS`; xóa thư mục có file
+- [X] T028 [P] [US3] `tests/parity/src/files/folders.test.ts`: CRUD, `meta`, `SEARCH`, `OPTIONS`; xóa thư mục có file
   (`folder` về `null`, `storage_default_folder` về `null`); xóa thư mục còn con (đo status trên Directus ở Postgres,
   MySQL, SQLite, ghi vào spec FR-021 thay "đo ở task", so với app mới); quyền.
-- [ ] T029 [US3] `tests/parity/src/files/files.test.ts` phần quản lý: `GET /files` với `filter[folder]`, `search`,
+- [X] T029 [US3] `tests/parity/src/files/files.test.ts` phần quản lý: `GET /files` với `filter[folder]`, `search`,
   `sort`, `fields`, `meta=*`, `aggregate`; `PATCH /files/:id` đổi `filename_disk` (đích chưa có → object chuyển; đích đã
   có → trỏ lại, object gốc giữ; mọi object cùng tiền tố `thư mục/tên` bị xóa; tên có thư mục con), đổi nhiều file `400`;
   sửa `title`, `tags`, `focal_point_*`, `folder`; metadata ảnh (`width`, `height`, `metadata` theo
   `FILE_METADATA_ALLOW_LIST` mặc định, IPTC → `description`, `title`, `tags`, EXIF orientation 6 đổi chỗ) so dòng.
   `FILES_DELETE_ORIGINAL_ON_MOVE=true` chỉ kiểm unit (T012). (sau T020)
-- [ ] T030 [P] [US3] `tests/parity/src/files/zip.test.ts`: `POST /assets/folder/:pk` (cây hai cấp, hai file cùng tên
+- [X] T030 [P] [US3] `tests/parity/src/files/zip.test.ts`: `POST /assets/folder/:pk` (cây hai cấp, hai file cùng tên
   trong một thư mục, file và thư mục con cùng tên), `POST /assets/files` (`ids` hai thư mục cùng tên file), so danh
   sách entry và sha256 từng entry (giải nén bằng `yauzl`, thêm devDependency vào
   `tests/parity`), header `Content-Type`, `Content-Disposition` (chuẩn hóa thời điểm), body sai `400`, không quyền
   `403`.
-- [ ] T031 [P] [US3] `tests/parity/src/files/nested-files.test.ts`: collection người dùng có m2o `image` và m2m `files`
+- [X] T031 [P] [US3] `tests/parity/src/files/nested-files.test.ts`: collection người dùng có m2o `image` và m2m `files`
   tới `directus_files` (dựng qua API 006 ở Directus, cùng tên `parity_files_*`); ghi lồng tạo file thiếu `type` → lỗi
   như Directus, sửa `title` lồng; `PATCH /users/me` `avatar` lồng; so dòng (FR-017).
-- [ ] T032 [P] [US3] `apps/api/src/controllers/folders.controller.test.ts` (supertest): mọi route, `validateBatch`,
+- [X] T032 [P] [US3] `apps/api/src/controllers/folders.controller.test.ts` (supertest): mọi route, `validateBatch`,
   `Forbidden` khi đọc lại → `204`.
 
 ### Implementation for User Story 3
 
-- [ ] T033 [US3] Port `apps/api/src/controllers/folders.controller.ts` từ `directus/api/src/controllers/folders.ts`;
+- [X] T033 [US3] Port `apps/api/src/controllers/folders.controller.ts` từ `directus/api/src/controllers/folders.ts`;
   đăng ký cuối trong `app.module.ts` với `useCollection('directus_folders')`. Test T032 xanh. Ghi manifest. (sau T017)
-- [ ] T034 [US3] Viết lại `directus/tests/e2e/tests/endpoints/files/files.test.ts` và `old.test.ts` thành
+- [X] T034 [US3] Viết lại `directus/tests/e2e/tests/endpoints/files/files.test.ts` và `old.test.ts` thành
   `tests/parity/src/files/e2e-files.test.ts` theo `scenario()` (header `// Ported from directus/tests/e2e/...`, giữ
   nguyên assert, fixture từ `tests/parity/fixtures/assets/`). Chạy `parity --vendor=postgres` `full`: T028 đến T031,
   T034 xanh. (sau T033)
@@ -630,5 +630,13 @@ Task: "storage-capture.ts (T019)"
   file theo thứ tự upload xong, không xác định ở cả hai app: test sắp theo `filename_download`. `parity.ts` so body
   nhị phân bằng sha256 và gửi body Buffer (multipart); `COMPARED_HEADERS` thêm `accept-ranges`, `content-range`.
   T024 ghi nhận: admin của test không có role nên `Cache-Control: public` (getCacheControlHeader xét role).
+- T028 đến T034: D-09.5 thu hẹp tiếp, chỉ còn `/files/tus`. Đo trên Directus 11.17.4 (Postgres): xóa thư mục còn
+  thư mục con trả `500 INTERNAL_SERVER_ERROR` với message là câu lỗi khóa ngoại của DB ở cả hai app (spec FR-021); zip
+  thư mục đặt entry dưới tên thư mục gốc, file trùng tên thêm ` (1)` sau đuôi, file và thư mục con cùng tên (`photos`)
+  không khử trùng (FR-041). Zip so bằng `fflate` 0.8.3 (đã có trong lockfile, devDependency của `tests/parity`).
+  `meta=*` của `/folders` có `total_count` đếm cả thư mục của lượt chạy trước: test dùng `meta=filter_count`. Hai file
+  e2e `files` viết lại thành `e2e-files.test.ts`, `e2e-files-old.test.ts` (12 ca, cả hai app, hai storage). Proxy:
+  `files`, `folders`, `assets` thêm vào `backoffice-routes.txt`. Playwright chưa chạy cục bộ (máy chưa có trình duyệt
+  Playwright, cài cần tải về): job `e2e-directus-app` của CI kiểm.
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
-  để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`.
+  để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`. Đã thêm ở T034.

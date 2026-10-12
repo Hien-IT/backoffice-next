@@ -81,8 +81,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '007',
 		kind: 'http',
 		// Feature 007 shrinks it route by route, so parity() compares a route as soon as it is built; the entry goes away
-		// when spec 007 is Done (guard-differences). Built: /files (without TUS), /assets.
-		endpoints: route('/folders', '/files/tus'),
+		// when spec 007 is Done (guard-differences). Built: /files (without TUS), /assets, /folders.
+		endpoints: route('/files/tus'),
 		location: { any: true },
 		reason: 'Built by feature 007.',
 	},

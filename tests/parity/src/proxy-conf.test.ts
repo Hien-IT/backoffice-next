@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { buildNginxConf, parseRoutes } from '../scripts/proxy-conf.mjs';
 
 describe('proxy-conf', () => {
-	test('the list of features 004 to 006: thirteen routes, comments and blank lines ignored', () => {
+	test('the list of features 004 to 007: sixteen routes, comments and blank lines ignored', () => {
 		const routes = parseRoutes(readFileSync(new URL('../proxy/backoffice-routes.txt', import.meta.url), 'utf8'));
 		expect(routes).toEqual([
 			'auth',
@@ -21,6 +21,9 @@ describe('proxy-conf', () => {
 			'fields',
 			'relations',
 			'schema',
+			'files',
+			'folders',
+			'assets',
 		]);
 	});
 

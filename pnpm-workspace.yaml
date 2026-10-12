@@ -137,6 +137,7 @@ catalog:
   zod-validation-error: 4.0.2
   tus-js-client: 4.3.1
   sanitize-filename: 1.6.3
+  fflate: 0.8.3 # tests/parity only: reads the zip archives of /assets (FR-041)
   # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
   json-to-graphql-query: 2.3.0
   seedrandom: 3.0.5

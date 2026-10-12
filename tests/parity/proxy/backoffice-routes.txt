@@ -13,3 +13,6 @@ collections
 fields
 relations
 schema
+files
+folders
+assets

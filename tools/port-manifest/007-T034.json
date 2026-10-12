@@ -1,0 +1,4 @@
+[
+	{ "source": "tests/e2e/tests/endpoints/files/files.test.ts", "dest": "tests/parity/src/files/e2e-files.test.ts" },
+	{ "source": "tests/e2e/tests/endpoints/files/old.test.ts", "dest": "tests/parity/src/files/e2e-files-old.test.ts" }
+]

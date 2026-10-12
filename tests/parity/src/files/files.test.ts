@@ -143,6 +143,62 @@ describe.each(getStorages())('POST /files multipart on %s (US1)', (storage) => {
 	});
 });
 
+describe('image metadata and file edits (US3, FR-020)', () => {
+	it.each([
+		['photo-iptc.jpg', 'image/jpeg'],
+		['photo-rotated.jpg', 'image/jpeg'],
+		['photo-cmyk.jpg', 'image/jpeg'],
+		['image-16bit.png', 'image/png'],
+		['image-alpha.png', 'image/png'],
+		['image.webp', 'image/webp'],
+		['image.tiff', 'image/tiff'],
+		['image.avif', 'image/avif'],
+		['image-animated.gif', 'image/gif'],
+		['photo-truncated.jpg', 'image/jpeg'],
+		['drawing.svg', 'image/svg+xml'],
+	])('%s: width, height, metadata, description, tags like Directus', async (name, type) => {
+		const transcripts = await scenario(urls(), async (ctx) => {
+			const res = await upload(ctx, [{ name: 'file', data: fixture(name), filename: name, contentType: type }]);
+			const [id] = idsOf(res);
+			created.push(id!);
+			return { response: snap(res, '/files', { file: id! }), effects: await effects('local', { file: id! }) };
+		});
+
+		assertSameTranscripts(transcripts, name);
+	});
+
+	it('PATCH title, tags, focal point, folder and filename_download as JSON', async () => {
+		const transcripts = await scenario(urls(), async (ctx) => {
+			const headers = await admin();
+			const [folder] = idsOf(await call(ctx, { method: 'POST', path: '/folders', headers, body: { name: 'edit' } }));
+			const [id] = idsOf(
+				await upload(ctx, [{ name: 'file', data: photo, filename: 'edit.jpg', contentType: 'image/jpeg' }]),
+			);
+			created.push(id!);
+
+			const patched = await call(ctx, {
+				method: 'PATCH',
+				path: `/files/${id}`,
+				headers,
+				body: {
+					title: 'Edited',
+					tags: ['x', 'y'],
+					focal_point_x: 10,
+					focal_point_y: 20,
+					folder,
+					filename_download: 'other name.jpg',
+				},
+			});
+
+			const result = { patched: snap(patched, '/files/:pk', { file: id!, folder: folder! }) };
+			await call(ctx, { method: 'DELETE', path: `/folders/${folder}`, headers });
+			return result;
+		});
+
+		assertSameTranscripts(transcripts, 'edit a file');
+	});
+});
+
 describe('POST /files JSON and errors (US1 scenario 5)', () => {
 	it('JSON create with and without type or storage', async () => {
 		const transcripts = await scenario(urls(), async (ctx) => {

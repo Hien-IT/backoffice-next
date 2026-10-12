@@ -219,6 +219,9 @@ catalogs:
     express:
       specifier: 5.2.1
       version: 5.2.1
+    fflate:
+      specifier: 0.8.3
+      version: 0.8.3
     flat:
       specifier: 6.0.1
       version: 6.0.1
@@ -1158,6 +1161,9 @@ importers:
       '@types/supertest':
         specifier: 'catalog:'
         version: 6.0.3
+      fflate:
+        specifier: 'catalog:'
+        version: 0.8.3
       get-port:
         specifier: 'catalog:'
         version: 7.1.0
