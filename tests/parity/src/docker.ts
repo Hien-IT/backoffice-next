@@ -25,6 +25,12 @@ export function compose(...args: string[]): string {
 		'cache-redis',
 		'cache-redis-purge',
 		'websocket',
+		// Feature 006 (research R7): the blackbox pair and the nodes of schema-cache.test.ts and of the timezone files.
+		'blackbox',
+		'schema-cache',
+		'schema-cache-nomsg',
+		'tz-asia',
+		'tz-america',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

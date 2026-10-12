@@ -17,6 +17,8 @@ const names = (app: App) => ({
 	articles: `parity_bus_${app}_${run}`,
 	comments: `parity_bus_c_${app}_${run}`,
 	home: `parity_bus_s_${app}_${run}`,
+	// Feature 006 (FR-051): a collection made and removed through the data model routes of the app.
+	model: `parity_bus_m_${app}_${run}`,
 });
 
 const received: { channel: string; message: any }[] = [];
@@ -125,6 +127,41 @@ async function scenario(app: App, base: string): Promise<Record<string, unknown[
 	await step('singleton create', () => call(base, 'PATCH', `/items/${home}`, { headline: 'first' }));
 	await step('singleton update', () => call(base, 'PATCH', `/items/${home}`, { headline: 'second' }));
 
+	// Feature 006 (FR-051): collections.*, fields.*, relations.* of the data model routes.
+	const { model } = names(app);
+	const id = {
+		field: 'id',
+		type: 'integer',
+		meta: { hidden: true },
+		schema: { is_primary_key: true, has_auto_increment: true },
+	};
+	await step('collections create', () =>
+		call(base, 'POST', '/collections', { collection: model, schema: {}, meta: {}, fields: [id] }),
+	);
+	await step('collections update', () => call(base, 'PATCH', `/collections/${model}`, { meta: { note: 'bus' } }));
+	await step('fields create', () =>
+		call(base, 'POST', `/fields/${model}`, { field: 'title', type: 'string', meta: {} }),
+	);
+	await step('fields update', () => call(base, 'PATCH', `/fields/${model}/title`, { meta: { note: 'bus' } }));
+	await step('fields create m2o', () =>
+		call(base, 'POST', `/fields/${model}`, { field: 'article', type: 'integer', meta: { special: ['m2o'] } }),
+	);
+	await step('relations create', () =>
+		call(base, 'POST', '/relations', { collection: model, field: 'article', related_collection: articles }),
+	);
+	await step('relations update', () =>
+		call(base, 'PATCH', `/relations/${model}/article`, {
+			collection: model,
+			field: 'article',
+			related_collection: articles,
+			schema: { on_delete: 'CASCADE' },
+			meta: { one_deselect_action: 'delete' },
+		}),
+	);
+	await step('relations delete', () => call(base, 'DELETE', `/relations/${model}/article`));
+	await step('fields delete', () => call(base, 'DELETE', `/fields/${model}/title`));
+	await step('collections delete', () => call(base, 'DELETE', `/collections/${model}`));
+
 	let role = '';
 	let policy = '';
 	let user = '';
@@ -214,7 +251,7 @@ describe.runIf(pair)('websocket.event bus (pair websocket)', () => {
 		await subscriber?.quit();
 
 		for (const app of APPS) {
-			for (const collection of [names(app).comments, names(app).articles, names(app).home]) {
+			for (const collection of [names(app).model, names(app).comments, names(app).articles, names(app).home]) {
 				await appRequest('directus', 'DELETE', `/collections/${collection}`).catch(() => undefined);
 			}
 		}

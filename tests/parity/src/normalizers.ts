@@ -162,3 +162,22 @@ export function normalizeText(text: string): string {
 		(_m, prefix: string, url: string) => prefix + normalizeLocation(url),
 	);
 }
+
+/**
+ * Feature 006 (research R5): `meta.id` of fields and relations is the auto-increment id of directus_fields and
+ * directus_relations, different between the Directus run and the Backoffice run of the same scenario.
+ */
+export function normalizeMetaIds(value: unknown, key?: string): unknown {
+	if (key === 'meta' && value !== null && typeof value === 'object' && !Array.isArray(value) && 'id' in value) {
+		const meta = value as Record<string, unknown>;
+		return { ...meta, id: typeof meta['id'] === 'number' ? '<id>' : meta['id'] };
+	}
+
+	if (Array.isArray(value)) return value.map((item) => normalizeMetaIds(item));
+
+	if (value !== null && typeof value === 'object') {
+		return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, normalizeMetaIds(v, k)]));
+	}
+
+	return value;
+}

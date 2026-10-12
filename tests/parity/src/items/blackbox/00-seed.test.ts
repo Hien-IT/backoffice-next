@@ -8,6 +8,9 @@ import { getSetupUrl } from './common/config';
 import { CreatePolicy, CreateRole, CreateUser } from './common/functions';
 import vendors from './common/get-dbs-to-test';
 import { ROLE, TEST_USERS, USER } from './common/variables';
+// Feature 006: the seeds of the data model files (they delete their own collections first, so a rerun starts clean).
+import * as changeFields from './tests/db/routes/fields/change-fields.seed';
+import * as fieldsCrud from './tests/db/routes/fields/crud.seed';
 import * as caseWhen from './tests/db/routes/items/case-when.seed';
 import * as concealFilter from './tests/db/routes/items/conceal-filter.seed';
 import * as hashFilter from './tests/db/routes/items/hash-filter.seed';
@@ -19,6 +22,7 @@ import * as noRelation from './tests/db/routes/items/no-relation.seed';
 import * as o2m from './tests/db/routes/items/o2m.seed';
 import * as relationalJson from './tests/db/routes/items/relational-json.seed';
 import * as singleton from './tests/db/routes/items/singleton.seed';
+import * as schema from './tests/db/routes/schema/schema.seed';
 
 const TESTS_FLOW_POLICY = '9cd8b17c-474b-4abb-b366-09dcdb45e177';
 const TESTS_FLOW_ACCESS = '27029bb1-8b2e-43c2-b966-eb049f84ea68';
@@ -140,6 +144,9 @@ describe('Seed database structure', () => {
 		['o2m', o2m],
 		['relational-json', relationalJson],
 		['singleton', singleton],
+		['schema', schema],
+		['change-fields', changeFields],
+		['fields/crud', fieldsCrud],
 	] as const) {
 		describe(`Seeding "${name}.seed.ts"`, () => {
 			if ('seedDBStructure' in seed) seed.seedDBStructure();

@@ -1,8 +1,12 @@
 // Ported from directus/tests/blackbox/common/config.ts (getUrl and the env values the item tests read).
 // Backoffice: the suite runs once per app of the `blackbox` profile pair (PARITY_BLACKBOX_APP, research R6 of spec 005):
-// getUrl() is the app under test; getSetupUrl() is the Directus of the pair, which makes the data model (/collections,
-// /fields, /relations are feature 006), the roles, policies and users, and answers GraphQL (feature 011).
+// getUrl() is the app under test; getSetupUrl() makes the data model, the roles, policies and users: the Directus of the
+// pair, or the new app with PARITY_BLACKBOX_SETUP_APP=backoffice (feature 006, FR-064). GraphQL stays on Directus (011).
+// Feature 006 (research R7): the files that start their own Directus nodes get the profile pairs instead: an env with
+// URL (schema-cache.test.ts, through nodeUrl) or with TZ (the two timezone files) names the node; TEST_NO_CACHE (the
+// node with CACHE_SCHEMA=false) is not used, both apps clear their schema through the bus after every change.
 import { readFileSync } from 'node:fs';
+import { knexConfig } from '../../../config.js';
 import { allVendors, type Vendor } from './get-dbs-to-test';
 
 export type Env = Record<Vendor, Record<string, string>>;
@@ -17,6 +21,8 @@ const profileEnv: Record<string, string> = Object.fromEntries(
 
 const config = {
 	envs: Object.fromEntries(allVendors.map((vendor) => [vendor, { ...profileEnv }])) as Env,
+	// The databases of the parity environment, seen from the host (feature 006: schema-cache and timezone files).
+	knexConfig,
 };
 
 function url(key: string): string {
@@ -25,14 +31,53 @@ function url(key: string): string {
 	return value;
 }
 
-export function getUrl(_vendor: Vendor, _overrideEnv?: Env): string {
-	return process.env['PARITY_BLACKBOX_APP'] === 'directus'
-		? url('DIRECTUS_URL_BLACKBOX')
-		: url('BACKOFFICE_URL_BLACKBOX');
+type App = 'directus' | 'backoffice';
+
+const appUnderTest = (): App => (process.env['PARITY_BLACKBOX_APP'] === 'directus' ? 'directus' : 'backoffice');
+
+const pairUrl = (app: App, profile: string) =>
+	url(`${app === 'directus' ? 'DIRECTUS' : 'BACKOFFICE'}_URL_${profile.toUpperCase().replace(/-/g, '_')}`);
+
+/** The node of a profile pair: 1 is the app under test, 2 the other app of the pair (schema-cache.test.ts). */
+export function nodeUrl(profile: 'schema-cache' | 'schema-cache-nomsg', node: 1 | 2): string {
+	const app = appUnderTest();
+	return pairUrl(node === 1 ? app : app === 'directus' ? 'backoffice' : 'directus', profile);
 }
 
-export function getSetupUrl(_vendor?: Vendor, _overrideEnv?: Env): string {
-	return url('DIRECTUS_URL_BLACKBOX');
+/** Whether the URLs of a profile pair are set (the pair runs in the parity-blackbox job only). */
+export function hasProfile(profile: string): boolean {
+	return Boolean(process.env[`DIRECTUS_URL_${profile.toUpperCase().replace(/-/g, '_')}`]);
+}
+
+const TZ_PROFILES: Record<string, string> = { 'Asia/Seoul': 'tz-asia', 'America/Sao_Paulo': 'tz-america' };
+
+function overridden(vendor: Vendor, overrideEnv?: Env): string | undefined {
+	const env = overrideEnv?.[vendor];
+	if (env?.['URL']) return env['URL'];
+
+	if (env?.['TZ']) {
+		const profile = TZ_PROFILES[env['TZ']];
+
+		if (!profile) {
+			throw new Error(
+				`No parity profile for TZ=${env['TZ']}: only ${Object.keys(TZ_PROFILES).join(' and ')} (CI runs in UTC)`,
+			);
+		}
+
+		return pairUrl(appUnderTest(), profile);
+	}
+
+	return undefined;
+}
+
+export function getUrl(vendor: Vendor, overrideEnv?: Env): string {
+	return overridden(vendor, overrideEnv) ?? pairUrl(appUnderTest(), 'blackbox');
+}
+
+export function getSetupUrl(vendor?: Vendor, overrideEnv?: Env): string {
+	const node = vendor ? overridden(vendor, overrideEnv) : undefined;
+	if (node) return node;
+	return pairUrl(process.env['PARITY_BLACKBOX_SETUP_APP'] === 'backoffice' ? 'backoffice' : 'directus', 'blackbox');
 }
 
 export default config;

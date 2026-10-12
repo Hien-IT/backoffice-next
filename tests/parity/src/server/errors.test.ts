@@ -64,8 +64,9 @@ describe('errors', () => {
 		expect(result.backoffice.status).toBe(403);
 	});
 
-	// /auth is built by feature 003 (src/auth/*.test.ts), /users, /roles, /policies, /access, /permissions by 004.
-	it.each(['/collections', '/files', '/activity', '/flows', '/settings', '/graphql'])(
+	// /auth is built by feature 003 (src/auth/*.test.ts), /users, /roles, /policies, /access, /permissions by 004,
+	// /collections, /fields, /relations, /schema by 006 (src/schema-management).
+	it.each(['/files', '/activity', '/flows', '/settings', '/graphql'])(
 		'%s is not built yet → 404 on Backoffice (D-09.*)',
 		async (path) => {
 			const result = await parity({ path });

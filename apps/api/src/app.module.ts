@@ -8,6 +8,7 @@ import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RelationsController } from './controllers/relations.controller.js';
 import { RolesController } from './controllers/roles.controller.js';
+import { SchemaController } from './controllers/schema.controller.js';
 import { ServerController } from './controllers/server.controller.js';
 import { UsersController } from './controllers/users.controller.js';
 import { MetricsModule } from './metrics/metrics.module.js';
@@ -26,6 +27,7 @@ import { infrastructureProviders, serviceProviders } from './providers.js';
 		PoliciesController,
 		RelationsController,
 		RolesController,
+		SchemaController,
 		ServerController,
 		UsersController,
 	],

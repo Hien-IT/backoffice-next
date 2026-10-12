@@ -1,0 +1,26 @@
+[
+	{
+		"source": "api/src/utils/get-versioned-hash.ts",
+		"dest": "apps/api/src/utils/get-versioned-hash.ts"
+	},
+	{
+		"source": "api/src/utils/get-versioned-hash.test.ts",
+		"dest": "apps/api/src/utils/get-versioned-hash.test.ts"
+	},
+	{
+		"source": "api/src/utils/validate-snapshot.ts",
+		"dest": "apps/api/src/utils/validate-snapshot.ts"
+	},
+	{
+		"source": "api/src/utils/validate-snapshot.test.ts",
+		"dest": "apps/api/src/utils/validate-snapshot.test.ts"
+	},
+	{
+		"source": "api/src/utils/validate-diff.ts",
+		"dest": "apps/api/src/utils/validate-diff.ts"
+	},
+	{
+		"source": "api/src/utils/validate-diff.test.ts",
+		"dest": "apps/api/src/utils/validate-diff.test.ts"
+	}
+]

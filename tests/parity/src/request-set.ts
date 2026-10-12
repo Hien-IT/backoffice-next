@@ -38,6 +38,48 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },
 		...(options.accounts ? permissionRequests(options.accounts) : []),
 		...(options.accounts?.items ? itemRequests(options.accounts, options.accounts.items) : []),
+		...(options.accounts ? dataModelRequests(options.accounts) : []),
+	];
+}
+
+/**
+ * Feature 006 (research R6): reads of the data model routes as the admin, a user without permissions and the public,
+ * OPTIONS, and writes refused before any DDL (no permission, collection-exists, Joi, zod of system fields, D-32 is not
+ * sent: Directus would drop the table). /schema/snapshot joins with its route (T037).
+ */
+function dataModelRequests(accounts: RequestSetAccounts): ParityRequest[] {
+	const admin = { authorization: `Bearer ${accounts.adminJwt}` };
+	const user = { authorization: `Bearer ${accounts.userToken}` };
+
+	return [
+		...[admin, user, {}].flatMap((headers) => [
+			{ path: '/collections', headers },
+			{ path: '/collections/directus_users', headers },
+			{ path: '/fields', headers },
+			{ path: '/fields/directus_users', headers },
+			{ path: '/fields/directus_users/email', headers },
+			{ path: '/relations', headers },
+			{ path: '/relations/directus_users', headers },
+		]),
+		...['/collections', '/collections/x', '/fields', '/fields/x', '/fields/x/y', '/relations', '/relations/x/y'].map(
+			(path) => ({
+				method: 'OPTIONS',
+				path,
+			}),
+		),
+		{ method: 'SEARCH', path: '/collections', headers: admin, body: { keys: ['directus_users'] } },
+		{ path: '/fields/nope', headers: admin },
+		// Refused before any DDL.
+		{ method: 'POST', path: '/collections', headers: user, body: { collection: 'request_set', schema: {} } },
+		{ method: 'POST', path: '/collections', headers: admin, body: { collection: 'directus_request_set' } },
+		{ method: 'PATCH', path: '/collections/directus_users', headers: user, body: { meta: {} } },
+		{ method: 'POST', path: '/fields/nope', headers: admin, body: { field: 'x', type: 'string' } },
+		{ method: 'POST', path: '/fields/directus_users', headers: admin, body: { field: 'x', type: 'nope' } },
+		{ method: 'PATCH', path: '/fields/directus_users/email', headers: admin, body: { meta: { note: 'x' } } },
+		{ method: 'PATCH', path: '/fields/directus_users', headers: admin, body: { field: 'email' } },
+		{ method: 'DELETE', path: '/fields/directus_users/email', headers: admin },
+		{ method: 'POST', path: '/relations', headers: admin, body: { collection: 'directus_users' } },
+		{ method: 'POST', path: '/relations', headers: user, body: { collection: 'directus_users', field: 'role' } },
 	];
 }
 

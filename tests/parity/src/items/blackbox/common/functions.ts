@@ -12,6 +12,8 @@ import vendors, { type Vendor } from './get-dbs-to-test';
 import type { PrimaryKeyType } from './types';
 import { ROLE, USER } from './variables';
 
+// Backoffice (feature 006, research R7): TEST_NO_CACHE picks the node with CACHE_SCHEMA=false in Directus' setup;
+// the shim has no such node (config.ts), both apps clear their schema through the bus after every change.
 export function DisableTestCachingSetup() {
 	beforeEach(async () => {
 		process.env['TEST_NO_CACHE'] = 'true';

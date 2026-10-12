@@ -13,6 +13,7 @@ import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
 import { RelationsService } from './services/relations.service.js';
 import { RolesService } from './services/roles.service.js';
+import { SchemaService } from './services/schema.service.js';
 import { ServerService } from './services/server.service.js';
 import { SettingsService } from './services/settings.service.js';
 import { SpecificationService } from './services/specifications.service.js';
@@ -98,6 +99,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: RolesService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new RolesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: SchemaService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new SchemaService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

@@ -1,12 +1,15 @@
 // Feature 002, US2: sample schema for the SchemaOverview comparison, created through the Directus API so Directus
 // handles the differences between vendors (research R10). Every collection starts with `parity_overview_`.
-import { directusRequest } from '../directus-api.js';
+// Feature 006 (T039): built through either app (`app`), with a folder, the archive and sort settings of the Data Model
+// module, for the cross use of research R6.
+import { type AppName, appRequest } from '../directus-api.js';
 import type { Vendor } from '../get-dbs-to-test.js';
 import { dropCollections } from './helpers.js';
 
 const P = 'parity_overview_';
 
 export const FIXTURE_COLLECTIONS = [
+	`${P}folder`,
 	`${P}blocks`,
 	`${P}tags_junction`,
 	`${P}files_junction`,
@@ -24,25 +27,29 @@ const id = (type = 'integer') => ({
 	schema: { is_primary_key: true, ...(type === 'integer' && { has_auto_increment: true }) },
 });
 
-// The primary key comes with the collection; other fields are added one by one so a rejected field is named.
-async function collection(name: string, fields: Record<string, unknown>[], meta: Record<string, unknown> = {}) {
-	const [primary, ...rest] = fields;
-	await directusRequest('POST', '/collections', { collection: name, schema: {}, meta, fields: [primary] });
-
-	for (const f of rest) {
-		await directusRequest('POST', `/fields/${name}`, f).catch((error: Error) => {
-			throw new Error(`${name}.${f['field'] as string}: ${error.message}`);
-		});
-	}
-}
-
-const field = (collectionName: string, body: Record<string, unknown>) =>
-	directusRequest('POST', `/fields/${collectionName}`, body);
-
-const relation = (body: Record<string, unknown>) => directusRequest('POST', '/relations', body);
-
-export async function createFixture(vendor: Vendor): Promise<void> {
+export async function createFixture(vendor: Vendor, app: AppName = 'directus'): Promise<void> {
 	await dropFixture();
+
+	const request = (method: string, path: string, body?: unknown) => appRequest(app, method, path, body);
+
+	// The primary key comes with the collection; other fields are added one by one so a rejected field is named.
+	async function collection(name: string, fields: Record<string, unknown>[], meta: Record<string, unknown> = {}) {
+		const [primary, ...rest] = fields;
+		await request('POST', '/collections', { collection: name, schema: {}, meta, fields: [primary] });
+
+		for (const f of rest) {
+			await request('POST', `/fields/${name}`, f).catch((error: Error) => {
+				throw new Error(`${name}.${f['field'] as string}: ${error.message}`);
+			});
+		}
+	}
+
+	const field = (collectionName: string, body: Record<string, unknown>) =>
+		request('POST', `/fields/${collectionName}`, body);
+
+	const relation = (body: Record<string, unknown>) => request('POST', '/relations', body);
+
+	await request('POST', '/collections', { collection: `${P}folder`, schema: null, meta: { icon: 'folder' } });
 
 	await collection(`${P}related`, [id(), { field: 'name', type: 'string' }]);
 	await collection(`${P}languages`, [id('string'), { field: 'name', type: 'string' }]);
@@ -83,6 +90,12 @@ export async function createFixture(vendor: Vendor): Promise<void> {
 		],
 		{ note: 'Every field type', sort_field: 'sort' },
 	);
+
+	// Feature 006: the archive settings of the Data Model module and the folder.
+	await field(`${P}types`, { field: 'status', type: 'string', schema: { default_value: 'draft' } });
+	await request('PATCH', `/collections/${P}types`, {
+		meta: { group: `${P}folder`, archive_field: 'status', archive_value: 'archived', unarchive_value: 'draft' },
+	});
 
 	// m2o + o2m
 	await field(`${P}types`, { field: 'related', type: 'integer', meta: { special: ['m2o'] } });

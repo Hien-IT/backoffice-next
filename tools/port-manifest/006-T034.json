@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/utils/apply-diff.ts",
+		"dest": "apps/api/src/utils/apply-diff.ts"
+	},
+	{
+		"source": "api/src/utils/apply-diff.test.ts",
+		"dest": "apps/api/src/utils/apply-diff.test.ts"
+	}
+]

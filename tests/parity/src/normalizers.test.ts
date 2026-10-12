@@ -6,6 +6,7 @@ import {
 	normalizeHeader,
 	normalizeJwt,
 	normalizeLocation,
+	normalizeMetaIds,
 	normalizeSetCookie,
 	normalizeText,
 	tokenKind,
@@ -142,5 +143,25 @@ describe('normalizeContentDisposition (feature 005)', () => {
 	])('%s', (value, expected) => {
 		expect(normalizeContentDisposition(value)).toBe(expected);
 		expect(normalizeHeader('content-disposition', value)).toBe(expected);
+	});
+});
+
+describe('normalizeMetaIds (feature 006)', () => {
+	test('replaces the numeric id of every meta object, nowhere else', () => {
+		const body = {
+			data: [
+				{ collection: 'a', field: 'id', meta: { id: 12, sort: 1 }, schema: { id: 3 } },
+				{ collection: 'a', meta: { id: 'not-a-number' } },
+				{ collection: 'b', meta: null },
+			],
+		};
+
+		expect(normalizeMetaIds(body)).toEqual({
+			data: [
+				{ collection: 'a', field: 'id', meta: { id: '<id>', sort: 1 }, schema: { id: 3 } },
+				{ collection: 'a', meta: { id: 'not-a-number' } },
+				{ collection: 'b', meta: null },
+			],
+		});
 	});
 });

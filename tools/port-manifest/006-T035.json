@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/schema.ts",
+		"dest": "apps/api/src/services/schema.service.ts"
+	},
+	{
+		"source": "api/src/services/schema.test.ts",
+		"dest": "apps/api/src/services/schema.service.test.ts"
+	}
+]

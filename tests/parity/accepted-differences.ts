@@ -79,9 +79,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		id: 'D-09.4',
 		feature: '001',
 		removeAt: '006',
-		kind: 'http',
-		endpoints: route('/collections', '/fields', '/relations', '/schema'),
-		location: { any: true },
+		// Feature 006 built /collections, /fields, /relations, /schema: the entry no longer hides any response and leaves
+		// when 006 is Done (T058).
+		kind: 'doc',
 		reason: 'Built by feature 006.',
 	},
 	{
@@ -260,5 +260,13 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		removeAt: '010',
 		kind: 'doc',
 		reason: 'Nested writes into system collections without their own service go through ItemsService.',
+	},
+	{
+		id: 'D-32',
+		feature: '006',
+		// The parity tests never send this request to Directus: it drops the system table of the shared database
+		// (measured on 11.17.4, spec 006 T010). schema-management/crud.test.ts checks the 403 of the new app alone.
+		kind: 'doc',
+		reason: 'DELETE /collections/<system collection> answers 403 instead of dropping the table (Principle II).',
 	},
 ];

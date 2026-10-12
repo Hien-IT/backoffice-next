@@ -16,4 +16,5 @@ export * from './presets.service.js';
 export * from './relations.service.js';
 export * from './revisions.service.js';
 export * from './roles.service.js';
+export * from './schema.service.js';
 export * from './users.service.js';

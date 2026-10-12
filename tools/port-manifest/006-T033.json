@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/utils/get-snapshot.ts",
+		"dest": "apps/api/src/utils/get-snapshot.ts"
+	},
+	{
+		"source": "api/src/utils/get-snapshot.test.ts",
+		"dest": "apps/api/src/utils/get-snapshot.test.ts"
+	},
+	{
+		"source": "api/src/utils/get-snapshot-diff.ts",
+		"dest": "apps/api/src/utils/get-snapshot-diff.ts"
+	},
+	{
+		"source": "api/src/utils/get-snapshot-diff.test.ts",
+		"dest": "apps/api/src/utils/get-snapshot-diff.test.ts"
+	}
+]

@@ -48,10 +48,11 @@ export async function snapshot(db: Knex): Promise<DbSnapshot> {
 		}))
 		.sort((a, b) => `${a.table}.${a.column}`.localeCompare(`${b.table}.${b.column}`));
 
-	return { tables, indexes: await indexes(db, tableNames), foreignKeys };
+	return { tables, indexes: await indexesOf(db, tableNames), foreignKeys };
 }
 
-async function indexes(db: Knex, tables: string[]): Promise<DbSnapshot['indexes']> {
+/** Indexes of `tables` from the catalog of each vendor (feature 006 reuses it for the DDL comparison). */
+export async function indexesOf(db: Knex, tables: string[]): Promise<DbSnapshot['indexes']> {
 	const client = db.client.constructor.name;
 	let out: DbSnapshot['indexes'] = [];
 
