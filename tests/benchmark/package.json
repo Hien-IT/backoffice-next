@@ -16,6 +16,7 @@
 		"ioredis": "catalog:",
 		"jsonwebtoken": "catalog:",
 		"knex": "catalog:",
-		"pg": "catalog:"
+		"pg": "catalog:",
+		"sharp": "catalog:"
 	}
 }

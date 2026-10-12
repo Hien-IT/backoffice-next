@@ -19,9 +19,7 @@ describe('/assets', () => {
 	describe('GET /assets/:id', () => {
 		describe('Concurrent file requests', () => {
 			describe.each(storages)('Storage: %s', (storage) => {
-				// Backoffice (T052): Directus 11.17.4 itself fails this case on SQLite with MinIO (autocannon reports
-				// non-2xx answers or timeouts at 100 connections; CI run 38299949458): skipped there for both apps.
-				it.skipIf(storage === 's3' && vendors.includes('sqlite3')).each(vendors)(
+				it.each(vendors)(
 					'%s',
 					async (vendor) => {
 						// Setup

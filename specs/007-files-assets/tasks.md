@@ -690,5 +690,8 @@ Task: "storage-capture.ts (T019)"
   spec xanh. Ghi nhận: nginx của profile `app` giữ IP cũ sau `env-up` tạo lại container (app gọi nhầm cặp có TUS), restart
   `proxy` trước khi chạy; `bothRuns` xóa data cache của Directus sau khi xóa `last_page` trong DB (response cache giữ
   `/users/me` cũ). Sửa kèm sau CI: `folders.test.ts` sắp `data` theo id (batch), `env.mjs` tạo `.data/files-runtime`
-  trước compose (Docker tạo bằng root trên Linux: EACCES khi ghi `big.bin`), `concurrency.test.ts` bỏ qua SQLite + MinIO
-  vì Directus 11.17.4 fail chính ca này (CI run 38299949458).
+  trước compose (Docker tạo bằng root trên Linux: EACCES khi ghi `big.bin`), `concurrency.test.ts` từng bỏ qua SQLite + MinIO
+  (Directus fail ở CI run 38299949458), rồi gỡ: lượt sau app mới fail ở Postgres, nghi do pressure limiter (mặc định bật,
+  `directus/tests/blackbox` tắt), nên `profile-blackbox.env` thêm `PRESSURE_LIMITER_ENABLED=false` như env gốc (suy
+  luận, chờ CI xác nhận). `assets.test.ts` ca timeout thêm `median` 15 sau `blur` 80 (blur một mình xong dưới 1 s trên
+  runner CI, trả `200`).

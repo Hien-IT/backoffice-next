@@ -5,7 +5,7 @@ Cần môi trường của feature 001: Node 22, pnpm 10, Docker. Lệnh chạy 
 ## 1. Test tự động
 
 ```bash
-pnpm nx run-many -t test -p api utils types
+pnpm nx run-many -t test -p api @backoffice/utils @backoffice/types
 ```
 
 ```bash
@@ -17,7 +17,7 @@ PARITY_STORAGES=local,s3 pnpm nx run parity-tests:parity --vendor=postgres
 ```
 
 ```bash
-pnpm nx run parity-tests:env-up --vendor=postgres --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit
+pnpm nx run parity-tests:env-up --vendor=postgres --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress
 ```
 
 ```bash
@@ -35,8 +35,8 @@ BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e
   nay có `src/files/{files,folders,import,assets,transform-matrix,cross-use,tus,zip,e2e-files,e2e-assets}.test.ts`.
   `PARITY_STORAGES=s3` để chỉ chạy S3 (MySQL, SQLite mỗi lần push).
 - Dòng 4, 5: bộ blackbox (005, 006 + 8 file của 007), hai lượt `backoffice` rồi `directus`.
-- Dòng 6: Playwright app Directus qua proxy, thêm `files.spec.ts` và ca thumbnail; `/files`, `/folders`, `/assets` đi
-  tới app mới.
+- Dòng 6: Playwright app Directus qua proxy, thêm `files.spec.ts` (gồm thumbnail của layout cards); `/files`,
+  `/folders`, `/assets` đi tới app mới. Sau `env-up` tạo lại container, restart `proxy` trước (nginx giữ IP cũ).
 
 ## 2. Kiểm tay dùng chéo
 
@@ -71,4 +71,5 @@ STORAGE_LOCATIONS=local,cloud STORAGE_CLOUD_DRIVER=gcs pnpm nx run api:serve
 ```
 
 App thoát mã 1 và log `Storage location "cloud" uses driver "gcs", which is not supported by Backoffice. Supported
-drivers: local, s3.` (D-16; `tests/parity/src/startup/storage.test.ts`).
+drivers: local, s3.` (D-16; `tests/parity/src/startup/startup.test.ts`; health, info và location mặc định ở
+`startup/storage.test.ts`).

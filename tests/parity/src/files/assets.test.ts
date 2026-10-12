@@ -259,9 +259,16 @@ describe('assets-stress pair: one transformation at a time, 100 ms timeout (FR-0
 			expect(statuses, app).toContain(503);
 		}
 
-		// The timeout is clamped to at least one second (100ms → 1 s), so the work must take longer than that. Each app
-		// works on its own copy: right after the 503, the aborted write can leave an empty object for a moment (R-17).
-		const blur = encodeURIComponent(JSON.stringify([['blur', 80]]));
+		// The timeout is clamped to at least one second (100ms → 1 s), so the work must take longer than that: blur and
+		// median on 6000×6000 take about 2 s on one arm64 laptop core set (blur alone finished under 1 s on a CI runner).
+		// Each app works on its own copy: right after the 503, the aborted write can leave an empty object for a moment
+		// (R-17).
+		const blur = encodeURIComponent(
+			JSON.stringify([
+				['blur', 80],
+				['median', 15],
+			]),
+		);
 		const { listObjects } = await import('./storage-capture.js');
 		const results: Record<string, unknown> = {};
 

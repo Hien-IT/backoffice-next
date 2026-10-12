@@ -133,10 +133,10 @@ pnpm nx run parity-tests:env-down --vendor=postgres
 
 - `src/schema-management/`: `/collections`, `/fields`, `/relations`, `/schema` trên cặp chính (bộ `full`; `crud` cả ở
   `reduced`). Đọc gửi tới hai app cùng lúc (`parity()`); ghi chạy nối tiếp trên cùng database với cùng tên
-  (`ddl-scenario.ts`): Directus chạy chuỗi request, `ddl-capture.ts` chụp cột, index, khóa ngoại và ba bảng metadata,
-  mô hình bị xóa qua Directus và database phải về đúng hình dạng cũ; rồi app mới chạy lại, chụp, xóa; hai bản chụp và
-  từng response phải bằng nhau (`meta.id` thay bằng nhãn, danh sách `/fields`, `/relations` sắp lại vì Directus đọc
-  không `ORDER BY`). `cleanupTables()` xóa lặp nhiều lượt vì bảng còn bị khóa ngoại trỏ tới thì `DROP TABLE` bị chặn.
+  (`ddl-scenario.ts`): Directus chạy chuỗi request, `ddl-capture.ts` chụp cột, index, khóa ngoại và ba bảng metadata, mô
+  hình bị xóa qua Directus và database phải về đúng hình dạng cũ; rồi app mới chạy lại, chụp, xóa; hai bản chụp và từng
+  response phải bằng nhau (`meta.id` thay bằng nhãn, danh sách `/fields`, `/relations` sắp lại vì Directus đọc không
+  `ORDER BY`). `cleanupTables()` xóa lặp nhiều lượt vì bảng còn bị khóa ngoại trỏ tới thì `DROP TABLE` bị chặn.
 - `cross-use.test.ts` dựng mô hình đầy đủ của 002 (`schema/fixture.ts`, nay nhận app) ở app này rồi dùng ở app kia;
   `sync-api.test.ts` (profile `multi`) đo thời gian app kia thấy thay đổi qua API (SC-005); `schema.test.ts` so snapshot
   từng byte, diff, apply.
@@ -148,6 +148,31 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   ánh xạ `env[vendor].URL`, `env[vendor].TZ` sang cặp đó, `nodeUrl(profile, 1|2)` là app của lượt và app kia.
   `PARITY_BLACKBOX_SETUP_APP=backoffice` dựng seed qua app mới thay vì Directus (FR-064; lượt hằng tuần của
   `blackbox-full`). Khẳng định đọc `tests_extensions_log` (extension test của Directus) bị bỏ; event kiểm ở `bus`.
+
+### Test files và assets (feature 007)
+
+- `src/files/`: `/files`, `/folders`, `/assets`, zip, ghi lồng, ma trận transform, `/files/tus`, import URL, dùng chéo
+  (`cross-use.test.ts`: ghi ở app này, đọc, tải, sửa, xóa ở app kia) và hai file e2e của Directus viết lại.
+- Storage: `STORAGE_LOCATIONS=local,s3` ở env vendor. `local` là named volume `uploads` mount vào mọi container của hai
+  app (một thư mục dùng chung), `s3` là MinIO. `PARITY_STORAGES` chọn location các test chạy qua (`local,s3` mặc định;
+  CI chạy MySQL, SQLite chỉ `s3`). `storage-capture.ts` đọc object: `local` qua `docker compose exec directus`, `s3` qua
+  `@aws-sdk/client-s3`.
+- Upload sinh id ngẫu nhiên nên luồng ghi chạy `scenario()` (Directus rồi Backoffice) và so transcript sau khi thay id
+  bằng nhãn; body nhị phân so bằng sha256. Request có transform dùng `parity(..., { sequential: true })`: gửi cùng lúc
+  thì app này có thể stream object app kia đang ghi dở (R-17).
+- `files-fixtures` (nginx) phục vụ `fixtures/files` cho import URL (`http://files-fixtures/...`: gzip, br, chuyển hướng,
+  không `Content-Type`), thư mục `.data/files-runtime` (file 50 MB sinh lúc chạy, `env-up` tạo thư mục trước).
+- Cặp `assets-limit` (MIME allow list, giới hạn upload, TUS hết hạn mặc định, nút revalidate của blackbox
+  `cache-revalidate`) và `assets-stress` (một transform mỗi lúc, timeout 100 ms, TUS hết hạn 2 s,
+  `ASSETS_CACHE_TTL=1h`): `env-up --profiles=assets-limit,assets-stress`. TUS ghi vào location đầu: ca S3 chạy trên
+  `cors-hsts` (`STORAGE_LOCATIONS=s3,local`).
+- Ma trận transform (`transform-matrix.test.ts`): Directus sinh, xóa file phát sinh, app mới sinh lại, so status,
+  Content-Type, byte, tên object; rồi Directus đọc lại không ghi object mới. AVIF chỉ trùng byte khi app mới chạy amd64
+  (compose ghim `platform: linux/amd64`). Chạy riêng:
+  `PARITY_STORAGES=local,s3 npx vitest run -c vitest.parity.config.ts src/files/transform-matrix.test.ts`.
+- Blackbox: `common/assets/*`, `routes/files/{storage,tus}`, `routes/collections/files`; shim `getStorages()` (tên
+  `minio` là `s3`), `paths.cwd` là `fixtures`, `nodeUrl('assets-limit' | 'assets-stress', 1)` thay hai node tự spawn.
+- Profile `app`: sau `env-up` tạo lại container, restart `proxy` (nginx giữ IP cũ của upstream).
 
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.

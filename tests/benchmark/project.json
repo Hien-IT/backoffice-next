@@ -56,6 +56,14 @@
 			},
 			"cache": false
 		},
+		"files": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/files.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
+		},
 		"schema": {
 			"executor": "nx:run-commands",
 			"options": {

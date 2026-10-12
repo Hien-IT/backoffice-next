@@ -123,3 +123,21 @@ jobs:
           BENCH_ROUNDS: 3
       - if: always()
         run: pnpm nx run benchmark:env-down
+
+  # Feature 007 (contracts/parity.md §6): originals, derived and new transformations of /assets, /files list and uploads.
+  benchmark-files:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: pnpm nx run benchmark:files --output-style=static
+        env:
+          BENCH_ROUNDS: 3
+      - if: always()
+        run: pnpm nx run benchmark:env-down
