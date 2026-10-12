@@ -2,7 +2,9 @@
 
 **Feature Branch**: `006-schema-management`
 **Created**: 2026-10-12
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt gỡ D-09.4, khác biệt D-32, rủi ro R-11, R-12 và constitution 1.4.0 (Nguyên tắc
+II: cột người dùng và index trên collection hệ thống) ngày 2026-10-12 (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "Admin tạo, sửa, xóa collection, field và relation qua /collections, /fields, /relations giống hệt Directus. App mới tạo và sửa bảng, cột thật trong DB (đúng kiểu dữ liệu từng loại DB), đồng thời ghi metadata vào directus_collections, directus_fields, directus_relations, giống cách Directus làm. Hỗ trợ collection folder, alias field (o2m, m2m, m2a, presentation, group), field geometry, translations, archive và sort field. Hỗ trợ /schema/snapshot, /schema/diff, /schema/apply cùng format với Directus. Sau mỗi thay đổi, cache schema được xóa trên cả hai app. Tham chiếu directus/api/src/services/collections.ts, fields.ts, relations.ts, schema.ts, database/helpers. Tiêu chí chấp nhận: data model tạo ở app mới mở được và dùng bình thường trên Directus, và ngược lại."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):

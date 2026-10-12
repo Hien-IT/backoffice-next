@@ -18,4 +18,5 @@ Rules:
 - Data model: /collections, /fields, /relations, /schema (snapshot, diff, apply) as ports of CollectionsService, FieldsService, RelationsService, SchemaService and the snapshot utils; real DDL through the 001/004 dialect helpers; deep-diff 1.0.2, busboy 1.6.0, zod 4.1.12 (same versions as Directus); DDL parity compared sequentially on the shared DB; blackbox collections/fields/schema/timezone suites with profiles schema-cache, schema-cache-nomsg, tz-asia, tz-america (006-schema-management)
 
 ## Recent Changes
+- 006-schema-management: /collections, /fields, /relations, /schema (snapshot, diff, apply) with real DDL per vendor, parity on 7 vendors (nightly), blackbox data model suites seeded by either app, schema benchmark
 - 001-platform-foundation: Added Nx monorepo, NestJS 12 API with ported @directus/env, errors, schema, storage libs, /server/* endpoints, parity tests against Directus

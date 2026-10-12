@@ -386,7 +386,7 @@ SQLite.
 - [X] T052 [US5] `tests/parity/src/items/blackbox/00-seed.test.ts`: gọi `seedDBStructure()` của các seed mới; xóa
   collection của 006 (`test_*` của từng seed) ở đầu mỗi lượt; `sequencer.ts` nếu cần thứ tự (schema seed trước test).
   (sau T046 đến T050)
-- [ ] T053 [US5] CI: `.github/workflows/ci.yml` job `parity-blackbox` `env-up --profiles=blackbox,schema-cache,
+- [X] T053 [US5] CI: `.github/workflows/ci.yml` job `parity-blackbox` `env-up --profiles=blackbox,schema-cache,
   schema-cache-nomsg,tz-asia,tz-america`; job `parity` MySQL, SQLite giữ `PARITY_BLACKBOX_PK_TYPES=integer` (bốn file
   mới tự bỏ qua); `.github/workflows/parity-matrix.yml` job `blackbox-full` thêm profile và thêm lượt
   `PARITY_BLACKBOX_SETUP_APP=backoffice` (FR-064); `tools/ci-local.sh` bước `parity-blackbox` thêm profile. Chạy
@@ -417,7 +417,7 @@ xanh với `PARITY_BLACKBOX_SETUP_APP=backoffice`.
   xóa bảng hệ thống và migration; Sync Impact Report ghi lý do (Clarifications 006, D-32);
   `.specify/templates/plan-template.md` dòng II và phiên bản; `SPECKIT-GUIDE.md` mục II. Chủ dự án xác nhận (quy trình
   không PR).
-- [ ] T058 Đóng feature: chạy `parity-matrix.yml` (bốn shard), `blackbox-full` (MySQL, SQLite, cả hai `SETUP_APP`) và
+- [X] T058 Đóng feature: chạy `parity-matrix.yml` (bốn shard), `blackbox-full` (MySQL, SQLite, cả hai `SETUP_APP`) và
   `nightly.yml` bấm tay (`workflow_dispatch`, 8 vendor; ca fail trên chính Directus ở vendor nào thì `it.skipIf` kèm ghi
   chú) xanh; coverage `apps/api` ≥ 80%; xóa entry `D-09.4` khỏi `tests/parity/accepted-differences.ts`; spec 006 `Status:
   Done`, dòng "Duyệt khác biệt" (D-09.4 gỡ, D-32, R-11, constitution 1.4.0); `graphify update .`; cập nhật
@@ -596,5 +596,16 @@ Task: "blackbox-common phần data model (T051)"
   (`case-when`, `/comments` của feature 008 gửi qua `getSetupUrl()`), sửa sang `getDirectusUrl()`.
   `benchmark-schema` xanh ở run 38249657090 (60 collection); `benchmark-auth` (feature 003) lệch một dòng
   (`POST /auth/refresh` p95 1.339 so với 925 ms), run trước xanh.
+- T053 xong: `parity-matrix.yml` run 38271851826 ở `14778e2` xanh mọi job: bốn shard ma trận (5 đến 7 phút),
+  `blackbox-full` MySQL seed Directus 29 phút, seed app mới 26 phút; SQLite seed Directus 33 phút, seed app mới 32 phút
+  (9.896 ca mỗi lượt).
+- T058 xong (2026-10-12): nightly run 38274882651 ở `a3ee965`: bảy file `src/schema-management` đạt (hoặc bỏ qua có
+  ghi chú) ở cả 7 vendor (maria, mssql, oracle, cockroachdb, postgres10, mysql, sqlite3). Còn đỏ, để lại cho đợt parity
+  đủ vendor theo hướng C (Clarifications của chủ dự án): `startup/config-files`, `startup/shutdown`, `redis-down` (host
+  DB của vendor khác, `hostDbEnv`), `server/health` (dừng service `postgres` cố định), `permissions/access`,
+  `permissions/permissions` (thứ tự dòng theo vendor), `server/oas`, `schema/overview`, `auth/sso-*` (MSSQL),
+  `items/export`, `auth/tfa` (SQLite; `tfa` xanh ở run trước). CI, `parity-matrix.yml` (38271851826), benchmark
+  schema xanh; coverage `apps/api` 86,49% dòng (223 file, 2.498 test). Tech lead duyệt gỡ D-09.4, D-32, R-11, R-12,
+  constitution 1.4.0 ngày 2026-10-12; xóa D-09.4 cùng lúc với `Status: Done`.
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)

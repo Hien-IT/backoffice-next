@@ -76,15 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.4',
-		feature: '001',
-		removeAt: '006',
-		// Feature 006 built /collections, /fields, /relations, /schema: the entry no longer hides any response and leaves
-		// when 006 is Done (T058).
-		kind: 'doc',
-		reason: 'Built by feature 006.',
-	},
-	{
 		id: 'D-09.5',
 		feature: '001',
 		removeAt: '007',
