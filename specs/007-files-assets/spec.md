@@ -379,7 +379,7 @@ MinIO.
 - **FR-015**: Khi `TUS_ENABLED`, mọi đường đọc qua `FilesService.readByQuery` PHẢI ẩn file đang tải dở (`tus_id` khác
   `null`): `GET /files`, `GET /files/:pk` (`403`), `GET /assets/:pk` (`AssetsService` đọc bằng `FilesService` sudo nên
   `403`, không stream object dở); file đích của thay file bằng TUS vẫn trả object cũ tới khi `move`; `deleteMany` cũng
-  không thấy dòng dở nên xóa dòng mà không xóa object (tái tạo, đo ở task). Đọc lồng qua `/items` không qua
+  không thấy dòng dở nên xóa dòng mà không xóa object (tái tạo; đo T040: `204`, dòng mất, object dở còn). Đọc lồng qua `/items` không qua
   `FilesService.readByQuery` nên không ẩn, như Directus.
 - **FR-016**: Đổi `filename_disk` PHẢI làm như `updateMany`: sửa dòng trước (transaction riêng mỗi key), rồi liệt kê
   object theo tiền tố `thư mục/tên` cũ; đích chưa có → `move` object gốc; đích đã có → dòng trỏ sang object đích (chỉ

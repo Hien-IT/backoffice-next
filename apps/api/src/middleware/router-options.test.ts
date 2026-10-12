@@ -187,7 +187,9 @@ test('TUS off: /files/tus/:id and deeper asset paths are not handled (404)', asy
 });
 
 test('TUS on: the tus router answers /files/tus, /files/tus/:id goes to the tus handler', async () => {
-	expect((await app({ TUS_ENABLED: 'true' }).options('/files/tus')).headers['allow']).toBe('POST');
+	expect((await app({ TUS_ENABLED: true }).options('/files/tus')).headers['allow']).toBe('POST');
+	// Directus mounts the tus router on `env['TUS_ENABLED'] === true` (the env casts "true"); anything else is off.
+	expect((await app({ TUS_ENABLED: 'yes' }).options('/files/tus')).headers['allow']).toBe('GET,HEAD,PATCH,DELETE');
 	expect((await app({ TUS_ENABLED: true }).options('/files/tus/')).headers['allow']).toBe('POST');
 	expect((await app({ TUS_ENABLED: true }).options('/files/tus/abc')).status).toBe(404);
 	expect((await app({ TUS_ENABLED: true }).options('/files/import')).headers['allow']).toBe(

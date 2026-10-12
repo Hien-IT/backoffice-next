@@ -1,0 +1,5 @@
+[
+	{ "source": "api/src/controllers/files.ts", "dest": "apps/api/src/controllers/files.controller.ts" },
+	{ "source": "api/src/controllers/assets.ts", "dest": "apps/api/src/controllers/assets.controller.ts" },
+	{ "source": "api/src/controllers/folders.ts", "dest": "apps/api/src/controllers/folders.controller.ts" }
+]

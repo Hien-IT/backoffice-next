@@ -10,6 +10,7 @@ import { subscribeSchemaChanged } from './cache.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
 import metricsSchedule from './schedules/metrics.js';
+import tusSchedule from './schedules/tus.js';
 import { registerWebSocketEvents } from './websocket/controllers/hooks.js';
 
 export interface App {
@@ -24,7 +25,7 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 
 	const express = createExpressApp(options);
 
-	const nest = await NestFactory.create<NestExpressApplication>(AppModule, new ExpressAdapter(express), {
+	const nest = await NestFactory.create<NestExpressApplication>(AppModule.forRoot(), new ExpressAdapter(express), {
 		bodyParser: false,
 		logger: new NestLoggerService(),
 	});
@@ -33,7 +34,8 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 
 	await nest.init();
 
-	// Like Directus at the end of createApp; the job is stopped by the shutdown tasks.
+	// Like Directus at the end of createApp (tusSchedule, then metricsSchedule); the jobs stop with the shutdown tasks.
+	await tusSchedule();
 	await metricsSchedule();
 
 	registerWebSocketBridge();

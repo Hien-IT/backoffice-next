@@ -350,7 +350,7 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
 `assets-stress` (hết hạn), `cors-hsts` (`OPTIONS` khi CORS bật) và ca
 `TUS_ENABLED=false` trên cặp chính.
 
-- [ ] T040 [P] [US4] `tests/parity/src/files/tus.test.ts` (cặp `assets-limit` cho mọi ca trừ hết hạn; cặp
+- [X] T040 [P] [US4] `tests/parity/src/files/tus.test.ts` (cặp `assets-limit` cho mọi ca trừ hết hạn; cặp
   `assets-stress` cho ca hết hạn; `tus-js-client` và request thô): `POST`
   với `Upload-Length`, `Upload-Metadata` → `201`, `Location` theo `PUBLIC_URL`, dòng có `tus_id`, `tus_data`; `GET
   /files` ẩn, `GET /files/:pk` và `GET /assets/:pk` `403`; `HEAD` offset; `PATCH` xen kẽ Directus/app mới trên `local`
@@ -368,11 +368,11 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
   `SYNCHRONIZATION_STORE=redis`: dòng và part mất, key `directus-sync:clock:tus-cleanup:*` trong Redis; cặp chính
   (`TUS_ENABLED=false`): `POST /files/tus` và `PATCH /files/tus/x` so với Directus (rơi vào `/files`). Bằng chứng R-18
   vào spec.
-- [ ] T041 [P] [US4] `apps/api/src/controllers/tus.controller.test.ts` (supertest, `TUS_ENABLED=true` qua env của test):
+- [X] T041 [P] [US4] `apps/api/src/controllers/tus.controller.test.ts` (supertest, `TUS_ENABLED=true` qua env của test):
   `checkFileAccess` (method → action, `metadata.id` → `update` với `primaryKeys`, field trong metadata, metadata hỏng
   `400 INVALID_METADATA`), handler gọi `createTusServer` rồi `handle`, `cleanup` luôn chạy; `OPTIONS /:id`; không đăng
   ký khi `TUS_ENABLED=false` (`app.module` test).
-- [ ] T042 [US4] Port `apps/api/src/controllers/tus.controller.ts` từ `directus/api/src/controllers/tus.ts`
+- [X] T042 [US4] Port `apps/api/src/controllers/tus.controller.ts` từ `directus/api/src/controllers/tus.ts`
   (`checkFileAccess` giữ nguyên qua `runMiddleware`); `app.module.ts` đăng ký `TusController` trước `FilesController`
   chỉ khi `RESUMABLE_UPLOADS.ENABLED` với `useCollection('directus_files')`; `startup/run-startup-checks.ts` (hoặc
   `main.ts` theo tiền lệ metrics) gọi `schedules/tus.ts` sau `registerAuthProviders`; `router-options.ts` mẫu TUS có
@@ -649,5 +649,12 @@ Task: "storage-capture.ts (T019)"
   Ca busy theo `limit.test.ts` của Directus (30 request đồng thời, mỗi app một dải kích thước vì app thứ hai dùng lại
   file phát sinh của app đầu). R-16, R-17 đo và ghi vào spec. `parity()` thêm `sequential` cho request có transform.
 - T037 làm cùng T024 (`assets.controller.test.ts`); T039 không có lỗi port cần sửa.
+- T040 đến T042: `TusController` trong `TusModule`, nạp qua `AppModule.forRoot()` khi `env['TUS_ENABLED'] === true` (như
+  `app.ts` của Directus, đọc env lúc tạo app); lịch dọn gọi ở `createApp` ngay trước `metricsSchedule` như Directus (không
+  ở startup checks như tasks ghi). TUS ghi vào location đầu nên ca S3 chạy trên cặp `cors-hsts` (thêm
+  `STORAGE_LOCATIONS=s3,local`). Đo trên Directus 11.17.4: `OPTIONS /files/tus/:id` `204` với header `Tus-*`; `413` khi
+  `Upload-Length` quá `FILES_MAX_UPLOAD_SIZE`; xóa upload dở `204`, dòng mất, object dở còn (FR-015); `PATCH` 3 MiB trên
+  S3 trả `204` với `Upload-Offset: 0` (R-18); hết hạn `2s` và lịch mỗi phút dọn cả hai upload, key
+  `directus-sync:clock:tus-cleanup:*` có trong Redis. Thay file TUS giữ đuôi cũ (`<id>.jpg` với type `image/png`).
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
   để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`. Đã thêm ở T034.
