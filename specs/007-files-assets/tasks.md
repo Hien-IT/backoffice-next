@@ -709,3 +709,8 @@ Task: "storage-capture.ts (T019)"
   entry. Entry `D-09.5` giữ tới khi spec 007 `Done` (guard `accepted-differences` bắt có entry khi feature gỡ chưa Done).
 - T057: `graphify update .` xong; `pnpm nx run api:test` 243 file, 2.739 test xanh, coverage 86,08% (dòng), 84,76%
   (nhánh), 89,17% (hàm).
+- Sửa CI sau T057 (`assets.test.ts`, ca busy và timeout trên cặp `assets-stress`): ca timeout dùng `blur` 300, `median`
+  41, `blur` 300 (khoảng 45 s nếu không có timeout trên máy arm64; chuỗi nhẹ hơn xong dưới 1 s trên runner SQLite, trả
+  `200`); ca busy thêm `blur` 60 cho 30 request (không có thì app mới có lúc trả `200` cả 30). Đo cục bộ ba lượt: cả hai app
+  có 3 đến 7 trên 30 request trả `500` "Warning treated as error due to failOn setting" thay vì `503` khi transform bị
+  hủy; app mới nhiều `503` timeout hơn `503` busy so với Directus (request tới semaphore thưa hơn), cùng ngữ nghĩa.

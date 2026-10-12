@@ -242,6 +242,7 @@ describe('assets-stress pair: one transformation at a time, 100 ms timeout (FR-0
 	it('busy (503) and timeout (503) at both apps, no partial object left', async () => {
 		const id = await uploadAt(urls().directus, 'local', 'huge-ok.png', fixture('image-8bit.png'), 'image/png');
 		const headers = await admin();
+		const busyBlur = encodeURIComponent(JSON.stringify([['blur', 60]]));
 
 		for (const app of ['directus', 'backoffice'] as const) {
 			const base = pair()[app];
@@ -251,7 +252,10 @@ describe('assets-stress pair: one transformation at a time, 100 ms timeout (FR-0
 			const statuses = await Promise.all(
 				Array.from({ length: 30 }, async (_, n) => {
 					const size = (app === 'directus' ? 4000 : 4100) + n;
-					const url = new URL(`/assets/${id}?width=${size}&height=${size}`, base);
+					// A blur makes each transformation last long enough for the requests to overlap on any machine (without
+					// it the new app once answered 200 to all 30). Some aborted ones answer 500 "Warning treated as error due
+					// to failOn setting" instead of 503 at both apps (3 to 7 of 30 in local probes).
+					const url = new URL(`/assets/${id}?width=${size}&height=${size}&transforms=${busyBlur}`, base);
 					return (await fetch(url, { headers })).status;
 				}),
 			);
@@ -259,14 +263,15 @@ describe('assets-stress pair: one transformation at a time, 100 ms timeout (FR-0
 			expect(statuses, app).toContain(503);
 		}
 
-		// The timeout is clamped to at least one second (100ms → 1 s), so the work must take longer than that: blur and
-		// median on 6000×6000 take about 2 s on one arm64 laptop core set (blur alone finished under 1 s on a CI runner).
-		// Each app works on its own copy: right after the 503, the aborted write can leave an empty object for a moment
-		// (R-17).
+		// The timeout is clamped to at least one second (100ms → 1 s), so the work must take longer than that on any
+		// machine: blur 80 alone, then with median 15, finished under 1 s on CI runners (200 at both apps); this chain takes
+		// about 45 s without the timeout on one arm64 laptop. Each app works on its own copy: right after the 503, the
+		// aborted write can leave an empty object for a moment (R-17).
 		const blur = encodeURIComponent(
 			JSON.stringify([
-				['blur', 80],
-				['median', 15],
+				['blur', 300],
+				['median', 41],
+				['blur', 300],
 			]),
 		);
 		const { listObjects } = await import('./storage-capture.js');

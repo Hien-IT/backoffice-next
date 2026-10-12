@@ -288,3 +288,13 @@ Rủi ro đã biết, theo dõi trong tasks:
 | Fixture ảnh lớn làm repo nặng | Clone chậm | Ảnh ≤ 200 KB, ảnh benchmark sinh bằng sharp lúc seed |
 | Ca blackbox `limit`, `concurrency` phụ thuộc thời gian | Flaky | Chạy ở cặp `assets-limit` với `MAX_CONCURRENT=2` đúng config blackbox Directus; ca timeout, hết hạn tách sang `assets-stress` (analyze I2); retry như Directus |
 | Guard `accepted-differences` đỏ khi xóa `D-09.5` trước khi spec `Done` | CI đỏ | Xóa entry trong commit đóng feature (R12) |
+
+## Kết quả khi làm (2026-10-13)
+
+- `sharp.versions` (T001): image app mới và `directus/directus:11.17.4` cùng `sharp@0.34.5`,
+  `@img/sharp-linuxmusl-x64@0.34.5`, `@img/sharp-libvips-linuxmusl-x64@1.2.4`: `vips 8.17.3, heif 1.20.2, aom 3.13.1,
+  mozjpeg 0826579, webp 1.6.0, tiff 4.7.1`. Byte AVIF chỉ trùng trên amd64: compose ghim `platform: linux/amd64` cho
+  service app mới; ma trận transform 85/85 trùng byte và tên object.
+- Benchmark (T054, chạy cục bộ, Postgres, 3 vòng, hai app amd64 giả lập trên arm64): 6/6 kịch bản đạt ngưỡng 10%, job
+  948 s; số đo ở "Ghi chú khi làm" của tasks.md. Lượt CI đầu của `benchmark-files` chờ lịch hằng tuần hoặc chạy tay.
+- Coverage `apps/api` 86,08% dòng (T057).
