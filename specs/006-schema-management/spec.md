@@ -448,13 +448,13 @@ Khác biệt mới:
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
-| D-32 | `DELETE /collections/directus_<x>` bởi admin | Không chặn: `readByQuery` liệt kê collection hệ thống kèm `schema` (bảng có trong DB), `deleteOne` gọi `dropTable` rồi dọn metadata (`services/collections.ts:621-660`, `validateAccess` bỏ qua admin). [Chưa đo] đọc code; đo trên DB bỏ đi ở task đầu của gói B, không đo trên DB đối chiếu | `403 FORBIDDEN` (message của `ForbiddenError`), không DDL | Nguyên tắc II cấm xóa bảng hệ thống trên DB dùng chung | khác | — |
+| D-32 | `DELETE /collections/directus_<x>` bởi admin | Không chặn: `readByQuery` liệt kê collection hệ thống kèm `schema` (bảng có trong DB), `deleteOne` gọi `dropTable` rồi dọn metadata (`services/collections.ts:621-660`, `validateAccess` bỏ qua admin). Đo ngày 2026-10-12 (T010) trên Directus 11.17.4 SQLite bỏ đi: `DELETE /collections/directus_notifications` trả `204`, bảng `directus_notifications` mất khỏi `sqlite_master` | `403 FORBIDDEN` (message của `ForbiddenError`), không DDL | Nguyên tắc II cấm xóa bảng hệ thống trên DB dùng chung | khác | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004, 005; cần tech lead duyệt khi đóng feature.
 
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
-| R-11 | `PATCH /collections/directus_<x>` với `meta` không bị chặn: `updateOne` tạo dòng `directus_collections` cho collection hệ thống (chưa có dòng nên `exists` false); `readByQuery` sau đó có hai entry cho collection đó (dòng DB và `systemCollectionRows`) | `services/collections.ts:444-470`, `:316-331` | `/collections` và app Directus hiển thị trùng; chỉ dữ liệu, không DDL, nên tái tạo (FR-012). Bộ đối chiếu có ca, dọn dòng sau ca |
+| R-11 | `PATCH /collections/directus_<x>` với `meta` không bị chặn: `updateOne` tạo dòng `directus_collections` cho collection hệ thống (chưa có dòng nên `exists` false); `readByQuery` sau đó có hai entry cho collection đó (dòng DB và `systemCollectionRows`) | `services/collections.ts:444-470`, `:316-331` | `/collections` và app Directus hiển thị trùng (đo T010: `GET /collections` trả hai entry `directus_users` sau `PATCH`); chỉ dữ liệu, không DDL, nên tái tạo (FR-012). Bộ đối chiếu có ca, dọn dòng sau ca |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

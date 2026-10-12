@@ -5,6 +5,7 @@ export * from './ip-in-networks.js';
 export * from './require-yaml.js';
 export * from './is-readable-stream.js';
 export * from './process-id.js';
+export * from './readable-stream-to-string.js';
 export * from './fetch-global-access/fetch-global-access.js';
 export * from './fetch-global-access/lib/fetch-global-access-for-roles.js';
 export * from './fetch-global-access/lib/fetch-global-access-for-user.js';

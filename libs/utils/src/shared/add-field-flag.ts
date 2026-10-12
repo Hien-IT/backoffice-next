@@ -1,0 +1,17 @@
+// Ported from directus/packages/utils/shared/add-field-flag.ts
+import type { FieldMeta, RawField } from '@backoffice/types';
+
+/**
+ * Add a flag to a field.
+ */
+export function addFieldFlag(field: RawField, flag: string): void {
+	if (!field.meta) {
+		field.meta = {
+			special: [flag],
+		} as FieldMeta;
+	} else if (!field.meta.special) {
+		field.meta.special = [flag];
+	} else if (!field.meta.special.includes(flag)) {
+		field.meta.special.push(flag);
+	}
+}

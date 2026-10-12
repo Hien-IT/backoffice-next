@@ -1,0 +1,6 @@
+[
+	{ "source": "packages/utils/shared/add-field-flag.ts", "dest": "libs/utils/src/shared/add-field-flag.ts" },
+	{ "source": "packages/utils/shared/add-field-flag.test.ts", "dest": "libs/utils/src/shared/add-field-flag.test.ts" },
+	{ "source": "packages/utils/node/readable-stream-to-string.ts", "dest": "libs/utils/src/node/readable-stream-to-string.ts" },
+	{ "source": "packages/utils/node/readable-stream-to-string.test.ts", "dest": "libs/utils/src/node/readable-stream-to-string.test.ts" }
+]

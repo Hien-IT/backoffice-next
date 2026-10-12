@@ -5,6 +5,7 @@ import { useBus } from './bus/index.js';
 import {
 	_resetCache,
 	clearSystemCache,
+	flushCaches,
 	getCache,
 	getMemorySchemaCache,
 	setMemorySchemaCache,
@@ -205,6 +206,35 @@ describe('clearSystemCache', () => {
 
 		await clearSystemCache({ forced: true });
 		expect(await systemCache.get('a')).toBeUndefined();
+	});
+});
+
+// Feature 006: flushCaches after a schema apply (directus/api/src/cache.ts:91)
+describe('flushCaches', () => {
+	test('clears the system cache (forced as asked) and the data cache', async () => {
+		vi.mocked(useEnv).mockReturnValue({
+			CACHE_ENABLED: true,
+			CACHE_STORE: 'memory',
+			CACHE_NAMESPACE: 'ns',
+			CACHE_TTL: '5m',
+		});
+		const { cache, systemCache, lockCache } = getCache();
+		await cache!.set('data', 1);
+		await systemCache.set('a', 1);
+		await lockCache.set('system-cache-lock', true);
+
+		await flushCaches(true);
+
+		expect(await cache!.get('data')).toBeUndefined();
+		expect(await systemCache.get('a')).toBeUndefined();
+		expect(bus.publish).toHaveBeenCalledWith('schemaChanged', { autoPurgeCache: undefined });
+	});
+
+	test('works without a data cache (CACHE_ENABLED=false)', async () => {
+		vi.mocked(useEnv).mockReturnValue({ CACHE_STORE: 'memory', CACHE_NAMESPACE: 'ns' });
+		expect(getCache().cache).toBeNull();
+		await expect(flushCaches()).resolves.toBeUndefined();
+		expect(clearPermissionCache).toHaveBeenCalledOnce();
 	});
 });
 

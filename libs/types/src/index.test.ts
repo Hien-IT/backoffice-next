@@ -11,3 +11,7 @@ test('exports UserIntegrityCheckFlag like Directus', () => {
 	expect(types.UserIntegrityCheckFlag.UserLimits).toBe(2);
 	expect(types.UserIntegrityCheckFlag.All).toBe(3);
 });
+
+test('exports DiffKind like Directus', () => {
+	expect(types.DiffKind).toEqual({ NEW: 'N', DELETE: 'D', EDIT: 'E', ARRAY: 'A' });
+});

@@ -14,5 +14,11 @@
 	"include": [
 		"src",
 		"test"
+	],
+	// Feature 006: unit tests ported unchanged from directus/api/src that do not typecheck under the strict flags.
+	// Directus does not typecheck its tests either (directus/api/tsconfig.prod.json); vitest still runs them.
+	"exclude": [
+		"src/services/fields.service.test.ts",
+		"src/utils/sanitize-schema.test.ts"
 	]
 }

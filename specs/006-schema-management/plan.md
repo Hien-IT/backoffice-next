@@ -285,5 +285,5 @@ Rủi ro đã biết, theo dõi trong tasks:
 | Ca fail trên chính Directus ở một vendor | Lượt `directus` đỏ | `it.skipIf` theo vendor kèm ghi chú (Assumptions) |
 | `updateFields` không transaction, MySQL tự commit DDL | Ca "lỗi giữa chừng" để lại trạng thái dở | So trạng thái dở hai bên, dọn bằng `dropCollections` ở `afterAll` |
 | Guard `accepted-differences` đỏ khi xóa `D-09.4` trước khi spec `Done` | CI đỏ | Xóa entry trong commit đóng feature (R11) |
-| D-32 dựa trên đọc code (`DELETE /collections/directus_*` của Directus xóa bảng hệ thống), chưa đo | Nếu Directus thật có chặn thì D-32 thừa, bảng khác biệt sai | Task đầu gói B đo một lần trên DB bỏ đi (không phải DB đối chiếu), ghi bằng chứng vào spec; nếu Directus chặn thì bỏ D-32 và làm giống |
+| D-32 (`DELETE /collections/directus_*` của Directus xóa bảng hệ thống) | Đã đo ở T010: Directus xóa bảng, D-32 giữ | — |
 | Benchmark seed 3.000 field qua API chậm | Job dài | Seed một lần, đo; chỉnh quy mô nếu quá 15 phút (Assumptions của spec) |

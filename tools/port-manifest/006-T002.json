@@ -1,0 +1,4 @@
+[
+	{ "source": "packages/types/src/collection.ts", "dest": "libs/types/src/collection.ts" },
+	{ "source": "packages/types/src/snapshot.ts", "dest": "libs/types/src/snapshot.ts" }
+]

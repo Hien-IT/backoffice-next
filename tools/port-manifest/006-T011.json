@@ -1,0 +1,4 @@
+[
+	{ "source": "api/src/utils/sanitize-schema.ts", "dest": "apps/api/src/utils/sanitize-schema.ts" },
+	{ "source": "api/src/utils/sanitize-schema.test.ts", "dest": "apps/api/src/utils/sanitize-schema.test.ts" }
+]

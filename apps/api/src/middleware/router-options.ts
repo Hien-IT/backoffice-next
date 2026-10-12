@@ -30,6 +30,17 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/users\/register\/verify-email\/?$/i, 'GET,HEAD'],
 		[/^\/policies\/me\/globals\/?$/i, 'GET,HEAD'],
 		[/^\/permissions\/me\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
+		// Feature 006 (contracts/schema-api.md §3, measured on Directus 11.17.4): before validateCollection too.
+		[/^\/collections\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH'],
+		[/^\/collections\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/fields\/?$/i, 'GET,HEAD'],
+		[/^\/fields\/[^/]+\/?$/i, 'GET,HEAD,POST,PATCH'],
+		[/^\/fields\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/relations\/?$/i, 'GET,HEAD,POST'],
+		[/^\/relations\/[^/]+\/?$/i, 'GET,HEAD'],
+		[/^\/relations\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/schema\/snapshot\/?$/i, 'GET,HEAD'],
+		[/^\/schema\/(diff|apply)\/?$/i, 'POST'],
 		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
 		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
 		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],

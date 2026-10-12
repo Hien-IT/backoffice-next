@@ -132,3 +132,30 @@ test.each([
 test.each(['/items', '/items/', '/items/a/b/c'])('OPTIONS %s → not handled (404)', async (path) => {
 	expect((await app({}).options(path)).status).toBe(404);
 });
+
+// Feature 006 (contracts/schema-api.md §3): measured with OPTIONS on Directus 11.17.4 (T017).
+test.each([
+	['/collections', 'POST,GET,HEAD,SEARCH,PATCH'],
+	['/collections/', 'POST,GET,HEAD,SEARCH,PATCH'],
+	['/collections/articles', 'GET,HEAD,PATCH,DELETE'],
+	['/fields', 'GET,HEAD'],
+	['/fields/articles', 'GET,HEAD,POST,PATCH'],
+	['/fields/articles/title/', 'GET,HEAD,PATCH,DELETE'],
+	['/relations', 'GET,HEAD,POST'],
+	['/relations/articles', 'GET,HEAD'],
+	['/relations/articles/author', 'GET,HEAD,PATCH,DELETE'],
+	['/schema/snapshot', 'GET,HEAD'],
+	['/schema/diff', 'POST'],
+	['/schema/apply/', 'POST'],
+])('OPTIONS %s → Allow: %s', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test.each(['/schema', '/schema/x', '/collections/a/b', '/fields/a/b/c'])(
+	'OPTIONS %s → not handled (404)',
+	async (path) => {
+		expect((await app({}).options(path)).status).toBe(404);
+	},
+);

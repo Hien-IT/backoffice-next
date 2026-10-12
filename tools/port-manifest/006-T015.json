@@ -1,0 +1,4 @@
+[
+	{ "source": "api/src/services/collections.ts", "dest": "apps/api/src/services/collections.service.ts" },
+	{ "source": "api/src/services/collections.test.ts", "dest": "apps/api/src/services/collections.service.test.ts" }
+]

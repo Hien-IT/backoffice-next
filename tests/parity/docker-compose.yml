@@ -803,3 +803,173 @@ services:
       interval: 3s
       timeout: 5s
       retries: 60
+
+  # Feature 006 (research R7): the nodes of the blackbox schema-cache.test.ts (with and without the Redis bus) and of
+  # the two timezone files that start a node with another TZ. Env of the blackbox pair plus the profile file.
+  directus-schema-cache:
+    profiles: [schema-cache]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-schema-cache.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9655:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-schema-cache:
+    profiles: [schema-cache]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-schema-cache.env
+    environment:
+      CACHE_NAMESPACE: directus-schema-cache2
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9656:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  directus-schema-cache-nomsg:
+    profiles: [schema-cache-nomsg]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-schema-cache-nomsg.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9755:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-schema-cache-nomsg:
+    profiles: [schema-cache-nomsg]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-schema-cache-nomsg.env
+    environment:
+      CACHE_NAMESPACE: directus-schema-cache4
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9756:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  directus-tz-asia:
+    profiles: [tz-asia]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-tz-asia.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9855:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-tz-asia:
+    profiles: [tz-asia]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-tz-asia.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9856:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  directus-tz-america:
+    profiles: [tz-america]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-tz-america.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9955:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-tz-america:
+    profiles: [tz-america]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-blackbox.env
+      - ./env/profile-tz-america.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '9956:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60

@@ -115,4 +115,6 @@ test('PARITY_SUITE selects the files', () => {
 	expect(suiteFiles('cache')).toEqual(CACHE_FILES);
 	expect(FULL_FILES).toContain('src/items/{crud,export}.test.ts');
 	expect(REDUCED_FILES).toContain('src/items/crud.test.ts');
+	expect(FULL_FILES).toContain('src/schema-management/**/*.test.ts');
+	expect(REDUCED_FILES).toContain('src/schema-management/crud.test.ts');
 });

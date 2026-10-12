@@ -1,7 +1,7 @@
 // Ported from directus/api/src/cache.ts: getCache() with its five Keyv instances, clearSystemCache, the
 // `schemaChanged` subscription and the in-memory schema cache (feature 002); setCacheValue, getCacheValue (feature 004,
-// cache of dynamic variable data). flushCaches, set/getSystemCache and the *WithExpiry/*WithTTL helpers come with their
-// first caller (005, 006; research R3 of spec 002).
+// cache of dynamic variable data); flushCaches (feature 006, schema apply). set/getSystemCache and the
+// *WithExpiry/*WithTTL helpers come with their first caller (research R3 of spec 002).
 // Backoffice: env is read when a function first runs, not at module load, so the subscription is made by
 // subscribeSchemaChanged() from createApp(); Redis-backed instances are disconnected on shutdown (Principle VII).
 import { createRequire } from 'node:module';
@@ -91,6 +91,12 @@ export function getCache(): {
 	}
 
 	return { cache, systemCache, deploymentCache, localSchemaCache, lockCache };
+}
+
+export async function flushCaches(forced?: boolean): Promise<void> {
+	const { cache } = getCache();
+	await clearSystemCache({ forced });
+	await cache?.clear();
 }
 
 export async function clearSystemCache(opts?: {

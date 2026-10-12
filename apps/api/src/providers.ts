@@ -5,10 +5,13 @@ import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
 import { AccessService } from './services/access.service.js';
 import { AuthenticationService } from './services/authentication.service.js';
+import { CollectionsService } from './services/collections.service.js';
+import { FieldsService } from './services/fields.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
+import { RelationsService } from './services/relations.service.js';
 import { RolesService } from './services/roles.service.js';
 import { ServerService } from './services/server.service.js';
 import { SettingsService } from './services/settings.service.js';
@@ -55,6 +58,16 @@ export const serviceProviders: Provider[] = [
 		inject: [DATABASE],
 	},
 	{
+		provide: CollectionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new CollectionsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: FieldsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new FieldsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: ItemsService,
 		useFactory:
 			(db: typeof getDatabase): ItemsServiceFactory =>
@@ -75,6 +88,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: PoliciesService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new PoliciesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: RelationsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new RelationsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

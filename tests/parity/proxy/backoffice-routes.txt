@@ -1,5 +1,5 @@
 # First path segment of the routes the new app serves (spec 004 FR-106, contracts/proxy-e2e.md §2); every other path
-# goes to Directus. Each later feature adds its lines (006 collections, fields, relations, schema...).
+# goes to Directus. Each later feature adds its lines (007 files, folders, assets...).
 auth
 server
 metrics
@@ -9,3 +9,7 @@ policies
 access
 permissions
 items
+collections
+fields
+relations
+schema

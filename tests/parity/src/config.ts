@@ -95,6 +95,11 @@ export const profilePorts = {
 	websocket: { directus: 9455, backoffice: 9456 },
 	// Feature 005 (research R6): the env of directus/tests/blackbox for the port of its items files.
 	blackbox: { directus: 9555, backoffice: 9556 },
+	// Feature 006 (research R7): nodes of the blackbox schema-cache.test.ts and of the two timezone files.
+	'schema-cache': { directus: 9655, backoffice: 9656 },
+	'schema-cache-nomsg': { directus: 9755, backoffice: 9756 },
+	'tz-asia': { directus: 9855, backoffice: 9856 },
+	'tz-america': { directus: 9955, backoffice: 9956 },
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */

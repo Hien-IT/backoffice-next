@@ -114,6 +114,12 @@ catalog:
   '@types/json2csv': 5.0.7
   js2xmlparser: 5.0.0
   eventemitter2: 6.4.9
+  # Data model (feature 006), same versions as Directus 11.17.4
+  deep-diff: 1.0.2
+  '@types/deep-diff': 1.0.5
+  busboy: 1.6.0
+  '@types/busboy': 1.5.4
+  zod: 4.1.12
   # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
   json-to-graphql-query: 2.3.0
   seedrandom: 3.0.5

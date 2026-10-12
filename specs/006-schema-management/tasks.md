@@ -66,46 +66,46 @@ vì US3 so snapshot hai app (cần route `/schema/snapshot`).
 **Purpose**: Thêm ba thư viện cùng bản Directus, port phần nhỏ còn thiếu của libs và `apps/api`, dựng bốn cặp profile,
 sửa suite và proxy (research R1, R3, R7, contracts/parity.md §3, §4).
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `deep-diff: 1.0.2`,
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `deep-diff: 1.0.2`,
   `'@types/deep-diff': 1.0.5`, `busboy: 1.6.0`, `'@types/busboy': 1.5.4`, `zod: 4.1.12`. `apps/api/package.json`:
   `deep-diff`, `busboy`, `zod` (types vào devDependencies); `libs/types/package.json`: `@types/deep-diff` (type
   `SnapshotDiff` dùng `Diff` của deep-diff). Chạy `pnpm install`, `pnpm audit --prod --audit-level=high`; ghi kết quả
   vào "Ghi chú khi làm" (research R1).
-- [ ] T002 [P] Port `libs/types/src/collection.ts` từ `directus/packages/types/src/collection.ts` (`Collection`,
+- [X] T002 [P] Port `libs/types/src/collection.ts` từ `directus/packages/types/src/collection.ts` (`Collection`,
   `ApiCollection`, `CollectionMeta` dùng của `@backoffice/system-data` nếu Directus import từ `@directus/system-data`)
   và `libs/types/src/snapshot.ts` từ `packages/types/src/snapshot.ts` (`Snapshot`, `SnapshotField`, `SnapshotRelation`,
   `SnapshotSystemField`, `SnapshotWithHash`, `SnapshotDiff`, `SnapshotDiffWithHash`, `DiffKind`); export trong
   `libs/types/src/index.ts`; `libs/types/src/index.test.ts` thêm khẳng định export. Ghi manifest.
-- [ ] T003 [P] Port `libs/utils/src/shared/add-field-flag.ts` và `add-field-flag.test.ts` từ
+- [X] T003 [P] Port `libs/utils/src/shared/add-field-flag.ts` và `add-field-flag.test.ts` từ
   `directus/packages/utils/shared/`, `libs/utils/src/node/readable-stream-to-string.ts` và test từ
   `directus/packages/utils/node/`; export trong `index.ts` của `shared` và `node`. Ghi manifest.
-- [ ] T004 [P] `apps/api/src/constants.ts` thêm `ALLOWED_DB_DEFAULT_FUNCTIONS` (port dòng `directus/api/src/constants.ts:111`);
+- [X] T004 [P] `apps/api/src/constants.ts` thêm `ALLOWED_DB_DEFAULT_FUNCTIONS` (port dòng `directus/api/src/constants.ts:111`);
   `apps/api/src/cache.ts` thêm `flushCaches()` (port `directus/api/src/cache.ts:91`: `clearSystemCache` rồi
   `cache.clear()`), sửa comment đầu file; `apps/api/src/cache.test.ts` thêm ca `flushCaches` (gọi cả hai, thứ tự). Ghi
   manifest.
-- [ ] T005 [P] Port `apps/api/src/test-utils/knex.ts` từ `directus/api/src/test-utils/knex.ts` (`createMockKnex`,
+- [X] T005 [P] Port `apps/api/src/test-utils/knex.ts` từ `directus/api/src/test-utils/knex.ts` (`createMockKnex`,
   `resetKnexMocks`, `setupSystemCollectionMocks`) và `apps/api/src/__utils__/schemas.ts` từ
   `directus/api/src/__utils__/schemas.ts` (`snapshotApplyTestSchema`); hai thư mục này vào `coverage.exclude` của
   `apps/api/vitest.config.ts`. Ghi manifest.
-- [ ] T006 [P] Tạo `tests/parity/env/profile-schema-cache.env`, `profile-schema-cache-nomsg.env`, `profile-tz-asia.env`,
+- [X] T006 [P] Tạo `tests/parity/env/profile-schema-cache.env`, `profile-schema-cache-nomsg.env`, `profile-tz-asia.env`,
   `profile-tz-america.env` theo contracts/parity.md §3 (`schema-cache`: `CACHE_ENABLED=true`, `CACHE_AUTO_PURGE=true`,
   `CACHE_SCHEMA=true`, `CACHE_STORE=memory`, `CACHE_NAMESPACE=directus-schema-cache`, ba namespace Redis riêng;
   `schema-cache-nomsg`: thêm `REDIS_ENABLED=false`, `SYNCHRONIZATION_STORE=memory`, bỏ `REDIS`; `tz-*`: chỉ `TZ`). Phía
   Backoffice của hai cặp `schema-cache*` ghi đè `CACHE_NAMESPACE` (`...2`, `...4`) bằng `environment:` trong compose ở
   T007 (gốc `schema-cache.test.ts:29-40, 132-142`).
-- [ ] T007 `tests/parity/docker-compose.yml`: bốn cặp profile `schema-cache` (9655, 9656), `schema-cache-nomsg` (9755,
+- [X] T007 `tests/parity/docker-compose.yml`: bốn cặp profile `schema-cache` (9655, 9656), `schema-cache-nomsg` (9755,
   9756), `tz-asia` (9855, 9856), `tz-america` (9955, 9956), mẫu cặp `blackbox` (hai env file: vendor + `profile-blackbox.env`
   + env profile mới); `tests/parity/scripts/env.mjs` thêm vào `ALL_PROFILES`; `tests/parity/src/config.ts`
   `profilePorts` thêm bốn dòng. Test trong `tests/parity/src/vendors.test.ts`: cổng không trùng, khớp compose, mỗi cặp
   có file env. (sau T006)
-- [ ] T008 [P] `tests/parity/src/suite.ts`: `FULL_FILES` thêm `src/schema-management/**/*.test.ts`; `REDUCED_FILES` thêm
+- [X] T008 [P] `tests/parity/src/suite.ts`: `FULL_FILES` thêm `src/schema-management/**/*.test.ts`; `REDUCED_FILES` thêm
   `src/schema-management/crud.test.ts`; kiểm `BLACKBOX_FILES` (hoặc `include` của
   `src/items/blackbox/vitest.blackbox.config.ts`) đã bao `tests/db/routes/{collections,fields,schema}/**` và
   `tests/db/schema/timezone/**`, nếu chưa thì thêm. Test trong `src/vendors.test.ts`.
-- [ ] T009 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `collections`, `fields`, `relations`, `schema` (sinh lại
+- [X] T009 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `collections`, `fields`, `relations`, `schema` (sinh lại
   `nginx.conf` bằng `scripts/proxy-conf.mjs`); `proxy-conf.test.ts` thêm ca `/collections`, `/fields/x`, `/relations/x/y`,
   `/schema/snapshot` về app mới, `/utils/sort/x` vẫn về Directus.
-- [ ] T010 [P] Đo D-32 trên Directus thật: dựng một cặp DB + Directus bỏ đi (ví dụ `docker compose -p d32` với
+- [X] T010 [P] Đo D-32 trên Directus thật: dựng một cặp DB + Directus bỏ đi (ví dụ `docker compose -p d32` với
   `tests/parity/docker-compose.yml`, vendor sqlite3 là nhanh nhất), gọi `DELETE /collections/directus_notifications`
   bằng admin, ghi status và trạng thái bảng (`sqlite_master`) vào dòng D-32 của spec (thay `[Chưa đo]`) và "Ghi chú khi
   làm"; nếu Directus chặn (`403`) thì xóa D-32 khỏi spec, plan, `accepted-differences.ts` và không thêm `if` ở T015, làm giống.
@@ -121,13 +121,13 @@ bốn cặp mới.
 
 **Purpose**: Mọi story đều cần ba service port nguyên và factory của chúng (research R3).
 
-- [ ] T011 [P] Port `apps/api/src/utils/sanitize-schema.ts` và `sanitize-schema.test.ts` từ `directus/api/src/utils/`
+- [X] T011 [P] Port `apps/api/src/utils/sanitize-schema.ts` và `sanitize-schema.test.ts` từ `directus/api/src/utils/`
   (`sanitizeCollection`, `sanitizeField`, `sanitizeRelation`, `sanitizeSystemField`, `sanitizeColumn`; `FieldsService`
   cần `sanitizeColumn`). Ghi manifest.
-- [ ] T012 [P] Port `apps/api/src/services/fields/build-collection-and-field-relations.ts`,
+- [X] T012 [P] Port `apps/api/src/services/fields/build-collection-and-field-relations.ts`,
   `get-collection-meta-updates.ts`, `get-collection-relation-list.ts` và ba test gốc từ
   `directus/api/src/services/fields/`. Ghi manifest.
-- [ ] T013 Port `apps/api/src/services/relations.service.ts` từ `directus/api/src/services/relations.ts` (import
+- [X] T013 Port `apps/api/src/services/relations.service.ts` từ `directus/api/src/services/relations.ts` (import
   `getSchema` từ `../schema/get-database-schema.js`, `getDefaultIndexName`, `systemRelationRows`; chỗ khác nguồn ghi
   `// Backoffice:`). Viết mới `apps/api/src/services/relations.service.test.ts` (không có test gốc; dùng
   `knex-mock-client` và `@backoffice/schema-builder`): `403` không admin; `400` thiếu `collection`, `field`, collection
@@ -136,22 +136,22 @@ bốn cặp mới.
   MySQL; ItemsService của `directus_relations` không `accountability`; `updateOne` `dropForeign` rồi tạo lại với
   `constraintName`, không đổi `related_collection`; `deleteOne` xóa FK khi có, xóa meta thô, action `relations.delete`;
   `stitchRelations` (FK không meta, meta không FK); `clearSystemCache` được gọi. Ghi manifest.
-- [ ] T014 Port `apps/api/src/services/fields.service.test.ts` từ `directus/api/src/services/fields.test.ts` (sửa đường dẫn
+- [X] T014 Port `apps/api/src/services/fields.service.test.ts` từ `directus/api/src/services/fields.test.ts` (sửa đường dẫn
   mock: `getSchema` → `../schema/get-database-schema.js`, `test-utils`), chạy đỏ; rồi port `apps/api/src/services/fields.service.ts`
   từ `directus/api/src/services/fields.ts` (zod `systemFieldUpdateSchema` export; `getSystemFieldRowsWithAuthProviders`,
   `getDefaultValue`, `getLocalType` từ `../schema/`; `ALLOWED_DB_DEFAULT_FUNCTIONS`, `ALIAS_TYPES` từ `../constants.js`;
   `sanitizeColumn` từ T011; `RelationsService` từ T013). Test gốc xanh. Ghi manifest. (sau T011, T012, T013)
-- [ ] T015 Port `apps/api/src/services/collections.service.test.ts` từ `directus/api/src/services/collections.test.ts`,
+- [X] T015 Port `apps/api/src/services/collections.service.test.ts` từ `directus/api/src/services/collections.test.ts`,
   chạy đỏ; rồi port `apps/api/src/services/collections.service.ts` từ `directus/api/src/services/collections.ts`. Thêm ở
   đầu `deleteOne`, sau kiểm admin: `if (isSystemCollection(collectionKey)) throw new ForbiddenError();` với
   `// Backoffice: D-32, Nguyên tắc II; Directus drops the system table (spec 006)`; thêm ca test D-32 (không
   `dropTable`, không `readByQuery`). Typecheck toàn `apps/api`: helper hoặc util còn thiếu thì port bổ sung trong task
   này, ghi vào "Ghi chú khi làm". Ghi manifest. (sau T014; và sau T010: chỉ thêm `if` D-32 khi T010 xác nhận Directus
   xóa bảng; nếu Directus chặn thì không thêm `if`, bỏ D-32 khỏi spec, plan, contracts/ddl.md §5, research R11)
-- [ ] T016 `apps/api/src/providers.ts`: factory `CollectionsService`, `FieldsService`, `RelationsService` theo mẫu
+- [X] T016 `apps/api/src/providers.ts`: factory `CollectionsService`, `FieldsService`, `RelationsService` theo mẫu
   `PermissionsService` (`useFactory: (db) => (opts) => new XService({ knex: db(), ...opts })`); `apps/api/src/services/index.ts`
   export ba service; `providers.test.ts` (nếu có) thêm ba factory. (sau T015)
-- [ ] T017 [P] Đo `OPTIONS` tới Directus của cặp chính cho 10 path ở contracts/schema-api.md §3 (`/collections`,
+- [X] T017 [P] Đo `OPTIONS` tới Directus của cặp chính cho 10 path ở contracts/schema-api.md §3 (`/collections`,
   `/collections/x`, `/fields`, `/fields/x`, `/fields/x/y`, `/relations`, `/relations/x`, `/relations/x/y`,
   `/schema/snapshot`, `/schema/diff`), ghi `Allow` thật vào contract và "Ghi chú khi làm"; thêm 10 mẫu vào
   `apps/api/src/middleware/router-options.ts` theo thứ tự mount của Directus (`collections`, `fields` trước `items`;
@@ -518,6 +518,26 @@ Task: "blackbox-common phần data model (T051)"
 - Tránh: task mơ hồ, hai task cùng sửa một file song song, phụ thuộc chéo story làm mất tính độc lập.
 
 ## Ghi chú khi làm
+
+- T001: `pnpm audit --prod --audit-level=high` exit 0; không advisory nào cho `deep-diff`, `busboy`, `zod`.
+- T005: `apps/api/src/__utils__/schemas.ts` đổi `as CollectionsOverview` thành `as unknown as CollectionsOverview`
+  (`// Backoffice:`): Directus không typecheck `src/__utils__` (`tsconfig.prod.json`), fixture thiếu `searchable`.
+  `test-utils/**`, `__utils__/**` loại khỏi coverage.
+- T007: cặp `schema-cache-nomsg` đặt thêm `RATE_LIMITER_STORE=memory` vì `REDIS_ENABLED=false`; `SYNCHRONIZATION_STORE`
+  chưa có trong nhóm A của app mới (chỉ cảnh báo khi khởi động, như mọi biến chưa hỗ trợ).
+- T011 đến T015: test gốc của Directus không được typecheck ở Directus (`tsconfig.prod.json` loại `*.test.ts`); hai file
+  không qua cờ strict (`fields.service.test.ts`, `sanitize-schema.test.ts`: fixture thiếu `searchable`) nằm trong
+  `exclude` của `apps/api/tsconfig.json`, vitest vẫn chạy. `PATCH /relations` của Directus đọc `collection`,
+  `related_collection` từ body ở `alterType`: body thiếu chúng ném `TypeError` (500), app Directus luôn gửi đủ; ca ở
+  `relations.service.test.ts`. Controller `/relations` có `validateCollection` ở `GET /:c`, `GET /:c/:f`, `PATCH`,
+  `DELETE` (contracts/schema-api.md §1 sửa theo).
+- T017: `OPTIONS` đo trên Directus 11.17.4 khớp contracts/schema-api.md §3; `/schema`, `/schema/x` → 404.
+- Checkpoint Phase 2: `api:test` 212 file, 2.365 test xanh, coverage 85,1%; typecheck, lint xanh (cảnh báo
+  `database/index.ts:186` có từ trước).
+- T010 (2026-10-12): Directus 11.17.4 SQLite dựng riêng (`docker run`, xóa sau khi đo): `DELETE
+  /collections/directus_notifications` bằng admin → `204`, bảng mất khỏi `sqlite_master`, `directus_fields` của nó
+  về 0 → D-32 giữ, T015 thêm `if`. `PATCH /collections/directus_users` `{meta: {note}}` → `200`, `GET /collections` có
+  hai entry `directus_users` → R-11 xác nhận.
 
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)

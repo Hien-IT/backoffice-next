@@ -1,0 +1,8 @@
+[
+	{ "source": "api/src/services/fields/build-collection-and-field-relations.ts", "dest": "apps/api/src/services/fields/build-collection-and-field-relations.ts" },
+	{ "source": "api/src/services/fields/build-collection-and-field-relations.test.ts", "dest": "apps/api/src/services/fields/build-collection-and-field-relations.test.ts" },
+	{ "source": "api/src/services/fields/get-collection-meta-updates.ts", "dest": "apps/api/src/services/fields/get-collection-meta-updates.ts" },
+	{ "source": "api/src/services/fields/get-collection-meta-updates.test.ts", "dest": "apps/api/src/services/fields/get-collection-meta-updates.test.ts" },
+	{ "source": "api/src/services/fields/get-collection-relation-list.ts", "dest": "apps/api/src/services/fields/get-collection-relation-list.ts" },
+	{ "source": "api/src/services/fields/get-collection-relation-list.test.ts", "dest": "apps/api/src/services/fields/get-collection-relation-list.test.ts" }
+]

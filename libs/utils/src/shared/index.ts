@@ -1,4 +1,5 @@
 // Ported from directus/packages/utils/shared/index.ts (subset: only the helpers features 001 to 004 use)
+export * from './add-field-flag.js';
 export * from './array-helpers.js';
 export * from './defaults.js';
 export * from './get-date-time-formatted.js';

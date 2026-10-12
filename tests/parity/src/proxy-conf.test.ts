@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { buildNginxConf, parseRoutes } from '../scripts/proxy-conf.mjs';
 
 describe('proxy-conf', () => {
-	test('the list of features 004 and 005: nine routes, comments and blank lines ignored', () => {
+	test('the list of features 004 to 006: thirteen routes, comments and blank lines ignored', () => {
 		const routes = parseRoutes(readFileSync(new URL('../proxy/backoffice-routes.txt', import.meta.url), 'utf8'));
 		expect(routes).toEqual([
 			'auth',
@@ -17,6 +17,10 @@ describe('proxy-conf', () => {
 			'access',
 			'permissions',
 			'items',
+			'collections',
+			'fields',
+			'relations',
+			'schema',
 		]);
 	});
 
@@ -28,6 +32,17 @@ describe('proxy-conf', () => {
 		for (const path of ['/items', '/items/', '/items/articles', '/items/articles/1?export=csv'])
 			expect(new RegExp(location).test(path.split('?')[0]!), path).toBe(true);
 		expect(new RegExp(location).test('/itemsx')).toBe(false);
+	});
+
+	test('feature 006: the data model routes go to the new app, /utils/sort stays on Directus', () => {
+		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
+		const conf = buildNginxConf(template, ['collections', 'fields', 'relations', 'schema']);
+		const location = conf.match(/location ~ (\S+) \{/)![1]!;
+
+		for (const path of ['/collections', '/fields/articles', '/relations/articles/author', '/schema/snapshot'])
+			expect(new RegExp(location).test(path), path).toBe(true);
+		for (const path of ['/utils/sort/articles', '/schemas', '/fieldsx'])
+			expect(new RegExp(location).test(path), path).toBe(false);
 	});
 
 	test('one location for the routes of the new app, the rest to Directus', () => {

@@ -35,6 +35,9 @@ export const FILE_UPLOADS = {
 
 export const ALIAS_TYPES = ['alias', 'o2m', 'm2m', 'm2a', 'o2a', 'files', 'translations'];
 
+/** directus/api/src/constants.ts:111: database functions a field default value may call (feature 006). */
+export const ALLOWED_DB_DEFAULT_FUNCTIONS = ['gen_random_uuid()'];
+
 /** directus/api/src/constants.ts: name of the email/password provider, never part of AUTH_PROVIDERS. */
 export const DEFAULT_AUTH_PROVIDER = 'default';
 

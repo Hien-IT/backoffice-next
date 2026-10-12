@@ -1,0 +1,10 @@
+[
+	{ "source": "api/src/test-utils/knex.ts", "dest": "apps/api/src/test-utils/knex.ts" },
+	{ "source": "api/src/test-utils/database.ts", "dest": "apps/api/src/test-utils/database.ts" },
+	{ "source": "api/src/test-utils/schema.ts", "dest": "apps/api/src/test-utils/schema.ts" },
+	{ "source": "api/src/test-utils/cache.ts", "dest": "apps/api/src/test-utils/cache.ts" },
+	{ "source": "api/src/test-utils/emitter.ts", "dest": "apps/api/src/test-utils/emitter.ts" },
+	{ "source": "api/src/test-utils/services/items-service.ts", "dest": "apps/api/src/test-utils/services/items-service.ts" },
+	{ "source": "api/src/__utils__/schemas.ts", "dest": "apps/api/src/__utils__/schemas.ts" },
+	{ "source": "api/src/types/collection.ts", "dest": "apps/api/src/types/collection.ts" }
+]

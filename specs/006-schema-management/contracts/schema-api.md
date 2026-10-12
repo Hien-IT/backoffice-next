@@ -22,11 +22,11 @@ bằng `respond(req, res)` (cache ghi, `export`, `204` khi không payload).
 | `PATCH /fields/:collection/:field` | `validateCollection`, Joi `updateSchema` (zod cho field hệ thống) | `updateField` | `{data}`; `204` khi `Forbidden` | `field` mặc định theo URL |
 | `DELETE /fields/:collection/:field` | `validateCollection`; field hệ thống → `403` | `deleteField` | `204` | |
 | `GET /relations` | — | `readAll()` | `{data}` | |
-| `GET /relations/:collection` | — | `readAll(collection)` | `{data}` | |
-| `GET /relations/:collection/:field` | — | `readOne` | `{data}` | |
+| `GET /relations/:collection` | `validateCollection` | `readAll(collection)` | `{data}` | |
+| `GET /relations/:collection/:field` | `validateCollection` | `readOne` | `{data}` | |
 | `POST /relations` | Joi `newRelationSchema` (`collection`, `field` bắt buộc; `schema.on_delete` ∈ NO ACTION, SET NULL, SET DEFAULT, CASCADE, RESTRICT) | `createOne` | `{data}` đọc lại; `204` khi `Forbidden` | |
-| `PATCH /relations/:collection/:field` | Joi `updateRelationSchema` | `updateOne` | `{data}`; `204` khi `Forbidden` | |
-| `DELETE /relations/:collection/:field` | — | `deleteOne` | `204` | |
+| `PATCH /relations/:collection/:field` | `validateCollection`, Joi `updateRelationSchema` | `updateOne` | `{data}`; `204` khi `Forbidden` | body thiếu `collection`, `related_collection` với m2o → `TypeError` 500 như Directus |
+| `DELETE /relations/:collection/:field` | `validateCollection` | `deleteOne` | `204` | |
 | `GET /schema/snapshot` | — | `snapshot()` | `{data: snapshot}`; `?export=yaml` thành file | admin |
 | `POST /schema/diff` | `schemaMultipartHandler` | `diff(snapshot, {force: 'force' in req.query})` | `{data: {hash, diff}}`; `204` khi không khác | admin |
 | `POST /schema/apply` | `schemaMultipartHandler` | `apply({hash, diff}, {force: toBoolean(req.query.force)})` | `204` | admin |
