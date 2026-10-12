@@ -30,7 +30,10 @@ export interface DdlRun {
  * of the rows, which differs between two runs that write different rows, so those lists are sorted.
  */
 function normalized(captured: Captured, path: string): Captured {
-	let json = captured.isJson ? normalizeMetaIds(captured.json) : captured.json;
+	// MySQL names the temporary table of an ALTER TABLE in its errors (#sql-1_f): a counter of the server.
+	let json = captured.isJson
+		? normalizeMetaIds(JSON.parse(JSON.stringify(captured.json).replace(/#sql-[0-9a-f]+_[0-9a-f]+/g, '#sql-<tmp>')))
+		: captured.json;
 	const data = (json as { data?: unknown } | undefined)?.data;
 
 	if (/^\/(fields|relations)(\/[^/?]+)?(\?|$)/.test(path) && Array.isArray(data)) {

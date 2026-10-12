@@ -2,7 +2,7 @@
 // go to both apps at once and must be equal byte for byte; apply runs in sequence on the shared database from the same
 // starting model (ddlScenario with setup): same responses, same DDL and metadata. Snapshots taken at one app are
 // diffed and applied at the other.
-import { load as loadYaml } from 'js-yaml';
+import { dump, load as loadYaml } from 'js-yaml';
 import knex, { type Knex } from 'knex';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { knexConfig } from '../config.js';
@@ -235,26 +235,34 @@ describe('diff and apply (FR-041 to FR-043)', () => {
 			{ tables: TABLES, setup: () => startingModel(), cleanup: () => resetSystemIndex() },
 		);
 
+		// The diff of the target afterwards is not always empty: on MySQL a uuid column made by the apply reads back as
+		// varchar where the target has char (Directus too); both apps answer the same, which ddlScenario checks.
 		expect(directus.responses[0]!.status).toBe(204);
-		expect(directus.responses[2]!.status).toBe(204);
 		expect(backoffice.responses[3]!.status).toBe(400);
 	});
 
-	it('apply a diff made at the other app (multipart YAML at the new app)', async () => {
-		await startingModel();
+	it('apply a diff made at the other app (multipart YAML at the new app): the model Directus makes from it', async () => {
+		const appliedBy = async (apply: () => Promise<unknown>) => {
+			await startingModel();
 
-		try {
-			const yaml = (await import('js-yaml')).dump(payload);
+			try {
+				await apply();
+				return (await appRequest('directus', 'GET', '/schema/snapshot')).data;
+			} finally {
+				await cleanupTables('directus', TABLES);
+				await resetSystemIndex();
+			}
+		};
+
+		const byDirectus = await appliedBy(() => directusRequest('POST', '/schema/apply', payload));
+
+		const byBackoffice = await appliedBy(async () => {
 			const form = new FormData();
-			form.append('file', new Blob([yaml], { type: 'text/yaml' }), 'diff.yaml');
-
+			form.append('file', new Blob([dump(payload)], { type: 'text/yaml' }), 'diff.yaml');
 			await appRequest('backoffice', 'POST', '/schema/apply', form);
-			const applied = (await appRequest('directus', 'GET', '/schema/snapshot')).data;
-			expect(applied).toEqual(target);
-		} finally {
-			await cleanupTables('directus', TABLES);
-			await resetSystemIndex();
-		}
+		});
+
+		expect(byBackoffice).toEqual(byDirectus);
 	});
 
 	it('hash and diff errors: every detailed reason of validateApplyDiff, force', async () => {
