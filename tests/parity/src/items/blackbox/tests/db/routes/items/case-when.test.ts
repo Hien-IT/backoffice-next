@@ -1,5 +1,5 @@
 // Ported from directus/tests/blackbox/tests/db/routes/items/case-when.test.ts
-import { getSetupUrl, getUrl } from '@common/config';
+import { getDirectusUrl, getUrl } from '@common/config';
 import { CreateItem } from '@common/functions';
 import vendors from '@common/get-dbs-to-test';
 import { USER } from '@common/variables';
@@ -106,8 +106,9 @@ describe('retrieves items with filters', async () => {
 		// A query which produces a case when statement in the final query
 		// where the fields to compare, have different data types:
 		// user_created is a string, whereas directus_users.id is a of type UUID.
-		// Backoffice: /comments is feature 008 (D-09.6), asked to the Directus of the pair.
-		const comparisonResult = await request(getSetupUrl(vendor))
+		// Backoffice: /comments is feature 008 (D-09.6), asked to the Directus of the pair (also when
+		// PARITY_BLACKBOX_SETUP_APP=backoffice).
+		const comparisonResult = await request(getDirectusUrl())
 			.get(
 				`/comments?filter[_and][0][collection][_eq]=directus_users&filter[_and][1][item][_eq]=${userResponse.body.data.id}&aggregate[count]=id`,
 			)

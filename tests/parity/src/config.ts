@@ -46,7 +46,8 @@ export const knexConfig: Record<Vendor, VendorConfig> = {
 	},
 	oracle: {
 		client: 'oracledb',
-		connection: { user: 'secretsysuser', password: 'secretpassword', connectString: '127.0.0.1:6106/XE' },
+		// The pluggable database of env/oracle.env, where gvenzl/oracle-xe creates APP_USER (XE answers ORA-01017).
+		connection: { user: 'secretsysuser', password: 'secretpassword', connectString: '127.0.0.1:6106/XEPDB1' },
 		waitTestSQL: 'SELECT 1 FROM DUAL',
 	},
 	cockroachdb: {

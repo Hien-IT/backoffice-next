@@ -22,11 +22,13 @@ describe('startup with Redis down (FR-025)', () => {
 	let port: number;
 
 	beforeAll(async () => {
+		// Before Redis stops: hostDbEnv throws for the vendors it does not support yet, which must leave Redis running.
+		const dbEnv = hostDbEnv(vendor!);
 		compose('stop', 'redis');
 		port = await getPort();
 
 		api = runApi({
-			...hostDbEnv(vendor!),
+			...dbEnv,
 			PORT: String(port),
 			REDIS: 'redis://127.0.0.1:6108',
 			CACHE_ENABLED: 'true',
@@ -36,7 +38,7 @@ describe('startup with Redis down (FR-025)', () => {
 	}, 60_000);
 
 	afterAll(async () => {
-		await stopApi(api);
+		if (api) await stopApi(api);
 		compose('start', 'redis');
 		// The apps reconnect before the next describe writes fixtures through them.
 		await new Promise((resolve) => setTimeout(resolve, 5000));

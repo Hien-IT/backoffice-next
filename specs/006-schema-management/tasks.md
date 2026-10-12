@@ -400,7 +400,7 @@ xanh với `PARITY_BLACKBOX_SETUP_APP=backoffice`.
 
 ## Phase 8: Polish & Cross-Cutting Concerns
 
-- [ ] T054 [P] Benchmark (research R10, contracts/parity.md §6): `tests/benchmark/src/seed-schema.ts` (200 collection ×
+- [X] T054 [P] Benchmark (research R10, contracts/parity.md §6): `tests/benchmark/src/seed-schema.ts` (200 collection ×
   15 field + m2o, 100 alias o2m, policy user đọc 50 collection một phần, qua API Directus), `tests/benchmark/src/schema.ts`
   (năm kịch bản × admin, user × tươi, `HIT`; `POST /schema/diff` chỉ admin tươi), target `benchmark:schema` trong
   `tests/benchmark/project.json`, job `benchmark-schema` trong `.github/workflows/benchmark.yml` (hằng tuần, bấm tay).
@@ -588,5 +588,13 @@ Task: "blackbox-common phần data model (T051)"
   transaction (ca diff, apply bỏ qua); (5) Oracle: harness đăng nhập DB sai (`ORA-01017`). MySQL 5.7: Directus không
   cài được (`ER_INVALID_DEFAULT` ở migration `uploaded_on`). File của 001 đến 005 đỏ ở mọi vendor trừ SQLite
   (`auth/providers`, `observability/metrics`, `redis-down`, `db-unchanged`, `startup/*`, `permissions/*`).
+- T058 hướng C (chủ dự án chọn 2026-10-12): sửa môi trường để file 006 chạy sạch ở mọi vendor, lỗi của 001 đến 005
+  ghi lại cho đợt parity đủ vendor. Gốc dây chuyền Redis: `redis-down.test.ts` dừng Redis rồi `hostDbEnv` ném lỗi
+  (vendor chưa hỗ trợ), `afterAll` gọi `stopApi(undefined)` và không bật lại Redis; sửa: `hostDbEnv` trước khi dừng,
+  `afterAll` luôn bật lại. Oracle: harness nối `XE`, hai app nối `XEPDB1` (`env/oracle.env`); sửa sang `XEPDB1`.
+  MySQL 5.7 bỏ khỏi ma trận nightly (Directus không khởi động). `blackbox-full` lượt seed bằng app mới: còn 1 ca
+  (`case-when`, `/comments` của feature 008 gửi qua `getSetupUrl()`), sửa sang `getDirectusUrl()`.
+  `benchmark-schema` xanh ở run 38249657090 (60 collection); `benchmark-auth` (feature 003) lệch một dòng
+  (`POST /auth/refresh` p95 1.339 so với 925 ms), run trước xanh.
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)

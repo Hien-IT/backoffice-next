@@ -22,7 +22,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        vendor: [maria, mssql, oracle, cockroachdb, postgres10, mysql5, mysql, sqlite3]
+        # mysql5 left out (feature 006, nightly run 38241348869): Directus 11.17.4 does not start on mysql:5, its
+        # migration 20240716A fails with ER_INVALID_DEFAULT on `uploaded_on timestamp`.
+        vendor: [maria, mssql, oracle, cockroachdb, postgres10, mysql, sqlite3]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

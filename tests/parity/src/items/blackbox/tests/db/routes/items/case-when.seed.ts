@@ -20,7 +20,7 @@ export const seedDBStructure = () => {
 			try {
 				await DeleteCollection(vendor, { collection });
 
-				// Backoffice: /collections and /relations are feature 006, made through the Directus of the pair.
+				// Backoffice: the model is made through the setup app (PARITY_BLACKBOX_SETUP_APP, feature 006).
 				const collectionResponse = await request(getSetupUrl(vendor))
 					.post(`/collections`)
 					.set('Authorization', `Bearer ${USER.TESTS_FLOW.TOKEN}`)
