@@ -467,11 +467,11 @@ R12).
   import URL `http://files-fixtures/photo.jpg`, xem trước (thumbnail `system-*` tải về `200`), sửa title, tạo thư mục, di
   chuyển, xóa, tải zip thư mục; `items.spec.ts` thêm ca layout cards hiển thị thumbnail; `routing.spec.ts` thêm `/files`,
   `/folders`, `/assets` về app mới (`proxy-log`).
-- [ ] T054 [P] `tests/benchmark/src/files.ts` và `seed-files.ts` (200 ảnh jpeg ~1 MB sinh bằng sharp lúc seed, 1.000
+- [X] T054 [P] `tests/benchmark/src/files.ts` và `seed-files.ts` (200 ảnh jpeg ~1 MB sinh bằng sharp lúc seed, 1.000
   dòng file nhỏ, user đọc 50%): năm kịch bản theo contracts/parity.md §6 (`asset-transform` `deleteDerived` trước mỗi
   vòng, `connections: 10`); `tests/benchmark/project.json` target `files`; `.github/workflows/benchmark.yml` job
   `benchmark-files`; chạy một lần cục bộ, ghi p95, req/s và thời lượng job vào "Ghi chú khi làm".
-- [ ] T055 [P] `tests/parity/README.md` mục 007 (storage `local` dùng chung, `PARITY_STORAGES`, `files-fixtures`, cặp
+- [X] T055 [P] `tests/parity/README.md` mục 007 (storage `local` dùng chung, `PARITY_STORAGES`, `files-fixtures`, cặp
   `assets-limit`, cách chạy ma trận transform); kiểm `quickstart.md` chạy được từng lệnh, sửa nếu lệch.
 - [ ] T056 [P] Sổ khác biệt: `tests/parity/accepted-differences.ts` xóa entry `D-09.5`, sửa entry `D-31` bỏ
   `directus_files`, `directus_folders`; `specs/001-platform-foundation/spec.md` dòng D-09.5 ghi "Gỡ ở 007";
@@ -693,5 +693,19 @@ Task: "storage-capture.ts (T019)"
   trước compose (Docker tạo bằng root trên Linux: EACCES khi ghi `big.bin`), `concurrency.test.ts` từng bỏ qua SQLite + MinIO
   (Directus fail ở CI run 38299949458), rồi gỡ: lượt sau app mới fail ở Postgres, nghi do pressure limiter (mặc định bật,
   `directus/tests/blackbox` tắt), nên `profile-blackbox.env` thêm `PRESSURE_LIMITER_ENABLED=false` như env gốc (suy
-  luận, chờ CI xác nhận). `assets.test.ts` ca timeout thêm `median` 15 sau `blur` 80 (blur một mình xong dưới 1 s trên
+  luận). Lượt CI 38305415101 vẫn fail lúc ở app mới (Postgres, MySQL), lúc ở Directus (SQLite): log container cho
+  thấy mọi response `200`, p99 khoảng 2 s, nên lỗi là timeout 10 s của autocannon khi runner nghẽn; port in tóm tắt
+  autocannon khi fail và `retry: 2`; cục bộ xanh ở cả hai storage. `assets.test.ts` ca timeout thêm `median` 15 sau `blur` 80 (blur một mình xong dưới 1 s trên
   runner CI, trả `200`).
+- T054: chạy cục bộ 2026-10-13 (Postgres, `BENCH_ROUNDS=3`, Directus và app mới cùng chạy amd64 giả lập trên máy arm64):
+  seed 20 s (200 ảnh 1.024 KB, 1.000 dòng), cả job 948 s, 6/6 đạt ngưỡng 10%. p95 Directus/app mới (ms) và req/s:
+  `asset-raw` 782/753, 138/143; `asset-derived` 386/372, 151/157; `asset-transform` (10 kết nối) 149/152, 138/145;
+  `files-list` admin 573/564, 114/116; user 623/661, 91/91; `files-upload` 502/469, 114/119. Dòng file nhỏ chèn bằng knex
+  (POST `/files` JSON chỉ nhận một dòng mỗi lần ở cả hai app); Directus trả `500` khi xóa dòng không `filename_disk` qua
+  API nên dọn các dòng đó trên host. Lượt CI đầu của `benchmark-files` chưa chạy (workflow hằng tuần, chạy tay).
+- T055: README mục 007; quickstart sửa tên project của `run-many`, profile `assets-stress` cho blackbox, đường dẫn test
+  startup; §2 kiểm tay dùng chéo thay bằng `transform-matrix.test.ts` (cùng phép so, tự động).
+- T056 (phần không cần duyệt): bằng chứng có ngày, tên ca cho R-13, R-15, R-18; D-31 thu hẹp ở spec 004 và comment của
+  entry. Entry `D-09.5` giữ tới khi spec 007 `Done` (guard `accepted-differences` bắt có entry khi feature gỡ chưa Done).
+- T057: `graphify update .` xong; `pnpm nx run api:test` 243 file, 2.739 test xanh, coverage 86,08% (dòng), 84,76%
+  (nhánh), 89,17% (hàm).

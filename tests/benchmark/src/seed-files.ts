@@ -145,10 +145,20 @@ export async function seed(): Promise<FilesSeed> {
 
 /** Files of the seed and of the upload scenario, objects too (the API); the rows without object on the host. */
 export async function deleteFiles(tag: string, pattern = `${tag}%`): Promise<void> {
-	// Directus answers 500 to DELETE /files of a row without filename_disk (the storage path is null).
-	await db('directus_files').where('filename_download', 'like', pattern).whereNull('filename_disk').delete();
-	const ids = (await db('directus_files').select('id').where('filename_download', 'like', pattern)).map((r) => r.id);
-	for (let i = 0; i < ids.length; i += 500) await directus('DELETE', '/files', ids.slice(i, i + 500));
+	// An upload still running when autocannon stops has a row without filename_disk for a moment, and Directus answers
+	// 500 to DELETE /files of such a row (the storage path is null): those rows go on the host, then retry a few times.
+	for (let attempt = 1; ; attempt++) {
+		await db('directus_files').where('filename_download', 'like', pattern).whereNull('filename_disk').delete();
+		const ids = (await db('directus_files').select('id').where('filename_download', 'like', pattern)).map((r) => r.id);
+
+		try {
+			for (let i = 0; i < ids.length; i += 500) await directus('DELETE', '/files', ids.slice(i, i + 500));
+			return;
+		} catch (error) {
+			if (attempt === 5) throw error;
+			await new Promise((resolve) => setTimeout(resolve, 2000));
+		}
+	}
 }
 
 export async function cleanup(seeded: FilesSeed): Promise<void> {

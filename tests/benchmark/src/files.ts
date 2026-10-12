@@ -151,13 +151,14 @@ try {
 		const combine = (t: Round[], l: Round[]) =>
 			t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
 
-		verdicts.push(
-			compare(
-				`${s.method} ${s.name} (${s.user}, ${s.connections ?? CONNECTIONS} connections, p95 at ${rate} req/s)`,
-				combine(throughput.directus, latency.directus),
-				combine(throughput.backoffice, latency.backoffice),
-			),
+		const verdict = compare(
+			`${s.method} ${s.name} (${s.user}, ${s.connections ?? CONNECTIONS} connections, p95 at ${rate} req/s)`,
+			combine(throughput.directus, latency.directus),
+			combine(throughput.backoffice, latency.backoffice),
 		);
+		verdicts.push(verdict);
+		// Each row as soon as it is known: a later scenario that fails still leaves these.
+		process.stdout.write(`${table([verdict])}\n`);
 	}
 } finally {
 	await cleanup(seeded);
