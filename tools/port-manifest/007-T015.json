@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/synchronization.ts",
+		"dest": "apps/api/src/synchronization.ts"
+	},
+	{
+		"source": "api/src/utils/schedule.ts",
+		"dest": "apps/api/src/utils/schedule.ts"
+	},
+	{
+		"source": "api/src/utils/schedule.test.ts",
+		"dest": "apps/api/src/utils/schedule.test.ts"
+	}
+]

@@ -31,6 +31,9 @@ export function compose(...args: string[]): string {
 		'schema-cache-nomsg',
 		'tz-asia',
 		'tz-america',
+		// Feature 007 (research R8): the narrower files pair and the time-dependent pair.
+		'assets-limit',
+		'assets-stress',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

@@ -1,0 +1,26 @@
+[
+	{
+		"source": "api/src/services/files/lib/extract-metadata.ts",
+		"dest": "apps/api/src/services/files/lib/extract-metadata.ts"
+	},
+	{
+		"source": "api/src/services/files/lib/get-sharp-instance.ts",
+		"dest": "apps/api/src/services/files/lib/get-sharp-instance.ts"
+	},
+	{
+		"source": "api/src/services/files/lib/get-sharp-instance.test.ts",
+		"dest": "apps/api/src/services/files/lib/get-sharp-instance.test.ts"
+	},
+	{
+		"source": "api/src/services/files/utils/get-metadata.ts",
+		"dest": "apps/api/src/services/files/utils/get-metadata.ts"
+	},
+	{
+		"source": "api/src/services/files/utils/get-metadata.test.ts",
+		"dest": "apps/api/src/services/files/utils/get-metadata.test.ts"
+	},
+	{
+		"source": "api/src/services/files/utils/parse-image-metadata.ts",
+		"dest": "apps/api/src/services/files/utils/parse-image-metadata.ts"
+	}
+]

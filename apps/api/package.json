@@ -89,6 +89,7 @@
 		"rate-limiter-flexible": "catalog:",
 		"reflect-metadata": "catalog:",
 		"rxjs": "catalog:",
+		"sanitize-filename": "catalog:",
 		"sharp": "catalog:",
 		"snappy": "catalog:",
 		"sqlite3": "catalog:",

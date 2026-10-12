@@ -1,0 +1,30 @@
+[
+	{
+		"source": "api/src/services/tus/index.ts",
+		"dest": "apps/api/src/services/tus/index.ts"
+	},
+	{
+		"source": "api/src/services/tus/server.ts",
+		"dest": "apps/api/src/services/tus/server.ts"
+	},
+	{
+		"source": "api/src/services/tus/server.test.ts",
+		"dest": "apps/api/src/services/tus/server.test.ts"
+	},
+	{
+		"source": "api/src/services/tus/data-store.ts",
+		"dest": "apps/api/src/services/tus/data-store.ts"
+	},
+	{
+		"source": "api/src/services/tus/lockers.ts",
+		"dest": "apps/api/src/services/tus/lockers.ts"
+	},
+	{
+		"source": "api/src/services/tus/utils/wait-timeout.ts",
+		"dest": "apps/api/src/services/tus/utils/wait-timeout.ts"
+	},
+	{
+		"source": "api/src/schedules/tus.ts",
+		"dest": "apps/api/src/schedules/tus.ts"
+	}
+]

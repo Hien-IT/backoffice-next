@@ -7,6 +7,8 @@ import { ForbiddenError } from '@backoffice/errors';
 import type { AbstractServiceOptions } from '@backoffice/types';
 import { AccessService } from '../services/access.service.js';
 import { ActivityService } from '../services/activity.service.js';
+import { FilesService } from '../services/files.service.js';
+import { FoldersService } from '../services/folders.service.js';
 import { ItemsService } from '../services/items.service.js';
 import { PermissionsService } from '../services/permissions.service.js';
 import { PoliciesService } from '../services/policies.service.js';
@@ -19,17 +21,15 @@ import { UsersService } from '../services/users.service.js';
  * Collections that have their own service in Directus 11.17.4 that this app does not port yet (D-31 of spec 004).
  * Remove a collection from this list when the feature that ports its service adds a `case` above the default.
  */
-// ponytail: plain ItemsService for these collections skips the checks of their own service; features 007 to 010
-// port the services and shrink this list.
+// ponytail: plain ItemsService for these collections skips the checks of their own service; features 008 to 010
+// port the services and shrink this list (007 removed directus_files and directus_folders).
 export const COLLECTIONS_WITHOUT_SERVICE_YET = [
 	'directus_comments',
 	'directus_dashboards',
 	'directus_deployments',
 	'directus_deployment_projects',
 	'directus_deployment_runs',
-	'directus_files',
 	'directus_flows',
-	'directus_folders',
 	'directus_notifications',
 	'directus_operations',
 	'directus_panels',
@@ -49,6 +49,10 @@ export function getService(collection: string, opts: AbstractServiceOptions): It
 			return new AccessService(opts);
 		case 'directus_activity':
 			return new ActivityService(opts);
+		case 'directus_files':
+			return new FilesService(opts);
+		case 'directus_folders':
+			return new FoldersService(opts);
 		case 'directus_permissions':
 			return new PermissionsService(opts);
 		case 'directus_presets':

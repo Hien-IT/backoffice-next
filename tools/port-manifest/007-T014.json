@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/assets.ts",
+		"dest": "apps/api/src/services/assets.service.ts"
+	},
+	{
+		"source": "api/src/services/assets.test.ts",
+		"dest": "apps/api/src/services/assets.service.test.ts"
+	}
+]

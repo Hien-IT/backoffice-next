@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/services/files.ts",
+		"dest": "apps/api/src/services/files.service.ts"
+	},
+	{
+		"source": "api/src/services/files.test.ts",
+		"dest": "apps/api/src/services/files.service.test.ts"
+	},
+	{
+		"source": "api/src/test-utils/env.ts",
+		"dest": "apps/api/src/test-utils/env.ts"
+	},
+	{
+		"source": "api/src/test-utils/storage.ts",
+		"dest": "apps/api/src/test-utils/storage.ts"
+	},
+	{
+		"source": "api/src/test-utils/services/files-service.ts",
+		"dest": "apps/api/src/test-utils/services/files-service.ts"
+	}
+]

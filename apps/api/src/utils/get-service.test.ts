@@ -4,6 +4,8 @@ import { SchemaBuilder } from '@backoffice/schema-builder';
 import { describe, expect, test, vi } from 'vitest';
 import { AccessService } from '../services/access.service.js';
 import { ActivityService } from '../services/activity.service.js';
+import { FilesService } from '../services/files.service.js';
+import { FoldersService } from '../services/folders.service.js';
 import { ItemsService } from '../services/items.service.js';
 import { PermissionsService } from '../services/permissions.service.js';
 import { PoliciesService } from '../services/policies.service.js';
@@ -21,6 +23,8 @@ describe('getService', () => {
 	test.each([
 		['directus_access', AccessService],
 		['directus_activity', ActivityService],
+		['directus_files', FilesService],
+		['directus_folders', FoldersService],
 		['directus_permissions', PermissionsService],
 		['directus_policies', PoliciesService],
 		['directus_presets', PresetsService],
@@ -37,12 +41,15 @@ describe('getService', () => {
 		expect(service.collection).toBe(collection);
 	});
 
-	test.each(['directus_sessions', 'directus_migrations', 'directus_fields', 'directus_collections', 'directus_relations'])(
-		'%s is forbidden, as in Directus',
-		(collection) => {
-			expect(() => getService(collection, opts)).toThrow("You don't have permission to access this.");
-		},
-	);
+	test.each([
+		'directus_sessions',
+		'directus_migrations',
+		'directus_fields',
+		'directus_collections',
+		'directus_relations',
+	])('%s is forbidden, as in Directus', (collection) => {
+		expect(() => getService(collection, opts)).toThrow("You don't have permission to access this.");
+	});
 
 	test('a user collection gets a plain ItemsService', () => {
 		expect(getService('articles', opts).constructor).toBe(ItemsService);

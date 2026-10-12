@@ -1,0 +1,8 @@
+[
+	{ "source": "api/src/request/index.ts", "dest": "apps/api/src/request/index.ts" },
+	{ "source": "api/src/request/index.test.ts", "dest": "apps/api/src/request/index.test.ts" },
+	{ "source": "api/src/request/agent-with-ip-validation.ts", "dest": "apps/api/src/request/agent-with-ip-validation.ts" },
+	{ "source": "api/src/request/agent-with-ip-validation.test.ts", "dest": "apps/api/src/request/agent-with-ip-validation.test.ts" },
+	{ "source": "api/src/request/is-denied-ip.ts", "dest": "apps/api/src/request/is-denied-ip.ts" },
+	{ "source": "api/src/request/is-denied-ip.test.ts", "dest": "apps/api/src/request/is-denied-ip.test.ts" }
+]

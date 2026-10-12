@@ -1,0 +1,26 @@
+[
+	{
+		"source": "api/src/services/folders.ts",
+		"dest": "apps/api/src/services/folders.service.ts"
+	},
+	{
+		"source": "api/src/services/folders.test.ts",
+		"dest": "apps/api/src/services/folders.service.test.ts"
+	},
+	{
+		"source": "api/src/services/assets/name-deduper.ts",
+		"dest": "apps/api/src/services/assets/name-deduper.ts"
+	},
+	{
+		"source": "api/src/services/assets/name-deduper.test.ts",
+		"dest": "apps/api/src/services/assets/name-deduper.test.ts"
+	},
+	{
+		"source": "api/src/test-utils/services/folders-service.ts",
+		"dest": "apps/api/src/test-utils/services/folders-service.ts"
+	},
+	{
+		"source": "packages/types/src/folders.ts",
+		"dest": "libs/types/src/folders.ts"
+	}
+]

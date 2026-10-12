@@ -459,9 +459,9 @@ MinIO.
   `OPTIONS`), `maxSize` theo `FILES_MAX_UPLOAD_SIZE`, `Location` theo `PUBLIC_URL`, header CORS, `Directus-File-Id`.
   `OPTIONS`: khi `CORS_ENABLED=true` middleware CORS trả `204` cho mọi `OPTIONS` trước khi tới TUS (không header
   `Tus-*`); khi tắt CORS, `OPTIONS /files/tus/:id` đi qua `checkFileAccess` (`read`) rồi TUS trả `Tus-Version`,
-  `Tus-Extension: creation,termination,expiration`, `Tus-Max-Size` khi có (status và header chính xác của @tus/server
-  đo ở task), còn `OPTIONS /files/tus` không có handler TUS nên là `OPTIONS` tự động của Express (`Allow: POST`). Lỗi
-  giao thức: `Upload-Length` quá `maxSize` → `413` (đo ở task), thiếu `Upload-Length` hoặc `filename_download`, thay file
+  `Tus-Extension: creation,termination,expiration`, `Tus-Max-Size` khi có (đo T018: `204`, cùng các header
+  `access-control-*` của @tus/server; không quyền đọc → `403`), còn `OPTIONS /files/tus` không có handler TUS nên là
+  `OPTIONS` tự động của Express (`Allow: POST`). Lỗi giao thức: `Upload-Length` quá `maxSize` → `413` (đo T018), thiếu `Upload-Length` hoặc `filename_download`, thay file
   đang có upload dở, `Upload-Metadata` không parse được → `400 INVALID_METADATA`, driver tạo lỗi → dọn dòng rồi `500`.
 - **FR-051**: Kiểm quyền TUS PHẢI như `checkFileAccess` (method → action, `Upload-Metadata`, `id` thay file, field trong
   metadata); upload chỉ tìm thấy với chính user tạo (`uploaded_by`) khi accountability có `user`; không có `user` (role

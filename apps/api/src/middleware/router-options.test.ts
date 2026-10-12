@@ -159,3 +159,38 @@ test.each(['/schema', '/schema/x', '/collections/a/b', '/fields/a/b/c'])(
 		expect((await app({}).options(path)).status).toBe(404);
 	},
 );
+
+// Feature 007 (contracts/files-api.md §4): measured with OPTIONS on Directus 11.17.4 (T018), TUS off and on.
+test.each([
+	['/files', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/files/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/files/import', 'POST,GET,HEAD,PATCH,DELETE'],
+	['/files/3f1c', 'GET,HEAD,PATCH,DELETE'],
+	['/files/tus', 'GET,HEAD,PATCH,DELETE'],
+	['/folders', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/folders/3f1c/', 'GET,HEAD,PATCH,DELETE'],
+	['/assets/3f1c', 'GET,HEAD'],
+	['/assets/3f1c/photo.jpg', 'GET,HEAD'],
+	['/assets/folder', 'GET,HEAD'],
+	['/assets/folder/3f1c', 'POST,GET,HEAD'],
+	['/assets/files', 'POST,GET,HEAD'],
+])('TUS off: OPTIONS %s → Allow: %s', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test('TUS off: /files/tus/:id and deeper asset paths are not handled (404)', async () => {
+	for (const path of ['/files/tus/abc', '/assets/a/b/c', '/files/a/b']) {
+		expect((await app({}).options(path)).status, path).toBe(404);
+	}
+});
+
+test('TUS on: the tus router answers /files/tus, /files/tus/:id goes to the tus handler', async () => {
+	expect((await app({ TUS_ENABLED: 'true' }).options('/files/tus')).headers['allow']).toBe('POST');
+	expect((await app({ TUS_ENABLED: true }).options('/files/tus/')).headers['allow']).toBe('POST');
+	expect((await app({ TUS_ENABLED: true }).options('/files/tus/abc')).status).toBe(404);
+	expect((await app({ TUS_ENABLED: true }).options('/files/import')).headers['allow']).toBe(
+		'POST,GET,HEAD,PATCH,DELETE',
+	);
+});

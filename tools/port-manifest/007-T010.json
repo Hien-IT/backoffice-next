@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/utils/transformations.ts",
+		"dest": "apps/api/src/utils/transformations.ts"
+	},
+	{
+		"source": "api/src/utils/transformations.test.ts",
+		"dest": "apps/api/src/utils/transformations.test.ts"
+	}
+]

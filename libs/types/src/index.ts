@@ -8,6 +8,7 @@ export * from './error.js';
 export * from './events.js';
 export * from './fields.js';
 export * from './files.js';
+export * from './folders.js';
 export * from './filter.js';
 export * from './import-export.js';
 export * from './items.js';

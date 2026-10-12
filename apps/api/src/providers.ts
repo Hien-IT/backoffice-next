@@ -4,9 +4,12 @@ import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
 import { AccessService } from './services/access.service.js';
+import { AssetsService } from './services/assets.service.js';
 import { AuthenticationService } from './services/authentication.service.js';
 import { CollectionsService } from './services/collections.service.js';
 import { FieldsService } from './services/fields.service.js';
+import { FilesService } from './services/files.service.js';
+import { FoldersService } from './services/folders.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { PermissionsService } from './services/permissions.service.js';
@@ -54,6 +57,11 @@ export const serviceProviders: Provider[] = [
 		inject: [DATABASE],
 	},
 	{
+		provide: AssetsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new AssetsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: AuthenticationService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new AuthenticationService({ knex: db(), ...options }),
 		inject: [DATABASE],
@@ -66,6 +74,16 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: FieldsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new FieldsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: FilesService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new FilesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: FoldersService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new FoldersService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

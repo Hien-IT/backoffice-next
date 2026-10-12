@@ -1,4 +1,5 @@
 import { useEnv } from '@backoffice/env';
+import { toBoolean } from '@backoffice/utils';
 import type { RequestHandler } from 'express';
 import { escapeRegExp } from 'lodash-es';
 import { getAuthProviders } from '../utils/get-auth-providers.js';
@@ -41,6 +42,14 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/relations\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/schema\/snapshot\/?$/i, 'GET,HEAD'],
 		[/^\/schema\/(diff|apply)\/?$/i, 'POST'],
+		// Feature 007 (contracts/files-api.md §4, measured on Directus 11.17.4). With TUS on, the tus router (mounted
+		// before /files) answers /files/tus with its only collection route; /files/tus/:id goes to the tus handler.
+		...(toBoolean(env['TUS_ENABLED']) ? [[/^\/files\/tus\/?$/i, 'POST'] as [RegExp, string]] : []),
+		[/^\/(files|folders)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+		[/^\/files\/import\/?$/i, 'POST,GET,HEAD,PATCH,DELETE'],
+		[/^\/(files|folders)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/assets\/(folder\/[^/]+|files)\/?$/i, 'POST,GET,HEAD'],
+		[/^\/assets\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
 		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
 		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
 		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],

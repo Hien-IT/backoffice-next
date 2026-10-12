@@ -138,54 +138,54 @@ contracts/parity.md §1, §4).
 **Purpose**: Mọi story cần ba service, `transformations`, `request/*`, `tus/*`, `synchronization` port nguyên với test
 gốc xanh, factory, mẫu `OPTIONS` và công cụ chụp storage (research R3, R4, R5, R8).
 
-- [ ] T009 [P] Port `apps/api/src/request/{index,agent-with-ip-validation,is-denied-ip}.ts` và ba test gốc từ
+- [X] T009 [P] Port `apps/api/src/request/{index,agent-with-ip-validation,is-denied-ip}.ts` và ba test gốc từ
   `directus/api/src/request/` (`IpBlocklist` từ `@backoffice/utils/node`, `useEnv` từ `@backoffice/env`, logger của app).
   Ghi manifest.
-- [ ] T010 [P] Port `apps/api/src/utils/transformations.ts` và `transformations.test.ts` từ `directus/api/src/utils/`.
+- [X] T010 [P] Port `apps/api/src/utils/transformations.ts` và `transformations.test.ts` từ `directus/api/src/utils/`.
   Ghi manifest.
-- [ ] T011 [P] Port `apps/api/src/services/files/lib/{extract-metadata,get-sharp-instance}.ts`,
+- [X] T011 [P] Port `apps/api/src/services/files/lib/{extract-metadata,get-sharp-instance}.ts`,
   `services/files/utils/{get-metadata,parse-image-metadata}.ts` và test gốc (`get-sharp-instance.test.ts`,
   `get-metadata.test.ts`) từ `directus/api/src/services/files/`. Ghi manifest.
-- [ ] T012 Port `apps/api/src/services/files.service.test.ts` từ `directus/api/src/services/files.test.ts` (sửa đường
+- [X] T012 Port `apps/api/src/services/files.service.test.ts` từ `directus/api/src/services/files.test.ts` (sửa đường
   dẫn mock sang `.service.js`, `test-utils`), chạy đỏ; rồi port `apps/api/src/services/files.service.ts` từ
   `directus/api/src/services/files.ts` (`FilesService extends ItemsService`; `getStorage`, `getAxios` của T009,
   `extractMetadata` của T011, `formatTitle` từ `@backoffice/format-title`, `encodeURL`, `minimatch`, `mime-types`). Test
   gốc xanh. Ghi manifest. (sau T009, T011)
-- [ ] T013 [P] Port `apps/api/src/services/folders.service.ts` và `folders.service.test.ts` từ
+- [X] T013 [P] Port `apps/api/src/services/folders.service.ts` và `folders.service.test.ts` từ
   `directus/api/src/services/folders.ts`, `folders.test.ts` (kể cả `services/assets/name-deduper.ts` nếu Directus tách
   file, port cùng đường dẫn). Ghi manifest.
-- [ ] T014 Port `apps/api/src/services/assets.service.test.ts` từ `directus/api/src/services/assets.test.ts` (phủ
+- [X] T014 Port `apps/api/src/services/assets.service.test.ts` từ `directus/api/src/services/assets.test.ts` (phủ
   FR-040 `version` khi đọc storage), chạy đỏ;
   rồi port `apps/api/src/services/assets.service.ts` từ `directus/api/src/services/assets.ts` (`getAsset`, `zipFolder`,
   `zipFiles`, `getAssetSuffix`; `validateItemAccess` của 004, `FilesService` sudo của T012, `FoldersService` của T013,
   `archiver`, `object-hash`, `sharp` qua `getSharpInstance`). Test gốc xanh. Ghi manifest. (sau T010, T012, T013)
-- [ ] T015 [P] Port `apps/api/src/synchronization.ts` từ `directus/api/src/synchronization.ts` (store `memory`, `redis`
+- [X] T015 [P] Port `apps/api/src/synchronization.ts` từ `directus/api/src/synchronization.ts` (store `memory`, `redis`
   theo `SYNCHRONIZATION_STORE`, namespace `SYNCHRONIZATION_NAMESPACE` mặc định `directus-sync`, script Lua
   `setGreaterThan`); thêm `scheduleSynchronizedJob` vào `apps/api/src/utils/schedule.ts` (port phần còn thiếu của
   `directus/api/src/utils/schedule.ts`, sửa comment đầu file); viết mới `synchronization.test.ts` (memory:
   `setGreaterThan` chỉ tăng; redis: mock ioredis `defineCommand`) và `schedule.test.ts` (job chỉ chạy `cb` khi clock
   set được; `stop` reset clock). Ghi manifest.
-- [ ] T016 Port `apps/api/src/services/tus/{index,server,data-store,lockers,utils/wait-timeout}.ts` và `server.test.ts`
+- [X] T016 Port `apps/api/src/services/tus/{index,server,data-store,lockers,utils/wait-timeout}.ts` và `server.test.ts`
   từ `directus/api/src/services/tus/` (`useLock` của 002, `supportsTus` của `@backoffice/storage`, `RESUMABLE_UPLOADS`,
   `FILE_UPLOADS` của T003, `ItemsService`, `extractMetadata`, `emitter`, `getSchema`); viết thêm `data-store.test.ts`
   (create thiếu `size`/`filename_download` → `INVALID_METADATA`, thay file đang dở, `getFileById` lọc `uploaded_by` chỉ
   khi có `user`, `deleteExpired` theo `modified_on`) và `lockers.test.ts` (`KvLock` acquire, timeout, unlock) với kv
   giả. Port `apps/api/src/schedules/tus.ts` từ `directus/api/src/schedules/tus.ts` kèm `onServerShutdown(() =>
   job.stop())` (`// Backoffice:`, tiền lệ `schedules/metrics.ts`) và `tus.test.ts`. Ghi manifest. (sau T012, T015)
-- [ ] T017 `apps/api/src/providers.ts`: factory `FilesService`, `FoldersService`, `AssetsService` theo mẫu
+- [X] T017 `apps/api/src/providers.ts`: factory `FilesService`, `FoldersService`, `AssetsService` theo mẫu
   `PermissionsService`; `apps/api/src/services/index.ts` export ba service và `createTusServer`;
   `apps/api/src/utils/get-service.ts` bỏ `directus_files`, `directus_folders` khỏi `COLLECTIONS_WITHOUT_SERVICE_YET`
   (sửa comment `ponytail:`), `get-service.test.ts` thêm ca hai collection trả `FilesService`, `FoldersService`
   (FR-017). Typecheck toàn `apps/api`: util còn thiếu thì port bổ sung trong task này, ghi vào "Ghi chú khi làm". Ghi
   manifest. (sau T012 đến T016)
-- [ ] T018 [P] Đo `OPTIONS` trên Directus của cặp chính, cặp `assets-limit` (CORS tắt, TUS bật) và cặp `cors-hsts`
+- [X] T018 [P] Đo `OPTIONS` trên Directus của cặp chính, cặp `assets-limit` (CORS tắt, TUS bật) và cặp `cors-hsts`
   (CORS bật, TUS bật) cho các path ở
   contracts/files-api.md §4 (`/files`, `/files/import`, `/files/x`, `/folders`, `/folders/x`, `/assets/x`,
   `/assets/x/y`, `/assets/folder/x`, `/assets/files`, `/files/tus`, `/files/tus/x`), ghi `Allow` hoặc header `Tus-*`
   thật vào contract, spec FR-050 (thay "đo ở task") và "Ghi chú khi làm"; thêm mẫu vào
   `apps/api/src/middleware/router-options.ts` theo thứ tự mount của Directus (`assets`, `files/tus` khi `TUS_ENABLED`,
   `files`, `folders`); `router-options.test.ts` thêm ca từng mẫu, dấu `/` cuối, và `files/tus` vắng khi tắt TUS.
-- [ ] T019 [P] `tests/parity/src/files/storage-capture.ts` (+ `storage-capture.test.ts` chạy với env đã lên):
+- [X] T019 [P] `tests/parity/src/files/storage-capture.ts` (+ `storage-capture.test.ts` chạy với env đã lên):
   `listObjects(location, prefix)` (`local`: `docker compose exec` `find /directus/uploads`, `s3`: `DriverS3.list` của
   `@backoffice/storage-driver-s3` với env MinIO), `readObject`, `objectDigest` (sha256, size, `Content-Type` S3),
   `deleteDerived(prefix)` (xóa object có `__`), `fileRows(ids)` và `folderRows(ids)` qua knex bỏ cột theo FR-080;
@@ -610,5 +610,17 @@ Task: "storage-capture.ts (T019)"
   `directus/tests/blackbox/common/config.ts` mà các file files, assets đọc) nên 8 file blackbox chạy trên cặp `blackbox`;
   `assets-limit` là nút revalidate của `cache-revalidate.test.ts`, `assets-stress` (thêm `ASSETS_CACHE_TTL=1h`) là nút
   mặc định của file đó. Cả hai cặp đọc thêm `profile-blackbox.env`.
+- T009 đến T016: số test gốc port: `request/*` 19, `transformations` + metadata 19, `files.service` 40,
+  `folders.service` + `name-deduper` 37, `assets.service` 19, `schedule` 7, `tus/server` 2. Thêm theo Directus:
+  `sanitize-filename` 1.6.3 (dùng bởi `NameDeduper`), type `Folder`, `test-utils/{env,storage}.ts`,
+  `test-utils/services/{files,folders}-service.ts`. Test mới: `synchronization` 3, `tus/data-store` 10, `tus/lockers` 4,
+  `schedules/tus` 3. Ghi nhận khi viết test: TUS đặt `title = formatTitle(filename_download)` giữ cả đuôi ("Photo.jpg"),
+  multipart bỏ đuôi; `parseIptc` của Directus bỏ qua marker IPTC đầu tiên (fixture có dòng ApplicationRecordVersion).
+- T017: toàn bộ `apps/api` sau Phase 2: 239 file, 2.664 test xanh, coverage 85,84%.
+- T018: đo `OPTIONS` (bảng ở contracts/files-api.md §4); `access-control-allow-headers` của @tus/server trong Directus bị
+  tách từng ký tự (chuỗi `CORS_ALLOWED_HEADERS` trải vào mảng), port nguyên nên tái tạo. Semgrep đỏ từ commit đóng 006
+  (`apps/api/test/data-model-app.ts`, JWT ký bằng secret test) sửa bằng `nosemgrep` có lý do, theo tiền lệ `sso.ts`.
+- T019: `storage-capture` dùng `@aws-sdk/client-s3` trực tiếp (thay `@backoffice/storage-driver-s3`): cần
+  `ContentType` của object; `local` đọc qua `docker compose exec directus` (`find`, `sha256sum`, `stat`).
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
   để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`.

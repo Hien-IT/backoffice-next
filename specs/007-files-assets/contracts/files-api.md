@@ -61,18 +61,24 @@ kiểm allow list và `filterMimeType` (`400`) → `uploadOne(decompressResponse
 
 ## 4. `router-options.ts`: mẫu `OPTIONS` thêm
 
-| Path | Allow |
-|------|-------|
-| `/files` | `POST,GET,SEARCH,PATCH,DELETE` (theo thứ tự route gốc; đo trên Directus ở task đầu) |
-| `/files/import` | `POST` |
-| `/files/tus` | `POST` (chỉ khi `TUS_ENABLED`; không có handler TUS cho `OPTIONS` collection: `OPTIONS` tự động của Express) |
-| `/files/tus/:id` | `OPTIONS` đi qua `checkFileAccess` (`read`) rồi `@tus/server` trả `Tus-Version`, `Tus-Extension`, `Tus-Max-Size` (không qua `router-options`); khi `CORS_ENABLED=true` middleware CORS trả `204` cho mọi `OPTIONS` trước đó (spec FR-050) |
-| `/files/:pk` | `GET,PATCH,DELETE` |
-| `/folders`, `/folders/:pk` | như files không multipart |
-| `/assets/folder/:pk`, `/assets/files` | `POST` |
-| `/assets/:pk`, `/assets/:pk/:filename` | `GET,HEAD` |
+Đo trên Directus 11.17.4 ngày 2026-10-13 (T018), không token, cặp chính (TUS tắt), `assets-limit` (TUS bật, CORS tắt),
+`cors-hsts` (CORS bật):
 
-Giá trị `Allow` đo trên Directus thật ở task đầu gói B và ghi vào test `router-options.test.ts` (tiền lệ 006).
+| Path | `Allow` (TUS tắt) | TUS bật | CORS bật |
+|------|-------------------|---------|----------|
+| `/files` | `POST,GET,HEAD,SEARCH,PATCH,DELETE` | như TUS tắt | `204`, `Access-Control-Allow-Methods`, không `Allow` |
+| `/files/import` | `POST,GET,HEAD,PATCH,DELETE` (khớp cả `/:pk`) | như TUS tắt | như trên |
+| `/files/:pk` | `GET,HEAD,PATCH,DELETE` | như TUS tắt | như trên |
+| `/files/tus` | `GET,HEAD,PATCH,DELETE` (khớp `/:pk`) | `POST` (router tus trả) | như trên |
+| `/files/tus/:id` | `404` | đi tới handler TUS: không quyền đọc `403`; có quyền `204` với `Tus-Version: 1.0.0`, `Tus-Resumable: 1.0.0`, `Tus-Extension: creation,termination,expiration`, `Tus-Max-Size` (khi có `FILES_MAX_UPLOAD_SIZE`), `access-control-*` của @tus/server | như trên |
+| `/folders` | `POST,GET,HEAD,SEARCH,PATCH,DELETE` | | |
+| `/folders/:pk` | `GET,HEAD,PATCH,DELETE` | | |
+| `/assets/:pk`, `/assets/:pk/:filename`, `/assets/folder` | `GET,HEAD` | | |
+| `/assets/folder/:pk`, `/assets/files` | `POST,GET,HEAD` | | |
+
+Ghi chú: header `access-control-allow-headers` của @tus/server trong Directus có `CORS_ALLOWED_HEADERS` bị tách từng ký tự
+(`C, o, n, t, e, n, t, -, T, y, p, e, ...`) vì chuỗi được trải vào mảng; port nguyên `services/tus/server.ts` tái tạo.
+`POST /files/tus` với `Upload-Length` quá `FILES_MAX_UPLOAD_SIZE` trả `413`; tạo được trả `201`.
 
 ## 5. Lỗi và status
 
