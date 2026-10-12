@@ -196,7 +196,9 @@ describe('snapshot (FR-040)', () => {
 	});
 });
 
-describe('diff and apply (FR-041 to FR-043)', () => {
+// CockroachDB: Directus 11.17.4 answers 500 to the max_length change of the target model ("ALTER COLUMN TYPE is not
+// supported inside a transaction"), so it cannot build the target (nightly run 38241348869).
+describe.skipIf(vendor === 'cockroachdb')('diff and apply (FR-041 to FR-043)', () => {
 	let target: unknown;
 	let payload: { hash: string; diff: unknown };
 

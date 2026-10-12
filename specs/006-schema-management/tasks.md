@@ -581,5 +581,12 @@ Task: "blackbox-common phần data model (T051)"
 - T053 `blackbox-full` (run 38242839809): lượt `SETUP_APP=directus` xanh ở MySQL, SQLite; lượt `SETUP_APP=backoffice`
   463 ca đỏ ở cả hai vendor vì `requestGraphQL` gửi tới `getSetupUrl()` (app mới chưa có GraphQL, `404`); sửa thành
   `getDirectusUrl()`, chạy lại local SQLite (seed bằng app mới, 3 file): 150 ca đạt.
+- T058 nightly lần đầu (run 38241348869, 8 vendor đỏ): file 006 xanh ở SQLite; ở vendor khác đỏ vì (1) dây chuyền
+  của môi trường: Redis mất kết nối giữa bộ (Directus `MaxRetriesPerRequestError`, login `500`), `cross-use` và các
+  file sau đó đỏ ở mọi vendor; (2) MariaDB ghi bảng tạm `#sql-alter-1-c` (normalizer sửa); (3) MSSQL tự đặt tên PK
+  `PK__<bảng>__<16 hex ngẫu nhiên>` (`captureModel` chuẩn hóa); (4) CockroachDB: Directus `500` khi đổi kiểu cột trong
+  transaction (ca diff, apply bỏ qua); (5) Oracle: harness đăng nhập DB sai (`ORA-01017`). MySQL 5.7: Directus không
+  cài được (`ER_INVALID_DEFAULT` ở migration `uploaded_on`). File của 001 đến 005 đỏ ở mọi vendor trừ SQLite
+  (`auth/providers`, `observability/metrics`, `redis-down`, `db-unchanged`, `startup/*`, `permissions/*`).
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)

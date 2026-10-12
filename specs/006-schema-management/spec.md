@@ -266,6 +266,8 @@ API của app mới.
   chặn (Postgres "other objects depend on it"), Directus trả `500`, transaction rollback, không dọn gì; app mới làm y
   hệt (đo ở `ddl.test.ts`, T021). Muốn xóa phải xóa field m2o hoặc relation trước, như app Directus làm. SQLite không
   chặn: `204`, bảng bị xóa, khóa ngoại còn lại trỏ vào bảng không tồn tại (T031, cả hai app).
+- CockroachDB: Directus 11.17.4 trả `500` khi đổi `max_length` của cột (`ALTER COLUMN TYPE is not supported inside a
+  transaction`), app mới làm y hệt; ca diff, apply của bộ đối chiếu cần đổi kiểu cột nên bỏ qua trên CockroachDB.
 - `GET /fields`, `GET /relations` không có `ORDER BY` khi đọc metadata: thứ tự là thứ tự vật lý của dòng trong DB, như
   Directus; hai app gọi cùng lúc trả cùng thứ tự, bộ so nối tiếp sắp lại trước khi so (research R5).
 - Snapshot do người dùng soạn tay (YAML) thiếu key tùy chọn (ví dụ `meta.note`): `deep-diff` báo thuộc tính bị xóa và

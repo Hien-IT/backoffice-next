@@ -36,7 +36,10 @@ export async function captureModel(db: Knex, tables: string[]): Promise<ModelCap
 		columns[table] = (await inspector.columnInfo(table)).sort((a, b) => a.name.localeCompare(b.name));
 	}
 
-	const indexes = (await indexesOf(db, existing)).filter((i) => existing.includes(i.table));
+	// SQL Server names a primary key it creates PK__<table>__<16 random hex digits>: differs between two runs.
+	const indexes = (await indexesOf(db, existing))
+		.filter((i) => existing.includes(i.table))
+		.map((i) => ({ ...i, name: i.name.replace(/^(PK|UQ)__(.+)__[0-9A-F]{16}$/, '$1__$2__<random>') }));
 
 	const foreignKeys = (await inspector.foreignKeys())
 		.filter((fk) => existing.includes(fk.table))
