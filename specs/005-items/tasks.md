@@ -616,5 +616,11 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   độ trễ ở 40% req/s của Directus (research R18 của 001). Lần chạy benchmark sau sửa (c7d4f45): job `benchmark` xanh,
   health ở 98 req/s p95 Directus 305 ms, app mới 222 ms. `benchmark-items` đỏ một dòng: `POST` của user p95 351 so với
   295 ms (+19%); qua ba lần chạy dòng này +22%, +5%, +19% trong khi mọi dòng khác app mới nhanh hơn, cần tìm riêng.
+- Nguyên nhân dòng `POST` của user: lệch do thứ tự đo, không do code. SQL mỗi request giống hệt ở hai app (7 câu). Cache
+  quyền nhiều lớp (`@directus/memory`, giống nhau ở hai app) chỉ giữ entry trong bộ nhớ của process đã tính nó; process
+  thấy entry trong Redis thì lần nào cũng đọc lại Redis. Benchmark làm nóng Directus trước nên Directus giữ bản trong
+  bộ nhớ, app mới đọc Redis 13 lần mỗi `POST` của user (admin bỏ qua phần lớn bước tra quyền). Đảo thứ tự thì Directus
+  đọc Redis 13 lần. Sửa `items.ts`: xóa cache quyền trước mỗi vòng đo (`flushPermissions()` dùng chung với
+  `permissions.ts`, chuyển sang `tests/benchmark/src/redis.ts`), như benchmark quyền của 004.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)

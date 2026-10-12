@@ -6,7 +6,6 @@
 // response cache (feature 005, research R10). Needs `benchmark:env-up` first.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
-import { Redis } from 'ioredis';
 import {
 	compare,
 	createLatencyHistogram,
@@ -18,6 +17,7 @@ import {
 	table,
 	type Verdict,
 } from './compare.ts';
+import { flushPermissions, redis } from './redis.ts';
 import { cleanup, type Seed, seed } from './seed-permissions.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -28,17 +28,6 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 const RATE_SHARE = 0.8;
 const ENDPOINTS = ['/users/me', '/permissions/me', '/users?filter[status][_eq]=active&limit=25'];
-
-const redis = new Redis(process.env['BENCH_REDIS_URL'] ?? 'redis://127.0.0.1:6108');
-
-/** Empties the permissions cache of Redis and of the memory of every process (CacheMulti `clear` message). */
-async function flushPermissions(): Promise<void> {
-	await redis.publish('permissions:multi-cache', JSON.stringify({ type: 'clear', origin: 'benchmark' }));
-
-	for await (const keys of redis.scanStream({ match: 'permissions:*', count: 500 })) {
-		if ((keys as string[]).length > 0) await redis.unlink(...(keys as string[]));
-	}
-}
 
 async function measure(seeded: Seed, baseUrl: string, path: string, duration: number, rate?: number): Promise<Round> {
 	const histogram = createLatencyHistogram();

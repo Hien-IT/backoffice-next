@@ -17,6 +17,7 @@ import {
 	table,
 	type Verdict,
 } from './compare.ts';
+import { flushPermissions, redis } from './redis.ts';
 import { ARTICLES, cleanup, type ItemsSeed, seed } from './seed-items.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -84,6 +85,8 @@ function scenarios(seeded: ItemsSeed): Scenario[] {
 }
 
 async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: number, rate?: number): Promise<Round> {
+	// Without it the app warmed first keeps the permissions in memory and the other reads Redis on every lookup.
+	await flushPermissions();
 	const histogram = createLatencyHistogram();
 	let next = 0;
 
@@ -165,6 +168,7 @@ try {
 	}
 } finally {
 	await cleanup(seeded);
+	await redis.quit();
 }
 
 const report = table(verdicts);
