@@ -30,9 +30,12 @@ const RATE_SHARE = 0.8;
 // Every request sends Cache-Control: no-store (feature 005, research R10): both apps skip the shared response cache
 // (CACHE_SKIP_ALLOWED=true in the vendor env) and build each answer. Since feature 002 both build the schema step the
 // same way (SC-005).
-const ENDPOINTS: { path: string; directus: string; notBlocking?: string }[] = [
+// rateShare replaces RATE_SHARE for the latency phase. /server/health writes the same object to MinIO on every call at
+// both apps; at 80% of the Directus req/s MinIO queues those writes and p95 swings 2-4x between rounds of the same app
+// (diagnostic runs of 2026-10-12, spec 005 tasks.md): 40% keeps MinIO out of saturation so p95 compares the apps.
+const ENDPOINTS: { path: string; directus: string; notBlocking?: string; rateShare?: number }[] = [
 	{ path: '/server/ping', directus: DIRECTUS },
-	{ path: '/server/health', directus: DIRECTUS },
+	{ path: '/server/health', directus: DIRECTUS, rateShare: 0.4 },
 	{ path: '/server/info', directus: DIRECTUS },
 	{ path: '/server/specs/oas', directus: DIRECTUS },
 ];
@@ -78,7 +81,8 @@ for (const endpoint of ENDPOINTS) {
 		throughput.backoffice.push(await measure(BACKOFFICE, endpoint.path, DURATION));
 	}
 
-	const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
+	const share = endpoint.rateShare ?? RATE_SHARE;
+	const rate = Math.max(1, Math.round(share * median(throughput.directus.map((r) => r.rps))));
 	const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
 	for (let i = 0; i < ROUNDS; i++) {

@@ -433,6 +433,10 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   Đo p95 ở tốc độ cố định vì SC-006 so "với cùng tải": với số kết nối cố định, app nhanh hơn nhận nhiều request
   hơn mỗi giây, làm DB, Redis, MinIO dùng chung bận hơn và tự kéo p95 của nó lên (đo trên CI 2026-10-09:
   `/server/health` Backoffice 333 req/s so với 191 nhưng p95 cao hơn 16%).
+  Riêng `/server/health` đo độ trễ ở 40% req/s của Directus (sửa 2026-10-12, feature 005): mỗi lần gọi, cả hai app
+  ghi cùng một object vào MinIO, nên ở 80% MinIO xếp hàng các lệnh ghi và p95 dao động 2 đến 4 lần giữa các vòng của
+  cùng một app (Directus 654 đến 2.599 ms); dưới mức bão hòa p95 ổn định và so được hai app (100 req/s: Directus 7,1 ms,
+  app mới 6,8 ms). Ngưỡng 10% và pha throughput giữ nguyên.
 - **Phạm vi ở feature này**: `/server/ping`, `/server/health`, `/server/info` so với Directus cấu hình
   mặc định. `/server/specs/oas` so với một container Directus thứ hai chạy `CACHE_SCHEMA=false`
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request

@@ -608,5 +608,11 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   duyệt ngày 2026-10-12 gỡ D-09.3, D-11, D-12, D-30, thu hẹp D-26, D-29, R-07 đến R-10, cách làm của
   `unhandled-rejection.ts` và các sửa bảng 001, 003, 004; xóa entry D-09.3, D-11, D-12 cùng lúc với `Status: Done`; sửa
   các comment còn mô tả cache response là của riêng Directus.
+- Sau khi đóng (2026-10-12): `/server/health` đỏ ở job `benchmark` của 001 không do 005. Ba lần đo trên runner GitHub
+  (nhánh tạm `diag/health-p95`): code và thư viện của health giống Directus, mỗi lần gọi một `PutObject` vào cùng object
+  của MinIO ở cả hai app; ở 200 req/s p95 của cả hai do lệnh ghi MinIO quyết định và dao động 2 đến 4 lần giữa các vòng
+  (Directus qua pm2 845, 2.599, 654 ms; app mới 958, 814, 2.227 ms); dưới mức bão hòa app mới bằng hoặc tốt hơn
+  (trung vị p95 ở 100, 135, 170 req/s: Directus 7,1, 8,0, 41,5 ms; app mới 6,8, 7,6, 15,1 ms). Sửa `run.ts`: health đo
+  độ trễ ở 40% req/s của Directus (research R18 của 001).
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)
