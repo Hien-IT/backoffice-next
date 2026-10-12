@@ -613,6 +613,8 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   của MinIO ở cả hai app; ở 200 req/s p95 của cả hai do lệnh ghi MinIO quyết định và dao động 2 đến 4 lần giữa các vòng
   (Directus qua pm2 845, 2.599, 654 ms; app mới 958, 814, 2.227 ms); dưới mức bão hòa app mới bằng hoặc tốt hơn
   (trung vị p95 ở 100, 135, 170 req/s: Directus 7,1, 8,0, 41,5 ms; app mới 6,8, 7,6, 15,1 ms). Sửa `run.ts`: health đo
-  độ trễ ở 40% req/s của Directus (research R18 của 001).
+  độ trễ ở 40% req/s của Directus (research R18 của 001). Lần chạy benchmark sau sửa (c7d4f45): job `benchmark` xanh,
+  health ở 98 req/s p95 Directus 305 ms, app mới 222 ms. `benchmark-items` đỏ một dòng: `POST` của user p95 351 so với
+  295 ms (+19%); qua ba lần chạy dòng này +22%, +5%, +19% trong khi mọi dòng khác app mới nhanh hơn, cần tìm riêng.
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)
