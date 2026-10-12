@@ -477,7 +477,7 @@ R12).
   `directus_files`, `directus_folders`; `specs/001-platform-foundation/spec.md` dòng D-09.5 ghi "Gỡ ở 007";
   `specs/004-permissions/spec.md` dòng D-31 thu hẹp; bảng "Khác biệt" và "Rủi ro" của `specs/007-files-assets/spec.md`
   đủ bằng chứng R-13 đến R-18 (ngày đo, ca test); `guard-differences` xanh. (commit đóng feature, sau mọi phase)
-- [ ] T057 [P] `graphify update .` sau khi code xong; `pnpm run ci:local` một lượt đủ; kiểm coverage `apps/api` ≥ 80%.
+- [X] T057 [P] `graphify update .` sau khi code xong; `pnpm run ci:local` một lượt đủ; kiểm coverage `apps/api` ≥ 80%.
 - [ ] T058 Đóng feature: `specs/007-files-assets/spec.md` `Status: Done`, dòng "Duyệt khác biệt" (tech lead duyệt gỡ
   D-09.5, thu hẹp D-31, R-13 đến R-18); `plan.md` ghi kết quả benchmark và sharp.versions; CLAUDE.md "Recent Changes"
   thêm 007; memory dự án. (sau T053 đến T057)
@@ -719,3 +719,11 @@ Task: "storage-capture.ts (T019)"
   lần thử ở app mới (Postgres), ở Directus (SQLite); mọi response khác `200`. Đo cục bộ trên cặp `blackbox`: cùng 4
   transaction DB mỗi request ở hai app, CPU container 15,3 ms (Directus) và 16,0 ms (app mới) mỗi request, p50, p99
   tương đương. Chờ chủ dự án quyết: giữ bỏ qua trên CI, hay giảm tải (`-c`) như một `// Backoffice:` của bản port.
+- T057 (tiếp): bước quality của `ci:local` chạy cục bộ (lint, typecheck, test, build 20 project, `test:tools`,
+  `check-port-headers` 1.087 file, `check-package-names`, swagger) xanh; các bước parity, blackbox, E2E kiểm trên CI thay
+  vì `ci:local` (cùng lệnh, máy cục bộ chạy Directus giả lập nên quá lâu). CI run 38313964720 (commit `a85c48f`) xanh đủ
+  16 job, gồm `e2e-directus-app` và `publish`, sau một lần chạy lại job SQLite: lần đầu Directus (lượt `directus` của
+  blackbox) trả `500` "no such column: ...second_ids" ở `hash-filter.test.ts` của 005 (schema cũ ở Directus). Các lượt
+  trước còn gặp hai ca chập chờn cùng họ ở shard 1 Postgres: `nested-files` (`POST /fields` ngay sau tạo collection, Directus
+  `403`) và 006 `ddl.test.ts`, `sync-api.test.ts` (Directus chưa thấy collection, quá 1 s). Chưa tìm ra nguyên nhân; nghi
+  do tải thêm của cặp `assets-limit`, `assets-stress` trên runner (suy luận).
