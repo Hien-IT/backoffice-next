@@ -11,8 +11,8 @@ const { values, positionals } = parseArgs({
 // --vendor wins over an existing TEST_DB.
 const env = { ...process.env, TEST_DB: values.vendor ?? process.env.TEST_DB ?? 'postgres' };
 
-const vitest = (config, extraEnv = {}) =>
-	spawnSync('pnpm', ['exec', 'vitest', 'run', '-c', config, ...positionals], {
+const vitest = (config, extraEnv = {}, extraArgs = []) =>
+	spawnSync('pnpm', ['exec', 'vitest', 'run', '-c', config, ...extraArgs, ...positionals], {
 		stdio: 'inherit',
 		env: { ...env, ...extraEnv },
 	}).status ?? 1;
@@ -28,4 +28,5 @@ if (env.PARITY_SUITE === 'blackbox') {
 	process.exit(0);
 }
 
-process.exit(vitest('vitest.parity.config.ts'));
+// CI splits `full` on Postgres into jobs with PARITY_SHARD=<i>/<n> (vitest --shard); unset runs every file.
+process.exit(vitest('vitest.parity.config.ts', {}, env.PARITY_SHARD ? [`--shard=${env.PARITY_SHARD}`] : []));
