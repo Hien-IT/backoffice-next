@@ -714,3 +714,8 @@ Task: "storage-capture.ts (T019)"
   `200`); ca busy thêm `blur` 60 cho 30 request (không có thì app mới có lúc trả `200` cả 30). Đo cục bộ ba lượt: cả hai app
   có 3 đến 7 trên 30 request trả `500` "Warning treated as error due to failOn setting" thay vì `503` khi transform bị
   hủy; app mới nhiều `503` timeout hơn `503` busy so với Directus (request tới semaphore thưa hơn), cùng ngữ nghĩa.
+- `concurrency.test.ts` (blackbox) bỏ qua trên CI (`it.skipIf(CI)`), chạy cục bộ: lượt CI 38311791314 in tóm tắt
+  autocannon khi fail: 1 đến 3 trên khoảng 850 request quá timeout 10 s (p99 khoảng 6 s, max 9 đến 10 s), lặp lại cả 3
+  lần thử ở app mới (Postgres), ở Directus (SQLite); mọi response khác `200`. Đo cục bộ trên cặp `blackbox`: cùng 4
+  transaction DB mỗi request ở hai app, CPU container 15,3 ms (Directus) và 16,0 ms (app mới) mỗi request, p50, p99
+  tương đương. Chờ chủ dự án quyết: giữ bỏ qua trên CI, hay giảm tải (`-c`) như một `// Backoffice:` của bản port.
