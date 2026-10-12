@@ -131,6 +131,9 @@ describe('normalizeContentDisposition (feature 005)', () => {
 	test.each([
 		['attachment; filename="articles 20261011-93005.csv"', 'attachment; filename="articles <timestamp>.csv"'],
 		['attachment; filename="Export 20261011-000.json"', 'attachment; filename="Export <timestamp>.json"'],
+		// Feature 007: zip names of /assets/folder/:pk and /assets/files.
+		['attachment; filename="folder-Holiday-20261013-953.zip"', 'attachment; filename="folder-Holiday-<timestamp>.zip"'],
+		['attachment; filename="files-20261013-12305.zip"', 'attachment; filename="files-<timestamp>.zip"'],
 		[
 			'attachment; filename="a 20261011-123456.yaml"; filename*=UTF-8\'\'a',
 			'attachment; filename="a <timestamp>.yaml"; filename*=UTF-8\'\'a',

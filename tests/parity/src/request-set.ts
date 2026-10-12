@@ -39,6 +39,39 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		...(options.accounts ? permissionRequests(options.accounts) : []),
 		...(options.accounts?.items ? itemRequests(options.accounts, options.accounts.items) : []),
 		...(options.accounts ? dataModelRequests(options.accounts) : []),
+		...(options.accounts ? fileRequests(options.accounts) : []),
+	];
+}
+
+/**
+ * Feature 007 (contracts/parity.md §2): reads of /files and /assets as the admin, a user without permissions and the
+ * public, OPTIONS, and writes refused before any row or object is written (no permission, Joi, an empty multipart).
+ */
+function fileRequests(accounts: RequestSetAccounts): ParityRequest[] {
+	const admin = { authorization: `Bearer ${accounts.adminJwt}` };
+	const user = { authorization: `Bearer ${accounts.userToken}` };
+	const missing = '00000000-0000-4000-8000-0000000f17e5';
+
+	return [
+		...[admin, user, {}].flatMap((headers) => [
+			{ path: '/files?limit=2&meta=*', headers },
+			{ method: 'SEARCH', path: '/files', headers, body: { query: { limit: 1, fields: ['id'] } } },
+			{ path: `/files/${missing}`, headers },
+			{ path: `/assets/${missing}`, headers },
+			{ path: `/assets/${missing}?width=10`, headers },
+			{ path: '/assets/not-a-uuid', headers },
+		]),
+		...['/files', '/files/import', `/files/${missing}`, `/assets/${missing}`, '/assets/files'].map((path) => ({
+			method: 'OPTIONS',
+			path,
+		})),
+		{ method: 'POST', path: '/files', headers: user, body: { type: 'text/plain', storage: 'local' } },
+		{ method: 'POST', path: '/files/import', headers: admin, body: { data: {} } },
+		{ method: 'POST', path: '/files/import', headers: user, body: { url: 'http://files-fixtures/photo.jpg' } },
+		{ method: 'PATCH', path: `/files/${missing}`, headers: user, body: { title: 'x' } },
+		{ method: 'DELETE', path: `/files/${missing}`, headers: user },
+		{ method: 'POST', path: '/assets/files', headers: admin, body: { ids: ['x'] } },
+		{ path: `/assets/${missing}?transforms=nope`, headers: admin },
 	];
 }
 

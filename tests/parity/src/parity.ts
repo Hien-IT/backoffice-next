@@ -1,5 +1,6 @@
 // Sends the same request to Directus and to Backoffice, then compares status, the FR-104 header set and
 // the body under FR-103..FR-105 (the blackbox helpers of directus/tests/blackbox, rewritten for two servers).
+import { createHash } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
 import type { AcceptedDifference, Matcher } from '../accepted-differences.js';
@@ -9,7 +10,8 @@ export interface ParityRequest {
 	method?: string;
 	path: string;
 	headers?: Record<string, string>;
-	body?: string | Record<string, unknown> | unknown[];
+	/** A Buffer is sent as is (feature 007: multipart bodies); set its content-type in `headers`. */
+	body?: string | Buffer | Record<string, unknown> | unknown[];
 	/** Give up after this many ms; no answer is captured as status 0 (compared like any status). */
 	timeoutMs?: number;
 	/** Applied to both responses before the comparison, for values only this request knows how to compare. */
@@ -22,6 +24,20 @@ export interface Captured {
 	text: string;
 	json: unknown;
 	isJson: boolean;
+	/** Raw body (feature 007): binary responses (images, zip) are compared by their bytes. */
+	bytes?: Buffer;
+}
+
+/** Feature 007: a body that is not text (image, zip, PDF, octet-stream) is compared by sha256, not decoded. */
+export function isBinary(captured: Pick<Captured, 'headers'>): boolean {
+	const type = captured.headers['content-type'] ?? '';
+	return type !== '' && !/^text\/|json|xml|javascript|x-www-form-urlencoded/i.test(type);
+}
+
+/** `sha256:<hex> (<n> bytes)` of the raw body. */
+export function bodyDigest(captured: Captured): string {
+	const bytes = captured.bytes ?? Buffer.from(captured.text, 'utf8');
+	return `sha256:${createHash('sha256').update(bytes).digest('hex')} (${bytes.length} bytes)`;
 }
 
 export interface Difference {
@@ -66,6 +82,9 @@ export const COMPARED_HEADERS = [
 	'content-disposition',
 	// Feature 005 (research R4): CACHE_STATUS_HEADER of the env files, HIT or MISS at both apps.
 	'x-cache-status',
+	// Feature 007 (contracts/assets.md §1): ranges of /assets.
+	'accept-ranges',
+	'content-range',
 ];
 
 const NO_ETAG = [/^\/server\/specs\/oas$/i, /^\/metrics$/i];
@@ -87,9 +106,12 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 	) {
 		headers['cache-control'] = 'no-store';
 	}
-	let body: string | undefined;
+	let body: string | Buffer | undefined;
 
-	if (req.body !== undefined) {
+	if (Buffer.isBuffer(req.body)) {
+		body = req.body;
+		headers['content-length'] = String(body.length);
+	} else if (req.body !== undefined) {
 		body = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 		headers['content-type'] ??= 'application/json';
 		headers['content-length'] = String(Buffer.byteLength(body));
@@ -105,7 +127,8 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 			res.on('error', reject);
 
 			res.on('end', () => {
-				const text = Buffer.concat(chunks).toString('utf8');
+				const bytes = Buffer.concat(chunks);
+				const text = bytes.toString('utf8');
 				const out: Record<string, string> = {};
 
 				for (const [name, value] of Object.entries(res.headers)) {
@@ -126,7 +149,7 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 					}
 				}
 
-				resolve({ status: res.statusCode ?? 0, headers: out, text, json, isJson });
+				resolve({ status: res.statusCode ?? 0, headers: out, text, json, isJson, bytes });
 			});
 		});
 
@@ -179,6 +202,10 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 
 	if (directus.isJson && backoffice.isJson) {
 		diffJson(normalizeBody(path, directus.json), normalizeBody(path, backoffice.json), '', differences);
+	} else if (isBinary(directus) || isBinary(backoffice)) {
+		const a = bodyDigest(directus);
+		const b = bodyDigest(backoffice);
+		if (a !== b) differences.push({ kind: 'body', location: '', directus: a, backoffice: b });
 	} else if (normalizeText(directus.text) !== normalizeText(backoffice.text)) {
 		differences.push({ kind: 'body', location: '', directus: directus.text, backoffice: backoffice.text });
 	}

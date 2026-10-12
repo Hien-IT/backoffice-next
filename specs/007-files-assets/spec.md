@@ -362,7 +362,7 @@ MinIO.
 - **FR-011**: `uploadOne` PHẢI làm như Directus: location mặc định là location đầu của `STORAGE_LOCATIONS`; folder mặc
   định `storage_default_folder`; tạo dòng trước; `filename_disk = <id><đuôi>` với đuôi = `extname(filename_download)`,
   không có thì `'.' + mime.extension(type)`, không có `type` thì rỗng (mime không ánh xạ được đuôi cho ra `<id>.false`
-  theo cách viết của Directus: tái tạo, đo ở task); ghi object; `filesize` theo storage; trích metadata; `uploaded_on`;
+  theo cách viết của Directus: tái tạo, đo T020 trên Directus 11.17.4); ghi object; `filesize` theo storage; trích metadata; `uploaded_on`;
   dọn khi lỗi (`cleanUp` chỉ dọn file hiện tại; dọn thất bại vì thiếu quyền xóa chỉ ghi log).
 - **FR-012**: Thay file (`PATCH /files/:id` multipart, import có `id`, TUS với `replace_id`) PHẢI xóa mọi object theo
   tiền tố id (file gốc cũ và file phát sinh) rồi đưa file mới vào `filename_disk`, theo đúng thứ tự bước của Directus

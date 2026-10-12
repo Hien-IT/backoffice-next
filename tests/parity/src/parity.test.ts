@@ -2,7 +2,17 @@ import http from 'node:http';
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import type { AcceptedDifference } from '../accepted-differences.js';
-import { assertParity, capture, compare, diffJson, matches, parity, report, type Difference } from './parity.js';
+import {
+	assertParity,
+	capture,
+	compare,
+	diffJson,
+	isBinary,
+	matches,
+	parity,
+	report,
+	type Difference,
+} from './parity.js';
 
 type Handler = (req: http.IncomingMessage, res: http.ServerResponse) => void;
 
@@ -143,6 +153,22 @@ describe('compare()', () => {
 		expect(compare('GET /x', a, { ...b, headers: { 'retry-after': '3' } })).toEqual([
 			{ kind: 'header', location: 'access-control-allow-origin', directus: '*', backoffice: undefined },
 		]);
+	});
+
+	test('feature 007: binary bodies compare by bytes, not by their UTF-8 text', () => {
+		const headers = { 'content-type': 'image/jpeg' };
+		const a = { ...base, headers, bytes: Buffer.from([0xff, 0xd8, 0xfe]) };
+		const b = { ...base, headers, bytes: Buffer.from([0xff, 0xd8, 0xfd]) };
+
+		// Both decode to the same replacement characters.
+		expect(a.bytes.toString('utf8')).toBe(b.bytes.toString('utf8'));
+		expect(compare('GET /assets/x', a, { ...a })).toEqual([]);
+		expect(compare('GET /assets/x', a, b)).toEqual([
+			expect.objectContaining({ kind: 'body', directus: expect.stringMatching(/^sha256:[0-9a-f]{64} \(3 bytes\)$/) }),
+		]);
+		expect(isBinary({ headers: { 'content-type': 'application/json; charset=utf-8' } })).toBe(false);
+		expect(isBinary({ headers: { 'content-type': 'application/zip' } })).toBe(true);
+		expect(isBinary({ headers: {} })).toBe(false);
 	});
 
 	test('ignores headers outside FR-104 (date, content-length)', () => {

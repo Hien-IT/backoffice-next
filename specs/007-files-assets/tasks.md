@@ -209,7 +209,7 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] `tests/parity/src/files/files.test.ts` phần tải lên và xóa (`describe.each(getStorages())`,
+- [X] T020 [P] [US1] `tests/parity/src/files/files.test.ts` phần tải lên và xóa (`describe.each(getStorages())`,
   `scenario()` của 004): multipart một file với `storage`, `title`, `description` trước file; field sau file không áp;
   ép kiểu `"null"`, `"true"`, `"false"`; nhiều file; `title` từ tên file; đọc lại `Forbidden` → `204`; JSON `POST` có và
   thiếu `type`, thiếu `storage`; không file, file không tên; mime bị chặn trên cặp `assets-limit`
@@ -222,36 +222,36 @@ FR-010 đến FR-015, FR-030 đến FR-033, SC-002, SC-003).
   `a/b.jpg`); quyền đọc một phần, `403`; `OPTIONS`, `HEAD`, `SEARCH`; đo `filename_download` không đuôi với mime lạ (`<id>.false`,
   ghi vào spec FR-011); số dòng `directus_activity`, `directus_revisions` theo bảng FR-003. Bằng chứng R-13, R-15 ghi
   vào spec.
-- [ ] T021 [P] [US1] `tests/parity/src/files/assets.test.ts` phần phục vụ file gốc: `GET /assets/:id` inline, `?download`,
+- [X] T021 [P] [US1] `tests/parity/src/files/assets.test.ts` phần phục vụ file gốc: `GET /assets/:id` inline, `?download`,
   `?download=false`, `/:id/:filename`, `Range` hợp lệ (`206`, suffix), `416` bốn kiểu, `HEAD`, header theo FR-031 (ca
   `Cache-Control` gửi không kèm `no-store`; `public` với token public, `private` với user), id không uuid `403`, object
   mất trên storage `403`, file công khai (`project_logo` trong `directus_settings`) với role public không có quyền; trên
   cặp `assets-limit`: `If-None-Match`, `If-Modified-Since` → `304`, ETag đổi sau thay file. Normalizer `ETag`,
   `Last-Modified` theo FR-080.
-- [ ] T022 [P] [US1] `tests/parity/src/files/cross-use.test.ts` phần multipart và JSON: tải ở A (mỗi driver), đọc dòng và
+- [X] T022 [P] [US1] `tests/parity/src/files/cross-use.test.ts` phần multipart và JSON: tải ở A (mỗi driver), đọc dòng và
   tải qua `/assets` ở B so từng byte, thay ở B, xóa ở B, A trả `403`; cả hai chiều (SC-003).
-- [ ] T023 [P] [US1] `apps/api/src/controllers/files.controller.test.ts` (supertest qua app Nest, mẫu
+- [X] T023 [P] [US1] `apps/api/src/controllers/files.controller.test.ts` (supertest qua app Nest, mẫu
   `collections.controller.test.ts` của 006): `multipartHandler` (field trước/sau file, reset payload, ép kiểu, `413` khi
   `truncated`, không file `400`, file không tên `400`, mime bị chặn `400`), JSON `createOne`, `readMany` khi nhiều key,
   `Forbidden` khi đọc lại → `204`, `validateBatch` cho `GET`/`PATCH`/`DELETE` hàng loạt, `PATCH /:pk` multipart gọi
   `uploadOne(stream, payload, pk)` rồi `updateOne(pk, {})`, `POST /import` Joi.
-- [ ] T024 [P] [US1] `apps/api/src/controllers/assets.controller.test.ts` phần không transform: `useCollection`, chuỗi
+- [X] T024 [P] [US1] `apps/api/src/controllers/assets.controller.test.ts` phần không transform: `useCollection`, chuỗi
   kiểm query với query rỗng, CSP header theo `ASSETS_CONTENT_SECURITY_POLICY_*`, `Vary`, `Range` parse, `HEAD` 200 không
   body, `Content-Disposition` inline/attachment, revalidate `304`, lỗi stream `500` JSON, route `:pk{/:filename}` và
   `OPTIONS`.
 
 ### Implementation for User Story 1
 
-- [ ] T025 [US1] Port `apps/api/src/controllers/files.controller.ts` từ `directus/api/src/controllers/files.ts`:
+- [X] T025 [US1] Port `apps/api/src/controllers/files.controller.ts` từ `directus/api/src/controllers/files.ts`:
   `multipartHandler` giữ nguyên làm `RequestHandler` chạy qua `runMiddleware`; mọi route theo contracts/files-api.md
   §1 (kể cả `POST /import`, `SEARCH`); `res.locals['payload']` rồi `respond`; đăng ký trong `app.module.ts` với
   `useCollection('directus_files')` (thứ tự: sau `AssetsController`, chừa chỗ `TusController` của US4). Test T023 xanh.
   Ghi manifest. (sau T017)
-- [ ] T026 [US1] Port `apps/api/src/controllers/assets.controller.ts` từ `directus/api/src/controllers/assets.ts`:
+- [X] T026 [US1] Port `apps/api/src/controllers/assets.controller.ts` từ `directus/api/src/controllers/assets.ts`:
   `GET :pk{/:filename}` ba bước (kiểm query với settings, `helmet.contentSecurityPolicy`, phục vụ), `POST folder/:pk`,
   `POST files` (zod), `HEAD`; đăng ký đầu tiên trong `app.module.ts` với `useCollection('directus_files')`. Test T024
   xanh. Ghi manifest. (sau T017)
-- [ ] T027 [US1] `tests/parity/src/normalizers.ts` thêm chuẩn hóa `ETag`, `Last-Modified` theo `modified_on` của dòng từng
+- [X] T027 [US1] `tests/parity/src/normalizers.ts` thêm chuẩn hóa `ETag`, `Last-Modified` theo `modified_on` của dòng từng
   app và tên zip `-<datetime>`; `tests/parity/src/parity.ts` `COMPARED_HEADERS` thêm `Content-Disposition`,
   `Accept-Ranges`, `Content-Range`, `Vary`, `Content-Security-Policy`, `Cache-Control` (khi ca yêu cầu); so body nhị phân
   bằng sha256; `tests/parity/src/request-set.ts` thêm `GET /files`, `GET /files/:id`, `GET /assets/:id` cho
@@ -622,5 +622,13 @@ Task: "storage-capture.ts (T019)"
   (`apps/api/test/data-model-app.ts`, JWT ký bằng secret test) sửa bằng `nosemgrep` có lý do, theo tiền lệ `sso.ts`.
 - T019: `storage-capture` dùng `@aws-sdk/client-s3` trực tiếp (thay `@backoffice/storage-driver-s3`): cần
   `ContentType` của object; `local` đọc qua `docker compose exec directus` (`find`, `sha256sum`, `stat`).
+- T020 đến T027: D-09.5 đang chấp nhận mọi khác biệt của `/files`, `/folders`, `/assets` nên `parity()` trên các route
+  đó không so gì; thu hẹp entry về các route chưa làm (`/folders`, `/files/tus`), entry vẫn còn tới khi spec Done
+  (guard). Kiểm bằng test tạm: chỉ D-01 được chấp nhận. Đo trên Directus 11.17.4 (T020): FR-003 multipart một file
+  1 activity `create` + 1 revision, thay file thêm 2 `update` + 2 revision; FR-011 `<id>.false` với mime lạ; R-13 xóa
+  `<prefix>.jpg` xóa luôn `<prefix>graphy.jpg` của file khác (ca `files.test.ts` "R-13"). Thứ tự `data` khi tải nhiều
+  file theo thứ tự upload xong, không xác định ở cả hai app: test sắp theo `filename_download`. `parity.ts` so body
+  nhị phân bằng sha256 và gửi body Buffer (multipart); `COMPARED_HEADERS` thêm `accept-ranges`, `content-range`.
+  T024 ghi nhận: admin của test không có role nên `Cache-Control: public` (getCacheControlHeader xét role).
 - T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
   để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`.
