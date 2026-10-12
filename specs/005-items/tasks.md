@@ -621,6 +621,10 @@ Task: "T033 redis-down.test.ts (ca CACHE_ENABLED=true)"
   thấy entry trong Redis thì lần nào cũng đọc lại Redis. Benchmark làm nóng Directus trước nên Directus giữ bản trong
   bộ nhớ, app mới đọc Redis 13 lần mỗi `POST` của user (admin bỏ qua phần lớn bước tra quyền). Đảo thứ tự thì Directus
   đọc Redis 13 lần. Sửa `items.ts`: xóa cache quyền trước mỗi vòng đo (`flushPermissions()` dùng chung với
-  `permissions.ts`, chuyển sang `tests/benchmark/src/redis.ts`), như benchmark quyền của 004.
+  `permissions.ts`, chuyển sang `tests/benchmark/src/redis.ts`), như benchmark quyền của 004. Chạy lại (39beb1d): bốn
+  job benchmark xanh; items 14/14, `POST` của user p95 Directus 406 ms, app mới 390 ms.
+- CI (9f37ab4, 4c8624b): bộ `full` Postgres chia hai shard vitest (`PARITY_SHARD`), `parity-blackbox` chia hai job theo
+  lượt app (`PARITY_BLACKBOX_APPS`); không chia theo kiểu khóa vì khối uuid và string của test Directus đọc cả collection
+  integer. Thời gian chờ một lần push từ 1.060 xuống 718 giây, thời gian runner gần như giữ nguyên (4.692 và 4.579 giây).
 - (ghi file đã sửa ở T037, thời gian lượt blackbox T021, key đo được T037, số liệu R-10 T044, seed và số liệu
   benchmark T048, kết quả T053 tại đây)
