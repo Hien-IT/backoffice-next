@@ -129,6 +129,26 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `Cache-Control: no-store` cho `GET`, `HEAD` khi request chưa đặt, nên bộ so sánh luôn đọc mới ở cả hai app và so
   header `x-cache-status`.
 
+### Test data model (feature 006)
+
+- `src/schema-management/`: `/collections`, `/fields`, `/relations`, `/schema` trên cặp chính (bộ `full`; `crud` cả ở
+  `reduced`). Đọc gửi tới hai app cùng lúc (`parity()`); ghi chạy nối tiếp trên cùng database với cùng tên
+  (`ddl-scenario.ts`): Directus chạy chuỗi request, `ddl-capture.ts` chụp cột, index, khóa ngoại và ba bảng metadata,
+  mô hình bị xóa qua Directus và database phải về đúng hình dạng cũ; rồi app mới chạy lại, chụp, xóa; hai bản chụp và
+  từng response phải bằng nhau (`meta.id` thay bằng nhãn, danh sách `/fields`, `/relations` sắp lại vì Directus đọc
+  không `ORDER BY`). `cleanupTables()` xóa lặp nhiều lượt vì bảng còn bị khóa ngoại trỏ tới thì `DROP TABLE` bị chặn.
+- `cross-use.test.ts` dựng mô hình đầy đủ của 002 (`schema/fixture.ts`, nay nhận app) ở app này rồi dùng ở app kia;
+  `sync-api.test.ts` (profile `multi`) đo thời gian app kia thấy thay đổi qua API (SC-005); `schema.test.ts` so snapshot
+  từng byte, diff, apply.
+- D-32: `DELETE /collections/<collection hệ thống>` không bao giờ gửi tới Directus (Directus xóa bảng của database dùng
+  chung); `crud.test.ts` chỉ kiểm `403` của app mới.
+- Blackbox: thêm `routes/collections`, `routes/fields`, `routes/schema`, `schema/timezone` và phần data model của
+  `common/common.test.ts`. Node tự spawn của bản gốc là các cặp profile `schema-cache`, `schema-cache-nomsg`, `tz-asia`,
+  `tz-america` (`env-up --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america`); shim `@common/config`
+  ánh xạ `env[vendor].URL`, `env[vendor].TZ` sang cặp đó, `nodeUrl(profile, 1|2)` là app của lượt và app kia.
+  `PARITY_BLACKBOX_SETUP_APP=backoffice` dựng seed qua app mới thay vì Directus (FR-064; lượt hằng tuần của
+  `blackbox-full`). Khẳng định đọc `tests_extensions_log` (extension test của Directus) bị bỏ; event kiểm ở `bus`.
+
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.
 

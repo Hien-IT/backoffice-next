@@ -735,7 +735,7 @@ xóa và app kia tính lại quyền ở request kế tiếp.
   nguyên bản các khẳng định `/users/me` của `ldap.test.ts`, `login.test.ts`, `refresh.test.ts` đã hoãn từ feature 003
   (FR-100 của 003). Phần `createCollection()`, `createField()`, `createFieldM2O()`, `createFieldO2M()`, `createItem()`,
   `deleteField()`, `deleteCollection()` của `common.test.ts` cần `/collections`, `/fields`, `/items` (D-09.3, D-09.4)
-  nên port ở feature 006. `cache-purge.test.ts` và `tests/db/app/cache.test.ts` cần response cache (D-11) nên port ở
+  nên port ở feature 006 (đã port: `tests/parity/src/items/blackbox/common/common.test.ts`, T051 của spec 006). `cache-purge.test.ts` và `tests/db/app/cache.test.ts` cần response cache (D-11) nên port ở
   feature 005.
 - **FR-101**: Bộ test PHẢI có ma trận quyền chạy với cả hai app trên cùng DB. Ma trận là **tích đầy đủ** của năm chiều
   sau (Clarifications); mỗi ô có một cấu hình fixture và một bộ request cố định theo action:
@@ -879,7 +879,7 @@ Khác biệt mới:
 - Fixture của test đối chiếu tạo dữ liệu bằng API của chính app được kiểm (fixture riêng cho mỗi app như feature 003)
   khi so luồng ghi; tạo bằng API của Directus khi chỉ so luồng đọc.
 - Collection người dùng (để thêm field quan hệ cho `directus_users` trong ma trận quyền) được tạo bằng API của Directus,
-  vì `/collections`, `/fields` thuộc feature 006.
+  vì `/collections`, `/fields` thuộc feature 006 (từ 006 app mới cũng tạo được; giữ Directus làm nơi dựng fixture).
 - Benchmark chạy trong workflow benchmark hằng tuần (không chặn CI, như quyết định 2026-10-11 của feature 003).
 - Không giới hạn độ sâu cây role, số policy mỗi user, số permission mỗi policy hay số dòng access: như Directus, các
   truy vấn quyền dùng `limit: -1`. Quy mô thiết kế được đo ở SC-006 (cây ba tầng, ít nhất ba policy mỗi user).

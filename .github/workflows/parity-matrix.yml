@@ -55,6 +55,10 @@ jobs:
       fail-fast: false
       matrix:
         vendor: [mysql, sqlite3]
+        # Feature 006 (FR-064): the model of the seeds made through Directus, then through the new app.
+        setup: [directus, backoffice]
+    env:
+      PARITY_BLACKBOX_SETUP_APP: ${{ matrix.setup }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -62,7 +66,9 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - run: pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }} --profiles=blackbox
+      - run:
+          pnpm nx run parity-tests:env-up --vendor=${{ matrix.vendor }}
+          --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america
       - run: pnpm nx run parity-tests:parity-blackbox --vendor=${{ matrix.vendor }} --output-style=static
       - name: container logs
         if: failure()
@@ -71,7 +77,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: blackbox-${{ matrix.vendor }}-logs
+          name: blackbox-${{ matrix.vendor }}-${{ matrix.setup }}-logs
           path: tests/parity/blackbox-${{ matrix.vendor }}.log
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=${{ matrix.vendor }}

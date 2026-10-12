@@ -659,7 +659,8 @@ Khác biệt mới:
 - Trong feature này không có listener nào ngoài cầu nối `websocket.event`, nên `emitFilter` trả payload nguyên và hành
   vi HTTP không đổi; FR-047 kiểm chứng.
 - Seed của bộ blackbox tạo collection, field, relation qua API của Directus vì `/collections`, `/fields`, `/relations`
-  thuộc 006 (như 004 đã làm với collection người dùng của ma trận quyền). Helper `ClearCaches` của blackbox gọi
+  thuộc 006 (như 004 đã làm với collection người dùng của ma trận quyền). Từ 006 chọn được app tạo seed bằng
+  `PARITY_BLACKBOX_SETUP_APP` (mặc định Directus; `blackbox-full` hằng tuần chạy thêm lượt `backoffice`, FR-064 của 006). Helper `ClearCaches` của blackbox gọi
   `/utils/cache/clear` (010): bộ đối chiếu xóa cache bằng cách xóa key trong Redis (`flushSharedCaches` của 004).
 - Blackbox của Directus chạy mỗi vendor hai instance (có và không cache, `TEST_NO_CACHE`); bộ đối chiếu dùng cặp app với
   cùng `CACHE_*` và cách so ở FR-043. Môi trường đối chiếu chính giữ `CACHE_ENABLED=true` như 003 và thêm

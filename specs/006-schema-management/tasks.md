@@ -172,16 +172,16 @@ MySQL, SQLite.
 
 ### Tests for User Story 1
 
-- [ ] T018 [P] [US1] `tests/parity/src/schema-management/ddl-capture.ts`: `captureModel(db, collections)` theo
+- [X] T018 [P] [US1] `tests/parity/src/schema-management/ddl-capture.ts`: `captureModel(db, collections)` theo
   contracts/parity.md §1 (`columnInfo`, `foreignKeys` của `@backoffice/schema`, index, ba bảng metadata bỏ `id`); tách
   truy vấn index theo vendor của `tests/parity/src/db-snapshot.ts` thành hàm dùng chung `indexesOf(db, table)`. Đo trên
   Postgres, MySQL, SQLite với một bảng mẫu có unique, index, FK tạo qua API Directus (`ddl-capture.test.ts`: tên,
   cột, `unique` đúng ở ba vendor); ghi kết quả vào "Ghi chú khi làm" (research R5, rủi ro).
-- [ ] T019 [P] [US1] `tests/parity/src/schema-management/ddl-scenario.ts`: `ddlScenario(name, steps, { collections })`
+- [X] T019 [P] [US1] `tests/parity/src/schema-management/ddl-scenario.ts`: `ddlScenario(name, steps, { collections })`
   chạy nối tiếp Directus → chụp → xóa qua Directus → so `snapshot(db)` với trước → app mới → chụp → xóa → so; so hai
   bản chụp và từng response bằng `parity()` (contracts/parity.md §1). `tests/parity/src/normalizers.ts` thêm normalizer
   `meta.id` của field, relation → `<id>`; `normalizers.test.ts` thêm ca.
-- [ ] T020 [P] [US1] `tests/parity/src/schema-management/crud.test.ts` (`scenario()` + `flow` của 004, collection
+- [X] T020 [P] [US1] `tests/parity/src/schema-management/crud.test.ts` (`scenario()` + `flow` của 004, collection
   `parity_sm_*`): US1.1 đến US1.8 phần HTTP; lỗi tên (`directus_`, `/`, rỗng, trùng), `fields` không phải mảng, kiểu lạ,
   alias ↔ không alias, khóa chính nullable, field hệ thống (`PATCH` key lạ → `400` message zod, `DELETE` → `403`),
   non-admin `403` và đọc theo quyền một phần (collection cha của group, `fields` của permission); `PATCH /fields/:c`
@@ -189,7 +189,7 @@ MySQL, SQLite.
   `PATCH /collections/directus_users` meta (R-11, dọn dòng sau ca); `DELETE /collections/directus_users` chỉ gọi ở app
   mới → `403` (D-32, `accepted-differences`); `SEARCH`, `OPTIONS`, `HEAD`, dấu `/` cuối; `GET /collections?limit=1` bỏ
   qua query nhưng `?limit=abc` → `400`.
-- [ ] T021 [US1] `tests/parity/src/schema-management/ddl.test.ts` (dùng T018, T019): ma trận FR-060 cho mỗi kiểu của
+- [X] T021 [US1] `tests/parity/src/schema-management/ddl.test.ts` (dùng T018, T019): ma trận FR-060 cho mỗi kiểu của
   `TYPES` (14 `KNEX_TYPES` kể cả `binary`, `hash`, `csv`, `geometry` và 6 kiểu con) × tùy chọn (`default_value` gồm
   `now()`, `CURRENT_TIMESTAMP`, `CURRENT_TIMESTAMP(3)`, `gen_random_uuid()` (lỗi `500` ở vendor không có hàm),
   `is_nullable`, `is_unique`, `is_indexed`, cả hai, `max_length` null và chuỗi, `numeric_precision/scale`), ba kiểu khóa
@@ -199,24 +199,24 @@ MySQL, SQLite.
   collection có preset, permission (`fields` CSV), activity, revision (có `parent`), relation, `item_duplication_fields`,
   group con, share, version; tên có khoảng trắng và chữ hoa (Edge Cases); tên dài 70 ký tự (`500`). Mỗi ca kiểm DB về
   bằng snapshot trước.
-- [ ] T022 [P] [US1] `apps/api/src/controllers/collections.controller.test.ts` (supertest qua app Nest như
+- [X] T022 [P] [US1] `apps/api/src/controllers/collections.controller.test.ts` (supertest qua app Nest như
   `items.controller.test.ts`, service mock): thứ tự route, `validateBatch` cho `GET`/`SEARCH`, body mảng cho `PATCH /`,
   `concurrentIndexCreation`, `204` khi đọc lại `Forbidden`, `DELETE` → `204`, `meta` từ `MetaService`.
-- [ ] T023 [P] [US1] `apps/api/src/controllers/fields.controller.test.ts`: `validateCollection` trước Joi (`403` collection
+- [X] T023 [P] [US1] `apps/api/src/controllers/fields.controller.test.ts`: `validateCollection` trước Joi (`403` collection
   lạ), Joi `newFieldSchema`, `updateSchema`, zod cho field hệ thống (message), body mảng, `field` mặc định theo URL,
   `DELETE` field hệ thống `403`, `204` khi `Forbidden`, `concurrentIndexCreation`.
 
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] `apps/api/src/controllers/collections.controller.ts` port từ `directus/api/src/controllers/collections.ts`
+- [X] T024 [US1] `apps/api/src/controllers/collections.controller.ts` port từ `directus/api/src/controllers/collections.ts`
   (Nest, `ServiceFactory<CollectionsService>`, `MetaService`, `runMiddleware(validateBatch('read'))`, `respond(req, res)`;
   không `useCollection`); đăng ký trong `apps/api/src/app.module.ts`. T022 xanh. Ghi manifest. (sau T016)
-- [ ] T025 [US1] `apps/api/src/controllers/fields.controller.ts` port từ `directus/api/src/controllers/fields.ts`
+- [X] T025 [US1] `apps/api/src/controllers/fields.controller.ts` port từ `directus/api/src/controllers/fields.ts`
   (`runMiddleware(collectionExists)` làm `validateCollection` ở các route có `:collection`, Joi `newFieldSchema`,
   `updateSchema` giữ nguyên, `systemFieldUpdateSchema` từ service, `isSystemField` của `@backoffice/system-data`);
   `app.module.ts` thêm `useCollection('directus_fields')` cho controller này. T023 xanh. Ghi manifest. (sau T016)
-- [ ] T026 [P] [US1] `tests/parity/src/request-set.ts` thêm `GET /collections`, `GET /fields` (ba biến thể token) cho
+- [X] T026 [P] [US1] `tests/parity/src/request-set.ts` thêm `GET /collections`, `GET /fields` (ba biến thể token) cho
   `db-unchanged`, `readonly-account`; `GET /relations`, `GET /schema/snapshot` thêm ở T030, T037 (route chưa có thì
   `404` làm `db-unchanged` đỏ). `tests/parity/accepted-differences.ts` thêm entry `D-32` (`DELETE /collections/directus_*`,
   app mới `403`, không `removeAt`); `accepted-differences.test.ts` và `spec-differences.ts` nhận D-32 từ bảng của spec 006.
@@ -237,7 +237,7 @@ FR-032).
 
 ### Tests for User Story 2
 
-- [ ] T028 [P] [US2] `tests/parity/src/schema-management/relations.test.ts` (`ddlScenario`): m2o với mỗi `on_delete`
+- [X] T028 [P] [US2] `tests/parity/src/schema-management/relations.test.ts` (`ddlScenario`): m2o với mỗi `on_delete`
   (NO ACTION, SET NULL, SET DEFAULT, CASCADE, RESTRICT) và `on_update`; o2m (`one_field`); m2m qua junction như
   `CreateFieldM2M` của blackbox; m2a (`one_allowed_collections`, `one_collection_field`, không FK); translations
   (o2m tới junction có m2o `languages`); files (m2o tới `directus_files`); presentation (`special: no-data`), group và
@@ -246,13 +246,13 @@ FR-032).
   `PATCH` đổi `on_delete` (FK tạo lại, tên `constraintName`), `PATCH` m2a chỉ meta; `DELETE` relation (FK mất, meta mất,
   không activity); xóa field m2o (relation và o2m đối diện mất), xóa field o2m (`one_field = null`); `GET /relations`
   với non-admin theo `filterForbidden`; `OPTIONS`, `HEAD`. Mỗi ca kiểm DB về bằng snapshot trước.
-- [ ] T029 [P] [US2] `apps/api/src/controllers/relations.controller.test.ts`: Joi `newRelationSchema` (`collection`,
+- [X] T029 [P] [US2] `apps/api/src/controllers/relations.controller.test.ts`: Joi `newRelationSchema` (`collection`,
   `field` bắt buộc; `on_delete` ngoài danh sách → `400`), `updateRelationSchema`, `204` khi `Forbidden`, `DELETE` →
   `204`, thứ tự route.
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] `apps/api/src/controllers/relations.controller.ts` port từ `directus/api/src/controllers/relations.ts`;
+- [X] T030 [US2] `apps/api/src/controllers/relations.controller.ts` port từ `directus/api/src/controllers/relations.ts`;
   `app.module.ts` thêm `useCollection('directus_relations')`; `tests/parity/src/request-set.ts` thêm `GET /relations`
   (ba biến thể token). T029 xanh. Ghi manifest. (sau T016)
 - [ ] T031 [US2] Chạy `parity --vendor=postgres` `full`, `mysql`, `sqlite3` `reduced` (thêm `relations.test.ts` vào
@@ -271,29 +271,29 @@ FR-032).
 
 ### Tests and ports for User Story 4
 
-- [ ] T032 [P] [US4] Port `apps/api/src/utils/get-versioned-hash.ts`, `validate-snapshot.ts`, `validate-diff.ts` và ba
+- [X] T032 [P] [US4] Port `apps/api/src/utils/get-versioned-hash.ts`, `validate-snapshot.ts`, `validate-diff.ts` và ba
   test gốc từ `directus/api/src/utils/` (`version` của `directus/version` → `DIRECTUS_COMPAT_VERSION`, ghi
   `// Backoffice:`; `TYPES` từ `@backoffice/constants`, `DatabaseClients` từ `@backoffice/types`, `ALIAS_TYPES` từ
   `../constants.js`). Test gốc xanh với `'11.17.4'`. Ghi manifest.
-- [ ] T033 [P] [US4] Port `apps/api/src/utils/get-snapshot.ts` (+ test 452 dòng; `version` → `DIRECTUS_COMPAT_VERSION`,
+- [X] T033 [P] [US4] Port `apps/api/src/utils/get-snapshot.ts` (+ test 452 dòng; `version` → `DIRECTUS_COMPAT_VERSION`,
   `getSchema` từ `../schema/get-database-schema.js`) và `get-snapshot-diff.ts` (+ test 877 dòng) từ
   `directus/api/src/utils/`. Ghi manifest.
-- [ ] T034 [US4] Port `apps/api/src/utils/apply-diff.ts` và `apply-diff.test.ts` (849 dòng; dùng `__utils__/schemas.ts`
+- [X] T034 [US4] Port `apps/api/src/utils/apply-diff.ts` và `apply-diff.test.ts` (849 dòng; dùng `__utils__/schemas.ts`
   của T005) từ `directus/api/src/utils/` (`flushCaches` của T004, `getHelpers`, ba service, `transaction`, `getSchema`,
   `useLogger`). Không port `apply-snapshot.ts` (research R4). Ghi manifest. (sau T032, T033)
-- [ ] T035 [US4] Port `apps/api/src/services/schema.service.ts` và `schema.service.test.ts` từ
+- [X] T035 [US4] Port `apps/api/src/services/schema.service.ts` và `schema.service.test.ts` từ
   `directus/api/src/services/schema.{ts,test.ts}`; `providers.ts` thêm factory `SchemaService`; `services/index.ts`.
   Ghi manifest. (sau T034)
-- [ ] T036 [P] [US4] `apps/api/src/controllers/schema.controller.test.ts` (supertest): `GET /snapshot` admin và non-admin
+- [X] T036 [P] [US4] `apps/api/src/controllers/schema.controller.test.ts` (supertest): `GET /snapshot` admin và non-admin
   (`403`); `POST /diff` và `/apply` với JSON (rỗng → `400` "No data was included in the body"), content type khác →
   `415`, multipart một file JSON (mimetype `application/json`) và YAML (mimetype khác), hai file → `400`, không file →
   `400`, YAML hỏng → `400`; `force`: `/diff?force=false` bật, `/apply?force=false` tắt; `204` khi diff rỗng và sau apply.
-- [ ] T037 [US4] `apps/api/src/controllers/schema.controller.ts` port từ `directus/api/src/controllers/schema.ts`
+- [X] T037 [US4] `apps/api/src/controllers/schema.controller.ts` port từ `directus/api/src/controllers/schema.ts`
   (`schemaMultipartHandler` nguyên vẹn, chạy qua `runMiddleware`; busboy đọc `req` thô vì app Nest `bodyParser: false`;
   `readableStreamToString` từ `@backoffice/utils/node`; `js-yaml` `load`; `parseJSON`, `toBoolean` của
   `@backoffice/utils`); `app.module.ts` đăng ký (không `useCollection`); `tests/parity/src/request-set.ts` thêm
   `GET /schema/snapshot` (ba biến thể token). T036 xanh. Ghi manifest. (sau T035)
-- [ ] T038 [US4] `tests/parity/src/schema-management/schema.test.ts` (parity, cặp chính, gửi `Cache-Control: no-store`):
+- [X] T038 [US4] `tests/parity/src/schema-management/schema.test.ts` (parity, cặp chính, gửi `Cache-Control: no-store`):
   trên mô hình của `schema/fixture.ts` (002): `GET /schema/snapshot` JSON trùng từng byte hai app, `?export=yaml` nội
   dung sau parse bằng JSON và đo byte (ghi kết quả; lệch thì ghi khác biệt và hỏi chủ dự án); `POST /schema/diff` với
   snapshot của app kia → `204`; sửa mô hình ở một app rồi `diff` ở cả hai → cùng `{hash, diff}`; `apply` ở app kia →
@@ -318,28 +318,28 @@ Playwright `data-model.spec.ts`.
 
 ### Tests for User Story 3
 
-- [ ] T039 [US3] `tests/parity/src/schema/fixture.ts` (002): `createFixture(vendor, app = 'directus')` dùng
+- [X] T039 [US3] `tests/parity/src/schema/fixture.ts` (002): `createFixture(vendor, app = 'directus')` dùng
   `appRequest(app, ...)`; thêm folder (`parity_overview_folder` với `parity_overview_types` đặt `meta.group`), m2a
   (`parity_overview_blocks` + junction `one_allowed_collections`), presentation (divider), group (`detail-group` có
   field con), geometry (`geometry.Point`), `archive_field`, `archive_value`, `unarchive_value`, `sort_field` cho
   `parity_overview_types`; `dropFixture` dọn theo thứ tự ngược. Test của 002 (`overview.test.ts`, `sync.test.ts`) vẫn
   xanh với mặc định `directus`.
-- [ ] T040 [P] [US3] `tests/parity/src/schema-management/cross-use.test.ts`: mỗi chiều (A → B): `createFixture(vendor, A)`;
+- [X] T040 [P] [US3] `tests/parity/src/schema-management/cross-use.test.ts`: mỗi chiều (A → B): `createFixture(vendor, A)`;
   `GET /schema/snapshot` hai app (`no-store`) bằng nhau; `POST /schema/diff` ở B → `204`; CRUD item lồng qua `/items`
   của B (m2m, translations, m2a; `files` chỉ đọc relation vì `/files` thuộc 007); xóa field archive và sort ở B →
   `directus_collections.archive_field`, `sort_field` về `null` (US3.5); xóa mô hình ở B; `snapshot(db)` bằng trước.
   Chạy cả hai chiều (`directus → backoffice`, `backoffice → directus`). (sau T039)
-- [ ] T041 [P] [US3] `tests/parity/src/schema-management/sync-api.test.ts` (`describe.runIf(BACKOFFICE_URL_2)`, mẫu
+- [X] T041 [P] [US3] `tests/parity/src/schema-management/sync-api.test.ts` (`describe.runIf(BACKOFFICE_URL_2)`, mẫu
   `backofficeFollows` của `schema/sync.test.ts` nhưng ngược chiều): thêm field, đổi kiểu, xóa field, tạo collection và
   relation, xóa, `POST /schema/apply` ở app mới → `oasComponent` của Directus và Backoffice-2 thấy trong 1 giây, in
   `[SC-005]`; ca response cache: `GET /fields/<c>` ở Directus không header hai lần (`x-cache-status` `MISS` rồi `HIT`),
   `PATCH /fields/<c>/<f>` ở app mới, `GET` kế tiếp ở Directus `MISS` với dữ liệu mới (cặp chính
   `CACHE_AUTO_PURGE=true`). Sửa comment `tests/parity/src/schema/clear-system-cache.ts` (006 đã có route).
-- [ ] T042 [P] [US3] `tests/parity/src/items/bus.test.ts` (005) thêm chuỗi thao tác `POST /collections`,
+- [X] T042 [P] [US3] `tests/parity/src/items/bus.test.ts` (005) thêm chuỗi thao tác `POST /collections`,
   `POST /fields/:c`, `PATCH /fields/:c/:f`, `POST /relations`, `PATCH /relations/:c/:f`, `DELETE /relations/:c/:f`,
   `DELETE /fields/:c/:f`, `DELETE /collections/:c` ở cặp `websocket`, so chuỗi thông điệp `websocket.event` hai app
   (`collections.*`, `fields.*`, `relations.*`; FR-051); ở cặp chính kiểm 0 thông điệp.
-- [ ] T043 [P] [US3] `tests/directus-app-e2e/src/data-model.spec.ts` (`bothRuns`, contracts/parity.md §5): Data Model
+- [X] T043 [P] [US3] `tests/directus-app-e2e/src/data-model.spec.ts` (`bothRuns`, contracts/parity.md §5): Data Model
   tạo collection, field string, dropdown, m2o tới `directus_users`, translations qua wizard, group, divider, kéo thả
   thứ tự field (`PATCH /fields/:c` mảng), xóa field, xóa collection; Content tạo item có bản dịch; cài đặt
   `archive_field` rồi lọc archive; so `changesSince` và so `GET /schema/snapshot` trực tiếp Directus (8155) với qua
@@ -359,31 +359,31 @@ Playwright `data-model.spec.ts`.
 **Independent Test**: `parity-blackbox --vendor=postgres` hai lượt với 5 profile; `reduced` + blackbox `integer` ở MySQL,
 SQLite.
 
-- [ ] T045 [US5] Shim `tests/parity/src/items/blackbox/common/config.ts`: `getUrl(vendor, overrideEnv)` nhận
+- [X] T045 [US5] Shim `tests/parity/src/items/blackbox/common/config.ts`: `getUrl(vendor, overrideEnv)` nhận
   `overrideEnv[vendor].URL` → trả nó; `overrideEnv[vendor].TZ` → URL app đang thử của cặp `tz-asia` (`Asia/Seoul`) hoặc
   `tz-america` (`America/Sao_Paulo`), giá trị khác → ném lỗi nêu hai giá trị cho phép; thêm `nodeUrl(profile, n)` (`n = 1`
   app đang thử, `n = 2` app kia); `getSetupUrl()` đọc `PARITY_BLACKBOX_SETUP_APP` (`directus` mặc định, `backoffice`);
   `functions.ts`: `DisableTestCachingSetup` giữ nguyên, comment ghi `TEST_NO_CACHE` bị bỏ qua (research R7). Test
   `config.test.ts` cho ánh xạ (vitest unit trong `tests/parity`).
-- [ ] T046 [P] [US5] Port `tests/parity/src/items/blackbox/tests/db/routes/collections/crud.test.ts` từ
+- [X] T046 [P] [US5] Port `tests/parity/src/items/blackbox/tests/db/routes/collections/crud.test.ts` từ
   `directus/tests/blackbox/tests/db/routes/collections/crud.test.ts`: bỏ các khẳng định `tests_extensions_log` ("Verify
   ... action hook run", `// Backoffice: extension test, D-17`); GraphQL giữ (về Directus qua shim). Ghi manifest.
   (sau T045)
-- [ ] T047 [P] [US5] Port `routes/collections/schema-cache.test.ts`: thay `spawn`, `env1`, `env2` bằng
+- [X] T047 [P] [US5] Port `routes/collections/schema-cache.test.ts`: thay `spawn`, `env1`, `env2` bằng
   `{ [vendor]: { URL: nodeUrl('schema-cache', 1) } }`, `nodeUrl('schema-cache', 2)` và `schema-cache-nomsg` cho khối
   không messenger; `describe.skipIf` khi vắng `DIRECTUS_URL_SCHEMA_CACHE`; giữ khẳng định gốc. Ghi manifest. (sau T045)
-- [ ] T048 [P] [US5] Port `routes/fields/crud.{test,seed}.ts` (bỏ khẳng định `tests_extensions_log` và `sleep(1000)`) và
+- [X] T048 [P] [US5] Port `routes/fields/crud.{test,seed}.ts` (bỏ khẳng định `tests_extensions_log` và `sleep(1000)`) và
   `routes/fields/change-fields.{test,seed}.ts` (nguyên). Ghi manifest. (sau T045)
-- [ ] T049 [P] [US5] Port `routes/schema/schema.{test,seed}.ts`: `version` của `api/package.json` → hằng `'35.2.0'` với
+- [X] T049 [P] [US5] Port `routes/schema/schema.{test,seed}.ts`: `version` của `api/package.json` → hằng `'35.2.0'` với
   `// Backoffice:` (chỉ dùng ở ca `403`), type `Snapshot` từ `@backoffice/types`; `.attach('file')` multipart giữ. Ghi
   manifest. (sau T045)
-- [ ] T050 [P] [US5] Port `schema/timezone/timezone.{test,seed}.ts`, `timezone-changed-node-tz-asia.{test,seed}.ts`,
+- [X] T050 [P] [US5] Port `schema/timezone/timezone.{test,seed}.ts`, `timezone-changed-node-tz-asia.{test,seed}.ts`,
   `timezone-changed-node-tz-america.{test,seed}.ts`: `getUrl(vendor, env)` giữ nguyên (shim ánh xạ `TZ`);
   `describe.skipIf` khi vắng `DIRECTUS_URL_TZ_ASIA`/`_TZ_AMERICA`. Ghi manifest. (sau T045)
-- [ ] T051 [P] [US5] `tests/parity/src/permissions/blackbox-common.test.ts` (004) thêm phần `createCollection()`,
+- [X] T051 [P] [US5] `tests/parity/src/permissions/blackbox-common.test.ts` (004) thêm phần `createCollection()`,
   `createField()`, `createFieldM2O()`, `createFieldO2M()`, `deleteField()` (bốn ca), `deleteCollection()` của
   `directus/tests/blackbox/common/common.test.ts` chạy với fixture riêng theo app (sửa comment "thuộc 006").
-- [ ] T052 [US5] `tests/parity/src/items/blackbox/00-seed.test.ts`: gọi `seedDBStructure()` của các seed mới; xóa
+- [X] T052 [US5] `tests/parity/src/items/blackbox/00-seed.test.ts`: gọi `seedDBStructure()` của các seed mới; xóa
   collection của 006 (`test_*` của từng seed) ở đầu mỗi lượt; `sequencer.ts` nếu cần thứ tự (schema seed trước test).
   (sau T046 đến T050)
 - [ ] T053 [US5] CI: `.github/workflows/ci.yml` job `parity-blackbox` `env-up --profiles=blackbox,schema-cache,
@@ -406,10 +406,10 @@ xanh với `PARITY_BLACKBOX_SETUP_APP=backoffice`.
   `tests/benchmark/project.json`, job `benchmark-schema` trong `.github/workflows/benchmark.yml` (hằng tuần, bấm tay).
   Chạy một lần, ghi kết quả và thời gian seed vào "Ghi chú khi làm"; quá 15 phút thì giảm quy mô và ghi vào Assumptions
   của spec.
-- [ ] T055 [P] `tests/parity/README.md` thêm mục "Test data model (006)" (suite, profile, cờ `PARITY_BLACKBOX_SETUP_APP`,
+- [X] T055 [P] `tests/parity/README.md` thêm mục "Test data model (006)" (suite, profile, cờ `PARITY_BLACKBOX_SETUP_APP`,
   cách chạy DDL nối tiếp); comment `getSetupUrl` của shim và `profile-blackbox.env` sửa theo; kiểm `quickstart.md`
   chạy đúng từng dòng.
-- [ ] T056 [P] Spec cũ: `specs/001-platform-foundation/spec.md` dòng D-09.4 ghi "Gỡ ở 006"; `specs/004-permissions/spec.md`
+- [X] T056 [P] Spec cũ: `specs/001-platform-foundation/spec.md` dòng D-09.4 ghi "Gỡ ở 006"; `specs/004-permissions/spec.md`
   và `specs/005-items/spec.md` Assumptions về seed qua API Directus ghi "từ 006 chọn được app bằng
   `PARITY_BLACKBOX_SETUP_APP`"; `SPECKIT-GUIDE.md` bảng lộ trình nếu có cột trạng thái.
 - [X] T057 Constitution 1.4.0 (đã làm ngày 2026-10-12 theo `/speckit.analyze` C1, trước implement): Nguyên tắc II
@@ -534,6 +534,26 @@ Task: "blackbox-common phần data model (T051)"
 - T017: `OPTIONS` đo trên Directus 11.17.4 khớp contracts/schema-api.md §3; `/schema`, `/schema/x` → 404.
 - Checkpoint Phase 2: `api:test` 212 file, 2.365 test xanh, coverage 85,1%; typecheck, lint xanh (cảnh báo
   `database/index.ts:186` có từ trước).
+- T018: `ddl-capture` đọc đúng unique, index, khóa ngoại trên Postgres (`[T018] postgres indexes`); MySQL, SQLite đo
+  khi chạy bộ đủ của hai vendor (T027).
+- T019, T021, T028: `ddlScenario` lọc khác biệt đã chấp nhận như `parity()` (D-01 `X-Powered-By`); `D-09.4` chuyển
+  thành entry `doc` vì entry `http` với `location: { any: true }` che mọi response của bốn route. Sắp lại danh sách
+  `/fields`, `/relations` vì `readAll` không `ORDER BY` (thứ tự vật lý khác giữa hai lượt nối tiếp).
+  `cleanupTables` lặp nhiều lượt: bảng còn bị khóa ngoại trỏ tới thì `DROP TABLE` bị chặn.
+- T021 (phát hiện, ghi Edge Cases của spec): xóa collection khi bảng khác còn khóa ngoại trỏ tới → Postgres chặn
+  `DROP TABLE`, Directus `500`, không dọn gì; app mới y hệt.
+- T024 (thay đổi so với plan): `GET /collections?meta=*` không có `meta` vì controller gọi
+  `getMetaForQuery('directus_collections', {})`, như Directus.
+- T038: snapshot JSON và YAML trùng từng byte trên Postgres (`[T038] postgres YAML snapshot bytes equal: true`).
+- T041: SC-005 đo 30 đến 41 ms (ngưỡng 1 giây) cho thêm, đổi, xóa field, tạo collection, relation, apply.
+- T042: bus giống nhau sau khi chuẩn hóa id tự tăng của `directus_fields`, `directus_relations` (key, `item`, `data.id`
+  của revision, `key` trong payload action của relation).
+- T043: `data-model.spec.ts` đạt (57 giây hai lượt); app lưu field rồi mới tạo relation, collection phụ, nên spec đợi
+  app tự đóng drawer. `routing.spec.ts` không sửa: đọc `backoffice-routes.txt`, đã thấy `/collections`, `/fields`,
+  `/relations` tới app mới.
+- T051 (thay đổi so với plan): phần data model của `common.test.ts` port vào cây blackbox
+  (`items/blackbox/common/common.test.ts`), dùng helper của shim như bản gốc, thay vì `permissions/blackbox-common.test.ts`.
+- `tests/parity`: `js-yaml` thêm vào devDependencies (đọc YAML của snapshot).
 - T010 (2026-10-12): Directus 11.17.4 SQLite dựng riêng (`docker run`, xóa sau khi đo): `DELETE
   /collections/directus_notifications` bằng admin → `204`, bảng mất khỏi `sqlite_master`, `directus_fields` của nó
   về 0 → D-32 giữ, T015 thêm `if`. `PATCH /collections/directus_users` `{meta: {note}}` → `200`, `GET /collections` có

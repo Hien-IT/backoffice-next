@@ -104,3 +104,22 @@ jobs:
         run: df -h /
       - if: always()
         run: pnpm nx run benchmark:env-down
+
+  # Feature 006 (FR-065, SC-007, research R10): the data model reads the Directus app makes at start, snapshot and diff,
+  # on about 200 collections, 3,000 fields and 300 relations seeded through the Directus API.
+  benchmark-schema:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: pnpm nx run benchmark:schema --output-style=static
+        env:
+          BENCH_ROUNDS: 3
+      - if: always()
+        run: pnpm nx run benchmark:env-down

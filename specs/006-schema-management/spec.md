@@ -262,6 +262,11 @@ API của app mới.
   URL (không có đường đổi tên); làm như Directus.
 - Apply lỗi giữa chừng: transaction rollback (DDL tự commit trên MySQL thì không), `postColumnChange` và `flushCaches`
   không chạy, nên schema trong process của cả hai app vẫn là bản cũ tới lần xóa cache kế tiếp, như Directus.
+- Xóa collection khi bảng khác còn khóa ngoại trỏ tới nó (m2o từ collection khác): `DROP TABLE` chạy đầu tiên và bị DB
+  chặn (Postgres "other objects depend on it"), Directus trả `500`, transaction rollback, không dọn gì; app mới làm y
+  hệt (đo ở `ddl.test.ts`, T021). Muốn xóa phải xóa field m2o hoặc relation trước, như app Directus làm.
+- `GET /fields`, `GET /relations` không có `ORDER BY` khi đọc metadata: thứ tự là thứ tự vật lý của dòng trong DB, như
+  Directus; hai app gọi cùng lúc trả cùng thứ tự, bộ so nối tiếp sắp lại trước khi so (research R5).
 - Snapshot do người dùng soạn tay (YAML) thiếu key tùy chọn (ví dụ `meta.note`): `deep-diff` báo thuộc tính bị xóa và
   apply ghi lại metadata theo snapshot, như Directus; thứ tự key không tạo diff.
 

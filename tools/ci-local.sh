@@ -66,7 +66,8 @@ step guard-differences pnpm --filter @backoffice/parity-tests exec vitest run sr
 step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits
-step parity-blackbox parity postgres blackbox blackbox
+# Feature 006: the nodes of schema-cache.test.ts and of the timezone files are profile pairs.
+step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america
 step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
 step parity-mysql-reduced parity mysql reduced blackbox integer
 step parity-sqlite3-reduced parity sqlite3 reduced blackbox integer

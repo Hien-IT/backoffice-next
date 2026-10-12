@@ -144,7 +144,10 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=blackbox
+      # Feature 006 (research R7): the nodes of schema-cache.test.ts and of the two timezone files are profile pairs.
+      - run:
+          pnpm nx run parity-tests:env-up --vendor=postgres
+          --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america
       - run: pnpm nx run parity-tests:parity-blackbox --vendor=postgres --output-style=static
       - name: container logs
         if: failure()
