@@ -18,8 +18,9 @@ const vitest = (config, extraEnv = {}, extraArgs = []) =>
 	}).status ?? 1;
 
 // Feature 005 (research R6): the blackbox port runs unchanged once against each app; the Directus run proves the port.
+// CI runs each app in its own job with PARITY_BLACKBOX_APPS (each run seeds its own data).
 if (env.PARITY_SUITE === 'blackbox') {
-	for (const app of ['backoffice', 'directus']) {
+	for (const app of (env.PARITY_BLACKBOX_APPS ?? 'backoffice,directus').split(',')) {
 		process.stdout.write(`\n=== blackbox items, query and relational at ${app} ===\n\n`);
 		const status = vitest('src/items/blackbox/vitest.blackbox.config.ts', { PARITY_BLACKBOX_APP: app });
 		if (status !== 0) process.exit(status);
