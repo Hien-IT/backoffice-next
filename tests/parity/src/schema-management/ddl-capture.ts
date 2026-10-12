@@ -26,6 +26,17 @@ const byKey =
 
 const withoutId = ({ id: _id, ...row }: Record<string, unknown>) => row;
 
+/**
+ * Names the database makes up for a primary key differ between two runs: SQL Server PK__<table>__<16 random hex
+ * digits>, Oracle SYS_C<counter>.
+ */
+async function stableIndexes(db: Knex, tables: string[]) {
+	return (await indexesOf(db, tables)).map((i) => ({
+		...i,
+		name: i.name.replace(/^(PK|UQ)__(.+)__[0-9A-F]{16}$/, '$1__$2__<random>').replace(/^SYS_C\d+$/, 'SYS_C<n>'),
+	}));
+}
+
 /** Tables of `tables` that exist, their columns, indexes, foreign keys, and the metadata rows that name them. */
 export async function captureModel(db: Knex, tables: string[]): Promise<ModelCapture> {
 	const inspector = createInspector(db);
@@ -36,10 +47,7 @@ export async function captureModel(db: Knex, tables: string[]): Promise<ModelCap
 		columns[table] = (await inspector.columnInfo(table)).sort((a, b) => a.name.localeCompare(b.name));
 	}
 
-	// SQL Server names a primary key it creates PK__<table>__<16 random hex digits>: differs between two runs.
-	const indexes = (await indexesOf(db, existing))
-		.filter((i) => existing.includes(i.table))
-		.map((i) => ({ ...i, name: i.name.replace(/^(PK|UQ)__(.+)__[0-9A-F]{16}$/, '$1__$2__<random>') }));
+	const indexes = (await stableIndexes(db, existing)).filter((i) => existing.includes(i.table));
 
 	const foreignKeys = (await inspector.foreignKeys())
 		.filter((fk) => existing.includes(fk.table))
@@ -73,5 +81,5 @@ export async function schemaShape(db: Knex) {
 		`${a.table}.${a.column}`.localeCompare(`${b.table}.${b.column}`),
 	);
 
-	return { tables, columns, indexes: await indexesOf(db, tables), foreignKeys };
+	return { tables, columns, indexes: await stableIndexes(db, tables), foreignKeys };
 }
