@@ -10,6 +10,7 @@
 	},
 	"devDependencies": {
 		"@backoffice/schema": "workspace:*",
+		"@backoffice/storage-driver-s3": "workspace:*",
 		"@backoffice/types": "workspace:*",
 		"@backoffice/utils": "workspace:*",
 		"@types/js-yaml": "catalog:",
@@ -30,9 +31,11 @@
 		"otplib": "catalog:",
 		"pg": "catalog:",
 		"seedrandom": "catalog:",
+		"sharp": "catalog:",
 		"sqlite3": "catalog:",
 		"supertest": "catalog:",
 		"tedious": "catalog:",
+		"tus-js-client": "catalog:",
 		"uuid": "catalog:"
 	}
 }

@@ -15,3 +15,9 @@ test('exports UserIntegrityCheckFlag like Directus', () => {
 test('exports DiffKind like Directus', () => {
 	expect(types.DiffKind).toEqual({ NEW: 'N', DELETE: 'D', EDIT: 'E', ARRAY: 'A' });
 });
+
+test('exports TransformationMethods like Directus', () => {
+	expect(types.TransformationMethods).toContain('resize');
+	expect(types.TransformationMethods).toContain('toFormat');
+	expect(types.TransformationMethods).toHaveLength(36);
+});

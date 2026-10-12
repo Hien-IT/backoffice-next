@@ -120,6 +120,22 @@ catalog:
   busboy: 1.6.0
   '@types/busboy': 1.5.4
   zod: 4.1.12
+  # Files, folders, assets (feature 007), same versions as Directus 11.17.4
+  sharp: 0.34.5
+  '@tus/server': 2.3.0
+  mime-types: 3.0.1
+  '@types/mime-types': 3.0.1
+  content-disposition: 0.5.4
+  '@types/content-disposition': 0.5.9
+  archiver: 7.0.1
+  '@types/archiver': 7.0.0
+  encodeurl: 2.0.0
+  '@types/encodeurl': 1.0.3
+  exif-reader: 2.0.2
+  icc: 3.0.0
+  minimatch: 10.2.5
+  zod-validation-error: 4.0.2
+  tus-js-client: 4.3.1
   # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
   json-to-graphql-query: 2.3.0
   seedrandom: 3.0.5
@@ -147,6 +163,7 @@ onlyBuiltDependencies:
   - esbuild
   - nx
   - oracledb
+  - sharp
   - sqlite3
 
 # Security patches of transitive dependencies (plan.md Complexity Tracking).
@@ -167,3 +184,24 @@ auditConfig:
     - GHSA-23hp-3jrh-7fpw
     - GHSA-8x88-c5mf-7j5w
     - GHSA-r292-9mhp-454m
+    # sharp 0.34.5 and axios 1.15.0 are the Directus 11.17.4 versions. sharp decides the bytes of shared derived
+    # assets (spec 007 SC-004: 0.35.5 changes avif and tiff output), axios decides URL import behaviour (R-14).
+    # The owner chose to keep both on 2026-10-13; accepted in specs/007-files-assets/plan.md Complexity Tracking.
+    # Raise together with the Directus baseline.
+    - GHSA-f88m-g3jw-g9cj # sharp: libvips
+    - GHSA-rgj7-g3m4-5g8c # sharp: libheif
+    - GHSA-wq5f-xc86-pv6w # sharp: librsvg
+    - GHSA-35jp-ww65-95wh # axios
+    - GHSA-3g43-6gmg-66jw # axios
+    - GHSA-3pq3-5fj3-cg6v # axios
+    - GHSA-542g-h47m-68v8 # axios
+    - GHSA-6chq-wfr3-2hj9 # axios
+    - GHSA-777c-7fjr-54vf # axios
+    - GHSA-hfxv-24rg-xrqf # axios
+    - GHSA-j5f8-grm9-p9fc # axios
+    - GHSA-mghh-pgcx-3jjj # axios
+    - GHSA-p92q-9vqr-4j8v # axios
+    - GHSA-pf86-5x62-jrwf # axios
+    - GHSA-pjwm-pj3p-43mv # axios
+    - GHSA-pmwg-cvhr-8vh7 # axios
+    - GHSA-q8qp-cvcw-x6jj # axios

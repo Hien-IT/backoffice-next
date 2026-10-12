@@ -3,6 +3,7 @@ import { expect, test } from 'vitest';
 import {
 	appPorts,
 	cacheRedisPort,
+	getStorages,
 	knexConfig,
 	names,
 	profilePorts,
@@ -117,4 +118,35 @@ test('PARITY_SUITE selects the files', () => {
 	expect(REDUCED_FILES).toContain('src/items/crud.test.ts');
 	expect(FULL_FILES).toContain('src/schema-management/**/*.test.ts');
 	expect(REDUCED_FILES).toContain('src/schema-management/crud.test.ts');
+	expect(FULL_FILES).toContain('src/files/**/*.test.ts');
+	expect(REDUCED_FILES).toContain('src/files/{files,folders,assets}.test.ts');
+});
+
+// Feature 007 (research R6, R8): shared `local` storage, MinIO, the import source and the storage selection.
+test.each(allVendors)('%s env: local then s3 storage locations', (vendor) => {
+	const env = readFileSync(new URL(`../env/${vendor}.env`, import.meta.url), 'utf8');
+	expect(env).toMatch(/^STORAGE_LOCATIONS=local,s3$/m);
+	expect(env).toMatch(/^STORAGE_LOCAL_DRIVER=local$/m);
+	expect(env).toMatch(/^STORAGE_LOCAL_ROOT=\.\/uploads$/m);
+	expect(env).toMatch(/^STORAGE_S3_DRIVER=s3$/m);
+});
+
+test('every app container mounts the shared uploads volume and waits for files-fixtures', () => {
+	const services = compose
+		.split(/\n(?= {2}\S)/)
+		.filter((b) => /image: (directus\/directus|hiennd23\/backoffice-api)/.test(b));
+	const withoutVolume = services.filter((b) => !b.includes('<<: *app') && !b.includes('uploads:/directus/uploads'));
+	expect(withoutVolume).toEqual([]);
+	expect(compose).toMatch(/^x-app: &app[\s\S]*?- uploads:\/directus\/uploads/m);
+	expect(compose).toMatch(/^volumes:\n {2}uploads:$/m);
+	expect(compose).toMatch(/files-fixtures: \{ condition: service_healthy \}/);
+	expect(publishedPort('files-fixtures')).toBe(8882);
+});
+
+test('PARITY_STORAGES selects the storage locations', () => {
+	expect(getStorages(undefined)).toEqual(['local', 's3']);
+	expect(getStorages('')).toEqual(['local', 's3']);
+	expect(getStorages('s3')).toEqual(['s3']);
+	expect(getStorages('local, s3')).toEqual(['local', 's3']);
+	expect(() => getStorages('minio')).toThrow('PARITY_STORAGES must list "local" and/or "s3", got "minio"');
 });

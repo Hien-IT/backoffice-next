@@ -39,6 +39,9 @@ const ALL_PROFILES = [
 	'schema-cache-nomsg',
 	'tz-asia',
 	'tz-america',
+	// Feature 007 (research R8)
+	'assets-limit',
+	'assets-stress',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

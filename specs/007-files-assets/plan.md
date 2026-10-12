@@ -263,7 +263,11 @@ backoffice-next/
 
 ## Complexity Tracking
 
-Không có vi phạm mới. Ngoại lệ đã duyệt của 001 đến 006 vẫn áp dụng: D-16 dừng khởi động với driver ngoài phạm vi
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| Nguyên tắc X (quét dependency): giữ `sharp` 0.34.5 (3 advisory high: GHSA-f88m-g3jw-g9cj libvips, GHSA-rgj7-g3m4-5g8c libheif, GHSA-wq5f-xc86-pv6w librsvg) và `axios` 1.15.0 (14 advisory high) như Directus 11.17.4, thêm vào `auditConfig.ignoreGhsas` | Chủ dự án chọn ngày 2026-10-13 (T001). Đo cục bộ: sharp 0.34.5 trùng 4/4 fixture ảnh của `directus/tests/e2e`; 0.35.5 (libvips 8.18.7) trùng ở jpeg, webp, png nhưng khác byte ở avif, tiff, trong khi `format=auto` trả avif cho trình duyệt, nên thumbnail dùng chung sẽ khác byte (SC-004). axios quyết định hành vi import (R-14). Directus 11.17.4 chạy cùng hệ thống mang cùng rủi ro | Nâng sharp 0.35.5: phá SC-004 với avif, tiff, cần D-xx mới; nâng axios 1.20.0: đổi hành vi import chưa đo. Nâng cả hai khi nâng mốc Directus |
+
+Ngoài dòng trên, không có vi phạm mới. Ngoại lệ đã duyệt của 001 đến 006 vẫn áp dụng: D-16 dừng khởi động với driver ngoài phạm vi
 (trái chữ Nguyên tắc VIII, duyệt ở 001); benchmark hằng tuần thay vì chặn CI (003); store `memory` với cảnh báo một
 instance (001). Ghi nhận thêm (không phải vi phạm, hành vi Directus): clock lịch dọn TUS mặc định `SYNCHRONIZATION_STORE=
 memory` nên mỗi instance tự chạy dọn (idempotent); hàng đợi transform `ASSETS_TRANSFORM_MAX_CONCURRENT` tính theo

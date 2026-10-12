@@ -101,6 +101,9 @@ export const profilePorts = {
 	'schema-cache-nomsg': { directus: 9755, backoffice: 9756 },
 	'tz-asia': { directus: 9855, backoffice: 9856 },
 	'tz-america': { directus: 9955, backoffice: 9956 },
+	// Feature 007 (research R8): narrower files configuration and the time-dependent cases.
+	'assets-limit': { directus: 10055, backoffice: 10056 },
+	'assets-stress': { directus: 10155, backoffice: 10156 },
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
@@ -113,3 +116,26 @@ export const proxyPort = 8160;
 export const secondBackofficePort = 8157;
 
 export type Profile = keyof typeof profilePorts;
+
+/** Storage locations of tests/parity/env/<vendor>.env (feature 007, research R6). */
+export const storageLocations = ['local', 's3'] as const;
+
+export type StorageLocation = (typeof storageLocations)[number];
+
+/**
+ * Feature 007 (spec Clarifications): the storage locations the files and assets tests run on, from PARITY_STORAGES
+ * (comma separated). Postgres runs both on every push, MySQL and SQLite only `s3`.
+ */
+export function getStorages(value = process.env['PARITY_STORAGES']): StorageLocation[] {
+	if (value === undefined || value.trim() === '') return [...storageLocations];
+
+	const storages = value.split(',').map((s) => s.trim());
+
+	for (const storage of storages) {
+		if (!(storageLocations as readonly string[]).includes(storage)) {
+			throw new Error(`PARITY_STORAGES must list "local" and/or "s3", got "${value}"`);
+		}
+	}
+
+	return storages as StorageLocation[];
+}

@@ -1,11 +1,13 @@
 // Ported from directus/packages/types/src/index.ts (subset: only the types features 001-003 use)
 export * from './accountability.js';
+export * from './assets.js';
 export * from './authentication.js';
 export * from './collection.js';
 export * from './database.js';
 export * from './error.js';
 export * from './events.js';
 export * from './fields.js';
+export * from './files.js';
 export * from './filter.js';
 export * from './import-export.js';
 export * from './items.js';

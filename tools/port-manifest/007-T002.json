@@ -1,0 +1,4 @@
+[
+	{ "source": "packages/types/src/assets.ts", "dest": "libs/types/src/assets.ts" },
+	{ "source": "packages/types/src/files.ts", "dest": "libs/types/src/files.ts" }
+]

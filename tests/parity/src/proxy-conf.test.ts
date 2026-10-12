@@ -45,6 +45,17 @@ describe('proxy-conf', () => {
 			expect(new RegExp(location).test(path), path).toBe(false);
 	});
 
+	test('feature 007: files, folders, assets and TUS go to the new app, /utils stays on Directus', () => {
+		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
+		const conf = buildNginxConf(template, ['files', 'folders', 'assets']);
+		const location = conf.match(/location ~ (\S+) \{/)![1]!;
+
+		for (const path of ['/files', '/files/import', '/files/tus/abc', '/folders/x', '/assets/x', '/assets/x/photo.jpg'])
+			expect(new RegExp(location).test(path), path).toBe(true);
+		for (const path of ['/utils/sort/files', '/filesx', '/asset'])
+			expect(new RegExp(location).test(path), path).toBe(false);
+	});
+
 	test('one location for the routes of the new app, the rest to Directus', () => {
 		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
 		const conf = buildNginxConf(template, ['auth', 'users']);

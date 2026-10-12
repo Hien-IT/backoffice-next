@@ -73,7 +73,7 @@ zip nhỏ, còn US2 cần đo byte sớm nhưng dựa trên `AssetsController` �
 `local` dùng chung, fixture import, cặp `assets-limit`, chọn storage; suite và proxy (research R1, R2, R6, R8,
 contracts/parity.md §1, §4).
 
-- [ ] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `sharp: 0.34.5`,
+- [X] T001 Thêm vào `catalog:` của `pnpm-workspace.yaml` đúng bản `directus/pnpm-workspace.yaml`: `sharp: 0.34.5`,
   `'@tus/server': 2.3.0`, `mime-types: 3.0.1`, `'@types/mime-types'`, `content-disposition: 0.5.4`,
   `'@types/content-disposition'`, `archiver: 7.0.1`, `'@types/archiver'`, `encodeurl: 2.0.0`, `'@types/encodeurl'`,
   `'exif-reader': 2.0.2`, `icc: 3.0.0`, `minimatch: 10.2.5`, `'zod-validation-error'` (bản Directus),
@@ -83,23 +83,23 @@ contracts/parity.md §1, §4).
   --audit-level=high`, rồi `docker build -f apps/api/Dockerfile .` và trong image chạy `node -e
   "console.log(require('sharp').versions)"`; ghi `sharp.versions` (libvips) và kết quả audit vào "Ghi chú khi làm"
   (research R1, R2; rủi ro "sharp trên alpine" của plan).
-- [ ] T002 [P] `libs/types/src/`: port `assets.ts` (`Transformation`, `TransformationParams`, `TransformationSet`,
+- [X] T002 [P] `libs/types/src/`: port `assets.ts` (`Transformation`, `TransformationParams`, `TransformationSet`,
   `TransformationFormat`, `TransformationMethods`...) từ `directus/packages/types/src/assets.ts` và kiểm `files.ts`
   (`File`, `ChunkedUploadContext`) đã đủ chưa, thiếu thì port từ `packages/types/src/files.ts`, `storage.ts`; export
   trong `libs/types/src/index.ts`; `libs/types/src/index.test.ts` thêm khẳng định export. Ghi manifest.
-- [ ] T003 [P] `apps/api/src/constants.ts`: port `SYSTEM_ASSET_ALLOW_LIST`, `ASSET_TRANSFORM_QUERY_KEYS`,
+- [X] T003 [P] `apps/api/src/constants.ts`: port `SYSTEM_ASSET_ALLOW_LIST`, `ASSET_TRANSFORM_QUERY_KEYS`,
   `SUPPORTED_IMAGE_TRANSFORM_FORMATS`, `SUPPORTED_IMAGE_METADATA_FORMATS` và thêm `EXPIRATION_TIME`, `SCHEDULE` vào
   `RESUMABLE_UPLOADS` (getter, `getMilliseconds(env['TUS_UPLOAD_EXPIRATION'], 600_000)`) từ
   `directus/api/src/constants.ts`; `apps/api/src/constants.test.ts` thêm ca cho từng hằng và giá trị mặc định. Ghi
   manifest.
-- [ ] T004 [P] Môi trường đối chiếu, storage `local` dùng chung: 9 file `tests/parity/env/<vendor>.env` đổi
+- [X] T004 [P] Môi trường đối chiếu, storage `local` dùng chung: 9 file `tests/parity/env/<vendor>.env` đổi
   `STORAGE_LOCATIONS=local,s3`, thêm `STORAGE_LOCAL_DRIVER=local`, `STORAGE_LOCAL_ROOT=./uploads`; anchor `x-app` của
   `tests/parity/docker-compose.yml` thêm named volume `uploads:/directus/uploads` (khai báo ở `volumes:` gốc);
   `tests/parity/scripts/env.mjs` (bước sau `up`) chmod `777` `/directus/uploads` trong một container sau khi lên, theo
   tiền lệ `data.db`; `tests/parity/src/vendors.test.ts` thêm ca: mọi env có hai location, compose có volume. Chạy
   `env-up --vendor=postgres` và upload thử bằng Directus vào `local` để kiểm quyền ghi (rủi ro "volume uploads" của
   plan). (contracts/parity.md §1)
-- [ ] T005 [P] Fixture: `tests/parity/fixtures/files/` gồm bộ ảnh của FR-082 (jpeg RGB, jpeg CMYK, jpeg EXIF
+- [X] T005 [P] Fixture: `tests/parity/fixtures/files/` gồm bộ ảnh của FR-082 (jpeg RGB, jpeg CMYK, jpeg EXIF
   orientation 6, png 8-bit, png 16-bit, png alpha, webp, tiff, avif, gif tĩnh, gif động, ảnh 7000×100 cho giới hạn, jpeg
   cắt cụt, mỗi ảnh ≤ 200 KB, sinh bằng script `tests/parity/fixtures/make-images.mjs` dùng sharp để tái tạo được), pdf,
   svg, `photo.jpg.gz`, `photo.jpg.br`; `tests/parity/fixtures/assets/` copy `image.jpg`, `img_50x50.jpg` và mọi ảnh kết
@@ -107,7 +107,7 @@ contracts/parity.md §1, §4).
   `files-fixtures` (`nginx:alpine`, mount `fixtures/files` chỉ đọc, thêm `location /redirect/ { return 302 /photo.jpg; }`
   và `location /gz/ { add_header Content-Encoding gzip; }`) vào `docker-compose.yml`, mọi app `depends_on` nó;
   `vendors.test.ts` kiểm service có mặt.
-- [ ] T006 [P] Hai cặp profile. `assets-limit` (`tests/parity/env/profile-assets-limit.env`): giá trị của blackbox
+- [X] T006 [P] Hai cặp profile. `assets-limit` (`tests/parity/env/profile-assets-limit.env`): giá trị của blackbox
   Directus và các ca không phụ thuộc thời gian: `ASSETS_TRANSFORM_MAX_CONCURRENT=2`, `ASSETS_CACHE_REVALIDATE=true`,
   `TUS_ENABLED=true` (hết hạn và lịch dọn mặc định), `SYNCHRONIZATION_STORE=redis`, `CORS_ENABLED=false`,
   `FILES_MIME_TYPE_ALLOW_LIST=image/*,application/pdf`, `FILES_MAX_UPLOAD_SIZE=30mb`; cặp `directus-assets-limit`
@@ -118,12 +118,12 @@ contracts/parity.md §1, §4).
   bật; `tests/parity/scripts/env.mjs` thêm hai profile vào `ALL_PROFILES`; `tests/parity/src/config.ts` `profilePorts`
   thêm hai cặp; `vendors.test.ts` kiểm cổng không trùng và có file env. Cập nhật contracts/parity.md §1 (hai dòng
   profile).
-- [ ] T007 [P] Chọn storage và suite: `tests/parity/src/config.ts` thêm `PARITY_STORAGES` (mặc định `local,s3`) và
+- [X] T007 [P] Chọn storage và suite: `tests/parity/src/config.ts` thêm `PARITY_STORAGES` (mặc định `local,s3`) và
   `getStorages()`; `tests/parity/src/suite.ts`: `FULL_FILES` thêm `src/files/**/*.test.ts`, `REDUCED_FILES` thêm
   `src/files/{files,folders,assets}.test.ts`; `BLACKBOX_FILES` (hoặc `include` của
   `src/items/blackbox/vitest.blackbox.config.ts`) thêm `tests/common/assets/**`, `tests/db/routes/files/**`,
   `tests/db/routes/collections/files.test.ts`; test trong `src/vendors.test.ts` và `src/config.test.ts`.
-- [ ] T008 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `files`, `folders`, `assets` (sinh lại `nginx.conf` bằng
+- [X] T008 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `files`, `folders`, `assets` (sinh lại `nginx.conf` bằng
   `scripts/proxy-conf.mjs`); `proxy-conf.test.ts` thêm ca `/files`, `/files/tus/x`, `/folders/x`, `/assets/x` về app
   mới, `/utils/sort/x` vẫn về Directus.
 
@@ -588,5 +588,27 @@ Task: "storage-capture.ts (T019)"
 
 ## Ghi chú khi làm
 
-- (ghi khi thực hiện: kết quả audit, `sharp.versions` hai image, `Allow` và header `Tus-*` đo được, status của các
-  điểm "đo ở task", danh sách ca blackbox bỏ qua, số liệu benchmark)
+- T001: `pnpm audit --prod --audit-level=high` báo 17 advisory high, đều từ hai gói cùng bản Directus: `sharp` 0.34.5 (3)
+  và `axios` 1.15.0 (14). Đo trước khi quyết: sharp 0.34.5 cục bộ (darwin-arm64) trùng 4/4 fixture ảnh của
+  `directus/tests/e2e/tests/endpoints/assets/`; sharp 0.35.5 (libvips 8.18.7) trùng ở jpeg, webp, png, grayscale nhưng
+  khác byte ở avif, tiff. Chủ dự án chọn giữ cả hai (2026-10-13): 17 GHSA vào `auditConfig.ignoreGhsas` kèm comment,
+  dòng Complexity Tracking ở plan; audit exit 0 sau đó.
+- T001: image `hiennd23/backoffice-api:local` build được trên linux/amd64. Cả image app mới và `directus/directus:11.17.4`
+  dùng đúng `sharp@0.34.5`, `@img/sharp-linuxmusl-x64@0.34.5`, `@img/sharp-libvips-linuxmusl-x64@1.2.4`; app mới in
+  `vips 8.17.3, heif 1.20.2, aom 3.13.1, mozjpeg 0826579, webp 1.6.0, tiff 4.7.1` (cơ sở cho research R2).
+- T002: `libs/types` thêm `sharp` vào `dependencies` (Directus để là peer tùy chọn) theo tiền lệ `deep-diff` của 006.
+- T003: không ghi manifest cho `constants.ts` (port từng phần, comment trong file dẫn nguồn), như 006.
+- T004: không cần chmod: named volume `uploads` lấy quyền thư mục `/directus/uploads` của image (uid `node` ở cả hai
+  image); đo trên Postgres: Directus ghi được vào `local` và `s3`, app mới `touch` được trong volume. Anchor `x-app` và
+  34 service cặp profile đều mount volume (test trong `vendors.test.ts`).
+- T005: sinh fixture bằng `tests/parity/fixtures/make-images.mjs` (sharp, devDependency của `tests/parity`); ảnh IPTC
+  đo trên Directus: `description` = caption, `tags` = keywords, `title` vẫn từ tên file (multipart đặt `title` trước khi
+  trích). `layers.png` (883 KB) copy nguyên từ blackbox Directus vì `concurrency.test.ts` dùng nó (vượt mức 200 KB).
+  Chạy local không đặt `DOCKER_DEFAULT_PLATFORM` (image MinIO chỉ có arm64 trên máy): image app mới chạy arm64 cục bộ,
+  amd64 trên CI.
+- T006: `profile-blackbox.env` thêm `ASSETS_TRANSFORM_MAX_CONCURRENT=2`, `TUS_ENABLED=true` (phần còn lại của
+  `directus/tests/blackbox/common/config.ts` mà các file files, assets đọc) nên 8 file blackbox chạy trên cặp `blackbox`;
+  `assets-limit` là nút revalidate của `cache-revalidate.test.ts`, `assets-stress` (thêm `ASSETS_CACHE_TTL=1h`) là nút
+  mặc định của file đó. Cả hai cặp đọc thêm `profile-blackbox.env`.
+- T008: dòng `files`, `folders`, `assets` của `proxy/backoffice-routes.txt` thêm ở T034 (khi đủ controller US1, US3),
+  để E2E app Directus không gọi route chưa có; test định tuyến đã có ở `proxy-conf.test.ts`.

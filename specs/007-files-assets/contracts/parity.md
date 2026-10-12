@@ -12,6 +12,7 @@ Mẫu theo contracts/parity.md của 006. Mọi test mới chạy với cả hai
 | profile `assets-limit` (10055, 10056) | `ASSETS_TRANSFORM_MAX_CONCURRENT=2`, `ASSETS_CACHE_REVALIDATE=true`, `TUS_ENABLED=true`, `SYNCHRONIZATION_STORE=redis`, `CORS_ENABLED=false`, `FILES_MIME_TYPE_ALLOW_LIST=image/*,application/pdf`, `FILES_MAX_UPLOAD_SIZE=30mb`; blackbox assets, tus và ca revalidate, mime, `413`, TUS thường |
 | profile `assets-stress` (10155, 10156) | `ASSETS_TRANSFORM_MAX_CONCURRENT=1`, `ASSETS_TRANSFORM_TIMEOUT=100ms`, `TUS_ENABLED=true`, `TUS_UPLOAD_EXPIRATION=2s`, `TUS_CLEANUP_SCHEDULE=* * * * *`, `SYNCHRONIZATION_STORE=redis`, `CORS_ENABLED=false`; chỉ ca busy, timeout, hết hạn |
 | profile `cors-hsts` (sửa) | thêm `TUS_ENABLED=true` để đo `OPTIONS /files/tus*` khi CORS bật |
+| profile `blackbox` (sửa) | thêm `ASSETS_TRANSFORM_MAX_CONCURRENT=2`, `TUS_ENABLED=true` như `directus/tests/blackbox/common/config.ts`; hai cặp `assets-*` đọc thêm file này |
 | `tests/parity/fixtures/assets/` | fixture của `directus/tests/e2e/tests/endpoints/assets/` (ảnh vào, ảnh kết quả) |
 
 ## 2. Thư mục `tests/parity/src/files/`

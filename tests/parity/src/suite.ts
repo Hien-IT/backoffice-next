@@ -14,6 +14,8 @@ export const REDUCED_FILES = [
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
 	'src/schema-management/relations.test.ts',
+	// Feature 007: the HTTP contract of /files, /folders, /assets (rows and storage objects differ per vendor).
+	'src/files/{files,folders,assets}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -23,6 +25,8 @@ export const FULL_FILES = [
 	'src/items/{crud,export}.test.ts',
 	// Feature 006: data model routes, DDL compared in sequence on the shared DB, cross use (research R5, R6).
 	'src/schema-management/**/*.test.ts',
+	// Feature 007: files, folders, assets, import, TUS on both storage locations (research R8).
+	'src/files/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

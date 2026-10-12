@@ -23,6 +23,7 @@
 		"@backoffice/constants": "workspace:*",
 		"@backoffice/schema": "workspace:*",
 		"@types/deep-diff": "catalog:",
-		"knex": "catalog:"
+		"knex": "catalog:",
+		"sharp": "catalog:"
 	}
 }

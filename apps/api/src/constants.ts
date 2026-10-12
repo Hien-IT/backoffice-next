@@ -1,4 +1,5 @@
 import { useEnv } from '@backoffice/env';
+import type { TransformationParams } from '@backoffice/types';
 import { toBoolean } from '@backoffice/utils';
 import bytes from 'bytes';
 import type { CookieOptions } from 'express';
@@ -7,12 +8,72 @@ import { getMilliseconds } from './utils/get-milliseconds.js';
 /** Version reported to clients (`/server/info`, `/server/health` releaseId), FR-047. */
 export const DIRECTUS_COMPAT_VERSION = '11.17.4';
 
+/** directus/api/src/constants.ts: presets the Directus app uses for thumbnails, allowed in every transform mode. */
+export const SYSTEM_ASSET_ALLOW_LIST: TransformationParams[] = [
+	{
+		key: 'system-small-cover',
+		format: 'auto',
+		transforms: [['resize', { width: 64, height: 64, fit: 'cover' }]],
+	},
+	{
+		key: 'system-small-contain',
+		format: 'auto',
+		transforms: [['resize', { width: 64, fit: 'contain' }]],
+	},
+	{
+		key: 'system-medium-cover',
+		format: 'auto',
+		transforms: [['resize', { width: 300, height: 300, fit: 'cover' }]],
+	},
+	{
+		key: 'system-medium-contain',
+		format: 'auto',
+		transforms: [['resize', { width: 300, fit: 'contain' }]],
+	},
+	{
+		key: 'system-large-cover',
+		format: 'auto',
+		transforms: [['resize', { width: 800, height: 800, fit: 'cover' }]],
+	},
+	{
+		key: 'system-large-contain',
+		format: 'auto',
+		transforms: [['resize', { width: 800, fit: 'contain' }]],
+	},
+];
+
+export const ASSET_TRANSFORM_QUERY_KEYS = [
+	'key',
+	'transforms',
+	'width',
+	'height',
+	'format',
+	'fit',
+	'quality',
+	'withoutEnlargement',
+	'focal_point_x',
+	'focal_point_y',
+] as const satisfies Readonly<(keyof TransformationParams)[]>;
+
+/** Formats from which transformation is supported */
+export const SUPPORTED_IMAGE_TRANSFORM_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/tiff', 'image/avif'];
+
+/** Formats where metadata extraction is supported */
+export const SUPPORTED_IMAGE_METADATA_FORMATS = [
+	'image/jpeg',
+	'image/png',
+	'image/webp',
+	'image/gif',
+	'image/tiff',
+	'image/avif',
+];
+
 /** Component schemas the OpenAPI generator always keeps (directus/api/src/services/specifications.ts). */
 export const OAS_REQUIRED_SCHEMAS = ['Query', 'x-metadata'];
 
 /**
- * RESUMABLE_UPLOADS of directus/api/src/constants.ts (part used by the storage drivers). Getters instead of values
- * read at import, so loading this module never reads the configuration before the startup checks.
+ * RESUMABLE_UPLOADS of directus/api/src/constants.ts. Getters instead of values read at import, so loading this
+ * module never reads the configuration before the startup checks.
  */
 export const RESUMABLE_UPLOADS = {
 	get ENABLED(): boolean {
@@ -20,6 +81,12 @@ export const RESUMABLE_UPLOADS = {
 	},
 	get CHUNK_SIZE(): number | null {
 		return bytes.parse(useEnv()['TUS_CHUNK_SIZE'] as string);
+	},
+	get EXPIRATION_TIME(): number {
+		return getMilliseconds(useEnv()['TUS_UPLOAD_EXPIRATION'], 600_000 /* 10min */);
+	},
+	get SCHEDULE(): string {
+		return String(useEnv()['TUS_CLEANUP_SCHEDULE'] as string);
 	},
 };
 
