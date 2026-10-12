@@ -31,11 +31,12 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v1.0.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v1.4.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
-- [ ] II. No DDL/migration on `directus_*`; written data matches Directus format
+- [ ] II. No DDL on `directus_*` base tables/columns and no system migration (user columns and `is_indexed` on
+  system columns allowed, as Directus does); written data matches Directus format
 - [ ] III. REST/GraphQL path, query, response, error, status, header, cookie identical to Directus
 - [ ] IV. Shared SECRET/JWT/Redis keys; no critical in-process state; scheduled flows use Redis lock
 - [ ] V. Parity tests (Directus vs new app) planned for every endpoint added or changed

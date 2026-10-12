@@ -106,7 +106,7 @@ I. Directus là nguồn tham chiếu, chỉ đọc
 
 II. Dùng chung database với Directus
 - App mới dùng chung DB với một Directus đang chạy.
-- Không tạo, sửa, xóa bảng hay cột hệ thống directus_*. Không chạy migration hệ thống. Chỉ Directus được migrate.
+- Không tạo, sửa, xóa bảng hệ thống directus_* hay cột gốc của chúng. Không chạy migration hệ thống. Chỉ Directus được migrate. Được, như Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua schema.is_indexed.
 - Khi khởi động, app mới đối chiếu bảng directus_migrations với danh sách migration của 11.17.4. Lệch thì dừng và báo lỗi rõ ràng.
 - Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid, ngày giờ, JSON) phải có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
 - Được tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.

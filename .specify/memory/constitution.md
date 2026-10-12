@@ -1,4 +1,20 @@
 <!--
+Sync Impact Report (1.4.0, 2026-10-12)
+- Version change: 1.3.0 → 1.4.0
+- Modified principles: II. Dùng chung database với Directus: câu "KHÔNG ĐƯỢC tạo, sửa, xóa bảng hay cột hệ
+  thống `directus_*`" đổi thành "KHÔNG ĐƯỢC tạo, sửa, xóa bảng hệ thống `directus_*` hay cột gốc của chúng" và
+  thêm "ĐƯỢC, như Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa
+  index trên cột hệ thống qua `schema.is_indexed`". Lý do: Directus 11.17.4 cho phép hai việc đó qua
+  `/fields` và `/schema/apply`; app Directus, bộ blackbox `change-fields.test.ts` và ma trận quyền của
+  feature 004 dựa vào hành vi này. Chủ dự án chọn làm như Directus khi clarify feature 006 (2026-10-12).
+  Xóa bảng hệ thống vẫn bị cấm: Directus không chặn `DELETE /collections/directus_*`, app mới trả 403
+  (khác biệt D-32 của spec 006). MINOR: mở rộng hướng dẫn của một nguyên tắc; mọi thứ hợp lệ theo 1.3.0
+  vẫn hợp lệ.
+- Added/removed sections: không
+- Templates: ✅ .specify/templates/plan-template.md (dòng II của Constitution Check); ✅ SPECKIT-GUIDE.md
+  (prompt nguồn của constitution, mục II); ✅ spec, tasks, checklist template không nhắc mục này.
+- Deferred TODOs: không. Tech lead duyệt ngày 2026-10-12 (chủ dự án xác nhận; quy trình không có PR).
+
 Sync Impact Report (1.3.0, 2026-10-10)
 - Version change: 1.2.0 → 1.3.0
 - Modified sections: XI. Ngoài phạm vi giai đoạn này: "SSO bằng LDAP, OAuth2, SAML (chỉ làm OpenID Connect)" đổi
@@ -79,8 +95,9 @@ Lý do: `directus/` là mốc so sánh cho mọi test đối chiếu. Sửa nó 
 ### II. Dùng chung database với Directus
 
 - App mới dùng chung DB với một Directus đang chạy.
-- KHÔNG ĐƯỢC tạo, sửa, xóa bảng hay cột hệ thống `directus_*`. KHÔNG ĐƯỢC chạy migration hệ thống.
-  Chỉ Directus được migrate.
+- KHÔNG ĐƯỢC tạo, sửa, xóa bảng hệ thống `directus_*` hay cột gốc của chúng. KHÔNG ĐƯỢC chạy
+  migration hệ thống. Chỉ Directus được migrate. ĐƯỢC, như Directus: thêm, sửa, xóa cột người dùng
+  trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua `schema.is_indexed`.
 - Khi khởi động, app mới PHẢI đối chiếu bảng `directus_migrations` với danh sách migration của
   11.17.4. Nếu lệch, app PHẢI dừng và báo lỗi rõ ràng (migration thiếu hoặc thừa).
 - Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid,
@@ -268,4 +285,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.3.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-10
+**Version**: 1.4.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-12
