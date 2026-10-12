@@ -345,7 +345,7 @@ Playwright `data-model.spec.ts`.
   `archive_field` rồi lọc archive; so `changesSince` và so `GET /schema/snapshot` trực tiếp Directus (8155) với qua
   proxy (bỏ collection của lượt kia). `routing.spec.ts` thêm khẳng định `collections`, `fields`, `relations`, `schema`
   tới app mới.
-- [ ] T044 [US3] Chạy `env-up` với profile `multi`, `app`, `websocket`; `parity` Postgres `full`, `parity-cache` (bus),
+- [X] T044 [US3] Chạy `env-up` với profile `multi`, `app`, `websocket`; `parity` Postgres `full`, `parity-cache` (bus),
   `directus-app-e2e:e2e`; sửa lệch; ghi số đo SC-005. (sau T040 đến T043)
 
 **Checkpoint**: Hai chiều dùng chéo xanh; SC-005 ≤ 1 giây; E2E xanh.
@@ -568,5 +568,10 @@ Task: "blackbox-common phần data model (T051)"
   CI SQLite: `data.db` do container (uid 1000) tạo với quyền 0644, runner không ghi được (`SQLITE_READONLY` ở blackbox
   `collections/crud`, `fields/crud`); `env.mjs` chạy `chmod 666` trong container sau `env-up`.
 
+- T044 (2026-10-12): CI run 38241190044 ở `5b1f945` xanh mọi job: `parity` Postgres `full` hai shard (9, 11 phút, gồm
+  profile `multi`), `parity-cache` (7 phút, bus), `e2e-directus-app` (7 phút, profile `app`, gồm `data-model.spec.ts`);
+  SC-005 xem T041.
+- T053: cùng run, `parity-blackbox` lượt Directus 15 phút, lượt app mới 11 phút; `parity` MySQL rút gọn 11 phút, SQLite
+  rút gọn 7 phút (sau khi sửa quyền `data.db`).
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)
