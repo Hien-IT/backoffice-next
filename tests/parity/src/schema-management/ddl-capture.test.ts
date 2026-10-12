@@ -63,7 +63,8 @@ describe('captureModel (feature 006)', () => {
 				column: 'ref',
 				foreign_key_table: 'parity_sm_capture_ref',
 				foreign_key_column: 'id',
-				constraint_name: 'parity_sm_capture_ref_foreign',
+				// SQLite foreign keys have no name.
+				constraint_name: vendor === 'sqlite3' ? null : 'parity_sm_capture_ref_foreign',
 				on_delete: 'SET NULL',
 			}),
 		]);

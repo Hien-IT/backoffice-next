@@ -2,12 +2,16 @@
 // the Directus app makes them (field requests then relation requests), their foreign keys and metadata, changes and
 // deletions, in sequence on the shared database with the same names (ddl-scenario.ts).
 import knex, { type Knex } from 'knex';
-import { afterAll, beforeAll, describe, it } from 'vitest';
+import { afterAll, beforeAll, describe, it, vi } from 'vitest';
 import { knexConfig } from '../config.js';
 import { appRequest } from '../directus-api.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import type { ParityRequest } from '../parity.js';
 import { ddlScenario } from './ddl-scenario.js';
+
+// Each case runs every request twice in sequence, slower on SQLite (Knex rebuilds the table on ALTER) and with
+// the emulated Directus image.
+vi.setConfig({ testTimeout: 180_000 });
 
 const [vendor] = getDbsToTest();
 const P = 'parity_sm_rel';
@@ -106,7 +110,10 @@ describe('m2o and o2m (FR-030, FR-031, FR-023)', () => {
 		);
 	});
 
-	it('deleting the m2o field removes the relation and the o2m field; DELETE /relations drops the foreign key', async () => {
+	// R-12 (spec 006): on SQLite (one connection) RelationsService.deleteOne reads the foreign keys outside its
+	// transaction; when the cached foreign keys are gone it waits for the pool until the 60 s timeout, then 500, at
+	// Directus and at the new app alike, depending on the cache: not comparable there.
+	it.skipIf(vendor === 'sqlite3')('deleting the m2o field removes the relation and the o2m field; DELETE /relations drops the foreign key', async () => {
 		await ddlScenario(
 			db,
 			[

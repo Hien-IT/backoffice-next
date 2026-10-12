@@ -30,9 +30,16 @@ export interface DdlRun {
  * of the rows, which differs between two runs that write different rows, so those lists are sorted.
  */
 function normalized(captured: Captured, path: string): Captured {
-	// MySQL names the temporary table of an ALTER TABLE in its errors (#sql-1_f): a counter of the server.
+	// The temporary table of an ALTER TABLE shows in errors: MySQL #sql-1_f (a counter of the server), SQLite
+	// _knex_temp_alter123 (a random number of Knex, which rebuilds the table).
 	let json = captured.isJson
-		? normalizeMetaIds(JSON.parse(JSON.stringify(captured.json).replace(/#sql-[0-9a-f]+_[0-9a-f]+/g, '#sql-<tmp>')))
+		? normalizeMetaIds(
+				JSON.parse(
+					JSON.stringify(captured.json)
+						.replace(/#sql-[0-9a-f]+_[0-9a-f]+/g, '#sql-<tmp>')
+						.replace(/_knex_temp_alter\d+/g, '_knex_temp_alter<n>'),
+				),
+			)
 		: captured.json;
 	const data = (json as { data?: unknown } | undefined)?.data;
 

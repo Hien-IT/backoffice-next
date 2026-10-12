@@ -63,5 +63,14 @@ if (action === 'up') {
 	chmodSync('.data/sqlite', 0o777);
 }
 
-const result = spawnSync('docker', command, { stdio: 'inherit', env: { ...process.env, TEST_DB: values.vendor } });
+const env = { ...process.env, TEST_DB: values.vendor };
+const result = spawnSync('docker', command, { stdio: 'inherit', env });
+
+// Directus creates data.db as uid 1000 with mode 0644; the blackbox tests of feature 006 write it from the runner.
+if (action === 'up' && values.vendor === 'sqlite3' && result.status === 0) {
+	const chmod = ['exec', '-T', 'directus', 'chmod', '666', '/directus/database/sqlite/data.db'];
+	const fixed = spawnSync('docker', [...args, ...chmod], { stdio: 'inherit', env });
+	process.exit(fixed.status ?? 1);
+}
+
 process.exit(result.status ?? 1);

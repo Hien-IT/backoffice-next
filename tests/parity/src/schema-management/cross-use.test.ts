@@ -3,13 +3,17 @@
 // fields, archive and sort settings) is the same model at the other app: equal snapshots, a 204 diff, nested item
 // writes, archive and sort clean-up; then the other way round.
 import knex, { type Knex } from 'knex';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { knexConfig } from '../config.js';
 import { type AppName, adminToken, appRequest, appUrl } from '../directus-api.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import { capture } from '../parity.js';
 import { createFixture, dropFixture, FIXTURE_COLLECTIONS } from '../schema/fixture.js';
 import { schemaShape } from './ddl-capture.js';
+
+// Each case runs every request twice in sequence, slower on SQLite (Knex rebuilds the table on ALTER) and with
+// the emulated Directus image.
+vi.setConfig({ testTimeout: 180_000 });
 
 const [vendor] = getDbsToTest();
 const P = 'parity_overview_';

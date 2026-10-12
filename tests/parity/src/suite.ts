@@ -13,6 +13,7 @@ export const REDUCED_FILES = [
 	'src/items/crud.test.ts',
 	// Feature 006: the HTTP contract of /collections, /fields, /relations (DDL differs per vendor, research R5).
 	'src/schema-management/crud.test.ts',
+	'src/schema-management/relations.test.ts',
 ];
 
 export const FULL_FILES = [

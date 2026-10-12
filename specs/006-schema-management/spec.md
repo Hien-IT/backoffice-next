@@ -264,7 +264,8 @@ API của app mới.
   không chạy, nên schema trong process của cả hai app vẫn là bản cũ tới lần xóa cache kế tiếp, như Directus.
 - Xóa collection khi bảng khác còn khóa ngoại trỏ tới nó (m2o từ collection khác): `DROP TABLE` chạy đầu tiên và bị DB
   chặn (Postgres "other objects depend on it"), Directus trả `500`, transaction rollback, không dọn gì; app mới làm y
-  hệt (đo ở `ddl.test.ts`, T021). Muốn xóa phải xóa field m2o hoặc relation trước, như app Directus làm.
+  hệt (đo ở `ddl.test.ts`, T021). Muốn xóa phải xóa field m2o hoặc relation trước, như app Directus làm. SQLite không
+  chặn: `204`, bảng bị xóa, khóa ngoại còn lại trỏ vào bảng không tồn tại (T031, cả hai app).
 - `GET /fields`, `GET /relations` không có `ORDER BY` khi đọc metadata: thứ tự là thứ tự vật lý của dòng trong DB, như
   Directus; hai app gọi cùng lúc trả cùng thứ tự, bộ so nối tiếp sắp lại trước khi so (research R5).
 - Snapshot do người dùng soạn tay (YAML) thiếu key tùy chọn (ví dụ `meta.note`): `deep-diff` báo thuộc tính bị xóa và
@@ -460,6 +461,7 @@ Khác biệt mới:
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
 | R-11 | `PATCH /collections/directus_<x>` với `meta` không bị chặn: `updateOne` tạo dòng `directus_collections` cho collection hệ thống (chưa có dòng nên `exists` false); `readByQuery` sau đó có hai entry cho collection đó (dòng DB và `systemCollectionRows`) | `services/collections.ts:444-470`, `:316-331` | `/collections` và app Directus hiển thị trùng (đo T010: `GET /collections` trả hai entry `directus_users` sau `PATCH`); chỉ dữ liệu, không DDL, nên tái tạo (FR-012). Bộ đối chiếu có ca, dọn dòng sau ca |
+| R-12 | Trên SQLite (pool một kết nối), `RelationsService.deleteOne` đọc khóa ngoại bằng knex chính (`this.foreignKeys()`, không phải `trx`) bên trong transaction; khi cache `foreignKeys` trống, request chờ pool tới `acquireConnectionTimeout` (60 giây) rồi `500` (`Knex: Timeout acquiring a connection`). Xảy ra với `DELETE /relations/:c/:f` và `DELETE /fields/:c/:f` của field m2o | `services/relations.ts:467-469`; đo ở `relations.test.ts` trên SQLite (T031): log của cả Directus và app mới có `KnexTimeoutError` | Chỉ SQLite. Tái tạo (FR-031); ca so sánh bỏ qua trên SQLite vì thời điểm treo phụ thuộc cache |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

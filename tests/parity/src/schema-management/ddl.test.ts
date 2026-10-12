@@ -3,12 +3,16 @@
 // changes on columns that hold data, and the clean-up of a deleted collection. In sequence on the shared database with
 // the same names (research R5): see ddl-scenario.ts.
 import knex, { type Knex } from 'knex';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { knexConfig } from '../config.js';
 import { type AppName, adminToken, appRequest, directusRequest } from '../directus-api.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import type { ParityRequest } from '../parity.js';
 import { cleanupTables, ddlScenario } from './ddl-scenario.js';
+
+// Each case runs every request twice in sequence, slower on SQLite (Knex rebuilds the table on ALTER) and with
+// the emulated Directus image.
+vi.setConfig({ testTimeout: 180_000 });
 
 const [vendor] = getDbsToTest();
 const P = 'parity_sm_ddl';
@@ -446,11 +450,12 @@ describe('deleting a collection with what depends on it (FR-013, FR-023)', () =>
 		expect(backoffice).toEqual(directus);
 	});
 
-	it('another table has a foreign key to it: the DROP TABLE fails at both apps (500), nothing is cleaned', async () => {
+	it('another table has a foreign key to it: the DROP TABLE fails at both apps (500, not on SQLite)', async () => {
 		const directus = await deleteAndRead('directus', true);
 		const backoffice = await deleteAndRead('backoffice', true);
 
-		expect(directus).toMatchObject({ status: 500, table: true });
+		// SQLite drops a table that others still point at (foreign keys are not checked on DROP TABLE there).
+		if (vendor !== 'sqlite3') expect(directus).toMatchObject({ status: 500, table: true });
 		expect(backoffice).toEqual(directus);
 	});
 });

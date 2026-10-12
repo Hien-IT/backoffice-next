@@ -4,13 +4,17 @@
 // diffed and applied at the other.
 import { dump, load as loadYaml } from 'js-yaml';
 import knex, { type Knex } from 'knex';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { knexConfig } from '../config.js';
 import { type AppName, adminToken, appRequest, directusRequest } from '../directus-api.js';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import { assertParity, capture, parity, type ParityRequest } from '../parity.js';
 import { cleanup, createUser } from '../permissions/fixtures.js';
 import { cleanupTables, ddlScenario } from './ddl-scenario.js';
+
+// Each case runs every request twice in sequence, slower on SQLite (Knex rebuilds the table on ALTER) and with
+// the emulated Directus image.
+vi.setConfig({ testTimeout: 180_000 });
 
 const [vendor] = getDbsToTest();
 const P = 'parity_sm_schema';

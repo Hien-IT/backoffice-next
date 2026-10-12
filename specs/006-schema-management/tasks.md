@@ -220,7 +220,7 @@ MySQL, SQLite.
   `db-unchanged`, `readonly-account`; `GET /relations`, `GET /schema/snapshot` thêm ở T030, T037 (route chưa có thì
   `404` làm `db-unchanged` đỏ). `tests/parity/accepted-differences.ts` thêm entry `D-32` (`DELETE /collections/directus_*`,
   app mới `403`, không `removeAt`); `accepted-differences.test.ts` và `spec-differences.ts` nhận D-32 từ bảng của spec 006.
-- [ ] T027 [US1] Chạy `parity --vendor=postgres` suite `full` (T020, T021 và toàn bộ 001 đến 005), `--vendor=mysql`,
+- [X] T027 [US1] Chạy `parity --vendor=postgres` suite `full` (T020, T021 và toàn bộ 001 đến 005), `--vendor=mysql`,
   `sqlite3` suite `reduced`; sửa lệch; ca fail trên chính Directus ở một vendor → `it.skipIf(vendor)` kèm ghi chú tên ca
   (Assumptions). Ghi số ca và thời gian vào "Ghi chú khi làm". (sau T024, T025, T026)
 
@@ -255,7 +255,7 @@ FR-032).
 - [X] T030 [US2] `apps/api/src/controllers/relations.controller.ts` port từ `directus/api/src/controllers/relations.ts`;
   `app.module.ts` thêm `useCollection('directus_relations')`; `tests/parity/src/request-set.ts` thêm `GET /relations`
   (ba biến thể token). T029 xanh. Ghi manifest. (sau T016)
-- [ ] T031 [US2] Chạy `parity --vendor=postgres` `full`, `mysql`, `sqlite3` `reduced` (thêm `relations.test.ts` vào
+- [X] T031 [US2] Chạy `parity --vendor=postgres` `full`, `mysql`, `sqlite3` `reduced` (thêm `relations.test.ts` vào
   `REDUCED_FILES` nếu dưới 2 phút); sửa lệch; ghi chú. (sau T028, T030)
 
 **Checkpoint**: US1 và US2 xanh ở ba vendor; `db-unchanged` xanh với `GET /relations`.
@@ -558,6 +558,15 @@ Task: "blackbox-common phần data model (T051)"
   /collections/directus_notifications` bằng admin → `204`, bảng mất khỏi `sqlite_master`, `directus_fields` của nó
   về 0 → D-32 giữ, T015 thêm `if`. `PATCH /collections/directus_users` `{meta: {note}}` → `200`, `GET /collections` có
   hai entry `directus_users` → R-11 xác nhận.
+- T027, T031 (2026-10-12): `src/schema-management` xanh ở Postgres, MySQL (chạy local) và SQLite (71 ca đạt, 5 bỏ qua:
+  `sync-api` cần profile `schema-cache`; ddl 9,6 s, cross-use 8,3 s, relations 8,5 s, schema 7,1 s, crud 5,2 s,
+  ddl-capture 0,8 s). `relations.test.ts` thêm vào `REDUCED_FILES`. Khác theo vendor, cả hai app như nhau: MySQL ghi tên
+  bảng tạm `#sql-…` vào thông báo lỗi, SQLite ghi `_knex_temp_alterN` (cả hai được chuẩn hóa); SQLite có
+  `constraint_name: null` và cho `DROP TABLE` khi còn khóa ngoại trỏ tới (`204`, Postgres `500`); MySQL đọc lại cột
+  uuid tạo bởi apply là `varchar` (target ghi `char`) nên diff sau apply không rỗng, test so model của hai app sau
+  apply thay vì so với target. R-12 (SQLite): xóa field m2o treo tới hết pool ở cả hai app, ca này bỏ qua trên SQLite.
+  CI SQLite: `data.db` do container (uid 1000) tạo với quyền 0644, runner không ghi được (`SQLITE_READONLY` ở blackbox
+  `collections/crud`, `fields/crud`); `env.mjs` chạy `chmod 666` trong container sau `env-up`.
 
 (Điền khi thực hiện: kết quả audit T001, helper thiếu T015, `Allow` thật T017, kết quả đo index T018, bằng chứng D-32
 T010, số ca và thời gian T027, T031, T044, T053, byte YAML T038, số đo SC-005 T044, kết quả benchmark T054.)
