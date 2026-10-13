@@ -30,7 +30,13 @@ pnpm nx run parity-tests:parity-blackbox --vendor=postgres
 ```
 
 ```bash
-pnpm nx run directus-app-e2e:e2e
+BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e
+```
+
+Benchmark (môi trường riêng, cùng cổng 8155/8156 với môi trường parity nên tắt môi trường parity trước):
+
+```bash
+pnpm nx run benchmark:env-up && BENCH_ROUNDS=3 pnpm nx run benchmark:flows --output-style=static
 ```
 
 ## 2. Kiểm tay: cùng flow, cùng kết quả ở hai app

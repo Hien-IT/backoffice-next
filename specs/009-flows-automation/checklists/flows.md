@@ -137,9 +137,9 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
 ## Dependencies & Assumptions
 
 - [x] CHK046 Giả định "bus Redis trả message về cho chính người gửi" (nạp lại sau ghi của chính app) được ghi là suy luận
-  cần đo, hay được coi là chắc chắn? [Assumption, plan R2, contracts/flows-api.md §7] — Đã sửa: Edge Cases và research R2 nêu cơ chế, đo ở T037 (2026-10-13)
+  cần đo, hay được coi là chắc chắn? [Assumption, plan R2, contracts/flows-api.md §7] — Đã sửa: Edge Cases và research R2 nêu cơ chế; đo 2026-10-14 ở T037 (`reload.test.ts`: app vừa ghi cũng trả `403` sau khi xóa flow, tức đã tự nạp lại)
 - [x] CHK047 Giả định micromustache `explicit: true` và JSON mode cho cùng kết quả ở hai app được gắn với một bước đo sớm?
-  [Assumption, plan rủi ro, R6] — Đạt: plan rủi ro 2, đo ở T003, ghi ở T052 (2026-10-13)
+  [Assumption, plan rủi ro, R6] — Đạt: plan rủi ro 2; đo 2026-10-14: test port `apply-options-data` (T003), template của `transform`, `log`, `item-*` trong `operations.test.ts` cho cùng kết quả ở hai app, `{{ x }}` thiếu giá trị thành chuỗi `"undefined"` ở cả hai (T015)
 - [x] CHK048 Phụ thuộc vào cặp `cache-mem` (005) cho blackbox webhook và vào `historyEffects` (008) cho log được ghi rõ,
   kể cả thay đổi cần làm ở chúng (`nodeUrl`, profiles CI)? [Dependency, contracts/parity.md §1, §3] — Đạt: contracts/parity.md §1, §3; T007, T018, T043 (2026-10-13)
 

@@ -472,24 +472,24 @@ CI xanh mọi job.
 
 ## Phase 10: Polish & Cross-Cutting Concerns
 
-- [ ] T047 [P] `tests/benchmark/src/seed-flows.ts` (collection 1.000 item; 50 flow × 3 operation; flow
+- [X] T047 [P] `tests/benchmark/src/seed-flows.ts` (collection 1.000 item; 50 flow × 3 operation; flow
   `webhook-sync` `transform` → `condition` → `item-read`, `accountability: null`; flow `webhook-exec`) và
   `tests/benchmark/src/flows.ts`: `webhook-sync`, `flows-list` (ngưỡng 10%), `webhook-exec` (chỉ ghi số), 50 kết nối,
   3 vòng, cùng mẫu `history.ts`; `tests/benchmark/project.json` target `flows`; `compare.test.ts` thêm ca nếu
   `compare.ts` đổi (FR-063, SC-006, research R13).
-- [ ] T048 [P] `.github/workflows/benchmark.yml` job `benchmark-flows` theo mẫu `benchmark-history`; chạy cục bộ 3
+- [X] T048 [P] `.github/workflows/benchmark.yml` job `benchmark-flows` theo mẫu `benchmark-history`; chạy cục bộ 3
   vòng trên Postgres, ghi p95, req/s và thời gian job vào "Ghi chú khi làm".
-- [ ] T049 [P] Manifest và header: kiểm `tools/port-manifest/009-T*.json` đủ cho T002, T003, T009 đến T012, T014,
+- [X] T049 [P] Manifest và header: kiểm `tools/port-manifest/009-T*.json` đủ cho T002, T003, T009 đến T012, T014,
   T017, T022, T028 đến T034, T039, T043; `node tools/check-port-headers.mjs` xanh; mọi chỗ `// Backoffice:` thuộc danh
   sách của plan (Constitution Check I).
-- [ ] T050 [P] Tài liệu: `specs/001-platform-foundation/spec.md` dòng D-09.7 (gỡ ở 009); `specs/003-auth-session/
+- [X] T050 [P] Tài liệu: `specs/001-platform-foundation/spec.md` dòng D-09.7 (gỡ ở 009); `specs/003-auth-session/
   spec.md` dòng D-26 (gỡ ở 009); `specs/004-permissions/spec.md` dòng D-29 (gỡ ở 009), D-31 (thu hẹp: bỏ
   `directus_flows`, `directus_operations`); `specs/008-activity-revisions-versions/spec.md` dòng D-33 (`Loại` lâu dài,
   `Gỡ khi` `—`); `tests/parity/README.md` mục 009 (helper `withoutD097`, cặp `flows-schedule`, `cache-mem` cho
   blackbox); `CLAUDE.md` mục 009 (kiểm lại); `specs/009-flows-automation/quickstart.md` kiểm lại lệnh và cổng.
-- [ ] T051 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api`, `libs/utils`,
+- [X] T051 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api`, `libs/utils`,
   `libs/errors` ≥ 80% (ghi số), `pnpm audit --prod --audit-level=high` không advisory mới, `graphify update .`.
-- [ ] T052 Spec: điền bằng chứng R-22 (T036), R-23 (T023), R-24 (T019), R7 (T019, T042), uuid viết hoa (T019),
+- [X] T052 Spec: điền bằng chứng R-22 (T036), R-23 (T023), R-24 (T019), R7 (T019, T042), uuid viết hoa (T019),
   micromustache R6 (T003), bus R2 (T037) vào
   bảng rủi ro và "Ghi chú khi làm"; cập nhật `checklists/flows.md` mục liên quan (CHK046, CHK047); sửa FR nếu đo
   khác (ghi rõ, không tự lệch).
@@ -660,3 +660,24 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   giá trị của biến trong `FLOWS_ENV_ALLOW_LIST` nằm trong chuỗi thành `--redacted:PARITY_FLOWS_ENV_TEST--`; lỗi của bước
   reject trong revision là `{"name":"DirectusError","message":"teapot"}` ở cả hai app (R7 khớp, `stack` đã bị xóa);
   flow đích của operation `trigger` ghi log dưới id của chính nó, trước flow gọi nó (CHK049).
+- US7 (T043–T046, 2026-10-14, Postgres cục bộ): blackbox `flows/webhook.test.ts` 2/2 ở cả hai lượt (Directus,
+  app mới) trên cặp `cache-mem` (cần seed blackbox trước vì token admin tĩnh của `USER.ADMIN`); `e2e-app.test.ts`
+  3/3 (chuỗi `saveChanges` của `flow.vue`: cây trigger gửi trong `operation`, `create`/`update`/`delete` rỗng khi
+  panel mới nối sau panel cũ; chạy flow manual trả `204` vì operation cuối `log` cho `$last` rỗng); Playwright
+  `flows.spec.ts` xanh qua proxy và Directus đơn (Chrome cài sẵn, config tạm không commit): activity `create` flow,
+  hai `create` operation, `update` flow, hai `run`, `update` status, `delete`, và bước của hai revision `run` trùng ở
+  hai lượt. Docker: `node -e "require('isolated-vm')"` trong image chạy được (bước mới của job `docker`).
+- Benchmark (T047–T048, 2026-10-14, cục bộ macOS arm64, Directus amd64 giả lập, Postgres, 3 vòng, 50 kết nối, seed
+  6 s): `webhook-sync` p95 559 / 539 ms, 141.5 / 145.7 req/s; `flows-list` p95 818 / 891 ms (+9%), 53.8 / 55.7 req/s;
+  `webhook-exec` (chỉ ghi số, 1 vòng) p95 254 / 254 ms, 214.4 / 223.8 req/s (Directus / app mới); cả ba `ok`, cả lượt
+  320 s. Job `benchmark-flows` chạy hằng tuần như `benchmark-history`, chưa có số trên runner CI.
+- T051 (2026-10-14): `pnpm nx run-many -t test lint typecheck` 75 task xanh; coverage dòng `apps/api` 86.98% (nhánh
+  84.96%), `libs/utils` 95.46%, `libs/errors` 99.73%; `pnpm audit --prod --audit-level=high` không advisory mới (25 high,
+  1 critical đều trong danh sách bỏ qua có sẵn); `graphify update .` chạy lại. T049: 18 manifest `009-T*.json`,
+  `check-port-headers` 1161 file 0 lỗi; danh sách `Backoffice:` của plan (Constitution Check I) bổ sung các chỗ gặp khi làm.
+- CI của `4249bc1`: `parity (mysql, reduced)` đỏ ở `event.test.ts` ca action `items.create` (Directus 0 dòng log, app
+  mới 1). Log container: Directus nhận `POST /items/...` 1 s sau `PATCH /flows` cuối của `beforeAll`; [Inference] lúc
+  đó hàng đợi nạp lại (mỗi lần ghi flow, operation thêm một lần `unload` rồi `load`) của Directus trên MySQL chưa chạy
+  xong nên action rơi vào khoảng giữa `unload` và `load`. Sửa test: helper `settled()` tạo flow webhook thăm dò và chờ
+  cả hai app trả lời nó trước khi bắt đầu (FIFO nên mọi lần nạp trước đã xong). CI của `f5d1d19` có một lần đỏ khác
+  ở MySQL (`schema-management/crud.test.ts` `GET /fields`, thứ tự field khác), không lặp lại ở `4249bc1`: theo dõi.

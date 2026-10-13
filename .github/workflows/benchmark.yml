@@ -202,3 +202,26 @@ jobs:
           docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
+
+  benchmark-flows:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up
+      - run: pnpm nx run benchmark:flows --output-style=static
+        env:
+          BENCH_ROUNDS: 3
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
+      - if: always()
+        run: pnpm nx run benchmark:env-down

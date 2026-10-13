@@ -122,7 +122,10 @@ Image build isolated-vm ở stage builder (toolchain đã có, FR-051).
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`. Mọi file port ghi `// Ported from directus/...` (bảng ánh
   xạ, manifest `009-T*.json`). Chỗ khác nguồn ghi `Backoffice:`: đăng ký operation từ danh sách tĩnh, cảnh báo store
-  memory, `unload` khi shutdown, kiểm uuid trong controller, `mail` ghi log, test `mail` viết lại.
+  memory, `unload` khi shutdown, kiểm uuid trong controller, `mail` ghi log, test `mail` viết lại. Thêm khi làm
+  (T049): `$trigger.path` bỏ tiền tố mount `/flows` của Nest; `name` lỗi `DirectusError` (R7); `get-cache-key` nạp
+  `flows.js` khi dùng và bỏ phần GraphQL (feature 011); `auth.update` của OAuth2/OpenID truyền payload đã lọc vào
+  `UsersService.updateOne`; test mock FlowManager khi dựng cả app; test viết mới nơi Directus không có test.
 - [x] **II. Dùng chung DB**: PASS. Không DDL, không migration; ghi `directus_flows`, `directus_operations` qua
   `ItemsService`; activity `run`, revision `{steps, data}` cùng nội dung (SC-003, `logs.test.ts`); `name` lỗi về
   `DirectusError` để dữ liệu JSON trong DB trùng (R7); khởi động chỉ đọc (`load`).

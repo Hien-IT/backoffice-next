@@ -191,6 +191,22 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   khóa `schedule--data-retention` bằng `redis-cli monitor` trong container `redis`. Cặp có namespace bus, lock riêng.
 - `bus.test.ts` (cặp `websocket`) thêm `versions.*` và `items.promote`; thời gian trong message thành `<time>`.
 
+### Test flows (feature 009)
+
+- `src/flows/`: CRUD `/flows`, `/operations` (`crud.test.ts`), webhook, manual, event, 15 operation, log chạy
+  (`logs.test.ts`), nạp lại qua bus hai chiều (`reload.test.ts`), chuỗi request của màn Flows trong app Directus
+  (`e2e-app.test.ts`) và flow theo lịch (`schedule.test.ts`).
+- `helpers.ts`: `seedFlow()` tạo flow và operation qua API của một app rồi chờ `RELOAD_WAIT`; `settled()` tạo flow
+  webhook thăm dò và chờ cả hai app trả lời nó (event flow bị lỡ nếu event tới giữa `unload` và `load` của một lần
+  nạp lại); `same()` so với bộ lọc `withoutD097` (bỏ entry tạm D-09.7, như D-09.6 ở 008); `flowEffects()` là
+  `historyEffects()` cho dòng activity `run` và revision của flow.
+- Cặp `flows-schedule` (`*/2 * * * * *`, store đồng bộ Redis): dùng chung DB nên KHÔNG đưa vào `env-up --profiles`;
+  `schedule.test.ts` tự bật, tắt cặp và đếm lần chạy mỗi nhịp (mỗi nhịp đúng một lần ở hai app).
+- Request của operation `request` đi tới `http://files-fixtures/`: `IMPORT_IP_DENY_LIST` mặc định chặn IP của chính
+  container nên Directus không gọi được `directus:8055`.
+- Blackbox `tests/db/routes/flows/webhook.test.ts` chạy trên cặp `cache-mem` (`nodeUrl('cache-mem', 1)`), nên
+  `parity-blackbox` có `cache-mem` trong `--profiles`.
+
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.
 

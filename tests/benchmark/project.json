@@ -79,6 +79,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"flows": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/flows.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }
