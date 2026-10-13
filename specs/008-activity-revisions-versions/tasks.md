@@ -334,7 +334,7 @@ thể chạy sớm để kiểm.
   của user được nhắc; Version tạo, save, xem bản nháp, so sánh, promote chọn field, đổi tên, xóa; Activity danh sách,
   chi tiết IP, user agent); helper tạo collection versioning + accountability `all` theo `data-model.spec.ts`
   (FR-063, SC-006).
-- [ ] T040 [US6] CI: `.github/workflows/ci.yml` (`parity` thêm suite `history`; KHÔNG thêm `retention` vào
+- [X] T040 [US6] CI: `.github/workflows/ci.yml` (`parity` thêm suite `history`; KHÔNG thêm `retention` vào
   `--profiles`, `retention.test.ts` tự bật cặp; `env-down` cuối job đã hạ mọi profile;
   `parity-blackbox` thêm `version`; E2E thêm `history.spec.ts`), `parity-matrix.yml`, `nightly.yml` như `parity`;
   `tools/ci-local.sh` theo; chạy đủ `pnpm run ci:local` rồi push và theo dõi `gh run` tới xanh (contracts/parity.md
@@ -519,3 +519,7 @@ Task: "router-options.ts mẫu mới (T015)"
   `activity-list` user 577 so với 473 ms; lượt 2: `item-version-read` 569 so với 474 ms, `revisions-sidebar` 607 so với
   523 ms), các kịch bản đó đạt ở lượt kia. Nhiễu của máy giả lập ở p95 khoảng 500 ms; mốc chính thức là job CI
   `benchmark-history`.
+- T040: workflow không cần sửa: suite `history` vào `reduced`, `full` qua `src/suite.ts`, blackbox `version` qua glob,
+  `history.spec.ts` qua `testDir`; `retention` không nằm trong `--profiles` nào (ca guard ở `vendors.test.ts`). CI của
+  `21daf94` xanh mọi job (quality, parity Postgres hai shard, MySQL, SQLite, blackbox hai lượt, cache, matrix, E2E app
+  Directus, docker, publish).
