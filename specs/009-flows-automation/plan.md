@@ -72,7 +72,7 @@ Stack theo prompt của chủ dự án và cách feature này đáp ứng:
   không key mới.
 
 **Testing**:
-- Vitest 3.2.4: test gốc port kèm code (`flows.test` 2, 15 operation 95 ca, `rate-limiter` 5, `redact-object` 14,
+- Vitest 3.2.4: test gốc port kèm code (`flows.test` 2, 15 operation 94 khối test, `rate-limiter` 5, `redact-object` 14,
   `apply-options-data` 12, `sieve-functions` 8, `is-valid-json` 2); test mới cho `FlowManager` (Backoffice), hai
   controller (supertest qua app Nest), hai service, `getService`, `construct-flow-tree`, `supported-variables`,
   `app.test` (R15). `exec/index.test.ts` chạy isolated-vm thật. Coverage 80% `apps/api`, `libs/utils`,

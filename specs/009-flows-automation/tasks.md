@@ -290,7 +290,8 @@ event, payload, meta; filter chặn hoặc đổi payload; action chạy nền.
   `directus_comments` (`users.create`, `files.update`, `comments.create`...); filter reject (`throw-error`) → request
   lỗi với status/code của nó ở cả hai app và không ghi item; filter `return` (`transform` đổi `payload.title`) → item
   ghi với giá trị mới; filter có `item-create` vào `articles_log` rồi request lỗi → dòng log bị rollback (transaction);
-  action: response không đợi, poll ≤ 5 s activity `run` và `articles_log` (`$trigger.event`, `keys`, `collection`,
+  action flow kết thúc bằng nhánh reject → request vẫn `2xx`, log chạy có bước `reject` (lỗi chỉ ở log, không lan
+  lên response); action: response không đợi, poll ≤ 5 s activity `run` và `articles_log` (`$trigger.event`, `keys`, `collection`,
   `$accountability.user`); `auth.login` action (đăng nhập qua `/auth/login` của app mới); chỉ app nhận request chạy
   (đếm `run` theo app); `authenticate` filter không chặn (log). Dọn flow và `articles_log` ở `afterAll` (FR-010,
   FR-022, FR-023; US3 ca 1–5). Cần `item-create` của T029: ca dùng `item-create` chạy sau T029 (viết test trước, đỏ
@@ -319,7 +320,8 @@ thật); quickstart §5.
   mảng lỗi; filter `$CURRENT_USER`), `exec` (sync, async, `console.log`, `process.env` từ `$env`, lỗi cú pháp,
   `module.exports` không phải hàm, `while(true){}` → `Script execution timed out.` sau 10 s, bộ nhớ: `new
   Array(1e8).fill(1)` → `Array buffer allocation failed`), `item-*` với `permissions` `$trigger` (public → `403`),
-  `$full`, `$public`, role test của 004, `key` một/nhiều/không, `payload` chuỗi JSON và object, `emitEvents` (flow
+  `$full`, `$public`, role test của 004, uuid role không tồn tại (reject `Configured role "<role>" isn't a valid
+  role ID or doesn't exist.`), `key` một/nhiều/không, `payload` chuỗi JSON và object, `emitEvents` (flow
   action thứ hai không chạy khi `false`), `json-web-token` sign/verify/decode + 4 lỗi, `log`, `mail` (kết quả `null`,
   D-34 qua `logs()`; rate limiter chỉ unit test), `notification` (dòng `directus_notifications`, `$full` sender null,
   D-33), `request` tới `http://directus:8055/server/ping`, `/server/info` (so `data`, `status`, `headers`
@@ -356,7 +358,7 @@ thật); quickstart §5.
   đăng ký đủ 15 (`flows.test.ts` ca mới); chạy T027 trên Postgres, MySQL, SQLite; ghi số ca và thời gian ca `exec`
   timeout vào "Ghi chú khi làm". Sau T028 đến T034.
 
-**Checkpoint**: US4 xanh; `pnpm nx run api:test` gồm 95 ca gốc của operation; quickstart §5.
+**Checkpoint**: US4 xanh; `pnpm nx run api:test` gồm 94 khối test gốc của operation; quickstart §5.
 
 ---
 

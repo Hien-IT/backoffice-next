@@ -200,6 +200,8 @@ response (filter), hiệu ứng phụ (action, đợi tới khi xuất hiện), 
    app mới thì chỉ app mới chạy (không có cơ chế chạy chéo).
 5. **Given** flow event trên collection hệ thống chưa có route ở app mới (D-09.8), **When** request đi tới Directus
    qua proxy, **Then** flow chạy ở Directus; app mới chỉ chạy khi chính nó phát event (ghi lồng qua `ItemsService`).
+   Chỉ mô tả, không có ca đối chiếu riêng: đây là hệ quả của ca 4 (flow chạy ở app nhận request), đã kiểm với collection
+   có route ở app mới.
 
 ---
 
@@ -340,7 +342,9 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
 ### Edge Cases
 
 - `flow.options.return`: webhook mặc định `$last` khi rỗng; manual luôn bị ép `$last` (option của flow bị ghi đè khi
-  nạp, chỉ trong bộ nhớ); `$all` trả cả `$env` (giá trị thật, không che) và `$accountability` ra client, như Directus,
+  nạp, chỉ trong bộ nhớ); `event`, `schedule`, `operation` không có mặc định: rỗng thì `executeFlow` trả `undefined`
+  (filter giữ payload cũ vì `emitFilter` chỉ thay khi kết quả khác `undefined`; flow `operation` trả `null` cho
+  operation `trigger` sau `?? null`); `$all` trả cả `$env` (giá trị thật, không che) và `$accountability` ra client, như Directus,
   kể cả với webhook public (R-24).
 - Response của `/flows/trigger/:id` là kết quả thô (không bọc `{ data }`); `respond` trả `204` khi kết quả falsy
   (`undefined` khi `async` hoặc `return` trỏ đường dẫn không có, `null`, `0`, `''`, `false`); chuỗi, số khác 0, object,
@@ -361,9 +365,16 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   `clock:<id>:<cron mới>`. Cron hợp lệ về cú pháp nhưng không có thời điểm kế (ví dụ `0 0 31 2 *`): hành vi theo thư
   viện `cron` cùng bản ở hai app; bộ đối chiếu không kiểm.
 - Flow `operation` ("another flow") không có handler webhook/manual/event: gọi `/flows/trigger/:id` của nó trả `403`.
+  Operation `trigger` chỉ chạy được flow đích có trigger `operation` và `status = active`; flow đích là webhook,
+  manual, event, schedule hoặc inactive → `runOperationFlow` trả `null` kèm cảnh báo "Couldn't find operation
+  triggered flow with id". Lồng nhiều cấp được (flow đích lại có operation `trigger`), không giới hạn độ sâu như
+  Directus (vòng lặp A → B → A chạy tới khi hết bộ nhớ hoặc stack; không kiểm). Flow đích reject không ném lên flow gốc
+  (`executeFlow` chỉ ném với webhook/manual `error_on_reject` hoặc filter); kết quả cho flow gốc là `return` của flow
+  đích; chỉ lỗi ngoài chuỗi (ví dụ ghi log chạy thất bại) mới lan lên thành nhánh reject của operation `trigger`.
 - Filter flow chạy trong transaction của request: `item-*` với `database` của context dùng cùng transaction; action
-  flow dùng kết nối thường; schedule, webhook, manual dùng kết nối thường và `getSchema` mỗi lần chạy (tăng tỉ lệ
-  R-19 nếu có nhiều lần chạy trong namespace dùng chung: cặp đối chiếu cho lịch có namespace riêng).
+  flow dùng kết nối thường; schedule, webhook, manual dùng kết nối thường. `getSchema` gọi mỗi lần chạy với schedule,
+  filter, action (context không có `schema`; tăng tỉ lệ R-19 nếu có nhiều lần chạy trong namespace dùng chung: cặp
+  đối chiếu cho lịch có namespace riêng); webhook, manual dùng `schema` của request.
 - Flow `async` (webhook, manual): `executeFlow` không được await; lỗi sau các bước (ghi activity thất bại) thành
   unhandled rejection, process giữ như pm2 (`unhandled-rejection.ts`).
 - `error_on_reject` chỉ có tác dụng với webhook và manual đồng bộ; với filter flow, reject luôn ném `$last`; với action
@@ -371,14 +382,28 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
 - `SynchronizedClock.reset()` xóa khóa Redis khi nạp lại: nạp lại ngay trước một kỳ có thể cho cả hai instance đặt
   được khóa (R-23).
 - Nạp lại là toàn bộ (unload mọi flow rồi load): mọi job cron dừng và đăng ký lại; message của chính app cũng được
-  nhận qua bus (Redis pub/sub trả về cho người gửi).
+  nhận qua bus: Redis pub/sub giao message cho mọi kết nối đã `SUBSCRIBE`, kể cả kết nối `sub` riêng của chính process
+  gửi (bus local gọi handler đồng bộ); Directus dựa vào điều này để tự nạp lại sau khi ghi; đo ở `reload.test.ts`.
 - Flow có `operation` (gốc) trỏ operation không thuộc flow hoặc `resolve`/`reject` trỏ operation không có:
-  `constructFlowTree` ném "Undefined reference in operations" khi nạp, làm nạp lại thất bại ở cả hai app như Directus.
+  `constructFlowTree` ném "Undefined reference in operations" khi nạp. Vì `load` dựng cây cho mọi flow trước khi đăng ký
+  handler nào, lỗi này làm **không flow nào** được nạp, như Directus: lúc khởi động, `initialize()` ném và app không
+  khởi động được (Directus cũng vậy); lúc nạp lại (sau `unload`), `isLoaded = false`, mọi flow ngừng, tác vụ trong hàng
+  đợi reject thành unhandled rejection (log bởi `unhandled-rejection.ts`), và các message nạp lại sau đó chỉ ghi cảnh
+  báo "Flows have to be loaded before they can be reloaded" cho tới khi khởi động lại process. Trình chỉnh sửa của app
+  Directus không tạo được tham chiếu hỏng (khóa ngoại); chỉ ghi DB thẳng mới gây ra; bộ đối chiếu không kiểm.
+- Kích thước dữ liệu: app mới không đặt giới hạn riêng, như Directus: body webhook/manual giới hạn bởi
+  `MAX_PAYLOAD_SIZE` (001); `$all`, `directus_revisions.data` của log chạy không giới hạn (cột JSON của vendor); kết quả
+  `request` theo mặc định của axios (`responseType` json, nội dung nhị phân thành chuỗi). Ngoài phạm vi kiểm của bộ
+  đối chiếu.
 - `exec`: `console.log` nhiều tham số ghi mảng, một tham số ghi giá trị; mỗi lần chạy tạo isolate mới và giải phóng;
   kết quả không copy được (hàm) đi nhánh reject.
-- `item-*` với `permissions` là uuid role không tồn tại: `getAccountabilityForRole` dựng accountability rỗng như
-  Directus (không lỗi), quyền bằng public.
-- `request`: `url` thay thế rồi mới encode; redirect tới IP bị chặn cũng bị chặn bởi agent như 007.
+- `item-*`, `notification` với `permissions` là uuid role không tồn tại: `getAccountabilityForRole` ném
+  `Error('Configured role "<role>" isn\'t a valid role ID or doesn\'t exist.')` (`fetchRolesTree` trả rỗng), operation
+  đi nhánh reject với lỗi đó, như Directus. `$public` dùng `createDefaultAccountability()` (không `ip`); `$full` dùng
+  accountability admin không `user`.
+- `request`: `url` thay thế rồi mới encode; host là IP trong `IMPORT_IP_DENY_LIST`, hoặc tên miền phân giải (kể cả sau
+  redirect) ra IP bị chặn, bị agent của 007 chặn với `Error('Requested domain "<host>" resolves to a denied IP
+  address')`: operation đi nhánh reject với `Error` đó (bỏ `stack`), không phải object `{status, ...}` của lỗi HTTP.
 - Manual: `keys` được so bằng chuỗi (`String(key)`), nên `1` và `"1"` khớp; `requireSelection = false` cho phép không
   `keys` (trang danh sách không chọn gì).
 - Webhook `GET` được cache theo khóa cache của 005 (gồm accountability và URL) khi `cacheEnabled` không tắt; `POST`
@@ -451,7 +476,9 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   `res.locals.payload = result` (không bọc `{ data }`) và trả qua `respond` (`204` khi kết quả falsy).
 - **FR-014**: `reload()` PHẢI chỉ publish `{ type: 'reload' }` lên kênh `flows` của bus dùng chung; subscriber (đăng ký
   trong constructor) đưa `unload` + `load` vào hàng đợi một luồng; chưa nạp lần đầu thì cảnh báo "Flows have to be
-  loaded before they can be reloaded". Message do Directus publish PHẢI làm app mới nạp lại và ngược lại (cùng
+  loaded before they can be reloaded". Chỉ `runWebhookFlow`, `runOperationFlow` đợi hàng đợi nạp lại; handler
+  event (filter, action) và job schedule đang đăng ký chạy ngay với cây flow hiện có (cây cũ tới khi `unload` gỡ).
+  Message do Directus publish PHẢI làm app mới nạp lại và ngược lại (cùng
   `REDIS_BUS_NAMESPACE`); không có Redis thì bus local chỉ nạp lại trong process.
 - **FR-015**: `runOperationFlow(id, data, context)` PHẢI đợi hàng đợi nạp lại, trả null kèm cảnh báo "Couldn't find
   operation triggered flow with id" khi không có flow `operation` với id đó.
@@ -500,7 +527,11 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   $env }`, `module = { exports: null }`, `console.{log,info,warn,error,trace,debug}` gọi logger (một tham số ghi giá
   trị, nhiều ghi mảng); `context.eval(code, { timeout })` rồi `evalClosure('return module.exports($0.data)')` với
   `{ data: sieveFunctions(data) }`, `timeout = FLOWS_RUN_SCRIPT_TIMEOUT`, kết quả `reference + promise` rồi `copy()`;
-  giải phóng reference, context, isolate sau mỗi lần chạy, kể cả khi lỗi (đo ở unit test port).
+  giải phóng reference, context, isolate sau mỗi lần chạy, kể cả khi lỗi (đo ở unit test port). Yêu cầu bảo mật
+  (giống Directus, kiểm bằng 12 test gốc): script chạy trong isolate riêng, chỉ thấy `data` đã lược hàm,
+  `process.env = $env`, `module`, `console`; không có `require`, `import` (CJS và ESM đều lỗi), file, mạng hay global
+  của Node; bị dừng khi vượt `FLOWS_RUN_SCRIPT_MAX_MEMORY` (MB) hoặc `FLOWS_RUN_SCRIPT_TIMEOUT` (ms) mà không ảnh hưởng
+  process.
 - **FR-033**: `item-create`, `item-read`, `item-update`, `item-delete`: accountability theo `permissions` (`$trigger`
   hoặc rỗng: của context; `$full`: `getAccountabilityForRole('system')`; `$public`: role null; khác: uuid role),
   `payload`, `query` qua `optionToObject`, `query` qua `sanitizeQuery` với accountability đó, `emitEvents` theo
@@ -541,10 +572,14 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
 - **FR-050**: Biến `FLOWS_ENV_ALLOW_LIST`, `FLOWS_RUN_SCRIPT_MAX_MEMORY`, `FLOWS_RUN_SCRIPT_TIMEOUT`,
   `RATE_LIMITER_EMAIL_FLOWS_ENABLED`, `RATE_LIMITER_EMAIL_FLOWS_POINTS`, `RATE_LIMITER_EMAIL_FLOWS_DURATION` PHẢI
   chuyển sang nhóm "đã hỗ trợ" với cùng mặc định và cách ép kiểu như Directus (`FLOWS_ENV_ALLOW_LIST` là danh sách
-  tên biến, `false` nghĩa là `$env` rỗng); không thêm biến mới (Nguyên tắc VIII). `SYNCHRONIZATION_STORE`,
-  `SYNCHRONIZATION_NAMESPACE` đã thuộc nhóm hỗ trợ từ 001.
-- **FR-051**: Image Docker của app mới PHẢI build được isolated-vm (native) trong stage build như image Directus và
-  chạy `exec` ở runtime alpine; `pnpm install` cục bộ trên macOS arm64 cũng build được (ghi trong quickstart).
+  tên biến, `false` nghĩa là `$env` rỗng); `RATE_LIMITER_EMAIL_FLOWS_ERROR_MESSAGE` (không có mặc định, thành
+  `extensions.message` của `EmailLimitExceededError`) cũng vào nhóm này qua mẫu `RATE_LIMITER_EMAIL_FLOWS_.+`; không
+  thêm biến mới (Nguyên tắc VIII). Tài liệu phải sửa: `specs/001-platform-foundation/contracts/config.md` (dòng A, C)
+  và `apps/api/src/config/supported-variables.ts`. `SYNCHRONIZATION_STORE`, `SYNCHRONIZATION_NAMESPACE` đã thuộc nhóm
+  hỗ trợ từ 001.
+- **FR-051**: isolated-vm (native) PHẢI build và chạy được ở ba môi trường: image Docker của app mới (build trong
+  stage builder alpine như image Directus, chạy `exec` ở runtime alpine), runner CI (job `quality` chạy
+  `exec/index.test.ts` với isolated-vm thật), và máy dev macOS arm64 (`pnpm install`, ghi trong quickstart).
 
 **Kiểm thử**
 
@@ -661,6 +696,10 @@ Khác biệt mới:
   `schema`: webhook, manual (context có `schema` của request) không gọi; schedule, filter, action (context chỉ có
   `getSchema`, không `schema`) gọi mỗi lần chạy, như Directus (cache schema dùng chung của 002, chỉ dựng lại khi cache
   trống); không giới hạn số flow nạp (`limit = -1`); không có yêu cầu hiệu năng riêng ngoài SC-006.
+- Quan sát (log, metrics) của lần chạy flow như Directus: log JSON pino qua `useLogger()` toàn cục (cùng message,
+  cùng mức; flow chạy nền và theo lịch không mang request id, như Directus), không thêm metric Prometheus cho flow
+  (Directus không có); lần chạy được truy vết qua activity `run` và revision. Hai dòng log mới (FR-011, FR-036) là
+  khác biệt duy nhất.
 - Extension (operation tùy chỉnh, hook) chưa làm (SPECKIT-GUIDE §1): operation `type` lạ ở app mới dừng chuỗi với
   `unknown` như Directus khi extension không được cài; đây là hành vi Directus, không ghi khác biệt mới.
 - Không gửi email là quyết định dự án (SPECKIT-GUIDE §1): D-23, D-27, D-28, D-33, D-34 đều lâu dài; feature 010
@@ -684,8 +723,9 @@ Khác biệt mới:
 
 - **SC-001**: 100% ca của bộ blackbox, unit port (US7) đạt ở cả hai app trên Postgres, MySQL, SQLite trước khi đóng
   feature; vendor còn lại đạt ở một lượt `nightly.yml` bấm tay hoặc được ghi chú theo Assumptions.
-- **SC-002**: 100% request của bộ đối chiếu `/flows`, `/operations`, `/flows/trigger/:id` (kể cả lỗi, `OPTIONS`,
-  `HEAD`, `204`, `403`) cho cùng status, body, header ở hai app, ngoài khác biệt đã ghi (D-34).
+- **SC-002**: 100% request của bộ đối chiếu `/flows`, `/operations`, `/flows/trigger/:id` (kể cả lỗi `400`, `403`,
+  `404`, `422`, `500`, `OPTIONS`, `HEAD`, `204`) cho cùng status, body, header ở hai app, ngoài khác biệt đã ghi
+  (D-34).
 - **SC-003**: 100% flow của bộ seed (mỗi trigger, mỗi operation, cả hai nhánh) cho cùng `$all` (theo tập so FR-060),
   cùng hiệu ứng phụ và cùng dòng activity `run`, revision ở hai app; với flow theo event, 100% request ghi kích hoạt
   flow ở app nhận request và chỉ ở đó.

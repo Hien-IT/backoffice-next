@@ -36,7 +36,10 @@ tính từ `directus/api/src` trừ khi ghi khác; đường dẫn app mới tí
   - `getSchema` của app mới là `apps/api/src/schema/get-database-schema.ts` (cùng chữ ký `getSchema({database})`).
   - Test khởi động app (`app.test.ts`, các `*.controller.test.ts` gọi `createApp()`) mock `./flows.js` như đã mock
     `./schedules/*.js`, vì `load` đọc `directus_flows` bằng `FlowsService`.
-- **Lý do**: FR-010 đến FR-024; thứ tự khởi tạo quyết định flow `event` bắt được request đầu tiên. Danh sách tĩnh tránh
+- **Lý do**: FR-010 đến FR-024; thứ tự khởi tạo quyết định flow `event` bắt được request đầu tiên. `reload()` chỉ
+  publish; process gửi tự nạp lại vì Redis pub/sub giao message cho cả kết nối `sub` của chính nó (`libs/memory`
+  `BusRedis` dùng `redis.duplicate()` để subscribe, handler không lọc người gửi): hành vi chuẩn của Redis, đo lại ở
+  T037 (đếm lượt nạp lại của app vừa ghi). Danh sách tĩnh tránh
   `readdir` + `import()` động trên `dist` của swc và dễ mock trong test.
 - **Đã cân nhắc**: Nạp operation bằng `readdir` như Directus: bị loại, thêm đường dẫn runtime phụ thuộc layout `dist`
   mà không có lợi (không có extension). Khởi tạo FlowManager trong `startSchedules()` (sau Nest init): bị loại, request
