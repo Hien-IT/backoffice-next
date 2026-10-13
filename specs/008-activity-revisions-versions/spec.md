@@ -405,7 +405,7 @@ module Activity.
   tìm thấy nên trả `403` sau khi comment và thông báo đầu đã ghi, như Directus (đo ở CI của T030).
 - **FR-042**: `NotificationsService` PHẢI được port cho FR-041 (`createOne` ghi dòng rồi `sendEmail`); `sendEmail`
   chạy tới bước quyết định gửi (user có `email` và `email_notifications = true`) rồi ghi một dòng log cảnh báo thay
-  cho bước gửi, không đọc `EMAIL_*`, không lỗi (Nguyên tắc X; D-33, Clarifications) cho tới feature 010. Dòng log:
+  cho bước gửi, không đọc `EMAIL_*`, không lỗi (Nguyên tắc X; D-33, Clarifications; lâu dài từ 009). Dòng log:
   mức `warn`, nội dung "Backoffice: mail sending is out of scope; notification "<subject>" for <email> not sent", một dòng
   mỗi thông báo; không thuộc bộ so log khởi động của 003.
 - **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp như `app-access-permissions.yaml`: đọc, xóa
@@ -487,7 +487,7 @@ Khác biệt mới:
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
-| D-33 | Email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`; luồng `sendEmail` chạy tới bước gửi rồi ghi log cảnh báo thay vì gửi (như D-23) cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm thời) | 010 |
+| D-33 | Email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`; luồng `sendEmail` chạy tới bước gửi rồi ghi log cảnh báo thay vì gửi (như D-23) cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (lâu dài; đổi ở 009, duyệt 2026-10-14) | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 007. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột

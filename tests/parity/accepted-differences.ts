@@ -218,6 +218,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		// Feature 007 narrowed it: directus_files and directus_folders have their services (files/nested-files.test.ts);
 		// feature 008: directus_comments, directus_notifications and directus_versions (utils/get-service.ts).
+		// Feature 009: directus_flows and directus_operations (FlowsService, OperationsService).
 		reason: 'Nested writes into system collections without their own service go through ItemsService.',
 	},
 	{
@@ -231,8 +232,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 	{
 		id: 'D-33',
 		feature: '008',
-		removeAt: '010',
 		kind: 'doc',
+		// Permanent since feature 009 (Clarifications 2026-10-13, approved 2026-10-14): no email is sent, like D-34.
 		reason: 'No mention email: NotificationsService writes a warning line instead of the mail (Principle X).',
 	},
 ];
