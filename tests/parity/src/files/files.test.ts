@@ -59,6 +59,18 @@ async function upload(ctx: ScenarioContext, parts: Parameters<typeof multipart>[
 	return call(ctx, { method, path, body, headers: { ...(await admin()), ...headers } });
 }
 
+/**
+ * The "Value is required" errors in the field order of the schema overview. On MySQL the overview query of both apps
+ * (packages/schema mysql.ts, no ORDER BY) returns the columns in an order the server does not guarantee, so two
+ * schema builds can list them differently (seen on CI 2026-10-13): compare them sorted by field.
+ */
+function byField<T>(snapshot: T): T {
+	const errors = (snapshot as any).body?.errors;
+	if (Array.isArray(errors))
+		errors.sort((a: any, b: any) => String(a.extensions?.field).localeCompare(String(b.extensions?.field)));
+	return snapshot;
+}
+
 describe.each(getStorages())('POST /files multipart on %s (US1)', (storage) => {
 	it('one file with fields before it: response, row, tracking and object match', async () => {
 		const transcripts = await scenario(urls(), async (ctx) => {
@@ -219,7 +231,7 @@ describe('POST /files JSON and errors (US1 scenario 5)', () => {
 			return {
 				ok: snap(ok, '/files', { file: id! }),
 				noType: snap(noType, '/files'),
-				noStorage: snap(noStorage, '/files'),
+				noStorage: byField(snap(noStorage, '/files')),
 				effects: await effects('local', { file: id! }),
 			};
 		});
