@@ -29,6 +29,18 @@ const logRows = async (note: string) =>
 
 const lastRunId = async (flow: string) => Number((await runRows(flow)).at(-1)?.['id'] ?? 0);
 
+/** Key, status and, when rejected, the error of each step of a run, from its revision. */
+async function runSteps(activity: number) {
+	const { hostDb } = await import('../auth/db-effects.js');
+	const row = await hostDb().select('data').from('directus_revisions').where({ activity }).first();
+	if (!row) return 'no revision';
+	const data = typeof row.data === 'string' ? JSON.parse(row.data) : row.data;
+
+	return (data.steps as { key: string; status: string }[]).map(({ key, status }) =>
+		status === 'reject' ? { key, status, error: data.data[key] } : { key, status },
+	);
+}
+
 beforeAll(async () => {
 	for (const name of ['blocked', 'changed', 'rollback', 'action', 'log'] as const) {
 		collections[name] = await createUserCollection(
@@ -210,11 +222,20 @@ describe('action flows run after the response, at the app that got the request o
 				logRows: await logRows(note),
 				runs: runs.length,
 				user: runs[0]?.['user'] != null,
+				// The steps of the run and the error of a rejected one: a missing log row on CI shows why (MySQL, once in a
+				// few runs at Directus, not reproduced locally).
+				steps: runs[0] ? await runSteps(Number(runs[0]['id'])) : null,
 			};
 		});
 
 		assertSameTranscripts(transcripts, 'action');
-		expect(transcripts.directus).toEqual({ status: 200, logRows: 1, runs: 1, user: true });
+		expect(transcripts.directus).toEqual({
+			status: 200,
+			logRows: 1,
+			runs: 1,
+			user: true,
+			steps: [{ key: 'write', status: 'resolve' }],
+		});
 	});
 
 	test('a rejected action flow does not change the response; its run log is written', async () => {
