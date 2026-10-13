@@ -69,6 +69,17 @@ POST", mỗi vendor một process Directus riêng với `CACHE_ENABLED=true`, `C
 `sleep` (2), `throw-error` (6), `transform` (2), `trigger` (3), `utils/redact-object.test.ts`; `utils/schedule.test.ts`
 đã port ở 008. Không có test blackbox hay E2E cho trigger event, schedule, manual, operation.
 
+## Clarifications
+
+### Session 2026-10-13
+
+- Q: D-34 (operation `mail` chỉ ghi log) là tạm thời như D-33 (gỡ ở 010) hay lâu dài? → A: Không gửi email là quyết
+  định dự án: D-34 lâu dài, và D-33 cũng chuyển sang lâu dài ngay trong feature này (sửa dòng D-33 trong spec 008, bỏ
+  `removeAt: '010'` trong `tests/parity/accepted-differences.ts`).
+- Q: Cảnh báo khi flow theo lịch chạy với `SYNCHRONIZATION_STORE` không phải `redis`: dòng riêng lúc nạp flow, thêm vào
+  cảnh báo "single instance" của 001, hay không cảnh báo? → A: Một dòng `warn` lúc nạp flow, chỉ khi có ít nhất một
+  flow theo lịch và store không phải `redis` (FR-011, D-18); không đụng `getSingleInstanceReasons` của 001.
+
 ## User Scenarios & Testing *(mandatory)*
 
 Người dùng của feature này là admin dựng flow trong app Directus (Settings → Flows, trình chỉnh sửa kéo thả, Logs
@@ -399,7 +410,8 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   (khóa `<namespace>:<flow id>:<cron>`, `setGreaterThan` thời điểm kỳ kế tiếp), không thêm khóa nào khác (Nguyên tắc
   IV, VIII). Khi `SYNCHRONIZATION_STORE` không phải `redis` và có ít nhất một flow theo lịch được đăng ký, `load`
   PHẢI ghi một dòng cảnh báo mức `warn`: "Backoffice: SYNCHRONIZATION_STORE is not redis; scheduled flows run on every
-  instance" (một dòng mỗi lần nạp; D-18).
+  instance" (một dòng mỗi lần nạp, sau khi đăng ký xong; không có flow theo lịch thì không ghi; không thêm vào
+  `getSingleInstanceReasons` của 001; D-18; Clarifications).
 - **FR-012**: `runWebhookFlow(id, data, context)` PHẢI đợi hàng đợi nạp lại rỗng, trả `403 Forbidden` kèm cảnh báo
   "Couldn't find webhook or manual triggered flow with id" khi không có handler; handler webhook trả
   `{ result, cacheEnabled }` (`cacheEnabled` chỉ tắt với `GET` và `options.cacheEnabled === false`; `async` trả
@@ -550,17 +562,19 @@ Thay đổi với bảng khác biệt của các feature trước:
 | D-26 | Gỡ: flow theo event `auth.login`, `auth.jwt`, `auth.create`, `auth.update`, `authenticate` chạy ở app mới | FR-010, FR-022 |
 | D-29 | Gỡ: flow theo event của năm collection của 004 chạy ở app mới | FR-010, FR-022 |
 | D-31 | Thu hẹp: bỏ `directus_flows`, `directus_operations` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003 |
+| D-33 | Đổi loại: từ "tạm thời, gỡ ở 010" sang "lâu dài" (không gửi email là quyết định dự án; Clarifications) | FR-036, FR-037 |
 
-Giữ nguyên: D-09.8 (`/utils`, `/settings`, ... chờ 010), D-33. Sửa bảng của spec cũ đi cùng feature này: dòng D-09.7
-trong spec 001, dòng D-26 trong spec 003, dòng D-29 và D-31 trong spec 004; entry tương ứng trong
-`tests/parity/accepted-differences.ts`; `tests/parity/proxy/backoffice-routes.txt` thêm `flows`, `operations`. Mọi
-dòng cần tech lead duyệt khi đóng feature (Nguyên tắc X).
+Giữ nguyên: D-09.8 (`/utils`, `/settings`, ... chờ 010). Sửa bảng của spec cũ đi cùng feature này: dòng D-09.7
+trong spec 001, dòng D-26 trong spec 003, dòng D-29 và D-31 trong spec 004, dòng D-33 trong spec 008 (cột `Loại`,
+`Gỡ khi`); entry tương ứng trong `tests/parity/accepted-differences.ts` (D-33 bỏ `removeAt`);
+`tests/parity/proxy/backoffice-routes.txt` thêm `flows`, `operations`. Mọi dòng cần tech lead duyệt khi đóng feature
+(Nguyên tắc X).
 
 Khác biệt mới:
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
-| D-34 | Operation `mail` | `MailService.send` qua `EMAIL_TRANSPORT` (sendmail, smtp, mailgun, ses), render markdown hoặc template liquid, lỗi gửi chỉ ghi log | Qua rate limiter như Directus rồi ghi một dòng log cảnh báo thay vì gửi (như D-23, D-27, D-28, D-33); kết quả của operation giống nhau (undefined) | Mô tả feature: "không gửi email, chỉ ghi log"; `EMAIL_*` thuộc nhóm chưa hỗ trợ; Nguyên tắc X | ngoài phạm vi (lâu dài) | khi dự án quyết định gửi email |
+| D-34 | Operation `mail` | `MailService.send` qua `EMAIL_TRANSPORT` (sendmail, smtp, mailgun, ses), render markdown hoặc template liquid, lỗi gửi chỉ ghi log | Qua rate limiter như Directus rồi ghi một dòng log cảnh báo thay vì gửi (như D-23, D-27, D-28, D-33); kết quả của operation giống nhau (undefined) | Mô tả feature: "không gửi email, chỉ ghi log"; không gửi email là quyết định dự án (SPECKIT-GUIDE §1, Clarifications); `EMAIL_*` thuộc nhóm chưa hỗ trợ; Nguyên tắc X | ngoài phạm vi (lâu dài) | không |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 008. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột
@@ -596,6 +610,8 @@ Khác biệt mới:
   giữa hai app (SPECKIT-GUIDE §1).
 - Extension (operation tùy chỉnh, hook) chưa làm (SPECKIT-GUIDE §1): operation `type` lạ ở app mới dừng chuỗi với
   `unknown` như Directus khi extension không được cài; đây là hành vi Directus, không ghi khác biệt mới.
+- Không gửi email là quyết định dự án (SPECKIT-GUIDE §1): D-23, D-27, D-28, D-33, D-34 đều lâu dài; feature 010
+  không port `MailService` để gửi (Clarifications).
 - Rate limiter email của flows giữ như Directus (store dùng chung, cùng counter theo flow id) dù không gửi email, để
   nhánh reject (`EmailLimitExceededError`) giống nhau; ba biến `RATE_LIMITER_EMAIL_FLOWS_*` vào nhóm hỗ trợ (FR-050).
 - Tiền đề dùng chung `.env` (Nguyên tắc VIII): hai app cùng `FLOWS_*`, `RATE_LIMITER_EMAIL_FLOWS_*`,
