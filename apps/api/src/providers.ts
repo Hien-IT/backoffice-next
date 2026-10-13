@@ -20,6 +20,7 @@ import { NotificationsService } from './services/notifications.service.js';
 import { UtilsService } from './services/utils.service.js';
 import { TranslationsService } from './services/translations.service.js';
 import { SharesService } from './services/shares.service.js';
+import { ExtensionsService } from './services/extensions.service.js';
 import { PresetsService } from './services/presets.service.js';
 import { PanelsService } from './services/panels.service.js';
 import { DashboardsService } from './services/dashboards.service.js';
@@ -83,6 +84,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: TranslationsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new TranslationsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: ExtensionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new ExtensionsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { buildNginxConf, parseRoutes } from '../scripts/proxy-conf.mjs';
 
 describe('proxy-conf', () => {
-	test('the list of features 004 to 009: twenty-two routes, comments and blank lines ignored', () => {
+	test('the list of features 004 to 010: thirty-one routes, comments and blank lines ignored', () => {
 		const routes = parseRoutes(readFileSync(new URL('../proxy/backoffice-routes.txt', import.meta.url), 'utf8'));
 		expect(routes).toEqual([
 			'auth',
@@ -38,6 +38,7 @@ describe('proxy-conf', () => {
 			'panels',
 			'shares',
 			'utils',
+			'extensions',
 		]);
 	});
 
@@ -103,6 +104,15 @@ describe('proxy-conf', () => {
 
 		const both = buildNginxConf(template, ['flows', 'operations']).match(/location ~ (\S+) \{/)![1]!;
 		expect(new RegExp(both).test('/operations/x')).toBe(true);
+	});
+
+	test('feature 010: /extensions and the app bundle go to the new app', () => {
+		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
+		const location = buildNginxConf(template, ['extensions']).match(/location ~ (\S+) \{/)![1]!;
+
+		for (const path of ['/extensions', '/extensions/sources/index.js', '/extensions/registry'])
+			expect(new RegExp(location).test(path), path).toBe(true);
+		expect(new RegExp(location).test('/extensionsx')).toBe(false);
 	});
 
 	test('one location for the routes of the new app, the rest to Directus', () => {

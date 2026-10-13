@@ -52,6 +52,8 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ method: 'POST', path: '/utils/hash/generate', body: { string: 'request-set' } },
 		{ method: 'POST', path: '/utils/cache/clear' },
 		{ method: 'POST', path: '/utils/sort/directus_users', body: { item: 1, to: 2 } },
+		{ path: '/extensions' },
+		{ path: '/extensions/sources/index.js' },
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },

@@ -456,7 +456,7 @@ commit C**.
 
 ### Tests for User Story 8
 
-- [ ] T048 [P] [US8] `tests/parity/src/system/extensions.test.ts` (`reduced` ca 1–2, `full`): **đo trước**: `curl -si`
+- [X] T048 [P] [US8] `tests/parity/src/system/extensions.test.ts` (`reduced` ca 1–2, `full`): **đo trước**: `curl -si`
   `GET /extensions/sources/index.js` của Directus trong môi trường đối chiếu, so byte với
   `EMPTY_APP_EXTENSION_BUNDLE` của research R6 và ghi kết quả (sửa hằng nếu lệch); `GET /extensions` (admin `[]` hoặc
   dòng có sẵn; user thường: đo Directus `403` hay rỗng, ghi lại); bundle (byte, `Content-Type`, `Cache-Control`, với
@@ -466,7 +466,7 @@ commit C**.
   `reinstall`, `uninstall`, `PATCH`, `DELETE /:pk` (so chỉ status ở Directus, `directus_extensions` không đổi; app mới
   `503`/`403` theo D-37, dùng `same()` với entry tạm cho tới khi D-37 `http` vào `accepted-differences.ts` ở T058);
   `OPTIONS` (US8 ca 1–4; FR-070 đến FR-072).
-- [ ] T049 [P] [US8] Registry client: port `directus/packages/extensions-registry/src/{constants.ts, utils/
+- [X] T049 [P] [US8] Registry client: port `directus/packages/extensions-registry/src/{constants.ts, utils/
   get-api-version.ts, utils/assert-version-compatibility.ts, schemas/registry-version-response.ts, modules/{list,
   describe,account}/**}` (không `download`) vào `apps/api/src/extensions/registry/` với `index.ts`; 8 test gốc đỏ trước
   rồi xanh: `utils/get-api-version.test.ts`, `utils/assert-version-compatibility.test.ts`, `modules/list/list.test.ts`,
@@ -475,7 +475,7 @@ commit C**.
   đếm ca ghi vào "Ghi chú khi làm"); `apps/api/src/extensions/registry/fixtures.test.ts` parse ba fixture của
   `tests/parity/registry/fixtures/` bằng schema đã port; `apps/api/src/controllers/utils/handle-registry-error.ts` port
   kèm test gốc `handle-registry-error.test.ts`. Ghi manifest (FR-072, research R6, R12).
-- [ ] T050 [P] [US8] `apps/api/src/services/extensions.service.test.ts` (`readAll`: dòng `bundle` null → `schema:
+- [X] T050 [P] [US8] `apps/api/src/services/extensions.service.test.ts` (`readAll`: dòng `bundle` null → `schema:
   null`; dòng có `bundle` bị bỏ; `[]`; accountability truyền vào `ItemsService`); `apps/api/src/controllers/
   extensions.controller.test.ts` theo contracts/system-api.md §4 (10 route, admin, uuid, `ListQuery` từ
   `sanitizedQuery`, `MARKETPLACE_TRUST`, `MARKETPLACE_REGISTRY`, `503` reason, `403`, bundle và header, `SERVE_APP`
@@ -483,7 +483,7 @@ commit C**.
 
 ### Implementation for User Story 8
 
-- [ ] T051 [US8] `apps/api/src/services/extensions.service.ts` (Backoffice, `// Backoffice: no extension manager
+- [X] T051 [US8] `apps/api/src/services/extensions.service.ts` (Backoffice, `// Backoffice: no extension manager
   (Principle XI, D-37)`): `readAll()`, hằng `EMPTY_APP_EXTENSION_BUNDLE` (chuỗi đo ở T048); `providers.ts` factory.
   `apps/api/src/controllers/extensions.controller.ts` theo contracts/system-api.md §4 (thứ tự route: `/`, `/registry`,
   `/registry/account/:pk`, `/registry/extension/:pk`, `/registry/install`, `/registry/reinstall`,
@@ -694,3 +694,20 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   `/server/setup` → 403 ở cả hai, `OPTIONS` → `Allow: POST`. Bản port đủ của `import-export.service` kéo
   `notifications.service` (gọi `useLogger()` khi nạp module) vào `respond.ts`: mock `@backoffice/env` của
   `respond.test.ts` và `server.controller.test.ts` trả `{}` mặc định. Unit `apps/api` 3.291 ca, coverage dòng 87,2%.
+- 2026-10-14 T048 (đo trên Directus 11.17.4, môi trường đối chiếu, chưa cài extension nào): `GET
+  /extensions/sources/index.js` trùng từng byte với `EMPTY_APP_EXTENSION_BUNDLE` (R6), header như ghi chú trước.
+  `GET /extensions` admin `{"data":[]}`, public `403`. Registry giả: list, `search`, `filter[type][_eq]`, `sort`,
+  `limit`, `offset`, account, describe giống nhau; id lạ → `503` cùng reason (URL của registry giả trong reason); type
+  sai → `403`; hai khoá lọc cùng lúc thành `_and` nên không khoá nào được đọc (giống Directus). Hành động (D-37): install,
+  reinstall với id thật → Directus `503` "Could not download the extension" (registry giả không có download), app mới
+  `503` "Backoffice does not install extensions"; `uninstall`, `PATCH /:pk`, `DELETE /:pk` id không có trong
+  `directus_extensions` → Directus `204`, app mới `503`/`403`; bảng không đổi ở cả hai. `404` của `/sources/:chunk` dùng
+  path trong router (`/sources/other.js`). `MARKETPLACE_TRUST` mặc định `sandbox`.
+- 2026-10-14 T049: 8 file test gốc của registry, 52 ca xanh; `fixtures.test.ts` đọc fixture qua `listExtensions` của
+  `registry/server.mjs`; `handle-registry-error.test.ts` gốc xanh. T050, T051: `extensions.controller.test.ts` 9 ca,
+  `extensions.service.test.ts` 2 ca; `uuidParam` tách ra `utils/uuid-param.ts` (shares và extensions dùng chung).
+  `extensions.test.ts` 5/5 xanh trên Postgres lượt đầu. App Directus qua proxy: Marketplace hiện 3 extension của
+  registry giả, `/extensions`, `/extensions/sources/index.js`, `/extensions/registry` đều `200` từ app mới. Local:
+  sau `env-up` phải khởi động lại `proxy` (nginx giữ IP cũ của `directus`).
+- 2026-10-14 CI 2588460 (lượt chạy lại): `insights.test.ts` đỏ trên MySQL, SQLite: panel lồng nhau trả và lưu theo
+  thứ tự uuid ngẫu nhiên; test đặt tên id theo `name` và sắp `panels` theo `name` trước khi so.

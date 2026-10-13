@@ -4,12 +4,12 @@
 // respond(). Express 5 has no regex params: `/info/:pk` and `/:pk` check the uuid in the handler (404 otherwise, like
 // Express 4 where no route matches), case insensitive like Express 4.
 import { useEnv } from '@backoffice/env';
-import { ErrorCode, InvalidPayloadError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
+import { ErrorCode, InvalidPayloadError, isBackofficeError } from '@backoffice/errors';
 import type { PrimaryKey } from '@backoffice/types';
 import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res, Search } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import Joi from 'joi';
-import { refreshCookieOptions, sessionCookieOptions, UUID_REGEX } from '../constants.js';
+import { refreshCookieOptions, sessionCookieOptions } from '../constants.js';
 import { respond } from '../middleware/respond.js';
 import { validateBatch } from '../middleware/validate-batch.js';
 import type { ServiceFactory } from '../providers.js';
@@ -17,6 +17,7 @@ import { SharesService } from '../services/shares.service.js';
 import type { AuthenticationMode } from '../types/auth.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import { sanitizeQuery } from '../utils/sanitize-query.js';
+import { uuidParam } from '../utils/uuid-param.js';
 
 const sharedLoginSchema = Joi.object({
 	share: Joi.string().required(),
@@ -29,14 +30,6 @@ const sharedInviteSchema = Joi.object({
 	emails: Joi.array().items(Joi.string()),
 }).unknown();
 
-const uuid = new RegExp(`^${UUID_REGEX}$`, 'i');
-
-/** `:pk(${UUID_REGEX})` of the Directus router. */
-function uuidParam(req: Request): string {
-	const pk = req.params['pk'] as string;
-	if (!uuid.test(pk)) throw new RouteNotFoundError({ path: req.path });
-	return pk;
-}
 
 @Controller('shares')
 export class SharesController {

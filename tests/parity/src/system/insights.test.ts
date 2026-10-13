@@ -90,10 +90,13 @@ describe('writes as scenarios', () => {
 			);
 
 			const id = (created.json as any)?.data?.id as string;
-			const panelIds = (rows.panels ?? []).map((row) => row['id'] as string).sort();
+			// Nested panels come back and are stored in the order of their random uuid: name them and sort by name.
+			const byName = (a: any, b: any) => String(a.name).localeCompare(String(b.name));
+			(created.json as any)?.data?.panels?.sort(byName);
+			rows.panels?.sort(byName);
 			const ids: Record<string, string> = {
 				dashboard: id,
-				...Object.fromEntries(panelIds.map((p, i) => [`panel:${i}`, p])),
+				...Object.fromEntries((rows.panels ?? []).map((row) => [`panel:${row['name']}`, row['id'] as string])),
 			};
 			const panelRows = async () =>
 				comparable(await hostDb()('directus_panels').where({ dashboard: id }).orderBy('name'), ids);
@@ -106,22 +109,20 @@ describe('writes as scenarios', () => {
 			const firstPanel = (rows.panels ?? []).find((row) => row['name'] === 'a')!['id'] as string;
 			const secondPanel = (rows.panels ?? []).find((row) => row['name'] === 'b')!['id'] as string;
 
-			steps['nested'] = snap(
-				await call(ctx, {
-					method: 'PATCH',
-					path: `/dashboards/${id}?fields=panels.name,panels.position_x`,
-					headers,
-					body: {
-						panels: {
-							create: [panel('c', 13)],
-							update: [{ id: firstPanel, position_x: 3 }],
-							delete: [secondPanel],
-						},
+			const nested = await call(ctx, {
+				method: 'PATCH',
+				path: `/dashboards/${id}?fields=panels.name,panels.position_x`,
+				headers,
+				body: {
+					panels: {
+						create: [panel('c', 13)],
+						update: [{ id: firstPanel, position_x: 3 }],
+						delete: [secondPanel],
 					},
-				}),
-				'/dashboards',
-				ids,
-			);
+				},
+			});
+			(nested.json as any)?.data?.panels?.sort(byName);
+			steps['nested'] = snap(nested, '/dashboards', ids);
 			steps['afterNested'] = (await panelRows()) as unknown[];
 
 			const extra = await call(ctx, {

@@ -24,6 +24,7 @@ import { PanelsController } from './controllers/panels.controller.js';
 import { PresetsController } from './controllers/presets.controller.js';
 import { TranslationsController } from './controllers/translations.controller.js';
 import { SharesController } from './controllers/shares.controller.js';
+import { ExtensionsController } from './controllers/extensions.controller.js';
 import { ServerController } from './controllers/server.controller.js';
 import { SettingsController } from './controllers/settings.controller.js';
 import { TusController } from './controllers/tus.controller.js';
@@ -70,6 +71,7 @@ export class TusModule implements NestModule {
 		TranslationsController,
 		ServerController,
 		SharesController,
+		ExtensionsController,
 		SettingsController,
 		UsersController,
 		UtilsController,
@@ -104,6 +106,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_presets')).forRoutes(PresetsController);
 		consumer.apply(useCollection('directus_translations')).forRoutes(TranslationsController);
 		consumer.apply(useCollection('directus_shares')).forRoutes(SharesController);
+		consumer.apply(useCollection('directus_extensions')).forRoutes(ExtensionsController);
 		consumer.apply(useCollection('directus_settings')).forRoutes(SettingsController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 		consumer.apply(useCollection('directus_versions')).forRoutes(VersionsController);

@@ -1,0 +1,114 @@
+[
+	{
+		"source": "api/src/controllers/utils/handle-registry-error.test.ts",
+		"dest": "apps/api/src/controllers/utils/handle-registry-error.test.ts"
+	},
+	{
+		"source": "api/src/controllers/utils/handle-registry-error.ts",
+		"dest": "apps/api/src/controllers/utils/handle-registry-error.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/constants.ts",
+		"dest": "apps/api/src/extensions/registry/constants.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/index.ts",
+		"dest": "apps/api/src/extensions/registry/index.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/account.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/account.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/account.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/account.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/lib/construct-url.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/lib/construct-url.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/lib/construct-url.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/lib/construct-url.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/schemas/registry-account-response.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/schemas/registry-account-response.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/types/account-options.ts",
+		"dest": "apps/api/src/extensions/registry/modules/account/types/account-options.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/describe.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/describe.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/describe.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/describe.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/lib/construct-url.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/lib/construct-url.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/lib/construct-url.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/lib/construct-url.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/schemas/registry-describe-response.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/schemas/registry-describe-response.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/types/describe-options.ts",
+		"dest": "apps/api/src/extensions/registry/modules/describe/types/describe-options.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/lib/construct-url.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/lib/construct-url.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/lib/construct-url.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/lib/construct-url.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/list.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/list.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/list.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/list.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/schemas/registry-list-response.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/schemas/registry-list-response.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/types/list-options.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/types/list-options.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/types/list-query.ts",
+		"dest": "apps/api/src/extensions/registry/modules/list/types/list-query.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/schemas/registry-version-response.ts",
+		"dest": "apps/api/src/extensions/registry/schemas/registry-version-response.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/utils/assert-version-compatibility.test.ts",
+		"dest": "apps/api/src/extensions/registry/utils/assert-version-compatibility.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/utils/assert-version-compatibility.ts",
+		"dest": "apps/api/src/extensions/registry/utils/assert-version-compatibility.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/utils/get-api-version.test.ts",
+		"dest": "apps/api/src/extensions/registry/utils/get-api-version.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/utils/get-api-version.ts",
+		"dest": "apps/api/src/extensions/registry/utils/get-api-version.ts"
+	}
+]

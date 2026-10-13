@@ -30,3 +30,4 @@ dashboards
 panels
 shares
 utils
+extensions
