@@ -38,6 +38,8 @@ test('requests of the route list reach the new app, the others Directus', async 
 	await page.goto(`${baseURL}/admin/settings/project`);
 	await page.goto(`${baseURL}/admin/insights`);
 	await page.goto(`${baseURL}/admin/settings/translations`);
+	// The Shares sidebar of an item lists /shares; there is no item here, so the shared page stands in (/shares/info).
+	await page.goto(`${baseURL}/admin/shared/3f1c2d4e-0000-4000-8000-00000000000a`);
 	await page.waitForLoadState('networkidle');
 
 	const addresses = {

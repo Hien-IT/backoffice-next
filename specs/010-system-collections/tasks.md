@@ -294,7 +294,7 @@ body, cookie, dòng `directus_shares`, `directus_sessions` như Directus; token 
 
 ### Tests for User Story 4
 
-- [ ] T026 [P] [US4] `tests/parity/src/system/shares.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: `POST
+- [X] T026 [P] [US4] `tests/parity/src/system/shares.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: `POST
   /shares` có và không quyền `share`, `password` băm (so chéo `verifyHashAt`) và che `**********`; `POST /shares/auth`
   ba `mode` (body, cookie theo `REFRESH_COOKIE_OPTIONS`/`SESSION_COOKIE_OPTIONS`, dòng `directus_sessions`,
   `times_used`), hết hạn, chưa tới hạn, hết lượt, sai mật khẩu → `401`, thiếu `share`/`mode` sai → `400`, share
@@ -305,14 +305,14 @@ body, cookie, dòng `directus_shares`, `directus_sessions` như Directus; token 
   event (FR-004): flow `event` filter scope `shares.create` (009) với `throw-error` chặn được `POST /shares` ở cả hai
   app (cùng lỗi), và action `shares.update` chạy ở app nhận request (đếm activity `run`); `OPTIONS`, `HEAD` (US4 ca
   1–7; FR-004, FR-040 đến FR-046).
-- [ ] T027 [P] [US4] `apps/api/src/services/shares.service.test.ts`: `createOne` gọi `validateAccess` action `share`;
+- [X] T027 [P] [US4] `apps/api/src/services/shares.service.test.ts`: `createOne` gọi `validateAccess` action `share`;
   `updateMany`, `deleteMany` gọi `clearCache` của quyền trước `super`; `login` (knex mock: điều kiện hạn, `max_uses >=
   times_used`, argon2, `times_used + 1`, JWT payload và `issuer`, insert `directus_sessions`, xóa phiên hết hạn, `mode
   session`); `invite` (`403` không user, dựng subject, một `logger.warn` mỗi email, không `fetch`/mail).
-- [ ] T028 [P] [US4] `apps/api/src/controllers/shares.controller.test.ts`: thứ tự route `/auth`, `/invite`, `/`,
+- [X] T028 [P] [US4] `apps/api/src/controllers/shares.controller.test.ts`: thứ tự route `/auth`, `/invite`, `/`,
   `/info/:pk` và `/:pk` (uuid; không uuid `404`; viết hoa qua); `/auth` joi và ba `mode`; `/invite` joi; 8 route CRUD;
   `OPTIONS`.
-- [ ] T029 [P] [US4] `apps/api/src/services/mail-sites.guard.test.ts`: quét `directus/api/src/**/*.ts` (bỏ `*.test.ts`)
+- [X] T029 [P] [US4] `apps/api/src/services/mail-sites.guard.test.ts`: quét `directus/api/src/**/*.ts` (bỏ `*.test.ts`)
   tìm `new MailService(`, tập file bằng `['services/users.ts', 'services/notifications.ts', 'services/shares.ts',
   'operations/mail/index.ts']` với số lần 3, 1, 1, 1; mỗi file ánh xạ sang `apps/api/src/{services/users.service.ts,
   services/notifications.service.ts, services/shares.service.ts, operations/mail/index.ts}` chứa `mail sending is out
@@ -322,17 +322,17 @@ body, cookie, dòng `directus_shares`, `directus_sessions` như Directus; token 
 
 ### Implementation for User Story 4
 
-- [ ] T030 [US4] `apps/api/src/services/shares.service.ts` port đủ từ `directus/api/src/services/shares.ts` (thay stub
+- [X] T030 [US4] `apps/api/src/services/shares.service.ts` port đủ từ `directus/api/src/services/shares.ts` (thay stub
   T008): `createOne`, `updateMany`, `deleteMany`, `login`, `invite` với `logger.warn('Backoffice: mail sending is out
   of scope; share invitation "<subject>" for <email> not sent')` thay `mailService.send` (`// Backoffice: D-36`), không
   import `md`; `providers.ts` factory. Ghi manifest. T027, T029 xanh (FR-040 đến FR-046, research R4).
-- [ ] T031 [US4] `apps/api/src/controllers/shares.controller.ts` port từ `directus/api/src/controllers/shares.ts` theo
+- [X] T031 [US4] `apps/api/src/controllers/shares.controller.ts` port từ `directus/api/src/controllers/shares.ts` theo
   contracts/system-api.md §3 (thứ tự route; `/info/:pk` kiểm `UUID_REGEX` → `RouteNotFoundError`; `/auth` dùng
   `REFRESH_COOKIE_OPTIONS`, `SESSION_COOKIE_OPTIONS` và tên cookie từ env như `auth.controller.ts`); `app.module.ts`
   đăng ký và `useCollection('directus_shares')`; proxy `shares`, `proxy-conf.test.ts` (`/shares/auth`,
   `/shares/info/<uuid>` tới app mới), `routing.spec.ts`, `request-set.ts` (`GET /shares` public). Ghi manifest. Chạy
   T026 ba vendor.
-- [ ] T032 [US4] `tests/parity/src/auth/shares.test.ts` (003): `sharePerApp` tạo share ở mỗi app qua `/shares` của app
+- [X] T032 [US4] `tests/parity/src/auth/shares.test.ts` (003): `sharePerApp` tạo share ở mỗi app qua `/shares` của app
   đó (thay `directusRequest` cố định), `afterAll` xóa ở app tạo; comment đầu file cập nhật; chạy `src/auth/*.test.ts`
   xanh (FR-042).
 
@@ -351,7 +351,7 @@ bằng mật khẩu và xem item qua app mới. **Đợt commit B**.
 
 ### Tests for User Story 5
 
-- [ ] T033 [P] [US5] `tests/parity/src/system/utils-misc.test.ts` (`reduced`, `full`) theo contracts/parity.md §2:
+- [X] T033 [P] [US5] `tests/parity/src/system/utils-misc.test.ts` (`reduced`, `full`) theo contracts/parity.md §2:
   `random/string` (độ dài, bảng chữ nanoid, `length` 0, 501, `abc`, lặp, thiếu); `hash/generate` → `verify` chéo,
   thiếu field, hash hỏng; `sort` (dòng null, dòng trùng, không sort field `400`, `item`/`to` không có → đo Directus
   (`500` dự kiến), collection hệ thống có `sort_field`, user không quyền `403`, event `items.sort` qua flow action của
@@ -360,7 +360,7 @@ bằng mật khẩu và xem item qua app mới. **Đợt commit B**.
   `translations/generate` (admin tạo rồi so `directus_collections`, `directus_fields`, `directus_relations`; non-admin
   `403`; payload sai `400`); `resolve-redirect` (hợp lệ, thiếu, `provider` sai, URL lạ); R-27; `OPTIONS` (US5 ca 1–4,
   7, 8; FR-080 đến FR-083, FR-086 đến FR-088, FR-051).
-- [ ] T034 [P] [US5] `tests/parity/src/system/import-export.test.ts` (`full`): import CSV, JSON (đơn giản, quan hệ, upsert
+- [X] T034 [P] [US5] `tests/parity/src/system/import-export.test.ts` (`full`): import CSV, JSON (đơn giản, quan hệ, upsert
   theo khóa, lỗi validate → `400 FAILED_VALIDATION` với `rows` và rollback toàn bộ, loại file khác `415`, không
   multipart `415`, collection hệ thống non-admin `403`, không quyền `403`, thứ tự lỗi kép), `background=true` (thông
   báo thành công/thất bại, `recipient = sender`), bộ đếm chung qua khóa Redis `directus:import-export:importCount`
@@ -368,36 +368,36 @@ bằng mật khẩu và xem item qua app mới. **Đợt commit B**.
   10 s, đọc qua `/assets/:id` ở hai app, so byte thân file, dòng `directus_files` sau `comparable`, `file` ghi đè
   `title`, `limit`, `fields` lồng, `filter`, `sort`, thông báo), thiếu `query`/`format` `400`, format sai → thông báo
   thất bại (US5 ca 5, 6; FR-084, FR-085).
-- [ ] T035 [P] [US5] `apps/api/src/controllers/utils.controller.test.ts` theo contracts/utils-api.md: 10 route, thứ tự
+- [X] T035 [P] [US5] `apps/api/src/controllers/utils.controller.test.ts` theo contracts/utils-api.md: 10 route, thứ tự
   kiểm của `import` (`collectionExists` → `415` → service), multipart qua busboy với stream thật (supertest `.attach`),
   `export` không await `exportToFile`, `cache/clear` ba dạng `system`, `translations/generate` admin và lỗi xóa cache
   chỉ log; `OPTIONS` từng route. `apps/api/src/services/utils.service.test.ts`: `sort` (knex mock theo từng bước, lỗi
   `400` không sort field, `403` field sort không được phép, event, cache), `clearCache` (`403`, `system`).
-- [ ] T036 [P] [US5] Test gốc port đỏ trước: `apps/api/src/services/import-export.test.ts` thay bản hiện có bằng bản
+- [X] T036 [P] [US5] Test gốc port đỏ trước: `apps/api/src/services/import-export.test.ts` thay bản hiện có bằng bản
   đầy đủ từ `directus/api/src/services/import-export.test.ts` (37 ca; ánh xạ import; mock `../utils/store.js`,
   `./files.js`, `./notifications.js`); `apps/api/src/utils/generate-translations.test.ts` (23) và
   `translations-shared.test.ts` (3) từ `directus/api/src/utils/`. Ghi manifest.
 
 ### Implementation for User Story 5
 
-- [ ] T037 [P] [US5] `apps/api/src/services/utils.service.ts` port từ `directus/api/src/services/utils.ts` (`sort`,
+- [X] T037 [P] [US5] `apps/api/src/services/utils.service.ts` port từ `directus/api/src/services/utils.ts` (`sort`,
   `clearCache`; `systemCollectionRows` từ `@backoffice/system-data`); `providers.ts` factory. Ghi manifest (FR-082,
   FR-086).
-- [ ] T038 [P] [US5] `apps/api/src/utils/generate-translations.ts`, `translations-shared.ts`,
+- [X] T038 [P] [US5] `apps/api/src/utils/generate-translations.ts`, `translations-shared.ts`,
   `translations-validation.ts` port từ `directus/api/src/utils/` (zod, `fromZodError`, `CollectionsService`,
   `FieldsService`, `RelationsService`, `ItemsService`, `getSchema`, `transaction`, `emitter`); T036 phần translations
   xanh. Ghi manifest (FR-051).
-- [ ] T039 [US5] `apps/api/src/services/import-export.service.ts` thêm phần còn lại từ `directus/api/src/services/
+- [X] T039 [US5] `apps/api/src/services/import-export.service.ts` thêm phần còn lại từ `directus/api/src/services/
   import-export.ts`: `ImportService` (`import`, `importJSON`, `importCSV`, error tracker, `useStore`, `queue`,
   `Papa`, `StreamArray`, thông báo nền), `ExportService.exportToFile`, `getHeadingsForCsvExport`; sửa comment đầu
   file; T036 đủ 37 ca xanh. Ghi manifest (FR-084, FR-085, research R7).
-- [ ] T040 [US5] `apps/api/src/controllers/utils.controller.ts` port từ `directus/api/src/controllers/utils.ts` theo
+- [X] T040 [US5] `apps/api/src/controllers/utils.controller.ts` port từ `directus/api/src/controllers/utils.ts` theo
   contracts/utils-api.md (busboy trên `req` thô như `files.controller.ts`; `runMiddleware(collectionExists)`;
   `RevisionsService.revert`; `generateTranslations`; `clearSystemCache`); `app.module.ts` đăng ký (không
   `useCollection`); proxy `utils`, `proxy-conf.test.ts` (`/utils/cache/clear` tới app mới), `routing.spec.ts`,
   `request-set.ts` (`GET /utils/random/string` public). Ghi manifest. Chạy T033 ba vendor, T034 Postgres; ghi kết quả
   đo (`sort` thiếu `item`, R-26, R-27) vào "Ghi chú khi làm" (FR-001, FR-080 đến FR-088).
-- [ ] T041 [US5] Blackbox đổi đích: `tests/parity/src/items/blackbox/common/functions.ts` gửi `/utils/cache/clear?system`
+- [X] T041 [US5] Blackbox đổi đích: `tests/parity/src/items/blackbox/common/functions.ts` gửi `/utils/cache/clear?system`
   tới `getSetupUrl()`; `common/config.ts` comment `getDirectusUrl` chỉ còn GraphQL (011);
   `tests/parity/src/items/cache-blackbox.test.ts` `/presets`, `/utils/cache/clear` tới app đang kiểm (`url()` thay
   `setup()`, sửa comment đầu file); chạy `parity-blackbox` hai lượt và `parity-cache` xanh (FR-101, research R15).
@@ -677,3 +677,20 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   Cặp `blackbox` bật bằng `docker compose up --no-build` vì `registry.npmjs.org` không vào được lúc đó (EAI_AGAIN khi
   build image); image đã có code app mới nhất.
 
+- 2026-10-14 T026, T031: `/shares/:pk` của Directus dùng regex uuid (không phân biệt hoa thường), id khác dạng →
+  `ROUTE_NOT_FOUND` (sửa research R4). R-29 đo trên Directus: share có `password` nhưng payload `/shares/auth` thiếu
+  `password` → `500 INTERNAL_SERVER_ERROR` ở cả hai app. R-25: `max_uses = n` cho `n + 1` lần đăng nhập thành công.
+  Người chia sẻ cần quyền `create` trên `directus_shares` (thêm vào policy fixture).
+- 2026-10-14 T033, T037: R-26 đo: `sort` bỏ qua bộ lọc hàng của quyền (hàng `published` vẫn dời) và không ghi activity,
+  ở cả hai app. `sort` với `to` là item không tồn tại → `500` (TypeError đọc giá trị sort), giống Directus. Collection
+  hệ thống không có `sort_field` → `400`. `?system=false` vẫn xoá system cache (Directus chỉ kiểm `'system' in query`).
+- 2026-10-14 T040: Nest `@Post` mặc định 201, nên mọi POST trả bằng `res.json`/`res.end` có `@HttpCode(200)`
+  (`resolve-redirect` đỏ 200/201 ở lượt đầu). `LimitExceededError` là 403 (không phải 429); bộ đếm import là một
+  key Redis `directus:import-export:importCount` dùng chung, đặt `20` thì cả hai app trả 403 `LIMIT_EXCEEDED`.
+  `utils-misc`, `shares`, `import-export`: 39/39 xanh trên Postgres.
+- 2026-10-14 CI 2588460: ba lỗi do test cũ gặp route mới: canary `IMPORT_TIMEOUT` của `startup.test.ts` nay là biến
+  được đọc → đổi sang `EMAIL_TRANSPORT`; `request-set` gửi `POST /translations {}` là `500` ở cả hai app (Directus kiểm
+  trùng key trước quyền, knex báo binding undefined) → thêm `key`, `language`; `methods.test.ts` ca D-14 của
+  `/server/setup` → 403 ở cả hai, `OPTIONS` → `Allow: POST`. Bản port đủ của `import-export.service` kéo
+  `notifications.service` (gọi `useLogger()` khi nạp module) vào `respond.ts`: mock `@backoffice/env` của
+  `respond.test.ts` và `server.controller.test.ts` trả `{}` mặc định. Unit `apps/api` 3.291 ca, coverage dòng 87,2%.

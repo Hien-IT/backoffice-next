@@ -2,9 +2,8 @@
 // Also ports app/cache.seed.ts, routes/permissions/cache-purge.test.ts and cache-purge.seed.ts (feature 005, T031).
 // Backoffice: the four Directus instances that the original spawns (memory, memory with purge, Redis, Redis with purge)
 // are the profile pairs cache-mem, cache-mem-purge, cache-redis, cache-redis-purge (research R5); every case runs at
-// each app of the pair with the original assertions. Requests the new app does not serve yet go to the pair's Directus:
-// POST /utils/cache/clear (010) and /presets (010); the original only asserts the last read, so where those run does
-// not change it. The ignored collection is `test_cache_ignored` (CACHE_AUTO_PURGE_IGNORE_LIST of the profile env).
+// each app of the pair with the original assertions. Feature 010: POST /utils/cache/clear and /presets go to the app
+// under test, like every request of the original. The ignored collection is `test_cache_ignored` (CACHE_AUTO_PURGE_IGNORE_LIST of the profile env).
 // The admin of the parity env replaces USER.ADMIN of the blackbox seed. Each case first empties the collection through
 // Directus: cache-redis has CACHE_VALUE_MAX_SIZE=1kb and the four pairs write the same collections.
 import { randomUUID } from 'node:crypto';
@@ -110,7 +109,7 @@ describe.each(PROFILES)('%s', (profile) => {
 				it.each([collectionFirst, collectionIgnored])('%s', async (collection) => {
 					// Setup
 					await reseed(collection);
-					await request(setup()).post(`/utils/cache/clear`).set('Authorization', auth());
+					await request(url()).post(`/utils/cache/clear`).set('Authorization', auth());
 
 					// Action
 					await request(url()).get(`/items/${collection}`).set('Authorization', auth());
@@ -120,10 +119,10 @@ describe.each(PROFILES)('%s', (profile) => {
 						.send({ last_page: `/content/${collection}` })
 						.set('Authorization', auth());
 
-					const presetId = (await request(setup()).post('/presets').send({ collection }).set('Authorization', auth()))
+					const presetId = (await request(url()).post('/presets').send({ collection }).set('Authorization', auth()))
 						.body.data.id;
 
-					await request(setup()).patch(`/presets/${presetId}`).send({ collection }).set('Authorization', auth());
+					await request(url()).patch(`/presets/${presetId}`).send({ collection }).set('Authorization', auth());
 
 					const response = await request(url()).get(`/items/${collection}`).set('Authorization', auth());
 
@@ -138,7 +137,7 @@ describe.each(PROFILES)('%s', (profile) => {
 					// Setup
 					const referer = `${publicURL}/admin/content/${collection}/`;
 					await reseed(collection);
-					await request(setup()).post(`/utils/cache/clear`).set('Referer', referer).set('Authorization', auth());
+					await request(url()).post(`/utils/cache/clear`).set('Referer', referer).set('Authorization', auth());
 
 					// Action
 					await request(url()).get(`/items/${collection}`).set('Referer', referer).set('Authorization', auth());
@@ -150,14 +149,14 @@ describe.each(PROFILES)('%s', (profile) => {
 						.set('Authorization', auth());
 
 					const presetId = (
-						await request(setup())
+						await request(url())
 							.post('/presets')
 							.send({ collection })
 							.set('Referer', referer)
 							.set('Authorization', auth())
 					).body.data.id;
 
-					await request(setup())
+					await request(url())
 						.patch(`/presets/${presetId}`)
 						.send({ collection })
 						.set('Referer', referer)
@@ -183,7 +182,7 @@ describe.each(PROFILES)('%s', (profile) => {
 				it.each([collectionFirst, collectionIgnored])('%s', async (collection) => {
 					// Setup
 					await reseed(collection);
-					await request(setup()).post(`/utils/cache/clear`).set('Authorization', auth());
+					await request(url()).post(`/utils/cache/clear`).set('Authorization', auth());
 
 					// Action
 					await request(url()).get(`/items/${collection}`).set('Authorization', auth());
@@ -211,7 +210,7 @@ describe.each(PROFILES)('%s', (profile) => {
 					// Setup
 					const referer = `${publicURL}/admin/content/${collection}/`;
 					await reseed(collection);
-					await request(setup()).post(`/utils/cache/clear`).set('Authorization', auth());
+					await request(url()).post(`/utils/cache/clear`).set('Authorization', auth());
 
 					// Action
 					await request(url()).get(`/items/${collection}`).set('Referer', referer).set('Authorization', auth());
@@ -238,7 +237,7 @@ describe.each(PROFILES)('%s', (profile) => {
 					// Setup
 					const referer = `http://external.com/admin/content/${collection}`;
 					await reseed(collection);
-					await request(setup()).post(`/utils/cache/clear`).set('Authorization', auth());
+					await request(url()).post(`/utils/cache/clear`).set('Authorization', auth());
 
 					// Action
 					await request(url()).get(`/items/${collection}`).set('Referer', referer).set('Authorization', auth());
@@ -289,7 +288,7 @@ describe.each(PROFILES)('%s', (profile) => {
 			});
 
 			async function clearCacheAndFetchOnce() {
-				await request(setup()).post(`/utils/cache/clear`).set('Authorization', auth());
+				await request(url()).post(`/utils/cache/clear`).set('Authorization', auth());
 				await request(url()).get(`/items/${collectionPerms}`).set('Authorization', auth());
 			}
 

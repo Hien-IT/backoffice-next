@@ -192,7 +192,7 @@ describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', 
 				TUS_CHUNK_SIZE: '1mb',
 				IMPORT_IP_DENY_LIST: '0.0.0.0',
 				SYNCHRONIZATION_STORE: 'memory',
-				IMPORT_TIMEOUT: '1s',
+				EMAIL_TRANSPORT: 'smtp', // still unsupported (no mail, D-33); IMPORT_TIMEOUT is read since feature 010
 			},
 			port,
 		);
@@ -201,7 +201,7 @@ describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', 
 		const warning = api
 			.text()
 			.split('\n')
-			.find((line) => line.includes('IMPORT_TIMEOUT'));
+			.find((line) => line.includes('EMAIL_TRANSPORT'));
 		expect(warning).toBeDefined();
 		expect(warning).not.toMatch(/STORAGE_|FILES_|ASSETS_|TUS_|IMPORT_IP_DENY_LIST|SYNCHRONIZATION_/);
 	});
@@ -218,14 +218,14 @@ describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', 
 				ACTIVITY_RETENTION: '1d',
 				REVISIONS_RETENTION: '12h',
 				FLOW_LOGS_RETENTION: '1d',
-				IMPORT_TIMEOUT: '1s',
+				EMAIL_TRANSPORT: 'smtp', // still unsupported (no mail, D-33); IMPORT_TIMEOUT is read since feature 010
 			},
 			port,
 		);
 
 		expect(await waitForPing(api, port)).toBe(true);
 		expect(api.text()).not.toMatch(/RETENTION/);
-		expect(api.text()).toContain('IMPORT_TIMEOUT');
+		expect(api.text()).toContain('EMAIL_TRANSPORT');
 	});
 
 	test('port already in use → exit 1, "Port <port> is already in use"', async () => {

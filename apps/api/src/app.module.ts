@@ -23,9 +23,11 @@ import { NotificationsController } from './controllers/notifications.controller.
 import { PanelsController } from './controllers/panels.controller.js';
 import { PresetsController } from './controllers/presets.controller.js';
 import { TranslationsController } from './controllers/translations.controller.js';
+import { SharesController } from './controllers/shares.controller.js';
 import { ServerController } from './controllers/server.controller.js';
 import { SettingsController } from './controllers/settings.controller.js';
 import { TusController } from './controllers/tus.controller.js';
+import { UtilsController } from './controllers/utils.controller.js';
 import { UsersController } from './controllers/users.controller.js';
 import { VersionsController } from './controllers/versions.controller.js';
 import { MetricsModule } from './metrics/metrics.module.js';
@@ -67,8 +69,10 @@ export class TusModule implements NestModule {
 		PresetsController,
 		TranslationsController,
 		ServerController,
+		SharesController,
 		SettingsController,
 		UsersController,
+		UtilsController,
 		VersionsController,
 	],
 	providers: [...infrastructureProviders, ...serviceProviders],
@@ -99,6 +103,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_panels')).forRoutes(PanelsController);
 		consumer.apply(useCollection('directus_presets')).forRoutes(PresetsController);
 		consumer.apply(useCollection('directus_translations')).forRoutes(TranslationsController);
+		consumer.apply(useCollection('directus_shares')).forRoutes(SharesController);
 		consumer.apply(useCollection('directus_settings')).forRoutes(SettingsController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 		consumer.apply(useCollection('directus_versions')).forRoutes(VersionsController);

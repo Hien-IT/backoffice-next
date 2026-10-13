@@ -7,7 +7,7 @@ import type { Permission, PrimaryKey, Query } from '@backoffice/types';
 import { omit } from 'lodash-es';
 import request from 'supertest';
 import { afterAll, afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { type Env, getDirectusUrl, getSetupUrl, getUrl } from './config';
+import { type Env, getSetupUrl, getUrl } from './config';
 import vendors, { type Vendor } from './get-dbs-to-test';
 import type { PrimaryKeyType } from './types';
 import { ROLE, USER } from './variables';
@@ -16,14 +16,14 @@ import { ROLE, USER } from './variables';
 // the tests that change the database behind the apps' back (afterEach hooks with knex) never read a stale schema. The
 // shim has no such node (config.ts): both apps keep their schema cache and clear it through the bus after every change
 // they make, and this hook clears it after each test (it runs after the file's own afterEach hooks, which are inner)
-// through Directus of the pair (/utils is feature 010), whose schemaChanged message reaches both apps.
+// through the app under test (feature 010 built /utils), whose schemaChanged message reaches both apps.
 export function DisableTestCachingSetup() {
 	beforeEach(async () => {
 		process.env['TEST_NO_CACHE'] = 'true';
 	});
 
 	afterEach(async () => {
-		await request(getDirectusUrl())
+		await request(getUrl(vendors[0]!))
 			.post('/utils/cache/clear?system')
 			.set('Authorization', `Bearer ${USER.TESTS_FLOW.TOKEN}`);
 	});
@@ -42,9 +42,9 @@ export function ClearCaches() {
 				EnableTestCaching();
 
 				// Assert
-				// Backoffice: /utils is feature 010, so the clear goes to Directus whichever app made the model; the
-				// schemaChanged message of the shared bus clears both apps.
-				const response = await request(getDirectusUrl())
+				// Backoffice: the clear goes to the app under test (feature 010 built /utils); the schemaChanged message of
+				// the shared bus clears both apps.
+				const response = await request(getUrl(vendor))
 					.post(`/utils/cache/clear?system`)
 					.set('Authorization', `Bearer ${USER.TESTS_FLOW.TOKEN}`);
 

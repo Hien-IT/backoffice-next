@@ -1,0 +1,13 @@
+// Ported from directus/api/src/utils/translations-validation.ts
+import { REGEX_DB_SAFE_IDENTIFIER } from '@backoffice/constants';
+import { z } from 'zod';
+
+const DB_SAFE_IDENTIFIER_MESSAGE =
+	'must be a db-safe identifier (letters, numbers, underscores; cannot start with a number)';
+
+export const dbSafeIdentifierSchema = z
+	.string()
+	.trim()
+	.min(1)
+	.max(63)
+	.regex(REGEX_DB_SAFE_IDENTIFIER, DB_SAFE_IDENTIFIER_MESSAGE);

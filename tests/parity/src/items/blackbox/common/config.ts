@@ -85,7 +85,7 @@ export function getUrl(vendor: Vendor, overrideEnv?: Env): string {
 	return overridden(vendor, overrideEnv) ?? pairUrl(appUnderTest(), 'blackbox');
 }
 
-/** The Directus of the blackbox pair, for the routes the new app does not serve yet (/utils is feature 010). */
+/** The Directus of the blackbox pair, for the routes the new app does not serve yet (GraphQL is feature 011). */
 export function getDirectusUrl(): string {
 	return pairUrl('directus', 'blackbox');
 }

@@ -28,3 +28,5 @@ notifications
 translations
 dashboards
 panels
+shares
+utils

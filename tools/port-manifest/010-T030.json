@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/services/shares.ts",
+		"dest": "apps/api/src/services/shares.service.ts"
+	}
+]

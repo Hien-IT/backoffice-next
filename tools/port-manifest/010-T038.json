@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/utils/generate-translations.ts",
+		"dest": "apps/api/src/utils/generate-translations.ts"
+	},
+	{
+		"source": "api/src/utils/translations-shared.ts",
+		"dest": "apps/api/src/utils/translations-shared.ts"
+	},
+	{
+		"source": "api/src/utils/translations-validation.ts",
+		"dest": "apps/api/src/utils/translations-validation.ts"
+	},
+	{
+		"source": "api/src/utils/generate-translations.test.ts",
+		"dest": "apps/api/src/utils/generate-translations.test.ts"
+	},
+	{
+		"source": "api/src/utils/translations-shared.test.ts",
+		"dest": "apps/api/src/utils/translations-shared.test.ts"
+	}
+]

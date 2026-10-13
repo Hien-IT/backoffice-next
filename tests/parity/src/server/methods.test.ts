@@ -15,11 +15,19 @@ describe('router behaviour', () => {
 		},
 	);
 
-	it('POST /server/setup: Directus 403 (already set up), Backoffice 404 (D-14)', async () => {
+	// Feature 010 (US1): /server/setup is served, so the D-14 difference is gone.
+	it('POST /server/setup → 403 at both apps (already set up)', async () => {
 		const result = await parity({ method: 'POST', path: '/server/setup', body: {} });
 		assertParity(result);
 		expect(result.directus.status).toBe(403);
-		expect(result.backoffice.status).toBe(404);
+		expect(result.backoffice.status).toBe(403);
+	});
+
+	it('OPTIONS /server/setup → 200 Allow: POST', async () => {
+		const result = await parity({ method: 'OPTIONS', path: '/server/setup' });
+		assertParity(result);
+		expect(result.backoffice.status).toBe(200);
+		expect(result.backoffice.headers['allow']).toBe('POST');
 	});
 
 	it.each(['/server/info', '/server/health', '/server/specs/oas'])(
@@ -39,7 +47,7 @@ describe('router behaviour', () => {
 		expect(result.backoffice.status).toBe(404);
 	});
 
-	it.each(['/server/setup', '/server/specs/graphql'])('OPTIONS %s → D-14, D-15', async (path) => {
+	it.each(['/server/specs/graphql'])('OPTIONS %s → D-15', async (path) => {
 		const result = await parity({ method: 'OPTIONS', path });
 		assertParity(result);
 		expect(result.backoffice.status).toBe(404);

@@ -36,6 +36,8 @@ describe('proxy-conf', () => {
 			'translations',
 			'dashboards',
 			'panels',
+			'shares',
+			'utils',
 		]);
 	});
 

@@ -1,7 +1,8 @@
-// Feature 003 (US2, contracts/db-writes.md §4): share sessions. /shares comes to the new app later, so shares and
-// their sessions are made at Directus (POST /shares/auth); each app then refreshes a session of its own share.
+// Feature 003 (US2, contracts/db-writes.md §4): share sessions. Feature 010 (T032): each app creates its share and the
+// session of it (POST /shares, POST /shares/auth at that app), then refreshes the session; the share login itself is
+// compared in src/system/shares.test.ts.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { directusRequest } from '../directus-api.js';
+import { appRequest, directusRequest } from '../directus-api.js';
 import { closeHostDb, hostDb } from './db-effects.js';
 import { type App, urls } from './fixtures.js';
 import { cookieJwt, type Mode, MODES, post, withToken } from './flows.js';
@@ -23,19 +24,19 @@ afterAll(async () => {
 }, 60_000);
 
 async function sharePerApp(data: Record<string, unknown> = {}): Promise<Record<App, string>> {
-	const create = async () => {
-		const share = await directusRequest('POST', '/shares', { name: 'parity', collection: COLLECTION, item, ...data });
+	const create = async (app: App) => {
+		const share = await appRequest(app, 'POST', '/shares', { name: 'parity', collection: COLLECTION, item, ...data });
 		shares.push(share.data.id);
 		return share.data.id as string;
 	};
 
-	return { directus: await create(), backoffice: await create() };
+	return { directus: await create('directus'), backoffice: await create('backoffice') };
 }
 
-/** A session of the share, made by Directus. */
-function shareLogin(share: string, mode: Mode) {
-	const { directus } = urls();
-	return send(directus, post('/shares/auth', { share, mode }), new URL(directus).host);
+/** A session of the share, made by the app that created it. */
+function shareLogin(share: string, mode: Mode, app: App) {
+	const url = urls()[app];
+	return send(url, post('/shares/auth', { share, mode }), new URL(urls().directus).host);
 }
 
 describe('share sessions', () => {
@@ -43,7 +44,7 @@ describe('share sessions', () => {
 		const pair = await sharePerApp();
 
 		const transcripts = await scenario(urls(), async (ctx) => {
-			const first = await shareLogin(pair[ctx.app], mode);
+			const first = await shareLogin(pair[ctx.app], mode, ctx.app);
 			const refreshed = await send(ctx.url, withToken('/auth/refresh', first, mode), ctx.host);
 
 			return alias(
@@ -70,7 +71,7 @@ describe('share sessions', () => {
 		const pair = await sharePerApp();
 
 		const transcripts = await scenario(urls(), async (ctx) => {
-			const first = await shareLogin(pair[ctx.app], 'json');
+			const first = await shareLogin(pair[ctx.app], 'json', ctx.app);
 			await directusRequest('PATCH', `/shares/${pair[ctx.app]}`, change);
 			return snapshotOf('/auth/refresh', await send(ctx.url, withToken('/auth/refresh', first, 'json'), ctx.host));
 		});
@@ -83,7 +84,7 @@ describe('share sessions', () => {
 		const pair = await sharePerApp();
 
 		const transcripts = await scenario(urls(), async (ctx) => {
-			const first = await shareLogin(pair[ctx.app], 'json');
+			const first = await shareLogin(pair[ctx.app], 'json', ctx.app);
 			const out = await send(ctx.url, withToken('/auth/logout', first, 'json'), ctx.host);
 			const sessions = await hostDb()('directus_sessions').where({ share: pair[ctx.app] }).count({ n: '*' }).first();
 			return { logout: snapshotOf('/auth/logout', out), sessions: Number(sessions?.['n']) };

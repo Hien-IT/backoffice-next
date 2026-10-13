@@ -15,7 +15,9 @@ import { FlowsService } from './services/flows.service.js';
 import { FoldersService } from './services/folders.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
+import { ExportService, ImportService } from './services/import-export.service.js';
 import { NotificationsService } from './services/notifications.service.js';
+import { UtilsService } from './services/utils.service.js';
 import { TranslationsService } from './services/translations.service.js';
 import { SharesService } from './services/shares.service.js';
 import { PresetsService } from './services/presets.service.js';
@@ -63,6 +65,21 @@ export const infrastructureProviders: Provider[] = [
 ];
 
 export const serviceProviders: Provider[] = [
+	{
+		provide: UtilsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new UtilsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: ImportService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new ImportService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: ExportService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new ExportService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
 	{
 		provide: TranslationsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new TranslationsService({ knex: db(), ...options }),

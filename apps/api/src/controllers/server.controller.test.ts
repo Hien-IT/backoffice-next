@@ -4,7 +4,8 @@ import { ForbiddenError, InternalServerError } from '@backoffice/errors';
 import { createAdmin } from '../utils/create-admin.js';
 import { ServerController } from './server.controller.js';
 
-vi.mock('@backoffice/env');
+// An empty env at import time: the services behind respond (export) read it when their module loads.
+vi.mock('@backoffice/env', () => ({ useEnv: vi.fn(() => ({})) }));
 // Only used as DI tokens here; the real modules load the rate limiters (and the logger) at import time.
 vi.mock('../services/server.service.js', () => ({ ServerService: class {} }));
 vi.mock('../services/specifications.service.js', () => ({ SpecificationService: class {} }));

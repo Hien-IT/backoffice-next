@@ -9,7 +9,8 @@ import { getCacheKey } from '../utils/get-cache-key.js';
 import { permissionsCacheable } from '../utils/permissions-cacheable.js';
 import { respond } from './respond.js';
 
-vi.mock('@backoffice/env');
+// An empty env at import time: the services behind respond (export) read it when their module loads.
+vi.mock('@backoffice/env', () => ({ useEnv: vi.fn(() => ({})) }));
 vi.mock('../cache.js');
 vi.mock('../database/index.js', () => ({ default: vi.fn() }));
 vi.mock('../logger/index.js');

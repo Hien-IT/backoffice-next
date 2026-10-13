@@ -42,8 +42,16 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ method: 'PATCH', path: '/settings', body: { project_name: 'request-set' } },
 		...['/presets', '/notifications', '/translations', '/dashboards', '/panels'].flatMap((path) => [
 			{ path },
-			{ method: 'POST', path, body: {} },
+			// key and language: an empty body is a 500 at both apps on /translations (the duplicate check runs first).
+			{ method: 'POST', path, body: path === '/translations' ? { key: 'request-set', language: 'en-US' } : {} },
 		]),
+		{ path: '/shares' },
+		{ path: '/shares/info/3f1c2d4e-0000-4000-8000-00000000000a' },
+		{ method: 'POST', path: '/shares/auth', body: { share: '3f1c2d4e-0000-4000-8000-00000000000a' } },
+		{ path: '/utils/random/string' },
+		{ method: 'POST', path: '/utils/hash/generate', body: { string: 'request-set' } },
+		{ method: 'POST', path: '/utils/cache/clear' },
+		{ method: 'POST', path: '/utils/sort/directus_users', body: { item: 1, to: 2 } },
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },
