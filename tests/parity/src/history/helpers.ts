@@ -52,10 +52,23 @@ export async function step(
 	req: ParityRequest,
 	path: string,
 	ids: Record<string, string> = {},
-	idsFrom?: (json: any) => Record<string, string>,
+	idsFrom?: (json: any) => Record<string, string> | Promise<Record<string, string>>,
 ): Promise<{ step: Step; json: any }> {
 	const { result, rows } = await historyEffects(() => call(ctx, req));
-	const all = { ...ids, ...(idsFrom?.(result.json) ?? {}) };
+	const all = { ...ids, ...((await idsFrom?.(result.json)) ?? {}) };
 	// The raw body stays out of the transcript: only `step` (ids as placeholders) is compared.
-	return { step: { response: snap(result, path, all), history: comparable(rows, all) }, json: result.json };
+	return { step: { response: snapHistory(result, path, all), history: comparable(rows, all) }, json: result.json };
+}
+
+/** snap() plus the `_date` stamps of version deltas (spec FR-033), kept only as set or not. */
+export function snapHistory(...args: Parameters<typeof snap>): Snapshot {
+	const stamp = (value: unknown, key?: string): unknown => {
+		if (key === '_date') return value == null ? null : '<time>';
+		if (Array.isArray(value)) return value.map((v) => stamp(v));
+		if (value && typeof value === 'object')
+			return Object.fromEntries(Object.entries(value).map(([k, v]) => [k, stamp(v, k)]));
+		return value;
+	};
+
+	return stamp(snap(...args)) as Snapshot;
 }

@@ -89,6 +89,8 @@ function normalize(messages: unknown[], app: App): unknown[] {
 	let text = JSON.stringify(messages.map(serials));
 	for (const [role, name] of Object.entries(names(app))) text = text.split(name).join(`<${role}>`);
 	text = text.replaceAll(`bus-${app}-${run}`, '<run>');
+	// Feature 008: the version rows carry their times and the _date stamp of the delta.
+	text = text.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z?/g, '<time>');
 
 	const labels = new Map<string, string>();
 	text = text.replace(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g, (uuid) => {
@@ -139,6 +141,28 @@ async function scenario(app: App, base: string): Promise<Record<string, unknown[
 	);
 	await step('singleton create', () => call(base, 'PATCH', `/items/${home}`, { headline: 'first' }));
 	await step('singleton update', () => call(base, 'PATCH', `/items/${home}`, { headline: 'second' }));
+
+	// Feature 008 (spec FR-004, FR-038): versions.* of the system collection and items.promote.
+	let item = 0;
+	let version = '';
+	await step(
+		'item for a version',
+		async () => (item = (await call(base, 'POST', `/items/${articles}`, { title: 'v' })).data.id),
+	);
+	await step(
+		'versions create',
+		async () =>
+			(version = (
+				await call(base, 'POST', '/versions', { key: 'draft', name: null, collection: articles, item: String(item) })
+			).data.id),
+	);
+	await step('versions save', () => call(base, 'POST', `/versions/${version}/save`, { title: 'draft' }));
+	await step('versions promote', async () => {
+		const { mainHash } = (await call(base, 'GET', `/versions/${version}/compare`)).data;
+		await call(base, 'POST', `/versions/${version}/promote`, { mainHash });
+	});
+	await step('versions update', () => call(base, 'PATCH', `/versions/${version}`, { name: 'renamed' }));
+	await step('versions delete', () => call(base, 'DELETE', `/versions/${version}`));
 
 	// Feature 006 (FR-051): collections.*, fields.*, relations.* of the data model routes.
 	const { model } = names(app);
@@ -230,7 +254,8 @@ describe.runIf(pair)('websocket.event bus (pair websocket)', () => {
 			await appRequest('directus', 'POST', '/collections', {
 				collection: articles,
 				schema: {},
-				meta: {},
+				// Feature 008: content versioning for the versions steps.
+				meta: { versioning: true },
 				fields: [id, { field: 'title', type: 'string' }],
 			});
 			await appRequest('directus', 'POST', '/collections', {

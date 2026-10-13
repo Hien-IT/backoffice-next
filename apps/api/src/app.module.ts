@@ -5,6 +5,7 @@ import { ActivityController } from './controllers/activity.controller.js';
 import { AssetsController } from './controllers/assets.controller.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { CollectionsController } from './controllers/collections.controller.js';
+import { CommentsController } from './controllers/comments.controller.js';
 import { FieldsController } from './controllers/fields.controller.js';
 import { FilesController } from './controllers/files.controller.js';
 import { FoldersController } from './controllers/folders.controller.js';
@@ -18,6 +19,7 @@ import { SchemaController } from './controllers/schema.controller.js';
 import { ServerController } from './controllers/server.controller.js';
 import { TusController } from './controllers/tus.controller.js';
 import { UsersController } from './controllers/users.controller.js';
+import { VersionsController } from './controllers/versions.controller.js';
 import { MetricsModule } from './metrics/metrics.module.js';
 import useCollection from './middleware/use-collection.js';
 import { infrastructureProviders, serviceProviders } from './providers.js';
@@ -38,6 +40,7 @@ export class TusModule implements NestModule {
 		AssetsController,
 		AuthController,
 		CollectionsController,
+		CommentsController,
 		FieldsController,
 		FilesController,
 		FoldersController,
@@ -50,6 +53,7 @@ export class TusModule implements NestModule {
 		SchemaController,
 		ServerController,
 		UsersController,
+		VersionsController,
 	],
 	providers: [...infrastructureProviders, ...serviceProviders],
 })
@@ -62,6 +66,7 @@ export class AppModule implements NestModule {
 	// `router.use(useCollection(...))` of each Directus router.
 	configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(useCollection('directus_access')).forRoutes(AccessController);
+		consumer.apply(useCollection('directus_comments')).forRoutes(CommentsController);
 		consumer.apply(useCollection('directus_activity')).forRoutes(ActivityController);
 		consumer.apply(useCollection('directus_files')).forRoutes(AssetsController, FilesController);
 		consumer.apply(useCollection('directus_fields')).forRoutes(FieldsController);
@@ -72,5 +77,6 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);
 		consumer.apply(useCollection('directus_roles')).forRoutes(RolesController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
+		consumer.apply(useCollection('directus_versions')).forRoutes(VersionsController);
 	}
 }

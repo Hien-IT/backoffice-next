@@ -213,7 +213,7 @@ thể chạy sớm để kiểm.
 
 ### Tests for User Story 2
 
-- [ ] T023 [P] [US2] `tests/parity/src/history/versions.test.ts` (`reduced`, `full`): CRUD và mọi dòng lỗi của
+- [X] T023 [P] [US2] `tests/parity/src/history/versions.test.ts` (`reduced`, `full`): CRUD và mọi dòng lỗi của
   contracts/versions.md §2 (so `reason`); `GET /versions` danh sách trả delta thô có `_user`, `_date` còn `GET /:pk`
   đã map (FR-032); `save` (field đơn, o2m/m2m/m2a dạng `create/update/delete`, gộp, `_user`/`_date`, save lại cùng
   nội dung giữ `_date`), activity `version_save` và revision gắn `version` theo `accountability` (so qua
@@ -222,19 +222,19 @@ thể chạy sớm để kiểm.
   mới và ngược lại, kỳ vọng `outdated = false` (lệch → dừng, ghi bằng chứng, hỏi tech lead); **đo R-20, R-21** theo
   bảng Rủi ro của spec, ghi bằng chứng và ngày vào spec; item chính bị xóa → `403`; tắt `versioning` sau khi tạo vẫn
   `save`, `promote` (Edge Cases); `DELETE` xóa revision gắn version (US2.6).
-- [ ] T024 [P] [US2] `tests/parity/src/history/version-read.test.ts` (`reduced`, `full`): `?version=` có/không
+- [X] T024 [P] [US2] `tests/parity/src/history/version-read.test.ts` (`reduced`, `full`): `?version=` có/không
   `versionRaw`, `fields` lồng theo blackbox "version response", `?version=main`, `version` trên danh sách bị bỏ qua,
   singleton, version không có `403`, user không có read `directus_versions` `403`, ca SQLite transaction rollback
   (FR-036).
-- [ ] T025 [P] [US2] `apps/api/src/controllers/versions.controller.test.ts`: 11 handler của contracts/versions.md §1,
+- [X] T025 [P] [US2] `apps/api/src/controllers/versions.controller.test.ts`: 11 handler của contracts/versions.md §1,
   `mainHash` không chuỗi `400`, `Forbidden` sau tạo → `204`, `compare` ghép `current` có khóa chính, `save` trả
   `assign(mainItem, delta)`.
-- [ ] T026 [P] [US2] `tests/parity/src/items/bus.test.ts` thêm ca: `versions.create|update|delete`, `items.promote`
+- [X] T026 [P] [US2] `tests/parity/src/items/bus.test.ts` thêm ca: `versions.create|update|delete`, `items.promote`
   và `<collection>.items.promote` qua cầu nối `websocket.event` với cùng payload ở hai app (FR-004, FR-038).
 
 ### Implementation for User Story 2
 
-- [ ] T027 [US2] `apps/api/src/controllers/versions.controller.ts` port từ `controllers/versions.ts` (Nest, 11 route,
+- [X] T027 [US2] `apps/api/src/controllers/versions.controller.ts` port từ `controllers/versions.ts` (Nest, 11 route,
   `assign` của lodash-es cho `save`); `app.module.ts` đăng ký và `useCollection('directus_versions')`. Chạy T023 đến
   T026; ghi kết quả đo hash, R-20, R-21 vào spec và "Ghi chú khi làm". Ghi manifest.
 
@@ -472,3 +472,9 @@ Task: "router-options.ts mẫu mới (T015)"
   ghi trùng từng cột (gồm `ip`, `user_agent`, `origin`) cho accountability `all`, `activity`, `null`, `PATCH /users` và
   ghi lồng (`parent`). Ca cache: mục Directus ghi là `HIT` ở cả hai app (cache dùng chung). `parity()` của các file
   `history` bỏ entry tạm D-09.6 (`withoutD096`), nếu không D-09.6 che mọi khác biệt của bốn route tới khi đóng feature.
+- US2 (T023–T027, Postgres cục bộ): `versions.test.ts` 9/9, `version-read.test.ts` 3/3, `bus.test.ts` 2/2 (thêm
+  `versions.*`, `items.promote`). Version tạo, save ở app này compare `outdated: false` và promote được ở app kia, hai
+  chiều; hash item chính trùng ở hai app với 14 kiểu field (R2). `save` ghi hai dòng activity: `version_save` của item
+  và `update` của `directus_versions` (service admin lưu delta), như Directus. Field `json` tạo qua `POST /collections`
+  không có `special: ['cast-json']` bị Directus từ chối (lỗi validation "collection"/"field" required): fixture khai báo
+  `special` như app Directus gửi.
