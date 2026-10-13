@@ -71,6 +71,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"history": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/history.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }

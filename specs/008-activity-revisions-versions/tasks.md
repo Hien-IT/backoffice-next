@@ -347,19 +347,19 @@ E2E.
 
 ## Phase 9: Polish & Cross-Cutting Concerns
 
-- [ ] T041 [P] `tests/benchmark/src/seed-history.ts` (collection versioning + accountability `all`, 2.000 item, 20
+- [X] T041 [P] `tests/benchmark/src/seed-history.ts` (collection versioning + accountability `all`, 2.000 item, 20
   revision mỗi item qua `PATCH`, 1 version `draft` có delta) và `tests/benchmark/src/history.ts`: `revisions-sidebar`,
   `activity-list` (admin, user tối thiểu), `version-save` (pool id, 10 kết nối), `item-version-read` (50 kết nối),
   ngưỡng 10% như `files.ts`; `tests/benchmark/project.json` target; `compare.test.ts` thêm ca (FR-063, SC-006).
 - [ ] T042 [P] `.github/workflows/benchmark.yml` job `benchmark-history` theo mẫu `benchmark-files`; chạy cục bộ 3 vòng
   trên Postgres, ghi p95, req/s và thời gian job vào "Ghi chú khi làm".
-- [ ] T043 [P] Manifest và header: kiểm `tools/port-manifest/008-T*.json` đủ cho T001, T006 đến T012, T014, T020, T021,
+- [X] T043 [P] Manifest và header: kiểm `tools/port-manifest/008-T*.json` đủ cho T001, T006 đến T012, T014, T020, T021,
   T027, T032, T036; `node tools/check-port-headers.mjs` xanh; mọi chỗ `// Backoffice:` thuộc danh sách của plan
   (Constitution Check I).
-- [ ] T044 [P] Tài liệu: `specs/001-platform-foundation/spec.md` dòng D-09.6 (gỡ ở 008), `specs/004-permissions/spec.md`
+- [X] T044 [P] Tài liệu: `specs/001-platform-foundation/spec.md` dòng D-09.6 (gỡ ở 008), `specs/004-permissions/spec.md`
   dòng D-31 (thu hẹp: bỏ `directus_comments`, `directus_notifications`); `CLAUDE.md` mục 008 (đã có từ plan, kiểm
   lại); `specs/008-activity-revisions-versions/quickstart.md` kiểm lại lệnh.
-- [ ] T045 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api` ≥ 80% (ghi số),
+- [X] T045 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api` ≥ 80% (ghi số),
   `pnpm audit --prod --audit-level=high` không advisory mới, `graphify update .`.
 - [ ] T046 Đóng feature (sau T040 đến T045, tech lead duyệt gỡ D-09.6, thu hẹp D-31, D-33, R-20, R-21):
   `tests/parity/accepted-differences.ts` xóa entry `D-09.6`, sửa `D-31`, thêm `D-33` (kind `doc`, như `D-23`);
@@ -499,3 +499,11 @@ Task: "router-options.ts mẫu mới (T015)"
   lưu, đổi tên, promote (Keep), xóa version, module Activity; dòng DB của lượt qua proxy trùng lượt chỉ Directus sau khi
   chuẩn hóa id item, `hash`, `_date` (khác theo item của mỗi lượt). Chạy cục bộ bằng Chrome cài sẵn (config tạm
   `channel: 'chrome'`, không commit).
+- T041: `seed-history.ts` ghi thẳng trên host Postgres (2.000 item, 20 activity + revision mỗi item, một version
+  `draft` mỗi item) vì 40.000 `PATCH` qua API quá chậm; `history.ts` năm kịch bản (`revisions-sidebar`,
+  `revisions-count`, `activity-list` admin và user, `version-save` 10 kết nối, `item-version-read`). `compare.ts` không
+  đổi nên không thêm ca vào `compare.test.ts`.
+- T043–T045: 13 manifest `008-T*.json`, `check-port-headers` 1.109 file 0 lỗi; mọi `// Backoffice:` thuộc danh sách của
+  plan. Spec 001 giữ dòng D-09.6 làm lịch sử (như D-09.5 ở 007); D-31 của spec 004 và chú thích entry thu hẹp. API
+  256 file, 2.837 test xanh, coverage dòng 86,44%; `pnpm audit --prod --audit-level=high` không advisory mới (feature
+  không thêm thư viện); `graphify update .` chạy.

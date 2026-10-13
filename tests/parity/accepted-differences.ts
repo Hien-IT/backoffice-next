@@ -241,7 +241,8 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '004',
 		removeAt: '010',
 		kind: 'doc',
-		// Feature 007 narrowed it: directus_files and directus_folders have their services (files/nested-files.test.ts).
+		// Feature 007 narrowed it: directus_files and directus_folders have their services (files/nested-files.test.ts);
+		// feature 008: directus_comments, directus_notifications and directus_versions (utils/get-service.ts).
 		reason: 'Nested writes into system collections without their own service go through ItemsService.',
 	},
 	{
