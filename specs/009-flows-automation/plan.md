@@ -132,7 +132,7 @@ Image build isolated-vm ở stage builder (toolchain đã có, FR-051).
 - [x] **III. API giống hệt**: PASS. Route, middleware, status, mã lỗi, `204`, `403` manual, `404` uuid sai, `$all`,
   header cache, như Directus (contracts/flows-api.md). D-09.7, D-26, D-29 gỡ; D-31 thu hẹp; D-34 là hành vi Nguyên
   tắc X (không gửi email) như D-23, D-33; R-22, R-23 tái tạo, bằng chứng đo ở bộ đối chiếu.
-- [x] **IV. Chạy song song an toàn**: VI PHẠM CÓ LÝ DO (Complexity Tracking, chờ tech lead duyệt). Bus kênh `flows`
+- [x] **IV. Chạy song song an toàn**: VI PHẠM CÓ LÝ DO (Complexity Tracking, tech lead đã duyệt 2026-10-14). Bus kênh `flows`
   cùng namespace nên hai app nạp lại lẫn nhau; flow theo sự kiện chạy ở instance nhận request; không state quan trọng
   trong process (cây flow dựng lại từ DB ở mỗi nạp). Câu "Flow theo lịch PHẢI dùng lock trên Redis, mỗi lượt chỉ một
   instance chạy" chỉ đạt khi mọi instance của hai app đặt `SYNCHRONIZATION_STORE=redis` (clock Redis, cơ chế duy nhất
@@ -273,6 +273,9 @@ backoffice-next/
 | Trình chỉnh sửa flow của app mới | FE | 017 |
 
 ## Complexity Tracking
+
+Tech lead đã duyệt vi phạm IV dưới đây ngày 2026-10-14, với điều kiện vận hành `SYNCHRONIZATION_STORE=redis` ở mọi
+instance của hai app.
 
 | Vi phạm | Vì sao cần | Phương án đơn giản hơn bị loại vì |
 |---------|------------|-----------------------------------|
