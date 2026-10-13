@@ -323,8 +323,9 @@ module Activity.
   thống khác đã có route, login, logout, version save; revert và promote đi qua `update` nên không có `action`
   riêng) PHẢI ghi `directus_activity` và `directus_revisions` với cùng giá trị từng cột như Directus cho cùng
   request: `action`, `user`, `collection`, `item`, `ip` (theo `IP_TRUST_PROXY`, `IP_CUSTOM_HEADER`), `user_agent`,
-  `origin`, `timestamp`; revision có `data` (bản chụp toàn bộ field không quan hệ của item sau khi ghi, không chỉ
-  field trong payload), `delta` (payload đã `prepareDelta`), `parent`, `version`, `activity`.
+  `origin`, `timestamp`; revision có `data` (với `update`: bản chụp toàn bộ field không quan hệ của item sau khi ghi,
+  không chỉ field trong payload; với `create`: payload tạo, không có khóa chính tự sinh), `delta` (payload đã
+  `prepareDelta`), `parent`, `version`, `activity` (đo ở T028).
 - **FR-011**: `ActivityService`, `RevisionsService` PHẢI là `ItemsService` trên hai collection với các mặc định của
   Directus (`RevisionsService`: `autoPurgeCache: false`, `bypassLimits: true` ở mọi `create*`, `update*`).
 - **FR-012**: `GET`, `SEARCH /activity` PHẢI hỗ trợ `readSingleton` khi `req.singleton`, `readMany` khi body có `keys`,

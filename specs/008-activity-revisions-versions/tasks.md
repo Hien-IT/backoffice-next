@@ -249,10 +249,10 @@ thể chạy sớm để kiểm.
 
 **Independent Test**: ca revert trong `cross-use.test.ts` và `e2e-app.test.ts` xanh.
 
-- [ ] T028 [P] [US3] `tests/parity/src/history/cross-use.test.ts` phần revert (`reduced`): tạo item, sửa hai lần ở app
+- [X] T028 [P] [US3] `tests/parity/src/history/cross-use.test.ts` phần revert (`reduced`): tạo item, sửa hai lần ở app
   A; ở app B tính payload như `comparison-modal.vue` (hiệu `data` revision đầu với revision trước, chọn một field)
   rồi `PATCH /items`; so item, activity `update`, revision mới ở hai chiều (FR-020, FR-021, US3.1).
-- [ ] T029 [P] [US3] `tests/parity/src/history/e2e-app.test.ts` phần Revisions (`full`): đúng chuỗi request của
+- [X] T029 [P] [US3] `tests/parity/src/history/e2e-app.test.ts` phần Revisions (`full`): đúng chuỗi request của
   `revisions-sidebar-detail.vue`, `use-revisions.ts`, `use-comparison.ts` chế độ revision (count, trang, đọc revision
   được chọn và revision trước, `PATCH`), so response ở hai app; revision không có `data` (delete, `version_save`) đọc
   giống nhau (US3.2, US3.3).
@@ -269,21 +269,21 @@ thể chạy sớm để kiểm.
 
 ### Tests for User Story 4
 
-- [ ] T030 [P] [US4] `tests/parity/src/history/comments.test.ts` (`reduced`, `full`): CRUD, thứ tự lỗi
+- [X] T030 [P] [US4] `tests/parity/src/history/comments.test.ts` (`reduced`, `full`): CRUD, thứ tự lỗi
   contracts/history-api.md §3.1, không đăng nhập `403`, không đọc được item `403`, query của
   `comments-sidebar-detail.vue` (count, danh sách, `user_created.*`), user tối thiểu (thấy, sửa `comment`, xóa của
   mình; sửa field khác `403`; sửa comment người khác `403`), mention: có quyền (dòng notification so trừ `id`,
   `timestamp`), không quyền (không dòng, log warn ở cả hai app), uuid không tồn tại (`403` sau khi comment đã ghi, dòng
   còn), nhắc chính mình, hai mention trùng, cùng uuid viết hoa (hai thông báo, `@Unknown User`); D-33: user có `email_notifications` → dòng warn ở app mới, không lỗi;
   activity, revision của comment (FR-040 đến FR-044, US4.1 đến 4.3).
-- [ ] T031 [P] [US4] `apps/api/src/controllers/comments.controller.test.ts`: 8 handler như `folders.controller.test.ts`,
+- [X] T031 [P] [US4] `apps/api/src/controllers/comments.controller.test.ts`: 8 handler như `folders.controller.test.ts`,
   `Forbidden` sau tạo → `204`.
 
 ### Implementation for User Story 4
 
-- [ ] T032 [US4] `apps/api/src/controllers/comments.controller.ts` port từ `controllers/comments.ts`; `app.module.ts`
+- [X] T032 [US4] `apps/api/src/controllers/comments.controller.ts` port từ `controllers/comments.ts`; `app.module.ts`
   đăng ký và `useCollection('directus_comments')`. Chạy T030, T031. Ghi manifest.
-- [ ] T033 [US4] `tests/parity/src/history/cross-use.test.ts` phần comment và notification (`reduced`): comment ghi ở A
+- [X] T033 [US4] `tests/parity/src/history/cross-use.test.ts` phần comment và notification (`reduced`): comment ghi ở A
   đọc, sửa, xóa ở B; notification do A ghi đọc qua `/notifications` của Directus; cả hai chiều (FR-062).
 
 **Checkpoint**: US4 xanh; sidebar Comments của app Directus qua proxy hiển thị, sửa, xóa comment của app mới.
@@ -478,3 +478,11 @@ Task: "router-options.ts mẫu mới (T015)"
   và `update` của `directus_versions` (service admin lưu delta), như Directus. Field `json` tạo qua `POST /collections`
   không có `special: ['cast-json']` bị Directus từ chối (lỗi validation "collection"/"field" required): fixture khai báo
   `special` như app Directus gửi.
+- US3 (T028–T029): revision viết ở app này, revert ở app kia theo cách app Directus tính payload: item, activity
+  `update`, revision mới trùng hai chiều. Revision `create` lưu payload tạo (không có khóa chính), nên app Directus gộp
+  khóa chính từ `base` trước khi so; FR-010 sửa theo.
+- US4 (T030–T033): `comments.test.ts` 7/7, `cross-use.test.ts` comment và thông báo. Lỗi theo thứ tự, luồng sidebar,
+  quyền tối thiểu (comment của mình, chỉ field `comment`), mention: người đọc được nhận thông báo, người không đọc được
+  có dòng warn trong log của cả hai app, cùng uuid viết hoa thành hai thông báo với `@Unknown User`, uuid không tồn tại
+  `403` sau khi comment đã ghi; D-33: dòng warn ở app mới, thông báo trùng. Thông báo app mới ghi đọc được ở chuông
+  (`/notifications` của Directus).
