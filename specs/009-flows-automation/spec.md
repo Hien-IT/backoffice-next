@@ -445,8 +445,8 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   `FlowsService.deleteMany` đặt `resolve`, `reject` của `directus_operations` thuộc các flow về null bằng knex thô
   trước khi xóa (ngoài transaction, không kiểm quyền; R-22).
 - **FR-003**: `getService` PHẢI trả `FlowsService` cho `directus_flows` và `OperationsService` cho
-  `directus_operations` ở mọi đường ghi (route riêng, ghi lồng `operations` qua `/flows`, ghi qua `/items`), để mọi
-  thay đổi đều phát nạp lại; hai collection rời `COLLECTIONS_WITHOUT_SERVICE_YET` (D-31 thu hẹp).
+  `directus_operations` ở mọi đường ghi (route riêng, ghi lồng `operations` qua `/flows`; `/items/directus_*` bị từ
+  chối `403` như Directus), để mọi thay đổi đều phát nạp lại; hai collection rời `COLLECTIONS_WITHOUT_SERVICE_YET` (D-31 thu hẹp).
 - **FR-004**: Quyền trên `directus_flows`, `directus_operations` PHẢI áp như Directus qua engine của 004 (không có
   quyền tối thiểu app access; user thường cần policy); response cache, `meta`, `Emitter` và cầu nối websocket như các
   route item (005); event của hai collection mang scope `flows.*`, `operations.*`.

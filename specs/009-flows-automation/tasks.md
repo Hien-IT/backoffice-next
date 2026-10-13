@@ -371,7 +371,7 @@ thật); quickstart §5.
 
 ### Tests for User Story 5
 
-- [ ] T036 [P] [US5] `tests/parity/src/flows/crud.test.ts` (`reduced`, `full`): `POST /flows` đơn, mảng, lồng
+- [X] T036 [P] [US5] `tests/parity/src/flows/crud.test.ts` (`reduced`, `full`): `POST /flows` đơn, mảng, lồng
   `operations`; `GET`, `SEARCH` (`keys`, `query`), `GET /:pk`, `fields` (`operations.*`, `operation.*`,
   `operations.flow.*`), `filter`, `sort`, `meta`; `PATCH /` (`keys`, `query`, batch), `PATCH /:pk` lồng
   `{create, update, delete}` + `operation` đúng chuỗi `flow.vue saveChanges` (gồm `PATCH /operations` mảng gỡ
@@ -380,24 +380,24 @@ thật); quickstart §5.
   activity/revision của ghi; R-22: user có update nhưng không delete trên `directus_flows` gọi `DELETE /flows/:id` →
   `403` và `resolve`/`reject` của operation đã null ở cả hai app, ghi bằng chứng vào spec R-22 (FR-001 đến FR-004,
   US5 ca 1, 3, 4).
-- [ ] T037 [P] [US5] `tests/parity/src/flows/reload.test.ts` (`reduced`, `full`): tạo ở A → `POST /flows/trigger` ở B
+- [X] T037 [P] [US5] `tests/parity/src/flows/reload.test.ts` (`reduced`, `full`): tạo ở A → `POST /flows/trigger` ở B
   trong ≤ 2 s (poll mỗi 200 ms, ghi thời gian); sửa `options` của operation ở B qua `PATCH /operations/:id` → kết quả
-  mới ở A; `PATCH /flows/:id {status: inactive}` ở A → `403` ở B; `DELETE` ở B → `403` ở A; ghi qua
-  `/items/directus_flows`, `/items/directus_operations` cũng nạp lại; `GET /flows?fields[]=*&fields[]=operations.*`
+  mới ở A; `PATCH /flows/:id {status: inactive}` ở A → `403` ở B; `DELETE` ở B → `403` ở A; ghi lồng `operations` qua `PATCH
+  /flows/:pk` cũng nạp lại (`/items/directus_*` bị từ chối `403` như Directus); `GET /flows?fields[]=*&fields[]=operations.*`
   giống nhau sau mỗi bước; `full`: sửa ở Directus → cả 8156 và 8157 (profile `multi`) dùng flow mới; bus: một message
   `flows` `{type:'reload'}` mỗi ghi (đọc qua `redis-cli monitor` kênh `directus:bus:flows`) — đo R2 "message về
   chính người gửi" tại đây (US5 ca 1–2; FR-014, FR-062, SC-005).
-- [ ] T038 [P] [US5] `apps/api/src/controllers/operations.controller.test.ts` (supertest, mock service): 8 handler
+- [X] T038 [P] [US5] `apps/api/src/controllers/operations.controller.test.ts` (supertest, mock service): 8 handler
   như `comments.controller.test.ts`, `OPTIONS`.
 
 ### Implementation for User Story 5
 
-- [ ] T039 [US5] `apps/api/src/controllers/operations.controller.ts` port từ `directus/api/src/controllers/operations.ts`
+- [X] T039 [US5] `apps/api/src/controllers/operations.controller.ts` port từ `directus/api/src/controllers/operations.ts`
   theo mẫu `comments.controller.ts`; `app.module.ts` đăng ký và `useCollection('directus_operations')`; `app.test.ts`
   thêm ca. Cùng task: `tests/parity/proxy/backoffice-routes.txt` thêm `operations`; `proxy-conf.test.ts` ca
   `/operations/<uuid>` tới app mới; `routing.spec.ts` thêm `operations`; `request-set.ts` thêm `GET /operations`
   (admin). Ghi manifest. Chạy T036, T037.
-- [ ] T040 [P] [US5] `tests/parity/src/items/bus.test.ts` thêm event `flows.create|update|delete`,
+- [X] T040 [P] [US5] `tests/parity/src/items/bus.test.ts` thêm event `flows.create|update|delete`,
   `operations.create|update|delete` qua cầu nối websocket (005) và kênh `flows` (FR-004).
 
 **Checkpoint**: US5 xanh; quickstart §3 hai chiều không khởi động lại.
@@ -647,3 +647,10 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   `FlowManager.initialize()` dựng schema qua khóa Redis lúc khởi động. Đo Directus 11.17.4 `node cli.js start` cùng
   điều kiện: cũng thoát mã 1 (`MaxRetriesPerRequestError`). Chủ dự án chọn giống Directus (Clarifications 2026-10-14):
   FR-025 của spec 001 và ca test sửa thành kỳ vọng thoát mã 1.
+- US5 (T036–T040, 2026-10-14, Postgres cục bộ): `crud.test.ts` 11/11 (ổn định qua 3 lượt sau khi sắp các mảng đọc lại
+  theo tên/khóa: thứ tự theo uuid ngẫu nhiên ở cả hai app), `reload.test.ts` 4/4, `bus.test.ts` 2/2 (suite `cache`,
+  thêm bước `flows.*`, `operations.*`). Đo: app kia dùng định nghĩa mới sau 100–600 ms ở cả hai chiều (SC-005 < 2 s);
+  instance thứ hai của app mới (profile `multi`) cũng nạp lại; app vừa ghi tự nạp lại (Redis giao message cho chính kết
+  nối subscribe của nó, CHK046). R-22 đo trên Directus thật: user có update nhưng không delete trên `directus_flows`
+  gọi `DELETE /flows/:id` → `403` ở cả hai app và `resolve` của operation đầu đã thành `null`. `/items/directus_*` bị
+  từ chối `403` ở cả hai app (spec FR-003 sửa theo).

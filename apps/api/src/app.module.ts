@@ -11,6 +11,7 @@ import { FieldsController } from './controllers/fields.controller.js';
 import { FilesController } from './controllers/files.controller.js';
 import { FoldersController } from './controllers/folders.controller.js';
 import { ItemsController } from './controllers/items.controller.js';
+import { OperationsController } from './controllers/operations.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RelationsController } from './controllers/relations.controller.js';
@@ -47,6 +48,7 @@ export class TusModule implements NestModule {
 		FlowsController,
 		FoldersController,
 		ItemsController,
+		OperationsController,
 		PermissionsController,
 		PoliciesController,
 		RelationsController,
@@ -74,6 +76,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_fields')).forRoutes(FieldsController);
 		consumer.apply(useCollection('directus_flows')).forRoutes(FlowsController);
 		consumer.apply(useCollection('directus_folders')).forRoutes(FoldersController);
+		consumer.apply(useCollection('directus_operations')).forRoutes(OperationsController);
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);

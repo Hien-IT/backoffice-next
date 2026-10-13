@@ -164,6 +164,33 @@ async function scenario(app: App, base: string): Promise<Record<string, unknown[
 	await step('versions update', () => call(base, 'PATCH', `/versions/${version}`, { name: 'renamed' }));
 	await step('versions delete', () => call(base, 'DELETE', `/versions/${version}`));
 
+	// Feature 009 (spec FR-004): flows.* and operations.* of the system collections.
+	let flow = '';
+	let operation = '';
+	await step(
+		'flows create',
+		async () =>
+			(flow = (await call(base, 'POST', '/flows', { name: `bus-${app}-${run}`, trigger: 'manual', status: 'inactive' }))
+				.data.id),
+	);
+	await step(
+		'operations create',
+		async () =>
+			(operation = (
+				await call(base, 'POST', '/operations', {
+					key: 'log',
+					type: 'log',
+					position_x: 1,
+					position_y: 1,
+					flow,
+					options: {},
+				})
+			).data.id),
+	);
+	await step('flows update', () => call(base, 'PATCH', `/flows/${flow}`, { operation }));
+	await step('operations delete', () => call(base, 'DELETE', `/operations/${operation}`));
+	await step('flows delete', () => call(base, 'DELETE', `/flows/${flow}`));
+
 	// Feature 006 (FR-051): collections.*, fields.*, relations.* of the data model routes.
 	const { model } = names(app);
 	const id = {
