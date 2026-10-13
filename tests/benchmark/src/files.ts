@@ -1,6 +1,6 @@
 // Benchmark of /files and /assets against Directus 11.17.4 (feature 007, SC-006, contracts/parity.md §6), like items.ts:
 // per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput then p95 at 80% of the Directus
-// req/s, compared by compare.ts (10%). Scenarios: the original of 200 jpeg images of about 1 MB in turn, their
+// req/s, compared by compare.ts (10%). Scenarios: the original of 200 jpeg images of about 1 MB in turn (20 connections), their
 // system-medium-cover made at seed, new transformations (20 widths of 10 images; the derived assets are deleted before
 // every run, and 10 connections stay under ASSETS_TRANSFORM_MAX_CONCURRENT), the list of 50 files as an admin and as a
 // user who reads half of them, and multipart uploads of 10 KB (removed after every run). Needs `benchmark:env-up` first.
@@ -27,6 +27,7 @@ const DURATION = Number(process.env['BENCH_DURATION'] ?? 10);
 const WARMUP = 5;
 const CONNECTIONS = 50;
 const TRANSFORM_CONNECTIONS = 10;
+const RAW_CONNECTIONS = 20;
 const RATE_SHARE = 0.8;
 const WIDTHS = Array.from({ length: 20 }, (_, i) => 120 + i * 37);
 
@@ -49,7 +50,15 @@ function scenarios(seeded: FilesSeed): Scenario[] {
 	const upload = multipart(`${seeded.tag}-upload.bin`, Buffer.alloc(10 * 1024, 7), 'application/octet-stream');
 
 	return [
-		{ name: 'asset-raw', method: 'GET', path: (n) => `/assets/${image(n)}`, user: 'admin' },
+		// 20 connections: 50 streams of 1 MB images saturate a GitHub runner, and both apps then lose requests (benchmark
+		// run 38383218274, 2026-10-13: errors at Directus and at the new app). The derived and list scenarios keep 50.
+		{
+			name: 'asset-raw',
+			method: 'GET',
+			path: (n) => `/assets/${image(n)}`,
+			user: 'admin',
+			connections: RAW_CONNECTIONS,
+		},
 		{
 			name: 'asset-derived',
 			method: 'GET',
@@ -113,6 +122,13 @@ async function measure(seeded: FilesSeed, s: Scenario, app: App, duration: numbe
 		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
+
+	// Which kind of failure a round had: the gate only sees their sum.
+	if (result.errors + result.timeouts + result.non2xx > 0) {
+		process.stdout.write(
+			`${s.name} at ${app}: ${result.errors} error(s), ${result.timeouts} timeout(s), ${result.non2xx} non-2xx\n`,
+		);
+	}
 
 	return {
 		p95: percentile(histogram, 95),

@@ -136,9 +136,11 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run benchmark:env-up
+      # 5 rounds like the main job: at about 10 req/s (GET /fields without cache) or 1 MB per request a round on a
+      # shared runner moves more than the 10% tolerance (run 38383218274, 2026-10-13).
       - run: pnpm nx run benchmark:schema --output-style=static
         env:
-          BENCH_ROUNDS: 3
+          BENCH_ROUNDS: 5
       # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
       - name: container logs
         if: failure()
@@ -160,9 +162,11 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run benchmark:env-up
+      # 5 rounds like the main job: at about 10 req/s (GET /fields without cache) or 1 MB per request a round on a
+      # shared runner moves more than the 10% tolerance (run 38383218274, 2026-10-13).
       - run: pnpm nx run benchmark:files --output-style=static
         env:
-          BENCH_ROUNDS: 3
+          BENCH_ROUNDS: 5
       # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
       - name: container logs
         if: failure()
