@@ -123,3 +123,5 @@ D-36 (invite), D-37 (extensions), D-38 (owner report). Mọi route khác: không
 Tính từ thứ tự route của chín router Directus (Express 4: mọi route khớp, theo thứ tự, HEAD sau GET), như 008, 009;
 `apps/api/src/middleware/router-options.ts` khối Feature 010 (T004). `/shares/<không uuid>`, `/extensions/<không uuid>`,
 `/settings/<khác>` không khớp route nào → `404`. Bộ đối chiếu của mỗi controller so `OPTIONS` với Directus thật.
+Đo 2026-10-14: `OPTIONS` của các mẫu trên trùng Directus 11.17.4 ở `src/system/{settings,presets,notifications,
+translations,insights,shares,extensions}.test.ts` và `src/server/methods.test.ts` (`/server/setup` → `200 Allow: POST`).

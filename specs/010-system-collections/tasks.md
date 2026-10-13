@@ -531,10 +531,10 @@ D**.
 
 **Purpose**: Manifest, sổ khác biệt, spec cũ, bằng chứng rủi ro, đóng feature (Nguyên tắc X).
 
-- [ ] T056 [P] `tools/port-manifest/010-T*.json` đủ cho mọi task port; `node tools/check-port-headers.mjs` xanh; mọi file
+- [X] T056 [P] `tools/port-manifest/010-T*.json` đủ cho mọi task port; `node tools/check-port-headers.mjs` xanh; mọi file
   mới có dòng `// Ported from` hoặc `// Backoffice:`; `pnpm nx run-many -t lint typecheck test` xanh, coverage ≥ 80%
   `apps/api`, `libs/utils`.
-- [ ] T057 [P] Spec: điền cột "Bằng chứng" của R-25 đến R-29 (ca test, request, kết quả đo trên Directus, ngày) từ "Ghi
+- [X] T057 [P] Spec: điền cột "Bằng chứng" của R-25 đến R-29 (ca test, request, kết quả đo trên Directus, ngày) từ "Ghi
   chú khi làm"; sửa kết quả đo của `OPTIONS` vào contracts §10, §12; bundle rỗng vào research R6 (ngày đo trên
   container); `specs/001-platform-foundation/spec.md` dòng D-09.8, D-14 ghi "gỡ ở 010 (ngày)";
   `specs/004-permissions/spec.md` dòng D-31 thu hẹp và lâu dài; `checklists/system.md` ghi mục nào đổi sau đo.
@@ -731,3 +731,8 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
 - 2026-10-14 T055: `setup` thêm vào `--profiles` của hai shard Postgres `full` và job `e2e-directus-app` (ci.yml,
   `tools/ci-local.sh`); `nightly.yml` không có Postgres nên không đổi, `parity-matrix.yml` chỉ chạy blackbox.
   `tests/parity/README.md` thêm mục 010.
+- 2026-10-14 T056: `check-port-headers` 1.219 file, 0 lỗi; mọi file nguồn mới của 010 có dòng `Ported from` hoặc
+  `Backoffice:`; coverage dòng `apps/api` 87,34%, `libs/utils` 95,55%. T057: cột "Bằng chứng" R-25 đến R-29 (R-27 đo
+  không token ở hai app), research R6 (bundle đo trên container), contracts §10 (system-api) và §12 (utils-api) ghi
+  `OPTIONS` đã đo; spec 001 D-09.8, D-14 và spec 004 D-31 ghi trạng thái thật ("gỡ/lâu dài khi tech lead duyệt đóng
+  010", chưa gỡ); checklist ghi mục đổi sau đo. T058 chờ tech lead duyệt.

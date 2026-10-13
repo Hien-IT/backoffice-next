@@ -115,8 +115,8 @@ E2E. Đường dẫn Directus tính từ `directus/api/src` trừ khi ghi khác;
   `SERVE_APP` truthy, với `Content-Type: application/javascript; charset=UTF-8`, `Cache-Control` =
   `getCacheControlHeader(req, getMilliseconds(EXTENSIONS_CACHE_TTL), false, false)` (`no-cache` khi biến không đặt,
   `no-store` khi request bỏ cache), `Vary: Origin, Cache-Control`; chunk khác hoặc `SERVE_APP` tắt →
-  `RouteNotFoundError`. `[Suy luận]` bundle thật của container Directus trùng chuỗi đo: task đầu của extensions so
-  byte với `GET /extensions/sources/index.js` của Directus trong môi trường đối chiếu.
+  `RouteNotFoundError`. Đo 2026-10-14 (T048): `GET /extensions/sources/index.js` của container Directus 11.17.4
+  trong môi trường đối chiếu trùng từng byte với chuỗi này, gửi `Transfer-Encoding: chunked`.
   Cảnh báo `SERVE_APP_MESSAGE` (D-08) giữ nguyên: app web vẫn không được phục vụ; `SERVE_APP` nay được đọc cho một
   route (ghi ở contracts/config.md của 001).
 - **Lý do**: FR-070 đến FR-072, D-37, Clarifications. Không có `ExtensionManager` (Nguyên tắc XI) nên `schema` luôn

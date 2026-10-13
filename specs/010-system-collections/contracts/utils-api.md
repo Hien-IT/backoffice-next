@@ -106,4 +106,5 @@ Mọi lỗi dùng lớp của `@backoffice/errors` với cùng `code`, `status`,
 | `/utils/cache/clear` | `POST` |
 | `/utils/resolve-redirect` | `POST` |
 
-Tính từ thứ tự route của `controllers/utils.ts` (T004); `/utils`, `/utils/sort` (thiếu collection) không khớp route → `404`. `utils-misc.test.ts` so `OPTIONS` với Directus thật.
+Tính từ thứ tự route của `controllers/utils.ts` (T004); `/utils`, `/utils/sort` (thiếu collection) không khớp route → `404`. `utils-misc.test.ts` so `OPTIONS` với Directus thật;
+đo 2026-10-14: trùng Directus 11.17.4.

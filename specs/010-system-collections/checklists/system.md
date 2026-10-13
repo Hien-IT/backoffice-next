@@ -145,3 +145,9 @@ import/export và utils; kiểm thử và cổng đóng feature. Độ sâu Stan
   032, 033). Phát hiện mới: R-29 (`/shares/auth` thiếu `password` → `500`), FR-084 ghi sai thứ tự kiểm, Assumptions
   mâu thuẫn với plan về profile `setup`.
 - Mục nào dẫn tới sửa spec thì sửa spec trước, không sửa checklist cho khớp.
+- Sau đo (2026-10-14, khi implement): CHK031 đã xác nhận bằng số (T054: `shares-auth` p95 548/591 ms, 27,4/28,2
+  req/s, trong ngưỡng 10%); CHK032 cột "Bằng chứng" của R-25 đến R-29 đã thay kỳ vọng bằng số đo. Đổi so với giả định
+  lúc rà: `LimitExceededError` của bộ đếm import là `403` (không phải `429`); Directus `install` ghi dòng
+  `directus_extensions` trước khi tải nên tải lỗi để lại dòng (D-37: app mới không ghi); `uninstall`, `PATCH`,
+  `DELETE /extensions/<id>` không có dòng → Directus `204`; preset không ghi activity; share không có `role` chỉ có
+  quyền public.
