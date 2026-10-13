@@ -208,25 +208,9 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		backoffice: /issuer=Backoffice$/,
 		reason: 'TFA issuer label when project_name is empty (Principle IX).',
 	},
-	{
-		id: 'D-26',
-		feature: '003',
-		removeAt: '009',
-		kind: 'doc',
-		// Narrowed by feature 005: the events are emitted like Directus (the real emitter); only flows are missing.
-		reason: 'Flows triggered by auth.login, auth.jwt, auth.create, auth.update or authenticate do not run (009).',
-	},
 	// Feature 004
 	{ id: 'D-27', feature: '004', kind: 'doc', reason: 'No invitation email: a warn log line naming the recipient.' },
 	{ id: 'D-28', feature: '004', kind: 'doc', reason: 'No verification email after registration: a warn log line.' },
-	{
-		id: 'D-29',
-		feature: '004',
-		removeAt: '009',
-		kind: 'doc',
-		// Narrowed by feature 005: the filter and action events are emitted like Directus; only flows are missing.
-		reason: 'Flows triggered by events of the five collections do not run at the new app (009).',
-	},
 	{
 		id: 'D-31',
 		feature: '004',
