@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { buildNginxConf, parseRoutes } from '../scripts/proxy-conf.mjs';
 
 describe('proxy-conf', () => {
-	test('the list of features 004 to 008: twenty routes, comments and blank lines ignored', () => {
+	test('the list of features 004 to 009: twenty-one routes, comments and blank lines ignored', () => {
 		const routes = parseRoutes(readFileSync(new URL('../proxy/backoffice-routes.txt', import.meta.url), 'utf8'));
 		expect(routes).toEqual([
 			'auth',
@@ -28,6 +28,7 @@ describe('proxy-conf', () => {
 			'revisions',
 			'versions',
 			'comments',
+			'flows',
 		]);
 	});
 
@@ -72,6 +73,16 @@ describe('proxy-conf', () => {
 			expect(new RegExp(location).test(path), path).toBe(true);
 		for (const path of ['/utils/revert/1', '/notifications', '/versionsx', '/comment'])
 			expect(new RegExp(location).test(path), path).toBe(false);
+	});
+
+	test('feature 009: /flows and its trigger routes go to the new app, /settings stays on Directus', () => {
+		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
+		const conf = buildNginxConf(template, ['flows']);
+		const location = conf.match(/location ~ (\S+) \{/)![1]!;
+
+		for (const path of ['/flows', '/flows/x', '/flows/trigger/3f1c2d4e-0000-4000-8000-00000000000a'])
+			expect(new RegExp(location).test(path), path).toBe(true);
+		for (const path of ['/settings', '/flowsx', '/operations/x']) expect(new RegExp(location).test(path), path).toBe(false);
 	});
 
 	test('one location for the routes of the new app, the rest to Directus', () => {

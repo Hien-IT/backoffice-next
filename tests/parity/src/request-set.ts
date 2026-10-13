@@ -33,6 +33,9 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 			body: { password: 'x' },
 		},
 		{ path: '/auth' },
+		// Feature 009: the public may not read or create flows (refused before any row is written).
+		{ path: '/flows' },
+		{ method: 'POST', path: '/flows', body: { name: 'request-set', trigger: 'manual' } },
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },

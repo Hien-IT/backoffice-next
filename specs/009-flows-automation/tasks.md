@@ -213,7 +213,7 @@ SQLite (`reduced`); kiểm tay quickstart §2.
 
 ### Tests for User Story 1
 
-- [ ] T019 [P] [US1] `tests/parity/src/flows/webhook.test.ts` (`reduced`, `full`): body là kết quả thô (không bọc
+- [X] T019 [P] [US1] `tests/parity/src/flows/webhook.test.ts` (`reduced`, `full`): body là kết quả thô (không bọc
   `{data}`); flow `GET` mặc định (`$last` của `transform`), `$all` (so sau `comparable`), `return` đường dẫn
   (`$trigger.query.x`), `return` không có và kết quả falsy (`null`, `0`, `''`) → `204`; `POST` tới flow `GET` và `GET`
   tới flow `POST` → `403`; `async` → `204` rồi poll activity `run` ≤ 5 s; `error_on_reject` với `throw-error` (`422`,
@@ -223,11 +223,11 @@ SQLite (`reduced`); kiểm tay quickstart §2.
   `operation`, uuid sai (`404 ROUTE_NOT_FOUND`), uuid không có (`403`), uuid viết hoa của flow có thật (`403`, đo
   Express 4 không phân biệt hoa thường); public không token chạy được; R-24: flow `$all` gọi không token trả `$env`
   (ghi bằng chứng); `OPTIONS`, `HEAD` (US1 ca 1–4, 7; FR-001, FR-012, FR-013, FR-020, FR-024).
-- [ ] T020 [P] [US1] `tests/parity/src/flows/manual.test.ts` (`reduced`, `full`): body `{collection, keys, ...fields}`
+- [X] T020 [P] [US1] `tests/parity/src/flows/manual.test.ts` (`reduced`, `full`): body `{collection, keys, ...fields}`
   và `{collection}` với `requireSelection=false`; 6 lỗi `403` theo thứ tự contracts/flows-api.md §3 (kiểm log warn
   của hai app qua `logs()`); non-admin có quyền đọc collection và keys → chạy; không quyền đọc → `403`; một key không
   đọc được → `403`; `keys` số và chuỗi; `async` → `204`; `$trigger.body` giữ `fields` (US1 ca 5, 6).
-- [ ] T021 [P] [US1] `apps/api/src/controllers/flows.controller.test.ts` (supertest qua app Nest, mock
+- [X] T021 [P] [US1] `apps/api/src/controllers/flows.controller.test.ts` (supertest qua app Nest, mock
   `./flows.js` và service): `GET|POST /flows/trigger/:pk` gọi `runWebhookFlow('<METHOD>-<pk>', {path, query, body,
   method, headers}, {accountability, schema})`, `res.locals.payload = result` (không bọc `data`), `res.locals.cache =
   false` khi `cacheEnabled: false`, `204` khi `result` falsy, `404 ROUTE_NOT_FOUND` khi `pk` không uuid, uuid viết hoa
@@ -237,7 +237,7 @@ SQLite (`reduced`); kiểm tay quickstart §2.
 
 ### Implementation for User Story 1
 
-- [ ] T022 [US1] `apps/api/src/controllers/flows.controller.ts` port từ `directus/api/src/controllers/flows.ts` theo
+- [X] T022 [US1] `apps/api/src/controllers/flows.controller.ts` port từ `directus/api/src/controllers/flows.ts` theo
   mẫu `comments.controller.ts` (research R3; contracts/flows-api.md §1): handler `trigger/:pk` khai báo trước `:pk`,
   kiểm `new RegExp(`^${UUID_REGEX}$`, 'i')` → `RouteNotFoundError({path: req.path})`; `apps/api/src/app.module.ts`
   đăng ký controller và `useCollection('directus_flows')`; `app.test.ts`, `app-pipeline.test.ts` thêm ca. Cùng task:
@@ -610,3 +610,9 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   `src/test-utils/flows.ts`; `app-pipeline.test.ts` có ca `initialize` một lần và `unload` khi `runShutdownTasks`.
 - T018: `seedFlow` tạo flow rồi operation từ cuối lên đầu với uuid sinh trước, `PATCH` operation gốc, rồi đợi
   `RELOAD_WAIT` = 500 ms cho hai app nạp lại qua bus (không poll trigger để khỏi sinh lần chạy thừa).
+- US1 (T019–T022, 2026-10-14, Postgres cục bộ, hai app amd64 giả lập): `webhook.test.ts` 15/15, `manual.test.ts`
+  11/11 lần chạy đầu. Đo trên Directus 11.17.4 thật: uuid viết hoa của flow có thật khớp route và trả `403` ở cả hai
+  app (Express 4 không phân biệt hoa thường, như spec FR-001 đã sửa); lỗi `throw-error` không `error_on_reject` trả
+  `200` với `{"name":"DirectusError","code":"NOPE","status":422}` ở cả hai app (R7 khớp); `condition` với
+  `error_on_reject` trả `400 FAILED_VALIDATION`. Controller: `$trigger.path` lấy đường dẫn trong router Directus
+  (`/trigger/<id>`, bỏ `/flows`), vì Nest gắn route ở app. MySQL, SQLite chạy ở CI.

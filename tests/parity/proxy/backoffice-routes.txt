@@ -20,3 +20,4 @@ activity
 revisions
 versions
 comments
+flows

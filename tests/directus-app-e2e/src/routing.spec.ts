@@ -31,6 +31,8 @@ test('requests of the route list reach the new app, the others Directus', async 
 	await page.goto(`${baseURL}/admin/files`);
 	// Feature 008: the activity module loads /activity; /notifications (bell) stays on Directus until feature 010.
 	await page.goto(`${baseURL}/admin/activity`);
+	// Feature 009: every page of the app loads /flows (stores/flows.ts); Settings > Flows reads it again.
+	await page.goto(`${baseURL}/admin/settings/flows`);
 	await page.waitForLoadState('networkidle');
 
 	const addresses = {

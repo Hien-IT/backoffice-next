@@ -6,6 +6,7 @@ import { AssetsController } from './controllers/assets.controller.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { CollectionsController } from './controllers/collections.controller.js';
 import { CommentsController } from './controllers/comments.controller.js';
+import { FlowsController } from './controllers/flows.controller.js';
 import { FieldsController } from './controllers/fields.controller.js';
 import { FilesController } from './controllers/files.controller.js';
 import { FoldersController } from './controllers/folders.controller.js';
@@ -43,6 +44,7 @@ export class TusModule implements NestModule {
 		CommentsController,
 		FieldsController,
 		FilesController,
+		FlowsController,
 		FoldersController,
 		ItemsController,
 		PermissionsController,
@@ -70,6 +72,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_activity')).forRoutes(ActivityController);
 		consumer.apply(useCollection('directus_files')).forRoutes(AssetsController, FilesController);
 		consumer.apply(useCollection('directus_fields')).forRoutes(FieldsController);
+		consumer.apply(useCollection('directus_flows')).forRoutes(FlowsController);
 		consumer.apply(useCollection('directus_folders')).forRoutes(FoldersController);
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
