@@ -66,8 +66,13 @@ Chưa có: `FlowManager`, `FlowsService`, `OperationsService`, 15 operation, rou
 POST", mỗi vendor một process Directus riêng với `CACHE_ENABLED=true`, `CACHE_STORE=memory`); unit `flows.test.ts`
 (2), `operations/condition` (4), `exec` (12), `item-create` (4), `item-delete` (11), `item-read` (11), `item-update`
 (11), `json-web-token` (12), `log` (2), `mail` (7), `mail/rate-limiter.test.ts` (5), `notification` (2), `request` (5),
-`sleep` (2), `throw-error` (6), `transform` (2), `trigger` (3), `utils/redact-object.test.ts`; `utils/schedule.test.ts`
-đã port ở 008. Không có test blackbox hay E2E cho trigger event, schedule, manual, operation.
+`sleep` (2), `throw-error` (6), `transform` (2), `trigger` (3), `utils/redact-object.test.ts` (14); `utils/schedule.test.ts`
+đã port ở 008; `@directus/utils` `apply-options-data.test.ts` (12), `sieve-functions.test.ts` (8),
+`is-valid-json.test.ts` (2). Blackbox `tests/blackbox/tests/common/flows/schedule-hook.{seed,test}.ts` (flow cron
+`*/2 * * * * *` với `log` `flow-executed-on-{{ $env.FLOWS_SCHEDULE_HOOK_NAME }}` trên ba process có
+`SYNCHRONIZATION_STORE` khác nhau, đếm dòng log: hai node redis tổng 5 lần trong 10 s, node memory 5 lần riêng; không
+copy được vì cần ba process, phép đo tương đương làm ở bộ đối chiếu lịch, FR-062). Không có test blackbox hay E2E cho
+trigger event, manual, operation.
 
 ## Clarifications
 
@@ -454,8 +459,9 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   flow.id`) bằng `ActivityService` không accountability với `database`, `schema` của lần chạy; khi `all` ghi thêm
   `directus_revisions` (`activity`, `collection`, `item`, `data = { steps, data }`) với `steps` che theo giá trị `$env`
   và `data` che theo danh sách khóa của Directus và giá trị `$env` (`redactObject`, chuỗi thay thế của
-  `getRedactedString`); lỗi ở bước reject được serialize với cùng tập field enumerable như Directus (đo ở T0xx:
-  `DirectusError` của `@backoffice/errors` có `extensions`, `code`, `status`; `message` không enumerable).
+  `getRedactedString`; `Error` thành `{ name, message, stack, cause }` qua replacer của `redactObject`); lỗi ở bước
+  reject được serialize với cùng tập field như Directus: `name = DirectusError` (Cần xác nhận), `extensions`,
+  `code`, `status` enumerable, `message` không (so JSON ở bộ đối chiếu).
 - **FR-024**: Lỗi ném từ `executeFlow` tới route PHẢI đi qua error handler chung như Directus: `DirectusError` trả
   status, `code`, `message` của nó; giá trị khác trả `500 INTERNAL_SERVER_ERROR` (và log lỗi).
 
@@ -574,7 +580,7 @@ Khác biệt mới:
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
-| D-34 | Operation `mail` | `MailService.send` qua `EMAIL_TRANSPORT` (sendmail, smtp, mailgun, ses), render markdown hoặc template liquid, lỗi gửi chỉ ghi log | Qua rate limiter như Directus rồi ghi một dòng log cảnh báo thay vì gửi (như D-23, D-27, D-28, D-33); kết quả của operation giống nhau (undefined) | Mô tả feature: "không gửi email, chỉ ghi log"; không gửi email là quyết định dự án (SPECKIT-GUIDE §1, Clarifications); `EMAIL_*` thuộc nhóm chưa hỗ trợ; Nguyên tắc X | ngoài phạm vi (lâu dài) | không |
+| D-34 | Operation `mail` | `MailService.send` qua `EMAIL_TRANSPORT` (sendmail, smtp, mailgun, ses), render markdown hoặc template liquid, lỗi gửi chỉ ghi log | Qua rate limiter như Directus rồi ghi một dòng log cảnh báo thay vì gửi (như D-23, D-27, D-28, D-33); kết quả của operation giống nhau (undefined) | Mô tả feature: "không gửi email, chỉ ghi log"; không gửi email là quyết định dự án (SPECKIT-GUIDE §1, Clarifications); `EMAIL_*` thuộc nhóm chưa hỗ trợ; Nguyên tắc X | ngoài phạm vi (lâu dài) | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 008. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột
@@ -587,7 +593,13 @@ Khác biệt mới:
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
-- Không có. Kênh bus `flows`, khóa `<flow id>:<cron>`, namespace `directus-sync`, giá trị `action = run`, id operation,
+- `name` của lỗi do `createError` tạo (`@backoffice/errors`, 001 đổi thành `BackofficeError`) PHẢI trở lại
+  `DirectusError` ở feature này: `name` là field enumerable nên Directus serialize nó vào `$all` trả cho client
+  webhook, vào `directus_revisions.data` của log chạy (DB dùng chung, Logs sidebar của app Directus hiển thị) và vào
+  `$last` đưa cho `condition`, `exec` (script người dùng có thể so `name`). Là định danh ảnh hưởng tương thích (Nguyên
+  tắc II, III, IX); lỗi trả về client qua error handler không có `name` nên 001 đến 008 chưa gặp. Tech lead duyệt
+  khi đóng feature (plan Complexity Tracking, research R7).
+- Kênh bus `flows`, khóa `clock:<flow id>:<cron>`, namespace `directus-sync`, giá trị `action = run`, id operation,
   khóa `$trigger`, `$last`, `$accountability`, `$env`, thông điệp cảnh báo giữ nguyên vì là dữ liệu hoặc tên kỹ thuật
   dùng chung với app Directus và Directus (Nguyên tắc IX). Hai dòng log mới (FR-011, FR-036) mang tiền tố
   "Backoffice:" như D-33.
