@@ -725,5 +725,13 @@ Task: "storage-capture.ts (T019)"
   16 job, gồm `e2e-directus-app` và `publish`, sau một lần chạy lại job SQLite: lần đầu Directus (lượt `directus` của
   blackbox) trả `500` "no such column: ...second_ids" ở `hash-filter.test.ts` của 005 (schema cũ ở Directus). Các lượt
   trước còn gặp hai ca chập chờn cùng họ ở shard 1 Postgres: `nested-files` (`POST /fields` ngay sau tạo collection, Directus
-  `403`) và 006 `ddl.test.ts`, `sync-api.test.ts` (Directus chưa thấy collection, quá 1 s). Chưa tìm ra nguyên nhân; nghi
-  do tải thêm của cặp `assets-limit`, `assets-stress` trên runner (suy luận).
+  `403`) và 006 `ddl.test.ts`, `sync-api.test.ts` (Directus chưa thấy collection, quá 1 s). Nguyên nhân tìm ra sau đó:
+  R-19 (dòng kế).
+- R-19 (lỗi chập chờn "Directus không thấy collection, field vừa tạo"): là cách `getSchema` của Directus phối hợp nhiều
+  tiến trình qua khóa `schemaCache--preparing` và kênh `schemaCache--done`; app mới port nguyên nên giống hệt (nhiễu chỉ
+  từ Directus 10/40 lỗi, chỉ từ app mới 9/40). Tái hiện cục bộ, số đo ở dòng R-19 của spec. Feature 007 làm nó hay gặp
+  hơn: cặp `assets-stress` (dọn TUS mỗi phút, gọi `getSchema`) chung namespace bus, lock mặc định với cặp chính, blackbox
+  và các cặp khác. Sửa môi trường: `profile-assets-stress.env` đặt `REDIS_BUS_NAMESPACE`, `REDIS_LOCK_NAMESPACE` riêng
+  (test trên cặp này không đổi schema); nhiễu từ cặp này 5/40 lỗi trước, 0/40 sau; `assets.test.ts`, `tus.test.ts`,
+  blackbox `cache-revalidate.test.ts` vẫn xanh. Còn lại (suy luận): lịch dọn TUS mỗi giờ ở cặp `blackbox`, `cors-hsts` và
+  request song song tới hai app của cặp chính vẫn có thể gây lỗi này, hiếm hơn.
