@@ -9,7 +9,10 @@ import { type AppName, appRequest } from '../directus-api.js';
 import { logs } from '../docker.js';
 import { assertParity, type ParityOptions, type ParityRequest, parity } from '../parity.js';
 
-export { admin, call, idsOf, snap } from '../files/helpers.js';
+import { type Snapshot, snapshotOf } from '../auth/scenario.js';
+import type { Captured } from '../parity.js';
+
+export { admin, call, idsOf } from '../files/helpers.js';
 export { BROWSER } from '../history/helpers.js';
 
 /**
@@ -157,4 +160,12 @@ export function setupDb(): Knex {
 export async function closeSetupDb(): Promise<void> {
 	await setup?.destroy();
 	setup = undefined;
+}
+
+/**
+ * Snapshot of a response for a transcript, like snap() of feature 007, but ids are replaced only where a whole value
+ * equals one (serial ids are small numbers: as substrings they would hit uuids, statuses and headers).
+ */
+export function snap(captured: Captured, path: string, ids: Record<string, string | number> = {}): Snapshot {
+	return comparable(snapshotOf(path, captured), ids);
 }

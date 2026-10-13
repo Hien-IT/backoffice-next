@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/controllers/dashboards.ts",
+		"dest": "apps/api/src/controllers/dashboards.controller.ts"
+	},
+	{
+		"source": "api/src/controllers/panels.ts",
+		"dest": "apps/api/src/controllers/panels.controller.ts"
+	}
+]

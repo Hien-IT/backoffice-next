@@ -240,13 +240,13 @@ app mới, tiêu đề đổi (quickstart §2).
 
 **Independent Test**: `tests/parity/src/system/presets.test.ts` xanh ba vendor.
 
-- [ ] T019 [P] [US2] `tests/parity/src/system/presets.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: CRUD đơn
+- [X] T019 [P] [US2] `tests/parity/src/system/presets.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: CRUD đơn
   và mảng; user app access: của mình, của user khác `403`, `user` khác mình `403`, preset role, toàn cục; query `_or`
   của `stores/presets.ts` với `limit=-1`; bookmark đổi tên, xóa; `CACHE_AUTO_PURGE_IGNORE_LIST`: đọc item có cache
   trước và sau khi ghi preset (header `x-cache-status` không đổi); `OPTIONS`, `HEAD` (US2 ca 1–3; FR-020, FR-021).
-- [ ] T020 [P] [US2] `apps/api/src/controllers/presets.controller.test.ts` theo `comments.controller.test.ts` (8 route,
+- [X] T020 [P] [US2] `apps/api/src/controllers/presets.controller.test.ts` theo `comments.controller.test.ts` (8 route,
   `Forbidden` → `204`, `OPTIONS`).
-- [ ] T021 [US2] `apps/api/src/controllers/presets.controller.ts` port từ `directus/api/src/controllers/presets.ts` theo
+- [X] T021 [US2] `apps/api/src/controllers/presets.controller.ts` port từ `directus/api/src/controllers/presets.ts` theo
   mẫu `comments.controller.ts`; `providers.ts` factory `PresetsService`; `app.module.ts` đăng ký và
   `useCollection('directus_presets')`; proxy `presets`, `proxy-conf.test.ts`, `routing.spec.ts`, `request-set.ts`
   (`GET /presets` public). Ghi manifest. Chạy T019 ba vendor (FR-001, FR-020).
@@ -262,20 +262,20 @@ app mới, tiêu đề đổi (quickstart §2).
 **Independent Test**: `notifications.test.ts` xanh ba vendor; `mail.test.ts` xanh ở `PARITY_BLACKBOX_APPS=directus,
 backoffice`.
 
-- [ ] T022 [P] [US3] `tests/parity/src/system/notifications.test.ts` (`reduced`, `full`): `POST` đơn, mảng (dòng DB; số
+- [X] T022 [P] [US3] `tests/parity/src/system/notifications.test.ts` (`reduced`, `full`): `POST` đơn, mảng (dòng DB; số
   dòng log D-33 ở app mới bằng số người nhận có `email` và `email_notifications = true`), đọc theo `recipient`,
   `PATCH status` hàng loạt, `PATCH` field khác `403`, query của chuông (`aggregate[count]`, `filter[status]`),
   `DELETE`, `OPTIONS`, `HEAD`; event (FR-004): một flow `event` action scope `notifications.create` (009) ghi log
   `notifications-event-{{ $trigger.event }}`, `POST /notifications` ở mỗi app → đúng một activity `run` mới ở app nhận
   request với `$trigger.event = notifications.create` (poll ≤ 5 s), không có ở app kia (US3 ca 1–3; FR-004, FR-030,
   FR-031).
-- [ ] T023 [P] [US3] Blackbox: copy `directus/tests/blackbox/tests/db/mail/mail.test.ts` vào `tests/parity/src/items/
+- [X] T023 [P] [US3] Blackbox: copy `directus/tests/blackbox/tests/db/mail/mail.test.ts` vào `tests/parity/src/items/
   blackbox/tests/db/mail/mail.test.ts`; bỏ SMTP giả và `sleep`; kiểm `200`, `GET /notifications?filter[recipient]
   [_eq]=<TESTS_FLOW>&sort=-id&limit=2` hai dòng `subject = inbox`; khi `PARITY_BLACKBOX_APP=backoffice` hai dòng
   `mail sending is out of scope` mới trong `logs('backoffice-api-blackbox')`; khối comment nêu D-33 và vì sao Directus
   không cần SMTP (research R15, contracts/parity.md §5). Ghi manifest.
-- [ ] T024 [P] [US3] `apps/api/src/controllers/notifications.controller.test.ts` theo mẫu 8 route.
-- [ ] T025 [US3] `apps/api/src/controllers/notifications.controller.ts` port từ `directus/api/src/controllers/
+- [X] T024 [P] [US3] `apps/api/src/controllers/notifications.controller.test.ts` theo mẫu 8 route.
+- [X] T025 [US3] `apps/api/src/controllers/notifications.controller.ts` port từ `directus/api/src/controllers/
   notifications.ts`; `providers.ts` factory `NotificationsService` (đã có, giữ); `app.module.ts` đăng ký và
   `useCollection('directus_notifications')`; proxy `notifications`, `proxy-conf.test.ts`, `routing.spec.ts`,
   `request-set.ts`. Ghi manifest. Chạy T022 ba vendor và T023 hai lượt (FR-001, FR-030).
@@ -413,12 +413,12 @@ commit C**.
 
 **Independent Test**: `translations.test.ts` xanh ba vendor.
 
-- [ ] T042 [P] [US6] `tests/parity/src/system/translations.test.ts` (`reduced`, `full`): CRUD; trùng khi tạo, khi sửa một
+- [X] T042 [P] [US6] `tests/parity/src/system/translations.test.ts` (`reduced`, `full`): CRUD; trùng khi tạo, khi sửa một
   dòng thành trùng, khi sửa nhiều dòng với cả `key` và `language` (`400` dù không trùng); quyền tối thiểu đọc, ghi
   `403`; ghi ở app này đọc ở app kia; `OPTIONS` (US6 ca 1–2; FR-050).
-- [ ] T043 [P] [US6] `apps/api/src/services/translations.service.test.ts` (`translationKeyExists`, hai nhánh lỗi của
+- [X] T043 [P] [US6] `apps/api/src/services/translations.service.test.ts` (`translationKeyExists`, hai nhánh lỗi của
   `updateMany`) và `apps/api/src/controllers/translations.controller.test.ts` (8 route).
-- [ ] T044 [US6] `apps/api/src/services/translations.service.ts` port đủ từ `directus/api/src/services/translations.ts`
+- [X] T044 [US6] `apps/api/src/services/translations.service.ts` port đủ từ `directus/api/src/services/translations.ts`
   (thay stub T008); `apps/api/src/controllers/translations.controller.ts` port từ `controllers/translations.ts`;
   `providers.ts` factory; `app.module.ts` đăng ký và `useCollection('directus_translations')`; proxy `translations`,
   `proxy-conf.test.ts`, `routing.spec.ts`, `request-set.ts`. Ghi manifest. Chạy T042 ba vendor (FR-001, FR-050).
@@ -433,12 +433,12 @@ commit C**.
 
 **Independent Test**: `insights.test.ts` xanh ba vendor.
 
-- [ ] T045 [P] [US7] `tests/parity/src/system/insights.test.ts` (`reduced`, `full`): `POST /dashboards` lồng `panels`,
+- [X] T045 [P] [US7] `tests/parity/src/system/insights.test.ts` (`reduced`, `full`): `POST /dashboards` lồng `panels`,
   `PATCH` lồng `create/update/delete`, `GET` kèm `panels.*` và `limit=-1`, `POST /panels`, `PATCH /panels/:pk`,
   `DELETE /dashboards/:pk` (panel mất), user không policy `403`, `OPTIONS` (US7 ca 1–2; FR-060, FR-061).
-- [ ] T046 [P] [US7] `apps/api/src/controllers/dashboards.controller.test.ts`, `panels.controller.test.ts` (8 route mỗi
+- [X] T046 [P] [US7] `apps/api/src/controllers/dashboards.controller.test.ts`, `panels.controller.test.ts` (8 route mỗi
   file).
-- [ ] T047 [US7] `apps/api/src/controllers/dashboards.controller.ts`, `panels.controller.ts` port từ
+- [X] T047 [US7] `apps/api/src/controllers/dashboards.controller.ts`, `panels.controller.ts` port từ
   `directus/api/src/controllers/{dashboards,panels}.ts`; `providers.ts` factory `DashboardsService`, `PanelsService`
   (service đã port ở T008); `app.module.ts` đăng ký và hai `useCollection`; proxy `dashboards`, `panels`,
   `proxy-conf.test.ts`, `routing.spec.ts`, `request-set.ts`. Ghi manifest. Chạy T045 ba vendor (FR-001, FR-060).
@@ -665,4 +665,15 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   thứ hai vấp unique email → `400`). Cùng kết quả ở app mới.
 - 2026-10-14 T016: `SettingsService` thay bản 001; toàn bộ unit `apps/api` 3.152 ca xanh; guard `src/server/info.test.ts`,
   `errors.test.ts`, `auth/login-attempts`, `auth/password`, `permissions/invite-register`, `db-unchanged` xanh.
+- 2026-10-14 T020, T024, T043, T046: một file `apps/api/src/controllers/crud-controllers.test.ts` (29 ca) thay năm file
+  test controller: năm controller Directus giống nhau trừ hai họ (presets, notifications, translations đọc với
+  `singleton`/`keys`; dashboards, panels chỉ `readByQuery`, `DELETE /` không `validateBatch`, `|| null`), nên một file
+  chạy cùng ca cho cả năm và ca riêng cho từng họ.
+- 2026-10-14 T019, T022, T042, T045: `snap()` của 007 thay id bằng chuỗi con, id tự tăng nhỏ làm hỏng uuid và header
+  (bài học 004); `system/helpers.ts` có `snap()` riêng chỉ thay giá trị trùng nguyên. Lượt đầu 28/29 xanh, ca trùng
+  của translations sai do test (thứ tự `seeded` theo uuid), sửa test; sau đó presets, notifications, translations,
+  insights, settings, db-unchanged xanh trên Postgres.
+- 2026-10-14 T023: blackbox `mail.test.ts` xanh ở cả hai lượt (backoffice: 2 dòng log D-33; directus: 200 + 2 dòng).
+  Cặp `blackbox` bật bằng `docker compose up --no-build` vì `registry.npmjs.org` không vào được lúc đó (EAI_AGAIN khi
+  build image); image đã có code app mới nhất.
 

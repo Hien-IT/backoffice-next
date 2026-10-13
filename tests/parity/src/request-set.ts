@@ -40,6 +40,10 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		// Feature 010: the public may not read or write the settings.
 		{ path: '/settings' },
 		{ method: 'PATCH', path: '/settings', body: { project_name: 'request-set' } },
+		...['/presets', '/notifications', '/translations', '/dashboards', '/panels'].flatMap((path) => [
+			{ path },
+			{ method: 'POST', path, body: {} },
+		]),
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },

@@ -16,6 +16,11 @@ import { FoldersService } from './services/folders.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { NotificationsService } from './services/notifications.service.js';
+import { TranslationsService } from './services/translations.service.js';
+import { SharesService } from './services/shares.service.js';
+import { PresetsService } from './services/presets.service.js';
+import { PanelsService } from './services/panels.service.js';
+import { DashboardsService } from './services/dashboards.service.js';
 import { OperationsService } from './services/operations.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
@@ -58,6 +63,31 @@ export const infrastructureProviders: Provider[] = [
 ];
 
 export const serviceProviders: Provider[] = [
+	{
+		provide: TranslationsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new TranslationsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: SharesService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new SharesService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: PresetsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new PresetsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: PanelsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new PanelsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: DashboardsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new DashboardsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
 	{
 		provide: AccessService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new AccessService({ knex: db(), ...options }),

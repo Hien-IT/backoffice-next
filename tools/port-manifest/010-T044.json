@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/translations.ts",
+		"dest": "apps/api/src/services/translations.service.ts"
+	},
+	{
+		"source": "api/src/controllers/translations.ts",
+		"dest": "apps/api/src/controllers/translations.controller.ts"
+	}
+]

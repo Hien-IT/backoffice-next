@@ -18,6 +18,11 @@ import { RelationsController } from './controllers/relations.controller.js';
 import { RevisionsController } from './controllers/revisions.controller.js';
 import { RolesController } from './controllers/roles.controller.js';
 import { SchemaController } from './controllers/schema.controller.js';
+import { DashboardsController } from './controllers/dashboards.controller.js';
+import { NotificationsController } from './controllers/notifications.controller.js';
+import { PanelsController } from './controllers/panels.controller.js';
+import { PresetsController } from './controllers/presets.controller.js';
+import { TranslationsController } from './controllers/translations.controller.js';
 import { ServerController } from './controllers/server.controller.js';
 import { SettingsController } from './controllers/settings.controller.js';
 import { TusController } from './controllers/tus.controller.js';
@@ -56,6 +61,11 @@ export class TusModule implements NestModule {
 		RevisionsController,
 		RolesController,
 		SchemaController,
+		DashboardsController,
+		NotificationsController,
+		PanelsController,
+		PresetsController,
+		TranslationsController,
 		ServerController,
 		SettingsController,
 		UsersController,
@@ -84,6 +94,11 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);
 		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);
 		consumer.apply(useCollection('directus_roles')).forRoutes(RolesController);
+		consumer.apply(useCollection('directus_dashboards')).forRoutes(DashboardsController);
+		consumer.apply(useCollection('directus_notifications')).forRoutes(NotificationsController);
+		consumer.apply(useCollection('directus_panels')).forRoutes(PanelsController);
+		consumer.apply(useCollection('directus_presets')).forRoutes(PresetsController);
+		consumer.apply(useCollection('directus_translations')).forRoutes(TranslationsController);
 		consumer.apply(useCollection('directus_settings')).forRoutes(SettingsController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 		consumer.apply(useCollection('directus_versions')).forRoutes(VersionsController);

@@ -31,6 +31,11 @@ describe('proxy-conf', () => {
 			'flows',
 			'operations',
 			'settings',
+			'presets',
+			'notifications',
+			'translations',
+			'dashboards',
+			'panels',
 		]);
 	});
 

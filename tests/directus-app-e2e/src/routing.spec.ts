@@ -29,12 +29,15 @@ test('requests of the route list reach the new app, the others Directus', async 
 	await page.goto(`${baseURL}/admin/settings/policies`);
 	// Feature 007: the file library loads /files, /folders and the thumbnails of /assets.
 	await page.goto(`${baseURL}/admin/files`);
-	// Feature 008: the activity module loads /activity; /notifications (bell) stays on Directus until feature 010.
+	// Feature 008: the activity module loads /activity; feature 010 adds /notifications (bell) to the new app.
 	await page.goto(`${baseURL}/admin/activity`);
 	// Feature 009: every page of the app loads /flows (stores/flows.ts); Settings > Flows reads it again.
 	await page.goto(`${baseURL}/admin/settings/flows`);
-	// Feature 010: every page loads /settings (stores/settings.ts); Settings > Project reads it again.
+	// Feature 010: every page loads /settings, /presets, /notifications, /translations (stores); Settings > Project
+	// reads /settings again, Insights /dashboards and /panels, Settings > Translations /translations.
 	await page.goto(`${baseURL}/admin/settings/project`);
+	await page.goto(`${baseURL}/admin/insights`);
+	await page.goto(`${baseURL}/admin/settings/translations`);
 	await page.waitForLoadState('networkidle');
 
 	const addresses = {
