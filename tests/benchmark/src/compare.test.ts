@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest';
 import {
 	compare,
+	confirmed,
 	createLatencyHistogram,
 	gatePasses,
 	median,
@@ -8,6 +9,7 @@ import {
 	recordLatency,
 	table,
 	type Round,
+	type Verdict,
 } from './compare.ts';
 
 const round = (p95: number, rps: number, errors = 0): Round => ({ p95, rps, errors });
@@ -90,5 +92,49 @@ describe('non-blocking endpoints (accepted differences)', () => {
 		expect(gatePasses([ok, slow, failing])).toBe(false);
 		expect(table([slow])).toContain('| not blocking (D-22): p95 20 ms');
 		expect(table([failing])).toContain('| FAIL: p95 20 ms');
+	});
+});
+
+describe('confirmed (a failure counts when most attempts fail)', () => {
+	const ok = compare('/x', same, same);
+	const slow = compare('/x', [round(10, 1000)], [round(20, 1000)]);
+	const runs = (...verdicts: Verdict[]) => {
+		let i = 0;
+		const measure = async () => verdicts[i++]!;
+		return { measure, count: () => i };
+	};
+
+	test('a passing scenario is measured once', async () => {
+		const r = runs(ok);
+		expect(await confirmed(r.measure)).toEqual(ok);
+		expect(r.count()).toBe(1);
+	});
+
+	test('fail then ok, ok: passes, with the attempts in the table', async () => {
+		const r = runs(slow, ok, ok);
+		const v = await confirmed(r.measure);
+		expect([v.ok, v.attempts, r.count()]).toEqual([true, ['fail', 'ok', 'ok'], 3]);
+		expect(table([v])).toContain('| ok (attempts: fail, ok, ok) |');
+	});
+
+	test('fail, fail: fails after two attempts and reports the last failure', async () => {
+		const r = runs(slow, slow, ok);
+		const v = await confirmed(r.measure);
+		expect([v.ok, v.attempts, r.count()]).toEqual([false, ['fail', 'fail'], 2]);
+		expect(table([v])).toContain('FAIL (attempts: fail, fail): p95 20 ms');
+		expect(gatePasses([v])).toBe(false);
+	});
+
+	test('errors at Backoffice while Directus answered everything fail at once', async () => {
+		const broken = compare('/x', same, [round(10, 1000, 2), ...same.slice(1)]);
+		const r = runs(broken, ok, ok);
+		const v = await confirmed(r.measure);
+		expect([v.ok, v.attempts, r.count()]).toEqual([false, undefined, 1]);
+	});
+
+	test('errors at both apps (an overloaded runner) are measured again', async () => {
+		const both = compare('/x', [round(10, 1000, 1)], [round(10, 1000, 3)]);
+		const r = runs(both, ok, ok);
+		expect((await confirmed(r.measure)).ok).toBe(true);
 	});
 });

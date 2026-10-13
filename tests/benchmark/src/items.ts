@@ -8,6 +8,7 @@ import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import {
 	compare,
+	confirmed,
 	createLatencyHistogram,
 	gatePasses,
 	median,
@@ -139,32 +140,33 @@ try {
 		await measure(seeded, s, 'directus', WARMUP);
 		await measure(seeded, s, 'backoffice', WARMUP);
 
-		const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
+		const verdict = await confirmed(async () => {
+			const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			throughput.directus.push(await measure(seeded, s, 'directus', DURATION));
-			throughput.backoffice.push(await measure(seeded, s, 'backoffice', DURATION));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				throughput.directus.push(await measure(seeded, s, 'directus', DURATION));
+				throughput.backoffice.push(await measure(seeded, s, 'backoffice', DURATION));
+			}
 
-		const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
-		const latency = { directus: [] as Round[], backoffice: [] as Round[] };
+			const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
+			const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			latency.directus.push(await measure(seeded, s, 'directus', DURATION, rate));
-			latency.backoffice.push(await measure(seeded, s, 'backoffice', DURATION, rate));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				latency.directus.push(await measure(seeded, s, 'directus', DURATION, rate));
+				latency.backoffice.push(await measure(seeded, s, 'backoffice', DURATION, rate));
+			}
 
-		const combine = (t: Round[], l: Round[]) =>
-			t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
-		const mode = s.method === 'GET' ? (s.fresh ? ', no-store' : ', cached') : '';
+			const combine = (t: Round[], l: Round[]) =>
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+			const mode = s.method === 'GET' ? (s.fresh ? ', no-store' : ', cached') : '';
 
-		verdicts.push(
-			compare(
+			return compare(
 				`${s.method} ${s.name} (${s.user}${mode}, p95 at ${rate} req/s)`,
 				combine(throughput.directus, latency.directus),
 				combine(throughput.backoffice, latency.backoffice),
-			),
-		);
+			);
+		});
+		verdicts.push(verdict);
 	}
 } finally {
 	await cleanup(seeded);

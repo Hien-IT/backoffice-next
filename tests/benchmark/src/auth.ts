@@ -14,6 +14,7 @@ import autocannon from 'autocannon';
 import jwt from 'jsonwebtoken';
 import {
 	compare,
+	confirmed,
 	createLatencyHistogram,
 	gatePasses,
 	median,
@@ -186,28 +187,29 @@ try {
 		await measure(DIRECTUS, endpoint, WARMUP);
 		await measure(BACKOFFICE, endpoint, WARMUP);
 
-		const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
+		const verdict = await confirmed(async () => {
+			const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			throughput.directus.push(await measure(DIRECTUS, endpoint, CONNECTIONS * endpoint.perConnection));
-			throughput.backoffice.push(await measure(BACKOFFICE, endpoint, CONNECTIONS * endpoint.perConnection));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				throughput.directus.push(await measure(DIRECTUS, endpoint, CONNECTIONS * endpoint.perConnection));
+				throughput.backoffice.push(await measure(BACKOFFICE, endpoint, CONNECTIONS * endpoint.perConnection));
+			}
 
-		const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
-		const latency = { directus: [] as Round[], backoffice: [] as Round[] };
+			const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
+			const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			latency.directus.push(await measure(DIRECTUS, endpoint, rate * DURATION, rate));
-			latency.backoffice.push(await measure(BACKOFFICE, endpoint, rate * DURATION, rate));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				latency.directus.push(await measure(DIRECTUS, endpoint, rate * DURATION, rate));
+				latency.backoffice.push(await measure(BACKOFFICE, endpoint, rate * DURATION, rate));
+			}
 
-		verdicts.push(
-			compare(
+			return compare(
 				`${endpoint.name} (p95 at ${rate} req/s)`,
 				combine(throughput.directus, latency.directus),
 				combine(throughput.backoffice, latency.backoffice),
-			),
-		);
+			);
+		});
+		verdicts.push(verdict);
 	}
 } finally {
 	const report = table(verdicts);

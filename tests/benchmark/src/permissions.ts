@@ -8,6 +8,7 @@ import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import {
 	compare,
+	confirmed,
 	createLatencyHistogram,
 	gatePasses,
 	median,
@@ -79,30 +80,31 @@ try {
 		await measure(seeded, DIRECTUS, path, WARMUP);
 		await measure(seeded, BACKOFFICE, path, WARMUP);
 
-		const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
+		const verdict = await confirmed(async () => {
+			const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			throughput.directus.push(await round(seeded, DIRECTUS, path));
-			throughput.backoffice.push(await round(seeded, BACKOFFICE, path));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				throughput.directus.push(await round(seeded, DIRECTUS, path));
+				throughput.backoffice.push(await round(seeded, BACKOFFICE, path));
+			}
 
-		const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
-		const latency = { directus: [] as Round[], backoffice: [] as Round[] };
+			const rate = Math.max(1, Math.round(RATE_SHARE * median(throughput.directus.map((r) => r.rps))));
+			const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
-		for (let i = 0; i < ROUNDS; i++) {
-			latency.directus.push(await round(seeded, DIRECTUS, path, rate));
-			latency.backoffice.push(await round(seeded, BACKOFFICE, path, rate));
-		}
+			for (let i = 0; i < ROUNDS; i++) {
+				latency.directus.push(await round(seeded, DIRECTUS, path, rate));
+				latency.backoffice.push(await round(seeded, BACKOFFICE, path, rate));
+			}
 
-		const combine = (t: Round[], l: Round[]) =>
-			t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
-		verdicts.push(
-			compare(
+			const combine = (t: Round[], l: Round[]) =>
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+			return compare(
 				`GET ${path} (p95 at ${rate} req/s)`,
 				combine(throughput.directus, latency.directus),
 				combine(throughput.backoffice, latency.backoffice),
-			),
-		);
+			);
+		});
+		verdicts.push(verdict);
 	}
 } finally {
 	await cleanup(seeded);

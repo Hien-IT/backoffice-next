@@ -40,6 +40,13 @@ async function directus(method: string, path: string, body?: unknown): Promise<a
 		...(body === undefined ? {} : { body: JSON.stringify(body) }),
 	});
 
+	// A run lasts longer than ACCESS_TOKEN_TTL (cleanup failed with "Token expired"): log in again once, like
+	// seed-permissions.ts.
+	if (res.status === 401 && adminToken) {
+		adminToken = undefined;
+		return directus(method, path, body);
+	}
+
 	if (!res.ok) throw new Error(`${method} ${path}: ${res.status} ${await res.text()}`);
 	return res.status === 204 ? undefined : res.json();
 }

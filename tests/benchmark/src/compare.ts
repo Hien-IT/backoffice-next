@@ -1,5 +1,6 @@
 // Comparison rules of the benchmark (FR-113, R18): median of the rounds; the new API fails when its p95 is more
-// than 10% above Directus or its requests/second more than 10% below. A round with errors fails the endpoint.
+// than 10% above Directus or its requests/second more than 10% below. A round with errors fails the endpoint. A failing
+// scenario is measured again and fails when most attempts fail (confirmed()).
 import * as hdr from 'hdr-histogram-js';
 
 export const TOLERANCE = 0.1;
@@ -21,6 +22,10 @@ export interface Verdict {
 	reasons: string[];
 	/** Accepted difference (spec code and reason) that keeps a failing endpoint from failing the run. */
 	notBlocking?: string;
+	/** Backoffice had errors in a round while Directus answered every request: a real failure, never measured again. */
+	backofficeOnlyErrors?: boolean;
+	/** Outcome of each attempt when the scenario was measured again (confirmed()). */
+	attempts?: ('ok' | 'fail')[];
 }
 
 /** Response times are recorded in microseconds (hdr histograms hold integers). */
@@ -71,7 +76,30 @@ export function compare(path: string, directus: Round[], backoffice: Round[], to
 		reasons.push(`${b.rps} req/s is more than ${tolerance * 100}% below Directus (${d.rps} req/s)`);
 	}
 
-	return { path, directus: d, backoffice: b, ok: reasons.length === 0, reasons };
+	const errorsOf = (rounds: Round[]) => rounds.reduce((sum, r) => sum + r.errors, 0);
+	const backofficeOnlyErrors = errorsOf(backoffice) > 0 && errorsOf(directus) === 0;
+
+	return { path, directus: d, backoffice: b, ok: reasons.length === 0, reasons, backofficeOnlyErrors };
+}
+
+/**
+ * Measures a failing scenario again: on a shared GitHub runner a run moves past the tolerance in either direction
+ * (benchmark runs of 2026-10-13: the failing scenarios changed every run, some with Backoffice twice as fast), so a
+ * failure counts only when it repeats, in a majority of `attempts`. Errors at Backoffice alone fail at once.
+ */
+export async function confirmed(measure: () => Promise<Verdict>, attempts = 3): Promise<Verdict> {
+	const first = await measure();
+	if (first.ok || first.backofficeOnlyErrors) return first;
+
+	const runs = [first];
+	const needed = Math.floor(attempts / 2) + 1;
+	const failures = () => runs.filter((v) => !v.ok).length;
+
+	while (failures() < needed && runs.length - failures() < needed) runs.push(await measure());
+
+	const failed = failures() >= needed;
+	const kept = [...runs].reverse().find((v) => v.ok === !failed)!;
+	return { ...kept, attempts: runs.map((v) => (v.ok ? 'ok' : 'fail')) };
 }
 
 /** The run passes when every endpoint is within tolerance or its failure is an accepted, non-blocking difference. */
@@ -94,7 +122,8 @@ export function table(verdicts: Verdict[]): string {
 }
 
 function result(v: Verdict): string {
-	if (v.ok) return 'ok';
+	const tries = v.attempts ? ` (attempts: ${v.attempts.join(', ')})` : '';
+	if (v.ok) return `ok${tries}`;
 	const reasons = v.reasons.join('; ');
-	return v.notBlocking ? `not blocking (${v.notBlocking}): ${reasons}` : `FAIL: ${reasons}`;
+	return v.notBlocking ? `not blocking (${v.notBlocking}): ${reasons}` : `FAIL${tries}: ${reasons}`;
 }
