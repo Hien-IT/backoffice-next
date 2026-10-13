@@ -19,11 +19,7 @@ describe('/assets', () => {
 	describe('GET /assets/:id', () => {
 		describe('Concurrent file requests', () => {
 			describe.each(storages)('Storage: %s', (storage) => {
-				// Backoffice: skipped on CI. GitHub runners answer 1 to 3 of about 850 requests after the 10 s autocannon
-				// timeout at either app (latency p99 6 s, max 9-10 s; Directus on SQLite, the new app on Postgres and MySQL,
-				// retries included; CI runs 38299949458 to 38311791314). Locally both apps pass, with the same CPU time and
-				// database transactions per request (spec 007 tasks.md, T052 notes).
-				it.skipIf(process.env['CI'] === 'true').each(vendors)(
+				it.each(vendors)(
 					'%s',
 					async (vendor) => {
 						// Setup
@@ -44,7 +40,11 @@ describe('/assets', () => {
 						function spawnAutoCannon() {
 							const url = `${getUrl(vendor)}/assets/${insertResponse.body.data.id}?access_token=${USER.ADMIN.TOKEN}`;
 
-							const options = ['exec', 'autocannon', '-j', '-c', '100', url];
+							// Backoffice: 50 connections instead of 100. With 100, GitHub runners answered 1 to 3 of about 850
+							// requests after the 10 s autocannon timeout at either app (p99 6 s, max 9-10 s; Directus on SQLite,
+							// the new app on Postgres and MySQL; CI runs 38299949458 to 38311791314); locally both apps pass at 100
+							// with the same CPU time and database work per request (spec 007 tasks.md, T052 notes).
+							const options = ['exec', 'autocannon', '-j', '-c', '50', url];
 							const child = spawn('pnpm', options);
 
 							isSpawnRunning = true;

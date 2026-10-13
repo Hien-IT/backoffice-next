@@ -718,7 +718,8 @@ Task: "storage-capture.ts (T019)"
   autocannon khi fail: 1 đến 3 trên khoảng 850 request quá timeout 10 s (p99 khoảng 6 s, max 9 đến 10 s), lặp lại cả 3
   lần thử ở app mới (Postgres), ở Directus (SQLite); mọi response khác `200`. Đo cục bộ trên cặp `blackbox`: cùng 4
   transaction DB mỗi request ở hai app, CPU container 15,3 ms (Directus) và 16,0 ms (app mới) mỗi request, p50, p99
-  tương đương. Chờ chủ dự án quyết: giữ bỏ qua trên CI, hay giảm tải (`-c`) như một `// Backoffice:` của bản port.
+  tương đương. Chủ dự án chọn giảm tải (2026-10-13): bản port chạy lại trên CI với `-c 50` thay vì 100 (`// Backoffice:`);
+  cục bộ xanh ở cả hai app, hai storage.
 - T057 (tiếp): bước quality của `ci:local` chạy cục bộ (lint, typecheck, test, build 20 project, `test:tools`,
   `check-port-headers` 1.087 file, `check-package-names`, swagger) xanh; các bước parity, blackbox, E2E kiểm trên CI thay
   vì `ci:local` (cùng lệnh, máy cục bộ chạy Directus giả lập nên quá lâu). CI run 38313964720 (commit `a85c48f`) xanh đủ
@@ -737,4 +738,4 @@ Task: "storage-capture.ts (T019)"
   request song song tới hai app của cặp chính vẫn có thể gây lỗi này, hiếm hơn.
 - T056, T058 (2026-10-13): chủ dự án duyệt R-13 đến R-19 và đóng spec; spec `Status: Done` kèm dòng duyệt, entry
   `D-09.5` xóa khỏi `accepted-differences.ts` (`accepted-differences.test.ts` xanh). Dòng D-09.5 ở spec 001 giữ nguyên như
-  tiền lệ D-09.3, D-09.4 (cột "Gỡ khi" đã ghi 007). Còn để chủ dự án quyết: ca blackbox `concurrency` đang bỏ qua trên CI.
+  tiền lệ D-09.3, D-09.4 (cột "Gỡ khi" đã ghi 007). Ca blackbox `concurrency` sau đó chạy lại trên CI với 50 kết nối.
