@@ -9,9 +9,9 @@
 
 - Route: `controllers/activity.ts` (`GET /`, `SEARCH /`, `GET /:pk`), `controllers/revisions.ts` (`GET /`, `SEARCH /`,
   `GET /:pk`), `controllers/versions.ts` (CRUD, `GET /:pk/compare`, `POST /:pk/save`, `POST /:pk/promote`),
-  `controllers/comments.ts` (CRUD), `controllers/utils.ts` (`POST /revert/:revision`); `middleware/respond.ts`,
+  `controllers/comments.ts` (CRUD); `middleware/respond.ts`,
   `validate-batch.ts`, `use-collection.ts`.
-- Service: `services/activity.ts`, `services/revisions.ts` (`revert`, mặc định `autoPurgeCache: false`,
+- Service: `services/activity.ts`, `services/revisions.ts` (mặc định `autoPurgeCache: false`,
   `bypassLimits: true`), `services/versions.ts` (`validateCreateData`, `getMainItem`, `verifyHash`, `getVersionSave`,
   `save`, `promote`, `mapDelta`), `services/comments.ts` (`createOne` với mention, `updateOne`, `deleteOne`),
   `services/notifications.ts` (`createOne`, `sendEmail`); `utils/versioning/handle-version.ts`, `split-recursive.ts`; `services/items.ts` (ghi `directus_activity`, `directus_revisions` theo
@@ -44,7 +44,7 @@ hệ thống đã có route; `login`, `logout` từ 003; `sanitizeQuery` đã đ
 `directus_comments` đi qua `ItemsService` chung (D-31); `MetaService`, `validateBatch`, `useCollection`, response
 cache, `Emitter`, `scheduleSynchronizedJob`, `useLock`, `getMilliseconds`, `validateCron`; quyền tối thiểu app access;
 `meta.versioning` của collection qua 006. Chưa có: route `/activity`, `/revisions`, `/versions`, `/comments`
-(D-09.6), `POST /utils/revert/:revision` (trong D-09.8), `VersionsService`, `CommentsService`,
+(D-09.6), `VersionsService`, `CommentsService`,
 `NotificationsService`, job `retention`, gửi email.
 
 **Bộ test liên quan của Directus** (số khối `it`/`it.each`, `test` mỗi file): blackbox
@@ -52,7 +52,19 @@ cache, `Emitter`, `scheduleSynchronizedJob`, `useLock`, `getMilliseconds`, `vali
 `version.seed.ts`); unit `services/versions.test.ts` (3, `save` theo `meta.accountability`),
 `utils/versioning/split-recursive.test.ts`, `schedules/retention.test.ts` (4); `merge-version-data.ts` không được
 `api/src` dùng nên không port. Không có
-test blackbox hay E2E cho `/activity`, `/revisions`, `/comments`, `/utils/revert`.
+test blackbox hay E2E cho `/activity`, `/revisions`, `/comments`.
+
+## Clarifications
+
+### Session 2026-10-13
+
+- Q: Revert qua API (`POST /utils/revert/:revision`) làm ở 008 hay chờ 010? → A: Chờ 010 cùng cả `/utils`; 008 chỉ
+  kiểm revert qua app Directus (`PATCH /items`, đã có từ 005). D-09.8 giữ nguyên (US3, FR-020, FR-021).
+- Q: Comment có mention: gửi email như Directus ở 008 hay chỉ ghi thông báo? → A: Chỉ ghi dòng
+  `directus_notifications`, không gửi email cho tới 010 (`MailService`, `EMAIL_*`); ghi khác biệt tạm D-33 (FR-042,
+  bảng khác biệt).
+- Q: App mới có chạy job dọn lịch sử (`retention`) hay để Directus dọn? → A: App mới chạy job giống Directus, cùng tên
+  job và khóa `schedule--data-retention`; hai app cùng bật thì chỉ một bên dọn mỗi kỳ (US5, FR-050 đến FR-053).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -136,23 +148,25 @@ app, cả hai chiều; so dòng `directus_versions`, item chính sau promote, ac
 
 ### User Story 3 - Khôi phục item về một revision (Priority: P2)
 
-Người dùng chọn một revision và khôi phục item về dữ liệu của revision đó, qua API
-(`POST /utils/revert/:revision`) hoặc qua app Directus (đổ `data` của revision vào form rồi lưu).
+Người dùng chọn một revision trong sidebar Revisions của app Directus và khôi phục item về dữ liệu của revision đó
+(app Directus đổ `data` của revision vào form rồi lưu qua `PATCH /items`). Revert qua API
+(`POST /utils/revert/:revision`) thuộc `/utils` của feature 010 (Clarifications).
 
-**Why this priority**: Yêu cầu của mô tả; đường qua app Directus đã chạy trên `/items` (005), đường API cần route mới.
+**Why this priority**: Yêu cầu của mô tả; đường ghi đã có từ 005, feature này phải bảo đảm `data` của revision do app mới
+ghi đủ để khôi phục và lịch sử sau revert giống Directus.
 
-**Independent Test**: Tạo item, sửa hai lần, gọi `POST /utils/revert/:revision` của revision đầu ở mỗi app; so item,
-activity, revision mới sinh.
+**Independent Test**: Tạo item, sửa hai lần ở app mới, revert về revision đầu bằng E2E app Directus qua proxy (lưu đi
+tới app mới) và bằng `PATCH /items` với `data` của revision ở mỗi app; so item, activity, revision mới sinh.
 
 **Acceptance Scenarios**:
 
-1. **Given** revision có `data`, **When** `POST /utils/revert/:revision` bởi user có quyền cập nhật item, **Then** item
-   được cập nhật bằng `data` của revision như `updateOne` (activity `update` và revision mới), response `200` không
-   body như Directus.
-2. **Given** revision không có `data` (ví dụ revision của delete hoặc version), **When** revert, **Then** `400`
-   "Revision doesn't contain data to revert to"; revision không tồn tại hoặc không có quyền đọc trả `403`.
-3. **Given** revision ghi bởi app mới, **When** mở sidebar Revisions trong app Directus và bấm Revert rồi Save,
-   **Then** item quay về dữ liệu đó và lịch sử ghi thêm dòng `update` ở app mới.
+1. **Given** revision có `data` ghi bởi app mới, **When** `PATCH /items/:collection/:id` với `data` đó ở app kia,
+   **Then** item quay về dữ liệu của revision (kể cả field quan hệ không nằm trong `data` giữ nguyên) và sinh activity
+   `update`, revision mới giống Directus.
+2. **Given** revision ghi bởi app mới, **When** mở sidebar Revisions trong app Directus (qua proxy) và bấm Revert rồi
+   Save, **Then** item quay về dữ liệu đó và lịch sử ghi thêm dòng `update` ở app mới.
+3. **Given** revision không có `data` (revision của delete hoặc `version_save`), **When** xem trong sidebar Revisions,
+   **Then** app Directus hiển thị như khi đọc từ Directus (không có nút Revert cho dữ liệu rỗng).
 
 ---
 
@@ -227,8 +241,7 @@ module Activity.
 
 1. **Given** bộ port, **When** chạy với app mới là mục tiêu, **Then** 100% ca đạt, ca fail trên chính Directus được
    ghi chú như 005 đến 007.
-2. **Given** E2E Playwright, **When** `/activity`, `/revisions`, `/versions`, `/comments`, `/utils/revert` đi tới app
-   mới, **Then** mọi thao tác ở trên hoàn tất và màn hình hiển thị như khi đi tới Directus.
+2. **Given** E2E Playwright, **When** `/activity`, `/revisions`, `/versions`, `/comments` đi tới app mới, **Then** mọi thao tác ở trên hoàn tất và màn hình hiển thị như khi đi tới Directus.
 
 ---
 
@@ -260,7 +273,7 @@ module Activity.
 |-------|---------------------|----|----|
 | US1 | 1–6 | FR-001 đến FR-004, FR-010 đến FR-013 | SC-001, SC-002 |
 | US2 | 1–7 | FR-001, FR-030 đến FR-039 | SC-003 |
-| US3 | 1–3 | FR-020, FR-021 | SC-002 |
+| US3 | 1–3 | FR-020, FR-021 | SC-002, SC-006 |
 | US4 | 1–4 | FR-040 đến FR-044 | SC-002, SC-004 |
 | US5 | 1–4 | FR-050 đến FR-053 | SC-005 |
 | US6 | 1–2 | FR-060 đến FR-063 | SC-001, SC-006 |
@@ -272,9 +285,8 @@ module Activity.
 **Route và hành vi chung**
 
 - **FR-001**: App mới PHẢI phục vụ mọi route của `controllers/activity.ts`, `revisions.ts`, `versions.ts`,
-  `comments.ts` và `POST /utils/revert/:revision` của `controllers/utils.ts`, cùng thứ tự middleware
-  (`useCollection`, `validateBatch`, `respond`), cùng status, body, header và lỗi với Directus 11.17.4; các route khác
-  của `/utils` vẫn thuộc D-09.8.
+  `comments.ts`, cùng thứ tự middleware (`useCollection`, `validateBatch`, `respond`), cùng status, body, header và
+  lỗi với Directus 11.17.4; `/utils` (gồm `POST /utils/revert/:revision`) vẫn thuộc D-09.8 (Clarifications).
 - **FR-002**: Quyền trên `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments` PHẢI áp
   như Directus qua engine của 004, gồm quyền tối thiểu app access (`directus_activity` read dòng của chính mình;
   `directus_comments` read, update (chỉ field `comment`), delete dòng do mình tạo, create với `comment` không null).
@@ -299,11 +311,11 @@ module Activity.
 
 **Revert**
 
-- **FR-020**: `POST /utils/revert/:revision` PHẢI đọc revision theo quyền người gọi (`403` khi không có), `400` khi
-  không có `data`, rồi gọi `updateOne(item, data)` của service đúng collection với accountability người gọi; response
-  `200` không body.
-- **FR-021**: Revert PHẢI sinh activity `update` và revision mới như một `PATCH` thường (không dùng `action = revert`),
-  như Directus 11.17.4.
+- **FR-020**: `data` của revision do app mới ghi PHẢI đủ để khôi phục item bằng `PATCH /items/:collection/:id`
+  (bản chụp mọi field không quan hệ, cùng kiểu và định dạng như Directus) ở cả hai app; `RevisionsService.revert`
+  được port (dùng cho `/utils/revert` ở 010 và GraphQL ở 011) nhưng chưa có route.
+- **FR-021**: Revert qua `PATCH /items` PHẢI sinh activity `update` và revision mới như một `PATCH` thường (không dùng
+  `action = revert`), như Directus 11.17.4.
 
 **Versions**
 
@@ -351,8 +363,9 @@ module Activity.
   `@Unknown User`, link `PUBLIC_URL/admin/content/<collection>/<item>`, `collection`, `item`); không có quyền thì
   log warn "User <id> doesn't have proper permissions to receive notification for this item." và bỏ qua; lỗi khác
   ném ra.
-- **FR-042**: `NotificationsService` PHẢI được port tối thiểu cho FR-041 (`createOne` ghi dòng); gửi email của
-  `sendEmail` theo D-33 (bảng khác biệt) cho tới feature 010.
+- **FR-042**: `NotificationsService` PHẢI được port tối thiểu cho FR-041 (`createOne` ghi dòng, không gọi
+  `sendEmail`); không gửi email và không đọc `EMAIL_*` cho tới feature 010 (D-33, Clarifications); không có log hay
+  lỗi thêm khi user có `email_notifications = true`.
 - **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp như `app-access-permissions.yaml`: đọc, xóa
   comment do mình tạo, sửa chỉ field `comment` của comment do mình tạo, tạo với `comment` không null; quyền rộng hơn
   đến từ policy của user.
@@ -361,7 +374,7 @@ module Activity.
 
 **Dọn lịch sử (retention)**
 
-- **FR-050**: Khi `RETENTION_ENABLED=true` và `RETENTION_SCHEDULE` là cron hợp lệ, app mới PHẢI đăng ký job đồng bộ
+- **FR-050**: Khi `RETENTION_ENABLED=true` và `RETENTION_SCHEDULE` là cron hợp lệ, app mới PHẢI (Clarifications) đăng ký job đồng bộ
   `retention` (`scheduleSynchronizedJob`, cùng tên và cùng khóa với Directus) chạy `handleRetentionJob` như
   `schedules/retention.ts`: khóa `schedule--data-retention` với hạn 10 phút, xóa theo lô `RETENTION_BATCH` qua
   subquery (MySQL, MariaDB lấy id trước), cập nhật khóa sau mỗi lô, log lỗi và dừng collection đó, xóa khóa khi xong.
@@ -387,8 +400,8 @@ module Activity.
   bật ở một app dọn dòng do app kia ghi; chạy đồng thời hai app bật retention chỉ một bên dọn.
 - **FR-063**: PHẢI có Playwright E2E app Directus qua reverse proxy cho sidebar Revisions (xem, so sánh, revert),
   sidebar Comments (viết có mention, sửa, xóa, bộ đếm), menu Version (tạo, save, xem bản nháp, so sánh, promote, đổi
-  tên, xóa), module Activity (danh sách, chi tiết), với `/activity`, `/revisions`, `/versions`, `/comments`,
-  `/utils/revert` đi tới app mới; và benchmark ở hai app cho `GET /revisions` (query của sidebar, có `aggregate`),
+  tên, xóa), module Activity (danh sách, chi tiết), với `/activity`, `/revisions`, `/versions`, `/comments` đi tới
+  app mới (`/utils` vẫn tới Directus); và benchmark ở hai app cho `GET /revisions` (query của sidebar, có `aggregate`),
   `GET /activity` (admin và user thường), `POST /versions/:id/save`, `GET /items/:c/:id?version=` ở workflow
   benchmark hằng tuần, không chặn CI.
 
@@ -413,19 +426,18 @@ Thay đổi với bảng khác biệt của các feature trước:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09.6 | Gỡ: `/activity`, `/revisions`, `/versions`, `/comments` làm ở feature này | FR-001 đến FR-044 |
-| D-09.8 | Thu hẹp: bỏ `POST /utils/revert/:revision` khỏi danh sách (các route `/utils` khác vẫn chờ 010) | FR-020 |
 | D-31 | Thu hẹp: bỏ `directus_comments` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003 |
 
-Sửa bảng của spec cũ đi cùng feature này: dòng D-09.6, D-09.8 trong spec 001, dòng D-31 trong spec 004; entry tương
-ứng trong `tests/parity/accepted-differences.ts`; `tests/parity/proxy/backoffice-routes.txt` thêm `activity`,
-`revisions`, `versions`, `comments` và một dòng riêng cho đường dẫn `utils/revert` (proxy đang định tuyến theo
-segment đầu; plan quyết cách khớp đường dẫn đầy đủ). Mọi dòng cần tech lead duyệt khi đóng feature (Nguyên tắc X).
+Giữ nguyên: D-09.8 (`/utils`, gồm `POST /utils/revert/:revision`, chờ 010; Clarifications). Sửa bảng của spec cũ đi
+cùng feature này: dòng D-09.6 trong spec 001, dòng D-31 trong spec 004; entry tương ứng trong
+`tests/parity/accepted-differences.ts`; `tests/parity/proxy/backoffice-routes.txt` thêm `activity`, `revisions`,
+`versions`, `comments`. Mọi dòng cần tech lead duyệt khi đóng feature (Nguyên tắc X).
 
 Khác biệt mới:
 
 | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
 |----------|------------------|---------|-------|-----------------------------------------------|
-| D-33: email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`, không gửi email cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm, gỡ ở 010) |
+| D-33: email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`, không gửi email cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm, gỡ ở 010) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 007. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột
@@ -454,8 +466,8 @@ Khác biệt mới:
   item: cùng object-hash 3.0.0, cùng cách đọc item chính (cùng engine 004, 005) và cùng kiểu dữ liệu trả về theo vendor
   (FR-037). Nếu đo thấy lệch do kiểu dữ liệu (ví dụ số thập phân, ngày giờ theo vendor), ghi bằng chứng và đưa tech
   lead quyết trước khi đóng feature.
-- Revert qua API là `POST /utils/revert/:revision` (route duy nhất của `/utils` làm ở feature này); app Directus revert
-  qua `PATCH /items` đã có từ 005. GraphQL (`revert`, `versions`, `comments` mutation) thuộc 011.
+- Revert qua API (`POST /utils/revert/:revision`) thuộc 010 cùng `/utils`; app Directus revert qua `PATCH /items` đã
+  có từ 005 (Clarifications). GraphQL (`revert`, `versions`, `comments` mutation) thuộc 011.
 - Tiền đề dùng chung `.env` (Nguyên tắc VIII): hai app cùng `RETENTION_*`, `ACTIVITY_RETENTION`,
   `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION`, `PUBLIC_URL`, `IP_TRUST_PROXY`, `IP_CUSTOM_HEADER`; cùng namespace
   bus, lock để khóa retention là chung. Nếu khác là ngoài phạm vi, không kiểm.
@@ -473,8 +485,7 @@ Khác biệt mới:
 
 - **SC-001**: 100% ca của bộ blackbox, unit port (US6) đạt ở cả hai app trên Postgres, MySQL, SQLite trước khi đóng
   feature; vendor còn lại đạt ở một lượt `nightly.yml` bấm tay hoặc được ghi chú theo Assumptions.
-- **SC-002**: 100% request của bộ đối chiếu `/activity`, `/revisions`, `/versions`, `/comments`, `/utils/revert`
-  (kể cả lỗi, `OPTIONS`, `HEAD`) cho cùng status, body, header ở hai app, ngoài khác biệt đã ghi (D-33).
+- **SC-002**: 100% request của bộ đối chiếu `/activity`, `/revisions`, `/versions`, `/comments` (kể cả lỗi, `OPTIONS`, `HEAD`) cho cùng status, body, header ở hai app, ngoài khác biệt đã ghi (D-33).
 - **SC-003**: 100% dòng `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments` do app mới
   ghi trong bộ đối chiếu trùng từng cột (theo tập so FR-060) với dòng Directus ghi cho cùng request; 100% version tạo
   và save ở một app có `compare.outdated = false` và promote thành công ở app kia với `mainHash` lấy từ app kia.
