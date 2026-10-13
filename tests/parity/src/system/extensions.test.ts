@@ -1,8 +1,9 @@
 // Feature 010, US8 (spec FR-070 to FR-072, contracts/system-api.md §4, D-37): /extensions at both apps. Reads, the
 // empty app bundle (byte for byte) and the registry browse through the fake registry are the same; install,
 // reinstall, uninstall, PATCH and DELETE /:pk keep the checks of Directus, then the new app refuses (503 or 403)
-// where Directus answers 503 "Could not download the extension" or 204 (measured 2026-10-14 on Directus 11.17.4,
-// with no extension installed). directus_extensions stays empty at both apps.
+// where Directus answers 503 "Could not download the extension" or 204 (measured 2026-10-14 on Directus 11.17.4).
+// Directus writes the directus_extensions row before it downloads, so its failed install leaves the row (its uninstall
+// removes it); the new app writes nothing.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { parity } from '../parity.js';
@@ -87,6 +88,7 @@ describe.runIf(full)('the registry through the fake registry', () => {
 describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D-37', () => {
 	it('the same 403 and 404 before the action; then Directus 503 or 204, the new app 503 or 403', async () => {
 		const headers = { ...(await admin()), 'content-type': 'application/json' };
+		await hostDb()('directus_extensions').where({ id: EXTENSION }).delete();
 		const before = await rows();
 
 		// Checks that run before the action: same answer.
@@ -102,21 +104,23 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D
 		await same({ method: 'PATCH', path: '/extensions/xyz', headers, body: {} });
 		await same({ method: 'DELETE', path: `/extensions/${EXTENSION}`, headers: bearer(appUser) });
 
-		// The action itself (D-37).
-		for (const [req, directus, backoffice] of [
+		// The action itself (D-37), with the rows of directus_extensions after it (only Directus writes).
+		for (const [req, directus, backoffice, added] of [
 			[
 				{ method: 'POST', path: '/extensions/registry/install', body: { extension: EXTENSION, version: VERSION } },
 				503,
 				503,
+				1,
 			],
-			[{ method: 'POST', path: '/extensions/registry/reinstall', body: { extension: EXTENSION } }, 503, 503],
-			[{ method: 'DELETE', path: `/extensions/registry/uninstall/${EXTENSION}` }, 204, 503],
-			[{ method: 'PATCH', path: `/extensions/${EXTENSION}`, body: { meta: { enabled: false } } }, 204, 403],
-			[{ method: 'DELETE', path: `/extensions/${EXTENSION}` }, 204, 403],
+			[{ method: 'POST', path: '/extensions/registry/reinstall', body: { extension: EXTENSION } }, 503, 503, 1],
+			[{ method: 'DELETE', path: `/extensions/registry/uninstall/${EXTENSION}` }, 204, 503, 0],
+			[{ method: 'PATCH', path: `/extensions/${EXTENSION}`, body: { meta: { enabled: false } } }, 204, 403, 0],
+			[{ method: 'DELETE', path: `/extensions/${EXTENSION}` }, 204, 403, 0],
 		] as const) {
 			const result = await parity({ ...req, headers }, { accepted: withoutD098 });
 			expect(result.directus.status, `${req.method} ${req.path}`).toBe(directus);
 			expect(result.backoffice.status, `${req.method} ${req.path}`).toBe(backoffice);
+			expect(await rows(), `rows after ${req.method} ${req.path}`).toBe(before + added);
 
 			if (backoffice === 503) {
 				expect((result.backoffice.json as any).errors[0].extensions).toEqual({

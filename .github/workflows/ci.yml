@@ -85,14 +85,14 @@ jobs:
               vendor: postgres,
               suite: full,
               shard: 1,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup',
               storages: 'local,s3',
             }
           - {
               vendor: postgres,
               suite: full,
               shard: 2,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup',
               storages: 'local,s3',
             }
           # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.
@@ -253,7 +253,7 @@ jobs:
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
       - run: pnpm nx run api:build
-      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: tests/directus-app-e2e
       - run: pnpm nx run directus-app-e2e:e2e --output-style=static

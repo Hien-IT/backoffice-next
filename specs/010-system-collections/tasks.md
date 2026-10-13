@@ -504,20 +504,20 @@ D**.
 **Independent Test**: `parity` full Postgres xanh gồm `src/system/**`; `e2e-directus-app` xanh với `app,setup`;
 `benchmark-system` chạy được (không chặn).
 
-- [ ] T052 [P] [US9] `tests/parity/src/system/e2e-app.test.ts` (`full`) theo contracts/parity.md §2: chuỗi request của
+- [X] T052 [P] [US9] `tests/parity/src/system/e2e-app.test.ts` (`full`) theo contracts/parity.md §2: chuỗi request của
   `stores/settings.ts`, `stores/presets.ts`, `stores/notifications.ts`, `stores/translations.ts`, `stores/extensions.ts`,
   insights, sidebar chia sẻ, bảng sắp xếp, sidebar xuất nhập; so response (FR-103 phần API).
-- [ ] T053 [P] [US9] `tests/directus-app-e2e/src/system.spec.ts` theo contracts/parity.md §7 (9 kịch bản, `bothRuns`, so
+- [X] T053 [P] [US9] `tests/directus-app-e2e/src/system.spec.ts` theo contracts/parity.md §7 (9 kịch bản, `bothRuns`, so
   dòng DB sau chuẩn hóa) và `tests/directus-app-e2e/src/setup.spec.ts` (app `directus-setup` `:10455/admin`, lượt
   Backoffice `page.route('**/server/setup', ...)` tới `:10456`, knex `6112` xóa giữa hai lượt; dự phòng
   `request.post` nếu `page.route` không bắt được, ghi lại); `tests/directus-app-e2e/src/helpers/db-rows.ts` thêm bảng
   mới vào `snapshot`; `playwright.config` không đổi (FR-103, research R13).
-- [ ] T054 [P] [US9] `tests/benchmark/src/seed-system.ts`, `tests/benchmark/src/system.ts` theo contracts/parity.md §8
+- [X] T054 [P] [US9] `tests/benchmark/src/seed-system.ts`, `tests/benchmark/src/system.ts` theo contracts/parity.md §8
   (6 kịch bản; `utils-sort` không chặn); `tests/benchmark/project.json` target `system`; `.github/workflows/benchmark.yml`
   job `benchmark-system` (mẫu `benchmark-history`); chạy local 1 vòng, ghi số vào "Ghi chú khi làm", riêng p95 và req/s
   của `shares-auth` ở hai app để xác nhận ghi nhận CHK031 (cùng argon2, ngưỡng 10% áp được; lệch thì báo tech lead
   trước khi đổi ngưỡng) (FR-104, research R14).
-- [ ] T055 [US9] CI: `.github/workflows/ci.yml` job `parity` dòng Postgres `full` và job `e2e-directus-app` thêm `setup`
+- [X] T055 [US9] CI: `.github/workflows/ci.yml` job `parity` dòng Postgres `full` và job `e2e-directus-app` thêm `setup`
   vào `--profiles`; `parity-matrix.yml`, `nightly.yml` `setup` chỉ ở Postgres; `tools/ci-local.sh` theo;
   `tests/parity/README.md` mục 010 (registry giả, cặp `setup`, blackbox mail). Chạy T052; `pnpm nx run
   directus-app-e2e:e2e` với `--profiles=app,setup` xanh; ghi thời gian job vào "Ghi chú khi làm" (contracts/parity.md
@@ -711,3 +711,23 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   sau `env-up` phải khởi động lại `proxy` (nginx giữ IP cũ của `directus`).
 - 2026-10-14 CI 2588460 (lượt chạy lại): `insights.test.ts` đỏ trên MySQL, SQLite: panel lồng nhau trả và lưu theo
   thứ tự uuid ngẫu nhiên; test đặt tên id theo `name` và sắp `panels` theo `name` trước khi so.
+- 2026-10-14 T052: `e2e-app.test.ts` 5 ca xanh trên Postgres: hydrate của năm store (admin và user app access), insights
+  load và lưu panel hàng loạt, sidebar Shares và trang chia sẻ (đăng nhập `session`, đọc item được chia sẻ `200`, item
+  khác `403`; share cần `role`, không có role thì quyền là của public), sắp xếp tay của `use-items.ts`, body xuất của
+  `export-sidebar-detail.vue`. Nhập của sidebar ở `import-export.test.ts`.
+- 2026-10-14 T053: `system.spec.ts` 9 kịch bản xanh qua proxy (3,8 phút một lượt), `setup.spec.ts` xanh (mỗi app của
+  cặp `setup` nhận đúng một `POST /server/setup`, `page.route` bắt được nên không cần dự phòng `request.post`). Lệch so
+  với contracts §7: Insights không kéo đổi vị trí panel (`page.mouse` không đi qua handler pointer có throttle của
+  `v-workspace-tile`), thay bằng sửa panel qua drawer, vẫn là `PATCH /panels` hàng loạt; Preset dùng ô tìm kiếm thay vì
+  đổi cột (click tiêu đề cột mở menu, không sắp xếp). Bảng mới truyền qua tham số `tables` của `bothRuns` thay vì thêm
+  vào `TABLES` của `db-rows.ts` (các spec cũ không đổi). Đo thêm: preset không ghi activity (system data không có
+  accountability); Marketplace: Directus ghi dòng `directus_extensions` rồi mới tải, tải lỗi thì dòng ở lại (spec dọn
+  trước và sau), app mới không ghi (D-37). Local: trình duyệt của Playwright 1.64 (chromium_headless_shell-1248) chưa
+  cài, dùng tạm bản 1234 có sẵn qua symlink trong cache.
+- 2026-10-14 T054 (local, 1 vòng 5 s, Directus amd64 giả lập trên arm64, chỉ để tham khảo; số chính thức từ CI):
+  settings-get p95 739/732 ms, 68,8/67,8 req/s; presets-list 760/741, 31,4/34; notifications-count 796/850, 68,2/69,8;
+  dashboards-panels 746/737, 33,8/34,6; shares-auth 548/591, 27,4/28,2 (cùng argon2, ngưỡng 10% áp được: CHK031);
+  utils-sort 1858/1646, 2/2 (không chặn). Tất cả `ok`.
+- 2026-10-14 T055: `setup` thêm vào `--profiles` của hai shard Postgres `full` và job `e2e-directus-app` (ci.yml,
+  `tools/ci-local.sh`); `nightly.yml` không có Postgres nên không đổi, `parity-matrix.yml` chỉ chạy blackbox.
+  `tests/parity/README.md` thêm mục 010.

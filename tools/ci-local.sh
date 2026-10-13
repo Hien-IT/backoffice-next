@@ -66,7 +66,7 @@ step guard-differences pnpm --filter @backoffice/parity-tests exec vitest run sr
 step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
 # Feature 007: files and assets on `local` and MinIO for Postgres, MinIO only for MySQL and SQLite (PARITY_STORAGES).
-PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress
+PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup
 # Feature 006: the nodes of schema-cache.test.ts and of the timezone files are profile pairs.
 PARITY_STORAGES=local,s3 step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress,cache-mem
 step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
@@ -77,7 +77,7 @@ step parity-matrix sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres && P
 step docker sh -c 'docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci . && docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .'
 step e2e e2e
 # Feature 004: the Directus app through the reverse proxy (profile app).
-step e2e-directus-app sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app && BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
+step e2e-directus-app sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup && BASE_URL=http://127.0.0.1:8160 pnpm nx run directus-app-e2e:e2e --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 
 printf '\n'
 printf '%s\n' "${results[@]}"

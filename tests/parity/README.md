@@ -210,6 +210,22 @@ pnpm nx run parity-tests:env-down --vendor=postgres
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.
 
+### Test collection hệ thống còn lại (feature 010)
+
+- `src/system/`: một file cho mỗi nhóm route (`settings`, `setup`, `presets`, `notifications`, `translations`,
+  `insights`, `shares`, `extensions`, `utils-misc`, `import-export`) và chuỗi request của app Directus
+  (`e2e-app.test.ts`). `helpers.ts` có `same()` (bỏ D-09.8, D-14 khi feature còn mở), `systemEffects()` (dòng mới của
+  bảng hệ thống), `snap()` chỉ thay giá trị trùng nguyên id (id tự tăng nhỏ không thay chuỗi con).
+- Registry giả `registry` (`registry/server.mjs`, luôn chạy, cổng host 6113): `GET /version`, `/extensions`,
+  `/extensions/:id`, `/accounts/:id` từ `registry/fixtures/`, và `POST|GET /v1/owner` đếm báo cáo chủ dự án. Mọi
+  `env/<vendor>.env` trỏ `MARKETPLACE_REGISTRY` và `COMPLIANCE_URL` tới nó. Registry giả không có download: Directus cài
+  extension thì ghi dòng `directus_extensions` rồi trả `503` (dòng ở lại), app mới trả `503` không ghi (D-37).
+- Cặp `setup` (Postgres riêng cổng 6112, app 10455/10456, không có admin): `setup.test.ts` và Playwright `setup.spec.ts`
+  xóa user, role, policy, access do setup ghi giữa các lượt. Có trong `--profiles` của Postgres `full` và E2E.
+- Blackbox `tests/db/mail/mail.test.ts`: app mới không gửi mail, ghi một dòng `warn`
+  `Backoffice: mail sending is out of scope` cho mỗi mail Directus sẽ gửi (D-33).
+- Sau `env-up` trên máy local, nếu container `directus` được tạo lại thì khởi động lại `proxy` (nginx giữ IP cũ).
+
 ## Đọc báo cáo
 
 Khi khác, test báo endpoint, vị trí (status, header hoặc JSON pointer), giá trị của Directus và của API mới, ví dụ:
