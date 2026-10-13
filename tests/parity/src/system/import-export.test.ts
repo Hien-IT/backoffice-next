@@ -246,11 +246,11 @@ describe.runIf(full)('POST /utils/export/:collection', () => {
 			body,
 		});
 
-		// Files run one after the other: the only new file row is the export.
+		// Files run one after the other: the only new file row is the export, complete once the upload set its size.
 		let row: Record<string, any> | undefined;
 		await until(async () => {
 			row = (await hostDb()('directus_files').select('*')).find((r) => !before.has(r.id));
-			return Boolean(row);
+			return Boolean(row && row['filesize'] !== null && row['filename_disk'] !== null);
 		}, 15_000);
 
 		if (!row) return { status: res.status, row: null, bytes: [] };
@@ -265,7 +265,8 @@ describe.runIf(full)('POST /utils/export/:collection', () => {
 			),
 		);
 
-		const time = /\d{8}-\d{6}/g;
+		// getDateTimeFormatted of @directus/utils: hours, minutes, seconds are not padded (20261013-22357).
+		const time = /\d{8}-\d{3,6}/g;
 		const comparableRow = {
 			...comparable(row, { file: row['id'] }),
 			title: String(row['title']).replace(time, '<time>'),
