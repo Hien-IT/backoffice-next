@@ -49,6 +49,15 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/(files|folders)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/assets\/(folder\/[^/]+|files)\/?$/i, 'POST,GET,HEAD'],
 		[/^\/assets\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
+		// Feature 008 (contracts/history-api.md §5): the methods of every route of each Directus router that matches, in
+		// route order, HEAD after GET; the parity files compare OPTIONS of each path with Directus 11.17.4.
+		[/^\/activity\/?$/i, 'SEARCH,GET,HEAD'],
+		[/^\/revisions\/?$/i, 'GET,HEAD,SEARCH'],
+		[/^\/(activity|revisions)\/[^/]+\/?$/i, 'GET,HEAD'],
+		[/^\/(versions|comments)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+		[/^\/(versions|comments)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/versions\/[^/]+\/compare\/?$/i, 'GET,HEAD'],
+		[/^\/versions\/[^/]+\/(save|promote)\/?$/i, 'POST'],
 		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
 		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
 		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],

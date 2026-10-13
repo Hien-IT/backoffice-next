@@ -1,10 +1,27 @@
-// Ported from directus/api/src/services/revisions.ts (without `revert`, which needs the /revisions routes of 008)
+// Ported from directus/api/src/services/revisions.ts
+import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
 import type { AbstractServiceOptions, Item, MutationOptions, PrimaryKey } from '@backoffice/types';
 import { ItemsService } from './items.service.js';
 
 export class RevisionsService extends ItemsService {
 	constructor(options: AbstractServiceOptions) {
 		super('directus_revisions', options);
+	}
+
+	async revert(pk: PrimaryKey): Promise<void> {
+		const revision = await super.readOne(pk);
+
+		if (!revision) throw new ForbiddenError();
+
+		if (!revision['data']) throw new InvalidPayloadError({ reason: `Revision doesn't contain data to revert to` });
+
+		const service = new ItemsService(revision['collection'], {
+			accountability: this.accountability,
+			knex: this.knex,
+			schema: this.schema,
+		});
+
+		await service.updateOne(revision['item'], revision['data']);
 	}
 
 	private setDefaultOptions(opts?: MutationOptions): MutationOptions {

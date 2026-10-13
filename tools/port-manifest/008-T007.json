@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/utils/versioning/split-recursive.ts",
+		"dest": "apps/api/src/utils/versioning/split-recursive.ts"
+	},
+	{
+		"source": "api/src/utils/versioning/split-recursive.test.ts",
+		"dest": "apps/api/src/utils/versioning/split-recursive.test.ts"
+	}
+]

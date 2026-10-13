@@ -56,8 +56,8 @@ khi được nhắc (D-33); app mới chạy job retention. Đường dẫn Dire
 ## R5. Job retention: port nguyên, một khóa Redis, dừng khi SIGTERM
 
 - **Quyết định**: Port `schedules/retention.ts` (hằng `ACTIVITY_RETENTION_TIMEFRAME` v.v. tính lúc import từ
-  `useEnv()`, như Directus), đăng ký trong `app.ts` sau `tusSchedule` trước `metricsSchedule` (thứ tự của `createApp`
-  Directus: `retention` sau `tus`); `onServerShutdown(() => job.stop())` như `schedules/tus.ts`. Khóa qua `useLock()`
+  `useEnv()`, như Directus), đăng ký trong `app.ts` trước `tusSchedule` và `metricsSchedule` (thứ tự của `createApp`
+  Directus: `retention`, `telemetry`, `tus`, `metrics`, `project`; đọc lại ở T014); `onServerShutdown(() => job.stop())` như `schedules/tus.ts`. Khóa qua `useLock()`
   (`lock.get/set/delete` key `schedule--data-retention`), hạn 10 phút; lô `RETENTION_BATCH`; MySQL, MariaDB lấy id
   trước (`helpers.schema.isOneOfClients(['mysql'])` bao cả MariaDB như Directus). Job không gọi `getSchema`.
   Môi trường đối chiếu: cặp `retention` có namespace bus và lock riêng; chỉ `retention.test.ts` bật và tắt cặp này

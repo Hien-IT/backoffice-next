@@ -63,7 +63,7 @@ Thứ tự kiểm đúng như trên (user → comment → collection → item �
   (mention thay bằng `<em>userName</em>` hoặc `@Unknown User`, mỗi dòng comment thêm `> `, link
   `PUBLIC_URL/admin/content/<collection>/<item>`), `collection`, `item`.
 - Email: `NotificationsService.sendEmail` đọc user; nếu `email` và `email_notifications = true` thì ghi log cảnh báo
-  `Backoffice: mail sending is out of scope; notification <id> for <email> not sent` và không gọi mail (D-33, Nguyên
+  `Backoffice: mail sending is out of scope; notification "<subject>" for <email> not sent` (id chưa có trong payload lúc gửi) và không gọi mail (D-33, Nguyên
   tắc X); không đọc `EMAIL_*`.
 
 ## 4. `getService`

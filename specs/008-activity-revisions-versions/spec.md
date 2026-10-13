@@ -267,8 +267,8 @@ module Activity.
   `?version=` vẫn chạy (Directus chỉ kiểm `versioning` lúc tạo).
 - `GET /activity/:pk`, `GET /revisions/:pk`, `GET /versions/:pk`, `GET /comments/:pk` của dòng không có (kể cả vừa bị
   retention xóa) trả `403` vì `readOne` ném `Forbidden`; nhánh `data: null` của controller Directus không tới được.
-- Revert revision của collection hệ thống (ví dụ `directus_files`) đi qua service riêng của collection đó
-  (`getService`), không qua `ItemsService` chung.
+- `RevisionsService.revert` (route ở 010) cập nhật bằng `ItemsService` chung của `revision.collection`, kể cả collection
+  hệ thống (ví dụ `directus_files`), không qua `getService`, như Directus (đọc ở T012).
 - Comment: regex mention chỉ bắt uuid v4; tên người được nhắc lấy bằng `UsersService` không accountability (đọc được
   mọi user); nhắc chính mình vẫn tạo thông báo; comment rỗng chuỗi trả `400`.
 - `RevisionsService` ghi với `autoPurgeCache: false`, `bypassLimits: true`: tạo revision không xóa data cache và không
@@ -396,12 +396,13 @@ module Activity.
   `@Unknown User`, link `PUBLIC_URL/admin/content/<collection>/<item>`, `collection`, `item`); không có quyền thì
   log warn "User <id> doesn't have proper permissions to receive notification for this item." và bỏ qua; lỗi khác
   ném ra. Thông báo tạo bằng `NotificationsService` không accountability (không kiểm quyền tạo
-  `directus_notifications` của người viết), `sender` là người viết. Nhánh `@Unknown User` là phòng hờ của Directus
-  (regex chỉ bắt uuid v4 hợp lệ), không cần ca đối chiếu.
+  `directus_notifications` của người viết), `sender` là người viết. Regex không phân biệt hoa thường nhưng `uniq` và bảng tên
+  thì có: cùng uuid viết hoa và viết thường là hai mention (hai thông báo), bản viết hoa in `@Unknown User` (đo ở
+  T010, unit test).
 - **FR-042**: `NotificationsService` PHẢI được port cho FR-041 (`createOne` ghi dòng rồi `sendEmail`); `sendEmail`
   chạy tới bước quyết định gửi (user có `email` và `email_notifications = true`) rồi ghi một dòng log cảnh báo thay
   cho bước gửi, không đọc `EMAIL_*`, không lỗi (Nguyên tắc X; D-33, Clarifications) cho tới feature 010. Dòng log:
-  mức `warn`, nội dung "Backoffice: mail sending is out of scope; notification <id> for <email> not sent", một dòng
+  mức `warn`, nội dung "Backoffice: mail sending is out of scope; notification "<subject>" for <email> not sent", một dòng
   mỗi thông báo; không thuộc bộ so log khởi động của 003.
 - **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp như `app-access-permissions.yaml`: đọc, xóa
   comment do mình tạo, sửa chỉ field `comment` của comment do mình tạo (field khác `403`), tạo với `comment` không

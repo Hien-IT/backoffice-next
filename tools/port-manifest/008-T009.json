@@ -1,0 +1,12 @@
+[
+	{ "source": "api/src/services/versions.ts", "dest": "apps/api/src/services/versions.service.ts" },
+	{ "source": "api/src/services/versions.test.ts", "dest": "apps/api/src/services/versions.service.test.ts" },
+	{
+		"source": "api/src/test-utils/services/activity-service.ts",
+		"dest": "apps/api/src/test-utils/services/activity-service.ts"
+	},
+	{
+		"source": "api/src/test-utils/services/revisions-service.ts",
+		"dest": "apps/api/src/test-utils/services/revisions-service.ts"
+	}
+]

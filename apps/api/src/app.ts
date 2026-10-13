@@ -10,6 +10,7 @@ import { subscribeSchemaChanged } from './cache.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
 import metricsSchedule from './schedules/metrics.js';
+import retentionSchedule from './schedules/retention.js';
 import tusSchedule from './schedules/tus.js';
 import { registerWebSocketEvents } from './websocket/controllers/hooks.js';
 
@@ -34,13 +35,21 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 
 	await nest.init();
 
-	// Like Directus at the end of createApp (tusSchedule, then metricsSchedule); the jobs stop with the shutdown tasks.
-	await tusSchedule();
-	await metricsSchedule();
+	await startSchedules();
 
 	registerWebSocketBridge();
 
 	return { nest, express };
+}
+
+/**
+ * The scheduled jobs, in the order of the end of Directus' createApp (retention, telemetry, tus, metrics, project;
+ * telemetry and project are out of scope). Each job stops with the shutdown tasks.
+ */
+export async function startSchedules(): Promise<void> {
+	await retentionSchedule();
+	await tusSchedule();
+	await metricsSchedule();
 }
 
 /**

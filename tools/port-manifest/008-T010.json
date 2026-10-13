@@ -1,0 +1,5 @@
+[
+	{ "source": "api/src/services/comments.ts", "dest": "apps/api/src/services/comments.service.ts" },
+	{ "source": "api/src/utils/user-name.ts", "dest": "apps/api/src/utils/user-name.ts" },
+	{ "source": "api/src/utils/user-name.test.ts", "dest": "apps/api/src/utils/user-name.test.ts" }
+]

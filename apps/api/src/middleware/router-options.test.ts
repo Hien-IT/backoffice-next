@@ -196,3 +196,28 @@ test('TUS on: the tus router answers /files/tus, /files/tus/:id goes to the tus 
 		'POST,GET,HEAD,PATCH,DELETE',
 	);
 });
+
+// Feature 008 (contracts/history-api.md §5): from the route order of the Directus routers.
+test.each([
+	['/activity', 'SEARCH,GET,HEAD'],
+	['/activity/12', 'GET,HEAD'],
+	['/revisions', 'GET,HEAD,SEARCH'],
+	['/revisions/12/', 'GET,HEAD'],
+	['/versions', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/versions/3f1c', 'GET,HEAD,PATCH,DELETE'],
+	['/versions/3f1c/compare', 'GET,HEAD'],
+	['/versions/3f1c/save', 'POST'],
+	['/versions/3f1c/promote/', 'POST'],
+	['/comments/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/comments/3f1c', 'GET,HEAD,PATCH,DELETE'],
+])('OPTIONS %s → Allow: %s', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test('deeper history paths are not handled (404)', async () => {
+	for (const path of ['/activity/1/x', '/versions/a/b/c', '/comments/a/b']) {
+		expect((await app({}).options(path)).status, path).toBe(404);
+	}
+});

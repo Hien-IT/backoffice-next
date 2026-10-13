@@ -4,17 +4,21 @@ import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
 import { useRedis } from './redis/index.js';
 import { AccessService } from './services/access.service.js';
+import { ActivityService } from './services/activity.service.js';
 import { AssetsService } from './services/assets.service.js';
 import { AuthenticationService } from './services/authentication.service.js';
 import { CollectionsService } from './services/collections.service.js';
+import { CommentsService } from './services/comments.service.js';
 import { FieldsService } from './services/fields.service.js';
 import { FilesService } from './services/files.service.js';
 import { FoldersService } from './services/folders.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
+import { NotificationsService } from './services/notifications.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
 import { RelationsService } from './services/relations.service.js';
+import { RevisionsService } from './services/revisions.service.js';
 import { RolesService } from './services/roles.service.js';
 import { SchemaService } from './services/schema.service.js';
 import { ServerService } from './services/server.service.js';
@@ -22,6 +26,7 @@ import { SettingsService } from './services/settings.service.js';
 import { SpecificationService } from './services/specifications.service.js';
 import { TFAService } from './services/tfa.service.js';
 import { UsersService } from './services/users.service.js';
+import { VersionsService } from './services/versions.service.js';
 
 /**
  * Infrastructure written as shared functions in Directus (useEnv, useLogger, getDatabase, useRedis) stays a
@@ -57,6 +62,11 @@ export const serviceProviders: Provider[] = [
 		inject: [DATABASE],
 	},
 	{
+		provide: ActivityService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new ActivityService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: AssetsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new AssetsService({ knex: db(), ...options }),
 		inject: [DATABASE],
@@ -69,6 +79,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: CollectionsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new CollectionsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: CommentsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new CommentsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{
@@ -100,6 +115,11 @@ export const serviceProviders: Provider[] = [
 		inject: [DATABASE],
 	},
 	{
+		provide: NotificationsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new NotificationsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: PermissionsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new PermissionsService({ knex: db(), ...options }),
 		inject: [DATABASE],
@@ -112,6 +132,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: RelationsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new RelationsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: RevisionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new RevisionsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{
@@ -153,6 +178,11 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: UsersService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new UsersService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: VersionsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new VersionsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 ];

@@ -4,15 +4,18 @@ import { SchemaBuilder } from '@backoffice/schema-builder';
 import { describe, expect, test, vi } from 'vitest';
 import { AccessService } from '../services/access.service.js';
 import { ActivityService } from '../services/activity.service.js';
+import { CommentsService } from '../services/comments.service.js';
 import { FilesService } from '../services/files.service.js';
 import { FoldersService } from '../services/folders.service.js';
 import { ItemsService } from '../services/items.service.js';
+import { NotificationsService } from '../services/notifications.service.js';
 import { PermissionsService } from '../services/permissions.service.js';
 import { PoliciesService } from '../services/policies.service.js';
 import { PresetsService } from '../services/presets.service.js';
 import { RevisionsService } from '../services/revisions.service.js';
 import { RolesService } from '../services/roles.service.js';
 import { UsersService } from '../services/users.service.js';
+import { VersionsService } from '../services/versions.service.js';
 import { COLLECTIONS_WITHOUT_SERVICE_YET, getService } from './get-service.js';
 
 vi.mock('../database/index.js', () => ({ default: vi.fn(() => ({})), getDatabaseClient: vi.fn(() => 'postgres') }));
@@ -23,14 +26,17 @@ describe('getService', () => {
 	test.each([
 		['directus_access', AccessService],
 		['directus_activity', ActivityService],
+		['directus_comments', CommentsService],
 		['directus_files', FilesService],
 		['directus_folders', FoldersService],
+		['directus_notifications', NotificationsService],
 		['directus_permissions', PermissionsService],
 		['directus_policies', PoliciesService],
 		['directus_presets', PresetsService],
 		['directus_revisions', RevisionsService],
 		['directus_roles', RolesService],
 		['directus_users', UsersService],
+		['directus_versions', VersionsService],
 	])('%s has its own service', (collection, Service) => {
 		expect(getService(collection, opts)).toBeInstanceOf(Service);
 	});

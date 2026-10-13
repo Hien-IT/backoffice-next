@@ -113,47 +113,48 @@ route về app mới (hiện `404` vì chưa có controller).
 **Purpose**: Toàn bộ logic Directus có trước controller: `splitRecursive`, `handleVersion`, `VersionsService`,
 `CommentsService`, `NotificationsService`, `RevisionsService.revert`, job retention (research R3, R5, R10).
 
-- [ ] T007 [P] Port `utils/versioning/split-recursive.ts` + `split-recursive.test.ts` (10 ca) từ
+- [X] T007 [P] Port `utils/versioning/split-recursive.ts` + `split-recursive.test.ts` (10 ca) từ
   `directus/api/src/utils/versioning/` vào `apps/api/src/utils/versioning/`. Ghi manifest.
-- [ ] T008 Thay bản thế chỗ `apps/api/src/utils/versioning/handle-version.ts` bằng bản port
+- [X] T008 Thay bản thế chỗ `apps/api/src/utils/versioning/handle-version.ts` bằng bản port
   `directus/api/src/utils/versioning/handle-version.ts` (import `VersionsService`, `ItemsService` động như gốc,
   `transaction`, `deepMapWithSchema` của `@backoffice/utils`); `handle-version.test.ts` mới: `versionRaw` gộp delta,
   `readByQuery` rỗng → `403`, nhánh transaction gọi `updateOne` với `skipTracking`, `emitEvents: false`,
   `overwriteDefaults`, rồi `rollback`, `createdIDs` làm `null` khóa m2o, o2m, khóa chính (contracts/versions.md §6).
   Sau T007, T009. Ghi manifest.
-- [ ] T009 [P] Port `services/versions.ts` + `versions.test.ts` (3 ca `save` theo `meta.accountability`) từ
+- [X] T009 [P] Port `services/versions.ts` + `versions.test.ts` (3 ca `save` theo `meta.accountability`) từ
   `directus/api/src/services/` vào `apps/api/src/services/versions.service.ts`, `versions.service.test.ts`; import
   `CollectionsService` động như gốc; `objectHash` (object-hash 3.0.0), Joi, `deepMapWithSchema`, `getHelpers`,
   `getCache`, `shouldClearCache`, `emitter`, `validateAccess` của app; thêm ca unit mới: `validateCreateData` mọi
   nhánh lỗi, `createMany` trùng key, `updateMany` chỉ `key`/`name`, `mapDelta` với `user-updated`/`date-created`,
   `promote` (hash lệch, không delta, `fields`). Ghi manifest (contracts/versions.md).
-- [ ] T010 [P] Port `services/comments.ts` vào `apps/api/src/services/comments.service.ts`; `comments.service.test.ts`
+- [X] T010 [P] Port `services/comments.ts` vào `apps/api/src/services/comments.service.ts`; `comments.service.test.ts`
   mới (mock knex, `UsersService`, `NotificationsService`, `validateAccess`): thứ tự lỗi `403`/`400` của
   contracts/history-api.md §3.1, mention có quyền → `createOne` của notifications với `subject`, `message` đúng mẫu,
   không quyền → `logger.warn` đúng câu và không tạo, uuid không tồn tại → lỗi ném ra sau khi comment đã tạo,
   `uniq` mention, `updateOne`/`deleteOne` đòi user. Ghi manifest.
-- [ ] T011 [P] Port `services/notifications.ts` vào `apps/api/src/services/notifications.service.ts`: giữ `createOne`,
+- [X] T011 [P] Port `services/notifications.ts` vào `apps/api/src/services/notifications.service.ts`: giữ `createOne`,
   `sendEmail` tới bước `user['email'] && email_notifications === true`, thay khối `MailService` bằng
-  `logger.warn('Backoffice: mail sending is out of scope; notification <id> for <email> not sent')` (`// Backoffice:
+  `logger.warn('Backoffice: mail sending is out of scope; notification "<subject>" for <email> not sent')` (`// Backoffice:
   D-33`), không import `md`, `MailService`; `notifications.service.test.ts`: user bật email → một dòng warn, không
   gọi mail; user tắt → không log; `recipient` rỗng → không đọc user. Ghi manifest (FR-042).
-- [ ] T012 [P] `apps/api/src/services/revisions.service.ts`: thêm `revert(pk)` port từ `services/revisions.ts`
+- [X] T012 [P] `apps/api/src/services/revisions.service.ts`: thêm `revert(pk)` port từ `services/revisions.ts`
   (đọc revision theo quyền, `Forbidden` khi không có, `InvalidPayload` "Revision doesn't contain data to revert to",
-  `updateOne` của service theo `getService(collection)`); `revisions.service.test.ts` mới: ba nhánh và mặc định
+  `updateOne` của `ItemsService` chung của `revision.collection` như Directus); `revisions.service.test.ts` mới: ba nhánh và mặc định
   `autoPurgeCache: false`, `bypassLimits: true`. Ghi manifest (FR-020).
-- [ ] T013 `apps/api/src/utils/get-service.ts`: `case 'directus_versions'` → `VersionsService`, `'directus_comments'`
+- [X] T013 `apps/api/src/utils/get-service.ts`: `case 'directus_versions'` → `VersionsService`, `'directus_comments'`
   → `CommentsService`, `'directus_notifications'` → `NotificationsService`; rút ba tên khỏi
   `COLLECTIONS_WITHOUT_SERVICE_YET` (chỉ `directus_comments`, `directus_notifications` có trong danh sách);
   `get-service.test.ts` sửa; `apps/api/src/providers.ts` thêm factory `VersionsService`, `CommentsService`,
   `NotificationsService`, `ActivityService`, `RevisionsService`; `apps/api/src/services/index.ts` export ba service
   mới. Sau T009 đến T012 (FR-003, contracts/history-api.md §4).
-- [ ] T014 [P] Port `schedules/retention.ts` + `retention.test.ts` (4 ca) từ `directus/api/src/schedules/` vào
+- [X] T014 [P] Port `schedules/retention.ts` + `retention.test.ts` (4 ca) từ `directus/api/src/schedules/` vào
   `apps/api/src/schedules/`; `useLock()` của app cho `lock.get/set/delete`; `onServerShutdown(() => job.stop())`
   (`// Backoffice:` như `schedules/tus.ts`); thêm ca unit: `handleRetentionJob` bỏ qua khi khóa còn trong 10 phút,
   MySQL hai bước, lỗi xóa → `logger.error` và `break` nhưng task sau vẫn chạy và khóa bị xóa, không gọi `getSchema`
-  (FR-053); `apps/api/src/app.ts` gọi `retentionSchedule()` sau `tusSchedule()`; `app.test.ts` thêm ca thứ tự. Ghi
+  (FR-053); `apps/api/src/app.ts` gọi `retentionSchedule()` trước `tusSchedule()` như Directus (hàm `startSchedules()`);
+  `app.test.ts` thêm ca thứ tự. Ghi
   manifest (FR-050, FR-051, research R5).
-- [ ] T015 [P] `apps/api/src/middleware/router-options.ts` + test: thêm mẫu `/activity`, `/revisions`, `/versions`,
+- [X] T015 [P] `apps/api/src/middleware/router-options.ts` + test: thêm mẫu `/activity`, `/revisions`, `/versions`,
   `/comments` (và `/:pk`, `/:pk/compare|save|promote`) cho `OPTIONS` như các route item (FR-001).
 
 **Checkpoint**: `pnpm nx run api:test` xanh (test gốc port: versions 3, split-recursive 10, retention 4; test mới
@@ -273,7 +274,7 @@ thể chạy sớm để kiểm.
   `comments-sidebar-detail.vue` (count, danh sách, `user_created.*`), user tối thiểu (thấy, sửa `comment`, xóa của
   mình; sửa field khác `403`; sửa comment người khác `403`), mention: có quyền (dòng notification so trừ `id`,
   `timestamp`), không quyền (không dòng, log warn ở cả hai app), uuid không tồn tại (`403` sau khi comment đã ghi, dòng
-  còn), nhắc chính mình, hai mention trùng; D-33: user có `email_notifications` → dòng warn ở app mới, không lỗi;
+  còn), nhắc chính mình, hai mention trùng, cùng uuid viết hoa (hai thông báo, `@Unknown User`); D-33: user có `email_notifications` → dòng warn ở app mới, không lỗi;
   activity, revision của comment (FR-040 đến FR-044, US4.1 đến 4.3).
 - [ ] T031 [P] [US4] `apps/api/src/controllers/comments.controller.test.ts`: 8 handler như `folders.controller.test.ts`,
   `Forbidden` sau tạo → `204`.
@@ -453,4 +454,17 @@ Task: "router-options.ts mẫu mới (T015)"
 
 ## Ghi chú khi làm
 
-(trống, điền khi thực hiện)
+- T002 (2026-10-13): sáu biến retention không có trong `directus-variables.ts` của Directus nên chưa bao giờ bị cảnh báo;
+  thêm vào nhóm A làm đỏ test "mọi mẫu nhóm A là biến Directus". Làm như `TUS_*` của 007: ghi chú, test không cảnh báo;
+  FR-052, R9 sửa theo.
+- T006: `CreateVersion`, `SaveVersion` gọi `getSetupUrl()`; ca URL đã có trong test `getSetupUrl` của shim, không thêm
+  ca riêng.
+- T010: Directus so mention phân biệt hoa thường ở `uniq` và bảng tên: cùng uuid viết hoa là mention thứ hai và in
+  `@Unknown User`. FR-041 sửa theo (trước ghi nhánh này không tới được); thêm ca ở T030.
+- T011: id thông báo chưa có trong payload lúc `sendEmail`, log ghi tiêu đề thay id; FR-042, contract sửa theo.
+- T012: Directus `revert` dùng `ItemsService` chung của `revision.collection`, không qua `getService`; Edge Cases và
+  T012 sửa theo.
+- T014: Directus gọi `retentionSchedule()` trước `tusSchedule()`; app tách `startSchedules()` (retention, tus,
+  metrics) và test thứ tự; R5, plan sửa theo.
+- T008: ca đối chiếu 005 `?version=nope` (Backoffice `500` tới 008) đổi thành so bằng nhau ở hai app (`403`).
+- Phase 2: `pnpm nx run api:test` 252 file, 2.820 test xanh; coverage dòng `apps/api` 86,37%.

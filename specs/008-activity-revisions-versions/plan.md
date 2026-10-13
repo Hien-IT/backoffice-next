@@ -168,7 +168,7 @@ Chỉ liệt kê phần thêm hoặc sửa. Cấu trúc chung giữ như plan 00
 backoffice-next/
 ├── libs/types/src/{versions,comments,notifications}.ts + index.ts   # MỚI ← packages/types/src/
 ├── apps/api/src/
-│   ├── app.ts                                  # SỬA: retentionSchedule sau tusSchedule
+│   ├── app.ts                                  # SỬA: retentionSchedule trước tusSchedule (như Directus)
 │   ├── app.module.ts, providers.ts             # SỬA: 4 controller, useCollection; factory Versions, Comments, Notifications, Activity, Revisions
 │   ├── schedules/retention.ts (+ test gốc)     # MỚI ← schedules/retention.ts (+ stop() khi shutdown)
 │   ├── services/versions.service.ts (+ test gốc)       # MỚI ← services/versions.ts

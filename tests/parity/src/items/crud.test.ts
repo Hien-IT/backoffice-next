@@ -297,18 +297,14 @@ describe('requests that change nothing (US1.5, US1.7, FR-005)', () => {
 		await check('GET', `/items/${ARTICLES}/${id}/x`);
 	});
 
-	// D-09.6 (spec FR-004): content versions come with feature 008. Asserted per app, outside the comparer, so a
-	// real 500 of /items is never hidden by an accepted difference.
-	it('version other than main on GET /:pk: Directus 403, Backoffice 500 until feature 008', async () => {
+	// Feature 008 (spec FR-036): a version that does not exist is Forbidden at both apps.
+	it('version other than main on GET /:pk that does not exist: 403 at both apps', async () => {
 		const path = `/items/${ARTICLES}/${id}?version=nope`;
 		const host = new URL(urls().directus).host;
 		const directus = await send(urls().directus, { path, headers: { authorization: admin } }, host);
 		const backoffice = await send(urls().backoffice, { path, headers: { authorization: admin } }, host);
 
 		expect([directus.status, (directus.json as any).errors[0].extensions.code]).toEqual([403, 'FORBIDDEN']);
-		expect([backoffice.status, (backoffice.json as any).errors[0]]).toEqual([
-			500,
-			{ message: 'versions are not available before feature 008', extensions: { code: 'INTERNAL_SERVER_ERROR' } },
-		]);
+		expect([backoffice.status, backoffice.json]).toEqual([directus.status, directus.json]);
 	});
 });

@@ -80,7 +80,7 @@ quyết trước. Mục `[Conflict]`, `[Gap]` đã đối chiếu với spec, pl
   chiếu phải so cả dòng còn lại? [Gap, Spec §US4.2, Edge Cases]
 - [x] CHK021 (đã giải: FR-040) Spec có nêu thứ tự kiểm lỗi của `createOne` (user → `comment` → `collection` → `item` → quyền đọc item) để
   ca gửi payload thiếu nhiều field so đúng `reason`? [Clarity, Spec §FR-040, contracts/history-api.md §3.1]
-- [x] CHK022 (đã giải: FR-041) FR-041 ghi "`@Unknown User`" khi uuid không hợp lệ, nhưng regex chỉ bắt uuid v4 hợp lệ nên nhánh này
+- [x] CHK022 (đã giải: FR-041; T010 cho thấy nhánh tới được bằng uuid viết hoa, spec sửa theo) FR-041 ghi "`@Unknown User`" khi uuid không hợp lệ, nhưng regex chỉ bắt uuid v4 hợp lệ nên nhánh này
   không xảy ra qua API. Spec có ghi rõ đó là nhánh phòng hờ của Directus, không cần ca đối chiếu? [Clarity, Spec
   §FR-041]
 - [x] CHK023 (đã giải: FR-042) FR-042 và D-33: nội dung, mức (warn) và điều kiện của dòng log cảnh báo có được ghi ở spec (hiện chỉ ở

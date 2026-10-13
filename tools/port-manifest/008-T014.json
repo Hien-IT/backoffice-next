@@ -1,0 +1,4 @@
+[
+	{ "source": "api/src/schedules/retention.ts", "dest": "apps/api/src/schedules/retention.ts" },
+	{ "source": "api/src/schedules/retention.test.ts", "dest": "apps/api/src/schedules/retention.test.ts" }
+]
