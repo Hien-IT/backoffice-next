@@ -26,8 +26,8 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
   request tới trong lúc nạp lại, và app không có Redis? [Completeness, Spec §FR-014, FR-015, US5 ca 1–2]
 - [ ] CHK006 Có yêu cầu cho `getService` của cả hai collection ở mọi đường ghi (route riêng, ghi lồng `operations`, qua
   `/items/directus_flows`) để không đường nào bỏ sót nạp lại? [Completeness, Spec §FR-003]
-- [ ] CHK007 Có yêu cầu về dừng job cron và gỡ handler khi app tắt (SIGTERM) hay chỉ khi nạp lại? [Gap, plan R2, R8;
-  Spec chỉ có `unload` khi nạp lại ở FR-010]
+- [x] CHK007 Có yêu cầu về dừng job cron và gỡ handler khi app tắt (SIGTERM) hay chỉ khi nạp lại? [Gap, plan R2, R8;
+  Spec chỉ có `unload` khi nạp lại ở FR-010] — Đã xử lý: FR-010 thêm `unload` khi SIGTERM (2026-10-13)
 - [ ] CHK008 Biến môi trường của feature liệt kê đủ (3 `FLOWS_*`, 3 `RATE_LIMITER_EMAIL_FLOWS_*`), kể cả
   `RATE_LIMITER_EMAIL_FLOWS_ERROR_MESSAGE` không có mặc định, và nêu nhóm đích (A) cùng tài liệu phải sửa? [Completeness,
   Spec §FR-050, data-model.md §7, plan R9]
@@ -76,8 +76,8 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
   §Assumptions, plan Constitution Check IV]
 - [ ] CHK024 Số lượng test gốc ở "Bộ test liên quan" khớp với research/plan (ví dụ `redact-object` 14, `apply-options-data`
   12) và với bảng ánh xạ port? [Consistency, Spec §đầu, plan R6, R15]
-- [ ] CHK025 Bảng truy vết US → FR → SC phủ FR-045, FR-050, FR-051 (chưa thấy trong bảng) và SC-004/SC-005 trỏ đúng story?
-  [Consistency, Spec §Truy vết]
+- [x] CHK025 Bảng truy vết US → FR → SC phủ FR-045, FR-050, FR-051 (chưa thấy trong bảng) và SC-004/SC-005 trỏ đúng story?
+  [Consistency, Spec §Truy vết] — Đã xử lý: bảng truy vết thêm FR-045, FR-050, FR-051 (2026-10-13)
 - [ ] CHK026 Mô tả route `/flows/trigger/:pk` không uuid → `404` ở FR-001/US1 ca 7 khớp với cách contracts/flows-api.md §1
   mô tả (ném `RouteNotFoundError` trong handler) và body lỗi kỳ vọng? [Consistency, Spec §US1 ca 7, FR-001, plan R3]
 
@@ -107,8 +107,8 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
   `permissions` là role uuid không tồn tại đều có ca và kết quả kỳ vọng? [Coverage, Spec §US1 ca 6, US4 ca 3, Edge Cases]
 - [ ] CHK036 Kịch bản `PATCH /flows/:pk` lồng `operations` đúng chuỗi của trình chỉnh sửa (gỡ `resolve` trước, unique
   của `resolve`/`reject`) có yêu cầu về kết quả và lỗi unique giống Directus? [Coverage, Spec §US5 ca 1, plan rủi ro]
-- [ ] CHK037 Kịch bản nhiều instance của **cùng một app** (hai replica app mới) được xét ở đâu, hay spec chỉ xét cặp
-  Directus + app mới? [Coverage, Gap, Spec §US2, Assumptions]
+- [x] CHK037 Kịch bản nhiều instance của **cùng một app** (hai replica app mới) được xét ở đâu, hay spec chỉ xét cặp
+  Directus + app mới? [Coverage, Gap, Spec §US2, Assumptions] — Đã xử lý: Assumptions thêm nhiều replica; FR-062 thêm ca profile `multi` (2026-10-13)
 
 ## Edge Case Coverage
 
@@ -119,8 +119,8 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
 - [ ] CHK040 Webhook `GET` với query chứa `access_token` hoặc header `Authorization`: yêu cầu che trong log có, nhưng có
   yêu cầu về việc chúng xuất hiện trong `$all` trả về client (không che) được nêu là hành vi Directus cố ý? [Edge Case,
   Spec §Edge Cases, FR-023]
-- [ ] CHK041 Cron 6 trường (giây), cron hợp lệ nhưng không bao giờ tới, và đổi `cron` của flow đang chạy (key clock đổi) có
-  trong Edge Cases? [Edge Case, Gap, Spec §FR-011]
+- [x] CHK041 Cron 6 trường (giây), cron hợp lệ nhưng không bao giờ tới, và đổi `cron` của flow đang chạy (key clock đổi) có
+  trong Edge Cases? [Edge Case, Gap, Spec §FR-011] — Đã xử lý: Edge Cases thêm cron 6 trường, đổi cron, cron không có kỳ kế (2026-10-13)
 - [ ] CHK042 `request` tới host nội bộ bị chặn và redirect tới IP bị chặn có kết quả kỳ vọng (loại lỗi, nhánh reject) đủ
   rõ? [Edge Case, Spec §US4 ca 8, Edge Cases]
 
@@ -128,8 +128,8 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
 
 - [ ] CHK043 Yêu cầu bảo mật của `exec` (chỉ `process.env = $env`, không `require`, không mạng, giới hạn bộ nhớ/thời gian,
   giải phóng isolate kể cả khi lỗi) được nêu như yêu cầu, không chỉ như mô tả port? [NFR, Spec §FR-032, Edge Cases]
-- [ ] CHK044 Có yêu cầu về tài nguyên khi nhiều flow theo lịch (mỗi lần chạy gọi `getSchema`, R-19) và giới hạn số flow nạp
-  (`limit = -1`)? [NFR, Gap, Spec §Edge Cases]
+- [x] CHK044 Có yêu cầu về tài nguyên khi nhiều flow theo lịch (mỗi lần chạy gọi `getSchema`, R-19) và giới hạn số flow nạp
+  (`limit = -1`)? [NFR, Gap, Spec §Edge Cases] — Đã xử lý: Assumptions thêm `getSchema` mỗi lần chạy, không giới hạn số flow (2026-10-13)
 - [ ] CHK045 Yêu cầu quan sát (log JSON, request id trong log của flow chạy nền, metrics) cho lần chạy flow có được nêu hay
   tuyên bố "như Directus" là đủ? [NFR, Gap]
 
@@ -144,11 +144,11 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
 
 ## Ambiguities & Conflicts
 
-- [ ] CHK049 "Operation `trigger` truyền `omit(context, 'data')` của flow gốc" và "`context.flow` giữ flow gốc" có thể bị
+- [x] CHK049 "Operation `trigger` truyền `omit(context, 'data')` của flow gốc" và "`context.flow` giữ flow gốc" có thể bị
   hiểu là flow đích ghi log dưới `item` của flow gốc không? Spec cần nói rõ flow đích ghi activity theo `flow.id` của
-  chính nó (từ `executeFlow(flow)`), chỉ rate limiter `mail` dùng flow gốc. [Ambiguity, Spec §Edge Cases, FR-022]
-- [ ] CHK050 Cột "Gỡ khi" của D-34 là `—` còn mô tả nói "lâu dài"; mọi bảng khác biệt mới dùng cùng quy ước với guard
-  (`—`, không `không`)? [Ambiguity, Spec §Khác biệt, plan R14]
+  chính nó (từ `executeFlow(flow)`), chỉ rate limiter `mail` dùng flow gốc. [Ambiguity, Spec §Edge Cases, FR-022] — Đã xử lý: Edge Cases viết lại: log theo flow đích, chỉ rate limiter dùng flow gốc (2026-10-13)
+- [x] CHK050 Cột "Gỡ khi" của D-34 là `—` còn mô tả nói "lâu dài"; mọi bảng khác biệt mới dùng cùng quy ước với guard
+  (`—`, không `không`)? [Ambiguity, Spec §Khác biệt, plan R14] — Đã xử lý: D-34 `Gỡ khi` = `—` (2026-10-13)
 
 ## Notes
 

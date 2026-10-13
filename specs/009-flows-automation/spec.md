@@ -338,8 +338,14 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   về client thì không che.
 - `applyOptionsData` thay `{{ a.b }}` trong chuỗi và trong khóa, giá trị của object lồng; `{{ $last }}` trỏ object
   trong chuỗi riêng trả object (JSON mode của Directus); so cả hai dạng.
-- `context.flow` được gán lần đầu (`??=`): flow đích của operation `trigger` chạy với `context.flow` của flow gốc nên
-  rate limiter của `mail` tính theo flow gốc; `$trigger`, `$accountability` của flow đích theo payload và context gốc.
+- Flow đích của operation `trigger` chạy bằng `executeFlow(<flow đích>, payload, omit(context, 'data'))`: log chạy
+  (activity, revision) ghi với `item` là id của **flow đích**, `$trigger` là phần tử payload, `$accountability` theo
+  context gốc; riêng `context.flow` được gán lần đầu (`??=`) nên vẫn là flow gốc, do đó rate limiter của `mail` trong
+  flow đích tính theo id flow gốc (chỉ ảnh hưởng rate limiter).
+- Cron 6 trường (có giây) được `validateCron` của `cron` 4.3.4 nhận (như `RETENTION_SCHEDULE` ở 008). Đổi `cron` của flow
+  đang chạy = nạp lại: job cũ dừng (`clock.reset` xóa key `clock:<id>:<cron cũ>`), job mới dùng key
+  `clock:<id>:<cron mới>`. Cron hợp lệ về cú pháp nhưng không có thời điểm kế (ví dụ `0 0 31 2 *`): hành vi theo thư
+  viện `cron` cùng bản ở hai app; bộ đối chiếu không kiểm.
 - Flow `operation` ("another flow") không có handler webhook/manual/event: gọi `/flows/trigger/:id` của nó trả `403`.
 - Filter flow chạy trong transaction của request: `item-*` với `database` của context dùng cùng transaction; action
   flow dùng kết nối thường; schedule, webhook, manual dùng kết nối thường và `getSchema` mỗi lần chạy (tăng tỉ lệ
@@ -370,13 +376,13 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
 
 | Story | Acceptance scenario | FR | SC |
 |-------|---------------------|----|----|
-| US1 | 1–7 | FR-001 đến FR-004, FR-012, FR-013, FR-020 đến FR-024 | SC-002, SC-003 |
+| US1 | 1–7 | FR-001 đến FR-004, FR-012, FR-013, FR-020 đến FR-024, FR-045 | SC-002, SC-003 |
 | US2 | 1–5 | FR-011, FR-020, FR-050, FR-051 | SC-004 |
 | US3 | 1–5 | FR-010, FR-020 đến FR-023 | SC-003 |
-| US4 | 1–12 | FR-021, FR-022, FR-030 đến FR-045 | SC-001, SC-003 |
+| US4 | 1–12 | FR-021, FR-022, FR-030 đến FR-045, FR-050, FR-051 | SC-001, SC-003 |
 | US5 | 1–4 | FR-001 đến FR-003, FR-014, FR-015 | SC-002, SC-005 |
 | US6 | 1–4 | FR-023, FR-024 | SC-003 |
-| US7 | 1–2 | FR-060 đến FR-063 | SC-001, SC-006 |
+| US7 | 1–2 | FR-051, FR-060 đến FR-063 | SC-001, SC-006 |
 
 ## Requirements *(mandatory)*
 
@@ -408,7 +414,8 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   collections của Directus, collection hệ thống bỏ tiền tố `directus_`), `schedule`, `operation`, `webhook` (khóa
   `<METHOD>-<id>`, `method` mặc định `GET`, `return` mặc định `$last`), `manual` (khóa `POST-<id>`, `return` ép
   `$last`); `unload` gỡ handler, dừng job; 15 operation có sẵn đăng ký bằng `addOperation` lúc khởi tạo (app mới
-  không có extension manager).
+  không có extension manager). Khi app nhận SIGTERM, `unload` PHẢI chạy trong các task tắt (như job `retention`,
+  `tus`) để job cron không giữ process; Directus không có bước này vì pm2 kết thúc process (dòng `Backoffice:`).
 - **FR-011**: Trigger `schedule` PHẢI dùng `scheduleSynchronizedJob(flow.id, options.cron, ...)` với `validateCron`
   như Directus (cron không hợp lệ: cảnh báo, bỏ qua), chạy `executeFlow(flow)` không dữ liệu, bắt lỗi và ghi
   `logger.error`; đồng hồ đồng bộ dùng `SYNCHRONIZATION_STORE`, `SYNCHRONIZATION_NAMESPACE` dùng chung với Directus
@@ -534,7 +541,8 @@ nút chạy flow trên item và danh sách, Logs sidebar; benchmark webhook.
   trigger, mỗi operation một ca resolve; Postgres, MySQL, SQLite mỗi lần push) và `full` (mọi ca lỗi, quyền, R-22,
   R-23, lịch, e2e-app; Postgres mỗi lần push, vendor còn lại nightly).
 - **FR-062**: PHẢI có kiểm tra chéo cả hai chiều: flow tạo hoặc sửa ở app này kích hoạt ở app kia ngay sau (nạp lại
-  qua bus); flow theo lịch với hai app cùng chạy (`SYNCHRONIZATION_STORE=redis`) trong cặp đối chiếu riêng có
+  qua bus), kể cả hai instance app mới cùng nạp lại khi sửa ở Directus (profile `multi`); flow theo lịch với hai app
+  cùng chạy (`SYNCHRONIZATION_STORE=redis`) trong cặp đối chiếu riêng có
   namespace bus, lock, sync riêng (profile thủ công như `retention`); operation `trigger` gọi flow `operation` ở cùng
   app; log chạy do app này ghi đọc được qua `/revisions` của app kia.
 - **FR-063**: PHẢI có Playwright E2E app Directus qua reverse proxy cho Settings → Flows (tạo flow thủ công với hai
@@ -620,6 +628,13 @@ Khác biệt mới:
   ngoại lệ với `retention` của 008: Directus tự có khóa `schedule--data-retention` nên không phụ thuộc store.
 - Flow theo event chỉ chạy ở app phát event (in-process), như hai instance Directus; không có cơ chế chuyển event
   giữa hai app (SPECKIT-GUIDE §1).
+- Nhiều replica của app mới (hoặc nhiều Directus) dùng cùng cơ chế với cặp Directus + app mới: message nạp lại tới mọi
+  instance trên bus, clock Redis chọn một instance mỗi kỳ, flow theo event chạy ở instance nhận request. Bộ đối chiếu
+  đo chủ yếu với cặp hai app; ca nạp lại với hai instance app mới dùng profile `multi` của 001 (FR-062); không có cặp
+  lịch ba instance.
+- Số flow theo lịch và tần suất do admin quyết định; mỗi lần chạy flow (mọi trigger trừ filter/action có `schema` của
+  context) gọi `getSchema` như Directus (cache schema dùng chung của 002, chỉ dựng lại khi cache trống); không giới hạn
+  số flow nạp (`limit = -1`); không có yêu cầu hiệu năng riêng ngoài SC-006.
 - Extension (operation tùy chỉnh, hook) chưa làm (SPECKIT-GUIDE §1): operation `type` lạ ở app mới dừng chuỗi với
   `unknown` như Directus khi extension không được cài; đây là hành vi Directus, không ghi khác biệt mới.
 - Không gửi email là quyết định dự án (SPECKIT-GUIDE §1): D-23, D-27, D-28, D-33, D-34 đều lâu dài; feature 010
