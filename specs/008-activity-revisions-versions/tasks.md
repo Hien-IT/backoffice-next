@@ -62,7 +62,7 @@ capture, service và util port nguyên, provider, job retention. Thứ tự stor
 ## Tóm tắt
 
 - Tổng số task: **46**
-- Số task đánh dấu [P]: **30**
+- Số task đánh dấu [P]: **35**
 - Một lượt implement, checkpoint sau mỗi phase.
 - MVP gợi ý: **Phase 1 đến 4** (US1, US2): lịch sử app mới ghi hiển thị trong Directus, version tạo bên này promote
   bên kia. Feature chưa đóng được khi chưa xong US3 đến US6 và Polish.
@@ -293,12 +293,12 @@ thể chạy sớm để kiểm.
 **Independent Test**: `retention.test.ts` xanh trên cặp `retention`; quickstart §5.
 
 - [ ] T034 [US5] `tests/parity/src/history/retention.test.ts` (`full`, cặp `retention`): seed dòng activity (`update`,
-  `run`), revision cũ/mới bằng `hostDb` (sửa `timestamp`), chờ một kỳ, so dòng còn lại khi chỉ app mới chạy (Directus
-  của cặp tắt bằng `RETENTION_ENABLED=false`? không: cặp dùng chung env nên đo bằng cách dừng container Directus của
-  cặp rồi khởi động lại trong `afterAll`, tiền lệ 006) và khi chỉ Directus chạy; cả hai chạy 10 kỳ: Redis `MONITOR`
-  đếm đúng 10 lần đặt khóa thành công, số dòng xóa bằng số dòng quá hạn (SC-005); `ACTIVITY_RETENTION` nhỏ hơn
-  `REVISIONS_RETENTION` không có task revision; lỗi xóa (khóa ngoại giả lập bằng dòng revision trỏ activity bị khóa?
-  không dựng được thì ghi "suy luận từ unit test T014") (US5.1 đến 5.3).
+  `run`), revision cũ/mới bằng `hostDb` (sửa `timestamp`), chờ một kỳ, so dòng còn lại trong ba cảnh: chỉ app mới
+  chạy (dừng container Directus của cặp, khởi động lại trong `afterAll` kể cả khi `beforeAll` lỗi, tiền lệ 006), chỉ
+  Directus chạy (dừng container app mới), cả hai chạy 10 kỳ (Redis `MONITOR` đếm đúng 10 lần đặt khóa
+  `schedule--data-retention` thành công, số dòng xóa bằng số dòng quá hạn, SC-005); `ACTIVITY_RETENTION` nhỏ hơn
+  `REVISIONS_RETENTION` không có task revision; nhánh lỗi xóa chỉ kiểm ở unit test T014 (không dựng được trên DB thật,
+  ghi chú trong test) (US5.1 đến 5.3).
 - [ ] T035 [P] [US5] `tests/parity/README.md` mục 008 (cặp `retention`, suite `history`, cách đo khóa) và
   `tests/parity/src/startup/` thêm ca khởi động: `RETENTION_SCHEDULE` không hợp lệ không đăng ký job, không cảnh báo
   khác Directus; 6 biến không còn trong cảnh báo "chưa hỗ trợ" (US5.2, US5.4).
