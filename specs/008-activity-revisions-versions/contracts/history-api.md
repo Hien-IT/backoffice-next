@@ -10,7 +10,7 @@ extensions: {code, reason?}}]}`.
 |-------|---------|---------|
 | `GET /` | `readSingleton` nếu `req.singleton`, `readMany(body.keys)` nếu có, còn lại `readByQuery` | `meta` qua `MetaService.getMetaForQuery('directus_activity')` |
 | `SEARCH /` | `validateBatch('read')` rồi như trên | body `{query}` hoặc `{keys}` |
-| `GET /:pk` | `readOne(pk, sanitizedQuery)` | `{data: null}` khi không có |
+| `GET /:pk` | `readOne(pk, sanitizedQuery)` | dòng không có → `403` (`readOne` ném `Forbidden`; nhánh `data: null` không tới) |
 
 Quyền: admin đọc tất cả; user app access tối thiểu đọc dòng `user = $CURRENT_USER`; public `403`. Không có route ghi
 (Directus 11 bỏ `/activity/comment`).
@@ -20,7 +20,7 @@ Quyền: admin đọc tất cả; user app access tối thiểu đọc dòng `us
 | Route | Service | Ghi chú |
 |-------|---------|---------|
 | `GET /`, `SEARCH /` | `validateBatch('read')`, `readByQuery` | không `readMany`, không singleton |
-| `GET /:pk` | `readOne` | `{data: null}` khi không có |
+| `GET /:pk` | `readOne` | dòng không có → `403` |
 
 Query của app Directus (`use-revisions.ts`): `filter` `{collection, item, version?, activity.action?}`, `aggregate`
 `{count: 'id'}`, `fields` `id, data, delta, collection, item, activity.action, activity.timestamp, activity.user.*,

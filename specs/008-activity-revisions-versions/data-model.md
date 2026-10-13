@@ -119,7 +119,7 @@ trị không phải thời lượng → `getMilliseconds` trả `undefined` → 
 
 | Sự kiện | Khi | Payload |
 |---------|-----|---------|
-| `items.create|update|delete` của bốn collection hệ thống | như `ItemsService` | như 005 |
+| `activity.create`, `revisions.create`, `versions.create|update|delete`, `comments.create|update|delete`, `notifications.create` (scope = tên collection bỏ tiền tố) | như `ItemsService` | như 005 |
 | `items.promote`, `<collection>.items.promote` (filter) | trước `updateOne` của promote | `payloadToUpdate`, meta `{collection, item, version}` |
 | `items.promote` (action) | sau `updateOne` | `{payload, collection, item, version}` |
 

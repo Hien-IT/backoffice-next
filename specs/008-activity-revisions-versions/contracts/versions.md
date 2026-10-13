@@ -9,7 +9,7 @@ Directus 11.17.4. `useCollection('directus_versions')`.
 |-------|---------|----------|
 | `POST /` | `createMany` (mảng) hoặc `createOne`; đọc lại `readMany`/`readOne` (`Forbidden` → `204`) | `200 {data}` |
 | `GET /`, `SEARCH /` | `validateBatch('read')`; `readSingleton` nếu `req.singleton`, `readMany(keys)`, `readByQuery` | `{data, meta}` |
-| `GET /:pk` | `readOne` (delta qua `mapDelta`) | `{data}` hoặc `{data: null}` |
+| `GET /:pk` | `readOne` (delta qua `mapDelta`) | `{data}`; dòng không có → `403` |
 | `PATCH /` | `validateBatch('update')`; `updateBatch`, `updateMany`, `updateByQuery` | `{data}`; `Forbidden` → `204` |
 | `PATCH /:pk` | `updateOne` | `{data}` |
 | `DELETE /`, `DELETE /:pk` | `validateBatch('delete')`; `deleteMany`, `deleteByQuery`, `deleteOne` | `204` |
