@@ -510,8 +510,8 @@ Task: "router-options.ts mẫu mới (T015)"
 - CI lượt đầu của US6 (2026-10-13): ba lỗi test, đã sửa. (1) `errors.test.ts` của 001 coi `/activity` là route chưa có:
   bỏ khỏi danh sách. (2) SQLite gắn cờ `cast-timestamp` cho field `timestamp` không có `meta` sau bước điền
   `collection`, `field` của `meta`, nên `POST /collections` lỗi validation: mọi field của collection test hash có
-  `meta`. (3) Mention uuid viết hoa: Postgres tìm thấy user (cột uuid), MySQL, SQLite (`char(36)`) không, nên Directus
-  trả `403` sau thông báo đầu; ca test chấp nhận cả hai nhánh theo status, FR-041 ghi theo. (4) `?version=` với o2m:
+  `meta`. (3) Mention uuid viết hoa: Postgres (cột uuid) và MySQL (collation không phân biệt hoa thường) tìm thấy user,
+  MySQL lưu `recipient` chữ hoa; SQLite không tìm thấy nên Directus trả `403` sau thông báo đầu; ca test chấp nhận cả hai nhánh theo status, FR-041 ghi theo. (4) `?version=` với o2m:
   mỗi lượt đọc tạo link tạm uuid ngẫu nhiên nên thứ tự khóa trong mảng là ngẫu nhiên ở cả Directus: so sau khi sắp.
   `tfa-toggle` (004) đỏ một lần do OTP qua cửa sổ thời gian, lượt sau xanh.
 - T042 (cục bộ, Postgres, 3 vòng, hai app amd64 giả lập trên arm64, seed 3 s): throughput hai app lệch tối đa 10% ở mọi

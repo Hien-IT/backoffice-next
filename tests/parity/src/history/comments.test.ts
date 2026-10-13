@@ -220,11 +220,12 @@ describe('mentions (US4.2, spec FR-041, FR-042)', () => {
 		assertSameTranscripts(transcripts, 'mentions');
 		const notifications = (transcripts.directus.history as any).notifications;
 
-		// The upper case uuid is read with UsersService.readOne outside the try of the loop. Where the uuid column
-		// compares without case (Postgres uuid) it finds the reader: a second notification, its name "@Unknown User".
-		// Where it does not (MySQL, SQLite char(36)), readOne throws: 403 after the comment and the first notification.
+		// The upper case uuid is read with UsersService.readOne outside the try of the loop. Where the key compares
+		// without case (Postgres uuid, MySQL collation) it finds the reader: a second notification, to the id as written
+		// (MySQL keeps the upper case), its name "@Unknown User". SQLite does not find it: 403 after the comment and the
+		// first notification.
 		if (transcripts.directus.response.status === 200) {
-			expect(notifications.map((n: any) => n.recipient)).toEqual(['<reader>', '<reader>']);
+			expect(notifications.map((n: any) => String(n.recipient).toLowerCase())).toEqual(['<reader>', '<reader>']);
 			expect(notifications[0].message).toContain('@Unknown User');
 		} else {
 			expect(transcripts.directus.response.status).toBe(403);
