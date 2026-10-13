@@ -135,7 +135,9 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
-      - run: pnpm nx run benchmark:env-up
+      # Pressure limiter off like benchmark-auth: serializing GET /fields (928 fields) delays the event loop past 500 ms,
+      # so both apps shed rounds with 503 at random (run 38408779486, 2026-10-13); the limiter is compared by parity.
+      - run: pnpm nx run benchmark:env-up-auth
       # 5 rounds like the main job: at about 10 req/s (GET /fields without cache) or 1 MB per request a round on a
       # shared runner moves more than the 10% tolerance (run 38383218274, 2026-10-13).
       - run: pnpm nx run benchmark:schema --output-style=static
