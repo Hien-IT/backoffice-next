@@ -183,8 +183,9 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `directus_versions`, `directus_comments`, `directus_notifications`; `comparable()` thay id bằng nhãn, thời gian bằng
   `<time>`, liên kết giữa các dòng (`activity`, `parent`, `version`) bằng chỉ số hoặc `key`. Luồng ghi chạy `scenario()`
   và so cả response lẫn dòng lịch sử.
-- `helpers.ts` `same()`: `parity()` bỏ entry tạm D-09.6, vì D-09.6 chấp nhận mọi khác biệt của bốn route tới khi đóng
-  feature. Request gửi `User-Agent`, `Origin` giống nhau (`BROWSER`) để so `user_agent`, `origin`, `ip` từng cột.
+- `helpers.ts` `same()`: `parity()` báo lỗi với mọi khác biệt chưa được chấp nhận. Trong lúc làm, file `history` so
+  không có entry tạm D-09.6 (nó chấp nhận mọi khác biệt của bốn route); feature 009 trở đi làm tương tự với D-09.x của
+  mình. Request gửi `User-Agent`, `Origin` giống nhau (`BROWSER`) để so `user_agent`, `origin`, `ip` từng cột.
 - Cặp `retention` (`RETENTION_SCHEDULE=*/10 * * * * *`, dọn lịch sử cũ hơn 2 s): dùng chung DB nên KHÔNG đưa vào
   `env-up --profiles`; `retention.test.ts` tự `profileUp('retention')`, `profileStop('retention')`, đếm tiến trình giữ
   khóa `schedule--data-retention` bằng `redis-cli monitor` trong container `redis`. Cặp có namespace bus, lock riêng.

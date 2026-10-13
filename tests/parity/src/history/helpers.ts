@@ -1,7 +1,6 @@
 // Feature 008 (research R6): shared helpers of the history parity files. Writes run as scenarios (Directus, then
 // Backoffice) and compare the responses and the history rows each app wrote; reads that change nothing go to both apps
 // at once with parity().
-import { acceptedDifferences } from '../../accepted-differences.js';
 import type { ScenarioContext, Snapshot } from '../auth/scenario.js';
 import { call, snap } from '../files/helpers.js';
 import { assertParity, type ParityOptions, type ParityRequest, parity } from '../parity.js';
@@ -10,15 +9,9 @@ import { comparable, historyEffects } from './history-effects.js';
 
 export { admin, call, idsOf, snap } from '../files/helpers.js';
 
-/**
- * The temporary D-09.6 entry ("/activity, /revisions, /versions, /comments are built by feature 008") would accept
- * every difference of these routes until the close of the feature; the history files compare without it.
- */
-export const withoutD096 = acceptedDifferences.filter((d) => !(d.feature === '001' && d.id === 'D-09.6'));
-
-/** parity() of a read, without D-09.6, failing on any difference. */
+/** parity() of a read, failing on any difference that is not accepted. */
 export async function same(req: ParityRequest, options: ParityOptions = {}) {
-	const result = await parity(req, { accepted: withoutD096, ...options });
+	const result = await parity(req, options);
 	assertParity(result);
 	return result;
 }

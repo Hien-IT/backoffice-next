@@ -2,7 +2,8 @@
 
 **Feature Branch**: `008-activity-revisions-versions`
 **Created**: 2026-10-13
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt gỡ D-09.6, thu hẹp D-31, D-33 (không gửi email khi được nhắc, gỡ ở 010), rủi ro R-20, R-21 và đóng spec ngày 2026-10-13 (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "App mới ghi và cung cấp lịch sử thay đổi giống hệt Directus: /activity (ai làm gì, lúc nào, IP, user agent), /revisions (dữ liệu trước và sau, delta), khôi phục item về một revision, /versions (content versioning: tạo bản nháp, so sánh, promote về bản chính), /comments trên item. Áp dụng cấu hình ACTIVITY và REVISIONS giống Directus. Tham chiếu directus/api/src/services/activity.ts, revisions.ts, versions.ts, comments.ts. Tiêu chí chấp nhận: lịch sử do app mới ghi hiển thị đúng trong Directus, và version tạo ở bên này promote được ở bên kia."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):
@@ -484,9 +485,9 @@ cùng feature này: dòng D-09.6 trong spec 001, dòng D-31 trong spec 004; entr
 
 Khác biệt mới:
 
-| Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
-|----------|------------------|---------|-------|-----------------------------------------------|
-| D-33: email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`; luồng `sendEmail` chạy tới bước gửi rồi ghi log cảnh báo thay vì gửi (như D-23) cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm, gỡ ở 010) |
+| Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
+|----|----------|------------------|---------|-------|------|--------|
+| D-33 | Email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`; luồng `sendEmail` chạy tới bước gửi rồi ghi log cảnh báo thay vì gửi (như D-23) cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm thời) | 010 |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 007. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột

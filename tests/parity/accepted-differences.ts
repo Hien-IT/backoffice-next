@@ -76,15 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.6',
-		feature: '001',
-		removeAt: '008',
-		kind: 'http',
-		endpoints: route('/activity', '/revisions', '/versions', '/comments'),
-		location: { any: true },
-		reason: 'Built by feature 008.',
-	},
-	{
 		id: 'D-09.7',
 		feature: '001',
 		removeAt: '009',
@@ -252,5 +243,12 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		// (measured on 11.17.4, spec 006 T010). schema-management/crud.test.ts checks the 403 of the new app alone.
 		kind: 'doc',
 		reason: 'DELETE /collections/<system collection> answers 403 instead of dropping the table (Principle II).',
+	},
+	{
+		id: 'D-33',
+		feature: '008',
+		removeAt: '010',
+		kind: 'doc',
+		reason: 'No mention email: NotificationsService writes a warning line instead of the mail (Principle X).',
 	},
 ];

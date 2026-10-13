@@ -351,7 +351,7 @@ E2E.
   revision mỗi item qua `PATCH`, 1 version `draft` có delta) và `tests/benchmark/src/history.ts`: `revisions-sidebar`,
   `activity-list` (admin, user tối thiểu), `version-save` (pool id, 10 kết nối), `item-version-read` (50 kết nối),
   ngưỡng 10% như `files.ts`; `tests/benchmark/project.json` target; `compare.test.ts` thêm ca (FR-063, SC-006).
-- [ ] T042 [P] `.github/workflows/benchmark.yml` job `benchmark-history` theo mẫu `benchmark-files`; chạy cục bộ 3 vòng
+- [X] T042 [P] `.github/workflows/benchmark.yml` job `benchmark-history` theo mẫu `benchmark-files`; chạy cục bộ 3 vòng
   trên Postgres, ghi p95, req/s và thời gian job vào "Ghi chú khi làm".
 - [X] T043 [P] Manifest và header: kiểm `tools/port-manifest/008-T*.json` đủ cho T001, T006 đến T012, T014, T020, T021,
   T027, T032, T036; `node tools/check-port-headers.mjs` xanh; mọi chỗ `// Backoffice:` thuộc danh sách của plan
@@ -361,7 +361,7 @@ E2E.
   lại); `specs/008-activity-revisions-versions/quickstart.md` kiểm lại lệnh.
 - [X] T045 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api` ≥ 80% (ghi số),
   `pnpm audit --prod --audit-level=high` không advisory mới, `graphify update .`.
-- [ ] T046 Đóng feature (sau T040 đến T045, tech lead duyệt gỡ D-09.6, thu hẹp D-31, D-33, R-20, R-21):
+- [X] T046 Đóng feature (sau T040 đến T045, tech lead duyệt gỡ D-09.6, thu hẹp D-31, D-33, R-20, R-21):
   `tests/parity/accepted-differences.ts` xóa entry `D-09.6`, sửa `D-31`, thêm `D-33` (kind `doc`, như `D-23`);
   `spec.md` Status `Done` + dòng "Duyệt khác biệt" với ngày; commit `chore(008): close feature
   008-activity-revisions-versions`, push `main`, CI (gồm `guard-differences`) xanh; cập nhật memory dự án.
@@ -523,3 +523,9 @@ Task: "router-options.ts mẫu mới (T015)"
   `history.spec.ts` qua `testDir`; `retention` không nằm trong `--profiles` nào (ca guard ở `vendors.test.ts`). CI của
   `21daf94` xanh mọi job (quality, parity Postgres hai shard, MySQL, SQLite, blackbox hai lượt, cache, matrix, E2E app
   Directus, docker, publish).
+- T042 (CI): lượt chạy tay `benchmark.yml` 38383218274 ngày 2026-10-13: `benchmark-history` và `benchmark-files` hỏng ở
+  bước `benchmark:env-up` (container Directus thoát mã 1, log container không được lưu); các job còn lại qua bước đó.
+  Đã chạy lại riêng các job hỏng; số đo CI của `benchmark-history` ghi sau khi có.
+- T046 (2026-10-13): owner duyệt gỡ D-09.6, thu hẹp D-31, D-33, R-20, R-21. `accepted-differences.ts` xóa D-09.6, thêm
+  D-33 (`doc`, gỡ ở 010); bảng khác biệt mới của spec theo khuôn `| Mã | ... | Gỡ khi |` để guard đọc được; helper
+  `same()` bỏ bộ lọc D-09.6; spec Status `Done`.
