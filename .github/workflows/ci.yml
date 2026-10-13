@@ -279,6 +279,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci .
+      # Feature 009: the native isolated-vm addon (Run Script operation) loads in the runtime image.
+      - run: docker run --rm hiennd23/backoffice-api:ci node -e "require('isolated-vm')"
       - run: docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .
       - run: docker save hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci | gzip > images.tar.gz
       - uses: actions/upload-artifact@v4

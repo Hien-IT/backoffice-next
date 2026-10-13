@@ -48,7 +48,7 @@ const pairUrl = (app: App, profile: string) =>
 
 /** The node of a profile pair: 1 is the app under test, 2 the other app of the pair (schema-cache.test.ts). */
 export function nodeUrl(
-	profile: 'schema-cache' | 'schema-cache-nomsg' | 'assets-limit' | 'assets-stress',
+	profile: 'schema-cache' | 'schema-cache-nomsg' | 'assets-limit' | 'assets-stress' | 'cache-mem',
 	node: 1 | 2,
 ): string {
 	const app = appUnderTest();

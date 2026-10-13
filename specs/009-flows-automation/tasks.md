@@ -440,19 +440,19 @@ CI xanh mọi job.
 
 **Independent Test**: CI `parity`, `parity-blackbox`, E2E xanh trên push.
 
-- [ ] T043 [P] [US7] Blackbox: copy `directus/tests/blackbox/tests/db/routes/flows/webhook.test.ts` vào
+- [X] T043 [P] [US7] Blackbox: copy `directus/tests/blackbox/tests/db/routes/flows/webhook.test.ts` vào
   `tests/parity/src/items/blackbox/tests/db/routes/flows/webhook.test.ts`; thay khối `spawn`/`getPort`/
   `awaitDirectusConnection`/`kill` bằng `env[vendor]['URL'] = nodeUrl('cache-mem', 1)` và `describe.skipIf(
   !hasProfile('cache-mem'))` (`// Backoffice:`); `tests/parity/src/items/blackbox/common/config.ts` `nodeUrl` thêm
   `'cache-mem'`; `sequencer.ts` `AFTER` thêm file; `src/blackbox-shim.test.ts` thêm ca; chạy hai lượt
   (`PARITY_BLACKBOX_APPS=directus,backoffice`) với `--profiles=...,cache-mem`. Ghi manifest (research R11,
   contracts/parity.md §3).
-- [ ] T044 [P] [US7] `tests/parity/src/flows/e2e-app.test.ts` (`full`): đúng chuỗi request của `stores/flows.ts`
+- [X] T044 [P] [US7] `tests/parity/src/flows/e2e-app.test.ts` (`full`): đúng chuỗi request của `stores/flows.ts`
   (`GET /flows?fields[]=*&fields[]=operations.*&limit=-1`), `flow-drawer.vue` (`POST /flows?fields=id`), `flow.vue`
   `saveChanges` (`PATCH /operations` mảng rồi `PATCH /flows/:pk` lồng), `overview.vue` (`PATCH {status}`, `DELETE`),
   `use-flows.ts` (`POST /flows/trigger/:id` cả hai dạng body), `logs-sidebar-detail.vue` → `use-revisions.ts` (ba
   query); so response qua `same()` (FR-063).
-- [ ] T045 [P] [US7] `tests/directus-app-e2e/src/flows.spec.ts` (Playwright, `bothRuns`): tạo collection `posts` qua
+- [X] T045 [P] [US7] `tests/directus-app-e2e/src/flows.spec.ts` (Playwright, `bothRuns`): tạo collection `posts` qua
   `DIRECTUS_URL`; Settings → Flows: tạo flow thủ công (`posts`), thêm Transform + Log, Save; item → menu Flows → chạy
   → thông báo thành công; danh sách chọn 2 → chạy; Logs sidebar 2 lần chạy với 2 bước; toggle status → nút biến mất;
   xóa flow; bảng so `directus_flows`, `directus_operations`, `directus_activity` (`run`), `directus_revisions` sau

@@ -22,6 +22,8 @@ const AFTER = [
 	'/tests/db/schema/timezone/timezone-changed-node-tz-america.test.ts',
 	'/tests/db/schema/timezone/timezone-changed-node-tz-asia.test.ts',
 	'/tests/db/routes/collections/schema-cache.test.ts',
+	// Feature 009 (T043): on the cache-mem pair, after the files of the main pair.
+	'/tests/db/routes/flows/webhook.test.ts',
 ];
 
 export function order(moduleIds: string[]): string[] {

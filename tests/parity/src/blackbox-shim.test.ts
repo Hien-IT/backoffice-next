@@ -24,6 +24,8 @@ const URLS: Record<string, string> = {
 	BACKOFFICE_URL_TZ_AMERICA: 'http://b-america',
 	DIRECTUS_URL_ASSETS_LIMIT: 'http://d-limit',
 	BACKOFFICE_URL_ASSETS_LIMIT: 'http://b-limit',
+	DIRECTUS_URL_CACHE_MEM: 'http://d-mem',
+	BACKOFFICE_URL_CACHE_MEM: 'http://b-mem',
 };
 
 const saved = { ...process.env };
@@ -79,6 +81,12 @@ describe('blackbox shim (feature 006)', () => {
 		expect(existsSync(join(paths.cwd, 'assets', 'directus.png'))).toBe(true);
 	});
 
+	test('feature 009: the cache-mem node of the flows webhook file', () => {
+		expect(nodeUrl('cache-mem', 1)).toBe('http://b-mem');
+		process.env['PARITY_BLACKBOX_APP'] = 'directus';
+		expect(getUrl('postgres', env({ URL: nodeUrl('cache-mem', 1) }))).toBe('http://d-mem');
+	});
+
 	test('hasProfile and the host databases', () => {
 		expect(hasProfile('tz-asia')).toBe(true);
 		delete process.env['DIRECTUS_URL_TZ_ASIA'];
@@ -92,6 +100,7 @@ test('sequencer: seed, the before list in order, other files by path, the after 
 
 	expect(
 		order([
+			'/x/tests/db/routes/flows/webhook.test.ts',
 			'/x/tests/db/routes/collections/schema-cache.test.ts',
 			'/x/tests/db/routes/items/m2o.test.ts',
 			'/x/tests/db/routes/fields/crud.test.ts',
@@ -110,5 +119,6 @@ test('sequencer: seed, the before list in order, other files by path, the after 
 		'/x/tests/db/routes/items/m2o.test.ts',
 		'/x/tests/db/schema/timezone/timezone.test.ts',
 		'/x/tests/db/routes/collections/schema-cache.test.ts',
+		'/x/tests/db/routes/flows/webhook.test.ts',
 	]);
 });
