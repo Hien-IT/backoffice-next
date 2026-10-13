@@ -236,4 +236,17 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		// Permanent since feature 009 (Clarifications 2026-10-13, approved 2026-10-14): no email is sent, like D-34.
 		reason: 'No mention email: NotificationsService writes a warning line instead of the mail (Principle X).',
 	},
+	// Feature 009
+	{
+		id: 'D-34',
+		feature: '009',
+		kind: 'doc',
+		reason: 'No flow mail: the mail operation writes a warning line after the rate limiter (Principle X).',
+	},
+	{
+		id: 'D-35',
+		feature: '009',
+		kind: 'doc',
+		reason: 'No extensions.* or email.send events: no extension manager and no mail service (Principle XI).',
+	},
 ];
