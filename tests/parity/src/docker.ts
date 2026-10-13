@@ -38,6 +38,8 @@ export function compose(...args: string[]): string {
 		'retention',
 		// Feature 009 (research R12): the scheduled flows pair, started and stopped by schedule.test.ts.
 		'flows-schedule',
+		// Feature 010 (research R11): the setup pair and its own Postgres.
+		'setup',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

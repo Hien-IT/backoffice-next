@@ -88,17 +88,17 @@ US1 (settings, setup) → US2 (presets) → US3 (notifications) → US4 (shares)
 **Purpose**: Bốn gói mới cài được, `createTmpFile` có mặt, 11 biến sang nhóm A, mẫu `OPTIONS` sẵn, registry giả và
 cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/parity.md §1, §3, §4).
 
-- [ ] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `ky: 1.14.0`, `papaparse: 5.5.3`, `'@types/papaparse': 5.5.0`,
+- [X] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `ky: 1.14.0`, `papaparse: 5.5.3`, `'@types/papaparse': 5.5.0`,
   `stream-json: 1.9.1`, `'@types/stream-json': 1.7.8`, `async: 3.2.6`, `'@types/async': 3.2.25` (bản của
   `directus/pnpm-workspace.yaml`); `apps/api/package.json` thêm bốn gói `catalog:` và ba `@types` vào devDependencies;
   `pnpm install`; `pnpm audit --prod --audit-level=high` không advisory mới; ghi thời gian vào "Ghi chú khi làm"
   (research R1).
-- [ ] T002 [P] `libs/utils/src/node/tmp.ts` port từ `directus/packages/utils/node/tmp.ts` (`createTmpFile`). Directus
+- [X] T002 [P] `libs/utils/src/node/tmp.ts` port từ `directus/packages/utils/node/tmp.ts` (`createTmpFile`). Directus
   không có test cho file này: viết mới `libs/utils/src/node/tmp.test.ts` (đỏ trước): tạo được file rỗng trong thư mục
   `directus-*` của `os.tmpdir()`, `cleanup` xóa cả file và thư mục, `open` lỗi thì thư mục tạm bị xóa và lỗi ném ra;
   export trong `libs/utils/src/node/index.ts`; `pnpm nx run @backoffice/utils:build`. Ghi manifest
   `tools/port-manifest/010-T002.json` (research R7).
-- [ ] T003 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 010": `IMPORT_TIMEOUT`,
+- [X] T003 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 010": `IMPORT_TIMEOUT`,
   `IMPORT_MAX_CONCURRENCY`, `IMPORT_EXPORT_NAMESPACE`, `MAX_IMPORT_ERRORS`, `EXPORT_BATCH_SIZE`, `EXTENSIONS_CACHE_TTL`,
   `MARKETPLACE_REGISTRY`, `MARKETPLACE_TRUST`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_TOKEN`; `NOT_APPLICABLE_VARIABLES`
   còn `PROJECT_OWNER`; `warn-unsupported-variables.ts` comment về `SERVE_APP` (được đọc cho bundle, cảnh báo giữ);
@@ -106,11 +106,11 @@ cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/par
   `['ADMIN_EMAIL', true]`, `['EMAIL_TRANSPORT', false]`, `['TELEMETRY', false]`);
   `specs/001-platform-foundation/contracts/config.md` §5 cập nhật nhóm A, B, C và ghi chú `SERVE_APP` (FR-095,
   research R9).
-- [ ] T004 [P] `apps/api/src/middleware/router-options.ts` khối Feature 010 theo contracts/system-api.md §10 và
+- [X] T004 [P] `apps/api/src/middleware/router-options.ts` khối Feature 010 theo contracts/system-api.md §10 và
   utils-api.md §12 (dùng `UUID_REGEX` cho `/shares/info/<uuid>`, `/extensions/registry/(account|extension)/<uuid>`,
   `/extensions/registry/uninstall/<uuid>`, `/extensions/<uuid>`); `router-options.test.ts` thêm ca cho mỗi mẫu; ghi
   `[Suy luận]` vào comment để task controller đo lại bằng `OPTIONS` ở Directus (FR-001).
-- [ ] T005 [P] Registry giả: `tests/parity/registry/server.mjs` (chỉ `node:http`; `GET /version`, `GET /extensions` với
+- [X] T005 [P] Registry giả: `tests/parity/registry/server.mjs` (chỉ `node:http`; `GET /version`, `GET /extensions` với
   `search`, `type`, `by`, `sandbox`, `sort`, `limit`, `offset`, `meta.filter_count`; `GET /extensions/:id`;
   `GET /accounts/:id`; `404` JSON) và `tests/parity/registry/fixtures/{list,describe,accounts}.json` (5 extension, 2
   tác giả) theo `directus/packages/extensions-registry/src/**/schemas/*.ts`; `tests/parity/docker-compose.yml` dịch vụ
@@ -118,7 +118,7 @@ cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/par
   http://127.0.0.1:9100/version`, không profile); 9 file `tests/parity/env/<vendor>.env` thêm
   `MARKETPLACE_REGISTRY=http://registry:9100`; `tests/parity/src/vendors.test.ts` kiểm dịch vụ và biến; kiểm tay
   `curl localhost:9100/extensions?limit=2` (research R12, contracts/parity.md §4).
-- [ ] T006 [P] Cặp `setup`: `tests/parity/env/profile-setup.env` (`DB_HOST=postgres-setup`, `ADMIN_EMAIL=`,
+- [X] T006 [P] Cặp `setup`: `tests/parity/env/profile-setup.env` (`DB_HOST=postgres-setup`, `ADMIN_EMAIL=`,
   `ADMIN_PASSWORD=`, `REDIS=redis://redis:6379/9`, `PUBLIC_URL=http://localhost:10455`, `CACHE_NAMESPACE=parity-setup`,
   chú thích: DB riêng, chỉ Postgres, bootstrap không tạo user); `tests/parity/docker-compose.yml` thêm `postgres-setup`
   (`postgis/postgis:13-3.4-alpine`, `6112:5432`, healthcheck TCP như `postgres`), `directus-setup` (`10455`),
@@ -128,7 +128,7 @@ cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/par
   `vendors.test.ts` xanh (không trong `manualProfiles`); dựng thử `env-up --vendor=postgres --profiles=setup`, kiểm
   `directus_users` trống trên `6112` và `GET :10455/server/info` trả setup chưa xong, Redis db 9 có key, db 0 không có
   key `parity-setup`; ghi kết quả vào "Ghi chú khi làm" (plan rủi ro 5; research R11, contracts/parity.md §3).
-- [ ] T007 [P] `tests/parity/src/server/errors.test.ts`: bỏ các đường dẫn 010 khỏi ca `404` D-09.* (ca còn `/graphql`),
+- [X] T007 [P] `tests/parity/src/server/errors.test.ts`: bỏ các đường dẫn 010 khỏi ca `404` D-09.* (ca còn `/graphql`),
   thêm ca `POST /server/setup` trên DB chung → `403` ở cả hai app sau khi có controller (đánh dấu `todo` tới T018);
   `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/system/{settings,presets,notifications,shares,translations,
   insights,utils-misc}.test.ts`, `FULL_FILES` thêm `src/system/**/*.test.ts` (contracts/parity.md §1, §2). Thêm glob
@@ -310,7 +310,7 @@ body, cookie, dòng `directus_shares`, `directus_sessions` như Directus; token 
   times_used`, argon2, `times_used + 1`, JWT payload và `issuer`, insert `directus_sessions`, xóa phiên hết hạn, `mode
   session`); `invite` (`403` không user, dựng subject, một `logger.warn` mỗi email, không `fetch`/mail).
 - [ ] T028 [P] [US4] `apps/api/src/controllers/shares.controller.test.ts`: thứ tự route `/auth`, `/invite`, `/`,
-  `/info/:pk` (uuid; không uuid `404`; viết hoa qua), `/:pk`; `/auth` joi và ba `mode`; `/invite` joi; 8 route CRUD;
+  `/info/:pk` và `/:pk` (uuid; không uuid `404`; viết hoa qua); `/auth` joi và ba `mode`; `/invite` joi; 8 route CRUD;
   `OPTIONS`.
 - [ ] T029 [P] [US4] `apps/api/src/services/mail-sites.guard.test.ts`: quét `directus/api/src/**/*.ts` (bỏ `*.test.ts`)
   tìm `new MailService(`, tập file bằng `['services/users.ts', 'services/notifications.ts', 'services/shares.ts',
@@ -638,6 +638,20 @@ Task: "T021"  Task: "T025"  Task: "T044"  Task: "T047"   # controller + proxy, m
 
 ## Ghi chú khi làm
 
-(Điền khi implement: thời gian `pnpm install`; kết quả `GET /extensions/sources/index.js` của Directus; `Allow` đo
-được của từng router; `GET /extensions` của user thường; R-25 đến R-29; `sort` thiếu `item`/`to`; số ca mỗi file đối
+(Điền khi implement: `GET /extensions` của user thường; R-25 đến R-29; `sort` thiếu `item`/`to`; số ca mỗi file đối
 chiếu theo vendor; thời gian job CI; số benchmark local.)
+
+- 2026-10-14 T001: `pnpm install` 2,4 s (không gói native mới). `pnpm audit --prod --audit-level=high` exit 0. `stream-json`
+  1.9.1 (bản của Directus 11.17.4) có ba advisory **moderate** (GHSA-528h-pc64-c93x filter O(depth²), GHSA-hqr4-qq8f-hg3x
+  parser JSONC, GHSA-mjw6-4jj6-33hc prototype pollution trong `Assembler`); bản vá 3.6.0 đổi major (1.x → 3.x, ESM). CI
+  chặn ở `high` nên không đỏ. Giữ bản Directus (cùng hành vi import); **cần owner quyết** nâng hay ghi chấp nhận như
+  sharp/axios của 007.
+- 2026-10-14 T004: `Allow` tính từ thứ tự route của chín router Directus. Đọc code thấy `/shares/:pk` cũng ràng buộc uuid
+  (`shares.ts:199, 251, 299`), trái với research R4 cũ; đã sửa research R4, contracts/system-api.md §3 và T028.
+- 2026-10-14 T006: dựng `registry`, `postgres-setup`, `directus-setup` (Directus 11.17.4 amd64 giả lập): DB setup có
+  `directus_users` 0, `directus_roles` 1, `directus_policies` 2, `directus_access` 2, `directus_settings` 1; Redis db 9
+  có 3 key, db 0 không có key `parity-setup*`; `GET :6113/version` → `2024-01-29`.
+- 2026-10-14 T006 (đo cho T048, T051): `GET :10455/extensions/sources/index.js` của Directus trả đúng chuỗi
+  `EMPTY_APP_EXTENSION_BUNDLE` của research R6 (từng byte); header: `Content-Type: application/javascript;
+  charset=UTF-8`, `Cache-Control: no-cache`, `Vary: Origin, Cache-Control`, `x-cache-status: MISS`, **`Transfer-Encoding:
+  chunked`** (Directus `pipe` stream, không có `Content-Length`): app mới phải gửi bằng stream để header trùng.

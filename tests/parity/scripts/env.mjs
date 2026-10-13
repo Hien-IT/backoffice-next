@@ -46,6 +46,8 @@ const ALL_PROFILES = [
 	'retention',
 	// Feature 009 (research R12): `down` only; schedule.test.ts starts the pair itself.
 	'flows-schedule',
+	// Feature 010 (research R11): the setup pair (own Postgres); `up` only with --profiles=setup.
+	'setup',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

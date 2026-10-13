@@ -37,9 +37,9 @@ Thứ tự route (quyết định khớp ở Nest):
 | 3 | `POST /` | CRUD chuẩn; `createOne` kiểm `validateAccess(share, collection, [item])` | `403` |
 | 4 | `GET /`, `SEARCH /` | CRUD chuẩn | |
 | 5 | `GET /info/:pk` | `pk` phải uuid (hoa thường), không → `404 ROUTE_NOT_FOUND`; `SharesService({ schema }).readOne(pk, { fields: [id, collection, item, password, max_uses, times_used, date_start, date_end], filter: _and[_or[date_start ≤ now, null], _or[date_end ≥ now, null]] })`; `{ data }` | `403` không có dòng khớp |
-| 6 | `GET /:pk` | CRUD chuẩn | |
-| 7 | `PATCH /`, `PATCH /:pk` | CRUD chuẩn; `updateMany` xóa cache quyền trước | |
-| 8 | `DELETE /`, `DELETE /:pk` | CRUD chuẩn; `deleteMany` xóa cache quyền trước | |
+| 6 | `GET /:pk` | `pk` phải uuid (hoa thường), không → `404 ROUTE_NOT_FOUND`; CRUD chuẩn | |
+| 7 | `PATCH /`, `PATCH /:pk` | CRUD chuẩn (`:pk` uuid như #6); `updateMany` xóa cache quyền trước | |
+| 8 | `DELETE /`, `DELETE /:pk` | CRUD chuẩn (`:pk` uuid như #6); `deleteMany` xóa cache quyền trước | |
 
 `login`: chọn `id, date_start, date_end, times_used, max_uses, password` với bộ lọc hạn và `max_uses >= times_used`
 (R-25); argon2 `verify(password_hash, payload.password)`; `update times_used + 1`; JWT `{ app_access: false,
@@ -120,5 +120,6 @@ D-36 (invite), D-37 (extensions), D-38 (owner report). Mọi route khác: không
 | `/extensions/sources/<chunk>` | `GET,HEAD` |
 | `/server/setup` | `POST` |
 
-`[Suy luận]` thứ tự và tập phương thức theo cách Express 4 của Directus gộp route: đo bằng `OPTIONS` ở task đầu của
-mỗi controller và sửa bảng này theo kết quả đo (như 008, 009).
+Tính từ thứ tự route của chín router Directus (Express 4: mọi route khớp, theo thứ tự, HEAD sau GET), như 008, 009;
+`apps/api/src/middleware/router-options.ts` khối Feature 010 (T004). `/shares/<không uuid>`, `/extensions/<không uuid>`,
+`/settings/<khác>` không khớp route nào → `404`. Bộ đối chiếu của mỗi controller so `OPTIONS` với Directus thật.

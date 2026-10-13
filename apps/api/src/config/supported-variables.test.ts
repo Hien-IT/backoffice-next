@@ -72,7 +72,8 @@ test.each([
 });
 
 test('isNotApplicable', () => {
-	expect(isNotApplicable('ADMIN_EMAIL')).toBe(true);
+	expect(isNotApplicable('PROJECT_OWNER')).toBe(true);
+	expect(isNotApplicable('ADMIN_EMAIL')).toBe(false);
 	expect(isNotApplicable('PORT')).toBe(false);
 });
 
@@ -104,7 +105,6 @@ test.each([
 	['WEBSOCKETS_GRAPHQL_ENABLED', true],
 	['WEBSOCKETS_REST_AUTH', false],
 	['WEBSOCKETS_HEARTBEAT_ENABLED', false],
-	['EXPORT_BATCH_SIZE', false],
 ])('isSupported(%s) = %s (feature 005)', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });
@@ -144,7 +144,8 @@ test.each([
 	expect(isSupported(name)).toBe(expected);
 });
 
-// Feature 007 (spec FR-072): the file variables are read now; import of items and the drivers out of scope are not.
+// Feature 007 (spec FR-072): the file variables are read now; the drivers out of scope are not (import of items came
+// with feature 010, see below).
 test.each([
 	['ASSETS_CACHE_TTL', true],
 	['ASSETS_TRANSFORM_MAX_CONCURRENT', true],
@@ -152,10 +153,30 @@ test.each([
 	['FILE_METADATA_ALLOW_LIST', true],
 	['IMPORT_IP_DENY_LIST', true],
 	['SYNCHRONIZATION_STORE', true],
-	['IMPORT_TIMEOUT', false],
-	['IMPORT_MAX_CONCURRENCY', false],
 	['STORAGE_GCS_KEY_FILENAME', false],
 	['STORAGE_AZURE_CONTAINER_NAME', false],
 ])('feature 007: isSupported(%s) is %s', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
+});
+
+// Feature 010 (specs/010 research R9): import, export, extensions bundle and registry, createAdmin fallback.
+test.each([
+	['IMPORT_TIMEOUT', true],
+	['IMPORT_MAX_CONCURRENCY', true],
+	['IMPORT_EXPORT_NAMESPACE', true],
+	['MAX_IMPORT_ERRORS', true],
+	['EXPORT_BATCH_SIZE', true],
+	['EXTENSIONS_CACHE_TTL', true],
+	['MARKETPLACE_REGISTRY', true],
+	['MARKETPLACE_TRUST', true],
+	['ADMIN_EMAIL', true],
+	['ADMIN_PASSWORD', true],
+	['ADMIN_TOKEN', true],
+	['PROJECT_OWNER', false],
+	['EMAIL_TRANSPORT', false],
+	['TELEMETRY', false],
+	['COMPLIANCE_URL', false],
+	['EXTENSIONS_AUTO_RELOAD', false],
+])('isSupported(%s) = %s (feature 010)', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });

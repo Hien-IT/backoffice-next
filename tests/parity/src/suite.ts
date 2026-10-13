@@ -22,6 +22,9 @@ export const REDUCED_FILES = [
 	// Feature 009 (spec FR-061): one flow per trigger, each operation on its resolve branch, crud, logs, reload; the
 	// cases marked full-only, schedule (its own pair, started by the file) and e2e-app run in `full` only.
 	'src/flows/{crud,webhook,manual,event,operations,logs,reload}.test.ts',
+	// Feature 010 (spec FR-101): one file per system collection and the small /utils routes; import-export, extensions
+	// registry cases, setup (own Postgres, Postgres only) and e2e-app run in `full` only.
+	'src/system/{settings,presets,notifications,shares,translations,insights,extensions,utils-misc}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -37,6 +40,9 @@ export const FULL_FILES = [
 	'src/history/**/*.test.ts',
 	// Feature 009: flows and operations, the scheduled flows pair (started by schedule.test.ts), e2e-app.
 	'src/flows/**/*.test.ts',
+	// Feature 010: settings, presets, notifications, shares, translations, insights, extensions, utils, import-export,
+	// setup (its own pair), e2e-app.
+	'src/system/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

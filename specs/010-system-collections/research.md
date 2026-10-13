@@ -63,9 +63,10 @@ E2E. Đường dẫn Directus tính từ `directus/api/src` trừ khi ghi khác;
   not sent')` mỗi email, D-36; không `md()`). `shares.controller.ts` theo thứ tự route của Directus: `POST /auth`
   (joi `sharedLoginSchema`; `mode` → body/cookie với `REFRESH_COOKIE_OPTIONS`, `SESSION_COOKIE_OPTIONS` của
   `constants.ts`, như `auth.controller.ts`), `POST /invite` (joi `sharedInviteSchema`), `POST /`, `GET /`, `SEARCH /`,
-  `GET /info/:pk`, `GET /:pk`, `PATCH /`, `PATCH /:pk`, `DELETE /`, `DELETE /:pk`. `/info/:pk` chỉ nhận uuid
-  (Express 4 regex param): handler kiểm `UUID_REGEX` không phân biệt hoa thường, không khớp → `RouteNotFoundError`
-  (như R3 của 009; `GET /:pk` của Directus không có ràng buộc nên `/shares/<không uuid>` vẫn tới `readOne`). Token
+  `GET /info/:pk`, `GET /:pk`, `PATCH /`, `PATCH /:pk`, `DELETE /`, `DELETE /:pk`. `/info/:pk` và mọi `/:pk` chỉ nhận
+  uuid (Express 4 regex param, `shares.ts:150, 199, 251, 299`): handler kiểm `UUID_REGEX` không phân biệt hoa thường,
+  không khớp → `RouteNotFoundError` (như R3 của 009; `/shares/<không uuid>` không khớp route nào ở Directus, sửa
+  2026-10-14 khi làm T004). Token
   share, refresh, logout và `getPermissionsForShare` đã có từ 003/004 (`src/auth/shares.test.ts` tạo share ở
   Directus; nay tạo ở mỗi app).
 - **Lý do**: FR-040 đến FR-046. `login` không qua `ItemsService` nên không có event, activity (như Directus).

@@ -22,11 +22,12 @@ beforeEach(() => {
 
 afterEach(() => vi.unstubAllEnvs());
 
-test('one line, A–Z, names only: EMAIL_TRANSPORT (C) yes, ADMIN_EMAIL (B) no, FOO (not Directus) no', () => {
+test('one line, A–Z, names only: EMAIL_TRANSPORT (C) yes, ADMIN_EMAIL (A since 010) and PROJECT_OWNER (B) no, FOO (not Directus) no', () => {
 	warnUnsupportedVariables({
 		PORT: '1',
 		EMAIL_TRANSPORT: 'secret-looking-value',
 		ADMIN_EMAIL: 'a@b.c',
+		PROJECT_OWNER: 'a@b.c',
 		FOO: 'x',
 		EMAIL_FROM: 'x',
 	});
@@ -112,9 +113,11 @@ test('feature 007: storage, files, assets and TUS settings of the parity env are
 			ASSETS_CACHE_REVALIDATE: 'true',
 			TUS_ENABLED: 'true',
 			SYNCHRONIZATION_STORE: 'redis',
+			// Feature 010: read since /utils/import (group A).
 			IMPORT_TIMEOUT: '1h',
+			EMAIL_TRANSPORT: 'smtp',
 		}),
-	).toEqual(['IMPORT_TIMEOUT']);
+	).toEqual(['EMAIL_TRANSPORT']);
 });
 
 // Feature 008 (spec FR-052): the retention settings are read by schedules/retention.ts and never reported; the email

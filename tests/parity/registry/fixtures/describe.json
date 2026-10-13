@@ -1,0 +1,226 @@
+{
+	"e0000000-0000-4000-8000-000000000001": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000001",
+			"name": "parity-interface-color",
+			"description": "Parity fixture interface extension",
+			"total_downloads": 1200,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 120
+				}
+			],
+			"verified": true,
+			"readme": "# parity-interface-color\n\nFixture of the parity registry.",
+			"type": "interface",
+			"license": "MIT",
+			"versions": [
+				{
+					"id": "e0000000-0000-4000-8000-00000000000a",
+					"version": "1.0.0",
+					"verified": true,
+					"type": "interface",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-09-01T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-interface-color",
+					"license": "MIT",
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000001",
+						"username": "parity-alice",
+						"verified": true,
+						"github_name": "Alice Parity",
+						"github_avatar_url": null
+					},
+					"bundled": [],
+					"maintainers": null
+				}
+			]
+		}
+	},
+	"e0000000-0000-4000-8000-000000000002": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000002",
+			"name": "parity-display-badge",
+			"description": "Parity fixture display extension",
+			"total_downloads": 800,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 80
+				}
+			],
+			"verified": false,
+			"readme": "# parity-display-badge\n\nFixture of the parity registry.",
+			"type": "display",
+			"license": "MIT",
+			"versions": [
+				{
+					"id": "e0000000-0000-4000-8000-00000000000a",
+					"version": "1.0.0",
+					"verified": false,
+					"type": "display",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-10-01T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-display-badge",
+					"license": "MIT",
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000001",
+						"username": "parity-alice",
+						"verified": true,
+						"github_name": "Alice Parity",
+						"github_avatar_url": null
+					},
+					"bundled": [],
+					"maintainers": null
+				}
+			]
+		}
+	},
+	"e0000000-0000-4000-8000-000000000003": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000003",
+			"name": "parity-operation-slack",
+			"description": "Parity fixture operation extension",
+			"total_downloads": 3000,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 300
+				}
+			],
+			"verified": true,
+			"readme": "# parity-operation-slack\n\nFixture of the parity registry.",
+			"type": "operation",
+			"license": null,
+			"versions": [
+				{
+					"id": "e0000000-0000-4000-8000-00000000000a",
+					"version": "1.0.0",
+					"verified": true,
+					"type": "operation",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-08-15T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-operation-slack",
+					"license": null,
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000002",
+						"username": "parity-bob",
+						"verified": false,
+						"github_name": null,
+						"github_avatar_url": null
+					},
+					"bundled": [],
+					"maintainers": null
+				}
+			]
+		}
+	},
+	"e0000000-0000-4000-8000-000000000004": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000004",
+			"name": "parity-bundle-tools",
+			"description": "Parity fixture bundle extension",
+			"total_downloads": 150,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 15
+				}
+			],
+			"verified": false,
+			"readme": "# parity-bundle-tools\n\nFixture of the parity registry.",
+			"type": "bundle",
+			"license": "GPL-3.0",
+			"versions": [
+				{
+					"id": "e0000000-0000-4000-8000-00000000000a",
+					"version": "1.0.0",
+					"verified": false,
+					"type": "bundle",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-10-10T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-bundle-tools",
+					"license": "GPL-3.0",
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000002",
+						"username": "parity-bob",
+						"verified": false,
+						"github_name": null,
+						"github_avatar_url": null
+					},
+					"bundled": [
+						{
+							"name": "tool-a",
+							"type": "interface"
+						},
+						{
+							"name": "tool-b",
+							"type": "display"
+						}
+					],
+					"maintainers": null
+				}
+			]
+		}
+	},
+	"e0000000-0000-4000-8000-000000000005": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000005",
+			"name": "parity-hook-audit",
+			"description": "Parity fixture hook extension",
+			"total_downloads": 50,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 5
+				}
+			],
+			"verified": false,
+			"readme": "# parity-hook-audit\n\nFixture of the parity registry.",
+			"type": "hook",
+			"license": "MIT",
+			"versions": [
+				{
+					"id": "e0000000-0000-4000-8000-00000000000a",
+					"version": "1.0.0",
+					"verified": false,
+					"type": "hook",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-07-01T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-hook-audit",
+					"license": "MIT",
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000001",
+						"username": "parity-alice",
+						"verified": true,
+						"github_name": "Alice Parity",
+						"github_avatar_url": null
+					},
+					"bundled": [],
+					"maintainers": null
+				}
+			]
+		}
+	}
+}

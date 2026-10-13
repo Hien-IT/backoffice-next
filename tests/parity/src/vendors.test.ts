@@ -9,7 +9,9 @@ import {
 	names,
 	profilePorts,
 	proxyPort,
+	registryPort,
 	secondBackofficePort,
+	setupDbPort,
 } from './config.js';
 import { allVendors, getDbsToTest } from './get-dbs-to-test.js';
 import {
@@ -185,4 +187,26 @@ test.each(manualProfiles)('manual profile %s is never started by env-up --profil
 	expect(readFileSync(new URL(`../env/profile-${profile}.env`, import.meta.url), 'utf8')).toMatch(
 		/^REDIS_LOCK_NAMESPACE=parity-/m,
 	);
+});
+
+// Feature 010 (research R11, R12): the test registry and the setup pair with its own Postgres.
+test('the test extensions registry runs for every vendor and every vendor env points to it', () => {
+	expect(publishedPort('registry')).toBe(registryPort);
+	expect(compose).toMatch(/^x-app: &app[\s\S]*?registry: \{ condition: service_healthy \}/m);
+
+	for (const vendor of Object.keys(knexConfig)) {
+		expect(readFileSync(new URL(`../env/${vendor}.env`, import.meta.url), 'utf8'), vendor).toMatch(
+			/^MARKETPLACE_REGISTRY=http:\/\/registry:9100$/m,
+		);
+	}
+});
+
+test('the setup pair has its own Postgres and Redis db, no ADMIN_* and is not a manual profile', () => {
+	expect(publishedPort('postgres-setup')).toBe(setupDbPort);
+	const env = readFileSync(new URL('../env/profile-setup.env', import.meta.url), 'utf8');
+	expect(env).toMatch(/^DB_HOST=postgres-setup$/m);
+	expect(env).toMatch(/^ADMIN_EMAIL=$/m);
+	expect(env).toMatch(/^ADMIN_PASSWORD=$/m);
+	expect(env).toMatch(/^REDIS=redis:\/\/redis:6379\/9$/m);
+	expect(manualProfiles).not.toContain('setup');
 });

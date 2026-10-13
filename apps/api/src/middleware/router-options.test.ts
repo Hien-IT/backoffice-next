@@ -24,7 +24,7 @@ test.each(['/server/info', '/server/health', '/server/specs/oas', '/SERVER/Info/
 	},
 );
 
-test.each(['/server/ping', '/', '/robots.txt', '/server/setup', '/server/specs/graphql', '/metrics'])(
+test.each(['/server/ping', '/', '/robots.txt', '/server/specs/graphql', '/metrics'])(
 	'OPTIONS %s → not handled (404)',
 	async (path) => {
 		expect((await app({}).options(path)).status).toBe(404);
@@ -239,6 +239,65 @@ test.each([
 
 test('a trigger path without a uuid and deeper flows paths are not handled (404)', async () => {
 	for (const path of ['/flows/trigger/not-a-uuid', '/flows/a/b/c', '/operations/a/b']) {
+		expect((await app({}).options(path)).status, path).toBe(404);
+	}
+});
+
+// Feature 010 (contracts/system-api.md §10, utils-api.md §12): from the route order of the nine Directus routers.
+const UUID = '3f1c2d4e-0000-4000-8000-00000000000a';
+
+test.each([
+	['/server/setup', 'POST'],
+	['/settings', 'GET,HEAD,PATCH'],
+	['/settings/owner/', 'POST'],
+	['/presets', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/presets/12', 'GET,HEAD,PATCH,DELETE'],
+	['/notifications/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/translations/x', 'GET,HEAD,PATCH,DELETE'],
+	['/dashboards', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/panels/x', 'GET,HEAD,PATCH,DELETE'],
+	['/shares', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/shares/auth', 'POST'],
+	['/shares/invite/', 'POST'],
+	[`/shares/info/${UUID}`, 'GET,HEAD'],
+	[`/shares/${UUID.toUpperCase()}`, 'GET,HEAD,PATCH,DELETE'],
+	['/extensions', 'GET,HEAD'],
+	['/extensions/registry', 'GET,HEAD'],
+	[`/extensions/registry/account/${UUID}`, 'GET,HEAD'],
+	[`/extensions/registry/extension/${UUID}`, 'GET,HEAD'],
+	['/extensions/registry/install', 'POST'],
+	['/extensions/registry/reinstall', 'POST'],
+	[`/extensions/registry/uninstall/${UUID}`, 'DELETE'],
+	['/extensions/sources/index.js', 'GET,HEAD'],
+	[`/extensions/${UUID}`, 'PATCH,DELETE'],
+	['/utils/random/string', 'GET,HEAD'],
+	['/utils/hash/generate', 'POST'],
+	['/utils/hash/verify', 'POST'],
+	['/utils/sort/articles', 'POST'],
+	['/utils/revert/12', 'POST'],
+	['/utils/import/articles', 'POST'],
+	['/utils/export/articles', 'POST'],
+	['/utils/translations/generate', 'POST'],
+	['/utils/cache/clear', 'POST'],
+	['/utils/resolve-redirect', 'POST'],
+])('OPTIONS %s → Allow: %s (feature 010)', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test('paths that match no route of the feature 010 routers are not handled (404)', async () => {
+	for (const path of [
+		'/settings/other',
+		'/shares/not-a-uuid',
+		'/shares/info/not-a-uuid',
+		'/extensions/not-a-uuid',
+		'/extensions/registry/account/not-a-uuid',
+		'/presets/a/b',
+		'/utils',
+		'/utils/sort',
+		'/utils/random',
+	]) {
 		expect((await app({}).options(path)).status, path).toBe(404);
 	}
 });

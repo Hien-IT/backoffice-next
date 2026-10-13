@@ -1,0 +1,30 @@
+{
+	"a1b2c3d4-0000-4000-8000-000000000001": {
+		"data": {
+			"id": "a1b2c3d4-0000-4000-8000-000000000001",
+			"username": "parity-alice",
+			"verified": true,
+			"github_username": "parity-alice",
+			"github_avatar_url": null,
+			"github_name": "Alice Parity",
+			"github_company": null,
+			"github_blog": null,
+			"github_location": null,
+			"github_bio": null
+		}
+	},
+	"a1b2c3d4-0000-4000-8000-000000000002": {
+		"data": {
+			"id": "a1b2c3d4-0000-4000-8000-000000000002",
+			"username": "parity-bob",
+			"verified": false,
+			"github_username": "parity-bob",
+			"github_avatar_url": null,
+			"github_name": null,
+			"github_company": null,
+			"github_blog": null,
+			"github_location": null,
+			"github_bio": null
+		}
+	}
+}

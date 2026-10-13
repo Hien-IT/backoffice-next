@@ -12,6 +12,8 @@ import { isNotApplicable, isSupported } from './supported-variables.js';
 
 export const UNSUPPORTED_MESSAGE =
 	'The following Directus environment variables are not supported by Backoffice yet and will be ignored: ';
+// Feature 010: SERVE_APP also decides whether GET /extensions/sources/index.js serves the empty app bundle (D-37); the
+// web app itself is still never served here, so the warning stays as it is (D-08).
 export const SERVE_APP_MESSAGE = '"SERVE_APP" is ignored: the Backoffice web app is served by its own container.';
 
 /** Keys set in the raw configuration (process + CONFIG_PATH file); defaults do not count. `X_FILE` counts as `X`. */

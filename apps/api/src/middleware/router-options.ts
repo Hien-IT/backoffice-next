@@ -7,8 +7,8 @@ import { getAuthProviders } from '../utils/get-auth-providers.js';
 /**
  * Directus mounts /server/* and /metrics on Express 4 sub-Routers, which answer OPTIONS themselves with
  * `Allow: GET,HEAD` (Router#handle → sendOptionsResponse). Nest mounts routes on the app, where OPTIONS would 404,
- * so this middleware reproduces the Router answer for exactly those paths (research R4, FR-048). /server/setup and
- * /server/specs/graphql are not built yet (D-14, D-15); /server/ping, / and /robots.txt are app routes (404).
+ * so this middleware reproduces the Router answer for exactly those paths (research R4, FR-048). /server/specs/graphql
+ * is not built yet (D-15); /server/ping, / and /robots.txt are app routes (404).
  * Feature 003 adds the routes of the auth router with the methods its Express 4 router answers.
  */
 export function createRouterOptions(): RequestHandler {
@@ -19,6 +19,8 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/server\/health\/?$/i, 'GET,HEAD'],
 		...(env['OPENAPI_ENABLED'] !== false ? [[/^\/server\/specs\/oas\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
 		...(env['METRICS_ENABLED'] === true ? [[/^\/metrics\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
+		// Feature 010 (contracts/system-api.md §5): POST /server/setup, gone from D-14.
+		[/^\/server\/setup\/?$/i, 'POST'],
 		// Feature 003: the auth router (research R3 of spec 003, FR-034).
 		[/^\/auth\/(refresh|logout|password\/request|password\/reset)\/?$/i, 'POST'],
 		[/^\/users\/me\/tfa\/generate\/?$/i, 'POST'],
@@ -63,6 +65,25 @@ export function createRouterOptions(): RequestHandler {
 		[new RegExp(`^/flows/trigger/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD,POST'],
 		[/^\/(flows|operations)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
 		[/^\/(flows|operations)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		// Feature 010 (contracts/system-api.md §10, utils-api.md §12): the methods of every route of each Directus router
+		// that matches, in route order, HEAD after GET. The `:pk` of /shares and /extensions only match a uuid (Express 4
+		// regex params, case insensitive), so other paths match no route and get 404 like at Directus.
+		[/^\/settings\/?$/i, 'GET,HEAD,PATCH'],
+		[/^\/settings\/owner\/?$/i, 'POST'],
+		[/^\/shares\/(auth|invite)\/?$/i, 'POST'],
+		[new RegExp(`^/shares/info/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD'],
+		[new RegExp(`^/shares/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD,PATCH,DELETE'],
+		[/^\/(presets|notifications|translations|dashboards|panels|shares)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+		[/^\/(presets|notifications|translations|dashboards|panels)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
+		[/^\/extensions(\/registry)?\/?$/i, 'GET,HEAD'],
+		[new RegExp(`^/extensions/registry/(account|extension)/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD'],
+		[/^\/extensions\/registry\/(install|reinstall)\/?$/i, 'POST'],
+		[new RegExp(`^/extensions/registry/uninstall/${UUID_REGEX}/?$`, 'i'), 'DELETE'],
+		[/^\/extensions\/sources\/[^/]+\/?$/i, 'GET,HEAD'],
+		[new RegExp(`^/extensions/${UUID_REGEX}/?$`, 'i'), 'PATCH,DELETE'],
+		[/^\/utils\/random\/string\/?$/i, 'GET,HEAD'],
+		[/^\/utils\/(hash\/generate|hash\/verify|translations\/generate|cache\/clear|resolve-redirect)\/?$/i, 'POST'],
+		[/^\/utils\/(sort|revert|import|export)\/[^/]+\/?$/i, 'POST'],
 		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
 		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
 		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],

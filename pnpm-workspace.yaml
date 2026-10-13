@@ -142,6 +142,14 @@ catalog:
   tus-js-client: 4.3.1
   sanitize-filename: 1.6.3
   fflate: 0.8.3 # tests/parity only: reads the zip archives of /assets (FR-041)
+  # System collections (feature 010), same versions as directus/pnpm-workspace.yaml
+  ky: 1.14.0
+  papaparse: 5.5.3
+  '@types/papaparse': 5.5.0
+  stream-json: 1.9.1
+  '@types/stream-json': 1.7.8
+  async: 3.2.6
+  '@types/async': 3.2.25
   # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
   json-to-graphql-query: 2.3.0
   seedrandom: 3.0.5

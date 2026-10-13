@@ -75,6 +75,9 @@ catalogs:
     '@types/archiver':
       specifier: 7.0.0
       version: 7.0.0
+    '@types/async':
+      specifier: 3.2.25
+      version: 3.2.25
     '@types/autocannon':
       specifier: 7.12.7
       version: 7.12.7
@@ -129,6 +132,9 @@ catalogs:
     '@types/object-hash':
       specifier: 3.0.6
       version: 3.0.6
+    '@types/papaparse':
+      specifier: 5.5.0
+      version: 5.5.0
     '@types/proxy-addr':
       specifier: 2.0.3
       version: 2.0.3
@@ -138,6 +144,9 @@ catalogs:
     '@types/seedrandom':
       specifier: 3.0.8
       version: 3.0.8
+    '@types/stream-json':
+      specifier: 1.7.8
+      version: 1.7.8
     '@types/supertest':
       specifier: 6.0.3
       version: 6.0.3
@@ -159,6 +168,9 @@ catalogs:
     argon2:
       specifier: 0.44.0
       version: 0.44.0
+    async:
+      specifier: 3.2.6
+      version: 3.2.6
     autocannon:
       specifier: 8.0.0
       version: 8.0.0
@@ -279,6 +291,9 @@ catalogs:
     knex-mock-client:
       specifier: 3.0.2
       version: 3.0.2
+    ky:
+      specifier: 1.14.0
+      version: 1.14.0
     ldapts:
       specifier: 8.1.3
       version: 8.1.3
@@ -327,6 +342,9 @@ catalogs:
     p-queue:
       specifier: 8.1.0
       version: 8.1.0
+    papaparse:
+      specifier: 5.5.3
+      version: 5.5.3
     pg:
       specifier: 8.16.3
       version: 8.16.3
@@ -381,6 +399,9 @@ catalogs:
     sqlite3:
       specifier: 5.1.7
       version: 5.1.7
+    stream-json:
+      specifier: 1.9.1
+      version: 1.9.1
     supertest:
       specifier: 7.1.4
       version: 7.1.4
@@ -572,6 +593,9 @@ importers:
       argon2:
         specifier: 'catalog:'
         version: 0.44.0
+      async:
+        specifier: 'catalog:'
+        version: 3.2.6
       axios:
         specifier: 'catalog:'
         version: 1.15.0
@@ -656,6 +680,9 @@ importers:
       knex:
         specifier: 'catalog:'
         version: 3.1.0(mysql2@3.22.6(@types/node@22.13.14))(pg@8.16.3)(sqlite3@5.1.7)(tedious@18.6.1)
+      ky:
+        specifier: 'catalog:'
+        version: 1.14.0
       ldapts:
         specifier: 'catalog:'
         version: 8.1.3
@@ -698,6 +725,9 @@ importers:
       p-queue:
         specifier: 'catalog:'
         version: 8.1.0
+      papaparse:
+        specifier: 'catalog:'
+        version: 5.5.3
       pg:
         specifier: 'catalog:'
         version: 8.16.3
@@ -743,6 +773,9 @@ importers:
       sqlite3:
         specifier: 'catalog:'
         version: 5.1.7
+      stream-json:
+        specifier: 'catalog:'
+        version: 1.9.1
       tedious:
         specifier: 'catalog:'
         version: 18.6.1
@@ -768,6 +801,9 @@ importers:
       '@types/archiver':
         specifier: 'catalog:'
         version: 7.0.0
+      '@types/async':
+        specifier: 'catalog:'
+        version: 3.2.25
       '@types/body-parser':
         specifier: 'catalog:'
         version: 1.19.6
@@ -816,12 +852,18 @@ importers:
       '@types/object-hash':
         specifier: 'catalog:'
         version: 3.0.6
+      '@types/papaparse':
+        specifier: 'catalog:'
+        version: 5.5.0
       '@types/proxy-addr':
         specifier: 'catalog:'
         version: 2.0.3
       '@types/qs':
         specifier: 'catalog:'
         version: 6.14.0
+      '@types/stream-json':
+        specifier: 'catalog:'
+        version: 1.7.8
       '@types/supertest':
         specifier: 'catalog:'
         version: 6.0.3
@@ -3609,6 +3651,9 @@ packages:
   '@types/archiver@7.0.0':
     resolution: {integrity: sha512-/3vwGwx9n+mCQdYZ2IKGGHEFL30I96UgBlk8EtRDDFQ9uxM1l4O5Ci6r00EMAkiDaTqD9DQ6nVrWRICnBPtzzg==}
 
+  '@types/async@3.2.25':
+    resolution: {integrity: sha512-O6Th/DI18XjrL9TX8LO9F/g26qAz5vynmQqlXt/qLGrskvzCKXKc5/tATz3G2N6lM8eOf3M8/StB14FncAmocg==}
+
   '@types/autocannon@7.12.7':
     resolution: {integrity: sha512-Pd4nPf7wRpacULa6D/EC9x3CwzFQXwA0z5WFuik/fvJjW44V3WzBTM3jtt8nSBoflUNgswPiMCtgrr1bwnAcMg==}
 
@@ -3707,6 +3752,9 @@ packages:
   '@types/object-hash@3.0.6':
     resolution: {integrity: sha512-fOBV8C1FIu2ELinoILQ+ApxcUKz4ngq+IWUYrxSGjXzzjUALijilampwkMgEtJ+h2njAW3pi853QpzNVCHB73w==}
 
+  '@types/papaparse@5.5.0':
+    resolution: {integrity: sha512-GVs5iMQmUr54BAZYYkByv8zPofFxmyxUpISPb2oh8sayR3+1zbxasrOvoKiHJ/nnoq/uULuPsu1Lze1EkagVFg==}
+
   '@types/parse-json@4.0.2':
     resolution: {integrity: sha512-dISoDXWWQwUquiKsyZ4Ng+HX2KsPL7LyHKHQwgGFEA3IaKac4Obd+h2a/a6waisAoepJlBcx9paWqjA8/HVjCw==}
 
@@ -3736,6 +3784,12 @@ packages:
 
   '@types/serve-static@2.2.0':
     resolution: {integrity: sha512-8mam4H1NHLtu7nmtalF7eyBH14QyOASmcxHhSfEoRyr0nP/YdoesEtU+uSRvMe96TW/HPTtkoKqQLl53N7UXMQ==}
+
+  '@types/stream-chain@2.1.0':
+    resolution: {integrity: sha512-guDyAl6s/CAzXUOWpGK2bHvdiopLIwpGu8v10+lb9hnQOyo4oj/ZUQFOvqFjKGsE3wJP1fpIesCcMvbXuWsqOg==}
+
+  '@types/stream-json@1.7.8':
+    resolution: {integrity: sha512-MU1OB1eFLcYWd1LjwKXrxdoPtXSRzRmAnnxs4Js/ayB5O/NvHraWwuOaqMWIebpYwM6khFlsJOHEhI9xK/ab4Q==}
 
   '@types/superagent@8.1.11':
     resolution: {integrity: sha512-KA7srSW/HENDtOw9DOqaFLgWuMqN9WgjEw62lh9dpvRaZDkhdOkazASd7X7i2eMUYLHa1U37ZttnePsH5zTDHw==}
@@ -5591,6 +5645,10 @@ packages:
       tedious:
         optional: true
 
+  ky@1.14.0:
+    resolution: {integrity: sha512-Rczb6FMM6JT0lvrOlP5WUOCB7s9XKxzwgErzhKlKde1bEV90FXplV1o87fpt4PU/asJFiqjYJxAJyzJhcrxOsQ==}
+    engines: {node: '>=18'}
+
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
     engines: {node: '>= 0.6.3'}
@@ -6139,6 +6197,9 @@ packages:
 
   pako@1.0.11:
     resolution: {integrity: sha512-4hLB8Py4zZce5s4yd9XzopqwVv/yGNhV1Bl8NTmCq1763HeK2+EwVTv+leGeL13Dnh2wfbqowVPXCIO0z4taYw==}
+
+  papaparse@5.5.3:
+    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -6800,6 +6861,12 @@ packages:
 
   stream-browserify@3.0.0:
     resolution: {integrity: sha512-H73RAHsVBapbim0tU2JwwOiXUj+fikfiaoYAKHF3VJfA0pe2BCzkhAHBlLG6REzE+2WNZcxOXjK7lkso+9euLA==}
+
+  stream-chain@2.2.5:
+    resolution: {integrity: sha512-1TJmBx6aSWqZ4tx7aTpBDXK0/e2hhcNSTV8+CbFJtDjbb+I1mZ8lHit0Grw9GRT+6JbIrrDd8esncgBi8aBXGA==}
+
+  stream-json@1.9.1:
+    resolution: {integrity: sha512-uWkjJ+2Nt/LO9Z/JyKZbMusL8Dkh97uUBTv3AJQ74y07lVahLY4eEFsPsE97pxYBwr8nnjMAIch5eqI0gPShyw==}
 
   stream-shift@1.0.3:
     resolution: {integrity: sha512-76ORR0DO1o1hlKwTbi/DM3EXWGf3ZJYO8cXX5RJwnul2DEg2oyoZyjLNoQM8WsvZiFKCRfC1O0J7iCvie3RZmQ==}
@@ -10192,6 +10259,8 @@ snapshots:
     dependencies:
       '@types/readdir-glob': 1.1.5
 
+  '@types/async@3.2.25': {}
+
   '@types/autocannon@7.12.7':
     dependencies:
       '@types/node': 22.13.14
@@ -10292,6 +10361,10 @@ snapshots:
 
   '@types/object-hash@3.0.6': {}
 
+  '@types/papaparse@5.5.0':
+    dependencies:
+      '@types/node': 22.13.14
+
   '@types/parse-json@4.0.2': {}
 
   '@types/proxy-addr@2.0.3':
@@ -10322,6 +10395,15 @@ snapshots:
     dependencies:
       '@types/http-errors': 2.0.5
       '@types/node': 22.13.14
+
+  '@types/stream-chain@2.1.0':
+    dependencies:
+      '@types/node': 22.13.14
+
+  '@types/stream-json@1.7.8':
+    dependencies:
+      '@types/node': 22.13.14
+      '@types/stream-chain': 2.1.0
 
   '@types/superagent@8.1.11':
     dependencies:
@@ -12469,6 +12551,8 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
+  ky@1.14.0: {}
+
   lazystream@1.0.1:
     dependencies:
       readable-stream: 2.0.6
@@ -13081,6 +13165,8 @@ snapshots:
   package-json-from-dist@1.0.1: {}
 
   pako@1.0.11: {}
+
+  papaparse@5.5.3: {}
 
   parent-module@1.0.1:
     dependencies:
@@ -13829,6 +13915,12 @@ snapshots:
     dependencies:
       inherits: 2.0.4
       readable-stream: 3.6.2
+
+  stream-chain@2.2.5: {}
+
+  stream-json@1.9.1:
+    dependencies:
+      stream-chain: 2.2.5
 
   stream-shift@1.0.3: {}
 

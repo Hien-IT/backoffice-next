@@ -185,12 +185,23 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'FLOWS_RUN_SCRIPT_MAX_MEMORY',
 	'FLOWS_RUN_SCRIPT_TIMEOUT',
 	'RATE_LIMITER_EMAIL_FLOWS_.+',
+	// Feature 010: import and export through /utils, the extensions bundle and registry (D-37), and the ADMIN_* fallback
+	// of createAdmin for POST /server/setup (moved from group B).
+	'IMPORT_TIMEOUT',
+	'IMPORT_MAX_CONCURRENCY',
+	'IMPORT_EXPORT_NAMESPACE',
+	'MAX_IMPORT_ERRORS',
+	'EXPORT_BATCH_SIZE',
+	'EXTENSIONS_CACHE_TTL',
+	'MARKETPLACE_REGISTRY',
+	'MARKETPLACE_TRUST',
+	'ADMIN_EMAIL',
+	'ADMIN_PASSWORD',
+	'ADMIN_TOKEN',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */
-export const NOT_APPLICABLE_VARIABLES: RegExp[] = ['ADMIN_EMAIL', 'ADMIN_PASSWORD', 'ADMIN_TOKEN', 'PROJECT_OWNER'].map(
-	(name) => new RegExp(`^${name}$`),
-);
+export const NOT_APPLICABLE_VARIABLES: RegExp[] = ['PROJECT_OWNER'].map((name) => new RegExp(`^${name}$`));
 
 export const isSupported = (name: string): boolean => SUPPORTED_VARIABLES.some((r) => r.test(name));
 export const isNotApplicable = (name: string): boolean => NOT_APPLICABLE_VARIABLES.some((r) => r.test(name));

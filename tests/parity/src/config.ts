@@ -108,7 +108,15 @@ export const profilePorts = {
 	retention: { directus: 10255, backoffice: 10256 },
 	// Feature 009 (research R12): the scheduled flows pair, started and stopped by src/flows/schedule.test.ts only.
 	'flows-schedule': { directus: 10355, backoffice: 10356 },
+	// Feature 010 (research R11): the setup pair on its own Postgres (setupDbPort), Postgres only.
+	setup: { directus: 10455, backoffice: 10456 },
 } as const;
+
+/** Host port of the own Postgres of the setup pair (feature 010, research R11). */
+export const setupDbPort = 6112;
+
+/** Host port of the test extensions registry (feature 010, research R12). */
+export const registryPort = 6113;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
 export const cacheRedisPort = 6111;
