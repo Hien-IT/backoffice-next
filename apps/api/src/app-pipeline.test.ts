@@ -8,6 +8,8 @@ import { useLogger } from './logger/index.js';
 import getDatabase from './database/index.js';
 import { getSchema } from './schema/get-database-schema.js';
 
+vi.mock('./flows.js', async () => (await import('./test-utils/flows.js')).mockFlowManager());
+
 vi.mock('@backoffice/env', async (importOriginal) => {
 	const actual = await importOriginal<typeof env>();
 	return { ...actual, useEnv: vi.fn(actual.useEnv) };
@@ -49,6 +51,19 @@ beforeEach(() => {
 
 afterEach(async () => {
 	await app?.nest.close();
+});
+
+// Feature 009 (research R2): the flows load before the Express pipeline and stop with the shutdown tasks.
+test('createApp initializes the FlowManager once and unloads it on shutdown', async () => {
+	const { getFlowManager } = await import('./flows.js');
+	const { runShutdownTasks } = await import('./shutdown.js');
+	await start();
+
+	expect(getFlowManager().initialize).toHaveBeenCalledTimes(1);
+	expect(getFlowManager().unload).not.toHaveBeenCalled();
+
+	await runShutdownTasks();
+	expect(getFlowManager().unload).toHaveBeenCalled();
 });
 
 describe('GET /server/ping', () => {
@@ -187,19 +202,26 @@ describe('404 and errors', () => {
 // Feature 004: authenticate on every route like Directus (D-10 and the D-18 warning of spec 001 are gone)
 describe('accountability step', () => {
 	const whoami: RequestHandler = (req, res, next) =>
-		req.path.toLowerCase().startsWith('/auth/x') || req.path === '/server/whoami' ? res.json(req.accountability) : next();
+		req.path.toLowerCase().startsWith('/auth/x') || req.path === '/server/whoami'
+			? res.json(req.accountability)
+			: next();
 
 	// Signed with another secret: 403 INVALID_TOKEN like Directus (an unknown static token is 401), no query.
-	const foreign = jwt.sign({ id: 'u', role: null, app_access: false, admin_access: false }, 'other', { issuer: 'directus' });
-
-	test.each(['/AUTH/x', '/server/whoami', '/nope'])('an invalid token on %s is rejected with 403 INVALID_TOKEN', async (path) => {
-		const agent = await start({}, { beforeRoutes: [whoami] });
-
-		const res = await agent.get(path).set('Authorization', `Bearer ${foreign}`);
-		expect(res.status).toBe(403);
-		expect(res.body.errors[0].extensions.code).toBe('INVALID_TOKEN');
-		expect(useLogger().warn).not.toHaveBeenCalled();
+	const foreign = jwt.sign({ id: 'u', role: null, app_access: false, admin_access: false }, 'other', {
+		issuer: 'directus',
 	});
+
+	test.each(['/AUTH/x', '/server/whoami', '/nope'])(
+		'an invalid token on %s is rejected with 403 INVALID_TOKEN',
+		async (path) => {
+			const agent = await start({}, { beforeRoutes: [whoami] });
+
+			const res = await agent.get(path).set('Authorization', `Bearer ${foreign}`);
+			expect(res.status).toBe(403);
+			expect(res.body.errors[0].extensions.code).toBe('INVALID_TOKEN');
+			expect(useLogger().warn).not.toHaveBeenCalled();
+		},
+	);
 
 	test('without a token every route is public, with user agent and origin', async () => {
 		const agent = await start({}, { beforeRoutes: [whoami] });
@@ -226,7 +248,8 @@ describe('accountability step', () => {
 
 // Feature 004: sanitizeQuery after the schema step on every route (D-12 of spec 001 now only covers `export`)
 describe('query step', () => {
-	const query: RequestHandler = (req, res, next) => (req.path === '/server/query' ? res.json(req.sanitizedQuery) : next());
+	const query: RequestHandler = (req, res, next) =>
+		req.path === '/server/query' ? res.json(req.sanitizedQuery) : next();
 
 	test('an invalid query is rejected with 400 INVALID_QUERY on any route', async () => {
 		const agent = await start({}, { beforeRoutes: [query] });

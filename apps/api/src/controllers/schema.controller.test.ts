@@ -18,6 +18,8 @@ const service = vi.hoisted(() => ({
 	apply: vi.fn(),
 }));
 
+vi.mock('../flows.js', async () => (await import('../test-utils/flows.js')).mockFlowManager());
+
 vi.mock('@backoffice/env', async (importOriginal) => {
 	const actual = await importOriginal<typeof env>();
 	return { ...actual, useEnv: vi.fn(actual.useEnv) };

@@ -1,0 +1,4 @@
+[
+	{ "source": "api/src/utils/redact-object.ts", "dest": "apps/api/src/utils/redact-object.ts" },
+	{ "source": "api/src/utils/redact-object.test.ts", "dest": "apps/api/src/utils/redact-object.test.ts" }
+]

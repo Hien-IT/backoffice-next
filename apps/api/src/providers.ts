@@ -11,10 +11,12 @@ import { CollectionsService } from './services/collections.service.js';
 import { CommentsService } from './services/comments.service.js';
 import { FieldsService } from './services/fields.service.js';
 import { FilesService } from './services/files.service.js';
+import { FlowsService } from './services/flows.service.js';
 import { FoldersService } from './services/folders.service.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { NotificationsService } from './services/notifications.service.js';
+import { OperationsService } from './services/operations.service.js';
 import { PermissionsService } from './services/permissions.service.js';
 import { PoliciesService } from './services/policies.service.js';
 import { RelationsService } from './services/relations.service.js';
@@ -115,8 +117,18 @@ export const serviceProviders: Provider[] = [
 		inject: [DATABASE],
 	},
 	{
+		provide: FlowsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new FlowsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
 		provide: NotificationsService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new NotificationsService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		provide: OperationsService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new OperationsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

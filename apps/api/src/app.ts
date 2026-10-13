@@ -8,7 +8,9 @@ import { AppModule } from './app.module.js';
 import { type ExpressAppOptions, createExpressApp } from './app-pipeline.js';
 import { subscribeSchemaChanged } from './cache.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
+import { getFlowManager } from './flows.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
+import { onServerShutdown } from './shutdown.js';
 import metricsSchedule from './schedules/metrics.js';
 import retentionSchedule from './schedules/retention.js';
 import tusSchedule from './schedules/tus.js';
@@ -23,6 +25,13 @@ export interface App {
 export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 	// Directus subscribes when its cache module loads; Backoffice does it here, before any request (feature 002)
 	subscribeSchemaChanged();
+
+	// Directus initializes the flows after the auth providers (end of runStartupChecks here) and before express()
+	// (app.ts:128-131), so event flows see the first request (feature 009, research R2).
+	const flowManager = getFlowManager();
+	await flowManager.initialize();
+	// Backoffice: stop the cron jobs of scheduled flows with the other shutdown tasks; Directus relies on pm2.
+	onServerShutdown(() => flowManager.unload());
 
 	const express = createExpressApp(options);
 

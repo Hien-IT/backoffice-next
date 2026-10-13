@@ -19,6 +19,9 @@ export const REDUCED_FILES = [
 	// Feature 008 (spec FR-061): one case per route, cross use, ?version= and mentions (history rows differ per vendor);
 	// the cases marked full-only inside these files and retention, e2e-app run in `full` only.
 	'src/history/{activity,revisions,versions,version-read,comments,cross-use}.test.ts',
+	// Feature 009 (spec FR-061): one flow per trigger, each operation on its resolve branch, crud, logs, reload; the
+	// cases marked full-only, schedule (its own pair, started by the file) and e2e-app run in `full` only.
+	'src/flows/{crud,webhook,manual,event,operations,logs,reload}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -32,6 +35,8 @@ export const FULL_FILES = [
 	'src/files/**/*.test.ts',
 	// Feature 008: activity, revisions, versions, comments, retention (its own pair, started by the file), e2e-app.
 	'src/history/**/*.test.ts',
+	// Feature 009: flows and operations, the scheduled flows pair (started by schedule.test.ts), e2e-app.
+	'src/flows/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

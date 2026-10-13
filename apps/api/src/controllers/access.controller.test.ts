@@ -12,6 +12,8 @@ import { clearSystemCache } from '../cache.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
 
+vi.mock('../flows.js', async () => (await import('../test-utils/flows.js')).mockFlowManager());
+
 vi.mock('@backoffice/env', async (importOriginal) => {
 	const actual = await importOriginal<typeof env>();
 	return { ...actual, useEnv: vi.fn(actual.useEnv) };

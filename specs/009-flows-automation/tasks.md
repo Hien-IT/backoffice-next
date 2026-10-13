@@ -137,33 +137,33 @@ A, proxy và hai profile sẵn sàng (research R1, R6, R7, R9, R11, R12, R14; co
 `FlowsService`, `OperationsService`, `getService`, `FlowManager` với trigger đủ năm loại, năm operation lõi, khởi tạo
 trong `createApp`, helper `tests/parity/src/flows/helpers.ts` (research R2, R4 đến R6, R10, R15).
 
-- [ ] T009 [P] Port `utils/redact-object.ts` + `redact-object.test.ts` (14 ca) từ `directus/api/src/utils/` vào
+- [X] T009 [P] Port `utils/redact-object.ts` + `redact-object.test.ts` (14 ca) từ `directus/api/src/utils/` vào
   `apps/api/src/utils/`; test đỏ trước. Ghi manifest.
-- [ ] T010 [P] Port `utils/construct-flow-tree.ts` vào `apps/api/src/utils/construct-flow-tree.ts`;
+- [X] T010 [P] Port `utils/construct-flow-tree.ts` vào `apps/api/src/utils/construct-flow-tree.ts`;
   `construct-flow-tree.test.ts` mới: cây resolve/reject lồng, `operation` gốc null, `options` null → `{}`, tham chiếu
   thiếu ném `Undefined reference in operations`. Ghi manifest.
-- [ ] T011 [P] `apps/api/src/operations/define-operation-api.ts` port hàm `defineOperationApi` từ
+- [X] T011 [P] `apps/api/src/operations/define-operation-api.ts` port hàm `defineOperationApi` từ
   `directus/packages/extensions/src/shared/utils/define-extension.ts` (+ test 1 ca trả nguyên config);
   `apps/api/src/operations/index.ts` export mảng `operations` (ban đầu rỗng, T017 và US4 thêm) và test "mỗi phần tử có
   `id`, `handler`, không trùng id". Ghi manifest.
-- [ ] T012 [P] Port `services/flows.ts` → `apps/api/src/services/flows.service.ts`, `services/operations.ts` →
+- [X] T012 [P] Port `services/flows.ts` → `apps/api/src/services/flows.service.ts`, `services/operations.ts` →
   `operations.service.ts` (gọi `getFlowManager().reload()` sau `createOne`, `updateMany`, `deleteMany`;
   `FlowsService.deleteMany` `update({resolve: null, reject: null}).whereIn('flow', keys)` trước `super.deleteMany`);
   `flows.service.test.ts`, `operations.service.test.ts` mới (mock knex và `./flows.js`): mỗi hàm gọi `reload` đúng
   một lần sau ghi, `deleteMany` chạy update trước khi xóa và vẫn chạy khi `super.deleteMany` ném (R-22). Ghi manifest
   (FR-002).
-- [ ] T013 `apps/api/src/utils/get-service.ts`: `case 'directus_flows'` → `FlowsService`, `'directus_operations'` →
+- [X] T013 `apps/api/src/utils/get-service.ts`: `case 'directus_flows'` → `FlowsService`, `'directus_operations'` →
   `OperationsService`; rút hai tên khỏi `COLLECTIONS_WITHOUT_SERVICE_YET`, sửa comment ponytail; `get-service.test.ts`
   sửa; `apps/api/src/providers.ts` thêm factory hai service; `apps/api/src/services/index.ts` export. Sau T012
   (FR-003, contracts/flows-api.md §8).
-- [ ] T014 Port `flows.ts` + `flows.test.ts` (2 ca gốc, mock theo ánh xạ import) từ `directus/api/src/` vào
+- [X] T014 Port `flows.ts` + `flows.test.ts` (2 ca gốc, mock theo ánh xạ import) từ `directus/api/src/` vào
   `apps/api/src/flows.ts`, `flows.test.ts`; khác nguồn (`// Backoffice:`): `initialize()` gọi `addOperation` cho từng
   phần tử của `./operations/index.js` trước `load()`; cuối `load()` nếu có trigger `schedule` đã đăng ký và
   `env.SYNCHRONIZATION_STORE !== 'redis'` thì `logger.warn('Backoffice: SYNCHRONIZATION_STORE is not redis; scheduled
   flows run on every instance')`; `getSchema` từ `./schema/get-database-schema.js`; `import * as services from
   './services/index.js'`. Sau T009 đến T013. Ghi manifest (FR-010 đến FR-015, FR-020 đến FR-024,
   contracts/flows-api.md §3–§7).
-- [ ] T015 `apps/api/src/flows.test.ts` phần Backoffice (mock như gốc + `./operations/index.js`): `load` đăng ký
+- [X] T015 `apps/api/src/flows.test.ts` phần Backoffice (mock như gốc + `./operations/index.js`): `load` đăng ký
   event theo scope × collections (`articles.items.create`, `users.create`, `auth.login`, không `collections` → không
   event), filter handler truyền `database` của context và ném `$last` khi reject, action handler dùng `getDatabase()`;
   `schedule` cron sai → warn đúng câu, không job; cảnh báo store memory có/không; `runWebhookFlow` không handler →
@@ -176,19 +176,19 @@ trong `createApp`, helper `tests/parity/src/flows/helpers.ts` (research R2, R4 �
   `Error` bỏ `stack`, chuỗi JSON → object, chuỗi thường, mảng; `reload` publish `{type:'reload'}`, subscriber khi chưa
   nạp → warn, hàng đợi một luồng và `runWebhookFlow` đợi `onIdle`; `unload` gọi `offFilter`, `offAction`,
   `job.stop()`. Sau T014 (FR-010 đến FR-024).
-- [ ] T016 `apps/api/src/app.ts`: `await getFlowManager().initialize()` sau `subscribeSchemaChanged()` và trước
+- [X] T016 `apps/api/src/app.ts`: `await getFlowManager().initialize()` sau `subscribeSchemaChanged()` và trước
   `createExpressApp()`; `onServerShutdown(() => getFlowManager().unload())` (`// Backoffice:`); `app.test.ts` thêm ca
   thứ tự (flows trước Express, schedules sau Nest) và `unload` khi shutdown; mọi test gọi `createApp()`
   (`app.test.ts`, `app-pipeline.test.ts`, `controllers/*.controller.test.ts`, `auth.test.ts`...) mock `./flows.js`
   (`getFlowManager: () => ({initialize, unload, runWebhookFlow, reload})`) như `./schedules/*.js`. Sau T014 (research
   R2, plan rủi ro 4).
-- [ ] T017 [P] Năm operation lõi: port `operations/{transform,log,throw-error,condition,sleep}/index.ts` + test gốc
+- [X] T017 [P] Năm operation lõi: port `operations/{transform,log,throw-error,condition,sleep}/index.ts` + test gốc
   (2, 2, 6, 4, 2 ca) từ `directus/api/src/operations/` vào `apps/api/src/operations/<id>/`; `condition` dùng
   `parseFilter`, `validatePayload` của `@backoffice/utils`, `FailedValidationError`,
   `joiValidationErrorItemToErrorExtensions` của `@backoffice/validation`; `throw-error` dùng `createError`,
   `InternalServerError` của `@backoffice/errors`; thêm năm config vào `operations/index.ts`. Sau T011. Ghi manifest
   (FR-031, FR-035, FR-039).
-- [ ] T018 [P] `tests/parity/src/flows/helpers.ts`: `withoutD097`, `same()`, `seedFlow(app, {flow, operations})`
+- [X] T018 [P] `tests/parity/src/flows/helpers.ts`: `withoutD097`, `same()`, `seedFlow(app, {flow, operations})`
   (tạo qua `POST /flows` + `PATCH /flows/:id` lồng như `flow.vue`, đợi app kia nạp lại bằng poll `GET /flows/:id`
   ≤ 5 s), `runWebhook`, `flowEffects(fn)` (gọi `historyEffects` của 008 + dòng mới của collection đích và
   `directus_notifications`), `comparable()` (bỏ `data.data.$env`, `steps[].operation` → `<op:i>`, `headers` của
@@ -603,3 +603,10 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   không advisory mới (mọi high/critical đều nằm trong danh sách bỏ qua có sẵn).
 - T007: nightly.yml không chạy blackbox, nên `cache-mem` chỉ thêm vào `--profiles` của blackbox ở `ci.yml` (Postgres,
   và các job MySQL, SQLite `reduced` có blackbox), `parity-matrix.yml` (`blackbox-full`) và `tools/ci-local.sh`.
+- T015: test Backoffice của `FlowManager` đặt ở `apps/api/src/flows.manager.test.ts` (32 ca) để `flows.test.ts` giữ
+  nguyên bản port (2 ca). Đo được một hành vi Directus: `{{ x }}` trỏ giá trị không có (không phải toàn chuỗi) được
+  micromustache render thành chuỗi `"undefined"` (ca manual `requireSelection = false` không có `keys`).
+- T016: 22 file test dựng cả app (`createApp()` trực tiếp hoặc qua `test/data-model-app.ts`) mock `../flows.js` bằng
+  `src/test-utils/flows.ts`; `app-pipeline.test.ts` có ca `initialize` một lần và `unload` khi `runShutdownTasks`.
+- T018: `seedFlow` tạo flow rồi operation từ cuối lên đầu với uuid sinh trước, `PATCH` operation gốc, rồi đợi
+  `RELOAD_WAIT` = 500 ms cho hai app nạp lại qua bus (không poll trigger để khỏi sinh lần chạy thừa).

@@ -1,0 +1,10 @@
+[
+	{
+		"source": "packages/extensions/src/shared/utils/define-extension.ts",
+		"dest": "apps/api/src/operations/define-operation-api.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/utils/define-extension.test.ts",
+		"dest": "apps/api/src/operations/define-operation-api.test.ts"
+	}
+]

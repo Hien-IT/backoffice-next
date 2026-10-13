@@ -15,6 +15,8 @@ const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
 const assets = vi.hoisted(() => ({ getAsset: vi.fn(), zipFolder: vi.fn(), zipFiles: vi.fn() }));
 const files = vi.hoisted(() => ({ readOne: vi.fn() }));
 
+vi.mock('../flows.js', async () => (await import('../test-utils/flows.js')).mockFlowManager());
+
 vi.mock('@backoffice/env', async (importOriginal) => {
 	const actual = await importOriginal<typeof env>();
 	return { ...actual, useEnv: vi.fn(actual.useEnv) };

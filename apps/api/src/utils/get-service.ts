@@ -9,9 +9,11 @@ import { AccessService } from '../services/access.service.js';
 import { ActivityService } from '../services/activity.service.js';
 import { CommentsService } from '../services/comments.service.js';
 import { FilesService } from '../services/files.service.js';
+import { FlowsService } from '../services/flows.service.js';
 import { FoldersService } from '../services/folders.service.js';
 import { ItemsService } from '../services/items.service.js';
 import { NotificationsService } from '../services/notifications.service.js';
+import { OperationsService } from '../services/operations.service.js';
 import { PermissionsService } from '../services/permissions.service.js';
 import { PoliciesService } from '../services/policies.service.js';
 import { PresetsService } from '../services/presets.service.js';
@@ -26,14 +28,12 @@ import { VersionsService } from '../services/versions.service.js';
  */
 // ponytail: plain ItemsService for these collections skips the checks of their own service; features 008 to 010
 // port the services and shrink this list (007 removed directus_files and directus_folders; 008 directus_comments,
-// directus_notifications and directus_versions).
+// directus_notifications and directus_versions; 009 directus_flows and directus_operations).
 export const COLLECTIONS_WITHOUT_SERVICE_YET = [
 	'directus_dashboards',
 	'directus_deployments',
 	'directus_deployment_projects',
 	'directus_deployment_runs',
-	'directus_flows',
-	'directus_operations',
 	'directus_panels',
 	'directus_settings',
 	'directus_shares',
@@ -54,10 +54,14 @@ export function getService(collection: string, opts: AbstractServiceOptions): It
 			return new CommentsService(opts);
 		case 'directus_files':
 			return new FilesService(opts);
+		case 'directus_flows':
+			return new FlowsService(opts);
 		case 'directus_folders':
 			return new FoldersService(opts);
 		case 'directus_notifications':
 			return new NotificationsService(opts);
+		case 'directus_operations':
+			return new OperationsService(opts);
 		case 'directus_permissions':
 			return new PermissionsService(opts);
 		case 'directus_presets':
