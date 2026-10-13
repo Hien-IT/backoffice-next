@@ -46,7 +46,7 @@ sổ khác biệt, đóng feature). SPECKIT-GUIDE §6 cho phép tách 009 thành
   và thêm `case` trong `utils/get-service.ts`, thêm mẫu vào `middleware/router-options.ts`, thêm `UUID_REGEX` vào
   `constants.ts`, thêm `getFlowManager().initialize()` và `unload` vào `app.ts`, đổi `name` trong
   `libs/errors/src/create-error.ts` và `is-backoffice-error.ts` (R7).
-- **Luôn tái tạo hành vi Directus**, kể cả hành vi không an toàn (R-22, R-23). Phát hiện hành vi không an toàn mới
+- **Luôn tái tạo hành vi Directus**, kể cả hành vi không an toàn (R-22, R-23, R-24). Phát hiện hành vi không an toàn mới
   thì thêm dòng R-xx vào spec kèm bằng chứng (ca test, request, kết quả đo trên Directus thật, ngày đo) và một ca thể
   hiện; không tự lệch.
 - Không gửi email: operation `mail` qua rate limiter rồi ghi log cảnh báo (D-34, contracts/operations.md).
@@ -109,11 +109,10 @@ A, proxy và hai profile sẵn sàng (research R1, R6, R7, R9, R11, R12, R14; co
   `supported-variables.test.ts` sửa bộ lọc dòng 31, thêm ca `['FLOWS_ENV_ALLOW_LIST', true]`,
   `['RATE_LIMITER_EMAIL_FLOWS_POINTS', true]`, `['RATE_LIMITER_EMAIL_ENABLED', false]`;
   `warn-unsupported-variables.test.ts` thêm ca `FLOWS_RUN_SCRIPT_TIMEOUT` không bị báo (FR-050, research R9).
-- [ ] T006 [P] Proxy và request chỉ đọc: `tests/parity/proxy/backoffice-routes.txt` thêm `flows`, `operations`;
-  `tests/parity/src/proxy-conf.test.ts` thêm ca `/flows/trigger/<uuid>`, `/operations/<uuid>` tới app mới,
-  `/settings` vẫn tới Directus; `tests/directus-app-e2e/src/routing.spec.ts` thêm hai route;
-  `tests/parity/src/server/errors.test.ts` bỏ `/flows` khỏi ca `404` D-09.*; `tests/parity/src/request-set.ts` thêm
-  `GET /flows`, `GET /operations` (admin) và `POST /flows` public bị từ chối cho `db-unchanged` (contracts/parity.md §1).
+- [ ] T006 [P] `tests/parity/src/server/errors.test.ts` bỏ `/flows` khỏi ca `404` D-09.* (ca dùng `/settings`,
+  `/graphql` còn lại). KHÔNG thêm `flows`, `operations` vào proxy ở Phase 1: app Directus gọi `GET /flows` trong
+  `Promise.all` lúc hydrate (`directus/app/src/hydrate.ts:75`), `404` trước khi có controller làm hỏng app qua proxy
+  và đỏ `e2e-directus-app`; việc này nằm ở T022 (`flows`) và T039 (`operations`) (contracts/parity.md §1).
 - [ ] T007 [P] Profile: `tests/parity/env/profile-flows-schedule.env` theo contracts/parity.md §1 (chú thích: thủ công,
   chạy flow mỗi 2 s, namespace riêng); `tests/parity/docker-compose.yml` thêm `directus-flows-schedule`,
   `backoffice-api-flows-schedule` (mẫu `retention`, cổng 10355/10356, `environment: FLOWS_SCHEDULE_HOOK_NAME=directus`
@@ -127,8 +126,8 @@ A, proxy và hai profile sẵn sàng (research R1, R6, R7, R9, R11, R12, R14; co
   (`GET, POST`), `/operations`, `/operations/:pk`; `router-options.test.ts` thêm ca (FR-001, contracts/flows-api.md §9).
 
 **Checkpoint**: `pnpm nx run-many -t test lint typecheck` xanh (libs utils, errors, types; api với test cũ);
-`env-up --profiles=app` lên, proxy đưa `/flows`, `/operations` về app mới (hiện `404` vì chưa có controller);
-`profileUp('flows-schedule')` lên được rồi `profileStop`.
+`env-up --profiles=app` lên, proxy vẫn đưa `/flows`, `/operations` tới Directus; `profileUp('flows-schedule')` lên
+được rồi `profileStop`.
 
 ---
 
@@ -214,22 +213,25 @@ SQLite (`reduced`); kiểm tay quickstart §2.
 
 ### Tests for User Story 1
 
-- [ ] T019 [P] [US1] `tests/parity/src/flows/webhook.test.ts` (`reduced`, `full`): flow `GET` mặc định (`$last` của
-  `transform`), `$all` (so sau `comparable`), `return` đường dẫn (`$trigger.query.x`), `return` không có → `204`;
-  `POST` tới flow `GET` và `GET` tới flow `POST` → `403`; `async` → `204` rồi poll activity `run` ≤ 5 s;
-  `error_on_reject` với `throw-error` (`422`, code, message) và với `$last` chuỗi/mảng (`500`); không
-  `error_on_reject` → `200` với `$last` là lỗi serialize (`name`, `code`, `status`, `extensions`; R7 đo tại đây);
-  `cacheEnabled=false` và mặc định: so header `Cache-Control`; flow `inactive`, flow `operation`, uuid sai (`404`
-  `ROUTE_NOT_FOUND`), uuid không có (`403`); public không token chạy được; `OPTIONS`, `HEAD` (US1 ca 1–4, 7; FR-012,
-  FR-013, FR-020, FR-024).
+- [ ] T019 [P] [US1] `tests/parity/src/flows/webhook.test.ts` (`reduced`, `full`): body là kết quả thô (không bọc
+  `{data}`); flow `GET` mặc định (`$last` của `transform`), `$all` (so sau `comparable`), `return` đường dẫn
+  (`$trigger.query.x`), `return` không có và kết quả falsy (`null`, `0`, `''`) → `204`; `POST` tới flow `GET` và `GET`
+  tới flow `POST` → `403`; `async` → `204` rồi poll activity `run` ≤ 5 s; `error_on_reject` với `throw-error` (`422`,
+  code, message), với `condition` không khớp (`400`, một phần tử `errors[]` mỗi lỗi) và với `$last` chuỗi/object
+  thường (`500`); không `error_on_reject` → `200` với `$last` là lỗi serialize (`name`, `code`, `status`,
+  `extensions`; R7 đo tại đây); `cacheEnabled=false` và mặc định: so header `Cache-Control`; flow `inactive`, flow
+  `operation`, uuid sai (`404 ROUTE_NOT_FOUND`), uuid không có (`403`), uuid viết hoa của flow có thật (`403`, đo
+  Express 4 không phân biệt hoa thường); public không token chạy được; R-24: flow `$all` gọi không token trả `$env`
+  (ghi bằng chứng); `OPTIONS`, `HEAD` (US1 ca 1–4, 7; FR-001, FR-012, FR-013, FR-020, FR-024).
 - [ ] T020 [P] [US1] `tests/parity/src/flows/manual.test.ts` (`reduced`, `full`): body `{collection, keys, ...fields}`
   và `{collection}` với `requireSelection=false`; 6 lỗi `403` theo thứ tự contracts/flows-api.md §3 (kiểm log warn
   của hai app qua `logs()`); non-admin có quyền đọc collection và keys → chạy; không quyền đọc → `403`; một key không
   đọc được → `403`; `keys` số và chuỗi; `async` → `204`; `$trigger.body` giữ `fields` (US1 ca 5, 6).
 - [ ] T021 [P] [US1] `apps/api/src/controllers/flows.controller.test.ts` (supertest qua app Nest, mock
   `./flows.js` và service): `GET|POST /flows/trigger/:pk` gọi `runWebhookFlow('<METHOD>-<pk>', {path, query, body,
-  method, headers}, {accountability, schema})`, `res.locals.cache = false` khi `cacheEnabled: false`, `204` khi
-  `result` undefined, `404 ROUTE_NOT_FOUND` khi `pk` không uuid, `403` lan từ `ForbiddenError`; `POST /`, `GET /`,
+  method, headers}, {accountability, schema})`, `res.locals.payload = result` (không bọc `data`), `res.locals.cache =
+  false` khi `cacheEnabled: false`, `204` khi `result` falsy, `404 ROUTE_NOT_FOUND` khi `pk` không uuid, uuid viết hoa
+  qua kiểm và gọi `runWebhookFlow` với `pk` nguyên, `403` lan từ `ForbiddenError`; `POST /`, `GET /`,
   `SEARCH /`, `GET /:pk`, `PATCH /`, `PATCH /:pk`, `DELETE /`, `DELETE /:pk` theo `comments.controller.test.ts`;
   `OPTIONS /flows/trigger/<uuid>` → `Allow: GET, POST`.
 
@@ -237,9 +239,12 @@ SQLite (`reduced`); kiểm tay quickstart §2.
 
 - [ ] T022 [US1] `apps/api/src/controllers/flows.controller.ts` port từ `directus/api/src/controllers/flows.ts` theo
   mẫu `comments.controller.ts` (research R3; contracts/flows-api.md §1): handler `trigger/:pk` khai báo trước `:pk`,
-  kiểm `UUID_REGEX` → `RouteNotFoundError({path: req.path})`; `apps/api/src/app.module.ts` đăng ký controller và
-  `useCollection('directus_flows')`; `app.test.ts`, `app-pipeline.test.ts` thêm ca. Ghi manifest. Chạy T019, T020 trên
-  Postgres, MySQL, SQLite; ghi số ca vào "Ghi chú khi làm".
+  kiểm `new RegExp(`^${UUID_REGEX}$`, 'i')` → `RouteNotFoundError({path: req.path})`; `apps/api/src/app.module.ts`
+  đăng ký controller và `useCollection('directus_flows')`; `app.test.ts`, `app-pipeline.test.ts` thêm ca. Cùng task:
+  `tests/parity/proxy/backoffice-routes.txt` thêm `flows`; `tests/parity/src/proxy-conf.test.ts` ca
+  `/flows/trigger/<uuid>` tới app mới, `/settings` vẫn tới Directus; `tests/directus-app-e2e/src/routing.spec.ts` thêm
+  `flows`; `tests/parity/src/request-set.ts` thêm `GET /flows` (admin), `POST /flows` public bị từ chối. Ghi manifest.
+  Chạy T019, T020 trên Postgres, MySQL, SQLite; ghi số ca vào "Ghi chú khi làm".
 
 **Checkpoint**: US1 xanh; app Directus qua proxy (`env-up --profiles=app`): nút chạy flow thủ công trên item gọi
 `/flows/trigger` tới app mới và báo thành công (quickstart §2).
@@ -257,12 +262,12 @@ tổng số lần chạy đúng bằng số kỳ; cảnh báo khi store `memory`
   `profileUp('flows-schedule')` ở `beforeAll`, `profileStop` ở `afterAll` (kể cả khi `beforeAll` lỗi); seed flow
   `*/2 * * * * *` + `log` `flow-executed-on-{{ $env.FLOWS_SCHEDULE_HOOK_NAME }}` (port nội dung
   `directus/tests/blackbox/tests/common/flows/schedule-hook.seed.ts`, `accountability` mặc định) qua API của cặp; đợi
-  10 s: tổng dòng `flow-executed-on-` trong `logs()` của hai container = 5, số dòng activity `run` mới = 5, lặp 3
-  lượt (SC-004); `redis-cli monitor` namespace `parity-flows-schedule:sync` ghi 5 `setGreaterThan` thành công; dừng
-  `directus-flows-schedule` → app mới chạy đủ 5; cron sai (`PATCH` `options.cron`) → warn `Couldn't register cron
-  trigger` ở cả hai app, không dòng mới; R-23: `PATCH /flows/:id` (đổi `name`) ngay trước một kỳ, MONITOR thấy `DEL`
-  rồi `SET` của cả hai instance, ghi bằng chứng vào spec R-23 (chấp nhận 5 hoặc 6 lần); `afterAll` xóa flow qua API
-  cặp chính (US2 ca 1–3, 5; FR-011, FR-062).
+  20 s (10 kỳ): tổng dòng `flow-executed-on-` trong `logs()` của hai container = 10, số dòng activity `run` mới = 10,
+  lặp 3 lượt (SC-004); `redis-cli monitor` namespace `parity-flows-schedule:sync` ghi 10 `setGreaterThan` thành công;
+  dừng `directus-flows-schedule` → app mới chạy đủ 10; cron sai (`PATCH` `options.cron`) → warn `Couldn't register
+  cron trigger` ở cả hai app, không dòng mới; R-23: `PATCH /flows/:id` (đổi `name`) ngay trước một kỳ, MONITOR thấy
+  `DEL` rồi `SET` của cả hai instance, ghi bằng chứng vào spec R-23 (chấp nhận 10 hoặc 11 lần trong 10 kỳ);
+  `afterAll` xóa flow qua API cặp chính (US2 ca 1–3, 5; FR-011, FR-062).
 - [ ] T024 [P] [US2] `apps/api/src/flows.test.ts` thêm ca lịch: `scheduleSynchronizedJob(flow.id, cron, cb)` với cron 6
   trường, `cb` gọi `executeFlow(flow)` không dữ liệu và `logger.error` khi ném (job vẫn còn), `unload` gọi
   `job.stop()`; `apps/api/src/startup/*.test.ts` hoặc `app.test.ts`: dòng warn store memory xuất hiện đúng một lần
@@ -288,7 +293,8 @@ event, payload, meta; filter chặn hoặc đổi payload; action chạy nền.
   action: response không đợi, poll ≤ 5 s activity `run` và `articles_log` (`$trigger.event`, `keys`, `collection`,
   `$accountability.user`); `auth.login` action (đăng nhập qua `/auth/login` của app mới); chỉ app nhận request chạy
   (đếm `run` theo app); `authenticate` filter không chặn (log). Dọn flow và `articles_log` ở `afterAll` (FR-010,
-  FR-022, FR-023; US3 ca 1–5).
+  FR-022, FR-023; US3 ca 1–5). Cần `item-create` của T029: ca dùng `item-create` chạy sau T029 (viết test trước, đỏ
+  tới khi T029 xong); phần còn lại chỉ dùng operation lõi của T017.
 - [ ] T026 [P] [US3] `apps/api/src/flows.test.ts` thêm ca event: tên event cho scope mảng × collections hỗn hợp (user và
   hệ thống), scope `items.create` không `collections` → không `onFilter`; filter handler nhận `(payload, meta,
   context)` và trả giá trị của `return`; action handler nhận `(meta, context)` và lỗi không ném ra ngoài `emitAction`
@@ -386,7 +392,9 @@ thật); quickstart §5.
 
 - [ ] T039 [US5] `apps/api/src/controllers/operations.controller.ts` port từ `directus/api/src/controllers/operations.ts`
   theo mẫu `comments.controller.ts`; `app.module.ts` đăng ký và `useCollection('directus_operations')`; `app.test.ts`
-  thêm ca. Ghi manifest. Chạy T036, T037.
+  thêm ca. Cùng task: `tests/parity/proxy/backoffice-routes.txt` thêm `operations`; `proxy-conf.test.ts` ca
+  `/operations/<uuid>` tới app mới; `routing.spec.ts` thêm `operations`; `request-set.ts` thêm `GET /operations`
+  (admin). Ghi manifest. Chạy T036, T037.
 - [ ] T040 [P] [US5] `tests/parity/src/items/bus.test.ts` thêm event `flows.create|update|delete`,
   `operations.create|update|delete` qua cầu nối websocket (005) và kênh `flows` (FR-004).
 
@@ -412,9 +420,12 @@ giá trị `$env`, lỗi serialize giống (R7); Logs sidebar đọc được.
   `steps[].options` và `data`; lỗi bước reject (`throw-error`, `item-read` `403`, `condition`) serialize
   `{name: 'DirectusError', message}` trong revision và `{name, extensions, code, status}` trong `$all` (R7; ghi bằng
   chứng JSON của Directus vào "Ghi chú khi làm"); query của `use-revisions.ts` (`filter activity.action = run`,
-  `aggregate count`, `fields` lồng) giống nhau; `retention`: dòng `run` của app mới bị dọn theo `FLOW_LOGS_RETENTION`
-  (một ca trên cặp `retention` của 008, gọi trong `history/retention.test.ts` hoặc ghi chú bỏ qua nếu cặp không bật)
-  (US6 ca 1–4; FR-023, SC-003). Sau T041.
+  `aggregate count`, `fields` lồng) giống nhau; filter flow reject làm `POST /items/articles` lỗi → không còn dòng
+  `run`, revision của lần chạy đó ở cả hai app (rollback cùng transaction của request); log chạy app mới ghi đọc được
+  qua `/revisions` của Directus và ngược lại. Cùng task, ca bắt buộc trong `tests/parity/src/history/retention.test.ts`
+  (file của 008, cặp `retention`): chạy một flow webhook `accountability = all` ở app mới của cặp chính, đợi một kỳ
+  retention (`FLOW_LOGS_RETENTION=2s`): dòng activity `run` (và revision nối) do app mới ghi bị dọn, dòng `run` mới hơn
+  mốc còn lại (US6 ca 1–4; FR-023, FR-062, SC-003). Sau T041.
 
 **Checkpoint**: US6 xanh; Logs sidebar của app Directus qua proxy hiển thị lần chạy do app mới ghi với từng bước.
 
@@ -476,11 +487,12 @@ CI xanh mọi job.
   blackbox); `CLAUDE.md` mục 009 (kiểm lại); `specs/009-flows-automation/quickstart.md` kiểm lại lệnh và cổng.
 - [ ] T051 Coverage và chất lượng: `pnpm nx run-many -t test lint typecheck`, coverage `apps/api`, `libs/utils`,
   `libs/errors` ≥ 80% (ghi số), `pnpm audit --prod --audit-level=high` không advisory mới, `graphify update .`.
-- [ ] T052 Spec: điền bằng chứng R-22 (T036), R-23 (T023), R7 (T019, T042), micromustache R6 (T003), bus R2 (T037) vào
+- [ ] T052 Spec: điền bằng chứng R-22 (T036), R-23 (T023), R-24 (T019), R7 (T019, T042), uuid viết hoa (T019),
+  micromustache R6 (T003), bus R2 (T037) vào
   bảng rủi ro và "Ghi chú khi làm"; cập nhật `checklists/flows.md` mục liên quan (CHK046, CHK047); sửa FR nếu đo
   khác (ghi rõ, không tự lệch).
 - [ ] T053 Đóng feature (sau T046 đến T052, tech lead duyệt gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34,
-  R-22, R-23, ngoại lệ IX R7): `tests/parity/accepted-differences.ts` xóa entry `D-09.7`, `D-26`, `D-29`, sửa comment
+  R-22, R-23, R-24, vi phạm IV của plan Complexity Tracking, ghi nhận `name` R7): `tests/parity/accepted-differences.ts` xóa entry `D-09.7`, `D-26`, `D-29`, sửa comment
   `D-31`, bỏ `removeAt` của `D-33`, thêm `D-34` (kind `doc`, "No flow mail: the mail operation writes a warning line
   after the rate limiter (Principle X)"); helper `same()` bỏ bộ lọc D-09.7; `spec.md` Status `Done` + dòng "Duyệt
   khác biệt" với ngày; commit `chore(009): close feature 009-flows-automation`, push `main`, CI (gồm
@@ -498,7 +510,8 @@ CI xanh mọi job.
   T013; T015, T016 sau T014; T017 sau T011 (song song với T014). CHẶN mọi story.
 - **Phase 3 (US1)**: sau Phase 2. T019, T020, T021 song song; T022 cuối.
 - **Phase 4 (US2)**: sau Phase 2 và T007. T023, T024 song song (T023 cần cặp `flows-schedule`, chạy `sequential`).
-- **Phase 5 (US3)**: sau Phase 2 (độc lập với US1, US2). T025, T026 song song.
+- **Phase 5 (US3)**: sau Phase 2 (độc lập với US1, US2). T025, T026 song song; các ca `item-create` của T025 chỉ xanh
+  sau T029 (US4).
 - **Phase 6 (US4)**: sau US1 (dùng webhook để chạy operation). T027 trước (đỏ); T028 đến T034 song song; T035 cuối.
 - **Phase 7 (US5)**: sau US1. T036, T037, T038 song song; T039 rồi T040.
 - **Phase 8 (US6)**: sau US1 đến US5 (so log của mọi trigger và operation). T041 rồi T042.
@@ -518,7 +531,8 @@ CI xanh mọi job.
 - Phase 1: T002 đến T008 song song sau T001.
 - Phase 2: T009, T010, T011, T012, T018 song song; T017 song song với T014.
 - US1: T019 đến T021 song song.
-- US2, US3: song song với nhau và với US1 sau Phase 2.
+- US2, US3: song song với nhau và với US1 sau Phase 2 (ca `item-create` của US3 chờ T029).
+- Proxy: `flows` thêm ở T022, `operations` ở T039, không ở Phase 1 (app Directus hydrate gọi `GET /flows`).
 - US4: T028 đến T034 song song (7 task).
 - US5: T036 đến T038 song song; T040 song song với T039.
 - US7: T043, T044, T045 song song.

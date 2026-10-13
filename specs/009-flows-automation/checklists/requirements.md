@@ -37,4 +37,4 @@
 - Không còn [NEEDS CLARIFICATION]: hai điểm có thể gây hiểu sai được chốt ở Assumptions (flow theo lịch chỉ không
   chạy hai lần khi `SYNCHRONIZATION_STORE=redis`, như Directus; rate limiter email của flows giữ nguyên). Nên chạy
   `/speckit.clarify` theo SPECKIT-GUIDE (009 là feature lõi).
-- Bằng chứng R-22, R-23 và tập field serialize của lỗi (FR-023) đo ở task "T0xx" khi lập tasks.
+- Bằng chứng R-22 (T036), R-23 (T023), R-24 (T019) và tập field serialize của lỗi (FR-023; T019, T042) đo khi implement.

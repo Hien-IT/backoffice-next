@@ -85,8 +85,9 @@ lại, log/che dữ liệu/bảo mật, kiểm thử & khác biệt. Độ sâu 
 
 - [ ] CHK027 SC-003 ("100% flow của bộ seed") có định nghĩa bộ seed (mỗi trigger × mỗi operation × hai nhánh) đủ cụ thể để
   đếm được số flow, hay cần bảng liệt kê trong contracts? [Measurability, Spec §SC-003, FR-060, contracts/parity.md §2]
-- [ ] CHK028 SC-004 nêu đủ: chu kỳ (5 s), số kỳ (10), số lượt lặp (3), hai nguồn đếm (item hoặc log container, activity
-  `run`) và điều kiện "không sửa flow trong cửa sổ đo" (R-23)? [Measurability, Spec §SC-004, R-23]
+- [x] CHK028 SC-004 nêu đủ: chu kỳ (2 s, cron `*/2`), số kỳ (10, cửa sổ 20 s), số lượt lặp (3), hai nguồn đếm (log
+  container, activity `run`) và điều kiện "không sửa flow trong cửa sổ đo" (R-23)? [Measurability, Spec §SC-004, R-23]
+  — Đã xử lý: SC-004, US2, R-23, T023, contracts/parity.md thống nhất theo `/speckit.analyze` I3 (2026-10-13)
 - [ ] CHK029 SC-002 liệt kê loại response phải so (`204`, `403`, `404`, `OPTIONS`, `HEAD`) và khác biệt được loại trừ
   (chỉ D-34)? [Measurability, Spec §SC-002]
 - [ ] CHK030 SC-006 phân biệt kịch bản benchmark chặn (10%) và không chặn (`webhook-exec`) như plan R13, hay spec chỉ nói

@@ -88,7 +88,7 @@ lỗi ở cả hai app). Mọi `FlowManager` dựng lại toàn bộ cây khi nh
 Kết quả bước (`executeOperation`): resolve → `result ?? null` sau `deepMap(undefined → null)`; reject → `Error` (bỏ
 `stack`; enumerable: `name = DirectusError`, `extensions`, `code`, `status`), chuỗi JSON hợp lệ → object, chuỗi khác,
 mảng (`condition`), null. Kết quả trả về route: `$all` = toàn bộ bảng trên (không che); đường dẫn `return` = `get(
-keyedData, path)`; rỗng = undefined (`204`).
+keyedData, path)`; rỗng = undefined. Route `/flows/trigger` trả kết quả thô (không bọc `{data}`), falsy → `204`.
 
 ## 6. Log chạy
 

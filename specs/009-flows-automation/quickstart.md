@@ -47,7 +47,7 @@ curl -s -X POST http://localhost:8156/flows/trigger/<id> -H 'Content-Type: appli
 curl -s -X POST http://localhost:8155/flows/trigger/<id> -H 'Content-Type: application/json' -d '{"name":"A"}'
 ```
 
-Kỳ vọng: cả hai trả `{"data":{"hello":"A"}}`; Logs sidebar của flow trong app Directus có hai lần chạy, mỗi lần một
+Kỳ vọng: cả hai trả `{"hello":"A"}` (kết quả thô, không bọc `data`); Logs sidebar của flow trong app Directus có hai lần chạy, mỗi lần một
 bước resolve với option đã thay thế.
 
 ## 3. Kiểm tay: sửa ở app này, app kia nạp lại

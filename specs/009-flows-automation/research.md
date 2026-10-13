@@ -49,7 +49,8 @@ tính từ `directus/api/src` trừ khi ghi khác; đường dẫn app mới tí
   `operations.controller.ts` (CRUD) theo mẫu `comments.controller.ts` của 008 (`ServiceFactory`, `MetaService`,
   `runMiddleware(validateBatch(...))`, `respond`, `isBackofficeError(error, ErrorCode.Forbidden)` → `204`).
   Express 5 (path-to-regexp 8) không nhận `:pk(<regex>)` của Directus, nên handler trigger kiểm `pk` bằng
-  `UUID_REGEX` (thêm vào `apps/api/src/constants.ts` từ `constants.ts:64`) và ném `RouteNotFoundError({ path:
+  `new RegExp(`^${UUID_REGEX}$`, 'i')` (Express 4 của Directus so khớp route không phân biệt hoa thường; `UUID_REGEX`
+  thêm vào `apps/api/src/constants.ts` từ `constants.ts:64`) và ném `RouteNotFoundError({ path:
   req.path })` khi không khớp: Directus trả `404 ROUTE_NOT_FOUND` cho `/flows/trigger/<không uuid>` vì không route
   nào khớp (`GET /:pk` chỉ một segment). `useCollection('directus_flows')`, `useCollection('directus_operations')`
   trong `app.module.ts`; `router-options.ts` thêm khối Feature 009 (`/flows`, `/flows/:pk`, `/flows/trigger/:pk`

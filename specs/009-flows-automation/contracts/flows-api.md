@@ -8,7 +8,7 @@ của Directus 11.17.4. Mọi route trả `{data, meta?}` qua `respond` (respons
 
 | Route | Service | Response |
 |-------|---------|----------|
-| `GET /trigger/:pk`, `POST /trigger/:pk` | `runWebhookFlow('<METHOD>-<pk>', { path, query, body, method, headers }, { accountability, schema })` | `{data: result}`; `204` khi `result` undefined (`async`, `return` không có); `res.locals.cache = false` khi `cacheEnabled` tắt |
+| `GET /trigger/:pk`, `POST /trigger/:pk` | `runWebhookFlow('<METHOD>-<pk>', { path, query, body, method, headers }, { accountability, schema })` | `res.locals.payload = result`: body là `result` **thô** (không bọc `{data}`); `204` khi `result` falsy (`undefined` khi `async` hoặc `return` không có, `null`, `0`, `''`, `false`); `res.locals.cache = false` khi `cacheEnabled` tắt |
 | `POST /` | `createMany` (mảng) hoặc `createOne`; đọc lại `readMany`/`readOne` (`Forbidden` → `204`) | `200 {data}` |
 | `GET /`, `SEARCH /` | `validateBatch('read')`; `readByQuery` + `MetaService.getMetaForQuery` | `{data, meta}` |
 | `GET /:pk` | `readOne` | `{data}`; dòng không có → `403` |
@@ -16,8 +16,10 @@ của Directus 11.17.4. Mọi route trả `{data, meta?}` qua `respond` (respons
 | `PATCH /:pk` | `updateOne` | `{data}` |
 | `DELETE /`, `DELETE /:pk` | `deleteMany(body)`, `deleteMany(keys)`, `deleteByQuery`, `deleteOne` | `204` |
 
-`:pk` của `/trigger` phải khớp `UUID_REGEX` (`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`); không
-khớp → `404 ROUTE_NOT_FOUND` (`Route /flows/trigger/<pk> doesn't exist.`) như Directus khi không route nào khớp.
+`:pk` của `/trigger` phải khớp `UUID_REGEX` (`[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}`) **không
+phân biệt hoa thường** (route Express 4 của Directus mặc định `caseSensitive: false`); không khớp → `404
+ROUTE_NOT_FOUND` (`Route /flows/trigger/<pk> doesn't exist.`) như Directus khi không route nào khớp; uuid viết hoa khớp
+route nhưng không có handler `<METHOD>-<UUID HOA>` → `403` (đo ở `webhook.test.ts`).
 `/trigger` không kiểm quyền: public accountability (`role: null`) vẫn chạy webhook; manual kiểm ở §3.
 
 ## 2. `/operations` (`useCollection('directus_operations')`)
@@ -40,12 +42,16 @@ Cùng bảng CRUD như `/flows` (không có `/trigger`). `OperationsService` g�
 | `async` | `{ result: undefined }` ngay → `204`; flow chạy nền | |
 | Webhook `GET` với `options.cacheEnabled === false` | `cacheEnabled: false` → không cache | |
 
-Thứ tự kiểm manual đúng như trên. Lỗi ném từ `executeFlow` (đồng bộ, `error_on_reject`) đi qua error handler chung:
-`DirectusError` → status, `code`, `message` của nó; giá trị khác → `500 INTERNAL_SERVER_ERROR`.
+Thứ tự kiểm manual đúng như trên. Lỗi ném từ `executeFlow` (đồng bộ, `error_on_reject`) đi qua error handler chung
+(`middleware/error-handler.ts`, nhận cả mảng): `DirectusError` → status, `code`, `message` của nó; mảng
+`FailedValidationError` (`condition`) → `400` với một phần tử `errors[]` mỗi lỗi; mảng có status khác nhau → `500`;
+giá trị khác (chuỗi, object thường như reject của `request`) → `500 INTERNAL_SERVER_ERROR`.
 
 ## 4. `executeFlow`
 
-1. `database = context.database ?? getDatabase()`, `schema = context.schema ?? getSchema({database})`.
+1. `database = context.database ?? getDatabase()`, `schema = context.schema ?? getSchema({database})` (webhook,
+   manual có `context.schema`; schedule, filter, action không có nên gọi `getSchema`). Filter flow: `database` là
+   transaction của request, nên log chạy và ghi của `item-*` rollback cùng request khi request lỗi.
 2. `keyedData = { $trigger: data, $last: data, $accountability: context.accountability ?? null, $env }`;
    `context.flow ??= flow`.
 3. Lặp từ `flow.operation`: `executeOperation` → `keyedData[key] = data`, `$last = data`, `steps.push`.

@@ -44,7 +44,7 @@ Stack theo prompt của chủ dự án và cách feature này đáp ứng:
 | Thư viện nội bộ `@backoffice/*` | `@backoffice/types` thêm `flows.ts`, `operations.ts`; `@backoffice/utils` thêm ba hàm; `@backoffice/errors` đổi `name` (R6, R7) |
 | Env port từ `packages/env`, không đổi tên biến | Không biến mới; `FLOWS_*`, `RATE_LIMITER_EMAIL_FLOWS_*` sang nhóm A (R9) |
 | Mỗi service Directus một provider, controller mỏng | `FlowsService`, `OperationsService` qua `ServiceFactory`; `FlowManager` là singleton module như Directus (không provider, dùng trước Nest); hai controller chỉ parse, chạy middleware, gọi service hoặc `runWebhookFlow`, `respond` (R2, R3) |
-| Vitest; test đối chiếu copy từ `directus/tests/blackbox`; Compose Postgres, MySQL, SQLite, Redis | R10 đến R12, contracts/parity.md; 1 file blackbox; 19 file unit gốc; profile `flows-schedule`, `cache-mem` |
+| Vitest; test đối chiếu copy từ `directus/tests/blackbox`; Compose Postgres, MySQL, SQLite, Redis | R10 đến R12, contracts/parity.md; 1 file blackbox; 20 file unit gốc port nguyên + `mail` viết lại; profile `flows-schedule`, `cache-mem` |
 | GitHub Actions, coverage BE 80% | contracts/parity.md §4; R15 |
 
 **Language/Version**: TypeScript 5.9.3 (bộ cờ strict của `@directus/tsconfig` 4.0.0), Node.js 22 LTS, ESM, pnpm
@@ -117,7 +117,8 @@ Image build isolated-vm ở stage builder (toolchain đã có, FR-051).
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 Đối chiếu `.specify/memory/constitution.md` v1.4.0. Kết quả dưới đây là lần 2, sau research, data model và contracts
-(lần 1 trước research không có vi phạm; sau Phase 1 thêm một ngoại lệ IX ở Complexity Tracking).
+(lần 1 trước research không có vi phạm; sau Phase 1 thêm một vi phạm IV ở Complexity Tracking theo
+`/speckit.analyze` 2026-10-13, và một ghi nhận IX cần duyệt).
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`. Mọi file port ghi `// Ported from directus/...` (bảng ánh
   xạ, manifest `009-T*.json`). Chỗ khác nguồn ghi `Backoffice:`: đăng ký operation từ danh sách tĩnh, cảnh báo store
@@ -128,10 +129,12 @@ Image build isolated-vm ở stage builder (toolchain đã có, FR-051).
 - [x] **III. API giống hệt**: PASS. Route, middleware, status, mã lỗi, `204`, `403` manual, `404` uuid sai, `$all`,
   header cache, như Directus (contracts/flows-api.md). D-09.7, D-26, D-29 gỡ; D-31 thu hẹp; D-34 là hành vi Nguyên
   tắc X (không gửi email) như D-23, D-33; R-22, R-23 tái tạo, bằng chứng đo ở bộ đối chiếu.
-- [x] **IV. Chạy song song an toàn**: PASS. Bus kênh `flows` cùng namespace nên hai app nạp lại lẫn nhau; flow theo
-  lịch qua clock Redis của Directus (`SYNCHRONIZATION_STORE=redis`), đúng câu "lock trên Redis" của nguyên tắc với
-  cơ chế duy nhất Directus có; store `memory` là mặc định Directus (ngoại lệ 007, 008; nay có cảnh báo); flow theo
-  sự kiện chạy ở instance nhận request; không state quan trọng trong process (cây flow dựng lại từ DB ở mỗi nạp).
+- [x] **IV. Chạy song song an toàn**: VI PHẠM CÓ LÝ DO (Complexity Tracking, chờ tech lead duyệt). Bus kênh `flows`
+  cùng namespace nên hai app nạp lại lẫn nhau; flow theo sự kiện chạy ở instance nhận request; không state quan trọng
+  trong process (cây flow dựng lại từ DB ở mỗi nạp). Câu "Flow theo lịch PHẢI dùng lock trên Redis, mỗi lượt chỉ một
+  instance chạy" chỉ đạt khi mọi instance của hai app đặt `SYNCHRONIZATION_STORE=redis` (clock Redis, cơ chế duy nhất
+  Directus có); với mặc định `memory` mỗi instance chạy mỗi kỳ (app mới ghi cảnh báo, FR-011). Ngoại lệ clock `memory`
+  của 007 chỉ ghi nhận cho job dọn TUS (idempotent), không áp cho flow.
 - [x] **V. Kiểm thử đối chiếu**: PASS. `crud`, `webhook`, `manual`, `event`, `operations`, `logs`, `reload`,
   `schedule`, `e2e-app`; blackbox `webhook.test.ts` hai lượt; Postgres đủ bộ mỗi lần push, MySQL, SQLite rút gọn, còn
   lại nightly (FR-061).
@@ -142,14 +145,15 @@ Image build isolated-vm ở stage builder (toolchain đã có, FR-051).
   (đúng câu cache trong process của 1.2.0); clock qua Redis khi bật; `unload` khi SIGTERM; khởi động chỉ đọc.
 - [x] **VIII. Biến môi trường**: PASS. Không biến mới; 6 biến sang nhóm A (R9); `$env` từ `FLOWS_ENV_ALLOW_LIST`
   dùng chung.
-- [x] **IX. Đổi thương hiệu**: PASS với một ngoại lệ ghi ở Complexity Tracking: `name` của lỗi trở lại
-  `DirectusError` vì lọt vào `$all`, `directus_revisions.data` và script `exec` (định danh ảnh hưởng tương thích, R7).
+- [x] **IX. Đổi thương hiệu**: PASS. `name` của lỗi trở lại `DirectusError` vì lọt vào `$all`,
+  `directus_revisions.data` và script `exec`: là giữ định danh ảnh hưởng tương thích đúng như IX yêu cầu (R7), đảo lại
+  một đổi tên của 001 nên ghi nhận ở Complexity Tracking để tech lead duyệt.
   Giữ kênh `flows`, key clock, id operation, thông điệp cảnh báo (tên kỹ thuật dùng chung). Hai dòng log mới ghi
   "Backoffice:".
 - [x] **X. Chất lượng và vận hành**: PASS. Coverage 80%. Benchmark hằng tuần (ngoại lệ 003). Playwright là cổng chặn.
   Không gửi email: `mail` chạy đúng luồng tới bước gửi, trả như Directus, ghi log (D-34). Gỡ D-09.7, D-26, D-29, thu
-  hẹp D-31, D-33 lâu dài, D-34, R-22, R-23, R7 cần tech lead duyệt trước khi đóng feature; bảng của spec 001, 003, 004,
-  008 sửa theo.
+  hẹp D-31, D-33 lâu dài, D-34, R-22, R-23, R-24, R7, vi phạm IV cần tech lead duyệt trước khi đóng feature; bảng của
+  spec 001, 003, 004, 008 sửa theo.
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (operation tùy chỉnh không có; type lạ xử lý như Directus khi
   extension vắng); không email; không GraphQL (011), không WebSocket; AI tools của flows không port.
 
@@ -269,12 +273,19 @@ backoffice-next/
 
 | Vi phạm | Vì sao cần | Phương án đơn giản hơn bị loại vì |
 |---------|------------|-----------------------------------|
-| IX: `name` của lỗi do `createError` tạo trở lại `DirectusError` (001 đã đổi thành `BackofficeError`) | `name` là field enumerable, lọt vào `$all` trả cho client, `directus_revisions.data` của flow log (DB dùng chung, Logs sidebar của app Directus hiển thị) và `$last` đưa vào `condition`, `exec` (script người dùng); Nguyên tắc II, III, IX ("giữ nguyên khi ảnh hưởng tương thích") | Đổi tên chỉ khi serialize trong `flows.ts`: ba đường khác nhau (`res.json`, `redactObject`, `sieveFunctions`) và script vẫn thấy tên khác; ghi khác biệt D-35: dữ liệu DB khác Directus vi phạm II |
+| IV: "Flow theo lịch PHẢI dùng lock trên Redis, mỗi lượt chỉ một instance chạy" chỉ đạt khi mọi instance của hai app đặt `SYNCHRONIZATION_STORE=redis` và cùng `SYNCHRONIZATION_NAMESPACE`; với mặc định `memory` mỗi instance (Directus hoặc app mới) chạy mỗi kỳ | Directus 11.17.4 chỉ có `SynchronizedClock` cho job theo lịch (không khóa riêng cho flow); app mới dùng đúng clock đó nên khi bật `redis` hai app chia kỳ (SC-004); app mới ghi cảnh báo khi store không phải `redis` (FR-011, Clarifications); vận hành bật `SYNCHRONIZATION_STORE=redis` trong `.env` dùng chung là đủ | (1) Khóa Redis riêng của app mới mỗi kỳ: chỉ app mới biết khóa, instance Directus vẫn chạy, không đạt "một instance"; (2) app mới bỏ chạy flow theo lịch khi store `memory`: khác Directus khi chỉ chạy app mới (flow không bao giờ chạy); (3) app mới tự dùng Redis cho clock khi store `memory`: đổi nghĩa biến (VIII) và vẫn không đồng bộ với Directus |
+
+Ghi nhận cần duyệt (không phải vi phạm): `name` của lỗi do `createError` tạo trở lại `DirectusError` (001 đã đổi thành
+`BackofficeError`). Lý do: `name` là field enumerable, lọt vào `$all` trả cho client, `directus_revisions.data` của log
+chạy (DB dùng chung, Logs sidebar của app Directus hiển thị) và `$last` đưa vào `condition`, `exec`; Nguyên tắc II, III,
+IX ("giữ nguyên khi ảnh hưởng tương thích"). Phương án bị loại: đổi tên chỉ khi serialize trong `flows.ts` (ba đường
+`res.json`, `redactObject`, `sieveFunctions`, script vẫn thấy tên khác); ghi khác biệt D-35 (dữ liệu DB khác Directus vi
+phạm II).
 
 Ngoại lệ đã duyệt của 001 đến 008 vẫn áp dụng: benchmark hằng tuần thay vì chặn CI (003); store `memory` với cảnh báo
-một instance (001); clock `SYNCHRONIZATION_STORE=memory` mặc định làm mỗi instance tự chạy job đồng bộ (007, 008; flows
-thêm một dòng cảnh báo, Clarifications). Gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34, R-22, R-23 và ngoại
-lệ IX cần tech lead duyệt trước khi đóng feature (Nguyên tắc X).
+một instance (001); clock `SYNCHRONIZATION_STORE=memory` của job dọn TUS (007, idempotent; không áp cho flow, xem dòng
+IV ở trên). Gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34, R-22, R-23, R-24, vi phạm IV và ghi nhận `name`
+cần tech lead duyệt trước khi đóng feature (Nguyên tắc X).
 
 Rủi ro đã biết, theo dõi trong tasks:
 
@@ -289,4 +300,5 @@ Rủi ro đã biết, theo dõi trong tasks:
 | Response cache dùng chung Redis của cặp chính làm `GET /flows/trigger` ở app B trả kết quả cache của app A | `reload.test.ts` sai | Bộ đối chiếu gửi `Cache-Control: no-store` (005); blackbox `webhook.test.ts` trên cặp `cache-mem` (memory, không chia sẻ) |
 | `PATCH /flows/:pk` lồng `operations` của `flow.vue` đi qua `PayloadService` o2m với `resolve`/`reject` unique | Lỗi unique khác thứ tự giữa hai app | `crud.test.ts` ca `saveChanges` đúng chuỗi của app (`PATCH /operations` mảng gỡ liên kết trước) |
 | Guard `accepted-differences` đỏ khi xóa D-09.7, D-26, D-29 trước khi spec `Done`; cột "Gỡ khi" của D-34 phải là `—` | CI đỏ | Xóa entry trong commit đóng feature (tiền lệ 007, 008); spec 009 đã ghi `—` |
-| Express 5 và route `trigger/:pk` cho `pk` không uuid | `404` khác body | Supertest so body `ROUTE_NOT_FOUND` với Directus (`crud.test.ts`) |
+| Express 5 và route `trigger/:pk` cho `pk` không uuid hoặc uuid viết hoa | `404` khác body; uuid hoa `404` thay vì `403` | Kiểm `UUID_REGEX` với cờ `i` trong handler; supertest và `webhook.test.ts` so body với Directus |
+| Thêm `flows` vào proxy trước khi có controller: app Directus gọi `GET /flows` trong `Promise.all` lúc hydrate (`app/src/hydrate.ts:75`), `404` làm app qua proxy hỏng | `e2e-directus-app` đỏ giữa các phase | Thêm route vào proxy cùng task đăng ký controller (T022 `flows`, T039 `operations`) |
