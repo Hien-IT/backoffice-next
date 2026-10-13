@@ -109,4 +109,29 @@ describe('the retention job (US5)', () => {
 		for (const [tick, clients] of setters) expect([...clients], `tick ${tick}`).toHaveLength(1);
 		expect(await left(ids)).toEqual({ activity: 0, revisions: 0 });
 	}, 180_000);
+
+	// Feature 009 (spec US6 ca 4, FR-023): the run log of a flow of the new app goes with FLOW_LOGS_RETENTION (2 s).
+	it('the run log of a flow written by the new app is gone after FLOW_LOGS_RETENTION', async () => {
+		const { seedFlow, cleanupFlows } = await import('../flows/helpers.js');
+		const { id } = await seedFlow({ trigger: 'webhook', options: { method: 'POST' } });
+
+		try {
+			const res = await fetch(new URL(`/flows/trigger/${id}`, process.env['BACKOFFICE_URL']), { method: 'POST' });
+			expect(res.status).toBe(200);
+
+			const run = (await hostDb()('directus_activity').where({ action: 'run', item: id }).select('id')).map((r) =>
+				Number(r['id']),
+			);
+
+			const revisions = (await hostDb()('directus_revisions').whereIn('activity', run).select('id')).map((r) =>
+				Number(r['id']),
+			);
+
+			expect(run).toHaveLength(1);
+			lockSetters((2 * TICK) / 1000 + 3);
+			expect(await left({ activity: run, revisions })).toEqual({ activity: 0, revisions: 0 });
+		} finally {
+			await cleanupFlows([id]);
+		}
+	}, 120_000);
 });

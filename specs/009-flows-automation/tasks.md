@@ -411,10 +411,10 @@ giá trị `$env`, lỗi serialize giống (R7); Logs sidebar đọc được.
 
 **Independent Test**: `logs.test.ts` xanh; Logs sidebar trong E2E (T046).
 
-- [ ] T041 [P] [US6] `tests/parity/env/postgres.env`, `mysql.env`, `sqlite3.env` (và các vendor nightly) thêm
+- [X] T041 [P] [US6] `tests/parity/env/postgres.env`, `mysql.env`, `sqlite3.env` (và các vendor nightly) thêm
   `FLOWS_ENV_ALLOW_LIST=PARITY_FLOWS_ENV_TEST` và `PARITY_FLOWS_ENV_TEST=parity-env-secret` (cả hai app cùng giá trị;
   chú thích test values only); `tests/parity/src/vendors.test.ts` ca: mọi vendor env có hai dòng (FR-023 redaction).
-- [ ] T042 [US6] `tests/parity/src/flows/logs.test.ts` (`reduced`, `full`): với webhook (public và admin: `user`,
+- [X] T042 [US6] `tests/parity/src/flows/logs.test.ts` (`reduced`, `full`): với webhook (public và admin: `user`,
   `ip`, `user_agent`, `origin`; `User-Agent`, `Origin` cố định), manual, event filter và action, flow `operation`
   (log theo id flow đích), `accountability` `all`/`activity`/null: so dòng activity và revision qua `flowEffects` +
   `comparable`; redaction: `headers.authorization`, `headers.cookie`, `query.access_token`, `payload.password` →
@@ -654,3 +654,9 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   nối subscribe của nó, CHK046). R-22 đo trên Directus thật: user có update nhưng không delete trên `directus_flows`
   gọi `DELETE /flows/:id` → `403` ở cả hai app và `resolve` của operation đầu đã thành `null`. `/items/directus_*` bị
   từ chối `403` ở cả hai app (spec FR-003 sửa theo).
+- US6 (T041–T042, 2026-10-14, Postgres cục bộ): `logs.test.ts` 6/6 và ca mới của `history/retention.test.ts` (dòng
+  `run` của app mới bị dọn theo `FLOW_LOGS_RETENTION=2s`). Đo trên Directus thật: dòng activity `run` và revision
+  trùng từng cột sau chuẩn hóa; `authorization`, `cookie`, `payload.password`, `payload.token` thành `--redacted--`;
+  giá trị của biến trong `FLOWS_ENV_ALLOW_LIST` nằm trong chuỗi thành `--redacted:PARITY_FLOWS_ENV_TEST--`; lỗi của bước
+  reject trong revision là `{"name":"DirectusError","message":"teapot"}` ở cả hai app (R7 khớp, `stack` đã bị xóa);
+  flow đích của operation `trigger` ghi log dưới id của chính nó, trước flow gọi nó (CHK049).

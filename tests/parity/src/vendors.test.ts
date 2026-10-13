@@ -132,6 +132,13 @@ test.each(allVendors)('%s env: local then s3 storage locations', (vendor) => {
 	expect(env).toMatch(/^STORAGE_S3_DRIVER=s3$/m);
 });
 
+// Feature 009 (T041): the main pair exposes one test variable to flows ($env), so logs.test.ts sees its value redacted.
+test.each(allVendors)('%s env: the flows $env test variable', (vendor) => {
+	const env = readFileSync(new URL(`../env/${vendor}.env`, import.meta.url), 'utf8');
+	expect(env).toMatch(/^FLOWS_ENV_ALLOW_LIST=PARITY_FLOWS_ENV_TEST$/m);
+	expect(env).toMatch(/^PARITY_FLOWS_ENV_TEST=parity-env-secret$/m);
+});
+
 test('every app container mounts the shared uploads volume and waits for files-fixtures', () => {
 	const services = compose
 		.split(/\n(?= {2}\S)/)
