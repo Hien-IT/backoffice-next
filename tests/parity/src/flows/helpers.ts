@@ -3,7 +3,7 @@
 // sent to both apps and the responses and the run logs each app wrote are compared.
 import { randomUUID } from 'node:crypto';
 import { acceptedDifferences } from '../../accepted-differences.js';
-import { type AppName, appRequest } from '../directus-api.js';
+import { type AppName, appRequest, appUrl } from '../directus-api.js';
 import { comparable as historyComparable, type HistoryRows, historyEffects } from '../history/history-effects.js';
 import { assertParity, type ParityOptions, type ParityRequest, parity } from '../parity.js';
 
@@ -100,6 +100,34 @@ export async function seedFlow(def: FlowDef, via: AppName = 'directus', baseUrl?
 
 	await sleep(RELOAD_WAIT);
 	return { id, ids };
+}
+
+/**
+ * Waits until both apps have run every reload queued so far: a webhook probe seeded last answers at both. Event flows
+ * need it, an event fired while a reload is between unload and load is missed (each write queues one reload). Returns
+ * the probe id, to clean up with the other flows.
+ */
+export async function settled(): Promise<string> {
+	const { id } = await seedFlow({
+		trigger: 'webhook',
+		options: { method: 'POST' },
+		operations: [{ key: 'probe', type: 'transform', options: { json: { probe: true } } }],
+	});
+
+	for (const app of ['directus', 'backoffice'] as const) {
+		const answered = await until(async () => {
+			const res = await fetch(new URL(`/flows/trigger/${id}`, appUrl(app)), {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: '{}',
+			});
+			return res.status === 200 && (await res.text()) === '{"probe":true}';
+		}, 15_000);
+
+		if (!answered) throw new Error(`${app} did not reload the flows within 15 s`);
+	}
+
+	return id;
 }
 
 /** Deletes the flows (their operations go with them) through `via`, then waits for both apps to reload. */

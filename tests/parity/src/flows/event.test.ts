@@ -7,7 +7,7 @@ import { assertSameTranscripts, type ScenarioContext, scenario } from '../auth/s
 import { appRequest } from '../directus-api.js';
 import { call, snap } from '../files/helpers.js';
 import { cleanup, createUser, createUserCollection, uniqueName } from '../permissions/fixtures.js';
-import { cleanupFlows, runRows, seedFlow, until } from './helpers.js';
+import { cleanupFlows, runRows, seedFlow, settled, until } from './helpers.js';
 
 const seeded: string[] = [];
 const collections: Record<'blocked' | 'changed' | 'rollback' | 'action' | 'log', string> = {} as any;
@@ -135,6 +135,8 @@ beforeAll(async () => {
 			},
 		],
 	});
+
+	seeded.push(await settled());
 }, 120_000);
 
 afterAll(async () => {
