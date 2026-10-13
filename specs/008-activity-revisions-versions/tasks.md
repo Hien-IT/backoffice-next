@@ -525,7 +525,16 @@ Task: "router-options.ts mẫu mới (T015)"
   Directus, docker, publish).
 - T042 (CI): lượt chạy tay `benchmark.yml` 38383218274 ngày 2026-10-13: `benchmark-history` và `benchmark-files` hỏng ở
   bước `benchmark:env-up` (container Directus thoát mã 1, log container không được lưu); các job còn lại qua bước đó.
-  Đã chạy lại riêng các job hỏng; số đo CI của `benchmark-history` ghi sau khi có.
+  Chạy lại riêng các job hỏng: `benchmark-history` lần 2 xanh, 6/6 kịch bản trong ngưỡng 10% (job 16 phút, seed 4 s):
+
+  | Kịch bản | p95 Directus (ms) | p95 app mới (ms) | req/s Directus | req/s app mới |
+  |----------|-------------------|------------------|----------------|---------------|
+  | `revisions-sidebar` (50 kết nối) | 361 | 355 | 165 | 168 |
+  | `revisions-count` | 314 | 329 | 224 | 222 |
+  | `activity-list` admin | 270 | 250 | 218 | 228 |
+  | `activity-list` user | 286 | 277 | 212 | 227 |
+  | `version-save` (10 kết nối) | 92 | 88 | 126 | 134 |
+  | `item-version-read` | 296 | 308 | 218 | 228 |
 - T046 (2026-10-13): owner duyệt gỡ D-09.6, thu hẹp D-31, D-33, R-20, R-21. `accepted-differences.ts` xóa D-09.6, thêm
   D-33 (`doc`, gỡ ở 010); bảng khác biệt mới của spec theo khuôn `| Mã | ... | Gỡ khi |` để guard đọc được; helper
   `same()` bỏ bộ lọc D-09.6; spec Status `Done`.
