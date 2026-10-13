@@ -641,3 +641,9 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   mock DB của `error-handler.test.ts`); ca `auth.login` trong `event.test.ts`. `get-cache-key.ts` import `flows.js`
   động (chỉ khi path là `/flows/trigger/...`) để middleware cache không kéo cả bộ máy flow vào (khác nguồn, ghi
   `Backoffice:`). Event `extensions.*` và `email.send` không phát: D-35 mới (spec).
+- CI của `f2abeab` (2026-10-14): (1) gitleaks báo 3 khóa giả trong `redact-object.test.ts` (test gốc Directus):
+  thêm file vào allowlist `.gitleaks.toml` như `get-cache-key.test.ts`. (2) `redis-down.test.ts` "starts and answers
+  pong while Redis is down" (FR-025 của 001) đỏ: app mới thoát mã 1 khi `REDIS` không truy cập được vì
+  `FlowManager.initialize()` dựng schema qua khóa Redis lúc khởi động. Đo Directus 11.17.4 `node cli.js start` cùng
+  điều kiện: cũng thoát mã 1 (`MaxRetriesPerRequestError`). Chủ dự án chọn giống Directus (Clarifications 2026-10-14):
+  FR-025 của spec 001 và ca test sửa thành kỳ vọng thoát mã 1.

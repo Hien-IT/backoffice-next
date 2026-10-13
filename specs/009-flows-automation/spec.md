@@ -85,6 +85,12 @@ trigger event, manual, operation.
   cảnh báo "single instance" của 001, hay không cảnh báo? → A: Một dòng `warn` lúc nạp flow, chỉ khi có ít nhất một
   flow theo lịch và store không phải `redis` (FR-011, D-18); không đụng `getSingleInstanceReasons` của 001.
 
+
+### Session 2026-10-14
+
+- Q: Khi `REDIS` cấu hình nhưng không truy cập được lúc khởi động, Directus 11.17.4 thoát mã 1 (nạp flows dựng schema
+  qua khóa Redis); app mới có thoát giống vậy (đổi FR-025 của 001) hay vẫn khởi động mà không có flow? → A: Giống
+  Directus: thoát mã 1; FR-025 của spec 001 và `redis-down.test.ts` sửa theo (đo 2026-10-14).
 ## User Scenarios & Testing *(mandatory)*
 
 Người dùng của feature này là admin dựng flow trong app Directus (Settings → Flows, trình chỉnh sửa kéo thả, Logs

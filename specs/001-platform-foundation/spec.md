@@ -411,7 +411,11 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   UPDATE, DELETE hay DDL). Đây là cách chứng minh FR-022 ở tầng DB, kiểm bằng một role chỉ có SELECT
   trên Postgres ở bộ `full`.
 - **FR-025**: Khởi động KHÔNG kiểm tra Redis và KHÔNG dừng khi Redis không truy cập được, giống Directus
-  (client Redis tự thử kết nối lại). Lỗi Redis hiện qua: `/server/health` (khi `CACHE_ENABLED` và
+  (client Redis tự thử kết nối lại). Sửa ở feature 009 (chủ dự án chọn "giống Directus" ngày 2026-10-14): từ khi có
+  flows, lúc khởi động app nạp flow và dựng schema qua khóa Redis như Directus, nên khi `REDIS` được cấu hình mà không
+  truy cập được, process thoát mã 1 (`MaxRetriesPerRequestError` sau 20 lượt thử của ioredis), giống Directus 11.17.4
+  (đo `node cli.js start` ngày 2026-10-14); `redis-down.test.ts` kiểm hành vi này. Phần còn lại của mục này áp dụng khi
+  Redis mất sau khi app đã chạy. Lỗi Redis hiện qua: `/server/health` (khi `CACHE_ENABLED` và
   `CACHE_STORE=redis`, request health không trả lời trong 60 giây vì client Redis giữ lệnh trong hàng đợi chờ
   kết nối lại; Directus 11.17.4 cũng vậy, đã đo, test `server/health.test.ts`), metric
   `<prefix>redis_connection_errors`, và log `warn` có tiền tố `[cache]` khi `CACHE_ENABLED=true` (các dòng `[system-cache]`,

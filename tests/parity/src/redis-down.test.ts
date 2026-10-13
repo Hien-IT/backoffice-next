@@ -44,10 +44,16 @@ describe('startup with Redis down (FR-025)', () => {
 		await new Promise((resolve) => setTimeout(resolve, 5000));
 	}, 30_000);
 
-	test('starts and answers pong while Redis is down', async () => {
-		expect(await waitForPing(api, port), api.output()).toBe(true);
-		expect(api.text()).toContain('Server started at');
-	});
+	// Feature 009: like Directus 11.17.4 (measured 2026-10-14 with `node cli.js start`, spec 001 FR-025), the process
+	// exits once the Redis client gives up a command of the startup (the flows are loaded with the schema, whose lock is
+	// in Redis): ioredis MaxRetriesPerRequestError after 20 attempts, exit code 1, never "Server started".
+	test('exits with code 1 like Directus while Redis is down', async () => {
+		expect(await waitForPing(api, port, 60_000), api.output()).toBe(false);
+		const { code } = await api.exited;
+		expect(code, api.output()).toBe(1);
+		expect(api.output()).toContain('MaxRetriesPerRequestError');
+		expect(api.text()).not.toContain('Server started at');
+	}, 90_000);
 });
 
 describe('FR-085: permissions with Redis down', () => {

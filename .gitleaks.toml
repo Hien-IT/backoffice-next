@@ -13,6 +13,8 @@ paths = [
   # (object-hash values) that the ported get-cache-key test expects.
   '''^tests/parity/src/items/blackbox/''',
   '''^apps/api/src/utils/get-cache-key\.test\.ts$''',
+  # Feature 009: the fake keys of the ported redact-object test (the values it checks are redacted).
+  '''^apps/api/src/utils/redact-object\.test\.ts$''',
   '''(^|/)node_modules/''',
   '''(^|/)(dist|coverage|graphify-out)/''',
 ]
