@@ -319,17 +319,17 @@ thể chạy sớm để kiểm.
 
 **Independent Test**: CI `parity`, `parity-blackbox`, E2E xanh trên push.
 
-- [ ] T036 [US6] Blackbox: copy nguyên `directus/tests/blackbox/tests/db/routes/items/version.test.ts` vào
+- [X] T036 [US6] Blackbox: copy nguyên `directus/tests/blackbox/tests/db/routes/items/version.test.ts` vào
   `tests/parity/src/items/blackbox/tests/db/routes/items/`; chạy `parity-blackbox --vendor=postgres` hai lượt
   (`PARITY_BLACKBOX_APPS=directus,backoffice`), rồi MySQL, SQLite; ca "version deadlocking" phải xong trong timeout của
   file; ca fail trên chính Directus ghi chú theo Assumptions. Ghi manifest (FR-061, SC-001).
-- [ ] T037 [P] [US6] `tests/parity/src/history/e2e-app.test.ts` phần Comments, Version, Activity (`full`): chuỗi request
+- [X] T037 [P] [US6] `tests/parity/src/history/e2e-app.test.ts` phần Comments, Version, Activity (`full`): chuỗi request
   của `comments-sidebar-detail.vue`, `comment-input.vue`, `use-versions.ts`, `version-menu.vue`, `comparison-modal.vue`
   chế độ version (`compare`, `promote` có `fields`), `modules/activity/routes/item.vue`; so response ở hai app.
-- [ ] T038 [P] [US6] `tests/parity/src/history/cross-use.test.ts` hoàn thiện (`full`): activity, revision của mọi
+- [X] T038 [P] [US6] `tests/parity/src/history/cross-use.test.ts` hoàn thiện (`full`): activity, revision của mọi
   collection hệ thống đã có route ghi ở A đọc ở B; version tạo+save ở A, compare+promote ở B và ngược lại với mọi kiểu
   field; retention bật ở cặp `retention` dọn dòng do app kia ghi (FR-062).
-- [ ] T039 [P] [US6] `tests/directus-app-e2e/src/history.spec.ts` (Playwright, Chrome cài sẵn như 007): bốn kịch bản
+- [X] T039 [P] [US6] `tests/directus-app-e2e/src/history.spec.ts` (Playwright, Chrome cài sẵn như 007): bốn kịch bản
   của contracts/parity.md §5 (Revisions xem, so sánh, Revert, Save; Comments viết có mention, sửa, xóa, bộ đếm, chuông
   của user được nhắc; Version tạo, save, xem bản nháp, so sánh, promote chọn field, đổi tên, xóa; Activity danh sách,
   chi tiết IP, user agent); helper tạo collection versioning + accountability `all` theo `data-model.spec.ts`
@@ -490,3 +490,12 @@ Task: "router-options.ts mẫu mới (T015)"
   cả hai app cũ hơn mốc bị dọn sau một kỳ; cả hai chạy 10 kỳ, mỗi kỳ đúng một tiến trình đặt khóa (SC-005). Ca
   `ACTIVITY_RETENTION < REVISIONS_RETENTION` chỉ kiểm ở unit test T014 (env của cặp cố định 2 s, 1 s). Ca khởi động:
   biến retention và lịch không hợp lệ không cảnh báo, app vẫn chạy.
+- US6 (T036–T039): blackbox `version.test.ts` đạt ở cả hai lượt (20/20 kèm seed); "version deadlocking" xong trong
+  khoảng 0,25 s (timeout của Directus cho file là 15 s, bản port 60 s). Seed `version.seed.ts` (copy nguyên) tạo sáu
+  field bằng `Promise.all` qua Directus và thỉnh thoảng hụt một field (họ R-19): `00-seed.test.ts` kiểm và tạo lại field
+  thiếu từng cái một. `e2e-app.test.ts` 5/5 (revisions, comments, version, activity). `cross-use.test.ts` thêm ca
+  collection hệ thống; phần còn lại của T038 nằm ở `versions.test.ts` (promote chéo, 14 kiểu field) và
+  `retention.test.ts` (dọn dòng của app kia). Playwright `history.spec.ts`: revert từ sidebar Revisions, comment, tạo,
+  lưu, đổi tên, promote (Keep), xóa version, module Activity; dòng DB của lượt qua proxy trùng lượt chỉ Directus sau khi
+  chuẩn hóa id item, `hash`, `_date` (khác theo item của mỗi lượt). Chạy cục bộ bằng Chrome cài sẵn (config tạm
+  `channel: 'chrome'`, không commit).

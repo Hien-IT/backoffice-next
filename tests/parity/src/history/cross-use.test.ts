@@ -8,7 +8,7 @@ import { urls } from '../auth/fixtures.js';
 import { assertSameTranscripts, scenario, type ScenarioContext } from '../auth/scenario.js';
 import { type AppName, appRequest } from '../directus-api.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
-import { admin, BROWSER, call, historyCollection, snap, step } from './helpers.js';
+import { admin, BROWSER, call, historyCollection, same, snap, step } from './helpers.js';
 
 const run = Math.random().toString(16).slice(2, 10);
 const POSTS = `parity_cross_posts_${run}`;
@@ -146,4 +146,23 @@ describe('comments and notifications across apps (US4, spec FR-062)', () => {
 			},
 		]);
 	});
+});
+
+describe('system collections across apps (spec FR-062)', () => {
+	it.each(['directus', 'backoffice'] as const)(
+		'a user changed at %s: its activity and revisions read the same at both apps',
+		async (writer) => {
+			const user = await createUser('directus', `cross-${writer}`);
+			await appRequest(writer, 'PATCH', `/users/${user.id}`, { first_name: 'Changed', last_name: writer });
+
+			const filter = json({ _and: [{ collection: { _eq: 'directus_users' } }, { item: { _eq: user.id } }] });
+			const fields = 'id,data,delta,activity.action,activity.user_agent,activity.collection,activity.item';
+
+			await same({ path: `/revisions?filter=${filter}&sort=id&fields=${fields}`, headers: await admin() });
+			await same({
+				path: `/activity?filter=${filter}&sort=id&fields=action,collection,item,revisions.id`,
+				headers: await admin(),
+			});
+		},
+	);
 });

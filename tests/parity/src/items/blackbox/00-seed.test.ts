@@ -5,7 +5,7 @@
 import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { getSetupUrl } from './common/config';
-import { CreatePolicy, CreateRole, CreateUser } from './common/functions';
+import { CreateField, CreatePolicy, CreateRole, CreateUser } from './common/functions';
 import vendors from './common/get-dbs-to-test';
 import { ROLE, TEST_USERS, USER } from './common/variables';
 // Feature 006: the seeds of the data model files (they delete their own collections first, so a rerun starts clean).
@@ -157,4 +157,27 @@ describe('Seed database structure', () => {
 			if ('seedDBStructure' in seed) seed.seedDBStructure();
 		});
 	}
+
+	// Feature 008: version.seed.ts creates its six plain fields at once (Promise.all). With several instances on the bus,
+	// one creation now and then meets a schema built before its collection existed (R-19 of spec 007) and the field is
+	// missing, which fails both runs of version.test.ts. Create any missing one again, one at a time.
+	describe('Checking the fields of "version.seed.ts"', () => {
+		it.each(vendors)('%s', async (vendor) => {
+			const api = await adminRequest();
+			const { c } = version;
+
+			for (const [collection, field, type] of [
+				[c.articles, 'title', 'string'],
+				[c.users, 'name', 'string'],
+				[c.links, 'link', 'string'],
+				[c.tags, 'tag', 'string'],
+				[c.sec_num, 'num', 'integer'],
+				[c.sec_text, 'text', 'string'],
+			] as const) {
+				if ((await api('get', `/fields/${collection}/${field}`)).status === 200) continue;
+				await CreateField(vendor, { collection, field, type });
+				expect((await api('get', `/fields/${collection}/${field}`)).status).toBe(200);
+			}
+		});
+	});
 });
