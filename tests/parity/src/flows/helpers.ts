@@ -2,19 +2,15 @@
 // through the API of one app (both apps of the main pair share the bus, so both reload it); the same trigger is then
 // sent to both apps and the responses and the run logs each app wrote are compared.
 import { randomUUID } from 'node:crypto';
-import { acceptedDifferences } from '../../accepted-differences.js';
 import { type AppName, appRequest, appUrl } from '../directus-api.js';
 import { comparable as historyComparable, type HistoryRows, historyEffects } from '../history/history-effects.js';
 import { assertParity, type ParityOptions, type ParityRequest, parity } from '../parity.js';
 
 export { BROWSER } from '../history/helpers.js';
 
-/** D-09.7 hides every difference of /flows and /operations while the feature is open (precedent: D-09.6 in 008). */
-export const withoutD097 = acceptedDifferences.filter((d) => !(d.feature === '001' && d.id === 'D-09.7'));
-
-/** parity() without D-09.7, failing on any difference that is not accepted. */
+/** parity(), failing on any difference that is not accepted. */
 export async function same(req: ParityRequest, options: ParityOptions = {}) {
-	const result = await parity(req, { accepted: withoutD097, ...options });
+	const result = await parity(req, options);
 	assertParity(result);
 	return result;
 }

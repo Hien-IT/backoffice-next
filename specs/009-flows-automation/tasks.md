@@ -458,7 +458,7 @@ CI xanh mọi job.
   xóa flow; bảng so `directus_flows`, `directus_operations`, `directus_activity` (`run`), `directus_revisions` sau
   chuẩn hóa id, thời điểm, `steps[].operation`; chạy cục bộ bằng Chrome cài sẵn (config tạm `channel: 'chrome'`, không
   commit) (FR-063, contracts/parity.md §5).
-- [ ] T046 [US7] CI: `.github/workflows/ci.yml` `docker` thêm bước `docker run --rm <image> node -e
+- [X] T046 [US7] CI: `.github/workflows/ci.yml` `docker` thêm bước `docker run --rm <image> node -e
   "require('isolated-vm')"`; kiểm `suite.ts` đã gồm `flows` (`reduced`, `full`), blackbox qua glob, `flows.spec.ts`
   qua `testDir`, `flows-schedule` không trong `--profiles`, `cache-mem` có trong blackbox (T007); push, theo dõi
   `gh run list --branch main`, sửa job đỏ; ghi thời gian job `quality` (build isolated-vm) và `parity-blackbox` vào
@@ -493,7 +493,7 @@ CI xanh mọi job.
   micromustache R6 (T003), bus R2 (T037) vào
   bảng rủi ro và "Ghi chú khi làm"; cập nhật `checklists/flows.md` mục liên quan (CHK046, CHK047); sửa FR nếu đo
   khác (ghi rõ, không tự lệch).
-- [ ] T053 Đóng feature (sau T046 đến T052, tech lead duyệt gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34,
+- [X] T053 Đóng feature (sau T046 đến T052, tech lead duyệt gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34,
   R-22, R-23, R-24, vi phạm IV của plan Complexity Tracking, ghi nhận `name` R7): `tests/parity/accepted-differences.ts` xóa entry `D-09.7`, `D-26`, `D-29`, sửa comment
   `D-31`, bỏ `removeAt` của `D-33`, thêm `D-35` (kind `doc`, "No extensions.* or email.send events: no extension manager and no mail service (Principle XI)") và `D-34` (kind `doc`, "No flow mail: the mail operation writes a warning line
   after the rate limiter (Principle X)"); helper `same()` bỏ bộ lọc D-09.7; `spec.md` Status `Done` + dòng "Duyệt
@@ -675,6 +675,15 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   84.96%), `libs/utils` 95.46%, `libs/errors` 99.73%; `pnpm audit --prod --audit-level=high` không advisory mới (25 high,
   1 critical đều trong danh sách bỏ qua có sẵn); `graphify update .` chạy lại. T049: 18 manifest `009-T*.json`,
   `check-port-headers` 1161 file 0 lỗi; danh sách `Backoffice:` của plan (Constitution Check I) bổ sung các chỗ gặp khi làm.
+- CI của `356b7c7` (2026-10-14): MySQL xanh sau `settled()`; `docker` xanh với bước `require('isolated-vm')`. Đỏ:
+  (1) `e2e-directus-app` `flows.spec.ts` kẹt 300 s ở nút "Show N more" của danh sách Collections, nút chỉ có khi DB có
+  hơn 8 collection (máy cục bộ có hơn 190): sửa ở `7a33076`, chỉ bấm khi nút có mặt. (2) `parity-blackbox (backoffice)`
+  6 ca `timezone-changed-node-tz-*`: node tz của app mới trả `403` cho `schema_timezone_tests` 1 s sau khi
+  `timezone.test.ts` tạo nó; code app không đổi so với `4249bc1` (xanh) và 20 lượt trước đều xanh; [Inference] cùng họ
+  R-19 (schema cũ khi đổi schema đồng thời), theo dõi ở lượt sau.
+- T053 (2026-10-14): tech lead duyệt từng phần A–F; D-26, D-29 gỡ, D-31 thu hẹp, D-33 lâu dài, D-34, D-35 thêm, R-22–R-24,
+  vi phạm IV, R7 ghi ở spec và plan; commit đóng xóa D-09.7 và `withoutD097`, spec `Done`. Chủ dự án chuyển sang spec
+  mới khi CI của commit đóng còn chạy: kết quả CI xem ở phiên sau.
 - CI của `4249bc1`: `parity (mysql, reduced)` đỏ ở `event.test.ts` ca action `items.create` (Directus 0 dòng log, app
   mới 1). Log container: Directus nhận `POST /items/...` 1 s sau `PATCH /flows` cuối của `beforeAll`; [Inference] lúc
   đó hàng đợi nạp lại (mỗi lần ghi flow, operation thêm một lần `unload` rồi `load`) của Directus trên MySQL chưa chạy

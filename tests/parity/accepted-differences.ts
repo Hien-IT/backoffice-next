@@ -76,15 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.7',
-		feature: '001',
-		removeAt: '009',
-		kind: 'http',
-		endpoints: route('/flows', '/operations'),
-		location: { any: true },
-		reason: 'Built by feature 009.',
-	},
-	{
 		id: 'D-09.8',
 		feature: '001',
 		removeAt: '010',

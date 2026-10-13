@@ -2,13 +2,11 @@
 
 **Feature Branch**: `009-flows-automation`
 **Created**: 2026-10-13
-**Status**: Draft
-**Duyệt khác biệt (một phần)**: tech lead đã duyệt ngày 2026-10-14 gỡ D-09.7, D-26, D-29 và sửa D-31 (thu hẹp: bỏ
-`directus_flows`, `directus_operations`), D-33 (lâu dài, `Gỡ khi` `—`), thêm D-34, D-35 (lâu dài), và rủi ro chấp
-nhận R-22, R-23, R-24 (bằng chứng ở bảng rủi ro), vi phạm IV của plan (Complexity Tracking; điều kiện vận hành:
-`SYNCHRONIZATION_STORE=redis` ở mọi instance). D-26, D-29 đã
-xóa khỏi `tests/parity/accepted-differences.ts`, D-31, D-33 đã sửa, D-34, D-35 đã thêm; entry D-09.7 xóa khi spec này
-`Done` (guard bắt mọi dòng của bảng 001 có entry tới lúc đó). Chưa duyệt: `name` R7.
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt ngày 2026-10-14 gỡ D-09.7, D-26, D-29; thu hẹp D-31 (bỏ `directus_flows`,
+`directus_operations`); D-33 lâu dài (`Gỡ khi` `—`); thêm D-34, D-35 (lâu dài); rủi ro R-22, R-23, R-24; vi phạm IV của plan
+(Complexity Tracking; điều kiện vận hành `SYNCHRONIZATION_STORE=redis` ở mọi instance); `name` lỗi `DirectusError` (R7);
+và đóng spec (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "App mới chạy flows giống hệt Directus. Flow và operation lưu trong directus_flows và directus_operations. Hỗ trợ các trigger: event (hook action và filter trên items và các collection hệ thống, cùng tên event như Directus), schedule (cron), webhook (/flows/trigger/:id, GET/POST, đồng bộ hoặc bất đồng bộ), manual (nút bấm trên item) và another flow. Hỗ trợ mọi operation có sẵn: condition, exec, item-create/read/update/delete, json-web-token, log, mail, notification, request, sleep, transform, trigger flow, throw error. Operation exec (Run Script) chạy JavaScript trong sandbox isolated-vm với giới hạn FLOWS_RUN_SCRIPT_MAX_MEMORY và FLOWS_RUN_SCRIPT_TIMEOUT giống Directus. Operation mail không gửi email, chỉ ghi log và trả kết quả thành công như khi gửi xong. Hỗ trợ dữ liệu $trigger, $last, $accountability, $env và nhánh resolve/reject. Flow theo lịch dùng lock trên Redis, nên khi cả Directus và app mới cùng chạy thì mỗi lượt chỉ một bên thực thi. Khi flow thay đổi ở app này, app kia nạp lại flow qua bus. Log chạy flow ghi vào activity và revisions giống Directus. Tham chiếu directus/api/src/flows.ts, operations, services/flows.ts, operations.ts. Tiêu chí chấp nhận: cùng một flow cho kết quả giống nhau ở hai app, và flow theo lịch không bị chạy hai lần."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):

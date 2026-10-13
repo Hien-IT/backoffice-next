@@ -1,6 +1,6 @@
 // Feature 009 (research R10): the comparable form of run log rows needs no Docker.
 import { expect, test } from 'vitest';
-import { comparable, stableHeaders, withoutD097 } from './helpers.js';
+import { comparable, stableHeaders } from './helpers.js';
 
 const rows = (data: unknown) => ({
 	activity: [{ id: 41, action: 'run', item: 'f-1', timestamp: '2026-10-14T00:00:00Z', user: null }],
@@ -45,9 +45,4 @@ test('stableHeaders leaves other values alone', () => {
 	expect(stableHeaders({ status: 1 })).toEqual({ status: 1 });
 	expect(stableHeaders(['a'])).toEqual(['a']);
 	expect(stableHeaders(null)).toBeNull();
-});
-
-test('withoutD097 drops only the temporary /flows difference', () => {
-	expect(withoutD097.some((d) => d.id === 'D-09.7')).toBe(false);
-	expect(withoutD097.some((d) => d.id === 'D-09.8')).toBe(true);
 });

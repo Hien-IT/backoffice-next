@@ -176,9 +176,9 @@ pnpm nx run parity-tests:env-down --vendor=postgres
 
 ### Test lịch sử, versions, comments (feature 008)
 
-- `src/history/`: `/activity`, `/revisions`, `/versions` (gồm `?version=` ở `version-read.test.ts`), `/comments`,
-  dùng chéo (`cross-use.test.ts`: revert, comment và thông báo ghi ở app này dùng ở app kia), chuỗi request của các
-  màn lịch sử trong app Directus (`e2e-app.test.ts`) và job dọn lịch sử (`retention.test.ts`).
+- `src/history/`: `/activity`, `/revisions`, `/versions` (gồm `?version=` ở `version-read.test.ts`), `/comments`, dùng
+  chéo (`cross-use.test.ts`: revert, comment và thông báo ghi ở app này dùng ở app kia), chuỗi request của các màn lịch
+  sử trong app Directus (`e2e-app.test.ts`) và job dọn lịch sử (`retention.test.ts`).
 - `history-effects.ts`: `historyEffects(fn)` bắt dòng mới của `directus_activity`, `directus_revisions`,
   `directus_versions`, `directus_comments`, `directus_notifications`; `comparable()` thay id bằng nhãn, thời gian bằng
   `<time>`, liên kết giữa các dòng (`activity`, `parent`, `version`) bằng chỉ số hoặc `key`. Luồng ghi chạy `scenario()`
@@ -197,9 +197,9 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   (`logs.test.ts`), nạp lại qua bus hai chiều (`reload.test.ts`), chuỗi request của màn Flows trong app Directus
   (`e2e-app.test.ts`) và flow theo lịch (`schedule.test.ts`).
 - `helpers.ts`: `seedFlow()` tạo flow và operation qua API của một app rồi chờ `RELOAD_WAIT`; `settled()` tạo flow
-  webhook thăm dò và chờ cả hai app trả lời nó (event flow bị lỡ nếu event tới giữa `unload` và `load` của một lần
-  nạp lại); `same()` so với bộ lọc `withoutD097` (bỏ entry tạm D-09.7, như D-09.6 ở 008); `flowEffects()` là
-  `historyEffects()` cho dòng activity `run` và revision của flow.
+  webhook thăm dò và chờ cả hai app trả lời nó (event flow bị lỡ nếu event tới giữa `unload` và `load` của một lần nạp
+  lại); `same()` là `parity()` báo lỗi với mọi khác biệt chưa được chấp nhận (D-09.7 đã gỡ khi đóng 009, như D-09.6 ở
+  008); `flowEffects()` là `historyEffects()` cho dòng activity `run` và revision của flow.
 - Cặp `flows-schedule` (`*/2 * * * * *`, store đồng bộ Redis): dùng chung DB nên KHÔNG đưa vào `env-up --profiles`;
   `schedule.test.ts` tự bật, tắt cặp và đếm lần chạy mỗi nhịp (mỗi nhịp đúng một lần ở hai app).
 - Request của operation `request` đi tới `http://files-fixtures/`: `IMPORT_IP_DENY_LIST` mặc định chặn IP của chính
