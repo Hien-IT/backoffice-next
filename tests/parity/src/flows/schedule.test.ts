@@ -125,14 +125,16 @@ describe('both apps share the clock', () => {
 		await patch({ options: { cron: '*/2 * * * * *' }, status: 'inactive' });
 	}, 60_000);
 
-	it('R-23: a reload right before a tick resets the clock; the window runs 10 or 11 times', async () => {
+	// R-23: the reload stops every cron job (clock reset) and starts new ones that wait for the next tick, so a reload
+	// across a tick can run it twice (the reset key) or skip it (both apps between unload and load), like Directus.
+	it('R-23: a reload right before a tick resets the clock; the window runs 9 to 11 times', async () => {
 		const result = await window(async (start) => {
 			// Just before the fifth tick after the first run.
 			await sleep(start + 4 * TICK - 50 - Date.now());
 			await patch({ name: 'Schedule Hook Test (renamed)' });
 		});
 
-		expect([TICKS, TICKS + 1]).toContain(result.runs);
+		expect([TICKS - 1, TICKS, TICKS + 1]).toContain(result.runs);
 		process.stdout.write(`R-23 window: ${JSON.stringify(result)}\n`);
 	}, 60_000);
 });
