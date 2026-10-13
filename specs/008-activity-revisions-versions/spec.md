@@ -290,8 +290,9 @@ module Activity.
 - **FR-002**: Quyền trên `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments` PHẢI áp
   như Directus qua engine của 004, gồm quyền tối thiểu app access (`directus_activity` read dòng của chính mình;
   `directus_comments` read, update (chỉ field `comment`), delete dòng do mình tạo, create với `comment` không null).
-- **FR-003**: `getService` PHẢI trả `VersionsService` cho `directus_versions` và `CommentsService` cho
-  `directus_comments` ở mọi đường ghi (route riêng, ghi lồng qua `/items`, `/users`), như Directus.
+- **FR-003**: `getService` PHẢI trả `VersionsService` cho `directus_versions`, `CommentsService` cho
+  `directus_comments` và `NotificationsService` cho `directus_notifications` ở mọi đường ghi (route riêng, ghi lồng
+  qua `/items`, `/users`), như Directus.
 - **FR-004**: Response cache, `meta` (`total_count`, `filter_count`), `Emitter` (`items.create|update|delete` cho bốn
   collection, `items.promote`), và cầu nối websocket PHẢI làm như các route item (005).
 
@@ -363,9 +364,9 @@ module Activity.
   `@Unknown User`, link `PUBLIC_URL/admin/content/<collection>/<item>`, `collection`, `item`); không có quyền thì
   log warn "User <id> doesn't have proper permissions to receive notification for this item." và bỏ qua; lỗi khác
   ném ra.
-- **FR-042**: `NotificationsService` PHẢI được port tối thiểu cho FR-041 (`createOne` ghi dòng, không gọi
-  `sendEmail`); không gửi email và không đọc `EMAIL_*` cho tới feature 010 (D-33, Clarifications); không có log hay
-  lỗi thêm khi user có `email_notifications = true`.
+- **FR-042**: `NotificationsService` PHẢI được port cho FR-041 (`createOne` ghi dòng rồi `sendEmail`); `sendEmail`
+  chạy tới bước quyết định gửi (user có `email` và `email_notifications = true`) rồi ghi một dòng log cảnh báo thay
+  cho bước gửi, không đọc `EMAIL_*`, không lỗi (Nguyên tắc X; D-33, Clarifications) cho tới feature 010.
 - **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp như `app-access-permissions.yaml`: đọc, xóa
   comment do mình tạo, sửa chỉ field `comment` của comment do mình tạo, tạo với `comment` không null; quyền rộng hơn
   đến từ policy của user.
@@ -426,7 +427,7 @@ Thay đổi với bảng khác biệt của các feature trước:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09.6 | Gỡ: `/activity`, `/revisions`, `/versions`, `/comments` làm ở feature này | FR-001 đến FR-044 |
-| D-31 | Thu hẹp: bỏ `directus_comments` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003 |
+| D-31 | Thu hẹp: bỏ `directus_comments`, `directus_notifications` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003, FR-042 |
 
 Giữ nguyên: D-09.8 (`/utils`, gồm `POST /utils/revert/:revision`, chờ 010; Clarifications). Sửa bảng của spec cũ đi
 cùng feature này: dòng D-09.6 trong spec 001, dòng D-31 trong spec 004; entry tương ứng trong
@@ -437,7 +438,7 @@ Khác biệt mới:
 
 | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
 |----------|------------------|---------|-------|-----------------------------------------------|
-| D-33: email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`, không gửi email cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm, gỡ ở 010) |
+| D-33: email khi được nhắc trong comment | `NotificationsService.createOne` gọi `sendEmail` (`MailService`, `EMAIL_*`) khi user có `email` và `email_notifications = true` | Ghi dòng `directus_notifications`; luồng `sendEmail` chạy tới bước gửi rồi ghi log cảnh báo thay vì gửi (như D-23) cho tới feature 010 (`/notifications`, `EMAIL_*`, `MailService`) | Owner chọn ở Clarifications 2026-10-13; `EMAIL_*` thuộc nhóm chưa hỗ trợ; gửi email là phạm vi của 010; người dùng vẫn thấy thông báo trong app Directus | ngoài phạm vi (tạm, gỡ ở 010) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 007. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột
