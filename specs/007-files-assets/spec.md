@@ -2,7 +2,8 @@
 
 **Feature Branch**: `007-files-assets`
 **Created**: 2026-10-12
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt rủi ro R-13 đến R-19 và đóng spec, gồm gỡ D-09.5, thu hẹp D-31 ngày 2026-10-13 (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "Người dùng tải file lên, quản lý file và thư mục qua /files, /folders, và lấy file qua /assets/:id giống hệt Directus. Hỗ trợ upload multipart, upload resumable qua TUS, import từ URL, metadata ảnh (EXIF, IPTC, kích thước), và các storage location cấu hình bằng STORAGE_* giống Directus. Chỉ hỗ trợ driver local và s3 (gồm dịch vụ tương thích S3 như MinIO). Nếu cấu hình driver khác (gcs, azure, cloudinary, supabase) thì dừng khi khởi động và báo rõ location nào không hỗ trợ. Asset hỗ trợ transform (width, height, fit, quality, format, withoutEnlargement, key preset, transforms) với cùng cách đặt tên file phát sinh như Directus, để hai app dùng chung file đã sinh. Áp dụng ASSETS_* (giới hạn transform, cache-control) và phân quyền file giống Directus. Tham chiếu directus/api/src/services/files.ts, assets.ts, tus, packages/storage*. Tiêu chí chấp nhận: file tải lên ở app này xem và tải được ở app kia, và URL asset có transform trả về ảnh giống nhau."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):

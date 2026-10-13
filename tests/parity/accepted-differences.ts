@@ -76,17 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.5',
-		feature: '001',
-		removeAt: '007',
-		kind: 'http',
-		// Feature 007 shrank it route by route, so parity() compares a route as soon as it is built; every route is built
-		// now (no endpoint left), the entry goes away when spec 007 is Done (guard-differences).
-		endpoints: [],
-		location: { any: true },
-		reason: 'Built by feature 007.',
-	},
-	{
 		id: 'D-09.6',
 		feature: '001',
 		removeAt: '008',

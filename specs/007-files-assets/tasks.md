@@ -473,12 +473,12 @@ R12).
   `benchmark-files`; chạy một lần cục bộ, ghi p95, req/s và thời lượng job vào "Ghi chú khi làm".
 - [X] T055 [P] `tests/parity/README.md` mục 007 (storage `local` dùng chung, `PARITY_STORAGES`, `files-fixtures`, cặp
   `assets-limit`, cách chạy ma trận transform); kiểm `quickstart.md` chạy được từng lệnh, sửa nếu lệch.
-- [ ] T056 [P] Sổ khác biệt: `tests/parity/accepted-differences.ts` xóa entry `D-09.5`, sửa entry `D-31` bỏ
+- [X] T056 [P] Sổ khác biệt: `tests/parity/accepted-differences.ts` xóa entry `D-09.5`, sửa entry `D-31` bỏ
   `directus_files`, `directus_folders`; `specs/001-platform-foundation/spec.md` dòng D-09.5 ghi "Gỡ ở 007";
   `specs/004-permissions/spec.md` dòng D-31 thu hẹp; bảng "Khác biệt" và "Rủi ro" của `specs/007-files-assets/spec.md`
   đủ bằng chứng R-13 đến R-18 (ngày đo, ca test); `guard-differences` xanh. (commit đóng feature, sau mọi phase)
 - [X] T057 [P] `graphify update .` sau khi code xong; `pnpm run ci:local` một lượt đủ; kiểm coverage `apps/api` ≥ 80%.
-- [ ] T058 Đóng feature: `specs/007-files-assets/spec.md` `Status: Done`, dòng "Duyệt khác biệt" (tech lead duyệt gỡ
+- [X] T058 Đóng feature: `specs/007-files-assets/spec.md` `Status: Done`, dòng "Duyệt khác biệt" (tech lead duyệt gỡ
   D-09.5, thu hẹp D-31, R-13 đến R-18); `plan.md` ghi kết quả benchmark và sharp.versions; CLAUDE.md "Recent Changes"
   thêm 007; memory dự án. (sau T053 đến T057)
 
@@ -735,3 +735,6 @@ Task: "storage-capture.ts (T019)"
   (test trên cặp này không đổi schema); nhiễu từ cặp này 5/40 lỗi trước, 0/40 sau; `assets.test.ts`, `tus.test.ts`,
   blackbox `cache-revalidate.test.ts` vẫn xanh. Còn lại (suy luận): lịch dọn TUS mỗi giờ ở cặp `blackbox`, `cors-hsts` và
   request song song tới hai app của cặp chính vẫn có thể gây lỗi này, hiếm hơn.
+- T056, T058 (2026-10-13): chủ dự án duyệt R-13 đến R-19 và đóng spec; spec `Status: Done` kèm dòng duyệt, entry
+  `D-09.5` xóa khỏi `accepted-differences.ts` (`accepted-differences.test.ts` xanh). Dòng D-09.5 ở spec 001 giữ nguyên như
+  tiền lệ D-09.3, D-09.4 (cột "Gỡ khi" đã ghi 007). Còn để chủ dự án quyết: ca blackbox `concurrency` đang bỏ qua trên CI.
