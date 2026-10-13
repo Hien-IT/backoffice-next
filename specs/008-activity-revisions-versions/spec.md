@@ -475,7 +475,7 @@ Thay đổi với bảng khác biệt của các feature trước:
 | Mã | Thay đổi | Lý do |
 |----|----------|-------|
 | D-09.6 | Gỡ: `/activity`, `/revisions`, `/versions`, `/comments` làm ở feature này | FR-001 đến FR-044 |
-| D-31 | Thu hẹp: bỏ `directus_comments`, `directus_notifications` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003, FR-042 |
+| D-31 | Thu hẹp: bỏ `directus_comments`, `directus_notifications`, `directus_versions` khỏi danh sách collection hệ thống đi qua `ItemsService` chung | FR-003, FR-042 |
 
 Giữ nguyên: D-09.8 (`/utils`, gồm `POST /utils/revert/:revision`, chờ 010; Clarifications). Sửa bảng của spec cũ đi
 cùng feature này: dòng D-09.6 trong spec 001, dòng D-31 trong spec 004; entry tương ứng trong
@@ -490,7 +490,7 @@ Khác biệt mới:
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 007. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột
-"Bằng chứng"; cần tech lead duyệt khi đóng feature. Hai dòng dưới là dự kiến theo đọc code, chưa đo.
+"Bằng chứng"; cần tech lead duyệt khi đóng feature. Cả hai dòng dưới đã đo trên Directus 11.17.4 ngày 2026-10-13 (T023).
 
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
