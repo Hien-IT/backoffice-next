@@ -106,6 +106,8 @@ export const profilePorts = {
 	'assets-stress': { directus: 10155, backoffice: 10156 },
 	// Feature 008 (research R5): the retention job pair, started and stopped by src/history/retention.test.ts only.
 	retention: { directus: 10255, backoffice: 10256 },
+	// Feature 009 (research R12): the scheduled flows pair, started and stopped by src/flows/schedule.test.ts only.
+	'flows-schedule': { directus: 10355, backoffice: 10356 },
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
@@ -121,9 +123,9 @@ export type Profile = keyof typeof profilePorts;
 
 /**
  * Pairs that share the database and change it on their own (feature 008: the retention job deletes old history every
- * 10 s). Only the test file that needs one starts and stops it (profileUp, profileStop); never `env-up --profiles`.
+ * 10 s; feature 009: the scheduled flows pair runs a flow every 2 s). Only the test file that needs one starts and stops it (profileUp, profileStop); never `env-up --profiles`.
  */
-export const manualProfiles: readonly Profile[] = ['retention'];
+export const manualProfiles: readonly Profile[] = ['retention', 'flows-schedule'];
 
 /** Storage locations of tests/parity/env/<vendor>.env (feature 007, research R6). */
 export const storageLocations = ['local', 's3'] as const;

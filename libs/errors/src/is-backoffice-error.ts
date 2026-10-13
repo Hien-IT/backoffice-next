@@ -17,7 +17,7 @@ export const isBackofficeError = <T = never, C extends string = string>(
 		value !== null &&
 		Array.isArray(value) === false &&
 		'name' in value &&
-		value.name === 'BackofficeError';
+		value.name === 'DirectusError';
 
 	if (code) {
 		return isBackofficeError && 'code' in value && value.code === code.toUpperCase();

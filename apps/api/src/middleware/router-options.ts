@@ -1,6 +1,7 @@
 import { useEnv } from '@backoffice/env';
 import type { RequestHandler } from 'express';
 import { escapeRegExp } from 'lodash-es';
+import { UUID_REGEX } from '../constants.js';
 import { getAuthProviders } from '../utils/get-auth-providers.js';
 
 /**
@@ -58,6 +59,10 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/(versions|comments)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/versions\/[^/]+\/compare\/?$/i, 'GET,HEAD'],
 		[/^\/versions\/[^/]+\/(save|promote)\/?$/i, 'POST'],
+		// Feature 009 (contracts/flows-api.md §9): /trigger/:pk only matches a uuid (Express 4 is case insensitive).
+		[new RegExp(`^/flows/trigger/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD,POST'],
+		[/^\/(flows|operations)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+		[/^\/(flows|operations)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		// Feature 005 (contracts/items-api.md §3): answered before collectionExists, so unknown collections get 200 too.
 		[/^\/items\/[^/]+\/?$/i, 'POST,SEARCH,GET,HEAD,PATCH,DELETE'],
 		[/^\/items\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],

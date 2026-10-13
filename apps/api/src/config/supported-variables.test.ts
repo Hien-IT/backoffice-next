@@ -28,7 +28,11 @@ describe('groups match contracts/config.md §5', () => {
 		const contractNames = contractGroup('A. Hỗ trợ').map(sample);
 		expect(sources.sort()).toEqual(
 			contractNames
-				.filter((n) => !n.startsWith('RATE_LIMITER_REGISTRATION') && !n.startsWith('RATE_LIMITER_EMAIL'))
+				.filter(
+					(n) =>
+						!n.startsWith('RATE_LIMITER_REGISTRATION') &&
+						(!n.startsWith('RATE_LIMITER_EMAIL') || n.startsWith('RATE_LIMITER_EMAIL_FLOWS')),
+				)
 				.sort(),
 		);
 	});
@@ -55,7 +59,12 @@ test.each([
 	['RATE_LIMITER_POINTS', true],
 	['RATE_LIMITER_GLOBAL_ENABLED', true],
 	['RATE_LIMITER_REGISTRATION_ENABLED', true],
-	['RATE_LIMITER_EMAIL_FLOWS_POINTS', false],
+	['RATE_LIMITER_EMAIL_FLOWS_POINTS', true],
+	['RATE_LIMITER_EMAIL_FLOWS_ERROR_MESSAGE', true],
+	['RATE_LIMITER_EMAIL_ENABLED', false],
+	['FLOWS_ENV_ALLOW_LIST', true],
+	['FLOWS_RUN_SCRIPT_MAX_MEMORY', true],
+	['FLOWS_RUN_SCRIPT_TIMEOUT', true],
 	['AUTH_PROVIDERS', true],
 	['SERVE_APP', false],
 ])('isSupported(%s) = %s', (name, expected) => {

@@ -32,7 +32,8 @@
 		"joi": "catalog:",
 		"js-yaml": "catalog:",
 		"knex": "catalog:",
-		"lodash-es": "catalog:"
+		"lodash-es": "catalog:",
+		"micromustache": "catalog:"
 	},
 	"devDependencies": {
 		"@backoffice/schema-builder": "workspace:*",

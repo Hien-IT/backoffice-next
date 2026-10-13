@@ -249,6 +249,9 @@ catalogs:
     ip-matching:
       specifier: 2.1.2
       version: 2.1.2
+    isolated-vm:
+      specifier: 5.0.3
+      version: 5.0.3
     joi:
       specifier: 18.2.6
       version: 18.2.6
@@ -285,6 +288,9 @@ catalogs:
     lru-cache:
       specifier: 11.2.2
       version: 11.2.2
+    micromustache:
+      specifier: 8.0.3
+      version: 8.0.3
     mime-types:
       specifier: 3.0.1
       version: 3.0.1
@@ -318,6 +324,9 @@ catalogs:
     otplib:
       specifier: 12.0.1
       version: 12.0.1
+    p-queue:
+      specifier: 8.1.0
+      version: 8.1.0
     pg:
       specifier: 8.16.3
       version: 8.16.3
@@ -623,6 +632,9 @@ importers:
       ip-matching:
         specifier: 'catalog:'
         version: 2.1.2
+      isolated-vm:
+        specifier: 'catalog:'
+        version: 5.0.3
       joi:
         specifier: 'catalog:'
         version: 18.2.6
@@ -650,6 +662,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.18.1
+      micromustache:
+        specifier: 'catalog:'
+        version: 8.0.3
       mime-types:
         specifier: 'catalog:'
         version: 3.0.1
@@ -680,6 +695,9 @@ importers:
       otplib:
         specifier: 'catalog:'
         version: 12.0.1
+      p-queue:
+        specifier: 'catalog:'
+        version: 8.1.0
       pg:
         specifier: 'catalog:'
         version: 8.16.3
@@ -1031,6 +1049,9 @@ importers:
       knex:
         specifier: 'catalog:'
         version: 3.1.0(mysql2@3.22.6(@types/node@22.13.14))(pg@8.16.3)(sqlite3@5.1.7)(tedious@18.6.1)
+      pino:
+        specifier: 'catalog:'
+        version: 9.7.0
       sharp:
         specifier: 'catalog:'
         version: 0.34.5
@@ -1064,6 +1085,9 @@ importers:
       lodash-es:
         specifier: 'catalog:'
         version: 4.18.1
+      micromustache:
+        specifier: 'catalog:'
+        version: 8.0.3
     devDependencies:
       '@backoffice/schema-builder':
         specifier: workspace:*
@@ -4865,6 +4889,9 @@ packages:
   eventemitter2@6.4.9:
     resolution: {integrity: sha512-JEPTiaOt9f04oa6NOkc4aH+nVp5I3wEjpHbIPqfgCdD5v5bUzy7xQqwcVO2aDQgOWhI28da57HksMrzK9HlRxg==}
 
+  eventemitter3@5.0.4:
+    resolution: {integrity: sha512-mlsTRyGaPBjPedk6Bvw+aqbsXDtoAyAzm5MO7JgU+yVRyMQ5O8bD4Kcci7BS85f93veegeCPkL8R4GLClnjLFw==}
+
   events-universal@1.0.1:
     resolution: {integrity: sha512-LUd5euvbMLpwOF8m6ivPCbhQeSiYVNb8Vs0fQ8QjXo0JTkEHpz8pxdQf0gStltaPpw0Cca8b39KxvK9cfKRiAw==}
 
@@ -5394,6 +5421,10 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  isolated-vm@5.0.3:
+    resolution: {integrity: sha512-GNqX0j7dkwdaNQfFogLLb/tSuPZbXtKlk5ldaJ084ngjaW9/bn34x9FQFL856p20KSZoubIIummmiJf+2hzhCw==}
+    engines: {node: '>=18.0.0'}
+
   istanbul-lib-coverage@3.2.2:
     resolution: {integrity: sha512-O8dpsF+r0WV/8MNRKfnmrtCWhuKjxrq2w+jpzBL5UZKTi2LeVWnWOmWRxFlesJONmc+wLAGvKQZEOanko0LFTg==}
     engines: {node: '>=8'}
@@ -5759,6 +5790,10 @@ packages:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
 
+  micromustache@8.0.3:
+    resolution: {integrity: sha512-SXjrEPuYNtWq0reR9LR2nHdzdQx/3re9HPcDGjm00L7hi2RsH5KMRBhYEBvPdyQC51RW/2TznjwX/sQLPPyHNw==}
+    engines: {node: '>=8'}
+
   mime-db@1.52.0:
     resolution: {integrity: sha512-sPU4uV7dYlvtWJxwwxHD0PuihVNiE7TyAbQ5SWxDCB9mUYvOgroQOwYQQOKPJ8CIbE+1ETVlOoK1UC2nU3gYvg==}
     engines: {node: '>= 0.6'}
@@ -6086,6 +6121,14 @@ packages:
   p-map@4.0.0:
     resolution: {integrity: sha512-/bjOqmgETBYB5BoEeGVea8dmvHb2m9GLy1E9W43yeyfP6QQCZGFNa+XRceJEuDB6zqr+gKpIAmlLebMpykw/MQ==}
     engines: {node: '>=10'}
+
+  p-queue@8.1.0:
+    resolution: {integrity: sha512-mxLDbbGIBEXTJL0zEx8JIylaj3xQ7Z/7eEVjcF9fJX4DBiH9oqe+oahYnlKKxm0Ci9TlWTyhSHgygxMxjIB2jw==}
+    engines: {node: '>=18'}
+
+  p-timeout@6.1.4:
+    resolution: {integrity: sha512-MyIV3ZA/PmyBN/ud8vV9XzwTrNtR4jFrObymZYnZqMmW0zA8Z17vnT0rBgFE/TlohB+YCHqXMgZzb3Csp49vqg==}
+    engines: {node: '>=14.16'}
 
   p-try@2.2.0:
     resolution: {integrity: sha512-R4nPAVTAU0B9D35/Gk3uJf/7XYbQcyohSKdvAxIRSNghFl4e71hVoGnBNQz9cWaXxO2I10KTC+3jMdvvoKw6dQ==}
@@ -11678,6 +11721,8 @@ snapshots:
 
   eventemitter2@6.4.9: {}
 
+  eventemitter3@5.0.4: {}
+
   events-universal@1.0.1:
     dependencies:
       bare-events: 2.9.2
@@ -12253,6 +12298,10 @@ snapshots:
 
   isexe@2.0.0: {}
 
+  isolated-vm@5.0.3:
+    dependencies:
+      prebuild-install: 7.1.3
+
   istanbul-lib-coverage@3.2.2: {}
 
   istanbul-lib-report@3.0.1:
@@ -12596,6 +12645,8 @@ snapshots:
     dependencies:
       braces: 3.0.3
       picomatch: 2.3.2
+
+  micromustache@8.0.3: {}
 
   mime-db@1.52.0: {}
 
@@ -13017,6 +13068,13 @@ snapshots:
     dependencies:
       aggregate-error: 3.1.0
     optional: true
+
+  p-queue@8.1.0:
+    dependencies:
+      eventemitter3: 5.0.4
+      p-timeout: 6.1.4
+
+  p-timeout@6.1.4: {}
 
   p-try@2.2.0: {}
 

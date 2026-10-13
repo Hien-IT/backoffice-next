@@ -52,6 +52,18 @@ test('email rate limiters are group C; the registration limiter is supported sin
 	).toEqual(['RATE_LIMITER_EMAIL_ENABLED']);
 });
 
+test('flows variables are supported since feature 009, other email rate limiters stay group C', () => {
+	expect(
+		getUnsupportedVariables({
+			FLOWS_ENV_ALLOW_LIST: 'A,B',
+			FLOWS_RUN_SCRIPT_MAX_MEMORY: '32',
+			FLOWS_RUN_SCRIPT_TIMEOUT: '10000',
+			RATE_LIMITER_EMAIL_FLOWS_ENABLED: 'true',
+			RATE_LIMITER_EMAIL_ENABLED: 'true',
+		}),
+	).toEqual(['RATE_LIMITER_EMAIL_ENABLED']);
+});
+
 test('no warning without unsupported variables', () => {
 	warnUnsupportedVariables({ PORT: '1' });
 	expect(logger.warn).not.toHaveBeenCalled();

@@ -24,6 +24,7 @@
 		"@backoffice/schema": "workspace:*",
 		"@types/deep-diff": "catalog:",
 		"knex": "catalog:",
+		"pino": "catalog:",
 		"sharp": "catalog:"
 	}
 }

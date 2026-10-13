@@ -68,10 +68,10 @@ step build-api pnpm nx run api:build
 # Feature 007: files and assets on `local` and MinIO for Postgres, MinIO only for MySQL and SQLite (PARITY_STORAGES).
 PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress
 # Feature 006: the nodes of schema-cache.test.ts and of the timezone files are profile pairs.
-PARITY_STORAGES=local,s3 step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress
+PARITY_STORAGES=local,s3 step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress,cache-mem
 step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket
-PARITY_STORAGES=s3 step parity-mysql-reduced parity mysql reduced blackbox,assets-limit,assets-stress integer
-PARITY_STORAGES=s3 step parity-sqlite3-reduced parity sqlite3 reduced blackbox,assets-limit,assets-stress integer
+PARITY_STORAGES=s3 step parity-mysql-reduced parity mysql reduced blackbox,assets-limit,assets-stress,cache-mem integer
+PARITY_STORAGES=s3 step parity-sqlite3-reduced parity sqlite3 reduced blackbox,assets-limit,assets-stress,cache-mem integer
 # One shard of the permission matrix (feature 004); PARITY_MATRIX_SHARD=<i>/4 picks another, unset runs the whole matrix.
 step parity-matrix sh -c 'pnpm nx run parity-tests:env-up --vendor=postgres && PARITY_MATRIX_SHARD=${PARITY_MATRIX_SHARD:-1/4} pnpm nx run parity-tests:parity-matrix --vendor=postgres --output-style=static; code=$?; pnpm nx run parity-tests:env-down --vendor=postgres; exit $code'
 step docker sh -c 'docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci . && docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .'

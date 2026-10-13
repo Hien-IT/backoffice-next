@@ -221,3 +221,24 @@ test('deeper history paths are not handled (404)', async () => {
 		expect((await app({}).options(path)).status, path).toBe(404);
 	}
 });
+
+// Feature 009 (contracts/flows-api.md §9): from the route order of the Directus flows and operations routers.
+test.each([
+	['/flows', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/flows/3f1c', 'GET,HEAD,PATCH,DELETE'],
+	['/flows/trigger', 'GET,HEAD,PATCH,DELETE'],
+	['/flows/trigger/3f1c2d4e-0000-4000-8000-00000000000a', 'GET,HEAD,POST'],
+	['/flows/trigger/3F1C2D4E-0000-4000-8000-00000000000A/', 'GET,HEAD,POST'],
+	['/operations/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
+	['/operations/3f1c', 'GET,HEAD,PATCH,DELETE'],
+])('OPTIONS %s → Allow: %s', async (path, allow) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe(allow);
+});
+
+test('a trigger path without a uuid and deeper flows paths are not handled (404)', async () => {
+	for (const path of ['/flows/trigger/not-a-uuid', '/flows/a/b/c', '/operations/a/b']) {
+		expect((await app({}).options(path)).status, path).toBe(404);
+	}
+});

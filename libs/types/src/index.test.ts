@@ -29,3 +29,11 @@ test('exports the content version, comment and notification types like Directus'
 	expectTypeOf<types.Notification>().toHaveProperty('recipient').toEqualTypeOf<string>();
 	expectTypeOf<types.Notification>().toHaveProperty('item').toEqualTypeOf<types.PrimaryKey | null>();
 });
+
+test('exports the flow and operation types like Directus', () => {
+	expectTypeOf<types.Flow>().toHaveProperty('operation').toEqualTypeOf<types.Operation | null>();
+	expectTypeOf<types.FlowRaw>().toHaveProperty('operations').toEqualTypeOf<types.OperationRaw[]>();
+	expectTypeOf<types.TriggerType>().toEqualTypeOf<'event' | 'schedule' | 'operation' | 'webhook' | 'manual'>();
+	expectTypeOf<types.OperationApiConfig>().toHaveProperty('handler').toEqualTypeOf<types.OperationHandler>();
+	expectTypeOf<types.OperationContext>().toHaveProperty('accountability').toEqualTypeOf<types.Accountability | null>();
+});

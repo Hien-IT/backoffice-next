@@ -1,0 +1,8 @@
+[
+	{ "source": "packages/utils/shared/apply-options-data.ts", "dest": "libs/utils/src/shared/apply-options-data.ts" },
+	{ "source": "packages/utils/shared/apply-options-data.test.ts", "dest": "libs/utils/src/shared/apply-options-data.test.ts" },
+	{ "source": "packages/utils/shared/sieve-functions.ts", "dest": "libs/utils/src/shared/sieve-functions.ts" },
+	{ "source": "packages/utils/shared/sieve-functions.test.ts", "dest": "libs/utils/src/shared/sieve-functions.test.ts" },
+	{ "source": "packages/utils/shared/is-valid-json.ts", "dest": "libs/utils/src/shared/is-valid-json.ts" },
+	{ "source": "packages/utils/shared/is-valid-json.test.ts", "dest": "libs/utils/src/shared/is-valid-json.test.ts" }
+]

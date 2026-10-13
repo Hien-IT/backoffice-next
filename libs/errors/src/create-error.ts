@@ -12,7 +12,8 @@ export const createError = <Extensions = void>(
 	status = 500,
 ): BackofficeErrorConstructor<Extensions> => {
 	return class extends Error implements BackofficeError<Extensions> {
-		override name = 'BackofficeError';
+		// Backoffice: same name as Directus, it is serialized into flow data ($all, run revisions); feature 009 R7
+		override name = 'DirectusError';
 		extensions: Extensions;
 		code = code.toUpperCase();
 		status = status;

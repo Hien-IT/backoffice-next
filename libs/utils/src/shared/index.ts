@@ -31,3 +31,6 @@ export * from './parse-now.js';
 export * from './validate-payload.js';
 export * from './get-relation-info.js';
 export * from './deep-map-with-schema.js';
+export * from './apply-options-data.js';
+export * from './is-valid-json.js';
+export * from './sieve-functions.js';

@@ -36,6 +36,8 @@ export function compose(...args: string[]): string {
 		'assets-stress',
 		// Feature 008 (research R5): the retention pair, started and stopped by retention.test.ts.
 		'retention',
+		// Feature 009 (research R12): the scheduled flows pair, started and stopped by schedule.test.ts.
+		'flows-schedule',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

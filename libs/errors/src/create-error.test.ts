@@ -24,7 +24,7 @@ test('Returns enhanced error object', () => {
 	const TestError = createError(sample.code, sample.message, sample.status);
 	const error = new TestError();
 
-	expect(error.name).toBe('BackofficeError');
+	expect(error.name).toBe('DirectusError');
 	expect(error.code).toBe('TEST_ERROR');
 	expect(error.message).toBe(sample.message);
 	expect(error.status).toBe(sample.status);
@@ -61,5 +61,17 @@ test('Overrides toString', () => {
 
 	const error = new TestError();
 
-	expect(error.toString()).toBe(`BackofficeError [${sample.code.toUpperCase()}]: ${sample.message}`);
+	expect(error.toString()).toBe(`DirectusError [${sample.code.toUpperCase()}]: ${sample.message}`);
+});
+
+// Backoffice: feature 009 R7, flows serialize errors with JSON.stringify ($all of a webhook, run revisions)
+test('Serializes like Directus: name, extensions, code, status (message is not enumerable)', () => {
+	const PlainError = createError('INTERNAL_SERVER_ERROR', 'An unexpected error occurred.', 500);
+	const WithExtensions = createError<{ points: number }>('EMAIL_LIMIT_EXCEEDED', 'Email sending limit exceeded.', 429);
+
+	expect(JSON.stringify(new PlainError())).toBe('{"name":"DirectusError","code":"INTERNAL_SERVER_ERROR","status":500}');
+
+	expect(JSON.stringify(new WithExtensions({ points: 1 }))).toBe(
+		'{"name":"DirectusError","extensions":{"points":1},"code":"EMAIL_LIMIT_EXCEEDED","status":429}',
+	);
 });

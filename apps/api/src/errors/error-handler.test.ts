@@ -120,7 +120,7 @@ describe('Error handler behaves correctly in express app', () => {
 	});
 });
 
-describe('BackofficeError', () => {
+describe('DirectusError', () => {
 	const error1 = new (createError('IM_A_RABBIT', `I'm a rabbit`, 418))();
 	const error2 = new (createError('OUT_OF_CARROTS', 'Temporarily out of carrots', 503))();
 

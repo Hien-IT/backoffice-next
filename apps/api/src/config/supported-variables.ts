@@ -42,7 +42,7 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'CORS_EXPOSED_HEADERS',
 	'CORS_CREDENTIALS',
 	'CORS_MAX_AGE',
-	// Registration and email rate limiters belong to features not built yet (group C).
+	// The email rate limiters stay in group C, except RATE_LIMITER_EMAIL_FLOWS_* (feature 009, below).
 	'RATE_LIMITER_(?!EMAIL_).+',
 	'CACHE_ENABLED',
 	'CACHE_TTL',
@@ -180,6 +180,11 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	// Feature 008: schedules/retention.ts reads RETENTION_ENABLED, RETENTION_BATCH, RETENTION_SCHEDULE,
 	// ACTIVITY_RETENTION, REVISIONS_RETENTION and FLOW_LOGS_RETENTION. Directus does not list them in
 	// directus-variables.ts, so they never got a warning and need no entry here (like TUS_* in feature 007).
+	// Feature 009: flows (Run Script limits, $env allow list) and the rate limiter of the mail operation.
+	'FLOWS_ENV_ALLOW_LIST',
+	'FLOWS_RUN_SCRIPT_MAX_MEMORY',
+	'FLOWS_RUN_SCRIPT_TIMEOUT',
+	'RATE_LIMITER_EMAIL_FLOWS_.+',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

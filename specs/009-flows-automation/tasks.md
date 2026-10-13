@@ -83,37 +83,37 @@ sổ khác biệt, đóng feature). SPECKIT-GUIDE §6 cho phép tách 009 thành
 **Purpose**: Ba gói mới build được, type và util dùng chung có mặt, `name` lỗi về `DirectusError`, 6 biến sang nhóm
 A, proxy và hai profile sẵn sàng (research R1, R6, R7, R9, R11, R12, R14; contracts/parity.md §1).
 
-- [ ] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `isolated-vm: 5.0.3`, `micromustache: 8.0.3`,
+- [X] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `isolated-vm: 5.0.3`, `micromustache: 8.0.3`,
   `p-queue: 8.1.0` (bản của `directus/pnpm-workspace.yaml`) và `isolated-vm` vào `onlyBuiltDependencies`;
   `apps/api/package.json` thêm ba gói `catalog:`; `libs/utils/package.json` thêm `micromustache`; `pnpm install`;
   `node -e "require('isolated-vm')"` trong `apps/api`; `docker build -f apps/api/Dockerfile .` rồi
   `docker run --rm <image> node -e "require('isolated-vm')"`; ghi thời gian `pnpm install` và build image vào "Ghi
   chú khi làm" (plan rủi ro 1); `pnpm audit --prod --audit-level=high` không advisory mới (FR-051, research R1).
-- [ ] T002 [P] `libs/types/src/`: port `flows.ts` (`Flow`, `FlowRaw`, `Operation`, `OperationRaw`, `TriggerType`) từ
+- [X] T002 [P] `libs/types/src/`: port `flows.ts` (`Flow`, `FlowRaw`, `Operation`, `OperationRaw`, `TriggerType`) từ
   `directus/packages/types/src/flows.ts` và `operations.ts` (`OperationHandler`, `OperationContext`,
   `OperationApiConfig`) từ `directus/packages/types/src/extensions/operations.ts` (bỏ phần app/extension không dùng,
   ghi `// Backoffice:`); export trong `libs/types/src/index.ts`; `libs/types/src/index.test.ts` thêm khẳng định
   export. Ghi manifest `tools/port-manifest/009-T002.json`.
-- [ ] T003 [P] `libs/utils/src/shared/`: port `apply-options-data.ts` (+ test gốc 12 ca), `sieve-functions.ts`
+- [X] T003 [P] `libs/utils/src/shared/`: port `apply-options-data.ts` (+ test gốc 12 ca), `sieve-functions.ts`
   (+ 8), `is-valid-json.ts` (+ 2) từ `directus/packages/utils/shared/`; export trong `libs/utils/src/shared/index.ts`;
   test gốc chạy đỏ trước (thiếu file) rồi xanh; `pnpm nx run @backoffice/utils:build` (apps/api đọc `dist`). Ghi
   manifest (research R6).
-- [ ] T004 [P] `libs/errors/src/create-error.ts`: `name = 'DirectusError'`; `is-backoffice-error.ts` so
+- [X] T004 [P] `libs/errors/src/create-error.ts`: `name = 'DirectusError'`; `is-backoffice-error.ts` so
   `'DirectusError'`; sửa `create-error.test.ts`, `errors/messages.test.ts`, `apps/api/src/errors/error-handler.test.ts`;
   thêm ca `JSON.stringify(new InternalServerError())` → `{"name":"DirectusError","code":"INTERNAL_SERVER_ERROR",
   "status":500}` và với `extensions`; `// Backoffice: R7 of feature 009`; `pnpm nx run @backoffice/errors:build`
   (research R7, spec "Cần xác nhận").
-- [ ] T005 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 009": `FLOWS_ENV_ALLOW_LIST`,
+- [X] T005 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 009": `FLOWS_ENV_ALLOW_LIST`,
   `FLOWS_RUN_SCRIPT_MAX_MEMORY`, `FLOWS_RUN_SCRIPT_TIMEOUT`, `RATE_LIMITER_EMAIL_FLOWS_.+`;
   `specs/001-platform-foundation/contracts/config.md` dòng A thêm, dòng C bớt (ghi `RATE_LIMITER_EMAIL_(?!FLOWS_)`);
   `supported-variables.test.ts` sửa bộ lọc dòng 31, thêm ca `['FLOWS_ENV_ALLOW_LIST', true]`,
   `['RATE_LIMITER_EMAIL_FLOWS_POINTS', true]`, `['RATE_LIMITER_EMAIL_ENABLED', false]`;
   `warn-unsupported-variables.test.ts` thêm ca `FLOWS_RUN_SCRIPT_TIMEOUT` không bị báo (FR-050, research R9).
-- [ ] T006 [P] `tests/parity/src/server/errors.test.ts` bỏ `/flows` khỏi ca `404` D-09.* (ca dùng `/settings`,
+- [X] T006 [P] `tests/parity/src/server/errors.test.ts` bỏ `/flows` khỏi ca `404` D-09.* (ca dùng `/settings`,
   `/graphql` còn lại). KHÔNG thêm `flows`, `operations` vào proxy ở Phase 1: app Directus gọi `GET /flows` trong
   `Promise.all` lúc hydrate (`directus/app/src/hydrate.ts:75`), `404` trước khi có controller làm hỏng app qua proxy
   và đỏ `e2e-directus-app`; việc này nằm ở T022 (`flows`) và T039 (`operations`) (contracts/parity.md §1).
-- [ ] T007 [P] Profile: `tests/parity/env/profile-flows-schedule.env` theo contracts/parity.md §1 (chú thích: thủ công,
+- [X] T007 [P] Profile: `tests/parity/env/profile-flows-schedule.env` theo contracts/parity.md §1 (chú thích: thủ công,
   chạy flow mỗi 2 s, namespace riêng); `tests/parity/docker-compose.yml` thêm `directus-flows-schedule`,
   `backoffice-api-flows-schedule` (mẫu `retention`, cổng 10355/10356, `environment: FLOWS_SCHEDULE_HOOK_NAME=directus`
   / `backoffice`); `tests/parity/src/config.ts` `profilePorts['flows-schedule']`, `manualProfiles` thêm;
@@ -121,7 +121,7 @@ A, proxy và hai profile sẵn sàng (research R1, R6, R7, R9, R11, R12, R14; co
   `tests/parity/src/vendors.test.ts` xanh (cổng, env file, platform, uploads, không có trong `--profiles` CI);
   thêm `cache-mem` vào `--profiles` của job `parity-blackbox` trong `.github/workflows/ci.yml`, `parity-matrix.yml`
   (`blackbox-full`), `nightly.yml` và `tools/ci-local.sh` (research R11, R12).
-- [ ] T008 [P] `apps/api/src/constants.ts` thêm `UUID_REGEX` từ `directus/api/src/constants.ts:64` (+ ca test);
+- [X] T008 [P] `apps/api/src/constants.ts` thêm `UUID_REGEX` từ `directus/api/src/constants.ts:64` (+ ca test);
   `apps/api/src/middleware/router-options.ts` khối Feature 009: `/flows`, `/flows/:pk`, `/flows/trigger/:pk`
   (`GET, POST`), `/operations`, `/operations/:pk`; `router-options.test.ts` thêm ca (FR-001, contracts/flows-api.md §9).
 
@@ -595,3 +595,11 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
 - Cặp `flows-schedule` dùng chung DB: chỉ T023 bật, luôn `profileStop` và xóa flow qua cặp chính ở `afterAll`.
 
 ## Ghi chú khi làm
+
+- T001 (2026-10-14): isolated-vm 5.0.3, micromustache 8.0.3, p-queue 8.1.0 cài bằng bản dựng sẵn (prebuild) trên macOS
+  arm64 (`pnpm install` 4 s) và trong stage builder alpine amd64 (`prebuild-install`, không cần `node-gyp`); image
+  `docker build --platform linux/amd64` 58 s (lớp cache), `node -e "require('isolated-vm')"` trong image chạy isolate
+  đúng. Directus 11.17.4 không dùng `--no-node-snapshot`, app mới cũng không. `pnpm audit --prod --audit-level=high`:
+  không advisory mới (mọi high/critical đều nằm trong danh sách bỏ qua có sẵn).
+- T007: nightly.yml không chạy blackbox, nên `cache-mem` chỉ thêm vào `--profiles` của blackbox ở `ci.yml` (Postgres,
+  và các job MySQL, SQLite `reduced` có blackbox), `parity-matrix.yml` (`blackbox-full`) và `tools/ci-local.sh`.

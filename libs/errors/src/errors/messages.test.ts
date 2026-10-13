@@ -40,7 +40,7 @@ test.each([
 		"Can't process content. Too big.",
 	],
 ])('%s', (error, code, status, message) => {
-	expect(error.name).toBe('BackofficeError');
+	expect(error.name).toBe('DirectusError');
 	expect(error.code).toBe(code);
 	expect(error.status).toBe(status);
 	expect(error.message).toBe(message);

@@ -9,6 +9,7 @@ import {
 	SUPPORTED_IMAGE_METADATA_FORMATS,
 	SUPPORTED_IMAGE_TRANSFORM_FORMATS,
 	SYSTEM_ASSET_ALLOW_LIST,
+	UUID_REGEX,
 } from './constants.js';
 
 vi.mock('@backoffice/env');
@@ -117,4 +118,10 @@ describe('file and asset constants (directus/api/src/constants.ts)', () => {
 		vi.mocked(useEnv).mockReturnValue({ TUS_UPLOAD_EXPIRATION: 'not-a-duration' });
 		expect(RESUMABLE_UPLOADS.EXPIRATION_TIME).toBe(600_000);
 	});
+});
+
+test('UUID_REGEX is the Directus pattern of /flows/trigger/:pk', () => {
+	expect(UUID_REGEX).toBe('[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}');
+	expect(new RegExp(`^${UUID_REGEX}$`, 'i').test('3F1C2D4E-0000-4000-8000-00000000000A')).toBe(true);
+	expect(new RegExp(`^${UUID_REGEX}$`, 'i').test('not-a-uuid')).toBe(false);
 });

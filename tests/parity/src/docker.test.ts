@@ -27,3 +27,10 @@ test('profileStop stops both containers of the pair', () => {
 
 	expect(lastArgs().slice(-3)).toEqual(['stop', 'directus-retention', 'backoffice-api-retention']);
 });
+
+test('the scheduled flows pair is a profile of every compose call (feature 009)', () => {
+	profileUp('flows-schedule');
+
+	expect(lastArgs()).toContain('flows-schedule');
+	expect(lastArgs().slice(-2)).toEqual(['directus-flows-schedule', 'backoffice-api-flows-schedule']);
+});

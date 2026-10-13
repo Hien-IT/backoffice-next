@@ -44,6 +44,8 @@ const ALL_PROFILES = [
 	'assets-stress',
 	// Feature 008 (research R5): `down` only; retention.test.ts starts the pair itself.
 	'retention',
+	// Feature 009 (research R12): `down` only; schedule.test.ts starts the pair itself.
+	'flows-schedule',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

@@ -135,3 +135,6 @@ export function sessionCookieOptions(): CookieOptions {
 		sameSite: (env['SESSION_COOKIE_SAME_SITE'] || 'strict') as 'lax' | 'strict' | 'none',
 	};
 }
+
+/** Ported from directus/api/src/constants.ts: the `:pk` pattern of `/flows/trigger/:pk` (feature 009). */
+export const UUID_REGEX = '[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}';
