@@ -172,29 +172,29 @@ Directus; app Directus hiển thị được.
 
 ### Tests for User Story 1
 
-- [ ] T016 [P] [US1] `tests/parity/src/history/activity.test.ts` (`reduced`, `full`): `GET /activity`, `SEARCH` (`keys`,
+- [X] T016 [P] [US1] `tests/parity/src/history/activity.test.ts` (`reduced`, `full`): `GET /activity`, `SEARCH` (`keys`,
   `query`), `GET /:pk` (có, không có → `403`), `fields` lồng `user.*`, `revisions.*`, `filter` lồng, `sort`, `limit`,
   `page`, `aggregate`, `meta`; admin, user tối thiểu app access (chỉ dòng của mình), public (`403`); `OPTIONS`,
   `HEAD`; cache (`Cache-Control: no-store` và không); dòng do mỗi app ghi khi create, update, delete item user, item
   `directus_files`, `directus_users` (gồm `accountability = activity`, `null`) so qua `historyEffects` với cùng
   `User-Agent`, `Origin`, `ip` tuyệt đối (FR-010, FR-060; US1.1, 1.2, 1.4, 1.5, 1.6).
-- [ ] T017 [P] [US1] `tests/parity/src/history/revisions.test.ts` (`reduced`, `full`): đúng query của
+- [X] T017 [P] [US1] `tests/parity/src/history/revisions.test.ts` (`reduced`, `full`): đúng query của
   `directus/app/src/composables/use-revisions.ts` (count với `aggregate`, trang với `fields` activity lồng, `sort=-id`),
   `GET /:pk`, `SEARCH`, quyền (user không có read `directus_revisions` → `403`), revision của ghi lồng (`parent`),
   revision `data` là toàn bộ field không quan hệ sau khi sửa một field (FR-010, FR-013, US1.4).
-- [ ] T018 [P] [US1] `apps/api/src/controllers/activity.controller.test.ts` (supertest qua app Nest, mock service): ba
+- [X] T018 [P] [US1] `apps/api/src/controllers/activity.controller.test.ts` (supertest qua app Nest, mock service): ba
   handler, `readSingleton`/`readMany`/`readByQuery` theo `req.singleton` và `body.keys`, `meta`, `SEARCH` qua
   `validateBatch('read')`.
-- [ ] T019 [P] [US1] `apps/api/src/controllers/revisions.controller.test.ts`: `GET /`, `SEARCH /` qua
+- [X] T019 [P] [US1] `apps/api/src/controllers/revisions.controller.test.ts`: `GET /`, `SEARCH /` qua
   `validateBatch('read')` rồi `readByQuery`, `GET /:pk`, không có `readMany`.
 
 ### Implementation for User Story 1
 
-- [ ] T020 [P] [US1] `apps/api/src/controllers/activity.controller.ts` port từ `directus/api/src/controllers/activity.ts`
+- [X] T020 [P] [US1] `apps/api/src/controllers/activity.controller.ts` port từ `directus/api/src/controllers/activity.ts`
   theo mẫu `folders.controller.ts` (research R4; contracts/history-api.md §1). Ghi manifest.
-- [ ] T021 [P] [US1] `apps/api/src/controllers/revisions.controller.ts` port từ `controllers/revisions.ts`
+- [X] T021 [P] [US1] `apps/api/src/controllers/revisions.controller.ts` port từ `controllers/revisions.ts`
   (contracts/history-api.md §2). Ghi manifest.
-- [ ] T022 [US1] `apps/api/src/app.module.ts`: đăng ký hai controller (thứ tự bảng chữ cái) và
+- [X] T022 [US1] `apps/api/src/app.module.ts`: đăng ký hai controller (thứ tự bảng chữ cái) và
   `useCollection('directus_activity')`, `useCollection('directus_revisions')`; `app.test.ts`,
   `app-pipeline.test.ts` thêm ca. Chạy T016, T017 trên Postgres, MySQL, SQLite; ghi số ca vào "Ghi chú khi làm".
 
@@ -468,3 +468,7 @@ Task: "router-options.ts mẫu mới (T015)"
   metrics) và test thứ tự; R5, plan sửa theo.
 - T008: ca đối chiếu 005 `?version=nope` (Backoffice `500` tới 008) đổi thành so bằng nhau ở hai app (`403`).
 - Phase 2: `pnpm nx run api:test` 252 file, 2.820 test xanh; coverage dòng `apps/api` 86,37%.
+- US1 (T016–T022, Postgres cục bộ): `activity.test.ts` 10/10, `revisions.test.ts` 3/3. Dòng activity, revision hai app
+  ghi trùng từng cột (gồm `ip`, `user_agent`, `origin`) cho accountability `all`, `activity`, `null`, `PATCH /users` và
+  ghi lồng (`parent`). Ca cache: mục Directus ghi là `HIT` ở cả hai app (cache dùng chung). `parity()` của các file
+  `history` bỏ entry tạm D-09.6 (`withoutD096`), nếu không D-09.6 che mọi khác biệt của bốn route tới khi đóng feature.

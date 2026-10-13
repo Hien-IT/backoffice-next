@@ -1,6 +1,7 @@
 import { useEnv } from '@backoffice/env';
 import { type DynamicModule, type MiddlewareConsumer, Module, type NestModule } from '@nestjs/common';
 import { AccessController } from './controllers/access.controller.js';
+import { ActivityController } from './controllers/activity.controller.js';
 import { AssetsController } from './controllers/assets.controller.js';
 import { AuthController } from './controllers/auth.controller.js';
 import { CollectionsController } from './controllers/collections.controller.js';
@@ -11,6 +12,7 @@ import { ItemsController } from './controllers/items.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
 import { PoliciesController } from './controllers/policies.controller.js';
 import { RelationsController } from './controllers/relations.controller.js';
+import { RevisionsController } from './controllers/revisions.controller.js';
 import { RolesController } from './controllers/roles.controller.js';
 import { SchemaController } from './controllers/schema.controller.js';
 import { ServerController } from './controllers/server.controller.js';
@@ -32,6 +34,7 @@ export class TusModule implements NestModule {
 	imports: [MetricsModule],
 	controllers: [
 		AccessController,
+		ActivityController,
 		AssetsController,
 		AuthController,
 		CollectionsController,
@@ -42,6 +45,7 @@ export class TusModule implements NestModule {
 		PermissionsController,
 		PoliciesController,
 		RelationsController,
+		RevisionsController,
 		RolesController,
 		SchemaController,
 		ServerController,
@@ -58,12 +62,14 @@ export class AppModule implements NestModule {
 	// `router.use(useCollection(...))` of each Directus router.
 	configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(useCollection('directus_access')).forRoutes(AccessController);
+		consumer.apply(useCollection('directus_activity')).forRoutes(ActivityController);
 		consumer.apply(useCollection('directus_files')).forRoutes(AssetsController, FilesController);
 		consumer.apply(useCollection('directus_fields')).forRoutes(FieldsController);
 		consumer.apply(useCollection('directus_folders')).forRoutes(FoldersController);
 		consumer.apply(useCollection('directus_permissions')).forRoutes(PermissionsController);
 		consumer.apply(useCollection('directus_policies')).forRoutes(PoliciesController);
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);
+		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);
 		consumer.apply(useCollection('directus_roles')).forRoutes(RolesController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 	}
