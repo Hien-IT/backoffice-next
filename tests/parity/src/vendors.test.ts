@@ -211,5 +211,7 @@ test('the setup pair has its own Postgres and Redis db, no ADMIN_* and is not a 
 	expect(env).toMatch(/^ADMIN_EMAIL=$/m);
 	expect(env).toMatch(/^ADMIN_PASSWORD=$/m);
 	expect(env).toMatch(/^REDIS=redis:\/\/redis:6379\/9$/m);
+	// Pub/sub ignores the db number: without its own bus namespace the pair talks to the main pair (R-19).
+	expect(env).toMatch(/^REDIS_BUS_NAMESPACE=parity-setup:bus$/m);
 	expect(manualProfiles).not.toContain('setup');
 });

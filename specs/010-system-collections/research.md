@@ -196,8 +196,10 @@ E2E. Đường dẫn Directus tính từ `directus/api/src` trừ khi ghi khác;
   `6112`), `directus-setup` (`10455`), `backoffice-api-setup` (`10456`), profile `setup`;
   `env/profile-setup.env`: `DB_HOST=postgres-setup`, `ADMIN_EMAIL=`, `ADMIN_PASSWORD=` (rỗng: `bootstrap` của image
   Directus tạo role và policy Administrator nhưng không tạo user, `createAdmin` dừng ở `if (!adminEmail ||
-  !adminPassword) return`), `REDIS=redis://redis:6379/9` (db index riêng: cô lập mọi namespace cache, bus, lock,
-  quyền, sync khỏi cặp chính vì khác DB), `PUBLIC_URL=http://localhost:10455`. Backoffice khởi động sau
+  !adminPassword) return`), `REDIS=redis://redis:6379/9` (db index riêng: cô lập key cache, lock, quyền, sync khỏi cặp
+  chính), `REDIS_BUS_NAMESPACE=parity-setup:bus`, `REDIS_LOCK_NAMESPACE=parity-setup:lock` (pub/sub của Redis không
+  tách theo db: CI 52dacb6 cho thấy schema của DB trống tới cặp chính, flows đỏ trên hai shard, sửa 2026-10-14),
+  `PUBLIC_URL=http://localhost:10455`. Backoffice khởi động sau
   `directus-setup` healthy (migration đã chạy). Không thuộc `manualProfiles` (DB riêng, không phá suite khác); vào
   `--profiles` của job parity Postgres `full` và job `e2e-directus-app`. `setup.test.ts`: `describe.skipIf(vendor !==
   'postgres' || !hasProfile('setup'))`; `setupDb()` là knex tới `127.0.0.1:6112`; chuỗi: `GET /server/info` hai app
