@@ -66,15 +66,12 @@ describe('errors', () => {
 
 	// /auth is built by feature 003 (src/auth/*.test.ts), /users, /roles, /policies, /access, /permissions by 004,
 	// /collections, /fields, /relations, /schema by 006 (src/schema-management), /files, /folders, /assets by 007
-	// (src/files).
-	it.each(['/activity', '/flows', '/settings', '/graphql'])(
-		'%s is not built yet → 404 on Backoffice (D-09.*)',
-		async (path) => {
-			const result = await parity({ path });
-			assertParity(result);
-			expect(result.backoffice.status).toBe(404);
-		},
-	);
+	// (src/files), /activity, /revisions, /versions, /comments by 008 (src/history).
+	it.each(['/flows', '/settings', '/graphql'])('%s is not built yet → 404 on Backoffice (D-09.*)', async (path) => {
+		const result = await parity({ path });
+		assertParity(result);
+		expect(result.backoffice.status).toBe(404);
+	});
 
 	it.each(['/mcp', '/ai/chat', '/deployments', '/server/specs/graphql'])(
 		'%s out of scope → 404 on Backoffice (D-17, D-15)',

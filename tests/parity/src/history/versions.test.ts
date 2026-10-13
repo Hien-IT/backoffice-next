@@ -55,20 +55,22 @@ beforeAll(async () => {
 	await createUserCollection(
 		TYPES,
 		[
-			{ field: 's', type: 'string' },
-			{ field: 't', type: 'text' },
-			{ field: 'i', type: 'integer' },
-			{ field: 'bi', type: 'bigInteger' },
-			{ field: 'f', type: 'float' },
-			{ field: 'd', type: 'decimal', schema: { numeric_precision: 10, numeric_scale: 3 } },
+			{ field: 's', type: 'string', meta: {} },
+			{ field: 't', type: 'text', meta: {} },
+			{ field: 'i', type: 'integer', meta: {} },
+			{ field: 'bi', type: 'bigInteger', meta: {} },
+			{ field: 'f', type: 'float', meta: {} },
+			{ field: 'd', type: 'decimal', schema: { numeric_precision: 10, numeric_scale: 3 }, meta: {} },
 			{ field: 'b', type: 'boolean', meta: { special: ['cast-boolean'] } },
-			// Like the Directus app sends them: a json field without its special is rejected by POST /collections.
+			// Every field has a meta, like the Directus app sends them: POST /collections fills `collection` and `field` of
+			// each meta, then adds the cast flag of the dialect (json; timestamp on SQLite) to fields without one, as a meta
+			// missing both, which fails validation.
 			{ field: 'j', type: 'json', meta: { special: ['cast-json'] } },
-			{ field: 'dt', type: 'dateTime' },
-			{ field: 'ts', type: 'timestamp' },
-			{ field: 'da', type: 'date' },
-			{ field: 'ti', type: 'time' },
-			{ field: 'u', type: 'uuid' },
+			{ field: 'dt', type: 'dateTime', meta: {} },
+			{ field: 'ts', type: 'timestamp', meta: {} },
+			{ field: 'da', type: 'date', meta: {} },
+			{ field: 'ti', type: 'time', meta: {} },
+			{ field: 'u', type: 'uuid', meta: {} },
 			{ field: 'c', type: 'csv', meta: { special: ['cast-csv'] } },
 		],
 		{ primaryKey: 'uuid', meta: { versioning: true, accountability: 'all' } },

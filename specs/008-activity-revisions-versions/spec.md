@@ -399,7 +399,9 @@ module Activity.
   ném ra. Thông báo tạo bằng `NotificationsService` không accountability (không kiểm quyền tạo
   `directus_notifications` của người viết), `sender` là người viết. Regex không phân biệt hoa thường nhưng `uniq` và bảng tên
   thì có: cùng uuid viết hoa và viết thường là hai mention (hai thông báo), bản viết hoa in `@Unknown User` (đo ở
-  T010, unit test).
+  T010, unit test). Bản viết hoa được đọc bằng `UsersService.readOne` ngoài `try` của vòng: Postgres (cột uuid so
+  không phân biệt hoa thường) tìm thấy user; MySQL, SQLite (`char(36)`) không tìm thấy nên trả `403` sau khi comment và
+  thông báo đầu đã ghi, như Directus (đo ở CI của T030).
 - **FR-042**: `NotificationsService` PHẢI được port cho FR-041 (`createOne` ghi dòng rồi `sendEmail`); `sendEmail`
   chạy tới bước quyết định gửi (user có `email` và `email_notifications = true`) rồi ghi một dòng log cảnh báo thay
   cho bước gửi, không đọc `EMAIL_*`, không lỗi (Nguyên tắc X; D-33, Clarifications) cho tới feature 010. Dòng log:

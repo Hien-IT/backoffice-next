@@ -5,6 +5,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { appRequest } from '../directus-api.js';
 import { cleanup, createField, createUser, createUserCollection, type TestUser } from '../permissions/fixtures.js';
+import type { Captured } from '../parity.js';
 import { admin, historyCollection, same } from './helpers.js';
 
 const run = Math.random().toString(16).slice(2, 10);
@@ -82,12 +83,23 @@ afterAll(async () => {
 	await closeHostDb();
 }, 120_000);
 
+/** The o2m keys of `data.links` sorted (null last) and no ETag, which hashes the body. */
+function sortLinks(captured: Captured): Captured {
+	const data = (captured.json as any)?.data;
+	if (!Array.isArray(data?.links)) return captured;
+	const links = [...data.links].sort((a, b) => (a === null ? 1 : b === null ? -1 : String(a).localeCompare(String(b))));
+	const { etag: _etag, ...headers } = captured.headers;
+	return { ...captured, headers, json: { ...(captured.json as object), data: { ...data, links } } };
+}
+
 describe('?version= at both apps', () => {
 	it('the delta applied: plain, nested m2o created for the read, o2m changed and created', async () => {
 		const headers = await admin();
 		const deep = json({ links: { _sort: ['url'] } });
 
-		await same({ path: `/items/${POSTS}/${item}?version=draft`, headers });
+		// Each read creates its own temporary link (random uuid) and returns the o2m keys in primary key order, so the
+		// null of that link and the kept key come in either order, at Directus too: compare them sorted.
+		await same({ path: `/items/${POSTS}/${item}?version=draft`, headers, normalize: sortLinks });
 		await same({
 			path: `/items/${POSTS}/${item}?version=draft&fields=id,title,author.name,links.url&deep=${deep}`,
 			headers,

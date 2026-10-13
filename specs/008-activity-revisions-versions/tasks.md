@@ -507,3 +507,15 @@ Task: "router-options.ts mẫu mới (T015)"
   plan. Spec 001 giữ dòng D-09.6 làm lịch sử (như D-09.5 ở 007); D-31 của spec 004 và chú thích entry thu hẹp. API
   256 file, 2.837 test xanh, coverage dòng 86,44%; `pnpm audit --prod --audit-level=high` không advisory mới (feature
   không thêm thư viện); `graphify update .` chạy.
+- CI lượt đầu của US6 (2026-10-13): ba lỗi test, đã sửa. (1) `errors.test.ts` của 001 coi `/activity` là route chưa có:
+  bỏ khỏi danh sách. (2) SQLite gắn cờ `cast-timestamp` cho field `timestamp` không có `meta` sau bước điền
+  `collection`, `field` của `meta`, nên `POST /collections` lỗi validation: mọi field của collection test hash có
+  `meta`. (3) Mention uuid viết hoa: Postgres tìm thấy user (cột uuid), MySQL, SQLite (`char(36)`) không, nên Directus
+  trả `403` sau thông báo đầu; ca test chấp nhận cả hai nhánh theo status, FR-041 ghi theo. (4) `?version=` với o2m:
+  mỗi lượt đọc tạo link tạm uuid ngẫu nhiên nên thứ tự khóa trong mảng là ngẫu nhiên ở cả Directus: so sau khi sắp.
+  `tfa-toggle` (004) đỏ một lần do OTP qua cửa sổ thời gian, lượt sau xanh.
+- T042 (cục bộ, Postgres, 3 vòng, hai app amd64 giả lập trên arm64, seed 3 s): throughput hai app lệch tối đa 10% ở mọi
+  kịch bản, thường nghiêng về app mới; p95 vượt 10% ở một hoặc hai kịch bản khác nhau mỗi lượt (lượt 1:
+  `activity-list` user 577 so với 473 ms; lượt 2: `item-version-read` 569 so với 474 ms, `revisions-sidebar` 607 so với
+  523 ms), các kịch bản đó đạt ở lượt kia. Nhiễu của máy giả lập ở p95 khoảng 500 ms; mốc chính thức là job CI
+  `benchmark-history`.
