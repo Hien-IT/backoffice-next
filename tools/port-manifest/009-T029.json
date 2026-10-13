@@ -1,0 +1,34 @@
+[
+	{
+		"source": "api/src/operations/item-create/index.ts",
+		"dest": "apps/api/src/operations/item-create/index.ts"
+	},
+	{
+		"source": "api/src/operations/item-create/index.test.ts",
+		"dest": "apps/api/src/operations/item-create/index.test.ts"
+	},
+	{
+		"source": "api/src/operations/item-read/index.ts",
+		"dest": "apps/api/src/operations/item-read/index.ts"
+	},
+	{
+		"source": "api/src/operations/item-read/index.test.ts",
+		"dest": "apps/api/src/operations/item-read/index.test.ts"
+	},
+	{
+		"source": "api/src/operations/item-update/index.ts",
+		"dest": "apps/api/src/operations/item-update/index.ts"
+	},
+	{
+		"source": "api/src/operations/item-update/index.test.ts",
+		"dest": "apps/api/src/operations/item-update/index.test.ts"
+	},
+	{
+		"source": "api/src/operations/item-delete/index.ts",
+		"dest": "apps/api/src/operations/item-delete/index.ts"
+	},
+	{
+		"source": "api/src/operations/item-delete/index.test.ts",
+		"dest": "apps/api/src/operations/item-delete/index.test.ts"
+	}
+]

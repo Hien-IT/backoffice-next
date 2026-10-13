@@ -7,6 +7,8 @@ import { useLogger } from '../logger/index.js';
 
 vi.mock('@backoffice/env');
 vi.mock('../logger/index.js');
+// The error handler runs the request.error hook with the default connection, like Directus.
+vi.mock('../database/index.js', () => ({ default: () => ({}) }));
 
 const logger = { error: vi.fn(), debug: vi.fn(), warn: vi.fn() };
 

@@ -11,6 +11,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { useLogger } from '../logger/index.js';
 import * as errorHandlerMod from './error-handler.js';
 
+vi.mock('../database/index');
 vi.mock('../logger/index');
 
 let mockRequest: Request;

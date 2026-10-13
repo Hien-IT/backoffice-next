@@ -1,6 +1,7 @@
 // Ported from directus/api/src/database/errors/translate.ts
 import type { Item } from '@backoffice/types';
-import { getDatabaseClient } from '../index.js';
+import emitter from '../../emitter.js';
+import getDatabase, { getDatabaseClient } from '../index.js';
 import { extractError as mssql } from './dialects/mssql.js';
 import { extractError as mysql } from './dialects/mysql.js';
 import { extractError as oracle } from './dialects/oracle.js';
@@ -40,6 +41,16 @@ export async function translateDatabaseError(error: SQLError, data: Partial<Item
 			break;
 	}
 
-	// Backoffice: the `database.error` filter event is not emitted (D-26 of spec 003); its default is the result.
-	return defaultError;
+	const hookError = await emitter.emitFilter(
+		'database.error',
+		defaultError,
+		{ client },
+		{
+			database: getDatabase(),
+			schema: null,
+			accountability: null,
+		},
+	);
+
+	return hookError;
 }

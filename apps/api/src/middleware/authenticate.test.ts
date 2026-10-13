@@ -1,10 +1,11 @@
-// Ported from directus/api/src/middleware/authenticate.test.ts (without the `authenticate` filter event, D-26 of spec 003)
+// Ported from directus/api/src/middleware/authenticate.test.ts
 import { InvalidCredentialsError } from '@backoffice/errors';
 import type { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import type { Knex } from 'knex';
 import { afterEach, expect, test, vi } from 'vitest';
 import getDatabase from '../database/index.js';
+import emitter from '../emitter.js';
 import { fetchRolesTree } from '../permissions/lib/fetch-roles-tree.js';
 import { fetchGlobalAccess } from '../permissions/modules/fetch-global-access/fetch-global-access.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
@@ -49,6 +50,27 @@ afterEach(() => {
 	vi.clearAllMocks();
 });
 
+test('Short-circuits when authenticate filter is used', async () => {
+	const req = {
+		socket: { remoteAddress: '127.0.0.1' },
+		headers: {},
+		cookies: {},
+		get: vi.fn(reqGetImplementation),
+	} as unknown as Request;
+
+	const res = {} as Response;
+	const next = vi.fn();
+
+	const customAccountability = { admin: true };
+
+	vi.spyOn(emitter, 'emitFilter').mockResolvedValue(customAccountability);
+
+	await handler(req, res, next);
+
+	expect(req.accountability).toEqual(customAccountability);
+	expect(next).toHaveBeenCalledTimes(1);
+});
+
 test('Uses default public accountability when no token is given', async () => {
 	const req = {
 		socket: { remoteAddress: '127.0.0.1' },
@@ -60,6 +82,7 @@ test('Uses default public accountability when no token is given', async () => {
 	const res = {} as Response;
 	const next = vi.fn();
 
+	vi.spyOn(emitter, 'emitFilter').mockImplementation(async (_, payload) => payload);
 
 	await handler(req, res, next);
 
@@ -271,7 +294,11 @@ test('Invalid session token responds with error and clears the cookie', async ()
 	await expect(handler(req, res, next)).rejects.toEqual(new InvalidCredentialsError());
 	// Backoffice: cleared like res.clearCookie of Express 4.21.2 (utils/clear-cookie.ts), through res.cookie
 	expect(res.cookie).toHaveBeenCalledTimes(1);
-	expect(res.cookie).toHaveBeenCalledWith('directus_session', '', expect.objectContaining({ path: '/', httpOnly: true }));
+	expect(res.cookie).toHaveBeenCalledWith(
+		'directus_session',
+		'',
+		expect.objectContaining({ path: '/', httpOnly: true }),
+	);
 	expect(next).toHaveBeenCalledTimes(0);
 });
 

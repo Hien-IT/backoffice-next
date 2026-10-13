@@ -1,17 +1,39 @@
 // Ported from directus/api/src/utils/get-cache-key.ts
-// Backoffice: the flow trigger part (cacheQueryParams of /flows/trigger/<uuid>, feature 009) and the GraphQL part
-// (getGraphqlQueryAndVariables for /graphql, feature 011) come with those routes; the key of every other path is the
-// same as Directus (spec FR-010): `version` is DIRECTUS_COMPAT_VERSION, not Backoffice's own version.
+// Backoffice: the GraphQL part (getGraphqlQueryAndVariables for /graphql, feature 011) comes with that route; the key of
+// every other path is the same as Directus (spec FR-010): `version` is DIRECTUS_COMPAT_VERSION, not Backoffice's own
+// version. The flow trigger part (cacheQueryParams of /flows/trigger/<uuid>) comes with feature 009.
 import url from 'url';
+import { toArray } from '@backoffice/utils';
 import { ipInNetworks } from '@backoffice/utils/node';
 import type { Request } from 'express';
+import { isEmpty, pick } from 'lodash-es';
 import hash from 'object-hash';
 import { DIRECTUS_COMPAT_VERSION as version } from '../constants.js';
 import getDatabase from '../database/index.js';
 import { fetchPoliciesIpAccess } from '../permissions/modules/fetch-policies-ip-access/fetch-policies-ip-access.js';
 
+// Match /flows/trigger/<uuid> and extract the UUID
+const FLOW_TRIGGER_PATTERN = /^\/flows\/trigger\/([0-9a-f-]+)/i;
+
 export async function getCacheKey(req: Request) {
 	const path = url.parse(req.originalUrl).pathname;
+
+	let flowTriggerQuery: Record<string, any> | undefined = undefined;
+
+	if (path) {
+		const flowMatch = path.match(FLOW_TRIGGER_PATTERN);
+
+		// Flow trigger endpoints accept arbitrary query params that affect their response,
+		// but these are not captured in sanitizedQuery.
+		if (flowMatch) {
+			// Backoffice: loaded on use, so the cache middleware does not pull the flow engine and every service in.
+			const { getFlowManager } = await import('../flows.js');
+			const flow = getFlowManager().getFlow(flowMatch[1]!);
+			const cacheQueryParams: string[] = toArray(flow?.options?.['cacheQueryParams'] ?? []);
+			const picked = pick(req.query, cacheQueryParams);
+			if (!isEmpty(picked)) flowTriggerQuery = picked;
+		}
+	}
 
 	let includeIp = false;
 
@@ -27,6 +49,7 @@ export async function getCacheKey(req: Request) {
 		user: req.accountability?.user || null,
 		path,
 		query: req.sanitizedQuery,
+		...(flowTriggerQuery && { rawQuery: flowTriggerQuery }),
 		...(includeIp && { ip: req.accountability!.ip }),
 	};
 

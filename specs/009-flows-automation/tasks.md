@@ -285,7 +285,7 @@ event, payload, meta; filter chặn hoặc đổi payload; action chạy nền.
 
 **Independent Test**: `tests/parity/src/flows/event.test.ts` xanh; US3 ca 1–5.
 
-- [ ] T025 [US3] `tests/parity/src/flows/event.test.ts` (`reduced`, `full`): seed flow filter/action cho
+- [X] T025 [US3] `tests/parity/src/flows/event.test.ts` (`reduced`, `full`): seed flow filter/action cho
   `items.create|update|delete` trên `articles` (collection test của 005) và `directus_users`, `directus_files`,
   `directus_comments` (`users.create`, `files.update`, `comments.create`...); filter reject (`throw-error`) → request
   lỗi với status/code của nó ở cả hai app và không ghi item; filter `return` (`transform` đổi `payload.title`) → item
@@ -296,7 +296,7 @@ event, payload, meta; filter chặn hoặc đổi payload; action chạy nền.
   (đếm `run` theo app); `authenticate` filter không chặn (log). Dọn flow và `articles_log` ở `afterAll` (FR-010,
   FR-022, FR-023; US3 ca 1–5). Cần `item-create` của T029: ca dùng `item-create` chạy sau T029 (viết test trước, đỏ
   tới khi T029 xong); phần còn lại chỉ dùng operation lõi của T017.
-- [ ] T026 [P] [US3] `apps/api/src/flows.test.ts` thêm ca event: tên event cho scope mảng × collections hỗn hợp (user và
+- [X] T026 [P] [US3] `apps/api/src/flows.test.ts` thêm ca event: tên event cho scope mảng × collections hỗn hợp (user và
   hệ thống), scope `items.create` không `collections` → không `onFilter`; filter handler nhận `(payload, meta,
   context)` và trả giá trị của `return`; action handler nhận `(meta, context)` và lỗi không ném ra ngoài `emitAction`
   (dùng `mockEmitter`); `offFilter`/`offAction` đúng handler khi `unload` (US3 ca 1–3).
@@ -315,7 +315,7 @@ thật); quickstart §5.
 
 ### Tests for User Story 4
 
-- [ ] T027 [US4] `tests/parity/src/flows/operations.test.ts` (`reduced` ca resolve, `full`): mỗi operation một flow
+- [X] T027 [US4] `tests/parity/src/flows/operations.test.ts` (`reduced` ca resolve, `full`): mỗi operation một flow
   webhook `POST`, `return = $all`, ca resolve và reject theo contracts/operations.md: `condition` (khớp, không khớp:
   mảng lỗi; filter `$CURRENT_USER`), `exec` (sync, async, `console.log`, `process.env` từ `$env`, lỗi cú pháp,
   `module.exports` không phải hàm, `while(true){}` → `Script execution timed out.` sau 10 s, bộ nhớ: `new
@@ -333,28 +333,28 @@ thật); quickstart §5.
 
 ### Implementation for User Story 4
 
-- [ ] T028 [P] [US4] Port `operations/exec/index.ts` + test gốc (12 ca, isolated-vm thật, `createRequire`) vào
+- [X] T028 [P] [US4] Port `operations/exec/index.ts` + test gốc (12 ca, isolated-vm thật, `createRequire`) vào
   `apps/api/src/operations/exec/`; `sieveFunctions` của `@backoffice/utils`; thêm config vào `operations/index.ts`.
   Ghi manifest (FR-032).
-- [ ] T029 [P] [US4] Port `operations/{item-create,item-read,item-update,item-delete}/index.ts` + test gốc (4, 11,
+- [X] T029 [P] [US4] Port `operations/{item-create,item-read,item-update,item-delete}/index.ts` + test gốc (4, 11,
   11, 11 ca; mock `../../services/items.js`, `../../utils/get-accountability-for-role.js`,
   `../../utils/sanitize-query.js`) vào `apps/api/src/operations/`; thêm bốn config. Ghi manifest (FR-033).
-- [ ] T030 [P] [US4] Port `operations/json-web-token/index.ts` + test gốc (12 ca) vào `apps/api/src/operations/
+- [X] T030 [P] [US4] Port `operations/json-web-token/index.ts` + test gốc (12 ca) vào `apps/api/src/operations/
   json-web-token/`; thêm config. Ghi manifest (FR-034).
-- [ ] T031 [P] [US4] Port `operations/mail/rate-limiter.ts` + `rate-limiter.test.ts` (5 ca) và `mail/index.ts` vào
+- [X] T031 [P] [US4] Port `operations/mail/rate-limiter.ts` + `rate-limiter.test.ts` (5 ca) và `mail/index.ts` vào
   `apps/api/src/operations/mail/`: giữ `useFlowsEmailRateLimiter(flow!.id)` và dựng `mailObject`, thay
   `MailService` + `send` bằng `logger.warn('Backoffice: mail sending is out of scope; flow mail "<subject>" to <to>
   not sent')` (`// Backoffice: D-34`), không import `md`; `mail/index.test.ts` viết lại 7 ca gốc thành kiểm dòng log
   (template mặc định `base`, template tùy chọn, `data`, wysiwyg, markdown không render, cc/bcc/replyTo không xuất
   hiện) + rate limiter vượt hạn ném `EmailLimitExceededError` trước khi log; thêm config. Ghi manifest (FR-036).
-- [ ] T032 [P] [US4] Port `operations/notification/index.ts` + test gốc (2 `test.each`) vào `apps/api/src/operations/
+- [X] T032 [P] [US4] Port `operations/notification/index.ts` + test gốc (2 `test.each`) vào `apps/api/src/operations/
   notification/`; `NotificationsService` của 008; thêm config. Ghi manifest (FR-037).
-- [ ] T033 [P] [US4] Port `operations/request/index.ts` + test gốc (5 ca, mock `../../request/index.js`) vào
+- [X] T033 [P] [US4] Port `operations/request/index.ts` + test gốc (5 ca, mock `../../request/index.js`) vào
   `apps/api/src/operations/request/`; `encodeurl`, `isValidJSON` của `@backoffice/utils`; thêm config. Ghi manifest
   (FR-038).
-- [ ] T034 [P] [US4] Port `operations/trigger/index.ts` + test gốc (3 ca, `vi.doMock('../../flows.js')`) vào
+- [X] T034 [P] [US4] Port `operations/trigger/index.ts` + test gốc (3 ca, `vi.doMock('../../flows.js')`) vào
   `apps/api/src/operations/trigger/`; thêm config. Ghi manifest (FR-040).
-- [ ] T035 [US4] `apps/api/src/operations/index.test.ts`: 15 id đúng thứ tự tên thư mục, `FlowManager.initialize()`
+- [X] T035 [US4] `apps/api/src/operations/index.test.ts`: 15 id đúng thứ tự tên thư mục, `FlowManager.initialize()`
   đăng ký đủ 15 (`flows.test.ts` ca mới); chạy T027 trên Postgres, MySQL, SQLite; ghi số ca và thời gian ca `exec`
   timeout vào "Ghi chú khi làm". Sau T028 đến T034.
 
@@ -495,7 +495,7 @@ CI xanh mọi job.
   khác (ghi rõ, không tự lệch).
 - [ ] T053 Đóng feature (sau T046 đến T052, tech lead duyệt gỡ D-09.7, D-26, D-29, thu hẹp D-31, D-33 lâu dài, D-34,
   R-22, R-23, R-24, vi phạm IV của plan Complexity Tracking, ghi nhận `name` R7): `tests/parity/accepted-differences.ts` xóa entry `D-09.7`, `D-26`, `D-29`, sửa comment
-  `D-31`, bỏ `removeAt` của `D-33`, thêm `D-34` (kind `doc`, "No flow mail: the mail operation writes a warning line
+  `D-31`, bỏ `removeAt` của `D-33`, thêm `D-35` (kind `doc`, "No extensions.* or email.send events: no extension manager and no mail service (Principle XI)") và `D-34` (kind `doc`, "No flow mail: the mail operation writes a warning line
   after the rate limiter (Principle X)"); helper `same()` bỏ bộ lọc D-09.7; `spec.md` Status `Done` + dòng "Duyệt
   khác biệt" với ngày; commit `chore(009): close feature 009-flows-automation`, push `main`, CI (gồm
   `guard-differences`) xanh; cập nhật memory dự án.
@@ -623,3 +623,21 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   kỳ thứ năm, lượt đo được 10 lần (không chạy đôi; ca chấp nhận 10 hoặc 11). T024: các ca lịch ở unit test nằm trong
   `flows.manager.test.ts` (cron 6 trường, lỗi lần chạy theo lịch ghi `logger.error` và giữ job, `unload` dừng job,
   cảnh báo store memory đúng một lần khi có flow theo lịch).
+- US3, US4 (T025–T035, 2026-10-14, Postgres cục bộ): `event.test.ts` 7/7, `operations.test.ts` 22/22, 94 khối test
+  gốc của operation + `rate-limiter` 5 xanh (exec với isolated-vm thật), `mail` viết lại 8 ca. Đo trên Directus thật:
+  - Lỗi JS thường (không phải `DirectusError`: timeout của `exec`, role không tồn tại của `item-*`) serialize thành
+    `{}` trong `$all` ở cả hai app (`message` không enumerable); chỉ log chạy giữ `message`.
+  - `request` từ chính container Directus tới `http://directus:8055` bị `IMPORT_IP_DENY_LIST` mặc định (`0.0.0.0` =
+    IP của chính máy) chặn, còn từ container app mới thì không: do môi trường, không phải do code; test dùng
+    `http://files-fixtures/` làm đích chung.
+  - Filter flow reject làm request lỗi: `item-create` trong flow và dòng `run` bị rollback ở cả hai app.
+- Phát hiện khi làm US3: feature 003 port `AuthenticationService`, `authenticate`, ba driver SSO và
+  `database/errors/translate.ts` mà bỏ các event `auth.login` (filter, action), `auth.jwt`, `auth.create`,
+  `auth.update`, `authenticate`, `database.error` (ghi D-26); feature 001 bỏ `response`, `server.start`, `server.stop`
+  (server.ts), `request.error` (error handler), `request.not_found` (404) và phần `/flows/trigger` của khóa cache
+  (`cacheQueryParams`), ghi "feature 009". Đã port nguyên các điểm phát này và khôi phục các ca test gốc đã bị cắt
+  (`authenticate.test.ts` "Short-circuits when authenticate filter is used", 4 ca `auth.login` của
+  `authentication.test.ts`, 2 assert `auth.update` của `ldap.test.ts`, 3 ca flow trigger của `get-cache-key.test.ts`,
+  mock DB của `error-handler.test.ts`); ca `auth.login` trong `event.test.ts`. `get-cache-key.ts` import `flows.js`
+  động (chỉ khi path là `/flows/trigger/...`) để middleware cache không kéo cả bộ máy flow vào (khác nguồn, ghi
+  `Backoffice:`). Event `extensions.*` và `email.send` không phát: D-35 mới (spec).

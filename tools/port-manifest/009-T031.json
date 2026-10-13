@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/operations/mail/index.ts",
+		"dest": "apps/api/src/operations/mail/index.ts"
+	},
+	{
+		"source": "api/src/operations/mail/rate-limiter.ts",
+		"dest": "apps/api/src/operations/mail/rate-limiter.ts"
+	},
+	{
+		"source": "api/src/operations/mail/rate-limiter.test.ts",
+		"dest": "apps/api/src/operations/mail/rate-limiter.test.ts"
+	}
+]

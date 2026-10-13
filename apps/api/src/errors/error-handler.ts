@@ -1,9 +1,11 @@
-// Ported from directus/api/src/middleware/error-handler.ts (the `request.error` hook is not called yet: emitter comes with feature 009)
+// Ported from directus/api/src/middleware/error-handler.ts
 import { ErrorCode, InternalServerError, isBackofficeError } from '@backoffice/errors';
 import type { DeepPartial } from '@backoffice/types';
 import { isObject } from '@backoffice/utils';
 import { getNodeEnv } from '@backoffice/utils/node';
 import type { ErrorRequestHandler } from 'express';
+import getDatabase from '../database/index.js';
+import emitter from '../emitter.js';
 import { useLogger } from '../logger/index.js';
 
 type ApiError = {
@@ -86,8 +88,18 @@ export const errorHandler = asyncErrorHandler(async (err, req, res) => {
 
 	res.status(status ?? FALLBACK_ERROR.status);
 
-	// Feature 009: run the `request.error` filter hook here, as Directus does.
-	return res.json({ errors });
+	const updatedErrors = await emitter.emitFilter(
+		'request.error',
+		errors,
+		{},
+		{
+			database: getDatabase(),
+			schema: req.schema,
+			accountability: req.accountability ?? null,
+		},
+	);
+
+	return res.json({ errors: updatedErrors });
 });
 
 function asyncErrorHandler(

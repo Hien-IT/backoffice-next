@@ -20,6 +20,8 @@ import type { Client } from 'openid-client';
 import { errors, generators, Issuer } from 'openid-client';
 import { getAuthProvider } from '../../auth.js';
 import { refreshCookieOptions, sessionCookieOptions } from '../../constants.js';
+import getDatabase from '../../database/index.js';
+import emitter from '../../emitter.js';
 import { useLogger } from '../../logger/index.js';
 import { createDefaultAccountability } from '../../permissions/utils/create-default-accountability.js';
 import { AuthenticationService } from '../../services/authentication.service.js';
@@ -228,8 +230,16 @@ export class OAuth2AuthDriver extends LocalAuthDriver {
 
 			const schema = await getSchema();
 
-			// Backoffice: no `auth.update` filter event (D-26 of spec 003).
-			const updatedUserPayload = emitPayload;
+			const updatedUserPayload = await emitter.emitFilter(
+				`auth.update`,
+				emitPayload,
+				{
+					identifier,
+					provider: this.config['provider'],
+					providerPayload: { accessToken: tokenSet.access_token, idToken: tokenSet.id_token, userInfo },
+				},
+				{ database: getDatabase(), schema, accountability: null },
+			);
 
 			// Update user to update refresh_token and other properties that might have changed
 			if (Object.values(updatedUserPayload).some((value) => value !== undefined)) {
@@ -248,8 +258,16 @@ export class OAuth2AuthDriver extends LocalAuthDriver {
 
 		const schema = await getSchema();
 
-		// Backoffice: no `auth.create` filter event (D-26 of spec 003).
-		const updatedUserPayload = userPayload;
+		const updatedUserPayload = await emitter.emitFilter(
+			`auth.create`,
+			userPayload,
+			{
+				identifier,
+				provider: this.config['provider'],
+				providerPayload: { accessToken: tokenSet.access_token, idToken: tokenSet.id_token, userInfo },
+			},
+			{ database: getDatabase(), schema, accountability: null },
+		);
 
 		try {
 			const usersService = this.getUsersService(schema);

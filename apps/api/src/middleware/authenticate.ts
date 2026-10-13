@@ -3,7 +3,10 @@ import { useEnv } from '@backoffice/env';
 import { ErrorCode, isBackofficeError } from '@backoffice/errors';
 import type { Accountability } from '@backoffice/types';
 import type { NextFunction, Request, Response } from 'express';
+import { isEqual } from 'lodash-es';
 import { sessionCookieOptions } from '../constants.js';
+import getDatabase from '../database/index.js';
+import emitter from '../emitter.js';
 import { createDefaultAccountability } from '../permissions/utils/create-default-accountability.js';
 import asyncHandler from '../utils/async-handler.js';
 import { clearCookie } from '../utils/clear-cookie.js';
@@ -24,7 +27,25 @@ export const handler = async (req: Request, res: Response, next: NextFunction) =
 	const origin = req.get('origin');
 	if (origin) defaultAccountability.origin = origin;
 
-	// Backoffice: the `authenticate` filter event for extensions is not emitted (D-26 of spec 003).
+	const database = getDatabase();
+
+	const customAccountability = await emitter.emitFilter(
+		'authenticate',
+		defaultAccountability,
+		{
+			req,
+		},
+		{
+			database,
+			schema: null,
+			accountability: null,
+		},
+	);
+
+	if (customAccountability && isEqual(customAccountability, defaultAccountability) === false) {
+		req.accountability = customAccountability;
+		return next();
+	}
 
 	try {
 		req.accountability = await getAccountabilityForToken(req.token, defaultAccountability);

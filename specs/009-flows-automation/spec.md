@@ -646,6 +646,7 @@ Khác biệt mới:
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Gỡ khi |
 |----|----------|------------------|---------|-------|------|--------|
 | D-34 | Operation `mail` | `MailService.send` qua `EMAIL_TRANSPORT` (sendmail, smtp, mailgun, ses), render markdown hoặc template liquid, lỗi gửi chỉ ghi log | Qua rate limiter như Directus rồi ghi một dòng log cảnh báo thay vì gửi (như D-23, D-27, D-28, D-33); kết quả của operation giống nhau (undefined) | Mô tả feature: "không gửi email, chỉ ghi log"; không gửi email là quyết định dự án (SPECKIT-GUIDE §1, Clarifications); `EMAIL_*` thuộc nhóm chưa hỗ trợ; Nguyên tắc X | ngoài phạm vi (lâu dài) | — |
+| D-35 | Event `extensions.load`, `extensions.unload`, `extensions.reload`, `extensions.installed`, `extensions.uninstalled` (action) và `email.send` (filter) | `ExtensionManager` phát `extensions.*` khi nạp, gỡ, cài extension; `MailService.send` phát `email.send` trước khi gửi | Không phát: không có extension manager (Nguyên tắc XI) và không có `MailService` (D-33, D-34); flow `event` với các scope này nạp được nhưng không bao giờ chạy ở app mới (chạy ở Directus khi Directus phát) | Nguyên tắc X, XI | ngoài phạm vi (lâu dài) | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 008. Bằng chứng tối thiểu cho mỗi R-xx trước khi
 đóng feature: tên ca test đối chiếu tái tạo, request gửi, kết quả đo trên Directus 11.17.4 thật và ngày đo, ghi vào cột

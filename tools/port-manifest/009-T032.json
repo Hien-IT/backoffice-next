@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/operations/notification/index.ts",
+		"dest": "apps/api/src/operations/notification/index.ts"
+	},
+	{
+		"source": "api/src/operations/notification/index.test.ts",
+		"dest": "apps/api/src/operations/notification/index.test.ts"
+	}
+]

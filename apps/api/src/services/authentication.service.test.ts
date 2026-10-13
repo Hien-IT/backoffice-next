@@ -1,10 +1,11 @@
-// Ported from directus/api/src/services/authentication.test.ts (without the cases on the `auth.login` event, D-26)
+// Ported from directus/api/src/services/authentication.test.ts
 import { InvalidCredentialsError, InvalidOtpError, ServiceUnavailableError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import knex, { type Knex } from 'knex';
 import { createTracker, MockClient, type Tracker } from 'knex-mock-client';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, type MockedFunction, vi } from 'vitest';
 import { getAuthProvider } from '../auth.js';
+import emitter from '../emitter.js';
 import { stall } from '../utils/stall.js';
 import { ActivityService } from './activity.service.js';
 import { AuthenticationService } from './authentication.service.js';
@@ -24,6 +25,13 @@ vi.mock('../database/index.js', () => ({
 
 vi.mock('../auth.js', () => ({
 	getAuthProvider: vi.fn(),
+}));
+
+vi.mock('../emitter.js', () => ({
+	default: {
+		emitFilter: vi.fn().mockImplementation((_event, payload) => Promise.resolve(payload)),
+		emitAction: vi.fn(),
+	},
 }));
 
 vi.mock('../utils/stall.js', () => ({
@@ -181,12 +189,65 @@ describe('Integration Tests', () => {
 				);
 			});
 
-
 			it('should rethrow when getUserID throws', async () => {
 				const loginError = new Error('Invalid credentials');
 				mockProvider.getUserID.mockRejectedValueOnce(loginError);
 
 				await expect(service.login('default', { email: 'wrong@example.com' })).rejects.toThrow(loginError);
+			});
+
+			it('should emit auth.login success action on successful login', async () => {
+				setupHappyPathTracker();
+
+				await service.login('default', { email: 'john@example.com', password: 'password' });
+
+				expect(vi.mocked(emitter.emitAction)).toHaveBeenCalledWith(
+					'auth.login',
+					expect.objectContaining({ status: 'success', provider: 'default', user: mockUser.id }),
+					expect.any(Object),
+				);
+			});
+
+			it('should emit auth.login fail action and rethrow when getUserID throws', async () => {
+				const loginError = new Error('Invalid credentials');
+				mockProvider.getUserID.mockRejectedValueOnce(loginError);
+
+				await expect(service.login('default', { email: 'wrong@example.com' })).rejects.toThrow(loginError);
+
+				expect(vi.mocked(emitter.emitAction)).toHaveBeenCalledWith(
+					'auth.login',
+					expect.objectContaining({ status: 'fail', provider: 'default' }),
+					expect.any(Object),
+				);
+			});
+
+			it('should emit auth.login fail action when user status is not active', async () => {
+				tracker.on.select('directus_users').responseOnce([{ ...mockUser, status: 'inactive' }]);
+
+				await expect(service.login('default', { email: 'john@example.com', password: 'password' })).rejects.toThrow();
+
+				expect(vi.mocked(emitter.emitAction)).toHaveBeenCalledWith(
+					'auth.login',
+					expect.objectContaining({ status: 'fail' }),
+					expect.any(Object),
+				);
+			});
+
+			it('should emit auth.login fail action and rethrow when provider.login throws', async () => {
+				tracker.on.select('directus_users').responseOnce([mockUser]);
+
+				const providerError = new Error('Provider login failed');
+				mockProvider.login.mockRejectedValueOnce(providerError);
+
+				await expect(service.login('default', { email: 'john@example.com', password: 'password' })).rejects.toThrow(
+					providerError,
+				);
+
+				expect(vi.mocked(emitter.emitAction)).toHaveBeenCalledWith(
+					'auth.login',
+					expect.objectContaining({ status: 'fail', provider: 'default' }),
+					expect.any(Object),
+				);
 			});
 
 			it('should throw InvalidCredentialsError when user status is not active', async () => {
@@ -196,7 +257,6 @@ describe('Integration Tests', () => {
 					service.login('default', { email: 'john@example.com', password: 'password' }),
 				).rejects.toBeInstanceOf(InvalidCredentialsError);
 			});
-
 
 			it('should throw InvalidCredentialsError when user provider does not match', async () => {
 				tracker.on.select('directus_users').responseOnce([{ ...mockUser, provider: 'ldap' }]);

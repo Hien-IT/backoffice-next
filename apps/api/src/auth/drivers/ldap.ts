@@ -21,6 +21,8 @@ import {
 	InvalidCredentialsError as LdapInvalidCredentialsError,
 } from 'ldapts';
 import { refreshCookieOptions, sessionCookieOptions } from '../../constants.js';
+import getDatabase from '../../database/index.js';
+import emitter from '../../emitter.js';
 import { useLogger } from '../../logger/index.js';
 import { createDefaultAccountability } from '../../permissions/utils/create-default-accountability.js';
 import { AuthenticationService } from '../../services/authentication.service.js';
@@ -263,8 +265,12 @@ export class LDAPAuthDriver extends AuthDriver {
 
 			const schema = await getSchema();
 
-			// Backoffice: no `auth.update` filter event (D-26 of spec 003).
-			const updatedUserPayload = emitPayload;
+			const updatedUserPayload = await emitter.emitFilter(
+				`auth.update`,
+				emitPayload,
+				{ identifier: userInfo.dn, provider: this.config['provider'], providerPayload: { userInfo, userRole } },
+				{ database: getDatabase(), schema, accountability: null },
+			);
 
 			// Update user to update properties that might have changed
 			const usersService = this.getUsersService(schema);
@@ -288,8 +294,14 @@ export class LDAPAuthDriver extends AuthDriver {
 
 		const schema = await getSchema();
 
-		// Backoffice: no `auth.create` filter event (D-26 of spec 003).
-		const updatedUserPayload = userPayload;
+		// Run hook so the end user has the chance to augment the
+		// user that is about to be created
+		const updatedUserPayload = await emitter.emitFilter(
+			`auth.create`,
+			userPayload,
+			{ identifier: userInfo.dn, provider: this.config['provider'], providerPayload: { userInfo, userRole } },
+			{ database: getDatabase(), schema, accountability: null },
+		);
 
 		try {
 			const usersService = this.getUsersService(schema);

@@ -13,6 +13,7 @@ import {
 	InvalidCredentialsError as LdapInvalidCredentialsError,
 } from 'ldapts';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import emitter from '../../emitter.js';
 import { createLDAPAuthRouter, LDAPAuthDriver } from './ldap.js';
 
 const mockAuthenticationService = {
@@ -20,6 +21,12 @@ const mockAuthenticationService = {
 };
 
 // Mock the authentication service to prevent cascade imports
+vi.mock('../../emitter.js', () => ({
+	default: {
+		emitFilter: vi.fn((_, payload) => Promise.resolve(payload)),
+	},
+}));
+
 vi.mock('../../services/authentication.service.js', () => ({
 	AuthenticationService: vi.fn(() => mockAuthenticationService),
 }));
@@ -588,7 +595,14 @@ describe('LDAP Auth Driver', () => {
 
 			await driver.getUserID({ identifier: 'testuser' });
 
-			// Backoffice: no `auth.update` event (D-26 of spec 003); the payload goes to UsersService.updateOne
+			expect(emitter.emitFilter).toHaveBeenCalledWith(
+				'auth.update',
+				expect.objectContaining({ first_name: 'Updated' }),
+				expect.any(Object),
+				expect.any(Object),
+			);
+
+			// Backoffice: and the filtered payload goes to UsersService.updateOne
 			expect(mockUpdateOne).toHaveBeenCalledWith(
 				'existing-user-id',
 				expect.objectContaining({
@@ -638,7 +652,14 @@ describe('LDAP Auth Driver', () => {
 
 			await driver.getUserID({ identifier: 'testuser' });
 
-			// Backoffice: no `auth.update` event (D-26 of spec 003); the payload goes to UsersService.updateOne
+			expect(emitter.emitFilter).toHaveBeenCalledWith(
+				'auth.update',
+				expect.objectContaining({ role: 'role-id-123' }),
+				expect.any(Object),
+				expect.any(Object),
+			);
+
+			// Backoffice: and the filtered payload goes to UsersService.updateOne
 			expect(mockUpdateOne).toHaveBeenCalledWith(
 				'existing-user-id',
 				expect.objectContaining({

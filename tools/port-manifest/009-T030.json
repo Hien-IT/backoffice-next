@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/operations/json-web-token/index.ts",
+		"dest": "apps/api/src/operations/json-web-token/index.ts"
+	},
+	{
+		"source": "api/src/operations/json-web-token/index.test.ts",
+		"dest": "apps/api/src/operations/json-web-token/index.test.ts"
+	}
+]

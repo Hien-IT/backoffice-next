@@ -16,6 +16,7 @@ import type { StringValue } from 'ms';
 import { getAuthProvider } from '../auth.js';
 import { DEFAULT_AUTH_PROVIDER } from '../constants.js';
 import getDatabase from '../database/index.js';
+import emitter from '../emitter.js';
 import { fetchRolesTree } from '../permissions/lib/fetch-roles-tree.js';
 import { fetchGlobalAccess } from '../permissions/modules/fetch-global-access/fetch-global-access.js';
 import { createRateLimiter, RateLimiterRes } from '../rate-limiter.js';
@@ -71,13 +72,35 @@ export class AuthenticationService {
 
 		const provider = getAuthProvider(providerName);
 
-		// Backoffice: the `auth.login` and `auth.jwt` events for extensions are not emitted (D-26 of spec 003).
+		const emitStatus = (
+			status: 'fail' | 'success',
+			loginPayload: any,
+			loginUser: User | undefined,
+			error?: unknown,
+		) => {
+			emitter.emitAction(
+				'auth.login',
+				{
+					payload: loginPayload,
+					status,
+					user: loginUser?.id,
+					provider: providerName,
+					error,
+				},
+				{
+					database: this.knex,
+					schema: this.schema,
+					accountability: this.accountability,
+				},
+			);
+		};
 
 		let userId;
 
 		try {
 			userId = await provider.getUserID(cloneDeep(payload));
 		} catch (err) {
+			emitStatus('fail', payload, undefined, err);
 			await stall(STALL_TIME, timeStart);
 			throw err;
 		}
@@ -90,10 +113,24 @@ export class AuthenticationService {
 			.where('id', userId)
 			.first();
 
-		const updatedPayload = payload;
+		const updatedPayload = await emitter.emitFilter(
+			'auth.login',
+			payload,
+			{
+				status: 'pending',
+				user: user?.id,
+				provider: providerName,
+			},
+			{
+				database: this.knex,
+				schema: this.schema,
+				accountability: this.accountability,
+			},
+		);
 
 		if (user?.status !== 'active' || user?.provider !== providerName) {
 			const loginError = new InvalidCredentialsError();
+			emitStatus('fail', updatedPayload, user, loginError);
 			await stall(STALL_TIME, timeStart);
 			throw loginError;
 		}
@@ -162,12 +199,14 @@ export class AuthenticationService {
 		try {
 			await provider.login(clone(user), cloneDeep(updatedPayload));
 		} catch (err) {
+			emitStatus('fail', updatedPayload, user, err);
 			await stall(STALL_TIME, timeStart);
 			throw err;
 		}
 
 		if (user.tfa_secret && !options?.otp) {
 			const loginError = new InvalidOtpError();
+			emitStatus('fail', updatedPayload, user, loginError);
 			await stall(STALL_TIME, timeStart);
 			throw loginError;
 		}
@@ -178,6 +217,7 @@ export class AuthenticationService {
 
 			if (otpValid === false) {
 				const loginError = new InvalidOtpError();
+				emitStatus('fail', updatedPayload, user, loginError);
 				await stall(STALL_TIME, timeStart);
 				throw loginError;
 			}
@@ -222,7 +262,21 @@ export class AuthenticationService {
 			tokenPayload.session = refreshToken;
 		}
 
-		const customClaims = tokenPayload;
+		const customClaims = await emitter.emitFilter(
+			'auth.jwt',
+			tokenPayload,
+			{
+				status: 'pending',
+				user: user?.id,
+				provider: providerName,
+				type: 'login',
+			},
+			{
+				database: this.knex,
+				schema: this.schema,
+				accountability: this.accountability,
+			},
+		);
 
 		const TTL = env[options?.session ? 'SESSION_COOKIE_TTL' : 'ACCESS_TOKEN_TTL'] as StringValue | number;
 
@@ -256,6 +310,7 @@ export class AuthenticationService {
 
 		await this.knex('directus_users').update({ last_access: new Date() }).where({ id: user.id });
 
+		emitStatus('success', updatedPayload, user);
 
 		if (allowedAttempts !== null) {
 			await loginAttemptsLimiter.set(user.id, 0, 0);
@@ -388,7 +443,21 @@ export class AuthenticationService {
 			delete tokenPayload.id;
 		}
 
-		const customClaims = tokenPayload;
+		const customClaims = await emitter.emitFilter(
+			'auth.jwt',
+			tokenPayload,
+			{
+				status: 'pending',
+				user: record.user_id,
+				provider: record.user_provider,
+				type: 'refresh',
+			},
+			{
+				database: this.knex,
+				schema: this.schema,
+				accountability: this.accountability,
+			},
+		);
 
 		const TTL = env[options?.session ? 'SESSION_COOKIE_TTL' : 'ACCESS_TOKEN_TTL'] as StringValue | number;
 

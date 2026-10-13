@@ -3,7 +3,7 @@ import type { AddressInfo } from 'node:net';
 import { useEnv } from '@backoffice/env';
 import { createTerminus, type TerminusOptions } from '@godaddy/terminus';
 import getPort from 'get-port';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, onTestFinished, test, vi } from 'vitest';
 import { createApp } from './app.js';
 import getDatabase from './database/index.js';
 import { useLogger } from './logger/index.js';
@@ -139,5 +139,48 @@ describe('startServer', () => {
 		await vi.waitFor(() => expect(logger.error).toHaveBeenCalledWith(`Port ${port} is already in use`));
 		expect(exit).toHaveBeenCalledWith(1);
 		exit.mockRestore();
+	});
+});
+
+// Feature 009: the `response`, `server.start` and `server.stop` actions of Directus' server.ts (event flows).
+describe('server events', () => {
+	test('response: one action per finished request with the request and response info', async () => {
+		const { default: emitter } = await import('./emitter.js');
+		const emitAction = vi.spyOn(emitter, 'emitAction');
+		const { createServer } = await load();
+		const server = await createServer();
+		servers.push(server);
+		await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+		const { port } = server.address() as AddressInfo;
+
+		await fetch(`http://127.0.0.1:${port}/items/x?limit=1`, { headers: { 'user-agent': 'parity' } });
+		await vi.waitFor(() => expect(emitAction).toHaveBeenCalledWith('response', expect.anything(), expect.anything()));
+
+		const [, info] = emitAction.mock.calls.find(([event]) => event === 'response')!;
+		expect(info).toMatchObject({
+			finished: true,
+			request: { method: 'GET', path: '/items/x', query: { limit: '1' }, protocol: 'http' },
+			response: { status: 200 },
+		});
+	});
+
+	test('server.start after listen, server.stop on shutdown', async () => {
+		// startServer calls process.send?.('ready'); keep it off Vitest's IPC channel (see startServer above).
+		const send = process.send;
+		(process as { send?: unknown }).send = undefined;
+		onTestFinished(() => {
+			(process as { send?: unknown }).send = send;
+		});
+
+		const { default: emitter } = await import('./emitter.js');
+		const emitAction = vi.spyOn(emitter, 'emitAction');
+		const mod = await load({ PORT: String(await getPort()) });
+		const server = await mod.startServer();
+		servers.push(server);
+
+		await vi.waitFor(() => expect(emitAction).toHaveBeenCalledWith('server.start', { server }, expect.anything()));
+
+		await terminusOptions().onShutdown();
+		expect(emitAction).toHaveBeenCalledWith('server.stop', { server }, expect.anything());
 	});
 });

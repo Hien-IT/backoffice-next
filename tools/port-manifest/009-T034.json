@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/operations/trigger/index.ts",
+		"dest": "apps/api/src/operations/trigger/index.ts"
+	},
+	{
+		"source": "api/src/operations/trigger/index.test.ts",
+		"dest": "apps/api/src/operations/trigger/index.test.ts"
+	}
+]
