@@ -296,7 +296,7 @@ thể chạy sớm để kiểm.
 
 **Independent Test**: `retention.test.ts` xanh trên cặp `retention`; quickstart §5.
 
-- [ ] T034 [US5] `tests/parity/src/history/retention.test.ts` (`full`, `sequential: true`, chạy cuối suite `history`):
+- [X] T034 [US5] `tests/parity/src/history/retention.test.ts` (`full`, `sequential: true`, chạy cuối suite `history`):
   `beforeAll` `profileUp('retention')` và chờ `/server/health` hai app; `afterAll` `profileStop('retention')` kể cả
   khi `beforeAll` lỗi (tiền lệ 006). Seed dòng activity (`update`, `run`), revision cũ/mới bằng `hostDb` (sửa
   `timestamp`), chờ một kỳ 10 s, so dòng còn lại trong ba cảnh: chỉ app mới chạy (dừng container Directus của cặp),
@@ -305,7 +305,7 @@ thể chạy sớm để kiểm.
   quá hạn, SC-005); dòng của suite khác không bị chạm vì cặp chỉ sống trong file này; `ACTIVITY_RETENTION` nhỏ hơn
   `REVISIONS_RETENTION` không có task revision; nhánh lỗi xóa chỉ kiểm ở unit test T014 (không dựng được trên DB thật,
   ghi chú trong test) (US5.1 đến 5.3).
-- [ ] T035 [P] [US5] `tests/parity/README.md` mục 008 (cặp `retention`, suite `history`, cách đo khóa) và
+- [X] T035 [P] [US5] `tests/parity/README.md` mục 008 (cặp `retention`, suite `history`, cách đo khóa) và
   `tests/parity/src/startup/` thêm ca khởi động: `RETENTION_SCHEDULE` không hợp lệ không đăng ký job, không cảnh báo
   khác Directus; 6 biến không còn trong cảnh báo "chưa hỗ trợ" (US5.2, US5.4).
 
@@ -486,3 +486,7 @@ Task: "router-options.ts mẫu mới (T015)"
   có dòng warn trong log của cả hai app, cùng uuid viết hoa thành hai thông báo với `@Unknown User`, uuid không tồn tại
   `403` sau khi comment đã ghi; D-33: dòng warn ở app mới, thông báo trùng. Thông báo app mới ghi đọc được ở chuông
   (`/notifications` của Directus).
+- US5 (T034–T035): `retention.test.ts` 3/3 trên cặp `retention`: chỉ app mới chạy hoặc chỉ Directus chạy, lịch sử của
+  cả hai app cũ hơn mốc bị dọn sau một kỳ; cả hai chạy 10 kỳ, mỗi kỳ đúng một tiến trình đặt khóa (SC-005). Ca
+  `ACTIVITY_RETENTION < REVISIONS_RETENTION` chỉ kiểm ở unit test T014 (env của cặp cố định 2 s, 1 s). Ca khởi động:
+  biến retention và lịch không hợp lệ không cảnh báo, app vẫn chạy.

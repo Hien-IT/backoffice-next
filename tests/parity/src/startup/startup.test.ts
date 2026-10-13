@@ -206,6 +206,28 @@ describe.runIf(vendor === 'postgres' || vendor === 'sqlite3')('startup checks', 
 		expect(warning).not.toMatch(/STORAGE_|FILES_|ASSETS_|TUS_|IMPORT_IP_DENY_LIST|SYNCHRONIZATION_/);
 	});
 
+	// Feature 008 (FR-050, FR-052, US5.2, US5.4): the retention settings are read; an invalid schedule only skips the job.
+	test('retention variables, an invalid schedule → the app starts, no warning about them', async () => {
+		const port = await getPort();
+		const api = start(
+			await tempDb('retention_vars'),
+			{
+				RETENTION_ENABLED: 'true',
+				RETENTION_SCHEDULE: '#',
+				RETENTION_BATCH: '10',
+				ACTIVITY_RETENTION: '1d',
+				REVISIONS_RETENTION: '12h',
+				FLOW_LOGS_RETENTION: '1d',
+				IMPORT_TIMEOUT: '1s',
+			},
+			port,
+		);
+
+		expect(await waitForPing(api, port)).toBe(true);
+		expect(api.text()).not.toMatch(/RETENTION/);
+		expect(api.text()).toContain('IMPORT_TIMEOUT');
+	});
+
 	test('port already in use → exit 1, "Port <port> is already in use"', async () => {
 		const blocker = createServer();
 		const port = await getPort();

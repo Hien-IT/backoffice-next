@@ -174,6 +174,22 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   `minio` là `s3`), `paths.cwd` là `fixtures`, `nodeUrl('assets-limit' | 'assets-stress', 1)` thay hai node tự spawn.
 - Profile `app`: sau `env-up` tạo lại container, restart `proxy` (nginx giữ IP cũ của upstream).
 
+### Test lịch sử, versions, comments (feature 008)
+
+- `src/history/`: `/activity`, `/revisions`, `/versions` (gồm `?version=` ở `version-read.test.ts`), `/comments`,
+  dùng chéo (`cross-use.test.ts`: revert, comment và thông báo ghi ở app này dùng ở app kia), chuỗi request của các
+  màn lịch sử trong app Directus (`e2e-app.test.ts`) và job dọn lịch sử (`retention.test.ts`).
+- `history-effects.ts`: `historyEffects(fn)` bắt dòng mới của `directus_activity`, `directus_revisions`,
+  `directus_versions`, `directus_comments`, `directus_notifications`; `comparable()` thay id bằng nhãn, thời gian bằng
+  `<time>`, liên kết giữa các dòng (`activity`, `parent`, `version`) bằng chỉ số hoặc `key`. Luồng ghi chạy `scenario()`
+  và so cả response lẫn dòng lịch sử.
+- `helpers.ts` `same()`: `parity()` bỏ entry tạm D-09.6, vì D-09.6 chấp nhận mọi khác biệt của bốn route tới khi đóng
+  feature. Request gửi `User-Agent`, `Origin` giống nhau (`BROWSER`) để so `user_agent`, `origin`, `ip` từng cột.
+- Cặp `retention` (`RETENTION_SCHEDULE=*/10 * * * * *`, dọn lịch sử cũ hơn 2 s): dùng chung DB nên KHÔNG đưa vào
+  `env-up --profiles`; `retention.test.ts` tự `profileUp('retention')`, `profileStop('retention')`, đếm tiến trình giữ
+  khóa `schedule--data-retention` bằng `redis-cli monitor` trong container `redis`. Cặp có namespace bus, lock riêng.
+- `bus.test.ts` (cặp `websocket`) thêm `versions.*` và `items.promote`; thời gian trong message thành `<time>`.
+
 Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập nên chậm, các ca phụ thuộc thời gian dùng `parityStable`
 để thử lại.
 
