@@ -35,6 +35,12 @@ jobs:
       - run: pnpm nx run benchmark:run --output-style=static
         env:
           BENCH_ROUNDS: 5
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
@@ -80,6 +86,12 @@ jobs:
       - run: pnpm nx run benchmark:permissions --output-style=static
         env:
           BENCH_ROUNDS: 5
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
@@ -102,6 +114,12 @@ jobs:
           BENCH_ROUNDS: 3
       - if: always()
         run: df -h /
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
@@ -121,6 +139,12 @@ jobs:
       - run: pnpm nx run benchmark:schema --output-style=static
         env:
           BENCH_ROUNDS: 3
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
@@ -139,6 +163,12 @@ jobs:
       - run: pnpm nx run benchmark:files --output-style=static
         env:
           BENCH_ROUNDS: 3
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down
 
@@ -156,5 +186,11 @@ jobs:
       - run: pnpm nx run benchmark:history --output-style=static
         env:
           BENCH_ROUNDS: 3
+      # A container that exits during env-up leaves no trace in the job otherwise (2026-10-13: Directus exit 1).
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
       - if: always()
         run: pnpm nx run benchmark:env-down

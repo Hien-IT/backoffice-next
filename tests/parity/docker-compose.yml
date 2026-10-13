@@ -40,7 +40,9 @@ services:
     ports:
       - '6100:5432'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d directus']
+      # Over TCP: the init server of the image (initdb, then the postgis scripts) listens on the socket only, so a socket
+      # check passes before the real server starts and Directus then meets ECONNREFUSED on 5432 (CI 2026-10-13).
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d directus']
       interval: 2s
       timeout: 5s
       retries: 60
@@ -54,7 +56,9 @@ services:
     ports:
       - '6101:5432'
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U postgres -d directus']
+      # Over TCP: the init server of the image (initdb, then the postgis scripts) listens on the socket only, so a socket
+      # check passes before the real server starts and Directus then meets ECONNREFUSED on 5432 (CI 2026-10-13).
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d directus']
       interval: 2s
       timeout: 5s
       retries: 60
