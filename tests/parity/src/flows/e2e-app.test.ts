@@ -31,6 +31,13 @@ afterAll(async () => {
 	await cleanup();
 });
 
+/** The operation keys of a flow come back in the order of their random uuids at both apps: sorted once aliased. */
+const sortedOperations = <T>(snapshot: T): T => {
+	const data = (snapshot as any)?.body?.data;
+	if (Array.isArray(data?.operations)) data.operations.sort();
+	return snapshot;
+};
+
 /** The panel the operation drawer stages (flow.vue stageOperation), as saveChanges sends it. */
 const panel = (key: string, type: string, options: Record<string, unknown>, flow: string, x: number) => ({
 	name: key,
@@ -121,8 +128,8 @@ describe('the Flows module of the Directus app', () => {
 
 			return {
 				create: create.status,
-				first: snap(first, '/flows', aliases),
-				second: snap(second, '/flows', aliases),
+				first: sortedOperations(snap(first, '/flows', aliases)),
+				second: sortedOperations(snap(second, '/flows', aliases)),
 				fromItem: snap(fromItem, '/flows/trigger', aliases),
 				fromSelection: snap(fromSelection, '/flows/trigger', aliases),
 				operations: operations.data,
@@ -189,7 +196,7 @@ describe('the Flows module of the Directus app', () => {
 			const toggle = await call(ctx, { method: 'PATCH', path: `/flows/${id}`, headers, body: { status: 'inactive' } });
 			const deleted = await call(ctx, { method: 'DELETE', path: `/flows/${id}`, headers });
 			delete created[ctx.app];
-			return { toggle: snap(toggle, '/flows', opAliases[ctx.app]), deleted: deleted.status };
+			return { toggle: sortedOperations(snap(toggle, '/flows', opAliases[ctx.app])), deleted: deleted.status };
 		});
 
 		assertSameTranscripts(transcripts, 'overview');
