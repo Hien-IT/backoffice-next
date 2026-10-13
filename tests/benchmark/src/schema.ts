@@ -3,8 +3,8 @@
 // at 80% of the Directus req/s, compared by compare.ts (10%). Scenarios: GET /collections, /fields, /relations (the
 // requests the Directus app makes when it starts) as an admin and as a user who reads part of the model, fresh
 // (Cache-Control: no-store) and from the shared response cache; GET /schema/snapshot and POST /schema/diff of that
-// snapshot (204) as an admin, with HEAVY_CONNECTIONS: an admin operation of a few hundred ms of CPU per request, which
-// 50 connections queue past the 10 s autocannon timeout at both apps. Needs `benchmark:env-up` first.
+// snapshot (204) as an admin, and GET /fields without cache, with HEAVY_CONNECTIONS: a few hundred ms of CPU per request,
+// which 50 connections queue past the 10 s autocannon timeout at both apps. Needs `benchmark:env-up` first.
 import { appendFileSync } from 'node:fs';
 import autocannon from 'autocannon';
 import {
@@ -47,7 +47,19 @@ function scenarios(seeded: SchemaSeed): Scenario[] {
 
 	for (const path of ['/collections', '/fields', '/relations']) {
 		for (const user of ['admin', 'user'] as const) {
-			for (const fresh of [true, false]) out.push({ name: path, method: 'GET', path, user, fresh });
+			for (const fresh of [true, false]) {
+				// /fields without cache takes about 700 ms of CPU (928 fields): 50 connections queue past the 10 s timeout
+				// at both apps on a GitHub runner (benchmark run 38393898403, 2026-10-13), like the snapshot below.
+				const heavy = path === '/fields' && fresh;
+				out.push({
+					name: path,
+					method: 'GET',
+					path,
+					user,
+					fresh,
+					...(heavy ? { connections: HEAVY_CONNECTIONS } : {}),
+				});
+			}
 		}
 	}
 
@@ -97,6 +109,13 @@ async function measure(seeded: SchemaSeed, s: Scenario, app: App, duration: numb
 		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
+
+	// Which kind of failure a round had: the gate only sees their sum.
+	if (result.errors + result.timeouts + result.non2xx > 0) {
+		process.stdout.write(
+			`${s.name} at ${app}: ${result.errors} error(s), ${result.timeouts} timeout(s), ${result.non2xx} non-2xx\n`,
+		);
+	}
 
 	return {
 		p95: percentile(histogram, 95),
