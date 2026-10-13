@@ -719,7 +719,9 @@ Task: "storage-capture.ts (T019)"
   lần thử ở app mới (Postgres), ở Directus (SQLite); mọi response khác `200`. Đo cục bộ trên cặp `blackbox`: cùng 4
   transaction DB mỗi request ở hai app, CPU container 15,3 ms (Directus) và 16,0 ms (app mới) mỗi request, p50, p99
   tương đương. Chủ dự án chọn giảm tải (2026-10-13): bản port chạy lại trên CI với `-c 50` thay vì 100 (`// Backoffice:`);
-  cục bộ xanh ở cả hai app, hai storage.
+  cục bộ xanh ở cả hai app, hai storage. Lượt CI đầu (run 38353741344): Postgres, SQLite, blackbox xanh; MySQL lượt app
+  mới có 1 timeout trên 674 request (p99 3,9 s) trong khi log container ghi mọi response `/assets` dưới 1 s, nên request
+  mất ở đường mạng của runner; ca này thêm `retry: 2`.
 - T057 (tiếp): bước quality của `ci:local` chạy cục bộ (lint, typecheck, test, build 20 project, `test:tools`,
   `check-port-headers` 1.087 file, `check-package-names`, swagger) xanh; các bước parity, blackbox, E2E kiểm trên CI thay
   vì `ci:local` (cùng lệnh, máy cục bộ chạy Directus giả lập nên quá lâu). CI run 38313964720 (commit `a85c48f`) xanh đủ

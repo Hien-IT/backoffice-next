@@ -84,7 +84,9 @@ describe('/assets', () => {
 						// Assert
 						expect(hasErrors).toBe(false);
 					},
-					600_000,
+					// Backoffice: one request in several hundred can still get no answer in 10 s on a runner while the app
+					// logged every /assets answer under 1 s (MySQL, CI run 38353741344): retried, like a lost connection.
+					{ timeout: 600_000, retry: 2 },
 				);
 			});
 		});
