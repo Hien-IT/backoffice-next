@@ -258,7 +258,7 @@ tổng số lần chạy đúng bằng số kỳ; cảnh báo khi store `memory`
 
 **Independent Test**: `tests/parity/src/flows/schedule.test.ts` xanh trên cặp `flows-schedule`; quickstart §4.
 
-- [ ] T023 [US2] `tests/parity/src/flows/schedule.test.ts` (`full`, `sequential`, cuối suite `flows`):
+- [X] T023 [US2] `tests/parity/src/flows/schedule.test.ts` (`full`, `sequential`, cuối suite `flows`):
   `profileUp('flows-schedule')` ở `beforeAll`, `profileStop` ở `afterAll` (kể cả khi `beforeAll` lỗi); seed flow
   `*/2 * * * * *` + `log` `flow-executed-on-{{ $env.FLOWS_SCHEDULE_HOOK_NAME }}` (port nội dung
   `directus/tests/blackbox/tests/common/flows/schedule-hook.seed.ts`, `accountability` mặc định) qua API của cặp; đợi
@@ -268,7 +268,7 @@ tổng số lần chạy đúng bằng số kỳ; cảnh báo khi store `memory`
   cron trigger` ở cả hai app, không dòng mới; R-23: `PATCH /flows/:id` (đổi `name`) ngay trước một kỳ, MONITOR thấy
   `DEL` rồi `SET` của cả hai instance, ghi bằng chứng vào spec R-23 (chấp nhận 10 hoặc 11 lần trong 10 kỳ);
   `afterAll` xóa flow qua API cặp chính (US2 ca 1–3, 5; FR-011, FR-062).
-- [ ] T024 [P] [US2] `apps/api/src/flows.test.ts` thêm ca lịch: `scheduleSynchronizedJob(flow.id, cron, cb)` với cron 6
+- [X] T024 [P] [US2] `apps/api/src/flows.test.ts` thêm ca lịch: `scheduleSynchronizedJob(flow.id, cron, cb)` với cron 6
   trường, `cb` gọi `executeFlow(flow)` không dữ liệu và `logger.error` khi ném (job vẫn còn), `unload` gọi
   `job.stop()`; `apps/api/src/startup/*.test.ts` hoặc `app.test.ts`: dòng warn store memory xuất hiện đúng một lần
   khi có flow lịch, không khi không có (US2 ca 1, 3, 4; FR-011).
@@ -616,3 +616,10 @@ Task: "tests/parity/src/flows/helpers.ts + suite.ts (T018)"
   `200` với `{"name":"DirectusError","code":"NOPE","status":422}` ở cả hai app (R7 khớp); `condition` với
   `error_on_reject` trả `400 FAILED_VALIDATION`. Controller: `$trigger.path` lấy đường dẫn trong router Directus
   (`/trigger/<id>`, bỏ `/flows`), vì Nest gắn route ở app. MySQL, SQLite chạy ở CI.
+- US2 (T023, 2026-10-14, Postgres cục bộ): `schedule.test.ts` 7/7 trên cặp `flows-schedule`. Ba lượt 10 kỳ (cron
+  `*/2`, đếm từ lần chạy đầu như blackbox Directus): mỗi lượt đúng 10 dòng activity `run` và 10 dòng log tổng hai
+  container (app mới thắng phần lớn kỳ vì Directus chạy giả lập amd64, ví dụ 1/9). Dừng Directus: app mới chạy đủ
+  10; dừng app mới: Directus chạy đủ 10. Cron sai: cả hai app ghi cảnh báo, không chạy. R-23: đổi `name` 50 ms trước
+  kỳ thứ năm, lượt đo được 10 lần (không chạy đôi; ca chấp nhận 10 hoặc 11). T024: các ca lịch ở unit test nằm trong
+  `flows.manager.test.ts` (cron 6 trường, lỗi lần chạy theo lịch ghi `logger.error` và giữ job, `unload` dừng job,
+  cảnh báo store memory đúng một lần khi có flow theo lịch).
