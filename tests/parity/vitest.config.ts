@@ -4,7 +4,8 @@ import { defineConfig } from 'vitest/config';
 // tooling, the 80% gate applies to apps/api and BE libs (Principle X).
 export default defineConfig({
 	test: {
-		include: ['src/*.test.ts'],
+		// Feature 008: the comparable form of the history rows needs no Docker either.
+		include: ['src/*.test.ts', 'src/history/history-effects.test.ts'],
 		exclude: ['src/db-unchanged.test.ts', 'src/readonly-account.test.ts', 'src/redis-down.test.ts'],
 	},
 });

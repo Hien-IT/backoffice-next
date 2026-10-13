@@ -23,6 +23,8 @@ import * as noRelation from './tests/db/routes/items/no-relation.seed';
 import * as o2m from './tests/db/routes/items/o2m.seed';
 import * as relationalJson from './tests/db/routes/items/relational-json.seed';
 import * as singleton from './tests/db/routes/items/singleton.seed';
+// Feature 008: the content versioning file (versioning: true on its collections).
+import * as version from './tests/db/routes/items/version.seed';
 import * as schema from './tests/db/routes/schema/schema.seed';
 
 const TESTS_FLOW_POLICY = '9cd8b17c-474b-4abb-b366-09dcdb45e177';
@@ -145,6 +147,7 @@ describe('Seed database structure', () => {
 		['o2m', o2m],
 		['relational-json', relationalJson],
 		['singleton', singleton],
+		['version', version],
 		['common', common],
 		['schema', schema],
 		['change-fields', changeFields],

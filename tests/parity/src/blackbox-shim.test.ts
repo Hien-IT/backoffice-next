@@ -99,11 +99,13 @@ test('sequencer: seed, the before list in order, other files by path, the after 
 			'/x/00-seed.test.ts',
 			'/x/tests/db/routes/items/m2a.test.ts',
 			'/x/tests/db/routes/schema/schema.test.ts',
+			'/x/tests/db/routes/items/version.test.ts',
 		]),
 	).toEqual([
 		'/x/00-seed.test.ts',
 		'/x/tests/db/routes/schema/schema.test.ts',
 		'/x/tests/db/routes/fields/crud.test.ts',
+		'/x/tests/db/routes/items/version.test.ts',
 		'/x/tests/db/routes/items/m2a.test.ts',
 		'/x/tests/db/routes/items/m2o.test.ts',
 		'/x/tests/db/schema/timezone/timezone.test.ts',

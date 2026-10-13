@@ -1,4 +1,4 @@
-import { expect, test } from 'vitest';
+import { expect, expectTypeOf, test } from 'vitest';
 import * as types from './index.js';
 
 test('exports the runtime values of the type package', () => {
@@ -20,4 +20,12 @@ test('exports TransformationMethods like Directus', () => {
 	expect(types.TransformationMethods).toContain('resize');
 	expect(types.TransformationMethods).toContain('toFormat');
 	expect(types.TransformationMethods).toHaveLength(36);
+});
+
+test('exports the content version, comment and notification types like Directus', () => {
+	expectTypeOf<types.ContentVersion>().toHaveProperty('delta').toEqualTypeOf<Record<string, any> | null>();
+	expectTypeOf<types.ContentVersion>().toHaveProperty('hash').toEqualTypeOf<string>();
+	expectTypeOf<types.Comment>().toHaveProperty('item').toEqualTypeOf<types.PrimaryKey>();
+	expectTypeOf<types.Notification>().toHaveProperty('recipient').toEqualTypeOf<string>();
+	expectTypeOf<types.Notification>().toHaveProperty('item').toEqualTypeOf<types.PrimaryKey | null>();
 });

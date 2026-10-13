@@ -5,7 +5,7 @@ import { describe, expect, test } from 'vitest';
 import { buildNginxConf, parseRoutes } from '../scripts/proxy-conf.mjs';
 
 describe('proxy-conf', () => {
-	test('the list of features 004 to 007: sixteen routes, comments and blank lines ignored', () => {
+	test('the list of features 004 to 008: twenty routes, comments and blank lines ignored', () => {
 		const routes = parseRoutes(readFileSync(new URL('../proxy/backoffice-routes.txt', import.meta.url), 'utf8'));
 		expect(routes).toEqual([
 			'auth',
@@ -24,6 +24,10 @@ describe('proxy-conf', () => {
 			'files',
 			'folders',
 			'assets',
+			'activity',
+			'revisions',
+			'versions',
+			'comments',
 		]);
 	});
 
@@ -56,6 +60,17 @@ describe('proxy-conf', () => {
 		for (const path of ['/files', '/files/import', '/files/tus/abc', '/folders/x', '/assets/x', '/assets/x/photo.jpg'])
 			expect(new RegExp(location).test(path), path).toBe(true);
 		for (const path of ['/utils/sort/files', '/filesx', '/asset'])
+			expect(new RegExp(location).test(path), path).toBe(false);
+	});
+
+	test('feature 008: history routes go to the new app, /utils/revert and /notifications stay on Directus', () => {
+		const template = readFileSync(new URL('../proxy/nginx.conf.template', import.meta.url), 'utf8');
+		const conf = buildNginxConf(template, ['activity', 'revisions', 'versions', 'comments']);
+		const location = conf.match(/location ~ (\S+) \{/)![1]!;
+
+		for (const path of ['/activity', '/activity/1', '/revisions', '/versions/x/compare', '/versions/x/promote', '/comments/x'])
+			expect(new RegExp(location).test(path), path).toBe(true);
+		for (const path of ['/utils/revert/1', '/notifications', '/versionsx', '/comment'])
 			expect(new RegExp(location).test(path), path).toBe(false);
 	});
 

@@ -29,6 +29,8 @@ test('requests of the route list reach the new app, the others Directus', async 
 	await page.goto(`${baseURL}/admin/settings/policies`);
 	// Feature 007: the file library loads /files, /folders and the thumbnails of /assets.
 	await page.goto(`${baseURL}/admin/files`);
+	// Feature 008: the activity module loads /activity; /notifications (bell) stays on Directus until feature 010.
+	await page.goto(`${baseURL}/admin/activity`);
 	await page.waitForLoadState('networkidle');
 
 	const addresses = {

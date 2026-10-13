@@ -42,6 +42,8 @@ const ALL_PROFILES = [
 	// Feature 007 (research R8)
 	'assets-limit',
 	'assets-stress',
+	// Feature 008 (research R5): `down` only; retention.test.ts starts the pair itself.
+	'retention',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

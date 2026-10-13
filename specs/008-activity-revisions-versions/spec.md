@@ -420,8 +420,9 @@ module Activity.
   chỉ khi `ACTIVITY_RETENTION` tắt (giá trị không phải thời lượng, ví dụ `false` hoặc rỗng, `getMilliseconds` trả
   `undefined`) hoặc lớn hơn `REVISIONS_RETENTION`; task không có thời lượng bị bỏ qua; mốc so là `helpers.date.parse(now - timeframe)`.
 - **FR-052**: Biến `RETENTION_ENABLED`, `RETENTION_BATCH`, `RETENTION_SCHEDULE`, `ACTIVITY_RETENTION`,
-  `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION` PHẢI chuyển sang nhóm "đã hỗ trợ" với cùng mặc định; không thêm biến
-  mới (Nguyên tắc VIII).
+  `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION` PHẢI được đọc với cùng mặc định và không bị cảnh báo "chưa hỗ trợ";
+  không thêm biến mới (Nguyên tắc VIII). Directus không liệt kê sáu biến này trong `directus-variables.ts`, nên chúng
+  chưa bao giờ bị cảnh báo và không cần vào nhóm A (như `TUS_*` ở 007; đo ở T002).
 - **FR-053**: Job PHẢI không gọi dựng schema (`getSchema`, tránh tăng tỉ lệ R-19); kiểm bằng unit test mock.
 
 **Kiểm thử**

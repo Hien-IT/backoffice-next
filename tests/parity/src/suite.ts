@@ -16,6 +16,9 @@ export const REDUCED_FILES = [
 	'src/schema-management/relations.test.ts',
 	// Feature 007: the HTTP contract of /files, /folders, /assets (rows and storage objects differ per vendor).
 	'src/files/{files,folders,assets}.test.ts',
+	// Feature 008 (spec FR-061): one case per route, cross use, ?version= and mentions (history rows differ per vendor);
+	// the cases marked full-only inside these files and retention, e2e-app run in `full` only.
+	'src/history/{activity,revisions,versions,version-read,comments,cross-use}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -27,6 +30,8 @@ export const FULL_FILES = [
 	'src/schema-management/**/*.test.ts',
 	// Feature 007: files, folders, assets, import, TUS on both storage locations (research R8).
 	'src/files/**/*.test.ts',
+	// Feature 008: activity, revisions, versions, comments, retention (its own pair, started by the file), e2e-app.
+	'src/history/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

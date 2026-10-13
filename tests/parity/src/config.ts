@@ -104,6 +104,8 @@ export const profilePorts = {
 	// Feature 007 (research R8): narrower files configuration and the time-dependent cases.
 	'assets-limit': { directus: 10055, backoffice: 10056 },
 	'assets-stress': { directus: 10155, backoffice: 10156 },
+	// Feature 008 (research R5): the retention job pair, started and stopped by src/history/retention.test.ts only.
+	retention: { directus: 10255, backoffice: 10256 },
 } as const;
 
 /** Host port of the own Redis of the cache-redis pair (feature 005, FR-016, R-10). */
@@ -116,6 +118,12 @@ export const proxyPort = 8160;
 export const secondBackofficePort = 8157;
 
 export type Profile = keyof typeof profilePorts;
+
+/**
+ * Pairs that share the database and change it on their own (feature 008: the retention job deletes old history every
+ * 10 s). Only the test file that needs one starts and stops it (profileUp, profileStop); never `env-up --profiles`.
+ */
+export const manualProfiles: readonly Profile[] = ['retention'];
 
 /** Storage locations of tests/parity/env/<vendor>.env (feature 007, research R6). */
 export const storageLocations = ['local', 's3'] as const;

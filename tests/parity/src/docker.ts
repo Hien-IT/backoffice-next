@@ -34,6 +34,8 @@ export function compose(...args: string[]): string {
 		// Feature 007 (research R8): the narrower files pair and the time-dependent pair.
 		'assets-limit',
 		'assets-stress',
+		// Feature 008 (research R5): the retention pair, started and stopped by retention.test.ts.
+		'retention',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(
@@ -83,4 +85,17 @@ export async function redisUp(service = 'redis'): Promise<void> {
 	}
 
 	throw new Error('Redis did not come back');
+}
+
+/**
+ * Starts the pair of a manual profile (config.ts `manualProfiles`) and waits until both containers are healthy. The
+ * image of the new app is the one the main pair runs (`env-up` built it).
+ */
+export function profileUp(profile: string): void {
+	compose('up', '-d', '--wait', `directus-${profile}`, `backoffice-api-${profile}`);
+}
+
+/** Stops the pair of a manual profile; `env-down` removes the containers. */
+export function profileStop(profile: string): void {
+	compose('stop', `directus-${profile}`, `backoffice-api-${profile}`);
 }

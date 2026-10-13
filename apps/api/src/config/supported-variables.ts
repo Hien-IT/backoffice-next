@@ -177,6 +177,9 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'IMPORT_IP_DENY_LIST',
 	'SYNCHRONIZATION_STORE',
 	'SYNCHRONIZATION_NAMESPACE',
+	// Feature 008: schedules/retention.ts reads RETENTION_ENABLED, RETENTION_BATCH, RETENTION_SCHEDULE,
+	// ACTIVITY_RETENTION, REVISIONS_RETENTION and FLOW_LOGS_RETENTION. Directus does not list them in
+	// directus-variables.ts, so they never got a warning and need no entry here (like TUS_* in feature 007).
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

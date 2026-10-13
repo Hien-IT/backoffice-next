@@ -5,6 +5,7 @@ import {
 	cacheRedisPort,
 	getStorages,
 	knexConfig,
+	manualProfiles,
 	names,
 	profilePorts,
 	proxyPort,
@@ -155,4 +156,26 @@ test('PARITY_STORAGES selects the storage locations', () => {
 	expect(getStorages('s3')).toEqual(['s3']);
 	expect(getStorages('local, s3')).toEqual(['local', 's3']);
 	expect(() => getStorages('minio')).toThrow('PARITY_STORAGES must list "local" and/or "s3", got "minio"');
+});
+
+// Feature 008 (research R5): a manual pair changes the shared database on its own (the retention job deletes old
+// history every 10 s), so no workflow, the local CI script or the quickstart may bring it up with the other pairs.
+test.each(manualProfiles)('manual profile %s is never started by env-up --profiles', (profile) => {
+	const files = [
+		'../../../.github/workflows/ci.yml',
+		'../../../.github/workflows/parity-matrix.yml',
+		'../../../.github/workflows/nightly.yml',
+		'../../../.github/workflows/benchmark.yml',
+		'../../../tools/ci-local.sh',
+	];
+
+	for (const file of files) {
+		const text = readFileSync(new URL(file, import.meta.url), 'utf8');
+		const lists = [...text.matchAll(/profiles(?:=|: )'?([\w,-]+)/g)].map((m) => m[1]!.split(','));
+		expect(lists.flat(), file).not.toContain(profile);
+	}
+
+	expect(readFileSync(new URL(`../env/profile-${profile}.env`, import.meta.url), 'utf8')).toMatch(
+		/^REDIS_LOCK_NAMESPACE=parity-/m,
+	);
 });

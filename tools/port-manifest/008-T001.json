@@ -1,0 +1,5 @@
+[
+	{ "source": "packages/types/src/versions.ts", "dest": "libs/types/src/versions.ts" },
+	{ "source": "packages/types/src/comments.ts", "dest": "libs/types/src/comments.ts" },
+	{ "source": "packages/types/src/notifications.ts", "dest": "libs/types/src/notifications.ts" }
+]

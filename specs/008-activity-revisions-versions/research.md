@@ -105,9 +105,10 @@ khi được nhắc (D-33); app mới chạy job retention. Đường dẫn Dire
 
 ## R9. Biến môi trường sang nhóm A
 
-- **Quyết định**: `RETENTION_ENABLED`, `RETENTION_BATCH`, `RETENTION_SCHEDULE`, `ACTIVITY_RETENTION`,
-  `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION` vào khối "Feature 008" của `supported-variables.ts`. `EMAIL_*` giữ nhóm
-  C (010).
+- **Quyết định**: Không thêm vào nhóm A: sáu biến `RETENTION_ENABLED`, `RETENTION_BATCH`, `RETENTION_SCHEDULE`,
+  `ACTIVITY_RETENTION`, `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION` không có trong `directus-variables.ts` nên không
+  bao giờ bị cảnh báo (test "mọi mẫu nhóm A là biến Directus" sẽ đỏ nếu thêm); chỉ ghi chú "Feature 008" trong
+  `supported-variables.ts` và test không cảnh báo, như `TUS_*` của 007 (đo ở T002). `EMAIL_*` giữ nhóm C (010).
 - **Lý do**: FR-052; mặc định đã có trong `libs/env` (port `defaults.ts`).
 - **Đã cân nhắc**: Không có.
 

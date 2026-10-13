@@ -74,16 +74,16 @@ capture, service và util port nguyên, provider, job retention. Thứ tự stor
 **Purpose**: Type thiếu, 6 biến retention sang nhóm A, proxy và profile `retention`, capture 5 bảng, seed blackbox
 (research R1, R6, R7, R9, contracts/parity.md §1).
 
-- [ ] T001 [P] `libs/types/src/`: port `versions.ts` (`ContentVersion`), `comments.ts` (`Comment`), `notifications.ts`
+- [X] T001 [P] `libs/types/src/`: port `versions.ts` (`ContentVersion`), `comments.ts` (`Comment`), `notifications.ts`
   (`Notification`) từ `directus/packages/types/src/`; export trong `libs/types/src/index.ts`;
   `libs/types/src/index.test.ts` thêm khẳng định export. Ghi manifest `tools/port-manifest/008-T001.json`.
-- [ ] T002 [P] `apps/api/src/config/supported-variables.ts`: khối "Feature 008" thêm `RETENTION_ENABLED`,
-  `RETENTION_BATCH`, `RETENTION_SCHEDULE`, `ACTIVITY_RETENTION`, `REVISIONS_RETENTION`, `FLOW_LOGS_RETENTION`;
-  `supported-variables.test.ts` thêm ca 6 biến thuộc nhóm A và `EMAIL_*` vẫn nhóm C (FR-052, research R9).
-- [ ] T003 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `activity`, `revisions`, `versions`, `comments`;
+- [X] T002 [P] `apps/api/src/config/supported-variables.ts`: ghi chú "Feature 008" (sáu biến retention không có trong
+  `directus-variables.ts` nên không bao giờ bị cảnh báo, không vào nhóm A); `warn-unsupported-variables.test.ts` thêm
+  ca sáu biến không bị báo và `EMAIL_*` vẫn bị báo (FR-052, research R9).
+- [X] T003 [P] `tests/parity/proxy/backoffice-routes.txt` thêm `activity`, `revisions`, `versions`, `comments`;
   `tests/parity/src/proxy-conf.test.ts` và `tests/directus-app-e2e/src/routing.spec.ts` thêm ca bốn route tới app mới
   và `/utils`, `/notifications` vẫn tới Directus (contracts/parity.md §1, §5).
-- [ ] T004 [P] Cặp profile `retention`: `tests/parity/env/profile-retention.env` theo contracts/parity.md §1
+- [X] T004 [P] Cặp profile `retention`: `tests/parity/env/profile-retention.env` theo contracts/parity.md §1
   (`RETENTION_ENABLED=true`, `RETENTION_SCHEDULE=*/10 * * * * *`, `RETENTION_BATCH=3`, `ACTIVITY_RETENTION=2s`,
   `REVISIONS_RETENTION=1s`, `FLOW_LOGS_RETENTION=2s`, `SYNCHRONIZATION_STORE=redis`,
   `REDIS_BUS_NAMESPACE=parity-retention:bus`, `REDIS_LOCK_NAMESPACE=parity-retention:lock`,
@@ -93,12 +93,12 @@ capture, service và util port nguyên, provider, job retention. Thứ tự stor
   danh sách chung; `tests/parity/src/docker.ts` thêm `profileUp(name)`, `profileStop(name)` bọc `compose()` (+ test).
   Kiểm tay: `env-up --vendor=postgres --profiles=retention`, log hai app đăng ký job `retention` và xóa dòng mỗi
   10 s, rồi `env-down`.
-- [ ] T005 [P] `tests/parity/src/history/history-effects.ts` + `history-effects.test.ts`: `historyEffects(fn)` bắt dòng
+- [X] T005 [P] `tests/parity/src/history/history-effects.ts` + `history-effects.test.ts`: `historyEffects(fn)` bắt dòng
   mới của `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments`,
   `directus_notifications` (id tự tăng: từ `maxId`; uuid: hiệu tập id) kể từ trước `fn`; `comparable()` theo FR-060
   (bỏ `id`, `timestamp`, `date_*`; `activity`, `parent` → chỉ số; `version` → `key`; `_date` trong `delta` → marker;
   giữ `ip`, `user_agent`, `origin`, `hash`); mở rộng từ `tests/parity/src/auth/db-effects.ts` (research R6).
-- [ ] T006 [P] Blackbox: copy nguyên `directus/tests/blackbox/tests/db/routes/items/version.seed.ts` vào
+- [X] T006 [P] Blackbox: copy nguyên `directus/tests/blackbox/tests/db/routes/items/version.seed.ts` vào
   `tests/parity/src/items/blackbox/tests/db/routes/items/`; `00-seed.test.ts` và `sequencer.ts` thêm seed `version`
   (seed qua `PARITY_BLACKBOX_SETUP_APP`, collection có `versioning: true`); `blackbox-shim.test.ts` thêm ca
   `CreateVersion`, `SaveVersion` gọi đúng URL. Ghi manifest (research R7, contracts/parity.md §3).

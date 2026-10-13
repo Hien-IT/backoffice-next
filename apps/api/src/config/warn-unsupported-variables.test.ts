@@ -104,3 +104,19 @@ test('feature 007: storage, files, assets and TUS settings of the parity env are
 		}),
 	).toEqual(['IMPORT_TIMEOUT']);
 });
+
+// Feature 008 (spec FR-052): the retention settings are read by schedules/retention.ts and never reported; the email
+// settings stay unsupported until feature 010.
+test('feature 008: retention settings are not reported, email settings still are', () => {
+	expect(
+		getUnsupportedVariables({
+			RETENTION_ENABLED: 'true',
+			RETENTION_BATCH: '3',
+			RETENTION_SCHEDULE: '*/10 * * * * *',
+			ACTIVITY_RETENTION: '2s',
+			REVISIONS_RETENTION: '1s',
+			FLOW_LOGS_RETENTION: '2s',
+			EMAIL_TRANSPORT: 'smtp',
+		}),
+	).toEqual(['EMAIL_TRANSPORT']);
+});

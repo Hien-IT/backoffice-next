@@ -2,7 +2,8 @@
 // reduced to the files of the port).
 // Backoffice: 00-seed.test.ts runs first, then the `before` files in list order, every other file in path order, and
 // the `after` files last in list order; no sequencer-data.json. Feature 006 adds the data model files: schema,
-// collections and fields first (they replace the whole model), timezone and schema-cache last (other nodes).
+// collections and fields first (they replace the whole model), timezone and schema-cache last (other nodes); feature
+// 008 the content versioning file after them, as Directus does.
 import { BaseSequencer, type TestSpecification } from 'vitest/node';
 
 const BEFORE = [
@@ -12,6 +13,8 @@ const BEFORE = [
 	'/tests/db/routes/collections/crud.test.ts',
 	'/tests/db/routes/fields/change-fields.test.ts',
 	'/tests/db/routes/fields/crud.test.ts',
+	// Feature 008: in Directus' `before` list too (sequential-tests.ts).
+	'/tests/db/routes/items/version.test.ts',
 ];
 
 const AFTER = [

@@ -1136,6 +1136,50 @@ services:
       timeout: 5s
       retries: 60
 
+  # Feature 008 (research R5): the retention job pair. It shares the database and deletes old history every 10 s, so
+  # only src/history/retention.test.ts starts and stops it; never pass it to `env-up --profiles`.
+  directus-retention:
+    profiles: [retention]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/directus/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-retention.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '10255:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-retention:
+    profiles: [retention]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): one image for every pair
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/directus/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-retention.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '10256:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
 # Feature 007 (research R6): root of the shared `local` storage location of every app container.
 volumes:
   uploads:
