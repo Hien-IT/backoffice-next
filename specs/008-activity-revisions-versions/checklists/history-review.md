@@ -43,7 +43,7 @@ quyết trước. Mục `[Conflict]`, `[Gap]` đã đối chiếu với spec, pl
 - [x] CHK009 (đã giải: US2.6) US2.6 "xóa version thì app kia không thấy nữa": spec có nêu revision `version_save` gắn version bị xóa
   theo FK CASCADE (và activity của chúng còn lại), để kiểm tra dòng sau xóa đúng kỳ vọng? [Gap, Spec §US2.6,
   data-model §1]
-- [x] CHK010 (đã giải: US2.7) US2.7 "không treo" có ngưỡng thời gian đo được (timeout của ca blackbox "version deadlocking") không?
+- [x] CHK010 (đã giải: US2.7; số giây ghi ở T036) US2.7 "không treo" có ngưỡng thời gian đo được (timeout của ca blackbox "version deadlocking") không?
   [Measurability, Spec §US2.7]
 - [x] CHK011 (đã giải: FR-033) FR-033 ghi `_user`, `_date` gắn vào "object thay đổi" và không gắn vào mảng; spec có nói rõ điều kiện
   "chưa bằng delta cũ tại cùng đường dẫn" (`isEqual`) để `_date` không đổi khi `save` lại cùng nội dung? [Clarity,

@@ -7,7 +7,7 @@ Mẫu theo contracts/parity.md của 007. Mọi test mới chạy với cả hai
 | Thay đổi | Nội dung |
 |----------|----------|
 | `proxy/backoffice-routes.txt` | thêm `activity`, `revisions`, `versions`, `comments` (`/utils` vẫn tới Directus) |
-| profile `retention` (cặp mới, cổng theo quy ước profile) | `RETENTION_ENABLED=true`, `RETENTION_SCHEDULE=* * * * *`, `RETENTION_BATCH=3`, `ACTIVITY_RETENTION=2s`, `REVISIONS_RETENTION=1s`, `FLOW_LOGS_RETENTION=2s`, `SYNCHRONIZATION_STORE=redis`, `REDIS_BUS_NAMESPACE=parity-retention:bus`; `REDIS_LOCK_NAMESPACE` giữ mặc định (cần chung khóa `schedule--data-retention` với cặp chính để đo "một bên dọn"); `CACHE_NAMESPACE=parity-retention` |
+| profile `retention` (cặp mới, cổng theo quy ước profile) | `RETENTION_ENABLED=true`, `RETENTION_SCHEDULE=*/10 * * * * *` (cron 6 trường, `validateCronExpression` của `cron` 4.3.4 nhận), `RETENTION_BATCH=3`, `ACTIVITY_RETENTION=2s`, `REVISIONS_RETENTION=1s`, `FLOW_LOGS_RETENTION=2s`, `SYNCHRONIZATION_STORE=redis`, `REDIS_BUS_NAMESPACE=parity-retention:bus`, `REDIS_LOCK_NAMESPACE=parity-retention:lock` (hai app của cặp chung khóa với nhau là đủ cho ca "một bên dọn"; không chung với cặp chính để không tăng R-19), `CACHE_NAMESPACE=parity-retention`. **Cặp này dùng chung DB với mọi cặp khác và xóa lịch sử cũ hơn 2 s mỗi 10 s, nên KHÔNG đưa vào `env-up` chung**: `retention.test.ts` tự `compose('--profile', 'retention', 'up', '-d', ...)` ở `beforeAll` và `compose('--profile', 'retention', 'stop', ...)` ở `afterAll` (kể cả khi `beforeAll` lỗi), chạy cuối suite `history` với `sequential: true` |
 | cặp chính | không đổi (`RETENTION_ENABLED=false` mặc định) |
 | cặp `tz-asia`, `tz-america` (006) | chạy thêm `versions.test.ts` ca `_date` |
 
@@ -44,7 +44,7 @@ còn lại nightly.
 | Workflow | Thay đổi |
 |----------|----------|
 | `ci.yml` `quality` | coverage 80% gồm file mới |
-| `ci.yml` `parity` | thêm profile `retention` vào `env-up`; suite `history` |
+| `ci.yml` `parity` | suite `history`; KHÔNG thêm `retention` vào `--profiles` (`retention.test.ts` tự bật, tự tắt cặp) |
 | `ci.yml` `parity-blackbox` | thêm `version` |
 | `parity-matrix.yml`, `nightly.yml` | như `parity` |
 | `benchmark.yml` | job `benchmark-history` (cùng mẫu `benchmark-files`) |

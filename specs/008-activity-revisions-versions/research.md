@@ -60,6 +60,8 @@ khi được nhắc (D-33); app mới chạy job retention. Đường dẫn Dire
   Directus: `retention` sau `tus`); `onServerShutdown(() => job.stop())` như `schedules/tus.ts`. Khóa qua `useLock()`
   (`lock.get/set/delete` key `schedule--data-retention`), hạn 10 phút; lô `RETENTION_BATCH`; MySQL, MariaDB lấy id
   trước (`helpers.schema.isOneOfClients(['mysql'])` bao cả MariaDB như Directus). Job không gọi `getSchema`.
+  Môi trường đối chiếu: cặp `retention` có namespace bus và lock riêng; chỉ `retention.test.ts` bật và tắt cặp này
+  (qua `compose()` của `docker.ts`), vì cặp dùng chung DB và sẽ xóa lịch sử của mọi suite khác nếu chạy thường trực.
 - **Lý do**: Cùng tên job `retention` thì clock `directus-sync` chung với Directus khi `SYNCHRONIZATION_STORE=redis`;
   cùng khóa thì khi mỗi instance tự chạy (store `memory`) vẫn chỉ một tiến trình xóa, kể cả Directus.
 - **Đã cân nhắc**: Không chạy job ở app mới (chọn B ở Clarifications): bị loại bởi owner. Chạy bằng `cron` riêng không

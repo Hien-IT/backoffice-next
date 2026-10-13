@@ -9,12 +9,15 @@ pnpm nx run-many -t test -p api @backoffice/types
 ```
 
 ```bash
-pnpm nx run parity-tests:env-up --vendor=postgres --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app,assets-limit,assets-stress,retention
+pnpm nx run parity-tests:env-up --vendor=postgres --profiles=ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,app,assets-limit,assets-stress
 ```
 
 ```bash
 pnpm nx run parity-tests:parity --vendor=postgres
 ```
+
+Cặp `retention` do `retention.test.ts` tự bật và tắt; không đưa vào `--profiles` (cặp dùng chung DB và xóa lịch sử
+cũ hơn 2 s mỗi 10 s).
 
 ```bash
 pnpm nx run parity-tests:env-up --vendor=postgres --profiles=blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress

@@ -143,8 +143,8 @@ app, cả hai chiều; so dòng `directus_versions`, item chính sau promote, ac
    trùng hoặc `main` trả lỗi như Directus; `DELETE /versions/:id` xóa dòng, các revision `version_save` gắn nó bị xóa
    theo khóa ngoại (activity của chúng còn), và app kia không thấy version nữa.
 7. **Given** hai item dùng chung dòng quan hệ, **When** save delta sửa dòng chung ở cả hai version (blackbox "version
-   deadlocking"), **Then** cả hai `save` xong trong giới hạn thời gian của bộ blackbox (cùng timeout Directus đặt cho
-   ca đó) và kết quả giống Directus.
+   deadlocking"), **Then** cả hai `save` xong trong timeout của file `version.test.ts` của Directus (số giây ghi ở
+   T036 khi copy) và kết quả giống Directus.
 
 ---
 
@@ -539,8 +539,8 @@ Khác biệt mới:
 - **SC-004**: 100% comment có mention trong bộ đối chiếu sinh dòng `directus_notifications` trùng (trừ `id`,
   `timestamp`) với Directus, kể cả ca người được nhắc không có quyền.
 - **SC-005**: Với dữ liệu seed cố định, sau một kỳ retention số dòng còn lại ở mỗi collection bằng nhau khi job chạy ở
-  app mới và khi chạy ở Directus; hai app cùng bật chỉ một tiến trình dọn mỗi kỳ: trong 10 kỳ, Redis `MONITOR` ghi
-  đúng 10 lần đặt khóa `schedule--data-retention` thành công và số dòng bị xóa bằng số dòng quá hạn (0 lần xóa
+  app mới và khi chạy ở Directus; hai app cùng bật chỉ một tiến trình dọn mỗi kỳ: trong 10 kỳ, Redis `MONITOR` trên namespace
+  lock của cặp đối chiếu ghi đúng 10 lần đặt khóa `schedule--data-retention` thành công và số dòng bị xóa bằng số dòng quá hạn (0 lần xóa
   trùng).
 - **SC-006**: 100% kịch bản E2E app Directus (FR-063) qua app mới hoàn tất với cùng số bước và màn hình như qua
   Directus; ở mỗi kịch bản benchmark, p95 latency và throughput của app mới không tệ hơn Directus quá 10%, như tiền lệ

@@ -119,8 +119,8 @@ Stack theo prompt của chủ dự án và cách feature này đáp ứng:
   (log thay gửi), `stop()` job retention khi shutdown, blackbox `version.seed.ts` đọc URL qua shim.
 - [x] **II. Dùng chung DB**: PASS. Không DDL, không migration; ghi 5 bảng qua service port nguyên (SC-003 so dòng);
   retention xóa theo cùng điều kiện và lô; khởi động không ghi gì (job chạy theo cron).
-- [x] **III. API giống hệt**: PASS. Route, middleware, Joi, status, mã lỗi, `reason`, `meta`, `{data: null}` như
-  Directus (contracts). D-09.6 gỡ, D-31 thu hẹp; D-33 là hành vi Nguyên tắc X (không gửi email) như D-23; R-20, R-21
+- [x] **III. API giống hệt**: PASS. Route, middleware, Joi, status, mã lỗi, `reason`, `meta`, `403` cho dòng
+  không có, như Directus (contracts). D-09.6 gỡ, D-31 thu hẹp; D-33 là hành vi Nguyên tắc X (không gửi email) như D-23; R-20, R-21
   tái tạo, bằng chứng đo ở bộ đối chiếu.
 - [x] **IV. Chạy song song an toàn**: PASS. Khóa retention cùng key `schedule--data-retention` trên `directus:lock`,
   clock `directus-sync` khi bật; `_date` của delta lấy từ DB helper; không state trong process.
@@ -183,9 +183,12 @@ backoffice-next/
 │   ├── controllers/revisions.controller.ts (+ test)    # MỚI ← controllers/revisions.ts
 │   ├── controllers/versions.controller.ts (+ test)     # MỚI ← controllers/versions.ts
 │   ├── controllers/comments.controller.ts (+ test)     # MỚI ← controllers/comments.ts
+│   ├── middleware/router-options.ts (+ test)   # SỬA: mẫu /activity, /revisions, /versions, /comments
 │   └── config/supported-variables.ts (+ test)  # SỬA: khối Feature 008
 ├── tests/parity/
-│   ├── docker-compose.yml, env/profile-retention.env   # SỬA, MỚI: cặp retention
+│   ├── docker-compose.yml, env/profile-retention.env   # SỬA, MỚI: cặp retention (chỉ retention.test.ts bật)
+│   ├── src/{profiles,docker}.ts, src/vendors.test.ts, src/proxy-conf.test.ts   # SỬA: profile thủ công, profileUp/Stop
+│   ├── src/items/bus.test.ts, src/startup/     # SỬA: event versions.*, items.promote; khởi động retention
 │   ├── proxy/backoffice-routes.txt             # SỬA: activity, revisions, versions, comments
 │   ├── accepted-differences.ts                 # SỬA: xóa D-09.6, thu hẹp D-31, thêm D-33 (đóng feature)
 │   ├── README.md                               # SỬA: mục 008
@@ -250,6 +253,6 @@ Rủi ro đã biết, theo dõi trong tasks:
 | `_date` của delta: `helpers.date.writeTimestamp` trả `Date`, Directus lưu vào JSON `delta` theo `JSON.stringify` | Chuỗi khác múi giờ | So dòng `directus_versions.delta` ở `versions.test.ts`; cặp `tz-asia`, `tz-america` của 006 chạy thêm ca này |
 | Thứ tự ghi activity, revision của `save` (service không accountability nhưng mang `ip`, `user_agent`) | Dòng lệch | So qua `historyEffects` trong `versions.test.ts` |
 | Mention: `UsersService.readOne` của user không tồn tại ném lỗi (Directus `403`) trước khi tạo thông báo | Lỗi khác mã | Ca "uuid không tồn tại" trong `comments.test.ts` so status và dòng |
-| Cặp profile `retention` dùng chung namespace `directus:lock` với cặp chính (cần cho ca "một bên dọn") | R-19 tăng tỉ lệ chập chờn | Job retention không gọi `getSchema`; cặp dùng bus namespace riêng; Directus của cặp chỉ nhận request của `retention.test.ts` |
+| Cặp profile `retention` dùng chung DB với mọi cặp và xóa lịch sử cũ hơn 2 s mỗi 10 s | Suite khác đỏ ngẫu nhiên vì mất activity, revision | Chỉ `retention.test.ts` bật và tắt cặp (`profileUp`, `profileStop`); không vào `env-up` chung; namespace bus, lock riêng; job không gọi `getSchema` (R-19) |
 | Guard `accepted-differences` đỏ khi xóa `D-09.6` trước khi spec `Done` | CI đỏ | Xóa entry trong commit đóng feature (tiền lệ 007) |
 | `directus_notifications` ghi qua `NotificationsService` khi tạo comment từ `/items/directus_comments` hoặc ghi lồng | Khác Directus nếu `getService` thiếu | `getService` thêm ba collection; test `get-service.test.ts` |

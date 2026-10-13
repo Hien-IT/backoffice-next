@@ -84,12 +84,15 @@ capture, service và util port nguyên, provider, job retention. Thứ tự stor
   `tests/parity/src/proxy-conf.test.ts` và `tests/directus-app-e2e/src/routing.spec.ts` thêm ca bốn route tới app mới
   và `/utils`, `/notifications` vẫn tới Directus (contracts/parity.md §1, §5).
 - [ ] T004 [P] Cặp profile `retention`: `tests/parity/env/profile-retention.env` theo contracts/parity.md §1
-  (`RETENTION_ENABLED=true`, `RETENTION_SCHEDULE=* * * * *`, `RETENTION_BATCH=3`, `ACTIVITY_RETENTION=2s`,
+  (`RETENTION_ENABLED=true`, `RETENTION_SCHEDULE=*/10 * * * * *`, `RETENTION_BATCH=3`, `ACTIVITY_RETENTION=2s`,
   `REVISIONS_RETENTION=1s`, `FLOW_LOGS_RETENTION=2s`, `SYNCHRONIZATION_STORE=redis`,
-  `REDIS_BUS_NAMESPACE=parity-retention:bus`, `CACHE_NAMESPACE=parity-retention`, lock namespace mặc định);
-  `tests/parity/docker-compose.yml` thêm cặp theo mẫu `assets-stress`; `tests/parity/src/profiles.ts`,
-  `vendors.test.ts` thêm ca profile có mặt. Chạy `env-up --vendor=postgres --profiles=retention` và kiểm log hai app
-  đăng ký job `retention`.
+  `REDIS_BUS_NAMESPACE=parity-retention:bus`, `REDIS_LOCK_NAMESPACE=parity-retention:lock`,
+  `CACHE_NAMESPACE=parity-retention`); `tests/parity/docker-compose.yml` thêm cặp theo mẫu `assets-stress` với chú
+  thích "chỉ `retention.test.ts` bật, dùng chung DB"; `tests/parity/src/profiles.ts` ghi profile này là
+  `manual: true` (không vào danh sách `env-up` chung); `vendors.test.ts` thêm ca profile có mặt và không nằm trong
+  danh sách chung; `tests/parity/src/docker.ts` thêm `profileUp(name)`, `profileStop(name)` bọc `compose()` (+ test).
+  Kiểm tay: `env-up --vendor=postgres --profiles=retention`, log hai app đăng ký job `retention` và xóa dòng mỗi
+  10 s, rồi `env-down`.
 - [ ] T005 [P] `tests/parity/src/history/history-effects.ts` + `history-effects.test.ts`: `historyEffects(fn)` bắt dòng
   mới của `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments`,
   `directus_notifications` (id tự tăng: từ `maxId`; uuid: hiệu tập id) kể từ trước `fn`; `comparable()` theo FR-060
@@ -191,7 +194,7 @@ Directus; app Directus hiển thị được.
 - [ ] T021 [P] [US1] `apps/api/src/controllers/revisions.controller.ts` port từ `controllers/revisions.ts`
   (contracts/history-api.md §2). Ghi manifest.
 - [ ] T022 [US1] `apps/api/src/app.module.ts`: đăng ký hai controller (thứ tự bảng chữ cái) và
-  `useCollection('directus_activity')`, `useCollection('directus_revisions')`; `app.module.test.ts`,
+  `useCollection('directus_activity')`, `useCollection('directus_revisions')`; `app.test.ts`,
   `app-pipeline.test.ts` thêm ca. Chạy T016, T017 trên Postgres, MySQL, SQLite; ghi số ca vào "Ghi chú khi làm".
 
 **Checkpoint**: US1 xanh; app Directus qua proxy (`env-up --profiles=app`) mở sidebar Revisions và module Activity
@@ -292,11 +295,13 @@ thể chạy sớm để kiểm.
 
 **Independent Test**: `retention.test.ts` xanh trên cặp `retention`; quickstart §5.
 
-- [ ] T034 [US5] `tests/parity/src/history/retention.test.ts` (`full`, cặp `retention`): seed dòng activity (`update`,
-  `run`), revision cũ/mới bằng `hostDb` (sửa `timestamp`), chờ một kỳ, so dòng còn lại trong ba cảnh: chỉ app mới
-  chạy (dừng container Directus của cặp, khởi động lại trong `afterAll` kể cả khi `beforeAll` lỗi, tiền lệ 006), chỉ
-  Directus chạy (dừng container app mới), cả hai chạy 10 kỳ (Redis `MONITOR` đếm đúng 10 lần đặt khóa
-  `schedule--data-retention` thành công, số dòng xóa bằng số dòng quá hạn, SC-005); `ACTIVITY_RETENTION` nhỏ hơn
+- [ ] T034 [US5] `tests/parity/src/history/retention.test.ts` (`full`, `sequential: true`, chạy cuối suite `history`):
+  `beforeAll` `profileUp('retention')` và chờ `/server/health` hai app; `afterAll` `profileStop('retention')` kể cả
+  khi `beforeAll` lỗi (tiền lệ 006). Seed dòng activity (`update`, `run`), revision cũ/mới bằng `hostDb` (sửa
+  `timestamp`), chờ một kỳ 10 s, so dòng còn lại trong ba cảnh: chỉ app mới chạy (dừng container Directus của cặp),
+  chỉ Directus chạy (dừng container app mới), cả hai chạy 10 kỳ (100 s; Redis `MONITOR` trên namespace
+  `parity-retention:lock` đếm đúng 10 lần đặt khóa `schedule--data-retention` thành công, số dòng xóa bằng số dòng
+  quá hạn, SC-005); dòng của suite khác không bị chạm vì cặp chỉ sống trong file này; `ACTIVITY_RETENTION` nhỏ hơn
   `REVISIONS_RETENTION` không có task revision; nhánh lỗi xóa chỉ kiểm ở unit test T014 (không dựng được trên DB thật,
   ghi chú trong test) (US5.1 đến 5.3).
 - [ ] T035 [P] [US5] `tests/parity/README.md` mục 008 (cặp `retention`, suite `history`, cách đo khóa) và
@@ -328,7 +333,8 @@ thể chạy sớm để kiểm.
   của user được nhắc; Version tạo, save, xem bản nháp, so sánh, promote chọn field, đổi tên, xóa; Activity danh sách,
   chi tiết IP, user agent); helper tạo collection versioning + accountability `all` theo `data-model.spec.ts`
   (FR-063, SC-006).
-- [ ] T040 [US6] CI: `.github/workflows/ci.yml` (`parity` thêm profile `retention` và suite `history`;
+- [ ] T040 [US6] CI: `.github/workflows/ci.yml` (`parity` thêm suite `history`; KHÔNG thêm `retention` vào
+  `--profiles`, `retention.test.ts` tự bật cặp; `env-down` cuối job đã hạ mọi profile;
   `parity-blackbox` thêm `version`; E2E thêm `history.spec.ts`), `parity-matrix.yml`, `nightly.yml` như `parity`;
   `tools/ci-local.sh` theo; chạy đủ `pnpm run ci:local` rồi push và theo dõi `gh run` tới xanh (contracts/parity.md
   §4).
