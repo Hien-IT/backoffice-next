@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/utils/store.ts",
+		"dest": "apps/api/src/utils/store.ts"
+	},
+	{
+		"source": "api/src/utils/store.test.ts",
+		"dest": "apps/api/src/utils/store.test.ts"
+	}
+]

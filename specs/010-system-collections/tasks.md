@@ -145,7 +145,7 @@ cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/par
 
 **Purpose**: Nền dùng chung cho mọi story (research R3, R5, R7, R10).
 
-- [ ] T008 `apps/api/src/utils/get-service.ts`: thêm `case` `directus_dashboards`, `directus_panels`, `directus_settings`,
+- [X] T008 `apps/api/src/utils/get-service.ts`: thêm `case` `directus_dashboards`, `directus_panels`, `directus_settings`,
   `directus_shares`, `directus_translations` (import từ `services/index.ts`, các lớp tạo ở story tương ứng; task này
   tạo file service trơn `dashboards.service.ts`, `panels.service.ts` port từ `services/dashboards.ts`, `panels.ts` và
   stub `shares.service.ts`, `translations.service.ts` là lớp con trơn chờ T030, T044 port đủ; stub giữ đúng hành vi
@@ -153,15 +153,15 @@ cặp `setup` chạy được (research R1, R6, R9, R11, R12, R16; contracts/par
   `key` + `language`) cho tới T030, T044, không thêm route, không đổi hành vi nhìn thấy); `COLLECTIONS_WITHOUT_
   SERVICE_YET` còn ba collection deployment, comment đổi thành lâu dài (D-31, Nguyên tắc XI); `get-service.test.ts`
   thêm ca; `services/index.ts` export. Ghi manifest (FR-003, research R5).
-- [ ] T009 [P] `tests/parity/src/system/helpers.ts` theo contracts/parity.md §2: `same()` với `withoutD098`,
+- [X] T009 [P] `tests/parity/src/system/helpers.ts` theo contracts/parity.md §2: `same()` với `withoutD098`,
   `systemEffects(fn)`, `comparable()` (id, băm `<argon2>`, `token`, `filename_disk`, thời điểm, JWT payload bỏ `iat`,
   `exp`, `session`), `verifyHashAt(app, hash, plain)` (gọi `/utils/hash/verify` ở app kia), `warnLines(service, needle,
   since)`, `userWithPolicy`, `setupDb()` (knex `pg` tới `127.0.0.1:6112`), `cleanup`; `helpers.test.ts` cho
   `comparable` (FR-100, research R10).
-- [ ] T010 [P] `apps/api/src/utils/store.ts` port từ `directus/api/src/utils/store.ts` (`useStore` trên `createCache` của
+- [X] T010 [P] `apps/api/src/utils/store.ts` port từ `directus/api/src/utils/store.ts` (`useStore` trên `createCache` của
   `@backoffice/memory`, `redisConfigAvailable`, `useRedis`), test gốc `store.test.ts` đỏ trước rồi xanh. Ghi manifest
   (research R7).
-- [ ] T011 [P] `apps/api/src/utils/create-admin.ts` port từ `directus/api/src/utils/create-admin.ts` (`defaultAdminRole`,
+- [X] T011 [P] `apps/api/src/utils/create-admin.ts` port từ `directus/api/src/utils/create-admin.ts` (`defaultAdminRole`,
   `defaultAdminPolicy`, `defaultAdminUser`, `createAdmin`); `create-admin.test.ts` mới (mock bốn service: thứ tự tạo
   role → policy → access → user; thiếu email hoặc password → không tạo user; `ADMIN_TOKEN`); `apps/api/src/utils/
   destroy-piped-stream.ts` port từ `directus/api/src/utils/destroy-piped-stream.ts` kèm test gốc

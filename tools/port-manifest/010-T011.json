@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/utils/create-admin.ts",
+		"dest": "apps/api/src/utils/create-admin.ts"
+	},
+	{
+		"source": "api/src/utils/destroy-piped-stream.ts",
+		"dest": "apps/api/src/utils/destroy-piped-stream.ts"
+	},
+	{
+		"source": "api/src/utils/destroy-piped-stream.test.ts",
+		"dest": "apps/api/src/utils/destroy-piped-stream.test.ts"
+	}
+]

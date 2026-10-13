@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/dashboards.ts",
+		"dest": "apps/api/src/services/dashboards.service.ts"
+	},
+	{
+		"source": "api/src/services/panels.ts",
+		"dest": "apps/api/src/services/panels.service.ts"
+	},
+	{
+		"source": "api/src/utils/get-service.ts",
+		"dest": "apps/api/src/utils/get-service.ts"
+	}
+]
