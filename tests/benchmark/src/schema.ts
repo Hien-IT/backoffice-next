@@ -120,7 +120,8 @@ async function measure(seeded: SchemaSeed, s: Scenario, app: App, duration: numb
 
 	return {
 		p95: percentile(histogram, 95),
-		rps: Math.round(result.requests.average),
+		// One decimal: at a few req/s (GET /fields without cache) a whole request is more than the 10% tolerance.
+		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
 	};
 }
