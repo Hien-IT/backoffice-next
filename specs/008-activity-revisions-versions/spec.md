@@ -14,8 +14,7 @@
 - Service: `services/activity.ts`, `services/revisions.ts` (`revert`, mặc định `autoPurgeCache: false`,
   `bypassLimits: true`), `services/versions.ts` (`validateCreateData`, `getMainItem`, `verifyHash`, `getVersionSave`,
   `save`, `promote`, `mapDelta`), `services/comments.ts` (`createOne` với mention, `updateOne`, `deleteOne`),
-  `services/notifications.ts` (`createOne`, `sendEmail`); `utils/versioning/handle-version.ts`, `split-recursive.ts`,
-  `merge-version-data.ts`; `services/items.ts` (ghi `directus_activity`, `directus_revisions` theo
+  `services/notifications.ts` (`createOne`, `sendEmail`); `utils/versioning/handle-version.ts`, `split-recursive.ts`; `services/items.ts` (ghi `directus_activity`, `directus_revisions` theo
   `meta.accountability`, đã port ở 005).
 - Dọn lịch sử: `schedules/retention.ts` (`handleRetentionJob`, khóa `schedule--data-retention`, job `retention`);
   biến mặc định `RETENTION_ENABLED=false`, `RETENTION_BATCH=500`, `RETENTION_SCHEDULE='0 0 * * *'`,
@@ -51,7 +50,8 @@ cache, `Emitter`, `scheduleSynchronizedJob`, `useLock`, `getMilliseconds`, `vali
 **Bộ test liên quan của Directus** (số khối `it`/`it.each`, `test` mỗi file): blackbox
 `tests/blackbox/tests/db/routes/items/version.test.ts` (2: "version response", "version deadlocking", seed
 `version.seed.ts`); unit `services/versions.test.ts` (3, `save` theo `meta.accountability`),
-`utils/versioning/split-recursive.test.ts`, `merge-version-data.test.ts`, `schedules/retention.test.ts` (4). Không có
+`utils/versioning/split-recursive.test.ts`, `schedules/retention.test.ts` (4); `merge-version-data.ts` không được
+`api/src` dùng nên không port. Không có
 test blackbox hay E2E cho `/activity`, `/revisions`, `/comments`, `/utils/revert`.
 
 ## User Scenarios & Testing *(mandatory)*
@@ -178,7 +178,7 @@ response, dòng `directus_comments`, `directus_notifications`.
    Directus.
 3. **Given** `GET /comments` với `filter[collection]`, `filter[item]`, `sort=-date_created`, `fields`
    (`user_created.*`), `aggregate[count]`, `limit`, `offset`, **When** gọi ở hai app, **Then** response giống nhau;
-   user thường chỉ sửa, xóa comment của mình theo quyền tối thiểu app access.
+   user chỉ có quyền tối thiểu app access thấy, sửa, xóa comment của mình.
 4. **Given** comment ghi bởi app mới, **When** mở item trong app Directus, **Then** sidebar Comments hiển thị, sửa,
    xóa được comment và bộ đếm đúng.
 
@@ -214,8 +214,7 @@ ngược lại; so dòng còn lại; chạy cùng lúc ở cả hai app và ki�
 
 ### User Story 6 - Bộ test của Directus và E2E app Directus chạy qua trên app mới (Priority: P2)
 
-Bộ blackbox `version.test.ts`, unit `versions.test.ts`, `split-recursive.test.ts`, `merge-version-data.test.ts`,
-`retention.test.ts` được port và đạt ở cả hai app; Playwright E2E app Directus qua proxy cho sidebar Revisions (xem,
+Bộ blackbox `version.test.ts`, unit `versions.test.ts`, `split-recursive.test.ts`, `retention.test.ts` được port và đạt ở cả hai app; Playwright E2E app Directus qua proxy cho sidebar Revisions (xem,
 so sánh, revert), sidebar Comments (viết, nhắc, sửa, xóa), menu Version (tạo, save, so sánh, promote, đổi tên, xóa),
 module Activity.
 
@@ -277,8 +276,8 @@ module Activity.
   (`useCollection`, `validateBatch`, `respond`), cùng status, body, header và lỗi với Directus 11.17.4; các route khác
   của `/utils` vẫn thuộc D-09.8.
 - **FR-002**: Quyền trên `directus_activity`, `directus_revisions`, `directus_versions`, `directus_comments` PHẢI áp
-  như Directus qua engine của 004, gồm quyền tối thiểu app access (`directus_activity` read của chính mình;
-  `directus_comments` read, create, update và delete của chính mình).
+  như Directus qua engine của 004, gồm quyền tối thiểu app access (`directus_activity` read dòng của chính mình;
+  `directus_comments` read, update (chỉ field `comment`), delete dòng do mình tạo, create với `comment` không null).
 - **FR-003**: `getService` PHẢI trả `VersionsService` cho `directus_versions` và `CommentsService` cho
   `directus_comments` ở mọi đường ghi (route riêng, ghi lồng qua `/items`, `/users`), như Directus.
 - **FR-004**: Response cache, `meta` (`total_count`, `filter_count`), `Emitter` (`items.create|update|delete` cho bốn
@@ -331,8 +330,9 @@ module Activity.
   `items.promote`; response là khóa item.
 - **FR-036**: Đọc item với `?version=` PHẢI port `handle-version.ts`: `versionRaw` gộp delta thô vào item đã đọc;
   không `versionRaw` áp delta bằng service admin trong transaction (`emitEvents: false`, `autoPurgeCache: false`,
-  `skipTracking: true`, `overwriteDefaults`, gom `onItemCreate`), đọc lại theo quyền người gọi, rollback, rồi
-  `merge-version-data.ts` xử lý khóa của dòng tạo tạm; version không có hoặc item không đọc được trả `403`.
+  `skipTracking: true`, `overwriteDefaults`, gom `onItemCreate`), đọc lại theo quyền người gọi, rollback, rồi bỏ khóa
+  của dòng tạo tạm trong kết quả (`deepMapWithSchema` với `createdIDs`); version không có hoặc item không đọc được
+  trả `403`.
 - **FR-037**: `hash`, `delta` (JSON), `date_created`, `user_created`, `date_updated`, `user_updated` PHẢI ghi với
   cùng kiểu và định dạng như Directus trên từng vendor, để version tạo ở app này so sánh và promote được ở app kia với
   cùng `mainHash`.
@@ -353,8 +353,9 @@ module Activity.
   ném ra.
 - **FR-042**: `NotificationsService` PHẢI được port tối thiểu cho FR-041 (`createOne` ghi dòng); gửi email của
   `sendEmail` theo D-33 (bảng khác biệt) cho tới feature 010.
-- **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp (đọc tất cả, tạo, sửa và xóa comment do mình
-  tạo, field sửa giới hạn như `app-access-permissions.yaml`).
+- **FR-043**: Quyền tối thiểu app access của `directus_comments` PHẢI áp như `app-access-permissions.yaml`: đọc, xóa
+  comment do mình tạo, sửa chỉ field `comment` của comment do mình tạo, tạo với `comment` không null; quyền rộng hơn
+  đến từ policy của user.
 - **FR-044**: Ghi `directus_comments` PHẢI tạo activity, revision như Directus (collection hệ thống có
   `accountability`).
 
