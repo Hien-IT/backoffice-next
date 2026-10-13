@@ -37,6 +37,9 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ path: '/flows' },
 		{ path: '/operations' },
 		{ method: 'POST', path: '/flows', body: { name: 'request-set', trigger: 'manual' } },
+		// Feature 010: the public may not read or write the settings.
+		{ path: '/settings' },
+		{ method: 'PATCH', path: '/settings', body: { project_name: 'request-set' } },
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },

@@ -198,6 +198,9 @@ test('the test extensions registry runs for every vendor and every vendor env po
 		expect(readFileSync(new URL(`../env/${vendor}.env`, import.meta.url), 'utf8'), vendor).toMatch(
 			/^MARKETPLACE_REGISTRY=http:\/\/registry:9100$/m,
 		);
+		expect(readFileSync(new URL(`../env/${vendor}.env`, import.meta.url), 'utf8'), vendor).toMatch(
+			/^COMPLIANCE_URL=http:\/\/registry:9100$/m,
+		);
 	}
 });
 

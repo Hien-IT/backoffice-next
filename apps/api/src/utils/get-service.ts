@@ -21,6 +21,7 @@ import { PoliciesService } from '../services/policies.service.js';
 import { PresetsService } from '../services/presets.service.js';
 import { RevisionsService } from '../services/revisions.service.js';
 import { RolesService } from '../services/roles.service.js';
+import { SettingsService } from '../services/settings.service.js';
 import { SharesService } from '../services/shares.service.js';
 import { TranslationsService } from '../services/translations.service.js';
 import { UsersService } from '../services/users.service.js';
@@ -34,12 +35,10 @@ import { VersionsService } from '../services/versions.service.js';
 // directus_comments, directus_notifications and directus_versions; 009 directus_flows and directus_operations; 010
 // directus_dashboards, directus_panels, directus_settings, directus_shares and directus_translations). The deployment
 // module is out of scope (Principle XI, D-17), so its three collections keep a plain ItemsService for good (D-31).
-// ponytail: directus_settings leaves the list when SettingsService extends ItemsService (spec 010 T016).
 export const COLLECTIONS_WITHOUT_SERVICE_YET = [
 	'directus_deployments',
 	'directus_deployment_projects',
 	'directus_deployment_runs',
-	'directus_settings',
 ];
 
 /**
@@ -78,6 +77,8 @@ export function getService(collection: string, opts: AbstractServiceOptions): It
 			return new RevisionsService(opts);
 		case 'directus_roles':
 			return new RolesService(opts);
+		case 'directus_settings':
+			return new SettingsService(opts);
 		case 'directus_shares':
 			return new SharesService(opts);
 		case 'directus_translations':

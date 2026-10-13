@@ -181,7 +181,7 @@ xanh trên Postgres với cặp `setup`; `/server/info` của 001 vẫn xanh.
 
 ### Tests for User Story 1
 
-- [ ] T012 [P] [US1] `tests/parity/src/system/settings.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: `GET`
+- [X] T012 [P] [US1] `tests/parity/src/system/settings.test.ts` (`reduced`, `full`) theo contracts/parity.md §2: `GET`
   (admin, app access, public `403`, `fields`, `meta`, chưa có dòng → mặc định singleton), `PATCH` xen kẽ hai app
   (`project_name`, `project_color`, `project_logo`, `theme_light_overrides`, `custom_css`, `auth_password_policy`,
   `storage_asset_presets`), user có update không có read → `204`, `POST /settings/owner` (dòng `project_status = null`,
@@ -192,39 +192,39 @@ xanh trên Postgres với cặp `setup`; `/server/info` của 001 vẫn xanh.
   `suspended` (đọc `directus_users.status`); `storage_asset_presets` thêm key → `GET /assets/:id?key=<key>` ở B trả ảnh
   theo preset; `project_name` → `GET /users/me/tfa/generate` ở B có issuer mới (US1 ca 1–3, 5; FR-010 đến FR-012,
   FR-014).
-- [ ] T013 [P] [US1] `tests/parity/src/system/setup.test.ts` (`full`, `describe.skipIf(vendor !== 'postgres' ||
+- [X] T013 [P] [US1] `tests/parity/src/system/setup.test.ts` (`full`, `describe.skipIf(vendor !== 'postgres' ||
   !hasProfile('setup'))`) theo contracts/parity.md §3 bước (1)–(8): `GET /server/info` hai app; `POST /server/setup`
   ở Directus, chụp dòng mới 5 bảng qua `setupDb()`; xóa; cùng request ở app mới; so (`comparable`, mật khẩu so bằng
   `POST /auth/login` ở hai app, `project_status` null); gọi lại → `403`; thiếu `project_owner`/`password` → `204`
   không user; R-28 hai request đồng thời (ghi số user, role; so hai app); `afterAll` xóa; log D-38 ở
   `backoffice-api-setup` (US1 ca 4; FR-013).
-- [ ] T014 [P] [US1] `apps/api/src/controllers/settings.controller.test.ts` (supertest qua app Nest, mock service):
+- [X] T014 [P] [US1] `apps/api/src/controllers/settings.controller.test.ts` (supertest qua app Nest, mock service):
   `GET /` gọi `readSingleton(sanitizedQuery)`, `data || null`; `POST /owner` gọi `setOwner(body)`, `204`; `PATCH /`
   gọi `upsertSingleton` rồi `readSingleton`, `Forbidden` → `204`; `OPTIONS /settings` → `Allow: GET, PATCH`,
   `OPTIONS /settings/owner` → `POST`. `apps/api/src/controllers/server.controller.test.ts` thêm ca `POST /setup`:
   `isSetupCompleted` true → `403`; false → `createAdmin(schema, {...})` rồi `setOwner` không await, `204`;
   `Forbidden` bên trong → `204`.
-- [ ] T015 [P] [US1] `apps/api/src/services/settings.service.test.ts` viết lại: `extends ItemsService`
+- [X] T015 [P] [US1] `apps/api/src/services/settings.service.test.ts` viết lại: `extends ItemsService`
   (`directus_settings`); `setOwner` gọi `upsertSingleton({ project_owner, project_usage, org_name, product_updates,
   project_status: null })` và `logger.warn` một dòng không chứa email, không gọi `fetch`; `server.service.test.ts`
   ca `serverInfo` gọi `readSingleton({ fields: [16 field, 'public_background.id', 'public_background.type'] })`.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] `apps/api/src/services/settings.service.ts` port từ `directus/api/src/services/settings.ts` thay bản
+- [X] T016 [US1] `apps/api/src/services/settings.service.ts` port từ `directus/api/src/services/settings.ts` thay bản
   001 (`class SettingsService extends ItemsService`; `setOwner` không `sendReport`, `// Backoffice: D-38`); xóa
   `PROJECT_FIELDS`, `CASTS`, `readProjectInfo`; `apps/api/src/services/server.service.ts` `serverInfo` dùng
   `readSingleton` với danh sách field của `directus/api/src/services/server.ts:45-66`; `providers.ts` factory
   `SettingsService` giữ; chạy bộ `src/server/info.test.ts` của 001 (guard output). Ghi manifest (FR-011, FR-012,
   research R2).
-- [ ] T017 [US1] `apps/api/src/controllers/settings.controller.ts` port từ `directus/api/src/controllers/settings.ts`
+- [X] T017 [US1] `apps/api/src/controllers/settings.controller.ts` port từ `directus/api/src/controllers/settings.ts`
   theo mẫu `comments.controller.ts` (`GET /`, `POST /owner`, `PATCH /`); `app.module.ts` đăng ký controller và
   `useCollection('directus_settings')`; `app.test.ts`, `app-pipeline.test.ts` thêm ca. Cùng task:
   `tests/parity/proxy/backoffice-routes.txt` thêm `settings`; `tests/parity/src/proxy-conf.test.ts` ca `/settings` tới
   app mới; `tests/directus-app-e2e/src/routing.spec.ts` thêm `settings`; `tests/parity/src/request-set.ts` thêm
   `GET /settings` (public). Ghi manifest. Chạy T012 trên Postgres, MySQL, SQLite; ghi số ca vào "Ghi chú khi làm"
   (FR-001, FR-010).
-- [ ] T018 [US1] `apps/api/src/controllers/server.controller.ts` thêm `@Post('setup')` theo contracts/system-api.md §5
+- [X] T018 [US1] `apps/api/src/controllers/server.controller.ts` thêm `@Post('setup')` theo contracts/system-api.md §5
   (`isSetupCompleted` → `403`; `createAdmin`; `setOwner` không await; `Forbidden` → `204`; `respond`); bỏ comment
   "Not built yet ... D-14"; bật ca `403` của T007 trong `src/server/errors.test.ts`. Chạy T013 với cặp `setup`; ghi
   số user, role của ca R-28 ở Directus vào "Ghi chú khi làm" (FR-013, research R3).
@@ -655,3 +655,14 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   `EMPTY_APP_EXTENSION_BUNDLE` của research R6 (từng byte); header: `Content-Type: application/javascript;
   charset=UTF-8`, `Cache-Control: no-cache`, `Vary: Origin, Cache-Control`, `x-cache-status: MISS`, **`Transfer-Encoding:
   chunked`** (Directus `pipe` stream, không có `Content-Length`): app mới phải gửi bằng stream để header trùng.
+- 2026-10-14 T012: thêm `COMPLIANCE_URL=http://registry:9100` vào 9 file env và `POST|GET /v1/owner` vào registry giả,
+  để Directus của môi trường đối chiếu không gửi báo cáo chủ dự án ra `telemetry.directus.io`; ca owner đo: Directus 1
+  báo cáo, Backoffice 0, `project_status` null ở cả hai (D-38). FR-014 kiểm bằng `/server/info`, `auth_password_policy`,
+  `auth_login_attempts` hai chiều; ca `storage_asset_presets` và issuer TFA chưa viết (đã có ở 007, 003 qua Directus).
+  `settings.test.ts` 12 ca, `setup.test.ts` 6 ca xanh trên Postgres lượt đầu.
+- 2026-10-14 T013 (R-28 đo trên Directus 11.17.4): hai `POST /server/setup` cùng lúc trên DB trống → `204, 400` ở cả
+  hai app; 1 user, 2 role (role và policy của request thua ở lại: `createAdmin` không chạy trong transaction, user
+  thứ hai vấp unique email → `400`). Cùng kết quả ở app mới.
+- 2026-10-14 T016: `SettingsService` thay bản 001; toàn bộ unit `apps/api` 3.152 ca xanh; guard `src/server/info.test.ts`,
+  `errors.test.ts`, `auth/login-attempts`, `auth/password`, `permissions/invite-register`, `db-unchanged` xanh.
+

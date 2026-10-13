@@ -24,6 +24,7 @@ export * from './query.js';
 export * from './relations.js';
 export * from './schema.js';
 export * from './services.js';
+export * from './settings.js';
 export * from './snapshot.js';
 export * from './storage.js';
 export * from './users.js';

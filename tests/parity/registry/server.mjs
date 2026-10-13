@@ -1,7 +1,10 @@
 // Test extensions registry for the parity env (specs/010-system-collections research R12, contracts/parity.md §4).
 // Both apps point MARKETPLACE_REGISTRY here, so the registry browse routes of /extensions answer the same fixed data
-// without the real registry. Only node:http and node:fs, so the `node:22-alpine` image runs it without a build. The
-// fixtures follow the zod schemas of @directus/extensions-registry (apps/api/src/extensions/registry/fixtures.test.ts).
+// without the real registry. It is also the COMPLIANCE_URL of the env: Directus sends the owner report of
+// POST /settings/owner and /server/setup here instead of telemetry.directus.io; GET /v1/owner counts the reports, so
+// the parity files check that Backoffice sends none (D-38). Only node:http and node:fs, so the `node:22-alpine` image
+// runs it without a build. The fixtures follow the zod schemas of @directus/extensions-registry
+// (apps/api/src/extensions/registry/fixtures.test.ts).
 import { readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
@@ -44,18 +47,34 @@ export function createRegistryServer() {
 	const describe = load('describe');
 	const accounts = load('accounts');
 
+	const owner = { count: 0, last: null };
+
 	return createServer((req, res) => {
 		const url = new URL(req.url ?? '/', 'http://registry');
 
+		if (url.pathname === '/v1/owner' && req.method === 'POST') {
+			let body = '';
+			req.on('data', (chunk) => (body += chunk));
+			req.on('end', () => {
+				owner.count++;
+				owner.last = JSON.parse(body || 'null');
+				send(res, 200, {});
+			});
+			return;
+		}
+
+		if (url.pathname === '/v1/owner' && req.method === 'GET') return send(res, 200, owner);
 		if (req.method !== 'GET') return send(res, 404, { error: 'not found' });
 		if (url.pathname === '/version') return send(res, 200, { version: REGISTRY_VERSION });
 		if (url.pathname === '/extensions') return send(res, 200, listExtensions(list, url.searchParams));
 
 		const extension = /^\/extensions\/([^/]+)$/.exec(url.pathname);
-		if (extension) return describe[extension[1]] ? send(res, 200, describe[extension[1]]) : send(res, 404, { error: 'not found' });
+		if (extension)
+			return describe[extension[1]] ? send(res, 200, describe[extension[1]]) : send(res, 404, { error: 'not found' });
 
 		const account = /^\/accounts\/([^/]+)$/.exec(url.pathname);
-		if (account) return accounts[account[1]] ? send(res, 200, accounts[account[1]]) : send(res, 404, { error: 'not found' });
+		if (account)
+			return accounts[account[1]] ? send(res, 200, accounts[account[1]]) : send(res, 404, { error: 'not found' });
 
 		return send(res, 404, { error: 'not found' });
 	});

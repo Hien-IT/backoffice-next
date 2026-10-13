@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/settings.ts",
+		"dest": "apps/api/src/services/settings.service.ts"
+	},
+	{
+		"source": "packages/types/src/settings.ts",
+		"dest": "libs/types/src/settings.ts"
+	}
+]

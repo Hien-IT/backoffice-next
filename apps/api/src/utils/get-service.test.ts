@@ -18,6 +18,7 @@ import { PoliciesService } from '../services/policies.service.js';
 import { PresetsService } from '../services/presets.service.js';
 import { RevisionsService } from '../services/revisions.service.js';
 import { RolesService } from '../services/roles.service.js';
+import { SettingsService } from '../services/settings.service.js';
 import { SharesService } from '../services/shares.service.js';
 import { TranslationsService } from '../services/translations.service.js';
 import { UsersService } from '../services/users.service.js';
@@ -45,6 +46,7 @@ describe('getService', () => {
 		['directus_presets', PresetsService],
 		['directus_revisions', RevisionsService],
 		['directus_roles', RolesService],
+		['directus_settings', SettingsService],
 		['directus_shares', SharesService],
 		['directus_translations', TranslationsService],
 		['directus_users', UsersService],
@@ -53,12 +55,11 @@ describe('getService', () => {
 		expect(getService(collection, opts)).toBeInstanceOf(Service);
 	});
 
-	test('only the deployment collections (out of scope) and directus_settings (until T016) are left (D-31)', () => {
+	test('only the deployment collections (out of scope, Principle XI) are left (D-31)', () => {
 		expect(COLLECTIONS_WITHOUT_SERVICE_YET).toEqual([
 			'directus_deployments',
 			'directus_deployment_projects',
 			'directus_deployment_runs',
-			'directus_settings',
 		]);
 	});
 

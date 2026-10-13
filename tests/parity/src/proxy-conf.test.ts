@@ -30,6 +30,7 @@ describe('proxy-conf', () => {
 			'comments',
 			'flows',
 			'operations',
+			'settings',
 		]);
 	});
 

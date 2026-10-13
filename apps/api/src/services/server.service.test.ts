@@ -19,7 +19,7 @@ vi.mock('../middleware/rate-limiter-global.js', () => ({ rateLimiterGlobal: { co
 vi.mock('../middleware/rate-limiter-ip.js', () => ({ rateLimiter: { consume: vi.fn(), delete: vi.fn() } }));
 vi.mock('./settings.service.js', () => ({
 	SettingsService: vi.fn(function () {
-		return { readProjectInfo: async () => ({ project_name: 'P' }) };
+		return { readSingleton: async () => ({ project_name: 'P' }) };
 	}),
 }));
 

@@ -1,5 +1,5 @@
-// Ported from directus/api/src/services/server.ts. Setup comes with feature 010. `email:connection` is always ok, no
-// mail transport is created (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047).
+// Ported from directus/api/src/services/server.ts. `email:connection` is always ok, no mail transport is created
+// (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047).
 import { Readable } from 'node:stream';
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';
@@ -26,10 +26,7 @@ export class ServerService {
 	constructor(options: Partial<AbstractServiceOptions>) {
 		this.knex = options.knex || getDatabase();
 		this.accountability = options.accountability || null;
-		this.settingsService = new SettingsService({
-			knex: this.knex,
-			...(options.schema ? { schema: options.schema } : {}),
-		});
+		this.settingsService = new SettingsService({ knex: this.knex, schema: options.schema! });
 	}
 
 	async isSetupCompleted(): Promise<boolean> {
@@ -40,7 +37,28 @@ export class ServerService {
 		const info: Record<string, any> = {};
 		const setupComplete = await this.isSetupCompleted();
 
-		const projectInfo = await this.settingsService.readProjectInfo();
+		const projectInfo = await this.settingsService.readSingleton({
+			fields: [
+				'project_name',
+				'project_descriptor',
+				'project_logo',
+				'project_color',
+				'default_appearance',
+				'default_theme_light',
+				'default_theme_dark',
+				'theme_light_overrides',
+				'theme_dark_overrides',
+				'default_language',
+				'public_foreground',
+				'public_background.id',
+				'public_background.type',
+				'public_favicon',
+				'public_note',
+				'custom_css',
+				'public_registration',
+				'public_registration_verify_email',
+			],
+		});
 
 		info['project'] = projectInfo;
 

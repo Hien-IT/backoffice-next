@@ -2,9 +2,5 @@
 	{
 		"source": "api/src/services/server.ts",
 		"dest": "apps/api/src/services/server.service.ts"
-	},
-	{
-		"source": "api/src/services/items.ts",
-		"dest": "apps/api/src/services/settings.service.ts"
 	}
 ]

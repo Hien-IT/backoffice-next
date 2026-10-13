@@ -120,9 +120,12 @@ export function comparable<T>(value: T, ids: Record<string, string | number> = {
 
 /** Payload of a JWT without the claims that differ between two logins (FR-100). */
 export function jwtPayload(token: string): Record<string, unknown> {
-	const { iat: _iat, exp: _exp, session: _session, ...rest } = JSON.parse(
-		Buffer.from(token.split('.')[1]!, 'base64url').toString('utf8'),
-	);
+	const {
+		iat: _iat,
+		exp: _exp,
+		session: _session,
+		...rest
+	} = JSON.parse(Buffer.from(token.split('.')[1]!, 'base64url').toString('utf8'));
 
 	return rest;
 }

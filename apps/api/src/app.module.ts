@@ -19,6 +19,7 @@ import { RevisionsController } from './controllers/revisions.controller.js';
 import { RolesController } from './controllers/roles.controller.js';
 import { SchemaController } from './controllers/schema.controller.js';
 import { ServerController } from './controllers/server.controller.js';
+import { SettingsController } from './controllers/settings.controller.js';
 import { TusController } from './controllers/tus.controller.js';
 import { UsersController } from './controllers/users.controller.js';
 import { VersionsController } from './controllers/versions.controller.js';
@@ -56,6 +57,7 @@ export class TusModule implements NestModule {
 		RolesController,
 		SchemaController,
 		ServerController,
+		SettingsController,
 		UsersController,
 		VersionsController,
 	],
@@ -82,6 +84,7 @@ export class AppModule implements NestModule {
 		consumer.apply(useCollection('directus_relations')).forRoutes(RelationsController);
 		consumer.apply(useCollection('directus_revisions')).forRoutes(RevisionsController);
 		consumer.apply(useCollection('directus_roles')).forRoutes(RolesController);
+		consumer.apply(useCollection('directus_settings')).forRoutes(SettingsController);
 		consumer.apply(useCollection('directus_users')).forRoutes(UsersController);
 		consumer.apply(useCollection('directus_versions')).forRoutes(VersionsController);
 	}

@@ -3,6 +3,7 @@
 // the pressure limiter (FR-045).
 import { describe, expect, it } from 'vitest';
 import { redisDown, redisUp } from '../docker.js';
+import { acceptedDifferences } from '../../accepted-differences.js';
 import { assertParity, capture, parity } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
@@ -75,9 +76,16 @@ describe('errors', () => {
 		expect(result.backoffice.status).toBe(404);
 	});
 
-	// Feature 010 (spec FR-013): the shared parity database has users, so setup is refused at both apps.
-	// ponytail: todo until T018 adds POST /server/setup to the server controller; turn it into `it` then.
-	it.todo('POST /server/setup → 403 FORBIDDEN on both (users exist)');
+	// Feature 010 (spec FR-013): the shared parity database has users, so setup is refused at both apps. D-14 still
+	// hides the route until the feature closes, so the accepted differences are passed without it.
+	it('POST /server/setup → 403 FORBIDDEN on both (users exist)', async () => {
+		const result = await parity(
+			{ method: 'POST', path: '/server/setup', body: { project_owner: 'x@example.com', password: 'x' } },
+			{ accepted: acceptedDifferences.filter((d) => !(d.feature === '001' && d.id === 'D-14')) },
+		);
+		assertParity(result);
+		expect(result.backoffice.status).toBe(403);
+	});
 
 	it.each(['/mcp', '/ai/chat', '/deployments', '/server/specs/graphql'])(
 		'%s out of scope → 404 on Backoffice (D-17, D-15)',

@@ -1250,7 +1250,7 @@ services:
       timeout: 5s
       retries: 60
 
-# Feature 007 (research R6): root of the shared `local` storage location of every app container.
+  # Feature 007 (research R6): root of the shared `local` storage location of every app container.
   # Feature 010 (research R11): the setup pair. POST /server/setup only runs on a database without users, so the pair has
   # its own Postgres; src/system/setup.test.ts and setup.spec.ts empty directus_users after each run. Postgres only.
   postgres-setup:

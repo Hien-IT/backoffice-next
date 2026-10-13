@@ -171,10 +171,7 @@ export const serviceProviders: Provider[] = [
 	},
 	{
 		provide: SettingsService,
-		useFactory:
-			(db: typeof getDatabase) =>
-			(options = {}) =>
-				new SettingsService({ knex: db(), ...options }),
+		useFactory: (db: typeof getDatabase) => (options: any) => new SettingsService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{
