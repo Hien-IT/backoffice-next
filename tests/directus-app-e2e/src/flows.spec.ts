@@ -102,7 +102,10 @@ test('create a manual flow, edit it, run it twice, read the logs, deactivate and
 			await drawer.getByRole('textbox', { name: 'Name', exact: true }).fill(name);
 			await drawer.getByRole('button', { name: 'arrow_forward' }).click();
 			await drawer.getByRole('button', { name: /^touch_app Manual/ }).click();
-			await drawer.getByRole('button', { name: /^chevron_right Show \d+ more/ }).click();
+			// The checkbox list folds after 8 collections ("Show N more"): unfold it only when the database has more.
+			await expect(drawer.getByRole('button', { name: 'Collections arrow_drop_down' })).toBeVisible();
+			const more = drawer.getByRole('button', { name: /^chevron_right Show \d+ more/ });
+			if (await more.isVisible()) await more.click();
 			await drawer.getByRole('checkbox', { name: /E2e Flows Posts/i }).click();
 			const created = call(page, 'POST', /\/flows$/);
 			await drawer.getByRole('button', { name: 'check' }).click();
