@@ -587,7 +587,7 @@ Directus.
     owner chọn làm như Directus (2026-10-14): bỏ xử lý `401` ở client, phiên mất chỉ phát hiện khi `refresh()` lỗi;
     spec FR-001, US1-5, SC-004, edge case khác origin và contracts đã sửa.
   - `translateAPIError` của Directus trả `unexpected_error` khi không có khóa `errors.<CODE>` (spec FR-012 ghi "hiện
-    message gốc"): app làm như Directus; spec cần sửa câu này khi đóng feature.
+    message gốc"): app làm như Directus; owner chọn `unexpected_error`, FR-012 đã sửa (2026-10-15).
   - `useSafeRedirect` gọi `POST /utils/resolve-redirect` (đã thêm contracts #31, release-gate CHK023).
 - T015: `stores/translations.ts` chỉ có `loadTranslations` như Directus (không `hydrate`); query `/translations` và
   `/presets` theo `fetchAll` của Directus (`limit=-1` hoặc phân trang theo `queryLimit.max`); contracts #25 đã sửa.
@@ -654,7 +654,7 @@ Directus.
 - T063/T064: quyền tối thiểu của app trong Directus 11.17.4 không cho user đọc `theme_*_overrides` hay sửa dòng của
   mình: hồ sơ chỉ lưu và áp override khi role có quyền đó (fixture `updateSelf`). Chuỗi vi-VN thiếu ở trang hồ sơ
   (`appearance_*`, `fields.directus_users.appearance`, `theme_*_overrides`, `default_sync_with_project`, `invalid_input`)
-  rơi về en-US (FR-062); có thể thêm vào overlay nếu owner muốn.
+  rơi về en-US (FR-062); owner chọn giữ như Directus, không thêm vào overlay (2026-10-15, spec Clarifications).
 - CI job `e2e` cũ chỉ chạy `smoke.spec.ts` tới khi job `e2e-web` (Phase 9) có.
 - E2E đợt C local: chromium 768 + 1280 ở `proxy-api`, `proxy-directus` (32 đạt, 11 bỏ qua có chủ ý: sso và setup chỉ
   chạy ở `cors`), `cors` 43/43.

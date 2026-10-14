@@ -334,7 +334,7 @@ này PHẢI giống Directus khi tính năng đó tắt.
   `directus_*` ngoài luồng API của Directus; có lock hoặc state quan trọng trong bộ nhớ process, hoặc
   cache trong process không dựng lại được từ DB/Redis hay không bị xóa qua bus Redis (Nguyên tắc VII);
   có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X; component
-  FE dùng mã hex thô hay màu palette Tailwind thay cho token `--eh-*` (Nguyên tắc XII).
+  FE dùng mã hex thô hay màu palette Tailwind ngoài theme TailAdmin của `design-system/` (Nguyên tắc XII).
 
 ## Governance
 

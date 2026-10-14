@@ -6,7 +6,9 @@
 **Duyệt khác biệt**: owner duyệt ngày 2026-10-14 D-39 đến D-49 (D-49: ẩn link Documentation mặc định
 thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các làm rõ của checklist release-gate ngày
 2026-10-14; owner chọn D-51 (giá trị mặc định Directus của `project_name`, `project_color` coi như trống) ngày
-2026-10-14; owner chọn design-system TailAdmin (constitution 2.0.0, D-47 sửa, D-52) ngày 2026-10-15.
+2026-10-14; owner chọn design-system TailAdmin (constitution 2.0.0, D-47 sửa, D-52) ngày 2026-10-15; owner chọn D-53 (bỏ bước
+license BSL ở `/setup`), bổ sung D-52 (đăng xuất không hỏi xác nhận, nút `sign_out` ở màn không có quyền vào app)
+và FR-012 (`unexpected_error` như Directus) ngày 2026-10-15.
 **Input**: User description: "Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -385,7 +387,8 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   với `{ email, password, otp?, mode: 'session' }`; LDAP với `{ identifier, password, otp?, mode: 'session' }`; sau
   đó gọi `POST /auth/refresh` (mode session) để lấy `expires`, nạp lại server store và nạp dữ liệu app như `auth.ts`.
 - **FR-012**: Khi API trả `INVALID_OTP`, form PHẢI hiện ô OTP (6 ký tự) giữ nguyên email và mật khẩu; mã lỗi khác
-  PHẢI dịch qua khóa `errors.<CODE>` của chuỗi dịch Directus, không có bản dịch thì hiện message gốc.
+  PHẢI dịch qua khóa `errors.<CODE>` của chuỗi dịch Directus, không có bản dịch thì hiện `unexpected_error` như
+  `translateAPIError` của Directus (owner chọn 2026-10-15). Riêng `/setup` hiện message của API như `setup.vue`.
 - **FR-013**: Lần tải đầu, app PHẢI thử `POST /auth/refresh` trước khi quyết định route (bỏ qua lỗi); route private
   khi chưa đăng nhập PHẢI về `/login?redirect=<fullPath>`; sau đăng nhập PHẢI đi tới `redirect || last_page ||
   '/content'` bằng `router.push` như `login-form.vue` (router chỉ nhận path của app nên URL ngoài thành path nội bộ
@@ -620,11 +623,12 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-45 | Dữ liệu nạp sau đăng nhập: store flows, insights, AI, extensions; drawer thông báo; sidebar chi tiết (thông tin, bình luận, revision...); tìm kiếm toàn cục | Có | Không nạp, không hiện; `GET /notifications` vẫn gọi để đếm | Thuộc feature module tương ứng | ngoài phạm vi (tạm thời) | 014 (sidebar chi tiết item), 017 (flows), 018 (insights, thông báo) |
 | D-46 | Ngôn ngữ đóng gói | Hơn 60 ngôn ngữ | `en-US`, `vi-VN`; ngôn ngữ khác trong hồ sơ rơi về `en-US` | Mô tả feature | khác | — |
 | D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system TailAdmin (`brand-*`, `gray-*`, font Outfit) | Nguyên tắc XII 2.0.0; owner chọn TailAdmin 2026-10-15 | khác | — |
-| D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải; route, luồng và hành vi giữ như Directus | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
+| D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải; route, luồng và hành vi giữ như Directus ; đăng xuất ở menu user đi thẳng `/logout`, không có hộp `sign_out_confirm`; màn không có quyền vào app dùng nút `sign_out` thay cho `switch_user` (cùng đích `/logout`) | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
 | D-48 | Trang hồ sơ `/users/me` | Form đầy đủ theo metadata field của `directus_users` | Form cố định với field ở FR-060 | Form theo metadata thuộc feature Users | ngoài phạm vi (tạm thời) | 015 |
 | D-49 | Link Documentation mặc định trên thanh module (`docs` → `https://docs.directus.io`) | Hiện (mặc định và khi `module_bar` đã lưu có mục này) | Ẩn ở cả hai trường hợp; mục `docs` đã đổi `url` và link khác vẫn hiện; không sửa dữ liệu `module_bar` (FR-081) | Nguyên tắc IX: không dẫn người dùng Backoffice tới tài liệu Directus; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-51 | `project_name = 'Directus'`, `project_color = '#6644FF'` (giá trị mặc định cột mà Directus ghi vào mọi DB; API không cho đặt null) | Hiện "Directus", màu tím | Coi là chưa đặt khi hiển thị: tên `Backoffice`, màu primary design-system; không ghi DB; giá trị khác admin đặt vẫn dùng | Nguyên tắc IX; SC-005 với DB do Directus tạo; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-50 | Video `public_background` khi trình duyệt bật `prefers-reduced-motion: reduce` | `autoplay muted loop` luôn | Không autoplay (hiện khung đầu, có nút phát); không reduce thì như Directus | WCAG 2.2.2 (mức A) mà FR-067 yêu cầu; owner chọn 2026-10-14 | khác | — |
+| D-53 | Bước license ở `/setup` (thông báo BSL, link đăng ký license, ô `setup_accept_license`, khóa `license` trong payload) | Có | Không có; form chỉ có thông tin admin và dự án, payload không có `license` | Nguyên tắc IX, XI: không dẫn người dùng Backoffice tới license Directus; owner chọn 2026-10-15 | đổi thương hiệu | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -683,7 +687,7 @@ từ theme TailAdmin; còn Q-7.
 Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là hành vi đọc trong `directus/app/src` 11.17.4.
 
 - **Lỗi và giới hạn** (CHK001, CHK003, CHK005, CHK058, CHK065): mọi lỗi API ở các form (đăng nhập, TFA, share,
-  quên mật khẩu, lời mời, setup, hồ sơ) hiện qua `translateAPIError` (FR-012), kể cả `REQUESTS_EXCEEDED` (`429`),
+  quên mật khẩu, lời mời, hồ sơ) hiện qua `translateAPIError` (FR-012; `/setup` hiện message của API như Directus), kể cả `REQUESTS_EXCEEDED` (`429`),
   sai mật khẩu ở `/tfa-setup`, share hết hạn hoặc hết lượt; không có xử lý riêng như Directus. Nút gửi ở trạng thái
   `loading` trong lúc chờ nên không gửi lặp.
 - **Khởi động** (CHK002, CHK017, CHK055, CHK084): `/server/info` và `/auth?sessionOnly` gọi song song
@@ -747,6 +751,17 @@ Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là
   lời Q-1 đến Q-8 trước khi đóng 012, giá trị tạm chỉ nằm ở token (plan Constraints).
 - **Khác** (CHK051, CHK096): provider SSO `MODE=json` không có xử lý riêng ở app (như Directus app); E2E chỉ dùng
   provider mode session. Query `/notifications` theo contracts/api-calls #26.
+
+### Session 2026-10-15
+
+- Q: Phần nhìn và bố cục khung? → A: Design-system TailAdmin (constitution 2.0.0), shell `xl` 1280 px, màu thay thế
+  đạt AA trong theme, trang public là card giữa trên nền toàn trang (D-47, D-52).
+- Q: Bước license BSL ở `/setup`? → A: Bỏ (D-53).
+- Q: Đăng xuất không hỏi xác nhận, nút `sign_out` thay `switch_user` ở màn không có quyền vào app? → A: Đồng ý (D-52).
+- Q: Lỗi chưa có bản dịch hiện gì? → A: `unexpected_error` như Directus (FR-012).
+- Q: Khóa thiếu trong vi-VN của Directus (trang hồ sơ: `appearance_*`, `fields.directus_users.appearance`,
+  `theme_*_overrides`, `default_sync_with_project`, `fields.directus_settings.default_language`, `invalid_input`)?
+  → A: Giữ như Directus, rơi về en-US (FR-062); không thêm vào overlay. Các feature sau làm theo cùng quy tắc.
 
 ## Assumptions
 

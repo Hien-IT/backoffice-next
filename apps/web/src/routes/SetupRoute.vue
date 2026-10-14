@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: the form of routes/setup/form.vue and the fields and validation of routes/setup/form.ts are folded in
 // as plain fields (no v-form); the email check is a plain pattern instead of zod (not a dependency of the app). The
-// license notice and checkbox are left out (no license step, Principle XI), so the payload has no `license` key;
+// license notice and checkbox are left out (no license step, D-53), so the payload has no `license` key;
 // the other keys and values are those of Directus. Requests go through the SDK.
 import { useHead } from '@unhead/vue';
 import { computed, ref, watch } from 'vue';
