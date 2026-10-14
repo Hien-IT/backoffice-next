@@ -28,37 +28,11 @@ let hydrateCalls = 0;
 
 const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
 
-// shortcut: mockFixtureApi ignores the `{ field: value }` equality shorthand that useRelationMultiple sends for the
-// reverse junction field (the Directus API reads it as `_eq`); rewritten here until test-utils/fetch.ts handles it.
-function shorthandEquality(mock: ReturnType<typeof mockFixtureApi>) {
-	const handler = mock.getMockImplementation()!;
-
-	const normalize = (filter: unknown): unknown => {
-		if (Array.isArray(filter)) return filter.map(normalize);
-		if (!filter || typeof filter !== 'object') return filter;
-
-		return Object.fromEntries(
-			Object.entries(filter).map(([key, value]) => [
-				key,
-				!key.startsWith('_') && (value === null || typeof value !== 'object') ? { _eq: value } : normalize(value),
-			]),
-		);
-	};
-
-	mock.mockImplementation((input, init) => {
-		const url = new URL(String(input));
-		const filter = url.searchParams.get('filter');
-		if (filter) url.searchParams.set('filter', JSON.stringify(normalize(JSON.parse(filter))));
-		return handler(url.toString(), init);
-	});
-}
-
 async function setup(user: FixtureUser = 'admin') {
 	vi.unstubAllGlobals();
 	await replaceQueue();
 	setActivePinia(createPinia());
 	fetch = mockFixtureApi(snapshot, { user });
-	shorthandEquality(fetch);
 	await useUserStore().hydrate();
 
 	await Promise.all([
@@ -143,6 +117,10 @@ describe('list-o2m (fixture bo_rel.o2m_list)', () => {
 		const wrapper = await mountList('o2m_list');
 
 		expect(rowTexts(wrapper)).toEqual(['Target two', 'Target three']);
+		expect(wrapper.findAll('button.row-menu').map((b) => b.attributes('aria-label'))).toEqual([
+			'Options for Target two',
+			'Options for Target three',
+		]);
 		expect(wrapper.emitted('input')).toBeUndefined();
 		expect(listCalls().every((c) => c.startsWith('GET /items/bo_rel_target'))).toBe(true);
 	});
@@ -345,7 +323,7 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 	test('fixture field: table with the fields as columns, no input', async () => {
 		const wrapper = await mountList('o2m_table');
 
-		expect(headerTexts(wrapper)).toEqual(['Name', 'Status', 'Actions']);
+		expect(headerTexts(wrapper)).toEqual(['Name', 'Status']);
 		expect(wrapper.findAll('tbody tr')).toHaveLength(1);
 		expect(wrapper.find('tbody').text()).toContain('Target four');
 		expect(wrapper.get('.item-count').text()).toBe('One Item');
@@ -354,7 +332,7 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 
 	test('option:list-o2m.fields sets the columns', async () => {
 		const wrapper = await mountList('o2m_table', { fields: ['id', 'name'] });
-		expect(headerTexts(wrapper)).toEqual(['ID', 'Name', 'Actions']);
+		expect(headerTexts(wrapper)).toEqual(['ID', 'Name']);
 	});
 
 	test('option:list-o2m.tableSpacing sets the row height', async () => {
@@ -390,12 +368,42 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 		expect(off.find('input[type="search"]').exists()).toBe(false);
 	});
 
-	test('row click opens the item drawer; the edit button is the keyboard path', async () => {
+	test('row click and Enter on a focused row open the item drawer (v-table click:row)', async () => {
 		const wrapper = await mountList('o2m_table');
 
 		await wrapper.find('tbody td:nth-child(2)').trigger('click');
 		expect(wrapper.findComponent(DrawerItem).props('primaryKey')).toBe(4);
-		expect(wrapper.find('tbody [data-action="edit"]').element.tagName).toBe('BUTTON');
+
+		wrapper.findComponent(DrawerItem).vm.$emit('update:active', false);
+		await flushPromises();
+		expect(wrapper.findComponent(DrawerItem).props('active')).toBe(false);
+
+		await wrapper.get('tbody tr').trigger('keydown', { key: 'Enter' });
+		expect(wrapper.findComponent(DrawerItem).props()).toMatchObject({ active: true, primaryKey: 4 });
+	});
+
+	test('table manual sort: drag is on after the sort toggle and re-sorts by the sortField (FR-043)', async () => {
+		const wrapper = await mountList('o2m_list', { layout: 'table', fields: ['name'] });
+		const table = wrapper.findComponent(BoTable);
+
+		expect(table.props()).toMatchObject({ showManualSort: true, manualSortKey: 'sort', sort: null });
+		await wrapper.get('button[aria-label="Toggle Manual Sorting"]').trigger('click');
+		expect(table.props('sort')).toEqual({ by: 'sort', desc: false });
+
+		const rows = table.props('rows') as Record<string, unknown>[];
+		table.vm.$emit('update:rows', [rows[1], rows[0]]);
+		await flushPromises();
+
+		expect(lastInput(wrapper)).toEqual({
+			create: [],
+			update: [
+				{ id: 3, sort: 1 },
+				{ id: 2, sort: 2 },
+			],
+			delete: [],
+		});
+
+		expect((await mountList('o2m_table')).findComponent(BoTable).props('showManualSort')).toBe(false);
 	});
 
 	test('table "Move down" row menu re-sorts by the sortField (D-60)', async () => {
@@ -477,5 +485,21 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 		expect(wrapper.find('tbody').text()).toContain('Target four');
 		expect(wrapper.find('tbody button[aria-label="Remove Item"]').exists()).toBe(allowed);
 		expect(wrapper.find('thead [role="checkbox"]').exists()).toBe(allowed);
+	});
+
+	test('FR-046: a failed load (403 for bo-editor on `status`) shows a danger notice, not only a console warning', async () => {
+		await setup('bo-editor');
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const wrapper = await mountList('o2m_table');
+
+		const notice = wrapper.findAllComponents({ name: 'BoNotice' }).find((n) => n.props('type') === 'danger');
+		expect(notice?.text()).toContain(i18n.global.t('errors.FORBIDDEN'));
+		expect(warn).toHaveBeenCalled();
+		expect(wrapper.emitted('input')).toBeUndefined();
+
+		await wrapper.setProps({ fields: ['name'] });
+		await flushPromises();
+		expect(wrapper.findAllComponents({ name: 'BoNotice' }).some((n) => n.props('type') === 'danger')).toBe(false);
+		warn.mockRestore();
 	});
 });

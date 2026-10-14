@@ -153,8 +153,8 @@ export interface FixtureApiOptions {
 
 /**
  * Stubs fetch with an in-memory API over the fixture snapshot (contracts/tests.md §3): hydrate routes, lists of
- * `/items/<c>`, `/files`, `/users`, `/flows` with `filter` (`_eq`, `_neq`, `_in`, `_nin`, `_null`, `_nnull`, `_or`,
- * `_and` and a few more), `search`, `sort`, `limit`, `page`, `fields` (nested), `alias` and `aggregate`;
+ * `/items/<c>`, `/files`, `/users`, `/flows` with `filter` (`_eq` and its `{ field: value }` shorthand, `_neq`, `_in`,
+ * `_nin`, `_null`, `_nnull`, `_or`, `_and`, `_some` / `_none` on o2m, m2m and `$FOLLOW(...)` and a few more), `search`, `sort`, `limit`, `page`, `fields` (nested), `alias` and `aggregate`;
  * `/assets/<id>` (1x1 PNG), `POST /files` and `POST /files/import` (add a file row), `POST /flows/trigger/<id>`.
  * Read permissions of the user apply like Directus: an explicit field or collection the user cannot read answers 403,
  * `*` lists the readable fields. Returns the fetch mock; `fetch.db` holds the rows (flat, keys instead of objects).
@@ -175,7 +175,7 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 		collection: string,
 		field: string,
 		row?: Row,
-	): { kind: 'm2o' | 'o2m'; collection: string } | null {
+	): { kind: 'm2o' | 'o2m'; collection: string; field?: string } | null {
 		const many = relations.find((r) => r.collection === collection && r.field === field);
 
 		if (many?.related_collection) return { kind: 'm2o', collection: many.related_collection };
@@ -185,7 +185,7 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 				: null;
 
 		const one = relations.find((r) => r.related_collection === collection && r.meta?.one_field === field);
-		return one ? { kind: 'o2m', collection: one.collection } : null;
+		return one ? { kind: 'o2m', collection: one.collection, field: one.field } : null;
 	}
 
 	/** A `fields=*.*` row of the snapshot back to what the database holds: keys instead of related objects. */
@@ -258,6 +258,22 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			if (key === '_and') return (value as unknown[]).every((f) => matches(collection, row, f));
 			if (key === '_or') return (value as unknown[]).some((f) => matches(collection, row, f));
 
+			// `$FOLLOW(collection,field[,collectionField])`: the rows of `collection` whose `field` points at this row
+			// (Directus getRelationInfo: an implicit o2m, or o2a with the collection field), filtered like an o2m.
+			if (key.startsWith('$FOLLOW(') && key.endsWith(')')) {
+				const [follow, field, collectionField] = key.slice(8, -1).split(',').map((part) => part.trim()) as [
+					string,
+					string,
+					string | undefined,
+				];
+				checkField(follow, field);
+				const pk = row[pkOf(collection)];
+				const related = rowsOf(follow).filter(
+					(r) => loose(r[field], pk) && (collectionField === undefined || r[collectionField] === collection),
+				);
+				return quantified(follow, related, value);
+			}
+
 			checkField(collection, key);
 			// Shorthand `{ field: value }` means `_eq`, as the API reads it (sent by use-relation-multiple).
 			if (value === null || typeof value !== 'object') return compare('_eq', row[key], variable(value));
@@ -270,17 +286,22 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 					return related !== null && matches(relation.collection, related, value);
 				}
 
-				const related = ((row[key] ?? []) as unknown[])
-					.map((k) => find(relation.collection, k))
-					.filter(Boolean) as Row[];
-				if ('_none' in value) return !related.some((r) => matches(relation.collection, r, value._none));
-				return related.some((r) => matches(relation.collection, r, value._some ?? value));
+				// o2m (and the junction rows of m2m / m2a): the rows whose foreign key points at this row.
+				const pk = row[pkOf(collection)];
+				const related = rowsOf(relation.collection).filter((r) => loose(r[relation.field!], pk));
+				return quantified(relation.collection, related, value);
 			}
 
 			return Object.entries(value as Record<string, unknown>).every(([op, arg]) =>
 				compare(op, row[key], variable(arg)),
 			);
 		});
+	}
+
+	/** `_none` / `_some` (the default) of a to-many filter over the related rows. */
+	function quantified(collection: string, related: Row[], value: Record<string, any>): boolean {
+		if ('_none' in value) return !related.some((r) => matches(collection, r, value['_none']));
+		return related.some((r) => matches(collection, r, value['_some'] ?? value));
 	}
 
 	function searched(collection: string, rows: Row[], search: string | null): Row[] {

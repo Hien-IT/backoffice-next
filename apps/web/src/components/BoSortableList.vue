@@ -3,8 +3,11 @@
 // interfaces (`handle=".drag-handle"`, `force-fallback`), plus a row menu whose "Move up" / "Move down" emit the same
 // `update:modelValue` array as a drag (WCAG 2.1.1). `tree` adds "Indent" / "Outdent", emitted as events for the
 // tree view to change the parent. After a move, focus returns to the moved row's menu trigger and a live region
-// says the new position.
-import { computed, nextTick, ref } from 'vue';
+// says the new position. `group` shares a vuedraggable group between nested lists (mouse drag across levels, whose
+// `added` / `removed` vuedraggable `change` events are passed on); `update:modelValue` is only a reorder inside the
+// list. `itemDisabled` rows (e.g. deleted ones) cannot be dragged or moved (Directus `draggable=".draggable"`).
+import { moveInArray } from '@directus/utils';
+import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Draggable from 'vuedraggable';
 import BoIcon from './BoIcon.vue';
@@ -25,14 +28,33 @@ const props = withDefaults(
 		itemLabel?: ((item: T, index: number) => string) | undefined;
 		/** Row actions of the interface, shown before the move items. */
 		rowActions?: ((item: T, index: number) => BoMenuItem[]) | undefined;
+		/** vuedraggable `group`: lists with the same group exchange rows by mouse drag. */
+		group?: string | undefined;
+		/** Rows that cannot be dragged or moved. */
+		itemDisabled?: ((item: T) => boolean) | undefined;
 	}>(),
-	{ disabled: false, tree: false, nested: false, itemLabel: undefined, rowActions: undefined },
+	{
+		disabled: false,
+		tree: false,
+		nested: false,
+		itemLabel: undefined,
+		rowActions: undefined,
+		group: undefined,
+		itemDisabled: undefined,
+	},
 );
+
+/** The vuedraggable `change` event. */
+type SortableChange<T> =
+	| { added: { newIndex: number; element: T } }
+	| { removed: { oldIndex: number; element: T } }
+	| { moved: { oldIndex: number; newIndex: number; element: T } };
 
 const emit = defineEmits<{
 	'update:modelValue': [value: T[]];
 	indent: [index: number];
 	outdent: [index: number];
+	change: [event: SortableChange<T>];
 }>();
 
 defineSlots<{ item(props: { element: T; index: number }): unknown }>();
@@ -42,10 +64,17 @@ const { t } = useI18n();
 const announcement = ref('');
 const root = ref<HTMLElement>();
 
-const items = computed({
-	get: () => props.modelValue,
-	set: (value: T[]) => emit('update:modelValue', value),
-});
+function onChange(event: SortableChange<T>) {
+	if ('moved' in event) {
+		emit('update:modelValue', moveInArray(props.modelValue, event.moved.oldIndex, event.moved.newIndex));
+	}
+
+	emit('change', event);
+}
+
+function draggable(item: T): boolean {
+	return !props.disabled && !props.itemDisabled?.(item);
+}
 
 function keyOf(item: T): string | number {
 	return typeof props.itemKey === 'function'
@@ -60,7 +89,7 @@ function labelOf(item: T, index: number): string {
 function menuItems(item: T, index: number): BoMenuItem[] {
 	const actions = props.rowActions?.(item, index) ?? [];
 
-	if (props.disabled) return actions;
+	if (!draggable(item)) return actions;
 
 	const last = props.modelValue.length - 1;
 
@@ -110,23 +139,28 @@ const ICON_BTN =
 <template>
 	<div ref="root">
 		<Draggable
-			v-model="items"
+			:model-value="modelValue"
 			tag="ul"
 			class="space-y-2"
+			:class="{ 'min-h-3': group }"
 			:item-key="itemKey"
 			handle=".drag-handle"
+			draggable=".draggable"
+			:group="group"
 			:disabled="disabled"
 			ghost-class="shadow-theme-lg"
 			chosen-class="opacity-50"
 			v-bind="{ 'force-fallback': true }"
+			@change="onChange"
 		>
 			<template #item="{ element, index }">
 				<li
 					:data-row-key="keyOf(element)"
 					class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-white/[0.03]"
+					:class="{ draggable: draggable(element) }"
 				>
 					<BoIcon
-						v-if="!disabled"
+						v-if="draggable(element)"
 						name="drag_handle"
 						size="sm"
 						class="drag-handle cursor-grab text-gray-500 dark:text-gray-400"

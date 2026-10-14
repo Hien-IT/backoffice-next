@@ -1,7 +1,9 @@
 // Ported from directus/app/src/components/v-table/table-header.test.ts
 // Backoffice: BoTable is one component (header + rows); the Directus sort cases plus selection, resize, spacing,
-// loading and empty states of the simple Table recipe.
+// loading and empty states of the simple Table recipe, manual sort (v-table `manualSortKey`), `click:row` and the
+// `item-append` slot.
 import { mount } from '@vue/test-utils';
+import Draggable from 'vuedraggable';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';
 import BoTable, { type BoTableColumn } from './BoTable.vue';
@@ -155,5 +157,70 @@ describe('BoTable', () => {
 		vi.runAllTimers();
 		await wrapper.get('thead th button').trigger('click');
 		expect(wrapper.emitted('update:sort')).toHaveLength(1);
+	});
+
+	test('manual sort: the header toggle sorts by manualSortKey, rows drag only while sorted by it', async () => {
+		const wrapper = mountTable({ showManualSort: true, manualSortKey: 'sort' });
+		const toggle = wrapper.get('button[aria-label="Toggle Manual Sorting"]');
+
+		expect(toggle.attributes('aria-pressed')).toBe('false');
+		expect(wrapper.findAll('.drag-handle')).toHaveLength(2);
+		expect(wrapper.getComponent(Draggable).vm.$attrs['disabled']).toBe(true);
+
+		await toggle.trigger('click');
+		expect(wrapper.emitted('update:sort')?.[0]).toEqual([{ by: 'sort', desc: false }]);
+
+		await wrapper.setProps({ sort: { by: 'sort', desc: false } });
+		expect(toggle.attributes('aria-pressed')).toBe('true');
+		expect(wrapper.getComponent(Draggable).vm.$attrs['disabled']).toBe(false);
+
+		await toggle.trigger('click');
+		expect(wrapper.emitted('update:sort')?.[1]).toEqual([null]);
+
+		wrapper.getComponent(Draggable).vm.$emit('update:modelValue', [rows[1], rows[0]]);
+		expect(wrapper.emitted('update:rows')?.[0]).toEqual([[rows[1], rows[0]]]);
+
+		await wrapper.setProps({ disabled: true });
+		expect(wrapper.getComponent(Draggable).vm.$attrs['disabled']).toBe(true);
+	});
+
+	test('no manual sort column without showManualSort', () => {
+		const wrapper = mountTable({ manualSortKey: 'sort', sort: { by: 'sort', desc: false } });
+
+		expect(wrapper.find('.drag-handle').exists()).toBe(false);
+		expect(wrapper.getComponent(Draggable).vm.$attrs['disabled']).toBe(true);
+	});
+
+	test('click:row on click and Enter on a focused row, not from the append cell or when disabled', async () => {
+		const onClick = vi.fn();
+		const wrapper = mount(BoTable, {
+			props: { columns, rows, 'onClick:row': onClick },
+			slots: { 'item-append': '<button type="button" class="act">Act</button>', 'header-append': 'Actions' },
+			global: { plugins: [i18n] },
+		});
+		const row = wrapper.findAll('tbody tr')[1]!;
+
+		expect(row.attributes('tabindex')).toBe('0');
+		expect(wrapper.findAll('thead th[scope="col"]').at(-1)!.text()).toBe('Actions');
+		expect(wrapper.findAll('col').at(-1)!.attributes('style')).toBe('width: 160px;');
+
+		await row.trigger('click');
+		expect(onClick.mock.calls[0]![0].item).toEqual(rows[1]);
+
+		await row.trigger('keydown', { key: 'Enter' });
+		expect(onClick).toHaveBeenCalledTimes(2);
+
+		await row.get('.act').trigger('click');
+		await row.get('.act').trigger('keydown', { key: 'Enter' });
+		expect(onClick).toHaveBeenCalledTimes(2);
+
+		await wrapper.setProps({ disabled: true });
+		await row.trigger('click');
+		expect(onClick).toHaveBeenCalledTimes(2);
+		expect(row.attributes('tabindex')).toBeUndefined();
+	});
+
+	test('rows are not focusable without a click:row listener', () => {
+		expect(mountTable().get('tbody tr').attributes('tabindex')).toBeUndefined();
 	});
 });

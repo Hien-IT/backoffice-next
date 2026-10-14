@@ -91,12 +91,13 @@ test('update keeps the existing primary key in the changes; remove sets null', a
 	expect(value.value).toBeNull();
 });
 
-test('403 on an object value (manual primary key) shows the value; on a key it warns', async () => {
+test('403 on an object value (manual primary key) shows the value; on a key it warns and sets error', async () => {
 	const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
 
 	const manual = use({ id: 7, name: 'Manual' });
 	await flushPromises();
 	expect(manual.displayItem.value).toEqual({ id: 7, name: 'Manual' });
+	expect(manual.error.value).toBeNull();
 	expect(warn).not.toHaveBeenCalled();
 
 	const key = use(7);
@@ -104,6 +105,11 @@ test('403 on an object value (manual primary key) shows the value; on a key it w
 	expect(key.displayItem.value).toBeNull();
 	expect(key.loading.value).toBe(false);
 	expect(warn).toHaveBeenCalledTimes(1);
+	expect(key.error.value).toMatchObject({ errors: [{ extensions: { code: 'FORBIDDEN' } }] });
+
+	key.value.value = 1;
+	await flushPromises();
+	expect(key.error.value).toBeNull();
 });
 
 test('refresh reads the item again', async () => {

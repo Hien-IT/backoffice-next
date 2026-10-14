@@ -90,6 +90,7 @@ describe('fixture values', () => {
 		await flushPromises();
 
 		expect(rows(wrapper)).toEqual(['Row B (1)', 'Row A (2)']);
+		expect(wrapper.findAll('button.row-menu').map((b) => b.attributes('aria-label'))).toEqual(['Options for Row B (1)', 'Options for Row A (2)']);
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 

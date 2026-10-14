@@ -1,3 +1,4 @@
+import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';
@@ -89,5 +90,13 @@ describe('BoIconPicker', () => {
 
 		below.click();
 		expect(wrapper.emitted('update:modelValue')).toEqual([[below.getAttribute('data-icon-button')]]);
+	});
+
+	test('opening with the keyboard moves the focus into the popover, on the search input (Reka auto focus)', async () => {
+		mount(BoIconPicker, { props: { modelValue: null }, global: { plugins: [i18n] }, attachTo: document.body });
+		document.querySelector<HTMLElement>('button[aria-haspopup="dialog"]')!.focus();
+		await userEvent.keyboard('{Enter}');
+
+		await vi.waitFor(() => expect(document.activeElement).toBe(search()));
 	});
 });

@@ -31,4 +31,11 @@ describe('BoNotice', () => {
 		expect(wrapper.classes()).toContain('bg-gray-50');
 		expect(wrapper.get('.material-symbols-rounded').text()).toBe('bolt');
 	});
+
+	test('an unknown type (a form field type falling through) gets the normal look instead of throwing', () => {
+		const wrapper = mount(BoNotice, { props: { type: 'alias' as never }, slots: { default: 'Text' } });
+
+		expect(wrapper.classes()).toContain('bg-gray-50');
+		expect(wrapper.get('.material-symbols-rounded').text()).toBe('info');
+	});
 });

@@ -1,6 +1,6 @@
 // Ported from directus/app/src/composables/use-relation-multiple.ts
 // Backoffice: `@/sdk` -> src/api/sdk.ts (FR-001). unexpectedError has no notifications store before feature 018
-// (D-45): only its console warning is kept.
+// (D-45): it warns in the console and the last load error is returned as `error` for the interface to show (FR-046).
 // Backoffice: strict flags (noPropertyAccessFromIndexSignature): bracket access on `oldValue`, `updatedItem` typed
 // DisplayItem and the `useActions` target typed ChangesItem instead of Item.
 import type { ContentVersion, Filter, Item } from '@directus/types';
@@ -9,14 +9,10 @@ import { clamp, cloneDeep, get, isEqual, merge } from 'lodash-es';
 import { computed, ref, type Ref, watch } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { fetchAll } from '../utils/fetch-all.ts';
+import { unexpectedError } from '../utils/unexpected-error.ts';
 import type { RelationM2A } from './use-relation-m2a.ts';
 import type { RelationM2M } from './use-relation-m2m.ts';
 import type { RelationO2M } from './use-relation-o2m.ts';
-
-function unexpectedError(error: unknown): void {
-	// eslint-disable-next-line no-console
-	console.warn(error);
-}
 
 export type RelationQueryMultiple = {
 	page: number;
@@ -48,6 +44,8 @@ export function useRelationMultiple(
 	version: Ref<ContentVersion | null>,
 ) {
 	const loading = ref(false);
+	// Backoffice: the error of the last load of the related items (FR-046).
+	const error = ref<unknown>(null);
 	const fetchedItems = ref<Record<string, any>[]>([]);
 	const existingItemCount = ref(0);
 
@@ -390,6 +388,7 @@ export function useRelationMultiple(
 
 		try {
 			loading.value = true;
+			error.value = null;
 
 			if (itemId.value !== '+') {
 				const currentItemId = itemId.value;
@@ -425,8 +424,8 @@ export function useRelationMultiple(
 
 				fetchedItems.value = response;
 			}
-		} catch (error) {
-			unexpectedError(error);
+		} catch (err) {
+			error.value = unexpectedError(err);
 		} finally {
 			loading.value = false;
 		}
@@ -793,6 +792,7 @@ export function useRelationMultiple(
 		displayItems,
 		totalItemCount,
 		loading,
+		error,
 		selected,
 		fetchedSelectItems,
 		fetchedItems,

@@ -13,13 +13,7 @@ import { useFieldsStore } from '../../stores/fields.ts';
 import { usePermissionsStore } from '../../stores/permissions.ts';
 import { useRelationsStore } from '../../stores/relations.ts';
 import { useUserStore } from '../../stores/user.ts';
-import {
-	assertOnlyKnownRequests,
-	calls,
-	type FixtureApiOptions,
-	json,
-	mockFixtureApi,
-} from '../../test-utils/fetch.ts';
+import { assertOnlyKnownRequests, calls, type FixtureApiOptions, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { fieldsOf, type FixtureUser, loadSnapshot } from '../../test-utils/fixtures.ts';
 import { translate } from '../../utils/translate-object-values.ts';
 import config from './index.ts';
@@ -31,27 +25,11 @@ const snapshot = loadSnapshot();
 let fetch: ReturnType<typeof mockFixtureApi>;
 let hydrateCalls = 0;
 
-// shortcut: mockFixtureApi reads the `{ field: value }` filter shorthand (Directus parseFilter: `_eq`) of
-// use-relation-multiple as "no condition", so the junction rows of one parent are answered here; drop this when
-// test-utils/fetch.ts handles the shorthand.
-function junctionRows({ url }: { url: URL }) {
-	const parent = JSON.parse(url.searchParams.get('filter') ?? '{}')._and?.[0]?.bo_translations_id;
-
-	const rows = snapshot.items['bo_translations_translations']!.filter((r) => r['bo_translations_id'].id === parent).map(
-		(r) => ({ ...r, bo_translations_id: parent, bo_languages_code: { code: r['bo_languages_code'].code } }),
-	);
-
-	return json({ data: url.searchParams.has('aggregate') ? [{ count: { id: rows.length } }] : rows });
-}
-
 async function setup(user: FixtureUser = 'admin', answers: FixtureApiOptions['answers'] = {}) {
 	vi.unstubAllGlobals();
 	await replaceQueue();
 	setActivePinia(createPinia());
-	fetch = mockFixtureApi(snapshot, {
-		user,
-		answers: { 'GET /items/bo_translations_translations': junctionRows, ...answers },
-	});
+	fetch = mockFixtureApi(snapshot, { user, answers });
 	await useUserStore().hydrate();
 
 	await Promise.all([

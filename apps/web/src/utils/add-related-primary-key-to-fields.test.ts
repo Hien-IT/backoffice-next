@@ -2,7 +2,7 @@
 // Backoffice: the real fields store with spies instead of @pinia/testing (not a dependency); no crypto stub needed.
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
-import { useFieldsStore } from '../../stores/fields.ts';
+import { useFieldsStore } from '../stores/fields.ts';
 import { addRelatedPrimaryKeyToFields } from './add-related-primary-key-to-fields.ts';
 
 beforeEach(() => {

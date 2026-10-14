@@ -28,7 +28,7 @@ import { type RelationQuerySingle, useRelationSingle } from '../../composables/u
 import { formatFilesize } from '../../utils/format-filesize.ts';
 import { getAssetUrl } from '../../utils/get-asset-url.ts';
 import { readableMimeType } from '../../utils/readable-mime-type.ts';
-import ItemRemove from '../file/ItemRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 
 const props = withDefaults(
 	defineProps<{
@@ -319,7 +319,7 @@ const FOCUS =
 						<BoIcon name="edit" size="sm" />
 					</button>
 
-					<ItemRemove class="deselect" deselect :item-info="relationInfo" :item-edits="edits" @action="deselect" />
+					<BoRemove class="deselect" deselect :item-info="relationInfo" :item-edits="edits" @action="deselect" />
 				</div>
 			</div>
 

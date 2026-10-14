@@ -1,9 +1,9 @@
 // Ported from directus/app/src/composables/use-page-size.test.ts
 import { describe, expect, test, vi } from 'vitest';
-import { useServerStore } from '../../stores/server.ts';
+import { useServerStore } from '../stores/server.ts';
 import { usePageSize } from './use-page-size.ts';
 
-vi.mock('../../stores/server.ts', () => {
+vi.mock('../stores/server.ts', () => {
 	return {
 		useServerStore: vi.fn(),
 	};

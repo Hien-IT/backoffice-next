@@ -1,6 +1,7 @@
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, expect, test } from 'vitest';
 import { h } from 'vue';
+import Draggable from 'vuedraggable';
 import { i18n } from '../lang/index.ts';
 import BoSortableList from './BoSortableList.vue';
 
@@ -115,4 +116,29 @@ test('the default row label is its position; a function item-key works', async (
 
 	expect(wrapper.findAll('li').map((li) => li.attributes('data-row-key'))).toEqual(['k1', 'k2', 'k3']);
 	expect(wrapper.findAll('button.row-menu')[1]!.attributes('aria-label')).toBe('Options for 2');
+});
+
+test('group is the vuedraggable group; change events are passed on, a `moved` one is also the reordered list', async () => {
+	const wrapper = mountList({ group: 'g1' });
+	const draggable = wrapper.getComponent(Draggable);
+
+	expect(draggable.vm.$attrs['group']).toBe('g1');
+
+	const added = { added: { newIndex: 0, element: { id: 9, name: 'New' } } };
+	draggable.vm.$emit('change', added);
+	expect(wrapper.emitted('change')?.[0]).toEqual([added]);
+	expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+
+	const moved = { moved: { oldIndex: 0, newIndex: 2, element: rows[0] } };
+	draggable.vm.$emit('change', moved);
+	expect(wrapper.emitted('change')?.[1]).toEqual([moved]);
+	expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[rows[1], rows[2], rows[0]]]);
+});
+
+test('itemDisabled rows have no handle, are not draggable and have no move items', async () => {
+	const wrapper = mountList({ itemDisabled: (row: Row) => row.id === 2 });
+
+	expect(wrapper.findAll('li').map((li) => li.classes('draggable'))).toEqual([true, false, true]);
+	expect(wrapper.findAll('li')[1]!.find('.drag-handle').exists()).toBe(false);
+	expect(wrapper.findAll('button.row-menu')).toHaveLength(2);
 });

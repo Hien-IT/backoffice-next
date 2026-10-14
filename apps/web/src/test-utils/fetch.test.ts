@@ -89,6 +89,30 @@ describe('mockFixtureApi lists', () => {
 		await expect(targets({ id: { _regex: 'x' } })).rejects.toThrow('unsupported filter operator _regex');
 	});
 
+	test('to-many filters: `{ field: value }` shorthand, _some / _none on o2m and m2m, $FOLLOW (o2m and o2a)', async () => {
+		setup();
+		const list = (path: string, filter: unknown) =>
+			get<any[]>(path, { filter, fields: ['id'] }).then((rows) => rows.map((r) => r.id));
+
+		// Shorthand equality, as use-relation-multiple sends the reverse junction field.
+		expect(await list('/items/bo_rel_target', { o2m_table_parent: 1 })).toEqual([4]);
+		// o2m alias: the rows pointing at the row.
+		expect(await list('/items/bo_rel', { o2m_list: { _some: { id: { _eq: 2 } } } })).toEqual([1]);
+		expect(await list('/items/bo_rel', { o2m_list: { name: { _eq: 'Target two' } } })).toEqual([1]);
+		expect(await list('/items/bo_rel', { o2m_list: { _none: { id: { _eq: 2 } } } })).not.toContain(1);
+		// m2m alias (junction rows), then through the junction to the related item.
+		expect(await list('/items/bo_rel', { m2m_list: { _some: { bo_rel_target_id: { id: { _eq: 5 } } } } })).toEqual([
+			1,
+		]);
+		// $FOLLOW: the select drawer filters of list-m2m / files (o2m) and list-m2a (o2a with the collection field).
+		const m2m = '$FOLLOW(bo_junction_m2m_list,bo_rel_target_id)';
+		expect(await list('/items/bo_rel_target', { [m2m]: { _none: { bo_rel_id: { _eq: 1 } } } })).toEqual([2, 3, 4]);
+		expect(await list('/items/bo_rel_target', { [m2m]: { _some: { bo_rel_id: { _eq: 1 } } } })).toEqual([1, 5]);
+		const m2a = '$FOLLOW(bo_junction_m2a,item,collection)';
+		const none = { [m2a]: { _none: { _and: [{ bo_rel_id: { _eq: 1 } }, { collection: { _eq: 'bo_m2a_a' } }] } } };
+		expect(await list('/items/bo_m2a_a', none)).toHaveLength(1);
+	});
+
 	test('reads the bracket notation too', async () => {
 		setup();
 		const { body } = await raw('/items/bo_rel_target?filter[status][_eq]=draft&fields=id');

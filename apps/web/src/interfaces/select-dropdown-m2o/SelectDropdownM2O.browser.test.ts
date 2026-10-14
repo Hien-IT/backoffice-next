@@ -55,6 +55,8 @@ test('Enter opens the selection drawer; Tab reaches link, edit and deselect', as
 	await userEvent.keyboard('{Enter}');
 	expect(wrapper.findComponent(DrawerCollection).props('active')).toBe(true);
 	await wrapper.findComponent(DrawerCollection).setValue(false, 'active');
+	// The closing drawer gives the focus back to its trigger: wait for it before moving the focus.
+	await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).toBeNull());
 
 	main.focus();
 	await userEvent.tab();

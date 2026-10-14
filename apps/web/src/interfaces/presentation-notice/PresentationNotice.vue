@@ -32,20 +32,23 @@ const html = computed(() => md(props.text ?? t('interfaces.presentation-notice.n
 </script>
 
 <template>
-	<BoNotice
-		:id="a11y?.inputId"
-		:type="type"
-		:icon="icon"
-		role="note"
-		:data-type="color"
-		:aria-describedby="a11y?.describedBy"
-	>
-		<!-- sanitized by utils/markdown.ts (DOMPurify, FR-065) -->
-		<!-- eslint-disable vue/no-v-html -->
-		<div
-			class="[&_a]:text-brand-500 [&_a]:underline [&_a:hover]:text-brand-600 dark:[&_a]:text-brand-400 [&_p:not(:last-child)]:mb-2"
-			v-html="html"
-		/>
-		<!-- eslint-enable vue/no-v-html -->
-	</BoNotice>
+	<!-- A wrapper as Directus: the form's `type` (field type) falls through to it, not to BoNotice's `type`. -->
+	<div class="presentation-notice">
+		<BoNotice
+			:id="a11y?.inputId"
+			:type="type"
+			:icon="icon"
+			role="note"
+			:data-type="color"
+			:aria-describedby="a11y?.describedBy"
+		>
+			<!-- sanitized by utils/markdown.ts (DOMPurify, FR-065) -->
+			<!-- eslint-disable vue/no-v-html -->
+			<div
+				class="[&_a]:text-brand-500 [&_a]:underline [&_a:hover]:text-brand-600 dark:[&_a]:text-brand-400 [&_p:not(:last-child)]:mb-2"
+				v-html="html"
+			/>
+			<!-- eslint-enable vue/no-v-html -->
+		</BoNotice>
+	</div>
 </template>

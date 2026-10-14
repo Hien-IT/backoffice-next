@@ -1,6 +1,5 @@
 // Ported from directus/app/src/utils/add-related-primary-key-to-fields.ts
-// Backoffice: kept next to list-o2m (list-m2m imports it) until it moves to src/utils with the next user.
-import { useFieldsStore } from '../../stores/fields.ts';
+import { useFieldsStore } from '../stores/fields.ts';
 
 /**
  * Adds the primary key field for any passed relational dot-notation field to the array of fields.

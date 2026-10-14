@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/list-m2a/list-m2a.vue -->
 <script setup lang="ts">
 // Backoffice: rows are BoSortableList (SortableList row menu recipe, D-60): drag handle plus a row menu with the
-// v-remove action (remove-action.ts, confirmation dialog here) and Move up / Move down, which emit the same sorted
+// v-remove action (getRemoveAction of BoRemove, confirmation dialog here) and Move up / Move down, which emit the same sorted
 // array as a drag (sortItems). The row content is a button that opens the item drawer. VPagination is the
 // previous / next pair of DrawerCollection. A junction collection missing from the collections store (no read
 // permission) shows `relationship_not_setup` instead of throwing. `version` defaults to null (the form may pass
@@ -29,11 +29,12 @@ import {
 	useRelationMultiple,
 } from '../../composables/use-relation-multiple.ts';
 import { useRelationPermissionsM2A } from '../../composables/use-relation-permissions.ts';
+import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { adjustFieldsForDisplays } from '../../utils/adjust-fields-for-displays.ts';
 import { renderStringTemplate } from '../../utils/render-string-template.ts';
-import { addRelatedPrimaryKeyToFields } from './add-related-primary-key-to-fields.ts';
-import { getRemoveAction } from './remove-action.ts';
-import { usePageSize } from './use-page-size.ts';
+import { addRelatedPrimaryKeyToFields } from '../../utils/add-related-primary-key-to-fields.ts';
+import { getRemoveAction } from '../../components/BoRemove.vue';
+import { usePageSize } from '../../composables/use-page-size.ts';
 
 const props = withDefaults(
 	defineProps<{
@@ -153,6 +154,7 @@ const {
 	isItemSelected,
 	isLocalItem,
 	getItemEdits,
+	error: loadError,
 } = useRelationMultiple(value, query, relationInfo, primaryKey, version);
 
 function sortItems(items: DisplayItem[]) {
@@ -443,6 +445,8 @@ const FOCUS =
 		:aria-describedby="a11y?.describedBy"
 		:aria-invalid="a11y?.invalid || undefined"
 	>
+		<BoNotice v-if="loadError" type="danger">{{ translateAPIError(loadError as APIError) }}</BoNotice>
+
 		<BoNotice v-if="!disabled && canDrag && !allowDrag" class="sorting-disabled">
 			{{ t('interfaces.list-m2a.sorting_disabled') }}
 		</BoNotice>

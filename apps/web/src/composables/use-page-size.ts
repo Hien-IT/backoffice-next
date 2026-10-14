@@ -1,7 +1,6 @@
 // Ported from directus/app/src/composables/use-page-size.ts
-// Backoffice: kept next to list-m2a until it moves to src/composables with the other relational interfaces.
 import { computed, type ComputedRef, type MaybeRef, unref } from 'vue';
-import { useServerStore } from '../../stores/server.ts';
+import { useServerStore } from '../stores/server.ts';
 
 export function usePageSize<T = any>(
 	availableSizes: MaybeRef<number[]>,

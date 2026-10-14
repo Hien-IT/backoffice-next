@@ -5,8 +5,6 @@ import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { replaceQueue } from '../../api/sdk.ts';
-// The registry first: the drawers' form imports it, which imports this interface back (cycle).
-import '../index.ts';
 import { i18n } from '../../lang/index.ts';
 import { useCollectionsStore } from '../../stores/collections.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
@@ -109,4 +107,67 @@ test('Indent then Outdent with the keyboard change the parent of a row', async (
 	);
 	await vi.waitFor(() => expect(document.activeElement?.getAttribute('aria-label')).toBe('Options for Child B'));
 	expect(document.activeElement!.closest('ul')!.closest('li')).toBeNull();
+});
+
+/**
+ * Sortable's fallback drag: pointerdown on the handle, pointer moves on the document in steps, mouseup drops. The
+ * target point is read again at each step, since the placeholder row moves the layout during the drag.
+ */
+async function drag(handle: HTMLElement, to: () => { x: number; y: number }) {
+	const start = handle.getBoundingClientRect();
+	const from = { x: start.left + start.width / 2, y: start.top + start.height / 2 };
+	const init = (p: { x: number; y: number }) => ({ bubbles: true, cancelable: true, clientX: p.x, clientY: p.y, button: 0 });
+	const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+
+	handle.dispatchEvent(new PointerEvent('pointerdown', init(from)));
+
+	for (let step = 1; step <= 20; step++) {
+		const end = to();
+		const point = { x: from.x + ((end.x - from.x) * Math.min(step, 15)) / 15, y: from.y + ((end.y - from.y) * Math.min(step, 15)) / 15 };
+		document.dispatchEvent(new PointerEvent('pointermove', init(point)));
+		await frame();
+	}
+
+	document.dispatchEvent(new MouseEvent('mouseup', init(to())));
+}
+
+test('a mouse drag moves a row into an open nested level (shared group), a deleted row has no handle', async () => {
+	const options = fieldsOf('bo_tree').find((f) => f.field === 'children')!.meta!.options!;
+
+	const wrapper = mount(ListO2MTreeView, {
+		props: {
+			...options,
+			collection: 'bo_tree',
+			field: 'children',
+			primaryKey: 1,
+			value: [2, 4],
+			onInput: (value: unknown) => wrapper.setProps({ value } as never),
+		} as never,
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
+
+	await vi.waitFor(() => expect(document.querySelector('[aria-label="Options for Child B"]')).not.toBeNull());
+
+	const rowOf = (name: string) =>
+		document.querySelector<HTMLElement>(`[aria-label="Options for ${name}"]`)!.closest<HTMLElement>('li')!;
+
+	rowOf('Child A').querySelector<HTMLElement>('button[aria-expanded]')!.click();
+	await vi.waitFor(() => expect(document.querySelector('[aria-label="Options for Grandchild"]')).not.toBeNull());
+
+	await drag(rowOf('Child B').querySelector('.drag-handle')!, () => {
+		const target = rowOf('Grandchild').getBoundingClientRect();
+		return { x: target.left + 40, y: target.bottom - 4 };
+	});
+
+	await vi.waitFor(() =>
+		expect(wrapper.emitted('input')?.at(-1)?.[0]).toMatchObject({
+			update: [{ id: 2, children: { update: [{ id: 4, parent: 2 }] } }],
+		}),
+	);
+
+	expect(rowOf('Grandchild').querySelector('.drag-handle')).not.toBeNull();
+	await choose('Grandchild', 'Remove Item');
+	await vi.waitFor(() => expect(rowOf('Grandchild').querySelector('.drag-handle')).toBeNull());
+	expect(rowOf('Grandchild').classList.contains('draggable')).toBe(false);
 });

@@ -19,7 +19,7 @@ import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../test
 import { type FixtureUser, fieldsOf, loadSnapshot, type Snapshot } from '../../test-utils/fixtures.ts';
 import File from './File.vue';
 import config from './index.ts';
-import ItemRemove from './ItemRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 
 enableAutoUnmount(afterEach);
 
@@ -359,7 +359,7 @@ describe('edits (emitted values)', () => {
 		expect(wrapper.get('.deselect').attributes('aria-label')).toBe('Remove Item');
 		await wrapper.get('.deselect').trigger('click');
 		expect(wrapper.emitted('input')).toBeUndefined();
-		expect(wrapper.getComponent(ItemRemove).getComponent(BoDialog).props('open')).toBe(true);
+		expect(wrapper.getComponent(BoRemove).getComponent(BoDialog).props('open')).toBe(true);
 
 		[...document.body.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Delete')!.click();
 		await flushPromises();

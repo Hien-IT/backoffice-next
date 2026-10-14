@@ -3,7 +3,7 @@
 // rows, client-side validation before staging (FR-018), unsaved-changes confirm (FR-084), permissions, nesting.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 import { replaceQueue } from '../../api/sdk.ts';
 import { i18n } from '../../lang/index.ts';
@@ -17,6 +17,9 @@ import { type FixtureUser, loadSnapshot } from '../../test-utils/fixtures.ts';
 import DrawerItem from './DrawerItem.vue';
 
 enableAutoUnmount(afterEach);
+
+// The drawer's form is a lazy component (import cycle with the interface registry): load it once up front.
+beforeAll(() => import('../form/BoForm.vue'));
 
 const snapshot = loadSnapshot();
 let fetch: ReturnType<typeof mockFixtureApi>;

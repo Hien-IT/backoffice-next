@@ -1,3 +1,4 @@
+import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';
@@ -36,4 +37,15 @@ test('low contrast follows the theme field background', async () => {
 	expect(white.get('button.swatch').classes()).toContain('ring-1');
 	expect(brand.get('button.swatch').classes()).not.toContain('ring-1');
 	expect((brand.get('button.swatch').element as HTMLElement).style.background).toContain('rgb(102, 68, 255)');
+});
+
+test('opening with the keyboard moves the focus into the popover (Reka auto focus, first control)', async () => {
+	mount(BoColorPicker, { props: { modelValue: '#FF0000' }, global: { plugins: [i18n] }, attachTo: document.body });
+	document.querySelector<HTMLElement>('button.swatch')!.focus();
+	await userEvent.keyboard('{Enter}');
+
+	await vi.waitFor(() =>
+		expect(document.activeElement?.closest('[data-reka-popper-content-wrapper]')).not.toBeNull(),
+	);
+	expect(document.activeElement?.getAttribute('role')).toBe('combobox');
 });

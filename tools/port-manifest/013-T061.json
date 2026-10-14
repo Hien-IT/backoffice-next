@@ -12,23 +12,23 @@
 		"dest": "apps/web/src/interfaces/list-o2m/list-o2m.test.ts"
 	},
 	{
-		"source": "app/src/components/v-remove.vue",
-		"dest": "apps/web/src/interfaces/list-o2m/BoRemove.vue"
-	},
-	{
 		"source": "app/src/composables/use-column-widths.ts",
-		"dest": "apps/web/src/interfaces/list-o2m/use-column-widths.ts"
+		"dest": "apps/web/src/composables/use-column-widths.ts"
 	},
 	{
 		"source": "app/src/utils/format-items-count.ts",
-		"dest": "apps/web/src/interfaces/list-o2m/format-items-count.ts"
+		"dest": "apps/web/src/utils/format-items-count.ts"
 	},
 	{
 		"source": "app/src/utils/add-related-primary-key-to-fields.ts",
-		"dest": "apps/web/src/interfaces/list-o2m/add-related-primary-key-to-fields.ts"
+		"dest": "apps/web/src/utils/add-related-primary-key-to-fields.ts"
 	},
 	{
 		"source": "app/src/utils/add-related-primary-key-to-fields.test.ts",
-		"dest": "apps/web/src/interfaces/list-o2m/add-related-primary-key-to-fields.test.ts"
+		"dest": "apps/web/src/utils/add-related-primary-key-to-fields.test.ts"
+	},
+	{
+		"source": "app/src/utils/unexpected-error.ts",
+		"dest": "apps/web/src/utils/unexpected-error.ts"
 	}
 ]

@@ -1,12 +1,11 @@
 <!-- Ported from directus/app/src/interfaces/list-o2m/list-o2m.vue -->
 <script setup lang="ts">
 // Backoffice: template rewritten with the Bo* components. List layout: BoSortableList (drag handle plus the D-60 row
-// menu "Move up" / "Move down"); table layout: BoTable, whose rows have no click event, append slot or drag handle,
-// so a trailing actions column holds the row buttons (edit = row click, link, remove) and, when sorting is allowed,
-// the D-60 move menu; a click on a row still opens it like v-table `click:row`. Rows are keyed by `$key` (primary key,
-// else `$index` of a created item) since BoTable selects by key while v-table selects item objects. The search input
-// is a plain search (the filter of search-input.vue comes with 014, D-58); pagination is previous/next (no
-// v-pagination yet). v-prevent-focusout is not needed (the drawers are Reka dialogs that keep the focus).
+// menu "Move up" / "Move down"); table layout: BoTable with v-table's manual sort, `click:row` (also Enter on a
+// focused row) and `item-append` (link, D-60 move menu while the rows follow the sort field, remove). Rows are keyed
+// by `$key` (primary key, else `$index` of a created item) since BoTable selects by key while v-table selects item
+// objects. The search input is a plain search (the filter of search-input.vue comes with 014, D-58); pagination is
+// previous/next (no v-pagination yet). v-prevent-focusout is not needed (the drawers are Reka dialogs that keep the focus).
 // localStorage key `directus-o2m-column-widths-*` -> `backoffice-o2m-column-widths-*` (D-39).
 import type { ContentVersion, Filter } from '@directus/types';
 import { deepMap, getFieldsFromTemplate } from '@directus/utils';
@@ -36,13 +35,15 @@ import {
 } from '../../composables/use-relation-multiple.ts';
 import { useRelationO2M } from '../../composables/use-relation-o2m.ts';
 import { useRelationPermissionsO2M } from '../../composables/use-relation-permissions.ts';
+import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
 import { adjustFieldsForDisplays } from '../../utils/adjust-fields-for-displays.ts';
 import { getItemRoute } from '../../utils/get-item-route.ts';
-import { addRelatedPrimaryKeyToFields } from './add-related-primary-key-to-fields.ts';
-import BoRemove from './BoRemove.vue';
-import { formatItemsCountPaginated } from './format-items-count.ts';
-import { useColumnWidths } from './use-column-widths.ts';
+import { addRelatedPrimaryKeyToFields } from '../../utils/add-related-primary-key-to-fields.ts';
+import BoRemove from '../../components/BoRemove.vue';
+import { formatItemsCountPaginated } from '../../utils/format-items-count.ts';
+import { renderStringTemplate } from '../../utils/render-string-template.ts';
+import { useColumnWidths } from '../../composables/use-column-widths.ts';
 
 // Backoffice: LAYOUTS of @/types/interfaces as string literals.
 type Layout = 'list' | 'table';
@@ -186,6 +187,7 @@ const {
 	isItemSelected,
 	isLocalItem,
 	getItemEdits,
+	error: loadError,
 } = useRelationMultiple(value, query, relationInfo, primaryKey, version);
 
 const { createAllowed, deleteAllowed, updateAllowed } = useRelationPermissionsO2M(relationInfo);
@@ -473,21 +475,7 @@ function useTableRows() {
 	return { tableRows, selection, selectionKeys };
 }
 
-// Backoffice: v-table `click:row`; buttons, links, checkboxes and the resize handle keep their own click.
-function onTableClick(event: MouseEvent) {
-	if (props.disabled && !props.nonEditable) return;
-
-	const target = event.target as HTMLElement;
-	if (target.closest('button, a, input, [role="checkbox"], [data-resize-handle]')) return;
-
-	const row = target.closest('tbody > tr');
-	if (!row?.parentElement) return;
-
-	const item = displayItems.value[Array.from(row.parentElement.children).indexOf(row)];
-	if (item) editRow({ item });
-}
-
-// Backoffice: D-60 "Move up" / "Move down" of a table row (v-table manual sort is a mouse drag).
+// Backoffice: D-60 "Move up" / "Move down" of a table row, the keyboard path of the manual sort drag.
 function moveItems(index: number): BoMenuItem[] {
 	const last = displayItems.value.length - 1;
 
@@ -504,15 +492,21 @@ function moveItems(index: number): BoMenuItem[] {
 	];
 }
 
+// Backoffice: the row name of the row menu label and the move announcement (D-60).
+function itemLabel(item: DisplayItem, index: number): string {
+	return renderStringTemplate(templateWithDefaults.value ?? '', item).displayValue.value || String(index + 1);
+}
+
 const showTableActions = computed(() => !props.nonEditable || props.enableLink);
 
-const tableColumns = computed<BoTableColumn[]>({
-	get: () =>
-		showTableActions.value
-			? [...headers.value, { key: '$actions', label: t('actions'), sortable: false, width: 160 }]
-			: headers.value,
-	set: (val) => (headers.value = val.filter((column) => column.key !== '$actions')),
-});
+// Backoffice: the move menu only while the rows are in sort field order (no other column sort), as the drag.
+const tableMoveAllowed = computed(
+	() =>
+		allowDrag.value &&
+		!props.disabled &&
+		displayItems.value.length > 1 &&
+		(!manualSort.value || manualSort.value.by === relationInfo.value?.sortField),
+);
 
 const rowIndex = (row: Record<string, any>) => tableRows.value.findIndex((r) => r.$key === row['$key']);
 
@@ -536,6 +530,8 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		:aria-describedby="a11y?.describedBy"
 		:aria-invalid="a11y?.invalid ? 'true' : undefined"
 	>
+		<BoNotice v-if="loadError" type="danger" class="mb-3">{{ translateAPIError(loadError as APIError) }}</BoNotice>
+
 		<div
 			:class="[
 				`layout-${layout}`,
@@ -601,99 +597,90 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 				</template>
 			</div>
 
-			<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events, vuejs-accessibility/no-static-element-interactions -- the row buttons give the keyboard path -->
-			<div v-if="layout === 'table'" @click="onTableClick">
-				<BoTable
-					v-model="selectionKeys"
-					v-model:columns="tableColumns"
-					:sort="manualSort"
-					:disabled="disabled && !nonEditable"
-					:loading="loading"
-					:rows="tableRows"
-					row-key="$key"
-					:spacing="tableSpacing"
-					:show-select="!disabled && updateAllowed ? 'multiple' : 'none'"
-					show-resize
-					@update:sort="manualSort = $event"
-				>
-					<template v-for="header in headers" :key="header.key" #[`item.${header.key}`]="{ item }">
-						<RenderTemplate
-							:title="header.key"
-							:collection="relationInfo.relatedCollection.collection"
-							:item="item"
-							:template="`{{${header.key}}}`"
-						/>
-					</template>
+			<BoTable
+				v-if="layout === 'table'"
+				v-model="selectionKeys"
+				v-model:columns="headers"
+				:sort="manualSort"
+				:disabled="disabled && !nonEditable"
+				:loading="loading"
+				:rows="tableRows"
+				row-key="$key"
+				:spacing="tableSpacing"
+				:show-select="!disabled && updateAllowed ? 'multiple' : 'none'"
+				:show-manual-sort="allowDrag && !disabled"
+				:manual-sort-key="relationInfo.sortField"
+				show-resize
+				@click:row="editRow"
+				@update:rows="sortItems"
+				@update:sort="manualSort = $event"
+			>
+				<template v-for="header in headers" :key="header.key" #[`item.${header.key}`]="{ item }">
+					<RenderTemplate
+						:title="header.key"
+						:collection="relationInfo.relatedCollection.collection"
+						:item="item"
+						:template="`{{${header.key}}}`"
+					/>
+				</template>
 
-					<template #[`header.$actions`]>
-						<span class="sr-only">{{ t('actions') }}</span>
-					</template>
+				<template v-if="showTableActions" #header-append>
+					<span class="sr-only">{{ t('actions') }}</span>
+				</template>
 
-					<template #[`item.$actions`]="{ item }">
-						<div class="item-actions flex items-center justify-end gap-1">
-							<button
-								v-if="!(disabled && !nonEditable)"
-								type="button"
+				<template v-if="showTableActions" #item-append="{ item }">
+					<div class="item-actions flex items-center justify-end gap-1">
+						<template v-if="enableLink">
+							<span
+								v-if="(disabled && !nonEditable) || item['$type'] === 'created'"
+								class="inline-flex h-8 w-8 items-center justify-center text-gray-400 dark:text-gray-600"
+							>
+								<BoIcon name="launch" size="sm" />
+							</span>
+
+							<RouterLink
+								v-else
+								:to="getLinkForItem(item)!"
+								class="item-link"
 								:class="ICON_BTN"
-								:aria-label="t('edit_item')"
-								data-action="edit"
-								@click="editRow({ item })"
-							>
-								<BoIcon name="edit" size="sm" />
-							</button>
-
-							<template v-if="enableLink">
-								<span
-									v-if="(disabled && !nonEditable) || item['$type'] === 'created'"
-									class="inline-flex h-8 w-8 items-center justify-center text-gray-400 dark:text-gray-600"
-								>
-									<BoIcon name="launch" size="sm" />
-								</span>
-
-								<RouterLink
-									v-else
-									:to="getLinkForItem(item)!"
-									class="item-link"
-									:class="ICON_BTN"
-									:aria-label="t('navigate_to_item')"
-									@keydown.stop
-								>
-									<BoIcon name="launch" size="sm" />
-								</RouterLink>
-							</template>
-
-							<BoMenu
-								v-if="allowDrag && !disabled && displayItems.length > 1"
-								:items="moveItems(rowIndex(item))"
-								align="end"
-							>
-								<template #trigger>
-									<button
-										type="button"
-										class="row-menu"
-										:class="ICON_BTN"
-										:aria-label="t('item_options', { item: rowIndex(item) + 1 })"
-									>
-										<BoIcon name="more_vert" size="sm" />
-									</button>
-								</template>
-							</BoMenu>
-
-							<BoRemove
-								v-if="!nonEditable && (deleteAllowed || isLocalItem(item))"
-								:disabled
-								:class="{ deleted: item['$type'] === 'deleted' }"
-								:item-type="item['$type']"
-								:item-info="relationInfo"
-								:item-is-local="isLocalItem(item)"
-								:item-edits="getItemEdits(item)"
-								@action="deleteItem(item)"
+								:aria-label="t('navigate_to_item')"
 								@keydown.stop
-							/>
-						</div>
-					</template>
-				</BoTable>
-			</div>
+							>
+								<BoIcon name="launch" size="sm" />
+							</RouterLink>
+						</template>
+
+						<BoMenu
+							v-if="tableMoveAllowed"
+							:items="moveItems(rowIndex(item))"
+							align="end"
+						>
+							<template #trigger>
+								<button
+									type="button"
+									class="row-menu"
+									:class="ICON_BTN"
+									:aria-label="t('item_options', { item: rowIndex(item) + 1 })"
+								>
+									<BoIcon name="more_vert" size="sm" />
+								</button>
+							</template>
+						</BoMenu>
+
+						<BoRemove
+							v-if="!nonEditable && (deleteAllowed || isLocalItem(item))"
+							:disabled
+							:class="{ deleted: item['$type'] === 'deleted' }"
+							:item-type="item['$type']"
+							:item-info="relationInfo"
+							:item-is-local="isLocalItem(item)"
+							:item-edits="getItemEdits(item)"
+							@action="deleteItem(item)"
+							@keydown.stop
+						/>
+					</div>
+				</template>
+			</BoTable>
 
 			<template v-else-if="loading">
 				<div
@@ -713,6 +700,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 				<BoSortableList
 					:model-value="displayItems"
 					:item-key="(item: DisplayItem) => item[relationInfo!.relatedPrimaryKeyField.field] ?? `$index-${item.$index}`"
+					:item-label="itemLabel"
 					:disabled="disabled || !allowDrag || nonEditable"
 					@update:model-value="sortItems($event)"
 				>

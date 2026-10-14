@@ -1,5 +1,4 @@
 // Ported from directus/app/src/composables/use-column-widths.ts
-// Backoffice: kept next to list-o2m (list-m2m imports it) until it moves to src/composables with the next user.
 import { useEventListener, useLocalStorage } from '@vueuse/core';
 import { type MaybeRefOrGetter, ref } from 'vue';
 

@@ -2,7 +2,7 @@
 // API: relational URL fields fetched with GET <endpoint>/<pk> (#38), flow buttons through the default run (#48).
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { computed, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
@@ -30,6 +30,9 @@ async function setup(answers = {}) {
 }
 
 beforeEach(() => setup());
+
+// The drawer's form is a lazy component (import cycle with the interface registry): load it once up front.
+beforeAll(() => import('../../components/form/BoForm.vue'));
 
 afterEach(() => {
 	document.body.innerHTML = '';

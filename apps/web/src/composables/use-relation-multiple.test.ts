@@ -1,7 +1,7 @@
 // Ported from directus/app/src/composables/use-relation-multiple.test.ts
 // Backoffice: `@/sdk` (mockSdk of directus/app/src/test-utils/sdk.ts) -> src/api/sdk.ts with sdk.request as a spy
-// that answers from the command's path and params, as mockSdk does. unexpectedError is a local console warning
-// (D-45), so its throwing mock is gone.
+// that answers from the command's path and params, as mockSdk does. unexpectedError is src/utils/unexpected-error.ts (a
+// console warning, D-45), so its throwing mock is gone; its error is the `error` ref.
 /* eslint-disable vue/one-component-per-file -- the o2m and m2a test components of Directus */
 import { flushPromises, mount } from '@vue/test-utils';
 import { cloneDeep } from 'lodash-es';
@@ -564,5 +564,32 @@ describe('test m2a relation', () => {
 				$edits: 1,
 			},
 		]);
+	});
+});
+
+describe('Backoffice: load error (FR-046)', () => {
+	test('a failed load of the related items warns and sets `error`; the next load clears it', async () => {
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => undefined);
+		const forbidden = { errors: [{ extensions: { code: 'FORBIDDEN' } }] };
+		const request = vi.mocked(sdk.request);
+		const original = request.getMockImplementation()!;
+
+		request.mockImplementation((command: any) =>
+			command().params?.aggregate ? original(command) : Promise.reject(forbidden),
+		);
+
+		const wrapper = mount(TestComponent, { props: { relation: relationO2M, value: [], id: 1 } });
+		await flushPromises();
+
+		expect(wrapper.vm.error).toEqual(forbidden);
+		expect(wrapper.vm.loading).toBe(false);
+		expect(warn).toHaveBeenCalledWith(forbidden);
+
+		request.mockImplementation(original);
+		await wrapper.setProps({ id: 2 });
+		await flushPromises();
+
+		expect(wrapper.vm.error).toBeNull();
+		warn.mockRestore();
 	});
 });

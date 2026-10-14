@@ -13,6 +13,7 @@ import { isNil } from 'lodash-es';
 import { computed, inject, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../components/BoIcon.vue';
+import BoNotice from '../../components/BoNotice.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 import { validateItem } from '../../components/form/utils/validate-item.ts';
 import { useRelationM2M } from '../../composables/use-relation-m2m.ts';
@@ -21,6 +22,7 @@ import {
 	type RelationQueryMultiple,
 	useRelationMultiple,
 } from '../../composables/use-relation-multiple.ts';
+import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
 import { fetchAll } from '../../utils/fetch-all.ts';
 import type { LanguageOption } from './LanguageSelect.vue';
@@ -130,6 +132,7 @@ const {
 	loading: itemsLoading,
 	fetchedItems,
 	getItemEdits,
+	error: loadError,
 } = useRelationMultiple(value, query, relationInfo, primaryKey, version);
 
 useNestedValidation();
@@ -398,6 +401,8 @@ const ICON_BTN =
 		:aria-invalid="a11y?.invalid || undefined"
 		data-testid="translations"
 	>
+		<BoNotice v-if="loadError" type="danger" class="col-span-full mb-3">{{ translateAPIError(loadError as APIError) }}</BoNotice>
+
 		<TranslationForm
 			v-model:lang="firstLang"
 			v-bind="translationProps"

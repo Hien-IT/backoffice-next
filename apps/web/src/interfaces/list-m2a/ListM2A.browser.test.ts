@@ -5,8 +5,6 @@ import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { replaceQueue } from '../../api/sdk.ts';
-// The registry first: the drawers' form imports it, which imports this interface back (cycle).
-import '../index.ts';
 import DrawerItem from '../../components/drawers/DrawerItem.vue';
 import { i18n } from '../../lang/index.ts';
 import { useCollectionsStore } from '../../stores/collections.ts';
@@ -100,6 +98,8 @@ test('Create New opens its collection menu from the keyboard; Enter on a row ope
 	await vi.waitFor(() => expect(wrapper.findComponent(DrawerItem).props('active')).toBe(true));
 	expect(wrapper.findComponent(DrawerItem).props('edits')).toEqual({ collection: 'bo_m2a_a', item: {} });
 	await wrapper.findComponent(DrawerItem).setValue(false, 'active');
+	// The closing drawer gives the focus back to its trigger: wait for it before focusing the row.
+	await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).toBeNull());
 
 	wrapper.get<HTMLButtonElement>('button.row').element.focus();
 	await userEvent.keyboard('{Enter}');

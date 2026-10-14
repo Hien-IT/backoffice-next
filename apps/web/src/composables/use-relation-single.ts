@@ -1,16 +1,12 @@
 // Ported from directus/app/src/composables/use-relation-single.ts
 // Backoffice: `@/sdk` -> src/api/sdk.ts (FR-001). unexpectedError has no notifications store before feature 018
-// (D-45): only its console warning is kept.
+// (D-45): it warns in the console and the last load error is returned as `error` for the interface to show (FR-046).
 import { getEndpoint } from '@directus/utils';
 import { merge } from 'lodash-es';
 import { computed, type MaybeRefOrGetter, ref, type Ref, toValue, watch } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
+import { unexpectedError } from '../utils/unexpected-error.ts';
 import type { RelationM2O } from './use-relation-m2o.ts';
-
-function unexpectedError(error: unknown): void {
-	// eslint-disable-next-line no-console
-	console.warn(error);
-}
 
 export type RelationQuerySingle = {
 	fields: string[];
@@ -28,6 +24,8 @@ export function useRelationSingle<T extends Record<string, any>>(
 ) {
 	const displayItem: Ref<T | null> = ref(null);
 	const loading = ref(false);
+	// Backoffice: the error of the last load of the display item (FR-046).
+	const error = ref<unknown>(null);
 
 	const enabled = computed(() => (options?.enabled === undefined ? true : toValue(options?.enabled)));
 
@@ -39,7 +37,7 @@ export function useRelationSingle<T extends Record<string, any>>(
 		{ immediate: true },
 	);
 
-	return { update, remove, refresh, displayItem, loading };
+	return { update, remove, refresh, displayItem, loading, error };
 
 	function update(item: Record<string, any> | string | number) {
 		if (!relation.value) return;
@@ -88,6 +86,7 @@ export function useRelationSingle<T extends Record<string, any>>(
 		fields.add(pkField);
 
 		loading.value = true;
+		error.value = null;
 
 		try {
 			const item = await sdk.request<T>(
@@ -101,12 +100,12 @@ export function useRelationSingle<T extends Record<string, any>>(
 			} else {
 				displayItem.value = item;
 			}
-		} catch (error: any) {
+		} catch (err: any) {
 			// if the item has a manually entered primary key, we can ignore the error
-			if (typeof val === 'object' && error.response && error.response.status === 403) {
+			if (typeof val === 'object' && err.response && err.response.status === 403) {
 				displayItem.value = val as T;
 			} else {
-				unexpectedError(error);
+				error.value = unexpectedError(err);
 			}
 		} finally {
 			loading.value = false;

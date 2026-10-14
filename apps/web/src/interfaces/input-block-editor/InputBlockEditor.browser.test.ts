@@ -40,7 +40,11 @@ async function mountEditor(props: Record<string, unknown>) {
 		attachTo: document.body,
 	});
 	await vi.waitFor(() => expect(wrapper!.find('.codex-editor').exists()).toBe(true));
-	await vi.waitFor(() => expect(wrapper!.findAll('.ce-block').length).toBeGreaterThan(0));
+	// Editor.js first shows one empty block, then renders the value: wait for every block of the value (slow CI runners).
+	const blocks = (props['value'] as { blocks?: unknown[] } | null)?.blocks?.length ?? 1;
+	await vi.waitFor(() => expect(wrapper!.findAll('.ce-block').length).toBeGreaterThanOrEqual(blocks), {
+		timeout: 10_000,
+	});
 	await flushPromises();
 	return wrapper;
 }

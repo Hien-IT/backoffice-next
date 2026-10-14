@@ -10,7 +10,7 @@ import type { Field, PrimaryKey, Relation } from '@directus/types';
 import { getEndpoint } from '@directus/utils';
 import { cloneDeep, isEmpty, set } from 'lodash-es';
 import { DialogTitle } from 'reka-ui';
-import { computed, type Ref, ref, toRefs, unref, useTemplateRef, watch } from 'vue';
+import { computed, defineAsyncComponent, type Ref, ref, toRefs, unref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { requestEndpoint, sdk } from '../../api/sdk.ts';
 import { useCollection } from '../../composables/use-collection.ts';
@@ -25,7 +25,6 @@ import BoButton from '../BoButton.vue';
 import BoDialog from '../BoDialog.vue';
 import BoIcon from '../BoIcon.vue';
 import FilePreview from '../files/FilePreview.vue';
-import BoForm from '../form/BoForm.vue';
 import { clearHiddenFieldsByCondition } from '../form/utils/clear-hidden-fields-by-condition.ts';
 import { getDefaultValuesFromFields } from '../form/utils/get-default-values-from-fields.ts';
 import { mergeItemData } from '../form/utils/merge-item-data.ts';
@@ -33,6 +32,10 @@ import { validateItem } from '../form/utils/validate-item.ts';
 import ValidationErrors from '../form/ValidationErrors.vue';
 import RenderTemplate from '../render/RenderTemplate.vue';
 import BoDrawer, { type ApplyShortcut } from './BoDrawer.vue';
+
+// Backoffice: lazy, so an interface that opens this drawer can be imported on its own: BoForm imports the interface
+// registry, which imports that interface back (import cycle).
+const BoForm = defineAsyncComponent(() => import('../form/BoForm.vue'));
 
 export interface DrawerItemProps {
 	collection: string;

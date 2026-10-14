@@ -20,7 +20,7 @@ import { usePermissionsStore } from '../../stores/permissions.ts';
 import { useRelationsStore } from '../../stores/relations.ts';
 import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { type FixtureUser, fieldsOf, loadSnapshot } from '../../test-utils/fixtures.ts';
-import ItemRemove from '../file/ItemRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 import Files from './Files.vue';
 import config from './index.ts';
 
@@ -405,7 +405,7 @@ describe('states', () => {
 	test('nonEditable: rows open read-only details, no remove, no menus, no buttons', async () => {
 		const wrapper = await mountFiles({ disabled: true, nonEditable: true });
 
-		expect(wrapper.findComponent(ItemRemove).exists()).toBe(false);
+		expect(wrapper.findComponent(BoRemove).exists()).toBe(false);
 		expect(wrapper.findAllComponents(BoMenu)).toHaveLength(0);
 		expect(button(wrapper, 'Upload File')).toBeUndefined();
 
@@ -420,7 +420,7 @@ describe('states', () => {
 		expect(button(wrapper, 'Upload File')).toBeUndefined();
 		expect(button(wrapper, 'Add Existing')).toBeDefined();
 		// one_deselect_action nullify: removing needs junction update, which bo-editor has.
-		expect(wrapper.findComponent(ItemRemove).exists()).toBe(true);
+		expect(wrapper.findComponent(BoRemove).exists()).toBe(true);
 		// updateAllowed needs directus_files update too.
 		expect(sortable(wrapper).props('disabled')).toBe(true);
 	});
@@ -432,7 +432,7 @@ describe('states', () => {
 		expect(rowTexts(wrapper)).toEqual(['bo-sample-png', 'bo-sample-pdf']);
 		expect(button(wrapper, 'Upload File')).toBeUndefined();
 		expect(button(wrapper, 'Add Existing')).toBeUndefined();
-		expect(wrapper.findComponent(ItemRemove).exists()).toBe(false);
+		expect(wrapper.findComponent(BoRemove).exists()).toBe(false);
 		expect(sortable(wrapper).props('disabled')).toBe(true);
 	});
 

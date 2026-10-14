@@ -1,6 +1,5 @@
 // Ported from directus/app/src/utils/format-items-count.ts
-// Backoffice: only formatItemsCountPaginated (the list interfaces use it); kept next to list-o2m until it moves to
-// src/utils with the next user.
+// Backoffice: only formatItemsCountPaginated (the list interfaces use it).
 import type { ComposerNumberFormatting, ComposerTranslation } from 'vue-i18n';
 
 export type FormatItemsCountPaginatedOptions = {

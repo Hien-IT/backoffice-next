@@ -30,7 +30,7 @@ import { type RelationQuerySingle, useRelationSingle } from '../../composables/u
 import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { getAssetUrl } from '../../utils/get-asset-url.ts';
 import { readableMimeType } from '../../utils/readable-mime-type.ts';
-import ItemRemove from './ItemRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 
 type FileInfo = {
 	id: string;
@@ -363,7 +363,7 @@ const ICON_BTN =
 						<BoIcon name="edit" size="sm" />
 					</button>
 
-					<ItemRemove
+					<BoRemove
 						class="deselect"
 						:item-info="relationInfo"
 						:item-edits="edits"

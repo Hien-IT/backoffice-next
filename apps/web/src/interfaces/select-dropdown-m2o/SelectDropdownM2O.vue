@@ -1,9 +1,8 @@
 <!-- Ported from directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue -->
 <script setup lang="ts">
 // Backoffice: v-list-item is a field-styled row whose main control is a native button stretched over the row (the
-// whole row stays clickable as in Directus, actions are sibling buttons instead of nested ones); v-remove (deselect,
-// with its confirmation when the value holds unsaved edits) is inlined; tooltips are BoTooltip; v-prevent-focusout
-// is not needed (drawers are portals). A related collection missing from the collections store (no read permission)
+// whole row stays clickable as in Directus, actions are sibling buttons instead of nested ones); v-remove is BoRemove;
+// tooltips are BoTooltip; v-prevent-focusout is not needed (drawers are portals). A related collection missing from the collections store (no read permission)
 // shows `relationship_not_setup` instead of throwing.
 import type { Filter } from '@directus/types';
 import { deepMap, getFieldsFromTemplate } from '@directus/utils';
@@ -12,10 +11,9 @@ import { render } from 'micromustache';
 import { computed, inject, ref, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
-import BoButton from '../../components/BoButton.vue';
-import BoDialog from '../../components/BoDialog.vue';
 import BoIcon from '../../components/BoIcon.vue';
 import BoNotice from '../../components/BoNotice.vue';
+import BoRemove from '../../components/BoRemove.vue';
 import BoTooltip from '../../components/BoTooltip.vue';
 import DrawerCollection from '../../components/drawers/DrawerCollection.vue';
 import DrawerItem from '../../components/drawers/DrawerItem.vue';
@@ -189,28 +187,6 @@ function getLinkForItem() {
 	return getItemRoute(relationInfo.value.relatedCollection.collection, currentPrimaryKey.value);
 }
 
-// v-remove.vue (deselect, m2o): edits other than the primary key need a confirmation.
-const confirmRemove = ref(false);
-
-const removeNeedsConfirmation = computed(() => {
-	const pkField = relationInfo.value?.relatedPrimaryKeyField.field;
-	return Object.keys(edits.value).some((key) => key !== pkField && !['$type', '$index', '$edits'].includes(key));
-});
-
-function onRemoveClick() {
-	if (removeNeedsConfirmation.value) {
-		confirmRemove.value = true;
-		return;
-	}
-
-	emit('input', null);
-}
-
-function onConfirmRemove() {
-	confirmRemove.value = false;
-	emit('input', null);
-}
-
 const ICON_BTN =
 	'relative z-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 </script>
@@ -304,18 +280,15 @@ const ICON_BTN =
 						</button>
 					</BoTooltip>
 
-					<BoTooltip v-if="!nonEditable" :text="t(removeNeedsConfirmation ? 'remove_item' : 'deselect')">
-						<button
-							type="button"
-							class="remove"
-							:class="ICON_BTN"
-							:aria-label="t(removeNeedsConfirmation ? 'remove_item' : 'deselect')"
-							:disabled
-							@click.stop="onRemoveClick"
-						>
-							<BoIcon :name="removeNeedsConfirmation ? 'delete' : 'close'" size="sm" />
-						</button>
-					</BoTooltip>
+					<BoRemove
+						v-if="!nonEditable"
+						class="remove relative z-1"
+						deselect
+						:disabled
+						:item-info="relationInfo"
+						:item-edits="edits"
+						@action="emit('input', null)"
+					/>
 				</template>
 
 				<template v-else>
@@ -362,12 +335,5 @@ const ICON_BTN =
 			:filter="customFilter"
 			@input="onSelection"
 		/>
-
-		<BoDialog v-model:open="confirmRemove" :title="t('batch_delete_confirm', 1)">
-			<template #actions>
-				<BoButton variant="secondary" @click="confirmRemove = false">{{ t('cancel') }}</BoButton>
-				<BoButton variant="danger" @click="onConfirmRemove">{{ t('delete_label') }}</BoButton>
-			</template>
-		</BoDialog>
 	</div>
 </template>

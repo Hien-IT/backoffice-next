@@ -25,7 +25,7 @@ const global = {
 			template: '<div data-testid="v-form" :data-primary-key="primaryKey" />',
 		},
 		LanguageSelect: true,
-		TranslationRemove: true,
+		BoRemove: true,
 	},
 };
 

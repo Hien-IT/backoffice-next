@@ -13,13 +13,14 @@ const options = (field: string) => fields.find((f) => f.field === field)!.meta!.
 const mountNotice = (props: Record<string, unknown>, provide = {}) =>
 	mount(PresentationNotice, { props, global: { plugins: [i18n], provide } });
 
+const notice = (wrapper: ReturnType<typeof mountNotice>) => wrapper.get('[role="note"]');
+
 describe('presentation-notice', () => {
 	test('fixture field: warning color and icon, markdown text; no input emitted', () => {
 		const wrapper = mountNotice({ ...options('notice'), value: null, collection: 'bo_groups' });
 
-		expect(wrapper.attributes('data-type')).toBe('warning');
-		expect(wrapper.attributes('role')).toBe('note');
-		expect(wrapper.classes()).toContain('bg-warning-50');
+		expect(notice(wrapper).attributes('data-type')).toBe('warning');
+		expect(notice(wrapper).classes()).toContain('bg-warning-50');
 		expect(wrapper.get('.material-symbols-rounded').text()).toBe('warning');
 		expect(wrapper.get('strong').text()).toBe('this');
 		expect(wrapper.emitted('input')).toBeUndefined();
@@ -28,8 +29,8 @@ describe('presentation-notice', () => {
 	test('fixture default field: normal color and info icon', () => {
 		const wrapper = mountNotice({ ...options('notice_default') });
 
-		expect(wrapper.attributes('data-type')).toBe('normal');
-		expect(wrapper.classes()).toContain('bg-gray-50');
+		expect(notice(wrapper).attributes('data-type')).toBe('normal');
+		expect(notice(wrapper).classes()).toContain('bg-gray-50');
 		expect(wrapper.get('.material-symbols-rounded').text()).toBe('info');
 		expect(wrapper.text()).toContain('Plain notice');
 	});
@@ -43,7 +44,7 @@ describe('presentation-notice', () => {
 		};
 
 		for (const [color, box] of Object.entries(boxes)) {
-			expect(mountNotice({ color }).classes()).toContain(box);
+			expect(notice(mountNotice({ color })).classes()).toContain(box);
 		}
 	});
 
@@ -63,7 +64,13 @@ describe('presentation-notice', () => {
 		const a11y = computed(() => ({ inputId: 'f-1', labelId: 'f-1-label', describedBy: 'f-1-note', invalid: false }));
 		const wrapper = mountNotice({ text: 'Hi' }, { [FORM_FIELD_A11Y as symbol]: a11y });
 
-		expect(wrapper.attributes('id')).toBe('f-1');
-		expect(wrapper.attributes('aria-describedby')).toBe('f-1-note');
+		expect(notice(wrapper).attributes('id')).toBe('f-1');
+		expect(notice(wrapper).attributes('aria-describedby')).toBe('f-1-note');
+	});
+
+	test('the form `type` prop (field type, here alias) does not replace the notice type', () => {
+		const wrapper = mountNotice({ ...options('notice'), type: 'alias' });
+
+		expect(notice(wrapper).classes()).toContain('bg-warning-50');
 	});
 });

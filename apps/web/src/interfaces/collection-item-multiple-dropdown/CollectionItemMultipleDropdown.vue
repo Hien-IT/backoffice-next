@@ -13,6 +13,7 @@ import { requestEndpoint, sdk } from '../../api/sdk.ts';
 import BoButton from '../../components/BoButton.vue';
 import type { BoMenuItem } from '../../components/BoMenu.vue';
 import BoNotice from '../../components/BoNotice.vue';
+import { getRemoveAction } from '../../components/BoRemove.vue';
 import BoSortableList from '../../components/BoSortableList.vue';
 import DrawerCollection from '../../components/drawers/DrawerCollection.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
@@ -180,7 +181,8 @@ function onSort(sortedItems: Record<string, any>[]) {
 // Backoffice: the v-remove (deselect) of each row is a row menu action (D-60).
 function rowActions(item: Record<string, any>): BoMenuItem[] {
 	if (props.nonEditable) return [];
-	return [{ text: t('deselect'), icon: 'close', disabled: !!props.disabled, onSelect: () => removeItem(item) }];
+	const { icon, text } = getRemoveAction({ deselect: true });
+	return [{ text: t(text), icon, disabled: !!props.disabled, onSelect: () => removeItem(item) }];
 }
 </script>
 

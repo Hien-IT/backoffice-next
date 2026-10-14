@@ -1,13 +1,14 @@
 <!-- Ported from directus/app/src/interfaces/list-o2m-tree-view/NestedDraggable.vue -->
 <script setup lang="ts">
-// Backoffice: each level is a BoSortableList in `tree` mode (SortableList row menu recipe, D-60). A drag or
-// Move up / Move down inside a level emits the reordered array, which is the `moved` event of Directus (sort).
-// "Indent" (make the row the last child of its previous sibling) and "Outdent" (move the row after its parent)
-// replay the vuedraggable events of the equivalent drag: `added` on the target level, then `removed` on the source
-// level, through the same change() handler, so the value is the one a drag gives. BoSortableList has no shared
-// drag group yet, so a mouse drag between levels is not available (keyboard indent/outdent is). The edit icon and
-// v-remove of item-preview.vue are row menu actions here, with one item drawer per level. updateModelValue reads
-// the row from the list shown (Directus reads displayItems with the index of the filtered list).
+// Backoffice: each level is a BoSortableList in `tree` mode (SortableList row menu recipe, D-60) sharing the
+// vuedraggable group `g1` as Directus, so a mouse drag moves rows across levels (`added` / `removed` go to change());
+// deleted rows are not draggable (Directus `draggable=".draggable"`). A drag or Move up / Move down inside a level
+// emits the reordered array, which is the `moved` event of Directus (sort). "Indent" (make the row the last child of
+// its previous sibling) and "Outdent" (move the row after its parent) replay the vuedraggable events of the
+// equivalent drag: `added` on the target level, then `removed` on the source level, through the same change()
+// handler, so the value is the one a drag gives. The edit icon and v-remove of item-preview.vue are row menu actions
+// here, with one item drawer per level. updateModelValue reads the row from the list shown (Directus reads
+// displayItems with the index of the filtered list).
 import type { ContentVersion, Filter } from '@directus/types';
 import { until } from '@vueuse/core';
 import { cloneDeep } from 'lodash-es';
@@ -17,6 +18,7 @@ import BoButton from '../../components/BoButton.vue';
 import BoDialog from '../../components/BoDialog.vue';
 import type { BoMenuItem } from '../../components/BoMenu.vue';
 import BoNotice from '../../components/BoNotice.vue';
+import { getRemoveAction } from '../../components/BoRemove.vue';
 import BoSortableList from '../../components/BoSortableList.vue';
 import DrawerCollection from '../../components/drawers/DrawerCollection.vue';
 import DrawerItem from '../../components/drawers/DrawerItem.vue';
@@ -27,8 +29,8 @@ import {
 	useRelationMultiple,
 } from '../../composables/use-relation-multiple.ts';
 import type { RelationO2M } from '../../composables/use-relation-o2m.ts';
+import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { renderStringTemplate } from '../../utils/render-string-template.ts';
-import { getRemoveAction } from '../list-m2a/remove-action.ts';
 import ItemPreview from './ItemPreview.vue';
 
 export type ChangeEvent =
@@ -40,6 +42,13 @@ export type ChangeEvent =
 	  }
 	| {
 			removed: {
+				oldIndex: number;
+				element: DisplayItem;
+			};
+	  }
+	| {
+			moved: {
+				newIndex: number;
 				oldIndex: number;
 				element: DisplayItem;
 			};
@@ -106,8 +115,18 @@ const query = computed<RelationQueryMultiple>(() => ({
 	page: page.value,
 }));
 
-const { displayItems, loading, create, update, remove, select, cleanItem, isLocalItem, getItemEdits } =
-	useRelationMultiple(value, query, relationInfo, primaryKey, version);
+const {
+	displayItems,
+	loading,
+	error: loadError,
+	create,
+	update,
+	remove,
+	select,
+	cleanItem,
+	isLocalItem,
+	getItemEdits,
+} = useRelationMultiple(value, query, relationInfo, primaryKey, version);
 
 const filteredDisplayItems = computed(() => {
 	return displayItems.value.filter(
@@ -160,7 +179,8 @@ function change(event: ChangeEvent) {
 	}
 }
 
-// The `moved` branch of change(): BoSortableList gives the reordered list (moveInArray of Directus).
+// The `moved` branch of change(): BoSortableList gives the reordered list (moveInArray of Directus) as
+// update:modelValue, also for Move up / Move down.
 function sort(sortedList: DisplayItem[]) {
 	const sortField = relationInfo.value.sortField;
 	if (!sortField) return;
@@ -278,20 +298,25 @@ function itemLabel(element: DisplayItem, index: number): string {
 			<span class="sr-only">{{ t('loading') }}</span>
 		</div>
 
+		<BoNotice v-else-if="loadError" type="danger">{{ translateAPIError(loadError as APIError) }}</BoNotice>
+
 		<BoNotice v-else-if="root && filteredDisplayItems.length === 0" class="no-items">
 			{{ t('no_items') }}
 		</BoNotice>
 
 		<BoSortableList
-			v-else-if="filteredDisplayItems.length > 0"
+			v-if="!loading"
 			:model-value="filteredDisplayItems"
 			:item-key="keyOf"
 			:item-label="itemLabel"
 			:row-actions="rowActions"
 			:disabled="disabled"
+			group="g1"
+			:item-disabled="(element: DisplayItem) => element.$type === 'deleted'"
 			tree
 			:nested="!root"
 			@update:model-value="sort"
+			@change="change"
 			@indent="indent"
 			@outdent="$emit('outdent', filteredDisplayItems[$event], $event)"
 		>

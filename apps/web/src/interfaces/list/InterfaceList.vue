@@ -13,6 +13,7 @@ import BoButton from '../../components/BoButton.vue';
 import BoDialog from '../../components/BoDialog.vue';
 import type { BoMenuItem } from '../../components/BoMenu.vue';
 import BoNotice from '../../components/BoNotice.vue';
+import { getRemoveAction } from '../../components/BoRemove.vue';
 import BoSortableList from '../../components/BoSortableList.vue';
 import BoDrawer from '../../components/drawers/BoDrawer.vue';
 import BoForm from '../../components/form/BoForm.vue';
@@ -227,12 +228,19 @@ function closeDrawer() {
 	active.value = null;
 }
 
+// Backoffice: the row name of the row menu label and the move announcement (D-60).
+function itemLabel(item: Record<string, any>, index: number): string {
+	const { displayValue } = renderStringTemplate(templateWithDefaults.value, { ...defaults.value, ...item });
+	return displayValue.value || String(index + 1);
+}
+
 // Backoffice: v-remove `confirm` as a row menu item and a confirmation dialog.
 const removing = ref<Record<string, any> | null>(null);
 
 function rowActions(item: Record<string, any>): BoMenuItem[] {
 	if (props.nonEditable) return [];
-	return [{ text: t('remove_item'), icon: 'delete', disabled: props.disabled, onSelect: () => (removing.value = item) }];
+	const { icon, text } = getRemoveAction({ confirm: true });
+	return [{ text: t(text), icon, disabled: props.disabled, onSelect: () => (removing.value = item) }];
 }
 
 function confirmRemove() {
@@ -269,6 +277,7 @@ const ROW_BUTTON =
 			v-if="Array.isArray(internalValue) && internalValue.length > 0"
 			:model-value="internalValue"
 			:item-key="rowKey"
+			:item-label="itemLabel"
 			:disabled="disabled || nonEditable || !!sort"
 			:row-actions="rowActions"
 			@update:model-value="$emit('input', $event)"

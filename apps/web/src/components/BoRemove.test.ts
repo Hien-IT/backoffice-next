@@ -1,10 +1,12 @@
-// Directus has no test for components/v-remove.vue: icon and name per item state, and the confirmation when the item
-// has edits (m2o, o2m, m2m, m2a) or `confirm` is set.
+// Directus has no test for components/v-remove.vue: icon and name per item state, the confirmation when the item has
+// edits (m2o, o2m, m2m, m2a) or `confirm` is set, and the getRemoveAction rule used by the row menus.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
-import BoDialog from '../../components/BoDialog.vue';
-import { i18n } from '../../lang/index.ts';
-import ItemRemove from './ItemRemove.vue';
+import type { RelationM2A } from '../composables/use-relation-m2a.ts';
+import type { RelationO2M } from '../composables/use-relation-o2m.ts';
+import { i18n } from '../lang/index.ts';
+import BoDialog from './BoDialog.vue';
+import BoRemove, { getRemoveAction } from './BoRemove.vue';
 
 enableAutoUnmount(afterEach);
 
@@ -32,13 +34,13 @@ const m2a = {
 };
 
 function mountRemove(props: Record<string, unknown> = {}) {
-	return mount(ItemRemove, { props, global: { plugins: [i18n] }, attachTo: document.body });
+	return mount(BoRemove, { props, global: { plugins: [i18n] }, attachTo: document.body });
 }
 
 const name = (wrapper: ReturnType<typeof mountRemove>) => wrapper.get('button').attributes('aria-label');
-const icon = (wrapper: ReturnType<typeof mountRemove>) => wrapper.get('button').text();
+const icon = (wrapper: ReturnType<typeof mountRemove>) => wrapper.get('button').attributes('data-icon');
 
-describe('ItemRemove', () => {
+describe('BoRemove', () => {
 	test.each([
 		[{}, 'Remove Item', 'delete'],
 		[{ deselect: true }, 'Deselect', 'close'],
@@ -108,5 +110,70 @@ describe('ItemRemove', () => {
 
 		await wrapper.get('button').trigger('click');
 		expect(wrapper.emitted('action')).toHaveLength(1);
+	});
+});
+
+const o2mInfo = {
+	type: 'o2m',
+	relation: { field: 'parent' },
+	relatedPrimaryKeyField: { field: 'id' },
+	sortField: 'sort',
+} as unknown as RelationO2M;
+
+const m2aInfo = {
+	type: 'm2a',
+	relation: { field: 'item' },
+	junction: { field: 'bo_rel_id' },
+	junctionPrimaryKeyField: { field: 'id' },
+	collectionField: { field: 'collection' },
+	relationPrimaryKeyFields: { bo_m2a_a: { field: 'id' } },
+	sortField: 'sort',
+} as unknown as RelationM2A;
+
+describe('getRemoveAction', () => {
+	test('existing item: delete / remove_item', () => {
+		expect(getRemoveAction({ itemInfo: o2mInfo, itemEdits: {} })).toEqual({
+			icon: 'delete',
+			text: 'remove_item',
+			needsConfirmation: false,
+		});
+	});
+
+	test('removed item: undo', () => {
+		expect(getRemoveAction({ itemType: 'deleted', itemInfo: o2mInfo, itemIsLocal: true, itemEdits: { title: 'x' } })).toEqual(
+			{ icon: 'settings_backup_restore', text: 'undo_removed_item', needsConfirmation: false },
+		);
+	});
+
+	test('local item without edits or deselect: close / deselect', () => {
+		expect(getRemoveAction({ itemIsLocal: true, itemInfo: o2mInfo, itemEdits: { id: 1, sort: 2, parent: 1 } })).toMatchObject(
+			{ icon: 'close', text: 'deselect', needsConfirmation: false },
+		);
+
+		expect(getRemoveAction({ deselect: true })).toMatchObject({ icon: 'close', text: 'deselect' });
+	});
+
+	test('local item with edits, or confirm: needs a confirmation', () => {
+		expect(getRemoveAction({ itemIsLocal: true, itemInfo: o2mInfo, itemEdits: { name: 'Draft' } })).toEqual({
+			icon: 'delete',
+			text: 'remove_item',
+			needsConfirmation: true,
+		});
+
+		expect(getRemoveAction({ confirm: true }).needsConfirmation).toBe(true);
+	});
+
+	test('m2a: edits of the related item count, its primary key does not', () => {
+		const base = { itemIsLocal: true, itemInfo: m2aInfo };
+
+		expect(getRemoveAction({ ...base, itemEdits: { collection: 'bo_m2a_a', item: { id: 1 } } }).needsConfirmation).toBe(
+			false,
+		);
+
+		expect(
+			getRemoveAction({ ...base, itemEdits: { collection: 'bo_m2a_a', item: { id: 1, name: 'x' } } }).needsConfirmation,
+		).toBe(true);
+
+		expect(getRemoveAction({ ...base, itemEdits: { collection: 'gone', item: { id: 1 } } }).needsConfirmation).toBe(true);
 	});
 });

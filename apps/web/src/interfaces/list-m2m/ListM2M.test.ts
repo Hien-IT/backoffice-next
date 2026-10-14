@@ -27,37 +27,11 @@ let hydrateCalls = 0;
 
 const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
 
-// shortcut: mockFixtureApi ignores the `{ field: value }` equality shorthand that useRelationMultiple sends for the
-// reverse junction field (the Directus API reads it as `_eq`); rewritten here until test-utils/fetch.ts handles it.
-function shorthandEquality(mock: ReturnType<typeof mockFixtureApi>) {
-	const handler = mock.getMockImplementation()!;
-
-	const normalize = (filter: unknown): unknown => {
-		if (Array.isArray(filter)) return filter.map(normalize);
-		if (!filter || typeof filter !== 'object') return filter;
-
-		return Object.fromEntries(
-			Object.entries(filter).map(([key, value]) => [
-				key,
-				!key.startsWith('_') && (value === null || typeof value !== 'object') ? { _eq: value } : normalize(value),
-			]),
-		);
-	};
-
-	mock.mockImplementation((input, init) => {
-		const url = new URL(String(input));
-		const filter = url.searchParams.get('filter');
-		if (filter) url.searchParams.set('filter', JSON.stringify(normalize(JSON.parse(filter))));
-		return handler(url.toString(), init);
-	});
-}
-
 async function setup(user: FixtureUser = 'admin') {
 	vi.unstubAllGlobals();
 	await replaceQueue();
 	setActivePinia(createPinia());
 	fetch = mockFixtureApi(snapshot, { user });
-	shorthandEquality(fetch);
 	await useUserStore().hydrate();
 
 	await Promise.all([
@@ -145,6 +119,11 @@ describe('list-m2m (fixture bo_rel.m2m_list)', () => {
 		const wrapper = await mountList('m2m_list');
 
 		expect(rowTexts(wrapper)).toEqual(['Target one', 'Target one', 'Target five']);
+		expect(wrapper.findAll('button.row-menu').map((b) => b.attributes('aria-label'))).toEqual([
+			'Options for Target one',
+			'Options for Target one',
+			'Options for Target five',
+		]);
 		expect(wrapper.emitted('input')).toBeUndefined();
 		expect(listCalls().every((c) => c.startsWith('GET /items/bo_junction_m2m_list'))).toBe(true);
 	});
@@ -302,6 +281,28 @@ describe('list-m2m (fixture bo_rel.m2m_list)', () => {
 		});
 	});
 
+	test('table layout: manual sort toggle, then a row drag re-sorts the junction rows (v-table manualSortKey)', async () => {
+		const wrapper = await mountList('m2m_list', { layout: 'table', fields: ['id'] });
+		const table = wrapper.findComponent(BoTable);
+
+		expect(table.props()).toMatchObject({ showManualSort: true, manualSortKey: 'sort' });
+		await wrapper.get('button[aria-label="Toggle Manual Sorting"]').trigger('click');
+		expect(table.props('sort')).toEqual({ by: 'sort', desc: false });
+
+		table.vm.$emit('update:rows', [...(table.props('rows') as Record<string, unknown>[])].reverse());
+		await flushPromises();
+
+		expect(lastInput(wrapper)).toEqual({
+			create: [],
+			update: [
+				{ id: 3, sort: 1, bo_rel_target_id: { id: 5 } },
+				{ id: 2, sort: 2, bo_rel_target_id: { id: 1 } },
+				{ id: 1, sort: 3, bo_rel_target_id: { id: 1 } },
+			],
+			delete: [],
+		});
+	});
+
 	test('disabled: actions disabled, no selection drawer', async () => {
 		const wrapper = await mountList('m2m_list', { disabled: true });
 
@@ -367,14 +368,14 @@ describe('list-m2m (fixture bo_rel.m2m_table)', () => {
 	test('fixture field: table of junction fields, no input', async () => {
 		const wrapper = await mountList('m2m_table');
 
-		expect(headerTexts(wrapper)).toEqual(['Name', 'Status', 'Actions']);
+		expect(headerTexts(wrapper)).toEqual(['Name', 'Status']);
 		expect(wrapper.find('tbody').text()).toContain('Target two');
 		expect(wrapper.get('.item-count').text()).toBe('One Item');
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 
 	test('option:list-m2m.fields sets the columns', async () => {
-		expect(headerTexts(await mountList('m2m_table', { fields: ['id'] }))).toEqual(['ID', 'Actions']);
+		expect(headerTexts(await mountList('m2m_table', { fields: ['id'] }))).toEqual(['ID']);
 	});
 
 	test('option:list-m2m.tableSpacing sets the row height', async () => {

@@ -2,11 +2,14 @@
 <script setup lang="ts">
 // Backoffice: the simple Table recipe (component-specs "Table, simple"): a real <table> with columns
 // { key, label, width, align, sortable }, selection by row key (Directus `selectionUseKeys`), sort and mouse resize
-// as v-table / table-header (no keyboard resize, not in Directus), row heights of the Directus `spacing`. Header
-// reordering, manual sort and the append slots come with the screens that use them (014).
+// as v-table / table-header (no keyboard resize, not in Directus), row heights of the Directus `spacing`, manual sort
+// (drag handle column, `update:rows` with the reordered rows as v-table `update:items`; mouse only as in Directus, the
+// callers give a keyboard path), `click:row` and the `item-append` / `header-append` slots. Header reordering comes
+// with the screens that use it (014).
 import { useEventListener } from '@vueuse/core';
 import { throttle } from 'lodash-es';
-import { computed, ref } from 'vue';
+import { computed, getCurrentInstance, ref, useSlots } from 'vue';
+import Draggable from 'vuedraggable';
 import BoCheckbox from './BoCheckbox.vue';
 import BoIcon from './BoIcon.vue';
 import BoProgressLinear from './BoProgressLinear.vue';
@@ -41,6 +44,12 @@ const props = withDefaults(
 		spacing?: 'compact' | 'cozy' | 'comfortable';
 		caption?: string | undefined;
 		disabled?: boolean;
+		/** Shows the drag handle column and its header toggle (v-table `showManualSort`). */
+		showManualSort?: boolean;
+		/** Rows can be dragged while the table is sorted by this key (v-table `manualSortKey`). */
+		manualSortKey?: string | undefined;
+		/** Width in px of the `item-append` column (v-table sizes it to its content). */
+		appendWidth?: number;
 	}>(),
 	{
 		rowKey: 'id',
@@ -55,6 +64,9 @@ const props = withDefaults(
 		spacing: 'cozy',
 		caption: undefined,
 		disabled: false,
+		showManualSort: false,
+		manualSortKey: undefined,
+		appendWidth: 160,
 	},
 );
 
@@ -62,12 +74,22 @@ const emit = defineEmits<{
 	'update:modelValue': [keys: Key[]];
 	'update:sort': [sort: BoTableSort | null];
 	'update:columns': [columns: BoTableColumn[]];
+	'update:rows': [rows: Row[]];
+	'click:row': [payload: { item: Row; event: Event }];
 }>();
+
+const slots = useSlots();
+const hasItemAppendSlot = computed(() => slots['item-append'] !== undefined);
+
+// v-table `clickable`: a row is clickable (and focusable) when the caller listens to `click:row`.
+const instance = getCurrentInstance();
+const hasClickListener = computed(() => !props.disabled && !!instance?.vnode.props?.['onClick:row']);
 
 const ROW_HEIGHTS = { compact: 'h-[29px]', cozy: 'h-[43px]', comfortable: 'h-[58px]' };
 const ALIGN = { left: 'text-start', center: 'text-center', right: 'text-end' };
 const DEFAULT_WIDTH = 130; // 8.125rem, Directus default column width
 const SELECT_WIDTH = 44;
+const MANUAL_SORT_WIDTH = 40;
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 
@@ -84,13 +106,47 @@ const internalSort = computed<BoTableSort>(() => props.sort ?? { by: null, desc:
 
 const showSelectColumn = computed(() => props.showSelect !== 'none' && !props.disabled);
 
-const colSpan = computed(() => internalColumns.value.length + 1 + (showSelectColumn.value ? 1 : 0));
+const colSpan = computed(
+	() =>
+		internalColumns.value.length +
+		1 +
+		(showSelectColumn.value ? 1 : 0) +
+		(props.showManualSort ? 1 : 0) +
+		(hasItemAppendSlot.value ? 1 : 0),
+);
 
 const minWidth = computed(
 	() =>
 		internalColumns.value.reduce((sum, column) => sum + column.width, 0) +
-		(showSelectColumn.value ? SELECT_WIDTH : 0),
+		(showSelectColumn.value ? SELECT_WIDTH : 0) +
+		(props.showManualSort ? MANUAL_SORT_WIDTH : 0) +
+		(hasItemAppendSlot.value ? props.appendWidth : 0),
 );
+
+const sortedManually = computed(() => !!props.manualSortKey && internalSort.value.by === props.manualSortKey);
+
+function rowKeyOf(row: Row): Key {
+	return row[props.rowKey] ?? row['$index'];
+}
+
+// table-header.vue toggleManualSort
+function toggleManualSort() {
+	if (sortedManually.value) {
+		emit('update:sort', null);
+	} else {
+		emit('update:sort', { by: props.manualSortKey!, desc: false });
+	}
+}
+
+// v-table.vue row `@click` and table-row.vue onKeydown
+function onRowClick(row: Row, event: Event) {
+	if (hasClickListener.value) emit('click:row', { item: row, event });
+}
+
+function onRowKeydown(row: Row, event: KeyboardEvent) {
+	if (event.metaKey) return;
+	if ((event.target as HTMLElement)?.tagName === 'TR' && ['Enter', ' '].includes(event.key)) onRowClick(row, event);
+}
 
 const allItemsSelected = computed<boolean>(() => {
 	return props.loading === false && props.rows.length > 0 && props.modelValue.length === props.rows.length;
@@ -206,12 +262,31 @@ function onPointerUp() {
 			>
 				<caption v-if="caption" class="sr-only">{{ caption }}</caption>
 				<colgroup>
+					<col v-if="showManualSort" :style="{ width: `${MANUAL_SORT_WIDTH}px` }" />
 					<col v-if="showSelectColumn" :style="{ width: `${SELECT_WIDTH}px` }" />
 					<col v-for="column in internalColumns" :key="column.key" :style="{ width: `${column.width}px` }" />
 					<col />
+					<col v-if="hasItemAppendSlot" :style="{ width: `${appendWidth}px` }" />
 				</colgroup>
 				<thead class="sticky top-0 z-1 bg-white dark:bg-gray-900">
 					<tr class="border-b border-gray-200 dark:border-gray-700">
+						<th v-if="showManualSort" scope="col" class="px-1 py-3 text-start">
+							<button
+								type="button"
+								class="inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/5"
+								:class="[
+									FOCUS,
+									sortedManually ? 'text-brand-500 dark:text-brand-400' : 'text-gray-500 dark:text-gray-400',
+								]"
+								:aria-label="$t('toggle_manual_sorting')"
+								:aria-pressed="sortedManually ? 'true' : 'false'"
+								:title="$t('toggle_manual_sorting')"
+								:disabled="disabled || !manualSortKey"
+								@click="toggleManualSort"
+							>
+								<BoIcon name="sort" size="sm" />
+							</button>
+						</th>
 						<th v-if="showSelectColumn" scope="col" class="px-3 py-3 text-start">
 							<BoCheckbox
 								v-if="showSelect === 'multiple'"
@@ -258,6 +333,9 @@ function onPointerUp() {
 							/>
 						</th>
 						<th aria-hidden="true" class="p-0" />
+						<th v-if="hasItemAppendSlot" scope="col" class="p-0">
+							<slot name="header-append" />
+						</th>
 					</tr>
 					<tr v-if="loading">
 						<th :colspan="colSpan" class="p-0">
@@ -265,8 +343,8 @@ function onPointerUp() {
 						</th>
 					</tr>
 				</thead>
-				<tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-					<tr v-if="loading && rows.length === 0">
+				<tbody v-if="loading && rows.length === 0">
+					<tr>
 						<td
 							:colspan="colSpan"
 							class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400"
@@ -274,7 +352,9 @@ function onPointerUp() {
 							{{ loadingText || $t('loading') }}
 						</td>
 					</tr>
-					<tr v-else-if="rows.length === 0">
+				</tbody>
+				<tbody v-else-if="rows.length === 0">
+					<tr>
 						<td
 							:colspan="colSpan"
 							class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400"
@@ -282,33 +362,69 @@ function onPointerUp() {
 							<slot name="empty">{{ noItemsText || $t('no_items') }}</slot>
 						</td>
 					</tr>
-					<template v-else>
-					<tr
-						v-for="row in rows"
-						:key="row[rowKey] ?? row['$index']"
-						:aria-selected="showSelectColumn ? (getSelectedState(row) ? 'true' : 'false') : undefined"
-						class="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]"
-						:class="[ROW_HEIGHTS[spacing], { 'bg-gray-50 dark:bg-white/[0.03]': getSelectedState(row) }]"
-					>
-						<td v-if="showSelectColumn" class="px-3 py-0">
-							<BoCheckbox
-								:model-value="getSelectedState(row)"
-								:aria-label="$t('select_item')"
-								@update:model-value="onItemSelected(row, $event)"
-							/>
-						</td>
-						<td
-							v-for="column in internalColumns"
-							:key="column.key"
-							class="truncate px-3 py-0 text-theme-sm text-gray-500 dark:text-gray-400"
-							:class="ALIGN[column.align ?? 'left']"
-						>
-							<slot :name="`item.${column.key}`" :item="row">{{ row[column.key] }}</slot>
-						</td>
-						<td class="p-0" />
-					</tr>
-					</template>
 				</tbody>
+				<Draggable
+					v-else
+					:model-value="rows"
+					tag="tbody"
+					class="divide-y divide-gray-200 dark:divide-gray-700"
+					:item-key="rowKeyOf"
+					handle=".drag-handle"
+					:disabled="disabled || !showManualSort || !sortedManually"
+					chosen-class="opacity-50"
+					v-bind="{ 'force-fallback': true }"
+					@update:model-value="emit('update:rows', $event)"
+				>
+					<template #item="{ element: row }">
+						<tr
+							:aria-selected="showSelectColumn ? (getSelectedState(row) ? 'true' : 'false') : undefined"
+							:tabindex="hasClickListener ? 0 : undefined"
+							class="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]"
+							:class="[
+								ROW_HEIGHTS[spacing],
+								{ 'bg-gray-50 dark:bg-white/[0.03]': getSelectedState(row) },
+								hasClickListener ? ['cursor-pointer', FOCUS, 'focus-visible:-outline-offset-2'] : '',
+							]"
+							@click="onRowClick(row, $event)"
+							@keydown="onRowKeydown(row, $event)"
+						>
+							<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -- only stops the row click -->
+							<td v-if="showManualSort" class="px-1 py-0 text-center" @click.stop>
+								<BoIcon
+									name="drag_handle"
+									size="sm"
+									class="drag-handle"
+									:class="
+										sortedManually
+											? 'cursor-grab text-gray-500 dark:text-gray-400'
+											: 'cursor-not-allowed text-gray-300 dark:text-gray-600'
+									"
+								/>
+							</td>
+							<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -- only stops the row click -->
+							<td v-if="showSelectColumn" class="px-3 py-0" @click.stop>
+								<BoCheckbox
+									:model-value="getSelectedState(row)"
+									:aria-label="$t('select_item')"
+									@update:model-value="onItemSelected(row, $event)"
+								/>
+							</td>
+							<td
+								v-for="column in internalColumns"
+								:key="column.key"
+								class="truncate px-3 py-0 text-theme-sm text-gray-500 dark:text-gray-400"
+								:class="ALIGN[column.align ?? 'left']"
+							>
+								<slot :name="`item.${column.key}`" :item="row">{{ row[column.key] }}</slot>
+							</td>
+							<td class="p-0" />
+							<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -- only stops the row click -->
+							<td v-if="hasItemAppendSlot" class="px-2 py-0" @click.stop>
+								<slot name="item-append" :item="row" />
+							</td>
+						</tr>
+					</template>
+				</Draggable>
 			</table>
 		</div>
 	</div>

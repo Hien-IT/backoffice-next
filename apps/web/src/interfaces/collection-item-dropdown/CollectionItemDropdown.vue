@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/collection-item-dropdown/collection-item-dropdown.vue -->
 <script setup lang="ts">
 // Backoffice: v-list-item is a field-styled row whose main control is a native button stretched over the row, the
-// deselect button (v-remove) is a sibling; v-prevent-focusout is not needed (drawers are portals). unexpectedError
+// deselect button (v-remove, BoRemove) is a sibling; v-prevent-focusout is not needed (drawers are portals). unexpectedError
 // has no snackbar before feature 018 (D-45): a failed load shows as a BoNotice in the field (spec Edge Cases), and a
 // selectedCollection missing from the collections store (removed, or not readable) shows `relationship_not_setup`.
 import type { Filter, Item } from '@directus/types';
@@ -11,7 +11,7 @@ import { useI18n } from 'vue-i18n';
 import { requestEndpoint, sdk } from '../../api/sdk.ts';
 import BoIcon from '../../components/BoIcon.vue';
 import BoNotice from '../../components/BoNotice.vue';
-import BoTooltip from '../../components/BoTooltip.vue';
+import BoRemove from '../../components/BoRemove.vue';
 import DrawerCollection from '../../components/drawers/DrawerCollection.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 import RenderTemplate from '../../components/render/RenderTemplate.vue';
@@ -126,9 +126,6 @@ function onSelection(selectedIds: (number | string)[] | null) {
 		collection: unref(selectedCollection),
 	};
 }
-
-const ICON_BTN =
-	'relative z-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 </script>
 
 <template>
@@ -172,18 +169,7 @@ const ICON_BTN =
 			</button>
 
 			<div v-if="!nonEditable" class="item-actions flex shrink-0 items-center">
-				<BoTooltip v-if="displayItem" :text="t('deselect')">
-					<button
-						type="button"
-						class="remove"
-						:class="ICON_BTN"
-						:aria-label="t('deselect')"
-						:disabled
-						@click.stop="value = null"
-					>
-						<BoIcon name="close" size="sm" />
-					</button>
-				</BoTooltip>
+				<BoRemove v-if="displayItem" class="remove relative z-1" deselect :disabled @action="value = null" />
 
 				<BoIcon
 					v-else

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/translations/translation-form.vue -->
 <script setup lang="ts">
-// Backoffice: v-form -> BoForm (no `inline` prop, D-55), v-remove -> TranslationRemove.vue, usePermissions ->
+// Backoffice: v-form -> BoForm (no `inline` prop, D-55), v-remove -> BoRemove, usePermissions ->
 // ./use-permissions.ts (store only, see there). The activator icon is a button labelled `enable`; the secondary
 // colors are the theme blue-light tint (Directus `--theme--secondary`).
 import { isEmpty } from 'lodash-es';
@@ -10,7 +10,7 @@ import BoForm from '../../components/form/BoForm.vue';
 import type { RelationM2M } from '../../composables/use-relation-m2m.ts';
 import type { DisplayItem } from '../../composables/use-relation-multiple.ts';
 import LanguageSelect, { type LanguageOption } from './LanguageSelect.vue';
-import TranslationRemove from './TranslationRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 import { usePermissions } from './use-permissions.ts';
 
 const {
@@ -210,7 +210,7 @@ const transitionProps = computed(() => {
 			</template>
 
 			<template #controls="{ active, toggle }">
-				<TranslationRemove
+				<BoRemove
 					v-if="item && !(nonEditable && item.$type !== 'deleted')"
 					:disabled="!!activatorDisabled"
 					:item-type="item.$type"

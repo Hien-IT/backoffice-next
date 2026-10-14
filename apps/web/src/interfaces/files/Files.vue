@@ -31,9 +31,10 @@ import {
 	useRelationMultiple,
 } from '../../composables/use-relation-multiple.ts';
 import { useRelationPermissionsM2M } from '../../composables/use-relation-permissions.ts';
+import { type APIError, translateAPIError } from '../../lang/index.ts';
 import { adjustFieldsForDisplays } from '../../utils/adjust-fields-for-displays.ts';
 import { getAssetUrl } from '../../utils/get-asset-url.ts';
-import ItemRemove from '../file/ItemRemove.vue';
+import BoRemove from '../../components/BoRemove.vue';
 
 const props = withDefaults(
 	defineProps<{
@@ -144,6 +145,7 @@ const {
 	isItemSelected,
 	isLocalItem,
 	getItemEdits,
+	error: loadError,
 } = useRelationMultiple(value, query, relationInfo, primaryKey, version);
 
 const { createAllowed, updateAllowed, selectAllowed, deleteAllowed } = useRelationPermissionsM2M(relationInfo);
@@ -370,6 +372,8 @@ const ROW_BTN =
 		:aria-describedby="a11y?.describedBy"
 		:aria-invalid="a11y?.invalid || undefined"
 	>
+		<BoNotice v-if="loadError" type="danger">{{ translateAPIError(loadError as APIError) }}</BoNotice>
+
 		<div v-if="loading" class="space-y-2" aria-busy="true">
 			<div
 				v-for="n in clamp(totalItemCount - (page - 1) * limit, 1, limit)"
@@ -407,7 +411,7 @@ const ROW_BTN =
 						</button>
 
 						<div v-if="!nonEditable" class="item-actions flex shrink-0 items-center">
-							<ItemRemove
+							<BoRemove
 								v-if="deleteAllowed || isLocalItem(element)"
 								:disabled="disabled"
 								:item-type="element.$type"

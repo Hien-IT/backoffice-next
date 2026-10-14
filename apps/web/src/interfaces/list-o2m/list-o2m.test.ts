@@ -1,6 +1,6 @@
 // Ported from directus/app/src/interfaces/list-o2m/list-o2m.test.ts
-// Backoffice: mounted with the Bo* stubs of our template: BoRemove for v-remove, BoTable (its `item.$actions` cell is
-// the v-table `item-append` slot, `update:columns` with { key, width } its `update:headers`), BoSortableList for
+// Backoffice: mounted with the Bo* stubs of our template: BoRemove for v-remove, BoTable (`item-append` slot as
+// v-table, `update:columns` with { key, width } its `update:headers`), BoSortableList for
 // vuedraggable; the pinia stores are real (no @pinia/testing). Fixture, option and permission tests are in
 // ListO2M.test.ts.
 import type { Field, Relation } from '@directus/types';
@@ -44,7 +44,7 @@ const mockGetField = vi.hoisted(() => vi.fn(() => null as any));
 const mockGetWidth = vi.hoisted(() => vi.fn((_key: string, defaultWidth: number) => defaultWidth));
 const mockUpdateWidths = vi.hoisted(() => vi.fn());
 
-vi.mock('./use-column-widths.ts', () => ({
+vi.mock('../../composables/use-column-widths.ts', () => ({
 	useColumnWidths: () => ({ getWidth: mockGetWidth, updateWidths: mockUpdateWidths }),
 }));
 
@@ -124,7 +124,7 @@ const tableGlobal = {
 	stubs: {
 		...global.stubs,
 		BoTable: {
-			template: '<div class="v-table"><slot v-for="item in rows" name="item.$actions" :item="item" /></div>',
+			template: '<div class="v-table"><slot v-for="item in rows" name="item-append" :item="item" /></div>',
 			props: ['rows'],
 		},
 	},

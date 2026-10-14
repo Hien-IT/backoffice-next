@@ -35,7 +35,9 @@ test('toolbar roving focus, typing, a toolbar button and a shortcut without the 
 	await userEvent.keyboard('word');
 	await vi.waitFor(() => expect(wrapper.emitted('input')?.at(-1)).toEqual(['*word*']));
 
-	await userEvent.keyboard('{Control>}b{/Control}');
+	// Select "word" first so the result does not depend on the platform's caret keys, then Ctrl (Cmd on macOS) + B.
+	await userEvent.keyboard('{Shift>}{ArrowLeft}{ArrowLeft}{ArrowLeft}{ArrowLeft}{/Shift}');
+	await userEvent.keyboard('{ControlOrMeta>}b{/ControlOrMeta}');
 	await vi.waitFor(() => expect(wrapper.emitted('input')?.at(-1)).toEqual(['***word***']));
 
 	wrapper.unmount();

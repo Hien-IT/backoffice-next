@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import BoIcon from './BoIcon.vue';
 
 const { type = 'info', icon } = defineProps<{
@@ -35,15 +36,18 @@ const TYPES = {
 		iconColor: 'text-error-600 dark:text-error-500',
 	},
 };
+
+// An unknown type (e.g. a form field type falling through to a notice root) gets the normal look, as v-notice.
+const look = computed(() => TYPES[type as keyof typeof TYPES] ?? TYPES.normal);
 </script>
 
 <template>
 	<div
 		:role="type === 'danger' ? 'alert' : type === 'normal' ? undefined : 'status'"
 		class="flex items-start gap-3 rounded-xl border p-4"
-		:class="TYPES[type].box"
+		:class="look.box"
 	>
-		<BoIcon :name="icon ?? TYPES[type].icon" class="-mt-0.5" :class="TYPES[type].iconColor" />
+		<BoIcon :name="icon ?? look.icon" class="-mt-0.5" :class="look.iconColor" />
 		<div class="min-w-0 flex-1 text-sm text-gray-500 dark:text-gray-400"><slot /></div>
 	</div>
 </template>

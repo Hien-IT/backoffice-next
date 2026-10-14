@@ -15,7 +15,7 @@ import { parseFilter } from '../../components/form/utils/parse-filter.ts';
 import type { ChangesItem } from '../../composables/use-relation-multiple.ts';
 import { useRelationO2M } from '../../composables/use-relation-o2m.ts';
 import { adjustFieldsForDisplays } from '../../utils/adjust-fields-for-displays.ts';
-import { addRelatedPrimaryKeyToFields } from '../list-m2a/add-related-primary-key-to-fields.ts';
+import { addRelatedPrimaryKeyToFields } from '../../utils/add-related-primary-key-to-fields.ts';
 import NestedDraggable from './NestedDraggable.vue';
 
 const props = withDefaults(

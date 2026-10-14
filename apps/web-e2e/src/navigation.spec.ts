@@ -163,8 +163,13 @@ test('a user who only reads directus_files: same modules as the Directus app, no
 test('last_page is written after navigation and used on the next sign-in (US2-5, FR-018)', async ({ page }) => {
 	await signIn(page);
 
+	// trackPage runs 500 ms after each navigation, so the write of the landing page can still arrive after the click:
+	// wait for the one of /files.
 	const tracked = page.waitForResponse(
-		(r) => r.request().method() === 'PATCH' && r.url().includes('/users/me/track/page'),
+		(r) =>
+			r.request().method() === 'PATCH' &&
+			r.url().includes('/users/me/track/page') &&
+			r.request().postDataJSON()?.last_page === '/files',
 	);
 	await (await moduleBar(page)).locator('a[href="/admin/files"]').click();
 	expect((await tracked).request().postDataJSON()).toEqual({ last_page: '/files' });

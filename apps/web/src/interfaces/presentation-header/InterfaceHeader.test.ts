@@ -2,7 +2,7 @@
 // fixture API (useTemplateData #38, flow trigger #48 through the default run-manual-flow and FlowDialogs).
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { computed, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
@@ -14,6 +14,9 @@ import { useRelationsStore } from '../../stores/relations.ts';
 import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { itemOf, loadSnapshot } from '../../test-utils/fixtures.ts';
 import InterfaceHeader from './InterfaceHeader.vue';
+
+// The flow dialog's form is a lazy component (import cycle with the interface registry): load it once up front.
+beforeAll(() => import('../../components/form/BoForm.vue'));
 
 let fetch: ReturnType<typeof mockFixtureApi>;
 

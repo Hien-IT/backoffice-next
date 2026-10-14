@@ -19,7 +19,7 @@ import { useFieldsStore } from '../../stores/fields.ts';
 import { usePermissionsStore } from '../../stores/permissions.ts';
 import { useRelationsStore } from '../../stores/relations.ts';
 import { useUserStore } from '../../stores/user.ts';
-import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../test-utils/fetch.ts';
+import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { type FixtureUser, fieldsOf, loadSnapshot } from '../../test-utils/fixtures.ts';
 import config from './index.ts';
 import ListM2A from './ListM2A.vue';
@@ -33,18 +33,11 @@ const snapshot = loadSnapshot();
 const m2aField = fieldsOf('bo_rel').find((f) => f.field === 'm2a')!;
 let fetch: ReturnType<typeof mockFixtureApi>;
 
-// The select drawer filter uses `_none` ($FOLLOW), which the fixture API does not evaluate: bo_m2a_a lists answer
-// empty in every test (the drawer's throttled refetch can land after its test).
-const selectDrawerAnswers = {
-	'GET /items/bo_m2a_a': ({ url }: { url: URL }) =>
-		json({ data: url.search.includes('aggregate') ? [{ count: { id: 0 }, countDistinct: { id: 0 } }] : [] }),
-};
-
 async function setup(user: FixtureUser = 'admin') {
 	vi.unstubAllGlobals();
 	await replaceQueue();
 	setActivePinia(createPinia());
-	fetch = mockFixtureApi(snapshot, { user, answers: selectDrawerAnswers });
+	fetch = mockFixtureApi(snapshot, { user });
 	await useUserStore().hydrate();
 
 	await Promise.all([
