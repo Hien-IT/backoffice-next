@@ -1,5 +1,5 @@
-// Ported from directus/tests/blackbox/tests/db/routes/server/ping.test.ts (REST part through parity();
-// the GraphQL `server_ping` part waits for feature 011, D-09.9).
+// Ported from directus/tests/blackbox/tests/db/routes/server/ping.test.ts (REST part through parity(); the GraphQL
+// `server_ping` part is in the blackbox port and src/graphql/system.test.ts since feature 011).
 import { describe, expect, it } from 'vitest';
 import { assertParity, parity } from '../parity.js';
 

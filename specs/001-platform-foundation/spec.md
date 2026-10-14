@@ -654,6 +654,8 @@ Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác b
 
 D-09.8 và D-14 gỡ khỏi `accepted-differences.ts` ngày 2026-10-14 (feature 010 Done, tech lead duyệt): chín route đó và
 `/server/setup` do app mới phục vụ, test đối chiếu giữ nguyên.
+D-09.9 và D-15 gỡ khỏi `accepted-differences.ts` ngày 2026-10-14 (feature 011 Done, tech lead duyệt): `/graphql`,
+`/graphql/system` và `/server/specs/graphql[/:scope]` do app mới phục vụ; không còn mã D-09.x nào.
 
 Giữ nguyên (không đổi thương hiệu): tên bảng `directus_*`; `project_name` và mọi giá trị đọc từ
 `directus_settings` (ví dụ `"Directus"` mặc định của cột); tên biến môi trường; mã lỗi; số phiên bản `11.17.4` báo cho client (FR-047);

@@ -22,11 +22,8 @@ export { comparable, warnLines } from '../system/helpers.js';
 
 export type Scope = 'items' | 'system';
 
-/**
- * The accepted differences without D-09.9 (/graphql → 404) and D-15 (/server/specs/graphql → 404): they are removed
- * when the feature closes, and would hide every GraphQL difference until then (lesson of 008, withoutD098 of 010).
- */
-export const ACCEPTED = acceptedDifferences.filter((d) => !(d.feature === '001' && ['D-09.9', 'D-15'].includes(d.id)));
+/** The accepted differences (D-09.9 and D-15 left the list when feature 011 closed). */
+export const ACCEPTED = acceptedDifferences;
 
 export const endpoint = (scope: Scope) => (scope === 'system' ? '/graphql/system' : '/graphql');
 

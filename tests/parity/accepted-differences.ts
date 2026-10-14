@@ -76,15 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.9',
-		feature: '001',
-		removeAt: '011',
-		kind: 'http',
-		endpoints: route('/graphql'),
-		location: { any: true },
-		reason: 'Built by feature 011.',
-	},
-	{
 		id: 'D-13',
 		feature: '001',
 		kind: 'http',
@@ -93,15 +84,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		when: { directusStatus: 500 },
 		reason:
 			'Health does not build the schema; differs only with the database down and no schema in memory (CACHE_SCHEMA=false or an empty cache). Other routes build it like Directus since feature 002.',
-	},
-	{
-		id: 'D-15',
-		feature: '001',
-		removeAt: '011',
-		kind: 'http',
-		endpoints: ['* /server/specs/graphql', '* /server/specs/graphql/*'],
-		location: { any: true },
-		reason: 'GraphQL comes with feature 011.',
 	},
 	{
 		id: 'D-16',

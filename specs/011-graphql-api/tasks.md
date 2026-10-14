@@ -489,7 +489,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   chủ đích" giữ; `specs/001-platform-foundation/spec.md` dòng D-09.9, D-15 ghi "gỡ ở 011 (ngày)";
   `specs/011-graphql-api/checklists/*.md` đánh dấu mục đã rà; `research.md` R12 bổ sung số đo của app mới nếu khác;
   `CLAUDE.md` Recent Changes giữ dòng 011.
-- [ ] T046 Đóng feature (sau khi tech lead duyệt gỡ D-09.9, D-15, R-30 đến R-32, hai chỗ thay thư viện):
+- [X] T046 Đóng feature (sau khi tech lead duyệt gỡ D-09.9, D-15, R-30 đến R-32, hai chỗ thay thư viện):
   `tests/parity/accepted-differences.ts` xóa entry D-09.9, D-15 (guard `removeAt: '011'`); `specs/011-graphql-api/
   spec.md` `Status: Done` và dòng "Duyệt khác biệt" như 010; `specs/001-platform-foundation/spec.md` ghi ngày gỡ; commit
   `chore(011): close feature 011-graphql-api`; CI xanh. **Đợt commit D**.
@@ -608,3 +608,9 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   `schema-cache.ts` port nguyên văn, `schema/index.ts` chỉ khác chỗ import type `GraphQLParams`; bỏ `lru-cache` khỏi
   `apps/api` (chỉ dùng ở đây); `p-queue` vẫn cho flows. `pnpm audit`: không advisory nào chạm hai gói. Unit
   `services/graphql` 106 ca xanh. Mô tả T011 ở trên là phương án cũ.
+- 2026-10-14 CI 7d2bb84: chỉ đỏ shard Postgres `full` 2 ở hai ca của cặp `graphql-nointro`: Directus của cặp trả `503
+  "Under pressure"` (pressure limiter mặc định bật, runner CI tải nặng) → `PRESSURE_LIMITER_ENABLED=false` trong
+  `profile-graphql-nointro.env`, như cặp blackbox.
+- 2026-10-14 T046: tech lead duyệt; `accepted-differences.ts` xóa D-09.9, D-15; `ACCEPTED` của `graphql/helpers.ts`,
+  `schema.test.ts`, `server/methods.test.ts` bỏ bộ lọc tạm; spec 011 `Status: Done`; spec 001 ghi ngày gỡ. Feature 011
+  Done, 46/46.

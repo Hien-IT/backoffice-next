@@ -1,6 +1,5 @@
 // Ported from directus/tests/blackbox (router behaviour measured on Directus 11.17.4), FR-048, US2.10–US2.13.
 import { describe, expect, it } from 'vitest';
-import { acceptedDifferences } from '../../accepted-differences.js';
 import { assertParity, parity, parityStable } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
@@ -48,15 +47,11 @@ describe('router behaviour', () => {
 		expect(result.backoffice.status).toBe(404);
 	});
 
-	// Feature 011 (research R12.6): the route of the SDL answers like the other /server routes. D-15 is still in the
-	// accepted list until the feature closes, so it is left out here.
+	// Feature 011 (research R12.6): the route of the SDL answers like the other /server routes (D-15 gone).
 	it.each(['/server/specs/graphql', '/server/specs/graphql/system'])(
 		'OPTIONS %s → 200 Allow: GET,HEAD',
 		async (path) => {
-			const result = await parity(
-				{ method: 'OPTIONS', path },
-				{ accepted: acceptedDifferences.filter((d) => !(d.feature === '001' && d.id === 'D-15')) },
-			);
+			const result = await parity({ method: 'OPTIONS', path });
 			assertParity(result);
 			expect(result.backoffice.headers['allow']).toBe('GET,HEAD');
 		},

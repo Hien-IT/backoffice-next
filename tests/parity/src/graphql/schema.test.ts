@@ -243,7 +243,7 @@ describe('names GraphQL cannot use (US4.6, FR-046)', () => {
 
 describe('limits read at start-up (profile graphql-nointro, US4.3, US5.4, SC-006)', () => {
 	const urls = () => profileUrls('graphql-nointro')!;
-	const accepted = acceptedDifferences.filter((d) => !(d.feature === '001' && ['D-09.9', 'D-15'].includes(d.id)));
+	const accepted = acceptedDifferences;
 
 	it.runIf(suite === 'full' && Boolean(profileUrls('graphql-nointro')))(
 		'GRAPHQL_INTROSPECTION=false: introspection refused, no SDL route; a document over 50 tokens refused',

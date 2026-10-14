@@ -2,7 +2,10 @@
 
 **Feature Branch**: `011-graphql-api`
 **Created**: 2026-10-14
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt ngày 2026-10-14 gỡ D-09.9, D-15 (spec 001); rủi ro R-30 đến R-33 (đã đo, tái
+tạo từ Directus); thư viện như Directus (`mnemonist`, `async-mutex`, owner chọn cùng ngày), không còn lệch mã gốc; không
+có khác biệt mới; và đóng spec (Nguyên tắc X; quy trình không có PR)
 **Input**: User description: "App mới cung cấp /graphql (dữ liệu người dùng) và /graphql/system (dữ liệu hệ thống), có schema sinh động từ data model và phân quyền của từng user, giống hệt Directus: query, mutation, aggregate, quan hệ lồng nhau, filter, đặt tên type và field giống nhau. Không làm subscription. Tham chiếu directus/api/src/services/graphql. Tiêu chí chấp nhận: introspection schema của app mới khớp với Directus cho cùng user, và các blackbox test GraphQL chạy qua."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):
