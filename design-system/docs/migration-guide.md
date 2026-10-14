@@ -113,6 +113,15 @@ The pairs used by the final recipes (`component-specs.md`, `layout-patterns.md`,
 | light | `success-600`    | `white`               | Valid input border                                              | 3.73:1  | 3:1    | pass   |
 | light | `success-600`    | `success-50`          | Alert icon (lowest: warning-600 below)                          | 3.54:1  | 3:1    | pass   |
 | light | `warning-600`    | `warning-50`          | Alert icon                                                      | 3.34:1  | 3:1    | pass   |
+| light | `gray-700`       | `gray-50`             | Upload dropzone text (013)                                      | 10.01:1 | 4.5:1  | pass   |
+| light | `gray-700`       | `brand-50`            | Upload dropzone text and hint while dragging (013)              | 9.38:1  | 4.5:1  | pass   |
+| light | `gray-800`       | `error-50`            | ValidationErrors field name (013)                               | 13.52:1 | 4.5:1  | pass   |
+| light | `warning-700`    | `white`               | Soft-length counter, under 10 % left (013)                      | 5.43:1  | 4.5:1  | pass   |
+| light | `white`          | `gray-900/0.95`       | Lightbox title and icons, composited over white (013)           | 15.63:1 | 4.5:1  | pass   |
+| light | `white`          | `white/0.1`           | Lightbox button on the lightbox background (013)                | 11.50:1 | 4.5:1  | pass   |
+| light | `warning-600`    | `white`               | Rating filled star (013; on `gray-50` 3.34:1)                   | 3.49:1  | 3:1    | pass   |
+| light | `brand-500`      | `gray-200`            | Slider range and upload progress bar on the track (013)         | 3.90:1  | 3:1    | pass   |
+| light | `brand-500`      | `gray-900/0.95`       | Focus outline in the lightbox (013)                             | 3.23:1  | 3:1    | pass   |
 | dark  | `white/0.9`      | `gray-900`            | Titles, input value                                             | 14.46:1 | 4.5:1  | pass   |
 | dark  | `gray-400`       | `gray-900`            | Secondary text, labels, hints, placeholder                      | 6.89:1  | 4.5:1  | pass   |
 | dark  | `gray-300`       | `gray-900`            | Inactive menu item                                              | 12.04:1 | 4.5:1  | pass   |
@@ -140,6 +149,15 @@ The pairs used by the final recipes (`component-specs.md`, `layout-patterns.md`,
 | dark  | `brand-400`      | `gray-800`            | Focus outline on gray-800                                       | 5.12:1  | 3:1    | pass   |
 | dark  | `error-400`      | `gray-900`            | Invalid input border, error focus outline                       | 6.37:1  | 3:1    | pass   |
 | dark  | `success-400`    | `gray-900`            | Valid input border                                              | 9.28:1  | 3:1    | pass   |
+| dark  | `white/0.9`      | `gray-dark`           | Popover titles: calendar heading, user popover name (013)       | 13.11:1 | 4.5:1  | pass   |
+| dark  | `gray-300`       | `gray-dark`           | Calendar day (013)                                              | 10.81:1 | 4.5:1  | pass   |
+| dark  | `brand-400`      | `gray-dark`           | Calendar today, user popover link (013)                         | 5.55:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500/0.15`      | Selected icon in the icon picker, over `gray-dark` (013)        | 4.79:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `brand-500/0.12`      | Upload dropzone text while dragging (013)                       | 6.15:1  | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `error-500/0.15`      | ValidationErrors field name (013)                               | 12.73:1 | 4.5:1  | pass   |
+| dark  | `warning-400`    | `gray-900`            | Soft-length counter (013); rating star (3:1 use)                | 9.64:1  | 4.5:1  | pass   |
+| dark  | `gray-300`       | `white/0.1`           | Chip delete button hover (013)                                  | 9.09:1  | 4.5:1  | pass   |
+| dark  | `gray-500`       | `gray-dark`           | Input border inside a popover (013)                             | 3.21:1  | 3:1    | pass   |
 
 TailAdmin values replaced because they failed: placeholder gray-400 (2.58) / white/30 (2.70); field error-500 (3.76) and
 success-500 (2.62) text; light badge text -500/-600 (2.59–4.44); active menu brand-500 on brand-50 (4.34); dark
@@ -147,6 +165,12 @@ error-500 on its tint (4.11); white on success-500, warning-500, blue-light-500,
 border gray-300 (1.47) and dark gray-700 (1.70); toggle off track gray-200 (1.24); "MENU" label gray-400 (2.58); modal
 close icon gray-400 on gray-100. Card and table borders (gray-200 / gray-800) are decorative and keep the TailAdmin
 values.
+
+Rows marked "013" come from the Tier 3 draft recipes (`component-specs.md`, "Tier 3 recipes, nháp (013)") and the
+form/drawer draft (`layout-patterns.md` §8), computed from `tokens/theme.css` the same way. Avoided in those drafts
+because they fail: `gray-500` on `brand-50` (4.46:1, so selected table rows use `gray-50` and the dropzone hint turns
+`gray-700` while dragging); `gray-500` text on `gray-dark` (3.21:1, so dark calendar days use `gray-300` / `gray-400`);
+the `warning-500` edited dot of research R6 (the Directus subdued `gray-500` / dark `gray-400` dot is used).
 
 ## Decisions (project owner, 2026-10-15)
 

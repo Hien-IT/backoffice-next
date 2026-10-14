@@ -1,0 +1,18 @@
+{
+	"added value sorted by choices order": {
+		"field": "select_multiple_dropdown",
+		"initial": ["beta", "alpha"],
+		"action": "pick Active",
+		"value": ["alpha", "beta", "gamma"],
+		"source": "directus/app/src/interfaces/select-multiple-dropdown/select-multiple-dropdown.vue:33 updateValue (sortBy choices index)",
+		"description": "pick a third choice"
+	},
+	"csv field: removed value, array": {
+		"field": "select_multiple_dropdown_csv",
+		"initial": ["alpha", "gamma"],
+		"action": "pick Alpha",
+		"value": ["gamma"],
+		"source": "directus/app/src/interfaces/select-multiple-dropdown/select-multiple-dropdown.vue:33 updateValue",
+		"description": "unpick a choice"
+	}
+}

@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/interfaces/presentation-header/index.ts",
+		"dest": "apps/web/src/interfaces/presentation-header/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/presentation-header/header.vue",
+		"dest": "apps/web/src/interfaces/presentation-header/InterfaceHeader.vue"
+	},
+	{
+		"source": "app/src/interfaces/presentation-header/helper-text.vue",
+		"dest": "apps/web/src/interfaces/presentation-header/HelperText.vue"
+	},
+	{
+		"source": "app/src/interfaces/presentation-header/header.test.ts",
+		"dest": "apps/web/src/interfaces/presentation-header/header.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/presentation-header/helper-text.test.ts",
+		"dest": "apps/web/src/interfaces/presentation-header/helper-text.test.ts"
+	}
+]

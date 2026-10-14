@@ -1,0 +1,11 @@
+[
+	{ "source": "app/src/interfaces/datetime/index.ts", "dest": "apps/web/src/interfaces/datetime/index.ts" },
+	{ "source": "app/src/interfaces/datetime/datetime.vue", "dest": "apps/web/src/interfaces/datetime/Datetime.vue" },
+	{ "source": "app/src/components/use-datetime.vue", "dest": "apps/web/src/interfaces/datetime/Datetime.vue" },
+	{
+		"source": "app/src/interfaces/datetime/datetime.test.ts",
+		"dest": "apps/web/src/interfaces/datetime/Datetime.test.ts"
+	},
+	{ "source": "app/src/utils/timezones.ts", "dest": "apps/web/src/utils/timezones.ts" },
+	{ "source": "app/src/utils/timezones.test.ts", "dest": "apps/web/src/utils/timezones.test.ts" }
+]

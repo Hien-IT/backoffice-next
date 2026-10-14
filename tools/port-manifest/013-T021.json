@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/interfaces/_system/system-raw-editor/index.ts", "dest": "apps/web/src/interfaces/_system/system-raw-editor/index.ts" },
+	{ "source": "app/src/interfaces/_system/system-raw-editor/system-raw-editor.vue", "dest": "apps/web/src/interfaces/_system/system-raw-editor/SystemRawEditor.vue" },
+	{ "source": "app/src/interfaces/_system/system-raw-editor/mustacheMode.ts", "dest": "apps/web/src/interfaces/_system/system-raw-editor/mustache-mode.ts" }
+]

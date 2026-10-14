@@ -1,0 +1,34 @@
+{
+	"add a custom tag": {
+		"field": "tags",
+		"initial": ["alpha", "custom-tag"],
+		"action": "add-tag New Tag",
+		"value": ["alpha", "custom-tag", "new-tag"],
+		"source": "directus/app/src/interfaces/tags/tags.vue:111 addTag -> :69 processArray (lowercase, whitespace '-', alphabetize)",
+		"description": "Enter in the tag input"
+	},
+	"toggle a preset on": {
+		"field": "tags",
+		"initial": ["alpha", "custom-tag"],
+		"action": "click beta",
+		"value": ["alpha", "beta", "custom-tag"],
+		"source": "directus/app/src/interfaces/tags/tags.vue:103 toggleTag -> :69 processArray (alphabetize)",
+		"description": "preset chip"
+	},
+	"remove a custom tag": {
+		"field": "tags",
+		"initial": ["alpha", "custom-tag"],
+		"action": "click Remove custom-tag",
+		"value": ["alpha"],
+		"source": "directus/app/src/interfaces/tags/tags.vue:120 removeTag -> :125 emitValue",
+		"description": "remove button of the chip"
+	},
+	"csv field emits an array": {
+		"field": "tags_csv",
+		"initial": ["ONE", "TWO"],
+		"action": "click ONE",
+		"value": ["TWO"],
+		"source": "directus/app/src/interfaces/tags/tags.vue:103 toggleTag -> :120 removeTag -> :125 emitValue",
+		"description": "preset chip toggled off"
+	}
+}

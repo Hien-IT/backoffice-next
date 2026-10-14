@@ -1,0 +1,26 @@
+{
+	"integer choice stays a number": {
+		"field": "select_dropdown_int",
+		"initial": 2,
+		"action": "pick One",
+		"value": 1,
+		"source": "directus/app/src/interfaces/select-dropdown/select-dropdown.vue:92 (v-select item value)",
+		"description": "pick a choice"
+	},
+	"pick a choice": {
+		"field": "select_dropdown",
+		"initial": "alpha",
+		"action": "pick Beta",
+		"value": "beta",
+		"source": "directus/app/src/interfaces/select-dropdown/select-dropdown.vue:92 (v-select item value)",
+		"description": "allowOther: combobox list"
+	},
+	"deselect is null": {
+		"field": "select_dropdown",
+		"initial": "alpha",
+		"action": "clear",
+		"value": null,
+		"source": "directus/app/src/components/v-select/v-select.vue:344 (deselect emits null, allowNone)",
+		"description": "deselect button"
+	}
+}

@@ -1,5 +1,7 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { useCollectionsStore } from '../stores/collections.ts';
+import { useFieldsStore } from '../stores/fields.ts';
 import { getDateFNSLocale } from '../utils/get-date-fns-locale.ts';
 import { i18n, loadedLanguages, MISSING_KEY_WARNING } from './index.ts';
 import { getEffectiveLanguage, setLanguage } from './set-language.ts';
@@ -83,4 +85,26 @@ test('GET /translations failing with 403 is ignored', async () => {
 
 	expect(i18n.global.locale.value).toBe('vi-VN');
 	expect(error).not.toHaveBeenCalled();
+});
+
+test('translates the collections and the fields into the new language (FR-006)', async () => {
+	await setLanguage('en-US');
+	const collectionsStore = useCollectionsStore();
+	const fieldsStore = useFieldsStore();
+
+	collectionsStore.collections = [
+		{ collection: 'posts', meta: { translations: [{ language: 'vi-VN', translation: 'Bài viết' }] }, schema: {} },
+	].map((collection) => collectionsStore.prepareCollectionForApp(collection as never));
+	fieldsStore.fields = [
+		{ collection: 'directus_users', field: 'email', meta: { system: true, note: '$t:save' } },
+	].map((field) => fieldsStore.parseField(field as never));
+
+	expect(collectionsStore.collections[0]!.name).toBe('Posts');
+	expect(fieldsStore.fields[0]!.name).toBe('Email');
+
+	await setLanguage('vi-VN');
+
+	expect(collectionsStore.collections[0]!.name).toBe('Bài viết');
+	expect(fieldsStore.fields[0]!.name).toBe('Địa chỉ email');
+	expect(fieldsStore.fields[0]!.meta!.note).toBe('Lưu');
 });

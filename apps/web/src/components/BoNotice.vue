@@ -1,10 +1,19 @@
 <script setup lang="ts">
 import BoIcon from './BoIcon.vue';
 
-const { type = 'info' } = defineProps<{ type?: 'info' | 'success' | 'warning' | 'danger' }>();
+const { type = 'info', icon } = defineProps<{
+	type?: 'normal' | 'info' | 'success' | 'warning' | 'danger';
+	/** Replaces the icon of the type (v-notice `icon`). */
+	icon?: string;
+}>();
 
 // Icons as v-notice of Directus, colors from the component-specs Alert recipe (danger = error).
 const TYPES = {
+	normal: {
+		icon: 'info',
+		box: 'border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]',
+		iconColor: 'text-gray-500 dark:text-gray-400',
+	},
 	info: {
 		icon: 'info',
 		box: 'border-blue-light-500 bg-blue-light-50 dark:border-blue-light-500/30 dark:bg-blue-light-500/15',
@@ -30,11 +39,11 @@ const TYPES = {
 
 <template>
 	<div
-		:role="type === 'danger' ? 'alert' : 'status'"
+		:role="type === 'danger' ? 'alert' : type === 'normal' ? undefined : 'status'"
 		class="flex items-start gap-3 rounded-xl border p-4"
 		:class="TYPES[type].box"
 	>
-		<BoIcon :name="TYPES[type].icon" class="-mt-0.5" :class="TYPES[type].iconColor" />
+		<BoIcon :name="icon ?? TYPES[type].icon" class="-mt-0.5" :class="TYPES[type].iconColor" />
 		<div class="min-w-0 flex-1 text-sm text-gray-500 dark:text-gray-400"><slot /></div>
 	</div>
 </template>

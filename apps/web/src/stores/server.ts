@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/server.ts
-// Backoffice: requests go through the SDK client; mcp_enabled, ai_enabled, files, extensions and uploads are not
-// read (D-41, Principle XI).
+// Backoffice: requests go through the SDK client; mcp_enabled, ai_enabled, extensions and uploads are not read (D-41,
+// Principle XI). `files` is read from feature 013 (upload accept lists, FR-053).
 import formatTitle from '@directus/format-title';
 import { defineStore } from 'pinia';
 import { computed, reactive } from 'vue';
@@ -45,6 +45,11 @@ export type Info = {
 		| undefined;
 	websocket?: false | Record<string, unknown> | undefined;
 	version?: string | undefined;
+	files?:
+		| {
+				mimeTypeAllowList: string[];
+		  }
+		| undefined;
 };
 
 export type Auth = {
@@ -77,6 +82,7 @@ export const useServerStore = defineStore('serverStore', () => {
 		rateLimit: undefined,
 		queryLimit: undefined,
 		websocket: undefined,
+		files: undefined,
 	});
 
 	const auth = reactive<Auth>({
@@ -116,6 +122,7 @@ export const useServerStore = defineStore('serverStore', () => {
 		info.queryLimit = serverInfo?.queryLimit;
 		info.websocket = serverInfo?.websocket;
 		info.version = serverInfo?.version;
+		info.files = serverInfo?.files;
 
 		auth.providers = authResponse?.data ?? [];
 		auth.disableDefault = authResponse?.disableDefault ?? false;

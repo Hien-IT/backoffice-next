@@ -43,6 +43,8 @@ jobs:
           node-version: 22
       - run: corepack enable
       - run: pnpm install --frozen-lockfile
+      # apps/web runs *.browser.test.ts in headless chromium (feature 013, research R8)
+      - run: pnpm exec playwright install --with-deps chromium
       - name: lint, typecheck, test (coverage gates), build
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then

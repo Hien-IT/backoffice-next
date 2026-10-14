@@ -1,0 +1,11 @@
+[
+	{ "source": "app/src/displays/collection/index.ts", "dest": "apps/web/src/displays/collection/index.ts" },
+	{
+		"source": "app/src/displays/collection/collection.vue",
+		"dest": "apps/web/src/displays/collection/DisplayCollection.vue"
+	},
+	{ "source": "app/src/displays/file/index.ts", "dest": "apps/web/src/displays/file/index.ts" },
+	{ "source": "app/src/displays/file/file.vue", "dest": "apps/web/src/displays/file/DisplayFile.vue" },
+	{ "source": "app/src/displays/image/index.ts", "dest": "apps/web/src/displays/image/index.ts" },
+	{ "source": "app/src/displays/image/image.vue", "dest": "apps/web/src/displays/image/DisplayImage.vue" }
+]

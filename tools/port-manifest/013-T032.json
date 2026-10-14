@@ -1,0 +1,7 @@
+[
+	{ "source": "app/src/interfaces/input/index.ts", "dest": "apps/web/src/interfaces/input/index.ts" },
+	{ "source": "app/src/interfaces/input/input.vue", "dest": "apps/web/src/interfaces/input/InterfaceInput.vue" },
+	{ "source": "app/src/components/v-input.vue", "dest": "apps/web/src/interfaces/input/InputField.vue" },
+	{ "source": "app/src/interfaces/input/index.test.ts", "dest": "apps/web/src/interfaces/input/index.test.ts" },
+	{ "source": "app/src/interfaces/input/input.test.ts", "dest": "apps/web/src/interfaces/input/input.test.ts" }
+]

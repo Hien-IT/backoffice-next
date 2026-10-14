@@ -1,0 +1,7 @@
+[
+	{ "source": "app/src/displays/labels/index.ts", "dest": "apps/web/src/displays/labels/index.ts" },
+	{ "source": "app/src/displays/labels/labels.vue", "dest": "apps/web/src/displays/labels/DisplayLabels.vue" },
+	{ "source": "app/src/displays/rating/index.ts", "dest": "apps/web/src/displays/rating/index.ts" },
+	{ "source": "app/src/displays/rating/rating.vue", "dest": "apps/web/src/displays/rating/DisplayRating.vue" },
+	{ "source": "app/src/displays/rating/rating.test.ts", "dest": "apps/web/src/displays/rating/DisplayRating.test.ts" }
+]

@@ -1,0 +1,26 @@
+{
+	"clear is null": {
+		"field": "select_color_default",
+		"initial": "#2ECDA7",
+		"action": "clear",
+		"value": null,
+		"source": "directus/app/src/interfaces/select-color/select-color.vue:370 VRemove -> :148 unsetColor",
+		"description": "remove button"
+	},
+	"typed hex is emitted as typed": {
+		"field": "select_color_default",
+		"initial": "#2ECDA7",
+		"action": "type #112233",
+		"value": "#112233",
+		"source": "directus/app/src/interfaces/select-color/select-color.vue:250 input setter (emit newInput)",
+		"description": "hex input"
+	},
+	"emptied input is null": {
+		"field": "select_color",
+		"initial": "#6644FF80",
+		"action": "type ",
+		"value": null,
+		"source": "directus/app/src/interfaces/select-color/select-color.vue:255 (empty input -> unsetColor)",
+		"description": "opacity field"
+	}
+}

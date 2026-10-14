@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/composables/use-flows.ts",
+		"dest": "apps/web/src/composables/use-run-manual-flow.ts"
+	},
+	{
+		"source": "app/src/views/private/components/flow-dialogs.vue",
+		"dest": "apps/web/src/interfaces/presentation-header/FlowDialogs.vue"
+	}
+]

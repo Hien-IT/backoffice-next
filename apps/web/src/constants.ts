@@ -1,8 +1,12 @@
 // Ported from directus/app/src/constants.ts
-// Backoffice: only the constants the app shell uses; DIRECTUS_LOGO dropped (FR-083); RTL_LANGUAGES from
+// Backoffice: only the constants the app shell, the form and the interfaces use; DIRECTUS_LOGO dropped (FR-083); RTL_LANGUAGES from
 // constants/text-direction.ts.
 
 export const VALIDATION_TYPES = ['FAILED_VALIDATION', 'RECORD_NOT_UNIQUE'];
+
+export const APP_NUMERIC_TYPES = ['integer', 'float'];
+/** Treat `bigInteger` and `decimal` as strings to avoid rounding errors. */
+export const APP_NUMERIC_STRING_TYPES = ['bigInteger', 'decimal'];
 
 export type ModuleBarModule = { type: 'module'; id: string; enabled: boolean; locked?: boolean };
 export type ModuleBarLink = { type: 'link'; id: string; enabled: boolean; name: string; icon: string; url: string };

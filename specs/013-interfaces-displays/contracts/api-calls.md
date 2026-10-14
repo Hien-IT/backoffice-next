@@ -8,9 +8,9 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 
 | # | Method | Path | Ai gọi | Query | Ghi chú |
 |---|--------|------|--------|-------|---------|
-| 33 | GET | `/flows` | hydrate (`flowsStore`) | `fields=id,name,icon,color,status,trigger,options,accountability,operation` như Directus | R10, thu hẹp D-45 |
+| 33 | GET | `/flows` | hydrate (`flowsStore`, chỉ khi có quyền đọc `directus_flows`) | `fields=*,operations.*&limit=-1` như `stores/flows.ts` Directus | R10, thu hẹp D-45 |
 | 34 | GET | `<endpoint>` | `useItems` (drawer chọn item, danh sách quan hệ o2m/m2m/m2a/files/translations, list-m2a theo collection) | `fields`, `sort`, `limit`, `page`, `search`, `filter` (như `useItems` Directus; không gửi `meta`) | giống Directus app |
-| 35 | GET | `<endpoint>` | `useItems` đếm | `aggregate[count]=*` (hoặc `aggregate[countDistinct]=<pk>` khi có filter quan hệ, như Directus) + `filter`, `search` | |
+| 35 | GET | `<endpoint>` | `useItems` đếm | `aggregate={"countDistinct":"<pk>"}` (không có khóa chính thì `count:*`) + `filter`, `search`; SDK gửi `aggregate`, `filter` dạng JSON, Directus app (axios) gửi dạng ngoặc `aggregate[countDistinct]=<pk>`; API đọc cả hai như nhau | `notifications` của 012 đã dùng dạng JSON |
 | 36 | GET | `<endpoint>?filter[<pk>][_eq]=<key>&fields=...` | m2o, file, file-image, collection-item-dropdown (`useRelationSingle`) | | |
 | 37 | GET | `<endpoint>?filter[<pk>][_in]=...` | collection-item-multiple-dropdown | | |
 | 38 | GET | `<endpoint>/<pk>?fields=...` | `presentation-links` (field quan hệ trong URL), `useTemplateData` (`header`) | | |

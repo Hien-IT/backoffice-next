@@ -1,0 +1,6 @@
+[
+	{ "source": "packages/composables/src/use-items.ts", "dest": "apps/web/src/composables/use-items.ts" },
+	{ "source": "packages/composables/src/use-items.test.ts", "dest": "apps/web/src/composables/use-items.test.ts" },
+	{ "source": "packages/composables/src/use-collection.ts", "dest": "apps/web/src/composables/use-collection.ts" },
+	{ "source": "packages/composables/src/use-collection.test.ts", "dest": "apps/web/src/composables/use-collection.test.ts" }
+]

@@ -1,0 +1,26 @@
+[
+	{ "source": "app/src/interfaces/select-color/select-color.vue", "dest": "apps/web/src/components/BoColorPicker.vue" },
+	{
+		"source": "app/src/interfaces/select-color/select-color.test.ts",
+		"dest": "apps/web/src/components/BoColorPicker.test.ts"
+	},
+	{ "source": "app/src/interfaces/select-icon/select-icon.vue", "dest": "apps/web/src/components/BoIconPicker.vue" },
+	{
+		"source": "app/src/interfaces/select-icon/select-icon.test.ts",
+		"dest": "apps/web/src/components/BoIconPicker.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-icon/icons.json",
+		"dest": "apps/web/src/components/icon-picker/icons.json",
+		"header": false
+	},
+	{
+		"source": "app/src/components/v-icon/social-icons.ts",
+		"dest": "apps/web/src/components/icon-picker/social-icons.ts"
+	},
+	{
+		"source": "app/src/components/v-icon/social-icon.vue",
+		"dest": "apps/web/src/components/icon-picker/SocialIcon.vue"
+	},
+	{ "source": "app/src/shims.d.ts", "dest": "apps/web/src/components/icon-picker/vue-virtual-scroller.d.ts" }
+]

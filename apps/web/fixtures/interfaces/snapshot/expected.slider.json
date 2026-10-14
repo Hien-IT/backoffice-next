@@ -1,0 +1,26 @@
+{
+	"arrow right adds the step": {
+		"field": "slider",
+		"initial": 7,
+		"action": "key ArrowRight",
+		"value": 8,
+		"source": "directus/app/src/interfaces/slider/slider.vue:48 + directus/app/src/components/v-slider.vue:67 (Number(target.value))",
+		"description": "stepInterval 1"
+	},
+	"float step": {
+		"field": "slider_float",
+		"initial": 0.4,
+		"action": "key ArrowRight",
+		"value": 0.5,
+		"source": "directus/app/src/interfaces/slider/slider.vue:48 + directus/app/src/components/v-slider.vue:67 (Number(target.value))",
+		"description": "stepInterval 0.1 from 0.4"
+	},
+	"home goes to minValue": {
+		"field": "slider",
+		"initial": 7,
+		"action": "key Home",
+		"value": 0,
+		"source": "directus/app/src/interfaces/slider/slider.vue:48 + directus/app/src/components/v-slider.vue:67 (Number(target.value))",
+		"description": "minValue 0"
+	}
+}

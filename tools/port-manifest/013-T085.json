@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/presentation-divider/index.ts",
+		"dest": "apps/web/src/interfaces/presentation-divider/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/presentation-divider/presentation-divider.vue",
+		"dest": "apps/web/src/interfaces/presentation-divider/PresentationDivider.vue"
+	},
+	{
+		"source": "app/src/interfaces/presentation-notice/index.ts",
+		"dest": "apps/web/src/interfaces/presentation-notice/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/presentation-notice/presentation-notice.vue",
+		"dest": "apps/web/src/interfaces/presentation-notice/PresentationNotice.vue"
+	}
+]

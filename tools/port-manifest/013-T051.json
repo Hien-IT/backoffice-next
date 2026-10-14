@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/displays/user/index.ts", "dest": "apps/web/src/displays/user/index.ts" },
+	{ "source": "app/src/displays/user/user.vue", "dest": "apps/web/src/displays/user/DisplayUser.vue" },
+	{
+		"source": "app/src/views/private/components/user-popover.vue",
+		"dest": "apps/web/src/components/render/UserPopover.vue"
+	}
+]

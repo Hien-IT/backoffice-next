@@ -91,7 +91,8 @@ lựa chọn (FR-020 đến FR-037), mỗi interface vài bộ options; khẳng 
    font: 'monospace'}`, **When** mở form, **Then** ô nhập có placeholder, icon trái, font monospace, bộ đếm hiện khi còn
    ≤ 20% độ dài; rời ô thì giá trị bị cắt khoảng trắng.
 2. **Given** field `meta.interface` null hoặc id không có (ví dụ interface của extension), **When** mở form, **Then**
-   null thì dùng interface mặc định theo kiểu (FR-002); id không có thì hiện cảnh báo `interface_not_found`.
+   cả hai đều dùng interface mặc định theo kiểu (FR-002) như `get-form-fields.ts` Directus; `interface_not_found` chỉ
+   hiện khi interface mặc định đó cũng không có.
 3. **Given** `meta.conditions` có hai luật cùng khớp, **When** giá trị khác trong form đổi, **Then** luật khớp sau cùng
    quyết định `hidden`, `readonly`, `required`, `options` như Directus.
 4. **Given** field `half` liền sau một field `half` hiện, **When** vẽ form, **Then** hai field nằm một hàng (trái, phải);
@@ -312,8 +313,9 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   text; `tags` cho csv; `input-hash` cho hash; `map` cho geometry và `geometry.*`). `meta.display` null PHẢI dùng
   display mặc định như `get-default-display-for-type.ts` (`formatted-value` cho bigInteger, decimal, float, integer,
   string, text, uuid, hash; `boolean`; `datetime`; `labels` cho csv; `raw` cho còn lại).
-- **FR-003**: Interface id không có PHẢI hiện cảnh báo `interface_not_found` thay cho ô nhập; display id không có PHẢI
-  hiện giá trị dạng chữ (như `render-display.vue`). Interface và display của extension Directus không được nạp (D-41).
+- **FR-003**: Interface id không đăng ký PHẢI được thay bằng interface mặc định theo kiểu như `get-form-fields.ts`
+  Directus; `interface_not_found` chỉ hiện khi interface mặc định cũng không có (như `form-field-interface.vue`). Display
+  id không có PHẢI hiện giá trị dạng chữ (như `render-display.vue`). Interface và display của extension Directus không được nạp (D-41).
 - **FR-004**: Trong 28 interface `_system`, 013 chỉ làm `system-raw-editor` (trình sửa thô của menu field, FR-017):
   options `language` (`mustache` hoặc `plaintext`), `placeholder`, chỉ đọc khi `disabled`; dùng trong hộp sửa thô cho
   kiểu không phải object. 27 interface còn lại làm ở feature có màn dùng chúng (D-57, Clarifications Q-B).
@@ -358,7 +360,7 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   chỉ có ở `translations` như Directus; drawer item kiểm hợp lệ phía client trước khi gom thay đổi.
 - **FR-019**: Form hỗ trợ `autofocus` (field hiện đầu tiên không chỉ đọc), `direction` (rtl; chỉ truyền ở chỗ Directus
   truyền: nhóm, translations, `dir` của input, `directionality` của TinyMCE), chế độ batch như `useBatch` (mọi field
-  trừ khóa chính; ô chọn ở nhãn bật field, bật thì đặt `schema.default_value`) cho drawer sửa hàng loạt (FR-046), skeleton khi đang tải (trừ `hideLoader`),
+  như Directus, kể cả khóa chính; ô chọn ở nhãn bật field, bật thì đặt `schema.default_value`) cho drawer sửa hàng loạt (FR-046), skeleton khi đang tải (trừ `hideLoader`),
   mỗi field bọc hộp lỗi riêng (`unexpected_error`), thông báo `no_visible_fields` khi không có field hiện.
 
 **Interface nhóm chuẩn, chữ, số, ngày** (options là khóa trong `meta.options`; mặc định trong ngoặc)
@@ -383,8 +385,9 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-025** `datetime` (dateTime, date, time, timestamp): `relative`, `format` (`long`|`short`|mẫu tr35), `includeSeconds`,
   `use24` (mặc định `true` ở interface; display mặc định `false`, FR-074), `tz` (chỉ timestamp: hiện và nhập theo múi
   giờ), `suffix`, `strict`, `round`; phát chuỗi hoặc null: `date` `YYYY-MM-DD`, `time` `HH:mm:ss`, `dateTime`
-  `YYYY-MM-DDTHH:mm:ss`, `timestamp` ISO UTC có `Z` [Inference từ `v-date-picker.vue`, xác nhận bằng test port
-  `datetime.test.ts`]; giá trị không hợp lệ hiện cảnh báo.
+  `YYYY-MM-DDTHH:mm:ss`, `timestamp` `Date.toISOString()` (có mili giây và `Z`, ví dụ `2024-03-15T07:30:45.000Z`; có `tz` thì hiện theo
+  múi giờ và phát `fromZonedTime(...).toISOString()`); giây là `00` khi tắt `includeSeconds` (đã kiểm ở T036); giá trị
+  không hợp lệ hiện trống, vẫn có nút xóa, không cảnh báo (như Directus).
 - **FR-026** `slider` (integer, float): `minValue` (0), `maxValue` (100), `stepInterval` (1), `alwaysShowValue`.
 - **FR-027** `tags` (json, csv): `presets`, `placeholder`, `alphabetize`, `allowCustom` (true), `whitespace`
   (`-`|`_`|`''`), `capitalization` (`uppercase`|`lowercase`|`auto-format`), `iconLeft`, `iconRight`
@@ -555,8 +558,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   cập nhật mỗi 60 s khi relative); `file`, `filesize`, `hash`, `raw` (không option); `formatted-json-value` (`format`
   template micromustache, nhiều phần tử thì menu "N items"); `formatted-value` (`format`, `font`, `bold`, `italic`,
   `prefix`, `suffix`, `color`, `background`, `icon`, `border`, `masked`, `conditionalFormatting` `{operator, value, color,
-  background, text, icon}`, `translate` ẩn); `icon` (`filled`, `color` chỉ áp khi là hex; tên `social:*` vẽ như
-  `v-icon`); `image` (`circle`); `labels`
+  background, text, icon}`, `translate` ẩn); `icon` (`filled`, `color` chỉ áp khi là hex; tên icon thương hiệu trong danh sách `social-icons` của
+  Directus (tên trần như `docker`, `_` đổi thành `-`) vẽ như `v-icon`); `image` (`circle`); `labels`
   (`format` true, `showAsDot`, `choices` `{text, value, icon, color, foreground, background}`); `mime-type`
   (`showAsExtension`); `rating` (`simple`; số sao theo `interfaceOptions.maxValue` hoặc 5); `related-values` (`template`;
   o2m, m2m, m2a, translations, files hiện "N item(s)" có menu và link, m2o hiện trực tiếp); `translations` (`template`,
@@ -656,7 +659,7 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | D-54 | Công cụ AI trong form (`use-ai-tools`), chỉ báo người cùng sửa (collab) trong nhãn và interface | Có khi bật AI, WebSocket | Không có; như Directus khi tắt | Nguyên tắc XI (D-41) | ngoài phạm vi | — |
 | D-55 | Chế độ so sánh (`comparisonMode`, `comparisonSide`) của form và interface | Có (revisions, versions) | Interface nhận prop và làm theo code Directus chép (kể cả `nonEditable`, ví dụ rich text chỉ đọc), kiểm bằng unit test; màn chọn và so sánh version chưa có | Màn revisions/versions thuộc sidebar item | ngoài phạm vi (tạm thời) | 014 |
 | D-56 | Form options của interface và display (`options` dạng component: `list`, `map`; `system-interface-options`, `system-display-options`) | Có ở màn cấu hình field | Chưa có; chỉ đọc options đã lưu | Màn cấu hình field thuộc Settings | ngoài phạm vi (tạm thời) | 016 |
-| D-57 | 27 interface `_system` (trừ `system-raw-editor`) | Có | Chưa có; field dùng chúng hiện `interface_not_found` cho tới feature có màn dùng | Owner chọn 2026-10-15 (Q-B): làm cùng màn dùng chúng | ngoài phạm vi (tạm thời) | 015: `system-language`, `system-theme`, `system-theme-overrides`, `system-mfa-setup`, `system-token`, `system-input-password`; 016: còn lại trừ `system-mcp-prompts-collection-validation` (AI, D-41, không làm) |
+| D-57 | 27 interface `_system` (trừ `system-raw-editor`) | Có | Chưa có; field dùng chúng hiện bằng interface mặc định theo kiểu (FR-003) cho tới feature có màn dùng | Owner chọn 2026-10-15 (Q-B): làm cùng màn dùng chúng | ngoài phạm vi (tạm thời) | 015: `system-language`, `system-theme`, `system-theme-overrides`, `system-mfa-setup`, `system-token`, `system-input-password`; 016: còn lại trừ `system-mcp-prompts-collection-validation` (AI, D-41, không làm) |
 | D-58 | Layout và bộ lọc của drawer chọn item (`drawer-collection.vue`) | Layout theo preset của user (table, cards, calendar, kanban, map), thanh bộ lọc | Luôn dạng bảng (cột theo preset hoặc mặc định), tìm kiếm, phân trang, bộ lọc của interface | Layout và bộ lọc thuộc module Content; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 014 |
 | D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng (tree view thêm "Thụt vào", "Thụt ra" để đổi cha); kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
 | D-59 | Chỉnh ảnh (cắt, xoay, lật, tỉ lệ, điểm focal) trong `file-image` (`image-editor.vue`, `PATCH /files/:id` multipart) | Có khi có quyền sửa file | Chưa có nút chỉnh ảnh | Thay nội dung file thật, dùng chung với màn file của module Files; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 015 |
@@ -733,7 +736,7 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   riêng, tài liệu triển khai ghi rõ); `list-o2m-tree-view` nạp cả cây; drawer chọn item trên collection rất lớn phụ
   thuộc thời gian phân trang và đếm của API (benchmark 005).
 - Directus ẩn interface `system: true` khỏi bộ chọn; field người dùng vẫn trỏ tới interface `_system` (đặt qua API)
-  thì hiện `interface_not_found` (D-57).
+  thì hiện bằng interface mặc định theo kiểu (FR-003, D-57).
 - Store flows được nạp từ 013 (chỉ `hydrate`, `GET /flows`) để nút flow thủ công của `header` và
   `presentation-links` chạy; thu hẹp D-45 của 012 (research R10). Trình chỉnh sửa flows vẫn là 017.
 

@@ -51,7 +51,7 @@ describe('settings', () => {
 	});
 });
 
-describe('data stores (hydrate only, D-45)', () => {
+describe('data stores hydrate (D-45)', () => {
 	test('collections, fields and relations keep the GET answer', async () => {
 		const fetch = mockApi({
 			'GET /collections': [{ collection: 'a' }],
@@ -65,8 +65,8 @@ describe('data stores (hydrate only, D-45)', () => {
 		await Promise.all([collections.hydrate(), fields.hydrate(), relations.hydrate()]);
 
 		expect(calls(fetch).sort()).toEqual(['GET /collections', 'GET /fields', 'GET /relations']);
-		expect(collections.collections).toEqual([{ collection: 'a' }]);
-		expect(fields.fields).toEqual([{ field: 'id' }]);
+		expect(collections.collections).toMatchObject([{ collection: 'a', name: 'A' }]);
+		expect(fields.fields).toMatchObject([{ field: 'id', name: 'ID' }, { field: '$thumbnail' }]);
 		expect(relations.relations).toEqual([]);
 
 		await Promise.all([collections.dehydrate(), fields.dehydrate(), relations.dehydrate()]);

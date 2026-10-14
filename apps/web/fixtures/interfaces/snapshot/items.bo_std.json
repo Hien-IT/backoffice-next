@@ -1,0 +1,339 @@
+[
+	{
+		"id": 1,
+		"input_string": "alpha",
+		"input_masked": "masked value",
+		"input_slug": "my-slug",
+		"input_default": "plain",
+		"input_integer": 55,
+		"input_float": 2.5,
+		"input_biginteger": "9007199254740993",
+		"input_decimal": "12.34",
+		"input_uuid": "6f9619ff-8b86-4d11-b42d-00c04fc964ff",
+		"input_text": "Long text",
+		"input_required": "Valid",
+		"input_note_md": "note",
+		"input_hidden": "hidden value",
+		"input_readonly": "read only value",
+		"input_conditional": "conditional",
+		"input_multiline": "Line one\nLine two",
+		"input_hash": "$argon2id$v=19$m=65536,t=3,p=4$bo-normalized",
+		"system_raw": "{{ $CURRENT_USER }}",
+		"autocomplete": "Target one",
+		"autocomplete_external": "external",
+		"boolean": true,
+		"boolean_default": false,
+		"date": "2024-03-15",
+		"time": "14:30:45",
+		"date_time": "2024-03-15T14:30:00",
+		"timestamp": "2024-03-15T07:30:00.000Z",
+		"timestamp_relative": "2024-03-15T07:30:00.000Z",
+		"slider": 7,
+		"slider_float": 0.4,
+		"tags": [
+			"alpha",
+			"custom-tag"
+		],
+		"tags_csv": [
+			"ONE",
+			"TWO"
+		],
+		"code_json": {
+			"key": "value",
+			"list": [
+				1,
+				2
+			]
+		},
+		"code_js": "const a = 1;\nconsole.log(a);",
+		"code_string_json": "{\"valid\": true}",
+		"select_dropdown": "alpha",
+		"select_dropdown_int": 2,
+		"select_multiple_dropdown": [
+			"beta",
+			"alpha"
+		],
+		"select_multiple_dropdown_csv": [
+			"alpha",
+			"gamma"
+		],
+		"select_radio": "beta",
+		"select_radio_int": 1,
+		"select_checkbox": [
+			"alpha",
+			"other-value"
+		],
+		"select_checkbox_csv": [
+			"beta"
+		],
+		"select_tree": [
+			"fruit",
+			"kale"
+		],
+		"select_tree_csv": [
+			"leaf"
+		],
+		"select_icon": "star",
+		"select_color": "#6644FF80",
+		"select_color_default": "#2ECDA7",
+		"list": [
+			{
+				"title": "Row A",
+				"count": 2
+			},
+			{
+				"title": "Row B",
+				"count": 1
+			}
+		],
+		"map_json": {
+			"type": "Point",
+			"coordinates": [
+				105.85,
+				21.03
+			]
+		},
+		"map_text": "POLYGON((105 21,106 21,106 22,105 21))",
+		"map_csv": [
+			"105.85",
+			"21.03"
+		],
+		"rich_html": "<p>Hello <strong>world</strong></p><p><img src=\"/assets/bo-4.png?access_token=bo-image-token\" alt=\"Sample\"></p>",
+		"rich_md": "# Title\n\nSome **bold** text and ==highlight==.\n\n![Sample](/assets/bo-4.png)",
+		"block_editor": {
+			"time": 1710489600000,
+			"version": "2.31.2",
+			"blocks": [
+				{
+					"id": "bo-block-1",
+					"type": "header",
+					"data": {
+						"text": "Heading",
+						"level": 2
+					}
+				},
+				{
+					"id": "bo-block-2",
+					"type": "paragraph",
+					"data": {
+						"text": "Hello <b>world</b>"
+					}
+				},
+				{
+					"id": "bo-block-3",
+					"type": "image",
+					"data": {
+						"file": {
+							"width": 1,
+							"height": 1,
+							"fileId": "bo-4",
+							"fileURL": "/assets/bo-4",
+							"url": "/assets/bo-4.png"
+						},
+						"caption": "Sample",
+						"withBorder": false,
+						"stretched": false,
+						"withBackground": false
+					}
+				}
+			]
+		},
+		"collection_name": "bo_rel",
+		"mime": "image/png",
+		"filesize": 123456,
+		"interface_null": null,
+		"interface_unknown": null,
+		"input_with_default": "Draft",
+		"map_point": {
+			"type": "Point",
+			"coordinates": [
+				105.85,
+				21.03
+			]
+		},
+		"map_polygon": {
+			"type": "Polygon",
+			"coordinates": [
+				[
+					[
+						105,
+						21
+					],
+					[
+						106,
+						21
+					],
+					[
+						106,
+						22
+					],
+					[
+						105,
+						21
+					]
+				]
+			]
+		},
+		"map_geometry": {
+			"type": "LineString",
+			"coordinates": [
+				[
+					105,
+					21
+				],
+				[
+					106,
+					22
+				]
+			]
+		}
+	},
+	{
+		"id": 2,
+		"input_string": null,
+		"input_masked": null,
+		"input_slug": null,
+		"input_default": null,
+		"input_integer": null,
+		"input_float": null,
+		"input_biginteger": null,
+		"input_decimal": null,
+		"input_uuid": null,
+		"input_text": null,
+		"input_required": "Empty",
+		"input_note_md": null,
+		"input_hidden": null,
+		"input_readonly": null,
+		"input_conditional": null,
+		"input_multiline": null,
+		"input_hash": null,
+		"system_raw": null,
+		"autocomplete": null,
+		"autocomplete_external": null,
+		"boolean": null,
+		"boolean_default": null,
+		"date": null,
+		"time": null,
+		"date_time": null,
+		"timestamp": null,
+		"timestamp_relative": null,
+		"slider": null,
+		"slider_float": null,
+		"tags": null,
+		"tags_csv": null,
+		"code_json": null,
+		"code_js": null,
+		"code_string_json": null,
+		"select_dropdown": null,
+		"select_dropdown_int": null,
+		"select_multiple_dropdown": null,
+		"select_multiple_dropdown_csv": null,
+		"select_radio": null,
+		"select_radio_int": null,
+		"select_checkbox": null,
+		"select_checkbox_csv": null,
+		"select_tree": null,
+		"select_tree_csv": null,
+		"select_icon": null,
+		"select_color": null,
+		"select_color_default": null,
+		"list": null,
+		"map_json": null,
+		"map_text": null,
+		"map_csv": null,
+		"rich_html": null,
+		"rich_md": null,
+		"block_editor": null,
+		"collection_name": null,
+		"mime": null,
+		"filesize": null,
+		"interface_null": null,
+		"interface_unknown": null,
+		"input_with_default": "Draft",
+		"map_point": null,
+		"map_polygon": null,
+		"map_geometry": null
+	},
+	{
+		"id": 3,
+		"input_string": "beta",
+		"input_masked": null,
+		"input_slug": null,
+		"input_default": null,
+		"input_integer": 5,
+		"input_float": null,
+		"input_biginteger": null,
+		"input_decimal": null,
+		"input_uuid": null,
+		"input_text": null,
+		"input_required": "Malformed",
+		"input_note_md": null,
+		"input_hidden": null,
+		"input_readonly": null,
+		"input_conditional": null,
+		"input_multiline": null,
+		"input_hash": null,
+		"system_raw": null,
+		"autocomplete": null,
+		"autocomplete_external": null,
+		"boolean": false,
+		"boolean_default": null,
+		"date": null,
+		"time": null,
+		"date_time": null,
+		"timestamp": "2024-11-03T06:30:00.000Z",
+		"timestamp_relative": null,
+		"slider": null,
+		"slider_float": null,
+		"tags": [
+			"{{ $CURRENT_USER }}"
+		],
+		"tags_csv": null,
+		"code_json": null,
+		"code_js": null,
+		"code_string_json": "{ invalid json",
+		"select_dropdown": "not-a-choice",
+		"select_dropdown_int": null,
+		"select_multiple_dropdown": null,
+		"select_multiple_dropdown_csv": null,
+		"select_radio": null,
+		"select_radio_int": null,
+		"select_checkbox": null,
+		"select_checkbox_csv": null,
+		"select_tree": null,
+		"select_tree_csv": null,
+		"select_icon": null,
+		"select_color": null,
+		"select_color_default": null,
+		"list": {
+			"not": "an array"
+		},
+		"map_json": {
+			"type": "LineString",
+			"coordinates": [
+				[
+					0,
+					0
+				],
+				[
+					1,
+					1
+				]
+			]
+		},
+		"map_text": null,
+		"map_csv": null,
+		"rich_html": null,
+		"rich_md": null,
+		"block_editor": null,
+		"collection_name": null,
+		"mime": null,
+		"filesize": null,
+		"interface_null": null,
+		"interface_unknown": null,
+		"input_with_default": "Draft",
+		"map_point": null,
+		"map_polygon": null,
+		"map_geometry": null
+	}
+]

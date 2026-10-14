@@ -13,4 +13,6 @@ export default {
 	play_video: 'Phát video nền',
 	profile: 'Hồ sơ',
 	navigation: 'Điều hướng',
+	pick_color: 'Chọn màu',
+	browser_color_picker: 'Bộ chọn của trình duyệt',
 };

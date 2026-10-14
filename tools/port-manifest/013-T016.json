@@ -1,0 +1,7 @@
+[
+	{ "source": "app/src/composables/use-alias-fields.ts", "dest": "apps/web/src/composables/use-alias-fields.ts" },
+	{ "source": "app/src/composables/use-alias-fields.test.ts", "dest": "apps/web/src/composables/use-alias-fields.test.ts" },
+	{ "source": "packages/composables/src/use-custom-selection.ts", "dest": "apps/web/src/composables/use-custom-selection.ts" },
+	{ "source": "packages/composables/src/use-custom-selection.test.ts", "dest": "apps/web/src/composables/use-custom-selection.test.ts" },
+	{ "source": "app/src/composables/use-template-data.ts", "dest": "apps/web/src/composables/use-template-data.ts" }
+]

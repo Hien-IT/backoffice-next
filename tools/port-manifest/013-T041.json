@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/select-multiple-checkbox-tree/index.ts",
+		"dest": "apps/web/src/interfaces/select-multiple-checkbox-tree/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-checkbox-tree/select-multiple-checkbox-tree.vue",
+		"dest": "apps/web/src/interfaces/select-multiple-checkbox-tree/SelectMultipleCheckboxTree.vue"
+	}
+]

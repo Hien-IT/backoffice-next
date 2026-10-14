@@ -1,0 +1,1642 @@
+// Seeds the fixture set of feature 013 (data-model §6, FR-100) through the REST API of Directus 11.17.4 or the new API.
+// Idempotent: deletes then recreates the `bo_*` collections, the `bo-fixtures` folder and its files, the `bo-flow` flow
+// and the `bo-editor` / `bo-viewer` role, policy and user. Touches nothing else.
+// Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>)
+import { Api, FIXED_UUIDS, FLOW, FOLDER, USERS, query, readArgs } from './lib.mjs';
+
+const api = await Api.connect(readArgs());
+
+// Data colors stored in options, like the Directus color presets.
+const PURPLE = '#6644FF';
+const GREEN = '#2ECDA7';
+const RED = '#E35169';
+const WHITE = '#FFFFFF';
+
+const ROLES = ['bo-editor', 'bo-viewer'];
+
+/* ---------------------------------------------------------------- cleanup */
+
+async function cleanup() {
+	// Relations first: dropping their foreign keys breaks the bo_rel <-> bo_rel_target cycle.
+	for (const relation of await api.get('/relations')) {
+		if (relation.collection.startsWith('bo_'))
+			await api.request('DELETE', `/relations/${relation.collection}/${relation.field}`);
+	}
+
+	for (const { collection } of await api.get('/collections')) {
+		if (collection.startsWith('bo_')) await api.request('DELETE', `/collections/${collection}`);
+	}
+
+	const folders = await api.get(`/folders${query({ filter: { name: { _eq: FOLDER } }, fields: 'id' })}`);
+
+	if (folders.length > 0) {
+		const ids = folders.map((f) => f.id);
+		const files = await api.get(`/files${query({ filter: { folder: { _in: ids } }, fields: 'id', limit: -1 })}`);
+		if (files.length > 0)
+			await api.request(
+				'DELETE',
+				'/files',
+				files.map((f) => f.id),
+			);
+		await api.request('DELETE', '/folders', ids);
+	}
+
+	const flows = await api.get(`/flows${query({ filter: { name: { _eq: FLOW } }, fields: 'id' })}`);
+	if (flows.length > 0)
+		await api.request(
+			'DELETE',
+			'/flows',
+			flows.map((f) => f.id),
+		);
+
+	const emails = Object.values(USERS).map((u) => u.email);
+	const users = await api.get(`/users${query({ filter: { email: { _in: emails } }, fields: 'id' })}`);
+	if (users.length > 0)
+		await api.request(
+			'DELETE',
+			'/users',
+			users.map((u) => u.id),
+		);
+
+	const roles = await api.get(`/roles${query({ filter: { name: { _in: ROLES } }, fields: 'id' })}`);
+	if (roles.length > 0)
+		await api.request(
+			'DELETE',
+			'/roles',
+			roles.map((r) => r.id),
+		);
+
+	const policies = await api.get(`/policies${query({ filter: { name: { _in: ROLES } }, fields: 'id' })}`);
+	if (policies.length > 0)
+		await api.request(
+			'DELETE',
+			'/policies',
+			policies.map((p) => p.id),
+		);
+}
+
+/* ---------------------------------------------------------------- field builders */
+
+/**
+ * A field payload. `options`/`display_options` keys are the ones Directus stores (directus-registry.json).
+ * `meta` holds the remaining meta keys (width, group, hidden, readonly, required, note, conditions, validation...).
+ */
+function field(name, type, iface, options = null, meta = {}, schema = {}) {
+	return {
+		field: name,
+		type,
+		meta: { interface: iface, options, width: 'full', ...meta },
+		schema: type === 'alias' ? undefined : schema,
+	};
+}
+
+const alias = (name, special, iface, options, meta = {}) => field(name, 'alias', iface, options, { special, ...meta });
+
+const group = (name, iface, options, meta = {}) => alias(name, ['alias', 'no-data', 'group'], iface, options, meta);
+const presentation = (name, iface, options, meta = {}) => alias(name, ['alias', 'no-data'], iface, options, meta);
+
+const intPk = () =>
+	field(
+		'id',
+		'integer',
+		'input',
+		null,
+		{ hidden: true, readonly: true },
+		{ is_primary_key: true, has_auto_increment: true },
+	);
+
+const uuidPk = () =>
+	field(
+		'id',
+		'uuid',
+		'input',
+		null,
+		{ hidden: true, readonly: true, special: ['uuid'] },
+		{ is_primary_key: true, length: 36 },
+	);
+
+/** Collection payload; fields get `meta.sort` in array order. */
+function collection(name, fields, meta = {}) {
+	return {
+		collection: name,
+		meta: { icon: 'box', ...meta },
+		schema: {},
+		fields: fields.map((f, index) => ({ ...f, meta: { ...f.meta, sort: index + 1 } })),
+	};
+}
+
+const choicesAbc = [
+	{ text: 'Alpha', value: 'alpha', icon: 'star', color: PURPLE },
+	{ text: 'Beta', value: 'beta' },
+	{ text: '$t:active', value: 'gamma' },
+];
+
+/* ---------------------------------------------------------------- collections */
+
+function stdCollection({ folder }) {
+	return collection(
+		'bo_std',
+		[
+			intPk(),
+			// input, string variants
+			field(
+				'input_string',
+				'string',
+				'input',
+				{
+					placeholder: 'Type here',
+					iconLeft: 'title',
+					iconRight: 'edit',
+					softLength: 50,
+					trim: true,
+					font: 'serif',
+					clear: true,
+				},
+				{
+					width: 'half',
+					display: 'formatted-value',
+					display_options: {
+						bold: true,
+						italic: true,
+						font: 'monospace',
+						prefix: '<',
+						suffix: '>',
+						color: PURPLE,
+						background: WHITE,
+						icon: 'title',
+						border: true,
+						format: true,
+						conditionalFormatting: [
+							{ operator: 'eq', value: 'alpha', color: WHITE, background: GREEN, text: 'Alpha!', icon: 'star' },
+							{ operator: 'contains', value: 'alp', color: WHITE, background: RED, icon: 'warning' },
+						],
+					},
+					translations: [
+						{ language: 'en-US', translation: 'String input' },
+						{ language: 'vi-VN', translation: 'Ô nhập chuỗi' },
+					],
+				},
+				{ max_length: 100 },
+			),
+			field(
+				'input_masked',
+				'string',
+				'input',
+				{ masked: true, placeholder: 'Hidden value' },
+				{
+					width: 'half',
+					display: 'formatted-value',
+					display_options: { masked: true },
+				},
+			),
+			field('input_slug', 'string', 'input', { slug: true, placeholder: 'my-slug' }, { width: 'half' }),
+			field('input_default', 'string', 'input', null, { width: 'half', display: 'raw' }),
+			field(
+				'input_integer',
+				'integer',
+				'input',
+				{ min: 0, max: 100, step: 5, iconLeft: 'pin', placeholder: '0-100' },
+				{
+					width: 'half',
+					display: 'formatted-value',
+					display_options: {
+						format: true,
+						suffix: ' pts',
+						conditionalFormatting: [
+							{ operator: 'gte', value: '50', color: WHITE, background: GREEN, text: 'High' },
+							{ operator: 'lt', value: '10', color: WHITE, background: RED, icon: 'arrow_downward' },
+						],
+					},
+				},
+			),
+			field(
+				'input_float',
+				'float',
+				'input',
+				{ min: -10.5, max: 10.5, step: 0.5, font: 'monospace' },
+				{
+					width: 'half',
+					display: 'formatted-value',
+					display_options: { format: true },
+				},
+			),
+			field(
+				'input_biginteger',
+				'bigInteger',
+				'input',
+				{ placeholder: 'Big number' },
+				{ width: 'half', display: 'raw' },
+			),
+			field(
+				'input_decimal',
+				'decimal',
+				'input',
+				{ iconRight: 'payments' },
+				{ width: 'half', display: 'formatted-value', display_options: { prefix: '$' } },
+				{ numeric_precision: 10, numeric_scale: 2 },
+			),
+			field('input_uuid', 'uuid', 'input', { font: 'monospace' }, { width: 'half' }),
+			field('input_text', 'text', 'input', { font: 'monospace', softLength: 500 }, { width: 'fill' }),
+			// meta behaviours
+			field('input_required', 'string', 'input', null, {
+				width: 'half',
+				required: true,
+				validation: { _and: [{ input_required: { _regex: '^[A-Z]' } }] },
+				validation_message: 'Must start with an uppercase letter',
+				note: '$t:interfaces.input.description',
+			}),
+			field('input_note_md', 'string', 'input', null, {
+				width: 'half',
+				note: 'Supports **bold**, `code` and [links](https://example.com)',
+			}),
+			field('input_hidden', 'string', 'input', null, { hidden: true }),
+			field('input_readonly', 'string', 'input', null, { readonly: true, width: 'half' }),
+			field(
+				'input_conditional',
+				'string',
+				'input',
+				{ placeholder: 'Default placeholder' },
+				{
+					width: 'half',
+					conditions: [
+						{ name: 'Required when published', rule: { _and: [{ boolean: { _eq: true } }] }, required: true },
+						{
+							name: 'Placeholder when set',
+							rule: { _and: [{ boolean: { _nnull: true } }] },
+							readonly: false,
+							options: { placeholder: 'Conditional placeholder' },
+						},
+					],
+				},
+			),
+			field('input_multiline', 'text', 'input-multiline', {
+				placeholder: 'Several lines',
+				softLength: 200,
+				trim: true,
+				font: 'serif',
+				clear: true,
+			}),
+			field(
+				'input_hash',
+				'hash',
+				'input-hash',
+				{ masked: true, placeholder: 'Secret' },
+				{
+					width: 'half',
+					special: ['hash'],
+					display: 'hash',
+				},
+			),
+			field('system_raw', 'string', 'system-raw-editor', { placeholder: '{{ raw }}' }, { width: 'half' }),
+			field(
+				'autocomplete',
+				'string',
+				'input-autocomplete-api',
+				{
+					url: '/items/bo_rel_target?search={{value}}',
+					resultsPath: 'data',
+					textPath: 'name',
+					valuePath: 'name',
+					trigger: 'debounce',
+					rate: 300,
+					placeholder: 'Search targets',
+					iconLeft: 'search',
+					iconRight: 'list',
+					font: 'sans-serif',
+				},
+				{ width: 'half' },
+			),
+			field(
+				'autocomplete_external',
+				'string',
+				'input-autocomplete-api',
+				{
+					url: 'https://example.com/search?q={{value}}',
+					resultsPath: 'results',
+					textPath: 'label',
+					trigger: 'throttle',
+				},
+				{ width: 'half' },
+			),
+			// boolean
+			field(
+				'boolean',
+				'boolean',
+				'boolean',
+				{ label: 'Published', iconOn: 'visibility', iconOff: 'visibility_off', colorOn: GREEN, colorOff: RED },
+				{
+					width: 'half',
+					special: ['cast-boolean'],
+					display: 'boolean',
+					display_options: {
+						labelOn: 'Yes',
+						labelOff: 'No',
+						iconOn: 'check',
+						iconOff: 'close',
+						colorOn: GREEN,
+						colorOff: RED,
+					},
+				},
+			),
+			field('boolean_default', 'boolean', 'boolean', null, {
+				width: 'half',
+				special: ['cast-boolean'],
+				display: 'boolean',
+			}),
+			// datetime
+			field('date', 'date', 'datetime', null, {
+				width: 'half',
+				display: 'datetime',
+				display_options: { format: 'short' },
+			}),
+			field(
+				'time',
+				'time',
+				'datetime',
+				{ includeSeconds: true, use24: false },
+				{
+					width: 'half',
+					display: 'datetime',
+					display_options: { format: 'long', includeSeconds: true },
+				},
+			),
+			field(
+				'date_time',
+				'dateTime',
+				'datetime',
+				{ includeSeconds: false, use24: true },
+				{
+					width: 'half',
+					display: 'datetime',
+					display_options: { format: 'MMM d, yyyy HH:mm', use24: true },
+				},
+			),
+			field(
+				'timestamp',
+				'timestamp',
+				'datetime',
+				{ tz: 'Asia/Ho_Chi_Minh', includeSeconds: true },
+				{
+					width: 'half',
+					display: 'datetime',
+					display_options: { relative: true, strict: true, round: 'floor', suffix: true },
+				},
+			),
+			field(
+				'timestamp_relative',
+				'timestamp',
+				'datetime',
+				{ relative: true },
+				{
+					width: 'half',
+					display: 'datetime',
+					display_options: { relative: true, suffix: false, tz: 'America/New_York' },
+				},
+			),
+			// slider
+			field(
+				'slider',
+				'integer',
+				'slider',
+				{ minValue: 0, maxValue: 10, stepInterval: 1, alwaysShowValue: true },
+				{
+					width: 'half',
+					display: 'rating',
+					display_options: { simple: false },
+				},
+			),
+			field(
+				'slider_float',
+				'float',
+				'slider',
+				{ minValue: 0, maxValue: 1, stepInterval: 0.1 },
+				{
+					width: 'half',
+					display: 'rating',
+					display_options: { simple: true },
+				},
+			),
+			// tags
+			field(
+				'tags',
+				'json',
+				'tags',
+				{
+					presets: ['alpha', 'beta', 'gamma'],
+					placeholder: 'Add a tag',
+					alphabetize: true,
+					allowCustom: true,
+					whitespace: '-',
+					capitalization: 'lowercase',
+					iconLeft: 'sell',
+					iconRight: 'local_offer',
+				},
+				{
+					width: 'half',
+					special: ['cast-json'],
+					display: 'labels',
+					display_options: {
+						format: false,
+						choices: [{ text: 'Alpha', value: 'alpha', foreground: WHITE, background: PURPLE }],
+					},
+				},
+			),
+			field(
+				'tags_csv',
+				'csv',
+				'tags',
+				{ presets: ['one', 'two'], allowCustom: false, capitalization: 'uppercase', whitespace: '_' },
+				{
+					width: 'half',
+					special: ['cast-csv'],
+					display: 'labels',
+				},
+			),
+			// input-code
+			field(
+				'code_json',
+				'json',
+				'input-code',
+				{ lineNumber: true, lineWrapping: true, template: '{\n\t"key": "value"\n}' },
+				{ special: ['cast-json'], display: 'formatted-json-value', display_options: { format: '{{key}}' } },
+			),
+			field('code_js', 'text', 'input-code', { language: 'javascript', lineNumber: false }, { display: 'raw' }),
+			field('code_string_json', 'string', 'input-code', { language: 'JSON' }, {}, { max_length: 255 }),
+			// selection
+			field(
+				'select_dropdown',
+				'string',
+				'select-dropdown',
+				{
+					choices: choicesAbc,
+					allowOther: true,
+					allowNone: true,
+					icon: 'arrow_drop_down_circle',
+					placeholder: 'Pick one',
+				},
+				{
+					width: 'half',
+					display: 'labels',
+					display_options: {
+						showAsDot: true,
+						format: true,
+						choices: [
+							{ text: 'Alpha', value: 'alpha', icon: 'star', color: PURPLE, foreground: WHITE, background: PURPLE },
+							{ text: 'Beta', value: 'beta', foreground: WHITE, background: GREEN },
+						],
+					},
+				},
+			),
+			field(
+				'select_dropdown_int',
+				'integer',
+				'select-dropdown',
+				{
+					choices: [
+						{ text: 'One', value: 1 },
+						{ text: 'Two', value: 2 },
+					],
+				},
+				{ width: 'half', display: 'labels', display_options: { showAsDot: false } },
+			),
+			field(
+				'select_multiple_dropdown',
+				'json',
+				'select-multiple-dropdown',
+				{
+					choices: choicesAbc,
+					allowOther: true,
+					allowNone: true,
+					placeholder: 'Pick some',
+					icon: 'list',
+					previewThreshold: 2,
+				},
+				{ width: 'half', special: ['cast-json'], display: 'labels', display_options: { choices: choicesAbc } },
+			),
+			field(
+				'select_multiple_dropdown_csv',
+				'csv',
+				'select-multiple-dropdown',
+				{ choices: choicesAbc },
+				{ width: 'half', special: ['cast-csv'] },
+			),
+			field(
+				'select_radio',
+				'string',
+				'select-radio',
+				{ choices: choicesAbc, iconOn: 'check_circle', iconOff: 'circle', color: GREEN, allowOther: true },
+				{ width: 'half', display: 'raw' },
+			),
+			field(
+				'select_radio_int',
+				'integer',
+				'select-radio',
+				{
+					choices: [
+						{ text: 'One', value: 1 },
+						{ text: 'Two', value: 2 },
+					],
+				},
+				{ width: 'half' },
+			),
+			field(
+				'select_checkbox',
+				'json',
+				'select-multiple-checkbox',
+				{
+					choices: [...choicesAbc, { text: 'Delta', value: 'delta', disabled: true }],
+					allowOther: true,
+					color: PURPLE,
+					iconOn: 'check_box',
+					iconOff: 'check_box_outline_blank',
+					itemsShown: 2,
+				},
+				{ width: 'half', special: ['cast-json'] },
+			),
+			field(
+				'select_checkbox_csv',
+				'csv',
+				'select-multiple-checkbox',
+				{ choices: choicesAbc },
+				{ width: 'half', special: ['cast-csv'] },
+			),
+			field(
+				'select_tree',
+				'json',
+				'select-multiple-checkbox-tree',
+				{
+					choices: [
+						{
+							text: 'Fruit',
+							value: 'fruit',
+							children: [
+								{ text: 'Apple', value: 'apple' },
+								{ text: 'Pear', value: 'pear' },
+							],
+						},
+						{ text: 'Vegetable', value: 'vegetable', children: [{ text: 'Kale', value: 'kale' }] },
+					],
+					valueCombining: 'branch',
+				},
+				{ width: 'half', special: ['cast-json'], display: 'formatted-json-value' },
+			),
+			field(
+				'select_tree_csv',
+				'csv',
+				'select-multiple-checkbox-tree',
+				{
+					choices: [{ text: 'Root', value: 'root', children: [{ text: 'Leaf', value: 'leaf' }] }],
+					valueCombining: 'leaf',
+				},
+				{ width: 'half', special: ['cast-csv'] },
+			),
+			field('select_icon', 'string', 'select-icon', null, {
+				width: 'half',
+				display: 'icon',
+				display_options: { filled: true, color: PURPLE },
+			}),
+			field(
+				'select_color',
+				'string',
+				'select-color',
+				{
+					opacity: true,
+					presets: [
+						{ name: 'Purple', color: PURPLE },
+						{ name: 'Green', color: GREEN },
+					],
+				},
+				{ width: 'half', display: 'color', display_options: { defaultColor: '#B0BEC5' } },
+			),
+			field('select_color_default', 'string', 'select-color', null, { width: 'half', display: 'color' }),
+			// list (repeater)
+			field(
+				'list',
+				'json',
+				'list',
+				{
+					fields: [
+						{
+							field: 'title',
+							name: 'Title',
+							type: 'string',
+							meta: {
+								field: 'title',
+								type: 'string',
+								width: 'half',
+								interface: 'input',
+								required: true,
+								note: 'Title of the row',
+								options: { placeholder: 'Title' },
+								display: 'formatted-value',
+								display_options: { bold: true },
+							},
+						},
+						{
+							field: 'count',
+							name: 'Count',
+							type: 'integer',
+							meta: { field: 'count', type: 'integer', width: 'half', interface: 'input', options: { min: 0 } },
+						},
+					],
+					template: '{{ title }} ({{ count }})',
+					addLabel: 'Add row',
+					sort: 'count',
+				},
+				{ special: ['cast-json'], display: 'formatted-json-value', display_options: { format: '{{title}}' } },
+			),
+			// map, non-native storage
+			field(
+				'map_json',
+				'json',
+				'map',
+				{ geometryType: 'Point', defaultView: { center: { lng: 105.85, lat: 21.03 }, zoom: 10, bearing: 0, pitch: 0 } },
+				{ special: ['cast-json'], display: 'formatted-json-value' },
+			),
+			field('map_text', 'text', 'map', { geometryType: 'Polygon' }),
+			field('map_csv', 'csv', 'map', { geometryType: 'Point' }, { special: ['cast-csv'] }),
+			// rich editors
+			field(
+				'rich_html',
+				'text',
+				'input-rich-text-html',
+				{
+					toolbar: [
+						'bold',
+						'italic',
+						'h1',
+						'h2',
+						'numlist',
+						'bullist',
+						'customLink',
+						'customImage',
+						'customMedia',
+						'code',
+						'fullscreen',
+					],
+					font: 'serif',
+					folder,
+					imageToken: 'bo-image-token',
+					softLength: 1000,
+					customFormats: [{ title: 'Big', inline: 'span', styles: { 'font-size': '2em' } }],
+					tinymceOverrides: { menubar: false },
+				},
+				{ display: 'formatted-value' },
+			),
+			field('rich_md', 'text', 'input-rich-text-md', {
+				toolbar: ['heading', 'bold', 'italic', 'link', 'code', 'image'],
+				placeholder: 'Write markdown',
+				folder,
+				imageToken: 'bo-image-token',
+				softLength: 1000,
+				editorFont: 'monospace',
+				previewFont: 'serif',
+				defaultView: 'preview',
+				customSyntax: [{ name: 'Highlight', icon: 'format_color_fill', prefix: '==', suffix: '==', box: 'inline' }],
+			}),
+			field(
+				'block_editor',
+				'json',
+				'input-block-editor',
+				{
+					placeholder: 'Write blocks',
+					font: 'serif',
+					tools: ['header', 'paragraph', 'code', 'image', 'table'],
+					bordered: false,
+					folder,
+				},
+				{ special: ['cast-json'] },
+			),
+			// plain displays
+			field('collection_name', 'string', 'input', null, {
+				width: 'half',
+				display: 'collection',
+				display_options: { icon: true },
+			}),
+			field('mime', 'string', 'input', null, {
+				width: 'half',
+				display: 'mime-type',
+				display_options: { showAsExtension: true },
+			}),
+			field('filesize', 'integer', 'input', null, { width: 'half', display: 'filesize' }),
+			// FR-002/FR-003 (US1-2): no interface and an interface id that is not registered (an extension's);
+			// FR-015: a schema default applied on a new item.
+			field('interface_null', 'string', null, null, { width: 'half' }),
+			field('interface_unknown', 'text', 'bo-extension-interface', null, { width: 'half' }),
+			field('input_with_default', 'string', 'input', null, { width: 'half' }, { default_value: 'Draft' }),
+		],
+		{ icon: 'input', display_template: '{{ input_string }}', note: 'Standard and selection interfaces' },
+	);
+}
+
+/** geometry.* fields, only on databases with native geometry support (Postgres with PostGIS). */
+const geometryFields = [
+	field('map_point', 'geometry.Point', 'map', null, { display: 'formatted-json-value' }),
+	field('map_polygon', 'geometry.Polygon', 'map', {
+		defaultView: { center: { lng: 105.85, lat: 21.03 }, zoom: 5, bearing: 0, pitch: 0 },
+	}),
+	field('map_geometry', 'geometry', 'map', { geometryType: 'LineString' }),
+];
+
+function groupsCollection({ flow }) {
+	const flowLink = { label: 'Run flow', icon: 'bolt', type: 'normal', actionType: 'flow', flow };
+
+	return collection(
+		'bo_groups',
+		[
+			intPk(),
+			presentation('header', 'header', {
+				title: '{{ title }}',
+				subtitle: 'Item {{ id }} - {{ target.name }}',
+				color: PURPLE,
+				icon: 'flag',
+				help: '<p>Some <strong>help</strong> text</p>',
+				helpDisplayMode: 'modal',
+				enableHelpTranslations: false,
+				links: [
+					{ label: 'Docs', icon: 'link', type: 'primary', actionType: 'url', url: 'https://example.com/{{ id }}' },
+					flowLink,
+				],
+			}),
+			presentation('header_inline', 'header', {
+				title: 'Second header',
+				helpDisplayMode: 'inline',
+				enableHelpTranslations: true,
+				helpTranslationsString: '$t:interfaces.presentation-notice.description',
+				links: [{ label: 'Open target', type: 'info', actionType: 'url', url: '/content/bo_rel_target/{{ target }}' }],
+			}),
+			// US6-2: an internal link and a flow link in the same header ("Actions" menu with two entries).
+			presentation('header_actions', 'header', {
+				title: 'Actions header',
+				links: [
+					{ label: 'Open item', icon: 'launch', type: 'normal', actionType: 'url', url: '/content/bo_groups/{{ id }}' },
+					flowLink,
+				],
+			}),
+			field('title', 'string', 'input', null, { width: 'half', required: true }),
+			field(
+				'status',
+				'string',
+				'select-dropdown',
+				{
+					choices: [
+						{ text: 'Draft', value: 'draft' },
+						{ text: 'Published', value: 'published' },
+					],
+				},
+				{
+					width: 'half',
+					validation: { _and: [{ status: { _in: ['draft', 'published'] } }] },
+					validation_message: '$t:validationError.in',
+				},
+			),
+			field(
+				'target',
+				'integer',
+				'select-dropdown-m2o',
+				{ template: '{{ name }}' },
+				{
+					width: 'half',
+					special: ['m2o'],
+					display: 'related-values',
+					display_options: { template: '{{ name }}' },
+				},
+			),
+			presentation('divider', 'presentation-divider', {
+				title: 'Section',
+				color: PURPLE,
+				icon: 'title',
+				inlineTitle: true,
+			}),
+			presentation('divider_default', 'presentation-divider', null),
+			presentation('links', 'presentation-links', {
+				links: [
+					{
+						label: 'Target',
+						icon: 'open_in_new',
+						type: 'normal',
+						actionType: 'url',
+						url: '/content/bo_rel_target/{{ target.id }}',
+					},
+					{ label: 'External', type: 'success', actionType: 'url', url: 'https://example.com/?title={{ title }}' },
+					{ ...flowLink, type: 'warning' },
+				],
+			}),
+			presentation('notice', 'presentation-notice', { color: 'warning', icon: 'warning', text: 'Read **this** first' }),
+			presentation('notice_default', 'presentation-notice', { text: 'Plain notice' }),
+			// accordion with a nested raw group
+			group('accordion', 'group-accordion', { accordionMode: false, start: 'opened' }),
+			field('acc_text', 'string', 'input', null, { group: 'accordion' }),
+			group('acc_group', 'group-raw', null, { group: 'accordion' }),
+			field('acc_inner', 'string', 'input', null, { group: 'acc_group' }),
+			group('accordion_single', 'group-accordion', { accordionMode: true, start: 'first' }),
+			group('acc_single_a', 'group-raw', null, { group: 'accordion_single' }),
+			field('acc_single_a_text', 'string', 'input', null, { group: 'acc_single_a' }),
+			group('acc_single_b', 'group-raw', null, { group: 'accordion_single' }),
+			field('acc_single_b_text', 'string', 'input', null, { group: 'acc_single_b' }),
+			// FR-014 (US6-3): a read-only group pushes read-only down to its children.
+			group('readonly_group', 'group-raw', null, { readonly: true }),
+			field('readonly_child', 'string', 'input', null, { group: 'readonly_group' }),
+			// detail
+			group('detail', 'group-detail', { start: 'closed', headerIcon: 'info', headerColor: GREEN }),
+			field('detail_text', 'string', 'input', null, { group: 'detail', width: 'half' }),
+			field('detail_number', 'integer', 'input', null, { group: 'detail', width: 'half', required: true }),
+			// raw
+			group('raw', 'group-raw', null),
+			field('raw_text', 'string', 'input', null, { group: 'raw' }),
+			// nested tabs
+			group('tabs', 'group-tabs', { fillWidth: true }),
+			group('tab_one', 'group-raw', null, { group: 'tabs' }),
+			field('tab_one_text', 'string', 'input', null, { group: 'tab_one' }),
+			group('tab_two', 'group-tabs', { fillWidth: false }, { group: 'tabs' }),
+			group('tab_two_a', 'group-raw', null, { group: 'tab_two' }),
+			field('tab_two_a_text', 'string', 'input', null, { group: 'tab_two_a' }),
+			group('tab_two_b', 'group-detail', { start: 'open' }, { group: 'tab_two' }),
+			field('tab_two_b_text', 'string', 'input', null, {
+				group: 'tab_two_b',
+				conditions: [{ name: 'Hidden when draft', rule: { _and: [{ status: { _eq: 'draft' } }] }, hidden: true }],
+			}),
+			// group without interface (Edge Cases: not rendered, nor its children)
+			group('group_null', null, null),
+			field('group_null_child', 'string', 'input', null, { group: 'group_null' }),
+		],
+		{ icon: 'view_agenda', display_template: '{{ title }}', note: 'Groups and presentation' },
+	);
+}
+
+function relCollections({ folder }) {
+	const fileOptions = { folder, enableCreate: true, enableSelect: true };
+
+	return [
+		collection(
+			'bo_rel',
+			[
+				intPk(),
+				field('title', 'string', 'input', null, { width: 'half' }),
+				field(
+					'm2o',
+					'integer',
+					'select-dropdown-m2o',
+					{
+						template: '{{ name }} ({{ status }})',
+						enableCreate: true,
+						enableSelect: true,
+						enableLink: true,
+						filter: { _and: [{ name: { _contains: '{{ title }}' } }] },
+					},
+					{ width: 'half', special: ['m2o'], display: 'related-values', display_options: { template: '{{ name }}' } },
+				),
+				field('m2o_default', 'integer', 'select-dropdown-m2o', null, {
+					width: 'half',
+					special: ['m2o'],
+					display: 'related-values',
+				}),
+				field(
+					'owner',
+					'uuid',
+					'select-dropdown-m2o',
+					{ template: '{{ first_name }} {{ last_name }}' },
+					{
+						width: 'half',
+						special: ['m2o'],
+						display: 'user',
+						display_options: { display: 'both', circle: true },
+					},
+				),
+				alias(
+					'o2m_list',
+					['o2m'],
+					'list-o2m',
+					{
+						layout: 'list',
+						template: '{{ name }}',
+						enableCreate: true,
+						enableSelect: true,
+						enableLink: true,
+						limit: 5,
+						filter: { _and: [{ status: { _neq: 'archived' } }] },
+						sort: 'name',
+						sortDirection: '-',
+					},
+					{ display: 'related-values', display_options: { template: '{{ name }}' } },
+				),
+				alias('o2m_table', ['o2m'], 'list-o2m', {
+					layout: 'table',
+					tableSpacing: 'compact',
+					fields: ['name', 'status'],
+					enableSearchFilter: true,
+					limit: 10,
+					sort: 'name',
+					sortDirection: '+',
+				}),
+				alias(
+					'm2m_list',
+					['m2m'],
+					'list-m2m',
+					{
+						layout: 'list',
+						template: '{{ bo_rel_target_id.name }}',
+						junctionFieldLocation: 'top',
+						allowDuplicates: true,
+						enableLink: true,
+					},
+					{ display: 'related-values', display_options: { template: '{{ bo_rel_target_id.name }}' } },
+				),
+				alias('m2m_table', ['m2m'], 'list-m2m', {
+					layout: 'table',
+					fields: ['bo_rel_target_id.name', 'bo_rel_target_id.status'],
+					tableSpacing: 'comfortable',
+					enableSearchFilter: true,
+					enableSelect: false,
+					enableCreate: true,
+					limit: 15,
+					filter: { _and: [{ status: { _eq: 'published' } }] },
+				}),
+				alias(
+					'm2a',
+					['m2a'],
+					'list-m2a',
+					{
+						enableSelect: true,
+						enableCreate: true,
+						limit: 10,
+						allowDuplicates: false,
+						prefix: '{{ collection }}: ',
+					},
+					{
+						display: 'related-values',
+						display_options: { template: '{{ item:bo_m2a_a.name }}{{ item:bo_m2a_b.title }}' },
+					},
+				),
+				alias(
+					'files',
+					['files'],
+					'files',
+					{
+						...fileOptions,
+						template: '{{ directus_files_id.title }}',
+						filter: { _and: [{ type: { _nnull: true } }] },
+						limit: 10,
+						allowedMimeTypes: ['image/*', 'application/pdf'],
+					},
+					{ display: 'related-values', display_options: { template: '{{ directus_files_id.title }}' } },
+				),
+				field(
+					'file',
+					'uuid',
+					'file',
+					{
+						...fileOptions,
+						allowedMimeTypes: ['application/pdf'],
+						filter: { _and: [{ type: { _eq: 'application/pdf' } }] },
+					},
+					{
+						width: 'half',
+						special: ['file'],
+						display: 'file',
+					},
+				),
+				field(
+					'file_image',
+					'uuid',
+					'file-image',
+					{ ...fileOptions, crop: false, letterbox: true, allowedMimeTypes: ['image/*'] },
+					{
+						width: 'half',
+						special: ['file'],
+						display: 'image',
+						display_options: { circle: true },
+					},
+				),
+				field(
+					'collection_item',
+					'json',
+					'collection-item-dropdown',
+					{
+						selectedCollection: 'bo_rel_target',
+						template: '{{ name }}',
+						filter: { _and: [{ status: { _neq: 'archived' } }] },
+					},
+					{ width: 'half', special: ['cast-json'] },
+				),
+				field(
+					'collection_items',
+					'json',
+					'collection-item-multiple-dropdown',
+					{
+						selectedCollection: 'bo_m2a_a',
+						template: '{{ name }}',
+					},
+					{ width: 'half', special: ['cast-json'] },
+				),
+			],
+			{ icon: 'hub', display_template: '{{ title }}', note: 'Relational interfaces' },
+		),
+		collection(
+			'bo_rel_target',
+			[
+				intPk(),
+				field('name', 'string', 'input', null, { width: 'half' }),
+				field(
+					'status',
+					'string',
+					'select-dropdown',
+					{ choices: ['draft', 'published', 'archived'].map((value) => ({ text: value, value })) },
+					{ width: 'half', display: 'labels' },
+				),
+				field('sort', 'integer', 'input', null, { hidden: true }),
+				field('o2m_list_parent', 'integer', 'select-dropdown-m2o', null, { hidden: true, special: ['m2o'] }),
+				field('o2m_table_parent', 'integer', 'select-dropdown-m2o', null, { hidden: true, special: ['m2o'] }),
+			],
+			{ icon: 'target', display_template: '{{ name }}', sort_field: 'sort' },
+		),
+		junction('bo_junction_m2m_list', [
+			field('bo_rel_id', 'integer', null, null, { hidden: true }),
+			field('bo_rel_target_id', 'integer', null, null, { hidden: true }),
+			field('sort', 'integer', null, null, { hidden: true }),
+		]),
+		junction('bo_junction_m2m_table', [
+			field('bo_rel_id', 'integer', null, null, { hidden: true }),
+			field('bo_rel_target_id', 'integer', null, null, { hidden: true }),
+		]),
+		junction('bo_junction_m2a', [
+			field('bo_rel_id', 'integer', null, null, { hidden: true }),
+			field('item', 'string', null, null, { hidden: true }),
+			field('collection', 'string', null, null, { hidden: true }),
+			field('sort', 'integer', null, null, { hidden: true }),
+		]),
+		junction('bo_junction_files', [
+			field('bo_rel_id', 'integer', null, null, { hidden: true }),
+			field('directus_files_id', 'uuid', null, null, { hidden: true }),
+			field('sort', 'integer', null, null, { hidden: true }),
+		]),
+		collection('bo_m2a_a', [intPk(), field('name', 'string', 'input')], {
+			icon: 'looks_one',
+			display_template: '{{ name }}',
+		}),
+		collection('bo_m2a_b', [uuidPk(), field('title', 'string', 'input')], {
+			icon: 'looks_two',
+			display_template: '{{ title }}',
+		}),
+		collection(
+			'bo_tree',
+			[
+				intPk(),
+				field('name', 'string', 'input'),
+				field(
+					'parent',
+					'integer',
+					'select-dropdown-m2o',
+					{ template: '{{ name }}' },
+					{ special: ['m2o'], width: 'half' },
+				),
+				field('sort', 'integer', 'input', null, { hidden: true }),
+				alias(
+					'children',
+					['o2m'],
+					'list-o2m-tree-view',
+					{
+						displayTemplate: '{{ name }}',
+						enableCreate: true,
+						enableSelect: true,
+						filter: { _and: [{ name: { _nnull: true } }] },
+					},
+					{ display: 'related-values', display_options: { template: '{{ name }}' } },
+				),
+			],
+			{ icon: 'account_tree', display_template: '{{ name }}' },
+		),
+		collection(
+			'bo_languages',
+			[
+				field('code', 'string', 'input', null, {}, { is_primary_key: true, length: 255, has_auto_increment: false }),
+				field('name', 'string', 'input'),
+				field(
+					'direction',
+					'string',
+					'select-dropdown',
+					{
+						choices: [
+							{ text: '$t:left_to_right', value: 'ltr' },
+							{ text: '$t:right_to_left', value: 'rtl' },
+						],
+					},
+					{ display: 'labels' },
+					{ default_value: 'ltr' },
+				),
+			],
+			{ icon: 'translate', display_template: '{{ name }}' },
+		),
+		collection(
+			'bo_translations',
+			[
+				intPk(),
+				field('slug', 'string', 'input', { slug: true }),
+				alias(
+					'translations',
+					['translations'],
+					'translations',
+					{
+						languageField: 'name',
+						languageDirectionField: 'direction',
+						defaultLanguage: 'en-US',
+						userLanguage: true,
+						defaultOpenSplitView: true,
+					},
+					{
+						display: 'translations',
+						display_options: {
+							template: '{{ title }}',
+							languageField: 'name',
+							defaultLanguage: 'en-US',
+							userLanguage: true,
+						},
+					},
+				),
+			],
+			{ icon: 'language', display_template: '{{ slug }}' },
+		),
+		junction('bo_translations_translations', [
+			field('bo_translations_id', 'integer', null, null, { hidden: true }),
+			field('bo_languages_code', 'string', null, null, { hidden: true }),
+			field('title', 'string', 'input'),
+			field('body', 'text', 'input-multiline'),
+		]),
+	];
+}
+
+function junction(name, fields) {
+	return collection(name, [intPk(), ...fields], { hidden: true, icon: 'import_export' });
+}
+
+function relations() {
+	const m2o = (collection, field, related, meta = {}, onDelete = 'SET NULL') => ({
+		collection,
+		field,
+		related_collection: related,
+		meta: { one_field: null, junction_field: null, sort_field: null, one_deselect_action: 'nullify', ...meta },
+		schema: { on_delete: onDelete },
+	});
+
+	return [
+		m2o('bo_groups', 'target', 'bo_rel_target'),
+		m2o('bo_rel', 'm2o', 'bo_rel_target'),
+		m2o('bo_rel', 'm2o_default', 'bo_rel_target'),
+		m2o('bo_rel', 'owner', 'directus_users'),
+		m2o('bo_rel', 'file', 'directus_files'),
+		m2o('bo_rel', 'file_image', 'directus_files'),
+		m2o('bo_rel_target', 'o2m_list_parent', 'bo_rel', { one_field: 'o2m_list', sort_field: 'sort' }),
+		m2o('bo_rel_target', 'o2m_table_parent', 'bo_rel', { one_field: 'o2m_table', one_deselect_action: 'delete' }),
+		m2o('bo_junction_m2m_list', 'bo_rel_id', 'bo_rel', {
+			one_field: 'm2m_list',
+			junction_field: 'bo_rel_target_id',
+			sort_field: 'sort',
+		}),
+		m2o('bo_junction_m2m_list', 'bo_rel_target_id', 'bo_rel_target', { junction_field: 'bo_rel_id' }),
+		m2o('bo_junction_m2m_table', 'bo_rel_id', 'bo_rel', { one_field: 'm2m_table', junction_field: 'bo_rel_target_id' }),
+		m2o('bo_junction_m2m_table', 'bo_rel_target_id', 'bo_rel_target', { junction_field: 'bo_rel_id' }),
+		m2o('bo_junction_m2a', 'bo_rel_id', 'bo_rel', { one_field: 'm2a', junction_field: 'item', sort_field: 'sort' }),
+		{
+			collection: 'bo_junction_m2a',
+			field: 'item',
+			related_collection: null,
+			meta: {
+				one_allowed_collections: ['bo_m2a_a', 'bo_m2a_b'],
+				one_collection_field: 'collection',
+				junction_field: 'bo_rel_id',
+			},
+		},
+		m2o('bo_junction_files', 'bo_rel_id', 'bo_rel', {
+			one_field: 'files',
+			junction_field: 'directus_files_id',
+			sort_field: 'sort',
+		}),
+		m2o('bo_junction_files', 'directus_files_id', 'directus_files', { junction_field: 'bo_rel_id' }),
+		m2o('bo_tree', 'parent', 'bo_tree', { one_field: 'children', sort_field: 'sort' }),
+		m2o('bo_translations_translations', 'bo_translations_id', 'bo_translations', {
+			one_field: 'translations',
+			junction_field: 'bo_languages_code',
+		}),
+		m2o('bo_translations_translations', 'bo_languages_code', 'bo_languages', { junction_field: 'bo_translations_id' }),
+	];
+}
+
+/* ---------------------------------------------------------------- files */
+
+// Tiny generated samples (no download): 1x1 PNG, 8x8 SVG, one-page PDF.
+const SAMPLES = [
+	{
+		title: 'bo-sample-png',
+		name: 'bo-sample.png',
+		type: 'image/png',
+		data: Buffer.from(
+			'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==',
+			'base64',
+		),
+	},
+	{
+		title: 'bo-sample-svg',
+		name: 'bo-sample.svg',
+		type: 'image/svg+xml',
+		data: Buffer.from(
+			`<svg xmlns="http://www.w3.org/2000/svg" width="8" height="8"><rect width="8" height="8" fill="${PURPLE}"/></svg>`,
+		),
+	},
+	{
+		title: 'bo-sample-pdf',
+		name: 'bo-sample.pdf',
+		type: 'application/pdf',
+		data: Buffer.from(
+			'%PDF-1.4\n1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n2 0 obj<</Type/Pages/Kids[3 0 R]/Count 1>>endobj\n' +
+				'3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 72 72]>>endobj\ntrailer<</Root 1 0 R>>\n%%EOF\n',
+		),
+	},
+];
+
+async function uploadSamples(folder) {
+	const ids = {};
+
+	for (const sample of SAMPLES) {
+		// Same field order as v-upload.vue: folder, title, then the file.
+		const form = new FormData();
+		form.append('folder', folder);
+		form.append('title', sample.title);
+		form.append('file', new Blob([sample.data], { type: sample.type }), sample.name);
+		ids[sample.type] = (await api.request('POST', '/files', form)).id;
+	}
+
+	return { png: ids['image/png'], svg: ids['image/svg+xml'], pdf: ids['application/pdf'] };
+}
+
+/* ---------------------------------------------------------------- access */
+
+async function createAccess(flowsReadable) {
+	const ids = {};
+
+	for (const name of ROLES) {
+		const policy = await api.request('POST', '/policies', {
+			name,
+			icon: 'badge',
+			description: `Fixture policy ${name}`,
+			admin_access: false,
+			app_access: true,
+			enforce_tfa: false,
+		});
+
+		const role = await api.request('POST', '/roles', {
+			name,
+			icon: 'person',
+			policies: { create: [{ policy: policy.id }] },
+		});
+
+		const user = await api.request('POST', '/users', {
+			email: USERS[name].email,
+			password: USERS[name].password,
+			first_name: name === 'bo-editor' ? 'Edith' : 'Victor',
+			last_name: name === 'bo-editor' ? 'Editor' : 'Viewer',
+			role: role.id,
+			status: 'active',
+		});
+
+		ids[name] = { policy: policy.id, role: role.id, user: user.id };
+	}
+
+	const perm = (policy, collection, action, fields = ['*']) => ({
+		policy,
+		collection,
+		action,
+		fields,
+		permissions: {},
+		validation: {},
+	});
+
+	const editor = ids['bo-editor'].policy;
+	const viewer = ids['bo-viewer'].policy;
+	const readWrite = [
+		'bo_std',
+		'bo_rel',
+		'bo_junction_m2m_list',
+		'bo_junction_m2m_table',
+		'bo_junction_m2a',
+		'bo_junction_files',
+	];
+	readWrite.push('bo_m2a_a', 'bo_tree', 'bo_translations', 'bo_translations_translations');
+	const readOnly = ['bo_groups', 'bo_m2a_b', 'bo_languages', 'directus_files'];
+	const all = [...readWrite, ...readOnly, 'bo_rel_target'];
+
+	await api.request('POST', '/permissions', [
+		...readWrite.flatMap((c) => ['create', 'read', 'update'].map((action) => perm(editor, c, action))),
+		...readOnly.map((c) => perm(editor, c, 'read')),
+		// Read-only and without `status`: templates that use it render empty for the editor (Edge Cases).
+		perm(editor, 'bo_rel_target', 'read', ['id', 'name', 'sort', 'o2m_list_parent', 'o2m_table_parent']),
+		...(flowsReadable
+			? [
+					perm(editor, 'directus_flows', 'read', [
+						'id',
+						'name',
+						'icon',
+						'color',
+						'status',
+						'trigger',
+						'options',
+						'accountability',
+						'operation',
+					]),
+				]
+			: []),
+		...all.map((c) => perm(viewer, c, 'read')),
+	]);
+
+	return ids;
+}
+
+/* ---------------------------------------------------------------- items */
+
+async function createItems({ files, users }) {
+	const post = (collection, body) => api.request('POST', `/items/${collection}`, body);
+
+	await post('bo_languages', [
+		{ code: 'en-US', name: 'English', direction: 'ltr' },
+		{ code: 'vi-VN', name: 'Tiếng Việt', direction: 'ltr' },
+		{ code: 'ar-SA', name: 'العربية', direction: 'rtl' },
+	]);
+
+	await post('bo_rel_target', [
+		{ name: 'Target one', status: 'published', sort: 1 },
+		{ name: 'Target two', status: 'draft', sort: 2 },
+		{ name: 'Target three', status: 'published', sort: 3 },
+		{ name: 'Target four', status: 'archived', sort: 4 },
+		{ name: 'Target five', status: 'published', sort: 5 },
+	]);
+
+	await post('bo_m2a_a', [{ name: 'A one' }, { name: 'A two' }]);
+	// One by one: a batch create returns uuid rows in database order.
+	const b1 = await post('bo_m2a_b', { title: 'B one' });
+	await post('bo_m2a_b', { title: 'B two' });
+
+	await post('bo_std', [
+		{
+			input_string: 'alpha',
+			input_masked: 'masked value',
+			input_slug: 'my-slug',
+			input_default: 'plain',
+			input_integer: 55,
+			input_float: 2.5,
+			input_biginteger: '9007199254740993',
+			input_decimal: '12.34',
+			input_uuid: FIXED_UUIDS[0],
+			input_text: 'Long text',
+			input_required: 'Valid',
+			input_note_md: 'note',
+			input_hidden: 'hidden value',
+			input_readonly: 'read only value',
+			input_conditional: 'conditional',
+			input_multiline: 'Line one\nLine two',
+			input_hash: 'secret-value',
+			system_raw: '{{ $CURRENT_USER }}',
+			autocomplete: 'Target one',
+			autocomplete_external: 'external',
+			boolean: true,
+			boolean_default: false,
+			date: '2024-03-15',
+			time: '14:30:45',
+			date_time: '2024-03-15T14:30:00',
+			timestamp: '2024-03-15T07:30:00.000Z',
+			timestamp_relative: '2024-03-15T07:30:00.000Z',
+			slider: 7,
+			slider_float: 0.4,
+			tags: ['alpha', 'custom-tag'],
+			tags_csv: ['ONE', 'TWO'],
+			code_json: { key: 'value', list: [1, 2] },
+			code_js: 'const a = 1;\nconsole.log(a);',
+			code_string_json: '{"valid": true}',
+			select_dropdown: 'alpha',
+			select_dropdown_int: 2,
+			select_multiple_dropdown: ['beta', 'alpha'],
+			select_multiple_dropdown_csv: ['alpha', 'gamma'],
+			select_radio: 'beta',
+			select_radio_int: 1,
+			select_checkbox: ['alpha', 'other-value'],
+			select_checkbox_csv: ['beta'],
+			select_tree: ['fruit', 'kale'],
+			select_tree_csv: ['leaf'],
+			select_icon: 'star',
+			select_color: '#6644FF80',
+			select_color_default: GREEN,
+			list: [
+				{ title: 'Row A', count: 2 },
+				{ title: 'Row B', count: 1 },
+			],
+			map_json: { type: 'Point', coordinates: [105.85, 21.03] },
+			map_text: 'POLYGON((105 21,106 21,106 22,105 21))',
+			map_csv: ['105.85', '21.03'],
+			rich_html: `<p>Hello <strong>world</strong></p><p><img src="/assets/${files.png}.png?access_token=bo-image-token" alt="Sample"></p>`,
+			rich_md: `# Title\n\nSome **bold** text and ==highlight==.\n\n![Sample](/assets/${files.png}.png)`,
+			block_editor: {
+				time: 1710489600000,
+				version: '2.31.2',
+				blocks: [
+					{ id: 'bo-block-1', type: 'header', data: { text: 'Heading', level: 2 } },
+					{ id: 'bo-block-2', type: 'paragraph', data: { text: 'Hello <b>world</b>' } },
+					{
+						id: 'bo-block-3',
+						type: 'image',
+						data: {
+							file: {
+								width: 1,
+								height: 1,
+								fileId: files.png,
+								fileURL: `/assets/${files.png}`,
+								url: `/assets/${files.png}.png`,
+							},
+							caption: 'Sample',
+							withBorder: false,
+							stretched: false,
+							withBackground: false,
+						},
+					},
+				],
+			},
+			collection_name: 'bo_rel',
+			mime: 'image/png',
+			filesize: 123456,
+			...(geometry ? { map_point: { type: 'Point', coordinates: [105.85, 21.03] } } : {}),
+			...(geometry
+				? {
+						map_polygon: {
+							type: 'Polygon',
+							coordinates: [
+								[
+									[105, 21],
+									[106, 21],
+									[106, 22],
+									[105, 21],
+								],
+							],
+						},
+						map_geometry: {
+							type: 'LineString',
+							coordinates: [
+								[105, 21],
+								[106, 22],
+							],
+						},
+					}
+				: {}),
+		},
+		// Empty item: every interface starts from null.
+		{ input_required: 'Empty' },
+		// Malformed values (Edge Cases, CHK006): list not an array, map with the wrong geometry type, invalid JSON text.
+		{
+			input_string: 'beta',
+			input_required: 'Malformed',
+			input_integer: 5,
+			boolean: false,
+			list: { not: 'an array' },
+			map_json: {
+				type: 'LineString',
+				coordinates: [
+					[0, 0],
+					[1, 1],
+				],
+			},
+			code_string_json: '{ invalid json',
+			select_dropdown: 'not-a-choice',
+			tags: ['{{ $CURRENT_USER }}'],
+			timestamp: '2024-11-03T06:30:00.000Z',
+		},
+	]);
+
+	await post('bo_rel', [
+		{
+			title: 'Target',
+			m2o: 1,
+			m2o_default: 2,
+			owner: users['bo-editor'].user,
+			o2m_list: [2, 3],
+			o2m_table: [4],
+			m2m_list: [
+				{ bo_rel_target_id: 1, sort: 1 },
+				{ bo_rel_target_id: 1, sort: 2 },
+				{ bo_rel_target_id: 5, sort: 3 },
+			],
+			m2m_table: [{ bo_rel_target_id: 2 }],
+			m2a: [
+				{ collection: 'bo_m2a_a', item: '1', sort: 1 },
+				{ collection: 'bo_m2a_b', item: b1.id, sort: 2 },
+			],
+			files: [
+				{ directus_files_id: files.png, sort: 1 },
+				{ directus_files_id: files.pdf, sort: 2 },
+			],
+			file: files.pdf,
+			file_image: files.png,
+			collection_item: { key: 1, collection: 'bo_rel_target' },
+			collection_items: [
+				{ key: 2, collection: 'bo_m2a_a' },
+				{ key: 1, collection: 'bo_m2a_a' },
+			],
+		},
+		{ title: 'Empty' },
+		{ title: 'Svg', file_image: files.svg, m2o: 3 },
+	]);
+
+	await post('bo_tree', {
+		name: 'Root',
+		children: [
+			{ name: 'Child A', sort: 1, children: [{ name: 'Grandchild', sort: 1 }] },
+			{ name: 'Child B', sort: 2 },
+		],
+	});
+
+	await post('bo_translations', [
+		{
+			slug: 'hello',
+			translations: [
+				{ bo_languages_code: 'en-US', title: 'Hello', body: 'Hello body' },
+				{ bo_languages_code: 'vi-VN', title: 'Xin chào', body: 'Nội dung' },
+			],
+		},
+		{ slug: 'partial', translations: [{ bo_languages_code: 'ar-SA', title: 'مرحبا' }] },
+	]);
+
+	await post('bo_groups', [
+		{
+			title: 'Group item',
+			status: 'published',
+			target: 1,
+			acc_text: 'Accordion text',
+			acc_inner: 'Inner',
+			detail_text: 'Detail',
+			detail_number: 3,
+			raw_text: 'Raw',
+			tab_one_text: 'Tab one',
+			tab_two_a_text: 'Tab two A',
+			tab_two_b_text: 'Tab two B',
+			group_null_child: 'Never shown',
+		},
+		{ title: 'Draft item', status: 'draft' },
+	]);
+}
+
+/* ---------------------------------------------------------------- run */
+
+await cleanup();
+
+const folder = (await api.request('POST', '/folders', { name: FOLDER })).id;
+const files = await uploadSamples(folder);
+
+const flow = (
+	await api.request('POST', '/flows', {
+		name: FLOW,
+		icon: 'bolt',
+		color: PURPLE,
+		description: 'Manual flow of the fixture set',
+		status: 'active',
+		trigger: 'manual',
+		accountability: 'all',
+		options: {
+			collections: ['bo_groups'],
+			location: 'item',
+			requireConfirmation: true,
+			confirmationDescription: 'Run the fixture flow?',
+			fields: [
+				{ field: 'note', type: 'string', name: 'Note', meta: { interface: 'input', width: 'full', required: true } },
+			],
+		},
+	})
+).id;
+
+await api.request('POST', '/collections', stdCollection({ folder }));
+await api.request('POST', '/collections', groupsCollection({ flow }));
+for (const payload of relCollections({ folder })) await api.request('POST', '/collections', payload);
+
+const refused = [];
+let geometry = true;
+
+for (const payload of geometryFields) {
+	try {
+		await api.request('POST', '/fields/bo_std', {
+			...payload,
+			meta: { ...payload.meta, sort: 1000 + geometryFields.indexOf(payload) },
+		});
+	} catch (error) {
+		geometry = false;
+		refused.push(`bo_std.${payload.field} (${payload.type}): ${error.message}`);
+	}
+}
+
+if (!geometry) {
+	// All or none, so the item payload stays one shape.
+	for (const payload of geometryFields) await api.request('DELETE', `/fields/bo_std/${payload.field}`).catch(() => {});
+}
+
+for (const relation of relations()) await api.request('POST', '/relations', relation);
+
+const users = await createAccess(true);
+await createItems({ files, users });
+
+process.stdout.write(
+	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,
+);
+for (const line of refused) process.stdout.write(`Refused: ${line}\n`);

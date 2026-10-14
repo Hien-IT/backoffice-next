@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/interfaces/tags/index.ts", "dest": "apps/web/src/interfaces/tags/index.ts" },
+	{ "source": "app/src/interfaces/tags/tags.vue", "dest": "apps/web/src/interfaces/tags/Tags.vue" },
+	{ "source": "app/src/interfaces/tags/tags.test.ts", "dest": "apps/web/src/interfaces/tags/Tags.test.ts" }
+]

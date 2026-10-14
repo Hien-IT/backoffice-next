@@ -1,0 +1,18 @@
+{
+	"check appends": {
+		"field": "select_checkbox_csv",
+		"initial": ["beta"],
+		"action": "click Active",
+		"value": ["beta", "gamma"],
+		"source": "directus/app/src/components/v-checkbox.vue:92 (push) via directus/app/src/interfaces/select-multiple-checkbox/select-multiple-checkbox.vue:86",
+		"description": "csv field emits an array"
+	},
+	"uncheck removes, other values kept": {
+		"field": "select_checkbox",
+		"initial": ["alpha", "other-value"],
+		"action": "click Alpha",
+		"value": ["other-value"],
+		"source": "directus/app/src/components/v-checkbox.vue:95 (splice) via directus/app/src/interfaces/select-multiple-checkbox/select-multiple-checkbox.vue:86",
+		"description": "custom value stays"
+	}
+}

@@ -1,0 +1,35 @@
+[
+	{
+		"id": 1,
+		"slug": "hello",
+		"translations": [
+			{
+				"id": 1,
+				"bo_translations_id": 1,
+				"bo_languages_code": "en-US",
+				"title": "Hello",
+				"body": "Hello body"
+			},
+			{
+				"id": 2,
+				"bo_translations_id": 1,
+				"bo_languages_code": "vi-VN",
+				"title": "Xin chào",
+				"body": "Nội dung"
+			}
+		]
+	},
+	{
+		"id": 2,
+		"slug": "partial",
+		"translations": [
+			{
+				"id": 3,
+				"bo_translations_id": 2,
+				"bo_languages_code": "ar-SA",
+				"title": "مرحبا",
+				"body": null
+			}
+		]
+	}
+]

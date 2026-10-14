@@ -62,7 +62,7 @@ C = Phase 7, 9; D = Phase 10.
 **Purpose**: cài gói, kiểm giả định, cấu hình hai project Vitest, đo hành vi Directus còn mở, viết recipe nháp trước
 mọi task giao diện (FR-093, CHK025).
 
-- [ ] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm gói research R1 với bản Directus: `tinymce: 6.8.6`,
+- [X] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm gói research R1 với bản Directus: `tinymce: 6.8.6`,
   `@tinymce/tinymce-vue: 6.3.0`, `@editorjs/editorjs: 2.31.2` và 14 tool (`attaches` 1.3.2, `checklist` 1.6.0, `code`
   2.9.3, `delimiter` 1.4.2, `embed` 2.7.6, `header` 2.8.8, `image` 2.10.3, `inline-code` 1.5.2, `nested-list` 1.4.3,
   `paragraph` 2.11.7, `quote` 2.7.6, `raw` 2.5.1, `table` 2.4.5, `underline` 1.2.1), `editorjs-toggle-block: 0.3.16`,
@@ -73,12 +73,12 @@ mọi task giao diện (FR-093, CHK025).
   `@fortawesome/free-brands-svg-icons: 6.7.2`, `@directus/utils: 13.4.1`, `@directus/types: 15.0.3` (dev),
   `@vitest/browser: 3.2.4` (dev), `axe-core` (4.11.x, dev); `micromustache` đã có. `apps/web/package.json` thêm theo
   `catalog:`; `pnpm install`; lockfile cập nhật.
-- [ ] T002 Kiểm [Unverified] của R1, R8: `pnpm view <gói>@<bản> version license` cho mọi gói T001 (ghi giấy phép:
+- [X] T002 Kiểm [Unverified] của R1, R8: `pnpm view <gói>@<bản> version license` cho mọi gói T001 (ghi giấy phép:
   `jsonlint-mod`, `vue-virtual-scroller`, Font Awesome mã MIT + icon CC BY 4.0, TinyMCE 6 MIT); test tạm import
   `validatePayload`, `parseFilter`, `getFieldsFromTemplate` từ `@directus/utils` trong Vite build của `apps/web` (build
   trình duyệt chạy, joi vào chunk); gói không có hoặc giấy phép ngoài FR-064 thì dùng dự phòng của R1 và ghi vào
   `specs/013-interfaces-displays/research.md` mục R1 "Kết quả kiểm".
-- [ ] T003 `apps/web/vitest.config.ts` chuyển sang `test.projects`: `unit` (happy-dom, `src/**/*.test.ts`, bỏ
+- [X] T003 `apps/web/vitest.config.ts` chuyển sang `test.projects`: `unit` (happy-dom, `src/**/*.test.ts`, bỏ
   `*.browser.test.ts`) và `browser` (`@vitest/browser`, provider playwright, chromium headless,
   `src/**/*.browser.test.ts`); coverage v8 gộp, ngưỡng 60% (thử v8 ở browser mode, không được thì istanbul cho cả hai và
   ghi R8); `apps/web/project.json` thêm target `test:unit`, `test` chạy cả hai; `.github/workflows/ci.yml` job test web
@@ -88,21 +88,21 @@ mọi task giao diện (FR-093, CHK025).
   `meta.interface` null (`special: alias,no-data,group`) trong form item: field con có hiện không, có lỗi console không.
   Ghi kết quả vào `specs/013-interfaces-displays/spec.md` Edge Cases (dòng "Field nhóm có `meta.interface` null") và
   research R3; khác Directus chỉ khi Directus ném lỗi chặn form (khi đó D-xx).
-- [ ] T005 Kiểm WebGL cho MapLibre 1.15.3 trong chromium headless của project `browser` (dựng map trống,
+- [X] T005 Kiểm WebGL cho MapLibre 1.15.3 trong chromium headless của project `browser` (dựng map trống,
   `--use-gl=swiftshader`/`--enable-unsafe-swiftshader`); không được thì quyết định mock `maplibre-gl` cho test
   component và chỉ test thật `utils/geometry`; ghi research R7.
-- [ ] T006 `tools/check-raw-colors.mjs`: danh sách miễn duy nhất (Q-C, CHK049) gồm đường dẫn file và tên hằng màu dữ
+- [X] T006 `tools/check-raw-colors.mjs`: danh sách miễn duy nhất (Q-C, CHK049) gồm đường dẫn file và tên hằng màu dữ
   liệu Directus (`src/interfaces/select-color/presets.ts` 9 màu, `src/displays/color/index.ts` `defaultColor
   #B0BEC5`, các hằng tương tự phát hiện khi chép); test `tools/check-raw-colors.test.mjs` thêm ca miễn và ca hex ngoài
   danh sách vẫn bị chặn.
-- [ ] T007 Recipe nháp "nháp (013)" cho Q-1 đến Q-12 (research R6) trong `design-system/docs/component-specs.md` (Tier 3:
+- [X] T007 Recipe nháp "nháp (013)" cho Q-1 đến Q-12 (research R6) trong `design-system/docs/component-specs.md` (Tier 3:
   Combobox, MultiSelect, Radio, CheckboxGroup, CheckboxTree, DatePicker, Slider, Rating, Chip, TagsInput, Tabs,
   Accordion, Detail, Divider có tiêu đề, ColorPicker, IconPicker, EditorFrame, khung bản đồ, Table đơn giản, Upload,
   ảnh xem trước, Lightbox, ValueNull, UserPopover, menu "N items") và `design-system/docs/layout-patterns.md` §8 (lưới
   form hai cột từ 768 px, `half`/`full`/`fill`, nhãn kèm menu, chấm sửa, ghi chú, lỗi tổng hợp; `BoDrawer` `w-[640px]`
   nháp, toàn bề rộng dưới `xl`); cặp màu mới vào bảng tương phản `design-system/docs/migration-guide.md`; mỗi recipe
   theo quy ước `component-specs.md` (Reka primitive, state, bàn phím, dark).
-- [ ] T008 [P] `src/stores/server.ts` (012) thêm `info.files.mimeTypeAllowList` từ `/server/info` (FR-053) và hàm
+- [X] T008 [P] `src/stores/server.ts` (012) thêm `info.files.mimeTypeAllowList` từ `/server/info` (FR-053) và hàm
   `parseGlobalMimeTypeAllowList` chép từ Directus; test `src/stores/server.test.ts` thêm ca.
 
 **Checkpoint**: gói cài, giả định đã kiểm, `web:test` chạy được hai project, recipe nháp có trước mọi task giao diện.
@@ -115,15 +115,15 @@ mọi task giao diện (FR-093, CHK025).
 
 ### Registry và mặc định theo kiểu
 
-- [ ] T009 `src/interfaces/types.ts`, `src/displays/types.ts` (kiểu `InterfaceConfig`, `DisplayConfig` từ
+- [X] T009 `src/interfaces/types.ts`, `src/displays/types.ts` (kiểu `InterfaceConfig`, `DisplayConfig` từ
   `@directus/types`, props chung theo `contracts/registry.md` §1, §2); `src/interfaces/index.ts`,
   `src/displays/index.ts` (`import.meta.glob('./*/index.ts', { eager: true })` cộng `./_system/*/index.ts`, sắp theo
   id, `getInterface(id)`, `getDisplay(id)`, danh sách); test `src/interfaces/index.test.ts` port từ
   `directus/app/src/interfaces/index.test.ts` (thứ tự; ca vị trí `system-collection` thay bằng `system-raw-editor`, lý do
   D-57).
-- [ ] T010 [P] Chép `src/utils/get-default-interface-for-type.ts`, `src/utils/get-default-display-for-type.ts` (FR-002)
+- [X] T010 [P] Chép `src/utils/get-default-interface-for-type.ts`, `src/utils/get-default-display-for-type.ts` (FR-002)
   + test bảng đủ kiểu.
-- [ ] T011 `apps/web/scripts/extract-directus-registry.mjs` (chạy một lần, không chạy trong CI): nạp
+- [X] T011 `apps/web/scripts/extract-directus-registry.mjs` (chạy một lần, không chạy trong CI): nạp
   `directus/app/src/{interfaces,displays}/<id>/index.ts` bằng `vite-node` với alias `@/` trỏ tới stub (i18n trả khóa,
   store rỗng), gọi hàm options với vài `field.type` và `relations` mẫu, ghi
   `apps/web/fixtures/interfaces/directus-registry.json` (commit, ghi bản Directus); không nạp được id nào thì ghi tay từ
@@ -134,46 +134,46 @@ mọi task giao diện (FR-093, CHK025).
 
 ### Store
 
-- [ ] T012 Chép phần còn lại của `src/stores/fields.ts` từ `directus/app/src/stores/fields.ts`: `parseField` (`name`
+- [X] T012 Chép phần còn lại của `src/stores/fields.ts` từ `directus/app/src/stores/fields.ts`: `parseField` (`name`
   từ `formatTitle` hoặc `fields.<collection>.<field>` của `meta.translations`), `translateFields` (dịch `$t:` trong
   `note`, `options`, `display_options`, `validation_message`), `getField`, `getFieldsForCollection`,
   `getPrimaryKeyFieldForCollection`, `getFieldGroupChildren`; gọi `translateFields` khi đổi ngôn ngữ trong
   `src/lang/set-language.ts` (FR-006); test `src/stores/fields.test.ts`.
-- [ ] T013 [P] `src/stores/collections.ts` (`getCollection`, `visibleCollections`, `allCollections`,
+- [X] T013 [P] `src/stores/collections.ts` (`getCollection`, `visibleCollections`, `allCollections`,
   `translateCollections`), `src/stores/relations.ts` (`getRelationsForField`, `getRelationsForCollection`,
   `getRelationForField`), `src/stores/presets.ts` (`getPresetForCollection`: user → role → global, không bookmark)
   chép từ Directus; test cho từng store.
-- [ ] T014 [P] `src/stores/flows.ts` mới chép `directus/app/src/stores/flows.ts` (chỉ `hydrate`: không quyền đọc
+- [X] T014 [P] `src/stores/flows.ts` mới chép `directus/app/src/stores/flows.ts` (chỉ `hydrate`: không quyền đọc
   `directus_flows` → rỗng, không gọi API; lỗi → rỗng; `GET /flows` như contracts/api-calls #33; `getManualFlowsForCollection`,
   `isActiveFlow`); thêm vào `src/hydrate.ts` và `dehydrate`; test `src/stores/flows.test.ts`, `src/hydrate.test.ts`
   thêm ca.
 
 ### Utils và composable chép
 
-- [ ] T015 [P] Chép utils hiển thị: `src/utils/render-string-template.ts` (`renderPlainStringTemplate`,
+- [X] T015 [P] Chép utils hiển thị: `src/utils/render-string-template.ts` (`renderPlainStringTemplate`,
   `renderDisplayStringTemplate`), `src/utils/adjust-fields-for-displays.ts`, `src/utils/get-related-collection.ts`,
   `src/utils/get-item-route.ts`, `src/utils/readable-mime-type.ts`, `src/utils/format-filesize.ts`,
   `src/utils/format-date.ts` (+ `date-fns-tz`, khóa `date-fns_*` đã có), `src/utils/get-fields-from-template.ts` (hoặc
   dùng `@directus/utils`), `src/utils/replace-url-access-token.ts`, `src/utils/selective-clone.ts`; test cho từng file.
-- [ ] T016 [P] Chép composable: `src/composables/use-alias-fields.ts`, `src/composables/use-custom-selection.ts` (từ
+- [X] T016 [P] Chép composable: `src/composables/use-alias-fields.ts`, `src/composables/use-custom-selection.ts` (từ
   `directus/packages/composables/src`, kèm test port `use-custom-selection.test.ts`), `src/composables/use-template-data.ts`
   (api → sdk); test.
-- [ ] T017 [P] Chép `src/composables/use-items.ts` và `src/composables/use-collection.ts` từ
+- [X] T017 [P] Chép `src/composables/use-items.ts` và `src/composables/use-collection.ts` từ
   `directus/packages/composables/src` (axios/`useApi` → sdk; query `fields`, `sort`, `limit`, `page`, `search`,
   `filter`; đếm `aggregate[count]`/`countDistinct` như Directus, contracts/api-calls #34, #35); port test
   `use-items.test.ts`, `use-collection.test.ts`.
 
 ### Form theo metadata (FR-010 đến FR-019)
 
-- [ ] T018 Chép utils form vào `src/components/form/utils/`: `get-form-fields.ts`, `apply-conditions.ts` (`$version` =
+- [X] T018 Chép utils form vào `src/components/form/utils/`: `get-form-fields.ts`, `apply-conditions.ts` (`$version` =
   `null`, FR-013), `push-group-options-down.ts`, `update-field-widths.ts`, `validate-item.ts` (`validatePayload` của
   `@directus/utils`), `clear-hidden-fields-by-condition.ts`, `get-default-values-from-fields.ts`,
   `format-validation-structure.ts`; port test Directus có sẵn của các utils này; test thêm cho luật khớp sau cùng
   thắng, mảng options thay cả mảng, `clear_hidden_value_on_save` trong nhóm.
-- [ ] T019 `src/components/BoCheckbox.vue` (Reka Checkbox, recipe Checkbox của `component-specs.md`, indeterminate) và
+- [X] T019 `src/components/BoCheckbox.vue` (Reka Checkbox, recipe Checkbox của `component-specs.md`, indeterminate) và
   `src/components/BoTable.vue` (recipe nháp Q-11: cột, chọn một/nhiều, sort, resize, khoảng cách compact/cozy/comfortable
   29/43/58, empty `no_items`, `aria-busy`, cuộn ngang trong khung); dùng bởi `BoForm` (batch mode), US2, US3, US7; test.
-- [ ] T020 Base form component theo recipe Q-1: `src/components/form/BoForm.vue` (logic chép từ `v-form.vue`, template theo recipe Q-1; bỏ
+- [X] T020 Base form component theo recipe Q-1: `src/components/form/BoForm.vue` (logic chép từ `v-form.vue`, template theo recipe Q-1; bỏ
   `use-ai-tools`, collab (D-54); `values` provide; `emitValue` bỏ khi bằng ban đầu; `hasEdits` qua `defineExpose`
   (FR-084); batch mode như `useBatch`, mọi field trừ khóa chính (FR-019); `autofocus`; `direction`; divider hệ thống;
   `no_visible_fields`), `FormField.vue`, `FormFieldLabel.vue` (chấm sửa, `*`, ẩn, raw toggle), `FormFieldMenu.vue`
@@ -182,34 +182,34 @@ mọi task giao diện (FR-093, CHK025).
   `FormFieldRawEditor.vue` (`BoDialog`, ép kiểu), `ValidationErrors.vue` (`validation_errors_notice`, cuộn tới field,
   "(hidden)", "(Hidden in {group})", `validation_message` với tooltip gốc); test component cho FR-010 đến FR-019 (US1
   scenario 2–7) trên field giả lập.
-- [ ] T021 `src/interfaces/_system/system-raw-editor/` chép `directus/app/src/interfaces/_system/system-raw-editor`
+- [X] T021 `src/interfaces/_system/system-raw-editor/` chép `directus/app/src/interfaces/_system/system-raw-editor`
   (CodeMirror 5, `language` `mustache`|`plaintext`, `placeholder`, chỉ đọc khi `disabled`, FR-004); CSS CodeMirror theo
   token sáng/tối (FR-095); test mới (Directus không có).
 
 ### Render display và template (FR-070, FR-071)
 
-- [ ] T022 Theo recipe Q-12: `src/components/BoTextOverflow.vue` (logic từ `v-text-overflow`), `src/components/render/
+- [X] T022 Theo recipe Q-12: `src/components/BoTextOverflow.vue` (logic từ `v-text-overflow`), `src/components/render/
   ValueNull.vue`, `RenderDisplay.vue` (null → `--`, display không có → text, lỗi → text), `RenderTemplate.vue` (tách
   `{{ }}`, display theo field hoặc mặc định, mảng cho `related-values`/`formatted-value`/`formatted-json-value`/
   `translations`, `$thumbnail`, `field:collection` của m2a, `translate`); test với display giả.
 
 ### Bộ mẫu và API giả lập (FR-100, contracts/tests §2, §3)
 
-- [ ] T023 `apps/web/fixtures/interfaces/seed.mjs` (REST, token admin, idempotent: xóa rồi tạo collection `bo_*` theo
+- [X] T023 `apps/web/fixtures/interfaces/seed.mjs` (REST, token admin, idempotent: xóa rồi tạo collection `bo_*` theo
   data-model §6: `bo_std`, `bo_groups`, `bo_rel`, `bo_rel_target`, `bo_junction_*`, `bo_m2a_a`, `bo_m2a_b`, `bo_tree`,
   `bo_translations`, `bo_languages`; folder `bo-fixtures` và file mẫu (ảnh PNG, SVG, PDF); role/policy/user `bo-editor`
   (quyền một phần), `bo-viewer` (chỉ đọc); item có giá trị do Directus ghi, kể cả giá trị lệch dạng cho list, map, code
   (CHK006); field `geometry.*` chỉ khi DB là Postgres có PostGIS) và `export.mjs` (snapshot chuẩn hóa: id ổn định
   `bo-<n>`, thời gian, `meta.id`), target Nx `web:fixtures`; `fixtures/interfaces/README.md`. Field của từng interface
   và display thêm dần ở task của story (mỗi task interface thêm field của nó vào seed).
-- [ ] T024 Chạy `web:fixtures` lần đầu trên Directus thật (profile `app`, nhắn session 012 trước), commit
+- [X] T024 Chạy `web:fixtures` lần đầu trên Directus thật (profile `app`, nhắn session 012 trước), commit
   `apps/web/fixtures/interfaces/snapshot/*.json` và `meta.json`; chạy lại sau mỗi đợt có field mới.
-- [ ] T025 `src/test-utils/fixtures.ts` (`loadSnapshot`, `fieldsOf`, `itemOf`, `expected`), `src/test-utils/fetch.ts`
+- [X] T025 `src/test-utils/fixtures.ts` (`loadSnapshot`, `fieldsOf`, `itemOf`, `expected`), `src/test-utils/fetch.ts`
   thêm `mockFixtureApi(snapshot, { user })` (route contracts/tests §3, lọc trong bộ nhớ `_eq`, `_neq`, `_in`, `_nin`,
   `_null`, `_nnull`, `_or`, `_and`, `search`, `limit`, `page`, `sort`, `fields` lồng một cấp, `aggregate[count]`;
   `POST /files`, `/files/import`, `/flows/trigger/:id` ghi lại) và `assertOnlyKnownRequests(calls)` (danh sách
   `contracts/api-calls.md` + 012); test `src/test-utils/fetch.test.ts`.
-- [ ] T026 `apps/web/fixtures/interfaces/snapshot.test.ts`: mỗi interface id và display id có ít nhất một field trong
+- [X] T026 `apps/web/fixtures/interfaces/snapshot.test.ts`: mỗi interface id và display id có ít nhất một field trong
   `fields.json` (ca đủ bật ở T090); mỗi `expected.<id>.json` có trường `source` cho từng giá trị (CHK051).
 
 **Checkpoint**: form dựng được field giả với `system-raw-editor`, render template chạy, bộ mẫu và API giả lập sẵn sàng.
@@ -226,59 +226,59 @@ trị phát ra theo US1 scenario 1–7.
 
 ### Component cơ sở (theo recipe T007)
 
-- [ ] T027 [P] [US1] `src/components/BoTextarea.vue`, `BoSwitch.vue`, `BoRadio.vue` (RadioGroup) theo
+- [X] T027 [P] [US1] `src/components/BoTextarea.vue`, `BoSwitch.vue`, `BoRadio.vue` (RadioGroup) theo
   `component-specs.md` (Textarea, Toggle) và recipe nháp Radio; test.
-- [ ] T028 [P] [US1] `src/components/BoCombobox.vue` (Reka Combobox, cho phép "khác"), `BoMultiSelect.vue` (chip trong
+- [X] T028 [P] [US1] `src/components/BoCombobox.vue` (Reka Combobox, cho phép "khác"), `BoMultiSelect.vue` (chip trong
   ô, `previewThreshold`), `BoCheckboxGroup.vue` (lưới, "hiện thêm"), `BoCheckboxTree.vue` (logic chép
   `v-checkbox-tree`, `valueCombining`); test.
-- [ ] T029 [P] [US1] `src/components/BoDatePicker.vue` (logic chép từ `directus/app/src/components/v-date-picker/*`, template theo recipe
+- [X] T029 [P] [US1] `src/components/BoDatePicker.vue` (logic chép từ `directus/app/src/components/v-date-picker/*`, template theo recipe
   Q-3; Reka
   Calendar, TimeField, `@internationalized/date`, `use24`, `includeSeconds`, theo kiểu `date`/`time`/`dateTime`/
   `timestamp`); test.
-- [ ] T030 [P] [US1] `src/components/BoSlider.vue` (Reka Slider, nhãn giá trị, ticks), `BoChip.vue`, `BoTagsInput.vue`;
+- [X] T030 [P] [US1] `src/components/BoSlider.vue` (Reka Slider, nhãn giá trị, ticks), `BoChip.vue`, `BoTagsInput.vue`;
   test.
-- [ ] T031 [P] [US1] `src/components/BoColorPicker.vue` (Popover, RGB/HSL, thanh trượt, input màu của trình duyệt,
+- [X] T031 [P] [US1] `src/components/BoColorPicker.vue` (Popover, RGB/HSL, thanh trượt, input màu của trình duyệt,
   cảnh báo tương phản thấp), `BoIconPicker.vue` (nhóm theo `icons.json`, tìm kiếm, `vue-virtual-scroller`);
   `src/components/BoIcon.vue` (012) vẽ thêm tên `social:*` bằng Font Awesome brands như `social-icon.vue`; test.
 
 ### Interface chuẩn, chữ, số, ngày (mỗi task: chép `index.ts` và logic của `.vue`, template theo recipe; thêm field vào seed T023; test theo §5)
 
-- [ ] T032 [P] [US1] `src/interfaces/input/` (FR-020: options theo kiểu số/khác, `masked`, `clear`, `slug` với
+- [X] T032 [P] [US1] `src/interfaces/input/` (FR-020: options theo kiểu số/khác, `masked`, `clear`, `slug` với
   `@sindresorhus/slugify`, `trim`, bộ đếm, integer/float, bigInteger/decimal giữ chuỗi; chép logic `v-input.vue`
   liên quan); port `input/index.test.ts`, `input/input.test.ts`.
-- [ ] T033 [P] [US1] `src/interfaces/input-multiline/` (FR-021) và `src/interfaces/input-hash/` (FR-022, không đặt giá
+- [X] T033 [P] [US1] `src/interfaces/input-multiline/` (FR-021) và `src/interfaces/input-hash/` (FR-022, không đặt giá
   trị đã lưu vào ô, `value_securely_stored`); port `input-hash.test.ts`.
-- [ ] T034 [P] [US1] `src/interfaces/input-autocomplete-api/` (FR-023: micromustache `{{value}}`, URL ngoài bằng
+- [X] T034 [P] [US1] `src/interfaces/input-autocomplete-api/` (FR-023: micromustache `{{value}}`, URL ngoài bằng
   `fetch` `credentials: 'omit'` không header phiên, URL `/` qua sdk, throttle/debounce, `resultsPath`/`textPath`/
   `valuePath`); test cả hai loại URL và kết quả không phải mảng.
-- [ ] T035 [P] [US1] `src/interfaces/boolean/` (FR-024) và `src/interfaces/slider/` (FR-026); test.
-- [ ] T036 [P] [US1] `src/interfaces/datetime/` (FR-025: `tz` với `date-fns-tz`, định dạng chuỗi theo kiểu, `use24`
+- [X] T035 [P] [US1] `src/interfaces/boolean/` (FR-024) và `src/interfaces/slider/` (FR-026); test.
+- [X] T036 [P] [US1] `src/interfaces/datetime/` (FR-025: `tz` với `date-fns-tz`, định dạng chuỗi theo kiểu, `use24`
   mặc định `true`); port `datetime.test.ts`; xác nhận dạng chuỗi theo kiểu và sửa FR-025 nếu khác [Inference].
-- [ ] T037 [P] [US1] `src/interfaces/tags/` (FR-027: xử lý trim → hoa thường → khoảng trắng → sắp → bỏ trùng,
+- [X] T037 [P] [US1] `src/interfaces/tags/` (FR-027: xử lý trim → hoa thường → khoảng trắng → sắp → bỏ trùng,
   `allowCustom`, chế độ biến khi `rawEditorEnabled`, field `csv` phát mảng); port `tags.test.ts`.
-- [ ] T038 [P] [US1] `src/interfaces/input-code/` (FR-028: CodeMirror 5 + `import-codemirror-mode.ts`, danh sách
+- [X] T038 [P] [US1] `src/interfaces/input-code/` (FR-028: CodeMirror 5 + `import-codemirror-mode.ts`, danh sách
   `language` từ `CodeMirror.modeInfo`, `jsonlint-mod`, json parse/null/`{{ biến }}`, nút `template`; CSS theo token);
   port `input-code.test.ts`.
 
 ### Interface lựa chọn
 
-- [ ] T039 [P] [US1] `src/interfaces/select-dropdown/` (FR-030) và `src/interfaces/select-multiple-dropdown/` (FR-031);
+- [X] T039 [P] [US1] `src/interfaces/select-dropdown/` (FR-030) và `src/interfaces/select-multiple-dropdown/` (FR-031);
   test.
-- [ ] T040 [P] [US1] `src/interfaces/select-radio/` (FR-032, `allowOther` khai `string` đọc như boolean) và
+- [X] T040 [P] [US1] `src/interfaces/select-radio/` (FR-032, `allowOther` khai `string` đọc như boolean) và
   `src/interfaces/select-multiple-checkbox/` (FR-033); port `select-radio.test.ts`, `select-multiple-checkbox.test.ts`.
-- [ ] T041 [P] [US1] `src/interfaces/select-multiple-checkbox-tree/` (FR-034); test.
-- [ ] T042 [P] [US1] `src/interfaces/select-icon/` (FR-035, `icons.json` chép, nhóm Social, `vue-virtual-scroller`);
+- [X] T041 [P] [US1] `src/interfaces/select-multiple-checkbox-tree/` (FR-034); test.
+- [X] T042 [P] [US1] `src/interfaces/select-icon/` (FR-035, `icons.json` chép, nhóm Social, `vue-virtual-scroller`);
   port `select-icon.test.ts`; ghi công icon Font Awesome trong `apps/web/README.md`.
-- [ ] T043 [P] [US1] `src/interfaces/select-color/` (FR-036, `presets` 9 màu trong danh sách miễn T006, `opacity`,
+- [X] T043 [P] [US1] `src/interfaces/select-color/` (FR-036, `presets` 9 màu trong danh sách miễn T006, `opacity`,
   `color` 5.0.2, `var(--x)`); port `select-color.test.ts`.
 
 ### Kiểm story
 
-- [ ] T044 [US1] `src/components/form/BoForm.fixture.test.ts`: dựng `bo_std` từ bộ mẫu với `mockFixtureApi`: US1
+- [X] T044 [US1] `src/components/form/BoForm.fixture.test.ts`: dựng `bo_std` từ bộ mẫu với `mockFixtureApi`: US1
   scenario 1–7 (input options, null/không có interface, hai điều kiện cùng khớp, `half` → `half-right`, sửa rồi đặt
   lại, `FAILED_VALIDATION` hai field, menu field của field bắt buộc), tạo mới `primaryKey = '+'` (FR-015), không sửa
   thì 0 thay đổi; `assertOnlyKnownRequests`.
-- [ ] T045 [US1] Cập nhật bộ mẫu (T023, T024) với mọi tổ hợp options của T032 đến T043 và `expected.<id>.json` (có
+- [X] T045 [US1] Cập nhật bộ mẫu (T023, T024) với mọi tổ hợp options của T032 đến T043 và `expected.<id>.json` (có
   `source`); `snapshot.test.ts` đạt cho các id của US1.
 
 **Checkpoint**: US1 kiểm được độc lập; MVP = form với interface chuẩn và lựa chọn.
@@ -293,25 +293,25 @@ FR-079).
 **Independent Test**: `src/displays/displays.fixture.test.ts` vẽ giá trị của bộ mẫu bằng 18 display, so chuỗi hiển thị
 và `handler` với giá trị mong đợi (US2 scenario 1–5).
 
-- [ ] T046 [P] [US2] `src/displays/boolean/`, `src/displays/color/` (`defaultColor` trong danh sách miễn, viền tương
+- [X] T046 [P] [US2] `src/displays/boolean/`, `src/displays/color/` (`defaultColor` trong danh sách miễn, viền tương
   phản), `src/displays/icon/` (`filled`, `color` chỉ hex, `social:*`), `src/displays/hash/`, `src/displays/raw/`,
   `src/displays/filesize/`, `src/displays/mime-type/`; port `boolean.test.ts`, `color.test.ts`, `icon.test.ts`,
   `hash.test.ts`; test cho id còn lại.
-- [ ] T047 [P] [US2] `src/displays/formatted-value/` (FR-074, FR-076: `conditionalFormatting` luật sau cùng thắng, so
+- [X] T047 [P] [US2] `src/displays/formatted-value/` (FR-074, FR-076: `conditionalFormatting` luật sau cùng thắng, so
   theo kiểu, `masked`, `translate` ẩn, `format` theo locale, DOMPurify khử HTML) và `src/displays/formatted-json-value/`
   (`handler` tái hiện thứ tự `render()` của Directus, ghi chú R-xx cho T103); port `formatted-value.test.ts`; test.
-- [ ] T048 [P] [US2] `src/displays/labels/` (`format` true, `showAsDot`, `choices`; `handler` tra thêm choices của
+- [X] T048 [P] [US2] `src/displays/labels/` (`format` true, `showAsDot`, `choices`; `handler` tra thêm choices của
   interface, FR-079) và `src/displays/rating/` (`simple`, `interfaceOptions.maxValue`); theo recipe Q-4, Q-5; port `rating.test.ts`; test.
-- [ ] T049 [P] [US2] `src/displays/datetime/` (relative cập nhật 60 s, `strict`, `round`, `tz` tooltip, `use24` mặc
+- [X] T049 [P] [US2] `src/displays/datetime/` (relative cập nhật 60 s, `strict`, `round`, `tz` tooltip, `use24` mặc
   định `false`; logic chép từ `use-datetime.vue`); test cả `en-US` và `vi-VN` (FR-075).
-- [ ] T050 [P] [US2] `src/displays/collection/`, `src/displays/file/`, `src/displays/image/` (`circle`; ảnh
+- [X] T050 [P] [US2] `src/displays/collection/`, `src/displays/file/`, `src/displays/image/` (`circle`; ảnh
   `system-small-cover` + `cacheBuster`, lỗi tải → icon/nhãn đuôi, FR-077); test.
-- [ ] T051 [P] [US2] `src/displays/user/` (`display`, `circle`) và `src/components/render/UserPopover.vue` (Popover
+- [X] T051 [P] [US2] `src/displays/user/` (`display`, `circle`) và `src/components/render/UserPopover.vue` (Popover
   theo recipe Q-12, `GET /users/:id?fields=...` contracts/api-calls #49, lỗi quyền hiện như Directus); test.
-- [ ] T052 [US2] `src/displays/related-values/` ("N item(s)" + menu + link `getItemRoute`, m2o trực tiếp, `fields` theo
+- [X] T052 [US2] `src/displays/related-values/` ("N item(s)" + menu + link `getItemRoute`, m2o trực tiếp, `fields` theo
   template, `handler` dùng handler lồng) và `src/displays/translations/` (chọn ngôn ngữ theo `userLanguage`/
   `defaultLanguage`, menu tiến độ); test với quan hệ của bộ mẫu.
-- [ ] T053 [US2] `src/displays/displays.fixture.test.ts`: US2 scenario 1–5 trên bộ mẫu, `handler` của 10 display
+- [X] T053 [US2] `src/displays/displays.fixture.test.ts`: US2 scenario 1–5 trên bộ mẫu, `handler` của 10 display
   (FR-072), `adjustFieldsForDisplays` và alias (FR-073); cập nhật seed (T023, T024) với field của mỗi display và
   `display_options`.
 
@@ -438,24 +438,24 @@ công (FR-055 đến FR-059).
 
 **Independent Test**: test component trên `bo_groups`: trạng thái mở, tab đang chọn, nút link/flow (US6 scenario 1–3).
 
-- [ ] T082 [P] [US6] `src/components/BoTabs.vue`, `BoAccordion.vue`, `BoDetail.vue`, `BoDivider.vue` theo recipe Q-6
+- [X] T082 [P] [US6] `src/components/BoTabs.vue`, `BoAccordion.vue`, `BoDetail.vue`, `BoDivider.vue` theo recipe Q-6
   (Reka Tabs, Accordion, Collapsible; reduce motion); test.
-- [ ] T083 [P] [US6] `src/interfaces/group-accordion/` (`accordionMode`, `start`, Shift+bấm, mục có lỗi tự mở) và
+- [X] T083 [P] [US6] `src/interfaces/group-accordion/` (`accordionMode`, `start`, Shift+bấm, mục có lỗi tự mở) và
   `src/interfaces/group-detail/` (`start`, `headerIcon`, `headerColor`, chấm sửa, tooltip lỗi, tự mở); port
   `group-accordion.test.ts`, `group-detail.test.ts`.
-- [ ] T084 [P] [US6] `src/interfaces/group-raw/` và `src/interfaces/group-tabs/` (`fillWidth`, tab đầu có lỗi,
+- [X] T084 [P] [US6] `src/interfaces/group-raw/` và `src/interfaces/group-tabs/` (`fillWidth`, tab đầu có lỗi,
   `direction`); xử lý nhóm `meta.interface` null theo kết quả T004; port `group-raw.test.ts`.
-- [ ] T085 [P] [US6] `src/interfaces/presentation-divider/` (FR-056) và `src/interfaces/presentation-notice/` (FR-059,
+- [X] T085 [P] [US6] `src/interfaces/presentation-divider/` (FR-056) và `src/interfaces/presentation-notice/` (FR-059,
   markdown khử HTML); test.
-- [ ] T086 [US6] `src/composables/use-run-manual-flow.ts` chép `useRunManualFlow`/`useInjectRunManualFlow` (bản mặc
+- [X] T086 [US6] `src/composables/use-run-manual-flow.ts` chép `useRunManualFlow`/`useInjectRunManualFlow` (bản mặc
   định khi màn chứa không cung cấp: `POST /flows/trigger/:id` `{ collection, keys }`, hộp xác nhận `requireConfirmation`
   với `BoForm` từ `options.fields`, thông báo thành công/lỗi, sự kiện "đã chạy"); test.
-- [ ] T087 [US6] `src/interfaces/presentation-header/` (id `header`, FR-057: `header.vue`, `helper-text.vue` DOMPurify,
+- [X] T087 [US6] `src/interfaces/presentation-header/` (id `header`, FR-057: `header.vue`, `helper-text.vue` DOMPurify,
   `useTemplateData`, link `/` nội bộ, menu "Actions", nút flow khóa khi `'+'`/`nonEditable`); port `header.test.ts`,
   `helper-text.test.ts`.
-- [ ] T088 [US6] `src/interfaces/presentation-links/` (FR-058: nạp field quan hệ của URL bằng `GET` item, flow chỉ khi
+- [X] T088 [US6] `src/interfaces/presentation-links/` (FR-058: nạp field quan hệ của URL bằng `GET` item, flow chỉ khi
   `isActiveFlow`); port `presentation-links.test.ts`.
-- [ ] T089 [US6] `src/interfaces/groups.fixture.test.ts`: US6 scenario 1–3 trên `bo_groups` (nhóm lồng, readonly đẩy
+- [X] T089 [US6] `src/interfaces/groups.fixture.test.ts`: US6 scenario 1–3 trên `bo_groups` (nhóm lồng, readonly đẩy
   xuống, header hai link); cập nhật seed (T023, T024).
 
 **Checkpoint**: mọi interface của 40 id đã có; form đủ bố cục.
@@ -598,5 +598,27 @@ Trước đợt A (2026-10-15, chờ CI 012):
 
 - T002 (phần không cần cài vào repo): mọi gói R1 có đúng bản trên npm, giấy phép đạt FR-064 (chi tiết research R1
   "Kết quả kiểm"); `@directus/utils` bản `shared` không dùng module Node. Còn lại của T002: chạy thử build Vite sau T001.
+- T001: catalog + `apps/web/package.json` (thêm `@types/codemirror` 5.60.16, `@types/geojson`, `@types/wellknown`,
+  `micromustache`, `@playwright/test` cho provider browser); `pnpm install` chỉ cảnh báo peer `vue@3.5.24` của
+  `@directus/types`/`@directus/utils` (app dùng 3.5.43, lệch bản vá, chấp nhận).
+- T003: `vitest.config.ts` hai project chạy được; coverage v8 gộp cả `browser` (không cần istanbul): 69 file, 322 test,
+  98% dòng lúc đầu; CI job `quality` cài chromium; script `test:unit`.
+- T005: chromium headless có WebGL, MapLibre 1.15.3 phát `load` với style rỗng (local macOS); test bản đồ thật trong
+  project `browser`, dự phòng mock nếu CI Linux không có WebGL [Unverified CI].
+- T006: không sửa tool: dùng đánh dấu cuối dòng có sẵn `raw-color-allowed: Directus data default (Q-C)` cho hằng màu dữ
+  liệu (grep được, một quy ước duy nhất); spec Q-C sửa ở T102.
+- T008: `info.files` của store server, chép `use-mime-type-filter` (+ test) dùng cho FR-053.
+Đợt A (2026-10-16):
+
+- Phase 1, 2, 3 (US1), 4 (US2), 8 (US6) xong: 40 interface chưa đủ (còn quan hệ, file, editor, map, list ở đợt B, C), 18/18
+  display, form, render, bộ mẫu 14 collection; `pnpm --filter web test`: 218 file, 1820 test, coverage 97%; bundle chính
+  206 KB gzip (012: 132 KB).
+- Lệch spec so với Directus phát hiện khi làm, đã sửa spec theo Directus: interface không đăng ký dùng interface mặc
+  định theo kiểu (FR-003, D-57); batch mode giữ khóa chính (FR-019); định dạng chuỗi `datetime` (FR-025, timestamp có mili
+  giây); icon thương hiệu dùng tên trần như `v-icon` (FR-074); contract #33 (`fields=*,operations.*`), #35 (aggregate JSON).
+- R-xx xác nhận từ mã Directus: `header` có đúng một link nội bộ không hiện nút (`header.vue`); `formatted-json-value`
+  handler đảo tham số `render()`. Ghi ở T103.
+- Seed thêm field cho US1-2, FR-015, US6-2 (`header_actions`), FR-014 (`readonly_group`); snapshot xuất lại.
+- `@internationalized/date` 3.12.4 (bản reka-ui dùng) thay 3.10.1 của Directus: không đổi định dạng dữ liệu.
 - T004: Directus app ẩn nhóm `meta.interface` null cùng field con, không lỗi, không cảnh báo; app mới làm giống (spec
   Edge Cases, research R3); SC-001 không cần ngoại lệ.

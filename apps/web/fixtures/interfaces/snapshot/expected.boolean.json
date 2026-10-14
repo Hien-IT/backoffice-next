@@ -1,0 +1,18 @@
+{
+	"true toggles to false": {
+		"field": "boolean",
+		"initial": true,
+		"action": "toggle",
+		"value": false,
+		"source": "directus/app/src/interfaces/boolean/boolean.vue:42 + directus/app/src/components/v-checkbox.vue:101 (!modelValue)",
+		"description": "click"
+	},
+	"false toggles to true": {
+		"field": "boolean_default",
+		"initial": false,
+		"action": "toggle",
+		"value": true,
+		"source": "directus/app/src/interfaces/boolean/boolean.vue:42 + directus/app/src/components/v-checkbox.vue:101 (!modelValue)",
+		"description": "click"
+	}
+}

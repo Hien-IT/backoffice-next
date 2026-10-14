@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/components/v-checkbox-tree/v-checkbox-tree.vue",
+		"dest": "apps/web/src/components/BoCheckboxTree.vue"
+	},
+	{
+		"source": "app/src/components/v-checkbox-tree/VCheckboxTreeCheckbox.vue",
+		"dest": "apps/web/src/components/checkbox-tree/value-combining.ts"
+	},
+	{
+		"source": "app/src/components/v-checkbox-tree/use-visible-children.ts",
+		"dest": "apps/web/src/components/checkbox-tree/use-visible-children.ts"
+	},
+	{
+		"source": "app/src/components/v-checkbox-tree/v-checkbox-tree.test.ts",
+		"dest": "apps/web/src/components/BoCheckboxTree.test.ts"
+	}
+]

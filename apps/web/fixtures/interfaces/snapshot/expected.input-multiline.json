@@ -1,0 +1,26 @@
+{
+	"keeps line breaks": {
+		"field": "input_multiline",
+		"initial": "Line one\nLine two",
+		"action": "type a\nb",
+		"value": "a\nb",
+		"source": "directus/app/src/components/v-textarea.vue:46 emitValue",
+		"description": "typed text with a line break"
+	},
+	"trim on blur": {
+		"field": "input_multiline",
+		"initial": "Line one\nLine two",
+		"action": ["type   two lines\n ", "blur"],
+		"value": "two lines",
+		"source": "directus/app/src/components/v-textarea.vue:56 trimIfEnabled",
+		"description": "trim: true"
+	},
+	"clear keeps an empty string": {
+		"field": "input_multiline",
+		"initial": "Line one\nLine two",
+		"action": "type ",
+		"value": "",
+		"source": "directus/app/src/interfaces/input-multiline/input-multiline.vue:49 (:nullable=\"!clear\") + directus/app/src/components/v-textarea.vue:49",
+		"description": "clear: true, emptied textarea"
+	}
+}

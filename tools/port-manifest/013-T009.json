@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/interfaces/index.ts", "dest": "apps/web/src/interfaces/index.ts" },
+	{ "source": "app/src/interfaces/index.test.ts", "dest": "apps/web/src/interfaces/index.test.ts" },
+	{ "source": "app/src/displays/index.ts", "dest": "apps/web/src/displays/index.ts" }
+]

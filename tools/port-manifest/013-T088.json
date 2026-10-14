@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/presentation-links/index.ts",
+		"dest": "apps/web/src/interfaces/presentation-links/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/presentation-links/presentation-links.vue",
+		"dest": "apps/web/src/interfaces/presentation-links/PresentationLinks.vue"
+	},
+	{
+		"source": "app/src/interfaces/presentation-links/presentation-links.test.ts",
+		"dest": "apps/web/src/interfaces/presentation-links/presentation-links.test.ts"
+	}
+]

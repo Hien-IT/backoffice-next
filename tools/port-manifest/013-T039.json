@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/select-dropdown/index.ts",
+		"dest": "apps/web/src/interfaces/select-dropdown/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-dropdown/select-dropdown.vue",
+		"dest": "apps/web/src/interfaces/select-dropdown/SelectDropdown.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-dropdown/index.ts",
+		"dest": "apps/web/src/interfaces/select-multiple-dropdown/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-dropdown/select-multiple-dropdown.vue",
+		"dest": "apps/web/src/interfaces/select-multiple-dropdown/SelectMultipleDropdown.vue"
+	}
+]

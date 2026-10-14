@@ -1,0 +1,249 @@
+/*
+ * CodeMirror 5 on the TailAdmin tokens (EditorFrame recipe, light and dark), for any editor inside `.bo-codemirror`.
+ * Backoffice: replaces the color part of directus/app/src/styles/lib/_codemirror.scss (theme variables mapped to the
+ * design-system tokens); the frame border and focus ring come from the EditorFrame classes on the wrapper.
+ */
+.bo-codemirror .CodeMirror {
+	height: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.8125rem;
+	line-height: 1.375rem;
+	color: var(--color-gray-800);
+	background: transparent;
+	direction: ltr;
+}
+
+.bo-codemirror .CodeMirror-scroll {
+	min-height: 2.625rem;
+}
+
+.bo-codemirror .CodeMirror-lines {
+	padding: 0.625rem 0;
+}
+
+.bo-codemirror .CodeMirror pre.CodeMirror-line,
+.bo-codemirror .CodeMirror pre.CodeMirror-line-like {
+	padding: 0 1rem;
+}
+
+.bo-codemirror .CodeMirror .CodeMirror-placeholder {
+	color: var(--color-gray-500);
+}
+
+.bo-codemirror.disabled .CodeMirror {
+	color: var(--color-gray-500);
+}
+
+.bo-codemirror .CodeMirror-gutters {
+	background: var(--color-gray-50);
+	border-inline-end: 1px solid var(--color-gray-200);
+}
+
+.bo-codemirror .CodeMirror-linenumber {
+	min-width: 1.125rem;
+	padding: 0 0.1875rem 0 0.3125rem;
+	color: var(--color-gray-500);
+}
+
+.bo-codemirror .CodeMirror-cursor {
+	border-left: 1px solid var(--color-gray-800);
+}
+
+.bo-codemirror .CodeMirror-selected,
+.bo-codemirror .CodeMirror-focused .CodeMirror-selected {
+	background: var(--color-brand-100);
+}
+
+.bo-codemirror .CodeMirror-activeline-background {
+	background: var(--color-gray-50);
+}
+
+.bo-codemirror .cm-s-default .cm-keyword {
+	color: var(--color-brand-600);
+}
+
+.bo-codemirror .cm-s-default .cm-atom,
+.bo-codemirror .cm-s-default .cm-def,
+.bo-codemirror .cm-s-default .cm-variable-2,
+.bo-codemirror .cm-s-default .cm-builtin,
+.bo-codemirror .cm-s-default .cm-attribute,
+.bo-codemirror .cm-s-default .cm-link {
+	color: var(--color-blue-light-700);
+}
+
+.bo-codemirror .cm-s-default .cm-number,
+.bo-codemirror .cm-s-default .cm-variable-3,
+.bo-codemirror .cm-s-default .cm-type,
+.bo-codemirror .cm-s-default .cm-tag,
+.bo-codemirror div.CodeMirror span.CodeMirror-matchingbracket {
+	color: var(--color-success-700);
+}
+
+.bo-codemirror .cm-s-default .cm-comment,
+.bo-codemirror .cm-s-default .cm-string-2 {
+	color: var(--color-warning-700);
+}
+
+.bo-codemirror .cm-s-default .cm-string,
+.bo-codemirror .cm-s-default .cm-error,
+.bo-codemirror .cm-invalidchar,
+.bo-codemirror div.CodeMirror span.CodeMirror-nonmatchingbracket {
+	color: var(--color-error-700);
+}
+
+.bo-codemirror .cm-s-default .cm-property {
+	color: var(--color-orange-700);
+}
+
+.bo-codemirror .cm-s-default .cm-meta,
+.bo-codemirror .cm-s-default .cm-qualifier {
+	color: var(--color-gray-800);
+}
+
+.bo-codemirror .cm-s-default .cm-bracket,
+.bo-codemirror .cm-s-default .cm-hr {
+	color: var(--color-gray-500);
+}
+
+/* Lint (jsonlint): dashed underline and a gutter icon, the shape carries the meaning (not color alone). */
+.bo-codemirror .CodeMirror-lint-markers {
+	width: 0.875rem;
+}
+
+.bo-codemirror .CodeMirror-lint-mark-warning {
+	border-bottom: 2px dashed var(--color-warning-600);
+}
+
+.bo-codemirror .CodeMirror-lint-mark-error {
+	border-bottom: 2px dashed var(--color-error-600);
+}
+
+.bo-codemirror .CodeMirror-lint-marker {
+	position: relative;
+	display: inline-block;
+	width: 0.875rem;
+	height: 0.875rem;
+	vertical-align: middle;
+	cursor: pointer;
+	inset-inline-start: 0.25rem;
+}
+
+.bo-codemirror .CodeMirror-lint-marker-warning {
+	background-color: var(--color-warning-600);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12,5.99L19.53,19H4.47L12,5.99 M12,2L1,21h22L12,2L12,2z'/%3E%3Cpolygon points='13,16 11,16 11,18 13,18'/%3E%3Cpolygon points='13,10 11,10 11,15 13,15'/%3E%3C/svg%3E");
+}
+
+.bo-codemirror .CodeMirror-lint-marker-error {
+	background-color: var(--color-error-600);
+	mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M11 15h2v2h-2zm0-8h2v6h-2zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z'/%3E%3C/svg%3E");
+}
+
+/* The lint tooltip is appended to <body> by the addon: Tooltip recipe colors. */
+.CodeMirror-lint-tooltip {
+	position: absolute;
+	z-index: 99999;
+	max-width: 33.75rem;
+	padding: 0.5rem 0.75rem;
+	overflow: hidden;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: var(--text-theme-xs);
+	color: var(--color-white);
+	white-space: pre-wrap;
+	background: var(--color-gray-900);
+	border-radius: 0.5rem;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.CodeMirror-lint-tooltip {
+		transition: none;
+	}
+}
+
+.dark .bo-codemirror .CodeMirror,
+.dark .bo-codemirror .cm-s-default .cm-meta,
+.dark .bo-codemirror .cm-s-default .cm-qualifier {
+	color: color-mix(in oklab, var(--color-white) 90%, transparent);
+}
+
+.dark .bo-codemirror .CodeMirror-gutters {
+	background: color-mix(in oklab, var(--color-white) 3%, transparent);
+	border-inline-end-color: var(--color-gray-800);
+}
+
+.dark .bo-codemirror .CodeMirror-cursor {
+	border-left-color: var(--color-white);
+}
+
+.dark .bo-codemirror .CodeMirror-selected,
+.dark .bo-codemirror .CodeMirror-focused .CodeMirror-selected {
+	background: var(--color-gray-700);
+}
+
+.dark .bo-codemirror .CodeMirror-activeline-background {
+	background: color-mix(in oklab, var(--color-white) 3%, transparent);
+}
+
+.dark .bo-codemirror .CodeMirror .CodeMirror-placeholder,
+.dark .bo-codemirror .CodeMirror-linenumber,
+.dark .bo-codemirror .cm-s-default .cm-bracket,
+.dark .bo-codemirror.disabled .CodeMirror {
+	color: var(--color-gray-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-keyword {
+	color: var(--color-brand-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-atom,
+.dark .bo-codemirror .cm-s-default .cm-def,
+.dark .bo-codemirror .cm-s-default .cm-variable-2,
+.dark .bo-codemirror .cm-s-default .cm-builtin,
+.dark .bo-codemirror .cm-s-default .cm-attribute,
+.dark .bo-codemirror .cm-s-default .cm-link {
+	color: var(--color-blue-light-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-number,
+.dark .bo-codemirror .cm-s-default .cm-variable-3,
+.dark .bo-codemirror .cm-s-default .cm-type,
+.dark .bo-codemirror .cm-s-default .cm-tag,
+.dark .bo-codemirror div.CodeMirror span.CodeMirror-matchingbracket {
+	color: var(--color-success-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-comment,
+.dark .bo-codemirror .cm-s-default .cm-string-2 {
+	color: var(--color-warning-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-string,
+.dark .bo-codemirror .cm-s-default .cm-error,
+.dark .bo-codemirror .cm-invalidchar,
+.dark .bo-codemirror div.CodeMirror span.CodeMirror-nonmatchingbracket {
+	color: var(--color-error-400);
+}
+
+.dark .bo-codemirror .cm-s-default .cm-property {
+	color: var(--color-orange-400);
+}
+
+.dark .bo-codemirror .CodeMirror-lint-mark-warning,
+.dark .bo-codemirror .CodeMirror-lint-marker-warning {
+	border-bottom-color: var(--color-warning-400);
+	background-color: var(--color-warning-400);
+}
+
+.dark .bo-codemirror .CodeMirror-lint-mark-error {
+	border-bottom-color: var(--color-error-400);
+}
+
+.dark .bo-codemirror .CodeMirror-lint-marker-error {
+	background-color: var(--color-error-400);
+}
+
+.dark .CodeMirror-lint-tooltip {
+	color: color-mix(in oklab, var(--color-white) 90%, transparent);
+	background: var(--color-gray-800);
+}

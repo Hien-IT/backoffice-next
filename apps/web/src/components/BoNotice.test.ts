@@ -23,4 +23,12 @@ describe('BoNotice', () => {
 		expect(wrapper.get('.material-symbols-rounded').text()).toBe(icon);
 		expect(wrapper.get('.text-sm').text()).toBe('Text');
 	});
+
+	test('normal is a gray static note; icon replaces the icon of the type', () => {
+		const wrapper = mount(BoNotice, { props: { type: 'normal', icon: 'bolt' }, slots: { default: 'Text' } });
+
+		expect(wrapper.attributes('role')).toBeUndefined();
+		expect(wrapper.classes()).toContain('bg-gray-50');
+		expect(wrapper.get('.material-symbols-rounded').text()).toBe('bolt');
+	});
 });

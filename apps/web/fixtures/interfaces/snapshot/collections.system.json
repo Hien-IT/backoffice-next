@@ -1,0 +1,62 @@
+[
+	{
+		"collection": "directus_files",
+		"meta": {
+			"collection": "directus_files",
+			"hidden": false,
+			"singleton": false,
+			"icon": "folder",
+			"note": "$t:directus_collection.directus_files",
+			"translations": null,
+			"display_template": "{{ $thumbnail }} {{ title }}",
+			"accountability": "all",
+			"system": true
+		},
+		"schema": {
+			"schema": "public",
+			"name": "directus_files",
+			"comment": null
+		}
+	},
+	{
+		"collection": "directus_folders",
+		"meta": {
+			"collection": "directus_folders",
+			"hidden": false,
+			"singleton": false,
+			"icon": null,
+			"note": "$t:directus_collection.directus_folders",
+			"translations": null,
+			"display_template": "{{ name }}",
+			"accountability": "all",
+			"system": true
+		},
+		"schema": {
+			"schema": "public",
+			"name": "directus_folders",
+			"comment": null
+		}
+	},
+	{
+		"collection": "directus_users",
+		"meta": {
+			"collection": "directus_users",
+			"hidden": false,
+			"singleton": false,
+			"icon": "people_alt",
+			"note": "$t:directus_collection.directus_users",
+			"translations": null,
+			"display_template": "{{ first_name }} {{ last_name }}",
+			"accountability": "all",
+			"archive_field": "status",
+			"archive_value": "archived",
+			"unarchive_value": "draft",
+			"system": true
+		},
+		"schema": {
+			"schema": "public",
+			"name": "directus_users",
+			"comment": null
+		}
+	}
+]

@@ -1,0 +1,9 @@
+[
+	{ "source": "app/src/interfaces/input-code/index.ts", "dest": "apps/web/src/interfaces/input-code/index.ts" },
+	{ "source": "app/src/interfaces/input-code/input-code.vue", "dest": "apps/web/src/interfaces/input-code/InputCode.vue" },
+	{
+		"source": "app/src/interfaces/input-code/import-codemirror-mode.ts",
+		"dest": "apps/web/src/interfaces/input-code/import-codemirror-mode.ts"
+	},
+	{ "source": "app/src/interfaces/input-code/input-code.test.ts", "dest": "apps/web/src/interfaces/input-code/InputCode.test.ts" }
+]

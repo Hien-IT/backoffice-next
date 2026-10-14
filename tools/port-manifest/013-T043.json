@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/select-color/index.ts",
+		"dest": "apps/web/src/interfaces/select-color/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-color/select-color.vue",
+		"dest": "apps/web/src/interfaces/select-color/SelectColor.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-color/select-color.test.ts",
+		"dest": "apps/web/src/interfaces/select-color/SelectColor.test.ts"
+	}
+]

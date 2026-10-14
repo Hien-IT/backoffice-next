@@ -73,3 +73,9 @@ E2E_CONFIG=proxy-directus pnpm exec playwright test   # app -> Directus 11.17.4 
 E2E_CONFIG=proxy-api pnpm exec playwright test        # app -> Backoffice API (http://127.0.0.1:8162)
 E2E_CONFIG=cors pnpm exec playwright test             # app http://localhost:8181 -> API http://127.0.0.1:8163
 ```
+
+## Attributions
+
+- Brand icons of the icon picker's Social group and of `BoIcon` brand names:
+  [Font Awesome Free](https://fontawesome.com) 6.7.2 (`@fortawesome/free-brands-svg-icons`), icons under CC BY 4.0, code
+  under MIT (https://fontawesome.com/license/free).

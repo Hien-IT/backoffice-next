@@ -1,0 +1,14 @@
+// Ported from directus/app/src/utils/merge-item-data.ts
+import { mergeWith } from 'lodash-es';
+
+export function mergeItemData(
+	defaultValues: Record<string, any>,
+	existingValues: Record<string, any>,
+	edits: Record<string, any>,
+) {
+	return mergeWith({}, defaultValues, existingValues, edits, customizer);
+
+	function customizer(_from: unknown, to: unknown): any {
+		if (typeof to !== 'undefined') return to;
+	}
+}

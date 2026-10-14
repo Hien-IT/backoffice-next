@@ -1,0 +1,55 @@
+[
+	{
+		"id": 1,
+		"bo_translations_id": {
+			"id": 1,
+			"slug": "hello",
+			"translations": [
+				1,
+				2
+			]
+		},
+		"bo_languages_code": {
+			"code": "en-US",
+			"name": "English",
+			"direction": "ltr"
+		},
+		"title": "Hello",
+		"body": "Hello body"
+	},
+	{
+		"id": 2,
+		"bo_translations_id": {
+			"id": 1,
+			"slug": "hello",
+			"translations": [
+				1,
+				2
+			]
+		},
+		"bo_languages_code": {
+			"code": "vi-VN",
+			"name": "Tiếng Việt",
+			"direction": "ltr"
+		},
+		"title": "Xin chào",
+		"body": "Nội dung"
+	},
+	{
+		"id": 3,
+		"bo_translations_id": {
+			"id": 2,
+			"slug": "partial",
+			"translations": [
+				3
+			]
+		},
+		"bo_languages_code": {
+			"code": "ar-SA",
+			"name": "العربية",
+			"direction": "rtl"
+		},
+		"title": "مرحبا",
+		"body": null
+	}
+]

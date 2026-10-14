@@ -12,7 +12,13 @@ const project = { project_name: 'Acme', default_language: 'vi-VN' };
 describe('hydrate', () => {
 	test('reads /server/info and /auth?sessionOnly together', async () => {
 		const fetch = mockApi({
-			'GET /server/info': { project, setupCompleted: true, queryLimit: { default: 100, max: -1 }, version: '11.17.4' },
+			'GET /server/info': {
+				project,
+				setupCompleted: true,
+				queryLimit: { default: 100, max: -1 },
+				version: '11.17.4',
+				files: { mimeTypeAllowList: ['image/*'] },
+			},
 			'GET /auth': () => json({ data: [{ name: 'ldap', driver: 'ldap' }], disableDefault: false }),
 		});
 		const store = useServerStore();
@@ -23,6 +29,7 @@ describe('hydrate', () => {
 		expect(store.info.project).toEqual(project);
 		expect(store.info.setupCompleted).toBe(true);
 		expect(store.info.queryLimit).toEqual({ default: 100, max: -1 });
+		expect(store.info.files).toEqual({ mimeTypeAllowList: ['image/*'] });
 		expect(store.auth.providers).toEqual([{ name: 'ldap', driver: 'ldap' }]);
 	});
 

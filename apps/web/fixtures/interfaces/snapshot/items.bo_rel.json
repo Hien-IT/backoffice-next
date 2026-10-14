@@ -1,0 +1,275 @@
+[
+	{
+		"id": 1,
+		"title": "Target",
+		"m2o": {
+			"id": 1,
+			"name": "Target one",
+			"status": "published",
+			"sort": 1,
+			"o2m_list_parent": null,
+			"o2m_table_parent": null
+		},
+		"m2o_default": {
+			"id": 2,
+			"name": "Target two",
+			"status": "draft",
+			"sort": 2,
+			"o2m_list_parent": 1,
+			"o2m_table_parent": null
+		},
+		"owner": {
+			"id": "bo-9",
+			"first_name": "Edith",
+			"last_name": "Editor",
+			"email": "bo-editor@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-8",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"o2m_list": [
+			{
+				"id": 2,
+				"name": "Target two",
+				"status": "draft",
+				"sort": 2,
+				"o2m_list_parent": 1,
+				"o2m_table_parent": null
+			},
+			{
+				"id": 3,
+				"name": "Target three",
+				"status": "published",
+				"sort": 3,
+				"o2m_list_parent": 1,
+				"o2m_table_parent": null
+			}
+		],
+		"o2m_table": [
+			{
+				"id": 4,
+				"name": "Target four",
+				"status": "archived",
+				"sort": 4,
+				"o2m_list_parent": null,
+				"o2m_table_parent": 1
+			}
+		],
+		"m2m_list": [
+			{
+				"id": 1,
+				"bo_rel_id": 1,
+				"bo_rel_target_id": 1,
+				"sort": 1
+			},
+			{
+				"id": 2,
+				"bo_rel_id": 1,
+				"bo_rel_target_id": 1,
+				"sort": 2
+			},
+			{
+				"id": 3,
+				"bo_rel_id": 1,
+				"bo_rel_target_id": 5,
+				"sort": 3
+			}
+		],
+		"m2m_table": [
+			{
+				"id": 1,
+				"bo_rel_id": 1,
+				"bo_rel_target_id": 2
+			}
+		],
+		"m2a": [
+			{
+				"id": 1,
+				"bo_rel_id": 1,
+				"item": "1",
+				"collection": "bo_m2a_a",
+				"sort": 1
+			},
+			{
+				"id": 2,
+				"bo_rel_id": 1,
+				"item": "bo-13",
+				"collection": "bo_m2a_b",
+				"sort": 2
+			}
+		],
+		"files": [
+			{
+				"id": 1,
+				"bo_rel_id": 1,
+				"directus_files_id": "bo-4",
+				"sort": 1
+			},
+			{
+				"id": 2,
+				"bo_rel_id": 1,
+				"directus_files_id": "bo-3",
+				"sort": 2
+			}
+		],
+		"file": {
+			"id": "bo-3",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.pdf",
+			"title": "bo-sample-pdf",
+			"type": "application/pdf",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "191",
+			"width": null,
+			"height": null,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": null,
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"file_image": {
+			"id": "bo-4",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.png",
+			"title": "bo-sample-png",
+			"type": "image/png",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "70",
+			"width": 1,
+			"height": 1,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": {},
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"collection_item": {
+			"key": 1,
+			"collection": "bo_rel_target"
+		},
+		"collection_items": [
+			{
+				"key": 2,
+				"collection": "bo_m2a_a"
+			},
+			{
+				"key": 1,
+				"collection": "bo_m2a_a"
+			}
+		]
+	},
+	{
+		"id": 2,
+		"title": "Empty",
+		"m2o": null,
+		"m2o_default": null,
+		"owner": null,
+		"o2m_list": [],
+		"o2m_table": [],
+		"m2m_list": [],
+		"m2m_table": [],
+		"m2a": [],
+		"files": [],
+		"file": null,
+		"file_image": null,
+		"collection_item": null,
+		"collection_items": null
+	},
+	{
+		"id": 3,
+		"title": "Svg",
+		"m2o": {
+			"id": 3,
+			"name": "Target three",
+			"status": "published",
+			"sort": 3,
+			"o2m_list_parent": 1,
+			"o2m_table_parent": null
+		},
+		"m2o_default": null,
+		"owner": null,
+		"o2m_list": [],
+		"o2m_table": [],
+		"m2m_list": [],
+		"m2m_table": [],
+		"m2a": [],
+		"files": [],
+		"file": null,
+		"file_image": {
+			"id": "bo-5",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.svg",
+			"title": "bo-sample-svg",
+			"type": "image/svg+xml",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "110",
+			"width": null,
+			"height": null,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": null,
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"collection_item": null,
+		"collection_items": null
+	}
+]

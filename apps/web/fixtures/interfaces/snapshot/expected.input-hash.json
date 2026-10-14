@@ -1,0 +1,18 @@
+{
+	"emits the plain text": {
+		"field": "input_hash",
+		"initial": "$argon2id$v=19$m=65536,t=3,p=4$bo-normalized",
+		"action": "type new secret",
+		"value": "new secret",
+		"source": "directus/app/src/interfaces/input-hash/input-hash.vue:47 emitValue",
+		"description": "the API hashes it on save"
+	},
+	"empty is null": {
+		"field": "input_hash",
+		"initial": "$argon2id$v=19$m=65536,t=3,p=4$bo-normalized",
+		"action": "type ",
+		"value": null,
+		"source": "directus/app/src/components/v-input.vue:224 (nullable default true) + directus/app/src/interfaces/input-hash/input-hash.vue:47",
+		"description": "emptied input"
+	}
+}

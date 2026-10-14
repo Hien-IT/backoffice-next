@@ -1,0 +1,66 @@
+{
+	"trim on blur": {
+		"field": "input_string",
+		"initial": "alpha",
+		"action": ["type   Beta  ", "blur"],
+		"value": "Beta",
+		"source": "directus/app/src/components/v-input.vue:206 trimIfEnabled",
+		"description": "trim: true trims string values on blur"
+	},
+	"clear keeps an empty string": {
+		"field": "input_string",
+		"initial": "alpha",
+		"action": "type ",
+		"value": "",
+		"source": "directus/app/src/interfaces/input/input.vue:75 (:nullable=\"!clear\") + directus/app/src/components/v-input.vue:224",
+		"description": "clear: true, emptied input"
+	},
+	"empty is null": {
+		"field": "input_default",
+		"initial": "plain",
+		"action": "type ",
+		"value": null,
+		"source": "directus/app/src/components/v-input.vue:224 (nullable default true)",
+		"description": "no clear option, emptied input"
+	},
+	"slug": {
+		"field": "input_slug",
+		"initial": "my-slug",
+		"action": "type Hello Wörld",
+		"value": "hello-woerld",
+		"source": "directus/app/src/components/v-input.vue:251 (slugify, preserveTrailingDash)",
+		"description": "slug: true"
+	},
+	"integer is a number": {
+		"field": "input_integer",
+		"initial": 55,
+		"action": "type 42",
+		"value": 42,
+		"source": "directus/app/src/components/v-input.vue:229 (Number(value))",
+		"description": "integer field"
+	},
+	"float is a number": {
+		"field": "input_float",
+		"initial": 2.5,
+		"action": "type -3.5",
+		"value": -3.5,
+		"source": "directus/app/src/components/v-input.vue:229 (Number(value))",
+		"description": "float field"
+	},
+	"bigInteger stays a string": {
+		"field": "input_biginteger",
+		"initial": "9007199254740993",
+		"action": "type 9007199254740993",
+		"value": "9007199254740993",
+		"source": "directus/app/src/interfaces/input/input.vue:61 inputType + directus/app/src/components/v-input.vue:265",
+		"description": "bigInteger field"
+	},
+	"decimal comma becomes a dot": {
+		"field": "input_decimal",
+		"initial": "12.34",
+		"action": "type 12,5",
+		"value": "12.5",
+		"source": "directus/app/src/components/v-input.vue:243 (float: replace ',' with '.')",
+		"description": "decimal field, string value"
+	}
+}

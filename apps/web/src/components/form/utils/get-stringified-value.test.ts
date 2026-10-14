@@ -1,0 +1,16 @@
+// Ported from directus/app/src/utils/get-stringified-value.test.ts
+import { expect, test } from 'vitest';
+import { getStringifiedValue } from './get-stringified-value.ts';
+
+test(`Returns empty string when input is undefined`, () => {
+	expect(getStringifiedValue(undefined, true)).toBe('');
+});
+
+test(`Returns JSON stringified value when input is an object`, () => {
+	expect(getStringifiedValue({ key: 'value' }, false)).toBe('{\n    "key": "value"\n}');
+});
+
+test(`Do not double escape quotes for a string input`, () => {
+	// Example scenario for operations in Flows
+	expect(getStringifiedValue('"{{my_operation}}"', true)).toBe('"{{my_operation}}"');
+});

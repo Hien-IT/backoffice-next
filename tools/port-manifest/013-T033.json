@@ -1,0 +1,13 @@
+[
+	{ "source": "app/src/interfaces/input-multiline/index.ts", "dest": "apps/web/src/interfaces/input-multiline/index.ts" },
+	{
+		"source": "app/src/interfaces/input-multiline/input-multiline.vue",
+		"dest": "apps/web/src/interfaces/input-multiline/InputMultiline.vue"
+	},
+	{ "source": "app/src/interfaces/input-hash/index.ts", "dest": "apps/web/src/interfaces/input-hash/index.ts" },
+	{ "source": "app/src/interfaces/input-hash/input-hash.vue", "dest": "apps/web/src/interfaces/input-hash/InputHash.vue" },
+	{
+		"source": "app/src/interfaces/input-hash/input-hash.test.ts",
+		"dest": "apps/web/src/interfaces/input-hash/input-hash.test.ts"
+	}
+]

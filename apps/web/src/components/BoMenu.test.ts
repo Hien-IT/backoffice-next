@@ -68,4 +68,28 @@ describe('BoMenu', () => {
 		expect(menu()).toBeNull();
 		wrapper.unmount();
 	});
+
+	test('an href item opens in a new tab; disabled and loading items', async () => {
+		const onSelect = vi.fn();
+		const { wrapper, trigger } = await mountMenu([
+			{ text: 'Docs', href: 'https://example.com' },
+			{ text: 'Off', disabled: true, onSelect },
+			{ text: 'Running', loading: true },
+		]);
+
+		trigger.focus();
+		await key(trigger, 'Enter');
+
+		const items = document.body.querySelectorAll('[role="menuitem"]');
+		expect(items[0]!.tagName).toBe('A');
+		expect(items[0]!.getAttribute('href')).toBe('https://example.com');
+		expect(items[0]!.getAttribute('target')).toBe('_blank');
+		expect(items[0]!.getAttribute('rel')).toBe('noopener noreferrer');
+		expect(items[1]!.getAttribute('aria-disabled')).toBe('true');
+		(items[1] as HTMLElement).click();
+		expect(onSelect).not.toHaveBeenCalled();
+		expect(items[2]!.querySelector('[role="progressbar"]')).not.toBeNull();
+		expect(items[2]!.querySelector('.sr-only')!.textContent).toBe('Running');
+		wrapper.unmount();
+	});
 });

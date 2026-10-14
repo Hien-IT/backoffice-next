@@ -1,0 +1,10 @@
+{
+	"clear is null": {
+		"field": "select_icon",
+		"initial": "star",
+		"action": "clear",
+		"value": null,
+		"source": "directus/app/src/interfaces/select-icon/select-icon.vue:212 setIcon(null) -> :95",
+		"description": "remove button"
+	}
+}

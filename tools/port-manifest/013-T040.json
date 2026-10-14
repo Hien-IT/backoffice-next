@@ -1,0 +1,34 @@
+[
+	{
+		"source": "app/src/interfaces/select-radio/index.ts",
+		"dest": "apps/web/src/interfaces/select-radio/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-radio/select-radio.vue",
+		"dest": "apps/web/src/interfaces/select-radio/SelectRadio.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-radio/select-radio.test.ts",
+		"dest": "apps/web/src/interfaces/select-radio/SelectRadio.test.ts"
+	},
+	{
+		"source": "app/src/utils/get-minimal-grid-class.ts",
+		"dest": "apps/web/src/utils/get-minimal-grid-class.ts"
+	},
+	{
+		"source": "app/src/utils/get-minimal-grid-class.test.ts",
+		"dest": "apps/web/src/utils/get-minimal-grid-class.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-checkbox/index.ts",
+		"dest": "apps/web/src/interfaces/select-multiple-checkbox/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-checkbox/select-multiple-checkbox.vue",
+		"dest": "apps/web/src/interfaces/select-multiple-checkbox/SelectMultipleCheckbox.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-multiple-checkbox/select-multiple-checkbox.test.ts",
+		"dest": "apps/web/src/interfaces/select-multiple-checkbox/SelectMultipleCheckbox.test.ts"
+	}
+]

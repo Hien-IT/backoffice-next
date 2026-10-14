@@ -1,0 +1,26 @@
+{
+	"branch: uncheck a checked group": {
+		"field": "select_tree",
+		"initial": ["fruit", "kale"],
+		"action": "click Fruit",
+		"value": ["kale"],
+		"source": "directus/app/src/components/v-checkbox-tree/VCheckboxTreeCheckbox.vue:195 emitBranch (disabling the group level)",
+		"description": "valueCombining branch"
+	},
+	"branch: check a group keeps only the group": {
+		"field": "select_tree",
+		"initial": ["fruit", "kale"],
+		"action": "click Vegetable",
+		"value": ["fruit", "vegetable"],
+		"source": "directus/app/src/components/v-checkbox-tree/VCheckboxTreeCheckbox.vue:195 emitBranch (enabling the group level)",
+		"description": "valueCombining branch, kale replaced by its group"
+	},
+	"leaf: uncheck a full group": {
+		"field": "select_tree_csv",
+		"initial": ["leaf"],
+		"action": "click Root",
+		"value": [],
+		"source": "directus/app/src/components/v-checkbox-tree/VCheckboxTreeCheckbox.vue:272 emitLeaf",
+		"description": "valueCombining leaf, csv field emits an array"
+	}
+}

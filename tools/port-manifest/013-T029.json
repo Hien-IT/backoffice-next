@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/components/v-date-picker/v-date-picker.vue",
+		"dest": "apps/web/src/components/BoDatePicker.vue"
+	},
+	{
+		"source": "app/src/components/v-date-picker/v-date-picker.test.ts",
+		"dest": "apps/web/src/components/BoDatePicker.test.ts"
+	},
+	{
+		"source": "app/src/utils/format-date-picker-model-value.ts",
+		"dest": "apps/web/src/utils/format-date-picker-model-value.ts"
+	},
+	{
+		"source": "app/src/utils/format-date-picker-model-value.test.ts",
+		"dest": "apps/web/src/utils/format-date-picker-model-value.test.ts"
+	}
+]

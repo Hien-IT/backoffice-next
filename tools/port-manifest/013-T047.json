@@ -1,0 +1,19 @@
+[
+	{ "source": "app/src/displays/formatted-value/index.ts", "dest": "apps/web/src/displays/formatted-value/index.ts" },
+	{
+		"source": "app/src/displays/formatted-value/formatted-value.vue",
+		"dest": "apps/web/src/displays/formatted-value/DisplayFormattedValue.vue"
+	},
+	{
+		"source": "app/src/displays/formatted-value/formatted-value.test.ts",
+		"dest": "apps/web/src/displays/formatted-value/DisplayFormattedValue.test.ts"
+	},
+	{
+		"source": "app/src/displays/formatted-json-value/index.ts",
+		"dest": "apps/web/src/displays/formatted-json-value/index.ts"
+	},
+	{
+		"source": "app/src/displays/formatted-json-value/formatted-json-value.vue",
+		"dest": "apps/web/src/displays/formatted-json-value/DisplayFormattedJsonValue.vue"
+	}
+]

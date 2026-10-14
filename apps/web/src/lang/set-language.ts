@@ -1,6 +1,8 @@
 // Ported from directus/app/src/lang/set-language.ts
 // Backoffice: only en-US and vi-VN are bundled (D-46). Another available language loads the en-US strings, and
 // `html[lang]` names the language actually loaded (spec "Ngôn ngữ"). The Backoffice overlay is merged on top.
+import { useCollectionsStore } from '../stores/collections.ts';
+import { useFieldsStore } from '../stores/fields.ts';
 import { useTranslationsStore } from '../stores/translations.ts';
 import { loadDateFNSLocale } from '../utils/get-date-fns-locale.ts';
 import availableLanguages from './available-languages.json';
@@ -24,6 +26,8 @@ export function getEffectiveLanguage(lang: string): Language {
 // Backoffice: `string` (callers pass user.language or settings.default_language); Directus' YAML import types make
 // its Language just as wide. Unknown values are checked below.
 export async function setLanguage(lang: string): Promise<boolean> {
+	const collectionsStore = useCollectionsStore();
+	const fieldsStore = useFieldsStore();
 	const translationsStore = useTranslationsStore();
 
 	if (Object.keys(availableLanguages).includes(lang) === false) {
@@ -54,8 +58,8 @@ export async function setLanguage(lang: string): Promise<boolean> {
 		// en-US); revisit if more languages get bundled or D-46 changes.
 		await translationsStore.loadTranslations(lang);
 
-		// Backoffice: collectionsStore.translateCollections() and fieldsStore.translateFields() come with the data
-		// model stores (feature 013+).
+		collectionsStore.translateCollections();
+		fieldsStore.translateFields();
 
 		await loadDateFNSLocale(lang);
 	} catch {

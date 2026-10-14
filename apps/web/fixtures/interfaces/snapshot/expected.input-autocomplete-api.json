@@ -1,0 +1,18 @@
+{
+	"emits the typed text": {
+		"field": "autocomplete",
+		"initial": "Target one",
+		"action": "type Tar get",
+		"value": "Tar get",
+		"source": "directus/app/src/interfaces/input-autocomplete-api/input-autocomplete-api.vue:81 onInput -> :86 emitValue",
+		"description": "typed text, before any suggestion"
+	},
+	"empty is null": {
+		"field": "autocomplete",
+		"initial": "Target one",
+		"action": "type ",
+		"value": null,
+		"source": "directus/app/src/components/v-input.vue:224 (nullable default true) + directus/app/src/interfaces/input-autocomplete-api/input-autocomplete-api.vue:81",
+		"description": "emptied input"
+	}
+}

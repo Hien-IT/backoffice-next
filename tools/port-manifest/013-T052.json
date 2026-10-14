@@ -1,0 +1,12 @@
+[
+	{ "source": "app/src/displays/related-values/index.ts", "dest": "apps/web/src/displays/related-values/index.ts" },
+	{
+		"source": "app/src/displays/related-values/related-values.vue",
+		"dest": "apps/web/src/displays/related-values/DisplayRelatedValues.vue"
+	},
+	{ "source": "app/src/displays/translations/index.ts", "dest": "apps/web/src/displays/translations/index.ts" },
+	{
+		"source": "app/src/displays/translations/translations.vue",
+		"dest": "apps/web/src/displays/translations/DisplayTranslations.vue"
+	}
+]

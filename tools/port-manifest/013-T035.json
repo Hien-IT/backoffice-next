@@ -1,0 +1,6 @@
+[
+	{ "source": "app/src/interfaces/boolean/index.ts", "dest": "apps/web/src/interfaces/boolean/index.ts" },
+	{ "source": "app/src/interfaces/boolean/boolean.vue", "dest": "apps/web/src/interfaces/boolean/InterfaceBoolean.vue" },
+	{ "source": "app/src/interfaces/slider/index.ts", "dest": "apps/web/src/interfaces/slider/index.ts" },
+	{ "source": "app/src/interfaces/slider/slider.vue", "dest": "apps/web/src/interfaces/slider/InterfaceSlider.vue" }
+]

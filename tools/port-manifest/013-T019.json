@@ -1,0 +1,6 @@
+[
+	{ "source": "app/src/components/v-checkbox.vue", "dest": "apps/web/src/components/BoCheckbox.vue" },
+	{ "source": "app/src/components/v-checkbox.test.ts", "dest": "apps/web/src/components/BoCheckbox.test.ts" },
+	{ "source": "app/src/components/v-table/v-table.vue", "dest": "apps/web/src/components/BoTable.vue" },
+	{ "source": "app/src/components/v-table/table-header.test.ts", "dest": "apps/web/src/components/BoTable.test.ts" }
+]

@@ -2,6 +2,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { dehydrate, hydrate } from './hydrate.ts';
 import { useAppStore } from './stores/app.ts';
+import { useFieldsStore } from './stores/fields.ts';
+import { useFlowsStore } from './stores/flows.ts';
 import { useSettingsStore } from './stores/settings.ts';
 import { useUserStore } from './stores/user.ts';
 import { calls, json, mockApi } from './test-utils/fetch.ts';
@@ -54,10 +56,48 @@ test('loads the user first, then permissions and fields, then the other stores (
 	}
 
 	expect(order).not.toContain('GET /server/info');
+	// No read permission on directus_flows: the flows store stays empty without a request (FR-057).
+	expect(order).not.toContain('GET /flows');
 	expect(onHydrateModules).toHaveBeenCalled();
 	expect(setLanguage).toHaveBeenCalledWith('vi-VN');
 	expect(useAppStore().hydrated).toBe(true);
 	expect(useSettingsStore().settings).toEqual({ module_bar: null });
+});
+
+test('loads the flows after the permissions when directus_flows is readable; a failure keeps it empty', async () => {
+	const flows = [{ id: 'f1', status: 'active', trigger: 'manual', options: { collections: ['a'] } }];
+	const permissions = { directus_flows: { read: { access: 'full' } } };
+	let fetch = mockApi({ ...answers(true), 'GET /permissions/me': permissions, 'GET /flows': flows });
+
+	await hydrate();
+
+	const order = calls(fetch);
+	expect(order).toContain('GET /flows?fields=*,operations.*&limit=-1');
+	expect(order.map(path).indexOf('GET /flows')).toBeGreaterThan(order.map(path).indexOf('GET /permissions/me'));
+	expect(useFlowsStore().flows).toEqual(flows);
+
+	await dehydrate();
+	expect(useFlowsStore().flows).toEqual([]);
+
+	fetch = mockApi({
+		...answers(true),
+		'GET /permissions/me': permissions,
+		'GET /flows': () => json({ errors: [{ message: 'boom' }] }, 500),
+	});
+	await hydrate();
+
+	expect(calls(fetch).map(path)).toContain('GET /flows');
+	expect(useFlowsStore().flows).toEqual([]);
+	expect(useAppStore().error).toBeNull();
+});
+
+test('fields are not translated during hydrate; setLanguage translates them afterwards (like Directus)', async () => {
+	mockApi({ ...answers(true), 'GET /fields': [{ collection: 'a', field: 'title', meta: { note: '$t:save' } }] });
+
+	await hydrate();
+
+	expect(useFieldsStore().getField('a', 'title')?.meta?.note).toBe('$t:save');
+	expect(setLanguage).toHaveBeenCalledWith('vi-VN');
 });
 
 test('a user without app_access loads nothing else (no-app-access screen)', async () => {

@@ -43,6 +43,9 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 30, method: 'POST', path: /^\/files$/ },
 	{ id: 31, method: 'POST', path: /^\/utils\/resolve-redirect$/ },
 	{ id: 32, method: 'PATCH', path: /^\/users\/me\/track\/page$/ },
+	// Feature 013: the flows store hydrates for users who can read directus_flows, see
+	// specs/013-interfaces-displays/contracts/api-calls.md #33.
+	{ id: 33, method: 'GET', path: /^\/flows$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

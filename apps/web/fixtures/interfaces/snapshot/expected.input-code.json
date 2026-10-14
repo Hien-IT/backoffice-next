@@ -1,0 +1,53 @@
+{
+	"json field emits parsed JSON": {
+		"field": "code_json",
+		"initial": {
+			"key": "value",
+			"list": [1, 2]
+		},
+		"action": "code {\"a\": [1, 2]}",
+		"value": {
+			"a": [1, 2]
+		},
+		"source": "directus/app/src/interfaces/input-code/input-code.vue:88 (JSON.parse, non-string result)",
+		"description": "typed JSON"
+	},
+	"json field: empty is null": {
+		"field": "code_json",
+		"initial": {
+			"key": "value",
+			"list": [1, 2]
+		},
+		"action": "code ",
+		"value": null,
+		"source": "directus/app/src/interfaces/input-code/input-code.vue:78",
+		"description": "emptied editor"
+	},
+	"json field: interpolation stays a string": {
+		"field": "code_json",
+		"initial": {
+			"key": "value",
+			"list": [1, 2]
+		},
+		"action": "code {{ $trigger.body }}",
+		"value": "{{ $trigger.body }}",
+		"source": "directus/app/src/interfaces/input-code/input-code.vue:82 (isInterpolation)",
+		"description": "mustache variable"
+	},
+	"text field emits the text": {
+		"field": "code_js",
+		"initial": "const a = 1;\nconsole.log(a);",
+		"action": "code let b = 2;",
+		"value": "let b = 2;",
+		"source": "directus/app/src/interfaces/input-code/input-code.vue:94",
+		"description": "javascript on a text field"
+	},
+	"string field with JSON language stays a string": {
+		"field": "code_string_json",
+		"initial": "{\"valid\": true}",
+		"action": "code {\"x\": 1}",
+		"value": "{\"x\": 1}",
+		"source": "directus/app/src/interfaces/input-code/input-code.vue:94 (only type json is parsed)",
+		"description": "language JSON on a string field"
+	}
+}

@@ -1,0 +1,59 @@
+[
+	{
+		"id": 1,
+		"bo_rel_id": {
+			"id": 1,
+			"title": "Target",
+			"m2o": 1,
+			"m2o_default": 2,
+			"owner": "bo-9",
+			"o2m_list": [
+				2,
+				3
+			],
+			"o2m_table": [
+				4
+			],
+			"m2m_list": [
+				1,
+				2,
+				3
+			],
+			"m2m_table": [
+				1
+			],
+			"m2a": [
+				1,
+				2
+			],
+			"files": [
+				1,
+				2
+			],
+			"file": "bo-3",
+			"file_image": "bo-4",
+			"collection_item": {
+				"key": 1,
+				"collection": "bo_rel_target"
+			},
+			"collection_items": [
+				{
+					"key": 2,
+					"collection": "bo_m2a_a"
+				},
+				{
+					"key": 1,
+					"collection": "bo_m2a_a"
+				}
+			]
+		},
+		"bo_rel_target_id": {
+			"id": 2,
+			"name": "Target two",
+			"status": "draft",
+			"sort": 2,
+			"o2m_list_parent": 1,
+			"o2m_table_parent": null
+		}
+	}
+]

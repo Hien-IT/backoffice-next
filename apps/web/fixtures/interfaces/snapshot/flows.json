@@ -1,0 +1,32 @@
+[
+	{
+		"id": "bo-6",
+		"name": "bo-flow",
+		"icon": "bolt",
+		"color": "#6644FF",
+		"status": "active",
+		"trigger": "manual",
+		"options": {
+			"collections": [
+				"bo_groups"
+			],
+			"location": "item",
+			"requireConfirmation": true,
+			"confirmationDescription": "Run the fixture flow?",
+			"fields": [
+				{
+					"field": "note",
+					"type": "string",
+					"name": "Note",
+					"meta": {
+						"interface": "input",
+						"width": "full",
+						"required": true
+					}
+				}
+			]
+		},
+		"accountability": "all",
+		"operation": null
+	}
+]

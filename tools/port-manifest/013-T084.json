@@ -1,0 +1,13 @@
+[
+	{ "source": "app/src/interfaces/group-raw/index.ts", "dest": "apps/web/src/interfaces/group-raw/index.ts" },
+	{ "source": "app/src/interfaces/group-raw/group-raw.vue", "dest": "apps/web/src/interfaces/group-raw/GroupRaw.vue" },
+	{
+		"source": "app/src/interfaces/group-raw/group-raw.test.ts",
+		"dest": "apps/web/src/interfaces/group-raw/group-raw.test.ts"
+	},
+	{ "source": "app/src/interfaces/group-tabs/index.ts", "dest": "apps/web/src/interfaces/group-tabs/index.ts" },
+	{
+		"source": "app/src/interfaces/group-tabs/group-tabs.vue",
+		"dest": "apps/web/src/interfaces/group-tabs/GroupTabs.vue"
+	}
+]

@@ -1,0 +1,20 @@
+[
+	{ "source": "app/src/displays/boolean/index.ts", "dest": "apps/web/src/displays/boolean/index.ts" },
+	{ "source": "app/src/displays/boolean/boolean.vue", "dest": "apps/web/src/displays/boolean/DisplayBoolean.vue" },
+	{
+		"source": "app/src/displays/boolean/boolean.test.ts",
+		"dest": "apps/web/src/displays/boolean/DisplayBoolean.test.ts"
+	},
+	{ "source": "app/src/displays/color/index.ts", "dest": "apps/web/src/displays/color/index.ts" },
+	{ "source": "app/src/displays/color/color.vue", "dest": "apps/web/src/displays/color/DisplayColor.vue" },
+	{ "source": "app/src/displays/color/color.test.ts", "dest": "apps/web/src/displays/color/DisplayColor.test.ts" },
+	{ "source": "app/src/displays/icon/index.ts", "dest": "apps/web/src/displays/icon/index.ts" },
+	{ "source": "app/src/displays/icon/icon.vue", "dest": "apps/web/src/displays/icon/DisplayIcon.vue" },
+	{ "source": "app/src/displays/icon/icon.test.ts", "dest": "apps/web/src/displays/icon/DisplayIcon.test.ts" },
+	{ "source": "app/src/displays/hash/index.ts", "dest": "apps/web/src/displays/hash/index.ts" },
+	{ "source": "app/src/displays/hash/hash.vue", "dest": "apps/web/src/displays/hash/DisplayHash.vue" },
+	{ "source": "app/src/displays/hash/hash.test.ts", "dest": "apps/web/src/displays/hash/DisplayHash.test.ts" },
+	{ "source": "app/src/displays/raw/index.ts", "dest": "apps/web/src/displays/raw/index.ts" },
+	{ "source": "app/src/displays/filesize/index.ts", "dest": "apps/web/src/displays/filesize/index.ts" },
+	{ "source": "app/src/displays/mime-type/index.ts", "dest": "apps/web/src/displays/mime-type/index.ts" }
+]

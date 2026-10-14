@@ -1,0 +1,3519 @@
+{
+	"directusVersion": "11.17.4",
+	"generatedBy": "apps/web/scripts/extract-directus-registry.mjs",
+	"contexts": [
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "string",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "string",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "uuid",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "uuid",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "integer",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "integer",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "bigInteger",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "bigInteger",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "float",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "float",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "decimal",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "decimal",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "text",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "text",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "json",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "json",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "csv",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "csv",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "hash",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "hash",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "boolean",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "boolean",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "timestamp",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "timestamp",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "dateTime",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "dateTime",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "date",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "date",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "time",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "time",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "geometry",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "geometry",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "geometry.Point",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "geometry.Point",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": true
+					},
+					"display_options": {
+						"relative": true
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"m2o": {
+					"collection": "articles",
+					"field": "f",
+					"related_collection": "authors",
+					"meta": {
+						"one_field": null,
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"m2o": {
+					"collection": "articles",
+					"field": "f",
+					"related_collection": "authors",
+					"meta": {
+						"one_field": null,
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"m2o": {
+					"collection": "articles",
+					"field": "f",
+					"related_collection": "authors",
+					"meta": {
+						"one_field": null,
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"m2o": {
+					"collection": "articles",
+					"field": "f",
+					"related_collection": "authors",
+					"meta": {
+						"one_field": null,
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "comments",
+					"field": "article",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "comments",
+					"field": "article",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "comments",
+					"field": "article",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "comments",
+					"field": "article",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": null
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "+",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "list",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		},
+		{
+			"collection": "articles",
+			"editing": "f",
+			"field": {
+				"collection": "articles",
+				"field": "f",
+				"type": "alias",
+				"meta": {
+					"options": {
+						"layout": "table",
+						"relative": false
+					},
+					"display_options": {
+						"relative": false
+					}
+				},
+				"schema": {
+					"max_length": null
+				}
+			},
+			"relations": {
+				"o2m": {
+					"collection": "articles_tags",
+					"field": "articles_id",
+					"related_collection": "articles",
+					"meta": {
+						"one_field": "f",
+						"junction_field": "tags_id"
+					}
+				},
+				"m2o": {
+					"collection": "articles_tags",
+					"field": "tags_id",
+					"related_collection": "tags",
+					"meta": {
+						"one_field": null,
+						"junction_field": "articles_id"
+					}
+				}
+			},
+			"collections": {},
+			"fields": {},
+			"items": {},
+			"localType": "standard",
+			"autoGenerateJunctionRelation": true,
+			"saving": false
+		}
+	],
+	"interfaces": {
+		"boolean": {
+			"id": "boolean",
+			"name": "$t:interfaces.boolean.toggle",
+			"icon": "check_box",
+			"types": ["boolean"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["boolean"],
+			"optionsKind": "array",
+			"optionKeys": ["colorOff", "colorOn", "iconOff", "iconOn", "label"]
+		},
+		"collection-item-dropdown": {
+			"id": "collection-item-dropdown",
+			"name": "$t:interfaces.collection-item-dropdown.collection-item-dropdown",
+			"icon": "arrow_right_alt",
+			"types": ["json"],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["filter", "selectedCollection", "template"]
+		},
+		"collection-item-multiple-dropdown": {
+			"id": "collection-item-multiple-dropdown",
+			"name": "$t:interfaces.collection-item-multiple-dropdown.collection-item-multiple-dropdown",
+			"icon": "arrow_right_alt",
+			"types": ["json"],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["filter", "selectedCollection", "template"]
+		},
+		"datetime": {
+			"id": "datetime",
+			"name": "$t:interfaces.datetime.datetime",
+			"icon": "today",
+			"types": ["dateTime", "date", "time", "timestamp"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["datetime"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 30, 32, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+						48, 49, 50, 51
+					],
+					"keys": ["format", "includeSeconds", "relative", "use24"]
+				},
+				{
+					"contexts": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35],
+					"keys": ["relative", "round", "strict", "suffix"]
+				},
+				{
+					"contexts": [22],
+					"keys": ["format", "includeSeconds", "relative", "tz", "use24"]
+				},
+				{
+					"contexts": [26],
+					"keys": ["format", "relative"]
+				}
+			],
+			"optionKeys": ["format", "includeSeconds", "relative", "round", "strict", "suffix", "tz", "use24"]
+		},
+		"file": {
+			"id": "file",
+			"name": "$t:interfaces.file.file",
+			"icon": "note_add",
+			"types": ["uuid"],
+			"localTypes": ["file"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["file"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder"]
+				}
+			],
+			"optionKeys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder"]
+		},
+		"file-image": {
+			"id": "file-image",
+			"name": "$t:interfaces.file-image.image",
+			"icon": "insert_photo",
+			"types": ["uuid"],
+			"localTypes": ["file"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["image"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowedMimeTypes", "crop", "enableCreate", "enableSelect", "filter", "folder", "letterbox"]
+				}
+			],
+			"optionKeys": ["allowedMimeTypes", "crop", "enableCreate", "enableSelect", "filter", "folder", "letterbox"]
+		},
+		"files": {
+			"id": "files",
+			"name": "$t:interfaces.files.files",
+			"icon": "note_add",
+			"types": ["alias"],
+			"localTypes": ["files"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["related-values"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder", "limit", "template"]
+				}
+			],
+			"optionKeys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder", "limit", "template"]
+		},
+		"group-accordion": {
+			"id": "group-accordion",
+			"name": "$t:interfaces.group-accordion.name",
+			"icon": "horizontal_split",
+			"types": ["alias"],
+			"localTypes": ["group"],
+			"group": "group",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": true,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["accordionMode", "start"]
+		},
+		"group-detail": {
+			"id": "group-detail",
+			"name": "$t:interfaces.group-detail.name",
+			"icon": "menu_open",
+			"types": ["alias"],
+			"localTypes": ["group"],
+			"group": "group",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["headerColor", "headerIcon", "start"]
+		},
+		"group-raw": {
+			"id": "group-raw",
+			"name": "$t:interfaces.group-raw.name",
+			"icon": "view_in_ar",
+			"types": ["alias"],
+			"localTypes": ["group"],
+			"group": "group",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"group-tabs": {
+			"id": "group-tabs",
+			"name": "$t:interfaces.group-tabs.name",
+			"icon": "tab",
+			"types": ["alias"],
+			"localTypes": ["group"],
+			"group": "group",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": true,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["fillWidth"]
+		},
+		"input": {
+			"id": "input",
+			"name": "$t:interfaces.input.input",
+			"icon": "text_fields",
+			"types": ["string", "uuid", "bigInteger", "integer", "float", "decimal", "text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+						32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["clear", "font", "iconLeft", "iconRight", "masked", "placeholder", "slug", "softLength", "trim"]
+				},
+				{
+					"contexts": [4, 5, 8, 9],
+					"keys": ["font", "iconLeft", "iconRight", "max", "min", "placeholder", "step"]
+				}
+			],
+			"optionKeys": [
+				"clear",
+				"font",
+				"iconLeft",
+				"iconRight",
+				"masked",
+				"max",
+				"min",
+				"placeholder",
+				"slug",
+				"softLength",
+				"step",
+				"trim"
+			]
+		},
+		"input-autocomplete-api": {
+			"id": "input-autocomplete-api",
+			"name": "$t:interfaces.input-autocomplete-api.input-autocomplete-api",
+			"icon": "find_in_page",
+			"types": ["string", "text"],
+			"localTypes": ["standard"],
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["formatted-value"],
+			"optionsKind": "array",
+			"optionKeys": [
+				"font",
+				"iconLeft",
+				"iconRight",
+				"placeholder",
+				"rate",
+				"resultsPath",
+				"textPath",
+				"trigger",
+				"url",
+				"valuePath"
+			]
+		},
+		"input-block-editor": {
+			"id": "input-block-editor",
+			"name": "$t:interfaces.input-block-editor.input-block-editor",
+			"icon": "code",
+			"types": ["json"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["bordered", "folder", "font", "placeholder", "tools"]
+		},
+		"input-code": {
+			"id": "input-code",
+			"name": "$t:interfaces.input-code.code",
+			"icon": "code",
+			"types": ["string", "json", "text", "geometry"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
+						31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["language", "lineNumber", "lineWrapping", "template"]
+				},
+				{
+					"contexts": [14, 15],
+					"keys": ["lineNumber", "lineWrapping", "template"]
+				}
+			],
+			"optionKeys": ["language", "lineNumber", "lineWrapping", "template"]
+		},
+		"input-hash": {
+			"id": "input-hash",
+			"name": "$t:interfaces.input-hash.hash",
+			"icon": "fingerprint",
+			"types": ["hash"],
+			"localTypes": null,
+			"group": "other",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["hash"],
+			"optionsKind": "array",
+			"optionKeys": ["masked", "placeholder"]
+		},
+		"input-multiline": {
+			"id": "input-multiline",
+			"name": "$t:interfaces.input-multiline.textarea",
+			"icon": "text_fields",
+			"types": ["text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["clear", "font", "placeholder", "softLength", "trim"]
+		},
+		"input-rich-text-html": {
+			"id": "input-rich-text-html",
+			"name": "$t:interfaces.input-rich-text-html.wysiwyg",
+			"icon": "format_quote",
+			"types": ["text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "standard-advanced",
+			"optionKeys": ["customFormats", "folder", "font", "imageToken", "softLength", "tinymceOverrides", "toolbar"]
+		},
+		"input-rich-text-md": {
+			"id": "input-rich-text-md",
+			"name": "$t:interfaces.input-rich-text-md.markdown",
+			"icon": "functions",
+			"types": ["text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "standard-advanced",
+			"optionKeys": [
+				"customSyntax",
+				"defaultView",
+				"editorFont",
+				"folder",
+				"imageToken",
+				"placeholder",
+				"previewFont",
+				"softLength",
+				"toolbar"
+			]
+		},
+		"list": {
+			"id": "list",
+			"name": "$t:interfaces.list.repeater",
+			"icon": "replay",
+			"types": ["json"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "component",
+			"optionKeys": ["addLabel", "fields", "sort", "template"],
+			"optionKeysManual": true
+		},
+		"list-m2a": {
+			"id": "list-m2a",
+			"name": "$t:list-m2a",
+			"icon": "note_add",
+			"types": ["alias"],
+			"localTypes": ["m2a"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowDuplicates", "enableCreate", "enableSelect", "limit", "prefix"]
+				}
+			],
+			"optionKeys": ["allowDuplicates", "enableCreate", "enableSelect", "limit", "prefix"]
+		},
+		"list-m2m": {
+			"id": "list-m2m",
+			"name": "$t:interfaces.list-m2m.many-to-many",
+			"icon": "note_add",
+			"types": ["alias"],
+			"localTypes": ["m2m"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["related-values"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 42, 44, 46, 48, 50
+					],
+					"keys": [
+						"allowDuplicates",
+						"enableCreate",
+						"enableLink",
+						"enableSearchFilter",
+						"enableSelect",
+						"filter",
+						"junctionFieldLocation",
+						"layout",
+						"limit",
+						"template"
+					]
+				},
+				{
+					"contexts": [37, 39, 41, 43, 45, 47, 49, 51],
+					"keys": [
+						"allowDuplicates",
+						"enableCreate",
+						"enableLink",
+						"enableSearchFilter",
+						"enableSelect",
+						"fields",
+						"filter",
+						"junctionFieldLocation",
+						"layout",
+						"limit",
+						"tableSpacing"
+					]
+				}
+			],
+			"optionKeys": [
+				"allowDuplicates",
+				"enableCreate",
+				"enableLink",
+				"enableSearchFilter",
+				"enableSelect",
+				"fields",
+				"filter",
+				"junctionFieldLocation",
+				"layout",
+				"limit",
+				"tableSpacing",
+				"template"
+			]
+		},
+		"list-o2m": {
+			"id": "list-o2m",
+			"name": "$t:interfaces.list-o2m.one-to-many",
+			"icon": "arrow_right_alt",
+			"types": ["alias"],
+			"localTypes": ["o2m"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["related-values"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 42, 44, 46, 48, 50
+					],
+					"keys": [
+						"enableCreate",
+						"enableLink",
+						"enableSearchFilter",
+						"enableSelect",
+						"filter",
+						"layout",
+						"limit",
+						"sort",
+						"sortDirection",
+						"template"
+					]
+				},
+				{
+					"contexts": [37, 39, 41, 43, 45, 47, 49, 51],
+					"keys": [
+						"enableCreate",
+						"enableLink",
+						"enableSearchFilter",
+						"enableSelect",
+						"fields",
+						"filter",
+						"layout",
+						"limit",
+						"sort",
+						"sortDirection",
+						"tableSpacing"
+					]
+				}
+			],
+			"optionKeys": [
+				"enableCreate",
+				"enableLink",
+				"enableSearchFilter",
+				"enableSelect",
+				"fields",
+				"filter",
+				"layout",
+				"limit",
+				"sort",
+				"sortDirection",
+				"tableSpacing",
+				"template"
+			]
+		},
+		"list-o2m-tree-view": {
+			"id": "list-o2m-tree-view",
+			"name": "$t:tree_view",
+			"icon": "account_tree",
+			"types": ["alias"],
+			"localTypes": ["o2m"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["displayTemplate", "enableCreate", "enableSelect", "filter"]
+				}
+			],
+			"optionKeys": ["displayTemplate", "enableCreate", "enableSelect", "filter"]
+		},
+		"map": {
+			"id": "map",
+			"name": "$t:interfaces.map.map",
+			"icon": "map",
+			"types": [
+				"geometry.Point",
+				"geometry.LineString",
+				"geometry.Polygon",
+				"geometry.MultiPoint",
+				"geometry.MultiLineString",
+				"geometry.MultiPolygon",
+				"geometry",
+				"json",
+				"string",
+				"text",
+				"csv"
+			],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": [],
+			"optionsKind": "component",
+			"optionKeys": ["defaultView", "geometryType"],
+			"optionKeysManual": true
+		},
+		"presentation-divider": {
+			"id": "presentation-divider",
+			"name": "$t:interfaces.presentation-divider.divider",
+			"icon": "remove",
+			"types": ["alias"],
+			"localTypes": ["presentation"],
+			"group": "presentation",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": true,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["color", "icon", "inlineTitle", "title"]
+		},
+		"header": {
+			"id": "header",
+			"name": "$t:interfaces.header.header",
+			"icon": "exercise",
+			"types": ["alias"],
+			"localTypes": ["presentation"],
+			"group": "presentation",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": null,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": [
+						"color",
+						"enableHelpTranslations",
+						"help",
+						"helpDisplayMode",
+						"helpTranslationsString",
+						"icon",
+						"links",
+						"subtitle",
+						"title"
+					]
+				}
+			],
+			"optionKeys": [
+				"color",
+				"enableHelpTranslations",
+				"help",
+				"helpDisplayMode",
+				"helpTranslationsString",
+				"icon",
+				"links",
+				"subtitle",
+				"title"
+			]
+		},
+		"presentation-links": {
+			"id": "presentation-links",
+			"name": "$t:interfaces.presentation-links.presentation-links",
+			"icon": "smart_button",
+			"types": ["alias"],
+			"localTypes": ["presentation"],
+			"group": "presentation",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": true,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["links"]
+				}
+			],
+			"optionKeys": ["links"]
+		},
+		"presentation-notice": {
+			"id": "presentation-notice",
+			"name": "$t:interfaces.presentation-notice.notice",
+			"icon": "info",
+			"types": ["alias"],
+			"localTypes": ["presentation"],
+			"group": "presentation",
+			"relational": null,
+			"hideLabel": true,
+			"hideLoader": true,
+			"autoKey": true,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["color", "icon", "text"]
+		},
+		"select-color": {
+			"id": "select-color",
+			"name": "$t:interfaces.select-color.color",
+			"icon": "palette",
+			"types": ["string"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["color"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["opacity", "presets"]
+				}
+			],
+			"optionKeys": ["opacity", "presets"]
+		},
+		"select-dropdown": {
+			"id": "select-dropdown",
+			"name": "$t:dropdown",
+			"icon": "arrow_drop_down_circle",
+			"types": ["string", "integer", "float", "decimal", "bigInteger"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["labels"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowNone", "allowOther", "choices", "icon", "placeholder"]
+				}
+			],
+			"optionKeys": ["allowNone", "allowOther", "choices", "icon", "placeholder"]
+		},
+		"select-dropdown-m2o": {
+			"id": "select-dropdown-m2o",
+			"name": "$t:interfaces.select-dropdown-m2o.many-to-one",
+			"icon": "arrow_right_alt",
+			"types": ["uuid", "string", "text", "integer", "bigInteger"],
+			"localTypes": ["m2o"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["related-values"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["enableCreate", "enableLink", "enableSelect", "filter", "template"]
+				}
+			],
+			"optionKeys": ["enableCreate", "enableLink", "enableSelect", "filter", "template"]
+		},
+		"select-icon": {
+			"id": "select-icon",
+			"name": "$t:interfaces.select-icon.icon",
+			"icon": "insert_emoticon",
+			"types": ["string"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["icon"],
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"select-multiple-checkbox": {
+			"id": "select-multiple-checkbox",
+			"name": "$t:interfaces.select-multiple-checkbox.checkboxes",
+			"icon": "check_box",
+			"types": ["json", "csv"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["labels"],
+			"optionsKind": "array",
+			"optionKeys": ["allowOther", "choices", "color", "iconOff", "iconOn", "itemsShown"]
+		},
+		"select-multiple-checkbox-tree": {
+			"id": "select-multiple-checkbox-tree",
+			"name": "$t:interfaces.select-multiple-checkbox-tree.name",
+			"icon": "account_tree",
+			"types": ["json", "csv"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["labels"],
+			"optionsKind": "array",
+			"optionKeys": ["choices", "valueCombining"]
+		},
+		"select-multiple-dropdown": {
+			"id": "select-multiple-dropdown",
+			"name": "$t:interfaces.select-multiple-dropdown.select-multiple-dropdown",
+			"icon": "arrow_drop_down_circle",
+			"types": ["json", "csv"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["labels"],
+			"optionsKind": "standard-advanced",
+			"optionKeys": ["allowNone", "allowOther", "choices", "icon", "placeholder", "previewThreshold"]
+		},
+		"select-radio": {
+			"id": "select-radio",
+			"name": "$t:interfaces.select-radio.radio-buttons",
+			"icon": "radio_button_checked",
+			"types": ["string", "integer", "float", "bigInteger"],
+			"localTypes": null,
+			"group": "selection",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["badge"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["allowOther", "choices", "color", "iconOff", "iconOn"]
+				}
+			],
+			"optionKeys": ["allowOther", "choices", "color", "iconOff", "iconOn"]
+		},
+		"slider": {
+			"id": "slider",
+			"name": "$t:interfaces.slider.slider",
+			"icon": "linear_scale",
+			"types": ["integer", "float"],
+			"localTypes": null,
+			"group": "other",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["alwaysShowValue", "maxValue", "minValue", "stepInterval"]
+		},
+		"tags": {
+			"id": "tags",
+			"name": "$t:interfaces.tags.tags",
+			"icon": "local_offer",
+			"types": ["json", "csv"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": ["labels"],
+			"optionsKind": "array",
+			"optionKeys": [
+				"allowCustom",
+				"alphabetize",
+				"capitalization",
+				"iconLeft",
+				"iconRight",
+				"placeholder",
+				"presets",
+				"whitespace"
+			]
+		},
+		"translations": {
+			"id": "translations",
+			"name": "$t:translations",
+			"icon": "translate",
+			"types": ["alias"],
+			"localTypes": ["translations"],
+			"group": "relational",
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["defaultLanguage", "defaultOpenSplitView", "languageDirectionField", "languageField", "userLanguage"]
+				}
+			],
+			"optionKeys": [
+				"defaultLanguage",
+				"defaultOpenSplitView",
+				"languageDirectionField",
+				"languageField",
+				"userLanguage"
+			]
+		},
+		"system-raw-editor": {
+			"id": "system-raw-editor",
+			"name": "$t:interfaces.system-raw-editor.system-raw-editor",
+			"icon": "code",
+			"types": ["string", "text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["placeholder"]
+		}
+	},
+	"displays": {
+		"boolean": {
+			"id": "boolean",
+			"name": "$t:displays.boolean.boolean",
+			"icon": "check_box",
+			"types": ["boolean"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["colorOff", "colorOn", "iconOff", "iconOn", "labelOff", "labelOn"]
+		},
+		"collection": {
+			"id": "collection",
+			"name": "$t:displays.collection.collection",
+			"icon": "label",
+			"types": ["string"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["icon"]
+		},
+		"color": {
+			"id": "color",
+			"name": "$t:displays.color.color",
+			"icon": "flag",
+			"types": ["string"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["defaultColor"]
+		},
+		"datetime": {
+			"id": "datetime",
+			"name": "$t:displays.datetime.datetime",
+			"icon": "query_builder",
+			"types": ["dateTime", "date", "time", "timestamp"],
+			"localTypes": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 30, 32, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+						48, 49, 50, 51
+					],
+					"keys": ["format", "includeSeconds", "relative", "use24"]
+				},
+				{
+					"contexts": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35],
+					"keys": ["relative", "round", "strict", "suffix"]
+				},
+				{
+					"contexts": [22],
+					"keys": ["format", "includeSeconds", "relative", "tz", "use24"]
+				},
+				{
+					"contexts": [26],
+					"keys": ["format", "relative"]
+				}
+			],
+			"optionKeys": ["format", "includeSeconds", "relative", "round", "strict", "suffix", "tz", "use24"]
+		},
+		"file": {
+			"id": "file",
+			"name": "$t:displays.file.file",
+			"icon": "insert_drive_file",
+			"types": ["uuid"],
+			"localTypes": ["file"],
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"filesize": {
+			"id": "filesize",
+			"name": "$t:displays.filesize.filesize",
+			"icon": "description",
+			"types": ["integer", "bigInteger"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"formatted-json-value": {
+			"id": "formatted-json-value",
+			"name": "$t:displays.formatted-json-value.formatted-json-value",
+			"icon": "settings_ethernet",
+			"types": ["json", "geometry"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["format"]
+		},
+		"formatted-value": {
+			"id": "formatted-value",
+			"name": "$t:displays.formatted-value.formatted-value",
+			"icon": "text_format",
+			"types": ["string", "text", "integer", "float", "decimal", "bigInteger"],
+			"localTypes": null,
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": [
+						"background",
+						"bold",
+						"border",
+						"color",
+						"conditionalFormatting",
+						"font",
+						"format",
+						"icon",
+						"italic",
+						"masked",
+						"prefix",
+						"suffix"
+					]
+				}
+			],
+			"optionKeys": [
+				"background",
+				"bold",
+				"border",
+				"color",
+				"conditionalFormatting",
+				"font",
+				"format",
+				"icon",
+				"italic",
+				"masked",
+				"prefix",
+				"suffix"
+			]
+		},
+		"hash": {
+			"id": "hash",
+			"name": "$t:displays.hash.hash",
+			"icon": "fingerprint",
+			"types": ["hash"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"icon": {
+			"id": "icon",
+			"name": "$t:displays.icon.icon",
+			"icon": "insert_emoticon",
+			"types": ["string"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["color", "filled"]
+		},
+		"image": {
+			"id": "image",
+			"name": "$t:displays.image.image",
+			"icon": "insert_photo",
+			"types": ["uuid"],
+			"localTypes": ["file"],
+			"optionsKind": "array",
+			"optionKeys": ["circle"]
+		},
+		"labels": {
+			"id": "labels",
+			"name": "$t:displays.labels.labels",
+			"icon": "flag",
+			"types": ["string", "json", "csv", "integer", "float", "decimal", "bigInteger"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["choices", "format", "showAsDot"]
+		},
+		"mime-type": {
+			"id": "mime-type",
+			"name": "$t:displays.mime-type.mime-type",
+			"icon": "picture_as_pdf",
+			"types": ["string"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["showAsExtension"]
+		},
+		"rating": {
+			"id": "rating",
+			"name": "$t:displays.rating.rating",
+			"icon": "star",
+			"types": ["integer", "decimal", "float"],
+			"localTypes": null,
+			"optionsKind": "array",
+			"optionKeys": ["simple"]
+		},
+		"raw": {
+			"id": "raw",
+			"name": "$t:displays.raw.raw",
+			"icon": "code",
+			"types": [
+				"bigInteger",
+				"boolean",
+				"date",
+				"dateTime",
+				"decimal",
+				"float",
+				"integer",
+				"json",
+				"string",
+				"text",
+				"time",
+				"timestamp",
+				"binary",
+				"uuid",
+				"alias",
+				"hash",
+				"csv",
+				"geometry",
+				"geometry.Point",
+				"geometry.LineString",
+				"geometry.Polygon",
+				"geometry.MultiPoint",
+				"geometry.MultiLineString",
+				"geometry.MultiPolygon",
+				"unknown"
+			],
+			"localTypes": ["standard", "file", "files", "m2o", "o2m", "m2m", "m2a", "presentation", "translations", "group"],
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"related-values": {
+			"id": "related-values",
+			"name": "$t:displays.related-values.related-values",
+			"icon": "settings_ethernet",
+			"types": ["alias", "string", "uuid", "integer", "bigInteger", "json"],
+			"localTypes": ["file", "files", "m2o", "o2m", "m2m", "m2a", "translations"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["template"]
+				}
+			],
+			"optionKeys": ["template"]
+		},
+		"translations": {
+			"id": "translations",
+			"name": "$t:displays.translations.translations",
+			"icon": "translate",
+			"types": ["alias"],
+			"localTypes": ["translations"],
+			"optionsKind": "function",
+			"optionKeysByContext": [
+				{
+					"contexts": [
+						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
+						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+					],
+					"keys": ["defaultLanguage", "languageField", "template", "userLanguage"]
+				}
+			],
+			"optionKeys": ["defaultLanguage", "languageField", "template", "userLanguage"]
+		},
+		"user": {
+			"id": "user",
+			"name": "$t:displays.user.user",
+			"icon": "person",
+			"types": ["uuid", "string"],
+			"localTypes": ["m2o"],
+			"optionsKind": "array",
+			"optionKeys": ["circle", "display"]
+		}
+	}
+}

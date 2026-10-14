@@ -11,6 +11,15 @@
 			},
 			"cache": false
 		},
+		"fixtures": {
+			"executor": "nx:run-commands",
+			"options": {
+				"cwd": "apps/web",
+				"commands": ["node fixtures/interfaces/seed.mjs", "node fixtures/interfaces/export.mjs"],
+				"parallel": false
+			},
+			"cache": false
+		},
 		"check-bundle": {
 			"command": "node scripts/check-bundle.mjs",
 			"options": {

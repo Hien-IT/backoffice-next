@@ -1,0 +1,279 @@
+// Ported from directus/app/src/stores/fields.test.ts
+// Backoffice: the API is mocked with mockApi (fetch) instead of vi.mock('@/api'); translate-literal is inlined in the
+// store, so the tests check the translated values instead of spying on it. Tests after the Directus ones cover the
+// getters.
+import type { Field, FieldRaw, Relation } from '@directus/types';
+import { merge } from 'lodash-es';
+import { createPinia, setActivePinia } from 'pinia';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { i18n } from '../lang/index.ts';
+import { calls, mockApi } from '../test-utils/fetch.ts';
+import { useFieldsStore } from './fields.ts';
+import { useRelationsStore } from './relations.ts';
+
+beforeEach(() => {
+	setActivePinia(createPinia());
+});
+
+afterEach(() => {
+	vi.clearAllMocks();
+	vi.unstubAllGlobals();
+});
+
+const mockField = {
+	collection: 'a',
+	field: 'name',
+	type: 'string',
+	schema: {},
+	meta: {
+		collection: 'a',
+		field: 'name',
+		options: null,
+		display_options: null,
+		note: '$t:save',
+		validation_message: null,
+	},
+} as unknown as Field;
+
+describe('hydrate action', () => {
+	test('should not skip translations by default', async () => {
+		const fetch = mockApi({ 'GET /fields': [mockField] });
+		const fieldsStore = useFieldsStore();
+		await fieldsStore.hydrate();
+
+		expect(calls(fetch)).toEqual(['GET /fields']);
+		expect(fieldsStore.fields[0]!.meta!.note).toBe('Save');
+	});
+
+	test('should skip translations when skipTranslation is true', async () => {
+		mockApi({ 'GET /fields': [mockField] });
+		const fieldsStore = useFieldsStore();
+		await fieldsStore.hydrate({ skipTranslation: true });
+
+		expect(fieldsStore.fields[0]!.meta!.note).toBe('$t:save');
+	});
+
+	test('adds the directus_files $thumbnail field and dehydrate empties the store', async () => {
+		mockApi({ 'GET /fields': [mockField] });
+		const fieldsStore = useFieldsStore();
+		await fieldsStore.hydrate();
+
+		expect(fieldsStore.fields.map(({ collection, field }) => `${collection}.${field}`)).toEqual([
+			'a.name',
+			'directus_files.$thumbnail',
+		]);
+		expect(fieldsStore.fields[0]!.name).toBe('Name');
+
+		await fieldsStore.dehydrate();
+		expect(fieldsStore.fields).toEqual([]);
+	});
+});
+
+describe('parseField action', () => {
+	test('should translate field name when translations are added then removed', async () => {
+		const fieldsStore = useFieldsStore();
+
+		const mockFieldWithTranslations = merge({}, mockField, {
+			meta: {
+				translations: [
+					{
+						language: 'en-US',
+						translation: 'Name en-US',
+					},
+				],
+			},
+		});
+
+		fieldsStore.fields = [mockFieldWithTranslations].map(fieldsStore.parseField);
+		expect(fieldsStore.fields[0]!.name).toEqual('Name en-US');
+		expect(i18n.global.te(`fields.${mockField.collection}.${mockField.field}`)).toBe(true);
+
+		const mockFieldWithoutTranslations = merge({}, mockField, {
+			meta: {
+				translations: [
+					{
+						language: 'zh-CN',
+						translation: 'Name zh-CN',
+					},
+				],
+			},
+		});
+
+		fieldsStore.fields = [mockFieldWithoutTranslations].map(fieldsStore.parseField);
+		expect(fieldsStore.fields[0]!.name).toEqual('Name');
+		expect(i18n.global.te(`fields.${mockField.collection}.${mockField.field}`)).toBe(false);
+	});
+
+	test('should translate field name when translations are added and reset when removed', async () => {
+		const fieldsStore = useFieldsStore();
+
+		const mockFieldWithTranslations = merge({}, mockField, {
+			meta: {
+				translations: [
+					{
+						language: 'en-US',
+						translation: 'name en-US',
+					},
+				],
+			},
+		});
+
+		fieldsStore.fields = [mockFieldWithTranslations].map(fieldsStore.parseField);
+		expect(fieldsStore.fields[0]!.name).toEqual('name en-US');
+		expect(i18n.global.te(`fields.${mockField.collection}.${mockField.field}`)).toBe(true);
+
+		const mockFieldWithoutTranslations = merge({}, mockField, {
+			meta: {
+				translations: null,
+			},
+		});
+
+		fieldsStore.fields = [mockFieldWithoutTranslations].map(fieldsStore.parseField);
+		expect(fieldsStore.fields[0]!.name).toEqual('Name');
+		expect(i18n.global.te(`fields.${mockField.collection}.${mockField.field}`)).toBe(false);
+	});
+
+	test('keeps the bundled name of a system field and escapes literal characters', () => {
+		const fieldsStore = useFieldsStore();
+
+		const system = fieldsStore.parseField({
+			collection: 'directus_users',
+			field: 'email',
+			meta: { system: true },
+		} as unknown as FieldRaw);
+
+		expect(system.name).toBe('Email');
+
+		const special = fieldsStore.parseField({
+			collection: 'a',
+			field: 'price',
+			meta: { translations: [{ language: 'en-US', translation: 'Price {USD} @ 1|2' }] },
+		} as unknown as FieldRaw);
+
+		expect(special.name).toBe('Price {USD} @ 1|2');
+	});
+});
+
+describe('translateFields action', () => {
+	test('translates $t: strings in note, options, display_options and validation_message', () => {
+		const fieldsStore = useFieldsStore();
+
+		fieldsStore.fields = [
+			{
+				collection: 'b',
+				field: 'title',
+				name: 'Title',
+				meta: {
+					note: '$t:save',
+					options: { placeholder: '$t:required', nested: { label: '$t:name' } },
+					display_options: { label: '$t:save' },
+					validation_message: '$t:required',
+				},
+			},
+			{ collection: 'b', field: 'raw', name: 'Raw', meta: null },
+		] as unknown as Field[];
+
+		fieldsStore.translateFields();
+
+		expect(fieldsStore.fields[0]!.meta).toMatchObject({
+			note: 'Save',
+			options: { placeholder: 'Required', nested: { label: 'Name' } },
+			display_options: { label: 'Save' },
+			validation_message: 'Required',
+		});
+		expect(fieldsStore.fields[1]!.meta).toBeNull();
+	});
+});
+
+const field = (collection: string, name: string, meta: Record<string, unknown> = {}, schema: unknown = {}) =>
+	({ collection, field: name, name, type: 'string', schema, meta: { sort: null, group: null, ...meta } }) as Field;
+
+describe('getters', () => {
+	test('getPrimaryKeyFieldForCollection', () => {
+		const fieldsStore = useFieldsStore();
+		fieldsStore.fields = [field('a', 'title'), field('a', 'id', {}, { is_primary_key: true })];
+
+		expect(fieldsStore.getPrimaryKeyFieldForCollection('a')?.field).toBe('id');
+		expect(fieldsStore.getPrimaryKeyFieldForCollection('b')).toBeNull();
+	});
+
+	test('getFieldsForCollection puts system fields first then orders by sort; alphabetical sorts by key', () => {
+		const fieldsStore = useFieldsStore();
+
+		fieldsStore.fields = [
+			field('a', 'c', { sort: 2 }),
+			field('b', 'other'),
+			field('a', 'b', { sort: 1 }),
+			field('a', 'sys', { system: true, sort: 9 }),
+		];
+
+		expect(fieldsStore.getFieldsForCollection('a').map((f) => f.field)).toEqual(['sys', 'b', 'c']);
+		expect(fieldsStore.getFieldsForCollectionAlphabetical('a').map((f) => f.field)).toEqual(['b', 'c', 'sys']);
+	});
+
+	test('getFieldsForCollectionSorted puts group children after their group', () => {
+		const fieldsStore = useFieldsStore();
+
+		fieldsStore.fields = [
+			field('a', 'last', { sort: 3 }),
+			field('a', 'child2', { sort: 2, group: 'group' }),
+			field('a', 'group', { sort: 2 }),
+			field('a', 'child1', { sort: 1, group: 'group' }),
+			field('a', 'first', { sort: 1 }),
+		];
+
+		expect(fieldsStore.getFieldsForCollectionSorted('a').map((f) => f.field)).toEqual([
+			'first',
+			'group',
+			'child1',
+			'child2',
+			'last',
+		]);
+	});
+
+	test('getFieldGroupChildren', () => {
+		const fieldsStore = useFieldsStore();
+		fieldsStore.fields = [field('a', 'group'), field('a', 'child', { group: 'group' }), field('b', 'x', { group: 'group' })];
+
+		expect(fieldsStore.getFieldGroupChildren('a', 'group')?.map((f) => f.field)).toEqual(['child']);
+	});
+
+	test('getField reads a field, a related field through m2o/o2m and an m2a collection scope', () => {
+		const fieldsStore = useFieldsStore();
+		const relationsStore = useRelationsStore();
+
+		fieldsStore.fields = [
+			field('articles', 'author'),
+			field('articles', 'comments'),
+			field('articles', 'items'),
+			field('authors', 'name'),
+			field('comments', 'body'),
+			field('pages', 'slug'),
+		];
+
+		relationsStore.relations = [
+			{ collection: 'articles', field: 'author', related_collection: 'authors', meta: { one_field: null } },
+			{ collection: 'comments', field: 'article', related_collection: 'articles', meta: { one_field: 'comments' } },
+		] as unknown as Relation[];
+
+		expect(fieldsStore.getField('articles', 'author')?.field).toBe('author');
+		expect(fieldsStore.getField('articles', 'missing')).toBeNull();
+		expect(fieldsStore.getField('articles', 'author.name')?.collection).toBe('authors');
+		expect(fieldsStore.getField('articles', 'comments.body')?.collection).toBe('comments');
+		expect(fieldsStore.getField('articles', 'items.item:pages.slug')).toBeNull();
+		expect(fieldsStore.getField('articles', 'item:pages.slug')?.collection).toBe('pages');
+		expect(fieldsStore.getField('articles', 'missing.name')).toBeNull();
+	});
+
+	test('getField of a relation without related collection is null', () => {
+		const fieldsStore = useFieldsStore();
+		const relationsStore = useRelationsStore();
+
+		fieldsStore.fields = [field('a', 'm2a')];
+		relationsStore.relations = [
+			{ collection: 'a', field: 'm2a', related_collection: null, meta: { one_field: null } },
+		] as unknown as Relation[];
+
+		expect(fieldsStore.getField('a', 'm2a.id')).toBeNull();
+	});
+});

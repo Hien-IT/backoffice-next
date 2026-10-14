@@ -1,0 +1,509 @@
+[
+	{
+		"collection": "bo_groups",
+		"field": "target",
+		"related_collection": "bo_rel_target",
+		"schema": {
+			"constraint_name": "bo_groups_target_foreign",
+			"table": "bo_groups",
+			"column": "target",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel_target",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_groups",
+			"many_field": "target",
+			"one_collection": "bo_rel_target",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_files",
+		"field": "bo_rel_id",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_junction_files_bo_rel_id_foreign",
+			"table": "bo_junction_files",
+			"column": "bo_rel_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_files",
+			"many_field": "bo_rel_id",
+			"one_collection": "bo_rel",
+			"one_field": "files",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "directus_files_id",
+			"sort_field": "sort",
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_files",
+		"field": "directus_files_id",
+		"related_collection": "directus_files",
+		"schema": {
+			"constraint_name": "bo_junction_files_directus_files_id_foreign",
+			"table": "bo_junction_files",
+			"column": "directus_files_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_files",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_files",
+			"many_field": "directus_files_id",
+			"one_collection": "directus_files",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_rel_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2a",
+		"field": "bo_rel_id",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_junction_m2a_bo_rel_id_foreign",
+			"table": "bo_junction_m2a",
+			"column": "bo_rel_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2a",
+			"many_field": "bo_rel_id",
+			"one_collection": "bo_rel",
+			"one_field": "m2a",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "item",
+			"sort_field": "sort",
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2a",
+		"field": "item",
+		"related_collection": null,
+		"schema": null,
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2a",
+			"many_field": "item",
+			"one_collection": null,
+			"one_field": null,
+			"one_collection_field": "collection",
+			"one_allowed_collections": [
+				"bo_m2a_a",
+				"bo_m2a_b"
+			],
+			"junction_field": "bo_rel_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2m_list",
+		"field": "bo_rel_id",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_junction_m2m_list_bo_rel_id_foreign",
+			"table": "bo_junction_m2m_list",
+			"column": "bo_rel_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2m_list",
+			"many_field": "bo_rel_id",
+			"one_collection": "bo_rel",
+			"one_field": "m2m_list",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_rel_target_id",
+			"sort_field": "sort",
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2m_list",
+		"field": "bo_rel_target_id",
+		"related_collection": "bo_rel_target",
+		"schema": {
+			"constraint_name": "bo_junction_m2m_list_bo_rel_target_id_foreign",
+			"table": "bo_junction_m2m_list",
+			"column": "bo_rel_target_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel_target",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2m_list",
+			"many_field": "bo_rel_target_id",
+			"one_collection": "bo_rel_target",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_rel_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2m_table",
+		"field": "bo_rel_id",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_junction_m2m_table_bo_rel_id_foreign",
+			"table": "bo_junction_m2m_table",
+			"column": "bo_rel_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2m_table",
+			"many_field": "bo_rel_id",
+			"one_collection": "bo_rel",
+			"one_field": "m2m_table",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_rel_target_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_junction_m2m_table",
+		"field": "bo_rel_target_id",
+		"related_collection": "bo_rel_target",
+		"schema": {
+			"constraint_name": "bo_junction_m2m_table_bo_rel_target_id_foreign",
+			"table": "bo_junction_m2m_table",
+			"column": "bo_rel_target_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel_target",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_junction_m2m_table",
+			"many_field": "bo_rel_target_id",
+			"one_collection": "bo_rel_target",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_rel_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel",
+		"field": "file",
+		"related_collection": "directus_files",
+		"schema": {
+			"constraint_name": "bo_rel_file_foreign",
+			"table": "bo_rel",
+			"column": "file",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_files",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel",
+			"many_field": "file",
+			"one_collection": "directus_files",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel",
+		"field": "file_image",
+		"related_collection": "directus_files",
+		"schema": {
+			"constraint_name": "bo_rel_file_image_foreign",
+			"table": "bo_rel",
+			"column": "file_image",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_files",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel",
+			"many_field": "file_image",
+			"one_collection": "directus_files",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel",
+		"field": "m2o",
+		"related_collection": "bo_rel_target",
+		"schema": {
+			"constraint_name": "bo_rel_m2o_foreign",
+			"table": "bo_rel",
+			"column": "m2o",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel_target",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel",
+			"many_field": "m2o",
+			"one_collection": "bo_rel_target",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel",
+		"field": "m2o_default",
+		"related_collection": "bo_rel_target",
+		"schema": {
+			"constraint_name": "bo_rel_m2o_default_foreign",
+			"table": "bo_rel",
+			"column": "m2o_default",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel_target",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel",
+			"many_field": "m2o_default",
+			"one_collection": "bo_rel_target",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel",
+		"field": "owner",
+		"related_collection": "directus_users",
+		"schema": {
+			"constraint_name": "bo_rel_owner_foreign",
+			"table": "bo_rel",
+			"column": "owner",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_users",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel",
+			"many_field": "owner",
+			"one_collection": "directus_users",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel_target",
+		"field": "o2m_list_parent",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_rel_target_o2m_list_parent_foreign",
+			"table": "bo_rel_target",
+			"column": "o2m_list_parent",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel_target",
+			"many_field": "o2m_list_parent",
+			"one_collection": "bo_rel",
+			"one_field": "o2m_list",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": "sort",
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_rel_target",
+		"field": "o2m_table_parent",
+		"related_collection": "bo_rel",
+		"schema": {
+			"constraint_name": "bo_rel_target_o2m_table_parent_foreign",
+			"table": "bo_rel_target",
+			"column": "o2m_table_parent",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_rel",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_rel_target",
+			"many_field": "o2m_table_parent",
+			"one_collection": "bo_rel",
+			"one_field": "o2m_table",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "delete"
+		}
+	},
+	{
+		"collection": "bo_translations_translations",
+		"field": "bo_languages_code",
+		"related_collection": "bo_languages",
+		"schema": {
+			"constraint_name": "bo_translations_translations_bo_languages_code_foreign",
+			"table": "bo_translations_translations",
+			"column": "bo_languages_code",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_languages",
+			"foreign_key_column": "code",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_translations_translations",
+			"many_field": "bo_languages_code",
+			"one_collection": "bo_languages",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_translations_id",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_translations_translations",
+		"field": "bo_translations_id",
+		"related_collection": "bo_translations",
+		"schema": {
+			"constraint_name": "bo_translations_translations_bo_translations_id_foreign",
+			"table": "bo_translations_translations",
+			"column": "bo_translations_id",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_translations",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_translations_translations",
+			"many_field": "bo_translations_id",
+			"one_collection": "bo_translations",
+			"one_field": "translations",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": "bo_languages_code",
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
+		"collection": "bo_tree",
+		"field": "parent",
+		"related_collection": "bo_tree",
+		"schema": {
+			"constraint_name": "bo_tree_parent_foreign",
+			"table": "bo_tree",
+			"column": "parent",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "bo_tree",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_tree",
+			"many_field": "parent",
+			"one_collection": "bo_tree",
+			"one_field": "children",
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": "sort",
+			"one_deselect_action": "nullify"
+		}
+	}
+]

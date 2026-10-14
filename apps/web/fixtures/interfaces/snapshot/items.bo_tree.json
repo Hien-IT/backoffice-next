@@ -1,0 +1,81 @@
+[
+	{
+		"id": 1,
+		"name": "Root",
+		"parent": null,
+		"sort": null,
+		"children": [
+			{
+				"id": 2,
+				"name": "Child A",
+				"parent": 1,
+				"sort": 1,
+				"children": [
+					3
+				]
+			},
+			{
+				"id": 4,
+				"name": "Child B",
+				"parent": 1,
+				"sort": 2,
+				"children": []
+			}
+		]
+	},
+	{
+		"id": 2,
+		"name": "Child A",
+		"parent": {
+			"id": 1,
+			"name": "Root",
+			"parent": null,
+			"sort": null,
+			"children": [
+				2,
+				4
+			]
+		},
+		"sort": 1,
+		"children": [
+			{
+				"id": 3,
+				"name": "Grandchild",
+				"parent": 2,
+				"sort": 1,
+				"children": []
+			}
+		]
+	},
+	{
+		"id": 3,
+		"name": "Grandchild",
+		"parent": {
+			"id": 2,
+			"name": "Child A",
+			"parent": 1,
+			"sort": 1,
+			"children": [
+				3
+			]
+		},
+		"sort": 1,
+		"children": []
+	},
+	{
+		"id": 4,
+		"name": "Child B",
+		"parent": {
+			"id": 1,
+			"name": "Root",
+			"parent": null,
+			"sort": null,
+			"children": [
+				2,
+				4
+			]
+		},
+		"sort": 2,
+		"children": []
+	}
+]

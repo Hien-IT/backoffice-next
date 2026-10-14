@@ -1,0 +1,26 @@
+{
+	"pick a choice": {
+		"field": "select_radio",
+		"initial": "beta",
+		"action": "click Alpha",
+		"value": "alpha",
+		"source": "directus/app/src/interfaces/select-radio/select-radio.vue:73",
+		"description": "radio click"
+	},
+	"integer choice stays a number": {
+		"field": "select_radio_int",
+		"initial": 1,
+		"action": "click Two",
+		"value": 2,
+		"source": "directus/app/src/interfaces/select-radio/select-radio.vue:73",
+		"description": "radio click"
+	},
+	"other value": {
+		"field": "select_radio",
+		"initial": "beta",
+		"action": "type mine",
+		"value": "mine",
+		"source": "directus/app/src/interfaces/select-radio/select-radio.vue:41 (useCustomSelection)",
+		"description": "allowOther: typed custom value"
+	}
+}

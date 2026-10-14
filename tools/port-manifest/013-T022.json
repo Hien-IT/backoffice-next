@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/components/v-text-overflow.vue", "dest": "apps/web/src/components/BoTextOverflow.vue" },
+	{ "source": "app/src/components/v-text-overflow.test.ts", "dest": "apps/web/src/components/BoTextOverflow.test.ts" },
+	{ "source": "app/src/views/private/components/value-null.vue", "dest": "apps/web/src/components/render/ValueNull.vue" },
+	{ "source": "app/src/views/private/components/render-display.vue", "dest": "apps/web/src/components/render/RenderDisplay.vue" },
+	{ "source": "app/src/views/private/components/render-template.vue", "dest": "apps/web/src/components/render/RenderTemplate.vue" },
+	{ "source": "app/src/components/v-error-boundary.vue", "dest": "apps/web/src/components/render/ErrorBoundary.vue" }
+]

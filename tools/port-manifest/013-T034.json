@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/input-autocomplete-api/index.ts",
+		"dest": "apps/web/src/interfaces/input-autocomplete-api/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-autocomplete-api/input-autocomplete-api.vue",
+		"dest": "apps/web/src/interfaces/input-autocomplete-api/InputAutocompleteApi.vue"
+	}
+]

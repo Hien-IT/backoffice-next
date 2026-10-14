@@ -1,5 +1,6 @@
-import { mount } from '@vue/test-utils';
-import { describe, expect, test } from 'vitest';
+import { library } from '@fortawesome/fontawesome-svg-core';
+import { flushPromises, mount } from '@vue/test-utils';
+import { describe, expect, test, vi } from 'vitest';
 import BoIcon from './BoIcon.vue';
 import BoProgressCircular from './BoProgressCircular.vue';
 import BoProgressLinear from './BoProgressLinear.vue';
@@ -23,6 +24,45 @@ describe('BoIcon', () => {
 		expect(span.attributes('aria-hidden')).toBeUndefined();
 		expect(span.attributes('style')).toContain('var(--text-title-sm)');
 		expect(mount(BoIcon, { props: { name: 'x', size: 'sm' } }).attributes('style')).toContain('var(--text-lg)');
+	});
+
+	// The brands chunk is a dynamic import (defineAsyncComponent).
+	async function settle() {
+		await vi.dynamicImportSettled();
+		await flushPromises();
+	}
+
+	// Social icon cases ported from directus/app/src/components/v-icon/v-icon.test.ts
+	test('social icon', async () => {
+		const wrapper = mount(BoIcon, { props: { name: 'docker' } });
+		await settle();
+
+		expect(wrapper.find('svg').exists()).toBeTruthy();
+		expect(wrapper.find('svg').attributes('data-icon')).toBe('docker');
+		expect(wrapper.classes()).not.toContain('material-symbols-rounded');
+		expect(wrapper.text()).toBe('');
+	});
+
+	test('underscores map to the Font Awesome name', async () => {
+		const wrapper = mount(BoIcon, { props: { name: 'x_twitter', label: 'X' } });
+		await settle();
+
+		expect(wrapper.find('svg').attributes('data-icon')).toBe('x-twitter');
+		expect(wrapper.attributes('role')).toBe('img');
+	});
+
+	test('should only load fontawesome brand icons when using social icon', async () => {
+		const libraryAddSpy = vi.spyOn(library, 'add');
+
+		mount(BoIcon, { props: { name: 'close' } }); // non-social icon
+		await settle();
+
+		expect(libraryAddSpy).not.toHaveBeenCalled();
+
+		mount(BoIcon, { props: { name: 'vuejs' } }); // social icon
+		await settle();
+
+		expect(libraryAddSpy).toHaveBeenCalledOnce();
 	});
 });
 

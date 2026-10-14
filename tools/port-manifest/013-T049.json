@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/displays/datetime/index.ts", "dest": "apps/web/src/displays/datetime/index.ts" },
+	{ "source": "app/src/displays/datetime/datetime.vue", "dest": "apps/web/src/displays/datetime/DisplayDatetime.vue" }
+]

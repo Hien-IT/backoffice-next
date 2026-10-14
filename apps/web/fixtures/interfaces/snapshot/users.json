@@ -1,0 +1,104 @@
+{
+	"admin": {
+		"me": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": [],
+			"role": {
+				"id": "bo-15",
+				"name": "Administrator"
+			}
+		},
+		"globals": {
+			"app_access": true,
+			"admin_access": true,
+			"enforce_tfa": false
+		}
+	},
+	"bo-editor": {
+		"me": {
+			"id": "bo-9",
+			"first_name": "Edith",
+			"last_name": "Editor",
+			"last_page": null,
+			"email": "bo-editor@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"provider": "default",
+			"avatar": null,
+			"language": null,
+			"appearance": null,
+			"theme_light": null,
+			"theme_dark": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": {
+				"id": "bo-8",
+				"name": "bo-editor"
+			}
+		},
+		"globals": {
+			"app_access": true,
+			"admin_access": false,
+			"enforce_tfa": false
+		}
+	},
+	"bo-viewer": {
+		"me": {
+			"id": "bo-12",
+			"first_name": "Victor",
+			"last_name": "Viewer",
+			"last_page": null,
+			"email": "bo-viewer@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"provider": "default",
+			"avatar": null,
+			"language": null,
+			"appearance": null,
+			"theme_light": null,
+			"theme_dark": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": {
+				"id": "bo-11",
+				"name": "bo-viewer"
+			}
+		},
+		"globals": {
+			"app_access": true,
+			"admin_access": false,
+			"enforce_tfa": false
+		}
+	}
+}

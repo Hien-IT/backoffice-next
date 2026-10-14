@@ -1,0 +1,42 @@
+{
+	"clear is null": {
+		"field": "date",
+		"initial": "2024-03-15",
+		"action": "clear",
+		"value": null,
+		"source": "directus/app/src/interfaces/datetime/datetime.vue:38 unsetValue",
+		"description": "clear button"
+	},
+	"date: yyyy-MM-dd": {
+		"field": "date",
+		"initial": "2024-03-15",
+		"action": "now",
+		"value": "2025-01-02",
+		"source": "directus/app/src/utils/format-date-picker-model-value.ts:38",
+		"description": "set to now at 2025-01-02T03:04:05Z, TZ=UTC"
+	},
+	"time: HH:mm:ss with includeSeconds": {
+		"field": "time",
+		"initial": "14:30:45",
+		"action": "now",
+		"value": "03:04:05",
+		"source": "directus/app/src/utils/format-date-picker-model-value.ts:43",
+		"description": "set to now, includeSeconds: true"
+	},
+	"dateTime: seconds 00 without includeSeconds": {
+		"field": "date_time",
+		"initial": "2024-03-15T14:30:00",
+		"action": "now",
+		"value": "2025-01-02T03:04:00",
+		"source": "directus/app/src/utils/format-date-picker-model-value.ts:57",
+		"description": "set to now, includeSeconds: false"
+	},
+	"timestamp: tz wall time to UTC ISO": {
+		"field": "timestamp",
+		"initial": "2024-03-15T07:30:00.000Z",
+		"action": "now",
+		"value": "2025-01-01T20:04:05.000Z",
+		"source": "directus/app/src/utils/format-date-picker-model-value.ts:64 + directus/app/src/interfaces/datetime/datetime.vue:68 (fromZonedTime(date, tz))",
+		"description": "set to now, tz Asia/Ho_Chi_Minh"
+	}
+}

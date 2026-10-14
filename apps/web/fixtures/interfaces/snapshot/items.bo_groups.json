@@ -1,0 +1,45 @@
+[
+	{
+		"id": 1,
+		"title": "Group item",
+		"status": "published",
+		"target": {
+			"id": 1,
+			"name": "Target one",
+			"status": "published",
+			"sort": 1,
+			"o2m_list_parent": null,
+			"o2m_table_parent": null
+		},
+		"acc_text": "Accordion text",
+		"acc_inner": "Inner",
+		"acc_single_a_text": null,
+		"acc_single_b_text": null,
+		"readonly_child": null,
+		"detail_text": "Detail",
+		"detail_number": 3,
+		"raw_text": "Raw",
+		"tab_one_text": "Tab one",
+		"tab_two_a_text": "Tab two A",
+		"tab_two_b_text": "Tab two B",
+		"group_null_child": "Never shown"
+	},
+	{
+		"id": 2,
+		"title": "Draft item",
+		"status": "draft",
+		"target": null,
+		"acc_text": null,
+		"acc_inner": null,
+		"acc_single_a_text": null,
+		"acc_single_b_text": null,
+		"readonly_child": null,
+		"detail_text": null,
+		"detail_number": null,
+		"raw_text": null,
+		"tab_one_text": null,
+		"tab_two_a_text": null,
+		"tab_two_b_text": null,
+		"group_null_child": null
+	}
+]

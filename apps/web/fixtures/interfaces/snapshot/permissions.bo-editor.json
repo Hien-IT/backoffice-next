@@ -1,0 +1,674 @@
+{
+	"bo_groups": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_junction_files": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_junction_m2a": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_junction_m2m_list": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_junction_m2m_table": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_languages": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_m2a_a": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_m2a_b": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_rel": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_rel_target": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"id",
+				"name",
+				"sort",
+				"o2m_list_parent",
+				"o2m_table_parent"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_std": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_translations": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_translations_translations": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_tree": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_activity": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_collections": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_comments": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "partial",
+			"fields": [
+				"comment"
+			]
+		},
+		"delete": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_fields": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_files": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_flows": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"id",
+				"name",
+				"icon",
+				"color",
+				"status",
+				"trigger",
+				"options",
+				"accountability",
+				"operation"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_notifications": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "partial",
+			"fields": [
+				"status"
+			]
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_presets": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_relations": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_roles": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_settings": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_shares": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_translations": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"directus_users": {
+		"read": {
+			"access": "partial",
+			"fields": [
+				"id",
+				"first_name",
+				"last_name",
+				"last_page",
+				"email",
+				"password",
+				"location",
+				"title",
+				"description",
+				"tags",
+				"provider",
+				"preferences_divider",
+				"avatar",
+				"language",
+				"appearance",
+				"theme_light",
+				"theme_dark",
+				"tfa_secret",
+				"status",
+				"role"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	}
+}

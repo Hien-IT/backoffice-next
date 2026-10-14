@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/select-icon/index.ts",
+		"dest": "apps/web/src/interfaces/select-icon/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-icon/select-icon.vue",
+		"dest": "apps/web/src/interfaces/select-icon/SelectIcon.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-icon/select-icon.test.ts",
+		"dest": "apps/web/src/interfaces/select-icon/SelectIcon.test.ts"
+	}
+]

@@ -206,3 +206,54 @@ settings, permissions), not by this pack.
 - Minimum supported width 768px; no horizontal page scroll from 768px (tables scroll inside their own `overflow-x-auto`
   container).
 - Respect `prefers-reduced-motion` for the width and sub-menu transitions (`motion-reduce:transition-none`).
+
+## 8. Forms and drawers (nháp, 013)
+
+**Draft (nháp, 013)** for spec Q-1 and Q-10 (CHK037), reviewed by the design owner before 013 closes. The behaviour is
+the Directus `v-form` / `v-drawer` one; the classes follow `component-specs.md` (Tier 1 and the Tier 3 drafts).
+
+### Form grid (`BoForm`; Directus `v-form` + `form-grid` mixin)
+
+- Grid: `grid grid-cols-2 gap-x-6 gap-y-5`, two columns from 768px (the minimum supported width, L-1) and in the drawer.
+  Directus stacks halves only below a 500px form width (container query), which the shell from 768px and the 640px
+  drawer do not reach [Inference: content and drawer widths minus padding stay above 500px], so the draft has no
+  container query.
+- Widths (Directus `meta.width`): `half` / `half-left` → `col-span-1` (start column), `half-right` → `col-start-2`, a
+  `half` after a `half` → second column (Directus `.half + .half`), `full` → `col-span-2`, `fill` → all columns.
+- Fill: when the form is wider than 726px (Directus `v-form`: 770 drawer − 2 × 22 padding, measured with
+  `useElementSize`) the grid gets a third column like Directus `.with-fill`:
+  `grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]`; `half` and `full` stay in the first two columns (342px max
+  each), `fill` → `col-span-3`. At 726px or less the grid stays `grid-cols-2` and `fill` = `col-span-2`.
+- Each field: label row (component-specs, Field label row) → control → note (Hint) → validation message (Error message);
+  hint and error ids in the control's `aria-describedby`.
+- Divider after the form (Directus `v-form` `showDivider`):
+  `col-span-full border-t border-gray-200 dark:border-gray-800` (decorative `Separator`), with `gap-y-5` around it.
+- Group fields (Detail, Accordion, raw group) span their Directus width and hold a nested grid with the same classes.
+- Form-level errors: the ValidationErrors notice (component-specs) as the first grid row (`col-span-full`).
+- Loading: the grid has `aria-busy="true"` and skeleton rows
+  (`h-11 rounded-lg bg-gray-100 animate-pulse dark:bg-white/5 motion-reduce:animate-none` under a `h-4 w-32` label
+  skeleton); empty (no visible fields, Directus `v-info`): `no_visible_fields` title and `no_visible_fields_copy` text
+  (Card empty-page classes).
+
+### Drawer (`BoDrawer`; Directus `v-drawer`)
+
+- Reka `DialogRoot` / `DialogPortal` / `DialogOverlay` / `DialogContent` / `DialogTitle` / `DialogDescription` /
+  `DialogClose`, the panel on the end side (used by item select, nested item edit, file and relation drawers).
+- Overlay: `fixed inset-0 z-99999 bg-gray-900/50` (the Backdrop colors).
+- Panel: `fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl xl:w-[640px] dark:bg-gray-900`
+  (draft width 640px from `xl`; below `xl` full width like the L-4 drawer). Optional enter transition
+  `transition-transform duration-300 data-[state=closed]:translate-x-full rtl:data-[state=closed]:-translate-x-full motion-reduce:transition-none`.
+- Header: `flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800`; close button first (Modal
+  close classes without `absolute`, `aria-label` "Close"); `DialogTitle`
+  `min-w-0 flex-1 truncate text-lg font-semibold text-gray-800 dark:text-white/90`; actions at the end: optional
+  Directus header actions (`ICON_BTN` or Dropdown menu) and the primary save Button (compact size, `check` icon + text,
+  `disabled` while nothing changed, loading state while saving).
+- Body: `min-h-0 flex-1 overflow-y-auto px-6 py-6 custom-scrollbar`, holding the form grid; an optional sidebar
+  (Directus drawer `sidebar` slot) is not shown in the draft below `xl`.
+- Focus: moves to the first focusable element of the body (or the title) on open, trapped while open; Esc and the
+  overlay click close (unsaved-changes handling as Directus; any confirm uses the Modal recipe); focus returns to the
+  opening button (Reka).
+- Nested drawers: each one opens its own `DialogRoot` above the previous (same `z-99999`, later in the DOM wins); the
+  overlay of a nested drawer is transparent (`bg-transparent`) so the page dims once; Esc closes only the top drawer,
+  focus returns to its trigger inside the drawer below.
+- Below `xl` a drawer covers the right detail panel drawer if both are open; only one Backdrop dims the page.

@@ -13,4 +13,6 @@ export default {
 	play_video: 'Play background video',
 	profile: 'Profile',
 	navigation: 'Navigation',
+	pick_color: 'Pick color',
+	browser_color_picker: 'Browser picker',
 };

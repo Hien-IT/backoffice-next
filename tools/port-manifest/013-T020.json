@@ -1,0 +1,15 @@
+[
+	{ "source": "app/src/components/v-form/v-form.vue", "dest": "apps/web/src/components/form/BoForm.vue" },
+	{ "source": "app/src/components/v-form/v-form.test.ts", "dest": "apps/web/src/components/form/BoForm.test.ts" },
+	{ "source": "app/src/components/v-form/types.ts", "dest": "apps/web/src/components/form/types.ts" },
+	{ "source": "app/src/components/v-form/components/form-field.vue", "dest": "apps/web/src/components/form/FormField.vue" },
+	{ "source": "app/src/components/v-form/components/form-field.test.ts", "dest": "apps/web/src/components/form/FormField.test.ts" },
+	{ "source": "app/src/components/v-form/components/form-field-label.vue", "dest": "apps/web/src/components/form/FormFieldLabel.vue" },
+	{ "source": "app/src/components/v-form/components/form-field-menu.vue", "dest": "apps/web/src/components/form/FormFieldMenu.vue" },
+	{ "source": "app/src/components/v-form/components/form-field-interface.vue", "dest": "apps/web/src/components/form/FormFieldInterface.vue" },
+	{ "source": "app/src/components/v-form/components/form-field-raw-editor.vue", "dest": "apps/web/src/components/form/FormFieldRawEditor.vue" },
+	{ "source": "app/src/components/v-form/components/validation-errors.vue", "dest": "apps/web/src/components/form/ValidationErrors.vue" },
+	{ "source": "app/src/components/v-form/components/validation-errors.test.ts", "dest": "apps/web/src/components/form/ValidationErrors.test.ts" },
+	{ "source": "app/src/components/v-form/components/validation-nested-groups.vue", "dest": "apps/web/src/components/form/ValidationNestedGroups.vue" },
+	{ "source": "app/src/components/v-form/components/validation-nested-groups-list.vue", "dest": "apps/web/src/components/form/ValidationNestedGroupsList.vue" }
+]
