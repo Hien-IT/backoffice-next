@@ -41,7 +41,8 @@ kiểm FR-054, FR-081, SC-007.
 2. Thiếu khóa options: dùng mặc định component (Edge Cases).
 3. Mỗi khóa options: ít nhất một test kiểm hiệu ứng (SC-003).
 4. Kịch bản sửa (`expected.<interface>.json`): giá trị phát ra bằng mong đợi (SC-002).
-5. `disabled`, `nonEditable`, `loading` (skeleton), lỗi validation hiện ở `FormField`.
+5. `disabled`, `loading` (skeleton), lỗi validation hiện ở `FormField`; interface có nhánh `nonEditable` riêng trong
+   Directus (ví dụ rich text chỉ đọc, nút flow của `header`) có test cho nhánh đó (D-55).
 6. Bàn phím (SC-005, FR-094), browser project, theo nhóm:
    - chữ, số, ngày, lựa chọn: Tab vào, gõ hoặc mũi tên chọn, Enter/Space xác nhận, Esc đóng overlay, focus về ô;
    - tags: Enter hoặc dấu phẩy thêm, Backspace xóa tag cuối;
@@ -54,7 +55,7 @@ kiểm FR-054, FR-081, SC-007.
 
 - `a11y.browser.test.ts`: form `bo_std` + `bo_groups`, bảng 18 display, ở sáng và `html.dark`; `axe.run` 0 vi phạm
   `serious`/`critical`; ngoại lệ ghi trong test với lý do (như `a11y.spec.ts` 012).
-- `perf.browser.test.ts`: 50 field / 100×10 ô, `performance.now()` < 1.000 ms, thử lại 2 lần.
+- `perf.browser.test.ts`: 50 field / 100×10 ô, `performance.now()` < 1.000 ms, trung vị 3 lần (SC-004).
 
 ## 7. Đối chiếu seed ở hai API (`tests/parity/src/web/fixtures-seed.test.ts`)
 

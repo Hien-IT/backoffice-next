@@ -138,6 +138,7 @@ specs/013-interfaces-displays/
 apps/web/
 ├── fixtures/interfaces/
 │   ├── seed.mjs                    # tạo collection bo_* qua REST (R8.2)
+│   ├── directus-registry.json      # id, types, khóa options trích từ Directus (contracts/registry §3)
 │   ├── export.mjs                  # xuất snapshot/*.json, chuẩn hóa id/thời gian
 │   ├── snapshot/                   # commit: collections, fields, relations, items.*, files, permissions.*
 │   └── README.md
@@ -152,7 +153,7 @@ apps/web/
 │   │   └── <id>/index.ts + <Id>.vue (+ *.test.ts)                         # 18 thư mục
 │   ├── components/
 │   │   ├── form/{BoForm,FormField,FormFieldLabel,FormFieldMenu,FormFieldInterface,FormFieldRawEditor,ValidationErrors}.vue
-│   │   ├── form/utils/{get-form-fields,apply-conditions,push-group-options-down,validate-item,clear-hidden-fields-by-condition,get-default-values-from-fields,format-validation-structure}.ts
+│   │   ├── form/utils/{get-form-fields,update-field-widths,apply-conditions,push-group-options-down,validate-item,clear-hidden-fields-by-condition,get-default-values-from-fields,format-validation-structure}.ts
 │   │   ├── render/{RenderDisplay,RenderTemplate,ValueNull,UserPopover}.vue
 │   │   ├── drawers/{BoDrawer,DrawerItem,DrawerCollection,DrawerBatch,DrawerFiles}.vue
 │   │   ├── files/{BoUpload,FileLightbox,FilePreview}.vue
@@ -160,8 +161,10 @@ apps/web/
 │   ├── composables/{use-relation-m2o,use-relation-o2m,use-relation-m2m,use-relation-m2a,use-relation-single,use-relation-multiple,use-relation-permissions,use-items,use-collection,use-custom-selection,use-alias-fields,use-template-data,use-preset,use-run-manual-flow}.ts
 │   ├── stores/{fields,collections,relations,presets}.ts (mở rộng), flows.ts (mới)
 │   ├── utils/{adjust-fields-for-displays,render-string-template,format-date,format-filesize,get-item-route,get-related-collection,readable-mime-type,get-default-display-for-type,get-default-interface-for-type,get-fields-from-template,geometry/*,replace-url-access-token,...}.ts
+│   ├── components/BoSortableList.vue      # vuedraggable + menu dòng Lên/Xuống/Thụt (D-60)
 │   ├── test-utils/{fetch.ts (+ mockFixtureApi), fixtures.ts, browser.ts}
 │   └── lang/translations/*.json    # thêm khóa nếu sync thiếu (R9)
+├── scripts/extract-directus-registry.mjs   # chạy một lần, sinh fixtures/interfaces/directus-registry.json
 ├── vitest.config.ts                # projects: unit (happy-dom), browser (chromium)
 └── project.json                    # targets: fixtures (seed+export), test (hai project)
 

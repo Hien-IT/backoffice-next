@@ -46,8 +46,11 @@ Display (18): `boolean`, `collection`, `color`, `datetime`, `file`, `filesize`, 
 
 Khóa options của từng id: spec FR-020 đến FR-079 (nguồn `directus/app/src/{interfaces,displays}/<id>/index.ts`).
 Test `registry.test.ts` so `id`, `types`, `localTypes`, `group`, `relational`, `hideLabel`, `hideLoader`, tên khóa
-options (kể cả trong `{standard, advanced}` và hàm với vài `field.type`) với bản đọc trực tiếp từ
-`directus/app/src` (test chạy trong repo, đọc file Directus như `sync-translations.test.ts`).
+options (kể cả trong `{standard, advanced}` và hàm với vài `field.type`) với
+`apps/web/fixtures/interfaces/directus-registry.json`. File JSON sinh một lần bằng
+`apps/web/scripts/extract-directus-registry.mjs` (nạp `index.ts` Directus bằng `vite-node` với stub cho `@/`; id không
+nạp được thì ghi tay từ nguồn, `"manual": true`), commit kèm bản Directus; không nạp file Directus trong CI vì
+`index.ts` của Directus import i18n, store và component của app Directus.
 
 ## 4. Mặc định theo kiểu
 

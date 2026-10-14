@@ -190,7 +190,7 @@ TailAdmin thật (không có mẫu cho các mục này).
 5. Test port từ 31 file test Directus (FR-120; 8 file `_system` đi cùng D-57): mỗi file → một `*.test.ts` cùng tên trong thư mục interface/display;
    ghi nguồn trong header; manifest.
 6. Hiệu năng SC-004: `form.browser.test.ts` dựng 50 field, `table.browser.test.ts` 100×10, đo `performance.now()`
-   với ngưỡng 1.000 ms và thử lại 2 lần trước khi thất bại (máy CI chậm).
+   với ngưỡng 1.000 ms trên trung vị 3 lần dựng (SC-004).
 7. Axe: `axe-core` `run(document)` trong browser test cho form mẫu và bảng mẫu ở `html.dark` và sáng; 0 vi phạm
    `serious`/`critical` (SC-005).
 

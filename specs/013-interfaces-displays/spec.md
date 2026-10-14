@@ -456,7 +456,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   bảng trong interface lưu ở localStorage theo collection và field (khóa đổi tiền tố `backoffice-`, D-39). Trạng thái
   như Directus: skeleton khi tải, `no_items` khi trống, notice lỗi qua `translateAPIError` (`403`, `500`).
 - **FR-047** `list-o2m-tree-view` (o2m đệ quy): `displayTemplate`, `enableCreate`, `enableSelect`, `filter`; kéo thả
-  giữa các cấp, thay đổi con lồng trong `create`/`update` của cha như Directus; quan hệ không đệ quy thì thông báo.
+  giữa các cấp, thay đổi con lồng trong `create`/`update` của cha như Directus; đổi cấp bằng bàn phím qua menu dòng
+  "Thụt vào", "Thụt ra" (D-60); quan hệ không đệ quy thì thông báo.
 - **FR-048** `translations`: `languageField`, `languageDirectionField` (mặc định `direction` khi collection ngôn ngữ có
   field đó), `defaultLanguage`, `userLanguage`, `defaultOpenSplitView`; nạp toàn bộ ngôn ngữ (sắp theo field sort, rồi
   `languageField`, rồi khóa chính); tiến độ mỗi ngôn ngữ; chia đôi khi rộng hơn 960 px và có hơn một ngôn ngữ; form mỗi
@@ -581,7 +582,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   đóng: URL của `input-autocomplete-api`; tile theo `basemaps` hoặc OpenStreetMap mặc định; glyph
   `https://fonts.openmaptiles.org/...` (style gốc của `basemap.ts`); style và geocoder Mapbox khi settings có
   `mapbox_key`; iframe embed của block editor (tool `embed`) và media của rich text.
-- **FR-082**: Chạy được với Directus thật và API mới chỉ bằng đổi `apiUrl` (như 012).
+- **FR-082**: Chạy được với Directus thật và API mới chỉ bằng đổi `apiUrl` (như 012). Ở 013 chỉ kiểm phần dữ liệu (seed
+  chạy ở hai API, SC-009); test component dùng API giả lập, nên kiểm đầy đủ bằng E2E ba cấu hình ở 014.
 - **FR-083**: Không sửa file trong `directus/`; không ghi `directus_fields`, `directus_relations`, `directus_collections`.
 - **FR-084**: Form PHẢI cho biết có thay đổi chưa lưu hay không, để màn chứa (014) hỏi `unsaved_changes` như
   `use-edits-guard.ts`; drawer của interface (repeater, item lồng) tự hỏi trước khi bỏ thay đổi như Directus.
@@ -656,7 +658,7 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | D-56 | Form options của interface và display (`options` dạng component: `list`, `map`; `system-interface-options`, `system-display-options`) | Có ở màn cấu hình field | Chưa có; chỉ đọc options đã lưu | Màn cấu hình field thuộc Settings | ngoài phạm vi (tạm thời) | 016 |
 | D-57 | 27 interface `_system` (trừ `system-raw-editor`) | Có | Chưa có; field dùng chúng hiện `interface_not_found` cho tới feature có màn dùng | Owner chọn 2026-10-15 (Q-B): làm cùng màn dùng chúng | ngoài phạm vi (tạm thời) | 015: `system-language`, `system-theme`, `system-theme-overrides`, `system-mfa-setup`, `system-token`, `system-input-password`; 016: còn lại trừ `system-mcp-prompts-collection-validation` (AI, D-41, không làm) |
 | D-58 | Layout và bộ lọc của drawer chọn item (`drawer-collection.vue`) | Layout theo preset của user (table, cards, calendar, kanban, map), thanh bộ lọc | Luôn dạng bảng (cột theo preset hoặc mặc định), tìm kiếm, phân trang, bộ lọc của interface | Layout và bộ lọc thuộc module Content; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 014 |
-| D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng; kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
+| D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng (tree view thêm "Thụt vào", "Thụt ra" để đổi cha); kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
 | D-59 | Chỉnh ảnh (cắt, xoay, lật, tỉ lệ, điểm focal) trong `file-image` (`image-editor.vue`, `PATCH /files/:id` multipart) | Có khi có quyền sửa file | Chưa có nút chỉnh ảnh | Thay nội dung file thật, dùng chung với màn file của module Files; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 015 |
 
 **Cần xác nhận** (đang giữ nguyên):
@@ -715,7 +717,7 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   comments, flows), xuất CSV thuộc 014; 013 cung cấp form, display, template và drawer để 014 đến 018 dùng.
 - Chế độ batch của form có ở 013 vì `list-o2m`/`list-m2m` dạng table cần drawer sửa hàng loạt; màn sửa hàng loạt nhiều
   item của module Content thuộc 014.
-- Thư viện cụ thể chọn ở bước plan; yêu cầu là cùng định dạng dữ liệu (FR-064).
+- Thư viện và phiên bản đã chốt ở plan (research R1); yêu cầu là cùng định dạng dữ liệu (FR-064).
 - Giá trị lưu không cần giống Directus từng byte ở chỗ thư viện tự sinh (`time` của block editor, `id` của block,
   khác biệt do trình duyệt khi trình soạn chuẩn hóa HTML); so sánh bỏ các phần này (US7).
 - Bản đồ dùng tile OpenStreetMap mặc định như Directus (request ra ngoài được phép, FR-081).
@@ -740,7 +742,8 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
 ### Measurable Outcomes
 
 - **SC-001**: 40/40 interface id và 18/18 display id có bản tương ứng; với bộ mẫu (FR-100), test component dựng form
-  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found`, 0 lỗi hoặc cảnh báo Vue, 100% khẳng định DOM
+  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found`, 0 lỗi hoặc cảnh báo Vue (trừ field nhóm có
+  `meta.interface` null nếu đo ở task đầu đợt A cho thấy Directus cũng cảnh báo và ta làm giống), 100% khẳng định DOM
   đạt. "Đọc được cấu hình hiện có" = SC-001 và SC-003.
 - **SC-002**: Với mọi giá trị Directus đã ghi trong bộ mẫu, form không sửa thì phát 0 thay đổi; mỗi interface có ít nhất
   một kịch bản sửa mà giá trị phát ra bằng giá trị mong đợi (sau khi bỏ phần không ổn định ở Assumptions). So payload
