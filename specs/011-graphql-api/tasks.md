@@ -38,7 +38,7 @@ nội dung, đây là ánh xạ theo phase).
   Chạy `node tools/check-port-headers.mjs` sau khi ghi. KHÔNG sửa, xóa hay tạo file trong `directus/`.
 - Port nguyên vẹn: giữ tên biến, thứ tự câu lệnh, thứ tự `addFields`, message của Directus (thứ tự quyết định
   introspection nguyên văn, SC-001). Chỗ khác nguồn ghi `// Backoffice: <lý do>` (danh sách cho phép ở plan,
-  Constitution Check I: `subscribe` giữ chỗ, `lru-cache`, `p-queue`, `update_extensions_item`, `redact.test.ts` đọc
+  Constitution Check I: `subscribe` giữ chỗ, `update_extensions_item`, `redact.test.ts` đọc
   log container). Giới hạn tạm ghi `// ponytail: <giới hạn>, <khi nào nâng>`.
 - Ánh xạ import khi port: `@directus/utils` → `@backoffice/utils`; `@directus/errors` → `@backoffice/errors`
   (`isDirectusError` → `isBackofficeError`); `@directus/types` → `@backoffice/types`; `@directus/env` →
@@ -253,7 +253,7 @@ tám file blackbox items xanh ở lượt `backoffice`.
 - [X] T020 [US1] Sửa lệch phát hiện ở T018, T019 trong `apps/api/src/services/graphql/schema/{read,get-types,
   parse-query,parse-args}.ts`, `resolvers/query.ts`, `utils/*.ts` (chỉ sửa port cho đúng Directus; mỗi chỗ sửa ghi
   vào "Ghi chú khi làm" với request, kết quả hai app); thêm ca unit tương ứng vào test của file sửa.
-- [ ] T021 [US1] `tests/parity/src/suite.ts`: `REDUCED_FILES` thêm `src/graphql/read.test.ts`; `FULL_FILES` thêm
+- [X] T021 [US1] `tests/parity/src/suite.ts`: `REDUCED_FILES` thêm `src/graphql/read.test.ts`; `FULL_FILES` thêm
   `src/graphql/**/*.test.ts`; chạy `reduced` trên MySQL, SQLite (`env-up --vendor=mysql`, `sqlite3`), ghi số ca theo
   vendor vào "Ghi chú khi làm" (ca đọc dòng DB chỉ SELECT, bài học 002).
 
@@ -287,7 +287,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 - [X] T023 [US2] Sửa lệch phát hiện ở T022 trong `apps/api/src/services/graphql/schema/write.ts`,
   `resolvers/mutation.ts`, `services/graphql/index.ts` (`create`, `update`, `delete`, `upsertSingleton`); mỗi chỗ ghi
   "Ghi chú khi làm"; thêm ca unit vào test của file sửa.
-- [ ] T024 [US2] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/write.test.ts`; chạy MySQL, SQLite.
+- [X] T024 [US2] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/write.test.ts`; chạy MySQL, SQLite.
 
 **Checkpoint**: US2 xanh ba vendor.
 
@@ -336,7 +336,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 - [X] T027 [US3] Sửa lệch phát hiện ở T025, T026 trong `apps/api/src/services/graphql/resolvers/{system,
   system-global,system-admin}.ts` (cookie theo `mode`, `expires` kiểu chuỗi của GraphQL, `users_me` query); mỗi chỗ ghi
   "Ghi chú khi làm"; thêm ca unit vào `resolvers/system.test.ts`.
-- [ ] T028 [US3] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/system.test.ts`; chạy MySQL, SQLite;
+- [X] T028 [US3] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/system.test.ts`; chạy MySQL, SQLite;
   chạy blackbox hai lượt (`PARITY_BLACKBOX_APP=directus`, `backoffice`) trên Postgres, ghi số ca.
 
 **Checkpoint**: US3 xanh; 13 file blackbox xanh hai lượt. **Đợt commit B**.
@@ -387,7 +387,7 @@ graphql` có mặt (gỡ D-15).
   `apps/api/src/services/graphql/schema/*.ts`, `resolvers/*.ts` theo nguyên tắc giữ thứ tự gọi của Directus; nếu lệch
   do thứ tự `SchemaOverview` thì sửa ở `apps/api/src/schema/**` (002) với ca thêm vào `src/schema/overview.test.ts`;
   không sắp lại ở bộ so; ghi "Ghi chú khi làm" từng lệch (plan §Rủi ro).
-- [ ] T033 [US4] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/schema.test.ts` (phần admin + user A);
+- [X] T033 [US4] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/schema.test.ts` (phần admin + user A);
   chạy MySQL, SQLite; chạy `full` Postgres với `graphql-nointro`.
 
 **Checkpoint**: US4 xanh; SHA introspection của app mới trùng Directus cho sáu cấu hình user ở hai scope.
@@ -482,10 +482,10 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 **Purpose**: Manifest, sổ khác biệt, spec cũ, bằng chứng rủi ro, đóng feature (Nguyên tắc X).
 
-- [ ] T044 [P] `node tools/check-port-headers.mjs` 0 lỗi với manifest `011-T004` đến `011-T031`; mọi file nguồn mới của
+- [X] T044 [P] `node tools/check-port-headers.mjs` 0 lỗi với manifest `011-T004` đến `011-T031`; mọi file nguồn mới của
   011 có `Ported from` hoặc `Backoffice:`; coverage dòng `apps/api` ≥ 80% (`pnpm nx run api:test`), ghi số vào "Ghi chú
   khi làm"; `pnpm nx run-many -t lint typecheck` xanh; `graphify update .`.
-- [ ] T045 [P] Tài liệu: `specs/011-graphql-api/spec.md` cột "Bằng chứng" R-30 đến R-32 (từ T037, T042), mục "Lệch có
+- [X] T045 [P] Tài liệu: `specs/011-graphql-api/spec.md` cột "Bằng chứng" R-30 đến R-32 (từ T037, T042), mục "Lệch có
   chủ đích" giữ; `specs/001-platform-foundation/spec.md` dòng D-09.9, D-15 ghi "gỡ ở 011 (ngày)";
   `specs/011-graphql-api/checklists/*.md` đánh dấu mục đã rà; `research.md` R12 bổ sung số đo của app mới nếu khác;
   `CLAUDE.md` Recent Changes giữ dòng 011.
@@ -598,3 +598,13 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   chuỗi JSON, hàm đặt tên id của `write.test.ts` không đọc → parse; (4) E2E: `last_page` của Save as Copy (sửa ở 1c60a48)
   và `system.spec.ts` Import/Export của 010 lỗi ngẫu nhiên khi uuid file mở đầu bằng 8 chữ số (mẫu thời gian ăn mất
   nhóm đầu) → đổi thứ tự thay thế.
+- 2026-10-14 T021, T024, T028, T033 (local): SQLite và MySQL: `read`, `write`, `system`, `schema` (`full`, gồm các ca
+  chỉ chạy ở full) đạt sau sửa (MySQL 34, SQLite 34 ca, 2 skip là ca của cặp `graphql-nointro` không dựng); blackbox
+  `mail.test.ts` đạt ở lượt backoffice hai vendor; `cache.test.ts` 5/5 trên cặp `cache-redis-purge`.
+- 2026-10-14 T044: `check-port-headers` 1.275 file, 0 lỗi; coverage dòng `apps/api` 85,64%; lint, typecheck 22 task
+  xanh; `graphify update .`. T045: cột "Bằng chứng" R-30 đến R-33 ghi ngày đo; spec 001 (D-09.9, D-15) sửa ở T046 khi
+  tech lead duyệt đóng feature.
+- 2026-10-14 (owner): đổi về thư viện của Directus: `mnemonist` 0.40.3, `async-mutex` 0.5.0 vào catalog và `apps/api`;
+  `schema-cache.ts` port nguyên văn, `schema/index.ts` chỉ khác chỗ import type `GraphQLParams`; bỏ `lru-cache` khỏi
+  `apps/api` (chỉ dùng ở đây); `p-queue` vẫn cho flows. `pnpm audit`: không advisory nào chạm hai gói. Unit
+  `services/graphql` 106 ca xanh. Mô tả T011 ở trên là phương án cũ.

@@ -606,21 +606,19 @@ entry tương ứng trong `tests/parity/accepted-differences.ts`; `tests/parity/
 Khác biệt mới: Không có. Type `Subscription` giữ như Directus (Clarifications, FR-047); GraphQL qua WebSocket thuộc
 D-17.
 
-**Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 010. Các dòng dưới tìm từ đọc code; bằng chứng
-đo trên Directus 11.17.4 thật ghi khi implement, cần tech lead duyệt khi đóng feature.
+**Rủi ro chấp nhận (tái tạo từ Directus)**: như quy tắc của 004 đến 010. Các dòng dưới tìm từ đọc code, đã đo trên
+Directus 11.17.4 ngày 2026-10-14 và tái tạo ở app mới; cần tech lead duyệt khi đóng feature.
 
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
-| R-30 | Cache schema GraphQL theo khóa `scope_type_role_user` chỉ xóa khi `schemaChanged`; đổi quyền, role, data model trực tiếp trong DB (không qua service) không xóa; `schemaChanged` tới giữa lúc đang sinh thì schema cũ vẫn được `set` sau đó | `services/graphql/schema-cache.ts`, `schema/index.ts`, `cache.ts` (`clearSystemCache`) | User thấy schema cũ tới khi có `schemaChanged` kế tiếp hoặc entry bị đẩy khỏi LRU hoặc instance khởi động lại. Tái tạo (FR-044) |
-| R-31 | `/graphql` cache response cho `POST` theo body; `parseGraphQL` không giới hạn kích thước ngoài `MAX_PAYLOAD_SIZE` và `GRAPHQL_QUERY_TOKEN_LIMIT` | `middleware/respond.ts`, `middleware/graphql.ts` | Mỗi document khác nhau là một entry cache; client sinh document ngẫu nhiên làm đầy data cache như Directus. Tái tạo (FR-004) |
+| R-30 | Cache schema GraphQL theo khóa `scope_type_role_user` chỉ xóa khi `schemaChanged`; đổi quyền, role, data model trực tiếp trong DB (không qua service) không xóa; `schemaChanged` tới giữa lúc đang sinh thì schema cũ vẫn được `set` sau đó | `services/graphql/schema-cache.ts`, `schema/index.ts`, `cache.ts` (`clearSystemCache`); đo 2026-10-14 (Postgres, MySQL): quyền đọc ghi thẳng vào `directus_permissions` cho user C → `__type` của collection vẫn rỗng ở cả hai app, sau `POST /utils/cache/clear?system` thì có field ở app mới. Ca: `src/graphql/schema.test.ts` "R-30" | User thấy schema cũ tới khi có `schemaChanged` kế tiếp hoặc entry bị đẩy khỏi LRU hoặc instance khởi động lại. Tái tạo (FR-044) |
+| R-31 | `/graphql` cache response cho `POST` theo body; `parseGraphQL` không giới hạn kích thước ngoài `MAX_PAYLOAD_SIZE` và `GRAPHQL_QUERY_TOKEN_LIMIT` | `middleware/respond.ts`, `middleware/graphql.ts`; đo 2026-10-14 trên cặp `cache-redis-purge`: `{ server_ping }` rồi `{  server_ping }` → số khóa `sets:namespace:parity-cache-redis-purge:*` tăng. Ca: `src/graphql/cache.test.ts` "R-31" | Mỗi document khác nhau là một entry cache; client sinh document ngẫu nhiên làm đầy data cache như Directus. Tái tạo (FR-004) |
 | R-32 | Sinh schema cho user chưa có cache tốn CPU theo kích thước data model; chỉ giới hạn bằng semaphore mỗi instance, không giới hạn số user; cache giữ tới `GRAPHQL_SCHEMA_CACHE_CAPACITY` (100) `GraphQLSchema` trong bộ nhớ, không giới hạn theo byte | `schema/index.ts` (`generateSchema`), `schema-cache.ts` | Nhiều user khác nhau cùng lúc xếp hàng chờ sinh schema; bộ nhớ tăng theo số user × kích thước schema. Bằng chứng: đo 2026-10-14 (benchmark local, chỉ tham khảo): sinh schema admin lần đầu Directus 126 ms, app mới 98 ms trên data model benchmark; RSS sau 15 kịch bản Directus 782 MiB, app mới 539 MiB. Tái tạo (FR-045) |
 | R-33 | `resolveMutation` gọi `getQuery` với tên field chưa bỏ hậu tố (`create_<c>_item`) làm collection, nên m2a trong selection của mutation không được nhận ra và mọi inline fragment bị gộp thành một danh sách field | `resolvers/mutation.ts:16-21`; đo 2026-10-14 trên Directus 11.17.4: `create_<c>_item { blocks { item { ... on <text> { body } } } }` → `200`, `data` null, `errors[0]` `FORBIDDEN` "field \"body\" in collection \"<quote>\""; hai fragment → `FORBIDDEN` field của collection kia; cùng kết quả ở app mới. Ca: `src/graphql/write.test.ts` "m2a inline fragments in the selection of a mutation" | Client chọn field của item m2a trong mutation nhận lỗi, dòng vẫn được ghi; đọc lại bằng query thường thì đúng. Tái tạo (FR-022) |
 
-**Lệch có chủ đích so với mã gốc, không đổi hành vi** (cần tech lead duyệt khi đóng feature, như `BusRedis` của
-010): cache schema dùng `lru-cache` 11.2.2 (đã có) thay `mnemonist` `LRUMap`; hàng đợi sinh schema dùng `p-queue`
-8.1.0 (đã có) thay `async-mutex` `Semaphore`; không thêm hai gói cho hai dòng (plan research R1). Cùng ngữ nghĩa: LRU
-tối đa `GRAPHQL_SCHEMA_CACHE_CAPACITY` entry; tối đa `GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT` lượt sinh đồng thời,
-lượt còn lại chờ theo thứ tự, lỗi lan ra ngoài.
+**Thư viện như Directus**: cache schema dùng `mnemonist` 0.40.3 (`LRUMap`), hàng đợi sinh schema dùng `async-mutex`
+0.5.0 (`Semaphore`), cùng bản Directus 11.17.4; `schema-cache.ts` và `schema/index.ts` port nguyên văn (owner chọn
+2026-10-14, thay phương án dùng lại `lru-cache`, `p-queue` của plan ban đầu). Không có lệch mã gốc cần duyệt.
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

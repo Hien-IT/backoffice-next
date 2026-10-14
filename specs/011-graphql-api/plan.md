@@ -16,7 +16,7 @@ Cách làm:
 
 - Port nguyên, cùng đường dẫn, kèm 8 file test gốc: `services/graphql/**` trừ `subscription.ts`, `middleware/graphql.ts`,
   `utils/get-graphql-type.ts`, `utils/get-graphql-query-and-variables.ts`, phần `GraphQLSpecsService` của
-  `services/specifications.ts` (R2). `mnemonist` → `lru-cache`, `async-mutex` → `p-queue` đã có (R1). Thêm `graphql`
+  `services/specifications.ts` (R2). Thêm `mnemonist`, `async-mutex` như Directus (R1, owner chọn 2026-10-14). Thêm `graphql`
   16.12.0, `graphql-compose` 9.1.0.
 - `GraphqlController` Nest với `@All` theo hai scope, `parseGraphQL` qua `runMiddleware`, `respond` (R3);
   `ServerController` thêm `specs/graphql` (R4); resolver hệ thống dùng service của 003 đến 010 (R8).
@@ -47,7 +47,7 @@ Nx 23.3.
 
 **Primary Dependencies**:
 - Đã có: NestJS 12 (Express 5.2.1), knex 3.1.0, argon2 0.44.0, nanoid, object-hash 3.0.0, lodash-es, date-fns,
-  lru-cache 11.2.2 (`@backoffice/memory`), p-queue 8.1.0, `ItemsService` và engine (`getAstFromQuery`, `runAst`,
+  `ItemsService` và engine (`getAstFromQuery`, `runAst`,
   `sanitizeQuery`, `validateQuery`, `getRelatedCollection`), `reduceSchema`, `fetchAllowedFieldMap`,
   `fetchInconsistentFieldMap`, `fetchAccountabilityPolicyGlobals`, `fetchAccountabilityCollectionAccess`,
   `createDefaultAccountability`, `AuthenticationService`, `UsersService`, `TFAService`, `UtilsService`,
@@ -105,7 +105,7 @@ CI, catalog pnpm.
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`. Mọi file port ghi `// Ported from directus/...` (bảng
   ánh xạ, manifest `011-T*.json`). Chỗ khác nguồn ghi `Backoffice:`: `subscribe` giữ chỗ trong `read.ts`, LRU và hàng
-  đợi thay `mnemonist`, `async-mutex`, `update_extensions_item` ném `Forbidden`, `redact.test.ts` đọc log container.
+  `update_extensions_item` ném `Forbidden`, `redact.test.ts` đọc log container.
 - [x] **II. Dùng chung DB**: PASS. Không DDL, không migration, không truy vấn mới; mọi ghi qua service của 003 đến
   010 với cùng định dạng.
 - [x] **III. API giống hệt**: PASS. Route, method, status, mã lỗi, body, header cache, SDL như Directus
@@ -165,8 +165,8 @@ backoffice-next/
 │   ├── middleware/router-options.ts (+ test)   # SỬA: /server/specs/graphql khi GRAPHQL_INTROSPECTION
 │   ├── services/graphql/
 │   │   ├── index.ts                            # MỚI ← services/graphql/index.ts
-│   │   ├── schema-cache.ts (+ test)            # MỚI ← schema-cache.ts (lru-cache)
-│   │   ├── schema/{index,read,write,get-types,parse-args,parse-query}.ts (+ parse-query.test, index.test)   # MỚI ← schema/* (index: p-queue; read: Subscription giữ chỗ)
+│   │   ├── schema-cache.ts (+ test)            # MỚI ← schema-cache.ts
+│   │   ├── schema/{index,read,write,get-types,parse-args,parse-query}.ts (+ parse-query.test, index.test)   # MỚI ← schema/* (read: Subscription giữ chỗ)
 │   │   ├── resolvers/{query,mutation,system,system-global,system-admin,get-collection-type,get-field-type,get-relation-type}.ts (+ query.test)   # MỚI ← resolvers/*
 │   │   ├── types/{bigint,date,geojson,hash,string-or-float,void}.ts   # MỚI ← types/*
 │   │   ├── utils/{add-path-to-validation-error,aggregate-query,dedupe-resolvers,filter-replace-m2a,process-error,replace-fragments,replace-funcs,sanitize-gql-schema}.ts (+ 6 test gốc)   # MỚI ← utils/*
@@ -212,8 +212,8 @@ có hậu tố `.controller.ts`. Blackbox thêm vào cây `tests/parity/src/item
 | Nguồn (`directus/api/src`) | Đích (`apps/api/src`) | Ghi chú |
 |----------------------------|------------------------|---------|
 | `services/graphql/index.ts` | `services/graphql/index.ts` | Nguyên; `useEnv` của `@backoffice/env` |
-| `services/graphql/schema-cache.ts` | cùng | `LRUMap` → `LRUCache` (Backoffice) |
-| `services/graphql/schema/index.ts` | cùng | `Semaphore` → `PQueue` (Backoffice) |
+| `services/graphql/schema-cache.ts` | cùng | Nguyên |
+| `services/graphql/schema/index.ts` | cùng | Nguyên (type `GraphQLParams` từ `apps/api/src/types`) |
 | `services/graphql/schema/read.ts` | cùng | `createSubscriptionGenerator` → hàm giữ chỗ ném lỗi (Backoffice, FR-047) |
 | `services/graphql/schema/{write,get-types,parse-args,parse-query}.ts` (+ `parse-query.test.ts`) | cùng | Nguyên |
 | `services/graphql/resolvers/*.ts` (+ `query.test.ts`) | cùng | import service `.service.js`; `update_extensions_item` → `ForbiddenError` (D-37) |
@@ -234,14 +234,13 @@ có hậu tố `.controller.ts`. Blackbox thêm vào cây `tests/parity/src/item
 | Phần | Lý do | Thay ở |
 |------|-------|--------|
 | `services/graphql/subscription.ts`, `websocket/controllers/graphql.ts`, `graphql-ws` | Nguyên tắc XI, D-17 | type `Subscription` giữ chỗ trong schema |
-| `mnemonist`, `async-mutex` | hai gói cho hai dòng (R1) | `lru-cache`, `p-queue` |
 | `ExtensionsService.updateOne` qua `update_extensions_item` | Nguyên tắc XI, D-37 | `ForbiddenError` |
 | Màn hình GraphQL của app web mới | FE | sau |
 
 ## Complexity Tracking
 
 Không có vi phạm constitution. Ghi nhận cần tech lead duyệt khi đóng feature (Nguyên tắc X): gỡ D-09.9, D-15; R-30
-đến R-32 với bằng chứng đo; hai chỗ thay thư viện (`lru-cache`, `p-queue`) ghi trong header file.
+đến R-32 với bằng chứng đo.
 
 Ngoại lệ đã duyệt của 001 đến 010 vẫn áp dụng: benchmark hằng tuần thay vì chặn CI (003); store `memory` với cảnh
 báo một instance (001); D-08.
@@ -257,6 +256,5 @@ Rủi ro đã biết, theo dõi trong tasks:
 | `health.test.ts` kiểm `email` trong `server_health` của admin: Directus có `EMAIL_*` mặc định (sendmail) nên có mục `email`, app mới không (D-07) | ca health đỏ ở app mới | so theo D-07 như `src/server/health.test.ts` của 001 (entry `doc`/`http` đã có) |
 | Cache schema theo `role_user` không thấy policy đổi trực tiếp trong DB | SC-005 đỏ nếu test sửa DB thô | bộ đối chiếu đổi quyền qua API (phát `schemaChanged`); R-30 ghi nhận |
 | `graphql-compose` 9.1.0 kéo `graphql` peer: pnpm catalog phải trùng để không có hai bản `graphql` (lỗi "Cannot use GraphQLSchema from another module") | app không khởi động | catalog pin 16.12.0; `pnpm why graphql` ở task thư viện |
-| Thay `Semaphore` bằng `PQueue`: `runExclusive` trả giá trị của hàm; `queue.add` cũng trả, nhưng lỗi trong hàm phải lan ra ngoài | sinh schema lỗi bị nuốt | unit test `schema/index.test.ts` ca ném lỗi |
 | Guard `accepted-differences` đỏ khi xóa D-09.9, D-15 trước khi spec `Done` | CI đỏ | xóa trong commit đóng feature (tiền lệ 007 đến 010) |
 | Nhánh tạo từ 28191d6, main đã có f9e5ca9 (phiên 010 báo) | conflict khi push | rebase lên main trước commit đầu |

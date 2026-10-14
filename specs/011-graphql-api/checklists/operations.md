@@ -91,3 +91,4 @@ sinh schema trong spec.md, plan.md và data-model.md trước khi tạo tasks
     khoảng chờ bus như 002, 004), CHK017 (R-32 cột bằng chứng, T042), CHK018 (US5 kịch bản 4 có số), CHK019 (FR-060 cặp
     `multi`; T029), CHK021 (T025 `utils_cache_clear` xóa cache schema app kia), CHK023 (FR-045, Edge Cases: lỗi sinh
     schema), CHK024 (R-30 ghi `schemaChanged` giữa lúc sinh), CHK025 (Assumptions: lệch env là lỗi vận hành).
+- 2026-10-14: owner chọn port nguyên `mnemonist`, `async-mutex`; CHK015 không còn mục lệch cần duyệt.

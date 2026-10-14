@@ -5,20 +5,18 @@ Mỗi mục gồm Quyết định, Lý do, Đã cân nhắc. Mốc so sánh là 
 Directus (FR-047); so introspection và SDL nguyên văn kể cả thứ tự (SC-001); port nguyên năm file blackbox còn lại
 (FR-061). Đường dẫn Directus tính từ `directus/api/src` trừ khi ghi khác; đường dẫn app mới tính từ gốc repo.
 
-## R1. Thư viện: thêm `graphql`, `graphql-compose`; dùng lại `lru-cache`, `p-queue` thay `mnemonist`, `async-mutex`
+## R1. Thư viện: thêm `graphql`, `graphql-compose`, `mnemonist`, `async-mutex` (bản của Directus)
 
-- **Quyết định**: Thêm vào catalog `pnpm-workspace.yaml` đúng bản Directus: `graphql 16.12.0`, `graphql-compose 9.1.0`
+- **Quyết định**: Thêm vào catalog `pnpm-workspace.yaml` đúng bản Directus: `graphql 16.12.0`, `graphql-compose 9.1.0`,
+  `mnemonist 0.40.3` (`LRUMap` của cache schema), `async-mutex 0.5.0` (`Semaphore` của hàng đợi sinh schema)
   (`apps/api`). `json-to-graphql-query 2.3.0` đã có trong catalog (bộ blackbox). Không thêm `graphql-ws` (subscription
-  qua WebSocket, D-17), `mnemonist` (chỉ dùng `LRUMap` cho cache schema; `lru-cache 11.2.2` của `@backoffice/memory`
-  đã có, `new LRUCache({ max })` cùng ngữ nghĩa), `async-mutex` (chỉ dùng `Semaphore.runExclusive`; `p-queue 8.1.0`
-  của 009 với `concurrency = GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT`, `queue.add(fn)` cho cùng hành vi: tối đa N
-  lượt sinh schema đồng thời, lượt còn lại chờ theo thứ tự). Hai chỗ thay ghi `Backoffice:` trong header.
+  qua WebSocket, D-17).
 - **Lý do**: `graphql` và `graphql-compose` quyết định từng byte của introspection, SDL, message lỗi validation (SC-001,
-  SC-002), nên phải cùng bản. LRU và semaphore không ảnh hưởng output; thêm hai gói cho hai dòng là thừa (quy tắc
-  dependency của dự án).
-- **Đã cân nhắc**: Port `mnemonist`, `async-mutex` nguyên: bị loại, hai gói mới cho một `LRUMap` và một `Semaphore`.
-  `graphql-yoga`, `@nestjs/graphql`, Apollo: bị loại, schema không được sinh bằng `graphql-compose` thì tên type, thứ
-  tự field, directive, message lỗi khác Directus.
+  SC-002), nên phải cùng bản. `mnemonist`, `async-mutex`: owner chọn ngày 2026-10-14 port nguyên văn như Directus
+  (Nguyên tắc I) thay vì dùng lại `lru-cache`, `p-queue` đã có; `schema-cache.ts`, `schema/index.ts` không còn chỗ lệch.
+- **Đã cân nhắc**: Dùng lại `lru-cache` 11.2.2 (`@backoffice/memory`) và `p-queue` 8.1.0 (flows) cho cùng ngữ nghĩa, bớt
+  hai dependency: làm ở lượt implement đầu, owner đổi về bản Directus. `graphql-yoga`, `@nestjs/graphql`, Apollo: bị
+  loại, schema không được sinh bằng `graphql-compose` thì tên type, thứ tự field, directive, message lỗi khác Directus.
 
 ## R2. Cấu trúc port: `apps/api/src/services/graphql/` cùng đường dẫn Directus, trừ subscription
 
@@ -83,10 +81,10 @@ Directus (FR-047); so introspection và SDL nguyên văn kể cả thứ tự (S
 ## R5. Schema theo user và cache: port nguyên `generateSchema`; cache LRU mỗi instance, xóa qua `schemaChanged`
 
 - **Quyết định**: `schema/index.ts` port nguyên: khóa `scope_type_role_user`; `cache.get` → nếu thiếu,
-  `queue.add(async () => { kiểm cache lần hai; sanitize; admin hoặc không accountability → 4 bản schema đầy đủ, khác →
+  `semaphore.runExclusive(async () => { kiểm cache lần hai; sanitize; admin hoặc không accountability → 4 bản schema đầy đủ, khác →
   reduceSchema theo fetchAllowedFieldMap cho read/create/update/delete + fetchInconsistentFieldMap; getReadableTypes,
   getWritableTypes; scope system → injectSystemResolvers; Query/Mutation theo scopeFilter; buildSchema hoặc
-  printSchema; cache.set })`. `schema-cache.ts`: `new LRUCache<string, GraphQLSchema | string>({ max: Number(env
+  printSchema; cache.set })`. `schema-cache.ts`: `new LRUMap<string, GraphQLSchema | string>(Number(env
   ['GRAPHQL_SCHEMA_CACHE_CAPACITY'] ?? 100) })`, `useBus().subscribe('schemaChanged', () => cache.clear())` tại
   module load như Directus (bus Redis dùng chung với Directus; không có Redis thì bus local, cache chỉ xóa trong
   instance, R-30). `clearSystemCache` của app (002) đã publish `schemaChanged`; `CollectionsService`, `FieldsService`,

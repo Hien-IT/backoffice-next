@@ -10,9 +10,9 @@ qua service của collection, giống REST.
 |------------|---------|---------|
 | Khóa | `${scope}_${type}_${role}_${user}` | `scope` ∈ `items`, `system`; `type` ∈ `schema`, `sdl`; `role`, `user` từ accountability (`undefined` khi public) |
 | Giá trị | `GraphQLSchema` (type `schema`) hoặc chuỗi SDL (`sdl`) | sinh bởi `generateSchema` qua `graphql-compose` |
-| Dung lượng | LRU `GRAPHQL_SCHEMA_CACHE_CAPACITY` entry (mặc định 100) | `lru-cache` (research R1) |
+| Dung lượng | LRU `GRAPHQL_SCHEMA_CACHE_CAPACITY` entry (mặc định 100) | `mnemonist` `LRUMap` (research R1) |
 | Xóa | toàn bộ khi nhận `schemaChanged` trên bus | phát bởi `clearSystemCache` của cả hai app (collection, field, relation, quyền, policy, role, access, user đổi qua service; `utils/cache/clear?system`) |
-| Sinh đồng thời | tối đa `GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT` (mặc định 5) mỗi instance | `p-queue`; kiểm cache lần hai sau khi vào hàng |
+| Sinh đồng thời | tối đa `GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT` (mặc định 5) mỗi instance | `async-mutex` `Semaphore`; kiểm cache lần hai sau khi vào hàng |
 
 Đầu vào sinh schema (admin hoặc không accountability dùng schema đầy đủ; user khác):
 
