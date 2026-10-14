@@ -36,6 +36,22 @@ async function idpUser(sub: string, claims: Record<string, unknown>) {
 async function ldapUser(uid: string) {
 	const ldap = new Client({ url: LDAP_URL });
 	await ldap.bind('cn=Manager,dc=my-domain,dc=com', 'secret');
+
+	// A fresh OpenLDAP has no tree yet (like tests/parity/src/auth/sso-ldap.test.ts, entries that exist are kept).
+	const add = async (dn: string, entry: Record<string, string | string[]>) =>
+		ldap.add(dn, entry).catch((err: { code?: number }) => {
+			if (err?.code !== 68) throw err; // entryAlreadyExists
+		});
+
+	await add('dc=my-domain,dc=com', { objectClass: ['top', 'domain', 'dcObject'], dc: 'my-domain' });
+	await add('cn=Manager,dc=my-domain,dc=com', {
+		objectClass: ['top', 'person', 'organizationalPerson'],
+		cn: 'Manager',
+		sn: 'Manager',
+	});
+	await add(USER_BASE_DN, { objectClass: ['top', 'organizationalUnit'], ou: 'users' });
+	// AUTH_LDAP_GROUP_DN of env/profile-sso.env: the APIs search it at login.
+	await add('ou=groups,dc=my-domain,dc=com', { objectClass: ['top', 'organizationalUnit'], ou: 'groups' });
 	await ldap.add(`cn=${uid},${USER_BASE_DN}`, {
 		objectClass: ['top', 'inetOrgPerson', 'organizationalPerson', 'person'],
 		cn: uid,

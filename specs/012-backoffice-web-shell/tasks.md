@@ -489,7 +489,7 @@ Directus.
 
 **Independent Test**: job `e2e-web` xanh.
 
-- [ ] T065 [US7] `apps/web-e2e/src/requests.spec.ts` + fixture `helpers/requests.ts` áp cho mọi spec (import `test` từ
+- [X] T065 [US7] `apps/web-e2e/src/requests.spec.ts` + fixture `helpers/requests.ts` áp cho mọi spec (import `test` từ
   helper): sau mỗi test khẳng định mọi URL tới `apiUrl` khớp `allowed-paths.ts`; thêm ca riêng: đăng nhập + 6 module +
   hồ sơ → chỉ các path #1–#30; khẳng định không có request tới `/websocket`, `/extensions`, `/graphql`, `/items`.
   `apps/web-e2e/src/a11y.spec.ts` (FR-067): quét `AxeBuilder` với tag `wcag2a`, `wcag2aa`, `wcag21a`, `wcag21aa` trên
@@ -498,18 +498,18 @@ Directus.
   selector, ghi lý do); ca bàn phím: Tab từ đầu trang đăng nhập điền form, Enter đăng nhập, Tab tới thanh module, Enter
   mở Files, mở menu avatar bằng Enter, Esc đóng và focus về nút avatar, chọn đăng xuất; mỗi bước khẳng định
   `document.activeElement` và focus nhìn thấy được.
-- [ ] T066 [US7] `apps/web-e2e/src/perf.spec.ts` (chromium): CDP `Network.emulateNetworkConditions` 10 Mbps, cache
+- [X] T066 [US7] `apps/web-e2e/src/perf.spec.ts` (chromium): CDP `Network.emulateNetworkConditions` 10 Mbps, cache
   tắt, đo từ `goto('/admin/login')` tới form visible < 3000 ms; bundle: đọc `dist/` sau build và khẳng định chunk chính
   gzip ≤ 350 KB (script `apps/web/scripts/check-bundle.mjs` chạy ở target `web:check-bundle` sau `build`; test
   `apps/web/scripts/check-bundle.test.mjs` với dist giả); không cuộn ngang: `document.documentElement.scrollWidth <= innerWidth` ở 768 và 1280
   trên `/login`, `/content`, `/users/me`.
-- [ ] T067 [US7] `.github/workflows/ci.yml`: job `e2e-web` thay `e2e` (`needs: docker`; tải artifact `images`, tag
+- [X] T067 [US7] `.github/workflows/ci.yml`: job `e2e-web` thay `e2e` (`needs: docker`; tải artifact `images`, tag
   `hiennd23/backoffice-web:local`, `backoffice-api:local`; `env-up --vendor=postgres --profiles=app,setup,sso,web`;
   `playwright install --with-deps chromium firefox webkit`; ba bước `web-e2e:e2e` với `E2E_CONFIG`/`BASE_URL`; upload
   `apps/web-e2e/test-results` và log compose khi lỗi; `env-down`); `publish.needs` thêm `e2e-web`; `quality` đã chạy
   `web:lint` (gồm `no-raw-color`, `check-brand`), thêm `web:check-bundle`. Đẩy lên `main` và xem `gh run watch`; sửa
   tới khi xanh (memory: workflow merge main).
-- [ ] T068 [US7] `apps/web/README.md` (mới): cấu hình `PUBLIC_URL`/`config.json`, chạy cùng origin sau proxy và khác
+- [X] T068 [US7] `apps/web/README.md` (mới): cấu hình `PUBLIC_URL`/`config.json`, chạy cùng origin sau proxy và khác
   origin với bảng biến API bắt buộc (FR-075: `CORS_ENABLED`, `CORS_ORIGIN`, `CORS_CREDENTIALS`,
   `SESSION_COOKIE_SAME_SITE=None`, `SESSION_COOKIE_SECURE=true`, cần HTTPS ngoài localhost), lệnh sync dịch, lệnh
   E2E ba cấu hình (quickstart).
@@ -518,16 +518,16 @@ Directus.
 
 ## Phase 10: Polish & đóng feature
 
-- [ ] T069 [P] Manifest và header: mọi `tools/port-manifest/012-T*.json` đủ; `node tools/check-port-headers.mjs`,
+- [X] T069 [P] Manifest và header: mọi `tools/port-manifest/012-T*.json` đủ; `node tools/check-port-headers.mjs`,
   `node tools/guard-directus-unchanged.mjs` xanh.
-- [ ] T070 [P] Cập nhật research.md với kết quả thực tế của T002, T004, T019, T052 (OTP sau SSO), T054 (mode json),
+- [X] T070 [P] Cập nhật research.md với kết quả thực tế của T002, T004, T019, T052 (OTP sau SSO), T054 (mode json),
   T015 (query notifications); cập nhật `contracts/api-calls.md` #26 và `contracts/ui-routes.md` nếu lệch.
 - [ ] T071 [P] `specs/012-backoffice-web-shell/spec.md`: mục "Ghi chú khi làm" (lệch phát hiện, cách xử lý), trạng
   thái `Done` và dòng "Duyệt khác biệt" khi tech lead duyệt D-39 đến D-48 (quy trình không PR: ghi ngày duyệt);
   `checklists/release-gate.md` đánh dấu mục đã xử lý.
-- [ ] T072 [P] `CLAUDE.md` mục Recent Changes thêm dòng 012; `SPECKIT-GUIDE.md` không sửa prompt (giữ); memory cá
+- [X] T072 [P] `CLAUDE.md` mục Recent Changes thêm dòng 012; `SPECKIT-GUIDE.md` không sửa prompt (giữ); memory cá
   nhân cập nhật trạng thái dự án (012 Done) sau khi CI xanh.
-- [ ] T073 `graphify update .` sau khi code xong (CLAUDE.md), commit `graphify-out/` nếu thay đổi.
+- [X] T073 `graphify update .` sau khi code xong (CLAUDE.md), commit `graphify-out/` nếu thay đổi.
 - [ ] T074 Kiểm cuối: `pnpm nx run-many -t lint typecheck test build --projects=web,web-e2e`; E2E ba cấu hình xanh;
   `web:test` coverage ≥ 60% in ra; không hex thô (`web:lint`); `git status` sạch trên `main`.
 - [ ] T075 Phiên dùng thử SC-003 sau khi CI xanh (không chặn đóng feature): 5 người dùng nội bộ quen Directus làm
@@ -658,3 +658,14 @@ Directus.
 - CI job `e2e` cũ chỉ chạy `smoke.spec.ts` tới khi job `e2e-web` (Phase 9) có.
 - E2E đợt C local: chromium 768 + 1280 ở `proxy-api`, `proxy-directus` (32 đạt, 11 bỏ qua có chủ ý: sso và setup chỉ
   chạy ở `cors`), `cors` 43/43.
+
+Đợt D (2026-10-14):
+
+- T065: `a11y.spec.ts` chỉ miễn `color-contrast` cho đúng các cặp màu Q-8 (đo bằng axe: `#7384a4` trên trắng, chữ trắng
+  trên `#1890ff`); mọi vi phạm serious/critical khác làm test fail. Lượt local không có vi phạm nào khác ở 7 màn × sáng/
+  tối. Ca bàn phím bỏ qua ở 768 px (thanh module trong drawer, đã kiểm ở navigation.spec).
+- T066: màn đăng nhập hiện trong khoảng dưới 1 s ở 10 Mbps local; chunk chính 132 KB gzip (`web:check-bundle`, ngưỡng
+  350 KB).
+- T067: job `e2e-web` dùng image của job `docker` (tag lại `:local`, `PARITY_NO_BUILD=1` để env-up không build lại).
+- E2E seed cây OpenLDAP như `sso-ldap.test.ts` (OpenLDAP mới chưa có `ou=users`, `ou=groups`, `cn=Manager`; thiếu thì
+  LDAP login trả 503 ở cả hai API).

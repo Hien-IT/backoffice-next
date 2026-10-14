@@ -1,0 +1,75 @@
+# @backoffice/web
+
+The Backoffice admin app (Vue 3, Reka UI, Tailwind CSS 4 on the `design-system/` tokens). It replaces the Directus app
+and talks only to the Directus REST API (specs/012-backoffice-web-shell/contracts/api-calls.md), so the same build runs
+against Directus 11.17.4 or the Backoffice API.
+
+## Configuration
+
+One image for every environment. At start the container writes `/admin/config.json` from `PUBLIC_URL`
+(`docker/40-config.sh`); the app reads `apiUrl` from it at run time.
+
+| Variable     | Meaning                                                                  | Example                        |
+| ------------ | ------------------------------------------------------------------------ | ------------------------------ |
+| `PUBLIC_URL` | Base URL of the API (`/` when the API is on the same origin as `/admin`) | `/`, `https://api.example.com` |
+
+No other variable. In development `apps/web/public/config.json` holds `{ "apiUrl": "/" }` and the Vite dev server
+proxies every API path to `PUBLIC_URL` (default `http://127.0.0.1:8055`).
+
+## Deployment
+
+### Same origin (recommended)
+
+A reverse proxy sends `/admin/` to the web container (nginx on port 8080) and every other path to the API
+(`PUBLIC_URL=/`). The session cookie of the API (`directus_session_token`, session mode like the Directus app) works
+without extra settings. See `tests/parity/proxy/web-api.conf`.
+
+### Another origin
+
+The app keeps session mode: every request is sent with `credentials: 'include'`. The API must allow it:
+
+| API variable                          | Value                                                       |
+| ------------------------------------- | ----------------------------------------------------------- |
+| `CORS_ENABLED`                        | `true`                                                      |
+| `CORS_ORIGIN`                         | the origin of the app, e.g. `https://admin.example.com`     |
+| `CORS_CREDENTIALS`                    | `true`                                                      |
+| `SESSION_COOKIE_SAME_SITE`            | `None`                                                      |
+| `SESSION_COOKIE_SECURE`               | `true`                                                      |
+| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST` | `https://admin.example.com/admin/login` (each SSO provider) |
+| `AUTH_ALLOWED_PUBLIC_URLS`            | the public URLs of the API when it has more than one        |
+
+Browsers accept `SameSite=None` cookies only with `Secure`, so both sites need HTTPS (browsers make an exception for
+`localhost` and `127.0.0.1`, which the E2E `cors` configuration uses). Without these variables sign-in succeeds but the
+next requests answer `401`.
+
+## Translations
+
+`src/lang/translations/{en-US,vi-VN}.json` are generated from `directus/app/src/lang` (11.17.4) with Directus rebranded
+to Backoffice, and committed:
+
+```bash
+pnpm nx run web:sync-translations
+```
+
+Backoffice-only strings live in `src/lang/overlay/`. `scripts/sync-translations.test.ts` fails when the committed files
+differ from the source.
+
+## Checks
+
+```bash
+pnpm nx run web:lint          # ESLint, raw colors (tools/check-raw-colors.mjs), no visible "Directus" (scripts/check-brand.mjs)
+pnpm nx run web:typecheck
+pnpm nx run web:test          # Vitest, coverage >= 60%
+pnpm nx run web:check-bundle  # entry chunk <= 350 KB gzip
+```
+
+## E2E (apps/web-e2e)
+
+```bash
+docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:local .
+pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup,sso,web
+cd apps/web-e2e
+E2E_CONFIG=proxy-directus pnpm exec playwright test   # app -> Directus 11.17.4 (http://127.0.0.1:8161)
+E2E_CONFIG=proxy-api pnpm exec playwright test        # app -> Backoffice API (http://127.0.0.1:8162)
+E2E_CONFIG=cors pnpm exec playwright test             # app http://localhost:8181 -> API http://127.0.0.1:8163
+```

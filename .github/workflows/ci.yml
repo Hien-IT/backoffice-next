@@ -46,9 +46,9 @@ jobs:
       - name: lint, typecheck, test (coverage gates), build
         run: |
           if [ "${{ github.event_name }}" = "pull_request" ]; then
-            pnpm nx affected -t lint typecheck test build --base=origin/${{ github.base_ref }} --head=HEAD
+            pnpm nx affected -t lint typecheck test build check-bundle --base=origin/${{ github.base_ref }} --head=HEAD
           else
-            pnpm nx run-many -t lint typecheck test build
+            pnpm nx run-many -t lint typecheck test build check-bundle
           fi
       - run: pnpm run test:tools
       - run: pnpm run check-port-headers
@@ -289,10 +289,13 @@ jobs:
           path: images.tar.gz
           retention-days: 1
 
-  e2e:
+  # Feature 012 (T067, contracts/e2e.md §4): the web app E2E in the three configurations of the parity profile `web`
+  # (proxy to Directus, proxy to the new API, cross-site), chromium, firefox and webkit at 768 and 1280 px (cross-site:
+  # chromium 1280), with the images of the `docker` job.
+  e2e-web:
     needs: docker
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 75
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -303,27 +306,47 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           name: images
-      - run: gunzip -c images.tar.gz | docker load
-      # Postgres bootstrapped by Directus 11.17.4, then the API and web images built by the `docker` job.
-      - run: pnpm nx run parity-tests:env-up --vendor=postgres
-      - name: start the API and web containers
+      - name: load the API and web images as the local tags of the parity compose file
         run: |
-          docker run -d --name api --network parity-postgres_default --env-file tests/parity/env/postgres.env \
-            -e CORS_ENABLED=true -e CORS_ORIGIN=true -p 8057:8055 hiennd23/backoffice-api:ci
-          docker run -d --name web -e PUBLIC_URL=http://127.0.0.1:8057 -p 8080:8080 hiennd23/backoffice-web:ci
-          for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8057/server/ping && break; sleep 2; done
-      - run: pnpm exec playwright install --with-deps chromium
+          gunzip -c images.tar.gz | docker load
+          docker tag hiennd23/backoffice-api:ci hiennd23/backoffice-api:local
+          docker tag hiennd23/backoffice-web:ci hiennd23/backoffice-web:local
+      - run: pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup,sso,web
+        env:
+          PARITY_NO_BUILD: '1'
+      - run: pnpm exec playwright install --with-deps chromium firefox webkit
         working-directory: apps/web-e2e
-      # Feature 012: only the smoke spec here (the API sits on another port without the parity proxies); the full
-      # suite runs in the three configurations of the parity profile `web` (job e2e-web, tasks Phase 9).
-      - run: pnpm exec playwright test src/smoke.spec.ts
+      - name: E2E with the Directus API (proxy-directus)
+        run: pnpm exec playwright test
         working-directory: apps/web-e2e
         env:
-          BASE_URL: http://127.0.0.1:8080
+          E2E_CONFIG: proxy-directus
+          CI: 'true'
+      - name: E2E with the new API (proxy-api)
+        if: success() || failure()
+        run: pnpm exec playwright test
+        working-directory: apps/web-e2e
+        env:
+          E2E_CONFIG: proxy-api
+          CI: 'true'
+      - name: E2E with the new API on another site (cors)
+        if: success() || failure()
+        run: pnpm exec playwright test
+        working-directory: apps/web-e2e
+        env:
+          E2E_CONFIG: cors
           CI: 'true'
       - name: container logs
         if: failure()
-        run: docker logs api; docker logs web
+        working-directory: tests/parity
+        run: docker compose -p parity-postgres logs --no-color > e2e-web.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: e2e-web
+          path: |
+            tests/parity/e2e-web.log
+            apps/web-e2e/test-results
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
 
@@ -356,7 +379,7 @@ jobs:
         parity-matrix-rotating,
         e2e-directus-app,
         docker,
-        e2e,
+        e2e-web,
         security,
       ]
     runs-on: ubuntu-latest

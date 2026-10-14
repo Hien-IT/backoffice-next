@@ -6,8 +6,17 @@
 	"targets": {
 		"sync-translations": {
 			"command": "node scripts/sync-translations.mjs",
-			"options": { "cwd": "apps/web" },
+			"options": {
+				"cwd": "apps/web"
+			},
 			"cache": false
+		},
+		"check-bundle": {
+			"command": "node scripts/check-bundle.mjs",
+			"options": {
+				"cwd": "apps/web"
+			},
+			"dependsOn": ["build"]
 		}
 	}
 }

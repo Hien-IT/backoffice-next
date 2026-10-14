@@ -284,3 +284,17 @@ Playwright. CORS ở các cặp `sso`, `setup` thêm vào env profile tương �
 - FR-071 (3): không cần HTTPS tự ký; dùng hai site `localhost`/`127.0.0.1` (R3). Spec sửa.
 - FR-090: project E2E là `apps/web-e2e` (đã có), không tạo `tests/web-e2e`. Spec sửa.
 - Không có khác biệt mới với Directus.
+
+## Kết quả kiểm khi làm (Phase 10, T070)
+
+- T002, T004, T019, T052: ghi ở R1, R3, R7, R8 và đoạn "OTP sau SSO" của R3.
+- T015: query `/notifications` thật của Directus 11.17.4 (`refreshUnreadCount`): `filter._and[recipient._eq=<id user>,
+  status._eq=inbox]`, `aggregate[count]=id` (contracts/api-calls #26). `trackPage` dùng `PATCH /users/me/track/page`
+  (#32), `useSafeRedirect` dùng `POST /utils/resolve-redirect` (#31).
+- T054 (provider `MODE=json`, `oidcstrict`, `oauthmock`): không chạy trong E2E. Directus app không có xử lý riêng cho
+  mode json (spec "Làm rõ từ checklist release-gate", CHK051): callback của provider đó trả JSON thay vì chuyển hướng
+  về app, nên trình duyệt dừng ở trang JSON với cả hai app. E2E chỉ dùng provider mode session (`oidc`, `ldap`).
+- SSO trả lỗi về app bằng `?reason=<CODE>` (API Directus, openid.ts, oauth2.ts); `?error&code` của spec FR-042 vẫn
+  được xử lý như Directus app.
+- Directus kiểm `redirect` SSO tuyệt đối theo `PUBLIC_URL` hoặc `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`;
+  `AUTH_ALLOWED_PUBLIC_URLS` chỉ chọn URL callback theo origin của request (`generate-callback-url.ts`).

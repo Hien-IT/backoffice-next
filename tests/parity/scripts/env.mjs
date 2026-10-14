@@ -64,7 +64,10 @@ const args = [
 ];
 
 const command =
-	action === 'up' ? [...args, 'up', '-d', '--build', '--wait'] : [...args, 'down', '-v', '--remove-orphans'];
+	action === 'up'
+		? // PARITY_NO_BUILD: CI job e2e-web loads the images of the `docker` job under the local tags (feature 012).
+			[...args, 'up', '-d', ...(process.env.PARITY_NO_BUILD ? [] : ['--build']), '--wait']
+		: [...args, 'down', '-v', '--remove-orphans'];
 
 // SQLite database shared by both apps (bind mount); recreated on every env-up.
 if (action === 'up') {
