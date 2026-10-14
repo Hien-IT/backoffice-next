@@ -313,17 +313,32 @@ Ghi chú: prompt trên là bản gốc. Sau Phase 11 của 012, bố cục khung
 /speckit.specify Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Danh sách phải mượt với collection khoảng 10 triệu bản ghi (phân trang và đếm phía server). Tham chiếu directus/app/src/modules/content và layouts. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
 ```
 
+Ghi chú từ 013 (đưa vào spec 014): 013 chỉ làm component (form, interface, display, drawer), không có màn hình.
+014 nhận: màn item `/content/:collection/:primaryKey` dùng `BoForm`, lưu item, hỏi `unsaved_changes` (FR-084 của 013);
+E2E ba cấu hình và so payload ghi với Directus app trên bộ mẫu `apps/web/fixtures/interfaces` (dùng lại script seed);
+drawer chọn item theo layout của preset và bộ lọc nâng cao (D-58); màn revisions, versions và chế độ so sánh (D-55);
+nội dung module Content (D-40); sự kiện "flow đã chạy" của `header` để nạp lại item.
+
 ### 015: Module Files và Users
 
 ```text
 /speckit.specify Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước, sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo user, mời user (không gửi email), sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền giống Directus. Tham chiếu directus/app/src/modules/files và users. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của hai module chạy giống Directus.
 ```
 
+Ghi chú từ 013 (đưa vào spec 015): làm interface `_system` của `directus_users` (`system-language`, `system-theme`,
+`system-theme-overrides`, `system-mfa-setup`, `system-token`, `system-input-password`, D-57) và trình chỉnh ảnh
+(`image-editor.vue`, `PATCH /files/:id` multipart) dùng chung cho màn file và nút chỉnh ảnh của interface `file-image`
+(D-59).
+
 ### 016: Module Settings
 
 ```text
 /speckit.specify Module Settings cho admin, giống Directus: data model (tạo và sửa collection, field, relation, sắp xếp và nhóm field, cấu hình interface và display, điều kiện, validation), roles và policies (gán quyền theo collection, action, field, điều kiện lọc), cài đặt dự án (tên, logo, màu, theme, ngôn ngữ, bản đồ, giới hạn file), presets và bookmarks, translations, thông tin hệ thống. Tham chiếu directus/app/src/modules/settings. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: data model và quyền tạo trên app mới dùng được ngay trên Directus.
 ```
+
+Ghi chú từ 013 (đưa vào spec 016): làm form options của interface và display (`options` trong `index.ts` của 013
+giữ sẵn dữ liệu; `list` và `map` có options dạng component, D-56) và các interface `_system` còn lại (D-57, trừ
+`system-mcp-prompts-collection-validation` vì AI, D-41).
 
 ### 017: Trình chỉnh sửa Flows
 

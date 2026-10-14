@@ -45,7 +45,8 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 Thêm (R1): tinymce 6.8.6, @tinymce/tinymce-vue 6.3.0, @editorjs/* (14 gói), editorjs-toggle-block 0.3.16,
 codemirror 5.65.18, maplibre-gl 1.15.3, @mapbox/mapbox-gl-draw 1.5.1 (+ static-mode 1.0.1, geocoder 5.1.2 nạp
 động), wellknown 0.5.0, @turf/meta, vuedraggable 4.1.0, color 5.0.2, @sindresorhus/slugify 2.2.1, date-fns-tz 3.2.0,
-micromustache 8.0.3, @directus/utils 13.4.1, @directus/types 15.0.3 (dev), @vitest/browser 3.2.4 (dev), axe-core
+micromustache 8.0.3, jsonlint-mod 1.7.6, vue-virtual-scroller 2.0.0-beta.8, @fortawesome/fontawesome-svg-core +
+@fortawesome/free-brands-svg-icons 6.7.2, @directus/utils 13.4.1, @directus/types 15.0.3 (dev), @vitest/browser 3.2.4 (dev), axe-core
 4.11 (dev).
 
 **Storage**: không DB; Pinia; localStorage `backoffice-{m2m,o2m}-column-widths-<collection>-<field>`; bộ mẫu JSON
@@ -64,19 +65,21 @@ commit trong `apps/web/fixtures/interfaces/snapshot/`.
 gzip, editor nặng tách chunk (R12).
 
 **Constraints**:
-- Chỉ API Directus ở `contracts/api-calls.md`; request ra ngoài chỉ URL admin cấu hình, tile bản đồ, embed.
+- Chỉ API Directus ở `contracts/api-calls.md`; request ra ngoài là danh sách đóng của FR-081.
+- Bắt đầu implement chỉ khi CI của 012 xanh (thỏa thuận giữa hai session cùng working tree, CHK088).
 - Không sửa `directus/`; file chép ghi `// Ported from directus/app/src/...`.
 - Không hex, không palette ngoài theme trong class; màu dữ liệu chỉ qua inline style từ giá trị runtime; hằng
-  Directus (`#B0BEC5`, 9 preset) trong danh sách miễn của `check-raw-colors` (Q-C).
+  Directus (`#B0BEC5`, 9 preset) trong danh sách miễn của `tools/check-raw-colors.mjs`, nguồn duy nhất (Q-C, CHK049).
 - Không chọn ngầm giao diện: recipe nháp Q-1 đến Q-12 ghi vào `design-system/docs/` trước (FR-093).
-- Không AI, collab, extension, chế độ so sánh, form options, chỉnh ảnh (D-54 đến D-59).
+- Không AI, collab, extension, màn so sánh, form options, chỉnh ảnh (D-54 đến D-59); thêm đổi thứ tự bằng phím (D-60).
 - Không ghi `directus_fields`, `directus_relations`, `directus_collections`; request ghi chỉ FR-054.
 
 **Scale/Scope**: 40 interface (≈ 60 SFC kể cả component con), 18 display, 7 component form, 3 component render, 4
 drawer + `BoDrawer` + `BoUpload` + `FileLightbox`, ≈ 18 component `Bo*` mới (R6), 7 composable quan hệ + 3 chép từ
 `@directus/composables`, 4 store mở rộng + 1 store mới, ≈ 25 utils chép, 12 recipe nháp, 1 seed + 1 export script,
-≈ 60 file test (39 port + mới), 1 parity test. Ước lượng 14.000 dòng mới (≈ 6.000 chép). `tasks.md` chia bốn đợt
-commit: A (thư viện, recipe nháp lô 1, fields store, form, display/template, interface chuẩn, lựa chọn, nhóm,
+≈ 55 file test (31 port + mới), 1 parity test. Ước lượng 14.000 dòng mới (≈ 6.000 chép). `tasks.md` chia bốn đợt
+commit: A (kiểm gói [Unverified] và chọn dự phòng nếu cần (R1, R7, R8; CHK086), đo nhóm `meta.interface` null trên
+Directus, recipe nháp Q-1 đến Q-12, thư viện, fields store, form, display/template, interface chuẩn, lựa chọn, nhóm,
 presentation, bộ mẫu + API giả lập), B (quan hệ, drawer, file, translations, flows store), C (editor nặng, bản đồ,
 list, browser test, axe, perf, parity seed, CI), D (đóng: manifest, recipe duyệt, spec D-xx/R-xx, memory).
 
@@ -104,7 +107,7 @@ list, browser test, axe, perf, parity seed, CI), D (đóng: manifest, recipe duy
 - [x] **IX. Đổi thương hiệu**: PASS. D-39 cho khóa localStorage; id interface/display, tên option, tên cookie giữ
   nguyên (định danh tương thích).
 - [x] **X. Chất lượng**: PASS. Coverage 60%, lint, typecheck, browser test, build image trong CI; không email; khác
-  biệt D-54 đến D-59 và R-xx (R4) trong spec chờ tech lead duyệt.
+  biệt D-54 đến D-60 và R-xx (R4) trong spec chờ tech lead duyệt.
 - [x] **XI. Ngoài phạm vi**: PASS. Không AI/MCP (bỏ `use-ai-tools`, `system-mcp-prompts-collection-validation`),
   không collab/WebSocket, không extension interface/display.
 - [x] **XII. Design-system**: PASS. Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
@@ -153,7 +156,7 @@ apps/web/
 │   │   ├── render/{RenderDisplay,RenderTemplate,ValueNull,UserPopover}.vue
 │   │   ├── drawers/{BoDrawer,DrawerItem,DrawerCollection,DrawerBatch,DrawerFiles}.vue
 │   │   ├── files/{BoUpload,FileLightbox,FilePreview}.vue
-│   │   └── Bo{Checkbox,Radio,Switch,Textarea,Combobox,MultiSelect,CheckboxGroup,CheckboxTree,DatePicker,Slider,Chip,TagsInput,Tabs,Accordion,Detail,Divider,ColorPicker,IconPicker,Table,EditorFrame}.vue
+│   │   └── Bo{TextOverflow,Checkbox,Radio,Switch,Textarea,Combobox,MultiSelect,CheckboxGroup,CheckboxTree,DatePicker,Slider,Chip,TagsInput,Tabs,Accordion,Detail,Divider,ColorPicker,IconPicker,Table,EditorFrame}.vue
 │   ├── composables/{use-relation-m2o,use-relation-o2m,use-relation-m2m,use-relation-m2a,use-relation-single,use-relation-multiple,use-relation-permissions,use-items,use-collection,use-custom-selection,use-alias-fields,use-template-data,use-preset,use-run-manual-flow}.ts
 │   ├── stores/{fields,collections,relations,presets}.ts (mở rộng), flows.ts (mới)
 │   ├── utils/{adjust-fields-for-displays,render-string-template,format-date,format-filesize,get-item-route,get-related-collection,readable-mime-type,get-default-display-for-type,get-default-interface-for-type,get-fields-from-template,geometry/*,replace-url-access-token,...}.ts
@@ -180,7 +183,7 @@ dùng chung đặt theo vai trò trong `components/` như 012 (`Bo*` cho control
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Không có vi phạm constitution. Ghi chú rủi ro: TinyMCE 6.8.6 (MIT) không còn được bảo trì [Unverified]; TinyMCE 7 là GPL/thương mại | Cùng HTML đầu ra và cùng khóa option với Directus 11.17.4 | Tiptap: HTML khác, mất `toolbar`/`customFormats`/`tinymceOverrides` đã lưu |
+| Không có vi phạm constitution. Ghi chú rủi ro: TinyMCE 6.8.6 (MIT) không còn được bảo trì [Unverified]; TinyMCE 7 là GPL/thương mại. Theo dõi bằng `pnpm audit` và Dependabot trong CI; xem lại khi Directus nâng TinyMCE hoặc có advisory mức high (như stream-json ở 010, CHK077) | Cùng HTML đầu ra và cùng khóa option với Directus 11.17.4 | Tiptap: HTML khác, mất `toolbar`/`customFormats`/`tinymceOverrides` đã lưu |
 | `@directus/utils` 13.4.1 và `@vitest/browser` 3.2.4 chưa xác nhận trên npm; coverage v8 ở browser mode chưa thử [Unverified] | `validatePayload`/`parseFilter` giống Directus; editor và a11y cần trình duyệt thật | Chép `validatePayload` (joi) vào app: nhiều code; chỉ happy-dom: không kiểm được editor, focus, axe |
 | MapLibre cần WebGL trong chromium headless CI [Unverified] | `map` interface | Mock `maplibre-gl` trong test (dự phòng, R7) |
 

@@ -19,7 +19,7 @@
 | `version` | ContentVersion \| null | |
 
 Emits: `input(value)` (giá trị mới, theo bảng §3 data-model), `setFieldValue({ field, value })` (đặt field khác
-của form; dùng ở `header`? không; giữ cho tương thích). Interface nhóm nhận thêm `fields`, `values`,
+của form, như `form-field-interface.vue`; giữ để tương thích với code chép, không interface nào của 013 cần riêng). Interface nhóm nhận thêm `fields`, `values`,
 `initialValues`, `batchActiveFields`, `validationErrors`, `badge`, `group` và emit `apply(values)`.
 
 Interface không được gọi API ghi ngoài FR-054. Màu từ options/dữ liệu áp bằng `style` (không class).

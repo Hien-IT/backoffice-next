@@ -43,6 +43,8 @@
 - Clarify session 2026-10-15: 3 questions answered (item-select drawer always a table, D-58; image editor moves to
   015, D-59; draft Tier 3 recipes in design-system/docs before coding, design owner review before closing 013,
   FR-093). Re-validated: all items still pass.
+- Release-gate 2026-10-15: owner approved all 91 proposals (D-60 added, FR-040/FR-066/FR-081/FR-120 rewritten,
+  SC-008/SC-009 added). Re-validated: all items still pass.
 - Q-C keeps its default (Directus data colour constants exempt from the raw-colour check); tech lead confirms with the
   difference review.
 - Design-system gaps are Q-1 to Q-12 (Constitution XII: do not choose silently); they are for the design owner and

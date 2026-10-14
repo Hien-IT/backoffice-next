@@ -9,7 +9,7 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 | # | Method | Path | Ai gọi | Query | Ghi chú |
 |---|--------|------|--------|-------|---------|
 | 33 | GET | `/flows` | hydrate (`flowsStore`) | `fields=id,name,icon,color,status,trigger,options,accountability,operation` như Directus | R10, thu hẹp D-45 |
-| 34 | GET | `<endpoint>` | `useItems` (drawer chọn item, danh sách quan hệ o2m/m2m/m2a/files/translations, list-m2a theo collection) | `fields[]`, `filter`, `search`, `sort`, `limit`, `page`, `meta`? không; Directus `useItems` gửi `fields`, `sort`, `limit`, `page`, `search`, `filter` | giống Directus app |
+| 34 | GET | `<endpoint>` | `useItems` (drawer chọn item, danh sách quan hệ o2m/m2m/m2a/files/translations, list-m2a theo collection) | `fields`, `sort`, `limit`, `page`, `search`, `filter` (như `useItems` Directus; không gửi `meta`) | giống Directus app |
 | 35 | GET | `<endpoint>` | `useItems` đếm | `aggregate[count]=*` (hoặc `aggregate[countDistinct]=<pk>` khi có filter quan hệ, như Directus) + `filter`, `search` | |
 | 36 | GET | `<endpoint>?filter[<pk>][_eq]=<key>&fields=...` | m2o, file, file-image, collection-item-dropdown (`useRelationSingle`) | | |
 | 37 | GET | `<endpoint>?filter[<pk>][_in]=...` | collection-item-multiple-dropdown | | |
@@ -18,8 +18,10 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 | 40 | GET | `/files?...` | `DrawerFiles` (`useItems` trên `directus_files`), `files` | filter mime, folder | |
 | 41 | GET | `/assets/<id>?key=system-small-cover&cacheBuster=<modified_on>` | display `file`, `image`, `user`; interface `file`, `file-image`, `files` (`system-large-cover`/`contain`) | | thẻ `img`, không phải fetch |
 | 42 | GET | `/assets/<id>.<ext>[?access_token=<imageToken>]` | rich text, markdown (URL chèn vào nội dung) | | |
-| 43 | GET | `<url>` (bên ngoài) | `input-autocomplete-api` khi `url` không bắt đầu bằng `/`; bắt đầu bằng `/` → qua sdk | | FR-081 |
-| 44 | GET | tile/style bản đồ | `map` (settings `basemaps` hoặc OpenStreetMap) | | ngoài |
+| 43 | GET | `<url>` (bên ngoài) | `input-autocomplete-api` khi `url` không bắt đầu bằng `/` (`credentials: 'omit'`, không header phiên); bắt đầu bằng `/` → qua sdk | | FR-081 |
+| 44 | GET | tile/style bản đồ | `map`: tile `basemaps` hoặc OpenStreetMap; glyph `https://fonts.openmaptiles.org/{fontstack}/{range}.pbf`; style và geocoder Mapbox khi có `mapbox_key` | | ngoài, FR-081 |
+| 44b | GET (iframe) | URL embed | tool `embed` của block editor, media của rich text | | ngoài, FR-081 |
+| 49 | GET | `/users/<id>?fields=id,first_name,last_name,avatar.id,avatar.modified_on,role.name,status,email` | popover của display `user` (`user-popover.vue`) | | lỗi quyền hiện như Directus |
 
 Đã có ở 012: `/fields`, `/relations`, `/collections`, `/permissions/me`, `/presets`, `/settings`, `/users/me`.
 
@@ -28,7 +30,6 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 | # | Method | Path | Ai gọi | Body | Ghi chú |
 |---|--------|------|--------|------|---------|
 | 45 | POST | `/files` | `BoUpload` (file, file-image, files, block editor, rich text, markdown) | multipart: `folder` (option), `title`?, `file` | cùng thứ tự field như `v-upload.vue` |
-| 46 | PATCH | `/files/<id>` | `BoUpload` chế độ thay file (`fileId`) | multipart | chỉ khi màn chứa dùng; 013 không gọi (ImageEditor D-59) |
 | 47 | POST | `/files/import` | file, file-image, files, `BoUpload` từ URL | `{ url, data: { folder }, options?: { filterMimeType } }` | |
 | 48 | POST | `/flows/trigger/<id>` | `header`, `presentation-links` (flow thủ công) | `{ collection, keys: [pk], ...fields xác nhận }` | như `useRunManualFlow` Directus |
 

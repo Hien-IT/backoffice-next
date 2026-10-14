@@ -3,6 +3,8 @@
 **Feature Branch**: `013-interfaces-displays` (làm trên `main` như 012, không tạo branch vì dùng chung working tree)
 **Created**: 2026-10-15
 **Status**: Draft
+**Duyệt release-gate**: owner duyệt toàn bộ đề xuất của `checklists/release-gate-proposals.md` ngày 2026-10-15 (D-60, R-xx
+cho lỗi `formatted-json-value.handler` của Directus, design owner là owner dự án).
 **Input**: User description: "App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -51,7 +53,8 @@ Tier 1 (`BoButton`, `BoInput`, `BoSelect`, `BoDialog`, `BoMenu`, `BoNotice`, `Bo
 chuỗi dịch `en-US`/`vi-VN` sinh từ Directus 11.17.4 (đã gồm mục `interfaces`, `displays`, `validationError`). Chưa có:
 form theo metadata, mọi interface, mọi display, drawer chọn item, tải file trong form.
 
-**Bộ test liên quan của Directus** (đếm ngày 2026-10-15: 39 file `*.test.ts` trong `interfaces/` và `displays/`):
+**Bộ test liên quan của Directus** (đếm ngày 2026-10-15: 39 file `*.test.ts` trong `interfaces/` và `displays/`, trong
+đó 8 file thuộc `_system` đi cùng D-57; 013 port 31 file, FR-120):
 `interfaces/index.test.ts`, `input/*.test.ts`, `datetime`, `input-code`, `input-hash`, `input-block-editor` (cả
 `sanitize.test.ts`), `input-rich-text-html/useImage.test.ts`, `list-m2m`, `list-o2m`, `select-dropdown-m2o`,
 `collection-item-multiple-dropdown`, `translations/translation-form.test.ts`, `group-accordion`, `group-detail`,
@@ -247,22 +250,40 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   hình field (016), không ảnh hưởng hiển thị.
 - `display = 'badge'` (Directus `select-radio` gợi ý `badge` nhưng không có display này): hiện giá trị thô như
   Directus khi display không có.
-- Field nhóm có `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại; hành vi đo trên Directus
-  ở bước plan rồi làm giống.
+- Field nhóm có `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại. Quy tắc: làm giống
+  Directus theo kết quả đo trên Directus app ở task đầu đợt A (ghi kết quả vào dòng này); chỉ khi Directus ném lỗi chặn
+  cả form thì rơi về `group-raw` và ghi D-xx.
 - Chuỗi `$t:key` trong `note`, `options`, `display_options`, `validation_message`, nhãn field
   (`meta.translations`): dịch như Directus; không có khóa thì hiện chuỗi gốc bỏ tiền tố như Directus.
-- Giá trị không đúng dạng (ví dụ `list` không phải mảng, `map` sai loại hình học, JSON hỏng ở `input-code`): hiện cảnh
-  báo như Directus, không ném lỗi, không ghi đè giá trị.
+- Giá trị không đúng dạng (ví dụ `list` không phải mảng, `map` sai loại hình học, JSON hỏng ở `input-code`, block editor
+  `version` cũ): làm theo từng component Directus (list: notice; map: lỗi kiểu hình học; code: hiện chuỗi; block
+  editor: Editor.js tự đọc), không ném lỗi, không ghi đè giá trị; bộ mẫu có ít nhất một giá trị lệch dạng cho list,
+  map, code (FR-100).
+- `map` không có `defaultView`: vừa dữ liệu nếu có, không thì vùng mặc định của `map.vue` Directus; style nền lỗi thì
+  khung trống, vẫn vẽ được.
+- `translations`: collection ngôn ngữ trống → không có form và có thông báo như Directus; `languageField` trỏ field
+  không còn → dùng khóa chính; `defaultLanguage` không có trong danh sách → ngôn ngữ đầu.
+- `collection-item-dropdown`: `selectedCollection` không còn hoặc không có quyền đọc → lỗi tải hiện trong field, không ném
+  lỗi; singleton bị loại khỏi lựa chọn như Directus.
+- Template (interface quan hệ, `related-values`, `header`) tham chiếu field user không đọc được hoặc field không còn:
+  phần đó trống (`--` ở display) như `render-template.vue`.
+- `filter` có `{{ field }}` mà field nguồn đổi sau khi đã chọn: giữ lựa chọn như Directus [Inference từ code, kiểm khi
+  port].
+- Giá trị dài (chuỗi rất dài, nhiều tags, nhiều lựa chọn): như Directus (cắt chữ trong bảng, tags xuống dòng); không
+  thêm giới hạn.
+- `tz` không hợp lệ, trình duyệt khác múi giờ, giờ chuyển mùa: xử lý như Directus (`date-fns-tz`).
 - Interface ném lỗi khi vẽ: hộp lỗi bọc từng field hiện `unexpected_error`, các field khác vẫn dùng được.
 - Collection quan hệ là singleton hoặc chưa cấu hình quan hệ: thông báo như Directus (`select-dropdown-m2o`,
   `list-m2m`, `list-m2a`).
-- `input-autocomplete-api` với URL ngoài: gọi thẳng URL đó (không kèm cookie); URL bắt đầu bằng `/` gọi qua API với
-  phiên đăng nhập; lỗi mạng thì không có gợi ý, không chặn nhập.
+- `input-autocomplete-api` với URL ngoài: gọi thẳng URL đó với `credentials: 'omit'`, không header phiên (như axios của
+  Directus); URL bắt đầu bằng `/` gọi qua API với phiên đăng nhập; lỗi mạng thì không có gợi ý, không chặn nhập.
 - Bản đồ không tải được tile (mạng chặn OpenStreetMap): khung bản đồ trống, nhập liệu vẫn được (vẽ, xóa).
-- Màn hình hẹp (768 px): drawer chiếm toàn chiều rộng; translations không chia đôi (≤ 960 px).
-- Field là hash: không bao giờ hiện hash đã lưu; có giá trị thì placeholder `value_securely_stored`.
+- Màn hình hẹp (768 px): lưới form vẫn hai cột (Q-1); drawer chiếm toàn bề rộng dưới `xl` như L-4 (Q-10).
+- Translations không chia đôi khi bề rộng ≤ 960 px.
+- Field là hash: ô nhập không bao giờ chứa hash đã lưu; có giá trị thì placeholder `value_securely_stored` (FR-066).
 - Màu từ dữ liệu (choices, `colorOn`, `defaultColor`, `conditionalFormatting`) là giá trị người dùng nhập: áp nguyên
-  (inline style) như Directus, kể cả hex; không phải token của theme (Q-C).
+  (inline style) như Directus, kể cả hex; không phải token của theme (Q-C). Tương phản thấp do màu dữ liệu chấp nhận
+  như Directus; bộ mẫu dùng màu đạt tương phản; ngoại lệ axe chỉ cho màu dữ liệu (SC-005).
 
 ### Truy vết user story và requirement
 
@@ -274,7 +295,7 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 | US4 | 1–2 | FR-050 đến FR-054 | SC-002 |
 | US5 | 1–4 | FR-037, FR-060 đến FR-066 | SC-002 |
 | US6 | 1–3 | FR-055 đến FR-059 | SC-001 |
-| US7 | 1–3 | FR-080 đến FR-084, FR-090 đến FR-095, FR-100, FR-120 đến FR-123 | SC-001, SC-002, SC-006, SC-007 |
+| US7 | 1–3 | FR-080 đến FR-084, FR-090 đến FR-095, FR-100, FR-120 đến FR-123 | SC-001, SC-002, SC-006 đến SC-009 |
 
 ## Requirements *(mandatory)*
 
@@ -284,7 +305,7 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 
 - **FR-001**: App PHẢI có một bản tương ứng cho mỗi interface id (40) và display id (18) ở phần tham chiếu, cùng id,
   cùng `types`/`localTypes`, cùng nhãn (`name` qua chuỗi dịch) và icon, để danh sách sau này (016) và việc tra theo id
-  khớp Directus.
+  khớp Directus. `recommendedDisplays` giữ nguyên văn (dữ liệu cho 016), kể cả id không có (`badge`).
 - **FR-002**: `meta.interface` null hoặc rỗng PHẢI dùng interface mặc định theo kiểu như
   `get-default-interface-for-type.ts` (`input` cho alias, bigInteger, binary, decimal, float, integer, string, uuid,
   unknown; `boolean`; `datetime` cho date, dateTime, time, timestamp; `input-code` cho json; `input-multiline` cho
@@ -293,14 +314,18 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   string, text, uuid, hash; `boolean`; `datetime`; `labels` cho csv; `raw` cho còn lại).
 - **FR-003**: Interface id không có PHẢI hiện cảnh báo `interface_not_found` thay cho ô nhập; display id không có PHẢI
   hiện giá trị dạng chữ (như `render-display.vue`). Interface và display của extension Directus không được nạp (D-41).
-- **FR-004**: Trong 28 interface `_system`, 013 chỉ làm `system-raw-editor` (trình sửa thô của menu field, FR-017);
-  27 interface còn lại làm ở feature có màn dùng chúng (D-57, Clarifications Q-B).
+- **FR-004**: Trong 28 interface `_system`, 013 chỉ làm `system-raw-editor` (trình sửa thô của menu field, FR-017):
+  options `language` (`mustache` hoặc `plaintext`), `placeholder`, chỉ đọc khi `disabled`; dùng trong hộp sửa thô cho
+  kiểu không phải object. 27 interface còn lại làm ở feature có màn dùng chúng (D-57, Clarifications Q-B).
 - **FR-005**: Mọi khóa options và display_options mà Directus 11.17.4 định nghĩa (liệt kê ở FR-020 đến FR-079) PHẢI được
-  đọc từ giá trị đã lưu trong `directus_fields`; khóa thiếu dùng mặc định của component Directus; khóa lạ bỏ qua; app
-  không ghi `directus_fields`.
+  đọc từ giá trị đã lưu trong `directus_fields`; app không ghi `directus_fields`. Danh sách khóa là danh sách đóng lấy
+  từ `index.ts` Directus; test registry (contracts/registry §3) lệch thì sửa spec cùng commit. Khóa thiếu dùng mặc định
+  trong `defineProps`/`withDefaults` của file `.vue` Directus; component không có mặc định thì lấy
+  `schema.default_value` của option; file chép giữ nguyên các mặc định này. Khóa lạ không lọc: rơi xuống phần tử gốc
+  như attribute (hành vi Vue, như Directus).
 - **FR-006**: Chuỗi `$t:` trong `meta.note`, `options`, `display_options`, `validation_message`, và nhãn field từ
   `meta.translations` PHẢI dịch như `stores/fields.ts` (`parseField`, `translateFields`); nhãn mặc định là
-  `formatTitle(field)`.
+  `formatTitle(field)`. Đổi ngôn ngữ khi form đang mở thì dịch lại nhãn, ghi chú, options và display định dạng lại.
 
 **Form theo metadata (tương đương `v-form`)**
 
@@ -312,13 +337,14 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-012**: `meta.hidden` ẩn field; `meta.readonly`, `schema.is_generated`, `disabled`, `loading` khóa field; khóa
   chính tự tăng hoặc `special: uuid` chỉ đọc trừ khi tạo mới; `meta.required` có dấu `*`.
 - **FR-013**: `meta.conditions` PHẢI áp như `apply-conditions.ts` (luật khớp sau cùng thắng; `rule` đánh giá trên giá
-  trị form gộp `schema.default_value`, có `$version`; đè `hidden`, `readonly`, `required`, `options` (mảng thay cả
+  trị form gộp `schema.default_value`, có `$version` (= `null` ở 013, chưa có màn versions); đè `hidden`, `readonly`, `required`, `options` (mảng thay cả
   mảng)); `clear_hidden_value_on_save` đưa field bị ẩn về mặc định hoặc null khi lưu, kể cả field trong nhóm đó.
 - **FR-014**: Nhóm: `readonly`/`required` của nhóm đẩy xuống field con như `push-group-options-down.ts`; field nhóm vẽ
   bằng interface nhóm (FR-055) với form con theo `meta.group`.
 - **FR-015**: Giá trị: form nhận giá trị ban đầu và chỉ phát ra phần đã sửa; giá trị sửa bằng giá trị ban đầu (hoặc mặc
   định khi tạo mới) thì bỏ khỏi phần đã sửa; giá trị mặc định lấy từ `schema.default_value` (bỏ chuỗi mặc định của
-  khóa chính số, như `get-default-values-from-fields.ts`).
+  khóa chính số, như `get-default-values-from-fields.ts`). Tạo mới (`primaryKey = '+'`): mặc định áp, khóa chính sửa
+  được (FR-012), nút flow khóa (FR-057), lọc chọn o2m khi cha chưa có khóa như Directus (FR-043).
 - **FR-016**: Nhãn field như `form-field-label.vue`: tên, chấm "đã sửa" có tooltip `edited`, dấu bắt buộc, chỉ báo ẩn,
   nút bật trình sửa thô; ghi chú `meta.note` render markdown, link mở tab mới. Interface có `hideLabel` thì không có
   nhãn (giữ khoảng trống trừ độ rộng `full`/`fill`).
@@ -328,9 +354,11 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-018**: Lỗi validation: thông báo tổng hợp `validation_errors_notice` liệt kê `tên field: thông điệp`, bấm thì cuộn
   tới field, có biến thể "(hidden)" và "(Hidden in {group})"; thông điệp theo `validationError.<type>`,
   `RECORD_NOT_UNIQUE` → `validationError.unique`; `validation_message` thay thông điệp gốc khi có (gốc ở tooltip);
-  validation phía client như `validate-item.ts` (bắt buộc, `meta.validation`, mảng quan hệ rỗng coi là null).
-- **FR-019**: Form hỗ trợ `autofocus` (field hiện đầu tiên không chỉ đọc), `direction` (rtl), chế độ batch (ô chọn ở
-  nhãn bật field, bật thì đặt mặc định) cho drawer sửa hàng loạt (FR-046), skeleton khi đang tải (trừ `hideLoader`),
+  validation phía client như `validate-item.ts` (bắt buộc, `meta.validation`, mảng quan hệ rỗng coi là null). Lỗi lồng
+  chỉ có ở `translations` như Directus; drawer item kiểm hợp lệ phía client trước khi gom thay đổi.
+- **FR-019**: Form hỗ trợ `autofocus` (field hiện đầu tiên không chỉ đọc), `direction` (rtl; chỉ truyền ở chỗ Directus
+  truyền: nhóm, translations, `dir` của input, `directionality` của TinyMCE), chế độ batch như `useBatch` (mọi field
+  trừ khóa chính; ô chọn ở nhãn bật field, bật thì đặt `schema.default_value`) cho drawer sửa hàng loạt (FR-046), skeleton khi đang tải (trừ `hideLoader`),
   mỗi field bọc hộp lỗi riêng (`unexpected_error`), thông báo `no_visible_fields` khi không có field hiện.
 
 **Interface nhóm chuẩn, chữ, số, ngày** (options là khóa trong `meta.options`; mặc định trong ngoặc)
@@ -340,30 +368,33 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `iconRight`, `softLength`, `font`, `trim` (false), `masked` (false), `clear` (false), `slug` (false). Hành vi: ô
   `password` khi `masked`, `number` cho integer/float; `clear` tắt thì chuỗi rỗng thành null; bộ đếm còn lại theo
   `softLength` hoặc `schema.max_length` (hiện khi ≤ 20%, cảnh báo < 10%, nguy hiểm < 5%); `slug` lọc phím và slugify
-  với `-`; `trim` khi rời ô; integer làm tròn xuống, float đổi `,` thành `.`; bigInteger, decimal giữ dạng chuỗi.
+  với `-`; `trim` khi rời ô; integer làm tròn xuống, float đổi `,` thành `.`; bigInteger, decimal giữ dạng chuỗi (không
+  mất chính xác khi vượt `Number.MAX_SAFE_INTEGER`); float không hợp lệ không phát.
 - **FR-021** `input-multiline` (text): `placeholder`, `softLength`, `trim`, `font`, `clear`; bộ đếm tính xuống dòng
   là một ký tự.
 - **FR-022** `input-hash` (hash): `placeholder`, `masked`; không hiện hash đã lưu; có giá trị thì placeholder
   `value_securely_stored` và icon khóa; phát chuỗi gốc người dùng gõ (server băm).
 - **FR-023** `input-autocomplete-api` (string, text): `url` (điền `{{value}}`), `resultsPath`, `textPath`,
   `valuePath`, `trigger` (`throttle`|`debounce`), `rate` (500), `placeholder`, `font`, `iconLeft`, `iconRight`; URL
-  bắt đầu bằng `/` gọi qua API có phiên, URL khác gọi trực tiếp; kết quả không phải mảng thì không gợi ý; thiếu `url`
-  hiện cảnh báo.
+  bắt đầu bằng `/` gọi qua API có phiên, URL khác gọi trực tiếp với `credentials: 'omit'` và không header phiên; kết quả
+  không phải mảng thì không gợi ý; thiếu `url` hiện cảnh báo.
 - **FR-024** `boolean`: `label` (`$t:interfaces.boolean.label_default`, rơi về `enabled`), `iconOn`
   (`check_box`), `iconOff` (`check_box_outline_blank`), `colorOn`, `colorOff`; null hiện trạng thái không xác định.
 - **FR-025** `datetime` (dateTime, date, time, timestamp): `relative`, `format` (`long`|`short`|mẫu tr35), `includeSeconds`,
-  `use24` (interface: true), `tz` (chỉ timestamp: hiện và nhập theo múi giờ, lưu ISO UTC), `suffix`, `strict`,
-  `round`; phát chuỗi ISO hoặc null; giá trị không hợp lệ hiện cảnh báo.
+  `use24` (mặc định `true` ở interface; display mặc định `false`, FR-074), `tz` (chỉ timestamp: hiện và nhập theo múi
+  giờ), `suffix`, `strict`, `round`; phát chuỗi hoặc null: `date` `YYYY-MM-DD`, `time` `HH:mm:ss`, `dateTime`
+  `YYYY-MM-DDTHH:mm:ss`, `timestamp` ISO UTC có `Z` [Inference từ `v-date-picker.vue`, xác nhận bằng test port
+  `datetime.test.ts`]; giá trị không hợp lệ hiện cảnh báo.
 - **FR-026** `slider` (integer, float): `minValue` (0), `maxValue` (100), `stepInterval` (1), `alwaysShowValue`.
 - **FR-027** `tags` (json, csv): `presets`, `placeholder`, `alphabetize`, `allowCustom` (true), `whitespace`
   (`-`|`_`|`''`), `capitalization` (`uppercase`|`lowercase`|`auto-format`), `iconLeft`, `iconRight`
   (`local_offer`); thêm bằng Enter, dấu phẩy, rời ô; xử lý trim → hoa thường → khoảng trắng → sắp xếp → bỏ trùng;
   `allowCustom` tắt thì bỏ giá trị ngoài presets; giá trị chuỗi dạng biến (`{{...}}`) khi bật trình sửa thô thì chỉ
-  đọc, có nút xóa.
+  đọc, có nút xóa. Field `csv` (ở đây và FR-031, FR-033, FR-034): phát mảng như Directus app, API nối thành chuỗi.
 - **FR-028** `input-code` (string, json, text, geometry): `language` (không cho json; danh sách mode như CodeMirror
   `modeInfo`, mặc định `plaintext`), `lineNumber` (true), `lineWrapping` (false), `template` (nút điền mẫu); json:
-  phát JSON đã parse, rỗng là null, JSON hỏng không phát, chuỗi đúng mẫu `{{ biến }}` phát nguyên chuỗi; có báo lỗi
-  cú pháp JSON.
+  phát JSON đã parse, rỗng là null, JSON hỏng không phát, chuỗi đúng mẫu `{{ biến }}` phát nguyên chuỗi; báo lỗi cú
+  pháp JSON như Directus (`jsonlint-mod`).
 
 **Interface lựa chọn**
 
@@ -378,8 +409,9 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `color`, `iconOn`, `iconOff`, `itemsShown` (8, có "hiện thêm"); bố cục lưới theo số lựa chọn và độ rộng field.
 - **FR-034** `select-multiple-checkbox-tree` (json, csv): `choices` lồng (`{text, value, children}`), `valueCombining`
   (`all`|`branch`|`leaf`|`indeterminate`|`exclusive`, mặc định `all`); tìm kiếm khi hơn 10 gốc; bật "chỉ hiện đã chọn".
-- **FR-035** `select-icon` (string): bộ icon và nhóm như `icons.json` của Directus kèm nhóm Social; tìm kiếm; cuộn ảo;
-  phát tên icon hoặc null.
+- **FR-035** `select-icon` (string): bộ icon và nhóm như `icons.json` của Directus kèm nhóm Social (icon thương hiệu
+  Font Awesome, vẽ như `social-icon.vue`; ghi công icon theo giấy phép của chúng); tìm kiếm; cuộn ảo như Directus; phát
+  tên icon hoặc null.
 - **FR-036** `select-color` (string): `opacity` (false), `presets` (`{name, color}`, mặc định 9 màu của Directus);
   nhập hex, RGB/HSL (RGBA/HSLA khi `opacity`), thanh trượt, bộ chọn màu của trình duyệt, cảnh báo tương phản thấp;
   phát `#RRGGBB` hoặc `#RRGGBBAA`; nhận `var(--x)` như gõ; nhập sai phát null.
@@ -392,27 +424,37 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 
 - **FR-040**: Dạng giá trị như `use-relation-single.ts` và `use-relation-multiple.ts`: m2o là khóa, object thay đổi
   (tạo hoặc sửa lồng) hoặc null; o2m, m2m, m2a, files, translations là `{ create, update, delete }`, cả ba rỗng thì
-  không có thay đổi; khi xem phiên bản nội dung (`version`) thì như Directus.
+  không có thay đổi. Interface quan hệ nhận prop `version` và xử lý như composable Directus (giá trị là mảng khóa khi có
+  version); màn chọn và so sánh version ở 014 (D-55). Lồng không giới hạn độ sâu như Directus: thay đổi của drawer con
+  gom vào giá trị của field trong drawer cha.
 - **FR-041**: Option `filter` của interface quan hệ PHẢI điền `{{ field }}` bằng giá trị form hiện tại rồi áp như
-  Directus; template hiển thị rơi về `display_template` của collection rồi `{{ khóa chính }}`; quyền tạo, sửa, xóa,
-  chọn lấy từ `/permissions/me` như `use-relation-permissions.ts`.
+  Directus; template hiển thị rơi về `display_template` của collection rồi `{{ khóa chính }}`; quyền lấy từ
+  `/permissions/me` như `use-relation-permissions.ts`: tạo mới = `create` trên collection liên quan (m2m, m2a thêm
+  `create` trên collection nối); chọn có sẵn = `update` trên collection nối hoặc trên khóa ngoại; bỏ chọn = `update`
+  hoặc `delete` theo FR-043; sửa = `update` trên collection liên quan; sắp xếp = `update` field sort. Form chỉ đọc
+  (`disabled`): ẩn tạo, chọn, bỏ chọn; vẫn xem lớn, tải xuống, mở link như Directus.
 - **FR-042** `select-dropdown-m2o` (m2o): `template`, `enableCreate` (true), `enableSelect` (true), `filter`,
   `enableLink` (false); bấm mở drawer chọn khi `enableSelect`, nếu không thì drawer tạo/sửa; thông báo khi quan hệ chưa
   cấu hình, collection singleton, không có template, tắt cả tạo lẫn chọn.
 - **FR-043** `list-o2m` (o2m): `layout` (`list`|`table`), `tableSpacing` (`cozy`; chiều cao hàng 29/43/58), `fields`,
   `template`, `enableCreate`, `enableSelect`, `limit` (15), `filter`, `sort`, `sortDirection` (`+`), `enableSearchFilter`
-  (table, hiện khi hơn 10 item), `enableLink`; kéo sắp xếp khi quan hệ có field sort, mọi item trên một trang, có quyền
-  sửa; chọn item có sẵn lọc bỏ item đã thuộc item khác như Directus.
+  (table, hiện khi hơn 10 item), `enableLink`; quan hệ có `sortField` thì sắp và kéo theo `sortField` (bỏ qua option
+  `sort`), kéo khi mọi item trên một trang và có quyền sửa; không có `sortField` thì sắp ban đầu theo
+  `sort`/`sortDirection`, không kéo; chọn item có sẵn lọc bỏ item đã thuộc item khác như Directus; bỏ chọn theo
+  `relation.meta.one_deselect_action`: `nullify` → `update` đặt khóa ngoại null, `delete` → `delete`.
 - **FR-044** `list-m2m` (m2m): như FR-043 cộng `junctionFieldLocation` (`bottom`), `allowDuplicates` (false); sửa qua
-  drawer trên collection nối; table có chọn nhiều để sửa hàng loạt (FR-046).
+  drawer trên collection nối; table có chọn nhiều để sửa hàng loạt (FR-046); dữ liệu đã có bản trùng thì hiện đủ như
+  Directus (`allowDuplicates` chỉ ảnh hưởng bộ lọc chọn).
 - **FR-045** `list-m2a` (m2a): `enableSelect`, `enableCreate`, `limit` (15), `allowDuplicates`, `prefix` (template trên
   collection nối); tạo mới và thêm có sẵn theo từng collection cho phép (bỏ singleton); template mỗi collection là
   `display_template` của nó hoặc khóa chính.
 - **FR-046**: Drawer dùng chung: drawer item (tạo, sửa item liên quan hoặc dòng nối, có form theo FR-010 đến FR-019),
-  drawer chọn item của một collection (luôn dạng bảng: cột theo preset của user cho collection đó hoặc cột mặc định
-  như Directus, tìm kiếm, phân trang, chọn một hoặc nhiều, bộ lọc của interface; layout khác của preset và bộ lọc nâng
+  drawer chọn item của một collection (luôn dạng bảng: cột theo preset như `usePreset` Directus (user rồi role rồi
+  global, không bookmark), lấy `layout_query.tabular.fields` nếu có, không thì 4 field hiện đầu như `layouts/tabular`;
+  tìm kiếm, phân trang, chọn một hoặc nhiều, bộ lọc của interface; layout khác của preset và bộ lọc nâng
   cao ở 014, D-58), drawer sửa hàng loạt (form chế độ batch, gom vào thay đổi), drawer chọn file (FR-050). Độ rộng cột của
-  bảng trong interface lưu ở localStorage theo collection và field (khóa đổi tiền tố `backoffice-`, D-39).
+  bảng trong interface lưu ở localStorage theo collection và field (khóa đổi tiền tố `backoffice-`, D-39). Trạng thái
+  như Directus: skeleton khi tải, `no_items` khi trống, notice lỗi qua `translateAPIError` (`403`, `500`).
 - **FR-047** `list-o2m-tree-view` (o2m đệ quy): `displayTemplate`, `enableCreate`, `enableSelect`, `filter`; kéo thả
   giữa các cấp, thay đổi con lồng trong `create`/`update` của cha như Directus; quan hệ không đệ quy thì thông báo.
 - **FR-048** `translations`: `languageField`, `languageDirectionField` (mặc định `direction` khi collection ngôn ngữ có
@@ -427,13 +469,16 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-050** `file` (uuid, m2o tới `directus_files`): `folder`, `filter`, `enableCreate`, `enableSelect`,
   `allowedMimeTypes`; tải từ máy, chọn từ thư viện (drawer file có lọc kiểu và bộ lọc), nhập từ URL (`POST /files/import`
   với `folder` và `filterMimeType`), sửa thông tin file (drawer item trên `directus_files`), tải xuống, bỏ chọn; ảnh xem
-  trước bằng preset `system-small-cover` có `cacheBuster`; SVG không biến đổi.
+  trước bằng preset `system-small-cover` có `cacheBuster`; SVG không biến đổi. Tải như `v-upload.vue`: thanh tiến độ,
+  lỗi qua `translateAPIError` (`413`, kiểu bị từ chối), tải nhiều file báo lỗi từng file; không có nút hủy (Directus
+  không có).
 - **FR-051** `file-image`: như FR-050 cộng `crop` (true), `letterbox` (false); ảnh `system-large-cover` hoặc
   `system-large-contain`; xem lớn, lỗi tải ảnh hiện thông điệp theo mã lỗi; nút chỉnh ảnh chưa có (D-59).
 - **FR-052** `files` (m2m tới `directus_files`): `folder`, `template`, `filter`, `enableCreate`, `enableSelect`, `limit`
   (15), `allowedMimeTypes`; tải nhiều file; sắp xếp ghi field sort `index + 1`; menu mỗi dòng mở tab mới, tải xuống.
-- **FR-053**: Tải file dùng `POST /files` (multipart) với `folder` của option, tôn trọng danh sách kiểu được phép của
-  server.
+- **FR-053**: Tải file dùng `POST /files` (multipart) với `folder` của option. Danh sách kiểu được phép của server lấy
+  từ `/server/info` `files.mimeTypeAllowList` (thêm vào store server của 012) và dùng cho block editor như Directus;
+  `allowedMimeTypes` của option dùng làm `accept` và lọc thư viện.
 - **FR-054**: Danh sách request ghi do interface tự gửi (ngoài lần lưu item của màn chứa): `POST /files`,
   `POST /files/import`, `POST /flows/trigger/:id` (FR-057); không có request ghi khác.
 
@@ -448,8 +493,10 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `icon`, `help` (HTML đã khử), `helpDisplayMode` (`inline`|`modal`), `enableHelpTranslations`,
   `helpTranslationsString`, `links` (`label`, `icon`, `type` normal|primary|info|success|warning|danger, `actionType`
   url|flow, `url` có `{{ }}`, `flow`); URL bắt đầu bằng `/` điều hướng trong app, khác thì link ngoài; một link là nút,
-  nhiều link là menu "Actions"; nút flow chạy flow thủ công như Directus (hỏi xác nhận khi flow yêu cầu), khóa khi item
-  mới hoặc `nonEditable`.
+  nhiều link là menu "Actions"; nút flow chạy flow thủ công như `useRunManualFlow` Directus (hộp xác nhận khi
+  `requireConfirmation`: mô tả, form từ `options.fields`, hủy; thông báo thành công hoặc lỗi), phát sự kiện "đã chạy" để
+  màn chứa (014) nạp lại item; khóa khi item mới hoặc `nonEditable`. Store flows như Directus: không có quyền đọc
+  `directus_flows` thì danh sách rỗng, không gọi API; lỗi thì rỗng, không chặn hydrate.
 - **FR-058** `presentation-links`: `links` như FR-057; nạp field quan hệ của URL bằng `GET` item hiện tại; nút flow chỉ
   hiện khi flow đang bật.
 - **FR-059** `presentation-notice`: `color` (`normal`|`info`|`success`|`warning`|`danger`), `icon` (`info`), `text`
@@ -461,25 +508,31 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `code`, `image`, `pre`, `inlinecode` ánh xạ sang nút tương ứng), `font`, `folder`, `imageToken`, `softLength`,
   `customFormats`, `tinymceOverrides`; chèn ảnh (URL, alt, kích thước khi `storage_asset_transform = all`, lazy, preset),
   media (video, embed), link (url, chữ, title, tab mới), sửa mã nguồn; phát HTML hoặc null; HTML lưu giữ nguyên như
-  Directus (không chuẩn hóa thêm).
+  Directus (không chuẩn hóa thêm). Cấu hình TinyMCE giống Directus (`extended_valid_elements`, `convert_urls: false`...),
+  dựa vào lọc XSS sẵn có của TinyMCE 6 khi mở lại HTML [Unverified mặc định bật]; hiển thị trong bảng qua
+  `formatted-value` đã khử HTML.
 - **FR-061** `input-rich-text-md` (text): `toolbar`, `placeholder`, `folder`, `imageToken`, `softLength`, `editorFont`,
   `previewFont`, `defaultView` (`editor`|`preview`), `customSyntax` (`{name, icon, prefix, suffix, box}`); phím tắt như
   Directus; xem trước markdown đã khử HTML; chèn ảnh `![..](<asset url>[?access_token=imageToken])`.
 - **FR-062** `input-block-editor` (json): `placeholder`, `font`, `tools` (mặc định header, nestedlist, code, image,
   paragraph, checklist, quote, underline; lựa chọn thêm embed, attaches, table, inlinecode, delimiter, toggle,
   alignment, raw), `bordered` (true), `folder`; giá trị `{time, version, blocks}`, không block thì null; mọi chuỗi trong
-  block khử HTML như `sanitize.ts`; block ảnh/tệp có `fileId`, `fileURL`, `url` như Directus; bỏ công cụ ảnh, tệp khi
+  block khử HTML với cấu hình chép nguyên `sanitize.ts`; block ảnh/tệp có `fileId`, `fileURL`, `url` như Directus; bỏ công cụ ảnh, tệp khi
   user không đọc được `directus_files`.
 - **FR-063** `map` (geometry, `geometry.*`, json, string, text, csv): options `defaultView` (`center`, `zoom`,
   `bearing`, `pitch`), `geometryType`; định dạng lưu: json và `geometry*` là GeoJSON, string/text là WKT, csv là
   `[lng, lat]`; vẽ giới hạn theo kiểu con của field; nhiều hình gộp thành Multi*; nền bản đồ theo settings `basemaps`,
-  mặc định OpenStreetMap như Directus, tìm địa điểm chỉ khi có `mapbox_key`; nút vừa dữ liệu, điều hướng, vị trí.
+  mặc định OpenStreetMap như Directus (attribution `© OpenStreetMap contributors`), nền tối khi appearance tối như
+  `basemap.ts`, tìm địa điểm chỉ khi có `mapbox_key`; nút vừa dữ liệu, điều hướng, vị trí.
 - **FR-064**: Thư viện soạn thảo PHẢI cho ra cùng định dạng dữ liệu với thư viện Directus dùng ở 11.17.4 (TinyMCE 6.8.6,
   Editor.js 2.31.2, CodeMirror 5.65.18, MapLibre 1.15.3, Mapbox GL Draw 1.5.1; chọn ở plan), giấy phép tương thích dùng
-  thương mại (Nguyên tắc XII, như việc bỏ PrimeVue).
+  thương mại (Nguyên tắc XII, như việc bỏ PrimeVue): chấp nhận MIT, Apache-2.0, BSD-2/3, ISC, OFL-1.1 (font), CC BY 4.0
+  (icon, có ghi công), MPL-2.0 (chỉ công cụ test); loại GPL, AGPL, giấy phép thương mại.
 - **FR-065**: HTML và markdown do người dùng nhập khi hiển thị (ghi chú field, notice, help, xem trước markdown) PHẢI
   khử HTML nguy hiểm như Directus (DOMPurify).
-- **FR-066**: Field `hash` và `masked` không bao giờ đưa giá trị ra DOM ở dạng đọc được (trừ khi người dùng gõ).
+- **FR-066**: `input-hash` không đặt giá trị đã lưu vào ô nhập; `masked` (`input`, display `formatted-value`) chỉ che khi
+  hiển thị. Menu "xem/chép giá trị thô" giữ như Directus: hiện đúng giá trị API trả cho user (với `hash` là chuỗi đã
+  băm), vì user đó đã đọc được giá trị qua API.
 
 **Display**
 
@@ -497,16 +550,18 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-074** Options từng display:
   `boolean` (`labelOn`, `labelOff`, `iconOn` `check`, `iconOff` `close`, `colorOn`, `colorOff`; icon, nhãn, màu chỉ áp khi
   đủ cặp); `collection` (`icon` false); `color` (`defaultColor` `#B0BEC5`; viền khi tương phản < 1.1); `datetime`
-  (`relative`, `format` `long`, `includeSeconds`, `use24` false, `tz`, `suffix` true, `strict`, `round`; tooltip múi giờ;
+  (`relative`, `format` `long`, `includeSeconds`, `use24` (mặc định `false`, khác interface), `tz`, `suffix` true, `strict`, `round`; tooltip múi giờ;
   cập nhật mỗi 60 s khi relative); `file`, `filesize`, `hash`, `raw` (không option); `formatted-json-value` (`format`
   template micromustache, nhiều phần tử thì menu "N items"); `formatted-value` (`format`, `font`, `bold`, `italic`,
   `prefix`, `suffix`, `color`, `background`, `icon`, `border`, `masked`, `conditionalFormatting` `{operator, value, color,
-  background, text, icon}`, `translate` ẩn); `icon` (`filled`, `color` chỉ áp khi là hex); `image` (`circle`); `labels`
+  background, text, icon}`, `translate` ẩn); `icon` (`filled`, `color` chỉ áp khi là hex; tên `social:*` vẽ như
+  `v-icon`); `image` (`circle`); `labels`
   (`format` true, `showAsDot`, `choices` `{text, value, icon, color, foreground, background}`); `mime-type`
   (`showAsExtension`); `rating` (`simple`; số sao theo `interfaceOptions.maxValue` hoặc 5); `related-values` (`template`;
   o2m, m2m, m2a, translations, files hiện "N item(s)" có menu và link, m2o hiện trực tiếp); `translations` (`template`,
   `languageField`, `defaultLanguage`, `userLanguage`; menu từng bản dịch có tiến độ); `user` (`display`
-  `avatar`|`name`|`both`, `circle`; có popover user).
+  `avatar`|`name`|`both`, `circle`; popover user nạp `GET /users/:id` với field như `user-popover.vue`, lỗi quyền thì
+  hiện lỗi như Directus).
 - **FR-075**: Định dạng ngày giờ PHẢI dùng khóa `date-fns_*` và locale như `format-date.ts`, kết quả giống Directus ở
   `en-US` và `vi-VN`.
 - **FR-076**: So sánh của `conditionalFormatting` theo kiểu field (chuỗi, `parseFloat`, `BigInt`, `parseInt`) như
@@ -520,10 +575,12 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 **Tương thích dữ liệu và API**
 
 - **FR-080**: Giá trị mỗi interface phát ra PHẢI cùng dạng và kiểu JSON với Directus cho cùng thao tác (chuỗi, số, ISO,
-  mảng, object, `{create, update, delete}`, GeoJSON/WKT, block JSON, HTML).
-- **FR-081**: App chỉ gọi API theo chuẩn Directus (danh sách ở phần tham chiếu và 012); request ra ngoài chỉ có URL do
-  admin cấu hình (`input-autocomplete-api`, tile bản đồ theo `basemaps` hoặc OpenStreetMap mặc định, embed của block
-  editor và rich text).
+  mảng, object, `{create, update, delete}`, GeoJSON/WKT, block JSON, HTML). Quy tắc so: so sâu sau JSON round-trip (bỏ
+  thứ tự khóa); bigInteger, decimal là chuỗi; `null` khác thiếu khóa; `undefined` là không thay đổi.
+- **FR-081**: App chỉ gọi API theo chuẩn Directus (danh sách ở phần tham chiếu và 012). Request ra ngoài là danh sách
+  đóng: URL của `input-autocomplete-api`; tile theo `basemaps` hoặc OpenStreetMap mặc định; glyph
+  `https://fonts.openmaptiles.org/...` (style gốc của `basemap.ts`); style và geocoder Mapbox khi settings có
+  `mapbox_key`; iframe embed của block editor (tool `embed`) và media của rich text.
 - **FR-082**: Chạy được với Directus thật và API mới chỉ bằng đổi `apiUrl` (như 012).
 - **FR-083**: Không sửa file trong `directus/`; không ghi `directus_fields`, `directus_relations`, `directus_collections`.
 - **FR-084**: Form PHẢI cho biết có thay đổi chưa lưu hay không, để màn chứa (014) hỏi `unsaved_changes` như
@@ -544,20 +601,28 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
 - **FR-093**: Thành phần chưa có mẫu trong design-system (Q-1 đến Q-12) PHẢI có recipe nháp (Tier 3, đánh dấu "nháp")
   trong `design-system/docs/component-specs.md` (và `layout-patterns.md` cho lưới form, drawer) trước khi code thành
   phần đó, dựng từ token và công thức có sẵn (`FIELD`, `FOCUS`...); cặp màu mới vào bảng tương phản của
-  `migration-guide.md`. Code theo bản nháp; design owner duyệt trước khi đóng 013, chỉnh sửa chỉ đổi recipe và class.
-- **FR-094**: Mọi interface dùng được bằng bàn phím (chọn, kéo đổi thứ tự có cách thay bằng phím, mở và đóng drawer, Esc
-  đóng, focus trở về nút mở); trạng thái không chỉ bằng màu.
-- **FR-095**: Sáng, tối và overrides settings áp lên mọi interface và display như khung 012; giá trị màu lấy từ dữ liệu
-  (Edge Cases) áp nguyên.
+  `migration-guide.md`. Code theo bản nháp; design owner (owner dự án, trừ khi chỉ định khác) duyệt trước khi đóng 013
+  theo `qa/handoff-checklist.md` (quy ước `component-specs.md`, bảng tương phản, đối chiếu ảnh với TailAdmin và luồng
+  Directus); chỉnh sửa chỉ đổi recipe và class.
+- **FR-094**: Mọi interface dùng được bằng bàn phím (chọn, mở và đóng drawer, Esc đóng, focus trở về nút mở; danh sách
+  thao tác theo nhóm interface ở `contracts/tests.md` §5); danh sách kéo đổi thứ tự được có mục "Lên", "Xuống" trong menu
+  dòng (D-60, khóa dịch overlay `en-US`/`vi-VN`); trạng thái không chỉ bằng màu; transition tắt khi
+  `prefers-reduced-motion: reduce` (quy tắc 012), bản đồ dùng `jumpTo` thay `flyTo`. Editor bên thứ ba (TinyMCE,
+  Editor.js, CodeMirror, MapLibre) giữ a11y của thư viện, liên kết nhãn bằng `aria-labelledby` khi thư viện cho phép.
+- **FR-095**: Sáng, tối và overrides settings áp lên mọi interface và display như khung 012, kể cả editor bên thứ ba
+  (CSS nội dung TinyMCE, theme CodeMirror, nút MapLibre theo token); giá trị màu lấy từ dữ liệu (Edge Cases) áp nguyên.
 
 **Kiểm thử**
 
 - **FR-100**: Bộ mẫu PHẢI có: script seed tạo collection mẫu qua API Directus thật (mỗi interface và display với các tổ
   hợp options chính, quan hệ đủ loại, nhóm lồng, điều kiện, validation, ngôn ngữ, file mẫu, item có giá trị do Directus
   ghi), và bản xuất `fields`, `relations`, `collections`, item, file, `permissions/me` của vài user (admin, user quyền
-  một phần) commit thành fixture. Script chạy được với cả hai API; 014 dùng lại script cho E2E.
-- **FR-120**: Hành vi trong 39 file test Directus (phần tham chiếu) PHẢI có test tương ứng ở `apps/web` (unit hoặc
-  component).
+  một phần) commit thành fixture. Script chạy được với cả hai API; 014 dùng lại script cho E2E. Field `geometry.*` chỉ
+  seed trên Postgres có PostGIS (`postgis/postgis` của `tests/parity`). Mỗi giá trị trong `expected.*.json` ghi nguồn
+  (dòng code hoặc test Directus); reviewer đối chiếu nguồn; E2E so payload ở 014 là xác nhận cuối.
+- **FR-120**: Hành vi trong 31 file test Directus (25 ở `interfaces/` không tính `_system`, 6 ở `displays/`, đếm ngày
+  2026-10-15) PHẢI có test tương ứng ở `apps/web` (unit hoặc component); 8 file của `_system` đi cùng D-57;
+  `system-raw-editor` không có test Directus nên viết test mới.
 - **FR-121**: Test component nạp toàn bộ bộ mẫu (US7) và ghi lại mọi request mà interface gửi qua API giả lập để kiểm
   FR-054, FR-081. E2E ở ba cấu hình của 012 và so payload ghi với Directus app chạy ở 014 trên màn item với cùng bộ mẫu
   (Clarifications Q-A); 013 không thêm E2E.
@@ -587,16 +652,18 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-54 | Công cụ AI trong form (`use-ai-tools`), chỉ báo người cùng sửa (collab) trong nhãn và interface | Có khi bật AI, WebSocket | Không có; như Directus khi tắt | Nguyên tắc XI (D-41) | ngoài phạm vi | — |
-| D-55 | Chế độ so sánh (`comparisonMode`, `comparisonSide`) của form và interface | Có (revisions, versions) | Interface nhận prop nhưng màn so sánh chưa có | Màn revisions/versions thuộc sidebar item | ngoài phạm vi (tạm thời) | 014 |
+| D-55 | Chế độ so sánh (`comparisonMode`, `comparisonSide`) của form và interface | Có (revisions, versions) | Interface nhận prop và làm theo code Directus chép (kể cả `nonEditable`, ví dụ rich text chỉ đọc), kiểm bằng unit test; màn chọn và so sánh version chưa có | Màn revisions/versions thuộc sidebar item | ngoài phạm vi (tạm thời) | 014 |
 | D-56 | Form options của interface và display (`options` dạng component: `list`, `map`; `system-interface-options`, `system-display-options`) | Có ở màn cấu hình field | Chưa có; chỉ đọc options đã lưu | Màn cấu hình field thuộc Settings | ngoài phạm vi (tạm thời) | 016 |
 | D-57 | 27 interface `_system` (trừ `system-raw-editor`) | Có | Chưa có; field dùng chúng hiện `interface_not_found` cho tới feature có màn dùng | Owner chọn 2026-10-15 (Q-B): làm cùng màn dùng chúng | ngoài phạm vi (tạm thời) | 015: `system-language`, `system-theme`, `system-theme-overrides`, `system-mfa-setup`, `system-token`, `system-input-password`; 016: còn lại trừ `system-mcp-prompts-collection-validation` (AI, D-41, không làm) |
 | D-58 | Layout và bộ lọc của drawer chọn item (`drawer-collection.vue`) | Layout theo preset của user (table, cards, calendar, kanban, map), thanh bộ lọc | Luôn dạng bảng (cột theo preset hoặc mặc định), tìm kiếm, phân trang, bộ lọc của interface | Layout và bộ lọc thuộc module Content; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 014 |
+| D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng; kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
 | D-59 | Chỉnh ảnh (cắt, xoay, lật, tỉ lệ, điểm focal) trong `file-image` (`image-editor.vue`, `PATCH /files/:id` multipart) | Có khi có quyền sửa file | Chưa có nút chỉnh ảnh | Thay nội dung file thật, dùng chung với màn file của module Files; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 015 |
 
 **Cần xác nhận** (đang giữ nguyên):
 
 - Mặc định dữ liệu có hex trong code của Directus (`select-color.presets` 9 màu, `color.defaultColor` `#B0BEC5`) là giá
   trị dữ liệu, giữ nguyên để giống Directus; cần tech lead đồng ý cho các hằng này đi qua `check-raw-colors` (Q-C).
+  Danh sách miễn chỉ có một nguồn: `tools/check-raw-colors.mjs` (đường dẫn file và tên hằng); spec và plan trỏ tới đó.
 - Preset mặc định tên `purple` `#6644FF` là màu thương hiệu Directus nhưng là dữ liệu người dùng chọn: giữ.
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
@@ -635,6 +702,10 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   FR-054, D-59).
 - Q: Xử lý Q-1 đến Q-12 (thành phần chưa có mẫu design-system) thế nào? → A: Viết recipe nháp vào
   `design-system/docs/` trước khi code, code theo nháp, design owner duyệt trước khi đóng 013 (FR-093).
+- Q: Lời giải các mục release-gate (91 mục)? → A: Owner duyệt toàn bộ đề xuất của
+  `checklists/release-gate-proposals.md`: làm như Directus ở mọi chỗ Directus có hành vi; thêm D-60; giữ `jsonlint-mod`
+  và `vue-virtual-scroller`; tái hiện lỗi `formatted-json-value.handler` của Directus và ghi R-xx khi đóng (quy tắc 004);
+  design owner là owner dự án.
 - Q-C (mặc định, chưa hỏi owner): hằng màu dữ liệu của Directus trong code (Cần xác nhận) được miễn kiểm màu thô, ghi
   danh sách trong `check-raw-colors`; tech lead xác nhận khi duyệt khác biệt.
 
@@ -649,6 +720,18 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   khác biệt do trình duyệt khi trình soạn chuẩn hóa HTML); so sánh bỏ các phần này (US7).
 - Bản đồ dùng tile OpenStreetMap mặc định như Directus (request ra ngoài được phép, FR-081).
 - Người dùng chuyển từ Directus app; không có dữ liệu cấu hình field tạo riêng cho app mới.
+- Prop component-only của Directus không nằm trong `meta.options` (`list.limit`, `headerPlaceholder`,
+  `select-dropdown-m2o.selectMode`, `input.dbSafe`, `input-code.altOptions`, `list-m2m.junctionFilter`) ngoài phạm vi:
+  chỉ khóa lưu trong DB được đọc.
+- Danh sách phần không ổn định khi so giá trị là đóng: `time` và `id` của block editor; khoảng trắng và thứ tự thuộc
+  tính HTML do trình duyệt chuẩn hóa.
+- Link tới item trỏ đúng route Directus; ở 013 các route đó là khung của 012 (D-40) cho tới 014.
+- Rủi ro chấp nhận như Directus: `imageToken` nhúng token tĩnh vào URL ảnh (admin tự chọn); HTML do người khác ghi
+  trong rich text dựa vào lọc của TinyMCE; tile OpenStreetMap mặc định (dùng nhiều thì người vận hành đặt `basemaps`
+  riêng, tài liệu triển khai ghi rõ); `list-o2m-tree-view` nạp cả cây; drawer chọn item trên collection rất lớn phụ
+  thuộc thời gian phân trang và đếm của API (benchmark 005).
+- Directus ẩn interface `system: true` khỏi bộ chọn; field người dùng vẫn trỏ tới interface `_system` (đặt qua API)
+  thì hiện `interface_not_found` (D-57).
 - Store flows được nạp từ 013 (chỉ `hydrate`, `GET /flows`) để nút flow thủ công của `header` và
   `presentation-links` chạy; thu hẹp D-45 của 012 (research R10). Trình chỉnh sửa flows vẫn là 017.
 
@@ -657,18 +740,23 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
 ### Measurable Outcomes
 
 - **SC-001**: 40/40 interface id và 18/18 display id có bản tương ứng; với bộ mẫu (FR-100), test component dựng form
-  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found` (trừ field dùng interface `_system` của D-57),
-  0 lỗi hoặc cảnh báo Vue, 100% khẳng định DOM đạt.
+  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found`, 0 lỗi hoặc cảnh báo Vue, 100% khẳng định DOM
+  đạt. "Đọc được cấu hình hiện có" = SC-001 và SC-003.
 - **SC-002**: Với mọi giá trị Directus đã ghi trong bộ mẫu, form không sửa thì phát 0 thay đổi; mỗi interface có ít nhất
   một kịch bản sửa mà giá trị phát ra bằng giá trị mong đợi (sau khi bỏ phần không ổn định ở Assumptions). So payload
   với Directus app trên màn thật là SC của 014.
 - **SC-003**: 100% khóa options và display_options liệt kê ở FR-020 đến FR-079 có ít nhất một test đọc giá trị đã lưu
-  và kiểm hiệu ứng của nó.
+  và kiểm hiệu ứng của nó (khóa thẩm mỹ như `font`, `bordered`, `iconLeft`: kiểm class, attribute hoặc style trên DOM).
 - **SC-004**: Form 50 field vẽ xong trong dưới 1 giây sau khi dữ liệu đã nạp; bảng 100 hàng × 10 cột có display vẽ xong
-  trong dưới 1 giây (test chạy trên chromium ở CI).
+  trong dưới 1 giây. Điều kiện đo: chromium trên CI, API giả lập đã có dữ liệu, lần dựng đầu, trung vị 3 lần.
 - **SC-005**: axe 0 vi phạm mức serious/critical trên form và bảng mẫu ở sáng và tối; mọi interface thao tác được chỉ
-  bằng bàn phím (kiểm trong test component).
+  bằng bàn phím theo danh sách thao tác ở `contracts/tests.md` §5 (kiểm trong test component). Ngoại lệ axe chỉ cho phần
+  của thư viện bên thứ ba và màu dữ liệu, ghi rule id và lý do trong file test, tech lead duyệt.
 - **SC-006**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E hiện có của 012, build image xanh; 0 màu thô ngoài
   danh sách miễn (Q-C).
 - **SC-007**: 0 file trong `directus/` bị sửa; trong test, 0 request ghi ngoài danh sách FR-054 và 0 request ra ngoài
   ngoài FR-081.
+- **SC-008**: Recipe nháp Q-1 đến Q-12 được design owner duyệt, bảng Q chuyển "Đóng", `qa/handoff-checklist.md` đạt
+  trước khi đóng 013.
+- **SC-009**: Bản xuất của script seed (FR-100) ở Directus và ở API mới giống nhau sau chuẩn hóa (US7-3); khác biệt thật
+  ghi R-xx.

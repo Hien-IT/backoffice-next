@@ -32,7 +32,7 @@ kiểm FR-054, FR-081, SC-007.
 
 ## 4. Test port từ Directus (FR-120)
 
-39 file `*.test.ts` của `directus/app/src/{interfaces,displays}` → cùng tên trong thư mục tương ứng của app, header
+31 file `*.test.ts` của `directus/app/src/{interfaces,displays}` (không tính 8 file `_system`, D-57) → cùng tên trong thư mục tương ứng của app, header
 `// Ported from directus/app/src/.../x.test.ts`, manifest `013-T*.json`. Hành vi giữ; API component đổi theo `Bo*`.
 
 ## 5. Kịch bản chung cho mỗi interface
@@ -42,7 +42,13 @@ kiểm FR-054, FR-081, SC-007.
 3. Mỗi khóa options: ít nhất một test kiểm hiệu ứng (SC-003).
 4. Kịch bản sửa (`expected.<interface>.json`): giá trị phát ra bằng mong đợi (SC-002).
 5. `disabled`, `nonEditable`, `loading` (skeleton), lỗi validation hiện ở `FormField`.
-6. Bàn phím: thao tác chính không cần chuột (browser project với interface có overlay).
+6. Bàn phím (SC-005, FR-094), browser project, theo nhóm:
+   - chữ, số, ngày, lựa chọn: Tab vào, gõ hoặc mũi tên chọn, Enter/Space xác nhận, Esc đóng overlay, focus về ô;
+   - tags: Enter hoặc dấu phẩy thêm, Backspace xóa tag cuối;
+   - quan hệ, file, list: Tab tới nút tạo/chọn, Enter mở drawer, Esc đóng, focus về nút; menu dòng có "Lên", "Xuống"
+     (D-60), bỏ chọn bằng phím;
+   - nhóm: tabs bằng mũi tên, accordion và detail bằng Enter/Space;
+   - editor bên thứ ba: vào và ra bằng Tab (không bẫy focus), phím tắt như Directus.
 
 ## 6. Axe và hiệu năng (browser)
 

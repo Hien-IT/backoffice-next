@@ -13,7 +13,9 @@ Ngày 2026-10-15. Mỗi mục: quyết định, lý do, phương án bỏ. Phiê
 |-----|-----|-----------|----------|---------|
 | `tinymce` + `@tinymce/tinymce-vue` | 6.8.6 + 6.3.0 | MIT | `input-rich-text-html` | TinyMCE 7 đổi sang GPL-2.0+/thương mại: **giữ 6.8.6, không nâng**. Nhánh 6 không còn được bảo trì [Unverified]: ghi rủi ro ở plan, chấp nhận vì cùng HTML đầu ra với Directus |
 | `@editorjs/editorjs` 2.31.2 và 13 tool (`attaches` 1.3.2, `checklist` 1.6.0, `code` 2.9.3, `delimiter` 1.4.2, `embed` 2.7.6, `header` 2.8.8, `image` 2.10.3, `inline-code` 1.5.2, `nested-list` 1.4.3, `paragraph` 2.11.7, `quote` 2.7.6, `raw` 2.5.1, `table` 2.4.5, `underline` 1.2.1), `editorjs-toggle-block` 0.3.16 | như Directus catalog | Apache-2.0, MIT | `input-block-editor` | JSON block cùng `version`; ImageTool, AttachesTool, Alignment tune chép từ Directus |
-| `codemirror` | 5.65.18 | MIT | `input-code`, `input-rich-text-md`, `system-raw-editor` | Giá trị option `language` lưu trong DB là tên mode CM5 (`htmlmixed`, `javascript`...), CM6 phải ánh xạ: bỏ CM6. Bỏ `jsonlint-mod`: báo lỗi JSON bằng `JSON.parse` (vị trí từ thông điệp lỗi) |
+| `codemirror` | 5.65.18 | MIT | `input-code`, `input-rich-text-md`, `system-raw-editor` | Giá trị option `language` lưu trong DB là tên mode CM5 (`htmlmixed`, `javascript`...), CM6 phải ánh xạ: bỏ CM6. Giữ `jsonlint-mod` 1.7.6 (MIT [Unverified]) để báo lỗi JSON như Directus (release-gate CHK041) |
+| `vue-virtual-scroller` | 2.0.0-beta.8 | MIT [Unverified] | `select-icon` (cuộn ảo như Directus) | chép nguyên `select-icon.vue` (CHK042) |
+| `@fortawesome/fontawesome-svg-core` + `@fortawesome/free-brands-svg-icons` | 6.7.2 | MIT (mã), CC BY 4.0 (icon) [Unverified] | nhóm Social của `select-icon`, tên `social:*` ở display `icon` và `BoIcon` (như `social-icon.vue`) | ghi công icon trong README của `apps/web` (CHK021) |
 | `maplibre-gl` 1.15.3, `@mapbox/mapbox-gl-draw` 1.5.1, `@mapbox/mapbox-gl-draw-static-mode` 1.0.1, `wellknown` 0.5.0, `@turf/meta` (bản Directus catalog), `geojson` types | như Directus | BSD-3, ISC, MIT | `map` | `maplibre-gl` 1.x cũ nhưng là bản `mapbox-gl-draw` 1.5.1 chạy cùng ở Directus; nâng là việc của Directus. `@mapbox/mapbox-gl-geocoder` 5.1.2 nạp động chỉ khi settings có `mapbox_key` |
 | `vuedraggable` | 4.1.0 | MIT | kéo đổi thứ tự (list, files, o2m, m2m, m2a, tree, collection-item-multiple) | dùng SortableJS; cách thay bằng phím: mục "lên/xuống" trong menu dòng (FR-094) |
 | `color` | 5.0.2 | MIT | `select-color`, display `color` (tương phản) | |
@@ -26,8 +28,7 @@ Ngày 2026-10-15. Mỗi mục: quyết định, lý do, phương án bỏ. Phiê
 | `@vitest/browser` | 3.2.4 | MIT | test component trong chromium (R8) | provider playwright (đã có 1.64.0) [Unverified: coverage v8 ở browser mode] |
 | `axe-core` | 4.11.x | MPL-2.0 | FR-122 trong test browser | đã có gián tiếp qua `@axe-core/playwright` 4.13.0 |
 
-**Không thêm**: `vue-virtual-scroller` (bộ chọn icon dùng CSS `content-visibility: auto` theo nhóm, `shortcut:` ghi
-giới hạn: ~2.400 icon trong một lưới, đo ở SC-004; nâng lên ảo hóa nếu > 200 ms); `cropperjs` (D-59);
+**Không thêm**: `cropperjs` (D-59);
 `@directus/composables` (phụ thuộc axios; `useItems`, `useCollection`, `useCustomSelection` chép vào `apps/web`
 với sdk, R5); `@backoffice/validation`/`@backoffice/utils` (lib BE, kéo theo Node API).
 
@@ -78,8 +79,8 @@ interface vào một file lớn (khó so với Directus theo thư mục).
   ngôn ngữ như Directus (`translateFields` trong `setLanguage`).
 - Nhóm `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại → Vue cảnh báo "Failed to resolve
   component" và vẽ thẻ rỗng, field con không hiện [Unverified, đo trên Directus app ở task đầu đợt A và ghi vào
-  Edge Cases]. App mới: rơi về `group-raw` nếu đo cho thấy Directus vẫn hiện field con, nếu không thì giống Directus
-  (không hiện) và ghi R-xx.
+  Edge Cases]. Quy tắc đã duyệt (CHK046): làm giống Directus theo kết quả đo; chỉ khi Directus ném lỗi chặn cả form thì
+  rơi về `group-raw` và ghi D-xx.
 
 **Phương án bỏ**: viết form mới không chép (mất `apply-conditions` và `validate-item` vốn là hành vi cần giống).
 
@@ -94,7 +95,8 @@ composable `use-alias-fields`, `use-template-data` (header). `handler` của 10 
 (FR-072). Trạng thái null dùng `ValueNull` (`--`, Q-12).
 
 `formatted-json-value.handler` của Directus gọi `render(v, options.format)` ngược thứ tự tham số so với component:
-chép nguyên (cùng kết quả sai) và ghi R-xx ở spec khi đóng (quy tắc "tái hiện và ghi R").
+chép nguyên (cùng kết quả sai) và ghi R-xx ở spec khi đóng (quy tắc "tái hiện và ghi R" của 004, owner duyệt cho FE
+ngày 2026-10-15, CHK089).
 
 ## R5. Quan hệ, drawer, tải file
 
@@ -139,6 +141,10 @@ chép nguyên (cùng kết quả sai) và ghi R-xx ở spec khi đóng (quy tắ
 | Q-11 | `BoTable` (đơn giản: cột, hàng, chọn, sort, resize), danh sách quan hệ, `BoUpload` (vùng thả), ảnh xem trước, `FileLightbox` | Table recipe có sẵn | |
 | Q-12 | `ValueNull`, `UserPopover`, menu "N items" | Tooltip, Popover | |
 
+Thứ tự (CHK025): một task đầu đợt A viết recipe nháp cho cả Q-1 đến Q-12, trước mọi task interface. Mở rộng `Bo*` của
+012 (CHK087) chỉ bằng prop tùy chọn; test của 012 phải giữ xanh. Thêm `BoTextOverflow` (chép `v-text-overflow`,
+CHK091).
+
 **Phương án bỏ**: chờ design owner trả lời trước khi code (Clarifications: owner chọn nháp trước); dùng component
 TailAdmin thật (không có mẫu cho các mục này).
 
@@ -181,7 +187,7 @@ TailAdmin thật (không có mẫu cho các mục này).
    toán tử các interface dùng; nâng khi 014 cần.
 4. Đối chiếu seed ở hai API (US7-3): `tests/parity/src/web/fixtures-seed.test.ts` chạy `seed.mjs` + `export.mjs`
    vào Directus và API mới của profile `web`, so hai bản xuất sau chuẩn hóa (chạy trong job parity hiện có).
-5. Test port từ 39 file test Directus (FR-120): mỗi file → một `*.test.ts` cùng tên trong thư mục interface/display;
+5. Test port từ 31 file test Directus (FR-120; 8 file `_system` đi cùng D-57): mỗi file → một `*.test.ts` cùng tên trong thư mục interface/display;
    ghi nguồn trong header; manifest.
 6. Hiệu năng SC-004: `form.browser.test.ts` dựng 50 field, `table.browser.test.ts` 100×10, đo `performance.now()`
    với ngưỡng 1.000 ms và thử lại 2 lần trước khi thất bại (máy CI chậm).
