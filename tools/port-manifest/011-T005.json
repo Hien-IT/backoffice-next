@@ -1,0 +1,58 @@
+[
+	{
+		"source": "api/src/services/graphql/utils/add-path-to-validation-error.ts",
+		"dest": "apps/api/src/services/graphql/utils/add-path-to-validation-error.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/aggregate-query.ts",
+		"dest": "apps/api/src/services/graphql/utils/aggregate-query.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/dedupe-resolvers.ts",
+		"dest": "apps/api/src/services/graphql/utils/dedupe-resolvers.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/filter-replace-m2a.ts",
+		"dest": "apps/api/src/services/graphql/utils/filter-replace-m2a.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/process-error.ts",
+		"dest": "apps/api/src/services/graphql/utils/process-error.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/replace-fragments.ts",
+		"dest": "apps/api/src/services/graphql/utils/replace-fragments.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/replace-funcs.ts",
+		"dest": "apps/api/src/services/graphql/utils/replace-funcs.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/sanitize-gql-schema.ts",
+		"dest": "apps/api/src/services/graphql/utils/sanitize-gql-schema.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/aggregate-query.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/aggregate-query.test.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/dedupe-resolvers.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/dedupe-resolvers.test.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/filter-replace-m2a.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/filter-replace-m2a.test.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/process-error.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/process-error.test.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/replace-fragments.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/replace-fragments.test.ts"
+	},
+	{
+		"source": "api/src/services/graphql/utils/sanitize-gql-schema.test.ts",
+		"dest": "apps/api/src/services/graphql/utils/sanitize-gql-schema.test.ts"
+	}
+]

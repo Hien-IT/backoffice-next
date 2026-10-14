@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/services/graphql/schema-cache.ts",
+		"dest": "apps/api/src/services/graphql/schema-cache.ts"
+	},
+	{
+		"source": "api/src/services/graphql/schema/index.ts",
+		"dest": "apps/api/src/services/graphql/schema/index.ts"
+	}
+]

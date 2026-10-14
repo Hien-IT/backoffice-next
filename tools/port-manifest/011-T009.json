@@ -1,0 +1,26 @@
+[
+	{
+		"source": "api/src/services/graphql/resolvers/query.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/query.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/mutation.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/mutation.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/get-collection-type.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/get-collection-type.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/get-field-type.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/get-field-type.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/get-relation-type.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/get-relation-type.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/query.test.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/query.test.ts"
+	}
+]

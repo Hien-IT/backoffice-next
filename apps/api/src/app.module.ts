@@ -10,6 +10,7 @@ import { FlowsController } from './controllers/flows.controller.js';
 import { FieldsController } from './controllers/fields.controller.js';
 import { FilesController } from './controllers/files.controller.js';
 import { FoldersController } from './controllers/folders.controller.js';
+import { GraphqlController } from './controllers/graphql.controller.js';
 import { ItemsController } from './controllers/items.controller.js';
 import { OperationsController } from './controllers/operations.controller.js';
 import { PermissionsController } from './controllers/permissions.controller.js';
@@ -56,6 +57,7 @@ export class TusModule implements NestModule {
 		FilesController,
 		FlowsController,
 		FoldersController,
+		GraphqlController,
 		ItemsController,
 		OperationsController,
 		PermissionsController,

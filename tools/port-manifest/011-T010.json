@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/graphql/resolvers/system.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/system.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/system-global.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/system-global.ts"
+	},
+	{
+		"source": "api/src/services/graphql/resolvers/system-admin.ts",
+		"dest": "apps/api/src/services/graphql/resolvers/system-admin.ts"
+	}
+]

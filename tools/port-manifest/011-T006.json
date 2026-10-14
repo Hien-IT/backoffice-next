@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/services/graphql/errors/execution.ts",
+		"dest": "apps/api/src/services/graphql/errors/execution.ts"
+	},
+	{
+		"source": "api/src/services/graphql/errors/format.ts",
+		"dest": "apps/api/src/services/graphql/errors/format.ts"
+	},
+	{
+		"source": "api/src/services/graphql/errors/index.ts",
+		"dest": "apps/api/src/services/graphql/errors/index.ts"
+	},
+	{
+		"source": "api/src/services/graphql/errors/validation.ts",
+		"dest": "apps/api/src/services/graphql/errors/validation.ts"
+	}
+]

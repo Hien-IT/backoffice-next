@@ -1,13 +1,14 @@
 // Ported from directus/api/src/utils/get-cache-key.test.ts
-// Backoffice: the GraphQL cases (feature 011) are left out with their code.
 // The version is mocked to 1.2.3 as in Directus, so the expected keys are Directus' own: same hash, same key (FR-010).
 import type { Request } from 'express';
 import type { Knex } from 'knex';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import type { MockInstance } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { getDatabase } from '../database/index.js';
 import { getFlowManager } from '../flows.js';
 import { fetchPoliciesIpAccess } from '../permissions/modules/fetch-policies-ip-access/fetch-policies-ip-access.js';
 import { getCacheKey } from './get-cache-key.js';
+import * as getGraphqlQueryUtil from './get-graphql-query-and-variables.js';
 
 vi.mock('../database/index.js');
 
@@ -28,6 +29,7 @@ beforeEach(() => {
 const baseUrl = 'http://localhost';
 const restUrl = `${baseUrl}/items/example`;
 const flowTriggerUrl = `${baseUrl}/flows/trigger/00000000-0000-0000-0000-000000000001`;
+const graphQlUrl = `${baseUrl}/graphql`;
 const accountability = { user: '00000000-0000-0000-0000-000000000000' };
 const method = 'GET';
 
@@ -52,6 +54,26 @@ const requests = [
 		params: { method, originalUrl: restUrl, sanitizedQuery: { filter: { name: { _eq: 'test' } } } },
 		key: '0bcc9af5f628db85043133e59226b2de154d7183',
 	},
+	{
+		name: 'a GraphQL GET query request',
+		params: { method, originalUrl: graphQlUrl, query: { query: 'query { test { id } }' } },
+		key: '14bc276cf21e2d22334b84841533e2c8e1bba9bd',
+	},
+	{
+		name: 'a GraphQL POST query request',
+		params: { method: 'POST', originalUrl: graphQlUrl, body: { query: 'query { test { name } }' } },
+		key: 'c5bf03e138e0f7bbaa50dde9cad554bef47a81d2',
+	},
+	{
+		name: 'an authenticated GraphQL GET query request',
+		params: { method, originalUrl: graphQlUrl, accountability, query: { query: 'query { test { id } }' } },
+		key: '981f27be4c0cfed0b4eca6ac2514f6629aea6be1',
+	},
+	{
+		name: 'an authenticated GraphQL POST query request',
+		params: { method: 'POST', originalUrl: graphQlUrl, accountability, body: { query: 'query { test { name } }' } },
+		key: '358336a2c61f7ea2b41b5c1566bbebe692be601d',
+	},
 ];
 
 const cases = requests.map(({ name, params, key }) => [name, params, key]);
@@ -61,6 +83,27 @@ afterEach(() => {
 });
 
 describe('get cache key', async () => {
+	describe('isGraphQl', async () => {
+		let getGraphqlQuerySpy: MockInstance;
+
+		beforeAll(() => {
+			getGraphqlQuerySpy = vi.spyOn(getGraphqlQueryUtil, 'getGraphqlQueryAndVariables');
+		});
+
+		test.each(['/items/test', '/items/graphql', '/collections/test', '/collections/graphql'])(
+			'path "%s" should not be interpreted as a graphql query',
+			async (path) => {
+				await getCacheKey({ originalUrl: `${baseUrl}${path}` } as Request);
+				expect(getGraphqlQuerySpy).not.toHaveBeenCalled();
+			},
+		);
+
+		test.each(['/graphql', '/graphql/system'])('path "%s" should be interpreted as a graphql query', async (path) => {
+			await getCacheKey({ originalUrl: `${baseUrl}${path}` } as Request);
+			expect(getGraphqlQuerySpy).toHaveBeenCalledOnce();
+		});
+	});
+
 	test.each(cases)('should create a cache key for %s', async (_, params, key) => {
 		expect(await getCacheKey(params as unknown as Request)).toEqual(key);
 	});
@@ -70,6 +113,22 @@ describe('get cache key', async () => {
 		const hasDuplicate = keys.some((key) => keys.indexOf(key) !== keys.lastIndexOf(key));
 
 		expect(hasDuplicate).toBeFalsy();
+	});
+
+	test('should create a unique key for GraphQL requests with different variables', async () => {
+		const query = 'query Test ($name: String) { test (filter: { name: { _eq: $name } }) { id } }';
+		const operationName = 'test';
+		const variables1 = JSON.stringify({ name: 'test 1' });
+		const variables2 = JSON.stringify({ name: 'test 2' });
+		const req1: any = { method, originalUrl: graphQlUrl, query: { query, operationName, variables: variables1 } };
+		const req2: any = { method, originalUrl: graphQlUrl, query: { query, operationName, variables: variables2 } };
+		const postReq1: any = { method: 'POST', originalUrl: req1.originalUrl, body: req1.query };
+		const postReq2: any = { method: 'POST', originalUrl: req2.originalUrl, body: req2.query };
+
+		expect(await getCacheKey(req1)).not.toEqual(await getCacheKey(req2));
+		expect(await getCacheKey(postReq1)).not.toEqual(await getCacheKey(postReq2));
+		expect(await getCacheKey(req1)).toEqual(await getCacheKey(postReq1));
+		expect(await getCacheKey(req2)).toEqual(await getCacheKey(postReq2));
 	});
 
 	test('should not create a unique key for flow trigger requests with different custom query params', async () => {

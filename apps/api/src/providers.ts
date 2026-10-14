@@ -13,6 +13,7 @@ import { FieldsService } from './services/fields.service.js';
 import { FilesService } from './services/files.service.js';
 import { FlowsService } from './services/flows.service.js';
 import { FoldersService } from './services/folders.service.js';
+import { GraphQLService } from './services/graphql/index.js';
 import { ItemsService } from './services/items.service.js';
 import { MetaService } from './services/meta.service.js';
 import { ExportService, ImportService } from './services/import-export.service.js';
@@ -154,6 +155,12 @@ export const serviceProviders: Provider[] = [
 	{
 		provide: FoldersService,
 		useFactory: (db: typeof getDatabase) => (options: any) => new FoldersService({ knex: db(), ...options }),
+		inject: [DATABASE],
+	},
+	{
+		// Feature 011: `options` carries the scope (items or system) with the accountability and schema.
+		provide: GraphQLService,
+		useFactory: (db: typeof getDatabase) => (options: any) => new GraphQLService({ knex: db(), ...options }),
 		inject: [DATABASE],
 	},
 	{

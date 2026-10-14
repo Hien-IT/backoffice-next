@@ -1,7 +1,7 @@
 // Ported from directus/api/src/utils/get-cache-key.ts
-// Backoffice: the GraphQL part (getGraphqlQueryAndVariables for /graphql, feature 011) comes with that route; the key of
-// every other path is the same as Directus (spec FR-010): `version` is DIRECTUS_COMPAT_VERSION, not Backoffice's own
-// version. The flow trigger part (cacheQueryParams of /flows/trigger/<uuid>) comes with feature 009.
+// Backoffice: the key of every path is the same as Directus (spec FR-010 of 001): `version` is DIRECTUS_COMPAT_VERSION,
+// not Backoffice's own version. The flow trigger part (cacheQueryParams of /flows/trigger/<uuid>) comes with feature
+// 009, the GraphQL part (getGraphqlQueryAndVariables) with feature 011.
 import url from 'url';
 import { toArray } from '@backoffice/utils';
 import { ipInNetworks } from '@backoffice/utils/node';
@@ -11,12 +11,14 @@ import hash from 'object-hash';
 import { DIRECTUS_COMPAT_VERSION as version } from '../constants.js';
 import getDatabase from '../database/index.js';
 import { fetchPoliciesIpAccess } from '../permissions/modules/fetch-policies-ip-access/fetch-policies-ip-access.js';
+import { getGraphqlQueryAndVariables } from './get-graphql-query-and-variables.js';
 
 // Match /flows/trigger/<uuid> and extract the UUID
 const FLOW_TRIGGER_PATTERN = /^\/flows\/trigger\/([0-9a-f-]+)/i;
 
 export async function getCacheKey(req: Request) {
 	const path = url.parse(req.originalUrl).pathname;
+	const isGraphQl = path?.startsWith('/graphql');
 
 	let flowTriggerQuery: Record<string, any> | undefined = undefined;
 
@@ -48,7 +50,7 @@ export async function getCacheKey(req: Request) {
 		version,
 		user: req.accountability?.user || null,
 		path,
-		query: req.sanitizedQuery,
+		query: isGraphQl ? getGraphqlQueryAndVariables(req) : req.sanitizedQuery,
 		...(flowTriggerQuery && { rawQuery: flowTriggerQuery }),
 		...(includeIp && { ip: req.accountability!.ip }),
 	};

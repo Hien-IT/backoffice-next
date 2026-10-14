@@ -14,17 +14,24 @@ function app(env: Record<string, unknown>) {
 	return request(a);
 }
 
-test.each(['/server/info', '/server/health', '/server/specs/oas', '/SERVER/Info/', '/server/health/'])(
-	'OPTIONS %s → 200 Allow: GET,HEAD',
-	async (path) => {
-		const res = await app({}).options(path);
-		expect(res.status).toBe(200);
-		expect(res.headers['allow']).toBe('GET,HEAD');
-		expect(res.text).toBe('GET,HEAD');
-	},
-);
+test.each([
+	'/server/info',
+	'/server/health',
+	'/server/specs/oas',
+	'/SERVER/Info/',
+	'/server/health/',
+	// Feature 011 (research R12.6): the route of the SDL, with or without a scope.
+	'/server/specs/graphql',
+	'/server/specs/graphql/system',
+	'/server/specs/graphql/x/',
+])('OPTIONS %s → 200 Allow: GET,HEAD', async (path) => {
+	const res = await app({}).options(path);
+	expect(res.status).toBe(200);
+	expect(res.headers['allow']).toBe('GET,HEAD');
+	expect(res.text).toBe('GET,HEAD');
+});
 
-test.each(['/server/ping', '/', '/robots.txt', '/server/specs/graphql', '/metrics'])(
+test.each(['/server/ping', '/', '/robots.txt', '/server/specs/graphql/a/b', '/metrics'])(
 	'OPTIONS %s → not handled (404)',
 	async (path) => {
 		expect((await app({}).options(path)).status).toBe(404);
@@ -33,6 +40,7 @@ test.each(['/server/ping', '/', '/robots.txt', '/server/specs/graphql', '/metric
 
 test('respects OPENAPI_ENABLED and METRICS_ENABLED; other methods pass through', async () => {
 	expect((await app({ OPENAPI_ENABLED: false }).options('/server/specs/oas')).status).toBe(404);
+	expect((await app({ GRAPHQL_INTROSPECTION: false }).options('/server/specs/graphql')).status).toBe(404);
 	expect((await app({ METRICS_ENABLED: true }).options('/metrics')).status).toBe(200);
 	expect((await app({}).get('/server/info')).status).toBe(404);
 });

@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/graphql/schema/get-types.ts",
+		"dest": "apps/api/src/services/graphql/schema/get-types.ts"
+	},
+	{
+		"source": "api/src/services/graphql/schema/read.ts",
+		"dest": "apps/api/src/services/graphql/schema/read.ts"
+	},
+	{
+		"source": "api/src/services/graphql/schema/write.ts",
+		"dest": "apps/api/src/services/graphql/schema/write.ts"
+	}
+]

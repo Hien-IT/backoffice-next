@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/graphql/schema/parse-args.ts",
+		"dest": "apps/api/src/services/graphql/schema/parse-args.ts"
+	},
+	{
+		"source": "api/src/services/graphql/schema/parse-query.ts",
+		"dest": "apps/api/src/services/graphql/schema/parse-query.ts"
+	},
+	{
+		"source": "api/src/services/graphql/schema/parse-query.test.ts",
+		"dest": "apps/api/src/services/graphql/schema/parse-query.test.ts"
+	}
+]

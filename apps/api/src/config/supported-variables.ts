@@ -198,6 +198,12 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'ADMIN_EMAIL',
 	'ADMIN_PASSWORD',
 	'ADMIN_TOKEN',
+	// Feature 011: GraphQL (/graphql, /graphql/system, /server/specs/graphql). The WEBSOCKETS_GRAPHQL_* variables other
+	// than WEBSOCKETS_GRAPHQL_ENABLED (read by /server/info since feature 005) stay in group C (D-17).
+	'GRAPHQL_INTROSPECTION',
+	'GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT',
+	'GRAPHQL_QUERY_TOKEN_LIMIT',
+	'GRAPHQL_SCHEMA_CACHE_CAPACITY',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

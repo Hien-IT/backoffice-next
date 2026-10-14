@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/utils/get-graphql-query-and-variables.ts",
+		"dest": "apps/api/src/utils/get-graphql-query-and-variables.ts"
+	},
+	{
+		"source": "api/src/utils/get-cache-key.ts",
+		"dest": "apps/api/src/utils/get-cache-key.ts"
+	},
+	{
+		"source": "api/src/utils/get-cache-key.test.ts",
+		"dest": "apps/api/src/utils/get-cache-key.test.ts"
+	}
+]

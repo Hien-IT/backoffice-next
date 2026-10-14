@@ -1,0 +1,34 @@
+[
+	{
+		"source": "api/src/services/graphql/types/bigint.ts",
+		"dest": "apps/api/src/services/graphql/types/bigint.ts"
+	},
+	{
+		"source": "api/src/services/graphql/types/date.ts",
+		"dest": "apps/api/src/services/graphql/types/date.ts"
+	},
+	{
+		"source": "api/src/services/graphql/types/geojson.ts",
+		"dest": "apps/api/src/services/graphql/types/geojson.ts"
+	},
+	{
+		"source": "api/src/services/graphql/types/hash.ts",
+		"dest": "apps/api/src/services/graphql/types/hash.ts"
+	},
+	{
+		"source": "api/src/services/graphql/types/string-or-float.ts",
+		"dest": "apps/api/src/services/graphql/types/string-or-float.ts"
+	},
+	{
+		"source": "api/src/services/graphql/types/void.ts",
+		"dest": "apps/api/src/services/graphql/types/void.ts"
+	},
+	{
+		"source": "api/src/utils/get-graphql-type.ts",
+		"dest": "apps/api/src/utils/get-graphql-type.ts"
+	},
+	{
+		"source": "packages/types/src/graphql.ts",
+		"dest": "apps/api/src/types/graphql.ts"
+	}
+]

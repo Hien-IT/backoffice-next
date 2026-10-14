@@ -1,4 +1,4 @@
-// Ported from directus/api/src/services/specifications.ts (OAS only: the GraphQL SDL waits for feature 011, D-15)
+// Ported from directus/api/src/services/specifications.ts
 import { useEnv } from '@backoffice/env';
 import formatTitle from '@backoffice/format-title';
 import { spec } from '@backoffice/specs';
@@ -29,6 +29,7 @@ import { fetchPermissions } from '../permissions/lib/fetch-permissions.js';
 import { fetchPolicies } from '../permissions/lib/fetch-policies.js';
 import { fetchAllowedFieldMap } from '../permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.js';
 import { reduceSchema } from '../utils/reduce-schema.js';
+import { GraphQLService } from './graphql/index.js';
 
 export class SpecificationService {
 	accountability: Accountability | null;
@@ -36,6 +37,7 @@ export class SpecificationService {
 	schema: SchemaOverview;
 
 	oas: OASSpecsService;
+	graphql: GraphQLSpecsService;
 
 	constructor(options: AbstractServiceOptions) {
 		this.accountability = options.accountability || null;
@@ -43,6 +45,7 @@ export class SpecificationService {
 		this.schema = options.schema;
 
 		this.oas = new OASSpecsService(options);
+		this.graphql = new GraphQLSpecsService(options);
 	}
 }
 
@@ -630,4 +633,28 @@ class OASSpecsService implements SpecificationSubService {
 			type: 'object',
 		},
 	};
+}
+
+class GraphQLSpecsService implements SpecificationSubService {
+	accountability: Accountability | null;
+	knex: Knex;
+	schema: SchemaOverview;
+
+	items: GraphQLService;
+	system: GraphQLService;
+
+	constructor(options: AbstractServiceOptions) {
+		this.accountability = options.accountability || null;
+		this.knex = options.knex || getDatabase();
+		this.schema = options.schema;
+
+		this.items = new GraphQLService({ ...options, scope: 'items' });
+		this.system = new GraphQLService({ ...options, scope: 'system' });
+	}
+
+	async generate(scope: 'items' | 'system') {
+		if (scope === 'items') return this.items.getSchema('sdl');
+		if (scope === 'system') return this.system.getSchema('sdl');
+		return null;
+	}
 }

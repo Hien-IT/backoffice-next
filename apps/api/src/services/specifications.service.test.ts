@@ -9,6 +9,20 @@ import type { MockedFunction } from 'vitest';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import { SpecificationService } from './specifications.service.js';
 
+// Backoffice (feature 011): GraphQLSpecsService hands the scope to a GraphQLService and asks it for the SDL; the
+// service itself is covered by services/graphql.
+vi.mock('./graphql/index.js', () => ({
+	GraphQLService: class {
+		scope: string;
+		constructor(options: { scope: string }) {
+			this.scope = options.scope;
+		}
+		getSchema(type: string) {
+			return Promise.resolve(`${this.scope}:${type}`);
+		}
+	},
+}));
+
 class Client_PG extends MockClient {}
 
 describe('Integration Tests', () => {
@@ -276,5 +290,19 @@ describe('Integration Tests', () => {
 				});
 			});
 		});
+	});
+});
+
+describe('Services / Specifications / graphql (feature 011)', () => {
+	it('generates the SDL of the items and system scopes, null for anything else', async () => {
+		const service = new SpecificationService({
+			knex: {} as any,
+			schema: { collections: {}, relations: [] },
+			accountability: null,
+		});
+
+		expect(await service.graphql.generate('items')).toBe('items:sdl');
+		expect(await service.graphql.generate('system')).toBe('system:sdl');
+		expect(await service.graphql.generate('nope' as any)).toBeNull();
 	});
 });

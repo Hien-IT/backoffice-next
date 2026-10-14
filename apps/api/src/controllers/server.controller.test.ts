@@ -85,6 +85,43 @@ test('GET /server/specs/oas → generated spec with the Host header; 404 when OP
 // Feature 010 (spec FR-013, contracts/system-api.md §5).
 const setupBody = { project_owner: 'owner@example.com', password: 'secret', first_name: 'A', last_name: 'B' };
 
+// Feature 011 (spec FR-042, FR-043, research R12.6).
+test('GET /server/specs/graphql[/:scope] → the SDL of the scope as an attachment named after the project', async () => {
+	const graphql = { generate: vi.fn(async (scope: string) => `type Query { ${scope}: Int }`) };
+	specificationFactory.mockReturnValueOnce({ oas, graphql } as any).mockReturnValueOnce({ oas, graphql } as any);
+	serverService.serverInfo.mockResolvedValue({ project: { project_name: 'Directus' } });
+
+	const sent = () => {
+		const r = res();
+		r.attachment = vi.fn();
+		r.send = vi.fn();
+		return r;
+	};
+
+	let r = sent();
+	await controller().graphql({ ...req, path: '/server/specs/graphql', params: {} }, r);
+	expect(graphql.generate).toHaveBeenCalledWith('items');
+	expect(r.attachment).toHaveBeenCalledWith(expect.stringMatching(/^Directus_\d{4}-\d{2}-\d{2}\.graphql$/));
+	expect(r.send).toHaveBeenCalledWith('type Query { items: Int }');
+
+	r = sent();
+	await controller().graphqlScope({ ...req, path: '/server/specs/graphql/system', params: { scope: 'system' } }, r);
+	expect(graphql.generate).toHaveBeenLastCalledWith('system');
+	expect(r.send).toHaveBeenCalledWith('type Query { system: Int }');
+});
+
+test('GET /server/specs/graphql/:scope: another scope → 404 with the path inside the router; introspection off → 404', async () => {
+	await expect(
+		controller().graphqlScope({ ...req, path: '/server/specs/graphql/x', params: { scope: 'x' } }, res()),
+	).rejects.toMatchObject({ code: 'ROUTE_NOT_FOUND', extensions: { path: '/specs/graphql/x' } });
+
+	vi.mocked(useEnv).mockReturnValue({ GRAPHQL_INTROSPECTION: false });
+
+	await expect(
+		controller().graphql({ ...req, path: '/server/specs/graphql', params: {} }, res()),
+	).rejects.toMatchObject({ code: 'ROUTE_NOT_FOUND', extensions: { path: '/server/specs/graphql' } });
+});
+
 test('POST /server/setup with users already → 403, no admin created', async () => {
 	serverService.isSetupCompleted.mockResolvedValue(true);
 

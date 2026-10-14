@@ -170,6 +170,9 @@ catalog:
   autocannon: 8.0.0
   hdr-histogram-js: 3.0.1
   '@types/autocannon': 7.12.7
+  # Feature 011 (GraphQL), same versions as directus/pnpm-workspace.yaml
+  graphql: 16.12.0
+  graphql-compose: 9.1.0
 
 onlyBuiltDependencies:
   - '@swc/core'

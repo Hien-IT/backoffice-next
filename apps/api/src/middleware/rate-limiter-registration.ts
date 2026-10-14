@@ -12,15 +12,29 @@ import { validateEnv } from '../utils/validate-env.js';
 
 export let rateLimiter: RateLimiterRedis | RateLimiterMemory | undefined;
 
-const checkRateLimit: RequestHandler = asyncHandler(async (req, res, next) => {
+/**
+ * Backoffice (feature 011): the limiter, created on first use when RATE_LIMITER_REGISTRATION_ENABLED; undefined when it
+ * is off, like the module-level `rateLimiter` of Directus that the GraphQL users_register resolver reads.
+ */
+export function registrationRateLimiter(): RateLimiterRedis | RateLimiterMemory | undefined {
 	const env = useEnv();
 
-	if (env['RATE_LIMITER_REGISTRATION_ENABLED'] !== true) return next();
+	if (env['RATE_LIMITER_REGISTRATION_ENABLED'] !== true) return undefined;
 
 	if (!rateLimiter) {
 		validateEnv(['RATE_LIMITER_REGISTRATION_DURATION', 'RATE_LIMITER_REGISTRATION_POINTS']);
 		rateLimiter = createRateLimiter('RATE_LIMITER_REGISTRATION');
 	}
+
+	return rateLimiter;
+}
+
+const checkRateLimit: RequestHandler = asyncHandler(async (req, res, next) => {
+	const env = useEnv();
+
+	if (env['RATE_LIMITER_REGISTRATION_ENABLED'] !== true) return next();
+
+	const rateLimiter = registrationRateLimiter()!;
 
 	const ip = getIPFromReq(req);
 

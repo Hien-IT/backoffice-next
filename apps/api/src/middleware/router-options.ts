@@ -7,8 +7,8 @@ import { getAuthProviders } from '../utils/get-auth-providers.js';
 /**
  * Directus mounts /server/* and /metrics on Express 4 sub-Routers, which answer OPTIONS themselves with
  * `Allow: GET,HEAD` (Router#handle → sendOptionsResponse). Nest mounts routes on the app, where OPTIONS would 404,
- * so this middleware reproduces the Router answer for exactly those paths (research R4, FR-048). /server/specs/graphql
- * is not built yet (D-15); /server/ping, / and /robots.txt are app routes (404).
+ * so this middleware reproduces the Router answer for exactly those paths (research R4, FR-048). /server/ping, / and
+ * /robots.txt are app routes (404). Feature 011: /server/specs/graphql[/:scope] when GRAPHQL_INTROSPECTION is on.
  * Feature 003 adds the routes of the auth router with the methods its Express 4 router answers.
  */
 export function createRouterOptions(): RequestHandler {
@@ -18,6 +18,9 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/server\/info\/?$/i, 'GET,HEAD'],
 		[/^\/server\/health\/?$/i, 'GET,HEAD'],
 		...(env['OPENAPI_ENABLED'] !== false ? [[/^\/server\/specs\/oas\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
+		...(env['GRAPHQL_INTROSPECTION'] !== false
+			? [[/^\/server\/specs\/graphql(\/[^/]+)?\/?$/i, 'GET,HEAD'] as [RegExp, string]]
+			: []),
 		...(env['METRICS_ENABLED'] === true ? [[/^\/metrics\/?$/i, 'GET,HEAD'] as [RegExp, string]] : []),
 		// Feature 010 (contracts/system-api.md §5): POST /server/setup, gone from D-14.
 		[/^\/server\/setup\/?$/i, 'POST'],

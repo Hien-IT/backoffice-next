@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/controllers/graphql.ts",
+		"dest": "apps/api/src/controllers/graphql.controller.ts"
+	}
+]

@@ -180,3 +180,17 @@ test.each([
 ])('isSupported(%s) = %s (feature 010)', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });
+
+// Feature 011 (specs/011 research R6): GraphQL; the GraphQL WebSocket transport stays unsupported (D-17).
+test.each([
+	['GRAPHQL_INTROSPECTION', true],
+	['GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT', true],
+	['GRAPHQL_QUERY_TOKEN_LIMIT', true],
+	['GRAPHQL_SCHEMA_CACHE_CAPACITY', true],
+	['WEBSOCKETS_GRAPHQL_ENABLED', true],
+	['WEBSOCKETS_GRAPHQL_AUTH', false],
+	['WEBSOCKETS_GRAPHQL_AUTH_TIMEOUT', false],
+	['WEBSOCKETS_GRAPHQL_PATH', false],
+])('isSupported(%s) = %s (feature 011)', (name, expected) => {
+	expect(isSupported(name)).toBe(expected);
+});
