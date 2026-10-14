@@ -1,0 +1,7 @@
+[
+	{
+		"source": "app/src/views/private/components/drawer-collection.vue",
+		"dest": "apps/web/src/components/drawers/DrawerCollection.vue"
+	},
+	{ "source": "app/src/layouts/tabular/index.ts", "dest": "apps/web/src/components/drawers/DrawerCollection.vue" }
+]

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/list-o2m-tree-view/index.ts",
+		"dest": "apps/web/src/interfaces/list-o2m-tree-view/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/list-o2m-tree-view/list-o2m-tree-view.vue",
+		"dest": "apps/web/src/interfaces/list-o2m-tree-view/ListO2MTreeView.vue"
+	},
+	{
+		"source": "app/src/interfaces/list-o2m-tree-view/NestedDraggable.vue",
+		"dest": "apps/web/src/interfaces/list-o2m-tree-view/NestedDraggable.vue"
+	},
+	{
+		"source": "app/src/interfaces/list-o2m-tree-view/item-preview.vue",
+		"dest": "apps/web/src/interfaces/list-o2m-tree-view/ItemPreview.vue"
+	}
+]

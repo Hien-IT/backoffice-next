@@ -1,0 +1,30 @@
+[
+	{
+		"source": "app/src/interfaces/list-m2a/index.ts",
+		"dest": "apps/web/src/interfaces/list-m2a/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/list-m2a/list-m2a.vue",
+		"dest": "apps/web/src/interfaces/list-m2a/ListM2A.vue"
+	},
+	{
+		"source": "app/src/components/v-remove.vue",
+		"dest": "apps/web/src/interfaces/list-m2a/remove-action.ts"
+	},
+	{
+		"source": "app/src/utils/add-related-primary-key-to-fields.ts",
+		"dest": "apps/web/src/interfaces/list-m2a/add-related-primary-key-to-fields.ts"
+	},
+	{
+		"source": "app/src/utils/add-related-primary-key-to-fields.test.ts",
+		"dest": "apps/web/src/interfaces/list-m2a/add-related-primary-key-to-fields.test.ts"
+	},
+	{
+		"source": "app/src/composables/use-page-size.ts",
+		"dest": "apps/web/src/interfaces/list-m2a/use-page-size.ts"
+	},
+	{
+		"source": "app/src/composables/use-page-size.test.ts",
+		"dest": "apps/web/src/interfaces/list-m2a/use-page-size.test.ts"
+	}
+]

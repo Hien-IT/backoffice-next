@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/interfaces/list/index.ts", "dest": "apps/web/src/interfaces/list/index.ts" },
+	{ "source": "app/src/interfaces/list/list.vue", "dest": "apps/web/src/interfaces/list/InterfaceList.vue" }
+]

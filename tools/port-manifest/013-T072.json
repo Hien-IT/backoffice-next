@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/interfaces/files/index.ts", "dest": "apps/web/src/interfaces/files/index.ts" },
+	{ "source": "app/src/interfaces/files/files.vue", "dest": "apps/web/src/interfaces/files/Files.vue" }
+]

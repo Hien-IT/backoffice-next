@@ -1,0 +1,46 @@
+[
+	{
+		"source": "app/src/interfaces/input-block-editor/index.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/input-block-editor.vue",
+		"dest": "apps/web/src/interfaces/input-block-editor/InputBlockEditor.vue"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/input-block-editor.test.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/InputBlockEditor.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/tools.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/tools.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/plugins.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/plugins.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/sanitize.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/sanitize.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/sanitize.test.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/sanitize.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/alignment.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/alignment.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/use-file-handler.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/use-file-handler.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/bus.ts",
+		"dest": "apps/web/src/interfaces/input-block-editor/bus.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-block-editor/editorjs-overrides.css",
+		"dest": "apps/web/src/interfaces/input-block-editor/editorjs-overrides.css"
+	}
+]

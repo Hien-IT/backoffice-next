@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/interfaces/collection-item-dropdown/index.ts",
+		"dest": "apps/web/src/interfaces/collection-item-dropdown/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/collection-item-dropdown/collection-item-dropdown.vue",
+		"dest": "apps/web/src/interfaces/collection-item-dropdown/CollectionItemDropdown.vue"
+	},
+	{
+		"source": "app/src/interfaces/collection-item-multiple-dropdown/index.ts",
+		"dest": "apps/web/src/interfaces/collection-item-multiple-dropdown/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/collection-item-multiple-dropdown/collection-item-multiple-dropdown.vue",
+		"dest": "apps/web/src/interfaces/collection-item-multiple-dropdown/CollectionItemMultipleDropdown.vue"
+	},
+	{
+		"source": "app/src/interfaces/collection-item-multiple-dropdown/collection-item-multiple-dropdown.test.ts",
+		"dest": "apps/web/src/interfaces/collection-item-multiple-dropdown/CollectionItemMultipleDropdown.test.ts"
+	}
+]

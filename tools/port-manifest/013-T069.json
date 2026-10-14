@@ -1,0 +1,11 @@
+[
+	{
+		"source": "app/src/views/private/components/drawer-files.vue",
+		"dest": "apps/web/src/components/drawers/DrawerFiles.vue"
+	},
+	{ "source": "app/src/utils/get-folder-filter.ts", "dest": "apps/web/src/components/drawers/DrawerFiles.vue" },
+	{
+		"source": "app/src/views/private/components/drawer-files.test.ts",
+		"dest": "apps/web/src/components/drawers/DrawerFiles.test.ts"
+	}
+]

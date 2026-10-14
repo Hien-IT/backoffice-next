@@ -24,4 +24,8 @@ export default {
 	moved_to_position: '{item} moved to position {position} of {total}',
 	close: 'Close',
 	image_load_error: 'The image could not be loaded',
+	// Feature 013: map interface controls (no Directus key).
+	map_zoom_in: 'Zoom in',
+	map_zoom_out: 'Zoom out',
+	map_geolocate: 'Find my location',
 };

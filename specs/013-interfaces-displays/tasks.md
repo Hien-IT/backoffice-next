@@ -333,32 +333,32 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
   `use-relation-permissions.test.ts`.
 - [X] T055 [P] [US3] `src/components/drawers/BoDrawer.vue` (Reka
   Dialog dạng panel phải, recipe Q-10, focus trap, Esc, focus về nút mở, toàn bề rộng dưới `xl`); test browser cho focus.
-- [ ] T056 [US3] `src/components/drawers/DrawerItem.vue` (logic chép từ `drawer-item.vue`, template theo recipe Q-10; tạo/sửa item liên quan hoặc dòng nối,
+- [X] T056 [US3] `src/components/drawers/DrawerItem.vue` (logic chép từ `drawer-item.vue`, template theo recipe Q-10; tạo/sửa item liên quan hoặc dòng nối,
   `junction-field`, `related-primary-key`, `circular-field`, `junction-field-location`, kiểm hợp lệ phía client trước
   khi gom (FR-018), hỏi trước khi bỏ thay đổi (FR-084), lồng không giới hạn (FR-040)); test.
-- [ ] T057 [US3] `src/components/drawers/DrawerCollection.vue` (logic chép từ `drawer-collection.vue`) dạng bảng (D-58): cột từ
+- [X] T057 [US3] `src/components/drawers/DrawerCollection.vue` (logic chép từ `drawer-collection.vue`) dạng bảng (D-58): cột từ
   preset `layout_query.tabular.fields` hoặc 4 field hiện đầu, `use-items`, tìm kiếm, phân trang, chọn một/nhiều, bộ lọc
   của interface (`mergeFilters`), trạng thái tải/trống/lỗi (FR-046); test.
-- [ ] T058 [US3] `src/components/drawers/DrawerBatch.vue` (logic chép từ `drawer-batch.vue`; form batch, `stage-on-save`); port
+- [X] T058 [US3] `src/components/drawers/DrawerBatch.vue` (logic chép từ `drawer-batch.vue`; form batch, `stage-on-save`); port
   `drawer-batch.test.ts`.
 - [X] T059 [US3] Menu dòng "Lên", "Xuống" cho danh sách kéo thả (D-60, FR-094): `src/components/BoSortableList.vue`
   bọc `vuedraggable` + menu dòng; khóa overlay `src/lang/overlay/{en-US,vi-VN}.ts`; test bàn phím.
-- [ ] T060 [P] [US3] `src/interfaces/select-dropdown-m2o/` (FR-042: template, `enableCreate`, `enableSelect`, `filter`
+- [X] T060 [P] [US3] `src/interfaces/select-dropdown-m2o/` (FR-042: template, `enableCreate`, `enableSelect`, `filter`
   điền `{{ field }}` từ `values`, `enableLink`, thông báo cấu hình); port `select-dropdown-m2o.test.ts`.
-- [ ] T061 [US3] `src/interfaces/list-o2m/` (FR-043: list/table, `tableSpacing`, `fields`, `limit`, `sort` so với
+- [X] T061 [US3] `src/interfaces/list-o2m/` (FR-043: list/table, `tableSpacing`, `fields`, `limit`, `sort` so với
   `sortField`, `enableSearchFilter`, `enableLink`, bỏ chọn theo `one_deselect_action`, sửa hàng loạt, độ rộng cột
   `backoffice-o2m-column-widths-*`); port `list-o2m.test.ts`.
-- [ ] T062 [US3] `src/interfaces/list-m2m/` (FR-044: như o2m cộng `junctionFieldLocation`, `allowDuplicates`, singleton
+- [X] T062 [US3] `src/interfaces/list-m2m/` (FR-044: như o2m cộng `junctionFieldLocation`, `allowDuplicates`, singleton
   cảnh báo, `backoffice-m2m-column-widths-*`); port `list-m2m.test.ts`.
-- [ ] T063 [US3] `src/interfaces/list-m2a/` (FR-045: tạo/thêm theo collection, bỏ singleton, `prefix`, page sizes);
+- [X] T063 [US3] `src/interfaces/list-m2a/` (FR-045: tạo/thêm theo collection, bỏ singleton, `prefix`, page sizes);
   test.
-- [ ] T064 [US3] `src/interfaces/list-o2m-tree-view/` (FR-047: `NestedDraggable`, `item-preview`, thay đổi lồng,
+- [X] T064 [US3] `src/interfaces/list-o2m-tree-view/` (FR-047: `NestedDraggable`, `item-preview`, thay đổi lồng,
   `itemsMoved`, quan hệ không đệ quy thì thông báo; menu dòng "Lên", "Xuống", "Thụt vào", "Thụt ra" (D-60) để đổi cha
   bằng bàn phím); test bàn phím.
-- [ ] T065 [US3] `src/interfaces/translations/` (FR-048: `translation-form.vue`, `language-select.vue`, ngôn ngữ đầu/thứ
+- [X] T065 [US3] `src/interfaces/translations/` (FR-048: `translation-form.vue`, `language-select.vue`, ngôn ngữ đầu/thứ
   hai, chia đôi > 960 px, tiến độ, `badge`, `direction`, lỗi `field.lang.subfield`, edge ngôn ngữ trống/thiếu); port
   `translation-form.test.ts`.
-- [ ] T066 [P] [US3] `src/interfaces/collection-item-dropdown/` và `src/interfaces/collection-item-multiple-dropdown/`
+- [X] T066 [P] [US3] `src/interfaces/collection-item-dropdown/` và `src/interfaces/collection-item-multiple-dropdown/`
   (FR-049, edge collection không còn/không quyền); port `collection-item-multiple-dropdown.test.ts`.
 - [ ] T067 [US3] `src/interfaces/relations.fixture.test.ts`: US3 scenario 1–5 trên bộ mẫu với ba user (bảng quyền
   FR-041, chỉ đọc vẫn mở link), payload `{create, update, delete}` so `expected.*.json`; cập nhật seed (T023, T024) với
@@ -379,13 +379,13 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
 - [X] T068 [P] [US4] `src/components/files/BoUpload.vue` (logic chép từ `v-upload.vue`, template theo recipe Q-11; kéo thả, chọn file, từ URL, từ thư viện,
   tiến độ, lỗi `translateAPIError` `413`/kiểu bị từ chối, nhiều file báo lỗi từng file, `accept`; recipe Q-11),
   `FileLightbox.vue`, `FilePreview.vue` (logic chép, template theo recipe Q-11); test (multipart qua sdk).
-- [ ] T069 [US4] `src/components/drawers/DrawerFiles.vue` (logic chép từ `drawer-files.vue`; lọc mime, folder, bộ lọc của
+- [X] T069 [US4] `src/components/drawers/DrawerFiles.vue` (logic chép từ `drawer-files.vue`; lọc mime, folder, bộ lọc của
   interface); port `drawer-files.test.ts`.
-- [ ] T070 [P] [US4] `src/interfaces/file/` (FR-050: thumbnail `system-small-cover` + `cacheBuster`, SVG không biến
+- [X] T070 [P] [US4] `src/interfaces/file/` (FR-050: thumbnail `system-small-cover` + `cacheBuster`, SVG không biến
   đổi, sửa thông tin qua `DrawerItem` trên `directus_files`, tải xuống, bỏ chọn, chỉ đọc vẫn xem và tải); test.
-- [ ] T071 [P] [US4] `src/interfaces/file-image/` (FR-051: `crop`, `letterbox`, `system-large-cover`/`contain`, xem lớn,
+- [X] T071 [P] [US4] `src/interfaces/file-image/` (FR-051: `crop`, `letterbox`, `system-large-cover`/`contain`, xem lớn,
   lỗi tải theo mã, không nút chỉnh ảnh D-59, `allowedMimeTypes` mặc định `image/*`); test.
-- [ ] T072 [US4] `src/interfaces/files/` (FR-052: tải nhiều, sắp xếp ghi sort `index + 1`, menu dòng mở tab/tải xuống,
+- [X] T072 [US4] `src/interfaces/files/` (FR-052: tải nhiều, sắp xếp ghi sort `index + 1`, menu dòng mở tab/tải xuống,
   "Lên"/"Xuống" D-60); test.
 - [ ] T073 [US4] `src/interfaces/files.fixture.test.ts`: US4 scenario 1–2, `assertOnlyKnownRequests` chỉ cho ghi FR-054;
   cập nhật seed (T023, T024) với `file`, `file-image`, `files` và `expected.*.json`.
@@ -402,7 +402,7 @@ FR-060 đến FR-066).
 **Independent Test**: test browser mỗi interface: nạp giá trị Directus đã ghi, không sửa thì không phát; sửa theo kịch
 bản thì giá trị phát ra bằng `expected.*.json` (US5 scenario 1–4).
 
-- [ ] T074 [P] [US5] `src/components/BoEditorFrame.vue` (recipe Q-8: viền `FIELD`, thanh công cụ, bộ đếm `softLength`)
+- [X] T074 [P] [US5] `src/components/BoEditorFrame.vue` (recipe Q-8: viền `FIELD`, thanh công cụ, bộ đếm `softLength`)
   dùng chung cho editor; test.
 - [ ] T075 [US5] `src/interfaces/input-rich-text-html/` chép `index.ts`, logic của `.vue`, `toolbar-default.ts`, `use*.ts`
   (image, media, link, pre, inline code, code), `get-editor-styles.ts` (biến theo token sáng/tối, FR-095); TinyMCE 6.8.6
@@ -410,19 +410,19 @@ bản thì giá trị phát ra bằng `expected.*.json` (US5 scenario 1–4).
   `paste_data_images: false`, `link_default_protocol`, `ui_mode`, `directionality`), `tinymceOverrides`, `customFormats`,
   tên toolbar cũ, `imageToken` qua `replaceUrlAccessToken`, URL ảnh `apiUrl` + `assets/<id>.<ext>`; `defineAsyncComponent`;
   port `useImage.test.ts`; `input-rich-text-html.browser.test.ts`.
-- [ ] T076 [P] [US5] `src/interfaces/input-rich-text-md/` (FR-061: CodeMirror markdown, `edits.ts`, phím tắt, preview qua
+- [X] T076 [P] [US5] `src/interfaces/input-rich-text-md/` (FR-061: CodeMirror markdown, `edits.ts`, phím tắt, preview qua
   `utils/markdown.ts`, `customSyntax`, chèn ảnh có `imageToken`); test + browser test.
-- [ ] T077 [US5] `src/interfaces/input-block-editor/` chép `tools.ts`, `plugins.ts`, `sanitize.ts` (nguyên),
+- [X] T077 [US5] `src/interfaces/input-block-editor/` chép `tools.ts`, `plugins.ts`, `sanitize.ts` (nguyên),
   `alignment.ts`, `use-file-handler.ts`, `bus.ts` (FR-062: `tools`, bỏ ảnh/tệp khi không đọc được `directus_files`,
   `fileURL`/`url` từ `apiUrl`, accept theo `mimeTypeAllowList`); port `input-block-editor.test.ts`,
   `sanitize.test.ts`; browser test.
-- [ ] T078 [US5] `src/utils/geometry/` chép `directus/app/src/utils/geometry/*` (`getGeometryFormatForType`, serialize
+- [X] T078 [US5] `src/utils/geometry/` chép `directus/app/src/utils/geometry/*` (`getGeometryFormatForType`, serialize
   GeoJSON/WKT/`[lng, lat]`, gộp Multi*), `basemap.ts` (OpenStreetMap + attribution, nhánh tối, `basemaps` settings,
   Mapbox khi `mapbox_key`); test đủ 6 kiểu hình học × định dạng.
-- [ ] T079 [US5] `src/interfaces/map/` (FR-063: `map.vue`, `style.ts`, `defaultView` hoặc vừa dữ liệu, draw giới hạn
+- [X] T079 [US5] `src/interfaces/map/` (FR-063: `map.vue`, `style.ts`, `defaultView` hoặc vừa dữ liệu, draw giới hạn
   theo kiểu con, nút vừa dữ liệu/điều hướng/vị trí, geocoder nạp động, `jumpTo` khi reduce motion (FR-094), khung theo
   recipe Q-9); test (thật hoặc mock theo T005) + browser test nếu WebGL chạy.
-- [ ] T080 [US5] `src/interfaces/list/` (FR-037: `fields`, `template`, `addLabel`, `sort`, drawer form con `primaryKey
+- [X] T080 [US5] `src/interfaces/list/` (FR-037: `fields`, `template`, `addLabel`, `sort`, drawer form con `primaryKey
   '+'`, bắt buộc chặn lưu, hỏi bỏ thay đổi, cảnh báo không phải mảng, "Lên"/"Xuống" D-60); test.
 - [ ] T081 [US5] Cập nhật seed (T023, T024) với field và giá trị Directus của T075 đến T080 (kể cả giá trị lệch dạng) và
   `expected.*.json`; `src/interfaces/rich.fixture.browser.test.ts` US5 scenario 1–4.

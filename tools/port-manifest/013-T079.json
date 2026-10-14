@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/interfaces/map/index.ts", "dest": "apps/web/src/interfaces/map/index.ts" },
+	{ "source": "app/src/interfaces/map/map.vue", "dest": "apps/web/src/interfaces/map/InterfaceMap.vue" },
+	{ "source": "app/src/interfaces/map/style.ts", "dest": "apps/web/src/interfaces/map/style.ts" }
+]

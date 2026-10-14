@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/utils/geometry/index.ts", "dest": "apps/web/src/utils/geometry/index.ts" },
+	{ "source": "app/src/utils/geometry/basemap.ts", "dest": "apps/web/src/utils/geometry/basemap.ts" }
+]

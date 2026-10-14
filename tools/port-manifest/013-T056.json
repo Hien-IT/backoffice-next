@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/views/private/components/drawer-item.vue",
+		"dest": "apps/web/src/components/drawers/DrawerItem.vue"
+	},
+	{
+		"source": "app/src/views/private/components/overlay-item.vue",
+		"dest": "apps/web/src/components/drawers/DrawerItem.vue"
+	},
+	{
+		"source": "app/src/views/private/components/overlay-item-content.vue",
+		"dest": "apps/web/src/components/drawers/DrawerItem.vue"
+	},
+	{
+		"source": "app/src/views/private/components/overlay-item.test.ts",
+		"dest": "apps/web/src/components/drawers/DrawerItem.test.ts"
+	}
+]

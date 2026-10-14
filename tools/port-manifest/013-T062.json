@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/list-m2m/index.ts",
+		"dest": "apps/web/src/interfaces/list-m2m/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/list-m2m/list-m2m.vue",
+		"dest": "apps/web/src/interfaces/list-m2m/ListM2M.vue"
+	},
+	{
+		"source": "app/src/interfaces/list-m2m/list-m2m.test.ts",
+		"dest": "apps/web/src/interfaces/list-m2m/list-m2m.test.ts"
+	}
+]

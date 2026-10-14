@@ -16,6 +16,7 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 | 38 | GET | `<endpoint>/<pk>?fields=...` | `presentation-links` (field quan hệ trong URL), `useTemplateData` (`header`) | | |
 | 39 | GET | `/items/<languages>` | `translations` (`fetchAll`, `limit=-1`, `sort`) | | |
 | 40 | GET | `/files?...` | `DrawerFiles` (`useItems` trên `directus_files`), `files` | filter mime, folder | |
+| 40b | GET | `/folders?sort=name&limit=-1` | `DrawerFiles` (danh sách thư mục, như `drawer-files.vue`) | | lần mở đầu |
 | 41 | GET | `/assets/<id>?key=system-small-cover&cacheBuster=<modified_on>` | display `file`, `image`, `user`; interface `file`, `file-image`, `files` (`system-large-cover`/`contain`) | | thẻ `img`, không phải fetch |
 | 42 | GET | `/assets/<id>.<ext>[?access_token=<imageToken>]` | rich text, markdown (URL chèn vào nội dung) | | |
 | 43 | GET | `<url>` (bên ngoài) | `input-autocomplete-api` khi `url` không bắt đầu bằng `/` (`credentials: 'omit'`, không header phiên); bắt đầu bằng `/` → qua sdk | | FR-081 |

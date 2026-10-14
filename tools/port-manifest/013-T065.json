@@ -1,0 +1,24 @@
+[
+	{ "source": "app/src/interfaces/translations/index.ts", "dest": "apps/web/src/interfaces/translations/index.ts" },
+	{
+		"source": "app/src/interfaces/translations/translations.vue",
+		"dest": "apps/web/src/interfaces/translations/InterfaceTranslations.vue"
+	},
+	{
+		"source": "app/src/interfaces/translations/translation-form.vue",
+		"dest": "apps/web/src/interfaces/translations/TranslationForm.vue"
+	},
+	{
+		"source": "app/src/interfaces/translations/language-select.vue",
+		"dest": "apps/web/src/interfaces/translations/LanguageSelect.vue"
+	},
+	{
+		"source": "app/src/interfaces/translations/translation-form.test.ts",
+		"dest": "apps/web/src/interfaces/translations/TranslationForm.test.ts"
+	},
+	{ "source": "app/src/components/v-remove.vue", "dest": "apps/web/src/interfaces/translations/TranslationRemove.vue" },
+	{
+		"source": "app/src/composables/use-permissions/index.ts",
+		"dest": "apps/web/src/interfaces/translations/use-permissions.ts"
+	}
+]

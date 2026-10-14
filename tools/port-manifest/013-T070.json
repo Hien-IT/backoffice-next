@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/interfaces/file/index.ts", "dest": "apps/web/src/interfaces/file/index.ts" },
+	{ "source": "app/src/interfaces/file/file.vue", "dest": "apps/web/src/interfaces/file/File.vue" },
+	{ "source": "app/src/components/v-remove.vue", "dest": "apps/web/src/interfaces/file/ItemRemove.vue" }
+]

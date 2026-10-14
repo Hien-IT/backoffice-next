@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/views/private/components/drawer-batch.vue",
+		"dest": "apps/web/src/components/drawers/DrawerBatch.vue"
+	},
+	{
+		"source": "app/src/views/private/components/drawer-batch.test.ts",
+		"dest": "apps/web/src/components/drawers/DrawerBatch.test.ts"
+	}
+]

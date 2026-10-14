@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/interfaces/input-rich-text-md/index.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-md/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-md/edits.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-md/edits.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-md/input-rich-text-md.vue",
+		"dest": "apps/web/src/interfaces/input-rich-text-md/InputRichTextMd.vue"
+	},
+	{
+		"source": "packages/composables/src/translate-shortcut.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-md/translate-shortcut.ts"
+	},
+	{
+		"source": "packages/composables/src/translate-shortcut.test.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-md/translate-shortcut.test.ts"
+	}
+]

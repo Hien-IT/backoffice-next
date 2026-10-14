@@ -260,9 +260,12 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `version` cũ): làm theo từng component Directus (list: notice; map: lỗi kiểu hình học; code: hiện chuỗi; block
   editor: Editor.js tự đọc), không ném lỗi, không ghi đè giá trị; bộ mẫu có ít nhất một giá trị lệch dạng cho list,
   map, code (FR-100).
+- `map` chỉ báo lỗi sai loại hình học với field `geometry.*` (vẽ giới hạn theo kiểu con của field, như `map.vue`); field
+  `json`/`string` có giá trị khác `geometryType` thì không báo lỗi, như Directus.
 - `map` không có `defaultView`: vừa dữ liệu nếu có, không thì vùng mặc định của `map.vue` Directus; style nền lỗi thì
   khung trống, vẫn vẽ được.
-- `translations`: collection ngôn ngữ trống → không có form và có thông báo như Directus; `languageField` trỏ field
+- `translations`: collection ngôn ngữ trống → không có form, thanh ngôn ngữ trống, không thông báo (như `translations.vue`
+  Directus 11.17.4); `languageField` trỏ field
   không còn → dùng khóa chính; `defaultLanguage` không có trong danh sách → ngôn ngữ đầu.
 - `collection-item-dropdown`: `selectedCollection` không còn hoặc không có quyền đọc → lỗi tải hiện trong field, không ném
   lỗi; singleton bị loại khỏi lựa chọn như Directus.

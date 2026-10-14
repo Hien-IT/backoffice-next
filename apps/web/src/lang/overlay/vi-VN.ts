@@ -24,4 +24,7 @@ export default {
 	moved_to_position: '{item} đã chuyển đến vị trí {position} trên {total}',
 	close: 'Đóng',
 	image_load_error: 'Không tải được ảnh',
+	map_zoom_in: 'Phóng to',
+	map_zoom_out: 'Thu nhỏ',
+	map_geolocate: 'Tìm vị trí của tôi',
 };

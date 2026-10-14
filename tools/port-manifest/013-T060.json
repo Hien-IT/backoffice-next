@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/select-dropdown-m2o/index.ts",
+		"dest": "apps/web/src/interfaces/select-dropdown-m2o/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue",
+		"dest": "apps/web/src/interfaces/select-dropdown-m2o/SelectDropdownM2O.vue"
+	},
+	{
+		"source": "app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.test.ts",
+		"dest": "apps/web/src/interfaces/select-dropdown-m2o/SelectDropdownM2O.test.ts"
+	}
+]

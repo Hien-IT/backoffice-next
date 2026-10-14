@@ -259,6 +259,8 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			if (key === '_or') return (value as unknown[]).some((f) => matches(collection, row, f));
 
 			checkField(collection, key);
+			// Shorthand `{ field: value }` means `_eq`, as the API reads it (sent by use-relation-multiple).
+			if (value === null || typeof value !== 'object') return compare('_eq', row[key], variable(value));
 			const relation = relationOf(collection, key, row);
 			const operators = Object.keys(value ?? {});
 

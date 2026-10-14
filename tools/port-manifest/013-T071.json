@@ -1,0 +1,7 @@
+[
+	{ "source": "app/src/interfaces/file-image/index.ts", "dest": "apps/web/src/interfaces/file-image/index.ts" },
+	{
+		"source": "app/src/interfaces/file-image/file-image.vue",
+		"dest": "apps/web/src/interfaces/file-image/FileImage.vue"
+	}
+]
