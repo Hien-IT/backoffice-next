@@ -126,7 +126,9 @@ Không gói native mới.
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`. Mọi file port ghi `// Ported from directus/...` (bảng ánh
   xạ, manifest `010-T*.json`). Chỗ khác nguồn ghi `Backoffice:`: `setOwner` không gửi báo cáo, `invite` ghi log,
   `ExtensionsService` chỉ đọc và bundle hằng, route cài extension trả `503`, kiểm uuid trong handler, guard
-  `mail-sites`, test viết mới nơi Directus không có test.
+  `mail-sites`, test viết mới nơi Directus không có test. Thêm khi implement (2026-10-14): `libs/memory` `BusRedis`
+  tạo kết nối subscriber với `enableReadyCheck: false` (a7bdbf3): Directus giữ race ready check `INFO` với `SUBSCRIBE`
+  khi Redis còn `LOADING`, app mới chỉ bền hơn, không đổi giao tiếp bus.
 - [x] **II. Dùng chung DB**: PASS. Không DDL, không migration trên `directus_*`; `translations/generate` tạo bảng
   người dùng qua 006; `/server/setup` ghi dòng qua service như Directus; `sort` ghi cột sort của collection người dùng
   bằng knex thô như Directus (R-26); `project_status = null` là giá trị Directus ghi khi gửi thành công (D-38).

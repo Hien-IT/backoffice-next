@@ -1,7 +1,7 @@
 // Feature 010 (spec FR-103, contracts/parity.md §7): the screens of the Directus app that read and write the system
 // collections of this feature, through the proxy where /settings, /presets, /notifications, /shares, /translations,
 // /dashboards, /panels, /utils and /extensions go to the new app, write the same rows as Directus alone.
-import { expect, type Page, test } from '@playwright/test';
+import { expect, type Page, type Response, test } from '@playwright/test';
 import { deleteOpenItem, field, pickInDrawer, save, saveButton } from './helpers/app.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { ADMIN } from './helpers/login.js';
@@ -390,21 +390,35 @@ test('Content: manual sort, a row dragged by its handle, the order kept after a 
 		await page.goto(`${url}/admin/content/${ARTICLES}`);
 		await expect.poll(() => titles(page)).toEqual(['one', 'two', 'three']);
 
-		const sorted = call(page, 'POST', new RegExp(`^/utils/sort/${ARTICLES}$`));
 		// v-table runs Sortable in fallback mode (pointer events): press the handle of "one" and move slowly down
-		// past the middle of "three", so Sortable moves "one" after it.
-		const from = (await page.locator('tbody tr', { hasText: 'one' }).locator('.drag-handle').boundingBox())!;
-		const to = (await page.locator('tbody tr', { hasText: 'three' }).boundingBox())!;
-		const [x, y] = [from.x + from.width / 2, from.y + from.height / 2];
-		await page.mouse.move(x, y);
-		await page.mouse.down();
-		for (let step = 1; step <= 20; step++) {
-			await page.mouse.move(x, y + ((to.y + to.height * 0.8 - y) * step) / 20);
-			await page.waitForTimeout(30);
+		// past the middle of "three", so Sortable moves "one" after it. A drag that Sortable did not pick up sends no
+		// request (seen once on CI): wait 5 s for it, then drag again.
+		await page.waitForLoadState('networkidle');
+		const drag = async () => {
+			const from = (await page.locator('tbody tr', { hasText: 'one' }).locator('.drag-handle').boundingBox())!;
+			const to = (await page.locator('tbody tr', { hasText: 'three' }).boundingBox())!;
+			const [x, y] = [from.x + from.width / 2, from.y + from.height / 2];
+			await page.mouse.move(x, y);
+			await page.mouse.down();
+			for (let step = 1; step <= 20; step++) {
+				await page.mouse.move(x, y + ((to.y + to.height * 0.8 - y) * step) / 20);
+				await page.waitForTimeout(30);
+			}
+			await page.waitForTimeout(200);
+			await page.mouse.up();
+		};
+
+		let res: Response | undefined;
+		for (let attempt = 0; attempt < 3 && !res; attempt++) {
+			const sorted = page
+				.waitForResponse((r) => r.url().includes(`/utils/sort/${ARTICLES}`) && r.request().method() === 'POST', {
+					timeout: 5_000,
+				})
+				.catch(() => undefined);
+			await drag();
+			res = await sorted;
 		}
-		await page.waitForTimeout(200);
-		await page.mouse.up();
-		const res = await sorted;
+		if (!res) throw new Error('the drag never sent POST /utils/sort');
 		expect(res.status()).toBe(200);
 		expect(res.request().postDataJSON()).toEqual({ item: expect.any(Number), to: expect.any(Number) });
 

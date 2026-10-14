@@ -736,3 +736,11 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
   không token ở hai app), research R6 (bundle đo trên container), contracts §10 (system-api) và §12 (utils-api) ghi
   `OPTIONS` đã đo; spec 001 D-09.8, D-14 và spec 004 D-31 ghi trạng thái thật ("gỡ/lâu dài khi tech lead duyệt đóng
   010", chưa gỡ); checklist ghi mục đổi sau đo. T058 chờ tech lead duyệt.
+- 2026-10-14 CI sau 52dacb6: (1) cặp `setup` dùng Redis db 9 nhưng pub/sub không tách theo db: phát lên `directus:bus`
+  của cặp chính, flows đỏ trên hai shard Postgres `full` → `REDIS_BUS_NAMESPACE`, `REDIS_LOCK_NAMESPACE` riêng
+  (90db848). (2) Ô "Gỡ khi" của D-09.8 phải đúng `010` cho `guard-differences` (4ae8bc1). (3) Race khởi động của
+  subscriber bus (`ERR Can't execute 'info': only (P|S)SUBSCRIBE`, `backoffice-api-2` điếc bus): `BusRedis` bỏ ready
+  check ở kết nối subscriber (a7bdbf3), lệch có chủ đích so với `@directus/memory` (ghi ở plan, Constitution Check I).
+- 2026-10-14 CI a7bdbf3: `system.spec.ts` sắp xếp tay hết 5 phút ở lượt proxy (Sortable không nhận lần kéo, không có
+  `POST /utils/sort`, chờ không giới hạn); spec chờ `networkidle`, mỗi lần kéo chờ tối đa 5 s rồi kéo lại (tối đa 3
+  lần). Run trước (4ae8bc1) xanh toàn bộ gồm `e2e-directus-app`.
