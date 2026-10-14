@@ -2,7 +2,11 @@
 
 **Feature Branch**: `010-system-collections`
 **Created**: 2026-10-14
-**Status**: Draft
+**Status**: Done
+**Duyệt khác biệt**: tech lead đã duyệt ngày 2026-10-14 gỡ D-09.8, D-14 (spec 001); D-31 lâu dài (chỉ còn ba collection
+deployment, spec 004); thêm D-36, D-38 (`doc`), D-37 (`doc` + `http`); rủi ro R-25 đến R-29 (đã đo); hai lệch có chủ đích
+so với mã gốc (`BusRedis` subscriber bỏ ready check; giữ `stream-json` 1.9.1); và đóng spec (Nguyên tắc X; quy trình
+không có PR)
 **Input**: User description: "App mới cung cấp các endpoint hệ thống còn lại giống hệt Directus: /settings (cài đặt dự án, theme, branding), /presets (preset và bookmark của layout), /notifications (lưu và hiển thị trong app, không gửi email), /shares (chia sẻ item bằng link, mật khẩu, thời hạn, số lần xem, đăng nhập bằng share), /translations (chuỗi dịch tùy chỉnh), /dashboards và /panels (insights), /extensions (chỉ trả danh sách rỗng hoặc tối thiểu, vì chưa hỗ trợ extension), /utils (hash/generate, hash/verify, random/string, sort, revert, cache/clear, import, export với CSV, JSON, XML, YAML), Không gửi email: mọi chỗ Directus gửi mail thì bỏ qua bước gửi và ghi log cảnh báo, phần còn lại của luồng chạy như cũ. Tham chiếu các service tương ứng trong directus/api/src/services. Tiêu chí chấp nhận: blackbox test của các endpoint này chạy qua trên app mới."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/api/src` trừ khi ghi khác):

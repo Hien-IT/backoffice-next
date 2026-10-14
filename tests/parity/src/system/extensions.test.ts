@@ -8,7 +8,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { parity } from '../parity.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
-import { admin, same, withoutD098 } from './helpers.js';
+import { admin, same } from './helpers.js';
 
 const full = process.env['PARITY_SUITE'] !== 'reduced';
 
@@ -117,7 +117,7 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D
 			[{ method: 'PATCH', path: `/extensions/${EXTENSION}`, body: { meta: { enabled: false } } }, 204, 403, 0],
 			[{ method: 'DELETE', path: `/extensions/${EXTENSION}` }, 204, 403, 0],
 		] as const) {
-			const result = await parity({ ...req, headers }, { accepted: withoutD098 });
+			const result = await parity({ ...req, headers });
 			expect(result.directus.status, `${req.method} ${req.path}`).toBe(directus);
 			expect(result.backoffice.status, `${req.method} ${req.path}`).toBe(backoffice);
 			expect(await rows(), `rows after ${req.method} ${req.path}`).toBe(before + added);

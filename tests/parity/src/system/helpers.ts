@@ -2,7 +2,6 @@
 // both apps at once with same(); writes run as scenarios (Directus, then Backoffice) and compare the responses and the
 // rows each app wrote, read from the host with SELECT only (SQLite works on Linux CI).
 import knex, { type Knex } from 'knex';
-import { acceptedDifferences } from '../../accepted-differences.js';
 import { hostDb } from '../auth/db-effects.js';
 import { setupDbPort } from '../config.js';
 import { type AppName, appRequest } from '../directus-api.js';
@@ -15,17 +14,9 @@ import type { Captured } from '../parity.js';
 export { admin, call, idsOf } from '../files/helpers.js';
 export { BROWSER } from '../history/helpers.js';
 
-/**
- * D-09.8 hides every difference of the nine routes of this feature, and D-14 the ones of POST /server/setup, while the
- * feature is open (precedent: D-09.6 in 008, D-09.7 in 009).
- */
-export const withoutD098 = acceptedDifferences.filter(
-	(d) => !(d.feature === '001' && (d.id === 'D-09.8' || d.id === 'D-14')),
-);
-
-/** parity() without D-09.8 and D-14, failing on any difference that is not accepted. */
+/** parity() failing on any difference that is not accepted (D-09.8 and D-14 removed when the feature closed). */
 export async function same(req: ParityRequest, options: ParityOptions = {}) {
-	const result = await parity(req, { accepted: withoutD098, ...options });
+	const result = await parity(req, options);
 	assertParity(result);
 	return result;
 }

@@ -76,25 +76,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The web app runs in its own container (Principle VII).',
 	},
 	{
-		id: 'D-09.8',
-		feature: '001',
-		removeAt: '010',
-		kind: 'http',
-		endpoints: route(
-			'/settings',
-			'/presets',
-			'/notifications',
-			'/shares',
-			'/translations',
-			'/dashboards',
-			'/panels',
-			'/extensions',
-			'/utils',
-		),
-		location: { any: true },
-		reason: 'Built by feature 010.',
-	},
-	{
 		id: 'D-09.9',
 		feature: '001',
 		removeAt: '011',
@@ -112,15 +93,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		when: { directusStatus: 500 },
 		reason:
 			'Health does not build the schema; differs only with the database down and no schema in memory (CACHE_SCHEMA=false or an empty cache). Other routes build it like Directus since feature 002.',
-	},
-	{
-		id: 'D-14',
-		feature: '001',
-		removeAt: '010',
-		kind: 'http',
-		endpoints: ['* /server/setup'],
-		location: { any: true },
-		reason: 'Setup writes users and settings (004, 010).',
 	},
 	{
 		id: 'D-15',
@@ -205,12 +177,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 	{
 		id: 'D-31',
 		feature: '004',
-		removeAt: '010',
 		kind: 'doc',
-		// Feature 007 narrowed it: directus_files and directus_folders have their services (files/nested-files.test.ts);
-		// feature 008: directus_comments, directus_notifications and directus_versions (utils/get-service.ts).
-		// Feature 009: directus_flows and directus_operations (FlowsService, OperationsService).
-		reason: 'Nested writes into system collections without their own service go through ItemsService.',
+		// Narrowed by features 007 to 010 (files, folders, comments, notifications, versions, flows, operations, shares,
+		// translations, dashboards, panels, settings have their services: utils/get-service.ts). Permanent since 010
+		// (approved 2026-10-14): only the three deployment collections remain, deployment is out of scope (D-17).
+		reason: 'Nested writes into the deployment collections go through ItemsService (no deployment service, D-17).',
 	},
 	{
 		id: 'D-32',
@@ -239,5 +210,39 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '009',
 		kind: 'doc',
 		reason: 'No extensions.* or email.send events: no extension manager and no mail service (Principle XI).',
+	},
+	// Feature 010
+	{
+		id: 'D-36',
+		feature: '010',
+		kind: 'doc',
+		reason: 'No share invitation email: SharesService.invite writes a warning line per address (Principle X).',
+	},
+	{
+		id: 'D-37',
+		feature: '010',
+		kind: 'doc',
+		reason:
+			'No extension manager: /extensions lists rows with schema null and serves the empty app bundle (Principle XI).',
+	},
+	{
+		id: 'D-37',
+		feature: '010',
+		kind: 'http',
+		endpoints: [
+			'POST /extensions/registry/install',
+			'POST /extensions/registry/reinstall',
+			'DELETE /extensions/registry/uninstall/*',
+			'PATCH /extensions/*',
+			'DELETE /extensions/*',
+		],
+		location: { any: true },
+		reason: 'Extensions are not installed, removed or toggled: 503 or 403 after the checks of Directus (Principle XI).',
+	},
+	{
+		id: 'D-38',
+		feature: '010',
+		kind: 'doc',
+		reason: 'No project owner report to COMPLIANCE_URL: a warning line, project_status null as after a sent report.',
 	},
 ];

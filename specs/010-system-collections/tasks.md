@@ -538,7 +538,7 @@ D**.
   chú khi làm"; sửa kết quả đo của `OPTIONS` vào contracts §10, §12; bundle rỗng vào research R6 (ngày đo trên
   container); `specs/001-platform-foundation/spec.md` dòng D-09.8, D-14 ghi "gỡ ở 010 (ngày)";
   `specs/004-permissions/spec.md` dòng D-31 thu hẹp và lâu dài; `checklists/system.md` ghi mục nào đổi sau đo.
-- [ ] T058 Đóng feature (sau khi tech lead duyệt gỡ D-09.8, D-14, D-31 thu hẹp lâu dài, D-36, D-37, D-38, R-25 đến
+- [X] T058 Đóng feature (sau khi tech lead duyệt gỡ D-09.8, D-14, D-31 thu hẹp lâu dài, D-36, D-37, D-38, R-25 đến
   R-29): `tests/parity/accepted-differences.ts` xóa D-09.8, D-14; D-31 bỏ `removeAt`, reason lâu dài; thêm D-36
   (`doc`), D-37 (`doc` + `http` cho `POST /extensions/registry/install`, `POST /extensions/registry/reinstall`,
   `DELETE /extensions/registry/uninstall/*`, `PATCH /extensions/*`, `DELETE /extensions/*`, `location: any`), D-38
@@ -747,3 +747,6 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
 - 2026-10-14 owner: giữ `stream-json` 1.9.1 (bản của Directus 11.17.4), chưa nâng 3.x. Ba advisory moderate (filter
   O(depth²), parser JSONC, prototype pollution trong `Assembler`); chỉ advisory thứ ba chạm `ImportService.importJSON`
   (`StreamArray`), cùng mức với Directus. CI chặn từ `high` nên không đỏ. Xem lại khi Directus nâng hoặc khi có bản `high`.
+- 2026-10-14 T058: tech lead duyệt; `accepted-differences.ts` xóa D-09.8, D-14, D-31 lâu dài (ba collection deployment),
+  thêm D-36, D-37 (`doc` + `http`), D-38; `system/helpers.ts` bỏ `withoutD098`; spec 010 `Status: Done`; spec 001, 004 ghi
+  ngày gỡ/duyệt; `CLAUDE.md` Recent Changes. Feature 010 Done, 58/58.

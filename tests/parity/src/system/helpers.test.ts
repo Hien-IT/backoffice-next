@@ -1,6 +1,6 @@
-// Feature 010 (research R10): the comparable form of system rows and the D-09.8 filter need no Docker.
+// Feature 010 (research R10): the comparable form of system rows needs no Docker.
 import { expect, test } from 'vitest';
-import { comparable, jwtPayload, withoutD098 } from './helpers.js';
+import { comparable, jwtPayload } from './helpers.js';
 
 test('ids become placeholders, times keep only whether they are set, generated values become markers', () => {
 	const row = {
@@ -38,9 +38,4 @@ test('jwtPayload drops iat, exp and session', () => {
 	);
 
 	expect(jwtPayload(`h.${body}.s`)).toEqual({ share: 's', role: null });
-});
-
-test('withoutD098 drops D-09.8 and D-14 only', () => {
-	expect(withoutD098.some((d) => d.id === 'D-09.8' || d.id === 'D-14')).toBe(false);
-	expect(withoutD098.some((d) => d.id === 'D-01')).toBe(true);
 });

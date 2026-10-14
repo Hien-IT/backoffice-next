@@ -652,8 +652,8 @@ Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác b
 | D-09.8 | `/settings`, `/presets`, `/notifications`, `/shares`, `/translations`, `/dashboards`, `/panels`, `/extensions`, `/utils` | 010 |
 | D-09.9 | `/graphql` | 011 |
 
-Từ 2026-10-14 chín route của D-09.8 và `/server/setup` (D-14) đã được app mới phục vụ (feature 010); hai mã gỡ khi
-tech lead duyệt đóng 010.
+D-09.8 và D-14 gỡ khỏi `accepted-differences.ts` ngày 2026-10-14 (feature 010 Done, tech lead duyệt): chín route đó và
+`/server/setup` do app mới phục vụ, test đối chiếu giữ nguyên.
 
 Giữ nguyên (không đổi thương hiệu): tên bảng `directus_*`; `project_name` và mọi giá trị đọc từ
 `directus_settings` (ví dụ `"Directus"` mặc định của cột); tên biến môi trường; mã lỗi; số phiên bản `11.17.4` báo cho client (FR-047);
