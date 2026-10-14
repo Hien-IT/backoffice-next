@@ -33,10 +33,12 @@ test('tokens carry the Directus payloads', () => {
 	// Same as directus/packages/utils/shared/get-simple-hash.test.ts.
 	expect(getSimpleHash('test')).toBe('364492');
 
+	// nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret -- literal secret of this token helper test only
 	const invite = jwt.verify(inviteToken('a@example.com', 's'), 's', { issuer: 'directus' }) as jwt.JwtPayload;
 	expect(invite).toMatchObject({ email: 'a@example.com', scope: 'invite' });
 	expect(invite.exp! - invite.iat!).toBe(7 * 24 * 3600);
 
+	// nosemgrep: javascript.jsonwebtoken.security.jwt-hardcode.hardcoded-jwt-secret -- literal secret of this token helper test only
 	const reset = jwt.verify(passwordResetToken('a@example.com', 'test', 's'), 's') as jwt.JwtPayload;
 	expect(reset).toMatchObject({ email: 'a@example.com', scope: 'password-reset', hash: '364492', iss: 'directus' });
 	expect(reset.exp! - reset.iat!).toBe(24 * 3600);

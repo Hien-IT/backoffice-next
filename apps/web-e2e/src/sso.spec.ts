@@ -24,6 +24,7 @@ const PAIRS = [
 test.skip(!isCors, 'the sso pair is reached from another site: cors configuration only');
 
 async function idpUser(sub: string, claims: Record<string, unknown>) {
+	// nosemgrep: typescript.react.security.react-insecure-request.react-insecure-request -- the test IdP of the sso profile, local HTTP only
 	const res = await fetch(`${IDP}/__users`, {
 		method: 'POST',
 		headers: { 'content-type': 'application/json' },
