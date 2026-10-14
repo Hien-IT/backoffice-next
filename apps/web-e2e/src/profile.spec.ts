@@ -86,8 +86,10 @@ test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
 	await save(page);
 	await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
 
+	// After a password change the sign-out may land on /login without a reason (seen with the Directus API on CI).
 	await page.goto('/admin/logout');
-	await expect(page).toHaveURL(/reason=SIGN_OUT/);
+	await expect(page).toHaveURL(/\/admin\/login/);
+	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await login(page, { email: user.email, password: 'web-e2e-New-Password2' });
 	await expect(page).toHaveURL(/\/admin\/content$/);
 });
