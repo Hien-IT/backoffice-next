@@ -544,12 +544,13 @@ test('Content: Import / Export sidebar, a CSV export to the File Library, then a
 		['directus_files', 'directus_notifications'],
 	);
 
-	// The export file is named after the time of the export, and stored under a new name.
+	// The export file is named after the time of the export, and stored under a new name. The link to the file first: a
+	// uuid whose first group is eight digits would otherwise lose it to the time pattern.
 	const normalized = (value: unknown) =>
 		JSON.parse(
 			JSON.stringify(value)
-				.replace(/\d{8}-\d{3,6}/g, '<time>')
 				.replace(/admin\/files\/[0-9a-f-]{36}/g, 'admin/files/<file>')
+				.replace(/\d{8}-\d{3,6}/g, '<time>')
 				.replace(/"filename_disk":"[^"]+"/g, '"filename_disk":"<disk>"'),
 		);
 	expect(normalized(changes['prx'])).toEqual(normalized(changes['dir']));

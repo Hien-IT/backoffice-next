@@ -11,12 +11,13 @@ import request from 'supertest';
 import { describe, expect, it } from 'vitest';
 import { logs } from '../../../../../docker.js';
 
-const WARNING = 'mail sending is out of scope; notification "inbox"';
+// Feature 011: the blackbox pair logs in JSON (LOG_STYLE=raw for redact.test.ts), where the quotes are escaped.
+const WARNING = /mail sending is out of scope; notification \\?"inbox\\?"/;
 const backoffice = process.env['PARITY_BLACKBOX_APP'] !== 'directus';
 const warnings = () =>
 	logs('backoffice-api-blackbox')
 		.split('\n')
-		.filter((line) => line.includes(WARNING)).length;
+		.filter((line) => WARNING.test(line)).length;
 
 describe('Mail', async () => {
 	describe('POST /notifications', () => {

@@ -95,7 +95,9 @@ function transcript(
 		if ('parent' in rest) out['parent'] = name('directus_revisions', rest['parent']);
 
 		for (const key of ['data', 'delta']) {
-			if (rest[key] && typeof rest[key] === 'object') out[key] = row(collection, rest[key] as Record<string, unknown>);
+			// MySQL and SQLite give the JSON columns as text.
+			const value = typeof rest[key] === 'string' ? JSON.parse(rest[key] as string) : rest[key];
+			if (value && typeof value === 'object') out[key] = row(collection, value as Record<string, unknown>);
 		}
 
 		return out;

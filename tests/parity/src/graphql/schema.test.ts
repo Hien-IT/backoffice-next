@@ -184,9 +184,8 @@ describe('the schema follows changes at the other app (US4.4, SC-005)', () => {
 
 			const policy = users.policies.c;
 
-			const [row] = await hostDb()('directus_permissions')
-				.insert({ policy, collection: m.comments, action: 'read', fields: '*' })
-				.returning('id');
+			// No RETURNING (MySQL, SQLite): the row is found again by its policy and collection.
+			await hostDb()('directus_permissions').insert({ policy, collection: m.comments, action: 'read', fields: '*' });
 
 			try {
 				// Both apps keep the schema of user C until something clears the system cache (Directus does the same).
@@ -196,7 +195,7 @@ describe('the schema follows changes at the other app (US4.4, SC-005)', () => {
 				await appRequest('directus', 'POST', '/utils/cache/clear?system');
 				await eventually(async () => (await fieldsOf('backoffice', m.comments, token)).length > 0);
 			} finally {
-				await hostDb()('directus_permissions').where({ id: row.id }).delete();
+				await hostDb()('directus_permissions').where({ policy, collection: m.comments }).delete();
 				await appRequest('directus', 'POST', '/utils/cache/clear?system');
 			}
 		},

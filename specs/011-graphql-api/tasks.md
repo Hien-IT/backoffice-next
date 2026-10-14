@@ -466,7 +466,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   `items.ts`; cổng 10% qua `compare.ts`; đo một lần thời gian sinh schema lần đầu (`utils_cache_clear` rồi một
   introspection), chỉ in; `tests/benchmark/project.json` target `graphql`; `.github/workflows/benchmark.yml` job
   `benchmark-graphql` (hằng tuần như các job khác) (contracts/parity.md §7; FR-064, SC-007).
-- [ ] T042 [US6] Chạy benchmark local một vòng (`pnpm nx run benchmark:env-up && pnpm nx run benchmark:graphql`,
+- [X] T042 [US6] Chạy benchmark local một vòng (`pnpm nx run benchmark:env-up && pnpm nx run benchmark:graphql`,
   Directus amd64 giả lập, chỉ tham khảo), ghi p95, req/s, thời gian sinh schema lần đầu và RSS của container app mới
   trước/sau 10 user sinh schema (`docker stats --no-stream`) vào "Ghi chú khi làm" và cột "Bằng chứng" R-32.
 - [X] T043 [US6] CI: `.github/workflows/ci.yml` job `parity` dòng Postgres `full` thêm `graphql-nointro` vào
@@ -583,3 +583,18 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   app mới; Save as Copy: dòng ghi giống Directus, `last_page` của admin mang id bản sao nên được chuẩn hóa);
   `routing.spec.ts` 2/2 đạt với `graphql` trong danh sách route. Local: container `proxy` cũ (Exited 128, network đã
   xóa sau `compose down` chỉ với profile vendor) phải `up --force-recreate --no-deps proxy`.
+- 2026-10-14 T042 (local, 1 vòng 5 s, Directus amd64 giả lập trên arm64, chỉ tham khảo; số chính thức từ CI): 15/15
+  kịch bản `ok` (p95 Directus/Backoffice ms, req/s): list admin no-store 484/445, 142/144; by id admin no-store 332/359,
+  194/198; aggregated admin no-store 386/381, 174/181; list user no-store 427/381, 155/157; introspection admin
+  656/658, 27,8/30,2; create admin 355/351, 155/164; create user 554/385, 144/139; các kịch bản cached 255–304 ms. Sinh
+  schema lần đầu (sau `utils/cache/clear?system`): Directus 126 ms, app mới 98 ms; RSS sau benchmark: Directus 782 MiB,
+  app mới 539 MiB (bằng chứng R-32). Lượt đầu đỏ vì kịch bản sai, giống nhau ở hai app: `create` gửi `category: 1`
+  (m2o là input object), list của user chọn `category { name }` (với user, `category` là giá trị `Int` trong schema),
+  aggregate không giới hạn trên bảng 1,7 GiB không xong trong một vòng; đã sửa kịch bản.
+- 2026-10-14 CI b264065 (run 38527923214): quality, docker, guard, security, matrix, Postgres full 1 và 2, blackbox
+  (directus), e2e xanh; đỏ: (1) `cache.test.ts` khẳng định sai `Cache-Control: max-age` cho HIT có token (cả hai app trả
+  `no-cache`); (2) blackbox `mail.test.ts` (backoffice, MySQL reduced): `LOG_STYLE=raw` của cặp blackbox làm dấu ngoặc
+  kép trong dòng log thành `\"`, mẫu tìm không khớp → regex nhận cả hai dạng; (3) SQLite: `data`/`delta` của revisions là
+  chuỗi JSON, hàm đặt tên id của `write.test.ts` không đọc → parse; (4) E2E: `last_page` của Save as Copy (sửa ở 1c60a48)
+  và `system.spec.ts` Import/Export của 010 lỗi ngẫu nhiên khi uuid file mở đầu bằng 8 chữ số (mẫu thời gian ăn mất
+  nhóm đầu) → đổi thứ tự thay thế.

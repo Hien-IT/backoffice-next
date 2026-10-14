@@ -48,17 +48,23 @@ const INTROSPECTION =
 const gqlBody = (query: string) => JSON.stringify({ query });
 
 function scenarios(seeded: ItemsSeed): Scenario[] {
-	const list = gqlBody(
-		`{ ${ARTICLES}(filter: { status: { _eq: "published" } }, sort: ["-date_created"], limit: 25) { id title category { name } } }`,
-	);
+	// The user may read the category id but its schema has `category` as a plain value (same at both apps), so the
+	// relation is selected by the admin only.
+	const list = (user: 'admin' | 'user') =>
+		gqlBody(
+			`{ ${ARTICLES}(filter: { status: { _eq: "published" } }, sort: ["-date_created"], limit: 25) { id title ${user === 'admin' ? 'category { name }' : 'category'} } }`,
+		);
 	const byId = (n: number) =>
 		gqlBody(`{ ${ARTICLES}_by_id(id: "${seeded.pool[n % seeded.pool.length]}") { id title status } }`);
-	const aggregated = gqlBody(`{ ${ARTICLES}_aggregated(groupBy: ["status"]) { group count { id } } }`);
+	// Bounded by the primary key: a group by over the whole table does not finish within a round at either app.
+	const aggregated = gqlBody(
+		`{ ${ARTICLES}_aggregated(groupBy: ["status"], filter: { id: { _lte: 1000 } }) { group count { id } } }`,
+	);
 	const out: Scenario[] = [];
 
 	for (const user of ['admin', 'user'] as const) {
 		for (const fresh of [true, false]) {
-			out.push({ name: 'list', method: 'POST', path: () => '/graphql', body: () => list, user, fresh });
+			out.push({ name: 'list', method: 'POST', path: () => '/graphql', body: () => list(user), user, fresh });
 			out.push({ name: 'by id', method: 'POST', path: () => '/graphql', body: byId, user, fresh });
 			out.push({ name: 'aggregated', method: 'POST', path: () => '/graphql', body: () => aggregated, user, fresh });
 		}
@@ -79,9 +85,7 @@ function scenarios(seeded: ItemsSeed): Scenario[] {
 			method: 'POST',
 			path: () => '/graphql',
 			body: (n) =>
-				gqlBody(
-					`mutation { create_${ARTICLES}_item(data: { title: "bench ${n}", status: "published", category: ${(n % 100) + 1} }) { id } }`,
-				),
+				gqlBody(`mutation { create_${ARTICLES}_item(data: { title: "bench ${n}", status: "published" }) { id } }`),
 			user,
 			fresh: true,
 		});

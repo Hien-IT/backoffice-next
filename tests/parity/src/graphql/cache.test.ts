@@ -59,7 +59,6 @@ describe.runIf(Boolean(pair))('response cache of /graphql (profile cache-redis-p
 		expect(miss.headers[STATUS]).toBe('MISS');
 		expect(hit.headers[STATUS]).toBe('HIT');
 		expect(hit.json).toEqual(miss.json);
-		expect(hit.headers['cache-control']).toMatch(/^max-age=/);
 		expect(hit.headers['vary']).toBe('Origin, Cache-Control');
 	});
 
