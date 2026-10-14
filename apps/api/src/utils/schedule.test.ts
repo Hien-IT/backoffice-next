@@ -25,7 +25,9 @@ describe('validateCron', () => {
 });
 
 describe('scheduleSynchronizedJob', () => {
-	describe('long-running scenarios (25+ days)', () => {
+	// Backoffice: these fake-timer loops run thousands of ticks; CI runs them next to the web browser tests, so they get
+	// more than the 5 s default to avoid a timeout that leaves a job scheduled for the next tests.
+	describe('long-running scenarios (25+ days)', { timeout: 30_000 }, () => {
 		beforeEach(() => {
 			vi.useFakeTimers();
 		});
