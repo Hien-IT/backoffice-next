@@ -1,0 +1,14 @@
+{
+	"unselect one item": {
+		"collection": "bo_rel",
+		"field": "collection_items",
+		"initial": [
+			{ "key": 2, "collection": "bo_m2a_a" },
+			{ "key": 1, "collection": "bo_m2a_a" }
+		],
+		"action": ["Select Item", "uncheck A one", "save"],
+		"value": [{ "key": 2, "collection": "bo_m2a_a" }],
+		"source": "directus/app/src/interfaces/collection-item-multiple-dropdown/collection-item-multiple-dropdown.vue:136 onSelection -> :57 values setter",
+		"description": "array of { key, collection }"
+	}
+}

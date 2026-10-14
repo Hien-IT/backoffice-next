@@ -77,6 +77,23 @@ describe('FormField', () => {
 		expect(wrapper.findComponent({ name: 'FormFieldLabel' }).exists()).toBe(false);
 	});
 
+	// Backoffice (T093, axe "label"): a hidden label stays as an sr-only label for data fields, not for no-data ones.
+	it('keeps an sr-only label linked to the control when the label of a data field is hidden', () => {
+		const wrapper = mount(FormField, { props: { field: { ...baseField, hideLabel: true } }, global });
+		const label = wrapper.get('label.sr-only');
+		const fieldInterface = wrapper.findComponent({ name: 'FormFieldInterface' });
+
+		expect(label.text()).toBe('Test Field');
+		expect(label.attributes('for')).toBe(fieldInterface.props('inputId'));
+		expect(fieldInterface.props('labelId')).toBe(label.attributes('id'));
+
+		const group = mount(FormField, {
+			props: { field: { ...baseField, hideLabel: true, meta: { ...baseField.meta, special: ['no-data'] } } },
+			global,
+		});
+		expect(group.find('label.sr-only').exists()).toBe(false);
+	});
+
 	describe('isNonEditable', () => {
 		it('should pass non-editable=false when neither prop nor meta is set', () => {
 			const wrapper = mount(FormField, {

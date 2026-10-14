@@ -1,0 +1,34 @@
+{
+	"select through the templated filter": {
+		"collection": "bo_rel",
+		"field": "m2o",
+		"initial": 1,
+		"action": [
+			"type title three",
+			"open the selection drawer (filter {{ title }} -> three)",
+			"check Target three",
+			"save"
+		],
+		"value": 3,
+		"source": "directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue:160 onSelection -> directus/app/src/composables/use-relation-single.ts:37 update (the key)",
+		"description": "US3-1: the option filter is filled with the form value, the selected key is emitted"
+	},
+	"edit the related item in the drawer": {
+		"collection": "bo_rel",
+		"field": "m2o",
+		"initial": 1,
+		"action": ["Edit Item", "type name Target one!", "save"],
+		"value": { "name": "Target one!", "id": 1 },
+		"source": "directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue:143 onDrawerItemInput -> directus/app/src/composables/use-relation-single.ts:37 update (object with the existing key); overlay-item.vue save adds the key",
+		"description": "nested edit: the changed object with its primary key"
+	},
+	"deselect": {
+		"collection": "bo_rel",
+		"field": "m2o",
+		"initial": 1,
+		"action": "Deselect",
+		"value": null,
+		"source": "directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue v-remove @action $emit('input', null)",
+		"description": "deselect button"
+	}
+}

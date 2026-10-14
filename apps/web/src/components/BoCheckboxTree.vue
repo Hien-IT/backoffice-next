@@ -265,7 +265,8 @@ function onToggle(event: CustomEvent<{ originalEvent: Event }>) {
 
 const ROW =
 	'flex cursor-pointer items-center gap-2 rounded-lg py-1.5 pe-2 text-sm text-gray-700 outline-hidden hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:focus-visible:outline-brand-400 aria-disabled:cursor-not-allowed aria-disabled:text-gray-300 dark:aria-disabled:text-gray-700';
-const BOX = 'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] bg-transparent text-white';
+// No bg-transparent here: it won over bg-brand-500 of the checked state and hid the white check (T093, axe).
+const BOX = 'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] text-white';
 const BOX_STATE = {
 	true: 'border-brand-500 bg-brand-500',
 	mixed: 'border-brand-500 bg-brand-500',

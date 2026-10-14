@@ -1,0 +1,18 @@
+{
+	"create a child, then move the first child down": {
+		"collection": "bo_tree",
+		"field": "children",
+		"initial": [2, 4],
+		"action": ["Create New", "type name New child", "save", "row menu of Child A > Move down"],
+		"value": {
+			"create": [{ "name": "New child", "parent": 1, "sort": 2 }],
+			"update": [
+				{ "id": 4, "name": "Child B", "sort": 0 },
+				{ "id": 2, "name": "Child A", "sort": 1 }
+			],
+			"delete": []
+		},
+		"source": "directus/app/src/interfaces/list-o2m-tree-view/NestedDraggable.vue:177 addNew (reverse field = parent key), :165 sort (sort field = index on every row of the level) -> use-relation-multiple.ts:253 update",
+		"description": "tree: a new child and a 0-based re-sort of the level"
+	}
+}

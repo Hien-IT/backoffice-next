@@ -10,8 +10,9 @@ import CodeMirror from 'codemirror';
 import 'codemirror/addon/display/placeholder.js';
 import 'codemirror/addon/mode/simple.js';
 import 'codemirror/lib/codemirror.css';
-import { computed, onMounted, ref, unref, watch } from 'vue';
+import { computed, inject, onMounted, ref, unref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { FORM_FIELD_A11Y } from '../../../components/form/types.ts';
 import { getStringifiedValue } from '../../../components/form/utils/get-stringified-value.ts';
 import '../../../styles/codemirror-theme.css';
 import { mustacheMode } from './mustache-mode.ts';
@@ -42,6 +43,9 @@ const props = withDefaults(
 const emit = defineEmits(['input']);
 
 const { t } = useI18n();
+
+// Backoffice: as the `system-raw-editor` interface of a field, the label comes from FormField (FR-092, T093).
+const a11y = inject(FORM_FIELD_A11Y, null);
 
 const { width } = useWindowSize();
 
@@ -79,10 +83,7 @@ onMounted(async () => {
 			readOnly: readOnly.value,
 		} as CodeMirror.EditorConfiguration);
 
-		// Backoffice: label the hidden textarea CodeMirror types into (FR-094).
-		const input = codemirror.getInputField();
-		if (props.id) input.id = props.id;
-		if (props.ariaLabelledby) input.setAttribute('aria-labelledby', props.ariaLabelledby);
+		linkInput();
 		if (props.autofocus && !props.disabled) codemirror.focus();
 
 		// prevent new lines for single lines
@@ -120,6 +121,24 @@ onMounted(async () => {
 		});
 	}
 });
+
+// Backoffice: label the hidden textarea CodeMirror types into (FR-094): the props of the raw editor toggle, else the
+// FormField injection.
+function linkInput() {
+	const input = codemirror?.getInputField();
+	if (!input) return;
+
+	const id = props.id ?? a11y?.value.inputId;
+	const labelledby = props.ariaLabelledby ?? a11y?.value.labelId;
+	if (id) input.id = id;
+	if (labelledby) input.setAttribute('aria-labelledby', labelledby);
+	if (a11y?.value.describedBy) input.setAttribute('aria-describedby', a11y.value.describedBy);
+	else input.removeAttribute('aria-describedby');
+	if (a11y?.value.invalid) input.setAttribute('aria-invalid', 'true');
+	else input.removeAttribute('aria-invalid');
+}
+
+watch(() => a11y?.value, linkInput);
 
 const readOnly = computed(() => {
 	if (width.value < 600) {

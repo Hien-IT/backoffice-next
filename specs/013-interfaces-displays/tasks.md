@@ -360,7 +360,7 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
   `translation-form.test.ts`.
 - [X] T066 [P] [US3] `src/interfaces/collection-item-dropdown/` và `src/interfaces/collection-item-multiple-dropdown/`
   (FR-049, edge collection không còn/không quyền); port `collection-item-multiple-dropdown.test.ts`.
-- [ ] T067 [US3] `src/interfaces/relations.fixture.test.ts`: US3 scenario 1–5 trên bộ mẫu với ba user (bảng quyền
+- [X] T067 [US3] `src/interfaces/relations.fixture.test.ts`: US3 scenario 1–5 trên bộ mẫu với ba user (bảng quyền
   FR-041, chỉ đọc vẫn mở link), payload `{create, update, delete}` so `expected.*.json`; cập nhật seed (T023, T024) với
   mọi quan hệ và item mẫu.
 
@@ -387,7 +387,7 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
   lỗi tải theo mã, không nút chỉnh ảnh D-59, `allowedMimeTypes` mặc định `image/*`); test.
 - [X] T072 [US4] `src/interfaces/files/` (FR-052: tải nhiều, sắp xếp ghi sort `index + 1`, menu dòng mở tab/tải xuống,
   "Lên"/"Xuống" D-60); test.
-- [ ] T073 [US4] `src/interfaces/files.fixture.test.ts`: US4 scenario 1–2, `assertOnlyKnownRequests` chỉ cho ghi FR-054;
+- [X] T073 [US4] `src/interfaces/files.fixture.test.ts`: US4 scenario 1–2, `assertOnlyKnownRequests` chỉ cho ghi FR-054;
   cập nhật seed (T023, T024) với `file`, `file-image`, `files` và `expected.*.json`.
 
 **Checkpoint**: file và ảnh chạy độc lập.
@@ -424,7 +424,7 @@ bản thì giá trị phát ra bằng `expected.*.json` (US5 scenario 1–4).
   recipe Q-9); test (thật hoặc mock theo T005) + browser test nếu WebGL chạy.
 - [X] T080 [US5] `src/interfaces/list/` (FR-037: `fields`, `template`, `addLabel`, `sort`, drawer form con `primaryKey
   '+'`, bắt buộc chặn lưu, hỏi bỏ thay đổi, cảnh báo không phải mảng, "Lên"/"Xuống" D-60); test.
-- [ ] T081 [US5] Cập nhật seed (T023, T024) với field và giá trị Directus của T075 đến T080 (kể cả giá trị lệch dạng) và
+- [X] T081 [US5] Cập nhật seed (T023, T024) với field và giá trị Directus của T075 đến T080 (kể cả giá trị lệch dạng) và
   `expected.*.json`; `src/interfaces/rich.fixture.browser.test.ts` US5 scenario 1–4.
 
 **Checkpoint**: editor nặng, bản đồ, repeater chạy; chunk tách (R12).
@@ -470,24 +470,24 @@ năng, CI (US7, SC-001 đến SC-007, SC-009).
 **Independent Test**: `pnpm nx run web:test` đạt toàn bộ test fixture; `tests/parity/src/web/fixtures-seed.test.ts`
 đạt trên profile `web`.
 
-- [ ] T090 [US7] `apps/web/fixtures/interfaces/all.fixture.test.ts` (bật ca "đủ id" của T011, T026): với mọi collection `bo_*` và ba user, dựng
+- [X] T090 [US7] `apps/web/fixtures/interfaces/all.fixture.test.ts` (bật ca "đủ id" của T011, T026): với mọi collection `bo_*` và ba user, dựng
   `BoForm` và bảng (`BoTable` + `RenderDisplay`) từ bộ mẫu: 0 `interface_not_found`, 0 lỗi/cảnh báo Vue (bắt
   `app.config.warnHandler`), không sửa thì 0 thay đổi (US7 scenario 1–2, SC-001, SC-002).
-- [ ] T091 [US7] Kiểm SC-003: script `apps/web/fixtures/interfaces/options-coverage.test.ts` lấy tập khóa options từ
+- [X] T091 [US7] Kiểm SC-003: script `apps/web/fixtures/interfaces/options-coverage.test.ts` lấy tập khóa options từ
   registry (T011) và đối chiếu với danh sách khóa có test (tên test chứa `option:<id>.<key>`), thiếu thì thất bại.
-- [ ] T092 [US7] `tests/parity/src/web/fixtures-seed.test.ts` (contracts/tests §7): chạy `seed.mjs` + `export.mjs` vào
+- [X] T092 [US7] `tests/parity/src/web/fixtures-seed.test.ts` (contracts/tests §7): chạy `seed.mjs` + `export.mjs` vào
   Directus và API mới của profile `web` (namespace bus/lock riêng nếu cần, bài học R-19), chuẩn hóa, so; khác biệt thật
   ghi R-xx (SC-009); thêm vào job parity hiện có.
-- [ ] T093 [P] [US7] `src/components/form/a11y.browser.test.ts` (FR-122, SC-005): `axe-core` trên form `bo_std`,
+- [X] T093 [P] [US7] `src/components/form/a11y.browser.test.ts` (FR-122, SC-005): `axe-core` trên form `bo_std`,
   `bo_groups`, `bo_rel` và bảng 18 display ở sáng và `html.dark`; ngoại lệ chỉ cho thư viện bên thứ ba và màu dữ liệu,
   ghi rule id + lý do.
-- [ ] T094 [P] [US7] `src/components/form/keyboard.browser.test.ts`: thao tác bàn phím theo `contracts/tests.md` §5.6
+- [X] T094 [P] [US7] `src/components/form/keyboard.browser.test.ts`: thao tác bàn phím theo `contracts/tests.md` §5.6
   cho mỗi nhóm interface (SC-005, FR-094).
-- [ ] T095 [P] [US7] `src/components/form/perf.browser.test.ts` (SC-004): form 50 field, bảng 100×10, trung vị 3 lần <
+- [X] T095 [P] [US7] `src/components/form/perf.browser.test.ts` (SC-004): form 50 field, bảng 100×10, trung vị 3 lần <
   1.000 ms.
-- [ ] T096 [US7] `apps/web/scripts/check-bundle.mjs` (012) thêm ngân sách: chunk chính + ≤ 120 KB gzip so với 012, chunk
+- [X] T096 [US7] `apps/web/scripts/check-bundle.mjs` (012) thêm ngân sách: chunk chính + ≤ 120 KB gzip so với 012, chunk
   tinymce, editorjs, codemirror, maplibre tách riêng (R12); target `web:check-bundle` trong CI.
-- [ ] T097 [US7] `.github/workflows/ci.yml`: job test web chạy hai project (T003), parity `web` gồm `fixtures-seed`;
+- [X] T097 [US7] `.github/workflows/ci.yml`: job test web chạy hai project (T003), parity `web` gồm `fixtures-seed`;
   chạy `pnpm run ci:local` (tools/ci-local.sh) xanh.
 
 **Checkpoint**: tiêu chí chấp nhận "đọc được cấu hình hiện có" đo được trên bộ mẫu Directus.

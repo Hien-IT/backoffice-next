@@ -24,8 +24,9 @@ pnpm nx run web:fixtures -- --api http://127.0.0.1:8155 --token <admin token>
 ```
 
 Each script also runs alone: `node fixtures/interfaces/seed.mjs --api ...`,
-`node fixtures/interfaces/export.mjs --api ... [--out <dir>] [--kind directus|backoffice]`. Running both twice gives
-byte-identical files (`meta.json` holds the UTC date of the export).
+`node fixtures/interfaces/export.mjs --api ... [--out <dir>] [--kind directus|backoffice]`. `seed.mjs --clean` only
+deletes the fixture set (what the seed owns, below) and exits; `tests/parity/src/web/fixtures-seed.test.ts` runs it at
+the end. Running both twice gives byte-identical files (`meta.json` holds the UTC date of the export).
 
 The seed only touches what it owns: collections `bo_*` (and their relations), folder `bo-fixtures` and its files, flow
 `bo-flow`, roles, policies and users `bo-editor` / `bo-viewer`. `geometry.*` fields (`bo_std.map_point`, `map_polygon`,

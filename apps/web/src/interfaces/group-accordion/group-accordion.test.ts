@@ -91,7 +91,9 @@ describe('group-accordion on the bo_groups fixture', () => {
 		expect(headers(wrapper).map((button) => button.attributes('aria-expanded'))).toEqual(['true', 'true']);
 		expect(inputs(wrapper)).toEqual(['Accordion text', 'Inner']);
 		// The section field hides its label (the header names it); the nested group's child keeps its own.
-		expect(wrapper.findAll('label').map((label) => label.text())).toEqual(['Acc Inner']);
+		expect(wrapper.findAll('label:not(.sr-only)').map((label) => label.text())).toEqual(['Acc Inner']);
+		// Backoffice (T093): the hidden label stays for assistive technology.
+		expect(wrapper.findAll('label.sr-only').map((label) => label.text())).toEqual(['Acc Text']);
 	});
 
 	it('option:group-accordion.start first + option:group-accordion.accordionMode true: one section at a time', async () => {

@@ -1,0 +1,27 @@
+{
+	"select two, create one, remove one": {
+		"collection": "bo_rel",
+		"field": "m2m_list",
+		"initial": [1, 2, 3],
+		"action": [
+			"Add Existing",
+			"check Target two and Target three",
+			"save",
+			"Create Item",
+			"type name New target in the related form",
+			"save",
+			"Remove Item on the third row"
+		],
+		"value": {
+			"create": [
+				{ "bo_rel_id": 1, "bo_rel_target_id": { "id": 2 } },
+				{ "bo_rel_id": 1, "bo_rel_target_id": { "id": 3 } },
+				{ "bo_rel_target_id": { "name": "New target" } }
+			],
+			"update": [],
+			"delete": [3]
+		},
+		"source": "directus/app/src/composables/use-relation-multiple.ts:299 select (m2m: junction row with the reverse key and the related key), :245 create, :277 remove (junction key); directus/app/src/interfaces/list-m2m/list-m2m.vue:355 stageEdits, :365 deleteItem",
+		"description": "US3-3: exact {create, update, delete}"
+	}
+}

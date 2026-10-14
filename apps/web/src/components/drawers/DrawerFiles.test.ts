@@ -64,6 +64,14 @@ async function navigate(wrapper: Wrapper, value: string) {
 }
 
 describe('DrawerFiles', () => {
+	// T094: with `active` declared, `onUpdate:active` did not fall through, so the drawer never closed.
+	test('closing the drawer (Cancel, Esc, Save) emits update:active false to the parent', async () => {
+		const wrapper = await mountFiles({ active: true });
+
+		wrapper.findComponent(DrawerCollectionStub).vm.$emit('update:active', false);
+		expect(wrapper.emitted('update:active')).toEqual([[false]]);
+	});
+
 	test('persists folder state across unmount/remount cycles', async () => {
 		const wrapper = await mountFiles();
 

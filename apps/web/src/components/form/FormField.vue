@@ -72,6 +72,8 @@ const isLabelHidden = computed(() => {
 	return props.field.hideLabel;
 });
 
+const srOnlyLabel = computed(() => isLabelHidden.value && !props.field.meta?.special?.includes('no-data'));
+
 const { internalValue, isEdited, defaultValue } = useComputedValues();
 
 const { showRaw, copyRaw, pasteRaw, onRawValueSubmit } = useRaw();
@@ -247,6 +249,10 @@ function useComputedValues() {
 
 		<div v-else-if="['full', 'fill'].includes(field.meta?.width ?? '') === false" class="mb-1.5 h-6" />
 
+		<!-- Backoffice: a data field whose label is hidden (an accordion section shows its name in the header) keeps
+		an accessible name (FR-092, T093: axe "label"); groups and presentation fields (no-data) have nothing to label. -->
+		<label v-if="srOnlyLabel" :id="labelId" :for="inputId" class="sr-only">{{ field.name }}</label>
+
 		<FormFieldInterface
 			:autofocus="autofocus"
 			:model-value="internalValue"
@@ -262,7 +268,7 @@ function useComputedValues() {
 			:direction="direction"
 			:version
 			:input-id="inputId"
-			:label-id="isLabelHidden ? undefined : labelId"
+			:label-id="isLabelHidden && !srOnlyLabel ? undefined : labelId"
 			@update:model-value="emitValue($event)"
 			@set-field-value="$emit('setFieldValue', $event)"
 		/>

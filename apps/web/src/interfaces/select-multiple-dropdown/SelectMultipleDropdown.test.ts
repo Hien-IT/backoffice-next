@@ -98,7 +98,7 @@ describe('select-multiple-dropdown', () => {
 		expect(wrapper.emitted('input')).toEqual([[[]]]);
 	});
 
-	test('option:select-multiple-dropdown.placeholder and .icon', () => {
+	test('option:select-multiple-dropdown.placeholder and option:select-multiple-dropdown.icon', () => {
 		const wrapper = mountDropdown({ choices, placeholder: 'Pick some', icon: 'list' });
 
 		expect(wrapper.get('button').text()).toContain('Pick some');
@@ -119,7 +119,12 @@ describe('select-multiple-dropdown', () => {
 		const wrapper = mountDropdown(
 			{ choices },
 			{
-				[FORM_FIELD_A11Y]: computed(() => ({ inputId: 'f1', labelId: 'f1-label', describedBy: 'f1-note', invalid: true })),
+				[FORM_FIELD_A11Y]: computed(() => ({
+					inputId: 'f1',
+					labelId: 'f1-label',
+					describedBy: 'f1-note',
+					invalid: true,
+				})),
 			},
 		);
 		const trigger = wrapper.get('button');

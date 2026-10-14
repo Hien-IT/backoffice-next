@@ -201,6 +201,26 @@ test('every US1 interface has an expected file with scenarios on bo_std fields',
 	expect(Object.keys(snapshot.expected)).toEqual(expect.arrayContaining(US1));
 });
 
+// The expected files of the other stories run in their own fixture tests (real drawers, form, browser editors).
+const OTHERS = {
+	'relations.fixture.test.ts (US3)': [
+		'select-dropdown-m2o',
+		'list-o2m',
+		'list-m2m',
+		'list-m2a',
+		'list-o2m-tree-view',
+		'translations',
+		'collection-item-dropdown',
+		'collection-item-multiple-dropdown',
+	],
+	'files.fixture.test.ts (US4)': ['file', 'file-image', 'files'],
+	'rich.fixture.browser.test.ts (US5)': ['input-rich-text-md', 'input-block-editor', 'map', 'list'],
+};
+
+test('every expected.<id>.json is run by a fixture test', () => {
+	expect(Object.keys(snapshot.expected).sort()).toEqual([...US1, ...Object.values(OTHERS).flat()].sort());
+});
+
 describe.each(US1)('expected.%s.json', (id) => {
 	const scenarios = Object.entries((snapshot.expected[id] ?? {}) as unknown as Record<string, Scenario>);
 

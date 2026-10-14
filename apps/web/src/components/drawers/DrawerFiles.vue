@@ -39,6 +39,10 @@ const props = withDefaults(
 	},
 );
 
+// Backoffice: declaring `active` stops Vue from passing `onUpdate:active` through to DrawerCollection (Directus does
+// not declare it), so Cancel, Esc and Save never closed the drawer: it is re-emitted (T094).
+const emit = defineEmits<{ (e: 'update:active', value: boolean): void }>();
+
 const { t } = useI18n();
 
 // Positional key so that collection, field, and folder contexts never collide
@@ -187,6 +191,7 @@ function getFolderFilter(folder?: string, special?: SpecialFolder, currentUserId
 		:collection="collection"
 		:active="active"
 		:filter="mergeFilters(filter ?? null, folderFilter ?? null) ?? undefined"
+		@update:active="emit('update:active', $event)"
 	>
 		<template #sidebar>
 			<BoSelect

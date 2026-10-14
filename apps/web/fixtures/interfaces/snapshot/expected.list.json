@@ -1,0 +1,27 @@
+{
+	"add two rows; the required sub-field blocks saving": {
+		"field": "list",
+		"initial": null,
+		"action": [
+			"Add row",
+			"Save disabled while title is empty",
+			"type title First, count 3",
+			"save",
+			"Add row",
+			"type title Second, count 1",
+			"save"
+		],
+		"value": [
+			{
+				"title": "Second",
+				"count": 1
+			},
+			{
+				"title": "First",
+				"count": 3
+			}
+		],
+		"source": "directus/app/src/interfaces/list/list.vue:175 addNew (defaults of the fields), :124 saveItem -> :151 updateValues (sortBy the `sort` option) -> :201 emitValue",
+		"description": "US5-4: array of objects ordered by `sort: count`; required title blocks the drawer save (isSaveDisabled)"
+	}
+}

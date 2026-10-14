@@ -132,13 +132,19 @@ describe('select-radio', () => {
 	});
 
 	test('option:select-radio.choices: checking a choice emits its value (numbers stay numbers)', async () => {
-		const wrapper = mountRadio({ value: null, choices: [{ text: 'One', value: 1 }, { text: 'Two', value: 2 }] });
+		const wrapper = mountRadio({
+			value: null,
+			choices: [
+				{ text: 'One', value: 1 },
+				{ text: 'Two', value: 2 },
+			],
+		});
 
 		await wrapper.findAll('[role="radio"]')[1]!.trigger('click');
 		expect(wrapper.emitted('input')).toEqual([[2]]);
 	});
 
-	test('option:select-radio.iconOn / iconOff: custom icons are drawn; defaults draw the recipe radio', () => {
+	test('option:select-radio.iconOn / option:select-radio.iconOff: custom icons are drawn; defaults draw the recipe radio', () => {
 		const custom = mountRadio({ value: 'alpha', choices, iconOn: 'check_circle', iconOff: 'circle' });
 		expect(custom.findAll('[role="radio"]').map((r) => r.text())).toEqual(['check_circle', 'circle']);
 
@@ -175,7 +181,12 @@ describe('select-radio', () => {
 		const wrapper = mountRadio(
 			{ value: null, choices },
 			{
-				[FORM_FIELD_A11Y]: computed(() => ({ inputId: 'f1', labelId: 'f1-label', describedBy: 'f1-note', invalid: true })),
+				[FORM_FIELD_A11Y]: computed(() => ({
+					inputId: 'f1',
+					labelId: 'f1-label',
+					describedBy: 'f1-note',
+					invalid: true,
+				})),
 			},
 		);
 		const group = wrapper.get('[role="group"]');
@@ -184,5 +195,4 @@ describe('select-radio', () => {
 		expect(group.attributes('aria-describedby')).toBe('f1-note');
 		expect(wrapper.get('[role="radiogroup"]').attributes('aria-invalid')).toBe('true');
 	});
-
 });

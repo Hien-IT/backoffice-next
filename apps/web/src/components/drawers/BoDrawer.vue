@@ -13,7 +13,7 @@ export const BO_DRAWER_DEPTH: InjectionKey<number> = Symbol('bo-drawer-depth');
 // layer react to Esc and outside clicks. No sidebar slot or resizeable sidebar (no 013 drawer uses one) and no
 // "nudge" animation of a persistent drawer.
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
-import { computed, inject, provide, ref, useTemplateRef } from 'vue';
+import { computed, inject, provide, ref, useTemplateRef, watch } from 'vue';
 import BoIcon from '../BoIcon.vue';
 
 export type ApplyShortcut = 'meta+enter' | 'meta+s';
@@ -84,6 +84,28 @@ function onKeydown(event: KeyboardEvent) {
 	}
 }
 
+// Backoffice (FR-094, T094): the focus returns to the element focused before opening. Reka's FocusScope records it
+// on mount, after a child with autofocus (the BoForm of the list or item drawers) already took the focus, and then
+// sent the focus to the body on close. Recorded here when the drawer opens, before its content mounts.
+let returnFocus: HTMLElement | null = null;
+
+watch(
+	internalActive,
+	(open) => {
+		if (open) returnFocus = document.activeElement as HTMLElement | null;
+	},
+	{ flush: 'sync', immediate: true },
+);
+
+function onCloseAutoFocus(event: Event) {
+	if (returnFocus?.isConnected && returnFocus !== document.body) {
+		event.preventDefault();
+		returnFocus.focus();
+	}
+
+	returnFocus = null;
+}
+
 // Recipe: focus goes to the first focusable element of the body, else to the panel itself.
 function onOpenAutoFocus(event: Event) {
 	event.preventDefault();
@@ -115,6 +137,7 @@ const FOCUS =
 				@escape-key-down="onEscape"
 				@pointer-down-outside="onPointerDownOutside"
 				@open-auto-focus="onOpenAutoFocus"
+				@close-auto-focus="onCloseAutoFocus"
 				@keydown="onKeydown"
 			>
 				<header class="flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800">

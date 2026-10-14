@@ -1,10 +1,12 @@
 // Seeds the fixture set of feature 013 (data-model §6, FR-100) through the REST API of Directus 11.17.4 or the new API.
 // Idempotent: deletes then recreates the `bo_*` collections, the `bo-fixtures` folder and its files, the `bo-flow` flow
 // and the `bo-editor` / `bo-viewer` role, policy and user. Touches nothing else.
-// Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>)
+// Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
+// `--clean` only deletes the fixture set and exits.
 import { Api, FIXED_UUIDS, FLOW, FOLDER, USERS, query, readArgs } from './lib.mjs';
 
-const api = await Api.connect(readArgs());
+const args = readArgs();
+const api = await Api.connect(args);
 
 // Data colors stored in options, like the Directus color presets.
 const PURPLE = '#6644FF';
@@ -1582,6 +1584,13 @@ async function createItems({ files, users }) {
 /* ---------------------------------------------------------------- run */
 
 await cleanup();
+
+if (args.clean) {
+	process.stdout.write(
+		`Cleaned ${api.url}: bo_* collections, folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}\n`,
+	);
+	process.exit(0);
+}
 
 const folder = (await api.request('POST', '/folders', { name: FOLDER })).id;
 const files = await uploadSamples(folder);

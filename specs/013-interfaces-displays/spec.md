@@ -438,7 +438,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `/permissions/me` như `use-relation-permissions.ts`: tạo mới = `create` trên collection liên quan (m2m, m2a thêm
   `create` trên collection nối); chọn có sẵn = `update` trên collection nối hoặc trên khóa ngoại; bỏ chọn = `update`
   hoặc `delete` theo FR-043; sửa = `update` trên collection liên quan; sắp xếp = `update` field sort. Form chỉ đọc
-  (`disabled`): ẩn tạo, chọn, bỏ chọn; vẫn xem lớn, tải xuống, mở link như Directus.
+  (`disabled`): ẩn tạo, chọn, bỏ chọn; vẫn xem lớn, tải xuống; link tới item chỉ mở được khi `nonEditable` (với
+  `disabled` icon hiện nhưng không là link), như Directus.
 - **FR-042** `select-dropdown-m2o` (m2o): `template`, `enableCreate` (true), `enableSelect` (true), `filter`,
   `enableLink` (false); bấm mở drawer chọn khi `enableSelect`, nếu không thì drawer tạo/sửa; thông báo khi quan hệ chưa
   cấu hình, collection singleton, không có template, tắt cả tạo lẫn chọn.

@@ -339,4 +339,19 @@ describe('input-block-editor (Backoffice)', () => {
 		wrapper.unmount();
 		expect(editor.destroy).toHaveBeenCalled();
 	});
+
+	it('unmounted before Editor.js is ready: the mount stops without touching the destroyed instance', async () => {
+		let ready!: () => void;
+		const editor = { ...fakeEditor(), isReady: new Promise<void>((resolve) => (ready = resolve)) };
+		vi.mocked(EditorJS).mockImplementation(() => editor as any);
+		const wrapper = mount(InputBlockEditor, { props: { value: seeded } as never, global: global() });
+
+		wrapper.unmount();
+		ready();
+		await flushPromises();
+
+		expect(editor.destroy).toHaveBeenCalled();
+		expect(editor.render).not.toHaveBeenCalled();
+		expect(editor.on).not.toHaveBeenCalled();
+	});
 });

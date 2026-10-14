@@ -1,7 +1,7 @@
 import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
-import { defineComponent, h, ref } from 'vue';
+import { defineComponent, h, onMounted, ref } from 'vue';
 import { i18n } from '../../lang/index.ts';
 import '../../styles/index.css';
 import BoDrawer from './BoDrawer.vue';
@@ -122,4 +122,35 @@ test('the panel is full width below xl and 640px from xl', async () => {
 	const panel = document.querySelector<HTMLElement>('[role="dialog"]')!;
 	const expected = window.innerWidth >= 1280 ? 640 : window.innerWidth;
 	expect(Math.round(panel.getBoundingClientRect().width)).toBe(expected);
+});
+
+// T094: a body child that takes the focus on mount (BoForm autofocus in the list and item drawers) ran before Reka's
+// FocusScope recorded the opener, so the focus went to the body on close.
+test('focus returns to the opener when the drawer content focuses itself on mount', async () => {
+	const AutoFocus = defineComponent(() => {
+		const input = ref<HTMLInputElement>();
+		onMounted(() => input.value?.focus());
+		return () => h('input', { ref: input, id: 'auto', 'aria-label': 'Auto' });
+	});
+
+	const open = ref(false);
+	mount(
+		defineComponent(() => () => [
+			h('button', { id: 'opener', onClick: () => (open.value = true) }, 'Open'),
+			h(
+				BoDrawer,
+				{ title: 'Auto', modelValue: open.value, onCancel: () => (open.value = false) },
+				{ default: () => h(AutoFocus) },
+			),
+		]),
+		{ global: { plugins: [i18n] }, attachTo: document.body },
+	);
+
+	document.getElementById('opener')!.focus();
+	await userEvent.keyboard('{Enter}');
+	await vi.waitFor(() => expect(active()).toBe('auto'));
+
+	await userEvent.keyboard('{Escape}');
+	await vi.waitFor(() => expect(dialogCount()).toBe(0));
+	await vi.waitFor(() => expect(active()).toBe('opener'));
 });

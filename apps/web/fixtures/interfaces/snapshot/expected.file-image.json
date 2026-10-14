@@ -1,0 +1,12 @@
+{
+	"upload a PNG into the folder, a JPEG is refused": {
+		"collection": "bo_rel",
+		"field": "file_image",
+		"initial": null,
+		"options": { "allowedMimeTypes": ["image/png"] },
+		"action": ["choose photo.jpg (refused by accept, no request)", "choose photo.png"],
+		"value": "bo-new-1",
+		"source": "directus/app/src/interfaces/file-image/file-image.vue:169 onUpload -> use-relation-single.ts:37 update; directus/app/src/components/v-upload.vue (accept check, POST /files with folder)",
+		"description": "US4-1: allowedMimeTypes ['image/png'] and folder bo-2; bo-new-1 is the key the fixture API gives the first new file"
+	}
+}

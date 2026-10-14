@@ -49,6 +49,9 @@ export const FULL_FILES = [
 	// Feature 011: GraphQL reads, writes, system operations, introspection and SDL, errors, e2e-app (cache.test.ts runs
 	// in the cache suite, it skips without its pair).
 	'src/graphql/**/*.test.ts',
+	// Feature 013 (contracts/tests.md §7, SC-009): the interfaces fixture set seeded and exported through both apps of the
+	// main pair, one after the other (Postgres with PostGIS keeps the geometry fields).
+	'src/web/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

@@ -1,0 +1,34 @@
+{
+	"move the first file down": {
+		"collection": "bo_rel",
+		"field": "files",
+		"initial": [1, 2],
+		"action": "row menu of bo-sample-png > Move down",
+		"value": {
+			"create": [],
+			"update": [
+				{ "id": 2, "sort": 1, "directus_files_id": { "id": "bo-3" } },
+				{ "id": 1, "sort": 2, "directus_files_id": { "id": "bo-4" } }
+			],
+			"delete": []
+		},
+		"source": "directus/app/src/interfaces/files/files.vue:141 sortItems (sort field = index + 1, junction key and related key) -> use-relation-multiple.ts:253 update",
+		"description": "US4-2: the keyboard move (D-60) emits what a drag emits"
+	},
+	"upload two files into the folder": {
+		"collection": "bo_rel",
+		"field": "files",
+		"initial": [1, 2],
+		"action": ["Upload File", "choose a.png and b.pdf"],
+		"value": {
+			"create": [
+				{ "bo_rel_id": 1, "directus_files_id": { "id": "bo-new-1" } },
+				{ "bo_rel_id": 1, "directus_files_id": { "id": "bo-new-2" } }
+			],
+			"update": [],
+			"delete": []
+		},
+		"source": "directus/app/src/interfaces/files/files.vue:225 onUpload -> use-relation-multiple.ts:299 select (m2m junction rows)",
+		"description": "one POST /files per file with the folder"
+	}
+}

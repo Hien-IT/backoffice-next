@@ -2,7 +2,8 @@
 import { mount } from '@vue/test-utils';
 import type CodeMirror from 'codemirror';
 import { afterEach, describe, expect, test } from 'vitest';
-import { nextTick } from 'vue';
+import { computed, nextTick } from 'vue';
+import { FORM_FIELD_A11Y } from '../../../components/form/types.ts';
 import { i18n } from '../../../lang/index.ts';
 import config from './index.ts';
 import SystemRawEditor from './SystemRawEditor.vue';
@@ -69,7 +70,7 @@ describe('system-raw-editor', () => {
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 
-	test('is read-only when disabled, with the placeholder of the options or the default one', async () => {
+	test('is read-only when disabled; option:system-raw-editor.placeholder or the default placeholder', async () => {
 		const { wrapper, editor } = mountEditor({ value: null, disabled: true });
 
 		expect(editor.getOption('readOnly')).toBe(true);
@@ -91,5 +92,19 @@ describe('system-raw-editor', () => {
 
 		expect(input.id).toBe('field-x');
 		expect(input.getAttribute('aria-labelledby')).toBe('field-x-label');
+	});
+
+	test('as an interface, labels the CodeMirror input from FormField (T093: axe "label")', () => {
+		const a11y = computed(() => ({ inputId: 'f-1', labelId: 'f-1-label', describedBy: 'f-1-error', invalid: true }));
+		const wrapper = mount(SystemRawEditor, {
+			global: { plugins: [i18n], provide: { [FORM_FIELD_A11Y as symbol]: a11y } },
+			attachTo: document.body,
+		});
+		const input = wrapper.get('.CodeMirror textarea').element;
+
+		expect(input.id).toBe('f-1');
+		expect(input.getAttribute('aria-labelledby')).toBe('f-1-label');
+		expect(input.getAttribute('aria-describedby')).toBe('f-1-error');
+		expect(input.getAttribute('aria-invalid')).toBe('true');
 	});
 });

@@ -1,0 +1,11 @@
+{
+	"select another item": {
+		"collection": "bo_rel",
+		"field": "collection_item",
+		"initial": { "key": 1, "collection": "bo_rel_target" },
+		"action": ["open the selection drawer", "check Target two", "save"],
+		"value": { "key": 2, "collection": "bo_rel_target" },
+		"source": "directus/app/src/interfaces/collection-item-dropdown/collection-item-dropdown.vue:105 onSelection",
+		"description": "{ key, collection } of the selectedCollection"
+	}
+}

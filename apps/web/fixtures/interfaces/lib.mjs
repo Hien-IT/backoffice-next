@@ -13,7 +13,7 @@ export const FOLDER = 'bo-fixtures';
 export const FIXED_UUIDS = ['6f9619ff-8b86-4d11-b42d-00c04fc964ff'];
 export const FLOW = 'bo-flow';
 
-/** `--api <url>` plus `--token <token>` or `--email <e> --password <p>`; `--out <dir>` and `--kind <directus|backoffice>` for export.mjs. */
+/** `--api <url>` plus `--token <token>` or `--email <e> --password <p>`; `--clean` for seed.mjs; `--out <dir>` and `--kind <directus|backoffice>` for export.mjs. */
 export function readArgs() {
 	const { values } = parseArgs({
 		options: {
@@ -23,6 +23,7 @@ export function readArgs() {
 			password: { type: 'string' },
 			out: { type: 'string' },
 			kind: { type: 'string' },
+			clean: { type: 'boolean' },
 		},
 		strict: false,
 	});

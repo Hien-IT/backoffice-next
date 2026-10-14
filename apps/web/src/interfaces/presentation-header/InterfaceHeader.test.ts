@@ -56,7 +56,7 @@ async function key(el: Element, key: string) {
 }
 
 describe('header (fixture bo_groups)', () => {
-	test('title and subtitle render over the form values, relational values fetched (#38); no input', async () => {
+	test('option:header.title and option:header.subtitle render over the form values, relational values fetched (#38); no input', async () => {
 		const wrapper = mountHeader(options('header'));
 		await vi.waitFor(() => expect(wrapper.get('[data-subtitle]').text()).toBe('Item 1 - Target one'));
 

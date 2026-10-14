@@ -182,8 +182,13 @@ describe('select-multiple-checkbox', () => {
 		expect(wrapper.get('[role="checkbox"][aria-checked="true"]').attributes('style')).toContain('background-color');
 	});
 
-	test('option:select-multiple-checkbox.iconOn / iconOff: custom icons are drawn; defaults draw the recipe box', () => {
-		const custom = mountGroup({ value: ['alpha'], choices: choices.slice(0, 2), iconOn: 'favorite', iconOff: 'heart_plus' });
+	test('option:select-multiple-checkbox.iconOn / option:select-multiple-checkbox.iconOff: custom icons are drawn; defaults draw the recipe box', () => {
+		const custom = mountGroup({
+			value: ['alpha'],
+			choices: choices.slice(0, 2),
+			iconOn: 'favorite',
+			iconOff: 'heart_plus',
+		});
 		expect(custom.findAll('[role="checkbox"]').map((box) => box.text())).toEqual(['favorite', 'heart_plus']);
 
 		const plain = mountGroup({ value: ['alpha'], choices });
@@ -207,7 +212,12 @@ describe('select-multiple-checkbox', () => {
 		const wrapper = mountGroup(
 			{ value: null, choices },
 			{
-				[FORM_FIELD_A11Y]: computed(() => ({ inputId: 'f1', labelId: 'f1-label', describedBy: 'f1-note', invalid: true })),
+				[FORM_FIELD_A11Y]: computed(() => ({
+					inputId: 'f1',
+					labelId: 'f1-label',
+					describedBy: 'f1-note',
+					invalid: true,
+				})),
 			},
 		);
 		const group = wrapper.get('[role="group"]');

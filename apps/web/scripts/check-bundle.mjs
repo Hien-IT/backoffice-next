@@ -7,6 +7,16 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
 export const LIMIT = 350 * 1024;
+// Feature 013 (research R12): the entry may grow at most 120 KB over 012's 132.4 KB, and the heavy editors and map
+// libraries stay in their own lazy chunks.
+export const BUDGET_013 = Math.round((132.4 + 120) * 1024);
+export const LAZY_ONLY = ['maplibre-gl', 'EditorJS', 'CodeMirror'];
+
+/** Library markers found in the entry chunk that must only be in lazy chunks. */
+export function lazyLeaks(file) {
+	const code = readFileSync(file, 'utf8');
+	return LAZY_ONLY.filter((marker) => code.includes(marker));
+}
 
 /** Gzipped size of the module script index.html loads (`/admin/assets/index-*.js`). */
 export function entrySize(distDir) {
@@ -23,6 +33,10 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const { file, gzip } = entrySize(distDir);
 	const kb = (gzip / 1024).toFixed(1);
 
-	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${LIMIT / 1024} KB)\n`);
-	process.exit(gzip <= LIMIT ? 0 : 1);
+	const leaks = lazyLeaks(file);
+	const limit = Math.min(LIMIT, BUDGET_013);
+
+	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
+	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);
+	process.exit(gzip <= limit && leaks.length === 0 ? 0 : 1);
 }

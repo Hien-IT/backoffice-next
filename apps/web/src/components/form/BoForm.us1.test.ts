@@ -358,7 +358,8 @@ describe('FR-016 label and note', () => {
 			],
 		});
 
-		expect(wrapper.find('label').exists()).toBe(false);
+		// Backoffice (T093): only the sr-only label that keeps the control named.
+		expect(wrapper.findAll('label').every((label) => label.classes('sr-only'))).toBe(true);
 		expect(wrapper.find('[data-field="half"] > .h-6').exists()).toBe(true);
 		expect(wrapper.find('[data-field="full"] > .h-6').exists()).toBe(false);
 	});

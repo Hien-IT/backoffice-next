@@ -1,0 +1,10 @@
+{
+	"insert an uploaded image with the image token": {
+		"field": "rich_md",
+		"initial": null,
+		"action": ["Edit view", "Image button", "choose sample.png in the upload dialog"],
+		"value": "![](http://api.test/assets/bo-new-1?access_token=bo-image-token)",
+		"source": "directus/app/src/interfaces/input-rich-text-md/input-rich-text-md.vue:203 onImageUpload (getAssetUrl(id) + '?access_token=' + imageToken, ![selection](url))",
+		"description": "imageToken of the option; http://api.test/ is the API URL of the test SDK, bo-new-1 the key the fixture API gives the new file"
+	}
+}

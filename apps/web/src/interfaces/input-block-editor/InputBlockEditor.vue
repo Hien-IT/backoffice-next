@@ -72,6 +72,9 @@ const { currentPreview, setCurrentPreview, fileHandler, setFileHandler, unsetFil
 
 const editorjsRef = ref<EditorJS>();
 const editorjsIsReady = ref(false);
+// Backoffice: set on unmount; destroy() empties the Editor.js instance, so a mount still starting must stop (Directus
+// throws "editorjsRef.value.on is not a function" when the form closes before Editor.js is ready).
+let unmounted = false;
 const uploaderComponentElement = ref<InstanceType<typeof BoUpload>>();
 const editorElement = ref<HTMLElement>();
 const haveFilesAccess = Boolean(collectionStore.getCollection('directus_files'));
@@ -110,11 +113,13 @@ onMounted(async () => {
 	});
 
 	await editorjsRef.value.isReady;
+	if (unmounted) return;
 
 	const sanitizedValue = sanitizeValue(props.value);
 
 	if (sanitizedValue) {
 		await editorjsRef.value.render(sanitizedValue);
+		if (unmounted) return;
 	}
 
 	if (props.autofocus) {
@@ -129,6 +134,8 @@ onMounted(async () => {
 });
 
 onUnmounted(() => {
+	unmounted = true;
+
 	if (typeof editorjsRef.value?.destroy === 'function') {
 		editorjsRef.value.destroy();
 	}

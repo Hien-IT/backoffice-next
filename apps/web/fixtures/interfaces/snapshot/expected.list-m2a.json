@@ -1,0 +1,25 @@
+{
+	"add an existing item of the second collection, create one in the first": {
+		"collection": "bo_rel",
+		"field": "m2a",
+		"initial": [1, 2],
+		"action": [
+			"Add Existing > Bo M2A B",
+			"check B two",
+			"save",
+			"Create New > Bo M2A A",
+			"type name A three in the related form",
+			"save"
+		],
+		"value": {
+			"create": [
+				{ "bo_rel_id": 1, "collection": "bo_m2a_b", "item": { "id": "bo-14" } },
+				{ "collection": "bo_m2a_a", "item": { "name": "A three" } }
+			],
+			"update": [],
+			"delete": []
+		},
+		"source": "directus/app/src/composables/use-relation-multiple.ts:299 select (m2a: reverse key, collection field, related key), :245 create; directus/app/src/interfaces/list-m2a/list-m2a.vue:187 createItem, :232 stageEdits",
+		"description": "m2a junction rows carry the collection"
+	}
+}

@@ -289,12 +289,15 @@ const CELL = `flex h-9 w-9 items-center justify-center rounded-lg text-theme-sm 
 
 <template>
 	<div class="bo-date-picker w-auto">
+		<!-- Backoffice: initial-focus puts the focus on the selected day (else today) when the picker opens, as the APG
+		date picker dialog; the popover focused the "Previous" button before (T094). -->
 		<CalendarRoot
 			v-slot="{ weekDays, grid, date }"
 			:model-value="calendarValue"
 			:disabled="disabled"
 			:locale="userStore.language"
 			fixed-weeks
+			initial-focus
 			weekday-format="short"
 			:dir="isRTL ? 'rtl' : 'ltr'"
 			@update:model-value="handleDateChange"

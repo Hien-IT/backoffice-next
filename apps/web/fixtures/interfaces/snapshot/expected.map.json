@@ -1,0 +1,73 @@
+{
+	"json field: GeoJSON": {
+		"field": "map_json",
+		"initial": null,
+		"action": ["Draw Point button", "click the map centre"],
+		"value": {
+			"type": "Point",
+			"coordinates": [105.85, 21.03]
+		},
+		"source": "directus/app/src/utils/geometry/index.ts getGeometryFormatForType + getSerializer (json -> geojson: the feature geometry), used by directus/app/src/interfaces/map/map.vue emit",
+		"description": "US5-3; defaultView of the field (105.85, 21.03, zoom 10)"
+	},
+	"text field: WKT": {
+		"field": "map_text",
+		"initial": null,
+		"action": ["Draw Point button", "click the map centre"],
+		"value": "POINT (105.85 21.03)",
+		"source": "directus/app/src/utils/geometry/index.ts getGeometryFormatForType + getSerializer (text/string -> wkt: wellknown stringify), used by directus/app/src/interfaces/map/map.vue emit",
+		"description": "US5-3 'a point on a string field': map.vue reads the geometry type from geometry.<Type> fields only, so the seeded geometryType Polygon of this text field does not limit drawing",
+		"options": {
+			"defaultView": {
+				"center": {
+					"lng": 105.85,
+					"lat": 21.03
+				},
+				"zoom": 10,
+				"bearing": 0,
+				"pitch": 0
+			}
+		}
+	},
+	"csv field: [lng, lat]": {
+		"field": "map_csv",
+		"initial": null,
+		"action": ["Draw Point button", "click the map centre"],
+		"value": [105.85, 21.03],
+		"source": "directus/app/src/utils/geometry/index.ts getGeometryFormatForType + getSerializer (csv -> lnglat: the point coordinates), used by directus/app/src/interfaces/map/map.vue emit",
+		"description": "US5-3; defaultView set for the scenario so the centre is known",
+		"options": {
+			"defaultView": {
+				"center": {
+					"lng": 105.85,
+					"lat": 21.03
+				},
+				"zoom": 10,
+				"bearing": 0,
+				"pitch": 0
+			}
+		}
+	},
+	"geometry field: GeoJSON": {
+		"field": "map_point",
+		"initial": null,
+		"action": "click the map centre in point mode",
+		"value": {
+			"type": "Point",
+			"coordinates": [105.85, 21.03]
+		},
+		"source": "directus/app/src/utils/geometry/index.ts getGeometryFormatForType + getSerializer (geometry.* -> native: the feature geometry), used by directus/app/src/interfaces/map/map.vue emit",
+		"description": "native geometry.Point column, sent as GeoJSON; a null value starts in point mode",
+		"options": {
+			"defaultView": {
+				"center": {
+					"lng": 105.85,
+					"lat": 21.03
+				},
+				"zoom": 10,
+				"bearing": 0,
+				"pitch": 0
+			}
+		}
+	}
+}

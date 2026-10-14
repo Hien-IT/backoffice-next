@@ -1,0 +1,28 @@
+{
+	"edit the second language": {
+		"collection": "bo_translations",
+		"field": "translations",
+		"initial": [1, 2],
+		"action": "type title Chào in the vi-VN form",
+		"value": {
+			"create": [],
+			"update": [{ "title": "Chào", "bo_languages_code": { "code": "vi-VN" }, "id": 2 }],
+			"delete": []
+		},
+		"source": "directus/app/src/interfaces/translations/translations.vue:126 updateValue (existing row: junction key) -> use-relation-multiple.ts:253 update",
+		"description": "US3-4: edit in the second language of the split view"
+	},
+	"enable and fill a language of an item without it": {
+		"collection": "bo_translations",
+		"field": "translations",
+		"initial": [3],
+		"action": ["Enable in the en-US form", "type title Hi"],
+		"value": {
+			"create": [{ "bo_languages_code": { "code": "en-US" }, "title": "Hi", "bo_translations_id": 2 }],
+			"update": [],
+			"delete": []
+		},
+		"source": "directus/app/src/interfaces/translations/translations.vue:126 updateValue (created row of a saved item: reverse key = primaryKey) -> use-relation-multiple.ts:245 create, :253 update",
+		"description": "a new translation row"
+	}
+}

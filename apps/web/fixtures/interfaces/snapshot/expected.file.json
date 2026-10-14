@@ -1,0 +1,20 @@
+{
+	"import from a URL into the folder": {
+		"collection": "bo_rel",
+		"field": "file",
+		"initial": null,
+		"action": ["menu Import File from URL", "type https://example.com/report.pdf", "Import"],
+		"value": "bo-new-1",
+		"source": "directus/app/src/interfaces/file/file.vue:173 useURLImport importFromURL (POST /files/import with data.folder and options.filterMimeType) -> use-relation-single.ts:37 update (the new key)",
+		"description": "FR-053: the key of the imported file; bo-new-1 is the key the fixture API gives the first new file"
+	},
+	"choose from the library": {
+		"collection": "bo_rel",
+		"field": "file",
+		"initial": null,
+		"action": ["menu Choose File from Library", "check bo-sample-pdf", "save"],
+		"value": "bo-3",
+		"source": "directus/app/src/interfaces/file/file.vue:159 setSelection -> use-relation-single.ts:37 update",
+		"description": "the library lists the files of the option filter (type application/pdf)"
+	}
+}

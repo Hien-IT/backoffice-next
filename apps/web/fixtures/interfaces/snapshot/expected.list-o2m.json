@@ -1,0 +1,23 @@
+{
+	"select an existing item, create one, remove one": {
+		"collection": "bo_rel",
+		"field": "o2m_list",
+		"initial": [2, 3],
+		"action": [
+			"Add Existing",
+			"check Target five",
+			"save",
+			"Create Item",
+			"type name New target",
+			"save",
+			"Remove Item on Target two"
+		],
+		"value": {
+			"create": [{ "name": "New target" }],
+			"update": [{ "o2m_list_parent": 1, "id": 5 }],
+			"delete": [2]
+		},
+		"source": "directus/app/src/composables/use-relation-multiple.ts:299 select (o2m: update with the reverse field), :245 create, :277 remove; directus/app/src/interfaces/list-o2m/list-o2m.vue:311 stageEdits, :323 deleteItem",
+		"description": "US3 FR-040: o2m value {create, update, delete}"
+	}
+}
