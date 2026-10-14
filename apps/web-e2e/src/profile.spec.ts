@@ -80,17 +80,25 @@ test('an email used by another user shows the unique error on the field (US6-1)'
 });
 
 test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
+	// trackPage writes last_page 500 ms after a navigation: wait for it so the sign-in lands on /users/me
+	// (FR-018) and no PATCH is still pending when the cookies go (slow webkit raced both).
+	const tracked = page.waitForResponse(
+		(r) => r.url().endsWith('/users/me/track/page') && r.request().postDataJSON()?.last_page === '/users/me',
+	);
 	await openProfile(page);
+	await tracked;
 	await page.getByLabel('Password', { exact: true }).fill('web-e2e-New-Password2');
+	// The Save button is disabled while saving too: wait for the answer before the cookies go.
+	const saved = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().endsWith('/users/me'));
 	await save(page);
-	await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
+	expect((await saved).ok()).toBe(true);
 
 	// A fresh browser state: only the new password matters here (sign-out is covered by login.spec).
 	await page.context().clearCookies();
 	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await login(page, { email: user.email, password: 'web-e2e-New-Password2' });
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(/\/admin\/users\/me$/);
 });
 
 test('vi-VN applies at once and after a reload, without raw keys (US6-2, SC-006)', async ({ page }) => {
