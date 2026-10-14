@@ -522,13 +522,13 @@ Directus.
   `node tools/guard-directus-unchanged.mjs` xanh.
 - [X] T070 [P] Cập nhật research.md với kết quả thực tế của T002, T004, T019, T052 (OTP sau SSO), T054 (mode json),
   T015 (query notifications); cập nhật `contracts/api-calls.md` #26 và `contracts/ui-routes.md` nếu lệch.
-- [ ] T071 [P] `specs/012-backoffice-web-shell/spec.md`: mục "Ghi chú khi làm" (lệch phát hiện, cách xử lý), trạng
+- [X] T071 [P] `specs/012-backoffice-web-shell/spec.md`: mục "Ghi chú khi làm" (lệch phát hiện, cách xử lý), trạng
   thái `Done` và dòng "Duyệt khác biệt" khi tech lead duyệt D-39 đến D-48 (quy trình không PR: ghi ngày duyệt);
   `checklists/release-gate.md` đánh dấu mục đã xử lý.
 - [X] T072 [P] `CLAUDE.md` mục Recent Changes thêm dòng 012; `SPECKIT-GUIDE.md` không sửa prompt (giữ); memory cá
   nhân cập nhật trạng thái dự án (012 Done) sau khi CI xanh.
 - [X] T073 `graphify update .` sau khi code xong (CLAUDE.md), commit `graphify-out/` nếu thay đổi.
-- [ ] T074 Kiểm cuối: `pnpm nx run-many -t lint typecheck test build --projects=web,web-e2e`; E2E ba cấu hình xanh;
+- [X] T074 Kiểm cuối: `pnpm nx run-many -t lint typecheck test build --projects=web,web-e2e`; E2E ba cấu hình xanh;
   `web:test` coverage ≥ 60% in ra; không hex thô (`web:lint`); `git status` sạch trên `main`.
 - [ ] T075 Phiên dùng thử SC-003 sau khi CI xanh (không chặn đóng feature): 5 người dùng nội bộ quen Directus làm
   nhiệm vụ "đăng nhập, mở Files, mở Settings, mở hồ sơ, đăng xuất" không hướng dẫn trên môi trường `proxy-api`;
@@ -564,6 +564,10 @@ Directus.
   mở lại task.
 
 ## Ghi chú khi làm
+
+Đóng feature (2026-10-15): CI run 38621396542 trên `ae0f99a` xanh mọi job (`quality`, parity, `e2e-web`
+chromium/firefox/webkit ở ba cấu hình); owner duyệt D-39 đến D-53 (spec "Duyệt khác biệt", Clarifications
+2026-10-15); T075 (SC-003, 5 người dùng thử) làm sau, không chặn đóng.
 
 (Điền trong lúc implement: lệch với Directus app, kết quả kiểm [Unverified], quyết định nhỏ.)
 
@@ -692,7 +696,7 @@ và bố cục khung theo `design-system/docs/layout-patterns.md`; route, luồn
   `data-testid="module-bar"` trên danh sách module và các nhãn bàn phím; test.
 - [X] T081 Trang public (đăng nhập, quên mật khẩu, lời mời, setup, share, register) theo mẫu sign-in của TailAdmin
   với branding settings (D-50, D-51 giữ).
-- [ ] T082 E2E sửa selector theo bố cục mới; chạy ba cấu hình; build image; CI `e2e-web` xanh.
+- [X] T082 E2E sửa selector theo bố cục mới; chạy ba cấu hình; build image; CI `e2e-web` xanh.
 
 Phase 11 (2026-10-15):
 

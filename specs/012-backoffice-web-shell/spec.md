@@ -2,7 +2,7 @@
 
 **Feature Branch**: `012-backoffice-web-shell`
 **Created**: 2026-10-14
-**Status**: Draft
+**Status**: Done
 **Duyệt khác biệt**: owner duyệt ngày 2026-10-14 D-39 đến D-49 (D-49: ẩn link Documentation mặc định
 thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các làm rõ của checklist release-gate ngày
 2026-10-14; owner chọn D-51 (giá trị mặc định Directus của `project_name`, `project_color` coi như trống) ngày
