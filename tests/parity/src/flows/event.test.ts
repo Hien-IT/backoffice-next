@@ -210,11 +210,13 @@ describe('action flows run after the response, at the app that got the request o
 			const title = `created at ${ctx.app}`;
 			const result = await send(ctx, 'POST', `/items/${collections.action}`, { title });
 			const note = `action ${collections.action}.items.create ${title} by true`;
-			// The run log row is written after the last operation: wait for both rows (MySQL is slower).
-			await until(
-				async () => (await logRows(note)) > 0 && (await runRows(flows['action']!, before)).length > 0,
-				15_000,
-			);
+			// The run log is written after the last operation, its revision after its activity row (two inserts): wait for
+			// the log row, the run row and its revision (MySQL is slower).
+			await until(async () => {
+				if ((await logRows(note)) === 0) return false;
+				const run = (await runRows(flows['action']!, before))[0];
+				return run !== undefined && (await runSteps(Number(run['id']))) !== 'no revision';
+			}, 15_000);
 			const runs = await runRows(flows['action']!, before);
 
 			return {
