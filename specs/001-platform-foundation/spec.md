@@ -628,7 +628,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 | D-11 | Cache response khi `CACHE_ENABLED=true` cho `/server/info`, `/server/specs/oas`; từ feature 004 cả `GET`/`SEARCH` của `/users`, `/roles`, `/policies`, `/access`, `/permissions` | Lưu response vào cache; khi `CACHE_AUTO_PURGE=false` trả `Cache-Control: public, max-age=<CACHE_TTL>`; có header `CACHE_STATUS_HEADER`; OAS giữ nguyên `info.version` trong TTL | Không cache, `Cache-Control: no-cache`; từ feature 005 cache như Directus, dùng chung key: Gỡ ở 005 | Cache response làm ở feature 005 | ngoài phạm vi (tạm thời) | 005 |
 | D-12 | Query string trên mọi route sau bước `sanitizeQuery` của Directus (`/server/*`, `/metrics`, path lạ, `/admin`): `fields`, `limit`, `filter`, `export`... | Kiểm tra query, có thể trả `400 INVALID_QUERY` (đã đo: `?limit=abc`, `?filter={bad`), kể cả trên path lạ và `/metrics`, hoặc file export | Bỏ qua query string; từ feature 004 kiểm query như Directus trên mọi route; `export` (xuất file) làm ở feature 005: Gỡ ở 005 | Kiểm tra query làm ở feature 004, export ở feature 005 | ngoài phạm vi (tạm thời) | 005 |
 | D-13 | Route sau middleware `schema` của Directus (`/server/health`, `/metrics`, path lạ, `/admin`) khi DB mất kết nối và `CACHE_SCHEMA=false` | `500 INTERNAL_SERVER_ERROR` (bước dựng schema lỗi trước khi tới route) | `/server/health`: `503` với `{"status":"error"}`; `/metrics` trả như bình thường; path lạ `404` | Health dùng cho probe, không dựng schema; middleware `schema` chạy mọi request thuộc feature 002. Với `CACHE_SCHEMA=true` (mặc định) hai bên giống nhau | khác | — |
-| D-14 | `/server/setup` (mọi phương thức) | `POST`: tạo admin khi chưa có user, `403 FORBIDDEN` khi đã có; `OPTIONS` → `200 Allow: POST` | `404 ROUTE_NOT_FOUND` | Ghi `directus_users` và `directus_settings` (feature 004 và 010) | ngoài phạm vi (tạm thời); app mới phục vụ từ 010 (2026-10-14, `src/server/methods.test.ts`, `src/system/setup.test.ts`), gỡ khi tech lead duyệt đóng 010 | 010 |
+| D-14 | `/server/setup` (mọi phương thức) | `POST`: tạo admin khi chưa có user, `403 FORBIDDEN` khi đã có; `OPTIONS` → `200 Allow: POST` | `404 ROUTE_NOT_FOUND` | Ghi `directus_users` và `directus_settings` (feature 004 và 010) | ngoài phạm vi (tạm thời) | 010 |
 | D-15 | `/server/specs/graphql[/:scope]` (`GET`, `HEAD`, `OPTIONS`) | Có khi `GRAPHQL_INTROSPECTION` khác `false` (mặc định bật); `OPTIONS` → `200 Allow: GET,HEAD` | `404 ROUTE_NOT_FOUND` | GraphQL thuộc feature 011 | ngoài phạm vi (tạm thời) | 011 |
 | D-16 | Storage driver `gcs`, `azure`, `cloudinary`, `supabase` | Hỗ trợ | Dừng khi khởi động, báo rõ location | Nguyên tắc XI. Trái chữ Nguyên tắc VIII ("biến chưa hỗ trợ chỉ cảnh báo"), đã ghi ở Complexity Tracking của plan, cần tech lead duyệt trong PR (Nguyên tắc X) | ngoài phạm vi | — |
 | D-17 | WebSocket, extension, AI/MCP, deployment | Khởi tạo khi khởi động; route `/mcp` và `/ai` (mặc định bật), `/deployments`, `/deployments/webhooks` tồn tại | Không khởi tạo, các route đó trả `404 ROUTE_NOT_FOUND`, biến liên quan chỉ cảnh báo | Nguyên tắc XI | ngoài phạm vi | — |
@@ -649,8 +649,11 @@ Bản đồ route của D-09 (mỗi mã là một mục trong danh sách khác b
 | D-09.5 | `/files` (gồm `/files/tus`), `/folders`, `/assets` | 007 |
 | D-09.6 | `/activity`, `/revisions`, `/versions`, `/comments`, và query `version` của mọi route đọc (từ feature 004) | 008 |
 | D-09.7 | `/flows`, `/operations` | 009 |
-| D-09.8 | `/settings`, `/presets`, `/notifications`, `/shares`, `/translations`, `/dashboards`, `/panels`, `/extensions`, `/utils` | 010 (chín route đã phục vụ ở app mới 2026-10-14; gỡ khi tech lead duyệt đóng 010) |
+| D-09.8 | `/settings`, `/presets`, `/notifications`, `/shares`, `/translations`, `/dashboards`, `/panels`, `/extensions`, `/utils` | 010 |
 | D-09.9 | `/graphql` | 011 |
+
+Từ 2026-10-14 chín route của D-09.8 và `/server/setup` (D-14) đã được app mới phục vụ (feature 010); hai mã gỡ khi
+tech lead duyệt đóng 010.
 
 Giữ nguyên (không đổi thương hiệu): tên bảng `directus_*`; `project_name` và mọi giá trị đọc từ
 `directus_settings` (ví dụ `"Directus"` mặc định của cột); tên biến môi trường; mã lỗi; số phiên bản `11.17.4` báo cho client (FR-047);
