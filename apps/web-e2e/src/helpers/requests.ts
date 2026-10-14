@@ -15,9 +15,10 @@ export interface ApiRequest {
 
 // Chromium and WebKit log every 4xx/5xx answer (e.g. the expected 401 of /auth/refresh before login) as a console error.
 const NETWORK_ERROR = /^Failed to load resource/;
-// The app's missingWarn (`[i18n] missing key ...`) and the vue-i18n default (`[intlify] Not found 'x' key ...`).
+// webkit also reports an aborted cross-origin fetch as "... due to access control checks."
 const NAVIGATION_ABORT =
-	/^(TypeError: )?(Load failed|NetworkError when attempting to fetch resource\.|Failed to fetch)$/;
+	/^(TypeError: )?(Load failed|NetworkError when attempting to fetch resource\.|Failed to fetch)$|due to access control checks\.$/;
+// The app's missingWarn (`[i18n] missing key ...`) and the vue-i18n default (`[intlify] Not found 'x' key ...`).
 const MISSING_KEY = /^\[i18n\] missing key|^\[intlify\] Not found '.*' key/;
 
 /** `path` of a request to the API, or undefined for any other URL (the app's own files under /admin/ included). */

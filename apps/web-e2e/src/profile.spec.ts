@@ -86,9 +86,9 @@ test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
 	await save(page);
 	await expect(page.getByRole('button', { name: 'Save' })).toBeDisabled();
 
-	// After a password change the sign-out may land on /login without a reason (seen with the Directus API on CI).
-	await page.goto('/admin/logout');
-	await expect(page).toHaveURL(/\/admin\/login/);
+	// A fresh browser state: only the new password matters here (sign-out is covered by login.spec).
+	await page.context().clearCookies();
+	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await login(page, { email: user.email, password: 'web-e2e-New-Password2' });
 	await expect(page).toHaveURL(/\/admin\/content$/);
@@ -105,9 +105,12 @@ test('vi-VN applies at once and after a reload, without raw keys (US6-2, SC-006)
 	await page.reload();
 	await expect(page.locator('html')).toHaveAttribute('lang', 'vi-VN');
 
-	const rawKeys = await page.evaluate(() =>
-		document.body.innerText.split('\n').filter((line) => /^[a-z]+(_[a-z]+)+$/.test(line.trim())),
-	);
+	const rawKeys = await page.evaluate(() => {
+		// Icon ligatures (Material Symbols names such as account_circle) are aria-hidden text, not translations.
+		const body = document.body.cloneNode(true) as HTMLElement;
+		body.querySelectorAll('[aria-hidden="true"]').forEach((el) => el.remove());
+		return body.innerText.split('\n').filter((line) => /^[a-z]+(_[a-z]+)+$/.test(line.trim()));
+	});
 	expect(rawKeys).toEqual([]);
 });
 
