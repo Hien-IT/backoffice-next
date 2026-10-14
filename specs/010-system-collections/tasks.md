@@ -744,3 +744,6 @@ chiếu theo vendor; thời gian job CI; số benchmark local.)
 - 2026-10-14 CI a7bdbf3: `system.spec.ts` sắp xếp tay hết 5 phút ở lượt proxy (Sortable không nhận lần kéo, không có
   `POST /utils/sort`, chờ không giới hạn); spec chờ `networkidle`, mỗi lần kéo chờ tối đa 5 s rồi kéo lại (tối đa 3
   lần). Run trước (4ae8bc1) xanh toàn bộ gồm `e2e-directus-app`.
+- 2026-10-14 owner: giữ `stream-json` 1.9.1 (bản của Directus 11.17.4), chưa nâng 3.x. Ba advisory moderate (filter
+  O(depth²), parser JSONC, prototype pollution trong `Assembler`); chỉ advisory thứ ba chạm `ImportService.importJSON`
+  (`StreamArray`), cùng mức với Directus. CI chặn từ `high` nên không đỏ. Xem lại khi Directus nâng hoặc khi có bản `high`.
