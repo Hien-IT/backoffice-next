@@ -13,55 +13,43 @@ afterEach(() => {
 
 describe('overridesToCss', () => {
 	test('maps primary on the light scope', () => {
-		expect(overridesToCss({ primary: '#aa0000' }, ':root.light')).toBe(
-			':root.light { --eh-color-action-primary: #aa0000; }',
-		);
+		expect(overridesToCss({ primary: '#aa0000' }, ':root.light')).toBe(':root.light { --color-brand-500: #aa0000; }');
 	});
 
 	test('maps on the dark scope', () => {
-		expect(overridesToCss({ background: 'rgb(10, 10, 10)' }, ':root.dark')).toBe(
-			':root.dark { --eh-color-surface-default: rgb(10, 10, 10); }',
+		expect(overridesToCss({ danger: 'rgb(10, 10, 10)' }, ':root.dark')).toBe(
+			':root.dark { --color-error-500: rgb(10, 10, 10); }',
 		);
 	});
 
-	test('nested keys use dot paths (navigation, header, sidebar, fonts)', () => {
-		const css = overridesToCss(
-			{
-				navigation: { background: 'hsl(0 0% 90%)' },
-				header: { background: 'white' },
-				sidebar: { background: 'silver' },
-				fonts: { sans: { fontFamily: '"Inter", sans-serif' } },
-			},
-			':root.light',
-		);
-
-		expect(css).toBe(
-			':root.light { --bo-navigation-background: hsl(0 0% 90%); --bo-header-background: white; ' +
-				'--bo-sidebar-background: silver; --eh-font-family-body: "Inter", sans-serif; }',
+	test('nested keys use dot paths (fonts)', () => {
+		expect(overridesToCss({ fonts: { sans: { fontFamily: '"Inter", sans-serif' } } }, ':root.light')).toBe(
+			':root.light { --font-outfit: "Inter", sans-serif; }',
 		);
 	});
 
-	test('every key of research R2 has a token', () => {
-		expect(Object.keys(OVERRIDE_MAP)).toHaveLength(16);
-		expect(OVERRIDE_MAP['borderRadius']).toBe('--eh-radius-md');
-		expect(OVERRIDE_MAP['foregroundSubdued']).toBe('--eh-color-text-secondary');
-		expect(OVERRIDE_MAP['danger']).toBe('--eh-color-status-danger');
-	});
-
-	test('two keys on one token: the later one wins in CSS order', () => {
-		expect(overridesToCss({ foreground: 'black', foregroundAccent: 'navy' }, ':root.light')).toBe(
-			':root.light { --eh-color-text-primary: black; --eh-color-text-primary: navy; }',
-		);
+	test('the keys of FR-063 map to TailAdmin theme variables', () => {
+		expect(OVERRIDE_MAP).toEqual({
+			primary: '--color-brand-500',
+			success: '--color-success-500',
+			warning: '--color-warning-500',
+			danger: '--color-error-500',
+			'fonts.sans.fontFamily': '--font-outfit',
+		});
 	});
 
 	test('numbers become text', () => {
-		expect(overridesToCss({ borderRadius: 0 }, ':root.light')).toBe(':root.light { --eh-radius-md: 0; }');
+		expect(overridesToCss({ primary: 0 }, ':root.light')).toBe(':root.light { --color-brand-500: 0; }');
+	});
+
+	test('Directus keys without a theme variable are dropped (background, navigation.background...)', () => {
+		expect(overridesToCss({ background: 'red', navigation: { background: 'blue' } }, ':root.light')).toBe('');
 	});
 
 	test('unmapped keys are dropped with a warning', () => {
 		expect(overridesToCss({ unmappedA: 'red', form: { columnGap: '4px' } }, ':root.light')).toBe('');
-		expect(warn).toHaveBeenCalledWith('[theme] override "unmappedA" ignored: no design-system token');
-		expect(warn).toHaveBeenCalledWith('[theme] override "form.columnGap" ignored: no design-system token');
+		expect(warn).toHaveBeenCalledWith('[theme] override "unmappedA" ignored: no design-system theme variable');
+		expect(warn).toHaveBeenCalledWith('[theme] override "form.columnGap" ignored: no design-system theme variable');
 	});
 
 	test('var(--theme--*) values are dropped', () => {
@@ -74,9 +62,9 @@ describe('overridesToCss', () => {
 		const css = overridesToCss(
 			{
 				primary: 'red; } body { display: none',
-				background: 'red</style><script>',
-				borderColor: 'url(https://x.test/a)',
-				backgroundNormal: '   ',
+				danger: 'red</style><script>',
+				success: 'url(https://x.test/a)',
+				warning: '   ',
 			},
 			':root.dark',
 		);
@@ -85,9 +73,7 @@ describe('overridesToCss', () => {
 	});
 
 	test('non-text values are dropped', () => {
-		expect(overridesToCss({ backgroundSubdued: ['red'], foregroundAccent: true, foreground: null }, ':root.dark')).toBe(
-			'',
-		);
+		expect(overridesToCss({ primary: ['red'], success: true, warning: null }, ':root.dark')).toBe('');
 	});
 
 	test('warns once per key', () => {
@@ -106,7 +92,7 @@ describe('overridesToCss', () => {
 
 	test('keeps valid keys next to dropped ones', () => {
 		expect(overridesToCss({ primary: '#123456', nope: 'red', danger: 'red;' }, ':root.light')).toBe(
-			':root.light { --eh-color-action-primary: #123456; }',
+			':root.light { --color-brand-500: #123456; }',
 		);
 	});
 });

@@ -107,7 +107,7 @@ async function onSubmit() {
 </script>
 
 <template>
-	<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="onSubmit">
+	<form novalidate class="flex flex-col gap-5" @submit.prevent="onSubmit">
 		<BoInput v-model="email" autofocus autocomplete="username" type="email" name="email" :label="$t('email')" />
 		<BoInput
 			v-model="password"
@@ -130,13 +130,13 @@ async function onSubmit() {
 		<BoNotice v-if="error" type="danger">
 			{{ errorFormatted }}
 		</BoNotice>
-		<div class="flex items-center justify-between gap-eh-4">
-			<BoButton type="submit" :loading="loggingIn">
+		<div class="flex flex-col items-center gap-5">
+			<BoButton type="submit" full-width :loading="loggingIn">
 				{{ $t('sign_in') }}
 			</BoButton>
 			<RouterLink
 				to="/reset-password"
-				class="text-eh-sm text-eh-text-secondary transition-colors hover:text-eh-text-primary"
+				class="rounded-sm text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 			>
 				{{ $t('forgot_password') }}
 			</RouterLink>

@@ -1,26 +1,15 @@
 // Theme overrides of settings and user (Directus theme rule keys, `DeepPartial<Theme['rules']>` of @directus/themes)
-// turned into design-system tokens (research R2, D-43). Keys without a token and values that are not plain CSS
+// turned into theme variables of the design-system (FR-063, D-43). Keys without a token and values that are not plain CSS
 // values are dropped, with one console warning per key.
 import { isPlainObject } from 'lodash-es';
 
-/* Q-6 tạm: minimal mapping of research R2, change it here only. */
+// Directus keys mapped to the TailAdmin theme variables of design-system/tokens/theme.css (spec FR-063, D-43).
 export const OVERRIDE_MAP: Readonly<Record<string, string>> = {
-	primary: '--eh-color-action-primary',
-	background: '--eh-color-surface-default',
-	backgroundNormal: '--eh-color-surface-subtle',
-	backgroundSubdued: '--eh-color-surface-subtle',
-	foreground: '--eh-color-text-primary',
-	foregroundAccent: '--eh-color-text-primary',
-	foregroundSubdued: '--eh-color-text-secondary',
-	borderColor: '--eh-color-border',
-	success: '--eh-color-status-success',
-	warning: '--eh-color-status-warning',
-	danger: '--eh-color-status-danger',
-	borderRadius: '--eh-radius-md',
-	'fonts.sans.fontFamily': '--eh-font-family-body',
-	'navigation.background': '--bo-navigation-background',
-	'header.background': '--bo-header-background',
-	'sidebar.background': '--bo-sidebar-background',
+	primary: '--color-brand-500',
+	success: '--color-success-500',
+	warning: '--color-warning-500',
+	danger: '--color-error-500',
+	'fonts.sans.fontFamily': '--font-outfit',
 };
 
 // No `;`, `{`, `}`, `<`, `/`, `:` or `_`: a value cannot close the declaration or the style element (CHK077).
@@ -56,7 +45,7 @@ export function overridesToCss(overrides: unknown, scope: ':root.light' | ':root
 		const token = OVERRIDE_MAP[key];
 
 		if (!token) {
-			warnOnce(key, 'no design-system token');
+			warnOnce(key, 'no design-system theme variable');
 			continue;
 		}
 

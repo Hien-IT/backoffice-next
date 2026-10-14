@@ -9,10 +9,7 @@ import { startIdleTracking } from './idle.ts';
 import { i18n } from './lang/index.ts';
 import { router } from './router/index.ts';
 import { loadRuntimeConfig } from './runtime-config.ts';
-import './styles/tokens.css';
-import './styles/theme.css';
-import './styles/base.css';
-import './styles/fonts.css';
+import './styles/index.css';
 
 // One build for every environment (FR-001): apiUrl comes from config.json. Stores read the `sdk` binding only when
 // they send a request, so creating it before mount is enough.

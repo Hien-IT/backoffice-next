@@ -128,7 +128,10 @@ watch(otp, (val) => {
 </script>
 
 <template>
-	<div v-if="ssoProviders.length > 0" class="mt-eh-6 flex flex-col gap-eh-3 border-t border-eh-border pt-eh-6">
+	<div
+		v-if="ssoProviders.length > 0"
+		class="mt-6 flex flex-col gap-3 border-t border-gray-200 pt-6 dark:border-gray-800"
+	>
 		<BoNotice v-if="errorFormatted" type="danger">
 			{{ errorFormatted }}
 		</BoNotice>
@@ -136,13 +139,13 @@ watch(otp, (val) => {
 		<template v-for="provider in ssoProviders" :key="provider.name">
 			<a
 				:href="provider.link"
-				class="flex h-eh-10 w-full items-center overflow-hidden rounded-eh-md border-2 border-eh-surface-subtle bg-eh-surface-subtle text-eh-sm text-eh-text-primary no-underline transition-colors hover:border-eh-border"
+				class="inline-flex w-full items-center justify-center gap-3 rounded-lg bg-gray-100 px-4 py-3 text-sm text-gray-700 transition-colors hover:bg-gray-200 hover:text-gray-800 dark:bg-white/5 dark:text-white/90 dark:hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 				@click="handleSSOClick(provider)"
 			>
-				<span class="flex w-eh-10 shrink-0 items-center justify-center self-stretch bg-eh-border">
+				<span class="flex shrink-0 items-center">
 					<BoIcon :name="provider.icon" />
 				</span>
-				<span class="min-w-0 truncate px-eh-4">
+				<span class="min-w-0 truncate">
 					{{ $t('log_in_with', { provider: provider.label }) }}
 				</span>
 			</a>

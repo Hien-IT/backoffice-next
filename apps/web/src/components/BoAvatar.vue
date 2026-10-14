@@ -22,14 +22,17 @@ watch(avatarUrl, () => (avatarError.value = false));
 </script>
 
 <template>
-	<span class="inline-flex size-eh-12 items-center justify-center overflow-hidden rounded-eh-md">
+	<span
+		class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+	>
 		<img
 			v-if="avatarUrl && !avatarError"
 			:src="avatarUrl"
 			:alt="name"
-			class="size-full object-cover"
+			class="h-full w-full rounded-full object-cover"
 			@error="avatarError = true"
 		/>
-		<BoIcon v-else name="account_circle" :label="name" />
+		<!-- 40px, about 80 % of the 48px avatar (component-specs Avatar fallback). -->
+		<BoIcon v-else name="account_circle" :label="name" :style="{ fontSize: '2.5rem' }" />
 	</span>
 </template>

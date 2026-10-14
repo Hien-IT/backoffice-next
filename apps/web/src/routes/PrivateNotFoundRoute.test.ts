@@ -1,11 +1,15 @@
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
+import { ref } from 'vue';
 import { createSdk } from '../api/sdk.ts';
 import { useUserStore } from '../stores/user.ts';
 import { mountLayout } from '../test-utils/layout.ts';
 import type { AppUser } from '../types/user.ts';
 import PrivateNotFoundRoute from './PrivateNotFoundRoute.vue';
 
+vi.mock('../composables/use-media-query.ts', () => ({
+	useLayoutBreakpoints: () => ({ lg: ref(true), xl: ref(true) }),
+}));
 vi.mock('../router/index.ts', () => ({ router: {} }));
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
@@ -21,7 +25,7 @@ test('PrivateNotFoundRoute (FR-025): private layout with the Directus page-not-f
 		},
 	});
 
-	expect(document.body.querySelector('header h1')!.textContent).toBe('Page Not Found');
+	expect(document.body.querySelector('main h1')!.textContent).toBe('Page Not Found');
 	expect(document.body.querySelector('main')!.textContent).toContain(
 		"The page you are looking for doesn't seem to exist.",
 	);

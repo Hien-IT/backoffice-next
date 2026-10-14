@@ -19,10 +19,10 @@ vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
 enableAutoUnmount(afterEach);
 
-/** 1280, 1000 and 800 px against lg 922 px and xl 1152 px. */
-function viewport(width: 1280 | 1000 | 800) {
-	breakpoints.lg = width >= 922;
-	breakpoints.xl = width >= 1152;
+/** 1280 and 1000 px against lg 1024 px and xl 1280 px. */
+function viewport(width: 1280 | 1000) {
+	breakpoints.lg = width >= 1024;
+	breakpoints.xl = width >= 1280;
 }
 
 beforeEach(() => {
@@ -57,15 +57,18 @@ const sidebarAside = () => q('aside[aria-label="Sidebar"]');
 const button = (label: string) => q(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
 
 describe('PrivateView (FR-020, FR-028)', () => {
-	test('from xl: module bar, nav, header, main and sidebar inline; page title; skip menu', async () => {
+	test('from xl: sidebar with the module sub-menu, header, page header, main and detail panel inline; title; skip menu', async () => {
 		const { head } = await render();
 
-		expect(q('#navigation [data-testid="module-bar"]')).not.toBeNull();
+		expect(navAside()!.id).toBe('navigation');
+		expect(navAside()!.querySelector('[data-testid="module-bar"]')).not.toBeNull();
 		expect(navAside()!.textContent).toContain('Backoffice');
 		expect(navAside()!.textContent).toContain('Nav items');
-		expect(q('header h1')!.textContent).toBe('Content');
-		expect(q('header')!.textContent).toContain('Act');
-		expect(q('main#main-content')!.textContent).toBe('Body');
+		expect(q('header button[aria-label="Toggle Navigation"]')).not.toBeNull();
+		expect(q('header button[aria-label="Ada"]')).not.toBeNull();
+		expect(q('main#main-content h1')!.textContent).toBe('Content');
+		expect(q('main#main-content')!.textContent).toContain('Act');
+		expect(q('main#main-content')!.textContent).toContain('Body');
 		expect(sidebarAside()!.textContent).toBe('Details');
 		expect(q('[role="dialog"]')).toBeNull();
 		expect(q('a[href="#main-content"]')).not.toBeNull();
@@ -75,27 +78,22 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(tags.find((tag) => tag.tag === 'title')?.textContent).toBe('Content');
 	});
 
-	test('from xl: a collapsed nav stays collapsed (saved state) and opens from the header', async () => {
+	test('from xl: a collapsed sidebar stays collapsed (saved state): 90 px rail, content margin follows', async () => {
 		localStorage.setItem('backoffice-nav-bar-collapsed', 'true');
 		await render();
 
-		expect(navAside()).toBeNull();
-		button('Open navigation')!.click();
-		await vi.waitFor(() => expect(navAside()).not.toBeNull());
-		expect(q('[role="dialog"]')).toBeNull();
+		expect(navAside()!.className).toContain('w-[90px]');
+		expect(navAside()!.textContent).not.toContain('Nav items');
+		expect(q('#navigation + div')!.className).toContain('xl:ms-[90px]');
+		expect(button('Toggle Navigation')!.getAttribute('aria-expanded')).toBe('false');
+
+		button('Toggle Navigation')!.click();
+		await vi.waitFor(() => expect(navAside()!.className).toContain('w-[290px]'));
+		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('false');
 	});
 
-	test('lg to xl: sidebar collapsed by default, nav inline', async () => {
+	test('below xl: sidebar and detail panel are drawers, opened by keyboard, Esc closes, focus returns', async () => {
 		viewport(1000);
-		await render();
-
-		expect(sidebarAside()).toBeNull();
-		expect(navAside()).not.toBeNull();
-		expect(button('Open sidebar')).not.toBeNull();
-	});
-
-	test('below lg: nav (with the module bar) and sidebar are drawers, opened by keyboard, Esc closes', async () => {
-		viewport(800);
 		await render();
 
 		expect(q('[data-testid="module-bar"]')).toBeNull();
@@ -105,12 +103,9 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		const openNav = button('Open navigation')!;
 		openNav.focus();
 		openNav.click();
-		await vi.waitFor(() => expect(q('[role="dialog"]')).not.toBeNull());
-		expect(q('[role="dialog"] [data-testid="module-bar"]')).not.toBeNull();
-		expect(q('[role="dialog"] aside[aria-label="Navigation"]')).not.toBeNull();
+		await vi.waitFor(() => expect(q('[role="dialog"] [data-testid="module-bar"]')).not.toBeNull());
+		expect(q('[role="dialog"] aside[aria-label="Navigation"]')!.textContent).toContain('Nav items');
 
-		// Focus lands on the first module button, whose tooltip takes the first Esc (topmost layer).
-		await press(document.activeElement!, 'Escape');
 		await press(document.activeElement!, 'Escape');
 		await vi.waitFor(() => expect(q('[role="dialog"]')).toBeNull());
 		await vi.waitFor(() => expect(document.activeElement).toBe(openNav));

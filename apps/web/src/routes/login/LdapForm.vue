@@ -98,7 +98,7 @@ async function onSubmit() {
 </script>
 
 <template>
-	<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="onSubmit">
+	<form novalidate class="flex flex-col gap-5" @submit.prevent="onSubmit">
 		<BoInput v-model="identifier" autofocus autocomplete="username" name="identifier" :label="$t('identifier')" />
 		<BoInput
 			v-model="password"
@@ -122,7 +122,7 @@ async function onSubmit() {
 			{{ errorFormatted }}
 		</BoNotice>
 		<div>
-			<BoButton type="submit" :loading="loggingIn">
+			<BoButton type="submit" full-width :loading="loggingIn">
 				{{ $t('sign_in') }}
 			</BoButton>
 		</div>

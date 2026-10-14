@@ -2,6 +2,7 @@
 import {
 	SelectContent,
 	SelectItem,
+	SelectItemIndicator,
 	SelectItemText,
 	SelectPortal,
 	SelectRoot,
@@ -23,38 +24,42 @@ const { items, disabled = false } = defineProps<{
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
 const id = useId();
+
+// component-specs Select trigger = FIELD + FIELD_DISABLED.
+const TRIGGER =
+	'flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-start text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 data-[placeholder]:text-gray-500 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:data-[placeholder]:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03]';
 </script>
 
 <template>
-	<div class="flex flex-col gap-eh-1">
-		<label v-if="label" :for="id" class="text-eh-sm font-semibold text-eh-text-primary">{{ label }}</label>
+	<div>
+		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+			{{ label }}
+		</label>
 		<!-- No items: nothing to choose, so the trigger is disabled (empty state). -->
 		<SelectRoot
 			:model-value="modelValue ?? ''"
 			:disabled="disabled || items.length === 0"
 			@update:model-value="emit('update:modelValue', String($event))"
 		>
-			<SelectTrigger
-				:id="id"
-				class="flex h-eh-10 w-full items-center justify-between gap-eh-2 rounded-eh-md border border-eh-border bg-eh-surface-default px-eh-3 text-eh-base text-eh-text-primary disabled:cursor-not-allowed disabled:opacity-50 data-placeholder:text-eh-text-secondary"
-			>
+			<SelectTrigger :id="id" :class="TRIGGER">
 				<SelectValue :placeholder="placeholder ?? ''" class="truncate" />
-				<BoIcon name="expand_more" size="sm" />
+				<BoIcon name="expand_more" size="sm" class="text-gray-500 dark:text-gray-400" />
 			</SelectTrigger>
 			<SelectPortal>
 				<SelectContent
 					position="popper"
 					:side-offset="4"
-					class="z-50 max-h-(--reka-select-content-available-height) min-w-(--reka-select-trigger-width) overflow-hidden rounded-eh-md border border-eh-border bg-eh-surface-default p-eh-1 shadow-eh-sm"
+					class="z-99999 max-h-(--reka-select-content-available-height) min-w-(--reka-select-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
 				>
-					<SelectViewport>
+					<SelectViewport class="custom-scrollbar">
 						<SelectItem
 							v-for="item in items"
 							:key="item.value"
 							:value="item.value"
-							class="flex cursor-pointer items-center rounded-eh-sm px-eh-3 py-eh-2 text-eh-sm text-eh-text-primary outline-none data-disabled:pointer-events-none data-disabled:opacity-50 data-highlighted:bg-eh-surface-subtle data-[state=checked]:font-semibold"
+							class="relative flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 dark:text-gray-300 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400"
 						>
 							<SelectItemText>{{ item.text }}</SelectItemText>
+							<SelectItemIndicator><BoIcon name="check" size="sm" /></SelectItemIndicator>
 						</SelectItem>
 					</SelectViewport>
 				</SelectContent>

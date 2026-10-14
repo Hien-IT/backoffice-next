@@ -1,5 +1,7 @@
 <script setup lang="ts">
-// Layout of directus/app/src/views/public/public-view.vue rewritten with the eh-* utilities (contracts/ui-routes §5).
+// Content of directus/app/src/views/public/public-view.vue (contracts/ui-routes §5) as a centered card over a full-page
+// background (owner's choice 2026-10-15, design-system/docs/layout-patterns.md "Public pages"): the background is
+// public_background (image or video) or the project color with the TailAdmin grid shapes.
 // Backoffice: the default logo is the Backoffice SVG (light/dark by the `dark` class, FR-030); the logo box uses
 // --project-color set by the app head (FR-031); a background video does not autoplay under reduced motion (D-50).
 import { useMediaQuery } from '@vueuse/core';
@@ -49,79 +51,95 @@ function playVideo() {
 </script>
 
 <template>
-	<div class="flex h-dvh w-full bg-eh-surface-subtle text-eh-text-primary">
+	<div class="relative isolate flex min-h-dvh w-full flex-col items-center justify-center px-4 py-10 text-sm">
 		<div
-			class="z-2 flex h-full w-full max-w-[28.125rem] shrink-0 flex-col justify-between overflow-y-auto bg-eh-surface-default p-eh-5 text-eh-sm shadow-eh-sm min-[28.125rem]:px-eh-12 min-[28.125rem]:py-eh-8"
+			class="absolute inset-0 -z-1 overflow-hidden bg-(--project-color) bg-cover bg-center"
+			data-testid="public-art"
+			:style="artStyles"
 		>
-			<div class="flex max-w-full items-center gap-eh-3" data-testid="public-title">
-				<div class="flex size-[3.125rem] shrink-0 items-center justify-center rounded-eh-md bg-project">
-					<img v-if="logoURL" :src="logoURL" :alt="projectName" class="size-[2.25rem] object-contain" />
-					<template v-else>
-						<img :src="logoLight" :alt="projectName" class="size-[2.25rem] dark:hidden" />
-						<img :src="logoDark" :alt="projectName" class="hidden size-[2.25rem] dark:block" />
-					</template>
-				</div>
-				<div class="min-w-0">
-					<p class="truncate text-eh-base font-bold" :title="projectName">{{ projectName }}</p>
-					<p class="truncate text-eh-text-secondary">
-						{{ project?.project_descriptor ?? $t('application') }}
-					</p>
+			<!-- TailAdmin CommonGridShape (grid-01.svg) drawn with theme colors: top end and, turned, bottom start. -->
+			<template v-if="!customBackgroundUrl">
+				<div
+					v-for="corner in ['top-0 end-0', 'bottom-0 start-0 rotate-180']"
+					:key="corner"
+					aria-hidden="true"
+					class="absolute aspect-450/254 w-full max-w-[250px] bg-[linear-gradient(to_right,currentColor_1px,transparent_1px),linear-gradient(to_bottom,currentColor_1px,transparent_1px)] bg-size-[51px_52px] text-white/30 mask-b-from-10% mask-l-from-10% xl:max-w-[450px]"
+					:class="corner"
+				/>
+			</template>
+
+			<video
+				v-else-if="customBackgroundIsVideo"
+				ref="video"
+				:src="customBackgroundUrl"
+				:autoplay="!reducedMotion"
+				muted
+				loop
+				playsinline
+				aria-hidden="true"
+				class="absolute inset-0 size-full object-cover"
+			/>
+		</div>
+
+		<BoButton
+			v-if="customBackgroundIsVideo && reducedMotion && !videoStarted"
+			variant="secondary"
+			icon="play_arrow"
+			:aria-label="$t('play_video')"
+			class="absolute end-4 top-4"
+			@click="playVideo"
+		/>
+
+		<img
+			v-if="foregroundURL"
+			:src="foregroundURL"
+			:alt="project?.project_name ?? ''"
+			class="mb-6 max-h-24 w-auto max-w-xs object-contain"
+		/>
+
+		<div
+			class="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900"
+		>
+			<div class="px-6 pt-8 sm:px-10">
+				<div class="flex items-center gap-3" data-testid="public-title">
+					<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-(--project-color)">
+						<img v-if="logoURL" :src="logoURL" :alt="projectName" class="size-9 object-contain" />
+						<template v-else>
+							<img :src="logoLight" :alt="projectName" class="size-9 dark:hidden" />
+							<img :src="logoDark" :alt="projectName" class="hidden size-9 dark:block" />
+						</template>
+					</div>
+					<div class="min-w-0">
+						<p class="truncate text-base font-semibold text-gray-800 dark:text-white/90" :title="projectName">
+							{{ projectName }}
+						</p>
+						<p class="truncate text-gray-500 dark:text-gray-400">
+							{{ project?.project_descriptor ?? $t('application') }}
+						</p>
+					</div>
 				</div>
 			</div>
 
-			<div class="w-[19.125rem] max-w-full py-eh-8">
+			<div class="px-6 py-8 sm:px-10">
 				<slot />
 			</div>
 
-			<div class="flex items-center gap-eh-1 text-eh-text-secondary">
+			<div
+				class="flex items-center justify-center gap-1 border-t border-gray-200 bg-gray-50 px-6 py-4 text-gray-500 sm:px-10 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400"
+			>
 				<slot name="notice" />
 			</div>
 		</div>
 
-		<div
-			class="relative z-1 hidden h-full grow items-center justify-center bg-cover bg-center sm:flex"
-			data-testid="public-art"
-			:style="artStyles"
-		>
-			<div v-if="!customBackgroundUrl" class="absolute inset-0 -z-1 overflow-hidden bg-eh-surface-subtle">
-				<div class="absolute -bottom-1/4 -left-1/4 h-1/2 w-1/2 rounded-eh-full bg-project opacity-50 blur-3xl" />
-				<div class="absolute -bottom-1/4 left-[15%] h-2/5 w-3/5 rounded-eh-full bg-project opacity-70 blur-3xl" />
-				<div class="absolute -bottom-1/5 left-3/4 h-1/5 w-2/5 rounded-eh-full bg-project opacity-60 blur-2xl" />
-			</div>
-
-			<template v-else-if="customBackgroundIsVideo">
-				<video
-					ref="video"
-					:src="customBackgroundUrl"
-					:autoplay="!reducedMotion"
-					muted
-					loop
-					playsinline
-					aria-hidden="true"
-					class="absolute inset-0 -z-1 size-full object-cover"
-				/>
-				<BoButton
-					v-if="reducedMotion && !videoStarted"
-					variant="secondary"
-					icon="play_arrow"
-					:aria-label="$t('play_video')"
-					class="absolute top-eh-4 right-eh-4"
-					@click="playVideo"
-				/>
-			</template>
-
-			<img v-if="foregroundURL" :src="foregroundURL" :alt="project?.project_name ?? ''" class="w-4/5 max-w-[22.5rem]" />
-
-			<div v-if="note" class="absolute inset-x-0 bottom-eh-8 flex justify-center px-eh-4">
-				<!-- sanitized by md() (DOMPurify) -->
-				<!-- eslint-disable vue/no-v-html -->
-				<div
-					class="max-w-[19.125rem] rounded-eh-md bg-eh-neutral-900/20 px-eh-3 py-eh-2 text-eh-sm wrap-break-word text-eh-neutral-0 backdrop-blur-xs"
-					data-testid="public-note"
-					v-html="note"
-				/>
-				<!-- eslint-enable vue/no-v-html -->
-			</div>
+		<div v-if="note" class="mt-6 flex w-full max-w-md justify-center">
+			<!-- sanitized by md() (DOMPurify) -->
+			<!-- eslint-disable vue/no-v-html -->
+			<div
+				class="rounded-lg bg-gray-900/80 px-3 py-2 text-sm wrap-break-word text-white backdrop-blur-xs [&_a]:rounded-sm [&_a]:underline [&_a]:focus-visible:outline-2 [&_a]:focus-visible:outline-offset-2 [&_a]:focus-visible:outline-white"
+				data-testid="public-note"
+				v-html="note"
+			/>
+			<!-- eslint-enable vue/no-v-html -->
 		</div>
 	</div>
 </template>

@@ -32,7 +32,7 @@ export function useAppHead() {
 	const projectColor = computed(() => safeColor(serverStore.info?.project?.project_color));
 
 	const brandStyleCss = computed(() => {
-		return `:root { --project-color: ${projectColor.value ?? 'var(--eh-color-action-primary)'} }`;
+		return `:root { --project-color: ${projectColor.value ?? 'var(--color-brand-500)'} }`;
 	});
 
 	const themeOverridesCss = computed(() =>
@@ -54,7 +54,7 @@ export function useAppHead() {
 			class: darkMode.value ? 'dark' : 'light',
 		})),
 		meta: computed(() => {
-			const content = projectColor.value ?? cssVar('--eh-color-action-primary', document.documentElement);
+			const content = projectColor.value ?? cssVar('--color-brand-500', document.documentElement);
 
 			return [
 				{

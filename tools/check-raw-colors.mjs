@@ -1,13 +1,17 @@
-// FR-092 (feature 012, constitution XII): apps/web takes colors from the design-system tokens only. Fails on raw hex,
-// rgb()/hsl() and Tailwind palette classes in apps/web/src/**/*.{vue,css,ts}, except the token file and tests.
+// FR-092 (feature 012, constitution XII 2.0.0): apps/web takes colors from the TailAdmin theme of the design-system
+// only. Fails on raw hex, rgb()/hsl() and classes of the Tailwind palette the theme does not define (red-*, sky-*...;
+// the theme's brand, gray, blue-light, orange, success, warning, error, white and black are fine) in
+// apps/web/src/**/*.{vue,css,ts}, except the theme file and tests.
 // A line may opt out with a `raw-color-allowed: <reason>` comment (for example a canvas color that is data).
 // Usage: node tools/check-raw-colors.mjs [root]
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+// Tailwind's default palette minus the names the TailAdmin theme redefines (gray, orange); `blue-light-*` is a theme
+// color and does not match `blue-<number>`.
 const PALETTE =
-	'slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose';
+	'slate|zinc|neutral|stone|red|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose';
 const UTILITY = 'bg|text|border|ring|outline|fill|stroke|from|via|to|divide|placeholder|shadow|accent|caret|decoration';
 
 export const RULES = [
@@ -15,11 +19,11 @@ export const RULES = [
 	{ name: 'rgb()/hsl() color', pattern: /\b(rgba?|hsla?)\(/ },
 	{
 		name: 'Tailwind palette class',
-		pattern: new RegExp(`(?<![\\w-])(${UTILITY})-((${PALETTE})-\\d{2,3}|white|black)(?![\\w-])`),
+		pattern: new RegExp(`(?<![\\w-])(${UTILITY})-(${PALETTE})-\\d{2,3}(?![\\w-])`),
 	},
 ];
 
-const EXCLUDED = ['src/styles/tokens.css'];
+const EXCLUDED = ['src/styles/theme.css'];
 
 function* files(dir) {
 	for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {

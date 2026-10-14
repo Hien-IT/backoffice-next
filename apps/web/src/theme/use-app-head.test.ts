@@ -52,7 +52,7 @@ describe('useAppHead', () => {
 
 		expect(head.title).toBe('Sign In · Backoffice');
 		expect(head.icon).toBe('/admin/favicon.ico');
-		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
+		expect(head.style).toBe(':root { --project-color: var(--color-brand-500) }');
 		expect(head.html).toMatchObject({ lang: 'en-US', dir: 'ltr', class: 'light' });
 		expect(head.overrides).toBe('');
 	});
@@ -81,7 +81,7 @@ describe('useAppHead', () => {
 	test('an invalid project_color is ignored', async () => {
 		const head = await resolve({ project_color: 'red; } body { display: none' });
 
-		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
+		expect(head.style).toBe(':root { --project-color: var(--color-brand-500) }');
 		expect(head.icon).toBe('/admin/favicon.ico');
 	});
 });
@@ -100,13 +100,13 @@ describe('theme', () => {
 		useUserStore().currentUser = { id: 'u1', appearance: null, theme_light_overrides: { primary: '#aa0000' } } as never;
 
 		const head = await resolve({
-			theme_light_overrides: { primary: '#111111', borderColor: 'gray' },
-			theme_dark_overrides: { background: 'black' },
+			theme_light_overrides: { primary: '#111111', danger: 'gray' },
+			theme_dark_overrides: { success: 'black' },
 		});
 
 		expect(head.overrides).toBe(
-			':root.light { --eh-color-action-primary: #111111; --eh-color-border: gray; }\n' +
-				':root.dark { --eh-color-surface-default: black; }',
+			':root.light { --color-brand-500: #111111; --color-error-500: gray; }\n' +
+				':root.dark { --color-success-500: black; }',
 		);
 	});
 });

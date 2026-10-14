@@ -12,7 +12,7 @@ describe('BoIcon', () => {
 		expect(span.classes()).toContain('material-symbols-rounded');
 		expect(span.attributes('aria-hidden')).toBe('true');
 		expect(span.attributes('role')).toBeUndefined();
-		expect(span.attributes('style')).toContain('var(--eh-font-size-2xl)');
+		expect(span.attributes('style')).toContain('var(--text-2xl)');
 	});
 
 	test('a label makes it an image with a name; size maps to tokens', () => {
@@ -21,8 +21,8 @@ describe('BoIcon', () => {
 		expect(span.attributes('role')).toBe('img');
 		expect(span.attributes('aria-label')).toBe('Locked');
 		expect(span.attributes('aria-hidden')).toBeUndefined();
-		expect(span.attributes('style')).toContain('var(--eh-font-size-3xl)');
-		expect(mount(BoIcon, { props: { name: 'x', size: 'sm' } }).attributes('style')).toContain('var(--eh-font-size-lg)');
+		expect(span.attributes('style')).toContain('var(--text-title-sm)');
+		expect(mount(BoIcon, { props: { name: 'x', size: 'sm' } }).attributes('style')).toContain('var(--text-lg)');
 	});
 });
 

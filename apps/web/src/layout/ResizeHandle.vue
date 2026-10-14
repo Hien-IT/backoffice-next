@@ -64,8 +64,8 @@ function onPointerdown(event: PointerEvent) {
 		:aria-valuenow="size"
 		:aria-valuemin="min"
 		:aria-valuemax="max"
-		class="absolute inset-y-0 z-10 w-eh-1 cursor-col-resize touch-none opacity-0 transition-opacity hover:bg-eh-action-primary hover:opacity-100 focus-visible:bg-eh-action-primary focus-visible:opacity-100"
-		:class="location === 'start' ? '-end-eh-1' : '-start-eh-1'"
+		class="absolute inset-y-0 z-10 w-1 cursor-col-resize touch-none opacity-0 transition-opacity hover:bg-brand-500 hover:opacity-100 focus-visible:bg-brand-500 focus-visible:opacity-100 dark:hover:bg-brand-400 dark:focus-visible:bg-brand-400"
+		:class="location === 'start' ? '-end-1' : '-start-1'"
 		@keydown="onKeydown"
 		@pointerdown="onPointerdown"
 	/>

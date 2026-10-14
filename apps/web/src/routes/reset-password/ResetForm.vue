@@ -63,7 +63,7 @@ async function onSubmit() {
 </script>
 
 <template>
-	<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="onSubmit">
+	<form novalidate class="flex flex-col gap-5" @submit.prevent="onSubmit">
 		<BoInput :model-value="email" type="email" name="email" autocomplete="username" :label="$t('email')" disabled />
 		<BoInput
 			v-model="password"
@@ -79,8 +79,8 @@ async function onSubmit() {
 			{{ errorFormatted }}
 		</BoNotice>
 		<div>
-			<BoButton v-if="!done" type="submit" :loading="resetting">{{ $t('reset') }}</BoButton>
-			<BoButton v-else :to="signInLink">{{ $t('sign_in') }}</BoButton>
+			<BoButton v-if="!done" type="submit" full-width :loading="resetting">{{ $t('reset') }}</BoButton>
+			<BoButton v-else full-width :to="signInLink">{{ $t('sign_in') }}</BoButton>
 		</div>
 	</form>
 </template>

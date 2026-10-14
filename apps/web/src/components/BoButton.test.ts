@@ -12,12 +12,12 @@ describe('BoButton', () => {
 
 		expect(button.text()).toBe('Save');
 		expect(button.attributes('type')).toBe('button');
-		expect(button.classes()).toContain('bg-eh-action-primary');
+		expect(button.classes()).toContain('bg-brand-500');
 
 		await wrapper.setProps({ variant: 'danger', type: 'submit', fullWidth: true });
 		expect(button.attributes('type')).toBe('submit');
-		expect(button.classes()).toContain('border-eh-status-danger');
-		expect(button.classes()).toContain('text-eh-text-primary');
+		expect(button.classes()).toContain('bg-error-600');
+		expect(button.classes()).toContain('focus-visible:outline-error-600');
 		expect(button.classes()).toContain('w-full');
 	});
 

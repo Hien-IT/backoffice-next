@@ -4,7 +4,7 @@ import { createSdk } from '../api/sdk.ts';
 import { useUserStore } from '../stores/user.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import type { AppUser, ShareUser } from '../types/user.ts';
-import ModuleBarAvatar from './ModuleBarAvatar.vue';
+import UserMenu from './UserMenu.vue';
 
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
@@ -13,7 +13,7 @@ enableAutoUnmount(afterEach);
 async function render(user: Partial<AppUser> | ShareUser) {
 	createSdk('http://api.test/');
 
-	const { wrapper } = await mountLayout(ModuleBarAvatar, {
+	const { wrapper } = await mountLayout(UserMenu, {
 		beforeMount: () => {
 			useUserStore().currentUser = user as AppUser;
 		},
@@ -28,7 +28,7 @@ async function openMenu(trigger: HTMLElement) {
 	return [...document.body.querySelectorAll('[role="menuitem"]')];
 }
 
-describe('ModuleBarAvatar (FR-024)', () => {
+describe('UserMenu (FR-024)', () => {
 	test('trigger named after the user, avatar thumbnail like Directus', async () => {
 		const { wrapper, trigger } = await render({
 			id: 'u1',

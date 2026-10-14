@@ -53,9 +53,9 @@ export const MODULE_BAR_DEFAULT: ModuleBarPart[] = [
 
 // Keep in sync with --breakpoint-* in src/styles/theme.css
 export const BREAKPOINTS = {
-	sm: '36rem',
-	lg: '57.625rem',
-	xl: '72rem',
+	sm: '640px',
+	lg: '1024px',
+	xl: '1280px',
 };
 
 export const DEFAULT_AUTH_PROVIDER = 'local';

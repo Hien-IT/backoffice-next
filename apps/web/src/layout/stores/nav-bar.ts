@@ -1,49 +1,26 @@
 // Ported from directus/app/src/views/private/private-view/stores/nav-bar.ts
-// Backoffice: localStorage keys with the backoffice- prefix (Principle IX), storage errors kept in memory
-// (useLayoutStorage); breakpoints from composables/use-media-query.ts.
+// Backoffice: state of the TailAdmin sidebar (design-system layout-patterns, L-1): `collapsed` is the inline sidebar
+// from `xl` (290 px or the 90 px rail, TailAdmin `isExpanded`), saved under the backoffice- key (Principle IX) with
+// storage errors kept in memory (useLayoutStorage); below `xl` the sidebar is a drawer whose `drawerOpen` (TailAdmin
+// `isMobileOpen`) is never saved. No resizable nav column, so no size.
 import { createEventHook } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { computed, watch } from 'vue';
+import { ref, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import { useLayoutBreakpoints } from '../../composables/use-media-query.ts';
-import { useLayoutStorage, useSidebarStore } from './sidebar.ts';
+import { useLayoutStorage } from './sidebar.ts';
 
 export const useNavBarStore = defineStore('nav-bar-store', () => {
 	const collapsed = useLayoutStorage('backoffice-nav-bar-collapsed', false);
-
-	const DEFAULT_SIZE = 225;
-	const storedSize = useLayoutStorage('backoffice-nav-bar-size', DEFAULT_SIZE);
-
-	const size = computed({
-		get() {
-			const val = storedSize.value;
-
-			if (!Number.isFinite(val)) {
-				storedSize.value = DEFAULT_SIZE;
-				return DEFAULT_SIZE;
-			}
-
-			return val;
-		},
-		set(val: number) {
-			if (Number.isFinite(val)) storedSize.value = val;
-		},
-	});
+	const drawerOpen = ref(false);
 
 	const route = useRoute();
-	const { lg, xl } = useLayoutBreakpoints();
-	const sidebarStore = useSidebarStore();
+	const { xl: inlineNav } = useLayoutBreakpoints();
 
-	const inlineNav = computed(() => {
-		return sidebarStore.collapsed ? lg.value : xl.value;
+	// The drawer closes on navigation and when the window grows to `xl`.
+	watch([() => route.fullPath, inlineNav], () => {
+		drawerOpen.value = false;
 	});
-
-	watch(
-		() => route.fullPath,
-		() => {
-			if (!inlineNav.value) collapse();
-		},
-	);
 
 	const collapseHook = createEventHook();
 	const expandHook = createEventHook();
@@ -67,8 +44,7 @@ export const useNavBarStore = defineStore('nav-bar-store', () => {
 
 	return {
 		collapsed,
-		size,
-		// Backoffice: exposed so PrivateView and HeaderBar share the rule of private-view-root.vue.
+		drawerOpen,
 		inlineNav,
 		collapse,
 		expand,

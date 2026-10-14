@@ -2,7 +2,7 @@ import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { mountLayout, press } from '../test-utils/layout.ts';
-import Sidebar from './Sidebar.vue';
+import DetailPanel from './DetailPanel.vue';
 import { useSidebarStore } from './stores/sidebar.ts';
 
 enableAutoUnmount(afterEach);
@@ -11,9 +11,9 @@ beforeEach(() => localStorage.clear());
 
 const aside = () => document.body.querySelector('aside[aria-label="Sidebar"]');
 
-describe('Sidebar', () => {
+describe('DetailPanel (L-4)', () => {
 	test('inline: labelled aside with the slot, hidden when collapsed, resizable', async () => {
-		const { wrapper } = await mountLayout(Sidebar, { slots: { default: '<p>Details</p>' } });
+		const { wrapper } = await mountLayout(DetailPanel, { slots: { default: '<p>Details</p>' } });
 		const sidebarStore = useSidebarStore();
 
 		expect(aside()!.textContent).toBe('Details');
@@ -30,7 +30,7 @@ describe('Sidebar', () => {
 		const opener = document.createElement('button');
 		document.body.append(opener);
 
-		await mountLayout(Sidebar, { props: { drawer: true }, slots: { default: '<p>Details</p>' } });
+		await mountLayout(DetailPanel, { props: { drawer: true }, slots: { default: '<p>Details</p>' } });
 		const sidebarStore = useSidebarStore();
 		sidebarStore.collapse();
 		await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull());

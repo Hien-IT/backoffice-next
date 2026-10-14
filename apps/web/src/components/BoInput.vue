@@ -36,6 +36,14 @@ const id = idProp ?? useId();
 const errorId = `${id}-error`;
 const input = useTemplateRef('input');
 
+// component-specs FIELD / FIELD_INVALID / FIELD_DISABLED; read-only gets the disabled background (no recipe).
+const FIELD =
+	'w-full rounded-lg border bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 disabled:placeholder:text-gray-300 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03] dark:disabled:placeholder:text-white/15 read-only:bg-gray-50 dark:read-only:bg-white/[0.03]';
+const FIELD_VALID =
+	'border-gray-500 focus:border-brand-500 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 dark:border-gray-500 dark:focus:border-brand-400';
+const FIELD_INVALID =
+	'border-error-600 focus:border-error-600 focus:ring-error-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error-600 dark:focus-visible:outline-error-400 dark:border-error-400 dark:focus:border-error-400';
+
 function onInput() {
 	emit('update:modelValue', input.value!.value);
 }
@@ -47,8 +55,10 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="flex flex-col gap-eh-1">
-		<label v-if="label" :for="id" class="text-eh-sm font-semibold text-eh-text-primary">{{ label }}</label>
+	<div>
+		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+			{{ label }}
+		</label>
 		<input
 			v-bind="$attrs"
 			:id="id"
@@ -63,11 +73,17 @@ onMounted(() => {
 			:inputmode="inputmode"
 			:aria-invalid="invalid || !!error ? 'true' : undefined"
 			:aria-describedby="error ? errorId : undefined"
-			class="h-eh-10 w-full rounded-eh-md border border-eh-border bg-eh-surface-default px-eh-3 text-eh-base text-eh-text-primary placeholder:text-eh-text-secondary read-only:bg-eh-surface-subtle disabled:cursor-not-allowed disabled:opacity-50 aria-invalid:border-eh-status-danger"
+			class="h-11"
+			:class="[FIELD, invalid || error ? FIELD_INVALID : FIELD_VALID]"
 			@input="onInput"
 		/>
-		<p v-if="error" :id="errorId" role="alert" class="flex items-center gap-eh-1 text-eh-sm text-eh-text-primary">
-			<BoIcon name="error" size="sm" class="text-eh-status-danger" />
+		<p
+			v-if="error"
+			:id="errorId"
+			role="alert"
+			class="mt-1.5 flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400"
+		>
+			<BoIcon name="error" size="sm" />
 			{{ error }}
 		</p>
 	</div>

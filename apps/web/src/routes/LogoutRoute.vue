@@ -10,7 +10,10 @@ onMounted(() => {
 </script>
 
 <template>
-	<div class="flex h-dvh w-full items-center justify-center text-eh-3xl text-eh-action-primary" aria-busy="true">
+	<div
+		class="flex h-dvh w-full items-center justify-center bg-white text-3xl text-brand-500 dark:bg-gray-900 dark:text-brand-400"
+		aria-busy="true"
+	>
 		<BoProgressCircular indeterminate :aria-label="$t('loading')" />
 	</div>
 </template>

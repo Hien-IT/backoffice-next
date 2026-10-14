@@ -17,7 +17,7 @@ describe('ModulePlaceholder (FR-023, D-40)', () => {
 		['users', '/users/1', 'User Directory', 'people_alt'],
 		['activity', '/activity', 'Activity', 'notifications'],
 	])(
-		'module %s: translated name in the header h1 and the tab title, icon, empty state',
+		'module %s: translated name in the page header h1 and the tab title, icon, empty state',
 		async (id, path, name, icon) => {
 			createSdk('http://api.test/');
 			registeredModules.value = getInternalModules();
@@ -30,8 +30,8 @@ describe('ModulePlaceholder (FR-023, D-40)', () => {
 				},
 			});
 
-			expect(document.body.querySelector('header h1')!.textContent).toBe(name);
-			expect(document.body.querySelector('header')!.textContent).toContain(icon);
+			expect(document.body.querySelector('main h1')!.textContent).toBe(name);
+			expect(document.body.querySelector('main')!.textContent).toContain(icon);
 			expect(document.body.querySelector('main')!.textContent).toContain(
 				'The content of this module will be available in a later version.',
 			);

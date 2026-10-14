@@ -669,3 +669,41 @@ Directus.
 - T067: job `e2e-web` dùng image của job `docker` (tag lại `:local`, `PARITY_NO_BUILD=1` để env-up không build lại).
 - E2E seed cây OpenLDAP như `sso-ldap.test.ts` (OpenLDAP mới chưa có `ou=users`, `ou=groups`, `cn=Manager`; thiếu thì
   LDAP login trả 503 ở cả hai API).
+
+---
+
+## Phase 11: Design-system TailAdmin và bố cục mới (owner yêu cầu 2026-10-15)
+
+**Goal**: thay bộ E-Hiring bằng design-system dựa trên TailAdmin (constitution 2.0.0, Nguyên tắc XII), dựng lại theme
+và bố cục khung theo `design-system/docs/layout-patterns.md`; route, luồng, hành vi và API không đổi (D-47, D-52).
+
+- [X] T076 Constitution 2.0.0 (XII), CLAUDE.md, plan-template, SPECKIT-GUIDE; spec FR-020, FR-021, FR-024, FR-026,
+  FR-028, FR-063 – FR-066, D-47, D-52, bảng Q-1 – Q-8.
+- [X] T077 `design-system/` viết lại trên TailAdmin (theme.css, tokens.json, README + ghi công, LICENSE-TailAdmin.md,
+  layout-patterns.md, component-specs.md, migration-guide.md có bảng tương phản, handoff-checklist, ví dụ component);
+  xóa file riêng của E-Hiring.
+- [X] T078 `apps/web/src/styles`: chép theme TailAdmin (`theme.css`), bỏ `tokens.css` E-Hiring, font Outfit
+  (`@fontsource/outfit`, OFL) với Noto Sans dự phòng; `theme.test.ts` kiểm theme khớp design-system và tương phản;
+  `tools/check-raw-colors.mjs` chỉ cho phép màu của theme; `theme/override-map.ts` ánh xạ sang biến TailAdmin.
+- [X] T079 Component `Bo*` theo công thức TailAdmin của `component-specs.md` (Button, Input, Select, Notice/Alert,
+  Badge, Menu, Dialog, Tooltip, Avatar, Progress) giữ API, test.
+- [X] T080 Bố cục private theo `layout-patterns.md`: sidebar (module + menu con, thu gọn 90 px, drawer dưới `xl` 1280),
+  header (nút sidebar, menu user), page header, panel chi tiết phải, NoAppAccess, ModulePlaceholder, 404; giữ
+  `data-testid="module-bar"` trên danh sách module và các nhãn bàn phím; test.
+- [X] T081 Trang public (đăng nhập, quên mật khẩu, lời mời, setup, share, register) theo mẫu sign-in của TailAdmin
+  với branding settings (D-50, D-51 giữ).
+- [ ] T082 E2E sửa selector theo bố cục mới; chạy ba cấu hình; build image; CI `e2e-web` xanh.
+
+Phase 11 (2026-10-15):
+
+- Owner chọn: tên theme TailAdmin dùng thẳng; làm trong 012; màu thay thế trong theme để đạt AA (C-1, C-2); breakpoint
+  khung `xl` 1280 px (L-1); trang public là card ở giữa trên nền toàn trang như trang đăng nhập authentik (thay bố cục
+  hai cột của TailAdmin, ghi ở `layout-patterns.md`).
+- Bố cục mới: `AppSidebar` (module có nhãn, menu con là slot điều hướng của module, rail 90 px khi thu gọn, drawer dưới
+  `xl`), `AppHeader` (nút sidebar, `UserMenu`), `PageHeader` (h1, actions, nút panel), `DetailPanel` (333 px, drawer
+  dưới `xl`); `NavBar`, `ProjectName` bỏ. E2E: khi thu gọn ở 1280 px rail vẫn hiện, kiểm `aria-expanded` của "Toggle
+  Navigation" và bề rộng rail.
+- Khác TailAdmin: nhóm menu "Modules" thay "Menu"; header chưa có tìm kiếm, đổi theme, thông báo (ngoài phạm vi 012);
+  dialog không có nút đóng (Esc, bấm ngoài); font Outfit với Noto Sans dự phòng cho tiếng Việt.
+- Sự cố khi commit chọn lọc: `5532056` và `a02a61f` mang theo thay đổi đã staged (xóa `tokens.css`, đổi tên file
+  layout) làm `main` hỏng build; `0f44a25` đưa `main` về đúng trước commit Phase 11.

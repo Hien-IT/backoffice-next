@@ -29,7 +29,7 @@ function stubReducedMotion(matches: boolean) {
 }
 
 describe('PublicView', () => {
-	test('no project (FR-037): Backoffice logos for light and dark, default name and descriptor, token pattern', () => {
+	test('no project (FR-037): Backoffice logos for light and dark, default name and descriptor, grid pattern', () => {
 		const wrapper = mountView();
 		const images = wrapper.get('[data-testid="public-title"]').findAll('img');
 
@@ -45,6 +45,7 @@ describe('PublicView', () => {
 		expect(wrapper.find('[data-testid="notice"]').exists()).toBe(true);
 		expect(wrapper.find('video').exists()).toBe(false);
 		expect(wrapper.find('[data-testid="public-note"]').exists()).toBe(false);
+		expect(wrapper.get('[data-testid="public-art"]').findAll('[aria-hidden="true"]')).toHaveLength(2);
 	});
 
 	test('project without logo: Backoffice logo with the project name as alt, on the project color box', () => {
@@ -53,7 +54,7 @@ describe('PublicView', () => {
 		const title = wrapper.get('[data-testid="public-title"]');
 
 		expect(title.findAll('img').map((img) => img.attributes('alt'))).toEqual(['Acme', 'Acme']);
-		expect(title.find('.bg-project').exists()).toBe(true);
+		expect(title.get('img').element.parentElement!.classList).toContain('bg-(--project-color)');
 		expect(title.text()).toContain('Acme');
 		expect(title.text()).toContain('Admin');
 	});
@@ -83,7 +84,8 @@ describe('PublicView', () => {
 
 		expect(art.attributes('style')).toContain('/assets/bg');
 		expect(art.find('video').exists()).toBe(false);
-		expect(art.get('img').attributes('src')).toMatch(/\/assets\/fg$/);
+		// The foreground sits above the card, outside the background layer.
+		expect(wrapper.get('img[src$="/assets/fg"]').attributes('alt')).toBe('Acme');
 	});
 
 	test('video background autoplays muted, looped and inline', () => {

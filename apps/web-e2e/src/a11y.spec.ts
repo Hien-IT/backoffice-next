@@ -72,7 +72,7 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	page,
 }) => {
 	test.skip(
-		page.viewportSize()!.width < 922,
+		page.viewportSize()!.width < 1280,
 		'below lg the module bar sits in the navigation drawer (navigation.spec)',
 	);
 	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });

@@ -1,8 +1,10 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view-sidebar.vue -->
 <script setup lang="ts">
-// Backoffice: no accordion of sidebar details or AI panel (D-45, D-41); a collapsed inline sidebar is hidden (Directus
-// keeps a 54 px strip of detail icons) and opens again from the header toggle; below `lg` it is a drawer (Reka
-// Dialog: focus trap, Esc, focus back to the opener), as private-view-main.vue does on small screens.
+// Backoffice: the right detail panel of design-system layout-patterns (L-4, D-52). No accordion of sidebar details or
+// AI panel (D-45, D-41). From `xl` inline at the end of the content row, open by default, resizable like Directus
+// (333 px default); a collapsed panel is hidden (Directus keeps a 54 px strip of detail icons) and opens again from
+// the page header toggle. Below `xl` a drawer from the end side (Reka Dialog: backdrop, focus trap, Esc, focus back
+// to the opener), as private-view-main.vue does on small screens.
 import {
 	CollapsibleContent,
 	CollapsibleRoot,
@@ -16,9 +18,6 @@ import {
 import BoIcon from '../components/BoIcon.vue';
 import ResizeHandle from './ResizeHandle.vue';
 import { useSidebarStore } from './stores/sidebar.ts';
-
-// The file name follows the layout areas of contracts/ui-routes §4; the component name is multi-word.
-defineOptions({ name: 'PrivateViewSidebar' });
 
 const { drawer = false } = defineProps<{ drawer?: boolean }>();
 
@@ -37,17 +36,19 @@ function onOpen(open: boolean) {
 <template>
 	<DialogRoot v-if="drawer" :open="!sidebarStore.collapsed" @update:open="onOpen">
 		<DialogPortal>
-			<DialogOverlay class="fixed inset-0 z-40 bg-eh-neutral-900/50" />
+			<DialogOverlay class="fixed inset-0 z-9999 bg-gray-900/50" />
 			<DialogContent
 				id="sidebar"
 				:aria-describedby="undefined"
-				class="fixed inset-y-0 end-0 z-50 flex w-[19rem] max-w-full flex-col bg-bo-sidebar text-eh-text-primary shadow-eh-sm"
+				class="fixed inset-y-0 end-0 z-99999 flex w-[333px] max-w-[calc(100vw-2rem)] flex-col bg-white text-gray-800 shadow-theme-xl dark:bg-gray-900 dark:text-white/90"
 			>
-				<div class="flex h-eh-12 shrink-0 items-center justify-between border-b border-eh-border ps-eh-4 pe-eh-1">
-					<DialogTitle class="m-0 text-eh-sm font-semibold">{{ $t('sidebar') }}</DialogTitle>
+				<div
+					class="flex shrink-0 items-center justify-between border-b border-gray-200 py-2 ps-5 pe-2 dark:border-gray-800"
+				>
+					<DialogTitle class="m-0 text-theme-sm font-medium">{{ $t('sidebar') }}</DialogTitle>
 					<DialogClose
 						:aria-label="$t('close_sidebar')"
-						class="inline-flex size-eh-10 cursor-pointer items-center justify-center rounded-eh-md border-0 bg-transparent text-eh-text-primary hover:bg-eh-surface-subtle"
+						class="inline-flex size-10 cursor-pointer items-center justify-center rounded-lg border-0 bg-transparent text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400"
 					>
 						<BoIcon name="right_panel_close" size="sm" />
 					</DialogClose>
@@ -59,12 +60,12 @@ function onOpen(open: boolean) {
 		</DialogPortal>
 	</DialogRoot>
 
-	<CollapsibleRoot v-else :open="!sidebarStore.collapsed" class="flex h-full shrink-0" @update:open="onOpen">
+	<CollapsibleRoot v-else :open="!sidebarStore.collapsed" class="flex shrink-0" @update:open="onOpen">
 		<CollapsibleContent class="relative h-full shrink-0" :style="{ width: `${sidebarStore.size}px` }">
 			<aside
 				id="sidebar"
 				:aria-label="$t('sidebar')"
-				class="h-full overflow-y-auto border-s border-eh-border bg-bo-sidebar"
+				class="h-full overflow-y-auto border-s border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
 			>
 				<slot />
 			</aside>

@@ -77,9 +77,11 @@ useHead({
 
 <template>
 	<PublicView>
-		<h1 class="mb-eh-5 text-eh-3xl font-bold text-eh-text-primary">{{ $t('create_account') }}</h1>
+		<h1 class="mb-5 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90 sm:mb-8">
+			{{ $t('create_account') }}
+		</h1>
 
-		<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="onSubmit">
+		<form novalidate class="flex flex-col gap-5" @submit.prevent="onSubmit">
 			<BoInput :model-value="email" type="email" name="email" autocomplete="username" :label="$t('email')" disabled />
 
 			<BoInput
@@ -96,12 +98,12 @@ useHead({
 
 			<BoNotice v-if="error" type="danger">
 				<p>{{ errorFormatted }}</p>
-				<p class="mt-eh-1">{{ $t('contact_admin_for_link') }}</p>
+				<p class="mt-1">{{ $t('contact_admin_for_link') }}</p>
 			</BoNotice>
 
 			<div>
-				<BoButton v-if="!done" type="submit" :loading="creating">{{ $t('create') }}</BoButton>
-				<BoButton v-else :to="signInLink">{{ $t('sign_in') }}</BoButton>
+				<BoButton v-if="!done" type="submit" full-width :loading="creating">{{ $t('create') }}</BoButton>
+				<BoButton v-else full-width :to="signInLink">{{ $t('sign_in') }}</BoButton>
 			</div>
 		</form>
 

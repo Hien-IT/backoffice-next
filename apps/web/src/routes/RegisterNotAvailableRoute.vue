@@ -15,13 +15,22 @@ useHead({
 
 <template>
 	<PublicView>
-		<h1 class="mb-eh-5 text-eh-3xl font-bold text-eh-text-primary">{{ $t('register_not_available_title') }}</h1>
+		<h1 class="mb-5 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90 sm:mb-8">
+			{{ $t('register_not_available_title') }}
+		</h1>
 
-		<p class="mb-eh-5 text-eh-text-primary">{{ $t('register_not_available') }}</p>
+		<p class="mb-5 text-gray-700 dark:text-gray-400">{{ $t('register_not_available') }}</p>
 
-		<div class="flex flex-wrap items-center justify-center gap-eh-2 text-center text-eh-text-secondary">
+		<div
+			class="flex flex-wrap items-center justify-center gap-1 text-center text-gray-700 sm:justify-start sm:text-start dark:text-gray-400"
+		>
 			{{ $t('already_have_an_account') }}
-			<RouterLink to="/login" class="text-eh-text-primary underline">{{ $t('sign_in') }}</RouterLink>
+			<RouterLink
+				to="/login"
+				class="rounded-sm text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
+			>
+				{{ $t('sign_in') }}
+			</RouterLink>
 		</div>
 
 		<template #notice>

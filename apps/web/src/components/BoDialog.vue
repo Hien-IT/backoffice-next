@@ -10,17 +10,19 @@ defineProps<{ title: string; description?: string }>();
 <template>
 	<DialogRoot v-model:open="open">
 		<DialogPortal>
-			<DialogOverlay class="fixed inset-0 z-50 bg-eh-neutral-900/50" />
+			<DialogOverlay class="fixed inset-0 z-99999 bg-gray-400/50 backdrop-blur-[32px]" />
 			<DialogContent
-				class="fixed inset-x-eh-4 top-1/2 z-50 mx-auto max-w-md -translate-y-1/2 rounded-eh-lg bg-eh-surface-default p-eh-6 text-eh-text-primary shadow-eh-sm"
+				class="no-scrollbar fixed top-1/2 left-1/2 z-99999 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[700px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900"
 				v-bind="description ? {} : { 'aria-describedby': undefined }"
 			>
-				<DialogTitle class="text-eh-xl font-semibold">{{ title }}</DialogTitle>
-				<DialogDescription v-if="description" class="mt-eh-2 text-eh-sm text-eh-text-secondary">
+				<DialogTitle class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ title }}</DialogTitle>
+				<DialogDescription v-if="description" class="mb-6 text-sm text-gray-500 lg:mb-7 dark:text-gray-400">
 					{{ description }}
 				</DialogDescription>
-				<div v-if="$slots['default']" class="mt-eh-4"><slot /></div>
-				<div v-if="$slots['actions']" class="mt-eh-6 flex justify-end gap-eh-2"><slot name="actions" /></div>
+				<div v-if="$slots['default']" class="custom-scrollbar overflow-y-auto p-2"><slot /></div>
+				<div v-if="$slots['actions']" class="mt-6 flex items-center gap-3 px-2 lg:justify-end">
+					<slot name="actions" />
+				</div>
 			</DialogContent>
 		</DialogPortal>
 	</DialogRoot>

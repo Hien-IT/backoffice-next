@@ -1,0 +1,6 @@
+/* Entry stylesheet: Tailwind 4, the design-system theme (copied verbatim from design-system/tokens/theme.css, see
+   theme.test.ts), Backoffice base styles and fonts. */
+@import 'tailwindcss';
+@import './theme.css';
+@import './base.css';
+@import './fonts.css';

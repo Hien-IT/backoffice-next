@@ -47,10 +47,10 @@ a row in Complexity Tracking.
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
 - [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
 - [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, extensions, AI/MCP...)
-- [ ] XII. (FE only) Read `design-system/` docs; `--eh-*` tokens via Tailwind 4 `@theme`, no raw hex or Tailwind
-  palette colors; component-specs conventions (Reka UI, states, keyboard, linked labels); unapproved
-  design decisions listed as open questions in the spec; settings branding (project_color, theme overrides)
-  layered on tokens as in Directus
+- [ ] XII. (FE only) Read `design-system/` docs (TailAdmin based); theme names (`brand-*`, `gray-*`...) via Tailwind 4
+  `@theme`, no raw hex or palette outside the theme; app shell per `docs/layout-patterns.md`; component-specs
+  conventions (Reka UI, states, keyboard, linked labels); gaps listed as open questions in the spec; settings
+  branding (project_color, theme overrides) layered on the theme as in Directus
 
 ## Project Structure
 

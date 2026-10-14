@@ -86,7 +86,7 @@ describe('ProfileRoute (FR-060)', () => {
 	test('shows the current values under the Directus field labels; nothing changed, nothing to save', async () => {
 		const { wrapper } = await render();
 
-		expect(document.querySelector('header h1')!.textContent).toBe('Profile');
+		expect(document.querySelector('main h1')!.textContent).toBe('Profile');
 		expect(field('First Name').value).toBe('Ada');
 		expect(field('Last Name').value).toBe('Lovelace');
 		expect(field('Email').value).toBe('ada@example.com');

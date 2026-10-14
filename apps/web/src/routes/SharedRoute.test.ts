@@ -74,7 +74,7 @@ describe('SharedRoute', () => {
 		expect(await title(head)).toBe('Access Shared Page');
 		const notice = wrapper.get('[role="status"]');
 		expect(notice.text()).toContain('There are currently 2 views remaining');
-		expect(notice.classes()).toContain('border-eh-status-warning');
+		expect(notice.classes()).toContain('border-warning-500');
 		const password = wrapper.get('input[name="password"]');
 		expect(wrapper.get(`label[for="${password.attributes('id')}"]`).text()).toBe('Password');
 		expect(password.attributes('placeholder')).toBe(t('shared_enter_passcode'));

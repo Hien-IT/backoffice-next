@@ -5,7 +5,6 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN } from './helpers/config.js';
 import { closeHostDb } from './helpers/db-rows.js';
 import { Fixtures, PASSWORD, type TestUser } from './helpers/fixtures.js';
-import { moduleBar } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -68,7 +67,7 @@ test('saves only the changed fields; the new name shows in the avatar menu (US6-
 	await save(page);
 	expect((await patch).postDataJSON()).toEqual({ first_name: 'Grace' });
 
-	await moduleBar(page);
+	// The user menu of the header (D-52) is named after the user.
 	await expect(page.getByRole('button', { name: 'Grace E2E' })).toBeVisible();
 });
 
@@ -147,9 +146,7 @@ test('a light theme override changes the design-system token; invalid JSON is re
 	await save(page);
 	await expect
 		.poll(() =>
-			page.evaluate(() =>
-				getComputedStyle(document.documentElement).getPropertyValue('--eh-color-action-primary').trim(),
-			),
+			page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-brand-500').trim()),
 		)
 		.toBe('#aa0000');
 });

@@ -24,20 +24,22 @@ function reload() {
 <template>
 	<div
 		v-if="appStore.hydrating"
-		class="fixed inset-0 z-50 grid place-items-center bg-eh-surface-default"
+		class="fixed inset-0 z-50 grid place-items-center bg-white text-2xl text-brand-500 dark:bg-gray-900 dark:text-brand-400"
 		aria-busy="true"
 	>
 		<BoProgressCircular indeterminate :aria-label="$t('loading')" />
 	</div>
 
-	<main v-if="appStore.error" class="mx-auto grid max-w-xl gap-eh-4 p-eh-8">
+	<main v-if="appStore.error" class="mx-auto grid max-w-xl gap-4 p-8">
 		<BoNotice type="danger">
 			<strong>{{ $t('unexpected_error') }}</strong>
 			{{ $t('unexpected_error_copy') }}
 		</BoNotice>
-		<pre class="overflow-auto rounded-eh-md bg-eh-surface-subtle p-eh-3 text-eh-sm" data-testid="app-error">{{
-			errorMessage
-		}}</pre>
+		<pre
+			class="overflow-auto rounded-lg bg-gray-100 p-3 text-sm text-gray-800 dark:bg-white/5 dark:text-white/90"
+			data-testid="app-error"
+			>{{ errorMessage }}</pre
+		>
 		<div>
 			<BoButton @click="reload">{{ $t('reload_page') }}</BoButton>
 		</div>

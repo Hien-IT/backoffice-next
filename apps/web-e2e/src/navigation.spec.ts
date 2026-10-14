@@ -206,20 +206,24 @@ test('collapsed navigation and sidebar stay collapsed after reload; below lg the
 	await signIn(page);
 	const width = page.viewportSize()!.width;
 
-	if (width >= 1152) {
+	if (width >= 1280) {
+		// TailAdmin: the collapsed sidebar stays as a 90 px rail; the toggle reports the state.
+		const toggle = page.getByRole('button', { name: 'Toggle Navigation' });
 		await page.getByRole('button', { name: 'Close sidebar' }).click();
-		await page.getByRole('button', { name: 'Toggle Navigation' }).click();
-		await expect(page.getByRole('complementary', { name: 'Navigation' })).toBeHidden();
+		await toggle.click();
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
 		await page.reload();
 		await expect(page.getByRole('button', { name: 'Open sidebar' })).toHaveAttribute('aria-expanded', 'false');
-		await expect(page.getByRole('complementary', { name: 'Navigation' })).toBeHidden();
+		await expect(page.getByRole('button', { name: 'Toggle Navigation' })).toHaveAttribute('aria-expanded', 'false');
+		const rail = await page.getByRole('complementary', { name: 'Navigation' }).boundingBox();
+		expect(rail!.width).toBeLessThanOrEqual(90);
 
 		await page.evaluate(() => localStorage.clear());
 		return;
 	}
 
-	// Below lg (768 px): the navigation opens and closes with the keyboard, focus comes back to the button.
+	// Below xl (768 px): the navigation drawer opens and closes with the keyboard, focus comes back to the button.
 	const open = page.getByRole('button', { name: 'Open navigation' });
 	await open.focus();
 	await page.keyboard.press('Enter');

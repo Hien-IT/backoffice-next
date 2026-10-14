@@ -17,7 +17,7 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Auth | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token. |
 | Cache | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay. |
 | Flows | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy. |
-| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn theo **`design-system/`** (token `--eh-*`, constitution XII từ 1.5.0). |
+| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0). |
 | Extensions | **Chưa làm** trong giai đoạn này. |
 | Biến môi trường | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy. |
 | Ngôn ngữ | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**. |
@@ -173,12 +173,12 @@ X. Chất lượng, quy trình và vận hành
 - Mọi khác biệt so với Directus phải ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
 
 XII. Giao diện theo design-system
-- design-system/ là nguồn chuẩn phần nhìn của apps/web. Luồng màn hình, route và hành vi vẫn theo Directus app (VI).
-- Spec, plan và component FE phải đọc trước design-system/README.md, docs/component-specs.md, qa/handoff-checklist.md.
-- Màu, spacing, radius, font, cỡ chữ, shadow chỉ lấy từ token --eh-* trong design-system/tokens/tokens.css. Không dùng mã hex thô, không dùng màu palette có sẵn của Tailwind.
-- Bộ design-system viết cho Tailwind v3; apps/web dùng Tailwind 4: khai báo token bằng @theme, giữ tên utility eh-*, không chép tailwind.config.js.
+- design-system/ (dựa trên TailAdmin, MIT) là nguồn chuẩn phần nhìn và bố cục khung của apps/web. Luồng màn hình, route và hành vi vẫn theo Directus app (VI).
+- Spec, plan và component FE phải đọc trước design-system/README.md, docs/component-specs.md, docs/layout-patterns.md, qa/handoff-checklist.md.
+- Màu, font, cỡ chữ, shadow chỉ lấy từ theme design-system/tokens/theme.css với tên của TailAdmin (brand-*, gray-*, success-*, warning-*, error-*...). Không dùng mã hex thô, không dùng màu palette Tailwind ngoài theme này.
+- apps/web dùng Tailwind 4: chép theme bằng @theme, chế độ tối theo class dark trên html.
 - Component theo quy ước của docs/component-specs.md: Reka UI, script setup TS, modelValue/update:modelValue, đủ state, dùng được bằng bàn phím, label và lỗi liên kết với control.
-- Token design-system là giá trị mặc định. Branding trong settings áp lên trên như Directus: project_color cho nền logo, trang public (đăng nhập), trang share, favicon và meta theme-color (không đổi màu primary của app); theme_light_overrides/theme_dark_overrides đè token tương ứng.
+- Theme design-system là giá trị mặc định. Branding trong settings áp lên trên như Directus: project_color cho nền logo, trang public (đăng nhập), trang share, favicon và meta theme-color (không đổi màu primary của app); theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ.
 - design-system/components/*.vue chỉ là ví dụ. Kiểm tra export Reka UI theo bản đã cài.
 - Quyết định chưa duyệt trong docs/migration-guide.md (primary #1890FF hay #FF5F52, font, màu trạng thái, radius/chiều cao control) và chỗ chưa có token (ví dụ theme tối) phải ghi thành câu hỏi mở trong spec, không tự chọn.
 
@@ -354,7 +354,7 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 **FE (012–018):**
 ```text
-/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style theo design-system/: token --eh-* trong design-system/tokens/tokens.css khai báo bằng @theme, giữ tên utility eh-*, không chép tailwind.config.js v3, không dùng hex thô hay màu palette Tailwind; component theo design-system/docs/component-specs.md; token là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè token tương ứng), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
 ```
 
 ---

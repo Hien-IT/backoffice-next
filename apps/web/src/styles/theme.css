@@ -1,69 +1,276 @@
-/* Tailwind 4 theme on top of the design-system tokens (constitution XII, research R2): utilities keep the eh-*
-   names (bg-eh-action-primary, p-eh-4, rounded-eh-md...). The default palette is removed so gray-*, sky-*... do not
-   exist. Dark mode follows the `dark` class on <html> (set by the app head, FR-063). */
-@import 'tailwindcss';
+/* Source: TailAdmin src/assets/main.css (vue-tailwind-admin-dashboard 2.4.0, main@6d5a365), MIT, © TailAdmin, see ../LICENSE-TailAdmin.md. */
+/*
+  Backoffice theme for Tailwind CSS 4. Copy this file once into the app (apps/web: src/styles/theme.css)
+  and import it after `@import 'tailwindcss';`. Changes from the TailAdmin file:
+  - `--color-*: initial;` so only the TailAdmin colors exist (no red-*, slate-*, sky-* ...).
+  - `--font-outfit` falls back to Noto Sans: Outfit ships only the latin and latin-ext subsets, so Vietnamese
+    letters (U+1EA0-1EF1) would otherwise render in a random system font.
+  - No Google Fonts `@import`: apps self-host Outfit and Noto Sans (woff2 + @font-face in the app).
+  - `dark` variant also matches the element carrying `.dark` (html) and has zero specificity.
+  - Base layer adds the dark body background that TailAdmin sets in index.html (`dark:bg-gray-900`).
+  - menu-* utilities adjusted for contrast and focus (see the comment above them). Only the theme, base layer and the menu-*, no-scrollbar, custom-scrollbar utilities are kept; the
+    third-party CSS (ApexCharts, flatpickr, FullCalendar, Swiper, jsvectormap) and the `.sidebar:hover`
+    rules of the HTML edition are left out (see docs/layout-patterns.md).
+*/
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
 	--color-*: initial;
-	--color-eh-blue-500: var(--eh-color-blue-500);
-	--color-eh-blue-100: var(--eh-color-blue-100);
-	--color-eh-blue-800: var(--eh-color-blue-800);
-	--color-eh-blue-900: var(--eh-color-blue-900);
-	--color-eh-red-500: var(--eh-color-red-500);
-	--color-eh-orange-500: var(--eh-color-orange-500);
-	--color-eh-teal-500: var(--eh-color-teal-500);
-	--color-eh-neutral-900: var(--eh-color-neutral-900);
-	--color-eh-neutral-0: var(--eh-color-neutral-0);
-	--color-eh-neutral-100: var(--eh-color-neutral-100);
-	--color-eh-neutral-400: var(--eh-color-neutral-400);
-	--color-eh-border: var(--eh-color-border);
-	--color-eh-action-primary: var(--eh-color-action-primary);
-	--color-eh-text-primary: var(--eh-color-text-primary);
-	--color-eh-text-secondary: var(--eh-color-text-secondary);
-	--color-eh-surface-default: var(--eh-color-surface-default);
-	--color-eh-surface-subtle: var(--eh-color-surface-subtle);
-	--color-eh-status-danger: var(--eh-color-status-danger);
-	--color-eh-status-warning: var(--eh-color-status-warning);
-	--color-eh-status-success: var(--eh-color-status-success);
-	--color-bo-navigation: var(--bo-navigation-background);
-	--color-bo-header: var(--bo-header-background);
-	--color-bo-sidebar: var(--bo-sidebar-background);
-	--color-project: var(--project-color);
-	--color-transparent: transparent;
-	--color-current: currentColor;
 
-	--spacing-eh-1: var(--eh-spacing-1);
-	--spacing-eh-2: var(--eh-spacing-2);
-	--spacing-eh-3: var(--eh-spacing-3);
-	--spacing-eh-4: var(--eh-spacing-4);
-	--spacing-eh-5: var(--eh-spacing-5);
-	--spacing-eh-6: var(--eh-spacing-6);
-	--spacing-eh-8: var(--eh-spacing-8);
-	--spacing-eh-10: var(--eh-spacing-10);
-	--spacing-eh-12: var(--eh-spacing-12);
+	--font-*: initial;
+	--font-outfit: Outfit, 'Noto Sans', sans-serif;
 
-	--radius-eh-sm: var(--eh-radius-sm);
-	--radius-eh-md: var(--eh-radius-md);
-	--radius-eh-lg: var(--eh-radius-lg);
-	--radius-eh-full: var(--eh-radius-full);
-
-	--font-eh-body: var(--eh-font-family-body);
-
-	--text-eh-xs: var(--eh-font-size-xs);
-	--text-eh-sm: var(--eh-font-size-sm);
-	--text-eh-base: var(--eh-font-size-base);
-	--text-eh-lg: var(--eh-font-size-lg);
-	--text-eh-xl: var(--eh-font-size-xl);
-	--text-eh-2xl: var(--eh-font-size-2xl);
-	--text-eh-3xl: var(--eh-font-size-3xl);
-
-	--shadow-eh-sm: var(--eh-shadow-sm);
-
-	/* BREAKPOINTS of the Directus app (constants.ts, _breakpoints.scss) */
 	--breakpoint-*: initial;
-	--breakpoint-sm: 36rem;
-	--breakpoint-lg: 57.625rem;
-	--breakpoint-xl: 72rem;
+	--breakpoint-2xsm: 375px;
+	--breakpoint-xsm: 425px;
+	--breakpoint-3xl: 2000px;
+	--breakpoint-sm: 640px;
+	--breakpoint-md: 768px;
+	--breakpoint-lg: 1024px;
+	--breakpoint-xl: 1280px;
+	--breakpoint-2xl: 1536px;
+
+	--text-title-2xl: 72px;
+	--text-title-2xl--line-height: 90px;
+	--text-title-xl: 60px;
+	--text-title-xl--line-height: 72px;
+	--text-title-lg: 48px;
+	--text-title-lg--line-height: 60px;
+	--text-title-md: 36px;
+	--text-title-md--line-height: 44px;
+	--text-title-sm: 30px;
+	--text-title-sm--line-height: 38px;
+	--text-theme-xl: 20px;
+	--text-theme-xl--line-height: 30px;
+	--text-theme-sm: 14px;
+	--text-theme-sm--line-height: 20px;
+	--text-theme-xs: 12px;
+	--text-theme-xs--line-height: 18px;
+
+	--color-current: currentColor;
+	--color-transparent: transparent;
+	--color-white: #ffffff;
+	--color-black: #101828;
+
+	--color-brand-25: #f2f7ff;
+	--color-brand-50: #ecf3ff;
+	--color-brand-100: #dde9ff;
+	--color-brand-200: #c2d6ff;
+	--color-brand-300: #9cb9ff;
+	--color-brand-400: #7592ff;
+	--color-brand-500: #465fff;
+	--color-brand-600: #3641f5;
+	--color-brand-700: #2a31d8;
+	--color-brand-800: #252dae;
+	--color-brand-900: #262e89;
+	--color-brand-950: #161950;
+
+	--color-blue-light-25: #f5fbff;
+	--color-blue-light-50: #f0f9ff;
+	--color-blue-light-100: #e0f2fe;
+	--color-blue-light-200: #b9e6fe;
+	--color-blue-light-300: #7cd4fd;
+	--color-blue-light-400: #36bffa;
+	--color-blue-light-500: #0ba5ec;
+	--color-blue-light-600: #0086c9;
+	--color-blue-light-700: #026aa2;
+	--color-blue-light-800: #065986;
+	--color-blue-light-900: #0b4a6f;
+	--color-blue-light-950: #062c41;
+
+	--color-gray-25: #fcfcfd;
+	--color-gray-50: #f9fafb;
+	--color-gray-100: #f2f4f7;
+	--color-gray-200: #e4e7ec;
+	--color-gray-300: #d0d5dd;
+	--color-gray-400: #98a2b3;
+	--color-gray-500: #667085;
+	--color-gray-600: #475467;
+	--color-gray-700: #344054;
+	--color-gray-800: #1d2939;
+	--color-gray-900: #101828;
+	--color-gray-950: #0c111d;
+	--color-gray-dark: #1a2231;
+
+	--color-orange-25: #fffaf5;
+	--color-orange-50: #fff6ed;
+	--color-orange-100: #ffead5;
+	--color-orange-200: #fddcab;
+	--color-orange-300: #feb273;
+	--color-orange-400: #fd853a;
+	--color-orange-500: #fb6514;
+	--color-orange-600: #ec4a0a;
+	--color-orange-700: #c4320a;
+	--color-orange-800: #9c2a10;
+	--color-orange-900: #7e2410;
+	--color-orange-950: #511c10;
+
+	--color-success-25: #f6fef9;
+	--color-success-50: #ecfdf3;
+	--color-success-100: #d1fadf;
+	--color-success-200: #a6f4c5;
+	--color-success-300: #6ce9a6;
+	--color-success-400: #32d583;
+	--color-success-500: #12b76a;
+	--color-success-600: #039855;
+	--color-success-700: #027a48;
+	--color-success-800: #05603a;
+	--color-success-900: #054f31;
+	--color-success-950: #053321;
+
+	--color-error-25: #fffbfa;
+	--color-error-50: #fef3f2;
+	--color-error-100: #fee4e2;
+	--color-error-200: #fecdca;
+	--color-error-300: #fda29b;
+	--color-error-400: #f97066;
+	--color-error-500: #f04438;
+	--color-error-600: #d92d20;
+	--color-error-700: #b42318;
+	--color-error-800: #912018;
+	--color-error-900: #7a271a;
+	--color-error-950: #55160c;
+
+	--color-warning-25: #fffcf5;
+	--color-warning-50: #fffaeb;
+	--color-warning-100: #fef0c7;
+	--color-warning-200: #fedf89;
+	--color-warning-300: #fec84b;
+	--color-warning-400: #fdb022;
+	--color-warning-500: #f79009;
+	--color-warning-600: #dc6803;
+	--color-warning-700: #b54708;
+	--color-warning-800: #93370d;
+	--color-warning-900: #7a2e0e;
+	--color-warning-950: #4e1d09;
+
+	--color-theme-pink-500: #ee46bc;
+
+	--color-theme-purple-500: #7a5af8;
+
+	--shadow-theme-md: 0px 4px 8px -2px rgba(16, 24, 40, 0.1), 0px 2px 4px -2px rgba(16, 24, 40, 0.06);
+	--shadow-theme-lg: 0px 12px 16px -4px rgba(16, 24, 40, 0.08), 0px 4px 6px -2px rgba(16, 24, 40, 0.03);
+	--shadow-theme-sm: 0px 1px 3px 0px rgba(16, 24, 40, 0.1), 0px 1px 2px 0px rgba(16, 24, 40, 0.06);
+	--shadow-theme-xs: 0px 1px 2px 0px rgba(16, 24, 40, 0.05);
+	--shadow-theme-xl: 0px 20px 24px -4px rgba(16, 24, 40, 0.08), 0px 8px 8px -4px rgba(16, 24, 40, 0.03);
+	--shadow-datepicker: -5px 0 0 #262d3c, 5px 0 0 #262d3c;
+	--shadow-focus-ring: 0px 0px 0px 4px rgba(70, 95, 255, 0.12);
+	--shadow-slider-navigation: 0px 1px 2px 0px rgba(16, 24, 40, 0.1), 0px 1px 3px 0px rgba(16, 24, 40, 0.1);
+	--shadow-tooltip: 0px 4px 6px -2px rgba(16, 24, 40, 0.05), -8px 0px 20px 8px rgba(16, 24, 40, 0.05);
+
+	--drop-shadow-4xl: 0 35px 35px rgba(0, 0, 0, 0.25), 0 45px 65px rgba(0, 0, 0, 0.15);
+
+	--z-index-1: 1;
+	--z-index-9: 9;
+	--z-index-99: 99;
+	--z-index-999: 999;
+	--z-index-9999: 9999;
+	--z-index-99999: 99999;
+	--z-index-999999: 999999;
+}
+
+/*
+  The default border color has changed to `currentColor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+	*,
+	::after,
+	::before,
+	::backdrop,
+	::file-selector-button {
+		border-color: var(--color-gray-200, currentColor);
+	}
+	button:not(:disabled),
+	[role='button']:not(:disabled) {
+		cursor: pointer;
+	}
+	body {
+		/* dark:bg-gray-900 comes from TailAdmin index.html (<body class="dark:bg-gray-900">). */
+		@apply relative font-normal font-outfit z-1 bg-gray-50 dark:bg-gray-900;
+	}
+}
+
+/*
+  Sidebar menu (AppSidebar.vue). TailAdmin declares menu-dropdown-item* twice with the same classes; kept once.
+  Backoffice changes (owner decisions C-1 and focus, 2026-10-15, see docs/migration-guide.md): active text and icon
+  brand-600 instead of brand-500 (4.34:1 -> 5.83:1 on brand-50), focus-visible outline on menu-item and
+  menu-dropdown-item, and the menu-dropdown-badge* utilities (TailAdmin "new"/"pro" labels) removed.
+*/
+@utility menu-item {
+	@apply relative flex items-center w-full gap-3 px-3 py-2 font-medium rounded-lg text-theme-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400;
+}
+
+@utility menu-item-active {
+	@apply bg-brand-50 text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-item-inactive {
+	@apply text-gray-700 hover:bg-gray-100 group-hover:text-gray-700 dark:text-gray-300 dark:hover:bg-white/5 dark:hover:text-gray-300;
+}
+
+@utility menu-item-icon {
+	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400;
+}
+
+@utility menu-item-icon-active {
+	@apply text-brand-600 dark:text-brand-400;
+}
+
+@utility menu-item-icon-inactive {
+	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-item-arrow {
+	@apply relative;
+}
+
+@utility menu-item-arrow-active {
+	@apply rotate-180 text-brand-600 dark:text-brand-400;
+}
+
+@utility menu-item-arrow-inactive {
+	@apply text-gray-500 group-hover:text-gray-700 dark:text-gray-400 dark:group-hover:text-gray-300;
+}
+
+@utility menu-dropdown-item {
+	@apply relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-theme-sm font-medium focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400;
+}
+
+@utility menu-dropdown-item-active {
+	@apply bg-brand-50 text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400;
+}
+
+@utility menu-dropdown-item-inactive {
+	@apply text-gray-700 hover:bg-gray-100 dark:text-gray-300 dark:hover:bg-white/5;
+}
+
+@utility no-scrollbar {
+	/* Chrome, Safari and Opera */
+	&::-webkit-scrollbar {
+		display: none;
+	}
+	-ms-overflow-style: none; /* IE and Edge */
+	scrollbar-width: none; /* Firefox */
+}
+
+/* TailAdmin also has `.dark .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #344054 }`: the same
+   value as dark:bg-gray-700 below, so the raw-hex rule is dropped. */
+@utility custom-scrollbar {
+	&::-webkit-scrollbar {
+		@apply size-1.5;
+	}
+
+	&::-webkit-scrollbar-track {
+		@apply rounded-full;
+	}
+
+	&::-webkit-scrollbar-thumb {
+		@apply bg-gray-200 rounded-full dark:bg-gray-700;
+	}
 }

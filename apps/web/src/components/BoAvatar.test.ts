@@ -20,6 +20,8 @@ describe('BoAvatar', () => {
 
 		expect(icon.text()).toBe('account_circle');
 		expect(icon.attributes('aria-label')).toBe('Admin User');
+		// The avatar's size wins over the BoIcon size.
+		expect(icon.attributes('style')).toBe('font-size: 2.5rem;');
 	});
 
 	test('falls back to the icon when the image fails, and retries for a new avatar', async () => {

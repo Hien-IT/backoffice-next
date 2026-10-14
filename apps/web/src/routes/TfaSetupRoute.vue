@@ -140,14 +140,16 @@ useHead({
 
 <template>
 	<PublicView>
-		<h1 class="mb-eh-5 text-eh-3xl font-bold text-eh-text-primary">{{ $t('tfa_setup') }}</h1>
+		<h1 class="mb-5 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90 sm:mb-8">
+			{{ $t('tfa_setup') }}
+		</h1>
 
 		<form
 			v-if="tfaEnabled === false && tfaGenerated === false && loading === false"
-			class="flex flex-col gap-eh-4"
+			class="flex flex-col gap-5"
 			@submit.prevent="generate"
 		>
-			<p class="font-semibold">
+			<p class="text-gray-700 dark:text-gray-400">
 				{{ canSkipPassword ? $t('tfa_setup_description') : $t('enter_password_to_enable_tfa') }}
 			</p>
 			<BoInput
@@ -160,11 +162,11 @@ useHead({
 				autofocus
 			/>
 			<BoNotice v-if="error" type="danger">{{ translateAPIError(error) }}</BoNotice>
-			<div class="flex items-center justify-between gap-eh-4">
+			<div class="flex items-center justify-between gap-4">
 				<button
 					v-if="showCancelButton"
 					type="button"
-					class="text-eh-text-secondary transition-colors hover:text-eh-text-primary"
+					class="rounded-sm text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 					@click="cancel"
 				>
 					{{ $t('cancel') }}
@@ -177,15 +179,15 @@ useHead({
 			v-else-if="loading === true"
 			indeterminate
 			:aria-label="$t('loading')"
-			class="text-eh-2xl text-eh-action-primary"
+			class="text-2xl text-brand-500 dark:text-brand-400"
 		/>
 
 		<div v-show="tfaEnabled === false && tfaGenerated === true && loading === false">
-			<form class="flex flex-col gap-eh-4" @submit.prevent="enable">
-				<p class="font-semibold">{{ $t('tfa_scan_code') }}</p>
-				<img v-if="qrCode" :src="qrCode" :alt="$t('tfa_scan_code')" class="mx-auto block size-[10rem]" />
+			<form class="flex flex-col gap-5" @submit.prevent="enable">
+				<p class="text-gray-700 dark:text-gray-400">{{ $t('tfa_scan_code') }}</p>
+				<img v-if="qrCode" :src="qrCode" :alt="$t('tfa_scan_code')" class="mx-auto block size-40" />
 				<output
-					class="block text-center font-mono tracking-widest break-all text-eh-text-secondary"
+					class="block text-center font-mono tracking-widest break-all text-gray-500 dark:text-gray-400"
 					data-testid="tfa-secret"
 					v-text="secret"
 				/>
@@ -200,11 +202,11 @@ useHead({
 					:label="$t('otp')"
 				/>
 				<BoNotice v-if="error" type="danger">{{ translateAPIError(error) }}</BoNotice>
-				<div class="flex items-center justify-between gap-eh-4">
+				<div class="flex items-center justify-between gap-4">
 					<button
 						v-if="showCancelButton"
 						type="button"
-						class="text-eh-text-secondary transition-colors hover:text-eh-text-primary"
+						class="rounded-sm text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 						@click="cancel"
 					>
 						{{ $t('cancel') }}

@@ -5,12 +5,12 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createApp, nextTick, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { useNavBarStore } from './nav-bar';
-import { useSidebarStore } from './sidebar';
 
-const breakpoints = vi.hoisted(() => ({ lg: true, xl: true }));
+// Read lazily by the mock (after this line has run).
+const xl = ref(true);
 
 vi.mock('../../composables/use-media-query.ts', () => ({
-	useLayoutBreakpoints: () => ({ lg: ref(breakpoints.lg), xl: ref(breakpoints.xl) }),
+	useLayoutBreakpoints: () => ({ lg: ref(true), xl }),
 }));
 
 const router = createRouter({
@@ -27,8 +27,7 @@ function newPinia() {
 
 beforeEach(async () => {
 	localStorage.clear();
-	breakpoints.lg = true;
-	breakpoints.xl = true;
+	xl.value = true;
 	newPinia();
 	await router.push('/');
 });
@@ -37,40 +36,16 @@ afterEach(() => {
 	vi.restoreAllMocks();
 });
 
-describe('nav-bar store size guard', () => {
-	it('returns default size on init', () => {
-		const store = useNavBarStore();
-		expect(store.size).toBe(225);
-	});
-
-	it('accepts finite values', () => {
-		const store = useNavBarStore();
-		store.size = 300;
-		expect(store.size).toBe(300);
-	});
-
-	it('rejects NaN, Infinity and -Infinity', () => {
-		const store = useNavBarStore();
-		store.size = NaN;
-		store.size = Infinity;
-		store.size = -Infinity;
-		expect(store.size).toBe(225);
-	});
-
-	it('preserves last valid value after rejected write', () => {
-		const store = useNavBarStore();
-		store.size = 320;
-		store.size = NaN;
-		expect(store.size).toBe(320);
-	});
-});
-
 describe('nav-bar store', () => {
-	it('persists collapsed under backoffice-nav-bar-collapsed', async () => {
+	it('persists collapsed under backoffice-nav-bar-collapsed and triggers the hooks', async () => {
 		const store = useNavBarStore();
+		const onCollapse = vi.fn();
+		store.onCollapse(onCollapse);
+
 		store.toggle();
 		await nextTick();
 		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('true');
+		expect(onCollapse).toHaveBeenCalledOnce();
 	});
 
 	it('works in memory when localStorage is blocked', () => {
@@ -83,29 +58,23 @@ describe('nav-bar store', () => {
 		expect(store.collapsed).toBe(true);
 	});
 
-	it('inline from xl, from lg only when the sidebar is collapsed', () => {
-		breakpoints.xl = false;
-		const store = useNavBarStore();
-		expect(store.inlineNav).toBe(false);
-
-		useSidebarStore().collapse();
-		expect(store.inlineNav).toBe(true);
+	it('inline from xl only', () => {
+		xl.value = false;
+		expect(useNavBarStore().inlineNav).toBe(false);
 	});
 
-	it('closes the drawer nav on navigation, keeps an inline nav open', async () => {
+	it('the drawer is not saved and closes on navigation and when the window reaches xl', async () => {
+		xl.value = false;
 		const store = useNavBarStore();
-		await router.push('/content');
+
+		store.drawerOpen = true;
+		await router.push('/files');
+		expect(store.drawerOpen).toBe(false);
 		expect(store.collapsed).toBe(false);
 
-		breakpoints.lg = false;
-		breakpoints.xl = false;
-		newPinia();
-
-		const drawer = useNavBarStore();
-		const onCollapse = vi.fn();
-		drawer.onCollapse(onCollapse);
-		await router.push('/files');
-		expect(drawer.collapsed).toBe(true);
-		expect(onCollapse).toHaveBeenCalledOnce();
+		store.drawerOpen = true;
+		xl.value = true;
+		await nextTick();
+		expect(store.drawerOpen).toBe(false);
 	});
 });

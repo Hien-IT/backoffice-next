@@ -1,4 +1,4 @@
-// The module bar of the private layout: inline from the `lg` breakpoint (922 px), inside the navigation drawer below
+// The module list of the private layout: in the sidebar, inline from the `xl` breakpoint (1280 px), inside the drawer below
 // it (like the Directus app); this opens the drawer when needed.
 import { expect, type Locator, type Page } from '@playwright/test';
 

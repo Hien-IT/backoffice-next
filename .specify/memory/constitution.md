@@ -1,4 +1,18 @@
 <!--
+Sync Impact Report (2.0.0, 2026-10-15)
+- Version change: 1.5.0 → 2.0.0
+- Modified principles: XII. Giao diện theo design-system: design-system chuyển từ bộ E-Hiring (token
+  `--eh-*`, Tailwind v3) sang TailAdmin (Vue, MIT, Figma Community CC BY 4.0): dùng thẳng tên theme của
+  TailAdmin (`brand-*`, `gray-*`, `success-*`, `warning-*`, `error-*`, `font-outfit`, `shadow-theme-*`...),
+  design-system quyết định cả bố cục khung (sidebar, header, nội dung, panel); bỏ danh sách câu hỏi mở của
+  migration-guide E-Hiring (primary, font, màu trạng thái, radius, theme tối đã có giá trị TailAdmin). Chủ dự
+  án yêu cầu ngày 2026-10-15 khi xem thử app 012 (bố cục quá giống Directus). MAJOR: định nghĩa lại một
+  nguyên tắc theo cách không tương thích (tên token, nguồn theme).
+- Templates: ✅ .specify/templates/plan-template.md (dòng XII); ✅ CLAUDE.md (mục Design system (FE));
+  ✅ SPECKIT-GUIDE.md (mục XII của prompt constitution); spec, tasks, checklist template không cần sửa.
+- Follow-up: feature 012 Phase 11 đổi theme và bố cục `apps/web`; spec 012 sửa FR-020, FR-026, FR-028,
+  FR-063 – FR-066 và bảng câu hỏi mở Q-1 – Q-8.
+
 Sync Impact Report (1.5.0, 2026-10-14)
 - Version change: 1.4.0 → 1.5.0
 - Added principles: XII. Giao diện theo design-system. `design-system/` (E-Hiring Design System: token
@@ -265,31 +279,34 @@ Lý do: ngưỡng đo được giúp quyết định merge khách quan, không d
 
 ### XII. Giao diện theo design-system
 
-- `design-system/` là nguồn chuẩn về giao diện của `apps/web`. Luồng màn hình, route và hành vi vẫn
-  theo Directus app (Nguyên tắc VI); design-system chỉ quyết định phần nhìn.
-- Spec, plan và component FE PHẢI đọc trước `design-system/README.md`,
-  `design-system/docs/component-specs.md` và `design-system/qa/handoff-checklist.md`.
-- Màu, spacing, radius, font, cỡ chữ, shadow PHẢI lấy từ token `--eh-*` trong
-  `design-system/tokens/tokens.css`. KHÔNG dùng mã hex thô, KHÔNG dùng màu palette có sẵn của
-  Tailwind (`gray-100`, `sky-50`...) trong component.
-- Bộ design-system viết cho Tailwind v3; `apps/web` dùng Tailwind 4. Token PHẢI khai báo bằng
-  `@theme` trong CSS, giữ tên utility `eh-*`. KHÔNG chép `design-system/tailwind.config.js`.
+- `design-system/` là nguồn chuẩn về giao diện của `apps/web`, dựa trên TailAdmin (bản Vue miễn phí, giấy
+  phép MIT, © TailAdmin; file Figma Community theo CC BY 4.0, ghi công trong `design-system/README.md`).
+  Luồng màn hình, route và hành vi vẫn theo Directus app (Nguyên tắc VI); design-system quyết định phần
+  nhìn và bố cục khung (sidebar, header, vùng nội dung, panel chi tiết).
+- Spec, plan và component FE PHẢI đọc trước `design-system/README.md`, `docs/component-specs.md`,
+  `docs/layout-patterns.md` và `qa/handoff-checklist.md`.
+- Màu, font, cỡ chữ, shadow, z-index và breakpoint PHẢI lấy từ theme `design-system/tokens/theme.css`,
+  dùng đúng tên của TailAdmin (`brand-*`, `gray-*`, `success-*`, `warning-*`, `error-*`, `blue-light-*`,
+  `orange-*`, `theme-pink-500`, `theme-purple-500`, `white`, `black`, `font-outfit`, `text-theme-*`,
+  `text-title-*`, `shadow-theme-*`). Spacing và radius dùng thang mặc định của Tailwind như TailAdmin.
+  KHÔNG dùng mã hex thô, KHÔNG dùng màu palette Tailwind ngoài theme này (`red-*`, `slate-*`, `sky-*`...).
+- `apps/web` dùng Tailwind 4: theme khai báo bằng `@theme` chép từ design-system; chế độ tối theo class
+  `dark` trên `html` (`@custom-variant dark`).
 - Component PHẢI theo quy ước của `docs/component-specs.md`: primitive Reka UI,
   `<script setup lang="ts">`, `modelValue`/`update:modelValue` cho component form, đủ state
   (focus-visible, disabled, invalid, loading, empty), dùng được bằng bàn phím, label và lỗi liên kết
-  với control. Không truyền đạt trạng thái chỉ bằng màu.
-- Token design-system là giá trị mặc định. Branding trong settings PHẢI áp lên trên như Directus:
+  với control. Không truyền đạt trạng thái chỉ bằng màu. Code của TailAdmin chỉ là tham khảo; chép
+  đoạn nào thì giữ thông báo MIT ở đầu file.
+- Theme design-system là giá trị mặc định. Branding trong settings PHẢI áp lên trên như Directus:
   `project_color` cho nền logo, trang public (đăng nhập), trang share, favicon và meta `theme-color`
-  (KHÔNG đổi màu primary của app); `theme_light_overrides`/`theme_dark_overrides` đè token tương
-  ứng.
-- `design-system/components/*.vue` chỉ là ví dụ, KHÔNG phải code chuẩn. Export của Reka UI PHẢI
-  kiểm tra theo bản đã cài.
-- Các quyết định chưa duyệt trong `docs/migration-guide.md` (màu primary `#1890FF` hay `#FF5F52`,
-  font và thang chữ, nghĩa của màu trạng thái, thang radius và chiều cao control) cùng mọi chỗ
-  design-system chưa có token (ví dụ theme tối) PHẢI ghi thành câu hỏi mở trong spec. KHÔNG tự chọn.
+  (KHÔNG đổi màu primary của app); `theme_light_overrides`/`theme_dark_overrides` đè biến theme có
+  ánh xạ (ví dụ `primary` → `--color-brand-500`).
+- Chỗ design-system chưa có (ví dụ màn CMS riêng chưa có mẫu) PHẢI ghi thành câu hỏi mở trong spec.
+  KHÔNG tự chọn.
 
-Lý do: một bộ token và quy ước chung giúp các module FE nhìn đồng nhất và đổi theme ở một chỗ. Bộ
-design-system vẫn là bản đề xuất, nên chỗ chưa duyệt phải hỏi thay vì đoán.
+Lý do: một theme và quy ước chung giúp các module FE nhìn đồng nhất và đổi theme ở một chỗ. TailAdmin
+có sẵn bố cục admin, theme sáng/tối và cùng công nghệ (Vue 3, Tailwind 4) nên các feature FE dùng lại
+được ngay.
 
 ## XI. Ngoài phạm vi giai đoạn này
 
@@ -333,4 +350,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.5.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-14
+**Version**: 2.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-15

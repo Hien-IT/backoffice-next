@@ -154,13 +154,15 @@ useHead({ title });
 
 <template>
 	<PublicView>
-		<h1 class="mb-eh-5 text-eh-3xl font-bold text-eh-text-primary">{{ title }}</h1>
+		<h1 class="mb-5 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90 sm:mb-8">
+			{{ title }}
+		</h1>
 
 		<BoProgressCircular
 			v-if="loading"
 			indeterminate
 			:aria-label="$t('loading')"
-			class="text-eh-2xl text-eh-action-primary"
+			class="text-2xl text-brand-500 dark:text-brand-400"
 		/>
 
 		<p v-else-if="notFound">
@@ -170,7 +172,7 @@ useHead({ title });
 
 		<BoNotice v-else-if="error" type="danger">{{ translateAPIError(error) }}</BoNotice>
 
-		<form v-else-if="share" novalidate class="flex flex-col gap-eh-4" @submit.prevent="authenticate">
+		<form v-else-if="share" novalidate class="flex flex-col gap-5" @submit.prevent="authenticate">
 			<BoNotice v-if="usesLeft !== null" :type="usesLeftNoticeType">
 				{{ $t('shared_uses_left', usesLeft) }}
 			</BoNotice>
@@ -188,7 +190,7 @@ useHead({ title });
 					:error="passwordWrong ? translateAPIError('INVALID_CREDENTIALS') : ''"
 				/>
 				<div>
-					<BoButton type="submit" :loading="authenticating">
+					<BoButton type="submit" full-width :loading="authenticating">
 						{{ $t('share_access_page') }}
 					</BoButton>
 				</div>

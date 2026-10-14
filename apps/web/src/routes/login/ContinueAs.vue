@@ -67,17 +67,20 @@ async function hydrateAndLogin() {
 			v-if="loading"
 			indeterminate
 			:aria-label="$t('loading')"
-			class="text-eh-2xl text-eh-action-primary"
+			class="text-2xl text-brand-500 dark:text-brand-400"
 		/>
 		<template v-else>
-			<BoNotice v-if="error" type="danger" class="mb-eh-4">{{ translateAPIError(error) }}</BoNotice>
-			<I18nT keypath="continue_as" scope="global" tag="p" class="mb-eh-6">
+			<BoNotice v-if="error" type="danger" class="mb-5">{{ translateAPIError(error) }}</BoNotice>
+			<I18nT keypath="continue_as" scope="global" tag="p" class="mb-6 text-gray-700 dark:text-gray-400">
 				<template #name>
-					<b class="font-semibold">{{ name }}</b>
+					<b class="font-semibold text-gray-800 dark:text-white/90">{{ name }}</b>
 				</template>
 			</I18nT>
-			<div class="flex items-center justify-between gap-eh-4">
-				<RouterLink to="/logout" class="text-eh-text-secondary transition-colors hover:text-eh-text-primary">
+			<div class="flex items-center justify-between gap-4">
+				<RouterLink
+					to="/logout"
+					class="rounded-sm text-sm text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
+				>
 					{{ $t('sign_out') }}
 				</RouterLink>
 				<BoButton @click="hydrateAndLogin">{{ $t('continue_label') }}</BoButton>

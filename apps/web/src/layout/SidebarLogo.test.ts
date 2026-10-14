@@ -6,7 +6,7 @@ import { useRequestsStore } from '../stores/requests.ts';
 import { useServerStore } from '../stores/server.ts';
 import { useSettingsStore, type Settings } from '../stores/settings.ts';
 import { mountLayout } from '../test-utils/layout.ts';
-import ModuleBarLogo from './ModuleBarLogo.vue';
+import SidebarLogo from './SidebarLogo.vue';
 
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
@@ -16,7 +16,7 @@ async function render(settings: Partial<Settings>) {
 	createSdk('http://api.test/');
 
 	return (
-		await mountLayout(ModuleBarLogo, {
+		await mountLayout(SidebarLogo, {
 			beforeMount: () => {
 				useSettingsStore().settings = settings as Settings;
 				// The name comes from the server info, where Directus defaults are already dropped (D-51).
@@ -26,7 +26,7 @@ async function render(settings: Partial<Settings>) {
 	).wrapper;
 }
 
-describe('ModuleBarLogo (FR-026)', () => {
+describe('SidebarLogo (FR-026)', () => {
 	test('Backoffice logo (light and dark) without a link when there is no project_url', async () => {
 		const wrapper = await render({ project_url: null, project_logo: null });
 

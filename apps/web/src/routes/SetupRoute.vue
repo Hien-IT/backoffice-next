@@ -134,9 +134,11 @@ watch(
 
 <template>
 	<PublicView>
-		<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="launch">
-			<h1 class="text-eh-3xl font-bold text-eh-text-primary">{{ $t('setup_welcome') }}</h1>
-			<p class="mb-eh-2 font-medium">{{ $t('setup_info') }}</p>
+		<form novalidate class="flex flex-col gap-5" @submit.prevent="launch">
+			<h1 class="text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90">
+				{{ $t('setup_welcome') }}
+			</h1>
+			<p class="mb-2 text-gray-500 dark:text-gray-400">{{ $t('setup_info') }}</p>
 
 			<BoInput
 				v-model="form.first_name"
@@ -190,12 +192,12 @@ watch(
 				:label="$t('organization_name')"
 			/>
 
-			<label class="flex items-start gap-eh-2 font-semibold">
+			<label class="flex items-start gap-3 font-medium text-gray-700 dark:text-gray-400">
 				<input
 					v-model="form.product_updates"
 					type="checkbox"
 					name="product_updates"
-					class="mt-eh-1 accent-eh-action-primary"
+					class="mt-0.5 size-4 shrink-0 rounded-sm accent-brand-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 				/>
 				{{ $t('setup_marketing_emails') }}
 			</label>
@@ -205,7 +207,7 @@ watch(
 			</BoButton>
 
 			<BoNotice v-if="error" type="danger">
-				<p class="mb-eh-1 font-bold">
+				<p class="mb-1 font-semibold">
 					{{ translateAPIError(error) }}
 				</p>
 				<p>

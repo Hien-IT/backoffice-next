@@ -51,9 +51,11 @@ useHead({
 
 <template>
 	<PublicView>
-		<div class="mb-eh-5 flex flex-wrap items-end justify-between gap-eh-3">
-			<h1 class="truncate text-eh-3xl font-bold text-eh-text-primary">{{ $t('sign_in') }}</h1>
-			<div v-if="!authenticated && providerOptions.length > 1" class="min-w-[10rem]">
+		<div class="mb-5 flex flex-wrap items-end justify-between gap-3 sm:mb-8">
+			<h1 class="truncate text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90">
+				{{ $t('sign_in') }}
+			</h1>
+			<div v-if="!authenticated && providerOptions.length > 1" class="min-w-40">
 				<BoSelect v-model="providerSelect" :items="providerOptions" :label="$t('fields.directus_users.provider')" />
 			</div>
 		</div>
@@ -68,10 +70,13 @@ useHead({
 
 		<div
 			v-if="!authenticated && serverStore.info.project?.public_registration"
-			class="mt-eh-10 flex flex-wrap items-center justify-center gap-eh-2 text-center text-eh-text-secondary"
+			class="mt-5 flex flex-wrap items-center justify-center gap-1 text-center text-gray-700 sm:justify-start sm:text-start dark:text-gray-400"
 		>
 			{{ $t('dont_have_an_account') }}
-			<RouterLink to="/register" class="text-eh-text-primary underline">
+			<RouterLink
+				to="/register"
+				class="rounded-sm text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
+			>
 				{{ $t('sign_up_now') }}
 			</RouterLink>
 		</div>

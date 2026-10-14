@@ -1,11 +1,13 @@
-/* Base styles: page colors from tokens, visible keyboard focus, screen-reader-only text (FR-027, FR-067). */
+/* Backoffice additions to the design-system base layer: the settings branding variable, screen-reader-only text and
+   reduced motion (FR-027, FR-031, FR-067). Colors only from the TailAdmin theme. */
+:root {
+	/* project_color of the settings, set by the app head (FR-031); the theme primary until then. */
+	--project-color: var(--color-brand-500);
+}
+
 @layer base {
 	html {
 		color-scheme: light;
-		background-color: var(--eh-color-surface-default);
-		color: var(--eh-color-text-primary);
-		font-family: var(--eh-font-family-body);
-		font-size: var(--eh-font-size-base);
 	}
 
 	html.dark {
@@ -15,11 +17,7 @@
 	body {
 		margin: 0;
 		min-height: 100vh;
-	}
-
-	:focus-visible {
-		outline: 2px solid var(--eh-color-action-primary);
-		outline-offset: 2px;
+		@apply text-gray-800 dark:text-white/90;
 	}
 
 	@media (prefers-reduced-motion: reduce) {

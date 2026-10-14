@@ -1,19 +1,11 @@
 [
 	{
-		"source": "app/src/views/private/private-view/components/private-view-nav.vue",
-		"dest": "apps/web/src/layout/NavBar.vue"
-	},
-	{
-		"source": "app/src/views/private/private-view/components/private-view-nav-project-name.vue",
-		"dest": "apps/web/src/layout/ProjectName.vue"
-	},
-	{
 		"source": "app/src/views/private/private-view/components/private-view-header-bar.vue",
-		"dest": "apps/web/src/layout/HeaderBar.vue"
+		"dest": "apps/web/src/layout/PageHeader.vue"
 	},
 	{
 		"source": "app/src/views/private/private-view/components/private-view-sidebar.vue",
-		"dest": "apps/web/src/layout/Sidebar.vue"
+		"dest": "apps/web/src/layout/DetailPanel.vue"
 	},
 	{
 		"source": "app/src/views/private/private-view/components/private-view-resize-handle.vue",

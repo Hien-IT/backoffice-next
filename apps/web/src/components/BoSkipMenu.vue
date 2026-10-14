@@ -8,38 +8,17 @@ const LINKS = [
 </script>
 
 <template>
-	<div class="bo-skip-menu">
+	<!-- Hidden (sr-only) until a link gets focus, then a dropdown-style panel in the top start corner. -->
+	<div
+		class="not-focus-within:sr-only focus-within:fixed focus-within:start-1 focus-within:top-1 focus-within:z-999999 focus-within:rounded-2xl focus-within:border focus-within:border-gray-200 focus-within:bg-white focus-within:p-2 focus-within:shadow-theme-lg dark:focus-within:border-gray-800 dark:focus-within:bg-gray-dark"
+	>
 		<a
 			v-for="link in LINKS"
 			:key="link.hash"
 			:href="link.hash"
-			class="block rounded-eh-sm px-eh-3 py-eh-2 text-eh-sm text-eh-text-primary hover:bg-eh-surface-subtle"
+			class="block rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 		>
 			{{ $t(link.key) }}
 		</a>
 	</div>
 </template>
-
-<style scoped>
-.bo-skip-menu:not(:focus-within) {
-	position: absolute;
-	width: 1px;
-	height: 1px;
-	margin: -1px;
-	overflow: hidden;
-	clip-path: inset(50%);
-	white-space: nowrap;
-}
-
-.bo-skip-menu:focus-within {
-	position: fixed;
-	top: var(--eh-spacing-1);
-	left: var(--eh-spacing-1);
-	z-index: 999999;
-	padding: var(--eh-spacing-1);
-	background-color: var(--eh-color-surface-default);
-	border: 1px solid var(--eh-color-border);
-	border-radius: var(--eh-radius-md);
-	box-shadow: var(--eh-shadow-sm);
-}
-</style>

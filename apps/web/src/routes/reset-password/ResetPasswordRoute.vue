@@ -25,7 +25,9 @@ useHead({
 
 <template>
 	<PublicView>
-		<h1 class="mb-eh-5 text-eh-3xl font-bold text-eh-text-primary">{{ $t('reset_password') }}</h1>
+		<h1 class="mb-5 text-title-sm font-semibold text-gray-800 sm:text-title-md dark:text-white/90 sm:mb-8">
+			{{ $t('reset_password') }}
+		</h1>
 
 		<RequestForm v-if="!resetToken" />
 		<ResetForm v-else :token="resetToken" />

@@ -21,7 +21,7 @@ const svg = (color: string, addLogo: boolean) => `
 </svg>`;
 
 export const generateFavicon = (color: string, addLogo = true) => {
-	color = color || cssVar('--eh-color-action-primary');
+	color = color || cssVar('--color-brand-500');
 
 	// Backoffice: the SVG string is already serialized markup; Directus' innerHTML/XMLSerializer round trip only
 	// normalized it (and loses the <style> in happy-dom).

@@ -221,7 +221,11 @@ async function uploadAvatar(event: Event) {
 
 <template>
 	<PrivateView :title="$t('profile')" icon="account_circle">
-		<form v-if="user" class="grid max-w-4xl gap-eh-6 p-eh-6 md:grid-cols-2" @submit.prevent="save">
+		<form
+			v-if="user"
+			class="grid max-w-4xl gap-6 rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 md:grid-cols-2 dark:border-gray-800 dark:bg-white/[0.03]"
+			@submit.prevent="save"
+		>
 			<BoInput
 				v-model="form.first_name"
 				name="first_name"
@@ -253,11 +257,11 @@ async function uploadAvatar(event: Event) {
 				:error="fieldErrors.password ?? ''"
 			/>
 
-			<div class="flex flex-col gap-eh-1 md:col-span-2">
-				<label :for="`${id}-avatar`" class="text-eh-sm font-semibold text-eh-text-primary">
+			<div class="flex flex-col gap-1.5 md:col-span-2">
+				<label :for="`${id}-avatar`" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
 					{{ $t('fields.directus_users.avatar') }}
 				</label>
-				<div class="flex flex-wrap items-center gap-eh-4">
+				<div class="flex flex-wrap items-center gap-4">
 					<BoAvatar :avatar-id="form.avatar" :name="userStore.fullName ?? ''" />
 					<input
 						:id="`${id}-avatar`"
@@ -266,7 +270,7 @@ async function uploadAvatar(event: Event) {
 						accept="image/*"
 						:disabled="uploading"
 						:aria-describedby="fieldErrors.avatar ? `${id}-avatar-error` : undefined"
-						class="text-eh-sm text-eh-text-primary file:me-eh-3 file:h-eh-10 file:cursor-pointer file:rounded-eh-md file:border file:border-eh-border file:bg-eh-surface-default file:px-eh-3 file:text-eh-text-primary disabled:opacity-50"
+						class="rounded-lg text-sm text-gray-700 file:me-3 file:h-10 file:cursor-pointer file:rounded-lg file:border file:border-gray-500 file:bg-white file:px-3 file:text-gray-700 disabled:opacity-50 dark:text-gray-400 dark:file:bg-gray-900 dark:file:text-gray-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 						@change="uploadAvatar"
 					/>
 					<BoProgressCircular v-if="uploading" indeterminate :aria-label="$t('loading')" />
@@ -278,23 +282,27 @@ async function uploadAvatar(event: Event) {
 					v-if="fieldErrors.avatar"
 					:id="`${id}-avatar-error`"
 					role="alert"
-					class="flex items-center gap-eh-1 text-eh-sm text-eh-text-primary"
+					class="flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400"
 				>
-					<BoIcon name="error" size="sm" class="text-eh-status-danger" />
+					<BoIcon name="error" size="sm" />
 					{{ fieldErrors.avatar }}
 				</p>
 			</div>
 
-			<div v-for="field in SELECT_FIELDS" :key="field" class="flex flex-col gap-eh-1">
+			<div v-for="field in SELECT_FIELDS" :key="field" class="flex flex-col gap-1.5">
 				<BoSelect v-model="form[field]" :items="selectItems[field]" :label="$t(`fields.directus_users.${field}`)" />
-				<p v-if="fieldErrors[field]" role="alert" class="flex items-center gap-eh-1 text-eh-sm text-eh-text-primary">
-					<BoIcon name="error" size="sm" class="text-eh-status-danger" />
+				<p
+					v-if="fieldErrors[field]"
+					role="alert"
+					class="flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400"
+				>
+					<BoIcon name="error" size="sm" />
 					{{ fieldErrors[field] }}
 				</p>
 			</div>
 
-			<div v-for="field in JSON_FIELDS" :key="field" class="flex flex-col gap-eh-1 md:col-span-2">
-				<label :for="`${id}-${field}`" class="text-eh-sm font-semibold text-eh-text-primary">
+			<div v-for="field in JSON_FIELDS" :key="field" class="flex flex-col gap-1.5 md:col-span-2">
+				<label :for="`${id}-${field}`" class="block text-sm font-medium text-gray-700 dark:text-gray-400">
 					{{ $t(`fields.directus_users.${field}`) }}
 				</label>
 				<textarea
@@ -305,15 +313,15 @@ async function uploadAvatar(event: Event) {
 					spellcheck="false"
 					:aria-invalid="fieldErrors[field] ? 'true' : undefined"
 					:aria-describedby="fieldErrors[field] ? `${id}-${field}-error` : undefined"
-					class="w-full rounded-eh-md border border-eh-border bg-eh-surface-default p-eh-3 font-mono text-eh-sm text-eh-text-primary aria-invalid:border-eh-status-danger"
+					class="w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 font-mono text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:ring-3 focus:ring-brand-500/10 focus:outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 aria-invalid:border-error-600 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:aria-invalid:border-error-400"
 				/>
 				<p
 					v-if="fieldErrors[field]"
 					:id="`${id}-${field}-error`"
 					role="alert"
-					class="flex items-center gap-eh-1 text-eh-sm text-eh-text-primary"
+					class="flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400"
 				>
-					<BoIcon name="error" size="sm" class="text-eh-status-danger" />
+					<BoIcon name="error" size="sm" />
 					{{ fieldErrors[field] }}
 				</p>
 			</div>

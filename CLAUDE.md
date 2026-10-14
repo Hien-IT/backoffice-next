@@ -10,14 +10,14 @@ Rules:
 
 ## Design system (FE)
 
-Constitution principle XII. `design-system/` is the visual source of truth for `apps/web`. Before any FE spec, plan or component work, read `design-system/README.md`, `docs/component-specs.md` and `qa/handoff-checklist.md`.
+Constitution principle XII (2.0.0). `design-system/` is the visual source of truth for `apps/web`, based on TailAdmin (Vue edition, MIT; Figma Community file under CC BY 4.0). Before any FE spec, plan or component work, read `design-system/README.md`, `docs/component-specs.md`, `docs/layout-patterns.md` and `qa/handoff-checklist.md`.
 
-- Colors, spacing, radius, font and shadow come from `design-system/tokens/tokens.css` (`--eh-*`). No raw hex or Tailwind palette colors (`gray-100`, `sky-50`, ...) in components.
-- The pack is written for Tailwind v3 (`tailwind.config.js`, `@tailwind`); `apps/web` uses Tailwind 4, so map the tokens in CSS with `@theme` (keep the `eh-*` utility names) instead of copying the v3 config.
-- Follow the tiers and conventions in `docs/component-specs.md`: Reka UI primitives, `<script setup lang="ts">`, `modelValue`/`update:modelValue`, focus-visible/disabled/invalid/loading/empty states, keyboard access, labels and errors linked.
-- Tokens are defaults; settings branding layers on top as in Directus (`directus/app/src/app.vue`): `project_color` only drives `--project-color` (logo, public/share pages, favicon, meta theme-color), not the app primary; `theme_light_overrides`/`theme_dark_overrides` override the matching tokens.
-- `components/*.vue` are examples, not final code: check Reka UI exports against the installed version.
-- Open decisions in `docs/migration-guide.md` (primary `#1890FF` vs `#FF5F52`, font family and type scale, status color meaning, radius/control height) are not approved yet: do not pick one silently, list it as an open question in the spec.
+- Colors, fonts, text sizes, shadows, z-index and breakpoints come from `design-system/tokens/theme.css` with the TailAdmin names (`brand-*`, `gray-*`, `success-*`, `warning-*`, `error-*`, `blue-light-*`, `orange-*`, `font-outfit`, `text-theme-*`, `shadow-theme-*`). Spacing and radius use the Tailwind default scale. No raw hex and no Tailwind palette outside that theme (`red-*`, `slate-*`, `sky-*`, ...).
+- `apps/web` copies the theme into `src/styles/theme.css` (Tailwind 4 `@theme`); dark mode is the `dark` class on `html`.
+- The app shell (sidebar with labels and module sub-navigation, header with user menu, content, detail panel) follows `docs/layout-patterns.md`; routes, screen flows and behaviour stay those of the Directus app (principle VI).
+- Follow the conventions in `docs/component-specs.md`: Reka UI primitives, `<script setup lang="ts">`, `modelValue`/`update:modelValue`, focus-visible/disabled/invalid/loading/empty states, keyboard access, labels and errors linked. TailAdmin code is a reference only; keep its MIT notice if a part is copied.
+- The theme is the default; settings branding layers on top as in Directus (`directus/app/src/app.vue`): `project_color` only drives `--project-color` (logo, public/share pages, favicon, meta theme-color), not the app primary; `theme_light_overrides`/`theme_dark_overrides` override the mapped theme variables.
+- What the design-system does not cover yet (CMS screens without a TailAdmin pattern) is an open question in the spec: do not pick silently.
 
 ## Active Technologies
 - TypeScript 5.9.3 (strict flags of @directus/tsconfig 4.0.0), Node.js 22 LTS, ESM, pnpm 10.27, Nx 23; API: NestJS 12 (Express 5) + Knex 3.1, ioredis, pino, prom-client; Web: Vue 3.5 + Pinia + Vue Router (Reka UI + Tailwind CSS 4 from feature 012); tests: Vitest 3.2.4, Playwright, autocannon (001-platform-foundation)

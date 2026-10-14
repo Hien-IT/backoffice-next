@@ -12,6 +12,7 @@
 	},
 	"dependencies": {
 		"@fontsource/noto-sans": "catalog:",
+		"@fontsource/outfit": "catalog:",
 		"@material-symbols/font-400": "catalog:",
 		"@directus/format-title": "catalog:",
 		"@directus/sdk": "catalog:",

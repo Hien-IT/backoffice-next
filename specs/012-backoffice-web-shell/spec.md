@@ -6,7 +6,7 @@
 **Duyệt khác biệt**: owner duyệt ngày 2026-10-14 D-39 đến D-49 (D-49: ẩn link Documentation mặc định
 thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các làm rõ của checklist release-gate ngày
 2026-10-14; owner chọn D-51 (giá trị mặc định Directus của `project_name`, `project_color` coi như trống) ngày
-2026-10-14.
+2026-10-14; owner chọn design-system TailAdmin (constitution 2.0.0, D-47 sửa, D-52) ngày 2026-10-15.
 **Input**: User description: "Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -292,7 +292,7 @@ Người dùng mở hồ sơ từ menu avatar (`/admin/users/me`), sửa tên, e
    đè `default_appearance` của settings; class `dark`/`light` trên `html` (Directus đặt trên `body`, D-43).
 4. **Given** `theme_light_overrides` ở settings và ở user, **When** áp, **Then** gộp như `use-theme-configuration.ts`
    (`merge({}, user, settings)`: khóa trùng thì settings thắng, owner chọn giữ như Directus 2026-10-14); chỉ
-   các khóa có token `--eh-*` tương ứng được áp (D-43), khóa khác bỏ qua.
+   các khóa có biến theme tương ứng được áp (D-43, FR-063), khóa khác bỏ qua.
 
 ---
 
@@ -412,14 +412,17 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 
 **Bố cục và điều hướng**
 
-- **FR-020**: Bố cục private PHẢI gồm bốn vùng như Directus: thanh module (logo, danh sách module, avatar), thanh
-  điều hướng (tên dự án, slot điều hướng của module, gập mở được), vùng chính với thanh tiêu đề (icon, tiêu đề, slot
-  action) và nội dung, sidebar phải (gập mở được, slot chi tiết). Trạng thái gập mở PHẢI lưu localStorage với tiền tố
-  `backoffice-` (thay `directus-`, Nguyên tắc IX). Có menu bỏ qua tới nội dung (skip menu) cho bàn phím.
-- **FR-021**: Thanh module PHẢI lấy `settings.module_bar` (hoặc mặc định như `MODULE_BAR_DEFAULT`), lọc `enabled` và
+- **FR-020**: Bố cục private PHẢI theo `design-system/docs/layout-patterns.md` (TailAdmin, Nguyên tắc XII 2.0.0, D-52):
+  sidebar trái có logo và tên dự án, các module có icon và nhãn chữ, menu con của module (slot điều hướng của module),
+  thu gọn được; header trên cùng có nút mở hoặc thu gọn sidebar và menu user (avatar); vùng nội dung có page header
+  (icon, tiêu đề, slot action) rồi nội dung; panel chi tiết bên phải (gập mở được, slot chi tiết). Trạng thái gập mở
+  PHẢI lưu localStorage với tiền tố `backoffice-` (thay `directus-`, Nguyên tắc IX). Có menu bỏ qua tới nội dung
+  (skip menu) cho bàn phím.
+- **FR-021**: Danh sách module của sidebar PHẢI lấy `settings.module_bar` (hoặc mặc định như `MODULE_BAR_DEFAULT`), lọc `enabled` và
   module đã đăng ký, bỏ link Documentation mặc định (FR-081, D-49), hiện link nội bộ (`url` bắt đầu `/`) và link
   ngoài (mở tab mới); Settings luôn ở cuối cho admin;
-  tooltip tên module; module đang mở được đánh dấu bằng màu và trạng thái `aria-current`, không chỉ bằng màu.
+  nhãn chữ của module (tooltip khi sidebar thu gọn); module đang mở được đánh dấu bằng màu và trạng thái `aria-current`,
+  không chỉ bằng màu.
 - **FR-022**: Module PHẢI đăng ký như `modules/index.ts`: `content` (mọi user), `files` (admin hoặc đọc
   `directus_files`), `users` (admin hoặc đọc `directus_users`), `insights` (admin hoặc đọc `directus_dashboards`),
   `activity` (ẩn khỏi thanh, có route), `settings` (admin). `visual`, `deployments`, AI, marketplace KHÔNG đăng ký
@@ -429,19 +432,19 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   feature này PHẢI hiện bố cục private với icon, tên module ở thanh tiêu đề, tên module trong tiêu đề tab, và trạng
   thái trống nói rõ nội dung thuộc feature sau (D-40); các route con của module (`:primaryKey`, `folders/:folder`...)
   PHẢI khớp và hiện cùng khung để `last_page` và link từ Directus không rơi vào 404.
-- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060); menu avatar PHẢI có hồ sơ và đăng xuất như
-  `module-bar-avatar.vue`.
+- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060); menu user ở header PHẢI có hồ sơ và đăng xuất
+  (mục đích như `module-bar-avatar.vue`, vị trí theo `layout-patterns.md`, D-52).
 - **FR-025**: Path không khớp PHẢI hiện trang 404 private trong bố cục (đã đăng nhập) như `private-not-found.vue`.
-- **FR-026**: Thanh điều hướng PHẢI hiện tên dự án (`project_name` hoặc `Backoffice`) và slot điều hướng (trống ở
-  feature này); logo thanh module PHẢI hiện `project_logo` từ `/assets/<id>` hoặc logo Backoffice, bấm mở
-  `project_url` nếu có, và chạy thanh tiến trình khi hàng đợi request còn việc như `module-bar-logo.vue`;
-  `project_url` chỉ dùng khi scheme là `http` hoặc `https`, giá trị khác bỏ qua (logo không thành link).
+- **FR-026**: Vùng logo của sidebar PHẢI hiện `project_logo` từ `/assets/<id>` hoặc logo Backoffice và tên dự án
+  (`project_name` hoặc `Backoffice`), bấm mở `project_url` nếu có, và chạy thanh tiến trình khi hàng đợi request còn
+  việc như `module-bar-logo.vue`; `project_url` chỉ dùng khi scheme là `http` hoặc `https`, giá trị khác bỏ qua
+  (logo không thành link). Menu con của module trống ở feature này.
 - **FR-027**: Mọi phần tử điều hướng PHẢI dùng được bằng bàn phím (Tab, Enter, Esc đóng menu) và có nhãn truy cập
   (`aria-label` cho nút chỉ có icon) theo `design-system/docs/component-specs.md`.
-- **FR-028**: Bố cục PHẢI hiển thị đủ từ bề rộng 768 px, không cuộn ngang, với ngưỡng `BREAKPOINTS` của Directus
-  (contracts/ui-routes §4): từ `xl` (1152 px) ba cột; từ `lg` (922 px) đến dưới `xl` sidebar gập mặc định; từ 768 px
-  đến dưới `lg` thanh điều hướng và sidebar là drawer. Biên 768, 922 px được kiểm như các bề rộng khác; zoom 200%
-  (tương đương dưới 768 px) ngoài phạm vi.
+- **FR-028**: Bố cục PHẢI hiển thị đủ từ bề rộng 768 px, không cuộn ngang, với breakpoint của design-system
+  (TailAdmin, `layout-patterns.md`, owner chọn 2026-10-15): từ `xl` (1280 px) sidebar nằm trong bố cục (mở 290 px, thu
+  gọn thành rail 90 px) và panel chi tiết mở trong bố cục; dưới `xl` sidebar và panel chi tiết là drawer có lớp phủ.
+  Biên 768 và 1280 px được kiểm như các bề rộng khác; zoom 200% (tương đương dưới 768 px) ngoài phạm vi.
 - **FR-029**: Tiêu đề tab PHẢI theo mẫu `<tiêu đề trang> · <project_name || Backoffice>`; `html[lang]` và `dir`
   theo ngôn ngữ user.
 
@@ -517,18 +520,20 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   hai ngôn ngữ này ở feature này, ngôn ngữ khác chọn trong hồ sơ thì rơi về `en-US` (D-46).
 - **FR-063**: Theme PHẢI tính như `use-theme-configuration.ts`: `appearance` user → `default_appearance` → `auto`
   theo `prefers-color-scheme` (theo dõi thay đổi); class `dark`/`light` trên `html` (Directus đặt trên `body`; đặt
-  trên `html` để utility `dark:` của Tailwind 4 bám được, không ảnh hưởng người dùng, D-43); token design-system là mặc
-  định; `theme_light_overrides`/`theme_dark_overrides` của user rồi của settings (settings thắng khi trùng khóa, như Directus) đè các token
-  `--eh-*` có ánh xạ (bảng ánh xạ ở plan; khóa không ánh xạ bỏ qua, D-43). `default_theme_light`, `theme_light`,
+  trên `html` để utility `dark:` của Tailwind 4 bám được, không ảnh hưởng người dùng, D-43); theme design-system là
+  mặc định; `theme_light_overrides`/`theme_dark_overrides` của user rồi của settings (settings thắng khi trùng khóa, như
+  Directus) đè các biến theme có ánh xạ (`primary` → `--color-brand-500`, trạng thái → `--color-success-500`,
+  `--color-warning-500`, `--color-error-500`, `fonts.sans.fontFamily` → `--font-outfit`; khóa không ánh xạ bỏ qua, D-43). `default_theme_light`, `theme_light`,
   `default_theme_dark`, `theme_dark` (tên theme Directus) KHÔNG đổi giao diện (D-43).
-- **FR-064**: Theme tối PHẢI có đủ token tương ứng với bộ sáng của `tokens.css` (design-system chưa có; câu hỏi mở
-  Q-5), không dùng mã hex thô trong component.
+- **FR-064**: Theme tối PHẢI theo cách TailAdmin làm (class `dark:` trên các màu của theme, nền `gray-900`), không dùng
+  mã hex thô trong component.
 - **FR-065**: Giao diện (màu, chữ, khoảng cách, bo góc, shadow, component) PHẢI theo `design-system/` (Nguyên tắc
-  XII): token `--eh-*` khai báo qua `@theme` của Tailwind 4 giữ tên utility `eh-*`; component theo
+  XII 2.0.0): theme TailAdmin `design-system/tokens/theme.css` chép vào `@theme` của Tailwind 4 với tên gốc (`brand-*`,
+  `gray-*`, `success-*`...); component theo
   `docs/component-specs.md` (Reka UI, `<script setup lang="ts">`, `modelValue`, trạng thái focus-visible, disabled,
   invalid, loading, empty; nhãn và lỗi gắn control). Component Tier 1 feature này cần: Button, Input, Select,
   Checkbox, Tooltip, Popover (menu avatar), Dialog (lỗi), Tag/Badge (notice).
-- **FR-066**: `project_color` KHÔNG đè `--eh-color-action-primary` (Nguyên tắc XII).
+- **FR-066**: `project_color` KHÔNG đè màu primary của theme (`--color-brand-500`, Nguyên tắc XII).
 - **FR-067**: Các màn của feature (public, bố cục private, khung module, hồ sơ, 404) PHẢI đạt WCAG 2.1 AA: không có vi
   phạm mức `serious` hay `critical` khi quét tự động bằng axe-core; đi hết luồng đăng nhập, đổi module, mở menu
   avatar, đăng xuất chỉ bằng bàn phím với thứ tự focus hợp lý, focus nhìn thấy được, focus trả về nơi mở sau khi
@@ -596,7 +601,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 - **Provider xác thực**: `{ name, driver, icon, label }` từ `GET /auth?sessionOnly` và cờ `disableDefault`.
 - **Module**: `{ id, name ($t:), icon, hidden, routes, preRegisterCheck }`; thứ tự và bật tắt từ `module_bar`.
 - **Ngôn ngữ**: mã `xx-YY`; gói chuỗi `en-US`, `vi-VN` đã đổi thương hiệu; translations từ `directus_translations`.
-- **Theme**: `appearance` (`auto`|`light`|`dark`), bộ token `--eh-*` sáng và tối, overrides theo khóa Directus có
+- **Theme**: `appearance` (`auto`|`light`|`dark`), theme TailAdmin sáng và tối, overrides theo khóa Directus có
   ánh xạ.
 
 ## Khác biệt so với Directus *(mandatory)*
@@ -610,11 +615,12 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-40 | Nội dung bên trong module Content, Files, Users (trừ `/users/me`), Insights, Activity, Settings và route con | Đầy đủ | Khung bố cục với tiêu đề module và trạng thái trống; route con khớp để không 404 | Feature này chỉ là khung; mỗi module là feature riêng (Clarifications) | ngoài phạm vi (tạm thời) | 014 Content (và item của share), 015 Files, Users, 016 Settings, 018 Insights, Activity |
 | D-41 | Module Visual editor, Deployments, AI, Marketplace, System logs, notifications realtime, collaborative editing, app extension | Có khi bật | Không đăng ký, không nạp; giống Directus khi tính năng tắt | Nguyên tắc XI, D-17 | ngoài phạm vi | — |
 | D-42 | Dòng hướng dẫn ở quên mật khẩu và nhận lời mời | Không có | Thêm một dòng "liên hệ quản trị viên để nhận link" | Mô tả feature; Nguyên tắc X (không gửi email) | khác | — |
-| D-43 | Theme: tên theme (`Directus Default`, `Minimal`, `Color Match`), bộ biến `--theme--*`, overrides theo khóa Directus | `@directus/themes` | Token `--eh-*` của design-system; tên theme bỏ qua; chỉ overrides có ánh xạ sang `--eh-*` được áp, khóa khác bỏ qua; class theme đặt trên `html` thay vì `body` | Nguyên tắc XII | khác | — |
+| D-43 | Theme: tên theme (`Directus Default`, `Minimal`, `Color Match`), bộ biến `--theme--*`, overrides theo khóa Directus | `@directus/themes` | Theme TailAdmin của design-system; tên theme bỏ qua; chỉ overrides có ánh xạ sang biến theme được áp, khóa khác bỏ qua; class theme đặt trên `html` thay vì `body` | Nguyên tắc XII | khác | — |
 | D-44 | Route `/register` (đăng ký công khai, xác minh email) | Có khi `public_registration` | Link hiện như Directus; `/register` là trang public "chưa có sẵn" với link về đăng nhập, không có form | Thuộc feature module Users; cần luồng xác minh email (D-28) | ngoài phạm vi (tạm thời) | 015 |
 | D-45 | Dữ liệu nạp sau đăng nhập: store flows, insights, AI, extensions; drawer thông báo; sidebar chi tiết (thông tin, bình luận, revision...); tìm kiếm toàn cục | Có | Không nạp, không hiện; `GET /notifications` vẫn gọi để đếm | Thuộc feature module tương ứng | ngoài phạm vi (tạm thời) | 014 (sidebar chi tiết item), 017 (flows), 018 (insights, thông báo) |
 | D-46 | Ngôn ngữ đóng gói | Hơn 60 ngôn ngữ | `en-US`, `vi-VN`; ngôn ngữ khác trong hồ sơ rơi về `en-US` | Mô tả feature | khác | — |
-| D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system `--eh-*` | Nguyên tắc XII | khác | — |
+| D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system TailAdmin (`brand-*`, `gray-*`, font Outfit) | Nguyên tắc XII 2.0.0; owner chọn TailAdmin 2026-10-15 | khác | — |
+| D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải; route, luồng và hành vi giữ như Directus | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
 | D-48 | Trang hồ sơ `/users/me` | Form đầy đủ theo metadata field của `directus_users` | Form cố định với field ở FR-060 | Form theo metadata thuộc feature Users | ngoài phạm vi (tạm thời) | 015 |
 | D-49 | Link Documentation mặc định trên thanh module (`docs` → `https://docs.directus.io`) | Hiện (mặc định và khi `module_bar` đã lưu có mục này) | Ẩn ở cả hai trường hợp; mục `docs` đã đổi `url` và link khác vẫn hiện; không sửa dữ liệu `module_bar` (FR-081) | Nguyên tắc IX: không dẫn người dùng Backoffice tới tài liệu Directus; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-51 | `project_name = 'Directus'`, `project_color = '#6644FF'` (giá trị mặc định cột mà Directus ghi vào mọi DB; API không cho đặt null) | Hiện "Directus", màu tím | Coi là chưa đặt khi hiển thị: tên `Backoffice`, màu primary design-system; không ghi DB; giá trị khác admin đặt vẫn dùng | Nguyên tắc IX; SC-005 với DB do Directus tạo; owner chọn 2026-10-14 | đổi thương hiệu | — |
@@ -629,18 +635,21 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
   là của API).
 - Tiêu đề `Content-Disposition` khi tải file từ app: không có ở feature này.
 
-## Câu hỏi mở về design-system (Nguyên tắc XII, KHÔNG tự chọn)
+## Câu hỏi mở về design-system (Nguyên tắc XII)
 
-| Mã | Câu hỏi | Ảnh hưởng ở feature này | Giá trị tạm dùng trong lúc chờ |
-|----|---------|-------------------------|---------------------------------|
-| Q-1 | Màu primary chuẩn: `#1890FF` (`--eh-color-blue-500`) hay `#FF5F52` (`Primary/Primary Color` trong Figma)? | Màu nút chính, link, module đang chọn, focus ring, meta `theme-color` mặc định | Token hiện có `--eh-color-action-primary` (xanh); đổi ở một chỗ khi duyệt |
-| Q-2 | Font và thang chữ: Noto Sans hay Open Sans (Roboto, Manrope xuất hiện lẻ); cỡ và line-height? | Toàn bộ chữ; font tải từ đâu (self-host hay Google Fonts) | `--eh-font-family-body` và `--eh-font-size-*` hiện có; self-host |
-| Q-3 | Nghĩa của màu trạng thái (`success` là teal `#36cfc9`?) | Notice thành công, lỗi, cảnh báo ở đăng nhập, quên mật khẩu, lời mời | `--eh-color-status-*` hiện có, kèm icon và chữ để không chỉ dựa màu |
-| Q-4 | Thang radius và chiều cao control chuẩn | Input, button, menu, thanh module | `--eh-radius-md`, chiều cao control 40 px (`--eh-spacing-10`) |
-| Q-5 | Theme tối: design-system chưa có token tối | Toàn bộ chế độ tối (mô tả yêu cầu) | Bộ token tối đề xuất trong plan, đảo nền/chữ từ bộ sáng, ghi rõ là tạm |
-| Q-6 | Ánh xạ khóa override của Directus (`primary`, `navigation.background`, `foreground`...) sang `--eh-*`: ánh xạ những khóa nào? | FR-063, D-43 | Ánh xạ tối thiểu ở plan: `primary`, `background`, `foreground`, `navigation.*`, `header.*`, `sidebar.*` |
-| Q-7 | Logo và favicon Backoffice: ai cung cấp tài sản; có bản tối không? | FR-036 | Chữ "B" trên nền primary, SVG tạm |
-| Q-8 | Tương phản token chưa đạt WCAG 2.1 AA (đo 2026-10-14 trên nền trắng): chữ `text-secondary` `#7384a4` 3,77:1 (trên `surface-subtle` 3,46:1); chữ trắng trên `action-primary` `#1890ff` 3,24:1 và link `#1890ff` 3,24:1; `status-danger` 4,08:1, `status-warning` 2,38:1, `status-success` 1,92:1 khi dùng làm màu chữ; `border` `#e8e8e8` 1,23:1 cho viền ô nhập. Design owner chỉnh token hay chấp nhận? | Nút chính, link, chữ phụ, notice, viền input | Giữ token; màu trạng thái chỉ dùng cho icon, viền, nền nhạt (chữ dùng `text-primary`); test tương phản đánh dấu các cặp này là ngoại lệ chờ Q-8 |
+Ngày 2026-10-15 owner chuyển design-system sang TailAdmin (constitution 2.0.0), nên Q-1 đến Q-6 và Q-8 đã có lời giải
+từ theme TailAdmin; còn Q-7.
+
+| Mã | Câu hỏi | Trạng thái |
+|----|---------|------------|
+| Q-1 | Màu primary chuẩn | Đóng: `brand-500` `#465FFF` của TailAdmin |
+| Q-2 | Font và thang chữ | Đóng: Outfit (`font-outfit`, OFL) với Noto Sans dự phòng cho tiếng Việt (Outfit không có subset vietnamese); thang `text-theme-*`, `text-title-*` và thang mặc định Tailwind |
+| Q-3 | Nghĩa của màu trạng thái | Đóng: `success-*`, `warning-*`, `error-*`, `blue-light-*` (info) của TailAdmin, kèm icon và chữ |
+| Q-4 | Thang radius và chiều cao control | Đóng: thang mặc định Tailwind như TailAdmin (`rounded-lg`, input `h-11`) |
+| Q-5 | Theme tối | Đóng: theo TailAdmin (`dark:`, nền `gray-900`) |
+| Q-6 | Ánh xạ override Directus | Đóng: FR-063 (`primary`, trạng thái, font) |
+| Q-7 | Logo và favicon Backoffice | Mở: vẫn chữ "B" tạm (`assets/logo-*.svg`, `favicon.*`) |
+| Q-8 | Tương phản token | Đóng theo bảng tương phản của `design-system/docs/migration-guide.md`; cặp dưới 4.5:1 (nếu có) ghi ở đó và là ngoại lệ của `a11y.spec.ts` |
 
 ## Clarifications
 

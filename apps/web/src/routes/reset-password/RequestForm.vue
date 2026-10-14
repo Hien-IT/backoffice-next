@@ -50,20 +50,20 @@ async function onSubmit() {
 </script>
 
 <template>
-	<form novalidate class="flex flex-col gap-eh-4" @submit.prevent="onSubmit">
+	<form novalidate class="flex flex-col gap-5" @submit.prevent="onSubmit">
 		<BoInput v-model="email" autofocus autocomplete="username" type="email" name="email" :label="$t('email')" />
 		<BoNotice v-if="done" type="success">
 			<p>{{ $t('password_reset_sent') }}</p>
-			<p class="mt-eh-1">{{ $t('contact_admin_for_link') }}</p>
+			<p class="mt-1">{{ $t('contact_admin_for_link') }}</p>
 		</BoNotice>
 		<BoNotice v-if="error" type="danger">
 			{{ errorFormatted }}
 		</BoNotice>
-		<div class="flex items-center justify-between gap-eh-4">
-			<BoButton type="submit" :loading="sending">{{ $t('reset') }}</BoButton>
+		<div class="flex flex-col items-center gap-5">
+			<BoButton type="submit" full-width :loading="sending">{{ $t('reset') }}</BoButton>
 			<RouterLink
 				:to="signInLink"
-				class="text-eh-sm text-eh-text-secondary transition-colors hover:text-eh-text-primary"
+				class="rounded-sm text-sm text-brand-500 hover:text-brand-600 dark:text-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
 			>
 				{{ $t('sign_in') }}
 			</RouterLink>
