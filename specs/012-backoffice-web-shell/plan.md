@@ -9,7 +9,7 @@ Dựng khung app web Backoffice trong `apps/web` thay cho khung ping của 001: 
 (OpenID, OAuth2), giữ phiên mode `session` qua `@directus/sdk`, đăng xuất, quên mật khẩu, nhận lời mời, setup,
 share login, `/tfa-setup`; bố cục Directus (thanh module, nav, header, main, sidebar) với sáu module ở dạng khung;
 branding Backoffice và branding từ settings; theme sáng/tối theo token `--eh-*`; chuỗi dịch `en-US`, `vi-VN` sinh từ
-Directus; hồ sơ `/users/me`. App chỉ gọi API Directus (30 route, `contracts/api-calls.md`) nên chạy với Directus
+Directus; hồ sơ `/users/me`. App chỉ gọi API Directus (31 route, `contracts/api-calls.md`) nên chạy với Directus
 thật và API mới chỉ bằng `apiUrl`.
 
 Cách làm:
@@ -65,7 +65,7 @@ CI, catalog pnpm, `tools/eslint`, `tools/port-manifest`.
 module < 1 s sau hydrate (SC-002).
 
 **Constraints**:
-- Chỉ 30 route API của `contracts/api-calls.md` (E2E ghi request, FR-002).
+- Chỉ 31 route API của `contracts/api-calls.md` (E2E ghi request, FR-002).
 - Không sửa `directus/`; file chép ghi `// Ported from directus/app/src/...`.
 - Không hex, không palette Tailwind ngoài `styles/tokens.css` (lint).
 - Giá trị tạm cho Q-1 đến Q-7 chỉ nằm trong `tokens.css`, `override-map.ts`, `assets/logo-*.svg` (đổi một chỗ).
@@ -123,7 +123,7 @@ specs/012-backoffice-web-shell/
 ├── quickstart.md
 ├── contracts/
 │   ├── ui-routes.md      # route, guard, bố cục, head
-│   ├── api-calls.md      # 30 route API app gọi (FR-002)
+│   ├── api-calls.md      # 31 route API app gọi (FR-002)
 │   └── e2e.md            # unit, E2E ba cấu hình, profile web, CI
 ├── checklists/requirements.md
 └── tasks.md              # /speckit.tasks

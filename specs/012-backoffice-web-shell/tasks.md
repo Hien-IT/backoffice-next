@@ -204,8 +204,8 @@ kết quả kiểm.
   với `to`/`onSelect`, focus trở về trigger khi đóng), `BoDialog.vue` (Reka `Dialog*`, `title`, slot, focus trap);
   test `BoSelect.test.ts` (chọn bằng bàn phím), `BoMenu.test.ts` (Esc đóng, focus trả về).
 - [ ] T029 [P] `BoSkipMenu.vue` (Ported ý từ `skip-menu.vue`: hai link `#main-content`, `#navigation`, hiện khi
-  focus), `BoAvatar.vue` (ảnh `/assets/<id>?key=system-small-cover` qua `getAssetUrl`, fallback chữ cái đầu, `alt`
-  tên); `utils/get-asset-url.ts` (Ported, dùng `apiUrl`), `utils/jwt-payload.ts` (Ported), `utils/translate-object-
+  focus), `BoAvatar.vue` (ảnh `/assets/<id>?key=system-medium-cover` qua `getAssetUrl`, fallback icon `account_circle`
+  như `module-bar-avatar.vue` (spec "Làm rõ từ checklist release-gate"), `alt` tên); `utils/get-asset-url.ts` (Ported, dùng `apiUrl`), `utils/jwt-payload.ts` (Ported), `utils/translate-object-
   values.ts` (Ported), `utils/markdown.ts` (`marked` + `dompurify`, chỉ cho phép thẻ cơ bản, link `rel=noopener
   target=_blank`); test `utils/get-asset-url.test.ts`, `utils/jwt-payload.test.ts`, `utils/markdown.test.ts` (khử
   `<script>`, `javascript:`); manifest `012-T029.json`.
@@ -221,7 +221,8 @@ kết quả kiểm.
   `backoffice-web:8080`, `/` → upstream; `proxy_set_header Host`, `X-Forwarded-*`). `tests/parity/env/profile-web-cors.env`
   (`CACHE_NAMESPACE=parity-web-cors`, `PUBLIC_URL=http://127.0.0.1:8163`, `CORS_ENABLED=true`,
   `CORS_ORIGIN=http://localhost:8181`, `CORS_CREDENTIALS=true`, `SESSION_COOKIE_SAME_SITE=None`,
-  `SESSION_COOKIE_SECURE=true`, `REFRESH_TOKEN_COOKIE_SAME_SITE=None`, `REFRESH_TOKEN_COOKIE_SECURE=true`).
+  `SESSION_COOKIE_SECURE=true`, `REFRESH_TOKEN_COOKIE_SAME_SITE=None`, `REFRESH_TOKEN_COOKIE_SECURE=true`,
+  `ACCESS_TOKEN_TTL=30s` để kiểm SC-004 trong thời gian CI, CHK047).
   `tests/parity/scripts/env.mjs`: `web` vào `ALL_PROFILES`; khi `--profiles` có `web` và chưa có image web local thì
   in hướng dẫn build. `tests/parity/README.md` bảng profile thêm `web`.
 - [ ] T031 [P] `apps/web-e2e/playwright.config.ts`: đọc `E2E_CONFIG` (`proxy-directus` | `proxy-api` | `cors` |
@@ -231,7 +232,8 @@ kết quả kiểm.
   helpers/`: `api.ts` (gọi API admin bằng `request` fixture với `apiUrl` của cấu hình: login JSON mode lấy token,
   tạo/xóa user, role, policy, share, PATCH settings, upload file), `config.ts` (`apiUrl`, `directusUrl`, `webUrl`,
   `isCors` từ env), `requests.ts` (fixture `test` mở rộng: ghi `page.on('request')` và sau mỗi test khẳng định mọi
-  path thuộc danh sách của `contracts/api-calls.md` chép vào `helpers/allowed-paths.ts`), `tokens.ts` (ký JWT invite
+  path thuộc danh sách của `contracts/api-calls.md` (31 route, kể cả `POST /utils/resolve-redirect`) chép vào
+  `helpers/allowed-paths.ts`, và fail khi có `pageerror`, `console.error` hoặc cảnh báo khóa dịch thiếu (CHK083)), `tokens.ts` (ký JWT invite
   và password-reset bằng `SECRET` của `tests/parity/env/postgres.env`, payload như Directus `services/users.ts`
   `inviteUser` và `requestPasswordReset`; dùng `jsonwebtoken` catalog), `login.ts` (điền form app Backoffice),
   `db-rows.ts` (chép từ `tests/directus-app-e2e/src/helpers/db-rows.ts` ghi nguồn). Xóa `src/smoke.spec.ts` (ping

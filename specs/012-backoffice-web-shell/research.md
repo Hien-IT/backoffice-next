@@ -210,7 +210,8 @@ với `font-size` theo token `--eh-font-size-*`. Không chép `directus/app/src/
   (`docker logs`, như `mail.test.ts` của 010) hoặc từ `directus_users.token`? Không: Directus không lưu token mời
   trong DB; với cấu hình (1) (API Directus) đọc email giả? Directus không gửi được mail trong env → lấy token bằng
   cách ký lại JWT với `SECRET` của env (test helper, cùng payload Directus dùng: `{ email, scope: 'invite' }` /
-  `{ email, scope: 'password-reset', hash }`), như blackbox của Directus làm ở `users/invite`.
+  `{ email, scope: 'password-reset', hash: getSimpleHash('' + password) }`, cả hai với `issuer: 'directus'`, như
+  `directus/api/src/services/users.ts`; đã đọc mã nguồn 2026-10-14), như blackbox của Directus làm ở `users/invite`.
 
 ## R10. Môi trường đối chiếu: profile `web`
 

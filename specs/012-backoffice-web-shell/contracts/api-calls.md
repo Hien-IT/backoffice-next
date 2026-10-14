@@ -30,11 +30,12 @@ Mọi request gửi `credentials: 'include'`; không `Authorization`. Base: `api
 | 23 | GET | `/relations` | hydrate | — | |
 | 24 | GET | `/presets` | hydrate | như `stores/presets.ts` | |
 | 25 | GET | `/translations` | `setLanguage` | `filter[language][_eq]=<lang>&limit=-1&fields=key,value` | |
-| 26 | GET | `/notifications` | hydrate | `filter[recipient][_eq]=$CURRENT_USER&filter[status][_eq]=inbox&aggregate[count]=*`? | như `stores/notifications.ts` (đo khi port) |
-| 27 | GET | `/assets/:id` | logo, favicon, nền, avatar | `?key=system-small-cover` cho avatar như Directus | ảnh, không fetch JSON |
+| 26 | GET | `/notifications` | hydrate | `filter={"_and":[{"recipient":{"_eq":<id user>}},{"status":{"_eq":"inbox"}}]}&aggregate[count]=id` | như `stores/notifications.ts` (`refreshUnreadCount`, bỏ qua khi `currentUser` không có `id`) |
+| 27 | GET | `/assets/:id` | logo, favicon, nền, avatar | `?key=system-medium-cover` cho avatar như `module-bar-avatar.vue` | ảnh, không fetch JSON |
 | 28 | GET | `/shares/info/:id` | `/shared/:id` | — | |
 | 29 | POST | `/shares/auth` | share login | `{ share, password?, mode: 'session' }` | |
 | 30 | POST | `/files` | avatar hồ sơ | multipart | |
+| 31 | POST | `/utils/resolve-redirect` | `/tfa-setup` có `?redirect=` | `{ redirect, provider? }` | như `useSafeRedirect`; chỉ đọc |
 
 Không gọi: `/websocket`, `/extensions/*`, `/mcp`, `/ai`, `/deployments`, `/graphql` (ở 012), `/items/*` (ở 012).
 

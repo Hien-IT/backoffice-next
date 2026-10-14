@@ -4,7 +4,8 @@
 **Created**: 2026-10-14
 **Status**: Draft
 **Duyệt khác biệt**: owner duyệt ngày 2026-10-14 D-39 đến D-49 (D-49: ẩn link Documentation mặc định
-thay cho mục "Cần xác nhận" về URL docs).
+thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các làm rõ của checklist release-gate ngày
+2026-10-14.
 **Input**: User description: "Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -379,8 +380,10 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 - **FR-012**: Khi API trả `INVALID_OTP`, form PHẢI hiện ô OTP (6 ký tự) giữ nguyên email và mật khẩu; mã lỗi khác
   PHẢI dịch qua khóa `errors.<CODE>` của chuỗi dịch Directus, không có bản dịch thì hiện message gốc.
 - **FR-013**: Lần tải đầu, app PHẢI thử `POST /auth/refresh` trước khi quyết định route (bỏ qua lỗi); route private
-  khi chưa đăng nhập PHẢI về `/login?redirect=<fullPath>`; sau đăng nhập PHẢI quay lại `redirect` chỉ khi là đường
-  dẫn nội bộ của app (`useSafeRedirect`), còn lại về `last_page` của user hoặc `/content`.
+  khi chưa đăng nhập PHẢI về `/login?redirect=<fullPath>`; sau đăng nhập PHẢI đi tới `redirect || last_page ||
+  '/content'` bằng `router.push` như `login-form.vue` (router chỉ nhận path của app nên URL ngoài thành path nội bộ
+  và rơi vào 404 private, không rời app). Riêng `/tfa-setup` kiểm `?redirect=` qua `POST /utils/resolve-redirect`
+  như `useSafeRedirect` (contracts/api-calls #31); lỗi thì về `last_page` hoặc `/login`.
 - **FR-014**: App PHẢI tự làm mới phiên như Directus: lưu `accessTokenExpiry`; trước khi hết hạn 10 giây gọi
   `/auth/refresh`; còn hạn thì xác nhận bằng `GET /users/me?fields=id`; dừng khi tab rảnh (idle như `idle.ts`) và
   refresh ngay khi tab hoạt động lại; refresh lỗi → đăng xuất với `SESSION_EXPIRED`.
@@ -428,8 +431,10 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   `project_url` chỉ dùng khi scheme là `http` hoặc `https`, giá trị khác bỏ qua (logo không thành link).
 - **FR-027**: Mọi phần tử điều hướng PHẢI dùng được bằng bàn phím (Tab, Enter, Esc đóng menu) và có nhãn truy cập
   (`aria-label` cho nút chỉ có icon) theo `design-system/docs/component-specs.md`.
-- **FR-028**: Bố cục PHẢI hiển thị đủ từ bề rộng 768 px; ở 768 đến 1024 px thanh điều hướng và sidebar gập mở như
-  Directus ở cùng ngưỡng (`--breakpoint` của Directus), không cuộn ngang.
+- **FR-028**: Bố cục PHẢI hiển thị đủ từ bề rộng 768 px, không cuộn ngang, với ngưỡng `BREAKPOINTS` của Directus
+  (contracts/ui-routes §4): từ `xl` (1152 px) ba cột; từ `lg` (922 px) đến dưới `xl` sidebar gập mặc định; từ 768 px
+  đến dưới `lg` thanh điều hướng và sidebar là drawer. Biên 768, 922 px được kiểm như các bề rộng khác; zoom 200%
+  (tương đương dưới 768 px) ngoài phạm vi.
 - **FR-029**: Tiêu đề tab PHẢI theo mẫu `<tiêu đề trang> · <project_name || Backoffice>`; `html[lang]` và `dir`
   theo ngôn ngữ user.
 
@@ -605,6 +610,7 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system `--eh-*` | Nguyên tắc XII | khác | — |
 | D-48 | Trang hồ sơ `/users/me` | Form đầy đủ theo metadata field của `directus_users` | Form cố định với field ở FR-060 | Form theo metadata thuộc feature Users | ngoài phạm vi (tạm thời) | 015 |
 | D-49 | Link Documentation mặc định trên thanh module (`docs` → `https://docs.directus.io`) | Hiện (mặc định và khi `module_bar` đã lưu có mục này) | Ẩn ở cả hai trường hợp; mục `docs` đã đổi `url` và link khác vẫn hiện; không sửa dữ liệu `module_bar` (FR-081) | Nguyên tắc IX: không dẫn người dùng Backoffice tới tài liệu Directus; owner chọn 2026-10-14 | đổi thương hiệu | — |
+| D-50 | Video `public_background` khi trình duyệt bật `prefers-reduced-motion: reduce` | `autoplay muted loop` luôn | Không autoplay (hiện khung đầu, có nút phát); không reduce thì như Directus | WCAG 2.2.2 (mức A) mà FR-067 yêu cầu; owner chọn 2026-10-14 | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -655,6 +661,76 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 - Q: SC-005 có so ảnh chụp với Directus app làm cổng không? → A: Không; ảnh chụp chỉ để tham khảo (artifact), cổng
   là các khẳng định trên DOM.
 
+### Làm rõ từ checklist release-gate (2026-10-14, owner duyệt)
+
+Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là hành vi đọc trong `directus/app/src` 11.17.4.
+
+- **Lỗi và giới hạn** (CHK001, CHK003, CHK005, CHK058, CHK065): mọi lỗi API ở các form (đăng nhập, TFA, share,
+  quên mật khẩu, lời mời, setup, hồ sơ) hiện qua `translateAPIError` (FR-012), kể cả `REQUESTS_EXCEEDED` (`429`),
+  sai mật khẩu ở `/tfa-setup`, share hết hạn hoặc hết lượt; không có xử lý riêng như Directus. Nút gửi ở trạng thái
+  `loading` trong lúc chờ nên không gửi lặp.
+- **Khởi động** (CHK002, CHK017, CHK055, CHK084): `/server/info` và `/auth?sessionOnly` gọi song song
+  (`Promise.all` như `stores/server.ts`); một trong hai lỗi thì màn lỗi FR-003; danh sách provider rỗng thì chỉ có
+  local. `config.json` thiếu hay sai thì `apiUrl = '/'` (001); `apiUrl` sai thì request lỗi → màn lỗi FR-003. App chỉ
+  hỗ trợ Directus 11.17.4; bản khác không kiểm, không cảnh báo; field thiếu ở `/server/info` dùng mặc định (FR-037).
+- **Phiên** (CHK021, CHK022, CHK053, CHK054, CHK057, CHK059, CHK075): hẹn giờ refresh do `@directus/sdk`
+  (`msRefreshBeforeExpires: 10_000`) như Directus app; `expires` nhỏ hơn 10 giây thì refresh ngay lần kế. Tab rảnh
+  khi 5 phút không có `pointermove`, `pointerdown`, `keydown` hoặc khi tab bị ẩn (`idle.ts`). `accessTokenExpiry =
+  Date.now() + expires` (tương đối, không đọc `exp`). Request thường lỗi mạng: không đăng xuất; `/auth/refresh` lỗi
+  bất kỳ (kể cả mạng): đăng xuất `SESSION_EXPIRED` như `auth.ts`. Không đồng bộ ngôn ngữ, theme giữa các tab; thu
+  hồi quyền hay đổi mật khẩu giữa phiên chỉ có hiệu lực khi hydrate lại hoặc khi API trả `401`.
+- **Người dùng share** (CHK006): như guard Directus: không ép TFA, không ghi `last_page`, không gọi `/settings`; thanh
+  module, avatar và menu dùng chung bố cục private với các module mà quyền share cho phép.
+- **Bố cục** (CHK007, CHK008, CHK010, CHK056, CHK072): bố cục private chỉ vẽ sau hydrate (màn chờ `hydrating`), nên
+  không có trạng thái loading theo vùng; slot điều hướng và sidebar trống ở 012 (D-45), nút gập sidebar ở thanh tiêu
+  đề, nút mở nav ở thanh tiêu đề dưới `lg`. Avatar: ảnh `/assets/<avatar>?key=system-medium-cover` khi có, icon
+  `account_circle` khi không có hoặc ảnh lỗi. `module_bar` đã lưu dùng nguyên (không gộp mục mặc định thiếu như
+  `visual`), id module không đăng ký bị bỏ, link giữ nguyên `url`.
+- **Thương hiệu và chuỗi** (CHK011, CHK013, CHK028, CHK029): `public_note` qua `marked` rồi `DOMPurify` cấu hình mặc
+  định như `v-md`. "Chữ người dùng thấy" gồm text DOM, `title`, `alt`, `aria-label`, tooltip, tiêu đề tab; console
+  theo FR-083; tên file tải về không có ở 012. Danh sách giữ nguyên là danh sách đóng do script FR-062 in ra và ghi
+  trong `translations/*.meta.json`: chuỗi chứa `directus_`, `@directus`, `directus.io` được giữ cả câu (chuỗi hỗn hợp
+  không thay từng phần).
+- **CSS từ settings** (CHK012, CHK067, CHK068, CHK069): `custom_css` chèn ở mọi trang (public và private) sau token và
+  override theme như `app.vue`, không giới hạn kích thước, nội dung đặt bằng text của `<style>`. `project_color` chỉ
+  được dùng khi `CSS.supports('color', value)`, không thì dùng màu primary của design-system (an toàn hơn Directus,
+  không đổi hiển thị với giá trị hợp lệ). `project_name` hiển thị bằng nội suy text (Vue escape), cắt `…` bằng CSS khi
+  dài.
+- **Ngôn ngữ** (CHK014, CHK015, CHK016, CHK064): trước đăng nhập ngôn ngữ là `default_language` của `/server/info`
+  rồi `en-US`. `dir` theo ngôn ngữ thật sự được nạp (`en-US`, `vi-VN` đều `ltr`), nên user chọn `ar-SA` vẫn `ltr`
+  (D-46). `GET /translations` lỗi (`403`) hay rỗng thì bỏ qua như `set-language.ts`. Chuỗi overlay có đủ `en-US` và
+  `vi-VN` (test kiểm), nội dung tiếng Việt do owner duyệt khi review.
+- **Trạng thái trống của module** (CHK025): chuỗi overlay `module_placeholder` không nêu số feature (ví dụ "Nội dung
+  của module này sẽ có ở bản cập nhật sau").
+- **Hồ sơ và theme** (CHK060): JSON override sai ở hồ sơ báo lỗi ở field, không gửi; giá trị màu sai từ settings hay
+  user được ghi vào biến CSS và trình duyệt bỏ qua, không ném lỗi.
+- **Redirect và `last_page`** (CHK023, CHK070): theo FR-013; `last_page` chỉ được ghi cho route private (FR-018); giá
+  trị lạ (`javascript:`, `/login`) qua `router.push` thành path của app.
+- **Lời mời** (CHK071): token không phải JWT thì email trống và form gửi lên API, lỗi API hiện kèm dòng
+  `contact_admin_for_link` (FR-052).
+- **Video nền** (CHK061): D-50; transition của app tắt khi `prefers-reduced-motion: reduce`.
+- **Bảo mật** (CHK077, CHK078, CHK079): không `v-html` với dữ liệu API hay chuỗi dịch, trừ `public_note` đã qua
+  `DOMPurify`; `project_url` theo FR-026. CSP là việc của triển khai (feature 019), không ở 012. Trace Playwright chỉ
+  giữ khi lỗi (`retain-on-failure`) và chỉ chứa tài khoản, token của môi trường test.
+- **Hiệu năng** (CHK032, CHK044, CHK080, CHK081): SC-008 đo từ `navigationStart` tới khi nút `sign_in` hiện, trên
+  chromium của runner CI với CDP 10 Mbps; bundle chính gzip ≤ 350 KB (R12); khởi động gọi đúng các request của
+  contracts/api-calls #1, #2, #6. SC-002 đo từ click module tới khi tiêu đề module hiện ở thanh tiêu đề. Font
+  (`font-display: block`, giấy phép OFL) không tính vào FR-074.
+- **Kiểm thử** (CHK018, CHK019, CHK031, CHK047, CHK048, CHK083, CHK092, CHK098): ba cấu hình E2E chạy tuần tự trên
+  cùng DB, dữ liệu tạo ra có tiền tố theo `E2E_CONFIG` và được dọn ở `afterAll`, không chạm dữ liệu của
+  `tests/directus-app-e2e`. Token mời và đặt lại mật khẩu ký bằng `SECRET` với payload và `issuer: 'directus'` như
+  `users.ts` của Directus (đã đọc mã nguồn). Project `msedge` chỉ chạy khi `PLAYWRIGHT_MSEDGE=1`, không có thì bỏ qua.
+  Cặp `backoffice-api-web-cors` đặt `ACCESS_TOKEN_TTL` ngắn (30 giây) để kiểm SC-004 trong thời gian CI. vue-i18n
+  `missingWarn` ghi `console.warn`; E2E fail khi có `pageerror`, `console.error` hoặc cảnh báo khóa thiếu. Header cho
+  phép: `Content-Type`, `Accept` do SDK đặt; E2E khẳng định không có `Authorization`. Helper chép từ
+  `tests/directus-app-e2e` ghi nguồn ở đầu file, không đồng bộ tự động.
+- **Thuật ngữ** (CHK043, CHK094): "trang 404 private" (`PrivateNotFoundRoute`); "API mới" là `apps/api` của dự án,
+  "app mới" là `apps/web`, "Directus thật" là image `directus/directus:11.17.4`.
+- **Mốc và người trả lời** (CHK030, CHK090): "hai bản ổn định mới nhất" tính tại ngày đóng feature; design owner trả
+  lời Q-1 đến Q-8 trước khi đóng 012, giá trị tạm chỉ nằm ở token (plan Constraints).
+- **Khác** (CHK051, CHK096): provider SSO `MODE=json` không có xử lý riêng ở app (như Directus app); E2E chỉ dùng
+  provider mode session. Query `/notifications` theo contracts/api-calls #26.
+
 ## Assumptions
 
 - Feature này là khung ứng dụng; nội dung của sáu module là feature 013 đến 018 theo `SPECKIT-GUIDE.md` (D-40, Clarifications). Tiêu chí chấp nhận "điều hướng
@@ -699,4 +775,5 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 - **SC-008**: Màn đăng nhập hiển thị trong dưới 3 giây trên kết nối 10 Mbps cache lạnh; bố cục không cuộn ngang ở
   768 px và 1280 px trên chromium, firefox, webkit (và `msedge` khi có).
 - **SC-009**: Không có file nào trong `directus/` bị sửa; không có request ghi ngoài `PATCH /users/me`, `POST
-  /auth/*`, `POST /users/invite/accept`, `POST /server/setup`, `POST /shares/auth`, `POST /files` trong E2E.
+  /auth/*`, `POST /users/invite/accept`, `POST /server/setup`, `POST /shares/auth`, `POST /files` trong E2E
+  (`POST /utils/resolve-redirect` chỉ đọc, được phép).
