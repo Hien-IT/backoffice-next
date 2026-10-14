@@ -9,8 +9,10 @@ import { i18n } from '../../lang/index.ts';
 import { useAppStore } from '../../stores/app.ts';
 import { type Info, useServerStore } from '../../stores/server.ts';
 import { mockApi } from '../../test-utils/fetch.ts';
+import LdapForm from './LdapForm.vue';
 import LoginForm from './LoginForm.vue';
 import LoginRoute from './LoginRoute.vue';
+import SsoLinks from './SsoLinks.vue';
 
 vi.mock('../../auth.ts', () => ({ login: vi.fn(), logout: vi.fn() }));
 vi.mock('../../hydrate.ts', () => ({ hydrate: vi.fn() }));
@@ -55,7 +57,7 @@ describe('LoginRoute', () => {
 		expect(wrapper.find('a[href="/register"]').exists()).toBe(false);
 	});
 
-	test('provider select when there is more than one option; LDAP renders no local form (Phase 6)', async () => {
+	test('provider select when there is more than one option; LDAP shows the LDAP form', async () => {
 		useServerStore().auth.providers = [{ name: 'ldap', driver: 'ldap' }];
 		const { wrapper } = await mountRoute();
 		const select = wrapper.findComponent(BoSelect);
@@ -65,10 +67,13 @@ describe('LoginRoute', () => {
 		select.vm.$emit('update:modelValue', 'ldap');
 		await flushPromises();
 		expect(wrapper.findComponent(LoginForm).exists()).toBe(false);
+		expect(wrapper.findComponent(LdapForm).props('provider')).toBe('ldap');
+		expect(wrapper.find('input[name="identifier"]').exists()).toBe(true);
 
 		select.vm.$emit('update:modelValue', 'local');
 		await flushPromises();
 		expect(wrapper.findComponent(LoginForm).props('provider')).toBe('local');
+		expect(wrapper.findComponent(LdapForm).exists()).toBe(false);
 	});
 
 	test('disableDefault starts on the first provider; SSO providers are not in the select', async () => {
@@ -82,6 +87,27 @@ describe('LoginRoute', () => {
 
 		expect(wrapper.findComponent(BoSelect).exists()).toBe(false);
 		expect(wrapper.findComponent(LoginForm).props('provider')).toBe('local2');
+		expect(wrapper.get('a[href*="auth/login/google"]').text()).toContain('Log In with Google');
+	});
+
+	test('disableDefault with LDAP first starts on the LDAP form', async () => {
+		const serverStore = useServerStore();
+		serverStore.auth.disableDefault = true;
+		serverStore.auth.providers = [{ name: 'ldap', driver: 'ldap' }];
+		const { wrapper } = await mountRoute();
+
+		expect(wrapper.findComponent(LdapForm).props('provider')).toBe('ldap');
+		expect(wrapper.findComponent(LoginForm).exists()).toBe(false);
+	});
+
+	test('SSO links under the form get the providers and ?error&code', async () => {
+		useServerStore().auth.providers = [{ name: 'github', driver: 'oauth2' }];
+		const { wrapper } = await mountRoute('/login?error=true&code=INVALID_CREDENTIALS');
+		const links = wrapper.findComponent(SsoLinks);
+
+		expect(links.props('providers')).toEqual([{ name: 'github', driver: 'oauth2' }]);
+		expect(links.props('ssoErrorCode')).toBe('INVALID_CREDENTIALS');
+		expect(wrapper.get('[role="alert"]').text()).toContain('Wrong username or password');
 	});
 
 	test('?reason shows the logout reason notice; an unknown reason falls back', async () => {
@@ -106,6 +132,7 @@ describe('LoginRoute', () => {
 		const { wrapper } = await mountRoute();
 
 		expect(wrapper.findComponent(LoginForm).exists()).toBe(false);
+		expect(wrapper.findComponent(SsoLinks).exists()).toBe(false);
 		expect(wrapper.text()).toContain('Ada is currently authenticated');
 		expect(wrapper.text()).toContain('Authenticated');
 		expect(hydrate).not.toHaveBeenCalled();

@@ -1,11 +1,9 @@
 // Ported from directus/app/src/router.ts (routes, router)
 // Backoffice: history base /admin/ (the app is served there, FR-001); route screens are lazy chunks (research R12);
-// screens of later phases (setup, password, invite, share) are RouteStub until they land; /register is the "not available yet" page (D-44).
-import { createRouter, createWebHistory, type RouteComponent, type RouteRecordRaw } from 'vue-router';
+// /register is the "not available yet" page (D-44).
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
 import { useServerStore } from '../stores/server.ts';
 import { onAfterEach, onBeforeEach } from './guard.ts';
-
-const RouteStub = (): Promise<RouteComponent> => import('../routes/RouteStub.vue');
 
 export const defaultRoutes: RouteRecordRaw[] = [
 	{
@@ -23,7 +21,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'setup',
 		path: '/setup',
-		component: RouteStub,
+		component: () => import('../routes/SetupRoute.vue'),
 		beforeEnter: async () => {
 			const serverStore = useServerStore();
 
@@ -52,7 +50,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'reset-password',
 		path: '/reset-password',
-		component: RouteStub,
+		component: () => import('../routes/reset-password/ResetPasswordRoute.vue'),
 		meta: {
 			public: true,
 		},
@@ -60,7 +58,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'register',
 		path: '/register',
-		component: RouteStub,
+		component: () => import('../routes/RegisterNotAvailableRoute.vue'),
 		meta: {
 			public: true,
 		},
@@ -68,7 +66,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'accept-invite',
 		path: '/accept-invite',
-		component: RouteStub,
+		component: () => import('../routes/AcceptInviteRoute.vue'),
 		meta: {
 			public: true,
 		},
@@ -92,7 +90,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'shared',
 		path: '/shared/:id([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})',
-		component: RouteStub,
+		component: () => import('../routes/SharedRoute.vue'),
 		meta: {
 			public: true,
 		},

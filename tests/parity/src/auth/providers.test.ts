@@ -71,7 +71,8 @@ describe.runIf(suite === 'full' && profileUrls('sso'))('auth providers (profile 
 	])('%s %s: no saml routes at the new app (D-24)', async (method, path) => {
 		const result = await parity({ method, path }, opts());
 		assertParity(result);
-		expect(result.backoffice.status).toBe(404);
+		// Feature 012 (T053) enables CORS on the sso pair: both apps answer an OPTIONS preflight before routing.
+		expect(result.backoffice.status).toBe(method === 'OPTIONS' ? 204 : 404);
 	});
 
 	describe('sessions of saml users (FR-078)', () => {

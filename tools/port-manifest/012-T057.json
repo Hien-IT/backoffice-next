@@ -1,0 +1,1 @@
+[{ "source": "app/src/routes/setup/setup.vue", "dest": "apps/web/src/routes/SetupRoute.vue" }]

@@ -20,6 +20,11 @@ export interface PolicyOptions {
 	read?: string[];
 	/** The user may update its own tfa_secret: POST /users/me/tfa/enable checks it (403 without, like Directus). */
 	ownTfa?: boolean;
+	/**
+	 * Fields of its own directus_users row the user may read and update (the profile page, US6). The minimal app
+	 * permissions of Directus 11.17.4 let a user read neither theme_*_overrides nor update its row.
+	 */
+	updateSelf?: string[];
 }
 
 export interface TestUser {
@@ -51,13 +56,28 @@ export class Fixtures {
 			});
 		}
 
-		if (options.ownTfa) {
+		const updateSelf = [...(options.ownTfa ? ['tfa_secret'] : []), ...(options.updateSelf ?? [])];
+
+		if (options.updateSelf?.length) {
+			await this.api.call('POST', '/permissions', {
+				data: {
+					policy: policy.id,
+					collection: 'directus_users',
+					action: 'read',
+					fields: options.updateSelf,
+					permissions: { id: { _eq: '$CURRENT_USER' } },
+					validation: {},
+				},
+			});
+		}
+
+		if (updateSelf.length) {
 			await this.api.call('POST', '/permissions', {
 				data: {
 					policy: policy.id,
 					collection: 'directus_users',
 					action: 'update',
-					fields: ['tfa_secret'],
+					fields: updateSelf,
 					permissions: { id: { _eq: '$CURRENT_USER' } },
 					validation: {},
 				},
@@ -68,6 +88,24 @@ export class Fixtures {
 		this.roles.push(role.id);
 		await this.api.call('POST', '/access', { data: { role: role.id, policy: policy.id } });
 		return role.id;
+	}
+
+	/**
+	 * The role with this fixed id (ids the env files reference, like AUTH_*_DEFAULT_ROLE_ID), created when missing, with
+	 * an extra app-access policy for the duration of the spec.
+	 */
+	async fixedRole(id: string, name: string): Promise<string> {
+		const existing = await this.api.call<{ id: string }[]>('GET', `/roles?filter[id][_eq]=${id}&fields=id`);
+
+		if (existing.length === 0) {
+			await this.api.createRole({ id, name: `${DATA_PREFIX} ${name}`, icon: 'person' });
+			this.roles.push(id);
+		}
+
+		const policy = await this.api.createPolicy({ name: `${DATA_PREFIX} ${name}`, icon: 'badge', app_access: true });
+		this.policies.push(policy.id);
+		await this.api.call('POST', '/access', { data: { role: id, policy: policy.id } });
+		return id;
 	}
 
 	async user(name: string, fields: Record<string, unknown> = {}): Promise<TestUser> {

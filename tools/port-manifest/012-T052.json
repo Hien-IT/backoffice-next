@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/routes/login/components/sso-links.vue",
+		"dest": "apps/web/src/routes/login/SsoLinks.vue"
+	}
+]

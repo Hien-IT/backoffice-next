@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { defineComponent, nextTick } from 'vue';
 import { createSdk } from '../api/sdk.ts';
 import { useServerStore } from '../stores/server.ts';
+import { useUserStore } from '../stores/user.ts';
 import { safeColor, useAppHead } from './use-app-head.ts';
 
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
@@ -39,6 +40,8 @@ async function resolve(project: Record<string, unknown> | null, pageTitle?: stri
 		themeColor: (find('meta', 'name', 'theme-color')?.props as Record<string, string> | undefined)?.['content'],
 		icon: (find('link', 'rel', 'icon')?.props as Record<string, string> | undefined)?.['href'],
 		style: tags.find((t) => t.tag === 'style')?.textContent,
+		overrides: tags.find((t) => t.tag === 'style' && (t.props as Record<string, string>)['id'] === 'theme-overrides')
+			?.textContent,
 		html: tags.find((t) => t.tag === 'htmlAttrs')?.props,
 	};
 }
@@ -50,7 +53,8 @@ describe('useAppHead', () => {
 		expect(head.title).toBe('Sign In · Backoffice');
 		expect(head.icon).toBe('/admin/favicon.ico');
 		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
-		expect(head.html).toMatchObject({ lang: 'en-US', dir: 'ltr' });
+		expect(head.html).toMatchObject({ lang: 'en-US', dir: 'ltr', class: 'light' });
+		expect(head.overrides).toBe('');
 	});
 
 	test('project name, color and generated favicon (with the mark when there is no logo)', async () => {
@@ -79,6 +83,31 @@ describe('useAppHead', () => {
 
 		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
 		expect(head.icon).toBe('/admin/favicon.ico');
+	});
+});
+
+describe('theme', () => {
+	test('html class dark from the settings appearance', async () => {
+		expect((await resolve({ default_appearance: 'dark' })).html).toMatchObject({ class: 'dark' });
+	});
+
+	test('html class follows the user appearance over the settings', async () => {
+		useUserStore().currentUser = { id: 'u1', appearance: 'light' } as never;
+		expect((await resolve({ default_appearance: 'dark' })).html).toMatchObject({ class: 'light' });
+	});
+
+	test('theme overrides of settings and user as tokens in #theme-overrides', async () => {
+		useUserStore().currentUser = { id: 'u1', appearance: null, theme_light_overrides: { primary: '#aa0000' } } as never;
+
+		const head = await resolve({
+			theme_light_overrides: { primary: '#111111', borderColor: 'gray' },
+			theme_dark_overrides: { background: 'black' },
+		});
+
+		expect(head.overrides).toBe(
+			':root.light { --eh-color-action-primary: #111111; --eh-color-border: gray; }\n' +
+				':root.dark { --eh-color-surface-default: black; }',
+		);
 	});
 });
 

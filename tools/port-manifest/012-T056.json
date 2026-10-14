@@ -1,0 +1,1 @@
+[{ "source": "app/src/routes/accept-invite.vue", "dest": "apps/web/src/routes/AcceptInviteRoute.vue" }]

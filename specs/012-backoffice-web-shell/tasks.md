@@ -391,23 +391,23 @@ Directus.
 
 **Independent Test**: `apps/web-e2e/src/sso.spec.ts` trên cặp `sso` (IdP giả, OpenLDAP) với cả hai API.
 
-- [ ] T051 [P] [US4] `apps/web/src/routes/login/LdapForm.vue` (identifier + password + OTP khi `INVALID_OTP`, gửi
+- [X] T051 [P] [US4] `apps/web/src/routes/login/LdapForm.vue` (identifier + password + OTP khi `INVALID_OTP`, gửi
   `login({ credentials: { identifier, password, otp }, provider })`), test `routes/login/LdapForm.test.ts`.
-- [ ] T052 [US4] `apps/web/src/routes/login/SsoLinks.vue` (Ported logic từ `sso-links.vue`: lọc `AUTH_SSO_DRIVERS`,
+- [X] T052 [US4] `apps/web/src/routes/login/SsoLinks.vue` (Ported logic từ `sso-links.vue`: lọc `AUTH_SSO_DRIVERS`,
   link `${apiUrl}/auth/login/${name}?redirect=${origin}/admin/login?continue`, nhãn `log_in_with` + `label ||
   formatTitle(name)`, icon provider (`BoIcon` theo `icon` hoặc mặc định `login`), lưu `backoffice-sso-provider` khi
   bấm, nhánh `?reason=INVALID_OTP`: làm đúng như `sso-links.vue` dòng 60–140 (đọc trước khi
   code; ghi cách gửi OTP vào research R3); `sessionStorage sso_otp_attempted`), cắm vào `LoginRoute.vue` cùng `LdapForm`; test
   `routes/login/SsoLinks.test.ts` (URL đúng, lọc driver, INVALID_OTP hiện OTP, lỗi `?error&code`); manifest
   `012-T052.json`.
-- [ ] T053 [US4] Env cặp `sso` thêm CORS và cookie cho cấu hình khác origin: `tests/parity/env/profile-sso.env` thêm
+- [X] T053 [US4] Env cặp `sso` thêm CORS và cookie cho cấu hình khác origin: `tests/parity/env/profile-sso.env` thêm
   `CORS_ENABLED=true`, `CORS_ORIGIN=http://localhost:8181`, `CORS_CREDENTIALS=true`, `SESSION_COOKIE_SAME_SITE=None`,
   `SESSION_COOKIE_SECURE=true`, `AUTH_ALLOWED_PUBLIC_URLS=http://localhost:8955/api,http://localhost:8181` (Directus
   chỉ chấp nhận `redirect` thuộc `PUBLIC_URL` hoặc danh sách này; giữ giá trị cũ của 003 để bộ parity `sso` không
   lệch); chạy lại `pnpm nx run parity-tests:parity --vendor=postgres` phần `sso` của 003 và
   xác nhận không lệch (header CORS giống nhau ở hai app vì cùng env); nếu bộ so header bắt `access-control-*`, thêm
   vào danh sách header bỏ qua của `tests/parity/src/...` với ghi chú feature 012.
-- [ ] T054 [US4] `apps/web-e2e/src/sso.spec.ts`: với `page.route('**/admin/config.json')` trỏ `apiUrl` cặp `sso`
+- [X] T054 [US4] `apps/web-e2e/src/sso.spec.ts`: với `page.route('**/admin/config.json')` trỏ `apiUrl` cặp `sso`
   (`http://127.0.0.1:8955` Directus, `8956` API mới; ở cấu hình `cors` web `localhost:8181`): select có `Default`,
   `Local2`, `Ldap`; LDAP login với user fixture của 003 (`tests/parity/src/auth/sso-ldap.test.ts` cho tên user, mật
   khẩu); OIDC: bấm nút → IdP giả (`tests/parity/idp/server.mjs` trang chấp thuận) → về `?continue` → trong app;
@@ -424,25 +424,25 @@ Directus.
 
 **Independent Test**: `apps/web-e2e/src/password-invite.spec.ts`.
 
-- [ ] T055 [P] [US5] `apps/web/src/routes/reset-password/ResetPasswordRoute.vue`, `RequestForm.vue` (`POST
+- [X] T055 [P] [US5] `apps/web/src/routes/reset-password/ResetPasswordRoute.vue`, `RequestForm.vue` (`POST
   /auth/password/request`, notice `password_reset_sent` + `contact_admin_for_link`, link `/login`), `ResetForm.vue`
   (`?token=`, mật khẩu mới, `POST /auth/password/reset`, notice thành công, nút `sign_in`); test
   `routes/reset-password/ResetPasswordRoute.test.ts` (2 nhánh, dòng liên hệ, lỗi dịch).
-- [ ] T056 [P] [US5] `apps/web/src/routes/AcceptInviteRoute.vue` (Ported logic từ `accept-invite.vue`: email từ
+- [X] T056 [P] [US5] `apps/web/src/routes/AcceptInviteRoute.vue` (Ported logic từ `accept-invite.vue`: email từ
   `jwtPayload(token).email` (token không parse → notice lỗi + `contact_admin_for_link`), `BoInput` email disabled,
   mật khẩu, `POST /users/invite/accept`, `account_created_successfully`, nút `sign_in`); `routes/RegisterNotAvailableRoute.vue`
   (`PublicView`, `register_not_available`, link `/login`); test `routes/AcceptInviteRoute.test.ts`; manifest
   `012-T056.json`.
-- [ ] T057 [P] [US5] `apps/web/src/routes/SetupRoute.vue` (Ported logic từ `routes/setup/setup.vue`: đọc field và
+- [X] T057 [P] [US5] `apps/web/src/routes/SetupRoute.vue` (Ported logic từ `routes/setup/setup.vue`: đọc field và
   payload `POST /server/setup` như Directus (đo file), sau đó `login` với email/mật khẩu vừa tạo; đã `setupCompleted`
   → `/login`); test `routes/SetupRoute.test.ts`; manifest `012-T057.json`.
-- [ ] T058 [US5] `apps/web/src/routes/SharedRoute.vue` (Ported logic từ `routes/shared/shared.vue` phần đăng nhập:
+- [X] T058 [US5] `apps/web/src/routes/SharedRoute.vue` (Ported logic từ `routes/shared/shared.vue` phần đăng nhập:
   `GET /shares/info/:id`, notice `usesLeft`, form mật khẩu nếu `password`, `login({ share: true, credentials: { share,
   password } })`, sau đó `router.push('/content/<collection>/<item>')` (khung module), `share_access_not_found`,
   hết hạn/hết lượt theo lỗi API); test `routes/SharedRoute.test.ts` (4 nhánh); manifest `012-T058.json`.
-- [ ] T059 [US5] Env cặp `setup` thêm CORS/cookie như T053 (`tests/parity/env/profile-setup.env` hoặc file env của cặp
+- [X] T059 [US5] Env cặp `setup` thêm CORS/cookie như T053 (`tests/parity/env/profile-setup.env` hoặc file env của cặp
   setup); chạy lại bộ `setup` của 010 xác nhận không lệch.
-- [ ] T060 [US5] `apps/web-e2e/src/password-invite.spec.ts`: quên mật khẩu (notice + dòng liên hệ admin; với API mới
+- [X] T060 [US5] `apps/web-e2e/src/password-invite.spec.ts`: quên mật khẩu (notice + dòng liên hệ admin; với API mới
   kiểm log container có dòng cảnh báo bằng `docker logs` qua `child_process` khi `E2E_CONFIG !== 'proxy-directus'`);
   đặt lại với token ký bởi `helpers/tokens.ts` rồi đăng nhập bằng mật khẩu mới; mời user qua `POST /users/invite`
   (API mới và Directus đều không gửi mail trong env), token ký lại, nhận lời mời, đăng nhập; token hỏng → notice lỗi +
@@ -460,22 +460,22 @@ Directus.
 
 **Independent Test**: `apps/web-e2e/src/profile.spec.ts`.
 
-- [ ] T061 [P] [US6] `apps/web/src/theme/override-map.ts` (R2, `/* Q-6 tạm */`): `OVERRIDE_MAP`, `overridesToCss(overrides,
+- [X] T061 [P] [US6] `apps/web/src/theme/override-map.ts` (R2, `/* Q-6 tạm */`): `OVERRIDE_MAP`, `overridesToCss(overrides,
   scope)` → chuỗi `:root{...}` / `:root.dark{...}`; bỏ khóa không ánh xạ và giá trị chứa `var(--theme--` hay ký tự
   ngoài `/^[#a-zA-Z0-9(),.%\s"'-]+$/` (CHK060, CHK077) với `console.warn` một lần mỗi khóa; test
   `theme/override-map.test.ts` (12 ca).
-- [ ] T062 [US6] `apps/web/src/theme/use-theme-configuration.ts` (Ported từ `use-theme-configuration.ts`: `appearance`,
+- [X] T062 [US6] `apps/web/src/theme/use-theme-configuration.ts` (Ported từ `use-theme-configuration.ts`: `appearance`,
   `darkMode` theo `prefers-color-scheme` khi `auto`, merge overrides user lên settings), nối vào `use-app-head.ts`
   (`html.class`, `<style id="theme-overrides">` từ `overridesToCss`); test `theme/use-theme-configuration.test.ts`
   (3 nguồn appearance, đổi media query, merge); manifest `012-T062.json`.
-- [ ] T063 [US6] `apps/web/src/routes/ProfileRoute.vue` (`PrivateView` title `profile`; form `BoInput` first_name,
+- [X] T063 [US6] `apps/web/src/routes/ProfileRoute.vue` (`PrivateView` title `profile`; form `BoInput` first_name,
   last_name, email, password (type password, trống), `BoAvatar` + `input type=file` → `POST /files` (multipart qua
   `sdk.request(uploadFiles(formData))`) → `avatar`, `BoSelect` language (từ `available-languages.json`), `BoSelect`
   appearance (`auto|light|dark` nhãn `$t`), hai `textarea` JSON overrides (parse khi lưu, lỗi gắn field); lưu: diff với
   `currentUser` → `PATCH /users/me` chỉ field đổi → `userStore.hydrate()` → `setLanguage` nếu `language` đổi; lỗi
   `FAILED_VALIDATION`/`RECORD_NOT_UNIQUE` gắn field theo `extensions.field`; nút lưu loading); test
   `routes/ProfileRoute.test.ts` (diff, chỉ field đổi, lỗi gắn field, JSON sai).
-- [ ] T064 [US6] `apps/web-e2e/src/profile.spec.ts`: đổi tên (thấy ở menu avatar); email trùng admin → lỗi; đổi mật
+- [X] T064 [US6] `apps/web-e2e/src/profile.spec.ts`: đổi tên (thấy ở menu avatar); email trùng admin → lỗi; đổi mật
   khẩu → đăng xuất → đăng nhập mật khẩu mới (khôi phục cuối test); `language=vi-VN` → nhãn module tiếng Việt ngay và
   sau reload; `appearance=dark` → `html.dark`; `auto` + `page.emulateMedia({ colorScheme })` đổi theo; overrides
   `{"primary":"#aa0000"}` (giá trị test) → `getComputedStyle(root).getPropertyValue('--eh-color-action-primary')`
@@ -630,3 +630,31 @@ Directus.
   `ModulePlaceholder` tới US6.
 - E2E đợt B chạy local: chromium 768 + 1280 ở `proxy-api`, `proxy-directus`, chromium 1280 ở `cors`: 21/21 đạt mỗi
   lượt. Firefox, WebKit chạy ở CI (đợt C).
+
+Đợt C (2026-10-14):
+
+- T053: Directus kiểm `redirect` của SSO theo `PUBLIC_URL` hoặc `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST` (không phải
+  `AUTH_ALLOWED_PUBLIC_URLS` như task ghi); `AUTH_ALLOWED_PUBLIC_URLS` chọn URL callback theo origin của request. Env
+  `sso` thêm `CORS_*`, `SESSION_COOKIE_SAME_SITE=None`, `SESSION_COOKIE_SECURE=true`, `AUTH_ALLOWED_PUBLIC_URLS` thêm
+  `http://127.0.0.1:8956` (callback về đúng API mới), `AUTH_OIDC_REDIRECT_ALLOW_LIST` và
+  `AUTH_OAUTHMOCK_REDIRECT_ALLOW_LIST` = `http://localhost:8181/admin/login`. Triển khai khác origin cần các biến này
+  (tài liệu triển khai, FR-075). Bộ parity sso của 003 chạy lại: chỉ `providers.test.ts` OPTIONS đổi (CORS trả preflight
+  204 ở cả hai app trước khi định tuyến), test sửa theo; `setup.test.ts` "without project_owner" lệch `project_status`
+  local cả khi bỏ thay đổi env (không do 012, theo dõi ở CI).
+- T054: SSO E2E chỉ chạy ở cấu hình `cors`; bước authorize của IdP chạy trong test (route trên `GET
+  /auth/login/oidc` của API, IdP 127.0.0.1:6110), trình duyệt nhận redirect tới callback. User SSO/LDAP được tạo sẵn;
+  đồng bộ user info đưa user về `AUTH_*_DEFAULT_ROLE_ID`, fixture `fixedRole` tạo role đó khi thiếu và gắn policy
+  app_access. API Directus trả lỗi SSO bằng `?reason=<CODE>` (không phải `?error&code`), app xử lý cả hai.
+- T060: `/setup` E2E chạy với API mới của cặp `setup` (10456) ở cấu hình `cors`, DB setup dọn lại sau test (Directus
+  `/server/setup` đã có ở bộ parity 010). Màn setup bỏ bước license BSL của Directus (payload không có `license`; cả
+  hai API không đọc), cần owner xác nhận. Lời mời: user `invited` tạo qua `POST /users` (không gọi `/users/invite`
+  để Directus không thử gửi mail).
+- T062: owner chọn thứ tự gộp override như Directus (`merge({}, user, settings)`, settings thắng); spec US6-4, FR-063
+  đã sửa. Scope sáng là `:root.light` (light override không lọt sang theme tối).
+- T063/T064: quyền tối thiểu của app trong Directus 11.17.4 không cho user đọc `theme_*_overrides` hay sửa dòng của
+  mình: hồ sơ chỉ lưu và áp override khi role có quyền đó (fixture `updateSelf`). Chuỗi vi-VN thiếu ở trang hồ sơ
+  (`appearance_*`, `fields.directus_users.appearance`, `theme_*_overrides`, `default_sync_with_project`, `invalid_input`)
+  rơi về en-US (FR-062); có thể thêm vào overlay nếu owner muốn.
+- CI job `e2e` cũ chỉ chạy `smoke.spec.ts` tới khi job `e2e-web` (Phase 9) có.
+- E2E đợt C local: chromium 768 + 1280 ở `proxy-api`, `proxy-directus` (32 đạt, 11 bỏ qua có chủ ý: sso và setup chỉ
+  chạy ở `cors`), `cors` 43/43.

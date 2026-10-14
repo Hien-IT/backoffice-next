@@ -314,9 +314,13 @@ jobs:
           for _ in $(seq 1 60); do curl -sf http://127.0.0.1:8057/server/ping && break; sleep 2; done
       - run: pnpm exec playwright install --with-deps chromium
         working-directory: apps/web-e2e
-      - run: pnpm nx run web-e2e:e2e
+      # Feature 012: only the smoke spec here (the API sits on another port without the parity proxies); the full
+      # suite runs in the three configurations of the parity profile `web` (job e2e-web, tasks Phase 9).
+      - run: pnpm exec playwright test src/smoke.spec.ts
+        working-directory: apps/web-e2e
         env:
           BASE_URL: http://127.0.0.1:8080
+          CI: 'true'
       - name: container logs
         if: failure()
         run: docker logs api; docker logs web

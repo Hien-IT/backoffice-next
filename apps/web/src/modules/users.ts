@@ -8,7 +8,7 @@ export default defineModule({
 	name: '$t:user_directory',
 	icon: 'people_alt',
 	routes: [
-		{ name: 'users-me', path: 'me', component: () => import('./ModulePlaceholder.vue'), meta: { module: 'users' } },
+		{ name: 'users-me', path: 'me', component: () => import('../routes/ProfileRoute.vue'), meta: { module: 'users' } },
 		...placeholderRoutes('users'),
 	],
 	preRegisterCheck: canRead('directus_users'),

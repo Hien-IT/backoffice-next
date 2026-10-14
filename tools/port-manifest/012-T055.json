@@ -1,0 +1,11 @@
+[
+	{
+		"source": "app/src/routes/reset-password/reset-password.vue",
+		"dest": "apps/web/src/routes/reset-password/ResetPasswordRoute.vue"
+	},
+	{
+		"source": "app/src/routes/reset-password/request.vue",
+		"dest": "apps/web/src/routes/reset-password/RequestForm.vue"
+	},
+	{ "source": "app/src/routes/reset-password/reset.vue", "dest": "apps/web/src/routes/reset-password/ResetForm.vue" }
+]

@@ -9,6 +9,7 @@
 		"@types/jsonwebtoken": "catalog:",
 		"jsonwebtoken": "catalog:",
 		"knex": "catalog:",
+		"ldapts": "catalog:",
 		"otplib": "catalog:",
 		"pg": "catalog:"
 	}

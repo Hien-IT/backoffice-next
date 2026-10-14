@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/composables/use-theme-configuration.ts",
+		"dest": "apps/web/src/theme/use-theme-configuration.ts"
+	}
+]

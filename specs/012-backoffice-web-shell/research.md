@@ -87,6 +87,15 @@ phát hiện khi `refresh()` lỗi, owner chọn giữ như Directus 2026-10-14)
 Link SSO (FR-041): `${apiUrl}/auth/login/${provider}?redirect=${origin}/admin/login?continue` (Directus dùng
 `getRootPath()`; ở đây origin của app).
 
+OTP sau SSO (T052, chép `sso-links.vue`): link dựng bằng `new URL('auth/login/<name>', apiUrl)` và
+`searchParams.set('redirect', <URL trang hiện tại có thêm continue=>)`, nên `redirect` được mã hóa kiểu form
+(`http%3A%2F%2F...%2Fadmin%2Flogin%3Fcontinue%3D`) và giữ query hiện có. Bấm link lưu tên provider vào localStorage
+`backoffice-sso-provider` (Directus: `sso_provider`). API trả về `?reason=INVALID_OTP` thì khối SSO không hiện lỗi mà
+hiện ô OTP ngay dưới nút của provider đã lưu (không có provider đã lưu thì không hiện ô). Đủ 6 ký tự (hoặc Enter khi
+đủ 6) thì đặt `sessionStorage sso_otp_attempted = '1'` và chuyển trình duyệt tới link của provider đó có thêm
+`otp=<mã>` (`GET <apiUrl>auth/login/<name>?redirect=...&otp=...`); lần về sau còn `INVALID_OTP` và có cờ thì hiện lỗi
+`errors.INVALID_OTP` dưới ô và xóa cờ. Bỏ `last_sso_provider` của Directus (chỉ chọn link mà ô OTP không bao giờ dùng).
+
 Khác origin (Clarifications): không có gì đổi ở app; cookie đi kèm nhờ `credentials: 'include'`. API cần
 `CORS_ENABLED=true`, `CORS_ORIGIN=<origin app>`, `CORS_CREDENTIALS=true`, `SESSION_COOKIE_SAME_SITE=None`,
 `SESSION_COOKIE_SECURE=true` (tất cả đã có ở `supported-variables.ts` nhóm hỗ trợ). E2E cấu hình (3) không cần

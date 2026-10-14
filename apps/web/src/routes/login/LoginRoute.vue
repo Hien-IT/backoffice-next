@@ -1,7 +1,6 @@
 <!-- Ported from directus/app/src/routes/login/login.vue -->
 <script setup lang="ts">
-// Backoffice: LdapForm and SsoLinks land in Phase 6 (US4); until then those drivers render nothing. The provider
-// select has a visible label (FR-067).
+// Backoffice: the provider select has a visible label (FR-067); ssoErrorCode (?error&code) goes to SsoLinks (FR-042).
 import { useHead } from '@unhead/vue';
 import { storeToRefs } from 'pinia';
 import { computed, ref, unref } from 'vue';
@@ -14,11 +13,11 @@ import PublicView from '../../layout/PublicView.vue';
 import { useAppStore } from '../../stores/app.ts';
 import { useServerStore } from '../../stores/server.ts';
 import ContinueAs from './ContinueAs.vue';
+import LdapForm from './LdapForm.vue';
 import LoginForm from './LoginForm.vue';
+import SsoLinks from './SsoLinks.vue';
 
-// ssoErrorCode is read by SsoLinks (Phase 6).
-const { logoutReason = null } = defineProps<{
-	// eslint-disable-next-line vue/require-default-prop -- not read until Phase 6
+const { ssoErrorCode = null, logoutReason = null } = defineProps<{
 	ssoErrorCode?: string | null;
 	logoutReason?: string | null;
 }>();
@@ -60,12 +59,12 @@ useHead({
 		</div>
 
 		<ContinueAs v-if="authenticated" />
-		<!-- Phase 6: LdapForm when driver === 'ldap' -->
+		<LdapForm v-else-if="driver === 'ldap'" :provider="provider ?? DEFAULT_AUTH_PROVIDER" />
 		<LoginForm
 			v-else-if="driver === DEFAULT_AUTH_DRIVER || driver === 'local'"
 			:provider="provider ?? DEFAULT_AUTH_PROVIDER"
 		/>
-		<!-- Phase 6: SsoLinks (auth.providers, ssoErrorCode) when not authenticated -->
+		<SsoLinks v-if="!authenticated" :providers="auth.providers" :sso-error-code="ssoErrorCode" />
 
 		<div
 			v-if="!authenticated && serverStore.info.project?.public_registration"

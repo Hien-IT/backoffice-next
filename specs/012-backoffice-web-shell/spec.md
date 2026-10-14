@@ -290,7 +290,8 @@ Người dùng mở hồ sơ từ menu avatar (`/admin/users/me`), sửa tên, e
    locale; đổi `language` thì áp ngay không tải lại.
 3. **Given** `appearance = auto`, **When** hệ điều hành đổi sáng/tối, **Then** app đổi theo; `appearance` của user
    đè `default_appearance` của settings; class `dark`/`light` trên `html` (Directus đặt trên `body`, D-43).
-4. **Given** `theme_light_overrides` ở settings và ở user, **When** áp, **Then** giá trị user gộp lên settings; chỉ
+4. **Given** `theme_light_overrides` ở settings và ở user, **When** áp, **Then** gộp như `use-theme-configuration.ts`
+   (`merge({}, user, settings)`: khóa trùng thì settings thắng, owner chọn giữ như Directus 2026-10-14); chỉ
    các khóa có token `--eh-*` tương ứng được áp (D-43), khóa khác bỏ qua.
 
 ---
@@ -517,7 +518,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 - **FR-063**: Theme PHẢI tính như `use-theme-configuration.ts`: `appearance` user → `default_appearance` → `auto`
   theo `prefers-color-scheme` (theo dõi thay đổi); class `dark`/`light` trên `html` (Directus đặt trên `body`; đặt
   trên `html` để utility `dark:` của Tailwind 4 bám được, không ảnh hưởng người dùng, D-43); token design-system là mặc
-  định; `theme_light_overrides`/`theme_dark_overrides` của settings rồi của user (user đè settings) đè các token
+  định; `theme_light_overrides`/`theme_dark_overrides` của user rồi của settings (settings thắng khi trùng khóa, như Directus) đè các token
   `--eh-*` có ánh xạ (bảng ánh xạ ở plan; khóa không ánh xạ bỏ qua, D-43). `default_theme_light`, `theme_light`,
   `default_theme_dark`, `theme_dark` (tên theme Directus) KHÔNG đổi giao diện (D-43).
 - **FR-064**: Theme tối PHẢI có đủ token tương ứng với bộ sáng của `tokens.css` (design-system chưa có; câu hỏi mở

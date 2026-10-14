@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/routes/login/components/login-form/ldap-form.vue",
+		"dest": "apps/web/src/routes/login/LdapForm.vue"
+	}
+]
