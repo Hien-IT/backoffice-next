@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/router.ts",
+		"dest": "apps/web/src/router/index.ts"
+	},
+	{
+		"source": "app/src/router.ts",
+		"dest": "apps/web/src/router/guard.ts"
+	}
+]

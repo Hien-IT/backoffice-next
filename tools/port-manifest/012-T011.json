@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/sdk.ts",
+		"dest": "apps/web/src/api/sdk.ts"
+	}
+]

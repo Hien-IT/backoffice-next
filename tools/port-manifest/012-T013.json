@@ -1,0 +1,22 @@
+[
+	{
+		"source": "packages/stores/src/app.ts",
+		"dest": "apps/web/src/stores/app.ts"
+	},
+	{
+		"source": "app/src/stores/requests.ts",
+		"dest": "apps/web/src/stores/requests.ts"
+	},
+	{
+		"source": "app/src/stores/server.ts",
+		"dest": "apps/web/src/stores/server.ts"
+	},
+	{
+		"source": "app/src/stores/permissions.ts",
+		"dest": "apps/web/src/stores/permissions.ts"
+	},
+	{
+		"source": "app/src/types/login.ts",
+		"dest": "apps/web/src/types/login.ts"
+	}
+]

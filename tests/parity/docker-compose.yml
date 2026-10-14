@@ -1354,5 +1354,102 @@ services:
       timeout: 5s
       retries: 100
 
+  # Feature 012 (research R10, R13, contracts/e2e.md §3): the Backoffice web app (apps/web) in the three E2E configurations
+  # of FR-071. backoffice-web (config.json apiUrl "/") sits behind two reverse proxies: /admin/ goes to it, the rest to
+  # Directus (proxy-web-directus) or to the new API (proxy-web-api). backoffice-web-cors calls backoffice-api-web-cors
+  # on another site (localhost:8181 -> 127.0.0.1:8163, CORS and SameSite=None cookies). Other apiUrl variants (sso,
+  # setup pairs) use page.route('**/admin/config.json') in the specs, no more web containers.
+  backoffice-web:
+    profiles: [web]
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    image: hiennd23/backoffice-web:local
+    # Read by docker/40-config.sh: config.json gets apiUrl "/" (the API on the same origin, behind the proxies).
+    environment:
+      PUBLIC_URL: /
+    ports:
+      - '8180:8080'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  proxy-web-directus:
+    profiles: [web]
+    image: nginx:1.27-alpine
+    volumes:
+      - ./proxy/web-directus.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      directus: { condition: service_healthy }
+      backoffice-web: { condition: service_healthy }
+    ports:
+      - '8161:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- 127.0.0.1/server/ping && wget -qO- 127.0.0.1/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  proxy-web-api:
+    profiles: [web]
+    image: nginx:1.27-alpine
+    volumes:
+      - ./proxy/web-api.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backoffice-api: { condition: service_healthy }
+      backoffice-web: { condition: service_healthy }
+    ports:
+      - '8162:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- 127.0.0.1/server/ping && wget -qO- 127.0.0.1/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  backoffice-api-web-cors:
+    profiles: [web]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): one image for every pair
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/directus/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-web-cors.env
+    # Starts after Directus has bootstrapped the database (the API never writes migrations).
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '8163:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  backoffice-web-cors:
+    profiles: [web]
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    image: hiennd23/backoffice-web:local
+    # config.json apiUrl: the API of the pair on another site (the browser opens http://localhost:8181).
+    environment:
+      PUBLIC_URL: http://127.0.0.1:8163
+    depends_on:
+      backoffice-api-web-cors: { condition: service_healthy }
+    ports:
+      - '8181:8080'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
 volumes:
   uploads:

@@ -50,47 +50,47 @@ US2 (bố cục, điều hướng) → US3 (thương hiệu) → US4 (LDAP, SSO)
 
 **Purpose**: cài gói, token Tailwind 4, lint, tài sản, khung build; chưa có hành vi.
 
-- [ ] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm (research R1): `reka-ui: 2.8.2`, `tailwindcss` và
+- [X] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm (research R1): `reka-ui: 2.8.2`, `tailwindcss` và
   `@tailwindcss/vite` 4.3.x mới nhất, `@directus/sdk: 21.3.0`, `@vueuse/core: 14.0.0`, `@unhead/vue: 1.11.20`,
   `qrcode: 1.5.4`, `@types/qrcode`, `marked: 16.4.1`, `dompurify: 3.3.2`, `mitt: 3.0.1` (Directus catalog),
   `@directus/format-title: 12.1.2` (bản của Directus 11.17.4), `material-symbols` (bản mới nhất),
   `@axe-core/playwright` (bản 4.x mới nhất, devDependency của `apps/web-e2e`, FR-067); ghi
   comment nguồn (Directus catalog / plan). `apps/web/package.json` thêm dependency theo `catalog:`; bỏ không dùng
   `axios` (chưa có ở web). `pnpm install`; lockfile cập nhật.
-- [ ] T002 Kiểm [Unverified] R1, R8: `pnpm view @directus/sdk@21.3.0 version`,
+- [X] T002 Kiểm [Unverified] R1, R8: `pnpm view @directus/sdk@21.3.0 version`,
   `pnpm view @directus/format-title@12.1.2 version`, `pnpm view material-symbols version`;
   nếu thiếu dùng bản gần nhất và ghi vào `specs/012-backoffice-web-shell/research.md` (R1, R8) và `plan.md`
   Complexity Tracking. Ghi kết quả thực tế vào research.md dù đúng hay sai.
-- [ ] T003 [P] `apps/web/vite.config.ts`: thêm `tailwindcss()` plugin, `base: '/admin/'` giữ, dev proxy mọi path API
+- [X] T003 [P] `apps/web/vite.config.ts`: thêm `tailwindcss()` plugin, `base: '/admin/'` giữ, dev proxy mọi path API
   (danh sách segment của `contracts/api-calls.md`: `auth|server|users|policies|roles|permissions|settings|collections|
   fields|relations|presets|translations|notifications|assets|shares|files`) sang `PUBLIC_URL` với
   `changeOrigin: false` (giữ cookie); `build.rollupOptions.output.manualChunks` tách `public`, `private`, `vendor`
   (R12). `apps/web/project.json` thêm target `sync-translations` (`node scripts/sync-translations.mjs`) và
   `lint` chạy `eslint src scripts`.
-- [ ] T004 [P] Kiểm export Reka UI 2.8.2 (R7): sau `pnpm install`, `grep -oE 'export \{[^}]*\}' node_modules/reka-ui/dist/index.d.ts | tr ',' '\n' | grep -E 'SelectRoot|DropdownMenuRoot|TooltipRoot|DialogRoot|CollapsibleRoot|Primitive'`; ghi tên export thật vào research.md R7 (bảng component).
-- [ ] T005 [P] `apps/web/src/styles/tokens.css`: chép khối `:root` của `design-system/tokens/tokens.css` nguyên văn
+- [X] T004 [P] Kiểm export Reka UI 2.8.2 (R7): sau `pnpm install`, `grep -oE 'export \{[^}]*\}' node_modules/reka-ui/dist/index.d.ts | tr ',' '\n' | grep -E 'SelectRoot|DropdownMenuRoot|TooltipRoot|DialogRoot|CollapsibleRoot|Primitive'`; ghi tên export thật vào research.md R7 (bảng component).
+- [X] T005 [P] `apps/web/src/styles/tokens.css`: chép khối `:root` của `design-system/tokens/tokens.css` nguyên văn
   (dòng đầu `/* Copied from design-system/tokens/tokens.css */`), thêm khối `:root.dark { ... }` với bộ token tối
   tạm (R2, `/* Q-5 tạm */`), và `--bo-navigation-background`, `--bo-header-background`, `--bo-sidebar-background`
   mặc định trỏ `--eh-color-surface-subtle`/`-default`.
-- [ ] T006 [P] `apps/web/src/styles/theme.css`: `@import "tailwindcss"; @custom-variant dark (&:where(.dark, .dark
+- [X] T006 [P] `apps/web/src/styles/theme.css`: `@import "tailwindcss"; @custom-variant dark (&:where(.dark, .dark
   *)); @theme { ... }` ánh xạ đủ token màu, spacing, radius, font, cỡ chữ, shadow sang utility `eh-*` (bảng R2);
   `apps/web/src/styles/base.css`: reset tối thiểu, `:focus-visible` outline token, `.sr-only`, skip-link; test
   `apps/web/src/styles/theme.test.ts`: parse `theme.css` và khẳng định mọi `--eh-*` trong `tokens.css` có một dòng
   `@theme` tương ứng (không thiếu token); tính tương phản WCAG cho các cặp dùng trong app (chữ chính, chữ phụ, chữ
   trên nút chính, link, viền input, ở cả theme sáng và tối) với ngưỡng FR-067; các cặp đã ghi ở Q-8 dùng `it.fails`
   kèm `// Q-8` để test báo khi token được sửa, mọi cặp khác phải đạt.
-- [ ] T007 [P] Font (R8, R12): `apps/web/src/styles/fonts.css` với `@font-face` Noto Sans (hai weight, `/* Q-2 tạm */`,
+- [X] T007 [P] Font (R8, R12): `apps/web/src/styles/fonts.css` với `@font-face` Noto Sans (hai weight, `/* Q-2 tạm */`,
   file woff2 tải vào `apps/web/public/fonts/`, ghi giấy phép OFL ở `apps/web/public/fonts/LICENSE.txt`) và Material
   Symbols Rounded từ gói `material-symbols` (import CSS của gói hoặc copy woff2 subset); `font-display: block` cho icon,
   `swap` cho chữ.
-- [ ] T008 [P] Tài sản thương hiệu (R11, `/* Q-7 tạm */`): `apps/web/src/assets/logo-light.svg`, `logo-dark.svg`
+- [X] T008 [P] Tài sản thương hiệu (R11, `/* Q-7 tạm */`): `apps/web/src/assets/logo-light.svg`, `logo-dark.svg`
   (chữ "B" trong hình tròn, `fill="currentColor"`), `apps/web/public/favicon.svg`, `favicon.ico` (32 px);
   `apps/web/index.html`: `<link rel="icon" href="/admin/favicon.ico">`, `<meta name="theme-color">` trống (app đặt),
   `<div id="custom-css"></div>`? Không: `useHead` chèn style; giữ `<title>Backoffice</title>`.
-- [ ] T009 [P] Lint: `tools/eslint/no-raw-color.mjs` (rule ESLint: báo lỗi hex `#[0-9a-fA-F]{3,8}`, `rgb(`, `hsl(`,
+- [X] T009 [P] Lint: `tools/eslint/no-raw-color.mjs` (rule ESLint: báo lỗi hex `#[0-9a-fA-F]{3,8}`, `rgb(`, `hsl(`,
   và class palette Tailwind trong `.vue`, `.css`, `.ts` dưới `apps/web/src`, trừ `styles/tokens.css`) + test
   `tools/eslint/no-raw-color.test.mjs` (hai ca đúng, bốn ca sai); `eslint.config.js` đăng ký rule cho `apps/web`.
-- [ ] T010 [P] `apps/web/src/constants.ts` (Ported từ `constants.ts`): `MODULE_BAR_DEFAULT` giữ các mục `visual`,
+- [X] T010 [P] `apps/web/src/constants.ts` (Ported từ `constants.ts`): `MODULE_BAR_DEFAULT` giữ các mục `visual`,
   `deployments` (`enabled: false`, không đăng ký module nên bị lọc như Directus) và bỏ mục link `docs` (`// Backoffice:
   D-49`), `DIRECTUS_DOCS_URL = 'https://docs.directus.io'` (dùng để lọc bản đã lưu, FR-081),
   `DEFAULT_AUTH_PROVIDER`, `DEFAULT_AUTH_DRIVER`, `AUTH_SSO_DRIVERS`, `SDK_AUTH_REFRESH_BEFORE_EXPIRES`,
@@ -108,7 +108,7 @@ kết quả kiểm.
 
 ### Client API và store
 
-- [ ] T011 `apps/web/src/api/sdk.ts` (Ported từ `sdk.ts` + `api.ts`, R3): `createSdk(apiUrl)` → `createDirectus(apiUrl,
+- [X] T011 `apps/web/src/api/sdk.ts` (Ported từ `sdk.ts` + `api.ts`, R3): `createSdk(apiUrl)` → `createDirectus(apiUrl,
   { globals: { fetch: wrappedFetch } }).with(authentication('session', { credentials: 'include',
   msRefreshBeforeExpires: SDK_AUTH_REFRESH_BEFORE_EXPIRES })).with(rest({ credentials: 'include' }))`;
   `wrappedFetch`: `requestsStore.startRequest/endRequest`, `requestQueue` (p-queue `concurrency 5, intervalCap 5,
@@ -116,19 +116,19 @@ kết quả kiểm.
   bắt đầu `/auth/` → `emitter.emit('sessionExpired')` (auth.ts nghe và logout, tránh import vòng). Export `sdk`
   (singleton gán ở `main.ts`), `requestEndpoint(path, options)`. `apps/web/src/api/sdk.test.ts`: queue pause/resume,
   requestsStore đếm, `401` phát sự kiện, `401` ở `/auth/login` không phát, `credentials: 'include'` có trong request.
-- [ ] T012 [P] `apps/web/src/events.ts` (Ported từ `events.ts`, dùng `mitt` (T001) như Directus): `Events.tabIdle`,
+- [X] T012 [P] `apps/web/src/events.ts` (Ported từ `events.ts`, dùng `mitt` (T001) như Directus): `Events.tabIdle`,
   `tabActive`, `sessionExpired`.
-- [ ] T013 [P] Store nền (Ported, R6): `apps/web/src/stores/app.ts` (từ `@directus/stores` `useAppStore`: 7 field ở
+- [X] T013 [P] Store nền (Ported, R6): `apps/web/src/stores/app.ts` (từ `@directus/stores` `useAppStore`: 7 field ở
   data-model §1), `stores/requests.ts`, `stores/server.ts` (`info`, `auth`, `providerOptions`, `hydrate` gọi
   `/server/info` và `/auth?sessionOnly` qua `sdk.request(requestEndpoint(...))`; bỏ `mcp_enabled`, `ai_enabled`),
   `stores/permissions.ts`; `formatTitle` từ `@directus/format-title` (T001); test `stores/server.test.ts`
   (`providerOptions`: disableDefault, lọc SSO, nhãn qua `formatTitle`; `project` null hoặc thiếu field → `info.project`
   giữ null, không ném (C2, FR-037)), `stores/permissions.test.ts`; manifest `012-T013.json`.
-- [ ] T014 [P] `apps/web/src/stores/user.ts` (Ported): `hydrate` (`/users/me?fields=*,role.id`, `/policies/me/globals`,
+- [X] T014 [P] `apps/web/src/stores/user.ts` (Ported): `hydrate` (`/users/me?fields=*,role.id`, `/policies/me/globals`,
   `/roles/me?fields=id`), `dehydrate`, `hydrateAdditionalFields`, `trackPage` (`PATCH /users/me { last_page }`, bỏ
   qua share), `language` (user → `default_language` → `en-US`), `textDirection`; `stores/user.test.ts` (3 nấc ngôn
   ngữ, rtl, trackPage, share); manifest `012-T014.json`.
-- [ ] T015 [P] `apps/web/src/stores/settings.ts` (Ported: `hydrate` bỏ qua share, `updateSettings` không notify),
+- [X] T015 [P] `apps/web/src/stores/settings.ts` (Ported: `hydrate` bỏ qua share, `updateSettings` không notify),
   `stores/notifications.ts` (chỉ `unread` đếm qua `GET /notifications` với query đo từ `stores/notifications.ts`
   Directus; ghi query thật vào `contracts/api-calls.md` #26), `stores/collections.ts`, `fields.ts`, `relations.ts`,
   `presets.ts`, `translations.ts` (mỗi file: state mảng + `hydrate` + `dehydrate`, ghi `// Backoffice: only
@@ -137,7 +137,7 @@ kết quả kiểm.
 
 ### i18n
 
-- [ ] T016 `apps/web/scripts/sync-translations.mjs` (R4): đọc `directus/app/src/lang/translations/{en-US,vi-VN}.yaml`,
+- [X] T016 `apps/web/scripts/sync-translations.mjs` (R4): đọc `directus/app/src/lang/translations/{en-US,vi-VN}.yaml`,
   `available-languages.yaml` bằng `js-yaml`; thay `Directus` → `Backoffice` trong giá trị chuỗi trừ giá trị khớp
   `KEEP = [/directus_/, /@directus/, /directus\.io/, /Directus BSL/]` và khóa `theme_directus_*`; ghi
   `apps/web/src/lang/translations/en-US.json`, `vi-VN.json`, `available-languages.json`, `translations.meta.json`
@@ -145,11 +145,11 @@ kết quả kiểm.
   bảng khóa giữ ra stdout. Chạy script, commit kết quả. `apps/web/scripts/sync-translations.test.ts`: chạy hàm sync
   vào thư mục tạm và so bằng từng byte với file commit; khẳng định không còn `Directus` ngoài `kept`; khẳng định
   `kept` ⊆ danh sách "Cần xác nhận" của spec (đọc spec.md). Manifest `012-T016.json` (source yaml → dest json).
-- [ ] T017 [P] `apps/web/src/lang/overlay/en-US.ts`, `vi-VN.ts`: `contact_admin_for_link`, `module_placeholder`
+- [X] T017 [P] `apps/web/src/lang/overlay/en-US.ts`, `vi-VN.ts`: `contact_admin_for_link`, `module_placeholder`
   (`{ feature }` không hiện số feature cho người dùng: dùng câu chung "Nội dung của mục này sẽ có ở phiên bản sau"),
   `register_not_available`, `skip_to_content`, `skip_to_navigation`, `open_navigation`, `open_sidebar`; test
   `lang/overlay.test.ts`: hai file cùng tập khóa.
-- [ ] T018 `apps/web/src/lang/index.ts` (Ported từ `lang/index.ts`: `createAppI18n`, `i18n`, `loadedLanguages`,
+- [X] T018 `apps/web/src/lang/index.ts` (Ported từ `lang/index.ts`: `createAppI18n`, `i18n`, `loadedLanguages`,
   `translateAPIError(error | code)` đọc `errors.<CODE>`), `lang/set-language.ts` (Ported: `import()` JSON động, merge
   overlay, `html[lang]`, `translationsStore.loadTranslations(lang)` → `GET /translations?filter[language][_eq]=
   <lang>&limit=-1&fields=key,value`, `loadDateFNSLocale`), `utils/get-date-fns-locale.ts` (Ported, chỉ `en-US`,
@@ -159,51 +159,51 @@ kết quả kiểm.
 
 ### Auth, hydrate, router
 
-- [ ] T019 Kiểm [Inference] R3 trước khi dựng E2E: script tạm trong scratchpad dùng Playwright chromium mở
+- [X] T019 Kiểm [Inference] R3 trước khi dựng E2E: script tạm trong scratchpad dùng Playwright chromium mở
   `http://localhost:<p>` gọi `fetch('http://127.0.0.1:<q>/set', { credentials: 'include' })` tới server node nhỏ đặt
   cookie `SameSite=None; Secure` rồi gọi lại và kiểm cookie được gửi; ghi kết quả (đạt/không) vào research.md R3. Nếu
   không đạt: cấu hình (3) chuyển sang HTTPS tự ký ở proxy (ghi vào research, cập nhật T046, spec FR-071).
-- [ ] T020 `apps/web/src/auth.ts` (Ported, R6): `login({ credentials, provider, share })` (email/identifier/share, `mode:
+- [X] T020 `apps/web/src/auth.ts` (Ported, R6): `login({ credentials, provider, share })` (email/identifier/share, `mode:
   'session'`, sau đó `sdk.refresh()`, `serverStore.hydrate()`, `hydrate()`), `refresh({ navigate })` (còn hạn →
   `readMe({ fields: ['id'] })`; hết hạn → `sdk.refresh()`; lỗi → `logout(SESSION_EXPIRED)`; `finally resumeQueue`),
   `logout({ navigate, reason })`, `LogoutReason`; nghe `Events.sessionExpired` (T011), `tabIdle`/`tabActive` (T021);
   `auth.test.ts` (login 3 kiểu, refresh 3 nhánh, logout 2 lý do, idle); manifest `012-T020.json`.
-- [ ] T021 [P] `apps/web/src/idle.ts` (Ported nguyên: `startIdleTracking`, `stopIdleTracking`, ngưỡng như Directus) +
+- [X] T021 [P] `apps/web/src/idle.ts` (Ported nguyên: `startIdleTracking`, `stopIdleTracking`, ngưỡng như Directus) +
   `idle.test.ts` (chép ý `idle.test.ts` Directus với fake timers); manifest `012-T021.json`.
-- [ ] T022 `apps/web/src/hydrate.ts` (Ported, R5): thứ tự FR-016 (user → permissions + fields → settings, collections,
+- [X] T022 `apps/web/src/hydrate.ts` (Ported, R5): thứ tự FR-016 (user → permissions + fields → settings, collections,
   relations, presets, notifications → `setLanguage`), `dehydrate`, `appStore.error` khi lỗi; `hydrate.test.ts` (thứ tự
   gọi, user không `app_access` không nạp store khác, lỗi → `error`); manifest `012-T022.json`.
-- [ ] T023 `apps/web/src/modules/index.ts` (Ported từ `modules/index.ts`): `defineModule`, `registerModules(modules)` →
+- [X] T023 `apps/web/src/modules/index.ts` (Ported từ `modules/index.ts`): `defineModule`, `registerModules(modules)` →
   `registeredModules`, `onHydrateModules` (preRegisterCheck, `router.addRoute({ name: id, path: '/'+id, children })`),
   `onDehydrateModules`; sáu file `modules/{content,files,users,insights,activity,settings}.ts` với `id`, `name`,
   `icon`, `hidden`, `preRegisterCheck` chép từ `modules/*/index.ts` và `routes` theo `contracts/ui-routes.md` §2
   (placeholder `ModulePlaceholder.vue` tạo ở T037; ở task này import động để không chặn); `modules/index.test.ts`
   (6 module × admin/partial/none, add/remove route); manifest `012-T023.json`.
-- [ ] T024 `apps/web/src/router/index.ts` + `router/guard.ts` (Ported từ `router.ts`): `createAppRouter()` với
+- [X] T024 `apps/web/src/router/index.ts` + `router/guard.ts` (Ported từ `router.ts`): `createAppRouter()` với
   `createWebHistory('/admin/')`, danh sách route public và private theo `contracts/ui-routes.md` §1–2 (component
   route import động `() => import('../routes/...')`, các file tạo ở phase story; tạm `RouteStub.vue` cho route chưa
   có), `onBeforeEach`, `onAfterEach` (`trackPage` 500 ms), key `backoffice-require_tfa_setup`; `router/guard.test.ts`
   (mọi nhánh §3 của contracts/ui-routes: 10 ca); thay `router/index.ts` cũ của 001; manifest `012-T024.json`.
-- [ ] T025 `apps/web/src/main.ts`: `loadRuntimeConfig` → `createSdk(apiUrl)` → `createPinia`, `createAppRouter`,
+- [X] T025 `apps/web/src/main.ts`: `loadRuntimeConfig` → `createSdk(apiUrl)` → `createPinia`, `createAppRouter`,
   `createAppI18n`, `createHead` (`@unhead/vue`) → `app.provide('apiUrl')`, `startIdleTracking` → mount; import
   `styles/{tokens,theme,base,fonts}.css`; `App.vue` tạm: `RouterView` + màn `hydrating` + màn lỗi (hoàn thiện ở
   T039); `App.test.ts` cập nhật.
 
 ### Component Tier 1 (Reka UI, token)
 
-- [ ] T026 [P] `apps/web/src/components/BoIcon.vue` (Material Symbols theo `name`, prop `size` sm/md/lg → token cỡ chữ,
+- [X] T026 [P] `apps/web/src/components/BoIcon.vue` (Material Symbols theo `name`, prop `size` sm/md/lg → token cỡ chữ,
   `aria-hidden` mặc định, `label` → `role=img aria-label`), `BoProgressCircular.vue`, `BoProgressLinear.vue`
   (`indeterminate`, `role=progressbar`); test `components/BoIcon.test.ts`.
-- [ ] T027 [P] `BoButton.vue` (`variant` primary/secondary/ghost/danger, `icon` chỉ-icon bắt buộc `ariaLabel`,
+- [X] T027 [P] `BoButton.vue` (`variant` primary/secondary/ghost/danger, `icon` chỉ-icon bắt buộc `ariaLabel`,
   `loading` (spinner + `aria-busy`, disabled), `disabled`, `to`/`href` → `RouterLink`/`a`, `type`), `BoInput.vue`
   (`modelValue`, `type`, `label`, `placeholder`, `autocomplete`, `autofocus`, `disabled`, `invalid`, `error` →
   `aria-invalid`, `aria-describedby`, id tự sinh `useId`), `BoNotice.vue` (`type`, icon + slot, `role=status`/`alert`
   khi danger); test `BoButton.test.ts`, `BoInput.test.ts` (label for/id, error liên kết, invalid), `BoNotice.test.ts`.
-- [ ] T028 [P] `BoSelect.vue` (Reka `Select*` theo export thật T004; `modelValue`, `items: {text,value}[]`, `label`,
+- [X] T028 [P] `BoSelect.vue` (Reka `Select*` theo export thật T004; `modelValue`, `items: {text,value}[]`, `label`,
   bàn phím mở/chọn/Esc), `BoTooltip.vue` (Reka `Tooltip*`), `BoMenu.vue` (Reka `DropdownMenu*`, slot trigger, `items`
   với `to`/`onSelect`, focus trở về trigger khi đóng), `BoDialog.vue` (Reka `Dialog*`, `title`, slot, focus trap);
   test `BoSelect.test.ts` (chọn bằng bàn phím), `BoMenu.test.ts` (Esc đóng, focus trả về).
-- [ ] T029 [P] `BoSkipMenu.vue` (Ported ý từ `skip-menu.vue`: hai link `#main-content`, `#navigation`, hiện khi
+- [X] T029 [P] `BoSkipMenu.vue` (Ported ý từ `skip-menu.vue`: hai link `#main-content`, `#navigation`, hiện khi
   focus), `BoAvatar.vue` (ảnh `/assets/<id>?key=system-medium-cover` qua `getAssetUrl`, fallback icon `account_circle`
   như `module-bar-avatar.vue` (spec "Làm rõ từ checklist release-gate"), `alt` tên); `utils/get-asset-url.ts` (Ported, dùng `apiUrl`), `utils/jwt-payload.ts` (Ported), `utils/translate-object-
   values.ts` (Ported), `utils/markdown.ts` (`marked` + `dompurify`, chỉ cho phép thẻ cơ bản, link `rel=noopener
@@ -212,7 +212,7 @@ kết quả kiểm.
 
 ### Môi trường E2E (để story kiểm được ngay)
 
-- [ ] T030 `tests/parity/docker-compose.yml` profile `web` (R10, R13): `backoffice-web` (build `apps/web/Dockerfile`,
+- [X] T030 `tests/parity/docker-compose.yml` profile `web` (R10, R13): `backoffice-web` (build `apps/web/Dockerfile`,
   image `hiennd23/backoffice-web:local`, `PUBLIC_URL=/`, port `8180:8080`), `proxy-web-directus` (nginx
   `./proxy/web-directus.conf`, `8161:80`), `proxy-web-api` (`./proxy/web-api.conf`, `8162:80`),
   `backoffice-api-web-cors` (image api local, env `postgres.env` + `profile-web-cors.env`, `8163:8055`),
@@ -225,21 +225,21 @@ kết quả kiểm.
   `ACCESS_TOKEN_TTL=30s` để kiểm SC-004 trong thời gian CI, CHK047).
   `tests/parity/scripts/env.mjs`: `web` vào `ALL_PROFILES`; khi `--profiles` có `web` và chưa có image web local thì
   in hướng dẫn build. `tests/parity/README.md` bảng profile thêm `web`.
-- [ ] T031 [P] `apps/web-e2e/playwright.config.ts`: đọc `E2E_CONFIG` (`proxy-directus` | `proxy-api` | `cors` |
+- [X] T031 [P] `apps/web-e2e/playwright.config.ts`: đọc `E2E_CONFIG` (`proxy-directus` | `proxy-api` | `cors` |
   không đặt = dev), `BASE_URL`; projects `chromium-768`, `chromium-1280`, `firefox-768`, `firefox-1280`, `webkit-768`,
   `webkit-1280` (viewport `768×1024`, `1280×800`); với `cors` chỉ `chromium-1280`; project `msedge-1280` khi
   `PLAYWRIGHT_MSEDGE=1` (`channel: 'msedge'`); `workers: 1`, `timeout 120_000`, trace on failure. `apps/web-e2e/src/
   helpers/`: `api.ts` (gọi API admin bằng `request` fixture với `apiUrl` của cấu hình: login JSON mode lấy token,
   tạo/xóa user, role, policy, share, PATCH settings, upload file), `config.ts` (`apiUrl`, `directusUrl`, `webUrl`,
   `isCors` từ env), `requests.ts` (fixture `test` mở rộng: ghi `page.on('request')` và sau mỗi test khẳng định mọi
-  path thuộc danh sách của `contracts/api-calls.md` (31 route, kể cả `POST /utils/resolve-redirect`) chép vào
+  path thuộc danh sách của `contracts/api-calls.md` (32 route, kể cả `POST /utils/resolve-redirect` và `PATCH /users/me/track/page`) chép vào
   `helpers/allowed-paths.ts`, và fail khi có `pageerror`, `console.error` hoặc cảnh báo khóa dịch thiếu (CHK083)), `tokens.ts` (ký JWT invite
   và password-reset bằng `SECRET` của `tests/parity/env/postgres.env`, payload như Directus `services/users.ts`
   `inviteUser` và `requestPasswordReset`; dùng `jsonwebtoken` catalog), `login.ts` (điền form app Backoffice),
   `db-rows.ts` (chép từ `tests/directus-app-e2e/src/helpers/db-rows.ts` ghi nguồn). Xóa `src/smoke.spec.ts` (ping
   không còn), thay bằng `src/smoke.spec.ts` mới: mở `/admin/` → chuyển `/admin/login`, có tiêu đề `Sign in ·
   Backoffice`.
-- [ ] T032 Chạy thử nền: build image web, `env-up --vendor=postgres --profiles=app,setup,sso,web`, chạy
+- [X] T032 Chạy thử nền: build image web, `env-up --vendor=postgres --profiles=app,setup,sso,web`, chạy
   `smoke.spec.ts` ở ba cấu hình (quickstart); sửa compose/proxy tới khi xanh. Ghi cổng thực tế vào README nếu đổi.
 
 **Checkpoint**: `web:test` xanh (ngưỡng 60% luôn bật trong `vitest.shared.ts`; mỗi task Phase 2 kèm test của chính
@@ -566,3 +566,44 @@ Directus.
 ## Ghi chú khi làm
 
 (Điền trong lúc implement: lệch với Directus app, kết quả kiểm [Unverified], quyết định nhỏ.)
+
+Đợt A (2026-10-14):
+
+- T002, T004, T019: kết quả ghi ở research R1, R3, R7, R8 (mọi gói có trên npm; export Reka UI đúng tên; cookie
+  `SameSite=None; Secure` qua HTTP giữa `localhost` và `127.0.0.1` đạt trên chromium 151).
+- T007: gói `material-symbols` chỉ có font variable 5,4 MB nên dùng `@material-symbols/font-400` (Rounded 572 KB);
+  Noto Sans lấy từ `@fontsource/noto-sans` (OFL) thay vì tải tay woff2 (research R8).
+- T009: kiểm màu thô viết thành script `tools/check-raw-colors.mjs` (+ test) chạy trong `web:lint`, thay rule ESLint:
+  ESLint không đọc `.css` và khối `<style>` (FR-092 cho phép "lint rule hoặc script").
+- T003: không dùng `manualChunks`; route và module import động đã tách chunk public, private, module (R12). Đo kích
+  thước bundle ở T032/perf.
+- `@directus/format-title` thêm vào `ALLOWED_DIRECTUS_PACKAGES` của `tools/check-package-names.mjs` (thư viện bên thứ
+  ba như `@directus/sdk`).
+- Pinia 3 bỏ dạng `defineStore({ id, ... })` của Directus: store chép dùng `defineStore('id', { ... })`, logic giữ.
+- Lệch tài liệu với Directus 11.17.4 (đọc mã nguồn):
+  - `trackPage` gọi `PATCH /users/me/track/page`, không phải `PATCH /users/me`: đã sửa spec FR-018, SC-009, US2-5 và
+    contracts/api-calls (#14, #32). API mới có route này.
+  - `api.ts` của Directus 11.17.4 KHÔNG có interceptor `401` → đăng xuất (spec FR-001, US1-5 ghi "như `api.ts`"):
+    Directus app chỉ phát hiện phiên mất ở lần `refresh()` kế tiếp (tải lại, tab hoạt động lại). App mới làm theo
+    spec (request ngoài `/auth/*` trả `401` → `logout(SESSION_EXPIRED)`, SC-004). Đây là khác biệt chưa có mã D;
+    **cần owner duyệt** (đề xuất D-51, loại "khác") hoặc chọn làm như Directus.
+  - `translateAPIError` của Directus trả `unexpected_error` khi không có khóa `errors.<CODE>` (spec FR-012 ghi "hiện
+    message gốc"): app làm như Directus; spec cần sửa câu này khi đóng feature.
+  - `useSafeRedirect` gọi `POST /utils/resolve-redirect` (đã thêm contracts #31, release-gate CHK023).
+- T015: `stores/translations.ts` chỉ có `loadTranslations` như Directus (không `hydrate`); query `/translations` và
+  `/presets` theo `fetchAll` của Directus (`limit=-1` hoặc phân trang theo `queryLimit.max`); contracts #25 đã sửa.
+- T016: chuỗi giấy phép là "Directus BSL 1.1" với dấu cách không ngắt, nên mẫu giữ là `/Directus\sBSL/`; 7 khóa giữ
+  (`directus_bsl`, 3 `theme_directus_*`, 3 chuỗi MCP nhắc `directus_*`); hai mô tả có chữ thường "directus user" không
+  đổi (FR-082 chỉ tìm "Directus").
+- T018: vue-i18n 11 bỏ `silentTranslationWarn` ở chế độ composition: dùng `missingWarn`/`fallbackWarn` tắt và handler
+  `missing` in `[i18n] missing key:` một lần khi khóa không có ở en-US (E2E fail theo dòng này).
+- T029: trong happy-dom DOMPurify bỏ sót node sau một `<script>` đã xóa (test markdown tách từng ca); [Inference] lỗi
+  của happy-dom, kiểm lại trong trình duyệt thật ở E2E (US3).
+- T030: cặp `backoffice-api-web-cors` có bus/lock namespace riêng (`parity-web-cors:*`): spec E2E phải đổi dữ liệu qua
+  API của chính cấu hình đó (`AdminApi` với `apiUrl`), thay đổi schema từ cặp chính không tới cache của cặp này.
+- T031: smoke tạm khẳng định URL `/admin/login` và tiêu đề chứa "Backoffice"; tiêu đề `Sign In · Backoffice` kiểm ở
+  `login.spec.ts` khi head có (T039). Route #5 cho phép thêm `/auth/login/:provider/callback` (trình duyệt đi qua
+  IdP, không phải request của app). ESLint của `apps/web/src` dùng `globals.browser`.
+- T032: `env-up --profiles=app,setup,sso,web` lên trong 1 phút 49 giây (image API dùng lại); smoke và helpers.spec đạt
+  ở `proxy-directus`, `proxy-api` (chromium 768, 1280) và `cors` (chromium 1280). Firefox, WebKit chưa chạy local
+  (máy chỉ có chromium); chạy ở job CI `e2e-web` (đợt C). Bundle chính 126 KB gzip (R12: ≤ 350 KB).

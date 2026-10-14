@@ -24,6 +24,11 @@ export default tseslint.config(
 		languageOptions: { parserOptions: { parser: tseslint.parser } },
 	},
 	{
+		// apps/web runs in the browser (DOM types and globals in <script setup>).
+		files: ['apps/web/src/**'],
+		languageOptions: { globals: { ...globals.browser } },
+	},
+	{
 		languageOptions: { globals: { ...globals.node } },
 		rules: {
 			'no-console': 'error',

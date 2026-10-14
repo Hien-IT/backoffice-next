@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/idle.ts",
+		"dest": "apps/web/src/idle.ts"
+	},
+	{
+		"source": "app/src/idle.test.ts",
+		"dest": "apps/web/src/idle.test.ts"
+	}
+]

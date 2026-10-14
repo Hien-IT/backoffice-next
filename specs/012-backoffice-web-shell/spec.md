@@ -54,7 +54,7 @@ thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các l
   `GET /auth?sessionOnly` → `auth.providers`, `auth.disableDefault`; `providerOptions` bỏ driver SSO, thêm
   `default_provider` khi không `disableDefault`), `stores/user.ts` (`GET /users/me` với field cố định kể cả `role`,
   `policies`, `app_access`, `admin_access`, `enforce_tfa`, `tfa_secret`, `appearance`, `theme_*`, `language`,
-  `last_page`; `language`: user → `default_language` → `en-US`; `textDirection`; `trackPage`: `PATCH /users/me`
+  `last_page`; `language`: user → `default_language` → `en-US`; `textDirection`; `trackPage`: `PATCH /users/me/track/page`
   `last_page`), `stores/settings.ts` (`GET /settings`, `module_bar`, `project_url`), `stores/permissions.ts`
   (`GET /permissions/me`), `stores/requests.ts`, `stores/notifications.ts`, `@directus/stores` `useAppStore`
   (`authenticated`, `hydrated`, `hydrating`, `accessTokenExpiry`, `error`, `navbarOpen`, `sidebarOpen`,
@@ -177,7 +177,7 @@ trên thanh, tiêu đề trang, với cùng tài khoản trên Directus app qua 
 4. **Given** đang ở một module, **When** gập thanh điều hướng hoặc sidebar, tải lại trang, **Then** trạng thái gập
    mở được giữ như Directus (localStorage với tiền tố `backoffice-`); bề rộng từ 768 px trở lên hiện đủ ba cột,
    sidebar phải gập mặc định ở dưới ngưỡng Directus dùng.
-5. **Given** đang ở `/admin/files`, **When** tải lại, **Then** sau 500 ms app ghi `last_page` qua `PATCH /users/me`
+5. **Given** đang ở `/admin/files`, **When** tải lại, **Then** sau 500 ms app ghi `last_page` qua `PATCH /users/me/track/page`
    như Directus; mở `/admin` lần sau về đúng `last_page`.
 6. **Given** route lạ `/admin/khong-co`, **When** đã đăng nhập, **Then** trang 404 private có thanh module; chưa đăng
    nhập thì về đăng nhập trước.
@@ -399,7 +399,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   `last_page`. Trang `/tfa-setup` PHẢI chạy `POST /users/me/tfa/generate` (mật khẩu) → QR từ `otpauth_url` và
   `secret` → `POST /users/me/tfa/enable` (`otp`, `secret`) như `use-tfa-setup.ts`.
 - **FR-018**: Sau mỗi điều hướng tới route private không `track: false`, app PHẢI ghi `last_page` bằng `PATCH
-  /users/me` sau 500 ms như `onAfterEach`; không ghi cho user share.
+  /users/me/track/page` (như `stores/user.ts` 11.17.4) sau 500 ms như `onAfterEach`; không ghi cho user share.
 - **FR-019**: Chưa `setupCompleted` (từ `/server/info`) thì mọi route PHẢI về `/setup`; trang `/setup` gọi `POST
   /server/setup` như Directus rồi đăng nhập; đã setup thì `/setup` về `/login`.
 
@@ -774,6 +774,6 @@ Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là
   thô hoặc màu palette Tailwind trong component.
 - **SC-008**: Màn đăng nhập hiển thị trong dưới 3 giây trên kết nối 10 Mbps cache lạnh; bố cục không cuộn ngang ở
   768 px và 1280 px trên chromium, firefox, webkit (và `msedge` khi có).
-- **SC-009**: Không có file nào trong `directus/` bị sửa; không có request ghi ngoài `PATCH /users/me`, `POST
+- **SC-009**: Không có file nào trong `directus/` bị sửa; không có request ghi ngoài `PATCH /users/me`, `PATCH /users/me/track/page`, `POST
   /auth/*`, `POST /users/invite/accept`, `POST /server/setup`, `POST /shares/auth`, `POST /files` trong E2E
   (`POST /utils/resolve-redirect` chỉ đọc, được phép).

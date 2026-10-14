@@ -1,62 +1,57 @@
 import { flushPromises, mount } from '@vue/test-utils';
-import { createPinia } from 'pinia';
-import { afterEach, describe, expect, test, vi } from 'vitest';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import App from './App.vue';
-import { createAppI18n, messages } from './i18n/index.ts';
-import { createAppRouter } from './router/index.ts';
+import { i18n } from './lang/index.ts';
+import { useAppStore } from './stores/app.ts';
 
-afterEach(() => vi.unstubAllGlobals());
+beforeEach(() => setActivePinia(createPinia()));
 
-async function mountApp(fetch: ReturnType<typeof vi.fn>, { apiUrl = '/', locale = 'en-US' } = {}) {
-	vi.stubGlobal('fetch', fetch);
-	const router = createAppRouter();
-	await router.push('/');
-
-	const wrapper = mount(App, {
-		props: { apiUrl },
-		global: { plugins: [createPinia(), router, createAppI18n(locale)] },
+async function mountApp() {
+	const router = createRouter({
+		history: createMemoryHistory(),
+		routes: [{ path: '/', component: { template: '<p data-testid="route">route</p>' } }],
 	});
 
+	await router.push('/');
+
+	const wrapper = mount(App, { global: { plugins: [router, i18n] } });
 	await flushPromises();
 	return wrapper;
 }
 
 describe('App', () => {
-	test('shows Backoffice and the result of GET <apiUrl>/server/ping', async () => {
-		const fetch = vi.fn().mockResolvedValue(new Response('pong'));
-		const wrapper = await mountApp(fetch, { apiUrl: 'https://api.example.com/base' });
-
-		expect(wrapper.text()).toContain('Backoffice');
-		expect(String(fetch.mock.calls[0]![0])).toBe('https://api.example.com/base/server/ping');
-		expect(wrapper.get('[data-testid="ping-result"]').text()).toBe('pong');
-		expect(wrapper.get('[data-testid="ping-status"]').text()).toBe('Success');
+	test('shows the route', async () => {
+		const wrapper = await mountApp();
+		expect(wrapper.find('[data-testid="route"]').exists()).toBe(true);
 	});
 
-	test('shows the error when the API does not answer', async () => {
-		const wrapper = await mountApp(vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
-
-		expect(wrapper.get('[data-testid="ping-status"]').text()).toBe('Unexpected Error');
-		expect(wrapper.get('[data-testid="ping-result"]').text()).toBe('Failed to fetch');
+	test('shows a progress indicator while hydrating', async () => {
+		useAppStore().hydrating = true;
+		const wrapper = await mountApp();
+		expect(wrapper.find('[role="progressbar"]').exists()).toBe(true);
 	});
 
-	test('shows a non-2xx answer as an error', async () => {
-		const wrapper = await mountApp(vi.fn().mockResolvedValue(new Response('Service Unavailable', { status: 503 })));
+	test('shows the unexpected error screen with the API message and a reload button (FR-003)', async () => {
+		const reload = vi.fn();
+		vi.stubGlobal('location', { ...window.location, reload });
+		useAppStore().error = { errors: [{ message: 'Service unavailable' }] };
 
-		expect(wrapper.get('[data-testid="ping-status"]').text()).toBe('Unexpected Error');
+		const wrapper = await mountApp();
+
+		expect(wrapper.text()).toContain('Unexpected Error');
+		expect(wrapper.get('[data-testid="app-error"]').text()).toBe('Service unavailable');
+		expect(wrapper.find('[data-testid="route"]').exists()).toBe(false);
+
+		await wrapper.get('button').trigger('click');
+		expect(reload).toHaveBeenCalled();
+		vi.unstubAllGlobals();
 	});
 
-	test('translates the labels in vi-VN, falling back to en-US for missing keys', async () => {
-		const wrapper = await mountApp(vi.fn().mockRejectedValue(new Error('x')), { locale: 'vi-VN' });
-
-		expect(wrapper.text()).toContain('Trạng thái');
-		expect(wrapper.get('[data-testid="ping-status"]').text()).toBe('Lỗi Bất Thường');
-	});
-});
-
-describe('i18n', () => {
-	test('loads one file per language and falls back to en-US for an unknown locale', () => {
-		expect(Object.keys(messages).sort()).toEqual(['en-US', 'vi-VN']);
-		expect(createAppI18n('fr-FR').global.locale.value).toBe('en-US');
-		expect(createAppI18n('vi-VN').global.t('success')).toBe('Success');
+	test('shows the message of a plain error', async () => {
+		useAppStore().error = new TypeError('Failed to fetch');
+		const wrapper = await mountApp();
+		expect(wrapper.get('[data-testid="app-error"]').text()).toBe('Failed to fetch');
 	});
 });

@@ -4,6 +4,12 @@
 	"private": true,
 	"type": "module",
 	"devDependencies": {
-		"@playwright/test": "catalog:"
+		"@axe-core/playwright": "catalog:",
+		"@playwright/test": "catalog:",
+		"@types/jsonwebtoken": "catalog:",
+		"jsonwebtoken": "catalog:",
+		"knex": "catalog:",
+		"otplib": "catalog:",
+		"pg": "catalog:"
 	}
 }

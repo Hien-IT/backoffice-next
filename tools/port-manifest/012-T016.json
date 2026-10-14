@@ -1,0 +1,19 @@
+[
+	{
+		"source": "app/src/lang/translations/en-US.yaml",
+		"dest": "apps/web/src/lang/translations/en-US.json",
+		"header": false
+	},
+	{
+		"source": "app/src/lang/translations/vi-VN.yaml",
+		"dest": "apps/web/src/lang/translations/vi-VN.json",
+		"header": false
+	},
+	{
+		"source": "app/src/lang/available-languages.yaml",
+		"dest": "apps/web/src/lang/available-languages.json",
+		"header": false
+	},
+	{ "source": "app/src/lang/date-formats.yaml", "dest": "apps/web/src/lang/date-formats.json", "header": false },
+	{ "source": "app/src/lang/number-formats.yaml", "dest": "apps/web/src/lang/number-formats.json", "header": false }
+]

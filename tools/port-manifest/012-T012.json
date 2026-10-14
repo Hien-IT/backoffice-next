@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/events.ts",
+		"dest": "apps/web/src/events.ts"
+	}
+]

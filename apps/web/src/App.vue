@@ -1,53 +1,41 @@
 <script setup lang="ts">
-import { computed, onMounted } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useServerStore } from './stores/server.ts';
+// Shell of directus/app/src/app.vue: hydrating screen, unexpected error screen, routes. Head, theme and branding
+// come with the layout (tasks T039).
+import { computed } from 'vue';
+import BoButton from './components/BoButton.vue';
+import BoNotice from './components/BoNotice.vue';
+import BoProgressCircular from './components/BoProgressCircular.vue';
+import { useAppStore } from './stores/app.ts';
 
-const props = defineProps<{ apiUrl: string }>();
+const appStore = useAppStore();
 
-const { t } = useI18n();
-const server = useServerStore();
-
-const label = computed(() => {
-	if (server.status === 'loading' || server.status === 'idle') return t('loading');
-	if (server.status === 'success') return t('success');
-	return t('unexpected_error');
+const errorMessage = computed(() => {
+	const error = appStore.error as { message?: string; errors?: { message?: string }[] } | null;
+	return error?.errors?.[0]?.message ?? error?.message ?? String(error);
 });
 
-onMounted(() => server.ping(props.apiUrl));
+function reload() {
+	globalThis.location.reload();
+}
 </script>
 
 <template>
-	<main class="app">
-		<h1>Backoffice</h1>
-		<p>
-			GET /server/ping · {{ t('status') }}:
-			<span :class="['status', server.status]" data-testid="ping-status">{{ label }}</span>
-			<code v-if="server.result" data-testid="ping-result">{{ server.result }}</code>
-		</p>
-		<RouterView />
+	<div v-if="appStore.hydrating" class="fixed inset-0 grid place-items-center bg-eh-surface-default">
+		<BoProgressCircular indeterminate :aria-label="$t('loading')" />
+	</div>
+
+	<main v-if="appStore.error" class="mx-auto grid max-w-xl gap-eh-4 p-eh-8">
+		<BoNotice type="danger">
+			<strong>{{ $t('unexpected_error') }}</strong>
+			{{ $t('unexpected_error_copy') }}
+		</BoNotice>
+		<pre class="overflow-auto rounded-eh-md bg-eh-surface-subtle p-eh-3 text-eh-sm" data-testid="app-error">{{
+			errorMessage
+		}}</pre>
+		<div>
+			<BoButton @click="reload">{{ $t('reload_page') }}</BoButton>
+		</div>
 	</main>
+
+	<RouterView v-else />
 </template>
-
-<style scoped>
-.app {
-	font-family: system-ui, sans-serif;
-	padding: 1rem;
-}
-
-.status {
-	padding: 0.125rem 0.5rem;
-	border-radius: 0.25rem;
-	background: #eceff1;
-}
-
-.status.success {
-	background: #e3f6e8;
-	color: #1b5e20;
-}
-
-.status.error {
-	background: #fde7e7;
-	color: #b71c1c;
-}
-</style>

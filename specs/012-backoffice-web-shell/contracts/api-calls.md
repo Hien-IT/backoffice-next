@@ -9,7 +9,7 @@ Mọi request gửi `credentials: 'include'`; không `Authorization`. Base: `api
 | 2 | GET | `/auth?sessionOnly` | khởi động | — | providers, `disableDefault` |
 | 3 | POST | `/auth/login` | login local | `{ email, password, otp?, mode: 'session' }` | |
 | 4 | POST | `/auth/login/:provider` | login local2 / ldap | `{ email \| identifier, password, otp?, mode: 'session' }` | |
-| 5 | GET (navigation) | `/auth/login/:provider?redirect=<origin>/admin/login?continue` | nút SSO | — | trình duyệt rời app |
+| 5 | GET (navigation) | `/auth/login/:provider?redirect=<origin>/admin/login?continue` | nút SSO | — | trình duyệt rời app; IdP đưa trình duyệt về `/auth/login/:provider/callback` (không phải request của app, E2E cho phép) |
 | 6 | POST | `/auth/refresh` | lần tải đầu, sau login, sắp hết hạn, tab hoạt động lại | `{ mode: 'session' }` | SDK |
 | 7 | POST | `/auth/logout` | người dùng đăng xuất | `{ mode: 'session' }` | không gọi khi SESSION_EXPIRED |
 | 8 | POST | `/auth/password/request` | quên mật khẩu | `{ email }` | |
@@ -18,7 +18,7 @@ Mọi request gửi `credentials: 'include'`; không `Authorization`. Base: `api
 | 11 | POST | `/server/setup` | `/setup` | như `setup.vue` Directus | |
 | 12 | GET | `/users/me?fields=*,role.id` | hydrate | — | |
 | 13 | GET | `/users/me?fields=id` | refresh khi token còn hạn | — | |
-| 14 | PATCH | `/users/me` | `trackPage`, hồ sơ | `{ last_page }` / field đã đổi | |
+| 14 | PATCH | `/users/me` | hồ sơ | field đã đổi | |
 | 15 | POST | `/users/me/tfa/generate` | `/tfa-setup` | `{ password }` | `secret`, `otpauth_url` |
 | 16 | POST | `/users/me/tfa/enable` | `/tfa-setup` | `{ otp, secret }` | |
 | 17 | GET | `/policies/me/globals` | hydrate | — | `app_access`, `admin_access`, `enforce_tfa` |
@@ -29,12 +29,13 @@ Mọi request gửi `credentials: 'include'`; không `Authorization`. Base: `api
 | 22 | GET | `/fields` | hydrate | — | |
 | 23 | GET | `/relations` | hydrate | — | |
 | 24 | GET | `/presets` | hydrate | như `stores/presets.ts` | |
-| 25 | GET | `/translations` | `setLanguage` | `filter[language][_eq]=<lang>&limit=-1&fields=key,value` | |
+| 25 | GET | `/translations` | `setLanguage` | `fields=language,key,value`, `filter` ngôn ngữ, `limit=-1` (hoặc `page` + `limit=<queryLimit.max>` như `fetchAll`) | như `stores/translations.ts` |
 | 26 | GET | `/notifications` | hydrate | `filter={"_and":[{"recipient":{"_eq":<id user>}},{"status":{"_eq":"inbox"}}]}&aggregate[count]=id` | như `stores/notifications.ts` (`refreshUnreadCount`, bỏ qua khi `currentUser` không có `id`) |
 | 27 | GET | `/assets/:id` | logo, favicon, nền, avatar | `?key=system-medium-cover` cho avatar như `module-bar-avatar.vue` | ảnh, không fetch JSON |
 | 28 | GET | `/shares/info/:id` | `/shared/:id` | — | |
 | 29 | POST | `/shares/auth` | share login | `{ share, password?, mode: 'session' }` | |
 | 30 | POST | `/files` | avatar hồ sơ | multipart | |
+| 32 | PATCH | `/users/me/track/page` | `trackPage` (FR-018) | `{ last_page }` | như `stores/user.ts` 11.17.4 |
 | 31 | POST | `/utils/resolve-redirect` | `/tfa-setup` có `?redirect=` | `{ redirect, provider? }` | như `useSafeRedirect`; chỉ đọc |
 
 Không gọi: `/websocket`, `/extensions/*`, `/mcp`, `/ai`, `/deployments`, `/graphql` (ở 012), `/items/*` (ở 012).

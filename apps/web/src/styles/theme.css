@@ -1,0 +1,69 @@
+/* Tailwind 4 theme on top of the design-system tokens (constitution XII, research R2): utilities keep the eh-*
+   names (bg-eh-action-primary, p-eh-4, rounded-eh-md...). The default palette is removed so gray-*, sky-*... do not
+   exist. Dark mode follows the `dark` class on <html> (set by the app head, FR-063). */
+@import 'tailwindcss';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+	--color-*: initial;
+	--color-eh-blue-500: var(--eh-color-blue-500);
+	--color-eh-blue-100: var(--eh-color-blue-100);
+	--color-eh-blue-800: var(--eh-color-blue-800);
+	--color-eh-blue-900: var(--eh-color-blue-900);
+	--color-eh-red-500: var(--eh-color-red-500);
+	--color-eh-orange-500: var(--eh-color-orange-500);
+	--color-eh-teal-500: var(--eh-color-teal-500);
+	--color-eh-neutral-900: var(--eh-color-neutral-900);
+	--color-eh-neutral-0: var(--eh-color-neutral-0);
+	--color-eh-neutral-100: var(--eh-color-neutral-100);
+	--color-eh-neutral-400: var(--eh-color-neutral-400);
+	--color-eh-border: var(--eh-color-border);
+	--color-eh-action-primary: var(--eh-color-action-primary);
+	--color-eh-text-primary: var(--eh-color-text-primary);
+	--color-eh-text-secondary: var(--eh-color-text-secondary);
+	--color-eh-surface-default: var(--eh-color-surface-default);
+	--color-eh-surface-subtle: var(--eh-color-surface-subtle);
+	--color-eh-status-danger: var(--eh-color-status-danger);
+	--color-eh-status-warning: var(--eh-color-status-warning);
+	--color-eh-status-success: var(--eh-color-status-success);
+	--color-bo-navigation: var(--bo-navigation-background);
+	--color-bo-header: var(--bo-header-background);
+	--color-bo-sidebar: var(--bo-sidebar-background);
+	--color-project: var(--project-color);
+	--color-transparent: transparent;
+	--color-current: currentColor;
+
+	--spacing-eh-1: var(--eh-spacing-1);
+	--spacing-eh-2: var(--eh-spacing-2);
+	--spacing-eh-3: var(--eh-spacing-3);
+	--spacing-eh-4: var(--eh-spacing-4);
+	--spacing-eh-5: var(--eh-spacing-5);
+	--spacing-eh-6: var(--eh-spacing-6);
+	--spacing-eh-8: var(--eh-spacing-8);
+	--spacing-eh-10: var(--eh-spacing-10);
+	--spacing-eh-12: var(--eh-spacing-12);
+
+	--radius-eh-sm: var(--eh-radius-sm);
+	--radius-eh-md: var(--eh-radius-md);
+	--radius-eh-lg: var(--eh-radius-lg);
+	--radius-eh-full: var(--eh-radius-full);
+
+	--font-eh-body: var(--eh-font-family-body);
+
+	--text-eh-xs: var(--eh-font-size-xs);
+	--text-eh-sm: var(--eh-font-size-sm);
+	--text-eh-base: var(--eh-font-size-base);
+	--text-eh-lg: var(--eh-font-size-lg);
+	--text-eh-xl: var(--eh-font-size-xl);
+	--text-eh-2xl: var(--eh-font-size-2xl);
+	--text-eh-3xl: var(--eh-font-size-3xl);
+
+	--shadow-eh-sm: var(--eh-shadow-sm);
+
+	/* BREAKPOINTS of the Directus app (constants.ts, _breakpoints.scss) */
+	--breakpoint-*: initial;
+	--breakpoint-sm: 36rem;
+	--breakpoint-lg: 57.625rem;
+	--breakpoint-xl: 72rem;
+}

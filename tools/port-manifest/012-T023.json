@@ -1,0 +1,38 @@
+[
+	{
+		"source": "app/src/modules/index.ts",
+		"dest": "apps/web/src/modules/index.ts"
+	},
+	{
+		"source": "app/src/modules/index.ts",
+		"dest": "apps/web/src/modules/types.ts"
+	},
+	{
+		"source": "app/src/modules/content/index.ts",
+		"dest": "apps/web/src/modules/content.ts"
+	},
+	{
+		"source": "app/src/modules/files/index.ts",
+		"dest": "apps/web/src/modules/files.ts"
+	},
+	{
+		"source": "app/src/modules/users/index.ts",
+		"dest": "apps/web/src/modules/users.ts"
+	},
+	{
+		"source": "app/src/modules/insights/index.ts",
+		"dest": "apps/web/src/modules/insights.ts"
+	},
+	{
+		"source": "app/src/modules/activity/index.ts",
+		"dest": "apps/web/src/modules/activity.ts"
+	},
+	{
+		"source": "app/src/modules/settings/index.ts",
+		"dest": "apps/web/src/modules/settings.ts"
+	},
+	{
+		"source": "app/src/utils/router-passthrough.ts",
+		"dest": "apps/web/src/utils/router-passthrough.ts"
+	}
+]

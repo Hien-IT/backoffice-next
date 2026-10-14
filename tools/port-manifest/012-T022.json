@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/hydrate.ts",
+		"dest": "apps/web/src/hydrate.ts"
+	}
+]

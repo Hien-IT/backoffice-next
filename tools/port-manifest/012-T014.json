@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/stores/user.ts",
+		"dest": "apps/web/src/stores/user.ts"
+	},
+	{
+		"source": "app/src/utils/user-name.ts",
+		"dest": "apps/web/src/utils/user-name.ts"
+	},
+	{
+		"source": "app/src/types/user.ts",
+		"dest": "apps/web/src/types/user.ts"
+	}
+]

@@ -50,6 +50,8 @@ const ALL_PROFILES = [
 	'setup',
 	// Feature 011 (research R9): the GraphQL pair with introspection off; `up` only with --profiles=graphql-nointro.
 	'graphql-nointro',
+	// Feature 012 (research R10): the web app behind two proxies and the cross-site pair; `up` only with --profiles=web.
+	'web',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [
@@ -77,6 +79,16 @@ if (action === 'up') {
 }
 
 const env = { ...process.env, TEST_DB: values.vendor };
+
+// Profile `web` (feature 012): `up --build` builds the web image when it is missing (CI loads it from the `images`
+// artifact instead); say so, since the build takes minutes.
+if (action === 'up' && profiles.includes('web')) {
+	const image = 'hiennd23/backoffice-web:local';
+	if (spawnSync('docker', ['image', 'inspect', image], { stdio: 'ignore' }).status !== 0) {
+		process.stdout.write(`${image} is missing; building it (docker build -f apps/web/Dockerfile -t ${image} .)\n`);
+	}
+}
+
 const result = spawnSync('docker', command, { stdio: 'inherit', env });
 
 // Directus creates data.db as uid 1000 with mode 0644; the blackbox tests of feature 006 write it from the runner.

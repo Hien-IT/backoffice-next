@@ -1,0 +1,26 @@
+[
+	{
+		"source": "app/src/stores/settings.ts",
+		"dest": "apps/web/src/stores/settings.ts"
+	},
+	{
+		"source": "app/src/stores/notifications.ts",
+		"dest": "apps/web/src/stores/notifications.ts"
+	},
+	{
+		"source": "app/src/stores/collections.ts",
+		"dest": "apps/web/src/stores/collections.ts"
+	},
+	{
+		"source": "app/src/stores/fields.ts",
+		"dest": "apps/web/src/stores/fields.ts"
+	},
+	{
+		"source": "app/src/stores/relations.ts",
+		"dest": "apps/web/src/stores/relations.ts"
+	},
+	{
+		"source": "app/src/stores/presets.ts",
+		"dest": "apps/web/src/stores/presets.ts"
+	}
+]

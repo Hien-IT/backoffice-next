@@ -1,0 +1,11 @@
+[
+	{ "source": "app/src/lang/index.ts", "dest": "apps/web/src/lang/index.ts" },
+	{ "source": "app/src/lang/set-language.ts", "dest": "apps/web/src/lang/set-language.ts" },
+	{ "source": "app/src/stores/translations.ts", "dest": "apps/web/src/stores/translations.ts" },
+	{ "source": "app/src/utils/fetch-all.ts", "dest": "apps/web/src/utils/fetch-all.ts" },
+	{ "source": "app/src/utils/get-date-fns-locale.ts", "dest": "apps/web/src/utils/get-date-fns-locale.ts" },
+	{
+		"source": "app/src/utils/get-literal-interpolated-translation.ts",
+		"dest": "apps/web/src/utils/get-literal-interpolated-translation.ts"
+	}
+]

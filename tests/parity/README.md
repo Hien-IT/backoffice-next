@@ -48,6 +48,7 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   | `cache-redis-purge` | 9355     | 9356       | `env/profile-cache-redis-purge.env`                                   |
   | `websocket`         | 9455     | 9456       | `env/profile-websocket.env` (`WEBSOCKETS_ENABLED=true`)               |
   | `blackbox`          | 9555     | 9556       | `env/profile-blackbox.env` (bộ `blackbox`, env của Directus blackbox) |
+  | `web`               | —        | 8163       | `env/profile-web-cors.env` (web 8180, 8181; proxy 8161, 8162)         |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 
@@ -225,6 +226,17 @@ Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập n�
 - Blackbox `tests/db/mail/mail.test.ts`: app mới không gửi mail, ghi một dòng `warn`
   `Backoffice: mail sending is out of scope` cho mỗi mail Directus sẽ gửi (D-33).
 - Sau `env-up` trên máy local, nếu container `directus` được tạo lại thì khởi động lại `proxy` (nginx giữ IP cũ).
+
+### App web (feature 012)
+
+- Profile `web` (`env-up --vendor=postgres --profiles=app,setup,sso,web`): ba cấu hình E2E của `apps/web-e2e`
+  (`E2E_CONFIG`): `proxy-directus` (`http://127.0.0.1:8161`, `proxy/web-directus.conf`: `/admin/` → `backoffice-web`,
+  còn lại → Directus), `proxy-api` (`http://127.0.0.1:8162`, `proxy/web-api.conf`: còn lại → API mới), `cors`
+  (`http://localhost:8181` gọi `http://127.0.0.1:8163`, CORS, cookie `SameSite=None; Secure`, `ACCESS_TOKEN_TTL=30s`).
+  `backoffice-web` 8180 là container web trực tiếp (`config.json` `apiUrl` `/`). Hai proxy web phân giải upstream mỗi
+  request (`resolver` Docker), không cần restart khi container được tạo lại.
+- Image `hiennd23/backoffice-web:local`: `env-up` build khi thiếu
+  (`docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:local .` từ gốc repo); CI nạp từ artifact `images`.
 
 ### Test GraphQL (feature 011)
 

@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/utils/get-asset-url.ts", "dest": "apps/web/src/utils/get-asset-url.ts" },
+	{ "source": "app/src/utils/jwt-payload.ts", "dest": "apps/web/src/utils/jwt-payload.ts" },
+	{ "source": "app/src/utils/translate-object-values.ts", "dest": "apps/web/src/utils/translate-object-values.ts" }
+]

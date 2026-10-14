@@ -8,18 +8,39 @@
 		"build": "vite build",
 		"typecheck": "vue-tsc -p tsconfig.json --noEmit",
 		"test": "vitest run",
-		"lint": "eslint src"
+		"lint": "eslint src scripts && node ../../tools/check-raw-colors.mjs ../.."
 	},
 	"dependencies": {
+		"@fontsource/noto-sans": "catalog:",
+		"@material-symbols/font-400": "catalog:",
+		"@directus/format-title": "catalog:",
+		"@directus/sdk": "catalog:",
+		"@unhead/vue": "catalog:",
+		"@vueuse/core": "catalog:",
+		"date-fns": "catalog:",
+		"dompurify": "catalog:",
+		"lodash-es": "catalog:",
+		"marked": "catalog:",
+		"mitt": "catalog:",
+		"nanoid": "catalog:",
+		"p-queue": "catalog:",
 		"pinia": "catalog:",
+		"qrcode": "catalog:",
+		"reka-ui": "catalog:",
 		"vue": "catalog:",
 		"vue-i18n": "catalog:",
 		"vue-router": "catalog:"
 	},
 	"devDependencies": {
+		"@tailwindcss/vite": "catalog:",
+		"@types/js-yaml": "catalog:",
+		"@types/lodash-es": "catalog:",
+		"@types/qrcode": "catalog:",
 		"@vitejs/plugin-vue": "catalog:",
 		"@vue/test-utils": "catalog:",
 		"happy-dom": "catalog:",
+		"js-yaml": "catalog:",
+		"tailwindcss": "catalog:",
 		"vite": "catalog:",
 		"vue-tsc": "catalog:"
 	}

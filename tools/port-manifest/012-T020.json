@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/auth.ts",
+		"dest": "apps/web/src/auth.ts"
+	}
+]

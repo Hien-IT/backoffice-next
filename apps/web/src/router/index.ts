@@ -1,9 +1,113 @@
-import { createRouter, createWebHistory, type Router } from 'vue-router';
+// Ported from directus/app/src/router.ts (routes, router)
+// Backoffice: history base /admin/ (the app is served there, FR-001); route screens are lazy chunks (research R12);
+// screens of later phases are RouteStub until they land; /register is the "not available yet" page (D-44).
+import { createRouter, createWebHistory, type RouteComponent, type RouteRecordRaw } from 'vue-router';
+import { useServerStore } from '../stores/server.ts';
+import { onAfterEach, onBeforeEach } from './guard.ts';
 
-// Skeleton only: every path shows the shell (App.vue). Business routes start with feature 012.
-export function createAppRouter(): Router {
-	return createRouter({
-		history: createWebHistory(import.meta.env.BASE_URL),
-		routes: [{ path: '/:pathMatch(.*)*', component: { render: () => null } }],
-	});
-}
+const RouteStub = (): Promise<RouteComponent> => import('../routes/RouteStub.vue');
+
+export const defaultRoutes: RouteRecordRaw[] = [
+	{
+		path: '/',
+		redirect: () => {
+			const serverStore = useServerStore();
+
+			if (serverStore.info.setupCompleted) {
+				return '/login';
+			} else {
+				return '/setup';
+			}
+		},
+	},
+	{
+		name: 'setup',
+		path: '/setup',
+		component: RouteStub,
+		beforeEnter: async () => {
+			const serverStore = useServerStore();
+
+			if (serverStore.info.setupCompleted) {
+				return '/login';
+			}
+
+			return;
+		},
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'login',
+		path: '/login',
+		component: RouteStub,
+		props: (route) => ({
+			ssoErrorCode: route.query['error'] ? route.query['code'] : null,
+			logoutReason: route.query['reason'],
+		}),
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'reset-password',
+		path: '/reset-password',
+		component: RouteStub,
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'register',
+		path: '/register',
+		component: RouteStub,
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'accept-invite',
+		path: '/accept-invite',
+		component: RouteStub,
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'tfa-setup',
+		path: '/tfa-setup',
+		component: RouteStub,
+		meta: {
+			track: false,
+		},
+	},
+	{
+		name: 'logout',
+		path: '/logout',
+		component: RouteStub,
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'shared',
+		path: '/shared/:id([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})',
+		component: RouteStub,
+		meta: {
+			public: true,
+		},
+	},
+	{
+		name: 'private-404',
+		path: '/:_(.+)+',
+		component: RouteStub,
+	},
+];
+
+export const router = createRouter({
+	history: createWebHistory('/admin/'),
+	routes: defaultRoutes,
+});
+
+router.beforeEach(onBeforeEach);
+router.afterEach(onAfterEach);

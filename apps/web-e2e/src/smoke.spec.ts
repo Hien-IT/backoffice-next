@@ -1,26 +1,11 @@
-import { expect, test } from '@playwright/test';
+import { expect, test } from './helpers/requests.js';
 
-// Smoke test of the web skeleton (US7, FR-003). The API answer is stubbed so the test does not depend on which
-// API runs behind the page; config.json is read at run time, so changing it changes the URL the app calls.
-test('opens /admin/, shows Backoffice and the ping result', async ({ page }) => {
-	await page.route('**/server/ping', (route) => route.fulfill({ body: 'pong' }));
+// Smoke test of the three configurations (T031, contracts/e2e.md §2): signed out, /admin/ lands on the login page.
+// The page title follows the Directus template (`<page> · <project name || Backoffice>`) once the app head lands
+// (T039); until then index.html's title stays.
+test('opens /admin/ and lands on the login page', async ({ page }) => {
 	await page.goto('/admin/');
 
-	await expect(page.getByRole('heading', { name: 'Backoffice' })).toBeVisible();
-	await expect(page.getByTestId('ping-result')).toHaveText('pong');
-});
-
-test('calls the API URL from config.json', async ({ page }) => {
-	const apiUrl = 'http://api.backoffice.test';
-	let pinged = '';
-
-	await page.route('**/admin/config.json', (route) => route.fulfill({ json: { apiUrl } }));
-	await page.route(`${apiUrl}/server/ping`, (route) => {
-		pinged = route.request().url();
-		return route.fulfill({ body: 'pong', headers: { 'access-control-allow-origin': '*' } });
-	});
-	await page.goto('/admin/');
-
-	await expect(page.getByTestId('ping-result')).toHaveText('pong');
-	expect(pinged).toBe(`${apiUrl}/server/ping`);
+	await expect(page).toHaveURL(/\/admin\/login$/);
+	await expect(page).toHaveTitle(/Backoffice/);
 });

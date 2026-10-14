@@ -1,4 +1,0 @@
-[
-	{ "source": "app/src/lang/translations/en-US.yaml", "dest": "apps/web/src/i18n/en-US.ts" },
-	{ "source": "app/src/lang/translations/vi-VN.yaml", "dest": "apps/web/src/i18n/vi-VN.ts" }
-]

@@ -1,0 +1,20 @@
+{
+	"source": "directus/app/src/lang/translations",
+	"version": "11.17.4",
+	"sha256": {
+		"directus/app/src/lang/translations/en-US.yaml": "10fcb613089056e0755a49539d2fe41c1e8c82b2059fa3f8df769b9a2cf3cdec",
+		"directus/app/src/lang/translations/vi-VN.yaml": "3089581dd0125718472cfb9228451f27e747e79696d08c277672c66c5eed1cb5",
+		"directus/app/src/lang/available-languages.yaml": "b0a83b18bb6198dd51e01725a78e56ae3f35cf7453c710f072610f9c2a3a0f19",
+		"directus/app/src/lang/date-formats.yaml": "3d834a5bd72ab3f8f0ced43acbc1655b801bf2492516127455f2911cba938aa3",
+		"directus/app/src/lang/number-formats.yaml": "095678addfdb7672fbdb0e62e32d50e93b4193155b5244963b495d6c031bf3a8"
+	},
+	"kept": [
+		"en-US.directus_bsl",
+		"en-US.theme_directus_default",
+		"en-US.theme_directus_minimal",
+		"en-US.theme_directus_colormatch",
+		"en-US.fields.directus_settings.mcp_enabled_note",
+		"en-US.fields.directus_settings.mcp_notice",
+		"en-US.mcp_prompts_collection_schema.meta_prompts_notice"
+	]
+}

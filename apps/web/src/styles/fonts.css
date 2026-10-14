@@ -1,0 +1,5 @@
+/* Fonts are self-hosted from npm packages (research R8, R12). Noto Sans is the temporary body font (Q-2 tạm), OFL-1.1;
+   icons are Material Symbols Rounded weight 400, Apache-2.0. */
+@import '@fontsource/noto-sans/400.css';
+@import '@fontsource/noto-sans/600.css';
+@import '@material-symbols/font-400/rounded.css';

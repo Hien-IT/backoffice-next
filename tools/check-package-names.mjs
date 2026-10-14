@@ -6,7 +6,7 @@ import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
 /** @directus/* packages a Backoffice app may use as ordinary third-party libraries. */
-export const ALLOWED_DIRECTUS_PACKAGES = ['@directus/sdk'];
+export const ALLOWED_DIRECTUS_PACKAGES = ['@directus/sdk', '@directus/format-title'];
 
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 

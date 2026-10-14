@@ -27,8 +27,9 @@ Mỗi mục: quyết định, lý do, phương án đã cân nhắc. Số liệu
 Bỏ `axios` và `ofetch` ở app web: Directus app có hai client (`api.ts` axios, `sdk.ts` ofetch); FR-001 yêu cầu một
 client. SDK với `globals.fetch` bọc `fetch` gốc đủ để gắn hàng đợi, `requestsStore`, và xử lý `401`.
 
-[Unverified] `@directus/sdk@21.3.0` có trên npm registry: chưa kiểm tra được offline; nếu bản 21.3.0 không có,
-dùng bản 21.x gần nhất và ghi vào Complexity Tracking (SDK là thư viện bên thứ ba, Nguyên tắc IX cho phép).
+Kiểm ngày 2026-10-14 (T002, `pnpm view`): `@directus/sdk@21.3.0`, `@directus/format-title@12.1.2`, `reka-ui@2.8.2`,
+`@vueuse/core@14.0.0`, `@unhead/vue@1.11.20`, `qrcode@1.5.4`, `marked@16.4.1`, `dompurify@3.3.2`, `mitt@3.0.1` đều có
+trên npm; `tailwindcss`, `@tailwindcss/vite` mới nhất 4.3.3; `@axe-core/playwright` 4.13.0. Không cần bản thay thế.
 
 **Phương án bỏ**: viết client REST riêng (thêm code, lệch hành vi refresh của SDK); dùng `axios` như Directus
 (hai client); Vuetify hay PrimeVue (không phải Reka UI, trái constitution VI).
@@ -91,8 +92,9 @@ Khác origin (Clarifications): không có gì đổi ở app; cookie đi kèm nh
 `SESSION_COOKIE_SECURE=true` (tất cả đã có ở `supported-variables.ts` nhóm hỗ trợ). E2E cấu hình (3) không cần
 HTTPS: app ở `http://localhost:<port>`, API ở `http://127.0.0.1:<port>` là hai site khác nhau (IP và host) nên
 cookie phải `SameSite=None`, và Chromium coi `localhost`, `127.0.0.1` là origin tin cậy nên nhận cookie `Secure`
-qua HTTP. [Inference] dựa trên định nghĩa "potentially trustworthy origin" của W3C Secure Contexts; kiểm lại
-khi dựng profile (T-E2E). Firefox và WebKit không chạy cấu hình (3) (spec FR-090). Spec FR-071 (3) sửa cho khớp.
+qua HTTP. Đã kiểm ngày 2026-10-14 (T019): Playwright chromium 151.0.7922.34, trang `http://localhost:18181` gọi
+`fetch('http://127.0.0.1:18163/set', { credentials: 'include' })` nhận `Set-Cookie: ...; SameSite=None; Secure` qua
+HTTP, request kế tiếp gửi lại cookie (`directus_session_token=abc`): đạt, cấu hình (3) không cần HTTPS. Firefox và WebKit không chạy cấu hình (3) (spec FR-090). Spec FR-071 (3) sửa cho khớp.
 
 **Phương án bỏ**: mode `json` khi khác origin (token trong localStorage, khác Directus app, bị XSS); proxy dev
 server bắt buộc cùng origin (owner chọn hỗ trợ khác origin).
@@ -177,8 +179,12 @@ trước (guard `check-port-headers`).
 | `BoSkipMenu` | không | như `skip-menu.vue` |
 | Layout: `ModuleBar`, `ModuleBarLogo`, `ModuleBarAvatar`, `NavBar` (+ `ProjectName`), `HeaderBar`, `MainContent`, `Sidebar`, `PrivateView`, `PublicView`, `NoAppAccess`, `ResizeHandle` | `CollapsibleRoot` cho sidebar | breakpoint `lg` 57.625rem (922px), `xl` 72rem như `BREAKPOINTS` của Directus; dưới `lg` nav là drawer |
 
-Reka UI 2.8.2 export kiểm tại `node_modules/reka-ui/dist/index.d.ts` khi cài (constitution XII); nếu tên khác
-(ví dụ `SelectRoot` vs `Select`), sửa theo bản cài.
+Reka UI 2.8.2 export kiểm tại `node_modules/reka-ui/dist/index.d.ts` ngày 2026-10-14 (T004): có đủ `SelectRoot`,
+`SelectTrigger`, `SelectValue`, `SelectPortal`, `SelectContent`, `SelectViewport`, `SelectItem`, `SelectItemText`,
+`DropdownMenuRoot`, `DropdownMenuTrigger`, `DropdownMenuPortal`, `DropdownMenuContent`, `DropdownMenuItem`,
+`TooltipProvider`, `TooltipRoot`, `TooltipTrigger`, `TooltipPortal`, `TooltipContent`, `DialogRoot`, `DialogPortal`,
+`DialogOverlay`, `DialogContent`, `DialogTitle`, `DialogDescription`, `DialogClose`, `CollapsibleRoot`, `Primitive`,
+`useId`; tên đúng như bảng trên.
 
 ## R8. Icon
 
@@ -189,8 +195,11 @@ Reka UI 2.8.2 export kiểm tại `node_modules/reka-ui/dist/index.d.ts` khi cà
 với `font-size` theo token `--eh-font-size-*`. Không chép `directus/app/src/assets/fonts/material-symbols.woff2`
 (tài sản Directus, FR-036 áp cho logo; font là OFL nhưng gói npm sạch hơn).
 
-[Unverified] tên gói `material-symbols` và cách nạp subset: kiểm khi cài; phương án dự phòng
-`@material-symbols/font-400`.
+Kiểm ngày 2026-10-14 (T002): gói `material-symbols` 0.48.0 chỉ có font variable, file Rounded 5,4 MB (không có
+subset); dùng phương án dự phòng `@material-symbols/font-400` 0.48.0 (Apache-2.0, static weight 400, Rounded 572 KB,
+Directus 11.17.4 dùng font một weight 391 KB). Không subset theo tên icon vì icon là dữ liệu (`module_bar`). Noto Sans
+(Q-2 tạm) lấy từ gói `@fontsource/noto-sans` 5.3.0 (OFL-1.1, có subset `latin`, `latin-ext`, `vietnamese`) thay vì tải
+tay file woff2.
 
 ## R9. Lint, test, coverage
 

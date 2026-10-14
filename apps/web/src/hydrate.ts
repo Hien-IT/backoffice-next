@@ -1,0 +1,98 @@
+// Ported from directus/app/src/hydrate.ts
+// Backoffice: flows, insights and AI stores are not loaded (D-45); modules are registered here instead of through
+// the extensions (no app extensions, D-41).
+import { setLanguage } from './lang/set-language.ts';
+import { onDehydrateModules, onHydrateModules } from './modules/index.ts';
+import { useAppStore } from './stores/app.ts';
+import { useCollectionsStore } from './stores/collections.ts';
+import { useFieldsStore } from './stores/fields.ts';
+import { useNotificationsStore } from './stores/notifications.ts';
+import { usePermissionsStore } from './stores/permissions.ts';
+import { usePresetsStore } from './stores/presets.ts';
+import { useRelationsStore } from './stores/relations.ts';
+import { useRequestsStore } from './stores/requests.ts';
+import { useServerStore } from './stores/server.ts';
+import { useSettingsStore } from './stores/settings.ts';
+import { useUserStore } from './stores/user.ts';
+
+type GenericStore = {
+	$id: string;
+	hydrate?: () => Promise<void>;
+	dehydrate?: () => Promise<void> | void;
+
+	[key: string]: any;
+};
+
+export function useStores(
+	stores: (() => unknown)[] = [
+		useCollectionsStore,
+		useFieldsStore,
+		useUserStore,
+		useRequestsStore,
+		usePresetsStore,
+		useSettingsStore,
+		useServerStore,
+		useRelationsStore,
+		usePermissionsStore,
+		useNotificationsStore,
+	],
+): GenericStore[] {
+	return stores.map((useStore) => useStore()) as GenericStore[];
+}
+
+export async function hydrate(): Promise<void> {
+	const stores = useStores();
+
+	const appStore = useAppStore();
+	const userStore = useUserStore();
+	const permissionsStore = usePermissionsStore();
+	const fieldsStore = useFieldsStore();
+
+	if (appStore.hydrated) return;
+	if (appStore.hydrating) return;
+
+	appStore.hydrating = true;
+
+	try {
+		/**
+		 * @NOTE
+		 * Multiple stores rely on the userStore to be set, so they can fetch user specific data. The
+		 * following makes sure that the user store is always fetched first, before we hydrate anything
+		 * else.
+		 */
+		await userStore.hydrate();
+
+		const currentUser = userStore.currentUser;
+
+		if (currentUser?.app_access) {
+			await Promise.all([permissionsStore.hydrate(), fieldsStore.hydrate()]);
+
+			const hydratedStores = ['userStore', 'permissionsStore', 'fieldsStore', 'serverStore'];
+			await Promise.all(stores.filter(({ $id }) => !hydratedStores.includes($id)).map((store) => store.hydrate?.()));
+
+			await onHydrateModules();
+		}
+
+		await setLanguage(userStore.language);
+	} catch (error: unknown) {
+		appStore.error = error;
+	} finally {
+		appStore.hydrating = false;
+	}
+
+	appStore.hydrated = true;
+}
+
+export async function dehydrate(stores = useStores()): Promise<void> {
+	const appStore = useAppStore();
+
+	if (appStore.hydrated === false) return;
+
+	for (const store of stores) {
+		await store.dehydrate?.();
+	}
+
+	await onDehydrateModules();
+
+	appStore.hydrated = false;
+}
