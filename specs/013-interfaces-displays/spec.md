@@ -250,9 +250,9 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   hình field (016), không ảnh hưởng hiển thị.
 - `display = 'badge'` (Directus `select-radio` gợi ý `badge` nhưng không có display này): hiện giá trị thô như
   Directus khi display không có.
-- Field nhóm có `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại. Quy tắc: làm giống
-  Directus theo kết quả đo trên Directus app ở task đầu đợt A (ghi kết quả vào dòng này); chỉ khi Directus ném lỗi chặn
-  cả form thì rơi về `group-raw` và ghi D-xx.
+- Field nhóm có `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại. Đo ngày 2026-10-15 trên
+  Directus app 11.17.4 (bản production, form tạo item): nhóm và mọi field con không hiện, không lỗi, không cảnh báo
+  console; field ngoài nhóm hiện bình thường. App mới làm giống: không vẽ nhóm và field con, không cảnh báo (T004).
 - Chuỗi `$t:key` trong `note`, `options`, `display_options`, `validation_message`, nhãn field
   (`meta.translations`): dịch như Directus; không có khóa thì hiện chuỗi gốc bỏ tiền tố như Directus.
 - Giá trị không đúng dạng (ví dụ `list` không phải mảng, `map` sai loại hình học, JSON hỏng ở `input-code`, block editor
@@ -742,8 +742,7 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
 ### Measurable Outcomes
 
 - **SC-001**: 40/40 interface id và 18/18 display id có bản tương ứng; với bộ mẫu (FR-100), test component dựng form
-  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found`, 0 lỗi hoặc cảnh báo Vue (trừ field nhóm có
-  `meta.interface` null nếu đo ở task đầu đợt A cho thấy Directus cũng cảnh báo và ta làm giống), 100% khẳng định DOM
+  và bảng cho mọi collection mẫu với 0 field hiện `interface_not_found`, 0 lỗi hoặc cảnh báo Vue, 100% khẳng định DOM
   đạt. "Đọc được cấu hình hiện có" = SC-001 và SC-003.
 - **SC-002**: Với mọi giá trị Directus đã ghi trong bộ mẫu, form không sửa thì phát 0 thay đổi; mỗi interface có ít nhất
   một kịch bản sửa mà giá trị phát ra bằng giá trị mong đợi (sau khi bỏ phần không ổn định ở Assumptions). So payload

@@ -32,6 +32,14 @@ Ngày 2026-10-15. Mỗi mục: quyết định, lý do, phương án bỏ. Phiê
 `@directus/composables` (phụ thuộc axios; `useItems`, `useCollection`, `useCustomSelection` chép vào `apps/web`
 với sdk, R5); `@backoffice/validation`/`@backoffice/utils` (lib BE, kéo theo Node API).
 
+**Kết quả kiểm (T002, 2026-10-15)**: `pnpm view` cho mọi gói R1: đúng bản, giấy phép MIT, Apache-2.0 (Editor.js core),
+BSD-3-Clause (maplibre-gl), ISC (mapbox-gl-draw, static-mode, geocoder), BSD (wellknown), MPL-2.0 (axe-core 4.14.0, chỉ
+test), `(CC-BY-4.0 AND MIT)` (Font Awesome brands); `jsonlint-mod` 1.7.6 không có trường license trong package, repo
+gốc `circlecell/jsonlint` là MIT (GitHub API). `@turf/meta` theo Directus là 7.2.0. `@directus/utils` 13.4.1 có build
+`dist/{shared,browser,node}`; `shared` không import module Node nào và có đủ `validatePayload`, `parseFilter`,
+`getFieldsFromTemplate`, `getRelationType`, `toArray`, `deepMap`, `getEndpoint`, `mergeFilters`, `isDynamicVariable`,
+`parseNow`, `generateJoi`; chạy thử build Vite của `apps/web` làm ở T001. Không cần dự phòng.
+
 **Phương án bỏ**: TinyMCE 7 (giấy phép GPL); Tiptap/ProseMirror thay TinyMCE (HTML khác, mất tương thích
 `toolbar`, `customFormats`, `tinymceOverrides`); CodeMirror 6 (ánh xạ mode); Leaflet thay MapLibre (không có draw cùng
 định dạng); viết kéo thả bằng tay (nhiều code hơn `vuedraggable`).
@@ -77,10 +85,10 @@ interface vào một file lớn (khó so với Directus theo thư mục).
   `fields.<collection>.<field>` từ `meta.translations`, dịch `$t:` trong `note`, `options`, `display_options`,
   `validation_message`), `getField`, `getFieldsForCollection`, `getPrimaryKeyFieldForCollection`; cập nhật khi đổi
   ngôn ngữ như Directus (`translateFields` trong `setLanguage`).
-- Nhóm `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại → Vue cảnh báo "Failed to resolve
-  component" và vẽ thẻ rỗng, field con không hiện [Unverified, đo trên Directus app ở task đầu đợt A và ghi vào
-  Edge Cases]. Quy tắc đã duyệt (CHK046): làm giống Directus theo kết quả đo; chỉ khi Directus ném lỗi chặn cả form thì
-  rơi về `group-raw` và ghi D-xx.
+- Nhóm `meta.interface` null: Directus vẽ `interface-group-standard` không tồn tại. Đo ngày 2026-10-15 (T004, Directus
+  app 11.17.4 production ở cổng 8155 của `tests/parity`, collection tạm `bo_probe_013` đã xóa): nhóm và field con không
+  hiện, không lỗi, không cảnh báo console. App mới: `BoForm` bỏ qua field nhóm không có interface cùng field con, không
+  cảnh báo (CHK046: giống Directus, không cần D-xx).
 
 **Phương án bỏ**: viết form mới không chép (mất `apply-conditions` và `validate-item` vốn là hành vi cần giống).
 

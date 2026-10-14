@@ -68,7 +68,7 @@ mọi task giao diện (FR-093, CHK025).
   `paragraph` 2.11.7, `quote` 2.7.6, `raw` 2.5.1, `table` 2.4.5, `underline` 1.2.1), `editorjs-toggle-block: 0.3.16`,
   `codemirror: 5.65.18`, `jsonlint-mod: 1.7.6`, `maplibre-gl: 1.15.3`, `@mapbox/mapbox-gl-draw: 1.5.1`,
   `@mapbox/mapbox-gl-draw-static-mode: 1.0.1`, `@mapbox/mapbox-gl-geocoder: 5.1.2`, `wellknown: 0.5.0`, `@turf/meta`
-  (bản Directus catalog), `vuedraggable: 4.1.0`, `vue-virtual-scroller: 2.0.0-beta.8`, `color: 5.0.2`,
+  7.2.0 (bản Directus catalog), `vuedraggable: 4.1.0`, `vue-virtual-scroller: 2.0.0-beta.8`, `color: 5.0.2`,
   `@sindresorhus/slugify: 2.2.1`, `date-fns-tz: 3.2.0`, `@fortawesome/fontawesome-svg-core: 6.7.2`,
   `@fortawesome/free-brands-svg-icons: 6.7.2`, `@directus/utils: 13.4.1`, `@directus/types: 15.0.3` (dev),
   `@vitest/browser: 3.2.4` (dev), `axe-core` (4.11.x, dev); `micromustache` đã có. `apps/web/package.json` thêm theo
@@ -84,7 +84,7 @@ mọi task giao diện (FR-093, CHK025).
   ghi R8); `apps/web/project.json` thêm target `test:unit`, `test` chạy cả hai; `.github/workflows/ci.yml` job test web
   cài `pnpm exec playwright install chromium` (cache như `e2e-web`); một `src/test-utils/browser.smoke.browser.test.ts`
   dựng một component để kiểm cấu hình.
-- [ ] T004 Đo trên Directus app 11.17.4 (profile `app` của `tests/parity`, nhắn session 012 trước): field nhóm có
+- [X] T004 Đo trên Directus app 11.17.4 (profile `app` của `tests/parity`, nhắn session 012 trước): field nhóm có
   `meta.interface` null (`special: alias,no-data,group`) trong form item: field con có hiện không, có lỗi console không.
   Ghi kết quả vào `specs/013-interfaces-displays/spec.md` Edge Cases (dòng "Field nhóm có `meta.interface` null") và
   research R3; khác Directus chỉ khi Directus ném lỗi chặn form (khi đó D-xx).
@@ -593,3 +593,10 @@ T083 group-accordion, group-detail   T084 group-raw, group-tabs   T085 presentat
 ## Ghi chú khi làm
 
 (Ghi kết quả kiểm [Unverified], quyết định của owner và lệch so với Directus phát hiện khi làm, theo từng đợt.)
+
+Trước đợt A (2026-10-15, chờ CI 012):
+
+- T002 (phần không cần cài vào repo): mọi gói R1 có đúng bản trên npm, giấy phép đạt FR-064 (chi tiết research R1
+  "Kết quả kiểm"); `@directus/utils` bản `shared` không dùng module Node. Còn lại của T002: chạy thử build Vite sau T001.
+- T004: Directus app ẩn nhóm `meta.interface` null cùng field con, không lỗi, không cảnh báo; app mới làm giống (spec
+  Edge Cases, research R3); SC-001 không cần ngoại lệ.
