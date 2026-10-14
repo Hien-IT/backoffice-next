@@ -1,0 +1,12 @@
+[
+	{ "source": "app/src/components/v-upload.vue", "dest": "apps/web/src/components/files/BoUpload.vue" },
+	{ "source": "app/src/components/v-upload.test.ts", "dest": "apps/web/src/components/files/BoUpload.test.ts" },
+	{
+		"source": "app/src/views/private/components/file-preview.vue",
+		"dest": "apps/web/src/components/files/FilePreview.vue"
+	},
+	{
+		"source": "app/src/views/private/components/file-lightbox.vue",
+		"dest": "apps/web/src/components/files/FileLightbox.vue"
+	}
+]

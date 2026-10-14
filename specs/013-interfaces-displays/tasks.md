@@ -327,11 +327,11 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
 **Independent Test**: test component trên `bo_rel`, `bo_tree`, `bo_translations` với `mockFixtureApi` cho `admin`,
 `bo-editor`, `bo-viewer`: request đọc, giá trị phát ra, nút theo quyền (US3 scenario 1–5).
 
-- [ ] T054 [P] [US3] Chép `src/composables/use-relation-m2o.ts`, `use-relation-o2m.ts`, `use-relation-m2m.ts`,
+- [X] T054 [P] [US3] Chép `src/composables/use-relation-m2o.ts`, `use-relation-o2m.ts`, `use-relation-m2m.ts`,
   `use-relation-m2a.ts`, `use-relation-single.ts`, `use-relation-multiple.ts` (prop `version` như Directus, FR-040),
   `use-relation-permissions.ts` (bảng quyền FR-041, `one_deselect_action`); port `use-relation-multiple.test.ts`,
   `use-relation-permissions.test.ts`.
-- [ ] T055 [P] [US3] `src/components/drawers/BoDrawer.vue` (Reka
+- [X] T055 [P] [US3] `src/components/drawers/BoDrawer.vue` (Reka
   Dialog dạng panel phải, recipe Q-10, focus trap, Esc, focus về nút mở, toàn bề rộng dưới `xl`); test browser cho focus.
 - [ ] T056 [US3] `src/components/drawers/DrawerItem.vue` (logic chép từ `drawer-item.vue`, template theo recipe Q-10; tạo/sửa item liên quan hoặc dòng nối,
   `junction-field`, `related-primary-key`, `circular-field`, `junction-field-location`, kiểm hợp lệ phía client trước
@@ -341,7 +341,7 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
   của interface (`mergeFilters`), trạng thái tải/trống/lỗi (FR-046); test.
 - [ ] T058 [US3] `src/components/drawers/DrawerBatch.vue` (logic chép từ `drawer-batch.vue`; form batch, `stage-on-save`); port
   `drawer-batch.test.ts`.
-- [ ] T059 [US3] Menu dòng "Lên", "Xuống" cho danh sách kéo thả (D-60, FR-094): `src/components/BoSortableList.vue`
+- [X] T059 [US3] Menu dòng "Lên", "Xuống" cho danh sách kéo thả (D-60, FR-094): `src/components/BoSortableList.vue`
   bọc `vuedraggable` + menu dòng; khóa overlay `src/lang/overlay/{en-US,vi-VN}.ts`; test bàn phím.
 - [ ] T060 [P] [US3] `src/interfaces/select-dropdown-m2o/` (FR-042: template, `enableCreate`, `enableSelect`, `filter`
   điền `{{ field }}` từ `values`, `enableLink`, thông báo cấu hình); port `select-dropdown-m2o.test.ts`.
@@ -376,7 +376,7 @@ và `handler` với giá trị mong đợi (US2 scenario 1–5).
 **Independent Test**: test component `file`, `file-image`, `files` trên `bo_rel`: request `POST /files` có `folder`,
 `POST /files/import` có `filterMimeType`, giá trị field (US4 scenario 1–2).
 
-- [ ] T068 [P] [US4] `src/components/files/BoUpload.vue` (logic chép từ `v-upload.vue`, template theo recipe Q-11; kéo thả, chọn file, từ URL, từ thư viện,
+- [X] T068 [P] [US4] `src/components/files/BoUpload.vue` (logic chép từ `v-upload.vue`, template theo recipe Q-11; kéo thả, chọn file, từ URL, từ thư viện,
   tiến độ, lỗi `translateAPIError` `413`/kiểu bị từ chối, nhiều file báo lỗi từng file, `accept`; recipe Q-11),
   `FileLightbox.vue`, `FilePreview.vue` (logic chép, template theo recipe Q-11); test (multipart qua sdk).
 - [ ] T069 [US4] `src/components/drawers/DrawerFiles.vue` (logic chép từ `drawer-files.vue`; lọc mime, folder, bộ lọc của

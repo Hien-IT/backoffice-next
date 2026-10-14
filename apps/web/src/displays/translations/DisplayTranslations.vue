@@ -8,9 +8,8 @@ import BoTooltip from '../../components/BoTooltip.vue';
 import ItemsMenu from '../../components/render/ItemsMenu.vue';
 import RenderTemplate from '../../components/render/RenderTemplate.vue';
 import ValueNull from '../../components/render/ValueNull.vue';
-import { useCollectionsStore } from '../../stores/collections.ts';
+import { useRelationM2M } from '../../composables/use-relation-m2m.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
-import { useRelationsStore } from '../../stores/relations.ts';
 import { useUserStore } from '../../stores/user.ts';
 
 interface Props {
@@ -36,36 +35,7 @@ const { collection, field } = toRefs(props);
 const fieldsStore = useFieldsStore();
 const userStore = useUserStore();
 
-// Backoffice: the part of useRelationM2M (directus/app/src/composables/use-relation-m2m.ts, ported with T054) this
-// display reads, with the same lookups.
-const relationsStore = useRelationsStore();
-const collectionsStore = useCollectionsStore();
-
-const relationInfo = computed(() => {
-	const relations = relationsStore.getRelationsForField(collection.value, field.value);
-
-	const junction = relations.find(
-		(relation) =>
-			relation.related_collection === collection.value &&
-			relation.meta?.one_field === field.value &&
-			relation.meta.junction_field,
-	);
-
-	if (!junction) return undefined;
-
-	const relation = relations.find(
-		(relation) => relation.collection === junction.collection && relation.field === junction.meta?.junction_field,
-	);
-
-	if (!relation) return undefined;
-
-	return {
-		relatedPrimaryKeyField: fieldsStore.getPrimaryKeyFieldForCollection(relation.related_collection as string)!,
-		junctionCollection: collectionsStore.getCollection(junction.collection)!,
-		junctionPrimaryKeyField: fieldsStore.getPrimaryKeyFieldForCollection(junction.collection)!,
-		junctionField: fieldsStore.getField(junction.collection, junction.meta?.junction_field as string)!,
-	};
-});
+const { relationInfo } = useRelationM2M(collection, field);
 
 const internalTemplate = computed(() => {
 	if (!relationInfo.value) return '';

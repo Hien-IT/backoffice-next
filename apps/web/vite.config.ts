@@ -12,6 +12,19 @@ const API_PATHS =
 export default defineConfig({
 	base: '/admin/',
 	plugins: [vue(), tailwindcss()],
+	// Pre-bundled up front so the browser test project does not reload mid-run when it first meets them (feature 013).
+	optimizeDeps: {
+		include: [
+			'vuedraggable',
+			'vue-virtual-scroller',
+			'color',
+			'@fortawesome/fontawesome-svg-core',
+			'@fortawesome/free-brands-svg-icons',
+			'codemirror',
+			'jsonlint-mod',
+			'maplibre-gl',
+		],
+	},
 	server: {
 		proxy: { [API_PATHS]: { target: process.env['PUBLIC_URL'] ?? 'http://127.0.0.1:8055', changeOrigin: false } },
 	},

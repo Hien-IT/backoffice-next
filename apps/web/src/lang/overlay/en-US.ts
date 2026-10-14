@@ -15,4 +15,13 @@ export default {
 	navigation: 'Navigation',
 	pick_color: 'Pick color',
 	browser_color_picker: 'Browser picker',
+	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.
+	move_up: 'Move up',
+	move_down: 'Move down',
+	indent_item: 'Indent',
+	outdent_item: 'Outdent',
+	item_options: 'Options for {item}',
+	moved_to_position: '{item} moved to position {position} of {total}',
+	close: 'Close',
+	image_load_error: 'The image could not be loaded',
 };

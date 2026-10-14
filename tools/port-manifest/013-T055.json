@@ -1,0 +1,1 @@
+[{ "source": "app/src/components/v-drawer.vue", "dest": "apps/web/src/components/drawers/BoDrawer.vue" }]

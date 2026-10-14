@@ -11,7 +11,7 @@ lại mọi request qua `calls()`; test thất bại nếu có path ngoài hai b
 | 33 | GET | `/flows` | hydrate (`flowsStore`, chỉ khi có quyền đọc `directus_flows`) | `fields=*,operations.*&limit=-1` như `stores/flows.ts` Directus | R10, thu hẹp D-45 |
 | 34 | GET | `<endpoint>` | `useItems` (drawer chọn item, danh sách quan hệ o2m/m2m/m2a/files/translations, list-m2a theo collection) | `fields`, `sort`, `limit`, `page`, `search`, `filter` (như `useItems` Directus; không gửi `meta`) | giống Directus app |
 | 35 | GET | `<endpoint>` | `useItems` đếm | `aggregate={"countDistinct":"<pk>"}` (không có khóa chính thì `count:*`) + `filter`, `search`; SDK gửi `aggregate`, `filter` dạng JSON, Directus app (axios) gửi dạng ngoặc `aggregate[countDistinct]=<pk>`; API đọc cả hai như nhau | `notifications` của 012 đã dùng dạng JSON |
-| 36 | GET | `<endpoint>?filter[<pk>][_eq]=<key>&fields=...` | m2o, file, file-image, collection-item-dropdown (`useRelationSingle`) | | |
+| 36 | GET | `<endpoint>/<encodeURIComponent(key)>?fields=...` | m2o, file, file-image (`useRelationSingle`, như Directus 11.17.4; nhánh 403 dựa vào dạng này); `collection-item-dropdown` dùng `<endpoint>?filter[<pk>][_eq]=<key>` | | |
 | 37 | GET | `<endpoint>?filter[<pk>][_in]=...` | collection-item-multiple-dropdown | | |
 | 38 | GET | `<endpoint>/<pk>?fields=...` | `presentation-links` (field quan hệ trong URL), `useTemplateData` (`header`) | | |
 | 39 | GET | `/items/<languages>` | `translations` (`fetchAll`, `limit=-1`, `sort`) | | |

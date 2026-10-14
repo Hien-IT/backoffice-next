@@ -15,4 +15,13 @@ export default {
 	navigation: 'Điều hướng',
 	pick_color: 'Chọn màu',
 	browser_color_picker: 'Bộ chọn của trình duyệt',
+	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.
+	move_up: 'Lên',
+	move_down: 'Xuống',
+	indent_item: 'Thụt vào',
+	outdent_item: 'Thụt ra',
+	item_options: 'Tùy chọn cho {item}',
+	moved_to_position: '{item} đã chuyển đến vị trí {position} trên {total}',
+	close: 'Đóng',
+	image_load_error: 'Không tải được ảnh',
 };
