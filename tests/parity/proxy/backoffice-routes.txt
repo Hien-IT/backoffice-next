@@ -31,3 +31,4 @@ panels
 shares
 utils
 extensions
+graphql

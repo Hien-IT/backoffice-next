@@ -16,12 +16,12 @@ Mọi dòng "Directus" đã đọc từ code; dòng ghi "đo 2026-10-14" đã x�
 | operation `subscription` qua `POST` (đo 2026-10-14) | `200 { data: { <c>_mutated: null } }` khi field có trong schema; schema không có `Subscription` → `200` với `errors[0].extensions.code = INTERNAL_SERVER_ERROR` "An unexpected error occurred." | qua `GET` → `405 Allow: POST` |
 | thiếu `query` | `400 INVALID_PAYLOAD` "Must provide query string" | |
 | `variables` của `GET` không phải JSON | `400 INVALID_QUERY` "Variables are invalid JSON" | |
-| parse lỗi hoặc quá `GRAPHQL_QUERY_TOKEN_LIMIT` | `400 GRAPHQL_VALIDATION_EXCEPTION` | `extensions.graphqlErrors[{ message, locations }]` |
-| validation lỗi (field không có, arg sai kiểu, introspection khi tắt, nhiều operation không `operationName`) | `400 GRAPHQL_VALIDATION_EXCEPTION` | `graphqlErrors[{ message, locations, path? }]` |
-| `execute` ném (variable sai kiểu...) | `400 GRAPHQL_EXECUTION_EXCEPTION` | `graphqlErrors[message]` |
+| parse lỗi hoặc quá `GRAPHQL_QUERY_TOKEN_LIMIT` | `400 GRAPHQL_VALIDATION` | `extensions.errors[{ message, locations }]` |
+| validation lỗi (field không có, arg sai kiểu, introspection khi tắt, nhiều operation không `operationName`) | `400 GRAPHQL_VALIDATION` | `errors[{ message, locations, path? }]` |
+| `execute` ném (variable sai kiểu...) | `400 GRAPHQL_EXECUTION` | `errors[message]` |
 | document hợp lệ | `200 { data, errors?, extensions? }` | lỗi resolver trong `errors[]`, `data` có field null |
 
-Response lỗi `400` theo khuôn chung `{ errors: [{ message, extensions: { code, graphqlErrors } }] }` của `respond`.
+Response lỗi `400` theo khuôn chung `{ errors: [{ message, extensions: { code, errors } }] }` của `respond`.
 
 ## 2. Cache response
 
@@ -73,7 +73,7 @@ research R12.3).
 | không có quyền | `FORBIDDEN` | của `BackofficeError` | như admin (lỗi là `DirectusError`) |
 | payload sai | `INVALID_PAYLOAD`, `FAILED_VALIDATION`, `RECORD_NOT_UNIQUE`... | như REST | như REST |
 | lỗi không phải `BackofficeError` | `INTERNAL_SERVER_ERROR` | message gốc | "An unexpected error occurred." |
-| scalar sai | `GRAPHQL_VALIDATION_EXCEPTION` (400) | message của scalar (`Date`, `BigInt`, `Hash`) | |
+| scalar sai | `GRAPHQL_VALIDATION` (400) | message của scalar (`Date`, `BigInt`, `Hash`) | |
 
 `errors[].path`, `locations` như `graphql`; `name` của lỗi giữ `DirectusError` (009).
 

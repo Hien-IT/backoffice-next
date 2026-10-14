@@ -1310,5 +1310,49 @@ services:
       timeout: 5s
       retries: 60
 
+  # Feature 011 (research R9, contracts/parity.md §1): the pair with introspection off, a small token limit, a two-entry
+  # schema cache and one schema generation at a time. Same DB, Redis, bus and namespaces as the main pair.
+  directus-graphql-nointro:
+    profiles: [graphql-nointro]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/directus/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-graphql-nointro.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '10555:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-graphql-nointro:
+    profiles: [graphql-nointro]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/directus/uploads
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-graphql-nointro.env
+    depends_on:
+      directus: { condition: service_healthy }
+    ports:
+      - '10556:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
 volumes:
   uploads:

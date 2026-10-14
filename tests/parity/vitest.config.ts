@@ -10,6 +10,7 @@ export default defineConfig({
 			'src/history/history-effects.test.ts',
 			'src/flows/helpers.test.ts',
 			'src/system/helpers.test.ts',
+			'src/graphql/helpers.test.ts',
 		],
 		exclude: ['src/db-unchanged.test.ts', 'src/readonly-account.test.ts', 'src/redis-down.test.ts'],
 	},

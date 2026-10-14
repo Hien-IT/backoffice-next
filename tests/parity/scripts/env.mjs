@@ -48,6 +48,8 @@ const ALL_PROFILES = [
 	'flows-schedule',
 	// Feature 010 (research R11): the setup pair (own Postgres); `up` only with --profiles=setup.
 	'setup',
+	// Feature 011 (research R9): the GraphQL pair with introspection off; `up` only with --profiles=graphql-nointro.
+	'graphql-nointro',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

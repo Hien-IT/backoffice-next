@@ -69,12 +69,7 @@ describe('errors', () => {
 	// /collections, /fields, /relations, /schema by 006 (src/schema-management), /files, /folders, /assets by 007
 	// (src/files), /activity, /revisions, /versions, /comments by 008 (src/history), /flows, /operations by 009 (src/flows),
 	// /settings, /presets, /notifications, /shares, /translations, /dashboards, /panels, /extensions, /utils by 010
-	// (src/system).
-	it.each(['/graphql'])('%s is not built yet → 404 on Backoffice (D-09.*)', async (path) => {
-		const result = await parity({ path });
-		assertParity(result);
-		expect(result.backoffice.status).toBe(404);
-	});
+	// (src/system), /graphql by 011 (src/graphql): no D-09.* route is left.
 
 	// Feature 010 (spec FR-013): the shared parity database has users, so setup is refused at both apps. D-14 still
 	// hides the route until the feature closes, so the accepted differences are passed without it.
@@ -87,14 +82,11 @@ describe('errors', () => {
 		expect(result.backoffice.status).toBe(403);
 	});
 
-	it.each(['/mcp', '/ai/chat', '/deployments', '/server/specs/graphql'])(
-		'%s out of scope → 404 on Backoffice (D-17, D-15)',
-		async (path) => {
-			const result = await parity({ path });
-			assertParity(result);
-			expect(result.backoffice.status).toBe(404);
-		},
-	);
+	it.each(['/mcp', '/ai/chat', '/deployments'])('%s out of scope → 404 on Backoffice (D-17)', async (path) => {
+		const result = await parity({ path });
+		assertParity(result);
+		expect(result.backoffice.status).toBe(404);
+	});
 });
 
 describe.runIf(suite === 'full' && profileUrls('ratelimit'))('rate limiter (profile ratelimit, Redis store)', () => {

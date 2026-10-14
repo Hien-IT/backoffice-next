@@ -21,6 +21,7 @@
 		"autocannon": "catalog:",
 		"fflate": "catalog:",
 		"get-port": "catalog:",
+		"graphql": "catalog:",
 		"ioredis": "catalog:",
 		"js-yaml": "catalog:",
 		"json-to-graphql-query": "catalog:",

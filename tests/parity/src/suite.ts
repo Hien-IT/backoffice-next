@@ -25,6 +25,9 @@ export const REDUCED_FILES = [
 	// Feature 010 (spec FR-101): one file per system collection and the small /utils routes; import-export, extensions
 	// registry cases, setup (own Postgres, Postgres only) and e2e-app run in `full` only.
 	'src/system/{settings,presets,notifications,shares,translations,insights,extensions,utils-misc}.test.ts',
+	// Feature 011 (spec FR-060): reads, writes, system operations and the introspection of admin and user A; errors,
+	// cache, the nointro pair and e2e-app run in `full` only.
+	'src/graphql/{read,write,system,schema}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -43,6 +46,9 @@ export const FULL_FILES = [
 	// Feature 010: settings, presets, notifications, shares, translations, insights, extensions, utils, import-export,
 	// setup (its own pair), e2e-app.
 	'src/system/**/*.test.ts',
+	// Feature 011: GraphQL reads, writes, system operations, introspection and SDL, errors, e2e-app (cache.test.ts runs
+	// in the cache suite, it skips without its pair).
+	'src/graphql/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */
@@ -52,7 +58,11 @@ export const MATRIX_FILES = ['src/permissions/matrix.test.ts'];
  * Feature 005 (research R5): the response cache configurations and the WebSocket pair (job parity-cache, profiles
  * cache-mem, cache-mem-purge, cache-redis, cache-redis-purge, websocket).
  */
-export const CACHE_FILES = ['src/items/{cache-blackbox,cache-cross,cache-redis-down,bus}.test.ts'];
+export const CACHE_FILES = [
+	'src/items/{cache-blackbox,cache-cross,cache-redis-down,bus}.test.ts',
+	// Feature 011 (FR-004, R-31): the GraphQL response cache on the cache-redis-purge pair.
+	'src/graphql/cache.test.ts',
+];
 
 /**
  * Feature 005 (research R6): the port of directus/tests/blackbox items, query and relational files. Run by

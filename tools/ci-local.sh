@@ -66,7 +66,7 @@ step guard-differences pnpm --filter @backoffice/parity-tests exec vitest run sr
 step security pnpm audit --prod --audit-level=high
 step build-api pnpm nx run api:build
 # Feature 007: files and assets on `local` and MinIO for Postgres, MinIO only for MySQL and SQLite (PARITY_STORAGES).
-PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup
+PARITY_STORAGES=local,s3 step parity-postgres-full parity postgres full ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro
 # Feature 006: the nodes of schema-cache.test.ts and of the timezone files are profile pairs.
 PARITY_STORAGES=local,s3 step parity-blackbox parity postgres blackbox blackbox,schema-cache,schema-cache-nomsg,tz-asia,tz-america,assets-limit,assets-stress,cache-mem
 step parity-cache parity postgres cache cache-mem,cache-mem-purge,cache-redis,cache-redis-purge,websocket

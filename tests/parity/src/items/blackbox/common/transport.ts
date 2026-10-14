@@ -1,23 +1,21 @@
 // Ported from directus/tests/blackbox/common/transport.ts (requestGraphQL only).
-// Backoffice: GraphQL comes with feature 011, so every GraphQL request goes to the Directus of the blackbox pair
-// (getDirectusUrl, also when PARITY_BLACKBOX_SETUP_APP=backoffice), whatever host the test passes; the WebSocket
-// helpers are left out (Principle XI, D-17).
+// Backoffice: the GraphQL request goes to the host the test passes, the app under test, since feature 011; the
+// WebSocket helpers are left out (Principle XI, D-17).
 import { jsonToGraphQLQuery } from 'json-to-graphql-query';
 import request, { type Response } from 'supertest';
-import { getDirectusUrl } from './config';
 
 export function processGraphQLJson(jsonQuery: any) {
 	return jsonToGraphQLQuery(jsonQuery);
 }
 
 export async function requestGraphQL(
-	_host: string,
+	host: string,
 	isSystemCollection: boolean,
 	token: string | null,
 	jsonQuery: any,
 	options?: { variables?: any; cookies?: string[] },
 ): Promise<Response> {
-	const req = request(getDirectusUrl())
+	const req = request(host)
 		.post(isSystemCollection ? '/graphql/system' : '/graphql')
 		.send({
 			query: processGraphQLJson(jsonQuery),

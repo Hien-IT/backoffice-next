@@ -40,6 +40,8 @@ export function compose(...args: string[]): string {
 		'flows-schedule',
 		// Feature 010 (research R11): the setup pair and its own Postgres.
 		'setup',
+		// Feature 011 (research R9): the GraphQL pair with introspection off.
+		'graphql-nointro',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

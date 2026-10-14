@@ -1,0 +1,22 @@
+[
+	{
+		"source": "tests/blackbox/tests/common/auth/login.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/auth/login.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/auth/refresh.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/auth/refresh.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/common/logger/redact.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/common/logger/redact.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/server/ping.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/server/ping.test.ts"
+	},
+	{
+		"source": "tests/blackbox/tests/db/routes/server/health.test.ts",
+		"dest": "tests/parity/src/items/blackbox/tests/db/routes/server/health.test.ts"
+	}
+]

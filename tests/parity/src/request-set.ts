@@ -54,6 +54,9 @@ export function requestSet(options: { metrics?: boolean; accounts?: RequestSetAc
 		{ method: 'POST', path: '/utils/sort/directus_users', body: { item: 1, to: 2 } },
 		{ path: '/extensions' },
 		{ path: '/extensions/sources/index.js' },
+		// Feature 011: a GraphQL query of the public writes nothing (the items scope has only `_empty` for the public).
+		{ method: 'POST', path: '/graphql', body: { query: '{ __typename }' } },
+		{ method: 'POST', path: '/graphql/system', body: { query: '{ server_ping }' } },
 		{ method: 'POST', path: '/auth/login', body: { email: 'nobody-request-set@example.com', password: 'x' } },
 		{ method: 'POST', path: '/auth/refresh', body: { refresh_token: 'x'.repeat(64) } },
 		{ method: 'POST', path: '/auth/password/request', body: { email: 'nobody-request-set@example.com' } },

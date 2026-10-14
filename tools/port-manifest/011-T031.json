@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/controllers/server.ts",
+		"dest": "apps/api/src/controllers/server.controller.ts"
+	}
+]

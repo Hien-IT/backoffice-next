@@ -1,7 +1,8 @@
 // Ported from directus/tests/blackbox/common/config.ts (getUrl and the env values the item tests read).
 // Backoffice: the suite runs once per app of the `blackbox` profile pair (PARITY_BLACKBOX_APP, research R6 of spec 005):
 // getUrl() is the app under test; getSetupUrl() makes the data model, the roles, policies and users: the Directus of the
-// pair, or the new app with PARITY_BLACKBOX_SETUP_APP=backoffice (feature 006, FR-064). GraphQL stays on Directus (011).
+// pair, or the new app with PARITY_BLACKBOX_SETUP_APP=backoffice (feature 006, FR-064). GraphQL goes to the app under
+// test since feature 011 (requestGraphQL of transport.ts).
 // Feature 006 (research R7): the files that start their own Directus nodes get the profile pairs instead: an env with
 // URL (schema-cache.test.ts, through nodeUrl) or with TZ (the two timezone files) names the node; TEST_NO_CACHE (the
 // node with CACHE_SCHEMA=false) is not used, both apps clear their schema through the bus after every change.
@@ -85,7 +86,7 @@ export function getUrl(vendor: Vendor, overrideEnv?: Env): string {
 	return overridden(vendor, overrideEnv) ?? pairUrl(appUnderTest(), 'blackbox');
 }
 
-/** The Directus of the blackbox pair, for the routes the new app does not serve yet (GraphQL is feature 011). */
+/** The Directus of the blackbox pair (case-when.test.ts compares a Directus read against the app under test). */
 export function getDirectusUrl(): string {
 	return pairUrl('directus', 'blackbox');
 }

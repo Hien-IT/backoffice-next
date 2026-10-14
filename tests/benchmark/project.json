@@ -95,6 +95,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"graphql": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/graphql.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }

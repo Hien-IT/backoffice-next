@@ -92,17 +92,17 @@ nội dung, đây là ánh xạ theo phase).
 **Purpose**: Hai gói mới cài được và chỉ một bản `graphql`, bốn biến sang nhóm A, cặp `graphql-nointro` và cặp
 blackbox log raw chạy được (research R1, R6, R9, R10; contracts/parity.md §1).
 
-- [ ] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `graphql: 16.12.0`, `graphql-compose: 9.1.0` (bản của
+- [X] T001 Thư viện: `pnpm-workspace.yaml` catalog thêm `graphql: 16.12.0`, `graphql-compose: 9.1.0` (bản của
   `directus/pnpm-workspace.yaml`); `apps/api/package.json` thêm hai gói `catalog:`; `pnpm install`; `pnpm why graphql`
   phải cho đúng một bản 16.12.0 trong `apps/api` (peer của `graphql-compose`); `pnpm audit --prod --audit-level=high`
   không advisory mới; ghi vào "Ghi chú khi làm" (research R1, plan §Rủi ro).
-- [ ] T002 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 011": `GRAPHQL_INTROSPECTION`,
+- [X] T002 [P] `apps/api/src/config/supported-variables.ts` khối "Feature 011": `GRAPHQL_INTROSPECTION`,
   `GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT`, `GRAPHQL_QUERY_TOKEN_LIMIT`, `GRAPHQL_SCHEMA_CACHE_CAPACITY`
   (`WEBSOCKETS_GRAPHQL_AUTH*`, `WEBSOCKETS_GRAPHQL_PATH` ở lại nhóm C); `supported-variables.test.ts` thêm ca
   (`['GRAPHQL_INTROSPECTION', true]`, `['GRAPHQL_SCHEMA_CACHE_CAPACITY', true]`, `['WEBSOCKETS_GRAPHQL_PATH', false]`);
   `specs/001-platform-foundation/contracts/config.md` nhóm A, C cập nhật; kiểm `libs/env` có mặc định và kiểu của ba
   biến đầu như `packages/env` (FR-005, research R6).
-- [ ] T003 [P] Môi trường đối chiếu: `tests/parity/docker-compose.yml` thêm cặp profile `graphql-nointro`
+- [X] T003 [P] Môi trường đối chiếu: `tests/parity/docker-compose.yml` thêm cặp profile `graphql-nointro`
   (`directus-graphql-nointro` host `10555`, `backoffice-api-graphql-nointro` host `10556`; cổng cao nhất đang dùng
   trong `config.ts profilePorts` là `10456`, kiểm lại trước khi thêm và để `vendors.test.ts` bắt trùng cổng, `<<: *app`, `env_file` vendor +
   `env/profile-graphql-nointro.env`, healthcheck như cặp chính); `tests/parity/env/profile-graphql-nointro.env`
@@ -123,36 +123,36 @@ blackbox log raw chạy được (research R1, R6, R9, R10; contracts/parity.md 
 chiếu sẵn sàng (research R2, R3, R5, R7, R8, R9). Thứ tự port theo phụ thuộc: scalar → utils → errors → schema parse →
 schema types → resolvers → cache và `generateSchema` → `GraphQLService` → middleware → controller.
 
-- [ ] T004 [P] Scalar: port `directus/api/src/services/graphql/types/{bigint,date,geojson,hash,string-or-float,void}.ts`
+- [X] T004 [P] Scalar: port `directus/api/src/services/graphql/types/{bigint,date,geojson,hash,string-or-float,void}.ts`
   → `apps/api/src/services/graphql/types/` và `directus/api/src/utils/get-graphql-type.ts` →
   `apps/api/src/utils/get-graphql-type.ts`. Directus không có test: viết mới
   `apps/api/src/services/graphql/types/scalars.test.ts` (đỏ trước): `Date` parse và serialize chuỗi ISO, sai → message
   của Directus; `GraphQLBigInt` ngoài khoảng → lỗi; `Hash` không được đọc; `GraphQLStringOrFloat` nhận cả hai; `Void`;
   `getGraphQLType` cho mọi `Type` và `special` `conceal` (FR-052). Manifest `tools/port-manifest/011-T004.json`.
-- [ ] T005 [P] Utils: port `directus/api/src/services/graphql/utils/{add-path-to-validation-error,aggregate-query,
+- [X] T005 [P] Utils: port `directus/api/src/services/graphql/utils/{add-path-to-validation-error,aggregate-query,
   dedupe-resolvers,filter-replace-m2a,process-error,replace-fragments,replace-funcs,sanitize-gql-schema}.ts` và sáu
   test gốc (`aggregate-query.test.ts`, `dedupe-resolvers.test.ts`, `filter-replace-m2a.test.ts`,
   `process-error.test.ts`, `replace-fragments.test.ts`, `sanitize-gql-schema.test.ts`) → `apps/api/src/services/graphql/
   utils/`; test gốc chạy đỏ trước (thiếu module) rồi xanh (59 ca); `sanitize-gql-schema` log qua `useLogger` của app;
   `process-error` dùng `isBackofficeError` (research R7). Manifest `011-T005.json`.
-- [ ] T006 [P] Errors: port `directus/api/src/services/graphql/errors/{execution,format,index,validation}.ts` →
+- [X] T006 [P] Errors: port `directus/api/src/services/graphql/errors/{execution,format,index,validation}.ts` →
   `apps/api/src/services/graphql/errors/` bằng `createError` của `@backoffice/errors` (code
-  `GRAPHQL_VALIDATION_EXCEPTION`, `GRAPHQL_EXECUTION_EXCEPTION`, status 400, `extensions.graphqlErrors` qua
-  `formatError`); test mới `errors/errors.test.ts` (đỏ trước): hai lỗi có đúng code, status, `extensions.graphqlErrors`
+  `GRAPHQL_VALIDATION`, `GRAPHQL_EXECUTION`, status 400, `extensions.errors` qua
+  `formatError`); test mới `errors/errors.test.ts` (đỏ trước): hai lỗi có đúng code, status, `extensions.errors`
   với `message`, `locations`, `path` (FR-002, FR-050). Manifest `011-T006.json`.
-- [ ] T007 Schema parse (sau T004, T005): port `directus/api/src/services/graphql/schema/{parse-args,parse-query}.ts`
+- [X] T007 Schema parse (sau T004, T005): port `directus/api/src/services/graphql/schema/{parse-args,parse-query}.ts`
   và `parse-query.test.ts` → `apps/api/src/services/graphql/schema/`; test gốc 13 ca xanh (`sanitizeQuery`,
   `validateQuery`, `getRelationInfo` của app). Manifest `011-T007.json`.
-- [ ] T008 Schema types (sau T007): port `directus/api/src/services/graphql/schema/{get-types,read,write}.ts` →
+- [X] T008 Schema types (sau T007): port `directus/api/src/services/graphql/schema/{get-types,read,write}.ts` →
   `apps/api/src/services/graphql/schema/`; trong `read.ts` thay `createSubscriptionGenerator(gql, eventName)` bằng
   `subscribeUnavailable` (hàm Backoffice trong cùng file ném `Error('Backoffice: GraphQL subscriptions have no
   transport (D-17)')`; `execute` của `graphql` không gọi `subscribe` nên không bao giờ chạy qua HTTP; giữ nguyên type,
   arg, enum, tên `<collection>_mutated` đầy đủ, không `scopeFilter`: FR-047, research R12.7); giữ nguyên thứ tự
   `addFields`, `addResolver`. Manifest `011-T008.json`.
-- [ ] T009 [P] Resolvers item (sau T007): port `directus/api/src/services/graphql/resolvers/{query,mutation,
+- [X] T009 [P] Resolvers item (sau T007): port `directus/api/src/services/graphql/resolvers/{query,mutation,
   get-collection-type,get-field-type,get-relation-type}.ts` và `query.test.ts` → `apps/api/src/services/graphql/
   resolvers/`; test gốc 9 ca xanh. Manifest `011-T009.json`.
-- [ ] T010 [P] Resolvers hệ thống (sau T007): port `directus/api/src/services/graphql/resolvers/{system,system-global,
+- [X] T010 [P] Resolvers hệ thống (sau T007): port `directus/api/src/services/graphql/resolvers/{system,system-global,
   system-admin}.ts` → `apps/api/src/services/graphql/resolvers/` với import sang `apps/api/src/services/*.service.js`
   (`AuthenticationService`, `UsersService`, `TFAService`, `UtilsService`, `RevisionsService`, `CollectionsService`,
   `FieldsService`, `RelationsService`, `ServerService`, `SpecificationService`, `ExtensionsService`, `FilesService`,
@@ -162,7 +162,7 @@ schema types → resolvers → cache và `generateSchema` → `GraphQLService` �
   `resolvers/system.test.ts` (đỏ trước): với schema giả của `@backoffice/schema-builder`, `injectSystemResolvers`
   thêm đúng tập query và mutation theo admin, user thường, public, `OPENAPI_ENABLED`, `GRAPHQL_INTROSPECTION`
   (contracts/graphql-api.md §4; research R8). Manifest `011-T010.json`.
-- [ ] T011 Cache schema và `generateSchema` (sau T008, T009, T010): port `directus/api/src/services/graphql/
+- [X] T011 Cache schema và `generateSchema` (sau T008, T009, T010): port `directus/api/src/services/graphql/
   schema-cache.ts` → `apps/api/src/services/graphql/schema-cache.ts` với `LRUCache` của `lru-cache` (`max =
   Number(env['GRAPHQL_SCHEMA_CACHE_CAPACITY'] ?? 100)`, `// Backoffice: lru-cache instead of mnemonist LRUMap`),
   `useBus().subscribe('schemaChanged', () => cache.clear())`; port `schema/index.ts` với `PQueue({ concurrency })`
@@ -171,31 +171,31 @@ schema types → resolvers → cache và `generateSchema` → `GraphQLService` �
   `schema/index.test.ts` (khóa `scope_type_role_user`; cache hit không sinh lại; hai request cùng khóa chỉ sinh một
   lần; `concurrency` giới hạn; hàm ném → promise reject, không lưu cache) (FR-044, FR-045; research R5). Manifest
   `011-T011.json`.
-- [ ] T012 `GraphQLService` (sau T011): port `directus/api/src/services/graphql/index.ts` →
+- [X] T012 `GraphQLService` (sau T011): port `directus/api/src/services/graphql/index.ts` →
   `apps/api/src/services/graphql/index.ts` (`validationRules` + `NoSchemaIntrospectionCustomRule` khi
   `GRAPHQL_INTROSPECTION === false`, `execute`, `getSchema`, `read`, `upsertSingleton`, `create`, `update`, `delete`
   qua `getService`); factory `GraphQLService` trong `apps/api/src/providers.ts`; export trong
   `apps/api/src/services/index.ts`. Test mới `services/graphql/index.test.ts` (đỏ trước): `execute` với schema giả
   (validation lỗi → `GraphQLValidationError` có `path`; resolver ném `BackofficeError` → `errors[]` qua
   `processError`; `execute` ném → `GraphQLExecutionError`; `extensions` được giữ). Manifest `011-T012.json`.
-- [ ] T013 [P] Middleware: port `directus/api/src/middleware/graphql.ts` → `apps/api/src/middleware/graphql.ts`
+- [X] T013 [P] Middleware: port `directus/api/src/middleware/graphql.ts` → `apps/api/src/middleware/graphql.ts`
   (`parseGraphQL`); test mới `middleware/graphql.test.ts` (đỏ trước): method khác `GET`, `POST` → `405` với `allowed`,
   `current`; `GET` đọc `query`, `variables` JSON (sai → `INVALID_QUERY`), `operationName`; thiếu `query` →
   `INVALID_PAYLOAD` "Must provide query string"; parse lỗi và quá `GRAPHQL_QUERY_TOKEN_LIMIT` → `GraphQLValidationError`;
   mutation qua `GET` → `405 allowed: ['POST']`; mutation đặt `res.locals.cache = false`; `graphqlParams` có `document`,
   `query`, `variables`, `operationName`, `contextValue { req, res, cache: Map }` (FR-001, contracts/graphql-api.md §1).
   Manifest `011-T013.json`.
-- [ ] T014 [P] SDL service: `apps/api/src/services/specifications.service.ts` thêm `GraphQLSpecsService` (hai
+- [X] T014 [P] SDL service: `apps/api/src/services/specifications.service.ts` thêm `GraphQLSpecsService` (hai
   `GraphQLService` scope `items`, `system`; `generate(scope)` → `getSchema('sdl')`) và field `graphql` của
   `SpecificationService`, port từ `directus/api/src/services/specifications.ts` phần tương ứng; sửa header "OAS only";
   `specifications.service.test.ts` thêm ca `generate('items')`, `generate('system')`, scope khác → `null` (FR-043).
   Manifest `011-T014.json`.
-- [ ] T015 [P] Khóa cache: port `directus/api/src/utils/get-graphql-query-and-variables.ts` →
+- [X] T015 [P] Khóa cache: port `directus/api/src/utils/get-graphql-query-and-variables.ts` →
   `apps/api/src/utils/get-graphql-query-and-variables.ts`; `apps/api/src/utils/get-cache-key.ts` thêm `isGraphQl` và
   `query: isGraphQl ? getGraphqlQueryAndVariables(req) : req.sanitizedQuery` như Directus, sửa header;
   `get-cache-key.test.ts` thêm ca: `POST /graphql` với `query`, `variables` cho khóa khác nhau theo `variables`, khớp
   khóa của Directus cho cùng input (`object-hash` cùng `version`) (FR-004). Manifest `011-T015.json`.
-- [ ] T016 [P] Helper đối chiếu `tests/parity/src/graphql/helpers.ts`: `gql(app, scope, document, { variables,
+- [X] T016 [P] Helper đối chiếu `tests/parity/src/graphql/helpers.ts`: `gql(app, scope, document, { variables,
   operationName, token, method })`, `introspection(app, scope, token)` với `getIntrospectionQuery({ descriptions:
   true, specifiedByUrl: true, directiveIsRepeatable: true, schemaDescription: true, inputValueDeprecation: true })` của
   `graphql`, `sdl(app, scope, token)` (`GET /server/specs/graphql[/scope]`, trả body và header), `sameGql(...)` gửi hai
@@ -205,7 +205,7 @@ schema types → resolvers → cache và `generateSchema` → `GraphQLService` �
   policy mẫu A (đọc một số field của hai collection của seed 005), B (đọc theo filter, create không read), C (update
   và delete không read, read trên quan hệ) (contracts/parity.md §2). Unit nhỏ `helpers.test.ts` cho `comparable` của
   response GraphQL (id dạng chuỗi).
-- [ ] T017 Controller (sau T012, T013): `apps/api/src/controllers/graphql.controller.ts` port từ
+- [X] T017 Controller (sau T012, T013): `apps/api/src/controllers/graphql.controller.ts` port từ
   `directus/api/src/controllers/graphql.ts`: `@Controller('graphql')`, `@All('system')`, `@All('system/*splat')` → scope
   `system`; `@All()`, `@All('*splat')` → scope `items` (khai báo `system` trước); mỗi handler `runMiddleware(parseGraphQL)`,
   `GraphQLService.execute(res.locals.graphqlParams)` → `res.locals.payload`, `errors` → `res.locals.cache = false`,
@@ -215,11 +215,9 @@ schema types → resolvers → cache và `generateSchema` → `GraphQLService` �
   (research R12.4); `OPTIONS`, `HEAD`, `PUT` → `405 Allow: GET, POST` (R12.1); `GET` mutation → `405`; thiếu `query` →
   `400`. Cùng task: `tests/parity/proxy/backoffice-routes.txt` thêm `graphql`, `tests/parity/src/proxy-conf.test.ts`
   cập nhật (ba mươi hai route), `tests/parity/src/request-set.ts` thêm `POST /graphql`, `POST /graphql/system`
-  (`{ __typename }`) cho `db-unchanged`; `tests/parity/src/server/errors.test.ts` bỏ ca D-09.* của `/graphql`;
-  `tests/parity/src/observability/metrics.test.ts` (001, cặp `metrics`) thêm ca: sau `POST /graphql` và
-  `POST /graphql/system`, `GET /metrics` của hai app có cùng counter và label cho hai route (FR-054) (research R3).
-  Manifest `011-T017.json`.
-- [ ] T018 Blackbox đổi đích (sau T017): `tests/parity/src/items/blackbox/common/transport.ts` dùng `host` của test
+  (`{ __typename }`) cho `db-unchanged`; `tests/parity/src/server/errors.test.ts` bỏ ca D-09.* của `/graphql`
+  (Directus không có metric theo route nên không có ca metric; FR-054 sửa) (research R3). Manifest `011-T017.json`.
+- [X] T018 Blackbox đổi đích (sau T017): `tests/parity/src/items/blackbox/common/transport.ts` dùng `host` của test
   cho `requestGraphQL` (bỏ `getDirectusUrl`, sửa header); `common/config.ts` bỏ `getDirectusUrl` nếu không còn ai dùng
   (`grep -rn getDirectusUrl tests/parity/src`) và sửa comment "GraphQL stays on Directus"; chạy
   `PARITY_SUITE=blackbox PARITY_BLACKBOX_APP=backoffice` trên Postgres cho tám file items/fields/collections: ghi số ca
@@ -241,7 +239,7 @@ tám file blackbox items xanh ở lượt `backoffice`.
 
 ### Tests for User Story 1
 
-- [ ] T019 [P] [US1] `tests/parity/src/graphql/read.test.ts` (đỏ trước ở các ca lệch): trên seed của 005 (`articles`,
+- [X] T019 [P] [US1] `tests/parity/src/graphql/read.test.ts` (đỏ trước ở các ca lệch): trên seed của 005 (`articles`,
   `categories`, `tags`, m2m, m2a): danh sách với mọi toán tử filter theo kiểu field, `_and`, `_or`, lọc qua quan hệ,
   `_some`, `_none`, `_FUNC` (`year`, `month`, `count`), `sort` nhiều field, `limit`, `offset`, `page`, `search`; lồng ba
   cấp có arg riêng; `_by_id`, `_by_version` (version của 008, có và không có), singleton; `_aggregated` mọi hàm,
@@ -252,7 +250,7 @@ tám file blackbox items xanh ở lượt `backoffice`.
 
 ### Implementation for User Story 1
 
-- [ ] T020 [US1] Sửa lệch phát hiện ở T018, T019 trong `apps/api/src/services/graphql/schema/{read,get-types,
+- [X] T020 [US1] Sửa lệch phát hiện ở T018, T019 trong `apps/api/src/services/graphql/schema/{read,get-types,
   parse-query,parse-args}.ts`, `resolvers/query.ts`, `utils/*.ts` (chỉ sửa port cho đúng Directus; mỗi chỗ sửa ghi
   vào "Ghi chú khi làm" với request, kết quả hai app); thêm ca unit tương ứng vào test của file sửa.
 - [ ] T021 [US1] `tests/parity/src/suite.ts`: `REDUCED_FILES` thêm `src/graphql/read.test.ts`; `FULL_FILES` thêm
@@ -272,7 +270,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 
 ### Tests for User Story 2
 
-- [ ] T022 [P] [US2] `tests/parity/src/graphql/write.test.ts` (đỏ trước): `create_<c>_item(s)` với input lồng m2o
+- [X] T022 [P] [US2] `tests/parity/src/graphql/write.test.ts` (đỏ trước): `create_<c>_item(s)` với input lồng m2o
   (tạo mới và id), o2m (`create`, `update`, `delete`), m2m, m2a; `update_<c>_item(s)`, `update_<c>_batch`,
   `delete_<c>_item(s)` (trả `{ id }`, `{ ids }`), `update_<singleton>` có và không selection (`true`); selection quan hệ
   sau mutation; `MAX_BATCH_MUTATION` (cặp blackbox đặt 100: gửi 101); `FORBIDDEN`, `RECORD_NOT_UNIQUE`, validation
@@ -286,7 +284,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 
 ### Implementation for User Story 2
 
-- [ ] T023 [US2] Sửa lệch phát hiện ở T022 trong `apps/api/src/services/graphql/schema/write.ts`,
+- [X] T023 [US2] Sửa lệch phát hiện ở T022 trong `apps/api/src/services/graphql/schema/write.ts`,
   `resolvers/mutation.ts`, `services/graphql/index.ts` (`create`, `update`, `delete`, `upsertSingleton`); mỗi chỗ ghi
   "Ghi chú khi làm"; thêm ca unit vào test của file sửa.
 - [ ] T024 [US2] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/write.test.ts`; chạy MySQL, SQLite.
@@ -305,7 +303,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 
 ### Tests for User Story 3
 
-- [ ] T025 [P] [US3] `tests/parity/src/graphql/system.test.ts` (đỏ trước): `users`, `roles`, `files`, `activity`
+- [X] T025 [P] [US3] `tests/parity/src/graphql/system.test.ts` (đỏ trước): `users`, `roles`, `files`, `activity`
   (không mutation trong schema), `collections`, `collections_by_name`, `fields*`, `relations*` (admin và user thường);
   `auth_login` ba `mode` (`json` body, `cookie` và `session` header `Set-Cookie`, dòng `directus_sessions`,
   `directus_activity`), user bật TFA (fixture của 003): không `otp` và `otp` sai → `INVALID_OTP`, đúng → `200`;
@@ -322,7 +320,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
   `GET /server/info` ở app kia; `create_users_item` với `password` → cột băm, đăng nhập được ở app kia;
   `create_presets_item` của user app access với `user` khác mình → `FORBIDDEN` (US3 kịch bản 1–6; FR-030 đến
   FR-036).
-- [ ] T026 [P] [US3] Blackbox port năm file (đỏ trước ở lượt `backoffice` khi chưa có route): copy
+- [X] T026 [P] [US3] Blackbox port năm file (đỏ trước ở lượt `backoffice` khi chưa có route): copy
   `directus/tests/blackbox/tests/common/auth/{login,refresh}.test.ts` → `tests/parity/src/items/blackbox/tests/common/
   auth/` (bỏ các khối dùng `createWebSocketConn`, ghi `// Backoffice: WebSocket cases left out (D-17)`);
   `tests/common/logger/redact.test.ts` → `.../tests/common/logger/redact.test.ts` (bỏ `spawn`, `TestLogger`: lấy mốc
@@ -335,7 +333,7 @@ activity, revision, event, flow, cache giống REST; mutation không cache; `GET
 
 ### Implementation for User Story 3
 
-- [ ] T027 [US3] Sửa lệch phát hiện ở T025, T026 trong `apps/api/src/services/graphql/resolvers/{system,
+- [X] T027 [US3] Sửa lệch phát hiện ở T025, T026 trong `apps/api/src/services/graphql/resolvers/{system,
   system-global,system-admin}.ts` (cookie theo `mode`, `expires` kiểu chuỗi của GraphQL, `users_me` query); mỗi chỗ ghi
   "Ghi chú khi làm"; thêm ca unit vào `resolvers/system.test.ts`.
 - [ ] T028 [US3] `tests/parity/src/suite.ts` `REDUCED_FILES` thêm `src/graphql/system.test.ts`; chạy MySQL, SQLite;
@@ -356,7 +354,7 @@ graphql` có mặt (gỡ D-15).
 
 ### Tests for User Story 4
 
-- [ ] T029 [P] [US4] `tests/parity/src/graphql/schema.test.ts` (đỏ trước): introspection (`helpers.introspection`) và
+- [X] T029 [P] [US4] `tests/parity/src/graphql/schema.test.ts` (đỏ trước): introspection (`helpers.introspection`) và
   SDL (`helpers.sdl`, so body, `Content-Type`, `Content-Disposition`) hai scope cho admin, user A, B, C, public có policy
   đọc một collection, public không policy (`_empty`, scope `system` có `server_*` và 17 mutation: research R12.3) →
   `toEqual` nguyên văn (SC-001); xóa cache chéo: tạo field ở Directus → introspection ở app mới có field ngay, xóa field
@@ -370,7 +368,7 @@ graphql` có mặt (gỡ D-15).
   `backoffice-api-2` đổi (FR-060); collection tạm có field tên `__x` → `500` ở cả hai app, so nguyên văn (Edge Cases);
   `/server/specs/graphql/x` → `404`; `HEAD`, `OPTIONS` của route SDL ở cặp
   chính (`200 Allow: GET,HEAD`) (US4 kịch bản 1–6; FR-040 đến FR-047).
-- [ ] T030 [P] [US4] `apps/api/src/controllers/server.controller.test.ts` thêm ca (đỏ trước): `GET /server/specs/graphql`
+- [X] T030 [P] [US4] `apps/api/src/controllers/server.controller.test.ts` thêm ca (đỏ trước): `GET /server/specs/graphql`
   và `/system` → `200`, `Content-Type: application/octet-stream; charset=utf-8`, `Content-Disposition: attachment;
   filename="<project_name>_<yyyy-MM-dd>.graphql"`, body là SDL; `/x` → `404`; `GRAPHQL_INTROSPECTION=false` → `404`;
   `apps/api/src/middleware/router-options.test.ts` thêm ca `OPTIONS /server/specs/graphql` → `GET,HEAD` chỉ khi biến
@@ -378,14 +376,14 @@ graphql` có mặt (gỡ D-15).
 
 ### Implementation for User Story 4
 
-- [ ] T031 [US4] `apps/api/src/controllers/server.controller.ts` thêm `@Get('specs/graphql')` và
+- [X] T031 [US4] `apps/api/src/controllers/server.controller.ts` thêm `@Get('specs/graphql')` và
   `@Get('specs/graphql/:scope')` port từ `directus/api/src/controllers/server.ts` (`GRAPHQL_INTROSPECTION === false` →
   `RouteNotFoundError`; scope ngoài `items`, `system` → `RouteNotFoundError`; `serverInfo()` → `project_name`;
   `specificationService.graphql.generate(scope)`; `res.attachment(filename)` với `format` của `date-fns`; `res.send`);
   sửa header "Not built yet"; `apps/api/src/middleware/router-options.ts` thêm
   `[/^\/server\/specs\/graphql(\/[^/]+)?\/?$/i, 'GET,HEAD']` khi `GRAPHQL_INTROSPECTION !== false`, sửa comment D-15;
   `tests/parity/src/server/methods.test.ts` bỏ ca D-15. Manifest `011-T031.json`.
-- [ ] T032 [US4] Sửa lệch introspection phát hiện ở T029 (thứ tự type, field, description, directive) trong
+- [X] T032 [US4] Sửa lệch introspection phát hiện ở T029 (thứ tự type, field, description, directive) trong
   `apps/api/src/services/graphql/schema/*.ts`, `resolvers/*.ts` theo nguyên tắc giữ thứ tự gọi của Directus; nếu lệch
   do thứ tự `SchemaOverview` thì sửa ở `apps/api/src/schema/**` (002) với ca thêm vào `src/schema/overview.test.ts`;
   không sắp lại ở bộ so; ghi "Ghi chú khi làm" từng lệch (plan §Rủi ro).
@@ -406,7 +404,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 ### Tests for User Story 5
 
-- [ ] T034 [P] [US5] `tests/parity/src/graphql/errors.test.ts` (đỏ trước): sai cú pháp, field không có, arg sai kiểu,
+- [X] T034 [P] [US5] `tests/parity/src/graphql/errors.test.ts` (đỏ trước): sai cú pháp, field không có, arg sai kiểu,
   scalar sai (`Date` "abc", `BigInt` quá lớn, `Hash` đọc), hai operation không `operationName`, `operationName` lạ,
   `GET` với `variables` JSON sai, thiếu `query`, document chỉ có fragment (không operation), `PUT`, `OPTIONS`, `HEAD`
   (R12.1), operation `subscription` qua `POST`
@@ -416,7 +414,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   `translateDatabaseError` → admin thấy message của DB với `INTERNAL_SERVER_ERROR`, user thường thấy "An unexpected
   error occurred." (`[Suy luận]`, đo trên Directus trước; vendor khác có thể không lỗi nên chỉ Postgres); so nguyên văn
   `extensions`, `path`, `locations` (US5 kịch bản 1, 2; FR-050 đến FR-052).
-- [ ] T035 [P] [US5] `tests/parity/src/graphql/cache.test.ts` (đỏ trước; `describe.skipIf(!hasProfile('cache-redis'))`):
+- [X] T035 [P] [US5] `tests/parity/src/graphql/cache.test.ts` (đỏ trước; `describe.skipIf(!hasProfile('cache-redis'))`):
   `POST /graphql` lần hai ở app kia → header cache status `HIT`, `Cache-Control`, `Vary`; mutation không cache;
   response có `errors` không cache; `Cache-Control: no-store` → `MISS`; mutation ở app A → query cũ ở app B `MISS`
   (xóa data cache); R-31: hai document khác khoảng trắng → hai entry (đếm key Redis namespace cache trước và sau);
@@ -424,10 +422,10 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 ### Implementation for User Story 5
 
-- [ ] T036 [US5] Sửa lệch phát hiện ở T034, T035 trong `apps/api/src/services/graphql/errors/*.ts`,
+- [X] T036 [US5] Sửa lệch phát hiện ở T034, T035 trong `apps/api/src/services/graphql/errors/*.ts`,
   `utils/process-error.ts`, `utils/add-path-to-validation-error.ts`, `middleware/graphql.ts`, `utils/get-cache-key.ts`;
   ghi "Ghi chú khi làm"; thêm ca unit vào test của file sửa.
-- [ ] T037 [US5] Bằng chứng R-30, R-32: R-30 đo trên Directus (đổi `directus_permissions` bằng SQL thô qua `hostDb()` →
+- [X] T037 [US5] Bằng chứng R-30, R-32: R-30 đo trên Directus (đổi `directus_permissions` bằng SQL thô qua `hostDb()` →
   introspection của user vẫn cũ ở cả hai app tới khi `utils_cache_clear`), thêm ca "R-30" vào
   `tests/parity/src/graphql/schema.test.ts` chỉ trên Postgres `full`; R-32 lấy từ T042 (benchmark); ghi cột "Bằng
   chứng" trong `specs/011-graphql-api/spec.md` với ngày đo.
@@ -445,9 +443,9 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 ### Tests for User Story 6
 
-- [ ] T038 [P] [US6] `tests/parity/src/graphql/e2e-app.test.ts` (đỏ trước): đúng chuỗi request của
+- [X] T038 [P] [US6] `tests/parity/src/graphql/e2e-app.test.ts` (đỏ trước): đúng chuỗi request của
   `directus/app/src/stores/insights.ts` (một `POST /graphql` gộp ba panel bằng alias `panel_<id>`, một
-  `POST /graphql/system`, panel lỗi → `400` với `extensions.graphqlErrors[0].path`) và `use-item/index.ts` `saveAsCopy`
+  `POST /graphql/system`, panel lỗi → `400` với `extensions.errors[0].path`) và `use-item/index.ts` `saveAsCopy`
   (`<alias>_by_id` với `item_duplication_fields` gồm m2o, o2m, m2a alias) ở hai app; so response (FR-063 phần request).
 - [ ] T039 [P] [US6] `tests/directus-app-e2e/src/graphql.spec.ts` (đỏ trước ở lượt proxy khi route chưa tới app mới):
   (1) Insights: tạo dashboard, thêm panel Metric `count` trên `articles`, panel List trên `articles` hiển thị
@@ -459,10 +457,10 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 ### Implementation for User Story 6
 
-- [ ] T040 [US6] Sửa lệch phát hiện ở T038, T039 (alias nhiều panel, `__typename`, m2a alias) trong
+- [X] T040 [US6] Sửa lệch phát hiện ở T038, T039 (alias nhiều panel, `__typename`, m2a alias) trong
   `apps/api/src/services/graphql/schema/parse-query.ts`, `utils/replace-fragments.ts`, `utils/dedupe-resolvers.ts`;
   ghi "Ghi chú khi làm".
-- [ ] T041 [P] [US6] Benchmark `tests/benchmark/src/graphql.ts` (dùng seed của `seed-items.ts`): `list` (`articles`
+- [X] T041 [P] [US6] Benchmark `tests/benchmark/src/graphql.ts` (dùng seed của `seed-items.ts`): `list` (`articles`
   với `filter`, `sort`, `limit: 25`, `category { name }`), `by_id`, `aggregated` (`count`, `groupBy: ["status"]`),
   `introspection` (admin, schema đã cache), `create_articles_item`; admin và user quyền một phần; fresh và cache như
   `items.ts`; cổng 10% qua `compare.ts`; đo một lần thời gian sinh schema lần đầu (`utils_cache_clear` rồi một
@@ -471,7 +469,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 - [ ] T042 [US6] Chạy benchmark local một vòng (`pnpm nx run benchmark:env-up && pnpm nx run benchmark:graphql`,
   Directus amd64 giả lập, chỉ tham khảo), ghi p95, req/s, thời gian sinh schema lần đầu và RSS của container app mới
   trước/sau 10 user sinh schema (`docker stats --no-stream`) vào "Ghi chú khi làm" và cột "Bằng chứng" R-32.
-- [ ] T043 [US6] CI: `.github/workflows/ci.yml` job `parity` dòng Postgres `full` thêm `graphql-nointro` vào
+- [X] T043 [US6] CI: `.github/workflows/ci.yml` job `parity` dòng Postgres `full` thêm `graphql-nointro` vào
   `--profiles`; `nightly.yml` kiểm `full` đã gồm `src/graphql` (glob); `parity-matrix.yml` không đổi;
   `tests/parity/README.md` thêm mục 011 (profile `graphql-nointro`, `LOG_STYLE=raw` của cặp blackbox, 13 file
   blackbox); `tests/directus-app-e2e` thêm spec vào danh sách chạy nếu có (contracts/parity.md §5).
@@ -530,3 +528,54 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
 
 - 2026-10-14 (trước T001): đo R12 trên Directus 11.17.4 của cặp parity Postgres, xem research R12; môi trường đã hạ
   (`compose down`).
+- 2026-10-14 T001: catalog thêm `graphql 16.12.0`, `graphql-compose 9.1.0`; `pnpm install` 2 s (store đã có);
+  `pnpm why graphql` trong `apps/api`: một bản 16.12.0 (peer của `graphql-compose` và `graphql-type-json 0.3.2`);
+  `pnpm audit --prod`: 40 advisory, không advisory nào chạm `graphql*`, số high (25, đều ignored) không đổi.
+- 2026-10-14 T004–T006 (đọc mã `services/graphql/errors`): mã lỗi của Directus là `GRAPHQL_VALIDATION` và
+  `GRAPHQL_EXECUTION` (không có hậu tố `_EXCEPTION`), danh sách lỗi con nằm ở `extensions.errors` (khớp phép đo R12.1,
+  R12.2); spec, contract, data-model, tasks đã sửa tên (`graphqlErrors` → `errors`). App Directus đọc
+  `extensions.graphqlErrors` ở `stores/insights.ts` là tên cũ phía client, không ảnh hưởng API.
+- 2026-10-14 T002, T003: `graphql-nointro` cổng 10555/10556; `profile-blackbox.env` thêm `LOG_STYLE=raw`, `LOG_LEVEL=info`.
+- 2026-10-14 T004–T017: port xong `services/graphql` (trừ `subscription.ts`), 81 ca gốc + 48 ca mới xanh; unit api
+  3.517 ca, coverage dòng 85,6%; lint, typecheck xanh. Ba điều phải xử lý khi port:
+  (1) Vitest nạp `graphql` hai bản (Vite lấy `module` = ESM cho app, Node lấy `main` = CJS cho `graphql-compose`
+  vì gói không có `exports`) → `graphql-compose` báo "Cannot convert to OutputType"; `apps/api/vitest.config.ts`
+  alias `graphql` về đúng file Node resolve (một bản, như production). (2) `rate-limiter-registration.ts`: Directus
+  tạo limiter lúc nạp module chỉ khi `RATE_LIMITER_REGISTRATION_ENABLED`; app mới tạo lúc dùng, nên thêm
+  `registrationRateLimiter()` cho resolver `users_register`; khi biến tắt, Directus đọc `rateLimiter.consume` trên
+  `undefined` → TypeError → `INTERNAL_SERVER_ERROR` qua `processError` (ứng viên R-33, đo ở T025 nếu có cặp tắt
+  biến). (3) `services/index.ts` không re-export `graphql/index.js`: kéo `server.service` → `server.ts` → `app.module`
+  vào mọi test import `services/index.js` (payload.service.test đỏ). `GQLScope`, `GraphQLParams` đặt ở
+  `apps/api/src/types/graphql.ts` (cần type express, graphql). `lru-cache` thêm vào `apps/api/package.json` (đã có
+  trong catalog).
+- 2026-10-14 T018: `requestGraphQL` gửi tới host của test; `getDirectusUrl` giữ vì `case-when.test.ts` còn dùng cho
+  một phép so REST với Directus. Lượt `PARITY_BLACKBOX_APPS=backoffice` trên Postgres cho seed, common và tám file
+  (collections/fields crud, m2a, m2m, m2o, no-relation, o2m, singleton): 10/10 file, 9.670 ca đạt, 10 skip có sẵn; mọi
+  ca GraphQL của tám file đi tới app mới và đạt ngay lượt đầu.
+- 2026-10-14 checkpoint đợt A: `POST /graphql/system { server_ping }` trả `pong` ở cả bốn app; introspection của admin
+  (hai scope) và public trùng từng byte giữa Directus và app mới trên DB vừa dựng (sha items 2244757e, system 744a3a9c,
+  public 1d24daa6).
+- 2026-10-14 T016: `helpers.ts` của bộ đối chiếu: `sameGql`, `introspection`, `sdl`, `createGraphqlModel` (prefix riêng
+  mỗi file), `seedGraphqlModel`, `createGraphqlUsers` (A, B, C và policy của mỗi user), `graphqlEffects`; mặc định
+  `Cache-Control: no-store` (POST /graphql cũng được cache, CACHE_SKIP_ALLOWED=true ở env vendor); `ACCEPTED` bỏ D-09.9,
+  D-15 khi feature còn mở (bài học 008, 010). Hai điều phát hiện khi dựng data model qua API Directus: field `json`
+  không có `meta` bị `POST /collections` từ chối (`FAILED_VALIDATION` collection, field), dùng `special: cast-json`;
+  `/versions` cần `meta.versioning: true`. `read.test.ts` lần đầu chạy song song với seed blackbox thì gặp
+  "Collection doesn't exist" khi tạo relation (schema do cặp blackbox ghi vào cache Redis dùng chung): không chạy bộ
+  GraphQL cùng lúc với seed blackbox trên máy local.
+- 2026-10-14 T019–T038 (Postgres, môi trường đối chiếu local): `src/graphql/` read 9, write 6, system 10, schema 11,
+  errors 5, e2e-app 3 ca đạt; cache 4 ca skip (cần cặp `cache-redis-purge`, chạy ở job `parity-cache`). Không có lệch
+  nào ở mã port; các lần đỏ đều do test: image cũ chưa có route SDL; `server_health` của public dao động `ok`/`warn` theo
+  ngưỡng thời gian của check khi máy tải (dùng `parityStable` như REST 001); user không role không có `users_me` trong
+  schema (kiểm token chéo bằng `users_me_tfa_generate`); m2a nhận `item` là chuỗi trong input; đặt tên id phải theo
+  bảng (id của hai bảng trùng số). R-33 (m2a + inline fragment trong selection của mutation) đo trên Directus và tái tạo,
+  thêm vào spec. Lệch tìm được ở bước sửa: không có (T020, T023, T027, T032, T036, T040 không cần sửa mã port).
+- 2026-10-14 T029: introspection và SDL của admin, A, B, C, token share, public không policy và có policy trùng nguyên
+  văn ở hai scope; field tạo ở app này hiện trong schema app kia trong < 1 s (cả hai chiều); R-30 đo: quyền ghi thẳng DB
+  không đổi schema ở cả hai app tới `utils/cache/clear?system`; collection `9gql_bad_*` bị bỏ với dòng cảnh báo; field
+  `__x` trên collection hợp lệ làm hỏng schema items ở cả hai app như nhau; cặp `graphql-nointro` đạt (introspection,
+  SDL 404, 60 token, 10 user đồng thời với `MAX_CONCURRENT=1`).
+- 2026-10-14 T041: `tests/benchmark/src/graphql.ts` (list, by id, aggregated × admin/user × fresh/cache, introspection,
+  create), target `benchmark:graphql`, job `benchmark-graphql`; chưa chạy (T042).
+- 2026-10-14 T043: `ci.yml` thêm `graphql-nointro` vào hai shard Postgres `full`; `nightly.yml` dùng glob `full` nên đã
+  gồm `src/graphql`; README mục 011. `routing.spec.ts` không cần sửa: `graphql.spec.ts` tự kiểm proxy log.

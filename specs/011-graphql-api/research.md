@@ -53,7 +53,7 @@ Directus (FR-047); so introspection và SDL nguyên văn kể cả thứ tự (S
   `@All('system/*splat')` → scope `system`; `@All()` và `@All('*splat')` → scope `items` (Directus
   `router.use('/system')` và `router.use('/')` khớp mọi path con và mọi method; thứ tự khai báo trong class giữ
   `system` trước). Mỗi handler: `await runMiddleware(parseGraphQL, req, res)` (ném `405` cho method ngoài `GET`,
-  `POST`, `400` thiếu `query` hoặc `variables` sai, `GRAPHQL_VALIDATION_EXCEPTION` khi parse lỗi, `405` mutation qua
+  `POST`, `400` thiếu `query` hoặc `variables` sai, `GRAPHQL_VALIDATION` khi parse lỗi, `405` mutation qua
   `GET`, đặt `res.locals.cache = false` cho mutation, dựng `graphqlParams` với `contextValue { req, res, cache: new
   Map() }`), rồi `new GraphQLService({ accountability, schema, scope }).execute(params)` → `res.locals.payload`; có
   `errors` thì `res.locals.cache = false`; `respond(req, res)`. Factory `GraphQLService` trong `providers.ts` như các
@@ -111,14 +111,14 @@ Directus (FR-047); so introspection và SDL nguyên văn kể cả thứ tự (S
 ## R7. Lỗi: `GraphQLValidationError`, `GraphQLExecutionError` là `BackofficeError` với mã Directus; `processError` giữ `DirectusError` name
 
 - **Quyết định**: `errors/validation.ts`, `execution.ts` port nguyên bằng `createError` của `@backoffice/errors`
-  với code `GRAPHQL_VALIDATION_EXCEPTION`, `GRAPHQL_EXECUTION_EXCEPTION`, status 400, `extensions.graphqlErrors`
+  với code `GRAPHQL_VALIDATION`, `GRAPHQL_EXECUTION`, status 400, `extensions.errors`
   qua `formatError` (`message`, `locations`, `path`, `extensions`); `processError(accountability, error)` port nguyên:
   lỗi gốc là `BackofficeError` (`isBackofficeError`) → giữ message, code, extensions (admin thấy nguyên; user thường
   cũng thấy vì Directus chỉ che lỗi không phải `DirectusError`); lỗi khác → admin thấy message, `extensions.code =
   INTERNAL_SERVER_ERROR`; user thường thấy "An unexpected error occurred."; log `logger.error` như Directus. Lỗi đi
   qua `respond` thành `{ errors: [...] }` với `name: DirectusError` (quyết định 009) và `code` nguyên. Ca so
   `process-error.test.ts` 4 ca port nguyên.
-- **Lý do**: FR-002, FR-050, FR-051; app Directus tách lỗi Insights theo `extensions.graphqlErrors[].path`.
+- **Lý do**: FR-002, FR-050, FR-051; app Directus tách lỗi Insights theo `extensions.errors[].path`.
 - **Đã cân nhắc**: Không.
 
 ## R8. Resolver hệ thống: dùng service đã có; email theo D-23, D-27, D-28; extensions theo D-37

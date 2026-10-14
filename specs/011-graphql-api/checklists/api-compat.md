@@ -43,7 +43,7 @@ spec.md và contracts/graphql-api.md trước khi tạo tasks (unit test cho câ
 
 ## Requirement Consistency
 
-- [x] CHK015 US1 kịch bản 4 nói field không được phép → `400 GRAPHQL_VALIDATION_EXCEPTION`, US2 kịch bản 4 nói mutation
+- [x] CHK015 US1 kịch bản 4 nói field không được phép → `400 GRAPHQL_VALIDATION`, US2 kịch bản 4 nói mutation
   không quyền "không có trong schema, hoặc có nhưng bị từ chối `FORBIDDEN`": hai cách diễn đạt có nhất quán với
   quy tắc sinh schema theo quyền (FR-020, FR-040) không? [Consistency, Spec §US1, US2]
 - [x] CHK016 Edge Cases nói `<c>_by_id` của item không được phép "trả `null` với lỗi `FORBIDDEN`... so nguyên văn" có

@@ -11,7 +11,7 @@
   response có `errors` thì không cache), `middleware/graphql.ts` (`parseGraphQL`: chỉ `GET`, `POST`; `GET` lấy
   `query`, `variables` JSON, `operationName` từ query string; `POST` lấy từ body; thiếu `query` → `400 INVALID_PAYLOAD`
   "Must provide query string"; `variables` không phải JSON → `400 INVALID_QUERY`; parse với
-  `GRAPHQL_QUERY_TOKEN_LIMIT`; lỗi parse → `GRAPHQL_VALIDATION_EXCEPTION`; mutation qua `GET` → `405`; mutation không
+  `GRAPHQL_QUERY_TOKEN_LIMIT`; lỗi parse → `GRAPHQL_VALIDATION`; mutation qua `GET` → `405`; mutation không
   cache; `contextValue` gồm `req`, `res` và một `Map` cache theo request), `controllers/server.ts`
   (`GET /server/specs/graphql/:scope?` trả SDL dạng file tải về, chỉ khi `GRAPHQL_INTROSPECTION` khác `false`),
   `middleware/respond.ts` (cache response cho `GET` và mọi request có path bắt đầu bằng `/graphql`).
@@ -50,7 +50,7 @@
   `GraphQLStringOrFloat`, `GraphQLVoid`), `services/graphql/utils/*` (`aggregate-query`, `dedupe-resolvers`,
   `filter-replace-m2a`, `process-error`, `replace-fragments`, `replace-funcs`, `sanitize-gql-schema`,
   `add-path-to-validation-error`), `services/graphql/errors/*` (`GraphQLValidationError` → `400
-  GRAPHQL_VALIDATION_EXCEPTION`, `GraphQLExecutionError` → `400 GRAPHQL_EXECUTION_EXCEPTION`, `formatError`),
+  GRAPHQL_VALIDATION`, `GraphQLExecutionError` → `400 GRAPHQL_EXECUTION`, `formatError`),
   `services/graphql/schema-cache.ts` (LRU `GRAPHQL_SCHEMA_CACHE_CAPACITY`, mặc định 100, xóa khi nhận
   `schemaChanged` trên bus), `services/specifications.ts` (`GraphQLSpecsService.generate(scope)` in SDL),
   `services/graphql/subscription.ts` và `websocket/controllers/graphql.ts` (subscription qua WebSocket, ngoài phạm
@@ -64,7 +64,7 @@
 - App Directus (client của feature này): `composables/use-item/index.ts` (`saveAsCopy` đọc item theo
   `item_duplication_fields` bằng GraphQL, `/graphql` hoặc `/graphql/system` theo collection; nhận `id` dạng chuỗi), `stores/insights.ts` (panel Insights gộp
   mọi query của một dashboard vào một request `/graphql` và một request `/graphql/system`; lỗi validation `400`
-  được tách theo `path` của `extensions.graphqlErrors`), `utils/query-to-gql-string.ts`, `stores/server.ts`
+  được tách theo `path` của `extensions.errors`), `utils/query-to-gql-string.ts`, `stores/server.ts`
   (`server_info.websocket.graphql`).
 
 **Đã có từ feature 001 đến 010** (trong `apps/api/src` và `libs/`): engine đọc ghi và quyền (`getAstFromQuery`,
@@ -123,7 +123,7 @@ Kết quả chỉ chứa collection và field user được đọc.
    và arg `groupBy`, `filter`, `sort`, `limit`, **When** chạy ở hai app, **Then** kết quả giống nhau (kể cả kiểu số
    trả về theo vendor DB, so như 005).
 4. **Given** user có quyền đọc một phần (field, filter, collection), **When** query field hoặc collection không được
-   phép, **Then** validation `400 GRAPHQL_VALIDATION_EXCEPTION` "Cannot query field ..." như Directus vì type đó
+   phép, **Then** validation `400 GRAPHQL_VALIDATION` "Cannot query field ..." như Directus vì type đó
    không có trong schema của user; field được phép nhưng dòng bị filter quyền thì trả rỗng như REST.
 5. **Given** alias, fragment, `__typename`, variables, nhiều operation với `operationName`, **When** chạy, **Then**
    kết quả như Directus; thiếu `operationName` khi có nhiều operation trả lỗi như Directus.
@@ -156,7 +156,7 @@ dòng DB (bảng dữ liệu, `directus_activity`, `directus_revisions`), event 
 3. **Given** singleton, **When** `update_<c>(data)` có hoặc không có selection field, **Then** upsert và trả item
    (hoặc `true` khi không chọn field) như Directus.
 4. **Given** user không có quyền tạo, sửa hoặc xóa collection, **When** gọi mutation tương ứng, **Then** mutation đó
-   không có trong schema của user (`400 GRAPHQL_VALIDATION_EXCEPTION`), hoặc có nhưng bị từ chối ở engine thì
+   không có trong schema của user (`400 GRAPHQL_VALIDATION`), hoặc có nhưng bị từ chối ở engine thì
    `errors` mang `FORBIDDEN` như Directus.
 5. **Given** mutation gửi qua `GET`, **When** chạy, **Then** `405` với `Allow: POST`; mutation qua `POST` không bao giờ
    được cache; sau mutation, query cùng nội dung ở app kia thấy dữ liệu mới (data cache dùng chung bị xóa như REST).
@@ -226,7 +226,7 @@ so kết quả; tải SDL ở hai app và so.
    mutation cho hành động được phép (create, update, delete tách riêng); collection không có field đọc được thì không
    có type; field có quyền khác nhau giữa các policy (không nhất quán) xử lý như Directus.
 3. **Given** `GRAPHQL_INTROSPECTION=false`, **When** query chứa `__schema` hoặc `__type`, **Then**
-   `400 GRAPHQL_VALIDATION_EXCEPTION` như Directus và `/server/specs/graphql` trả `404 ROUTE_NOT_FOUND`.
+   `400 GRAPHQL_VALIDATION` như Directus và `/server/specs/graphql` trả `404 ROUTE_NOT_FOUND`.
 4. **Given** đổi quyền, thêm field, đổi tên collection ở app A (REST hoặc GraphQL), **When** introspection ở app B
    ngay sau đó với user bị ảnh hưởng, **Then** schema mới (cache schema GraphQL của mỗi instance bị xóa qua bus
    `schemaChanged`, như Directus).
@@ -241,11 +241,11 @@ so kết quả; tải SDL ở hai app và so.
 
 ### User Story 5 - Lỗi, giới hạn và cache giống Directus (Priority: P2)
 
-Client nhận cùng status, mã lỗi, message, `extensions` (kể cả `graphqlErrors` với `path`, `locations`) như Directus
+Client nhận cùng status, mã lỗi, message, `extensions` (kể cả `errors` với `path`, `locations`) như Directus
 cho mọi lỗi: parse, validation, thực thi, quyền, dữ liệu; cùng giới hạn token, concurrency sinh schema; cùng hành vi
 cache response.
 
-**Why this priority**: App Directus tách lỗi Insights theo `path` của `extensions.graphqlErrors`; client dựa vào mã
+**Why this priority**: App Directus tách lỗi Insights theo `path` của `extensions.errors`; client dựa vào mã
 lỗi. Không chặn luồng đọc ghi chính.
 
 **Independent Test**: Gửi các document lỗi (sai cú pháp, field không có, arg sai kiểu, quá token, lỗi DB, `FORBIDDEN`
@@ -254,7 +254,7 @@ trong resolver, lỗi validation payload) ở hai app; so status, body (kể c�
 **Acceptance Scenarios**:
 
 1. **Given** document sai cú pháp hoặc quá `GRAPHQL_QUERY_TOKEN_LIMIT`, **When** gửi, **Then**
-   `400 GRAPHQL_VALIDATION_EXCEPTION` với `extensions.graphqlErrors` (message, `locations`) như Directus.
+   `400 GRAPHQL_VALIDATION` với `extensions.errors` (message, `locations`) như Directus.
 2. **Given** document hợp lệ nhưng một resolver lỗi (quyền, payload, DB), **When** chạy, **Then** `200` với `data`
    null tại field đó và `errors[].extensions.code` như Directus (`FORBIDDEN`, `INVALID_PAYLOAD`,
    `RECORD_NOT_UNIQUE`...), message admin thấy chi tiết, user thường thấy message rút gọn như `processError`;
@@ -325,7 +325,7 @@ benchmark query GraphQL đọc nhiều.
   `PATCH /users/me` (003, 004: user thường không đổi được `role`, `status`, `token`, `email` theo quyền tối thiểu).
 - Document có cả query và mutation (nhiều operation): `operationName` chọn; không có `operationName` thì lỗi như
   Directus. `GET` với `operationName` trỏ tới mutation → `405`.
-- Lỗi trong `execute` (ngoài resolver, ví dụ variable sai kiểu) → `400 GRAPHQL_EXECUTION_EXCEPTION`; lỗi validation
+- Lỗi trong `execute` (ngoài resolver, ví dụ variable sai kiểu) → `400 GRAPHQL_EXECUTION`; lỗi validation
   có `path` được thêm từ `addPathToValidationError`.
 - Response cache: `/graphql` được cache cho `POST` (khác REST chỉ cache `GET`); mutation và response có `errors`
   không cache; `CACHE_SKIP_ALLOWED` và `Cache-Control: no-store` áp như REST; app Directus gửi Insights với header
@@ -387,9 +387,9 @@ benchmark query GraphQL đọc nhiều.
   `GRAPHQL_QUERY_TOKEN_LIMIT`; mutation qua `GET` → `405` với `Allow: POST`; `OPTIONS`, `HEAD` qua `router-options`
   như các route khác (001).
 - **FR-002**: Response PHẢI là `{ data, errors, extensions }` do `execute` của GraphQL tạo, đi qua `respond` như
-  Directus: status `200` khi document hợp lệ (kể cả khi có `errors` từ resolver); `400 GRAPHQL_VALIDATION_EXCEPTION`
-  với `extensions.graphqlErrors[]` (`message`, `locations`, `path` khi có) cho lỗi parse hoặc validation;
-  `400 GRAPHQL_EXECUTION_EXCEPTION` cho lỗi thực thi ngoài resolver; mỗi lỗi resolver qua `processError` (FR-051): lỗi là
+  Directus: status `200` khi document hợp lệ (kể cả khi có `errors` từ resolver); `400 GRAPHQL_VALIDATION`
+  với `extensions.errors[]` (`message`, `locations`, `path` khi có) cho lỗi parse hoặc validation;
+  `400 GRAPHQL_EXECUTION` cho lỗi thực thi ngoài resolver; mỗi lỗi resolver qua `processError` (FR-051): lỗi là
   `DirectusError` thì ai cũng thấy nguyên message và `extensions`; lỗi khác thì admin thấy message gốc với
   `INTERNAL_SERVER_ERROR`, user thường thấy "An unexpected error occurred.".
 - **FR-003**: Mọi resolver PHẢI gọi đúng service của collection qua `getService` (ItemsService hoặc service hệ thống,
@@ -528,8 +528,8 @@ benchmark query GraphQL đọc nhiều.
 
 **Lỗi, giới hạn**
 
-- **FR-050**: Mã lỗi, message, `extensions` của mọi lỗi GraphQL PHẢI giống Directus: `GRAPHQL_VALIDATION_EXCEPTION`,
-  `GRAPHQL_EXECUTION_EXCEPTION` (400), lỗi resolver trong `errors[]` của response `200` với `extensions.code` của
+- **FR-050**: Mã lỗi, message, `extensions` của mọi lỗi GraphQL PHẢI giống Directus: `GRAPHQL_VALIDATION`,
+  `GRAPHQL_EXECUTION` (400), lỗi resolver trong `errors[]` của response `200` với `extensions.code` của
   `DirectusError` (`name` giữ `DirectusError`, 009) và `path`, `locations`.
 - **FR-051**: `processError` PHẢI làm như Directus: admin và lỗi là `DirectusError` thì giữ message, `extensions`;
   user thường thì lỗi không phải `DirectusError` thành `INTERNAL_SERVER_ERROR` "An unexpected error occurred" và lỗi
@@ -539,7 +539,8 @@ benchmark query GraphQL đọc nhiều.
 - **FR-053**: Mọi dòng log mới (cảnh báo tên không hợp lệ, lỗi resolver nội bộ) PHẢI mang tiền tố "Backoffice:" khi
   là log riêng của app mới, giữ nguyên message khi là log Directus cũng ghi (đổi chữ Directus nếu có, Nguyên tắc IX).
 - **FR-054**: Request GraphQL PHẢI đi qua cùng middleware như REST (authenticate, rate limiter, CORS, `schema`,
-  `cache`, metrics, request id), với `/graphql` đếm trong metric cùng tên như Directus.
+  `cache`, request id, log http). Directus không có metric theo route (`/metrics` chỉ có sức khỏe DB, cache, Redis,
+  storage), nên không có gì thêm cho GraphQL.
 
 **Kiểm thử**
 
@@ -613,6 +614,7 @@ D-17.
 | R-30 | Cache schema GraphQL theo khóa `scope_type_role_user` chỉ xóa khi `schemaChanged`; đổi quyền, role, data model trực tiếp trong DB (không qua service) không xóa; `schemaChanged` tới giữa lúc đang sinh thì schema cũ vẫn được `set` sau đó | `services/graphql/schema-cache.ts`, `schema/index.ts`, `cache.ts` (`clearSystemCache`) | User thấy schema cũ tới khi có `schemaChanged` kế tiếp hoặc entry bị đẩy khỏi LRU hoặc instance khởi động lại. Tái tạo (FR-044) |
 | R-31 | `/graphql` cache response cho `POST` theo body; `parseGraphQL` không giới hạn kích thước ngoài `MAX_PAYLOAD_SIZE` và `GRAPHQL_QUERY_TOKEN_LIMIT` | `middleware/respond.ts`, `middleware/graphql.ts` | Mỗi document khác nhau là một entry cache; client sinh document ngẫu nhiên làm đầy data cache như Directus. Tái tạo (FR-004) |
 | R-32 | Sinh schema cho user chưa có cache tốn CPU theo kích thước data model; chỉ giới hạn bằng semaphore mỗi instance, không giới hạn số user; cache giữ tới `GRAPHQL_SCHEMA_CACHE_CAPACITY` (100) `GraphQLSchema` trong bộ nhớ, không giới hạn theo byte | `schema/index.ts` (`generateSchema`), `schema-cache.ts` | Nhiều user khác nhau cùng lúc xếp hàng chờ sinh schema; bộ nhớ tăng theo số user × kích thước schema. Bằng chứng: thời gian sinh lần đầu và RSS trước/sau 10 user đo ở FR-064. Tái tạo (FR-045) |
+| R-33 | `resolveMutation` gọi `getQuery` với tên field chưa bỏ hậu tố (`create_<c>_item`) làm collection, nên m2a trong selection của mutation không được nhận ra và mọi inline fragment bị gộp thành một danh sách field | `resolvers/mutation.ts:16-21`; đo 2026-10-14 trên Directus 11.17.4: `create_<c>_item { blocks { item { ... on <text> { body } } } }` → `200`, `data` null, `errors[0]` `FORBIDDEN` "field \"body\" in collection \"<quote>\""; hai fragment → `FORBIDDEN` field của collection kia; cùng kết quả ở app mới. Ca: `src/graphql/write.test.ts` "m2a inline fragments in the selection of a mutation" | Client chọn field của item m2a trong mutation nhận lỗi, dòng vẫn được ghi; đọc lại bằng query thường thì đúng. Tái tạo (FR-022) |
 
 **Lệch có chủ đích so với mã gốc, không đổi hành vi** (cần tech lead duyệt khi đóng feature, như `BusRedis` của
 010): cache schema dùng `lru-cache` 11.2.2 (đã có) thay `mnemonist` `LRUMap`; hàng đợi sinh schema dùng `p-queue`

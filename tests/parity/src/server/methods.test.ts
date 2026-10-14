@@ -1,5 +1,6 @@
 // Ported from directus/tests/blackbox (router behaviour measured on Directus 11.17.4), FR-048, US2.10–US2.13.
 import { describe, expect, it } from 'vitest';
+import { acceptedDifferences } from '../../accepted-differences.js';
 import { assertParity, parity, parityStable } from '../parity.js';
 import { profileUrls } from '../profiles.js';
 
@@ -47,11 +48,19 @@ describe('router behaviour', () => {
 		expect(result.backoffice.status).toBe(404);
 	});
 
-	it.each(['/server/specs/graphql'])('OPTIONS %s → D-15', async (path) => {
-		const result = await parity({ method: 'OPTIONS', path });
-		assertParity(result);
-		expect(result.backoffice.status).toBe(404);
-	});
+	// Feature 011 (research R12.6): the route of the SDL answers like the other /server routes. D-15 is still in the
+	// accepted list until the feature closes, so it is left out here.
+	it.each(['/server/specs/graphql', '/server/specs/graphql/system'])(
+		'OPTIONS %s → 200 Allow: GET,HEAD',
+		async (path) => {
+			const result = await parity(
+				{ method: 'OPTIONS', path },
+				{ accepted: acceptedDifferences.filter((d) => !(d.feature === '001' && d.id === 'D-15')) },
+			);
+			assertParity(result);
+			expect(result.backoffice.headers['allow']).toBe('GET,HEAD');
+		},
+	);
 
 	it.each(['/server/ping', '/server/info', '/server/health'])('HEAD %s → same headers, no body', async (path) => {
 		const result = await (path === '/server/health' ? parityStable : parity)({ method: 'HEAD', path });

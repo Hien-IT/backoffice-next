@@ -91,8 +91,8 @@ Scalar chung: `Date`, `Hash`, `GraphQLBigInt`, `GraphQLGeoJSON`, `GraphQLStringO
 |------------|-------|-------|
 | `data` | `execute()` | cache response `POST /graphql` theo khóa `getCacheKey` (`query`, `variables`, user, role, ip khi policy có `ip_access`, `version` tương thích) khi không có `errors` và không phải mutation |
 | `errors[]` | `processError` mỗi lỗi resolver: `message`, `locations`, `path`, `extensions.code` | có `errors` → không cache |
-| `400 GRAPHQL_VALIDATION_EXCEPTION` | parse hoặc `validate` lỗi | `extensions.graphqlErrors[]` |
-| `400 GRAPHQL_EXECUTION_EXCEPTION` | `execute` ném | `extensions.graphqlErrors[]` |
+| `400 GRAPHQL_VALIDATION` | parse hoặc `validate` lỗi | `extensions.errors[]` |
+| `400 GRAPHQL_EXECUTION` | `execute` ném | `extensions.errors[]` |
 
 ## 7. Biến môi trường
 

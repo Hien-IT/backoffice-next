@@ -110,6 +110,8 @@ export const profilePorts = {
 	'flows-schedule': { directus: 10355, backoffice: 10356 },
 	// Feature 010 (research R11): the setup pair on its own Postgres (setupDbPort), Postgres only.
 	setup: { directus: 10455, backoffice: 10456 },
+	// Feature 011 (research R9): the pair with GRAPHQL_INTROSPECTION=false and small GraphQL limits.
+	'graphql-nointro': { directus: 10555, backoffice: 10556 },
 } as const;
 
 /** Host port of the own Postgres of the setup pair (feature 010, research R11). */

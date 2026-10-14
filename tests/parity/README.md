@@ -226,6 +226,23 @@ Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập n�
   `Backoffice: mail sending is out of scope` cho mỗi mail Directus sẽ gửi (D-33).
 - Sau `env-up` trên máy local, nếu container `directus` được tạo lại thì khởi động lại `proxy` (nginx giữ IP cũ).
 
+### Test GraphQL (feature 011)
+
+- `src/graphql/`: `read`, `write`, `system`, `schema` (introspection và SDL so nguyên văn, kể cả thứ tự), `errors`,
+  `cache` (cặp `cache-redis-purge`, chạy trong suite `cache`), `e2e-app` (request của Insights và "Save as copy").
+  `helpers.ts`: `sameGql()` gửi cùng document tới hai app (bỏ D-09.9, D-15 khi feature còn mở), mặc định
+  `Cache-Control: no-store` vì `POST /graphql` cũng được cache; `createGraphqlModel(prefix)` dựng data model riêng mỗi
+  file (m2o, o2m, m2m, m2a, singleton, versioning); `createGraphqlUsers()` tạo user A, B, C với policy riêng.
+- Cặp `graphql-nointro` (cổng 10555/10556, cùng DB, Redis, namespace với cặp chính): `GRAPHQL_INTROSPECTION=false`,
+  `GRAPHQL_QUERY_TOKEN_LIMIT=50`, `GRAPHQL_SCHEMA_CACHE_CAPACITY=2`, `GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT=1`. Có
+  trong `--profiles` của Postgres `full`.
+- Blackbox: `requestGraphQL` gửi tới app đang thử; thêm `tests/common/auth/{login,refresh}`,
+  `tests/common/logger/redact` (đọc log container thay `TestLogger`; cặp `blackbox` chạy `LOG_STYLE=raw`,
+  `LOG_LEVEL=info`), `tests/db/routes/server/{ping,health}` (không SMTP giả).
+- Lưu ý khi tạo data model qua API của Directus: field `json` không có `meta` bị `POST /collections` từ chối
+  (`FAILED_VALIDATION collection, field`), cho `meta: { special: ['cast-json'] }`; `/versions` cần
+  `meta.versioning: true` trên collection.
+
 ## Đọc báo cáo
 
 Khi khác, test báo endpoint, vị trí (status, header hoặc JSON pointer), giá trị của Directus và của API mới, ví dụ:
