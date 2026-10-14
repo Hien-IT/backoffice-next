@@ -187,5 +187,10 @@ test('Save as Copy: the item is read through GraphQL and copied with its duplica
 		[ARTICLES],
 	);
 
-	expect(changes['prx']).toEqual(changes['dir']);
+	// The app opens the copy afterwards: last_page of the admin names the new id, which differs between the two runs.
+	const pages = (value: unknown) =>
+		JSON.parse(
+			JSON.stringify(value).replace(new RegExp(`/content/${ARTICLES}/\\d+`, 'g'), `/content/${ARTICLES}/<id>`),
+		);
+	expect(pages(changes['prx'])).toEqual(pages(changes['dir']));
 });

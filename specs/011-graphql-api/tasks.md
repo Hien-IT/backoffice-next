@@ -447,7 +447,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   `directus/app/src/stores/insights.ts` (một `POST /graphql` gộp ba panel bằng alias `panel_<id>`, một
   `POST /graphql/system`, panel lỗi → `400` với `extensions.errors[0].path`) và `use-item/index.ts` `saveAsCopy`
   (`<alias>_by_id` với `item_duplication_fields` gồm m2o, o2m, m2a alias) ở hai app; so response (FR-063 phần request).
-- [ ] T039 [P] [US6] `tests/directus-app-e2e/src/graphql.spec.ts` (đỏ trước ở lượt proxy khi route chưa tới app mới):
+- [X] T039 [P] [US6] `tests/directus-app-e2e/src/graphql.spec.ts` (đỏ trước ở lượt proxy khi route chưa tới app mới):
   (1) Insights: tạo dashboard, thêm panel Metric `count` trên `articles`, panel List trên `articles` hiển thị
   `category.name`, panel Metric trên `directus_users`; mở dashboard, đọc giá trị ba panel, so hai lượt (`bothRuns`);
   `proxyLog` cho thấy `/graphql`, `/graphql/system` tới app mới; (2) "Save as copy": collection có
@@ -579,3 +579,7 @@ response cache dùng chung cho `POST /graphql`; R-31 có bằng chứng.
   create), target `benchmark:graphql`, job `benchmark-graphql`; chưa chạy (T042).
 - 2026-10-14 T043: `ci.yml` thêm `graphql-nointro` vào hai shard Postgres `full`; `nightly.yml` dùng glob `full` nên đã
   gồm `src/graphql`; README mục 011. `routing.spec.ts` không cần sửa: `graphql.spec.ts` tự kiểm proxy log.
+- 2026-10-14 T039: `graphql.spec.ts` 2/2 đạt qua proxy local (Insights: ba panel, `/graphql` và `/graphql/system` tới
+  app mới; Save as Copy: dòng ghi giống Directus, `last_page` của admin mang id bản sao nên được chuẩn hóa);
+  `routing.spec.ts` 2/2 đạt với `graphql` trong danh sách route. Local: container `proxy` cũ (Exited 128, network đã
+  xóa sau `compose down` chỉ với profile vendor) phải `up --force-recreate --no-deps proxy`.
