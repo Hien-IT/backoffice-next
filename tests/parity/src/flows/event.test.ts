@@ -23,9 +23,13 @@ async function flow(name: string, def: Parameters<typeof seedFlow>[0]) {
 	flows[name] = id;
 }
 
-const logRows = async (note: string) =>
-	(await appRequest('directus', 'GET', `/items/${collections.log}?filter[note][_eq]=${encodeURIComponent(note)}`)).data
-		.length as number;
+// Counted in the database: a poll through the response cache of Directus can keep an empty result cached across the
+// write of the flow (seen on MySQL CI at either app).
+const logRows = async (note: string) => {
+	const { hostDb } = await import('../auth/db-effects.js');
+	const [row] = await hostDb()(collections.log).where({ note }).count({ count: '*' });
+	return Number(row?.['count'] ?? 0);
+};
 
 const lastRunId = async (flow: string) => Number((await runRows(flow)).at(-1)?.['id'] ?? 0);
 
