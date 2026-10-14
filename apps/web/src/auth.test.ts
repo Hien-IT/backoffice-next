@@ -161,19 +161,6 @@ describe('logout', () => {
 });
 
 describe('events', () => {
-	test('sessionExpired logs out once while authenticated', async () => {
-		const fetch = mockApi({});
-		const appStore = useAppStore();
-
-		emitter.emit(Events.sessionExpired);
-		expect(dehydrate).not.toHaveBeenCalled();
-
-		appStore.authenticated = true;
-		emitter.emit(Events.sessionExpired);
-		await vi.waitFor(() => expect(push).toHaveBeenCalledWith({ path: '/login', query: { reason: 'SESSION_EXPIRED' } }));
-		expect(fetch).not.toHaveBeenCalled();
-	});
-
 	test('tab idle stops refreshing, tab active refreshes again', async () => {
 		const fetch = mockApi(session);
 		emitter.emit(Events.tabActive);

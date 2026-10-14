@@ -16,7 +16,7 @@ Cách làm:
 
 - Chép logic (router, guard, auth, hydrate, store, composable, utils) từ `directus/app/src` với ghi nguồn; viết mới
   component và bố cục bằng Reka UI 2.8.2 + Tailwind 4 `@theme` trên token design-system (R2, R6, R7).
-- Một client: `@directus/sdk` 21.3.0 với `fetch` bọc hàng đợi, `requestsStore`, `401` (R3).
+- Một client: `@directus/sdk` 21.3.0 với `fetch` bọc hàng đợi, `requestsStore` (R3).
 - Script sinh chuỗi dịch một lần, commit, overlay cho chuỗi riêng, test chống lệch (R4).
 - E2E Playwright ở `apps/web-e2e` với ba cấu hình (proxy → Directus, proxy → API mới, khác site CORS) trên
   chromium, firefox, webkit; profile `web` của `tests/parity` (R9, R10, contracts/e2e.md).
@@ -146,7 +146,7 @@ apps/web/
 │   ├── runtime-config.ts           # giữ (001)
 │   ├── constants.ts                # Ported: MODULE_BAR_DEFAULT, DEFAULT_AUTH_*, AUTH_SSO_DRIVERS, BREAKPOINTS
 │   ├── api/
-│   │   ├── sdk.ts                  # Ported từ sdk.ts + api.ts: client duy nhất, fetch bọc, queue, 401
+│   │   ├── sdk.ts                  # Ported từ sdk.ts + api.ts: client duy nhất, fetch bọc, queue
 │   │   └── request.ts              # requestEndpoint helper
 │   ├── auth.ts                     # Ported: login, refresh, logout, LogoutReason
 │   ├── hydrate.ts                  # Ported, rút gọn

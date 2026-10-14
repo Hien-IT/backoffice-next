@@ -1,6 +1,5 @@
 // Ported from directus/app/src/auth.ts
-// Backoffice: one SDK client (FR-001); the license-banner cookie is gone; a 401 seen by the client
-// (Events.sessionExpired) logs out with SESSION_EXPIRED (FR-001, US1-5).
+// Backoffice: one SDK client (FR-001); the license-banner cookie is gone.
 import {
 	authenticateShare,
 	type AuthenticationData,
@@ -104,12 +103,6 @@ emitter.on(Events.tabActive, () => {
 		refresh();
 		idle = false;
 	}
-});
-
-// Backoffice: the Directus app has no 401 handler in 11.17.4 (it notices an ended session on the next refresh);
-// the spec asks to go to the login page on the next request (SC-004).
-emitter.on(Events.sessionExpired, () => {
-	if (useAppStore().authenticated) logout({ reason: LogoutReason.SESSION_EXPIRED });
 });
 
 export async function refresh({ navigate }: LogoutOptions = { navigate: true }): Promise<void> {

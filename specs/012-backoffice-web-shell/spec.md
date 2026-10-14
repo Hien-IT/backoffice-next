@@ -30,7 +30,7 @@ thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các l
   (SDK), LDAP qua `identifier`; share qua `/shares/auth`; sau login gọi `sdk.refresh()`, nạp lại `serverStore`,
   `hydrate`; `refresh`: còn hạn thì chỉ `GET /users/me?fields=id`, hết hạn thì `/auth/refresh`, lỗi thì `logout`
   với `reason=SESSION_EXPIRED`; `logout`: `/auth/logout` chỉ khi người dùng tự bấm, `dehydrate`, về
-  `/login?reason=`), `api.ts` (axios với `baseURL`, hàng đợi request, interceptor `401` → logout, `requests`
+  `/login?reason=`), `api.ts` (axios với `baseURL`, hàng đợi request, `requests`
   store), `sdk.ts`, `routes/login/login.vue` (tiêu đề `sign_in`; chọn provider khi có hơn một; `ContinueAs` khi đã
   đăng nhập; `LdapForm` cho driver `ldap`; `LoginForm` cho `default`/`local`; `SsoLinks`; link `/register` khi
   `public_registration`; notice `authenticated`/`not_authenticated`/`logoutReason.<reason>`),
@@ -141,8 +141,10 @@ E2E đăng nhập, tải lại, chờ quá hạn access token, đăng xuất; so
    trên lần tải đầu, không hiện trang đăng nhập; **When** access token còn hạn, **Then** chỉ xác nhận phiên bằng
    `GET /users/me?fields=id`; **When** sắp hết hạn, **Then** gọi `/auth/refresh` trước mốc 10 giây như Directus;
    tab rảnh thì không tự refresh, hoạt động lại thì refresh.
-5. **Given** phiên bị thu hồi ở server (xóa dòng session, đổi mật khẩu ở nơi khác), **When** một request trả `401`,
-   **Then** app về `/admin/login?reason=SESSION_EXPIRED` và hiện lý do; không gọi `/auth/logout`.
+5. **Given** phiên bị thu hồi ở server (xóa dòng session, đổi mật khẩu ở nơi khác), **When** app gọi `refresh()` lần
+   kế tiếp (tải lại trang, tab hoạt động lại sau khi rảnh), **Then** app về `/admin/login?reason=SESSION_EXPIRED` và
+   hiện lý do; không gọi `/auth/logout`. Request thường trả `401` không đăng xuất (như `api.ts` 11.17.4, owner chọn
+   2026-10-14).
 6. **Given** đã đăng nhập, **When** bấm đăng xuất ở menu avatar, **Then** app gọi `/auth/logout`, xóa trạng thái, về
    `/admin/login?reason=SIGN_OUT`; `directus_sessions` không còn dòng đó.
 7. **Given** user mở route private khi chưa đăng nhập, **When** vào `/admin/settings/project`, **Then** về
@@ -314,7 +316,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 - `apiUrl` khác origin với app: app vẫn dùng mode `session`; API phải có `SESSION_COOKIE_SAME_SITE=None`,
   `SESSION_COOKIE_SECURE=true` (trình duyệt chỉ nhận cookie `SameSite=None` qua HTTPS), `CORS_ENABLED=true`,
   `CORS_ORIGIN` chứa origin của app, `CORS_CREDENTIALS=true`; thiếu một trong các biến này thì đăng nhập thành công
-  nhưng request kế tiếp trả `401` và app về đăng nhập với `SESSION_EXPIRED` (tài liệu triển khai ghi rõ, FR-075).
+  nhưng các request kế tiếp trả `401` như ở Directus app (tài liệu triển khai ghi rõ, FR-075).
   Triển khai khuyến nghị vẫn là cùng origin sau reverse proxy (`/admin` → app, còn lại → API).
 - Lần tải đầu chưa có cookie: `/auth/refresh` trả `401`/`403`; app bỏ qua lỗi và hiện đăng nhập, không hiện lý do
   `SESSION_EXPIRED` (như Directus, `firstRefresh`).
@@ -356,8 +358,9 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 
 - **FR-001**: App PHẢI được phục vụ ở đường dẫn gốc `/admin/` (history của router như Directus: `<root>admin/`), build
   một lần cho mọi môi trường, đọc `apiUrl` từ `config.json` lúc chạy (001). Mọi lệnh gọi mạng PHẢI đi qua một client
-  duy nhất có `baseURL = apiUrl`, gửi cookie (`withCredentials`), có hàng đợi tạm dừng trong lúc refresh và
-  interceptor `401` → đăng xuất với lý do `SESSION_EXPIRED` như `api.ts` của Directus.
+  duy nhất có `baseURL = apiUrl`, gửi cookie (`withCredentials`), có hàng đợi tạm dừng trong lúc refresh như `api.ts`
+  của Directus. Như Directus 11.17.4, client KHÔNG có interceptor `401`: phiên mất chỉ được phát hiện khi `refresh()`
+  lỗi (FR-014) và đăng xuất với lý do `SESSION_EXPIRED` (owner chọn 2026-10-14).
 - **FR-002**: App CHỈ ĐƯỢC gọi các route và tham số có trong API Directus 11.17.4 (danh sách ở phần tham chiếu).
   KHÔNG có route riêng của API mới; KHÔNG dựa vào header hay field chỉ API mới có. Cùng một build PHẢI chạy với
   Directus 11.17.4 thật và với API mới chỉ bằng cách đổi `apiUrl`.
@@ -678,7 +681,7 @@ Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là
   khi 5 phút không có `pointermove`, `pointerdown`, `keydown` hoặc khi tab bị ẩn (`idle.ts`). `accessTokenExpiry =
   Date.now() + expires` (tương đối, không đọc `exp`). Request thường lỗi mạng: không đăng xuất; `/auth/refresh` lỗi
   bất kỳ (kể cả mạng): đăng xuất `SESSION_EXPIRED` như `auth.ts`. Không đồng bộ ngôn ngữ, theme giữa các tab; thu
-  hồi quyền hay đổi mật khẩu giữa phiên chỉ có hiệu lực khi hydrate lại hoặc khi API trả `401`.
+  hồi quyền hay đổi mật khẩu giữa phiên chỉ có hiệu lực khi hydrate lại hoặc ở lần `refresh()` kế tiếp (FR-001).
 - **Người dùng share** (CHK006): như guard Directus: không ép TFA, không ghi `last_page`, không gọi `/settings`; thanh
   module, avatar và menu dùng chung bố cục private với các module mà quyền share cho phép.
 - **Bố cục** (CHK007, CHK008, CHK010, CHK056, CHK072): bố cục private chỉ vẽ sau hydrate (màn chờ `hydrating`), nên
@@ -763,7 +766,8 @@ Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là
   không cần hướng dẫn trong dưới 1 phút (kiểm tra với 5 người dùng nội bộ, 5/5 đạt). Làm sau khi CI xanh, không chặn
   đóng feature (Clarifications).
 - **SC-004**: Để app mở 3 lần thời gian sống của access token (mặc định `ACCESS_TOKEN_TTL` 15 phút) mà không phải
-  đăng nhập lại; thu hồi phiên ở server thì về trang đăng nhập với lý do trong vòng một request kế tiếp.
+  đăng nhập lại; thu hồi phiên ở server thì về trang đăng nhập với lý do ở lần `refresh()` kế tiếp (tải lại trang hoặc
+  tab hoạt động lại, FR-001).
 - **SC-005**: Với DB mới (settings mặc định), DOM của mọi trang trong E2E không chứa chuỗi "Directus" (0 lần); với
   settings đã đặt branding, logo, tên, mô tả, màu, favicon, nền, ghi chú, `custom_css` đều áp đúng, kiểm bằng khẳng
   định trên DOM (nguồn ảnh, màu nền logo, `theme-color`, favicon, ghi chú đã khử HTML, CSS có hiệu lực). Ảnh chụp

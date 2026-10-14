@@ -43,5 +43,5 @@ Không gọi: `/websocket`, `/extensions/*`, `/mcp`, `/ai`, `/deployments`, `/gr
 ## Lỗi
 
 Mọi lỗi API `{ errors: [{ message, extensions: { code, ... } }] }` → `translateAPIError(code)` = `$t('errors.' +
-code)` nếu có khóa, không thì `message`. `401` ở request ngoài `/auth/*` → `logout(SESSION_EXPIRED)`. Lỗi mạng ở
+code)` nếu có khóa, không thì `message`. Không xử lý riêng `401` (như `api.ts` 11.17.4): chỉ `refresh()` lỗi mới `logout(SESSION_EXPIRED)`. Lỗi mạng ở
 khởi động → màn lỗi FR-003.

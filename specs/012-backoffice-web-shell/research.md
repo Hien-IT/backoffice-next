@@ -25,7 +25,7 @@ Mỗi mục: quyết định, lý do, phương án đã cân nhắc. Số liệu
 | `@playwright/test` | 1.64.0 | catalog đã có | E2E |
 
 Bỏ `axios` và `ofetch` ở app web: Directus app có hai client (`api.ts` axios, `sdk.ts` ofetch); FR-001 yêu cầu một
-client. SDK với `globals.fetch` bọc `fetch` gốc đủ để gắn hàng đợi, `requestsStore`, và xử lý `401`.
+client. SDK với `globals.fetch` bọc `fetch` gốc đủ để gắn hàng đợi, `requestsStore`, (không xử lý riêng `401`, như `api.ts` 11.17.4).
 
 Kiểm ngày 2026-10-14 (T002, `pnpm view`): `@directus/sdk@21.3.0`, `@directus/format-title@12.1.2`, `reka-ui@2.8.2`,
 `@vueuse/core@14.0.0`, `@unhead/vue@1.11.20`, `qrcode@1.5.4`, `marked@16.4.1`, `dompurify@3.3.2`, `mitt@3.0.1` đều có
@@ -80,8 +80,8 @@ dịch được: bỏ qua với một dòng `console.warn` (một lần mỗi kh
 **Quyết định**: `src/api/sdk.ts` (chép ý `directus/app/src/sdk.ts`): `createDirectus(apiUrl, { globals: { fetch
 } }).with(authentication('session', { credentials: 'include', msRefreshBeforeExpires: 10_000 })).with(rest({
 credentials: 'include' }))`. `fetch` bọc: tăng giảm `requestsStore`, chờ hàng đợi (`p-queue`, tạm dừng khi path
-`/auth/refresh` như Directus), và với response `401` ngoài `/auth/*` gọi `logout({ reason: SESSION_EXPIRED })`
-(chỗ Directus làm ở interceptor axios). `apiUrl` lấy từ `config.json` (001), không từ `window.location` như
+`/auth/refresh` như Directus); không xử lý riêng response `401` (Directus 11.17.4 không có interceptor; phiên mất được
+phát hiện khi `refresh()` lỗi, owner chọn giữ như Directus 2026-10-14). `apiUrl` lấy từ `config.json` (001), không từ `window.location` như
 `getPublicURL` (app và API có thể khác origin).
 
 Link SSO (FR-041): `${apiUrl}/auth/login/${provider}?redirect=${origin}/admin/login?continue` (Directus dùng

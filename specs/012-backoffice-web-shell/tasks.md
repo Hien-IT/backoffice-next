@@ -112,7 +112,7 @@ kết quả kiểm.
   { globals: { fetch: wrappedFetch } }).with(authentication('session', { credentials: 'include',
   msRefreshBeforeExpires: SDK_AUTH_REFRESH_BEFORE_EXPIRES })).with(rest({ credentials: 'include' }))`;
   `wrappedFetch`: `requestsStore.startRequest/endRequest`, `requestQueue` (p-queue `concurrency 5, intervalCap 5,
-  interval 500`) tạm dừng khi path `/auth/refresh`, `resumeQueue()`, `replaceQueue()`; response `401` ở path không
+  interval 500`) tạm dừng khi path `/auth/refresh`, `resumeQueue()`, `replaceQueue()`; (owner 2026-10-14: không xử lý `401`, như Directus) response `401` ở path không
   bắt đầu `/auth/` → `emitter.emit('sessionExpired')` (auth.ts nghe và logout, tránh import vòng). Export `sdk`
   (singleton gán ở `main.ts`), `requestEndpoint(path, options)`. `apps/web/src/api/sdk.test.ts`: queue pause/resume,
   requestsStore đếm, `401` phát sự kiện, `401` ở `/auth/login` không phát, `credentials: 'include'` có trong request.
@@ -584,9 +584,8 @@ Directus.
   - `trackPage` gọi `PATCH /users/me/track/page`, không phải `PATCH /users/me`: đã sửa spec FR-018, SC-009, US2-5 và
     contracts/api-calls (#14, #32). API mới có route này.
   - `api.ts` của Directus 11.17.4 KHÔNG có interceptor `401` → đăng xuất (spec FR-001, US1-5 ghi "như `api.ts`"):
-    Directus app chỉ phát hiện phiên mất ở lần `refresh()` kế tiếp (tải lại, tab hoạt động lại). App mới làm theo
-    spec (request ngoài `/auth/*` trả `401` → `logout(SESSION_EXPIRED)`, SC-004). Đây là khác biệt chưa có mã D;
-    **cần owner duyệt** (đề xuất D-51, loại "khác") hoặc chọn làm như Directus.
+    owner chọn làm như Directus (2026-10-14): bỏ xử lý `401` ở client, phiên mất chỉ phát hiện khi `refresh()` lỗi;
+    spec FR-001, US1-5, SC-004, edge case khác origin và contracts đã sửa.
   - `translateAPIError` của Directus trả `unexpected_error` khi không có khóa `errors.<CODE>` (spec FR-012 ghi "hiện
     message gốc"): app làm như Directus; spec cần sửa câu này khi đóng feature.
   - `useSafeRedirect` gọi `POST /utils/resolve-redirect` (đã thêm contracts #31, release-gate CHK023).

@@ -1,6 +1,5 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { emitter, Events } from '../events.ts';
 import { useRequestsStore } from '../stores/requests.ts';
 import { API, json, mockApi } from '../test-utils/fetch.ts';
 import {
@@ -44,21 +43,6 @@ describe('wrapped fetch', () => {
 
 		expect(fetch.mock.calls[0]![1]).toMatchObject({ credentials: 'include' });
 		expect(requests.queueHasItems).toBe(false);
-	});
-
-	test('a 401 outside /auth/* emits sessionExpired, a 401 of /auth/login does not', async () => {
-		const unauthorized = () => json({ errors: [{ message: 'x', extensions: { code: 'INVALID_CREDENTIALS' } }] }, 401);
-		mockApi({ 'GET /users/me': unauthorized, 'POST /auth/login': unauthorized });
-		const listener = vi.fn();
-		emitter.on(Events.sessionExpired, listener);
-
-		await sdk.login({ email: 'a@b.c', password: 'x' }).catch(() => undefined);
-		expect(listener).not.toHaveBeenCalled();
-
-		await sdk.request(requestEndpoint('/users/me', { method: 'GET' })).catch(() => undefined);
-		expect(listener).toHaveBeenCalledTimes(1);
-
-		emitter.off(Events.sessionExpired, listener);
 	});
 
 	test('pauses the queue during /auth/refresh and resumes it after the answer', async () => {

@@ -6,7 +6,6 @@ import type { AuthenticationClient, DirectusClient, RequestOptions, RestClient, 
 import { authentication, createDirectus, rest } from '@directus/sdk';
 import PQueue, { type Options, type QueueAddOptions } from 'p-queue';
 import { SDK_AUTH_REFRESH_BEFORE_EXPIRES } from '../constants.ts';
-import { emitter, Events } from '../events.ts';
 import { useRequestsStore } from '../stores/requests.ts';
 
 export type SdkClient = DirectusClient<unknown> & AuthenticationClient<unknown> & RestClient<unknown>;
@@ -64,9 +63,6 @@ async function wrappedFetch(input: RequestInfo | URL, init?: RequestInit): Promi
 		});
 
 		const response = await fetch(input, init);
-
-		// Backoffice: a 401 outside /auth/* means the session is gone (FR-001, US1-5); auth.ts logs out.
-		if (response.status === 401 && path !== null && !path.startsWith('/auth')) emitter.emit(Events.sessionExpired);
 
 		return response;
 	} finally {
