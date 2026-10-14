@@ -1,0 +1,11 @@
+[
+	{
+		"source": "app/src/views/private/private-view/components/private-view.vue",
+		"dest": "apps/web/src/layout/PrivateView.vue"
+	},
+	{
+		"source": "app/src/views/private/private-view/components/private-view-no-app-access.vue",
+		"dest": "apps/web/src/layout/NoAppAccess.vue"
+	},
+	{ "source": "app/src/routes/private-not-found.vue", "dest": "apps/web/src/routes/PrivateNotFoundRoute.vue" }
+]

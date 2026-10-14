@@ -1,0 +1,12 @@
+[
+	{ "source": "app/src/views/private/private-view/stores/sidebar.ts", "dest": "apps/web/src/layout/stores/sidebar.ts" },
+	{
+		"source": "app/src/views/private/private-view/stores/sidebar.test.ts",
+		"dest": "apps/web/src/layout/stores/sidebar.test.ts"
+	},
+	{ "source": "app/src/views/private/private-view/stores/nav-bar.ts", "dest": "apps/web/src/layout/stores/nav-bar.ts" },
+	{
+		"source": "app/src/views/private/private-view/stores/nav-bar.test.ts",
+		"dest": "apps/web/src/layout/stores/nav-bar.test.ts"
+	}
+]

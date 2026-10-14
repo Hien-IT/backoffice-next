@@ -1,0 +1,1 @@
+[{ "source": "app/src/app.vue", "dest": "apps/web/src/theme/use-app-head.ts" }]

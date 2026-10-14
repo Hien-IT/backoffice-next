@@ -39,8 +39,9 @@ export class AdminApi {
 		});
 
 		if (!response.ok()) throw new Error(`${method} ${path}: ${response.status()} ${await response.text()}`);
-		if (response.status() === 204) return undefined as T;
-		return ((await response.json()) as { data: T }).data;
+		const text = await response.text();
+		if (response.status() === 204 || !text) return undefined as T;
+		return (JSON.parse(text) as { data: T }).data;
 	}
 
 	createUser(user: Record<string, unknown>) {

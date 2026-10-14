@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/routes/logout.vue", "dest": "apps/web/src/routes/LogoutRoute.vue" },
+	{ "source": "app/src/routes/tfa-setup.vue", "dest": "apps/web/src/routes/TfaSetupRoute.vue" },
+	{ "source": "app/src/composables/use-tfa-setup.ts", "dest": "apps/web/src/composables/use-tfa-setup.ts" }
+]

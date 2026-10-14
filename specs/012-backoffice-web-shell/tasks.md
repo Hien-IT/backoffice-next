@@ -255,42 +255,42 @@ token, hết phiên về login với lý do, đăng xuất; ép `/tfa-setup`; us
 
 **Independent Test**: `apps/web-e2e/src/login.spec.ts` ở ba cấu hình; so dòng `directus_sessions`.
 
-- [ ] T033 [P] [US1] `apps/web/src/layout/PublicView.vue` (viết mới theo `public-view.vue`, contracts/ui-routes §5:
+- [X] T033 [P] [US1] `apps/web/src/layout/PublicView.vue` (viết mới theo `public-view.vue`, contracts/ui-routes §5:
   cột trái logo (`project_logo` → `/assets`, else `logo-light/dark.svg` theo `html.dark`; nền `project_color`), tên,
   mô tả, slot, slot `notice`; cột phải nền ảnh/video/hoa văn token, `public_foreground`, `public_note` qua
-  `utils/markdown`; ≥ 768 px hai cột, dưới `lg` ẩn cột phải); `layout/PublicView.test.ts` (3 nhánh logo, note khử HTML,
+  `utils/markdown`; hai cột từ `sm` (576 px) như Directus nên luôn hai cột ở 768 px trở lên); `layout/PublicView.test.ts` (3 nhánh logo, note khử HTML,
   video `muted autoplay loop playsinline`).
-- [ ] T034 [P] [US1] `apps/web/src/routes/login/LoginForm.vue` (email, password, OTP hiện khi `INVALID_OTP`, nút
+- [X] T034 [P] [US1] `apps/web/src/routes/login/LoginForm.vue` (email, password, OTP hiện khi `INVALID_OTP`, nút
   `sign_in` loading, link `forgot_password` → `/reset-password`, lỗi qua `translateAPIError` trong `BoNotice`
   `role=alert`, giữ email/password khi hiện OTP, `autocomplete` đúng), `routes/login/ContinueAs.vue` (tên user, nút
   `continue_as`, link `sign_out`); test `routes/login/LoginForm.test.ts` (gửi đúng payload qua `login`, INVALID_OTP
   → ô OTP, lỗi khác → notice, Enter gửi).
-- [ ] T035 [US1] `apps/web/src/routes/login/LoginRoute.vue` (Ported logic từ `login.vue`: `driver`/`provider` từ
+- [X] T035 [US1] `apps/web/src/routes/login/LoginRoute.vue` (Ported logic từ `login.vue`: `driver`/`provider` từ
   `providerOptions`, `BoSelect` khi > 1, `ContinueAs` khi `authenticated`, `LoginForm` cho `default`/`local`,
   `LdapForm` và `SsoLinks` cắm ở US4 (tạm slot trống), notice `authenticated`/`not_authenticated`/
   `logoutReason.<reason>`, link `/register` khi `public_registration`, `useHead({ title: t('sign_in') })`, xử lý
   `?continue` (gọi `refresh` rồi về `last_page`), `?redirect` qua `useSafeRedirect`); `composables/use-safe-redirect.ts`
   (Ported); test `routes/login/LoginRoute.test.ts` (select hiện khi >1, `?continue`, `?reason`); manifest `012-T035.json`.
-- [ ] T036 [P] [US1] `apps/web/src/routes/LogoutRoute.vue` (gọi `logout()` on mount, `BoProgressCircular`),
+- [X] T036 [P] [US1] `apps/web/src/routes/LogoutRoute.vue` (gọi `logout()` on mount, `BoProgressCircular`),
   `routes/TfaSetupRoute.vue` + `composables/use-tfa-setup.ts` (Ported: bước mật khẩu → `POST /users/me/tfa/generate`
   → QR bằng `qrcode.toDataURL(otpauth_url)` + `secret` dạng chữ → OTP → `POST /users/me/tfa/enable` → `redirect`
   an toàn hoặc `last_page`; `authenticated === false` → `/login`); test `routes/TfaSetupRoute.test.ts` (3 bước, lỗi mật
   khẩu sai); manifest `012-T036.json`.
-- [ ] T037 [P] [US1] `apps/web/src/layout/NoAppAccess.vue` (thông điệp `no_app_access_copy`? dùng khóa Directus
+- [X] T037 [P] [US1] `apps/web/src/layout/NoAppAccess.vue` (thông điệp `no_app_access_copy`? dùng khóa Directus
   `no_app_access` + `no_app_access_copy`, nút `sign_out`) và `modules/ModulePlaceholder.vue` tối thiểu (tiêu đề module,
   `module_placeholder`; bố cục đầy đủ ở US2) để guard có đích sau đăng nhập; `routes/PrivateNotFoundRoute.vue` tối
   thiểu; test `layout/NoAppAccess.test.ts`.
-- [ ] T038 [US1] Gắn vào `App.vue`: `RouterView` trong `PublicView`/`PrivateView` do route tự chọn; màn `hydrating`
+- [X] T038 [US1] Gắn vào `App.vue`: `RouterView` trong `PublicView`/`PrivateView` do route tự chọn; màn `hydrating`
   (`BoProgressCircular` toàn màn, `aria-busy`), màn lỗi (`unexpected_error`, `unexpected_error_copy`, chi tiết lỗi
   trong `<pre>`, nút `reload_page`); `App.test.ts` (3 trạng thái).
-- [ ] T039 [US1] `apps/web-e2e/src/login.spec.ts` (contracts/e2e §2): đúng/sai mật khẩu; TFA (tạo user có `tfa_secret`
+- [X] T039 [US1] `apps/web-e2e/src/login.spec.ts` (contracts/e2e §2): đúng/sai mật khẩu; TFA (tạo user có `tfa_secret`
   qua API: `POST /users` rồi `POST /users/me/tfa/generate|enable` bằng token user, OTP tính bằng `otplib` thêm vào
   `apps/web-e2e/package.json` từ catalog); `suspended`; không `app_access` (policy không `app_access`) → màn riêng +
   đăng xuất; `?redirect=/settings/project` nội bộ và `?redirect=https://evil.test` bị bỏ; reload giữ phiên; hết hạn:
-  xóa dòng `directus_sessions` qua `db-rows` → request kế → `/login?reason=SESSION_EXPIRED`; đăng xuất → dòng session
+  xóa dòng `directus_sessions` qua `db-rows` → tab ẩn rồi hiện lại → `/login?reason=SESSION_EXPIRED`, tải lại → `/login?redirect=` không lý do (như Directus, FR-001); đăng xuất → dòng session
   mất, `?reason=SIGN_OUT`; `enforce_tfa` role → `/tfa-setup` hoàn tất rồi về route. Chạy ba cấu hình; ghi chú lệch
   nếu có vào "Ghi chú khi làm".
-- [ ] T040 [US1] Kiểm coverage và lint sau US1: `pnpm nx run web:test` đạt ≥ 60% (không hạ ngưỡng); `web:lint` 0 lỗi
+- [X] T040 [US1] Kiểm coverage và lint sau US1: `pnpm nx run web:test` đạt ≥ 60% (không hạ ngưỡng); `web:lint` 0 lỗi
   `no-raw-color`.
 
 **Checkpoint**: Đăng nhập, giữ phiên, đăng xuất chạy với Directus thật và API mới; E2E login xanh ba cấu hình.
@@ -305,11 +305,11 @@ localStorage, `last_page`, 404 private, màn lỗi API.
 
 **Independent Test**: `apps/web-e2e/src/navigation.spec.ts` với admin, user hạn chế; so với Directus app.
 
-- [ ] T041 [P] [US2] `apps/web/src/layout/stores/sidebar.ts`, `nav-bar.ts` (Ported, key `backoffice-sidebar-collapsed`,
-  `backoffice-sidebar-size`, `backoffice-navbar-collapsed`, `backoffice-navbar-size`; `useLocalStorage` bọc try/catch
+- [X] T041 [P] [US2] `apps/web/src/layout/stores/sidebar.ts`, `nav-bar.ts` (Ported, key `backoffice-sidebar-collapsed`,
+  `backoffice-sidebar-size`, `backoffice-nav-bar-collapsed`, `backoffice-nav-bar-size`; `useLocalStorage` bọc try/catch
   khi storage bị chặn → giá trị mặc định trong bộ nhớ), `composables/use-media-query.ts` (`useMediaQuery` của vueuse
   cho `lg`, `xl`); test `layout/stores/sidebar.test.ts`, `nav-bar.test.ts`; manifest `012-T041.json`.
-- [ ] T042 [P] [US2] `apps/web/src/layout/ModuleBar.vue` (logic Ported từ `module-bar.vue`: `module_bar` ??
+- [X] T042 [P] [US2] `apps/web/src/layout/ModuleBar.vue` (logic Ported từ `module-bar.vue`: `module_bar` ??
   `MODULE_BAR_DEFAULT`, lọc `enabled` và `registeredModules`, bỏ mục `type: 'link', id: 'docs'` có
   `url === DIRECTUS_DOCS_URL` (FR-081, D-49), link nội bộ/ngoài (`target=_blank rel=noopener`),
   Settings cuối cho admin; nút `BoButton icon` + `BoTooltip`, `aria-current="page"` + dấu đậm khi active, `nav
@@ -320,23 +320,23 @@ localStorage, `last_page`, 404 private, màn lỗi API.
   id lạ bị bỏ, `docs` mặc định bị ẩn cả khi có trong `module_bar` đã lưu, `docs` đổi `url` vẫn hiện),
   `layout/ModuleBarLogo.test.ts` (gồm ca `project_url` `javascript:` bị bỏ); manifest
   `012-T042.json`.
-- [ ] T043 [P] [US2] `apps/web/src/layout/NavBar.vue` (`aside id="navigation"`, `ProjectName.vue` (tên `project_name`
+- [X] T043 [P] [US2] `apps/web/src/layout/NavBar.vue` (`aside id="navigation"`, `ProjectName.vue` (tên `project_name`
   || `Backoffice`), slot, gập mở, drawer dưới `lg` dùng Reka `Dialog` modal (focus trap,
   Esc đóng, nút đóng có `aria-label`)), `layout/HeaderBar.vue` (nút mở nav dưới `lg` `aria-label open_navigation`, `BoIcon`,
   `h1` tiêu đề, slot actions, nút mở sidebar), `layout/MainContent.vue` (`main id="main-content" tabindex=-1`),
   `layout/Sidebar.vue` (Reka `Collapsible`, `aside aria-label`, slot, nút gập), `layout/ResizeHandle.vue` (kéo đổi
   `size`, bàn phím mũi tên ±16 px, `role=separator aria-orientation=vertical`); test `layout/HeaderBar.test.ts`,
   `layout/Sidebar.test.ts`.
-- [ ] T044 [US2] `apps/web/src/layout/PrivateView.vue` (ghép: `BoSkipMenu`, `ModuleBar`, `NavBar`, `HeaderBar`,
+- [X] T044 [US2] `apps/web/src/layout/PrivateView.vue` (ghép: `BoSkipMenu`, `ModuleBar`, `NavBar`, `HeaderBar`,
   `MainContent`, `Sidebar`; `NoAppAccess` khi `app_access === false`; props `title`, `icon`; slots `navigation`,
   `actions`, `sidebar`; `useHead({ title })`; grid 3 cột ≥ `xl`, sidebar gập ≥ `lg`, drawer < `lg`; không cuộn
   ngang), `modules/ModulePlaceholder.vue` hoàn thiện (icon, tên module, empty state `module_placeholder` với `BoIcon`),
   `routes/PrivateNotFoundRoute.vue` hoàn thiện (trong `PrivateView`, `page_not_found`); test
   `layout/PrivateView.test.ts` (3 breakpoint bằng mock `useMediaQuery`, no app access).
-- [ ] T045 [US2] `apps/web/src/theme/use-app-head.ts` phần tiêu đề (Ported từ `app.vue` `useHead`: `titleTemplate
+- [X] T045 [US2] `apps/web/src/theme/use-app-head.ts` phần tiêu đề (Ported từ `app.vue` `useHead`: `titleTemplate
   '%s · %projectName'`, `projectName` = `project_name` ?? `Backoffice`, `htmlAttrs lang/dir`); gọi ở `App.vue`; test
   `theme/use-app-head.test.ts` (tiêu đề mặc định và có `project_name`). (Favicon, theme-color, style ở US3.)
-- [ ] T046 [US2] `apps/web-e2e/src/navigation.spec.ts`: admin mặc định (thứ tự Content, Users, Files, Insights, Settings
+- [X] T046 [US2] `apps/web-e2e/src/navigation.spec.ts`: admin mặc định (thứ tự Content, Users, Files, Insights, Settings
   cuối; không có link Documentation, D-49; Visual/Deployments vắng; 6 URL; tiêu đề `<Module> · Backoffice`); `module_bar` tùy
   chỉnh qua `PATCH /settings` (khôi phục `null` sau test); user chỉ đọc `directus_files` (role + policy tạo qua API):
   thiếu Users, Insights, Settings; `/admin/users` → 404 private; `/admin/activity` mở; gập nav/sidebar giữ sau reload
@@ -359,20 +359,20 @@ Directus.
 
 **Independent Test**: `apps/web-e2e/src/branding.spec.ts` với settings mặc định và settings đầy đủ.
 
-- [ ] T047 [P] [US3] `apps/web/src/utils/generate-favicon.ts` (Ported từ `generate-favicon.ts`, thay path SVG của
+- [X] T047 [P] [US3] `apps/web/src/utils/generate-favicon.ts` (Ported từ `generate-favicon.ts`, thay path SVG của
   Directus bằng chữ "B" `/* Q-7 tạm */`), test `utils/generate-favicon.test.ts` (data URL thay đổi theo màu và cờ
   `withLogo`); manifest `012-T047.json`.
-- [ ] T048 [US3] `apps/web/src/theme/use-app-head.ts` hoàn thiện (Ported phần còn lại của `app.vue`): `style`
+- [X] T048 [US3] `apps/web/src/theme/use-app-head.ts` hoàn thiện (Ported phần còn lại của `app.vue`): `style`
   `:root { --project-color: <project_color ?? var(--eh-color-action-primary)> }` với `project_color` được lọc
-  (`/^[#a-zA-Z0-9(),.%\s-]+$/`, CHK067: giá trị lạ → bỏ, warn), `meta theme-color`, `msapplication-TileColor`
+  (`CSS.supports('color', value)` theo spec "Làm rõ từ checklist release-gate", CHK067: giá trị lạ → màu primary), `meta theme-color`, `msapplication-TileColor`
   (`project_color` ?? giá trị tính `getComputedStyle(document.documentElement).getPropertyValue('--eh-color-action-primary')`),
   `link icon` ba nấc, `style#custom-css` từ `custom_css` (escape `</style`), `html.class dark|light` (T057 cấp
   `darkMode`); test bổ sung `theme/use-app-head.test.ts` (favicon 3 nấc, theme-color 2 nấc, project_color lạ, custom
   css escape).
-- [ ] T049 [P] [US3] Rà thương hiệu trong mã: `apps/web/src/**` không chứa chuỗi `Directus` ngoài comment `Ported from`
+- [X] T049 [P] [US3] Rà thương hiệu trong mã: `apps/web/src/**` không chứa chuỗi `Directus` ngoài comment `Ported from`
   và `translations/*.json` đã lọc; script `apps/web/scripts/check-brand.mjs` (grep, bỏ qua comment/manifest) chạy
   trong target `lint`; test `scripts/check-brand.test.ts`. `App.vue` không in `DIRECTUS_LOGO` (FR-083).
-- [ ] T050 [US3] `apps/web-e2e/src/branding.spec.ts`: (a) settings mặc định: ở `/login`, `/content`, `/users/me`
+- [X] T050 [US3] `apps/web-e2e/src/branding.spec.ts`: (a) settings mặc định: ở `/login`, `/content`, `/users/me`
   `document.title` và `body.innerText` không chứa `Directus`, favicon href `/admin/favicon.ico`, logo `img[alt]` là
   `Backoffice`; (b) PATCH settings: upload logo + background + favicon qua `POST /files`, `project_name`,
   `project_descriptor`, `project_color='#336699'` (giá trị test), `public_note` markdown có link, `custom_css`
@@ -606,3 +606,27 @@ Directus.
 - T032: `env-up --profiles=app,setup,sso,web` lên trong 1 phút 49 giây (image API dùng lại); smoke và helpers.spec đạt
   ở `proxy-directus`, `proxy-api` (chromium 768, 1280) và `cors` (chromium 1280). Firefox, WebKit chưa chạy local
   (máy chỉ có chromium); chạy ở job CI `e2e-web` (đợt C). Bundle chính 126 KB gzip (R12: ≤ 350 KB).
+
+Đợt B (2026-10-14):
+
+- D-51 (owner chọn): DB do Directus tạo luôn có `project_name = 'Directus'`, `project_color = '#6644FF'` (mặc định
+  cột, API không cho null), nên "DB mới" của US3-1/SC-005 không bao giờ có `project_name` trống; server store coi hai
+  giá trị này là chưa đặt (`withoutDirectusDefaults`), chỉ khi hiển thị. `check-brand.mjs` bỏ qua dòng có
+  `brand-allowed:`.
+- US2-3 sửa: user chỉ đọc `directus_files` có thanh module giống Directus app với cùng user (E2E so trực tiếp); 404
+  kiểm bằng `/admin/insights`.
+- Directus 11 giữ dòng `directus_sessions` cũ (grace period sau refresh) nên E2E kiểm đăng xuất bằng `/auth/refresh`
+  với cookie của trang thay vì đếm dòng.
+- Môi trường parity chạy `CACHE_ENABLED`: `/users/me` (và `last_page`) có thể trả từ cache; E2E xóa cache data
+  (`POST /utils/cache/clear`) trước khi kiểm `last_page`. Directus app cũng chịu hành vi này.
+- Role `enforce_tfa` cần quyền `update` `directus_users.tfa_secret` của chính user, nếu không `POST
+  /users/me/tfa/enable` trả 403 ở cả hai API (fixture `ownTfa`).
+- Dưới `lg` thanh module nằm trong drawer điều hướng như Directus; helper E2E `moduleBar()` mở drawer khi cần.
+- `PublicView` hiện cột phải từ `sm` (576 px) như Directus; `?continue` xử lý ở `ContinueAs` như Directus
+  (`login.vue` không xử lý); `?redirect` ở `/login` đi thẳng `router.push` (FR-013), `useSafeRedirect` chỉ ở
+  `/tfa-setup`. Nút "Sign Out" của màn không có quyền vào app là link `/logout` (Directus: `switch_user`).
+- Thanh module: lọc `enabled` chỉ áp cho module như Directus (link luôn hiện); `module_bar` đã lưu dùng nguyên thứ tự.
+- Menu avatar: hồ sơ + đăng xuất (FR-024), không có hộp xác nhận đăng xuất như Directus; `/users/me` tạm dùng
+  `ModulePlaceholder` tới US6.
+- E2E đợt B chạy local: chromium 768 + 1280 ở `proxy-api`, `proxy-directus`, chromium 1280 ở `cors`: 21/21 đạt mỗi
+  lượt. Firefox, WebKit chạy ở CI (đợt C).

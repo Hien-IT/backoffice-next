@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/routes/login/login.vue", "dest": "apps/web/src/routes/login/LoginRoute.vue" },
+	{ "source": "app/src/composables/use-safe-redirect.ts", "dest": "apps/web/src/composables/use-safe-redirect.ts" }
+]

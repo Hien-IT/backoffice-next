@@ -2,6 +2,8 @@
 	"extends": "../../tsconfig.base.json",
 	"compilerOptions": {
 		"types": ["node"],
+		// page.evaluate() callbacks run in the browser.
+		"lib": ["ES2023", "DOM"],
 		"isolatedDeclarations": false,
 		"declaration": false,
 		"noEmit": true

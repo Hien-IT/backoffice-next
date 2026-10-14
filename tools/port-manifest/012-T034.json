@@ -1,0 +1,7 @@
+[
+	{
+		"source": "app/src/routes/login/components/login-form/login-form.vue",
+		"dest": "apps/web/src/routes/login/LoginForm.vue"
+	},
+	{ "source": "app/src/routes/login/components/continue-as.vue", "dest": "apps/web/src/routes/login/ContinueAs.vue" }
+]

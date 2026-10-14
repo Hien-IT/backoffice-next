@@ -43,7 +43,7 @@ khác trong cùng web container (R13); các cặp đó có `CORS_*` và `SESSION
 
 | File | Kịch bản | Spec |
 |------|----------|------|
-| `login.spec.ts` | local đúng/sai, TFA (user có `tfa_secret` tạo qua API, OTP tính bằng `otplib` trong test), suspended, không app_access, `?redirect=` nội bộ/ngoài, tải lại giữ phiên, hết hạn (xóa dòng `directus_sessions` → tải lại → login với reason), đăng xuất (dòng session mất) | US1 |
+| `login.spec.ts` | local đúng/sai, TFA (user có `tfa_secret` tạo qua API, OTP tính bằng `otplib` trong test), suspended, không app_access, `?redirect=` nội bộ/ngoài, tải lại giữ phiên, hết hạn (xóa dòng `directus_sessions` → tab ẩn/hiện lại → login với reason; tải lại → login không reason), đăng xuất (dòng session mất) | US1 |
 | `navigation.spec.ts` | admin: thanh module mặc định, 6 URL, tiêu đề tab; `module_bar` tùy chỉnh (PATCH `/settings` rồi khôi phục); user chỉ `directus_files`: thiếu Users/Insights/Settings, `/users` → 404 private, `/activity` mở; gập nav/sidebar giữ sau reload; `last_page` ghi và dùng lại; 404; API chết (`page.route` abort `/server/info`) → màn lỗi | US2 |
 | `branding.spec.ts` | settings mặc định: không "Directus" trong `document.body.innerText` và `title` ở login, content, profile; settings đầy đủ (PATCH `/settings` với logo upload, color, note, background, custom_css, favicon): logo, màu nền logo, `theme-color`, favicon href, note, css; ảnh chụp so với Directus app (`tests/directus-app-e2e` chạy cùng settings) chỉ lưu artifact, không chặn | US3 |
 | `sso.spec.ts` | provider select có LDAP; LDAP login (user từ fixture OpenLDAP của 003); OIDC qua IdP giả (trang IdP tự động chấp thuận) về `?continue`; OAuth2 `oauthmock`; `?error&code=` hiện lỗi; INVALID_OTP sau SSO (user OIDC có tfa) | US4 |

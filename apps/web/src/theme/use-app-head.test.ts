@@ -1,0 +1,97 @@
+import { createHead, useHead } from '@unhead/vue';
+import { mount } from '@vue/test-utils';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
+import { defineComponent, nextTick } from 'vue';
+import { createSdk } from '../api/sdk.ts';
+import { useServerStore } from '../stores/server.ts';
+import { safeColor, useAppHead } from './use-app-head.ts';
+
+vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
+
+beforeEach(() => {
+	setActivePinia(createPinia());
+	createSdk('http://api.test/');
+});
+
+async function resolve(project: Record<string, unknown> | null, pageTitle?: string) {
+	useServerStore().info.project = project as never;
+	const head = createHead();
+
+	mount(
+		defineComponent({
+			setup() {
+				useAppHead();
+				if (pageTitle) useHead({ title: pageTitle });
+				return () => null;
+			},
+		}),
+		{ global: { plugins: [head] } },
+	);
+
+	await nextTick();
+	const tags = await head.resolveTags();
+	const find = (tag: string, key: string, value: string) =>
+		tags.find((t) => t.tag === tag && (t.props as Record<string, string>)[key] === value);
+
+	return {
+		title: tags.find((t) => t.tag === 'title')?.textContent,
+		themeColor: (find('meta', 'name', 'theme-color')?.props as Record<string, string> | undefined)?.['content'],
+		icon: (find('link', 'rel', 'icon')?.props as Record<string, string> | undefined)?.['href'],
+		style: tags.find((t) => t.tag === 'style')?.textContent,
+		html: tags.find((t) => t.tag === 'htmlAttrs')?.props,
+	};
+}
+
+describe('useAppHead', () => {
+	test('defaults: Backoffice title, default favicon, design-system primary', async () => {
+		const head = await resolve(null, 'Sign In');
+
+		expect(head.title).toBe('Sign In · Backoffice');
+		expect(head.icon).toBe('/admin/favicon.ico');
+		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
+		expect(head.html).toMatchObject({ lang: 'en-US', dir: 'ltr' });
+	});
+
+	test('project name, color and generated favicon (with the mark when there is no logo)', async () => {
+		const head = await resolve(
+			{ project_name: 'Acme', project_color: '#336699', default_language: 'vi-VN' },
+			'Content',
+		);
+
+		expect(head.title).toBe('Content · Acme');
+		expect(head.themeColor).toBe('#336699');
+		expect(head.style).toBe(':root { --project-color: #336699 }');
+		expect(head.icon).toMatch(/^data:image\/svg\+xml;base64,/);
+		expect(atob(head.icon!.split(',')[1]!)).toContain('<path');
+		expect(head.html).toMatchObject({ lang: 'vi-VN' });
+	});
+
+	test('public_favicon wins; a project logo removes the mark', async () => {
+		expect((await resolve({ project_color: '#336699', public_favicon: 'f1' })).icon).toBe('http://api.test/assets/f1');
+
+		const icon = (await resolve({ project_color: '#336699', project_logo: 'l1' })).icon!;
+		expect(atob(icon.split(',')[1]!)).not.toContain('<path');
+	});
+
+	test('an invalid project_color is ignored', async () => {
+		const head = await resolve({ project_color: 'red; } body { display: none' });
+
+		expect(head.style).toBe(':root { --project-color: var(--eh-color-action-primary) }');
+		expect(head.icon).toBe('/admin/favicon.ico');
+	});
+});
+
+test('safeColor', () => {
+	expect(safeColor(null)).toBeNull();
+	expect(safeColor('')).toBeNull();
+	expect(safeColor('#123')).toBe('#123');
+	expect(safeColor('rgb(1 2 3)')).toBe('rgb(1 2 3)');
+	expect(safeColor('nope;')).toBeNull();
+
+	const supports = vi.fn().mockReturnValue(false);
+	vi.stubGlobal('CSS', { supports });
+	expect(safeColor('notacolor')).toBeNull();
+	expect(supports).toHaveBeenCalledWith('color', 'notacolor');
+	vi.unstubAllGlobals();
+});

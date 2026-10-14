@@ -10,4 +10,7 @@ export default {
 	open_navigation: 'Mở điều hướng',
 	open_sidebar: 'Mở thanh bên',
 	close_sidebar: 'Đóng thanh bên',
+	play_video: 'Phát video nền',
+	profile: 'Hồ sơ',
+	navigation: 'Điều hướng',
 };

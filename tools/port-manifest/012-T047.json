@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/utils/generate-favicon.ts", "dest": "apps/web/src/utils/generate-favicon.ts" },
+	{ "source": "packages/utils/browser/css-var.ts", "dest": "apps/web/src/utils/css-var.ts" }
+]

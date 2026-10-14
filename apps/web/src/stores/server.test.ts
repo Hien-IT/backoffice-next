@@ -26,6 +26,18 @@ describe('hydrate', () => {
 		expect(store.auth.providers).toEqual([{ name: 'ldap', driver: 'ldap' }]);
 	});
 
+	test('the Directus column defaults count as unset (D-51)', async () => {
+		mockApi({
+			'GET /server/info': { project: { project_name: 'Directus', project_color: '#6644FF', project_logo: 'l1' } },
+			'GET /auth': () => json({ data: [], disableDefault: false }),
+		});
+		const store = useServerStore();
+
+		await store.hydrate();
+
+		expect(store.info.project).toEqual({ project_name: null, project_color: null, project_logo: 'l1' });
+	});
+
 	test('a missing project keeps null and does not throw (FR-037)', async () => {
 		mockApi({ 'GET /server/info': {}, 'GET /auth': () => json({ data: [], disableDefault: false }) });
 		const store = useServerStore();

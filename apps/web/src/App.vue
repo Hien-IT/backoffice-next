@@ -1,13 +1,15 @@
 <script setup lang="ts">
-// Shell of directus/app/src/app.vue: hydrating screen, unexpected error screen, routes. Head, theme and branding
-// come with the layout (tasks T039).
+// Shell of directus/app/src/app.vue: head (title, branding, favicon), hydrating screen, unexpected error screen,
+// routes, custom CSS. Each route picks its own view (PublicView or PrivateView), like Directus.
 import { computed } from 'vue';
 import BoButton from './components/BoButton.vue';
 import BoNotice from './components/BoNotice.vue';
 import BoProgressCircular from './components/BoProgressCircular.vue';
 import { useAppStore } from './stores/app.ts';
+import { useAppHead } from './theme/use-app-head.ts';
 
 const appStore = useAppStore();
+const { customCSS } = useAppHead();
 
 const errorMessage = computed(() => {
 	const error = appStore.error as { message?: string; errors?: { message?: string }[] } | null;
@@ -20,7 +22,11 @@ function reload() {
 </script>
 
 <template>
-	<div v-if="appStore.hydrating" class="fixed inset-0 grid place-items-center bg-eh-surface-default">
+	<div
+		v-if="appStore.hydrating"
+		class="fixed inset-0 z-50 grid place-items-center bg-eh-surface-default"
+		aria-busy="true"
+	>
 		<BoProgressCircular indeterminate :aria-label="$t('loading')" />
 	</div>
 
@@ -37,5 +43,8 @@ function reload() {
 		</div>
 	</main>
 
-	<RouterView v-else />
+	<RouterView v-else-if="!appStore.hydrating" />
+
+	<!-- Text content of a <style>: the browser never parses it as markup (like Directus' Teleport). -->
+	<Teleport to="#custom-css">{{ customCSS }}</Teleport>
 </template>

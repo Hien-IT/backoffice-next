@@ -1,0 +1,53 @@
+// FR-030, FR-082 (feature 012): no "Directus" the user could see in apps/web/src. Comments (`Ported from`, notes
+// about Directus behaviour), identifiers such as createDirectus and tests are ignored; translations/*.json are checked by sync-translations.test.ts.
+// Usage: node scripts/check-brand.mjs [srcDir]
+import { readdirSync, readFileSync } from 'node:fs';
+import { join, relative, resolve } from 'node:path';
+import { fileURLToPath, pathToFileURL } from 'node:url';
+
+const keepLines = (comment) => comment.replace(/[^\n]/g, '');
+
+/** Removes block, HTML and line comments, keeping line numbers (a `//` preceded by `:` is a URL, not a comment). */
+export function stripComments(source) {
+	return source
+		.replace(/\/\*[\s\S]*?\*\//g, keepLines)
+		.replace(/<!--[\s\S]*?-->/g, keepLines)
+		.replace(/(^|[^:\\])\/\/.*$/gm, '$1');
+}
+
+function* files(dir) {
+	for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
+		const path = join(dir, entry.name);
+		if (entry.isDirectory()) yield* files(path);
+		else if (/\.(vue|ts|css|html|svg)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) yield path;
+	}
+}
+
+export function checkBrand(srcDir) {
+	const errors = [];
+
+	for (const file of files(srcDir)) {
+		const source = readFileSync(file, 'utf8');
+		const original = source.split('\n');
+
+		stripComments(source)
+			.split('\n')
+			.forEach((line, index) => {
+				// A line that compares API data with a Directus value says so with `brand-allowed: <reason>`.
+				if (original[index]?.includes('brand-allowed:')) return;
+				if (/(?<![A-Za-z])Directus(?![A-Za-z])/.test(line))
+					errors.push(`${relative(srcDir, file)}:${index + 1}: ${line.trim()}`);
+			});
+	}
+
+	return errors;
+}
+
+if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
+	const srcDir = resolve(process.argv[2] ?? join(fileURLToPath(new URL('.', import.meta.url)), '../src'));
+	const errors = checkBrand(srcDir);
+
+	for (const e of errors) process.stderr.write(`${e}\n`);
+	process.stdout.write(`check-brand: ${errors.length} line(s) with "Directus"\n`);
+	process.exit(errors.length ? 1 : 0);
+}

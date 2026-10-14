@@ -1,6 +1,6 @@
 // Ported from directus/app/src/router.ts (routes, router)
 // Backoffice: history base /admin/ (the app is served there, FR-001); route screens are lazy chunks (research R12);
-// screens of later phases are RouteStub until they land; /register is the "not available yet" page (D-44).
+// screens of later phases (setup, password, invite, share) are RouteStub until they land; /register is the "not available yet" page (D-44).
 import { createRouter, createWebHistory, type RouteComponent, type RouteRecordRaw } from 'vue-router';
 import { useServerStore } from '../stores/server.ts';
 import { onAfterEach, onBeforeEach } from './guard.ts';
@@ -40,7 +40,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'login',
 		path: '/login',
-		component: RouteStub,
+		component: () => import('../routes/login/LoginRoute.vue'),
 		props: (route) => ({
 			ssoErrorCode: route.query['error'] ? route.query['code'] : null,
 			logoutReason: route.query['reason'],
@@ -76,7 +76,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'tfa-setup',
 		path: '/tfa-setup',
-		component: RouteStub,
+		component: () => import('../routes/TfaSetupRoute.vue'),
 		meta: {
 			track: false,
 		},
@@ -84,7 +84,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'logout',
 		path: '/logout',
-		component: RouteStub,
+		component: () => import('../routes/LogoutRoute.vue'),
 		meta: {
 			public: true,
 		},
@@ -100,7 +100,7 @@ export const defaultRoutes: RouteRecordRaw[] = [
 	{
 		name: 'private-404',
 		path: '/:_(.+)+',
-		component: RouteStub,
+		component: () => import('../routes/PrivateNotFoundRoute.vue'),
 	},
 ];
 

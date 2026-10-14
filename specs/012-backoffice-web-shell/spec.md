@@ -5,6 +5,7 @@
 **Status**: Draft
 **Duyệt khác biệt**: owner duyệt ngày 2026-10-14 D-39 đến D-49 (D-49: ẩn link Documentation mặc định
 thay cho mục "Cần xác nhận" về URL docs); owner duyệt D-50 và các làm rõ của checklist release-gate ngày
+2026-10-14; owner chọn D-51 (giá trị mặc định Directus của `project_name`, `project_color` coi như trống) ngày
 2026-10-14.
 **Input**: User description: "Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus."
 
@@ -142,8 +143,9 @@ E2E đăng nhập, tải lại, chờ quá hạn access token, đăng xuất; so
    `GET /users/me?fields=id`; **When** sắp hết hạn, **Then** gọi `/auth/refresh` trước mốc 10 giây như Directus;
    tab rảnh thì không tự refresh, hoạt động lại thì refresh.
 5. **Given** phiên bị thu hồi ở server (xóa dòng session, đổi mật khẩu ở nơi khác), **When** app gọi `refresh()` lần
-   kế tiếp (tải lại trang, tab hoạt động lại sau khi rảnh), **Then** app về `/admin/login?reason=SESSION_EXPIRED` và
-   hiện lý do; không gọi `/auth/logout`. Request thường trả `401` không đăng xuất (như `api.ts` 11.17.4, owner chọn
+   kế tiếp khi tab hoạt động lại sau khi rảnh, **Then** app về `/admin/login?reason=SESSION_EXPIRED` và hiện lý do;
+   không gọi `/auth/logout`; khi tải lại trang thì về `/admin/login?redirect=...` không lý do (`firstRefresh`, như
+   Directus). Request thường trả `401` không đăng xuất (như `api.ts` 11.17.4, owner chọn
    2026-10-14).
 6. **Given** đã đăng nhập, **When** bấm đăng xuất ở menu avatar, **Then** app gọi `/auth/logout`, xóa trạng thái, về
    `/admin/login?reason=SIGN_OUT`; `directus_sessions` không còn dòng đó.
@@ -173,8 +175,9 @@ trên thanh, tiêu đề trang, với cùng tài khoản trên Directus app qua 
    Visual và Deployments không hiện (tắt mặc định); bấm từng module đổi URL tương ứng và tiêu đề trang (`<module> · <project>`).
 2. **Given** settings `module_bar` có thứ tự và `enabled` tùy chỉnh (kể cả link nội bộ `/activity` và link ngoài),
    **When** vào app, **Then** thanh module theo đúng cấu hình đó như Directus; link ngoài mở tab mới.
-3. **Given** user không admin, chỉ có quyền đọc `directus_files`, **When** vào app, **Then** thanh module không có
-   Users, Insights, Settings; `/admin/users` gõ tay hiện trang "không tìm thấy" private của app như Directus;
+3. **Given** user không admin, chỉ có quyền đọc `directus_files`, **When** vào app, **Then** thanh module có cùng tập
+   module như Directus app với cùng user (có Files; không có Insights, Settings; Users hiện hay không theo
+   `/permissions/me` như Directus); `/admin/insights` gõ tay hiện trang 404 private của app như Directus;
    `/admin/activity` vẫn mở được (module ẩn khỏi thanh nhưng có route).
 4. **Given** đang ở một module, **When** gập thanh điều hướng hoặc sidebar, tải lại trang, **Then** trạng thái gập
    mở được giữ như Directus (localStorage với tiền tố `backoffice-`); bề rộng từ 768 px trở lên hiện đủ ba cột,
@@ -201,7 +204,7 @@ nhập, favicon, chuỗi dịch, tên mặc định khi `project_name` trống �
 
 **Acceptance Scenarios**:
 
-1. **Given** `project_name` trống, **When** mở trang đăng nhập và trang trong app, **Then** tiêu đề tab là
+1. **Given** `project_name` trống hoặc là giá trị mặc định `Directus` của DB (D-51), **When** mở trang đăng nhập và trang trong app, **Then** tiêu đề tab là
    `Sign in · Backoffice`/`Content · Backoffice`, tên dự án hiện `Backoffice`, logo Backoffice (sáng/tối theo theme),
    favicon Backoffice; `otpauth_url` ở `/tfa-setup` có issuer `Backoffice` (API 003, D-25).
 2. **Given** settings có `project_name`, `project_descriptor`, `project_logo`, `project_color`, **When** mở trang đăng
@@ -613,6 +616,7 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system `--eh-*` | Nguyên tắc XII | khác | — |
 | D-48 | Trang hồ sơ `/users/me` | Form đầy đủ theo metadata field của `directus_users` | Form cố định với field ở FR-060 | Form theo metadata thuộc feature Users | ngoài phạm vi (tạm thời) | 015 |
 | D-49 | Link Documentation mặc định trên thanh module (`docs` → `https://docs.directus.io`) | Hiện (mặc định và khi `module_bar` đã lưu có mục này) | Ẩn ở cả hai trường hợp; mục `docs` đã đổi `url` và link khác vẫn hiện; không sửa dữ liệu `module_bar` (FR-081) | Nguyên tắc IX: không dẫn người dùng Backoffice tới tài liệu Directus; owner chọn 2026-10-14 | đổi thương hiệu | — |
+| D-51 | `project_name = 'Directus'`, `project_color = '#6644FF'` (giá trị mặc định cột mà Directus ghi vào mọi DB; API không cho đặt null) | Hiện "Directus", màu tím | Coi là chưa đặt khi hiển thị: tên `Backoffice`, màu primary design-system; không ghi DB; giá trị khác admin đặt vẫn dùng | Nguyên tắc IX; SC-005 với DB do Directus tạo; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-50 | Video `public_background` khi trình duyệt bật `prefers-reduced-motion: reduce` | `autoplay muted loop` luôn | Không autoplay (hiện khung đầu, có nút phát); không reduce thì như Directus | WCAG 2.2.2 (mức A) mà FR-067 yêu cầu; owner chọn 2026-10-14 | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
@@ -766,9 +770,9 @@ Mỗi dòng đóng một mục `checklists/release-gate.md`. "Như Directus" là
   không cần hướng dẫn trong dưới 1 phút (kiểm tra với 5 người dùng nội bộ, 5/5 đạt). Làm sau khi CI xanh, không chặn
   đóng feature (Clarifications).
 - **SC-004**: Để app mở 3 lần thời gian sống của access token (mặc định `ACCESS_TOKEN_TTL` 15 phút) mà không phải
-  đăng nhập lại; thu hồi phiên ở server thì về trang đăng nhập với lý do ở lần `refresh()` kế tiếp (tải lại trang hoặc
-  tab hoạt động lại, FR-001).
-- **SC-005**: Với DB mới (settings mặc định), DOM của mọi trang trong E2E không chứa chuỗi "Directus" (0 lần); với
+  đăng nhập lại; thu hồi phiên ở server thì về trang đăng nhập với lý do ở lần `refresh()` kế tiếp (tab hoạt động lại có lý
+  do; tải lại trang thì không có lý do như Directus, FR-001).
+- **SC-005**: Với DB mới (settings mặc định của Directus, D-51), DOM của mọi trang trong E2E không chứa chuỗi "Directus" (0 lần); với
   settings đã đặt branding, logo, tên, mô tả, màu, favicon, nền, ghi chú, `custom_css` đều áp đúng, kiểm bằng khẳng
   định trên DOM (nguồn ảnh, màu nền logo, `theme-color`, favicon, ghi chú đã khử HTML, CSS có hiệu lực). Ảnh chụp
   so với Directus app chỉ lưu làm tài liệu tham khảo, không phải cổng (Clarifications).

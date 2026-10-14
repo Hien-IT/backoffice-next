@@ -53,6 +53,21 @@ export type Auth = {
 };
 
 type ServerInfoResponse = Partial<Info> & Record<string, unknown>;
+
+/**
+ * Backoffice (D-51): the column defaults Directus writes in every database (its project name and purple project
+ * color) count as unset, so the app shows Backoffice and the design-system primary until an admin sets its own
+ * values. Display only: nothing is written back.
+ */
+export function withoutDirectusDefaults(project: Info['project']): Info['project'] {
+	if (!project) return project;
+
+	return {
+		...project,
+		project_name: project.project_name === 'Directus' ? null : project.project_name, // brand-allowed: D-51 data
+		project_color: project.project_color?.toLowerCase() === '#6644ff' ? null : project.project_color, // raw-color-allowed: D-51 data
+	};
+}
 type AuthResponse = { data: AuthProvider[]; disableDefault: boolean };
 
 export const useServerStore = defineStore('serverStore', () => {
@@ -96,7 +111,7 @@ export const useServerStore = defineStore('serverStore', () => {
 			}),
 		]);
 
-		info.project = serverInfo?.project ?? null;
+		info.project = withoutDirectusDefaults(serverInfo?.project ?? null);
 		info.setupCompleted = serverInfo?.setupCompleted ?? false;
 		info.queryLimit = serverInfo?.queryLimit;
 		info.websocket = serverInfo?.websocket;

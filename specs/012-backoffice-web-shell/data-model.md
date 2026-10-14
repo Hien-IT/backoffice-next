@@ -58,7 +58,7 @@ Giữ mảng kết quả `GET /collections`, `/fields`, `/relations`, `/presets?
 ### `sidebarStore`, `navBarStore` (`layout/stores/`)
 
 `collapsed` (localStorage `backoffice-sidebar-collapsed`), `size` (`backoffice-sidebar-size`, mặc định 333),
-`navbarCollapsed`/`navbarSize` tương tự (`backoffice-navbar-*`).
+`collapsed`/`size` của nav tương tự (`backoffice-nav-bar-*`).
 
 ## 2. Thực thể miền
 
@@ -131,7 +131,7 @@ Chỉ field đã đổi được gửi (diff với `currentUser`). Lỗi `FAILED
 |-----|---------|--------------------|
 | `backoffice-require_tfa_setup` | id user | `directus-require_tfa_setup` |
 | `backoffice-sidebar-collapsed`, `backoffice-sidebar-size` | boolean, number | `sidebar-collapsed`, `sidebar-size` |
-| `backoffice-navbar-collapsed`, `backoffice-navbar-size` | boolean, number | nav-bar store |
+| `backoffice-nav-bar-collapsed`, `backoffice-nav-bar-size` | boolean, number | nav-bar store |
 | `backoffice-sso-provider` | tên provider | localStorage trong `sso-links.vue` |
 | `sso_otp_attempted` (sessionStorage) | `'1'` | giữ nguyên tên (Cần xác nhận) |
 

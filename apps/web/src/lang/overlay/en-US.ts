@@ -10,4 +10,7 @@ export default {
 	open_navigation: 'Open navigation',
 	open_sidebar: 'Open sidebar',
 	close_sidebar: 'Close sidebar',
+	play_video: 'Play background video',
+	profile: 'Profile',
+	navigation: 'Navigation',
 };

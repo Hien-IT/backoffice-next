@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/views/private/components/module-bar.vue", "dest": "apps/web/src/layout/ModuleBar.vue" },
+	{ "source": "app/src/views/private/components/module-bar-logo.vue", "dest": "apps/web/src/layout/ModuleBarLogo.vue" },
+	{
+		"source": "app/src/views/private/components/module-bar-avatar.vue",
+		"dest": "apps/web/src/layout/ModuleBarAvatar.vue"
+	}
+]

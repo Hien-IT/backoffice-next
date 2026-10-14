@@ -19,7 +19,7 @@ export function defineModule(config: ModuleConfig): ModuleConfig {
 
 /** Module routes of feature 012: the module root and every sub path show the module frame (FR-023, D-40). */
 export function placeholderRoutes(id: string): RouteRecordRaw[] {
-	const component = () => import('../routes/RouteStub.vue');
+	const component = () => import('./ModulePlaceholder.vue');
 
 	return [
 		{ name: `${id}-root`, path: '', component, meta: { module: id } },
