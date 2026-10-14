@@ -8,6 +8,17 @@ Rules:
 - Read graphify-out/GRAPH_REPORT.md only for broad architecture review or when query/path/explain do not surface enough context.
 - After modifying code, run `graphify update .` to keep the graph current (AST-only, no API cost).
 
+## Design system (FE)
+
+Constitution principle XII. `design-system/` is the visual source of truth for `apps/web`. Before any FE spec, plan or component work, read `design-system/README.md`, `docs/component-specs.md` and `qa/handoff-checklist.md`.
+
+- Colors, spacing, radius, font and shadow come from `design-system/tokens/tokens.css` (`--eh-*`). No raw hex or Tailwind palette colors (`gray-100`, `sky-50`, ...) in components.
+- The pack is written for Tailwind v3 (`tailwind.config.js`, `@tailwind`); `apps/web` uses Tailwind 4, so map the tokens in CSS with `@theme` (keep the `eh-*` utility names) instead of copying the v3 config.
+- Follow the tiers and conventions in `docs/component-specs.md`: Reka UI primitives, `<script setup lang="ts">`, `modelValue`/`update:modelValue`, focus-visible/disabled/invalid/loading/empty states, keyboard access, labels and errors linked.
+- Tokens are defaults; settings branding layers on top as in Directus (`directus/app/src/app.vue`): `project_color` only drives `--project-color` (logo, public/share pages, favicon, meta theme-color), not the app primary; `theme_light_overrides`/`theme_dark_overrides` override the matching tokens.
+- `components/*.vue` are examples, not final code: check Reka UI exports against the installed version.
+- Open decisions in `docs/migration-guide.md` (primary `#1890FF` vs `#FF5F52`, font family and type scale, status color meaning, radius/control height) are not approved yet: do not pick one silently, list it as an open question in the spec.
+
 ## Active Technologies
 - TypeScript 5.9.3 (strict flags of @directus/tsconfig 4.0.0), Node.js 22 LTS, ESM, pnpm 10.27, Nx 23; API: NestJS 12 (Express 5) + Knex 3.1, ioredis, pino, prom-client; Web: Vue 3.5 + Pinia + Vue Router (Reka UI + Tailwind CSS 4 from feature 012); tests: Vitest 3.2.4, Playwright, autocannon (001-platform-foundation)
 - Shared DB with Directus 11.17.4 (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB), read-only in 001; shared Redis and storage (local, S3) (001-platform-foundation)

@@ -1,4 +1,23 @@
 <!--
+Sync Impact Report (1.5.0, 2026-10-14)
+- Version change: 1.4.0 → 1.5.0
+- Added principles: XII. Giao diện theo design-system. `design-system/` (E-Hiring Design System: token
+  `--eh-*`, quy ước component Vue 3 + Reka UI) là nguồn chuẩn phần nhìn của `apps/web`; luồng và hành vi
+  vẫn theo Directus app (VI). Bộ này viết cho Tailwind v3 nên token phải khai báo lại bằng `@theme` của
+  Tailwind 4. Quyết định chưa duyệt trong `docs/migration-guide.md` phải ghi thành câu hỏi mở. Chủ dự án
+  yêu cầu trước khi làm các feature FE (012 trở đi). Đặt số XII để không đổi số mục XI đang được các
+  spec 001–011 tham chiếu; mục XII nằm trong Core Principles, ngay sau X. Branding trong settings áp
+  lên token như Directus (`project_color` chỉ cho logo, trang public/share, favicon; theme overrides đè
+  token): chủ dự án chọn ngày 2026-10-14, không tạo khác biệt với Directus.
+- Modified sections: "Quy trình phát triển và cổng kiểm tra": Constitution Check gồm XII cho feature có
+  FE; Reviewer từ chối component dùng hex thô hay màu palette Tailwind. MINOR: thêm nguyên tắc mới.
+- Templates: ✅ .specify/templates/plan-template.md (dòng XII, v1.5.0); ✅ SPECKIT-GUIDE.md (prompt nguồn
+  của constitution, mục XII); ✅ CLAUDE.md (mục Design system (FE)); ✅ spec, tasks, checklist template
+  không cần sửa (câu hỏi mở đi vào phần clarification sẵn có của spec).
+- Deferred TODOs: thư mục `design-system/` chưa được commit; phải commit cùng thay đổi này để
+  nguyên tắc XII trỏ đúng file trên mọi máy và CI. Chủ dự án yêu cầu ngày 2026-10-14 (quy trình không
+  có PR).
+
 Sync Impact Report (1.4.0, 2026-10-12)
 - Version change: 1.3.0 → 1.4.0
 - Modified principles: II. Dùng chung database với Directus: câu "KHÔNG ĐƯỢC tạo, sửa, xóa bảng hay cột hệ
@@ -244,6 +263,34 @@ Lý do: thương hiệu chỉ là lớp hiển thị. Định danh kỹ thuật 
 
 Lý do: ngưỡng đo được giúp quyết định merge khách quan, không dựa vào cảm nhận.
 
+### XII. Giao diện theo design-system
+
+- `design-system/` là nguồn chuẩn về giao diện của `apps/web`. Luồng màn hình, route và hành vi vẫn
+  theo Directus app (Nguyên tắc VI); design-system chỉ quyết định phần nhìn.
+- Spec, plan và component FE PHẢI đọc trước `design-system/README.md`,
+  `design-system/docs/component-specs.md` và `design-system/qa/handoff-checklist.md`.
+- Màu, spacing, radius, font, cỡ chữ, shadow PHẢI lấy từ token `--eh-*` trong
+  `design-system/tokens/tokens.css`. KHÔNG dùng mã hex thô, KHÔNG dùng màu palette có sẵn của
+  Tailwind (`gray-100`, `sky-50`...) trong component.
+- Bộ design-system viết cho Tailwind v3; `apps/web` dùng Tailwind 4. Token PHẢI khai báo bằng
+  `@theme` trong CSS, giữ tên utility `eh-*`. KHÔNG chép `design-system/tailwind.config.js`.
+- Component PHẢI theo quy ước của `docs/component-specs.md`: primitive Reka UI,
+  `<script setup lang="ts">`, `modelValue`/`update:modelValue` cho component form, đủ state
+  (focus-visible, disabled, invalid, loading, empty), dùng được bằng bàn phím, label và lỗi liên kết
+  với control. Không truyền đạt trạng thái chỉ bằng màu.
+- Token design-system là giá trị mặc định. Branding trong settings PHẢI áp lên trên như Directus:
+  `project_color` cho nền logo, trang public (đăng nhập), trang share, favicon và meta `theme-color`
+  (KHÔNG đổi màu primary của app); `theme_light_overrides`/`theme_dark_overrides` đè token tương
+  ứng.
+- `design-system/components/*.vue` chỉ là ví dụ, KHÔNG phải code chuẩn. Export của Reka UI PHẢI
+  kiểm tra theo bản đã cài.
+- Các quyết định chưa duyệt trong `docs/migration-guide.md` (màu primary `#1890FF` hay `#FF5F52`,
+  font và thang chữ, nghĩa của màu trạng thái, thang radius và chiều cao control) cùng mọi chỗ
+  design-system chưa có token (ví dụ theme tối) PHẢI ghi thành câu hỏi mở trong spec. KHÔNG tự chọn.
+
+Lý do: một bộ token và quy ước chung giúp các module FE nhìn đồng nhất và đổi theme ở một chỗ. Bộ
+design-system vẫn là bản đề xuất, nên chỗ chưa duyệt phải hỏi thay vì đoán.
+
 ## XI. Ngoài phạm vi giai đoạn này
 
 - SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP).
@@ -261,7 +308,7 @@ này PHẢI giống Directus khi tính năng đó tắt.
 ## Quy trình phát triển và cổng kiểm tra
 
 - `/speckit.plan` PHẢI điền mục "Constitution Check" với từng nguyên tắc I–XI (đạt / vi phạm có lý
-  do). Kiểm tra lại sau Phase 1.
+  do), gồm cả XII cho feature có FE. Kiểm tra lại sau Phase 1.
 - `spec.md` PHẢI có mục "Khác biệt so với Directus", gồm cả khác biệt do đổi thương hiệu (IX) và
   danh sách tên cần xác nhận.
 - `tasks.md` PHẢI có task test đối chiếu cho mỗi endpoint thêm hoặc sửa (V), và test cho mỗi thay
@@ -269,7 +316,8 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Reviewer PHẢI từ chối PR khi: có file trong `directus/` bị đổi; có ghi vào bảng hoặc cột hệ thống
   `directus_*` ngoài luồng API của Directus; có lock hoặc state quan trọng trong bộ nhớ process, hoặc
   cache trong process không dựng lại được từ DB/Redis hay không bị xóa qua bus Redis (Nguyên tắc VII);
-  có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X.
+  có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X; component
+  FE dùng mã hex thô hay màu palette Tailwind thay cho token `--eh-*` (Nguyên tắc XII).
 
 ## Governance
 
@@ -285,4 +333,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 1.4.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-12
+**Version**: 1.5.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-14

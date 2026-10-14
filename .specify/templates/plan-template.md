@@ -31,7 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v1.4.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v1.5.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
@@ -47,6 +47,10 @@ a row in Complexity Tracking.
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
 - [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
 - [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, extensions, AI/MCP...)
+- [ ] XII. (FE only) Read `design-system/` docs; `--eh-*` tokens via Tailwind 4 `@theme`, no raw hex or Tailwind
+  palette colors; component-specs conventions (Reka UI, states, keyboard, linked labels); unapproved
+  design decisions listed as open questions in the spec; settings branding (project_color, theme overrides)
+  layered on tokens as in Directus
 
 ## Project Structure
 

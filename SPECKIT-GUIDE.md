@@ -17,7 +17,7 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
 | Auth | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token. |
 | Cache | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay. |
 | Flows | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy. |
-| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. |
+| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn theo **`design-system/`** (token `--eh-*`, constitution XII từ 1.5.0). |
 | Extensions | **Chưa làm** trong giai đoạn này. |
 | Biến môi trường | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy. |
 | Ngôn ngữ | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**. |
@@ -172,6 +172,16 @@ X. Chất lượng, quy trình và vận hành
 - Không gửi email: mọi chỗ Directus gửi mail (quên mật khẩu, mời user, operation Send Email, email thông báo) vẫn chạy đúng luồng và trả về như Directus, chỉ bỏ qua bước gửi và ghi log cảnh báo.
 - Mọi khác biệt so với Directus phải ghi trong spec, nêu lý do, và được tech lead duyệt trong PR.
 
+XII. Giao diện theo design-system
+- design-system/ là nguồn chuẩn phần nhìn của apps/web. Luồng màn hình, route và hành vi vẫn theo Directus app (VI).
+- Spec, plan và component FE phải đọc trước design-system/README.md, docs/component-specs.md, qa/handoff-checklist.md.
+- Màu, spacing, radius, font, cỡ chữ, shadow chỉ lấy từ token --eh-* trong design-system/tokens/tokens.css. Không dùng mã hex thô, không dùng màu palette có sẵn của Tailwind.
+- Bộ design-system viết cho Tailwind v3; apps/web dùng Tailwind 4: khai báo token bằng @theme, giữ tên utility eh-*, không chép tailwind.config.js.
+- Component theo quy ước của docs/component-specs.md: Reka UI, script setup TS, modelValue/update:modelValue, đủ state, dùng được bằng bàn phím, label và lỗi liên kết với control.
+- Token design-system là giá trị mặc định. Branding trong settings áp lên trên như Directus: project_color cho nền logo, trang public (đăng nhập), trang share, favicon và meta theme-color (không đổi màu primary của app); theme_light_overrides/theme_dark_overrides đè token tương ứng.
+- design-system/components/*.vue chỉ là ví dụ. Kiểm tra export Reka UI theo bản đã cài.
+- Quyết định chưa duyệt trong docs/migration-guide.md (primary #1890FF hay #FF5F52, font, màu trạng thái, radius/chiều cao control) và chỗ chưa có token (ví dụ theme tối) phải ghi thành câu hỏi mở trong spec, không tự chọn.
+
 XI. Ngoài phạm vi giai đoạn này
 - SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP). Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3). Gửi email.
 - Realtime WebSocket: /websocket, GraphQL subscription, collaborative editing, system logs realtime. /server/info trả websocket: false, giống Directus khi WEBSOCKETS_ENABLED=false. App web ẩn các tính năng này như Directus app.
@@ -286,7 +296,7 @@ dialect helper) và kiểm query đã port đủ ở feature 004. Feature này c
 ### 012: Khung app web và đăng nhập
 
 ```text
-/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Tham chiếu directus/app/src (router, auth, stores, views). Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
 ```
 
 ### 013: Bộ interfaces và displays
@@ -344,7 +354,7 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 **FE (012–018):**
 ```text
-/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style riêng của Backoffice; màu và theme qua CSS variable để áp project_color, theme sáng/tối trong settings), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style theo design-system/: token --eh-* trong design-system/tokens/tokens.css khai báo bằng @theme, giữ tên utility eh-*, không chép tailwind.config.js v3, không dùng hex thô hay màu palette Tailwind; component theo design-system/docs/component-specs.md; token là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè token tương ứng), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
 ```
 
 ---
@@ -396,6 +406,7 @@ Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó,
 ## 9. Mẹo khi chạy
 
 - **Chạy `/speckit.clarify` cho feature 003, 004, 005, 009.** Đây là những phần dễ hiểu sai nhất.
+- **Chạy `/speckit.clarify` cho feature 012** để chốt các câu hỏi mở của design-system (constitution XII) trước khi dựng token và theme; các feature FE sau dùng lại kết quả này.
 - **Chạy `/speckit.analyze` trước `/speckit.implement`** để bắt lỗi spec, plan, tasks không khớp nhau.
 - **Feature lớn (004, 013, 014) nên chia lượt** nếu tasks.md quá dài (trên khoảng 60 task), như 004 chia hai lượt implement, mỗi lượt commit và đối chiếu xanh.
 - **Theo dõi tiến độ:** `/speckit.status` cho biết feature hiện tại đang ở bước nào.
