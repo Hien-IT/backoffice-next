@@ -25,7 +25,10 @@ export class BusRedis implements Bus {
 	constructor(config: Omit<BusConfigRedis, 'type'>) {
 		this.namespace = config.namespace;
 		this.pub = config.redis;
-		this.sub = config.redis.duplicate();
+		// Backoffice: no ready check on the subscriber. While Redis is still LOADING at startup, ioredis repeats the INFO
+		// ready check but already writes SUBSCRIBE (a `loading` command); the socket is then in subscriber mode, the next
+		// INFO fails ("only (P|S)SUBSCRIBE ... allowed") and the bus stays deaf (seen on CI, 2026-10-14).
+		this.sub = config.redis.duplicate({ enableReadyCheck: false });
 		this.sub.on('messageBuffer', (channel, message) => this.messageBufferHandler(channel, message));
 		this.compression = config.compression ?? true;
 		this.compressionMinSize = config.compressionMinSize ?? 1000;

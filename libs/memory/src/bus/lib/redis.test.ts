@@ -71,6 +71,10 @@ afterEach(() => {
 });
 
 describe('constructor', () => {
+	test('Backoffice: the subscriber connection skips the ready check (INFO is refused in subscriber mode)', () => {
+		expect(mockRedis.duplicate).toHaveBeenCalledWith({ enableReadyCheck: false });
+	});
+
 	test('Sets internal flags based on config', () => {
 		expect(bus['pub']).toBe(mockRedis);
 		expect(bus['sub']).toBe(mockSubRedis);
