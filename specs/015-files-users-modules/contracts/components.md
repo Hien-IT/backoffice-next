@@ -16,7 +16,7 @@ chép có header `// Ported from directus/app/src/...` và manifest `tools/port-
 | `modules/files/components/DeleteFolderDialog.vue` | `components/delete-folder-dialog.vue` | `modelValue`, `folders`, `allFolders` | `done` | radio `BoRadio` |
 | `modules/files/components/FolderSection.vue` | `components/folder-section.vue` | `subfolders`, `anySelection?`, v-model `selection` | | `Card` của 014 |
 | `modules/files/components/FileInfoSidebarDetail.vue` | `components/file-info-sidebar-detail.vue` | `file`, `isNew` | | `SidebarDetail` 014 |
-| `components/files/FilesNavigation.vue` | `views/private/components/files-navigation.vue` | `rootFolder?`, `currentFolder?`, `currentSpecial?`, `customTargetHandler?`, `localOpenFolders?`, `actionsDisabled?` | | slot `navigation` |
+| `components/files/FilesNavigation.vue` | `views/private/components/files-navigation.vue` | `rootFolder?`, `currentFolder?`, `currentSpecial?`, `customTargetHandler?`, `localOpenFolders?`, `actionsDisabled?` | | slot `navigation`; cũng dùng trong `DrawerFiles` 013 nếu drawer chưa có cây (T002, CHK075) |
 | `components/files/FilesNavigationFolder.vue` | `files-navigation-folder.vue` | `folder`, `currentFolder?`, `actionsDisabled?`, `clickHandler?` | | menu đổi tên/chuyển/tải/xóa |
 | `components/files/FolderPicker.vue`, `FolderPickerListItem.vue` | `folder-picker.vue`, `FolderPickerListItem.vue` | `modelValue: string\|null`, `disabledFolders?` | `update:modelValue` | |
 | `components/files/FilePreviewReplace.vue` | `file-preview-replace.vue` | props của `FilePreview` + `disabled?` | `click`, `replace` | |
@@ -37,7 +37,7 @@ chép có header `// Ported from directus/app/src/...` và manifest `tools/port-
 | `modules/users.ts` | `modules/users/index.ts` | route data-model §1 | | `/users/me` redirect (D-86) |
 | `modules/users/routes/UsersCollectionRoute.vue` | `routes/collection.vue` | `role?`, `status?` | | |
 | `modules/users/routes/UserItemRoute.vue` | `routes/item.vue` | `primaryKey`, `role?` | | `provide('discardAllChanges' \| 'refresh')` |
-| `modules/users/routes/UsersNotFound.vue` | — | | | như Files |
+| `modules/users/routes/UsersNotFound.vue` | — | | | dùng `ContentNotFound` 014 với prop module (Directus users không có route riêng, CHK057) |
 | `modules/users/components/UsersNavigation.vue`, `NavigationRole.vue` | `components/navigation.vue`, `NavigationRole.vue` | `currentRole?`; `role`, `currentRole?` | `click({role})` | menu "sửa role" (admin) |
 | `modules/users/components/UserInfoSidebarDetail.vue` | `components/user-info-sidebar-detail.vue` | `user`, `isNew?` | | |
 | `modules/users/components/UsersInvite.vue` | `views/private/components/users-invite.vue` | `modelValue`, `role?` | `update:modelValue` | dòng D-83 |

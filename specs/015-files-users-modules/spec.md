@@ -203,8 +203,8 @@ request `/users` (bộ lọc hệ thống `status`, `role`), dòng `directus_pre
 3. **Given** quyền tạo `directus_users` và đọc `directus_roles`, `auth.disableDefault` tắt, **When** bấm "mời", **Then**
    hộp `invite_users`: ô nhiều dòng email (phân tách bằng dấu phẩy hoặc xuống dòng), chọn role (`GET /roles`
    `fields=id,name` `sort=name`, mặc định role đầu; ẩn khi đi từ route role), nút "invite" khóa khi trống; gửi
-   `POST /users/invite` `{ email: [...], role }`; thành công thì đóng và nạp lại danh sách, kèm dòng hướng dẫn "hệ thống
-   không gửi email, liên hệ quản trị viên để nhận link" (D-83); lỗi `RECORD_NOT_UNIQUE` hiện tại chỗ
+   `POST /users/invite` `{ email: [...], role }`; thành công thì đóng hộp, nạp lại danh sách, rồi notice ở page header
+   "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (D-83, thứ tự: đóng → nạp lại → notice); lỗi `RECORD_NOT_UNIQUE` hiện tại chỗ
    (`email_already_invited` với email, hoặc `validationError.unique`), lỗi khác qua hộp lỗi; `auth.disableDefault` bật
    hoặc thiếu quyền thì không có nút mời.
 4. **Given** nút "+" (khóa khi không có quyền tạo), **When** bấm ở `/users/roles/:id`, **Then** tới
@@ -383,6 +383,24 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - Màn hẹp 768 px: panel là drawer (L-4); drawer chỉnh ảnh chiếm toàn màn; sub-menu cây thư mục cuộn trong sidebar.
 - Phiên hết hạn giữa chừng (401 khi tải lên nhiều file): các file còn lại lỗi, về đăng nhập như 012.
 
+- Quyền đọc file một phần (bộ lọc theo `uploaded_by`): thư mục con vẫn hiện (cây từ `/folders` riêng), `mine` và
+  `all` hiện cùng tập theo bộ lọc quyền của API (CHK068).
+- Ở cấu hình khác origin: `<a download>` tới `/assets/:id` khác origin bị trình duyệt bỏ `download` và mở tab mới như
+  Directus; zip tải bằng `fetch` với `credentials: include` qua `apiFetch` (CHK069).
+- Mở `/files/:id` của file bị xóa sau khi mở: thao tác tiếp theo 404 → nạp lại → màn không tìm thấy (CHK070).
+- Đổi role của chính mình thành role không có `app_access` rồi lưu: hydrate thất bại → màn không có quyền của 012
+  (CHK071).
+- Thư mục cùng tên cùng cấp: cây và picker hiện cả hai, phân biệt bằng id, không xử lý thêm (CHK076).
+- Phiên hết hạn giữa TUS (401 ở chunk): `onError` → hộp lỗi và về đăng nhập như 012; fingerprint giữ nên chọn lại file
+  sau đăng nhập thì tiếp tục (CHK079).
+- Ảnh gốc bị thay ở tab khác khi drawer chỉnh ảnh đang mở: lưu đè kết quả cũ, không khóa, như Directus (CHK080).
+- Xóa hàng loạt user đang đăng nhập ở nơi khác: API xóa session, app không xử lý thêm (CHK081).
+- `GET /folders` nhiều trang: skeleton tới khi `fetchAll` xong; một trang lỗi → `unexpectedError`, cây rỗng (CHK083).
+- Tải thư mục rỗng vẫn nhận zip; API từ chối (4xx) → hộp lỗi với body JSON (CHK012).
+- Ảnh có `type` ảnh nhưng trình duyệt không giải mã (HEIC, TIFF): `img` lỗi → notice lỗi trong drawer, nút lưu khóa
+  (CHK017).
+- Avatar trỏ file đã xóa → icon mặc định; `role` trỏ role đã xóa → `role` null → chip ẩn (CHK021).
+
 ### Truy vết user story và requirement
 
 | Story | Acceptance scenario | FR | SC |
@@ -392,7 +410,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 | US3 | 1–6 | FR-050 đến FR-055, FR-060 đến FR-066 | SC-001, SC-002, SC-004 |
 | US4 | 1–7 | FR-070 đến FR-079, FR-080 đến FR-086 | SC-001, SC-004, SC-005 |
 | US5 | 1–5 | FR-040 đến FR-046 | SC-001, SC-004, SC-006 |
-| US6 | 1–4 | FR-090, FR-100 đến FR-103 | SC-001, SC-002, SC-004 |
+| US6 | 1–4 | FR-100 đến FR-103 (FR-090 là phạm vi, không có kịch bản) | SC-001, SC-002, SC-004 |
 | US7 | 1–3 | FR-110 đến FR-125 | SC-002 đến SC-010 |
 
 ## Requirements *(mandatory)*
@@ -405,7 +423,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `/files` (`files-collection`, con `+` = `add-file` là hộp thoại nổi trên danh sách), `/files/:primaryKey`
   (`files-item`), `/files/folders` → `/files`, `/files/folders/:folder` (`folders-collection`, con `+` =
   `add-file-folder`), `/files/all`, `/files/mine`, `/files/recent` (prop `special`); route không khớp → màn không tìm
-  thấy trong module với sub-menu; `preRegisterCheck` giữ của 012.
+  thấy trong module với sub-menu (`ContentNotFound` của 014 với prop module, CHK047); `preRegisterCheck` giữ của 012.
 - **FR-002**: `checkForSystem` của 014 và `accessibleSystemCollections` giữ nguyên: `/content/directus_files` và item
   của nó chuyển tới `/files` và `/files/:id`, nay là màn thật (D-72 gỡ phần Files).
 - **FR-003**: Sub-menu của module Files ở sidebar PHẢI là cây thư mục như `files-navigation.vue` (ngoại lệ L-3 mở rộng
@@ -414,7 +432,9 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   đang xem và các cha tự mở, trạng thái mở dùng chung toàn app (`useFolders.openFolders`, giá trị đầu `['root']`),
   vạch chia, ba mục "All files" (`file_copy`), "My files" (`folder_shared`), "Recent files" (`history`) active theo
   `special`; skeleton 4 dòng khi đang nạp lần đầu; bàn phím như FR-004b của 014 (tree, mũi tên, Enter).
-- **FR-004**: Mỗi thư mục trong cây PHẢI có menu chuột phải và nút tương đương bàn phím (ẩn khi `actionsDisabled`) với
+- **FR-004**: Mỗi thư mục trong cây PHẢI có menu chuột phải và nút tương đương bàn phím (ẩn khi `actionsDisabled`, chỉ
+  dùng ở drawer chọn file; menu không kiểm quyền thư mục trước, hành động bị API từ chối thì hộp lỗi như Directus,
+  CHK010; tải thư mục chỉ có ở menu này, không gộp với nút tải về của page header, CHK100) với
   bốn mục như `files-navigation-folder.vue`: đổi tên (hộp với ô tên, `PATCH /folders/:id` `name`, nạp lại cây), chuyển
   (hộp với `FolderPicker` khóa chính nó, `PATCH /folders/:id` `parent`), tải thư mục (`POST /assets/folder/:id` với
   `download`, lưu blob theo `Content-Disposition`), xóa (`DeleteFolderDialog`, FR-016; xóa xong `router.replace` tới
@@ -423,16 +443,20 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   như Directus), dựng cây `nestFolders`; `fetchFolders` gọi lại sau tạo, đổi tên, chuyển, xóa; danh sách file nạp lại khi
   danh sách thư mục đổi (trừ lần nạp đầu).
 - **FR-006**: `FolderPicker` PHẢI là cây thư mục chọn một (mục gốc "File Library" = null), nạp `GET /folders`
-  `limit=-1` `sort=name`, thư mục cha của giá trị hiện tại mở sẵn, `disabledFolders` không chọn được; dùng ở chuyển
-  file, chuyển thư mục và `file`/`files` interface của 013 nếu chúng chưa có.
+  `limit=-1` `sort=name` (cache riêng mỗi instance, khác cache `useFolders` của cây; có thể lệch sau khi tạo thư mục
+  tới khi mở lại picker, chấp nhận như Directus, CHK099), thư mục cha của giá trị hiện tại mở sẵn, `disabledFolders`
+  không chọn được (chỉ khóa chính nó, không khóa con, như Directus; chuyển vào con tạo vòng → API từ chối hay nhận kiểm
+  T002, nhận thì tái tạo và ghi R-xx, CHK077); dùng ở chuyển file, chuyển thư mục và `file`/`files` interface của 013
+  nếu chúng chưa có.
 
 **Danh sách file và thư mục**
 
 - **FR-010**: Màn thư viện PHẢI dựng trên `use-layout` và preset `directus_files` của 014 (`layout`, `layoutOptions`,
   `layoutQuery`, `filter`, `search`, `resetPreset`), bộ lọc hệ thống `getFolderFilter(folder, special, currentUserId)`
   gộp với bộ lọc user bằng `mergeFilters` (`filter-user`, `filter-system` truyền riêng cho `system-filter`); preset mặc
-  định khi chưa có là của `stores/presets.ts` Directus (`cards` với `icon: insert_drive_file`, `title`,
-  `imageSource: $thumbnail`... ghi đúng dạng Directus); lựa chọn xóa khi rời hoặc đổi route.
+  định khi chưa có là `defaultPresets` của `stores/presets.ts` Directus chép nguyên (store `presets` của 014 thêm; giá
+  trị `layout_options.cards`, `layout_query.cards` đúng từng khóa, kiểm T002, CHK001); lựa chọn xóa khi rời hoặc đổi
+  route.
 - **FR-011**: Page header PHẢI có: breadcrumb "File Library" (chỉ khi tiêu đề khác "File Library"), tiêu đề (tên thư
   mục, `all_files|my_files|recent_files`, hoặc `file_library`), icon `folder`, nút hành động của layout
   (`layout-actions-*`), ô tìm kiếm với bộ lọc (`SearchInput` `directus_files`), nút tạo thư mục (FR-015), và khi có lựa
@@ -441,12 +465,14 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   không có create).
 - **FR-012**: Layout `cards` PHẢI nhận lại `extraSelection` (v-model) và slot `prepend` với `hasPrependContent` như
   `layouts/cards/cards.vue` và `header.vue` của Directus: số lượng chọn ở header là `selection + extraSelection`, nút
-  "chọn tất cả" phát `select-all` để màn thư viện chọn mọi thư mục con, bỏ chọn xóa cả hai; `select-mode` bật khi có
+  "chọn tất cả" phát `select-all` để màn thư viện chọn mọi thư mục con đồng thời layout `selectAll()` chọn mọi file
+  của trang hiện tại (CHK003), bỏ chọn xóa cả hai; `select-mode` bật khi có
   thư mục được chọn; bốn layout còn lại nhận `extraSelection` không dùng (như Directus).
 - **FR-013**: Thư mục con PHẢI hiện bằng `FolderSection` trong slot `prepend` của layout khi không `special`, không
   `search`, không `filter`: mỗi thư mục là `Card` của layout cards với `icon: folder`, tiêu đề tên, link
   `/files/folders/:id`, `select-mode` khi có lựa chọn thư mục hoặc file; đang chuyển route (`isTransitioning`) thì
-  layout ở trạng thái đang nạp và không hiện thẻ thư mục cũ.
+  layout ở trạng thái đang nạp và không hiện thẻ thư mục cũ; chỉ layout cards có slot `prepend`, bốn layout khác không
+  hiện thư mục con như Directus (CHK002).
 - **FR-014**: Xóa hàng loạt file PHẢI là hộp `batch_delete_confirm` (n) → `DELETE /files` với mảng id, nạp lại; chuyển
   thư mục hàng loạt là hộp với `FolderPicker` → `PATCH /files` `{ keys, data: { folder } }`, rồi tới thư mục đích (nếu
   khác null) và nạp lại; tải về: một file `GET /assets/:id?download`, nhiều file `POST /assets/files` body `{ ids }`
@@ -457,7 +483,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-016**: Hộp xóa thư mục PHẢI như `delete-folder-dialog.vue`: tiêu đề `delete_folder`, đoạn
   `delete_folder_dialog.content_behavior`, radio `move_content` (mặc định) | `delete_content`, nút xóa kiểu danger;
   `move`: với mỗi thư mục, `GET /folders?filter[parent][_eq]` và `GET /files?filter[folder][_eq]` (`fields=id`,
-  `limit=-1`) rồi `PATCH /folders` và `PATCH /files` với `keys` về `parent` của thư mục, sau đó `DELETE /folders`;
+  `limit=-1`) rồi `PATCH /folders` và `PATCH /files` với `keys` về `parent` của thư mục (null khi thư mục ở gốc: về
+  "File Library", CHK011), sau đó `DELETE /folders`;
   `delete`: gom id đệ quy (`collectAllFolderIds`), `PATCH /folders` gỡ `parent` của thư mục con trong tập, `GET /files`
   `folder._in` rồi `DELETE /files`, rồi `DELETE /folders`; ở thư viện, xóa thư mục kèm file đã chọn thì `DELETE /files`
   các file đó sau khi xong; lựa chọn xóa, cây nạp lại.
@@ -466,48 +493,62 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   Export/Import với collection `directus_files`, `layoutQuery`, bộ lọc gộp và `search`; không có Archive, Refresh,
   Flows (Directus không có ở màn này).
 - **FR-019**: `DrawerCollection`, `DrawerFiles` của 013/014 khi chọn `directus_files` PHẢI giữ hành vi 014 (layout
-  theo preset); 015 không đổi.
+  theo preset); `drawer-files.vue` của Directus có cây thư mục (`FilesNavigation` với `customTargetHandler`,
+  `actionsDisabled`): kiểm `DrawerFiles` 013 ở T002, nếu chưa có thì 015 thêm cây thư mục vào `DrawerFiles` (CHK075).
 
 **Tải lên**
 
 - **FR-020**: Hộp `add_file` PHẢI mở theo route `+` (`useDialogRoute`: đóng là `router.push` về route thư mục), nội
   dung `BoUpload` `multiple` `fromUrl` `folder` `accept` (từ `info.files.mimeTypeAllowList` qua
-  `parseGlobalMimeTypeAllowList`), nút "done"; mỗi file tải xong phát `upload` để màn thư viện nạp lại.
+  `parseGlobalMimeTypeAllowList`), nút "done"; mỗi file tải xong phát `upload` để màn thư viện nạp lại; mở trực tiếp
+  bằng URL thì hộp vẽ trên thư viện (route cha vẽ cùng); đóng khi đang tải thì tải tiếp ở nền như Directus (không hủy),
+  danh sách nạp lại khi xong (CHK007).
 - **FR-021**: Kéo thả toàn cửa sổ PHẢI như `useFileUpload` của `collection.vue`: lắng `dragenter|dragover|dragleave|drop`
   trên `window`, chỉ khi `dataTransfer.types` có `Files`, đếm `dragCounter`, viền thả bốn cạnh quanh vùng nội dung và
   notice `drop_to_upload` (icon `cloud_upload`, tại chỗ, D-66) khi bắt đầu kéo ngoài vùng `data-dropzone`; vào vùng
   `data-dropzone` thì tắt viền; thả: lọc file có `type`, notice tiến độ `upload_files_indeterminate` `{ done, total }`
-  và phần trăm, `uploadFiles` với preset `{ folder }` và `maxConcurrency` từ `info.uploads`, store đếm upload đang chạy
-  (`isAnyUploadActive`); xong thì gỡ notice, phát `upload`, nạp lại danh sách (khi `isAnyUploadActive` từ true về false).
+  và phần trăm (phần trăm mỗi file: TUS theo byte, multipart theo XHR; gộp trung bình như `uploadFiles`, CHK006),
+  `uploadFiles` với preset `{ folder }` và `maxConcurrency` từ `info.uploads` (≤ 0 hoặc thiếu = không giới hạn,
+  CHK004), store đếm upload đang chạy (`isAnyUploadActive`); xong thì gỡ notice, phát `upload`, nạp lại danh sách (khi
+  `isAnyUploadActive` từ true về false). Viền thả là bốn `div` `fixed` theo khung của `<main>`, `border-2
+  border-brand-500`, `pointer-events-none`, `aria-hidden` (CHK033); notice là `BoNotice` trong page header với
+  `aria-live="polite"`, nội dung `upload_files_indeterminate` + phần trăm, gỡ khi xong (CHK034); mục kéo không phải
+  file (thư mục, `type` rỗng) bị bỏ qua không thông báo (CHK078); không giới hạn số file ở client, file bị API từ chối
+  (413, kiểu) hiện lỗi từng file như `BoUpload` 013, file khác tiếp tục (CHK004).
 - **FR-022**: `uploadFile` PHẢI port `utils/upload-file.ts`: `info.uploads.tus` bật → `tus-js-client` tới `files/tus`
-  (`chunkSize` từ server hoặc `DEFAULT_CHUNK_SIZE`, metadata = preset + `filename_download` + `type` (+ `id` khi
-  `fileId`), `removeFingerprintOnSuccess`, `withCredentials`, `onShouldRetry` false, `fileInfo.id` từ header
+  (`chunkSize` từ server hoặc `DEFAULT_CHUNK_SIZE`, metadata = mọi khóa của preset + `filename_download` + `type` (+
+  `id` chỉ khi `fileId`; tus-js-client mã hóa base64 theo giao thức, CHK005), `removeFingerprintOnSuccess`, `withCredentials`, `onShouldRetry` false, `fileInfo.id` từ header
   `Directus-File-Id`, tiếp tục upload dở, thành công thì `GET /files/:id`); tắt → multipart `POST /files` hoặc
   `PATCH /files/:id` (`fileId`) với `onUploadProgress`; `BoUpload` của 013 PHẢI dùng hàm này (thêm `fileId` cho thay
   file, FR-033) và store server PHẢI đọc `uploads` từ `/server/info`.
 - **FR-023**: `uploadFiles` PHẢI port `utils/upload-files.ts` (`p-queue` với `concurrency = maxConcurrency` hoặc vô
   hạn, tiến độ từng file, notice thành công khi `notifications`).
-- **FR-024**: Danh sách request ghi của tải lên: `POST /files` (multipart), `PATCH /files/:id` (multipart, thay file),
-  `POST /files/import` (từ URL), `POST|PATCH|HEAD|DELETE /files/tus` (TUS); không request ghi khác.
+- **FR-024**: Danh sách request ghi của tải lên và tải về: `POST /files` (multipart: tải lên, bản sao FR-031, trình
+  chỉnh ảnh lưu mới FR-044), `PATCH /files/:id` (multipart, thay file và trình chỉnh ảnh), `POST /files/import` (từ
+  URL), `POST|PATCH|HEAD|DELETE /files/tus` (TUS), `POST /assets/files` và `POST /assets/folder/:id` (zip, chỉ đọc
+  nhưng là POST); không request ghi khác (CHK049).
 
 **Màn file**
 
-- **FR-030**: Màn `/files/:id` PHẢI dùng `use-item` của 014 với `directus_files` (`isNew`, `edits`, `hasEdits`, `item`,
+- **FR-030**: Màn `/files/:id` PHẢI dùng `use-item` của 014 với `directus_files` (không có trạng thái item mới: `/files/+`
+  là hộp tải lên, `isNew` luôn false, CHK014) (`isNew`, `edits`, `hasEdits`, `item`,
   `permissions`, `save`, `remove`, `refresh`, `validationErrors`), page header như kịch bản US2-4 (nút quay lại
   `/files`, breadcrumb tới thư mục của file), tiêu đề `item.title` (`loading` khi đang nạp), `fieldsDenyList` như
   `item.vue`, form khóa khi không có update; Ctrl/Cmd+S lưu và ở lại; `use-edits-guard`; item không tồn tại → màn
   không tìm thấy với sub-menu.
 - **FR-031**: Lưu: `saveAndQuit` (lưu rồi về thư mục của file hoặc `/files`), `saveAndStay` (nạp lại item và
   Revisions), `saveAsCopy` (kịch bản US2-7: `GET /assets/:id` blob, `uploadFile` với preset các field không
-  `hidden`/`readonly` cộng `folder`, `storage` và `edits`, notice `item_create_success`, tới item mới), `discardAndStay`;
+  `hidden`/`readonly` cộng `folder`, `storage` và `edits`, notice `item_create_success`, tới item mới; áp cho mọi kiểu
+  file; `filename_download` giữ, tên trên đĩa do API đặt, CHK009), `discardAndStay`;
   `SaveOptions` khóa `save-and-add-new` luôn và `save-as-copy` khi không có create.
 - **FR-032**: Xem trước PHẢI là `FilePreview` của 013 (ảnh, video, audio, PDF, khác) với nút "thay file" dưới xem trước
   (ẩn khi không có update); hộp `replace_file` với `BoUpload` `fileId` `fromUrl` `accept`; thay xong nạp lại item.
-- **FR-033**: Thay file PHẢI là `PATCH /files/:id` multipart (hoặc TUS với `id`), không đổi `id`; `BoUpload` nhận
+- **FR-033**: Thay file PHẢI đi qua `uploadFile` với `fileId`: TUS với metadata `id` khi server bật, multipart
+  `PATCH /files/:id` khi tắt (như Directus, CHK008), không đổi `id`; `BoUpload` nhận
   `fileId` (013 ghi chú chưa có vì FR-054 của 013; 015 thêm và bổ sung danh sách FR-024).
 - **FR-034**: Nút chuyển thư mục PHẢI mở hộp `move_to_folder` với `FolderPicker` (giá trị đầu là `folder` của item),
-  `PATCH /files/:id` `{ folder }` với `fields=folder.name`, notice `file_moved` `{ folder }` (icon `folder_move`), nạp
-  lại; ẩn khi item mới.
+  `PATCH /files/:id` `{ folder }` với query `fields=folder.name` (bộ so payload so cả query), notice `file_moved` với
+  `response.data.folder.name` hoặc "File Library" khi null (icon `folder_move`), nạp lại (CHK048).
 - **FR-035**: Nút tải về PHẢI là link `href=/assets/:id?download` với `download=filename_download`.
 - **FR-036**: Nút chỉnh ảnh PHẢI hiện khi `item.type` chứa `image` và có update; mở `ImageEditor` (FR-040).
 - **FR-037**: Xóa PHẢI là hộp `delete_are_you_sure` (Keep/Hủy trước, D-76) → `DELETE /files/:id` → `router.replace`
@@ -515,8 +556,10 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-038**: Panel PHẢI có "Chi tiết file" (`FileInfoSidebarDetail`, kịch bản US2-4: `readableMimeType`, `n(width) ×
   n(height)`, `duration`, `formatFilesize`, `charset`, `embed`, ngày `created_on`/`uploaded_on`/`modified_on` dạng ngắn
   với tooltip dạng dài, chủ sở hữu và người sửa qua `GET /users/:id` `fields=id,email,first_name,last_name,role` với
-  `UserPopover` và link `/users/:id`, link mở file tab mới (`/assets/:id`), link thư mục (`GET /folders/:id` `fields=id,
-  name`; `open_folder` với tên hoặc "File Library"), nút chép id (`copy_id_success|fail`), nhóm EXIF sau vạch chia),
+  `UserPopover` và link `/users/:id` (request lỗi 403/404 → bỏ dòng, không hộp lỗi, CHK013), link mở file tab mới
+  (`/assets/:id`), link thư mục (`GET /folders/:id` `fields=id,
+  name`; `open_folder` với tên hoặc "File Library"), nút chép id (`copy_id_success|fail`), nhóm EXIF sau vạch chia: chỉ
+  năm trường máy, khẩu độ, tốc độ, tiêu cự, ISO; không hiện trường khác của `metadata` như GPS, CHK085),
   Revisions (`isNew` false và `revisionsAllowed`; `revert` gộp vào `edits`), Comments (`isNew` false).
 - **FR-039**: Danh sách request của màn file: `GET /files/:id`, `GET /folders/:id`, `GET /users/:id`,
   `GET /assets/:id`, `PATCH /files/:id`, `DELETE /files/:id`, `POST /files` (bản sao), Revisions và Comments như 014.
@@ -533,15 +576,18 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-042**: Thanh công cụ PHẢI có: ba chế độ `move|crop|focal_point` (focal: khung vuông 10% bề rộng tối thiểu 16 px
   đặt tại điểm focal hiện có hoặc giữa, tỉ lệ 1), xoay -90°, lật ngang (`scaleY`), lật dọc (`scaleX`) như Directus,
   menu tỉ lệ (`custom_aspect_ratios` của settings trước vạch chia, rồi 16:9, 3:2, 5:4, 7:5, vuông, tự do (`NaN`), gốc)
-  với icon theo tỉ lệ (`crop_16_9`...), đặt lại (`reset` + về `move`), dòng kích thước (FR US5-1), nút hủy cắt/hủy chọn
-  khi đang cắt; mọi nút là `button` có nhãn/tooltip, phím tắt không bắt buộc.
+  với icon theo tỉ lệ (`crop_16_9`...; custom trùng tỉ lệ chuẩn → `crop_square` như Directus; điểm focal ngoài ảnh →
+  Cropper kẹp khung, CHK015), đặt lại (`reset` + về `move`), dòng kích thước đúng chuỗi `dimensionsString` của Directus
+  (số theo `n()` của locale; SVG: "SVG → PNG WxH", CHK037), nút hủy cắt/hủy chọn khi đang cắt; mọi nút là `button` có
+  nhãn/tooltip, phím tắt không bắt buộc.
 - **FR-043**: Lưu PHẢI như `save()` của Directus: `hasEdits` = dữ liệu Cropper khác mặc định hoặc đang cắt; điểm focal
   chỉ lưu khi ở chế độ focal và đang chọn (tâm khung, làm tròn), `clear()` trước khi kiểm thay đổi ảnh; thay đổi ảnh →
   `getCroppedCanvas({ imageSmoothingQuality: 'high' }).toBlob(type)` → `PATCH /files/:id` FormData (`focal_point_x/y`
   nếu có, rồi `file` với tên `filename_download`); chỉ focal → `PATCH` JSON; xong: `refresh`, về `move`, nonce mới,
   đóng; lỗi → hộp lỗi, giữ drawer.
 - **FR-044**: "Lưu thành file mới" (menu phụ của nút lưu, chỉ khi `createAllowed`) PHẢI `POST /files` FormData với
-  `folder` (nếu có) và `file`, phát `new-file(id)`, đóng; màn file đi tới `/files/:id`; `file-image` đặt giá trị field.
+  `folder` là thư mục của ảnh gốc (`imageData.folder`, không theo option `folder` của field, CHK016) và `file`, phát
+  `new-file(id)`, đóng; màn file đi tới `/files/:id`; `file-image` đặt giá trị field.
 - **FR-045**: `file-image` của 013 PHẢI có nút chỉnh ảnh (tooltip `edit`, icon `tune`) khi có quyền update
   `directus_files` và file là ảnh, mở cùng `ImageEditor`; lưu xong nạp lại xem trước với `cacheBuster` (gỡ D-59; FR-051
   và FR-054 của 013 cập nhật: thêm `PATCH /files/:id` multipart và `POST /files` vào danh sách ghi khi dùng nút này).
@@ -552,28 +598,32 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 
 - **FR-050**: Module `users` PHẢI thay route khung của 012 bằng các route của `modules/users/index.ts`: `/users`
   (`users-active`, `status=active`), `/users/suspended`, `/users/invited`, `/users/all`, `/users/:primaryKey`,
-  `/users/roles` → `/users`, `/users/roles/:role`, `/users/roles/:role/+` (item mới với `role`); `/users/me` giữ và
-  chuyển hướng tới `/users/<id user hiện tại>` (D-86); `preRegisterCheck` giữ của 012; `checkForSystem` chuyển
+  `/users/roles` → `/users`, `/users/roles/:role`, `/users/roles/:role/+` (item mới với `role`); `/users/me` giữ, khai
+  báo trước `:primaryKey`, là route `redirect` dạng hàm trả `/users/<id user hiện tại>` từ store user (store đã hydrate
+  trước mọi route private của 012, kể cả khi tải lại trang; user share không có id → màn không có quyền của 012) (D-86,
+  CHK027, CHK055); `preRegisterCheck` giữ của 012; `checkForSystem` chuyển
   `/content/directus_users` tới đây (D-72 gỡ phần Users).
-- **FR-051**: `UserMenu` của 012 PHẢI trỏ hồ sơ tới `/users/<id>` như `module-bar-avatar.vue`; `ProfileRoute` của 012
-  bỏ (D-48 gỡ), E2E `profile.spec.ts` chuyển sang màn user.
+- **FR-051**: `UserMenu` của 012 PHẢI trỏ hồ sơ tới `/users/<id>` như `module-bar-avatar.vue`; user share không có mục
+  hồ sơ (kiểm 012 đã vậy, CHK028); `ProfileRoute` của 012 bỏ (D-48 gỡ), E2E `profile.spec.ts` chuyển sang màn user.
 - **FR-052**: Sub-menu PHẢI như `navigation.vue`: bốn mục trạng thái (`active_users` `group`, `suspended_users`
   `group_off`, `invited_users` `person_add`, `all_users` `folder_shared`, `exact`), vạch chia khi có role hoặc đang nạp,
   skeleton 4 dòng khi nạp, cây role từ `useNavigation` (`GET /roles` `fields=id,name,icon,parent` `sort=name`, nạp một
-  lần cho cả app, cây theo `parent` bằng `groupBy`, role đang xem và các cha tự mở, trạng thái mở dùng chung); mục role
+  lần cho cả app, cây theo `parent` bằng `groupBy`, 403 → hộp lỗi như Directus và cây rỗng (nút mời đã ẩn vì không đọc
+  được role, CHK018), role đang xem và các cha tự mở, trạng thái mở dùng chung); mục role
   là `NavigationRole` (icon role, tên qua `translate`, có con thì gập mở), bấm tới `/users/roles/:id`; bàn phím như
   FR-003.
 - **FR-053**: Admin PHẢI có menu chuột phải (và nút tương đương) trên role với mục "sửa role" tới
   `/settings/roles/:id` (khung 012 tới 016, D-85).
-- **FR-054**: Route không khớp trong module → màn không tìm thấy với sub-menu; item không tồn tại hoặc không đọc được
-  → như 014 (`ContentNotFound` kiểu module).
+- **FR-054**: Route không khớp trong module → màn không tìm thấy với sub-menu, dùng cùng component `ContentNotFound`
+  của 014 với prop module (sub-menu theo module; Directus users không có route not-found riêng mà rơi về 404 của app,
+  đây là chi tiết hiển thị, không ghi D-xx, CHK057); item không tồn tại hoặc không đọc được → cùng màn (CHK047).
 - **FR-055**: `getItemRoute('directus_users', id)` và `getCollectionRoute` của 014 giữ `/users/:id`, `/users`; link
   user ở `UserPopover`, displays `user`, comments trỏ màn này.
 
 **Danh sách user và mời**
 
-- **FR-060**: Màn danh bạ PHẢI dựng trên `use-layout` và preset `directus_users` (mặc định `cards` theo
-  `stores/presets.ts`: `icon: account_circle`, `title`, `subtitle`, `imageSource: avatar`...), bộ lọc hệ thống
+- **FR-060**: Màn danh bạ PHẢI dựng trên `use-layout` và preset `directus_users` (mặc định là `defaultPresets` của
+  `stores/presets.ts` Directus chép nguyên, `cards`, CHK001), bộ lọc hệ thống
   `mergeFilters(roleFilter, statusFilter)` (`{_and: [{role: {_eq}}]}`, `{_and: [{status: {_eq}}]}`) truyền riêng và gộp
   với bộ lọc user; lựa chọn xóa khi rời hoặc đổi route.
 - **FR-061**: Page header PHẢI có: breadcrumb "User Directory" (chỉ khi có `role`), tiêu đề (`<status>_users`,
@@ -585,11 +635,12 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-063**: `canInviteUsers` = `auth.disableDefault` tắt và có create `directus_users` và read `directus_roles`; hộp
   `UsersInvite` như kịch bản US3-3: `POST /users/invite` `{ email: string[], role }` (email tách bằng `,` hoặc xuống
   dòng, trim, bỏ rỗng), `role` từ `GET /roles` `fields=id,name` `sort=name` (mặc định phần tử đầu; không có ô chọn khi
-  đi từ route role), lỗi `RECORD_NOT_UNIQUE` tại chỗ (`email_already_invited` `{ email: extensions.invalid }` hoặc
-  `validationError.unique` một lần), lỗi khác qua hộp lỗi; thành công thì đóng và nạp lại danh sách; D-83: sau khi
-  đóng, notice tại chỗ `contact_admin_for_link` (chuỗi overlay của 012) vì không có email; Backoffice không có đường
-  riêng để user được mời vào app (link trong log API là việc vận hành; E2E chỉ kiểm lời mời tạo user `invited` và
-  notice, Clarifications 2026-10-15).
+  đi từ route role; không có role nào thì select rỗng và gửi không `role`, CHK019), lỗi `RECORD_NOT_UNIQUE` tại chỗ
+  (`email_already_invited` `{ email: extensions.invalid }` hoặc `validationError.unique` một lần), lỗi khác kể cả
+  `FAILED_VALIDATION` của email sai qua hộp lỗi, email lặp trong ô do API xử lý (CHK020); thành công thì đóng hộp, nạp
+  lại danh sách, rồi notice ở page header `contact_admin_for_link` (chuỗi overlay của 012) vì không có email (D-83);
+  Backoffice không hiển thị token mời và không có đường riêng để user được mời vào app (link trong log API là việc vận
+  hành; E2E chỉ kiểm lời mời tạo user `invited` và notice, Clarifications 2026-10-15, CHK043).
 - **FR-064**: Trạng thái trống PHẢI như kịch bản US3-5 (`no_items` khi không `loadingItemCount`; `no_results` với bộ
   lọc).
 - **FR-065**: Panel PHẢI có Layout, `layout-sidebar-*`, Export/Import (`directus_users`, bộ lọc gộp `?? undefined`,
@@ -602,7 +653,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-070**: Màn `/users/:primaryKey` (và `/users/roles/:role/+`) PHẢI dùng `use-item` với `directus_users`, query
   `fields=*,role.*,avatar.id,avatar.modified_on`, `edits.role` đặt trước từ prop `role` khi mới; giá trị ban đầu của form
   là item với `role` thu về `role.id`; `fieldsDenyList` = `id`, `last_page`, `created_on`, `created_by`, `modified_by`,
-  `modified_on`, `last_access`; `provider` và `external_identifier` đặt `readonly` khi không mới và không admin; form
+  `modified_on`, `last_access`; `provider` và `external_identifier` đặt `readonly` khi không mới và không admin (user
+  mới thì sửa được, CHK029); form
   khóa khi không mới và không có update; `provide('discardAllChanges')` và `provide('refresh')` cho interface con;
   `use-edits-guard`; Ctrl/Cmd+S lưu và ở lại, Ctrl/Cmd+Shift+S lưu và thêm mới.
 - **FR-071**: Page header PHẢI như kịch bản US4-1: tiêu đề `userName(item)` (`loading`, `adding_user`), nút xóa (hộp
@@ -610,13 +662,14 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `collectionInfo.meta.archive_field` và không mới; tooltip `archive|unarchive|not_allowed`; hộp xác nhận kiểu warning;
   archive xong về `/users`, bỏ archive ở lại), lưu với `SaveOptions` (khóa `save-and-add-new` và `save-as-copy` khi
   không có create).
-- **FR-072**: Sau lưu PHẢI `setLang` (nếu là user hiện tại và `language` mới khác locale: nạp lại store fields và
-  collections) và `refreshCurrentUser` (`userStore.hydrate()` khi là user hiện tại; theme và ngôn ngữ của 012 áp theo
-  store); `saveAndQuit` về `users-active`, `saveAndStay` ở item mới `router.replace` tới id mới, không thì nạp lại item
+- **FR-072**: Sau lưu PHẢI `setLang` (nếu là user hiện tại và `language` mới, hoặc `default_language` khi null, khác
+  locale: nạp lại store fields và collections) rồi `refreshCurrentUser` (`userStore.hydrate()` khi là user hiện tại;
+  watcher của 012 đổi locale và theme theo store, CHK039); `saveAndQuit` về `users-active`, `saveAndStay` ở item mới `router.replace` tới id mới, không thì nạp lại item
   và Revisions; `saveAndAddNew` tới `/users/+`; `saveAsCopy` tới id mới.
 - **FR-073**: Hộp user (không mới) PHẢI như kịch bản US4-1 (skeleton khi nạp; avatar `getAssetUrl(avatar.id,
   { imageKey: 'system-medium-cover', cacheBuster: avatar.modified_on })`, `alt=avatar`, lỗi ảnh → icon; tên + `, title`;
-  email với icon `alternate_email`; `location` với `place`; chip role với class `status`); recipe Q-18.
+  email với icon `alternate_email` (email hiện ở cả hộp và form như Directus, CHK102); `location` với `place`; chip
+  role với class `status`, màu theo recipe Q-18); hộp user cùng bề ngang form `max-w-5xl` (CHK040); recipe Q-18.
 - **FR-074**: Panel PHẢI có "Thông tin" (`UserInfoSidebarDetail`: `key` = id với nút chép khi hỗ trợ, `last_page` là
   `RouterLink`, `last_access` dạng ngày ngắn), Revisions (không mới, `revisionsAllowed`), Comments (không mới).
 - **FR-075**: Form PHẢI hiện các field của `users.yaml` với interface của 013 đã có (`input`, `input-hash` cho
@@ -633,7 +686,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `POST /users/me/tfa/generate|enable|disable`, `POST /users/:id/tfa/disable`, Revisions, Comments; không request khác.
 - **FR-078**: Archive ở `directus_users` dùng `archive_field = status`, `archive_value = archived`,
   `unarchive_value = draft` của collection hệ thống như `use-item` 014.
-- **FR-079**: Màn user PHẢI đạt bố cục form của 014 (`max-w-5xl`, D-82) với hộp user phía trên.
+- **FR-079**: Màn user PHẢI đạt bố cục form của 014 (`max-w-5xl`, D-82) với hộp user phía trên cùng bề ngang (CHK040).
 
 **Interface `_system` của `directus_users` (D-57, phần 015)**
 
@@ -643,10 +696,12 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-081**: `system-input-password` (`types: string|text`, option `placeholder`): `BoInput` `type=password|text` với
   nút mắt (`show_password|hide_password`), `autocomplete=new-password` mặc định, `autofocus`; không có màn dùng
   ở 015 (form đăng ký để lại, Q2) nhưng vẫn port cho đủ bộ D-57; trong form user, `password` vẫn là `input-hash` theo
-  metadata.
+  metadata (CHK050: 5 interface có màn dùng, 1 chỉ có trong registry).
 - **FR-082**: `system-mfa-setup` (`types: text`): ô kiểu checkbox khối hiện `enabled|disabled` với icon `launch`, khóa khi
   `disabled` hoặc (không phải chính mình và chưa bật); `effectiveTFAEnabled` theo `tfa_secret` (từ `inject('values')`
-  của form hoặc store user) và khóa `require_tfa_setup` cho SSO; ba hộp như `system-mfa-setup.vue`: bật (SSO:
+  của form hoặc store user) và khóa `require_tfa_setup` cho SSO chỉ khi xem chính mình (xem user khác chỉ theo
+  `tfa_secret` vì khóa nằm ở trình duyệt của user đó, CHK022); secret TFA chỉ hiện trong hộp, không log, không vào URL
+  (CHK084); ba hộp như `system-mfa-setup.vue`: bật (SSO:
   `sso_tfa_setup_notice` → `requestTFASetup` = gọi `discardAllChanges`, ghi localStorage, `logout()`; mật khẩu:
   `enter_password_to_enable_tfa` → `generateTFA(true)` → QR canvas + secret + OTP → `enableTFA`), tắt (chính mình: OTP →
   `disableTFA`; khác: `admin_disable_tfa_text` → `adminDisableTFA(pk)` = `POST /users/:pk/tfa/disable`), hủy thiết lập
@@ -659,22 +714,30 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   rồi `PATCH <endpoint>/<primaryKey>` `{ token }` (`getEndpoint(collection)`), hiện token và notice `token_saved_notice`
   + `token_saved_copy`; tạo lại: hộp `regenerate_confirm_*` kiểu danger; xóa: hộp `remove_confirm_*` → `PATCH`
   `{ token: null }` rồi `inject('refresh')`; user mới: khóa + notice `new_user_disabled_notice`; giá trị `****` từ API
-  nghĩa là đã có token; focus chọn hết text, blur bỏ chọn.
+  nghĩa là đã có token; focus chọn hết text, blur bỏ chọn; token cũ mất hiệu lực ngay khi tạo lại, phiên cookie hiện
+  tại không đổi (E2E dùng token mới, CHK023); nút tạo hiện khi field không `disabled`, API trả 403 thì `VError` tại
+  chỗ (CHK073); token chỉ giữ trong state component, không log, không vào URL, mất khi rời màn (CHK084).
 - **FR-084**: `system-theme` (`types: string`, prop `appearance`, `includeNull`): danh sách theme Directus của
   `appearance` (`@directus/themes`: Directus Default, Minimal, Color Match... cùng `id` và `name`) dạng radio, mỗi mục có
-  ô xem trước là port của `theme-preview.vue` (SVG khung app với biến `--theme--*` của theme đó cộng overrides của user,
-  `rulesToCssVars`) để xem trước đúng màu Directus (Q1 = C, D-88); rule của từng theme là dữ liệu tĩnh chép từ
-  `@directus/themes` 11.17.4 (D-89); giá trị không có thì chọn theme đầu; `includeNull` thêm mục đầu
-  `default_sync_with_project` (null) xem trước bằng theme mặc định của dự án (`default_theme_light|dark` từ
-  `/server/info`); chọn theme không đổi giao diện Backoffice (D-43), kèm dòng ghi chú "áp dụng ở Directus app".
+  ô xem trước là port của `theme-preview.vue` (SVG khung app với biến `--theme--*` của theme đó cộng overrides đã lưu
+  của user từ `useThemeConfiguration` như Directus, không phải giá trị đang sửa trong form, CHK026; `rulesToCssVars`)
+  để xem trước đúng màu Directus (Q1 = C, D-88); rule của từng theme là dữ liệu tĩnh `src/theme/directus-themes.json`
+  (`{light, dark}` với `id`, `name`, `appearance`, `rules`) sinh bởi `scripts/sync-directus-themes.mjs` từ
+  `directus/packages/themes` 11.17.4 và có test so với nguồn (D-89, FR-121, CHK041); giá trị null thì chọn theme đầu;
+  giá trị là id không có trong dữ liệu thì không mục nào active và giá trị giữ nguyên khi lưu (CHK024); `includeNull`
+  thêm mục đầu `default_sync_with_project` (null) xem trước bằng theme mặc định của dự án (`default_theme_light|dark`
+  từ `/server/info`); chọn theme không đổi giao diện Backoffice (D-43), kèm dòng ghi chú dưới danh sách với khóa overlay
+  `theme_applies_in_directus` (en-US và vi-VN, CHK042).
 - **FR-085**: `system-theme-overrides` (`types: json`, prop `appearance`): cây nhóm gập mở từ rule của theme Directus
   mặc định theo `appearance` (dữ liệu tĩnh chép từ `@directus/themes`, D-89): nhóm `$root` (rule không lồng) rồi nhóm
-  theo khóa, mỗi rule là ô text với placeholder là giá trị mặc định và swatch khi giá trị là màu (`color`, `var(--...)`
-  resolve được, `color-mix(`); nhập = `setWith(clone(value), path, v)`, xóa = `unset` rồi gỡ nhóm rỗng lên trên; `lang=
+  theo khóa, mỗi rule lá là ô text (`type: 'color'` cho mọi rule như Directus, kể cả `borderRadius`, `fontFamily`, số,
+  CHK025) với placeholder là giá trị mặc định và swatch chỉ khi giá trị parse được thành màu (`color`, `var(--...)`
+  resolve được, `color-mix(`); giá trị không phải object → cây rỗng, không ném lỗi, lưu giữ nguyên (CHK082); nhập = `setWith(clone(value), path, v)`, xóa = `unset` rồi gỡ nhóm rỗng lên trên; `lang=
   en-US dir=ltr`; chỉ khóa có ánh xạ sang token design-system (D-43) đổi giao diện Backoffice khi lưu, khóa khác vẫn lưu
   cho Directus.
 - **FR-086**: Sáu interface PHẢI đăng ký trong registry 013 với cùng `id`, `name`, `icon`, `types`, `system`, `options`
-  như Directus; test registry của 013 cập nhật (số interface = 31 + 2 (014) + 6).
+  như Directus; test registry của 013 cập nhật (số interface = 31 + 2 (014) + 6); `system-input-password` chỉ có trong
+  registry (CHK050).
 
 **Đăng ký công khai (D-44)**
 
@@ -696,19 +759,23 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 **Chung: design-system, truy cập, ngôn ngữ, hiệu năng, test**
 
 - **FR-110**: Mọi màn PHẢI dùng token và recipe của `design-system/` (XII): `PrivateView`, page header L-5, panel L-4,
-  sub-menu L-3 (ngoại lệ cây lồng cho Files và Users như Content, ghi vào `layout-patterns.md` §7 và §11 khi 014 mở
-  khóa tài liệu), `BoDialog` cho mọi hộp xác nhận (nút an toàn trước, D-76), `BoDrawer` cho trình chỉnh ảnh, layout
+  sub-menu L-3 (ngoại lệ cho Files và Users như Content: sub-menu gồm mục phẳng và cây lồng cùng lúc, Files = cây thư
+  mục + ba mục đặc biệt, Users = bốn mục trạng thái + cây role; ghi vào `layout-patterns.md` §7 và §11 khi 014 mở khóa
+  tài liệu, CHK098), `BoDialog` cho mọi hộp xác nhận (nút an toàn trước, D-76), `BoDrawer` cho trình chỉnh ảnh, layout
   cards với thẻ thư mục (recipe Q-3 mở rộng); màn chưa có mẫu ghi Q-13 đến Q-19, recipe nháp vào `design-system/docs/`
   trước khi code, design owner duyệt trước khi đóng.
 - **FR-111**: WCAG 2.1 AA như 012 FR-067 và 014: axe 0 vi phạm serious/critical; cây thư mục và cây role có vai trò
   `tree`; menu chuột phải có nút bàn phím tương đương; viền thả và tiến độ tải có `aria-live`; drawer chỉnh ảnh bẫy
-  focus; ô QR có mô tả văn bản (secret); mọi nút icon có nhãn. Ngoại lệ ghi nhận (owner, 2026-10-15): khung cắt và
+  focus; ô QR có mô tả văn bản (secret); mọi nút icon có nhãn; thẻ thư mục trong lưới là link cộng ô chọn riêng như
+  thẻ file của 014, viền thả `aria-hidden` (CHK086); skeleton tôn trọng `prefers-reduced-motion`, Cropper không có
+  chuyển động (CHK087). Ngoại lệ ghi nhận (owner, 2026-10-15): khung cắt và
   điểm focal của trình chỉnh ảnh chỉ kéo bằng chuột như Directus, không có đường bàn phím; axe không bắt được, ghi ở
   `qa/handoff-checklist.md`.
 - **FR-112**: Chuỗi dịch lấy từ file sinh của 012 (`file_library`, `all_files`, `my_files`, `recent_files`,
   `drop_to_upload`, `upload_files_indeterminate`, `delete_folder_dialog.*`, `invite_users`, `email_already_invited`,
   `interfaces.system-token.*`, `sso_tfa_setup_notice`, `editing_image`, `changes_are_permanent`...);
-  thiếu thì chạy lại script sinh; chuỗi riêng (dòng D-83, D-88) vào overlay như `contact_admin_for_link`.
+  thiếu thì chạy lại script sinh; chuỗi riêng vào overlay: D-83 dùng `contact_admin_for_link` đã có, D-88 thêm
+  `theme_applies_in_directus` (en-US "Theme choice applies in the Directus app", vi-VN tương ứng) (CHK042).
 - **FR-113**: Thông báo thành công/lỗi là notice tại chỗ (D-66) tới 018; không snackbar.
 - **FR-114**: Không collab, không AI (D-41, D-54, D-68): bỏ `CollabIndicatorHeader`, `ComparisonModal` chế độ `collab`,
   hộp `unsaved_changes_collab` của hai màn item.
@@ -722,22 +789,29 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `FilesNavigation`, `UsersNavigation`, `DeleteFolderDialog`, `UsersInvite`, `FileInfoSidebarDetail`, `uploadFile`
   (TUS và multipart), layout cards với `extraSelection`/`prepend`; E2E `files-library`, `files-upload`, `files-item`,
   `files-image-editor`, `users-directory`, `users-item`, `users-tfa-token`, `files-users-permissions`,
-  `files-users-parity-ui` ở ba cấu hình (bảng trình duyệt như SC-001); payload suite mở rộng; E2E dùng `openSidebar`
-  dưới `xl`, khôi phục preset seed sau khi đổi layout hoặc tìm, chạy tuần tự trên DB chung (bài học 014).
+  `files-users-parity-ui` (9 spec, khớp `contracts/tests.md` §3, CHK058) ở ba cấu hình (bảng trình duyệt như SC-001;
+  spec cũng điều khiển Directus app, tức payload và parity-ui, chỉ chạy chromium-1280 qua `DIRECTUS_APP_SPECS` của
+  `playwright.config.ts` như 014 làm ngày 2026-10-15 vì giới hạn 100 phút của job); payload suite mở rộng; lượt `vi-VN`
+  của `files-users-permissions` gồm nhãn field và ngày của `users-item` (CHK074); E2E dùng `openSidebar` dưới `xl`,
+  khôi phục preset seed sau khi đổi layout hoặc tìm, chạy tuần tự trên DB chung (bài học 014).
 - **FR-118**: Benchmark: thêm kịch bản `files` và `users` vào benchmark web hằng tuần (thư viện 10.000 file trong một
-  thư mục, danh bạ 10.000 user); không chặn CI.
+  thư mục, danh bạ 10.000 user; ba phép đo trang đầu cards, đổi trang, lọc; 11 lần, p95, như `contracts/tests.md` §5,
+  CHK067); không chặn CI.
 - **FR-119**: Bundle: `ImageEditor` (Cropper.js), `tus-js-client`, `system-theme-overrides` là chunk lười; ngân sách
-  chunk chính của 014 + 20 KB gzip; `scripts/check-bundle.mjs`.
+  chunk chính của 014 + 20 KB gzip; chunk lười: cropperjs + CSS ≤ 60 KB, tus ≤ 25 KB, dữ liệu theme ≤ 15 KB gzip
+  (CHK088); `scripts/check-bundle.mjs`.
 - **FR-120**: Chuẩn hóa payload khi so với Directus app như 013/014 (id, thời gian, nonce của `/assets`, thứ tự
   multipart); khác biệt thật ghi R-xx.
 - **FR-121**: `graphify update .` sau mỗi lượt code; tài liệu `design-system/docs/`, spec 012/013/014 (D-40, D-48,
-  D-57, D-59, D-72 ghi "đã gỡ ở 015" phần tương ứng; D-44 ghi "sau 015") sửa khi 014 mở khóa.
+  D-57, D-59, D-72 ghi "đã gỡ ở 015" phần tương ứng; D-44 cột "Gỡ ở" ghi "sau 015"; FR-024 của 012 ghi hồ sơ là
+  `/users/<id>` với `/users/me` chuyển hướng, D-86) sửa khi 014 mở khóa (CHK051, CHK101).
 - **FR-122**: Không sửa file trong `directus/`; không sửa `apps/web`, `apps/web-e2e` trước khi 014 báo đóng (quy tắc
   session 014, 2026-10-15).
 - **FR-123**: Chia lượt commit (như Q3 của 014): lượt 1 Files (US1, US2), lượt 2 trình chỉnh ảnh + `file-image` (US5),
   lượt 3 Users + sáu interface (US3, US4, US6 phần user), lượt 4 quyền, payload suite, parity UI,
   benchmark (US6, US7); mỗi lượt commit lên `main` với CI xanh.
-- **FR-124**: Thư viện mới: `cropperjs` (cùng major Directus 11.17.4), `tus-js-client` (cùng phiên bản Directus),
+- **FR-124**: Thư viện mới: `cropperjs` 1.6.2 (bản catalog Directus 11.17.4, CHK035), `tus-js-client` 4.3.1 (cùng
+  phiên bản Directus),
   `p-queue` (đã có ở 009 API; FE thêm cùng phiên bản); phiên bản chốt ở plan; `exifr`/metadata không cần (API đã ghi
   `metadata`).
 - **FR-125**: Mọi D-xx mới và R-xx được tech lead duyệt trước khi đóng; Q1, Q2 của Clarifications đã có (owner,
@@ -772,7 +846,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-86 | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Giữ route của 012 và chuyển hướng tới `/users/<id>`; menu avatar trỏ thẳng `/users/<id>` | Giữ link đã có từ 012 (FR-024) | khác | — |
 | D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay | Danh sách và xem trước như Directus (Q1 = C); chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
-| D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có; upload dở tiếp tục khi tải lại cùng file (`findPreviousUploads`) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
+| D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có danh sách; việc tiếp tục upload dở khi chọn lại cùng file (`findPreviousUploads`, FR-022) vẫn như Directus, là hai thứ khác nhau (CHK059) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -789,11 +863,11 @@ xuất nhập, hàng loạt).
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
 | Q-13 | Cây thư mục lồng + ba mục đặc biệt trong sub-menu Files (như §9 của Content): thụt cấp, icon gập mở, menu chuột phải (đổi tên, chuyển, tải, xóa) và nút bàn phím tương đương, skeleton | Mở |
-| Q-14 | Lưới cards của Files: thẻ thư mục (icon, không ảnh) trước thẻ file, chọn gộp thư mục và file (số đếm ở header), viền thả bốn cạnh và notice `drop_to_upload`, notice tiến độ tải nhiều file | Mở |
+| Q-14 | Lưới cards của Files: thẻ thư mục (icon, không ảnh; link + ô chọn riêng như thẻ file 014) trước thẻ file, chọn gộp thư mục và file (số đếm ở header), viền thả bốn cạnh (`aria-hidden`) và notice `drop_to_upload`, notice tiến độ tải nhiều file | Mở |
 | Q-15 | Màn file: khung xem trước lớn với nút "thay file", form bên dưới (`max-w-5xl`), mục "Chi tiết file" dạng `dl` trong panel với nhóm EXIF, nút chép id | Mở |
 | Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), nút lưu với menu "lưu thành file mới" | Mở |
 | Q-17 | Sub-menu Users: bốn mục trạng thái, vạch chia, cây role lồng với icon role, menu "sửa role" (admin) | Mở |
-| Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái) trên form; mục "Thông tin" trong panel | Mở |
+| Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái: đề xuất active `success`, invited `warning`, draft `gray`, suspended `error`, archived `gray` nhạt) cùng bề ngang form; mục "Thông tin" trong panel | Mở |
 | Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có ô xem trước SVG theo theme Directus, Q1 = C); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Mở |
 
 ## Clarifications
@@ -849,40 +923,53 @@ xuất nhập, hàng loạt).
 - Tài liệu ngoài `specs/015-*` (design-system, spec 012/013/014, `CLAUDE.md`, `SPECKIT-GUIDE.md`) chỉ sửa sau khi 014
   mở khóa working tree.
 
+- Env parity bật `TUS_ENABLED=true` cho API mới và Directus ở profile `app` để E2E `files-upload` ở `proxy-api` đi
+  nhánh TUS; chưa bật thì thêm ở compose (kiểm T002, CHK090).
+- Test `BoUpload` của 013 cập nhật allowlist thêm `PATCH /files/:id`; spec 013 FR-051, FR-054 ghi "mở rộng ở 015" (FR-121,
+  CHK091).
+
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
 - **SC-001**: 100% kịch bản E2E của US1 đến US7 đạt ở ba cấu hình API (Directus thật, API mới cùng origin, API mới khác
   origin) trên chromium 768 và 1280; cùng origin thêm firefox-1280 và webkit-1280 cho ba spec lõi (`files-library`,
-  `files-item`, `users-item`); cors chỉ chromium-1280; "các luồng chính của hai module chạy giống Directus" = SC-001 và
+  `files-item`, `users-item`); cors chỉ chromium-1280; spec điều khiển Directus app (payload, parity-ui) chỉ
+  chromium-1280 (`DIRECTUS_APP_SPECS`, giới hạn 100 phút của job, như 014); "các luồng chính của hai module chạy giống Directus" = SC-001 và
   SC-004.
 - **SC-002**: Với bộ mẫu, so với Directus app trên cùng DB cho ba user (`admin`, `bo-editor`, `bo-viewer`) bằng E2E
   song song, 0 lệch ngoài D-xx ở năm thuộc tính: (a) nhãn và thứ tự mục sub-menu (thư mục, mục đặc biệt, trạng thái,
   role), (b) tiêu đề và breadcrumb, (c) chuỗi dòng số đếm và số lượng chọn, (d) `disabled`/ẩn của nút tạo, mời, xóa,
-  sửa hàng loạt, chuyển thư mục, tải về, chỉnh ảnh, thay file, tạo thư mục, lưu, archive, (e) mục panel hiện; thu bằng
-  `innerText` và `aria-disabled`.
+  sửa hàng loạt, chuyển thư mục, tải về, tải thư mục, chỉnh ảnh, thay file, tạo thư mục, đổi tên thư mục, lưu, archive
+  (13 nút; "ẩn" = không có trong DOM), (e) mục panel hiện; thu bằng `innerText` và `aria-disabled` (CHK060).
 - **SC-003**: 0 file trong `directus/` bị sửa; trong E2E, 0 request tới route ngoài FR-115 và 0 request ra ngoài.
 - **SC-004**: 100% body ghi (`/files` tạo, sửa, thay, bản sao, xóa, hàng loạt; `/files/import`; `/folders`; `/users`
   tạo, sửa, xóa, hàng loạt; `/users/invite`; `/users/*/tfa/*`; `/utils/random/string` + `PATCH`
   token; `/presets`; `/utils/import`, `/utils/export`) của kịch bản E2E bằng body Directus app gửi cho cùng kịch bản
-  sau chuẩn hóa (FR-120).
+  sau chuẩn hóa (FR-120; multipart so tên field theo thứ tự, tên file, `type`, kích thước blob, không so bytes; nonce
+  `/assets/:id?x` bỏ, CHK061).
 - **SC-005**: Sáu interface `_system`: với bộ mẫu, giá trị ghi ra (`language`, `tfa_secret` qua API, `token`,
-  `theme_light`, `theme_dark`, `theme_light_overrides`, `theme_dark_overrides`) bằng Directus app
-  cho 10 thao tác mẫu; test component với mock API, request đúng allowlist.
-- **SC-006**: Trình chỉnh ảnh: cắt 200×100 tại (10, 20) và xoay -90° một PNG 400×300 cho `width`, `height`,
-  `focal_point_x/y` trong `directus_files` bằng Directus app và điểm ảnh sau khi giải mã bằng nhau (so pixel, dung sai
-  0, trên cùng chromium); không so bytes hay hash của file (Clarifications 2026-10-15).
+  `theme_light`, `theme_dark`, `theme_light_overrides`, `theme_dark_overrides`) bằng Directus app cho 10 thao tác mẫu:
+  ngôn ngữ null → vi-VN, chọn mỗi theme (3 sáng, 1 tối), overrides thêm một khóa, overrides xóa khóa (gỡ nhóm rỗng),
+  token tạo, token xóa, TFA bật, TFA tắt (CHK062); test component với mock API, request đúng allowlist.
+- **SC-006**: Trình chỉnh ảnh: cắt 200×100 tại (10, 20) (đặt qua `setData` của Cropper bằng `page.evaluate` ở cả hai
+  app) và xoay -90° ảnh mẫu `bo-edit.png` 400×300 của bộ mẫu cho `width`, `height`, `focal_point_x/y` trong
+  `directus_files` bằng Directus app và điểm ảnh sau khi giải mã bằng nhau (canvas `drawImage` → `getImageData`, so RGBA
+  từng byte, dung sai 0, trên cùng chromium); không so bytes hay hash của file (Clarifications 2026-10-15, CHK036,
+  CHK063).
 - **SC-007**: Hiệu năng (ngân sách cho máy tham chiếu, nhân `machineFactor()` trên CI như 014 R14; trung vị 3 lần,
-  chromium, bước `PERF=1`): cây 500 thư mục vẽ dưới 500
-  ms; lưới cards 100 thẻ + 20 thẻ thư mục vẽ dưới 1 giây; thả 20 file 1 MB với `maxConcurrency` 5 không quá 5 request
-  đồng thời và danh sách nạp lại đúng 1 lần sau khi xong; mở trình chỉnh ảnh 4000×3000 dưới 2 giây sau khi ảnh tải
-  xong; số request mỗi thao tác: đổi thư mục = 1 danh sách + 1 đếm, đổi trang = 1 danh sách, mở màn user = 1 item + 1
-  roles (cache) + request của interface quan hệ.
+  chromium, bước `PERF=1`, mount bằng `createApp`): cây 500 thư mục ba cấp mở hết vẽ dưới 500 ms; lưới cards 100 thẻ
+  (ảnh là data-URL PNG 1×1, không tải mạng) + 20 thẻ thư mục vẽ dưới 1 giây; thả 20 file 1 MB với `maxConcurrency` 5
+  không quá 5 request đồng thời và danh sách nạp lại đúng 1 lần sau khi xong (đếm `GET /files`); mở trình chỉnh ảnh
+  4000×3000 dưới 2 giây từ sự kiện `load` của `img` tới `ready` của Cropper; số request mỗi thao tác: mở thư mục = 1
+  danh sách + 1 đếm (+ 0 folders), tải xong = 1 danh sách + 1 đếm (như `refresh()` của Directus), đổi trang = 1 danh
+  sách, mở màn user = 1 item + 0 roles (cache) + 1 `/access` (policies) + 1 `/files` (avatar); folders và roles nạp một
+  lần mỗi phiên app, đổi qua lại Files ↔ Users không nạp lại (CHK044, CHK045, CHK046, CHK064, CHK089).
 - **SC-008**: Recipe Q-13 đến Q-19 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng 015; axe 0 vi
   phạm serious/critical trên thư viện (hai layout cards và tabular), màn file, drawer chỉnh ảnh, danh bạ, màn user với
-  ba hộp TFA, hộp mời, ở sáng và tối (ngoại lệ FR-111: khung cắt chỉ chuột).
+  ba hộp TFA, hộp mời, hộp xóa thư mục ở trạng thái mở, ở sáng và tối (danh sách màn khớp FR-111; axe không kiểm
+  kéo thả nên ngoại lệ khung cắt chỉ chuột của FR-111 không làm SC này đỏ; ghi ở `qa/handoff-checklist.md`).
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 014 + 20 KB gzip; 0 màu thô ngoài danh sách miễn.
-- **SC-010**: D-83 trở đi và R-xx (nếu có) được tech lead duyệt; D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
+- **SC-010**: D-83 đến D-90 (D-87 đã bỏ, không cần duyệt) và R-xx (nếu có) được tech lead duyệt (CHK066); D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
   D-72 (phần 015) ghi "đã gỡ ở 015" và D-44 ghi "sau 015" ở spec gốc.

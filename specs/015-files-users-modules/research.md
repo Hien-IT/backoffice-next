@@ -62,9 +62,8 @@ giao thức có máy chủ ở 007, client Directus dùng đã kiểm); thư vi�
   `/assets/:id?download` hoặc `POST /assets/files`), `useFileUpload` với bốn listener trên `window`; viền thả là bốn
   `div` cố định quanh `main` (token `border-brand-500`), notice `drop_to_upload` và tiến độ là `BoNotice` trong page
   header (D-66) với `aria-live=polite`.
-- `uploadFile`/`uploadFiles`: chép `utils/upload-file.ts`, `utils/upload-files.ts` vào `src/utils/`; `BoUpload` 013
-  chuyển sang gọi `uploadFiles` (bỏ `upload-with-progress.ts` nếu trùng, hoặc `uploadFile` dùng nó cho nhánh multipart:
-  chọn ở T002 theo diff nhỏ nhất); thêm prop `fileId` (thay file, `PATCH /files/:id` multipart hoặc TUS với `id`);
+- `uploadFile`/`uploadFiles`: chép `utils/upload-file.ts`, `utils/upload-files.ts` vào `src/utils/`; nhánh multipart
+  của `uploadFile` gọi `uploadWithProgress` 013 (giữ file), `BoUpload` 013 chuyển sang gọi `uploadFiles` (chốt, CHK056); thêm prop `fileId` (thay file, `PATCH /files/:id` multipart hoặc TUS với `id`);
   store server đọc `uploads` (`tus`, `chunkSize`, `maxConcurrency`) từ `/server/info` (ghi chú D-41 ở `server.ts`
   sửa: `uploads` nay được đọc). Store `files` (đếm upload đang chạy) chép `stores/files.ts`.
 - Hộp `add_file` theo route `+`: `useDialogRoute` chép (`isOpen` theo `route.matched`), `BoDialog` với `BoUpload`
@@ -109,16 +108,16 @@ kết quả Directus).
 - `system-input-password`: `BoInput` + nút mắt (không có màn dùng ở 015, port cho đủ bộ D-57).
 - `system-mfa-setup`: port trên `use-tfa-setup` 012 mở rộng (`disableTFA` `POST /users/me/tfa/disable`,
   `adminDisableTFA` `POST /users/:pk/tfa/disable`, `requestTFASetup` ghi khóa `backoffice-require_tfa_setup` rồi
-  `logout`, `cancelTFASetup`); giá trị form lấy từ `inject('values')` mà `BoForm` 013 cung cấp [Unverified: BoForm
-  `provide('values')`; T002] và `discardAllChanges`, `refresh` do màn user `provide`; QR bằng `qrcode` 1.5.4 (012).
+  `logout`, `cancelTFASetup`); giá trị form lấy từ `inject('values')` mà `BoForm` 013 cung cấp [Unverified: BoForm `provide('values')`; T002; dự phòng: màn user `provide('values', item)` (CHK092)] và `discardAllChanges`, `refresh` do màn user `provide`; QR bằng `qrcode` 1.5.4 (012).
 - `system-token`: port nguyên; `PATCH <getEndpoint(collection)>/<pk>` qua sdk; `useClipboard` của 012/013.
 - `system-theme` (C): `ThemePreview.vue` chép `theme-preview.vue` (SVG 200×140 với biến `--theme--*` đặt inline bằng
   `rulesToCssVars(theme.rules)` cộng overrides của user đã gộp bằng `lodash-es` `merge`); danh sách theme theo
   `appearance`; `includeNull` thêm mục `default_sync_with_project` với theme mặc định dự án (`default_theme_light|dark`
-  của `/server/info` [Unverified: store server 012 có đọc `project.default_theme_*`? T002]).
+  của `/server/info`; store server 012 đã có `auth.disableDefault` (FR 012), `project.default_theme_*` thêm ở 015
+  (CHK093).
 - `system-theme-overrides`: port ba SFC; `type: 'color'` cho mọi rule lá như Directus; swatch dùng `color` 5.0.2 và
-  `cssVar` chép từ `@directus/utils/browser` [Unverified: `cssVar` có trong `@directus/utils/browser` 13.4.1; nếu
-  không thì `getComputedStyle(document.documentElement).getPropertyValue`].
+  `cssVar` chép từ `@directus/utils/browser` [Unverified: `cssVar` có trong `@directus/utils/browser` 13.4.1; dự phòng
+  `getComputedStyle(document.documentElement).getPropertyValue`, CHK094].
 - Dữ liệu rule: script `apps/web/scripts/sync-directus-themes.mjs` đọc bốn file `directus/packages/themes/src/themes/
   {light,dark}/*.ts` (import động qua `tsx`/`jiti` hoặc regex `defineTheme({...})` → chọn ở T002), ghi
   `apps/web/src/theme/directus-themes.json` (`{ light: Theme[], dark: Theme[] }` với `id`, `name`, `appearance`,
@@ -176,7 +175,8 @@ marker `Tus-Resumable`). Perf browser test (`PERF=1`, `machineFactor()` của 01
 
 **Quyết định**: khóa của Files, Users, sáu interface, trình chỉnh ảnh đã có trong `en-US.json`/`vi-VN.json` sinh ở
 012 (sinh từ toàn bộ `en-US.yaml`) [Unverified: `vi-VN.yaml` của Directus có đủ khóa `interfaces.system-token.*`,
-`delete_folder_dialog.*`; thiếu thì rơi về en-US theo cơ chế fallback của vue-i18n]; `lang/keys.test.ts` mở rộng cho
+`delete_folder_dialog.*`; thiếu thì rơi về en-US theo cơ chế fallback của vue-i18n, chấp nhận; `keys.test.ts` chỉ
+kiểm en-US (CHK096)]; `lang/keys.test.ts` mở rộng cho
 `modules/files`, `modules/users`, `interfaces/_system/system-*`; chuỗi riêng D-83 dùng `contact_admin_for_link` đã có
 trong overlay; D-88 thêm một khóa overlay `theme_applies_in_directus` (en-US, vi-VN).
 
@@ -184,7 +184,7 @@ trong overlay; D-88 thêm một khóa overlay `theme_applies_in_directus` (en-US
 
 | Lượt | Nội dung | Điều kiện vào |
 |------|----------|---------------|
-| 1 | R1 kiểm T002, recipe nháp Q-13 đến Q-16, route Files, cây thư mục, store presets mặc định, cards `extraSelection`/`prepend`, thư viện, thư mục CRUD, tải lên (TUS + multipart), màn file, chi tiết file, E2E `files-library`, `files-upload`, `files-item` | 014 báo đóng (CI xanh commit cuối) và push xong (quy tắc session 014) |
+| 1 | T001 xác nhận 014 đóng (tin nhắn của phiên 014 "đã đóng" + CI xanh commit cuối, CHK097), R1 kiểm T002, recipe nháp Q-13 đến Q-16, route Files, cây thư mục, store presets mặc định, cards `extraSelection`/`prepend`, thư viện, thư mục CRUD, tải lên (TUS + multipart), màn file, chi tiết file, E2E `files-library`, `files-upload`, `files-item` | 014 báo đóng (CI xanh commit cuối) và push xong (quy tắc session 014) |
 | 2 | `ImageEditor`, nút chỉnh ảnh của `file-image`, E2E `files-image-editor`, SC-006 | lượt 1 xanh |
 | 3 | recipe Q-17 đến Q-19, route Users, cây role, danh bạ, mời, màn user, sáu interface, dữ liệu theme, bỏ `ProfileRoute`, E2E `users-directory`, `users-item`, `users-tfa-token` | lượt 2 xanh |
 | 4 | quyền, payload suite, parity UI, benchmark, a11y, perf, bundle, ghi "đã gỡ ở 015" ở spec 012/013/014, design review README | lượt 3 xanh |
@@ -198,4 +198,6 @@ Mỗi lượt: commit lên `main`, CI xanh (`quality`, `e2e-web`, `docker`), `gr
 - Spec E2E đổi layout hoặc gõ tìm kiếm phải khôi phục preset seed (`clearAdminPresets`); E2E local chạy tuần tự trên
   DB chung; sau seed xóa cache `?system` ở 8156 và 8163.
 - Perf: ngân sách cho Mac tham chiếu nhân `machineFactor()`; mount bằng `createApp`, Vue production (`PERF=1`).
+- E2E điều khiển Directus app (payload, parity-ui) chỉ chạy chromium-1280 qua `grepInvert` với `DIRECTUS_APP_SPECS`
+  trong `playwright.config.ts` (014, 2026-10-15): sáu project đẩy `e2e-web` quá 100 phút; 015 làm giống.
 - Firefox ghi lỗi tải font bị hủy vào console (bỏ qua như 014); nginx cần `.mjs` là JavaScript.

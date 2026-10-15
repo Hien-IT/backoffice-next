@@ -16,7 +16,7 @@ duyệt dựng từ API.
 | files | `files-not-found` | `/files/:_(.+)+` | `FilesNotFound` | | |
 | users | `users-active` | `/users` | `UsersCollectionRoute` | `status: 'active'` | |
 | users | `users-suspended\|invited\|all` | `/users/suspended\|invited\|all` | `UsersCollectionRoute` | `status` (all: không) | |
-| users | `users-me` | `/users/me` | guard → `/users/<currentUser.id>` | | D-86 |
+| users | `users-me` | `/users/me` | `redirect: () => '/users/' + currentUser.id` (hàm, store đã hydrate; khai báo trước `users-item`) | | D-86, CHK055 |
 | users | `users-item` | `/users/:primaryKey` | `UserItemRoute` | `primaryKey` | |
 | users | — | `/users/roles` | redirect `/users` | | |
 | users | `roles-collection` | `/users/roles/:role` | `UsersCollectionRoute` | `role` | |
@@ -45,7 +45,7 @@ Bộ lọc hệ thống `getFolderFilter(folder?, special?, currentUserId?)` →
 
 | Trạng thái | Kiểu | Ghi chú |
 |------------|------|---------|
-| preset | `use-preset('directus_files')` 014 | mặc định hệ thống `cards` (store `presets.defaultPresets`) |
+| preset | `use-preset('directus_files')` 014 | mặc định hệ thống = `defaultPresets.directus_files` của `stores/presets.ts` Directus chép nguyên (T002, CHK001) |
 | `selection` | `string[]` | id file |
 | `folderSelection` | `string[]` | id thư mục con (→ `extraSelection` của cards) |
 | `subfolders` | `Folder[]` | `folders.filter(parent === folder ?? null)`; rỗng khi `special` |
@@ -100,7 +100,7 @@ Emit: `update:modelValue`, `refresh`, `new-file(id)`.
 
 ## 7. Danh bạ user (`UsersCollectionRoute`, FR-060 đến FR-066)
 
-Preset `use-preset('directus_users')` (mặc định `cards`); bộ lọc hệ thống `mergeFilters(roleFilter, statusFilter)`;
+Preset `use-preset('directus_users')` (mặc định = `defaultPresets.directus_users` chép nguyên, `cards`, CHK001); bộ lọc hệ thống `mergeFilters(roleFilter, statusFilter)`;
 `canInviteUsers = !auth.disableDefault && createAllowed && rolesReadAllowed`; `UsersInvite`: `emails: string`
 (tách `/,|\n/`, trim, bỏ rỗng), `roles: {text, value}[]` (`GET /roles` khi mở), `roleSelected` (prop `role` hoặc phần
 tử đầu), `uniqueValidationErrors: APIError[]` (`extensions.code === 'RECORD_NOT_UNIQUE'`, `extensions.invalid` = email).
@@ -152,8 +152,8 @@ rules}`; `rulesToCssVars(rules)` → `Record<'--theme--<kebab--path>', string|nu
 
 | Tập | Nội dung | Tạo qua |
 |-----|----------|---------|
-| `bo_files` | thư mục `bo-fixtures` (013) + `bo-fixtures/sub` + `bo-fixtures/sub/deep`; 30 file: PNG (có ảnh 400×300 cho SC-006), JPEG có EXIF, PDF, MP4 ngắn, TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` 10 ngày trước (sửa qua `PATCH /files/:id` với `uploaded_on`? [Unverified: API cho ghi `uploaded_on`; nếu không, `recent` kiểm bằng file mới tải]) | `POST /folders`, `POST /files` multipart (seed.mjs) |
-| `bo_users` | role `bo-editor`, `bo-viewer` (013) + `bo-sub` (parent `bo-editor`); user mỗi `status` (`bo-active`, `bo-suspended`, `bo-invited` qua `POST /users/invite`, `bo-draft`, `bo-archived`); user có `token`; user `provider` ≠ default cho luồng SSO | `POST /roles`, `POST /users`, `POST /users/invite` |
+| `bo_files` | thư mục `bo-fixtures` (013) + `bo-fixtures/sub` + `bo-fixtures/sub/deep`; 30 file: PNG (gồm `bo-edit.png` 400×300 cho SC-006, CHK063), JPEG có EXIF tạo trong seed bằng `sharp` `withMetadata` (dependency đã có ở API; không dùng ảnh ngoài, CHK095), PDF, MP4 ngắn, TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` 10 ngày trước (sửa qua `PATCH /files/:id` với `uploaded_on`? [Unverified: API cho ghi `uploaded_on`; nếu không, `recent` kiểm bằng file mới tải]) | `POST /folders`, `POST /files` multipart (seed.mjs) |
+| `bo_users` | role `bo-editor`, `bo-viewer` (013) + `bo-sub` (parent `bo-editor`); user mỗi `status` (`bo-active`, `bo-suspended`, `bo-invited` qua `POST /users/invite`, `bo-draft`, `bo-archived`); user có `token`; user SSO với `provider` = tên provider của profile `sso` env parity (chỉ cần dữ liệu, không đăng nhập; kiểm T002, CHK030) | `POST /roles`, `POST /users`, `POST /users/invite` |
 
 Snapshot export thêm `folders.json`, `files.json` (bỏ `tus_*`, chuẩn hóa ngày), `users.json` (bỏ `token`, `tfa_secret`,
 `password`), `roles.json`.
