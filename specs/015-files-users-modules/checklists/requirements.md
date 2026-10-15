@@ -15,7 +15,7 @@
 
 ## Requirement Completeness
 
-- [ ] No [NEEDS CLARIFICATION] markers remain — còn 2 (FR-084/Q1 theme, Q2 `/register`), chờ owner.
+- [x] No [NEEDS CLARIFICATION] markers remain — Q1 = C, Q2 = B (owner, 2026-10-15) đã ghi vào spec.
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
 - [x] Success criteria are technology-agnostic (no implementation details) — SC nêu tên endpoint Directus làm đối
@@ -35,8 +35,8 @@
 ## Notes
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
-- Chờ owner trả lời Q1 (A/B/C) và Q2 (A/B/C) trong Clarifications; sau đó thay marker bằng câu trả lời, cập nhật D-88
-  và FR-090 đến FR-092.
+- Q1 = C (xem trước theme Directus, FR-084, D-88, D-89), Q2 = B (không làm `/register`, FR-090, D-44 giữ): đã áp
+  2026-10-15. Spec sẵn sàng cho `/speckit.plan`.
 - Chờ tech lead duyệt D-87 (ô nhập số cho cắt ảnh); các D-83 đến D-90 còn lại duyệt trước khi đóng.
 - Session 014 còn đang đóng: không sửa `apps/web`, `apps/web-e2e`, `design-system/`, spec 012–014 cho tới khi 014 báo
   xong (FR-122); 015 chỉ commit `specs/015-*`.

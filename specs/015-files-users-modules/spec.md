@@ -50,9 +50,7 @@ Cards bỏ slot prepend (chỉ module Files dùng): 015 thêm lại. Interface _
   `components/navigation.vue`, `NavigationRole.vue` (cây role theo `parent`, menu "sửa role" cho admin),
   `composables/use-navigation.ts`, `components/user-info-sidebar-detail.vue`;
   `views/private/components/users-invite.vue` (`POST /users/invite` với `email[]`, `role`; lỗi `RECORD_NOT_UNIQUE`);
-  `views/private/components/module-bar-avatar.vue` (link hồ sơ `/users/<id>`); `routes/register/register.vue`,
-  `register-form.vue` (`POST /users/register`, đăng nhập ngay khi không cần xác minh email, không thì màn
-  "kiểm tra email").
+  `views/private/components/module-bar-avatar.vue` (link hồ sơ `/users/<id>`).
 - Interface hệ thống (`interfaces/_system`): `system-language` (`availableLanguages`, `includeProjectDefault`),
   `system-theme` (+ `theme-preview.vue`), `system-theme-overrides` (+ `SystemThemeOverridesGroup.vue`,
   `system-theme-overrides-rule.vue`, `types.ts`), `system-mfa-setup` (luồng mật khẩu và luồng SSO, admin tắt TFA
@@ -83,10 +81,10 @@ Phạm vi: mọi route của hai module (`/files`, `/files/+`, `/files/folders/:
 `/files/all|mine|recent`, `/files/:primaryKey`; `/users`, `/users/suspended|invited|all`, `/users/roles/:role`,
 `/users/roles/:role/+`, `/users/:primaryKey`, `/users/me`), thay khung D-40 của 012 và đích chuyển hướng D-72 của 014;
 trang hồ sơ đầy đủ thay form cố định của 012 (D-48); sáu interface `_system` của `directus_users` (D-57); trình chỉnh
-ảnh dùng chung với `file-image` (D-59); trang đăng ký công khai `/register` (D-44, Clarifications Q2); E2E ba cấu hình.
-Ngoài phạm vi: màn Settings của role và policy (016, link tới khung 012 như D-71), drawer thông báo và danh sách upload
-đang chạy (018, D-45), snackbar (D-66), AI, collab, extension (XI, D-41), gửi email (X: mời và đăng ký ghi log ở API,
-D-36).
+ảnh dùng chung với `file-image` (D-59); E2E ba cấu hình. Ngoài phạm vi: trang đăng ký công khai `/register` (D-44 giữ,
+owner chọn 2026-10-15, Clarifications Q2), màn Settings của role và policy (016, link tới khung 012 như D-71), drawer
+thông báo và danh sách upload đang chạy (018, D-45), snackbar (D-66), AI, collab, extension (XI, D-41), gửi email (X: mời
+ghi log ở API, D-36).
 
 ### User Story 1 - Thư viện file: cây thư mục, danh sách theo layout, điều hướng (Priority: P1)
 
@@ -256,12 +254,12 @@ với Directus app; mở `/users/me` và so với Directus app ở `/users/<id>`
    `PATCH /users/:id` `{ token }` ngay (không chờ lưu form), ô hiện token dạng text với nút chép và notice "đã lưu, chép
    ngay"; đã có token (`value` là `****`) thì nút "tạo lại" có hộp xác nhận, nút xóa có hộp xác nhận (`PATCH` `token:
    null` rồi nạp lại item); user mới thì ô khóa với notice `new_user_disabled_notice`.
-5. **Given** `password` (`input-hash` của 013 hoặc `system-input-password` ở form đăng ký), `language`
+5. **Given** `password` (`input-hash` của 013), `language`
    (`system-language`: danh sách `availableLanguages` của app, mục "mặc định dự án" khi `includeProjectDefault`),
    `status` (dropdown `draft|invited|unverified|active|suspended|archived`), `role` (m2o với template), `policies`
    (m2m `directus_access`), `theme_light_overrides`/`theme_dark_overrides` (`system-theme-overrides`: cây nhóm gập mở
    theo khóa theme Directus, ô nhập với placeholder là mặc định và swatch màu, xóa giá trị thì gỡ khóa và nhóm rỗng),
-   `theme_light`/`theme_dark` (`system-theme`, Clarifications Q1), **When** sửa và lưu, **Then** giá trị ghi ra bằng
+   `theme_light`/`theme_dark` (`system-theme`, xem trước đúng màu theme Directus, Q1 = C), **When** sửa và lưu, **Then** giá trị ghi ra bằng
    Directus app với cùng thao tác (bộ so payload).
 6. **Given** `/users/me`, **When** mở, **Then** chuyển hướng tới `/users/<id user hiện tại>` (D-86); menu avatar ở
    header trỏ thẳng `/users/<id>` như `module-bar-avatar.vue`; form cố định của 012 bỏ (D-48 gỡ).
@@ -302,17 +300,16 @@ PNG, so kích thước `width`/`height` trong `directus_files` và bytes derived
 
 ---
 
-### User Story 6 - Tìm kiếm, bộ lọc, preset, xuất nhập, hàng loạt, quyền, đăng ký công khai (Priority: P2)
+### User Story 6 - Tìm kiếm, bộ lọc, preset, xuất nhập, hàng loạt, quyền (Priority: P2)
 
 Người dùng tìm và lọc file hoặc user bằng thanh tìm kiếm và bộ lọc nâng cao của 014, đổi layout và tùy chọn (lưu vào
-preset `directus_files`/`directus_users`), xuất và nhập, sửa hàng loạt; người chưa có quyền chỉ thấy phần được phép;
-khách đăng ký tài khoản ở `/register` khi dự án bật đăng ký công khai.
+preset `directus_files`/`directus_users`), xuất và nhập, sửa hàng loạt; người chưa có quyền chỉ thấy phần được phép.
 
-**Why this priority**: Dùng lại phần 014; quyền và đăng ký là ràng buộc của tiêu chí "giống Directus".
+**Why this priority**: Dùng lại phần 014; quyền là ràng buộc của tiêu chí "giống Directus".
 
 **Independent Test**: E2E với ba user (`admin`, `bo-editor` có quyền một phần, `bo-viewer` chỉ đọc) ở cả hai module:
 so `disabled`/ẩn của các nút tạo, mời, xóa, sửa hàng loạt, chuyển thư mục, chỉnh ảnh, tải thư mục, tạo thư mục; preset
-và bookmark; xuất CSV và nhập CSV; `/register` với `public_registration` bật và tắt, `verify_email` bật và tắt.
+và bookmark; xuất CSV và nhập CSV; `/register` vẫn là trang "chưa có sẵn" của 012.
 
 **Acceptance Scenarios**:
 
@@ -327,11 +324,8 @@ và bookmark; xuất CSV và nhập CSV; `/register` với `public_registration`
    chuyển thư mục, thay file, chỉnh ảnh khóa hoặc ẩn như Directus (`useCollectionPermissions`, `useItemPermissions`);
    không có quyền đọc `directus_files` hoặc `directus_users` thì module không có trong sidebar (`preRegisterCheck` của
    012) và route trả màn không có quyền của 012.
-4. **Given** `public_registration` bật và `public_registration_verify_email` tắt, **When** đăng ký email và mật khẩu
-   ở `/register`, **Then** `POST /users/register` rồi đăng nhập và tới `/users/<id>`; `verify_email` bật thì màn
-   `registration_successful_headline` với ghi chú kiểm tra email cộng dòng hướng dẫn liên hệ quản trị viên (D-84);
-   lỗi `INVALID_PAYLOAD` hiện như `INVALID_CREDENTIALS`; `public_registration` tắt thì `/register` là trang không tìm
-   thấy public như Directus (`router.ts`).
+4. **Given** `public_registration` bật, **When** mở link đăng ký ở trang đăng nhập, **Then** vẫn tới trang public "chưa
+   có sẵn" của 012 (D-44 giữ, Q2); 015 không làm form đăng ký.
 
 ---
 
@@ -342,8 +336,8 @@ trên cùng DB; recipe design-system cho màn chưa có mẫu được viết tr
 
 **Why this priority**: Là tiêu chí chấp nhận.
 
-**Independent Test**: Job `e2e-web` với spec `files-*.spec.ts`, `users-*.spec.ts`, `register.spec.ts`; bộ so payload
-mở rộng cho `/files`, `/folders`, `/users`, `/users/invite`, `/users/register`, `/utils/random/string`, `/users/*/tfa/*`;
+**Independent Test**: Job `e2e-web` với spec `files-*.spec.ts`, `users-*.spec.ts`; bộ so payload
+mở rộng cho `/files`, `/folders`, `/users`, `/users/invite`, `/utils/random/string`, `/users/*/tfa/*`;
 bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đếm, `disabled` của nút, mục panel.
 
 **Acceptance Scenarios**:
@@ -351,7 +345,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 1. **Given** bộ mẫu `bo_files` và `bo_users` seed qua Directus REST, **When** chạy E2E song song hai app cho ba user,
    **Then** 0 lệch ngoài D-xx ở năm thuộc tính của SC-002.
 2. **Given** cùng kịch bản ghi, **When** so body, **Then** 100% bằng sau chuẩn hóa (SC-004); lệch thật ghi R-xx.
-3. **Given** recipe Q-13 đến Q-20, **When** đóng feature, **Then** design owner đã duyệt (SC-008).
+3. **Given** recipe Q-13 đến Q-19, **When** đóng feature, **Then** design owner đã duyệt (SC-008).
 
 ### Edge Cases
 
@@ -383,7 +377,6 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   lưu (chỉ ghi phần sửa) như Directus (`setWith` trên clone).
 - `language` là mã không có trong app (D-46): dropdown hiện mã thô, lưu giữ nguyên; giao diện rơi về `en-US`.
 - `/users/me` khi là user share: không có module Users; route về màn không có quyền của 012.
-- `/register` khi đã đăng nhập: notice `authenticated` như Directus, form vẫn hiện.
 - Lưới cards với thư mục con nhưng `select-mode` (có lựa chọn file): thẻ thư mục cũng vào chế độ chọn
   (`selectMode = selection.length > 0 || anySelection`), bấm thẻ chọn thay vì mở.
 - Màn hẹp 768 px: panel là drawer (L-4); drawer chỉnh ảnh chiếm toàn màn; sub-menu cây thư mục cuộn trong sidebar.
@@ -398,7 +391,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 | US3 | 1–6 | FR-050 đến FR-055, FR-060 đến FR-066 | SC-001, SC-002, SC-004 |
 | US4 | 1–7 | FR-070 đến FR-079, FR-080 đến FR-086 | SC-001, SC-004, SC-005 |
 | US5 | 1–5 | FR-040 đến FR-046 | SC-001, SC-004, SC-006 |
-| US6 | 1–4 | FR-090 đến FR-092, FR-100 đến FR-103 | SC-001, SC-002, SC-004 |
+| US6 | 1–4 | FR-090, FR-100 đến FR-103 | SC-001, SC-002, SC-004 |
 | US7 | 1–3 | FR-110 đến FR-125 | SC-002 đến SC-010 |
 
 ## Requirements *(mandatory)*
@@ -645,8 +638,9 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `availableLanguages` của app (en-US, vi-VN; mã khác hiện thô, D-46), mục đầu "mặc định dự án" (`fields.directus_settings.
   default_language`, giá trị null) khi `includeProjectDefault`; placeholder `language_placeholder`; `disabled`.
 - **FR-081**: `system-input-password` (`types: string|text`, option `placeholder`): `BoInput` `type=password|text` với
-  nút mắt (`show_password|hide_password`), `autocomplete=new-password` mặc định, `autofocus`; dùng ở form đăng ký
-  (FR-091); trong form user, `password` vẫn là `input-hash` theo metadata.
+  nút mắt (`show_password|hide_password`), `autocomplete=new-password` mặc định, `autofocus`; không có màn dùng
+  ở 015 (form đăng ký để lại, Q2) nhưng vẫn port cho đủ bộ D-57; trong form user, `password` vẫn là `input-hash` theo
+  metadata.
 - **FR-082**: `system-mfa-setup` (`types: text`): ô kiểu checkbox khối hiện `enabled|disabled` với icon `launch`, khóa khi
   `disabled` hoặc (không phải chính mình và chưa bật); `effectiveTFAEnabled` theo `tfa_secret` (từ `inject('values')`
   của form hoặc store user) và khóa `require_tfa_setup` cho SSO; ba hộp như `system-mfa-setup.vue`: bật (SSO:
@@ -663,13 +657,13 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   + `token_saved_copy`; tạo lại: hộp `regenerate_confirm_*` kiểu danger; xóa: hộp `remove_confirm_*` → `PATCH`
   `{ token: null }` rồi `inject('refresh')`; user mới: khóa + notice `new_user_disabled_notice`; giá trị `****` từ API
   nghĩa là đã có token; focus chọn hết text, blur bỏ chọn.
-- **FR-084**: `system-theme` (`types: string`, prop `appearance`, `includeNull`): danh sách theme chọn một dạng radio
-  với xem trước; nội dung theo Clarifications Q1 [NEEDS CLARIFICATION: Backoffice chỉ có theme TailAdmin (D-43) nên
-  `theme_light`/`theme_dark` (tên theme Directus: Directus Default, Minimal, Color Match...) không đổi giao diện
-  Backoffice. Hiện gì trong form user: (A) danh sách tên theme Directus (dữ liệu tĩnh chép từ `@directus/themes`) không
-  xem trước, kèm dòng "chỉ áp dụng ở Directus app"; (B) ẩn hai field này trong Backoffice, giữ giá trị khi lưu; (C) port
-  `theme-preview.vue` với rule của từng theme Directus để xem trước đúng màu Directus]; `includeNull` thêm mục
-  `default_sync_with_project` (null) với theme mặc định của dự án (`default_theme_light|dark` từ `/server/info`).
+- **FR-084**: `system-theme` (`types: string`, prop `appearance`, `includeNull`): danh sách theme Directus của
+  `appearance` (`@directus/themes`: Directus Default, Minimal, Color Match... cùng `id` và `name`) dạng radio, mỗi mục có
+  ô xem trước là port của `theme-preview.vue` (SVG khung app với biến `--theme--*` của theme đó cộng overrides của user,
+  `rulesToCssVars`) để xem trước đúng màu Directus (Q1 = C, D-88); rule của từng theme là dữ liệu tĩnh chép từ
+  `@directus/themes` 11.17.4 (D-89); giá trị không có thì chọn theme đầu; `includeNull` thêm mục đầu
+  `default_sync_with_project` (null) xem trước bằng theme mặc định của dự án (`default_theme_light|dark` từ
+  `/server/info`); chọn theme không đổi giao diện Backoffice (D-43), kèm dòng ghi chú "áp dụng ở Directus app".
 - **FR-085**: `system-theme-overrides` (`types: json`, prop `appearance`): cây nhóm gập mở từ rule của theme Directus
   mặc định theo `appearance` (dữ liệu tĩnh chép từ `@directus/themes`, D-89): nhóm `$root` (rule không lồng) rồi nhóm
   theo khóa, mỗi rule là ô text với placeholder là giá trị mặc định và swatch khi giá trị là màu (`color`, `var(--...)`
@@ -679,18 +673,10 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-086**: Sáu interface PHẢI đăng ký trong registry 013 với cùng `id`, `name`, `icon`, `types`, `system`, `options`
   như Directus; test registry của 013 cập nhật (số interface = 31 + 2 (014) + 6).
 
-**Đăng ký công khai (D-44, Clarifications Q2)**
+**Đăng ký công khai (D-44)**
 
-- **FR-090**: Route public `/register` PHẢI thay trang "chưa có sẵn" của 012 bằng `PublicView` với tiêu đề `register`
-  (hoặc `registration_successful_headline`), form (FR-091), dòng `already_have_an_account` + link `/login`, notice
-  `authenticated|logoutReason|not_authenticated`; chỉ đăng ký khi `public_registration` của `/server/info` bật (ngược
-  lại là trang không tìm thấy public như `router.ts` Directus).
-- **FR-091**: Form PHẢI có email (`type=email`, `autocomplete=username`, autofocus) và `system-input-password`; kiểm
-  email bằng regex đơn giản như Directus (lỗi `INVALID_PAYLOAD` hiện như `INVALID_CREDENTIALS`); `POST /users/register`
-  `{ email, password }`; `public_registration_verify_email` tắt → `login({ credentials })` rồi tới `/users/<id>` (hoặc
-  `/login`); bật → màn thành công với `registration_successful_check_email_note` (markdown) cộng dòng
-  `contact_admin_for_link` (D-84) và nút `sign_in`; lỗi API hiện `translateAPIError`.
-- **FR-092**: Link đăng ký ở trang đăng nhập của 012 giữ; E2E `password-invite.spec.ts` cập nhật đích.
+- **FR-090**: `/register` PHẢI giữ nguyên trang public "chưa có sẵn" của 012 và link đăng ký ở trang đăng nhập; 015
+  không làm form đăng ký (owner chọn 2026-10-15, Q2); D-44 của 012 còn mở, cột "Gỡ ở" đổi thành "sau 015".
 
 **Quyền**
 
@@ -709,15 +695,15 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-110**: Mọi màn PHẢI dùng token và recipe của `design-system/` (XII): `PrivateView`, page header L-5, panel L-4,
   sub-menu L-3 (ngoại lệ cây lồng cho Files và Users như Content, ghi vào `layout-patterns.md` §7 và §11 khi 014 mở
   khóa tài liệu), `BoDialog` cho mọi hộp xác nhận (nút an toàn trước, D-76), `BoDrawer` cho trình chỉnh ảnh, layout
-  cards với thẻ thư mục (recipe Q-3 mở rộng); màn chưa có mẫu ghi Q-13 đến Q-20, recipe nháp vào `design-system/docs/`
+  cards với thẻ thư mục (recipe Q-3 mở rộng); màn chưa có mẫu ghi Q-13 đến Q-19, recipe nháp vào `design-system/docs/`
   trước khi code, design owner duyệt trước khi đóng.
 - **FR-111**: WCAG 2.1 AA như 012 FR-067 và 014: axe 0 vi phạm serious/critical; cây thư mục và cây role có vai trò
   `tree`; menu chuột phải có nút bàn phím tương đương; viền thả và tiến độ tải có `aria-live`; drawer chỉnh ảnh bẫy
   focus; ô QR có mô tả văn bản (secret); mọi nút icon có nhãn.
 - **FR-112**: Chuỗi dịch lấy từ file sinh của 012 (`file_library`, `all_files`, `my_files`, `recent_files`,
   `drop_to_upload`, `upload_files_indeterminate`, `delete_folder_dialog.*`, `invite_users`, `email_already_invited`,
-  `interfaces.system-token.*`, `sso_tfa_setup_notice`, `editing_image`, `changes_are_permanent`, `registration_*`...);
-  thiếu thì chạy lại script sinh; chuỗi riêng (dòng D-83, D-84) vào overlay như `contact_admin_for_link`.
+  `interfaces.system-token.*`, `sso_tfa_setup_notice`, `editing_image`, `changes_are_permanent`...);
+  thiếu thì chạy lại script sinh; chuỗi riêng (dòng D-83, D-88) vào overlay như `contact_admin_for_link`.
 - **FR-113**: Thông báo thành công/lỗi là notice tại chỗ (D-66) tới 018; không snackbar.
 - **FR-114**: Không collab, không AI (D-41, D-54, D-68): bỏ `CollabIndicatorHeader`, `ComparisonModal` chế độ `collab`,
   hộp `unsaved_changes_collab` của hai màn item.
@@ -730,7 +716,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-117**: Test: unit/component cho sáu interface, `ImageEditor` (mock Cropper hoặc browser project), `FolderPicker`,
   `FilesNavigation`, `UsersNavigation`, `DeleteFolderDialog`, `UsersInvite`, `FileInfoSidebarDetail`, `uploadFile`
   (TUS và multipart), layout cards với `extraSelection`/`prepend`; E2E `files-library`, `files-upload`, `files-item`,
-  `files-image-editor`, `users-directory`, `users-item`, `users-tfa-token`, `register`, `files-users-permissions`,
+  `files-image-editor`, `users-directory`, `users-item`, `users-tfa-token`, `files-users-permissions`,
   `files-users-parity-ui` ở ba cấu hình (bảng trình duyệt như SC-001); payload suite mở rộng; E2E dùng `openSidebar`
   dưới `xl`, khôi phục preset seed sau khi đổi layout hoặc tìm, chạy tuần tự trên DB chung (bài học 014).
 - **FR-118**: Benchmark: thêm kịch bản `files` và `users` vào benchmark web hằng tuần (thư viện 10.000 file trong một
@@ -739,18 +725,18 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   chunk chính của 014 + 20 KB gzip; `scripts/check-bundle.mjs`.
 - **FR-120**: Chuẩn hóa payload khi so với Directus app như 013/014 (id, thời gian, nonce của `/assets`, thứ tự
   multipart); khác biệt thật ghi R-xx.
-- **FR-121**: `graphify update .` sau mỗi lượt code; tài liệu `design-system/docs/`, spec 012/013/014 (D-40, D-44,
-  D-48, D-57, D-59, D-72 ghi "đã gỡ ở 015" phần tương ứng) sửa khi 014 mở khóa.
+- **FR-121**: `graphify update .` sau mỗi lượt code; tài liệu `design-system/docs/`, spec 012/013/014 (D-40, D-48,
+  D-57, D-59, D-72 ghi "đã gỡ ở 015" phần tương ứng; D-44 ghi "sau 015") sửa khi 014 mở khóa.
 - **FR-122**: Không sửa file trong `directus/`; không sửa `apps/web`, `apps/web-e2e` trước khi 014 báo đóng (quy tắc
   session 014, 2026-10-15).
 - **FR-123**: Chia lượt commit (như Q3 của 014): lượt 1 Files (US1, US2), lượt 2 trình chỉnh ảnh + `file-image` (US5),
-  lượt 3 Users + sáu interface + `/register` (US3, US4, US6 phần user), lượt 4 quyền, payload suite, parity UI,
+  lượt 3 Users + sáu interface (US3, US4, US6 phần user), lượt 4 quyền, payload suite, parity UI,
   benchmark (US6, US7); mỗi lượt commit lên `main` với CI xanh.
 - **FR-124**: Thư viện mới: `cropperjs` (cùng major Directus 11.17.4), `tus-js-client` (cùng phiên bản Directus),
   `p-queue` (đã có ở 009 API; FE thêm cùng phiên bản); phiên bản chốt ở plan; `exifr`/metadata không cần (API đã ghi
   `metadata`).
-- **FR-125**: Mọi D-xx mới và R-xx được tech lead duyệt trước khi đóng; Q1, Q2 của Clarifications được owner trả lời
-  trước `/speckit.plan`.
+- **FR-125**: Mọi D-xx mới và R-xx được tech lead duyệt trước khi đóng; Q1, Q2 của Clarifications đã có (owner,
+  2026-10-15).
 
 ### Key Entities *(include if feature involves data)*
 
@@ -771,18 +757,17 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 ## Khác biệt so với Directus *(mandatory)*
 
 Mã tiếp theo sau D-82 (014). D-39, D-41, D-47, D-52, D-66, D-68, D-76, D-82 áp dụng cho mọi màn của 015, không lặp.
-Gỡ ở 015: D-40 (phần Files, Users), D-44, D-48 (012); D-57 (sáu interface), D-59 (013); D-72 (phần `directus_files`,
+Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu interface), D-59 (013); D-72 (phần `directus_files`,
 `directus_users`, 014).
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-83 | Hộp mời user sau khi gửi | Đóng, danh sách nạp lại; email mời do server gửi | Thêm notice tại chỗ "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (`contact_admin_for_link`) | Nguyên tắc X; API ghi log thay vì gửi (D-36 của 010); cùng cách D-42 | khác | — |
-| D-84 | Màn thành công của `/register` khi `public_registration_verify_email` bật | "Kiểm tra email" | Cộng dòng `contact_admin_for_link` | Nguyên tắc X; API ghi log email xác minh thay vì gửi | khác | — |
 | D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016 |
 | D-86 | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Giữ route của 012 và chuyển hướng tới `/users/<id>`; menu avatar trỏ thẳng `/users/<id>` | Giữ link đã có từ 012 (FR-024) | khác | — |
 | D-87 | Đường bàn phím cho cắt ảnh và điểm focal | Chỉ kéo chuột (Cropper.js) | Thêm ô nhập số đồng bộ với khung; kéo chuột giữ | WCAG 2.1.1, cùng lý do D-60, D-69; chờ tech lead | khác | — |
-| D-88 | Interface `system-theme` (chọn theme Directus) | Danh sách theme của `@directus/themes` với xem trước đúng theme | Theo Clarifications Q1 (chờ owner) | D-43: Backoffice chỉ có theme TailAdmin | khác | — |
-| D-89 | Interface `system-theme-overrides` | Cây rule lấy từ `@directus/themes` lúc chạy, xem trước theo theme Directus | Cây rule là dữ liệu tĩnh chép từ `@directus/themes` (cùng khóa `--theme--*`), swatch theo giá trị nhập; chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
+| D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay | Danh sách và xem trước như Directus (Q1 = C); chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
+| D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
 | D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có; upload dở tiếp tục khi tải lại cùng file (`findPreviousUploads`) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
@@ -806,21 +791,19 @@ xuất nhập, hàng loạt).
 | Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), ô nhập số (D-87), nút lưu với menu "lưu thành file mới" | Mở |
 | Q-17 | Sub-menu Users: bốn mục trạng thái, vạch chia, cây role lồng với icon role, menu "sửa role" (admin) | Mở |
 | Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái) trên form; mục "Thông tin" trong panel | Mở |
-| Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có xem trước, theo Q1); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Mở |
-| Q-20 | Trang đăng ký public trên `PublicView` của 012 (form email + mật khẩu có nút mắt, màn thành công, link đăng nhập) | Mở |
+| Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có ô xem trước SVG theo theme Directus, Q1 = C); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Mở |
 
 ## Clarifications
 
 ### Session 2026-10-15
 
-- Q1: `system-theme` (`theme_light`, `theme_dark`) hiện gì khi Backoffice chỉ có theme TailAdmin (D-43)? → [NEEDS
-  CLARIFICATION: A = danh sách tên theme Directus (dữ liệu tĩnh) không xem trước, kèm dòng "chỉ áp dụng ở Directus app";
-  B = ẩn hai field trong Backoffice, giữ giá trị khi lưu; C = port `theme-preview.vue` với rule từng theme Directus để
-  xem trước đúng màu Directus]
-- Q2: Trang đăng ký công khai `/register` (D-44 của 012 giao cho 015; mô tả feature không nêu; API mới có
-  `POST /users/register` và ghi log email xác minh thay vì gửi) có thuộc 015 không? → [NEEDS CLARIFICATION: A = thuộc
-  015 với FR-090 đến FR-092 và D-84; B = để 016 hoặc sau, giữ trang "chưa có sẵn" của 012; C = thuộc 015 nhưng chỉ khi
-  `public_registration_verify_email` tắt (bật thì trang "chưa có sẵn")]
+- Q1: `system-theme` (`theme_light`, `theme_dark`) hiện gì khi Backoffice chỉ có theme TailAdmin (D-43)? Lựa chọn:
+  A = danh sách tên theme Directus không xem trước; B = ẩn hai field; C = port `theme-preview.vue` với rule từng theme
+  Directus để xem trước đúng màu Directus. → C (owner, 2026-10-15): FR-084, D-88, D-89, Q-19.
+- Q2: Trang đăng ký công khai `/register` (D-44 của 012 giao cho 015; mô tả feature không nêu) có thuộc 015 không?
+  Lựa chọn: A = thuộc 015 (form, màn "kiểm tra email" cộng dòng liên hệ quản trị viên); B = để sau, giữ trang "chưa có
+  sẵn" của 012; C = chỉ khi không cần xác minh email. → B (owner, 2026-10-15): không làm trang đăng ký ở 015; FR-090,
+  D-44 giữ với "Gỡ ở: sau 015".
 - Q3 (mặc định, không hỏi): sub-menu của Files và Users là cây lồng trong sidebar như Content (owner chọn ở 014 Q2);
   ghi ngoại lệ vào `layout-patterns.md` §7 (FR-110).
 
@@ -829,8 +812,9 @@ xuất nhập, hàng loạt).
 - `cropperjs` cùng major với Directus 11.17.4 để bytes ảnh sau cắt giống nhau ở cùng trình duyệt; `tus-js-client` cùng
   phiên bản; phiên bản chốt ở plan. API mới (007) hỗ trợ `/files/tus`, `POST /assets/files`, `POST /assets/folder/:id`
   (đã thấy ở `assets.controller.ts`); `/server/info` trả `uploads` như Directus (plan kiểm).
-- `POST /users/register` và `GET /users/register/verify-email` có ở API mới (010, `users.controller.ts`); email mời và
-  xác minh chỉ ghi log (`users.service.ts`, D-36).
+- Email mời chỉ ghi log ở API mới (`users.service.ts`, D-36); trang đăng ký không thuộc 015 (Q2).
+- Rule theme của `@directus/themes` 11.17.4 (mọi theme sáng và tối) chép thành dữ liệu tĩnh trong `apps/web` bằng
+  script có test so với gói gốc (như script sinh chuỗi dịch của 012); `rulesToCssVars` port lại (hàm nhỏ).
 - `BoUpload` của 013 nhận thêm `fileId` và chuyển sang `uploadFile` dùng chung; danh sách ghi FR-054 của 013 mở rộng
   tương ứng (ghi "đã mở rộng ở 015").
 - `use-tfa-setup` của 012 mở rộng, không viết lại; `useTFASetup` nhận `initialEnabled` như Directus.
@@ -867,11 +851,11 @@ xuất nhập, hàng loạt).
   `innerText` và `aria-disabled`.
 - **SC-003**: 0 file trong `directus/` bị sửa; trong E2E, 0 request tới route ngoài FR-115 và 0 request ra ngoài.
 - **SC-004**: 100% body ghi (`/files` tạo, sửa, thay, bản sao, xóa, hàng loạt; `/files/import`; `/folders`; `/users`
-  tạo, sửa, xóa, hàng loạt; `/users/invite`; `/users/register`; `/users/*/tfa/*`; `/utils/random/string` + `PATCH`
+  tạo, sửa, xóa, hàng loạt; `/users/invite`; `/users/*/tfa/*`; `/utils/random/string` + `PATCH`
   token; `/presets`; `/utils/import`, `/utils/export`) của kịch bản E2E bằng body Directus app gửi cho cùng kịch bản
   sau chuẩn hóa (FR-120).
 - **SC-005**: Sáu interface `_system`: với bộ mẫu, giá trị ghi ra (`language`, `tfa_secret` qua API, `token`,
-  `theme_light`, `theme_dark`, `theme_light_overrides`, `theme_dark_overrides`, `password` ở đăng ký) bằng Directus app
+  `theme_light`, `theme_dark`, `theme_light_overrides`, `theme_dark_overrides`) bằng Directus app
   cho 10 thao tác mẫu; test component với mock API, request đúng allowlist.
 - **SC-006**: Trình chỉnh ảnh: cắt 200×100 tại (10, 20) và xoay -90° một PNG 400×300 cho `width`, `height`,
   `focal_point_x/y` trong `directus_files` bằng Directus app; bytes gốc sau lưu bằng nhau trên cùng chromium (so hash);
@@ -882,10 +866,10 @@ xuất nhập, hàng loạt).
   đồng thời và danh sách nạp lại đúng 1 lần sau khi xong; mở trình chỉnh ảnh 4000×3000 dưới 2 giây sau khi ảnh tải
   xong; số request mỗi thao tác: đổi thư mục = 1 danh sách + 1 đếm, đổi trang = 1 danh sách, mở màn user = 1 item + 1
   roles (cache) + request của interface quan hệ.
-- **SC-008**: Recipe Q-13 đến Q-20 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng 015; axe 0 vi
+- **SC-008**: Recipe Q-13 đến Q-19 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng 015; axe 0 vi
   phạm serious/critical trên thư viện (hai layout cards và tabular), màn file, drawer chỉnh ảnh, danh bạ, màn user với
-  ba hộp TFA, hộp mời, `/register`, ở sáng và tối.
+  ba hộp TFA, hộp mời, ở sáng và tối.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 014 + 20 KB gzip; 0 màu thô ngoài danh sách miễn.
-- **SC-010**: D-83 trở đi và R-xx (nếu có) được tech lead duyệt; Q1, Q2 được owner trả lời; D-40 (Files, Users), D-44,
-  D-48, D-57 (sáu interface), D-59, D-72 (phần 015) ghi "đã gỡ ở 015" ở spec gốc.
+- **SC-010**: D-83 trở đi và R-xx (nếu có) được tech lead duyệt; D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
+  D-72 (phần 015) ghi "đã gỡ ở 015" và D-44 ghi "sau 015" ở spec gốc.
