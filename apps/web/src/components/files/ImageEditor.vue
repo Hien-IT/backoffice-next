@@ -136,7 +136,7 @@ const dimensionsString = computed(() => {
 });
 
 const customAspectRatios = computed(
-	() => (settingsStore.settings?.custom_aspect_ratios as { text: string; value: number }[] | null | undefined) ?? null,
+	() => (settingsStore.settings?.['custom_aspect_ratios'] as { text: string; value: number }[] | null | undefined) ?? null,
 );
 
 function useImage() {
