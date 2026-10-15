@@ -33,6 +33,9 @@
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
 - Validation 2026-10-15 (lượt 1): một marker còn lại, Q1 (live preview `preview_url`: làm hay chưa làm). Lượt 2 cùng
-  ngày: owner chọn A (làm, không visual editing), marker thay bằng FR-063 đến FR-069; mọi mục đạt. FR nêu tên API, route và file Directus vì constitution I, III, VI yêu cầu hành vi giống
+  ngày: owner chọn A (làm, không visual editing), marker thay bằng FR-063 đến FR-069; mọi mục đạt.
+- `/speckit.clarify` 2026-10-15: 4 câu (Q2 vị trí cây collection, Q3 chia bốn lượt, Q4 bảng vẽ đủ dòng + SC-011, Q5
+  duyệt D-69, D-73); D-69 và D-73 không còn chờ duyệt. FR nêu tên API, route và file Directus vì constitution I, III, VI yêu cầu hành vi giống
   Directus theo code tham chiếu (cùng quy ước với spec 012, 013); đó là mô tả hành vi chuẩn, không phải lựa chọn công
   nghệ của app mới (công nghệ chốt ở plan). D-69 và D-73 chờ tech lead duyệt (mục "Cần xác nhận").
+- `/speckit.checklist` 2026-10-15: release-gate 101 mục, owner duyệt toàn bộ đề xuất, đã áp vào spec/plan/contracts.

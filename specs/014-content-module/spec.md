@@ -4,6 +4,11 @@
 chưa commit lúc viết spec này, 014 chỉ sửa `specs/014-*` cho tới khi 013 commit xong)
 **Created**: 2026-10-15
 **Status**: Draft
+**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-69 (đường bàn phím cho kéo thả) và D-73 (`system-filter`,
+`system-input-translated-string` làm ở 014); D-67, D-68, D-70 đến D-72 là hệ quả của XI và D-40, duyệt gộp cùng Q5
+(release-gate CHK067). D-74 (xác nhận xóa nhóm kanban) chỉ ghi nếu T003 thấy Directus không hỏi.
+**Duyệt release-gate**: owner duyệt toàn bộ đề xuất của `checklists/release-gate-proposals.md` ngày 2026-10-15 (101
+mục); đã áp vào spec, data-model, contracts, research.
 **Input**: User description: "Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách
 collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình
 được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và
@@ -121,7 +126,8 @@ collection 10 triệu dòng của 005.
 3. **Given** preset của collection chưa có, **When** mở collection, **Then** bảng có 4 field hiện đầu (bỏ `hidden` và
    `no-data`), sắp theo field sort hoặc khóa chính, 25 dòng mỗi trang, dòng "1-25 of N items"; đổi cột, độ rộng, căn
    lề, khoảng cách dòng, sắp xếp, trang và kích thước trang thì preset được lưu tự động sau 450 ms vào `/presets`
-   (`layout_query.tabular`, `layout_options.tabular`) với cùng dạng Directus ghi.
+   (`layout_query.tabular`, `layout_options.tabular`) với cùng dạng Directus ghi (mẫu body kỳ vọng ở
+   `fixtures/interfaces/snapshot/expected.content.json`, ghi tay từ Directus app; bộ so payload là xác nhận cuối).
 4. **Given** collection 10 triệu dòng (benchmark 005), **When** mở trang đầu, đổi trang, sắp xếp, lọc, **Then** request
    danh sách chỉ có `limit`, `page`, `fields` đã chọn; số đếm gọi riêng bằng `aggregate` (countDistinct khóa chính) và
    hiện sau khi về; bảng và thao tác không chờ số đếm; SC-003.
@@ -183,8 +189,9 @@ cây, sửa hoặc xóa bookmark của mình, cập nhật bookmark khi đổi, 
 **Acceptance Scenarios**:
 
 1. **Given** bộ lọc `{_and: [{status: {_eq: 'published'}}, {_or: [{author.name: {_contains: 'a'}}, {date: {_gte: '$NOW(-7 days)'}}]}]}`,
-   **When** dựng bằng bộ lọc nâng cao, **Then** JSON lưu bằng với Directus (cùng khóa, cùng thứ tự), nút bộ lọc hiện
-   "3", danh sách gọi `/items` với `filter` đó cộng bộ lọc archive hệ thống (`mergeFilters`).
+   **When** dựng bằng bộ lọc nâng cao, **Then** JSON lưu bằng với Directus (so sâu sau JSON round-trip: thứ tự mảng
+   `_and`/`_or` giữ, thứ tự khóa object không tính), nút bộ lọc hiện "3", danh sách gọi `/items` với `filter` đó cộng
+   bộ lọc archive hệ thống (`mergeFilters`).
 2. **Given** chưa có bookmark, **When** bấm tạo bookmark, **Then** hộp thoại tên (chuỗi dịch `$t:`), icon, màu; lưu thì
    `POST /presets` với `user` là mình và chuyển tới `?bookmark=<id>`; bookmark hiện dưới collection trong cây.
 3. **Given** đang ở bookmark của mình và đổi sắp xếp, **When** xem tiêu đề, **Then** icon "lưu bookmark" (chưa lưu) và
@@ -192,8 +199,9 @@ cây, sửa hoặc xóa bookmark của mình, cập nhật bookmark khi đổi, 
    `/settings/presets/:id` (khung 016).
 4. **Given** `?bookmark=` không tồn tại, **When** mở, **Then** notice `bookmark_doesnt_exist` với nút về collection.
 5. **Given** preset của user, của role và toàn cục cho cùng collection, **When** mở collection không bookmark, **Then** ưu
-   tiên user, rồi role, rồi global như `stores/presets.ts`; đổi layout thì ghi vào preset của user (tạo mới nếu đang
-   dùng preset role/global, như Directus).
+   tiên user, rồi role, rồi global như `stores/presets.ts`; đổi layout khi đang dùng preset (không bookmark) role/global
+   thì tạo preset mới của user (store `savePreset`); đang ở bookmark role/global thì không tự lưu, chỉ có "tạo bookmark"
+   (FR-012, FR-015).
 
 ---
 
@@ -262,7 +270,8 @@ kia; sửa item rồi revert một field; viết comment nhắc `bo-viewer` ở 
    đang ở version.
 5. **Given** version có delta, **When** mở so sánh, **Then** `GET /versions/:id/compare`: khác biệt, `outdated`,
    `mainHash`; chọn field và promote gọi `POST /versions/:id/promote` với `mainHash`, `fields`; tùy chọn xóa version
-   sau promote; đổi version khi còn thay đổi thì hỏi trước.
+   sau promote; đổi version khi còn thay đổi thì hỏi trước; kiểm: dòng `directus_versions` mất khi chọn xóa, item chính
+   đổi, `directus_activity` của item chính có dòng `update` như Directus (008).
 6. **Given** flow thủ công `location: item` có `requireConfirmation`, **When** bấm trong Flows, **Then** hộp xác nhận với
    form `options.fields` (013), chạy `POST /flows/trigger/:id` với `collection`, `keys`, rồi item nạp lại (sự kiện
    "đã chạy" của 013); có thay đổi chưa lưu thì hỏi `run_flow_anyway` trước.
@@ -340,6 +349,8 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - Request danh sách trước chưa về khi đã đổi điều kiện: hủy request cũ (abort); số đếm về muộn thì bỏ nếu đã có yêu cầu
   mới hơn (generation) như `useItems`.
 - Hai tab cùng sửa preset: lưu tự động của tab sau ghi đè như Directus (không khóa).
+- Hai người cùng sửa một item (collab tắt, D-68): không khóa, không phát hiện xung đột; `PATCH` chỉ gửi field đã sửa
+  nên bản lưu sau ghi đè từng field như Directus khi tắt WebSocket; revision ghi đủ hai lần.
 - Bookmark của user khác (admin thấy qua cây? không: cây chỉ hiện bookmark của mình, role mình, global); admin sửa
   bookmark role/global qua Settings.
 - Xóa bookmark đang mở: về route collection.
@@ -349,7 +360,9 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - Rời trang khi đang lưu: không hỏi (thay đổi đã gửi); lưu lỗi thì giữ thay đổi.
 - `preview_url` có nhưng template điền ra chuỗi rỗng (field trống): không nút xem trước; URL khác origin: iframe vẫn
   nạp, `refreshLivePreview` chỉ gọi được hàm trong iframe cùng origin, lỗi thì bỏ qua như Directus; popup bị trình
-  duyệt chặn: về chế độ chia đôi; đóng popup: về chia đôi sau tối đa 1 giây (kiểm định kỳ như Directus).
+  duyệt chặn: như Directus, không dự phòng (chế độ `popup` giữ, khung xem trước ẩn, nút xem trước vẫn bật để đổi chế
+  độ); đóng popup: về chia đôi sau tối đa 1 giây (kiểm định kỳ như Directus). URL xem trước dựng từ dữ liệu đã lưu
+  (`use-template-data`), không từ thay đổi chưa lưu; đổi sau khi lưu (FR-063).
 - Live preview ở bề rộng ≤ `sm`: iframe chiếm toàn bề rộng, không kéo được (như `isMobile` của Directus); item mới (`+`)
   không có xem trước.
 - Calendar: field bắt đầu kiểu `date` không hiện giờ; `timestamp` dùng view giờ; nhiều hơn giới hạn query thì chỉ phần
@@ -360,7 +373,29 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   tile không tải được → khung trống, thao tác vẫn được (013).
 - Export > giới hạn query của server: luôn lưu vào thư viện; `limit -1` là tất cả.
 - Import file sai kiểu (không CSV/JSON): API trả lỗi, hộp lỗi hiện; file lớn: tiến độ tải lên rồi "đang nhập".
-- Thao tác hàng loạt trên trang có item vừa bị user khác xóa: API trả lỗi theo khóa; hộp lỗi hiện, lựa chọn giữ.
+- Thao tác hàng loạt trên trang có item vừa bị user khác xóa: `DELETE /items/:c` và `PATCH {keys}` chạy trong
+  transaction ở API, lỗi thì không item nào đổi; hộp lỗi hiện thông điệp API, lựa chọn giữ.
+- Lưu item trả 403/404 (item chính hoặc version bị xóa ở nơi khác): hộp lỗi, thay đổi giữ; sau lưu version mà
+  `getVersions` không còn version đó: về bản chính, như Directus.
+- Field user không được update: form 013 không phát `edits` cho field đó; dán qua raw editor thì API trả 403 → hộp lỗi.
+- Đổi collection khi đang có lựa chọn, kéo thả dở hoặc request chưa về: lựa chọn xóa, `useItems` reset và hủy request,
+  preset cục bộ dựng lại theo collection mới, kéo thả bị hủy khi unmount (như Directus).
+- User chỉ đọc một phần field: cột của preset trên field không đọc được bị bỏ khi dựng; sắp xếp theo field không đọc
+  được → API 403 → trạng thái lỗi của layout với nút đặt lại tùy chọn; cây field của bộ lọc chỉ liệt kê field đọc được.
+- `?bookmark=` không phải số (`NaN`) → `bookmark_doesnt_exist`; bookmark của collection khác với URL: vẫn mở với
+  collection trong URL (Directus không kiểm); bookmark bị xóa ở tab khác: lưu ở tab này trả 403 → hộp lỗi.
+- Rời trang trước khi debounce 450 ms ghi preset: thay đổi mất như Directus; ghi preset lỗi (403, mạng): hộp lỗi
+  `unexpectedError`.
+- Calendar: item không có ngày bắt đầu không hiện; kéo cho kết thúc trước bắt đầu bị FullCalendar từ chối (revert).
+- Map: `cameraOptions.bbox` lưu không hợp lệ → MapLibre ném, bỏ qua fit (try/catch như `map.vue`); `clusterData` chỉ
+  gom điểm, đường/vùng vẽ thường.
+- Comment rất dài: không giới hạn ở client (API `MAX_PAYLOAD_SIZE`); mention user không đọc được → giữ `@uuid` thô;
+  xóa comment đang sửa → ô sửa đóng.
+- Import quá `MAX_PAYLOAD_SIZE`/`FILES_MAX_UPLOAD_SIZE` (413), hủy giữa chừng (đóng hộp = abort XHR), mất quyền
+  `create` sau khi mở (403): hộp lỗi, như Directus.
+- Export tải về bị server từ chối dù client đã khóa theo `queryLimit.max` (giới hạn đổi sau khi tải trang): hộp lỗi.
+- Phiên hết hạn giữa chừng (401 khi lưu, tự lưu preset, làm mới định kỳ): như 012, nhận ra khi `refresh()` thất bại,
+  về đăng nhập với lý do; thay đổi chưa lưu mất như Directus.
 - Revisions: `accountabilityScope` khác `all` (collection `accountability: activity` hoặc null) → không có mục Revisions
   như Directus; quyền đọc `directus_revisions` không có → ẩn.
 - Version: key trùng key global (`main`?) bị chặn như `isVersionKeyGlobal`; xóa version đang mở → về bản chính; item
@@ -369,7 +404,8 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - Share: `max_uses` đạt hoặc hết hạn → `share_access_*` như `shared.vue`; user đã đăng nhập thường mở `/shared/:id` thì
   chuyển thẳng tới item.
 - Phím tắt Ctrl/Cmd + S khi focus ở trình soạn (TinyMCE, CodeMirror) bắt phím: theo Directus (`useShortcut` trên form).
-- Màn hẹp 768 px: panel chi tiết là drawer (L-4), bảng cuộn ngang trong khung, layout map và kanban dùng đủ bề rộng.
+- Màn hẹp 768 px: panel chi tiết là drawer (L-4), bảng cuộn ngang trong khung; kanban nhiều cột cuộn ngang trong khung
+  layout (`overflow-x-auto`), map và calendar co theo khung; trang không cuộn ngang (FR-116).
 - Kéo thả (thẻ kanban, sự kiện calendar, sắp xếp tay trong bảng) có đường bàn phím: menu "Lên/Xuống", "Chuyển sang
   nhóm...", đổi ngày bằng form (D-69, như D-60 của 013).
 
@@ -405,13 +441,18 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   giữ `?bookmark=`.
 - **FR-003**: Collection truy cập gần nhất PHẢI lưu ở localStorage khóa `backoffice-last-accessed-collection` (D-39),
   cập nhật mỗi khi `:collection` đổi.
-- **FR-004**: Cây collection (sub-menu của module trong sidebar L-3, xem Q-1) PHẢI như `navigation.vue`,
+- **FR-004**: Cây collection PHẢI nằm trong sub-menu của module Content ở sidebar (L-3 mở rộng thành cây lồng nhiều
+  cấp cho riêng module này: nhóm gập mở là mục có con, bookmark là mục con của collection, ô tìm và nút "hiện collection
+  ẩn" ở đầu cây; các module khác giữ một cấp; không thêm cột điều hướng; Clarifications Q2, recipe Q-1) và PHẢI như
+  `navigation.vue`,
   `NavigationItem.vue`: collection gốc (`meta.group` null) sắp theo `meta.sort` rồi tên; nhóm (collection có con) mở/đóng,
   `collapse: locked` không đóng được, trạng thái mở dùng chung toàn app (`useNavigation`), nhóm chứa collection đang xem
   tự mở; folder (collection không có `schema`) chỉ là nhóm, không bấm mở; icon và màu của collection; tên dịch
   (`collection_names`); mật độ `dense` khi hơn 5 collection; ô tìm collection khi hơn 20 collection hiện (lọc theo tên,
   nhóm vẫn hiện con khớp); mục "Hiện/Ẩn collection ẩn" (menu chuột phải và nút tương đương bàn phím) khi có collection
-  ẩn; admin không có collection nào thì nút "tạo collection" tới khung Settings.
+  ẩn; admin không có collection nào thì nút "tạo collection" tới khung Settings. Bàn phím (FR-004b): cây là danh sách
+  lồng với vai trò `tree`/`treeitem` (hoặc nút `aria-expanded` cho nhóm), mũi tên lên/xuống di chuyển mục, trái/phải
+  đóng/mở nhóm, Enter mở; ô tìm không khớp gì thì có thông báo sr-only "không có kết quả".
 - **FR-005**: Dưới mỗi collection trong cây PHẢI có bookmark của collection đó mà user thấy (của mình, của role mình,
   global) như `navigation-bookmark.vue`: icon và màu bookmark, tên dịch, route `?bookmark=<id>`; menu: sửa (bookmark cá
   nhân: hộp thoại tên, icon, màu; role/global: link `/settings/presets/:id`, khung 016) và xóa (hộp xác nhận); user không
@@ -427,9 +468,11 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - **FR-008**: Panel chi tiết L-4 (`DetailPanel` của 012) PHẢI chứa các mục dạng accordion `sidebar-detail` (một mục mở,
   trạng thái mở nhớ theo tiêu đề như `useGroupable` group `sidebar-detail`): ở màn collection: Layout (FR-021),
   Archive (FR-044), Refresh (FR-099), Export/Import (FR-090), Flows (FR-089); ở màn item (item đã có): Revisions,
-  Comments, Shares, Flows (FR-080 đến FR-089).
+  Comments, Shares, Flows (FR-080 đến FR-089); item mới (`+`) không có mục nào (như `v-if="isNew === false &&
+  actualPrimaryKey"` của Directus).
 - **FR-009**: Màn không tìm thấy của module (`not-found.vue`) PHẢI hiện trong bố cục với cây điều hướng; dùng cho item,
-  collection không tồn tại hoặc không đọc được, singleton có `:primaryKey`.
+  collection không tồn tại hoặc không đọc được, singleton có `:primaryKey`, và `/content/directus_*` của collection hệ
+  thống không có route riêng ở FR-002 (`isSystemCollection` như `collection.vue`).
 
 **Preset và bookmark**
 
@@ -438,13 +481,18 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   bookmark đó; `layout`, `layout_options[layout]`, `layout_query[layout]`, `filter`, `search`, `refresh_interval`,
   `bookmark` (tên) đọc và ghi từ preset cục bộ.
 - **FR-011**: Không ở bookmark: mọi thay đổi preset PHẢI lưu tự động sau 450 ms (debounce) qua `savePreset` của store
-  (`POST /presets` lần đầu với `user` là mình và `collection`, `PATCH /presets/:id` sau đó); dạng ghi (khóa, `null`
-  cho layout chưa dùng) giống Directus để Directus đọc được.
+  với **toàn bộ preset cục bộ** như `savePreset(localPreset)` của Directus: lần đầu `POST /presets` body
+  `{collection, layout ('tabular' nếu chưa đổi), layout_query, layout_options, filter, search, refresh_interval, user}`
+  (không `id`, không `bookmark`); sau đó `PATCH /presets/:id` cũng với toàn bộ preset cục bộ (không chỉ khóa đổi);
+  preset có `id` của user khác → `POST` bản mới của mình (store). Phiên share: store presets không nạp, không ghi, preset
+  cục bộ là `{layout: 'tabular'}`.
 - **FR-012**: Ở bookmark: thay đổi KHÔNG tự lưu; `bookmarkSaved` so sâu preset cục bộ với bookmark trong store; "lưu
   bookmark" (`savePreset`) chỉ cho bookmark của mình; "đặt lại" (`clearLocalSave`) về bản trong store.
 - **FR-013**: "Tạo bookmark" PHẢI lưu trạng thái hiện tại (bỏ `id`, `user` là mình) kèm tên, icon, màu từ hộp thoại
   `bookmark-add.vue` (tên bằng `system-input-translated-string`, icon `select-icon`, màu `select-color`), rồi chuyển tới
-  `?bookmark=<id>`; tên bookmark hiện qua `translate` (`$t:`).
+  `?bookmark=<id>`; tên bookmark hiện qua `translate` (`$t:`). `system-input-translated-string` chép nguyên Directus
+  (D-73): ô nhập chuỗi thường, nút mở drawer danh sách chuỗi dịch từ `/translations` (tìm, chọn → giá trị
+  `$t:<key>`, tạo chuỗi mới qua store translations), 016 dùng lại.
 - **FR-014**: "Đặt lại tùy chọn trang" (`resetPreset`, nút ở trạng thái lỗi của layout) PHẢI ghi ngay
   `layout_query: null, layout_options: null, layout: 'tabular', filter: null, search: null, refresh_interval: null`.
 - **FR-015**: Nút bookmark cạnh tiêu đề PHẢI như `collection.vue`: không ở bookmark → "tạo bookmark"; ở bookmark đã
@@ -473,11 +521,15 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   đổi thứ tự cục bộ.
 - **FR-023**: Số đếm PHẢI gọi riêng, không chặn danh sách: `itemCount` (theo `filter` + `search`) và `totalCount` (theo
   `filterSystem`) bằng `GET /items/:collection?aggregate[countDistinct]=<pk>` (hoặc `count=*` khi không có khóa chính),
-  nhớ kết quả theo `(url, filter, search)` trong phiên màn, bỏ kết quả cũ khi đã có yêu cầu mới; chỉ gọi lại `itemCount`
-  khi `collection`, `filter`, `search` đổi (không khi đổi trang, sắp xếp, cột).
-- **FR-024**: Dòng số đếm PHẢI theo `format-items-count.ts`: phân trang `"<từ>-<đến> of <N> items"` (`N` là `itemCount`;
-  kèm "filtered" khi có `filterUser`), tương đối cho calendar/kanban/map; ẩn khi chưa có số đếm hoặc 0; `totalPages` từ
-  `itemCount` và `limit`.
+  nhớ kết quả theo `(url, filter, search)` theo từng instance layout (`useMemoize` như Directus; không xóa khi bấm làm
+  mới: `refresh()` gọi lại hai đếm nhưng nhận cache nếu khóa không đổi [Inference từ `use-items.ts`; T003 chạy thử trên
+  Directus app, nếu Directus hiện số đếm cũ sau làm mới thì tái tạo và ghi R-38]), bỏ kết quả cũ khi đã có yêu cầu
+  mới; chỉ gọi lại `itemCount` khi `collection`, `filter`, `search` đổi (không khi đổi trang, sắp xếp, cột).
+- **FR-024**: Dòng số đếm PHẢI theo `format-items-count.ts` và `showingCount` của từng layout: tabular, cards:
+  `formatItemsCountPaginated` (`"<từ>-<đến> of <N> items"`, kèm "filtered" khi có `filterUser`), ẩn khi
+  `!totalCount || !itemCount`; calendar: tổng khi chưa chọn field ngày, tương đối khi có, ẩn khi null; kanban: tổng khi
+  chưa có nhóm, tương đối theo số thẻ hiện; map: tổng khi chưa có field hình học, phân trang khi nhiều trang, tương đối
+  còn lại; `totalPages` từ `itemCount` và `limit`.
 - **FR-025**: Bấm item ở mọi layout PHẢI theo `use-layout-click-handler.ts`: `readonly` → không; `selectMode` hoặc đã có
   lựa chọn → thêm/bỏ khỏi lựa chọn; không thì mở route item; Ctrl/Cmd + click mở tab mới. Lựa chọn (mảng khóa chính) xóa
   khi đổi collection; `selectAll` chọn mọi item đang hiện.
@@ -489,26 +541,32 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - **FR-028**: Màn collection PHẢI xử lý lỗi xóa/archive hàng loạt bằng hộp thoại lỗi (`something_went_wrong`, chi tiết
   lỗi, "Xong") như Directus.
 - **FR-029**: `DrawerCollection` (013) PHẢI dùng layout theo preset của collection (user, role, global; preset tạm,
-  FR-019) ở chế độ chọn (`selectMode`, `showSelect` một/nhiều, `readonly` false), ô tìm kiếm có nút bộ lọc nâng cao
-  (FR-041) hợp với bộ lọc của interface (`filterSystem`), panel option layout trong drawer như `drawer-collection.vue`;
-  gỡ D-58.
+  FR-019, kế thừa cả `filter` và `search` đã lưu của preset làm bộ lọc người dùng ban đầu như `drawer-collection.vue`)
+  ở chế độ chọn (`selectMode`, `showSelect` một/nhiều, `readonly` false; map chọn một = thay thế, chọn nhiều = cộng
+  dồn khi giữ Shift như `handleSelect`), ô tìm kiếm có nút bộ lọc nâng cao (FR-041) hợp với bộ lọc của interface
+  (`filterSystem`), panel option layout trong drawer qua slot `sidebar` mới của `BoDrawer` (panel phải 240 px; dưới
+  `xl` thành mục gập ở đầu body; recipe §8 cập nhật, test 013 giữ); gỡ D-58.
 
 **Layout bảng (`tabular`)**
 
-- **FR-030**: Cột mặc định 4 field hiện đầu (bỏ `hidden`, `no-data`, sắp theo tên field) khi `layout_query.tabular.fields`
-  trống; field trong preset không còn thì bỏ; cột quan hệ (`author.name`) nạp qua alias (`use-alias-fields`) và field
+- **FR-030**: Cột mặc định khi `layout_query.tabular.fields` trống: lọc field `hidden` và `no-data` theo thứ tự
+  `meta.sort`, lấy 4 đầu, rồi sắp theo tên field (`.sort()` như `tabular/index.ts`); field trong preset không còn thì bỏ; cột quan hệ (`author.name`) nạp qua alias (`use-alias-fields`) và field
   bổ sung theo display (`adjustFieldsForDisplays`); mô tả cột lồng "A -> B"; cột không sắp xếp được với kiểu `json`,
   `alias`, `presentation`, `translations`.
 - **FR-031**: Mỗi header PHẢI có menu: sắp tăng, sắp giảm, căn trái/giữa/phải (ghi `layout_options.tabular.align`), ẩn
-  cột; nút "+" thêm cột (cây field, không chọn tất cả); kéo đổi thứ tự cột và kéo đổi độ rộng (ghi `widths` sau
-  350 ms; mặc định 144); bàn phím: menu header có "Chuyển trái/phải" (D-69).
+  cột; nút "+" thêm cột (cây field `FieldList`, không chọn tất cả); kéo đổi độ rộng (ghi `widths` sau 350 ms; mặc định
+  144, tối thiểu như `v-table` Directus, cột mới 144; ẩn cột trong lúc debounce ghi widths rồi fields như Directus);
+  kéo đổi thứ tự cột chỉ nếu `v-table` Directus có (`allowHeaderReorder`, T003 kiểm; không có thì bỏ kéo); bàn phím:
+  menu header có "Chuyển trái/phải" (D-69).
 - **FR-032**: Dòng PHẢI hiện giá trị bằng `RenderDisplay` theo `display` của field (mặc định theo kiểu), ô chọn dòng
   (`showSelect`), header dính (`fixed-header`), chiều cao theo `spacing` (`compact` 29, `cozy` 43, `comfortable` 58 px,
   option ở panel), sắp xếp tay bằng kéo khi collection có field sort, không có sắp xếp khác và user có quyền update field
-  sort (`manual-sort-key`), cộng "Lên/Xuống" ở menu dòng (D-69).
+  sort (`sortAllowed` của `useCollectionPermissions`; `manual-sort-key`), cộng "Lên/Xuống" ở menu dòng (D-69); không
+  có quyền thì kéo và menu Lên/Xuống ẩn.
 - **FR-033**: Footer PHẢI có phân trang (`VPagination` ↔ recipe Q-2: tối đa 7 nút, trang hiện tại `aria-current`) và
-  chọn kích thước trang (25, 50, 100, 250, 500, 1000, hiện khi `items ≥ 25` hoặc `limit < 25`) ghi
-  `layout_query.tabular.limit`; đổi kích thước về trang 1.
+  chọn kích thước trang (25, 50, 100, 250, 500, 1000 lọc `≤ queryLimit.max` của server như `usePageSize` 013, `-1` =
+  không cắt; hiện khi `items ≥ 25` hoặc `limit < 25`) ghi `layout_query.tabular.limit`; đổi kích thước về trang 1. Bảng vẽ toàn bộ dòng của trang như Directus (không ảo hóa,
+  Clarifications Q4); ngân sách vẽ ở SC-011.
 - **FR-034**: `layout-actions-tabular` PHẢI hiện dòng số đếm (FR-024); nút "tải xuống" (CSV của dữ liệu đang hiện,
   `saveAsCSV`: cột theo `fields`, giá trị quan hệ phẳng như Directus) nằm trong mục Export (FR-091).
 
@@ -526,25 +584,29 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   danh sách (tuần/ngày theo giờ khi field là `dateTime`/`timestamp`); ngôn ngữ theo app; sự kiện cả ngày khi field kết
   thúc là `date` (+1 ngày cho thư viện, −1 khi ghi); kéo/đổi cỡ sự kiện gọi `PATCH /items/:collection/:id` với ngày
   theo kiểu field (`dateTime` cắt 19 ký tự), lỗi thì hoàn tác; bấm sự kiện mở item hoặc chọn; `actions`: hôm nay, trước,
-  sau, chọn view, số đếm tương đối. Thư viện lịch: chốt ở plan (Directus dùng FullCalendar 6).
+  sau, chọn view, số đếm tương đối; `viewInfo` và `cameraOptions` (map) giữ nguyên theo preset của từng collection,
+  không tính lại khi đổi kích thước màn. Thư viện lịch: FullCalendar 6.1.19 như Directus (plan R1).
 - **FR-037** `kanban`: option `groupField` (field có `choices` kiểu string/số, hoặc m2o), `groupTitle` (field tên của
   collection nhóm khi m2o), `titleField`, `textField`, `imageSource`, `crop`, `dateField`, `tagsField` (json/csv),
   `userField` (m2o hoặc m2m tới `directus_users`), `showUngrouped` (chỉ khi field nhóm nullable), `groupOrder` (thứ tự
   cột cho `choices`); nhóm m2o nạp từ collection nhóm (sort field, giới hạn query hoặc 100); cột "chưa nhóm"; thẻ hiện
   ảnh (`/assets/<id>?modified=...&width=250&height=150` khi crop, `key=system-medium-contain` khi không), tiêu đề,
-  text, ngày, tag, avatar user; kéo thẻ sang cột gọi `PATCH /items/:collection/:id` `{[groupField]: id}` và `/utils/sort`
-  khi đổi vị trí có field sort; kéo cột (m2o: `/utils/sort` của collection nhóm; `choices`: `groupOrder.sortMap`);
-  thêm/đổi tên/xóa nhóm m2o (`POST`/`PATCH`/`DELETE` collection nhóm) theo quyền (`canReorderGroups`,
-  `canReorderItems`, `canUpdateGroupTitle`, `canDeleteGroups` như `useLayoutPermissions`); `limit` 1000; bàn phím: menu
-  thẻ "Chuyển sang nhóm…", "Lên/Xuống" (D-69).
+  text, ngày, tag, avatar user; kéo thẻ sang cột: thứ tự request như `change()` Directus (`/utils/sort` trước khi đổi vị
+  trí có field sort, rồi `PATCH /items/:collection/:id` `{[groupField]: id}`); kéo cột (m2o: `/utils/sort` của collection
+  nhóm; `choices`: `groupOrder.sortMap`); thêm/đổi tên/xóa nhóm m2o (`POST`/`PATCH`/`DELETE` collection nhóm) theo
+  quyền (`canReorderGroups`, `canReorderItems`, `canUpdateGroupTitle`, `canDeleteGroups` như `useLayoutPermissions`);
+  xóa nhóm là xóa item thật của collection nhóm: hỏi xác nhận như `kanban.vue` nếu Directus có (T003), không có thì thêm
+  `BoDialog` xác nhận và ghi D-74; `limit` = `layoutQuery.limit || 1000` (không cắt theo `queryLimit.max`, API tự cắt);
+  bàn phím: menu thẻ "Chuyển sang nhóm…", "Lên/Xuống" (D-69).
 - **FR-038** `map`: option `geometryField` (field `geometry*` hoặc interface `map`; mặc định field đầu),
   `displayTemplate` (mặc định `display_template` của collection hoặc khóa chính), `clusterData`, nền bản đồ
   (`basemap`, FR-039), `cameraOptions` (tâm, zoom, bbox, ghi khi di chuyển); field nạp = hình học + template + khóa
   chính; bộ lọc `_intersects_bbox` theo bbox khung nhìn khi field là hình học native; GeoJSON dựng từ item theo
   `utils/geometry` (WKT, GeoJSON, `[lng, lat]` csv); vừa dữ liệu lần đầu và khi đổi field; điểm/đường/vùng theo
-  `map/style.ts`, cụm khi bật; bấm feature mở item (hoặc chọn), kéo khung chọn nhiều (`handleSelect` thay thế hoặc
-  cộng dồn), popup template khi rê; lỗi hình học hiện notice; `actions`: số đếm (phân trang khi nhiều trang), "vừa dữ
-  liệu"; `limit` 1000, phân trang; bàn phím: danh sách item đang hiện trong panel để mở/chọn (D-69).
+  `map/style.ts`, cụm khi bật (chỉ gom điểm); bấm feature mở item (hoặc ở `selectMode`: chọn, thay thế khi không giữ
+  Shift, cộng dồn khi giữ Shift như `handleClick`/`handleSelect`), kéo khung chọn nhiều, popup template khi rê; lỗi
+  hình học hiện notice; `actions`: số đếm (phân trang khi nhiều trang), "vừa dữ liệu"; `limit` mặc định 1000 trong
+  preset, phân trang; bàn phím: danh sách item đang hiện trong panel để mở/chọn (D-69).
 - **FR-039**: Nguồn nền bản đồ PHẢI theo `basemap.ts`: OpenStreetMap raster mặc định (tile `{a-c}.tile.openstreetmap.org`,
   tileSize 256, attribution); khi `settings.mapbox_key` có thì thêm mục Mapbox đầu danh sách (style
   `mapbox://styles/directus/...` sáng hoặc tối theo giao diện, qua maplibre với `transformRequest` tới
@@ -560,8 +622,10 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   của `useItems` 500 ms throttle), nút xóa, nút bộ lọc với số điều kiện đang áp (đếm toán tử `_*` trừ `_and`/`_or`),
   Esc đóng; giữ mở khi focus vào menu con.
 - **FR-041**: Bộ lọc nâng cao PHẢI là bản port của `interfaces/_system/system-filter` (lấy từ D-57 của 013, xem
-  Clarifications): cây `_and`/`_or` lồng, thêm điều kiện theo field (cây field có quan hệ, tới độ sâu như Directus),
-  toán tử theo kiểu field (`operators.*`, danh sách theo `get-filter-operators-for-type`), ô giá trị theo kiểu (chuỗi,
+  Clarifications): cây `_and`/`_or` lồng, thêm điều kiện theo field (cây field `FieldList` chép `v-field-list`: nạp lười
+  khi mở nút quan hệ, không giới hạn độ sâu, gồm collection hệ thống qua quan hệ như `directus_users`, hàm theo kiểu
+  field `year`, `month`, `week`, `day`, `weekday`, `hour`, `minute`, `second`, `count`, loại `alias` không quan hệ và
+  `presentation`, chỉ field user đọc được), toán tử theo kiểu field (`operators.*`, danh sách theo `get-filter-operators-for-type`), ô giá trị theo kiểu (chuỗi,
   số, ngày với `$NOW(...)`, boolean, chọn từ `choices`, quan hệ chọn item), biến `$CURRENT_USER`, `$CURRENT_ROLE`,
   `$CURRENT_POLICIES`, `$NOW` (menu), kéo đổi thứ tự điều kiện, xóa, chuyển `_and`↔`_or`; JSON phát ra trùng dạng
   Directus (SC-004). Cùng component dùng cho `DrawerCollection` (FR-029).
@@ -571,7 +635,8 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   trị động chỉ là biến `$CURRENT_USER`, `$CURRENT_ROLE`, `$CURRENT_POLICIES`, `$NOW`, do API thay như Directus.
 - **FR-044**: Archive: collection có `archive_field` và `archive_app_filter` và user đọc được `archive_field` (quyền
   `read` có `fields` `*` hoặc chứa field) thì `filterSystem` = `{[field]: {_neq: archive_value}}` mặc định,
-  `{_eq: archive_value}` với `?archived`, null với `?all` (`archive_value` `'true'`/`'false'` đọc thành boolean); mục
+  `{_eq: archive_value}` với `?archived`, null với `?all` (`archive_value` `'true'`/`'false'` đọc thành boolean;
+  `archive_value` null → `{_neq: null}` và nút archive ghi null, như Directus); mục
   Archive ở panel (ba lựa chọn, đổi query, giữ các query khác); icon header `archive` khi đang lọc; nút archive hàng
   loạt ẩn khi đang xem đã archive.
 
@@ -583,23 +648,33 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   `loading`, `disabled` (FR-056), `validationErrors`, `autofocus` khi mới, `direction` theo user, `version`.
 - **FR-051**: Tiêu đề PHẢI là `creating_in`/`editing_in` (hoặc `creating_unit`/`editing_unit` khi có
   `collection_names_singular`); item đã có với `display_template` thì tiêu đề là `RenderTemplate` trên dữ liệu template
-  (`use-template-data`, skeleton khi tải); singleton: tên collection với icon; tiêu đề tab `<collection> | <tiêu đề>`.
+  (`use-template-data`, skeleton khi tải, kích thước ở recipe Q-8); singleton: tên collection với icon; tiêu đề tab:
+  màn đặt `<collection> | <tiêu đề>` (singleton: `<collection>`) rồi `titleTemplate` của 012 thêm ` · <project_name ||
+  Backoffice>`, chuỗi cuối ví dụ `bo_content | Hello · Backoffice` (E2E kiểm chuỗi cuối).
 - **FR-052**: `isSavable` PHẢI như `item.vue`: false khi không có quyền lưu và không ở version; true khi có thay đổi;
   khóa chính không tự tăng và không uuid thì cần đã nhập khóa; item mới với `defaults` thì true.
 - **FR-053**: Nút lưu chính PHẢI lưu và về danh sách (`saveAndQuit`; singleton ở lại); menu tùy chọn (`save-options.vue`):
   `save_and_stay` (Ctrl/Cmd + S; item mới thì `router.replace` tới khóa mới, có thì nạp lại item và Revisions),
   `save_and_create_new` (Ctrl/Cmd + Shift + S; ẩn khi không có quyền tạo), `save_as_copy` (ẩn khi mới hoặc không có quyền
-  tạo; `saveAsCopy` của `use-item`: bỏ khóa chính và khóa của item nối, giữ m2o, o2m thành tạo mới, như
-  `findExistingRelatedItems`, `clearPrimaryKey`, `clearJunctionRelatedKey`), `discard_all_changes`; menu chỉ hiện khi
-  `isSavable` và không singleton.
+  tạo; `saveAsCopy` của `use-item`: đọc item bằng GraphQL `POST /graphql` (`/graphql/system` với collection hệ thống)
+  với `item_duplication_fields` (rỗng/null → chỉ khóa chính; quan hệ ngoài danh sách không chép), bỏ khóa chính và khóa
+  của item nối, giữ m2o, o2m thành tạo mới, như `findExistingRelatedItems` (`SEARCH` khi query dài), `clearPrimaryKey`,
+  `clearJunctionRelatedKey`, bản sao = dữ liệu đọc + `edits`), `discard_all_changes`; menu chỉ hiện khi `isSavable` và
+  không singleton.
 - **FR-054**: Lưu PHẢI gọi `POST /items/:collection` (mới) hoặc `PATCH /items/:collection/:pk` chỉ với `edits`
   (singleton: `PATCH /items/:collection`); `FAILED_VALIDATION` và `RECORD_NOT_UNIQUE` → `validationErrors` (form 013);
-  lỗi khác → hộp lỗi; thành công → notice tại chỗ (D-66; `item_create_success`, `item_update_success`).
+  lỗi khác → hộp lỗi chép `unexpectedError` (`BoDialog` tiêu đề `unexpected_error`, text `translateAPIError`, chi tiết
+  gập dạng khối mã, nút `done`; dùng chung cho mọi lỗi không validation); thành công → notice tại chỗ (D-66;
+  `item_create_success`, `item_update_success`).
+- **FR-054b** Thông báo tại chỗ (D-66, `useNotices`): `BoNotice` xếp chồng ngay dưới page header (`role="status"`,
+  `aria-live="polite"`), tự ẩn sau 5 giây, có nút đóng; loại lỗi không tự ẩn; dùng cho lưu, xóa, archive, bản sao, chép
+  link, export bắt đầu, import xong, flow chạy xong (recipe Q-8).
 - **FR-055**: Xóa PHẢI hỏi `delete_are_you_sure`, `DELETE /items/:collection/:pk`, về danh sách; nút ẩn khi mới, singleton
   hoặc đang ở version; khóa khi không có quyền (`deleteAllowed`), tooltip `not_allowed`. Archive/unarchive như
   `useItem.archive` (US2-6); nút ẩn khi không có `archive_field`, mới, singleton, đang ở version.
 - **FR-056**: Form PHẢI `disabled` khi item đã có và không có quyền update (và, khi ở version, không có quyền update
-  `directus_versions`); nút lưu khóa với tooltip `not_allowed`.
+  `directus_versions`); nút lưu khóa (`disabled`) với tooltip `not_allowed`; form `disabled` vẫn có menu field (xem/chép
+  giá trị thô) như Directus.
 - **FR-057**: Rời trang khi `hasEdits` (cờ của 013 FR-084) PHẢI hỏi `unsaved_changes` (`use-edits-guard`: so cả query
   `version`; "Bỏ thay đổi" đi tiếp, "Tiếp tục sửa" ở lại); `beforeunload` khi đóng tab; "bỏ thay đổi" trong menu xóa
   `edits`.
@@ -618,56 +693,68 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 editing, D-67)
 
 - **FR-063**: URL xem trước PHẢI là `collection.meta.preview_url` điền bằng `renderStringTemplate` trên dữ liệu template
-  của item (`use-template-data` với template là `preview_url`, nạp lại sau lưu) cộng `$version` = key version đang xem
-  hoặc `main`; chuỗi rỗng (sau trim) → không có xem trước. Item mới (`+`) không có xem trước.
+  của item (`use-template-data` với template là `preview_url`: dữ liệu đã lưu, không phải `edits`; nạp lại sau lưu)
+  cộng `$version` = key version đang xem hoặc `main`; chuỗi rỗng (sau trim) → không có xem trước. Item mới (`+`) không
+  có xem trước.
 - **FR-064**: Khi có URL, header PHẢI có nút "xem trước" (bật/tắt, tooltip `live_preview.enable`/`disable`); bật là chế
   độ chia đôi: form bên trái, khung xem trước bên phải (`SplitPanel` ↔ Q-6) với tỉ lệ kéo được (mặc định 50 %, tối
   thiểu 20 %, tối đa 80 %, điểm hút 50 %), nút toàn bề rộng (khung chiếm 100 %, kéo quá 95 % cũng bật, dưới thì tắt),
   tay cầm kéo có đường bàn phím (D-69: mũi tên đổi tỉ lệ theo bước, như `ResizeHandle` của 012).
-- **FR-065**: Khung xem trước (`live-preview.vue`) PHẢI có: iframe URL, thanh công cụ với URL hiện tại, nút nạp lại, chọn
-  kích thước màn hình (desktop, tablet, mobile như Directus), nút mở cửa sổ mới, menu tùy chọn hiển thị (toàn bề
-  rộng); nạp lại sau mỗi lần lưu item hoặc lưu version (`refreshLivePreview`); không có nút visual editing (D-67).
+- **FR-065**: Khung xem trước (`live-preview.vue`, chép nguyên thanh công cụ) PHẢI có: iframe URL, ô URL hiện tại
+  (menu khi nhiều URL), nút nạp lại, nút kích thước (`toggleFullscreen`: toàn khung ↔ 400×600 với ô rộng/cao nhập
+  được), zoom 25/50/75/100/150/200 %, nút mở cửa sổ mới, menu tùy chọn hiển thị (toàn bề rộng); nạp lại sau mỗi lần lưu
+  item hoặc lưu version (`refreshLivePreview`); không có nút visual editing (D-67).
 - **FR-066**: Chế độ cửa sổ: nút "mở cửa sổ mới" mở `/content/:collection/:pk/preview` bằng `window.open` tên
   `live-preview` (900×800, không thanh công cụ trình duyệt); route `preview` chỉ có khung xem trước (`in-popup`), tính
   URL như FR-063 với version hiện tại; cửa sổ con gửi `postMessage('refresh', origin)` khi lưu, cửa sổ cha nhận (chỉ
   từ cùng origin và từ chính cửa sổ con) và nạp lại item; cha gọi nạp lại iframe của con sau khi lưu; đóng cửa sổ con →
-  về chia đôi; rời trang item → đóng cửa sổ con.
+  về chia đôi; `window.open` trả null (bị chặn) → như Directus, không dự phòng (Edge Cases); rời trang item → đóng cửa
+  sổ con.
 - **FR-067**: Chế độ (`split`|`popup`|tắt), tỉ lệ và toàn bề rộng PHẢI lưu ở localStorage khóa
   `backoffice-live-preview-mode`, `backoffice-live-preview-size`, `backoffice-live-preview-full-width` (D-39); tỉ lệ
   lưu dưới mức tối thiểu thì dùng mặc định cho tới khi kéo lớn hơn (như `livePreviewEnforceDefault`).
 - **FR-068**: Ở bề rộng ≤ `sm`: khung xem trước chiếm toàn bề rộng khi bật, không kéo; tỉ lệ không ghi.
-- **FR-069**: Iframe xem trước PHẢI có `title`, `sandbox` như Directus (không thêm hạn chế mới), hiện trạng thái tải;
-  URL khác origin nạp bình thường; lỗi gọi vào iframe bỏ qua.
+- **FR-069**: Iframe xem trước PHẢI chép đúng thuộc tính của `live-preview.vue` (`title`, và `sandbox`/`allow`/
+  `referrerpolicy` nếu Directus có; T003 đọc template và ghi lại đây; không thêm hạn chế mới), hiện trạng thái tải;
+  URL khác origin nạp bình thường; lỗi gọi vào iframe bỏ qua. Rủi ro: URL do admin cấu hình, chấp nhận như Directus
+  (Assumptions).
 
 **Version**
 
 - **FR-070**: Menu version PHẢI hiện khi collection `meta.versioning`, item đã có, user đọc được `directus_versions`
   (`version-menu.vue`): tên version hiện tại (`main` hoặc `name`/`key`), danh sách version của item (`GET /versions`
-  lọc `collection`, `item`), version global (`type: global`, Directus 11.17.4: version dùng chung cho mọi item, chỉ tạo
-  được khi có quyền tạo `directus_versions`; làm giống), tạo (hộp thoại tên và key, key slug tự từ tên, key trùng global bị chặn), đổi tên (`PATCH /versions/:id`), xóa
+  lọc `collection`, `item`), version global `draft` (khóa đặt trước `DRAFT_VERSION_KEY`, `type: global`: luôn có trong
+  menu dù chưa tồn tại (`id: '+'`), tạo khi lưu lần đầu, không đổi tên, không cho đặt key trùng; cần quyền tạo
+  `directus_versions` để vào khi chưa tồn tại, như `use-versions.ts`), tạo (hộp thoại tên và key, key slug tự từ tên;
+  key trùng global: nút tạo khóa với tooltip `reserved_version_key` như `version-menu.vue`), đổi tên (`PATCH /versions/:id`), xóa
   (hộp xác nhận, `DELETE /versions/:id`, về bản chính), chuyển (hỏi khi có thay đổi); quyền tạo/sửa/xóa theo
   `directus_versions`.
-- **FR-071**: Đang ở version (`?version=<key>`): form nạp `GET /items/:collection/:pk?version=<key>`; nút lưu thành "lưu
-  version" (`POST /versions/:id/save` với `edits`, như `useVersions.saveVersion`; version mới `+` thì tạo trước); menu:
+- **FR-071**: Đang ở version (`?version=<key>`): form nạp `GET /items/:collection/:pk?version=<key>&versionRaw=true`
+  khi version đã tồn tại; version `+` (`draft` chưa tạo) không gửi `version=`, form là bản chính; nút lưu thành "lưu
+  version" (`POST /versions/:id/save` với `edits`, như `useVersions.saveVersion`; version `+` thì `POST /versions` trước
+  rồi save); menu:
   lưu và về bản chính, lưu và thoát, bỏ thay đổi; `versionValidationErrors`; Revisions lọc `version`; Comments, Shares,
   Flows ẩn; xóa, archive ẩn.
 - **FR-072**: Hộp so sánh (`comparison-modal.vue`, chế độ `version`, dùng chế độ so sánh của form 013, gỡ D-55) PHẢI:
-  `GET /versions/:id/compare` → danh sách field khác (`differences_count`), "chỉ hiện khác biệt", chọn từng field hoặc
-  tất cả, xem hai bên (bản chính / version) với interface chỉ đọc, cảnh báo `outdated`; "Promote" gọi
-  `POST /versions/:id/promote` `{mainHash, fields}`; tùy chọn "xóa version sau promote" (`delete_on_apply_copy`); xong thì
-  về bản chính và nạp lại.
+  `GET /versions/:id/compare` → danh sách field khác (`differences_count`), công tắc "chỉ hiện khác biệt", checkbox chọn
+  chỉ trên field có khác biệt (mặc định chọn tất cả), xem hai bên (bản chính / version) với interface chỉ đọc, cảnh
+  báo `outdated`; "Promote" gọi `POST /versions/:id/promote` `{mainHash, fields}`, nút khóa khi không có quyền update
+  item chính; tùy chọn "xóa version sau promote" (`delete_on_apply_copy`) chỉ khi có quyền delete `directus_versions`;
+  xong thì về bản chính và nạp lại.
 - **FR-073**: Chế độ `revision` của hộp so sánh (FR-081) và chế độ `collab` (D-68, không làm) dùng cùng component.
 
 **Sidebar item**
 
-- **FR-080** Revisions: hiện khi `revisionsAllowed` (đọc `directus_revisions`) và `accountabilityScope === 'all'`; số
+- **FR-080** Revisions: hiện khi `revisionsAllowed` (đọc `directus_revisions`) và `accountabilityScope === 'all'`
+  (`accountabilityScope` = `collection.meta.accountability` như `useCollection`; `activity` hoặc null → không có mục); số
   đếm (`/revisions` `aggregate count` theo `collection`, `item`, `version` null hoặc id); danh sách 10 mỗi trang
   (`min(10, queryLimit.max)`), `sort -id`, field như `use-revisions.ts`, nhóm theo ngày (`today`, `yesterday`, ngày
   ngắn), mục ghi hành động (`create`, `update`, `version_save`...), user (`private_user` khi không đọc được) và giờ;
   nạp khi mở mục; phân trang; nút nạp lại.
 - **FR-081**: Bấm revision PHẢI mở hộp so sánh chế độ `revision`: so với "bản trước" hoặc "mới nhất", chỉ khác biệt,
-  chọn field, ghi chú `no_relational_data`; "Apply" phát `revert` với giá trị các field chọn → ghi vào `edits` của form
-  (chưa lưu, user bấm lưu); revision không có `delta` → `revision_delta_created_externally`, không mở.
+  chọn field, ghi chú `no_relational_data`; "Apply" phát `revert` với giá trị thô của các field chọn (m2o là khóa;
+  o2m/m2m không có trong `delta`; field user không đọc được không có trong `delta` nên không hiện) → ghi vào `edits`
+  của form (chưa lưu, user bấm lưu); revision không có `delta` → `revision_delta_created_externally`, không mở.
 - **FR-082** Comments: hiện khi không ở version; số đếm và danh sách như `comments-sidebar-detail.vue` (`/comments` lọc
   `collection`, `item`, `sort -date_created`, field user); nhóm theo ngày; `@<uuid>` thay bằng tên user (`/users` lọc
   `_in`) trong `<mark>`, HTML còn lại bị khử (DOMPurify không tag); ô nhập (`comment-input.vue`): gợi ý user khi gõ `@`
@@ -678,33 +765,39 @@ editing, D-67)
   đếm và danh sách (`/shares` lọc `collection`, `item`, `sort name`); mục share (`share-item.vue`): tên, role, ngày, số
   lần dùng, menu: sửa, chép link (`<origin><root>admin/shared/<id>` → clipboard; thông báo thành công/lỗi tại chỗ,
   D-66), gửi (hộp thoại nhập email cách dấu phẩy hoặc xuống dòng, `POST /shares/invite` `{emails, share}`; API chỉ ghi
-  log, D-36, UI báo như Directus), xóa (hộp xác nhận); tạo/sửa bằng drawer form field `name`, `role`, `password`,
-  `date_start`, `date_end`, `max_uses` (`POST`/`PATCH /shares` kèm `collection`, `item`).
+  log, D-36, UI báo như Directus), xóa (hộp xác nhận); mục hết hạn hoặc hết lượt có chữ phụ như `share-item.vue`;
+  `navigator.clipboard` không có (HTTP không bảo mật) → notice lỗi `share_copy_link_error`; tạo/sửa bằng `DrawerItem`
+  (013) trên `directus_shares` với `edits` sẵn `{collection, item}` và hai field đó ẩn, field `name`, `role`,
+  `password` (hash, `input-hash` không hiện lại), `date_start`, `date_end`, `max_uses` (`POST`/`PATCH /shares`).
 - **FR-084**: Trang `/shared/:id` (012) sau khi đăng nhập share PHẢI chuyển tới route item (`getItemRoute`); với phiên
-  share, module Content PHẢI hoạt động theo quyền của share (cây chỉ collection đọc được, form, sidebar theo quyền);
-  user thường đã đăng nhập mở `/shared/:id` thì chuyển thẳng tới item như `shared.vue`.
-- **FR-085** đến **FR-088**: dự phòng.
+  share, module Content PHẢI hoạt động theo quyền của share (cây chỉ collection đọc được, không bookmark, không nạp và
+  không ghi preset; form, sidebar theo quyền; `/content` hoặc collection khác → `no_collections`/không tìm thấy theo
+  quyền; không gọi `track/page` như 012); user thường đã đăng nhập mở `/shared/:id` thì chuyển thẳng tới item như
+  `shared.vue`.
 - **FR-089** Flows: mục Flows ở panel (màn collection và item) liệt kê flow thủ công của collection theo `location`
   (`both`, `collection`, `item`) từ store flows (013), tooltip `run_flow_on_current`/`run_flow_on_selected`/
   `run_flow_on_current_collection`, khóa khi cần lựa chọn mà chưa chọn (`requireSelection`), chạy qua
   `use-run-manual-flow` (013) với hộp xác nhận tùy chọn và hộp `unsaved_changes` (`run_flow_anyway`) khi có thay đổi;
-  xong thì FR-059; trạng thái đang chạy.
+  body `{collection, keys}` với `keys` = lựa chọn ở màn collection (có thể rỗng khi `requireSelection: false`) hoặc
+  `[pk]` ở màn item, cộng giá trị form xác nhận (chép `runManualFlow` của `use-flows.ts`, T003); kết quả hiện bằng notice
+  D-66; xong thì FR-059; trạng thái đang chạy.
 
 **Xuất, nhập, hàng loạt, làm mới**
 
 - **FR-090** Export/Import (`export-sidebar-detail.vue`): mục ở panel màn collection với "Nhập" (chỉ khi `createAllowed`:
   chọn file `.csv`, `.json`, nút nhập, tiến độ tải lên rồi `importing`; `POST /utils/import/:collection` multipart
-  `file`; lỗi → `import-error-dialog.vue` (danh sách lỗi API); xong → nạp lại danh sách; "chạy nền" khi lâu như
-  Directus) và "Xuất" (mở hộp thoại FR-091).
+  `file`; lỗi → `import-error-dialog.vue` (danh sách lỗi API); xong → nạp lại danh sách và notice
+  `import_data_success`; công tắc "chạy nền" (`background`, `?background=true`, notice `import_upload_success`, không
+  nạp lại) chép hộp thoại nhập của Directus (T003)) và "Xuất" (mở hộp thoại FR-091).
 - **FR-091**: Hộp thoại xuất PHẢI có: định dạng (`csv`, `json`, `xml`, `yaml`), giới hạn (mặc định `limit` của layout
-  hoặc `min(25, queryLimit.max)`; `-1` là tất cả; làm tròn số), bộ lọc và tìm kiếm hiện tại (chỉ đọc, bỏ được), field
-  (chọn nhiều từ field không alias, mặc định field của layout, bỏ field `$...`), sắp xếp (field và chiều), nơi lưu
+  hoặc `min(25, queryLimit.max)`; `-1` là tất cả; làm tròn số), bộ lọc (sửa được bằng `system-filter`) và tìm kiếm (ô
+  nhập) khởi tạo từ màn, field (chọn nhiều bằng `FieldList` từ field không alias, mặc định field của layout kể cả field
+  lồng `author.name`, bỏ field `$...`; không field → nút xuất khóa), sắp xếp (field và chiều), nơi lưu
   (`download` hoặc `files` với thư mục); số item sẽ xuất (`aggregate` theo bộ lọc, debounce 250 ms, tối đa = giới hạn);
   khi số xuất `> queryLimit.max` hoặc `≥ 2500` thì khóa ở `files` (về lại khi giảm); tải về gọi
   `GET /items/:collection?export=<format>&limit&fields&sort&filter&search` và lưu file `<collection>.<ext>`; lưu vào
   thư viện gọi `POST /utils/export/:collection` `{format, query, file: {folder}}` và báo `export_started`.
 - **FR-092**: "Tải xuống" dữ liệu đang hiện (`onDownload` của layout, FR-034) PHẢI có trong mục Export như Directus.
-- **FR-093** đến **FR-094**: dự phòng.
 - **FR-095** Xóa hàng loạt: nút khi `selection.length > 0`, khóa khi `batchDeleteAllowed !== true` (quyền `delete` của
   collection); hộp `batch_delete_confirm` (n); `DELETE /items/:collection` body mảng khóa; xong xóa lựa chọn, nạp lại;
   lỗi → FR-028.
@@ -727,8 +820,8 @@ editing, D-67)
   `saveAllowed`, `fields`; hành vi khóa (disabled + tooltip `not_allowed`) hay ẩn đúng chỗ như Directus.
 - **FR-102**: Admin thấy mọi collection và mọi nút; share user chỉ thấy theo quyền của share.
 - **FR-103**: Field user không đọc được KHÔNG gửi lên API ở `fields` của danh sách và export; preset có field đó thì bỏ
-  khi dựng cột (như store fields lọc).
-- **FR-104** đến **FR-105**: dự phòng.
+  khi dựng cột (như store fields lọc); sắp xếp theo field không đọc được → API 403 → trạng thái lỗi của layout (FR-026);
+  cây field của bộ lọc chỉ liệt kê field đọc được.
 
 **Thiết kế, ngôn ngữ, phạm vi kỹ thuật**
 
@@ -736,27 +829,46 @@ editing, D-67)
   recipe `component-specs.md` (Table, Pagination, Card, Modal, Dropdown, Badge, Alert, Tier 3 của 013); màn và thành
   phần chưa có mẫu ghi ở "Câu hỏi mở về design-system" (Q-1 đến Q-12), xử lý như 013 (recipe nháp trước khi code, design
   owner duyệt trước khi đóng).
+- **FR-110b**: Mọi chuỗi dữ liệu người dùng (tên bookmark sau `translate`, tiêu đề template, nhãn nhóm kanban, tag,
+  tên share, comment) PHẢI vẽ bằng text binding, không `v-html`; chỉ comment đi qua DOMPurify không tag để chèn
+  `<mark>` tên user; `help`/`text` markdown của interface đã khử ở 013.
+- **FR-110c**: Chế độ tối và `prefers-reduced-motion` PHẢI áp cả phần của thư viện bên thứ ba: FullCalendar (biến
+  `--fc-*` đè bằng token), popup và control MapLibre, chuyển động kéo thả và split panel (`motion-reduce`); kiểm bằng
+  axe ở `html.dark` (FR-123).
 - **FR-111**: Chuỗi dịch dùng khóa Directus đã sinh ở 012 (`layouts.*`, khóa gốc); thiếu `vi-VN` rơi về `en-US`.
-- **FR-112**: App chỉ gọi API theo chuẩn Directus; request ra ngoài chỉ: tile nền bản đồ (FR-039), glyph
-  `fonts.openmaptiles.org`, Mapbox khi có key; không có `/websocket`, `/ai`, `/extensions/sources` (012 FR-072).
+- **FR-112**: App chỉ gọi API theo chuẩn Directus (`contracts/api-calls.md` #50 đến #96, kể cả `POST /graphql` cho
+  bản sao); request ra ngoài chỉ: tile nền bản đồ (FR-039), glyph `fonts.openmaptiles.org`, style và geocoding Mapbox
+  (`api.mapbox.com`) khi có key, iframe `preview_url`; không có `/websocket`, `/ai`, `/extensions/sources` (012
+  FR-072). Trong E2E, host ngoài bị chặn bằng `route()` và các host trên được stub (contracts/tests §3).
 - **FR-113**: Không sửa `directus/`; không ghi `directus_fields`, `directus_relations`, `directus_collections` ở màn này.
 - **FR-114**: Khóa localStorage/sessionStorage mới theo tiền tố `backoffice-` (D-39): collection gần nhất, kích thước
   và chế độ live preview (FR-067).
-- **FR-115**: Mọi thao tác kéo thả PHẢI có đường bàn phím tương đương (D-69): sắp xếp tay (menu dòng), thứ tự và độ rộng
-  cột (menu header), thẻ kanban (menu thẻ), sự kiện calendar (sửa ngày trong form item), chọn trên bản đồ (danh sách
-  trong panel); hộp thoại và drawer bẫy focus; mọi nút icon có nhãn; bảng có caption/`aria-label`, header `scope`,
-  cột sắp xếp `aria-sort`.
+- **FR-115**: Mọi thao tác kéo thả PHẢI có đường bàn phím tương đương (D-69) theo danh sách đóng ở
+  `contracts/layouts.md` §5: sắp xếp tay (menu dòng), thứ tự và độ rộng cột (menu header), thẻ và cột kanban (menu),
+  sự kiện calendar (sửa ngày trong form item), chọn trên bản đồ (danh sách trong panel), tay cầm live preview (mũi tên
+  ±5 %, Home/End), điều kiện bộ lọc (menu); hộp thoại và drawer bẫy focus; mọi nút icon có nhãn; bảng có
+  caption/`aria-label`, header `scope`, cột sắp xếp `aria-sort`.
+- **FR-115b**: Dòng số đếm là vùng `role="status" aria-live="polite"`; đổi trang và sắp xếp thông báo qua vùng đó
+  ("Trang n", "Sắp theo X tăng dần").
+- **FR-115c**: Focus sau hành động: xóa item → tiêu đề trang danh sách; lưu và tạo tiếp → field đầu (`autofocus`); đóng
+  hộp so sánh hoặc drawer → nút đã mở; xóa bookmark đang mở → tiêu đề trang collection.
+- **FR-115d**: Hộp xác nhận (xóa, archive, hàng loạt, rời trang, xóa version/bookmark/nhóm) focus ban đầu vào nút Hủy
+  (hoặc nút đầu không phá hủy), nội dung gắn `aria-describedby`, Esc hủy (Reka Dialog).
 - **FR-116**: Hỗ trợ từ 768 px; không cuộn ngang trang (bảng cuộn trong khung).
 
 **Kiểm thử**
 
 - **FR-120**: E2E Playwright (`apps/web-e2e`, mở rộng) PHẢI phủ US1 đến US7 trên bộ mẫu của 013 (seed qua
-  `pnpm nx run web:fixtures` ở `tests/parity` profile `web`; mở rộng seed: bật `versioning` và `archive_field` cho một
-  collection, preset role/global, bookmark, flow thủ công `location both`, share) và chạy ở ba cấu hình của 012 FR-071
-  (Directus thật, API mới cùng origin, API mới khác origin); so payload ghi với Directus app: cùng kịch bản chạy trên
-  `tests/directus-app-e2e` (Directus app qua proxy) ghi lại body `POST`/`PATCH`/`DELETE` của `/items`, `/presets`,
-  `/versions`, `/comments`, `/shares`, `/utils/*` và so với body app mới sau chuẩn hóa (JSON round-trip, bỏ id, thời
-  gian, `time`/`id` block editor như 013 Assumptions); khác biệt thật ghi R-xx.
+  `pnpm nx run web:fixtures` ở `tests/parity` profile `web`; mở rộng seed bằng collection **mới** `bo_content`
+  (`versioning`, `archive_field`, `display_template`, `preview_url`, `sort_field`, 30 item) và folder `bo_folder` cho
+  cây nhiều cấp, preset role/global, bookmark, version, share, comment, flow thủ công `location both` và `item`;
+  `bo_std` và snapshot 013 giữ nguyên) và chạy ở ba cấu hình của 012 FR-071 (Directus thật, API mới cùng origin, API
+  mới khác origin); ba cấu hình dùng chung DB nên mỗi spec xóa preset và bookmark của admin trên collection nó dùng ở
+  `beforeEach` và đặt tên bookmark theo `DATA_PREFIX`; so payload ghi với Directus app chỉ ở cấu hình `proxy-api`:
+  cùng kịch bản chạy trên Directus app (profile `app`, 8155, cùng DB) rồi app mới, ghi lại `{method, path, body}` của
+  request ghi (`/items`, `/presets`, `/versions`, `/comments`, `/shares`, `/utils/*`, `/graphql`) theo thứ tự, so sau
+  chuẩn hóa (JSON round-trip, `DATA_PREFIX`, uuid, id trong path, thời gian, `time`/`id` block editor như 013
+  Assumptions; thứ tự mảng giữ, thứ tự khóa object không tính); khác biệt thật ghi R-xx.
 - **FR-121**: Test component (Vitest browser) cho năm layout, bộ lọc nâng cao, menu version, hộp so sánh, bốn sidebar,
   hộp xuất, nhập, với API giả lập của 013 (`mockFixtureApi`) mở rộng cho `/presets`, `/revisions`, `/versions`,
   `/comments`, `/shares`, `/utils/*`; khẳng định request gửi và DOM.
@@ -764,10 +876,20 @@ editing, D-67)
   `use-flows`, `use-edits-guard`, `format-items-count`, `save-as-csv`, `basemap`, `get-route`, guard `checkForSystem`.
 - **FR-123**: axe 0 vi phạm serious/critical trên màn collection (mỗi layout), màn item với sidebar, hộp thoại, ở sáng
   và tối; ngoại lệ chỉ cho thư viện bên thứ ba (bản đồ, lịch) và màu dữ liệu, ghi rule id và lý do.
-- **FR-124**: Hành vi trong các file test Directus ở phần tham chiếu PHẢI có test tương ứng ở `apps/web`.
+- **FR-124**: Hành vi trong 13 file test Directus (đếm 2026-10-15) PHẢI có test tương ứng ở `apps/web`:
+  `modules/content/components/version-menu.test.ts` → `VersionMenu.test.ts`; `layouts/kanban/kanban.test.ts` →
+  `Kanban.browser.test.ts`; `layouts/calendar/options.test.ts` → `CalendarOptions.test.ts`;
+  `views/private/components/{drawer-batch (013 đã port), export-sidebar-detail, flow-sidebar-detail,
+  refresh-sidebar-detail, search-input}.test.ts` → cùng tên PascalCase; `composables/{use-flows, use-versions,
+  use-item/index}.test.ts` và `comparison/use-comparison.test.ts` → cùng tên; `packages/composables/use-items.test.ts`
+  (013 đã port). Header `// Ported from directus/...`, manifest `014-T*.json`.
 - **FR-125**: Benchmark hằng tuần (workflow của 005) thêm kịch bản màn: với collection 10 triệu dòng, đo thời gian tới khi
   bảng hiện trang đầu, đổi trang, sắp xếp, lọc theo field có index và không index, số đếm; ghi p95 (SC-003).
 - **FR-126**: Coverage `apps/web` ≥ 60%; lint, typecheck, kiểm màu thô, build image xanh.
+- **FR-127**: Việc làm PHẢI chia bốn lượt theo story (Clarifications Q3): lượt 1 US1–US3, lượt 2 US4, lượt 3 US5, lượt
+  4 US6–US7; mỗi lượt là một hoặc vài commit trên `main` với lint, typecheck, unit, E2E hiện có và build image xanh
+  trước khi sang lượt sau; test E2E ba cấu hình và benchmark (FR-120, FR-125) chạy đủ ở lượt 4 nhưng mỗi lượt thêm E2E
+  của story mình.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -801,11 +923,12 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-67 | Nút "sửa trong trang" (visual editing) và module Visual Editor trong khung live preview | Có khi trang đích nhúng `@directus/visual-editing` | Không có; live preview còn lại làm đủ (FR-063 đến FR-069) | Nguyên tắc XI; owner chọn A ở Q1 (2026-10-15) | ngoài phạm vi | — |
 | D-68 | Chỉ báo người cùng sửa (collab) ở header và hộp va chạm (`comparison-modal` chế độ `collab`), hộp `unsaved_changes_collab` | Có khi bật WebSocket | Không có; như Directus khi tắt WebSocket | Nguyên tắc XI (D-41) | ngoài phạm vi | — |
-| D-69 | Đường bàn phím cho kéo thả: menu dòng "Lên/Xuống" (sắp xếp tay), menu header "Chuyển trái/phải" (thứ tự cột), menu thẻ kanban "Chuyển sang nhóm…", "Lên/Xuống", danh sách item của layout map trong panel | Chỉ chuột | Thêm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; cùng lý do D-60 | khác | — |
+| D-69 | Đường bàn phím cho kéo thả: menu dòng "Lên/Xuống" (sắp xếp tay), menu header "Chuyển trái/phải" (thứ tự cột), menu thẻ kanban "Chuyển sang nhóm…", "Lên/Xuống", danh sách item của layout map trong panel, tay cầm live preview | Chỉ chuột | Thêm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; cùng lý do D-60; tech lead duyệt 2026-10-15 (Q5) | khác | — |
 | D-70 | Nạp lại khi công cụ AI ghi dữ liệu (`onSystemToolResult`) | Có | Không có | Nguyên tắc XI (D-41) | ngoài phạm vi | — |
 | D-71 | Nút "sửa bookmark role/global" và nút "tạo collection" trỏ tới Settings | Trang Settings | Trỏ tới khung Settings của 012 (D-40) | 016 chưa có | ngoài phạm vi (tạm thời) | 016 |
-| D-72 | Collection hệ thống chuyển hướng tới module của nó (`/users`, `/files`, `/insights`, `/activity`, `/settings/*`) | Màn đầy đủ | Khung module (D-40) | 015, 016, 018 chưa có | ngoài phạm vi (tạm thời) | 015, 016, 018 |
-| D-73 | Interface hệ thống `system-filter` (bộ lọc nâng cao) và `system-input-translated-string` (tên bookmark) | Có | Làm ở 014 (D-57 của 013 ghi 016) | Thanh tìm kiếm và bookmark của Content cần; Clarifications Q-A | — (thu hẹp D-57) | — |
+| D-72 | Collection hệ thống chuyển hướng tới module của nó (`/users`, `/files`, `/insights`, `/activity`, `/settings/*`) | Màn đầy đủ | Khung module (D-40) | 015, 016, 018 chưa có | ngoài phạm vi (tạm thời) | 015: `directus_users`, `directus_files`; 016: `directus_settings`, `directus_collections`, `directus_roles`, `directus_presets`, `directus_translations`, `directus_flows`; 018: `directus_dashboards`, `directus_activity` |
+| D-74 | Xác nhận trước khi xóa nhóm kanban (xóa item thật của collection nhóm) | [Unverified: T003 đọc `kanban.vue`; nếu Directus đã hỏi thì bỏ dòng này] | Hộp xác nhận | An toàn dữ liệu; chỉ ghi nếu Directus không hỏi | khác | — |
+| D-73 | Interface hệ thống `system-filter` (bộ lọc nâng cao) và `system-input-translated-string` (tên bookmark) | Có | Làm ở 014 (D-57 của 013 đã sửa, commit `0e513e5`) | Thanh tìm kiếm và bookmark của Content cần; Clarifications Q-A; tech lead duyệt 2026-10-15 (Q5) | — (thu hẹp D-57) | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37. Chưa có mục nào lúc viết spec; ghi khi port (R-38 trở đi) và tech lead duyệt trước khi đóng.
@@ -816,7 +939,7 @@ R-37. Chưa có mục nào lúc viết spec; ghi khi port (R-38 trở đi) và t
   không chia sẻ localStorage (khác origin `/admin` chỉ khi cùng domain; cùng domain thì khóa khác nhau không xung đột).
 - Link share `<origin>/admin/shared/<id>`: giữ path `/admin/shared` như Directus để link tạo ở app này mở được ở app kia
   (cùng reverse proxy).
-- D-69 (đường bàn phím) và D-73 (chuyển `system-filter` sang 014): tech lead duyệt trước khi plan.
+- D-69 và D-73: đã duyệt (Q5), không còn chờ.
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
@@ -826,7 +949,7 @@ như 013: recipe nháp vào `design-system/docs/` trước khi code, design owne
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) trong sub-menu một cấp L-3 của sidebar TailAdmin: lồng cấp trong sub-menu, hay cột điều hướng thứ hai của module | Mở: chờ recipe nháp |
+| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) **bên trong sub-menu của sidebar** (owner chọn 2026-10-15, Clarifications Q2): thụt cấp, icon gập mở, mục bookmark, ô tìm dính đầu cây, menu "hiện collection ẩn" | Mở: vị trí đã chốt, chờ recipe nháp cho cách vẽ |
 | Q-2 | Bảng dữ liệu lớn: header dính, kéo độ rộng và thứ tự cột, menu header, ô chọn, kéo sắp xếp tay, ba khoảng cách dòng, footer phân trang và kích thước trang (TailAdmin chỉ có BasicTable) | Mở: chờ recipe nháp |
 | Q-3 | Lưới thẻ (cards): thẻ ảnh, kích thước thẻ, chọn, trạng thái tải | Mở: chờ recipe nháp |
 | Q-4 | Lịch (toolbar, view tháng/tuần/ngày/danh sách, sự kiện, kéo) trên theme TailAdmin (TailAdmin có mẫu Calendar với FullCalendar: dùng được không) | Mở: chờ recipe nháp |
@@ -853,6 +976,18 @@ như 013: recipe nháp vào `design-system/docs/` trước khi code, design owne
   lại sau lưu, `$version`) có thuộc 014 không? Mô tả không nêu; visual editing là XI. → A: Làm live preview đầy đủ như
   Directus trừ visual editing (FR-063 đến FR-069, Q-6, route preview, D-67 chỉ còn visual editing). Owner chọn
   2026-10-15.
+- Q2: Cây collection nhiều cấp đặt ở đâu trong khung TailAdmin (sidebar chỉ có sub-menu một cấp, L-3)? → A: Bên trong
+  sub-menu của sidebar, mở rộng thành cây lồng nhiều cấp cho riêng module Content; không thêm cột điều hướng, không
+  đặt trong vùng nội dung (FR-004, Q-1).
+- Q3: 014 vượt 60 task; chia thế nào (SPECKIT-GUIDE)? → A: Một feature, tasks chia bốn lượt theo story: lượt 1 cây
+  collection, bảng, màn item, tìm kiếm, bộ lọc, bookmark (US1–US3); lượt 2 cards, calendar, kanban, map (US4); lượt 3
+  sidebar, version, live preview (US5); lượt 4 xuất nhập, hàng loạt, E2E ba cấu hình, benchmark (US6–US7). Mỗi lượt
+  kết thúc bằng commit lên `main` với lint, unit, E2E hiện có xanh, như 004 (FR-127).
+- Q4: Trang bảng tới 1000 dòng vẽ thế nào (vẽ đủ như Directus, ảo hóa dòng, hay giới hạn 250)? → A: Như Directus, vẽ
+  toàn bộ dòng của trang, header dính bằng CSS, không ảo hóa, giữ danh sách kích thước trang; thêm tiêu chí đo trang
+  1000 dòng × 10 cột (FR-033, SC-011).
+- Q5: D-69 (đường bàn phím cho kéo thả) và D-73 (`system-filter`, `system-input-translated-string` làm ở 014) duyệt
+  thế nào? → A: Tech lead duyệt cả hai ngày 2026-10-15; không còn mục chờ ở "Cần xác nhận".
 
 ## Assumptions
 
@@ -876,29 +1011,42 @@ như 013: recipe nháp vào `design-system/docs/` trước khi code, design owne
   `en-US.yaml`); thiếu thì chạy lại script sinh, không viết tay.
 - Màn preset ở Settings (016) không thuộc 014; 014 ghi preset đúng dạng để 016 và Directus đọc.
 - Cỡ trang mặc định và danh sách cỡ trang như Directus; không thêm "tải thêm" hay cuộn vô hạn.
+- Rủi ro chấp nhận như Directus: iframe live preview nhúng URL do admin cấu hình trong `preview_url` (FR-069); preset
+  tự lưu có thể mất khi rời trang trong 450 ms; hai người sửa cùng item ghi đè từng field (D-68).
+- Thay đổi tài liệu ngoài `specs/014-*` khi 013 mở khóa working tree: `design-system/docs/layout-patterns.md` §7 ghi
+  ngoại lệ cây nhiều cấp cho module Content (CHK055), spec 012 Assumptions trỏ tới đó; D-40, D-45 (012) và D-55, D-58
+  (013) ghi "đã gỡ ở 014" khi đóng.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
 - **SC-001**: 100% kịch bản E2E của US1 đến US7 đạt ở ba cấu hình API (Directus thật, API mới cùng origin, API mới khác
-  origin) trên chromium; cấu hình cùng origin thêm firefox và webkit như 012; "các luồng chính của module Content làm
-  được tương tự" = SC-001 và SC-004.
-- **SC-002**: Với bộ mẫu, cây collection, cột mặc định, dòng số đếm, trạng thái nút theo quyền của ba user (`admin`,
-  `bo-editor`, `bo-viewer`) trùng với Directus app trên cùng DB (so bằng E2E song song, 0 lệch ngoài D-xx).
-- **SC-003**: Trên collection 10 triệu dòng (benchmark 005, API mới và Directus thật): bảng hiện trang đầu (25 dòng, 4
-  cột) trong dưới 2 giây p95 sau khi vào route, không tính số đếm; đổi trang và sắp xếp theo field có index dưới 1,5
-  giây p95; mỗi thao tác gửi đúng một request danh sách (và không quá một request đếm khi điều kiện đếm đổi); số đếm về
-  không làm bảng vẽ lại quá 1 lần; đo ở workflow benchmark hằng tuần, chromium, trung vị 3 lần.
+  origin) trên chromium 768 và 1280; cấu hình cùng origin thêm firefox-1280 và webkit-1280 cho ba spec lõi
+  (`content-tabular`, `content-item`, `content-filter-bookmark`; giới hạn 75 phút của job `e2e-web`); cors chỉ
+  chromium-1280 như 012; "các luồng chính của module Content làm được tương tự" = SC-001 và SC-004.
+- **SC-002**: Với bộ mẫu, so với Directus app trên cùng DB cho ba user (`admin`, `bo-editor`, `bo-viewer`) bằng E2E
+  song song, 0 lệch ngoài D-xx ở năm thuộc tính: (a) nhãn và thứ tự mục cây (nhóm, bookmark), (b) text header cột mặc
+  định, (c) chuỗi dòng số đếm, (d) `disabled` của nút tạo, xóa, archive, sửa hàng loạt, lưu, xóa item, (e) mục sidebar
+  hiện; thu bằng `innerText` và `aria-disabled`.
+- **SC-003**: Trên collection 10 triệu dòng (benchmark 005): app mới không chậm hơn Directus app (8155/admin) cùng kịch
+  bản quá 10 % p95 (constitution X) ở cả hai cấu hình API; mục tiêu tuyệt đối (không chặn): trang đầu (25 dòng, 4 cột)
+  dưới 2 giây p95 không tính số đếm, đổi trang và sắp xếp theo field có index dưới 1,5 giây p95; số request mỗi thao
+  tác: đổi trang và sắp xếp = 1 danh sách, 0 đếm; lọc hoặc tìm = 1 danh sách + 1 `itemCount` (+ 1 `totalCount` chỉ
+  khi bộ lọc archive đổi); đổi collection = 1 + 2; số đếm về không làm bảng vẽ lại quá 1 lần; đo ở workflow benchmark
+  hằng tuần, chromium, 11 lần lấy p95.
 - **SC-004**: 100% body ghi (`/items` tạo, sửa, bản sao, xóa, archive, hàng loạt; `/presets`; `/versions` tạo, save,
   promote; `/comments`; `/shares`; `/utils/import`, `/utils/export`; `/utils/sort`) của kịch bản E2E bằng body Directus
   app gửi cho cùng kịch bản sau chuẩn hóa (FR-120); bộ lọc dựng bằng bộ lọc nâng cao cho JSON bằng Directus ở 10 mẫu
   (FR-041).
 - **SC-005**: Năm layout: với bộ mẫu, request `/items` (fields, filter, limit, sort) và `layout_options` ghi ra của mỗi
-  layout trùng Directus (test component); mỗi layout có ít nhất một kịch bản E2E so với Directus app; map chạy với ba
-  nguồn nền (OSM, Mapbox giả lập, raster riêng) không request ngoài danh sách FR-112.
+  layout trùng Directus (test component, mẫu request viết tay từ `index.ts` Directus có ghi dòng nguồn; mốc
+  `layout_options` ghi từ Directus app bằng bộ so payload, kịch bản "đổi option layout"); mỗi layout có ít nhất một
+  kịch bản E2E so với Directus app; map chạy với ba nguồn nền (OSM, Mapbox stub bằng `route()`: style JSON tối thiểu và
+  geocoding rỗng, raster riêng) không request ngoài danh sách FR-112.
 - **SC-006**: axe 0 vi phạm serious/critical trên màn collection (năm layout), màn item với bốn sidebar và hộp so sánh,
-  hộp xuất/nhập, ở sáng và tối (ngoại lệ FR-123); 100% thao tác kéo thả có đường bàn phím (D-69) kiểm trong test.
+  hộp xuất/nhập, ở sáng và tối (ngoại lệ FR-123); 100% thao tác kéo thả trong danh sách đóng `contracts/layouts.md` §5
+  có đường bàn phím (D-69) kiểm trong test.
 - **SC-007**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E (ba cấu hình), build image xanh; 0 màu thô ngoài
   danh sách miễn (Q-C của 013).
 - **SC-008**: 0 file trong `directus/` bị sửa; trong E2E, 0 request tới route ngoài danh sách FR-112 và 012 FR-072.
@@ -906,3 +1054,9 @@ như 013: recipe nháp vào `design-system/docs/` trước khi code, design owne
   trước khi đóng 014.
 - **SC-010**: D-67 đến D-73 và R-38 trở đi (nếu có) được tech lead duyệt trước khi đóng; D-55, D-58 của 013 và D-40 của
   012 (phần Content) ghi "đã gỡ ở 014".
+- **SC-011**: Layout bảng với 1000 dòng × 10 cột có display (dữ liệu giả lập đã nạp) vẽ xong trong dưới 2 giây; cuộn
+  10 lần `scrollBy(0, 2000)` không ném lỗi và không vẽ lại toàn bảng (đếm `onUpdated` ≤ 1); cây 300 collection + 100
+  bookmark vẽ dưới 500 ms; điều kiện đo như SC-004 của 013 (chromium CI, lần dựng đầu, trung vị 3 lần, bước `PERF=1`
+  không coverage).
+- **SC-012**: Chunk chính của app giữ ngân sách 013 + 60 KB gzip; calendar, map layout, kanban, cards, split panel +
+  live preview, hộp so sánh, `system-filter` là chunk lười; `scripts/check-bundle.mjs` kiểm trong CI.
