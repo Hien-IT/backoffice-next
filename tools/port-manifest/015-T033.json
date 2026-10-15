@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/modules/files/index.ts", "dest": "apps/web/src/modules/files.ts" },
+	{ "source": "app/src/modules/files/routes/not-found.vue", "dest": "apps/web/src/modules/content/routes/ContentNotFound.vue" }
+]

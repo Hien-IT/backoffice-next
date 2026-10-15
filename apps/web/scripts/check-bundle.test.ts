@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { BUDGET_013, BUDGET_014, entrySize, LIMIT, lazyLeaks } from './check-bundle.mjs';
+import { BUDGET_013, BUDGET_014, BUDGET_015, entrySize, LIMIT, lazyLeaks } from './check-bundle.mjs';
 
 function dist(js: string) {
 	const root = mkdtempSync(join(tmpdir(), 'check-bundle-'));
@@ -43,4 +43,12 @@ test('feature 014 budget allows 60 KB over the 013 entry and finds the Content m
 
 	const root = dist('const a = "fc-scrollgrid"; const b = "sp-root"; const c = "__aliasFor";');
 	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['fc-scrollgrid', 'sp-root', '__aliasFor']);
+});
+
+test('feature 015 budget allows 20 KB over the 014 budget and keeps tus-js-client lazy', () => {
+	expect(BUDGET_015).toBe(BUDGET_014 + 20 * 1024);
+	expect(BUDGET_015).toBeLessThan(LIMIT);
+
+	const root = dist('headers["Tus-Resumable"] = "1.0.0";');
+	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['Tus-Resumable']);
 });

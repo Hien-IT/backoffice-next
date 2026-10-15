@@ -423,10 +423,10 @@ describe('mockFixtureApi, feature 015', () => {
 		mockFixtureApi(loadSnapshot());
 		const get = async (path: string) => (await (await globalThis.fetch(`http://api.test${path}`)).json()).data;
 
-		const folders = (await get('/folders')) as { name: string }[];
+		const folders = (await get('/folders')) as { id: string; name: string }[];
 		expect(folders.map((f) => f.name)).toEqual(expect.arrayContaining(['bo-files', 'bo-files-sub', 'bo-files-deep']));
 
-		const root = folders.find((f) => f.name === 'bo-files') as { id: string };
+		const root = folders.find((f) => f.name === 'bo-files')!;
 		const files = (await get(`/files?filter=${encodeURIComponent(JSON.stringify({ folder: { _eq: root.id } }))}&limit=-1`)) as unknown[];
 		expect(files).toHaveLength(31);
 

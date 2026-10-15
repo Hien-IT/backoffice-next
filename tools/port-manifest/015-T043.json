@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/modules/files/routes/add-new.vue", "dest": "apps/web/src/modules/files/routes/AddNewFile.vue" }
+]

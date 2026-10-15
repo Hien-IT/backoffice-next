@@ -553,7 +553,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-035**: Nút tải về PHẢI là link `href=/assets/:id?download` với `download=filename_download`.
 - **FR-036**: Nút chỉnh ảnh PHẢI hiện khi `item.type` chứa `image` và có update; mở `ImageEditor` (FR-040).
 - **FR-037**: Xóa PHẢI là hộp `delete_are_you_sure` (Keep/Hủy trước, D-76) → `DELETE /files/:id` → `router.replace`
-  về thư mục; nút khóa khi không có delete.
+  về `/files` (`use-item` của Directus xóa `item` nên `to` không còn thư mục; kiểm khi code T046); nút khóa khi không có
+  delete.
 - **FR-038**: Panel PHẢI có "Chi tiết file" (`FileInfoSidebarDetail`, kịch bản US2-4: `readableMimeType`, `n(width) ×
   n(height)`, `duration`, `formatFilesize`, `charset`, `embed`, ngày `created_on`/`uploaded_on`/`modified_on` dạng ngắn
   với tooltip dạng dài, chủ sở hữu và người sửa qua `GET /users/:id` `fields=id,email,first_name,last_name,role` với

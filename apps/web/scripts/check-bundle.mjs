@@ -13,8 +13,11 @@ export const BUDGET_013 = Math.round((132.4 + 120) * 1024);
 // Feature 014 (SC-012, research R14): the entry may grow at most 60 KB over 013's 205.8 KB; the calendar, the split
 // panel of the live preview and the GraphQL query builder of "save as copy" stay in lazy chunks.
 export const BUDGET_014 = Math.round((205.8 + 60) * 1024);
+// Feature 015 (research R10): at most 20 KB over the 014 budget; tus-js-client (resumable uploads) stays in a lazy chunk.
+export const BUDGET_015 = BUDGET_014 + 20 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
-// its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword.
+// its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
+// protocol header.
 export const LAZY_ONLY = [
 	'maplibre-gl',
 	'EditorJS',
@@ -23,6 +26,7 @@ export const LAZY_ONLY = [
 	'fc-scrollgrid',
 	'sp-root',
 	'__aliasFor',
+	'Tus-Resumable',
 ];
 
 /** Library markers found in the entry chunk that must only be in lazy chunks. */
@@ -47,7 +51,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const kb = (gzip / 1024).toFixed(1);
 
 	const leaks = lazyLeaks(file);
-	const limit = Math.min(LIMIT, BUDGET_014);
+	const limit = Math.min(LIMIT, BUDGET_015);
 
 	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
 	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);

@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/views/private/components/file-preview-replace.vue", "dest": "apps/web/src/components/files/FilePreviewReplace.vue" },
+	{ "source": "app/src/modules/files/components/file-info-sidebar-detail.vue", "dest": "apps/web/src/modules/files/components/FileInfoSidebarDetail.vue" },
+	{ "source": "app/src/composables/use-clipboard.ts", "dest": "apps/web/src/composables/use-clipboard.ts" }
+]

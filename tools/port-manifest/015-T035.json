@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/modules/files/routes/collection.vue", "dest": "apps/web/src/modules/files/routes/FilesCollectionRoute.vue" }
+]

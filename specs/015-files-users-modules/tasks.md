@@ -190,28 +190,28 @@ sort, limit, page) và dòng `directus_presets` so với Directus app.
 
 ### Tests cho User Story 1
 
-- [ ] T030 [P] [US1] Test `src/modules/files.test.ts`: bảng route (data-model §1: tên, path, props `folder`/`special`,
+- [x] T030 [P] [US1] Test `src/modules/files.test.ts`: bảng route (data-model §1: tên, path, props `folder`/`special`,
       redirect `/files/folders`, con `+`, not-found), `preRegisterCheck` giữ 012
-- [ ] T031 [P] [US1] Test `src/modules/files/routes/FilesCollectionRoute.browser.test.ts` trên `mockFixtureApi`: tiêu
+- [x] T031 [P] [US1] Test `src/modules/files/routes/FilesCollectionRoute.browser.test.ts` trên `mockFixtureApi`: tiêu
       đề và breadcrumb theo `folder`/`special`, bộ lọc hệ thống gộp (`_and` với `type._nnull` + `folder`), thẻ thư mục
       chỉ khi không `special`/`search`/`filter`, `isTransitioning`, chọn gộp và đếm, nút theo lựa chọn, trạng thái
       trống hai dạng, xóa thư mục hai chế độ (thứ tự request), chuyển thư mục hàng loạt, tải nhiều file (`POST
       /assets/files`), axe sáng/tối
-- [ ] T032 [P] [US1] Test `src/modules/files/components/{AddFolder,DeleteFolderDialog,FolderSection}.test.ts`:
+- [x] T032 [P] [US1] Test `src/modules/files/components/{AddFolder,DeleteFolderDialog,FolderSection}.test.ts`:
       `POST /folders {name, parent}` (gốc = null), radio mặc định `move`, nút danger, `done`; thẻ thư mục `select-mode`
 
 ### Implementation cho User Story 1
 
-- [ ] T033 [US1] Viết `src/modules/files.ts`: route thật thay `placeholderRoutes` (`component: () => import(...)`,
+- [x] T033 [US1] Viết `src/modules/files.ts`: route thật thay `placeholderRoutes` (`component: () => import(...)`,
       `AddNewFile` ở `components: { addNew }` với `meta.isFloatingView`, redirect, not-found dùng `ContentNotFound` 014
       với prop module CHK047); thêm prop tùy chọn `module` (mặc định `content`, chọn sub-menu theo module) vào
       `src/modules/content/routes/ContentNotFound.vue` (file hiện không có prop), test của 014 giữ xanh; manifest
       `015-T033.json`
-- [ ] T034 [P] [US1] Chép `src/modules/files/components/AddFolder.vue` (`BoDialog`, `BoInput` autofocus, Enter = lưu,
+- [x] T034 [P] [US1] Chép `src/modules/files/components/AddFolder.vue` (`BoDialog`, `BoInput` autofocus, Enter = lưu,
       `POST /folders`, `fetchFolders`, `router.push` thư mục mới; nút `create_new_folder` khóa với tooltip
       `not_allowed`), `DeleteFolderDialog.vue` (`BoRadio` `move_content`/`delete_content`, `moveAndDelete`/`recursiveDelete`,
       `done`), `FolderSection.vue` (`Card` 014, `icon=folder`, `to`, `select-mode`); manifest
-- [ ] T035 [US1] Chép `src/modules/files/routes/FilesCollectionRoute.vue` (logic `routes/collection.vue`: `usePreset`,
+- [x] T035 [US1] Chép `src/modules/files/routes/FilesCollectionRoute.vue` (logic `routes/collection.vue`: `usePreset`,
       `useLayout`, `getFolderFilter`, `subfolders`, `folderSelection` ↔ `extraSelection`, `isTransitioning`,
       `useMovetoFolder`, `batchDeleteFiles`, `onFolderDeleteDone`, `downloadFiles` qua `apiFetch`, `clearFilters`,
       `refresh`, watch `folders` nạp lại trừ lần đầu; template: `PrivateView` với slot `navigation` = `FilesNavigation`,
@@ -219,7 +219,7 @@ sort, limit, page) và dòng `directus_presets` so với Directus app.
       theo FR-011), layout `prepend` = `FolderSection`, slot `no-results`/`no-items`, `RouterView name="addNew"`,
       `DrawerBatch`, panel: Layout + `layout-sidebar-*` + Export/Import (FR-018)); màn không tìm thấy là
       `ContentNotFound` với `module="files"` (T033), không có `FilesNotFound.vue`; manifest
-- [ ] T036 [US1] E2E `e2e/files-library.spec.ts` (`@core`): cây và mục đặc biệt, thẻ thư mục, chọn gộp và đếm,
+- [x] T036 [US1] E2E `e2e/files-library.spec.ts` (`@core`): cây và mục đặc biệt, thẻ thư mục, chọn gộp và đếm,
       tạo/đổi tên/chuyển/tải/xóa thư mục (hai chế độ, so dòng DB qua API), trạng thái trống và xóa bộ lọc, 768 px
       không cuộn ngang trang, `openSidebar` dưới `xl`, khôi phục preset seed; chạy ba cấu hình xanh
 
@@ -236,33 +236,33 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
 
 ### Tests cho User Story 2
 
-- [ ] T040 [P] [US2] Test `src/modules/files/routes/AddNewFile.test.ts` (mở theo route `+`, đóng → `router.push`,
+- [x] T040 [P] [US2] Test `src/modules/files/routes/AddNewFile.test.ts` (mở theo route `+`, đóng → `router.push`,
       `BoUpload` props, `upload` emit) và `FilesCollectionRoute.browser.test.ts` phần kéo thả (DataTransfer giả:
       viền hiện/tắt, `data-dropzone`, notice `drop_to_upload` và tiến độ `aria-live`, lọc `type` rỗng, nạp lại 1 lần
       khi xong, `maxConcurrency` 5 → ≤ 5 request đồng thời)
-- [ ] T041 [P] [US2] Test `src/modules/files/routes/FileItemRoute.browser.test.ts`: header (nút quay lại, breadcrumb theo
+- [x] T041 [P] [US2] Test `src/modules/files/routes/FileItemRoute.browser.test.ts`: header (nút quay lại, breadcrumb theo
       `folder`, tiêu đề `loading`→`title`), `fieldsDenyList` không hiện trong form, lưu chỉ field đổi, lưu và ở lại nạp
       lại, bản sao (`GET /assets` → `POST /files` với preset đúng CHK009), chuyển thư mục (`PATCH` với
       `fields=folder.name`, notice), tải về href, xóa → `router.replace`, `unsaved_changes` Keep trước, chi tiết file
       (dl, EXIF 5 trường, link, chép id; `GET /users/:id` 404 → bỏ dòng CHK013), Revisions/Comments 014 hiện, axe
-- [ ] T042 [P] [US2] Test `src/components/files/FilePreviewReplace.test.ts` (nút thay ẩn khi `disabled`, hộp
+- [x] T042 [P] [US2] Test `src/components/files/FilePreviewReplace.test.ts` (nút thay ẩn khi `disabled`, hộp
       `replace_file` với `BoUpload fileId fromUrl accept`, `replace` emit) và `FileInfoSidebarDetail.test.ts` (ngày
       ngắn/dài, `formatFilesize`, `readableMimeType`, folder link, thiếu dữ liệu → ẩn dòng)
 
 ### Implementation cho User Story 2
 
-- [ ] T043 [P] [US2] Chép `src/modules/files/routes/AddNewFile.vue` (`useDialogRoute`, `BoDialog`, `BoUpload multiple
+- [x] T043 [P] [US2] Chép `src/modules/files/routes/AddNewFile.vue` (`useDialogRoute`, `BoDialog`, `BoUpload multiple
       fromUrl folder accept` từ `parseGlobalMimeTypeAllowList(info.files.mimeTypeAllowList)`, nút `done`, mở trực tiếp
       bằng URL vẽ trên thư viện, đóng khi đang tải thì tải tiếp CHK007); manifest
-- [ ] T044 [US2] Thêm kéo thả toàn cửa sổ vào `FilesCollectionRoute.vue` (`useFileUpload`: bốn listener `window` qua
+- [x] T044 [US2] Thêm kéo thả toàn cửa sổ vào `FilesCollectionRoute.vue` (`useFileUpload`: bốn listener `window` qua
       `useEventListener`, `dragCounter`, `data-dropzone`, viền bốn `div fixed` theo bbox `<main>` `border-2
       border-brand-500 pointer-events-none aria-hidden`, notice `drop_to_upload` và tiến độ `BoNotice` `aria-live=polite`
       trong page header CHK033/034, `uploadFiles` với `{ folder }` và `maxConcurrency`, store `files`, nạp lại khi
       `isAnyUploadActive` về false)
-- [ ] T045 [P] [US2] Chép `src/components/files/FilePreviewReplace.vue` (`FilePreview` 013 + nút "thay file" + hộp
+- [x] T045 [P] [US2] Chép `src/components/files/FilePreviewReplace.vue` (`FilePreview` 013 + nút "thay file" + hộp
       `BoUpload fileId`), `src/modules/files/components/FileInfoSidebarDetail.vue` (`SidebarDetail` 014, dl/dt/dd,
       `UserPopover`, EXIF 5 trường CHK085, chép id qua `useClipboard`); manifest
-- [ ] T046 [US2] Chép `src/modules/files/routes/FileItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014:
+- [x] T046 [US2] Chép `src/modules/files/routes/FileItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014:
       `fieldsDenyList`, `to`, breadcrumb, `saveAndQuit`/`saveAndStay`/`saveAsCopyAndNavigate`/`deleteAndQuit`,
       `useMovetoFolder` với `fields=folder.name` và notice `file_moved`, `revert`, `useShortcut meta+s`,
       `useEditsGuard`; bỏ collab; template: page header với nút xóa, chuyển, tải về (`<a download>`) (nút chỉnh ảnh
@@ -270,7 +270,7 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
       `save-as-copy` khi có create), `FilePreviewReplace`, `BoForm` `max-w-5xl`, hộp `unsaved_changes` Keep trước,
       panel: `FileInfoSidebarDetail`, `RevisionsSidebarDetail`, `CommentsSidebarDetail`); `isNew` luôn false CHK014;
       manifest
-- [ ] T047 [US2] E2E `e2e/files-upload.spec.ts`: hộp `+` ba file, từ URL (stub `files.example` → PNG), kéo thả hai file
+- [x] T047 [US2] E2E `e2e/files-upload.spec.ts`: hộp `+` ba file, từ URL (stub `files.example` → PNG), kéo thả hai file
       (viền, notice, tiến độ), tải xong danh sách nạp lại, file sai kiểu lỗi từng file; nhánh TUS khi env parity bật
       (T002) kiểm header `Tus-Resumable` ở `proxy-api`; `e2e/files-item.spec.ts` (`@core`): sửa metadata, lưu kiểu,
       chuyển thư mục, tải về, thay file, bản sao, xóa, chi tiết file, revisions; ba cấu hình xanh
@@ -628,5 +628,25 @@ Lượt 3, Phase 7 (US4):
     T036; helper Directus app (`directus-app.ts`) và `DIRECTUS_APP_SPECS` của `playwright.config.ts` để T048 (sau khi
     014 báo đóng).
   - T025: overlay `theme_applies_in_directus` chuyển sang T079 (lượt 3).
+- Phase 3 và 4 (2026-10-16):
+  - Test chạy ở project `unit` (happy-dom) thay cho `*.browser.test.ts`: `FilesCollectionRoute.test.ts` (kéo thả với
+    DataTransfer giả), `FileItemRoute.test.ts`, `folder-dialogs.test.ts` (AddFolder, DeleteFolderDialog,
+    FolderSection). Bản sao, hộp `unsaved_changes` và revisions được kiểm ở E2E `files-item.spec.ts`. axe của màn file
+    để T104.
+  - FR-037: xóa ở màn file về `/files` như Directus (`useItem.remove` đặt item null nên `to` là thư viện); spec đã sửa.
+  - `FileItemRoute` truyền `fields` cho `BoForm`, không truyền `collection`. Lý do: `BoForm` ưu tiên `collection` nên
+    sẽ hiện lại các field của `fieldsDenyList` (giống Directus).
+  - Màn không tìm thấy là `ContentNotFound` với prop `module` (`content`, `files`, `users`) và điều hướng của module đó.
+    Không có `FilesNotFound.vue`.
+  - `FileInfoSidebarDetail` giữ file của lần gọi trước `await`. Lỗi `pageerror` khi rời trang trong lúc đọc user được
+    E2E bắt.
+  - Hộp `+` tự đóng khi tải xong (Directus `@input="close"`); E2E kiểm theo hành vi đó.
+  - T047: import từ URL đọc `http://files-fixtures/photo.jpg` của môi trường parity (API tải URL ở phía server, stub
+    trình duyệt `files.example` không tới được). File sai kiểu chưa có E2E vì `mimeTypeAllowList` mặc định là `*/*`.
+    Nhánh TUS chưa chạy E2E vì profile `app` không bật TUS (T002). Cả hai để T104.
+  - `playwright.config.ts`: `CONTENT_NOT_CORE` mở rộng cho `files-*` và `users-*` (ngoài chromium chỉ chạy `@core`).
+  - E2E `files-*` chạy xanh ở cấu hình dev: chromium-768/1280, và `@core` trên firefox-1280/webkit-1280 qua Vite dev
+    server. Ba cấu hình proxy/cors chạy ở CI vì `apps/web/dist` thuộc 014 và không được build lại.
+  - T048 hoãn tới khi 014 báo đóng (cần `directus-app.ts` và `DIRECTUS_APP_SPECS`).
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

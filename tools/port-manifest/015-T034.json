@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/modules/files/components/add-folder.vue", "dest": "apps/web/src/modules/files/components/AddFolder.vue" },
+	{ "source": "app/src/modules/files/components/folder-section.vue", "dest": "apps/web/src/modules/files/components/FolderSection.vue" }
+]

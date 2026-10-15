@@ -1,15 +1,26 @@
-<!-- Ported from directus/app/src/modules/content/routes/not-found.vue -->
+<!-- Ported from directus/app/src/modules/content/routes/not-found.vue; Ported from directus/app/src/modules/files/routes/not-found.vue -->
 <script setup lang="ts">
-// Backoffice: v-info in the blank page card of the design-system, as PrivateNotFoundRoute.
+// Backoffice: v-info in the blank page card of the design-system, as PrivateNotFoundRoute. Feature 015 (FR-001,
+// FR-054): the same page serves the Files and Users modules, `module` picks the sub-menu (Directus has one not-found
+// route per module, with the same content).
+import { defineAsyncComponent } from 'vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import PrivateView from '../../../layout/PrivateView.vue';
 import ContentNavigation from '../components/ContentNavigation.vue';
+
+const { module = 'content' } = defineProps<{ module?: 'content' | 'files' | 'users' }>();
+
+const NAVIGATION = {
+	content: ContentNavigation,
+	files: defineAsyncComponent(() => import('../../../components/files/FilesNavigation.vue')),
+	users: null,
+};
 </script>
 
 <template>
 	<PrivateView :title="$t('page_not_found')">
-		<template #navigation>
-			<ContentNavigation />
+		<template v-if="NAVIGATION[module]" #navigation>
+			<component :is="NAVIGATION[module]" />
 		</template>
 
 		<div
