@@ -37,4 +37,9 @@ export default {
 	table_sorted_desc: 'Sắp theo {field} giảm dần',
 	// Feature 014: label of the save split button menu (recipe Q-8, no Directus key).
 	more_save_options: 'Tùy chọn lưu khác',
+	// Feature 014: name of the card selection checkbox (recipe Q-3, no Directus key).
+	select_item_key: 'Chọn {item}',
+	// Feature 014: map layout controls and keyboard list (recipe Q-6, D-69, no Directus key).
+	map_box_select: 'Chọn vùng (Shift + kéo)',
+	map_items_in_view: 'Các mục đang hiện',
 };

@@ -7,7 +7,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';
 import SearchInput from './SearchInput.vue';
 
+// `__esModule`: SearchInput loads it with defineAsyncComponent, which reads `default` of an ES module only.
 vi.mock('../interfaces/_system/system-filter/SystemFilter.vue', () => ({
+	__esModule: true,
 	default: {
 		name: 'SystemFilter',
 		props: ['value', 'collectionName', 'inline'],

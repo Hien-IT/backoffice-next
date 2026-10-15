@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/utils/geometry/controls.ts", "dest": "apps/web/src/utils/geometry/controls.ts" },
+	{ "source": "app/src/layouts/map/style.ts", "dest": "apps/web/src/layouts/map/style.ts" }
+]

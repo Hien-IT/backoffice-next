@@ -16,7 +16,8 @@ import { itemOf, loadSnapshot } from '../../test-utils/fixtures.ts';
 import InterfaceHeader from './InterfaceHeader.vue';
 
 // The flow dialog's form is a lazy component (import cycle with the interface registry): load it once up front.
-beforeAll(() => import('../../components/form/BoForm.vue'));
+// The import is slow while the whole suite runs in parallel (coverage).
+beforeAll(() => import('../../components/form/BoForm.vue'), 30_000);
 
 let fetch: ReturnType<typeof mockFixtureApi>;
 

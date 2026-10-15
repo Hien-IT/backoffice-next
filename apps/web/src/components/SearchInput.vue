@@ -7,9 +7,12 @@
 import type { Filter } from '@directus/types';
 import { isObject } from 'lodash-es';
 import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
-import { computed, onMounted, ref } from 'vue';
-import SystemFilter from '../interfaces/_system/system-filter/SystemFilter.vue';
+import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
 import BoIcon from './BoIcon.vue';
+
+// Backoffice: lazy, it only shows in the popover; a static import closes a cycle (relational interfaces → DrawerCollection
+// → SearchInput → SystemFilter → interface registry → the relational interfaces).
+const SystemFilter = defineAsyncComponent(() => import('../interfaces/_system/system-filter/SystemFilter.vue'));
 
 const props = withDefaults(
 	defineProps<{

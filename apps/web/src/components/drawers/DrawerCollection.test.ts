@@ -1,6 +1,6 @@
-// Directus has no test for drawer-collection.vue: the table drawer (D-58) on bo_rel_target of the fixture snapshot,
-// columns from the preset or the first 4 visible fields, search, pagination, selection, interface filter and the
-// loading/empty/error states (FR-046, contracts/api-calls.md #34, #35).
+// Directus has no test for drawer-collection.vue: the drawer on bo_rel_target of the fixture snapshot, in the layout
+// of the preset (014 FR-029; tabular here): columns from the preset or the first 4 visible fields, search, pagination,
+// selection, interface filter and the empty/error states (FR-046 of 013, contracts/api-calls.md #34, #35).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -13,6 +13,7 @@ import { useRelationsStore } from '../../stores/relations.ts';
 import { useUserStore } from '../../stores/user.ts';
 import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../test-utils/fixtures.ts';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import DrawerCollection from './DrawerCollection.vue';
 
 enableAutoUnmount(afterEach);
@@ -120,23 +121,21 @@ describe('DrawerCollection', () => {
 		expect(listCalls()).toHaveLength(1);
 		expectQuery(listCalls()[0]!, ['fields=id,name', 'sort=-id', 'limit=2', 'page=1']);
 		expect(rows()[0]).toContain('Target five');
-		expect(panel().querySelector('nav')!.textContent).toContain('1-2 of 5 Items');
+		expect(panel().querySelector('[role="status"]')!.textContent).toContain('1-2 of 5 Items');
 
-		[...panel().querySelectorAll('nav button')]
-			.find((b) => b.textContent?.includes('Next'))!
-			.dispatchEvent(new MouseEvent('click'));
+		[...panel().querySelectorAll<HTMLButtonElement>('nav button')].find((b) => b.textContent?.trim() === '2')!.click();
 		await settle();
 
 		expectQuery(listCalls().at(-1)!, ['fields=id,name', 'sort=-id', 'limit=2', 'page=2']);
 		expect(rows()).toHaveLength(2);
-		expect(panel().querySelector('nav')!.textContent).toContain('3-4 of 5 Items');
+		expect(panel().querySelector('[role="status"]')!.textContent).toContain('3-4 of 5 Items');
 	});
 
 	test('search input sends `search` and the count follows', async () => {
 		await mountDrawer();
 
 		const input = panel().querySelector<HTMLInputElement>('input[type="search"]')!;
-		expect(input.getAttribute('aria-label')).toBe('Search');
+		expect(input.getAttribute('aria-label')).toBe('Search Items...');
 		input.value = 'two';
 		input.dispatchEvent(new Event('input'));
 		await settle();
@@ -153,7 +152,7 @@ describe('DrawerCollection', () => {
 		expect(rows()).toHaveLength(3);
 
 		await mountDrawer({ filter: { status: { _eq: 'none' } } });
-		expect(document.querySelectorAll('[role="dialog"]')[1]!.querySelector('tbody')!.textContent).toContain('No items');
+		await vi.waitFor(() => expect(document.querySelectorAll('[role="dialog"]')[1]!.textContent).toContain('No Items'));
 	});
 
 	test('single selection keeps the last row; save emits the keys and closes', async () => {
@@ -227,5 +226,57 @@ describe('DrawerCollection', () => {
 
 		await vi.waitFor(() => expect(document.querySelector('[role="dialog"] [role="alert"]')).not.toBeNull());
 		expect(panel().querySelector('table')).toBeNull();
+	});
+});
+
+describe('DrawerCollection layouts (014 FR-029)', () => {
+	test('the layout of the preset; switching it in the sidebar does not write the preset (FR-019)', async () => {
+		usePresetsStore().collectionPresets = [
+			{ id: 1, bookmark: null, user: null, role: null, collection: 'bo_rel_target', layout: 'tabular' },
+		] as any;
+
+		await mountDrawer();
+
+		const aside = panel().querySelector('aside[aria-label="Sidebar"]')!;
+		expect(aside.textContent).toContain('Layout Options');
+		expect(drawerCalls().some((call) => call.includes('/presets'))).toBe(false);
+	});
+
+	test('a preset in cards opens the drawer in cards; selecting a card emits its key', async () => {
+		usePresetsStore().collectionPresets = [
+			{ id: 1, bookmark: null, user: null, role: null, collection: 'bo_rel_target', layout: 'cards' },
+		] as any;
+
+		const wrapper = mount(DrawerCollection, {
+			props: {
+				collection: 'bo_rel_target',
+				active: true,
+				'onUpdate:active': (active: boolean) => wrapper.setProps({ active }),
+			},
+			// Cards are links to the items.
+			global: {
+				plugins: [
+					i18n,
+					createRouter({
+						history: createMemoryHistory(),
+						routes: [{ path: '/:p(.*)*', component: { render: () => null } }],
+					}),
+				],
+			},
+			attachTo: document.body,
+		});
+
+		// Five cards (no title template on bo_rel_target: the fallback icon), no table.
+		await vi.waitFor(() => expect(panel().textContent).toContain('5 Items'), { timeout: 4000 });
+		expect(panel().querySelector('table')).toBeNull();
+
+		await vi.waitFor(() => expect(panel().querySelector('[aria-label="Select 1"]')).not.toBeNull());
+		const first = panel().querySelector<HTMLElement>('[aria-label="Select 1"]')!;
+		first.click();
+		await flushPromises();
+		saveButton().click();
+		await flushPromises();
+
+		expect(wrapper.emitted('input')?.[0]?.[0]).toHaveLength(1);
 	});
 });

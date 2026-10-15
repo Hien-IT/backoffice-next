@@ -1,0 +1,9 @@
+[
+	{ "source": "app/src/layouts/kanban/index.ts", "dest": "apps/web/src/layouts/kanban/index.ts" },
+	{ "source": "packages/composables/src/use-filter-fields.ts", "dest": "apps/web/src/layouts/kanban/index.ts" },
+	{ "source": "app/src/layouts/kanban/types.ts", "dest": "apps/web/src/layouts/kanban/types.ts" },
+	{ "source": "app/src/layouts/kanban/kanban.vue", "dest": "apps/web/src/layouts/kanban/Kanban.vue" },
+	{ "source": "app/src/layouts/kanban/options.vue", "dest": "apps/web/src/layouts/kanban/KanbanOptions.vue" },
+	{ "source": "app/src/layouts/kanban/actions.vue", "dest": "apps/web/src/layouts/kanban/KanbanActions.vue" },
+	{ "source": "app/src/layouts/kanban/kanban.test.ts", "dest": "apps/web/src/layouts/kanban/Kanban.browser.test.ts" }
+]

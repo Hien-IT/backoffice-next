@@ -391,7 +391,7 @@ preset (gỡ D-58).
 
 ### Tests cho User Story 4
 
-- [ ] T056 [P] [US4] `e2e/content-layouts.spec.ts` (US4-1 đến US4-5): cards (ảnh, tiêu đề/phụ đề template, kích thước),
+- [X] T056 [P] [US4] `e2e/content-layouts.spec.ts` (US4-1 đến US4-5): cards (ảnh, tiêu đề/phụ đề template, kích thước),
   calendar (đổi tháng → filter vùng ngày; kéo sự kiện → `PATCH`), kanban (kéo thẻ đổi cột → `/utils/sort` rồi `PATCH`;
   menu "Chuyển sang nhóm…"; ở chromium-768 kanban cuộn ngang trong khung, trang không cuộn ngang: `scrollWidth <=
   innerWidth`, FR-116), map (nền OSM/Mapbox stub/raster riêng từ settings tạm `basemaps`, `_intersects_bbox` khi di
@@ -399,31 +399,31 @@ preset (gỡ D-58).
 
 ### Implementation cho User Story 4
 
-- [ ] T057 [P] [US4] `src/layouts/cards/{index.ts,types.ts,Cards.vue,CardsOptions.vue,CardsActions.vue,
+- [X] T057 [P] [US4] `src/layouts/cards/{index.ts,types.ts,Cards.vue,CardsOptions.vue,CardsActions.vue,
   components/Card.vue,components/CardsHeader.vue}` chép `layouts/cards/*` (FR-035, recipe Q-3): field nạp từ
   `imageSource` + template, ảnh `/assets/<id>?modified=&key=system-medium-cover|contain`, lưới theo `size`, chọn, icon
   fallback, sắp xếp + kích thước trang trong header; test `index.test.ts` + `Cards.browser.test.ts`.
-- [ ] T058 [P] [US4] `src/layouts/calendar/{index.ts,types.ts,Calendar.vue,CalendarOptions.vue,CalendarActions.vue,
+- [X] T058 [P] [US4] `src/layouts/calendar/{index.ts,types.ts,Calendar.vue,CalendarOptions.vue,CalendarActions.vue,
   calendar.css}` chép `layouts/calendar/*` (FR-036, recipe Q-4): FullCalendar `createCalendar`/`destroyCalendar`, view
   theo kiểu field, bộ lọc vùng ngày, `limit` = `queryLimit.max` hoặc 1000, `eventChange` → `PATCH` với ngày theo kiểu
   (`dateTime` cắt 19, cả ngày ±1), revert khi lỗi, locale (`get-fullcalendar-locale`), `viewInfo`,
   `dataset_too_large_currently_showing_n_items`; `calendar.css` đè `--fc-*` bằng token, dark, `motion-reduce` (FR-110c);
   port `directus/app/src/layouts/calendar/options.test.ts` → `CalendarOptions.test.ts`; `Calendar.browser.test.ts`.
-- [ ] T059 [P] [US4] `src/layouts/kanban/{index.ts,types.ts,Kanban.vue,KanbanOptions.vue,KanbanActions.vue}` chép
+- [X] T059 [P] [US4] `src/layouts/kanban/{index.ts,types.ts,Kanban.vue,KanbanOptions.vue,KanbanActions.vue}` chép
   `layouts/kanban/*` gồm `useFilterFields` (FR-037, recipe Q-5): nhóm `choices`/m2o, `groupOrder`, cột "chưa nhóm" khi
   nullable, thẻ (ảnh, tiêu đề, text, ngày, tag chip, avatar), `change()` (`/utils/sort` rồi `PATCH`), kéo cột, thêm/đổi
   tên/xóa nhóm m2o theo `useLayoutPermissions` (xác nhận xóa theo T003 a / D-74), menu thẻ "Chuyển sang nhóm…",
   "Lên/Xuống" và menu cột "Chuyển trái/phải" (D-69), cuộn ngang trong khung; port
   `directus/app/src/layouts/kanban/kanban.test.ts` → `Kanban.browser.test.ts`.
-- [ ] T060 [P] [US4] Chép `src/utils/geometry/controls.ts` (`ButtonControl`, `BoxSelectControl`) và `src/layouts/map/style.ts`
+- [X] T060 [P] [US4] Chép `src/utils/geometry/controls.ts` (`ButtonControl`, `BoxSelectControl`) và `src/layouts/map/style.ts`
   (màu từ token `--color-brand-500` qua `getComputedStyle`); test.
-- [ ] T061 [US4] `src/layouts/map/{index.ts,types.ts,MapLayout.vue,MapOptions.vue,MapActions.vue,components/MapView.vue}`
+- [X] T061 [US4] `src/layouts/map/{index.ts,types.ts,MapLayout.vue,MapOptions.vue,MapActions.vue,components/MapView.vue}`
   chép `layouts/map/*` (FR-038, FR-039, recipe Q-6) trên `BoMapFrame` 013: nền `getBasemapSources()` (013) + `app.basemap`,
   control điều hướng/định vị/vừa dữ liệu/chọn khung, geocoder Mapbox nạp động khi có `mapbox_key`, GeoJSON từ
   `utils/geometry`, cụm điểm, popup `RenderTemplate`, `cameraOptions` ghi khi `moveend`, `_intersects_bbox` khi native,
   `handleClick`/`handleSelect` (Shift cộng dồn), lỗi hình học notice; `MapActions` có danh sách item đang hiện để
   mở/chọn bằng bàn phím (D-69); `MapLayout.browser.test.ts` (tự bỏ qua khi không có WebGL, như 013).
-- [ ] T062 [US4] `src/components/drawers/BoDrawer.vue` thêm slot `sidebar` tùy chọn (panel phải 240 px; dưới `xl` mục gập
+- [X] T062 [US4] `src/components/drawers/BoDrawer.vue` thêm slot `sidebar` tùy chọn (panel phải 240 px; dưới `xl` mục gập
   đầu body; recipe `layout-patterns.md` §8 cập nhật) và `src/components/drawers/DrawerCollection.vue` theo layout preset
   (FR-029, gỡ D-58): `usePreset(collection, null, true)` kế thừa `filter`/`search` (T003 f), `useLayout` với
   `selectMode`, `showSelect`, `filterSystem` = `filter` của interface, `SearchInput`, `LayoutSidebarDetail` trong slot

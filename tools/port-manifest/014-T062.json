@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/views/private/components/drawer-collection.vue",
+		"dest": "apps/web/src/components/drawers/DrawerCollection.vue"
+	}
+]

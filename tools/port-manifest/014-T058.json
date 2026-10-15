@@ -1,0 +1,12 @@
+[
+	{ "source": "app/src/layouts/calendar/index.ts", "dest": "apps/web/src/layouts/calendar/index.ts" },
+	{ "source": "app/src/layouts/calendar/types.ts", "dest": "apps/web/src/layouts/calendar/types.ts" },
+	{ "source": "app/src/layouts/calendar/calendar.vue", "dest": "apps/web/src/layouts/calendar/Calendar.vue" },
+	{ "source": "app/src/layouts/calendar/options.vue", "dest": "apps/web/src/layouts/calendar/CalendarOptions.vue" },
+	{ "source": "app/src/layouts/calendar/actions.vue", "dest": "apps/web/src/layouts/calendar/CalendarActions.vue" },
+	{ "source": "app/src/styles/lib/_fullcalendar.scss", "dest": "apps/web/src/layouts/calendar/calendar.css" },
+	{
+		"source": "app/src/layouts/calendar/options.test.ts",
+		"dest": "apps/web/src/layouts/calendar/CalendarOptions.test.ts"
+	}
+]

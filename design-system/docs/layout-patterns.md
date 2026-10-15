@@ -278,8 +278,12 @@ drafts). "Deviation" lines say where the code differs from the first draft.
     the file drawer), then the save Button. Deviation: save is an icon-only primary Button `check` with `aria-label`
     "Save" (Directus v-drawer), not "check + text"; disabled while nothing changed (DrawerItem: not savable;
     DrawerCollection: selection unchanged); DrawerBatch keeps it enabled; no loading state on it.
-- Body: `<main>` `custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6`. Deviation: no sidebar slot (no 013 drawer
-  uses one); the files drawer puts its folder select at the top of the body instead (below).
+- Body: `<main>` `custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6`.
+- Sidebar (014, FR-029; used by `DrawerCollection` for the layout options and the folders of the files drawer): an
+  `aside` (`aria-label` "Sidebar") of `w-60` on the end side from `xl`
+  (`border-s border-gray-200 dark:border-gray-800 overflow-y-auto`, the drawer grows to `xl:w-[880px]`); below `xl` it
+  sits at the top of the body as a collapsible section (a full-width button `aria-expanded` + `expand_more`, content
+  hidden until opened). Not resizeable.
 - DrawerItem body: file preview (files collection), then the empty state, or `flex flex-col gap-12` with the
   ValidationErrors notice, the junction form and the main form (order swapped as Directus).
 - DrawerCollection body `flex flex-col gap-4`: the `sidebar` slot, a search Input (`type="search"`, `aria-label`

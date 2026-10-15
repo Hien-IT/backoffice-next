@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/layouts/map/index.ts", "dest": "apps/web/src/layouts/map/index.ts" },
+	{ "source": "app/src/layouts/map/types.ts", "dest": "apps/web/src/layouts/map/types.ts" },
+	{ "source": "app/src/layouts/map/map.vue", "dest": "apps/web/src/layouts/map/MapLayout.vue" },
+	{ "source": "app/src/layouts/map/options.vue", "dest": "apps/web/src/layouts/map/MapOptions.vue" },
+	{ "source": "app/src/layouts/map/actions.vue", "dest": "apps/web/src/layouts/map/MapActions.vue" },
+	{ "source": "app/src/layouts/map/components/map.vue", "dest": "apps/web/src/layouts/map/components/MapView.vue" }
+]

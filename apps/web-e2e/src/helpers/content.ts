@@ -8,7 +8,8 @@ import { DATA_PREFIX } from './config.js';
 /** Opens /admin/content/<collection> and waits for the page title. */
 export async function openCollection(page: Page, collection: string): Promise<void> {
 	await page.goto(`/admin/content/${collection}`);
-	await expect(page.getByRole('main')).toBeVisible();
+	// The first visit of a layout loads its lazy chunk (maplibre, FullCalendar): slower than one assertion timeout.
+	await expect(page.getByRole('main')).toBeVisible({ timeout: 15_000 });
 }
 
 /** Opens /admin/content/<collection>/<pk> (`+` for a new item) and waits for the loaded form (no busy grid). */

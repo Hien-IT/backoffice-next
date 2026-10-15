@@ -10,7 +10,8 @@ export const BO_DRAWER_DEPTH: InjectionKey<number> = Symbol('bo-drawer-depth');
 // Backoffice: layout-patterns §8 Drawer recipe (nháp, 013) on a Reka Dialog instead of v-dialog + v-overlay; the
 // header is v-drawer-header.vue folded in. Reka gives the focus trap, scroll lock, aria-hidden siblings and the focus
 // return to the element focused before opening; nested drawers are separate DialogRoots and Reka only lets the top
-// layer react to Esc and outside clicks. No sidebar slot or resizeable sidebar (no 013 drawer uses one) and no
+// layer react to Esc and outside clicks. Feature 014: an optional `sidebar` slot (FR-029, layout-patterns §8): a
+// 240 px panel on the end side from `xl`, a collapsible section at the top of the body below `xl`; not resizeable. No
 // "nudge" animation of a persistent drawer.
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import { computed, inject, provide, ref, useTemplateRef, watch } from 'vue';
@@ -45,6 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits(['cancel', 'apply', 'update:modelValue']);
 
 const localActive = ref(false);
+const sidebarOpen = ref(false);
 
 const scrollContainer = useTemplateRef<HTMLElement>('scroll-container');
 provide('main-element', scrollContainer);
@@ -131,7 +133,8 @@ const FOCUS =
 				:class="depth > 0 ? 'bg-transparent' : 'bg-gray-900/50'"
 			/>
 			<DialogContent
-				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden xl:w-[640px] dark:bg-gray-900"
+				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden dark:bg-gray-900"
+				:class="$slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
 				:data-depth="depth"
 				v-bind="subtitle ? {} : { 'aria-describedby': undefined }"
 				@escape-key-down="onEscape"
@@ -190,7 +193,31 @@ const FOCUS =
 					</div>
 				</header>
 
-				<main ref="scroll-container" class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6">
+				<div v-if="$slots['sidebar']" class="flex min-h-0 flex-1 flex-col xl:flex-row">
+					<main
+						ref="scroll-container"
+						class="custom-scrollbar order-2 min-h-0 flex-1 overflow-y-auto px-6 py-6 xl:order-1"
+					>
+						<slot />
+					</main>
+					<aside
+						:aria-label="$t('sidebar')"
+						class="order-1 shrink-0 border-b border-gray-200 xl:order-2 xl:w-60 xl:overflow-y-auto xl:border-s xl:border-b-0 dark:border-gray-800"
+					>
+						<button
+							type="button"
+							class="flex w-full items-center justify-between px-6 py-3 text-theme-sm font-medium text-gray-700 xl:hidden dark:text-gray-400"
+							:class="FOCUS"
+							:aria-expanded="sidebarOpen"
+							@click="sidebarOpen = !sidebarOpen"
+						>
+							{{ $t('sidebar') }}
+							<BoIcon name="expand_more" size="sm" :class="{ 'rotate-180': sidebarOpen }" />
+						</button>
+						<div :class="{ 'max-xl:hidden': !sidebarOpen }"><slot name="sidebar" /></div>
+					</aside>
+				</div>
+				<main v-else ref="scroll-container" class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6">
 					<slot />
 				</main>
 			</DialogContent>

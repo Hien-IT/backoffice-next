@@ -1,0 +1,12 @@
+[
+	{ "source": "app/src/layouts/cards/index.ts", "dest": "apps/web/src/layouts/cards/index.ts" },
+	{ "source": "app/src/layouts/cards/types.ts", "dest": "apps/web/src/layouts/cards/types.ts" },
+	{ "source": "app/src/layouts/cards/cards.vue", "dest": "apps/web/src/layouts/cards/Cards.vue" },
+	{ "source": "app/src/layouts/cards/options.vue", "dest": "apps/web/src/layouts/cards/CardsOptions.vue" },
+	{ "source": "app/src/layouts/cards/actions.vue", "dest": "apps/web/src/layouts/cards/CardsActions.vue" },
+	{ "source": "app/src/layouts/cards/components/card.vue", "dest": "apps/web/src/layouts/cards/components/Card.vue" },
+	{
+		"source": "app/src/layouts/cards/components/header.vue",
+		"dest": "apps/web/src/layouts/cards/components/CardsHeader.vue"
+	}
+]

@@ -38,4 +38,9 @@ export default {
 	table_sorted_desc: 'Sorted by {field}, descending',
 	// Feature 014: label of the save split button menu (recipe Q-8, no Directus key).
 	more_save_options: 'More save options',
+	// Feature 014: name of the card selection checkbox (recipe Q-3, no Directus key).
+	select_item_key: 'Select {item}',
+	// Feature 014: map layout controls and keyboard list (recipe Q-6, D-69, no Directus key).
+	map_box_select: 'Select an area (Shift + drag)',
+	map_items_in_view: 'Items in view',
 };

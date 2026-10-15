@@ -778,9 +778,38 @@ function compare(op: string, value: unknown, arg: unknown): boolean {
 			return value != null && order(value, arg) < 0;
 		case '_lte':
 			return value != null && order(value, arg) <= 0;
+		// Feature 014 (map layout): the bounding boxes of the GeoJSON value and of the filter geometry overlap.
+		case '_intersects_bbox':
+		case '_nintersects_bbox': {
+			const a = bbox(value);
+			const b = bbox(typeof arg === 'string' ? JSON.parse(arg) : arg);
+			const hit = !!a && !!b && a[0] <= b[2] && b[0] <= a[2] && a[1] <= b[3] && b[1] <= a[3];
+			return op === '_intersects_bbox' ? hit : value != null && !hit;
+		}
+		// Feature 014 (calendar layout): `_between: [from, to]`, both ends included like Postgres BETWEEN.
+		case '_between':
+		case '_nbetween': {
+			const [from, to] = (Array.isArray(arg) ? arg : String(arg).split(',')) as unknown[];
+			const inside = value != null && order(value, from) >= 0 && order(value, to) <= 0;
+			return op === '_between' ? inside : value != null && !inside;
+		}
 		default:
 			throw new Error(`mockFixtureApi: unsupported filter operator ${op}`);
 	}
+}
+
+/** [minX, minY, maxX, maxY] of a GeoJSON geometry, or null. */
+function bbox(geometry: unknown): [number, number, number, number] | null {
+	const points: number[][] = [];
+	const walk = (node: unknown): void => {
+		if (Array.isArray(node) && typeof node[0] === 'number') points.push(node as number[]);
+		else if (Array.isArray(node)) node.forEach(walk);
+	};
+	walk((geometry as { coordinates?: unknown } | null)?.coordinates);
+	if (points.length === 0) return null;
+	const xs = points.map((p) => p[0]!);
+	const ys = points.map((p) => p[1]!);
+	return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
 }
 
 /** Postgres order: ascending puts nulls last, descending first. */

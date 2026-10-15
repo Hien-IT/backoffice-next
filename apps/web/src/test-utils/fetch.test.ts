@@ -110,6 +110,24 @@ describe('mockFixtureApi lists', () => {
 		const m2a = '$FOLLOW(bo_junction_m2a,item,collection)';
 		const none = { [m2a]: { _none: { _and: [{ bo_rel_id: { _eq: 1 } }, { collection: { _eq: 'bo_m2a_a' } }] } } };
 		expect(await list('/items/bo_m2a_a', none)).toHaveLength(1);
+		// 014 calendar: _between includes both ends.
+		expect(await list('/items/bo_rel_target', { id: { _between: [2, 4] } })).toEqual([2, 3, 4]);
+		expect(await list('/items/bo_rel_target', { id: { _nbetween: [2, 4] } })).toEqual([1, 5]);
+		// 014 map: every bo_content point is in Hanoi (105.8, 21.0).
+		const box = (x: number) => ({
+			type: 'Polygon',
+			coordinates: [
+				[
+					[x, 20],
+					[x + 1, 20],
+					[x + 1, 22],
+					[x, 22],
+					[x, 20],
+				],
+			],
+		});
+		expect((await list('/items/bo_content', { location: { _intersects_bbox: box(105) } })).length).toBeGreaterThan(0);
+		expect(await list('/items/bo_content', { location: { _intersects_bbox: box(0) } })).toEqual([]);
 	});
 
 	test('reads the bracket notation too', async () => {
