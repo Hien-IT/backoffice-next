@@ -484,7 +484,8 @@ năng, CI (US7, SC-001 đến SC-007, SC-009).
 - [X] T094 [P] [US7] `src/components/form/keyboard.browser.test.ts`: thao tác bàn phím theo `contracts/tests.md` §5.6
   cho mỗi nhóm interface (SC-005, FR-094).
 - [X] T095 [P] [US7] `src/components/form/perf.browser.test.ts` (SC-004): form 50 field, bảng 100×10, trung vị 3 lần <
-  1.000 ms.
+  1.000 ms; chạy ở bước CI "web perf" (`PERF=1`, không coverage), project `browser` bỏ file
+  này khi không có `PERF` (CI đợt C: 1.550 ms và quá 15 s khi chạy chung với coverage).
 - [X] T096 [US7] `apps/web/scripts/check-bundle.mjs` (012) thêm ngân sách: chunk chính + ≤ 120 KB gzip so với 012, chunk
   tinymce, editorjs, codemirror, maplibre tách riêng (R12); target `web:check-bundle` trong CI.
 - [X] T097 [US7] `.github/workflows/ci.yml`: job test web chạy hai project (T003), parity `web` gồm `fixtures-seed`;
@@ -499,20 +500,20 @@ năng, CI (US7, SC-001 đến SC-007, SC-009).
 - [ ] T098 [P] Recipe nháp Q-1 đến Q-12 cập nhật theo code thực tế; gửi design owner (owner dự án) duyệt theo
   `design-system/qa/handoff-checklist.md`; ảnh so TailAdmin và luồng Directus lưu ở
   `specs/013-interfaces-displays/design-review/`; bảng Q của spec chuyển "Đóng" kèm tên recipe (SC-008).
-- [ ] T099 [P] Chuỗi dịch: chạy `pnpm nx run web:sync-translations`, thêm khóa thiếu vào danh sách sync (R9), khóa
+- [X] T099 [P] Chuỗi dịch: chạy `pnpm nx run web:sync-translations`, thêm khóa thiếu vào danh sách sync (R9), khóa
   overlay D-60 đủ `vi-VN`/`en-US`; báo cáo đổi thương hiệu không có chuỗi "Directus" mới hiện ra (FR-091).
-- [ ] T100 [P] `node tools/check-port-headers.mjs` và `tools/guard-directus-unchanged.mjs` xanh; manifest
+- [X] T100 [P] `node tools/check-port-headers.mjs` và `tools/guard-directus-unchanged.mjs` xanh; manifest
   `tools/port-manifest/013-T*.json` đủ cho mọi task chép.
-- [ ] T101 [P] `apps/web/README.md`: ghi công icon Font Awesome (CC BY 4.0), tile OpenStreetMap (attribution, chính sách
+- [X] T101 [P] `apps/web/README.md`: ghi công icon Font Awesome (CC BY 4.0), tile OpenStreetMap (attribution, chính sách
   dùng tile: đặt `basemaps` riêng khi dùng nhiều), TinyMCE 6 (MIT, theo dõi CVE).
-- [ ] T102 Rà các mục [Inference]/[Unverified] còn lại trong spec, research (định dạng `datetime`, giữ lựa chọn khi
+- [X] T102 Rà các mục [Inference]/[Unverified] còn lại trong spec, research (định dạng `datetime`, giữ lựa chọn khi
   field nguồn của `filter` đổi, lọc XSS của TinyMCE): đánh dấu đã kiểm hoặc ghi R-xx/D-xx.
-- [ ] T103 `specs/013-interfaces-displays/spec.md`: ghi R-xx cho `formatted-json-value.handler` (tái hiện lỗi Directus,
+- [X] T103 `specs/013-interfaces-displays/spec.md`: ghi R-xx cho `formatted-json-value.handler` (tái hiện lỗi Directus,
   quy tắc 004) và các R-xx phát hiện khi làm (T092, T102); dòng "Duyệt khác biệt" chờ tech lead duyệt D-54 đến D-60 và
   Q-C; `tests/parity/accepted-differences.ts` nếu có R-xx mới ở parity.
-- [ ] T104 `quickstart.md` chạy lại từ đầu (seed, test unit/browser, parity seed, lint, build); sửa chỗ lệch.
-- [ ] T105 Cập nhật `CLAUDE.md` (Recent Changes 013), memory dự án, `pnpm exec graphify update .`.
-- [ ] T106 Commit đợt D lên `main` (`git diff --cached --stat` trước, `git pull --rebase`), nhắn session đang chạy song
+- [X] T104 `quickstart.md` chạy lại từ đầu (seed, test unit/browser, parity seed, lint, build); sửa chỗ lệch.
+- [X] T105 Cập nhật `CLAUDE.md` (Recent Changes 013), memory dự án, `pnpm exec graphify update .`.
+- [X] T106 Commit đợt D lên `main` (`git diff --cached --stat` trước, `git pull --rebase`), nhắn session đang chạy song
   song, theo dõi CI tới xanh; spec Status "Done" khi owner duyệt đóng.
 
 ---

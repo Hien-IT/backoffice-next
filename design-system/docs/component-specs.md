@@ -289,408 +289,729 @@ TailAdmin Vue has no tooltip component; the theme only defines `--shadow-tooltip
 
 ## Tier 3 recipes, nháp (013)
 
-**Draft (nháp, 013).** Written for feature 013 (spec Q-1 to Q-12, FR-093) before the code that uses them; the design
-owner reviews them before 013 closes (`qa/handoff-checklist.md`); a review only changes recipes and classes. They are
-built from the Tier 1 recipes and constants above (`FIELD`, `FIELD_INVALID`, `FIELD_DISABLED`, `FOCUS`, `FOCUS_ERROR`,
-Label, Hint, Error message). New color pairs are rows marked "013" in the contrast table of `migration-guide.md`.
-Behaviour and logic come from the Directus component named in each recipe; only the markup and classes are ours. Colors
-that come from data (choice colors, chip colors, color values, header colors) are applied with `style`, never classes.
-Form grid and drawer: `layout-patterns.md` §8.
+**Draft (nháp, 013).** Written for feature 013 (spec Q-1 to Q-12, FR-093) before the code, then updated to the code as
+built (T098): each recipe states the classes, states, ARIA and keyboard of the component it names
+(`apps/web/src/components/`, `interfaces/`, `displays/`). "Deviation" lines say where the code differs from the first
+draft, with the reason; "Open" lines are questions for the design owner. The design owner reviews them before 013 closes
+(`qa/handoff-checklist.md`; review checklist `specs/013-interfaces-displays/design-review/README.md`); a review only
+changes recipes and classes. They are built from the Tier 1 recipes and constants above (`FIELD`, `FIELD_INVALID`,
+`FIELD_DISABLED`, `FOCUS`, `FOCUS_ERROR`, Label, Hint, Error message). New color pairs are rows marked "013" in the
+contrast table of `migration-guide.md`. Behaviour and logic come from the Directus component named in each recipe; only
+the markup and classes are ours. Colors that come from data (choice colors, chip colors, color values, header colors)
+are applied with `style`, never classes; axe `color-contrast` findings on such elements are the accepted Q-C exception
+of `apps/web/src/components/form/a11y.browser.test.ts`. Form grid and drawer: `layout-patterns.md` §8.
 
-Shared parts:
+Shared parts (each component declares the constants it uses locally; there is no shared class module):
 
 - `POPOVER` (panel of popover pickers): Reka `PopoverRoot` / `PopoverTrigger` / `PopoverPortal` / `PopoverContent`
   (`side-offset` 4, `align="start"`, `collision-padding` 8),
   `z-99999 max-h-(--reka-popover-content-available-height) overflow-y-auto rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg custom-scrollbar dark:border-gray-800 dark:bg-gray-dark`.
-  Focus moves into the content, Esc and outside click close, focus returns to the trigger (Reka). This is the Tier 1
-  Popover.
+  Focus moves into the content, Esc and outside click close, focus returns to the trigger (Reka). Where Reka's auto
+  focus lands on the popper wrapper (no `tabindex`), the component focuses the `[role="dialog"]` content itself
+  (ItemsMenu, UserPopover). Used by Datetime, ColorPicker, IconPicker, UserPopover, ItemsMenu and the markdown table
+  popover. This is the Tier 1 Popover.
 - `ICON_BTN` (icon-only button inside fields, chips, rows, toolbars):
   `inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 FOCUS`,
-  `type="button"`, `aria-label`, icon 20px `aria-hidden`.
+  `type="button"`, `aria-label`, icon `sm` (20px) `aria-hidden`. Variants: destructive hover
+  `hover:text-error-600 dark:hover:text-error-400` (BoRemove, clear of a tags variable); `h-6 w-6` in the field label
+  row.
 - `SPINNER`: Material Symbols `progress_activity`,
   `animate-spin text-gray-500 motion-reduce:animate-none dark:text-gray-400`, `aria-hidden`; the busy element gets
-  `aria-busy="true"` and the text says what loads.
-- Motion: every `transition*` gets `motion-reduce:transition-none`, every `animate-*` gets `motion-reduce:animate-none`.
+  `aria-busy="true"` and the text says what loads (Combobox, MultiSelect, UserPopover).
+- `PROGRESS` (`BoProgressLinear`): `role="progressbar"`, `aria-valuemin` 0, `aria-valuemax` 100, `aria-valuenow` (none
+  when indeterminate), `aria-label`; track `relative h-1 w-full overflow-hidden bg-gray-100 dark:bg-white/5`, bar
+  `h-full bg-brand-500 dark:bg-brand-400` with the width by `style`; indeterminate = a 40 % bar sliding (keyframes).
+  `BoProgressCircular` (indeterminate, `aria-label`) for the map.
+- `ERROR_MSG` (error line of a Tier 3 control used on its own with an `error` prop):
+  `mt-1.5 flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400`, `role="alert"`, `error` icon (sm)
+  before the text. Inside a form the control only gets `invalid` and the ids; the error line is FormField's (Field label
+  row).
+- Motion: every `transition*` gets `motion-reduce:transition-none`, every `animate-*` gets `motion-reduce:animate-none`;
+  `styles/base.css` also sets transition and animation durations to 0 under `prefers-reduced-motion: reduce`.
 
 ### Radio (`BoRadio`, Reka RadioGroup; Directus `select-radio`)
 
+- Built: `components/BoRadio.vue`; allowOther row in `interfaces/select-radio/SelectRadio.vue`.
 - Reka `RadioGroupRoot` / `RadioGroupItem` / `RadioGroupIndicator`; the root is labelled by the field label
-  (`aria-labelledby`), hint and error by `aria-describedby`, and gets `aria-required` / `aria-invalid`.
-- Layout: `grid gap-x-6 gap-y-3` + `grid-cols-1` … `grid-cols-4` from the Directus `gridClass` (longest label).
-- Row: Checkbox label row classes; item:
-  `flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-[1.25px] border-gray-500 bg-transparent hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 dark:border-gray-500 dark:hover:border-brand-400`;
-  indicator `block h-2 w-2 rounded-full bg-white`. Choice `color` (data) sets checked border and fill with `style`.
-- Invalid, disabled: as Checkbox (`border-error-600 dark:border-error-400` + `FOCUS_ERROR`; disabled grays).
-- allowOther: last row is a radio plus an inline `h-9 FIELD` input (labelled "Other" by `aria-label`); typing checks it.
+  (`aria-labelledby`), hint and error by `aria-describedby`, and gets `aria-required` / `aria-invalid`; each item text
+  is a `<label for>` of its item.
+- Layout: `grid gap-x-6 gap-y-3` + `grid-cols-1`, or `grid-cols-1 sm:grid-cols-2` / `-3` / `-4` from the Directus
+  `getMinimalGridClass` (longest label).
+- Row: `flex items-center gap-3 text-sm font-medium select-none text-gray-700 dark:text-gray-400` (disabled
+  `text-gray-300 dark:text-gray-700`); item:
+  `flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.25px] bg-transparent border-gray-500 hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:border-gray-200 dark:border-gray-500 dark:hover:border-brand-400 dark:data-[disabled]:border-gray-800`;
+  indicator `block h-2 w-2 rounded-full bg-white`.
+- Custom icons (Directus `iconOn` / `iconOff` other than the radio defaults): the item is the icon only,
+  `inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-500 data-[state=checked]:text-brand-500 dark:text-gray-400 dark:data-[state=checked]:text-brand-400 FOCUS`
+  (checked and unchecked differ by icon shape).
+- Data color: the field `color` option (one color per field, as Directus) sets the checked border and fill (or the icon
+  color) by `style`.
+- Invalid: item `border-error-600 dark:border-error-400` + `FOCUS_ERROR`; `ERROR_MSG`.
+- allowOther (Directus markup, in SelectRadio): a row under the grid
+  `flex h-11 w-full items-center gap-2 rounded-lg border px-2 focus-within:ring-3 focus-within:ring-brand-500/10`: empty
+  `border-dashed border-gray-500 dark:border-gray-500`; text typed but not selected
+  `border-transparent bg-gray-100 dark:bg-white/5`; selected
+  `border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/15` (data color on the border); a round icon
+  button (`add`, else `iconOn` / `iconOff`; `aria-label` "Other", `aria-pressed`; `text-brand-500 dark:text-brand-400`
+  when selected, else gray-500 / gray-400; `FOCUS`) selects the typed value; the borderless input (`aria-label` and
+  placeholder "Other",
+  `text-sm text-gray-800 placeholder:text-gray-500 dark:text-white/90 dark:placeholder:text-gray-400`) sets it on
+  change.
+- Deviation: the "other" row is a toggle button plus an input, not a Reka radio item (Directus markup; a Reka radio item
+  cannot hold an input), so arrows do not reach it; Tab does.
+- Empty choices: Notice info `no_options_available`; wrong choices option: Notice warning.
 - Keyboard (Reka): Tab enters at the checked (or first) item, arrows move and check, Space checks.
 
 ### Combobox (`BoCombobox`; Directus `input-autocomplete-api`, `select-dropdown` with search / allowOther)
 
+- Built: `components/BoCombobox.vue`; used by `select-dropdown` and `input-autocomplete-api`.
 - Reka `ComboboxRoot` / `ComboboxAnchor` / `ComboboxInput` / `ComboboxTrigger` / `ComboboxPortal` / `ComboboxContent` /
   `ComboboxViewport` / `ComboboxItem` / `ComboboxItemIndicator` / `ComboboxEmpty`; `ignore-filter` when the results come
-  from the API (Directus throttle/debounce logic kept).
-- Anchor `relative`; input `h-11 FIELD pe-11` (+ `FIELD_INVALID` / `FIELD_DISABLED`); trigger `ICON_BTN` with
-  `absolute end-1.5 top-1/2 -translate-y-1/2`, chevron icon.
+  from the API (Directus throttle/debounce logic kept); the typed text is emitted as `update:search`.
+- Anchor `relative`; input `h-11 FIELD ps-4 pe-11` (+ `FIELD_INVALID` / `FIELD_DISABLED`).
+- Chevron: `ComboboxTrigger` with the `ICON_BTN` classes without `FOCUS`, `absolute end-1.5 top-1/2 -translate-y-1/2`,
+  `expand_more`, `aria-hidden="true"`. Deviation: not a Tab stop (Reka gives it `tabindex="-1"`; the input is the
+  combobox and opens with the arrows), so it is hidden from assistive technology.
 - Content: Select Content classes with `min-w-(--reka-combobox-trigger-width)` and
-  `max-h-(--reka-combobox-content-available-height)`; item: Select Item classes; empty: Select Empty classes with
-  `no_results`.
-- Loading: one row `flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400` with `SPINNER`;
-  content `aria-busy="true"`.
+  `max-h-(--reka-combobox-content-available-height)`, `position="popper"`, `side-offset` 4, viewport `custom-scrollbar`;
+  item: Select Item classes with a `check` `ComboboxItemIndicator`.
+- Note rows (empty, loading): `flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400`; empty
+  = `no_results`; loading = `SPINNER` + `loading`, content `aria-busy="true"`.
 - allowOther: when the text matches no choice, a last item with an `add` icon and the typed text; same Item classes.
+- Prepend (slot, else the selected item's `itemIcon` / `itemColor` like Directus v-select):
+  `pointer-events-none absolute start-4` `text-gray-500 dark:text-gray-400`, input `ps-11`; color dot
+  `h-3 w-3 shrink-0 rounded-full` with the color by `style`; item icons / dots in the list when allowOther is off.
+- Append (slot, Directus `iconRight`): `pointer-events-none absolute end-11`, input `pe-20`.
+- Form linking: own `<label for>` when `label` is set, else `id`, `aria-labelledby`, `aria-describedby` (merged with
+  hint / error) and `aria-invalid` on the input; `ERROR_MSG`.
 - Keyboard (Reka): typing filters, arrows open and move, Enter selects, Esc closes and keeps the text, Tab leaves;
-  `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"`.
-- Prepend (slot, else the selected item's `itemIcon` / `itemColor` like Directus v-select): `absolute start-4` in the
-  anchor, input `ps-11`; item icons/color dots in the list when allowOther is off. Form linking: `id`,
-  `aria-labelledby`, `aria-describedby` (merged with hint/error) and `invalid` reach the input.
-- Append (slot, Directus `iconRight`): `absolute end-11` before the trigger, input `pe-20`.
+  `role="combobox"`, `aria-expanded`, `aria-controls`, `aria-autocomplete="list"` come from Reka.
 
 ### MultiSelect (`BoMultiSelect`; Directus `select-multiple-dropdown`)
 
-- Reka `SelectRoot multiple` (no search) or `ComboboxRoot multiple` (search or allowOther), Select recipe parts.
-- Trigger: `flex min-h-11 flex-wrap items-center gap-1.5 py-1.5 text-start FIELD` (+ invalid/disabled). Selected values
-  show as Chips (sm, no delete button: no interactive element inside the trigger); remove a value by unchecking it in
-  the list.
-- previewThreshold (Directus option): above it the trigger shows `text-sm text-gray-800 dark:text-white/90` with the
-  Directus "N items selected" text instead of chips.
-- Item: Select Item classes with a Checkbox box at the start (visual, `aria-hidden`; Reka sets `aria-selected`,
-  `aria-multiselectable`); Space/Enter toggles and the list stays open; Esc closes.
+- Built: `components/BoMultiSelect.vue`; used by `select-multiple-dropdown`.
+- Deviation: always Reka `ComboboxRoot multiple` with a search input inside the panel (the draft used `SelectRoot`
+  without search): one component covers search, allowOther, allowNone and nonEditable.
+- Trigger: the `ComboboxTrigger` is the focusable field (`tabindex="0"`, Down opens):
+  `flex min-h-11 w-full cursor-pointer flex-wrap items-center gap-1.5 rounded-lg border bg-transparent px-4 py-1.5 pe-10 text-start text-sm text-gray-800 shadow-theme-xs focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90`
+  - the `FIELD` border/focus part (or `FIELD_INVALID`) + the `FIELD_DISABLED` colors; chevron `expand_more`
+    `absolute end-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400`; placeholder
+    `py-1 text-gray-500 dark:text-gray-400`.
+- Values: below `previewThreshold` (default 3) selected values show as Chips (sm, no delete button: no interactive
+  element inside the trigger); from the threshold the Directus text `item_count` ("N items") or `all_items` when all are
+  selected. A value is removed by unchecking it in the list.
+- Panel: Select Content classes; search `mb-2 h-9 FIELD px-3` (`aria-label` "Search", placeholder "Other" when
+  allowOther).
+- Item: Select Item classes + `group gap-3` with a Checkbox box at the start
+  (`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-500 text-white group-data-[state=checked]:border-brand-500 group-data-[state=checked]:bg-brand-500 dark:border-gray-500`,
+  `check` icon, `aria-hidden`; Reka sets `aria-selected`, `aria-multiselectable`); Space/Enter toggles and the list
+  stays open; Esc closes.
+- allowNone: a first item "Deselect all" (`close` icon), disabled while nothing is selected. allowOther: an `add` item
+  with the typed text; selected values that are not choices stay listed so they can be unchecked. Empty:
+  `no_options_available` (no choices) or `no_results` (search); loading as Combobox.
 - Prepend slot: first item inside the trigger, `text-gray-500 dark:text-gray-400`. Form linking: `id`, `aria-labelledby`
-  (label then trigger), `aria-describedby`, `invalid` on the trigger. `nonEditable` (Directus): the list still opens,
-  even when disabled with a value, its items are disabled and the deselect/add rows are hidden.
+  (label then trigger, so the value is read), `aria-describedby`, `aria-invalid` on the trigger; `ERROR_MSG`.
+  `nonEditable` (Directus): the list still opens, even when disabled with a value; its items are disabled and the
+  deselect / add rows are hidden.
 
 ### CheckboxGroup (`BoCheckboxGroup`; Directus `select-multiple-checkbox`)
 
-- `role="group"` + `aria-labelledby` (field label) + `aria-describedby` (hint, error); items: Checkbox recipe.
-- Layout: `grid gap-x-6 gap-y-3` + `grid-cols-1` … `grid-cols-4` from the Directus `gridClass`.
-- Show more (`itemsShown`, Directus default): extra choices hidden; toggle
-  `mt-3 inline-flex items-center gap-1 rounded text-theme-sm font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400 FOCUS`,
-  `aria-expanded` + `aria-controls`, text from `interfaces.select-multiple-checkbox.show_more` / `show_less`; focus
-  stays on the toggle.
-- allowOther: each "other" row = checkbox + `h-9 FIELD` input + remove `ICON_BTN`; an "add other" button styled as the
-  toggle.
-- Choice `color` (data): checked box border and fill by `style`. Invalid: every box gets the invalid Checkbox classes.
+- Built: `components/BoCheckboxGroup.vue`; used by `select-multiple-checkbox`.
+- `role="group"` + `aria-labelledby` (field label, with the required mark) + `aria-describedby` (hint, error); rows and
+  grid as Radio.
+- Box: Checkbox recipe box + `cursor-pointer text-white` and a `check` indicator; custom `iconOn` / `iconOff`: the icon
+  only (defaults `check_box` / `check_box_outline_blank`),
+  `text-gray-500 data-[state=checked]:text-brand-500 dark:text-gray-400 dark:data-[state=checked]:text-brand-400`.
+- Show more (`itemsShown`, Directus default 8): extra choices hidden; toggle
+  `mt-3 inline-flex items-center gap-1 rounded text-theme-sm font-medium text-brand-500 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-brand-400 FOCUS`
+  with `expand_more` / `expand_less`, `aria-expanded` + `aria-controls` (the grid), text
+  `interfaces.select-multiple-checkbox.show_more` (with the hidden count) / `show_less`; focus stays on the toggle.
+- allowOther: each "other" row = checkbox (`aria-label` = its value or "Other") + `h-9 FIELD px-3` input (`aria-label`
+  "Other") + remove `ICON_BTN` `delete` (`remove_item`); an "Other" button (`add` icon) styled as the show-more toggle
+  adds a row and focuses its input.
+- Choice `color` (data, one per field): checked box border and fill (or icon color) by `style`. Invalid: every box gets
+  the invalid Checkbox classes; `ERROR_MSG`. No choices: `text-theme-sm text-gray-500 dark:text-gray-400`
+  `no_options_available`.
 
 ### CheckboxTree (`BoCheckboxTree`; Directus `v-checkbox-tree`, `select-multiple-checkbox-tree`)
 
-- Value logic (`all` / `branch` / `leaf` combining) ported from Directus. Reka `TreeRoot` / `TreeItem` give roving focus
-  and expand/collapse (`role="tree"`, `treeitem`, `aria-expanded`); each treeitem carries `aria-checked` (`true` /
-  `false` / `mixed`).
+- Built: `components/BoCheckboxTree.vue` (+ `checkbox-tree/value-combining.ts`); used by
+  `select-multiple-checkbox-tree`.
+- Value logic (`all` / `branch` / `leaf` / `indeterminate` / `exclusive` combining) ported from Directus. One flat Reka
+  `TreeRoot` / `TreeItem` list gives roving focus and expand/collapse (`role="tree"`, `treeitem`, `aria-expanded`); the
+  root gets `aria-multiselectable`, `aria-labelledby`, `aria-describedby`, `aria-invalid`; each treeitem carries
+  `aria-checked` (`true` / `false` / `mixed`) and `aria-disabled`.
+- Frame: `rounded-lg border p-2 border-gray-200 dark:border-gray-800` (invalid
+  `border-error-600 dark:border-error-400`).
 - Row:
-  `flex items-center gap-2 rounded-lg py-1.5 pe-2 text-sm text-gray-700 outline-hidden hover:bg-gray-50 FOCUS dark:text-gray-400 dark:hover:bg-white/[0.03]`,
-  indent by `style` `padding-inline-start: level × 1.5rem`; expand chevron `ICON_BTN h-6 w-6` (`tabindex="-1"`,
-  `rotate-90` when open, `rtl:rotate-180` closed, `transition-transform`); box: Checkbox box classes, `aria-hidden`
-  (checked = check, mixed = dash).
-- Search (Directus option): `mb-3 h-9 FIELD` input above, sr-only label "Search"; "show selection only" toggle as a
-  Toggle.
-- Keyboard: Up/Down move, Right opens or enters, Left closes or goes to the parent, Home/End, Space toggles the check.
-- Empty: Select Empty classes with `no_results`.
+  `flex cursor-pointer items-center gap-2 rounded-lg py-1.5 pe-2 text-sm text-gray-700 outline-hidden hover:bg-gray-50 FOCUS aria-disabled:cursor-not-allowed aria-disabled:text-gray-300 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:aria-disabled:text-gray-700`,
+  indent by `style` `padding-inline-start: (level − 1) × 1.5rem`; text `truncate`.
+- Chevron (rows with children): `span` `aria-hidden`, mouse only,
+  `inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-transform hover:bg-gray-100 hover:text-gray-700 motion-reduce:transition-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300`,
+  `chevron_right`, `rotate-90` when open, `rtl:rotate-180` when closed; leaves get a `w-6` spacer.
+- Box (`aria-hidden`): `flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] text-white`;
+  checked and mixed `border-brand-500 bg-brand-500` with `check` / `remove` (dash) icons; unchecked
+  `border-gray-500 dark:border-gray-500`; disabled `border-gray-200 dark:border-gray-800`.
+- Search: only with more than 10 choices (Directus), `mb-3 h-9 FIELD px-3` `type="search"`, sr-only label "Search", 250
+  ms debounce; matching branches open. "Show selected only": Toggle (`BoSwitch`, `mt-3`,
+  `interfaces.select-multiple-checkbox-tree.show_selected`), disabled while nothing is selected.
+- Keyboard (Reka Tree): Up/Down move, Right opens or enters, Left closes or goes to the parent, Home/End, Enter/Space
+  toggle the check (a click on the chevron only expands).
+- Empty: note `px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400` with `no_options_available` (no choices) or
+  `no_results` (search).
+- Deviation: the Directus search highlight, `nonEditable`, `openGroups` and group toggle are not ported (code header).
 
 ### DatePicker (`BoDatePicker`; Directus `datetime` + `v-date-picker`)
 
-- Trigger: `<button type="button" aria-haspopup="dialog">`
-  `flex h-11 items-center justify-between gap-2 text-start FIELD` (+ invalid/disabled), formatted value (or the
-  placeholder in `text-gray-500 dark:text-gray-400`), `calendar_today` icon `text-gray-500 dark:text-gray-400`; clear
-  `ICON_BTN` as a sibling (`absolute end-10`) when a value is set. Accessible name: field label + value.
-- Panel: `POPOVER`, `w-auto`.
-- Calendar (types `date`, `dateTime`, `timestamp`): Reka `CalendarRoot` (`locale` = user language, `week-starts-on` from
-  the locale as Directus) / `CalendarHeader` `mb-2 flex items-center justify-between` / `CalendarHeading`
-  `text-sm font-medium text-gray-800 dark:text-white/90` / `CalendarPrev` + `CalendarNext` (`ICON_BTN`, `aria-label`) /
-  `CalendarGrid` `w-full border-collapse` / `CalendarHeadCell`
-  `h-8 w-9 text-theme-xs font-medium text-gray-500 dark:text-gray-400` / `CalendarCell` / `CalendarCellTrigger`:
+- Built: trigger and popover in `interfaces/datetime/Datetime.vue`, panel in `components/BoDatePicker.vue`.
+- Trigger: `PopoverTrigger as-child` on a `<button type="button">` that keeps the form input id (Reka adds
+  `aria-haspopup="dialog"`, `aria-expanded`):
+  `flex h-11 w-full items-center gap-2 rounded-lg border bg-transparent px-4 pe-20 text-start text-sm text-gray-800 shadow-theme-xs focus:outline-hidden focus:ring-3 FOCUS dark:bg-gray-900 dark:text-white/90`
+  - the `FIELD` border/focus part (open state
+    `data-[state=open]:border-brand-500 data-[state=open]:ring-3 data-[state=open]:ring-brand-500/10 dark:data-[state=open]:border-brand-400`)
+    or `FIELD_INVALID`, + the `FIELD_DISABLED` colors; value `min-w-0 truncate`. Accessible name: field label + value
+    (`aria-labelledby`).
+- End actions `absolute end-1.5 top-1/2 flex -translate-y-1/2 items-center`: time zone icon `schedule` with a Tooltip of
+  the zone (when `tz` is set, `h-8 w-8 text-gray-500 dark:text-gray-400`); clear `ICON_BTN` `close` (`clear_value`) when
+  a value is set, else a decorative `today` icon (`text-gray-500 dark:text-gray-400`, disabled
+  `text-gray-300 dark:text-white/15`). Hidden when nonEditable.
+- Deviation: the calendar icon sits at the end and becomes the clear button once a value is set (Directus); no
+  `calendar_today` inside the value.
+- Panel: `POPOVER w-auto`.
+- Calendar (types `date`, `dateTime`, `timestamp`): Reka `CalendarRoot` (`locale` = user language, `fixed-weeks`,
+  `weekday-format="short"`, `initial-focus`: focus on the selected day, else today, when the panel opens; `dir` from the
+  user) / `CalendarHeader` `mb-2 flex items-center justify-between gap-2` / `CalendarPrev` + `CalendarNext` (`ICON_BTN`,
+  `aria-label` `previous` / `next`) / `CalendarHeading`
+  `flex items-center gap-2 text-sm font-medium text-gray-800 dark:text-white/90` holding a month Select (Tier 1 Select,
+  `w-36`, sr-only label `month`) and a year number Input (`w-24`, `aria-label` `year`) as the Directus v-date-picker /
+  `CalendarGrid` `w-full border-collapse select-none`, rows `grid grid-cols-7` / `CalendarHeadCell`
+  `h-8 w-9 text-theme-xs font-medium text-gray-500 dark:text-gray-400` / `CalendarCellTrigger`:
   `flex h-9 w-9 items-center justify-center rounded-lg text-theme-sm text-gray-700 outline-hidden hover:bg-gray-100 FOCUS data-[today]:font-semibold data-[today]:text-brand-600 data-[today]:underline data-[today]:underline-offset-4 data-[selected]:bg-brand-500 data-[selected]:text-white data-[outside-view]:text-gray-500 data-[unavailable]:line-through data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[today]:text-brand-400 dark:data-[selected]:text-white dark:data-[outside-view]:text-gray-400 dark:data-[disabled]:text-white/15`
-  (today = weight + underline, selected = solid fill, not color alone).
-- Time (types `time`, `dateTime`, `timestamp`): Reka `TimeFieldRoot` (`hour-cycle` 24 or 12 from Directus `use24`,
-  `granularity` `second` when `includeSeconds`, else `minute`), root
+  (today = weight + underline, selected = solid fill, not color alone). Type `date` closes on select.
+- Time (types `time`, `dateTime`, `timestamp`): Reka `TimeFieldRoot` (`hour-cycle` 24 when Directus `use24`, else the
+  locale's; `granularity` `second` when `includeSeconds`, else `minute`; default 12:00), root
   `mt-3 flex h-11 items-center gap-0.5 rounded-lg border border-gray-500 px-4 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400`;
-  `TimeFieldInput` segment
+  segment
   `rounded px-0.5 tabular-nums outline-hidden focus:bg-brand-50 focus:text-brand-600 data-[placeholder]:text-gray-500 dark:focus:bg-brand-500/15 dark:focus:text-brand-400 dark:data-[placeholder]:text-gray-400`,
-  literal segments `text-gray-500 dark:text-gray-400`. Type `time` shows only the TimeField (no calendar).
-- Footer `mt-3 flex items-center justify-between gap-2`: Directus actions (set to now, clear) as compact outline
-  Buttons.
-- Timezone note: `timestamp` values are edited in the browser time zone as in Directus; the footer shows the zone name
-  (`Intl.DateTimeFormat().resolvedOptions().timeZone`) in Hint classes so the user knows which zone is edited. Types
-  `dateTime`, `date`, `time` have no zone (no note).
+  literal segments `text-gray-500 dark:text-gray-400`. Type `time` shows only the TimeField.
+- Footer `mt-3 flex items-center justify-between gap-2`: "Set to now" (`set_to_now`, secondary Button, closes the
+  panel); for `timestamp` the zone name (the field's `tz`, else `Intl.DateTimeFormat().resolvedOptions().timeZone`) in
+  `text-theme-xs text-gray-500 dark:text-gray-400`. Types `dateTime`, `date`, `time` show no zone. Deviation: no clear
+  button in the footer (clear is on the trigger, as Directus).
 - Keyboard (Reka): arrows move days, PageUp/PageDown months, Home/End week, Enter/Space select; segments: arrows change,
   digits type, Tab next; Esc closes, focus returns to the trigger.
 
 ### Slider (`BoSlider`; Directus `slider`)
 
+- Built: `components/BoSlider.vue` (`slider`); the same track / range / thumb classes in the ColorPicker channels.
 - Reka `SliderRoot` (`min`, `max`, `step` from options) / `SliderTrack` / `SliderRange` / `SliderThumb`; thumb labelled
-  by the field label (`aria-labelledby`), `aria-valuetext` = formatted value.
-- Root `relative flex h-5 w-full touch-none select-none items-center`; track
+  by the field label (`aria-labelledby`), `aria-valuetext` = the value, `aria-describedby`, `aria-invalid`.
+- Wrapper `pt-8` (room for the value bubble). Root `relative flex h-5 w-full touch-none select-none items-center`; track
   `relative h-1.5 grow overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800`; range
   `absolute h-full rounded-full bg-brand-500 dark:bg-brand-400`; thumb
-  `block h-5 w-5 rounded-full border-2 border-brand-500 bg-white shadow-theme-sm hover:bg-brand-50 FOCUS data-[disabled]:border-gray-300 dark:border-brand-400 dark:bg-gray-900 dark:data-[disabled]:border-gray-700`.
-- Value label (Directus `alwaysShowValue`, else on hover/focus): bubble above the thumb
-  `absolute bottom-full mb-2 -translate-x-1/2 rounded-lg bg-gray-900 px-2 py-1 text-theme-xs font-medium text-white tabular-nums dark:bg-gray-800 dark:text-white/90`
-  (Tooltip colors), `aria-hidden` (the value is in `aria-valuetext`).
-- Ticks (when (max − min) / step ≤ 20): `mt-1 flex justify-between` of `h-1.5 w-px bg-gray-500`; min and max labels
-  `text-theme-xs text-gray-500 dark:text-gray-400`, `aria-hidden`.
-- Invalid: thumb `border-error-600 dark:border-error-400` + `FOCUS_ERROR`.
+  `group relative block h-5 w-5 cursor-pointer rounded-full border-2 border-brand-500 bg-white shadow-theme-sm hover:bg-brand-50 FOCUS data-[disabled]:cursor-not-allowed data-[disabled]:border-gray-300 dark:border-brand-400 dark:bg-gray-900 dark:data-[disabled]:border-gray-700`.
+- Value bubble inside the thumb (Directus `alwaysShowValue`, else `hidden group-hover:block group-focus:block`):
+  `pointer-events-none absolute bottom-full left-1/2 mb-2 -translate-x-1/2 rounded-lg bg-gray-900 px-2 py-1 text-theme-xs font-medium text-white tabular-nums dark:bg-gray-800 dark:text-white/90`
+  (Tooltip colors), `aria-hidden`.
+- Ticks (when (max − min) / step ≤ 20): `mt-1 flex justify-between px-2.5` of `h-1.5 w-px bg-gray-500`; min and max
+  labels always shown, `mt-1 flex justify-between text-theme-xs text-gray-500 dark:text-gray-400`; both `aria-hidden`.
+- Invalid: thumb `border-error-600 dark:border-error-400` + `FOCUS_ERROR`; `ERROR_MSG`.
 - Keyboard (Reka): arrows ± step, PageUp/PageDown ± 10 steps, Home/End min/max.
 
 ### Rating (display only; Directus `rating` display)
 
-- Detailed (Directus `simple` false, the default): stars, `inline-flex items-center gap-0.5`, `role="img"`, `aria-label`
-  = value and maximum (e.g. "3.5 / 5").
-- Stars: Material Symbols `star` filled (`FILL` 1) `text-warning-600 dark:text-warning-400`, `star_half` the same, empty
-  `star` outline (`FILL` 0) `text-gray-500 dark:text-gray-500`; all `aria-hidden`. Filled and empty differ by shape, not
-  only color.
-- Simple (Directus `simple` true): warning Badge (light, sm) with one filled star icon and the number.
+- Built: `displays/rating/DisplayRating.vue`.
+- Detailed (Directus `simple` false, the default): `relative inline-flex w-min`, `role="img"`, `aria-label` = value and
+  maximum (e.g. "3.5 / 5"), with a Tooltip of the value. Two layers of `star` icons (sm): filled stars (`FILL` 1)
+  `relative z-2 inline-flex overflow-hidden text-warning-600 dark:text-warning-400` clipped to the rating percentage by
+  `style`, over outline stars (`FILL` 0) `absolute start-0 top-0 z-1 inline-flex text-gray-500` (no dark variant:
+  gray-500 is 3.57:1 on gray-900). Filled and empty differ by shape, not only color.
+- Deviation: half values are a clipped filled star (Directus markup), not `star_half`.
+- Simple (Directus `simple` true): warning light Badge with `font-semibold`
+  (`inline-flex items-center gap-1 rounded-full bg-warning-50 px-2.5 py-0.5 text-theme-xs font-semibold text-warning-700 dark:bg-warning-500/15 dark:text-warning-400`),
+  one filled star and the number.
+
+### Translation progress (Q-4; Directus `translations` interface language select and display)
+
+- Built: `interfaces/translations/LanguageSelect.vue`, `displays/translations/DisplayTranslations.vue`, both with
+  `PROGRESS`.
+- Language bar (interface): `flex h-11 w-full items-center gap-1 rounded-lg ps-2 pe-1`; first language
+  `bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400`, second language (split view)
+  `bg-blue-light-50 text-blue-light-700 dark:bg-blue-light-500/15 dark:text-blue-light-400`, danger
+  `bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400`, disabled
+  `cursor-not-allowed bg-gray-100 text-gray-500 dark:bg-white/5 dark:text-gray-400`. Inside, a Reka
+  `DropdownMenuTrigger`
+  (`flex h-full min-w-0 flex-1 items-center gap-2 rounded-lg px-1 text-start text-sm font-medium FOCUS`, value
+  `truncate`, `expand_more` flipped when open) and a controls slot.
+- Menu: Dropdown menu recipe (`max-h` available height, `min-w` trigger width); item = edited marker
+  `me-1.5 h-1 w-1 rounded-sm bg-gray-500` + sr-only "(edited)", language name, and a `w-24` `PROGRESS` (`rounded-full`)
+  with `aria-label` "language: N%" and the same `title`.
+- Display: an icon trigger (`info`, "N items" menu icon variant) opens a list `w-[16.875rem] space-y-1`; each entry
+  `px-3 py-1` (from the second, `border-t border-gray-100 pt-2 dark:border-gray-800`): header
+  `flex items-center justify-between gap-4 text-theme-xs text-gray-500 dark:text-gray-400` with `translate` icon and the
+  language (`font-semibold`), a `max-w-[5.625rem]` `PROGRESS` with a Tooltip of the percent; then the item rendered
+  `text-theme-sm text-gray-700 dark:text-gray-400`.
+- Progress colors of the display (Directus `colorful`): bar `bg-error-500` up to 33 %, `bg-warning-500` up to 66 %, else
+  `bg-success-500`, no dark variant.
+- Open: in light mode the warning-500 (2.13:1) and success-500 (2.38:1) bars on the gray-100 track are below 3:1
+  (migration-guide, rows marked "fail"); the value is also in `aria-valuenow` and in the hover Tooltip, not in visible
+  text. Owner question: keep the Directus colors, or darker shades (-700) / a visible percent.
 
 ### Chip (`BoChip`; tags, `labels` display, multi-value displays)
 
+- Built: `components/BoChip.vue`; used by `labels`, MultiSelect values, group badges, UserPopover role.
 - Base:
-  `inline-flex max-w-full items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-theme-xs font-medium text-gray-700 dark:bg-white/5 dark:text-white/80`
-  (Badge light), text `truncate`.
-- Data color (Directus choice `background` / `foreground`): set by `style`; no choice color → base classes.
-- Dot (Directus `showAsDot`): `h-2 w-2 shrink-0 rounded-full` with the data color by `style`, before the text (the text
-  carries the meaning).
-- Leading slot `#leading` (default: the `icon` prop): the `labels` display puts the choice `color` there (icon colored
-  with it, or a color dot when there is no icon), as Directus.
+  `inline-flex max-w-full items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 font-medium text-gray-700 dark:bg-white/5 dark:text-white/80`
+  (Badge light) with the Badge sizes `sm` → `text-theme-xs` (default), `md` → `text-sm`; text `truncate`.
+- Data color (Directus choice `foreground` / `background`): `color` / `background` props set by `style`; the base color
+  classes are dropped then.
+- Leading slot `#leading` (default: the `icon` prop, sm): the `labels` display puts the choice icon there colored by
+  `style`, or a Color dot when the choice has a color and no icon.
 - Removable: delete button
-  `-me-1 inline-flex h-4 w-4 items-center justify-center rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 FOCUS dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-300`,
-  `close` icon 14px, `aria-label` "Remove <value>".
-- Clickable (link or toggle): real `<a>` / `<button>` with `hover:bg-gray-200 dark:hover:bg-white/10 FOCUS`; toggles add
-  `aria-pressed`.
+  `-me-1 inline-flex h-4 w-4 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-gray-200 hover:text-gray-700 FOCUS disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/10 dark:hover:text-gray-300`,
+  `close` icon at 14px (`font-size: var(--text-theme-sm)`), `aria-label` "Remove <text>" (`remove`).
+- Deviation: BoChip has no dot or clickable / toggle variant. `labels` with Directus `showAsDot` renders Color dots,
+  each with a Tooltip of its text, plus one sr-only list of the texts; toggle chips are the TagsInput presets.
+- Color dot (`displays/color/DisplayColor.vue`): `inline-block size-2.25 shrink-0 rounded-full`, color by `style`;
+  `border border-gray-500` when the color's contrast with the page background (white, dark gray-900) is below 1.1
+  (Directus rule); default `#B0BEC5` (Directus data constant); no value and no default → ValueNull.
 
 ### TagsInput (`BoTagsInput`; Directus `tags`)
 
-- Reka `TagsInputRoot` / `TagsInputInput` / `TagsInputItem` / `TagsInputItemText` / `TagsInputItemDelete`; options
-  (`alphabetize`, `lowercase`, `whitespace`, `trim`, `allowCustom`) applied by the Directus logic.
-- Input on top as Directus: `h-11 FIELD` (+ invalid/disabled), Enter adds; tags below in `mt-2 flex flex-wrap gap-1.5`;
-  each tag = removable Chip, active tag (`data-[state=active]`) `ring-2 ring-brand-500 dark:ring-brand-400`.
-- Presets: Chips as toggle buttons: off `bg-transparent ring-1 ring-inset ring-gray-500` with `aria-pressed="false"`, on
-  base Chip + `check` icon with `aria-pressed="true"`.
+- Built: `components/BoTagsInput.vue`, `interfaces/tags/Tags.vue`.
+- Reka `TagsInputRoot` (`delimiter=","`, `add-on-blur`, `add-on-paste`) / `TagsInputInput` / `TagsInputItem` /
+  `TagsInputItemText` / `TagsInputItemDelete`; options (`alphabetize`, `lowercase`, `whitespace`, `trim`, `allowCustom`)
+  applied by the Directus logic.
+- Input on top as Directus: `h-11 FIELD` (+ invalid / disabled), placeholder `interfaces.tags.add_tags`, Enter adds;
+  tags below in `mt-2 flex flex-wrap gap-1.5`; each tag = Chip base, active tag (`data-[state=active]`)
+  `ring-2 ring-brand-500 dark:ring-brand-400`; delete = Chip delete button (`aria-label` "Remove <tag>").
+- Presets (`mt-2 flex flex-wrap gap-1.5`): toggle buttons; off
+  `inline-flex items-center gap-1 rounded-full bg-transparent px-2.5 py-0.5 text-theme-xs font-medium text-gray-700 ring-1 ring-gray-500 ring-inset hover:bg-gray-100 dark:text-white/80 dark:hover:bg-white/5 FOCUS`
+  with `aria-pressed="false"`; on Chip base + `hover:bg-gray-200 dark:hover:bg-white/10 FOCUS` + `check` icon (14px)
+  with `aria-pressed="true"`; disabled `opacity-50`. Without allowCustom only the presets render, as a `role="group"`
+  labelled by the field label.
+- Tags interface: `iconLeft` / `iconRight`
+  `pointer-events-none absolute top-0 flex h-11 items-center text-gray-500 dark:text-gray-400` (input `ps-11` /
+  `pe-11`); a variable value (`{{ … }}`) shows a disabled input and a clear `ICON_BTN` with the destructive hover.
 - Keyboard (Reka): Enter adds, Backspace in the empty input selects the last tag, Left/Right move between tags,
   Backspace/Delete remove the active tag.
 
-### Tabs (`BoTabs`)
+### Tabs (`BoTabs`; Directus `group-tabs`)
 
-- Reka `TabsRoot` / `TabsList` / `TabsTrigger` / `TabsContent`; list
-  `flex gap-1 overflow-x-auto border-b border-gray-200 no-scrollbar dark:border-gray-800`.
+- Built: `components/BoTabs.vue`, `interfaces/group-tabs/GroupTabs.vue`.
+- Reka `TabsRoot` (`dir`) / `TabsList` (`aria-label` = group name)
+  `no-scrollbar flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800` / `TabsTrigger` /
+  `TabsContent`.
 - Trigger:
   `-mb-px inline-flex shrink-0 items-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-theme-sm font-medium text-gray-500 hover:text-gray-700 FOCUS data-[state=active]:border-brand-500 data-[state=active]:text-brand-600 data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=active]:border-brand-400 dark:data-[state=active]:text-brand-400 dark:data-[disabled]:text-white/15`
-  (active = underline + color).
-- Content `pt-5 FOCUS` (Reka makes it focusable).
+  (active = underline + color); `flex-1 justify-center` with Directus `fillWidth`. Group tabs put in the trigger: the
+  edited dot (Field label row), the name, the badge Chip, and an `error` icon `text-error-600 dark:text-error-400` with
+  a Tooltip and sr-only text of the section's validation messages.
+- Content `pt-5 FOCUS` (Reka makes it focusable), holding a nested form grid.
 - Keyboard (Reka): Left/Right move and activate, Home/End.
 
 ### Accordion (`BoAccordion`; Directus `group-accordion`)
 
+- Built: `components/BoAccordion.vue`, `interfaces/group-accordion/GroupAccordion.vue`.
 - Reka `AccordionRoot` (`type="single" collapsible` when Directus `accordionMode`, else `type="multiple"`; open item
   from `start`) / `AccordionItem` `border-b border-gray-200 dark:border-gray-800` / `AccordionHeader` (`h3`) /
   `AccordionTrigger` / `AccordionContent` `pb-5`.
 - Trigger:
   `group flex w-full items-center gap-2 py-4 text-start text-sm font-medium text-gray-800 FOCUS dark:text-white/90`;
-  edited dot and error icon as in Detail; chevron
-  `ms-auto size-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180 dark:text-gray-400`,
+  content: edited dot, name `truncate`, required mark + sr-only "required", badge Chip, and, while the section is
+  closed, the `error` icon with a Tooltip and sr-only text of the validation message; chevron `expand_more`
+  `ms-auto text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180 motion-reduce:transition-none dark:text-gray-400`,
   `aria-hidden`. No height animation.
 - Keyboard (Reka): Enter/Space toggle, Up/Down between headers, Home/End.
 
 ### Detail (`BoDetail`; Directus `group-detail`)
 
+- Built: `components/BoDetail.vue`, `interfaces/group-detail/GroupDetail.vue`.
 - Reka `CollapsibleRoot` (`default-open` from Directus `start`) / `CollapsibleTrigger` / `CollapsibleContent` `pt-5`
   (holds a nested form grid, layout §8).
 - Trigger:
-  `group flex w-full items-center gap-2 border-b border-gray-200 py-2 text-start text-sm font-medium text-gray-800 FOCUS dark:border-gray-800 dark:text-white/90`;
-  header icon (Directus `headerIcon`) `text-gray-500 dark:text-gray-400`, `aria-hidden`; Directus `headerColor` (data)
-  sets icon and title color by `style`.
-- Edited dot (a child field is edited): the field label row dot + sr-only "Edited" (`edited`).
-- Error (a child field is invalid): `error` icon `text-error-600 dark:text-error-400` + sr-only text with the count.
+  `group flex w-full items-center gap-2 border-b border-gray-200 py-2 text-start text-sm font-medium FOCUS disabled:cursor-not-allowed dark:border-gray-800`,
+  title `min-w-0 truncate` `text-gray-800 dark:text-white/90`; header icon (Directus `headerIcon`)
+  `text-gray-500 dark:text-gray-400`; Directus `headerColor` (data) sets the title and icon color by `style`.
+- Edited dot while closed (a child field is edited): the Field label row dot with Tooltip and sr-only "Edited".
+- Error while closed: `error` icon `text-error-600 dark:text-error-400` with a Tooltip and sr-only text listing the
+  messages. Deviation: the messages, not a count.
 - Chevron as Accordion; `aria-expanded` / `aria-controls` from Reka.
 
 ### Divider with title and icon (`BoDivider`; Directus `presentation-divider`, `v-divider`)
 
+- Built: `components/BoDivider.vue`, `interfaces/presentation-divider/PresentationDivider.vue`.
 - Line: Reka `Separator` (`decorative` when no title), `h-px w-full bg-gray-200 dark:bg-gray-800`; vertical
-  (`orientation="vertical"`) `w-px self-stretch bg-gray-200 dark:bg-gray-800`.
-- With title: `flex items-center gap-3`; icon `text-gray-500 dark:text-gray-400` (`aria-hidden`; Directus `color` by
-  `style`); title `h3.text-sm.font-semibold.text-gray-800 dark:text-white/90`; line `h-px flex-1` after the title
-  (Directus `inlineTitle`), else the title above and the line `mt-2` full width.
+  (`orientation="vertical"`, decorative) `w-px self-stretch bg-gray-200 dark:bg-gray-800`.
+- With title: `flex min-w-0 items-center gap-3` `text-gray-800 dark:text-white/90` (Directus `color` by `style`); icon
+  `text-gray-500 dark:text-gray-400` (takes the data color when set); title `h3.truncate.text-sm.font-semibold`; line
+  `flex-1` after the title (Directus `inlineTitle`, wrapper `flex items-center gap-3`), else the title above and the
+  line `mt-2 w-full`.
 
 ### ColorPicker (`BoColorPicker`; Directus `select-color`)
 
-- Field: `relative`; input `h-11 FIELD ps-12 pe-11` with the hex/rgb/hsl text (+ invalid/disabled); swatch button
-  `absolute start-2 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md FOCUS`, color by `style`, `aria-label` "Pick color",
-  opens the popover. No value: `bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400` with `colorize` icon.
-  Clear `ICON_BTN` at the end.
-- Low contrast (Directus rule: contrast < 1.1 with the field background, presets: with the popover background): the
-  swatch gets `ring-1 ring-inset ring-gray-500` so it stays visible (Directus draws a border).
-- Popover: `POPOVER w-72 space-y-3`:
-  - Mode: Select recipe (`h-9`) RGB / HSL (Directus); one Slider per channel (+ alpha when `opacity`), each with a
-    `text-theme-xs text-gray-500 dark:text-gray-400` label and a `h-9 w-16 FIELD px-2` number input.
-  - Hex: `h-9 FIELD` input with a visible label.
-  - Native picker: compact outline Button with `colorize` icon that opens an
-    `<input type="color" class="sr-only" tabindex="-1">`.
-  - Presets (Directus `presets`): `grid grid-cols-8 gap-2`; button `h-6 w-6 rounded-md FOCUS`, color by `style`,
-    `aria-label` = preset name or value, `aria-pressed`; selected adds
-    `ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-brand-400 dark:ring-offset-gray-dark`.
-- Invalid value: `FIELD_INVALID` + error message.
+- Built: `components/BoColorPicker.vue`, `interfaces/select-color/SelectColor.vue`.
+- Field (`PopoverAnchor`, `relative`): input `h-11 FIELD px-4 ps-12 pe-11` with the hex/rgb/hsl text (+ invalid /
+  disabled; nonEditable = `readonly` with `read-only:bg-gray-50 dark:read-only:bg-white/[0.03]`), placeholder
+  `interfaces.select-color.placeholder`.
+- Swatch = `PopoverTrigger`
+  `absolute start-2 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center rounded-md FOCUS`, color by
+  `style`, `aria-label` "Pick color"; no valid value: `bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400`
+  with `colorize`; a value the swatch cannot draw: `question_mark`. Low contrast (Directus rule: contrast < 1.1 with the
+  field background): `ring-1 ring-gray-500 ring-inset`.
+- End (`absolute end-1.5`): clear `ICON_BTN` `close` (`clear_value`) when the value is valid, else a `palette`
+  `ICON_BTN` that toggles the popover (`aria-haspopup="dialog"`, `aria-expanded`). Hidden when nonEditable.
+- Popover `POPOVER w-72 space-y-3`:
+  - Mode: Tier 1 Select (`h-11`, sr-only label `interfaces.select-color.color`) RGB / HSL (Directus).
+  - One row per channel (+ alpha with `opacity`) `flex items-center gap-3`: label
+    `w-5 shrink-0 truncate text-theme-xs text-gray-500 dark:text-gray-400` (full name in `title`), a Slider (Slider
+    track / range / thumb classes, thumb labelled by the label) and a `h-9 w-16 shrink-0 FIELD px-2` number input.
+  - Hex: visible label "HEX" (Label classes) and a `h-9 FIELD px-3` input (`maxlength` 7, 9 with opacity), next to a
+    secondary Button `colorize` "Browser color picker" (`browser_color_picker`) that opens a hidden
+    `<input type="color" class="sr-only" tabindex="-1" aria-hidden="true">`.
+  - Presets (Directus `presets`): `grid grid-cols-8 gap-2`; button `h-6 w-6 rounded-md FOCUS`, color by `style`, Tooltip
+    and `aria-label` = preset name or value, `aria-pressed`; selected adds
+    `ring-2 ring-brand-500 ring-offset-2 ring-offset-white dark:ring-brand-400 dark:ring-offset-gray-dark`, low contrast
+    with the popover adds `ring-1 ring-gray-500 ring-inset`.
+- Deviation: the mode Select is the Tier 1 `h-11` size (the draft said `h-9`); the native picker button has a text
+  label.
+- Invalid value: `FIELD_INVALID` (error line from the form).
 
 ### IconPicker (`BoIconPicker`; Directus `select-icon`)
 
-- Trigger: `<button>` `flex h-11 items-center gap-3 text-start FIELD` (+ invalid/disabled) with the selected icon
-  (`text-gray-800 dark:text-white/90`, `aria-hidden`) and its name, or the placeholder; clear `ICON_BTN` sibling.
-- Popover: `POPOVER w-[min(28rem,calc(100vw-2rem))] p-0`; search `m-3 h-9 FIELD` (sr-only label "Search").
-- Scroll area `max-h-80 overflow-y-auto custom-scrollbar`, virtual rows (`useVirtualList` of `@vueuse/core`, rows of 8
-  icons, 44px); group heading `px-3 pt-3 pb-1 text-theme-xs font-medium text-gray-500 dark:text-gray-400`; grid
-  `grid grid-cols-8 gap-1 px-3`.
+- Built: `components/BoIconPicker.vue`, `interfaces/select-icon/SelectIcon.vue`.
+- Trigger: `PopoverTrigger as-child` on a `<button>` that keeps the form input id,
+  `flex h-11 items-center gap-3 px-4 py-2.5 pe-12 text-start FIELD` (+ invalid / disabled; also disabled when
+  nonEditable), selected icon (sm, `text-gray-800 dark:text-white/90`) and its title-cased name, or the placeholder
+  `interfaces.select-icon.search_for_icon` in `text-gray-500 dark:text-gray-400`; `aria-labelledby` = label + value.
+- End: clear `ICON_BTN` (`clear_value`) when a value is set, else a decorative chevron flipped while open.
+- Popover: `POPOVER w-[min(28rem,calc(100vw-2rem))] p-0`; search wrapper `m-3`, input `h-9 FIELD px-4` `type="search"`,
+  sr-only label "Search".
+- Scroll area: `vue-virtual-scroller` `DynamicScroller` (`h-80 overflow-y-auto pb-3 custom-scrollbar`, rows rendered
+  only while active). Deviation: the draft said `useVirtualList`; the Directus scroller is kept (release-gate decision)
+  and the number of icons per row comes from the panel width (40px buttons, 4px gap), not a fixed 8.
+- Group heading `px-3 pt-3 pb-1 text-theme-xs font-medium text-gray-500 dark:text-gray-400`; grid `grid gap-1 px-3 pb-1`
+  with `grid-template-columns: repeat(n, 2.5rem)` by `style`.
 - Icon button:
   `flex h-10 w-10 items-center justify-center rounded-lg text-gray-700 hover:bg-gray-100 FOCUS aria-pressed:bg-brand-50 aria-pressed:text-brand-600 aria-pressed:ring-1 aria-pressed:ring-brand-500 dark:text-gray-400 dark:hover:bg-white/5 dark:aria-pressed:bg-brand-500/15 dark:aria-pressed:text-brand-400 dark:aria-pressed:ring-brand-400`,
-  `aria-label` = icon name, Tooltip with the name.
-- Keyboard: one Tab stop for the grid (roving `tabindex`), arrows move by cell and row (the virtual list scrolls the
-  focused row into view), Enter selects and closes, Esc closes.
-- Empty: `px-3 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400` with `no_results`.
+  icon `md`, `aria-label` = icon name, `aria-pressed`. Deviation: no Tooltip per icon (the name is the `aria-label`).
+- Keyboard: one Tab stop for the grid (roving `tabindex`), Left/Right move by icon and wrap rows (swapped in RTL),
+  Up/Down by row, Home/End in the row, Enter/Space selects and closes, Esc closes. Known limit (code `shortcut:`
+  comment): the Tab stop resets to the first icon after a search or opening; once it scrolled out of the virtual window
+  the arrows work again only after scrolling back.
+- Empty: `flex items-center justify-center gap-2 px-3 py-6 text-center text-theme-sm text-gray-500 dark:text-gray-400`
+  with `search_off` and `no_results`.
 
 ### EditorFrame (`BoEditorFrame`; code, rich text, markdown, block editor)
 
-- Frame (the `FIELD` border on a container):
-  `overflow-hidden rounded-lg border border-gray-500 bg-transparent shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:focus-within:border-brand-400`;
-  invalid `border-error-600 focus-within:border-error-600 focus-within:ring-error-500/10 dark:border-error-400`;
+- Built: `components/BoEditorFrame.vue` (markdown, block editor with `bordered`); the same frame classes inline in
+  `interfaces/input-code/InputCode.vue`; CodeMirror theme `styles/codemirror-theme.css`; Editor.js theme
+  `interfaces/input-block-editor/editorjs-overrides.css`.
+- Frame: `overflow-hidden rounded-lg border shadow-theme-xs` +
+  `border-gray-500 bg-transparent focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:focus-within:border-brand-400`;
+  invalid
+  `border-error-600 bg-transparent focus-within:border-error-600 focus-within:ring-3 focus-within:ring-error-500/10 dark:border-error-400 dark:bg-gray-900`;
   disabled `border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]`.
 - Toolbar row: Reka `ToolbarRoot` (`aria-label`, `aria-controls` = editor)
   `flex flex-wrap items-center gap-0.5 border-b border-gray-200 bg-gray-50 px-2 py-1.5 dark:border-gray-800 dark:bg-white/[0.03]`;
-  `ToolbarButton` / `ToolbarToggleItem` = `ICON_BTN` +
+  buttons use the exported `EDITOR_TOOLBAR_BUTTON` = `ICON_BTN` +
   `data-[state=on]:bg-brand-50 data-[state=on]:text-brand-600 dark:data-[state=on]:bg-brand-500/15 dark:data-[state=on]:text-brand-400`,
-  Tooltip with the name and shortcut; `ToolbarSeparator` `mx-1 h-5 w-px bg-gray-200 dark:bg-gray-800`; overflow =
-  Dropdown menu. One Tab stop, Left/Right move (Reka). Markdown edit/preview: Tabs triggers in the toolbar row.
-- Editor area `min-h-[200px] px-4 py-3 text-sm text-gray-800 dark:text-white/90`.
-- Third-party skins: TinyMCE `skin: 'oxide'` / `'oxide-dark'` with CSS overrides to theme variables [Unverified how far
-  the skin can be overridden, research R6]; CodeMirror theme via `EditorView.theme` with `var(--color-*)`; Editor.js
-  popovers recolored with theme variables. Library a11y kept; label linked by `aria-labelledby` where the library allows
-  (FR-094).
-- Soft-length counter (Directus `softLength`, also `input`): `mt-1.5 flex justify-end text-theme-xs tabular-nums`, the
-  remaining count `text-gray-500 dark:text-gray-400`; below 10 % remaining `text-warning-700 dark:text-warning-400`,
-  below 5 % `text-error-600 dark:text-error-400` (Directus thresholds; the number itself shows the state); linked by
-  `aria-describedby`, no live region.
-- Loading (library chunk): frame `aria-busy="true"`, area `h-[200px] animate-pulse bg-gray-100 dark:bg-white/5`.
+  each with a Tooltip and `aria-label` "<name> - <shortcut>". Markdown toolbar: heading menu (Dropdown menu, items with
+  their shortcut), bold, italic, strikethrough, lists, quote, code, link, table (Popover with rows / columns Inputs and
+  a primary "Create" Button), image (upload dialog), custom syntax buttons; Ctrl/Cmd shortcuts as Directus (B, I, K,
+  Alt+D/Q/C/1–6). One Tab stop, Left/Right move (Reka). No `ToolbarSeparator` and no overflow menu (the row wraps).
+- Markdown edit / preview. Deviation: a Reka `ToolbarToggleGroup` (segmented control at the end of the toolbar, inside
+  its arrow-key navigation) instead of Tabs: group `flex gap-0.5 rounded-lg bg-gray-100 p-0.5 dark:bg-white/5`, item
+  `rounded-md px-2.5 py-1 text-theme-xs font-medium text-gray-500 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-white data-[state=on]:text-gray-800 data-[state=on]:shadow-theme-xs dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=on]:bg-gray-800 dark:data-[state=on]:text-white/90 FOCUS`.
+- Preview `min-h-[200px] px-4 py-3 text-sm text-gray-800 dark:text-white/90` + prose classes (links
+  `text-brand-500 dark:text-brand-400` underlined on hover, `code` / `pre` `bg-gray-100 dark:bg-white/5`, blockquote
+  `border-s-[3px] border-brand-500 ps-3 italic`, table cells `border-gray-200 dark:border-gray-800`); HTML sanitized by
+  DOMPurify (FR-065).
+- Code (CodeMirror 5, as Directus 11.17.4). Deviation: no `EditorView.theme` (that is CodeMirror 6); the theme is CSS on
+  `.bo-codemirror` with the theme variables: text gray-800 / dark white 90 %, monospace 13px; gutters gray-50 with a
+  gray-200 end border (dark white 3 %, gray-800); line numbers and placeholder gray-500 / gray-400; active line gray-50
+  / white 3 %; selection brand-100 / gray-700; syntax keyword brand-600 / brand-400, atom / def / builtin / link
+  blue-light-700 / blue-light-400, number / type / tag / matching bracket success-700 / success-400, comment warning-700
+  / warning-400, string / error error-700 / error-400, property orange-700 / orange-400, bracket gray-500 / gray-400;
+  lint: dashed underline + gutter icon (the shape carries the meaning) warning-600 / error-600 (dark -400); lint tooltip
+  in Tooltip colors. The hidden textarea CodeMirror types into gets the form input id, `aria-labelledby`,
+  `aria-describedby`, `aria-invalid` (FR-094).
+- input-code: frame classes on the wrapper (`dir="ltr"`); "fill template" button `absolute end-2 top-2 z-4`, `ICON_BTN`
+  variant
+  `bg-white text-brand-500 hover:bg-gray-100 hover:text-brand-600 dark:bg-gray-900 dark:text-brand-400 dark:hover:bg-white/5 dark:hover:text-brand-300`
+  with a Tooltip `fill_template`.
+- Open: CodeMirror keeps Tab for indentation like Directus (`extraKeys` only maps Ctrl to autocomplete), so Tab does not
+  leave the code editor (WCAG 2.1.2 risk). Owner question: keep Directus behaviour or add an escape key (for example Esc
+  then Tab).
+- Block editor (Editor.js): `editorjs-overrides.css` maps the Directus theme variables to local `--bo-ej-*` variables on
+  the theme tokens, light and dark (background gray-100 / gray-800, text gray-800 / white 90 %, subdued gray-500 /
+  gray-400, border gray-300 / gray-700, primary brand-500 / brand-400, danger error-600 / error-400, tooltips gray-900 /
+  gray-800 with white); `bordered` → BoEditorFrame, else a plain block; content
+  `rounded-lg px-[1.8125rem] py-3 text-sm text-gray-800 dark:text-white/90`, `role="group"` labelled by the field label.
+  Image upload: a Drawer with a preview and the Upload, library through DrawerFiles.
+- Rich text HTML (TinyMCE): not built. `input-rich-text-html` is not registered (TinyMCE not installed: 6.8.6 has a high
+  XSS advisory fixed only in the GPL line, FR-060); the TinyMCE skin line of the draft is kept as a draft only. Open:
+  owner decision.
+- Soft-length counter (Directus `softLength`), markdown (BoEditorFrame `data-remaining`):
+  `mt-1.5 flex justify-end text-theme-xs tabular-nums`, `text-gray-500 dark:text-gray-400`; below 10 % remaining
+  `text-warning-700 dark:text-warning-400`, below 5 % `text-error-600 dark:text-error-400` (Directus thresholds; the
+  number itself shows the state); linked by `aria-describedby`, no live region. The `input` and `input-multiline`
+  counters sit inside the field (input: append slot, shown on focus, `font-semibold`; multiline:
+  `pointer-events-none absolute end-2.5 bottom-1.5 text-sm font-semibold tabular-nums`) and use
+  `text-warning-600 dark:text-warning-500` below 10 %. Open: warning-600 text is 3.49:1 on white (below 4.5:1,
+  migration-guide row marked "fail"); the recipe value is warning-700 (code to align).
+- Loading: the markdown and block editors are async components and show no pulse area while their chunk loads (Deviation
+  from the draft); the map frame sets `aria-busy` while MapLibre starts.
 
 ### Map frame (`BoMapFrame`; Directus `map` interface and layout)
 
-- Frame `relative overflow-hidden rounded-lg border border-gray-500 dark:border-gray-500`, height as Directus; MapLibre
-  canvas gets the focus ring
+- Built: `interfaces/map/InterfaceMap.vue` (MapLibre GL 6.14.0 + Mapbox Draw; no separate BoMapFrame component).
+- Frame `relative overflow-hidden rounded-lg border border-gray-500 dark:border-gray-500`, `role="group"` labelled by
+  the field label, `aria-describedby`, `aria-invalid`, `aria-busy` while loading; map area `relative h-112.5 w-full`
+  (450px, Directus), `opacity-25` while loading or on error; the MapLibre canvas is labelled by the field label and gets
+  the focus ring
   (`[&_.maplibregl-canvas:focus-visible]:outline-2 [&_.maplibregl-canvas:focus-visible]:-outline-offset-2 [&_.maplibregl-canvas:focus-visible]:outline-brand-500 dark:[&_.maplibregl-canvas:focus-visible]:outline-brand-400`).
-- Controls (zoom, geolocate, fit, draw modes, delete) as buttons in `absolute end-3 top-3 flex flex-col gap-2`:
+- Controls `absolute end-3 top-3 flex flex-col gap-2`: zoom in, zoom out (also for nonEditable), geolocate, fit to data,
+  one button per allowed draw type, delete (when something is selected):
   `flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-700 shadow-theme-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 FOCUS dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-gray-dark`
-  (Outline button colors) + `aria-label`; active draw mode `aria-pressed="true"` +
-  `bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400`.
-- Errors (wrong geometry type, parse error): Alert error below the map. Loading: `aria-busy` + `SPINNER` centered.
-- Reduced motion: `jumpTo` instead of `flyTo` (FR-094).
+  (Outline button colors), icon sm, `aria-label`; active draw mode `aria-pressed="true"` +
+  `aria-pressed:bg-brand-50 aria-pressed:text-brand-600 dark:aria-pressed:bg-brand-500/15 dark:aria-pressed:text-brand-400`.
+  The library's own control groups are hidden (`[&_.maplibregl-ctrl-group]:hidden`); the buttons drive their APIs.
+- Basemap: Tier 1 Select (sr-only label `layouts.map.basemap`) in
+  `absolute bottom-8 end-3 w-48 rounded-lg bg-white dark:bg-gray-900`; the choice is local to the field (D-45).
+- Draw hint: `role="tooltip"` at the pointer,
+  `pointer-events-none absolute rounded-lg bg-gray-900 px-3 py-2 text-theme-xs text-white shadow-theme-lg dark:bg-gray-800`.
+- Loading: `BoProgressCircular` indeterminate, `text-brand-500 dark:text-brand-400`, centered, `aria-label` "Loading".
+- Errors. Deviation: Notices under the map (`mt-3`), not an Alert only: invalid options = danger Notice; invalid
+  geometry = warning Notice with "Continue" (secondary) and "Reset" (danger) Buttons, as Directus.
+- Geocoder (only with a Mapbox key) and attribution are MapLibre DOM; the attribution links without underline are an
+  accepted axe exception (`link-in-text-block`).
+- Reduced motion. Deviation: no explicit `jumpTo`; MapLibre already makes `flyTo` / `easeTo` instant under
+  `prefers-reduced-motion` (FR-094).
 
 ### Table, simple (`BoTable`; Directus `v-table` in relational lists)
 
-- Tier 1 Table frame, scroller, caption, text classes and empty row.
-- Sticky header: `thead` `sticky top-0 z-1 bg-white dark:bg-gray-900`.
-- Row height (Directus `spacing`): compact `h-[29px]`, cozy `h-[43px]` (default), comfortable `h-[58px]`; cells
-  `px-3 py-0 truncate`.
-- Select column `w-11`: Checkbox recipe; header box = select all (indeterminate when some), row box `aria-label` "Select
-  row"; selected row `aria-selected="true"` + `bg-gray-50 dark:bg-white/[0.03]` (the box shows the state; brand-50 is
-  not used: gray-500 on brand-50 is 4.46:1).
-- Sort: `th` `aria-sort` (`ascending` / `descending` / `none`); header button as Tier 1 with `arrow_upward` /
-  `arrow_downward` `text-gray-500 dark:text-gray-400` (`aria-hidden`) on the sorted column, shown on hover/focus
-  otherwise; toggling as Directus.
-- Resize handle (`th` `relative`):
-  `absolute -end-1 top-0 z-1 h-full w-2 cursor-col-resize after:absolute after:inset-y-2 after:start-1/2 after:w-px after:bg-gray-200 hover:after:bg-brand-500 dark:after:bg-gray-800 dark:hover:after:bg-brand-400`.
-  Open question for the owner: keyboard resize is not in Directus; the draft proposes `role="separator"`
-  `aria-orientation="vertical"` `tabindex="0"` + `FOCUS` with Left/Right ± 10px (needs a D-xx if kept).
-- Reorder: handle column with `drag_handle` `cursor-grab text-gray-500 dark:text-gray-400` (`aria-hidden`, mouse) and
-  the row menu (SortableList row menu).
-- Loading: table `aria-busy="true"`, `BoProgressLinear` under the header; empty: Tier 1 empty row with the Directus
-  text.
+- Built: `components/BoTable.vue`; used by DrawerCollection and the table layout of `list-o2m` and `list-m2m`.
+- Tier 1 Table frame and scroller; `table.w-full.table-fixed` with `min-width` = sum of the column widths, a `colgroup`
+  with the widths (default 130px, Directus), a filler column, and the sr-only caption.
+- Sticky header: `thead` `sticky top-0 z-1 bg-white dark:bg-gray-900`; header row
+  `border-b border-gray-200 dark:border-gray-700`; `th`
+  `group relative truncate px-3 py-3 text-theme-xs font-medium text-gray-500 dark:text-gray-400` + `text-start` /
+  `text-center` / `text-end`.
+- Row height (Directus `spacing`): compact `h-[29px]`, cozy `h-[43px]` (default), comfortable `h-[58px]`; row
+  `border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]`; cells
+  `truncate px-3 py-0 text-theme-sm text-gray-500 dark:text-gray-400` (displays render inside).
+- Select column (44px, `px-3`): Checkbox (BoCheckbox); header box = select all (multiple only, indeterminate when some,
+  `aria-label` `select_all`), row box `aria-label` `select_item`; single selection also uses a checkbox and keeps the
+  last one; selected row `aria-selected="true"` + `bg-gray-50 dark:bg-white/[0.03]` (the box shows the state; brand-50
+  is not used: gray-500 on brand-50 is 4.46:1).
+- Sort: `th` `aria-sort` (`ascending` / `descending` / `none`); header button
+  `inline-flex max-w-full items-center gap-1 rounded FOCUS` with `arrow_upward` / `arrow_downward`
+  `text-gray-500 dark:text-gray-400` (`aria-hidden`), visible on the sorted column, else on hover / focus
+  (`opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`,
+  `transition-opacity motion-reduce:transition-none`); toggling as Directus (asc → desc → none, or asc ↔ desc with
+  `mustSort`).
+- Manual sort (Directus `showManualSort`, new): first column (40px) with a header toggle
+  `inline-flex h-8 w-8 items-center justify-center rounded-lg hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50 dark:hover:bg-white/5 FOCUS`,
+  `sort` icon, `aria-pressed`, `aria-label` and `title` `toggle_manual_sorting`; on
+  `text-brand-500 dark:text-brand-400`, off `text-gray-500 dark:text-gray-400`. Row cell: `drag_handle`
+  `cursor-grab text-gray-500 dark:text-gray-400` while sorted manually, else
+  `cursor-not-allowed text-gray-300 dark:text-gray-600`. Dragging is mouse only, as Directus; the keyboard path is the
+  row menu of the caller (SortableList row menu items).
+- Resize handle (`th` `relative`, Directus `showResize`):
+  `absolute -end-1 top-0 z-1 h-full w-2 cursor-col-resize after:absolute after:inset-y-2 after:start-1/2 after:w-px after:bg-gray-200 hover:after:bg-brand-500 dark:after:bg-gray-800 dark:hover:after:bg-brand-400`,
+  `aria-hidden`, pointer only (minimum 32px, RTL aware).
+- Open: keyboard resize is not built (Directus has none). The draft proposal (`role="separator"`
+  `aria-orientation="vertical"` `tabindex="0"` + `FOCUS`, Left/Right ± 10px) needs an owner decision and a D-xx if
+  wanted.
+- Clickable rows (`click:row`). Deviation from the Tier 1 Table rule: the `tr` itself is focusable (`tabindex="0"`,
+  `cursor-pointer FOCUS focus-visible:-outline-offset-2`) and Enter/Space activate it, as the Directus table-row; cell
+  controls (checkbox, handle, actions) stop the row click.
+- Item append column (`item-append` / `header-append`, `px-2`): row actions (open link, row menu, Remove).
+- Loading: table `aria-busy="true"`, a header row with an indeterminate `PROGRESS`; without rows a
+  `px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400` row with the loading text; empty: the same row
+  with `no_items` (or the `empty` slot).
 
 ### Upload (`BoUpload`; Directus `v-upload`)
 
+- Built: `components/files/BoUpload.vue`; used by `file`, `files`, `file-image`, markdown and block editor images.
 - Dropzone:
-  `flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-500 bg-gray-50 px-6 py-8 text-center dark:border-gray-500 dark:bg-white/[0.03]`;
-  text `text-sm text-gray-700 dark:text-gray-400`, hint `text-theme-xs text-gray-500 dark:text-gray-400`.
-- Drag over (`data-dragging`): `border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/[0.12]`, hint turns
-  `text-gray-700` and the text changes to the Directus "drop" text (not color alone).
-- Actions: compact outline Button "Choose from device" (opens `<input type="file" class="sr-only">`) and a menu
-  `ICON_BTN` `more_vert` (Dropdown menu recipe): from device, `choose_from_library`, `import_from_url` (Modal recipe
-  with an Input and a primary button), as Directus `fromLibrary` / `fromUrl` allow.
-- Progress: `BoProgressLinear` (`role="progressbar"`, `aria-valuenow`), track `bg-gray-200 dark:bg-gray-800`, bar
-  `bg-brand-500 dark:bg-brand-400`; text `text-theme-sm text-gray-700 dark:text-gray-400` with count and percent; an
-  `aria-live="polite"` region announces start and end only.
-- Invalid: zone `border-error-600 dark:border-error-400` + error message; disabled: `cursor-not-allowed opacity-50`,
-  drops ignored. Drop is mouse-only; the buttons give the keyboard path.
+  `flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-500 bg-gray-50 px-6 py-8 text-center transition-colors motion-reduce:transition-none dark:border-gray-500 dark:bg-white/[0.03]`,
+  `aria-busy` while uploading.
+- Idle: actions `flex items-center gap-2`: secondary Button `file_upload` "upload_from_device" (opens
+  `<input type="file" class="sr-only" tabindex="-1" aria-hidden="true">`) and an `ICON_BTN` `more_vert` menu
+  (`aria-label` `options`, Dropdown menu recipe) with `choose_from_library` and `import_from_url` as Directus
+  `fromLibrary` / `fromUrl` allow; then the text `drag_file_here` (`choose_from_library` without device upload)
+  `text-sm text-gray-700 dark:text-gray-400`. Deviation: no separate hint line.
+- Drag over (`data-dragging`): `border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/[0.12]`, a
+  `file_upload` icon (lg) and the Directus `drop_to_upload` text, both `text-gray-700 dark:text-gray-400` (not color
+  alone).
+- Uploading: percent and `upload_files_indeterminate` (done / total) or `upload_file_indeterminate`,
+  `text-theme-sm text-gray-700 dark:text-gray-400`, then a `rounded-full` `PROGRESS`; progress moves per finished file
+  (multipart `POST /files` through the SDK, no byte progress); an `aria-live="polite"` region announces start and end.
+- Errors: zone `border-error-600 dark:border-error-400` + a `role="alert"` list
+  `mt-1.5 text-theme-xs text-error-600 dark:text-error-400`, one line per file. Disabled:
+  `cursor-not-allowed opacity-50`, drops ignored. Drop is pointer-only; the buttons give the keyboard path.
+- Import from URL: Modal (BoDialog) `import_from_url` with a form: Input `type="url"` (label `url`, autofocus), then
+  Cancel (secondary) and Import (primary submit, loading, disabled until the URL is valid).
+- Upload dialogs of the callers: markdown image = Modal `upload_from_device` with the Upload and Cancel; block editor
+  image = Drawer `upload_from_device` with a preview (`rounded-lg bg-gray-100 dark:bg-white/5`) and the Upload; "choose
+  from library" opens DrawerFiles.
 
-### Image preview and Lightbox (`BoImagePreview`, `FileLightbox`; Directus `image`, `file-preview`, `file-lightbox`)
+### Image preview and Lightbox (`FilePreview`, `FileLightbox`; Directus `image`, `file-preview`, `file-lightbox`)
 
-- Preview:
-  `relative overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/5`; image
-  `h-full w-full object-contain` (`object-cover` when Directus `crop`), `alt` from the file title (or `alt=""` when the
-  title is shown next to it).
-- Not an image: file-type icon `text-gray-500 dark:text-gray-400` + extension
-  `text-theme-xs font-medium uppercase text-gray-700 dark:text-gray-400`. Loading: `animate-pulse`. Error:
-  `broken_image` icon + text.
-- Actions (open, download, edit, remove): `ICON_BTN` row
-  `flex justify-end gap-1 border-t border-gray-200 px-2 py-1 dark:border-gray-800`, always visible (Directus shows them
-  on hover; hover-only would hide them from keyboard and touch).
-- Lightbox: Reka `Dialog`; content `fixed inset-0 z-99999 flex flex-col bg-gray-900/95 text-white` (same in both modes);
-  header `flex items-center justify-between gap-3 px-4 py-3` with `DialogTitle`
-  `truncate text-sm font-medium text-white`; buttons
-  `flex h-11 w-11 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 FOCUS` +
-  `aria-label` (download, close); media `m-auto max-h-full max-w-full object-contain` in `min-h-0 flex-1 p-4`;
-  video/audio with native controls. Focus trap, Esc, focus return (Reka).
+- Built: `components/files/FilePreview.vue`, `components/files/FileLightbox.vue`, `interfaces/file-image/FileImage.vue`,
+  `interfaces/file/File.vue`.
+- FilePreview: outside a modal the preview is a `<button>` (`block w-full cursor-zoom-in rounded-xl FOCUS`) that opens
+  the lightbox; image box
+  `overflow-hidden rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/5` (`p-14` for SVG
+  and small images), image `mx-auto block max-w-full object-contain`, `alt` = file title, `loading="lazy"`; loading
+  `animate-pulse`; error `broken_image` (lg) + `image_load_error` `text-gray-500 dark:text-gray-400`. Not an image:
+  `flex h-11 items-center justify-center gap-2 rounded-xl border border-gray-200 bg-gray-100 dark:border-gray-800 dark:bg-white/5`
+  with `insert_drive_file` `text-gray-500 dark:text-gray-400` and the type
+  `text-theme-xs font-medium uppercase text-gray-700 dark:text-gray-400`; video / audio with native controls.
+- file-image card:
+  `overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`; image area
+  `relative flex w-full items-center justify-center overflow-hidden bg-gray-100 dark:bg-white/5`, `h-[200px]`
+  (`max-h-[360px]` for full / fill widths), `object-contain` (`object-cover` when Directus `crop`, `p-7` letterbox),
+  `alt=""` (the title is shown below); error: icon + message `text-gray-500 dark:text-gray-400`; footer
+  `flex items-center gap-2 border-t border-gray-200 px-3 py-2 dark:border-gray-800` with title
+  `truncate text-sm font-medium text-gray-800 dark:text-white/90`, meta
+  `truncate text-theme-xs text-gray-500 dark:text-gray-400` and the actions (zoom, download link, edit, Remove) as
+  `ICON_BTN`, always visible (Directus shows them on hover; hover-only would hide them from keyboard and touch).
+  nonEditable: the image is a button that opens the details. Loading
+  `h-[200px] animate-pulse rounded-xl bg-gray-100 dark:bg-white/5`.
+- Lightbox: Reka `Dialog`; transparent overlay; content `fixed inset-0 z-99999 flex flex-col bg-gray-900/95 text-white`
+  (same in both modes); header `flex items-center justify-between gap-3 px-4 py-3` with `DialogTitle`
+  `m-0 min-w-0 truncate text-sm font-medium text-white` (file title); buttons
+  `flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20 FOCUS`: a
+  download link (`aria-label` `download`) and `DialogClose` (`aria-label` `close`); media in `min-h-0 flex-1 p-4`, a
+  click on it closes (Directus). Focus trap, Esc, focus return (Reka).
 
 ### ValueNull (`ValueNull`; Directus `value-null`)
 
+- Built: `components/render/ValueNull.vue`.
 - `<span class="text-gray-500 dark:text-gray-400"><span aria-hidden="true">--</span><span class="sr-only">…</span></span>`;
-  the sr-only text is an empty-value word (Backoffice overlay string, since "--" reads as "dash dash").
+  the sr-only text is the Directus key `no_value`. Deviation: the draft planned a Backoffice overlay string; the
+  Directus key exists in both languages.
 
 ### UserPopover (`UserPopover`; Directus `user-popover`)
 
-- Trigger: the user display (Avatar small + name) as
-  `<button type="button" class="inline-flex max-w-full items-center gap-2 rounded-lg text-start FOCUS">`; opens on click
-  / Enter, and on hover after a delay like Directus.
-- Content: `POPOVER w-[280px]`, `flex items-center gap-3`: Avatar large, name
-  `text-sm font-medium text-gray-800 dark:text-white/90`, email and role
-  `text-theme-xs text-gray-500 dark:text-gray-400`, status Badge; link to the user
-  `text-sm font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400 FOCUS`.
-- Loading: `SPINNER` + `aria-busy`; unknown user: Hint text.
+- Built: `components/render/UserPopover.vue`; used by the `user` display.
+- Trigger: `PopoverTrigger` wrapping the user display (Avatar small + name)
+  `inline-flex max-w-full items-center gap-2 rounded-lg text-start FOCUS`; opens on click / Enter, and on hover after
+  300 ms (closes 300 ms after leaving trigger and content; touch pointers ignored) like Directus; opening by hover does
+  not move the focus.
+- Content: `POPOVER w-[280px]`, `side="top"`; `flex items-center gap-3`: Avatar large (48px), then `min-w-0 space-y-1`:
+  name `truncate text-sm font-medium text-gray-800 dark:text-white/90`; a row with the status light Badge (active
+  success, invited primary, suspended warning, archived error, other light) and the role Chip; email
+  `truncate text-theme-xs text-gray-500 dark:text-gray-400`; a router link `open`
+  `text-sm font-medium text-brand-500 hover:text-brand-600 dark:text-brand-400 FOCUS` to the user.
+- Loading: `progress_activity` spinning + `loading` `text-theme-sm text-gray-500 dark:text-gray-400`, `aria-busy`;
+  error: `text-theme-sm text-error-700 dark:text-error-400`, `role="alert"`.
 
 ### "N items" menu (relational displays; Directus `related-values` and similar)
 
+- Built: `components/render/ItemsMenu.vue`; used by `related-values`, `translations`, `formatted-json-value`.
 - Trigger:
-  `inline-flex items-center gap-1 rounded text-theme-sm text-gray-700 underline decoration-dotted underline-offset-4 hover:text-gray-800 FOCUS dark:text-gray-400 dark:hover:text-gray-300`,
-  text `item_count`; opens on click / Enter, and on hover like Directus.
-- Content: `POPOVER min-w-48 p-2`; `ul.space-y-1` rows `px-3 py-2 text-theme-sm text-gray-700 dark:text-gray-400` with
-  the rendered display template (read-only list, so a Popover, not a menu).
+  `inline-flex items-center gap-1 rounded text-theme-sm text-gray-700 underline decoration-dotted underline-offset-4 hover:text-gray-800 FOCUS disabled:pointer-events-none disabled:text-gray-500 disabled:no-underline dark:text-gray-400 dark:hover:text-gray-300`;
+  text = the Directus "N <unit>" (`+` from 100); opens on click / Enter; the click does not reach the table row.
+  Deviation: no hover opening (the Directus related-values menu opens on click).
+- Icon variant (`triggerClass`, translations display):
+  `flex shrink-0 rounded text-gray-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 aria-expanded:opacity-100 pointer-coarse:opacity-100 FOCUS motion-reduce:transition-none dark:text-gray-400`
+  with an `aria-label`.
+- Content: `POPOVER min-w-48 p-2` + `PopoverArrow` `fill-white dark:fill-gray-dark`; focus moves into the content.
+  related-values rows `flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-700 dark:text-gray-400` with the
+  rendered template and an icon link `launch` (`aria-label` `open`,
+  `rounded text-gray-500 hover:text-brand-500 FOCUS dark:text-gray-400 dark:hover:text-brand-400`) to the item
+  (read-only list, so a Popover, not a menu).
 
 ### SortableList row menu (D-60; `list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, tree view)
 
-- Row (Directus `list-interface` mixin):
+- Built: `components/BoSortableList.vue`; used by `list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`,
+  `collection-item-multiple-dropdown`, `list-o2m-tree-view` (NestedDraggable, `tree`).
+- List `ul.space-y-2` (vuedraggable, `force-fallback`, handle `.drag-handle`, only `.draggable` rows move); row
+  (Directus `list-interface` mixin):
   `flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-white/[0.03]`;
-  drag handle `drag_handle` `cursor-grab text-gray-500 dark:text-gray-400` (`aria-hidden`, mouse only); row content as a
-  button or link with `FOCUS`; dragged row `opacity-50`, ghost `shadow-theme-lg`.
-- Menu: `ICON_BTN` `more_vert` (`aria-label` with the row name) + Dropdown menu recipe: the Directus row actions, a
-  separator, then "Move up" (`arrow_upward`), "Move down" (`arrow_downward`); tree view adds "Indent"
-  (`format_indent_increase`) and "Outdent" (`format_indent_decrease`). Move up is `disabled` on the first row, Move down
-  on the last, Indent without a previous sibling, Outdent at the root; strings in the overlay (D-60).
-- After a move, focus returns to the moved row's menu trigger and an `aria-live="polite"` region says the new position
-  (overlay string).
+  drag handle `drag_handle` (sm) `cursor-grab text-gray-500 dark:text-gray-400` (mouse only); chosen row `opacity-50`,
+  ghost `shadow-theme-lg`. Rows that cannot move (deleted, disabled field, sorting off) have no handle and no move
+  items.
+- Row content of the interfaces: a button that opens the item
+  `min-w-0 flex-1 rounded text-start text-sm text-gray-800 FOCUS dark:text-white/90`; deleted rows
+  `text-error-600 line-through dark:text-error-400`; link `ICON_BTN` `launch` (`navigate_to_item`); Remove.
+- Menu: `ICON_BTN` `more_vert` (class `row-menu`, `aria-label` `item_options` with the row name) + Dropdown menu recipe
+  (`align="end"`): the row actions of the interface, then "Move up" (`arrow_upward`), "Move down" (`arrow_downward`);
+  the tree view adds "Indent" (`format_indent_increase`) and "Outdent" (`format_indent_decrease`). Move up is `disabled`
+  on the first row, Move down on the last, Indent on the first row (no previous sibling), Outdent at the root; strings
+  in the overlay (D-60). The menu is hidden when a row has no item. Deviation: no separator between the row actions and
+  the move items (BoMenu has no separator item).
+- After a move, focus returns to the moved row's menu trigger and a `sr-only` `aria-live="polite"` `aria-atomic` region
+  says the new position (`moved_to_position`, overlay string).
+
+### Remove button (`BoRemove`; Directus `v-remove`)
+
+- Built: `components/BoRemove.vue` (+ `getRemoveAction` for row-menu items).
+- `ICON_BTN` with the destructive hover (`hover:text-error-600 dark:hover:text-error-400`), icon (sm) by the Directus
+  rule: `delete` "Remove item" (`remove_item`), `close` "Deselect" (`deselect`, local or deselectable items),
+  `settings_backup_restore` "Undo removed item" (`undo_removed_item`, deleted rows); `aria-label` = that text, `title`
+  when enabled; the caller's classes (e.g. a round button on an image) come through `$attrs`.
+- Items with unsaved edits (or `confirm`) ask first: Modal (BoDialog) `batch_delete_confirm` with Cancel (secondary) and
+  Delete (danger, `delete_label`).
 
 ### Field label row (Q-1; Directus `form-field-label`, `form-field-menu`)
 
+- Built: `components/form/FormFieldLabel.vue`, `FormFieldMenu.vue`, `FormField.vue`, `FormFieldRawEditor.vue`.
 - Row: `group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-400`; the name
-  is the `<label for>` (or the `id` used by `aria-labelledby` for groups); batch-edit Checkbox before it (Directus batch
-  mode).
-- Required: the Tier 1 required mark. Edited dot: `h-1.5 w-1.5 rounded-full bg-gray-500 dark:bg-gray-400`, Tooltip and
-  sr-only `edited` (Directus uses the subdued text color; research R6's `bg-warning-500` is not used).
-- Hidden: light Badge (sm) with `visibility_off` icon and text. Raw value toggle: `ICON_BTN h-6 w-6` with `aria-pressed`
-  (Directus raw editor).
-- Menu chevron: `ICON_BTN h-6 w-6` `expand_more` (`aria-label` with the field name) + Dropdown menu recipe with the
-  Directus field options; shown on hover and focus as Directus
-  (`opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 pointer-coarse:opacity-100`).
-- Note (Directus `note`, markdown via `marked` + `dompurify`): Hint classes under the control, in `aria-describedby`;
-  per-field validation text: Error message classes.
+  is the `<label for>` (`min-w-0 truncate`, full name in `title`; its `id` is used by `aria-labelledby` for groups);
+  batch-edit Checkbox (labelled by the label) before it (Directus batch mode). Disabled field:
+  `text-gray-500 dark:text-gray-400`. Deviation: Tier 1 disabled labels are gray-300; the form keeps disabled labels
+  readable (4.97:1).
+- Required: the Tier 1 required mark + sr-only "required". Edited dot:
+  `h-1.5 w-1.5 rounded-full bg-gray-500 dark:bg-gray-400`, Tooltip and sr-only `edited` (Directus uses the subdued text
+  color; research R6's `bg-warning-500` is not used); hidden in batch mode, on error and while loading.
+- Hidden: light Badge (sm) with `visibility_off` icon and `hidden`; group `badge`: light Badge. Raw value toggle:
+  `ICON_BTN h-6 w-6` (`data_object`, Tooltip `toggle_raw_editor`, `aria-pressed`; on
+  `bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400`).
+- Menu: Reka `DropdownMenuTrigger` `ICON_BTN h-6 w-6` `expand_more` (`aria-label` "<field>: Options"), shown on hover,
+  focus and while open
+  (`opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 pointer-coarse:opacity-100`);
+  Dropdown menu recipe items with icons: edit / view raw value, copy, paste, separator, reset to default, undo changes,
+  clear value (Directus rules for hidden and disabled items).
+- Raw value: Modal (BoDialog) "Edit raw value" / "View raw value" with the code editor (JSON) or the system raw editor,
+  Cancel and Done.
+- Note (Directus `note`, markdown via `marked` + `dompurify`):
+  `mt-1.5 block max-w-[29.25rem] text-theme-xs text-gray-500 dark:text-gray-400`, links
+  `text-brand-500 underline hover:text-brand-600 dark:text-brand-400`, in `aria-describedby`.
+- Validation text: `mt-1.5 flex items-center gap-1 text-theme-xs text-error-600 dark:text-error-400` (Directus prefix +
+  message); with a custom `validation_message`, that text and a `help` icon button (`FOCUS_ERROR`, `aria-label` and
+  Tooltip = the default message). Linked by `aria-describedby`.
+- Hidden label (e.g. a section header shows the name): sr-only `<label>`; half widths keep a `mb-1.5 h-6` spacer.
 
 ### ValidationErrors notice (Directus `validation-errors`)
 
-- Alert error recipe; `role="alert"` when it appears after a save; title `validation_errors_notice`.
-- List `mt-2 space-y-1 text-sm`; each entry: field name as
+- Built: `components/form/ValidationErrors.vue`, `ValidationNestedGroups.vue`, `ValidationNestedGroupsList.vue`.
+- Alert error recipe (BoNotice `danger`, `role="alert"`), `col-span-full`; title
+  `mb-1 text-sm font-semibold text-gray-800 dark:text-white/90` `validation_errors_notice`.
+- List `mt-2 list-disc space-y-1 ps-5 text-sm`; each entry: field name as
   `<button type="button" class="rounded font-medium text-gray-800 underline underline-offset-2 hover:text-gray-700 FOCUS dark:text-white/90">`
-  (scrolls to the field and focuses it, as the Directus link) + the message `text-gray-500 dark:text-gray-400` (custom
-  validation messages as written).
+  (scrolls to the field and focuses it, as the Directus link; "(hidden)" / "hidden in group" suffixes as Directus) + the
+  message `text-gray-500 dark:text-gray-400` (custom validation messages as written).
+- Nested validation (Directus validation structure): a toggle `expand_circle_down` (`aria-label` `toggle`,
+  `aria-expanded`, rotated when collapsed) and nested lists (`list-disc` for "and", `list-[square]` for "or", uppercase
+  group labels, field names in `strong`).
+
+### Flow dialogs (`FlowDialogs`; Directus `flow-dialogs`)
+
+- Built: `interfaces/presentation-header/FlowDialogs.vue`; used by `presentation-header`, `presentation-links` and
+  DrawerItem.
+- Modal recipe (BoDialog): unsaved changes (`unsaved_changes`, `run_flow_on_current_edited_confirm`) with Cancel
+  (secondary) and the confirm button; custom confirmation (the flow's description as title) with the flow's fields as a
+  form grid (autofocus), Cancel and the confirm button (disabled until the required fields are filled). Enter does not
+  confirm (Directus `@apply`), the button does.
+- Result: a Notice (success / danger, `role="status"` / `"alert"`) under the dialogs (`mt-3`), because there is no
+  snackbar before feature 018 (D-45).
+- Open: BoDialog (all 013 dialogs) has no close button in the corner; Esc, the outside click and Cancel close it. The
+  Tier 1 Modal recipe has one.
 
 ## Acceptance criteria
 

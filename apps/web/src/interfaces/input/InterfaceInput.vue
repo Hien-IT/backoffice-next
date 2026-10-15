@@ -117,7 +117,7 @@ const FONTS = {
 					percentageRemaining! < 5
 						? 'text-error-600 dark:text-error-400'
 						: percentageRemaining! < 10
-							? 'text-warning-600 dark:text-warning-500'
+							? 'text-warning-700 dark:text-warning-400'
 							: 'text-gray-500 dark:text-gray-400'
 				"
 			>

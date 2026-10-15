@@ -408,7 +408,7 @@ describe('input options', () => {
 		expect(remaining.classes()).toContain('text-error-600');
 
 		await wrapper.setProps({ value: 'x'.repeat(46) });
-		expect(remaining.classes()).toContain('text-warning-600');
+		expect(remaining.classes()).toContain('text-warning-700');
 
 		// no softLength: the counter appears from 80 % of the column length on
 		const plain = mountInput({ value: 'x'.repeat(10), type: 'string', length: 100 });

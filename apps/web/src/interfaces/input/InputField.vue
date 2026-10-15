@@ -351,7 +351,7 @@ const ARROW = 'flex h-4 items-center text-gray-500 dark:text-gray-400';
 			@focus="emit('focus', $event)"
 		/>
 		<BoTooltip v-if="!nonEditable && inlineWarning" :text="inlineWarning">
-			<span data-inline-warning class="flex text-warning-600 dark:text-warning-500">
+			<span data-inline-warning class="flex text-warning-700 dark:text-warning-400">
 				<BoIcon name="warning" :label="inlineWarning" />
 			</span>
 		</BoTooltip>

@@ -26,6 +26,9 @@ export default mergeConfig(
 					test: {
 						name: 'browser',
 						include: ['src/**/*.browser.test.ts'],
+						// SC-004 timings are measured alone and without coverage (CI step "web perf", PERF=1); inside the
+						// coverage run they measure the runner's load, not the app.
+						exclude: process.env['PERF'] ? [] : ['src/**/perf.browser.test.ts'],
 						browser: {
 							enabled: true,
 							provider: 'playwright',

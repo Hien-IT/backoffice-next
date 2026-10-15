@@ -58,7 +58,7 @@ describe('input-multiline', () => {
 		// softLength 200, "Line one\nLine two" = 17 characters
 		expect(wrapper.find('[data-remaining]').text()).toBe('183');
 		await wrapper.setProps({ value: 'x'.repeat(190) });
-		expect(wrapper.find('[data-remaining]').classes()).toContain('text-warning-600');
+		expect(wrapper.find('[data-remaining]').classes()).toContain('text-warning-700');
 	});
 
 	test('option:input-multiline.trim trims on blur', async () => {

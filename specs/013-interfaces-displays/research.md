@@ -14,8 +14,8 @@ Ngày 2026-10-15. Mỗi mục: quyết định, lý do, phương án bỏ. Phiê
 | `tinymce` + `@tinymce/tinymce-vue` | 6.8.6 + 6.3.0 | MIT | `input-rich-text-html` | TinyMCE 7 đổi sang GPL-2.0+/thương mại: **giữ 6.8.6, không nâng**. Nhánh 6 không còn được bảo trì [Unverified]: ghi rủi ro ở plan, chấp nhận vì cùng HTML đầu ra với Directus |
 | `@editorjs/editorjs` 2.31.2 và 13 tool (`attaches` 1.3.2, `checklist` 1.6.0, `code` 2.9.3, `delimiter` 1.4.2, `embed` 2.7.6, `header` 2.8.8, `image` 2.10.3, `inline-code` 1.5.2, `nested-list` 1.4.3, `paragraph` 2.11.7, `quote` 2.7.6, `raw` 2.5.1, `table` 2.4.5, `underline` 1.2.1), `editorjs-toggle-block` 0.3.16 | như Directus catalog | Apache-2.0, MIT | `input-block-editor` | JSON block cùng `version`; ImageTool, AttachesTool, Alignment tune chép từ Directus |
 | `codemirror` | 5.65.18 | MIT | `input-code`, `input-rich-text-md`, `system-raw-editor` | Giá trị option `language` lưu trong DB là tên mode CM5 (`htmlmixed`, `javascript`...), CM6 phải ánh xạ: bỏ CM6. Giữ `jsonlint-mod` 1.7.6 (MIT [Unverified]) để báo lỗi JSON như Directus (release-gate CHK041) |
-| `vue-virtual-scroller` | 2.0.0-beta.8 | MIT [Unverified] | `select-icon` (cuộn ảo như Directus) | chép nguyên `select-icon.vue` (CHK042) |
-| `@fortawesome/fontawesome-svg-core` + `@fortawesome/free-brands-svg-icons` | 6.7.2 | MIT (mã), CC BY 4.0 (icon) [Unverified] | nhóm Social của `select-icon`, tên `social:*` ở display `icon` và `BoIcon` (như `social-icon.vue`) | ghi công icon trong README của `apps/web` (CHK021) |
+| `vue-virtual-scroller` | 2.0.0-beta.8 | MIT (kiểm T002) | `select-icon` (cuộn ảo như Directus) | chép nguyên `select-icon.vue` (CHK042) |
+| `@fortawesome/fontawesome-svg-core` + `@fortawesome/free-brands-svg-icons` | 6.7.2 | MIT (mã), CC BY 4.0 (icon) (kiểm T002: `(CC-BY-4.0 AND MIT)`) | nhóm Social của `select-icon`, tên `social:*` ở display `icon` và `BoIcon` (như `social-icon.vue`) | ghi công icon trong README của `apps/web` (CHK021) |
 | `maplibre-gl` 1.15.3, `@mapbox/mapbox-gl-draw` 1.5.1, `@mapbox/mapbox-gl-draw-static-mode` 1.0.1, `wellknown` 0.5.0, `@turf/meta` (bản Directus catalog), `geojson` types | như Directus | BSD-3, ISC, MIT | `map` | `maplibre-gl` 1.x cũ nhưng là bản `mapbox-gl-draw` 1.5.1 chạy cùng ở Directus; nâng là việc của Directus. `@mapbox/mapbox-gl-geocoder` 5.1.2 nạp động chỉ khi settings có `mapbox_key` |
 | `vuedraggable` | 4.1.0 | MIT | kéo đổi thứ tự (list, files, o2m, m2m, m2a, tree, collection-item-multiple) | dùng SortableJS; cách thay bằng phím: mục "lên/xuống" trong menu dòng (FR-094) |
 | `color` | 5.0.2 | MIT | `select-color`, display `color` (tương phản) | |
@@ -177,7 +177,7 @@ TailAdmin thật (không có mẫu cho các mục này).
 - Markdown: chép `input-rich-text-md` + `edits.ts`; xem trước qua `utils/markdown.ts` (012, marked + DOMPurify).
 - Map: chép `utils/geometry/*` (định dạng theo kiểu field: GeoJSON, WKT, `[lng, lat]`), `map/style.ts`, basemap
   từ `settingsStore.settings.basemaps` hoặc OpenStreetMap; WebGL cần cho MapLibre: test browser chạy chromium với
-  `--use-gl=swiftshader` hoặc `--enable-unsafe-swiftshader` [Unverified]; nếu không dựng được map trong CI thì test
+  `--use-gl=swiftshader` hoặc `--enable-unsafe-swiftshader` (T005: WebGL có sẵn trong chromium headless local, không cần cờ; CI Linux: test bản đồ tự bỏ qua nếu không có WebGL); nếu không dựng được map trong CI thì test
   chỉ phần serialize (`utils/geometry`) và mock `maplibre-gl` cho component.
 - Hash/masked: `input` masked = `type="password"`, `input-hash` không bao giờ đặt giá trị cũ vào DOM (FR-066).
 

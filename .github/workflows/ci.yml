@@ -53,6 +53,9 @@ jobs:
           else
             pnpm nx run-many -t lint typecheck test build check-bundle
           fi
+      - name: web perf (SC-004 of feature 013, alone and without coverage)
+        working-directory: apps/web
+        run: PERF=1 pnpm exec vitest run --project browser --coverage.enabled=false src/components/form/perf.browser.test.ts
       - run: pnpm run test:tools
       - run: pnpm run check-port-headers
       - run: pnpm run check-package-names

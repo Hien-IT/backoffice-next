@@ -59,9 +59,17 @@ differ from the source.
 ```bash
 pnpm nx run web:lint          # ESLint, raw colors (tools/check-raw-colors.mjs), no visible "Directus" (scripts/check-brand.mjs)
 pnpm nx run web:typecheck
-pnpm nx run web:test          # Vitest, coverage >= 60%
-pnpm nx run web:check-bundle  # entry chunk <= 350 KB gzip
+pnpm nx run web:test          # Vitest projects `unit` (happy-dom) and `browser` (chromium), coverage >= 60%
+pnpm nx run web:check-bundle  # entry chunk within the 013 budget, editors and map only in lazy chunks
 ```
+
+The `browser` project needs chromium once: `pnpm exec playwright install chromium` (from `apps/web`).
+
+## Interface and display fixtures
+
+`fixtures/interfaces/` holds the fixture set that the component tests read (feature 013): seed it into Directus or the
+Backoffice API with `pnpm nx run web:fixtures -- --api <url> --email <admin> --password <password>`, see
+`fixtures/interfaces/README.md`.
 
 ## E2E (apps/web-e2e)
 
@@ -73,6 +81,15 @@ E2E_CONFIG=proxy-directus pnpm exec playwright test   # app -> Directus 11.17.4 
 E2E_CONFIG=proxy-api pnpm exec playwright test        # app -> Backoffice API (http://127.0.0.1:8162)
 E2E_CONFIG=cors pnpm exec playwright test             # app http://localhost:8181 -> API http://127.0.0.1:8163
 ```
+
+## Map tiles and third-party editors
+
+- The map interface uses OpenStreetMap raster tiles by default (attribution `© OpenStreetMap contributors`), like
+  Directus. The OSM tile servers have a usage policy (https://operations.osmfoundation.org/policies/tiles/): for real
+  traffic set your own `basemaps` (or `mapbox_key`) in the project settings.
+- The rich text (HTML) interface is not installed yet: TinyMCE 6.8.6 (the Directus version) has high XSS advisories
+  fixed only in the GPL TinyMCE 7 (specs/013-interfaces-displays/research.md R1). Fields configured with it fall back to
+  the default interface of their type (a textarea).
 
 ## Attributions
 

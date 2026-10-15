@@ -517,7 +517,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `customFormats`, `tinymceOverrides`; chèn ảnh (URL, alt, kích thước khi `storage_asset_transform = all`, lazy, preset),
   media (video, embed), link (url, chữ, title, tab mới), sửa mã nguồn; phát HTML hoặc null; HTML lưu giữ nguyên như
   Directus (không chuẩn hóa thêm). Cấu hình TinyMCE giống Directus (`extended_valid_elements`, `convert_urls: false`...),
-  dựa vào lọc XSS sẵn có của TinyMCE 6 khi mở lại HTML [Unverified mặc định bật]; hiển thị trong bảng qua
+  dựa vào lọc XSS sẵn có của TinyMCE khi mở lại HTML (chưa cài: TinyMCE 6.8.6 có advisory XSS high, chỉ vá ở bản GPL; chờ owner,
+  research R1; field dùng interface này tạm hiện bằng interface mặc định theo kiểu); hiển thị trong bảng qua
   `formatted-value` đã khử HTML.
 - **FR-061** `input-rich-text-md` (text): `toolbar`, `placeholder`, `folder`, `imageToken`, `softLength`, `editorFont`,
   `previewFont`, `defaultView` (`editor`|`preview`), `customSyntax` (`{name, icon, prefix, suffix, box}`); phím tắt như
@@ -667,12 +668,30 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | D-58 | Layout và bộ lọc của drawer chọn item (`drawer-collection.vue`) | Layout theo preset của user (table, cards, calendar, kanban, map), thanh bộ lọc | Luôn dạng bảng (cột theo preset hoặc mặc định), tìm kiếm, phân trang, bộ lọc của interface | Layout và bộ lọc thuộc module Content; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 014 |
 | D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng (tree view thêm "Thụt vào", "Thụt ra" để đổi cha); kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
 | D-59 | Chỉnh ảnh (cắt, xoay, lật, tỉ lệ, điểm focal) trong `file-image` (`image-editor.vue`, `PATCH /files/:id` multipart) | Có khi có quyền sửa file | Chưa có nút chỉnh ảnh | Thay nội dung file thật, dùng chung với màn file của module Files; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 015 |
+| D-61 | Interface `input-rich-text-html` (TinyMCE) | TinyMCE 6.8.6 | Chưa cài; field dùng nó hiện bằng interface mặc định theo kiểu (textarea) | TinyMCE 6.8.6 có 4 advisory XSS high, chỉ vá ở TinyMCE 7 (GPL, FR-064); cổng `pnpm audit` của CI chặn; chờ owner chọn (research R1) | ngoài phạm vi (tạm thời) | khi owner chọn |
+| D-62 | Thư viện bản đồ | maplibre-gl 1.15.3 | maplibre-gl 6.14.0 | 1.15.3 có advisory XSS critical (vá ở 6.4.1); định dạng hình học lưu không đổi (GeoJSON, WKT, `[lng, lat]`), chunk bản đồ lớn hơn (496 KB gzip, tải lười) | khác | — |
+| D-63 | Field có interface ẩn nhãn (`hideLabel`, ví dụ mục accordion) | Không có nhãn | Có nhãn `sr-only` liên kết với control | WCAG 1.3.1/4.1.2 (axe `label`, FR-122) | khác | — |
+| D-64 | `input-block-editor` bị unmount trước khi Editor.js sẵn sàng | Ném lỗi (`on is not a function`) | Bỏ qua phần khởi tạo còn lại | Lỗi của Directus làm hỏng form khi đóng nhanh; không đổi dữ liệu | khác | — |
+| D-65 | `list-o2m-tree-view` sửa một dòng sau khi có item bị chuyển đi | Lấy nhầm dòng (trộn chỉ số của danh sách đã lọc với `displayItems`) | Lấy đúng dòng trong danh sách đã lọc | Tái tạo sẽ ghi sai dữ liệu; chờ owner chọn giữ D-65 hay tái tạo (R) | khác | — |
+| D-66 | Thông báo thành công/lỗi (chạy flow, tải file, nhập từ URL, lỗi tải item liên quan) | Snackbar của store notifications | Notice tại chỗ (`BoNotice`) trong interface hoặc hộp thoại | Store notifications và snackbar thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
+
+**Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (owner chọn tái tạo hành vi Directus và ghi R),
+áp cho FE từ 2026-10-15 (release-gate CHK089). Các dòng dưới tìm từ đọc code Directus 11.17.4 và có test ở app mới;
+cần tech lead duyệt khi đóng feature.
+
+| Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
+|----|----------------------|------------|--------|
+| R-34 | Handler dạng chữ của display `formatted-json-value` gọi `render(value, format)` ngược thứ tự so với component | `displays/formatted-json-value/index.ts`; test `DisplayFormattedJsonValue.test.ts` | Xuất CSV và template chữ khác chuỗi hiện trong bảng; object có `format` ném `TypeError` |
+| R-35 | `header` có đúng một link và link đó là URL nội bộ (`/...`) thì không vẽ nút (`primaryLink.href \|\| primaryLink.flow` sai vì link nội bộ chỉ có `to`) | `interfaces/presentation-header/header.vue:167,249`; test `InterfaceHeader.test.ts` | Link nội bộ duy nhất không bấm được; hai link trở lên thì có trong menu |
+| R-36 | `list` có option `sort` thì `sortBy` chạy trên mọi giá trị: giá trị không phải mảng biến thành các dòng giá trị của nó, không hiện cảnh báo `incompatible_data` | `interfaces/list/list.vue:105,109`; test `InterfaceList.test.ts` "with `sort` set" | Dữ liệu lệch dạng hiện như các dòng rác; thêm dòng thì ghi đè (có cảnh báo console) |
+| R-37 | `list-m2a` hiện "Create New" khi có ít nhất một collection cho tạo, nhưng menu liệt kê mọi collection cho phép (`allowedCollections`), kể cả collection không có quyền `create` | `interfaces/list-m2a/list-m2a.vue`; test `relations.fixture.test.ts` (bo-editor) | User chọn collection không có quyền tạo; API trả 403 khi lưu |
 
 **Cần xác nhận** (đang giữ nguyên):
 
 - Mặc định dữ liệu có hex trong code của Directus (`select-color.presets` 9 màu, `color.defaultColor` `#B0BEC5`) là giá
   trị dữ liệu, giữ nguyên để giống Directus; cần tech lead đồng ý cho các hằng này đi qua `check-raw-colors` (Q-C).
-  Danh sách miễn chỉ có một nguồn: `tools/check-raw-colors.mjs` (đường dẫn file và tên hằng); spec và plan trỏ tới đó.
+  Cách miễn chỉ có một: đánh dấu cuối dòng `raw-color-allowed: Directus data default (Q-C)` mà `tools/check-raw-colors.mjs`
+  đã hỗ trợ (grep được), áp cho `select-color` presets, `color.defaultColor` và hằng tương tự (T006).
 - Preset mặc định tên `purple` `#6644FF` là màu thương hiệu Directus nhưng là dữ liệu người dùng chọn: giữ.
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
@@ -757,7 +776,8 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
 - **SC-003**: 100% khóa options và display_options liệt kê ở FR-020 đến FR-079 có ít nhất một test đọc giá trị đã lưu
   và kiểm hiệu ứng của nó (khóa thẩm mỹ như `font`, `bordered`, `iconLeft`: kiểm class, attribute hoặc style trên DOM).
 - **SC-004**: Form 50 field vẽ xong trong dưới 1 giây sau khi dữ liệu đã nạp; bảng 100 hàng × 10 cột có display vẽ xong
-  trong dưới 1 giây. Điều kiện đo: chromium trên CI, API giả lập đã có dữ liệu, lần dựng đầu, trung vị 3 lần.
+  trong dưới 1 giây. Điều kiện đo: chromium trên CI, API giả lập đã có dữ liệu, lần dựng đầu, trung vị 3 lần,
+  chạy riêng một bước CI không coverage (`PERF=1`); trong lượt test có coverage, số đo phản ánh tải của máy CI.
 - **SC-005**: axe 0 vi phạm mức serious/critical trên form và bảng mẫu ở sáng và tối; mọi interface thao tác được chỉ
   bằng bàn phím theo danh sách thao tác ở `contracts/tests.md` §5 (kiểm trong test component). Ngoại lệ axe chỉ cho phần
   của thư viện bên thứ ba và màu dữ liệu, ghi rule id và lý do trong file test, tech lead duyệt.

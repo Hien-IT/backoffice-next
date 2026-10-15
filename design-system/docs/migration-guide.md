@@ -77,87 +77,125 @@ were rewritten. `apps/web` still has its own copy of the old tokens (`src/styles
 The pairs used by the final recipes (`component-specs.md`, `layout-patterns.md`, the `menu-*` utilities), computed from
 `tokens/tokens.json`: alpha colors are composited on the stated background, the dark page is `gray-900`. Text needs
 4.5:1 (no use here is large text); input boundaries, toggle tracks, icons that carry meaning and focus indicators need
-3:1 (WCAG 1.4.11). Disabled controls are exempt. All pairs pass. Add a row (and recompute) for any new pair.
+3:1 (WCAG 1.4.11). Disabled controls are exempt. All pairs pass except the three rows marked "fail", which are open
+points of feature 013 for the design owner. Add a row (and recompute) for any new pair.
 
-| Mode  | Foreground       | Background            | Use                                                             | Ratio   | Needed | Result |
-| ----- | ---------------- | --------------------- | --------------------------------------------------------------- | ------- | ------ | ------ |
-| light | `white`          | `brand-500`           | Primary button, solid primary badge, checked checkbox/toggle    | 4.84:1  | 4.5:1  | pass   |
-| light | `white`          | `brand-600`           | Primary button hover                                            | 6.50:1  | 4.5:1  | pass   |
-| light | `brand-500`      | `white`               | Link                                                            | 4.84:1  | 4.5:1  | pass   |
-| light | `brand-600`      | `brand-50`            | Active menu item and icon, light primary badge, selected option | 5.83:1  | 4.5:1  | pass   |
-| light | `gray-800`       | `white`               | Titles, input value                                             | 14.70:1 | 4.5:1  | pass   |
-| light | `gray-700`       | `white`               | Labels, inactive menu item, outline button                      | 10.46:1 | 4.5:1  | pass   |
-| light | `gray-500`       | `white`               | Secondary text, hints, placeholder, table header, "MENU" label  | 4.97:1  | 4.5:1  | pass   |
-| light | `gray-500`       | `gray-50`             | Secondary text on page background, hovered table row            | 4.76:1  | 4.5:1  | pass   |
-| light | `gray-500`       | `gray-100`            | Modal close icon, avatar fallback icon                          | 4.51:1  | 4.5:1  | pass   |
-| light | `gray-700`       | `gray-100`            | Light "light" badge                                             | 9.49:1  | 4.5:1  | pass   |
-| light | `error-600`      | `white`               | Field error message, required mark                              | 4.83:1  | 4.5:1  | pass   |
-| light | `success-700`    | `white`               | Field success message                                           | 5.41:1  | 4.5:1  | pass   |
-| light | `success-700`    | `success-50`          | Light success badge                                             | 5.13:1  | 4.5:1  | pass   |
-| light | `warning-700`    | `warning-50`          | Light warning badge                                             | 5.20:1  | 4.5:1  | pass   |
-| light | `error-700`      | `error-50`            | Light error badge                                               | 6.05:1  | 4.5:1  | pass   |
-| light | `blue-light-700` | `blue-light-50`       | Light info badge                                                | 5.49:1  | 4.5:1  | pass   |
-| light | `gray-500`       | `error-50`            | Alert message (lowest of the four tints)                        | 4.58:1  | 4.5:1  | pass   |
-| light | `white`          | `success-700`         | Solid success badge/button                                      | 5.41:1  | 4.5:1  | pass   |
-| light | `white`          | `warning-700`         | Solid warning badge/button                                      | 5.43:1  | 4.5:1  | pass   |
-| light | `white`          | `error-600`           | Danger button, solid error badge                                | 4.83:1  | 4.5:1  | pass   |
-| light | `white`          | `error-700`           | Danger button hover                                             | 6.57:1  | 4.5:1  | pass   |
-| light | `white`          | `blue-light-700`      | Solid info badge                                                | 5.86:1  | 4.5:1  | pass   |
-| light | `white`          | `gray-500`            | Solid light badge, light "dark" badge                           | 4.97:1  | 4.5:1  | pass   |
-| light | `white`          | `gray-700`            | Solid dark badge                                                | 10.46:1 | 4.5:1  | pass   |
-| light | `white`          | `gray-900`            | Tooltip                                                         | 17.75:1 | 4.5:1  | pass   |
-| light | `gray-500`       | `white`               | Input, select, textarea, checkbox border; toggle off track      | 4.97:1  | 3:1    | pass   |
-| light | `brand-500`      | `white`               | Focus outline, input focus border                               | 4.84:1  | 3:1    | pass   |
-| light | `brand-500`      | `gray-50`             | Focus outline on page background                                | 4.63:1  | 3:1    | pass   |
-| light | `error-600`      | `white`               | Invalid input border, error focus outline                       | 4.83:1  | 3:1    | pass   |
-| light | `success-600`    | `white`               | Valid input border                                              | 3.73:1  | 3:1    | pass   |
-| light | `success-600`    | `success-50`          | Alert icon (lowest: warning-600 below)                          | 3.54:1  | 3:1    | pass   |
-| light | `warning-600`    | `warning-50`          | Alert icon                                                      | 3.34:1  | 3:1    | pass   |
-| light | `gray-700`       | `gray-50`             | Upload dropzone text (013)                                      | 10.01:1 | 4.5:1  | pass   |
-| light | `gray-700`       | `brand-50`            | Upload dropzone text and hint while dragging (013)              | 9.38:1  | 4.5:1  | pass   |
-| light | `gray-800`       | `error-50`            | ValidationErrors field name (013)                               | 13.52:1 | 4.5:1  | pass   |
-| light | `warning-700`    | `white`               | Soft-length counter, under 10 % left (013)                      | 5.43:1  | 4.5:1  | pass   |
-| light | `white`          | `gray-900/0.95`       | Lightbox title and icons, composited over white (013)           | 15.63:1 | 4.5:1  | pass   |
-| light | `white`          | `white/0.1`           | Lightbox button on the lightbox background (013)                | 11.50:1 | 4.5:1  | pass   |
-| light | `warning-600`    | `white`               | Rating filled star (013; on `gray-50` 3.34:1)                   | 3.49:1  | 3:1    | pass   |
-| light | `brand-500`      | `gray-200`            | Slider range and upload progress bar on the track (013)         | 3.90:1  | 3:1    | pass   |
-| light | `brand-500`      | `gray-900/0.95`       | Focus outline in the lightbox (013)                             | 3.23:1  | 3:1    | pass   |
-| dark  | `white/0.9`      | `gray-900`            | Titles, input value                                             | 14.46:1 | 4.5:1  | pass   |
-| dark  | `gray-400`       | `gray-900`            | Secondary text, labels, hints, placeholder                      | 6.89:1  | 4.5:1  | pass   |
-| dark  | `gray-300`       | `gray-900`            | Inactive menu item                                              | 12.04:1 | 4.5:1  | pass   |
-| dark  | `brand-400`      | `brand-500/0.12`      | Active menu item                                                | 5.52:1  | 4.5:1  | pass   |
-| dark  | `brand-400`      | `gray-900`            | Link                                                            | 6.18:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `white/0.03`          | Secondary text in card                                          | 6.41:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `gray-dark`           | Dropdown item                                                   | 6.19:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `gray-800`            | Outline button, avatar fallback icon                            | 5.71:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `white/0.05`          | Modal close icon                                                | 6.07:1  | 4.5:1  | pass   |
-| dark  | `error-400`      | `gray-900`            | Field error message                                             | 6.37:1  | 4.5:1  | pass   |
-| dark  | `success-400`    | `gray-900`            | Field success message                                           | 9.28:1  | 4.5:1  | pass   |
-| dark  | `success-400`    | `success-500/0.15`    | Light success badge                                             | 7.38:1  | 4.5:1  | pass   |
-| dark  | `warning-400`    | `warning-500/0.15`    | Light warning badge                                             | 7.63:1  | 4.5:1  | pass   |
-| dark  | `error-400`      | `error-500/0.15`      | Light error badge                                               | 5.54:1  | 4.5:1  | pass   |
-| dark  | `blue-light-400` | `blue-light-500/0.15` | Light info badge                                                | 6.73:1  | 4.5:1  | pass   |
-| dark  | `brand-400`      | `brand-500/0.15`      | Light primary badge, selected option                            | 5.34:1  | 4.5:1  | pass   |
-| dark  | `white/0.8`      | `white/0.05`          | Light "light" badge, solid light badge                          | 10.44:1 | 4.5:1  | pass   |
-| dark  | `gray-400`       | `error-500/0.15`      | Alert message (lowest: warning tint below)                      | 6.00:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `warning-500/0.15`    | Alert message                                                   | 5.45:1  | 4.5:1  | pass   |
-| dark  | `white/0.9`      | `gray-800`            | Tooltip                                                         | 12.16:1 | 4.5:1  | pass   |
-| dark  | `gray-500`       | `gray-900`            | Input, checkbox border; toggle off track                        | 3.57:1  | 3:1    | pass   |
-| dark  | `gray-500`       | `white/0.03`          | Input border inside a card                                      | 3.32:1  | 3:1    | pass   |
-| dark  | `brand-500`      | `gray-900`            | Toggle on track                                                 | 3.67:1  | 3:1    | pass   |
-| dark  | `brand-400`      | `gray-900`            | Focus outline, input focus border                               | 6.18:1  | 3:1    | pass   |
-| dark  | `brand-400`      | `gray-800`            | Focus outline on gray-800                                       | 5.12:1  | 3:1    | pass   |
-| dark  | `error-400`      | `gray-900`            | Invalid input border, error focus outline                       | 6.37:1  | 3:1    | pass   |
-| dark  | `success-400`    | `gray-900`            | Valid input border                                              | 9.28:1  | 3:1    | pass   |
-| dark  | `white/0.9`      | `gray-dark`           | Popover titles: calendar heading, user popover name (013)       | 13.11:1 | 4.5:1  | pass   |
-| dark  | `gray-300`       | `gray-dark`           | Calendar day (013)                                              | 10.81:1 | 4.5:1  | pass   |
-| dark  | `brand-400`      | `gray-dark`           | Calendar today, user popover link (013)                         | 5.55:1  | 4.5:1  | pass   |
-| dark  | `brand-400`      | `brand-500/0.15`      | Selected icon in the icon picker, over `gray-dark` (013)        | 4.79:1  | 4.5:1  | pass   |
-| dark  | `gray-400`       | `brand-500/0.12`      | Upload dropzone text while dragging (013)                       | 6.15:1  | 4.5:1  | pass   |
-| dark  | `white/0.9`      | `error-500/0.15`      | ValidationErrors field name (013)                               | 12.73:1 | 4.5:1  | pass   |
-| dark  | `warning-400`    | `gray-900`            | Soft-length counter (013); rating star (3:1 use)                | 9.64:1  | 4.5:1  | pass   |
-| dark  | `gray-300`       | `white/0.1`           | Chip delete button hover (013)                                  | 9.09:1  | 4.5:1  | pass   |
-| dark  | `gray-500`       | `gray-dark`           | Input border inside a popover (013)                             | 3.21:1  | 3:1    | pass   |
+| Mode  | Foreground       | Background            | Use                                                                                                       | Ratio   | Needed | Result |
+| ----- | ---------------- | --------------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------ | ------ |
+| light | `white`          | `brand-500`           | Primary button, solid primary badge, checked checkbox/toggle                                              | 4.84:1  | 4.5:1  | pass   |
+| light | `white`          | `brand-600`           | Primary button hover                                                                                      | 6.50:1  | 4.5:1  | pass   |
+| light | `brand-500`      | `white`               | Link                                                                                                      | 4.84:1  | 4.5:1  | pass   |
+| light | `brand-600`      | `brand-50`            | Active menu item and icon, light primary badge, selected option                                           | 5.83:1  | 4.5:1  | pass   |
+| light | `gray-800`       | `white`               | Titles, input value                                                                                       | 14.70:1 | 4.5:1  | pass   |
+| light | `gray-700`       | `white`               | Labels, inactive menu item, outline button                                                                | 10.46:1 | 4.5:1  | pass   |
+| light | `gray-500`       | `white`               | Secondary text, hints, placeholder, table header, "MENU" label                                            | 4.97:1  | 4.5:1  | pass   |
+| light | `gray-500`       | `gray-50`             | Secondary text on page background, hovered table row                                                      | 4.76:1  | 4.5:1  | pass   |
+| light | `gray-500`       | `gray-100`            | Modal close icon, avatar fallback icon                                                                    | 4.51:1  | 4.5:1  | pass   |
+| light | `gray-700`       | `gray-100`            | Light "light" badge                                                                                       | 9.49:1  | 4.5:1  | pass   |
+| light | `error-600`      | `white`               | Field error message, required mark                                                                        | 4.83:1  | 4.5:1  | pass   |
+| light | `success-700`    | `white`               | Field success message                                                                                     | 5.41:1  | 4.5:1  | pass   |
+| light | `success-700`    | `success-50`          | Light success badge                                                                                       | 5.13:1  | 4.5:1  | pass   |
+| light | `warning-700`    | `warning-50`          | Light warning badge                                                                                       | 5.20:1  | 4.5:1  | pass   |
+| light | `error-700`      | `error-50`            | Light error badge                                                                                         | 6.05:1  | 4.5:1  | pass   |
+| light | `blue-light-700` | `blue-light-50`       | Light info badge                                                                                          | 5.49:1  | 4.5:1  | pass   |
+| light | `gray-500`       | `error-50`            | Alert message (lowest of the four tints)                                                                  | 4.58:1  | 4.5:1  | pass   |
+| light | `white`          | `success-700`         | Solid success badge/button                                                                                | 5.41:1  | 4.5:1  | pass   |
+| light | `white`          | `warning-700`         | Solid warning badge/button                                                                                | 5.43:1  | 4.5:1  | pass   |
+| light | `white`          | `error-600`           | Danger button, solid error badge                                                                          | 4.83:1  | 4.5:1  | pass   |
+| light | `white`          | `error-700`           | Danger button hover                                                                                       | 6.57:1  | 4.5:1  | pass   |
+| light | `white`          | `blue-light-700`      | Solid info badge                                                                                          | 5.86:1  | 4.5:1  | pass   |
+| light | `white`          | `gray-500`            | Solid light badge, light "dark" badge                                                                     | 4.97:1  | 4.5:1  | pass   |
+| light | `white`          | `gray-700`            | Solid dark badge                                                                                          | 10.46:1 | 4.5:1  | pass   |
+| light | `white`          | `gray-900`            | Tooltip                                                                                                   | 17.75:1 | 4.5:1  | pass   |
+| light | `gray-500`       | `white`               | Input, select, textarea, checkbox border; toggle off track                                                | 4.97:1  | 3:1    | pass   |
+| light | `brand-500`      | `white`               | Focus outline, input focus border                                                                         | 4.84:1  | 3:1    | pass   |
+| light | `brand-500`      | `gray-50`             | Focus outline on page background                                                                          | 4.63:1  | 3:1    | pass   |
+| light | `error-600`      | `white`               | Invalid input border, error focus outline                                                                 | 4.83:1  | 3:1    | pass   |
+| light | `success-600`    | `white`               | Valid input border                                                                                        | 3.73:1  | 3:1    | pass   |
+| light | `success-600`    | `success-50`          | Alert icon (lowest: warning-600 below)                                                                    | 3.54:1  | 3:1    | pass   |
+| light | `warning-600`    | `warning-50`          | Alert icon                                                                                                | 3.34:1  | 3:1    | pass   |
+| light | `gray-700`       | `gray-50`             | Upload dropzone text (013)                                                                                | 10.01:1 | 4.5:1  | pass   |
+| light | `gray-700`       | `brand-50`            | Upload dropzone text and hint while dragging (013)                                                        | 9.38:1  | 4.5:1  | pass   |
+| light | `gray-800`       | `error-50`            | ValidationErrors field name (013)                                                                         | 13.52:1 | 4.5:1  | pass   |
+| light | `warning-700`    | `white`               | Soft-length counter, under 10 % left (013)                                                                | 5.43:1  | 4.5:1  | pass   |
+| light | `white`          | `gray-900/0.95`       | Lightbox title and icons, composited over white (013)                                                     | 15.63:1 | 4.5:1  | pass   |
+| light | `white`          | `white/0.1`           | Lightbox button on the lightbox background (013)                                                          | 11.50:1 | 4.5:1  | pass   |
+| light | `warning-600`    | `white`               | Rating filled star (013; on `gray-50` 3.34:1)                                                             | 3.49:1  | 3:1    | pass   |
+| light | `brand-500`      | `gray-200`            | Slider range and upload progress bar on the track (013)                                                   | 3.90:1  | 3:1    | pass   |
+| light | `brand-500`      | `gray-900/0.95`       | Focus outline in the lightbox (013)                                                                       | 3.23:1  | 3:1    | pass   |
+| light | `gray-800`       | `brand-50`            | Radio "other" row selected, input text (013)                                                              | 13.18:1 | 4.5:1  | pass   |
+| light | `brand-500`      | `brand-50`            | Radio "other" icon when selected (013)                                                                    | 4.34:1  | 3:1    | pass   |
+| light | `gray-800`       | `gray-100`            | Radio "other" text not selected, markdown inline code (013)                                               | 13.34:1 | 4.5:1  | pass   |
+| light | `brand-600`      | `white`               | Calendar today, active tab, CodeMirror keyword, markdown heading (013; on `gray-50` 6.22)                 | 6.50:1  | 4.5:1  | pass   |
+| light | `brand-600`      | `gray-100`            | Calendar today hovered, fill-template button hovered (013)                                                | 5.90:1  | 4.5:1  | pass   |
+| light | `gray-700`       | `gray-200`            | Chip delete button and selected tag preset hovered (013)                                                  | 8.44:1  | 4.5:1  | pass   |
+| light | `error-600`      | `gray-100`            | Remove button icon hovered (013)                                                                          | 4.38:1  | 3:1    | pass   |
+| light | `error-700`      | `white`               | User popover error, CodeMirror string (013; on `gray-50` 6.29)                                            | 6.57:1  | 4.5:1  | pass   |
+| light | `blue-light-700` | `gray-50`             | CodeMirror atom / def on the active line (013; on white 5.86)                                             | 5.60:1  | 4.5:1  | pass   |
+| light | `success-700`    | `gray-50`             | CodeMirror number / type on the active line (013)                                                         | 5.18:1  | 4.5:1  | pass   |
+| light | `warning-700`    | `gray-50`             | CodeMirror comment on the active line (013)                                                               | 5.19:1  | 4.5:1  | pass   |
+| light | `orange-700`     | `gray-50`             | CodeMirror property on the active line (013; on white 5.52)                                               | 5.28:1  | 4.5:1  | pass   |
+| light | `gray-800`       | `brand-100`           | CodeMirror selected text (013)                                                                            | 12.02:1 | 4.5:1  | pass   |
+| light | `brand-500`      | `gray-100`            | Progress bar on its track: language select, upload (013)                                                  | 4.39:1  | 3:1    | pass   |
+| light | `error-500`      | `gray-100`            | Translations display progress up to 33 % (013)                                                            | 3.41:1  | 3:1    | pass   |
+| light | `warning-500`    | `gray-100`            | Translations display progress 34–66 % (013, Directus colors; open point)                                  | 2.13:1  | 3:1    | fail   |
+| light | `success-500`    | `gray-100`            | Translations display progress above 66 % (013, Directus colors; open point)                               | 2.38:1  | 3:1    | fail   |
+| light | `warning-600`    | `white`               | `input` / `input-multiline` counter under 10 % left (013, code; recipe warning-700; open point)           | 3.49:1  | 4.5:1  | fail   |
+| dark  | `white/0.9`      | `gray-900`            | Titles, input value                                                                                       | 14.46:1 | 4.5:1  | pass   |
+| dark  | `gray-400`       | `gray-900`            | Secondary text, labels, hints, placeholder                                                                | 6.89:1  | 4.5:1  | pass   |
+| dark  | `gray-300`       | `gray-900`            | Inactive menu item                                                                                        | 12.04:1 | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500/0.12`      | Active menu item                                                                                          | 5.52:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `gray-900`            | Link                                                                                                      | 6.18:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `white/0.03`          | Secondary text in card                                                                                    | 6.41:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `gray-dark`           | Dropdown item                                                                                             | 6.19:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `gray-800`            | Outline button, avatar fallback icon                                                                      | 5.71:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `white/0.05`          | Modal close icon                                                                                          | 6.07:1  | 4.5:1  | pass   |
+| dark  | `error-400`      | `gray-900`            | Field error message                                                                                       | 6.37:1  | 4.5:1  | pass   |
+| dark  | `success-400`    | `gray-900`            | Field success message                                                                                     | 9.28:1  | 4.5:1  | pass   |
+| dark  | `success-400`    | `success-500/0.15`    | Light success badge                                                                                       | 7.38:1  | 4.5:1  | pass   |
+| dark  | `warning-400`    | `warning-500/0.15`    | Light warning badge                                                                                       | 7.63:1  | 4.5:1  | pass   |
+| dark  | `error-400`      | `error-500/0.15`      | Light error badge                                                                                         | 5.54:1  | 4.5:1  | pass   |
+| dark  | `blue-light-400` | `blue-light-500/0.15` | Light info badge                                                                                          | 6.73:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500/0.15`      | Light primary badge, selected option                                                                      | 5.34:1  | 4.5:1  | pass   |
+| dark  | `white/0.8`      | `white/0.05`          | Light "light" badge, solid light badge                                                                    | 10.44:1 | 4.5:1  | pass   |
+| dark  | `gray-400`       | `error-500/0.15`      | Alert message (lowest: warning tint below)                                                                | 6.00:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `warning-500/0.15`    | Alert message                                                                                             | 5.45:1  | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `gray-800`            | Tooltip                                                                                                   | 12.16:1 | 4.5:1  | pass   |
+| dark  | `gray-500`       | `gray-900`            | Input, checkbox border; toggle off track                                                                  | 3.57:1  | 3:1    | pass   |
+| dark  | `gray-500`       | `white/0.03`          | Input border inside a card                                                                                | 3.32:1  | 3:1    | pass   |
+| dark  | `brand-500`      | `gray-900`            | Toggle on track                                                                                           | 3.67:1  | 3:1    | pass   |
+| dark  | `brand-400`      | `gray-900`            | Focus outline, input focus border                                                                         | 6.18:1  | 3:1    | pass   |
+| dark  | `brand-400`      | `gray-800`            | Focus outline on gray-800                                                                                 | 5.12:1  | 3:1    | pass   |
+| dark  | `error-400`      | `gray-900`            | Invalid input border, error focus outline                                                                 | 6.37:1  | 3:1    | pass   |
+| dark  | `success-400`    | `gray-900`            | Valid input border                                                                                        | 9.28:1  | 3:1    | pass   |
+| dark  | `white/0.9`      | `gray-dark`           | Popover titles: calendar heading, user popover name (013)                                                 | 13.11:1 | 4.5:1  | pass   |
+| dark  | `gray-300`       | `gray-dark`           | Calendar day (013)                                                                                        | 10.81:1 | 4.5:1  | pass   |
+| dark  | `brand-400`      | `gray-dark`           | Calendar today, user popover link (013)                                                                   | 5.55:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500/0.15`      | Selected icon in the icon picker, over `gray-dark` (013)                                                  | 4.79:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `brand-500/0.12`      | Upload dropzone text while dragging (013)                                                                 | 6.15:1  | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `error-500/0.15`      | ValidationErrors field name (013)                                                                         | 12.73:1 | 4.5:1  | pass   |
+| dark  | `warning-400`    | `gray-900`            | Soft-length counter (013); rating star (3:1 use)                                                          | 9.64:1  | 4.5:1  | pass   |
+| dark  | `gray-300`       | `white/0.1`           | Chip delete button hover (013)                                                                            | 9.09:1  | 4.5:1  | pass   |
+| dark  | `gray-500`       | `gray-dark`           | Input border inside a popover (013)                                                                       | 3.21:1  | 3:1    | pass   |
+| dark  | `white/0.9`      | `brand-500/0.15`      | Radio "other" row selected (013)                                                                          | 12.63:1 | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `white/0.05`          | Radio "other" text not selected (013)                                                                     | 12.87:1 | 4.5:1  | pass   |
+| dark  | `gray-300`       | `white/0.05`          | Calendar day hovered, over `gray-dark` (013)                                                              | 9.37:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `white/0.05`          | Calendar today hovered, over `gray-dark`; progress bar on its track (3:1 use; over `gray-900` 5.44) (013) | 4.81:1  | 4.5:1  | pass   |
+| dark  | `brand-300`      | `white/0.05`          | Fill-template button hovered (013)                                                                        | 8.04:1  | 4.5:1  | pass   |
+| dark  | `error-400`      | `white/0.05`          | Remove button icon hovered (013)                                                                          | 5.61:1  | 3:1    | pass   |
+| dark  | `error-400`      | `white/0.03`          | Deleted row text in a relational list (013)                                                               | 5.92:1  | 4.5:1  | pass   |
+| dark  | `error-400`      | `gray-dark`           | User popover error (013)                                                                                  | 5.72:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `white/0.03`          | CodeMirror keyword on the active line (013; lowest syntax color, on `gray-900` 6.18)                      | 5.75:1  | 4.5:1  | pass   |
+| dark  | `blue-light-400` | `gray-900`            | CodeMirror atom / def (013; active line 7.85)                                                             | 8.44:1  | 4.5:1  | pass   |
+| dark  | `orange-400`     | `gray-900`            | CodeMirror property (013; active line 6.75)                                                               | 7.26:1  | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `gray-700`            | CodeMirror selected text (013)                                                                            | 8.84:1  | 4.5:1  | pass   |
+| dark  | `gray-400`       | `white/0.05`          | Markdown edit / preview toggle idle, over the toolbar `white/0.03` (013)                                  | 5.58:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500/0.15`      | Map control pressed, over `gray-800` (013, icon)                                                          | 4.43:1  | 3:1    | pass   |
+| dark  | `brand-400`      | `gray-800`            | Slider range on its track (013)                                                                           | 5.12:1  | 3:1    | pass   |
+| dark  | `error-500`      | `white/0.05`          | Translations display progress up to 33 %, over `gray-dark` (013)                                          | 3.68:1  | 3:1    | pass   |
+| dark  | `warning-500`    | `white/0.05`          | Translations display progress 34–66 %, over `gray-dark` (013)                                             | 5.89:1  | 3:1    | pass   |
+| dark  | `success-500`    | `white/0.05`          | Translations display progress above 66 %, over `gray-dark` (013)                                          | 5.27:1  | 3:1    | pass   |
+| dark  | `warning-500`    | `gray-900`            | `input` / `input-multiline` counter under 10 % left (013)                                                 | 7.56:1  | 4.5:1  | pass   |
 
 TailAdmin values replaced because they failed: placeholder gray-400 (2.58) / white/30 (2.70); field error-500 (3.76) and
 success-500 (2.62) text; light badge text -500/-600 (2.59–4.44); active menu brand-500 on brand-50 (4.34); dark
@@ -167,10 +205,16 @@ close icon gray-400 on gray-100. Card and table borders (gray-200 / gray-800) ar
 values.
 
 Rows marked "013" come from the Tier 3 draft recipes (`component-specs.md`, "Tier 3 recipes, nháp (013)") and the
-form/drawer draft (`layout-patterns.md` §8), computed from `tokens/theme.css` the same way. Avoided in those drafts
-because they fail: `gray-500` on `brand-50` (4.46:1, so selected table rows use `gray-50` and the dropzone hint turns
-`gray-700` while dragging); `gray-500` text on `gray-dark` (3.21:1, so dark calendar days use `gray-300` / `gray-400`);
-the `warning-500` edited dot of research R6 (the Directus subdued `gray-500` / dark `gray-400` dot is used).
+form/drawer draft (`layout-patterns.md` §8), checked against the components as built (T098) and computed from
+`tokens/theme.css` the same way (sRGB, alpha composited on the stated background). Colors that come from data (choice
+colors, chip colors, color values) are not in the table: they are applied as is like Directus (Q-C, accepted axe
+exception in `apps/web/src/components/form/a11y.browser.test.ts`). The three "fail" rows are open points of the 013
+design review (`specs/013-interfaces-displays/design-review/README.md`): the Directus `colorful` progress colors of the
+translations display in light mode, and the `warning-600` counter text of `input` / `input-multiline`, which differs
+from the recipe (`warning-700`). Avoided in those drafts because they fail: `gray-500` on `brand-50` (4.46:1, so
+selected table rows use `gray-50` and the dropzone hint turns `gray-700` while dragging); `gray-500` text on `gray-dark`
+(3.21:1, so dark calendar days use `gray-300` / `gray-400`); the `warning-500` edited dot of research R6 (the Directus
+subdued `gray-500` / dark `gray-400` dot is used).
 
 ## Decisions (project owner, 2026-10-15)
 

@@ -103,7 +103,7 @@ const FONTS = {
 			data-remaining
 			class="pointer-events-none absolute end-2.5 bottom-1.5 text-sm font-semibold tabular-nums"
 			:class="
-				percentageRemaining! < 10 ? 'text-warning-600 dark:text-warning-500' : 'text-gray-500 dark:text-gray-400'
+				percentageRemaining! < 10 ? 'text-warning-700 dark:text-warning-400' : 'text-gray-500 dark:text-gray-400'
 			"
 		>
 			{{ charsRemaining }}
