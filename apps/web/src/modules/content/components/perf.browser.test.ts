@@ -1,6 +1,7 @@
 // T030 (FR-004, layout-patterns §9): first render of the collection tree with 300 collections (30 open folders of 10)
 // and 100 bookmarks, stores already filled. Time from mount to a settled frame (promises flushed, two animation
-// frames); the median of 3 runs must stay under 500 ms. Runs only with PERF=1 (vitest.config.ts).
+// frames); the median of 3 runs must stay under 500 ms on the reference machine (scaled by machineFactor(),
+// test-utils/perf.ts). Runs only with PERF=1 (vitest.config.ts).
 import type { Preset } from '@directus/types';
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -11,6 +12,7 @@ import { type Collection, useCollectionsStore } from '../../../stores/collection
 import { usePresetsStore } from '../../../stores/presets.ts';
 import { useUserStore } from '../../../stores/user.ts';
 import '../../../styles/index.css';
+import { machineFactor } from '../../../test-utils/perf.ts';
 import { useNavigation } from '../composables/use-navigation.ts';
 import ContentNavigation from './ContentNavigation.vue';
 
@@ -68,7 +70,10 @@ test('300 collections and 100 bookmarks render under 500 ms', async () => {
 	}
 
 	const median = [...timings].sort((a, b) => a - b)[Math.floor(RUNS / 2)]!;
+	const factor = machineFactor();
 	// eslint-disable-next-line no-console
-	console.log(`ContentNavigation 300 collections + 100 bookmarks: ${timings.map((t) => t.toFixed(0)).join(', ')} ms`);
-	expect(median).toBeLessThan(BUDGET_MS);
+	console.log(
+		`ContentNavigation 300 collections + 100 bookmarks: ${timings.map((t) => t.toFixed(0)).join(', ')} ms (machine factor ${factor.toFixed(2)})`,
+	);
+	expect(median).toBeLessThan(BUDGET_MS * factor);
 });

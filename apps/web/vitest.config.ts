@@ -23,6 +23,8 @@ export default mergeConfig(
 				},
 				{
 					extends: true,
+					// PERF: time the production build of Vue (what users run), not its dev checks and devtools hooks.
+					...(process.env['PERF'] ? { define: { 'process.env.NODE_ENV': '"production"' } } : {}),
 					test: {
 						name: 'browser',
 						include: ['src/**/*.browser.test.ts'],

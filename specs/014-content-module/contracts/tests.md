@@ -93,7 +93,7 @@ Số request kỳ vọng: đổi trang và sắp xếp = 1 danh sách, 0 đếm;
 ## 6. Cổng CI
 
 `web:lint` (ESLint, `check-raw-colors`, `check-brand`), `web:typecheck`, `web:test` (unit + browser, coverage ≥ 60 %),
-`web:build` + `check-bundle` (ngân sách R14), `web perf` (`PERF=1` thêm `layouts/tabular/perf.browser.test.ts`),
+`web:build` + `check-bundle` (ngân sách R14), `web perf` (`PERF=1` thêm `layouts/tabular/perf.browser.test.ts`, ngân sách nhân hệ số máy của R14),
 `check-port-headers`, `guard-directus-unchanged`, `e2e-web` (ba cấu hình + bước seed `bo_*` trước; payload ở
 proxy-api), parity `web` (`fixtures-seed`), `e2e-directus-app` giữ nguyên; `benchmark.yml` job `benchmark-web`
 không chặn.

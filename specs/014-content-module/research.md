@@ -252,7 +252,14 @@ nhóm…", "Chuyển trái/phải"): overlay `vi-VN` + `en-US` như D-60.
 - Chunk lười: route item, route collection; layout `calendar` (FullCalendar ≈ 90 KB gzip [Unverified]), `map`
   (maplibre 013), `kanban`, `cards`; split panel + live preview; `system-filter`; hộp so sánh. `check-bundle.mjs`
   thêm ngân sách: chunk chính 013 + ≤ 60 KB.
-- SC-011: `layouts/tabular/perf.browser.test.ts` 1000 × 10 (`PERF=1`, trung vị 3).
+- SC-011: `layouts/tabular/perf.browser.test.ts` 1000 × 10 (`PERF=1`; một lần đo sau một lần mount khởi động).
+  Kết quả 2026-10-15: máy CI GitHub chậm hơn Mac dev khoảng 5 lần (cây collection 992 ms trên CI so với 170 ms
+  trên local; bảng 7,3 s so với 1,8 s). Owner chọn (2026-10-15) hệ số máy: ngân sách giữ cho máy tham chiếu (Mac dev
+  Apple M-series), `src/test-utils/perf.ts` `machineFactor()` đo một tải DOM + JS cố định (trung vị 5) chia cho
+  `REFERENCE_MS` = 55 đo trên máy tham chiếu, ngân sách nhân hệ số (không dưới 1); áp cho bảng SC-011 và cây
+  collection (T030). Bước `web perf` chạy Vue bản production (`PERF=1` đặt `process.env.NODE_ENV`), mount bằng
+  `createApp` (không qua `@vue/test-utils`: hook theo tên component tốn khoảng một phần ba thời gian). Sau thay đổi:
+  bảng 0,9–1,1 s, cây khoảng 100 ms trên máy tham chiếu.
 - SC-003: `tests/benchmark/src/web-content.ts`: Playwright chromium mở app web (compose benchmark thêm hai service
   `backoffice-web` như profile `web` của parity: proxy tới Directus 8155 và API 8156 [Unverified: compose benchmark
   chưa có web; T0xx thêm]), đăng nhập, vào `/content/<bench_articles>` (collection 10 triệu dòng của `seed-items.ts`),
