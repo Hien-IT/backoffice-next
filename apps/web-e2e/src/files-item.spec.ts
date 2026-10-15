@@ -54,7 +54,12 @@ test('save and quit, save and stay, save as copy (US2-4, FR-031, FR-032)', { tag
 	await expect(page.getByRole('main').getByText('Filesize', { exact: true })).toHaveCount(0);
 
 	await titleInput(page).fill(`${DATA_PREFIX} stay`);
+	await expect(titleInput(page)).toHaveValue(`${DATA_PREFIX} stay`);
+	const patched = page.waitForResponse(
+		(r) => r.request().method() === 'PATCH' && new URL(r.url()).pathname.endsWith(`/files/${file.id}`),
+	);
 	await saveOption(page, 'Save and Stay');
+	expect((await patched).ok()).toBe(true);
 	await expect.poll(async () => (await row(file.id)).title).toBe(`${DATA_PREFIX} stay`);
 	await expect(page).toHaveURL(new RegExp(`/admin/files/${file.id}$`));
 	await expect(heading(page)).toHaveText(`${DATA_PREFIX} stay`);

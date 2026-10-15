@@ -34,7 +34,9 @@ export class AdminApi {
 	): Promise<T> {
 		const response = await this.request.fetch(`${this.baseUrl}${path}`, {
 			method,
-			headers: { Authorization: `Bearer ${await this.accessToken()}` },
+			// The parity APIs cache responses (CACHE_ENABLED, CACHE_SKIP_ALLOWED): a spec reading back what the app just
+			// wrote needs the database, not the cache.
+			headers: { Authorization: `Bearer ${await this.accessToken()}`, 'Cache-Control': 'no-store' },
 			...options,
 		});
 
@@ -47,7 +49,7 @@ export class AdminApi {
 	/** The raw bytes of a GET as the admin (an asset). */
 	async bytes(path: string): Promise<Buffer> {
 		const response = await this.request.get(`${this.baseUrl}${path}`, {
-			headers: { Authorization: `Bearer ${await this.accessToken()}` },
+			headers: { Authorization: `Bearer ${await this.accessToken()}`, 'Cache-Control': 'no-store' },
 		});
 		if (!response.ok()) throw new Error(`GET ${path}: ${response.status()}`);
 		return response.body();

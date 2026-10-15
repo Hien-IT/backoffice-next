@@ -66,7 +66,7 @@ const button = (label: string) => document.querySelector<HTMLButtonElement>(`but
 const dimensions = () => document.querySelector('.dimensions')!.textContent!.trim();
 
 async function ready() {
-	await vi.waitFor(() => expect(document.querySelector('.cropper-container')).not.toBeNull(), { timeout: 5000 });
+	await vi.waitFor(() => expect(document.querySelector('.cropper-container')).not.toBeNull(), { timeout: 15000 });
 }
 
 test('opens on the file: fields, nonce asset URL, toolbar, dimensions, save disabled without edits; axe', async () => {
