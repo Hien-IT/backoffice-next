@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/modules/users/routes/collection.vue", "dest": "apps/web/src/modules/users/routes/UsersCollectionRoute.vue" }
+]

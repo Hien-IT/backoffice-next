@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-mfa-setup/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-mfa-setup/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-mfa-setup/system-mfa-setup.vue",
+		"dest": "apps/web/src/interfaces/_system/system-mfa-setup/SystemMfaSetup.vue"
+	}
+]

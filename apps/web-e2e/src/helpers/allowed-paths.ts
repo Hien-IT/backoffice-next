@@ -1,7 +1,7 @@
 // The closed list of API calls of the web app (FR-002), copied from specs/012-backoffice-web-shell/contracts/api-calls.md
 // (32 routes), specs/013-interfaces-displays/contracts/api-calls.md (#33-#49) and
 // specs/014-content-module/contracts/api-calls.md (#50-#96) and specs/015-files-users-modules/contracts/api-calls.md
-// (rows 97 to 134). Matched on method and path (query ignored, path relative to
+// (rows 97 to 136). Matched on method and path (query ignored, path relative to
 // apiUrl). Keep them in step with KNOWN_REQUESTS of apps/web/src/test-utils/fetch.ts.
 export interface AllowedCall {
 	/** Row number in contracts/api-calls.md. */
@@ -83,6 +83,8 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 97, method: 'GET', path: /^\/folders$/ },
 	{ id: 98, method: 'GET', path: new RegExp(`^/folders/${ID}$`) },
 	{ id: 103, method: 'GET', path: /^\/roles$/ },
+	{ id: 135, method: 'GET', path: new RegExp(`^/roles/${ID}$`) },
+	{ id: 136, method: 'GET', path: /^\/access$/ },
 	{ id: 105, method: 'GET', path: /^\/utils\/random\/string$/ },
 	{ id: 110, method: 'POST', path: /^\/(folders|users|users\/invite)$/ },
 	{ id: 111, method: 'PATCH', path: new RegExp(`^/(folders|files|users)(/${ID})?$`) },

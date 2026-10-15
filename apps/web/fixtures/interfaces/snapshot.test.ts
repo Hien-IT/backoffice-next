@@ -14,6 +14,13 @@ const UNSEEDABLE: Record<string, string> = {
 	// Feature 014: system interfaces of the app screens (search filter, bookmark name), never set on a user field.
 	'system-filter': 'system interface of the Content module search (014), tested in its own folder',
 	'system-input-translated-string': 'system interface of the bookmark dialog (014), tested in its own folder',
+	// Feature 015 (FR-086): system interfaces of the directus_users system fields, tested in their own folders.
+	'system-language': 'directus_users.language (015), tested in its own folder',
+	'system-input-password': 'registry only in 015 (CHK050), tested in its own folder',
+	'system-mfa-setup': 'directus_users.tfa_secret (015), tested in its own folder',
+	'system-token': 'directus_users.token (015), tested in its own folder',
+	'system-theme': 'directus_users.theme_light / theme_dark (015), tested in its own folder',
+	'system-theme-overrides': 'directus_users.theme_*_overrides (015), tested in its own folder',
 };
 
 describe('every registry id has a fixture field', () => {
@@ -25,9 +32,9 @@ describe('every registry id has a fixture field', () => {
 		expect(snapshot.fields.some((f) => f.meta?.display === id)).toBe(true);
 	});
 
-	test('the registry has the 43 interfaces (41 of 013, 2 system ones of 014) and 18 displays of Directus 11.17.4', () => {
+	test('the registry has the 49 interfaces (41 of 013, 2 system ones of 014, 6 of 015) and 18 displays of Directus 11.17.4', () => {
 		expect(registry.directusVersion).toBe(snapshot.meta.version);
-		expect([interfaceIds.length, displayIds.length]).toEqual([43, 18]);
+		expect([interfaceIds.length, displayIds.length]).toEqual([49, 18]);
 		expect(Object.keys(UNSEEDABLE).filter((id) => !interfaceIds.includes(id))).toEqual([]);
 	});
 

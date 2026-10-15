@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/modules/users/index.ts", "dest": "apps/web/src/modules/users.ts" }
+]

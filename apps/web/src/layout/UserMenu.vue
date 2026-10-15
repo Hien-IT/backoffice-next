@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar-avatar.vue -->
 <script setup lang="ts">
 // Backoffice: the TailAdmin header user menu (layout-patterns §4, D-52): avatar and name open a menu with profile
-// (/users/me, FR-024) and sign out (/logout) instead of the avatar link plus the sign-out button with a confirm
+// (/users/<id> like module-bar-avatar.vue, feature 015 FR-051) and sign out (/logout) instead of the avatar link plus the sign-out button with a confirm
 // dialog; no notifications button (D-45); the avatar.modified_on cache buster is not fetched (not in
 // contracts/api-calls).
 import { computed } from 'vue';
@@ -23,8 +23,6 @@ const avatarId = computed<string | null>(() => {
 
 const userFullName = computed(() => userStore.fullName ?? t('unknown_user'));
 
-const userProfileLink = '/users/me';
-
 const signOutLink = '/logout';
 
 const items = computed<BoMenuItem[]>(() => {
@@ -34,7 +32,7 @@ const items = computed<BoMenuItem[]>(() => {
 	// Share users have no profile.
 	if (!user || 'share' in user) return [signOut];
 
-	return [{ text: t('profile'), icon: 'account_circle', to: userProfileLink }, signOut];
+	return [{ text: t('profile'), icon: 'account_circle', to: `/users/${user.id}` }, signOut];
 });
 </script>
 

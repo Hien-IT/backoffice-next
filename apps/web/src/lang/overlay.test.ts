@@ -9,6 +9,18 @@ test('both overlays have the same keys and no empty value', () => {
 	for (const value of [...Object.values(enUS), ...Object.values(viVN)]) expect(value.trim()).not.toBe('');
 });
 
-test('overlay keys do not shadow a Directus key', () => {
-	for (const key of Object.keys(enUS)) expect(enUSBase).not.toHaveProperty(key);
+// Feature 015 D-88 (owner): the three Directus theme names are shown as Backoffice names on purpose.
+const SHADOWED = ['theme_directus_default', 'theme_directus_minimal', 'theme_directus_colormatch'];
+
+test('overlay keys do not shadow a Directus key, except the D-88 theme names', () => {
+	for (const key of Object.keys(enUS)) {
+		if (SHADOWED.includes(key)) expect(enUSBase).toHaveProperty(key);
+		else expect(enUSBase).not.toHaveProperty(key);
+	}
+});
+
+test('D-88: the theme names read "Backoffice ..." in both languages', () => {
+	for (const overlay of [enUS, viVN] as Record<string, string>[]) {
+		for (const key of SHADOWED) expect(overlay[key]).toMatch(/^Backoffice /);
+	}
 });

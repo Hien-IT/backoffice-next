@@ -1,0 +1,40 @@
+// Feature 015: the Users module pages on the fixture set (roles bo-editor > bo-sub, directory users bo-active,
+// bo-suspended, bo-invited... of apps/web/fixtures/interfaces), opened as the admin. Accessible names are the en-US
+// strings of the Directus app.
+import { expect, type Locator, type Page } from '@playwright/test';
+import type { AdminApi } from './api.js';
+import { DATA_PREFIX } from './config.js';
+import { moduleBar } from './layout.js';
+
+/** Opens a Users route (`/users`, `/users/roles/<id>`, `/users/<id>`) and waits for the page title. */
+export async function openUsers(page: Page, path = '/users'): Promise<void> {
+	await page.goto(`/admin${path}`);
+	await expect(page.getByRole('main').getByRole('heading', { level: 1 })).toBeVisible({ timeout: 15_000 });
+}
+
+/** The role tree of the sub-menu (below `xl` the navigation is a drawer to open first). */
+export async function roleTree(page: Page): Promise<Locator> {
+	await moduleBar(page);
+	const tree = page.getByRole('tree', { name: 'Roles' });
+	await expect(tree).toBeVisible();
+	return tree;
+}
+
+/** The id of a fixture role by name. */
+export async function roleId(api: AdminApi, name: string): Promise<string> {
+	const roles = await api.call<{ id: string }[]>('GET', `/roles?fields=id&filter[name][_eq]=${encodeURIComponent(name)}`);
+	if (!roles[0]) throw new Error(`No role ${name}: seed the fixture set first`);
+	return roles[0].id;
+}
+
+/** An email of this configuration (CHK019): `<DATA_PREFIX>-<name>@example.com`. */
+export const userEmail = (name: string) => `${DATA_PREFIX}-${name}@example.com`;
+
+/** Deletes the users this configuration created (emails start with DATA_PREFIX). */
+export async function clearCreatedUsers(api: AdminApi): Promise<void> {
+	const users = await api.call<{ id: string }[]>(
+		'GET',
+		`/users?fields=id&limit=-1&filter[email][_starts_with]=${encodeURIComponent(DATA_PREFIX)}`,
+	);
+	if (users.length) await api.call('DELETE', '/users', { data: users.map((u) => u.id) });
+}

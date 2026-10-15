@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-language/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-language/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-language/system-language.vue",
+		"dest": "apps/web/src/interfaces/_system/system-language/SystemLanguage.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-input-password/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-input-password/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-input-password/input-password.vue",
+		"dest": "apps/web/src/interfaces/_system/system-input-password/SystemInputPassword.vue"
+	}
+]

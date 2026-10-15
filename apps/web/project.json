@@ -11,6 +11,13 @@
 			},
 			"cache": false
 		},
+		"sync-themes": {
+			"command": "../../node_modules/.bin/jiti scripts/sync-directus-themes.mjs",
+			"options": {
+				"cwd": "apps/web"
+			},
+			"cache": false
+		},
 		"fixtures": {
 			"executor": "nx:run-commands",
 			"options": {

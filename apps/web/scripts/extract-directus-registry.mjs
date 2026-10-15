@@ -60,6 +60,13 @@ const INTERFACE_IDS = [
 	'system-raw-editor',
 	'system-input-translated-string',
 	'system-filter',
+	// Feature 015 (FR-086): the six interfaces of directus_users.
+	'system-language',
+	'system-input-password',
+	'system-mfa-setup',
+	'system-token',
+	'system-theme',
+	'system-theme-overrides',
 ];
 
 const DISPLAY_IDS = [

@@ -166,7 +166,7 @@ diện (FR-110, SC-008).
       `RECORD_NOT_UNIQUE` với `extensions.invalid`), `/users/*/tfa/*`, `/utils/random/string`, `/roles` có `parent`,
       `/server/info` thêm `uploads` và `project.default_theme_*`; `FakeXMLHttpRequest` tối thiểu cho tus (POST →
       `Location`, PATCH → `Upload-Offset`, HEAD); `src/test-utils/fixtures.ts` nạp snapshot mới; test `fetch.test.ts`
-- [ ] T024 [P] Mở rộng E2E harness: `e2e/helpers/allowed-paths.ts` thêm #97–#134; `e2e/helpers/files.ts`
+- [x] T024 [P] Mở rộng E2E harness: `e2e/helpers/allowed-paths.ts` thêm #97–#134; `e2e/helpers/files.ts`
       (`openFolder`, `uploadViaDialog`, `dropFiles` bằng DataTransfer qua `page.evaluate`, `selectCard`,
       `openImageEditor`, `clearFixtureFiles`), `e2e/helpers/users.ts` (`openUser`, `inviteUsers`, `toggleTfa` với
       `otplib`, `clearFixtureUsers`); `e2e/helpers/directus-app.ts` thêm helper thư mục, mời, token cho Directus app;
@@ -274,7 +274,7 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
       (viền, notice, tiến độ), tải xong danh sách nạp lại, file sai kiểu lỗi từng file; nhánh TUS khi env parity bật
       (T002) kiểm header `Tus-Resumable` ở `proxy-api`; `e2e/files-item.spec.ts` (`@core`): sửa metadata, lưu kiểu,
       chuyển thư mục, tải về, thay file, bản sao, xóa, chi tiết file, revisions; ba cấu hình xanh
-- [ ] T048 [US2] Bộ so payload `e2e/payload/files.spec.ts` (`proxy-api`, `DIRECTUS_APP_SPECS`): tải 1 file qua hộp,
+- [x] T048 [US2] Bộ so payload `e2e/payload/files.spec.ts` (`proxy-api`, `DIRECTUS_APP_SPECS`): tải 1 file qua hộp,
       thay file, chuyển thư mục (một và hàng loạt), tạo/đổi tên/xóa thư mục (move), lưu metadata, bản sao, xóa; chuẩn
       hóa multipart (tên field thứ tự, tên file, `type`, kích thước) và nonce `/assets`; khác biệt thật → R-xx vào spec
 - [ ] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle` (tus là chunk
@@ -339,13 +339,13 @@ email, tạo từ route role, xóa hàng loạt (FR-050 đến FR-066).
 
 ### Tests cho User Story 3
 
-- [ ] T060 [P] [US3] Test `src/modules/users.test.ts`: bảng route (data-model §1, `users-me` trước `users-item`,
+- [x] T060 [P] [US3] Test `src/modules/users.test.ts`: bảng route (data-model §1, `users-me` trước `users-item`,
       `redirect` hàm trả `/users/<id>` từ store, user share → không có id), `preRegisterCheck`
-- [ ] T061 [P] [US3] Test `src/modules/users/composables/use-navigation.test.ts` (`roleTree` theo `parent`,
+- [x] T061 [P] [US3] Test `src/modules/users/composables/use-navigation.test.ts` (`roleTree` theo `parent`,
       `openRoles` tự thêm cha, nạp một lần, 403 → `unexpectedError` CHK018) và
       `src/modules/users/components/UsersNavigation.browser.test.ts` (bốn mục `exact`, vạch chia, skeleton, cây role
       gập mở, bàn phím, menu "sửa role" chỉ admin → `/settings/roles/:id`)
-- [ ] T062 [P] [US3] Test `src/modules/users/routes/UsersCollectionRoute.browser.test.ts`: tiêu đề/breadcrumb theo
+- [x] T062 [P] [US3] Test `src/modules/users/routes/UsersCollectionRoute.browser.test.ts`: tiêu đề/breadcrumb theo
       `status`/`role`, bộ lọc hệ thống gộp, `canInviteUsers` ba điều kiện, nút tạo tới `/users/roles/:id/+`, xóa hàng
       loạt (chứa mình → `logout`), trạng thái trống hai dạng với `create_user` chỉ `active`/không status, axe;
       `UsersInvite.test.ts`: tách email, `GET /roles` khi mở, mặc định phần tử đầu, ẩn select khi có `role`, không
@@ -354,19 +354,19 @@ email, tạo từ route role, xóa hàng loạt (FR-050 đến FR-066).
 
 ### Implementation cho User Story 3
 
-- [ ] T063 [US3] Viết `src/modules/users.ts`: route thật (data-model §1; `users-me` `redirect` hàm CHK055; not-found
+- [x] T063 [US3] Viết `src/modules/users.ts`: route thật (data-model §1; `users-me` `redirect` hàm CHK055; not-found
       `ContentNotFound` với prop module CHK057); sửa `src/layout/UserMenu.vue` link hồ sơ `/users/<id>` (share user
       không có mục CHK028) và `UserMenu.test.ts`; manifest `015-T063.json`
-- [ ] T064 [P] [US3] Chép `src/modules/users/composables/use-navigation.ts`, `components/UsersNavigation.vue`,
+- [x] T064 [P] [US3] Chép `src/modules/users/composables/use-navigation.ts`, `components/UsersNavigation.vue`,
       `NavigationRole.vue` (template theo §11; menu "sửa role" admin = `contextmenu` + nút "⋯" tới
       `/settings/roles/:id`, D-85); manifest
-- [ ] T065 [P] [US3] Chép `src/modules/users/components/UsersInvite.vue` (`BoDialog`, `BoTextarea`, `BoSelect`, notice
+- [x] T065 [P] [US3] Chép `src/modules/users/components/UsersInvite.vue` (`BoDialog`, `BoTextarea`, `BoSelect`, notice
       lỗi trùng tại chỗ, emit đóng; màn gọi notice D-83 sau nạp lại); manifest
-- [ ] T066 [US3] Chép `src/modules/users/routes/UsersCollectionRoute.vue` (logic `routes/collection.vue`: `usePreset`
+- [x] T066 [US3] Chép `src/modules/users/routes/UsersCollectionRoute.vue` (logic `routes/collection.vue`: `usePreset`
       `directus_users`, `roleFilter`/`statusFilter`, `canInviteUsers`, `useBatch` với `logout` khi xóa mình,
       `useLinks`, `useBreadcrumb`; template như FR-061, FR-064, FR-065; `UsersInvite` + notice
       `contact_admin_for_link`); manifest
-- [ ] T067 [US3] E2E `e2e/users-directory.spec.ts`: sub-menu và cây role (`bo-editor` > `bo-sub`), bộ lọc theo
+- [x] T067 [US3] E2E `e2e/users-directory.spec.ts`: sub-menu và cây role (`bo-editor` > `bo-sub`), bộ lọc theo
       status/role, mời 2 email + 1 trùng (user `invited` xuất hiện, notice), tạo từ route role (form có `role`), xóa
       hàng loạt, trạng thái trống; ba cấu hình xanh
 
@@ -384,10 +384,10 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Tests cho User Story 4
 
-- [ ] T070 [P] [US4] Test `src/theme/directus-themes.test.ts` (file sinh bằng nguồn khi chạy lại script; 3 theme sáng,
+- [x] T070 [P] [US4] Test `src/theme/directus-themes.test.ts` (file sinh bằng nguồn khi chạy lại script; 3 theme sáng,
       1 tối; `id`, `name`, `appearance`, `rules`) và `src/theme/rules-to-css-vars.test.ts` (3 mẫu: lồng `fonts.display`
       → `--theme--fonts--display--font-family`, số, chuỗi `var(`)
-- [ ] T071 [P] [US4] Test sáu interface: `SystemLanguage.test.ts` (mục mặc định dự án khi `includeProjectDefault`, mã lạ
+- [x] T071 [P] [US4] Test sáu interface: `SystemLanguage.test.ts` (mục mặc định dự án khi `includeProjectDefault`, mã lạ
       hiện thô), `SystemInputPassword.test.ts` (nút mắt, `autocomplete`), `SystemMfaSetup.browser.test.ts` (ba luồng
       mật khẩu/SSO/admin với mock `use-tfa-setup`, OTP 6 số mới bật, focus ô OTP, `cancel_tfa_setup`, xem user khác chỉ
       theo `tfa_secret` CHK022), `SystemToken.test.ts` (tạo → `GET /utils/random/string` + `PATCH {token}`, notice, chép;
@@ -396,9 +396,9 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
       CHK024, `ThemePreview` đặt biến `--theme--*` inline từ rule + overrides đã lưu CHK026, dòng
       `theme_applies_in_directus`), `SystemThemeOverrides.browser.test.ts` (cây nhóm, `$root`, ô text mọi rule lá
       CHK025, swatch chỉ khi parse được, `set`/`unset` gỡ nhóm rỗng, không object → cây rỗng CHK082)
-- [ ] T072 [P] [US4] Test `src/composables/use-tfa-setup.test.ts` thêm `disableTFA`, `adminDisableTFA`,
+- [x] T072 [P] [US4] Test `src/composables/use-tfa-setup.test.ts` thêm `disableTFA`, `adminDisableTFA`,
       `requestTFASetup` (ghi khóa `backoffice-require_tfa_setup` rồi `logout`), `cancelTFASetup` (xóa khóa, `hydrate`)
-- [ ] T073 [P] [US4] Test `src/modules/users/routes/UserItemRoute.browser.test.ts`: nạp với `fields=*,role.*,avatar.*`,
+- [x] T073 [P] [US4] Test `src/modules/users/routes/UserItemRoute.browser.test.ts`: nạp với `fields=*,role.*,avatar.*`,
       `edits.role` từ prop, hộp user (avatar `system-medium-cover` + `cacheBuster`, lỗi → icon, chip theo status,
       email ở cả hộp và form CHK102), `fieldsDenyList`, `provider`/`external_identifier` readonly theo
       `isNew`/`isAdmin` CHK029, lưu chỉ field đổi, `setLang` + `hydrate` khi là mình (CHK039), `saveAndStay` ở `+` →
@@ -408,25 +408,25 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Implementation cho User Story 4
 
-- [ ] T074 [P] [US4] Viết `apps/web/scripts/sync-directus-themes.mjs` (cách theo T003) sinh
+- [x] T074 [P] [US4] Viết `apps/web/scripts/sync-directus-themes.mjs` (cách theo T003) sinh
       `src/theme/directus-themes.json` (`{light, dark}`; header ghi nguồn và ngày) và `src/theme/rules-to-css-vars.ts`
       (làm phẳng `--`, kebab-case bằng regex; `flat` nếu T002 chọn); chạy script, commit JSON; thêm target
       `web:sync-themes` vào `apps/web/project.json`; thêm ngoại lệ đường dẫn `src/theme/directus-themes.json` (dữ liệu
       sinh, `id` theme "Directus Default"... là định danh lưu DB, IX) vào `apps/web/scripts/check-brand.mjs` kèm test ở
       `check-brand.test.ts`; manifest ghi nguồn `directus/packages/themes/src/themes/**`
-- [ ] T075 [P] [US4] Mở rộng `src/composables/use-tfa-setup.ts`: `disableTFA` (`POST /users/me/tfa/disable {otp}`),
+- [x] T075 [P] [US4] Mở rộng `src/composables/use-tfa-setup.ts`: `disableTFA` (`POST /users/me/tfa/disable {otp}`),
       `adminDisableTFA(pk)` (`POST /users/:pk/tfa/disable`), `requestTFASetup` (khóa + `logout`), `cancelTFASetup`;
       sửa ghi chú đầu file 012
-- [ ] T076 [P] [US4] Chép `src/interfaces/_system/system-language/{index.ts,SystemLanguage.vue}` (`BoSelect`,
+- [x] T076 [P] [US4] Chép `src/interfaces/_system/system-language/{index.ts,SystemLanguage.vue}` (`BoSelect`,
       `available-languages.json`, mục `default_language` null) và `system-input-password/{index.ts,SystemInputPassword.vue}`
       (`BoInput` + nút mắt); manifest
-- [ ] T077 [P] [US4] Chép `src/interfaces/_system/system-token/{index.ts,SystemToken.vue}` (`BoInput` readonly, ba icon
+- [x] T077 [P] [US4] Chép `src/interfaces/_system/system-token/{index.ts,SystemToken.vue}` (`BoInput` readonly, ba icon
       `BoButton` có nhãn, hai `BoDialog` danger, `useClipboard`, `inject('refresh')`, `getEndpoint`; token chỉ trong
       state, không log CHK084); manifest
-- [ ] T078 [US4] Chép `src/interfaces/_system/system-mfa-setup/{index.ts,SystemMfaSetup.vue}` (`BoCheckbox` khối,
+- [x] T078 [US4] Chép `src/interfaces/_system/system-mfa-setup/{index.ts,SystemMfaSetup.vue}` (`BoCheckbox` khối,
       ba `BoDialog`, QR bằng `qrcode` 012, `inject('values')` theo T002 (dự phòng `provide('values', item)` ở màn user
       CHK092), `inject('discardAllChanges')`, `requireTfaSetup` chỉ khi xem mình CHK022); manifest
-- [ ] T079 [US4] Chép `src/interfaces/_system/system-theme/{index.ts,SystemTheme.vue,ThemePreview.vue}` (radio
+- [x] T079 [US4] Chép `src/interfaces/_system/system-theme/{index.ts,SystemTheme.vue,ThemePreview.vue}` (radio
       `BoRadio`/`RadioGroup` với ô xem trước SVG 200×140 chép từ `theme-preview.vue`, biến inline từ
       `rulesToCssVars(merge(rules, overrides đã lưu))` CHK026, `includeNull` với theme mặc định dự án từ store server,
       nhãn theme qua `translate(theme.name)` với khóa `theme_directus_*` của file dịch 012 nên hiện "Backoffice
@@ -435,22 +435,22 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
       (nhóm gập `<button aria-expanded>`, ô text + swatch với `color` và `cssVar`/`getComputedStyle` theo T002,
       `setWith`/`unset`, `lang=en-US dir=ltr`); đăng ký sáu id trong `src/interfaces/index.ts`, cập nhật
       `registry.test.ts` (số đếm hiện có + 6, FR-086); manifest
-- [ ] T080 [P] [US4] Chép `src/modules/users/components/UserInfoSidebarDetail.vue` (`SidebarDetail` 014, khóa + chép,
+- [x] T080 [P] [US4] Chép `src/modules/users/components/UserInfoSidebarDetail.vue` (`SidebarDetail` 014, khóa + chép,
       `last_page` `RouterLink`, `last_access`); manifest
-- [ ] T081 [US4] Chép `src/modules/users/routes/UserItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014 với
+- [x] T081 [US4] Chép `src/modules/users/routes/UserItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014 với
       `fields`, `user` thu `role.id`, `edits.role`, `fieldsDenyList`, `fieldsFiltered` readonly, `avatarSrc`, `title`,
       `setLang`, `refreshCurrentUser`, `saveAndQuit`/`Stay`/`AddNew`/`AsCopy`, `deleteAndQuit` với `logout`,
       `toggleArchive`, `revert`, `provide('discardAllChanges' | 'refresh' | 'values')`, `useShortcut` hai phím; bỏ
       collab; template: page header FR-071, hộp user Q-18 (`BoAvatar` lớn, chip theo status) cùng bề ngang `max-w-5xl`,
       `BoForm`, hộp `unsaved_changes`, panel FR-074); xóa `src/routes/ProfileRoute.vue` + `ProfileRoute.test.ts` và
       cập nhật `src/router/*` nếu còn tham chiếu; manifest
-- [ ] T082 [US4] E2E `e2e/users-item.spec.ts` (`@core`): hộp user, sửa hồ sơ của mình (ngôn ngữ đổi ngay sang vi-VN rồi
+- [x] T082 [US4] E2E `e2e/users-item.spec.ts` (`@core`): hộp user, sửa hồ sơ của mình (ngôn ngữ đổi ngay sang vi-VN rồi
       trả lại), role/policies, archive, tạo user từ `/users/+` và `roles/:id/+`, xóa user khác, xóa chính mình (user
       tạm) → logout, `/users/me` → `/users/<id>`; viết lại `e2e/profile.spec.ts` trên màn user (giữ kịch bản 012 còn
       hợp lệ); `e2e/users-tfa-token.spec.ts`: token tạo/tạo lại/xóa (dùng token mới gọi API), TFA bật/tắt với
       `otplib`, admin tắt TFA user khác, SSO: khóa localStorage + đăng xuất, `afterEach` tắt TFA bằng admin CHK031; ba
       cấu hình xanh
-- [ ] T083 [US4] Bộ so payload `e2e/payload/users.spec.ts` (`proxy-api`): tạo user, sửa (kể cả `language`, `theme_light`,
+- [x] T083 [US4] Bộ so payload `e2e/payload/users.spec.ts` (`proxy-api`): tạo user, sửa (kể cả `language`, `theme_light`,
       overrides thêm/xóa khóa), archive, mời 2 email, token tạo/xóa, TFA bật/tắt (secret từ response), xóa hàng loạt;
       SC-005 10 thao tác; khác biệt thật → R-xx
 - [ ] T084 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003, SC-004, SC-005, SC-009; `LAZY_ONLY` không cần thêm; chunk
@@ -661,5 +661,27 @@ Lượt 3, Phase 7 (US4):
   - `files-image-editor.spec.ts` vào `DIRECTUS_APP_SPECS` (chỉ chromium-1280). So pixel chỉ chạy ở `proxy-api`.
   - `createAllowed`/`updateAllowed` của `file-image` lấy từ `useRelationPermissionsM2O` như Directus (tasks ghi
     `useCollectionPermissions`).
+- Lượt 3 (2026-10-16):
+  - Sáu interface `_system`, dữ liệu theme (`sync-directus-themes.mjs`, `directus-themes.json`, `rules-to-css-vars`)
+    và `use-tfa-setup` do một agent con làm song song (T070–T072, T074–T079). Ba interface theme/mfa nạp lười: các
+    chunk khoảng 8,5 KB gzip. Nhãn theme theo lựa chọn (a) của owner: overlay en-US/vi-VN đổi ba khóa
+    `theme_directus_*` thành "Backoffice …", `id` ghi DB giữ "Directus …" (D-88); dòng ghi chú
+    `theme_applies_in_directus` có `data-brand-allowed="D-88"`, `branding.spec` bỏ qua phần tử đó. Owner cần xem lại
+    câu chữ của dòng ghi chú (có tên "Directus app").
+  - `UsersNavigation` gộp `navigation.vue` và `NavigationRole.vue` thành cây phẳng (§11), như `FilesNavigation`.
+  - `UserMenu` trỏ hồ sơ tới `/users/<id>`; `ProfileRoute` 012 đã xóa, `profile.spec.ts` viết lại trên màn user (lưu
+    bằng "Save and Stay").
+  - Mock `POST /users/invite` theo Directus `UsersService.inviteUser`: user đã có thì bỏ qua (không lỗi), user
+    `invited` đổi role; `RECORD_NOT_UNIQUE` chỉ từ DB nên test tự trả lời.
+  - Mock mở rộng m2o hệ thống `directus_users.role`, `directus_users.avatar` (không đưa vào `GET /relations`).
+  - Hợp đồng API thêm dòng 135 `GET /roles/<id>` (field role của form) và 136 `GET /access` (field policies), như
+    Directus.
+  - Xóa hàng loạt rồi danh sách nạp lại nhưng số đếm giữ giá trị cũ: `use-items` memo hóa aggregate như Directus
+    (`useMemoize`), nên E2E không kiểm "No Results" sau khi xóa.
+  - T048, T083: bộ so payload `payload/files.spec.ts` (thư mục, màn file, tải lên + thay file, chuyển hàng loạt) và
+    `payload/users.spec.ts` (tạo, sửa appearance + archive, mời, token, xóa hàng loạt) khớp Directus app ở `proxy-api`.
+    Bỏ qua `/presets` (bộ presets riêng của 014) và thay token ngẫu nhiên bằng `<token>`. TFA không so payload (secret
+    sinh mỗi lần), đã có E2E `users-tfa-token.spec.ts`. SSO TFA chỉ có browser test (E2E không đăng nhập được user SSO).
+  - `AdminApi` gửi `Cache-Control: no-store`; `files-item` chờ PATCH trước khi đọc lại (đỏ ở CI 38787246409).
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

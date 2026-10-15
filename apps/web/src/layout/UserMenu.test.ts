@@ -41,12 +41,12 @@ describe('UserMenu (FR-024)', () => {
 		expect(wrapper.get('img').attributes('src')).toBe('http://api.test/assets/a1?key=system-medium-cover');
 	});
 
-	test('menu: profile (/users/me) and sign out (/logout); Esc returns focus to the avatar', async () => {
+	test('menu: profile (/users/<id>, feature 015) and sign out (/logout); Esc returns focus to the avatar', async () => {
 		const { trigger } = await render({ id: 'u1', email: 'ada@example.test', avatar: null });
 
 		const items = await openMenu(trigger);
 		expect(items.map((item) => [item.textContent?.replace(/\s+/g, ' ').trim(), item.getAttribute('href')])).toEqual([
-			['account_circle Profile', '/users/me'],
+			['account_circle Profile', '/users/u1'],
 			['logout Sign Out', '/logout'],
 		]);
 

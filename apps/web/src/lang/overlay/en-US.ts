@@ -47,4 +47,11 @@ export default {
 	comment_submit_shortcut: 'Submit (Ctrl + Enter)',
 	// Feature 014: checkbox of the version comparison footer (recipe Q-10, no Directus key).
 	delete_version_after_promote: 'Delete “{version}” after promotion',
+	// Feature 015 (D-88): the Directus theme names are shown as Backoffice names (the stored ids keep "Directus ..."),
+	// so these three keys replace the generated values on purpose.
+	theme_directus_default: 'Backoffice Default',
+	theme_directus_minimal: 'Backoffice Minimal',
+	theme_directus_colormatch: 'Backoffice Color Match',
+	// Feature 015 (D-88, CHK042): note under the system-theme list.
+	theme_applies_in_directus: 'The theme applies in the Directus app. The Backoffice look does not change.', // brand-allowed: D-88 note names the app where the theme applies
 };

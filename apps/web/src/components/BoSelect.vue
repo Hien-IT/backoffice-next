@@ -13,18 +13,24 @@ import {
 import { useId } from 'vue';
 import BoIcon from './BoIcon.vue';
 
-const { items, disabled = false } = defineProps<{
+const {
+	items,
+	disabled = false,
+	id: idProp,
+} = defineProps<{
 	modelValue?: string | null;
 	/** `icon`: an icon before the text, in the list and in the trigger (Directus v-select `item-icon`). */
 	items: { text: string; value: string; icon?: string }[];
 	label?: string;
 	placeholder?: string;
 	disabled?: boolean;
+	/** Id of the trigger, for a label outside the component (a form field). */
+	id?: string | undefined;
 }>();
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
 
-const id = useId();
+const id = idProp ?? useId();
 
 // component-specs Select trigger = FIELD + FIELD_DISABLED.
 const TRIGGER =

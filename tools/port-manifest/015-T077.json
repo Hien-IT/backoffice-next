@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-token/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-token/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-token/system-token.vue",
+		"dest": "apps/web/src/interfaces/_system/system-token/SystemToken.vue"
+	}
+]

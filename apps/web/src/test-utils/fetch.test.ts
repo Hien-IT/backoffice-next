@@ -435,18 +435,20 @@ describe('mockFixtureApi, feature 015', () => {
 		expect(await get('/utils/random/string')).toMatch(/^bo-random-/);
 	});
 
-	test('invite creates invited users and answers RECORD_NOT_UNIQUE for known emails', async () => {
+	test('invite creates invited users, re-roles invited ones and leaves other known users as they are (Directus)', async () => {
 		mockFixtureApi(loadSnapshot());
 		const response = await globalThis.fetch('http://api.test/users/invite', {
 			method: 'POST',
-			body: JSON.stringify({ email: ['new@example.com', 'bo-active@example.com'], role: 'r1' }),
+			body: JSON.stringify({ email: ['new@example.com', 'bo-active@example.com', 'bo-invited@example.com'], role: 'r1' }),
 		});
 
-		expect(response.status).toBe(400);
-		expect((await response.json()).errors[0].extensions).toMatchObject({ code: 'RECORD_NOT_UNIQUE', invalid: 'bo-active@example.com' });
+		expect(response.ok).toBe(true);
 
 		const users = (await (await globalThis.fetch('http://api.test/users?limit=-1')).json()).data as Row[];
 		expect(users.find((u) => u['email'] === 'new@example.com')).toMatchObject({ status: 'invited', role: 'r1' });
+		expect(users.find((u) => u['email'] === 'bo-active@example.com')).toMatchObject({ status: 'active' });
+		expect(users.find((u) => u['email'] === 'bo-active@example.com')!['role']).not.toBe('r1');
+		expect(users.find((u) => u['email'] === 'bo-invited@example.com')).toMatchObject({ status: 'invited', role: 'r1' });
 	});
 
 	test('a multipart PATCH replaces the file; zips answer with a file name; serverInfo is merged', async () => {

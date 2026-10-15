@@ -53,7 +53,17 @@ test.afterAll(async () => {
 
 async function noDirectus(page: Page) {
 	await expect(page).not.toHaveTitle(/Directus/);
-	expect(await page.evaluate(() => document.body.innerText)).not.toContain('Directus');
+	// Feature 015 (D-88): the system-theme note names the Directus app on purpose (`data-brand-allowed`).
+	expect(
+		await page.evaluate(() => {
+			const body = document.body.cloneNode(true) as HTMLElement;
+			body.querySelectorAll('[data-brand-allowed]').forEach((el) => el.remove());
+			document.body.append(body);
+			const text = body.innerText;
+			body.remove();
+			return text;
+		}),
+	).not.toContain('Directus');
 }
 
 test('default settings of a new Directus database: Backoffice everywhere, no "Directus" (US3-1, SC-005, FR-082, D-51)', async ({

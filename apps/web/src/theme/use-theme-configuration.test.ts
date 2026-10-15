@@ -94,6 +94,17 @@ describe('useThemeConfiguration', () => {
 		expect(themeDarkOverrides.value).toEqual({ primary: '#222222' });
 	});
 
+	test('theme names: the user choice, then the project default, else null (feature 015, FR-085)', () => {
+		expect(useThemeConfiguration().themeLight.value).toBeNull();
+
+		setProject({ default_theme_light: 'Directus Minimal', default_theme_dark: 'Directus Default' });
+		setUser({ theme_light: 'Directus Color Match', theme_dark: null });
+
+		const { themeLight, themeDark } = useThemeConfiguration();
+		expect(themeLight.value).toBe('Directus Color Match');
+		expect(themeDark.value).toBe('Directus Default');
+	});
+
 	test('no settings and no user: empty overrides', () => {
 		const { themeLightOverrides, themeDarkOverrides } = useThemeConfiguration();
 		expect(themeLightOverrides.value).toEqual({});

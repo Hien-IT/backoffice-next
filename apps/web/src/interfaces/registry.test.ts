@@ -67,6 +67,13 @@ export const EXPECTED_INTERFACE_IDS = [
 	'system-raw-editor',
 	'system-input-translated-string',
 	'system-filter',
+	// Feature 015 (FR-086): the six interfaces of directus_users.
+	'system-language',
+	'system-input-password',
+	'system-mfa-setup',
+	'system-token',
+	'system-theme',
+	'system-theme-overrides',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [
@@ -174,6 +181,16 @@ describe('registry parity with the Directus registry', () => {
 				.sort(),
 		).toEqual([...EXPECTED_INTERFACE_IDS].sort());
 		expect(getDisplays().map((display) => display.id)).toEqual(expect.arrayContaining(EXPECTED_DISPLAY_IDS));
+	});
+
+	test('feature 015 adds the six system interfaces of directus_users (FR-086)', () => {
+		const ids = EXPECTED_INTERFACE_IDS.slice(-6);
+
+		expect(getInterfaces()).toHaveLength(43 + 6);
+
+		for (const id of ids) {
+			expect(getInterfaces().find((config) => config.id === id)?.system, id).toBe(true);
+		}
 	});
 
 	test('the comparison accepts a matching config and rejects a different one', () => {

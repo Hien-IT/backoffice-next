@@ -1,11 +1,11 @@
 // Ported from directus/app/src/composables/use-tfa-setup.ts
 // Backoffice: requests through the SDK; the QR code is a data URL for an <img> (qrcode.toDataURL) instead of a
-// canvas; the localStorage key has the backoffice- prefix (FR-017). disableTFA, adminDisableTFA and requestTFASetup
-// come with the profile screen (US6).
+// canvas; the localStorage key has the backoffice- prefix (FR-017).
 import { useLocalStorage } from '@vueuse/core';
 import qrcode from 'qrcode';
 import { onMounted, ref } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
+import { logout } from '../auth.ts';
 import { useUserStore } from '../stores/user.ts';
 
 export function useTFASetup(initialEnabled: boolean) {
@@ -28,6 +28,9 @@ export function useTFASetup(initialEnabled: boolean) {
 	return {
 		generateTFA,
 		enableTFA,
+		disableTFA,
+		adminDisableTFA,
+		requestTFASetup,
 		cancelTFASetup,
 		loading,
 		password,
@@ -87,6 +90,73 @@ export function useTFASetup(initialEnabled: boolean) {
 			error.value = null;
 			requireTfaSetup.value = null;
 			await userStore.hydrate();
+		} catch (err: any) {
+			error.value = err;
+		} finally {
+			loading.value = false;
+		}
+
+		return success;
+	}
+
+	async function disableTFA() {
+		loading.value = true;
+		let success = false;
+
+		try {
+			await sdk.request(requestEndpoint('/users/me/tfa/disable', { method: 'POST', body: { otp: otp.value } }));
+			success = true;
+			await userStore.hydrate();
+			tfaEnabled.value = false;
+			otp.value = '';
+			error.value = null;
+			requireTfaSetup.value = null;
+		} catch (err: any) {
+			error.value = err;
+		} finally {
+			loading.value = false;
+		}
+
+		return success;
+	}
+
+	async function adminDisableTFA(pk: string) {
+		loading.value = true;
+		let success = false;
+
+		try {
+			await sdk.request(requestEndpoint(`/users/${pk}/tfa/disable`, { method: 'POST' }));
+			success = true;
+			tfaEnabled.value = false;
+			otp.value = '';
+			error.value = null;
+			const currentUser = userStore.currentUser;
+
+			if (currentUser && !('share' in currentUser) && currentUser.id === pk) {
+				requireTfaSetup.value = null;
+			}
+		} catch (err: any) {
+			error.value = err;
+		} finally {
+			loading.value = false;
+		}
+
+		return success;
+	}
+
+	async function requestTFASetup() {
+		if (loading.value === true) return;
+
+		loading.value = true;
+
+		let success = false;
+
+		try {
+			const currentUser = userStore.currentUser;
+			requireTfaSetup.value = currentUser && !('share' in currentUser) ? currentUser.id : null;
+			success = true;
+			error.value = null;
+			await logout();
 		} catch (err: any) {
 			error.value = err;
 		} finally {

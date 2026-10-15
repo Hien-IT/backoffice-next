@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/modules/users/composables/use-navigation.ts", "dest": "apps/web/src/modules/users/composables/use-navigation.ts" },
+	{ "source": "app/src/modules/users/components/navigation.vue", "dest": "apps/web/src/modules/users/components/UsersNavigation.vue" },
+	{ "source": "app/src/modules/users/components/NavigationRole.vue", "dest": "apps/web/src/modules/users/components/UsersNavigation.vue" }
+]

@@ -1,8 +1,9 @@
 // FR-030, FR-082 (feature 012): no "Directus" the user could see in apps/web/src. Comments (`Ported from`, notes
 // about Directus behaviour), identifiers such as createDirectus and tests are ignored; translations/*.json are checked by sync-translations.test.ts.
+// JSON data is checked too (feature 015), except the files in PATH_EXCEPTIONS.
 // Usage: node scripts/check-brand.mjs [srcDir]
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const keepLines = (comment) => comment.replace(/[^\n]/g, '');
@@ -15,11 +16,16 @@ export function stripComments(source) {
 		.replace(/(^|[^:\\])\/\/.*$/gm, '$1');
 }
 
+// Paths relative to srcDir. lang/translations/: sync-translations.test.ts checks them. theme/directus-themes.json:
+// generated theme data whose ids ("Directus Default"...) are stored in directus_users and directus_settings (spec 015
+// D-88, D-89, principle IX); the labels shown come from the theme_directus_* translation keys.
+export const PATH_EXCEPTIONS = [/^lang\/translations\//, /^theme\/directus-themes\.json$/];
+
 function* files(dir) {
 	for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
 		const path = join(dir, entry.name);
 		if (entry.isDirectory()) yield* files(path);
-		else if (/\.(vue|ts|css|html|svg)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) yield path;
+		else if (/\.(vue|ts|css|html|svg|json)$/.test(entry.name) && !/\.test\.ts$/.test(entry.name)) yield path;
 	}
 }
 
@@ -27,6 +33,8 @@ export function checkBrand(srcDir) {
 	const errors = [];
 
 	for (const file of files(srcDir)) {
+		if (PATH_EXCEPTIONS.some((re) => re.test(relative(srcDir, file).split(sep).join('/')))) continue;
+
 		const source = readFileSync(file, 'utf8');
 		const original = source.split('\n');
 

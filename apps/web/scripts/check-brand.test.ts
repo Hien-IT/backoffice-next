@@ -37,6 +37,20 @@ test('visible strings fail', () => {
 	]);
 });
 
+test('JSON data is checked, except the generated theme data and the translations (015 D-88, D-89)', () => {
+	const root = src({
+		'theme/directus-themes.json': '{ "id": "Directus Default" }',
+		'lang/translations/en-US.json': '{ "theme_directus_default": "Directus Default" }',
+		'theme/other.json': '{ "id": "Directus Default" }',
+		'nested/theme/directus-themes.json': '{ "id": "Directus Default" }',
+	});
+
+	expect(checkBrand(root)).toEqual([
+		'nested/theme/directus-themes.json:1: { "id": "Directus Default" }',
+		'theme/other.json:1: { "id": "Directus Default" }',
+	]);
+});
+
 test('stripComments keeps URLs', () => {
 	expect(stripComments("a('http://x') // c")).toBe("a('http://x') ");
 });

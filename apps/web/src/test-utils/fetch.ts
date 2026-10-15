@@ -46,13 +46,19 @@ export function calls(fetch: ReturnType<typeof mockApi>): string[] {
 	});
 }
 
+/** System m2o relations of the 015 user page, as Directus system-data defines them. */
+const SYSTEM_M2O: Record<string, string> = {
+	'directus_users.role': 'directus_roles',
+	'directus_users.avatar': 'directus_files',
+};
+
 /* ------------------------------------------------------------------------------------------------ allowed requests */
 
 const ID = '[^/]+';
 
 /**
  * The closed list of API requests of the web app: specs/012-backoffice-web-shell/contracts/api-calls.md (#1-#32) and
- * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96) and 015 (rows 97 to 134), on method and path
+ * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96) and 015 (rows 97 to 136), on method and path
  * (query ignored). Same idea as
  * apps/web-e2e/src/helpers/allowed-paths.ts, which only lists what the 012 pages send.
  */
@@ -119,9 +125,11 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
 	{ id: 93, method: 'POST', path: /^\/graphql(\/system)?$/ },
 	{ id: 94, method: 'SEARCH', path: new RegExp(`^/items/${ID}$`) },
-	// Feature 015 (specs/015-files-users-modules/contracts/api-calls.md, rows 97 to 134).
+	// Feature 015 (specs/015-files-users-modules/contracts/api-calls.md, rows 97 to 136).
 	{ id: 98, method: 'GET', path: new RegExp(`^/folders/${ID}$`) },
 	{ id: 103, method: 'GET', path: /^\/roles$/ },
+	{ id: 135, method: 'GET', path: new RegExp(`^/roles/${ID}$`) },
+	{ id: 136, method: 'GET', path: /^\/access$/ },
 	{ id: 105, method: 'GET', path: /^\/utils\/random\/string$/ },
 	{ id: 110, method: 'POST', path: /^\/(folders|users|users\/invite)$/ },
 	{ id: 111, method: 'PATCH', path: new RegExp(`^/(folders|files|users)(/${ID})?$`) },
@@ -229,6 +237,10 @@ export function mockFixtureApi(
 		const many = relations.find((r) => r.collection === collection && r.field === field);
 
 		if (many?.related_collection) return { kind: 'm2o', collection: many.related_collection };
+
+		// Feature 015: system m2o relations the user page expands (`role.*`, `avatar.id`); kept out of GET /relations.
+		const system = SYSTEM_M2O[`${collection}.${field}`];
+		if (system) return { kind: 'm2o', collection: system };
 		if (many?.meta?.one_collection_field)
 			return row?.[many.meta.one_collection_field]
 				? { kind: 'm2o', collection: row[many.meta.one_collection_field] }
@@ -554,7 +566,7 @@ export function mockFixtureApi(
 			});
 		}
 
-		/* -------------------------------------------------------------- 015 (rows 97 to 134) */
+		/* -------------------------------------------------------------- 015 (rows 97 to 136) */
 
 		// Replace the file of a row (multipart PATCH, FR-033) or edit it from the image editor (FR-043).
 		if (method === 'PATCH' && first === 'files' && second && init.body instanceof FormData) {
@@ -637,24 +649,20 @@ export function mockFixtureApi(
 	/* ---------------------------------------------------------------- 015 helpers */
 
 	/** Directus UsersService.inviteUser: one invited user per new email; known emails are RECORD_NOT_UNIQUE. */
+	// Directus UsersService.inviteUser: an unknown email becomes an invited user; an invited user gets the new role; any
+	// other known user is left as it is (no error). RECORD_NOT_UNIQUE only comes from the database, so tests that need it
+	// answer the request themselves.
 	function inviteUsers(body: { email: string | string[]; role: string }): Response | null {
 		const emails = Array.isArray(body.email) ? body.email : [body.email];
-		const known = emails.filter((email) => db['directus_users']!.some((u) => u['email'] === email));
 
-		for (const email of emails.filter((email) => !known.includes(email)))
-			create('directus_users', { email, role: body.role, status: 'invited' });
+		for (const email of emails) {
+			const user = db['directus_users']!.find((u) => u['email'] === email);
 
-		if (known.length === 0) return null;
+			if (!user) create('directus_users', { email, role: body.role, status: 'invited' });
+			else if (user['status'] === 'invited' && user['role'] !== body.role) user['role'] = body.role;
+		}
 
-		return json(
-			{
-				errors: known.map((email) => ({
-					message: `Value for field "email" in collection "directus_users" has to be unique.`,
-					extensions: { code: 'RECORD_NOT_UNIQUE', collection: 'directus_users', field: 'email', invalid: email },
-				})),
-			},
-			400,
-		);
+		return null;
 	}
 
 	/* ---------------------------------------------------------------- 014 helpers */

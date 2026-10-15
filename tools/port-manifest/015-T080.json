@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/modules/users/components/user-info-sidebar-detail.vue", "dest": "apps/web/src/modules/users/components/UserInfoSidebarDetail.vue" }
+]

@@ -1,5 +1,7 @@
-// US6 (T064, contracts/e2e.md §2): the profile page (/users/me) saves only the changed fields, shows API errors on the
-// field, and language, appearance and theme overrides apply at once and after a reload.
+// US6 (T064, contracts/e2e.md §2) moved to the user page by feature 015 (FR-051, D-48 lifted, T082): /users/me goes to
+// /users/<id>; the form saves only the changed fields, shows API errors on the field, and language, appearance and
+// theme overrides apply at once and after a reload. "Save and Stay" keeps the page (Save goes to the directory, as in
+// Directus).
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
@@ -48,13 +50,18 @@ async function openProfile(page: Page) {
 	await login(page, user);
 	await expect(page).toHaveURL(CONTENT_URL);
 	await page.goto('/admin/users/me');
+	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }
 
-const save = (page: Page) => page.getByRole('button', { name: /^(Save|Lưu)$/ }).click();
+async function save(page: Page) {
+	await page.getByRole('button', { name: /^(More save options|Thêm tùy chọn lưu)$/i }).click();
+	await page.getByRole('menuitem', { name: /^(Save and Stay|Lưu và ở lại)/ }).click();
+}
 
 async function choose(page: Page, label: string, option: string) {
-	await page.getByRole('combobox', { name: label }).click();
+	// The select is labelled by its field label and its current value.
+	await page.getByRole('combobox', { name: new RegExp(`^${label}\\b`) }).click();
 	await page.getByRole('option', { name: option, exact: true }).click();
 }
 
@@ -62,7 +69,9 @@ test('saves only the changed fields; the new name shows in the avatar menu (US6-
 	await openProfile(page);
 	await expect(page.getByLabel('First Name', { exact: true })).toHaveValue('Ada');
 
-	const patch = page.waitForRequest((r) => r.method() === 'PATCH' && new URL(r.url()).pathname.endsWith('/users/me'));
+	const patch = page.waitForRequest(
+		(r) => r.method() === 'PATCH' && new URL(r.url()).pathname.endsWith(`/users/${user.id}`),
+	);
 	await page.getByLabel('First Name', { exact: true }).fill('Grace');
 	await save(page);
 	expect((await patch).postDataJSON()).toEqual({ first_name: 'Grace' });
@@ -76,20 +85,23 @@ test('an email used by another user shows the unique error on the field (US6-1)'
 	await page.getByLabel('Email', { exact: true }).fill(ADMIN.email);
 	await save(page);
 
-	await expect(page.getByText('Value has to be unique')).toBeVisible();
+	// The message shows in the form notice and under the field.
+	await expect(page.getByText('Value has to be unique').first()).toBeVisible();
 });
 
 test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
-	// trackPage writes last_page 500 ms after a navigation: wait for it so the sign-in lands on /users/me
+	// trackPage writes last_page 500 ms after a navigation: wait for it so the sign-in lands on the user page
 	// (FR-018) and no PATCH is still pending when the cookies go (slow webkit raced both).
 	const tracked = page.waitForResponse(
-		(r) => r.url().endsWith('/users/me/track/page') && r.request().postDataJSON()?.last_page === '/users/me',
+		(r) => r.url().endsWith('/users/me/track/page') && r.request().postDataJSON()?.last_page === `/users/${user.id}`,
 	);
 	await openProfile(page);
 	await tracked;
 	await page.getByLabel('Password', { exact: true }).fill('web-e2e-New-Password2');
 	// The Save button is disabled while saving too: wait for the answer before the cookies go.
-	const saved = page.waitForResponse((r) => r.request().method() === 'PATCH' && r.url().endsWith('/users/me'));
+	const saved = page.waitForResponse(
+		(r) => r.request().method() === 'PATCH' && new URL(r.url()).pathname.endsWith(`/users/${user.id}`),
+	);
 	await save(page);
 	expect((await saved).ok()).toBe(true);
 
@@ -98,7 +110,7 @@ test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
 	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await login(page, { email: user.email, password: 'web-e2e-New-Password2' });
-	await expect(page).toHaveURL(/\/admin\/users\/me$/);
+	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
 });
 
 test('vi-VN applies at once and after a reload, without raw keys (US6-2, SC-006)', async ({ page }) => {
@@ -139,18 +151,14 @@ test('appearance dark, light and auto with the system scheme (US6-3, FR-063)', a
 	await expect(page.locator('html')).toHaveClass(/(^|\s)dark(\s|$)/);
 });
 
-test('a light theme override changes the design-system token; invalid JSON is refused (US6-4, D-43)', async ({
-	page,
-}) => {
+test('a light theme override changes the design-system token (US6-4, D-43)', async ({ page }) => {
 	await page.emulateMedia({ colorScheme: 'light' });
 	await openProfile(page);
 
-	const overrides = page.getByLabel('Light Theme Customization', { exact: true });
-	await overrides.fill('{ not json');
-	await save(page);
-	await expect(page.getByText('Invalid Input')).toBeVisible();
-
-	await overrides.fill('{"primary":"#aa0000"}');
+	// system-theme-overrides (feature 015): the root rules sit in the collapsed "globals" group of the light overrides.
+	const light = page.locator('[data-theme-overrides]').first();
+	await light.getByRole('button', { name: 'globals' }).click();
+	await light.getByRole('textbox', { name: 'primary', exact: true }).fill('#aa0000');
 	await save(page);
 	await expect
 		.poll(() =>

@@ -13,7 +13,7 @@ const { module = 'content' } = defineProps<{ module?: 'content' | 'files' | 'use
 const NAVIGATION = {
 	content: ContentNavigation,
 	files: defineAsyncComponent(() => import('../../../components/files/FilesNavigation.vue')),
-	users: null,
+	users: defineAsyncComponent(() => import('../../users/components/UsersNavigation.vue')),
 };
 </script>
 

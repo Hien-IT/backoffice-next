@@ -46,4 +46,11 @@ export default {
 	comment_submit_shortcut: 'Gửi (Ctrl + Enter)',
 	// Feature 014: checkbox of the version comparison footer (recipe Q-10, no Directus key).
 	delete_version_after_promote: 'Xóa “{version}” sau khi áp dụng',
+	// Feature 015 (D-88): the Directus theme names are shown as Backoffice names (the stored ids keep "Directus ..."),
+	// so these three keys replace the generated values on purpose.
+	theme_directus_default: 'Backoffice Mặc định',
+	theme_directus_minimal: 'Backoffice Tối giản',
+	theme_directus_colormatch: 'Backoffice Khớp màu',
+	// Feature 015 (D-88, CHK042): note under the system-theme list.
+	theme_applies_in_directus: 'Theme áp dụng ở Directus app. Giao diện Backoffice không đổi.', // brand-allowed: D-88 note names the app where the theme applies
 };

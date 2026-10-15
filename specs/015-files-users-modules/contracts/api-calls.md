@@ -18,6 +18,8 @@ và `KNOWN_REQUESTS` của `test-utils/fetch.ts` thêm các dòng dưới. Đã 
 | 103 | GET | `/roles` | `useNavigation` (users), `UsersInvite` | `fields=id,name,icon,parent` `sort=name`; `fields=id,name` `sort=name` | |
 | 104 | GET | `/users` | danh bạ (#50 với `collection=directus_users`, `fields` gồm `avatar`...) | | |
 | 105 | GET | `/utils/random/string` | `system-token` | | |
+| 135 | GET | `/roles/<id>` | form của màn user: field `role` (`select-dropdown-m2o` đọc role đang chọn, như Directus) | `fields=name,id` | thêm khi làm lượt 3 |
+| 136 | GET | `/access` | form của màn user: field `policies` (`list-m2m` qua `directus_access`, như Directus) | `fields=policy.name,policy.id,id,sort`, `filter[user]`, `limit`, `page`; đếm `aggregate[count]=id` | thêm khi làm lượt 3 |
 | 106 | GET | `/server/info` | store server: `uploads`, `project.default_theme_light\|dark` (#68) | | đã có; đọc thêm hai field |
 
 ## Ghi
