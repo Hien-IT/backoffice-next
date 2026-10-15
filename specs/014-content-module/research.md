@@ -221,6 +221,17 @@ T003 đọc template], `window.refreshLivePreview`; `SplitPanel.vue` bọc `@dir
 **Phương án bỏ**: so dòng DB như 005 (bỏ sót dạng body); chạy payload ở cả ba cấu hình (gấp ba thời gian, body không
 phụ thuộc cấu hình).
 
+## R12b. Lưu ý từ phiên 013 (2026-10-15, khi bàn giao `apps/web`)
+
+- `apps/web/vite.config.ts` `API_PATHS` chưa proxy `/items`, `/flows`, `/folders`, `/revisions` ở dev: lượt 1 thêm (cùng
+  `/presets`, `/versions`, `/comments`, `/shares`, `/utils`, `/graphql`).
+- Editor.js `render()` xong trong `requestIdleCallback`: browser test của màn item chờ block theo `data-id` và một idle
+  callback như `mountEditor` của `InputBlockEditor.browser.test.ts`.
+- Menu TinyMCE trong `BoDrawer` chưa kiểm (`shortcut:` trong `InputRichTextHtml.vue`): kiểm ở drawer item lồng của
+  lượt 1, ghi kết quả.
+- CI của 013 xanh ở run 38685401583 (commit 5751122); `check-package-names` cho `@directus/utils`, `@directus/types` chỉ
+  trong `apps/web` (62b5fc4).
+
 ## R13. Chuỗi dịch
 
 `apps/web/src/lang/translations/en-US.json` đã có `layouts`, `item_count`, `revisions`, `comments`, `shares`,
