@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { BUDGET_013, entrySize, LIMIT, lazyLeaks } from './check-bundle.mjs';
+import { BUDGET_013, BUDGET_014, entrySize, LIMIT, lazyLeaks } from './check-bundle.mjs';
 
 function dist(js: string) {
 	const root = mkdtempSync(join(tmpdir(), 'check-bundle-'));
@@ -36,4 +36,11 @@ test('feature 013 budget is below the 012 limit and finds lazy-only libraries in
 	const root = dist('const a = "maplibre-gl"; const b = 1;');
 	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['maplibre-gl']);
 	expect(lazyLeaks(join(dist('console.log(1);'), 'assets/index-abc.js'))).toEqual([]);
+});
+
+test('feature 014 budget allows 60 KB over the 013 entry and finds the Content module lazy-only libraries', () => {
+	expect(BUDGET_014).toBe(Math.round((205.8 + 60) * 1024));
+
+	const root = dist('const a = "fc-scrollgrid"; const b = "sp-root"; const c = "__aliasFor";');
+	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['fc-scrollgrid', 'sp-root', '__aliasFor']);
 });

@@ -522,8 +522,8 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 - **FR-023**: Số đếm PHẢI gọi riêng, không chặn danh sách: `itemCount` (theo `filter` + `search`) và `totalCount` (theo
   `filterSystem`) bằng `GET /items/:collection?aggregate[countDistinct]=<pk>` (hoặc `count=*` khi không có khóa chính),
   nhớ kết quả theo `(url, filter, search)` theo từng instance layout (`useMemoize` như Directus; không xóa khi bấm làm
-  mới: `refresh()` gọi lại hai đếm nhưng nhận cache nếu khóa không đổi [Inference từ `use-items.ts`; T003 chạy thử trên
-  Directus app, nếu Directus hiện số đếm cũ sau làm mới thì tái tạo và ghi R-38]), bỏ kết quả cũ khi đã có yêu cầu
+  mới: `refresh()` gọi lại hai đếm nhưng nhận cache vì khóa không đổi, nên không có request đếm và số đếm giữ giá trị cũ;
+  đo ở T004, tái tạo như Directus, R-38), bỏ kết quả cũ khi đã có yêu cầu
   mới; chỉ gọi lại `itemCount` khi `collection`, `filter`, `search` đổi (không khi đổi trang, sắp xếp, cột).
 - **FR-024**: Dòng số đếm PHẢI theo `format-items-count.ts` và `showingCount` của từng layout: tabular, cards:
   `formatItemsCountPaginated` (`"<từ>-<đến> of <N> items"`, kèm "filtered" khi có `filterUser`), ẩn khi
@@ -555,9 +555,9 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   `alias`, `presentation`, `translations`.
 - **FR-031**: Mỗi header PHẢI có menu: sắp tăng, sắp giảm, căn trái/giữa/phải (ghi `layout_options.tabular.align`), ẩn
   cột; nút "+" thêm cột (cây field `FieldList`, không chọn tất cả); kéo đổi độ rộng (ghi `widths` sau 350 ms; mặc định
-  144, tối thiểu như `v-table` Directus, cột mới 144; ẩn cột trong lúc debounce ghi widths rồi fields như Directus);
-  kéo đổi thứ tự cột chỉ nếu `v-table` Directus có (`allowHeaderReorder`, T003 kiểm; không có thì bỏ kéo); bàn phím:
-  menu header có "Chuyển trái/phải" (D-69).
+  144, tối thiểu 32 px như `table-header.vue` Directus, cột mới 144; ẩn cột trong lúc debounce ghi widths rồi fields
+  như Directus); kéo đổi thứ tự cột như Directus (`tabular.vue` bật `allow-header-reorder` của `v-table`, T003 b);
+  bàn phím: menu header có "Chuyển trái/phải" (D-69).
 - **FR-032**: Dòng PHẢI hiện giá trị bằng `RenderDisplay` theo `display` của field (mặc định theo kiểu), ô chọn dòng
   (`showSelect`), header dính (`fixed-header`), chiều cao theo `spacing` (`compact` 29, `cozy` 43, `comfortable` 58 px,
   option ở panel), sắp xếp tay bằng kéo khi collection có field sort, không có sắp xếp khác và user có quyền update field
@@ -713,8 +713,9 @@ editing, D-67)
   `backoffice-live-preview-mode`, `backoffice-live-preview-size`, `backoffice-live-preview-full-width` (D-39); tỉ lệ
   lưu dưới mức tối thiểu thì dùng mặc định cho tới khi kéo lớn hơn (như `livePreviewEnforceDefault`).
 - **FR-068**: Ở bề rộng ≤ `sm`: khung xem trước chiếm toàn bề rộng khi bật, không kéo; tỉ lệ không ghi.
-- **FR-069**: Iframe xem trước PHẢI chép đúng thuộc tính của `live-preview.vue` (`title`, và `sandbox`/`allow`/
-  `referrerpolicy` nếu Directus có; T003 đọc template và ghi lại đây; không thêm hạn chế mới), hiện trạng thái tải;
+- **FR-069**: Iframe xem trước PHẢI chép đúng thuộc tính của `live-preview.vue`: `id="frame"`, `src`, `title`
+  (`live_preview.iframe_title`), sự kiện `load`; Directus không đặt `sandbox`, `allow`, `referrerpolicy` (T003 c), app
+  mới cũng không (không thêm hạn chế mới), hiện trạng thái tải;
   URL khác origin nạp bình thường; lỗi gọi vào iframe bỏ qua. Rủi ro: URL do admin cấu hình, chấp nhận như Directus
   (Assumptions).
 
@@ -777,8 +778,9 @@ editing, D-67)
   (`both`, `collection`, `item`) từ store flows (013), tooltip `run_flow_on_current`/`run_flow_on_selected`/
   `run_flow_on_current_collection`, khóa khi cần lựa chọn mà chưa chọn (`requireSelection`), chạy qua
   `use-run-manual-flow` (013) với hộp xác nhận tùy chọn và hộp `unsaved_changes` (`run_flow_anyway`) khi có thay đổi;
-  body `{collection, keys}` với `keys` = lựa chọn ở màn collection (có thể rỗng khi `requireSelection: false`) hoặc
-  `[pk]` ở màn item, cộng giá trị form xác nhận (chép `runManualFlow` của `use-flows.ts`, T003); kết quả hiện bằng notice
+  body như `runManualFlow` của `use-flows.ts` (T003 d): ở màn collection với `requireSelection: false` và không có
+  lựa chọn → `{...giá trị xác nhận, collection}` (không có `keys`); còn lại → `{...giá trị xác nhận, collection, keys}`
+  với `keys` = `[pk]` ở màn item hoặc lựa chọn ở màn collection; chạy xong xóa lựa chọn; kết quả hiện bằng notice
   D-66; xong thì FR-059; trạng thái đang chạy.
 
 **Xuất, nhập, hàng loạt, làm mới**
@@ -787,7 +789,8 @@ editing, D-67)
   chọn file `.csv`, `.json`, nút nhập, tiến độ tải lên rồi `importing`; `POST /utils/import/:collection` multipart
   `file`; lỗi → `import-error-dialog.vue` (danh sách lỗi API); xong → nạp lại danh sách và notice
   `import_data_success`; công tắc "chạy nền" (`background`, `?background=true`, notice `import_upload_success`, không
-  nạp lại) chép hộp thoại nhập của Directus (T003)) và "Xuất" (mở hộp thoại FR-091).
+  nạp lại; ô checkbox `import_background`, khóa khi đang tải hoặc đang nhập, như `export-sidebar-detail.vue` T003 e) và
+  "Xuất" (mở hộp thoại FR-091).
 - **FR-091**: Hộp thoại xuất PHẢI có: định dạng (`csv`, `json`, `xml`, `yaml`), giới hạn (mặc định `limit` của layout
   hoặc `min(25, queryLimit.max)`; `-1` là tất cả; làm tròn số), bộ lọc (sửa được bằng `system-filter`) và tìm kiếm (ô
   nhập) khởi tạo từ màn, field (chọn nhiều bằng `FieldList` từ field không alias, mặc định field của layout kể cả field
@@ -927,11 +930,15 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-70 | Nạp lại khi công cụ AI ghi dữ liệu (`onSystemToolResult`) | Có | Không có | Nguyên tắc XI (D-41) | ngoài phạm vi | — |
 | D-71 | Nút "sửa bookmark role/global" và nút "tạo collection" trỏ tới Settings | Trang Settings | Trỏ tới khung Settings của 012 (D-40) | 016 chưa có | ngoài phạm vi (tạm thời) | 016 |
 | D-72 | Collection hệ thống chuyển hướng tới module của nó (`/users`, `/files`, `/insights`, `/activity`, `/settings/*`) | Màn đầy đủ | Khung module (D-40) | 015, 016, 018 chưa có | ngoài phạm vi (tạm thời) | 015: `directus_users`, `directus_files`; 016: `directus_settings`, `directus_collections`, `directus_roles`, `directus_presets`, `directus_translations`, `directus_flows`; 018: `directus_dashboards`, `directus_activity` |
-| D-74 | Xác nhận trước khi xóa nhóm kanban (xóa item thật của collection nhóm) | [Unverified: T003 đọc `kanban.vue`; nếu Directus đã hỏi thì bỏ dòng này] | Hộp xác nhận | An toàn dữ liệu; chỉ ghi nếu Directus không hỏi | khác | — |
+| D-74 | Xác nhận trước khi xóa nhóm kanban (xóa item thật của collection nhóm) | Xóa ngay khi bấm, không hỏi (`kanban.vue:195` gọi `deleteGroup` thẳng; T003 a) | Hộp xác nhận (focus Hủy) | An toàn dữ liệu (xóa item thật không hoàn tác được); owner duyệt có điều kiện ở release-gate CHK011 | khác | — |
 | D-73 | Interface hệ thống `system-filter` (bộ lọc nâng cao) và `system-input-translated-string` (tên bookmark) | Có | Làm ở 014 (D-57 của 013 đã sửa, commit `0e513e5`) | Thanh tìm kiếm và bookmark của Content cần; Clarifications Q-A; tech lead duyệt 2026-10-15 (Q5) | — (thu hẹp D-57) | — |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
-R-37. Chưa có mục nào lúc viết spec; ghi khi port (R-38 trở đi) và tech lead duyệt trước khi đóng.
+R-37; tech lead duyệt trước khi đóng.
+
+| Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
+|----|----------------------|------------|--------|
+| R-38 | Làm mới layout (chu kỳ `refresh_interval`, flow chạy xong, sau thao tác hàng loạt) nạp lại danh sách nhưng không gửi lại request đếm: `getItemCount`/`getTotalCount` gọi `fetchAggregate` có `useMemoize` theo `(url, filter, search)` không bao giờ xóa trong instance layout | `packages/composables/src/use-items.ts` (`useMemoize`, không `clear`); đo T004 ngày 2026-10-16 trên Directus app 11.17.4 (8155): `bo_std` 3 item, chu kỳ 10 s, thêm item qua API → sau lần làm mới bảng có 4 dòng, 0 request đếm, vẫn hiện "3 Items" | Dòng số đếm và số trang sai tới khi đổi bộ lọc, tìm kiếm hoặc mở lại màn; app mới tái tạo (test khẳng định 0 request đếm sau làm mới) |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

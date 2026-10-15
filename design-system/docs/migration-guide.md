@@ -78,7 +78,7 @@ The pairs used by the final recipes (`component-specs.md`, `layout-patterns.md`,
 `tokens/tokens.json`: alpha colors are composited on the stated background, the dark page is `gray-900`. Text needs
 4.5:1 (no use here is large text); input boundaries, toggle tracks, icons that carry meaning and focus indicators need
 3:1 (WCAG 1.4.11). Disabled controls are exempt. All pairs pass except the three rows marked "fail", which are open
-points of feature 013 for the design owner. Add a row (and recompute) for any new pair.
+points of feature 013 for the design owner. Add a row (and recompute) for any new pair. Feature 014 (Content module) uses only pairs already listed.
 
 | Mode  | Foreground       | Background            | Use                                                                                                       | Ratio   | Needed | Result |
 | ----- | ---------------- | --------------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------ | ------ |

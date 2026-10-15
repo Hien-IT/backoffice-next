@@ -300,3 +300,59 @@ drafts). "Deviation" lines say where the code differs from the first draft.
   nested drawer's overlay is `bg-transparent` (depth > 0) so the page dims once; only the top drawer reacts to Esc and
   outside clicks, and focus returns to its trigger inside the drawer below.
 - Below `xl` a drawer covers the right detail panel drawer if both are open; only one Backdrop dims the page.
+
+## 9. Content module navigation tree (nháp, 014)
+
+**Draft (nháp, 014)** for spec 014 Q-1 (owner choice 2026-10-15, Clarifications Q2): the Content module renders the
+Directus collection tree (`modules/content/components/navigation.vue`, `NavigationItem.vue`, `navigation-bookmark.vue`)
+**inside its sidebar sub-menu** (the `navigation` slot of `AppSidebar`, §7), several levels deep. Other modules keep one
+level. Behaviour (open groups, hidden collections, search, bookmarks, last accessed collection) is the Directus one.
+
+- Container: the sub-menu `ms-9 mt-2` block of 012; the tree is a `ul role="tree"` with `aria-label` "Collections"
+  (`$t('collections')`); items are `li role="treeitem"` with `aria-level`, `aria-expanded` on groups, `aria-selected`
+  (and `aria-current="page"` on the link) on the current collection or bookmark.
+- Rows reuse `menu-dropdown-item` / `menu-dropdown-item-active` / `menu-dropdown-item-inactive` (theme.css, `FOCUS`
+  included) with `min-h-9 gap-2`; the collection icon `BoIcon` `size-4 shrink-0` takes the collection `color` as
+  inline style (data color, Q-C of 013) else `text-gray-500 dark:text-gray-400`; the name truncates (`BoTextOverflow`).
+- Nesting: each level adds `ps-4`; a group row has a toggle button first (`size-6 rounded FOCUS`, `chevron_right`
+  turning 90° when open, `motion-reduce:transition-none`, `aria-label` "Expand"/"Collapse" + name); a folder (collection
+  without `schema`) is a group row whose label is not a link; `collapse: locked` groups have no toggle.
+- Dense (more than 5 visible collections, Directus `dense`): `min-h-8 text-theme-sm`; otherwise `min-h-9 text-sm`.
+- Bookmarks: child rows of their collection, icon `bookmark` (or the bookmark icon/color), a row menu button at the end
+  (`more_vert`, `size-7 rounded FOCUS opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`, always visible
+  when the menu is open), `lock` icon instead when the user cannot edit (tooltip `cannot_edit_<scope>_bookmarks`).
+- Hidden collections: rows `text-gray-400 dark:text-gray-500` with an `visibility_off` icon after the name (and an sr-only
+  "hidden"); shown only when "Show hidden collections" is on.
+- Header row above the tree (sticky `top-0 bg-white dark:bg-gray-900 pb-2`): the search Input (Tier 1 Input, `h-9`,
+  `type="search"`, placeholder `search_collection`) when more than 20 collections are visible, and an icon Button
+  `visibility` / `visibility_off` with `aria-pressed` and `aria-label` `show_hidden_collections` /
+  `hide_hidden_collections` when hidden collections exist (keyboard path for the Directus right-click menu, which stays).
+- No match: an sr-only `role="status"` text `no_results` and a visible `px-3 py-2 text-theme-sm text-gray-500
+  dark:text-gray-400` row.
+- Keyboard (WAI-ARIA tree): Up/Down move between visible rows (roving `tabindex`), Right opens a group or moves to its
+  first child, Left closes or moves to the parent, Enter opens the link, Home/End first/last row; Tab leaves the tree.
+- Empty (admin, no collection): a full-width outline Button `create_collection` to the Settings frame (D-71).
+- Collapsed sidebar (90px): the tree is hidden like other sub-menus; hover/focus expand shows it (§2).
+
+## 10. Live preview split (nháp, 014)
+
+**Draft (nháp, 014)** for spec 014 Q-6 (live preview, Clarifications Q1 = A; no visual editing, D-67). Behaviour is
+Directus `routes/item.vue` + `live-preview.vue`.
+
+- Split: the item content area becomes a horizontal split (`SplitPanel`, `@directus/vue-split-panel`): form at the start,
+  preview at the end, size in % (default 50, min 20, max 80, snap 50, collapse under 15); full width = 100 %. Below
+  `sm` the preview covers the form when open and the divider is disabled.
+- Divider (`ResizeHandle` of 012): `w-1.5 cursor-col-resize bg-transparent hover:bg-brand-500/20 FOCUS`, a 1px line
+  `bg-gray-200 dark:bg-gray-800` in the middle, `role="separator"` `aria-orientation="vertical"` `aria-valuenow` (%),
+  `aria-valuemin` 20, `aria-valuemax` 80, `tabindex="0"`; Left/Right ±5 %, Home/End min/max (D-69).
+- Preview frame: `flex h-full flex-col border-s border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900`.
+  Toolbar `flex h-11 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`: icon Buttons (refresh
+  `refresh` `aria-label` `live_preview.refresh`, size toggle `devices`, new window `open_in_new`
+  `live_preview.new_window`, close `close`), the URL as `truncate text-theme-xs text-gray-500 dark:text-gray-400`
+  (a Dropdown menu when there are several URLs), width/height Inputs `w-16 h-8` and a zoom Select (25–200 %) when the
+  size is fixed, and a display options Dropdown (`full_width`).
+- Iframe: `size-full border-0 bg-white` inside a `relative grow overflow-auto` view (fixed size: centered,
+  `shadow-theme-md`); a top `PROGRESS` bar while loading; `no_url` / `invalid_url` show the Card empty-page block.
+- Header button (item page actions): secondary icon Button `visibility` with `aria-pressed`, tooltip
+  `live_preview.enable` / `live_preview.disable`.
+- Popup route (`/content/:collection/:pk/preview`): the preview frame alone, full window, `PublicView` is not used.

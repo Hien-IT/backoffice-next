@@ -229,6 +229,17 @@ catalog:
   '@vitest/browser': 3.2.4
   axe-core: 4.11.0
   mime: 4.1.0
+  # Content module (feature 014): same versions as directus/pnpm-workspace.yaml 11.17.4 (research R1)
+  '@fullcalendar/core': 6.1.19
+  '@fullcalendar/daygrid': 6.1.19
+  '@fullcalendar/interaction': 6.1.19
+  '@fullcalendar/list': 6.1.19
+  '@fullcalendar/timegrid': 6.1.19
+  '@json2csv/plainjs': 7.0.6
+  file-saver: 2.0.5
+  '@types/file-saver': 2.0.7
+  '@directus/vue-split-panel': 0.8.9
+  # json-to-graphql-query 2.3.0 is already in the catalog above (shared with the API)
   # Benchmark
   autocannon: 8.0.0
   hdr-histogram-js: 3.0.1

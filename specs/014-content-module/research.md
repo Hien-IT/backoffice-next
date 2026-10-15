@@ -15,12 +15,20 @@ vue-virtual-scroller 2.0.0-beta.8, @directus/utils 13.4.1, @sindresorhus/slugify
 | `@fullcalendar/core`, `daygrid`, `timegrid`, `list`, `interaction` | 6.1.19 | MIT | layout `calendar` (FR-036) | Cùng option, view, sự kiện kéo như `layouts/calendar/index.ts`; locale nạp động `@fullcalendar/core/locales/<x>` như `get-fullcalendar-locale.ts`; TailAdmin free dùng FullCalendar nên recipe Q-4 có mẫu CSS |
 | `@json2csv/plainjs` | 7.0.6 | MIT | `save-as-csv` (FR-092) | Cùng `Parser` để CSV tải trang hiện tại bằng byte với Directus (US6-2) |
 | `file-saver` | 2.0.5 (+ `@types/file-saver`) | MIT | `saveAs` của CSV và export tải về | |
-| `@directus/vue-split-panel` | 0.8.9 | [Unverified: giấy phép, ESM, có trên npm; T002] | chia đôi live preview (FR-064) | Dự phòng: `SplitPanel.vue` riêng trên `ResizeHandle` + `useLayoutStorage` của 012 (sidebar split đã có), cùng props `size`, `collapsed`, `minSize`, `maxSize`, `snapPoints` |
-| `json-to-graphql-query` | 2.3.0 (catalog Directus `directus/pnpm-workspace.yaml`; giấy phép, ESM kiểm T002) | MIT [Unverified: T002] | `saveAsCopy` (FR-053) dựng query `<collection>_by_id` như `use-item` | Dự phòng: hàm chép tối thiểu (alias, args, field lồng) |
-| `@fullcalendar/*` CSS | theo gói | | | Biến `--fc-*` đè bằng token theme trong `calendar.css` của app [Unverified mức đè: T002 kiểm `--fc-border-color`, `--fc-today-bg-color`, `--fc-event-bg-color`] |
+| `@directus/vue-split-panel` | 0.8.9 | MIT (repo GitHub; T002) | chia đôi live preview (FR-064) | Dự phòng: `SplitPanel.vue` riêng trên `ResizeHandle` + `useLayoutStorage` của 012 (sidebar split đã có), cùng props `size`, `collapsed`, `minSize`, `maxSize`, `snapPoints` |
+| `json-to-graphql-query` | 2.3.0 (catalog Directus `directus/pnpm-workspace.yaml`; giấy phép, ESM kiểm T002) | MIT (T002) | `saveAsCopy` (FR-053) dựng query `<collection>_by_id` như `use-item` | Dự phòng: hàm chép tối thiểu (alias, args, field lồng) |
+| `@fullcalendar/*` CSS | theo gói | | | Biến `--fc-*` đè bằng token theme trong `calendar.css` của app (T002: biến đặt trên `.fc` thắng `:root`, xem Kết quả kiểm) |
 
 **Không thêm**: `@directus/composables`, `@directus/stores` (chép phần cần: `use-layout`, `use-items` đã có, `app.basemap`);
 `axios` (sdk + `apiFetch`); thư viện bảng ảo mới (Q4 = vẽ đủ như Directus).
+
+**Kết quả kiểm (T002, 2026-10-16)**: `pnpm view`: `@fullcalendar/core` 6.1.19, `@json2csv/plainjs` 7.0.6, `file-saver`
+2.0.5, `json-to-graphql-query` 2.3.0 đều MIT; `@directus/vue-split-panel` 0.8.9 không khai `license` trong package nhưng
+repo GitHub `directus/vue-split-panel` là MIT (GitHub API). `json-to-graphql-query` 2.3.0 đã có sẵn trong catalog (API
+dùng); `@directus/vue-split-panel` được thêm vào danh sách web-only của `tools/check-package-names.mjs`.
+`src/test-utils/libraries.smoke.browser.test.ts` (chromium): split panel nạp như ES module, `jsonToGraphQLQuery` dựng
+đúng query `<c>_by_id`, và biến `--fc-*` đặt trên phần tử `.fc` thắng giá trị `:root` mà FullCalendar chèn lúc chạy.
+`pnpm audit --prod --audit-level=high` không có advisory mới. Không cần dự phòng nào.
 
 **Phương án bỏ**: lịch riêng trên Reka (mất kéo thả, view, locale của FullCalendar); CSV viết tay (khác byte với
 Directus ở quoting); fetch blob thay `file-saver` (file-saver xử lý Safari, như Directus).
@@ -60,8 +68,10 @@ Content, bỏ). `BookmarkAdd.vue` chép `bookmark-add.vue`: tên qua `system-inp
 
 `system-input-translated-string` (chép `interfaces/_system/system-input-translated-string/*`): ô nhập có nút mở
 drawer chọn/tạo chuỗi dịch (`/translations`, store `translations` của 012 có hydrate; thêm `create`/`update` nếu
-thiếu). Drawer chọn chuỗi là `DrawerCollection` trên `directus_translations`? Không: Directus có drawer riêng
-(`translation-strings-drawer`?) [Unverified: T003 mục (i) đọc cấu trúc thư mục và request; chép như Directus].
+thiếu). T003 i: Directus có ba file (`index.ts`, `input-translated-string.vue`, `custom-translations-tooltip.vue`);
+ô nhập kèm menu gợi ý khóa dịch (nạp khóa bằng `fetchAll('/translations')`, lọc theo chữ gõ), chọn khóa → `$t:<key>`,
+tạo khóa mới mở `DrawerItem` (013) trên `directus_translations` với `primary-key="+"` và giá trị mặc định
+(`key` = snakeCase của chữ gõ, `language` của user), lưu xong gọi store translations nạp lại. Không có drawer riêng.
 
 **Phương án bỏ**: lưu preset ngay mỗi thay đổi (nhiều request hơn Directus); bỏ tên dịch `$t:` (khác Directus).
 
@@ -114,10 +124,9 @@ thiếu). Drawer chọn chuỗi là `DrawerCollection` trên `directus_translati
 
 **Quyết định**: `apps/web/src/composables/use-items.ts` của 013 là bản chép đủ của `@directus/composables`
 (`filterSystem`, `alias`, `deep`, `changeManualSort`, `fetchAggregate` memo theo `(url, filter, search)`, generation,
-abort, loading 150 ms, về trang 1) [Unverified: kiểm diff với nguồn ở T003; bổ sung phần thiếu]. Không thêm cơ chế
+abort, loading 150 ms, về trang 1); T003 g: diff với nguồn chỉ khác api → sdk và `isCancel` → `AbortError`, không thiếu phần nào. Không thêm cơ chế
 riêng cho 10 triệu dòng (Q-B): "mượt" = không chặn và không request thừa (FR-022, FR-023); đo SC-003 ở R14. Hủy request
-bằng `AbortController` qua `requestEndpoint` (sdk nhận `signal`? [Unverified: T003; nếu không, dùng `apiFetch` với
-`signal` cho danh sách]).
+bằng `AbortController`: bản port đã truyền `signal` qua `onRequest` của sdk (T003 g).
 
 ## R6. Tìm kiếm và bộ lọc nâng cao (`system-filter`, D-73)
 
@@ -139,8 +148,7 @@ kiện, Popover chứa `SystemFilter`). `FieldList` dùng lại cho nút "+" c�
 - Chép `composables/use-item/index.ts` (api → sdk; `notify` → `useNotices` tại chỗ D-66: `BoNotice` dưới page header,
   tự ẩn như snackbar 5 s, `aria-live="polite"`; `unexpectedError` → `BoDialog` lỗi), `use-edits-guard.ts` +
   `use-navigation-guard.ts` (router `beforeEach` + `beforeunload`), `use-permissions/{index,collection,item,lib}`
-  (`fetchItemPermissions` gọi `GET /permissions/me/:collection/:pk` như Directus [Unverified route: T003; 004 đã port
-  `permissions.controller`]), `use-nested-validation.ts`, `use-template-data` (013). `saveAsCopy`: query GraphQL
+  (`fetchItemPermissions` gọi `GET /permissions/me/:collection/:pk` như Directus (T003 h: API mới có `@Get(['me/:collection', 'me/:collection/:pk'])` ở `permissions.controller.ts`)), `use-nested-validation.ts`, `use-template-data` (013). `saveAsCopy`: query GraphQL
   `POST /graphql` (hoặc `/graphql/system`) như Directus (011 có cả hai app) với `json-to-graphql-query` (R1).
 - `ItemRoute.vue` chép `item.vue` bỏ collab, AI, visual editing (`useVisualEditing` → `false`); `SaveOptions.vue`
   (menu Reka `DropdownMenu` cạnh nút lưu: split button, recipe Q-8); phím tắt `useShortcut` chép từ
@@ -154,7 +162,9 @@ kiện, Popover chứa `SystemFilter`). `FieldList` dùng lại cho nút "+" c�
 `addVersion`, `updateVersion`, `deleteVersion`), `use-fake-version-field.ts`, `version-menu.vue` (menu Reka
 `DropdownMenu` trong breadcrumb, hộp tạo/đổi tên/xóa/chuyển bằng `BoDialog`), `version-promote-field.vue`,
 `comparison/{comparison-modal,comparison-header,comparison-toggle}.vue`, `use-comparison.ts`, `types.ts`, utils chuẩn
-hóa (`comparison/utils/*` hoặc trong composable [Unverified: T003 liệt kê]), `utils/field-utils.ts`,
+hóa và diff (T003: `composables/use-comparison-diff.ts`, `utils/get-revision-fields.ts`,
+`utils/reconstruct-comparison-html.ts`, `utils/should-show-comparison-diff.ts`, `utils/get-default-values-from-fields.ts`
+(013 có)), `utils/field-utils.ts`,
 `get-version-display-name.ts`; hộp so sánh dùng `BoForm` với `comparisonMode`/`comparisonSide` của 013 (gỡ D-55).
 `use-revisions.ts`, `use-revision.ts`, `revisions-sidebar-detail.vue`, `revisions-date-group.vue`, `revision-item.vue`
 chép; "Apply" phát `revert` → `edits` của form. Chế độ `collab` của modal bỏ (D-68).
@@ -176,8 +186,7 @@ textarea, `/users` tìm kiếm; `comment-item`, `comment-item-header`; DOMPurify
 
 **Quyết định**: `ExportSidebarDetail.vue` chép `export-sidebar-detail.vue`: nhập = `<input type="file" accept=".csv,.json">`
 + tải lên bằng `XMLHttpRequest` để có tiến độ (fetch không có upload progress) qua helper
-`uploadWithProgress(path, formData, onProgress)` dùng chung với `BoUpload` 013 nếu 013 chưa có tiến độ [Unverified:
-T003]; `?background=true` khi chọn chạy nền; lỗi `FAILED_VALIDATION` → `ImportErrorDialog`. Xuất tải về =
+`uploadWithProgress(path, formData, onProgress)` mới (T003: `BoUpload` 013 dùng fetch, tiến độ theo số file đã xong, không theo byte); `?background=true` khi chọn chạy nền; lỗi `FAILED_VALIDATION` → `ImportErrorDialog`. Xuất tải về =
 `apiFetch('<endpoint>?export=<fmt>&...')` → `blob` → `saveAs(blob, '<collection>.<ext>')`; lưu thư viện = `POST
 /utils/export/:collection`; chọn field bằng `FieldList` (R6), thư mục bằng `FolderPicker`? (Directus `folder-picker.vue`;
 013 `DrawerFiles` có select thư mục: dùng lại `BoSelect` thư mục của 013). `onDownload` của layout = `saveAsCSV`
@@ -186,8 +195,7 @@ T003]; `?background=true` khi chọn chạy nền; lỗi `FAILED_VALIDATION` →
 ## R11. Live preview (Q1 = A)
 
 **Quyết định**: `LivePreview.vue` chép `live-preview.vue` bỏ visual editing (D-67): thanh công cụ (URL, nạp lại, kích
-thước màn, zoom, mở cửa sổ, menu hiển thị), iframe `title` + `sandbox` như Directus [Unverified thuộc tính `sandbox`:
-T003 đọc template], `window.refreshLivePreview`; `SplitPanel.vue` bọc `@directus/vue-split-panel` (R1) với
+thước màn, zoom, mở cửa sổ, menu hiển thị), iframe `id`, `src`, `title`, `load` như Directus (không `sandbox`, T003 c), `window.refreshLivePreview`; `SplitPanel.vue` bọc `@directus/vue-split-panel` (R1) với
 `PrivateViewResizeHandle` → `ResizeHandle` 012 làm tay cầm (mũi tên đổi 5 %, D-69); `PreviewRoute.vue` chép
 `preview.vue` (`in-popup`, `postMessage('refresh')`); localStorage `backoffice-live-preview-*`; `useBreakpoints`
 `sm` cho `isMobile`. Recipe Q-6 ghi `layout-patterns.md` §10.
@@ -265,6 +273,10 @@ nhóm…", "Chuyển trái/phải"): overlay `vi-VN` + `en-US` như D-60.
 Điều kiện bắt đầu lượt 1: phiên 013 báo CI xanh (commit cuối của 013). Trong lượt, `git pull --rebase` trước push;
 không push khi CI của session khác đang chạy (bài học 013); nhắn session kia trước `env-up`/`env-down`. tasks.md ghi
 mục "Điều kiện bắt đầu" như 013 (CHK096).
+
+Kết quả T004 (2026-10-16): Directus app làm mới layout gửi lại request danh sách nhưng không gửi request đếm (memo
+của `useItems`), số đếm hiện giá trị cũ → R-38 trong spec, app mới tái tạo. Script đo giữ ở scratchpad của phiên, các
+bước: preset admin `refresh_interval: 10` trên `bo_std`, mở màn, `POST /items/bo_std`, chờ 12 s, đếm dòng và request.
 
 Task kiểm sớm lượt 1 (T002/T003, kết quả ghi lại vào file này): gói R1 trên npm; diff `use-items.ts` với nguồn và sdk
 `signal` (CHK093); `v-table` `allowHeaderReorder` (CHK037); `kanban.vue` xác nhận xóa nhóm (D-74, CHK011); thuộc tính

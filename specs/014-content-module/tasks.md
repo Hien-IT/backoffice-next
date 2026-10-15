@@ -58,18 +58,18 @@ build, E2E hiện có + mới xanh, commit, push).
 **Purpose**: cài gói, kiểm các giả định đọc từ code Directus, mở proxy dev, viết recipe nháp trước mọi task giao diện
 (FR-110, SC-009).
 
-- [ ] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm gói research R1 với bản Directus 11.17.4:
+- [X] T001 `pnpm-workspace.yaml` catalog nhóm "Web" thêm gói research R1 với bản Directus 11.17.4:
   `@fullcalendar/core`, `@fullcalendar/daygrid`, `@fullcalendar/timegrid`, `@fullcalendar/list`,
   `@fullcalendar/interaction` (6.1.19), `@json2csv/plainjs: 7.0.6`, `file-saver: 2.0.5`, `@types/file-saver` (dev),
   `@directus/vue-split-panel: 0.8.9`, `json-to-graphql-query` (bản trong `directus/pnpm-workspace.yaml`);
   `apps/web/package.json` thêm theo `catalog:`; `pnpm install`; `pnpm audit --prod --audit-level=high` không có
   advisory mới (bài học 013: advisory high chặn CI); `pnpm run check-package-names` xanh.
-- [ ] T002 Kiểm [Unverified] của R1: `pnpm view <gói>@<bản> version license` cho mọi gói T001; `@directus/vue-split-panel`
+- [X] T002 Kiểm [Unverified] của R1: `pnpm view <gói>@<bản> version license` cho mọi gói T001; `@directus/vue-split-panel`
   và `json-to-graphql-query` có build ESM chạy trong Vite (import thử trong `src/test-utils/browser.smoke.browser.test.ts`);
   biến `--fc-border-color`, `--fc-today-bg-color`, `--fc-event-bg-color` đè được bằng token (dựng một lịch trống trong
   browser test). Gói không dùng được thì chọn dự phòng của R1 (SplitPanel trên `ResizeHandle` 012; hàm dựng query
   GraphQL tối thiểu) ngay trong task này. Ghi kết quả vào `specs/014-content-module/research.md` mục R1 "Kết quả kiểm".
-- [ ] T003 Đọc code Directus 11.17.4 cho các mục đề xuất gắn T003 (release-gate CHK011, 019, 032, 037, 060, 088, 093) và
+- [X] T003 Đọc code Directus 11.17.4 cho các mục đề xuất gắn T003 (release-gate CHK011, 019, 032, 037, 060, 088, 093) và
   ghi kết quả vào research R15 và spec: (a) `layouts/kanban/kanban.vue` có hộp xác nhận xóa nhóm không → giữ hoặc bỏ
   dòng D-74; (b) `components/v-table/*` có `allowHeaderReorder`, độ rộng tối thiểu cột → FR-031; (c)
   `views/private/components/live-preview.vue` thuộc tính iframe (`sandbox`, `allow`, `referrerpolicy`) → FR-069, bỏ
@@ -80,14 +80,14 @@ build, E2E hiện có + mới xanh, commit, push).
   route quyền item của `use-permissions/item` (`GET /permissions/me/:collection/:pk`) có ở API mới (004) → contracts #53;
   (i) cấu trúc drawer chọn/tạo chuỗi dịch của `interfaces/_system/system-input-translated-string/*` (tên file, request
   `/translations`) → research R3, bỏ [Unverified].
-- [ ] T004 Đo trên Directus app (profile `app` của `tests/parity`, 8155): mở `bo_std` (013), bấm làm mới (sidebar
+- [X] T004 Đo trên Directus app (profile `app` của `tests/parity`, 8155): mở `bo_std` (013), bấm làm mới (sidebar
   Refresh hoặc layout refresh) sau khi thêm item qua API: request đếm có gửi lại không, số đếm có đổi không. Ghi FR-023
   và research R15; nếu Directus giữ số cũ thì tái tạo và thêm R-38 vào spec (bảng "Rủi ro chấp nhận").
-- [ ] T005 `apps/web/vite.config.ts` `API_PATHS` thêm `items|flows|folders|revisions|versions|comments|activity|graphql`
+- [X] T005 `apps/web/vite.config.ts` `API_PATHS` thêm `items|flows|folders|revisions|versions|comments|activity|graphql`
   (research R12b) để dev proxy tới `PUBLIC_URL`; `optimizeDeps.include` thêm `@fullcalendar/*`,
   `@directus/vue-split-panel`, `@json2csv/plainjs`, `file-saver`, `json-to-graphql-query` (browser test không nạp lại
   giữa chừng, bài học 013); chạy `PUBLIC_URL=http://127.0.0.1:8155 pnpm nx run web:serve` mở `/admin/content` kiểm tay.
-- [ ] T006 Recipe nháp "nháp (014)" cho Q-1 đến Q-12 (spec "Câu hỏi mở về design-system") trước mọi task giao diện:
+- [X] T006 Recipe nháp "nháp (014)" cho Q-1 đến Q-12 (spec "Câu hỏi mở về design-system") trước mọi task giao diện:
   `design-system/docs/layout-patterns.md` §9 (cây collection trong sub-menu: thụt cấp `ps-4`, nút nhóm `aria-expanded`,
   bookmark là mục con có menu, ô tìm dính đầu, nút hiện collection ẩn, vai trò `tree`/`treeitem`, mũi tên, Q-1) và §10
   (live preview chia đôi: tay cầm, thanh công cụ, chọn kích thước, toàn bề rộng, Q-6); `design-system/docs/component-specs.md`
@@ -97,7 +97,7 @@ build, E2E hiện có + mới xanh, commit, push).
   panel L-4 (Q-9), revisions và hộp so sánh (Q-10), comments với gợi ý `@`, shares (Q-11), hộp xuất/nhập, hộp lỗi nhập,
   hộp xác nhận hàng loạt (Q-12); cặp màu mới vào bảng tương phản `design-system/docs/migration-guide.md` (đánh dấu
   "014"); `specs/014-content-module/design-review/README.md` theo mẫu của 013.
-- [ ] T007 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_014` = kích thước entry của 013 + 60 KB gzip (SC-012); danh
+- [X] T007 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_014` = kích thước entry của 013 + 60 KB gzip (SC-012); danh
   sách gói chỉ được ở chunk lười thêm `@fullcalendar`, `@directus/vue-split-panel`, `json-to-graphql-query`,
   `@json2csv`; test `apps/web/scripts/check-bundle.test.mjs` (hoặc test hiện có) thêm ca.
 

@@ -9,8 +9,8 @@ import { pathToFileURL } from 'node:url';
 export const ALLOWED_DIRECTUS_PACKAGES = ['@directus/sdk', '@directus/format-title'];
 
 /** apps/web only: same versions as Directus 11.17.4 so the shared helpers and types behave like the Directus app
- * (feature 013 plan, research R1). */
-export const WEB_ONLY_DIRECTUS_PACKAGES = ['@directus/utils', '@directus/types'];
+ * (feature 013 plan, research R1); the split panel of the live preview (feature 014, research R1). */
+export const WEB_ONLY_DIRECTUS_PACKAGES = ['@directus/utils', '@directus/types', '@directus/vue-split-panel'];
 
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 
