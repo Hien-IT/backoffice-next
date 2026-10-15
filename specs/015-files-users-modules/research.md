@@ -1,7 +1,7 @@
 # Research: Module Files và Users (015)
 
 Ngày 2026-10-15. Mỗi mục: quyết định, lý do, phương án bỏ. Directus tham chiếu 11.17.4 (`directus/app` 15.10.0,
-`@directus/themes` trong `directus/packages/themes`, `@directus/utils` 13.4.1). Dòng [Unverified] kiểm ở task đầu lượt
+`@directus/themes` trong `directus/packages/themes`, `@directus/utils` 13.4.1). Dòng [Unverified] đã kiểm ở T002 và các lượt sau (2026-10-16, ghi "Đã kiểm"); ban đầu kiểm ở task đầu lượt
 1 (T002 như 013, 014); kết quả ghi lại vào file này.
 
 ## R1. Thư viện và phiên bản
@@ -12,7 +12,7 @@ nhóm "Web" khi chưa có. Đã có: `p-queue` 8.1.0 (apps/web), `nanoid`, `loda
 
 | Gói | Bản (catalog Directus) | Giấy phép | Dùng cho | Ghi chú |
 |-----|------------------------|-----------|----------|---------|
-| `cropperjs` | 1.6.2 (`directus/pnpm-workspace.yaml`) | MIT | `ImageEditor` (FR-040 đến FR-044) | Cùng major và cùng option (`viewMode 1`, `autoCropArea 0.5`, `imageSmoothingQuality high`) để kích thước và điểm ảnh sau cắt bằng Directus (SC-006); CSS `cropper.css` của gói nạp trong chunk lười, biến màu khung cắt đè bằng token theme (recipe Q-16) [Unverified: cropperjs 1.6.2 ship CSS riêng `dist/cropper.css`; T002] |
+| `cropperjs` | 1.6.2 (`directus/pnpm-workspace.yaml`) | MIT | `ImageEditor` (FR-040 đến FR-044) | Cùng major và cùng option (`viewMode 1`, `autoCropArea 0.5`, `imageSmoothingQuality high`) để kích thước và điểm ảnh sau cắt bằng Directus (SC-006); CSS `cropper.css` của gói nạp trong chunk lười, biến màu khung cắt đè bằng token theme (recipe Q-16) [Đã kiểm: `cropperjs/dist/cropper.css` nạp lười cùng chunk của editor] |
 | `tus-js-client` | 4.3.1 (đã có trong catalog, API dùng) | MIT | `uploadFile` khi `info.uploads.tus` (FR-022, Clarifications TUS = A) | Cùng option như `utils/upload-file.ts`: `chunkSize`, `metadata`, `removeFingerprintOnSuccess`, `onBeforeRequest` đặt `withCredentials`, `onShouldRetry` false, `findPreviousUploads`; endpoint `getRootPath() + 'files/tus'` → ở app mới là `PUBLIC_URL` của sdk |
 | `flat` | 6.0.1 (catalog, API dùng) | BSD-3 | `rulesToCssVars` (R6) | Hoặc hàm làm phẳng 10 dòng; chọn ở T002 theo kích thước chunk |
 
@@ -38,7 +38,7 @@ giao thức có máy chủ ở 007, client Directus dùng đã kiểm); thư vi�
   "⋯" (`BoMenu`) để có đường bàn phím (như 014 D-69 cho menu header). Recipe Q-13, Q-17 ghi vào `layout-patterns.md`
   §11 (mới) trước khi code; §7 dòng "Module navigation" thêm Files và Users vào ngoại lệ.
 - `useFolders` chép `composables/use-folders.ts` (state module-level: `folders`, `nestedFolders`, `openFolders`
-  `['root']`, `fetchFolders` với `fetchAll` chép `utils/fetch-all.ts` nếu 014 chưa có [Unverified: `fetchAll` đã chép ở
+  `['root']`, `fetchFolders` với `fetchAll` chép `utils/fetch-all.ts` nếu 014 chưa có [Đã kiểm T002: `fetchAll` đã có ở 014; ghi chú gốc:
   014 cho `FolderPicker` của Export? kiểm T002]); `useNavigation` của users chép nguyên (`groupBy` của lodash-es).
 - `checkForSystem` và `get-item-route.ts` của 014 không đổi: `/content/directus_files|users` đã trỏ đúng route; chỉ
   đích đổi từ khung sang màn thật (D-72 gỡ phần 015).
@@ -51,7 +51,7 @@ giao thức có máy chủ ở 007, client Directus dùng đã kiểm); thư vi�
 
 - `use-preset` và `use-layout` của 014 dùng nguyên; store `presets` thêm `defaultPresets` hệ thống chép từ
   `stores/presets.ts` Directus (`directus_files`: `cards` với `icon: insert_drive_file`, `title`, `imageSource: null`
-  [Unverified: giá trị chính xác, chép nguyên khi code], `directus_users`: `cards` với `icon: account_circle`,
+  [Đã kiểm T002 (CHK001): chép nguyên `systemDefaults`; `directus_users` là `tabular`], `directus_users`: `cards` với `icon: account_circle`,
   `title`, `subtitle`, `imageSource: avatar`...) để `getPresetForCollection` trả đúng mặc định khi chưa có preset (012
   ghi chú "no system default presets" sửa theo).
 - Layout `cards`: thêm lại `extraSelection` (v-model), slot `prepend`, prop `hasPrependContent`, event `select-all`
@@ -108,7 +108,7 @@ kết quả Directus).
 - `system-input-password`: `BoInput` + nút mắt (không có màn dùng ở 015, port cho đủ bộ D-57).
 - `system-mfa-setup`: port trên `use-tfa-setup` 012 mở rộng (`disableTFA` `POST /users/me/tfa/disable`,
   `adminDisableTFA` `POST /users/:pk/tfa/disable`, `requestTFASetup` ghi khóa `backoffice-require_tfa_setup` rồi
-  `logout`, `cancelTFASetup`); giá trị form lấy từ `inject('values')` mà `BoForm` 013 cung cấp [Unverified: BoForm `provide('values')`; T002; dự phòng: màn user `provide('values', item)` (CHK092)] và `discardAllChanges`, `refresh` do màn user `provide`; QR bằng `qrcode` 1.5.4 (012).
+  `logout`, `cancelTFASetup`); giá trị form lấy từ `inject('values')` mà `BoForm` 013 cung cấp [Đã kiểm T002: BoForm `provide('values')`, không cần dự phòng] và `discardAllChanges`, `refresh` do màn user `provide`; QR bằng `qrcode` 1.5.4 (012).
 - `system-token`: port nguyên; `PATCH <getEndpoint(collection)>/<pk>` qua sdk; `useClipboard` của 012/013.
 - `system-theme` (C): `ThemePreview.vue` chép `theme-preview.vue` (SVG 200×140 với biến `--theme--*` đặt inline bằng
   `rulesToCssVars(theme.rules)` cộng overrides của user đã gộp bằng `lodash-es` `merge`); danh sách theme theo
@@ -116,7 +116,7 @@ kết quả Directus).
   của `/server/info`; store server 012 đã có `auth.disableDefault` (FR 012), `project.default_theme_*` thêm ở 015
   (CHK093).
 - `system-theme-overrides`: port ba SFC; `type: 'color'` cho mọi rule lá như Directus; swatch dùng `color` 5.0.2 và
-  `cssVar` chép từ `@directus/utils/browser` [Unverified: `cssVar` có trong `@directus/utils/browser` 13.4.1; dự phòng
+  `cssVar` chép từ `@directus/utils/browser` [Đã kiểm T002: `cssVar` có trong `@directus/utils/browser` 13.4.1; ghi chú gốc về dự phòng:
   `getComputedStyle(document.documentElement).getPropertyValue`, CHK094].
 - Dữ liệu rule: script `apps/web/scripts/sync-directus-themes.mjs` đọc bốn file `directus/packages/themes/src/themes/
   {light,dark}/*.ts` (import động qua `tsx`/`jiti` hoặc regex `defineTheme({...})` → chọn ở T002), ghi
@@ -132,7 +132,7 @@ kết quả Directus).
 ## R7. Danh bạ user, mời, màn user
 
 **Quyết định**: `UsersCollectionRoute.vue` chép `routes/collection.vue` (bộ lọc hệ thống `role`/`status`,
-`canInviteUsers` từ `serverStore.auth.disableDefault` [Unverified: store 012 có `auth.disableDefault`; FR của 012 nhắc
+`canInviteUsers` từ `serverStore.auth.disableDefault` [Đã kiểm T002: store 012 có `auth.disableDefault`; ghi chú gốc:
 `disableDefault` → có], `UsersInvite.vue` chép với `BoDialog`, `BoTextarea`, `BoSelect`, notice lỗi tại chỗ, dòng
 D-83 sau khi đóng); `UserItemRoute.vue` chép `routes/item.vue` trên `use-item` 014 (`fields=*,role.*,avatar.id,
 avatar.modified_on`, `edits.role` từ prop, `fieldsDenyList`, readonly `provider`/`external_identifier`, `setLang`,
@@ -152,14 +152,14 @@ bảng US6-3; `preRegisterCheck` giữ 012. Field hệ thống chỉ đọc theo
 ## R9. Kiểm thử (`contracts/tests.md`)
 
 **Quyết định**: như 014: Vitest `unit` + `browser` với `mockFixtureApi` mở rộng (#97 trở đi: `/folders` CRUD, `/files`
-multipart và `PATCH` multipart, `/files/tus` tối thiểu [Unverified: tus-js-client chạy trong happy-dom? → test TUS ở
+multipart và `PATCH` multipart, `/files/tus` tối thiểu [Đã kiểm: test TUS ở unit với `vi.mock('tus-js-client')`; ghi chú gốc:
 browser project với `page.route`-style mock bằng `msw`? không: dùng `fetch` mock của `test-utils/fetch.ts`, tus dùng
 XHR → bọc `XMLHttpRequest` giả trong test; chọn ở T002], `/users/invite`, `/users/*/tfa/*`, `/utils/random/string`,
 `/assets/folder/:id`, `/assets/files`); bộ mẫu `bo_files` (thư mục `bo-fixtures` của 013 mở rộng: 3 cấp, 30 file, EXIF
-từ ảnh mẫu `tests/parity/fixtures`? [Unverified: có ảnh JPEG có EXIF sẵn trong repo; nếu không, tạo bằng `sharp`
+từ ảnh mẫu `tests/parity/fixtures`? [Đã kiểm T021: không có ảnh sẵn; seed tạo `bo-exif.jpg` bằng `sharp`; ghi chú gốc:
 `withMetadata` ở seed]) và `bo_users` (role `bo-editor`, `bo-viewer` 013 + role con `bo-sub`, user mỗi trạng thái, user
 SSO giả `provider: 'bo-sso'`? — `provider` phải là provider có cấu hình để đăng nhập; chỉ cần dữ liệu nên đặt
-`provider: 'oidc'` của env parity `sso` [Unverified: tên provider trong `tests/parity` profile `sso`]); E2E chín spec ở
+`provider: 'oidc'` của env parity `sso` [Đã kiểm T002 (CHK030): provider `oidc`]); E2E chín spec ở
 ba cấu hình, bộ so payload thêm `files.spec.ts`, `users.spec.ts`; parity UI `files-users-parity-ui.spec.ts` chỉ
 `proxy-api`; benchmark web thêm `files`, `users`.
 
@@ -174,7 +174,7 @@ marker `Tus-Resumable`). Perf browser test (`PERF=1`, `machineFactor()` của 01
 ## R11. Chuỗi dịch
 
 **Quyết định**: khóa của Files, Users, sáu interface, trình chỉnh ảnh đã có trong `en-US.json`/`vi-VN.json` sinh ở
-012 (sinh từ toàn bộ `en-US.yaml`) [Unverified: `vi-VN.yaml` của Directus có đủ khóa `interfaces.system-token.*`,
+012 (sinh từ toàn bộ `en-US.yaml`) [Đã kiểm 2026-10-16: `vi-VN.json` có 1 trên 14 khóa `interfaces.system-token.*`; 13 khóa còn lại hiện tiếng Anh qua `fallbackLocale` en-US, như 012; ghi chú gốc:
 `delete_folder_dialog.*`; thiếu thì rơi về en-US theo cơ chế fallback của vue-i18n, chấp nhận; `keys.test.ts` chỉ
 kiểm en-US (CHK096)]; `lang/keys.test.ts` mở rộng cho
 `modules/files`, `modules/users`, `interfaces/_system/system-*`; chuỗi riêng D-83 dùng `contact_admin_for_link` đã có

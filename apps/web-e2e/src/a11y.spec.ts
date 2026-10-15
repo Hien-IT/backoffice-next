@@ -65,6 +65,10 @@ for (const scheme of ['light', 'dark'] as const) {
 		for (const path of PRIVATE) {
 			await page.goto(path);
 			await expect(page.locator('h1').first()).toBeVisible();
+			// Feature 015: the user page loads its form and interfaces after the title; scan the settled page, not
+			// colors in the middle of a load or a transition.
+			await page.waitForLoadState('networkidle');
+			await page.waitForTimeout(300);
 			found[path] = await violations(page);
 		}
 

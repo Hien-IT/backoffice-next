@@ -199,9 +199,9 @@ còn lại; dữ liệu theme ở `src/theme/` cạnh `override-map.ts` của 01
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Không có vi phạm constitution. Rủi ro: cropperjs 1.6.2 là bản cuối của major 1 (2.x đổi API) [Unverified: advisory; T002 `pnpm audit`] | SC-006 (kết quả cắt bằng Directus) và D-59 | cropperjs 2 cho kết quả khác Directus; canvas tự viết mất tính năng |
+| Không có vi phạm constitution. Rủi ro: cropperjs 1.6.2 là bản cuối của major 1 (2.x đổi API) [Đã kiểm 2026-10-16: `pnpm audit` không có advisory cho cropperjs và tus-js-client] | SC-006 (kết quả cắt bằng Directus) và D-59 | cropperjs 2 cho kết quả khác Directus; canvas tự viết mất tính năng |
 | Dữ liệu rule theme chép tĩnh (`directus-themes.json`, ≈ 30 KB) thay vì import `@directus/themes` | Q1 = C: xem trước đúng màu theme Directus; `@directus/themes` là gói workspace kéo theo store và plugin của Directus | Import gói: không có trên npm theo bản 11.17.4 độc lập với app, và vi phạm "không chép runtime Directus" của 012; dữ liệu tĩnh có test so với nguồn (FR-121) |
-| TUS trong trình duyệt cần XHR giả trong unit test | FR-022 (Clarifications TUS = A) | Chỉ test TUS ở E2E `proxy-api`: thiếu khi env parity tắt TUS [Unverified: `TUS_ENABLED` ở env parity] |
+| TUS trong trình duyệt cần XHR giả trong unit test | FR-022 (Clarifications TUS = A) | Chỉ test TUS ở E2E `proxy-api`: thiếu khi env parity tắt TUS [Đã kiểm T002 (CHK090): profile `app` không bật TUS; nhánh TUS kiểm ở unit] |
 | Mock multipart `PATCH /files/:id` và zip trong `mockFixtureApi` | Trình chỉnh ảnh, thay file, tải nhiều file trong browser test | Chỉ E2E: chậm và không chạy trong `quality` |
 
 ## Phase 0, 1: kết quả

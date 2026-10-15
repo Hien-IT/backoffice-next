@@ -410,7 +410,11 @@ code as built (T098). Behaviour is Directus `routes/item.vue` + `live-preview.vu
 modules put the Directus module navigation (`views/private/components/files-navigation.vue`,
 `files-navigation-folder.vue`; `modules/users/components/navigation.vue`, `NavigationRole.vue`) inside their sidebar
 sub-menu like the Content tree of §9. Unlike §9 the sub-menu mixes flat rows and a tree. Behaviour is the Directus one.
-Built: (filled in at the end of the feature).
+Built: `components/files/FilesNavigation.vue` (Q-13), `components/files/FolderPicker.vue` (the picker rows),
+`modules/users/components/UsersNavigation.vue` (Q-17), keyboard in `composables/use-tree-keyboard.ts`.
+Deviation: the trees are flat lists of `li role="treeitem"` with `aria-level` and an inline start padding per level,
+not nested `ul role="group"` (one roving list, like the picker); the delete folder menu item has the default menu color,
+not `error-600`.
 
 - Same tree DOM, rows, nesting, focus and keyboard model as §9: `ul role="tree"` with `aria-label`, `li role="treeitem"`
   with `aria-level`, `aria-expanded` on parents, `aria-current="page"` on the active link, `menu-dropdown-item*` rows

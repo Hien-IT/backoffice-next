@@ -472,7 +472,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Tests cho User Story 6
 
-- [ ] T090 [P] [US6] Test `src/modules/files/routes/FilesCollectionRoute.browser.test.ts` và
+- [x] T090 [P] [US6] Test `src/modules/files/routes/FilesCollectionRoute.browser.test.ts` và
       `UsersCollectionRoute.browser.test.ts` thêm: tìm kiếm + bộ lọc nâng cao gộp `_and` với bộ lọc hệ thống, preset ghi
       (`search`, `filter` không gồm hệ thống, `layout_*`) sau 450 ms, nút bookmark, Export/Import với bộ lọc gộp, nhập
       CSV → `POST /utils/import/directus_users`; quyền `bo-viewer`/`bo-editor` qua mock `/permissions/me`: nút
@@ -480,10 +480,10 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Implementation cho User Story 6
 
-- [ ] T091 [US6] Rà và sửa hai màn danh sách cho đúng FR-100 đến FR-102 (tooltip `not_allowed`, ẩn đúng chỗ Directus
+- [x] T091 [US6] Rà và sửa hai màn danh sách cho đúng FR-100 đến FR-102 (tooltip `not_allowed`, ẩn đúng chỗ Directus
       ẩn, `useItemPermissions` cho nút của màn item, panel ẩn dòng thiếu dữ liệu); kiểm `/register` vẫn là trang 012
       (FR-090) và `password-invite.spec.ts` giữ đích
-- [ ] T092 [US6] E2E `e2e/files-users-permissions.spec.ts`: `bo-editor` (quyền một phần: thư mục con vẫn hiện CHK068),
+- [x] T092 [US6] E2E `e2e/files-users-permissions.spec.ts`: `bo-editor` (quyền một phần: thư mục con vẫn hiện CHK068),
       `bo-viewer` (chỉ đọc: 13 nút của SC-002 (d) khóa/ẩn), lượt `vi-VN` cho `users-item` (nhãn field, ngày); tìm
       kiếm + bộ lọc + bookmark + xuất CSV + nhập CSV trên cả hai module; ba cấu hình xanh
 
@@ -499,7 +499,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Tests cho User Story 7
 
-- [ ] T095 [US7] E2E `e2e/files-users-parity-ui.spec.ts` (`proxy-api`, `DIRECTUS_APP_SPECS`): với ba user, thu
+- [x] T095 [US7] E2E `e2e/files-users-parity-ui.spec.ts` (`proxy-api`, `DIRECTUS_APP_SPECS`): với ba user, thu
       `innerText`/`aria-disabled` của (a) sub-menu, (b) tiêu đề + breadcrumb, (c) số đếm và số chọn, (d) 13 nút, (e)
       mục panel ở `/files`, `/files/folders/<sub>`, `/files/<ảnh>`, `/users`, `/users/roles/<bo-editor>`, `/users/<bo-active>`
       trên hai app; 0 lệch ngoài D-xx (SC-002)
@@ -510,24 +510,24 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
       20) vào một thư mục và 10.000 user; ba phép đo (trang đầu cards, đổi trang, lọc `type`/`status`), 11 lần, p95,
       so Directus app ≤ +10 %; nối vào target `benchmark:web` (`tests/benchmark/project.json`) và `benchmark.yml`;
       chạy tay một lần bằng `gh workflow run benchmark.yml -f job=benchmark-web`, ghi kết quả vào `research.md` R10
-- [ ] T097 [P] [US7] Perf browser test `src/modules/files/perf.browser.test.ts` (cây 500 thư mục 3 cấp mở hết < 500 ms
+- [x] T097 [P] [US7] Perf browser test `src/modules/files/perf.browser.test.ts` (cây 500 thư mục 3 cấp mở hết < 500 ms
       × `machineFactor()`; lưới 100 + 20 thẻ với data-URL 1×1 < 1 s; thả 20 file `maxConcurrency` 5 → ≤ 5 đồng thời,
       nạp lại 1 lần) và `src/modules/users/perf.browser.test.ts` (màn user: request đúng bảng SC-007; mở
       `ImageEditor` 4000×3000 < 2 s từ `load` tới `ready` đặt ở `src/components/files/ImageEditor.perf.browser.test.ts`);
       thêm vào bước `web perf` của `.github/workflows/ci.yml`
-- [ ] T098 [US7] Đối chiếu recipe nháp với code (như T098 của 014): sửa recipe Q-13 đến Q-19 theo code đã dựng ("Built:",
+- [x] T098 [US7] Đối chiếu recipe nháp với code (như T098 của 014): sửa recipe Q-13 đến Q-19 theo code đã dựng ("Built:",
       "Deviation", "Open"), cập nhật `design-review/README.md`; gửi design owner; bảng Q của spec cập nhật trạng thái
 
 ---
 
 ## Phase 10: Polish & đóng feature — Lượt 4
 
-- [ ] T100 [P] Rà a11y: axe sáng/tối trên 8 màn + 3 hộp thoại mở (SC-008) trong browser test; `qa/handoff-checklist.md`
+- [x] T100 [P] Rà a11y: axe sáng/tối trên 8 màn + 3 hộp thoại mở (SC-008) trong browser test; `qa/handoff-checklist.md`
       đạt (ngoại lệ khung cắt ghi rõ)
-- [ ] T101 [P] Bundle: `BUDGET_015` trong `scripts/check-bundle.mjs`, `LAZY_ONLY` đủ (`cropper-container`,
+- [x] T101 [P] Bundle: `BUDGET_015` trong `scripts/check-bundle.mjs`, `LAZY_ONLY` đủ (`cropper-container`,
       `Tus-Resumable`), ngân sách chunk lười (cropperjs ≤ 60, tus ≤ 25, theme ≤ 15 KB gzip) kiểm bằng test của script
-- [ ] T102 [P] Coverage `apps/web` ≥ 60 % gộp; bổ sung test cho file dưới 50 %
-- [ ] T103 Cập nhật spec 015: bảng "Trạng thái khác biệt" D-83 đến D-90 với file đã làm, R-xx mới (nếu có) từ T048,
+- [x] T102 [P] Coverage `apps/web` ≥ 60 % gộp; bổ sung test cho file dưới 50 %
+- [x] T103 Cập nhật spec 015: bảng "Trạng thái khác biệt" D-83 đến D-90 với file đã làm, R-xx mới (nếu có) từ T048,
       T083, T095; `research.md` các mục [Unverified] → kết quả; spec 012 (D-40 Files/Users, D-48 "đã gỡ ở 015", D-44
       "sau 015", FR-024), 013 (D-57 sáu interface, D-59, FR-051/FR-054), 014 (D-72 phần 015) ghi theo FR-121;
       `CLAUDE.md` mục "Recent Changes" thêm dòng 015; `SPECKIT-GUIDE.md` ghi chú từ 015 cho 016 (interface `_system`
@@ -683,5 +683,23 @@ Lượt 3, Phase 7 (US4):
     Bỏ qua `/presets` (bộ presets riêng của 014) và thay token ngẫu nhiên bằng `<token>`. TFA không so payload (secret
     sinh mỗi lần), đã có E2E `users-tfa-token.spec.ts`. SSO TFA chỉ có browser test (E2E không đăng nhập được user SSO).
   - `AdminApi` gửi `Cache-Control: no-store`; `files-item` chờ PATCH trước khi đọc lại (đỏ ở CI 38787246409).
+- Lượt 4 (2026-10-16):
+  - T095 `files-users-parity-ui.spec.ts`: sáu màn × ba user khớp Directus app ở `proxy-api` (sub-menu, tiêu đề,
+    breadcrumb, số đếm, trạng thái nút, mục panel). Màn user mà user không đọc được: Directus hiện form "Adding User",
+    app mới hiện màn không tìm thấy (FR-054, CHK047), nên màn đó chỉ so cho admin.
+  - T092: "Download Page as CSV" khóa ở danh bạ và thư viện, giống Directus (không truyền `onDownload`); xuất CSV đi qua
+    hộp "Export Items".
+  - T097 (agent con): ba perf test qua với `PERF=1`. File của trình chỉnh ảnh là
+    `components/files/perf.browser.test.ts` vì mẫu exclude của vitest chỉ khớp đúng tên `perf.browser.test.ts`. SC-007
+    sửa theo số request đo được (giống Directus).
+  - T100: `modules/files-users.a11y.browser.test.ts` (10 màn và hộp thoại, sáng/tối) qua; icon avatar dự phòng đổi
+    sang `gray-500` (tương phản). `a11y.spec.ts` chờ `networkidle` trước khi quét trang user.
+  - T101: `LAZY_BUDGETS_015` trong `check-bundle.mjs` (cropperjs 11,9 KB, tus 15,5 KB, theme 3,2 KB gzip).
+  - T098: recipe Q-13 đến Q-19 có dòng Built/Deviation/Open; chờ design owner duyệt (SC-008).
+  - T096 (agent con) đã viết: `tests/benchmark/src/web-files-users.ts`, target `benchmark:web-files-users`, bước mới
+    trong job `benchmark-web` của `benchmark.yml`; typecheck và lint qua. Chưa chạy: môi trường benchmark dùng chung cổng
+    6100/6108/8155/8156 với môi trường parity đang chạy. Kết quả ghi vào research R10 sau lần chạy CI đầu tiên.
+  - T104 chưa xong: push bị chặn trong phiên tự chạy (chế độ auto), nên CI và `benchmark.yml` chưa chạy; tech lead
+    duyệt D-83 đến D-90 và design owner duyệt Q-13 đến Q-19 là việc của người.
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

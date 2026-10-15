@@ -859,6 +859,20 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 - Khóa localStorage `backoffice-require_tfa_setup` (D-39, 012) dùng chung với `system-mfa-setup`: hai app không chia sẻ
   localStorage nên SSO user bật TFA ở app này chỉ bị ép thiết lập ở app này (Directus cũng theo app, không theo DB).
 
+**Trạng thái khác biệt (T103, lượt 4, 2026-10-16)**:
+
+| Mã | Đã làm trong code | Duyệt |
+|----|-------------------|-------|
+| D-83 | `modules/users/components/UsersInvite.vue` phát `invited`; `modules/users/routes/UsersCollectionRoute.vue` nạp lại rồi hiện notice `contact_admin_for_link` | Chờ tech lead (SC-010) |
+| D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Chờ tech lead (SC-010) |
+| D-86 | `modules/users.ts`: route `users-me` là `redirect` hàm tới `/users/<id>`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Chờ tech lead (SC-010) |
+| D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` có `data-brand-allowed` | Chờ tech lead (SC-010); owner xem lại câu chữ của dòng ghi chú |
+| D-89 | `theme/directus-themes.json` sinh bằng `scripts/sync-directus-themes.mjs` (target `web:sync-themes`), `theme/directus-themes.test.ts` so với nguồn | Chờ tech lead (SC-010) |
+| D-90 | Không có danh sách upload dở; `utils/upload-file.ts` vẫn `findPreviousUploads` khi chọn lại cùng file (FR-022) | Chờ tech lead (SC-010) |
+
+Không có R-xx mới: bộ so payload `files` và `users` (T048, T083) khớp Directus app; hai chỗ khác chỉ là thời điểm preset
+tự lưu (đã có bộ `presets` của 014) và chuỗi token ngẫu nhiên. Hành vi số đếm sau xóa hàng loạt là R-38 của 014.
+
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
 Như 014: recipe nháp vào `design-system/docs/` trước khi code (sau khi 014 mở khóa tài liệu), design owner duyệt trước
@@ -867,13 +881,13 @@ xuất nhập, hàng loạt).
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-13 | Cây thư mục lồng + ba mục đặc biệt trong sub-menu Files (như §9 của Content): thụt cấp, icon gập mở, menu chuột phải (đổi tên, chuyển, tải, xóa) và nút bàn phím tương đương, skeleton | Mở |
-| Q-14 | Lưới cards của Files: thẻ thư mục (icon, không ảnh; link + ô chọn riêng như thẻ file 014) trước thẻ file, chọn gộp thư mục và file (số đếm ở header), viền thả bốn cạnh (`aria-hidden`) và notice `drop_to_upload`, notice tiến độ tải nhiều file | Mở |
-| Q-15 | Màn file: khung xem trước lớn với nút "thay file", form bên dưới (`max-w-5xl`), mục "Chi tiết file" dạng `dl` trong panel với nhóm EXIF, nút chép id | Mở |
-| Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), nút lưu với menu "lưu thành file mới" | Mở |
-| Q-17 | Sub-menu Users: bốn mục trạng thái, vạch chia, cây role lồng với icon role, menu "sửa role" (admin) | Mở |
-| Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái: đề xuất active `success`, invited `warning`, draft `gray`, suspended `error`, archived `gray` nhạt) cùng bề ngang form; mục "Thông tin" trong panel | Mở |
-| Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có ô xem trước SVG theo theme Directus, Q1 = C); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Mở |
+| Q-13 | Cây thư mục lồng + ba mục đặc biệt trong sub-menu Files (như §9 của Content): thụt cấp, icon gập mở, menu chuột phải (đổi tên, chuyển, tải, xóa) và nút bàn phím tương đương, skeleton | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-14 | Lưới cards của Files: thẻ thư mục (icon, không ảnh; link + ô chọn riêng như thẻ file 014) trước thẻ file, chọn gộp thư mục và file (số đếm ở header), viền thả bốn cạnh (`aria-hidden`) và notice `drop_to_upload`, notice tiến độ tải nhiều file | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-15 | Màn file: khung xem trước lớn với nút "thay file", form bên dưới (`max-w-5xl`), mục "Chi tiết file" dạng `dl` trong panel với nhóm EXIF, nút chép id | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), nút lưu với menu "lưu thành file mới" | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-17 | Sub-menu Users: bốn mục trạng thái, vạch chia, cây role lồng với icon role, menu "sửa role" (admin) | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái: đề xuất active `success`, invited `warning`, draft `gray`, suspended `error`, archived `gray` nhạt) cùng bề ngang form; mục "Thông tin" trong panel | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
+| Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có ô xem trước SVG theo theme Directus, Q1 = C); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Đã dựng, chờ design owner duyệt (recipe có dòng Built/Deviation/Open, T098) |
 
 ## Clarifications
 
@@ -970,8 +984,11 @@ xuất nhập, hàng loạt).
   (ảnh là data-URL PNG 1×1, không tải mạng) + 20 thẻ thư mục vẽ dưới 1 giây; thả 20 file 1 MB với `maxConcurrency` 5
   không quá 5 request đồng thời và danh sách nạp lại đúng 1 lần sau khi xong (đếm `GET /files`); mở trình chỉnh ảnh
   4000×3000 dưới 2 giây từ sự kiện `load` của `img` tới `ready` của Cropper; số request mỗi thao tác: mở thư mục = 1
-  danh sách + 1 đếm (+ 0 folders), tải xong = 1 danh sách + 1 đếm (như `refresh()` của Directus), đổi trang = 1 danh
-  sách, mở màn user = 1 item + 0 roles (cache) + 1 `/access` (policies) + 1 `/files` (avatar); folders và roles nạp một
+  danh sách + 1 đếm (+ 0 folders), tải xong = 1 danh sách + 0 đếm (đếm qua `fetchAggregate` có `useMemoize` như
+  `use-items` của Directus, R-38 của 014; sửa 2026-10-16 theo T097), đổi trang = 1 danh sách, mở màn user = 1 item +
+  2 `/access` (trang policies và đếm của `list-m2m`) + 2 `/files/<avatar>` (interface `file` và DrawerItem chưa mở, như
+  `overlay-item.vue`) + 1 `/roles/<role>` (`select-dropdown-m2o`), không có `GET /roles` danh sách (đo ở T097, giống
+  Directus); folders và roles nạp một
   lần mỗi phiên app, đổi qua lại Files ↔ Users không nạp lại (CHK044, CHK045, CHK046, CHK064, CHK089).
 - **SC-008**: Recipe Q-13 đến Q-19 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng 015; axe 0 vi
   phạm serious/critical trên thư viện (hai layout cards và tabular), màn file, drawer chỉnh ảnh, danh bạ, màn user với

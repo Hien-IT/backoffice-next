@@ -165,10 +165,12 @@ describe('directory views', () => {
 		);
 	});
 
-	test('a viewer without create rights: no invite button, the add button disabled', async () => {
+	test('a viewer without create rights: no invite button, the add button disabled, no invite roles request', async () => {
 		await setup({ status: 'active' }, 'bo-viewer');
 		expect(named(t('invite_users'))).toBeUndefined();
 		expect(named(t('not_allowed'))).toBeDefined();
+		// The invite dialog is not mounted, so its role list (`fields=id,name`) is never read (US6-3).
+		expect(calls(fetch).filter((call) => call.startsWith('GET /roles?fields=id,name&'))).toEqual([]);
 	});
 });
 

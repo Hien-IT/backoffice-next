@@ -1420,6 +1420,13 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   removed when done.
 - Empty states: the 014 blank state with `folder` icon, `file_count` 0, `no_files_copy` and a primary Button
   `add_file` (disabled with tooltip `not_allowed` without create).
+- Built: `modules/files/components/FolderSection.vue` (the 014 `layouts/cards/Card.vue` per folder, `icon="folder"`),
+  `layouts/cards/Cards.vue` + `CardsHeader.vue` (`prepend` slot, `hasPrependContent`, `extraSelection`, `select-all`),
+  drop zone and notices in `modules/files/routes/FilesCollectionRoute.vue`; folder delete in
+  `modules/files/components/DeleteFolderDialog.vue`.
+- Deviation: the folder card checkbox is the 014 Card one, named `select_item_key` with the folder **id** (the Card is
+  shared with files), not the name.
+- Open: name the card checkboxes after the card title for both folders and files (a 014 Card change).
 
 ### File page and file details (Q-15; Directus `modules/files/routes/item.vue`, `file-info-sidebar-detail.vue`)
 
@@ -1438,6 +1445,12 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   and editor are links with UserPopover; "open in new window" link with `open_in_new` and sr-only "opens in a new tab";
   copy id is an `ICON_BTN` `content_copy` with `aria-label` `copy_id`; EXIF rows (camera, exposure, shutter, focal
   length, ISO) after a divider.
+- Built: `modules/files/routes/FileItemRoute.vue`, `components/files/FilePreviewReplace.vue`,
+  `components/files/FolderPicker.vue`, `modules/files/components/FileInfoSidebarDetail.vue`.
+- Deviation: the preview has no `max-h-[60vh]` (FilePreview of 013 sizes the media); delete and move are secondary icon
+  Buttons (delete turns `error-600` on hover) as the 014 item page, not a danger ghost; the "open in new window" link
+  text already says it opens a new window, so no extra sr-only text; the edit image button is a secondary icon Button
+  named `edit` (Directus tooltip).
 
 ### Image editor (Q-16; Directus `views/private/components/image-editor.vue`)
 
@@ -1454,6 +1467,13 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   `text-theme-sm tabular-nums text-gray-500 dark:text-gray-400`; a secondary small Button `cancel_crop` /
   `cancel_selection` while cropping. Every button has a name and a BoTooltip.
 - Exception (FR-111, owner 2026-10-15): dragging the crop box and the focal point is mouse only, as Directus.
+- Built: `components/files/ImageEditor.vue` (BoDrawer `flush`: full width, body without padding), wired in
+  `FileItemRoute.vue` and `interfaces/file-image/FileImage.vue`; BoMenu items gained `active` (`menuitemradio` with a
+  check) and `divider` for the aspect ratio menu.
+- Deviation: the pressed tool is a raised white segment (`bg-white text-gray-800 shadow-theme-xs`,
+  `dark:bg-gray-700 dark:text-white`), the TailAdmin segmented control: `brand-500` on `brand-50` failed axe contrast;
+  flip horizontal / vertical use the Material `flip` icon (rotated for horizontal) as Material Symbols has no
+  `flip_horizontal`; Cropper colors use `--color-brand-500` and `--color-gray-900` at 0.6 opacity.
 
 ### User box (Q-18; Directus `modules/users/routes/item.vue`)
 
@@ -1465,6 +1485,12 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   with `alternate_email` / `place` icons (`aria-hidden`).
 - Role chip: Badge (Tier 1) light variant by status: active `success`, invited `warning`, draft `light` (gray),
   suspended `error`, archived `light`; the status is also in the text for screen readers (sr-only "(<status>)").
+- Built: the user box in `modules/users/routes/UserItemRoute.vue`; information panel
+  `modules/users/components/UserInfoSidebarDetail.vue`.
+- Deviation: the fallback icon is `text-gray-500 dark:text-gray-400` (`gray-400` on white failed axe contrast); the
+  badge uses the Badge light pairs of BoInfo (`success-50`/`success-700`, `warning-50`/`warning-700`,
+  `error-50`/`error-700`, `gray-100`/`gray-700`); the sr-only status text is the Directus status label
+  (`fields.directus_users.status_<status>`).
 
 ### Invite, TFA, token and theme controls (Q-19)
 
@@ -1488,6 +1514,16 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   a dot when a value is set), rules as rows `grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_1.5rem] items-center gap-2`
   (`rule:` label, text input with the default as placeholder, a swatch `size-5 rounded border` with the value as inline
   background when it parses as a color); the whole block `lang="en-US" dir="ltr"`.
+- Built: `modules/users/components/UsersInvite.vue`; `interfaces/_system/system-mfa-setup`, `system-token`,
+  `system-theme` (+ `ThemePreview.vue`, data `theme/directus-themes.json`), `system-theme-overrides` (+ group and rule
+  components), `system-language`, `system-input-password`.
+- Deviation: an email of a known user is not an error (Directus `UsersService.inviteUser` skips it); only a
+  `RECORD_NOT_UNIQUE` answer shows in the dialog. The QR code is an `<img>` of the data URL (`alt` from
+  `tfa_scan_code`), not a canvas. The token field is built on the form `InputField` (the VInput port), not BoInput. The
+  `theme_applies_in_directus` hint carries `data-brand-allowed="D-88"` (it names the Directus app on purpose). In the
+  overrides each rule input is named by its full path (`navigation.background`), and the root rules sit in a collapsed
+  `globals` group, as Directus.
+- Open: the owner approves the wording of `theme_applies_in_directus` (D-88).
 
 ## Acceptance criteria
 

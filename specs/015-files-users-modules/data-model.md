@@ -65,7 +65,7 @@ uploadFiles(files, { onProgressChange?(percentages[]), onChunkedUpload?, notific
 ```
 
 Nhánh TUS khi `serverStore.info.uploads?.tus === true`: `Upload(file, { endpoint: <PUBLIC_URL>/files/tus, chunkSize:
-uploads.chunkSize ?? DEFAULT_CHUNK_SIZE (@directus/constants [Unverified: gói có trong catalog? nếu không, hằng 8 MiB
+uploads.chunkSize ?? DEFAULT_CHUNK_SIZE (@directus/constants [Đã kiểm T002: gói không có trong catalog; hằng 8 MiB
 chép], metadata: {...preset, id?, filename_download, type}, removeFingerprintOnSuccess: true, onBeforeRequest:
 withCredentials, onShouldRetry: false, onAfterResponse: id ??= 'Directus-File-Id' })`; `findPreviousUploads` → resume;
 thành công `GET /files/:id`. Nhánh multipart: FormData (preset rồi `file`) → `POST /files` hoặc `PATCH /files/:fileId`
@@ -152,7 +152,7 @@ rules}`; `rulesToCssVars(rules)` → `Record<'--theme--<kebab--path>', string|nu
 
 | Tập | Nội dung | Tạo qua |
 |-----|----------|---------|
-| `bo_files` | thư mục `bo-fixtures` (013) + `bo-fixtures/sub` + `bo-fixtures/sub/deep`; 30 file: PNG (gồm `bo-edit.png` 400×300 cho SC-006, CHK063), JPEG có EXIF tạo trong seed bằng `sharp` `withMetadata` (dependency đã có ở API; không dùng ảnh ngoài, CHK095), PDF, MP4 ngắn, TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` 10 ngày trước (sửa qua `PATCH /files/:id` với `uploaded_on`? [Unverified: API cho ghi `uploaded_on`; nếu không, `recent` kiểm bằng file mới tải]) | `POST /folders`, `POST /files` multipart (seed.mjs) |
+| `bo_files` | thư mục `bo-fixtures` (013) + `bo-fixtures/sub` + `bo-fixtures/sub/deep`; 30 file: PNG (gồm `bo-edit.png` 400×300 cho SC-006, CHK063), JPEG có EXIF tạo trong seed bằng `sharp` `withMetadata` (dependency đã có ở API; không dùng ảnh ngoài, CHK095), PDF, MP4 ngắn, TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` 10 ngày trước (sửa qua `PATCH /files/:id` với `uploaded_on`? [Đã kiểm T002: API cho ghi `uploaded_on`; seed đặt một file 10 ngày trước]) | `POST /folders`, `POST /files` multipart (seed.mjs) |
 | `bo_users` | role `bo-editor`, `bo-viewer` (013) + `bo-sub` (parent `bo-editor`); user mỗi `status` (`bo-active`, `bo-suspended`, `bo-invited` qua `POST /users/invite`, `bo-draft`, `bo-archived`); user có `token`; user SSO với `provider` = tên provider của profile `sso` env parity (chỉ cần dữ liệu, không đăng nhập; kiểm T002, CHK030) | `POST /roles`, `POST /users`, `POST /users/invite` |
 
 Snapshot export thêm `folders.json`, `files.json` (bỏ `tus_*`, chuẩn hóa ngày), `users.json` (bỏ `token`, `tfa_secret`,

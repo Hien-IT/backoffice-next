@@ -366,6 +366,13 @@ menu chuột phải "sửa collection" mở `/settings/data-model/:collection`. 
 (`system-filter`, `system-input-translated-string`, D-73); màn presets của Settings dùng lại `system-filter`, layout
 options và `BookmarkAdd` của 014.
 
+
+Ghi chú từ 015 (đưa vào spec 016): menu "sửa role" của cây role ở module Users (admin, chuột phải và nút dòng) trỏ
+`/settings/roles/:id` (D-85, `modules/users/components/UsersNavigation.vue`), phải mở màn role thật. Sáu interface
+`_system` của màn user đã có (`system-language`, `system-input-password`, `system-token`, `system-mfa-setup`,
+`system-theme`, `system-theme-overrides`); 016 làm phần còn lại của D-57. Màn cài đặt dự án dùng lại `system-theme` và
+`system-theme-overrides` (dữ liệu theme tĩnh `apps/web/src/theme/directus-themes.json`, sinh bằng `web:sync-themes`).
+
 ### 017: Trình chỉnh sửa Flows
 
 ```text
@@ -380,6 +387,10 @@ options và `BookmarkAdd` của 014.
 
 Ghi chú từ 014 (đưa vào spec 018): `/content/directus_dashboards` và `/content/directus_activity` chuyển hướng sang
 `/insights`, `/activity` (khung của 012, D-72); 018 thay khung bằng màn thật, giữ route.
+
+Ghi chú từ 015 (đưa vào spec 018): drawer thông báo chưa có danh sách upload TUS dở (D-90); khi 018 làm drawer thông
+báo thì thêm danh sách này như Directus (`tusResumableUploadsChanged`), `utils/upload-file.ts` đã giữ việc tiếp tục
+upload dở khi chọn lại cùng file.
 
 ### 019: Đóng gói và triển khai đa instance
 

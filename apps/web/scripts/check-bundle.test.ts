@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { BUDGET_013, BUDGET_014, BUDGET_015, entrySize, LIMIT, lazyLeaks } from './check-bundle.mjs';
+import { BUDGET_013, BUDGET_014, BUDGET_015, entrySize, LAZY_BUDGETS_015, LIMIT, lazyChunkSizes, lazyLeaks } from './check-bundle.mjs';
 
 function dist(js: string) {
 	const root = mkdtempSync(join(tmpdir(), 'check-bundle-'));
@@ -51,4 +51,23 @@ test('feature 015 budget allows 20 KB over the 014 budget and keeps tus-js-clien
 
 	const root = dist('headers["Tus-Resumable"] = "1.0.0"; const c = "cropper-container";');
 	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['Tus-Resumable', 'cropper-container']);
+});
+
+test('feature 015 lazy chunks: the largest chunk holding each marker, the entry left out', () => {
+	expect(LAZY_BUDGETS_015.map((b) => [b.name, b.limit / 1024])).toEqual([
+		['cropperjs', 60],
+		['tus-js-client', 25],
+		['theme data', 15],
+	]);
+
+	const root = dist('const entry = "Tus-Resumable";');
+	writeFileSync(join(root, 'assets/cropper-1.js'), 'const c = "cropper-container";'.repeat(50));
+	writeFileSync(join(root, 'assets/theme-1.js'), 'const t = { $generated: "2026-10-16" };');
+
+	const sizes = Object.fromEntries(
+		lazyChunkSizes(root, join(root, 'assets/index-abc.js')).map((chunk) => [chunk.name, chunk.gzip]),
+	);
+	expect(sizes['cropperjs']).toBeGreaterThan(0);
+	expect(sizes['theme data']).toBeGreaterThan(0);
+	expect(sizes['tus-js-client']).toBeNull();
 });

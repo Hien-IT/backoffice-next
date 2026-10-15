@@ -135,7 +135,8 @@ jobs:
         run: pnpm nx run benchmark:env-down
 
   # Feature 014 (FR-125, SC-003, research R14): the Content module screen on the 10 million rows of benchmark-items
-  # (same seed), Playwright chromium on the Directus app and the web app behind both proxies, beside the others.
+  # (same seed), Playwright chromium on the Directus app and the web app behind both proxies, beside the others; then
+  # the Files and Users module screens of feature 015.
   benchmark-web:
     if: ${{ !inputs.job || inputs.job == 'benchmark-web' }}
     runs-on: ubuntu-latest
@@ -150,6 +151,12 @@ jobs:
       - run: pnpm nx run benchmark:env-up-web
       - run: pnpm --filter @backoffice/benchmark exec playwright install --with-deps chromium
       - run: pnpm nx run benchmark:web --output-style=stream
+        env:
+          BENCH_RUNS: 11
+      # Feature 015 (T096, research R10): Files and Users module screens on 10,000 files and 10,000 users, own seed. Runs
+      # when the content benchmark fails too, so both tables reach the summary.
+      - run: pnpm nx run benchmark:web-files-users --output-style=stream
+        if: ${{ !cancelled() }}
         env:
           BENCH_RUNS: 11
       - name: container logs

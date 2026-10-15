@@ -39,6 +39,8 @@ vi.mock('../../../layouts/index.ts', () => {
 					{
 						'data-layout': '',
 						'data-filter-system': JSON.stringify(attrs['filterSystem'] ?? null),
+						'data-filter': JSON.stringify(attrs['filter'] ?? null),
+						'data-search': String(attrs['search'] ?? ''),
 						'data-has-prepend': String(attrs['has-prepend-content'] ?? attrs['hasPrependContent']),
 						'data-extra': JSON.stringify(attrs['extra-selection'] ?? attrs['extraSelection'] ?? []),
 					},
@@ -251,3 +253,29 @@ describe('drop zone', () => {
 		expect(document.body.textContent).not.toContain('0/1');
 	});
 });
+
+describe('search, filter and preset (FR-015, FR-018, US6-1)', () => {
+	test('a search goes to the layout with the folder filter merged; the preset saves search and filter after 450 ms', async () => {
+		const folder = folderId('bo-files');
+		await setup({ folder });
+		fetch.mockClear();
+
+		const search = document.querySelector<HTMLInputElement>('input[type="search"]')!;
+		search.value = 'logo';
+		search.dispatchEvent(new Event('input'));
+		await flushPromises();
+
+		expect(layout().dataset['search']).toBe('logo');
+		expect(JSON.parse(layout().dataset['filterSystem']!)._and).toContainEqual({ folder: { _eq: folder } });
+
+		await new Promise((resolve) => setTimeout(resolve, 600));
+		await flushPromises();
+		const write = fetch.mock.calls.find(([url, init]) => String(url).includes('/presets') && init?.method !== 'GET');
+		expect(write).toBeDefined();
+		const body = JSON.parse(String(write![1]!.body));
+		expect(body).toMatchObject({ collection: 'directus_files', search: 'logo' });
+		// The system (folder) filter is not part of the preset.
+		expect(JSON.stringify(body.filter ?? null)).not.toContain(folder);
+	});
+});
+

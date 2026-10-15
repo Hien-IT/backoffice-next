@@ -25,7 +25,7 @@ Snapshot thêm `folders.json`, `files.json`, `users.json`, `roles.json` (data-mo
 | Spec | Story | Nội dung |
 |------|-------|----------|
 | `files-library.spec.ts` | US1 | cây thư mục, mục đặc biệt, thẻ thư mục, chọn gộp, tạo/đổi tên/chuyển/tải/xóa thư mục (hai chế độ), trạng thái trống, `@core` |
-| `files-upload.spec.ts` | US2 | hộp `+` nhiều file, từ URL (stub `route()`), kéo thả 2 file, tiến độ, TUS khi API bật (`proxy-api`: `TUS_ENABLED` của env parity [Unverified: env parity bật TUS? nếu không, nhánh TUS chỉ unit]) |
+| `files-upload.spec.ts` | US2 | hộp `+` nhiều file, từ URL (stub `route()`), kéo thả 2 file, tiến độ, TUS khi API bật (`proxy-api`: `TUS_ENABLED` của env parity [Đã kiểm T002 (CHK090): env parity không bật TUS; nhánh TUS chỉ unit]) |
 | `files-item.spec.ts` | US2 | xem trước, sửa metadata, lưu kiểu, chuyển thư mục, tải về, thay file, bản sao, xóa, chi tiết file, `@core` |
 | `files-image-editor.spec.ts` | US5 | cắt + xoay PNG 400×300, lưu đè, lưu mới; từ `file-image` của `bo_std`; SC-006 so pixel với Directus app (`proxy-api`) |
 | `users-directory.spec.ts` | US3 | sub-menu trạng thái + cây role, bộ lọc hệ thống, mời (2 email, trùng), tạo từ route role, xóa hàng loạt |

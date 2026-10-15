@@ -118,6 +118,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"web-files-users": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/web-files-users.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }

@@ -93,7 +93,8 @@ test('admin, default module bar: order of Directus without Documentation, URLs a
 	expect(modulesOnly(hrefs)).toEqual(modulesOnly(directus));
 
 	for (const [path, title] of [
-		['/admin/users', 'User Directory'],
+		// Feature 015: the users module opens the active users list, titled like Directus.
+		['/admin/users', 'Active Users'],
 		['/admin/files', 'File Library'],
 		['/admin/insights', 'Insights'],
 		['/admin/content', 'Content'],

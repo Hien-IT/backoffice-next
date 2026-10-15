@@ -366,7 +366,7 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 						class="size-20 rounded-full object-cover"
 						@error="avatarError = $event"
 					/>
-					<BoIcon v-else name="account_circle" class="text-gray-400 [font-size:5rem]!" aria-hidden="true" />
+					<BoIcon v-else name="account_circle" class="text-gray-500 dark:text-gray-400 [font-size:5rem]!" aria-hidden="true" />
 				</div>
 				<div class="user-box-content flex min-w-0 flex-col gap-1">
 					<template v-if="loading">

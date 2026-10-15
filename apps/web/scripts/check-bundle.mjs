@@ -1,7 +1,7 @@
 // R12, FR-074 (T066): the entry chunk of the build, gzipped, stays within 350 KB. Fonts and lazy route chunks are
 // not counted (FR-074 measures the main bundle).
 // Usage: node scripts/check-bundle.mjs [distDir]
-import { readFileSync } from 'node:fs';
+import { readdirSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
@@ -30,6 +30,30 @@ export const LAZY_ONLY = [
 	'cropper-container',
 ];
 
+// Feature 015 (T101, CHK088): the lazy chunks of the image editor, resumable uploads and the theme data stay small. Each
+// is found by a marker of its library or data; the limit is gzip bytes.
+export const LAZY_BUDGETS_015 = [
+	{ name: 'cropperjs', marker: 'cropper-container', limit: 60 * 1024 },
+	{ name: 'tus-js-client', marker: 'Tus-Resumable', limit: 25 * 1024 },
+	{ name: 'theme data', marker: '$generated', limit: 15 * 1024 },
+];
+
+/** Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker; null when none holds it. */
+export function lazyChunkSizes(distDir, entryFile) {
+	const assets = join(distDir, 'assets');
+	const files = readdirSync(assets)
+		.filter((name) => name.endsWith('.js'))
+		.map((name) => join(assets, name))
+		.filter((file) => file !== entryFile);
+
+	return LAZY_BUDGETS_015.map((budget) => {
+		const sizes = files
+			.filter((file) => readFileSync(file, 'utf8').includes(budget.marker))
+			.map((file) => gzipSync(readFileSync(file)).length);
+		return { ...budget, gzip: sizes.length ? Math.max(...sizes) : null };
+	});
+}
+
 /** Library markers found in the entry chunk that must only be in lazy chunks. */
 export function lazyLeaks(file) {
 	const code = readFileSync(file, 'utf8');
@@ -56,5 +80,13 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 
 	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
 	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);
-	process.exit(gzip <= limit && leaks.length === 0 ? 0 : 1);
+
+	const lazy = lazyChunkSizes(distDir, file);
+	for (const chunk of lazy) {
+		const size = chunk.gzip === null ? 'not found' : `${(chunk.gzip / 1024).toFixed(1)} KB gzip`;
+		process.stdout.write(`check-bundle: lazy ${chunk.name} ${size} (limit ${(chunk.limit / 1024).toFixed(1)} KB)\n`);
+	}
+	const lazyOver = lazy.filter((chunk) => chunk.gzip !== null && chunk.gzip > chunk.limit);
+
+	process.exit(gzip <= limit && leaks.length === 0 && lazyOver.length === 0 ? 0 : 1);
 }
