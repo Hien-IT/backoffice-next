@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/views/private/components/files-navigation.vue", "dest": "apps/web/src/components/files/FilesNavigation.vue" },
+	{ "source": "app/src/views/private/components/files-navigation-folder.vue", "dest": "apps/web/src/components/files/FilesNavigation.vue" },
+	{ "source": "app/src/modules/files/components/delete-folder-dialog.vue", "dest": "apps/web/src/modules/files/components/DeleteFolderDialog.vue" }
+]

@@ -4,9 +4,25 @@
 // Feature 014 (data-model §9, T023) adds the Content module set: the `bo_folder` folder with `bo_content` (versioning,
 // archive, display template, preview URL, manual sort, 30 items), the `bo_singleton` singleton, presets and bookmarks,
 // versions, a share, comments and the `bo-flow-content` / `bo-flow-item` manual flows.
+// Feature 015 (data-model §11, T021) adds the Files and Users set: the `bo-files` folder tree with an image of 400x300
+// (`bo-edit.png`), a JPEG with EXIF and text files, one file 10 days old, the `bo-sub` role under bo-editor and the
+// directory users of lib.mjs (one per status, a token user, an SSO user).
 // Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
 // `--clean` only deletes the fixture set and exits.
-import { Api, CONTENT_FLOWS, FIXED_UUIDS, FLOW, FOLDER, SHARE, USERS, query, readArgs } from './lib.mjs';
+import {
+	Api,
+	CONTENT_FLOWS,
+	DIRECTORY_USERS,
+	FILES_FOLDERS,
+	FIXED_UUIDS,
+	FLOW,
+	FOLDER,
+	SHARE,
+	SUB_ROLE,
+	USERS,
+	query,
+	readArgs,
+} from './lib.mjs';
 
 const args = readArgs();
 const api = await Api.connect(args);
@@ -44,7 +60,9 @@ async function cleanup() {
 		if (collection.startsWith('bo_')) await api.request('DELETE', `/collections/${collection}`);
 	}
 
-	const folders = await api.get(`/folders${query({ filter: { name: { _eq: FOLDER } }, fields: 'id' })}`);
+	const folders = await api.get(
+		`/folders${query({ filter: { name: { _in: [FOLDER, ...Object.values(FILES_FOLDERS)] } }, fields: 'id' })}`,
+	);
 
 	if (folders.length > 0) {
 		const ids = folders.map((f) => f.id);
@@ -66,7 +84,7 @@ async function cleanup() {
 			flows.map((f) => f.id),
 		);
 
-	const emails = Object.values(USERS).map((u) => u.email);
+	const emails = [...Object.values(USERS), ...Object.values(DIRECTORY_USERS)].map((u) => u.email);
 	const users = await api.get(`/users${query({ filter: { email: { _in: emails } }, fields: 'id' })}`);
 	if (users.length > 0)
 		await api.request(
@@ -75,7 +93,7 @@ async function cleanup() {
 			users.map((u) => u.id),
 		);
 
-	const roles = await api.get(`/roles${query({ filter: { name: { _in: ROLES } }, fields: 'id' })}`);
+	const roles = await api.get(`/roles${query({ filter: { name: { _in: [...ROLES, SUB_ROLE] } }, fields: 'id' })}`);
 	if (roles.length > 0)
 		await api.request(
 			'DELETE',
@@ -1837,13 +1855,86 @@ async function createItems({ files, users }) {
 	]);
 }
 
+/* ---------------------------------------------------------------- files and users (015) */
+
+async function createFilesFixtures({ users }) {
+	const { default: sharp } = await import('sharp');
+
+	const root = (await api.request('POST', '/folders', { name: FILES_FOLDERS.root })).id;
+	const sub = (await api.request('POST', '/folders', { name: FILES_FOLDERS.sub, parent: root })).id;
+	const deep = (await api.request('POST', '/folders', { name: FILES_FOLDERS.deep, parent: sub })).id;
+
+	const upload = async (folder, title, name, type, data) => {
+		// Same field order as v-upload.vue: folder, title, then the file.
+		const form = new FormData();
+		form.append('folder', folder);
+		form.append('title', title);
+		form.append('file', new Blob([data], { type }), name);
+		return (await api.request('POST', '/files', form)).id;
+	};
+
+	// 400x300 PNG with four colored quadrants, the image of SC-006 (crop and rotate compared pixel by pixel).
+	const quadrant = (color) => sharp({ create: { width: 200, height: 150, channels: 3, background: color } }).png().toBuffer();
+	const png = await sharp({ create: { width: 400, height: 300, channels: 3, background: WHITE } })
+		.composite([
+			{ input: await quadrant(PURPLE), left: 0, top: 0 },
+			{ input: await quadrant(GREEN), left: 200, top: 0 },
+			{ input: await quadrant(RED), left: 0, top: 150 },
+		])
+		.png()
+		.toBuffer();
+	await upload(root, 'bo-edit', 'bo-edit.png', 'image/png', png);
+
+	// JPEG with the EXIF rows of the file details (camera, exposure, shutter, focal length, ISO).
+	const jpeg = await sharp({ create: { width: 64, height: 48, channels: 3, background: GREEN } })
+		.jpeg()
+		.withMetadata({
+			exif: {
+				IFD0: { Make: 'Backoffice', Model: 'Fixture Cam' },
+				IFD2: { FNumber: '28/10', ExposureTime: '1/125', FocalLength: '50/1', ISOSpeedRatings: '200' },
+			},
+		})
+		.toBuffer();
+	await upload(root, 'bo-exif', 'bo-exif.jpg', 'image/jpeg', jpeg);
+
+	// Enough text files for a second page of 25 cards.
+	for (let index = 1; index <= 28; index++) {
+		const number = String(index).padStart(2, '0');
+		await upload(root, `bo-text-${number}`, `bo-text-${number}.txt`, 'text/plain', `Fixture text ${number}\n`);
+	}
+
+	await upload(sub, 'bo-sub-text', 'bo-sub-text.txt', 'text/plain', 'Sub folder text\n');
+	await upload(deep, 'bo-deep-text', 'bo-deep-text.txt', 'text/plain', 'Deep folder text\n');
+
+	// Old upload of another user: out of "recent files" (5 days) and of the admin's "my files".
+	const old = await upload(root, 'bo-old', 'bo-old.txt', 'text/plain', 'Old upload\n');
+	const oldDate = new Date(Date.now() - 10 * 24 * 3600 * 1000).toISOString();
+	await api.request('PATCH', `/files/${old}`, { uploaded_on: oldDate });
+	await api.request('PATCH', `/files/${old}`, { uploaded_by: users['bo-editor'].user }).catch(() => {});
+
+	const subRole = await api.request('POST', '/roles', { name: SUB_ROLE, icon: 'supervisor_account', parent: users['bo-editor'].role });
+
+	for (const [key, user] of Object.entries(DIRECTORY_USERS)) {
+		await api.request('POST', '/users', {
+			email: user.email,
+			first_name: user.first_name,
+			last_name: user.last_name,
+			status: user.status,
+			role: key === 'bo-active' ? subRole.id : users['bo-editor'].role,
+			...(key === 'bo-token' && { token: 'bo-token-fixture-value' }),
+			...(key === 'bo-sso' && { provider: 'oidc', external_identifier: 'bo-sso-subject' }),
+			...(key === 'bo-active' && { title: 'Fixture lead', location: 'Ha Noi' }),
+		});
+	}
+}
+
 /* ---------------------------------------------------------------- run */
 
 await cleanup();
 
 if (args.clean) {
 	process.stdout.write(
-		`Cleaned ${api.url}: bo_* collections, folder ${FOLDER}, flows ${[FLOW, ...CONTENT_FLOWS].join(', ')}, roles ${ROLES.join(', ')}\n`,
+		`Cleaned ${api.url}: bo_* collections, folders ${[FOLDER, ...Object.values(FILES_FOLDERS)].join(', ')}, flows ${[FLOW, ...CONTENT_FLOWS].join(', ')}, roles ${[...ROLES, SUB_ROLE].join(', ')}\n`,
 	);
 	process.exit(0);
 }
@@ -1905,6 +1996,7 @@ for (const relation of [...relations(), ...contentRelations()]) await api.reques
 const users = await createAccess(true);
 await createItems({ files, users });
 await createContentFixtures({ users, files, geometry });
+await createFilesFixtures({ users });
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

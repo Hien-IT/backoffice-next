@@ -44,6 +44,11 @@ export interface Snapshot {
 	revisions: Record<string, Row[]>;
 	/** `expected.content.json`: values recorded on the Directus app for the Content module (not an interface). */
 	contentExpected: Record<string, any>;
+	/** Feature 015: the bo-files folder tree, its files, the roles and the directory users (data-model §11). */
+	directoryFolders: Row[];
+	directoryFiles: Row[];
+	roles: Row[];
+	directoryUsers: Row[];
 }
 
 const files = import.meta.glob<unknown>('../../fixtures/interfaces/snapshot/*.json', {
@@ -84,6 +89,10 @@ const snapshot = {
 	comments: byName['comments'] ?? [],
 	revisions: prefixed<Row[]>('revisions.'),
 	contentExpected: byName['expected.content'] ?? {},
+	directoryFolders: byName['folders'] ?? [],
+	directoryFiles: byName['files.directory'] ?? [],
+	roles: byName['roles'] ?? [],
+	directoryUsers: byName['users.directory'] ?? [],
 } as Snapshot;
 
 /** A fresh copy of the snapshot (tests may change it freely). */

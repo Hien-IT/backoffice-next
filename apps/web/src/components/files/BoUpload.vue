@@ -1,12 +1,13 @@
 <!-- Ported from directus/app/src/components/v-upload.vue -->
 <script setup lang="ts">
-// Backoffice: Upload recipe (component-specs Tier 3). Multipart `POST /files` through the SDK like the profile avatar
-// (research R5); no TUS (the server store does not read `uploads`, FR-053) and no `start` controller, so progress
-// moves per finished file (fetch has no upload progress). Errors show inline under the zone (the notifications
-// store with dialogs comes with 018): invalid files as Directus words them, failed uploads one line per file with
-// translateAPIError. No `fileId` (PATCH /files/:id is outside the FR-054 write list). "Choose from library" emits
-// `library`; the files drawer (T069) calls the exposed `setSelection` (GET /files or /files/:id as Directus).
-import { readFile, readFiles, uploadFiles } from '@directus/sdk';
+// Backoffice: Upload recipe (component-specs Tier 3). Uploads go through utils/upload-files.ts and upload-file.ts
+// (feature 015: TUS when the server enables it, otherwise multipart through the SDK, `maxConcurrency` from the server;
+// multipart progress moves per finished file, fetch has no upload progress); no `start` controller. `fileId` replaces
+// that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
+// dialogs comes with 018): invalid files as Directus words them, failed uploads one line per file with
+// translateAPIError. "Choose from library" emits `library`; the files drawer (T069) calls the exposed `setSelection`
+// (GET /files or /files/:id as Directus).
+import { readFile, readFiles } from '@directus/sdk';
 import type { File, Filter } from '@directus/types';
 import { computed, ref, useId } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -18,6 +19,9 @@ import BoIcon from '../BoIcon.vue';
 import BoInput from '../BoInput.vue';
 import BoMenu, { type BoMenuItem } from '../BoMenu.vue';
 import BoProgressLinear from '../BoProgressLinear.vue';
+import { useServerStore } from '../../stores/server.ts';
+import { uploadFile } from '../../utils/upload-file.ts';
+import { uploadFiles } from '../../utils/upload-files.ts';
 
 interface Props {
 	multiple?: boolean;
@@ -27,6 +31,8 @@ interface Props {
 	fromUrl?: boolean;
 	fromLibrary?: boolean;
 	folder?: string | undefined;
+	/** Replace this file instead of creating one (feature 015). */
+	fileId?: string | undefined;
 	/** Filter of the files drawer (T069). */
 	filter?: Filter | undefined;
 	disabled?: boolean;
@@ -36,6 +42,7 @@ interface Props {
 const props = withDefaults(defineProps<Props>(), {
 	preset: () => ({}),
 	folder: undefined,
+	fileId: undefined,
 	filter: undefined,
 	accept: undefined,
 	fromUser: true,
@@ -109,22 +116,8 @@ function validFiles(files: globalThis.File[]) {
 	return true;
 }
 
-/** utils/upload-file.ts without TUS: the preset fields first, then the file (FR-053 field order). */
-async function uploadFile(file: globalThis.File, preset: Record<string, any>): Promise<File | undefined> {
-	const formData = new FormData();
-
-	for (const [key, value] of Object.entries(preset)) {
-		formData.append(key, value);
-	}
-
-	formData.append('file', file);
-
-	try {
-		return (await sdk.request(uploadFiles(formData))) as unknown as File;
-	} catch (error) {
-		errors.value.push(`${file.name}: ${translateAPIError(error as APIError)}`);
-		return undefined;
-	}
+function uploadError(file: globalThis.File, error: unknown) {
+	errors.value.push(`${file.name}: ${translateAPIError(error as APIError)}`);
 }
 
 function useUpload() {
@@ -158,24 +151,27 @@ function useUpload() {
 
 		try {
 			if (props.multiple === true) {
-				const totalBytes = files.reduce((total, file) => total + file.size, 0);
-				let doneBytes = 0;
-
-				const uploadedFiles = await Promise.all(
-					files.map(async (file) => {
-						const uploaded = await uploadFile(file, preset);
-						doneBytes += file.size;
-						done.value++;
-						progress.value = Math.round((doneBytes / totalBytes) * 100);
-						return uploaded;
-					}),
-				);
+				const uploadedFiles = await uploadFiles(files, {
+					preset,
+					maxConcurrency: useServerStore().info.uploads?.maxConcurrency,
+					onError: uploadError,
+					onProgressChange: (percentages) => {
+						progress.value = Math.round(percentages.reduce((total, p) => total + p, 0) / percentages.length);
+						done.value = percentages.filter((p) => p === 100).length;
+					},
+				});
 
 				const succeeded = uploadedFiles.filter((f): f is File => !!f);
 				emit('input', succeeded);
 				announce(succeeded.length);
 			} else {
-				const uploadedFile = await uploadFile(files[0]!, preset);
+				const uploadedFile = await uploadFile(files[0]!, {
+					preset,
+					...(props.fileId && { fileId: props.fileId }),
+					onError: (error) => uploadError(files[0]!, error),
+					onProgressChange: (percentage) => (progress.value = Math.round(percentage)),
+				});
+
 				progress.value = 100;
 				done.value = 1;
 

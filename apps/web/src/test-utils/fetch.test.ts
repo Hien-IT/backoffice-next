@@ -2,7 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { apiFetch, replaceQueue, requestEndpoint, sdk } from '../api/sdk.ts';
 import { assertOnlyKnownRequests, calls, json, mockApi, mockFixtureApi } from './fetch.ts';
-import { loadSnapshot, type FixtureUser } from './fixtures.ts';
+import { loadSnapshot, type FixtureUser, type Row } from './fixtures.ts';
 
 beforeEach(async () => {
 	setActivePinia(createPinia());
@@ -271,7 +271,8 @@ describe('mockFixtureApi writes and assets', () => {
 		expect(await get('/files', { filter: { folder: { _eq: folder } }, aggregate: { count: '*' } })).toEqual([
 			{ count: '5' },
 		]);
-		expect(fetch.db['directus_files']).toHaveLength(5);
+		// 3 files of bo-fixtures (013) + the 2 new ones + the bo-files tree of 015.
+		expect(fetch.db['directus_files']).toHaveLength(5 + snapshot.directoryFiles.length);
 
 		const flow = snapshot.flows[0]!.id;
 		const triggered = await raw(`/flows/trigger/${flow}`, {
@@ -289,7 +290,7 @@ describe('mockFixtureApi writes and assets', () => {
 });
 
 describe('assertOnlyKnownRequests', () => {
-	test('accepts the 012, 013 and 014 routes, rejects the others', () => {
+	test('accepts the 012 to 015 routes, rejects the others', () => {
 		expect(() =>
 			assertOnlyKnownRequests([
 				'GET /fields',
@@ -300,11 +301,15 @@ describe('assertOnlyKnownRequests', () => {
 				'POST /files',
 				'POST /files/import',
 				'POST /flows/trigger/abc',
+				'PATCH /files/abc',
+				'DELETE /files',
+				'POST /assets/folder/abc',
+				'HEAD /files/tus/abc',
 			]),
 		).not.toThrow();
 
-		expect(() => assertOnlyKnownRequests(['GET /fields', 'PATCH /fields/bo_std/a', 'DELETE /files'])).toThrow(
-			'Requests outside contracts/api-calls.md:\nPATCH /fields/bo_std/a\nDELETE /files',
+		expect(() => assertOnlyKnownRequests(['GET /fields', 'PATCH /fields/bo_std/a', 'DELETE /roles'])).toThrow(
+			'Requests outside contracts/api-calls.md:\nPATCH /fields/bo_std/a\nDELETE /roles',
 		);
 		expect(() => assertOnlyKnownRequests(['GET /search?q=a'], [/^\/search$/])).not.toThrow();
 	});
@@ -410,5 +415,54 @@ describe('mockFixtureApi Content module routes (014)', () => {
 
 		const response = await apiFetch('/items/bo_content?export=csv&fields=title&limit=2&sort=id');
 		expect(await response.text()).toBe('"title"\n"Content 01 (edited)"\n"Content 02"');
+	});
+});
+
+describe('mockFixtureApi, feature 015', () => {
+	test('serves the bo-files folders, files, roles and directory users; filters files by folder', async () => {
+		mockFixtureApi(loadSnapshot());
+		const get = async (path: string) => (await (await globalThis.fetch(`http://api.test${path}`)).json()).data;
+
+		const folders = (await get('/folders')) as { name: string }[];
+		expect(folders.map((f) => f.name)).toEqual(expect.arrayContaining(['bo-files', 'bo-files-sub', 'bo-files-deep']));
+
+		const root = folders.find((f) => f.name === 'bo-files') as { id: string };
+		const files = (await get(`/files?filter=${encodeURIComponent(JSON.stringify({ folder: { _eq: root.id } }))}&limit=-1`)) as unknown[];
+		expect(files).toHaveLength(31);
+
+		expect(((await get('/roles')) as { name: string }[]).map((r) => r.name)).toContain('bo-sub');
+		expect(((await get('/users?limit=-1')) as { email: string }[]).map((u) => u.email)).toContain('bo-invited@example.com');
+		expect(await get('/utils/random/string')).toMatch(/^bo-random-/);
+	});
+
+	test('invite creates invited users and answers RECORD_NOT_UNIQUE for known emails', async () => {
+		mockFixtureApi(loadSnapshot());
+		const response = await globalThis.fetch('http://api.test/users/invite', {
+			method: 'POST',
+			body: JSON.stringify({ email: ['new@example.com', 'bo-active@example.com'], role: 'r1' }),
+		});
+
+		expect(response.status).toBe(400);
+		expect((await response.json()).errors[0].extensions).toMatchObject({ code: 'RECORD_NOT_UNIQUE', invalid: 'bo-active@example.com' });
+
+		const users = (await (await globalThis.fetch('http://api.test/users?limit=-1')).json()).data as Row[];
+		expect(users.find((u) => u['email'] === 'new@example.com')).toMatchObject({ status: 'invited', role: 'r1' });
+	});
+
+	test('a multipart PATCH replaces the file; zips answer with a file name; serverInfo is merged', async () => {
+		mockFixtureApi(loadSnapshot(), { serverInfo: { uploads: { tus: false, maxConcurrency: 5 } } });
+		const files = (await (await globalThis.fetch('http://api.test/files?limit=-1')).json()).data as Row[];
+		const id = files.find((f) => f['title'] === 'bo-edit')!['id'];
+
+		const form = new FormData();
+		form.append('file', new File(['x'], 'new.png', { type: 'image/png' }));
+		const patched = (await (await globalThis.fetch(`http://api.test/files/${id}`, { method: 'PATCH', body: form })).json()).data;
+		expect(patched).toMatchObject({ id, filename_download: 'new.png', type: 'image/png' });
+
+		const zip = await globalThis.fetch('http://api.test/assets/files', { method: 'POST', body: '{}' });
+		expect(zip.headers.get('Content-Disposition')).toContain('files.zip');
+
+		const info = (await (await globalThis.fetch('http://api.test/server/info')).json()).data;
+		expect(info.uploads).toEqual({ tus: false, maxConcurrency: 5 });
 	});
 });

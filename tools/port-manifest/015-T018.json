@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/views/private/components/folder-picker.vue", "dest": "apps/web/src/components/files/FolderPicker.vue" },
+	{ "source": "app/src/views/private/components/FolderPickerListItem.vue", "dest": "apps/web/src/components/files/FolderPicker.vue" }
+]

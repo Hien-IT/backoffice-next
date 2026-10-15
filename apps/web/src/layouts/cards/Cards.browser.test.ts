@@ -52,12 +52,16 @@ async function mountCards(
 		filterUser?: Filter | null;
 		filter?: Filter | null;
 		filterSystem?: Filter | null;
+		/** Files module (feature 015): folder cards in the `prepend` slot, selected through `extraSelection`. */
+		prepend?: boolean;
 	} = {},
 	waitCards = true,
 ) {
 	const layoutQuery = ref(initial.layoutQuery ?? null);
 	const layoutOptions = ref(initial.layoutOptions ?? null);
 	const selection = ref<(string | number)[]>([]);
+	const extraSelection = ref<(string | number)[]>([]);
+	const selectAllEvents = ref(0);
 	const Wrapper = createLayoutWrapper(cards);
 
 	const Harness = defineComponent(
@@ -82,12 +86,33 @@ async function mountCards(
 						h('div', [
 							h('header', [h(cards.slots.actions, layoutState)]),
 							h('aside', [h(cards.slots.options, layoutState)]),
-							h(cards.component, layoutState, {
+							h(
+								cards.component,
+								initial.prepend
+									? {
+											...layoutState,
+											extraSelection: extraSelection.value,
+											hasPrependContent: true,
+											'onUpdate:extraSelection': (value: any) => (extraSelection.value = value),
+											onSelectAll: () => {
+												selectAllEvents.value++;
+												extraSelection.value = ['folder-1', 'folder-2'];
+											},
+										}
+									: layoutState,
+								{
+								...(initial.prepend && {
+									prepend: () => [
+										h('div', { 'data-test': 'prepend' }, 'folder-1'),
+										h('div', { 'data-test': 'prepend' }, 'folder-2'),
+									],
+								}),
 								'no-items': () => h('p', { 'data-test': 'no-items' }, 'empty'),
 								'no-results': () => h('p', { 'data-test': 'no-results' }, 'no results'),
 								error: ({ error }: { error: any }) =>
 									h('p', { 'data-test': 'error' }, String(error?.errors?.[0]?.message)),
-							}),
+								},
+							),
 						]),
 				},
 			),
@@ -99,7 +124,7 @@ async function mountCards(
 	if (waitCards) await vi.waitFor(() => expect(cardLinks().length).toBeGreaterThan(0));
 	await flushPromises();
 
-	return { wrapper, router, layoutQuery, layoutOptions, selection };
+	return { wrapper, router, layoutQuery, layoutOptions, selection, extraSelection, selectAllEvents };
 }
 
 const cardLinks = () => [...document.querySelectorAll<HTMLAnchorElement>('a[href^="/content/bo_content/"]')];
@@ -177,6 +202,25 @@ test('selection: card checkbox, click in select mode, header clear and select al
 
 	await userEvent.click(header);
 	await vi.waitFor(() => expect(selection.value).toHaveLength(25));
+});
+
+test('Files folder cards (feature 015, FR-012): prepend before the items, count and clear with extraSelection, select all', async () => {
+	const { selection, extraSelection, selectAllEvents } = await mountCards({ prepend: true });
+
+	const grid = document.querySelector('[data-test="prepend"]')!.parentElement!;
+	expect(grid.firstElementChild!.getAttribute('data-test')).toBe('prepend');
+	expect(grid.children[2]!.querySelector('a[href^="/content/bo_content/"]')).not.toBeNull();
+
+	const header = document.querySelector<HTMLElement>('[role="checkbox"]')!;
+	await userEvent.click(header);
+	await vi.waitFor(() => expect(selectAllEvents.value).toBe(1));
+	await vi.waitFor(() => expect(selection.value).toHaveLength(25));
+	expect(extraSelection.value).toEqual(['folder-1', 'folder-2']);
+	await vi.waitFor(() => expect(header.getAttribute('aria-label')).toBe('27 Items Selected'));
+
+	await userEvent.click(header);
+	await vi.waitFor(() => expect(selection.value).toEqual([]));
+	expect(extraSelection.value).toEqual([]);
 });
 
 test('keyboard: Tab reaches the card link, Enter opens the item, Space toggles in select mode', async () => {

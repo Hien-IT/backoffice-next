@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/types/folders.ts", "dest": "apps/web/src/types/folders.ts" },
+	{ "source": "app/src/utils/collect-folder-ids.ts", "dest": "apps/web/src/utils/collect-folder-ids.ts" },
+	{ "source": "app/src/utils/collect-folder-ids.test.ts", "dest": "apps/web/src/utils/collect-folder-ids.test.ts" },
+	{ "source": "app/src/utils/get-folder-filter.ts", "dest": "apps/web/src/utils/get-folder-filter.ts" },
+	{ "source": "app/src/utils/delete-folder.ts", "dest": "apps/web/src/utils/delete-folder.ts" },
+	{ "source": "app/src/utils/delete-folder.test.ts", "dest": "apps/web/src/utils/delete-folder.test.ts" }
+]

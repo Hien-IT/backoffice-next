@@ -1,0 +1,20 @@
+[
+	{
+		"id": "bo-8",
+		"name": "bo-editor",
+		"icon": "person",
+		"parent": null
+	},
+	{
+		"id": "bo-59",
+		"name": "bo-sub",
+		"icon": "supervisor_account",
+		"parent": "bo-8"
+	},
+	{
+		"id": "bo-11",
+		"name": "bo-viewer",
+		"icon": "person",
+		"parent": null
+	}
+]

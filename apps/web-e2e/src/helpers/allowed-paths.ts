@@ -1,11 +1,12 @@
 // The closed list of API calls of the web app (FR-002), copied from specs/012-backoffice-web-shell/contracts/api-calls.md
 // (32 routes), specs/013-interfaces-displays/contracts/api-calls.md (#33-#49) and
-// specs/014-content-module/contracts/api-calls.md (#50-#96). Matched on method and path (query ignored, path relative to
+// specs/014-content-module/contracts/api-calls.md (#50-#96) and specs/015-files-users-modules/contracts/api-calls.md
+// (rows 97 to 134). Matched on method and path (query ignored, path relative to
 // apiUrl). Keep them in step with KNOWN_REQUESTS of apps/web/src/test-utils/fetch.ts.
 export interface AllowedCall {
 	/** Row number in contracts/api-calls.md. */
 	id: number;
-	method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'SEARCH';
+	method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'SEARCH' | 'HEAD';
 	path: RegExp;
 }
 
@@ -78,6 +79,21 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
 	{ id: 93, method: 'POST', path: /^\/graphql(\/system)?$/ },
 	{ id: 94, method: 'SEARCH', path: new RegExp(`^/items/${ID}$`) },
+	// Feature 015 (Files and Users modules).
+	{ id: 97, method: 'GET', path: /^\/folders$/ },
+	{ id: 98, method: 'GET', path: new RegExp(`^/folders/${ID}$`) },
+	{ id: 103, method: 'GET', path: /^\/roles$/ },
+	{ id: 105, method: 'GET', path: /^\/utils\/random\/string$/ },
+	{ id: 110, method: 'POST', path: /^\/(folders|users|users\/invite)$/ },
+	{ id: 111, method: 'PATCH', path: new RegExp(`^/(folders|files|users)(/${ID})?$`) },
+	// Not /users/me: the app deletes the current user by its id (Directus users/routes/item.vue).
+	{ id: 113, method: 'DELETE', path: new RegExp(`^/(folders|files|users)(/(?!me$)${ID})?$`) },
+	{ id: 120, method: 'POST', path: /^\/files\/tus$/ },
+	{ id: 120, method: 'PATCH', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 120, method: 'HEAD', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
+	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

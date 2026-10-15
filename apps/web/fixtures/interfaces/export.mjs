@@ -1,12 +1,27 @@
 // Exports the fixture set seeded by seed.mjs into a normalized snapshot (data-model §6): bo_* collections, fields,
 // relations, items, the bo-fixtures files, the bo-flow flow and /permissions/me of admin, bo-editor and bo-viewer.
+// Feature 015 adds the bo-files folder tree and its files, the roles and the directory users (last in the snapshot, so
+// the 013 and 014 uuids keep their numbers).
 // Normalization: every uuid becomes `bo-<n>` (numbered in seed creation order, then in order of appearance), times,
 // user stamps, `filename_disk`, `meta.id` and permission ids become null, argon2 hashes a fixed string.
 // Usage: node export.mjs --api <url> (--token <admin token> | --email <e> --password <p>) [--out <dir>] [--kind directus]
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Api, CONTENT_FLOWS, FIXED_UUIDS, FLOW, FOLDER, SHARE, USERS, query, readArgs } from './lib.mjs';
+import {
+	Api,
+	CONTENT_FLOWS,
+	DIRECTORY_USERS,
+	FILES_FOLDERS,
+	FIXED_UUIDS,
+	FLOW,
+	FOLDER,
+	SHARE,
+	SUB_ROLE,
+	USERS,
+	query,
+	readArgs,
+} from './lib.mjs';
 
 const args = readArgs();
 const api = await Api.connect(args);
@@ -205,6 +220,24 @@ for (const [name, client] of [
 
 const info = await api.get('/server/info');
 
+/* Files and Users modules (015). */
+const directoryFolders = await api.get(
+	`/folders${query({ filter: { name: { _in: Object.values(FILES_FOLDERS) } }, fields: 'id,name,parent', sort: 'name' })}`,
+);
+const directoryFiles = await api.get(
+	`/files${query({ filter: { folder: { _in: directoryFolders.map((f) => f.id) } }, sort: 'title', limit: -1 })}`,
+);
+const directoryRoles = await api.get(
+	`/roles${query({ filter: { name: { _in: [...Object.keys(USERS), SUB_ROLE] } }, fields: 'id,name,icon,parent', sort: 'name' })}`,
+);
+const directoryUsers = await api.get(
+	`/users${query({
+		filter: { email: { _in: Object.values(DIRECTORY_USERS).map((u) => u.email) } },
+		fields: 'id,email,first_name,last_name,status,role,provider,external_identifier,title,location,token,tfa_secret,avatar',
+		sort: 'email',
+	})}`,
+);
+
 /* ---------------------------------------------------------------- normalize and write */
 
 // Seed creation order first, so the numbers do not depend on what the API returns first.
@@ -246,6 +279,11 @@ const snapshot = {
 	'shares.json': shares,
 	'comments.json': comments,
 	'revisions.bo_content.json': revisions,
+	// 015 last, after 014.
+	'folders.json': directoryFolders,
+	'files.directory.json': directoryFiles,
+	'roles.json': directoryRoles,
+	'users.directory.json': directoryUsers,
 };
 
 mkdirSync(out, { recursive: true });

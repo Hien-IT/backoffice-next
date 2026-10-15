@@ -1,0 +1,1 @@
+[{ "source": "app/src/stores/files.ts", "dest": "apps/web/src/stores/files.ts" }]

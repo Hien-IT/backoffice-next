@@ -99,34 +99,34 @@ diện (FR-110, SC-008).
 
 ### Utils, store, upload
 
-- [ ] T010 [P] Chép `src/utils/get-folder-filter.ts` (từ `app/src/utils/get-folder-filter.ts`), `src/utils/collect-folder-ids.ts`,
+- [x] T010 [P] Chép `src/utils/get-folder-filter.ts` (từ `app/src/utils/get-folder-filter.ts`), `src/utils/collect-folder-ids.ts`,
       `src/utils/delete-folder.ts` (api → sdk `requestEndpoint`), `src/types/folders.ts` (`FolderTarget`,
       `SpecialFolder`); test `get-folder-filter.test.ts` (4 nhánh, `recent` = `subDays(now, 5)` ISO),
       `delete-folder.test.ts` (thứ tự request move/delete, `parent` null về gốc CHK011); manifest `015-T010.json`
-- [ ] T011 [P] Chép `src/composables/use-folders.ts` (state module-level `folders`, `nestedFolders`, `openFolders`
+- [x] T011 [P] Chép `src/composables/use-folders.ts` (state module-level `folders`, `nestedFolders`, `openFolders`
       `['root']`, `fetchFolders` qua `fetchAll` của 014 hoặc chép `src/utils/fetch-all.ts` theo T002); test
       `use-folders.test.ts` (`nestFolders` 3 cấp, vòng `parent` không treo, `rootFolder`/`local`, nạp một lần, lỗi một
       trang → `unexpectedError` CHK083); manifest
-- [ ] T012 [P] Chép `src/stores/files.ts` (`upload()` → `{start, finish, progress, done, uploading}`,
+- [x] T012 [P] Chép `src/stores/files.ts` (`upload()` → `{start, finish, progress, done, uploading}`,
       `isAnyUploadActive`) và test `files.test.ts`; manifest
-- [ ] T013 Mở rộng `src/stores/server.ts`: đọc `uploads` (`chunkSize`, `maxConcurrency`, `tus`) và
+- [x] T013 Mở rộng `src/stores/server.ts`: đọc `uploads` (`chunkSize`, `maxConcurrency`, `tus`) và
       `project.default_theme_light|dark` từ `/server/info` (sửa ghi chú D-41 ở đầu file: `uploads` nay được đọc); test
       `server.test.ts` thêm hai trường
-- [ ] T014 Chép `src/utils/upload-file.ts` và `src/utils/upload-files.ts`: nhánh TUS (`import('tus-js-client')` động,
+- [x] T014 Chép `src/utils/upload-file.ts` và `src/utils/upload-files.ts`: nhánh TUS (`import('tus-js-client')` động,
       endpoint `<PUBLIC_URL>/files/tus`, metadata = preset + `filename_download` + `type` (+ `id` khi `fileId`),
       `chunkSize` server hoặc hằng chép, `removeFingerprintOnSuccess`, `withCredentials`, `onShouldRetry` false,
       `Directus-File-Id`, `findPreviousUploads`, xong `GET /files/:id`), nhánh multipart gọi `uploadWithProgress` 013
       (`POST /files` hoặc `PATCH /files/:fileId`, CHK056); `uploadFiles` với `p-queue` (`maxConcurrency` ≤ 0 = vô hạn,
       CHK004); test `upload-file.test.ts` (FormData thứ tự preset rồi `file`; TUS với `FakeXMLHttpRequest`: header
       `Tus-Resumable`, `Upload-Metadata`, resume), `upload-files.test.ts` (tiến độ gộp, hàng đợi); manifest
-- [ ] T015 Mở rộng `src/components/files/BoUpload.vue`: prop `fileId` (thay file), gọi `uploadFiles`/`uploadFile`
+- [x] T015 Mở rộng `src/components/files/BoUpload.vue`: prop `fileId` (thay file), gọi `uploadFiles`/`uploadFile`
       (bỏ đường tải riêng), giữ API 013 (`multiple`, `fromUrl`, `folder`, `accept`, "chọn từ thư viện"); cập nhật
       `BoUpload.test.ts` (allowlist thêm `PATCH /files/:id`, CHK091) và ghi chú đầu file; test 013 khác giữ xanh
-- [ ] T016 [P] Chép `src/composables/use-dialog-route.ts` và test (`isOpen` theo `route.matched`); manifest
+- [x] T016 [P] Chép `src/composables/use-dialog-route.ts` và test (`isOpen` theo `route.matched`); manifest
 
 ### Cây thư mục, picker, cards
 
-- [ ] T017 Chép `src/components/files/FilesNavigation.vue` và `FilesNavigationFolder.vue` (logic từ
+- [x] T017 Chép `src/components/files/FilesNavigation.vue` và `FilesNavigationFolder.vue` (logic từ
       `files-navigation.vue`, `files-navigation-folder.vue`; template theo §11: `tree`/`treeitem`, `<button aria-expanded>`,
       `<ul>` lồng, mũi tên/Enter như `ContentNavigation` 014, mục đặc biệt, vạch chia, skeleton; menu thư mục =
       `contextmenu` + nút "⋯" `BoMenu` với đổi tên, chuyển, tải (`POST /assets/folder/:id` qua `apiFetch`, blob,
@@ -134,22 +134,22 @@ diện (FR-110, SC-008).
       `customTargetHandler`, `rootFolder`, `localOpenFolders`); test `FilesNavigation.test.ts` (props, click → router,
       mục đặc biệt active) và `FilesNavigation.browser.test.ts` (bàn phím, menu, hộp đổi tên gửi `PATCH /folders/:id`);
       manifest
-- [ ] T018 [P] Chép `src/components/files/FolderPicker.vue` và `FolderPickerListItem.vue` (`modelValue`,
+- [x] T018 [P] Chép `src/components/files/FolderPicker.vue` và `FolderPickerListItem.vue` (`modelValue`,
       `disabledFolders` chỉ khóa chính nó CHK077, cây riêng `GET /folders limit=-1 sort=name` một lần mỗi instance
       CHK099, cha mở sẵn); test `FolderPicker.test.ts`; nếu T002 thấy 014 đã có `FolderPicker` cho Export thì hợp
       nhất thay vì chép; manifest
-- [ ] T019 Mở rộng `src/layouts/cards/Cards.vue` và `components/CardsHeader.vue`: thêm lại `extraSelection` (v-model),
+- [x] T019 Mở rộng `src/layouts/cards/Cards.vue` và `components/CardsHeader.vue`: thêm lại `extraSelection` (v-model),
       `hasPrependContent`, slot `prepend`, emit `select-all` (header: đếm `selection + extraSelection`, bỏ chọn xóa cả
       hai) đúng như `layouts/cards/cards.vue` và `header.vue` Directus (CHK003); sửa ghi chú đầu file 014; bốn layout
       khác nhận `extraSelection` không dùng; cập nhật `Cards.browser.test.ts` (thẻ `prepend` trước thẻ item, đếm chọn
       gộp, `select-all`); test 014 giữ xanh
-- [ ] T020 [P] Mở rộng `src/stores/presets.ts`: `defaultPresets` hệ thống `directus_files`, `directus_users` chép nguyên
+- [x] T020 [P] Mở rộng `src/stores/presets.ts`: `defaultPresets` hệ thống `directus_files`, `directus_users` chép nguyên
       từ `directus/app/src/stores/presets.ts` (CHK001), `getPresetForCollection` trả mặc định khi không có preset; sửa
       ghi chú đầu file 012; test `presets.test.ts`
 
 ### Bộ mẫu, API giả lập, E2E harness, chuỗi dịch
 
-- [ ] T021 Mở rộng `fixtures/seed.mjs` và `fixtures/lib.mjs`: tập `bo_files` (thư mục `bo-fixtures/sub/deep`; 30 file:
+- [x] T021 Mở rộng `fixtures/seed.mjs` và `fixtures/lib.mjs`: tập `bo_files` (thư mục `bo-fixtures/sub/deep`; 30 file:
       PNG gồm `bo-edit.png` 400×300, JPEG có EXIF tạo bằng `sharp().withMetadata({ exif })` CHK095 (thêm `sharp`
       bản catalog vào devDependencies của `apps/web` vì pnpm không resolve gói của `apps/api`), PDF, MP4 ngắn,
       TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` cũ nếu API cho ghi, không thì bỏ) và `bo_users` (role
@@ -157,9 +157,9 @@ diện (FR-110, SC-008).
       `POST /users/invite`; user có `token`; user SSO với `provider` theo T002 CHK030); `seed.mjs --clean` dọn; mở rộng
       `fixtures/export.mjs` ghi `folders.json`, `files.json` (bỏ `tus_*`, chuẩn hóa ngày), `users.json` (bỏ `token`,
       `tfa_secret`, `password`), `roles.json`; chạy hai lần cho file giống nhau; `fixtures/README.md` mục 015
-- [ ] T022 Chạy seed trên Directus 8155 và API mới 8156 rồi `tests/parity/src/web/fixtures-seed.test.ts` xanh (seed
+- [x] T022 Chạy seed trên Directus 8155 và API mới 8156 rồi `tests/parity/src/web/fixtures-seed.test.ts` xanh (seed
       mở rộng qua hai API cho cùng snapshot); sau seed xóa cache `?system` ở 8156 và 8163
-- [ ] T023 Mở rộng `src/test-utils/fetch.ts` (`mockFixtureApi`, `KNOWN_REQUESTS` #97–#134): `/folders` CRUD trong bộ
+- [x] T023 Mở rộng `src/test-utils/fetch.ts` (`mockFixtureApi`, `KNOWN_REQUESTS` #97–#134): `/folders` CRUD trong bộ
       nhớ, `/files` lọc theo `folder`/`uploaded_by`/`uploaded_on`/`type`, `POST /files` multipart (ghi FormData, trả
       file mới), `PATCH /files/:id` JSON và multipart (ghi `focal_point_*`), `GET /assets/:id` PNG cố định bỏ nonce,
       `POST /assets/files|folder/:id` zip giả + `Content-Disposition`, `/users/invite` (user `invited`; email trùng →
@@ -172,7 +172,7 @@ diện (FR-110, SC-008).
       `otplib`, `clearFixtureUsers`); `e2e/helpers/directus-app.ts` thêm helper thư mục, mời, token cho Directus app;
       `apps/web-e2e/playwright.config.ts` thêm `files-users-parity-ui` và `payload/{files,users}` vào
       `DIRECTUS_APP_SPECS`; `otplib` vào devDependencies của `apps/web-e2e` nếu chưa có
-- [ ] T025 [P] Chuỗi dịch: mở rộng `src/lang/keys.test.ts` cho `src/modules/files`, `src/modules/users`,
+- [x] T025 [P] Chuỗi dịch: mở rộng `src/lang/keys.test.ts` cho `src/modules/files`, `src/modules/users`,
       `src/components/files`, `src/interfaces/_system/system-*`; thêm `theme_applies_in_directus` vào
       `src/lang/overlay/en-US.ts` và `vi-VN.ts` (CHK042); `overlay.test.ts` cập nhật
 
@@ -613,5 +613,20 @@ Lượt 3, Phase 7 (US4):
 - 2026-10-16: T001 theo quyết định owner (bắt đầu trước "014 closed", ranh giới ghi ở research "Kết quả kiểm T002,
   T003"); T002/T003 xong, kết quả ở research; preset mặc định `directus_users` là `tabular` (spec sửa); nhãn theme cần
   owner chốt lại trước T079.
+- Phase 2 (2026-10-16):
+  - `uploadFile` multipart đi qua SDK (`uploadFiles` POST, `updateFile` PATCH, như `BoUpload` 013) thay cho
+    `uploadWithProgress`: test `BoUpload` giả lập `fetch`; tiến độ multipart theo file xong, TUS theo byte. TUS kiểm
+    bằng `vi.mock('tus-js-client')` thay cho `FakeXMLHttpRequest`.
+  - `use-dialog-route` không giữ route chờ hiệu ứng đóng (`BoDialog` không có hook `leave`).
+  - `systemDefaults` của Directus có sáu collection (files, users, activity, roles, policies, presets), chép đủ.
+  - Cây dùng chung `composables/use-tree-keyboard.ts` cho cây thư mục, picker và cây role (cây 014 giữ bản riêng).
+  - Bộ mẫu 015 dùng cây thư mục riêng `bo-files` > `bo-files-sub` > `bo-files-deep` (không thêm vào `bo-fixtures` để
+    snapshot 013 không đổi); snapshot thêm `folders.json`, `files.directory.json`, `roles.json`,
+    `users.directory.json` ở cuối; `bo-invited` tạo bằng `POST /users` với `status: invited` (không gọi
+    `/users/invite` để seed không phụ thuộc gửi email).
+  - T024: allowlist (#97–#134, chặn `DELETE /users/me`) và `helpers.spec.ts` xong; `helpers/files.ts` viết cùng
+    T036; helper Directus app (`directus-app.ts`) và `DIRECTUS_APP_SPECS` của `playwright.config.ts` để T048 (sau khi
+    014 báo đóng).
+  - T025: overlay `theme_applies_in_directus` chuyển sang T079 (lượt 3).
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

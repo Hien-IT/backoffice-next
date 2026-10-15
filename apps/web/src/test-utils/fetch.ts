@@ -52,7 +52,8 @@ const ID = '[^/]+';
 
 /**
  * The closed list of API requests of the web app: specs/012-backoffice-web-shell/contracts/api-calls.md (#1-#32) and
- * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), on method and path (query ignored). Same idea as
+ * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96) and 015 (rows 97 to 134), on method and path
+ * (query ignored). Same idea as
  * apps/web-e2e/src/helpers/allowed-paths.ts, which only lists what the 012 pages send.
  */
 export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
@@ -118,6 +119,20 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
 	{ id: 93, method: 'POST', path: /^\/graphql(\/system)?$/ },
 	{ id: 94, method: 'SEARCH', path: new RegExp(`^/items/${ID}$`) },
+	// Feature 015 (specs/015-files-users-modules/contracts/api-calls.md, rows 97 to 134).
+	{ id: 98, method: 'GET', path: new RegExp(`^/folders/${ID}$`) },
+	{ id: 103, method: 'GET', path: /^\/roles$/ },
+	{ id: 105, method: 'GET', path: /^\/utils\/random\/string$/ },
+	{ id: 110, method: 'POST', path: /^\/(folders|users|users\/invite)$/ },
+	{ id: 111, method: 'PATCH', path: new RegExp(`^/(folders|files|users)(/${ID})?$`) },
+	// Not /users/me: the app deletes the current user by its id (Directus users/routes/item.vue).
+	{ id: 113, method: 'DELETE', path: new RegExp(`^/(folders|files|users)(/(?!me$)${ID})?$`) },
+	{ id: 120, method: 'POST', path: /^\/files\/tus$/ },
+	{ id: 120, method: 'PATCH', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 120, method: 'HEAD', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
+	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
+	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
 ];
 
 /**
@@ -155,6 +170,8 @@ const ENDPOINTS: Record<string, string> = {
 	shares: 'directus_shares',
 	comments: 'directus_comments',
 	revisions: 'directus_revisions',
+	// Feature 015.
+	roles: 'directus_roles',
 };
 
 class ApiError extends Error {
@@ -175,6 +192,8 @@ export interface FixtureApiOptions {
 	user?: FixtureUser;
 	/** "METHOD /path" overrides, checked first (same shape as mockApi). */
 	answers?: Record<string, Answer>;
+	/** Merged into the `/server/info` answer (feature 015: `uploads`, `project`). */
+	serverInfo?: Record<string, unknown>;
 }
 
 /**
@@ -182,10 +201,15 @@ export interface FixtureApiOptions {
  * `/items/<c>`, `/files`, `/users`, `/flows` with `filter` (`_eq` and its `{ field: value }` shorthand, `_neq`, `_in`,
  * `_nin`, `_null`, `_nnull`, `_or`, `_and`, `_some` / `_none` on o2m, m2m and `$FOLLOW(...)` and a few more), `search`, `sort`, `limit`, `page`, `fields` (nested), `alias` and `aggregate`;
  * `/assets/<id>` (1x1 PNG), `POST /files` and `POST /files/import` (add a file row), `POST /flows/trigger/<id>`.
+ * Feature 015: the bo-files folders, files, roles and directory users; `PATCH /files/<id>` multipart (replace),
+ * `POST /assets/files|folder/<id>` (a zip), `POST /users/invite`, the TFA routes of `/users`, `GET /utils/random/string`.
  * Read permissions of the user apply like Directus: an explicit field or collection the user cannot read answers 403,
  * `*` lists the readable fields. Returns the fetch mock; `fetch.db` holds the rows (flat, keys instead of objects).
  */
-export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} }: FixtureApiOptions = {}) {
+export function mockFixtureApi(
+	source: Snapshot,
+	{ user = 'admin', answers = {}, serverInfo = {} }: FixtureApiOptions = {},
+) {
 	const snapshot = structuredClone(source);
 	const account = snapshot.users[user];
 	const isAdmin = account.globals.admin_access;
@@ -229,13 +253,20 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 
 	const db: Record<string, Row[]> = {
 		...Object.fromEntries(Object.entries(snapshot.items).map(([c, rows]) => [c, rows.map((r) => flatten(c, r))])),
-		directus_files: snapshot.files.map((r) => flatten('directus_files', r)),
-		directus_users: Object.values(snapshot.users).map(({ me }) => ({ ...me, role: me.role?.id ?? null })),
-		directus_folders: [...new Set(snapshot.files.map((f) => f['folder']))].map((id) => ({
-			id,
-			name: 'bo-fixtures',
-			parent: null,
-		})),
+		directus_files: [...snapshot.files, ...(snapshot.directoryFiles ?? [])].map((r) => flatten('directus_files', r)),
+		directus_users: [
+			...Object.values(snapshot.users).map(({ me }) => ({ ...me, role: me.role?.id ?? null })),
+			...(snapshot.directoryUsers ?? []),
+		],
+		directus_folders: [
+			...[...new Set(snapshot.files.map((f) => f['folder']))].map((id) => ({
+				id,
+				name: 'bo-fixtures',
+				parent: null,
+			})),
+			...(snapshot.directoryFolders ?? []),
+		],
+		directus_roles: (snapshot.roles ?? []) as Row[],
 		directus_flows: snapshot.flows as Row[],
 		directus_presets: (snapshot.presets ?? []) as Row[],
 		directus_translations: [],
@@ -480,6 +511,7 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 					websocket: false,
 					queryLimit: { default: 100, max: -1 },
 					files: { mimeTypeAllowList: ['*/*'] },
+					...serverInfo,
 				};
 			if (path === '/users/me') return project('directus_users', { ...account.me }, fieldList(url));
 			if (path === '/policies/me/globals') return account.globals;
@@ -497,6 +529,8 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			if (path === '/fields') return allFields;
 			if (path === '/relations') return relations;
 			if (first === 'assets' && second) return new Response(PNG, { headers: { 'Content-Type': 'image/png' } });
+			// 015: token generation (row 105).
+			if (path === '/utils/random/string') return `bo-random-${++serial}`;
 			// 014: item permissions (#53), version comparison (#58), singleton reads, export download (#63).
 			if (first === 'permissions' && second === 'me' && third) return itemPermissions(third);
 			if (first === 'versions' && second && third === 'compare') return compareVersion(second);
@@ -518,6 +552,36 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 				type: file?.type || undefined,
 				filesize: file?.size,
 			});
+		}
+
+		/* -------------------------------------------------------------- 015 (rows 97 to 134) */
+
+		// Replace the file of a row (multipart PATCH, FR-033) or edit it from the image editor (FR-043).
+		if (method === 'PATCH' && first === 'files' && second && init.body instanceof FormData) {
+			const file = init.body.get('file') as File | null;
+			const data: Row = Object.fromEntries([...init.body.entries()].filter(([, v]) => typeof v === 'string'));
+			return update('directus_files', decodeURIComponent(second), {
+				...data,
+				...(file && { filename_download: file.name, type: file.type || null, filesize: String(file.size) }),
+			});
+		}
+
+		if (method === 'POST' && first === 'assets' && (second === 'files' || (second === 'folder' && third)))
+			return new Response('PK-zip', {
+				headers: {
+					'Content-Type': 'application/zip',
+					'Content-Disposition': `attachment; filename="${second === 'files' ? 'files' : 'folder'}.zip"`,
+				},
+			});
+
+		if (method === 'POST' && path === '/users/invite') return inviteUsers(JSON.parse(String(init.body)));
+
+		if (method === 'POST' && path === '/users/me/tfa/generate')
+			return { secret: 'BOSECRETBOSECRET', otpauth_url: 'otpauth://totp/Backoffice:admin?secret=BOSECRETBOSECRET' };
+		if (method === 'POST' && path === '/users/me/tfa/enable') return null;
+		if (method === 'POST' && first === 'users' && second && path.endsWith('/tfa/disable')) {
+			if (second !== 'me') update('directus_users', decodeURIComponent(second), { tfa_secret: null });
+			return null;
 		}
 
 		if (method === 'POST' && path === '/files/import') {
@@ -568,6 +632,29 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 		}
 
 		return notFound();
+	}
+
+	/* ---------------------------------------------------------------- 015 helpers */
+
+	/** Directus UsersService.inviteUser: one invited user per new email; known emails are RECORD_NOT_UNIQUE. */
+	function inviteUsers(body: { email: string | string[]; role: string }): Response | null {
+		const emails = Array.isArray(body.email) ? body.email : [body.email];
+		const known = emails.filter((email) => db['directus_users']!.some((u) => u['email'] === email));
+
+		for (const email of emails.filter((email) => !known.includes(email)))
+			create('directus_users', { email, role: body.role, status: 'invited' });
+
+		if (known.length === 0) return null;
+
+		return json(
+			{
+				errors: known.map((email) => ({
+					message: `Value for field "email" in collection "directus_users" has to be unique.`,
+					extensions: { code: 'RECORD_NOT_UNIQUE', collection: 'directus_users', field: 'email', invalid: email },
+				})),
+			},
+			400,
+		);
 	}
 
 	/* ---------------------------------------------------------------- 014 helpers */

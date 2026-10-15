@@ -8,7 +8,17 @@ import enUSOverlay from './overlay/en-US.ts';
 import enUS from './translations/en-US.json';
 
 const SRC = join(import.meta.dirname, '..');
-const DIRS = ['modules/content', 'layouts', 'components/sidebar', 'components/comparison', 'interfaces/_system'];
+const DIRS = [
+	'modules/content',
+	'layouts',
+	'components/sidebar',
+	'components/comparison',
+	'interfaces/_system',
+	// Feature 015.
+	'modules/files',
+	'modules/users',
+	'components/files',
+];
 // `$t('key'`, `t('key'`, `te('key'`, `keypath="key"`: the first argument when it is a plain string literal.
 const KEY = /(?:\$t|\bt|\bte|\btc)\(\s*(['"`])([\w.-]+)\1|keypath="([\w.-]+)"/g;
 

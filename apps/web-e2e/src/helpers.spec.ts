@@ -26,7 +26,13 @@ test('isAllowedCall follows contracts/api-calls.md', () => {
 	expect(isAllowedCall('POST', '/versions/1/promote')).toBe(true);
 	expect(isAllowedCall('GET', '/websocket')).toBe(false);
 	expect(isAllowedCall('DELETE', '/users/me')).toBe(false);
-	expect(isAllowedCall('DELETE', '/files')).toBe(false);
+	expect(isAllowedCall('DELETE', '/roles')).toBe(false);
+	// Feature 015.
+	expect(isAllowedCall('DELETE', '/files')).toBe(true);
+	expect(isAllowedCall('PATCH', '/folders/abc')).toBe(true);
+	expect(isAllowedCall('POST', '/assets/folder/abc')).toBe(true);
+	expect(isAllowedCall('HEAD', '/files/tus/abc')).toBe(true);
+	expect(isAllowedCall('POST', '/users/abc/tfa/disable')).toBe(true);
 	expect(isAllowedCall('POST', '/users/me/track/page')).toBe(false);
 });
 

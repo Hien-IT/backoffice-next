@@ -1,8 +1,9 @@
 // Ported from directus/app/src/stores/presets.ts
-// Backoffice: no system default presets (directus_files, directus_users, directus_activity): their screens come with
-// features 015 and 018 (D-40); the rest of the store is the Directus one (feature 014, FR-018).
+// Backoffice: the store is the Directus one (feature 014, FR-018); the system default presets of directus_files,
+// directus_users, directus_activity, directus_roles, directus_policies and directus_presets are injected on hydrate
+// as Directus does (feature 015, CHK001).
 import type { Preset } from '@directus/types';
-import { cloneDeep, orderBy } from 'lodash-es';
+import { cloneDeep, merge, orderBy } from 'lodash-es';
 import { nanoid } from 'nanoid';
 import { defineStore } from 'pinia';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
@@ -23,6 +24,125 @@ const defaultPreset: Omit<Preset, 'collection'> = {
 	refresh_interval: null,
 	icon: 'bookmark',
 	color: null,
+};
+
+const systemDefaults: Record<string, Partial<Preset>> = {
+	directus_files: {
+		collection: 'directus_files',
+		layout: 'cards',
+		layout_query: {
+			cards: {
+				sort: ['-uploaded_on'],
+			},
+		},
+		layout_options: {
+			cards: {
+				icon: 'insert_drive_file',
+				title: '{{ title }}',
+				subtitle: '{{ type }} • {{ filesize }}',
+				size: 4,
+				imageFit: 'crop',
+			},
+		},
+	},
+	directus_users: {
+		collection: 'directus_users',
+		layout: 'tabular',
+		layout_query: {
+			tabular: {
+				sort: ['email'],
+				fields: ['avatar', 'first_name', 'last_name', 'email', 'role'],
+			},
+		},
+		layout_options: {
+			tabular: {
+				widths: {
+					avatar: 36,
+					first_name: 200,
+					last_name: 200,
+					email: 300,
+					role: 200,
+				},
+			},
+		},
+	},
+	directus_activity: {
+		collection: 'directus_activity',
+		layout: 'tabular',
+		layout_query: {
+			tabular: {
+				sort: ['-timestamp'],
+				fields: ['action', 'collection', 'timestamp', 'user'],
+			},
+		},
+		layout_options: {
+			tabular: {
+				widths: {
+					action: 120,
+					collection: 210,
+					timestamp: 240,
+					user: 240,
+				},
+			},
+		},
+	},
+	directus_roles: {
+		collection: 'directus_roles',
+		layout: 'tabular',
+		layout_query: {
+			tabular: {
+				sort: ['name'],
+				fields: ['icon', 'name', 'description'],
+			},
+		},
+		layout_options: {
+			tabular: {
+				widths: {
+					icon: 36,
+					name: 248,
+					description: 500,
+				},
+			},
+		},
+	},
+	directus_policies: {
+		collection: 'directus_policies',
+		layout: 'tabular',
+		layout_query: {
+			tabular: {
+				sort: ['name'],
+				fields: ['icon', 'name', 'app_access', 'admin_access', 'description'],
+			},
+		},
+		layout_options: {
+			tabular: {
+				widths: {
+					icon: 36,
+					name: 248,
+					description: 500,
+				},
+			},
+		},
+	},
+	directus_presets: {
+		collection: 'directus_presets',
+		layout: 'tabular',
+		layout_query: {
+			tabular: {
+				fields: ['bookmark', 'collection', 'user', 'role'],
+			},
+		},
+		layout_options: {
+			tabular: {
+				widths: {
+					bookmark: 200,
+					collection: 200,
+					user: 200,
+					role: 200,
+				},
+			},
+		},
+	},
 };
 
 export const usePresetsStore = defineStore('presetsStore', {
@@ -73,7 +193,20 @@ export const usePresetsStore = defineStore('presetsStore', {
 				}),
 			]);
 
-			this.collectionPresets = values.flat();
+			const presets = values.flat();
+
+			// Inject system defaults if they don't exist
+			for (const systemCollection of Object.keys(systemDefaults)) {
+				const existingGlobalDefault = presets.find((preset) => {
+					return preset.collection === systemCollection && !preset.user && !preset.role && !preset.bookmark;
+				});
+
+				if (!existingGlobalDefault) {
+					presets.push(merge({}, defaultPreset, systemDefaults[systemCollection]));
+				}
+			}
+
+			this.collectionPresets = presets;
 		},
 		async dehydrate() {
 			this.$reset();

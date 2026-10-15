@@ -197,6 +197,10 @@ describe('folder filter', () => {
 		expect(calls(fetch).filter((call) => call.startsWith('GET /folders'))).toEqual(['GET /folders?sort=name&limit=-1']);
 		expect((nav(wrapper).props('items') as { text: string }[]).map((item) => item.text.trim())).toEqual([
 			'File Library',
+			// The bo-files tree of the 015 fixture set (sub folders under their parent), then bo-fixtures (013).
+			'bo-files',
+			'bo-files-sub',
+			'bo-files-deep',
 			'bo-fixtures',
 			'All Files',
 			'My Files',

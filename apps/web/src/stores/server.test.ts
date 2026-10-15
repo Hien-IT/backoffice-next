@@ -18,6 +18,7 @@ describe('hydrate', () => {
 				queryLimit: { default: 100, max: -1 },
 				version: '11.17.4',
 				files: { mimeTypeAllowList: ['image/*'] },
+				uploads: { tus: true, chunkSize: 1024, maxConcurrency: 5 },
 			},
 			'GET /auth': () => json({ data: [{ name: 'ldap', driver: 'ldap' }], disableDefault: false }),
 		});
@@ -30,6 +31,7 @@ describe('hydrate', () => {
 		expect(store.info.setupCompleted).toBe(true);
 		expect(store.info.queryLimit).toEqual({ default: 100, max: -1 });
 		expect(store.info.files).toEqual({ mimeTypeAllowList: ['image/*'] });
+		expect(store.info.uploads).toEqual({ tus: true, chunkSize: 1024, maxConcurrency: 5 });
 		expect(store.auth.providers).toEqual([{ name: 'ldap', driver: 'ldap' }]);
 	});
 

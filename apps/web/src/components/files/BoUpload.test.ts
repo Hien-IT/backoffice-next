@@ -90,6 +90,20 @@ describe('upload', () => {
 		expect(wrapper.get('[aria-live="polite"]').text()).toBe('File Uploaded');
 	});
 
+	it('fileId replaces that file with PATCH /files/:id (feature 015, FR-033)', async () => {
+		const fetch = mockApi({ 'PATCH /files/f1': { id: 'f1', filename_download: 'b.png' } });
+		const wrapper = mount(BoUpload, { props: { fileId: 'f1' }, global });
+
+		select(wrapper, [file('b.png', 'image/png')]);
+		await flushPromises();
+
+		expect(calls(fetch)).toEqual(['PATCH /files/f1']);
+		assertOnlyKnownRequests(calls(fetch));
+		const body = fetch.mock.calls[0]![1]!.body as FormData;
+		expect([...body.keys()]).toEqual(['file']);
+		expect(wrapper.emitted('input')).toEqual([[{ id: 'f1', filename_download: 'b.png' }]]);
+	});
+
 	it('multiple: emits the uploaded files and lists an error per failed file', async () => {
 		let n = 0;
 		mockApi({

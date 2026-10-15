@@ -178,3 +178,57 @@ test('clearLocalSave reloads the stored bookmark', async () => {
 
 	expect(store.collectionPresets[0]!.bookmark).toBe('Server');
 });
+
+// Feature 015 (CHK001, research "Kết quả kiểm T002"): systemDefaults of directus/app/src/stores/presets.ts.
+test('hydrate adds the Directus system defaults of files, users and activity when no global preset exists', async () => {
+	useUserStore().currentUser = { id: 'u1', role: null } as unknown as AppUser;
+	const globalFiles = preset(9, { collection: 'directus_files', layout: 'tabular' });
+	mockApi({ 'GET /presets': ({ url }: { url: URL }) => json({ data: url.search.includes('_null') ? [globalFiles] : [] }) });
+
+	const store = usePresetsStore();
+	await store.hydrate();
+
+	const users = store.collectionPresets.find((p) => p.collection === 'directus_users');
+	expect(users).toEqual({
+		bookmark: null,
+		role: null,
+		user: null,
+		search: null,
+		filter: null,
+		collection: 'directus_users',
+		layout: 'tabular',
+		layout_query: { tabular: { sort: ['email'], fields: ['avatar', 'first_name', 'last_name', 'email', 'role'] } },
+		layout_options: { tabular: { widths: { avatar: 36, first_name: 200, last_name: 200, email: 300, role: 200 } } },
+		refresh_interval: null,
+		icon: 'bookmark',
+		color: null,
+	});
+	expect(store.collectionPresets.find((p) => p.collection === 'directus_activity')?.layout).toBe('tabular');
+
+	// The global preset of the database wins over the injected default.
+	expect(store.collectionPresets.filter((p) => p.collection === 'directus_files')).toEqual([globalFiles]);
+
+	useUserStore().currentUser = { id: 'u1', role: null } as unknown as AppUser;
+	expect(store.getPresetForCollection('directus_users')?.layout).toBe('tabular');
+});
+
+test('the files default is the cards layout sorted by upload date', async () => {
+	useUserStore().currentUser = { id: 'u1', role: null } as unknown as AppUser;
+	mockApi({ 'GET /presets': [] });
+
+	const store = usePresetsStore();
+	await store.hydrate();
+
+	const files = store.getPresetForCollection('directus_files');
+	expect(files?.layout).toBe('cards');
+	expect(files?.layout_query).toEqual({ cards: { sort: ['-uploaded_on'] } });
+	expect(files?.layout_options).toEqual({
+		cards: {
+			icon: 'insert_drive_file',
+			title: '{{ title }}',
+			subtitle: '{{ type }} • {{ filesize }}',
+			size: 4,
+			imageFit: 'crop',
+		},
+	});
+});

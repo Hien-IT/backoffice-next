@@ -91,7 +91,15 @@ describe('data stores hydrate (D-45)', () => {
 			'GET /presets?limit=-1&filter[role][_null]=true&filter[user][_null]=true',
 			'GET /presets?limit=-1&filter[user][_eq]=u1',
 		]);
-		expect(store.collectionPresets).toHaveLength(3);
+		// The three presets of the API, then the system defaults of directus/app/src/stores/presets.ts (feature 015).
+		expect(store.collectionPresets.slice(3).map((preset) => preset.collection)).toEqual([
+			'directus_files',
+			'directus_users',
+			'directus_activity',
+			'directus_roles',
+			'directus_policies',
+			'directus_presets',
+		]);
 
 		await store.dehydrate();
 		expect(store.collectionPresets).toEqual([]);

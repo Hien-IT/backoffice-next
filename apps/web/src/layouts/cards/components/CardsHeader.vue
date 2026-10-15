@@ -4,7 +4,8 @@
 // selected, a click clears them as the Directus cancel icon); the sort field menu is a BoSelect with a screen reader
 // label and lists only the sortable fields (Directus shows the others disabled); size and direction are icon buttons
 // (Material Symbols has no `grid_<n>` icon: `grid_view`); the `end` slot holds the per page select (recipe); not sticky.
-// `extraSelection` is left out: no screen of the Content module passes it.
+// `extraSelection` holds the selected folder cards of the Files module (feature 015, FR-012): counted with the selection
+// and cleared with it.
 import type { Field, ShowSelect } from '@directus/types';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -19,10 +20,12 @@ const props = withDefaults(
 		sort: string[];
 		showSelect?: ShowSelect;
 		selection?: (number | string)[];
+		extraSelection?: (number | string)[];
 	}>(),
 	{
 		showSelect: 'multiple',
 		selection: () => [],
+		extraSelection: () => [],
 	},
 );
 
@@ -31,11 +34,12 @@ const emit = defineEmits<{
 	'update:size': [value: number];
 	'update:sort': [value: string[]];
 	'update:selection': [value: (number | string)[]];
+	'update:extraSelection': [value: (number | string)[]];
 }>();
 
 const { t } = useI18n();
 
-const totalSelectionCount = computed(() => props.selection.length);
+const totalSelectionCount = computed(() => props.selection.length + props.extraSelection.length);
 
 // Also the aria-label: Reka reads the `<label>` text once, so a changed label would keep the old name.
 const selectLabel = computed(() =>
@@ -76,6 +80,7 @@ function toggleDescending() {
 function onClickSelect() {
 	if (totalSelectionCount.value) {
 		emit('update:selection', []);
+		emit('update:extraSelection', []);
 	} else if (props.showSelect === 'multiple') {
 		emit('select-all');
 	}

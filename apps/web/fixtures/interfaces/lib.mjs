@@ -17,6 +17,22 @@ export const FLOW = 'bo-flow';
 export const CONTENT_FLOWS = ['bo-flow-content', 'bo-flow-item'];
 export const SHARE = { name: 'bo-share', password: 'bo-share-password' };
 
+// Feature 015 (Files and Users modules, data-model §11): a folder tree of its own (the 013 `bo-fixtures` folder and
+// snapshot stay as they are), the role under bo-editor and directory users, one per status, a token user and an SSO
+// user (test values; they only exist on test databases).
+export const FILES_ROOT = 'bo-files';
+export const FILES_FOLDERS = { root: FILES_ROOT, sub: 'bo-files-sub', deep: 'bo-files-deep' };
+export const SUB_ROLE = 'bo-sub';
+export const DIRECTORY_USERS = {
+	'bo-active': { email: 'bo-active@example.com', status: 'active', first_name: 'Ada', last_name: 'Active' },
+	'bo-suspended': { email: 'bo-suspended@example.com', status: 'suspended', first_name: 'Sam', last_name: 'Suspended' },
+	'bo-invited': { email: 'bo-invited@example.com', status: 'invited', first_name: null, last_name: null },
+	'bo-draft': { email: 'bo-draft@example.com', status: 'draft', first_name: 'Dee', last_name: 'Draft' },
+	'bo-archived': { email: 'bo-archived@example.com', status: 'archived', first_name: 'Archie', last_name: 'Archived' },
+	'bo-token': { email: 'bo-token@example.com', status: 'active', first_name: 'Toby', last_name: 'Token' },
+	'bo-sso': { email: 'bo-sso@example.com', status: 'active', first_name: 'Sasha', last_name: 'Sso' },
+};
+
 /** `--api <url>` plus `--token <token>` or `--email <e> --password <p>`; `--clean` for seed.mjs; `--out <dir>` and `--kind <directus|backoffice>` for export.mjs. */
 export function readArgs() {
 	const { values } = parseArgs({

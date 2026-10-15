@@ -3,8 +3,10 @@
 // Backoffice: recipe "Cards grid (Q-3)": the grid columns are `size × 40` px (Directus `size × 2.25rem`; 40 px is the
 // width `isSingleRow` already uses) with `gap-6`; 12 skeleton cards while loading instead of v-progress-circular; the
 // per page select sits in the header bar (recipe) with the tabular rule (shown when items >= 25 or limit < 25); the
-// footer is BoPagination (no skeleton while the count loads, as tabular); no `prepend` slot / `hasPrependContent` and no
-// `extraSelection` (Files module only); no own padding (PrivateView pads the content).
+// footer is BoPagination (no skeleton while the count loads, as tabular); no own padding (PrivateView pads the content).
+// `prepend` slot, `hasPrependContent` and `extraSelection` are the Files module's folder cards (feature 015, FR-012):
+// while loading with prepend content the grid keeps the prepend cards and shows skeletons for the items (Directus keeps
+// the old items and no spinner).
 import type { AppCollection, Field, Filter, Item, ShowSelect } from '@directus/types';
 import { useElementSize } from '@vueuse/core';
 import { computed, inject, ref, type Ref, watch } from 'vue';
@@ -51,6 +53,8 @@ const props = withDefaults(
 		info?: AppCollection | null | undefined;
 		filterUser?: Filter | null | undefined;
 		search?: string | null | undefined;
+		extraSelection?: (number | string)[];
+		hasPrependContent?: boolean;
 	}>(),
 	{
 		selection: () => [],
@@ -63,6 +67,8 @@ const props = withDefaults(
 		info: undefined,
 		filterUser: undefined,
 		search: undefined,
+		extraSelection: () => [],
+		hasPrependContent: false,
 	},
 );
 
@@ -73,11 +79,17 @@ const emit = defineEmits<{
 	'update:sort': [value: string[]];
 	'update:width': [value: number];
 	'select-all': [];
+	'update:extraSelection': [value: (number | string)[]];
 }>();
 
 const selectionWritable = computed({
 	get: () => props.selection,
 	set: (value) => emit('update:selection', value),
+});
+
+const extraSelectionWritable = computed({
+	get: () => props.extraSelection,
+	set: (value) => emit('update:extraSelection', value),
 });
 
 const limitWritable = computed({
@@ -124,9 +136,10 @@ function onSelectAll() {
 
 <template>
 	<div ref="layoutElement">
-		<template v-if="loading || (items.length > 0 && !error)">
+		<template v-if="loading || (items.length > 0 && !error) || hasPrependContent">
 			<CardsHeader
 				v-model:selection="selectionWritable"
+				v-model:extra-selection="extraSelectionWritable"
 				:size="size"
 				:sort="sort"
 				:fields="fieldsInCollection"
@@ -148,6 +161,7 @@ function onSelectAll() {
 			</CardsHeader>
 
 			<div class="grid gap-6" :style="{ gridTemplateColumns: gridColumns }" :aria-busy="loading || undefined">
+				<slot name="prepend" />
 				<template v-if="loading">
 					<Card v-for="n in 12" :key="n" item-key="" loading />
 				</template>
