@@ -45,10 +45,10 @@ test('feature 014 budget allows 60 KB over the 013 entry and finds the Content m
 	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['fc-scrollgrid', 'sp-root', '__aliasFor']);
 });
 
-test('feature 015 budget allows 20 KB over the 014 budget and keeps tus-js-client lazy', () => {
+test('feature 015 budget allows 20 KB over the 014 budget and keeps tus-js-client and Cropper.js lazy', () => {
 	expect(BUDGET_015).toBe(BUDGET_014 + 20 * 1024);
 	expect(BUDGET_015).toBeLessThan(LIMIT);
 
-	const root = dist('headers["Tus-Resumable"] = "1.0.0";');
-	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['Tus-Resumable']);
+	const root = dist('headers["Tus-Resumable"] = "1.0.0"; const c = "cropper-container";');
+	expect(lazyLeaks(join(root, 'assets/index-abc.js'))).toEqual(['Tus-Resumable', 'cropper-container']);
 });

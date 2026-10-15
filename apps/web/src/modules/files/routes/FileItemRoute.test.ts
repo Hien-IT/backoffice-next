@@ -62,6 +62,22 @@ const button = (name: string) =>
 	[...document.querySelectorAll<HTMLElement>('button, a')].find((el) => el.getAttribute('aria-label') === name);
 
 describe('FileItemRoute', () => {
+	test('an image has the edit (tune) button that opens the image editor; a text file has none', async () => {
+		await setup('bo-edit');
+		expect(button('Edit')).toBeDefined();
+		button('Edit')!.click();
+		await flushPromises();
+		expect(document.querySelector('[role="dialog"]')?.textContent).toContain('Editing Image');
+		expect(calls(fetch)).toContain(
+			`GET /files/${fileOf('bo-edit')['id']}?fields=type,filesize,filename_download,folder,width,height,focal_point_x,focal_point_y`,
+		);
+	});
+
+	test('no edit button on a file that is not an image', async () => {
+		await setup('bo-old');
+		expect(button('Edit')).toBeUndefined();
+	});
+
 	test('header, breadcrumb to the folder, preview, form without the sidebar fields, details panel', async () => {
 		const { wrapper, file } = await setup();
 

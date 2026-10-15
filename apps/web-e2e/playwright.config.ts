@@ -16,8 +16,9 @@ const BROWSERS = {
 // "<project> <file> <describe> <title> <tags>".
 const CONTENT_NOT_CORE = /(?:content|files|users)-[\w-]+\.spec\.ts(?!.*@core)/;
 // Feature 014 (US7): the specs that also drive the Directus app (payload suite, parity UI) compare one browser and one
-// width, chromium-1280; on the other projects they only add run time (the e2e-web job has a timeout).
-const DIRECTUS_APP_SPECS = /payload\/[\w-]+\.spec\.ts|content-parity-ui\.spec\.ts/;
+// width, chromium-1280; on the other projects they only add run time (the e2e-web job has a timeout). Feature 015
+// adds the image editor spec (pixel comparison with the Directus app, SC-006).
+const DIRECTUS_APP_SPECS = /payload\/[\w-]+\.spec\.ts|content-parity-ui\.spec\.ts|files-image-editor\.spec\.ts/;
 
 let projects: Project[] = Object.entries(BROWSERS).flatMap(([browser, device]) =>
 	Object.entries(VIEWPORTS).map(([width, viewport]) => ({

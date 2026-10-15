@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/views/private/components/image-editor.vue", "dest": "apps/web/src/components/files/ImageEditor.vue" }
+]

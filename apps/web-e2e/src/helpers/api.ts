@@ -44,6 +44,15 @@ export class AdminApi {
 		return (JSON.parse(text) as { data: T }).data;
 	}
 
+	/** The raw bytes of a GET as the admin (an asset). */
+	async bytes(path: string): Promise<Buffer> {
+		const response = await this.request.get(`${this.baseUrl}${path}`, {
+			headers: { Authorization: `Bearer ${await this.accessToken()}` },
+		});
+		if (!response.ok()) throw new Error(`GET ${path}: ${response.status()}`);
+		return response.body();
+	}
+
 	createUser(user: Record<string, unknown>) {
 		return this.call<Item>('POST', '/users', { data: user });
 	}

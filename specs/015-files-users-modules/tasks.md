@@ -297,28 +297,28 @@ Directus app (SC-006).
 
 ### Tests cho User Story 5
 
-- [ ] T050 [P] [US5] Test `src/components/files/ImageEditor.browser.test.ts` (ảnh PNG 400×300 cố định trong
+- [x] T050 [P] [US5] Test `src/components/files/ImageEditor.browser.test.ts` (ảnh PNG 400×300 cố định trong
       `src/test-utils/`): mở → `GET /files/:id` đúng `fields`, ảnh `/assets/:id?<nonce>`, toolbar ba chế độ, xoay,
       lật, menu tỉ lệ (custom trước vạch chia, icon theo tỉ lệ CHK015), dòng kích thước `n()` và SVG CHK037, hủy cắt,
       `hasEdits`; lưu: cắt+xoay → `PATCH /files/:id` FormData (`file` tên `filename_download`, `type`), focal → JSON,
       cả hai → FormData gồm focal; lưu mới → `POST /files` với `folder` gốc CHK016; lỗi `img` → notice, lưu khóa
       CHK017; đóng hủy Cropper; axe; bẫy focus
-- [ ] T051 [P] [US5] Test `src/interfaces/file-image/FileImage.test.ts` thêm: nút `tune` hiện khi ảnh + update
+- [x] T051 [P] [US5] Test `src/interfaces/file-image/FileImage.test.ts` thêm: nút `tune` hiện khi ảnh + update
       `directus_files`, mở `ImageEditor`, `refresh` nạp lại `cacheBuster`, `new-file` đặt giá trị
 
 ### Implementation cho User Story 5
 
-- [ ] T052 [US5] Chép `src/components/files/ImageEditor.vue` (logic `image-editor.vue`: `useImage`, `useCropper`,
+- [x] T052 [US5] Chép `src/components/files/ImageEditor.vue` (logic `image-editor.vue`: `useImage`, `useCropper`,
       `save`, `saveAsNew`, `dimensionsString`, `aspectRatioIcon`, `dragMode`, `cropping`, `localDragMode`; Cropper.js
       và CSS nạp lười khi mở; `apiFetch` cho FormData; nonce `nanoid`; `custom_aspect_ratios` từ store settings;
       template `BoDrawer persistent` với toolbar `<button>` có nhãn + `BoTooltip`, menu tỉ lệ `BoMenu`, slot `actions`
       nút lưu + menu "lưu thành file mới" khi `createAllowed`, màu khung Cropper qua token trong `cropper.css` đè);
       khung cắt chỉ chuột (FR-046); manifest `015-T052.json`
-- [ ] T053 [US5] Nối `ImageEditor` vào `FileItemRoute.vue` (thêm nút `tune` khi `type` chứa `image` và update; `refresh` → `refresh()`; `new-file` → `/files/<id>`) và vào `src/interfaces/file-image/FileImage.vue`
+- [x] T053 [US5] Nối `ImageEditor` vào `FileItemRoute.vue` (thêm nút `tune` khi `type` chứa `image` và update; `refresh` → `refresh()`; `new-file` → `/files/<id>`) và vào `src/interfaces/file-image/FileImage.vue`
       (nút chỉnh, `createAllowed` từ `useCollectionPermissions('directus_files')`, nạp lại xem trước với
       `cacheBuster`, `new-file` → `emit('input', id)`); cập nhật ghi chú FR-051/FR-054 của 013 trong spec 013 ("mở
       rộng ở 015") và `interfaces/registry.test.ts` nếu đếm request
-- [ ] T054 [US5] E2E `e2e/files-image-editor.spec.ts`: cắt 200×100 tại (10,20) qua `setData` (`page.evaluate`) và xoay
+- [x] T054 [US5] E2E `e2e/files-image-editor.spec.ts`: cắt 200×100 tại (10,20) qua `setData` (`page.evaluate`) và xoay
       -90° `bo-edit.png`, lưu đè → `width`/`height`/focal qua API; lưu mới → file mới trong cùng thư mục; từ
       `file-image` của `bo_std`; ở `proxy-api` chạy cùng thao tác trên Directus app (8155) và so pixel sau giải mã
       (canvas `getImageData`, RGBA từng byte) + ba trường (SC-006, `DIRECTUS_APP_SPECS`); ba cấu hình xanh
@@ -648,5 +648,18 @@ Lượt 3, Phase 7 (US4):
   - E2E `files-*` chạy xanh ở cấu hình dev: chromium-768/1280, và `@core` trên firefox-1280/webkit-1280 qua Vite dev
     server. Ba cấu hình proxy/cors chạy ở CI vì `apps/web/dist` thuộc 014 và không được build lại.
   - T048 hoãn tới khi 014 báo đóng (cần `directus-app.ts` và `DIRECTUS_APP_SPECS`).
+- Lượt 2 (2026-10-16):
+  - `ImageEditor` giữ instance Cropper trong `ref` sâu như Directus (`hasEdits` đọc `getData()` qua proxy). Cropper.js
+    và CSS nạp lười: chunk 12 KB gzip, entry không đổi (238,6 KB). `vite.config.ts` thêm `cropperjs`, `tus-js-client`
+    vào `optimizeDeps.include`.
+  - `BoDrawer` thêm prop `flush` (rộng hết màn, thân không padding). `BoMenu` thêm `active` (`menuitemradio`, dấu
+    check) và `divider`. Công cụ đang chọn dùng kiểu segmented control của TailAdmin (nền trắng, `gray-800`) vì
+    `brand-500` trên `brand-50` không đủ tương phản (axe). Ghi lại khi so recipe Q-16 ở T097.
+  - Ảnh có `crossorigin="use-credentials"` để cấu hình cors giữ cookie phiên và canvas không bị "tainted".
+  - Xoay sau khi cắt: ảnh lưu giữ khung cắt như trên màn hình (200×100), dòng kích thước swap theo Directus
+    ("-> 100x200"). E2E so pixel với Directus app xác nhận hai bên giống nhau.
+  - `files-image-editor.spec.ts` vào `DIRECTUS_APP_SPECS` (chỉ chromium-1280). So pixel chỉ chạy ở `proxy-api`.
+  - `createAllowed`/`updateAllowed` của `file-image` lấy từ `useRelationPermissionsM2O` như Directus (tasks ghi
+    `useCollectionPermissions`).
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

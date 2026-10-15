@@ -62,6 +62,9 @@ export default defineConfig({
 			'@editorjs/table',
 			'@editorjs/underline',
 			'editorjs-toggle-block',
+			// Feature 015: the image editor and resumable uploads load these lazily.
+			'cropperjs',
+			'tus-js-client',
 			'@tinymce/tinymce-vue',
 			'tinymce/tinymce.js',
 			'tinymce/icons/default/icons.js',

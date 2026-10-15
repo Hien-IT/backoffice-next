@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/interfaces/file-image/file-image.vue -->
 <script setup lang="ts">
 // Backoffice: Image preview recipe (component-specs Tier 3): the title and meta stay under the image and the action
-// row is always visible (Directus shows them on hover). No image editor button and no ImageEditor (D-59), so
-// `refresh` and `updateAllowed` are not used. The error lookup of a broken image is a GET of the same asset URL
+// row is always visible (Directus shows them on hover). Feature 015 (D-59 lifted): the `tune` button opens the shared
+// ImageEditor, a saved edit refreshes the preview and "save as new file" selects the new file. The error lookup of a broken image is a GET of the same asset URL
 // (contracts/api-calls.md #41) through apiFetch, reading the error code like Directus `api.get`. VUpload with
 // `from-library` renders drawer-files itself; here BoUpload emits `library` and DrawerFiles (T069) answers through
 // the exposed `setSelection`, with the MIME type filter merged into `filter` as Directus does.
@@ -19,6 +19,7 @@ import DrawerFiles from '../../components/drawers/DrawerFiles.vue';
 import DrawerItem from '../../components/drawers/DrawerItem.vue';
 import BoUpload from '../../components/files/BoUpload.vue';
 import FileLightbox from '../../components/files/FileLightbox.vue';
+import ImageEditor from '../../components/files/ImageEditor.vue';
 import { parseFilter } from '../../components/form/utils/parse-filter.ts';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 import { useMimeTypeFilter } from '../../composables/use-mime-type-filter.ts';
@@ -93,6 +94,7 @@ const {
 	loading,
 	update,
 	remove,
+	refresh,
 } = useRelationSingle<Image>(value, query, relationInfo, { enabled: computed(() => !props.loading) });
 
 const isImage = ref(true);
@@ -136,6 +138,7 @@ const meta = computed(() => {
 });
 
 const editImageDetails = ref(false);
+const editImageEditor = ref(false);
 
 const internalDisabled = computed(() => {
 	return props.disabled || (props.enableCreate === false && props.enableSelect === false);
@@ -196,6 +199,7 @@ function deselect() {
 	lightboxActive.value = false;
 	editDrawerActive.value = false;
 	editImageDetails.value = false;
+	editImageEditor.value = false;
 }
 
 const edits = computed(() => {
@@ -204,7 +208,7 @@ const edits = computed(() => {
 	return props.value;
 });
 
-const { createAllowed } = useRelationPermissionsM2O(relationInfo);
+const { createAllowed, updateAllowed } = useRelationPermissionsM2O(relationInfo);
 
 const libraryActive = ref(false);
 const upload = useTemplateRef<InstanceType<typeof BoUpload>>('upload');
@@ -319,6 +323,18 @@ const FOCUS =
 						<BoIcon name="edit" size="sm" />
 					</button>
 
+					<button
+						v-if="updateAllowed"
+						type="button"
+						class="edit-image"
+						:class="ACTION_BTN"
+						:aria-label="$t('edit_image')"
+						:title="$t('edit_image')"
+						@click="editImageEditor = true"
+					>
+						<BoIcon name="tune" size="sm" />
+					</button>
+
 					<BoRemove class="deselect" deselect :item-info="relationInfo" :item-edits="edits" @action="deselect" />
 				</div>
 			</div>
@@ -343,6 +359,15 @@ const FOCUS =
 					/>
 				</template>
 			</DrawerItem>
+
+			<ImageEditor
+				v-if="!internalDisabled"
+				:id="image.id"
+				v-model="editImageEditor"
+				:create-allowed="createAllowed"
+				@refresh="refresh"
+				@new-file="update"
+			/>
 
 			<FileLightbox v-model="lightboxActive" :file="image" />
 		</div>

@@ -3,8 +3,8 @@
 // Backoffice: user story 2 of feature 015 (FR-030 to FR-039), recipe "File page and file details" (Q-15). The form is
 // BoForm on use-item of 014 with the Directus field deny list; no collaboration (D-68), so no collab header, collision
 // modal or collab dialogs; the unsaved-changes dialog puts "keep editing" first (D-76). There is no new-file state:
-// `/files/+` is the upload dialog of the library (CHK014). The image editor button comes with the shared editor
-// (wave 2, T053). Errors open the error dialog (showUnexpectedError, D-66); the move notice is in place.
+// `/files/+` is the upload dialog of the library (CHK014). The `tune` button opens the shared ImageEditor (wave 2,
+// D-59 lifted). Errors open the error dialog (showUnexpectedError, D-66); the move notice is in place.
 import type { Field, File, PrimaryKey } from '@directus/types';
 import { computed, ref, toRefs, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -15,6 +15,7 @@ import BoDialog from '../../../components/BoDialog.vue';
 import FilePreviewReplace from '../../../components/files/FilePreviewReplace.vue';
 import FilesNavigation from '../../../components/files/FilesNavigation.vue';
 import FolderPicker from '../../../components/files/FolderPicker.vue';
+import ImageEditor from '../../../components/files/ImageEditor.vue';
 import BoForm from '../../../components/form/BoForm.vue';
 import SaveOptions from '../../../components/SaveOptions.vue';
 import CommentsSidebarDetail from '../../../components/sidebar/CommentsSidebarDetail.vue';
@@ -70,6 +71,7 @@ const isSavable = computed(() => saveAllowed.value && hasEdits.value);
 const { confirmLeave, leaveTo } = useEditsGuard(hasEdits);
 
 const confirmDelete = ref(false);
+const editActive = ref(false);
 
 // These are the fields that will be prevented from showing up in the form because they'll be shown in the sidebar
 const fieldsDenyList: string[] = [
@@ -303,6 +305,15 @@ function revert(values: Record<string, any>) {
 				:download="item?.filename_download"
 			/>
 
+			<BoButton
+				v-if="item?.type?.includes('image') && updateAllowed"
+				variant="secondary"
+				icon="tune"
+				:aria-label="$t('edit')"
+				:title="$t('edit')"
+				@click="editActive = true"
+			/>
+
 			<div class="flex items-center">
 				<BoButton
 					icon="check"
@@ -329,6 +340,15 @@ function revert(values: Record<string, any>) {
 
 		<div class="file-item flex max-w-5xl flex-col gap-8">
 			<FilePreviewReplace v-if="item" :disabled="updateAllowed === false" :file="item" @replace="refresh" />
+
+			<ImageEditor
+				v-if="item?.type?.startsWith('image')"
+				:id="item.id"
+				v-model="editActive"
+				:create-allowed="createAllowed"
+				@refresh="refresh"
+				@new-file="(id) => router.push(`/files/${id}`)"
+			/>
 
 			<BoForm
 				ref="form"

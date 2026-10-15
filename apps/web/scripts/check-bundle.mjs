@@ -17,7 +17,7 @@ export const BUDGET_014 = Math.round((205.8 + 60) * 1024);
 export const BUDGET_015 = BUDGET_014 + 20 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
-// protocol header.
+// protocol header, Cropper.js (image editor) by its container class.
 export const LAZY_ONLY = [
 	'maplibre-gl',
 	'EditorJS',
@@ -27,6 +27,7 @@ export const LAZY_ONLY = [
 	'sp-root',
 	'__aliasFor',
 	'Tus-Resumable',
+	'cropper-container',
 ];
 
 /** Library markers found in the entry chunk that must only be in lazy chunks. */

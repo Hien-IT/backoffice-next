@@ -31,6 +31,8 @@ export interface Props {
 	iconColor?: string | undefined;
 	cancelable?: boolean;
 	applyShortcut?: ApplyShortcut;
+	/** Feature 015 (recipe Q-16, image editor): full width at every breakpoint and a body without padding or scroll. */
+	flush?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -41,6 +43,7 @@ const props = withDefaults(defineProps<Props>(), {
 	icon: 'box',
 	cancelable: true,
 	applyShortcut: 'meta+enter',
+	flush: false,
 });
 
 const emit = defineEmits(['cancel', 'apply', 'update:modelValue']);
@@ -134,7 +137,7 @@ const FOCUS =
 			/>
 			<DialogContent
 				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden dark:bg-gray-900"
-				:class="$slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
+				:class="flush ? '' : $slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
 				:data-depth="depth"
 				v-bind="subtitle ? {} : { 'aria-describedby': undefined }"
 				@escape-key-down="onEscape"
@@ -217,7 +220,12 @@ const FOCUS =
 						<div :class="{ 'max-xl:hidden': !sidebarOpen }"><slot name="sidebar" /></div>
 					</aside>
 				</div>
-				<main v-else ref="scroll-container" class="custom-scrollbar min-h-0 flex-1 overflow-y-auto px-6 py-6">
+				<main
+					v-else
+					ref="scroll-container"
+					class="min-h-0 flex-1"
+					:class="flush ? 'flex flex-col overflow-hidden' : 'custom-scrollbar overflow-y-auto px-6 py-6'"
+				>
 					<slot />
 				</main>
 			</DialogContent>

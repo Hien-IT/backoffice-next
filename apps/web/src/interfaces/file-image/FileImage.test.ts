@@ -1,5 +1,5 @@
 // Directus has no test for interfaces/file-image: contracts/tests.md §5 on the bo_rel `file_image` fixture field
-// (FR-051, FR-053, FR-054, D-59): mount without input, every option, image URLs, the error message by code, the
+// (FR-051, FR-053, FR-054; feature 015 lifts D-59, T051): mount without input, every option, image URLs, the error message by code, the
 // actions, the empty upload state, read-only and a11y.
 /* eslint-disable vue/one-component-per-file, vue/require-prop-types -- drawer stubs that only record their props */
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
@@ -42,6 +42,13 @@ const DrawerFiles = defineComponent({
 	setup: () => () => h('div', { class: 'drawer-files' }),
 });
 
+const ImageEditor = defineComponent({
+	name: 'ImageEditor',
+	props: ['id', 'modelValue', 'createAllowed'],
+	emits: ['refresh', 'new-file', 'update:modelValue'],
+	setup: () => () => h('div', { class: 'image-editor' }),
+});
+
 const meta = fieldsOf('bo_rel').find((f) => f.field === 'file_image')!.meta!;
 
 async function setup(user: FixtureUser = 'admin', change?: (snapshot: Snapshot) => void, answers = {}) {
@@ -74,7 +81,7 @@ afterEach(() => {
 async function mountImage(props: Record<string, unknown> = {}, provide: Record<string | symbol, unknown> = {}) {
 	const wrapper = mount(FileImage, {
 		props: { ...meta.options, value: 'bo-4', collection: 'bo_rel', field: 'file_image', width: 'half', ...props },
-		global: { plugins: [i18n], stubs: { DrawerItem, DrawerFiles, FileLightbox: true }, provide },
+		global: { plugins: [i18n], stubs: { DrawerItem, DrawerFiles, FileLightbox: true, ImageEditor }, provide },
 	});
 
 	await flushPromises();
@@ -195,16 +202,39 @@ describe('actions', () => {
 		expect(link.attributes('aria-label')).toBe('Download');
 	});
 
-	test('no image editor button (D-59)', async () => {
+	test('the tune button opens the shared image editor on the file (feature 015, D-59 lifted)', async () => {
 		const wrapper = await mountImage();
 
-		expect(wrapper.find('[aria-label="Edit Image"]').exists()).toBe(false);
 		expect(wrapper.findAll('.actions > *').map((el) => el.attributes('aria-label'))).toEqual([
 			'Zoom',
 			'Download',
 			'Edit Item',
+			'Edit Image',
 			'Deselect',
 		]);
+
+		await wrapper.get('button.edit-image').trigger('click');
+		const editor = wrapper.getComponent(ImageEditor);
+		expect(editor.props()).toMatchObject({ id: 'bo-4', modelValue: true, createAllowed: true });
+	});
+
+	test('a saved edit reloads the image (refresh); save as new file selects the new key', async () => {
+		const wrapper = await mountImage();
+		fetch.mockClear();
+
+		wrapper.getComponent(ImageEditor).vm.$emit('refresh');
+		await flushPromises();
+		expect(calls(fetch).some((call) => call.startsWith('GET /files/bo-4'))).toBe(true);
+
+		wrapper.getComponent(ImageEditor).vm.$emit('new-file', 'bo-new');
+		await flushPromises();
+		expect(wrapper.emitted('input')).toEqual([['bo-new']]);
+	});
+
+	test('disabled: no image editor', async () => {
+		const wrapper = await mountImage({ disabled: true });
+
+		expect(wrapper.findComponent(ImageEditor).exists()).toBe(false);
 	});
 
 	test('edit details: DrawerItem on directus_files, edits emitted with the key', async () => {
