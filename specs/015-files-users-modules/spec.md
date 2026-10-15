@@ -278,8 +278,8 @@ dọc, điểm focal, đặt lại, kích thước mới; lưu đè file (hoặc
 
 **Independent Test**: Test component với mock `/files/:id` và `PATCH /files/:id` multipart, kiểm body FormData (`file`
 blob với tên `filename_download` và `type`, `focal_point_x/y`) và `POST /files` khi lưu mới; E2E: cắt và xoay một ảnh
-PNG, so kích thước `width`/`height` trong `directus_files` và bytes derived sau khi lưu với Directus app cùng thao tác
-(cùng Cropper.js và cùng tham số).
+PNG, so `width`/`height`, điểm focal trong `directus_files` và điểm ảnh sau giải mã với Directus app cùng thao tác
+(cùng Cropper.js và cùng tham số; không so bytes).
 
 **Acceptance Scenarios**:
 
@@ -295,8 +295,9 @@ PNG, so kích thước `width`/`height` trong `directus_files` và bytes derived
    `file`, đóng và tới `/files/<id mới>` (ở `file-image`: chọn file mới vào field).
 4. **Given** `file-image` của 013, **When** có quyền update file, **Then** nút chỉnh ảnh hiện và mở cùng drawer; lưu
    xong nạp lại xem trước (D-59 gỡ).
-5. **Given** chỉ bàn phím, **When** ở chế độ cắt hoặc điểm focal, **Then** có ô nhập số x, y, rộng, cao (cắt) và x, y
-   (focal) đồng bộ với khung kéo (D-87, chờ tech lead); mọi nút thanh công cụ là `button` có nhãn.
+5. **Given** chỉ bàn phím, **When** mở trình chỉnh ảnh, **Then** mọi nút thanh công cụ, menu tỉ lệ và nút lưu dùng
+   được bằng bàn phím; khung cắt và điểm focal chỉ kéo bằng chuột như Directus (ngoại lệ a11y ghi ở FR-111, Clarifications
+   2026-10-15).
 
 ---
 
@@ -544,8 +545,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - **FR-045**: `file-image` của 013 PHẢI có nút chỉnh ảnh (tooltip `edit`, icon `tune`) khi có quyền update
   `directus_files` và file là ảnh, mở cùng `ImageEditor`; lưu xong nạp lại xem trước với `cacheBuster` (gỡ D-59; FR-051
   và FR-054 của 013 cập nhật: thêm `PATCH /files/:id` multipart và `POST /files` vào danh sách ghi khi dùng nút này).
-- **FR-046**: Đường bàn phím (D-87, chờ tech lead): ở chế độ cắt, bốn ô số x, y, rộng, cao (đơn vị px ảnh gốc) đồng
-  bộ hai chiều với khung Cropper (`getData`/`setData`); ở chế độ focal, hai ô x, y; kéo chuột giữ như Directus.
+- **FR-046**: Khung cắt và điểm focal chỉ kéo bằng chuột như Directus (owner chọn 2026-10-15, không có ô nhập số);
+  ngoại lệ a11y ghi rõ ở FR-111 và SC-008; các nút thanh công cụ vẫn dùng được bằng bàn phím (FR-042).
 
 **Route và điều hướng của Users**
 
@@ -586,7 +587,9 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   dòng, trim, bỏ rỗng), `role` từ `GET /roles` `fields=id,name` `sort=name` (mặc định phần tử đầu; không có ô chọn khi
   đi từ route role), lỗi `RECORD_NOT_UNIQUE` tại chỗ (`email_already_invited` `{ email: extensions.invalid }` hoặc
   `validationError.unique` một lần), lỗi khác qua hộp lỗi; thành công thì đóng và nạp lại danh sách; D-83: sau khi
-  đóng, notice tại chỗ `contact_admin_for_link` (chuỗi overlay của 012) vì không có email.
+  đóng, notice tại chỗ `contact_admin_for_link` (chuỗi overlay của 012) vì không có email; Backoffice không có đường
+  riêng để user được mời vào app (link trong log API là việc vận hành; E2E chỉ kiểm lời mời tạo user `invited` và
+  notice, Clarifications 2026-10-15).
 - **FR-064**: Trạng thái trống PHẢI như kịch bản US3-5 (`no_items` khi không `loadingItemCount`; `no_results` với bộ
   lọc).
 - **FR-065**: Panel PHẢI có Layout, `layout-sidebar-*`, Export/Import (`directus_users`, bộ lọc gộp `?? undefined`,
@@ -699,7 +702,9 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   trước khi code, design owner duyệt trước khi đóng.
 - **FR-111**: WCAG 2.1 AA như 012 FR-067 và 014: axe 0 vi phạm serious/critical; cây thư mục và cây role có vai trò
   `tree`; menu chuột phải có nút bàn phím tương đương; viền thả và tiến độ tải có `aria-live`; drawer chỉnh ảnh bẫy
-  focus; ô QR có mô tả văn bản (secret); mọi nút icon có nhãn.
+  focus; ô QR có mô tả văn bản (secret); mọi nút icon có nhãn. Ngoại lệ ghi nhận (owner, 2026-10-15): khung cắt và
+  điểm focal của trình chỉnh ảnh chỉ kéo bằng chuột như Directus, không có đường bàn phím; axe không bắt được, ghi ở
+  `qa/handoff-checklist.md`.
 - **FR-112**: Chuỗi dịch lấy từ file sinh của 012 (`file_library`, `all_files`, `my_files`, `recent_files`,
   `drop_to_upload`, `upload_files_indeterminate`, `delete_folder_dialog.*`, `invite_users`, `email_already_invited`,
   `interfaces.system-token.*`, `sso_tfa_setup_notice`, `editing_image`, `changes_are_permanent`...);
@@ -765,14 +770,12 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-83 | Hộp mời user sau khi gửi | Đóng, danh sách nạp lại; email mời do server gửi | Thêm notice tại chỗ "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (`contact_admin_for_link`) | Nguyên tắc X; API ghi log thay vì gửi (D-36 của 010); cùng cách D-42 | khác | — |
 | D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016 |
 | D-86 | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Giữ route của 012 và chuyển hướng tới `/users/<id>`; menu avatar trỏ thẳng `/users/<id>` | Giữ link đã có từ 012 (FR-024) | khác | — |
-| D-87 | Đường bàn phím cho cắt ảnh và điểm focal | Chỉ kéo chuột (Cropper.js) | Thêm ô nhập số đồng bộ với khung; kéo chuột giữ | WCAG 2.1.1, cùng lý do D-60, D-69; chờ tech lead | khác | — |
 | D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay | Danh sách và xem trước như Directus (Q1 = C); chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
 | D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có; upload dở tiếp tục khi tải lại cùng file (`findPreviousUploads`) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
-- D-87: tech lead duyệt cùng D-60, D-69 (cùng nguyên tắc).
 - D-86: route `/users/me` thêm so với Directus; không ảnh hưởng dữ liệu.
 - Khóa localStorage `backoffice-require_tfa_setup` (D-39, 012) dùng chung với `system-mfa-setup`: hai app không chia sẻ
   localStorage nên SSO user bật TFA ở app này chỉ bị ép thiết lập ở app này (Directus cũng theo app, không theo DB).
@@ -788,7 +791,7 @@ xuất nhập, hàng loạt).
 | Q-13 | Cây thư mục lồng + ba mục đặc biệt trong sub-menu Files (như §9 của Content): thụt cấp, icon gập mở, menu chuột phải (đổi tên, chuyển, tải, xóa) và nút bàn phím tương đương, skeleton | Mở |
 | Q-14 | Lưới cards của Files: thẻ thư mục (icon, không ảnh) trước thẻ file, chọn gộp thư mục và file (số đếm ở header), viền thả bốn cạnh và notice `drop_to_upload`, notice tiến độ tải nhiều file | Mở |
 | Q-15 | Màn file: khung xem trước lớn với nút "thay file", form bên dưới (`max-w-5xl`), mục "Chi tiết file" dạng `dl` trong panel với nhóm EXIF, nút chép id | Mở |
-| Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), ô nhập số (D-87), nút lưu với menu "lưu thành file mới" | Mở |
+| Q-16 | Trình chỉnh ảnh: drawer toàn màn, vùng ảnh với Cropper, thanh công cụ (ba chế độ, xoay, lật, menu tỉ lệ, đặt lại, dòng kích thước, hủy cắt), nút lưu với menu "lưu thành file mới" | Mở |
 | Q-17 | Sub-menu Users: bốn mục trạng thái, vạch chia, cây role lồng với icon role, menu "sửa role" (admin) | Mở |
 | Q-18 | Màn user: hộp user (avatar lớn, tên + chức danh, email, địa điểm, chip role màu theo trạng thái) trên form; mục "Thông tin" trong panel | Mở |
 | Q-19 | Hộp mời user (textarea email, select role, notice lỗi trùng, dòng D-83); hộp TFA ba bước (mật khẩu, QR + secret + OTP, tắt bằng OTP, admin tắt, hủy thiết lập SSO); ô token (readonly với ba icon, notice đã lưu); chọn theme (radio có ô xem trước SVG theo theme Directus, Q1 = C); cây overrides theme (nhóm gập mở, ô nhập với swatch) | Mở |
@@ -804,8 +807,18 @@ xuất nhập, hàng loạt).
   Lựa chọn: A = thuộc 015 (form, màn "kiểm tra email" cộng dòng liên hệ quản trị viên); B = để sau, giữ trang "chưa có
   sẵn" của 012; C = chỉ khi không cần xác minh email. → B (owner, 2026-10-15): không làm trang đăng ký ở 015; FR-090,
   D-44 giữ với "Gỡ ở: sau 015".
-- Q3 (mặc định, không hỏi): sub-menu của Files và Users là cây lồng trong sidebar như Content (owner chọn ở 014 Q2);
-  ghi ngoại lệ vào `layout-patterns.md` §7 (FR-110).
+- Q3: Cây thư mục (Files) và cây role (Users) đặt ở đâu trong khung TailAdmin? → A: Cây lồng trong sub-menu của sidebar
+  như Content (owner chọn 2026-10-15, cùng ngoại lệ 014 Q2); ghi ngoại lệ vào `layout-patterns.md` §7 (FR-003,
+  FR-052, FR-110, Q-13, Q-17).
+- Q: Khung cắt và điểm focal của trình chỉnh ảnh có đường bàn phím (ô nhập số) không? → A: Không; chỉ chuột như
+  Directus, ghi ngoại lệ a11y (FR-046, FR-111, SC-008); đề xuất D-87 bỏ.
+- Q: Tải lên chia khối (TUS) có thuộc 015 không? → A: Có, như Directus: TUS khi `info.uploads.tus` bật, multipart khi
+  tắt (FR-022, FR-124 thêm `tus-js-client`); không D-xx mới.
+- Q: So kết quả chỉnh ảnh với Directus app bằng gì? → A: `width`, `height`, `focal_point_x/y` và điểm ảnh sau giải
+  mã bằng nhau; không so bytes (SC-006, US5 Independent Test).
+- Q: Sau khi mời user mà không có email (D-36), Backoffice làm gì để user được mời vào app? → A: Chỉ notice
+  `contact_admin_for_link` (D-83); link chấp nhận lời mời lấy từ log API là việc vận hành; không thêm đường riêng,
+  không E2E cho bước vào app của user được mời (FR-063).
 
 ## Assumptions
 
@@ -858,8 +871,8 @@ xuất nhập, hàng loạt).
   `theme_light`, `theme_dark`, `theme_light_overrides`, `theme_dark_overrides`) bằng Directus app
   cho 10 thao tác mẫu; test component với mock API, request đúng allowlist.
 - **SC-006**: Trình chỉnh ảnh: cắt 200×100 tại (10, 20) và xoay -90° một PNG 400×300 cho `width`, `height`,
-  `focal_point_x/y` trong `directus_files` bằng Directus app; bytes gốc sau lưu bằng nhau trên cùng chromium (so hash);
-  derived asset mới sinh bằng nhau (007).
+  `focal_point_x/y` trong `directus_files` bằng Directus app và điểm ảnh sau khi giải mã bằng nhau (so pixel, dung sai
+  0, trên cùng chromium); không so bytes hay hash của file (Clarifications 2026-10-15).
 - **SC-007**: Hiệu năng (ngân sách cho máy tham chiếu, nhân `machineFactor()` trên CI như 014 R14; trung vị 3 lần,
   chromium, bước `PERF=1`): cây 500 thư mục vẽ dưới 500
   ms; lưới cards 100 thẻ + 20 thẻ thư mục vẽ dưới 1 giây; thả 20 file 1 MB với `maxConcurrency` 5 không quá 5 request
@@ -868,7 +881,7 @@ xuất nhập, hàng loạt).
   roles (cache) + request của interface quan hệ.
 - **SC-008**: Recipe Q-13 đến Q-19 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng 015; axe 0 vi
   phạm serious/critical trên thư viện (hai layout cards và tabular), màn file, drawer chỉnh ảnh, danh bạ, màn user với
-  ba hộp TFA, hộp mời, ở sáng và tối.
+  ba hộp TFA, hộp mời, ở sáng và tối (ngoại lệ FR-111: khung cắt chỉ chuột).
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 014 + 20 KB gzip; 0 màu thô ngoài danh sách miễn.
 - **SC-010**: D-83 trở đi và R-xx (nếu có) được tech lead duyệt; D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
