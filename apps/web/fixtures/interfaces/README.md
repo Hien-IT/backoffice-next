@@ -33,6 +33,17 @@ The seed only touches what it owns: collections `bo_*` (and their relations), fo
 `map_geometry`) are created only when the database accepts them (Postgres with PostGIS); otherwise the seed prints
 `Refused: ...` and leaves them out.
 
+## Content module set (feature 014)
+
+`seed.mjs` also creates the folder `bo_folder` (no table, `collapse: locked`) holding `bo_content` (30 items: versioning,
+archive on `status`, display template, `preview_url`, manual sort on `sort`), the singleton `bo_singleton`, three presets
+(admin, role `bo-editor`, global) and two bookmarks (`bo-bookmark` of the admin, `bo-global-bookmark`), the versions
+`draft` and `local-1` of `bo_content/1`, the share `bo-share` (password `bo-share-password`, test value, five uses), two
+comments and the manual flows `bo-flow-content` and `bo-flow-item`. `bo_std` and the 013 files are unchanged: the 014
+ids are numbered after every 013 one. Extra snapshot files: `presets.json`, `versions.json`, `shares.json`,
+`comments.json`, `revisions.bo_content.json` (serial ids replaced by their position). Hand-written:
+`expected.content.json` and `expected.content.csv`, recorded on the Directus app (sources inside).
+
 ## Test users
 
 Test values, only for test databases:

@@ -36,6 +36,14 @@ export interface Snapshot {
 	users: Record<FixtureUser, FixtureAccount>;
 	/** `expected.<interface>.json`, keyed by interface id then scenario. */
 	expected: Record<string, Record<string, ExpectedScenario>>;
+	/** Feature 014: presets and bookmarks, versions, shares, comments of bo_* and the revisions of bo_content/1. */
+	presets: Row[];
+	versions: Row[];
+	shares: Row[];
+	comments: Row[];
+	revisions: Record<string, Row[]>;
+	/** `expected.content.json`: values recorded on the Directus app for the Content module (not an interface). */
+	contentExpected: Record<string, any>;
 }
 
 const files = import.meta.glob<unknown>('../../fixtures/interfaces/snapshot/*.json', {
@@ -67,7 +75,15 @@ const snapshot = {
 	items: prefixed<Row[]>('items.'),
 	permissions: prefixed<CollectionAccess>('permissions.'),
 	users: byName['users'],
-	expected: prefixed<Record<string, ExpectedScenario>>('expected.'),
+	expected: Object.fromEntries(
+		Object.entries(prefixed<Record<string, ExpectedScenario>>('expected.')).filter(([id]) => id !== 'content'),
+	),
+	presets: byName['presets'] ?? [],
+	versions: byName['versions'] ?? [],
+	shares: byName['shares'] ?? [],
+	comments: byName['comments'] ?? [],
+	revisions: prefixed<Row[]>('revisions.'),
+	contentExpected: byName['expected.content'] ?? {},
 } as Snapshot;
 
 /** A fresh copy of the snapshot (tests may change it freely). */

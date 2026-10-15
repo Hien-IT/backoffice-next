@@ -1,11 +1,12 @@
 // Ported from directus/app/src/stores/translations.ts
-// Backoffice: only loadTranslations and the merge into i18n; `create` belongs to the Settings > Translations module
-// (feature 013+).
+// Backoffice: api (axios) -> sdk (FR-001).
 import { defineStore } from 'pinia';
 import { ref, unref, watch } from 'vue';
+import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { i18n } from '../lang/index.ts';
 import { fetchAll } from '../utils/fetch-all.ts';
 import { getLiteralInterpolatedTranslation } from '../utils/get-literal-interpolated-translation.ts';
+import { unexpectedError } from '../utils/unexpected-error.ts';
 
 export interface Translation {
 	language: string;
@@ -39,6 +40,15 @@ export const useTranslationsStore = defineStore('translations', () => {
 		}
 	};
 
+	const create = async (translation: Translation) => {
+		try {
+			await sdk.request(requestEndpoint('/translations', { method: 'POST', body: { ...translation } }));
+			await loadTranslations();
+		} catch (error) {
+			unexpectedError(error);
+		}
+	};
+
 	watch(translations, (newTranslations) => {
 		const localeMessages = newTranslations?.reduce(
 			(result: Record<string, string>, { key, value }: { key: string; value: string }) => {
@@ -53,5 +63,5 @@ export const useTranslationsStore = defineStore('translations', () => {
 		}
 	});
 
-	return { loading, translations, loadTranslations };
+	return { loading, translations, loadTranslations, create };
 });

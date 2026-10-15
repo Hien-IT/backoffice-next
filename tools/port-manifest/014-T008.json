@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/utils/format-items-count.ts",
+		"dest": "apps/web/src/utils/format-items-count.ts"
+	}
+]

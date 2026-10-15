@@ -1,0 +1,14 @@
+[
+	{
+		"source": "packages/stores/src/app.ts",
+		"dest": "apps/web/src/stores/app.ts"
+	},
+	{
+		"source": "app/src/views/private/private-view/stores/sidebar.ts",
+		"dest": "apps/web/src/layout/stores/sidebar.ts"
+	},
+	{
+		"source": "app/src/views/private/private-view/stores/sidebar.test.ts",
+		"dest": "apps/web/src/layout/stores/sidebar.test.ts"
+	}
+]

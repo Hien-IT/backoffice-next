@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/views/private/components/sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/SidebarDetail.vue"
+	}
+]

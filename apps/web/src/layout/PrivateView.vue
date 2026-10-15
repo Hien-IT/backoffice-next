@@ -9,6 +9,7 @@
 import { useHead } from '@unhead/vue';
 import { computed, watch } from 'vue';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
+import NoticeStack from '../components/NoticeStack.vue';
 import { useLayoutBreakpoints } from '../composables/use-media-query.ts';
 import { useUserStore } from '../stores/user.ts';
 import AppHeader from './AppHeader.vue';
@@ -73,6 +74,8 @@ watch(
 					<PageHeader :title="title" :icon="icon">
 						<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
 					</PageHeader>
+					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
+					<NoticeStack />
 					<slot />
 				</MainContent>
 

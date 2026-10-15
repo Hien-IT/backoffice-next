@@ -111,66 +111,66 @@ build, E2E hiện có + mới xanh, commit, push).
 
 ### Utils và store
 
-- [ ] T008 [P] `src/utils/format-items-count.ts` thêm `formatItemsCountRelative` (chép phần còn lại của
+- [X] T008 [P] `src/utils/format-items-count.ts` thêm `formatItemsCountRelative` (chép phần còn lại của
   `directus/app/src/utils/format-items-count.ts`); test `src/utils/format-items-count.test.ts` cho cả hai hàm (lọc, một
   trang, nhiều trang, `count_of_total_items`).
-- [ ] T009 [P] Chép `src/utils/sync-ref-property.ts`, `src/utils/hide-drag-image.ts`, `src/utils/field-utils.ts`
+- [X] T009 [P] Chép `src/utils/sync-ref-property.ts`, `src/utils/hide-drag-image.ts`, `src/utils/field-utils.ts`
   (`isPrimaryKey`, `isRelational`, `isDateCreated`...), `src/utils/get-version-display-name.ts`,
   `src/utils/get-fullcalendar-locale.ts` (import động `@fullcalendar/core/locales/<x>`); test cạnh mỗi file.
-- [ ] T010 `src/utils/save-as-csv.ts` chép `directus/app/src/utils/save-as-csv.ts` (`@json2csv/plainjs` `Parser`,
+- [X] T010 `src/utils/save-as-csv.ts` chép `directus/app/src/utils/save-as-csv.ts` (`@json2csv/plainjs` `Parser`,
   `file-saver` `saveAs`, tên cột "A -> B" cho field lồng, `handler` của display qua `getDisplay` 013 thay
   `useExtension`, `useAliasFields`); test so byte với `apps/web/fixtures/interfaces/snapshot/expected.content.csv`.
   Làm **sau T023** (file CSV mốc ghi từ Directus app ở T023).
-- [ ] T011 `src/stores/presets.ts` (012) thêm như `directus/app/src/stores/presets.ts`: getter `bookmarks` (thứ tự
+- [X] T011 `src/stores/presets.ts` (012) thêm như `directus/app/src/stores/presets.ts`: getter `bookmarks` (thứ tự
   global, role, user, tên), `getBookmark`, `create` (`POST /presets`), `update` (`PATCH /presets/:id`), `delete`
   (`DELETE /presets` mảng id), `savePreset` (không `id` → create với `user` = mình; `user` khác mình → create bản mới;
   còn lại update); hydrate bỏ qua `ShareUser` (đã có, FR-084); test `src/stores/presets.test.ts` thêm ca (CHK001 body đủ
   preset cục bộ).
-- [ ] T012 [P] `src/stores/app.ts` thêm `basemap` (ref, mặc định `'OpenStreetMap'`, như `@directus/stores` `app.ts`);
+- [X] T012 [P] `src/stores/app.ts` thêm `basemap` (ref, mặc định `'OpenStreetMap'`, như `@directus/stores` `app.ts`);
   `src/layout/stores/sidebar.ts` thêm `activeAccordionItem: string | null` (như `stores/sidebar.ts` Directus); test cạnh
   file.
-- [ ] T013 [P] `src/stores/translations.ts` thêm `create`, `update` (`POST`/`PATCH /translations`, nạp lại i18n) chép
+- [X] T013 [P] `src/stores/translations.ts` thêm `create`, `update` (`POST`/`PATCH /translations`, nạp lại i18n) chép
   `directus/app/src/stores/translations.ts`; test.
 
 ### Quyền, guard, notices, lỗi
 
-- [ ] T014 Chép `src/composables/use-permissions/{index.ts,collection/use-collection-permissions.ts,
+- [X] T014 Chép `src/composables/use-permissions/{index.ts,collection/use-collection-permissions.ts,
   item/use-item-permissions.ts,lib/*.ts,types/*.ts}` (`createAllowed`, `updateAllowed`, `deleteAllowed`, `sortAllowed`,
   `archiveAllowed`, `revisionsAllowed`, `shareAllowed`, `saveAllowed`, `fields`; `fetchItemPermissions` theo T003 h);
   test cạnh file với `permissions.<user>.json` của bộ mẫu.
-- [ ] T015 [P] Chép `src/composables/use-edits-guard.ts` và `src/composables/use-navigation-guard.ts` (router guard
+- [X] T015 [P] Chép `src/composables/use-edits-guard.ts` và `src/composables/use-navigation-guard.ts` (router guard
   + `beforeunload`, `compareQuery`, `ignorePrefix`); test: subpath không hỏi, đổi `?version=` hỏi, rời trang hỏi,
   `hasEdits` false không hỏi.
-- [ ] T016 [P] `src/composables/use-notices.ts` + `src/components/NoticeStack.vue` (FR-054b, D-66: `BoNotice` xếp chồng
-  dưới page header, `role="status"` `aria-live="polite"`, tự ẩn 5 s, lỗi không tự ẩn, nút đóng; recipe Q-8); gắn vào
+- [X] T016 [P] `src/composables/use-notices.ts` + `src/components/NoticeStack.vue` (FR-054b, D-66: `BoNotice` xếp chồng
+  dưới page header, `role="status"` `aria-live="polite"`, tự ẩn 3 s như Directus, lỗi là hộp thoại, nút đóng; recipe Q-8); gắn vào
   `src/layout/PrivateView.vue` dưới `PageHeader` (prop không đổi API cũ); `src/utils/unexpected-error.ts` (013) hiện hộp
   lỗi `BoDialog` (`unexpected_error`, `translateAPIError`, chi tiết gập, nút `done`) nếu chưa có; test cạnh file; test
   012 của `PrivateView` giữ xanh.
-- [ ] T017 [P] Bổ sung `src/composables/use-items.ts` theo kết quả T003 g (phần thiếu so với nguồn; `signal` của
+- [X] T017 [P] Bổ sung `src/composables/use-items.ts` theo kết quả T003 g (phần thiếu so với nguồn; `signal` của
   AbortController tới fetch qua sdk hoặc `apiFetch`); test `src/composables/use-items.test.ts` thêm ca hủy request, đếm
   theo `filterSystem`, về trang 1 khi đổi lọc.
 
 ### Layout wrapper, sidebar, FieldList, phân trang
 
-- [ ] T018 `src/layouts/types.ts` (`LayoutConfig`, `LayoutProps`, `LayoutState` theo `contracts/layouts.md` §1–§3),
+- [X] T018 `src/layouts/types.ts` (`LayoutConfig`, `LayoutProps`, `LayoutState` theo `contracts/layouts.md` §1–§3),
   `src/layouts/index.ts` (glob eager `./*/index.ts`, `getLayouts()`, `getLayout(id)` → `undefined` thì màn dùng
   `tabular`), `src/layouts/use-layout.ts` chép `directus/packages/composables/src/use-layout.ts` (wrapper chạy `setup`,
   emit `update:selection|layoutOptions|layoutQuery`, slot mặc định `layoutState`, `expose.state`); test với một layout
   giả trong `src/layouts/use-layout.test.ts`.
-- [ ] T019 [P] Chép `src/composables/use-layout-click-handler.ts` (readonly, selectMode, lựa chọn đang có, Ctrl/Cmd mở
+- [X] T019 [P] Chép `src/composables/use-layout-click-handler.ts` (readonly, selectMode, lựa chọn đang có, Ctrl/Cmd mở
   tab mới); test.
-- [ ] T020 [P] `src/components/sidebar/SidebarDetail.vue` chép logic `views/private/components/sidebar-detail.vue` (props
+- [X] T020 [P] `src/components/sidebar/SidebarDetail.vue` chép logic `views/private/components/sidebar-detail.vue` (props
   `id`, `title`, `icon`, `badge`; một mục mở qua `sidebar.activeAccordionItem`; Reka `Accordion` type single; emit
   `toggle`; recipe Q-9); test (mở mục này đóng mục kia, `aria-expanded`).
-- [ ] T021 [P] `src/components/FieldList.vue` chép logic `components/v-field-list/*` (cây field nạp lười theo quan hệ,
+- [X] T021 [P] `src/components/FieldList.vue` chép logic `components/v-field-list/*` (cây field nạp lười theo quan hệ,
   không giới hạn độ sâu, hàm theo kiểu field, loại `alias` không quan hệ và `presentation`, chỉ field đọc được, tìm
   kiếm, chọn một hoặc nhiều; FR-041 CHK007); test.
-- [ ] T022 [P] `src/components/BoPagination.vue` (recipe Q-2: tối đa 7 nút, `aria-current="page"`, trước/sau, ẩn khi một
+- [X] T022 [P] `src/components/BoPagination.vue` (recipe Q-2: tối đa 7 nút, `aria-current="page"`, trước/sau, ẩn khi một
   trang, `nav` có `aria-label`); test.
 
 ### Bộ mẫu, API giả lập, E2E harness, chuỗi dịch
 
-- [ ] T023 `apps/web/fixtures/interfaces/seed.mjs` mở rộng (data-model §9): collection `bo_content` (field `id`, `status`
+- [X] T023 `apps/web/fixtures/interfaces/seed.mjs` mở rộng (data-model §9): collection `bo_content` (field `id`, `status`
   choices, `title`, `body`, `date_published`, `sort`, `author` m2o `directus_users`, `cover` file, `tags` csv, `location`
   geometry.Point khi có PostGIS; `meta.versioning`, `archive_field: status`, `archive_value: 'archived'`,
   `unarchive_value: 'draft'`, `archive_app_filter`, `display_template: '{{ title }}'`, `preview_url`, `sort_field: sort`;

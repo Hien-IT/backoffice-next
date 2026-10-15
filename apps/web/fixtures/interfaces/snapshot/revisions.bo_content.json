@@ -1,0 +1,135 @@
+[
+	{
+		"id": 1,
+		"collection": "bo_content",
+		"item": "1",
+		"data": {
+			"status": "draft",
+			"title": "Content 01",
+			"body": "Body of content 1",
+			"date_published": "2026-10-01T09:00:00",
+			"sort": 1,
+			"tags": [
+				"news"
+			],
+			"location": {
+				"type": "Point",
+				"coordinates": [
+					105.81,
+					21.01
+				]
+			}
+		},
+		"delta": {
+			"status": "draft",
+			"title": "Content 01",
+			"body": "Body of content 1",
+			"date_published": "2026-10-01T09:00:00",
+			"sort": 1,
+			"tags": [
+				"news"
+			],
+			"location": {
+				"type": "Point",
+				"coordinates": [
+					105.81,
+					21.01
+				]
+			}
+		},
+		"version": null,
+		"activity": {
+			"action": "create"
+		}
+	},
+	{
+		"id": 2,
+		"collection": "bo_content",
+		"item": "1",
+		"data": {
+			"id": 1,
+			"status": "draft",
+			"title": "Content 01 (edited)",
+			"body": "Body of content 1",
+			"date_published": "2026-10-01T09:00:00",
+			"sort": 1,
+			"tags": [
+				"news"
+			],
+			"location": {
+				"type": "Point",
+				"coordinates": [
+					105.81,
+					21.01
+				]
+			}
+		},
+		"delta": {
+			"title": "Content 01 (edited)"
+		},
+		"version": null,
+		"activity": {
+			"action": "update"
+		}
+	},
+	{
+		"id": 3,
+		"collection": "bo_content",
+		"item": "1",
+		"data": {
+			"id": 1,
+			"status": "draft",
+			"title": "Content 01 (edited)",
+			"body": "Body of content 1, second edit",
+			"date_published": "2026-10-01T09:00:00",
+			"sort": 1,
+			"tags": [
+				"news"
+			],
+			"location": {
+				"type": "Point",
+				"coordinates": [
+					105.81,
+					21.01
+				]
+			}
+		},
+		"delta": {
+			"body": "Body of content 1, second edit"
+		},
+		"version": null,
+		"activity": {
+			"action": "update"
+		}
+	},
+	{
+		"id": 4,
+		"collection": "bo_content",
+		"item": "1",
+		"data": {
+			"title": "Content 01 (draft)"
+		},
+		"delta": {
+			"title": "Content 01 (draft)"
+		},
+		"version": "bo-18",
+		"activity": {
+			"action": "version_save"
+		}
+	},
+	{
+		"id": 5,
+		"collection": "bo_content",
+		"item": "1",
+		"data": {
+			"status": "published"
+		},
+		"delta": {
+			"status": "published"
+		},
+		"version": "bo-19",
+		"activity": {
+			"action": "version_save"
+		}
+	}
+]

@@ -1,0 +1,14 @@
+[
+	{
+		"id": "bo-21",
+		"collection": "bo_content",
+		"item": "1",
+		"comment": "First comment"
+	},
+	{
+		"id": "bo-22",
+		"collection": "bo_content",
+		"item": "1",
+		"comment": "Please review @bo-12"
+	}
+]

@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/stores/translations.ts",
+		"dest": "apps/web/src/stores/translations.ts"
+	}
+]

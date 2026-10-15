@@ -1,0 +1,42 @@
+{
+	"presetFirstWrite": {
+		"source": "Directus app 11.17.4 (8155), 2026-10-16: bo_std without a preset, header menu > Sort Descending on the first column; POST /presets body (user normalized to bo-1). Spec 014 US1-3, FR-011.",
+		"method": "POST",
+		"path": "/presets",
+		"body": {
+			"layout": null,
+			"bookmark": null,
+			"role": null,
+			"user": "bo-1",
+			"search": null,
+			"filter": null,
+			"layout_query": {
+				"tabular": {
+					"sort": [
+						"-input_default"
+					],
+					"page": 1
+				}
+			},
+			"layout_options": null,
+			"refresh_interval": null,
+			"icon": "bookmark",
+			"color": null,
+			"collection": "bo_std"
+		}
+	},
+	"tabularListRequest": {
+		"source": "Directus app 11.17.4 (8155), 2026-10-16: bo_content with the seeded admin preset (fields title, status, date_published; sort sort); GET /items/bo_content query (axios bracket form). Spec 014 FR-022, FR-044, SC-005.",
+		"query": {
+			"limit": "25",
+			"fields": "title,status,date_published,id",
+			"sort[]": "sort",
+			"page": "1",
+			"filter[status][_neq]": "archived"
+		}
+	},
+	"pageCsv": {
+		"source": "Directus app 11.17.4 (8155), 2026-10-16: bo_content, sidebar Import / Export > Download Page as CSV; saved as expected.content.csv (archived item 3 filtered out by the archive filter). Spec 014 FR-092, US6-2.",
+		"fileName": "bo_content-20261015.csv"
+	}
+}

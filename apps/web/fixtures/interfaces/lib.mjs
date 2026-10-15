@@ -13,6 +13,10 @@ export const FOLDER = 'bo-fixtures';
 export const FIXED_UUIDS = ['6f9619ff-8b86-4d11-b42d-00c04fc964ff'];
 export const FLOW = 'bo-flow';
 
+// Feature 014 (Content module): manual flows on bo_content, the share of bo_content/1 and its password (test value).
+export const CONTENT_FLOWS = ['bo-flow-content', 'bo-flow-item'];
+export const SHARE = { name: 'bo-share', password: 'bo-share-password' };
+
 /** `--api <url>` plus `--token <token>` or `--email <e> --password <p>`; `--clean` for seed.mjs; `--out <dir>` and `--kind <directus|backoffice>` for export.mjs. */
 export function readArgs() {
 	const { values } = parseArgs({

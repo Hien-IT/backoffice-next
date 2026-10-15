@@ -1,0 +1,1125 @@
+[
+	{
+		"id": 1,
+		"status": "draft",
+		"title": "Content 01 (edited)",
+		"body": "Body of content 1, second edit",
+		"date_published": "2026-10-01T09:00:00",
+		"sort": 1,
+		"author": null,
+		"cover": {
+			"id": "bo-4",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.png",
+			"title": "bo-sample-png",
+			"type": "image/png",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "70",
+			"width": 1,
+			"height": 1,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": {},
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.81,
+				21.01
+			]
+		}
+	},
+	{
+		"id": 2,
+		"status": "published",
+		"title": "Content 02",
+		"body": "Body of content 2",
+		"date_published": "2026-10-02T09:00:00",
+		"sort": 2,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": {
+			"id": "bo-4",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.png",
+			"title": "bo-sample-png",
+			"type": "image/png",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "70",
+			"width": 1,
+			"height": 1,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": {},
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.82,
+				21.02
+			]
+		}
+	},
+	{
+		"id": 3,
+		"status": "archived",
+		"title": "Content 03",
+		"body": "Body of content 3",
+		"date_published": "2026-10-03T09:00:00",
+		"sort": 3,
+		"author": null,
+		"cover": {
+			"id": "bo-4",
+			"storage": "local",
+			"filename_disk": null,
+			"filename_download": "bo-sample.png",
+			"title": "bo-sample-png",
+			"type": "image/png",
+			"folder": "bo-2",
+			"uploaded_by": "bo-1",
+			"created_on": null,
+			"modified_by": null,
+			"modified_on": null,
+			"charset": null,
+			"filesize": "70",
+			"width": 1,
+			"height": 1,
+			"duration": null,
+			"embed": null,
+			"description": null,
+			"location": null,
+			"tags": null,
+			"metadata": {},
+			"focal_point_x": null,
+			"focal_point_y": null,
+			"tus_id": null,
+			"tus_data": null,
+			"uploaded_on": null
+		},
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.83,
+				21.03
+			]
+		}
+	},
+	{
+		"id": 4,
+		"status": "draft",
+		"title": "Content 04",
+		"body": "Body of content 4",
+		"date_published": "2026-10-04T09:00:00",
+		"sort": 4,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.84,
+				21.04
+			]
+		}
+	},
+	{
+		"id": 5,
+		"status": "published",
+		"title": "Content 05",
+		"body": null,
+		"date_published": "2026-10-05T09:00:00",
+		"sort": 5,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.85,
+				21.05
+			]
+		}
+	},
+	{
+		"id": 6,
+		"status": "archived",
+		"title": "Content 06",
+		"body": "Body of content 6",
+		"date_published": "2026-10-06T09:00:00",
+		"sort": 6,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.86,
+				21.06
+			]
+		}
+	},
+	{
+		"id": 7,
+		"status": "draft",
+		"title": "Content 07",
+		"body": "Body of content 7",
+		"date_published": "2026-10-07T09:00:00",
+		"sort": 7,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.86999999999999,
+				21.07
+			]
+		}
+	},
+	{
+		"id": 8,
+		"status": "published",
+		"title": "Content 08",
+		"body": "Body of content 8",
+		"date_published": "2026-10-08T09:00:00",
+		"sort": 8,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.88,
+				21.08
+			]
+		}
+	},
+	{
+		"id": 9,
+		"status": "archived",
+		"title": "Content 09",
+		"body": "Body of content 9",
+		"date_published": "2026-10-09T09:00:00",
+		"sort": 9,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.89,
+				21.09
+			]
+		}
+	},
+	{
+		"id": 10,
+		"status": "draft",
+		"title": "Content 10",
+		"body": null,
+		"date_published": "2026-10-10T09:00:00",
+		"sort": 10,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.89999999999999,
+				21.1
+			]
+		}
+	},
+	{
+		"id": 11,
+		"status": "published",
+		"title": "Content 11",
+		"body": "Body of content 11",
+		"date_published": "2026-10-11T09:00:00",
+		"sort": 11,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.91,
+				21.11
+			]
+		}
+	},
+	{
+		"id": 12,
+		"status": "archived",
+		"title": "Content 12",
+		"body": "Body of content 12",
+		"date_published": "2026-10-12T09:00:00",
+		"sort": 12,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.92,
+				21.12
+			]
+		}
+	},
+	{
+		"id": 13,
+		"status": "draft",
+		"title": "Content 13",
+		"body": "Body of content 13",
+		"date_published": "2026-10-13T09:00:00",
+		"sort": 13,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.92999999999999,
+				21.13
+			]
+		}
+	},
+	{
+		"id": 14,
+		"status": "published",
+		"title": "Content 14",
+		"body": "Body of content 14",
+		"date_published": "2026-10-14T09:00:00",
+		"sort": 14,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.94,
+				21.14
+			]
+		}
+	},
+	{
+		"id": 15,
+		"status": "archived",
+		"title": "Content 15",
+		"body": null,
+		"date_published": "2026-10-15T09:00:00",
+		"sort": 15,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.95,
+				21.15
+			]
+		}
+	},
+	{
+		"id": 16,
+		"status": "draft",
+		"title": "Content 16",
+		"body": "Body of content 16",
+		"date_published": "2026-10-16T09:00:00",
+		"sort": 16,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.96,
+				21.16
+			]
+		}
+	},
+	{
+		"id": 17,
+		"status": "published",
+		"title": "Content 17",
+		"body": "Body of content 17",
+		"date_published": "2026-10-17T09:00:00",
+		"sort": 17,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.97,
+				21.17
+			]
+		}
+	},
+	{
+		"id": 18,
+		"status": "archived",
+		"title": "Content 18",
+		"body": "Body of content 18",
+		"date_published": "2026-10-18T09:00:00",
+		"sort": 18,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.98,
+				21.18
+			]
+		}
+	},
+	{
+		"id": 19,
+		"status": "draft",
+		"title": "Content 19",
+		"body": "Body of content 19",
+		"date_published": "2026-10-19T09:00:00",
+		"sort": 19,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				105.99,
+				21.19
+			]
+		}
+	},
+	{
+		"id": 20,
+		"status": "published",
+		"title": "Content 20",
+		"body": null,
+		"date_published": "2026-10-20T09:00:00",
+		"sort": 20,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106,
+				21.2
+			]
+		}
+	},
+	{
+		"id": 21,
+		"status": "archived",
+		"title": "Content 21",
+		"body": "Body of content 21",
+		"date_published": "2026-10-21T09:00:00",
+		"sort": 21,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.00999999999999,
+				21.21
+			]
+		}
+	},
+	{
+		"id": 22,
+		"status": "draft",
+		"title": "Content 22",
+		"body": "Body of content 22",
+		"date_published": "2026-10-22T09:00:00",
+		"sort": 22,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.02,
+				21.22
+			]
+		}
+	},
+	{
+		"id": 23,
+		"status": "published",
+		"title": "Content 23",
+		"body": "Body of content 23",
+		"date_published": "2026-10-23T09:00:00",
+		"sort": 23,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.03,
+				21.23
+			]
+		}
+	},
+	{
+		"id": 24,
+		"status": "archived",
+		"title": "Content 24",
+		"body": "Body of content 24",
+		"date_published": "2026-10-24T09:00:00",
+		"sort": 24,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.03999999999999,
+				21.24
+			]
+		}
+	},
+	{
+		"id": 25,
+		"status": "draft",
+		"title": "Content 25",
+		"body": null,
+		"date_published": "2026-10-25T09:00:00",
+		"sort": 25,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.05,
+				21.25
+			]
+		}
+	},
+	{
+		"id": 26,
+		"status": "published",
+		"title": "Content 26",
+		"body": "Body of content 26",
+		"date_published": "2026-10-26T09:00:00",
+		"sort": 26,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.06,
+				21.26
+			]
+		}
+	},
+	{
+		"id": 27,
+		"status": "archived",
+		"title": "Content 27",
+		"body": "Body of content 27",
+		"date_published": "2026-10-27T09:00:00",
+		"sort": 27,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.07,
+				21.27
+			]
+		}
+	},
+	{
+		"id": 28,
+		"status": "draft",
+		"title": "Content 28",
+		"body": "Body of content 28",
+		"date_published": "2026-10-28T09:00:00",
+		"sort": 28,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news",
+			"vn"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.08,
+				21.28
+			]
+		}
+	},
+	{
+		"id": 29,
+		"status": "published",
+		"title": "Content 29",
+		"body": "Body of content 29",
+		"date_published": "2026-10-29T09:00:00",
+		"sort": 29,
+		"author": null,
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.09,
+				21.29
+			]
+		}
+	},
+	{
+		"id": 30,
+		"status": "archived",
+		"title": "Content 30",
+		"body": null,
+		"date_published": "2026-10-30T09:00:00",
+		"sort": 30,
+		"author": {
+			"id": "bo-1",
+			"first_name": "Admin",
+			"last_name": "User",
+			"email": "admin@example.com",
+			"password": "**********",
+			"location": null,
+			"title": null,
+			"description": null,
+			"tags": null,
+			"avatar": null,
+			"language": null,
+			"tfa_secret": null,
+			"status": "active",
+			"role": "bo-15",
+			"token": null,
+			"last_access": null,
+			"last_page": null,
+			"provider": "default",
+			"external_identifier": null,
+			"auth_data": null,
+			"email_notifications": true,
+			"appearance": null,
+			"theme_dark": null,
+			"theme_light": null,
+			"theme_light_overrides": null,
+			"theme_dark_overrides": null,
+			"text_direction": "auto",
+			"policies": []
+		},
+		"cover": null,
+		"tags": [
+			"news"
+		],
+		"location": {
+			"type": "Point",
+			"coordinates": [
+				106.1,
+				21.3
+			]
+		}
+	}
+]

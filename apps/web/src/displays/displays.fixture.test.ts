@@ -25,6 +25,10 @@ const displayFields = snapshot.fields.filter((field) => field.meta?.display);
 
 // Text of each display on the first seeded row (whitespace collapsed), at 2026-10-15T00:00:00Z in en-US.
 const EXPECTED_TEXT: Record<string, string> = {
+	// bo_content (014), item 1: status `draft` (labels), no author (null), cover = the PNG (image, no text).
+	'bo_content.status': 'Draft',
+	'bo_content.author': '--No value',
+	'bo_content.cover': '',
 	'bo_groups.target': 'Target one',
 	'bo_languages.direction': 'Rtl',
 	'bo_rel.m2o': 'Target one',

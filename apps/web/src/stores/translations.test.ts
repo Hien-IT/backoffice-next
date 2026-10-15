@@ -47,3 +47,28 @@ test('a failed request (no permission) keeps the previous rows', async () => {
 	expect(store.translations).toEqual([]);
 	expect(store.loading).toBe(false);
 });
+
+test('create posts the row, reloads the current language and merges it into i18n', async () => {
+	const row = { language: 'en-US', key: 'custom_created', value: 'Created' };
+	request.mockImplementation(async (command: { method?: string }) => (command.method === 'POST' ? row : [row]));
+
+	const store = useTranslationsStore();
+	await store.create(row);
+	await nextTick();
+
+	expect(request).toHaveBeenNthCalledWith(1, { path: '/translations', method: 'POST', body: row });
+	expect(request).toHaveBeenNthCalledWith(2, expect.objectContaining({ path: '/translations', method: 'GET' }));
+	expect(i18n.global.t('custom_created')).toBe('Created');
+});
+
+test('create reports a failed request through unexpectedError and does not reload', async () => {
+	const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+	request.mockRejectedValue({ errors: [{ extensions: { code: 'FORBIDDEN' } }] });
+
+	const store = useTranslationsStore();
+	await store.create({ language: 'en-US', key: 'k', value: 'v' });
+
+	expect(request).toHaveBeenCalledTimes(1);
+	expect(warn).toHaveBeenCalled();
+	warn.mockRestore();
+});

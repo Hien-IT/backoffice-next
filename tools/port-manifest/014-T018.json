@@ -1,0 +1,14 @@
+[
+	{
+		"source": "packages/composables/src/use-layout.ts",
+		"dest": "apps/web/src/layouts/use-layout.ts"
+	},
+	{
+		"source": "app/src/layouts/index.ts",
+		"dest": "apps/web/src/layouts/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/utils/define-extension.ts",
+		"dest": "apps/web/src/layouts/types.ts"
+	}
+]

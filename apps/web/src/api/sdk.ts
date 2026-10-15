@@ -100,7 +100,7 @@ export function createSdk(url: string): SdkClient {
  */
 export function requestEndpoint<Output = unknown>(
 	path: string,
-	options: Omit<RequestOptions, 'body' | 'path'> & { body?: Record<string, unknown> } = {},
+	options: Omit<RequestOptions, 'body' | 'path'> & { body?: Record<string, unknown> | unknown[] } = {},
 ): RestCommand<Output, never> {
 	const { body: data, ...rest } = options;
 	let body: undefined | string;

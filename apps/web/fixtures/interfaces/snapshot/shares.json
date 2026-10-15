@@ -1,0 +1,14 @@
+[
+	{
+		"id": "bo-20",
+		"name": "bo-share",
+		"collection": "bo_content",
+		"item": "1",
+		"role": "bo-11",
+		"password": "**********",
+		"date_start": null,
+		"date_end": null,
+		"max_uses": 5,
+		"times_used": 0
+	}
+]

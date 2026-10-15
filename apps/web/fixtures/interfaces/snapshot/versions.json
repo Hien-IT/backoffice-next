@@ -1,0 +1,28 @@
+[
+	{
+		"id": "bo-18",
+		"key": "draft",
+		"name": null,
+		"collection": "bo_content",
+		"item": "1",
+		"hash": "bo-hash",
+		"delta": {
+			"title": "Content 01 (draft)",
+			"_user": "bo-1",
+			"_date": null
+		}
+	},
+	{
+		"id": "bo-19",
+		"key": "local-1",
+		"name": "Local 1",
+		"collection": "bo_content",
+		"item": "1",
+		"hash": "bo-hash",
+		"delta": {
+			"status": "published",
+			"_user": "bo-1",
+			"_date": null
+		}
+	}
+]

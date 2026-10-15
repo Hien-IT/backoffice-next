@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/components/v-pagination.vue",
+		"dest": "apps/web/src/components/BoPagination.vue"
+	},
+	{
+		"source": "app/src/components/v-pagination.test.ts",
+		"dest": "apps/web/src/components/BoPagination.test.ts"
+	}
+]

@@ -1,0 +1,54 @@
+[
+	{
+		"source": "app/src/composables/use-permissions/collection/lib/is-action-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/collection/lib/is-action-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/collection/lib/is-revisions-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/collection/lib/is-revisions-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/collection/lib/is-sort-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/collection/lib/is-sort-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/collection/use-collection-permissions.ts",
+		"dest": "apps/web/src/composables/use-permissions/collection/use-collection-permissions.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/index.ts",
+		"dest": "apps/web/src/composables/use-permissions/index.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/item/lib/get-fields.ts",
+		"dest": "apps/web/src/composables/use-permissions/item/lib/get-fields.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/item/lib/is-action-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/item/lib/is-action-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/item/use-item-permissions.ts",
+		"dest": "apps/web/src/composables/use-permissions/item/use-item-permissions.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/item/utils/fetch-item-permissions.ts",
+		"dest": "apps/web/src/composables/use-permissions/item/utils/fetch-item-permissions.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/lib/is-archive-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/lib/is-archive-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/lib/is-save-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/lib/is-save-allowed.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/types/index.ts",
+		"dest": "apps/web/src/composables/use-permissions/types/index.ts"
+	},
+	{
+		"source": "app/src/composables/use-permissions/utils/is-field-allowed.ts",
+		"dest": "apps/web/src/composables/use-permissions/utils/is-field-allowed.ts"
+	}
+]

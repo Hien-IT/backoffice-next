@@ -233,6 +233,98 @@ describe('useItems', () => {
 		);
 	});
 
+	// Backoffice: T017, page back to 1 for each query part the Directus watcher compares.
+	test.each([
+		['filter', { id: { _eq: 1 } }],
+		['search', 'x'],
+		['sort', ['-id']],
+		['limit', 50],
+	] as const)('should reset page to 1 if %s changes', async (key, value) => {
+		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 1, countDistinct: { id: 1 } }] } });
+
+		const query = {
+			fields: ref(['*']),
+			limit: ref<number>(25),
+			sort: ref<string[] | null>(null),
+			search: ref<string | null>(null),
+			filter: ref<Filter | null>(null),
+			page: ref(5),
+		};
+
+		useItems(ref('test_collection'), query);
+
+		(query[key] as Ref<unknown>).value = value;
+		await vi.advanceTimersByTimeAsync(500);
+
+		expect(query.page.value).toBe(1);
+
+		expect(mockApiGet).toHaveBeenLastCalledWith(
+			'/items/test_collection',
+			expect.objectContaining({ params: expect.objectContaining({ page: 1 }) }),
+		);
+	});
+
+	// Backoffice: T017, the total count is the aggregate with filterSystem only, and follows it.
+	test('should refetch the total count with the new filterSystem', async () => {
+		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 4, countDistinct: { id: 4 } }] } });
+
+		const filterSystem = ref<Query['filter']>({ archived: { _eq: false } });
+
+		const { totalCount } = useItems(ref('test_collection'), {
+			fields: ref(['*']),
+			limit: ref(25),
+			sort: ref(null),
+			search: ref('x'),
+			filter: ref({ status: { _eq: 'a' } }),
+			page: ref(1),
+			filterSystem,
+		});
+
+		await flushPromises();
+		expect(totalCount.value).toBe(4);
+
+		expect(mockApiGet).toHaveBeenCalledWith('/items/test_collection', {
+			params: { aggregate: { countDistinct: 'id' }, filter: { archived: { _eq: false } } },
+		});
+
+		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 9, countDistinct: { id: 9 } }] } });
+		filterSystem.value = { archived: { _eq: true } };
+		await flushPromises();
+
+		expect(mockApiGet).toHaveBeenLastCalledWith('/items/test_collection', {
+			params: { aggregate: { countDistinct: 'id' }, filter: { archived: { _eq: true } } },
+		});
+
+		expect(totalCount.value).toBe(9);
+	});
+
+	// Backoffice: T017, R-38: the aggregate is memoized per url, filter and search, so getItemCount() again (refresh)
+	// shows the cached count without a request, as in Directus.
+	test('should return the memoized count on getItemCount() with the same key', async () => {
+		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 3, countDistinct: { id: 3 } }] } });
+
+		const filter = ref<Filter | null>({ status: { _eq: 'a' } });
+
+		const { itemCount, getItemCount } = useItems(ref('test_collection'), {
+			fields: ref(['*']),
+			limit: ref(25),
+			sort: ref(null),
+			search: ref(null),
+			filter,
+			page: ref(1),
+		});
+
+		await flushPromises();
+		expect(itemCount.value).toBe(3);
+		const requests = mockApiGet.mock.calls.length;
+
+		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 7, countDistinct: { id: 7 } }] } });
+		await getItemCount();
+
+		expect(mockApiGet).toHaveBeenCalledTimes(requests);
+		expect(itemCount.value).toBe(3);
+	});
+
 	test('should reset when collection changes', async () => {
 		const collection = ref('old_collection');
 
@@ -457,6 +549,49 @@ describe('useItems through the sdk', () => {
 		vi.mocked(sdk.request).mockRejectedValue(new DOMException('aborted', 'AbortError'));
 		await getItems();
 		expect(error.value).toBeNull();
+	});
+
+	// Backoffice: T017, a new list request aborts the previous one through the AbortController signal (onRequest).
+	test('aborts the previous list request on a new one', async () => {
+		const signals: AbortSignal[] = [];
+		const pending: ((value: unknown) => void)[] = [];
+
+		vi.mocked(sdk.request).mockImplementation((command: any) => {
+			const { params, onRequest } = command();
+			if (params.aggregate) return Promise.resolve([{ countDistinct: { id: 1 } }]);
+
+			const { signal } = onRequest({});
+			signals.push(signal);
+
+			return new Promise((resolve, reject) => {
+				pending.push(resolve);
+				signal.addEventListener('abort', () => reject(new DOMException('aborted', 'AbortError')));
+			});
+		});
+
+		const { items, error, loading, getItems } = useItems(ref('articles'), {
+			fields: ref(['*']),
+			limit: ref(25),
+			sort: ref(null),
+			search: ref(null),
+			filter: ref(null),
+			page: ref(1),
+		});
+
+		await flushPromises();
+		const second = getItems();
+		await flushPromises();
+
+		expect(signals).toHaveLength(2);
+		expect(signals[0]!.aborted).toBe(true);
+		expect(signals[1]!.aborted).toBe(false);
+
+		pending[1]!([{ id: 2 }]);
+		await second;
+
+		expect(items.value).toEqual([{ id: 2 }]);
+		expect(error.value).toBeNull();
+		expect(loading.value).toBe(false);
 	});
 
 	test('changeManualSort moves the item and posts to /utils/sort', async () => {

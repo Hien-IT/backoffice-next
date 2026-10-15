@@ -481,9 +481,10 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   bookmark đó; `layout`, `layout_options[layout]`, `layout_query[layout]`, `filter`, `search`, `refresh_interval`,
   `bookmark` (tên) đọc và ghi từ preset cục bộ.
 - **FR-011**: Không ở bookmark: mọi thay đổi preset PHẢI lưu tự động sau 450 ms (debounce) qua `savePreset` của store
-  với **toàn bộ preset cục bộ** như `savePreset(localPreset)` của Directus: lần đầu `POST /presets` body
-  `{collection, layout ('tabular' nếu chưa đổi), layout_query, layout_options, filter, search, refresh_interval, user}`
-  (không `id`, không `bookmark`); sau đó `PATCH /presets/:id` cũng với toàn bộ preset cục bộ (không chỉ khóa đổi);
+  với **toàn bộ preset cục bộ** như `savePreset(localPreset)` của Directus: lần đầu `POST /presets` body là preset mặc
+  định của `getPresetForCollection` cộng thay đổi: `{layout, bookmark: null, role: null, user, search, filter,
+  layout_query, layout_options, refresh_interval, icon: 'bookmark', color: null, collection}` (không `id`); `layout` là
+  `null` khi chưa đổi layout (đo trên Directus app T023, mốc `expected.content.json`), `layout_query` có cả `page`; sau đó `PATCH /presets/:id` cũng với toàn bộ preset cục bộ (không chỉ khóa đổi);
   preset có `id` của user khác → `POST` bản mới của mình (store). Phiên share: store presets không nạp, không ghi, preset
   cục bộ là `{layout: 'tabular'}`.
 - **FR-012**: Ở bookmark: thay đổi KHÔNG tự lưu; `bookmarkSaved` so sâu preset cục bộ với bookmark trong store; "lưu
@@ -666,7 +667,7 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   gập dạng khối mã, nút `done`; dùng chung cho mọi lỗi không validation); thành công → notice tại chỗ (D-66;
   `item_create_success`, `item_update_success`).
 - **FR-054b** Thông báo tại chỗ (D-66, `useNotices`): `BoNotice` xếp chồng ngay dưới page header (`role="status"`,
-  `aria-live="polite"`), tự ẩn sau 5 giây, có nút đóng; loại lỗi không tự ẩn; dùng cho lưu, xóa, archive, bản sao, chép
+  `aria-live="polite"`), tự ẩn sau 3 giây như store notifications của Directus (`persist` thì không), có nút đóng; lỗi không validation (`unexpectedError`) là hộp thoại như `notification-dialogs.vue`; dùng cho lưu, xóa, archive, bản sao, chép
   link, export bắt đầu, import xong, flow chạy xong (recipe Q-8).
 - **FR-055**: Xóa PHẢI hỏi `delete_are_you_sure`, `DELETE /items/:collection/:pk`, về danh sách; nút ẩn khi mới, singleton
   hoặc đang ở version; khóa khi không có quyền (`deleteAllowed`), tooltip `not_allowed`. Archive/unarchive như

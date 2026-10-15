@@ -1,9 +1,9 @@
 // Ported from directus/app/src/views/private/private-view/stores/sidebar.ts
 // Backoffice: localStorage keys with the backoffice- prefix (Principle IX); storage that cannot be used (blocked,
-// private mode) keeps the value in memory; activeAccordionItem is left out (no sidebar details in 012, D-45).
+// private mode) keeps the value in memory; activeAccordionItem is `string | null` (Directus: `ref<string>()`, undefined).
 import { createEventHook, useStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
-import { computed, type Ref, watch } from 'vue';
+import { computed, type Ref, ref, watch } from 'vue';
 
 /** useLocalStorage that never throws: without usable storage the ref only lives in memory. */
 export function useLayoutStorage(key: string, defaultValue: boolean): Ref<boolean>;
@@ -35,8 +35,16 @@ export const useSidebarStore = defineStore('sidebar-store', () => {
 		},
 	});
 
+	/** The open detail section (SidebarDetail id); one at a time. */
+	const activeAccordionItem = ref<string | null>(null);
+
+	watch(activeAccordionItem, (newActiveItem) => {
+		if (newActiveItem) expand();
+	});
+
 	watch(collapsed, (newCollapsed) => {
 		if (newCollapsed) {
+			activeAccordionItem.value = null;
 			collapseHook.trigger();
 		} else {
 			expandHook.trigger();
@@ -69,5 +77,6 @@ export const useSidebarStore = defineStore('sidebar-store', () => {
 		toggle,
 		onCollapse: collapseHook.on,
 		onExpand: expandHook.on,
+		activeAccordionItem,
 	};
 });

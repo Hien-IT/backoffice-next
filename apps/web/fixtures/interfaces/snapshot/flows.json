@@ -28,5 +28,51 @@
 		},
 		"accountability": "all",
 		"operation": null
+	},
+	{
+		"id": "bo-16",
+		"name": "bo-flow-content",
+		"icon": "bolt",
+		"color": "#2ECDA7",
+		"status": "active",
+		"trigger": "manual",
+		"options": {
+			"collections": [
+				"bo_content"
+			],
+			"location": "both",
+			"requireSelection": true
+		},
+		"accountability": "all",
+		"operation": null
+	},
+	{
+		"id": "bo-17",
+		"name": "bo-flow-item",
+		"icon": "send",
+		"color": null,
+		"status": "active",
+		"trigger": "manual",
+		"options": {
+			"collections": [
+				"bo_content"
+			],
+			"location": "item",
+			"requireConfirmation": true,
+			"confirmationDescription": "Send this item?",
+			"fields": [
+				{
+					"field": "reason",
+					"type": "string",
+					"name": "Reason",
+					"meta": {
+						"interface": "input",
+						"width": "full"
+					}
+				}
+			]
+		},
+		"accountability": "all",
+		"operation": null
 	}
 ]

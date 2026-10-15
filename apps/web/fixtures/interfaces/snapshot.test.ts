@@ -45,3 +45,40 @@ test('every expected value names its source', () => {
 		}
 	}
 });
+
+test('the Content module set of feature 014 is complete (data-model §9)', () => {
+	const snapshot = loadSnapshot();
+	const collection = (name: string) => snapshot.collections.find((c) => c['collection'] === name);
+
+	expect(collection('bo_folder')?.['schema']).toBeNull();
+	expect(collection('bo_content')?.['meta']).toMatchObject({
+		group: 'bo_folder',
+		versioning: true,
+		archive_field: 'status',
+		archive_value: 'archived',
+		display_template: '{{ title }}',
+		sort_field: 'sort',
+	});
+	expect(collection('bo_singleton')?.['meta']).toMatchObject({ singleton: true });
+	expect(snapshot.items['bo_content']).toHaveLength(30);
+	expect(snapshot.items['bo_singleton']).toHaveLength(1);
+
+	expect(snapshot.presets.filter((p) => p['bookmark'] === null)).toHaveLength(3);
+	expect(snapshot.presets.filter((p) => p['bookmark'] !== null).map((p) => p['bookmark']).sort()).toEqual([
+		'bo-bookmark',
+		'bo-global-bookmark',
+	]);
+	expect(snapshot.versions.map((v) => v['key'])).toEqual(['draft', 'local-1']);
+	expect(snapshot.shares).toHaveLength(1);
+	expect(snapshot.comments).toHaveLength(2);
+	const revisions = snapshot.revisions['bo_content']!;
+	expect(revisions.filter((r) => r['version'] === null).map((r) => r['activity']['action'])).toEqual([
+		'create',
+		'update',
+		'update',
+	]);
+	// One revision per version save (the draft and local-1).
+	expect(revisions.filter((r) => r['version'] !== null)).toHaveLength(2);
+	expect(snapshot.flows.map((f) => f.name).sort()).toEqual(['bo-flow', 'bo-flow-content', 'bo-flow-item']);
+	expect(snapshot.contentExpected['presetFirstWrite']?.body).toMatchObject({ layout: null, collection: 'bo_std' });
+});

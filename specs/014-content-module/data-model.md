@@ -33,8 +33,8 @@ duyệt dựng từ API.
 | `temporary` | boolean (tham số) | drawer chọn item | không ghi API |
 
 Ghi API: không bookmark → `savePreset(localPreset)` sau 450 ms với **toàn bộ preset cục bộ**: `POST /presets` lần đầu
-body `{collection, layout, layout_query, layout_options, filter, search, refresh_interval, user}` (không `id`,
-`bookmark`); `PATCH /presets/:id` sau đó cũng gửi toàn bộ preset cục bộ; preset có `id` của user khác → `POST` bản mới
+body = preset mặc định + thay đổi (`layout: null` khi chưa đổi layout, `bookmark`, `role` null, `icon: 'bookmark'`,
+`color: null`; không `id`; mốc `snapshot/expected.content.json`); `PATCH /presets/:id` sau đó cũng gửi toàn bộ preset cục bộ; preset có `id` của user khác → `POST` bản mới
 (store). Phiên share: không nạp, không ghi. `resetPreset` ghi ngay
 `{layout_query: null, layout_options: null, layout: 'tabular', filter: null, search: null, refresh_interval: null}`.
 

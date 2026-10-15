@@ -6,7 +6,7 @@
 import { mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { Api, FIXED_UUIDS, FLOW, FOLDER, USERS, query, readArgs } from './lib.mjs';
+import { Api, CONTENT_FLOWS, FIXED_UUIDS, FLOW, FOLDER, SHARE, USERS, query, readArgs } from './lib.mjs';
 
 const args = readArgs();
 const api = await Api.connect(args);
@@ -24,6 +24,8 @@ const NULLED = new Set([
 	'filename_disk',
 	'last_access',
 	'last_page',
+	// Version deltas carry the save time (014).
+	'_date',
 ]);
 const HASH = '$argon2id$v=19$m=65536,t=3,p=4$bo-normalized';
 
@@ -72,8 +74,9 @@ if (!folder) throw new Error(`Folder ${FOLDER} not found: run seed.mjs first`);
 const files = await api.get(`/files${query({ filter: { folder: { _eq: folder } }, sort: 'title', limit: -1 })}`);
 const flows = await api.get(
 	`/flows${query({
-		filter: { name: { _eq: FLOW } },
+		filter: { name: { _in: [FLOW, ...CONTENT_FLOWS] } },
 		fields: 'id,name,icon,color,status,trigger,options,accountability,operation',
+		sort: 'name',
 	})}`,
 );
 
@@ -135,14 +138,42 @@ function ordered(collection, row) {
 
 const items = {};
 
-for (const { collection, meta } of collections) {
+for (const { collection, meta, schema } of collections) {
+	// A folder (014 `bo_folder`) has no table.
+	if (!schema) continue;
 	const pk = fields.find((f) => f.collection === collection && f.schema?.is_primary_key)?.field;
 	// uuid keys are random: sort those rows by their display field instead.
 	const sort = collection === 'bo_m2a_b' ? 'title' : pk;
-	const rows = await api.get(`/items/${collection}${query({ fields: '*.*', sort, limit: -1 })}`);
+	// A singleton answers with one object (014 `bo_singleton`): kept as a one-row list like the other collections.
+	const rows = meta?.singleton
+		? [await api.get(`/items/${collection}${query({ fields: '*.*' })}`)]
+		: await api.get(`/items/${collection}${query({ fields: '*.*', sort, limit: -1 })}`);
 	items[collection] = ordered(collection, rows);
-	if (meta?.singleton) throw new Error(`Unexpected singleton ${collection}`);
 }
+
+/* Content module rows (014). Serial ids depend on what else the shared database holds: presets and revisions get
+   their position instead; uuid ids are numbered after the 013 ones (below). */
+const onBo = { collection: { _starts_with: 'bo_' } };
+const presets = (
+	await api.get(`/presets${query({ filter: onBo, sort: 'id', limit: -1 })}`)
+).map((preset, index) => ({ ...preset, id: index + 1 }));
+const versions = await api.get(
+	`/versions${query({ filter: onBo, fields: 'id,key,name,collection,item,hash,delta', sort: 'key', limit: -1 })}`,
+);
+const shares = await api.get(
+	`/shares${query({ filter: { name: { _eq: SHARE.name } }, fields: 'id,name,collection,item,role,password,date_start,date_end,max_uses,times_used' })}`,
+);
+const comments = await api.get(`/comments${query({ filter: onBo, fields: 'id,collection,item,comment', sort: 'comment' })}`);
+const revisions = (
+	await api.get(
+		`/revisions${query({
+			filter: { collection: { _eq: 'bo_content' }, item: { _eq: '1' } },
+			fields: 'id,collection,item,data,delta,version,activity.action',
+			sort: 'id',
+			limit: -1,
+		})}`,
+	)
+).map((revision, index) => ({ ...revision, id: index + 1 }));
 
 // Only bo_* and system collections: the database is shared with other suites that add their own collections.
 const keepPermissions = (permissions) =>
@@ -178,7 +209,7 @@ for (const uuid of [
 	admin.id,
 	folder,
 	...files.map((f) => f.id),
-	...flows.map((f) => f.id),
+	...flows.filter((f) => f.name === FLOW).map((f) => f.id),
 	...Object.keys(USERS).flatMap((name) => [
 		policies.find((p) => p.name === name)?.id,
 		roles.find((r) => r.name === name)?.id,
@@ -206,6 +237,12 @@ const snapshot = {
 	'flows.json': flows,
 	...Object.fromEntries(Object.entries(items).map(([collection, rows]) => [`items.${collection}.json`, rows])),
 	...Object.fromEntries(Object.entries(permissions).map(([name, value]) => [`permissions.${name}.json`, value])),
+	// 014 last: their new uuids are numbered after every 013 one, so the 013 files keep their numbers.
+	'presets.json': presets,
+	'versions.json': versions.map((v) => ({ ...v, hash: v.hash ? 'bo-hash' : null })),
+	'shares.json': shares,
+	'comments.json': comments,
+	'revisions.bo_content.json': revisions,
 };
 
 mkdirSync(out, { recursive: true });

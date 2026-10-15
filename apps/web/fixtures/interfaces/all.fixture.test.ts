@@ -88,6 +88,12 @@ const EXPECTED_WARNINGS: Record<string, string[]> = Object.fromEntries([
 	// bo-viewer reads only its own directus_users row; `owner` of item 1 points at the editor (bo-9), so the m2o
 	// lookup answers 403 as in Directus.
 	['bo-viewer bo_rel', ["You don't have permission to access this."]],
+	// bo_content (014): `author` of the 15 even items points at the admin, whom neither bo-editor nor bo-viewer may
+	// read, so each m2o lookup answers 403 as in Directus.
+	...(['bo-editor', 'bo-viewer'] as const).map((user) => [
+		`${user} bo_content`,
+		Array.from({ length: 15 }, () => "You don't have permission to access this."),
+	]),
 ]);
 
 let fetch: ReturnType<typeof mockFixtureApi>;

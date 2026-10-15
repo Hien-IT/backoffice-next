@@ -1,5 +1,4 @@
 // Ported from directus/app/src/utils/format-items-count.ts
-// Backoffice: only formatItemsCountPaginated (the list interfaces use it).
 import type { ComposerNumberFormatting, ComposerTranslation } from 'vue-i18n';
 
 export type FormatItemsCountPaginatedOptions = {
@@ -37,4 +36,32 @@ export function formatItemsCountPaginated({
 	if (currentItems > perPage) return t('start_end_of_count_items', values);
 
 	return t('item_count', values, currentItems);
+}
+
+export type FormatItemsCountRelativeOptions = {
+	totalItems: number;
+	currentItems: number;
+	isFiltered?: boolean;
+	i18n: { t: ComposerTranslation; n: ComposerNumberFormatting };
+};
+
+export function formatItemsCountRelative({
+	totalItems,
+	currentItems,
+	isFiltered = false,
+	i18n,
+}: FormatItemsCountRelativeOptions) {
+	const { t, n } = i18n;
+
+	const values = {
+		count: n(currentItems),
+		total: n(totalItems),
+	};
+
+	// If filter is active and has effect on items
+	if (isFiltered && currentItems < totalItems) return t('filtered_item_count', values, currentItems);
+
+	if (values.total > values.count) return t('count_of_total_items', values);
+
+	return t('item_count', values, totalItems);
 }

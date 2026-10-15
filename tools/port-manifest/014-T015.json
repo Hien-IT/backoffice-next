@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/composables/use-edits-guard.ts",
+		"dest": "apps/web/src/composables/use-edits-guard.ts"
+	},
+	{
+		"source": "app/src/composables/use-navigation-guard.ts",
+		"dest": "apps/web/src/composables/use-navigation-guard.ts"
+	}
+]

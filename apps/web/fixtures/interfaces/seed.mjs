@@ -1,9 +1,12 @@
 // Seeds the fixture set of feature 013 (data-model §6, FR-100) through the REST API of Directus 11.17.4 or the new API.
 // Idempotent: deletes then recreates the `bo_*` collections, the `bo-fixtures` folder and its files, the `bo-flow` flow
 // and the `bo-editor` / `bo-viewer` role, policy and user. Touches nothing else.
+// Feature 014 (data-model §9, T023) adds the Content module set: the `bo_folder` folder with `bo_content` (versioning,
+// archive, display template, preview URL, manual sort, 30 items), the `bo_singleton` singleton, presets and bookmarks,
+// versions, a share, comments and the `bo-flow-content` / `bo-flow-item` manual flows.
 // Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
 // `--clean` only deletes the fixture set and exits.
-import { Api, FIXED_UUIDS, FLOW, FOLDER, USERS, query, readArgs } from './lib.mjs';
+import { Api, CONTENT_FLOWS, FIXED_UUIDS, FLOW, FOLDER, SHARE, USERS, query, readArgs } from './lib.mjs';
 
 const args = readArgs();
 const api = await Api.connect(args);
@@ -19,6 +22,18 @@ const ROLES = ['bo-editor', 'bo-viewer'];
 /* ---------------------------------------------------------------- cleanup */
 
 async function cleanup() {
+	// Content module rows that point at bo_* collections (014): presets, versions, shares, comments.
+	const onBo = { collection: { _starts_with: 'bo_' } };
+	for (const path of ['/presets', '/versions', '/shares', '/comments']) {
+		const rows = await api.get(`${path}${query({ filter: onBo, fields: 'id', limit: -1 })}`);
+		if (rows.length > 0)
+			await api.request(
+				'DELETE',
+				path,
+				rows.map((r) => r.id),
+			);
+	}
+
 	// Relations first: dropping their foreign keys breaks the bo_rel <-> bo_rel_target cycle.
 	for (const relation of await api.get('/relations')) {
 		if (relation.collection.startsWith('bo_'))
@@ -43,7 +58,7 @@ async function cleanup() {
 		await api.request('DELETE', '/folders', ids);
 	}
 
-	const flows = await api.get(`/flows${query({ filter: { name: { _eq: FLOW } }, fields: 'id' })}`);
+	const flows = await api.get(`/flows${query({ filter: { name: { _in: [FLOW, ...CONTENT_FLOWS] } }, fields: 'id' })}`);
 	if (flows.length > 0)
 		await api.request(
 			'DELETE',
@@ -1223,6 +1238,221 @@ function relations() {
 	];
 }
 
+/* ---------------------------------------------------------------- Content module (014) */
+
+const CONTENT_STATUS = [
+	{ text: 'Draft', value: 'draft' },
+	{ text: 'Published', value: 'published' },
+	{ text: 'Archived', value: 'archived' },
+];
+
+/** `bo_folder` (a folder: no table) holding `bo_content`, and the `bo_singleton` singleton. */
+function contentCollections() {
+	return [
+		{ collection: 'bo_folder', meta: { icon: 'folder', collapse: 'locked', sort: 100 }, schema: null },
+		collection(
+			'bo_content',
+			[
+				intPk(),
+				field(
+					'status',
+					'string',
+					'select-dropdown',
+					{ choices: CONTENT_STATUS },
+					{ width: 'half', display: 'labels', display_options: { choices: CONTENT_STATUS } },
+					{ default_value: 'draft', is_nullable: false },
+				),
+				field('title', 'string', 'input', null, { width: 'half', required: true }),
+				field('body', 'text', 'input-multiline'),
+				field('date_published', 'dateTime', 'datetime', null, { width: 'half' }),
+				field('sort', 'integer', 'input', null, { hidden: true }),
+				field('author', 'uuid', 'select-dropdown-m2o', { template: '{{ first_name }} {{ last_name }}' }, {
+					width: 'half',
+					special: ['m2o'],
+					display: 'related-values',
+					display_options: { template: '{{ first_name }} {{ last_name }}' },
+				}),
+				field('cover', 'uuid', 'file-image', null, { width: 'half', special: ['file'], display: 'image' }),
+				field('tags', 'csv', 'tags', null, { width: 'half', special: ['cast-csv'] }),
+			],
+			{
+				group: 'bo_folder',
+				icon: 'article',
+				sort: 1,
+				versioning: true,
+				archive_field: 'status',
+				archive_value: 'archived',
+				unarchive_value: 'draft',
+				archive_app_filter: true,
+				display_template: '{{ title }}',
+				preview_url: 'https://preview.example/{{ id }}?v={{ $version }}',
+				sort_field: 'sort',
+				accountability: 'all',
+				item_duplication_fields: ['status', 'title', 'body', 'date_published', 'author', 'tags'],
+			},
+		),
+		collection(
+			'bo_singleton',
+			[
+				intPk(),
+				field('site_name', 'string', 'input', null, { width: 'half' }),
+				field('tagline', 'text', 'input-multiline'),
+				field('maintenance', 'boolean', 'boolean', null, { width: 'half', special: ['cast-boolean'] }, {
+					default_value: false,
+				}),
+			],
+			{ singleton: true, icon: 'settings', sort: 101 },
+		),
+	];
+}
+
+const contentLocation = field('location', 'geometry.Point', 'map', null, { width: 'full' });
+
+const contentRelations = () => [
+	{
+		collection: 'bo_content',
+		field: 'author',
+		related_collection: 'directus_users',
+		meta: { one_field: null, junction_field: null, sort_field: null, one_deselect_action: 'nullify' },
+		schema: { on_delete: 'SET NULL' },
+	},
+	{
+		collection: 'bo_content',
+		field: 'cover',
+		related_collection: 'directus_files',
+		meta: { one_field: null, junction_field: null, sort_field: null, one_deselect_action: 'nullify' },
+		schema: { on_delete: 'SET NULL' },
+	},
+];
+
+/** Deterministic rows: Content 01..30, statuses in turn, one date per day of October 2026. */
+function contentItems({ admin, png, geometry }) {
+	return Array.from({ length: 30 }, (_, i) => {
+		const n = i + 1;
+		const status = CONTENT_STATUS[i % 3].value;
+		return {
+			status,
+			title: `Content ${String(n).padStart(2, '0')}`,
+			body: n % 5 === 0 ? null : `Body of content ${n}`,
+			date_published: `2026-10-${String(n).padStart(2, '0')}T09:00:00`,
+			sort: n,
+			author: n % 2 === 0 ? admin : null,
+			cover: n <= 3 ? png : null,
+			tags: n % 4 === 0 ? ['news', 'vn'] : ['news'],
+			...(geometry ? { location: { type: 'Point', coordinates: [105.8 + n / 100, 21.0 + n / 100] } } : {}),
+		};
+	});
+}
+
+async function createContentFixtures({ users, files, geometry }) {
+	const admin = (await api.get('/users/me?fields=id')).id;
+	const editor = users['bo-editor'];
+	const viewer = users['bo-viewer'];
+
+	// Access: the editor reads, creates and updates bo_content (no delete, no share) and reads/updates the singleton;
+	// the viewer reads both.
+	const perm = (policy, collection, action) => ({
+		policy,
+		collection,
+		action,
+		fields: ['*'],
+		permissions: {},
+		validation: {},
+	});
+	await api.request('POST', '/permissions', [
+		...['create', 'read', 'update'].map((action) => perm(editor.policy, 'bo_content', action)),
+		...['read', 'update'].map((action) => perm(editor.policy, 'bo_singleton', action)),
+		perm(viewer.policy, 'bo_content', 'read'),
+		perm(viewer.policy, 'bo_singleton', 'read'),
+	]);
+
+	await api.request('POST', '/items/bo_content', contentItems({ admin, png: files.png, geometry }));
+	await api.request('PATCH', '/items/bo_singleton', { site_name: 'Backoffice fixtures', tagline: 'Content module', maintenance: false });
+
+	// Revisions on item 1: two updates after the create.
+	await api.request('PATCH', '/items/bo_content/1', { title: 'Content 01 (edited)' });
+	await api.request('PATCH', '/items/bo_content/1', { body: 'Body of content 1, second edit' });
+
+	// Presets (FR-010): the admin's own, the bo-editor role's and a global one; a personal and a global bookmark.
+	await api.request('POST', '/presets', [
+		{
+			collection: 'bo_content',
+			user: admin,
+			layout: 'tabular',
+			layout_query: { tabular: { fields: ['title', 'status', 'date_published'], sort: ['sort'], page: 1 } },
+			layout_options: { tabular: { widths: { title: 240 }, spacing: 'cozy' } },
+		},
+		{
+			collection: 'bo_content',
+			role: editor.role,
+			layout: 'tabular',
+			layout_query: { tabular: { fields: ['title', 'status'], sort: ['-date_published'] } },
+		},
+		{ collection: 'bo_content', layout: 'cards', layout_options: { cards: { title: '{{ title }}', imageSource: 'cover' } } },
+		{
+			collection: 'bo_content',
+			user: admin,
+			bookmark: 'bo-bookmark',
+			icon: 'bookmark',
+			layout: 'tabular',
+			filter: { status: { _eq: 'published' } },
+		},
+		{ collection: 'bo_content', bookmark: 'bo-global-bookmark', icon: 'star', layout: 'tabular', search: 'Content 1' },
+	]);
+
+	// Versions of bo_content/1: the global draft and a local one, each with a delta.
+	const draft = await api.request('POST', '/versions', { key: 'draft', collection: 'bo_content', item: '1' });
+	await api.request('POST', `/versions/${draft.id}/save`, { title: 'Content 01 (draft)' });
+	const local = await api.request('POST', '/versions', { key: 'local-1', name: 'Local 1', collection: 'bo_content', item: '1' });
+	await api.request('POST', `/versions/${local.id}/save`, { status: 'published' });
+
+	// A share of bo_content/1 for the viewer role, with a password and five uses.
+	await api.request('POST', '/shares', {
+		name: SHARE.name,
+		collection: 'bo_content',
+		item: '1',
+		role: viewer.role,
+		password: SHARE.password,
+		max_uses: 5,
+	});
+
+	// Two comments on bo_content/1, the second mentions the viewer (a notification row, 008).
+	await api.request('POST', '/comments', { collection: 'bo_content', item: '1', comment: 'First comment' });
+	await api.request('POST', '/comments', {
+		collection: 'bo_content',
+		item: '1',
+		comment: `Please review @${viewer.user}`,
+	});
+
+	// Manual flows of the Content module: one on both screens that needs a selection, one on the item page with a
+	// confirmation form.
+	await api.request('POST', '/flows', [
+		{
+			name: CONTENT_FLOWS[0],
+			icon: 'bolt',
+			color: GREEN,
+			status: 'active',
+			trigger: 'manual',
+			accountability: 'all',
+			options: { collections: ['bo_content'], location: 'both', requireSelection: true },
+		},
+		{
+			name: CONTENT_FLOWS[1],
+			icon: 'send',
+			status: 'active',
+			trigger: 'manual',
+			accountability: 'all',
+			options: {
+				collections: ['bo_content'],
+				location: 'item',
+				requireConfirmation: true,
+				confirmationDescription: 'Send this item?',
+				fields: [{ field: 'reason', type: 'string', name: 'Reason', meta: { interface: 'input', width: 'full' } }],
+			},
+		},
+	]);
+}
+
 /* ---------------------------------------------------------------- files */
 
 // Tiny generated samples (no download): 1x1 PNG, 8x8 SVG, one-page PDF.
@@ -1587,7 +1817,7 @@ await cleanup();
 
 if (args.clean) {
 	process.stdout.write(
-		`Cleaned ${api.url}: bo_* collections, folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}\n`,
+		`Cleaned ${api.url}: bo_* collections, folder ${FOLDER}, flows ${[FLOW, ...CONTENT_FLOWS].join(', ')}, roles ${ROLES.join(', ')}\n`,
 	);
 	process.exit(0);
 }
@@ -1619,6 +1849,7 @@ const flow = (
 await api.request('POST', '/collections', stdCollection({ folder }));
 await api.request('POST', '/collections', groupsCollection({ flow }));
 for (const payload of relCollections({ folder })) await api.request('POST', '/collections', payload);
+for (const payload of contentCollections()) await api.request('POST', '/collections', payload);
 
 const refused = [];
 let geometry = true;
@@ -1640,10 +1871,13 @@ if (!geometry) {
 	for (const payload of geometryFields) await api.request('DELETE', `/fields/bo_std/${payload.field}`).catch(() => {});
 }
 
-for (const relation of relations()) await api.request('POST', '/relations', relation);
+if (geometry) await api.request('POST', '/fields/bo_content', { ...contentLocation, meta: { ...contentLocation.meta, sort: 100 } });
+
+for (const relation of [...relations(), ...contentRelations()]) await api.request('POST', '/relations', relation);
 
 const users = await createAccess(true);
 await createItems({ files, users });
+await createContentFixtures({ users, files, geometry });
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

@@ -98,3 +98,29 @@ describe('sidebar store persistence (FR-020)', () => {
 		expect(onExpand).toHaveBeenCalledOnce();
 	});
 });
+
+describe('sidebar store active accordion item', () => {
+	it('starts with no open section', () => {
+		expect(useSidebarStore().activeAccordionItem).toBeNull();
+	});
+
+	it('expands the sidebar when a section opens', async () => {
+		const store = useSidebarStore();
+		store.collapse();
+		await nextTick();
+
+		store.activeAccordionItem = 'comments';
+		await nextTick();
+		expect(store.collapsed).toBe(false);
+	});
+
+	it('closes the open section when the sidebar collapses', async () => {
+		const store = useSidebarStore();
+		store.activeAccordionItem = 'revisions';
+		await nextTick();
+
+		store.collapse();
+		await nextTick();
+		expect(store.activeAccordionItem).toBeNull();
+	});
+});

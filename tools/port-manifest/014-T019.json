@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/composables/use-layout-click-handler.ts",
+		"dest": "apps/web/src/composables/use-layout-click-handler.ts"
+	}
+]

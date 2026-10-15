@@ -1,0 +1,34 @@
+[
+	{
+		"source": "app/src/utils/sync-ref-property.ts",
+		"dest": "apps/web/src/utils/sync-ref-property.ts"
+	},
+	{
+		"source": "app/src/utils/hide-drag-image.ts",
+		"dest": "apps/web/src/utils/hide-drag-image.ts"
+	},
+	{
+		"source": "app/src/utils/hide-drag-image.test.ts",
+		"dest": "apps/web/src/utils/hide-drag-image.test.ts"
+	},
+	{
+		"source": "app/src/utils/field-utils.ts",
+		"dest": "apps/web/src/utils/field-utils.ts"
+	},
+	{
+		"source": "app/src/utils/field-utils.test.ts",
+		"dest": "apps/web/src/utils/field-utils.test.ts"
+	},
+	{
+		"source": "app/src/utils/get-version-display-name.ts",
+		"dest": "apps/web/src/utils/get-version-display-name.ts"
+	},
+	{
+		"source": "app/src/utils/get-version-display-name.test.ts",
+		"dest": "apps/web/src/utils/get-version-display-name.test.ts"
+	},
+	{
+		"source": "app/src/utils/get-fullcalendar-locale.ts",
+		"dest": "apps/web/src/utils/get-fullcalendar-locale.ts"
+	}
+]

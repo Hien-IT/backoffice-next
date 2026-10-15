@@ -1,4 +1,24 @@
 {
+	"bo_content": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
 	"bo_groups": {
 		"read": {
 			"access": "full",
@@ -180,6 +200,26 @@
 		}
 	},
 	"bo_rel_target": {
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"create": {
+			"access": "none"
+		},
+		"update": {
+			"access": "none"
+		},
+		"delete": {
+			"access": "none"
+		},
+		"share": {
+			"access": "none"
+		}
+	},
+	"bo_singleton": {
 		"read": {
 			"access": "full",
 			"fields": [

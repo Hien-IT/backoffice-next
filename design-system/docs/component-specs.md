@@ -1132,7 +1132,7 @@ Every color pair is already in the contrast table of `migration-guide.md` (no ne
 - Delete / archive: secondary icon Buttons `delete` (hover `bg-error-600 text-white`) and `archive` / `unarchive`.
 - Title skeleton: `h-7 w-64 animate-pulse rounded bg-gray-200 dark:bg-gray-800`, sr-only title.
 - Notices (D-66, `NoticeStack`): under the page header, `flex flex-col gap-2 mb-4`, Tier 1 Alert (success, error) with a
-  close button; success auto-hides after 5 s, errors stay; container `role="status" aria-live="polite"`.
+  close button; notices auto-hide after 3 s like the Directus notifications store (unless `persist`); unexpected errors open a Tier 1 Modal (title `errors.<code>`, error details, Dismiss) like `notification-dialogs.vue`; container `role="status" aria-live="polite"`.
 
 ### Detail panel sections (Q-9; `SidebarDetail`; Directus `sidebar-detail`)
 

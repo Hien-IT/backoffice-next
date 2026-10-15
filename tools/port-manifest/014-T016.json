@@ -1,0 +1,26 @@
+[
+	{
+		"source": "app/src/utils/extract-error-code.ts",
+		"dest": "apps/web/src/utils/extract-error-code.ts"
+	},
+	{
+		"source": "app/src/stores/notifications.ts",
+		"dest": "apps/web/src/composables/use-notices.ts"
+	},
+	{
+		"source": "app/src/utils/notify.ts",
+		"dest": "apps/web/src/composables/use-notices.ts"
+	},
+	{
+		"source": "app/src/utils/unexpected-error.ts",
+		"dest": "apps/web/src/composables/use-notices.ts"
+	},
+	{
+		"source": "app/src/views/private/components/notification-dialogs.vue",
+		"dest": "apps/web/src/components/NoticeStack.vue"
+	},
+	{
+		"source": "app/src/views/private/components/notifications-group.vue",
+		"dest": "apps/web/src/components/NoticeStack.vue"
+	}
+]

@@ -1,4 +1,36 @@
 {
+	"bo_content": {
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"share": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		}
+	},
 	"bo_groups": {
 		"create": {
 			"access": "full",
@@ -288,6 +320,38 @@
 		}
 	},
 	"bo_rel_target": {
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"share": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		}
+	},
+	"bo_singleton": {
 		"create": {
 			"access": "full",
 			"fields": [
