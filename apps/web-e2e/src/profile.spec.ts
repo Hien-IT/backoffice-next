@@ -105,7 +105,9 @@ test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
 	await save(page);
 	expect((await saved).ok()).toBe(true);
 
-	// A fresh browser state: only the new password matters here (sign-out is covered by login.spec).
+	// A fresh browser state: only the new password matters here (sign-out is covered by login.spec). Let the lazy chunks
+	// of the user page finish first: WebKit reports an aborted module import as a console error.
+	await page.waitForLoadState('networkidle');
 	await page.context().clearCookies();
 	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
