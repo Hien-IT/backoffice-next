@@ -162,7 +162,7 @@ settings, permissions), not by this pack.
 | Directus app                                                                         | Backoffice (TailAdmin shell)                                                                                                                                                                                                                                                                                                         |
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Module bar (left icon rail)                                                          | One sidebar group "Menu" (L-2), no "Others" group. Items in `module_bar` order: each enabled module and each `module_bar` link (internal or external) in the same list, icon + label (`menu-item`). Settings last, admins only                                                                                                       |
-| Module navigation (second column: collections, folders, presets, settings pages ...) | The module's sub-menu (`menu-dropdown-item`), **one level** (L-3): feature 012 provides this slot; each module feature (014+) decides what goes in it. Exception (owner, 2026-10-15, spec 014 Q2): the Content module renders its collection tree **nested inside this sub-menu** (groups, folders, bookmarks, search), see §9 (014) |
+| Module navigation (second column: collections, folders, presets, settings pages ...) | The module's sub-menu (`menu-dropdown-item`), **one level** (L-3): feature 012 provides this slot; each module feature (014+) decides what goes in it. Exception (owner, 2026-10-15, spec 014 Q2): the Content module renders its collection tree **nested inside this sub-menu** (groups, folders, bookmarks, search), see §9 (014); the Files and Users modules do the same with flat rows plus a tree (spec 015 Q3), see §11 (015) |
 | Settings module                                                                      | Last sidebar item, admins only (Directus permission)                                                                                                                                                                                                                                                                                 |
 | Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                                                                                                                             |
 | Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                                                                                                                         |
@@ -403,3 +403,33 @@ code as built (T098). Behaviour is Directus `routes/item.vue` + `live-preview.vu
   name and `title` `live_preview.enable` / `live_preview.disable`.
 - Popup route (`/content/:collection/:primaryKey/preview`): the preview frame alone, full window (`in-popup`), no
   PublicView; the version comes from `?version=`; no `saved` message to the opener (no visual editing).
+
+## 11. Folder tree and role tree in the sub-menu (nháp, 015)
+
+**Draft (nháp, 015)** for spec 015 Q-13 and Q-17 (owner choice 2026-10-16, Clarifications Q3): the Files and Users
+modules put the Directus module navigation (`views/private/components/files-navigation.vue`,
+`files-navigation-folder.vue`; `modules/users/components/navigation.vue`, `NavigationRole.vue`) inside their sidebar
+sub-menu like the Content tree of §9. Unlike §9 the sub-menu mixes flat rows and a tree. Behaviour is the Directus one.
+Built: (filled in at the end of the feature).
+
+- Same tree DOM, rows, nesting, focus and keyboard model as §9: `ul role="tree"` with `aria-label`, `li role="treeitem"`
+  with `aria-level`, `aria-expanded` on parents, `aria-current="page"` on the active link, `menu-dropdown-item*` rows
+  (`min-h-9 text-sm`), children in `ul role="group" ps-4`, a mouse-only chevron toggle first (`tabindex="-1"`), one roving
+  `tabindex` (Up/Down, Right/Left open-close, Enter, Home/End).
+- **Files (Q-13)**: the tree root is "File Library" (`folder_special`, active without folder and special), its children
+  are the folders (`folder`), open by default (`['root']`) and opened down to the current folder; then a 1px divider
+  (`my-2 h-px bg-gray-200 dark:bg-gray-800`, `role="separator"`); then three flat rows `all_files` (`file_copy`),
+  `my_files` (`folder_shared`), `recent_files` (`history`), active by route. Loading: four skeleton rows
+  (`h-9 animate-pulse rounded-lg bg-gray-100 dark:bg-gray-800 motion-reduce:animate-none`).
+- Folder menu: right-click (Reka `ContextMenu`) and a row menu button at the end like the §9 bookmark button
+  (`more_vert`, `aria-label` `item_options`, visible on hover and focus) with `rename_folder` (`edit`), `move_to_folder`
+  (`folder_move`), `download_folder` (`download`), `delete_folder` (`delete`, `text-error-600 dark:text-error-500`);
+  rename and move open a BoDialog (Cancel first); delete opens the delete-folder dialog (component-specs 015).
+  `actionsDisabled` (file select drawer) hides the button and the context menu.
+- **Users (Q-17)**: four flat rows first, `exact` active: `active_users` (`group`), `suspended_users` (`group_off`),
+  `invited_users` (`person_add`), `all_users` (`folder_shared`); a divider when roles exist or load; then the role tree
+  (role `icon`, name through `translate`, children by `parent`, sorted by name); a role row links to
+  `/users/roles/<id>`; admins get the row menu and right-click item `edit_role` (`list_alt`, link
+  `/settings/roles/<id>`, the Settings frame of 012 until 016, D-85).
+- Below `xl` and collapsed sidebar: as §9.
+

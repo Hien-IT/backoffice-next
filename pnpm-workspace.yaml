@@ -237,6 +237,7 @@ catalog:
   '@fullcalendar/timegrid': 6.1.19
   '@json2csv/plainjs': 7.0.6
   file-saver: 2.0.5
+  cropperjs: 1.6.2 # image editor (feature 015), same version as directus/pnpm-workspace.yaml 11.17.4
   '@types/file-saver': 2.0.7
   '@directus/vue-split-panel': 0.8.9
   # json-to-graphql-query 2.3.0 is already in the catalog above (shared with the API)

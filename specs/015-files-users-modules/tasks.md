@@ -59,10 +59,10 @@ xanh, commit, push, `graphify update .`).
 **Purpose**: xác nhận 014 đóng, cài gói, kiểm các giả định đọc từ code Directus, viết recipe nháp trước mọi task giao
 diện (FR-110, SC-008).
 
-- [ ] T001 Xác nhận điều kiện bắt đầu (CHK097): tin nhắn phiên 014 "đã đóng", CI xanh ở commit cuối của 014 (`gh run
+- [x] T001 Xác nhận điều kiện bắt đầu (CHK097): tin nhắn phiên 014 "đã đóng", CI xanh ở commit cuối của 014 (`gh run
       list --branch main`), `git log` thấy các commit `docs(015)` đã lên `origin/main`; ghi run id vào
       `specs/015-files-users-modules/research.md` R12; không sửa `apps/web` trước khi xong task này
-- [ ] T002 Kiểm [Unverified] của research R1, R3, R6, R9 và CHK001/030/075/077/090/092/094 bằng lệnh và đọc code:
+- [x] T002 Kiểm [Unverified] của research R1, R3, R6, R9 và CHK001/030/075/077/090/092/094 bằng lệnh và đọc code:
       `pnpm view cropperjs@1.6.2 license dist` (có `dist/cropper.css`?), `pnpm audit --prod --audit-level=high`;
       `grep` `fetchAll`/`FolderPicker` trong `src/` (014 có chưa), `provide('values'` trong `src/components/form/`,
       `default_theme`/`disableDefault` trong `src/stores/server.ts`, `cssVar` trong `node_modules/@directus/utils/dist/browser`,
@@ -71,20 +71,20 @@ diện (FR-110, SC-008).
       `defaultPresets` chính xác từ `directus/app/src/stores/presets.ts`; thử `PATCH /folders/:id {parent: <con>}`
       trên Directus 8155 (vòng cha-con, CHK077); ghi kết quả và quyết định vào `research.md` (mục "Kết quả kiểm T002")
       và sửa spec/data-model chỗ tương ứng
-- [ ] T003 Kiểm cách sinh dữ liệu theme (R6, D-89): thử import động bốn file `directus/packages/themes/src/themes/{light,dark}/*.ts`
+- [x] T003 Kiểm cách sinh dữ liệu theme (R6, D-89): thử import động bốn file `directus/packages/themes/src/themes/{light,dark}/*.ts`
       bằng `tsx` (có trong devDependencies?) so với regex `defineTheme({...})`; chọn cách; ghi vào `research.md` R6
-- [ ] T004 Thêm `cropperjs: 1.6.2` vào catalog nhóm Web của `pnpm-workspace.yaml` (tus-js-client 4.3.1, p-queue 8.1.0 đã
+- [x] T004 Thêm `cropperjs: 1.6.2` vào catalog nhóm Web của `pnpm-workspace.yaml` (tus-js-client 4.3.1, p-queue 8.1.0 đã
       có), `cropperjs`, `tus-js-client` vào `apps/web/package.json`, `cropperjs` vào danh sách web-only của
       `tools/check-package-names.mjs`; `pnpm install`; `pnpm nx run web:build` xanh
-- [ ] T005 [P] Thêm test smoke thư viện `src/test-utils/libraries.smoke.browser.test.ts` (mở rộng file 014): Cropper.js
+- [x] T005 [P] Thêm test smoke thư viện `src/test-utils/libraries.smoke.browser.test.ts` (mở rộng file 014): Cropper.js
       1.6.2 khởi tạo trên ảnh PNG 2×2 và `getData()` mặc định, `tus-js-client` `Upload` dựng được với `XMLHttpRequest`
       giả, CSS `cropper.css` nạp được
-- [ ] T006 [P] Viết recipe nháp Files vào `design-system/docs/layout-patterns.md` §11 "Folder tree and role tree in the
+- [x] T006 [P] Viết recipe nháp Files vào `design-system/docs/layout-patterns.md` §11 "Folder tree and role tree in the
       sub-menu (nháp, 015)" (Q-13, Q-17: thụt cấp, `<button aria-expanded>` + `<ul>` lồng, mục đặc biệt, vạch chia, menu
       "⋯" bàn phím, skeleton, active, dưới `xl`) và sửa §7 dòng "Module navigation" thêm ngoại lệ Files và Users
       (CHK098); recipe `component-specs.md` Tier 3 nháp 015: "Folder cards and drop zone" (Q-14), "File page and file
       details" (Q-15), "Image editor" (Q-16)
-- [ ] T007 [P] Viết recipe nháp Users vào `design-system/docs/component-specs.md` Tier 3 nháp 015: "User box" (Q-18,
+- [x] T007 [P] Viết recipe nháp Users vào `design-system/docs/component-specs.md` Tier 3 nháp 015: "User box" (Q-18,
       màu chip theo status như CHK038), "Invite dialog, TFA dialogs, token input, theme picker, theme overrides tree"
       (Q-19); thêm ngoại lệ "khung cắt chỉ chuột" vào `design-system/qa/handoff-checklist.md`; tạo
       `specs/015-files-users-modules/design-review/README.md` theo mẫu 014 (bảng Q-13 đến Q-19, màn để xem)
@@ -610,4 +610,8 @@ Lượt 3, Phase 7 (US4):
 
 ## Ghi chú khi làm
 
-- (ghi kết quả T002/T003, R-xx phát hiện, bài học CI ở đây khi thực hiện)
+- 2026-10-16: T001 theo quyết định owner (bắt đầu trước "014 closed", ranh giới ghi ở research "Kết quả kiểm T002,
+  T003"); T002/T003 xong, kết quả ở research; preset mặc định `directus_users` là `tabular` (spec sửa); nhãn theme cần
+  owner chốt lại trước T079.
+- T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
+  vào devDependencies của `apps/web` cho T021.

@@ -100,7 +100,7 @@ Emit: `update:modelValue`, `refresh`, `new-file(id)`.
 
 ## 7. Danh bạ user (`UsersCollectionRoute`, FR-060 đến FR-066)
 
-Preset `use-preset('directus_users')` (mặc định = `defaultPresets.directus_users` chép nguyên, `cards`, CHK001); bộ lọc hệ thống `mergeFilters(roleFilter, statusFilter)`;
+Preset `use-preset('directus_users')` (mặc định = `defaultPresets.directus_users` chép nguyên, `tabular`, CHK001, T002); bộ lọc hệ thống `mergeFilters(roleFilter, statusFilter)`;
 `canInviteUsers = !auth.disableDefault && createAllowed && rolesReadAllowed`; `UsersInvite`: `emails: string`
 (tách `/,|\n/`, trim, bỏ rỗng), `roles: {text, value}[]` (`GET /roles` khi mở), `roleSelected` (prop `role` hoặc phần
 tử đầu), `uniqueValidationErrors: APIError[]` (`extensions.code === 'RECORD_NOT_UNIQUE'`, `extensions.invalid` = email).

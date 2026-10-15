@@ -354,6 +354,9 @@ catalogs:
     cron:
       specifier: 4.3.4
       version: 4.3.4
+    cropperjs:
+      specifier: 1.6.2
+      version: 1.6.2
     date-fns:
       specifier: 4.1.0
       version: 4.1.0
@@ -1226,6 +1229,9 @@ importers:
       color:
         specifier: 'catalog:'
         version: 5.0.2
+      cropperjs:
+        specifier: 'catalog:'
+        version: 1.6.2
       date-fns:
         specifier: 'catalog:'
         version: 4.1.0
@@ -1283,6 +1289,9 @@ importers:
       tinymce:
         specifier: 'catalog:'
         version: 6.8.6
+      tus-js-client:
+        specifier: 'catalog:'
+        version: 4.3.1
       vue:
         specifier: 'catalog:'
         version: 3.5.43(typescript@6.0.3)
@@ -1350,6 +1359,9 @@ importers:
       js-yaml:
         specifier: 'catalog:'
         version: 4.3.2
+      sharp:
+        specifier: 'catalog:'
+        version: 0.34.5
       tailwindcss:
         specifier: 'catalog:'
         version: 4.3.3
@@ -5776,6 +5788,9 @@ packages:
   cron@4.3.4:
     resolution: {integrity: sha512-OiO0l73MGhQOZQCjYZ0v7r8yFWpBOWteemwR1RIxiHtfVsIOwiTJZDvg7GmKzggkwC0RO8tI3P1QYBUCIZNYRQ==}
     engines: {node: '>=18.x'}
+
+  cropperjs@1.6.2:
+    resolution: {integrity: sha512-nhymn9GdnV3CqiEHJVai54TULFAE3VshJTXSqSJKa8yXAKyBKDWdhHarnlIPrshJ0WMFTGuFvG02YjLXfPiuOA==}
 
   cross-argv@2.0.0:
     resolution: {integrity: sha512-YIaY9TR5Nxeb8SMdtrU8asWVM4jqJDNDYlKV21LxtYcfNJhp1kEsgSa6qXwXgzN0WQWGODps0+TlGp2xQSHwOg==}
@@ -13968,6 +13983,8 @@ snapshots:
     dependencies:
       '@types/luxon': 3.7.6
       luxon: 3.7.2
+
+  cropperjs@1.6.2: {}
 
   cross-argv@2.0.0: {}
 

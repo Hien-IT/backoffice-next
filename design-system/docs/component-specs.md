@@ -1399,6 +1399,96 @@ Built: `components/sidebar/{ExportSidebarDetail,ImportErrorDialog}.vue`, `module
   (loading); a failed delete opens `something_went_wrong` with the translated error. Batch edit is `DrawerBatch` (§8).
   Deviation: the 700 px BoDialog, not a small Modal (one dialog size in the app).
 
+## Tier 3 recipes, nháp (015)
+
+**Draft (nháp, 015)** for the open questions Q-14 to Q-16, Q-18 and Q-19 of `specs/015-files-users-modules/spec.md`,
+written before the code (T006, T007, FR-110); compared with the code at the end of the feature. Q-13 and Q-17 are in
+`layout-patterns.md` §11. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+
+### Folder cards and drop zone (Q-14; Directus `modules/files/routes/collection.vue`, `folder-section.vue`)
+
+- Folder cards come first in the cards grid through the layout `prepend` slot (`hasPrependContent`), only on the cards
+  layout and only without search, filter and special view (Directus). A folder card is the 014 Card with
+  `icon="folder"`, no image request, the folder name as title and no subtitle; the body is a link to
+  `/files/folders/<id>`; the selection BoCheckbox sits outside the link (`aria-label` `select_item_key` with the name).
+  Selected folders and files share the header count (`selection + extraSelection`) and select-all.
+- Drop zone over the whole library page while files are dragged from the OS: four fixed bars around the `<main>`
+  box (`pointer-events-none fixed z-99999 bg-brand-500`, 2px thick, `aria-hidden`); not shown over a `BoUpload`
+  dropzone (`data-dropzone`).
+- Notices in the page header notice area (D-66, `BoNotice` info, `aria-live="polite"`): `drop_to_upload`
+  (`cloud_upload`) while dragging; `upload_files_indeterminate` with done/total and a BoProgressLinear while uploading;
+  removed when done.
+- Empty states: the 014 blank state with `folder` icon, `file_count` 0, `no_files_copy` and a primary Button
+  `add_file` (disabled with tooltip `not_allowed` without create).
+
+### File page and file details (Q-15; Directus `modules/files/routes/item.vue`, `file-info-sidebar-detail.vue`)
+
+- Preview block above the form, same width as the form (`max-w-5xl`, D-82): FilePreview (013) in
+  `overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]`, max height
+  `max-h-[60vh]` with `object-contain`; under it a secondary small Button `replace_file` (`swap_horiz`), hidden without
+  update; the replace dialog is a BoDialog with BoUpload (`fileId`, from URL).
+- Header actions (page header L-5, right): delete (danger ghost icon, D-76 dialog), move to folder (`folder_move`,
+  dialog with the folder picker), download (`download`, a link), edit image (`tune`, images with update, opens the image
+  editor), save split button (014 SaveOptions).
+- Folder picker in dialogs: the §11 tree rows without menus, single select (`aria-selected`), the current folder's
+  parents open, `disabledFolders` rows `opacity-50` and `aria-disabled`.
+- File details section of the detail panel (014 SidebarDetail): a `dl` with rows
+  `grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-theme-sm`, `dt` `text-gray-500 dark:text-gray-400`, `dd`
+  `text-gray-800 dark:text-white/90 break-words`; dates show the short form with the long form in a BoTooltip; owner
+  and editor are links with UserPopover; "open in new window" link with `open_in_new` and sr-only "opens in a new tab";
+  copy id is an `ICON_BTN` `content_copy` with `aria-label` `copy_id`; EXIF rows (camera, exposure, shutter, focal
+  length, ISO) after a divider.
+
+### Image editor (Q-16; Directus `views/private/components/image-editor.vue`)
+
+- BoDrawer (013) full width (`w-full` at every breakpoint), title `editing_image`, subtitle
+  `changes_are_permanent` in `text-warning-600 dark:text-warning-500`; header actions: primary save icon Button
+  (`check`, disabled without edits) with a menu button (`more_vert`) holding `save_as_new_file` when create is allowed.
+- Canvas area `flex-1 bg-gray-900` holding the Cropper.js view; Cropper colors set from the theme (crop box and
+  handles `brand-500`, modal backdrop `bg-gray-900/60`) in the editor's CSS, no raw hex.
+- Toolbar below the canvas: `flex flex-wrap items-center gap-2 border-t border-gray-200 bg-white px-4 py-3
+  dark:border-gray-800 dark:bg-gray-900`; a segmented group of three `ICON_BTN` (`pan_tool` move, `crop` crop,
+  `location_searching` focal point) with `aria-pressed`; then rotate (`rotate_90_degrees_ccw`), flip horizontal, flip
+  vertical, aspect ratio menu button (icon by ratio, BoMenu with custom ratios, a divider, 16:9, 3:2, 5:4, 7:5, square,
+  free, original; the active item has a check); a spacer; reset (`restart_alt`); the dimensions text
+  `text-theme-sm tabular-nums text-gray-500 dark:text-gray-400`; a secondary small Button `cancel_crop` /
+  `cancel_selection` while cropping. Every button has a name and a BoTooltip.
+- Exception (FR-111, owner 2026-10-15): dragging the crop box and the focal point is mouse only, as Directus.
+
+### User box (Q-18; Directus `modules/users/routes/item.vue`)
+
+- Above the form, same width (`max-w-5xl`): `flex items-center gap-5 rounded-2xl border border-gray-200 p-5
+  dark:border-gray-800`; avatar `size-20 rounded-full object-cover` (`system-medium-cover`), fallback BoIcon
+  `account_circle` `size-20 text-gray-400`; skeleton circle and three lines while loading.
+- Text: name `text-lg font-semibold text-gray-800 dark:text-white/90` with `, <title>` in
+  `font-normal text-gray-500 dark:text-gray-400`; email and location rows `text-theme-sm text-gray-500 dark:text-gray-400`
+  with `alternate_email` / `place` icons (`aria-hidden`).
+- Role chip: Badge (Tier 1) light variant by status: active `success`, invited `warning`, draft `light` (gray),
+  suspended `error`, archived `light`; the status is also in the text for screen readers (sr-only "(<status>)").
+
+### Invite, TFA, token and theme controls (Q-19)
+
+- Invite dialog: BoDialog `invite_users`; BoTextarea `emails` (label linked, placeholder
+  `admin@example.com, user@example.com...`), BoSelect `role` (hidden when the route has a role); duplicate emails in
+  an error BoNotice inside the dialog; Cancel then primary `invite` (disabled when empty, loading while sending). After
+  closing, the page header shows `contact_admin_for_link` (D-83).
+- TFA field (`system-mfa-setup`): a block checkbox row (BoCheckbox in a bordered `h-11` box like inputs) with
+  `enabled` / `disabled` and a `launch` icon; dialogs: password step (BoInput password, `next`), QR step (the canvas
+  with `aria-label` from `tfa_scan_code`, the secret in a `font-mono select-all` output, an OTP BoInput, `done` enabled
+  at 6 digits), disable (OTP for oneself; admin text for another user; danger button), cancel SSO setup. Errors inline
+  (`BoNotice` error).
+- Token field (`system-token`): a read-only BoInput (`password` until a new token is shown) with end icon buttons copy,
+  generate / regenerate (`add` / `refresh`) and remove (`clear`), each named; notices under it; regenerate and remove
+  confirm in danger BoDialogs.
+- Theme picker (`system-theme`): a radio group (Reka RadioGroup) of cards `grid grid-cols-2 gap-4 sm:grid-cols-3`, each
+  `rounded-xl border p-2` (selected `border-brand-500 ring-2 ring-brand-500/20`) with the 200×140 Directus theme preview
+  SVG (colors inline from the theme data) and the radio label; under it a hint `theme_applies_in_directus`
+  (`text-theme-xs text-gray-500`).
+- Theme overrides (`system-theme-overrides`): groups as disclosure buttons (`aria-expanded`, `font-mono text-theme-sm`,
+  a dot when a value is set), rules as rows `grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_1.5rem] items-center gap-2`
+  (`rule:` label, text input with the default as placeholder, a swatch `size-5 rounded border` with the value as inline
+  background when it parses as a color); the whole block `lang="en-US" dir="ltr"`.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

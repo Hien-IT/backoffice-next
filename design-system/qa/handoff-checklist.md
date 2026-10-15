@@ -55,3 +55,8 @@
       text shipped with the fonts.
 - [ ] Open questions of the feature listed in its spec, none picked silently.
 - [ ] Visual check against TailAdmin reference screens and the Directus flow for the same screen.
+
+## Recorded exceptions
+
+- Image editor (feature 015, FR-111, owner 2026-10-15): dragging the crop box and the focal point is mouse only, as in
+  Directus; every toolbar control is reachable by keyboard. axe does not check dragging.

@@ -191,6 +191,39 @@ trong overlay; D-88 thêm một khóa overlay `theme_applies_in_directus` (en-US
 
 Mỗi lượt: commit lên `main`, CI xanh (`quality`, `e2e-web`, `docker`), `graphify update .`.
 
+## Kết quả kiểm T002, T003 (2026-10-16)
+
+- **Điều kiện vào (T001)**: phiên 014 báo `apps/web` rảnh (code 014 xong ở `7aa6591`) nhưng chưa đóng; CI run
+  38773514217 còn chạy. Chủ dự án cho bắt đầu lượt 1 ngay với ranh giới: không push tới khi run đó xong; không sửa
+  `apps/web-e2e/src/content-*.spec.ts`, `src/payload/*`, `helpers/{requests,content,directus-app,payload}.ts` tới khi 014
+  báo "014 closed"; push theo giao thức hai phiên (hỏi trước, chờ OK).
+- **R1**: `cropperjs` 1.6.2 MIT trên npm. `tus-js-client` 4.3.1 có trong catalog. `@directus/constants` không có trong
+  catalog: `DEFAULT_CHUNK_SIZE` chép hằng `8_388_608` vào `upload-file.ts` (ghi nguồn `packages/constants/src/files.ts`).
+- **R2/R3**: `src/utils/fetch-all.ts` đã có (014), dùng lại; `FolderPicker` chưa có, chép mới.
+- **R6**: `BoForm` đã `provide('values', values)`; store server đã có `project.default_theme_light|dark` và
+  `auth.disableDefault`; `cssVar` có trong `@directus/utils/browser` 13.4.1. Dữ liệu theme sinh bằng `jiti` (có trong
+  `node_modules/.bin`; T003), import động bốn file theme Directus.
+- **Nhãn theme (khác giả định của D-88)**: file dịch `en-US.json` của 012 giữ nguyên "Directus Default", "Directus
+  Minimal", "Directus Color Match" cho ba khóa `theme_directus_*` (script sync giữ tên này); `vi-VN.json` không có ba khóa
+  (rơi về en-US). Lựa chọn (a) của owner ("nhãn Backoffice Default") dựa trên giả định sai; cần owner chốt lại trước
+  lượt 3 (T079): giữ nhãn như file dịch hiện có, hay thêm overlay đổi thành "Backoffice ...".
+- **CHK001**: `systemDefaults` của Directus: `directus_files` = `cards` (`layout_query.cards.sort ['-uploaded_on']`,
+  `layout_options.cards` `{icon: 'insert_drive_file', title: '{{ title }}', subtitle: '{{ type }} • {{ filesize }}',
+  size: 4, imageFit: 'crop'}`); `directus_users` = **`tabular`** (`sort ['email']`, `fields ['avatar', 'first_name',
+  'last_name', 'email', 'role']`, `widths` 36/200/200/300/200), không phải `cards` như spec ghi trước đây; spec FR-060,
+  US3-2 và data-model §7 sửa theo. Preset trống gộp với `defaultPreset` (`icon: 'bookmark'`...) bằng `merge`.
+- **CHK030**: profile `sso` có provider `oidc`; user SSO giả của `bo_users` dùng `provider: 'oidc'`.
+- **CHK075**: `DrawerFiles` của 013 đã có chọn thư mục (select với cùng đích như cây, ghi chú đầu file); giữ, không thêm
+  cây vào drawer.
+- **CHK077**: Directus 11.17.4 nhận `PATCH /folders/:a {parent: <con của a>}` (200, tạo vòng); app làm giống (picker
+  chỉ khóa chính thư mục đó), `nestFolders` bỏ qua thư mục không về gốc. Ghi R-39 khi tech lead duyệt.
+- **CHK090**: profile `app` không bật TUS (`TUS_ENABLED` chỉ có ở `profile-blackbox`, `profile-cors-hsts`);
+  `/server/info` của cả hai API không trả `uploads` khi TUS tắt. Nhánh TUS kiểm ở unit (XHR giả); E2E đi nhánh multipart.
+  `uploads` thiếu → không TUS, `maxConcurrency` không giới hạn (như Directus).
+- **Bộ mẫu**: `uploaded_on` ghi được qua `PATCH /files/:id`; seed đặt một file 10 ngày trước để kiểm `recent`.
+- **Registry**: `registry.test.ts` so registry của app với `directus-registry.json`, không đếm cố định; T079 thêm sáu id
+  vào phần so sánh (không có con số cần sửa).
+
 ## R13. Lưu ý từ phiên 014 (2026-10-15)
 
 - Dưới `xl` panel chi tiết là drawer đóng: E2E gọi `openSidebar(page)` (`helpers/content.ts`); khi drawer mở, `main`

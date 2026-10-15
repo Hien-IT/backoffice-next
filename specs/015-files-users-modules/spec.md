@@ -181,7 +181,7 @@ với Directus app; so dòng `directus_files` sau mỗi bước.
 ### User Story 3 - Danh bạ user: danh sách theo trạng thái và role, tạo, mời (Priority: P1)
 
 Người dùng vào module Users, thấy sub-menu với "Active users", "Suspended users", "Invited users", "All users" và cây
-role (role lồng theo `parent`), bấm một role thấy user của role đó ở layout đã lưu (mặc định cards với avatar), tạo
+role (role lồng theo `parent`), bấm một role thấy user của role đó ở layout đã lưu (mặc định bảng: avatar, tên, họ, email, role), tạo
 user mới (có sẵn role khi đi từ route role), mời user bằng danh sách email và role.
 
 **Why this priority**: Danh sách theo trạng thái và role là màn mở đầu; tạo và mời là luồng quản trị hằng ngày.
@@ -199,7 +199,8 @@ request `/users` (bộ lọc hệ thống `status`, `role`), dòng `directus_pre
    `/settings/roles/:id` (khung 012 tới 016, D-85); tiêu đề `active_users`, không breadcrumb.
 2. **Given** `/users/roles/:id`, **When** mở, **Then** breadcrumb "User Directory", tiêu đề tên role; bộ lọc hệ thống
    `role._eq`; `/users/suspended|invited` lọc `status._eq`; `/users/all` không bộ lọc hệ thống, tiêu đề `all_users`;
-   layout của preset `directus_users` (mặc định cards theo `stores/presets.ts`).
+   layout của preset `directus_users` (mặc định `tabular` theo `stores/presets.ts`: cột avatar, first_name, last_name,
+   email, role, sắp theo email; T002).
 3. **Given** quyền tạo `directus_users` và đọc `directus_roles`, `auth.disableDefault` tắt, **When** bấm "mời", **Then**
    hộp `invite_users`: ô nhiều dòng email (phân tách bằng dấu phẩy hoặc xuống dòng), chọn role (`GET /roles`
    `fields=id,name` `sort=name`, mặc định role đầu; ẩn khi đi từ route role), nút "invite" khóa khi trống; gửi
@@ -623,7 +624,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 **Danh sách user và mời**
 
 - **FR-060**: Màn danh bạ PHẢI dựng trên `use-layout` và preset `directus_users` (mặc định là `defaultPresets` của
-  `stores/presets.ts` Directus chép nguyên, `cards`, CHK001), bộ lọc hệ thống
+  `stores/presets.ts` Directus chép nguyên, `tabular`, CHK001, T002), bộ lọc hệ thống
   `mergeFilters(roleFilter, statusFilter)` (`{_and: [{role: {_eq}}]}`, `{_and: [{status: {_eq}}]}`) truyền riêng và gộp
   với bộ lọc user; lựa chọn xóa khi rời hoặc đổi route.
 - **FR-061**: Page header PHẢI có: breadcrumb "User Directory" (chỉ khi có `role`), tiêu đề (`<status>_users`,
@@ -830,7 +831,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `directus_access`), `status`, `provider`, `external_identifier`, `tfa_secret`, `token` (API trả `****`), `theme_*`,
   `language`, `appearance`, `last_page`, `last_access`.
 - **Role** (`directus_roles`): `id`, `name`, `icon`, `parent` (cây); chỉ đọc ở 015 (sửa ở 016).
-- **Preset** (`directus_presets`) của `directus_files` và `directus_users`: như 014; mặc định `cards`.
+- **Preset** (`directus_presets`) của `directus_files` và `directus_users`: như 014; mặc định `cards` (files) và
+  `tabular` (users) theo `systemDefaults` của Directus.
 - **Lời mời**: user mới `status: invited` với `email`, `role`; token mời chỉ có trong log API (D-36).
 - **Khóa localStorage**: `backoffice-require_tfa_setup` (id user SSO đang chờ thiết lập TFA, 012), trạng thái mở cây
   thư mục và cây role chỉ trong bộ nhớ (như Directus).

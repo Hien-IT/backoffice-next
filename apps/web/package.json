@@ -53,6 +53,7 @@
 		"@vueuse/core": "catalog:",
 		"codemirror": "catalog:",
 		"color": "catalog:",
+		"cropperjs": "catalog:",
 		"date-fns": "catalog:",
 		"date-fns-tz": "catalog:",
 		"dompurify": "catalog:",
@@ -72,6 +73,7 @@
 		"qrcode": "catalog:",
 		"reka-ui": "catalog:",
 		"tinymce": "catalog:",
+		"tus-js-client": "catalog:",
 		"vue": "catalog:",
 		"vue-i18n": "catalog:",
 		"vue-router": "catalog:",
@@ -96,6 +98,7 @@
 		"axe-core": "catalog:",
 		"happy-dom": "catalog:",
 		"js-yaml": "catalog:",
+		"sharp": "catalog:",
 		"tailwindcss": "catalog:",
 		"vite": "catalog:",
 		"vue-tsc": "catalog:"
