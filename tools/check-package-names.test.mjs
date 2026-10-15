@@ -19,7 +19,11 @@ function workspace(packages) {
 test('passes with @backoffice/* names and allowed dependencies', () => {
 	const root = workspace({
 		'apps/api/package.json': { name: '@backoffice/api', dependencies: { '@backoffice/env': 'workspace:*' } },
-		'apps/web/package.json': { name: '@backoffice/web', dependencies: { '@directus/sdk': '1.0.0' } },
+		'apps/web/package.json': {
+			name: '@backoffice/web',
+			dependencies: { '@directus/sdk': '1.0.0', '@directus/utils': '1.0.0' },
+			devDependencies: { '@directus/types': '1.0.0' },
+		},
 		'tests/parity/package.json': { name: '@backoffice/parity-tests' },
 	});
 

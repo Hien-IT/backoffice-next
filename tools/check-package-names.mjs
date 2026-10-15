@@ -8,6 +8,10 @@ import { pathToFileURL } from 'node:url';
 /** @directus/* packages a Backoffice app may use as ordinary third-party libraries. */
 export const ALLOWED_DIRECTUS_PACKAGES = ['@directus/sdk', '@directus/format-title'];
 
+/** apps/web only: same versions as Directus 11.17.4 so the shared helpers and types behave like the Directus app
+ * (feature 013 plan, research R1). */
+export const WEB_ONLY_DIRECTUS_PACKAGES = ['@directus/utils', '@directus/types'];
+
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 
 export function checkPackageNames(root) {
@@ -33,7 +37,11 @@ export function checkPackageNames(root) {
 
 		for (const field of DEPENDENCY_FIELDS) {
 			for (const dep of Object.keys(pkg[field] ?? {})) {
-				if (dep.startsWith('@directus/') && !ALLOWED_DIRECTUS_PACKAGES.includes(dep)) {
+				const allowed =
+					ALLOWED_DIRECTUS_PACKAGES.includes(dep) ||
+					(file === join('apps', 'web', 'package.json') && WEB_ONLY_DIRECTUS_PACKAGES.includes(dep));
+
+				if (dep.startsWith('@directus/') && !allowed) {
 					errors.push(`${file}: ${field} must not use ${dep}`);
 				}
 			}
