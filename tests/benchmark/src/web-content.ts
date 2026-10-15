@@ -145,7 +145,11 @@ async function sortBy(
 ) {
 	// Directus `header-context-menu` of the tabular layout; the new app ports it (same en-US item names).
 	await page.getByRole('columnheader', { name: header }).getByRole('button').first().click();
-	const item = page.getByText(menuItem, { exact: true }).last();
+	// The new app's items are menuitemradio (an icon ligature before the label); the Directus app's are plain text.
+	const item = page
+		.getByRole('menuitemradio', { name: menuItem, exact: true })
+		.or(page.getByText(menuItem, { exact: true }))
+		.last();
 	await item.waitFor({ timeout: TIMEOUT });
 	const before = await firstRow(page);
 	await record(app, action, tracker, async () => {
