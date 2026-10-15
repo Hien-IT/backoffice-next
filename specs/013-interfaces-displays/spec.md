@@ -5,6 +5,8 @@
 **Status**: Draft
 **Duyệt release-gate**: owner duyệt toàn bộ đề xuất của `checklists/release-gate-proposals.md` ngày 2026-10-15 (D-60, R-xx
 cho lỗi `formatted-json-value.handler` của Directus, design owner là owner dự án).
+**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-54 đến D-66 (D-65: giữ cách sửa, không tái tạo; D-61: tạm chưa
+cài, lựa chọn TinyMCE vẫn chờ owner), R-34 đến R-37, ngoại lệ axe của SC-005 và danh sách miễn màu dữ liệu (Q-C).
 **Input**: User description: "App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -672,12 +674,12 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | D-62 | Thư viện bản đồ | maplibre-gl 1.15.3 | maplibre-gl 6.14.0 | 1.15.3 có advisory XSS critical (vá ở 6.4.1); định dạng hình học lưu không đổi (GeoJSON, WKT, `[lng, lat]`), chunk bản đồ lớn hơn (496 KB gzip, tải lười) | khác | — |
 | D-63 | Field có interface ẩn nhãn (`hideLabel`, ví dụ mục accordion) | Không có nhãn | Có nhãn `sr-only` liên kết với control | WCAG 1.3.1/4.1.2 (axe `label`, FR-122) | khác | — |
 | D-64 | `input-block-editor` bị unmount trước khi Editor.js sẵn sàng | Ném lỗi (`on is not a function`) | Bỏ qua phần khởi tạo còn lại | Lỗi của Directus làm hỏng form khi đóng nhanh; không đổi dữ liệu | khác | — |
-| D-65 | `list-o2m-tree-view` sửa một dòng sau khi có item bị chuyển đi | Lấy nhầm dòng (trộn chỉ số của danh sách đã lọc với `displayItems`) | Lấy đúng dòng trong danh sách đã lọc | Tái tạo sẽ ghi sai dữ liệu; chờ owner chọn giữ D-65 hay tái tạo (R) | khác | — |
+| D-65 | `list-o2m-tree-view` sửa một dòng sau khi có item bị chuyển đi | Lấy nhầm dòng (trộn chỉ số của danh sách đã lọc với `displayItems`) | Lấy đúng dòng trong danh sách đã lọc | Tái tạo sẽ ghi sai dữ liệu; tech lead chọn giữ cách sửa (2026-10-15) | khác | — |
 | D-66 | Thông báo thành công/lỗi (chạy flow, tải file, nhập từ URL, lỗi tải item liên quan) | Snackbar của store notifications | Notice tại chỗ (`BoNotice`) trong interface hoặc hộp thoại | Store notifications và snackbar thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (owner chọn tái tạo hành vi Directus và ghi R),
 áp cho FE từ 2026-10-15 (release-gate CHK089). Các dòng dưới tìm từ đọc code Directus 11.17.4 và có test ở app mới;
-cần tech lead duyệt khi đóng feature.
+tech lead duyệt ngày 2026-10-15.
 
 | Mã | Hành vi của Directus | Bằng chứng | Hệ quả |
 |----|----------------------|------------|--------|
@@ -686,10 +688,10 @@ cần tech lead duyệt khi đóng feature.
 | R-36 | `list` có option `sort` thì `sortBy` chạy trên mọi giá trị: giá trị không phải mảng biến thành các dòng giá trị của nó, không hiện cảnh báo `incompatible_data` | `interfaces/list/list.vue:105,109`; test `InterfaceList.test.ts` "with `sort` set" | Dữ liệu lệch dạng hiện như các dòng rác; thêm dòng thì ghi đè (có cảnh báo console) |
 | R-37 | `list-m2a` hiện "Create New" khi có ít nhất một collection cho tạo, nhưng menu liệt kê mọi collection cho phép (`allowedCollections`), kể cả collection không có quyền `create` | `interfaces/list-m2a/list-m2a.vue`; test `relations.fixture.test.ts` (bo-editor) | User chọn collection không có quyền tạo; API trả 403 khi lưu |
 
-**Cần xác nhận** (đang giữ nguyên):
+**Đã xác nhận** (tech lead, 2026-10-15; giữ nguyên):
 
 - Mặc định dữ liệu có hex trong code của Directus (`select-color.presets` 9 màu, `color.defaultColor` `#B0BEC5`) là giá
-  trị dữ liệu, giữ nguyên để giống Directus; cần tech lead đồng ý cho các hằng này đi qua `check-raw-colors` (Q-C).
+  trị dữ liệu, giữ nguyên để giống Directus; tech lead đồng ý cho các hằng này đi qua `check-raw-colors` (Q-C).
   Cách miễn chỉ có một: đánh dấu cuối dòng `raw-color-allowed: Directus data default (Q-C)` mà `tools/check-raw-colors.mjs`
   đã hỗ trợ (grep được), áp cho `select-color` presets, `color.defaultColor` và hằng tương tự (T006).
 - Preset mặc định tên `purple` `#6644FF` là màu thương hiệu Directus nhưng là dữ liệu người dùng chọn: giữ.
@@ -734,8 +736,8 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   `checklists/release-gate-proposals.md`: làm như Directus ở mọi chỗ Directus có hành vi; thêm D-60; giữ `jsonlint-mod`
   và `vue-virtual-scroller`; tái hiện lỗi `formatted-json-value.handler` của Directus và ghi R-xx khi đóng (quy tắc 004);
   design owner là owner dự án.
-- Q-C (mặc định, chưa hỏi owner): hằng màu dữ liệu của Directus trong code (Cần xác nhận) được miễn kiểm màu thô, ghi
-  danh sách trong `check-raw-colors`; tech lead xác nhận khi duyệt khác biệt.
+- Q-C (tech lead xác nhận 2026-10-15): hằng màu dữ liệu của Directus trong code (Cần xác nhận) được miễn kiểm màu thô, ghi
+  danh sách trong `check-raw-colors`.
 
 ## Assumptions
 
@@ -780,7 +782,8 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
   chạy riêng một bước CI không coverage (`PERF=1`); trong lượt test có coverage, số đo phản ánh tải của máy CI.
 - **SC-005**: axe 0 vi phạm mức serious/critical trên form và bảng mẫu ở sáng và tối; mọi interface thao tác được chỉ
   bằng bàn phím theo danh sách thao tác ở `contracts/tests.md` §5 (kiểm trong test component). Ngoại lệ axe chỉ cho phần
-  của thư viện bên thứ ba và màu dữ liệu, ghi rule id và lý do trong file test, tech lead duyệt.
+  của thư viện bên thứ ba và màu dữ liệu, ghi rule id và lý do trong file test; tech lead duyệt
+  2026-10-15 hai ngoại lệ của `a11y.browser.test.ts` (attribution MapLibre, màu dữ liệu inline).
 - **SC-006**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E hiện có của 012, build image xanh; 0 màu thô ngoài
   danh sách miễn (Q-C).
 - **SC-007**: 0 file trong `directus/` bị sửa; trong test, 0 request ghi ngoài danh sách FR-054 và 0 request ra ngoài

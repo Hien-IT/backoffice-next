@@ -509,8 +509,8 @@ năng, CI (US7, SC-001 đến SC-007, SC-009).
 - [X] T102 Rà các mục [Inference]/[Unverified] còn lại trong spec, research (định dạng `datetime`, giữ lựa chọn khi
   field nguồn của `filter` đổi, lọc XSS của TinyMCE): đánh dấu đã kiểm hoặc ghi R-xx/D-xx.
 - [X] T103 `specs/013-interfaces-displays/spec.md`: ghi R-xx cho `formatted-json-value.handler` (tái hiện lỗi Directus,
-  quy tắc 004) và các R-xx phát hiện khi làm (T092, T102); dòng "Duyệt khác biệt" chờ tech lead duyệt D-54 đến D-60 và
-  Q-C; `tests/parity/accepted-differences.ts` nếu có R-xx mới ở parity.
+  quy tắc 004) và các R-xx phát hiện khi làm (T092, T102); dòng "Duyệt khác biệt": tech lead duyệt D-54 đến D-66, R-34 đến
+  R-37, ngoại lệ axe và Q-C ngày 2026-10-15; `tests/parity/accepted-differences.ts` nếu có R-xx mới ở parity.
 - [X] T104 `quickstart.md` chạy lại từ đầu (seed, test unit/browser, parity seed, lint, build); sửa chỗ lệch.
 - [X] T105 Cập nhật `CLAUDE.md` (Recent Changes 013), memory dự án, `pnpm exec graphify update .`.
 - [X] T106 Commit đợt D lên `main` (`git diff --cached --stat` trước, `git pull --rebase`), nhắn session đang chạy song
