@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/export-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/ExportSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/export-sidebar-detail.test.ts",
+		"dest": "apps/web/src/components/sidebar/ExportSidebarDetail.test.ts"
+	},
+	{
+		"source": "app/src/views/private/components/import-error-dialog.vue",
+		"dest": "apps/web/src/components/sidebar/ImportErrorDialog.vue"
+	}
+]

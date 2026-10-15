@@ -45,7 +45,10 @@ async function signIn(page: Page, user: { email: string; password: string } = AD
 
 /** hrefs of the module bar of the Backoffice app, in order. */
 async function moduleBarHrefs(page: Page): Promise<string[]> {
-	return (await moduleBar(page)).locator('a').evaluateAll((links) => links.map((a) => a.getAttribute('href') ?? ''));
+	// Feature 014: the Content sub-menu (collection tree) sits inside the module bar; its links are not modules.
+	return (await moduleBar(page))
+		.locator('a')
+		.evaluateAll((links) => links.filter((a) => !a.closest('[role="tree"]')).map((a) => a.getAttribute('href') ?? ''));
 }
 
 /** hrefs of the module bar of the Directus app, read in its own browser context. */

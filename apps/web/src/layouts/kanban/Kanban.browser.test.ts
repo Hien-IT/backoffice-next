@@ -229,7 +229,12 @@ test('renders the choices columns with counts, cards with title, tags, date and 
 		i18n.global.t('item_count', { count: '30' }, 30),
 	);
 	// options slot: group by status, advanced options collapsed.
-	expect(document.querySelector('aside')!.textContent).toContain(t('layouts.kanban.group_field'));
+	await vi.waitFor(
+		() => expect(document.querySelector('aside')!.textContent).toContain(t('layouts.kanban.group_field')),
+		{
+			timeout: 5000,
+		},
+	);
 
 	assertOnlyKnownRequests(calls(fetch));
 });

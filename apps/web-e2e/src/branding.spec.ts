@@ -68,7 +68,8 @@ test('default settings of a new Directus database: Backoffice everywhere, no "Di
 
 	await login(page, ADMIN);
 	await expect(page).toHaveURL(CONTENT_URL);
-	await expect(page).toHaveTitle('Content · Backoffice');
+	// Feature 014: /content lands on a collection, whose name is the page title.
+	await expect(page).toHaveTitle(/^.+ · Backoffice$/);
 	await noDirectus(page);
 
 	await page.goto('/admin/users/me');
@@ -129,7 +130,7 @@ test('settings branding is applied on the login page and in the app (US3-2..4)',
 
 	await login(page, ADMIN);
 	await expect(page).toHaveURL(CONTENT_URL);
-	await expect(page).toHaveTitle('Content · Acme Backoffice E2E');
+	await expect(page).toHaveTitle(/^.+ · Acme Backoffice E2E$/);
 	// The module bar logo links to project_url (FR-026).
 	await moduleBar(page);
 	await expect(page.locator('a[href="https://example.com/"]').first()).toBeVisible();

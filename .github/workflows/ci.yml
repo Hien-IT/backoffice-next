@@ -328,6 +328,13 @@ jobs:
         run: |
           set -a; . tests/parity/env/postgres.env; set +a
           node apps/web/fixtures/interfaces/seed.mjs --api http://127.0.0.1:8155 --email "$ADMIN_EMAIL" --password "$ADMIN_PASSWORD"
+          # The APIs of the other pairs (8156 shares the bus with Directus; 8163 of the cors configuration has its own
+          # namespaces) built their schema cache before the seed: clear it (system included) so they see bo_*.
+          for api in http://127.0.0.1:8156 http://127.0.0.1:8163; do
+            token=$(curl -sf -X POST "$api/auth/login" -H 'content-type: application/json' \
+              -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | node -e 'process.stdin.on("data", (d) => process.stdout.write(JSON.parse(d).data.access_token))')
+            curl -sf -X POST "$api/utils/cache/clear?system" -H "authorization: Bearer $token"
+          done
       - name: E2E with the Directus API (proxy-directus)
         run: pnpm exec playwright test
         working-directory: apps/web-e2e

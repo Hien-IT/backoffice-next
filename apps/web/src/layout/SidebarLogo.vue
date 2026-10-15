@@ -75,7 +75,12 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 						<img :src="logoLight" :alt="name" class="size-full object-contain dark:hidden" />
 						<img :src="logoDark" :alt="name" class="hidden size-full object-contain dark:block" />
 					</template>
-					<BoProgressLinear v-if="showLoader" indeterminate class="absolute! inset-x-1 bottom-0.5 w-auto!" />
+					<BoProgressLinear
+						v-if="showLoader"
+						indeterminate
+						:aria-label="$t('loading')"
+						class="absolute! inset-x-1 bottom-0.5 w-auto!"
+					/>
 				</span>
 				<!-- The logo alt already names the project: the visible name is not read twice. -->
 				<span v-if="!collapsed" class="min-w-0 leading-tight">

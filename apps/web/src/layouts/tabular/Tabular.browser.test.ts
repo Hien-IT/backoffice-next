@@ -254,16 +254,17 @@ test('manual sort: the row menu moves a row down with POST /utils/sort while sor
 });
 
 test('manual sort is hidden without permission to update the sort field, and off when sorted by another field', async () => {
+	// Scoped to each wrapper: a table of an earlier test may still be in the document on a loaded runner.
 	await setup('bo-viewer');
 	const viewer = await mountTabular();
-	expect(document.querySelector('.row-menu')).toBeNull();
-	expect(document.querySelector('.drag-handle')).toBeNull();
+	expect(viewer.wrapper.element.querySelector('.row-menu')).toBeNull();
+	expect(viewer.wrapper.element.querySelector('.drag-handle')).toBeNull();
 	viewer.wrapper.unmount();
 
 	await setup();
-	await mountTabular({ layoutQuery: { sort: ['title'] } });
-	expect(document.querySelector('.row-menu')).toBeNull();
-	expect(document.querySelector('.drag-handle')?.classList).toContain('cursor-not-allowed');
+	const admin = await mountTabular({ layoutQuery: { sort: ['title'] } });
+	expect(admin.wrapper.element.querySelector('.row-menu')).toBeNull();
+	expect(admin.wrapper.element.querySelector('.drag-handle')?.classList).toContain('cursor-not-allowed');
 });
 
 test('row click opens the item; with a selection it toggles the row', async () => {

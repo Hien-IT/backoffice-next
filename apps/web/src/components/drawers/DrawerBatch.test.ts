@@ -1,6 +1,6 @@
 // Ported from directus/app/src/views/private/components/drawer-batch.test.ts
-// Backoffice: only the stageOnSave case is ported; the PATCH / translations-merge cases test the direct save, which
-// DrawerBatch does not have (writes outside FR-054, 014). The form cases run on bo_rel_target of the fixture snapshot.
+// Backoffice: the stageOnSave case is ported; the direct save (feature 014) is checked on the fixture mock API (PATCH
+// with keys and data, then `refresh`). The form cases run on bo_rel_target of the fixture snapshot.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -71,7 +71,7 @@ describe('stageOnSave with translations', () => {
 
 describe('batch form', () => {
 	it('title with the count, every field starts inactive; activating a field and saving stages its value', async () => {
-		const wrapper = await mountDrawerBatch();
+		const wrapper = await mountDrawerBatch({ stageOnSave: true });
 
 		expect(panel().querySelector('h2')!.textContent).toContain('Batch Editing 2 Items');
 
@@ -93,6 +93,19 @@ describe('batch form', () => {
 		expect(wrapper.emitted('input')).toEqual([[{ name: 'Same name' }]]);
 		expect(wrapper.emitted('update:active')).toEqual([[false]]);
 		expect(calls(fetch).slice(hydrateCalls)).toEqual([]);
+	});
+
+	it('without stageOnSave, save PATCHes the keys with the edits and emits refresh (014, api-calls #72)', async () => {
+		const wrapper = await mountDrawerBatch({ edits: { status: 'draft' } });
+
+		panel().querySelector<HTMLButtonElement>('header button[aria-label="Save"]')!.click();
+		await flushPromises();
+
+		expect(calls(fetch).slice(hydrateCalls)).toEqual(['PATCH /items/bo_rel_target']);
+		const body = JSON.parse(String(fetch.mock.calls.at(-1)![1]!.body));
+		expect(body).toEqual({ keys: [1, 2], data: { status: 'draft' } });
+		expect(wrapper.emitted('refresh')).toHaveLength(1);
+		expect(wrapper.emitted('update:active')).toEqual([[false]]);
 	});
 
 	it('cancel (Esc) closes without input and drops the local edits', async () => {

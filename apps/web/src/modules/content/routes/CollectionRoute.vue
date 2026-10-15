@@ -5,22 +5,29 @@
 // error states, layout options in the detail panel. Batch actions, export, import, refresh and flows come with user
 // story 5 (T081-T090). Layouts render
 // from the registry (getLayout(id).component and .slots) instead of global `layout-*` components (research R4).
-import type { Filter } from '@directus/types';
+import type { Filter, PrimaryKey } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
 import { computed, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
+import { requestEndpoint, sdk } from '../../../api/sdk.ts';
+import BoDialog from '../../../components/BoDialog.vue';
+import DrawerBatch from '../../../components/drawers/DrawerBatch.vue';
 import BoButton from '../../../components/BoButton.vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoInfo from '../../../components/BoInfo.vue';
 import SearchInput from '../../../components/SearchInput.vue';
+import ArchiveSidebarDetail from '../../../components/sidebar/ArchiveSidebarDetail.vue';
+import ExportSidebarDetail from '../../../components/sidebar/ExportSidebarDetail.vue';
 import FlowSidebarDetail from '../../../components/sidebar/FlowSidebarDetail.vue';
+import RefreshSidebarDetail from '../../../components/sidebar/RefreshSidebarDetail.vue';
 import LayoutSidebarDetail from '../../../components/sidebar/LayoutSidebarDetail.vue';
 import FlowDialogs from '../../../interfaces/presentation-header/FlowDialogs.vue';
 import { useFlows } from '../../../composables/use-run-manual-flow.ts';
 import { useCollection } from '../../../composables/use-collection.ts';
 import { useCollectionPermissions } from '../../../composables/use-permissions/index.ts';
 import { showUnexpectedError } from '../../../composables/use-notices.ts';
+import { translateAPIError } from '../../../lang/index.ts';
 import { usePreset } from '../../../composables/use-preset.ts';
 import PrivateView from '../../../layout/PrivateView.vue';
 import { getLayout } from '../../../layouts/index.ts';
@@ -72,6 +79,7 @@ const {
 	resetPreset,
 	bookmarkSaved,
 	bookmarkIsMine,
+	refreshInterval,
 	busy: bookmarkSaving,
 	clearLocalSave,
 } = usePreset(collection, bookmarkID);
@@ -93,7 +101,23 @@ watch(
 	{ immediate: true },
 );
 
-const { createAllowed } = useCollectionPermissions(collection);
+const {
+	updateAllowed: batchEditAllowed,
+	archiveAllowed: batchArchiveAllowed,
+	deleteAllowed: batchDeleteAllowed,
+	createAllowed,
+} = useCollectionPermissions(collection);
+
+const {
+	confirmDelete,
+	deleting,
+	batchDelete,
+	confirmArchive,
+	archiveItems,
+	archiving,
+	error: deleteError,
+	batchEditActive,
+} = useBatch();
 
 const { flowDialogsContext, manualFlows, provideRunManualFlow } = useFlows({
 	collection,
@@ -107,6 +131,8 @@ provideRunManualFlow();
 async function refresh() {
 	await layoutRef.value?.state?.refresh?.();
 }
+
+const downloadHandler = computed(() => layoutRef.value?.state?.download);
 
 const permissionsStore = usePermissionsStore();
 
@@ -147,6 +173,78 @@ const archiveFilter = computed<Filter | null>(() => {
 });
 
 const title = computed(() => (props.bookmark ? bookmarkTitle.value : currentCollection.value?.name) ?? undefined);
+
+async function batchRefresh() {
+	selection.value = [];
+	await refresh();
+}
+
+function useBatch() {
+	const confirmDelete = ref(false);
+	const deleting = ref(false);
+
+	const batchEditActive = ref(false);
+
+	const confirmArchive = ref(false);
+	const archiving = ref(false);
+
+	const error = ref<any>(null);
+
+	return { batchEditActive, confirmDelete, deleting, batchDelete, confirmArchive, archiving, archiveItems, error };
+
+	async function batchDelete() {
+		if (deleting.value) return;
+
+		deleting.value = true;
+
+		const batchPrimaryKeys = selection.value;
+
+		try {
+			await sdk.request(requestEndpoint(`/items/${props.collection}`, { method: 'DELETE', body: batchPrimaryKeys }));
+
+			selection.value = [];
+			await refresh();
+		} catch (err: any) {
+			error.value = err;
+		} finally {
+			confirmDelete.value = false;
+			deleting.value = false;
+		}
+	}
+
+	async function archiveItems() {
+		if (archiving.value || !currentCollection.value?.meta?.archive_field) return;
+
+		archiving.value = true;
+
+		let archiveValue: any = currentCollection.value.meta.archive_value;
+		if (archiveValue === 'true') archiveValue = true;
+		if (archiveValue === 'false') archiveValue = false;
+
+		try {
+			await sdk.request(
+				requestEndpoint(`/items/${props.collection}`, {
+					method: 'PATCH',
+					body: {
+						keys: selection.value,
+						data: {
+							[currentCollection.value.meta.archive_field]: archiveValue,
+						},
+					},
+				}),
+			);
+
+			selection.value = [];
+			await refresh();
+
+			confirmArchive.value = false;
+		} catch (err: any) {
+			error.value = err;
+		} finally {
+			archiving.value = false;
+		}
+	}
+}
 
 function useBreadcrumb() {
 	// Backoffice: the bookmark breadcrumb (`breadcrumb`) and the default one (`Content`) of the Directus headline.
@@ -305,6 +403,37 @@ function clearFilters() {
 
 				<SearchInput v-model="search" v-model:filter="filter" :collection="collection" />
 
+				<template v-if="selection.length > 0">
+					<BoButton
+						variant="secondary"
+						icon="delete"
+						class="hover:bg-error-600 hover:text-white"
+						:aria-label="batchDeleteAllowed ? $t('delete_label') : $t('not_allowed')"
+						:title="batchDeleteAllowed ? $t('delete_label') : $t('not_allowed')"
+						:disabled="batchDeleteAllowed !== true"
+						@click="confirmDelete = true"
+					/>
+
+					<BoButton
+						v-if="currentCollection.meta && currentCollection.meta.archive_field && archive !== 'archived'"
+						variant="secondary"
+						icon="archive"
+						:aria-label="batchArchiveAllowed ? $t('archive') : $t('not_allowed')"
+						:title="batchArchiveAllowed ? $t('archive') : $t('not_allowed')"
+						:disabled="batchArchiveAllowed !== true"
+						@click="confirmArchive = true"
+					/>
+
+					<BoButton
+						variant="secondary"
+						icon="edit"
+						:aria-label="batchEditAllowed ? $t('edit') : $t('not_allowed')"
+						:title="batchEditAllowed ? $t('edit') : $t('not_allowed')"
+						:disabled="batchEditAllowed === false"
+						@click="batchEditActive = true"
+					/>
+				</template>
+
 				<BoButton
 					icon="add"
 					v-bind="createAllowed ? { to: addNewLink } : {}"
@@ -319,6 +448,38 @@ function clearFilters() {
 			</template>
 
 			<FlowDialogs v-bind="flowDialogsContext" />
+
+			<BoDialog v-model:open="confirmDelete" :title="$t('batch_delete_confirm', selection.length)">
+				<template #actions>
+					<BoButton variant="secondary" @click="confirmDelete = false">{{ $t('cancel') }}</BoButton>
+					<BoButton variant="danger" :loading="deleting" @click="batchDelete">{{ $t('delete_label') }}</BoButton>
+				</template>
+			</BoDialog>
+
+			<BoDialog v-model:open="confirmArchive" :title="$t('archive_confirm_count', selection.length)">
+				<template #actions>
+					<BoButton variant="secondary" @click="confirmArchive = false">{{ $t('cancel') }}</BoButton>
+					<BoButton :loading="archiving" @click="archiveItems">{{ $t('archive') }}</BoButton>
+				</template>
+			</BoDialog>
+
+			<BoDialog
+				:open="deleteError !== null"
+				:title="$t('something_went_wrong')"
+				v-bind="deleteError ? { description: translateAPIError(deleteError) } : {}"
+				@update:open="!$event && (deleteError = null)"
+			>
+				<template #actions>
+					<BoButton @click="deleteError = null">{{ $t('done') }}</BoButton>
+				</template>
+			</BoDialog>
+
+			<DrawerBatch
+				v-model:active="batchEditActive"
+				:primary-keys="selection as unknown as PrimaryKey[]"
+				:collection="collection"
+				@refresh="batchRefresh"
+			/>
 
 			<BoInfo
 				v-if="bookmark && bookmarkExists === false"
@@ -381,6 +542,16 @@ function clearFilters() {
 					<component :is="currentLayout?.slots.options" v-if="currentLayout?.slots.options" v-bind="layoutState" />
 				</LayoutSidebarDetail>
 				<component :is="currentLayout?.slots.sidebar" v-if="currentLayout?.slots.sidebar" v-bind="layoutState" />
+				<ArchiveSidebarDetail v-if="hasArchive" :collection="collection" :archive="archive" />
+				<RefreshSidebarDetail v-model="refreshInterval" @refresh="refresh" />
+				<ExportSidebarDetail
+					:collection="collection"
+					:filter="mergeFilters(filter, archiveFilter) ?? undefined"
+					:search="search ?? undefined"
+					:layout-query="layoutQuery"
+					:on-download="downloadHandler"
+					@refresh="refresh"
+				/>
 				<FlowSidebarDetail :manual-flows="manualFlows" />
 			</template>
 		</PrivateView>

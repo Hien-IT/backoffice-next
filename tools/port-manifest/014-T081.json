@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/archive-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/ArchiveSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/refresh-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/RefreshSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/refresh-sidebar-detail.test.ts",
+		"dest": "apps/web/src/components/sidebar/RefreshSidebarDetail.test.ts"
+	}
+]

@@ -514,7 +514,7 @@ preset (gỡ D-58).
 
 ### Implementation cho User Story 6
 
-- [ ] T080 [P] [US6] `src/utils/upload-with-progress.ts` (`XMLHttpRequest` qua URL `apiUrl` với `withCredentials`, tiến độ,
+- [X] T080 [P] [US6] `src/utils/upload-with-progress.ts` (`XMLHttpRequest` qua URL `apiUrl` với `withCredentials`, tiến độ,
   abort) và `src/components/sidebar/{ExportSidebarDetail,ImportErrorDialog}.vue` chép logic
   `export-sidebar-detail.vue`, `import-error-dialog.vue` (FR-090, FR-091, recipe Q-12): nhập (file `.csv`/`.json`, tiến
   độ, `importing`, `background`, lỗi `FAILED_VALIDATION` → hộp lỗi), hộp xuất (số đếm debounce 250 ms, khóa `files` khi
@@ -522,10 +522,10 @@ preset (gỡ D-58).
   `apiFetch` → blob → `saveAs`, lưu thư viện), "tải trang hiện tại" (`onDownload`); port
   `views/private/components/export-sidebar-detail.test.ts` → `ExportSidebarDetail.test.ts`, thêm ca khóa `files` khi số
   xuất `> queryLimit.max` (server store giả `queryLimit.max = 100`) và khi `≥ 2500`.
-- [ ] T081 [P] [US6] `src/components/sidebar/{ArchiveSidebarDetail,RefreshSidebarDetail}.vue` chép logic (FR-044, FR-099):
+- [X] T081 [P] [US6] `src/components/sidebar/{ArchiveSidebarDetail,RefreshSidebarDetail}.vue` chép logic (FR-044, FR-099):
   Archive ba lựa chọn đổi query giữ query khác; Refresh chu kỳ `null/10/30/60/300`, `emitter` `tabIdle`/`tabActive` của
   012, ghi `refresh_interval`; port `refresh-sidebar-detail.test.ts` → `RefreshSidebarDetail.test.ts`.
-- [ ] T082 [US6] `CollectionRoute.vue` phần US6 (FR-028, FR-095 đến FR-098, FR-008): nút xóa/archive/sửa hàng loạt khi có
+- [X] T082 [US6] `CollectionRoute.vue` phần US6 (FR-028, FR-095 đến FR-098, FR-008): nút xóa/archive/sửa hàng loạt khi có
   lựa chọn (khóa + tooltip `not_allowed`), hộp xác nhận `batch_delete_confirm`/`archive_confirm_count` (focus Hủy),
   `DELETE /items/:c` mảng khóa, `PATCH {keys, data}`, `DrawerBatch` 013, hộp lỗi; panel L-4 thêm Archive (khi
   `hasArchive`), Refresh, Export/Import, Flows (`FlowSidebarDetail` với `selection`); `FlowDialogs` 013; test.
