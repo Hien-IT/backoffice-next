@@ -322,6 +322,12 @@ jobs:
           PARITY_NO_BUILD: '1'
       - run: pnpm exec playwright install --with-deps chromium firefox webkit
         working-directory: apps/web-e2e
+      # Feature 014: the Content specs use the fixture set bo_* (apps/web/fixtures/interfaces), seeded through Directus
+      # on the shared database with the admin of the parity env file.
+      - name: seed the fixture set bo_*
+        run: |
+          set -a; . tests/parity/env/postgres.env; set +a
+          node apps/web/fixtures/interfaces/seed.mjs --api http://127.0.0.1:8155 --email "$ADMIN_EMAIL" --password "$ADMIN_PASSWORD"
       - name: E2E with the Directus API (proxy-directus)
         run: pnpm exec playwright test
         working-directory: apps/web-e2e

@@ -11,8 +11,16 @@ const BROWSERS = {
 	webkit: devices['Desktop Safari'],
 };
 
+// Feature 014 (SC-001): outside chromium, the Content specs (content-*.spec.ts) run only when tagged @core. Playwright
+// tests grep against "<project> <file> <describe> <title> <tags>".
+const CONTENT_NOT_CORE = /content-[\w-]+\.spec\.ts(?!.*@core)/;
+
 let projects: Project[] = Object.entries(BROWSERS).flatMap(([browser, device]) =>
-	Object.entries(VIEWPORTS).map(([width, viewport]) => ({ name: `${browser}-${width}`, use: { ...device, viewport } })),
+	Object.entries(VIEWPORTS).map(([width, viewport]) => ({
+		name: `${browser}-${width}`,
+		use: { ...device, viewport },
+		...(browser === 'chromium' ? {} : { grepInvert: CONTENT_NOT_CORE }),
+	})),
 );
 
 // Cross-site and dev: chromium only (FR-090); msedge only on runners that have it.

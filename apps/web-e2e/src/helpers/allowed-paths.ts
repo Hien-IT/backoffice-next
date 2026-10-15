@@ -1,9 +1,11 @@
 // The closed list of API calls of the web app (FR-002), copied from specs/012-backoffice-web-shell/contracts/api-calls.md
-// (32 routes). Matched on method and path (query ignored, path relative to apiUrl). Keep both in step.
+// (32 routes), specs/013-interfaces-displays/contracts/api-calls.md (#33-#49) and
+// specs/014-content-module/contracts/api-calls.md (#50-#96). Matched on method and path (query ignored, path relative to
+// apiUrl). Keep them in step with KNOWN_REQUESTS of apps/web/src/test-utils/fetch.ts.
 export interface AllowedCall {
 	/** Row number in contracts/api-calls.md. */
 	id: number;
-	method: 'GET' | 'POST' | 'PATCH';
+	method: 'GET' | 'POST' | 'PATCH' | 'DELETE' | 'SEARCH';
 	path: RegExp;
 }
 
@@ -46,6 +48,35 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	// Feature 013: the flows store hydrates for users who can read directus_flows, see
 	// specs/013-interfaces-displays/contracts/api-calls.md #33.
 	{ id: 33, method: 'GET', path: /^\/flows$/ },
+	// 013 lists and items through useItems / useRelation* on getEndpoint(collection), the 014 layouts (#50, #51, #63 export)
+	// and the item page (#52) on the same routes.
+	{ id: 34, method: 'GET', path: new RegExp(`^/items/${ID}$`) },
+	{ id: 40, method: 'GET', path: /^\/(files|users|folders)$/ },
+	{ id: 38, method: 'GET', path: new RegExp(`^/items/${ID}/${ID}$`) },
+	{ id: 49, method: 'GET', path: new RegExp(`^/(users|files)/${ID}$`) },
+	{ id: 47, method: 'POST', path: /^\/files\/import$/ },
+	{ id: 48, method: 'POST', path: new RegExp(`^/flows/trigger/${ID}$`) },
+	// Feature 014.
+	{ id: 53, method: 'GET', path: new RegExp(`^/permissions/me/${ID}(/${ID})?$`) },
+	{ id: 55, method: 'GET', path: /^\/(revisions|versions|comments|shares)$/ },
+	{ id: 56, method: 'GET', path: new RegExp(`^/(revisions|versions)/${ID}$`) },
+	{ id: 58, method: 'GET', path: new RegExp(`^/versions/${ID}/compare$`) },
+	{ id: 70, method: 'POST', path: new RegExp(`^/(items/${ID}|presets|versions|comments|shares)$`) },
+	{
+		id: 71,
+		method: 'PATCH',
+		path: new RegExp(`^/(items/${ID}(/${ID})?|presets/${ID}|versions/${ID}|comments/${ID}|shares/${ID})$`),
+	},
+	{
+		id: 73,
+		method: 'DELETE',
+		path: new RegExp(`^/(items/${ID}(/${ID})?|presets|versions/${ID}|comments/${ID}|shares/${ID})$`),
+	},
+	{ id: 75, method: 'POST', path: new RegExp(`^/utils/(sort|export|import)/${ID}$`) },
+	{ id: 82, method: 'POST', path: new RegExp(`^/versions/${ID}/(save|promote)$`) },
+	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
+	{ id: 93, method: 'POST', path: /^\/graphql(\/system)?$/ },
+	{ id: 94, method: 'SEARCH', path: new RegExp(`^/items/${ID}$`) },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

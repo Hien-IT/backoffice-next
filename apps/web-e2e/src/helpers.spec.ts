@@ -3,6 +3,7 @@ import { expect, test } from '@playwright/test';
 import jwt from 'jsonwebtoken';
 import { isAllowedCall } from './helpers/allowed-paths.js';
 import { parseEnv } from './helpers/config.js';
+import { externalStub, isLocalHost } from './helpers/external-hosts.js';
 import { apiPath } from './helpers/requests.js';
 import { getSimpleHash, inviteToken, passwordResetToken } from './helpers/tokens.js';
 
@@ -19,10 +20,29 @@ test('isAllowedCall follows contracts/api-calls.md', () => {
 	expect(isAllowedCall('GET', '/assets/0b1c-2d')).toBe(true);
 	expect(isAllowedCall('GET', '/auth/login/oidc')).toBe(true);
 	expect(isAllowedCall('PATCH', '/users/me/track/page')).toBe(true);
-	expect(isAllowedCall('GET', '/items/articles')).toBe(false);
+	expect(isAllowedCall('GET', '/items/articles')).toBe(true);
+	expect(isAllowedCall('SEARCH', '/items/articles')).toBe(true);
+	expect(isAllowedCall('DELETE', '/presets')).toBe(true);
+	expect(isAllowedCall('POST', '/versions/1/promote')).toBe(true);
 	expect(isAllowedCall('GET', '/websocket')).toBe(false);
 	expect(isAllowedCall('DELETE', '/users/me')).toBe(false);
+	expect(isAllowedCall('DELETE', '/files')).toBe(false);
 	expect(isAllowedCall('POST', '/users/me/track/page')).toBe(false);
+});
+
+test('outside hosts: local ones pass, map and preview hosts get stubs, the rest is aborted (FR-112)', () => {
+	expect(['localhost', '127.0.0.1', 'idp'].every(isLocalHost)).toBe(true);
+	expect(isLocalHost('tile.openstreetmap.org')).toBe(false);
+	expect(externalStub(new URL('https://tile.openstreetmap.org/1/0/0.png'))).toMatchObject({ contentType: 'image/png' });
+	expect(externalStub(new URL('https://fonts.openmaptiles.org/a/0-255.pbf'))).toEqual({ status: 204 });
+	expect(externalStub(new URL('https://api.mapbox.com/geocoding/v5/x.json'))).toEqual({
+		json: { type: 'FeatureCollection', features: [] },
+	});
+	expect(externalStub(new URL('https://api.mapbox.com/styles/v1/mapbox/streets-v11'))).toMatchObject({
+		json: { version: 8 },
+	});
+	expect(externalStub(new URL('https://preview.example/bo/1'))).toMatchObject({ contentType: 'text/html' });
+	expect(externalStub(new URL('https://example.com/'))).toBeUndefined();
 });
 
 test('parseEnv reads KEY=VALUE lines', () => {

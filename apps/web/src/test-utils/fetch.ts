@@ -97,6 +97,19 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 49, method: 'GET', path: new RegExp(`^/(users|files)/${ID}$`) },
 	{ id: 47, method: 'POST', path: /^\/files\/import$/ },
 	{ id: 48, method: 'POST', path: new RegExp(`^/flows/trigger/${ID}$`) },
+	// Feature 014 (specs/014-content-module/contracts/api-calls.md #50-#96).
+	{ id: 53, method: 'GET', path: new RegExp(`^/permissions/me/${ID}(/${ID})?$`) },
+	{ id: 55, method: 'GET', path: /^\/(revisions|versions|comments|shares)$/ },
+	{ id: 56, method: 'GET', path: new RegExp(`^/(revisions|versions)/${ID}$`) },
+	{ id: 58, method: 'GET', path: new RegExp(`^/versions/${ID}/compare$`) },
+	{ id: 70, method: 'POST', path: new RegExp(`^/(items/${ID}|presets|versions|comments|shares)$`) },
+	{ id: 71, method: 'PATCH', path: new RegExp(`^/(items/${ID}(/${ID})?|presets/${ID}|versions/${ID}|comments/${ID}|shares/${ID})$`) },
+	{ id: 73, method: 'DELETE', path: new RegExp(`^/(items/${ID}(/${ID})?|presets|versions/${ID}|comments/${ID}|shares/${ID})$`) },
+	{ id: 75, method: 'POST', path: new RegExp(`^/utils/(sort|export|import)/${ID}$`) },
+	{ id: 82, method: 'POST', path: new RegExp(`^/versions/${ID}/(save|promote)$`) },
+	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
+	{ id: 93, method: 'POST', path: /^\/graphql(\/system)?$/ },
+	{ id: 94, method: 'SEARCH', path: new RegExp(`^/items/${ID}$`) },
 ];
 
 /**
@@ -129,6 +142,11 @@ const ENDPOINTS: Record<string, string> = {
 	presets: 'directus_presets',
 	translations: 'directus_translations',
 	notifications: 'directus_notifications',
+	// Feature 014 (contracts/api-calls.md #50-#96).
+	versions: 'directus_versions',
+	shares: 'directus_shares',
+	comments: 'directus_comments',
+	revisions: 'directus_revisions',
 };
 
 class ApiError extends Error {
@@ -211,9 +229,13 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			parent: null,
 		})),
 		directus_flows: snapshot.flows as Row[],
-		directus_presets: [],
+		directus_presets: (snapshot.presets ?? []) as Row[],
 		directus_translations: [],
 		directus_notifications: [],
+		directus_versions: (snapshot.versions ?? []) as Row[],
+		directus_shares: (snapshot.shares ?? []) as Row[],
+		directus_comments: (snapshot.comments ?? []) as Row[],
+		directus_revisions: Object.values(snapshot.revisions ?? {}).flat() as Row[],
 	};
 
 	/* ---------------------------------------------------------------- permissions */
@@ -468,6 +490,11 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			if (path === '/fields') return allFields;
 			if (path === '/relations') return relations;
 			if (first === 'assets' && second) return new Response(PNG, { headers: { 'Content-Type': 'image/png' } });
+			// 014: item permissions (#53), version comparison (#58), singleton reads, export download (#63).
+			if (first === 'permissions' && second === 'me' && third) return itemPermissions(third);
+			if (first === 'versions' && second && third === 'compare') return compareVersion(second);
+			if (first === 'items' && second && !third && isSingleton(second)) return singleton(second, url);
+			if (first === 'items' && second && !third && url.searchParams.has('export')) return exported(second, url);
 			if (first === 'items' && second && !third) return list(second, url);
 			if (first === 'items' && second && third) return one(second, third, url);
 			if (ENDPOINTS[first] && !second) return list(ENDPOINTS[first]!, url);
@@ -495,7 +522,135 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 		if (method === 'POST' && first === 'flows' && second === 'trigger' && third)
 			return { path: `/trigger/${third}`, query: {}, body: JSON.parse(String(init.body ?? '{}')), method, headers: {} };
 
+		/* -------------------------------------------------------------- 014 writes (#70-#96) */
+
+		const body = () => (typeof init.body === 'string' && init.body ? JSON.parse(init.body) : null);
+
+		if (method === 'POST' && first === 'versions' && second && third === 'save') return saveVersion(second, body());
+		if (method === 'POST' && first === 'versions' && second && third === 'promote') return promoteVersion(second, body());
+		if (method === 'POST' && first === 'utils' && second === 'sort' && third) return sortItems(third, body());
+		if (method === 'POST' && first === 'utils' && (second === 'export' || second === 'import') && third) return null;
+		if (method === 'POST' && first === 'shares' && second === 'invite') return null;
+		if (method === 'POST' && first === 'graphql') return graphqlById(body()?.query ?? '');
+		if (method === 'SEARCH' && first === 'items' && second) return list(second, url);
+
+		const collection = first === 'items' ? second : first ? ENDPOINTS[first] : undefined;
+		const key = first === 'items' ? third : second;
+
+		if (collection && ['POST', 'PATCH', 'DELETE'].includes(method)) {
+			if (method === 'POST' && !key) {
+				const data = body();
+				return Array.isArray(data) ? data.map((row) => create(collection, row)) : create(collection, data);
+			}
+
+			if (method === 'PATCH' && key) return update(collection, decodeURIComponent(key), body());
+
+			if (method === 'PATCH' && !key) {
+				const data = body();
+				if (isSingleton(collection)) return update(collection, rowsOf(collection)[0]?.[pkOf(collection)], data);
+				if (Array.isArray(data)) return data.map((row) => update(collection, row[pkOf(collection)], row));
+				return (data.keys as unknown[]).map((k) => update(collection, k, data.data));
+			}
+
+			if (method === 'DELETE') {
+				const keys = key ? [decodeURIComponent(key)] : (body() as unknown[]);
+				db[collection] = (db[collection] ?? []).filter((row) => !keys.some((k) => loose(row[pkOf(collection)], k)));
+				return new Response(null, { status: 204 });
+			}
+		}
+
 		return notFound();
+	}
+
+	/* ---------------------------------------------------------------- 014 helpers */
+
+	const isSingleton = (collection: string) =>
+		snapshot.collections.some((c) => c['collection'] === collection && c['meta']?.singleton === true);
+
+	function singleton(collection: string, url: URL): unknown {
+		const row = rowsOf(collection)[0];
+		return row ? project(collection, row, fieldList(url)) : null;
+	}
+
+	let serial = 1000;
+
+	function create(collection: string, data: Row): Row {
+		readable(collection);
+		const pk = pkOf(collection);
+		const intKey = fieldsOf(collection).find((f) => f.field === pk)?.type === 'integer' || collection === 'directus_presets';
+		const row = { ...data, [pk]: data?.[pk] ?? (intKey ? ++serial : `bo-new-${++serial}`) };
+		(db[collection] ??= []).push(row);
+		return row;
+	}
+
+	function update(collection: string, key: unknown, data: Row): Row {
+		const row = find(collection, key);
+		if (!row) throw forbidden();
+		Object.assign(row, data);
+		return row;
+	}
+
+	function itemPermissions(collection: string): Row {
+		const access = (action: string) =>
+			isAdmin || (permissions[collection]?.[action] && permissions[collection][action].access !== 'none');
+		return { update: { access: !!access('update') }, delete: { access: !!access('delete') }, share: { access: !!access('share') } };
+	}
+
+	const versionOf = (id: string) => {
+		const version = find('directus_versions', decodeURIComponent(id));
+		if (!version) throw forbidden();
+		return version;
+	};
+
+	function compareVersion(id: string): Row {
+		const version = versionOf(id);
+		const main = find(version['collection'], version['item']) ?? {};
+		const delta = Object.fromEntries(Object.entries(version['delta'] ?? {}).filter(([k]) => !k.startsWith('_')));
+		return { outdated: false, mainHash: 'bo-hash', current: { ...main, ...delta }, main };
+	}
+
+	function saveVersion(id: string, edits: Row): Row {
+		const version = versionOf(id);
+		version['delta'] = { ...(version['delta'] ?? {}), ...edits };
+		return { ...(find(version['collection'], version['item']) ?? {}), ...version['delta'] };
+	}
+
+	function promoteVersion(id: string, data: { mainHash?: string; fields?: string[] } | null): unknown {
+		const version = versionOf(id);
+		const delta = Object.entries(version['delta'] ?? {}).filter(
+			([k]) => !k.startsWith('_') && (!data?.fields || data.fields.includes(k)),
+		);
+		update(version['collection'], version['item'], Object.fromEntries(delta));
+		return version['item'];
+	}
+
+	function sortItems(collection: string, data: { item: unknown; to: unknown }): null {
+		const sortField = snapshot.collections.find((c) => c['collection'] === collection)?.['meta']?.sort_field ?? 'sort';
+		const rows = [...rowsOf(collection)].sort((a, b) => (a[sortField] ?? 0) - (b[sortField] ?? 0));
+		const pk = pkOf(collection);
+		const from = rows.findIndex((r) => loose(r[pk], data.item));
+		const to = rows.findIndex((r) => loose(r[pk], data.to));
+		const [moved] = rows.splice(from, 1);
+		rows.splice(to, 0, moved!);
+		rows.forEach((row, index) => (row[sortField] = index + 1));
+		return null;
+	}
+
+	function exported(collection: string, url: URL): Response {
+		const rows = list(collection, url) as Row[];
+		const fields = fieldList(url).filter((f) => f !== '*');
+		const keys = fields.length > 0 ? fields : Object.keys(rows[0] ?? {});
+		const csv = [keys.map((k) => JSON.stringify(k)).join(','), ...rows.map((r) => keys.map((k) => JSON.stringify(r[k] ?? '')).join(','))].join('\n');
+		return new Response(csv, { headers: { 'Content-Type': 'text/csv' } });
+	}
+
+	function graphqlById(query: string): Row {
+		const match = /(\w+)_by_id\s*\(id:\s*"?([^")\s]+)"?\)/.exec(query);
+		if (!match) throw new ApiError(400, 'INVALID_QUERY', 'mockFixtureApi: unsupported GraphQL query');
+		const [, alias, key] = match as unknown as [string, string, string];
+		const collection = rowsOf(alias).length > 0 || db[alias] ? alias : `directus_${alias}`;
+		const row = find(collection, key);
+		return { item: row ? { ...row } : null };
 	}
 
 	const fetch = stubFetch(async (url, init) => {

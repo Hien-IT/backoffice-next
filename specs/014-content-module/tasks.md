@@ -186,12 +186,12 @@ build, E2E hiện có + mới xanh, commit, push).
   `apps/web/fixtures/interfaces/snapshot.test.ts` thêm kiểm file mới; ghi tay `expected.content.json` (body preset US1-3,
   mẫu request `/items` mỗi layout, nguồn ghi rõ) và `expected.content.csv` (tải trang hiện tại từ Directus app);
   `apps/web/fixtures/interfaces/README.md` cập nhật; chạy `tests/parity/src/web/fixtures-seed.test.ts` xanh.
-- [ ] T024 `src/test-utils/fetch.ts` `mockFixtureApi` mở rộng theo `contracts/tests.md` §2 (`/presets` CRUD trong bộ
+- [X] T024 `src/test-utils/fetch.ts` `mockFixtureApi` mở rộng theo `contracts/tests.md` §2 (`/presets` CRUD trong bộ
   nhớ, `/revisions`, `/versions` CRUD + compare/save/promote, `/comments`, `/shares` + invite, `/users` tìm kiếm,
   `/utils/sort|export|import`, `/items` aggregate theo `filterSystem` và `export=csv`, `/graphql` `<c>_by_id`,
   `/permissions/me/<c>/<pk>`); `KNOWN_REQUESTS` thêm #50–#96 của `contracts/api-calls.md`; `src/test-utils/fixtures.ts`
   nạp file snapshot mới; test `src/test-utils/fetch.test.ts` cho route mới.
-- [ ] T025 `e2e/helpers/allowed-paths.ts` thêm #50–#96 (method + path); `e2e/helpers/content.ts` (mở collection/item,
+- [X] T025 `e2e/helpers/allowed-paths.ts` thêm #50–#96 (method + path); `e2e/helpers/content.ts` (mở collection/item,
   chọn layout, đợi bảng, xóa preset + bookmark của admin trên collection qua `AdminApi`, tên theo `DATA_PREFIX`);
   `e2e/helpers/external-hosts.ts` (`page.route('**/*')` chặn host ngoài `webUrl`/`apiUrl`/`localhost`, stub
   `tile.openstreetmap.org` PNG 1×1, `fonts.openmaptiles.org` 204, `api.mapbox.com` style JSON tối thiểu + geocoding rỗng,
@@ -199,7 +199,7 @@ build, E2E hiện có + mới xanh, commit, push).
   để firefox-1280, webkit-1280 chỉ chạy spec gắn tag `@core` (SC-001); bước CI seed `bo_*` trước E2E (sửa job `e2e-web`
   trong `.github/workflows/ci.yml`: `pnpm nx run web:fixtures -- --api http://127.0.0.1:8155 --email ... --password ...`
   sau `env-up`).
-- [ ] T026 [P] `src/lang/keys.test.ts` (CHK097): mọi khóa `$t('…')`/`t('…')` tĩnh trong `src/modules/content`,
+- [X] T026 [P] `src/lang/keys.test.ts` (CHK097): mọi khóa `$t('…')`/`t('…')` tĩnh trong `src/modules/content`,
   `src/layouts`, `src/components/sidebar`, `src/components/comparison`, `src/interfaces/_system` có trong
   `src/lang/translations/en-US.json` (hoặc overlay); chuỗi D-69 ("Lên", "Xuống", "Chuyển trái", "Chuyển phải",
   "Chuyển sang nhóm…") thêm vào `src/lang/overlay/en-US.ts` và `src/lang/overlay/vi-VN.ts`.

@@ -28,4 +28,9 @@ export default {
 	map_zoom_in: 'Zoom in',
 	map_zoom_out: 'Zoom out',
 	map_geolocate: 'Find my location',
+	// Feature 014: keyboard path of the kanban, calendar and manual sort drag and drop (D-69).
+	move_left: 'Move left',
+	move_right: 'Move right',
+	move_to_group: 'Move to group…',
+	move_item_to_group: 'Move {item} to group',
 };

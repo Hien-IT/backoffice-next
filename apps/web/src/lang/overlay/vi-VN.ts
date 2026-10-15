@@ -27,4 +27,9 @@ export default {
 	map_zoom_in: 'Phóng to',
 	map_zoom_out: 'Thu nhỏ',
 	map_geolocate: 'Tìm vị trí của tôi',
+	// Feature 014: keyboard path of the kanban, calendar and manual sort drag and drop (D-69).
+	move_left: 'Chuyển trái',
+	move_right: 'Chuyển phải',
+	move_to_group: 'Chuyển sang nhóm…',
+	move_item_to_group: 'Chuyển {item} sang nhóm',
 };

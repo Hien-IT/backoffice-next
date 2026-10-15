@@ -54,7 +54,8 @@ describe('mockFixtureApi hydrate routes', () => {
 		expect((await get<any[]>('/collections')).map((c) => c.collection)).toContain('bo_std');
 		expect(await get('/relations')).toEqual(snapshot.relations);
 		expect(await get('/settings')).toMatchObject({ module_bar: null });
-		expect(await get('/presets')).toEqual([]);
+		// The Content module presets and bookmarks of the fixture set (014).
+		expect(await get('/presets')).toHaveLength(snapshot.presets.length);
 		expect(await get('/notifications', { aggregate: { count: 'id' } })).toEqual([{ count: { id: '0' } }]);
 		expect(await get('/server/info')).toMatchObject({ queryLimit: { max: -1 } });
 	});
@@ -272,7 +273,7 @@ describe('mockFixtureApi writes and assets', () => {
 });
 
 describe('assertOnlyKnownRequests', () => {
-	test('accepts the 012 and 013 routes, rejects the others', () => {
+	test('accepts the 012, 013 and 014 routes, rejects the others', () => {
 		expect(() =>
 			assertOnlyKnownRequests([
 				'GET /fields',
@@ -286,9 +287,110 @@ describe('assertOnlyKnownRequests', () => {
 			]),
 		).not.toThrow();
 
-		expect(() => assertOnlyKnownRequests(['GET /fields', 'PATCH /items/bo_std/1', 'DELETE /files'])).toThrow(
-			'Requests outside contracts/api-calls.md:\nPATCH /items/bo_std/1\nDELETE /files',
+		expect(() => assertOnlyKnownRequests(['GET /fields', 'PATCH /fields/bo_std/a', 'DELETE /files'])).toThrow(
+			'Requests outside contracts/api-calls.md:\nPATCH /fields/bo_std/a\nDELETE /files',
 		);
 		expect(() => assertOnlyKnownRequests(['GET /search?q=a'], [/^\/search$/])).not.toThrow();
+	});
+});
+
+describe('mockFixtureApi Content module routes (014)', () => {
+	const send = (path: string, method: string, body?: unknown) =>
+		sdk.request<any>(requestEndpoint(path, { method: method as never, ...(body === undefined ? {} : { body: body as never }) }));
+
+	test('presets: create, update and delete with an array body', async () => {
+		const fetch = setup();
+
+		const created = await send('/presets', 'POST', { collection: 'bo_std', layout: 'tabular' });
+		expect(created.id).toBeGreaterThan(1000);
+
+		await send(`/presets/${created.id}`, 'PATCH', { search: 'x' });
+		expect(fetch.db['directus_presets']!.find((p) => p['id'] === created.id)?.['search']).toBe('x');
+
+		await sdk.request(requestEndpoint('/presets', { method: 'DELETE', body: [created.id] }));
+		expect(fetch.db['directus_presets']!.some((p) => p['id'] === created.id)).toBe(false);
+		assertOnlyKnownRequests(calls(fetch));
+	});
+
+	test('items: create, update one, update many by keys, delete many; singleton read and update', async () => {
+		const fetch = setup();
+
+		const created = await send('/items/bo_content', 'POST', { title: 'New', status: 'draft' });
+		await send(`/items/bo_content/${created.id}`, 'PATCH', { title: 'Newer' });
+		await send('/items/bo_content', 'PATCH', { keys: [1, 2], data: { status: 'archived' } });
+		await sdk.request(requestEndpoint('/items/bo_content', { method: 'DELETE', body: [created.id] }));
+
+		const rows = fetch.db['bo_content']!;
+		expect(rows.find((r) => r['id'] === 1)?.['status']).toBe('archived');
+		expect(rows.find((r) => r['id'] === 2)?.['status']).toBe('archived');
+		expect(rows.some((r) => r['id'] === created.id)).toBe(false);
+
+		expect((await get('/items/bo_singleton')).site_name).toBe('Backoffice fixtures');
+		await send('/items/bo_singleton', 'PATCH', { site_name: 'Changed' });
+		expect((await get('/items/bo_singleton')).site_name).toBe('Changed');
+		assertOnlyKnownRequests(calls(fetch));
+	});
+
+	test('counts follow the filter (archive filter of the Content module)', async () => {
+		setup();
+
+		const [all] = await get('/items/bo_content', { aggregate: { countDistinct: 'id' } });
+		const [active] = await get('/items/bo_content', {
+			aggregate: { countDistinct: 'id' },
+			filter: { status: { _neq: 'archived' } },
+		});
+
+		expect(all.countDistinct.id).toBe('30');
+		expect(active.countDistinct.id).toBe('20');
+	});
+
+	test('versions: compare, save and promote', async () => {
+		const fetch = setup();
+		const draft = snapshot.versions.find((v) => v['key'] === 'draft')!;
+
+		const comparison = await get(`/versions/${draft['id']}/compare`);
+		expect(comparison).toMatchObject({ outdated: false, mainHash: 'bo-hash' });
+		expect(comparison.current.title).toBe('Content 01 (draft)');
+
+		await send(`/versions/${draft['id']}/save`, 'POST', { body: 'Draft body' });
+		await send(`/versions/${draft['id']}/promote`, 'POST', { mainHash: 'bo-hash', fields: ['title'] });
+
+		const item = fetch.db['bo_content']!.find((r) => r['id'] === 1)!;
+		expect(item['title']).toBe('Content 01 (draft)');
+		expect(item['body']).not.toBe('Draft body');
+		assertOnlyKnownRequests(calls(fetch));
+	});
+
+	test('manual sort moves the item and renumbers the sort field', async () => {
+		const fetch = setup();
+
+		await send('/utils/sort/bo_content', 'POST', { item: 3, to: 1 });
+
+		const order = [...fetch.db['bo_content']!].sort((a, b) => a['sort'] - b['sort']).map((r) => r['id']);
+		expect(order.slice(0, 3)).toEqual([3, 1, 2]);
+	});
+
+	test('item permissions follow the collection permissions of the user', async () => {
+		setup('bo-editor');
+
+		expect(await get('/permissions/me/bo_content/1')).toEqual({
+			update: { access: true },
+			delete: { access: false },
+			share: { access: false },
+		});
+	});
+
+	test('GraphQL <collection>_by_id answers the item (save as copy)', async () => {
+		setup();
+
+		const result = await send('/graphql', 'POST', { query: 'query { item: bo_content_by_id (id: 2) { id title } }' });
+		expect(result.item.title).toBe('Content 02');
+	});
+
+	test('export=csv answers a CSV body', async () => {
+		setup();
+
+		const response = await apiFetch('/items/bo_content?export=csv&fields=title&limit=2&sort=id');
+		expect(await response.text()).toBe('"title"\n"Content 01 (edited)"\n"Content 02"');
 	});
 });

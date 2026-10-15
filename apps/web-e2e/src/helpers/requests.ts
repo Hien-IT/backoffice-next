@@ -1,9 +1,11 @@
 // The `test` of every spec (FR-002, SC-001, CHK083): records each request the page sends to the API and, after the test,
 // fails when one is outside contracts/api-calls.md (helpers/allowed-paths.ts), carries an Authorization header (session
-// mode only, FR-073), or when the page threw, logged an error or a missing translation key.
+// mode only, FR-073), or when the page threw, logged an error or a missing translation key. Outside hosts are stubbed or
+// aborted (helpers/external-hosts.ts, feature 014).
 import { test as base, expect } from '@playwright/test';
 import { isAllowedCall } from './allowed-paths.js';
 import { apiUrl } from './config.js';
+import { stubExternalHosts } from './external-hosts.js';
 
 export interface ApiRequest {
 	method: string;
@@ -38,6 +40,8 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 		async ({ page, apiUrl }, use) => {
 			const requests: ApiRequest[] = [];
 			const problems: string[] = [];
+			// Registered first: routes a spec adds later take precedence (Playwright runs the newest matching route first).
+			await stubExternalHosts(page);
 
 			page.on('request', (request) => {
 				const path = apiPath(request.url(), apiUrl);
