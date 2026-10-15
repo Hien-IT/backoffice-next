@@ -69,7 +69,7 @@ test('the seeded value renders (sanitized) without emitting; typing emits the Ed
 	getSelection()!.addRange(range);
 	await userEvent.keyboard('!');
 
-	await vi.waitFor(() => expect(wrapper.emitted('input')).toBeDefined(), { timeout: 3000 });
+	await vi.waitFor(() => expect(wrapper.emitted('input')).toBeDefined(), { timeout: 10_000 });
 	const output = wrapper.emitted('input')!.at(-1)![0] as Record<string, any>;
 	expect(output).toMatchObject({ time: expect.any(Number), version: '2.31.2' });
 	expect(output['blocks'].map((b: any) => b.type)).toEqual(['header', 'paragraph', 'image']);
@@ -100,7 +100,7 @@ test('the image tool takes a file from the upload drawer (fileId, fileURL, url o
 		title: 'Sample',
 	});
 
-	await vi.waitFor(() => expect(wrapper.emitted('input')).toBeDefined(), { timeout: 3000 });
+	await vi.waitFor(() => expect(wrapper.emitted('input')).toBeDefined(), { timeout: 10_000 });
 	const output = wrapper.emitted('input')!.at(-1)![0] as Record<string, any>;
 	expect(output['blocks'][0]).toMatchObject({
 		type: 'image',

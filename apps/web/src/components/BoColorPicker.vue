@@ -388,8 +388,9 @@ const selectedHex = computed(() => hex.value?.slice(0, 7) ?? null);
 // component-specs FOCUS, FIELD, ICON_BTN, Slider and ColorPicker recipes.
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
+// No width here: the channel inputs are w-16 and `w-full` would win over it (slider squeezed to 0).
 const FIELD =
-	'w-full rounded-lg border bg-transparent text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 disabled:placeholder:text-gray-300 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03] dark:disabled:placeholder:text-white/15 read-only:bg-gray-50 dark:read-only:bg-white/[0.03]';
+	'rounded-lg border bg-transparent text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:outline-hidden focus:ring-3 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 disabled:placeholder:text-gray-300 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03] dark:disabled:placeholder:text-white/15 read-only:bg-gray-50 dark:read-only:bg-white/[0.03]';
 const FIELD_VALID = `border-gray-500 focus:border-brand-500 focus:ring-brand-500/10 ${FOCUS} dark:border-gray-500 dark:focus:border-brand-400`;
 const FIELD_INVALID =
 	'border-error-600 focus:border-error-600 focus:ring-error-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error-600 dark:focus-visible:outline-error-400 dark:border-error-400 dark:focus:border-error-400';
@@ -411,7 +412,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 					:aria-invalid="invalid ? 'true' : undefined"
 					autocomplete="off"
 					spellcheck="false"
-					class="h-11 px-4 ps-12 pe-11"
+					class="h-11 w-full px-4 ps-12 pe-11"
 					:class="[FIELD, invalid ? FIELD_INVALID : FIELD_VALID]"
 					@input="input = ($event.target as HTMLInputElement).value"
 					@change="onChanged"
@@ -522,7 +523,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 							:maxlength="opacity ? 9 : 7"
 							autocomplete="off"
 							spellcheck="false"
-							class="h-9 px-3"
+							class="h-9 w-full px-3"
 							:class="[FIELD, FIELD_VALID]"
 							@change="hex = ($event.target as HTMLInputElement).value"
 						/>

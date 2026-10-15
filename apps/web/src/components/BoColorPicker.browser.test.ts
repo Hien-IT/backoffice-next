@@ -49,3 +49,18 @@ test('opening with the keyboard moves the focus into the popover (Reka auto focu
 	);
 	expect(document.activeElement?.getAttribute('role')).toBe('combobox');
 });
+
+test('the channel rows fit the panel: sliders keep their width, number inputs stay narrow', async () => {
+	await openPicker({ modelValue: '#2ECDA7' }); // raw-color-allowed: test value
+	const panel = document.querySelector<HTMLElement>('[data-reka-popper-content-wrapper] > *')!;
+
+	expect(panel.scrollWidth).toBeLessThanOrEqual(panel.clientWidth);
+	const sliders = panel.querySelectorAll('[data-slider-impl]');
+	expect(sliders).toHaveLength(3);
+	for (const slider of sliders) {
+		expect(slider.getBoundingClientRect().width).toBeGreaterThan(100);
+	}
+	for (const input of panel.querySelectorAll<HTMLElement>('input[type="number"]')) {
+		expect(input.getBoundingClientRect().width).toBe(64);
+	}
+});
