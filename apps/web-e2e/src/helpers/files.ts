@@ -48,13 +48,3 @@ export async function closeNavigation(page: Page): Promise<void> {
 	await page.keyboard.press('Escape');
 	await expect(drawer).toBeHidden();
 }
-
-/**
- * Sign-in lands on the admin's last_page (012 FR-018): the Files specs start and end with none, so the specs that
- * expect /admin/content after sign-in (a11y, branding, content) never land on a file page left by a Files spec. The
- * parity APIs cache /users/me (CACHE_ENABLED), so the cache is cleared too.
- */
-export async function resetLastPage(api: AdminApi): Promise<void> {
-	await api.call('PATCH', '/users/me', { data: { last_page: null } });
-	await api.call('POST', '/utils/cache/clear');
-}

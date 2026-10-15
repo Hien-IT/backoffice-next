@@ -485,3 +485,23 @@ khuôn có sẵn thì dùng model rẻ hơn.
 | Storage local          | Nếu một môi trường vẫn để `STORAGE_LOCAL_*` trỏ vào ổ riêng của container, file tải lên ở replica này sẽ không thấy ở replica khác. Kiểm tra cấu hình storage trước khi tăng số replica.                                                           |
 | Khối lượng             | Có khoảng 737 file TS ở BE và 551 file Vue ở FE. Ước lượng theo từng feature sau bước `/speckit.tasks`.                                                                                                                                            |
 | Design-system          | TailAdmin bản miễn phí không có màn CMS; các màn (layout table/cards/calendar/kanban/map, form theo metadata, flow editor, dashboard) phải tự thiết kế trên theme và ghi vào `design-system/docs/` trước khi code để các feature sau dùng lại.     |
+
+## 11. Hoãn tới khi xong mọi spec
+
+Owner quyết định 2026-10-16 (chuyển qua phiên 014): không làm trong các lượt của 015 hay feature nào, chỉ làm sau khi mọi
+spec (đến 019) đã xong.
+
+- **p95 benchmark API chậm hơn Directus 11.17.4**: điều tra rồi sửa trong `apps/api`, hoặc ghi thành khác biệt được tech
+  lead duyệt. Số đo của run 38752626188 (`benchmark.yml`, 2026-10-15):
+
+  | Job                  | Request                                          | p95 Backoffice | p95 Directus |
+  | -------------------- | ------------------------------------------------ | -------------- | ------------ |
+  | `benchmark`          | GET /server/specs/oas, 182 req/s                 | 279.6 ms       | 249.3 ms     |
+  | `benchmark-system`   | GET presets-list, user, 50 kết nối, 84 req/s     | 639.5 ms       | 559.1 ms     |
+  | `benchmark-history`  | POST version-save, admin, 10 kết nối, 101 req/s  | 206.0 ms       | 174.0 ms     |
+  | `benchmark-files`    | POST files-upload, admin, 50 kết nối, 119 req/s  | 472.3 ms       | 346.9 ms     |
+
+  Các run 2026-10-13 (38422115962 và các run khác) đã đỏ ở `benchmark-schema` và `benchmark-files`. Chạy lại một job:
+  `gh workflow run benchmark.yml -f job=<job>`.
+- **Parity GraphQL chập chờn**: `src/graphql/system.test.ts` và `schema.test.ts` trên mysql/postgres báo
+  "POST /graphql/system: N unaccepted difference(s)" rồi qua khi chạy lại.

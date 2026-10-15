@@ -5,9 +5,8 @@ import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, apiUrl, CONTENT_URL, directusUrl } from './helpers/config.js';
-import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { moduleBar } from './helpers/layout.js';
-import { login } from './helpers/login.js';
+import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
 const BRANDING = [
@@ -40,14 +39,16 @@ test.beforeAll(async ({ playwright }) => {
 		project_name: 'Directus',
 		project_color: '#6644FF',
 	});
-	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
-	await api.call('POST', '/utils/cache/clear');
+});
+
+// Every test signs in and expects /admin/content: an earlier test or configuration may have left last_page elsewhere.
+test.beforeEach(async () => {
+	await resetLastPage(api);
 });
 
 test.afterAll(async () => {
 	await api.patchSettings(before);
 	for (const id of files) await api.deleteFile(id);
-	await closeHostDb();
 });
 
 async function noDirectus(page: Page) {

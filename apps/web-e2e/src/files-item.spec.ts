@@ -5,8 +5,8 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX } from './helpers/config.js';
 import { openSidebar } from './helpers/content.js';
-import { clearCreatedFiles, folderId, openFiles, resetLastPage } from './helpers/files.js';
-import { login } from './helpers/login.js';
+import { clearCreatedFiles, folderId, openFiles } from './helpers/files.js';
+import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
 type FileRow = { id: string; title: string; description: string | null; folder: string | null; filesize: number; type: string };

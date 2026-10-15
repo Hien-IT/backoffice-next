@@ -3,12 +3,16 @@
 // serious or critical violation, low contrast of other pairs included, fails.
 import { AxeBuilder } from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
+import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
-import { closeHostDb, hostDb } from './helpers/db-rows.js';
-import { login } from './helpers/login.js';
+import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
-test.afterAll(closeHostDb);
+let api: AdminApi;
+
+test.beforeAll(async ({ playwright }) => {
+	api = new AdminApi(await playwright.request.newContext());
+});
 
 const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
@@ -53,7 +57,7 @@ for (const scheme of ['light', 'dark'] as const) {
 			found[path] = await violations(page);
 		}
 
-		await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
+		await resetLastPage(api);
 		await page.goto('/admin/login');
 		await login(page, ADMIN);
 		await expect(page).toHaveURL(CONTENT_URL);
@@ -75,7 +79,7 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 		page.viewportSize()!.width < 1280,
 		'below lg the module bar sits in the navigation drawer (navigation.spec)',
 	);
-	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
+	await resetLastPage(api);
 	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 

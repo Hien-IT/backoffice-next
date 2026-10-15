@@ -132,8 +132,10 @@ test('comment with a mention: create, edit, delete', async ({ browser, page }) =
 	expect(calls(dir)).toEqual(['POST /comments', 'PATCH /comments/<id2>', 'DELETE /comments/<id2>']);
 	expect(bo[0]).toEqual(dir[0]);
 	expect(bo[2]).toEqual(dir[2]);
-	// Real difference, reported (not normalized away): the comment editor of the Directus app (v-template-input,
-	// contenteditable) sends a leading newline when an edited comment is replaced; the Backoffice textbox does not.
+	// Real difference, reported (not normalized away), owner informed 2026-10-16: a Chromium contenteditable quirk, not
+	// Directus logic. comment-input.vue loads the edited comment as md() HTML `<p>…</p>\n` into v-template-input;
+	// select-all + insert keeps the `\n` text node after `</p>` and puts the new text after it. Firefox and WebKit send
+	// "Edited comment" from the same Directus editor; the Backoffice textarea sends it in every browser.
 	expect(dir[1]!.body).toEqual({ comment: '\nEdited comment' });
 	expect(bo[1]!.body).toEqual({ comment: 'Edited comment' });
 });

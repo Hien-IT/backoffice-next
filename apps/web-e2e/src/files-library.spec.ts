@@ -5,8 +5,8 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX } from './helpers/config.js';
 import { clearAdminPresets, openSidebar } from './helpers/content.js';
-import { clearCreatedFiles, closeNavigation, folderId, folderTree, openFiles, resetLastPage } from './helpers/files.js';
-import { login } from './helpers/login.js';
+import { clearCreatedFiles, closeNavigation, folderId, folderTree, openFiles } from './helpers/files.js';
+import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
 let api: AdminApi;
