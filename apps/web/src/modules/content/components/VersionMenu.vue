@@ -7,7 +7,8 @@
 // key input is slugified like v-input `slug`, empty inputs are null like its `nullable`; a reserved key also shows
 // `reserved_version_key` as the key field error (the tooltip of a disabled button is not reachable by keyboard).
 // Requests go through the SDK client and errors to the useNotices dialog (FR-054b). The comparison modal is loaded on
-// demand.
+// demand. The menu is not modal (as v-menu): a modal Reka menu puts aria-hidden on the page, which keeps its tabbable
+// controls (axe aria-hidden-focus, T095).
 import type { ContentVersion, PrimaryKey } from '@directus/types';
 import slugify from '@sindresorhus/slugify';
 import {
@@ -392,7 +393,7 @@ function hasVersionEdits(version: ContentVersionMaybeNew | null) {
 	<div class="version-menu-wrapper flex min-w-0 items-center">
 		<span aria-hidden="true" class="hidden pe-0.5 text-gray-500 sm:inline dark:text-gray-400">•</span>
 
-		<DropdownMenuRoot>
+		<DropdownMenuRoot :modal="false">
 			<DropdownMenuTrigger as-child>
 				<button
 					class="version-button inline-flex h-8 min-w-0 items-center gap-1 rounded-lg px-2 text-theme-sm text-gray-700 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:bg-white/5 dark:focus-visible:outline-brand-400"

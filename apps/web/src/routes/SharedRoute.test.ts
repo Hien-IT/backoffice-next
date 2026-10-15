@@ -50,6 +50,7 @@ function mountRoute(authenticated = false) {
 			routes: [
 				{ path: '/shared/:id', component: SharedRoute },
 				{ path: '/content/:collection/:item', component: { template: '<p />' } },
+				{ path: '/users/:id', component: { template: '<p />' } },
 			],
 			beforeMount: () => {
 				useAppStore().authenticated = authenticated;
@@ -120,6 +121,25 @@ describe('SharedRoute', () => {
 
 		expect(login).toHaveBeenCalledWith({ share: true, credentials: { share: ID } });
 		expect(router.currentRoute.value.fullPath).toBe('/content/articles/a%20b');
+		wrapper.unmount();
+	});
+
+	test('share login replaces the history entry; system collections open their module route (getItemRoute)', async () => {
+		mockApi({
+			[`GET /shares/info/${ID}`]: share({ collection: 'directus_users', item: 'u1', password: '**********' }),
+		});
+		vi.mocked(login).mockResolvedValue();
+		const { wrapper, router } = await mountRoute();
+		const push = vi.spyOn(router, 'push');
+		const replace = vi.spyOn(router, 'replace');
+
+		await wrapper.get('input[name="password"]').setValue('pw');
+		await wrapper.get('form').trigger('submit');
+		await flushPromises();
+
+		expect(replace).toHaveBeenCalledWith('/users/u1');
+		expect(push).not.toHaveBeenCalled();
+		expect(router.currentRoute.value.fullPath).toBe('/users/u1');
 		wrapper.unmount();
 	});
 

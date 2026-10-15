@@ -53,9 +53,12 @@ jobs:
           else
             pnpm nx run-many -t lint typecheck test build check-bundle
           fi
-      - name: web perf (SC-004 of feature 013, alone and without coverage)
+      - name: web perf (SC-004 of 013, SC-011 of 014 table and tree, alone and without coverage)
         working-directory: apps/web
-        run: PERF=1 pnpm exec vitest run --project browser --coverage.enabled=false src/components/form/perf.browser.test.ts
+        run: >-
+          PERF=1 pnpm exec vitest run --project browser --coverage.enabled=false
+          src/components/form/perf.browser.test.ts src/layouts/tabular/perf.browser.test.ts
+          src/modules/content/components/perf.browser.test.ts
       - run: pnpm run test:tools
       - run: pnpm run check-port-headers
       - run: pnpm run check-package-names
@@ -301,7 +304,10 @@ jobs:
   e2e-web:
     needs: docker
     runs-on: ubuntu-latest
-    timeout-minutes: 75
+    # Feature 014 (T093): the Content specs run in the three configurations (firefox and webkit run the @core ones only);
+    # the payload and content-parity-ui specs run in proxy-api only. 75 minutes is not enough with retries on a
+    # loaded runner (the wave 1 run took 70 minutes with failures).
+    timeout-minutes: 100
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

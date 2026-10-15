@@ -130,6 +130,7 @@ const FOCUS =
 			v-else
 			:href="href"
 			:tabindex="readonly ? -1 : 0"
+			:aria-label="$slots['title'] ? undefined : String(item?.[itemKey] ?? '')"
 			class="flex cursor-pointer flex-col gap-2 rounded-xl"
 			:class="FOCUS"
 			@click="handleClick"
@@ -138,7 +139,7 @@ const FOCUS =
 			<div
 				class="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
 			>
-				<span v-if="type || imgError" class="flex flex-col items-center gap-1 text-gray-400">
+				<span v-if="type || imgError" class="flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400">
 					<BoIcon name="insert_drive_file" size="lg" />
 					<span class="text-theme-xs font-medium uppercase">{{ type }}</span>
 				</span>
@@ -153,7 +154,7 @@ const FOCUS =
 					"
 					@error="imgError = true"
 				/>
-				<span v-else class="text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>
+				<span v-else class="text-gray-500 dark:text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>
 			</div>
 			<div v-if="$slots['title']" class="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
 				<slot name="title" />

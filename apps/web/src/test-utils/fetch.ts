@@ -100,7 +100,7 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	// Feature 014 (specs/014-content-module/contracts/api-calls.md #50-#96).
 	{ id: 53, method: 'GET', path: new RegExp(`^/permissions/me/${ID}(/${ID})?$`) },
 	{ id: 55, method: 'GET', path: /^\/(revisions|versions|comments|shares)$/ },
-	{ id: 56, method: 'GET', path: new RegExp(`^/(revisions|versions)/${ID}$`) },
+	{ id: 56, method: 'GET', path: new RegExp(`^/(revisions|versions|shares)/${ID}$`) },
 	{ id: 58, method: 'GET', path: new RegExp(`^/versions/${ID}/compare$`) },
 	{ id: 70, method: 'POST', path: new RegExp(`^/(items/${ID}|presets|versions|comments|shares)$`) },
 	{

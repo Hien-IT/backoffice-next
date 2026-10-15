@@ -13,7 +13,7 @@
 		"env-down": {
 			"executor": "nx:run-commands",
 			"options": {
-				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres down -v --remove-orphans",
+				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres --profile bench-web down -v --remove-orphans",
 				"cwd": "tests/benchmark"
 			}
 		},
@@ -21,6 +21,13 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"command": "docker compose -p benchmark -f docker-compose.yml -f auth.compose.yml --profile postgres up -d --build --wait",
+				"cwd": "tests/benchmark"
+			}
+		},
+		"env-up-web": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres --profile bench-web up -d --build --wait",
 				"cwd": "tests/benchmark"
 			}
 		},
@@ -100,6 +107,14 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"command": "node src/graphql.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
+		},
+		"web": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/web-content.ts",
 				"cwd": "tests/benchmark"
 			},
 			"cache": false

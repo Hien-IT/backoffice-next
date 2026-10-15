@@ -16,6 +16,7 @@ của sdk (API đọc như dạng ngoặc của axios, 013 #35).
 | 54 | GET | `/presets` | hydrate (012 #?) | theo user, role, global | đã có |
 | 55 | GET | `/revisions` | Revisions sidebar, so sánh revision, `fetchLatestRevisionActivityOfMainVersion` | `filter{collection,item,version}`, `sort -id`, `limit 10`, `page`, `fields` như `use-revisions.ts`; `aggregate count` cho số đếm; `limit 1` cho activity mới nhất | |
 | 56 | GET | `/revisions/<id>` | so sánh revision (`use-revision.ts`) | `fields` data, delta, activity | |
+| 56b | GET | `/shares/<id>` | sửa share (`DrawerItem` trên `directus_shares`, `fields=*`) | | Directus app gửi cùng request (bộ payload T091); thêm 2026-10-15 |
 | 57 | GET | `/versions` | `useVersions` | `filter{collection,item}`, `sort -date_created`, `fields *` | |
 | 58 | GET | `/versions/<id>/compare` | hộp so sánh version | | `{outdated, mainHash, current, main}` |
 | 59 | GET | `/comments` | Comments sidebar | `filter{collection,item}`, `sort -date_created`, `fields` user_created...; `aggregate count id` | |

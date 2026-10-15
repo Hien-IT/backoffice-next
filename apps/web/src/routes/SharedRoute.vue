@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/routes/shared/shared.vue -->
 <script setup lang="ts">
 // Backoffice: only the sign-in part. Once signed in (or already signed in as this share or as a user) the app opens
-// the item route of the share, which shows the module frame (D-40), instead of the read-only form of share-item.vue;
+// the item page of the Content module (feature 014) in the share session, instead of the read-only form of share-item.vue;
 // the page is a PublicView instead of shared-view.vue and the title does not read the collection name (the
 // collections store is empty before sign-in). A wrong password is read from the SDK error (`errors`, the Directus
 // app reads `response.data.errors`, an axios shape) and shown under the field; other errors in a danger notice.
@@ -20,6 +20,7 @@ import BoProgressCircular from '../components/BoProgressCircular.vue';
 import { type APIError, translateAPIError } from '../lang/index.ts';
 import PublicView from '../layout/PublicView.vue';
 import { useAppStore } from '../stores/app.ts';
+import { getItemRoute } from '../utils/get-item-route.ts';
 
 type ShareInfo = {
 	id: string;
@@ -67,12 +68,6 @@ const title = computed(() => {
 	return t('share_access_page');
 });
 
-// shortcut: getItemRoute of Directus also maps system collections (directus_users → /users...); shares of system
-// collections open /content/<collection> until those modules land.
-function itemRoute(info: ShareInfo) {
-	return `/content/${info.collection}/${encodeURIComponent(info.item)}`;
-}
-
 async function getShareInformation(shareId: string) {
 	loading.value = true;
 
@@ -112,14 +107,14 @@ async function handleAuth() {
 				await logout({ navigate: false });
 			} else {
 				// Backoffice: signed in as this share, open its item route (Directus hydrates and shows share-item.vue).
-				router.replace(itemRoute(share.value!));
+				router.replace(getItemRoute(share.value!.collection, share.value!.item));
 				return;
 			}
 		}
 
 		// Logged in as regular user
 		if (currentUser?.id && !currentUser?.share) {
-			router.replace(itemRoute(share.value!));
+			router.replace(getItemRoute(share.value!.collection, share.value!.item));
 			return;
 		}
 	}
@@ -136,7 +131,8 @@ async function authenticate() {
 	try {
 		const credentials = { share: shareId, ...(password.value !== null && { password: password.value }) };
 		await login({ share: true, credentials });
-		router.push(itemRoute(share.value!));
+		// Backoffice: replace, so Back does not reopen the sign-in of the share (FR-084).
+		router.replace(getItemRoute(share.value!.collection, share.value!.item));
 	} catch (err: any) {
 		if (err?.errors?.[0]?.extensions?.code === 'INVALID_CREDENTIALS') {
 			passwordWrong.value = true;

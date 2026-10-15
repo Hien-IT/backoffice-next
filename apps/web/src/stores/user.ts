@@ -73,14 +73,19 @@ export const useUserStore = defineStore('userStore', () => {
 			const [user, globals, roles] = await Promise.all([
 				sdk.request(requestEndpoint<Record<string, any>>('/users/me', { method: 'GET', params: { fields } })),
 				sdk.request(requestEndpoint<Record<string, any>>('/policies/me/globals', { method: 'GET' })),
-				sdk.request(requestEndpoint<{ id: string }[]>('/roles/me', { method: 'GET', params: { fields: ['id'] } })),
+				// Backoffice: a share session gets 403 here and has no roles; its store must still load (FR-084).
+				sdk
+					.request(requestEndpoint<{ id: string }[]>('/roles/me', { method: 'GET', params: { fields: ['id'] } }))
+					.catch((err: unknown) => err),
 			]);
+
+			if (!Array.isArray(roles) && !(user && 'share' in user)) throw roles;
 
 			currentUser.value = {
 				...user,
 				...(user?.['avatar'] != null ? { avatar: { id: user['avatar'] } } : {}),
 				...globals,
-				roles,
+				roles: Array.isArray(roles) ? roles : [],
 			} as AppUser | ShareUser;
 		} catch (err: unknown) {
 			error.value = err;

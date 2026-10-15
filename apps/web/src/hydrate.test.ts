@@ -110,6 +110,23 @@ test('a user without app_access loads nothing else (no-app-access screen)', asyn
 	expect(setLanguage).toHaveBeenCalled();
 });
 
+test('a share session loads the stores of shared.vue and the modules (FR-084)', async () => {
+	const fetch = mockApi({ ...answers(false), 'GET /users/me': { share: 's1' } });
+
+	await hydrate();
+
+	expect(calls(fetch).map(path)).toEqual([
+		'GET /users/me',
+		'GET /policies/me/globals',
+		'GET /roles/me',
+		'GET /collections',
+		'GET /permissions/me',
+		'GET /fields',
+		'GET /relations',
+	]);
+	expect(onHydrateModules).toHaveBeenCalled();
+});
+
 test('an error of a store becomes appStore.error', async () => {
 	mockApi({ ...answers(true), 'GET /fields': () => json({ errors: [{ message: 'boom' }] }, 500) });
 

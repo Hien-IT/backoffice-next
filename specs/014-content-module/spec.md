@@ -3,7 +3,7 @@
 **Feature Branch**: `014-content-module` (làm trên `main` như 012 và 013, không tạo branch vì dùng chung working tree; 013
 chưa commit lúc viết spec này, 014 chỉ sửa `specs/014-*` cho tới khi 013 commit xong)
 **Created**: 2026-10-15
-**Status**: Draft
+**Status**: Implementing (waves 1–4 code done, closing)
 **Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-69 (đường bàn phím cho kéo thả) và D-73 (`system-filter`,
 `system-input-translated-string` làm ở 014); D-67, D-68, D-70 đến D-72 là hệ quả của XI và D-40, duyệt gộp cùng Q5
 (release-gate CHK067). D-74 (xác nhận xóa nhóm kanban) chỉ ghi nếu T003 thấy Directus không hỏi.
@@ -933,6 +933,36 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-72 | Collection hệ thống chuyển hướng tới module của nó (`/users`, `/files`, `/insights`, `/activity`, `/settings/*`) | Màn đầy đủ | Khung module (D-40) | 015, 016, 018 chưa có | ngoài phạm vi (tạm thời) | 015: `directus_users`, `directus_files`; 016: `directus_settings`, `directus_collections`, `directus_roles`, `directus_presets`, `directus_translations`, `directus_flows`; 018: `directus_dashboards`, `directus_activity` |
 | D-74 | Xác nhận trước khi xóa nhóm kanban (xóa item thật của collection nhóm) | Xóa ngay khi bấm, không hỏi (`kanban.vue:195` gọi `deleteGroup` thẳng; T003 a) | Hộp xác nhận (focus Hủy) | An toàn dữ liệu (xóa item thật không hoàn tác được); owner duyệt có điều kiện ở release-gate CHK011 | khác | — |
 | D-73 | Interface hệ thống `system-filter` (bộ lọc nâng cao) và `system-input-translated-string` (tên bookmark) | Có | Làm ở 014 (D-57 của 013 đã sửa, commit `0e513e5`) | Thanh tìm kiếm và bookmark của Content cần; Clarifications Q-A; tech lead duyệt 2026-10-15 (Q5) | — (thu hẹp D-57) | — |
+| D-75 | Tên user trong mention của comment | Chèn thẳng tên vào HTML (`comment-item.vue`), có thể chạy mã qua tên user | Tên được escape HTML trước khi bọc `<mark>` (DOMPurify không cho tag khác) | An toàn (FR-110b) | khác | — |
+| D-76 | Thứ tự nút của hộp `unsaved_changes` ở màn item | "Discard Changes" trước, "Keep Editing" sau | "Keep Editing" trước, nhận focus đầu (Hủy trước) | FR-115d (focus vào lựa chọn an toàn) | khác | — |
+| D-77 | Lỗi của request đếm (`getItemCount`/`getTotalCount` trong `use-items`) | Ném lại trong watcher, thành promise bị từ chối không ai bắt (vd 403 ở collection không đọc được) | Ghi `console.warn`, giữ số đếm cũ; lỗi của request danh sách vẫn hiện ở layout | Không làm vỡ trang khi đếm lỗi (CI 014) | khác | — |
+| D-78 | Nút thêm nhóm của kanban (nhóm m2o) | Có hộp thêm nhóm nhưng không có nút mở | Cột "Add group" (viền đứt) khi user được tạo ở collection nhóm | FR-037, recipe Q-5 | khác | — |
+| D-79 | Mục Shares khi user không có quyền share | Mục vẫn hiện, chỉ ẩn nút "New Share" | Ẩn cả mục, không gửi request | FR-083, US5-3 | khác | — |
+| D-80 | Chọn item trên map trong drawer chọn một | Không truyền `showSelect` cho map: chọn thêm cộng dồn | Truyền `showSelect`: chọn một thay lựa chọn cũ, chọn nhiều cộng dồn (Shift) | FR-029 | khác | — |
+| D-81 | Nút xuất của hộp Export | Bấm được khi chưa chọn field | Khóa khi chưa chọn field nào | FR-091 | khác | — |
+| D-82 | Bề ngang form của màn item trên màn rộng | Form chiếm hết bề ngang nội dung; field `fill` kéo hết bề ngang | Form dừng ở 64rem (`max-w-5xl`); field `fill` dừng ở đó | Dễ đọc trên màn rộng (chủ dự án, 2026-10-15) | khác | — |
+
+**Trạng thái khác biệt (T099, cuối lượt 4)**:
+
+| Mã | Đã làm trong code | Duyệt |
+|----|-------------------|-------|
+| D-67 | `LivePreview.vue`, `PreviewRoute.vue`: không nút và lớp visual editing | Tech lead duyệt (gộp Q5, CHK067), xác nhận lại 2026-10-15 |
+| D-68 | `ComparisonModal.vue`, `ComparisonHeader.vue`: không chế độ `collab` | Tech lead duyệt (gộp Q5, CHK067), xác nhận lại 2026-10-15 |
+| D-69 | Menu header "Chuyển trái/phải" và menu dòng "Lên/Xuống" (`layouts/tabular/Tabular.vue`), menu cột và thẻ kanban (`layouts/kanban/Kanban.vue`), danh sách "Items in view" của map (`layouts/map/MapActions.vue`), phím tay cầm live preview (`components/SplitPanel.vue`), "Lên/Xuống" của điều kiện bộ lọc (`system-filter/Nodes.vue`); lịch: đổi ngày bằng form | Tech lead duyệt 2026-10-15 (Q5) |
+| D-70 | `ItemRoute.vue`: không nạp lại theo công cụ AI | Tech lead duyệt (gộp Q5, CHK067), xác nhận lại 2026-10-15 |
+| D-71 | Sửa bookmark role/global trỏ `/settings/presets/:id` (`NavigationBookmark.vue`); "tạo collection" trỏ `/settings/data-model/+` (`ContentNavigation.vue`, `NoCollections.vue`) | Tech lead duyệt (gộp Q5, CHK067), xác nhận lại 2026-10-15; gỡ ở 016 |
+| D-72 | `checkForSystem` của `modules/content.ts` chuyển `/content/directus_*` sang route module (`utils/get-item-route.ts`), hiện khung module của 012 | Tech lead duyệt (gộp Q5, CHK067), xác nhận lại 2026-10-15; gỡ ở 015, 016, 018 |
+| D-73 | `interfaces/_system/system-filter/`, `interfaces/_system/system-input-translated-string/` | Tech lead duyệt 2026-10-15 (Q5) |
+| D-74 | `Kanban.vue`: `BoDialog` xác nhận trước khi xóa nhóm (Hủy trước) | Owner duyệt có điều kiện (CHK011); điều kiện thỏa (T003 a: Directus xóa ngay). Tech lead xác nhận 2026-10-15 |
+| R-38 | `composables/use-items.ts` giữ memo đếm như Directus; `use-items.test.ts` khẳng định 0 request đếm sau làm mới | Tech lead duyệt 2026-10-15 |
+| D-75 | `CommentItem.vue`: escape tên trong mention | Tech lead duyệt 2026-10-15 |
+| D-76 | `ItemRoute.vue`: hộp `unsaved_changes` đặt "Keep Editing" trước | Tech lead duyệt 2026-10-15 |
+| D-77 | `composables/use-items.ts`: request đếm lỗi không ném lại | Tech lead duyệt 2026-10-15 |
+| D-78 | `layouts/kanban/Kanban.vue`: cột "Add group" | Tech lead duyệt 2026-10-15 |
+| D-79 | `components/sidebar/SharesSidebarDetail.vue`: ẩn cả mục khi không có quyền | Tech lead duyệt 2026-10-15 |
+| D-80 | `layouts/map/*`: truyền `showSelect` | Tech lead duyệt 2026-10-15 |
+| D-81 | `components/sidebar/ExportSidebarDetail.vue`: khóa nút xuất khi chưa chọn field | Tech lead duyệt 2026-10-15 |
+| D-82 | `modules/content/routes/ItemRoute.vue`: `BoForm` `max-w-5xl` | Chủ dự án duyệt 2026-10-15 |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.
@@ -953,22 +983,23 @@ R-37; tech lead duyệt trước khi đóng.
 
 `component-specs.md` có Table (bảng cơ bản), Pagination (chưa), Card, Modal, Dropdown; `layout-patterns.md` §7 ghi
 sub-menu module **một cấp** (L-3) và "mỗi module feature quyết định điều hướng sâu hơn (nhóm collection, folder)". Xử lý
-như 013: recipe nháp vào `design-system/docs/` trước khi code, design owner duyệt trước khi đóng 014.
+như 013: recipe nháp vào `design-system/docs/` trước khi code, design owner duyệt trước khi đóng 014. Danh sách duyệt:
+`design-review/README.md`.
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) **bên trong sub-menu của sidebar** (owner chọn 2026-10-15, Clarifications Q2): thụt cấp, icon gập mở, mục bookmark, ô tìm dính đầu cây, menu "hiện collection ẩn" | Mở: vị trí đã chốt, chờ recipe nháp cho cách vẽ |
-| Q-2 | Bảng dữ liệu lớn: header dính, kéo độ rộng và thứ tự cột, menu header, ô chọn, kéo sắp xếp tay, ba khoảng cách dòng, footer phân trang và kích thước trang (TailAdmin chỉ có BasicTable) | Mở: chờ recipe nháp |
-| Q-3 | Lưới thẻ (cards): thẻ ảnh, kích thước thẻ, chọn, trạng thái tải | Mở: chờ recipe nháp |
-| Q-4 | Lịch (toolbar, view tháng/tuần/ngày/danh sách, sự kiện, kéo) trên theme TailAdmin (TailAdmin có mẫu Calendar với FullCalendar: dùng được không) | Mở: chờ recipe nháp |
-| Q-5 | Bảng kanban: cột, thẻ (ảnh, tag, avatar, ngày), kéo thả, thêm/sửa cột | Mở: chờ recipe nháp |
-| Q-6 | Khung layout bản đồ toàn trang, popup item, chọn vùng, menu nền; panel chia đôi live preview (tay cầm kéo, thanh công cụ khung xem trước, chọn kích thước màn hình) | Mở: chờ recipe nháp (BoMapFrame của 013 cho khung; ResizeHandle của 012 cho tay cầm) |
-| Q-7 | Bộ lọc nâng cao: cây điều kiện lồng, chọn field (cây), toán tử, ô giá trị theo kiểu, nút `_and`/`_or`, kéo thả; thanh tìm kiếm mở rộng có nút bộ lọc và số điều kiện | Mở: chờ recipe nháp |
-| Q-8 | Nút bookmark cạnh tiêu đề page header; menu version trong breadcrumb; nút lưu có menu phụ (split button) | Mở: chờ recipe nháp |
-| Q-9 | Mục accordion trong panel L-4: Layout (menu chọn + option), Archive, Refresh, Export/Import, Flows (nút chạy, trạng thái) | Mở: chờ recipe nháp (panel có; nội dung mục chưa) |
-| Q-10 | Revisions: nhóm theo ngày, mục revision, phân trang; hộp so sánh (hai cột, chọn field, chỉ khác biệt) | Mở: chờ recipe nháp |
-| Q-11 | Comments: luồng theo ngày, ô nhập với gợi ý `@`, `<mark>` tên user; Shares: mục share, drawer tạo/sửa, hộp gửi email | Mở: chờ recipe nháp |
-| Q-12 | Hộp thoại xuất (nhiều trường), nhập (chọn file, tiến độ), hộp lỗi nhập; hộp xác nhận hàng loạt | Mở: chờ recipe nháp (Modal có) |
+| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) **bên trong sub-menu của sidebar** (owner chọn 2026-10-15, Clarifications Q2): thụt cấp, icon gập mở, mục bookmark, ô tìm dính đầu cây, menu "hiện collection ẩn" | Mở: recipe nháp `layout-patterns.md` §9 đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-2 | Bảng dữ liệu lớn: header dính, kéo độ rộng và thứ tự cột, menu header, ô chọn, kéo sắp xếp tay, ba khoảng cách dòng, footer phân trang và kích thước trang (TailAdmin chỉ có BasicTable) | Mở: recipe nháp `component-specs.md` (Q-2) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-3 | Lưới thẻ (cards): thẻ ảnh, kích thước thẻ, chọn, trạng thái tải | Mở: recipe nháp `component-specs.md` (Q-3) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-4 | Lịch (toolbar, view tháng/tuần/ngày/danh sách, sự kiện, kéo) trên theme TailAdmin (TailAdmin có mẫu Calendar với FullCalendar: dùng được không) | Mở: recipe nháp `component-specs.md` (Q-4) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-5 | Bảng kanban: cột, thẻ (ảnh, tag, avatar, ngày), kéo thả, thêm/sửa cột | Mở: recipe nháp `component-specs.md` (Q-5) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-6 | Khung layout bản đồ toàn trang, popup item, chọn vùng, menu nền; panel chia đôi live preview (tay cầm kéo, thanh công cụ khung xem trước, chọn kích thước màn hình) | Mở: recipe nháp "Map layout" và `layout-patterns.md` §10 đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-7 | Bộ lọc nâng cao: cây điều kiện lồng, chọn field (cây), toán tử, ô giá trị theo kiểu, nút `_and`/`_or`, kéo thả; thanh tìm kiếm mở rộng có nút bộ lọc và số điều kiện | Mở: recipe nháp `component-specs.md` (Q-7) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-8 | Nút bookmark cạnh tiêu đề page header; menu version trong breadcrumb; nút lưu có menu phụ (split button) | Mở: recipe nháp `component-specs.md` (Q-8) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-9 | Mục accordion trong panel L-4: Layout (menu chọn + option), Archive, Refresh, Export/Import, Flows (nút chạy, trạng thái) | Mở: recipe nháp `component-specs.md` (Q-9) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-10 | Revisions: nhóm theo ngày, mục revision, phân trang; hộp so sánh (hai cột, chọn field, chỉ khác biệt) | Mở: recipe nháp `component-specs.md` (Q-10) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-11 | Comments: luồng theo ngày, ô nhập với gợi ý `@`, `<mark>` tên user; Shares: mục share, drawer tạo/sửa, hộp gửi email | Mở: recipe nháp `component-specs.md` (Q-11) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-12 | Hộp thoại xuất (nhiều trường), nhập (chọn file, tiến độ), hộp lỗi nhập; hộp xác nhận hàng loạt | Mở: recipe nháp `component-specs.md` (Q-12) đã đối chiếu code (T098), chờ design owner duyệt |
 
 ## Clarifications
 

@@ -2,7 +2,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import type { RouteLocationNormalized } from 'vue-router';
 import { i18n } from '../lang/index.ts';
-import { calls, mockApi } from '../test-utils/fetch.ts';
+import { calls, json, mockApi } from '../test-utils/fetch.ts';
 import type { AppUser } from '../types/user.ts';
 import { useServerStore } from './server.ts';
 import { useUserStore } from './user.ts';
@@ -54,6 +54,29 @@ describe('hydrate', () => {
 		expect(store.currentUser).toBeNull();
 		expect(store.error).toBeTruthy();
 		expect(store.loading).toBe(false);
+	});
+
+	test('a share session loads without /roles/me (403); a user still fails on it (FR-084)', async () => {
+		const forbidden = () => json({ errors: [{ message: 'FORBIDDEN', extensions: { code: 'FORBIDDEN' } }] }, 403);
+		mockApi({
+			'GET /users/me': { share: 's1' },
+			'GET /policies/me/globals': { app_access: false },
+			'GET /roles/me': forbidden,
+		});
+		const share = useUserStore();
+		await share.hydrate();
+		expect(share.currentUser).toEqual({ share: 's1', app_access: false, roles: [] });
+
+		setActivePinia(createPinia());
+		mockApi({
+			'GET /users/me': { id: 'u1' },
+			'GET /policies/me/globals': { app_access: true },
+			'GET /roles/me': forbidden,
+		});
+		const user = useUserStore();
+		await user.hydrate();
+		expect(user.currentUser).toBeNull();
+		expect(user.error).toMatchObject({ errors: [{ extensions: { code: 'FORBIDDEN' } }] });
 	});
 
 	test('hydrateAdditionalFields merges extra fields and ignores errors', async () => {

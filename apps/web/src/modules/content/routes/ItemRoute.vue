@@ -551,7 +551,13 @@ async function deleteAndQuit() {
 	try {
 		await remove();
 		edits.value = {};
-		router.replace(collectionRoute.value);
+		await router.replace(collectionRoute.value);
+		// Backoffice: FR-115c, the list page title; after the closing dialog has returned focus (timeout of its scope).
+		setTimeout(() => {
+			const title = document.querySelector<HTMLElement>('main h1');
+			title?.setAttribute('tabindex', '-1');
+			title?.focus();
+		});
 	} catch {
 		// `remove` will show the unexpected error dialog
 	} finally {
@@ -671,6 +677,7 @@ function useItemNavigation() {
 				<BoButton
 					variant="secondary"
 					icon="delete"
+					class="hover:bg-error-600 hover:text-white"
 					:aria-label="deleteAllowed ? $t('delete_label') : $t('not_allowed')"
 					:title="deleteAllowed ? $t('delete_label') : $t('not_allowed')"
 					:disabled="item === null || deleteAllowed !== true"
@@ -750,9 +757,11 @@ function useItemNavigation() {
 			:disabled="isMobile"
 		>
 			<template #start>
+				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page. -->
 				<BoForm
 					ref="form"
 					v-model="edits"
+					class="max-w-5xl"
 					:collection="collection"
 					:autofocus="isNew"
 					:disabled="isFormDisabled"
@@ -824,8 +833,9 @@ function useItemNavigation() {
 
 		<BoDialog v-model:open="confirmLeave" :title="$t('unsaved_changes')" :description="$t('unsaved_changes_copy')">
 			<template #actions>
-				<BoButton variant="secondary" @click="discardAndLeave">{{ $t('discard_changes') }}</BoButton>
+				<!-- Backoffice: the non-discarding button first, it gets the initial focus (FR-115d). -->
 				<BoButton @click="confirmLeave = false">{{ $t('keep_editing') }}</BoButton>
+				<BoButton variant="secondary" @click="discardAndLeave">{{ $t('discard_changes') }}</BoButton>
 			</template>
 		</BoDialog>
 	</PrivateView>

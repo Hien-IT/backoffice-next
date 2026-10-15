@@ -749,12 +749,12 @@ Shared parts (each component declares the constants it uses locally; there is no
   gray-800 with white); `bordered` → BoEditorFrame, else a plain block; content
   `rounded-lg px-[1.8125rem] py-3 text-sm text-gray-800 dark:text-white/90`, `role="group"` labelled by the field label.
   Image upload: a Drawer with a preview and the Upload, library through DrawerFiles.
-- Rich text HTML (TinyMCE 6.8.6, 013, duyệt 2026-10-15): the editor sits in BoEditorFrame (the frame draws the FIELD border and
-  focus ring; TinyMCE's own border and inner ring are removed); skin `oxide` with `tinymce-overrides.css` mapping its
-  colors to tokens through `--bo-tx-*` variables (light and `html.dark`, transparent toolbar), icons Material Symbols;
-  content iframe CSS from `get-editor-styles.ts` on tokens via `cssVar()` (read at init, a theme switch applies on
-  remount, as in Directus). Link: BoDialog form (Enter saves); source code, image and media: BoDrawer (media tabs with
-  BoTabs); uploads with BoUpload and DrawerFiles. TinyMCE popups use z-index 100000, fullscreen 99999.
+- Rich text HTML (TinyMCE 6.8.6, 013, duyệt 2026-10-15): the editor sits in BoEditorFrame (the frame draws the FIELD
+  border and focus ring; TinyMCE's own border and inner ring are removed); skin `oxide` with `tinymce-overrides.css`
+  mapping its colors to tokens through `--bo-tx-*` variables (light and `html.dark`, transparent toolbar), icons
+  Material Symbols; content iframe CSS from `get-editor-styles.ts` on tokens via `cssVar()` (read at init, a theme
+  switch applies on remount, as in Directus). Link: BoDialog form (Enter saves); source code, image and media: BoDrawer
+  (media tabs with BoTabs); uploads with BoUpload and DrawerFiles. TinyMCE popups use z-index 100000, fullscreen 99999.
 - Soft-length counter (Directus `softLength`), markdown (BoEditorFrame `data-remaining`):
   `mt-1.5 flex justify-end text-theme-xs tabular-nums`, `text-gray-500 dark:text-gray-400`; below 10 % remaining
   `text-warning-700 dark:text-warning-400`, below 5 % `text-error-600 dark:text-error-400` (Directus thresholds; the
@@ -1019,164 +1019,385 @@ Shared parts (each component declares the constants it uses locally; there is no
 ## Tier 3 recipes, nháp (014)
 
 **Draft (nháp, 014)** for the open questions Q-2 to Q-12 of `specs/014-content-module/spec.md`, written before the code
-(FR-110) and reviewed by the design owner before 014 closes (SC-009). Behaviour is the Directus one (screens of
-`modules/content`, `layouts/*`, `views/private/components/*`); classes reuse Tier 1 recipes and the 013 Tier 3 recipes.
-Every color pair is already in the contrast table of `migration-guide.md` (no new pair in 014).
+(FR-110), then updated to the code as built (T098) like the 013 recipes: each recipe names the files it describes
+(`apps/web/src/components/`, `layouts/`, `modules/content/`, `interfaces/_system/system-filter/`). "Deviation" lines say
+where the code differs from the first draft, with the reason; "Open" lines are questions for the design owner. The
+design owner reviews them before 014 closes (SC-009; review checklist
+`specs/014-content-module/design-review/README.md`). Behaviour is the Directus one (screens of `modules/content`,
+`layouts/*`, `views/private/components/*`); classes reuse the Tier 1 recipes and the 013 Tier 3 recipes (`FOCUS`,
+`ICON_BTN`, `POPOVER`, `PROGRESS`). Every color pair is already in the contrast table of `migration-guide.md` (no new
+pair in 014).
+
+Shared menu classes (Reka `DropdownMenu`, declared locally in each component): panel
+`z-99999 min-w-40 space-y-1 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark`;
+item
+`flex w-full cursor-pointer items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-start text-theme-sm font-medium text-gray-700 outline-hidden data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-800 data-[disabled]:text-gray-300 dark:text-gray-400 dark:data-[highlighted]:bg-white/5 dark:data-[highlighted]:text-gray-300`
+with a `sm` icon `text-gray-500 dark:text-gray-400`; checked radio item `menu-dropdown-item-active`; danger item
+`text-error-600 data-[highlighted]:bg-error-50 dark:text-error-400 dark:data-[highlighted]:bg-error-500/15`; separator
+`my-1 border-t border-gray-200 dark:border-gray-800`. Simple menus use `BoMenu` (same classes, items as data).
 
 ### Data table and pagination (Q-2; `BoTable` extended, `BoPagination`; Directus `v-table`, `v-pagination`)
 
-- `BoTable` (013 recipe "Table, simple") gains optional props only: `fixedHeader` (the header is already sticky; the
-  prop keeps the table body in its own `overflow-auto` scroller of the layout height), header `width`, `align`
-  (`text-start` / `text-center` / `text-end` on `th` and cells), `description` (`title` and sr-only text "A -> B"),
-  `sortable`, `rowHeight`, and a `header-context-menu` slot.
-- Header menu: the header button opens a Tier 1 Dropdown menu (`menu-dropdown-item`): `sort_asc`, `sort_desc`, divider,
-  `left_align`, `center_align`, `right_align` (checked item `menu-dropdown-item-active`), divider, `Move left`,
-  `Move right` (D-69), a width Input (`h-8 w-24`, number, min 32), `hide_field`. The `aria-sort` stays on `th`.
-- Column reorder: dragging a header (Directus `allow-header-reorder`), `cursor-grab`, drop marker
-  `border-s-2 border-brand-500`; keyboard path = Move left/right.
-- Add column: last header cell holds an icon Button `add` (`aria-label` `add_field`) opening a Popover with `FieldList`.
-- Pagination (`BoPagination`): `nav aria-label` (collection name) `flex items-center gap-1`; page buttons
-  `inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-theme-sm text-gray-700 hover:bg-gray-100 FOCUS
-  dark:text-gray-400 dark:hover:bg-white/5`, current `bg-brand-500 text-white aria-current="page"`, ellipsis
-  `text-gray-500`, previous/next icon buttons `chevron_left`/`chevron_right` with `aria-label`; at most 7 buttons.
-- Footer row: `flex flex-wrap items-center justify-between gap-3 px-4 py-3 border-t border-gray-200 dark:border-gray-800`:
-  pagination at the start, "per page" label + Select `h-9 w-24` at the end.
-- Count line (layout actions): `text-theme-sm text-gray-500 dark:text-gray-400`, `role="status" aria-live="polite"`.
+Built: `components/BoTable.vue`, `components/BoPagination.vue`,
+`layouts/tabular/{Tabular,TabularActions,TabularOptions}.vue`.
+
+- `BoTable` (013 recipe "Table, simple") gains optional props only: `fixedHeader` (the table sits in its own
+  `min-h-0 flex-1 overflow-auto` scroller of the layout height, the header stays sticky), column `width`, `align`
+  (`text-start` / `text-center` / `text-end` on `th` and cells), `description` (header `title` plus an sr-only
+  "(description)"), `sortable`, `rowHeight` (Directus spacing), `allowHeaderReorder`, the `manual-sort` event
+  (`{ item, to }`) and a `header-context-menu` slot.
+- Header button: the label, then `arrow_upward` / `arrow_downward` on the sorted column, else `arrow_drop_down` (`sm`,
+  gray-500), `FOCUS`; it opens a Reka Dropdown menu (shared menu classes): radio group `sort_asc` / `sort_desc`
+  (disabled when the column cannot sort), separator, radio group `left_align` / `center_align` / `right_align`,
+  separator, `move_left` / `move_right` (D-69, disabled at the ends), a width row (`field_width` text and a number input
+  `h-8 w-24`, min 32, Enter applies), separator, `hide_field`. `aria-sort` stays on `th`.
+- Column reorder: the header content is draggable (`cursor-grab`), the target `th` shows `border-s-2 border-brand-500`;
+  keyboard path = Move left / Move right, announced in a polite live region. Deviation: native HTML drag and drop on the
+  header instead of vuedraggable on the header row, so the rows keep the only Draggable.
+- Add column: the `header-append` cell holds an `ICON_BTN` `add` (`aria-label` and `title` `add_field`) opening a
+  `POPOVER` (`w-80`, `align="end"`) with `FieldList` (fields already shown are disabled).
+- Manual sort: the 013 row drag handle; while the table is sorted manually each row also has a row menu (`ICON_BTN`
+  `h-7 w-7` `more_vert`, `aria-label` `item_options`) with `move_up` / `move_down` (D-69).
+- Pagination (`BoPagination`): `nav aria-label` (collection name) `flex items-center gap-1`, hidden with one page or
+  none; buttons
+  `inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-theme-sm FOCUS disabled:cursor-not-allowed disabled:opacity-50`,
+  idle `text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5`, current
+  `bg-brand-500 text-white aria-current="page"`, gaps `…` (`text-gray-500`, `aria-hidden`), previous/next icon buttons
+  `chevron_left` / `chevron_right` with `aria-label` `previous` / `next`; `totalVisible` 7 plus the first and last page
+  (`showFirstLast`, Directus tabular values). Compact variant (revisions): `totalVisible` 3, no first/last.
+- Footer row:
+  `flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800`:
+  pagination at the start, `per_page` BoSelect at the end with its label inline
+  (`flex items-center gap-2 text-theme-sm text-gray-500 dark:text-gray-400`, trigger `w-24`), shown when a page has 25
+  rows or more or the limit is below 25 (Directus). Deviation: the Select is the Tier 1 `h-11` BoSelect, not `h-9` (one
+  Select size in the app). Deviation: no skeleton while the count loads; the pagination shows once the count is there.
+- Count line (layout actions, `TabularActions`):
+  `sr-only whitespace-nowrap text-theme-sm text-gray-500 sm:not-sr-only dark:text-gray-400`, `role="status"`
+  `aria-live="polite"`, always in the DOM (FR-115b), the sort change in sr-only text. Deviation: below `sm` it is
+  screen-reader only, not `display: none` (Directus), so the page change is still announced.
+- Ctrl/Cmd + A on the table box selects all (Directus `useShortcut('meta+a')`).
 
 ### Cards grid (Q-3; Directus `layouts/cards`)
 
+Built: `layouts/cards/{Cards,CardsActions,CardsOptions}.vue`, `layouts/cards/components/{Card,CardsHeader}.vue`.
+
 - Grid `grid gap-6` with `grid-template-columns: repeat(auto-fill, minmax(<size × 40>px, 1fr))` (inline style from the
-  `size` option, Directus behaviour).
-- Card: `group relative flex flex-col gap-2 rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-800
-  dark:bg-white/[0.03]`, the whole card a link (`FOCUS`); image box `aspect-square overflow-hidden rounded-xl bg-gray-100
-  dark:bg-gray-800` with `object-cover` (crop) or `object-contain`; fallback icon `size-12 text-gray-400`; title
-  `truncate text-theme-sm font-medium text-gray-800 dark:text-white/90`, subtitle `truncate text-theme-xs text-gray-500
-  dark:text-gray-400`.
-- Selection: Checkbox at the top start of the image `absolute start-3 top-3`, visible on hover/focus or when any card is
-  selected; selected card `ring-2 ring-brand-500`.
-- Header bar above the grid: select-all Checkbox, sort field Select + direction icon Button, per-page Select.
-- Loading: 12 skeleton cards `animate-pulse bg-gray-100 dark:bg-gray-800 motion-reduce:animate-none`.
+  `size` option). Deviation: `size × 40` px instead of the Directus `size × 2.25rem` (40 px is the width its
+  `isSingleRow` already uses).
+- Card:
+  `group relative flex flex-col rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-white/[0.03]`;
+  the body is a link (`href` from the router, `flex flex-col gap-2 rounded-xl FOCUS`; Enter opens, Space and click
+  toggle the selection in select mode as Directus); image box
+  `relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800` with
+  `object-cover` (crop) or `object-contain` (SVG `h-3/4 w-3/4 object-contain`); fallback icon
+  `lg text-gray-500 dark:text-gray-400` (collection icon, or `insert_drive_file` plus the extension
+  `text-theme-xs font-medium uppercase` for files); title
+  `truncate text-theme-sm font-medium text-gray-800 dark:text-white/90`, subtitle
+  `truncate text-theme-xs text-gray-500 dark:text-gray-400`.
+- Selection: a BoCheckbox outside the link (no interactive element inside a link),
+  `absolute start-3 top-3 rounded-md bg-white dark:bg-gray-900`,
+  `opacity-0 group-hover:opacity-100 focus-within:opacity-100` (always visible in select mode or when any card is
+  selected), `aria-label` `select_item_key`; selected card `ring-2 ring-brand-500`.
+- Header bar above the grid (`CardsHeader`):
+  `mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 px-2 py-2 dark:border-gray-800`:
+  select-all BoCheckbox (indeterminate while items are selected, a click clears them), then card size `ICON_BTN`
+  (`h-9 w-9`, `grid_view`, `aria-label` `card_size`), sort field BoSelect (`w-44`, sr-only label, sortable fields only),
+  direction `ICON_BTN` `sort` (`aria-pressed`, flipped when descending) and the `per_page` BoSelect (tabular rule).
+  Deviation: `grid_view` for every size (Material Symbols has no `grid_<n>`); unsortable fields are left out of the
+  Select (Directus shows them disabled); the bar is not sticky.
+- Footer: BoPagination (`pt-9`), no skeleton while the count loads (as tabular).
+- Loading: 12 skeleton cards (image
+  `aspect-square animate-pulse rounded-xl bg-gray-100 dark:bg-gray-800 motion-reduce:animate-none` and a `h-4 w-2/3`
+  line), the grid `aria-busy`. Count line as tabular.
 
 ### Calendar layout (Q-4; FullCalendar 6 as Directus `layouts/calendar`)
 
-- FullCalendar keeps its DOM; `calendar.css` sets its variables on `.fc` from the theme: `--fc-border-color`
-  gray-200 (dark gray-800), `--fc-page-bg-color` white (dark gray-900), `--fc-neutral-bg-color` gray-50 (dark
-  white/0.03), `--fc-today-bg-color` brand-50 (dark brand-500/0.12), `--fc-event-bg-color` and
-  `--fc-event-border-color` brand-500, `--fc-event-text-color` white, `--fc-button-*` = Tier 1 secondary button colors.
-- Toolbar buttons get the Tier 1 button classes through `.fc .fc-button` overrides (`rounded-lg`, `h-9`, `FOCUS`);
-  title `text-lg font-semibold text-gray-800 dark:text-white/90`.
-- Day cells and headers use `text-theme-sm text-gray-700 dark:text-gray-400`; selected events (`.selected`)
-  `ring-2 ring-brand-300`.
-- Notice above when the dataset is cut (`dataset_too_large_currently_showing_n_items`): Tier 1 Alert warning.
-- `prefers-reduced-motion`: drag mirror without transition.
+Built: `layouts/calendar/{Calendar,CalendarActions,CalendarOptions}.vue`, `layouts/calendar/calendar.css`.
+
+- FullCalendar keeps its DOM; `calendar.css` sets its variables on `.bo-calendar .fc` (they win over the `:root`
+  defaults FullCalendar injects) from the theme, light and `.dark`: `--fc-border-color` gray-200 (dark gray-800),
+  `--fc-page-bg-color` white (dark gray-900), `--fc-neutral-bg-color` gray-50 (dark white 3 %), `--fc-today-bg-color` /
+  `--fc-highlight-color` brand-50 (dark brand-500 12 %), `--fc-event-bg-color` and `--fc-event-border-color` brand-500,
+  `--fc-event-text-color` white, `--fc-now-indicator-color` error-500, buttons: text gray-700, background white, border
+  gray-300, hover gray-50, active brand-50 (dark: gray-400 on gray-800, border gray-700).
+- Toolbar (`flex-wrap`, gap 0.75rem): buttons are the Tier 1 outline Button look through `.fc .fc-button` (`h-9`,
+  `rounded-lg`, `text-theme-sm font-medium`, active `text-brand-600` / dark `brand-400`, disabled 50 %), focus = `FOCUS`
+  outline (the FullCalendar box shadow is removed); title `text-lg font-semibold text-gray-800 dark:text-white/90`. The
+  toolbar icons FullCalendar renders as unnamed `role="img"` get `aria-hidden` (the button `title` names it). Deviation:
+  outline buttons instead of the Directus text buttons; the toolbar is not sticky.
+- Day cells, headers and list: `text-theme-sm`, numbers `font-medium`, text gray-700 (dark gray-400); "more" links and
+  dot events brand-600 (dark brand-400); selected events `box-shadow 0 0 0 2px brand-300`; select mode puts a Material
+  Symbols check box (radio for single select) before the title, as Directus.
+- Notice above when the dataset is cut (`dataset_too_large_currently_showing_n_items`): BoNotice warning (Tier 1 Alert).
+- `prefers-reduced-motion`: the global rule of `styles/base.css` plus `dragRevertDuration: 0`.
+- Keyboard path of the event drag (D-69): the dates are edited in the item form; no extra UI. Count line as tabular.
 
 ### Kanban board (Q-5; Directus `layouts/kanban`)
 
-- Board `flex h-full gap-4 overflow-x-auto pb-4` (the board scrolls, the page does not, FR-116); column
-  `flex w-72 shrink-0 flex-col rounded-2xl bg-gray-50 dark:bg-white/[0.03]`; column header
-  `flex items-center gap-2 px-3 py-2`: title `truncate text-theme-sm font-medium text-gray-800 dark:text-white/90`,
-  count Badge light, column menu button (`more_horiz`): rename, delete (danger, confirm Modal, D-74), Move left/right.
-- Card `rounded-xl border border-gray-200 bg-white p-3 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 FOCUS`
-  (link to the item): image `aspect-[5/3] rounded-lg object-cover`, title `text-theme-sm font-medium`, text
-  `line-clamp-3 text-theme-xs text-gray-500`, footer row with date (`text-theme-xs text-gray-500`), tag Chips (013),
-  avatars (Avatar xs, overlapping `-space-x-2`).
-- Card menu button (`more_vert`, visible on hover/focus): `Move to group…` (sub menu of columns), `Move up`,
-  `Move down` (D-69).
-- Add group: dashed column `border-2 border-dashed border-gray-200 dark:border-gray-800` with an outline Button `add`.
-- Drag: `ghost` class `opacity-50`; drop zone `bg-brand-50 dark:bg-brand-500/[0.12]`.
+Built: `layouts/kanban/{Kanban,KanbanActions,KanbanOptions}.vue`.
+
+- Board `flex min-h-0 flex-1 gap-4 overflow-x-auto pb-4 custom-scrollbar` (the board scrolls, the page does not,
+  FR-116); column `section` (`aria-label` = group title)
+  `flex w-72 shrink-0 flex-col rounded-2xl bg-gray-50 dark:bg-white/[0.03]` (`cursor-move` when columns can be
+  reordered); column header `flex items-center gap-2 px-3 py-2`: `h3` title
+  `truncate text-theme-sm font-medium text-gray-800 dark:text-white/90`, count Badge light, column menu (`ICON_BTN`
+  `h-7 w-7` `more_horiz`, `aria-label` `item_options`): `layouts.kanban.edit_group`, delete (danger), separator,
+  `move_left` / `move_right` (D-69). The menu shows for relational groups, and for `choices` groups when they can be
+  reordered. Deleting a group asks first in a BoDialog (`delete_are_you_sure`, Cancel first, danger Delete, D-74:
+  Directus deletes at once).
+- Cards list `flex min-h-16 flex-1 flex-col gap-2 overflow-y-auto px-3 pb-3`. Card
+  `relative cursor-pointer rounded-xl border border-gray-200 bg-white p-3 shadow-theme-xs dark:border-gray-800 dark:bg-gray-900 FOCUS`,
+  `tabindex="0"` (Enter / Space opens it, as a table row), selected `ring-2 ring-brand-500 dark:ring-brand-400`; content
+  in the Directus order: title `mb-1 pe-8 text-theme-sm font-medium text-gray-800 dark:text-white/90`, image
+  `mt-1 w-full rounded-lg` (`aspect-[5/3] object-cover` when cropped, else `max-h-64 object-contain`), text
+  `mt-1 line-clamp-3 text-theme-xs text-gray-500 dark:text-gray-400`, tags (labels display, 013 Chips), footer row date
+  (`text-theme-xs text-gray-500`) and up to 3 avatars `-space-x-2`
+  (`h-7 w-7 rounded-full border-2 border-white dark:border-gray-900`, `person` fallback) plus `+N`. Deviation: the title
+  is above the image (Directus order), and the avatars are inline `h-7` circles, not the Avatar component.
+- Card menu (`ICON_BTN` `h-7 w-7` `more_vert`, `absolute end-2 top-2`, `opacity-0`, visible on card hover, focus within
+  or while open): `move_to_group` sub menu (the other columns), `move_up` / `move_down` when the group has a sort field
+  (D-69); moves are announced in a polite live region.
+- Add group (relational groups, create permission): a column
+  `flex w-72 shrink-0 items-start justify-center rounded-2xl border-2 border-dashed border-gray-200 p-3 dark:border-gray-800`
+  with a secondary Button `add` (`layouts.kanban.add_group`) opening the add dialog (BoDialog with one Input).
+  Deviation: Directus has the dialog but no button for it.
+- Drag: `ghost-class` `opacity-50`. Deviation: no drop zone highlight (`bg-brand-50`): vuedraggable gives none and the
+  ghost already shows the target place.
+- Dataset cut: BoNotice warning above the board, as calendar.
 
 ### Map layout (Q-6; `BoMapFrame` of 013; Directus `layouts/map`)
 
-- Full content height map (`h-[calc(100vh-<header>)]`, min 480px) in a `rounded-2xl border` frame; MapLibre controls
-  (navigation, geolocate, fit data, box select, Mapbox geocoder when a key exists) use the 013 map control classes.
-- Item popup on hover: Popover `rounded-lg bg-white px-3 py-2 shadow-theme-lg text-theme-sm dark:bg-gray-dark`, the
-  rendered template.
-- Selected features: brand-500 fill/stroke from the theme (style.ts reads `--color-brand-500`).
-- Keyboard list (D-69, in the layout actions): a Popover "Items in view" listing up to 100 visible items as buttons
-  (open on Enter, select on Space in select mode), `max-h-80 overflow-auto`.
-- Error: Tier 1 Alert error over the map (`geojsonError`); no geometry field: Card empty block `no_compatible_fields`.
-- Basemap Select in the layout options (`layouts.map.basemap`).
+Built: `layouts/map/{MapLayout,MapActions,MapOptions}.vue`, `layouts/map/components/MapView.vue`,
+`layouts/map/style.ts`.
+
+- Frame
+  `relative h-[calc(100vh-12rem)] min-h-120 w-full overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`,
+  `aria-busy` while loading; the map dims (`opacity-90` loading, `opacity-40` on error or without a geometry field).
+- Controls: the library control groups are hidden; a column of theme buttons
+  `absolute start-3 top-3 flex flex-col gap-2`, each
+  `flex h-10 w-10 items-center justify-center rounded-lg bg-white text-gray-700 shadow-theme-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 FOCUS dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700`,
+  pressed `bg-brand-50 text-brand-600` (dark `brand-500/15`, `brand-400`): zoom in `add`, zoom out `remove`, geolocate
+  `my_location`, fit data `fit_screen`, box select `highlight_alt` (`aria-pressed`; Shift + drag still box-selects). The
+  canvas gets the `FOCUS` outline (inset). The Mapbox geocoder and its CSS load only with a Mapbox key.
+- Item popup on hover:
+  `pointer-events-none fixed z-99999 max-w-[80%] rounded-lg bg-white px-3 py-2 text-theme-sm font-medium text-gray-800 shadow-theme-lg dark:bg-gray-dark dark:text-white/90`,
+  the rendered template.
+- Feature colors (`style.ts`, read once from the theme): brand-500 for features, orange-500 for hovered and selected
+  ones, clusters in brand-300 / orange-200 / error-300 steps. Deviation: selected features are orange-500 (Directus
+  `--theme--secondary`), not brand-500 as the draft said.
+- Keyboard list (D-69, `MapActions` in the layout actions): a round `h-11 w-11` button `list` (`aria-label`
+  `map_items_in_view`) opening a Popover `max-h-80 w-80 overflow-auto rounded-2xl ... p-2` with a heading and up to 100
+  items of the map as buttons (open the item; in select mode `aria-pressed` and a check box icon, select).
+- Footer (over the map, `absolute end-0 bottom-0 flex gap-3 p-3`): BoPagination (`totalVisible` 7, first/last) and the
+  `limit` BoSelect, each on a `rounded-lg bg-white shadow-theme-sm dark:bg-gray-dark` plate.
+- Errors over the map (`absolute inset-0 flex items-center justify-center p-6`): the layout error slot on a white plate;
+  a geometry error = BoNotice danger `role="alert"` (`layouts.map.invalid_geometry` and the message); loading =
+  BoProgressCircular brand-500; no geometry field = BoInfo `layouts.map.no_compatible_fields` (`wrong_location`).
+  Deviation: BoNotice danger instead of an Alert error (same Tier 1 Alert classes, BoNotice is the app component).
+- Layout options (`MapOptions`): basemap Select (`layouts.map.basemap`, kept in the app store like Directus), geometry
+  field Select, display template text Input, cluster Checkbox.
 
 ### Search and advanced filter (Q-7; `SearchInput`, `SystemFilter`; Directus `search-input`, `system-filter`)
 
-- `SearchInput`: in the page header actions, a pill `flex h-11 items-center rounded-full border border-gray-200
-  bg-white dark:border-gray-800 dark:bg-gray-900` that widens on focus from `w-11` to `w-72`
-  (`transition-[width] motion-reduce:transition-none`); search icon button, Input without border, clear button,
-  filter button `filter_list` with a count Badge (solid primary) when filters are active; Esc closes and returns focus.
-- Filter panel: Popover `w-[min(36rem,calc(100vw-2rem))] rounded-2xl bg-white p-4 shadow-theme-lg dark:bg-gray-dark`.
-- `SystemFilter` tree: each rule row `flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-50
-  dark:hover:bg-white/5`: drag handle, field button (field name, opens `FieldList`), operator Select-like button
-  (`operators.*`), value control (013 interfaces, compact), remove button; group rows `_and`/`_or` show a toggle chip
-  (`and`/`or`, Badge light, button) and indent children `ps-6 border-s border-gray-200 dark:border-gray-800`.
-- Add filter: ghost Button `add_filter` opening `FieldList`; rule menu (`more_vert`): Move up, Move down (D-69),
-  wrap in group, delete.
-- Field list (`FieldList`): Popover list `max-h-80 overflow-auto`, search Input on top, relational fields have a
-  chevron to expand (lazy), functions listed under date fields; `role="tree"` like §9 of layout-patterns.
+Built: `components/SearchInput.vue`, `components/FieldList.vue`,
+`interfaces/_system/system-filter/{SystemFilter,Nodes,InputGroup,InputComponent}.vue`.
+
+- `SearchInput` (page header actions; also the item select drawer): `role="search"` pill
+  `relative flex h-11 items-center rounded-full border border-gray-200 bg-white px-1 transition-[width] duration-200 motion-reduce:transition-none dark:border-gray-800 dark:bg-gray-900`,
+  `w-11` idle (`w-20` when the filter button shows), `w-72 max-w-[calc(100vw-2rem)]` when active or filled; `ICON_BTN`
+  buttons `search`, clear (`close`, `clear_value`) and filter (`filter_list`, `aria-label` `filter`) with a count badge
+  `absolute -end-0.5 -bottom-0.5 min-w-4 rounded-full bg-brand-500 px-1 text-theme-xs font-medium text-white` when
+  filters are active; input without border (`aria-label` = placeholder or `search_items`). Esc collapses the pill and
+  blurs the input (Directus `disable`). Deviation: buttons instead of clickable icons (FR-027); the filter opens in a
+  Reka Popover anchored to the pill instead of the inline expand.
+- Filter panel: Popover
+  `z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark`,
+  `SystemFilter` inside.
+- `SystemFilter`: the rule list in a box
+  `mb-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900` (no box when `inline`),
+  empty = `interfaces.filter.no_rules` in `font-mono text-theme-sm text-gray-500`; rule row
+  `flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5`:
+  drag handle (`cursor-grab`), field button (chip button `rounded-md px-1.5 py-0.5 hover:bg-gray-100`, opens `FieldList`
+  in a `POPOVER` `w-80`), operator button (same chip, `font-semibold`, BoMenu of `operators.*`), value control, then at
+  the end the row menu (`size-7` `more_vert`) and remove (`hover:text-error-500`). Group rows: a logic chip button
+  (`and` `bg-brand-50 text-brand-500`, `or` `bg-orange-50 text-orange-500`, dark `/15`, `text-theme-xs font-semibold`)
+  that toggles `_and` / `_or`, children indented `ms-4 border-s border-gray-200 ps-6 dark:border-gray-800`. Deviation:
+  the logic chip is brand / orange like the Directus primary / secondary, not a light Badge.
+- Value controls (`InputComponent`): a text input that grows with its text (`size`), Directus patterns and dynamic
+  variables (`$NOW(-7 days)`, `$CURRENT_USER`); choices = BoMenu; dates = BoDatePicker in a Popover; json, text, hash,
+  geometry = the 013 interface of the same id in a Popover. Deviation: no `allow-other` on choices.
+- Add filter: a text Button
+  `inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-theme-sm font-medium text-brand-500 hover:bg-brand-50 dark:text-brand-400 dark:hover:bg-brand-500/15 FOCUS`
+  (`interfaces.filter.add_filter` and an `expand_more` that flips when open) opening a `POPOVER` `w-80`: "And / Or
+  group" first, a separator, then `FieldList`. Rule menu: `move_up` / `move_down` (D-69, announced, focus back on the
+  menu). Deviation: no "wrap in group" item (no Directus equivalent); delete stays the row's remove button.
+- Field list (`FieldList`): a search Input on top, one flat `ul role="tree"` (`aria-label` fields,
+  `max-h-80 overflow-auto`) of `treeitem` rows (`aria-level`, roving tabindex, Up/Down/Left/Right/Home/End, Enter/Space,
+  the §9 rules of layout-patterns); relational fields have a `chevron_right` toggle (`size-6`, turns 90°, lazy
+  children); functions listed under date fields (`auto_awesome`, brand text); no match = `role="status"` text.
+  Deviation: no search highlight (BoTextOverflow has none) and no `$version` field yet.
 
 ### Page header controls (Q-8; bookmark, version menu, save split button, notices)
 
-- Bookmark button next to the title (`size-8 rounded-lg FOCUS`): `bookmark` outline `text-gray-500` (create),
-  filled `text-brand-500` (saved), `bookmark_save` `text-warning-600` (unsaved changes of my bookmark) with a reset
-  button `settings_backup_restore` next to it; each has a tooltip (`create_bookmark`, `update_bookmark`,
-  `reset_bookmark`).
-- Bookmark dialog (`BookmarkAdd`): Tier 1 Modal, fields name (translated string input), icon picker, color picker in a
-  `grid grid-cols-2 gap-4` (name full width).
-- Version menu (in the breadcrumb line): a button `inline-flex h-8 items-center gap-1 rounded-lg px-2 text-theme-sm
-  text-gray-700 hover:bg-gray-100 FOCUS dark:text-gray-400 dark:hover:bg-white/5` with `published_with_changes`, the
-  version name and `arrow_drop_down`; Dropdown menu: main, versions (checked item active), divider, create, rename,
-  compare, delete (danger); dialogs are Tier 1 Modals.
-- Save split button: primary icon Button `check` (`aria-label` `save`) + an attached secondary icon Button
-  `more_vert` (`rounded-s-none`, `aria-label` "More save options", `aria-haspopup="menu"`) opening a Dropdown with
-  `save_and_stay`, `save_and_create_new`, `save_as_copy`, `discard_all_changes`, each with its shortcut hint
-  (`ms-auto text-theme-xs text-gray-500`).
-- Delete / archive: secondary icon Buttons `delete` (hover `bg-error-600 text-white`) and `archive` / `unarchive`.
-- Title skeleton: `h-7 w-64 animate-pulse rounded bg-gray-200 dark:bg-gray-800`, sr-only title.
-- Notices (D-66, `NoticeStack`): under the page header, `flex flex-col gap-2 mb-4`, Tier 1 Alert (success, error) with a
-  close button; notices auto-hide after 3 s like the Directus notifications store (unless `persist`); unexpected errors open a Tier 1 Modal (title `errors.<code>`, error details, Dismiss) like `notification-dialogs.vue`; container `role="status" aria-live="polite"`.
+Built: `modules/content/routes/{CollectionRoute,ItemRoute}.vue`,
+`modules/content/components/{BookmarkAdd,VersionMenu}.vue`, `components/SaveOptions.vue`, `components/NoticeStack.vue`,
+`layout/PageHeader.vue` (slots `title-append`, `headline-append`).
+
+- Bookmark controls in `title-append` (`flex items-center gap-1`), each
+  `inline-flex size-8 items-center justify-center rounded-lg hover:bg-gray-100 dark:hover:bg-white/5 FOCUS` with a `sm`
+  icon: `bookmark` gray-500 (create, opens the dialog), `bookmark` filled `text-brand-500 dark:text-brand-400` (saved),
+  `bookmark_save` `text-warning-600 dark:text-warning-400` (unsaved changes of my bookmark, saves), and a reset button
+  `settings_backup_restore` gray-500 next to it while my bookmark has unsaved changes; names by `aria-label` and `title`
+  (`create_bookmark`, `update_bookmark`, `reset_bookmark`). Deviation: the saved state is a plain icon (not a button; it
+  has no action, as Directus) and the hints are `title` attributes, not BoTooltip. A share session gets no bookmark
+  controls (it writes no presets, FR-084).
+- Bookmark dialog (`BookmarkAdd`): BoDialog (Tier 1 Modal) `create_bookmark`, form `grid grid-cols-2 gap-4`: name
+  (`system-input-translated-string`, full width, autofocus), icon picker and color picker (half each); Cancel / Save
+  (disabled without a name); Enter submits, Esc or outside click cancels.
+- Version menu (`VersionMenu`, `headline-append` = the breadcrumb line, after a `•`): button
+  `inline-flex h-8 min-w-0 items-center gap-1 rounded-lg px-2 text-theme-sm text-gray-700 hover:bg-gray-100 FOCUS dark:text-gray-400 dark:hover:bg-white/5`
+  with `published_with_changes`, the version name (truncated) and `arrow_drop_down`, `aria-label` "Version: <name>";
+  menu (`max-w-64`): radio items main, the global draft and the local versions (checked `bg-brand-50 text-brand-600`,
+  dark `brand-500/12` and `brand-400`; a `size-1.5` brand dot plus sr-only `content_edited` marks a version with edits),
+  separator, `create_version`, separator, `promote_version` (opens the comparison modal), `rename_version`,
+  `delete_version` (danger; `discard_changes` with `undo` for the global draft). Dialogs are BoDialogs (Enter submits
+  create/rename; a reserved key shows `reserved_version_key` as the key field error). Deviation: no separate "compare"
+  item: promote opens the comparison (Directus). Deviation: the menu is not modal (`:modal="false"`, as v-menu): a modal
+  Reka menu sets `aria-hidden` on the page while its controls stay tabbable (axe `aria-hidden-focus`).
+- Save split button: primary icon Button `check` (`aria-label` `save`, `rounded-e-none` when the menu follows) and
+  `SaveOptions`: secondary icon Button `more_vert` (`rounded-s-none`, `aria-label` `more_save_options`) opening a
+  Dropdown with `save_and_stay`, `save_and_create_new` (each with its shortcut hint
+  `ms-auto ps-4 text-theme-xs text-gray-500`), `save_as_copy`, `discard_all_changes`. On a version: primary `beenhere`
+  (`save_version`) and a BoMenu with `save_and_return_to_main`, `save_and_quit` (shortcut in the text, BoMenu has no
+  hint column), `discard_all_changes`.
+- Item actions before save: live preview toggle (secondary icon Button `visibility`, primary while the preview is on,
+  `aria-pressed`, `live_preview.enable` / `live_preview.disable`), secondary icon Buttons `delete` and `archive` /
+  `unarchive`; `not_allowed` as name and title when disabled. Collection page with a selection: `delete` (secondary,
+  `hover:bg-error-600 hover:text-white`), `archive`, `edit` (batch), then the primary `add` (`create_item`). The item
+  page `delete` has the same danger hover (design owner, 2026-10-15).
+- Title skeleton (item page with a display template):
+  `inline-block h-6 w-48 animate-pulse rounded-lg bg-gray-100 align-middle motion-reduce:animate-none dark:bg-gray-800`
+  with `aria-label` `loading`. Deviation: `h-6 w-48 bg-gray-100` like the drawer title skeleton of §8 (the draft said
+  `h-7 w-64 bg-gray-200`).
+- Notices (D-66, `NoticeStack` in PrivateView): under the page header, `flex flex-col gap-2` `role="status"`
+  `aria-live="polite"`, one BoNotice per notice (title `font-medium`, text) with a ghost `close` Button (`dismiss`);
+  notices that are not `persist` go after 3 s (Directus notifications store); unexpected errors open a BoDialog with the
+  title, text and `[code] message` in a `pre` (`rounded-lg bg-gray-100 p-3 text-theme-xs`), Dismiss. The live region is
+  always in the page (empty without notices, `mb-4` only with notices) so the first notice is announced too (design
+  owner, 2026-10-15).
 
 ### Detail panel sections (Q-9; `SidebarDetail`; Directus `sidebar-detail`)
 
-- L-4 section block (layout-patterns §7): `border-b border-gray-200 dark:border-gray-800`; header button
-  `flex w-full items-center gap-3 px-5 py-4 text-start FOCUS` with the icon (`text-gray-500`), title
-  `text-theme-sm font-medium text-gray-800 dark:text-white/90`, a count Badge light when `badge` is set, and
-  `expand_more` rotating when open; body `px-5 pb-5 text-theme-sm text-gray-500 dark:text-gray-400`; one open at a time
-  (Reka Accordion single, collapsible).
-- Layout section: layout Select with icons, then the layout options as stacked fields (`space-y-4`, Tier 1 labels).
-- Archive / Refresh: one Select each. Flows: one secondary Button per manual flow (`w-full justify-start`, flow icon and
-  color as data color, loading state while running, disabled + tooltip when a selection is required).
+Built:
+`components/sidebar/{SidebarDetail,LayoutSidebarDetail,ArchiveSidebarDetail,RefreshSidebarDetail,ExportSidebarDetail,FlowSidebarDetail}.vue`.
+
+- L-4 section block (layout-patterns §7): each section is its own Reka `AccordionRoot` (single, collapsible) bound to
+  `sidebarStore.activeAccordionItem`, so one section is open at a time; item
+  `border-b border-gray-200 dark:border-gray-800`; trigger
+  `group flex w-full cursor-pointer items-center gap-3 px-5 py-4 text-start FOCUS` with the icon (gray-500), title
+  `min-w-0 flex-1 truncate text-theme-sm font-medium text-gray-800 dark:text-white/90`, the badge, and `expand_more`
+  turning 180° when open (`motion-reduce:transition-none`); content
+  `px-5 pb-5 text-theme-sm text-gray-500 dark:text-gray-400`. Deviation: the badge is a light BoChip with a value, or a
+  `size-2` brand dot when it is only "on" (archive, refresh); one AccordionRoot per section because DetailPanel has no
+  shared root.
+- Layout section (`layers`, `layout_options`): layout BoSelect with item icons, then the layout options stacked
+  (`flex flex-col gap-4.5`, BoSelect / BoInput / BoCheckbox with their labels).
+- Archive (`archive`) and Refresh (`sync` / `sync_disabled`): one BoSelect each. Deviation: Reka Select items cannot
+  have an empty value, so "not archived" and "do not refresh" are the `active` / `none` items.
+- Flows (`bolt`): one secondary Button per manual flow (`full-width justify-start`, `flex flex-col gap-3.5`), the flow
+  icon with the flow color as a data color (`style`), loading while running, disabled with the reason in a BoTooltip on
+  a wrapper (a disabled button gets no pointer events). Deviation: the color is on the icon, not the button background.
+- Import / export (`import_export`): recipe Q-12.
 
 ### Revisions and comparison (Q-10)
 
-- Revisions list: date group heading `text-theme-xs font-medium uppercase text-gray-500` then rows
-  `flex gap-3 rounded-lg px-2 py-2 hover:bg-gray-50 dark:hover:bg-white/5 FOCUS` (button): action dot (`size-2
-  rounded-full` success for create, brand for update, error for delete, warning for version save; the action is also
-  written: "Created", "Updated"…), time `text-theme-xs`, user name; pagination with BoPagination compact.
-- Comparison modal: Tier 1 Modal `max-w-6xl`, header with the two sides (base / incoming: name, date, user), a
-  "show differences only" Switch, "select all" Checkbox, `differences_count`; body two columns `grid grid-cols-2 gap-6`
-  with read-only BoForms; each differing field has a Checkbox in its label row and a `bg-warning-50
-  dark:bg-warning-500/15` strip; `outdated` shows a warning Alert; footer actions Cancel (secondary) and Apply/Promote
-  (primary), with the "delete version after promote" Checkbox.
+Built: `components/sidebar/{RevisionsSidebarDetail,RevisionsDateGroup,RevisionItem}.vue`,
+`components/comparison/{ComparisonModal,ComparisonHeader,ComparisonToggle}.vue`, `components/form/BoForm.vue`
+(comparison classes).
+
+- Revisions section (`change_history`, badge = count): loading `PROGRESS` indeterminate, empty `no_revisions` (italic);
+  date group heading `h3` `mb-1 px-2 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400`, then rows
+  (button) `flex w-full gap-3 rounded-lg px-2 py-2 text-start hover:bg-gray-50 FOCUS dark:hover:bg-white/5`: action dot
+  `mt-1.5 size-2 rounded-full` (create success-500, update brand-500, delete error-500, version save and others
+  warning-500), the action written (`text-theme-sm font-medium`), then time and user
+  `truncate text-theme-xs text-gray-500`; `revision_delta_created_externally` on the last page; BoPagination compact,
+  centered. Deviation: the dot colors are the recipe ones (Directus: primary for create, update and version save, danger
+  for delete); the user name is plain text (Directus nests a user popover button inside the row button, invalid HTML).
+- Comparison modal: a Reka Dialog with the Tier 1 Modal overlay (`bg-gray-400/50 backdrop-blur-[32px]`) and panel
+  `max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl rounded-3xl bg-white dark:bg-gray-900`, sr-only title
+  (`promote_version` / `item_revision`); body two columns `grid grid-cols-1 md:grid-cols-2` (the second with
+  `md:border-l`), each with a `ComparisonHeader` (`text-lg font-semibold` title, date and `edited_by` user; the incoming
+  side of a revision has a BoMenu picker of revisions) over a read-only BoForm (skeleton rows while loading). Differing
+  fields: `rounded-sm bg-warning-50 ring-8 ring-warning-50 dark:bg-warning-500/15 dark:ring-warning-500/15` and a
+  Checkbox in the label row on the incoming side. `outdated` (version mode): BoNotice warning `main_updated_notice` on
+  top. Footer `flex flex-col gap-4 border-t px-6 py-4 lg:flex-row lg:justify-between`: `differences_count`
+  (`role="status"`), in revision mode `comparing_to` with `ComparisonToggle` (chip button: "previous" solid brand,
+  "latest" light), then the `show_differences_only` Switch, `select_all_differences` Checkbox (n/total), in version mode
+  the `delete_version_after_promote` Checkbox, the hint when Apply is disabled (text, `aria-describedby`), Cancel
+  (secondary, `close`) and `apply` (primary). Focus returns to the element that opened the modal. Deviation: no shared
+  "base / incoming" header row (each column has its header); the panel is a Reka Dialog because BoDialog is fixed at 700
+  px; the delete-version choice is a footer Checkbox instead of the Directus keep/delete dialog; no `collab` mode
+  (D-68).
 
 ### Comments and shares (Q-11)
 
-- Comment input: Textarea `min-h-20`, the `@` mention list is a Popover listbox (avatar xs, name, email) driven by
-  Up/Down/Enter/Esc; send icon Button (primary) with tooltip "Ctrl+Enter".
-- Comment item: avatar xs, name `text-theme-sm font-medium`, time, menu (edit, delete); text `whitespace-pre-wrap`;
-  mentions `<mark>` as `rounded bg-brand-50 px-1 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400`.
-- Share item: name, role and uses left `text-theme-xs text-gray-500`, `lock` icon when password protected,
-  expired/used up text `text-error-600`; menu: copy link, send, edit, delete.
-- Send dialog: Modal with a Textarea of emails (comma or new line) and the share link (read-only Input + copy button).
+Built:
+`components/sidebar/{CommentsSidebarDetail,CommentInput,CommentItem,CommentItemHeader,SharesSidebarDetail,ShareItem}.vue`.
+
+- Comments section (`chat_bubble_outline`): input first, then date groups with a sticky heading
+  (`sticky top-0 z-1 bg-white py-1 text-theme-xs font-medium uppercase text-gray-500 dark:bg-gray-900 dark:text-gray-400`);
+  loading `PROGRESS`, empty `no_comments`, load error BoNotice danger.
+- Comment input: BoTextarea `min-h-20` (`aria-label` `leave_comment`); typing `@` opens a listbox under the field
+  (`absolute inset-x-0 z-10 mt-1 max-h-60 overflow-y-auto rounded-lg border border-gray-200 bg-white p-1 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900`,
+  options avatar `size-6`, name, email `text-theme-xs text-gray-500`) driven by Up/Down/Enter/Esc with
+  `aria-activedescendant`; actions `mt-2 flex justify-end gap-2`: Cancel (secondary, while editing or not empty) and the
+  primary icon Button `send` (`aria-label` `submit`, BoTooltip `comment_submit_shortcut`); Ctrl/Cmd + Enter posts.
+  Deviation: a mention shows as `@<uuid>` while typing (BoTextarea, not v-template-input); no emoji picker and no
+  mention button.
+- Comment item: header avatar xs, name `text-theme-sm font-medium`, time, BoMenu (edit, delete; delete confirms in a
+  BoDialog with Cancel first); text `whitespace-pre-wrap` plain text; mentions `<mark>` as
+  `rounded bg-brand-50 px-1 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400` with the HTML-escaped name.
+  Deviation: the menu stays visible (Directus swaps the time for it on hover); the text is plain text through DOMPurify,
+  not markdown.
+- Shares section (`share`, hidden without share permission, FR-083): items, then a full-width primary Button `add`
+  `new_share` opening DrawerItem of `directus_shares`. Share item `article`
+  `flex flex-col gap-1 rounded-lg border border-gray-200 p-3 dark:border-gray-800`: name
+  `truncate text-theme-sm font-medium`, time `text-theme-xs`, menu (`size-7` `more_horiz`): `share_copy_link`,
+  `share_send_link`, `edit`, `delete_label` (by permission); a line `text-theme-xs text-gray-500` with uses left
+  (error-600 at 0), `lock` with the label `password` when protected, and the status `font-semibold uppercase` (expired
+  error-600, upcoming success-600). Deviation: the role is not shown (the Directus `/shares` request has no role name);
+  copy uses the clipboard with an in-place notice (D-66).
+- Send dialog: BoDialog `share_send_link`: read-only Input of the share link with a secondary icon Button
+  `content_copy`, a Textarea of emails (4 rows, comma or new line); Cancel / Send (the API only logs, D-36).
 
 ### Export, import and batch dialogs (Q-12)
 
-- Export dialog: Tier 1 Modal `max-w-2xl`, fields in `grid grid-cols-2 gap-4`: format Select, limit Input, fields
-  (`FieldList` multi in a Popover, chips), sort field + direction, filter (`SystemFilter`, full width), search Input,
-  location radio (download / files with a folder Select), count line `text-theme-sm text-gray-500` (`role="status"`),
-  a warning Alert when locked to files; footer Cancel / Export.
-- Import block in the sidebar section: file drop Input (013 Upload recipe, compact), background Checkbox, progress bar
-  (013 progress), Import button; import error dialog: Modal with an error Alert summary and a list of
-  `import_data_error_row` lines (`max-h-80 overflow-auto`).
-- Batch confirm dialogs: Tier 1 Modal small, title with the count, Cancel (focused first) and the danger/warning action.
+Built: `components/sidebar/{ExportSidebarDetail,ImportErrorDialog}.vue`, `modules/content/routes/CollectionRoute.vue`
+(batch dialogs), `components/drawers/DrawerBatch.vue` (§8 drawer).
+
+- Export dialog: BoDialog (Tier 1 Modal, `max-w-[700px]`) `export_items`, fields in
+  `grid grid-cols-1 gap-4 sm:grid-cols-2`: format Select, limit Input (`unlimited` placeholder), location BoRadio
+  (`download_file` / `file_library`, disabled when locked to files), folder Select (files) or a normal BoNotice
+  `not_available_for_local_downloads`, the count BoNotice full width (`aria-live="polite"`, normal, warning when locked
+  to files), Divider, sort field Select, sort direction Select, full-text search Input, filter (`SystemFilter`, labelled
+  group), fields (labelled group: removable BoChips plus a brand text button opening `FieldList` in a `POPOVER`); footer
+  Cancel / Export (disabled with no field, FR-091). Deviation: the Modal is the 700 px BoDialog, not `max-w-2xl`; the
+  count is a BoNotice (Directus v-notice), not a text line; no drag reorder of the chosen fields.
+- Import / export section (Q-9): `label_import`, a file picker row
+  `flex items-center gap-2 rounded-lg border border-gray-300 p-1.5 focus-within:border-brand-500 dark:border-gray-700`
+  (a button with a `size-9` box showing the extension or `folder_open`, the file name, then BoRemove or `attach_file`),
+  the `import_background` Checkbox, a full-width primary Import Button (loading); while uploading or importing a
+  `rounded-lg bg-brand-500 px-4 py-2.5 text-white` box with the step text and a `PROGRESS` bar; Divider; full-width
+  primary `export_items`; a text button `download_page_as_csv` (`text-theme-sm text-gray-500 hover:text-brand-500`) with
+  a BoTooltip, disabled when the layout cannot download. Deviation: a file picker row like the Directus one, not the 013
+  Upload drop zone.
+- Import error dialog: BoDialog `import_data_errors` with a BoNotice danger (summary, then a
+  `max-h-80 overflow-auto list-disc` list of `import_data_error_row` lines; a custom message has a focusable `help` icon
+  with the raw message in a BoTooltip), Dismiss.
+- Batch confirm dialogs (collection page): BoDialog titled with the count (`batch_delete_confirm`,
+  `archive_confirm_count`), Cancel first (secondary, focused on open, FR-115d) then danger Delete or primary Archive
+  (loading); a failed delete opens `something_went_wrong` with the translated error. Batch edit is `DrawerBatch` (§8).
+  Deviation: the 700 px BoDialog, not a small Modal (one dialog size in the app).
 
 ## Acceptance criteria
 

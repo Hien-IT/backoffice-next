@@ -4,3 +4,58 @@
 # reference. The former `directus-noresponsecache` (8655, CACHE_ENABLED=false) is gone.
 include:
   - ../parity/docker-compose.yml
+
+# Feature 014 (FR-125, SC-003, research R14): the Backoffice web app for src/web-content.ts, like the parity profile
+# `web` but in its own profile (`--profile web` would also start the CORS pair). The alias lets the parity proxy configs
+# (upstream backoffice-web:8080) serve it unchanged: /admin/ to the web app, the rest to Directus (8171) or to the new
+# API (8172). The Directus app itself is measured on 8155/admin.
+services:
+  bench-web:
+    profiles: [bench-web]
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    image: hiennd23/backoffice-web:local
+    # Read by docker/40-config.sh: config.json gets apiUrl "/" (the API on the same origin, behind the proxies).
+    environment:
+      PUBLIC_URL: /
+    networks:
+      default:
+        aliases: [backoffice-web]
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8080/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  bench-proxy-directus:
+    profiles: [bench-web]
+    image: nginx:1.27-alpine
+    volumes:
+      - ../parity/proxy/web-directus.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      directus: { condition: service_healthy }
+      bench-web: { condition: service_healthy }
+    ports:
+      - '8171:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- 127.0.0.1/server/ping && wget -qO- 127.0.0.1/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60
+
+  bench-proxy-api:
+    profiles: [bench-web]
+    image: nginx:1.27-alpine
+    volumes:
+      - ../parity/proxy/web-api.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      backoffice-api: { condition: service_healthy }
+      bench-web: { condition: service_healthy }
+    ports:
+      - '8172:80'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- 127.0.0.1/server/ping && wget -qO- 127.0.0.1/admin/config.json || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 60

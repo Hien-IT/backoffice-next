@@ -9,6 +9,7 @@
 		"lint": "eslint src"
 	},
 	"devDependencies": {
+		"@playwright/test": "catalog:",
 		"@types/autocannon": "catalog:",
 		"@types/jsonwebtoken": "catalog:",
 		"autocannon": "catalog:",

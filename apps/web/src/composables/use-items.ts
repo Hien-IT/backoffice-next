@@ -300,8 +300,12 @@ export function useItems(collection: Ref<string | null>, query: ComputedQuery): 
 
 			totalCount.value = count;
 		} catch (err: any) {
+			// Backoffice (D-77): the counts run from watchers nobody awaits; Directus rethrows here, which ends as an unhandled
+			// rejection (a 403 on an unreadable collection, a request aborted by a navigation). The list request reports
+			// its own error to the layout, so a failed count only keeps the previous value.
 			if (!isCancel(err)) {
-				throw err;
+				// eslint-disable-next-line no-console
+				console.warn(err);
 			}
 		}
 	}
@@ -322,8 +326,10 @@ export function useItems(collection: Ref<string | null>, query: ComputedQuery): 
 
 			itemCount.value = count;
 		} catch (err: any) {
+			// Backoffice: see getTotalCount.
 			if (!isCancel(err)) {
-				throw err;
+				// eslint-disable-next-line no-console
+				console.warn(err);
 			}
 		} finally {
 			if (currentGeneration === itemCountGeneration) {

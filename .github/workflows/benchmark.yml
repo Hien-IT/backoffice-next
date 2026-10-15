@@ -125,6 +125,32 @@ jobs:
       - if: always()
         run: pnpm nx run benchmark:env-down
 
+  # Feature 014 (FR-125, SC-003, research R14): the Content module screen on the 10 million rows of benchmark-items
+  # (same seed), Playwright chromium on the Directus app and the web app behind both proxies, beside the others.
+  benchmark-web:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm nx run benchmark:env-up-web
+      - run: pnpm --filter @backoffice/benchmark exec playwright install --with-deps chromium
+      - run: pnpm nx run benchmark:web --output-style=stream
+        env:
+          BENCH_RUNS: 11
+      - name: container logs
+        if: failure()
+        run: |
+          docker logs --tail 200 benchmark-directus-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 200 benchmark-backoffice-api-1 2>&1 | grep -v '"level":30' | tail -100
+          docker logs --tail 100 benchmark-bench-web-1 2>&1 | tail -50
+      - if: always()
+        run: pnpm nx run benchmark:env-down
+
   # Feature 006 (FR-065, SC-007, research R10): the data model reads the Directus app makes at start, snapshot and diff,
   # on about 200 collections, 3,000 fields and 300 relations seeded through the Directus API.
   benchmark-schema:

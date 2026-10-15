@@ -16,7 +16,8 @@ export interface ApiRequest {
 }
 
 // Chromium and WebKit log every 4xx/5xx answer (e.g. the expected 401 of /auth/refresh before login) as a console error.
-const NETWORK_ERROR = /^Failed to load resource/;
+// Firefox logs a font download cut by a navigation (NS_BINDING_ABORTED, 0x804b0002) as a console error.
+const NETWORK_ERROR = /^Failed to load resource|downloadable font: download failed .*status=2152398850 /;
 // webkit also reports an aborted cross-origin fetch as "... due to access control checks."
 const NAVIGATION_ABORT =
 	/^(TypeError: )?(Load failed|NetworkError when attempting to fetch resource\.|Failed to fetch)$|due to access control checks\.$/;

@@ -16,6 +16,7 @@ import BoIcon from '../components/BoIcon.vue';
 import { DIRECTUS_DOCS_URL, MODULE_BAR_DEFAULT } from '../constants.ts';
 import { registeredModules } from '../modules/index.ts';
 import { useSettingsStore } from '../stores/settings.ts';
+import { useUserStore } from '../stores/user.ts';
 import { translate } from '../utils/translate-object-values.ts';
 import SidebarLogo from './SidebarLogo.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
@@ -25,6 +26,7 @@ type ModuleBarItem = { id: string; name: string; icon: string; to?: string; href
 const { drawer = false } = defineProps<{ drawer?: boolean }>();
 
 const settingsStore = useSettingsStore();
+const userStore = useUserStore();
 const navBarStore = useNavBarStore();
 const route = useRoute();
 const groupId = useId();
@@ -34,9 +36,11 @@ const [DefineSidebar, ReuseSidebar] = createReusableTemplate();
 const registeredModuleIDs = computed(() => registeredModules.value.map((module) => module.id));
 
 const modules = computed<ModuleBarItem[]>(() => {
-	if (!settingsStore.settings) return [];
+	// Backoffice: a share session cannot read /settings; it gets the default bar of its registered modules (FR-084).
+	const share = !!userStore.currentUser && 'share' in userStore.currentUser;
+	if (!settingsStore.settings && !share) return [];
 
-	return (settingsStore.settings.module_bar ?? MODULE_BAR_DEFAULT)
+	return (settingsStore.settings?.module_bar ?? MODULE_BAR_DEFAULT)
 		.filter((modulePart) => {
 			if (modulePart.type === 'link') return !(modulePart.id === 'docs' && modulePart.url === DIRECTUS_DOCS_URL);
 			return modulePart.enabled && registeredModuleIDs.value.includes(modulePart.id);

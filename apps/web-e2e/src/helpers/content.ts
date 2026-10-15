@@ -33,8 +33,16 @@ export async function waitForTable(page: Page) {
 	return table;
 }
 
+/** Opens the detail panel when it is closed (below `xl` it is a drawer, closed on load like the Directus app). */
+export async function openSidebar(page: Page): Promise<void> {
+	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
+	if (await toggle.isVisible()) await toggle.click();
+	await expect(page.locator('#sidebar')).toBeVisible();
+}
+
 /** Picks a layout in the sidebar "Layout Options" (Directus `layout` select). */
 export async function chooseLayout(page: Page, name: 'Table' | 'Cards' | 'Calendar' | 'Kanban' | 'Map'): Promise<void> {
+	await openSidebar(page);
 	const select = page.getByRole('combobox', { name: 'Layout', exact: true });
 	if (!(await select.isVisible())) await page.getByRole('button', { name: 'Layout Options', exact: true }).click();
 	await select.click();

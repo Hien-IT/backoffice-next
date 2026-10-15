@@ -25,7 +25,8 @@ function errorMessage(error: unknown): string | null {
 </script>
 
 <template>
-	<div v-if="queue.length > 0" class="mb-4 flex flex-col gap-2" role="status" aria-live="polite">
+	<!-- Always in the page so screen readers announce the first notice too (design owner, recipe Q-8, 2026-10-15). -->
+	<div class="flex flex-col gap-2" :class="{ 'mb-4': queue.length > 0 }" role="status" aria-live="polite">
 		<BoNotice v-for="notice in queue" :key="notice.id" :type="NOTICE_TYPES[notice.type ?? 'success']">
 			<div class="flex items-start gap-3">
 				<div class="min-w-0 flex-1">

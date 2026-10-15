@@ -73,6 +73,14 @@ export async function hydrate(): Promise<void> {
 			await Promise.all(stores.filter(({ $id }) => !hydratedStores.includes($id)).map((store) => store.hydrate?.()));
 
 			await onHydrateModules();
+		} else if (currentUser && 'share' in currentUser) {
+			// Backoffice: a share session opens the item route of the Content module (FR-084, D-40), so it loads the
+			// stores of shared.vue hydrate() (settings, presets, flows and notifications are 403 for a share).
+			await useCollectionsStore().hydrate();
+			await permissionsStore.hydrate();
+			await fieldsStore.hydrate({ skipTranslation: true });
+			await useRelationsStore().hydrate();
+			await onHydrateModules();
 		}
 
 		await setLanguage(userStore.language);

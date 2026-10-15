@@ -25,7 +25,8 @@ test('a notice shows under the page header and goes away after 3 s like Directus
 
 	vi.advanceTimersByTime(NOTICE_TIMEOUT);
 	await flushPromises();
-	expect(wrapper.find('[aria-live="polite"]').exists()).toBe(false);
+	// The live region stays in the page (design owner, 2026-10-15); the notice is gone.
+	expect(wrapper.get('[aria-live="polite"]').text()).toBe('');
 });
 
 test('a persistent notice stays until it is dismissed', async () => {

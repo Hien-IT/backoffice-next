@@ -33,6 +33,7 @@ import PrivateView from '../../../layout/PrivateView.vue';
 import { getLayout } from '../../../layouts/index.ts';
 import { useLayout } from '../../../layouts/use-layout.ts';
 import { usePermissionsStore } from '../../../stores/permissions.ts';
+import { useUserStore } from '../../../stores/user.ts';
 import { extractErrorCode } from '../../../utils/extract-error-code.ts';
 import { getCollectionRoute, getItemRoute, isSystemCollection } from '../../../utils/get-item-route.ts';
 import BookmarkAdd from '../components/BookmarkAdd.vue';
@@ -135,6 +136,9 @@ async function refresh() {
 const downloadHandler = computed(() => layoutRef.value?.state?.download);
 
 const permissionsStore = usePermissionsStore();
+const userStore = useUserStore();
+// Backoffice: a share session writes no presets, so it gets no bookmark controls (FR-084).
+const shareSession = computed(() => !!userStore.currentUser && 'share' in userStore.currentUser);
 
 const hasArchive = computed(() => {
 	const archiveField = currentCollection.value?.meta?.archive_field;
@@ -344,7 +348,7 @@ function clearFilters() {
 			:breadcrumb="breadcrumb"
 		>
 			<template #title-append>
-				<div class="flex items-center gap-1">
+				<div v-if="!shareSession" class="flex items-center gap-1">
 					<BookmarkAdd
 						v-if="!bookmark || (!bookmarkSaved && !bookmarkIsMine)"
 						v-model="bookmarkDialogActive"

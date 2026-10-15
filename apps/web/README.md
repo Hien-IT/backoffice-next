@@ -82,14 +82,73 @@ E2E_CONFIG=proxy-api pnpm exec playwright test        # app -> Backoffice API (h
 E2E_CONFIG=cors pnpm exec playwright test             # app http://localhost:8181 -> API http://127.0.0.1:8163
 ```
 
+## Content module (feature 014)
+
+The Directus Content module (`src/modules/content.ts`, `src/modules/content/`); spec, decisions D-67 to D-74 and the
+commands in `specs/014-content-module/` (`quickstart.md`).
+
+| Route                                      | Screen                                                                                                   |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `/content`                                 | goes to the last accessed (or first) collection; with none, the "no collections" page                    |
+| `/content/:collection`                     | collection page (layout, search, filter, `?bookmark=<id>`, `?archive=`); a singleton opens its item form |
+| `/content/:collection/:primaryKey`         | item page (`+` = new): form, save options, versions, detail panel (revisions, comments, shares, flows)   |
+| `/content/:collection/:primaryKey/preview` | live preview in its own window (no visual editing, D-67)                                                 |
+
+`/content/directus_*` redirects to the module of that system collection (`/users`, `/files`, `/settings/...`), still the
+012 frames until 015, 016 and 018 (D-72). The collection tree lives in the sidebar sub-menu.
+
+Layouts: `src/layouts/{tabular,cards,calendar,kanban,map}` behind `src/layouts/use-layout.ts` (port of Directus
+`useLayout`); calendar (FullCalendar), map (MapLibre), kanban and the live preview split load as lazy chunks
+(`web:check-bundle`). Presets and bookmarks are the `directus_presets` rows the Directus app reads.
+
+Fixture set: `bo_content`, `bo_singleton`, folder `bo_folder`, presets, bookmarks, versions, a share, comments and
+manual flows, seeded by `fixtures/interfaces/seed.mjs` (README there).
+
+### E2E of the Content module
+
+`apps/web-e2e/src/content-*.spec.ts` (and `src/payload/`) read the fixture set: seed it through Directus first.
+
+```bash
+pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app,setup,sso,web   # builds the API and web images if missing
+set -a; . tests/parity/env/postgres.env; set +a
+node apps/web/fixtures/interfaces/seed.mjs --api http://127.0.0.1:8155 --email "$ADMIN_EMAIL" --password "$ADMIN_PASSWORD"
+# The new APIs built their schema cache before the seed: clear it (POST /utils/cache/clear?system as admin) on
+# http://127.0.0.1:8156 and http://127.0.0.1:8163, as the CI job e2e-web does.
+cd apps/web-e2e
+E2E_CONFIG=proxy-directus pnpm exec playwright test src/content-*.spec.ts
+E2E_CONFIG=proxy-api pnpm exec playwright test src/content-*.spec.ts src/payload
+E2E_CONFIG=cors pnpm exec playwright test src/content-*.spec.ts
+```
+
+- Dev (no `E2E_CONFIG`): Playwright starts the Vite dev server on `http://127.0.0.1:4200` (chromium only); point its
+  proxy at Directus with `PUBLIC_URL=http://127.0.0.1:8155 pnpm exec playwright test src/content-item.spec.ts`.
+- Browsers: chromium runs every Content spec; firefox and webkit run only the tests tagged `@core`; `cors` runs chromium
+  at 1280 px.
+- Payload suite (`src/payload/items.spec.ts`, SC-004): runs in `proxy-api` only (skipped elsewhere). It does the same
+  item steps in the Directus app (`DIRECTUS_URL`, default `http://127.0.0.1:8155`, app at `/admin`) and in the web app,
+  records the writes of both and compares them; the rows it creates carry the run prefix and are deleted afterwards.
+
+### Web benchmark (SC-003)
+
+```bash
+pnpm nx run benchmark:env-up-web   # Directus, the API and the web app behind two proxies (8171 -> Directus, 8172 -> API)
+pnpm nx run benchmark:web          # seeds the 10 million rows itself, BENCH_RUNS (default 11), p95 per action
+pnpm nx run benchmark:env-down
+```
+
+It measures the first page, next page, two sorts and a preset filter in the Directus app and in the web app on both
+APIs, and fails when the web app's p95 is more than 10 % above the Directus app's. Weekly in
+`.github/workflows/benchmark.yml`; on Apple Silicon Directus runs emulated (amd64), so local numbers are indicative
+only.
+
 ## Map tiles and third-party editors
 
 - The map interface uses OpenStreetMap raster tiles by default (attribution `© OpenStreetMap contributors`), like
   Directus. The OSM tile servers have a usage policy (https://operations.osmfoundation.org/policies/tiles/): for real
   traffic set your own `basemaps` (or `mapbox_key`) in the project settings.
 - The rich text (HTML) interface uses TinyMCE 6.8.6 (MIT), the Directus 11.17.4 version, self-hosted in a lazy chunk.
-  Its high XSS advisories are fixed only in the GPL TinyMCE 7; the owner kept 6.8.6 like Directus and the advisories
-  are listed with their reason in `auditConfig.ignoreGhsas` (specs/013-interfaces-displays/research.md R1).
+  Its high XSS advisories are fixed only in the GPL TinyMCE 7; the owner kept 6.8.6 like Directus and the advisories are
+  listed with their reason in `auditConfig.ignoreGhsas` (specs/013-interfaces-displays/research.md R1).
 
 ## Attributions
 

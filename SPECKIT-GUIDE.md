@@ -1,41 +1,41 @@
 # Hướng dẫn Spec Kit: clone Directus sang Nx (NestJS + Vue)
 
-Tài liệu này hướng dẫn dùng Spec Kit để xây app mới dựa trên code mẫu Directus 11.17.4 trong `directus/`.
-Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`).
+Tài liệu này hướng dẫn dùng Spec Kit để xây app mới dựa trên code mẫu Directus 11.17.4 trong `directus/`. Mỗi phần có
+prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`).
 
 ---
 
 ## 1. Các quyết định đã chốt
 
-| Chủ đề | Quyết định |
-|---|---|
-| Code mẫu | `directus/` (Directus 11.17.4, api 35.2.0, app 15.10.0). **Chỉ đọc, không sửa.** Được copy code sang app mới. |
-| Cấu trúc | Nx monorepo tại `backoffice-next/`: `apps/api` (NestJS), `apps/web` (Vue 3), `libs/*` dùng chung. |
-| Database | Dùng **chung DB** với Directus. Hỗ trợ mọi DB Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) qua **Knex**. |
-| Migration | **Chỉ Directus** chạy migration cho bảng `directus_*`. App mới kiểm tra phiên bản migration khi khởi động. |
-| API | REST **giống hệt** Directus: path, query, response, mã lỗi. `@directus/sdk` dùng được. |
-| Auth | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token. |
-| Cache | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay. |
-| Flows | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy. |
-| FE | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0). |
-| Extensions | **Chưa làm** trong giai đoạn này. |
-| Biến môi trường | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy. |
-| Ngôn ngữ | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**. |
-| Runtime | **Node 22 + pnpm 10**, giống Directus. |
-| CI | **GitHub Actions**. Coverage tối thiểu **80% BE, 60% FE**. |
-| DB chính | **PostgreSQL**: chạy đủ test ở mọi PR. MySQL, SQLite chạy bộ rút gọn. MSSQL, Oracle, CockroachDB chạy hằng đêm. |
-| Hiệu năng | p95 latency và throughput **không tệ hơn Directus quá 10%**. |
-| Ngôn ngữ giao diện | **vi-VN và en-US**. |
-| Giám sát | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`). |
-| SSO | **OpenID Connect, OAuth2, LDAP** (từ constitution 1.3.0). SAML chưa làm. |
-| Storage | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm. |
-| Email | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo. |
-| Flow Run Script | **Có**, chạy trong sandbox isolated-vm giống Directus. |
-| Layouts | Table, Cards, Calendar, Kanban, Map: đủ cả 5. |
-| Quy mô | **Lớn**: 200–2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi. |
-| Thiết bị | **Desktop và tablet** (từ 768px), Chrome, Edge, Firefox, Safari bản mới. |
-| Thương hiệu | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...). |
-| Phạm vi | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.** |
+| Chủ đề             | Quyết định                                                                                                                                                                                                                                      |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code mẫu           | `directus/` (Directus 11.17.4, api 35.2.0, app 15.10.0). **Chỉ đọc, không sửa.** Được copy code sang app mới.                                                                                                                                   |
+| Cấu trúc           | Nx monorepo tại `backoffice-next/`: `apps/api` (NestJS), `apps/web` (Vue 3), `libs/*` dùng chung.                                                                                                                                               |
+| Database           | Dùng **chung DB** với Directus. Hỗ trợ mọi DB Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) qua **Knex**.                                                                                                       |
+| Migration          | **Chỉ Directus** chạy migration cho bảng `directus_*`. App mới kiểm tra phiên bản migration khi khởi động.                                                                                                                                      |
+| API                | REST **giống hệt** Directus: path, query, response, mã lỗi. `@directus/sdk` dùng được.                                                                                                                                                          |
+| Auth               | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token.                                                                                                                                                        |
+| Cache              | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay.                                                                                                                                                   |
+| Flows              | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy.                                                                                                                         |
+| FE                 | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0). |
+| Extensions         | **Chưa làm** trong giai đoạn này.                                                                                                                                                                                                               |
+| Biến môi trường    | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy.                                                                                      |
+| Ngôn ngữ           | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**.                                                                                                                                                    |
+| Runtime            | **Node 22 + pnpm 10**, giống Directus.                                                                                                                                                                                                          |
+| CI                 | **GitHub Actions**. Coverage tối thiểu **80% BE, 60% FE**.                                                                                                                                                                                      |
+| DB chính           | **PostgreSQL**: chạy đủ test ở mọi PR. MySQL, SQLite chạy bộ rút gọn. MSSQL, Oracle, CockroachDB chạy hằng đêm.                                                                                                                                 |
+| Hiệu năng          | p95 latency và throughput **không tệ hơn Directus quá 10%**.                                                                                                                                                                                    |
+| Ngôn ngữ giao diện | **vi-VN và en-US**.                                                                                                                                                                                                                             |
+| Giám sát           | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`).                                                                                                                                                                             |
+| SSO                | **OpenID Connect, OAuth2, LDAP** (từ constitution 1.3.0). SAML chưa làm.                                                                                                                                                                        |
+| Storage            | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm.                                                                                                                                                                           |
+| Email              | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo.                                                                                                                                        |
+| Flow Run Script    | **Có**, chạy trong sandbox isolated-vm giống Directus.                                                                                                                                                                                          |
+| Layouts            | Table, Cards, Calendar, Kanban, Map: đủ cả 5.                                                                                                                                                                                                   |
+| Quy mô             | **Lớn**: 200–2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi.                                                                                                                                                                 |
+| Thiết bị           | **Desktop và tablet** (từ 768px), Chrome, Edge, Firefox, Safari bản mới.                                                                                                                                                                        |
+| Thương hiệu        | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...).                                                       |
+| Phạm vi            | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.**                                                                                               |
 
 ---
 
@@ -49,39 +49,43 @@ Mỗi phần có prompt sẵn để dán vào Claude Code (mở ở thư mục `
         →  /speckit.tasks  →  /speckit.analyze  →  /speckit.implement
 ```
 
-| Lệnh | Làm gì | Ghi chú |
-|---|---|---|
-| `/speckit.specify` | Viết spec: **làm gì và vì sao** | Không ghi tech stack ở đây. Mô tả hành vi, luồng, tiêu chí chấp nhận. |
-| `/speckit.clarify` | Claude hỏi tối đa 5 câu để làm rõ spec | Nên chạy với feature lớn. |
-| `/speckit.plan` | Viết plan kỹ thuật: **làm thế nào** | Đây là chỗ ghi NestJS, Knex, Reka UI, file Directus cần tham chiếu. |
-| `/speckit.checklist` | Tạo checklist kiểm tra chất lượng yêu cầu | Tùy chọn. |
-| `/speckit.tasks` | Chia plan thành task có thứ tự | |
-| `/speckit.analyze` | Kiểm tra spec, plan, tasks có khớp nhau không | Chạy trước khi implement. |
-| `/speckit.implement` | Code theo tasks | |
+| Lệnh                 | Làm gì                                        | Ghi chú                                                               |
+| -------------------- | --------------------------------------------- | --------------------------------------------------------------------- |
+| `/speckit.specify`   | Viết spec: **làm gì và vì sao**               | Không ghi tech stack ở đây. Mô tả hành vi, luồng, tiêu chí chấp nhận. |
+| `/speckit.clarify`   | Claude hỏi tối đa 5 câu để làm rõ spec        | Nên chạy với feature lớn.                                             |
+| `/speckit.plan`      | Viết plan kỹ thuật: **làm thế nào**           | Đây là chỗ ghi NestJS, Knex, Reka UI, file Directus cần tham chiếu.   |
+| `/speckit.checklist` | Tạo checklist kiểm tra chất lượng yêu cầu     | Tùy chọn.                                                             |
+| `/speckit.tasks`     | Chia plan thành task có thứ tự                |                                                                       |
+| `/speckit.analyze`   | Kiểm tra spec, plan, tasks có khớp nhau không | Chạy trước khi implement.                                             |
+| `/speckit.implement` | Code theo tasks                               |                                                                       |
 
 **Ba nguyên tắc khi viết spec:**
 
 1. **Mỗi spec một feature vừa phải.** Đừng gộp cả Directus vào một spec. Lộ trình ở mục 5 đã chia sẵn.
-2. **Spec mô tả hành vi, plan mô tả công nghệ.** Ví dụ trong spec viết "người dùng lọc item theo `_eq`, `_in`... giống Directus". Trong plan mới viết "port `api/src/database/run-ast/lib/apply-query` sang NestJS".
+2. **Spec mô tả hành vi, plan mô tả công nghệ.** Ví dụ trong spec viết "người dùng lọc item theo `_eq`, `_in`... giống
+   Directus". Trong plan mới viết "port `api/src/database/run-ast/lib/apply-query` sang NestJS".
 3. **Luôn chỉ ra file tham chiếu trong `directus/`.** Claude sẽ đọc code gốc để giữ đúng luồng.
 
 ---
 
 ## 3. Chuẩn bị trước khi chạy Spec Kit (đã làm sẵn)
 
-1. **Git ở thư mục gốc**, nhánh `main`. Spec Kit tạo một branch cho mỗi feature (`001-...`, `002-...`).
-   `directus/` được đưa vào repo để Claude tìm kiếm được trong code mẫu. File bị `.gitignore` sẽ không hiện khi tìm kiếm.
-2. **Chưa tạo Nx workspace.** Việc tạo workspace bằng `create-nx-workspace` nằm trong feature `001`, để Spec Kit ghi lại đầy đủ.
-3. **Directus 11.17.4 tham chiếu** ở `dev/directus-reference/`, gồm Postgres (PostGIS), Redis và MinIO (S3), tắt WebSocket giống phạm vi app mới. App mới sẽ trỏ vào cùng DB, Redis và storage này.
+1. **Git ở thư mục gốc**, nhánh `main`. Spec Kit tạo một branch cho mỗi feature (`001-...`, `002-...`). `directus/` được
+   đưa vào repo để Claude tìm kiếm được trong code mẫu. File bị `.gitignore` sẽ không hiện khi tìm kiếm.
+2. **Chưa tạo Nx workspace.** Việc tạo workspace bằng `create-nx-workspace` nằm trong feature `001`, để Spec Kit ghi lại
+   đầy đủ.
+3. **Directus 11.17.4 tham chiếu** ở `dev/directus-reference/`, gồm Postgres (PostGIS), Redis và MinIO (S3), tắt
+   WebSocket giống phạm vi app mới. App mới sẽ trỏ vào cùng DB, Redis và storage này.
 
-   | Dịch vụ | Địa chỉ |
-   |---|---|
-   | Directus | http://localhost:8055 |
-   | Postgres | localhost:5432 |
-   | Redis | localhost:6379 |
-   | MinIO | http://localhost:9000 (API), http://localhost:9001 (console) |
+   | Dịch vụ  | Địa chỉ                                                      |
+   | -------- | ------------------------------------------------------------ |
+   | Directus | http://localhost:8055                                        |
+   | Postgres | localhost:5432                                               |
+   | Redis    | localhost:6379                                               |
+   | MinIO    | http://localhost:9000 (API), http://localhost:9001 (console) |
 
-   Tài khoản admin, mật khẩu DB, `SECRET` và key MinIO nằm trong `dev/directus-reference/.env`. File này sinh ngẫu nhiên và không đưa vào git.
+   Tài khoản admin, mật khẩu DB, `SECRET` và key MinIO nằm trong `dev/directus-reference/.env`. File này sinh ngẫu nhiên
+   và không đưa vào git.
 
    ```bash
    cd dev/directus-reference
@@ -196,29 +200,30 @@ Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên
 
 Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 
-| # | Feature | Phụ thuộc | Mảng |
-|---|---|---|---|
-| 001 | Nền tảng workspace và kết nối hệ thống | – | BE |
-| 002 | Schema overview và cache dùng chung | 001 | BE |
-| 003 | Xác thực và phiên đăng nhập | 002 | BE |
-| 004 | Phân quyền (roles, policies, permissions, users) | 003 | BE |
-| 005 | CRUD items, response cache, export, event (engine đã port ở 004) | 004 | BE |
-| 006 | Quản lý data model (collections, fields, relations, schema) | 005 | BE |
-| 007 | Files, folders, assets | 005 | BE |
-| 008 | Activity, revisions, versions, comments | 005 | BE |
-| 009 | Flows và tự động hóa | 005, 008 | BE |
-| 010 | Collection hệ thống còn lại (settings, presets, notifications, shares, translations, dashboards, panels, utils) | 005 | BE |
-| 011 | GraphQL | 005–010 | BE |
-| 012 | Khung app web và đăng nhập | 003 | FE |
-| 013 | Bộ interfaces và displays | 012 | FE |
-| 014 | Module Content | 013 | FE |
-| 015 | Module Files và Users | 013 | FE |
-| 016 | Module Settings: data model, quyền, cài đặt | 013 | FE |
-| 017 | Trình chỉnh sửa Flows | 016 | FE |
-| 018 | Insights, Activity, Notifications | 013 | FE |
-| 019 | Đóng gói và triển khai đa instance (Docker, K8s) | 001, 012 | DevOps |
+| #   | Feature                                                                                                         | Phụ thuộc | Mảng   |
+| --- | --------------------------------------------------------------------------------------------------------------- | --------- | ------ |
+| 001 | Nền tảng workspace và kết nối hệ thống                                                                          | –         | BE     |
+| 002 | Schema overview và cache dùng chung                                                                             | 001       | BE     |
+| 003 | Xác thực và phiên đăng nhập                                                                                     | 002       | BE     |
+| 004 | Phân quyền (roles, policies, permissions, users)                                                                | 003       | BE     |
+| 005 | CRUD items, response cache, export, event (engine đã port ở 004)                                                | 004       | BE     |
+| 006 | Quản lý data model (collections, fields, relations, schema)                                                     | 005       | BE     |
+| 007 | Files, folders, assets                                                                                          | 005       | BE     |
+| 008 | Activity, revisions, versions, comments                                                                         | 005       | BE     |
+| 009 | Flows và tự động hóa                                                                                            | 005, 008  | BE     |
+| 010 | Collection hệ thống còn lại (settings, presets, notifications, shares, translations, dashboards, panels, utils) | 005       | BE     |
+| 011 | GraphQL                                                                                                         | 005–010   | BE     |
+| 012 | Khung app web và đăng nhập                                                                                      | 003       | FE     |
+| 013 | Bộ interfaces và displays                                                                                       | 012       | FE     |
+| 014 | Module Content                                                                                                  | 013       | FE     |
+| 015 | Module Files và Users                                                                                           | 013       | FE     |
+| 016 | Module Settings: data model, quyền, cài đặt                                                                     | 013       | FE     |
+| 017 | Trình chỉnh sửa Flows                                                                                           | 016       | FE     |
+| 018 | Insights, Activity, Notifications                                                                               | 013       | FE     |
+| 019 | Đóng gói và triển khai đa instance (Docker, K8s)                                                                | 001, 012  | DevOps |
 
-**Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi URL sang NestJS. Hai mảng chạy song song được.
+**Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
+URL sang NestJS. Hai mảng chạy song song được.
 
 ---
 
@@ -299,7 +304,8 @@ dialect helper) và kiểm query đã port đủ ở feature 004. Feature này c
 /speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
 ```
 
-Ghi chú: prompt trên là bản gốc. Sau Phase 11 của 012, bố cục khung và phần nhìn theo design-system TailAdmin (D-47, D-52 trong spec 012), không còn giống Directus app.
+Ghi chú: prompt trên là bản gốc. Sau Phase 11 của 012, bố cục khung và phần nhìn theo design-system TailAdmin (D-47,
+D-52 trong spec 012), không còn giống Directus app.
 
 ### 013: Bộ interfaces và displays
 
@@ -313,11 +319,11 @@ Ghi chú: prompt trên là bản gốc. Sau Phase 11 của 012, bố cục khung
 /speckit.specify Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Danh sách phải mượt với collection khoảng 10 triệu bản ghi (phân trang và đếm phía server). Tham chiếu directus/app/src/modules/content và layouts. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
 ```
 
-Ghi chú từ 013 (đưa vào spec 014): 013 chỉ làm component (form, interface, display, drawer), không có màn hình.
-014 nhận: màn item `/content/:collection/:primaryKey` dùng `BoForm`, lưu item, hỏi `unsaved_changes` (FR-084 của 013);
-E2E ba cấu hình và so payload ghi với Directus app trên bộ mẫu `apps/web/fixtures/interfaces` (dùng lại script seed);
-drawer chọn item theo layout của preset và bộ lọc nâng cao (D-58); màn revisions, versions và chế độ so sánh (D-55);
-nội dung module Content (D-40); sự kiện "flow đã chạy" của `header` để nạp lại item.
+Ghi chú từ 013 (đưa vào spec 014): 013 chỉ làm component (form, interface, display, drawer), không có màn hình. 014
+nhận: màn item `/content/:collection/:primaryKey` dùng `BoForm`, lưu item, hỏi `unsaved_changes` (FR-084 của 013); E2E
+ba cấu hình và so payload ghi với Directus app trên bộ mẫu `apps/web/fixtures/interfaces` (dùng lại script seed); drawer
+chọn item theo layout của preset và bộ lọc nâng cao (D-58); màn revisions, versions và chế độ so sánh (D-55); nội dung
+module Content (D-40); sự kiện "flow đã chạy" của `header` để nạp lại item.
 
 ### 015: Module Files và Users
 
@@ -330,15 +336,35 @@ Ghi chú từ 013 (đưa vào spec 015): làm interface `_system` của `directu
 (`image-editor.vue`, `PATCH /files/:id` multipart) dùng chung cho màn file và nút chỉnh ảnh của interface `file-image`
 (D-59).
 
+Ghi chú từ 014 (đưa vào spec 015): `/content/directus_users` và `/content/directus_files` (và item của chúng) đang
+chuyển hướng sang `/users`, `/files` là khung module của 012 (D-72, `checkForSystem` trong
+`apps/web/src/modules/content.ts`, bảng `accessibleSystemCollections` của `utils/get-item-route.ts`); 015 thay khung
+bằng màn thật, giữ route. Danh sách file và user dùng lại phần đã có của 014: năm layout (`src/layouts`, `use-layout`),
+`SearchInput` + `system-filter`, preset/bookmark (`use-preset`), panel chi tiết (`components/sidebar/*`: layout,
+xuất/nhập, revisions, comments, shares), `DrawerCollection` theo layout của preset, `DrawerBatch`, recipe nháp Q-2 đến
+Q-12 của `component-specs.md` và §8–§10 của `layout-patterns.md` (chờ design owner duyệt ở 014). `CardsHeader` bỏ
+`extraSelection` và `Cards` bỏ slot `prepend` (chỉ module Files dùng): 015 thêm lại. Interface `_system` còn lại của 015
+như ghi chú 013 (D-57).
+
 ### 016: Module Settings
 
 ```text
 /speckit.specify Module Settings cho admin, giống Directus: data model (tạo và sửa collection, field, relation, sắp xếp và nhóm field, cấu hình interface và display, điều kiện, validation), roles và policies (gán quyền theo collection, action, field, điều kiện lọc), cài đặt dự án (tên, logo, màu, theme, ngôn ngữ, bản đồ, giới hạn file), presets và bookmarks, translations, thông tin hệ thống. Tham chiếu directus/app/src/modules/settings. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: data model và quyền tạo trên app mới dùng được ngay trên Directus.
 ```
 
-Ghi chú từ 013 (đưa vào spec 016): làm form options của interface và display (`options` trong `index.ts` của 013
-giữ sẵn dữ liệu; `list` và `map` có options dạng component, D-56) và các interface `_system` còn lại (D-57, trừ
+Ghi chú từ 013 (đưa vào spec 016): làm form options của interface và display (`options` trong `index.ts` của 013 giữ sẵn
+dữ liệu; `list` và `map` có options dạng component, D-56) và các interface `_system` còn lại (D-57, trừ
 `system-mcp-prompts-collection-validation` vì AI, D-41).
+
+Ghi chú từ 014 (đưa vào spec 016): các link của Content đang trỏ khung Settings của 012 (D-71) và phải mở được màn thật
+với đúng route: menu bookmark role/global ở cây collection mở `/settings/presets/:id` (`NavigationBookmark.vue`), nút
+"tạo collection" (admin, chưa có collection) mở `/settings/data-model/+` (`ContentNavigation.vue`, `NoCollections.vue`),
+menu chuột phải "sửa collection" mở `/settings/data-model/:collection`. Chuyển hướng D-72 của 016: `directus_settings` →
+`/settings/project`, `directus_collections` → `/settings/data-model`, `directus_roles` → `/settings/roles`,
+`directus_presets` → `/settings/presets`, `directus_translations` → `/settings/translations`, `directus_flows` →
+`/settings/flows` (`utils/get-item-route.ts`). Interface `_system` còn lại (D-57) trừ hai cái 014 đã làm
+(`system-filter`, `system-input-translated-string`, D-73); màn presets của Settings dùng lại `system-filter`, layout
+options và `BookmarkAdd` của 014.
 
 ### 017: Trình chỉnh sửa Flows
 
@@ -351,6 +377,9 @@ giữ sẵn dữ liệu; `list` và `map` có options dạng component, D-56) v�
 ```text
 /speckit.specify Module Insights: tạo dashboard, thêm và sắp xếp panel (metric, metric list, meter, time series, line chart, bar chart, pie chart, list, label, variable, relational variable), lọc theo biến dashboard. Module Activity: xem nhật ký hoạt động, lọc theo user, collection, hành động. Notifications: chuông thông báo, đánh dấu đã đọc, mở item liên quan. Luồng giống Directus. Tham chiếu directus/app/src/modules/insights, activity, directus/app/src/panels. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: dashboard tạo ở Directus hiển thị đúng trên app mới.
 ```
+
+Ghi chú từ 014 (đưa vào spec 018): `/content/directus_dashboards` và `/content/directus_activity` chuyển hướng sang
+`/insights`, `/activity` (khung của 012, D-72); 018 thay khung bằng màn thật, giữ route.
 
 ### 019: Đóng gói và triển khai đa instance
 
@@ -365,11 +394,13 @@ giữ sẵn dữ liệu; `list` và `map` có options dạng component, D-56) v�
 Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riêng cho feature đó.
 
 **BE (001–011):**
+
 ```text
 /speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. <thêm phần riêng của feature>
 ```
 
 **FE (012–018):**
+
 ```text
 /speckit.plan Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. <thêm phần riêng của feature>
 ```
@@ -382,40 +413,48 @@ Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riên
 
 **Các model dùng trong dự án** (giá API theo 1 triệu token, tham khảo để so sánh chi phí):
 
-| Model | Đặc điểm | Context | Giá vào / ra |
-|---|---|---|---|
-| **Opus 5.5** | Mạnh nhất trong các model dùng được, model mặc định. Tăng `/effort` khi việc khó. | 1M | $4 / $20 |
-| **Sonnet 5.5** | Nhanh, đủ tốt cho code thường ngày. | 1M | $2 / $10 |
-| **Haiku 4.5** | Rẻ và nhanh nhất, cho việc đơn giản. | 200K | $1 / $5 |
+| Model          | Đặc điểm                                                                          | Context | Giá vào / ra |
+| -------------- | --------------------------------------------------------------------------------- | ------- | ------------ |
+| **Opus 5.5**   | Mạnh nhất trong các model dùng được, model mặc định. Tăng `/effort` khi việc khó. | 1M      | $4 / $20     |
+| **Sonnet 5.5** | Nhanh, đủ tốt cho code thường ngày.                                               | 1M      | $2 / $10     |
+| **Haiku 4.5**  | Rẻ và nhanh nhất, cho việc đơn giản.                                              | 200K    | $1 / $5      |
 
-Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó, dùng Opus 5.5 với effort cao (`xhigh` hoặc `max`) cho các bước khó.
+Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó, dùng Opus 5.5 với effort cao (`xhigh` hoặc `max`) cho các
+bước khó.
 
-**Nguyên tắc:** lỗi ở bước đầu (spec, plan) lan sang mọi bước sau, nên đầu tư effort cao ở đầu quy trình. Bước làm theo khuôn có sẵn thì dùng model rẻ hơn.
+**Nguyên tắc:** lỗi ở bước đầu (spec, plan) lan sang mọi bước sau, nên đầu tư effort cao ở đầu quy trình. Bước làm theo
+khuôn có sẵn thì dùng model rẻ hơn.
 
-**Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và **013, 014** (FE).
+**Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và
+**013, 014** (FE).
 
-| Bước | Feature lõi | Feature còn lại | Lý do |
-|---|---|---|---|
-| `/speckit.constitution` | Opus 5.5, effort high | – | Chạy một lần. Prompt đã viết sẵn chi tiết, chỉ cần soạn lại cho đúng template. |
-| `/speckit.specify` | Opus 5.5, effort high | Opus 5.5, effort high | Phải đọc code tham chiếu trong `directus/` để viết đúng hành vi. |
-| `/speckit.clarify` | **Opus 5.5, effort xhigh** | Opus 5.5, effort high | Tìm chỗ mơ hồ cần suy luận sâu về luồng của Directus. |
-| `/speckit.plan` | **Opus 5.5, effort max** | Opus 5.5, effort xhigh | Bước quan trọng nhất: quyết định cách port, giữ tương thích DB, cache, token. |
-| `/speckit.checklist` | Sonnet 5.5 | Sonnet 5.5 | Làm theo khuôn có sẵn. |
-| `/speckit.tasks` | Opus 5.5, effort high | Sonnet 5.5 | Feature lõi có nhiều phụ thuộc, cần sắp thứ tự cẩn thận. |
-| `/speckit.analyze` | **Opus 5.5, effort xhigh** | Opus 5.5, effort high | Bắt chỗ spec, plan, tasks không khớp nhau trước khi code. |
-| `/speckit.implement` | **Opus 5.5, effort xhigh**. Tăng lên max cho phần port logic phức tạp (apply-query, run-ast, payload, permissions, flows, GraphQL schema). | Opus 5.5, effort high. Sonnet 5.5 cho component FE, boilerplate, test lặp lại. | Đọc nhiều code gốc và phải giữ hành vi giống hệt. |
-| Sửa lỗi test đối chiếu | Opus 5.5, effort xhigh, tăng lên max nếu sửa 2 lần chưa được | Opus 5.5, effort high | So khác biệt với Directus cần đọc kỹ cả hai bên. |
-| `/speckit.status` | Haiku 4.5 | Haiku 4.5 | Chỉ đọc trạng thái. |
+| Bước                    | Feature lõi                                                                                                                                | Feature còn lại                                                                | Lý do                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `/speckit.constitution` | Opus 5.5, effort high                                                                                                                      | –                                                                              | Chạy một lần. Prompt đã viết sẵn chi tiết, chỉ cần soạn lại cho đúng template. |
+| `/speckit.specify`      | Opus 5.5, effort high                                                                                                                      | Opus 5.5, effort high                                                          | Phải đọc code tham chiếu trong `directus/` để viết đúng hành vi.               |
+| `/speckit.clarify`      | **Opus 5.5, effort xhigh**                                                                                                                 | Opus 5.5, effort high                                                          | Tìm chỗ mơ hồ cần suy luận sâu về luồng của Directus.                          |
+| `/speckit.plan`         | **Opus 5.5, effort max**                                                                                                                   | Opus 5.5, effort xhigh                                                         | Bước quan trọng nhất: quyết định cách port, giữ tương thích DB, cache, token.  |
+| `/speckit.checklist`    | Sonnet 5.5                                                                                                                                 | Sonnet 5.5                                                                     | Làm theo khuôn có sẵn.                                                         |
+| `/speckit.tasks`        | Opus 5.5, effort high                                                                                                                      | Sonnet 5.5                                                                     | Feature lõi có nhiều phụ thuộc, cần sắp thứ tự cẩn thận.                       |
+| `/speckit.analyze`      | **Opus 5.5, effort xhigh**                                                                                                                 | Opus 5.5, effort high                                                          | Bắt chỗ spec, plan, tasks không khớp nhau trước khi code.                      |
+| `/speckit.implement`    | **Opus 5.5, effort xhigh**. Tăng lên max cho phần port logic phức tạp (apply-query, run-ast, payload, permissions, flows, GraphQL schema). | Opus 5.5, effort high. Sonnet 5.5 cho component FE, boilerplate, test lặp lại. | Đọc nhiều code gốc và phải giữ hành vi giống hệt.                              |
+| Sửa lỗi test đối chiếu  | Opus 5.5, effort xhigh, tăng lên max nếu sửa 2 lần chưa được                                                                               | Opus 5.5, effort high                                                          | So khác biệt với Directus cần đọc kỹ cả hai bên.                               |
+| `/speckit.status`       | Haiku 4.5                                                                                                                                  | Haiku 4.5                                                                      | Chỉ đọc trạng thái.                                                            |
 
 **Khi Opus 5.5 effort max vẫn chưa làm tốt** (thường gặp ở 005 và 009):
-- Tách feature thành các phần nhỏ hơn. Ví dụ 009 tách thành "trigger và engine" và "các operation" (004 đã port engine đọc ghi trong hai lượt).
+
+- Tách feature thành các phần nhỏ hơn. Ví dụ 009 tách thành "trigger và engine" và "các operation" (004 đã port engine
+  đọc ghi trong hai lượt).
 - Trong prompt, chỉ thẳng file Directus cần đọc, thay vì để model tự tìm.
 - Cho model chạy test đối chiếu sau mỗi task thay vì cuối feature, để lỗi được phát hiện sớm.
 
 **Lưu ý:**
-- **Không dùng `/speckit.quick` cho dự án này.** Lệnh này gộp nhiều bước, nên bỏ qua các điểm kiểm tra mà feature cần giữ tương thích phải có.
+
+- **Không dùng `/speckit.quick` cho dự án này.** Lệnh này gộp nhiều bước, nên bỏ qua các điểm kiểm tra mà feature cần
+  giữ tương thích phải có.
 - **Không dùng Haiku 4.5 cho bước nào phải đọc code Directus.** Context 200K không đủ cho các module lớn.
-- **Đổi model giữa các bước thì nên mở session mới,** hoặc ít nhất chạy `/clear`, để model mới đọc lại spec và plan từ file thay vì dựa vào hội thoại cũ.
+- **Đổi model giữa các bước thì nên mở session mới,** hoặc ít nhất chạy `/clear`, để model mới đọc lại spec và plan từ
+  file thay vì dựa vào hội thoại cũ.
 - Effort càng cao thì mỗi lượt càng lâu và tốn token hơn. Dùng `max` cho các ô in đậm, không đặt mặc định cho mọi việc.
 
 ---
@@ -423,9 +462,13 @@ Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó,
 ## 9. Mẹo khi chạy
 
 - **Chạy `/speckit.clarify` cho feature 003, 004, 005, 009.** Đây là những phần dễ hiểu sai nhất.
-- **Feature FE (013–018) dùng lại design-system đã chốt** (TailAdmin, constitution XII từ 2.0.0): theme `brand-*`/`gray-*`, công thức component trong `design-system/docs/component-specs.md`, khung app trong `docs/layout-patterns.md` (sidebar, header, page header, panel chi tiết đã dựng ở 012). Chạy `/speckit.clarify` khi màn hình cần dựng chưa có mẫu trong design-system (bảng dữ liệu lớn, form theo metadata, trình kéo thả flow...).
+- **Feature FE (013–018) dùng lại design-system đã chốt** (TailAdmin, constitution XII từ 2.0.0): theme
+  `brand-*`/`gray-*`, công thức component trong `design-system/docs/component-specs.md`, khung app trong
+  `docs/layout-patterns.md` (sidebar, header, page header, panel chi tiết đã dựng ở 012). Chạy `/speckit.clarify` khi
+  màn hình cần dựng chưa có mẫu trong design-system (bảng dữ liệu lớn, form theo metadata, trình kéo thả flow...).
 - **Chạy `/speckit.analyze` trước `/speckit.implement`** để bắt lỗi spec, plan, tasks không khớp nhau.
-- **Feature lớn (004, 013, 014) nên chia lượt** nếu tasks.md quá dài (trên khoảng 60 task), như 004 chia hai lượt implement, mỗi lượt commit và đối chiếu xanh.
+- **Feature lớn (004, 013, 014) nên chia lượt** nếu tasks.md quá dài (trên khoảng 60 task), như 004 chia hai lượt
+  implement, mỗi lượt commit và đối chiếu xanh.
 - **Theo dõi tiến độ:** `/speckit.status` cho biết feature hiện tại đang ở bước nào.
 - **Mỗi feature làm xong** thì chạy test đối chiếu, rồi merge branch trước khi sang feature sau.
 
@@ -433,12 +476,12 @@ Fable 5.1 không dùng được với tài khoản hiện tại. Thay vào đó,
 
 ## 10. Rủi ro cần lưu ý
 
-| Rủi ro | Ghi chú |
-|---|---|
-||
-| Lệch phiên bản | Khi nâng Directus lên bản mới, app mới phải cập nhật theo, vì DB dùng chung. Khóa Directus ở 11.17.4 cho đến khi app mới hỗ trợ bản tiếp theo. |
-| Cache và bus | Sai một cache key hay tên kênh là hai app hiển thị dữ liệu cũ. Feature 002 phải test kỹ hai chiều. |
+| Rủi ro                 | Ghi chú                                                                                                                                                                                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|                        |
+| Lệch phiên bản         | Khi nâng Directus lên bản mới, app mới phải cập nhật theo, vì DB dùng chung. Khóa Directus ở 11.17.4 cho đến khi app mới hỗ trợ bản tiếp theo.                                                                                                     |
+| Cache và bus           | Sai một cache key hay tên kênh là hai app hiển thị dữ liệu cũ. Feature 002 phải test kỹ hai chiều.                                                                                                                                                 |
 | Realtime trên Directus | App mới không có WebSocket. Nếu Directus vẫn bật `WEBSOCKETS_ENABLED=true`, người dùng Directus app vẫn có collaborative editing, nhưng không thấy người đang sửa cùng item bằng app mới. Muốn hai bên giống nhau thì tắt WebSocket trên Directus. |
-| Storage local | Nếu một môi trường vẫn để `STORAGE_LOCAL_*` trỏ vào ổ riêng của container, file tải lên ở replica này sẽ không thấy ở replica khác. Kiểm tra cấu hình storage trước khi tăng số replica. |
-| Khối lượng | Có khoảng 737 file TS ở BE và 551 file Vue ở FE. Ước lượng theo từng feature sau bước `/speckit.tasks`. |
-| Design-system | TailAdmin bản miễn phí không có màn CMS; các màn (layout table/cards/calendar/kanban/map, form theo metadata, flow editor, dashboard) phải tự thiết kế trên theme và ghi vào `design-system/docs/` trước khi code để các feature sau dùng lại. |
+| Storage local          | Nếu một môi trường vẫn để `STORAGE_LOCAL_*` trỏ vào ổ riêng của container, file tải lên ở replica này sẽ không thấy ở replica khác. Kiểm tra cấu hình storage trước khi tăng số replica.                                                           |
+| Khối lượng             | Có khoảng 737 file TS ở BE và 551 file Vue ở FE. Ước lượng theo từng feature sau bước `/speckit.tasks`.                                                                                                                                            |
+| Design-system          | TailAdmin bản miễn phí không có màn CMS; các màn (layout table/cards/calendar/kanban/map, form theo metadata, flow editor, dashboard) phải tự thiết kế trên theme và ghi vào `design-system/docs/` trước khi code để các feature sau dùng lại.     |

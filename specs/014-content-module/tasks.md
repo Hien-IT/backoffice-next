@@ -503,12 +503,12 @@ preset (gỡ D-58).
 
 ### Tests cho User Story 6
 
-- [ ] T078 [P] [US6] `e2e/content-export-import.spec.ts` (US6-1 đến US6-3; FR-090 đến FR-092): hộp xuất (định dạng, giới
+- [X] T078 [P] [US6] `e2e/content-export-import.spec.ts` (US6-1 đến US6-3; FR-090 đến FR-092): hộp xuất (định dạng, giới
   hạn, field lồng, bộ lọc sửa được, sắp xếp), tải về CSV và so byte với file Directus app tải cùng điều kiện, khóa ở
   `files` khi xuất ≥ 2500 dòng (cách duy nhất: `page.route()` sửa response `aggregate` của hộp xuất thành
   `countDistinct` 3000; nhánh `> queryLimit.max` kiểm bằng unit test ở T080), lưu vào thư viện (`export_started`), "tải trang hiện tại" so byte `expected.content.csv`, nhập CSV 10 dòng,
   nhập lỗi → hộp lỗi, chạy nền.
-- [ ] T079 [P] [US6] `e2e/content-batch.spec.ts` (US6-4 đến US6-6; FR-095 đến FR-099, FR-044): xóa/archive/sửa hàng loạt
+- [X] T079 [P] [US6] `e2e/content-batch.spec.ts` (US6-4 đến US6-6; FR-095 đến FR-099, FR-044): xóa/archive/sửa hàng loạt
   (`DrawerBatch`), lỗi transaction → hộp lỗi và lựa chọn giữ, Archive sidebar (`?archived`, `?all`), Refresh 10 s (đồng hồ
   giả của Playwright), Flows `bo-flow` với lựa chọn.
 
@@ -543,36 +543,36 @@ benchmark `benchmark:web` chạy tay một lần.
 
 ### Tests cho User Story 7
 
-- [ ] T083 [P] [US7] `e2e/content-permissions.spec.ts` (US7-1; FR-100 đến FR-103): `bo-viewer` (cây chỉ collection đọc
+- [X] T083 [P] [US7] `e2e/content-permissions.spec.ts` (US7-1; FR-100 đến FR-103): `bo-viewer` (cây chỉ collection đọc
   được, nút khóa/ẩn, form chỉ đọc), `bo-editor` (không xóa), field không đọc được không có cột, sắp xếp theo field không
   đọc được → trạng thái lỗi; thêm một lượt với user ngôn ngữ `vi-VN` kiểm số đếm và ngày nhóm (CHK091).
-- [ ] T084 [P] [US7] `e2e/content-share.spec.ts` (US7-2; FR-084): mở `/shared/<id>` ẩn danh, nhập `bo-share-password`, về
+- [X] T084 [P] [US7] `e2e/content-share.spec.ts` (US7-2; FR-084): mở `/shared/<id>` ẩn danh, nhập `bo-share-password`, về
   `/content/bo_content/1` với phiên share (cây chỉ collection đó, không bookmark, không ghi preset, không `track/page`),
   `/content` → theo quyền; share hết lượt → thông báo; user đã đăng nhập mở `/shared/<id>` → thẳng tới item.
-- [ ] T085 [P] [US7] `e2e/content-parity-ui.spec.ts` (SC-002): với `admin`, `bo-editor`, `bo-viewer`, thu năm thuộc tính
+- [X] T085 [P] [US7] `e2e/content-parity-ui.spec.ts` (SC-002): với `admin`, `bo-editor`, `bo-viewer`, thu năm thuộc tính
   (nhãn và thứ tự mục cây, header cột mặc định, chuỗi số đếm, `aria-disabled`/`disabled` của nút, mục sidebar) ở app
   mới và Directus app (8155/admin, selector riêng), so bằng; chạy khi `E2E_CONFIG=proxy-api`.
 
 ### Implementation cho User Story 7
 
-- [ ] T086 [US7] `src/routes/SharedRoute.vue` (012): sau đăng nhập share `router.replace(getItemRoute(collection, item))`,
+- [X] T086 [US7] `src/routes/SharedRoute.vue` (012): sau đăng nhập share `router.replace(getItemRoute(collection, item))`,
   user thường đã đăng nhập chuyển thẳng (như `shared.vue`); module Content với `ShareUser` không gọi store presets ghi,
   không bookmark (FR-084); test `SharedRoute.test.ts` thêm ca; test 012 giữ xanh.
-- [ ] T087 [US7] `e2e/helpers/payload.ts` (`recordWrites`, `normalize` theo `contracts/tests.md` §4: thứ tự gửi, uuid, id
+- [X] T087 [US7] `e2e/helpers/payload.ts` (`recordWrites`, `normalize` theo `contracts/tests.md` §4: thứ tự gửi, uuid, id
   trong path, thời gian, `DATA_PREFIX`, khóa object không thứ tự) và `e2e/helpers/directus-app.ts` (chép
   `tests/directus-app-e2e/src/helpers/{app,login}.ts` có header nguồn; `last_page` null + xóa cache dữ liệu trước lượt
   Directus như `bothRuns`; helper bộ lọc, version, comment, share cho Directus app: một hàm mỗi nhóm kịch bản); test
   `e2e/helpers/payload.spec.ts` (normalize).
-- [ ] T088 [P] [US7] `e2e/payload/items.spec.ts`: tạo, sửa, bản sao (`POST /graphql` + `POST`), xóa, archive item
+- [X] T088 [P] [US7] `e2e/payload/items.spec.ts`: tạo, sửa, bản sao (`POST /graphql` + `POST`), xóa, archive item
   `bo_content`; `expect(normalize(bo)).toEqual(normalize(dir))`; chỉ `proxy-api`.
-- [ ] T089 [P] [US7] `e2e/payload/presets.spec.ts`: preset tự lưu (đổi cột, sắp xếp, option layout cho mỗi layout:
+- [X] T089 [P] [US7] `e2e/payload/presets.spec.ts`: preset tự lưu (đổi cột, sắp xếp, option layout cho mỗi layout:
   mốc SC-005), bookmark tạo/cập nhật/xóa, bộ lọc ba cấp (so `filter` trong body).
-- [ ] T090 [P] [US7] `e2e/payload/versions.spec.ts`: tạo version, save, promote (có `mainHash`, `fields`), đổi tên, xóa.
-- [ ] T091 [P] [US7] `e2e/payload/comments-shares.spec.ts`: comment có mention, sửa, xóa; share tạo, sửa, invite, xóa.
-- [ ] T092 [P] [US7] `e2e/payload/utils.spec.ts`: xóa và sửa hàng loạt, `/utils/sort` (kéo sắp xếp tay; kéo không ổn
+- [X] T090 [P] [US7] `e2e/payload/versions.spec.ts`: tạo version, save, promote (có `mainHash`, `fields`), đổi tên, xóa.
+- [X] T091 [P] [US7] `e2e/payload/comments-shares.spec.ts`: comment có mention, sửa, xóa; share tạo, sửa, invite, xóa.
+- [X] T092 [P] [US7] `e2e/payload/utils.spec.ts`: xóa và sửa hàng loạt, `/utils/sort` (kéo sắp xếp tay; kéo không ổn
   định trên Directus app thì `test.fixme` có lý do và ghi trong spec), export tải về (so file), export thư viện, import CSV
   (so tên field multipart, tên file).
-- [ ] T093 [US7] CI `.github/workflows/ci.yml`: job `e2e-web` chạy spec `content-*` ở ba cấu hình (đã có bước chung), thêm
+- [X] T093 [US7] CI `.github/workflows/ci.yml`: job `e2e-web` chạy spec `content-*` ở ba cấu hình (đã có bước chung), thêm
   bước `payload` + `content-parity-ui` chỉ khi `E2E_CONFIG=proxy-api`; job `quality` bước `web perf` thêm
   `src/layouts/tabular/perf.browser.test.ts` và cây (`PERF=1`); `timeout-minutes` của `e2e-web` xem lại (≤ 75 nếu được,
   không thì ghi lý do).
@@ -592,23 +592,23 @@ benchmark `benchmark:web` chạy tay một lần.
 
 **Purpose**: a11y, bàn phím, manifest, tài liệu, duyệt recipe, cập nhật spec 012/013, đóng.
 
-- [ ] T095 [P] `src/modules/content/a11y.browser.test.ts` (FR-123, SC-006): axe 0 vi phạm `serious`/`critical` ở sáng và
+- [X] T095 [P] `src/modules/content/a11y.browser.test.ts` (FR-123, SC-006): axe 0 vi phạm `serious`/`critical` ở sáng và
   `html.dark` trên màn collection (năm layout), màn item với bốn sidebar, hộp so sánh, hộp xuất/nhập, menu version, cây
   collection; ngoại lệ chỉ thư viện bên thứ ba (FullCalendar, MapLibre attribution) và màu dữ liệu, ghi rule id và lý do.
-- [ ] T096 [P] `src/modules/content/keyboard.browser.test.ts` (SC-006): mỗi mục của `contracts/layouts.md` §5 có ca bàn
+- [X] T096 [P] `src/modules/content/keyboard.browser.test.ts` (SC-006): mỗi mục của `contracts/layouts.md` §5 có ca bàn
   phím (sắp xếp tay, cột, thẻ và cột kanban, chọn trên map, tay cầm live preview, điều kiện bộ lọc) và FR-115c, FR-115d
   (focus sau hành động, hộp xác nhận).
-- [ ] T097 [P] Manifest `tools/port-manifest/014-T*.json` đủ cho mọi file chép; `pnpm run check-port-headers` và
+- [X] T097 [P] Manifest `tools/port-manifest/014-T*.json` đủ cho mọi file chép; `pnpm run check-port-headers` và
   `node tools/guard-directus-unchanged.mjs` xanh (SC-008).
-- [ ] T098 Recipe nháp Q-1 đến Q-12 đối chiếu với component đã làm (sửa recipe theo code, dòng "Deviation" khi khác chủ
+- [X] T098 Recipe nháp Q-1 đến Q-12 đối chiếu với component đã làm (sửa recipe theo code, dòng "Deviation" khi khác chủ
   ý), `specs/014-content-module/design-review/README.md` cập nhật; chờ design owner (owner dự án) duyệt; khi duyệt, bảng
   Q của spec chuyển "Đóng" kèm tên recipe, bỏ marker "nháp (014)" (SC-009).
-- [ ] T099 Cập nhật spec: 014 (bảng D-67 đến D-74 và R-38 nếu có chờ tech lead duyệt, kết quả T002–T004 đã ghi, Status);
+- [X] T099 Cập nhật spec: 014 (bảng D-67 đến D-74 và R-38 nếu có chờ tech lead duyệt, kết quả T002–T004 đã ghi, Status);
   `specs/012-backoffice-web-shell/spec.md` (D-40 phần Content và D-45 sidebar chi tiết: "đã gỡ ở 014");
   `specs/013-interfaces-displays/spec.md` (D-55, D-58: "đã gỡ ở 014"); `tests/parity/accepted-differences.ts` nếu có mục
   liên quan; `SPECKIT-GUIDE.md` prompt 015/016 thêm ghi chú bàn giao (preset Settings, `system-*` còn lại, chuyển hướng
   D-72).
-- [ ] T100 [P] `apps/web/README.md` (module Content, lệnh E2E và payload, benchmark web) và
+- [X] T100 [P] `apps/web/README.md` (module Content, lệnh E2E và payload, benchmark web) và
   `specs/014-content-module/quickstart.md` chạy lại từng lệnh, sửa chỗ sai.
 - [ ] T101 **Đóng lượt 4 và feature**: `pnpm nx run-many -t lint typecheck test build check-bundle`, E2E ba cấu hình,
   payload, parity `web` xanh local; commit, push, CI xanh mọi job (kể cả `publish`); `[X]` mọi task; memory

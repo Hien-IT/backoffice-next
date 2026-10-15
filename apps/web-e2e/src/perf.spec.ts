@@ -30,18 +30,33 @@ test('login page visible in under 3 s at 10 Mbps, cold cache (SC-008)', async ({
 });
 
 test('no horizontal scroll on login, content and profile (FR-028, SC-008)', async ({ page }) => {
-	const noScroll = () => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth);
+	// Polled (the page may still be laying out); on a page scroll it names the elements past the viewport edge.
+	const noScroll = () =>
+		expect
+			.poll(
+				() =>
+					page.evaluate(() =>
+						document.documentElement.scrollWidth <= window.innerWidth
+							? []
+							: Array.from(document.querySelectorAll('body *'))
+									.filter((e) => e.getBoundingClientRect().right > window.innerWidth + 1)
+									.slice(0, 5)
+									.map((e) => `${e.tagName.toLowerCase()}.${String(e.className).slice(0, 60)}`),
+					),
+				{ message: 'elements wider than the viewport' },
+			)
+			.toEqual([]);
 
 	await page.goto('/admin/login');
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
-	expect(await noScroll()).toBe(true);
+	await noScroll();
 
 	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
 	await login(page, ADMIN);
 	await expect(page).toHaveURL(CONTENT_URL);
-	expect(await noScroll()).toBe(true);
+	await noScroll();
 
 	await page.goto('/admin/users/me');
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-	expect(await noScroll()).toBe(true);
+	await noScroll();
 });

@@ -1631,6 +1631,9 @@ importers:
 
   tests/benchmark:
     devDependencies:
+      '@playwright/test':
+        specifier: 'catalog:'
+        version: 1.64.0
       '@types/autocannon':
         specifier: 'catalog:'
         version: 7.12.7

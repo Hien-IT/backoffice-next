@@ -4,6 +4,7 @@ import { nextTick } from 'vue';
 import type { ModuleBarPart } from '../constants.ts';
 import { getInternalModules, registeredModules } from '../modules/index.ts';
 import { useSettingsStore, type Settings } from '../stores/settings.ts';
+import { useUserStore } from '../stores/user.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import AppSidebar from './AppSidebar.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
@@ -68,6 +69,17 @@ describe('AppSidebar module list (FR-021)', () => {
 		const { wrapper } = await mountLayout(AppSidebar);
 
 		expect(wrapper.findAll('[data-testid="module-bar"] a')).toHaveLength(0);
+	});
+
+	test('share session (no settings): the default bar of its registered modules (FR-084)', async () => {
+		registeredModules.value = getInternalModules().filter((m) => m.id === 'content');
+		const { wrapper } = await mountLayout(AppSidebar, {
+			beforeMount: () => {
+				useUserStore().currentUser = { share: 's1', app_access: false, admin_access: false };
+			},
+		});
+
+		expect(wrapper.findAll('[data-testid="module-bar"] a').map((a) => a.attributes('href'))).toEqual(['/content']);
 	});
 
 	test('saved order and enabled are used as is; unknown and unregistered modules are dropped', async () => {

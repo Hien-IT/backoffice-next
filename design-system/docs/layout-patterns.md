@@ -159,18 +159,18 @@ Routes, screen flows and permissions stay those of the Directus app (principle V
 Directus shell part goes. Which modules exist, their order, labels and routes are decided by Directus (module bar
 settings, permissions), not by this pack.
 
-| Directus app                                                                         | Backoffice (TailAdmin shell)                                                                                                                                                                                                   |
-| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Module bar (left icon rail)                                                          | One sidebar group "Menu" (L-2), no "Others" group. Items in `module_bar` order: each enabled module and each `module_bar` link (internal or external) in the same list, icon + label (`menu-item`). Settings last, admins only |
+| Directus app                                                                         | Backoffice (TailAdmin shell)                                                                                                                                                                                                                                                                                                         |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Module bar (left icon rail)                                                          | One sidebar group "Menu" (L-2), no "Others" group. Items in `module_bar` order: each enabled module and each `module_bar` link (internal or external) in the same list, icon + label (`menu-item`). Settings last, admins only                                                                                                       |
 | Module navigation (second column: collections, folders, presets, settings pages ...) | The module's sub-menu (`menu-dropdown-item`), **one level** (L-3): feature 012 provides this slot; each module feature (014+) decides what goes in it. Exception (owner, 2026-10-15, spec 014 Q2): the Content module renders its collection tree **nested inside this sub-menu** (groups, folders, bookmarks, search), see §9 (014) |
-| Settings module                                                                      | Last sidebar item, admins only (Directus permission)                                                                                                                                                                           |
-| Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                       |
-| Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                   |
-| Header bar (icon, title, breadcrumb, action buttons)                                 | Page header inside the content (`PageBreadcrumb` layout): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                        |
-| Right sidebar (info, revisions, comments, layout options)                            | Optional right detail panel (L-4, below)                                                                                                                                                                                       |
-| User avatar / menu at the bottom of the module bar                                   | `UserMenu` in the header: avatar, name, email, items (profile = Directus user detail page, other Directus entries), Sign out                                                                                                   |
-| Notifications drawer                                                                 | `NotificationMenu` button in the header (only if the feature ships it)                                                                                                                                                         |
-| Theme (light/dark/auto from user/settings)                                           | `ThemeToggler` in the header sets the `dark` class; the initial value follows the Directus user/settings appearance                                                                                                            |
+| Settings module                                                                      | Last sidebar item, admins only (Directus permission)                                                                                                                                                                                                                                                                                 |
+| Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                                                                                                                             |
+| Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                                                                                                                         |
+| Header bar (icon, title, breadcrumb, action buttons)                                 | Page header inside the content (`PageBreadcrumb` layout): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |
+| Right sidebar (info, revisions, comments, layout options)                            | Optional right detail panel (L-4, below)                                                                                                                                                                                                                                                                                             |
+| User avatar / menu at the bottom of the module bar                                   | `UserMenu` in the header: avatar, name, email, items (profile = Directus user detail page, other Directus entries), Sign out                                                                                                                                                                                                         |
+| Notifications drawer                                                                 | `NotificationMenu` button in the header (only if the feature ships it)                                                                                                                                                                                                                                                               |
+| Theme (light/dark/auto from user/settings)                                           | `ThemeToggler` in the header sets the `dark` class; the initial value follows the Directus user/settings appearance                                                                                                                                                                                                                  |
 
 ### Right detail panel (L-4, Backoffice; TailAdmin has none)
 
@@ -219,9 +219,10 @@ drafts). "Deviation" lines say where the code differs from the first draft.
 - Built: `apps/web/src/components/form/BoForm.vue`, `FormField.vue`, `FormFieldInterface.vue`, `types.ts`
   (`WIDTH_CLASSES`).
 - Grid: `grid grid-cols-2 gap-x-6 gap-y-5`, two columns from 768px (the minimum supported width, L-1) and in the drawer.
-  Directus stacks halves only below a 500px form width (container query), which the shell from 768px and the 640px
-  drawer do not reach [Inference: content and drawer widths minus padding stay above 500px], so there is no container
-  query.
+- Item page (014, D-82): the form is capped at `max-w-5xl` (64rem) so `fill` fields stop there on wide screens; the
+  drawers keep their own width. Directus stacks halves only below a 500px form width (container query), which the shell
+  from 768px and the 640px drawer do not reach [Inference: content and drawer widths minus padding stay above 500px], so
+  there is no container query.
 - Widths (Directus `meta.width`, after the Directus `updateFieldWidths`, which turns a `half` that follows a visible
   `half` into `half-right`): `half` / `half-left` → `col-start-1 col-span-1`, `half-right` → `col-start-2 col-span-1`,
   `full` → `col-start-1 col-span-2`, `fill` → `col-span-full`. Groups use the same classes.
@@ -286,15 +287,18 @@ drafts). "Deviation" lines say where the code differs from the first draft.
   hidden until opened). Not resizeable.
 - DrawerItem body: file preview (files collection), then the empty state, or `flex flex-col gap-12` with the
   ValidationErrors notice, the junction form and the main form (order swapped as Directus).
-- DrawerCollection body `flex flex-col gap-4`: the `sidebar` slot, a search Input (`type="search"`, `aria-label`
-  "Search", placeholder `search_items`), a danger Notice on load error, the simple Table (single or multiple select,
-  sort, mouse resize, caption = collection name), and when there is more than one page a `nav` (`aria-label` =
-  collection name) `flex items-center justify-between gap-3 text-theme-sm text-gray-500 dark:text-gray-400` with the
-  range text (`aria-live="polite"`) and Previous / Next secondary Buttons.
+- DrawerCollection (014, D-58 lifted): the layout of the collection preset (tabular, cards, calendar, kanban, map) from
+  the layout registry, in select mode (`showSelect` one or multiple); the layout actions (count line) and `SearchInput`
+  (Q-7) sit in the header actions before the save Button; the drawer sidebar holds the caller's `sidebar` slot (folders
+  of the files drawer) then the Layout section (Q-9) with the layout options; the body is the layout itself (its own
+  pagination), `BoInfo` `item_count` 0 when empty, a danger Notice with the translated API error on load error. The
+  temporary preset is never written. Deviation: the 013 body (search Input, simple Table, Previous / Next `nav`) is
+  gone.
+
 - DrawerFiles (new): Directus files navigation (folder tree sidebar) becomes a Tier 1 Select labelled "Folder" at the
   top of the body: the root (or the field's folder) and its sub folders, then "All files", "My files", "Recent files";
-  the choice is kept in session storage (`backoffice-` prefix). Open: sub folders are indented with leading spaces in
-  the option text; collapsed HTML whitespace may hide the indentation [Unverified: not checked in a browser].
+  the choice is kept in session storage (`backoffice-` prefix). Sub folders are indented with leading spaces in the
+  option text (kept by the design owner, 2026-10-15).
 - Keyboard and focus: on open, focus goes to the first focusable element of the body (else the panel); it is trapped
   while open; Esc emits `cancel` (DrawerItem asks "Discard all changes?" in a Modal when there are edits: Discard
   (secondary) / Keep editing (primary)); an overlay click closes unless `persistent` (DrawerItem, DrawerBatch); Ctrl/Cmd
@@ -307,56 +311,95 @@ drafts). "Deviation" lines say where the code differs from the first draft.
 
 ## 9. Content module navigation tree (nháp, 014)
 
-**Draft (nháp, 014)** for spec 014 Q-1 (owner choice 2026-10-15, Clarifications Q2): the Content module renders the
-Directus collection tree (`modules/content/components/navigation.vue`, `NavigationItem.vue`, `navigation-bookmark.vue`)
-**inside its sidebar sub-menu** (the `navigation` slot of `AppSidebar`, §7), several levels deep. Other modules keep one
-level. Behaviour (open groups, hidden collections, search, bookmarks, last accessed collection) is the Directus one.
+**Draft (nháp, 014)** for spec 014 Q-1 (owner choice 2026-10-15, Clarifications Q2), updated to the code as built
+(T098): the Content module renders the Directus collection tree (`modules/content/components/navigation.vue`,
+`navigation-item.vue`, `navigation-bookmark.vue`) **inside its sidebar sub-menu** (the `navigation` slot of
+`AppSidebar`, §7), several levels deep. Other modules keep one level. Behaviour (open groups, hidden collections,
+search, bookmarks, last accessed collection) is the Directus one. Built: `apps/web/src/modules/content/components/`
+`ContentNavigation.vue`, `NavigationItem.vue`, `NavigationItemContent.vue`, `NavigationBookmark.vue`,
+`routes/NoCollections.vue`.
 
-- Container: the sub-menu `ms-9 mt-2` block of 012; the tree is a `ul role="tree"` with `aria-label` "Collections"
-  (`$t('collections')`); items are `li role="treeitem"` with `aria-level`, `aria-expanded` on groups, `aria-selected`
-  (and `aria-current="page"` on the link) on the current collection or bookmark.
-- Rows reuse `menu-dropdown-item` / `menu-dropdown-item-active` / `menu-dropdown-item-inactive` (theme.css, `FOCUS`
-  included) with `min-h-9 gap-2`; the collection icon `BoIcon` `size-4 shrink-0` takes the collection `color` as
-  inline style (data color, Q-C of 013) else the row color (Directus foreground; gray-500 on the active brand-50 row fails axe color-contrast); the name truncates (`BoTextOverflow`).
-- Nesting: each level adds `ps-4`; a group row has a toggle button first (`size-6 rounded FOCUS`, `chevron_right`
-  turning 90° when open, `motion-reduce:transition-none`, `aria-label` "Expand"/"Collapse" + name); a folder (collection
-  without `schema`) is a group row whose label is not a link; `collapse: locked` groups have no toggle.
+- Container: the sub-menu block of 012; the tree is a `ul role="tree"` (`m-0 flex list-none flex-col gap-1 p-0`) with
+  `aria-label` `collections`; items are `li role="treeitem"` with `aria-level`, `aria-expanded` on groups and
+  `aria-selected`; the link of the current collection or bookmark has `aria-current="page"`.
+- Rows reuse `menu-dropdown-item` / `menu-dropdown-item-active` / `menu-dropdown-item-inactive` (theme.css) with
+  `gap-2 py-1`; the link fills the row (`after:absolute after:inset-0`) and the row shows the `FOCUS` outline through
+  `has-focus-visible:`. The icon is `BoIcon` `sm` `shrink-0` with the collection `color` as inline style (data color,
+  Q-C of 013), else the row color (Directus foreground; gray-500 on the active brand-50 row fails axe color-contrast);
+  the name truncates (`BoTextOverflow`). Deviation: no search highlight (BoTextOverflow has none).
+- Nesting: children in a `ul role="group"` `mt-1 flex flex-col gap-1 ps-4`; a group row has a toggle button first
+  (`size-6 rounded FOCUS`, `chevron_right` turning 90° when open, `motion-reduce:transition-none`, `aria-label` `expand`
+  / `collapse` + name); a folder (collection without `schema`) is a row whose label is not a link and toggles on click;
+  `collapse: locked` groups have no toggle. Deviation: the toggle comes first (Directus: after the name) and has
+  `tabindex="-1"`: the tree keys open and close groups, so the toggle is for the mouse.
 - Dense (more than 5 visible collections, Directus `dense`): `min-h-8 text-theme-sm`; otherwise `min-h-9 text-sm`.
-- Bookmarks: child rows of their collection, icon `bookmark` (or the bookmark icon/color), a row menu button at the end
-  (`more_vert`, `size-7 rounded FOCUS opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`, always visible
-  when the menu is open), `lock` icon instead when the user cannot edit (tooltip `cannot_edit_<scope>_bookmarks`).
-- Hidden collections: rows `text-gray-500 dark:text-gray-400` (gray-400 fails axe color-contrast on white) with an `visibility_off` icon after the name (and an sr-only
-  "hidden"); shown only when "Show hidden collections" is on.
-- Header row above the tree (sticky `top-0 bg-white dark:bg-gray-900 pb-2`): the search Input (Tier 1 Input, `h-9`,
-  `type="search"`, placeholder `search_collection`) when more than 20 collections are visible, and an icon Button
-  `visibility` / `visibility_off` with `aria-pressed` and `aria-label` `show_hidden_collections` /
-  `hide_hidden_collections` when hidden collections exist (keyboard path for the Directus right-click menu, which stays).
-- No match: an sr-only `role="status"` text `no_results` and a visible `px-3 py-2 text-theme-sm text-gray-500
-  dark:text-gray-400` row.
-- Keyboard (WAI-ARIA tree): Up/Down move between visible rows (roving `tabindex`), Right opens a group or moves to its
-  first child, Left closes or moves to the parent, Enter opens the link, Home/End first/last row; Tab leaves the tree.
-- Empty (admin, no collection): a full-width outline Button `create_collection` to the Settings frame (D-71).
+- Bookmarks: child rows of their collection (`?bookmark=<id>` link), the bookmark icon (default `bookmark`) and color; a
+  row menu button at the end
+  (`ctx-toggle size-7 rounded FOCUS opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 data-[state=open]:opacity-100`,
+  `more_vert`, `aria-label` `item_options`) that follows the row's roving tabindex, so Tab reaches it; a BoMenu with
+  `edit_<scope>_bookmark` (personal: a BoDialog with name, icon, color; role and global: a link to
+  `/settings/presets/<id>`, D-71) and `delete_<scope>_bookmark` (a BoDialog, Cancel first). Without permission a `lock`
+  icon (`role="img"`, `aria-label` and BoTooltip `cannot_edit_<scope>_bookmarks`). Deleting the open bookmark goes to
+  the collection and focuses the page title.
+- Hidden collections: rows `text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5` (gray-400 fails
+  axe color-contrast on white) with a `visibility_off` icon after the name and an sr-only "(hidden)"; shown only when
+  "show hidden collections" is on.
+- Header row above the tree (`sticky top-0 z-1 flex items-center gap-2 bg-white pb-2 dark:bg-gray-900`): the search
+  BoInput (`type="search"`, `h-9`, placeholder and `aria-label` `search_collection`) when more than 20 collections are
+  visible, and a ghost icon Button `visibility` / `visibility_off` with `aria-pressed` when hidden collections exist
+  (keyboard path for the Directus right-click menu, which stays). Deviation: its name stays `show_hidden_collections`
+  and `aria-pressed` gives the state (a toggle button keeps one name), not a name that switches to
+  `hide_hidden_collections`.
+- Right-click menu (Reka `ContextMenu` on the tree, shared menu classes of component-specs 014): on a table row for
+  admins `edit_collection` (`database`, link `/settings/data-model/<collection>`), otherwise show / hide hidden
+  collections; a bookmark row keeps the browser menu (Directus).
+- No match: an sr-only `role="status"` text `no_results` and a visible
+  `px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400` row (`aria-hidden`).
+- Keyboard (WAI-ARIA tree): one roving `tabindex` over the visible rows; Up/Down move, Right opens a group or moves to
+  its first child, Left closes or moves to the parent, Enter follows the link (or toggles a folder), Home/End first/last
+  row; Tab leaves the tree (or reaches the bookmark menu button).
+- Empty (admin, no collection): a full-width secondary Button `create_collection` to `/settings/data-model/+` above the
+  tree, and the `/content` page shows the blank page card (`no_collections`, the admin copy and a primary
+  `create_collection` Button to the same route; Settings frame of 012 until 016, D-71).
 - Collapsed sidebar (90px): the tree is hidden like other sub-menus; hover/focus expand shows it (§2).
 
 ## 10. Live preview split (nháp, 014)
 
-**Draft (nháp, 014)** for spec 014 Q-6 (live preview, Clarifications Q1 = A; no visual editing, D-67). Behaviour is
-Directus `routes/item.vue` + `live-preview.vue`.
+**Draft (nháp, 014)** for spec 014 Q-6 (live preview, Clarifications Q1 = A; no visual editing, D-67), updated to the
+code as built (T098). Behaviour is Directus `routes/item.vue` + `live-preview.vue`. Built:
+`apps/web/src/components/SplitPanel.vue`, `components/LivePreview.vue`, `modules/content/routes/ItemRoute.vue`,
+`routes/PreviewRoute.vue`.
 
-- Split: the item content area becomes a horizontal split (`SplitPanel`, `@directus/vue-split-panel`): form at the start,
-  preview at the end, size in % (default 50, min 20, max 80, snap 50, collapse under 15); full width = 100 %. Below
-  `sm` the preview covers the form when open and the divider is disabled.
-- Divider (`ResizeHandle` of 012): `w-1.5 cursor-col-resize bg-transparent hover:bg-brand-500/20 FOCUS`, a 1px line
-  `bg-gray-200 dark:bg-gray-800` in the middle, `role="separator"` `aria-orientation="vertical"` `aria-valuenow` (%),
-  `aria-valuemin` 20, `aria-valuemax` 80, `tabindex="0"`; Left/Right ±5 %, Home/End min/max (D-69).
-- Preview frame: `flex h-full flex-col border-s border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900`.
-  Toolbar `flex h-11 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`: icon Buttons (refresh
-  `refresh` `aria-label` `live_preview.refresh`, size toggle `devices`, new window `open_in_new`
-  `live_preview.new_window`, close `close`), the URL as `truncate text-theme-xs text-gray-500 dark:text-gray-400`
-  (a Dropdown menu when there are several URLs), width/height Inputs `w-16 h-8` and a zoom Select (25–200 %) when the
-  size is fixed, and a display options Dropdown (`full_width`).
-- Iframe: `size-full border-0 bg-white` inside a `relative grow overflow-auto` view (fixed size: centered,
-  `shadow-theme-md`); a top `PROGRESS` bar while loading; `no_url` / `invalid_url` show the Card empty-page block.
-- Header button (item page actions): secondary icon Button `visibility` with `aria-pressed`, tooltip
-  `live_preview.enable` / `live_preview.disable`.
-- Popup route (`/content/:collection/:pk/preview`): the preview frame alone, full window, `PublicView` is not used.
+- Split (`SplitPanel`, on `@directus/vue-split-panel` 0.8.9): form at the start, preview at the end; the end panel is
+  primary, size in % (default 50, min 20, max 80, or 100 at full width; snap point 50; collapsible to 0 under 15 %; 150
+  ms transition, 0 under `prefers-reduced-motion`). The size is kept in `backoffice-live-preview-size` (D-39). At `sm`
+  and below: min 0, max 100 and the divider is disabled.
+- Divider: the package's divider gets `role="separator"`, `aria-label` `live_preview.change_size`,
+  `aria-orientation="vertical"`, `aria-valuemin` / `aria-valuemax` = the min / max above (set by `SplitPanel`, the
+  package writes 0 / 100) and its own `aria-valuenow`; `FOCUS` on it; inside,
+  `flex h-full w-1.5 cursor-col-resize justify-center bg-transparent group-hover:bg-brand-500/20 motion-reduce:transition-none`
+  with a `w-px bg-gray-200 dark:bg-gray-800` line; hidden when collapsed. Keys (D-69): Left/Right ±5 % (Left grows the
+  preview), Home/End = min / max of the preview, Enter collapses (package). Deviation: the values are the preview size
+  (the primary end panel), not the form size.
+- Preview frame:
+  `@container flex size-full flex-col border-s border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-gray-900`.
+  Toolbar `flex h-11 shrink-0 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`: at the start a
+  ghost icon Button: display options BoMenu (`display_settings`: `full_width`, `live_preview.new_window` with
+  `open_in_new`), or `width_full` (`live_preview.exit_full_width`) at full width, or `exit_to_app`
+  (`live_preview.close_window`) in the popup; then refresh (ghost `refresh`, loading while refreshing, disabled without
+  a valid URL) and the URL `text-theme-xs` (a BoMenu with `arrow_drop_down` when there are several URLs); a spacer; when
+  the frame has a URL the width and height inputs
+  (`h-8 w-16 rounded-lg border border-gray-300 text-center text-theme-xs`, `aria-label` `width` / `height`, a `close`
+  icon between) and a zoom BoMenu (25–200 %), disabled at full size; at the end the size toggle `devices`
+  (`live_preview.change_size`, secondary while a fixed size is on, `aria-pressed`). Below a 27rem container the start
+  group (or, at full size, the inputs) hide. Tooltips are BoTooltip. Deviation: no close button in the toolbar (the
+  header button closes the preview, as Directus); the new window entry is in the display options menu; the zoom is a
+  BoMenu, not a Select.
+- Iframe: `size-full border-0 bg-white`, `title` `live_preview.iframe_title`, in a `grid size-full overflow-auto` view:
+  at a fixed size `p-11`, the box `shadow-theme-md` with CSS `resize: both` and `transform: scale(<zoom>)`; at full size
+  `p-0`. A top `PROGRESS` bar while refreshing; no URL = BoInfo `no_url`, invalid URL = BoInfo danger `invalid_url`
+  (Card empty-page block).
+- Header button (item page actions): icon Button `visibility`, secondary when off and primary when on, `aria-pressed`,
+  name and `title` `live_preview.enable` / `live_preview.disable`.
+- Popup route (`/content/:collection/:primaryKey/preview`): the preview frame alone, full window (`in-popup`), no
+  PublicView; the version comes from `?version=`; no `saved` message to the opener (no visual editing).

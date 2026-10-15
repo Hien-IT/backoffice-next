@@ -327,7 +327,13 @@ describe.each(IDS)('expected.%s.json', (id) => {
 
 		await RUNNERS[id]![name]!(mounted);
 
-		expect(mounted.emitted('input')).toBeDefined();
-		expect(stable(id, lastInput(mounted))).toEqual(stable(id, scenario.value));
+		// Editors emit after their own async work (image insert, debounce): wait for the expected last value.
+		await vi.waitFor(
+			() => {
+				expect(mounted.emitted('input')).toBeDefined();
+				expect(stable(id, lastInput(mounted))).toEqual(stable(id, scenario.value));
+			},
+			{ timeout: 5_000 },
+		);
 	});
 });

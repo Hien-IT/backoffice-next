@@ -61,7 +61,10 @@ afterEach(() => {
 type Wrapper = VueWrapper<InstanceType<typeof ListM2A>>;
 
 /** Mount like FormFieldInterface: the field's meta.options spread as props, then the form props. */
-async function mountM2A(props: Record<string, unknown> = {}, options: Record<string, unknown> = m2aField.meta!.options!) {
+async function mountM2A(
+	props: Record<string, unknown> = {},
+	options: Record<string, unknown> = m2aField.meta!.options!,
+) {
 	const wrapper = mount(ListM2A, {
 		props: {
 			...options,
@@ -69,7 +72,7 @@ async function mountM2A(props: Record<string, unknown> = {}, options: Record<str
 			field: 'm2a',
 			primaryKey: 1,
 			value: [1, 2],
-			'onInput': (value: unknown) => wrapper.setProps({ value } as never),
+			onInput: (value: unknown) => wrapper.setProps({ value } as never),
 			...props,
 		} as never,
 		global: { plugins: [i18n] },
@@ -184,11 +187,12 @@ describe('options', () => {
 	});
 
 	test('option:list-m2a.prefix: template on the junction row, else the collection name', async () => {
+		// The rows load over several fetches: wait for them (one flush is not enough on a loaded CI runner).
 		const prefixed = await mountM2A({ prefix: '#{{ sort }}' });
-		expect(rows(prefixed)[0]).toMatch(/^#1:/);
+		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/));
 
 		const plain = await mountM2A({ prefix: null });
-		expect(rows(plain)[1]).toMatch(/^Bo M2A B:/);
+		await vi.waitFor(() => expect(rows(plain)[1]).toMatch(/^Bo M2A B:/));
 	});
 });
 

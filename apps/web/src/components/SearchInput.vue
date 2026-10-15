@@ -159,7 +159,7 @@ const ICON_BTN =
 					autocapitalize="off"
 					autocorrect="off"
 					autocomplete="off"
-					class="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-sm text-gray-800 outline-hidden placeholder:text-gray-500 dark:text-white/90 dark:placeholder:text-gray-400"
+					class="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-sm text-gray-800 outline-hidden placeholder:text-gray-500 dark:text-white/90 dark:placeholder:text-gray-400 [&::-webkit-search-cancel-button]:appearance-none"
 					:class="{ 'w-0 flex-none p-0': !active && !modelValue }"
 					:tabindex="!active && !modelValue ? -1 : undefined"
 					:disabled

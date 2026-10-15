@@ -3,7 +3,7 @@
 // Backoffice: the page header of the TailAdmin content area (layout-patterns §5, component-specs Breadcrumb): icon,
 // h1 title and actions, then the toggle of the right detail panel (L-4). Feature 014: the Directus `headline` breadcrumb
 // (component-specs Breadcrumb) above the title, the icon color of the collection and the `title-outer:append` slot as
-// `title-append`. No back button; labelled buttons instead of clickable icons with tooltips (FR-027); the panel toggle is always
+// `title-append`, and the back button of the item page (`back`, Directus `show-back`); labelled buttons instead of clickable icons with tooltips (FR-027); the panel toggle is always
 // shown, as the collapsed panel has no detail buttons to reopen it in 012 (D-45). The sidebar toggle is in AppHeader.
 import { RouterLink, type RouteLocationRaw, useRouter } from 'vue-router';
 import BoButton from '../components/BoButton.vue';

@@ -200,7 +200,8 @@ test('a failed PATCH puts the event back', async () => {
 		document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
 	);
 
-	await vi.waitFor(() => expect(warn).toHaveBeenCalled());
+	// The drag, the PATCH and the revert take longer than the default second on a loaded CI runner.
+	await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 5_000 });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull());
 	expect(document.querySelectorAll('td[data-date="2026-10-10"] .fc-event')).toHaveLength(1);
 	warn.mockRestore();

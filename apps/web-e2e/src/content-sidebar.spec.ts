@@ -4,7 +4,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX } from './helpers/config.js';
-import { openItem } from './helpers/content.js';
+import { openItem, openSidebar } from './helpers/content.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -38,6 +38,7 @@ const section = (page: Page, name: string) => page.getByRole('button', { name: n
 test('revisions: the seeded edits, the comparison modal of one (US5-1, FR-080, FR-081)', async ({ page }) => {
 	await signIn(page);
 	await openItem(page, 'bo_content', 1);
+	await openSidebar(page);
 
 	await section(page, 'Revisions').click();
 	const revision = page
@@ -48,7 +49,8 @@ test('revisions: the seeded edits, the comparison modal of one (US5-1, FR-080, F
 	await expect(revision).toBeVisible();
 	await revision.click();
 
-	const modal = page.getByRole('dialog');
+	// Below `xl` the detail panel is a dialog too: the comparison modal is the one with Cancel.
+	const modal = page.getByRole('dialog').filter({ has: page.getByRole('button', { name: 'Cancel' }) });
 	await expect(modal).toBeVisible();
 	await modal.getByRole('button', { name: 'Cancel' }).click();
 	await expect(modal).toHaveCount(0);
@@ -57,6 +59,7 @@ test('revisions: the seeded edits, the comparison modal of one (US5-1, FR-080, F
 test('comments: post with Ctrl/Cmd+Enter, then it shows in the list (US5-2, FR-082)', async ({ page }) => {
 	await signIn(page);
 	await openItem(page, 'bo_content', 1);
+	await openSidebar(page);
 
 	await section(page, 'Comments').click();
 	const input = page.getByRole('textbox', { name: 'Leave a comment...' });
@@ -76,6 +79,7 @@ test('shares and flows: the seeded share and the manual flow of the item (US5-3,
 }) => {
 	await signIn(page);
 	await openItem(page, 'bo_content', 1);
+	await openSidebar(page);
 
 	await section(page, 'Shares').click();
 	await expect(page.getByRole('complementary').getByText('bo-share')).toBeVisible();
@@ -87,6 +91,7 @@ test('shares and flows: the seeded share and the manual flow of the item (US5-3,
 test('a new item has no detail sections (FR-084)', async ({ page }) => {
 	await signIn(page);
 	await openItem(page, 'bo_content', '+');
+	await openSidebar(page);
 
 	await expect(section(page, 'Revisions')).toHaveCount(0);
 	await expect(section(page, 'Comments')).toHaveCount(0);
