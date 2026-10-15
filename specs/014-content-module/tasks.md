@@ -576,7 +576,7 @@ benchmark `benchmark:web` chạy tay một lần.
   bước `payload` + `content-parity-ui` chỉ khi `E2E_CONFIG=proxy-api`; job `quality` bước `web perf` thêm
   `src/layouts/tabular/perf.browser.test.ts` và cây (`PERF=1`); `timeout-minutes` của `e2e-web` xem lại (≤ 75 nếu được,
   không thì ghi lý do).
-- [ ] T094 [US7] Benchmark màn (FR-125, SC-003, `contracts/tests.md` §5): `tests/benchmark/docker-compose.yml` thêm hai
+- [X] T094 [US7] Benchmark màn (FR-125, SC-003, `contracts/tests.md` §5): `tests/benchmark/docker-compose.yml` thêm hai
   service `backoffice-web` (proxy tới Directus và tới API mới, như profile `web` của parity); `tests/benchmark/src/web-content.ts`
   (Playwright chromium, đăng nhập, `/admin/content/bench_articles`: trang đầu đến dòng 25, đổi trang, sắp xếp
   `date_created` (index) và `title` (không index), lọc `status`; 11 lần, p95; cùng phép đo trên Directus app xen kẽ; số

@@ -268,6 +268,11 @@ nhóm…", "Chuyển trái/phải"): overlay `vi-VN` + `en-US` như D-60.
   benchmark như `items.ts`; ngưỡng SC-003 ở cả hai cấu hình; không chặn CI (job `benchmark-web` trong
   `benchmark.yml`, hằng tuần).
 
+- Kết quả T094 (2026-10-16, run 38773023346, job `benchmark-web`, 11 lần, p95 ms; Directus app / web → Directus /
+  web → API): trang đầu 1390 / 981 / 938 (ngưỡng 2000); trang sau 98 / 99 / 84 (1500); sắp xếp `date_created` 284 /
+  84 / 102 (1500); sắp xếp `title` không index 2834 / 2667 / 2650 (không ngưỡng); lọc `status` 1385 / 957 / 948 (1500).
+  Số request danh sách + đếm giống nhau ở cả ba app. SC-003 đạt. `benchmark.yml` có input `job` để chạy riêng một job.
+
 ## R15. Bốn lượt (Q3) và điều kiện
 
 | Lượt | Phase tasks | Nội dung | Cổng |
