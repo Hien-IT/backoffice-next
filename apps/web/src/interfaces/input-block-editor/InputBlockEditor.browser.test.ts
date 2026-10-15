@@ -41,10 +41,19 @@ async function mountEditor(props: Record<string, unknown>) {
 	});
 	await vi.waitFor(() => expect(wrapper!.find('.codex-editor').exists()).toBe(true));
 	// Editor.js first shows one empty block, then renders the value: wait for every block of the value (slow CI runners).
-	const blocks = (props['value'] as { blocks?: unknown[] } | null)?.blocks?.length ?? 1;
-	await vi.waitFor(() => expect(wrapper!.findAll('.ce-block').length).toBeGreaterThanOrEqual(blocks), {
-		timeout: 10_000,
-	});
+	const blocks = (props['value'] as { blocks?: { id?: string }[] } | null)?.blocks ?? [{}];
+	await vi.waitFor(
+		() => {
+			expect(wrapper!.findAll('.ce-block').length).toBeGreaterThanOrEqual(blocks.length);
+			for (const { id } of blocks) if (id) expect(wrapper!.find(`.ce-block[data-id="${id}"]`).exists()).toBe(true);
+		},
+		{ timeout: 10_000 },
+	);
+	// Editor.js resolves render() in a requestIdleCallback queued right after inserting the blocks, and only then turns
+	// change detection back on: a busy runner may not be idle for up to 2 s. Idle callbacks run in order, so ours runs
+	// after that one; the next task lets the component finish its mount (change listener, ready flag).
+	await new Promise((resolve) => requestIdleCallback(resolve));
+	await new Promise((resolve) => setTimeout(resolve));
 	await flushPromises();
 	return wrapper;
 }
