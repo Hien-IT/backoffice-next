@@ -80,6 +80,7 @@ async function mountM2A(
 	});
 
 	await flushPromises();
+	await vi.waitFor(() => expect(wrapper.find('[aria-busy="true"]').exists()).toBe(false));
 	return wrapper as unknown as Wrapper;
 }
 
@@ -173,7 +174,9 @@ describe('options', () => {
 	});
 
 	test('option:list-m2a.allowDuplicates: the select drawer filter drops items already linked unless true', async () => {
+		// The menus wait for the relation and permission loads (several fetches on a loaded CI runner).
 		const wrapper = await mountM2A();
+		await vi.waitFor(() => expect(menuItems(wrapper, 'select')).toBeDefined());
 		menuItems(wrapper, 'select')[0]!.onSelect!();
 		await flushPromises();
 
@@ -181,6 +184,7 @@ describe('options', () => {
 		expect(filter).toContain('$FOLLOW(bo_junction_m2a,item,collection)');
 
 		const duplicates = await mountM2A({ allowDuplicates: true });
+		await vi.waitFor(() => expect(menuItems(duplicates, 'select')).toBeDefined());
 		menuItems(duplicates, 'select')[0]!.onSelect!();
 		await flushPromises();
 		expect(duplicates.findComponent(DrawerCollection).props('filter')).toEqual({});
