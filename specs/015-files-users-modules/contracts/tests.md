@@ -35,6 +35,8 @@ Snapshot thêm `folders.json`, `files.json`, `users.json`, `roles.json` (data-mo
 | `files-users-parity-ui.spec.ts` | US7 | SC-002 năm thuộc tính so với Directus app, ba user; chỉ `proxy-api` |
 
 Điều kiện: seed `bo_files`, `bo_users` trước (bước `web:fixtures`); dữ liệu ghi có `DATA_PREFIX`, mỗi spec dọn phần mình
+Spec đổi preset qua giao diện đóng trang (chờ khoảng 600 ms rồi `page.close()`) trước khi khôi phục preset trong
+`afterEach`, để lần tự lưu debounce 450 ms không ghi đè bước khôi phục (bài học CI 014, research R13).
 tạo (thư mục, file, user, preset của admin trên `directus_files`/`directus_users` ở `beforeEach`); `allowed-paths.ts`
 #97–#134; `pageerror`, `console.error`, missing-key làm test thất bại; host ngoài abort, trừ stub nhập từ URL
 (`files.example` → PNG). Trình duyệt: chromium-768/1280 ở ba cấu hình; firefox-1280 và webkit-1280 chỉ `@core`
@@ -53,6 +55,7 @@ xóa hàng loạt. Khác biệt thật → R-xx trong spec.
 ## 5. Benchmark màn (`tests/benchmark/src/web-files-users.ts`, FR-118)
 
 Target `benchmark:web` thêm hai kịch bản: thư viện với 10.000 file trong một thư mục (seed bằng `POST /files` multipart
+Chạy riêng: `gh workflow run benchmark.yml -f job=benchmark-web` (input `job` của 014).
 1 KB, song song 20) và danh bạ 10.000 user; đo trang đầu cards, đổi trang, lọc `type`/`status`; so với Directus app ≤
 +10 % p95; không chặn CI.
 

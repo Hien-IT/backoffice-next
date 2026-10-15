@@ -200,4 +200,8 @@ Mỗi lượt: commit lên `main`, CI xanh (`quality`, `e2e-web`, `docker`), `gr
 - Perf: ngân sách cho Mac tham chiếu nhân `machineFactor()`; mount bằng `createApp`, Vue production (`PERF=1`).
 - E2E điều khiển Directus app (payload, parity-ui) chỉ chạy chromium-1280 qua `grepInvert` với `DIRECTUS_APP_SPECS`
   trong `playwright.config.ts` (014, 2026-10-15): sáu project đẩy `e2e-web` quá 100 phút; 015 làm giống.
+- Spec E2E đổi preset qua giao diện (layout, tìm kiếm, bộ lọc, cột) phải đóng trang trước khi khôi phục preset trong
+  `afterEach`: chờ khoảng 600 ms rồi `page.close()`; nếu không, lần tự lưu preset có debounce 450 ms ghi sau bước khôi
+  phục và làm bẩn spec và cấu hình sau (lỗi làm đỏ phần lớn spec content ở CI của 014, 2026-10-15).
+- `benchmark.yml` có input `workflow_dispatch` `job` (ví dụ `benchmark-web`) để chạy riêng một job benchmark (014).
 - Firefox ghi lỗi tải font bị hủy vào console (bỏ qua như 014); nginx cần `.mjs` là JavaScript.

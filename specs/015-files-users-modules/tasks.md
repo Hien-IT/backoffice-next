@@ -48,6 +48,8 @@ xanh, commit, push, `graphify update .`).
 - Dữ liệu E2E: `bo_files`, `bo_users` (T020); `bo_std`, `bo_content` không đổi; tên do test tạo theo `DATA_PREFIX`;
   mỗi spec dọn thư mục, file, user, preset của admin nó tạo ở `beforeEach`/`afterEach`; spec điều khiển Directus app
   (payload, parity-ui) vào `DIRECTUS_APP_SPECS` (chỉ chromium-1280).
+- Spec E2E đổi preset qua giao diện: trong `afterEach` chờ khoảng 600 ms rồi `page.close()` trước khi khôi phục preset
+  (tự lưu preset debounce 450 ms ghi sau bước khôi phục nếu trang còn mở; R13).
 - Sau mỗi phase: `pnpm nx run web:lint`, `web:typecheck`, `web:test`, `web:build` xanh.
 
 ---
@@ -507,7 +509,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 - [ ] T096 [P] [US7] Benchmark `tests/benchmark/src/web-files-users.ts`: seed 10.000 file (multipart 1 KB, song song
       20) vào một thư mục và 10.000 user; ba phép đo (trang đầu cards, đổi trang, lọc `type`/`status`), 11 lần, p95,
       so Directus app ≤ +10 %; nối vào target `benchmark:web` (`tests/benchmark/project.json`) và `benchmark.yml`;
-      chạy tay một lần, ghi kết quả vào `research.md` R10
+      chạy tay một lần bằng `gh workflow run benchmark.yml -f job=benchmark-web`, ghi kết quả vào `research.md` R10
 - [ ] T097 [P] [US7] Perf browser test `src/modules/files/perf.browser.test.ts` (cây 500 thư mục 3 cấp mở hết < 500 ms
       × `machineFactor()`; lưới 100 + 20 thẻ với data-URL 1×1 < 1 s; thả 20 file `maxConcurrency` 5 → ≤ 5 đồng thời,
       nạp lại 1 lần) và `src/modules/users/perf.browser.test.ts` (màn user: request đúng bảng SC-007; mở
