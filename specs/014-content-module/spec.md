@@ -413,13 +413,13 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
 
 | Story | Acceptance scenario | FR | SC |
 |-------|---------------------|----|----|
-| US1 | 1–6 | FR-001 đến FR-009, FR-020 đến FR-034 | SC-001, SC-002, SC-003 |
+| US1 | 1–6 | FR-001 đến FR-009, FR-020 đến FR-034 | SC-001, SC-002, SC-003, SC-011 |
 | US2 | 1–8 | FR-050 đến FR-069 | SC-001, SC-004 |
 | US3 | 1–5 | FR-010 đến FR-019, FR-040 đến FR-044 | SC-001, SC-004 |
 | US4 | 1–5 | FR-035 đến FR-039 | SC-001, SC-005 |
 | US5 | 1–6 | FR-070 đến FR-089 | SC-001, SC-004 |
 | US6 | 1–6 | FR-090 đến FR-099 | SC-001, SC-004 |
-| US7 | 1–3 | FR-100 đến FR-105, FR-110 đến FR-126 | SC-001, SC-004, SC-006 đến SC-010 |
+| US7 | 1–3 | FR-100 đến FR-103, FR-110 đến FR-127 | SC-001, SC-004, SC-006 đến SC-010, SC-012 |
 
 ## Requirements *(mandatory)*
 
@@ -567,8 +567,7 @@ Directus app qua proxy (`tests/directus-app-e2e`) và app mới, so body ghi.
   chọn kích thước trang (25, 50, 100, 250, 500, 1000 lọc `≤ queryLimit.max` của server như `usePageSize` 013, `-1` =
   không cắt; hiện khi `items ≥ 25` hoặc `limit < 25`) ghi `layout_query.tabular.limit`; đổi kích thước về trang 1. Bảng vẽ toàn bộ dòng của trang như Directus (không ảo hóa,
   Clarifications Q4); ngân sách vẽ ở SC-011.
-- **FR-034**: `layout-actions-tabular` PHẢI hiện dòng số đếm (FR-024); nút "tải xuống" (CSV của dữ liệu đang hiện,
-  `saveAsCSV`: cột theo `fields`, giá trị quan hệ phẳng như Directus) nằm trong mục Export (FR-091).
+- **FR-034**: `layout-actions-tabular` PHẢI hiện dòng số đếm (FR-024); tải trang hiện tại thành CSV xem FR-092.
 
 **Layout cards, calendar, kanban, map**
 
@@ -797,7 +796,8 @@ editing, D-67)
   khi số xuất `> queryLimit.max` hoặc `≥ 2500` thì khóa ở `files` (về lại khi giảm); tải về gọi
   `GET /items/:collection?export=<format>&limit&fields&sort&filter&search` và lưu file `<collection>.<ext>`; lưu vào
   thư viện gọi `POST /utils/export/:collection` `{format, query, file: {folder}}` và báo `export_started`.
-- **FR-092**: "Tải xuống" dữ liệu đang hiện (`onDownload` của layout, FR-034) PHẢI có trong mục Export như Directus.
+- **FR-092**: "Tải xuống" dữ liệu đang hiện (`onDownload` của layout: `saveAsCSV`, cột theo `fields`, tên cột lồng
+  "A -> B", giá trị qua `handler` của display, như Directus) PHẢI có trong mục Export như Directus.
 - **FR-095** Xóa hàng loạt: nút khi `selection.length > 0`, khóa khi `batchDeleteAllowed !== true` (quyền `delete` của
   collection); hộp `batch_delete_confirm` (n); `DELETE /items/:collection` body mảng khóa; xong xóa lựa chọn, nạp lại;
   lỗi → FR-028.

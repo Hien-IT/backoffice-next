@@ -77,7 +77,9 @@ build, E2E hiện có + mới xanh, commit, push).
   `export-sidebar-detail.vue` công tắc "chạy nền" → FR-090; (f) `drawer-collection.vue` preset tạm kế thừa
   `filter`/`search` → FR-029; (g) diff `src/composables/use-items.ts` với `directus/packages/composables/src/use-items.ts`
   và việc sdk `requestEndpoint` truyền `signal` tới `fetch` (`src/api/sdk.ts`); thiếu thì ghi việc sửa vào T017; (h)
-  route quyền item của `use-permissions/item` (`GET /permissions/me/:collection/:pk`) có ở API mới (004) → contracts #53.
+  route quyền item của `use-permissions/item` (`GET /permissions/me/:collection/:pk`) có ở API mới (004) → contracts #53;
+  (i) cấu trúc drawer chọn/tạo chuỗi dịch của `interfaces/_system/system-input-translated-string/*` (tên file, request
+  `/translations`) → research R3, bỏ [Unverified].
 - [ ] T004 Đo trên Directus app (profile `app` của `tests/parity`, 8155): mở `bo_std` (013), bấm làm mới (sidebar
   Refresh hoặc layout refresh) sau khi thêm item qua API: request đếm có gửi lại không, số đếm có đổi không. Ghi FR-023
   và research R15; nếu Directus giữ số cũ thì tái tạo và thêm R-38 vào spec (bảng "Rủi ro chấp nhận").
@@ -115,10 +117,10 @@ build, E2E hiện có + mới xanh, commit, push).
 - [ ] T009 [P] Chép `src/utils/sync-ref-property.ts`, `src/utils/hide-drag-image.ts`, `src/utils/field-utils.ts`
   (`isPrimaryKey`, `isRelational`, `isDateCreated`...), `src/utils/get-version-display-name.ts`,
   `src/utils/get-fullcalendar-locale.ts` (import động `@fullcalendar/core/locales/<x>`); test cạnh mỗi file.
-- [ ] T010 [P] `src/utils/save-as-csv.ts` chép `directus/app/src/utils/save-as-csv.ts` (`@json2csv/plainjs` `Parser`,
+- [ ] T010 `src/utils/save-as-csv.ts` chép `directus/app/src/utils/save-as-csv.ts` (`@json2csv/plainjs` `Parser`,
   `file-saver` `saveAs`, tên cột "A -> B" cho field lồng, `handler` của display qua `getDisplay` 013 thay
-  `useExtension`, `useAliasFields`); test so byte với `apps/web/fixtures/interfaces/snapshot/expected.content.csv`
-  (ghi từ Directus app ở T021).
+  `useExtension`, `useAliasFields`); test so byte với `apps/web/fixtures/interfaces/snapshot/expected.content.csv`.
+  Làm **sau T023** (file CSV mốc ghi từ Directus app ở T023).
 - [ ] T011 `src/stores/presets.ts` (012) thêm như `directus/app/src/stores/presets.ts`: getter `bookmarks` (thứ tự
   global, role, user, tên), `getBookmark`, `create` (`POST /presets`), `update` (`PATCH /presets/:id`), `delete`
   (`DELETE /presets` mảng id), `savePreset` (không `id` → create với `user` = mình; `user` khác mình → create bản mới;
@@ -175,7 +177,9 @@ build, E2E hiện có + mới xanh, commit, push).
   30 item), folder `bo_folder` (`collapse: locked`) chứa `bo_content`, preset user/role/global, bookmark cá nhân và
   global, version `draft` + `local-1` có delta, share có mật khẩu `bo-share-password` `max_uses: 5`, 2 comment (một có
   `@<uuid bo-viewer>`), flow `bo-flow` thêm `location: both`, flow `bo-flow-item` (`location: item`,
-  `requireConfirmation` + 1 field); quyền `bo-editor`/`bo-viewer` trên `bo_content` như `bo_std`; `bo_std` KHÔNG đổi;
+  `requireConfirmation` + 1 field), collection `bo_singleton` (`meta.singleton: true`, field `id`, `site_name` string,
+  `tagline` text, `maintenance` boolean; một item; FR-058, US2-7); quyền `bo-editor`/`bo-viewer` trên `bo_content` và
+  `bo_singleton` như `bo_std`; `bo_std` KHÔNG đổi;
   `export.mjs` thêm `presets.json`, `versions.json`, `shares.json`, `revisions.bo_content.json`,
   `comments.bo_content.json`, `flows.json` mở rộng, chuẩn hóa như 013 (id revision/activity theo thứ tự, `hash`
   cố định); chạy `pnpm nx run web:fixtures -- --api http://127.0.0.1:8155 ...`, commit snapshot;
@@ -222,7 +226,8 @@ phân trang và đếm phía server.
 - [ ] T028 [P] [US1] `e2e/content-tabular.spec.ts` `@core` (US1-3 đến US1-6, FR-022 đến FR-034): cột mặc định, thêm/ẩn
   cột, độ rộng, căn lề, khoảng cách, sắp xếp, trang, kích thước trang, chọn nhiều, Ctrl+click tab mới, trạng thái
   trống/không kết quả/lỗi (đặt lại tùy chọn), preset ghi ra đọc lại qua `AdminApi`, số request mỗi thao tác (SC-003 bảng
-  request).
+  request); ở chromium-768 trang không cuộn ngang (`document.documentElement.scrollWidth <= window.innerWidth` như
+  `navigation.spec.ts` 012, FR-116).
 
 ### Implementation cho User Story 1
 
@@ -286,7 +291,8 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
 - [ ] T039 [P] [US2] `e2e/content-item.spec.ts` `@core` (US2-1 đến US2-8, FR-050 đến FR-062): tạo, lưu và thoát, lưu và
   ở lại (URL đổi khóa mới), lưu và tạo tiếp, bản sao (`bo_content` có m2o, o2m của bộ mẫu `bo_rel`), bỏ thay đổi, xóa,
   archive/unarchive, hỏi `unsaved_changes` khi rời trang và khi đổi `?version=`, lỗi validation (field bắt buộc), singleton
-  (`bo_singleton` của 013 hoặc thêm vào seed T023 nếu chưa có), `bo-viewer` form chỉ đọc, tiêu đề tab chuỗi cuối
+  `bo_singleton` (seed T023: mở `/content/bo_singleton` thẳng form, `PATCH /items/bo_singleton`, không nút quay lại/xóa/
+  archive, `/content/bo_singleton/1` → không tìm thấy), `bo-viewer` form chỉ đọc, tiêu đề tab chuỗi cuối
   (FR-051), notice tại chỗ, focus sau xóa và lưu-tạo-tiếp (FR-115c).
 - [ ] T040 [P] [US2] `e2e/content-live-preview.spec.ts` (FR-063 đến FR-069): nút xem trước bật/tắt, chia đôi và kéo tay
   cầm (cả mũi tên), toàn bề rộng, popup mở `/content/bo_content/1/preview` và `postMessage('refresh')`, nạp lại sau lưu,
@@ -354,7 +360,7 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
   `$NOW`, kéo đổi thứ tự (vuedraggable) + menu Lên/Xuống (D-69), đổi `_and`↔`_or`, xóa; đăng ký trong registry
   interface (013 `src/interfaces/index.ts` glob `_system`); test `SystemFilter.test.ts` với 10 mẫu JSON ghi từ Directus app
   (nguồn ghi rõ trong test).
-- [ ] T052 [P] [US3] `src/components/SearchInput.vue` chép logic `views/private/components/search-input.vue` (mở rộng khi
+- [ ] T052 [US3] `src/components/SearchInput.vue` (sau T051) chép logic `views/private/components/search-input.vue` (mở rộng khi
   focus, đếm toán tử `activeFilterCount`, Popover chứa `SystemFilter`, Esc đóng, giữ mở khi focus vào menu con); port test
   `search-input.test.ts` → `src/components/SearchInput.test.ts`.
 - [ ] T053 [US3] Chép `src/interfaces/_system/system-input-translated-string/{index.ts,InputTranslatedString.vue}` (+
@@ -387,8 +393,9 @@ preset (gỡ D-58).
 
 - [ ] T056 [P] [US4] `e2e/content-layouts.spec.ts` (US4-1 đến US4-5): cards (ảnh, tiêu đề/phụ đề template, kích thước),
   calendar (đổi tháng → filter vùng ngày; kéo sự kiện → `PATCH`), kanban (kéo thẻ đổi cột → `/utils/sort` rồi `PATCH`;
-  menu "Chuyển sang nhóm…"), map (nền OSM/Mapbox stub/raster riêng từ settings tạm `basemaps`, `_intersects_bbox` khi
-  di chuyển, chọn bằng danh sách bàn phím), drawer chọn item (m2o của `bo_rel` 013) theo layout cards của preset.
+  menu "Chuyển sang nhóm…"; ở chromium-768 kanban cuộn ngang trong khung, trang không cuộn ngang: `scrollWidth <=
+  innerWidth`, FR-116), map (nền OSM/Mapbox stub/raster riêng từ settings tạm `basemaps`, `_intersects_bbox` khi di
+  chuyển, chọn bằng danh sách bàn phím), drawer chọn item (m2o của `bo_rel` 013) theo layout cards của preset.
 
 ### Implementation cho User Story 4
 
@@ -497,9 +504,9 @@ preset (gỡ D-58).
 ### Tests cho User Story 6
 
 - [ ] T078 [P] [US6] `e2e/content-export-import.spec.ts` (US6-1 đến US6-3; FR-090 đến FR-092): hộp xuất (định dạng, giới
-  hạn, field lồng, bộ lọc sửa được, sắp xếp), tải về CSV và so byte với file Directus app tải cùng điều kiện, ≥ 2500 khóa
-  ở `files` (đặt `limit -1` trên `bo_content` 30 item không đủ: dùng `queryLimit` thấp của profile hoặc mock số đếm qua
-  `route()`), lưu vào thư viện (`export_started`), "tải trang hiện tại" so byte `expected.content.csv`, nhập CSV 10 dòng,
+  hạn, field lồng, bộ lọc sửa được, sắp xếp), tải về CSV và so byte với file Directus app tải cùng điều kiện, khóa ở
+  `files` khi xuất ≥ 2500 dòng (cách duy nhất: `page.route()` sửa response `aggregate` của hộp xuất thành
+  `countDistinct` 3000; nhánh `> queryLimit.max` kiểm bằng unit test ở T080), lưu vào thư viện (`export_started`), "tải trang hiện tại" so byte `expected.content.csv`, nhập CSV 10 dòng,
   nhập lỗi → hộp lỗi, chạy nền.
 - [ ] T079 [P] [US6] `e2e/content-batch.spec.ts` (US6-4 đến US6-6; FR-095 đến FR-099, FR-044): xóa/archive/sửa hàng loạt
   (`DrawerBatch`), lỗi transaction → hộp lỗi và lựa chọn giữ, Archive sidebar (`?archived`, `?all`), Refresh 10 s (đồng hồ
@@ -513,7 +520,8 @@ preset (gỡ D-58).
   độ, `importing`, `background`, lỗi `FAILED_VALIDATION` → hộp lỗi), hộp xuất (số đếm debounce 250 ms, khóa `files` khi
   `> queryLimit.max` hoặc `≥ 2500`, `FieldList`, `SystemFilter`, thư mục bằng `BoSelect` thư mục của 013, tải về
   `apiFetch` → blob → `saveAs`, lưu thư viện), "tải trang hiện tại" (`onDownload`); port
-  `views/private/components/export-sidebar-detail.test.ts` → `ExportSidebarDetail.test.ts`.
+  `views/private/components/export-sidebar-detail.test.ts` → `ExportSidebarDetail.test.ts`, thêm ca khóa `files` khi số
+  xuất `> queryLimit.max` (server store giả `queryLimit.max = 100`) và khi `≥ 2500`.
 - [ ] T081 [P] [US6] `src/components/sidebar/{ArchiveSidebarDetail,RefreshSidebarDetail}.vue` chép logic (FR-044, FR-099):
   Archive ba lựa chọn đổi query giữ query khác; Refresh chu kỳ `null/10/30/60/300`, `emitter` `tabIdle`/`tabActive` của
   012, ghi `refresh_interval`; port `refresh-sidebar-detail.test.ts` → `RefreshSidebarDetail.test.ts`.
@@ -614,8 +622,8 @@ benchmark `benchmark:web` chạy tay một lần.
 
 - **Phase 1 (Setup)**: không phụ thuộc. T002, T003, T004 phải xong trước task dùng kết quả của chúng (T017, T034, T044,
   T046, T059, T062, T075, T080).
-- **Phase 2 (Foundational)**: sau Phase 1; chặn mọi story. T018 trước mọi layout; T023 trước T024 và mọi E2E; T025
-  trước mọi spec E2E.
+- **Phase 2 (Foundational)**: sau Phase 1; chặn mọi story. T018 trước mọi layout; T023 trước T010, T024 và mọi E2E;
+  T025 trước mọi spec E2E.
 - **Phase 3 (US1)**: sau Phase 2. T031 trước T037; T032 trước T037; T033, T034 trước T035.
 - **Phase 4 (US2)**: sau Phase 2; dùng route của T031 (US1). T041 trước T044; T045, T046 trước T047.
 - **Phase 5 (US3)**: sau T037 (US1, màn collection). T050 trước T051; T051 trước T052; T053 trước T054. T055 đóng lượt 1.
@@ -644,10 +652,10 @@ benchmark `benchmark:web` chạy tay một lần.
 ### Parallel Opportunities
 
 - Phase 1: T007 song song với T002–T006.
-- Phase 2: T008, T009, T010, T012, T013, T015, T016, T017, T019, T020, T021, T022, T026 song song (khác file).
+- Phase 2: T008, T009, T012, T013, T015, T016, T017, T019, T020, T021, T022, T026 song song (khác file); T010 sau T023.
 - US1: T027, T028, T029, T036 song song; T033 song song với T030.
 - US2: T039, T040, T042, T043, T045, T046 song song.
-- US3: T049, T050, T052 song song (T052 cần T051 để dựng Popover nhưng test port độc lập).
+- US3: T049, T050 song song; T051 → T052 tuần tự.
 - US4: T056, T057, T058, T059, T060 song song.
 - US5: T064, T065, T066, T068, T070, T073, T074 song song.
 - US6: T078, T079, T080, T081 song song.
@@ -660,7 +668,7 @@ benchmark `benchmark:web` chạy tay một lần.
 
 ```text
 # Phase 2, cùng lúc (khác file):
-T008 format-items-count, T009 utils chép, T010 save-as-csv, T012 store app/sidebar, T013 store translations,
+T008 format-items-count, T009 utils chép, T012 store app/sidebar, T013 store translations,
 T015 edits guard, T016 notices, T019 click handler, T020 SidebarDetail, T021 FieldList, T022 BoPagination
 
 # US4, cùng lúc:

@@ -25,16 +25,18 @@ chặn path ngoài danh sách (SC-008).
 | Spec | Story | Nội dung |
 |------|-------|----------|
 | `content-navigation.spec.ts` | US1 | cây, nhóm, ẩn, tìm, collection gần nhất, chuyển hướng hệ thống |
-| `content-tabular.spec.ts` | US1 | cột, độ rộng, sắp xếp, trang, kích thước, chọn, Ctrl+click, trạng thái trống/lỗi; preset ghi ra (so dòng `directus_presets` qua API) |
-| `content-item.spec.ts` | US2 | tạo, lưu kiểu, bản sao, xóa, archive, unsaved_changes, singleton, quyền |
+| `content-tabular.spec.ts` | US1 | cột, độ rộng, sắp xếp, trang, kích thước, chọn, Ctrl+click, trạng thái trống/lỗi; preset ghi ra (so dòng `directus_presets` qua API); 768 px không cuộn ngang trang (FR-116) |
+| `content-item.spec.ts` | US2 | tạo, lưu kiểu, bản sao, xóa, archive, unsaved_changes, singleton (`bo_singleton`), quyền |
 | `content-filter-bookmark.spec.ts` | US3 | bộ lọc 3 cấp, số điều kiện, bookmark tạo/mở/sửa/xóa/cập nhật/đặt lại, preset role/global, `?bookmark` không tồn tại |
-| `content-layouts.spec.ts` | US4 | mỗi layout một kịch bản (cards ảnh/tiêu đề; calendar đổi tháng + kéo; kanban kéo thẻ; map nền + chọn) |
+| `content-layouts.spec.ts` | US4 | mỗi layout một kịch bản (cards ảnh/tiêu đề; calendar đổi tháng + kéo; kanban kéo thẻ, 768 px cuộn trong khung không cuộn trang; map nền + chọn) |
 | `content-sidebar.spec.ts` | US5 | revisions + revert, comments + mention, shares + link, flows |
 | `content-versions.spec.ts` | US5 | tạo, chuyển, lưu, so sánh, promote, xóa |
 | `content-live-preview.spec.ts` | US2 | nút, chia đôi, toàn bề rộng, popup, nạp lại sau lưu |
-| `content-export-import.spec.ts` | US6 | export tải về (so file), export thư viện, import CSV, lỗi import |
+| `content-export-import.spec.ts` | US6 | export tải về (so file), export thư viện, khóa `files` khi ≥ 2500 (sửa response `aggregate` bằng `route()` thành 3000), import CSV, lỗi import |
 | `content-batch.spec.ts` | US6 | xóa/archive/sửa hàng loạt, archive sidebar, refresh |
-| `content-permissions.spec.ts` | US7 | `bo-editor`, `bo-viewer`; share `/shared/<id>` |
+| `content-permissions.spec.ts` | US7 | `bo-editor`, `bo-viewer`, lượt `vi-VN` |
+| `content-share.spec.ts` | US7 | share `/shared/<id>` → item, phiên share, hết lượt |
+| `content-parity-ui.spec.ts` | US7 | SC-002: năm thuộc tính so với Directus app, ba user; chỉ `proxy-api` |
 
 Điều kiện: bộ mẫu `bo_*` seed trước (bước CI `web:fixtures` trên Directus 8155; màn dùng `bo_content`, form 013 dùng
 `bo_std`); ba cấu hình dùng chung DB: dữ liệu ghi có `DATA_PREFIX`, mỗi spec dọn phần mình tạo, và xóa preset +

@@ -13,10 +13,10 @@ vue-virtual-scroller 2.0.0-beta.8, @directus/utils 13.4.1, @sindresorhus/slugify
 | Gói | Bản (catalog Directus) | Giấy phép | Dùng cho | Ghi chú |
 |-----|------------------------|-----------|----------|---------|
 | `@fullcalendar/core`, `daygrid`, `timegrid`, `list`, `interaction` | 6.1.19 | MIT | layout `calendar` (FR-036) | Cùng option, view, sự kiện kéo như `layouts/calendar/index.ts`; locale nạp động `@fullcalendar/core/locales/<x>` như `get-fullcalendar-locale.ts`; TailAdmin free dùng FullCalendar nên recipe Q-4 có mẫu CSS |
-| `@json2csv/plainjs` | 7.0.6 | MIT | `save-as-csv` (FR-034) | Cùng `Parser` để CSV tải trang hiện tại bằng byte với Directus (US6-2) |
+| `@json2csv/plainjs` | 7.0.6 | MIT | `save-as-csv` (FR-092) | Cùng `Parser` để CSV tải trang hiện tại bằng byte với Directus (US6-2) |
 | `file-saver` | 2.0.5 (+ `@types/file-saver`) | MIT | `saveAs` của CSV và export tải về | |
 | `@directus/vue-split-panel` | 0.8.9 | [Unverified: giấy phép, ESM, có trên npm; T002] | chia đôi live preview (FR-064) | Dự phòng: `SplitPanel.vue` riêng trên `ResizeHandle` + `useLayoutStorage` của 012 (sidebar split đã có), cùng props `size`, `collapsed`, `minSize`, `maxSize`, `snapPoints` |
-| `json-to-graphql-query` | bản catalog Directus [Unverified: T002] | MIT | `saveAsCopy` (FR-053) dựng query `<collection>_by_id` như `use-item` | Dự phòng: hàm chép tối thiểu (alias, args, field lồng) |
+| `json-to-graphql-query` | 2.3.0 (catalog Directus `directus/pnpm-workspace.yaml`; giấy phép, ESM kiểm T002) | MIT [Unverified: T002] | `saveAsCopy` (FR-053) dựng query `<collection>_by_id` như `use-item` | Dự phòng: hàm chép tối thiểu (alias, args, field lồng) |
 | `@fullcalendar/*` CSS | theo gói | | | Biến `--fc-*` đè bằng token theme trong `calendar.css` của app [Unverified mức đè: T002 kiểm `--fc-border-color`, `--fc-today-bg-color`, `--fc-event-bg-color`] |
 
 **Không thêm**: `@directus/composables`, `@directus/stores` (chép phần cần: `use-layout`, `use-items` đã có, `app.basemap`);
@@ -40,8 +40,8 @@ Directus ở quoting); fetch blob thay `file-saver` (file-saver xử lý Safari,
   `layout-patterns.md` §9 trước khi code.
 - `useNavigation` (chép): `activeGroups`, `showHidden` là ref module-level dùng chung; nhóm `collapse: locked` không
   đóng; nhóm chứa collection đang xem tự mở.
-- `getCollectionRoute`, `getItemRoute`, `getSystemCollectionRoute` chép `utils/get-route.ts` (013 đã có
-  `get-item-route`? kiểm T003; gộp một file `get-route.ts`).
+- `getCollectionRoute`, `getItemRoute`, `getSystemCollectionRoute`: dùng `src/utils/get-item-route.ts` đã có từ 013 (đủ
+  ba hàm chép từ `utils/get-route.ts`); không tạo file mới.
 - Collection gần nhất: `useLocalStorage('backoffice-last-accessed-collection')`.
 
 Tài liệu: `layout-patterns.md` §7 dòng "Module navigation" thêm "một cấp, trừ module Content: cây nhiều cấp (014 §9)"
@@ -61,7 +61,7 @@ Content, bỏ). `BookmarkAdd.vue` chép `bookmark-add.vue`: tên qua `system-inp
 `system-input-translated-string` (chép `interfaces/_system/system-input-translated-string/*`): ô nhập có nút mở
 drawer chọn/tạo chuỗi dịch (`/translations`, store `translations` của 012 có hydrate; thêm `create`/`update` nếu
 thiếu). Drawer chọn chuỗi là `DrawerCollection` trên `directus_translations`? Không: Directus có drawer riêng
-(`translation-strings-drawer`?) [Unverified: kiểm T003 cấu trúc thư mục; chép như Directus].
+(`translation-strings-drawer`?) [Unverified: T003 mục (i) đọc cấu trúc thư mục và request; chép như Directus].
 
 **Phương án bỏ**: lưu preset ngay mỗi thay đổi (nhiều request hơn Directus); bỏ tên dịch `$t:` (khác Directus).
 

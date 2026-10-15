@@ -141,6 +141,7 @@ Directus.
 |------|----------|
 | seed `bo_content` (mới; `bo_std` và snapshot 013 giữ nguyên, CHK054) | field `id`, `status` (choices draft/published/archived), `title`, `body`, `date_published`, `sort`, `author` (m2o `directus_users`), `cover` (file), `tags` (csv), `location` (geometry.Point khi có PostGIS); `meta.versioning: true`, `archive_field: status`, `archive_value: 'archived'`, `unarchive_value: 'draft'`, `archive_app_filter: true`, `display_template: '{{ title }}'`, `preview_url: 'https://preview.example/{{ id }}?v={{ $version }}'`, `sort_field: sort`; 30 item |
 | seed cây | folder `bo_folder` (collection không `schema`, `collapse: locked`) chứa `bo_content`; `bo_groups` giữ nguyên |
+| seed `bo_singleton` (mới) | `meta.singleton: true`, field `id`, `site_name`, `tagline`, `maintenance` (boolean), một item; quyền như `bo_content` (FR-058, US2-7) |
 | presets | preset user (admin, `bo_content` tabular 3 cột), preset role (`bo-editor`), preset global, bookmark cá nhân `bo-bookmark` (filter `status = published`), bookmark global |
 | versions | version `draft` và `local-1` của `bo_content/1` có delta |
 | shares | share có mật khẩu `bo-share-password` cho `bo_content/1`, `max_uses: 5` |

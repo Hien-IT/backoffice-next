@@ -148,5 +148,7 @@ mục ở [release-gate-proposals.md](./release-gate-proposals.md).
   FR-044, FR-051, FR-053, FR-054, FR-054b, FR-056, FR-063 đến FR-072, FR-080 đến FR-084, FR-089 đến FR-091, FR-103,
   FR-110b, FR-110c, FR-112, FR-115 đến FR-115d, FR-120, FR-124, SC-001 đến SC-003, SC-005, SC-006, SC-011, SC-012,
   D-72, D-74, Assumptions), data-model §2, §9, contracts/tests §1, §3 đến §5, contracts/layouts §3, research R2, R4,
-  R15. 101/101 mục xong. Mục cần kiểm trên code Directus (CHK011, 019, 032, 036, 037, 088, 093) là task T003 của lượt
-  1; sửa `layout-patterns.md` §7 (CHK055) và spec 012 chờ working tree mở khóa.
+  R15. 101/101 mục xong. Mục cần kiểm trên code Directus là task T003 (CHK011, 019, 032, 037, 060, 088, 093) và T004
+  (CHK036, đo trên Directus app) của lượt 1; `layout-patterns.md` §7 (CHK055) đã sửa ở 781dd25, spec 012 sửa ở T099.
+- 2026-10-15 `/speckit.analyze`: 13 vấn đề (G1 singleton `bo_singleton` vào seed T023, A1 cách kiểm xuất ≥ 2500 ở T078,
+  O1, O2, G2, U1, I1–I5, D1, CQ1) đã sửa vào tasks, plan, spec, research, contracts và file này.

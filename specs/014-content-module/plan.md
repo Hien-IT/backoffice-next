@@ -20,7 +20,7 @@ Cách làm:
   export/import, live preview) với ghi nguồn; viết lại giao diện bằng Reka UI + theme TailAdmin theo recipe nháp Q-1
   đến Q-12 viết vào `design-system/docs/` trước khi code (R2, R10).
 - Thư viện cùng bản Directus 11.17.4 ở chỗ quyết định hành vi hoặc dữ liệu: FullCalendar 6.1.19, `@json2csv/plainjs`
-  7.0.6, `file-saver` 2.0.5, `@directus/vue-split-panel` 0.8.9, `json-to-graphql-query` (bản catalog Directus); map,
+  7.0.6, `file-saver` 2.0.5, `@directus/vue-split-panel` 0.8.9, `json-to-graphql-query` 2.3.0; map,
   kéo thả, cuộn ảo đã có từ 013 (R1).
 - Test: Vitest `unit` + `browser` như 013 với API giả lập mở rộng; E2E Playwright `apps/web-e2e` ở ba cấu hình của
   012; bộ so payload chạy cùng kịch bản trên Directus app (profile `app`) và app mới (proxy-api) trong cùng test;
@@ -52,7 +52,7 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 maplibre-gl 6.14.0 + @mapbox/mapbox-gl-draw 1.5.1 + @mapbox/mapbox-gl-geocoder 5.1.2, vuedraggable 4.1.0,
 vue-virtual-scroller 2.0.0-beta.8, @sindresorhus/slugify 2.2.1, micromustache 8.0.3, mitt, p-queue. Thêm (R1):
 @fullcalendar/{core,daygrid,timegrid,list,interaction} 6.1.19, @json2csv/plainjs 7.0.6, file-saver 2.0.5 (+ types),
-@directus/vue-split-panel 0.8.9, json-to-graphql-query (bản catalog Directus) [Unverified trên npm: kiểm T002].
+@directus/vue-split-panel 0.8.9, json-to-graphql-query 2.3.0 (bản catalog Directus; giấy phép và ESM kiểm T002).
 
 **Storage**: không DB; Pinia (store `presets` mở rộng, `app.basemap`, `sidebar.activeAccordionItem`); localStorage
 `backoffice-last-accessed-collection`, `backoffice-live-preview-{mode,size,full-width}` (D-39); bộ mẫu
@@ -77,8 +77,8 @@ chunk lười (R14).
 
 **Constraints**:
 - Chỉ API Directus ở `contracts/api-calls.md` (#50 trở đi nối 013); request ra ngoài là danh sách đóng FR-112.
-- Bắt đầu implement chỉ khi phiên 013 báo CI xanh của commit cuối (thỏa thuận giữa hai session cùng working tree);
-  tới đó chỉ sửa `specs/014-*`.
+- Bắt đầu implement chỉ khi phiên 013 báo CI xanh của commit cuối: **đã đạt 2026-10-15** (run 38685401583 trên
+  5751122); `apps/web` thuộc 014 từ đó.
 - Không sửa `directus/`; file chép ghi `// Ported from directus/app/src/...`; không ghi `directus_fields`,
   `directus_relations`, `directus_collections`.
 - Không hex, không palette ngoài theme trong class; màu dữ liệu chỉ inline style từ giá trị runtime.
@@ -92,9 +92,9 @@ SFC); composable chép 12 (`use-preset`, `use-layout`, `use-item`, `use-versions
 `use-edits-guard`, `use-navigation-guard`, `use-permissions/*`, `use-comparison`, `use-navigation`, `use-flows` mở
 rộng); bộ lọc 5 SFC + `FieldList`; màn item 1 + menu version 2 + so sánh 4 + lưu tùy chọn 1; sidebar 12 SFC (detail,
 revisions 3, comments 4, shares 2, flows 1, layout, archive, refresh, export/import 2); live preview 2; utils chép ≈
-10 (`format-items-count`, `save-as-csv`, `get-route`, `geometry/controls`, `get-fullcalendar-locale`,
-`field-utils`, comparison normalizers...). Ước lượng 11.000 dòng mới (≈ 5.000 chép), ≈ 60 file test, 10 spec E2E,
-bộ so payload ≈ 8 kịch bản, 1 benchmark. `tasks.md` chia bốn lượt (FR-127): 1 = thư viện, recipe nháp, route, cây,
+10 (`format-items-count`, `save-as-csv`, `geometry/controls`, `get-fullcalendar-locale`, `field-utils`, comparison
+normalizers...; route dùng `get-item-route.ts` đã có từ 013). Ước lượng 11.000 dòng mới (≈ 5.000 chép), ≈ 60 file test,
+13 spec E2E, bộ so payload 5 file, 1 benchmark. `tasks.md` chia bốn lượt (FR-127): 1 = thư viện, recipe nháp, route, cây,
 preset, tabular, bộ lọc, màn item, E2E US1–US3; 2 = cards, calendar, kanban, map, drawer theo layout, E2E US4; 3 =
 sidebar, version, so sánh, live preview, share item, E2E US5; 4 = export/import, hàng loạt, archive, refresh, payload
 suite, benchmark, a11y, perf, đóng.
@@ -187,15 +187,15 @@ apps/web/
 │   │   └── drawers/DrawerCollection.vue   # layout theo preset ở selectMode (gỡ D-58)
 │   ├── composables/{use-preset,use-item,use-versions,use-revisions,use-revision,use-edits-guard,use-navigation-guard,use-permissions/*,use-layout-click-handler,use-fake-version-field,use-nested-validation}.ts, use-items.ts (mở rộng nếu thiếu), use-run-manual-flow.ts (selection, location collection)
 │   ├── stores/presets.ts (create, update, delete, bookmarks, savePreset), app.ts (basemap), layout/stores/sidebar.ts (activeAccordionItem)
-│   ├── utils/{format-items-count,save-as-csv,get-route,get-fullcalendar-locale,field-utils,get-version-display-name,geometry/controls,hide-drag-image,sync-ref-property}.ts
+│   ├── utils/{format-items-count,save-as-csv,get-fullcalendar-locale,field-utils,get-version-display-name,geometry/controls,hide-drag-image,sync-ref-property,upload-with-progress}.ts (route: get-item-route.ts có sẵn)
 │   ├── test-utils/fetch.ts         # mockFixtureApi: presets CRUD, revisions, versions (compare/save/promote), comments, shares, utils/export|import|sort, aggregate theo filterSystem
 │   └── lang/overlay/*.ts           # chỉ chuỗi D-69 (menu bàn phím) nếu Directus không có khóa
 ├── scripts/check-bundle.mjs        # ngân sách chunk mới (calendar, map layout, kanban, split panel)
 └── vite.config.ts                  # optimizeDeps cho fullcalendar, split panel (R14)
 
 apps/web-e2e/src/
-├── content-{navigation,tabular,item,filter-bookmark,layouts,sidebar,versions,export-import,batch,permissions,share}.spec.ts
-├── payload/{items,presets,versions,comments,shares,utils}.spec.ts   # chạy khi E2E_CONFIG=proxy-api
+├── content-{navigation,tabular,item,live-preview,filter-bookmark,layouts,sidebar,versions,export-import,batch,permissions,share,parity-ui}.spec.ts
+├── payload/{items,presets,versions,comments-shares,utils}.spec.ts   # payload và content-parity-ui chạy khi E2E_CONFIG=proxy-api
 └── helpers/{allowed-paths.ts (+#50..), content.ts, directus-app.ts (chép từ tests/directus-app-e2e helpers/app.ts), payload.ts}
 
 tests/benchmark/{docker-compose.yml (+ backoffice-web ×2), src/web-content.ts, project.json (target web)}
@@ -214,7 +214,7 @@ Directus để 016 thêm phần còn lại.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Không có vi phạm constitution. Rủi ro: `@directus/vue-split-panel` 0.8.9 và `json-to-graphql-query` chưa kiểm trên npm (giấy phép, build ESM) [Unverified] | Chia đôi live preview như Directus (FR-064); `saveAsCopy` dựng query GraphQL như Directus (FR-053) | Dự phòng split: dùng `ResizeHandle` + `useLayoutStorage` của 012 (sidebar split đã có); dự phòng GraphQL: dựng chuỗi query bằng hàm nhỏ chép logic `jsonToGraphQLQuery` cho phần dùng |
+| Không có vi phạm constitution. Rủi ro: `@directus/vue-split-panel` 0.8.9 và `json-to-graphql-query` 2.3.0 (bản của catalog Directus) chưa kiểm giấy phép và build ESM trên npm [Unverified: T002] | Chia đôi live preview như Directus (FR-064); `saveAsCopy` dựng query GraphQL như Directus (FR-053) | Dự phòng split: dùng `ResizeHandle` + `useLayoutStorage` của 012 (sidebar split đã có); dự phòng GraphQL: dựng chuỗi query bằng hàm nhỏ chép logic `jsonToGraphQLQuery` cho phần dùng |
 | FullCalendar 6.1.19 CSS trên theme TailAdmin [Unverified mức đè biến `--fc-*`] | Calendar như Directus; TailAdmin free cũng dùng FullCalendar (recipe Q-4 có mẫu) | Viết lịch riêng: nhiều code, mất kéo thả và view của Directus |
 | Benchmark compose chưa có image web [Unverified] | SC-003 đo trên 10 triệu dòng của 005 | Đo bằng API thuần không phản ánh "trang hiện xong" |
 | Bộ so payload chạy Directus app và app mới trong cùng test (hai bộ selector) | SC-004; `tests/directus-app-e2e` so dòng DB, không so body | So dòng DB (như 005) bỏ sót dạng body (thứ tự khóa, `null` vs thiếu) |
@@ -227,5 +227,4 @@ Directus để 016 thêm phần còn lại.
   share, flow thủ công, bộ lọc, nền bản đồ, export/import, localStorage, store mở rộng, bộ mẫu mở rộng.
 - contracts/: `api-calls.md`, `layouts.md`, `tests.md`.
 - quickstart.md: cài, seed, test, E2E ba cấu hình, payload, benchmark, lint, build.
-- Agent context: `CLAUDE.md` cập nhật bằng `.specify/scripts/bash/update-agent-context.sh claude` **sau khi phiên 013
-  mở khóa working tree** (lúc viết plan chỉ được sửa `specs/014-*`).
+- Agent context: `CLAUDE.md` đã cập nhật (commit 781dd25, 2026-10-15, sau khi phiên 013 mở khóa working tree).
