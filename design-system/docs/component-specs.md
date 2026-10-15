@@ -287,7 +287,7 @@ TailAdmin Vue has no tooltip component; the theme only defines `--shadow-tooltip
 - Arrow: `fill-gray-900 dark:fill-gray-800`
 - Opens on hover and keyboard focus, Esc closes; never the only place for essential information or interactive content.
 
-## Tier 3 recipes, nháp (013)
+## Tier 3 recipes, 013, duyệt 2026-10-15
 
 **Draft (nháp, 013).** Written for feature 013 (spec Q-1 to Q-12, FR-093) before the code, then updated to the code as
 built (T098): each recipe states the classes, states, ARIA and keyboard of the component it names
@@ -749,7 +749,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   gray-800 with white); `bordered` → BoEditorFrame, else a plain block; content
   `rounded-lg px-[1.8125rem] py-3 text-sm text-gray-800 dark:text-white/90`, `role="group"` labelled by the field label.
   Image upload: a Drawer with a preview and the Upload, library through DrawerFiles.
-- Rich text HTML (TinyMCE 6.8.6, nháp (013)): the editor sits in BoEditorFrame (the frame draws the FIELD border and
+- Rich text HTML (TinyMCE 6.8.6, 013, duyệt 2026-10-15): the editor sits in BoEditorFrame (the frame draws the FIELD border and
   focus ring; TinyMCE's own border and inner ring are removed); skin `oxide` with `tinymce-overrides.css` mapping its
   colors to tokens through `--bo-tx-*` variables (light and `html.dark`, transparent toolbar), icons Material Symbols;
   content iframe CSS from `get-editor-styles.ts` on tokens via `cssVar()` (read at init, a theme switch applies on

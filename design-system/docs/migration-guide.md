@@ -204,8 +204,8 @@ border gray-300 (1.47) and dark gray-700 (1.70); toggle off track gray-200 (1.24
 close icon gray-400 on gray-100. Card and table borders (gray-200 / gray-800) are decorative and keep the TailAdmin
 values.
 
-Rows marked "013" come from the Tier 3 draft recipes (`component-specs.md`, "Tier 3 recipes, nháp (013)") and the
-form/drawer draft (`layout-patterns.md` §8), checked against the components as built (T098) and computed from
+Rows marked "013" come from the Tier 3 draft recipes (`component-specs.md`, "Tier 3 recipes, 013, duyệt 2026-10-15") and
+the form/drawer draft (`layout-patterns.md` §8), checked against the components as built (T098) and computed from
 `tokens/theme.css` the same way (sRGB, alpha composited on the stated background). Colors that come from data (choice
 colors, chip colors, color values) are not in the table: they are applied as is like Directus (Q-C, accepted axe
 exception in `apps/web/src/components/form/a11y.browser.test.ts`). The three "fail" rows are open points of the 013

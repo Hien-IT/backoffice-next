@@ -2,10 +2,10 @@
 
 **Feature Branch**: `013-interfaces-displays` (làm trên `main` như 012, không tạo branch vì dùng chung working tree)
 **Created**: 2026-10-15
-**Status**: Draft
+**Status**: Done
 **Duyệt release-gate**: owner duyệt toàn bộ đề xuất của `checklists/release-gate-proposals.md` ngày 2026-10-15 (D-60, R-xx
 cho lỗi `formatted-json-value.handler` của Directus, design owner là owner dự án).
-**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-54 đến D-66 (D-67 và R-38 thêm khi làm T075, chờ tech lead; D-65: giữ cách sửa, không tái tạo; D-61 bỏ cùng ngày:
+**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-54 đến D-66 (D-67 và R-38 thêm khi làm T075, owner duyệt cùng ngày; D-65: giữ cách sửa, không tái tạo; D-61 bỏ cùng ngày:
 owner chọn giữ TinyMCE 6.8.6 như Directus), R-34 đến R-37, ngoại lệ axe của SC-005 và danh sách miễn màu dữ liệu (Q-C).
 **Input**: User description: "App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có."
 
@@ -706,18 +706,18 @@ mẫu"). Cách xử lý (Clarifications 2026-10-15): recipe nháp cho từng m�
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-1 | Lưới form: độ rộng `half`/`full`/`fill`, khoảng cách hàng, nhãn field kèm menu, chấm đã sửa, ghi chú, thông báo lỗi tổng hợp | Mở: chờ recipe nháp |
-| Q-2 | Combobox (autocomplete API, chọn có "khác"), chọn nhiều (chip trong ô), radio, nhóm checkbox lưới, cây checkbox | Mở: chờ recipe nháp (radio là "khi cần" ở Tier 1) |
-| Q-3 | Bộ chọn ngày giờ (lịch, giờ 12/24, giây, múi giờ) | Mở: chờ recipe nháp |
-| Q-4 | Slider, rating sao, thanh tiến độ bản dịch | Mở: chờ recipe nháp |
-| Q-5 | Tags/chip (nhập, xóa), chip `labels` với màu dữ liệu, chấm màu | Mở: chờ recipe nháp (chỉ có Badge) |
-| Q-6 | Tabs, accordion, khối detail có tiêu đề, divider có tiêu đề và icon | Mở: chờ recipe nháp |
-| Q-7 | Bộ chọn màu, bộ chọn icon (lưới, tìm kiếm) | Mở: chờ recipe nháp |
-| Q-8 | Khung trình soạn code, rich text (thanh công cụ), markdown (editor/preview), block editor | Mở: chờ recipe nháp |
-| Q-9 | Khung bản đồ (nút điều khiển, vẽ) | Mở: chờ recipe nháp |
-| Q-10 | Drawer chọn item và sửa item lồng: bề rộng, tiêu đề, nút lưu; khác panel chi tiết `w-[333px]` (L-4) | Mở: chờ recipe nháp |
-| Q-11 | Danh sách quan hệ trong form (dạng list và table, kéo đổi thứ tự, menu dòng), file/ảnh (vùng thả file, ảnh xem trước, xem lớn) | Mở: chờ recipe nháp (file upload chỉ có tên ở Tier 2) |
-| Q-12 | Giá trị null `--`, popover user, menu "N items" của display | Mở: chờ recipe nháp |
+| Q-1 | Lưới form: độ rộng `half`/`full`/`fill`, khoảng cách hàng, nhãn field kèm menu, chấm đã sửa, ghi chú, thông báo lỗi tổng hợp | Đóng 2026-10-15 (design owner duyệt): Form grid (§8), Field label row, ValidationErrors notice, Flow dialogs |
+| Q-2 | Combobox (autocomplete API, chọn có "khác"), chọn nhiều (chip trong ô), radio, nhóm checkbox lưới, cây checkbox | Đóng 2026-10-15 (design owner duyệt): Radio, Combobox, MultiSelect, CheckboxGroup, CheckboxTree |
+| Q-3 | Bộ chọn ngày giờ (lịch, giờ 12/24, giây, múi giờ) | Đóng 2026-10-15 (design owner duyệt): DatePicker |
+| Q-4 | Slider, rating sao, thanh tiến độ bản dịch | Đóng 2026-10-15 (design owner duyệt): Slider, Rating, Translation progress |
+| Q-5 | Tags/chip (nhập, xóa), chip `labels` với màu dữ liệu, chấm màu | Đóng 2026-10-15 (design owner duyệt): Chip, TagsInput |
+| Q-6 | Tabs, accordion, khối detail có tiêu đề, divider có tiêu đề và icon | Đóng 2026-10-15 (design owner duyệt): Tabs, Accordion, Detail, Divider with title and icon |
+| Q-7 | Bộ chọn màu, bộ chọn icon (lưới, tìm kiếm) | Đóng 2026-10-15 (design owner duyệt): ColorPicker, IconPicker |
+| Q-8 | Khung trình soạn code, rich text (thanh công cụ), markdown (editor/preview), block editor | Đóng 2026-10-15 (design owner duyệt): EditorFrame |
+| Q-9 | Khung bản đồ (nút điều khiển, vẽ) | Đóng 2026-10-15 (design owner duyệt): Map frame |
+| Q-10 | Drawer chọn item và sửa item lồng: bề rộng, tiêu đề, nút lưu; khác panel chi tiết `w-[333px]` (L-4) | Đóng 2026-10-15 (design owner duyệt): Drawer (§8) |
+| Q-11 | Danh sách quan hệ trong form (dạng list và table, kéo đổi thứ tự, menu dòng), file/ảnh (vùng thả file, ảnh xem trước, xem lớn) | Đóng 2026-10-15 (design owner duyệt): Table simple, SortableList row menu, Remove button, Upload, Image preview and Lightbox |
+| Q-12 | Giá trị null `--`, popover user, menu "N items" của display | Đóng 2026-10-15 (design owner duyệt): ValueNull, UserPopover, "N items" menu |
 
 ## Clarifications
 

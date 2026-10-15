@@ -1,8 +1,8 @@
-# Design review 013: Tier 3 recipes Q-1 to Q-12 (nháp)
+# Design review 013: Tier 3 recipes Q-1 to Q-12
 
-Status: **waiting for the design owner (project owner). Nothing in this file is approved.** The recipes keep the
-"nháp (013)" marker until the owner signs off; then each Q row of `spec.md` ("Câu hỏi mở về design-system") moves to
-"Đóng" with the recipe name (T098, SC-008).
+Status: **approved by the design owner (project owner) on 2026-10-15**, as built. The recipes carry the
+"013, duyệt 2026-10-15" marker and each Q row of `spec.md` ("Câu hỏi mở về design-system") is "Đóng" with its recipe
+names (T098, SC-008). Decisions on the open points are listed under the sign-off table.
 
 What changed in T098: the draft recipes were written before the code (FR-093). They were compared with the components
 as built (classes, states, ARIA, keyboard) and rewritten to describe the code. Where the code differs from the first
@@ -300,21 +300,33 @@ Attribution and release
 - Screenshots against TailAdmin and the Directus flow (asked by T098 for this folder) are not produced; the owner's
   visual check uses the parity env.
 - No code was changed (docs only); open points 1, 2, 6 and 7 need code if the owner decides so.
-- The Q table of `spec.md` stays "Mở" until the owner signs off below.
+- The Q table of `spec.md` is "Đóng" since the sign-off below.
 
 ## Sign-off (design owner)
 
-| Q    | Recipe (component-specs / layout-patterns)                                                                | Decision | Date | Notes |
-| ---- | --------------------------------------------------------------------------------------------------------- | -------- | ---- | ----- |
-| Q-1  | Form grid (§8), Field label row, ValidationErrors notice, Flow dialogs                                    |          |      |       |
-| Q-2  | Radio, Combobox, MultiSelect, CheckboxGroup, CheckboxTree                                                 |          |      |       |
-| Q-3  | DatePicker                                                                                                |          |      |       |
-| Q-4  | Slider, Rating, Translation progress                                                                      |          |      |       |
-| Q-5  | Chip, TagsInput                                                                                           |          |      |       |
-| Q-6  | Tabs, Accordion, Detail, Divider with title and icon                                                      |          |      |       |
-| Q-7  | ColorPicker, IconPicker                                                                                   |          |      |       |
-| Q-8  | EditorFrame                                                                                               |          |      |       |
-| Q-9  | Map frame                                                                                                 |          |      |       |
-| Q-10 | Drawer (§8)                                                                                               |          |      |       |
-| Q-11 | Table simple, SortableList row menu, Remove button, Upload, Image preview and Lightbox                    |          |      |       |
-| Q-12 | ValueNull, UserPopover, "N items" menu                                                                    |          |      |       |
+| Q    | Recipe (component-specs / layout-patterns)                                                                | Decision | Date       | Notes |
+| ---- | --------------------------------------------------------------------------------------------------------- | -------- | ---------- | ----- |
+| Q-1  | Form grid (§8), Field label row, ValidationErrors notice, Flow dialogs                                    | Approved | 2026-10-15 |       |
+| Q-2  | Radio, Combobox, MultiSelect, CheckboxGroup, CheckboxTree                                                 | Approved | 2026-10-15 |       |
+| Q-3  | DatePicker                                                                                                | Approved | 2026-10-15 |       |
+| Q-4  | Slider, Rating, Translation progress                                                                      | Approved | 2026-10-15 |       |
+| Q-5  | Chip, TagsInput                                                                                           | Approved | 2026-10-15 |       |
+| Q-6  | Tabs, Accordion, Detail, Divider with title and icon                                                      | Approved | 2026-10-15 |       |
+| Q-7  | ColorPicker, IconPicker                                                                                   | Approved | 2026-10-15 |       |
+| Q-8  | EditorFrame                                                                                               | Approved | 2026-10-15 |       |
+| Q-9  | Map frame                                                                                                 | Approved | 2026-10-15 |       |
+| Q-10 | Drawer (§8)                                                                                               | Approved | 2026-10-15 |       |
+| Q-11 | Table simple, SortableList row menu, Remove button, Upload, Image preview and Lightbox                    | Approved | 2026-10-15 |       |
+| Q-12 | ValueNull, UserPopover, "N items" menu                                                                    | Approved | 2026-10-15 |       |
+
+Decisions on the open points (owner, 2026-10-15, approved as built):
+
+- 1: keep the Directus colors for the translations progress (light mode under 3:1 accepted).
+- 2: done in code (`warning-700` / `warning-400`).
+- 3: CodeMirror keeps Tab like Directus; the WCAG 2.1.2 risk is accepted (no escape key).
+- 4: TinyMCE skin and content CSS approved.
+- 5: confirmed by the tech lead (Q-C).
+- 6: still to check in a browser (DrawerFiles sub folder indentation); no recipe change.
+- 7: BoDialog stays without a corner close button.
+- 8: keyboard resize of table columns not built (as Directus).
+- 9: the "Deviation" lines of the recipes are approved.

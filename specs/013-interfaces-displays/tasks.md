@@ -497,7 +497,7 @@ năng, CI (US7, SC-001 đến SC-007, SC-009).
 
 ## Phase 10: Polish & đóng feature
 
-- [ ] T098 [P] Recipe nháp Q-1 đến Q-12 cập nhật theo code thực tế; gửi design owner (owner dự án) duyệt theo
+- [X] T098 [P] Recipe nháp Q-1 đến Q-12 cập nhật theo code thực tế; gửi design owner (owner dự án) duyệt theo
   `design-system/qa/handoff-checklist.md`; ảnh so TailAdmin và luồng Directus lưu ở
   `specs/013-interfaces-displays/design-review/`; bảng Q của spec chuyển "Đóng" kèm tên recipe (SC-008).
 - [X] T099 [P] Chuỗi dịch: chạy `pnpm nx run web:sync-translations`, thêm khóa thiếu vào danh sách sync (R9), khóa
