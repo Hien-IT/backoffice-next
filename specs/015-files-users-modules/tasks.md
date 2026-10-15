@@ -148,7 +148,8 @@ diện (FR-110, SC-008).
 ### Bộ mẫu, API giả lập, E2E harness, chuỗi dịch
 
 - [ ] T021 Mở rộng `fixtures/seed.mjs` và `fixtures/lib.mjs`: tập `bo_files` (thư mục `bo-fixtures/sub/deep`; 30 file:
-      PNG gồm `bo-edit.png` 400×300, JPEG có EXIF tạo bằng `sharp().withMetadata({ exif })` CHK095, PDF, MP4 ngắn,
+      PNG gồm `bo-edit.png` 400×300, JPEG có EXIF tạo bằng `sharp().withMetadata({ exif })` CHK095 (thêm `sharp`
+      bản catalog vào devDependencies của `apps/web` vì pnpm không resolve gói của `apps/api`), PDF, MP4 ngắn,
       TXT; 1 file do `bo-editor` tải; 1 file `uploaded_on` cũ nếu API cho ghi, không thì bỏ) và `bo_users` (role
       `bo-sub` parent `bo-editor`; user `bo-active`, `bo-suspended`, `bo-draft`, `bo-archived`, `bo-invited` qua
       `POST /users/invite`; user có `token`; user SSO với `provider` theo T002 CHK030); `seed.mjs --clean` dọn; mở rộng
@@ -201,7 +202,9 @@ sort, limit, page) và dòng `directus_presets` so với Directus app.
 
 - [ ] T033 [US1] Viết `src/modules/files.ts`: route thật thay `placeholderRoutes` (`component: () => import(...)`,
       `AddNewFile` ở `components: { addNew }` với `meta.isFloatingView`, redirect, not-found dùng `ContentNotFound` 014
-      với prop module CHK047); manifest `015-T033.json`
+      với prop module CHK047); thêm prop tùy chọn `module` (mặc định `content`, chọn sub-menu theo module) vào
+      `src/modules/content/routes/ContentNotFound.vue` (file hiện không có prop), test của 014 giữ xanh; manifest
+      `015-T033.json`
 - [ ] T034 [P] [US1] Chép `src/modules/files/components/AddFolder.vue` (`BoDialog`, `BoInput` autofocus, Enter = lưu,
       `POST /folders`, `fetchFolders`, `router.push` thư mục mới; nút `create_new_folder` khóa với tooltip
       `not_allowed`), `DeleteFolderDialog.vue` (`BoRadio` `move_content`/`delete_content`, `moveAndDelete`/`recursiveDelete`,
@@ -212,8 +215,8 @@ sort, limit, page) và dòng `directus_presets` so với Directus app.
       `refresh`, watch `folders` nạp lại trừ lần đầu; template: `PrivateView` với slot `navigation` = `FilesNavigation`,
       page header L-5 (breadcrumb, tiêu đề, `layout-actions-*`, `SearchInput`, `AddFolder`, nút chuyển/xóa/sửa/tải/thêm
       theo FR-011), layout `prepend` = `FolderSection`, slot `no-results`/`no-items`, `RouterView name="addNew"`,
-      `DrawerBatch`, panel: Layout + `layout-sidebar-*` + Export/Import (FR-018)); `FilesNotFound.vue` nếu không dùng
-      `ContentNotFound`; manifest
+      `DrawerBatch`, panel: Layout + `layout-sidebar-*` + Export/Import (FR-018)); màn không tìm thấy là
+      `ContentNotFound` với `module="files"` (T033), không có `FilesNotFound.vue`; manifest
 - [ ] T036 [US1] E2E `e2e/files-library.spec.ts` (`@core`): cây và mục đặc biệt, thẻ thư mục, chọn gộp và đếm,
       tạo/đổi tên/chuyển/tải/xóa thư mục (hai chế độ, so dòng DB qua API), trạng thái trống và xóa bộ lọc, 768 px
       không cuộn ngang trang, `openSidebar` dưới `xl`, khôi phục preset seed; chạy ba cấu hình xanh
@@ -260,8 +263,8 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
 - [ ] T046 [US2] Chép `src/modules/files/routes/FileItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014:
       `fieldsDenyList`, `to`, breadcrumb, `saveAndQuit`/`saveAndStay`/`saveAsCopyAndNavigate`/`deleteAndQuit`,
       `useMovetoFolder` với `fields=folder.name` và notice `file_moved`, `revert`, `useShortcut meta+s`,
-      `useEditsGuard`; bỏ collab; template: page header với nút xóa, chuyển, tải về (`<a download>`), chỉnh ảnh (chỉ ảnh
-      + update; mở `ImageEditor` ở lượt 2, tạm thời nút ẩn sau cờ), lưu + `SaveOptions` (khóa `save-and-add-new`;
+      `useEditsGuard`; bỏ collab; template: page header với nút xóa, chuyển, tải về (`<a download>`) (nút chỉnh ảnh
+      chưa vẽ ở lượt 1, T053 thêm cùng lúc nối `ImageEditor`), lưu + `SaveOptions` (khóa `save-and-add-new`;
       `save-as-copy` khi có create), `FilePreviewReplace`, `BoForm` `max-w-5xl`, hộp `unsaved_changes` Keep trước,
       panel: `FileInfoSidebarDetail`, `RevisionsSidebarDetail`, `CommentsSidebarDetail`); `isNew` luôn false CHK014;
       manifest
@@ -274,7 +277,8 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
       hóa multipart (tên field thứ tự, tên file, `type`, kích thước) và nonce `/assets`; khác biệt thật → R-xx vào spec
 - [ ] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle` (tus là chunk
       lười: `BUDGET_015`, marker `Tus-Resumable` trong `LAZY_ONLY` của `apps/web/scripts/check-bundle.mjs`),
-      `check-port-headers`, `guard-directus`, E2E 012–014 + `files-*` ba cấu hình xanh; `git pull --rebase`; commit
+      `check-port-headers`, `guard-directus` (SC-003), E2E 012–014 + `files-*` ba cấu hình xanh (SC-001, SC-009),
+      payload `files` xanh (SC-004); `git pull --rebase`; commit
       `feat(015): files library, folders, upload and file page (wave 1)`; push khi không có CI khác đang chạy; theo
       dõi CI, sửa đỏ; `graphify update .`
 
@@ -308,8 +312,7 @@ Directus app (SC-006).
       template `BoDrawer persistent` với toolbar `<button>` có nhãn + `BoTooltip`, menu tỉ lệ `BoMenu`, slot `actions`
       nút lưu + menu "lưu thành file mới" khi `createAllowed`, màu khung Cropper qua token trong `cropper.css` đè);
       khung cắt chỉ chuột (FR-046); manifest `015-T052.json`
-- [ ] T053 [US5] Nối `ImageEditor` vào `FileItemRoute.vue` (bỏ cờ tạm của T046: nút `tune` khi `type` chứa `image` và
-      update; `refresh` → `refresh()`; `new-file` → `/files/<id>`) và vào `src/interfaces/file-image/FileImage.vue`
+- [ ] T053 [US5] Nối `ImageEditor` vào `FileItemRoute.vue` (thêm nút `tune` khi `type` chứa `image` và update; `refresh` → `refresh()`; `new-file` → `/files/<id>`) và vào `src/interfaces/file-image/FileImage.vue`
       (nút chỉnh, `createAllowed` từ `useCollectionPermissions('directus_files')`, nạp lại xem trước với
       `cacheBuster`, `new-file` → `emit('input', id)`); cập nhật ghi chú FR-051/FR-054 của 013 trong spec 013 ("mở
       rộng ở 015") và `interfaces/registry.test.ts` nếu đếm request
@@ -317,7 +320,8 @@ Directus app (SC-006).
       -90° `bo-edit.png`, lưu đè → `width`/`height`/focal qua API; lưu mới → file mới trong cùng thư mục; từ
       `file-image` của `bo_std`; ở `proxy-api` chạy cùng thao tác trên Directus app (8155) và so pixel sau giải mã
       (canvas `getImageData`, RGBA từng byte) + ba trường (SC-006, `DIRECTUS_APP_SPECS`); ba cấu hình xanh
-- [ ] T055 [US5] Đóng lượt 2: cổng như T049 (`LAZY_ONLY` thêm `cropper-container`; chunk cropperjs ≤ 60 KB gzip CHK088);
+- [ ] T055 [US5] Đóng lượt 2: cổng như T049 (SC-001, SC-003, SC-006, SC-009; `LAZY_ONLY` thêm `cropper-container`;
+      chunk cropperjs ≤ 60 KB gzip CHK088);
       commit `feat(015): shared image editor for the file page and file-image (wave 2)`; push; CI; `graphify update .`
 
 **Checkpoint**: Lượt 2 xong; D-59 gỡ.
@@ -405,7 +409,9 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 - [ ] T074 [P] [US4] Viết `apps/web/scripts/sync-directus-themes.mjs` (cách theo T003) sinh
       `src/theme/directus-themes.json` (`{light, dark}`; header ghi nguồn và ngày) và `src/theme/rules-to-css-vars.ts`
       (làm phẳng `--`, kebab-case bằng regex; `flat` nếu T002 chọn); chạy script, commit JSON; thêm target
-      `web:sync-themes` vào `apps/web/project.json`; manifest ghi nguồn `directus/packages/themes/src/themes/**`
+      `web:sync-themes` vào `apps/web/project.json`; thêm ngoại lệ đường dẫn `src/theme/directus-themes.json` (dữ liệu
+      sinh, `id` theme "Directus Default"... là định danh lưu DB, IX) vào `apps/web/scripts/check-brand.mjs` kèm test ở
+      `check-brand.test.ts`; manifest ghi nguồn `directus/packages/themes/src/themes/**`
 - [ ] T075 [P] [US4] Mở rộng `src/composables/use-tfa-setup.ts`: `disableTFA` (`POST /users/me/tfa/disable {otp}`),
       `adminDisableTFA(pk)` (`POST /users/:pk/tfa/disable`), `requestTFASetup` (khóa + `logout`), `cancelTFASetup`;
       sửa ghi chú đầu file 012
@@ -421,10 +427,12 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 - [ ] T079 [US4] Chép `src/interfaces/_system/system-theme/{index.ts,SystemTheme.vue,ThemePreview.vue}` (radio
       `BoRadio`/`RadioGroup` với ô xem trước SVG 200×140 chép từ `theme-preview.vue`, biến inline từ
       `rulesToCssVars(merge(rules, overrides đã lưu))` CHK026, `includeNull` với theme mặc định dự án từ store server,
-      dòng `theme_applies_in_directus`) và `system-theme-overrides/{index.ts,SystemThemeOverrides.vue,SystemThemeOverridesGroup.vue,SystemThemeOverridesRule.vue,types.ts}`
+      nhãn theme qua `translate(theme.name)` với khóa `theme_directus_*` của file dịch 012 nên hiện "Backoffice
+      Default"... trong khi `id` ghi DB giữ "Directus Default"... (D-88, test khẳng định cả hai), dòng
+      `theme_applies_in_directus`) và `system-theme-overrides/{index.ts,SystemThemeOverrides.vue,SystemThemeOverridesGroup.vue,SystemThemeOverridesRule.vue,types.ts}`
       (nhóm gập `<button aria-expanded>`, ô text + swatch với `color` và `cssVar`/`getComputedStyle` theo T002,
       `setWith`/`unset`, `lang=en-US dir=ltr`); đăng ký sáu id trong `src/interfaces/index.ts`, cập nhật
-      `registry.test.ts` (31 + 2 + 6); manifest
+      `registry.test.ts` (số đếm hiện có + 6, FR-086); manifest
 - [ ] T080 [P] [US4] Chép `src/modules/users/components/UserInfoSidebarDetail.vue` (`SidebarDetail` 014, khóa + chép,
       `last_page` `RouterLink`, `last_access`); manifest
 - [ ] T081 [US4] Chép `src/modules/users/routes/UserItemRoute.vue` (logic `routes/item.vue` trên `use-item` 014 với
@@ -443,7 +451,8 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 - [ ] T083 [US4] Bộ so payload `e2e/payload/users.spec.ts` (`proxy-api`): tạo user, sửa (kể cả `language`, `theme_light`,
       overrides thêm/xóa khóa), archive, mời 2 email, token tạo/xóa, TFA bật/tắt (secret từ response), xóa hàng loạt;
       SC-005 10 thao tác; khác biệt thật → R-xx
-- [ ] T084 [US4] Đóng lượt 3: cổng như T049 (`LAZY_ONLY` không cần thêm; chunk màn user gồm theme JSON ≤ 15 KB gzip);
+- [ ] T084 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003, SC-004, SC-005, SC-009; `LAZY_ONLY` không cần thêm; chunk
+      màn user gồm theme JSON ≤ 15 KB gzip);
       spec 012 FR-024 và D-48 ghi "đã gỡ ở 015", D-44 "sau 015"; spec 013 D-57 phần sáu interface "đã gỡ ở 015";
       commit `feat(015): users directory, user page, system interfaces and theme data (wave 3)`; push; CI;
       `graphify update .`
@@ -521,7 +530,8 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
       "sau 015", FR-024), 013 (D-57 sáu interface, D-59, FR-051/FR-054), 014 (D-72 phần 015) ghi theo FR-121;
       `CLAUDE.md` mục "Recent Changes" thêm dòng 015; `SPECKIT-GUIDE.md` ghi chú từ 015 cho 016 (interface `_system`
       còn lại, "sửa role" D-85) và 018 (D-90 upload dở)
-- [ ] T104 Đóng lượt 4: cổng như T049 + `e2e-web` ba cấu hình đủ 9 spec + 2 payload + parity; `benchmark.yml` chạy tay
+- [ ] T104 Đóng lượt 4: cổng như T049 + `e2e-web` ba cấu hình đủ 9 spec + 2 payload + parity (SC-001 đến SC-004,
+      SC-007, SC-009); `benchmark.yml` chạy tay
       xanh; commit `feat(015): permissions, parity, benchmark and closing (wave 4)`; push; CI xanh; `graphify update .`;
       tech lead duyệt D-83 đến D-90 (SC-010); design owner duyệt Q-13 đến Q-19 (SC-008)
 

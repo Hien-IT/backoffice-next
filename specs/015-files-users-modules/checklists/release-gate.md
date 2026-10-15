@@ -135,7 +135,7 @@ payload, hiệu năng, design-system. **Độ sâu**: cổng phát hành (đủ 
 - [x] CHK098 "Cây lồng trong sub-menu" (Q3 = A) với sub-menu Users có 4 mục trạng thái + cây role: hai nhóm trong một sub-menu (vạch chia) có mâu thuẫn với L-3 "một cấp" khi role không lồng? Ghi ngoại lệ đủ cho cả hai module. [Ambiguity, Spec FR-052, FR-110]
 - [x] CHK099 "Thư mục nạp một lần cho cả app" (FR-005) và "`FolderPicker` nạp một lần mỗi instance" (data-model §2) — hai cache khác nhau có thể lệch sau tạo thư mục: Directus cũng vậy; ghi rõ chấp nhận? [Ambiguity, Spec FR-005, FR-006]
 - [x] CHK100 "Nút tải về ở thư viện ẩn khi có thư mục trong lựa chọn" (FR-011) nhưng menu thư mục có "tải thư mục": hai đường tải khác nhau — ghi rõ không gộp. [Ambiguity, Spec FR-004, FR-011]
-- [x] CHK101 D-86 "`/users/me` giữ": ở Directus, menu avatar trỏ `/users/<id>`; 012 FR-024 đã ghi `/users/me` là route hồ sơ — spec 012 cần sửa FR-024 khi đóng 015 (FR-121 chưa liệt kê)? [Conflict, Spec D-86, FR-121]
+- [x] CHK101 (cùng việc với CHK051) D-86 "`/users/me` giữ": ở Directus, menu avatar trỏ `/users/<id>`; 012 FR-024 đã ghi `/users/me` là route hồ sơ — spec 012 cần sửa FR-024 khi đóng 015 (FR-121 chưa liệt kê)? [Conflict, Spec D-86, FR-121]
 - [x] CHK102 "Hộp user chỉ khi không mới" + "`fieldsDenyList` 7 field": `email` nằm ở hộp user và cũng trong form (Directus hiện cả hai) — ghi rõ để không bị coi là trùng. [Ambiguity, Spec FR-073, FR-075]
 
 ## Notes

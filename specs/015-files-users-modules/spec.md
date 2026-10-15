@@ -523,7 +523,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   file, FR-033) và store server PHẢI đọc `uploads` từ `/server/info`.
 - **FR-023**: `uploadFiles` PHẢI port `utils/upload-files.ts` (`p-queue` với `concurrency = maxConcurrency` hoặc vô
   hạn, tiến độ từng file, notice thành công khi `notifications`).
-- **FR-024**: Danh sách request ghi của tải lên và tải về: `POST /files` (multipart: tải lên, bản sao FR-031, trình
+- **FR-024**: Danh sách request ghi của tải lên và tải về (nguồn chuẩn: `contracts/api-calls.md` #114–#122): `POST /files` (multipart: tải lên, bản sao FR-031, trình
   chỉnh ảnh lưu mới FR-044), `PATCH /files/:id` (multipart, thay file và trình chỉnh ảnh), `POST /files/import` (từ
   URL), `POST|PATCH|HEAD|DELETE /files/tus` (TUS), `POST /assets/files` và `POST /assets/folder/:id` (zip, chỉ đọc
   nhưng là POST); không request ghi khác (CHK049).
@@ -561,7 +561,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   name`; `open_folder` với tên hoặc "File Library"), nút chép id (`copy_id_success|fail`), nhóm EXIF sau vạch chia: chỉ
   năm trường máy, khẩu độ, tốc độ, tiêu cự, ISO; không hiện trường khác của `metadata` như GPS, CHK085),
   Revisions (`isNew` false và `revisionsAllowed`; `revert` gộp vào `edits`), Comments (`isNew` false).
-- **FR-039**: Danh sách request của màn file: `GET /files/:id`, `GET /folders/:id`, `GET /users/:id`,
+- **FR-039**: Danh sách request của màn file (nguồn chuẩn: `contracts/api-calls.md` #97–#122): `GET /files/:id`, `GET /folders/:id`, `GET /users/:id`,
   `GET /assets/:id`, `PATCH /files/:id`, `DELETE /files/:id`, `POST /files` (bản sao), Revisions và Comments như 014.
 
 **Trình chỉnh ảnh (dùng chung, D-59)**
@@ -645,7 +645,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   lọc).
 - **FR-065**: Panel PHẢI có Layout, `layout-sidebar-*`, Export/Import (`directus_users`, bộ lọc gộp `?? undefined`,
   `search ?? undefined`).
-- **FR-066**: Danh sách request ghi của danh bạ: `DELETE /users`, `POST /users/invite`, `PATCH /users` (hàng loạt qua
+- **FR-066**: Danh sách request ghi của danh bạ (nguồn chuẩn: `contracts/api-calls.md` #123–#134): `DELETE /users`, `POST /users/invite`, `PATCH /users` (hàng loạt qua
   `DrawerBatch`), `/presets`, `/utils/import/directus_users`, `/utils/export`; không request ghi khác.
 
 **Màn user**
@@ -681,7 +681,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `appearance` của field).
 - **FR-076**: Lưu PHẢI `PATCH /users/:id` (hoặc `POST /users` khi mới) chỉ với field đã sửa; lỗi `FAILED_VALIDATION`,
   `RECORD_NOT_UNIQUE` hiện tại field (013); mật khẩu không gửi khi trống.
-- **FR-077**: Danh sách request của màn user: `GET /users/:id`, `PATCH /users/:id`, `POST /users`, `DELETE /users/:id`,
+- **FR-077**: Danh sách request của màn user (nguồn chuẩn: `contracts/api-calls.md` #102–#106, #123–#131): `GET /users/:id`, `PATCH /users/:id`, `POST /users`, `DELETE /users/:id`,
   `GET /roles`, `GET /access`/`GET /policies` (list-m2m), `GET /files` (avatar), `GET /utils/random/string`,
   `POST /users/me/tfa/generate|enable|disable`, `POST /users/:id/tfa/disable`, Revisions, Comments; không request khác.
 - **FR-078**: Archive ở `directus_users` dùng `archive_field = status`, `archive_value = archived`,
@@ -726,8 +726,10 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `directus/packages/themes` 11.17.4 và có test so với nguồn (D-89, FR-121, CHK041); giá trị null thì chọn theme đầu;
   giá trị là id không có trong dữ liệu thì không mục nào active và giá trị giữ nguyên khi lưu (CHK024); `includeNull`
   thêm mục đầu `default_sync_with_project` (null) xem trước bằng theme mặc định của dự án (`default_theme_light|dark`
-  từ `/server/info`); chọn theme không đổi giao diện Backoffice (D-43), kèm dòng ghi chú dưới danh sách với khóa overlay
-  `theme_applies_in_directus` (en-US và vi-VN, CHK042).
+  từ `/server/info`); nhãn mỗi theme qua khóa dịch `theme_directus_*` của file dịch 012 nên hiện "Backoffice Default"...,
+  `id` ghi DB giữ "Directus Default"... (định danh tương thích, IX; D-88; Clarifications 2026-10-15); chọn theme không
+  đổi giao diện Backoffice (D-43), kèm dòng ghi chú dưới danh sách với khóa overlay `theme_applies_in_directus` (en-US và
+  vi-VN, CHK042).
 - **FR-085**: `system-theme-overrides` (`types: json`, prop `appearance`): cây nhóm gập mở từ rule của theme Directus
   mặc định theo `appearance` (dữ liệu tĩnh chép từ `@directus/themes`, D-89): nhóm `$root` (rule không lồng) rồi nhóm
   theo khóa, mỗi rule lá là ô text (`type: 'color'` cho mọi rule như Directus, kể cả `borderRadius`, `fontFamily`, số,
@@ -736,8 +738,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   en-US dir=ltr`; chỉ khóa có ánh xạ sang token design-system (D-43) đổi giao diện Backoffice khi lưu, khóa khác vẫn lưu
   cho Directus.
 - **FR-086**: Sáu interface PHẢI đăng ký trong registry 013 với cùng `id`, `name`, `icon`, `types`, `system`, `options`
-  như Directus; test registry của 013 cập nhật (số interface = 31 + 2 (014) + 6); `system-input-password` chỉ có trong
-  registry (CHK050).
+  như Directus; test registry của 013 cập nhật (số interface hiện có của `registry.test.ts`, đếm ở T002, + 6);
+  `system-input-password` chỉ có trong registry (CHK050).
 
 **Đăng ký công khai (D-44)**
 
@@ -844,7 +846,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-83 | Hộp mời user sau khi gửi | Đóng, danh sách nạp lại; email mời do server gửi | Thêm notice tại chỗ "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (`contact_admin_for_link`) | Nguyên tắc X; API ghi log thay vì gửi (D-36 của 010); cùng cách D-42 | khác | — |
 | D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016 |
 | D-86 | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Giữ route của 012 và chuyển hướng tới `/users/<id>`; menu avatar trỏ thẳng `/users/<id>` | Giữ link đã có từ 012 (FR-024) | khác | — |
-| D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay | Danh sách và xem trước như Directus (Q1 = C); chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
+| D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay; nhãn "Directus Default", "Directus Minimal", "Directus Color Match" | Danh sách và xem trước như Directus (Q1 = C); nhãn qua khóa dịch `theme_directus_*` của file dịch 012 nên hiện "Backoffice Default"...; `id` ghi DB giữ "Directus Default"...; chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
 | D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có danh sách; việc tiếp tục upload dở khi chọn lại cùng file (`findPreviousUploads`, FR-022) vẫn như Directus, là hai thứ khác nhau (CHK059) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
@@ -888,6 +890,9 @@ xuất nhập, hàng loạt).
   Directus, ghi ngoại lệ a11y (FR-046, FR-111, SC-008); đề xuất D-87 bỏ.
 - Q: Tải lên chia khối (TUS) có thuộc 015 không? → A: Có, như Directus: TUS khi `info.uploads.tus` bật, multipart khi
   tắt (FR-022, FR-124 thêm `tus-js-client`); không D-xx mới.
+- Q: Nhãn theme trong `system-theme` (file dịch 012 đổi "Directus" thành "Backoffice") hiện thế nào? → A: Nhãn theo
+  file dịch ("Backoffice Default"...), `id` lưu DB giữ "Directus Default"... (owner, 2026-10-15; FR-084, D-88);
+  `src/theme/directus-themes.json` là ngoại lệ của `check-brand` (dữ liệu sinh).
 - Q: So kết quả chỉnh ảnh với Directus app bằng gì? → A: `width`, `height`, `focal_point_x/y` và điểm ảnh sau giải
   mã bằng nhau; không so bytes (SC-006, US5 Independent Test).
 - Q: Sau khi mời user mà không có email (D-36), Backoffice làm gì để user được mời vào app? → A: Chỉ notice

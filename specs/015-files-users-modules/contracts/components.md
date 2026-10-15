@@ -11,7 +11,7 @@ chép có header `// Ported from directus/app/src/...` và manifest `tools/port-
 | `modules/files/routes/FilesCollectionRoute.vue` | `routes/collection.vue` | `folder?`, `special?: 'all'\|'mine'\|'recent'` | | layout wrapper 014, `RouterView name="addNew"` |
 | `modules/files/routes/AddNewFile.vue` | `routes/add-new.vue` | `folder?` | `upload` | `BoDialog` + `BoUpload` |
 | `modules/files/routes/FileItemRoute.vue` | `routes/item.vue` | `primaryKey` | | |
-| `modules/files/routes/FilesNotFound.vue` | `routes/not-found.vue` | | | |
+| `modules/content/routes/ContentNotFound.vue` (mở rộng) | `routes/not-found.vue` (files) | + `module?` (mặc định `content`) | | dùng cho Files và Users, không có `FilesNotFound.vue` |
 | `modules/files/components/AddFolder.vue` | `components/add-folder.vue` | `parent?`, `disabled?` | | |
 | `modules/files/components/DeleteFolderDialog.vue` | `components/delete-folder-dialog.vue` | `modelValue`, `folders`, `allFolders` | `done` | radio `BoRadio` |
 | `modules/files/components/FolderSection.vue` | `components/folder-section.vue` | `subfolders`, `anySelection?`, v-model `selection` | | `Card` của 014 |
@@ -37,7 +37,6 @@ chép có header `// Ported from directus/app/src/...` và manifest `tools/port-
 | `modules/users.ts` | `modules/users/index.ts` | route data-model §1 | | `/users/me` redirect (D-86) |
 | `modules/users/routes/UsersCollectionRoute.vue` | `routes/collection.vue` | `role?`, `status?` | | |
 | `modules/users/routes/UserItemRoute.vue` | `routes/item.vue` | `primaryKey`, `role?` | | `provide('discardAllChanges' \| 'refresh')` |
-| `modules/users/routes/UsersNotFound.vue` | — | | | dùng `ContentNotFound` 014 với prop module (Directus users không có route riêng, CHK057) |
 | `modules/users/components/UsersNavigation.vue`, `NavigationRole.vue` | `components/navigation.vue`, `NavigationRole.vue` | `currentRole?`; `role`, `currentRole?` | `click({role})` | menu "sửa role" (admin) |
 | `modules/users/components/UserInfoSidebarDetail.vue` | `components/user-info-sidebar-detail.vue` | `user`, `isNew?` | | |
 | `modules/users/components/UsersInvite.vue` | `views/private/components/users-invite.vue` | `modelValue`, `role?` | `update:modelValue` | dòng D-83 |

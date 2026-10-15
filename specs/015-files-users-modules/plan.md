@@ -155,10 +155,10 @@ apps/web/
 ├── src/
 │   ├── modules/files.ts, modules/users.ts                 # route thật (thay placeholderRoutes); /users/me redirect
 │   ├── modules/files/
-│   │   ├── routes/{FilesCollectionRoute,AddNewFile,FileItemRoute,FilesNotFound}.vue
+│   │   ├── routes/{FilesCollectionRoute,AddNewFile,FileItemRoute}.vue   # not-found: ContentNotFound (module="files")
 │   │   └── components/{AddFolder,DeleteFolderDialog,FolderSection,FileInfoSidebarDetail}.vue
 │   ├── modules/users/
-│   │   ├── routes/{UsersCollectionRoute,UserItemRoute,UsersNotFound}.vue
+│   │   ├── routes/{UsersCollectionRoute,UserItemRoute}.vue   # not-found: ContentNotFound (module="users")
 │   │   ├── components/{UsersNavigation,NavigationRole,UserInfoSidebarDetail,UsersInvite}.vue
 │   │   └── composables/use-navigation.ts
 │   ├── components/files/{FilesNavigation,FilesNavigationFolder,FolderPicker,FolderPickerListItem,FilePreviewReplace,ImageEditor}.vue, BoUpload.vue (+fileId)

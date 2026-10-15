@@ -13,7 +13,7 @@ duyệt dựng từ API.
 | files | — | `/files/folders` | redirect `/files` | | |
 | files | `folders-collection` | `/files/folders/:folder` | `FilesCollectionRoute` | `folder` | con `+` = `add-file-folder` |
 | files | — | `/files/all\|mine\|recent` | `FilesCollectionRoute` | `special` | |
-| files | `files-not-found` | `/files/:_(.+)+` | `FilesNotFound` | | |
+| files | `files-not-found` | `/files/:_(.+)+` | `ContentNotFound` (`module="files"`) | | |
 | users | `users-active` | `/users` | `UsersCollectionRoute` | `status: 'active'` | |
 | users | `users-suspended\|invited\|all` | `/users/suspended\|invited\|all` | `UsersCollectionRoute` | `status` (all: không) | |
 | users | `users-me` | `/users/me` | `redirect: () => '/users/' + currentUser.id` (hàm, store đã hydrate; khai báo trước `users-item`) | | D-86, CHK055 |
@@ -21,7 +21,7 @@ duyệt dựng từ API.
 | users | — | `/users/roles` | redirect `/users` | | |
 | users | `roles-collection` | `/users/roles/:role` | `UsersCollectionRoute` | `role` | |
 | users | `roles-item-add` | `/users/roles/:role/+` | `UserItemRoute` | `primaryKey: '+'`, `role` | |
-| users | `users-not-found` | `/users/:_(.+)+` | `UsersNotFound` | | |
+| users | `users-not-found` | `/users/:_(.+)+` | `ContentNotFound` (`module="users"`) | | |
 
 Thứ tự khai báo như Directus để `/users/me`, `/users/roles/...`, `/users/suspended` khớp trước `:primaryKey`
 (`users-me` đặt trước `users-item`).
