@@ -272,7 +272,7 @@ phân trang và đếm phía server.
   `filterSystem` archive, `mergeFilters`, lựa chọn xóa khi đổi collection, slot trạng thái, panel L-4 với
   `LayoutSidebarDetail`; `useHead`; tiêu đề tab theo FR-051 (phần collection); `ContentNotFound` khi collection không có
   hoặc hệ thống; test `src/modules/content/routes/CollectionRoute.test.ts`.
-- [ ] T038 [US1] Kiểm story: E2E T027, T028 xanh ở `proxy-directus`, `proxy-api`, `cors`; `web:test` xanh; manifest
+- [X] T038 [US1] Kiểm story: E2E T027, T028 xanh ở `proxy-directus`, `proxy-api`, `cors`; `web:test` xanh; manifest
   `tools/port-manifest/014-T029..T037.json`.
 
 **Checkpoint**: module Content thay khung 012: cây, bảng, preset tự lưu. MVP dùng được để duyệt dữ liệu.
@@ -330,7 +330,7 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
   localStorage `backoffice-live-preview-{mode,size,full-width}`, `livePreviewEnforceDefault`, `isMobile` (`sm`),
   `window.open` 900×800 tên `live-preview`, nhận `postMessage` cùng origin từ cửa sổ con, đóng con khi rời trang, popup bị
   chặn: không dự phòng; test.
-- [ ] T048 [US2] Kiểm story: E2E T039, T040 xanh ở ba cấu hình; manifest `014-T041..T047.json`.
+- [X] T048 [US2] Kiểm story: E2E T039, T040 xanh ở ba cấu hình; manifest `014-T041..T047.json`.
 
 **Checkpoint**: tạo, sửa, lưu kiểu, bản sao, xóa, archive, singleton, live preview chạy như Directus.
 
@@ -372,7 +372,7 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
 - [X] T054 [US3] `CollectionRoute.vue` phần US3 (FR-012 đến FR-017, FR-040, FR-042): `SearchInput` trong actions ghi
   `search`/`filter` preset, nút bookmark ba trạng thái cạnh tiêu đề (FR-015), `clearFilters`, notice
   `bookmark_doesnt_exist` (FR-016), tiêu đề theo `bookmarkTitle`, breadcrumb khi ở bookmark; test.
-- [ ] T055 [US3] **Đóng lượt 1**: `pnpm nx run-many -t lint typecheck test build check-bundle` xanh; E2E hiện có (012,
+- [X] T055 [US3] **Đóng lượt 1**: `pnpm nx run-many -t lint typecheck test build check-bundle` xanh; E2E hiện có (012,
   013) + T027, T028, T039, T040, T049 xanh ở ba cấu hình (local theo quickstart); `pnpm run check-port-headers`; cập nhật
   `[X]` các task; commit (Conventional Commits, tiếng Anh) và push lên `main` theo quy tắc ở đầu file; theo dõi CI tới
   xanh (`gh run watch`), đỏ thì sửa trước khi sang lượt 2.
@@ -428,7 +428,7 @@ preset (gỡ D-58).
   (FR-029, gỡ D-58): `usePreset(collection, null, true)` kế thừa `filter`/`search` (T003 f), `useLayout` với
   `selectMode`, `showSelect`, `filterSystem` = `filter` của interface, `SearchInput`, `LayoutSidebarDetail` trong slot
   `sidebar`; test 013 (`DrawerCollection.test.ts`, interface quan hệ) giữ xanh; thêm ca layout cards và map.
-- [ ] T063 [US4] **Đóng lượt 2**: như T055 với E2E T056; commit, push, CI xanh.
+- [X] T063 [US4] **Đóng lượt 2**: như T055 với E2E T056; commit, push, CI xanh.
 
 **Checkpoint (lượt 2)**: năm layout và drawer chọn item theo layout.
 
@@ -488,7 +488,7 @@ preset (gỡ D-58).
   `views/private/components/flow-sidebar-detail.test.ts` → `FlowSidebarDetail.test.ts`.
 - [X] T076 [US5] `ItemRoute.vue` panel L-4 (FR-008): Revisions, Comments, Shares, Flows khi item đã có và không ở version
   (Revisions vẫn hiện ở version); làm mới Revisions sau lưu; test.
-- [ ] T077 [US5] **Đóng lượt 3**: như T055 với E2E T064, T065; commit, push, CI xanh.
+- [X] T077 [US5] **Đóng lượt 3**: như T055 với E2E T064, T065; commit, push, CI xanh.
 
 **Checkpoint (lượt 3)**: sidebar item và version như Directus.
 
@@ -610,7 +610,7 @@ benchmark `benchmark:web` chạy tay một lần.
   D-72).
 - [X] T100 [P] `apps/web/README.md` (module Content, lệnh E2E và payload, benchmark web) và
   `specs/014-content-module/quickstart.md` chạy lại từng lệnh, sửa chỗ sai.
-- [ ] T101 **Đóng lượt 4 và feature**: `pnpm nx run-many -t lint typecheck test build check-bundle`, E2E ba cấu hình,
+- [X] T101 **Đóng lượt 4 và feature**: `pnpm nx run-many -t lint typecheck test build check-bundle`, E2E ba cấu hình,
   payload, parity `web` xanh local; commit, push, CI xanh mọi job (kể cả `publish`); `[X]` mọi task; memory
   `project-014-content-module.md` cập nhật trạng thái Done và bài học; `graphify update .`.
 
