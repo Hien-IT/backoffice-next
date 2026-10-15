@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/revisions-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/RevisionsSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/revisions-date-group.vue",
+		"dest": "apps/web/src/components/sidebar/RevisionsDateGroup.vue"
+	},
+	{
+		"source": "app/src/views/private/components/revision-item.vue",
+		"dest": "apps/web/src/components/sidebar/RevisionItem.vue"
+	}
+]

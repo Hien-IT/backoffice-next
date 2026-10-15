@@ -1,22 +1,29 @@
 <!-- Ported from directus/app/src/components/v-form/v-form.vue -->
 <script setup lang="ts">
 // Backoffice: template per the form grid (layout-patterns §8: two columns, `with-fill` third column above 726px);
-// use-ai-tools and the collab context are removed (D-54); comparison mode, `inline` and the comparison indicator
-// classes have no UI yet (D-55). Group interfaces come from the registry: a group field whose interface is null or
+// use-ai-tools and the collab context are removed (D-54); `inline` is not ported. Comparison mode (spec 014 FR-072,
+// lifts D-55): a nested group form reads the parent's `comparison` through FORM_COMPARISON (group interfaces do not
+// pass it on), and a differing field gets the recipe Q-10 highlight instead of the field-indicator bar. Group interfaces come from the registry: a group field whose interface is null or
 // not registered is not rendered, nor its children, without a warning (measured on Directus, spec Edge Cases, T004).
 // The system divider is drawn here (Directus: presentation-divider interface without title). `hasEdits` is exposed
 // for the unsaved-changes guard (FR-084).
 import type { ContentVersion, Field, ValidationError } from '@directus/types';
 import { useElementSize } from '@vueuse/core';
 import { assign, cloneDeep, isEmpty, isEqual, isNil, omit } from 'lodash-es';
-import { computed, onBeforeUpdate, provide, ref, watch } from 'vue';
+import { computed, inject, onBeforeUpdate, provide, ref, watch } from 'vue';
 import { getInterface } from '../../interfaces/index.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
 import { selectiveClone } from '../../utils/selective-clone.ts';
 import BoIcon from '../BoIcon.vue';
 import FormField from './FormField.vue';
 import type { MenuOptions } from './FormFieldMenu.vue';
-import { type FieldValues, type FormField as TFormField, WIDTH_CLASSES } from './types.ts';
+import {
+	type ComparisonContext,
+	FORM_COMPARISON,
+	type FieldValues,
+	type FormField as TFormField,
+	WIDTH_CLASSES,
+} from './types.ts';
 import { applyConditions } from './utils/apply-conditions.ts';
 import { extractFieldFromFunction } from './utils/extract-field-from-function.ts';
 import { getDefaultValuesFromFields } from './utils/get-default-values-from-fields.ts';
@@ -50,6 +57,7 @@ const props = withDefaults(
 		direction?: string | undefined;
 		showDivider?: boolean | undefined;
 		version?: ContentVersion | null;
+		comparison?: ComparisonContext | undefined;
 	}>(),
 	{
 		collection: undefined,
@@ -65,12 +73,19 @@ const props = withDefaults(
 		disabledMenuOptions: undefined,
 		direction: undefined,
 		version: null,
+		comparison: undefined,
 	},
 );
 
 const emit = defineEmits(['update:modelValue']);
 
 const fieldsStore = useFieldsStore();
+
+const parentComparison = inject(FORM_COMPARISON, undefined);
+
+const comparison = computed(() => props.comparison ?? (props.group !== null ? parentComparison?.value : undefined));
+
+provide(FORM_COMPARISON, comparison);
 
 const fieldDefinitions = computed<Field[]>(() => {
 	if (props.collection) {
@@ -265,7 +280,15 @@ function useForm() {
 	}
 
 	function isFieldVisible(field: Field | TFormField): boolean {
-		return field.meta?.hidden !== true;
+		if (comparison.value?.showDifferencesOnly) {
+			return !!comparison.value.fields.has(field.field);
+		}
+
+		return (
+			field.meta?.hidden !== true ||
+			!!comparison.value?.fields?.has(field.field) ||
+			!!comparison.value?.revisionFields?.has(field.field)
+		);
 	}
 }
 
@@ -286,9 +309,7 @@ function apply(updates: { [field: string]: any }) {
 				const field = fieldsMap.value[key];
 				if (!field) return false;
 				return (
-					(updates['$type'] === 'created' && field.meta?.readonly) ||
-					field.schema?.is_primary_key ||
-					!isDisabled(field)
+					(updates['$type'] === 'created' && field.meta?.readonly) || field.schema?.is_primary_key || !isDisabled(field)
 				);
 			});
 
@@ -406,6 +427,18 @@ function useRawEditor() {
 	}
 }
 
+function isGroupFieldVisible(field: TFormField, groupFields: Field[]): boolean {
+	if (comparison.value?.showDifferencesOnly) {
+		return groupFields.some((f) => comparison.value!.fields.has(f.field));
+	}
+
+	return isFieldVisible(field);
+}
+
+// Backoffice: recipe Q-10 highlight of a differing field (Directus: `indicator-active`; groups are `hidden`).
+const COMPARISON_DIFF =
+	'rounded-sm bg-warning-50 ring-8 ring-warning-50 dark:bg-warning-500/15 dark:ring-warning-500/15';
+
 // Backoffice: the group interface of the stored field (before get-form-fields replaces a null interface).
 function getGroupInterface(fieldName: string) {
 	const id = fieldDefinitionsMap.value[fieldName]?.meta?.interface;
@@ -439,7 +472,9 @@ function getGroupInterface(fieldName: string) {
 				<template v-if="fieldsMap[fieldName]!.meta?.special?.includes('group')">
 					<component
 						:is="getGroupInterface(fieldName)!.component"
-						v-if="getGroupInterface(fieldName) && isFieldVisible(fieldsMap[fieldName]!)"
+						v-if="
+							getGroupInterface(fieldName) && isGroupFieldVisible(fieldsMap[fieldName]!, fieldsForGroup[index] || [])
+						"
 						:ref="
 							(el: any) => {
 								formFieldEls[fieldName] = el;
@@ -480,7 +515,10 @@ function getGroupInterface(fieldName: string) {
 							formFieldEls[fieldName] = el;
 						}
 					"
+					:class="comparison?.fields.has(fieldName) ? COMPARISON_DIFF : undefined"
 					:field="fieldsMap[fieldName]!"
+					:comparison="comparison"
+					:comparison-active="comparison?.selectedFields.includes(fieldName)"
 					:autofocus="index === firstEditableFieldIndex && autofocus"
 					:model-value="(values || {})[fieldName]"
 					:initial-value="(initialValues || {})[fieldName]"

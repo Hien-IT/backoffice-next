@@ -86,6 +86,7 @@ watch(
 				<MainContent class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6">
 					<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 						<template v-if="$slots['title']" #title><slot name="title" /></template>
+						<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
 						<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
 						<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
 					</PageHeader>

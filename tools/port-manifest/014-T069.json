@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/comparison/comparison-modal.vue",
+		"dest": "apps/web/src/components/comparison/ComparisonModal.vue"
+	},
+	{
+		"source": "app/src/views/private/components/comparison/comparison-header.vue",
+		"dest": "apps/web/src/components/comparison/ComparisonHeader.vue"
+	},
+	{
+		"source": "app/src/views/private/components/comparison/comparison-toggle.vue",
+		"dest": "apps/web/src/components/comparison/ComparisonToggle.vue"
+	}
+]

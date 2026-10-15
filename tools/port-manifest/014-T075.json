@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/flow-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/FlowSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/flow-sidebar-detail.test.ts",
+		"dest": "apps/web/src/components/sidebar/FlowSidebarDetail.test.ts"
+	},
+	{
+		"source": "app/src/composables/use-flows.test.ts",
+		"dest": "apps/web/src/composables/use-flows.test.ts"
+	}
+]

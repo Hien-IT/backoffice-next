@@ -42,4 +42,8 @@ export default {
 	// Feature 014: map layout controls and keyboard list (recipe Q-6, D-69, no Directus key).
 	map_box_select: 'Chọn vùng (Shift + kéo)',
 	map_items_in_view: 'Các mục đang hiện',
+	// Feature 014: tooltip of the comment send button (recipe Q-11, no Directus key).
+	comment_submit_shortcut: 'Gửi (Ctrl + Enter)',
+	// Feature 014: checkbox of the version comparison footer (recipe Q-10, no Directus key).
+	delete_version_after_promote: 'Xóa “{version}” sau khi áp dụng',
 };

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-form/components/form-field.vue -->
 <script setup lang="ts">
 // Backoffice: template per the form grid (layout-patterns §8) and the Field label row recipe; the collab context is
-// removed (D-54) and comparison mode has no UI (D-55). The note is markdown sanitized by utils/markdown.ts, links in
+// removed (D-54). Comparison mode (spec 014 FR-072, lifts D-55) shows the label and passes the context on. The note is markdown sanitized by utils/markdown.ts, links in
 // a new tab as v-md `target: '_blank'`. Ids for the label, note and error are provided to the interface (FR-094).
 import type { ContentVersion, ValidationError } from '@directus/types';
 import { parseJSON } from '@directus/utils';
@@ -16,7 +16,7 @@ import FormFieldInterface from './FormFieldInterface.vue';
 import FormFieldLabel from './FormFieldLabel.vue';
 import FormFieldMenu, { type MenuOptions } from './FormFieldMenu.vue';
 import FormFieldRawEditor from './FormFieldRawEditor.vue';
-import { FORM_FIELD_A11Y, type FormField, WIDTH_CLASSES } from './types.ts';
+import { type ComparisonContext, FORM_FIELD_A11Y, type FormField, WIDTH_CLASSES } from './types.ts';
 import { formatFieldFunction } from './utils/format-field-function.ts';
 
 const props = withDefaults(
@@ -39,6 +39,8 @@ const props = withDefaults(
 		disabledMenu?: boolean | undefined;
 		direction?: string | undefined;
 		version?: ContentVersion | null | undefined;
+		comparison?: ComparisonContext | undefined;
+		comparisonActive?: boolean | undefined;
 	}>(),
 	{
 		modelValue: undefined,
@@ -47,6 +49,8 @@ const props = withDefaults(
 		validationError: undefined,
 		badge: undefined,
 		direction: undefined,
+		comparison: undefined,
+		comparisonActive: false,
 	},
 );
 
@@ -68,7 +72,7 @@ const isNonEditable = computed(() => {
 });
 
 const isLabelHidden = computed(() => {
-	if (props.batchMode && !props.field.meta?.special?.includes('no-data')) return false;
+	if ((props.batchMode || !!props.comparison) && !props.field.meta?.special?.includes('no-data')) return false;
 	return props.field.hideLabel;
 });
 
@@ -228,6 +232,8 @@ function useComputedValues() {
 			:loading="loading"
 			:input-id="inputId"
 			:label-id="labelId"
+			:comparison="comparison"
+			:comparison-active="comparisonActive"
 			@toggle-batch="$emit('toggle-batch', $event)"
 			@toggle-raw="$emit('toggle-raw', $event)"
 		>
@@ -267,6 +273,8 @@ function useComputedValues() {
 			:raw-editor-active="rawEditorActive"
 			:direction="direction"
 			:version
+			:comparison="comparison"
+			:comparison-active="comparisonActive"
 			:input-id="inputId"
 			:label-id="isLabelHidden && !srOnlyLabel ? undefined : labelId"
 			@update:model-value="emitValue($event)"

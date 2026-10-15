@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/views/private/components/comparison/use-comparison.ts",
+		"dest": "apps/web/src/components/comparison/use-comparison.ts"
+	},
+	{
+		"source": "app/src/views/private/components/comparison/use-comparison.test.ts",
+		"dest": "apps/web/src/components/comparison/use-comparison.test.ts"
+	},
+	{
+		"source": "app/src/views/private/components/comparison/types.ts",
+		"dest": "apps/web/src/components/comparison/types.ts"
+	}
+]

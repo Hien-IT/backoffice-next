@@ -443,50 +443,50 @@ preset (gỡ D-58).
 
 ### Tests cho User Story 5
 
-- [ ] T064 [P] [US5] `e2e/content-sidebar.spec.ts` (US5-1 đến US5-3, US5-6; FR-080 đến FR-084, FR-089): revisions (đếm,
+- [X] T064 [P] [US5] `e2e/content-sidebar.spec.ts` (US5-1 đến US5-3, US5-6; FR-080 đến FR-084, FR-089): revisions (đếm,
   trang, nhóm ngày, so sánh "trước"/"mới nhất", Apply ghi vào form rồi lưu), comments (gợi ý `@`, Ctrl+Enter, sửa, xóa,
   mention `bo-viewer` tạo `directus_notifications`), shares (tạo, chép link, gửi mời, xóa; `bo-editor` không có quyền
   share → ẩn), flow `bo-flow-item` có xác nhận và `run_flow_anyway` khi có thay đổi; item mới không có mục nào.
-- [ ] T065 [P] [US5] `e2e/content-versions.spec.ts` (US5-4, US5-5; FR-070 đến FR-073): `draft` global luôn có, tạo version
+- [X] T065 [P] [US5] `e2e/content-versions.spec.ts` (US5-4, US5-5; FR-070 đến FR-073): `draft` global luôn có, tạo version
   (key slug, key `draft` bị chặn), chuyển (hỏi khi có thay đổi), lưu version, "lưu và về bản chính", so sánh + promote
   (xóa version tùy chọn), đổi tên, xóa; kiểm `directus_versions`, item chính, `directus_activity`.
 
 ### Implementation cho User Story 5
 
-- [ ] T066 [P] [US5] Chép `src/composables/use-revisions.ts`, `src/composables/use-revision.ts` (10 mỗi trang, `sort -id`,
+- [X] T066 [P] [US5] Chép `src/composables/use-revisions.ts`, `src/composables/use-revision.ts` (10 mỗi trang, `sort -id`,
   lọc `version`, đếm, nhóm theo ngày); test.
-- [ ] T067 [US5] `src/components/sidebar/{RevisionsSidebarDetail,RevisionsDateGroup,RevisionItem}.vue` chép logic
+- [X] T067 [US5] `src/components/sidebar/{RevisionsSidebarDetail,RevisionsDateGroup,RevisionItem}.vue` chép logic
   (FR-080, recipe Q-10): `SidebarDetail` với badge đếm, nạp khi mở, phân trang, `private_user`, hiện khi
   `revisionsAllowed && accountabilityScope === 'all'`, mở hộp so sánh chế độ revision; test.
-- [ ] T068 [P] [US5] Chép `src/components/comparison/{use-comparison.ts,types.ts}` và utils chuẩn hóa liên quan
+- [X] T068 [P] [US5] Chép `src/components/comparison/{use-comparison.ts,types.ts}` và utils chuẩn hóa liên quan
   (`getNormalizedComparisonData`, build version/revision comparison); port
   `directus/app/src/views/private/components/comparison/use-comparison.test.ts`.
-- [ ] T069 [US5] `src/components/comparison/{ComparisonModal,ComparisonHeader,ComparisonToggle}.vue` chép logic bỏ chế độ
+- [X] T069 [US5] `src/components/comparison/{ComparisonModal,ComparisonHeader,ComparisonToggle}.vue` chép logic bỏ chế độ
   collab (D-68) (FR-072, FR-073, FR-081, recipe Q-10): hai cột `BoForm` 013 với `comparisonMode`/`comparisonSide` (gỡ
   D-55), checkbox chỉ trên field khác biệt (mặc định chọn hết), công tắc "chỉ hiện khác biệt", `outdated`, promote
   (khóa khi không có quyền update item chính; ô xóa version khi có quyền delete `directus_versions`), Apply revision phát
   `revert`, `no_relational_data`, focus trả về nút mở; browser test.
-- [ ] T070 [P] [US5] Chép `src/composables/use-versions.ts` (global `draft` qua `DRAFT_VERSION_KEY`, `saveVersion` tạo
+- [X] T070 [P] [US5] Chép `src/composables/use-versions.ts` (global `draft` qua `DRAFT_VERSION_KEY`, `saveVersion` tạo
   `+` trước, `addVersion`/`updateVersion`/`deleteVersion`) và `src/composables/use-fake-version-field.ts`; `DRAFT_VERSION_KEY`
   vào `src/constants.ts`; port `directus/app/src/composables/use-versions.test.ts`.
-- [ ] T071 [US5] `src/modules/content/components/{VersionMenu,VersionPromoteField}.vue` chép logic (FR-070, recipe Q-8):
+- [X] T071 [US5] `src/modules/content/components/{VersionMenu,VersionPromoteField}.vue` chép logic (FR-070, recipe Q-8):
   menu trong breadcrumb, hộp tạo/đổi tên (slugify key, tooltip `reserved_version_key`), xóa, chuyển (hỏi khi có thay
   đổi), mở hộp so sánh; port `directus/app/src/modules/content/components/version-menu.test.ts` → `VersionMenu.test.ts`.
-- [ ] T072 [US5] `ItemRoute.vue` phần version (FR-071, FR-060): `?version=` ↔ `currentVersion`, `use-item` gửi
+- [X] T072 [US5] `ItemRoute.vue` phần version (FR-071, FR-060): `?version=` ↔ `currentVersion`, `use-item` gửi
   `version`/`versionRaw` khi version đã tồn tại, nút "lưu version" + menu (về bản chính, thoát, bỏ thay đổi), Ctrl/Cmd +
   Alt + S, `versionValidationErrors`, ẩn xóa/archive/Comments/Shares/Flows khi ở version, `isFormDisabled` theo quyền
   update `directus_versions`; test.
-- [ ] T073 [P] [US5] `src/components/sidebar/{CommentsSidebarDetail,CommentInput,CommentItem,CommentItemHeader}.vue` chép
+- [X] T073 [P] [US5] `src/components/sidebar/{CommentsSidebarDetail,CommentInput,CommentItem,CommentItemHeader}.vue` chép
   logic (FR-082, FR-110b, recipe Q-11): danh sách nhóm ngày, `@uuid` → `<mark>tên</mark>` qua DOMPurify không tag, gợi ý
   user khi gõ `@` (`/users` tìm kiếm, điều hướng bàn phím), Ctrl/Cmd + Enter, sửa, xóa có xác nhận; test.
-- [ ] T074 [P] [US5] `src/components/sidebar/{SharesSidebarDetail,ShareItem}.vue` chép logic (FR-083, recipe Q-11): danh
+- [X] T074 [P] [US5] `src/components/sidebar/{SharesSidebarDetail,ShareItem}.vue` chép logic (FR-083, recipe Q-11): danh
   sách, hết hạn/hết lượt, menu (chép link qua `navigator.clipboard` + notice, gửi mời hộp thoại → `/shares/invite`,
   sửa, xóa), tạo/sửa bằng `DrawerItem` 013 trên `directus_shares` với `{collection, item}` sẵn và ẩn; test.
-- [ ] T075 [US5] `src/components/sidebar/FlowSidebarDetail.vue` chép logic + `src/composables/use-run-manual-flow.ts`
+- [X] T075 [US5] `src/components/sidebar/FlowSidebarDetail.vue` chép logic + `src/composables/use-run-manual-flow.ts`
   (013) mở rộng `selection`, `location: 'collection' | 'item'`, tooltip, `isFlowDisabled`, body theo T003 d (FR-089);
   port `directus/app/src/composables/use-flows.test.ts` (phần chưa port ở 013) và
   `views/private/components/flow-sidebar-detail.test.ts` → `FlowSidebarDetail.test.ts`.
-- [ ] T076 [US5] `ItemRoute.vue` panel L-4 (FR-008): Revisions, Comments, Shares, Flows khi item đã có và không ở version
+- [X] T076 [US5] `ItemRoute.vue` panel L-4 (FR-008): Revisions, Comments, Shares, Flows khi item đã có và không ở version
   (Revisions vẫn hiện ở version); làm mới Revisions sau lưu; test.
 - [ ] T077 [US5] **Đóng lượt 3**: như T055 với E2E T064, T065; commit, push, CI xanh.
 

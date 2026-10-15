@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/views/private/components/shares-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/SharesSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/share-item.vue",
+		"dest": "apps/web/src/components/sidebar/ShareItem.vue"
+	}
+]

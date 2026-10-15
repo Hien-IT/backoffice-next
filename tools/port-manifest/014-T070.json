@@ -1,0 +1,8 @@
+[
+	{ "source": "app/src/composables/use-versions.ts", "dest": "apps/web/src/composables/use-versions.ts" },
+	{ "source": "app/src/composables/use-versions.test.ts", "dest": "apps/web/src/composables/use-versions.test.ts" },
+	{
+		"source": "app/src/composables/use-fake-version-field.ts",
+		"dest": "apps/web/src/composables/use-fake-version-field.ts"
+	}
+]

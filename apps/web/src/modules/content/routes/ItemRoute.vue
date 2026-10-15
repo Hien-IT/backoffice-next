@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/modules/content/routes/item.vue -->
 <script setup lang="ts">
 // Backoffice: user story 2 of feature 014 (FR-050 to FR-062, FR-115c/d). No collaboration, AI tools or visual editing
-// (D-70, Q1 = A): `discardAndStay` clears the edits. Versions, revisions, comments, shares and flows of the sidebar are
-// added by the tasks of user stories 4 and 5. Live preview (T047, FR-063 to FR-069): split or popup, the version key from
-// `?version=` until useVersions; storage keys `backoffice-live-preview-*` (D-39). Confirmations are BoDialog modals whose first
+// (D-70, Q1 = A): `discardAndStay` clears the edits. User story 5: versions (VersionMenu, save version), the detail
+// panel (revisions, comments, shares, flows). Live preview (T047, FR-063 to FR-069): split or popup; storage keys
+// `backoffice-live-preview-*` (D-39). Confirmations are BoDialog modals whose first
 // button is Cancel (focused on open, FR-115d). The tab title goes through PrivateView `tabTitle`.
 import type { PrimaryKey } from '@directus/types';
 import { sameOrigin } from '@directus/utils/browser';
@@ -38,7 +38,18 @@ import PrivateView from '../../../layout/PrivateView.vue';
 import { useUserStore } from '../../../stores/user.ts';
 import { getCollectionRoute, getItemRoute } from '../../../utils/get-item-route.ts';
 import { renderStringTemplate } from '../../../utils/render-string-template.ts';
+import BoMenu from '../../../components/BoMenu.vue';
+import CommentsSidebarDetail from '../../../components/sidebar/CommentsSidebarDetail.vue';
+import FlowSidebarDetail from '../../../components/sidebar/FlowSidebarDetail.vue';
+import RevisionsSidebarDetail from '../../../components/sidebar/RevisionsSidebarDetail.vue';
+import SharesSidebarDetail from '../../../components/sidebar/SharesSidebarDetail.vue';
+import { useItemPermissions } from '../../../composables/use-permissions/index.ts';
+import { useFlows } from '../../../composables/use-run-manual-flow.ts';
+import { translateShortcut } from '../../../composables/use-shortcut.ts';
+import { useVersions } from '../../../composables/use-versions.ts';
+import FlowDialogs from '../../../interfaces/presentation-header/FlowDialogs.vue';
 import ContentNavigation from '../components/ContentNavigation.vue';
+import VersionMenu from '../components/VersionMenu.vue';
 import ContentNotFound from './ContentNotFound.vue';
 
 interface Props {
@@ -64,7 +75,22 @@ const form = ref<ComponentPublicInstance>();
 const { collection, primaryKey } = toRefs(props);
 const { breadcrumb } = useBreadcrumb();
 
-const { info: collectionInfo, defaults, primaryKeyField, isSingleton } = useCollection(collection);
+const revisionsSidebarDetailRef = ref<InstanceType<typeof RevisionsSidebarDetail> | null>(null);
+
+const { info: collectionInfo, defaults, primaryKeyField, isSingleton, accountabilityScope } = useCollection(collection);
+
+const {
+	readVersionsAllowed,
+	currentVersion,
+	versions,
+	loading: versionsLoading,
+	addVersion,
+	updateVersion,
+	deleteVersion,
+	saveVersionLoading,
+	saveVersion,
+	validationErrors: versionValidationErrors,
+} = useVersions(collection, isSingleton, primaryKey);
 
 const {
 	isNew,
@@ -83,17 +109,21 @@ const {
 	isArchived,
 	saveAsCopy,
 	refresh,
-	validationErrors,
-} = useItem(collection, primaryKey);
+	validationErrors: itemValidationErrors,
+} = useItem(collection, primaryKey, currentVersion);
+
+const validationErrors = computed(() => {
+	if (currentVersion.value === null) return itemValidationErrors.value;
+	return versionValidationErrors.value;
+});
 
 const {
-	collectionPermissions: { createAllowed },
-	itemPermissions: { updateAllowed, deleteAllowed, saveAllowed, archiveAllowed, fields },
+	collectionPermissions: { createAllowed, revisionsAllowed },
+	itemPermissions: { updateAllowed, deleteAllowed, saveAllowed, archiveAllowed, shareAllowed, fields },
 } = permissions;
 
 const { templateData } = useTemplateData(collectionInfo, primaryKey);
 
-const route = useRoute();
 const { confirmLeave, leaveTo } = useEditsGuard(hasEdits, { compareQuery: ['version'] });
 const confirmDelete = ref(false);
 const confirmArchive = ref(false);
@@ -132,12 +162,42 @@ const archiveTooltip = computed(() => {
 	return t('archive');
 });
 
-useShortcut('meta+s', () => saveAndStay(), form);
+useShortcut(
+	'meta+s',
+	() => {
+		if (unref(currentVersion) === null) {
+			saveAndStay();
+		} else {
+			saveVersionAction('stay');
+		}
+	},
+	form,
+);
 
-useShortcut('meta+shift+s', () => saveAndAddNew(), form);
+useShortcut(
+	'meta+shift+s',
+	() => {
+		if (unref(currentVersion) === null) {
+			saveAndAddNew();
+		} else {
+			saveVersionAction('quit');
+		}
+	},
+	form,
+);
+
+useShortcut(
+	'meta+alt+s',
+	() => {
+		if (unref(currentVersion) !== null) {
+			saveVersionAction('main');
+		}
+	},
+	form,
+);
 
 const isSavable = computed(() => {
-	if (saveAllowed.value === false) return false;
+	if (saveAllowed.value === false && currentVersion.value === null) return false;
 	if (hasEdits.value === true) return true;
 
 	if (
@@ -155,10 +215,27 @@ const isSavable = computed(() => {
 	return hasEdits.value;
 });
 
+const { updateAllowed: updateVersionsAllowed } = useItemPermissions(
+	'directus_versions',
+	computed(() => currentVersion.value?.id ?? null),
+	computed(() => !currentVersion.value),
+);
+
 const isFormDisabled = computed(() => {
 	if (isNew.value) return false;
 	if (updateAllowed.value) return false;
+	if (currentVersion.value !== null && updateVersionsAllowed.value) return false;
 	return true;
+});
+
+const actualPrimaryKey = computed(() => {
+	if (unref(isSingleton)) {
+		const singleton = unref(item);
+		const pkField = unref(primaryKeyField)?.field;
+		return (singleton && pkField ? (singleton[pkField] ?? null) : null) as PrimaryKey | null;
+	}
+
+	return props.primaryKey;
 });
 
 const internalPrimaryKey = computed(() => {
@@ -180,12 +257,16 @@ const disabledOptions = computed(() => {
 	return [];
 });
 
+watch(currentVersion, async () => {
+	edits.value = {};
+	await refreshLivePreview();
+});
+
 const previewTemplate = computed(() => collectionInfo.value?.meta?.preview_url ?? '');
-const versionKey = computed(() => (typeof route.query['version'] === 'string' ? route.query['version'] : null));
 
 const { templateData: previewData, fetchTemplateValues } = useTemplateData(collectionInfo, primaryKey, {
 	template: previewTemplate,
-	injectData: computed(() => ({ $version: versionKey.value ?? 'main' })),
+	injectData: computed(() => ({ $version: currentVersion.value?.key ?? 'main' })),
 });
 
 const previewUrl = computed(() => {
@@ -316,6 +397,74 @@ watch(saving, async (newVal, oldVal) => {
 	await refreshLivePreview();
 });
 
+watch(saveVersionLoading, async (newVal, oldVal) => {
+	if (newVal === true || oldVal === false) return;
+
+	await refreshLivePreview();
+});
+
+const { flowDialogsContext, manualFlows, provideRunManualFlow } = useFlows({
+	collection,
+	primaryKey: actualPrimaryKey,
+	location: 'item',
+	hasEdits,
+	onRefreshCallback: refresh,
+});
+
+provideRunManualFlow();
+
+const shouldShowVersioning = computed(
+	() =>
+		!!collectionInfo.value?.meta?.versioning &&
+		!isNew.value &&
+		internalPrimaryKey.value !== '+' &&
+		readVersionsAllowed.value &&
+		!versionsLoading.value,
+);
+
+const versionSaveOptions = computed(() => [
+	{
+		// Backoffice: BoMenu has no hint column; the shortcut follows the text.
+		text: `${t('save_and_return_to_main')} (${translateShortcut(['meta', 'alt', 's'])})`,
+		icon: 'check',
+		onSelect: () => saveVersionAction('main'),
+	},
+	{
+		text: `${t('save_and_quit')} (${translateShortcut(['meta', 'shift', 's'])})`,
+		icon: 'done_all',
+		onSelect: () => saveVersionAction('quit'),
+	},
+	{ text: t('discard_all_changes'), icon: 'undo', onSelect: discardAndStay },
+]);
+
+async function saveVersionAction(action: 'main' | 'stay' | 'quit') {
+	if (isSavable.value === false) return;
+
+	try {
+		await saveVersion(edits, ref(item.value ?? {}), actualPrimaryKey.value);
+		edits.value = {};
+
+		if (action === 'main') {
+			currentVersion.value = null;
+			refresh();
+		} else if (action === 'stay') {
+			refresh();
+			revisionsSidebarDetailRef.value?.refresh?.();
+		} else if (action === 'quit') {
+			if (!props.singleton) router.push({ name: 'content-collection', params: { collection: props.collection } });
+		}
+	} catch {
+		// Save shows unexpected error dialog
+	}
+}
+
+function revert(values: Record<string, any>) {
+	edits.value = {
+		...edits.value,
+		...values,
+	};
+}
+
 onBeforeUnmount(() => {
 	if (popupWindow) popupWindow.close();
 });
@@ -348,6 +497,7 @@ async function saveAndStay() {
 
 			router.replace(getItemRoute(props.collection, newPrimaryKey));
 		} else {
+			revisionsSidebarDetailRef.value?.refresh?.();
 			refresh();
 		}
 	} catch {
@@ -357,6 +507,7 @@ async function saveAndStay() {
 
 async function saveAndAddNew() {
 	if (isSavable.value === false) return;
+	if (unref(currentVersion) !== null) return;
 
 	try {
 		await save();
@@ -490,6 +641,21 @@ function useItemNavigation() {
 			/>
 		</template>
 
+		<template v-if="shouldShowVersioning" #headline-append>
+			<VersionMenu
+				:collection="collection"
+				:primary-key="internalPrimaryKey!"
+				:update-allowed="updateAllowed"
+				:has-edits="hasEdits"
+				:current-version="currentVersion"
+				:versions="versions"
+				@add="addVersion"
+				@update="updateVersion"
+				@delete="deleteVersion"
+				@switch="currentVersion = $event"
+			/>
+		</template>
+
 		<template #actions>
 			<BoButton
 				v-if="previewUrl"
@@ -501,7 +667,7 @@ function useItemNavigation() {
 				@click="livePreviewCollapsed = !livePreviewCollapsed"
 			/>
 
-			<template v-if="!isNew && collectionInfo.meta?.singleton !== true">
+			<template v-if="!isNew && currentVersion === null && collectionInfo.meta?.singleton !== true">
 				<BoButton
 					variant="secondary"
 					icon="delete"
@@ -522,7 +688,7 @@ function useItemNavigation() {
 				/>
 			</template>
 
-			<div class="flex items-center">
+			<div v-if="currentVersion === null" class="flex items-center">
 				<BoButton
 					icon="check"
 					:class="collectionInfo.meta?.singleton !== true && isSavable ? 'rounded-e-none' : ''"
@@ -540,6 +706,32 @@ function useItemNavigation() {
 					@save-as-copy="saveAsCopyAndNavigate"
 					@discard-and-stay="discardAndStay"
 				/>
+			</div>
+
+			<div v-else class="flex items-center">
+				<BoButton
+					icon="beenhere"
+					:class="collectionInfo.meta?.singleton !== true && isSavable ? 'rounded-e-none' : ''"
+					:aria-label="$t('save_version')"
+					:title="$t('save_version')"
+					:loading="saveVersionLoading"
+					:disabled="!isSavable"
+					@click="saveVersionAction('stay')"
+				/>
+				<BoMenu
+					v-if="collectionInfo.meta?.singleton !== true && isSavable === true"
+					:items="versionSaveOptions"
+					align="end"
+				>
+					<template #trigger>
+						<BoButton
+							variant="secondary"
+							icon="more_vert"
+							class="rounded-s-none"
+							:aria-label="$t('more_save_options')"
+						/>
+					</template>
+				</BoMenu>
 			</div>
 		</template>
 
@@ -586,6 +778,33 @@ function useItemNavigation() {
 				/>
 			</template>
 		</SplitPanel>
+
+		<FlowDialogs v-bind="flowDialogsContext" />
+
+		<template #sidebar>
+			<template v-if="isNew === false && actualPrimaryKey">
+				<RevisionsSidebarDetail
+					v-if="revisionsAllowed && accountabilityScope === 'all'"
+					ref="revisionsSidebarDetailRef"
+					:collection="collection"
+					:primary-key="actualPrimaryKey"
+					:version="currentVersion"
+					@revert="revert"
+				/>
+				<CommentsSidebarDetail
+					v-if="currentVersion === null"
+					:collection="collection"
+					:primary-key="actualPrimaryKey"
+				/>
+				<SharesSidebarDetail
+					v-if="currentVersion === null"
+					:collection="collection"
+					:primary-key="actualPrimaryKey"
+					:allowed="shareAllowed"
+				/>
+				<FlowSidebarDetail v-if="currentVersion === null" :manual-flows="manualFlows" />
+			</template>
+		</template>
 
 		<BoDialog v-model:open="confirmDelete" :title="$t('delete_are_you_sure')">
 			<template #actions>

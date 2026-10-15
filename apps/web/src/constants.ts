@@ -2,6 +2,8 @@
 // Backoffice: only the constants the app shell, the form and the interfaces use; DIRECTUS_LOGO dropped (FR-083); RTL_LANGUAGES from
 // constants/text-direction.ts.
 
+export const DRAFT_VERSION_KEY = 'draft';
+
 export const VALIDATION_TYPES = ['FAILED_VALIDATION', 'RECORD_NOT_UNIQUE'];
 
 export const APP_NUMERIC_TYPES = ['integer', 'float'];

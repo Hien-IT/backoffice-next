@@ -1,13 +1,15 @@
 // Ported from directus/app/src/components/v-form/v-form.test.ts
-// Backoffice: the comparison-mode cases are not ported (no comparison UI, D-55); the registry is mocked with the
+// Backoffice: the registry is mocked with the
 // fake interfaces of test-interfaces.ts; a real pinia instead of @pinia/testing; no outlet elements (Reka portals).
 import type { Field } from '@directus/types';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { nextTick } from 'vue';
+import { computed, defineComponent, h, nextTick, provide } from 'vue';
 import { i18n } from '../../lang/index.ts';
 import VForm from './BoForm.vue';
+import FormField from './FormField.vue';
+import { FORM_COMPARISON } from './types.ts';
 
 vi.mock('../../interfaces/index.ts', async () => (await import('./test-interfaces.ts')).registryMock);
 
@@ -70,6 +72,185 @@ function createField(overrides: Partial<Field> = {}): Field {
 }
 
 describe('VForm', () => {
+	describe('comparison mode with showDifferencesOnly', () => {
+		it('updates visible fields when showDifferencesOnly toggles', async () => {
+			const modifiedField = createField({ field: 'modified_field', name: 'Modified Field' });
+			const unmodifiedField = createField({ field: 'unmodified_field', name: 'Unmodified Field' });
+			const comparisonFields = new Set(['modified_field']);
+
+			const comparison = {
+				side: 'incoming' as const,
+				fields: comparisonFields,
+				selectedFields: [],
+				onToggleField: null,
+				showDifferencesOnly: false,
+			};
+
+			const wrapper = mount(VForm, {
+				props: {
+					fields: [modifiedField, unmodifiedField],
+					primaryKey: '+',
+					comparison,
+				},
+				global,
+			});
+
+			let renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('modified_field');
+			expect(renderedFields).toContain('unmodified_field');
+
+			await wrapper.setProps({
+				comparison: { ...comparison, showDifferencesOnly: true },
+			});
+
+			renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('modified_field');
+			expect(renderedFields).not.toContain('unmodified_field');
+
+			await wrapper.setProps({
+				comparison: { ...comparison, showDifferencesOnly: false },
+			});
+
+			renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('modified_field');
+			expect(renderedFields).toContain('unmodified_field');
+		});
+
+		it('updates visible fields inside a group when showDifferencesOnly toggles', async () => {
+			const modifiedInGroup = createField({
+				field: 'inner_modified',
+				name: 'Inner Modified',
+				meta: {
+					...createField().meta!,
+					field: 'inner_modified',
+					group: 'my_group',
+				},
+			});
+
+			const unmodifiedInGroup = createField({
+				field: 'inner_unmodified',
+				name: 'Inner Unmodified',
+				meta: {
+					...createField().meta!,
+					field: 'inner_unmodified',
+					group: 'my_group',
+				},
+			});
+
+			const comparisonFields = new Set(['inner_modified']);
+
+			const comparison = {
+				side: 'incoming' as const,
+				fields: comparisonFields,
+				selectedFields: [],
+				onToggleField: null,
+				showDifferencesOnly: false,
+			};
+
+			const wrapper = mount(VForm, {
+				props: {
+					fields: [modifiedInGroup, unmodifiedInGroup],
+					primaryKey: '+',
+					group: 'my_group',
+					comparison,
+				},
+				global,
+			});
+
+			let renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('inner_modified');
+			expect(renderedFields).toContain('inner_unmodified');
+
+			await wrapper.setProps({
+				comparison: { ...comparison, showDifferencesOnly: true },
+			});
+
+			renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('inner_modified');
+			expect(renderedFields).not.toContain('inner_unmodified');
+
+			await wrapper.setProps({
+				comparison: { ...comparison, showDifferencesOnly: false },
+			});
+
+			renderedFields = wrapper.findAllComponents(FormField).map((c) => c.props('field').field);
+			expect(renderedFields).toContain('inner_modified');
+			expect(renderedFields).toContain('inner_unmodified');
+		});
+		// Backoffice: the comparison checkbox of the label (Directus form-field-label.vue) and the comparison of a parent
+		// form read by a group's nested form (FORM_COMPARISON).
+		it('shows a checked checkbox on selected differing fields only when onToggleField is set', async () => {
+			const onToggleField = vi.fn();
+
+			const wrapper = mount(VForm, {
+				props: {
+					fields: [createField({ field: 'a', name: 'A' }), createField({ field: 'b', name: 'B' })],
+					primaryKey: 1,
+					nonEditable: true,
+					comparison: { side: 'incoming', fields: new Set(['a']), selectedFields: ['a'], onToggleField },
+				},
+				global,
+			});
+
+			const boxes = wrapper.findAll('[data-comparison-checkbox]');
+			expect(boxes).toHaveLength(1);
+			expect(boxes[0]!.attributes('data-state')).toBe('checked');
+			await boxes[0]!.trigger('click');
+			expect(onToggleField).toHaveBeenCalledWith('a');
+
+			await wrapper.setProps({
+				comparison: { side: 'base', fields: new Set(['a']), selectedFields: [], onToggleField: null },
+			});
+
+			expect(wrapper.findAll('[data-comparison-checkbox]')).toHaveLength(0);
+			expect(wrapper.find('[data-field="a"]').classes()).toContain('bg-warning-50');
+			expect(wrapper.find('[data-field="b"]').classes()).not.toContain('bg-warning-50');
+		});
+
+		it('shows hidden fields that differ', () => {
+			const hidden = createField({ field: 'h', name: 'H', meta: { ...createField().meta!, field: 'h', hidden: true } });
+
+			const wrapper = mount(VForm, {
+				props: {
+					fields: [hidden],
+					primaryKey: 1,
+					comparison: { side: 'incoming', fields: new Set(['h']), selectedFields: [], onToggleField: null },
+				},
+				global,
+			});
+
+			expect(wrapper.findAllComponents(FormField).map((c) => c.props('field').field)).toEqual(['h']);
+		});
+
+		it('a nested group form reads the comparison of its parent form', () => {
+			const Parent = defineComponent({
+				setup() {
+					provide(
+						FORM_COMPARISON,
+						computed(() => ({
+							side: 'incoming' as const,
+							fields: new Set(['inner']),
+							selectedFields: [],
+							onToggleField: null,
+							showDifferencesOnly: true,
+						})),
+					);
+
+					const fields = [
+						createField({ field: 'inner', meta: { ...createField().meta!, field: 'inner', group: 'g' } }),
+						createField({ field: 'other', meta: { ...createField().meta!, field: 'other', group: 'g' } }),
+					];
+
+					return () => h(VForm, { fields, primaryKey: 1, group: 'g' });
+				},
+			});
+
+			const wrapper = mount(Parent, { global });
+
+			expect(wrapper.findAllComponents(FormField).map((c) => c.props('field').field)).toEqual(['inner']);
+		});
+	});
+
 	describe('apply function', () => {
 		it('preserves grouped readonly field values during nested form updates', async () => {
 			const checkboxField = createField({

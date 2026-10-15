@@ -29,19 +29,23 @@ const sidebarStore = useSidebarStore();
 <template>
 	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
 		<div class="flex min-w-0 flex-col gap-1">
-			<nav v-if="breadcrumb?.length" aria-label="Breadcrumb">
-				<ol class="m-0 flex list-none items-center gap-1.5 p-0">
-					<li v-for="crumb in breadcrumb" :key="crumb.name" class="flex items-center gap-1.5">
-						<RouterLink
-							:to="crumb.to"
-							class="inline-flex items-center gap-1.5 rounded text-sm text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400"
-						>
-							{{ crumb.name }}
-						</RouterLink>
-						<BoIcon name="chevron_right" size="sm" class="text-gray-500 dark:text-gray-400" aria-hidden="true" />
-					</li>
-				</ol>
-			</nav>
+			<div v-if="breadcrumb?.length || $slots['headline-append']" class="flex flex-wrap items-center gap-2">
+				<nav v-if="breadcrumb?.length" aria-label="Breadcrumb">
+					<ol class="m-0 flex list-none items-center gap-1.5 p-0">
+						<li v-for="crumb in breadcrumb" :key="crumb.name" class="flex items-center gap-1.5">
+							<RouterLink
+								:to="crumb.to"
+								class="inline-flex items-center gap-1.5 rounded text-sm text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400"
+							>
+								{{ crumb.name }}
+							</RouterLink>
+							<BoIcon name="chevron_right" size="sm" class="text-gray-500 dark:text-gray-400" aria-hidden="true" />
+						</li>
+					</ol>
+				</nav>
+				<!-- The Directus headline: the version menu of the item page after the breadcrumb (recipe Q-8). -->
+				<slot name="headline-append" />
+			</div>
 			<div class="flex min-w-0 items-center gap-3">
 				<BoButton
 					v-if="back"

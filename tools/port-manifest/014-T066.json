@@ -1,0 +1,7 @@
+[
+	{ "source": "app/src/composables/use-revisions.ts", "dest": "apps/web/src/composables/use-revisions.ts" },
+	{ "source": "app/src/composables/use-revision.ts", "dest": "apps/web/src/composables/use-revision.ts" },
+	{ "source": "app/src/types/revisions.ts", "dest": "apps/web/src/types/revisions.ts" },
+	{ "source": "app/src/utils/get-revision-fields.ts", "dest": "apps/web/src/utils/get-revision-fields.ts" },
+	{ "source": "app/src/utils/get-revision-fields.test.ts", "dest": "apps/web/src/utils/get-revision-fields.test.ts" }
+]

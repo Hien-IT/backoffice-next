@@ -14,7 +14,10 @@ import BoButton from '../../../components/BoButton.vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoInfo from '../../../components/BoInfo.vue';
 import SearchInput from '../../../components/SearchInput.vue';
+import FlowSidebarDetail from '../../../components/sidebar/FlowSidebarDetail.vue';
 import LayoutSidebarDetail from '../../../components/sidebar/LayoutSidebarDetail.vue';
+import FlowDialogs from '../../../interfaces/presentation-header/FlowDialogs.vue';
+import { useFlows } from '../../../composables/use-run-manual-flow.ts';
 import { useCollection } from '../../../composables/use-collection.ts';
 import { useCollectionPermissions } from '../../../composables/use-permissions/index.ts';
 import { showUnexpectedError } from '../../../composables/use-notices.ts';
@@ -91,6 +94,19 @@ watch(
 );
 
 const { createAllowed } = useCollectionPermissions(collection);
+
+const { flowDialogsContext, manualFlows, provideRunManualFlow } = useFlows({
+	collection,
+	selection,
+	location: 'collection',
+	onRefreshCallback: refresh,
+});
+
+provideRunManualFlow();
+
+async function refresh() {
+	await layoutRef.value?.state?.refresh?.();
+}
 
 const permissionsStore = usePermissionsStore();
 
@@ -302,6 +318,8 @@ function clearFilters() {
 				<ContentNavigation :current-collection="collection" />
 			</template>
 
+			<FlowDialogs v-bind="flowDialogsContext" />
+
 			<BoInfo
 				v-if="bookmark && bookmarkExists === false"
 				type="warning"
@@ -363,6 +381,7 @@ function clearFilters() {
 					<component :is="currentLayout?.slots.options" v-if="currentLayout?.slots.options" v-bind="layoutState" />
 				</LayoutSidebarDetail>
 				<component :is="currentLayout?.slots.sidebar" v-if="currentLayout?.slots.sidebar" v-bind="layoutState" />
+				<FlowSidebarDetail :manual-flows="manualFlows" />
 			</template>
 		</PrivateView>
 	</component>

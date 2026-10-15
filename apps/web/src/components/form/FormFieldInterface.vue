@@ -1,7 +1,6 @@
 <!-- Ported from directus/app/src/components/v-form/components/form-field-interface.vue -->
 <script setup lang="ts">
-// Backoffice: the interface comes from the registry (getInterface) instead of a global component; comparison mode
-// has no UI (D-55), so `comparisonMode` is false; the error boundary, notice and skeleton follow the Tier 1 Alert and
+// Backoffice: the interface comes from the registry (getInterface) instead of a global component; the error boundary, notice and skeleton follow the Tier 1 Alert and
 // the form skeleton (layout-patterns §8). `id`/`ariaLabelledby`/`ariaDescribedby` are passed only to the raw editor;
 // interfaces read them from the FORM_FIELD_A11Y injection (FormField.vue).
 import type { ContentVersion } from '@directus/types';
@@ -11,7 +10,7 @@ import SystemRawEditor from '../../interfaces/_system/system-raw-editor/SystemRa
 import { getDefaultInterfaceForType } from '../../utils/get-default-interface-for-type.ts';
 import BoNotice from '../BoNotice.vue';
 import ErrorBoundary from '../render/ErrorBoundary.vue';
-import type { FormField } from './types.ts';
+import type { ComparisonContext, FormField } from './types.ts';
 
 const props = defineProps<{
 	field: FormField;
@@ -29,6 +28,8 @@ const props = defineProps<{
 	version?: ContentVersion | null | undefined;
 	inputId?: string | undefined;
 	labelId?: string | undefined;
+	comparison?: ComparisonContext | undefined;
+	comparisonActive?: boolean | undefined;
 }>();
 
 defineEmits(['update:modelValue', 'setFieldValue']);
@@ -69,7 +70,9 @@ const rawValue = computed(() => value.value as string | object | null);
 				:value="value"
 				:batch-mode="batchMode"
 				:batch-active="batchActive"
-				:comparison-mode="false"
+				:comparison-mode="!!comparison"
+				:comparison-active="comparisonActive"
+				:comparison-side="comparison?.side"
 				:width="(field.meta && field.meta.width) || 'full'"
 				:type="field.type"
 				:collection="field.collection"

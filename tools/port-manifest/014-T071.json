@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/modules/content/components/version-menu.vue",
+		"dest": "apps/web/src/modules/content/components/VersionMenu.vue"
+	},
+	{
+		"source": "app/src/modules/content/components/version-menu.test.ts",
+		"dest": "apps/web/src/modules/content/components/VersionMenu.test.ts"
+	},
+	{
+		"source": "app/src/modules/content/components/version-promote-field.vue",
+		"dest": "apps/web/src/modules/content/components/VersionPromoteField.vue"
+	}
+]

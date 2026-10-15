@@ -1,6 +1,7 @@
 // Ported from directus/app/src/utils/get-version-display-name.test.ts
 import { describe, expect, it } from 'vitest';
-import { DRAFT_VERSION_KEY, getVersionDisplayName } from './get-version-display-name.ts';
+import { DRAFT_VERSION_KEY } from '../constants.ts';
+import { getVersionDisplayName } from './get-version-display-name.ts';
 
 describe('getVersionDisplayName', () => {
 	it('should return "Main" when version is null', () => {

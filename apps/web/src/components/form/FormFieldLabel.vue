@@ -1,14 +1,16 @@
 <!-- Ported from directus/app/src/components/v-form/components/form-field-label.vue -->
 <script setup lang="ts">
 // Backoffice: Field label row recipe (component-specs, Q-1): the name is a <label for> (no menu button around it),
-// the field menu is the `menu` slot (its chevron trigger); the collab indicator and comparison checkbox are removed
-// (D-54, D-55). The hidden indicator shows when a hidden field is rendered (Directus: comparison mode only).
+// the field menu is the `menu` slot (its chevron trigger); the collab indicator is removed (D-54). The hidden
+// indicator shows when a hidden field is rendered (Directus: comparison mode only). The comparison checkbox selects a
+// differing field to promote or restore (spec 014 FR-072, lifts D-55).
+import { computed } from 'vue';
 import BoCheckbox from '../BoCheckbox.vue';
 import BoIcon from '../BoIcon.vue';
 import BoTooltip from '../BoTooltip.vue';
-import type { FormField } from './types.ts';
+import type { ComparisonContext, FormField } from './types.ts';
 
-withDefaults(
+const props = withDefaults(
 	defineProps<{
 		field: FormField;
 		batchMode?: boolean | undefined;
@@ -22,6 +24,8 @@ withDefaults(
 		rawEditorActive?: boolean | undefined;
 		inputId?: string | undefined;
 		labelId?: string | undefined;
+		comparison?: ComparisonContext | undefined;
+		comparisonActive?: boolean | undefined;
 	}>(),
 	{
 		batchMode: false,
@@ -35,8 +39,15 @@ withDefaults(
 		rawEditorActive: false,
 		inputId: undefined,
 		labelId: undefined,
+		comparison: undefined,
+		comparisonActive: false,
 	},
 );
+
+const isPromotableField = computed(() => {
+	if (!props.comparison) return false;
+	return props.comparison.onToggleField !== null && props.comparison.fields.has(props.field.field);
+});
 
 defineEmits(['toggle-batch', 'toggle-raw']);
 
@@ -54,6 +65,14 @@ const ICON_BTN =
 			:model-value="batchActive"
 			:aria-labelledby="labelId"
 			@update:model-value="$emit('toggle-batch', field)"
+		/>
+
+		<BoCheckbox
+			v-if="isPromotableField"
+			:model-value="comparisonActive"
+			:aria-labelledby="labelId"
+			data-comparison-checkbox
+			@update:model-value="comparison!.onToggleField?.(field.field)"
 		/>
 
 		<BoTooltip v-if="edited && !batchMode && !hasError && !loading" :text="$t('edited')">

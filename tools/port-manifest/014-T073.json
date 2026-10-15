@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/views/private/components/comments-sidebar-detail.vue",
+		"dest": "apps/web/src/components/sidebar/CommentsSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/views/private/components/comment-input.vue",
+		"dest": "apps/web/src/components/sidebar/CommentInput.vue"
+	},
+	{
+		"source": "app/src/views/private/components/comment-item.vue",
+		"dest": "apps/web/src/components/sidebar/CommentItem.vue"
+	},
+	{
+		"source": "app/src/views/private/components/comment-item-header.vue",
+		"dest": "apps/web/src/components/sidebar/CommentItemHeader.vue"
+	}
+]

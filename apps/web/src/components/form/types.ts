@@ -1,5 +1,6 @@
 // Ported from directus/app/src/components/v-form/types.ts
-// Backoffice: ComparisonContext and indicatorStyle are left out (comparison mode has no UI yet, D-55).
+// Backoffice: indicatorStyle is left out: no registered interface sets it, so the Directus default applies (groups
+// `hidden`, other fields `active`, see BoForm.vue).
 import type { DeepPartial, Field, InterfaceConfig } from '@directus/types';
 import type { ComputedRef, InjectionKey } from 'vue';
 
@@ -10,6 +11,18 @@ export type FormField = Omit<DeepPartial<Field>, 'meta'> & {
 		non_editable?: boolean;
 	};
 } & Pick<InterfaceConfig, 'hideLabel' | 'hideLoader'>;
+
+export interface ComparisonContext {
+	side: 'base' | 'incoming';
+	fields: Set<string>;
+	revisionFields?: Set<string> | undefined;
+	selectedFields: string[];
+	onToggleField: ((field: string) => void) | null;
+	showDifferencesOnly?: boolean | undefined;
+}
+
+/** Backoffice: a group's nested BoForm reads the comparison of its parent form (Directus passes it as a prop). */
+export const FORM_COMPARISON: InjectionKey<ComputedRef<ComparisonContext | undefined>> = Symbol('form-comparison');
 
 export type FieldValues = {
 	[field: string]: any;
