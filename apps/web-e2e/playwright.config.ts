@@ -14,12 +14,19 @@ const BROWSERS = {
 // Feature 014 (SC-001): outside chromium, the Content specs (content-*.spec.ts) run only when tagged @core. Playwright
 // tests grep against "<project> <file> <describe> <title> <tags>".
 const CONTENT_NOT_CORE = /content-[\w-]+\.spec\.ts(?!.*@core)/;
+// Feature 014 (US7): the specs that also drive the Directus app (payload suite, parity UI) compare one browser and one
+// width, chromium-1280; on the other projects they only add run time (the e2e-web job has a timeout).
+const DIRECTUS_APP_SPECS = /payload\/[\w-]+\.spec\.ts|content-parity-ui\.spec\.ts/;
 
 let projects: Project[] = Object.entries(BROWSERS).flatMap(([browser, device]) =>
 	Object.entries(VIEWPORTS).map(([width, viewport]) => ({
 		name: `${browser}-${width}`,
 		use: { ...device, viewport },
-		...(browser === 'chromium' ? {} : { grepInvert: CONTENT_NOT_CORE }),
+		...(browser === 'chromium'
+			? width === '1280'
+				? {}
+				: { grepInvert: DIRECTUS_APP_SPECS }
+			: { grepInvert: [CONTENT_NOT_CORE, DIRECTUS_APP_SPECS] }),
 	})),
 );
 
