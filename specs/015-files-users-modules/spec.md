@@ -839,8 +839,11 @@ xuất nhập, hàng loạt).
 - Layout cards: thêm lại `extraSelection`, `prepend`, `hasPrependContent`, `selectAll` đúng như code Directus (ghi chú
   đầu file `Cards.vue`, `CardsHeader.vue` của 014 sửa theo).
 - Thư mục nạp cả danh sách (`limit -1` qua `fetchAll`) như Directus; thư viện 10.000 thư mục không trong tiêu chí.
-- Hiệu năng: ngưỡng tuyệt đối trong SC đo trên máy cục bộ (trung vị 3 lần); cách gate trên CI (runner chậm khoảng 5
-  lần) theo quyết định owner mà 014 đang hỏi; tới khi có, bước perf không chặn CI.
+- Hiệu năng: ngưỡng tuyệt đối trong SC đặt cho máy tham chiếu (Mac Apple M-series của developer) theo quyết định owner
+  ngày 2026-10-15 (014 research R14, `contracts/tests.md`): test perf trong trình duyệt nhân ngân sách với
+  `machineFactor()` của `apps/web/src/test-utils/perf.ts` (khối lượng DOM + JS cố định, trung vị 5 lần, chia cho
+  `REFERENCE_MS`, không nhỏ hơn 1); bước CI `PERF=1` vẫn gate, chạy Vue ở chế độ production và mount bằng `createApp`
+  như 014.
 - Thông báo (tiến độ tải, kéo thả, lời mời, chép id) là notice tại chỗ (D-66).
 - E2E ở `proxy-api` seed lại `bo_files`, `bo_users` giữa hai lượt so payload; storage `local` dùng chung volume
   `uploads` (007) để file tải ở app này mở được ở app kia.
@@ -873,7 +876,8 @@ xuất nhập, hàng loạt).
 - **SC-006**: Trình chỉnh ảnh: cắt 200×100 tại (10, 20) và xoay -90° một PNG 400×300 cho `width`, `height`,
   `focal_point_x/y` trong `directus_files` bằng Directus app; bytes gốc sau lưu bằng nhau trên cùng chromium (so hash);
   derived asset mới sinh bằng nhau (007).
-- **SC-007**: Hiệu năng (đo cục bộ, trung vị 3 lần, chromium; gate CI theo Assumptions): cây 500 thư mục vẽ dưới 500
+- **SC-007**: Hiệu năng (ngân sách cho máy tham chiếu, nhân `machineFactor()` trên CI như 014 R14; trung vị 3 lần,
+  chromium, bước `PERF=1`): cây 500 thư mục vẽ dưới 500
   ms; lưới cards 100 thẻ + 20 thẻ thư mục vẽ dưới 1 giây; thả 20 file 1 MB với `maxConcurrency` 5 không quá 5 request
   đồng thời và danh sách nạp lại đúng 1 lần sau khi xong; mở trình chỉnh ảnh 4000×3000 dưới 2 giây sau khi ảnh tải
   xong; số request mỗi thao tác: đổi thư mục = 1 danh sách + 1 đếm, đổi trang = 1 danh sách, mở màn user = 1 item + 1
