@@ -27,7 +27,12 @@ const cards = defineLayout({
 });
 
 test('isWritableProp knows selection, layoutOptions and layoutQuery', () => {
-	expect(['selection', 'layoutOptions', 'layoutQuery', 'collection'].map(isWritableProp)).toEqual([true, true, true, false]);
+	expect(['selection', 'layoutOptions', 'layoutQuery', 'collection'].map(isWritableProp)).toEqual([
+		true,
+		true,
+		true,
+		false,
+	]);
 });
 
 test('useLayout picks the layout by id and falls back to tabular', () => {

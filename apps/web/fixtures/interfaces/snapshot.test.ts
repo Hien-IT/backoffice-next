@@ -10,7 +10,11 @@ const displayIds = Object.keys(registry.displays);
 
 // Ids this database cannot hold, with the reason. Empty on Postgres with PostGIS (the parity database); an id only
 // goes here when seed.mjs prints "Refused: ..." for every field that uses it.
-const UNSEEDABLE: Record<string, string> = {};
+const UNSEEDABLE: Record<string, string> = {
+	// Feature 014: system interfaces of the app screens (search filter, bookmark name), never set on a user field.
+	'system-filter': 'system interface of the Content module search (014), tested in its own folder',
+	'system-input-translated-string': 'system interface of the bookmark dialog (014), tested in its own folder',
+};
 
 describe('every registry id has a fixture field', () => {
 	test.each(interfaceIds.filter((id) => !(id in UNSEEDABLE)))('interface %s', (id) => {
@@ -21,9 +25,9 @@ describe('every registry id has a fixture field', () => {
 		expect(snapshot.fields.some((f) => f.meta?.display === id)).toBe(true);
 	});
 
-	test('the registry has the 41 interfaces and 18 displays of Directus 11.17.4', () => {
+	test('the registry has the 43 interfaces (41 of 013, 2 system ones of 014) and 18 displays of Directus 11.17.4', () => {
 		expect(registry.directusVersion).toBe(snapshot.meta.version);
-		expect([interfaceIds.length, displayIds.length]).toEqual([41, 18]);
+		expect([interfaceIds.length, displayIds.length]).toEqual([43, 18]);
 		expect(Object.keys(UNSEEDABLE).filter((id) => !interfaceIds.includes(id))).toEqual([]);
 	});
 
@@ -64,10 +68,12 @@ test('the Content module set of feature 014 is complete (data-model §9)', () =>
 	expect(snapshot.items['bo_singleton']).toHaveLength(1);
 
 	expect(snapshot.presets.filter((p) => p['bookmark'] === null)).toHaveLength(3);
-	expect(snapshot.presets.filter((p) => p['bookmark'] !== null).map((p) => p['bookmark']).sort()).toEqual([
-		'bo-bookmark',
-		'bo-global-bookmark',
-	]);
+	expect(
+		snapshot.presets
+			.filter((p) => p['bookmark'] !== null)
+			.map((p) => p['bookmark'])
+			.sort(),
+	).toEqual(['bo-bookmark', 'bo-global-bookmark']);
 	expect(snapshot.versions.map((v) => v['key'])).toEqual(['draft', 'local-1']);
 	expect(snapshot.shares).toHaveLength(1);
 	expect(snapshot.comments).toHaveLength(2);

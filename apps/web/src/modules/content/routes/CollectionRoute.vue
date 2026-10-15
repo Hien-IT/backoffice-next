@@ -1,18 +1,23 @@
 <!-- Ported from directus/app/src/modules/content/routes/collection.vue -->
 <script setup lang="ts">
-// Backoffice: user story 1 of feature 014 (FR-006, FR-008, FR-020 to FR-028): layout, preset, archive filter, create
-// button, empty and error states, layout options in the detail panel. Search, filter, bookmarks, batch actions, export,
-// import, refresh and flows are added by the later tasks of user stories 3 and 5 (T050-T054, T081-T090). Layouts render
+// Backoffice: user stories 1 and 3 of feature 014 (FR-006, FR-008, FR-012 to FR-017, FR-020 to FR-028, FR-040,
+// FR-042): layout, preset, archive filter, search and filter, bookmark controls (recipe Q-8), create button, empty and
+// error states, layout options in the detail panel. Batch actions, export, import, refresh and flows come with user
+// story 5 (T081-T090). Layouts render
 // from the registry (getLayout(id).component and .slots) instead of global `layout-*` components (research R4).
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
 import { computed, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { useRouter } from 'vue-router';
 import BoButton from '../../../components/BoButton.vue';
+import BoIcon from '../../../components/BoIcon.vue';
 import BoInfo from '../../../components/BoInfo.vue';
+import SearchInput from '../../../components/SearchInput.vue';
 import LayoutSidebarDetail from '../../../components/sidebar/LayoutSidebarDetail.vue';
 import { useCollection } from '../../../composables/use-collection.ts';
 import { useCollectionPermissions } from '../../../composables/use-permissions/index.ts';
+import { showUnexpectedError } from '../../../composables/use-notices.ts';
 import { usePreset } from '../../../composables/use-preset.ts';
 import PrivateView from '../../../layout/PrivateView.vue';
 import { getLayout } from '../../../layouts/index.ts';
@@ -20,8 +25,13 @@ import { useLayout } from '../../../layouts/use-layout.ts';
 import { usePermissionsStore } from '../../../stores/permissions.ts';
 import { extractErrorCode } from '../../../utils/extract-error-code.ts';
 import { getCollectionRoute, getItemRoute, isSystemCollection } from '../../../utils/get-item-route.ts';
+import BookmarkAdd from '../components/BookmarkAdd.vue';
 import ContentNavigation from '../components/ContentNavigation.vue';
 import ContentNotFound from './ContentNotFound.vue';
+
+// Recipe Q-8: the bookmark buttons next to the title.
+const BOOKMARK_BTN =
+	'inline-flex size-8 cursor-pointer items-center justify-center rounded-lg hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:hover:bg-white/5 dark:focus-visible:outline-brand-400';
 
 type Item = {
 	[field: string]: any;
@@ -34,6 +44,7 @@ const props = defineProps<{
 }>();
 
 const { t } = useI18n();
+const router = useRouter();
 
 const layoutRef = ref();
 
@@ -42,13 +53,27 @@ const bookmarkID = computed(() => (props.bookmark ? +props.bookmark : null));
 
 const { selection } = useSelection();
 const { info: currentCollection } = useCollection(collection);
-const { addNewLink } = useLinks();
+const { addNewLink, currentCollectionLink } = useLinks();
 const { breadcrumb } = useBreadcrumb();
 
-const { layout, layoutOptions, layoutQuery, filter, search, bookmarkTitle, resetPreset } = usePreset(
-	collection,
-	bookmarkID,
-);
+const {
+	layout,
+	layoutOptions,
+	layoutQuery,
+	filter,
+	search,
+	savePreset,
+	bookmarkExists,
+	saveCurrentAsBookmark,
+	bookmarkTitle,
+	resetPreset,
+	bookmarkSaved,
+	bookmarkIsMine,
+	busy: bookmarkSaving,
+	clearLocalSave,
+} = usePreset(collection, bookmarkID);
+
+const { bookmarkDialogActive, creatingBookmark, createBookmark } = useBookmarks();
 
 const { layoutWrapper } = useLayout(layout);
 
@@ -135,7 +160,42 @@ function useLinks() {
 		return getItemRoute(props.collection, '+');
 	});
 
-	return { addNewLink };
+	const currentCollectionLink = computed<string>(() => {
+		return getCollectionRoute(props.collection);
+	});
+
+	return { addNewLink, currentCollectionLink };
+}
+
+function useBookmarks() {
+	const bookmarkDialogActive = ref(false);
+	const creatingBookmark = ref(false);
+
+	return {
+		bookmarkDialogActive,
+		creatingBookmark,
+		createBookmark,
+	};
+
+	async function createBookmark(bookmark: { name: string | null; icon: string | null; color: string | null }) {
+		creatingBookmark.value = true;
+
+		try {
+			const newBookmark = await saveCurrentAsBookmark({
+				bookmark: bookmark.name,
+				icon: bookmark.icon ?? 'bookmark',
+				color: bookmark.color ?? null,
+			});
+
+			router.push(`${getCollectionRoute(newBookmark.collection)}?bookmark=${newBookmark.id}`);
+
+			bookmarkDialogActive.value = false;
+		} catch (error) {
+			showUnexpectedError(error);
+		} finally {
+			creatingBookmark.value = false;
+		}
+	}
 }
 
 function clearFilters() {
@@ -169,8 +229,65 @@ function clearFilters() {
 			:icon-color="currentCollection.color"
 			:breadcrumb="breadcrumb"
 		>
+			<template #title-append>
+				<div class="flex items-center gap-1">
+					<BookmarkAdd
+						v-if="!bookmark || (!bookmarkSaved && !bookmarkIsMine)"
+						v-model="bookmarkDialogActive"
+						:saving="creatingBookmark"
+						@save="createBookmark"
+					>
+						<template #activator="{ on }">
+							<button
+								type="button"
+								:class="BOOKMARK_BTN"
+								class="text-gray-500 dark:text-gray-400"
+								:aria-label="$t('create_bookmark')"
+								:title="$t('create_bookmark')"
+								@click="on"
+							>
+								<BoIcon name="bookmark" size="sm" />
+							</button>
+						</template>
+					</BookmarkAdd>
+
+					<span
+						v-else-if="bookmarkSaved"
+						class="inline-flex size-8 items-center justify-center text-brand-500 dark:text-brand-400"
+					>
+						<BoIcon name="bookmark" filled size="sm" />
+					</span>
+
+					<button
+						v-else-if="bookmarkIsMine"
+						type="button"
+						:class="BOOKMARK_BTN"
+						class="text-warning-600 dark:text-warning-400"
+						:aria-label="$t('update_bookmark')"
+						:title="$t('update_bookmark')"
+						@click="savePreset()"
+					>
+						<BoIcon name="bookmark_save" size="sm" />
+					</button>
+
+					<button
+						v-if="bookmark && !bookmarkSaving && bookmarkSaved === false"
+						type="button"
+						:class="BOOKMARK_BTN"
+						class="text-gray-500 dark:text-gray-400"
+						:aria-label="$t('reset_bookmark')"
+						:title="$t('reset_bookmark')"
+						@click="clearLocalSave"
+					>
+						<BoIcon name="settings_backup_restore" size="sm" />
+					</button>
+				</div>
+			</template>
+
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
+
+				<SearchInput v-model="search" v-model:filter="filter" :collection="collection" />
 
 				<BoButton
 					icon="add"
@@ -185,7 +302,22 @@ function clearFilters() {
 				<ContentNavigation :current-collection="collection" />
 			</template>
 
-			<component :is="currentLayout?.component" v-bind="layoutState">
+			<BoInfo
+				v-if="bookmark && bookmarkExists === false"
+				type="warning"
+				:title="$t('bookmark_doesnt_exist')"
+				icon="bookmark"
+			>
+				{{ $t('bookmark_doesnt_exist_copy') }}
+
+				<template #append>
+					<BoButton :to="currentCollectionLink">
+						{{ $t('bookmark_doesnt_exist_cta') }}
+					</BoButton>
+				</template>
+			</BoInfo>
+
+			<component :is="currentLayout?.component" v-else v-bind="layoutState">
 				<template #no-results>
 					<BoInfo :title="$t('no_results')" icon="search">
 						{{ $t('no_results_copy') }}

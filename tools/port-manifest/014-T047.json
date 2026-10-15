@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/modules/content/routes/preview.vue",
+		"dest": "apps/web/src/modules/content/routes/PreviewRoute.vue"
+	},
+	{
+		"source": "app/src/modules/content/routes/item.vue",
+		"dest": "apps/web/src/modules/content/routes/ItemRoute.vue"
+	}
+]

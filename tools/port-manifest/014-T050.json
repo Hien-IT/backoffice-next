@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-filter/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-filter/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-filter/utils.ts",
+		"dest": "apps/web/src/interfaces/_system/system-filter/utils.ts"
+	},
+	{
+		"source": "app/src/utils/extract-field-from-function.ts",
+		"dest": "apps/web/src/interfaces/_system/system-filter/utils.ts"
+	}
+]

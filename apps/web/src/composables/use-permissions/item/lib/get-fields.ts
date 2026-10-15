@@ -1,9 +1,9 @@
 // Ported from directus/app/src/composables/use-permissions/item/lib/get-fields.ts
 import { useCollection } from '../../../../composables/use-collection.ts';
-import { type Field, type ItemPermissions } from '@directus/types';
+import type { Field, ItemPermissions } from '@directus/types';
 import { cloneDeep } from 'lodash-es';
 import { computed, type MaybeRef, ref, type Ref, unref } from 'vue';
-import { type Collection, type IsNew } from '../../types/index.ts';
+import type { Collection, IsNew } from '../../types/index.ts';
 import type { FormField } from '../../../../components/form/types.ts';
 import { usePermissionsStore } from '../../../../stores/permissions.ts';
 import { useUserStore } from '../../../../stores/user.ts';

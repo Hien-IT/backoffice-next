@@ -296,7 +296,9 @@ function onPointerMove(event: PointerEvent) {
 
 	emit(
 		'update:columns',
-		props.columns.map((column) => (column.key === resizeKey.value ? { ...column, width: Math.max(32, newWidth) } : column)),
+		props.columns.map((column) =>
+			column.key === resizeKey.value ? { ...column, width: Math.max(32, newWidth) } : column,
+		),
 	);
 }
 
@@ -381,7 +383,9 @@ function onPointerUp() {
 								<DropdownMenuRoot v-if="hasHeaderMenu && !disabled">
 									<DropdownMenuTrigger as-child>
 										<button type="button" class="inline-flex max-w-full items-center gap-1 rounded" :class="FOCUS">
-											<span class="truncate"><slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot></span>
+											<span class="truncate">
+												<slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot>
+											</span>
 											<span v-if="column.description" class="sr-only">({{ column.description }})</span>
 											<BoIcon
 												:name="
@@ -413,7 +417,9 @@ function onPointerUp() {
 									:class="FOCUS"
 									@click="changeSort(column)"
 								>
-									<span class="truncate"><slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot></span>
+									<span class="truncate">
+										<slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot>
+									</span>
 									<span v-if="column.description" class="sr-only">({{ column.description }})</span>
 									<BoIcon
 										:name="internalSort.by === column.key && internalSort.desc ? 'arrow_downward' : 'arrow_upward'"
@@ -452,20 +458,14 @@ function onPointerUp() {
 				</thead>
 				<tbody v-if="loading && rows.length === 0">
 					<tr>
-						<td
-							:colspan="colSpan"
-							class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400"
-						>
+						<td :colspan="colSpan" class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400">
 							{{ loadingText || $t('loading') }}
 						</td>
 					</tr>
 				</tbody>
 				<tbody v-else-if="rows.length === 0">
 					<tr>
-						<td
-							:colspan="colSpan"
-							class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400"
-						>
+						<td :colspan="colSpan" class="px-5 py-10 text-center text-theme-sm text-gray-500 dark:text-gray-400">
 							<slot name="empty">{{ noItemsText || $t('no_items') }}</slot>
 						</td>
 					</tr>

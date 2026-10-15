@@ -1266,12 +1266,18 @@ function contentCollections() {
 				field('body', 'text', 'input-multiline'),
 				field('date_published', 'dateTime', 'datetime', null, { width: 'half' }),
 				field('sort', 'integer', 'input', null, { hidden: true }),
-				field('author', 'uuid', 'select-dropdown-m2o', { template: '{{ first_name }} {{ last_name }}' }, {
-					width: 'half',
-					special: ['m2o'],
-					display: 'related-values',
-					display_options: { template: '{{ first_name }} {{ last_name }}' },
-				}),
+				field(
+					'author',
+					'uuid',
+					'select-dropdown-m2o',
+					{ template: '{{ first_name }} {{ last_name }}' },
+					{
+						width: 'half',
+						special: ['m2o'],
+						display: 'related-values',
+						display_options: { template: '{{ first_name }} {{ last_name }}' },
+					},
+				),
 				field('cover', 'uuid', 'file-image', null, { width: 'half', special: ['file'], display: 'image' }),
 				field('tags', 'csv', 'tags', null, { width: 'half', special: ['cast-csv'] }),
 			],
@@ -1297,9 +1303,16 @@ function contentCollections() {
 				intPk(),
 				field('site_name', 'string', 'input', null, { width: 'half' }),
 				field('tagline', 'text', 'input-multiline'),
-				field('maintenance', 'boolean', 'boolean', null, { width: 'half', special: ['cast-boolean'] }, {
-					default_value: false,
-				}),
+				field(
+					'maintenance',
+					'boolean',
+					'boolean',
+					null,
+					{ width: 'half', special: ['cast-boolean'] },
+					{
+						default_value: false,
+					},
+				),
 			],
 			{ singleton: true, icon: 'settings', sort: 101 },
 		),
@@ -1367,7 +1380,11 @@ async function createContentFixtures({ users, files, geometry }) {
 	]);
 
 	await api.request('POST', '/items/bo_content', contentItems({ admin, png: files.png, geometry }));
-	await api.request('PATCH', '/items/bo_singleton', { site_name: 'Backoffice fixtures', tagline: 'Content module', maintenance: false });
+	await api.request('PATCH', '/items/bo_singleton', {
+		site_name: 'Backoffice fixtures',
+		tagline: 'Content module',
+		maintenance: false,
+	});
 
 	// Revisions on item 1: two updates after the create.
 	await api.request('PATCH', '/items/bo_content/1', { title: 'Content 01 (edited)' });
@@ -1388,7 +1405,11 @@ async function createContentFixtures({ users, files, geometry }) {
 			layout: 'tabular',
 			layout_query: { tabular: { fields: ['title', 'status'], sort: ['-date_published'] } },
 		},
-		{ collection: 'bo_content', layout: 'cards', layout_options: { cards: { title: '{{ title }}', imageSource: 'cover' } } },
+		{
+			collection: 'bo_content',
+			layout: 'cards',
+			layout_options: { cards: { title: '{{ title }}', imageSource: 'cover' } },
+		},
 		{
 			collection: 'bo_content',
 			user: admin,
@@ -1403,7 +1424,12 @@ async function createContentFixtures({ users, files, geometry }) {
 	// Versions of bo_content/1: the global draft and a local one, each with a delta.
 	const draft = await api.request('POST', '/versions', { key: 'draft', collection: 'bo_content', item: '1' });
 	await api.request('POST', `/versions/${draft.id}/save`, { title: 'Content 01 (draft)' });
-	const local = await api.request('POST', '/versions', { key: 'local-1', name: 'Local 1', collection: 'bo_content', item: '1' });
+	const local = await api.request('POST', '/versions', {
+		key: 'local-1',
+		name: 'Local 1',
+		collection: 'bo_content',
+		item: '1',
+	});
 	await api.request('POST', `/versions/${local.id}/save`, { status: 'published' });
 
 	// A share of bo_content/1 for the viewer role, with a password and five uses.
@@ -1871,7 +1897,8 @@ if (!geometry) {
 	for (const payload of geometryFields) await api.request('DELETE', `/fields/bo_std/${payload.field}`).catch(() => {});
 }
 
-if (geometry) await api.request('POST', '/fields/bo_content', { ...contentLocation, meta: { ...contentLocation.meta, sort: 100 } });
+if (geometry)
+	await api.request('POST', '/fields/bo_content', { ...contentLocation, meta: { ...contentLocation.meta, sort: 100 } });
 
 for (const relation of [...relations(), ...contentRelations()]) await api.request('POST', '/relations', relation);
 

@@ -3250,6 +3250,36 @@
 			"recommendedDisplays": null,
 			"optionsKind": "array",
 			"optionKeys": ["placeholder"]
+		},
+		"system-input-translated-string": {
+			"id": "system-input-translated-string",
+			"name": "$t:interfaces.input-translated-string.input-translated-string",
+			"icon": "translate",
+			"types": ["string", "text"],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": ["placeholder"]
+		},
+		"system-filter": {
+			"id": "system-filter",
+			"name": "$t:interfaces.filter.name",
+			"icon": "search",
+			"types": ["json"],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
 		}
 	},
 	"displays": {

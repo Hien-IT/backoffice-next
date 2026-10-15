@@ -1,9 +1,9 @@
 // Ported from directus/app/src/composables/use-permissions/item/utils/fetch-item-permissions.ts
 // Backoffice: axios -> sdk (FR-001).
-import { type ItemPermissions } from '@directus/types';
+import type { ItemPermissions } from '@directus/types';
 import { computedAsync } from '@vueuse/core';
 import { ref, unref } from 'vue';
-import { type Collection, type PrimaryKey } from '../../types/index.ts';
+import type { Collection, PrimaryKey } from '../../types/index.ts';
 import { requestEndpoint, sdk } from '../../../../api/sdk.ts';
 import { unexpectedError } from '../../../../utils/unexpected-error.ts';
 

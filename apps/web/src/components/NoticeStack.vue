@@ -48,7 +48,9 @@ function errorMessage(error: unknown): string | null {
 		<pre
 			v-if="firstDialog.error"
 			class="m-0 mt-3 overflow-x-auto rounded-lg bg-gray-100 p-3 text-theme-xs whitespace-pre-wrap text-gray-700 dark:bg-white/5 dark:text-gray-400"
-		>[{{ firstDialog.code }}] {{ errorMessage(firstDialog.error) ?? '' }}</pre>
+		>
+[{{ firstDialog.code }}] {{ errorMessage(firstDialog.error) ?? '' }}</pre
+		>
 		<template #actions>
 			<BoButton @click="remove(firstDialog!.id)">{{ t('dismiss') }}</BoButton>
 		</template>

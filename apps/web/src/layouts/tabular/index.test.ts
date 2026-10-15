@@ -44,22 +44,23 @@ async function mountTabular(initial: { layoutQuery?: any; layoutOptions?: any; f
 	let state: Record<string, any> = {};
 	const Wrapper = createLayoutWrapper(tabular);
 
-	const Harness = defineComponent(() => () =>
-		h(
-			Wrapper,
-			{
-				collection: 'bo_content',
-				layoutQuery: layoutQuery.value,
-				layoutOptions: layoutOptions.value,
-				selection: selection.value,
-				filterUser: initial.filterUser ?? null,
-				filter: initial.filterUser ?? null,
-				'onUpdate:layoutQuery': (value: any) => (layoutQuery.value = value),
-				'onUpdate:layoutOptions': (value: any) => (layoutOptions.value = value),
-				'onUpdate:selection': (value: any) => (selection.value = value),
-			},
-			{ default: (scope: { layoutState: Record<string, any> }) => ((state = scope.layoutState), h('div')) },
-		),
+	const Harness = defineComponent(
+		() => () =>
+			h(
+				Wrapper,
+				{
+					collection: 'bo_content',
+					layoutQuery: layoutQuery.value,
+					layoutOptions: layoutOptions.value,
+					selection: selection.value,
+					filterUser: initial.filterUser ?? null,
+					filter: initial.filterUser ?? null,
+					'onUpdate:layoutQuery': (value: any) => (layoutQuery.value = value),
+					'onUpdate:layoutOptions': (value: any) => (layoutOptions.value = value),
+					'onUpdate:selection': (value: any) => (selection.value = value),
+				},
+				{ default: (scope: { layoutState: Record<string, any> }) => ((state = scope.layoutState), h('div')) },
+			),
 	);
 
 	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
@@ -164,7 +165,11 @@ test('selectAll, download, toPage and refresh', async () => {
 	const before = calls(fetch).length;
 	state()['refresh']();
 	await flushPromises();
-	expect(calls(fetch).slice(before).some((call) => call.startsWith('GET /items/bo_content?'))).toBe(true);
+	expect(
+		calls(fetch)
+			.slice(before)
+			.some((call) => call.startsWith('GET /items/bo_content?')),
+	).toBe(true);
 });
 
 test('a filter shows the filtered count line', async () => {

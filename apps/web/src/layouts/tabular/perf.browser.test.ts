@@ -62,7 +62,11 @@ test('1 000 rows × 10 columns render in under 2 s; 10 scrolls redraw no row', a
 	const fieldsStore = useFieldsStore();
 	const item = snapshot.items['bo_std']![0]!;
 	const seeded = (await sdk.request(
-		readItem('bo_std' as never, item['id'] as never, { fields: adjustFieldsForDisplays(DISPLAY_FIELDS, 'bo_std') } as never),
+		readItem(
+			'bo_std' as never,
+			item['id'] as never,
+			{ fields: adjustFieldsForDisplays(DISPLAY_FIELDS, 'bo_std') } as never,
+		),
 	)) as Record<string, unknown>;
 	const items = Array.from({ length: 1000 }, (_, index) => ({ ...seeded, id: index + 1 }));
 

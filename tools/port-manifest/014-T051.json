@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-filter/system-filter.vue",
+		"dest": "apps/web/src/interfaces/_system/system-filter/SystemFilter.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-filter/Nodes.vue",
+		"dest": "apps/web/src/interfaces/_system/system-filter/Nodes.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-filter/input-group.vue",
+		"dest": "apps/web/src/interfaces/_system/system-filter/InputGroup.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-filter/input-component.vue",
+		"dest": "apps/web/src/interfaces/_system/system-filter/InputComponent.vue"
+	}
+]

@@ -102,9 +102,7 @@ describe('mockFixtureApi lists', () => {
 		expect(await list('/items/bo_rel', { o2m_list: { name: { _eq: 'Target two' } } })).toEqual([1]);
 		expect(await list('/items/bo_rel', { o2m_list: { _none: { id: { _eq: 2 } } } })).not.toContain(1);
 		// m2m alias (junction rows), then through the junction to the related item.
-		expect(await list('/items/bo_rel', { m2m_list: { _some: { bo_rel_target_id: { id: { _eq: 5 } } } } })).toEqual([
-			1,
-		]);
+		expect(await list('/items/bo_rel', { m2m_list: { _some: { bo_rel_target_id: { id: { _eq: 5 } } } } })).toEqual([1]);
 		// $FOLLOW: the select drawer filters of list-m2m / files (o2m) and list-m2a (o2a with the collection field).
 		const m2m = '$FOLLOW(bo_junction_m2m_list,bo_rel_target_id)';
 		expect(await list('/items/bo_rel_target', { [m2m]: { _none: { bo_rel_id: { _eq: 1 } } } })).toEqual([2, 3, 4]);
@@ -296,7 +294,9 @@ describe('assertOnlyKnownRequests', () => {
 
 describe('mockFixtureApi Content module routes (014)', () => {
 	const send = (path: string, method: string, body?: unknown) =>
-		sdk.request<any>(requestEndpoint(path, { method: method as never, ...(body === undefined ? {} : { body: body as never }) }));
+		sdk.request<any>(
+			requestEndpoint(path, { method: method as never, ...(body === undefined ? {} : { body: body as never }) }),
+		);
 
 	test('presets: create, update and delete with an array body', async () => {
 		const fetch = setup();

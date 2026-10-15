@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-input-translated-string/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-input-translated-string/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-input-translated-string/input-translated-string.vue",
+		"dest": "apps/web/src/interfaces/_system/system-input-translated-string/InputTranslatedString.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-input-translated-string/custom-translations-tooltip.vue",
+		"dest": "apps/web/src/interfaces/_system/system-input-translated-string/CustomTranslationsTooltip.vue"
+	},
+	{
+		"source": "app/src/views/private/components/bookmark-add.vue",
+		"dest": "apps/web/src/modules/content/components/BookmarkAdd.vue"
+	}
+]

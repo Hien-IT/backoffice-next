@@ -91,20 +91,24 @@ test('save and create new; save as copy; discard (FR-053 to FR-056)', { tag: '@c
 	await expect(title(page)).toHaveValue('Content 02');
 });
 
-test('a required field blocks the save and shows the validation notice (FR-057)', { tag: '@core' }, async ({ page }) => {
-	await signIn(page);
-	await openItem(page, 'bo_content', '+');
-	await page.getByRole('textbox', { name: 'Body' }).fill('no title');
+test(
+	'a required field blocks the save and shows the validation notice (FR-057)',
+	{ tag: '@core' },
+	async ({ page }) => {
+		await signIn(page);
+		await openItem(page, 'bo_content', '+');
+		await page.getByRole('textbox', { name: 'Body' }).fill('no title');
 
-	let posted = false;
-	page.on('request', (r) => {
-		if (r.method() === 'POST' && /\/items\/bo_content$/.test(r.url())) posted = true;
-	});
-	await save(page).click();
+		let posted = false;
+		page.on('request', (r) => {
+			if (r.method() === 'POST' && /\/items\/bo_content$/.test(r.url())) posted = true;
+		});
+		await save(page).click();
 
-	await expect(page.getByText('The following fields have invalid values:')).toBeVisible();
-	expect(posted).toBe(false);
-});
+		await expect(page.getByText('The following fields have invalid values:')).toBeVisible();
+		expect(posted).toBe(false);
+	},
+);
 
 test('leaving with edits asks first (FR-084 of 013, FR-060)', { tag: '@core' }, async ({ page }) => {
 	await signIn(page);
@@ -122,45 +126,55 @@ test('leaving with edits asks first (FR-084 of 013, FR-060)', { tag: '@core' }, 
 	await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
 });
 
-test('archive, unarchive and delete with confirmations (FR-054, FR-055, FR-115d)', { tag: '@core' }, async ({ page }) => {
-	const { id } = await api.call<{ id: number }>('POST', '/items/bo_content', {
-		data: { title: e2eName('archive'), status: 'draft' },
-	});
-	await signIn(page);
-	await openItem(page, 'bo_content', id);
+test(
+	'archive, unarchive and delete with confirmations (FR-054, FR-055, FR-115d)',
+	{ tag: '@core' },
+	async ({ page }) => {
+		const { id } = await api.call<{ id: number }>('POST', '/items/bo_content', {
+			data: { title: e2eName('archive'), status: 'draft' },
+		});
+		await signIn(page);
+		await openItem(page, 'bo_content', id);
 
-	await page.getByRole('button', { name: 'Archive', exact: true }).click();
-	const archive = page.getByRole('dialog', { name: 'Are you sure you want to archive this item?' });
-	await expect(archive.getByRole('button', { name: 'Cancel' })).toBeFocused();
-	await archive.getByRole('button', { name: 'Archive' }).click();
-	await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
+		await page.getByRole('button', { name: 'Archive', exact: true }).click();
+		const archive = page.getByRole('dialog', { name: 'Are you sure you want to archive this item?' });
+		await expect(archive.getByRole('button', { name: 'Cancel' })).toBeFocused();
+		await archive.getByRole('button', { name: 'Archive' }).click();
+		await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
 
-	await openItem(page, 'bo_content', id);
-	await page.getByRole('button', { name: 'Unarchive', exact: true }).click();
-	await page.getByRole('dialog').getByRole('button', { name: 'Unarchive' }).click();
-	await expect(page.getByRole('button', { name: 'Archive', exact: true })).toBeVisible();
+		await openItem(page, 'bo_content', id);
+		await page.getByRole('button', { name: 'Unarchive', exact: true }).click();
+		await page.getByRole('dialog').getByRole('button', { name: 'Unarchive' }).click();
+		await expect(page.getByRole('button', { name: 'Archive', exact: true })).toBeVisible();
 
-	await page.getByRole('button', { name: 'Delete', exact: true }).click();
-	await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
-	await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
-	await expect.poll(async () => (await api.call<unknown[]>('GET', `/items/bo_content?filter[id][_eq]=${id}`)).length).toBe(0);
-});
+		await page.getByRole('button', { name: 'Delete', exact: true }).click();
+		await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+		await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
+		await expect
+			.poll(async () => (await api.call<unknown[]>('GET', `/items/bo_content?filter[id][_eq]=${id}`)).length)
+			.toBe(0);
+	},
+);
 
-test('singleton: the form at the collection URL, PATCH on the collection, no delete (FR-058)', { tag: '@core' }, async ({ page }) => {
-	await signIn(page);
-	await page.goto('/admin/content/bo_singleton');
-	await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bo Singleton');
-	await expect(page.getByRole('button', { name: 'Delete', exact: true })).toHaveCount(0);
-	await expect(page.getByRole('button', { name: 'Back' })).toHaveCount(0);
+test(
+	'singleton: the form at the collection URL, PATCH on the collection, no delete (FR-058)',
+	{ tag: '@core' },
+	async ({ page }) => {
+		await signIn(page);
+		await page.goto('/admin/content/bo_singleton');
+		await expect(page.getByRole('heading', { level: 1 })).toHaveText('Bo Singleton');
+		await expect(page.getByRole('button', { name: 'Delete', exact: true })).toHaveCount(0);
+		await expect(page.getByRole('button', { name: 'Back' })).toHaveCount(0);
 
-	await page.getByRole('textbox', { name: 'Tagline' }).fill(e2eName('tagline'));
-	const patched = page.waitForRequest((r) => r.method() === 'PATCH' && /\/items\/bo_singleton$/.test(r.url()));
-	await save(page).click();
-	expect((await patched).postDataJSON()).toEqual({ tagline: e2eName('tagline') });
+		await page.getByRole('textbox', { name: 'Tagline' }).fill(e2eName('tagline'));
+		const patched = page.waitForRequest((r) => r.method() === 'PATCH' && /\/items\/bo_singleton$/.test(r.url()));
+		await save(page).click();
+		expect((await patched).postDataJSON()).toEqual({ tagline: e2eName('tagline') });
 
-	await page.goto('/admin/content/bo_singleton/1');
-	await expect(page.getByRole('heading', { level: 1, name: 'Page Not Found' })).toBeVisible();
-});
+		await page.goto('/admin/content/bo_singleton/1');
+		await expect(page.getByRole('heading', { level: 1, name: 'Page Not Found' })).toBeVisible();
+	},
+);
 
 test('tab title and a read-only form for a viewer (FR-051, FR-098)', { tag: '@core' }, async ({ page }) => {
 	await signIn(page, VIEWER);

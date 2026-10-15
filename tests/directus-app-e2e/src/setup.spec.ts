@@ -47,6 +47,8 @@ async function written() {
 		if (DATES.has(key) && value !== null) return '<date>';
 		if (key === 'password' && typeof value === 'string') return '<argon2>';
 		if (key === 'token' && typeof value === 'string') return '<token>';
+		// The app writes last_page 500 ms after a navigation (trackPage): whether it lands before this read is timing.
+		if (key === 'last_page') return '<page>';
 		if (isId(value)) {
 			if (!markers.has(value)) markers.set(value, `<id${markers.size + 1}>`);
 			return markers.get(value);

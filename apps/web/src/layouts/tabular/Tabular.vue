@@ -185,7 +185,9 @@ function setWidth(index: number, event: Event) {
 	if (!Number.isFinite(width) || width <= 0) return;
 	emit(
 		'update:tableHeaders',
-		props.tableHeaders.map((header, i) => (i === index ? { ...header, width: Math.max(32, Math.round(width)) } : header)),
+		props.tableHeaders.map((header, i) =>
+			i === index ? { ...header, width: Math.max(32, Math.round(width)) } : header,
+		),
 	);
 }
 

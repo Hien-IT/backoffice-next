@@ -15,7 +15,15 @@ export const BUDGET_013 = Math.round((132.4 + 120) * 1024);
 export const BUDGET_014 = Math.round((205.8 + 60) * 1024);
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword.
-export const LAZY_ONLY = ['maplibre-gl', 'EditorJS', 'CodeMirror', 'tox-tinymce', 'fc-scrollgrid', 'sp-root', '__aliasFor'];
+export const LAZY_ONLY = [
+	'maplibre-gl',
+	'EditorJS',
+	'CodeMirror',
+	'tox-tinymce',
+	'fc-scrollgrid',
+	'sp-root',
+	'__aliasFor',
+];
 
 /** Library markers found in the entry chunk that must only be in lazy chunks. */
 export function lazyLeaks(file) {

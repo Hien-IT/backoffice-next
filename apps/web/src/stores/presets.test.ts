@@ -69,7 +69,9 @@ test('getPresetForCollection falls back to an empty preset of the user', () => {
 
 /** Body sent with the last request to `method path` (parsed JSON). */
 function bodyOf(fetch: ReturnType<typeof mockApi>, method: string, path: string) {
-	const call = fetch.mock.calls.filter(([url, init]) => init?.method === method && new URL(String(url)).pathname === path).at(-1);
+	const call = fetch.mock.calls
+		.filter(([url, init]) => init?.method === method && new URL(String(url)).pathname === path)
+		.at(-1);
 	return call ? JSON.parse(String(call[1]!.body)) : undefined;
 }
 
@@ -77,7 +79,13 @@ test('bookmarks lists global, then role, then user bookmarks, by name', () => {
 	const store = usePresetsStore();
 	const b = (id: number, values: Partial<Preset>) => preset(id, { bookmark: `b${id}`, ...values });
 
-	store.collectionPresets = [b(1, { user: 'u1', bookmark: 'z' }), b(2, { role: 'r1' }), b(3, {}), user, b(4, { user: 'u1', bookmark: 'a' })];
+	store.collectionPresets = [
+		b(1, { user: 'u1', bookmark: 'z' }),
+		b(2, { role: 'r1' }),
+		b(3, {}),
+		user,
+		b(4, { user: 'u1', bookmark: 'a' }),
+	];
 
 	expect(store.bookmarks.map((p) => p.id)).toEqual([4, 1, 2, 3]);
 	expect(store.getBookmark(2)?.id).toBe(2);
@@ -86,10 +94,20 @@ test('bookmarks lists global, then role, then user bookmarks, by name', () => {
 
 test('savePreset creates a preset of the user when it has no id, with the whole local preset as body', async () => {
 	useUserStore().currentUser = { id: 'u1', role: { id: 'r1' } } as AppUser;
-	const fetch = mockApi({ 'POST /presets': ({ init }: { init: RequestInit }) => json({ data: { id: 10, ...JSON.parse(String(init.body)) } }) });
+	const fetch = mockApi({
+		'POST /presets': ({ init }: { init: RequestInit }) => json({ data: { id: 10, ...JSON.parse(String(init.body)) } }),
+	});
 	const store = usePresetsStore();
 
-	const local = { collection: 'a', layout: 'tabular', layout_query: { tabular: { page: 2 } }, layout_options: null, filter: null, search: null, refresh_interval: null };
+	const local = {
+		collection: 'a',
+		layout: 'tabular',
+		layout_query: { tabular: { page: 2 } },
+		layout_options: null,
+		filter: null,
+		search: null,
+		refresh_interval: null,
+	};
 	const saved = await store.savePreset(local);
 
 	expect(bodyOf(fetch, 'POST', '/presets')).toEqual({ ...local, user: 'u1' });
@@ -99,7 +117,9 @@ test('savePreset creates a preset of the user when it has no id, with the whole 
 
 test('savePreset copies a role or global preset as a new preset of the user', async () => {
 	useUserStore().currentUser = { id: 'u1', role: { id: 'r1' } } as AppUser;
-	const fetch = mockApi({ 'POST /presets': ({ init }: { init: RequestInit }) => json({ data: { id: 11, ...JSON.parse(String(init.body)) } }) });
+	const fetch = mockApi({
+		'POST /presets': ({ init }: { init: RequestInit }) => json({ data: { id: 11, ...JSON.parse(String(init.body)) } }),
+	});
 	const store = usePresetsStore();
 
 	await store.savePreset({ ...role, layout: 'cards' });
@@ -111,13 +131,22 @@ test('savePreset copies a role or global preset as a new preset of the user', as
 
 test('savePreset updates a preset of the user without its id in the body', async () => {
 	useUserStore().currentUser = { id: 'u1', role: { id: 'r1' } } as AppUser;
-	const fetch = mockApi({ 'PATCH /presets/3': ({ init }: { init: RequestInit }) => json({ data: { id: 3, ...JSON.parse(String(init.body)) } }) });
+	const fetch = mockApi({
+		'PATCH /presets/3': ({ init }: { init: RequestInit }) =>
+			json({ data: { id: 3, ...JSON.parse(String(init.body)) } }),
+	});
 	const store = usePresetsStore();
 	store.collectionPresets = [user];
 
 	await store.savePreset({ ...user, search: 'x' });
 
-	expect(bodyOf(fetch, 'PATCH', '/presets/3')).toEqual({ collection: 'a', bookmark: null, user: 'u1', role: null, search: 'x' });
+	expect(bodyOf(fetch, 'PATCH', '/presets/3')).toEqual({
+		collection: 'a',
+		bookmark: null,
+		user: 'u1',
+		role: null,
+		search: 'x',
+	});
 	expect(store.collectionPresets[0]).toMatchObject({ id: 3, search: 'x' });
 });
 

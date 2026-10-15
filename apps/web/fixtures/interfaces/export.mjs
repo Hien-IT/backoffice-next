@@ -154,16 +154,19 @@ for (const { collection, meta, schema } of collections) {
 /* Content module rows (014). Serial ids depend on what else the shared database holds: presets and revisions get
    their position instead; uuid ids are numbered after the 013 ones (below). */
 const onBo = { collection: { _starts_with: 'bo_' } };
-const presets = (
-	await api.get(`/presets${query({ filter: onBo, sort: 'id', limit: -1 })}`)
-).map((preset, index) => ({ ...preset, id: index + 1 }));
+const presets = (await api.get(`/presets${query({ filter: onBo, sort: 'id', limit: -1 })}`)).map((preset, index) => ({
+	...preset,
+	id: index + 1,
+}));
 const versions = await api.get(
 	`/versions${query({ filter: onBo, fields: 'id,key,name,collection,item,hash,delta', sort: 'key', limit: -1 })}`,
 );
 const shares = await api.get(
 	`/shares${query({ filter: { name: { _eq: SHARE.name } }, fields: 'id,name,collection,item,role,password,date_start,date_end,max_uses,times_used' })}`,
 );
-const comments = await api.get(`/comments${query({ filter: onBo, fields: 'id,collection,item,comment', sort: 'comment' })}`);
+const comments = await api.get(
+	`/comments${query({ filter: onBo, fields: 'id,collection,item,comment', sort: 'comment' })}`,
+);
 const revisions = (
 	await api.get(
 		`/revisions${query({

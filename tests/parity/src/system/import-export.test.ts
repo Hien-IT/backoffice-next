@@ -265,8 +265,9 @@ describe.runIf(full)('POST /utils/export/:collection', () => {
 			),
 		);
 
-		// getDateTimeFormatted of @directus/utils: hours, minutes, seconds are not padded (20261013-22357).
-		const time = /\d{8}-\d{3,6}/g;
+		// getDateTimeFormatted of @directus/utils: hours, minutes, seconds are not padded (20261013-22357). Anchored at the
+		// end (before the extension): the collection name before it ends with digits too.
+		const time = /\d{8}-\d{3,6}(?=(\.\w+)?$)/;
 		const comparableRow = {
 			...comparable(row, { file: row['id'] }),
 			title: String(row['title']).replace(time, '<time>'),

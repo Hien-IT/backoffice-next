@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/views/private/components/search-input.vue",
+		"dest": "apps/web/src/components/SearchInput.vue"
+	},
+	{
+		"source": "app/src/views/private/components/search-input.test.ts",
+		"dest": "apps/web/src/components/SearchInput.test.ts"
+	}
+]

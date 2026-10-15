@@ -1,7 +1,7 @@
 // Ported from directus/app/src/composables/use-permissions/collection/use-collection-permissions.ts
-import { type ComputedRef } from 'vue';
+import type { ComputedRef } from 'vue';
 import { isArchiveAllowed } from '../lib/is-archive-allowed.ts';
-import { type Collection } from '../types/index.ts';
+import type { Collection } from '../types/index.ts';
 import { isActionAllowed } from './lib/is-action-allowed.ts';
 import { isRevisionsAllowed } from './lib/is-revisions-allowed.ts';
 import { isSortAllowed } from './lib/is-sort-allowed.ts';

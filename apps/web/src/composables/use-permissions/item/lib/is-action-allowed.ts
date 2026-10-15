@@ -1,7 +1,7 @@
 // Ported from directus/app/src/composables/use-permissions/item/lib/is-action-allowed.ts
-import { type ItemPermissions } from '@directus/types';
+import type { ItemPermissions } from '@directus/types';
 import { computed, type MaybeRef, type Ref, unref } from 'vue';
-import { type Collection, type IsNew } from '../../types/index.ts';
+import type { Collection, IsNew } from '../../types/index.ts';
 import { usePermissionsStore } from '../../../../stores/permissions.ts';
 import { useUserStore } from '../../../../stores/user.ts';
 

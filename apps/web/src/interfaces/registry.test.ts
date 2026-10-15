@@ -65,6 +65,8 @@ export const EXPECTED_INTERFACE_IDS = [
 	'tags',
 	'translations',
 	'system-raw-editor',
+	'system-input-translated-string',
+	'system-filter',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [

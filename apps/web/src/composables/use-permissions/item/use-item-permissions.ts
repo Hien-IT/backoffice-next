@@ -1,8 +1,8 @@
 // Ported from directus/app/src/composables/use-permissions/item/use-item-permissions.ts
-import { type Field } from '@directus/types';
-import { type ComputedRef, type MaybeRef, type Ref } from 'vue';
+import type { Field } from '@directus/types';
+import type { ComputedRef, MaybeRef, Ref } from 'vue';
 import { isArchiveAllowed } from '../lib/is-archive-allowed.ts';
-import { type Collection, type IsNew, type PrimaryKey } from '../types/index.ts';
+import type { Collection, IsNew, PrimaryKey } from '../types/index.ts';
 import { getFields } from './lib/get-fields.ts';
 import { isActionAllowed } from './lib/is-action-allowed.ts';
 import { fetchItemPermissions } from './utils/fetch-item-permissions.ts';

@@ -51,14 +51,16 @@ test('split panel with the live preview: keyboard resize, display menu, axe ligh
 	expect(document.body.textContent).toContain('Open in New Window');
 	await userEvent.keyboard('{Escape}');
 
-	expect(await serious(wrapper.element)).toEqual([]);
-	document.documentElement.classList.add('dark');
-	// BoButton colors have a 150 ms transition.
-	await new Promise((resolve) => setTimeout(resolve, 200));
+	// BoButton colors have a 150 ms transition: axe must read the final colors, also on a loaded machine.
+	const noTransitions = document.head.appendChild(document.createElement('style'));
+	noTransitions.textContent = '*, *::before, *::after { transition: none !important; }';
 	try {
+		expect(await serious(wrapper.element)).toEqual([]);
+		document.documentElement.classList.add('dark');
 		expect(await serious(wrapper.element)).toEqual([]);
 	} finally {
 		document.documentElement.classList.remove('dark');
+		noTransitions.remove();
 	}
 });
 

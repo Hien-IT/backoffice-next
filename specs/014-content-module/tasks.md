@@ -344,32 +344,32 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
 
 ### Tests cho User Story 3
 
-- [ ] T049 [P] [US3] `e2e/content-filter-bookmark.spec.ts` `@core` (US3-1 đến US3-5, FR-010 đến FR-017, FR-040 đến
+- [X] T049 [P] [US3] `e2e/content-filter-bookmark.spec.ts` `@core` (US3-1 đến US3-5, FR-010 đến FR-017, FR-040 đến
   FR-043): bộ lọc ba cấp (số điều kiện "3"), tìm kiếm, xóa bộ lọc, tạo bookmark (tên `$t:` qua chuỗi dịch), mở bookmark từ
   cây, đổi sắp xếp → "cập nhật bookmark" và "đặt lại", sửa/xóa bookmark cá nhân, bookmark global chỉ "tạo bookmark",
   `?bookmark=999999` → `bookmark_doesnt_exist`, preset role của `bo-editor`, preset role/global đổi layout tạo preset user.
 
 ### Implementation cho User Story 3
 
-- [ ] T050 [P] [US3] Chép `src/interfaces/_system/system-filter/{index.ts,utils.ts}` (`getNodeName`, `getField`,
+- [X] T050 [P] [US3] Chép `src/interfaces/_system/system-filter/{index.ts,utils.ts}` (`getNodeName`, `getField`,
   `fieldHasFunction`, `getComparator`, `fieldToFilter`); test `utils.test.ts`.
-- [ ] T051 [US3] `src/interfaces/_system/system-filter/{SystemFilter.vue,Nodes.vue,InputGroup.vue,InputComponent.vue}` chép
+- [X] T051 [US3] `src/interfaces/_system/system-filter/{SystemFilter.vue,Nodes.vue,InputGroup.vue,InputComponent.vue}` chép
   logic (FR-041, recipe Q-7): cây `_and`/`_or`, thêm điều kiện bằng `FieldList` (chỉ field đọc được), toán tử
   `getFilterOperatorsForType`/`getOutputTypeForFunction` của `@directus/utils`, ô giá trị bằng interface 013 theo kiểu
   (`input`, `datetime`, `boolean`, `select-dropdown` có `choices`, `select-dropdown-m2o` cho quan hệ), biến `$CURRENT_*`,
   `$NOW`, kéo đổi thứ tự (vuedraggable) + menu Lên/Xuống (D-69), đổi `_and`↔`_or`, xóa; đăng ký trong registry
   interface (013 `src/interfaces/index.ts` glob `_system`); test `SystemFilter.test.ts` với 10 mẫu JSON ghi từ Directus app
   (nguồn ghi rõ trong test).
-- [ ] T052 [US3] `src/components/SearchInput.vue` (sau T051) chép logic `views/private/components/search-input.vue` (mở rộng khi
+- [X] T052 [US3] `src/components/SearchInput.vue` (sau T051) chép logic `views/private/components/search-input.vue` (mở rộng khi
   focus, đếm toán tử `activeFilterCount`, Popover chứa `SystemFilter`, Esc đóng, giữ mở khi focus vào menu con); port test
   `search-input.test.ts` → `src/components/SearchInput.test.ts`.
-- [ ] T053 [US3] Chép `src/interfaces/_system/system-input-translated-string/{index.ts,InputTranslatedString.vue}` (+
+- [X] T053 [US3] Chép `src/interfaces/_system/system-input-translated-string/{index.ts,InputTranslatedString.vue}` (+
   drawer danh sách chuỗi dịch `/translations`: tìm, chọn → `$t:<key>`, tạo qua `translationsStore.create`; FR-013,
   D-73) và `src/modules/content/components/BookmarkAdd.vue` (tên, icon `select-icon`, màu `select-color`); trong
   `NavigationBookmark.vue` thêm menu sửa (cá nhân: hộp thoại; role/global: link `/settings/presets/:id` khung 016, D-71)
   và xóa (hộp xác nhận; xóa bookmark đang mở → route collection, focus tiêu đề FR-115c), icon khóa + tooltip
   `cannot_edit_<scope>_bookmarks`; test cạnh file.
-- [ ] T054 [US3] `CollectionRoute.vue` phần US3 (FR-012 đến FR-017, FR-040, FR-042): `SearchInput` trong actions ghi
+- [X] T054 [US3] `CollectionRoute.vue` phần US3 (FR-012 đến FR-017, FR-040, FR-042): `SearchInput` trong actions ghi
   `search`/`filter` preset, nút bookmark ba trạng thái cạnh tiêu đề (FR-015), `clearFilters`, notice
   `bookmark_doesnt_exist` (FR-016), tiêu đề theo `bookmarkTitle`, breadcrumb khi ở bookmark; test.
 - [ ] T055 [US3] **Đóng lượt 1**: `pnpm nx run-many -t lint typecheck test build check-bundle` xanh; E2E hiện có (012,

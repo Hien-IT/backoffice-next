@@ -8,6 +8,8 @@ export type { LayoutConfig, LayoutProps, ShowSelect };
 /** Second argument of a layout `setup` (`LayoutContext` is not exported by @directus/types). */
 export type LayoutContext = Parameters<LayoutConfig['setup']>[1];
 
-export function defineLayout<Options = any, Query = any>(config: LayoutConfig<Options, Query>): LayoutConfig<Options, Query> {
+export function defineLayout<Options = any, Query = any>(
+	config: LayoutConfig<Options, Query>,
+): LayoutConfig<Options, Query> {
 	return config;
 }

@@ -101,3 +101,8 @@ describe('BoProgressLinear', () => {
 		expect(wrapper.get('[role="progressbar"] > div').classes()).toContain('bo-progress-linear-indeterminate');
 	});
 });
+
+test('filled sets the FILL axis of the Material Symbols font (feature 014)', () => {
+	expect(mount(BoIcon, { props: { name: 'bookmark', filled: true } }).attributes('style')).toContain("'FILL' 1");
+	expect(mount(BoIcon, { props: { name: 'bookmark' } }).attributes('style')).not.toContain('FILL');
+});

@@ -52,7 +52,9 @@ describe('isFieldAllowed', () => {
 
 describe('useCollectionPermissions', () => {
 	test('actions follow the permissions store', () => {
-		setPermissions({ articles: { read: { access: 'full' }, create: { access: 'none' }, delete: { access: 'partial' } } });
+		setPermissions({
+			articles: { read: { access: 'full' }, create: { access: 'none' }, delete: { access: 'partial' } },
+		});
 
 		const p = useCollectionPermissions('articles');
 
@@ -102,10 +104,16 @@ describe('useCollectionPermissions', () => {
 describe('usePermissions (item)', () => {
 	test('full and none access answer locally; partial asks the item permissions endpoint', async () => {
 		const fetch = mockApi({
-			'GET /permissions/me/articles/7': { update: { access: true }, delete: { access: false }, share: { access: true } },
+			'GET /permissions/me/articles/7': {
+				update: { access: true },
+				delete: { access: false },
+				share: { access: true },
+			},
 		});
 
-		setPermissions({ articles: { update: { access: 'partial', fields: ['*'] }, delete: { access: 'none' }, share: { access: 'full' } } });
+		setPermissions({
+			articles: { update: { access: 'partial', fields: ['*'] }, delete: { access: 'none' }, share: { access: 'full' } },
+		});
 
 		const { itemPermissions } = usePermissions('articles', 7, false);
 		expect(itemPermissions.deleteAllowed.value).toBe(false);
@@ -121,8 +129,16 @@ describe('usePermissions (item)', () => {
 	});
 
 	test('new items: save follows create, update/delete/share are false', () => {
-		mockApi({ 'GET /permissions/me/articles': { update: { access: false }, delete: { access: false }, share: { access: false } } });
-		setPermissions({ articles: { create: { access: 'full', fields: ['*'] }, update: { access: 'full', fields: ['*'] } } });
+		mockApi({
+			'GET /permissions/me/articles': {
+				update: { access: false },
+				delete: { access: false },
+				share: { access: false },
+			},
+		});
+		setPermissions({
+			articles: { create: { access: 'full', fields: ['*'] }, update: { access: 'full', fields: ['*'] } },
+		});
 
 		const { collectionPermissions, itemPermissions } = usePermissions('articles', null, true);
 
@@ -139,7 +155,10 @@ describe('usePermissions (item)', () => {
 	});
 
 	test('an error of the item permissions endpoint is optimistic', async () => {
-		mockApi({ 'GET /permissions/me/articles/1': () => json({ errors: [{ message: 'x', extensions: { code: 'INTERNAL' } }] }, 500) });
+		mockApi({
+			'GET /permissions/me/articles/1': () =>
+				json({ errors: [{ message: 'x', extensions: { code: 'INTERNAL' } }] }, 500),
+		});
 		setPermissions({ articles: { update: { access: 'partial', fields: ['*'] } } });
 
 		const { itemPermissions } = usePermissions('articles', 1, false);
@@ -150,7 +169,9 @@ describe('usePermissions (item)', () => {
 	});
 
 	test('fields: unreadable fields are removed, fields without update are read-only, presets become defaults', async () => {
-		mockApi({ 'GET /permissions/me/articles/1': { update: { access: true }, delete: { access: true }, share: { access: true } } });
+		mockApi({
+			'GET /permissions/me/articles/1': { update: { access: true }, delete: { access: true }, share: { access: true } },
+		});
 		setPermissions({
 			articles: {
 				read: { access: 'full', fields: ['id', 'title', 'status'] },

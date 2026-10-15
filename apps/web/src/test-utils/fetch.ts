@@ -103,8 +103,16 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 56, method: 'GET', path: new RegExp(`^/(revisions|versions)/${ID}$`) },
 	{ id: 58, method: 'GET', path: new RegExp(`^/versions/${ID}/compare$`) },
 	{ id: 70, method: 'POST', path: new RegExp(`^/(items/${ID}|presets|versions|comments|shares)$`) },
-	{ id: 71, method: 'PATCH', path: new RegExp(`^/(items/${ID}(/${ID})?|presets/${ID}|versions/${ID}|comments/${ID}|shares/${ID})$`) },
-	{ id: 73, method: 'DELETE', path: new RegExp(`^/(items/${ID}(/${ID})?|presets|versions/${ID}|comments/${ID}|shares/${ID})$`) },
+	{
+		id: 71,
+		method: 'PATCH',
+		path: new RegExp(`^/(items/${ID}(/${ID})?|presets/${ID}|versions/${ID}|comments/${ID}|shares/${ID})$`),
+	},
+	{
+		id: 73,
+		method: 'DELETE',
+		path: new RegExp(`^/(items/${ID}(/${ID})?|presets|versions/${ID}|comments/${ID}|shares/${ID})$`),
+	},
 	{ id: 75, method: 'POST', path: new RegExp(`^/utils/(sort|export|import)/${ID}$`) },
 	{ id: 82, method: 'POST', path: new RegExp(`^/versions/${ID}/(save|promote)$`) },
 	{ id: 90, method: 'POST', path: /^\/shares\/invite$/ },
@@ -283,11 +291,10 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 			// `$FOLLOW(collection,field[,collectionField])`: the rows of `collection` whose `field` points at this row
 			// (Directus getRelationInfo: an implicit o2m, or o2a with the collection field), filtered like an o2m.
 			if (key.startsWith('$FOLLOW(') && key.endsWith(')')) {
-				const [follow, field, collectionField] = key.slice(8, -1).split(',').map((part) => part.trim()) as [
-					string,
-					string,
-					string | undefined,
-				];
+				const [follow, field, collectionField] = key
+					.slice(8, -1)
+					.split(',')
+					.map((part) => part.trim()) as [string, string, string | undefined];
 				checkField(follow, field);
 				const pk = row[pkOf(collection)];
 				const related = rowsOf(follow).filter(
@@ -527,7 +534,8 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 		const body = () => (typeof init.body === 'string' && init.body ? JSON.parse(init.body) : null);
 
 		if (method === 'POST' && first === 'versions' && second && third === 'save') return saveVersion(second, body());
-		if (method === 'POST' && first === 'versions' && second && third === 'promote') return promoteVersion(second, body());
+		if (method === 'POST' && first === 'versions' && second && third === 'promote')
+			return promoteVersion(second, body());
 		if (method === 'POST' && first === 'utils' && second === 'sort' && third) return sortItems(third, body());
 		if (method === 'POST' && first === 'utils' && (second === 'export' || second === 'import') && third) return null;
 		if (method === 'POST' && first === 'shares' && second === 'invite') return null;
@@ -577,7 +585,8 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 	function create(collection: string, data: Row): Row {
 		readable(collection);
 		const pk = pkOf(collection);
-		const intKey = fieldsOf(collection).find((f) => f.field === pk)?.type === 'integer' || collection === 'directus_presets';
+		const intKey =
+			fieldsOf(collection).find((f) => f.field === pk)?.type === 'integer' || collection === 'directus_presets';
 		const row = { ...data, [pk]: data?.[pk] ?? (intKey ? ++serial : `bo-new-${++serial}`) };
 		(db[collection] ??= []).push(row);
 		return row;
@@ -593,7 +602,11 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 	function itemPermissions(collection: string): Row {
 		const access = (action: string) =>
 			isAdmin || (permissions[collection]?.[action] && permissions[collection][action].access !== 'none');
-		return { update: { access: !!access('update') }, delete: { access: !!access('delete') }, share: { access: !!access('share') } };
+		return {
+			update: { access: !!access('update') },
+			delete: { access: !!access('delete') },
+			share: { access: !!access('share') },
+		};
 	}
 
 	const versionOf = (id: string) => {
@@ -640,7 +653,10 @@ export function mockFixtureApi(source: Snapshot, { user = 'admin', answers = {} 
 		const rows = list(collection, url) as Row[];
 		const fields = fieldList(url).filter((f) => f !== '*');
 		const keys = fields.length > 0 ? fields : Object.keys(rows[0] ?? {});
-		const csv = [keys.map((k) => JSON.stringify(k)).join(','), ...rows.map((r) => keys.map((k) => JSON.stringify(r[k] ?? '')).join(','))].join('\n');
+		const csv = [
+			keys.map((k) => JSON.stringify(k)).join(','),
+			...rows.map((r) => keys.map((k) => JSON.stringify(r[k] ?? '')).join(',')),
+		].join('\n');
 		return new Response(csv, { headers: { 'Content-Type': 'text/csv' } });
 	}
 

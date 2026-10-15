@@ -58,6 +58,8 @@ const INTERFACE_IDS = [
 	'tags',
 	'translations',
 	'system-raw-editor',
+	'system-input-translated-string',
+	'system-filter',
 ];
 
 const DISPLAY_IDS = [
@@ -104,7 +106,7 @@ const COMPONENT_OPTION_KEYS = {
 };
 
 function interfaceDir(id) {
-	if (id === 'system-raw-editor') return join(APP_SRC, 'interfaces/_system/system-raw-editor');
+	if (id.startsWith('system-')) return join(APP_SRC, 'interfaces/_system', id);
 	if (id === 'header') return join(APP_SRC, 'interfaces/presentation-header');
 	return join(APP_SRC, 'interfaces', id);
 }

@@ -42,7 +42,9 @@ test('dragging a row handle below another row reorders the rows', async () => {
 	const end = rows[2]!.getBoundingClientRect();
 	const x = start.left + start.width / 2;
 	const pointer = (type: string, target: EventTarget, y: number) =>
-		target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0, pointerId: 1 }));
+		target.dispatchEvent(
+			new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0, pointerId: 1 }),
+		);
 
 	pointer('pointerdown', handles[0]!, start.top + start.height / 2);
 
@@ -52,11 +54,12 @@ test('dragging a row handle below another row reorders the rows', async () => {
 		await new Promise((resolve) => requestAnimationFrame(resolve));
 	}
 
-	document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: end.bottom - 4 }));
+	document.dispatchEvent(
+		new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: end.bottom - 4 }),
+	);
 
 	await vi.waitFor(() => expect(names()).toEqual(['Beta', 'Gamma', 'Alpha']));
 });
-
 
 /* 014 (T034): optional props of the Q-2 recipe. */
 
@@ -120,7 +123,8 @@ test('rowHeight sets the row height in px; fixedHeader scrolls the body under a 
 		{
 			components: { BoTable },
 			data: () => ({ columns: COLUMNS, rows: ROWS }),
-			template: '<div style="height: 300px; display: flex; flex-direction: column"><BoTable :columns="columns" :rows="rows" fixed-header :row-height="58" /></div>',
+			template:
+				'<div style="height: 300px; display: flex; flex-direction: column"><BoTable :columns="columns" :rows="rows" fixed-header :row-height="58" /></div>',
 		},
 		{ global: { plugins: [i18n] }, attachTo: document.body },
 	);
@@ -146,7 +150,9 @@ test('manual sort emits { item, to } with the keys of the moved row and of its n
 	const end = rows[2]!.getBoundingClientRect();
 	const x = start.left + start.width / 2;
 	const pointer = (type: string, target: EventTarget, y: number) =>
-		target.dispatchEvent(new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0, pointerId: 1 }));
+		target.dispatchEvent(
+			new PointerEvent(type, { bubbles: true, cancelable: true, clientX: x, clientY: y, button: 0, pointerId: 1 }),
+		);
 
 	pointer('pointerdown', handles[0]!, start.top + start.height / 2);
 
@@ -155,7 +161,9 @@ test('manual sort emits { item, to } with the keys of the moved row and of its n
 		await new Promise((resolve) => requestAnimationFrame(resolve));
 	}
 
-	document.dispatchEvent(new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: end.bottom - 4 }));
+	document.dispatchEvent(
+		new MouseEvent('mouseup', { bubbles: true, cancelable: true, clientX: x, clientY: end.bottom - 4 }),
+	);
 
 	await vi.waitFor(() => expect(wrapper.emitted('manual-sort')).toEqual([[{ item: 1, to: 3 }]]));
 });
