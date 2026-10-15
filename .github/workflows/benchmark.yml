@@ -5,6 +5,11 @@ name: Benchmark
 
 on:
   workflow_dispatch:
+    inputs:
+      job:
+        description: 'One job to run (e.g. benchmark-web); empty runs them all'
+        required: false
+        default: ''
   schedule:
     - cron: '0 19 * * 0' # Monday 02:00 Asia/Ho_Chi_Minh
 
@@ -23,6 +28,7 @@ env:
 # takes about 55 minutes when nothing is measured again.
 jobs:
   benchmark:
+    if: ${{ !inputs.job || inputs.job == 'benchmark' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -48,6 +54,7 @@ jobs:
 
   # Feature 003 (SC-007, research R12): auth routes with 2,000 connections, beside `benchmark`.
   benchmark-auth:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-auth' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -75,6 +82,7 @@ jobs:
 
   # Feature 004 (SC-006, research R14): permission-heavy reads with 2,000 users, three policies each, beside the others.
   benchmark-permissions:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-permissions' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -100,6 +108,7 @@ jobs:
   # Feature 005 (FR-048, research R11): /items on 10 million rows, fresh and from the shared response cache, beside the
   # others. The seed loads the rows with generate_series in a few minutes.
   benchmark-items:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-items' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -128,6 +137,7 @@ jobs:
   # Feature 014 (FR-125, SC-003, research R14): the Content module screen on the 10 million rows of benchmark-items
   # (same seed), Playwright chromium on the Directus app and the web app behind both proxies, beside the others.
   benchmark-web:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-web' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -154,6 +164,7 @@ jobs:
   # Feature 006 (FR-065, SC-007, research R10): the data model reads the Directus app makes at start, snapshot and diff,
   # on about 200 collections, 3,000 fields and 300 relations seeded through the Directus API.
   benchmark-schema:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-schema' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -182,6 +193,7 @@ jobs:
 
   # Feature 007 (contracts/parity.md §6): originals, derived and new transformations of /assets, /files list and uploads.
   benchmark-files:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-files' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -207,6 +219,7 @@ jobs:
         run: pnpm nx run benchmark:env-down
 
   benchmark-history:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-history' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -230,6 +243,7 @@ jobs:
         run: pnpm nx run benchmark:env-down
 
   benchmark-system:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-system' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -254,6 +268,7 @@ jobs:
 
   # Feature 011 (FR-064, SC-007): /graphql on the data of the items benchmark.
   benchmark-graphql:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-graphql' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:
@@ -276,6 +291,7 @@ jobs:
         run: pnpm nx run benchmark:env-down
 
   benchmark-flows:
+    if: ${{ !inputs.job || inputs.job == 'benchmark-flows' }}
     runs-on: ubuntu-latest
     timeout-minutes: 120
     steps:

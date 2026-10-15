@@ -7,24 +7,15 @@ import { openCollection, waitForTable } from './helpers/content.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
-type Preset = { id: number; search: string | null; filter: unknown };
-
 let api: AdminApi;
 let ids: number[] = [];
-let seeded: Preset | undefined;
+let me: string;
 
 test.describe.configure({ mode: 'serial' });
 
 test.beforeAll(async ({ playwright }) => {
 	api = new AdminApi(await playwright.request.newContext());
-	const me = (await api.call<{ id: string }>('GET', '/users/me?fields=id')).id;
-	await api.call('POST', '/utils/cache/clear');
-	seeded = (
-		await api.call<Preset[]>(
-			'GET',
-			`/presets?filter[collection][_eq]=bo_content&filter[user][_eq]=${me}&filter[bookmark][_null]=true`,
-		)
-	)[0];
+	me = (await api.call<{ id: string }>('GET', '/users/me?fields=id')).id;
 });
 
 test.beforeEach(async () => {
@@ -42,15 +33,23 @@ test.beforeEach(async () => {
 	await api.call('POST', '/utils/cache/clear');
 });
 
-test.afterEach(async () => {
+test.afterEach(async ({ page }) => {
+	// Close the page first: its preset auto-save (450 ms debounce) must not land after the restore below.
+	await page.waitForTimeout(600);
+	await page.close();
 	const rows = await api.call<{ id: number }[]>(
 		'GET',
 		`/items/bo_content?fields=id&limit=-1&filter[title][_starts_with]=${encodeURIComponent(DATA_PREFIX)}`,
 	);
 	if (rows.length) await api.call('DELETE', '/items/bo_content', { data: rows.map((r) => r.id) });
-	// The search typed in selectBoth is saved in the admin preset (FR-011): put the seeded one back.
-	if (seeded)
-		await api.call('PATCH', `/presets/${seeded.id}`, { data: { search: seeded.search, filter: seeded.filter } });
+	// The search typed in selectBoth is saved in the admin preset (FR-011): put back the seeded values (search and
+	// filter null, snapshot presets.json), whatever an earlier run left there.
+	const presets = await api.call<{ id: number }[]>(
+		'GET',
+		`/presets?fields=id&filter[collection][_eq]=bo_content&filter[user][_eq]=${me}&filter[bookmark][_null]=true`,
+	);
+	for (const preset of presets)
+		await api.call('PATCH', `/presets/${preset.id}`, { data: { search: null, filter: null } });
 	await api.call('POST', '/utils/cache/clear');
 });
 

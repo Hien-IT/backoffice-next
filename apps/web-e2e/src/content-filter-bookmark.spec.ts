@@ -44,7 +44,10 @@ test.beforeEach(async () => {
 	await api.call('POST', '/utils/cache/clear');
 });
 
-test.afterEach(async () => {
+test.afterEach(async ({ page }) => {
+	// Close the page first: its preset auto-save (450 ms debounce) must not land after the restore below.
+	await page.waitForTimeout(600);
+	await page.close();
 	const mine = await presets(`filter[bookmark][_starts_with]=${encodeURIComponent(DATA_PREFIX)}`);
 	if (mine.length) await api.call('DELETE', '/presets', { data: mine.map((p) => p.id) });
 

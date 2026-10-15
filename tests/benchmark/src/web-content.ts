@@ -67,6 +67,9 @@ async function signIn(browser: Browser, baseURL: string): Promise<BrowserContext
 		viewport: { width: 1440, height: 900 },
 		extraHTTPHeaders: { 'cache-control': 'no-store' },
 	});
+	// The Directus app asks an admin without a project owner to set one (a dialog over the page): the cookie its
+	// "Remind Later" sets keeps it closed (as apps/web-e2e/src/helpers/directus-app.ts).
+	await context.addCookies([{ name: 'license-banner-dismissed', value: 'true', url: baseURL }]);
 	const page = await context.newPage();
 	await page.goto('/admin/login');
 	// Label in the new app, placeholder in the Directus app (en-US strings of both).
@@ -76,6 +79,11 @@ async function signIn(browser: Browser, baseURL: string): Promise<BrowserContext
 	await field('Password').fill(envValue('ADMIN_PASSWORD'));
 	await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 	await page.waitForURL((url) => !url.pathname.endsWith('/login'), { timeout: TIMEOUT });
+	const later = page.getByRole('button', { name: 'Remind Later' });
+	await later
+		.waitFor({ timeout: 3_000 })
+		.then(() => later.click())
+		.catch(() => undefined);
 	await page.close();
 	return context;
 }

@@ -38,7 +38,10 @@ test.beforeEach(async () => {
 	await api.call('PATCH', '/users/me', { data: { last_page: null } });
 });
 
-test.afterEach(async () => {
+test.afterEach(async ({ page }) => {
+	// Close the page first: its preset auto-save (450 ms debounce) must not land after the restore below.
+	await page.waitForTimeout(600);
+	await page.close();
 	const { layout, layout_query, layout_options, search, filter } = seeded;
 	await api.call('PATCH', `/presets/${seeded.id}`, { data: { layout, layout_query, layout_options, search, filter } });
 	await api.call('POST', '/utils/cache/clear');
