@@ -24,6 +24,24 @@ describe('PageHeader', () => {
 		expect(wrapper.text()).toContain('Act');
 	});
 
+	test('breadcrumb links, icon color and title-append slot (feature 014)', async () => {
+		const { wrapper } = await mountLayout(PageHeader, {
+			props: {
+				title: 'Articles',
+				icon: 'box',
+				iconColor: '#6644FF',
+				breadcrumb: [{ name: 'Content', to: '/content' }],
+			},
+			slots: { 'title-append': '<span data-append>bookmark</span>' },
+		});
+
+		const link = wrapper.get('nav[aria-label="Breadcrumb"] a');
+		expect(link.text()).toBe('Content');
+		expect(link.attributes('href')).toContain('/content');
+		expect(wrapper.get('h1').element.previousElementSibling?.getAttribute('style')).toContain('color');
+		expect(wrapper.find('[data-append]').exists()).toBe(true);
+	});
+
 	test('detail panel toggle: label and aria-expanded follow the panel state', async () => {
 		await mountLayout(PageHeader, { props: { title: 'Content' } });
 		const sidebarStore = useSidebarStore();

@@ -195,7 +195,7 @@ describe.each(USERS)('user %s', { timeout: 30_000 }, (user) => {
 			(field) => !field.meta?.special?.some((special) => ['no-data', 'group'].includes(special)),
 		);
 
-		const tableRows = (await sdk.request(
+		const answer = await sdk.request(
 			readItems(
 				collection as never,
 				{
@@ -206,7 +206,10 @@ describe.each(USERS)('user %s', { timeout: 30_000 }, (user) => {
 					limit: -1,
 				} as never,
 			),
-		)) as Record<string, unknown>[];
+		);
+
+		// A singleton read answers its one row as an object, like Directus (014 mock API).
+		const tableRows = (Array.isArray(answer) ? answer : [answer]) as Record<string, unknown>[];
 
 		expect(tableRows).toHaveLength(rows.length);
 

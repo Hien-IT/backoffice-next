@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/composables/use-nested-validation.ts",
+		"dest": "apps/web/src/composables/use-nested-validation.ts"
+	},
+	{
+		"source": "packages/composables/src/use-shortcut.ts",
+		"dest": "apps/web/src/composables/use-shortcut.ts"
+	},
+	{
+		"source": "packages/composables/src/translate-shortcut.ts",
+		"dest": "apps/web/src/composables/use-shortcut.ts"
+	}
+]

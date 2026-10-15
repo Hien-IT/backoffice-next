@@ -7,8 +7,8 @@ import { i18n } from '../lang/index.ts';
 
 /**
  * Mounts a layout component with i18n, a fresh pinia, unhead and a memory router (every path matches, or `routes`)
- * at `path`, attached to document.body (Reka portals render there). `beforeMount` runs with the new pinia active,
- * to fill stores before the component reads them.
+ * at `path`, attached to document.body (Reka portals render there). `beforeMount` runs (and is awaited) with the new
+ * pinia active, to fill stores before the component reads them.
  */
 export async function mountLayout(
 	component: Component,
@@ -23,12 +23,12 @@ export async function mountLayout(
 		routes?: RouteRecordRaw[];
 		props?: Record<string, unknown>;
 		slots?: Record<string, string>;
-		beforeMount?: () => void;
+		beforeMount?: () => void | Promise<void>;
 	} = {},
 ) {
 	const pinia = createPinia();
 	setActivePinia(pinia);
-	beforeMount?.();
+	await beforeMount?.();
 
 	const router = createRouter({
 		history: createMemoryHistory(),

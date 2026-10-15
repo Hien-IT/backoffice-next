@@ -3,7 +3,7 @@
 import knex, { type Knex } from 'knex';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { e2eConfig, isCors } from './helpers/config.js';
+import { CONTENT_URL, e2eConfig, isCors } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { Fixtures, PASSWORD, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
@@ -34,7 +34,7 @@ test.afterAll(async () => {
 async function signIn(page: Page, user: { email: string; password: string }) {
 	await page.goto('/admin/login');
 	await login(page, user);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 }
 
 test('forgot password: request notice with the contact-administrator line (US5-1, D-42)', async ({ page }) => {
@@ -181,7 +181,7 @@ test.describe('first-run setup on the setup pair (own empty Postgres)', () => {
 			await page.getByLabel('Confirm Password', { exact: true }).fill(PASSWORD);
 			await page.getByRole('button', { name: 'Launch Backoffice' }).click();
 
-			await expect(page).toHaveURL(/\/admin\/content$/);
+			await expect(page).toHaveURL(CONTENT_URL);
 		});
 	}
 });

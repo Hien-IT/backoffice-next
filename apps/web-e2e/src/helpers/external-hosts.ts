@@ -18,7 +18,10 @@ export function isLocalHost(hostname: string): boolean {
 
 /** What an outside URL gets: a stub, or undefined to abort it. */
 export function externalStub(url: URL): Parameters<Route['fulfill']>[0] | undefined {
-	switch (url.hostname) {
+	// OpenStreetMap tiles come from a, b and c subdomains.
+	const host = url.hostname.endsWith('.tile.openstreetmap.org') ? 'tile.openstreetmap.org' : url.hostname;
+
+	switch (host) {
 		case 'tile.openstreetmap.org':
 			return { status: 200, contentType: 'image/png', body: PNG };
 		case 'fonts.openmaptiles.org':

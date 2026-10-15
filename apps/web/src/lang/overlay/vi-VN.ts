@@ -32,4 +32,9 @@ export default {
 	move_right: 'Chuyển phải',
 	move_to_group: 'Chuyển sang nhóm…',
 	move_item_to_group: 'Chuyển {item} sang nhóm',
+	// Feature 014: sort announcement of the table count line (FR-115b, no Directus key).
+	table_sorted_asc: 'Sắp theo {field} tăng dần',
+	table_sorted_desc: 'Sắp theo {field} giảm dần',
+	// Feature 014: label of the save split button menu (recipe Q-8, no Directus key).
+	more_save_options: 'Tùy chọn lưu khác',
 };

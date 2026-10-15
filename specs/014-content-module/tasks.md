@@ -219,11 +219,11 @@ phân trang và đếm phía server.
 
 ### Tests cho User Story 1
 
-- [ ] T027 [P] [US1] `e2e/content-navigation.spec.ts` (US1-1, US1-2, FR-001 đến FR-005, FR-009): cây nhóm/folder/ẩn/tìm,
+- [X] T027 [P] [US1] `e2e/content-navigation.spec.ts` (US1-1, US1-2, FR-001 đến FR-005, FR-009): cây nhóm/folder/ẩn/tìm,
   nhóm `locked`, nhóm chứa collection đang xem tự mở, `/content` về collection gần nhất, chuyển hướng
   `/content/directus_users` → `/users`, `/content/directus_revisions` → không tìm thấy, bàn phím cây (FR-004b); tag `@core`
   không gắn.
-- [ ] T028 [P] [US1] `e2e/content-tabular.spec.ts` `@core` (US1-3 đến US1-6, FR-022 đến FR-034): cột mặc định, thêm/ẩn
+- [X] T028 [P] [US1] `e2e/content-tabular.spec.ts` `@core` (US1-3 đến US1-6, FR-022 đến FR-034): cột mặc định, thêm/ẩn
   cột, độ rộng, căn lề, khoảng cách, sắp xếp, trang, kích thước trang, chọn nhiều, Ctrl+click tab mới, trạng thái
   trống/không kết quả/lỗi (đặt lại tùy chọn), preset ghi ra đọc lại qua `AdminApi`, số request mỗi thao tác (SC-003 bảng
   request); ở chromium-768 trang không cuộn ngang (`document.documentElement.scrollWidth <= window.innerWidth` như
@@ -231,42 +231,42 @@ phân trang và đếm phía server.
 
 ### Implementation cho User Story 1
 
-- [ ] T029 [P] [US1] Chép `src/modules/content/composables/use-navigation.ts` (`activeGroups`, `showHidden` dùng chung,
+- [X] T029 [P] [US1] Chép `src/modules/content/composables/use-navigation.ts` (`activeGroups`, `showHidden` dùng chung,
   mở nhóm cha của collection đang xem); test.
-- [ ] T030 [US1] `src/modules/content/components/{ContentNavigation,NavigationItem,NavigationItemContent,
+- [X] T030 [US1] `src/modules/content/components/{ContentNavigation,NavigationItem,NavigationItemContent,
   NavigationBookmark}.vue` chép logic `modules/content/components/*` (FR-004, FR-004b, FR-005 phần liệt kê và điều
   hướng bookmark; sửa/xóa bookmark ở T053): cây trong slot `navigation` của `PrivateView`/`AppSidebar` theo recipe §9,
   `dense` > 5, ô tìm > 20 (lọc từ 3 ký tự như Directus), "hiện/ẩn collection ẩn" (nút + `contextmenu`), admin không có
   collection thì nút tạo collection tới khung Settings (D-71); browser test bàn phím và cây 300 collection + 100
   bookmark < 500 ms (SC-011, `PERF=1`).
-- [ ] T031 [US1] `src/modules/content.ts` thay `placeholderRoutes` bằng route chép `modules/content/index.ts` (FR-001,
+- [X] T031 [US1] `src/modules/content.ts` thay `placeholderRoutes` bằng route chép `modules/content/index.ts` (FR-001,
   FR-002; data-model §1): `no-collections` (beforeEnter về collection gần nhất `backoffice-last-accessed-collection` hoặc
   gốc đầu tiên bỏ nhóm đóng), `content-collection`, `content-item`, `content-item-preview`, `content-item-not-found`,
   guard `checkForSystem` (dùng `getSystemCollectionRoute` của `src/utils/get-item-route.ts`, giữ `?bookmark=`),
   `getArchiveValue`; component lười; `src/modules/content/routes/{NoCollections,ContentNotFound,CollectionOrItem}.vue`
   (singleton → màn item; ghi collection gần nhất); test `src/modules/content.test.ts` (mọi nhánh guard) và test 012
   `src/modules/index.test.ts` giữ xanh.
-- [ ] T032 [US1] Chép `src/composables/use-preset.ts` (FR-010 đến FR-019; data-model §2): preset cục bộ, debounce 450 ms
+- [X] T032 [US1] Chép `src/composables/use-preset.ts` (FR-010 đến FR-019; data-model §2): preset cục bộ, debounce 450 ms
   gửi toàn bộ preset, bookmark không tự lưu và `bookmarkSaved` so sâu, `resetPreset` lưu ngay, `saveCurrentAsBookmark`,
   `clearLocalSave`, subscribe store đổi tên, `temporary`, phiên share không ghi; test port + ca CHK001.
-- [ ] T033 [US1] `src/layouts/tabular/{index.ts,types.ts}` chép `layouts/tabular/{index.ts,types.ts}` bỏ
+- [X] T033 [US1] `src/layouts/tabular/{index.ts,types.ts}` chép `layouts/tabular/{index.ts,types.ts}` bỏ
   `useAiToolsStore` (D-70): `useItemOptions` (cột mặc định CHK034, sort mặc định sort_field hoặc pk, limit 25),
   `useTable` (headers, widths debounce 350 ms, align, spacing → 29/43/58), `showingCount`, `download` (`saveAsCSV`),
   `selectAll`, `refresh`; test `src/layouts/tabular/index.test.ts` với `mockFixtureApi`.
-- [ ] T034 [US1] `src/components/BoTable.vue` mở rộng bằng prop tùy chọn (FR-030 đến FR-032; recipe Q-2): `fixedHeader`,
+- [X] T034 [US1] `src/components/BoTable.vue` mở rộng bằng prop tùy chọn (FR-030 đến FR-032; recipe Q-2): `fixedHeader`,
   header có `width`, `align`, `description`, `sortable`, slot `header-context-menu` (sắp tăng/giảm, căn trái/giữa/phải,
   ẩn cột, "Chuyển trái/phải" D-69, ô độ rộng), kéo đổi thứ tự cột chỉ nếu T003 b thấy Directus có, `rowHeight`,
   `aria-sort` trên header, `caption`, click dòng phát `{item, event}`; test 013 của `BoTable` giữ xanh; thêm
   `src/components/BoTable.browser.test.ts` ca mới.
-- [ ] T035 [US1] `src/layouts/tabular/{Tabular.vue,TabularOptions.vue,TabularActions.vue}`: bảng theo state, footer
+- [X] T035 [US1] `src/layouts/tabular/{Tabular.vue,TabularOptions.vue,TabularActions.vue}`: bảng theo state, footer
   `BoPagination` + chọn kích thước trang lọc `queryLimit.max` (`usePageSize` 013, FR-033), nút "+" thêm cột bằng
   `FieldList` trong Popover, sắp xếp tay (kéo + menu dòng Lên/Xuống khi `sortAllowed`, FR-032, D-69), slot
   `no-results`/`no-items`/`error`; `TabularActions` dòng số đếm `role="status" aria-live="polite"` (FR-115b);
   `TabularOptions` khoảng cách dòng; browser test + `src/layouts/tabular/perf.browser.test.ts` 1000 × 10 < 2 s, cuộn 10
   lần không vẽ lại toàn bảng (SC-011, `PERF=1`).
-- [ ] T036 [P] [US1] `src/components/sidebar/LayoutSidebarDetail.vue` chép `layout-sidebar-detail.vue` (menu chọn layout
+- [X] T036 [P] [US1] `src/components/sidebar/LayoutSidebarDetail.vue` chép `layout-sidebar-detail.vue` (menu chọn layout
   từ `getLayouts()`, icon, fallback tabular, slot option của layout; FR-021); test.
-- [ ] T037 [US1] `src/modules/content/routes/CollectionRoute.vue` chép logic `routes/collection.vue` phần US1 (FR-006,
+- [X] T037 [US1] `src/modules/content/routes/CollectionRoute.vue` chép logic `routes/collection.vue` phần US1 (FR-006,
   FR-008, FR-020 đến FR-028, FR-044 phần bộ lọc hệ thống): `PrivateView` (breadcrumb, tiêu đề, icon/màu collection,
   slot actions với `layout.slots.actions`, nút tạo item khóa khi không có quyền FR-098), `useLayout` với preset,
   `filterSystem` archive, `mergeFilters`, lựa chọn xóa khi đổi collection, slot trạng thái, panel L-4 với
@@ -288,29 +288,29 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
 
 ### Tests cho User Story 2
 
-- [ ] T039 [P] [US2] `e2e/content-item.spec.ts` `@core` (US2-1 đến US2-8, FR-050 đến FR-062): tạo, lưu và thoát, lưu và
+- [X] T039 [P] [US2] `e2e/content-item.spec.ts` `@core` (US2-1 đến US2-8, FR-050 đến FR-062): tạo, lưu và thoát, lưu và
   ở lại (URL đổi khóa mới), lưu và tạo tiếp, bản sao (`bo_content` có m2o, o2m của bộ mẫu `bo_rel`), bỏ thay đổi, xóa,
   archive/unarchive, hỏi `unsaved_changes` khi rời trang và khi đổi `?version=`, lỗi validation (field bắt buộc), singleton
   `bo_singleton` (seed T023: mở `/content/bo_singleton` thẳng form, `PATCH /items/bo_singleton`, không nút quay lại/xóa/
   archive, `/content/bo_singleton/1` → không tìm thấy), `bo-viewer` form chỉ đọc, tiêu đề tab chuỗi cuối
   (FR-051), notice tại chỗ, focus sau xóa và lưu-tạo-tiếp (FR-115c).
-- [ ] T040 [P] [US2] `e2e/content-live-preview.spec.ts` (FR-063 đến FR-069): nút xem trước bật/tắt, chia đôi và kéo tay
+- [X] T040 [P] [US2] `e2e/content-live-preview.spec.ts` (FR-063 đến FR-069): nút xem trước bật/tắt, chia đôi và kéo tay
   cầm (cả mũi tên), toàn bề rộng, popup mở `/content/bo_content/1/preview` và `postMessage('refresh')`, nạp lại sau lưu,
   ≤ `sm` toàn bề rộng, khóa localStorage `backoffice-live-preview-*`; `preview.example` stub (T025).
 
 ### Implementation cho User Story 2
 
-- [ ] T041 [US2] Chép `src/composables/use-item/index.ts` (+ `lib/*` nếu có) (FR-050 đến FR-055; data-model §4): api →
+- [X] T041 [US2] Chép `src/composables/use-item/index.ts` (+ `lib/*` nếu có) (FR-050 đến FR-055; data-model §4): api →
   sdk, `notify` → `useNotices`, `unexpectedError`, `save` (validate cục bộ, `clearHiddenFieldsByCondition`,
   `pushGroupOptionsDown` từ form 013), `saveAsCopy` (GraphQL `POST /graphql|/graphql/system` bằng `json-to-graphql-query`
   hoặc dự phòng T002, `findExistingRelatedItems` với `SEARCH` khi query > 8192, `clearPrimaryKey`,
   `clearJunctionRelatedKey`), `archive`, `remove`, `refresh`, `isArchived`, singleton endpoint; port test
   `directus/app/src/composables/use-item/index.test.ts` → `src/composables/use-item/index.test.ts`.
-- [ ] T042 [P] [US2] Chép `src/composables/use-nested-validation.ts` và `useShortcut`/`translateShortcut` từ
+- [X] T042 [P] [US2] Chép `src/composables/use-nested-validation.ts` và `useShortcut`/`translateShortcut` từ
   `directus/packages/composables` (`src/composables/use-shortcut.ts`; gắn vào phần tử form, `meta` = Ctrl/Cmd); test.
-- [ ] T043 [P] [US2] `src/components/SaveOptions.vue` chép logic `save-options.vue` (split button theo recipe Q-8: menu
+- [X] T043 [P] [US2] `src/components/SaveOptions.vue` chép logic `save-options.vue` (split button theo recipe Q-8: menu
   Reka `DropdownMenu` cạnh nút lưu, `disabledOptions`, gợi ý phím tắt); test.
-- [ ] T044 [US2] `src/modules/content/routes/ItemRoute.vue` chép logic `routes/item.vue` bỏ collab, AI, visual editing
+- [X] T044 [US2] `src/modules/content/routes/ItemRoute.vue` chép logic `routes/item.vue` bỏ collab, AI, visual editing
   (FR-050 đến FR-062, FR-115c): `BoForm` (013) với `fields` theo quyền, `initialValues`, `edits`, `primaryKey`,
   `loading`, `disabled` (`isFormDisabled`), `validationErrors`, `autofocus`, `direction`; tiêu đề `RenderTemplate` +
   skeleton; breadcrumb (giữ `?bookmark=`), nút quay lại; `isSavable`, `disabledOptions`; nút xóa/archive với hộp xác nhận
@@ -318,14 +318,14 @@ chưa lưu, singleton, live preview không visual editing (Q1 = A).
   `unsaved_changes`; phím tắt; sự kiện "flow đã chạy" nạp lại item (FR-059); singleton (FR-058); `ContentNotFound`
   (FR-061); `useHead` (FR-051 chuỗi cuối); test `src/modules/content/routes/ItemRoute.test.ts` (nhánh savable, singleton,
   chỉ đọc, guard).
-- [ ] T045 [P] [US2] `src/components/SplitPanel.vue` bọc `@directus/vue-split-panel` (hoặc dự phòng T002) với tay cầm
+- [X] T045 [P] [US2] `src/components/SplitPanel.vue` bọc `@directus/vue-split-panel` (hoặc dự phòng T002) với tay cầm
   `ResizeHandle` 012: props `size`, `collapsed`, `minSize`, `maxSize`, `snapPoints`, `collapseThreshold`, `disabled`;
   bàn phím mũi tên ±5 %, Home/End (D-69); `motion-reduce`; test.
-- [ ] T046 [P] [US2] `src/components/LivePreview.vue` chép logic `views/private/components/live-preview.vue` bỏ visual
+- [X] T046 [P] [US2] `src/components/LivePreview.vue` chép logic `views/private/components/live-preview.vue` bỏ visual
   editing (FR-065, FR-069): thanh công cụ (URL, nạp lại, kích thước 400×600 ↔ toàn khung, ô rộng/cao, zoom 25–200 %, mở
   cửa sổ, menu hiển thị), iframe với thuộc tính theo T003 c, `window.refreshLivePreview`, trạng thái `no_url`/`invalid_url`;
   test.
-- [ ] T047 [US2] Live preview trong `ItemRoute.vue` + `src/modules/content/routes/PreviewRoute.vue` (FR-063, FR-064,
+- [X] T047 [US2] Live preview trong `ItemRoute.vue` + `src/modules/content/routes/PreviewRoute.vue` (FR-063, FR-064,
   FR-066 đến FR-068): `previewUrl` từ `use-template-data` với `preview_url` và `$version`, chế độ `split`/`popup`/tắt,
   localStorage `backoffice-live-preview-{mode,size,full-width}`, `livePreviewEnforceDefault`, `isMobile` (`sm`),
   `window.open` 900×800 tên `live-preview`, nhận `postMessage` cùng origin từ cửa sổ con, đóng con khi rời trang, popup bị

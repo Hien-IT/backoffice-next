@@ -1,0 +1,30 @@
+[
+	{
+		"source": "app/src/composables/use-item/index.ts",
+		"dest": "apps/web/src/composables/use-item/index.ts"
+	},
+	{
+		"source": "app/src/composables/use-item/index.test.ts",
+		"dest": "apps/web/src/composables/use-item/index.test.ts"
+	},
+	{
+		"source": "app/src/composables/use-item/lib/get-graphql-query-fields.ts",
+		"dest": "apps/web/src/composables/use-item/lib/get-graphql-query-fields.ts"
+	},
+	{
+		"source": "app/src/composables/use-item/lib/get-graphql-query-fields.test.ts",
+		"dest": "apps/web/src/composables/use-item/lib/get-graphql-query-fields.test.ts"
+	},
+	{
+		"source": "app/src/composables/use-item/lib/transform-m2a-aliases.ts",
+		"dest": "apps/web/src/composables/use-item/lib/transform-m2a-aliases.ts"
+	},
+	{
+		"source": "app/src/composables/use-item/lib/transform-m2a-aliases.test.ts",
+		"dest": "apps/web/src/composables/use-item/lib/transform-m2a-aliases.test.ts"
+	},
+	{
+		"source": "app/src/types/versions.ts",
+		"dest": "apps/web/src/types/versions.ts"
+	}
+]

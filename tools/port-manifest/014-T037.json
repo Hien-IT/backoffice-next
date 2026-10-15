@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/modules/content/routes/collection.vue",
+		"dest": "apps/web/src/modules/content/routes/CollectionRoute.vue"
+	},
+	{
+		"source": "app/src/components/v-info.vue",
+		"dest": "apps/web/src/components/BoInfo.vue"
+	}
+]

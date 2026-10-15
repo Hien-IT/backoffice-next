@@ -3,7 +3,7 @@
 // isSystemCollection) gives the same answer.
 import { getEndpoint } from '@directus/utils';
 
-function isSystemCollection(collection: string): boolean {
+export function isSystemCollection(collection: string): boolean {
 	return getEndpoint(collection) !== `/items/${collection}`;
 }
 

@@ -2,7 +2,7 @@
 // last_page, private 404, API errors. The module order is compared with the Directus app 11.17.4 on the same database.
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { ADMIN, directusUrl } from './helpers/config.js';
+import { ADMIN, CONTENT_URL, directusUrl } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { moduleBar } from './helpers/layout.js';
@@ -40,7 +40,7 @@ test.afterAll(async () => {
 async function signIn(page: Page, user: { email: string; password: string } = ADMIN) {
 	await page.goto('/admin/login');
 	await login(page, user);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 }
 
 /** hrefs of the module bar of the Backoffice app, in order. */
@@ -96,8 +96,14 @@ test('admin, default module bar: order of Directus without Documentation, URLs a
 		['/admin/content', 'Content'],
 	] as const) {
 		await (await moduleBar(page)).locator(`a[href="${path}"]`).click();
-		await expect(page).toHaveURL(new RegExp(`${path}$`));
-		await expect(page).toHaveTitle(`${title} · Backoffice`);
+		// Feature 014: /admin/content sends to a collection (its name is the title), like the Directus app.
+		if (path === '/admin/content') {
+			await expect(page).toHaveURL(CONTENT_URL);
+			await expect(page).toHaveTitle(/ · Backoffice$/);
+		} else {
+			await expect(page).toHaveURL(new RegExp(`${path}$`));
+			await expect(page).toHaveTitle(`${title} · Backoffice`);
+		}
 		await expect(page.getByRole('heading', { level: 1, name: title })).toBeVisible();
 	}
 

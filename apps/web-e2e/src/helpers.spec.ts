@@ -34,6 +34,9 @@ test('outside hosts: local ones pass, map and preview hosts get stubs, the rest 
 	expect(['localhost', '127.0.0.1', 'idp'].every(isLocalHost)).toBe(true);
 	expect(isLocalHost('tile.openstreetmap.org')).toBe(false);
 	expect(externalStub(new URL('https://tile.openstreetmap.org/1/0/0.png'))).toMatchObject({ contentType: 'image/png' });
+	expect(externalStub(new URL('https://b.tile.openstreetmap.org/1/0/0.png'))).toMatchObject({
+		contentType: 'image/png',
+	});
 	expect(externalStub(new URL('https://fonts.openmaptiles.org/a/0-255.pbf'))).toEqual({ status: 204 });
 	expect(externalStub(new URL('https://api.mapbox.com/geocoding/v5/x.json'))).toEqual({
 		json: { type: 'FeatureCollection', features: [] },

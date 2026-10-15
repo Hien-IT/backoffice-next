@@ -1,13 +1,18 @@
-<!-- Ported from directus/app/src/components/v-table/v-table.vue -->
+<!-- Ported from directus/app/src/components/v-table/v-table.vue; Ported from directus/app/src/components/v-table/table-header.vue -->
 <script setup lang="ts">
 // Backoffice: the simple Table recipe (component-specs "Table, simple"): a real <table> with columns
 // { key, label, width, align, sortable }, selection by row key (Directus `selectionUseKeys`), sort and mouse resize
 // as v-table / table-header (no keyboard resize, not in Directus), row heights of the Directus `spacing`, manual sort
 // (drag handle column, `update:rows` with the reordered rows as v-table `update:items`; mouse only as in Directus, the
-// callers give a keyboard path), `click:row` and the `item-append` / `header-append` slots. Header reordering comes
-// with the screens that use it (014).
+// callers give a keyboard path), `click:row` and the `item-append` / `header-append` slots.
+// 014 (recipe "Data table and pagination (Q-2)"), optional: `fixedHeader`, `rowHeight`, column `description`, the
+// `header-context-menu` slot (the header button opens a Dropdown menu, as table-header.vue opens its VMenu),
+// `allowHeaderReorder` (native drag and drop of the header instead of vuedraggable on the header row, so the rows keep
+// the only Draggable; the keyboard path is the caller's header menu, D-69) and `manual-sort` ({ item, to } of v-table).
+import { moveInArray } from '@directus/utils';
 import { useEventListener } from '@vueuse/core';
 import { throttle } from 'lodash-es';
+import { DropdownMenuContent, DropdownMenuPortal, DropdownMenuRoot, DropdownMenuTrigger } from 'reka-ui';
 import { computed, getCurrentInstance, ref, useSlots } from 'vue';
 import Draggable from 'vuedraggable';
 import BoCheckbox from './BoCheckbox.vue';
@@ -20,6 +25,8 @@ export type BoTableColumn = {
 	width?: number | null;
 	align?: 'left' | 'center' | 'right';
 	sortable?: boolean;
+	/** Path of a nested column ("A -> B"): `title` of the header and screen reader text. */
+	description?: string | null | undefined;
 };
 
 export type BoTableSort = { by: string | null; desc: boolean };
@@ -50,6 +57,12 @@ const props = withDefaults(
 		manualSortKey?: string | undefined;
 		/** Width in px of the `item-append` column (v-table sizes it to its content). */
 		appendWidth?: number;
+		/** The table scrolls in its own box (the parent bounds the height), the header stays on top (v-table). */
+		fixedHeader?: boolean;
+		/** Row height in px (v-table `rowHeight`), instead of the `spacing` heights. */
+		rowHeight?: number | undefined;
+		/** Headers can be dragged to another position (v-table `allowHeaderReorder`), emits `update:columns`. */
+		allowHeaderReorder?: boolean;
 	}>(),
 	{
 		rowKey: 'id',
@@ -67,6 +80,9 @@ const props = withDefaults(
 		showManualSort: false,
 		manualSortKey: undefined,
 		appendWidth: 160,
+		fixedHeader: false,
+		rowHeight: undefined,
+		allowHeaderReorder: false,
 	},
 );
 
@@ -76,10 +92,13 @@ const emit = defineEmits<{
 	'update:columns': [columns: BoTableColumn[]];
 	'update:rows': [rows: Row[]];
 	'click:row': [payload: { item: Row; event: Event }];
+	'manual-sort': [payload: { item: Key; to: Key }];
 }>();
 
 const slots = useSlots();
-const hasItemAppendSlot = computed(() => slots['item-append'] !== undefined);
+// v-table renders the append column for either slot (table-header.vue `header-append`).
+const hasItemAppendSlot = computed(() => slots['item-append'] !== undefined || slots['header-append'] !== undefined);
+const hasHeaderMenu = computed(() => slots['header-context-menu'] !== undefined);
 
 // v-table `clickable`: a row is clickable (and focusable) when the caller listens to `click:row`.
 const instance = getCurrentInstance();
@@ -212,6 +231,44 @@ function changeSort(column: BoTableColumn) {
 	emit('update:sort', newSort.by ? newSort : null);
 }
 
+// v-table.vue onSortChange: the keys of the dragged row and of the row at its new place.
+function onManualSortEnd(event: { oldIndex?: number; newIndex?: number }) {
+	if (props.disabled || event.oldIndex === undefined || event.newIndex === undefined) return;
+	if (event.oldIndex === event.newIndex) return;
+
+	emit('manual-sort', { item: rowKeyOf(props.rows[event.oldIndex]!), to: rowKeyOf(props.rows[event.newIndex]!) });
+}
+
+// Header reorder (table-header.vue Draggable on the header row): the dragged column takes the drop target's place.
+const dragKey = ref<string | null>(null);
+const dropKey = ref<string | null>(null);
+
+function onHeaderDragStart(column: BoTableColumn, event: DragEvent) {
+	if (resizing.value) return event.preventDefault();
+	dragKey.value = column.key;
+	event.dataTransfer?.setData('text/plain', column.key);
+	if (event.dataTransfer) event.dataTransfer.effectAllowed = 'move';
+}
+
+function onHeaderDragOver(column: BoTableColumn, event: DragEvent) {
+	if (dragKey.value === null) return;
+	event.preventDefault();
+	dropKey.value = column.key;
+}
+
+function onHeaderDrop(column: BoTableColumn) {
+	const from = props.columns.findIndex((existing) => existing.key === dragKey.value);
+	const to = props.columns.findIndex((existing) => existing.key === column.key);
+	onHeaderDragEnd();
+	if (from === -1 || to === -1 || from === to) return;
+	emit('update:columns', moveInArray(props.columns, from, to));
+}
+
+function onHeaderDragEnd() {
+	dragKey.value = null;
+	dropKey.value = null;
+}
+
 // table-header.vue column resize (mouse only)
 const resizing = ref(false);
 const resizeStartX = ref(0);
@@ -252,9 +309,13 @@ function onPointerUp() {
 <template>
 	<div
 		class="overflow-hidden rounded-xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
-		:class="{ 'select-none': resizing }"
+		:class="{ 'select-none': resizing, 'flex max-h-full min-h-0 flex-col': fixedHeader }"
 	>
-		<div class="custom-scrollbar max-w-full overflow-x-auto">
+		<div
+			class="custom-scrollbar max-w-full"
+			:class="fixedHeader ? 'min-h-0 flex-1 overflow-auto' : 'overflow-x-auto'"
+			:data-fixed-header="fixedHeader ? 'true' : undefined"
+		>
 			<table
 				class="w-full table-fixed"
 				:style="{ minWidth: `${minWidth}px` }"
@@ -297,33 +358,79 @@ function onPointerUp() {
 							/>
 						</th>
 						<th
-							v-for="column in internalColumns"
+							v-for="(column, index) in internalColumns"
 							:key="column.key"
 							scope="col"
 							:aria-sort="ariaSort(column)"
+							:title="column.description || undefined"
 							class="group relative truncate px-3 py-3 text-theme-xs font-medium text-gray-500 dark:text-gray-400"
-							:class="ALIGN[column.align ?? 'left']"
+							:class="[
+								ALIGN[column.align ?? 'left'],
+								{ 'border-s-2 border-brand-500': dropKey === column.key && dragKey !== column.key },
+							]"
+							@dragover="onHeaderDragOver(column, $event)"
+							@drop="onHeaderDrop(column)"
 						>
-							<button
-								v-if="column.sortable !== false && !disabled"
-								type="button"
-								class="inline-flex max-w-full items-center gap-1 rounded"
-								:class="FOCUS"
-								@click="changeSort(column)"
+							<div
+								:class="{ 'cursor-grab': allowHeaderReorder && !disabled }"
+								:draggable="allowHeaderReorder && !disabled ? 'true' : undefined"
+								data-reorder-handle
+								@dragstart="onHeaderDragStart(column, $event)"
+								@dragend="onHeaderDragEnd"
 							>
-								<span class="truncate"><slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot></span>
-								<BoIcon
-									:name="internalSort.by === column.key && internalSort.desc ? 'arrow_downward' : 'arrow_upward'"
-									size="sm"
-									class="text-gray-500 transition-opacity motion-reduce:transition-none dark:text-gray-400"
-									:class="
-										internalSort.by === column.key
-											? 'opacity-100'
-											: 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
-									"
-								/>
-							</button>
-							<slot v-else :name="`header.${column.key}`" :column="column">{{ column.label }}</slot>
+								<DropdownMenuRoot v-if="hasHeaderMenu && !disabled">
+									<DropdownMenuTrigger as-child>
+										<button type="button" class="inline-flex max-w-full items-center gap-1 rounded" :class="FOCUS">
+											<span class="truncate"><slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot></span>
+											<span v-if="column.description" class="sr-only">({{ column.description }})</span>
+											<BoIcon
+												:name="
+													internalSort.by === column.key
+														? internalSort.desc
+															? 'arrow_downward'
+															: 'arrow_upward'
+														: 'arrow_drop_down'
+												"
+												size="sm"
+												class="text-gray-500 dark:text-gray-400"
+											/>
+										</button>
+									</DropdownMenuTrigger>
+									<DropdownMenuPortal>
+										<DropdownMenuContent
+											align="start"
+											:side-offset="4"
+											class="z-99999 min-w-40 space-y-1 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+										>
+											<slot name="header-context-menu" :column="column" :index="index" />
+										</DropdownMenuContent>
+									</DropdownMenuPortal>
+								</DropdownMenuRoot>
+								<button
+									v-else-if="column.sortable !== false && !disabled"
+									type="button"
+									class="inline-flex max-w-full items-center gap-1 rounded"
+									:class="FOCUS"
+									@click="changeSort(column)"
+								>
+									<span class="truncate"><slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot></span>
+									<span v-if="column.description" class="sr-only">({{ column.description }})</span>
+									<BoIcon
+										:name="internalSort.by === column.key && internalSort.desc ? 'arrow_downward' : 'arrow_upward'"
+										size="sm"
+										class="text-gray-500 transition-opacity motion-reduce:transition-none dark:text-gray-400"
+										:class="
+											internalSort.by === column.key
+												? 'opacity-100'
+												: 'opacity-0 group-hover:opacity-100 group-focus-within:opacity-100'
+										"
+									/>
+								</button>
+								<template v-else>
+									<slot :name="`header.${column.key}`" :column="column">{{ column.label }}</slot>
+									<span v-if="column.description" class="sr-only">({{ column.description }})</span>
+								</template>
+							</div>
 							<span
 								v-if="showResize"
 								aria-hidden="true"
@@ -374,14 +481,16 @@ function onPointerUp() {
 					chosen-class="opacity-50"
 					v-bind="{ 'force-fallback': true }"
 					@update:model-value="emit('update:rows', $event)"
+					@end="onManualSortEnd"
 				>
 					<template #item="{ element: row }">
 						<tr
 							:aria-selected="showSelectColumn ? (getSelectedState(row) ? 'true' : 'false') : undefined"
 							:tabindex="hasClickListener ? 0 : undefined"
 							class="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]"
+							:style="rowHeight ? { height: `${rowHeight}px` } : undefined"
 							:class="[
-								ROW_HEIGHTS[spacing],
+								rowHeight ? '' : ROW_HEIGHTS[spacing],
 								{ 'bg-gray-50 dark:bg-white/[0.03]': getSelectedState(row) },
 								hasClickListener ? ['cursor-pointer', FOCUS, 'focus-visible:-outline-offset-2'] : '',
 							]"

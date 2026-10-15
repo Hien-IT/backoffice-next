@@ -2,7 +2,7 @@
 // field, and language, appearance and theme overrides apply at once and after a reload.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { ADMIN } from './helpers/config.js';
+import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb } from './helpers/db-rows.js';
 import { Fixtures, PASSWORD, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
@@ -46,7 +46,7 @@ test.afterAll(async () => {
 async function openProfile(page: Page) {
 	await page.goto('/admin/login');
 	await login(page, user);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await page.goto('/admin/users/me');
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }

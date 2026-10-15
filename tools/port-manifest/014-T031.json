@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/modules/content/index.ts",
+		"dest": "apps/web/src/modules/content.ts"
+	},
+	{
+		"source": "app/src/modules/content/routes/no-collections.vue",
+		"dest": "apps/web/src/modules/content/routes/NoCollections.vue"
+	},
+	{
+		"source": "app/src/modules/content/routes/not-found.vue",
+		"dest": "apps/web/src/modules/content/routes/ContentNotFound.vue"
+	},
+	{
+		"source": "app/src/modules/content/routes/collection-or-item.vue",
+		"dest": "apps/web/src/modules/content/routes/CollectionOrItem.vue"
+	}
+]

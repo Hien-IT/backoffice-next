@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/modules/content/components/navigation.vue",
+		"dest": "apps/web/src/modules/content/components/ContentNavigation.vue"
+	},
+	{
+		"source": "app/src/modules/content/components/NavigationItem.vue",
+		"dest": "apps/web/src/modules/content/components/NavigationItem.vue"
+	},
+	{
+		"source": "app/src/modules/content/components/navigation-item-content.vue",
+		"dest": "apps/web/src/modules/content/components/NavigationItemContent.vue"
+	},
+	{
+		"source": "app/src/modules/content/components/navigation-bookmark.vue",
+		"dest": "apps/web/src/modules/content/components/NavigationBookmark.vue"
+	}
+]

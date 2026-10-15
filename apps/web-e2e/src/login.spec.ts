@@ -1,5 +1,6 @@
 // US1 (T039, contracts/e2e.md §2): local sign-in with and without TFA, errors, redirect, session kept on reload, an
 // ended session, sign-out and the enforced TFA setup, against the API of the configuration.
+import { CONTENT_URL } from './helpers/config.js';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
@@ -51,7 +52,7 @@ test('signs in with email and password, then signs out (US1-1, US1-6)', async ({
 	await expect(page).toHaveTitle(/^Sign In · /);
 
 	await login(page, appUser);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	expect(await sessions(appUser)).toBe(1);
 
 	await page.goto('/admin/logout');
@@ -84,7 +85,7 @@ test('TFA: the OTP field appears after INVALID_OTP and keeps the credentials (US
 
 	await otp.fill(totp());
 	await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 });
 
 test('a user without app access sees the no-app-access screen and can sign out (US1-3)', async ({ page }) => {
@@ -117,10 +118,10 @@ test('?redirect: an app path is followed, an outside URL stays in the app (US1-7
 test('reload keeps the session; an ended session sends back to login (US1-4, US1-5)', async ({ page }) => {
 	await openLogin(page);
 	await login(page, appUser);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 
 	await page.reload();
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await moduleBar(page);
 
 	// Tab hidden then visible again: refresh() validates the session (FR-014) and finds it gone.
@@ -138,7 +139,7 @@ test('reload keeps the session; an ended session sends back to login (US1-4, US1
 
 	// Reload with a dead cookie: like Directus (firstRefresh), back to login without a reason.
 	await login(page, appUser);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await moduleBar(page);
 	await hostDb()('directus_sessions').where({ user: appUser.id }).delete();
 	await page.reload();

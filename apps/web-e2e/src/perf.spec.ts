@@ -1,6 +1,6 @@
 // SC-008, FR-074 (T066): the login page shows in under 3 s on 10 Mbps with a cold cache (chromium, CDP throttling),
 // and no layout scrolls horizontally at 768 and 1280 px.
-import { ADMIN } from './helpers/config.js';
+import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
@@ -38,7 +38,7 @@ test('no horizontal scroll on login, content and profile (FR-028, SC-008)', asyn
 
 	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
 	await login(page, ADMIN);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	expect(await noScroll()).toBe(true);
 
 	await page.goto('/admin/users/me');

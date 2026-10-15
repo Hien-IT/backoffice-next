@@ -15,7 +15,8 @@ import BoIcon from './BoIcon.vue';
 
 const { items, disabled = false } = defineProps<{
 	modelValue?: string | null;
-	items: { text: string; value: string }[];
+	/** `icon`: an icon before the text, in the list and in the trigger (Directus v-select `item-icon`). */
+	items: { text: string; value: string; icon?: string }[];
 	label?: string;
 	placeholder?: string;
 	disabled?: boolean;
@@ -58,7 +59,9 @@ const TRIGGER =
 							:value="item.value"
 							class="relative flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 dark:text-gray-300 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400"
 						>
-							<SelectItemText>{{ item.text }}</SelectItemText>
+							<SelectItemText class="flex items-center gap-2">
+								<BoIcon v-if="item.icon" :name="item.icon" size="sm" class="shrink-0" />{{ item.text }}
+							</SelectItemText>
 							<SelectItemIndicator><BoIcon name="check" size="sm" /></SelectItemIndicator>
 						</SelectItem>
 					</SelectViewport>

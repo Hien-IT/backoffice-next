@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/views/private/components/save-options.vue",
+		"dest": "apps/web/src/components/SaveOptions.vue"
+	}
+]

@@ -313,7 +313,7 @@ level. Behaviour (open groups, hidden collections, search, bookmarks, last acces
   (and `aria-current="page"` on the link) on the current collection or bookmark.
 - Rows reuse `menu-dropdown-item` / `menu-dropdown-item-active` / `menu-dropdown-item-inactive` (theme.css, `FOCUS`
   included) with `min-h-9 gap-2`; the collection icon `BoIcon` `size-4 shrink-0` takes the collection `color` as
-  inline style (data color, Q-C of 013) else `text-gray-500 dark:text-gray-400`; the name truncates (`BoTextOverflow`).
+  inline style (data color, Q-C of 013) else the row color (Directus foreground; gray-500 on the active brand-50 row fails axe color-contrast); the name truncates (`BoTextOverflow`).
 - Nesting: each level adds `ps-4`; a group row has a toggle button first (`size-6 rounded FOCUS`, `chevron_right`
   turning 90° when open, `motion-reduce:transition-none`, `aria-label` "Expand"/"Collapse" + name); a folder (collection
   without `schema`) is a group row whose label is not a link; `collapse: locked` groups have no toggle.
@@ -321,7 +321,7 @@ level. Behaviour (open groups, hidden collections, search, bookmarks, last acces
 - Bookmarks: child rows of their collection, icon `bookmark` (or the bookmark icon/color), a row menu button at the end
   (`more_vert`, `size-7 rounded FOCUS opacity-0 group-hover:opacity-100 group-focus-within:opacity-100`, always visible
   when the menu is open), `lock` icon instead when the user cannot edit (tooltip `cannot_edit_<scope>_bookmarks`).
-- Hidden collections: rows `text-gray-400 dark:text-gray-500` with an `visibility_off` icon after the name (and an sr-only
+- Hidden collections: rows `text-gray-500 dark:text-gray-400` (gray-400 fails axe color-contrast on white) with an `visibility_off` icon after the name (and an sr-only
   "hidden"); shown only when "Show hidden collections" is on.
 - Header row above the tree (sticky `top-0 bg-white dark:bg-gray-900 pb-2`): the search Input (Tier 1 Input, `h-9`,
   `type="search"`, placeholder `search_collection`) when more than 20 collections are visible, and an icon Button

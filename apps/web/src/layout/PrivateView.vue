@@ -8,6 +8,7 @@
 // template is in theme/use-app-head.ts.
 import { useHead } from '@unhead/vue';
 import { computed, watch } from 'vue';
+import type { RouteLocationRaw } from 'vue-router';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
 import NoticeStack from '../components/NoticeStack.vue';
 import { useLayoutBreakpoints } from '../composables/use-media-query.ts';
@@ -27,6 +28,18 @@ const props = defineProps<{
 
 	/** Render an icon before the title */
 	icon?: string | undefined;
+
+	/** Color of the icon (collection color) */
+	iconColor?: string | null | undefined;
+
+	/** Parent pages above the title (the Directus `headline` breadcrumb) */
+	breadcrumb?: { name: string; to: RouteLocationRaw }[] | undefined;
+
+	/** Back button before the title: a route, or `true` for the browser history */
+	back?: RouteLocationRaw | true | undefined;
+
+	/** Browser tab title when it differs from the page title (the item page, FR-051) */
+	tabTitle?: string | undefined;
 }>();
 
 const userStore = useUserStore();
@@ -38,7 +51,7 @@ const appAccess = computed(() => {
 	return userStore.currentUser?.app_access || false;
 });
 
-useHead({ title: () => props.title ?? null });
+useHead({ title: () => props.tabTitle ?? props.title ?? null });
 
 const { xl } = useLayoutBreakpoints();
 const navBarStore = useNavBarStore();
@@ -71,7 +84,9 @@ watch(
 
 			<div class="flex min-w-0 flex-1">
 				<MainContent class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6">
-					<PageHeader :title="title" :icon="icon">
+					<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
+						<template v-if="$slots['title']" #title><slot name="title" /></template>
+						<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
 						<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
 					</PageHeader>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->

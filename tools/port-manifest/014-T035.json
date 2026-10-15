@@ -1,0 +1,5 @@
+[
+	{ "source": "app/src/layouts/tabular/tabular.vue", "dest": "apps/web/src/layouts/tabular/Tabular.vue" },
+	{ "source": "app/src/layouts/tabular/options.vue", "dest": "apps/web/src/layouts/tabular/TabularOptions.vue" },
+	{ "source": "app/src/layouts/tabular/actions.vue", "dest": "apps/web/src/layouts/tabular/TabularActions.vue" }
+]

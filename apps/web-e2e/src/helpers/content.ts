@@ -11,17 +11,24 @@ export async function openCollection(page: Page, collection: string): Promise<vo
 	await expect(page.getByRole('main')).toBeVisible();
 }
 
-/** Opens /admin/content/<collection>/<pk> (`+` for a new item) and waits for the form. */
+/** Opens /admin/content/<collection>/<pk> (`+` for a new item) and waits for the loaded form (no busy grid). */
 export async function openItem(page: Page, collection: string, pk: string | number): Promise<void> {
 	await page.goto(`/admin/content/${collection}/${pk}`);
-	await expect(page.getByRole('main').locator('form, [data-testid="bo-form"]').first()).toBeVisible();
+	await expect(page.getByRole('button', { name: /^(Save|Not Allowed)$/ }).first()).toBeVisible();
+	await expect(page.getByRole('main').locator('[aria-busy="true"]')).toHaveCount(0);
 }
 
 /** The tabular layout's table, once its rows (or its empty state) show. */
 export async function waitForTable(page: Page) {
 	const table = page.getByRole('main').getByRole('table');
 	await expect(table).toBeVisible();
-	await expect(table.getByRole('row').nth(1).or(page.getByText('No Items', { exact: true })).first()).toBeVisible();
+	await expect(
+		table
+			.getByRole('row')
+			.nth(1)
+			.or(page.getByText('No Items', { exact: true }))
+			.first(),
+	).toBeVisible();
 	return table;
 }
 

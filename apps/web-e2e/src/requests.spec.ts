@@ -1,7 +1,7 @@
 // US7 (T065, FR-002, FR-072, SC-001): a full walk through the app (sign-in, the six modules, profile, sign-out) calls
 // only the routes of contracts/api-calls.md. Every other spec checks the same after each test (helpers/requests.ts);
 // this one also asserts which out-of-scope APIs are never touched.
-import { ADMIN } from './helpers/config.js';
+import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { moduleBar } from './helpers/layout.js';
 import { login } from './helpers/login.js';
@@ -17,7 +17,7 @@ test('sign-in, six modules, profile and sign-out call only the allowed API route
 
 	await page.goto('/admin/login');
 	await login(page, ADMIN);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 
 	for (const path of [
 		'/admin/files',
@@ -38,5 +38,6 @@ test('sign-in, six modules, profile and sign-out call only the allowed API route
 
 	const paths = apiRequests.map((r) => r.path);
 	expect(paths.length).toBeGreaterThan(10);
-	expect(paths.filter((p) => /^\/(websocket|extensions|graphql|items|mcp|ai|deployments)(\/|$)/.test(p))).toEqual([]);
+	// Feature 014: the Content module reads /items like the Directus app; the other Directus-only routes stay unused.
+	expect(paths.filter((p) => /^\/(websocket|extensions|graphql|mcp|ai|deployments)(\/|$)/.test(p))).toEqual([]);
 });

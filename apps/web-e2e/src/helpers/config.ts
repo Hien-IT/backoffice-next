@@ -45,3 +45,9 @@ export const SECRET = parityEnv['SECRET']!;
 
 /** Prefix of every row a spec creates, so the three configurations never touch each other's data (CHK019). */
 export const DATA_PREFIX = `web-e2e-${e2eConfig}`;
+
+/**
+ * Where the app lands after sign-in: /admin/content, which sends to a collection when there is one (feature 014, like
+ * the Directus app: `no-collections` beforeEnter).
+ */
+export const CONTENT_URL = /\/admin\/content(\/[^/?#]+)?$/;

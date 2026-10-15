@@ -33,4 +33,9 @@ export default {
 	move_right: 'Move right',
 	move_to_group: 'Move to group…',
 	move_item_to_group: 'Move {item} to group',
+	// Feature 014: sort announcement of the table count line (FR-115b, no Directus key).
+	table_sorted_asc: 'Sorted by {field}, ascending',
+	table_sorted_desc: 'Sorted by {field}, descending',
+	// Feature 014: label of the save split button menu (recipe Q-8, no Directus key).
+	more_save_options: 'More save options',
 };

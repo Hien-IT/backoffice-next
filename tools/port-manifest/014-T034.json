@@ -1,0 +1,3 @@
+[
+	{ "source": "app/src/components/v-table/table-header.vue", "dest": "apps/web/src/components/BoTable.vue" }
+]

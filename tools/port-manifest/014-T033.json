@@ -1,0 +1,4 @@
+[
+	{ "source": "app/src/layouts/tabular/index.ts", "dest": "apps/web/src/layouts/tabular/index.ts" },
+	{ "source": "app/src/layouts/tabular/types.ts", "dest": "apps/web/src/layouts/tabular/types.ts" }
+]

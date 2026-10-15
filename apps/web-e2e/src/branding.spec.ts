@@ -4,7 +4,7 @@
 import { readFileSync } from 'node:fs';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
-import { ADMIN, apiUrl, directusUrl } from './helpers/config.js';
+import { ADMIN, apiUrl, CONTENT_URL, directusUrl } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { moduleBar } from './helpers/layout.js';
 import { login } from './helpers/login.js';
@@ -67,7 +67,7 @@ test('default settings of a new Directus database: Backoffice everywhere, no "Di
 	await page.screenshot({ path: test.info().outputPath('branding-login-backoffice.png') });
 
 	await login(page, ADMIN);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await expect(page).toHaveTitle('Content · Backoffice');
 	await noDirectus(page);
 
@@ -128,7 +128,7 @@ test('settings branding is applied on the login page and in the app (US3-2..4)',
 	await page.screenshot({ path: test.info().outputPath('branding-login-backoffice-settings.png') });
 
 	await login(page, ADMIN);
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 	await expect(page).toHaveTitle('Content · Acme Backoffice E2E');
 	// The module bar logo links to project_url (FR-026).
 	await moduleBar(page);

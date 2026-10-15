@@ -3,7 +3,7 @@
 // serious or critical violation, low contrast of other pairs included, fails.
 import { AxeBuilder } from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
-import { ADMIN } from './helpers/config.js';
+import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
@@ -56,7 +56,7 @@ for (const scheme of ['light', 'dark'] as const) {
 		await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
 		await page.goto('/admin/login');
 		await login(page, ADMIN);
-		await expect(page).toHaveURL(/\/admin\/content$/);
+		await expect(page).toHaveURL(CONTENT_URL);
 
 		for (const path of PRIVATE) {
 			await page.goto(path);
@@ -96,7 +96,7 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	expect(await focused()).toBe('password');
 	await page.keyboard.type(ADMIN.password);
 	await page.keyboard.press('Enter');
-	await expect(page).toHaveURL(/\/admin\/content$/);
+	await expect(page).toHaveURL(CONTENT_URL);
 
 	const files = page.getByTestId('module-bar').locator('a[href="/admin/files"]');
 	await tabTo(() => files.evaluate((el) => el === document.activeElement));

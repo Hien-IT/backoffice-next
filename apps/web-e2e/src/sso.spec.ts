@@ -7,7 +7,7 @@ import { randomBytes } from 'node:crypto';
 import type { Page } from '@playwright/test';
 import { Client } from 'ldapts';
 import { AdminApi } from './helpers/api.js';
-import { isCors } from './helpers/config.js';
+import { CONTENT_URL, isCors } from './helpers/config.js';
 import { Fixtures, TFA_SECRET, totp } from './helpers/fixtures.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -143,7 +143,7 @@ for (const [name, apiUrl] of PAIRS) {
 			await page.getByLabel('Password', { exact: true }).fill(LDAP_PASSWORD);
 			await page.getByRole('button', { name: 'Sign In', exact: true }).click();
 
-			await expect(page).toHaveURL(/\/admin\/content$/);
+			await expect(page).toHaveURL(CONTENT_URL);
 		});
 
 		test('OpenID Connect: through the IdP and back with ?continue into the app (US4-2)', async ({ page }) => {
@@ -155,7 +155,7 @@ for (const [name, apiUrl] of PAIRS) {
 			await openLogin(page, apiUrl, sub);
 			await page.getByRole('link', { name: 'Log In with OIDC' }).click();
 
-			await expect(page).toHaveURL(/\/admin\/content$/);
+			await expect(page).toHaveURL(CONTENT_URL);
 		});
 
 		test('OpenID Connect with TFA: INVALID_OTP comes back, the OTP goes to the saved provider (US4-2, FR-042)', async ({
@@ -178,7 +178,7 @@ for (const [name, apiUrl] of PAIRS) {
 
 			await expect(page).toHaveURL(/reason=INVALID_OTP/);
 			await page.getByLabel('One-Time Password', { exact: true }).fill(totp());
-			await expect(page).toHaveURL(/\/admin\/content$/);
+			await expect(page).toHaveURL(CONTENT_URL);
 		});
 
 		test('an SSO error code is shown translated (US4-2, FR-042)', async ({ page }) => {
