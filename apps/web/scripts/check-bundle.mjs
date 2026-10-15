@@ -10,7 +10,8 @@ export const LIMIT = 350 * 1024;
 // Feature 013 (research R12): the entry may grow at most 120 KB over 012's 132.4 KB, and the heavy editors and map
 // libraries stay in their own lazy chunks.
 export const BUDGET_013 = Math.round((132.4 + 120) * 1024);
-export const LAZY_ONLY = ['maplibre-gl', 'EditorJS', 'CodeMirror'];
+// TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links.
+export const LAZY_ONLY = ['maplibre-gl', 'EditorJS', 'CodeMirror', 'tox-tinymce'];
 
 /** Library markers found in the entry chunk that must only be in lazy chunks. */
 export function lazyLeaks(file) {

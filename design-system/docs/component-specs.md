@@ -749,9 +749,12 @@ Shared parts (each component declares the constants it uses locally; there is no
   gray-800 with white); `bordered` → BoEditorFrame, else a plain block; content
   `rounded-lg px-[1.8125rem] py-3 text-sm text-gray-800 dark:text-white/90`, `role="group"` labelled by the field label.
   Image upload: a Drawer with a preview and the Upload, library through DrawerFiles.
-- Rich text HTML (TinyMCE): not built. `input-rich-text-html` is not registered (TinyMCE not installed: 6.8.6 has a high
-  XSS advisory fixed only in the GPL line, FR-060); the TinyMCE skin line of the draft is kept as a draft only. Open:
-  owner decision.
+- Rich text HTML (TinyMCE 6.8.6, nháp (013)): the editor sits in BoEditorFrame (the frame draws the FIELD border and
+  focus ring; TinyMCE's own border and inner ring are removed); skin `oxide` with `tinymce-overrides.css` mapping its
+  colors to tokens through `--bo-tx-*` variables (light and `html.dark`, transparent toolbar), icons Material Symbols;
+  content iframe CSS from `get-editor-styles.ts` on tokens via `cssVar()` (read at init, a theme switch applies on
+  remount, as in Directus). Link: BoDialog form (Enter saves); source code, image and media: BoDrawer (media tabs with
+  BoTabs); uploads with BoUpload and DrawerFiles. TinyMCE popups use z-index 100000, fullscreen 99999.
 - Soft-length counter (Directus `softLength`), markdown (BoEditorFrame `data-remaining`):
   `mt-1.5 flex justify-end text-theme-xs tabular-nums`, `text-gray-500 dark:text-gray-400`; below 10 % remaining
   `text-warning-700 dark:text-warning-400`, below 5 % `text-error-600 dark:text-error-400` (Directus thresholds; the

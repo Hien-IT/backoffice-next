@@ -3,8 +3,9 @@
 // `interface_not_found` notice, no failed interface or display, no Vue warning or error and no edit emitted on mount;
 // requests stay in contracts/api-calls.md.
 // The map interface stays a placeholder here: MapLibre needs WebGL, which happy-dom lacks (its render and options run
-// in InterfaceMap.test.ts with fakes and InterfaceMap.browser.test.ts in chromium). The block editor and markdown
-// chunks are loaded before the tests, so they render like the other interfaces.
+// in InterfaceMap.test.ts with fakes and InterfaceMap.browser.test.ts in chromium); so does the TinyMCE editor of the
+// rich text HTML interface (its frame, counter and drawers still render). The block editor, markdown and rich text
+// HTML chunks are loaded before the tests, so they render like the other interfaces.
 import { format } from 'node:util';
 import { readItems } from '@directus/sdk';
 import type { Field } from '@directus/types';
@@ -27,7 +28,7 @@ import { useServerStore } from '../../src/stores/server.ts';
 import { useSettingsStore } from '../../src/stores/settings.ts';
 import { useUserStore } from '../../src/stores/user.ts';
 import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../src/test-utils/fetch.ts';
-import { type FixtureUser, itemOf, loadSnapshot } from '../../src/test-utils/fixtures.ts';
+import { type FixtureUser, loadSnapshot } from '../../src/test-utils/fixtures.ts';
 import { adjustFieldsForDisplays } from '../../src/utils/adjust-fields-for-displays.ts';
 import { getDefaultDisplayForType } from '../../src/utils/get-default-display-for-type.ts';
 
@@ -39,6 +40,16 @@ vi.mock('../../src/interfaces/map/InterfaceMap.vue', async () => {
 	};
 });
 
+// TinyMCE starts only in a standards mode document with a real iframe, which happy-dom lacks: the editor is a
+// placeholder here (InputRichTextHtml.browser.test.ts and rich.fixture.browser.test.ts run it in chromium).
+vi.mock('@tinymce/tinymce-vue', async () => {
+	const { defineComponent, h } = await import('vue');
+	return {
+		__esModule: true,
+		default: defineComponent({ inheritAttrs: false, render: () => h('div', { 'data-tinymce-placeholder': '' }) }),
+	};
+});
+
 enableAutoUnmount(afterEach);
 
 beforeAll(async () => {
@@ -46,20 +57,13 @@ beforeAll(async () => {
 	await Promise.all([
 		import('../../src/interfaces/input-block-editor/InputBlockEditor.vue'),
 		import('../../src/interfaces/input-rich-text-md/InputRichTextMd.vue'),
+		import('../../src/interfaces/input-rich-text-html/InputRichTextHtml.vue'),
 	]);
 });
 
 const snapshot = loadSnapshot();
 const COLLECTIONS = Object.keys(snapshot.items).sort();
 const USERS: FixtureUser[] = ['admin', 'bo-editor', 'bo-viewer'];
-
-/**
- * Interface ids of Directus 11.17.4 that are not registered, with the reason. The form falls back to the default
- * interface of the field type for them (get-form-fields.ts), so they never show `interface_not_found`.
- */
-const NOT_INSTALLED: Record<string, string> = {
-	'input-rich-text-html': 'TinyMCE is not installed (owner decision pending)',
-};
 
 const LIST_PROP_WARNING = `Invalid prop: type check failed for prop "value". Expected Array | Null, got Object at <InterfaceList>
 at <ErrorBoundary>
@@ -236,26 +240,4 @@ describe.each(USERS)('user %s', { timeout: 30_000 }, (user) => {
 		expect(warnings).toEqual(EXPECTED_WARNINGS[`${user} ${collection}`] ?? []);
 		expect(errors).toEqual([]);
 	});
-});
-
-test('the interfaces that are not installed fall back to the default interface of the type', async () => {
-	await setup('admin');
-
-	const used = snapshot.fields.filter((f) => f.meta?.interface && f.meta.interface in NOT_INSTALLED);
-	expect(used.map((f) => `${f.collection}.${f.field}`)).toEqual(['bo_std.rich_html']);
-
-	const form = mount(BoForm, {
-		props: { fields: [useFieldsStore().getField('bo_std', 'rich_html')!], initialValues: itemOf('bo_std', 1) },
-		global: globalOptions('bo_std'),
-	});
-
-	await flushPromises();
-	// text → input-multiline (get-default-interface-for-type.ts)
-	expect(form.findAll('[data-field]').map((el) => el.attributes('data-field'))).toEqual(['rich_html']);
-	expect(form.get<HTMLTextAreaElement>('[data-field="rich_html"] [data-interface] textarea').element.value).toBe(
-		itemOf('bo_std', 1)['rich_html'],
-	);
-	expect(notices(form)).toEqual([]);
-	expect(form.emitted('update:modelValue')).toBeUndefined();
-	expect([warnings, errors]).toEqual([[], []]);
 });

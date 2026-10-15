@@ -1,15 +1,17 @@
 // T081 (contracts/tests.md §5, SC-002) in chromium: the edit scenarios of fixtures/interfaces/snapshot/expected.<id>.json
-// for the heavy bo_std interfaces (US5 scenarios 2-4): Editor.js block JSON, map geometry per field type, the list
-// repeater, markdown image insertion with imageToken. Each mounts the registered interface like FormFieldInterface
-// (options spread as props) on the fixture API. Not compared (spec Assumptions): Editor.js `time` and block `id`;
-// map coordinates come from a click on the map centre, compared to 2 decimals. input-rich-text-html (TinyMCE, T075)
-// is not part of this file.
+// for the heavy bo_std interfaces (US5 scenarios 1-4): TinyMCE HTML with a library image and imageToken, Editor.js
+// block JSON, map geometry per field type, the list repeater, markdown image insertion with imageToken. Each mounts the
+// registered interface like FormFieldInterface (options spread as props) on the fixture API. Not compared (spec
+// Assumptions): Editor.js `time` and block `id`; map coordinates come from a click on the map centre, compared to 2
+// decimals.
 import { userEvent } from '@vitest/browser/context';
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, type Pinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import tinymce from 'tinymce/tinymce.js';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import { replaceQueue } from '../api/sdk.ts';
+import DrawerCollection from '../components/drawers/DrawerCollection.vue';
 import { i18n } from '../lang/index.ts';
 import { useCollectionsStore } from '../stores/collections.ts';
 import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../test-utils/fetch.ts';
@@ -30,7 +32,7 @@ interface Scenario extends ExpectedScenario {
 // Real drawers and forms (or editors) per scenario: slow on loaded CI runners.
 vi.setConfig({ testTimeout: 20_000 });
 
-const IDS = ['input-rich-text-md', 'input-block-editor', 'map', 'list'];
+const IDS = ['input-rich-text-html', 'input-rich-text-md', 'input-block-editor', 'map', 'list'];
 
 const snapshot = loadSnapshot();
 const fields = fieldsOf('bo_std');
@@ -111,10 +113,23 @@ function caretAtEnd(el: HTMLElement) {
 	getSelection()!.addRange(range);
 }
 
+/**
+ * Editor.js first shows one empty block, then renders the value and resolves render() in an idle callback (change
+ * detection is off until then): wait for every block of the value by id, then for one idle callback of ours (they run
+ * in order), or a busy CI runner types into a block that is replaced or not observed yet.
+ */
 async function waitForBlocks(mounted: VueWrapper, count: number) {
-	await vi.waitFor(() => expect(mounted.findAll('.ce-block').length).toBeGreaterThanOrEqual(count), {
-		timeout: 10_000,
-	});
+	const ids = (
+		((mounted.props() as Record<string, unknown>)['value'] as { blocks?: { id?: string }[] } | null)?.blocks ?? []
+	).flatMap((b) => b.id ?? []);
+	await vi.waitFor(
+		() => {
+			expect(mounted.findAll('.ce-block').length).toBeGreaterThanOrEqual(count);
+			for (const id of ids) expect(mounted.find(`.ce-block[data-id="${id}"]`).exists()).toBe(true);
+		},
+		{ timeout: 10_000 },
+	);
+	await new Promise((resolve) => requestIdleCallback(resolve));
 	await settle();
 }
 
@@ -122,6 +137,25 @@ async function waitForMap(mounted: VueWrapper) {
 	await vi.waitFor(() => expect(mounted.get('[role="group"]').attributes('aria-busy')).toBe('false'), {
 		timeout: 15_000,
 	});
+}
+
+/** TinyMCE of the mounted interface once its `init` ran (content set, handlers bound). */
+async function waitForTinymce(mounted: VueWrapper) {
+	return vi.waitFor(
+		() => {
+			const editor = tinymce.get(mounted.get('textarea').attributes('id')!);
+			expect(editor?.initialized).toBe(true);
+			return editor!;
+		},
+		{ timeout: 15_000 },
+	);
+}
+
+/** Caret at the end of the TinyMCE content, editor focused (the focus starts the content watcher). */
+function tinymceCaretAtEnd(editor: ReturnType<typeof tinymce.get> & {}) {
+	editor.focus();
+	editor.selection.select(editor.getBody(), true);
+	editor.selection.collapse(false);
 }
 
 const lastInput = (mounted: VueWrapper) => mounted.emitted('input')?.at(-1)?.[0];
@@ -141,6 +175,38 @@ const drawerSave = () => document.querySelector<HTMLButtonElement>('.bo-drawer b
 type Runner = (mounted: VueWrapper) => Promise<void>;
 
 const RUNNERS: Record<string, Record<string, Runner>> = {
+	'input-rich-text-html': {
+		'type at the end of the seeded value': async (mounted) => {
+			const editor = await waitForTinymce(mounted);
+			await settle();
+			expect(mounted.emitted('input'), 'no input on mount').toBeUndefined();
+			tinymceCaretAtEnd(editor);
+			await userEvent.keyboard('!');
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined());
+		},
+		'insert a library image with the image token': async (mounted) => {
+			const editor = await waitForTinymce(mounted);
+			tinymceCaretAtEnd(editor);
+			await userEvent.click(document.querySelector('.tox-tbtn[aria-label="Add/Edit Image"]')!);
+			await vi.waitFor(() => expect(document.querySelector('.bo-drawer')).not.toBeNull());
+			// The files library (DrawerFiles on DrawerCollection) answers with the chosen keys; BoUpload reads the file
+			// (GET /files/bo-4).
+			mounted.findComponent(DrawerCollection).vm.$emit('input', ['bo-4']);
+			const save = await vi.waitFor(() => {
+				expect(document.querySelector('.bo-drawer .image-preview')).not.toBeNull();
+				return document.querySelector<HTMLButtonElement>('.bo-drawer button[aria-label="Save Image"]')!;
+			});
+			await userEvent.click(save);
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined());
+		},
+		'empty content is null': async (mounted) => {
+			const editor = await waitForTinymce(mounted);
+			tinymceCaretAtEnd(editor);
+			editor.selection.select(editor.getBody(), true);
+			await userEvent.keyboard('{Backspace}');
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined());
+		},
+	},
 	'input-rich-text-md': {
 		'insert an uploaded image with the image token': async (mounted) => {
 			await vi.waitFor(() => expect(mounted.find('.CodeMirror').exists()).toBe(true));
@@ -170,20 +236,20 @@ const RUNNERS: Record<string, Record<string, Runner>> = {
 			expect(mounted.emitted('input'), 'no input on mount').toBeUndefined();
 			caretAtEnd(mounted.get('.ce-header').element as HTMLElement);
 			await userEvent.keyboard('!');
-			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 3000 });
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 10_000 });
 		},
 		'dangerous HTML of a stored value is sanitized': async (mounted) => {
 			await waitForBlocks(mounted, 1);
 			expect(mounted.get('.ce-paragraph').html()).not.toContain('onerror');
 			caretAtEnd(mounted.get('.ce-paragraph').element as HTMLElement);
 			await userEvent.keyboard('!');
-			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 3000 });
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 10_000 });
 		},
 		'no block left is null': async (mounted) => {
 			await waitForBlocks(mounted, 1);
 			caretAtEnd(mounted.get('.ce-paragraph').element as HTMLElement);
 			await userEvent.keyboard('{Backspace}');
-			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 3000 });
+			await vi.waitFor(() => expect(mounted.emitted('input')).toBeDefined(), { timeout: 10_000 });
 		},
 	},
 	map: Object.fromEntries(
@@ -244,7 +310,7 @@ function stable(id: string, value: unknown): unknown {
 	return json;
 }
 
-test('every US5 interface (TinyMCE aside) has an expected file and every scenario a runner', () => {
+test('every US5 interface has an expected file and every scenario a runner', () => {
 	for (const id of IDS)
 		expect(Object.keys(snapshot.expected[id] ?? {}).sort(), id).toEqual(Object.keys(RUNNERS[id]!).sort());
 });

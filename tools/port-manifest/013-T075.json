@@ -1,0 +1,58 @@
+[
+	{
+		"source": "app/src/interfaces/input-rich-text-html/index.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/input-rich-text-html.vue",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/InputRichTextHtml.vue"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/toolbar-default.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/toolbar-default.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/get-editor-styles.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/get-editor-styles.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/tinymce-overrides.css",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/tinymce-overrides.css"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useImage.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useImage.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useImage.test.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useImage.test.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useInlineCode.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useInlineCode.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useLink.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useLink.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useMedia.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useMedia.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/usePre.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/usePre.ts"
+	},
+	{
+		"source": "app/src/interfaces/input-rich-text-html/useSourceCode.ts",
+		"dest": "apps/web/src/interfaces/input-rich-text-html/useSourceCode.ts"
+	},
+	{
+		"source": "app/src/utils/add-query-to-path.ts",
+		"dest": "apps/web/src/utils/add-query-to-path.ts"
+	},
+	{
+		"source": "app/src/utils/add-query-to-path.test.ts",
+		"dest": "apps/web/src/utils/add-query-to-path.test.ts"
+	}
+]

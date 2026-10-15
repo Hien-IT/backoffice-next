@@ -44,9 +44,10 @@ gốc `circlecell/jsonlint` là MIT (GitHub API). `@turf/meta` theo Directus là
 - `maplibre-gl` 1.15.3: XSS critical, vá ở 6.4.1 → dùng 6.14.0 (định dạng dữ liệu lưu không đổi: GeoJSON/WKT/`[lng, lat]`
   do code chép của Directus sinh).
 - `js-yaml` < 4.3.2 và `joi` < 18.2.6 đến qua `@directus/utils` 13.4.1 → `overrides` trong `pnpm-workspace.yaml`.
-- `tinymce` 6.8.6: bốn XSS high, chỉ vá ở 7.1.0/7.9.3 mà TinyMCE 7 là GPL (FR-064) → chưa cài, T075 chờ owner chọn:
-  (a) giữ 6.8.6 như Directus và thêm GHSA vào `auditConfig.ignoreGhsas` (tiền lệ sharp, axios ở 007), (b) TinyMCE 7 thương
-  mại, (c) trình soạn HTML khác (HTML khác Directus).
+- `tinymce` 6.8.6: bốn XSS high, chỉ vá ở 7.1.0/7.9.3 mà TinyMCE 7 là GPL (FR-064) → owner chọn (a) ngày 2026-10-15:
+  giữ 6.8.6 như Directus, bốn GHSA high (GHSA-mh5m-5hw4-5c69, GHSA-vg35-5wq7-3x7w, GHSA-q742-qvgc-gc2f,
+  GHSA-v98h-vmpc-fpqv) vào `auditConfig.ignoreGhsas` kèm lý do (tiền lệ sharp, axios ở 007); bỏ (b) TinyMCE 7 thương
+  mại, (c) trình soạn HTML khác (HTML khác Directus). Advisory moderate GHSA-5359-pvf2-pw78 dưới ngưỡng `high` của CI.
 
 **Phương án bỏ**: TinyMCE 7 (giấy phép GPL); Tiptap/ProseMirror thay TinyMCE (HTML khác, mất tương thích
 `toolbar`, `customFormats`, `tinymceOverrides`); CodeMirror 6 (ánh xạ mode); Leaflet thay MapLibre (không có draw cùng

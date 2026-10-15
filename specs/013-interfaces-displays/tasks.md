@@ -404,7 +404,7 @@ bản thì giá trị phát ra bằng `expected.*.json` (US5 scenario 1–4).
 
 - [X] T074 [P] [US5] `src/components/BoEditorFrame.vue` (recipe Q-8: viền `FIELD`, thanh công cụ, bộ đếm `softLength`)
   dùng chung cho editor; test.
-- [ ] T075 [US5] `src/interfaces/input-rich-text-html/` chép `index.ts`, logic của `.vue`, `toolbar-default.ts`, `use*.ts`
+- [X] T075 [US5] `src/interfaces/input-rich-text-html/` chép `index.ts`, logic của `.vue`, `toolbar-default.ts`, `use*.ts`
   (image, media, link, pre, inline code, code), `get-editor-styles.ts` (biến theo token sáng/tối, FR-095); TinyMCE 6.8.6
   tự host skin (`public/` hoặc Vite `?url`), cấu hình như Directus (`extended_valid_elements`, `convert_urls: false`,
   `paste_data_images: false`, `link_default_protocol`, `ui_mode`, `directionality`), `tinymceOverrides`, `customFormats`,

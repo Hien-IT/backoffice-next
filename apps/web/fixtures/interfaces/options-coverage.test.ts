@@ -7,16 +7,10 @@ import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';
 import registry from './directus-registry.json';
 
-/** Expected interface ids that are not registered, with the reason (as in registry.test.ts). */
-const NOT_INSTALLED: Record<string, string> = {
-	'input-rich-text-html': 'TinyMCE is not installed (owner decision pending)',
-};
-
 type Entry = { optionKeys: string[]; optionKeysByContext?: { keys: string[] }[] };
 
-function keysOf(entries: Record<string, Entry>, kind: string): string[] {
+function keysOf(entries: Record<string, Entry>): string[] {
 	return Object.entries(entries)
-		.filter(([id]) => !(kind === 'interface' && id in NOT_INSTALLED))
 		.flatMap(([id, entry]) =>
 			[...new Set([...entry.optionKeys, ...(entry.optionKeysByContext ?? []).flatMap(({ keys }) => keys)])].map(
 				(key) => `${id}.${key}`,
@@ -49,8 +43,8 @@ const named = namedKeys();
 
 describe('SC-003: every option key has a test named option:<id>.<key>', () => {
 	test.each([
-		['interface', keysOf(registry.interfaces as Record<string, Entry>, 'interface')],
-		['display', keysOf(registry.displays as Record<string, Entry>, 'display')],
+		['interface', keysOf(registry.interfaces as Record<string, Entry>)],
+		['display', keysOf(registry.displays as Record<string, Entry>)],
 	] as const)('%s option keys', (kind, keys) => {
 		const missing = keys.filter((key) => !named[kind].has(key));
 
@@ -59,18 +53,10 @@ describe('SC-003: every option key has a test named option:<id>.<key>', () => {
 
 	test('every option:<id>.<key> test name points at a real option key', () => {
 		const unknown = [
-			...[...named.interface].filter(
-				(key) => !keysOf(registry.interfaces as Record<string, Entry>, 'interface').includes(key),
-			),
-			...[...named.display].filter(
-				(key) => !keysOf(registry.displays as Record<string, Entry>, 'display').includes(key),
-			),
+			...[...named.interface].filter((key) => !keysOf(registry.interfaces as Record<string, Entry>).includes(key)),
+			...[...named.display].filter((key) => !keysOf(registry.displays as Record<string, Entry>).includes(key)),
 		];
 
 		expect(unknown).toEqual([]);
-	});
-
-	test('the not installed interfaces are expected ids', () => {
-		expect(Object.keys(NOT_INSTALLED).filter((id) => !(id in registry.interfaces))).toEqual([]);
 	});
 });

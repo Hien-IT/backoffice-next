@@ -1,0 +1,26 @@
+{
+	"type at the end of the seeded value": {
+		"field": "rich_html",
+		"initial": "<p>Hello <strong>world</strong></p><p><img src=\"/assets/bo-4.png?access_token=bo-image-token\" alt=\"Sample\"></p>",
+		"action": "type ! at the end of the content",
+		"value": "<p>Hello <strong>world</strong></p>\n<p><img src=\"/assets/bo-4.png?access_token=bo-image-token\" alt=\"Sample\">!</p>",
+		"source": "directus/app/src/interfaces/input-rich-text-html/input-rich-text-html.vue:305 contentUpdated (editor.getContent() || null on every content mutation once the editor had focus, setupContentWatcher:318); TinyMCE 6.8.6 serializes blocks one per line",
+		"description": "US5-1: the seeded value of bo_std item 1; the stored HTML is TinyMCE's serialization, not normalized further"
+	},
+	"insert a library image with the image token": {
+		"field": "rich_html",
+		"initial": null,
+		"action": ["Add/Edit Image button", "choose bo-4 in the files library", "Save Image"],
+		"value": "<p><img src=\"http://api.test/assets/bo-4.png?access_token=bo-image-token&amp;width=1&amp;height=1\" alt=\"bo-sample-png\"></p>",
+		"source": "directus/app/src/interfaces/input-rich-text-html/useImage.ts:120 onImageSelect (getPublicURL() + 'assets/' + id + '.' + extension of filename_disk or type, replaceUrlAccessToken with imageToken, alt = title) -> :141 saveImage (storage_asset_transform 'all': width and height of the file added with addQueryToPath, <img src alt />) -> input-rich-text-html.vue:305 contentUpdated",
+		"description": "US5-1: http://api.test/ is the API URL of the test SDK; bo-4 is bo-sample.png (1x1, title bo-sample-png); the snapshot has no filename_disk, so the extension comes from the type (Backoffice: Directus would throw on a file without filename_disk); TinyMCE escapes & in the attribute"
+	},
+	"empty content is null": {
+		"field": "rich_html",
+		"initial": "<p>Hello</p>",
+		"action": "select all, Backspace",
+		"value": null,
+		"source": "directus/app/src/interfaces/input-rich-text-html/input-rich-text-html.vue:310 (editor.getContent() || null)",
+		"description": "US5-1: value written for the scenario"
+	}
+}

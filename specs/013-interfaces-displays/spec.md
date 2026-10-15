@@ -5,8 +5,8 @@
 **Status**: Draft
 **Duyệt release-gate**: owner duyệt toàn bộ đề xuất của `checklists/release-gate-proposals.md` ngày 2026-10-15 (D-60, R-xx
 cho lỗi `formatted-json-value.handler` của Directus, design owner là owner dự án).
-**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-54 đến D-66 (D-65: giữ cách sửa, không tái tạo; D-61: tạm chưa
-cài, lựa chọn TinyMCE vẫn chờ owner), R-34 đến R-37, ngoại lệ axe của SC-005 và danh sách miễn màu dữ liệu (Q-C).
+**Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-54 đến D-66 (D-67 và R-38 thêm khi làm T075, chờ tech lead; D-65: giữ cách sửa, không tái tạo; D-61 bỏ cùng ngày:
+owner chọn giữ TinyMCE 6.8.6 như Directus), R-34 đến R-37, ngoại lệ axe của SC-005 và danh sách miễn màu dữ liệu (Q-C).
 **Input**: User description: "App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
@@ -519,8 +519,8 @@ Field cấu hình ở Directus và giá trị Directus đã ghi hiện đúng �
   `customFormats`, `tinymceOverrides`; chèn ảnh (URL, alt, kích thước khi `storage_asset_transform = all`, lazy, preset),
   media (video, embed), link (url, chữ, title, tab mới), sửa mã nguồn; phát HTML hoặc null; HTML lưu giữ nguyên như
   Directus (không chuẩn hóa thêm). Cấu hình TinyMCE giống Directus (`extended_valid_elements`, `convert_urls: false`...),
-  dựa vào lọc XSS sẵn có của TinyMCE khi mở lại HTML (chưa cài: TinyMCE 6.8.6 có advisory XSS high, chỉ vá ở bản GPL; chờ owner,
-  research R1; field dùng interface này tạm hiện bằng interface mặc định theo kiểu); hiển thị trong bảng qua
+  dựa vào lọc XSS sẵn có của TinyMCE khi mở lại HTML (TinyMCE 6.8.6 như Directus; bốn advisory XSS high chỉ vá ở bản
+  GPL được miễn trong `auditConfig.ignoreGhsas`, owner chọn 2026-10-15, research R1); hiển thị trong bảng qua
   `formatted-value` đã khử HTML.
 - **FR-061** `input-rich-text-md` (text): `toolbar`, `placeholder`, `folder`, `imageToken`, `softLength`, `editorFont`,
   `previewFont`, `defaultView` (`editor`|`preview`), `customSyntax` (`{name, icon, prefix, suffix, box}`); phím tắt như
@@ -670,12 +670,13 @@ extension), D-47 (giao diện TailAdmin) áp dụng cho mọi interface và disp
 | D-58 | Layout và bộ lọc của drawer chọn item (`drawer-collection.vue`) | Layout theo preset của user (table, cards, calendar, kanban, map), thanh bộ lọc | Luôn dạng bảng (cột theo preset hoặc mặc định), tìm kiếm, phân trang, bộ lọc của interface | Layout và bộ lọc thuộc module Content; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 014 |
 | D-60 | Đổi thứ tự bằng bàn phím trong danh sách kéo thả (`list`, `files`, `list-o2m`, `list-m2m`, `list-m2a`, `collection-item-multiple-dropdown`, `list-o2m-tree-view`) | Chỉ kéo bằng chuột | Thêm mục "Lên", "Xuống" trong menu dòng (tree view thêm "Thụt vào", "Thụt ra" để đổi cha); kéo bằng chuột giữ như Directus | WCAG 2.1.1 (mức A), Nguyên tắc XII; owner duyệt 2026-10-15 | khác | — |
 | D-59 | Chỉnh ảnh (cắt, xoay, lật, tỉ lệ, điểm focal) trong `file-image` (`image-editor.vue`, `PATCH /files/:id` multipart) | Có khi có quyền sửa file | Chưa có nút chỉnh ảnh | Thay nội dung file thật, dùng chung với màn file của module Files; owner chọn 2026-10-15 | ngoài phạm vi (tạm thời) | 015 |
-| D-61 | Interface `input-rich-text-html` (TinyMCE) | TinyMCE 6.8.6 | Chưa cài; field dùng nó hiện bằng interface mặc định theo kiểu (textarea) | TinyMCE 6.8.6 có 4 advisory XSS high, chỉ vá ở TinyMCE 7 (GPL, FR-064); cổng `pnpm audit` của CI chặn; chờ owner chọn (research R1) | ngoài phạm vi (tạm thời) | khi owner chọn |
+| D-61 | ~~Interface `input-rich-text-html` (TinyMCE) chưa cài~~ | TinyMCE 6.8.6 | Bỏ 2026-10-15: owner chọn giữ TinyMCE 6.8.6 như Directus, bốn GHSA high vào `auditConfig.ignoreGhsas` có lý do (T075) | — | — | đã gỡ |
 | D-62 | Thư viện bản đồ | maplibre-gl 1.15.3 | maplibre-gl 6.14.0 | 1.15.3 có advisory XSS critical (vá ở 6.4.1); định dạng hình học lưu không đổi (GeoJSON, WKT, `[lng, lat]`), chunk bản đồ lớn hơn (496 KB gzip, tải lười) | khác | — |
 | D-63 | Field có interface ẩn nhãn (`hideLabel`, ví dụ mục accordion) | Không có nhãn | Có nhãn `sr-only` liên kết với control | WCAG 1.3.1/4.1.2 (axe `label`, FR-122) | khác | — |
 | D-64 | `input-block-editor` bị unmount trước khi Editor.js sẵn sàng | Ném lỗi (`on is not a function`) | Bỏ qua phần khởi tạo còn lại | Lỗi của Directus làm hỏng form khi đóng nhanh; không đổi dữ liệu | khác | — |
 | D-65 | `list-o2m-tree-view` sửa một dòng sau khi có item bị chuyển đi | Lấy nhầm dòng (trộn chỉ số của danh sách đã lọc với `displayItems`) | Lấy đúng dòng trong danh sách đã lọc | Tái tạo sẽ ghi sai dữ liệu; tech lead chọn giữ cách sửa (2026-10-15) | khác | — |
 | D-66 | Thông báo thành công/lỗi (chạy flow, tải file, nhập từ URL, lỗi tải item liên quan) | Snackbar của store notifications | Notice tại chỗ (`BoNotice`) trong interface hoặc hộp thoại | Store notifications và snackbar thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
+| D-67 | `input-rich-text-html` (T075) | Template Directus (v-drawer có sidebar, v-select bỏ chọn, `v-prevent-focusout`, `useFocusin`); `onImageSelect` ném lỗi khi file thiếu `filename_disk` | Khung BoEditorFrame, link là BoDialog, ảnh/media/mã nguồn là BoDrawer (media dùng BoTabs); preset ảnh đã chọn không bỏ chọn được trong drawer (BoSelect chưa có bỏ chọn); vòng focus là focus-within của khung; thiếu `filename_disk` thì lấy đuôi theo MIME; iframe nhận `aria-labelledby`/`aria-describedby`/`aria-invalid`; popup z-index 100000 | Design-system (D-47), WCAG 4.1.2; tránh lỗi khi user không đọc được `filename_disk`; giá trị HTML phát ra không đổi | khác | preset: khi BoSelect có bỏ chọn |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (owner chọn tái tạo hành vi Directus và ghi R),
 áp cho FE từ 2026-10-15 (release-gate CHK089). Các dòng dưới tìm từ đọc code Directus 11.17.4 và có test ở app mới;
@@ -687,6 +688,7 @@ tech lead duyệt ngày 2026-10-15.
 | R-35 | `header` có đúng một link và link đó là URL nội bộ (`/...`) thì không vẽ nút (`primaryLink.href \|\| primaryLink.flow` sai vì link nội bộ chỉ có `to`) | `interfaces/presentation-header/header.vue:167,249`; test `InterfaceHeader.test.ts` | Link nội bộ duy nhất không bấm được; hai link trở lên thì có trong menu |
 | R-36 | `list` có option `sort` thì `sortBy` chạy trên mọi giá trị: giá trị không phải mảng biến thành các dòng giá trị của nó, không hiện cảnh báo `incompatible_data` | `interfaces/list/list.vue:105,109`; test `InterfaceList.test.ts` "with `sort` set" | Dữ liệu lệch dạng hiện như các dòng rác; thêm dòng thì ghi đè (có cảnh báo console) |
 | R-37 | `list-m2a` hiện "Create New" khi có ít nhất một collection cho tạo, nhưng menu liệt kê mọi collection cho phép (`allowedCollections`), kể cả collection không có quyền `create` | `interfaces/list-m2a/list-m2a.vue`; test `relations.fixture.test.ts` (bo-editor) | User chọn collection không có quyền tạo; API trả 403 khi lưu |
+| R-38 | `input-rich-text-html` `saveImage` ghi giá trị null vào HTML: file không có width/height cho `?width=null&height=null` (có test); title null cho `alt="null"` [Unverified: đọc code, chưa test] | `interfaces/input-rich-text-html/useImage.ts`; test `InputRichTextHtml.test.ts` | HTML lưu có chuỗi `null` như Directus |
 
 **Đã xác nhận** (tech lead, 2026-10-15; giữ nguyên):
 

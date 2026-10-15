@@ -159,6 +159,9 @@ catalogs:
     '@tailwindcss/vite':
       specifier: 4.3.3
       version: 4.3.3
+    '@tinymce/tinymce-vue':
+      specifier: 6.3.0
+      version: 6.3.0
     '@turf/meta':
       specifier: 7.2.0
       version: 7.2.0
@@ -579,6 +582,9 @@ catalogs:
     tedious:
       specifier: 18.6.1
       version: 18.6.1
+    tinymce:
+      specifier: 6.8.6
+      version: 6.8.6
     tus-js-client:
       specifier: 4.3.1
       version: 4.3.1
@@ -1154,6 +1160,9 @@ importers:
       '@sindresorhus/slugify':
         specifier: 'catalog:'
         version: 2.2.1
+      '@tinymce/tinymce-vue':
+        specifier: 'catalog:'
+        version: 6.3.0(tinymce@6.8.6)(vue@3.5.43(typescript@6.0.3))
       '@turf/meta':
         specifier: 'catalog:'
         version: 7.2.0
@@ -1217,6 +1226,9 @@ importers:
       reka-ui:
         specifier: 'catalog:'
         version: 2.8.2(vue@3.5.43(typescript@6.0.3))
+      tinymce:
+        specifier: 'catalog:'
+        version: 6.8.6
       vue:
         specifier: 'catalog:'
         version: 3.5.43(typescript@6.0.3)
@@ -4469,6 +4481,15 @@ packages:
     engines: {node: '>=12', npm: '>=6'}
     peerDependencies:
       '@testing-library/dom': '>=7.21.4'
+
+  '@tinymce/tinymce-vue@6.3.0':
+    resolution: {integrity: sha512-DSP8Jhd3XqCCliTnusfbmz3D8GqQ4iRzkc4aadYHDcJPVjkaqopJ61McOdH82CSy599vGLkPjGzqJYWJkRMiUA==}
+    peerDependencies:
+      tinymce: ^8.0.0 || ^7.0.0 || ^6.0.0 || ^5.5.1
+      vue: ^3.0.0
+    peerDependenciesMeta:
+      tinymce:
+        optional: true
 
   '@tokenizer/inflate@0.2.7':
     resolution: {integrity: sha512-MADQgmZT1eKjp06jpI2yozxaU9uVs4GzzgSL+uEq7bVcJ9V1ZXQkeGNql1fsSI0gMy1vhvNTNbUqrx+pZfJVmg==}
@@ -8442,6 +8463,9 @@ packages:
     resolution: {integrity: sha512-wXR/dYpcqKmfWpEdZjiKJOwCNFndD0DMnrW/cYjVGttEkBfVgcLFHoNrlj47mjOVic9yyNu65alsgF4NQyTa2g==}
     engines: {node: '>=12.0.0'}
 
+  tinymce@6.8.6:
+    resolution: {integrity: sha512-++XYEs8lKWvZxDCjrr8Baiw7KiikraZ5JkLMg6EdnUVNKJui0IsrAADj5MsyUeFkcEryfn2jd3p09H7REvewyg==}
+
   tinypool@1.1.1:
     resolution: {integrity: sha512-Zba82s87IFq9A9XmjiX5uZA/ARWDrB03OHlq+Vw1fSdt0I+4/Kutwy8BP4Y/y/aORMo61FQ0vIb5j44vSo5Pkg==}
     engines: {node: ^18.0.0 || >=20.0.0}
@@ -12265,6 +12289,12 @@ snapshots:
   '@testing-library/user-event@14.6.8(@testing-library/dom@10.4.2)':
     dependencies:
       '@testing-library/dom': 10.4.2
+
+  '@tinymce/tinymce-vue@6.3.0(tinymce@6.8.6)(vue@3.5.43(typescript@6.0.3))':
+    dependencies:
+      vue: 3.5.43(typescript@6.0.3)
+    optionalDependencies:
+      tinymce: 6.8.6
 
   '@tokenizer/inflate@0.2.7':
     dependencies:
@@ -16814,6 +16844,8 @@ snapshots:
     dependencies:
       fdir: 6.5.0(picomatch@4.0.4)
       picomatch: 4.0.4
+
+  tinymce@6.8.6: {}
 
   tinypool@1.1.1: {}
 

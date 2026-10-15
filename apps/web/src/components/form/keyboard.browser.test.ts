@@ -56,7 +56,11 @@ async function mountForm(collection: string, names?: string[]) {
 	const before = document.body.appendChild(document.createElement('button'));
 	before.textContent = 'Before';
 
-	const fields = names && useFieldsStore().getFieldsForCollection(collection).filter((f) => names.includes(f.field));
+	const fields =
+		names &&
+		useFieldsStore()
+			.getFieldsForCollection(collection)
+			.filter((f) => names.includes(f.field));
 
 	const wrapper = mount(BoForm, {
 		props: {
@@ -292,7 +296,17 @@ describe('third-party editors', () => {
 	test('block editor: Tab reaches the blocks and leaves them (no focus trap)', async () => {
 		const { before } = await mountForm('bo_std', ['block_editor']);
 		const after = document.body.appendChild(document.createElement('button'));
-		await vi.waitFor(() => expect(document.querySelector('[data-field="block_editor"] [contenteditable]')).not.toBeNull());
+		// Editor.js shows an empty block, then replaces it with the value and resolves render() in an idle callback: wait
+		// for the last seeded block and for one idle callback of ours (they run in order), or the focus lands on a block
+		// that render() then removes (slow CI runners).
+		await vi.waitFor(
+			() =>
+				expect(document.querySelector('[data-field="block_editor"] .ce-block[data-id="bo-block-3"]')).not.toBeNull(),
+			{
+				timeout: 10_000,
+			},
+		);
+		await new Promise((resolve) => requestIdleCallback(resolve));
 		before.focus();
 
 		await userEvent.tab();

@@ -87,9 +87,9 @@ E2E_CONFIG=cors pnpm exec playwright test             # app http://localhost:818
 - The map interface uses OpenStreetMap raster tiles by default (attribution `© OpenStreetMap contributors`), like
   Directus. The OSM tile servers have a usage policy (https://operations.osmfoundation.org/policies/tiles/): for real
   traffic set your own `basemaps` (or `mapbox_key`) in the project settings.
-- The rich text (HTML) interface is not installed yet: TinyMCE 6.8.6 (the Directus version) has high XSS advisories
-  fixed only in the GPL TinyMCE 7 (specs/013-interfaces-displays/research.md R1). Fields configured with it fall back to
-  the default interface of their type (a textarea).
+- The rich text (HTML) interface uses TinyMCE 6.8.6 (MIT), the Directus 11.17.4 version, self-hosted in a lazy chunk.
+  Its high XSS advisories are fixed only in the GPL TinyMCE 7; the owner kept 6.8.6 like Directus and the advisories
+  are listed with their reason in `auditConfig.ignoreGhsas` (specs/013-interfaces-displays/research.md R1).
 
 ## Attributions
 

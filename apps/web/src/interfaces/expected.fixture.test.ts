@@ -214,7 +214,13 @@ const OTHERS = {
 		'collection-item-multiple-dropdown',
 	],
 	'files.fixture.test.ts (US4)': ['file', 'file-image', 'files'],
-	'rich.fixture.browser.test.ts (US5)': ['input-rich-text-md', 'input-block-editor', 'map', 'list'],
+	'rich.fixture.browser.test.ts (US5)': [
+		'input-rich-text-html',
+		'input-rich-text-md',
+		'input-block-editor',
+		'map',
+		'list',
+	],
 };
 
 test('every expected.<id>.json is run by a fixture test', () => {

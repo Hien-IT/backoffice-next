@@ -88,11 +88,6 @@ export const EXPECTED_DISPLAY_IDS = [
 	'user',
 ];
 
-/** Expected interface ids that are not registered, with the reason (T090). */
-const NOT_INSTALLED_INTERFACES: Record<string, string> = {
-	'input-rich-text-html': 'TinyMCE is not installed (owner decision pending)',
-};
-
 const INTERFACE_FIELDS = [
 	'id',
 	'name',
@@ -170,14 +165,12 @@ describe('registry parity with the Directus registry', () => {
 		for (const { id } of getDisplays()) expect(EXPECTED_DISPLAY_IDS).toContain(id);
 	});
 
-	test('every expected id is registered, except the ones not installed', () => {
-		const registered = getInterfaces().map((inter) => inter.id);
-
-		expect(registered).toEqual(
-			expect.arrayContaining(EXPECTED_INTERFACE_IDS.filter((id) => !(id in NOT_INSTALLED_INTERFACES))),
-		);
-		// An installed id leaves the exception list.
-		expect(Object.keys(NOT_INSTALLED_INTERFACES).filter((id) => registered.includes(id))).toEqual([]);
+	test('every expected id is registered', () => {
+		expect(
+			getInterfaces()
+				.map((inter) => inter.id)
+				.sort(),
+		).toEqual([...EXPECTED_INTERFACE_IDS].sort());
 		expect(getDisplays().map((display) => display.id)).toEqual(expect.arrayContaining(EXPECTED_DISPLAY_IDS));
 	});
 

@@ -203,10 +203,10 @@ Attribution and release
   - CodeMirror keeps Tab for indentation like Directus, so Tab does not leave a code field (WCAG 2.1.2 risk);
     `keyboard.browser.test.ts` documents it. The markdown editing area is CodeMirror 5 too [Unverified: Tab inside
     it not tested] (open point 3).
-  - `input-rich-text-html` (TinyMCE) is not installed: TinyMCE 6.8.6 has a high XSS advisory fixed only in the GPL
-    line (FR-060); the interface is not registered (open point 4).
-  - `input` / `input-multiline` counter under 10 % uses `text-warning-600` (3.49:1 on white, fails 4.5:1); the recipe
-    says `warning-700` (open point 2; code change, not a recipe change).
+  - `input-rich-text-html` (TinyMCE 6.8.6, owner kept the Directus version on 2026-10-15): skin mapped to tokens, see
+    the component-specs rich text line (open point 4).
+  - `input` / `input-multiline` counter under 10 % now uses `text-warning-700` / `dark:text-warning-400` like the
+    recipe (open point 2, done).
   - Markdown edit / preview is a toggle group, not Tabs; no loading pulse while the editor chunk loads: deviations to
     confirm.
 
@@ -286,10 +286,10 @@ Attribution and release
 | #   | Topic                                                                                                         | Where                                                                                    | Proposal in the docs                                     |
 | --- | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | -------------------------------------------------------- |
 | 1   | Translations display progress colors fail 3:1 in light mode (warning-500 2.13:1, success-500 2.38:1)          | `displays/translations/DisplayTranslations.vue`; migration-guide "fail" rows             | none; keep Directus colors or use -700 / visible percent |
-| 2   | `input` / `input-multiline` counter under 10 % is `warning-600` text (3.49:1)                                 | `interfaces/input/InterfaceInput.vue`, `interfaces/input-multiline/InputMultiline.vue`   | recipe says `warning-700` (code to align, not a recipe)  |
+| 2   | `input` / `input-multiline` counter under 10 % was `warning-600` text (3.49:1)                                | `interfaces/input/InterfaceInput.vue`, `interfaces/input-multiline/InputMultiline.vue`   | done: `warning-700` / `warning-400` like the recipe      |
 | 3   | CodeMirror keeps Tab (code field, and the markdown editing area [Unverified])                                 | `interfaces/input-code/InputCode.vue`, `keyboard.browser.test.ts`                        | keep Directus, or add an escape key                      |
-| 4   | TinyMCE not installed, `input-rich-text-html` not registered                                                  | spec FR-060, `interfaces/registry.test.ts`                                               | owner decision                                           |
-| 5   | Data colors applied as is (Q-C, default not asked); axe `color-contrast` exception                            | `components/form/a11y.browser.test.ts`                                                   | confirm Q-C                                              |
+| 4   | TinyMCE 6.8.6 skin and content CSS on tokens (owner kept the Directus version, D-61 removed)                  | `interfaces/input-rich-text-html/tinymce-overrides.css`, `get-editor-styles.ts`          | review the look in light and dark                        |
+| 5   | Data colors applied as is (Q-C); axe `color-contrast` exception                                               | `components/form/a11y.browser.test.ts`                                                   | confirmed by the tech lead 2026-10-15                    |
 | 6   | DrawerFiles sub folder indentation by leading spaces [Unverified]                                             | `components/drawers/DrawerFiles.vue`                                                     | check in a browser                                       |
 | 7   | BoDialog has no corner close button (Tier 1 Modal has one)                                                    | `components/BoDialog.vue`                                                                | confirm or add the close button                          |
 | 8   | Keyboard resize of table columns not built (not in Directus)                                                  | `components/BoTable.vue`                                                                 | separator + arrows, needs a D-xx                         |
