@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/shared/extension-options.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/shared/related-collection-select.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/shared/RelatedCollectionSelect.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/shared/related-field-select.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/shared/RelatedFieldSelect.vue"
+	}
+]

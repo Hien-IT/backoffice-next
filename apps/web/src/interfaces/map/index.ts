@@ -23,29 +23,7 @@ export default defineInterface({
 		'csv',
 	],
 	group: 'selection',
-	// Backoffice: Directus uses the options.vue component; the keys it writes are kept as data for 016 (D-56).
-	options: [
-		{
-			field: 'geometryType',
-			name: '$t:interfaces.map.geometry_type',
-			type: 'string',
-			meta: {
-				width: 'half',
-				interface: 'select-dropdown',
-				options: {
-					choices: ['Point', 'LineString', 'Polygon', 'MultiPoint', 'MultiLineString', 'MultiPolygon'].map((value) => ({
-						text: value,
-						value,
-					})),
-				},
-			},
-		},
-		{
-			field: 'defaultView',
-			name: '$t:interfaces.map.default_view',
-			type: 'json',
-			meta: { width: 'full', interface: 'input-code', options: { language: 'JSON' } },
-		},
-	],
+	// Backoffice: the options component of Directus (D-56 lifted), async so it stays out of the main chunk.
+	options: defineAsyncComponent(() => import('./InterfaceMapOptions.vue')) as never,
 	recommendedDisplays: [],
 });

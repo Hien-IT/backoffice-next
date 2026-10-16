@@ -1,0 +1,1359 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`alterations (SC-006) > an existing field gets another interface 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "meta": {
+      "interface": "input-multiline",
+      "special": null,
+    },
+    "type": "text",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "standard",
+  "relations": {
+    "m2o": undefined,
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > file 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "cover",
+    "meta": {
+      "interface": "file",
+      "special": [
+        "file",
+      ],
+    },
+    "type": "uuid",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "file",
+  "relations": {
+    "m2o": {
+      "collection": "articles",
+      "field": "cover",
+      "meta": {
+        "sort_field": null,
+      },
+      "related_collection": "directus_files",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > files 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_files",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_files",
+      },
+    },
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "gallery",
+    "meta": {
+      "interface": "files",
+      "special": [
+        "files",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_files",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_files",
+      "field": "directus_files_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "uuid",
+    },
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "files",
+  "relations": {
+    "m2o": {
+      "collection": "articles_files",
+      "field": "directus_files_id",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "directus_files",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_files",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "directus_files_id",
+        "one_deselect_action": "nullify",
+        "one_field": "gallery",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > group 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "meta_group",
+    "meta": {
+      "interface": "group-detail",
+      "special": [
+        "alias",
+        "no-data",
+        "group",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "group",
+  "relations": {
+    "m2o": undefined,
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2a, allowed collections exist 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_blocks",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_blocks",
+      },
+    },
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "blocks",
+    "meta": {
+      "interface": "list-m2a",
+      "special": [
+        "m2a",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_blocks",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_blocks",
+      "field": "item",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "oneCollectionField": {
+      "collection": "articles_blocks",
+      "field": "collection",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2a",
+  "relations": {
+    "m2o": {
+      "collection": "articles_blocks",
+      "field": "item",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_allowed_collections": [
+          "authors",
+        ],
+        "one_collection_field": "collection",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": null,
+      "schema": null,
+    },
+    "o2m": {
+      "collection": "articles_blocks",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "item",
+        "one_deselect_action": "nullify",
+        "one_field": "blocks",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2a, an allowed collection is new 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_sections",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_sections",
+      },
+    },
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "sections",
+    "meta": {
+      "interface": "list-m2a",
+      "special": [
+        "m2a",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_sections",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_sections",
+      "field": "item",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "oneCollectionField": {
+      "collection": "articles_sections",
+      "field": "collection",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2a",
+  "relations": {
+    "m2o": {
+      "collection": "articles_sections",
+      "field": "item",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_allowed_collections": [
+          "authors",
+          "headings",
+        ],
+        "one_collection_field": "collection",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": null,
+      "schema": null,
+    },
+    "o2m": {
+      "collection": "articles_sections",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "item",
+        "one_deselect_action": "nullify",
+        "one_field": "sections",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2m with an existing junction collection 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "authors",
+    "meta": {
+      "interface": "list-m2m",
+      "special": [
+        "m2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2m",
+  "relations": {
+    "m2o": {
+      "collection": "articles_authors",
+      "field": "authors_id",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "authors",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_authors",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "authors_id",
+        "one_deselect_action": "nullify",
+        "one_field": "authors",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2m, related collection exists 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_authors_1",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_authors_1",
+      },
+    },
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "writers",
+    "meta": {
+      "interface": "list-m2m",
+      "special": [
+        "m2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_authors_1",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_authors_1",
+      "field": "authors_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2m",
+  "relations": {
+    "m2o": {
+      "collection": "articles_authors_1",
+      "field": "authors_id",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "authors",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_authors_1",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "authors_id",
+        "one_deselect_action": "nullify",
+        "one_field": "writers",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2m, related collection is new 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_tags",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_tags",
+      },
+    },
+    "related": {
+      "collection": "tags",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {},
+      "schema": {
+        "name": "tags",
+      },
+    },
+  },
+  "fieldUpdates": {
+    "field": "tags",
+    "meta": {
+      "interface": "list-m2m",
+      "special": [
+        "m2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_tags",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_tags",
+      "field": "tags_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2m",
+  "relations": {
+    "m2o": {
+      "collection": "articles_tags",
+      "field": "tags_id",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "tags",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_tags",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "tags_id",
+        "one_deselect_action": "nullify",
+        "one_field": "tags",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2o to itself 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "parent",
+    "meta": {
+      "interface": "select-dropdown-m2o",
+      "special": [
+        "m2o",
+      ],
+    },
+    "type": "integer",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2o",
+  "relations": {
+    "m2o": {
+      "collection": "articles",
+      "field": "parent",
+      "meta": {
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "NO ACTION",
+      },
+    },
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2o, related collection exists 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "author",
+    "meta": {
+      "interface": "select-dropdown-m2o",
+      "special": [
+        "m2o",
+      ],
+    },
+    "type": "integer",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2o",
+  "relations": {
+    "m2o": {
+      "collection": "articles",
+      "field": "author",
+      "meta": {
+        "sort_field": null,
+      },
+      "related_collection": "authors",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > m2o, related collection is new 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": {
+      "collection": "editors",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+            "is_primary_key": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {},
+      "schema": {},
+    },
+  },
+  "fieldUpdates": {
+    "field": "editor",
+    "meta": {
+      "interface": "select-dropdown-m2o",
+      "special": [
+        "m2o",
+      ],
+    },
+    "type": "uuid",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "m2o",
+  "relations": {
+    "m2o": {
+      "collection": "articles",
+      "field": "editor",
+      "meta": {
+        "sort_field": null,
+      },
+      "related_collection": "editors",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > o2m to itself 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "children",
+    "meta": {
+      "interface": "list-o2m",
+      "special": [
+        "o2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": {
+      "collection": "articles",
+      "field": "parent",
+      "meta": {
+        "hidden": true,
+        "interface": "select-dropdown-m2o",
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "o2m",
+  "relations": {
+    "m2o": undefined,
+    "o2m": {
+      "collection": "articles",
+      "field": "parent",
+      "meta": {
+        "one_deselect_action": "nullify",
+        "one_field": "children",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "NO ACTION",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > o2m, related collection exists 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "links",
+    "meta": {
+      "interface": "list-o2m",
+      "special": [
+        "o2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "o2m",
+  "relations": {
+    "m2o": undefined,
+    "o2m": {
+      "collection": "articles_authors",
+      "field": "articles_id",
+      "meta": {
+        "one_deselect_action": "nullify",
+        "one_field": "links",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > o2m, related collection is new 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": {
+      "collection": "comments",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+            "is_primary_key": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {},
+      "schema": {},
+    },
+  },
+  "fieldUpdates": {
+    "field": "comments",
+    "meta": {
+      "interface": "list-o2m",
+      "special": [
+        "o2m",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "o2m",
+  "relations": {
+    "m2o": undefined,
+    "o2m": {
+      "collection": "comments",
+      "field": undefined,
+      "meta": {
+        "one_deselect_action": "nullify",
+        "one_field": "comments",
+        "sort_field": null,
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > presentation 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "divider",
+    "meta": {
+      "interface": "presentation-divider",
+      "special": [
+        "alias",
+        "no-data",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "presentation",
+  "relations": {
+    "m2o": undefined,
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > standard integer 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "rating",
+    "meta": {
+      "interface": "slider",
+      "special": null,
+    },
+    "type": "integer",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "standard",
+  "relations": {
+    "m2o": undefined,
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > standard string 1`] = `
+{
+  "collections": {
+    "junction": undefined,
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "subtitle",
+    "meta": {
+      "interface": "input",
+      "special": null,
+    },
+    "type": "string",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": undefined,
+    "junctionRelated": undefined,
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "standard",
+  "relations": {
+    "m2o": undefined,
+    "o2m": undefined,
+  },
+}
+`;
+
+exports[`alterations (SC-006) > translations, languages collection exists 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_translations",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_translations",
+      },
+    },
+    "related": undefined,
+  },
+  "fieldUpdates": {
+    "field": "translations",
+    "meta": {
+      "interface": "translations",
+      "special": [
+        "translations",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_translations",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_translations",
+      "field": "languages_code",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {},
+  "localType": "translations",
+  "relations": {
+    "m2o": {
+      "collection": "articles_translations",
+      "field": "languages_code",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "languages",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_translations",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "languages_code",
+        "one_field": "translations",
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;
+
+exports[`alterations (SC-006) > translations, languages collection is new 1`] = `
+{
+  "collections": {
+    "junction": {
+      "collection": "articles_translations",
+      "fields": [
+        {
+          "field": "id",
+          "meta": {
+            "hidden": true,
+          },
+          "schema": {
+            "has_auto_increment": true,
+          },
+          "type": "integer",
+        },
+      ],
+      "meta": {
+        "hidden": true,
+        "icon": "import_export",
+      },
+      "schema": {
+        "name": "articles_translations",
+      },
+    },
+    "related": {
+      "collection": "locales",
+      "fields": [
+        {
+          "field": "code",
+          "meta": {},
+          "schema": {
+            "is_primary_key": true,
+          },
+          "type": "string",
+        },
+        {
+          "field": "name",
+          "meta": {},
+          "schema": {},
+          "type": "string",
+        },
+        {
+          "field": "direction",
+          "meta": {
+            "display": "labels",
+            "display_options": {
+              "choices": [
+                {
+                  "text": "$t:left_to_right",
+                  "value": "ltr",
+                },
+                {
+                  "text": "$t:right_to_left",
+                  "value": "rtl",
+                },
+              ],
+              "format": false,
+            },
+            "interface": "select-dropdown",
+            "options": {
+              "choices": [
+                {
+                  "text": "$t:left_to_right",
+                  "value": "ltr",
+                },
+                {
+                  "text": "$t:right_to_left",
+                  "value": "rtl",
+                },
+              ],
+            },
+          },
+          "schema": {
+            "default_value": "ltr",
+          },
+          "type": "string",
+        },
+      ],
+      "meta": {},
+      "schema": {
+        "name": "locales",
+      },
+    },
+  },
+  "fieldUpdates": {
+    "field": "translations",
+    "meta": {
+      "interface": "translations",
+      "special": [
+        "translations",
+      ],
+    },
+    "type": "alias",
+  },
+  "fields": {
+    "corresponding": undefined,
+    "junctionCurrent": {
+      "collection": "articles_translations",
+      "field": "articles_id",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "integer",
+    },
+    "junctionRelated": {
+      "collection": "articles_translations",
+      "field": "locales_code",
+      "meta": {
+        "hidden": true,
+      },
+      "schema": {},
+      "type": "string",
+    },
+    "oneCollectionField": undefined,
+    "sort": undefined,
+  },
+  "items": {
+    "locales": [
+      {
+        "code": "en-US",
+        "direction": "ltr",
+        "name": "English",
+      },
+      {
+        "code": "ar-SA",
+        "direction": "rtl",
+        "name": "Arabic",
+      },
+      {
+        "code": "de-DE",
+        "direction": "ltr",
+        "name": "German",
+      },
+      {
+        "code": "fr-FR",
+        "direction": "ltr",
+        "name": "French",
+      },
+      {
+        "code": "ru-RU",
+        "direction": "ltr",
+        "name": "Russian",
+      },
+      {
+        "code": "es-ES",
+        "direction": "ltr",
+        "name": "Spanish",
+      },
+      {
+        "code": "it-IT",
+        "direction": "ltr",
+        "name": "Italian",
+      },
+      {
+        "code": "pt-BR",
+        "direction": "ltr",
+        "name": "Portuguese",
+      },
+    ],
+  },
+  "localType": "translations",
+  "relations": {
+    "m2o": {
+      "collection": "articles_translations",
+      "field": "locales_code",
+      "meta": {
+        "junction_field": "articles_id",
+        "one_deselect_action": "nullify",
+        "one_field": null,
+        "sort_field": null,
+      },
+      "related_collection": "locales",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+    "o2m": {
+      "collection": "articles_translations",
+      "field": "articles_id",
+      "meta": {
+        "junction_field": "locales_code",
+        "one_field": "translations",
+      },
+      "related_collection": "articles",
+      "schema": {
+        "on_delete": "SET NULL",
+      },
+    },
+  },
+}
+`;

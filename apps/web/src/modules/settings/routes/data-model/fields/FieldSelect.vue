@@ -13,7 +13,7 @@ import BoSortableList from '../../../../../components/BoSortableList.vue';
 import { getInterface } from '../../../../../interfaces/index.ts';
 import { getLocalTypeForField } from '../../../../../utils/get-local-type.ts';
 import { getRelatedCollection } from '../../../../../utils/get-related-collection.ts';
-import { translate } from '../../../../../utils/translate-object-values.ts';
+import { translateString } from '../../../../../utils/translate-object-values.ts';
 import { FIELD_GRID, GRID, widthClass } from './field-grid.ts';
 
 const props = defineProps<{
@@ -26,7 +26,7 @@ const grid = inject(FIELD_GRID)!;
 
 const interfaceName = computed(() => {
 	const name = getInterface(props.field.meta?.interface)?.name;
-	return name ? translate(name) : null;
+	return name ? translateString(name) : null;
 });
 
 const hidden = computed(() => props.field.meta?.hidden === true);

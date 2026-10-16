@@ -376,14 +376,15 @@ function onFocusin(event: FocusEvent) {
 	if (target && event.target !== target) target.focus();
 }
 
+// The Directus `.header` pill: input background and a subdued border, as wide as its content.
 const HEADER =
-	'rule-header flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5';
+	'rule-header flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-white py-0.5 ps-1.5 pe-1 text-theme-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
 const CHIP_BTN =
 	'inline-flex items-center rounded-md px-1.5 py-0.5 text-start whitespace-nowrap hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:hover:bg-white/5 dark:focus-visible:outline-brand-400';
 const ICON_BTN =
 	'inline-flex size-7 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400';
 const POPOVER =
-	'z-99999 max-h-(--reka-popover-content-available-height) w-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg custom-scrollbar dark:border-gray-800 dark:bg-gray-dark';
+	'z-99999 max-h-(--reka-popover-content-available-height) w-80 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg custom-scrollbar dark:border-gray-700 dark:bg-gray-800';
 </script>
 
 <template>

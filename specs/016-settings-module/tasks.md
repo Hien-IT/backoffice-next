@@ -271,49 +271,49 @@ translations.
 
 ### Tests cho User Story 3
 
-- [ ] T050 [P] [US3] Port `field-detail/store/index.test.ts` của Directus và 20 kịch bản alteration của SC-006 (so JSON
+- [x] T050 [P] [US3] Port `field-detail/store/index.test.ts` của Directus và 20 kịch bản alteration của SC-006 (so JSON
       `fieldUpdates`, `collections`, `fields`, `relations`, `items`) trong
       `src/modules/settings/routes/data-model/field-detail/store/index.test.ts`,
       `.../store/alterations.test.ts`; test `get-junction-collection-name` trong `.../utils/*.test.ts`
-- [ ] T051 [P] [US3] Test `ExtensionOptions` (mảng, `{standard, advanced}`, hàm với ngữ cảnh store, component, null →
+- [x] T051 [P] [US3] Test `ExtensionOptions` (mảng, `{standard, advanced}`, hàm với ngữ cảnh store, component, null →
       `no_options_available`; số field đúng cho mọi interface/display 013 theo registry) trong
       `src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.test.ts`
-- [ ] T052 [P] [US3] Test component cho `system-interface`, `system-interface-options` (batch khi `isConditionOptions`),
+- [x] T052 [P] [US3] Test component cho `system-interface`, `system-interface-options` (batch khi `isConditionOptions`),
       `system-display`, `system-display-options`, `system-fields` (menu Lên/Xuống D-96), `system-inline-fields` (phẳng
       và gộp `meta.x`/`schema.x`), `system-collections`, `system-manual-flow-select` trong
       `src/interfaces/_system/<id>/*.test.ts`
-- [ ] T053 [P] [US3] Test options component `list`, `map` (giá trị phát ra bằng Directus) trong
+- [x] T053 [P] [US3] Test options component `list`, `map` (giá trị phát ra bằng Directus) trong
   `src/interfaces/list/InterfaceListOptions.test.ts`, `src/interfaces/map/InterfaceMapOptions.test.ts`; options dạng hàm
   của display `translations`, `related-values` kiểm trong test `ExtensionOptions` (T051)
-- [ ] T054 [P] [US3] Test `FieldDetail` (đơn giản: lưới thẻ `radiogroup`, `preview`/icon, khung cấu hình, `autoKey`;
+- [x] T054 [P] [US3] Test `FieldDetail` (đơn giản: lưới thẻ `radiogroup`, `preview`/icon, khung cấu hình, `autoKey`;
       nâng cao: 7 tab, tab Schema theo kiểu, tab Relationship 5 loại, `generationInfo`; `save()` đúng thứ tự sáu bước so
       với `e2e/payload/baselines/settings-field-m2m.json`; hai lỗi trước lưu; Esc không hỏi; field không có hoặc
       `?type=` lạ → hộp lỗi và về màn collection, D-97) trong
       `src/modules/settings/routes/data-model/field-detail/FieldDetail.test.ts`
-- [ ] T055 [US3] E2E 10 field của US3 qua hai chế độ, điều kiện, validation, options component; so DB với Directus app
+- [x] T055 [US3] E2E 10 field của US3 qua hai chế độ, điều kiện, validation, options component; so DB với Directus app
       (kịch bản tương tự) trong `e2e/settings-field-detail.spec.ts`
 
 ### Implementation cho User Story 3
 
-- [ ] T056 [P] [US3] Chép `utils/{collection-exists,field-exists,get-junction-collection-name}.ts` vào
+- [x] T056 [P] [US3] Chép `utils/{collection-exists,field-exists,get-junction-collection-name}.ts` vào
       `src/modules/settings/routes/data-model/utils/`
-- [ ] T057 [US3] Store `fieldDetail` (chép `field-detail/store/index.ts`, `types.ts`, `alterations/*.ts`: data-model §6;
+- [x] T057 [US3] Store `fieldDetail` (chép `field-detail/store/index.ts`, `types.ts`, `alterations/*.ts`: data-model §6;
       import store 012, `sdk`, `showUnexpectedError`) trong `src/modules/settings/routes/data-model/field-detail/store/`
-- [ ] T058 [P] [US3] `ExtensionOptions.vue`, `RelatedCollectionSelect.vue`, `RelatedFieldSelect.vue` (chép `shared/*`) trong
+- [x] T058 [P] [US3] `ExtensionOptions.vue`, `RelatedCollectionSelect.vue`, `RelatedFieldSelect.vue` (chép `shared/*`) trong
       `src/modules/settings/routes/data-model/field-detail/shared/`
-- [ ] T059 [P] [US3] 8 interface `system-interface`, `system-interface-options`, `system-display`,
+- [x] T059 [P] [US3] 8 interface `system-interface`, `system-interface-options`, `system-display`,
       `system-display-options`, `system-fields`, `system-inline-fields`, `system-collections`,
       `system-manual-flow-select` trong `src/interfaces/_system/<id>/`
-- [ ] T060 [P] [US3] Options component (chép `interfaces/list/options.vue`, `interfaces/map/options.vue`) và `options`
+- [x] T060 [P] [US3] Options component (chép `interfaces/list/options.vue`, `interfaces/map/options.vue`) và `options`
   trong `index.ts` của `list`, `map`; comment D-56 trong `src/interfaces/types.ts` sửa
-- [ ] T061 [US3] `FieldDetail.vue` (`BoDrawer`, tiêu đề, chọn chế độ) và chế độ đơn giản `FieldDetailSimple.vue`,
+- [x] T061 [US3] `FieldDetail.vue` (`BoDrawer`, tiêu đề, chọn chế độ) và chế độ đơn giản `FieldDetailSimple.vue`,
       `FieldConfiguration.vue`, `RelationshipConfiguration.vue` trong
       `src/modules/settings/routes/data-model/field-detail/` theo recipe Q-22; nối `RouterView name="field"` của T048;
       field không có hoặc `?type=` lạ → `showUnexpectedError` rồi `router.replace` về màn collection (D-97)
-- [ ] T062 [US3] Chế độ nâng cao `FieldDetailAdvanced.vue`, `Tabs.vue` (`BoTabs orientation="vertical"`, ngang ở 768 px),
+- [x] T062 [US3] Chế độ nâng cao `FieldDetailAdvanced.vue`, `Tabs.vue` (`BoTabs orientation="vertical"`, ngang ở 768 px),
       `Actions.vue`, `Schema.vue`, `Field.vue`, `Interface.vue`, `Display.vue`, `Validation.vue`, `Conditions.vue` trong
       `src/modules/settings/routes/data-model/field-detail/advanced/`
-- [ ] T063 [US3] `Relationship.vue`, `RelationshipM2o.vue`, `RelationshipO2m.vue`, `RelationshipM2m.vue`,
+- [x] T063 [US3] `Relationship.vue`, `RelationshipM2o.vue`, `RelationshipO2m.vue`, `RelationshipM2m.vue`,
       `RelationshipM2a.vue`, `RelationshipTranslations.vue` (chép `field-detail-advanced-relationship*.vue`) trong
       `src/modules/settings/routes/data-model/field-detail/advanced/`
 - [ ] T064 [US3] Đóng lượt 2: cổng như T049 (SC-001, SC-002 phần data model, SC-006; chunk drawer field ≤ 80 KB); commit
@@ -481,7 +481,7 @@ tiết; đích thật của D-85.
       D-66)
 - [ ] T121 [P] Recipe Q-20 đến Q-27 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt; ghi trạng thái Q-20 đến Q-27 trong `specs/016-settings-module/spec.md`
-- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-97 và R-40 đến R-42 (code đã làm, duyệt) trong
+- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-99 và R-40 đến R-42 (code đã làm, duyệt) trong
       `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010)
 - [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
       `test(016): settings payload, cross-use and parity suites, close feature (wave 5)`; nhắn session khác; push; CI;
@@ -602,3 +602,25 @@ Lượt 3, Phase 6 (US4):
   port header và guard directus sạch; E2E `settings-data-model`, `navigation`, `content-navigation`, `a11y`,
   `requests` xanh ở ba cấu hình (chromium-1280). Dưới tải máy (Directus giả lập amd64), test browser của 013/015 đỏ
   ngẫu nhiên; `ImageEditor.browser.test.ts` sửa để chờ menu mở, `FieldsRoute.test.ts` dùng thời hạn 15 s.
+- US3 (T050–T063): store `fieldDetail`, 10 alteration và utils data model port bằng script (chỉ đổi import, kiểu
+  `DeepPartial` nới, tham số `state` không dùng thành `_state`, một `return` ở global.ts); test so nguồn với Directus và
+  20 kịch bản alteration chụp snapshot (`alterations.test.ts`); test `store/index.test.ts` port bằng `vi.spyOn` (không có
+  `@pinia/testing`). `useExtension` port trên registry apps/web. Drawer: chế độ đơn giản (thẻ `radiogroup`, ảnh xem trước
+  nạp lười), nâng cao (BoTabs dọc từ 1024px, các tab tên `Advanced*` cho lint), `BoDrawer wide`, `BoFancySelect` (port
+  `v-fancy-select`). Tên interface/display dịch bằng `translateString` (dịch nguyên `$t:` như Directus khi đăng ký; regex
+  của `translate` cắt `$t:tree_view`). Sửa thêm `select-dropdown` (013): lựa chọn giá trị `''` (tags `whitespace`) làm Reka
+  báo lỗi. `list`/`map` có component options (D-56 gỡ), `FIELD_TYPES_SELECT` thêm vào `constants.ts`. T054 so chuỗi
+  request m2m với baseline Directus; T055 chạy xanh với cấu hình `dev`, gồm kịch bản 9 của US2 (`bo_note`).
+- Lượt 2, góp ý owner khi xem giao diện (2026-10-16; spec Clarifications, D-98, D-99, Q-28):
+  - `AppSidebar` có đích `module-actions-<id>` trên dòng module đang mở; `ContentNavigation` teleport nút hiện/ẩn vào
+    đó (D-98).
+  - `DrawerCollection` bỏ `LayoutSidebarDetail`.
+  - `BoDrawer`, `BoDialog`, `ComparisonModal` đổi lớp phủ và viền ở chế độ tối.
+  - Tiêu đề nhóm sidebar thành `sr-only`.
+  - `PrivateView` có prop `fill` (trang danh sách Content, Files, Users chỉ cuộn trong bảng; gốc `relative`, D-99).
+  - `BoIcon` vẽ 20 icon `custom-icons` của Directus. Manifest là `016-T064-custom-icons.json`; test `PageHeader`,
+    `UserMenu` đổi theo.
+  - `system-filter` có pill điều kiện; popover `SearchInput` ở chế độ tối là `gray-800`.
+  - Preview SVG của drawer field ánh xạ biến `--theme--*` sang token.
+  - Dữ liệu thử "Demo phân trang 01–40" trong `bo_content` (Directus 8155) chỉ để xem phân trang, phải xóa trước khi
+    chạy E2E cục bộ.

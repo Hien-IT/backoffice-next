@@ -238,3 +238,16 @@ describe('select-dropdown', () => {
 		expect(input.attributes('aria-invalid')).toBe('true');
 	});
 });
+
+test('a choice whose value is an empty string can be shown and chosen (tags whitespace "remove", 016)', () => {
+	const choices = [
+		{ text: 'Hyphen', value: '-' },
+		{ text: 'Remove', value: '' },
+	];
+	const wrapper = mount(SelectDropdown, { props: { value: '', choices }, global: { plugins: [i18n] }, attachTo: document.body });
+
+	expect(wrapper.text()).toContain('Remove');
+	wrapper.findComponent({ name: 'SelectRoot' }).vm.$emit('update:modelValue', '__bo_empty__');
+	expect(wrapper.emitted('input')).toEqual([['']]);
+	wrapper.unmount();
+});

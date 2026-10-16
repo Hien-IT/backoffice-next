@@ -205,7 +205,7 @@ const ICON_BTN =
 			<PopoverContent
 				align="end"
 				:side-offset="8"
-				class="z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+				class="z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800"
 				@escape-key-down="disable"
 				@interact-outside="onInteractOutside"
 			>

@@ -4787,6 +4787,148 @@
 			"recommendedDisplays": null,
 			"optionsKind": "array",
 			"optionKeys": []
+		},
+		"system-interface": {
+			"id": "system-interface",
+			"name": "$t:interfaces.system-interface.interface",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-interface-options": {
+			"id": "system-interface-options",
+			"name": "$t:interfaces.system-interface-options.interface-options",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-display": {
+			"id": "system-display",
+			"name": "$t:interfaces.system-display.display",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-display-options": {
+			"id": "system-display-options",
+			"name": "$t:interfaces.system-display-options.display-options",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-fields": {
+			"id": "system-fields",
+			"name": "$t:interfaces.fields.name",
+			"icon": "search",
+			"types": [
+				"csv",
+				"json"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-inline-fields": {
+			"id": "system-inline-fields",
+			"name": "Inline Fields",
+			"icon": "box",
+			"types": [
+				"json"
+			],
+			"localTypes": null,
+			"group": "standard",
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-collections": {
+			"id": "system-collections",
+			"name": "$t:interfaces.system-collections.collections",
+			"icon": "featured_play_list",
+			"types": [
+				"json",
+				"csv"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": [
+				"labels"
+			],
+			"optionsKind": "array",
+			"optionKeys": [
+				"includeSystem"
+			]
+		},
+		"system-manual-flow-select": {
+			"id": "system-manual-flow-select",
+			"name": "$t:interfaces.flow-select.flow-select",
+			"icon": "arrow_drop_down_circle",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
 		}
 	},
 	"displays": {

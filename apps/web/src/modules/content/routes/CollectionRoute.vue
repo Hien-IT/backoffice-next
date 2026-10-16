@@ -342,6 +342,7 @@ function clearFilters() {
 
 		<PrivateView
 			v-else
+			fill
 			:title="title"
 			:icon="archive ? 'archive' : (currentCollection.icon ?? undefined)"
 			:icon-color="currentCollection.color"

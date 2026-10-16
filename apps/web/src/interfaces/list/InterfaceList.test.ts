@@ -73,14 +73,9 @@ async function select(item: HTMLElement) {
 const menuText = (item: HTMLElement) => item.textContent!.replace(/^(delete|arrow_upward|arrow_downward)/, '').trim();
 
 describe('config', () => {
-	test('is the Directus repeater on json, options kept as data (D-56)', () => {
+	test('is the Directus repeater on json, options as an async component (D-56 lifted in 016)', () => {
 		expect(config).toMatchObject({ id: 'list', icon: 'replay', types: ['json'], group: 'selection' });
-		expect((config.options as { field: string }[]).map((o) => o.field).sort()).toEqual([
-			'addLabel',
-			'fields',
-			'sort',
-			'template',
-		]);
+		expect((config.options as unknown as { __asyncLoader?: unknown }).__asyncLoader).toBeTypeOf('function');
 	});
 });
 

@@ -40,6 +40,12 @@ const props = defineProps<{
 
 	/** Browser tab title when it differs from the page title (the item page, FR-051) */
 	tabTitle?: string | undefined;
+
+	/**
+	 * Backoffice (016, user request): the page is as high as the window; the header and the page header stay, the
+	 * content takes the rest and scrolls inside it (the table of a collection page keeps its header row on top).
+	 */
+	fill?: boolean;
 }>();
 
 const userStore = useUserStore();
@@ -69,7 +75,8 @@ watch(
 
 <template>
 	<NoAppAccess v-if="appAccess === false" />
-	<div v-else class="min-h-screen xl:flex">
+	<!-- `relative`: absolute descendants (sr-only labels in the table) would escape the clip and stretch the page. -->
+	<div v-else class="xl:flex" :class="fill ? 'relative h-dvh overflow-hidden' : 'min-h-screen'">
 		<BoSkipMenu />
 
 		<AppSidebar :drawer="!xl">
@@ -77,13 +84,16 @@ watch(
 		</AppSidebar>
 
 		<div
-			class="flex min-h-screen min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out motion-reduce:transition-none"
-			:class="navBarStore.collapsed ? 'xl:ms-[90px]' : 'xl:ms-[290px]'"
+			class="flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out motion-reduce:transition-none"
+			:class="[navBarStore.collapsed ? 'xl:ms-[90px]' : 'xl:ms-[290px]', fill ? 'h-dvh' : 'min-h-screen']"
 		>
 			<AppHeader />
 
-			<div class="flex min-w-0 flex-1">
-				<MainContent class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6">
+			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
+				<MainContent
+					class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6"
+					:class="{ 'flex min-h-0 flex-col': fill }"
+				>
 					<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 						<template v-if="$slots['title']" #title><slot name="title" /></template>
 						<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
@@ -92,7 +102,10 @@ watch(
 					</PageHeader>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
 					<NoticeStack />
-					<slot />
+					<div v-if="fill" class="flex min-h-0 flex-1 flex-col overflow-auto">
+						<slot />
+					</div>
+					<slot v-else />
 				</MainContent>
 
 				<DetailPanel :drawer="!xl">

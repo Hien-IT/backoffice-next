@@ -80,6 +80,14 @@ export const EXPECTED_INTERFACE_IDS = [
 	'system-field-tree',
 	'system-display-template',
 	'system-collections-translations',
+	'system-interface',
+	'system-interface-options',
+	'system-display',
+	'system-display-options',
+	'system-fields',
+	'system-inline-fields',
+	'system-collections',
+	'system-manual-flow-select',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [

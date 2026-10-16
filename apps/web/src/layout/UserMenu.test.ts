@@ -47,7 +47,7 @@ describe('UserMenu (FR-024)', () => {
 		const items = await openMenu(trigger);
 		expect(items.map((item) => [item.textContent?.replace(/\s+/g, ' ').trim(), item.getAttribute('href')])).toEqual([
 			['account_circle Profile', '/users/u1'],
-			['logout Sign Out', '/logout'],
+			['Sign Out', '/logout'],
 		]);
 
 		await press(document.activeElement!, 'Escape');

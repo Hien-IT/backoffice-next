@@ -230,15 +230,15 @@ describe('DrawerCollection', () => {
 });
 
 describe('DrawerCollection layouts (014 FR-029)', () => {
-	test('the layout of the preset; switching it in the sidebar does not write the preset (FR-019)', async () => {
+	test('the layout of the preset, no layout options sidebar as Directus; the preset is not written (FR-019)', async () => {
 		usePresetsStore().collectionPresets = [
 			{ id: 1, bookmark: null, user: null, role: null, collection: 'bo_rel_target', layout: 'tabular' },
 		] as any;
 
 		await mountDrawer();
 
-		const aside = panel().querySelector('aside[aria-label="Sidebar"]')!;
-		expect(aside.textContent).toContain('Layout Options');
+		expect(panel().querySelector('aside[aria-label="Sidebar"]')).toBeNull();
+		expect(panel().textContent).not.toContain('Layout Options');
 		expect(drawerCalls().some((call) => call.includes('/presets'))).toBe(false);
 	});
 

@@ -418,7 +418,7 @@ const DROP_BAR = 'pointer-events-none fixed z-99999 bg-brand-500';
 		:reset-preset="resetPreset"
 		:clear-filters="clearFilters"
 	>
-		<PrivateView :title="title" icon="folder" :breadcrumb="breadcrumb" :class="{ dragging }">
+		<PrivateView fill :title="title" icon="folder" :breadcrumb="breadcrumb" :class="{ dragging }">
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 

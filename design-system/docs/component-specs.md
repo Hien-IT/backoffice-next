@@ -216,7 +216,8 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
 
 - Reka `DialogRoot` / `DialogPortal` / `DialogOverlay` / `DialogContent` / `DialogTitle` / `DialogDescription` /
   `DialogClose`
-- Overlay: `fixed inset-0 z-99999 bg-gray-400/50 backdrop-blur-[32px]`
+- Overlay: `fixed inset-0 z-99999 bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60` (016: the TailAdmin
+  `bg-gray-400/50 backdrop-blur-[32px]` hid the page too much; the dark panel gets `dark:border dark:border-gray-800`)
 - Content:
   `fixed left-1/2 top-1/2 z-99999 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[700px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white p-4 no-scrollbar lg:p-11 dark:bg-gray-900`
 - Close:
@@ -1211,12 +1212,13 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
   blurs the input (Directus `disable`). Deviation: buttons instead of clickable icons (FR-027); the filter opens in a
   Reka Popover anchored to the pill instead of the inline expand.
 - Filter panel: Popover
-  `z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark`,
-  `SystemFilter` inside.
+  `z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800`,
+  `SystemFilter` inside (016 Q-28: the dark surface is lifted above the table card; nested filter popovers match).
 - `SystemFilter`: the rule list in a box
   `mb-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900` (no box when `inline`),
-  empty = `interfaces.filter.no_rules` in `font-mono text-theme-sm text-gray-500`; rule row
-  `flex flex-wrap items-center gap-2 rounded-lg px-2 py-1.5 text-theme-sm text-gray-700 hover:bg-gray-50 dark:text-gray-400 dark:hover:bg-white/5`:
+  empty = `interfaces.filter.no_rules` in `font-mono text-theme-sm text-gray-500`; rule row = the Directus `.header`
+  pill (016 Q-28)
+  `flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-white py-0.5 ps-1.5 pe-1 text-theme-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90`:
   drag handle (`cursor-grab`), field button (chip button `rounded-md px-1.5 py-0.5 hover:bg-gray-100`, opens `FieldList`
   in a `POPOVER` `w-80`), operator button (same chip, `font-semibold`, BoMenu of `operators.*`), value control, then at
   the end the row menu (`size-7` `more_vert`) and remove (`hover:text-error-500`). Group rows: a logic chip button
@@ -1323,7 +1325,7 @@ Built: `components/sidebar/{RevisionsSidebarDetail,RevisionsDateGroup,RevisionIt
   `truncate text-theme-xs text-gray-500`; `revision_delta_created_externally` on the last page; BoPagination compact,
   centered. Deviation: the dot colors are the recipe ones (Directus: primary for create, update and version save, danger
   for delete); the user name is plain text (Directus nests a user popover button inside the row button, invalid HTML).
-- Comparison modal: a Reka Dialog with the Tier 1 Modal overlay (`bg-gray-400/50 backdrop-blur-[32px]`) and panel
+- Comparison modal: a Reka Dialog with the Tier 1 Modal overlay (`bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60`) and panel
   `max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl rounded-3xl bg-white dark:bg-gray-900`, sr-only title
   (`promote_version` / `item_revision`); body two columns `grid grid-cols-1 md:grid-cols-2` (the second with
   `md:border-l`), each with a `ComparisonHeader` (`text-lg font-semibold` title, date and `edited_by` user; the incoming

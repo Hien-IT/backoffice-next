@@ -1,4 +1,5 @@
 // Ported from directus/app/src/interfaces/list/index.ts
+import { defineAsyncComponent } from 'vue';
 import { defineInterface } from '../types.ts';
 import InterfaceList from './InterfaceList.vue';
 
@@ -10,39 +11,6 @@ export default defineInterface({
 	component: InterfaceList,
 	types: ['json'],
 	group: 'selection',
-	// Backoffice: Directus uses the options.vue component; the keys it writes are kept as data for 016 (D-56).
-	options: [
-		{
-			field: 'template',
-			name: '$t:template',
-			type: 'string',
-			meta: { width: 'half', interface: 'input', options: { placeholder: '{{ field }}' } },
-		},
-		{
-			field: 'addLabel',
-			name: '$t:interfaces.list.add_label',
-			type: 'string',
-			meta: {
-				width: 'half',
-				interface: 'system-input-translated-string',
-				options: { placeholder: '$t:create_new' },
-			},
-		},
-		{
-			field: 'sort',
-			name: '$t:interfaces.list.sort',
-			type: 'string',
-			meta: {
-				width: 'half',
-				interface: 'select-dropdown',
-				options: { placeholder: '$t:interfaces.list.sort_placeholder' },
-			},
-		},
-		{
-			field: 'fields',
-			name: '$t:interfaces.list.edit_fields',
-			type: 'json',
-			meta: { width: 'full', interface: 'list' },
-		},
-	],
+	// Backoffice: the options component of Directus (D-56 lifted), async so it stays out of the main chunk.
+	options: defineAsyncComponent(() => import('./InterfaceListOptions.vue')) as never,
 });

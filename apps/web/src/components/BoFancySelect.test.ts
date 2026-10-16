@@ -1,0 +1,32 @@
+// Directus has no test for v-fancy-select: all items until one is chosen, then only it with a deselect button.
+import { mount } from '@vue/test-utils';
+import { expect, test } from 'vitest';
+import { i18n } from '../lang/index.ts';
+import BoFancySelect from './BoFancySelect.vue';
+
+const items = [
+	{ value: 'input', text: 'Input', icon: 'title', iconRight: 'star' },
+	{ divider: true as const },
+	{ value: 'tags', text: 'Tags', icon: 'local_offer', description: 'Keywords' },
+];
+
+test('lists every option, then only the chosen one with a deselect button', async () => {
+	const wrapper = mount(BoFancySelect, { props: { items, modelValue: null }, global: { plugins: [i18n] } });
+
+	expect(wrapper.findAll('button[aria-pressed]').map((b) => b.text())).toEqual([
+		'titleInputstar',
+		'local_offerTagsKeywords',
+	]);
+	expect(wrapper.find('hr').exists()).toBe(true);
+	await wrapper.findAll('button[aria-pressed]')[1]!.trigger('click');
+	expect(wrapper.emitted('update:modelValue')).toEqual([['tags']]);
+
+	await wrapper.setProps({ modelValue: 'tags' });
+	expect(wrapper.findAll('button[aria-pressed]')).toHaveLength(1);
+	expect(wrapper.find('button[aria-pressed]').attributes('aria-pressed')).toBe('true');
+	await wrapper.find(`button[aria-label="${i18n.global.t('deselect')}"]`).trigger('click');
+	expect(wrapper.emitted('update:modelValue')![1]).toEqual([null]);
+
+	await wrapper.setProps({ disabled: true });
+	expect(wrapper.find(`button[aria-label="${i18n.global.t('deselect')}"]`).exists()).toBe(false);
+});

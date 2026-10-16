@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/views/private/components/drawer-collection.vue -->
 <script setup lang="ts">
 // Backoffice: the layout of the collection preset (FR-029, D-58 lifted), rendered from the layout registry like
-// CollectionRoute. The temporary preset (FR-019) is never written; its layout can be switched in the drawer sidebar
-// (LayoutSidebarDetail + the layout options, layout-patterns §8). The layout is only mounted while the drawer is open,
-// so nothing is fetched while it is closed (013). The `sidebar` slot of the callers (folders of the files drawer)
-// renders above the layout options.
+// CollectionRoute. The temporary preset (FR-019) is never written. No layout options in the drawer, as Directus
+// drawer-collection.vue (016: the 014 sidebar section was removed). The layout is only mounted while the drawer is
+// open, so nothing is fetched while it is closed (013). The `sidebar` slot of the callers (folders of the files
+// drawer) is the drawer sidebar, only when given.
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
 import { isEqual } from 'lodash-es';
@@ -19,7 +19,6 @@ import { translateAPIError } from '../../lang/index.ts';
 import BoInfo from '../BoInfo.vue';
 import BoNotice from '../BoNotice.vue';
 import SearchInput from '../SearchInput.vue';
-import LayoutSidebarDetail from '../sidebar/LayoutSidebarDetail.vue';
 import BoDrawer, { type Props as BoDrawerProps } from './BoDrawer.vue';
 
 const props = withDefaults(
@@ -196,11 +195,8 @@ function useActions() {
 				<BoButton icon="check" :aria-label="t('save')" :disabled="!hasSelectionChanged" @click="save" />
 			</template>
 
-			<template #sidebar>
+			<template v-if="$slots['sidebar']" #sidebar>
 				<slot name="sidebar" />
-				<LayoutSidebarDetail v-model="layout">
-					<component :is="currentLayout?.slots.options" v-if="currentLayout?.slots.options" v-bind="layoutState" />
-				</LayoutSidebarDetail>
 			</template>
 
 			<component :is="currentLayout?.component" v-bind="layoutState">

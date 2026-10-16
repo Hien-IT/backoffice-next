@@ -10,9 +10,9 @@ defineProps<{ title: string; description?: string }>();
 <template>
 	<DialogRoot v-model:open="open">
 		<DialogPortal>
-			<DialogOverlay class="fixed inset-0 z-99999 bg-gray-400/50 backdrop-blur-[32px]" />
+			<DialogOverlay class="fixed inset-0 z-99999 bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60" />
 			<DialogContent
-				class="no-scrollbar fixed top-1/2 left-1/2 z-99999 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[700px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:bg-gray-900"
+				class="no-scrollbar fixed top-1/2 left-1/2 z-99999 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[700px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:border dark:border-gray-800 dark:bg-gray-900"
 				v-bind="description ? {} : { 'aria-describedby': undefined }"
 			>
 				<DialogTitle class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ title }}</DialogTitle>

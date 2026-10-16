@@ -9,7 +9,7 @@
 // empty search result is announced (`no_results`).
 import { isNil, orderBy } from 'lodash-es';
 import { ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuRoot, ContextMenuTrigger } from 'reka-ui';
-import { computed, nextTick, provide, ref, toRefs, useTemplateRef } from 'vue';
+import { computed, nextTick, onMounted, provide, ref, toRefs, useTemplateRef } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import BoButton from '../../../components/BoButton.vue';
 import BoIcon from '../../../components/BoIcon.vue';
@@ -51,6 +51,11 @@ const rootItems = computed(() => {
 
 const dense = computed(() => collectionsStore.visibleCollections.length > 5);
 const showSearch = computed(() => collectionsStore.visibleCollections.length > 20);
+
+// The hidden-collections toggle sits on the Content row of the sidebar (AppSidebar `module-actions-content`); without
+// that row (e.g. mounted alone) it stays above the tree.
+const actionsTarget = ref<HTMLElement | null>(null);
+onMounted(() => (actionsTarget.value = document.getElementById('module-actions-content')));
 
 const hasHiddenCollections = computed(
 	() => collectionsStore.allCollections.length > collectionsStore.visibleCollections.length,
@@ -214,10 +219,20 @@ const MENU_ITEM =
 
 <template>
 	<div class="flex flex-col" @contextmenu.capture="onContextMenu">
-		<div
-			v-if="showSearch || hasHiddenCollections"
-			class="sticky top-0 z-1 flex items-center gap-2 bg-white pb-2 dark:bg-gray-900"
-		>
+		<!-- Without the sidebar row (mounted alone), the toggle renders here, before the search. -->
+		<Teleport v-if="hasHiddenCollections" :to="actionsTarget ?? 'body'" :disabled="!actionsTarget">
+			<BoButton
+				variant="ghost"
+				class="ms-auto shrink-0"
+				:class="{ 'size-8!': actionsTarget }"
+				:icon="showHidden ? 'visibility_off' : 'visibility'"
+				:aria-label="$t('show_hidden_collections')"
+				:aria-pressed="showHidden"
+				@click="showHidden = !showHidden"
+			/>
+		</Teleport>
+
+		<div v-if="showSearch" class="sticky top-0 z-1 flex items-center gap-2 bg-white pb-2 dark:bg-gray-900">
 			<div v-if="showSearch" class="min-w-0 flex-1">
 				<BoInput
 					v-model="search"
@@ -227,15 +242,6 @@ const MENU_ITEM =
 					:aria-label="$t('search_collection')"
 				/>
 			</div>
-			<BoButton
-				v-if="hasHiddenCollections"
-				variant="ghost"
-				class="ms-auto shrink-0"
-				:icon="showHidden ? 'visibility_off' : 'visibility'"
-				:aria-label="$t('show_hidden_collections')"
-				:aria-pressed="showHidden"
-				@click="showHidden = !showHidden"
-			/>
 		</div>
 
 		<BoButton

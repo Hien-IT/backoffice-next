@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/list/options.vue",
+		"dest": "apps/web/src/interfaces/list/InterfaceListOptions.vue"
+	},
+	{
+		"source": "app/src/interfaces/map/options.vue",
+		"dest": "apps/web/src/interfaces/map/InterfaceMapOptions.vue"
+	}
+]

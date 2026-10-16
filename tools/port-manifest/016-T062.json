@@ -1,0 +1,54 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-conditions.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedConditions.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-display.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedDisplay.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-field.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedField.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-interface.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedInterface.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedRelationship.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-schema.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedSchema.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-validation.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/AdvancedValidation.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/FieldDetailAdvanced.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship-m2a.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/RelationshipM2a.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship-m2m.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/RelationshipM2m.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship-m2o.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/RelationshipM2o.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship-o2m.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/RelationshipO2m.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-relationship-translations.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/advanced/RelationshipTranslations.vue"
+	}
+]

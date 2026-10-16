@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/components/v-fancy-select.vue",
+		"dest": "apps/web/src/components/BoFancySelect.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-simple/field-configuration.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/simple/FieldConfiguration.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-simple/field-detail-simple.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/simple/FieldDetailSimple.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/field-detail-simple/relationship-configuration.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/simple/RelationshipConfiguration.vue"
+	}
+]

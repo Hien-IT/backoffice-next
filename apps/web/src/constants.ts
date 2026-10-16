@@ -1,6 +1,7 @@
 // Ported from directus/app/src/constants.ts
 // Backoffice: only the constants the app shell, the form and the interfaces use; DIRECTUS_LOGO dropped (FR-083); RTL_LANGUAGES from
 // constants/text-direction.ts.
+import type { Type } from '@directus/types';
 
 export const DRAFT_VERSION_KEY = 'draft';
 
@@ -75,3 +76,76 @@ export const SDK_AUTH_REFRESH_BEFORE_EXPIRES = 10_000;
  * Languages that Directus currently supports that are commonly written RTL
  */
 export const RTL_LANGUAGES = ['ar-SA', 'fa-IR', 'he-IL'] as const;
+
+/** Feature 016: the field type choices of the Settings forms (list options, inline fields). */
+export const FIELD_TYPES_SELECT: Array<{ value: Type; text: string } | { divider: true }> = [
+	{
+		text: '$t:string',
+		value: 'string',
+	},
+	{
+		text: '$t:text',
+		value: 'text',
+	},
+	{ divider: true },
+	{
+		text: '$t:boolean',
+		value: 'boolean',
+	},
+	{ divider: true },
+	{
+		text: '$t:integer',
+		value: 'integer',
+	},
+	{
+		text: '$t:bigInteger',
+		value: 'bigInteger',
+	},
+	{
+		text: '$t:float',
+		value: 'float',
+	},
+	{
+		text: '$t:decimal',
+		value: 'decimal',
+	},
+	{ divider: true },
+	{
+		text: '$t:geometry.All',
+		value: 'geometry',
+	},
+	{ divider: true },
+	{
+		text: '$t:timestamp',
+		value: 'timestamp',
+	},
+	{
+		text: '$t:datetime',
+		value: 'dateTime',
+	},
+	{
+		text: '$t:date',
+		value: 'date',
+	},
+	{
+		text: '$t:time',
+		value: 'time',
+	},
+	{ divider: true },
+	{
+		text: '$t:json',
+		value: 'json',
+	},
+	{
+		text: '$t:csv',
+		value: 'csv',
+	},
+	{
+		text: '$t:uuid',
+		value: 'uuid',
+	},
+	{
+		text: '$t:hash',
+		value: 'hash',
+	},
+];

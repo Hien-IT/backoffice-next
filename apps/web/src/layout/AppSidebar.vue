@@ -106,17 +106,11 @@ function onFocusout(event: FocusEvent) {
 
 			<div class="no-scrollbar flex min-h-0 flex-col overflow-y-auto">
 				<nav :aria-labelledby="groupId" data-testid="module-bar" class="mb-6">
-					<h2
-						:id="groupId"
-						class="mb-4 flex text-xs leading-5 text-gray-500 uppercase dark:text-gray-400"
-						:class="expanded ? 'justify-start' : 'justify-center'"
-					>
-						<span :class="{ 'sr-only': !expanded }">{{ $t('modules') }}</span>
-						<BoIcon v-if="!expanded" name="more_horiz" size="sm" />
-					</h2>
+					<!-- Backoffice (016, user request): no visible "Modules" title; it stays the name of the nav. -->
+					<h2 :id="groupId" class="sr-only">{{ $t('modules') }}</h2>
 
 					<ul class="m-0 flex list-none flex-col gap-1 p-0">
-						<li v-for="modulePart in modules" :key="modulePart.id">
+						<li v-for="modulePart in modules" :key="modulePart.id" class="relative">
 							<component
 								:is="modulePart.to !== undefined ? RouterLink : 'a'"
 								v-bind="
@@ -145,6 +139,14 @@ function onFocusout(event: FocusEvent) {
 									<span class="sr-only">&#32;({{ $t('open_in_new_window') }})</span>
 								</template>
 							</component>
+
+							<!-- Actions of the open module on its row (the Content hidden-collections toggle), teleported by the
+								module navigation; outside the link, since a button cannot sit in a link. -->
+							<div
+								v-if="expanded && isActive(modulePart) && $slots['navigation']"
+								:id="`module-actions-${modulePart.id}`"
+								class="absolute end-1 top-1 flex items-center empty:hidden"
+							/>
 
 							<div v-if="expanded && isActive(modulePart) && $slots['navigation']" class="ms-9 mt-2">
 								<slot name="navigation" />

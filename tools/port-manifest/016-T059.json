@@ -1,0 +1,66 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-collections/system-collections.vue",
+		"dest": "apps/web/src/interfaces/_system/system-collections/SystemCollections.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collections/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-collections/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display-options/system-display-options.vue",
+		"dest": "apps/web/src/interfaces/_system/system-display-options/SystemDisplayOptions.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display-options/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-display-options/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display/system-display.vue",
+		"dest": "apps/web/src/interfaces/_system/system-display/SystemDisplay.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-display/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-fields/system-fields.vue",
+		"dest": "apps/web/src/interfaces/_system/system-fields/SystemFields.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-fields/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-fields/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-inline-fields/system-inline-fields.vue",
+		"dest": "apps/web/src/interfaces/_system/system-inline-fields/SystemInlineFields.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-inline-fields/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-inline-fields/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-interface-options/system-interface-options.vue",
+		"dest": "apps/web/src/interfaces/_system/system-interface-options/SystemInterfaceOptions.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-interface-options/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-interface-options/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-interface/system-interface.vue",
+		"dest": "apps/web/src/interfaces/_system/system-interface/SystemInterface.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-interface/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-interface/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-manual-flow-select/system-manual-flow-select.vue",
+		"dest": "apps/web/src/interfaces/_system/system-manual-flow-select/SystemManualFlowSelect.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-manual-flow-select/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-manual-flow-select/index.ts"
+	}
+]

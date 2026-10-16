@@ -166,9 +166,11 @@ function onSearchKeydown(event: KeyboardEvent) {
 
 // Reka Select items cannot have an empty value: the "Deselect" row uses this one and emits null.
 const DESELECT = '__bo_deselect__';
+// ...nor an empty value: a choice whose value is '' (tags `whitespace` "remove") uses this one.
+const EMPTY = '__bo_empty__';
 
 function onSelect(value: unknown) {
-	emit('input', value === DESELECT ? null : value);
+	emit('input', value === DESELECT ? null : value === EMPTY ? '' : value);
 }
 
 const FOCUS =
@@ -221,7 +223,7 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 			<BoIcon name="close" />
 		</button>
 	</div>
-	<SelectRoot v-else v-model:open="open" :model-value="value ?? ''" :disabled="disabled" @update:model-value="onSelect">
+	<SelectRoot v-else v-model:open="open" :model-value="value === '' ? EMPTY : (value ?? '')" :disabled="disabled" @update:model-value="onSelect">
 		<SelectTrigger
 			:id="fieldId"
 			:aria-labelledby="a11y ? `${a11y.labelId} ${fieldId}` : undefined"
@@ -269,7 +271,7 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 					<SelectItem
 						v-for="item in visibleItems"
 						:key="String(item.value)"
-						:value="item.value"
+						:value="item.value === '' ? EMPTY : item.value"
 						:class="ITEM"
 					>
 						<span class="flex min-w-0 items-center gap-2">

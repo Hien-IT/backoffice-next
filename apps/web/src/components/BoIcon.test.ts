@@ -7,13 +7,22 @@ import BoProgressLinear from './BoProgressLinear.vue';
 
 describe('BoIcon', () => {
 	test('is decorative by default with the md size token', () => {
-		const span = mount(BoIcon, { props: { name: 'box' } }).get('span');
+		const span = mount(BoIcon, { props: { name: 'add' } }).get('span');
 
-		expect(span.text()).toBe('box');
+		expect(span.text()).toBe('add');
 		expect(span.classes()).toContain('material-symbols-rounded');
 		expect(span.attributes('aria-hidden')).toBe('true');
 		expect(span.attributes('role')).toBeUndefined();
 		expect(span.attributes('style')).toContain('var(--text-2xl)');
+	});
+
+	test('a Directus custom icon (bookmark_save, not in the font) is its SVG, in the current color', () => {
+		const span = mount(BoIcon, { props: { name: 'bookmark_save' } }).get('span');
+
+		expect(span.text()).toBe('');
+		expect(span.find('svg').exists()).toBe(true);
+		expect(span.classes()).not.toContain('material-symbols-rounded');
+		expect(span.classes()).toContain('[&>svg]:fill-current');
 	});
 
 	test('a label makes it an image with a name; size maps to tokens', () => {

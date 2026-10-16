@@ -3,7 +3,7 @@ import { cloneDeep } from 'lodash-es';
 import { i18n } from '../lang/index.ts';
 
 // Backoffice: translate-literal.ts (one function) is inlined here.
-function translateString(literal: any): string {
+export function translateString(literal: any): string {
 	let translated = literal;
 
 	if (typeof literal === 'string' && literal.startsWith('$t:')) translated = i18n.global.t(literal.replace('$t:', ''));

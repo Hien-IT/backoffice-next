@@ -15,12 +15,12 @@ const button = (label: string) =>
 describe('PageHeader', () => {
 	test('icon, h1 title and actions slot', async () => {
 		const { wrapper } = await mountLayout(PageHeader, {
-			props: { title: 'Content', icon: 'box' },
+			props: { title: 'Content', icon: 'folder' },
 			slots: { actions: '<button type="button">Act</button>' },
 		});
 
 		expect(wrapper.get('h1').text()).toBe('Content');
-		expect(wrapper.text()).toContain('box');
+		expect(wrapper.text()).toContain('folder');
 		expect(wrapper.text()).toContain('Act');
 	});
 

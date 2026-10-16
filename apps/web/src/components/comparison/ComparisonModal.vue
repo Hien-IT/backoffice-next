@@ -255,7 +255,7 @@ const SKELETON = 'h-11 animate-pulse rounded-lg bg-gray-100 motion-reduce:animat
 <template>
 	<DialogRoot :open="!!active" @update:open="onOpenChange">
 		<DialogPortal>
-			<DialogOverlay class="fixed inset-0 z-99999 bg-gray-400/50 backdrop-blur-[32px]" />
+			<DialogOverlay class="fixed inset-0 z-99999 bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60" />
 			<DialogContent
 				class="fixed top-1/2 left-1/2 z-99999 flex max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-3xl bg-white dark:bg-gray-900"
 				:aria-describedby="undefined"

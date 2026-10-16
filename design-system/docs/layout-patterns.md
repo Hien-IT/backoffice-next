@@ -39,7 +39,7 @@ State (`useSidebar`, provided once by `SidebarProvider`): `isExpanded` (default 
 | Mobile             | `max-xl:-translate-x-full` when closed, `translate-x-0 w-[290px]` when `isMobileOpen` (`rtl:` mirrors)                                                                                                                                                                                                                                                             |
 | Logo area          | `pt-8 pb-7 flex`; centred (`xl:justify-center`) when collapsed. Full logo 150×40 (light and dark files) when expanded, 32×32 icon when collapsed                                                                                                                                                                                                                   |
 | Scroll area        | `flex flex-col overflow-y-auto no-scrollbar duration-300 ease-linear`                                                                                                                                                                                                                                                                                              |
-| Groups             | `nav.mb-6 > div.flex.flex-col.gap-4`; group titles "Menu" and "Others" rendered uppercase: `h2.mb-4.flex.text-xs.uppercase.leading-5.text-gray-400`; when collapsed the title is replaced by a "…" icon and centred. **Backoffice:** one group "Menu" only (L-2), title `text-gray-500 dark:text-gray-400` (gray-400 is 2.58:1)                                    |
+| Groups             | `nav.mb-6 > div.flex.flex-col.gap-4`; group titles "Menu" and "Others" rendered uppercase: `h2.mb-4.flex.text-xs.uppercase.leading-5.text-gray-400`; when collapsed the title is replaced by a "…" icon and centred. **Backoffice:** one group "Menu" only (L-2); since 016 its title is `sr-only` (the name of the nav, no visible title or "…" icon, user request)                                    |
 | Items              | `ul.flex.flex-col.gap-1 > li`; link item: `menu-item group` + `menu-item-active` / `menu-item-inactive`; icon wrapper `menu-item-icon-active` / `menu-item-icon-inactive`; label `span.menu-item-text` (hidden when collapsed)                                                                                                                                     |
 | Item with sub-menu | a `<button>` with the same `menu-item` classes; "active" means "sub-menu open". Chevron `ms-auto w-5 h-5 transition-transform duration-200`, `rotate-180 text-brand-500` when open. **Backoffice:** `menu-item-arrow-active` (`text-brand-600`), `aria-expanded` + `aria-controls`                                                                                 |
 | Sub-menu           | `ul.mt-2.space-y-1.ms-9 > li > a.menu-dropdown-item` + `menu-dropdown-item-active` / `-inactive`; optional `new` / `pro` badge `menu-dropdown-badge` (+ `-active` / `-inactive`). Height animated from 0 to `scrollHeight`. Hidden when the sidebar is collapsed. **Backoffice:** one level only (L-3); no `new`/`pro` badges (utilities removed from `theme.css`) |
@@ -205,6 +205,8 @@ settings, permissions), not by this pack.
 - Visible focus on every control (see component-specs: focus-visible recipe).
 - Minimum supported width 768px; no horizontal page scroll from 768px (tables scroll inside their own `overflow-x-auto`
   container).
+- List pages (Content, Files, Users collections; 016 D-99): `PrivateView fill` keeps the page at the viewport height
+  (`relative h-dvh overflow-hidden`); only the table body scrolls, the page header and pagination stay put.
 - Respect `prefers-reduced-motion` for the width and sub-menu transitions (`motion-reduce:transition-none`).
 
 ## 8. Forms and drawers (nháp, 013)
@@ -258,9 +260,10 @@ drafts). "Deviation" lines say where the code differs from the first draft.
   editor image upload.
 - Reka `DialogRoot` / `DialogPortal` / `DialogOverlay` / `DialogContent` / `DialogTitle` / `DialogDescription`, the
   panel on the end side.
-- Overlay: `fixed inset-0 z-99999 bg-gray-900/50` (the Backdrop colors).
+- Overlay: `fixed inset-0 z-99999 bg-gray-900/50 dark:bg-gray-950/80` (the Backdrop colors; darker in dark mode, where
+  the page and the panel share `gray-900`, 016).
 - Panel:
-  `fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden xl:w-[640px] dark:bg-gray-900`
+  `fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden xl:w-[640px] dark:border-s dark:border-gray-800 dark:bg-gray-900`
   (640px from `xl`; below `xl` full width like the L-4 drawer). Enter / exit: slide from the end side (250 ms in, 200 ms
   out, mirrored in RTL) and overlay fade, both off under `prefers-reduced-motion: reduce`.
 - Header: `flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800`:

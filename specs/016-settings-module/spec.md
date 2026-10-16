@@ -1040,7 +1040,7 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
   014 (D-71, D-72 phần 016), 015 (D-85) sửa khi 015 mở khóa; `CLAUDE.md` Active Technologies thêm dòng 016;
   `SPECKIT-GUIDE.md` ghi chú cho 017 (Flows: mục sub-menu và `/settings/flows` của 016 là khung, D-92;
   `system-manual-flow-select` đã có) và 018 (snackbar D-66); `graphify update .` sau mỗi lượt.
-- **FR-115**: Mọi D-92 đến D-97 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
+- **FR-115**: Mọi D-92 đến D-99 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
   (xem Clarifications).
 
 ### Key Entities *(include if feature involves data)*
@@ -1114,6 +1114,8 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | D-95 | Dòng phiên bản cuối sub-menu | "Directus <version>" với icon Directus, link GitHub releases | Chỉ chữ "Backoffice" với icon app, không số phiên bản, không link | Nguyên tắc IX; `info.version` là phiên bản tương thích 11.17.4 nên hiện số sẽ gây hiểu nhầm; owner chọn B (Clarifications 2026-10-16) | đổi thương hiệu | — |
 | D-96 | Đường bàn phím cho kéo thả ở cây collection, lưới field (gồm vào/ra nhóm), danh sách `system-modules`, `system-fields`, `list` options | Chỉ chuột | Thêm menu dòng Lên/Xuống/Vào nhóm/Ra nhóm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; mở rộng D-69 (014); owner chọn A (Clarifications 2026-10-16), chờ tech lead | khác | — |
 | D-97 | Mở drawer field cho field không tồn tại (gõ URL) hoặc `?type=` không thuộc 10 localType | Lỗi JavaScript không bắt: `startEditing` gán `field` null rồi vẽ `field.field`; `alterations[type]` không có | Hộp lỗi (`showUnexpectedError`) rồi về màn collection | Không chép lỗi làm hỏng màn; E2E coi `pageerror` là lỗi (đã kiểm T002, 2026-10-16) | khác | — |
+| D-98 | Nút hiện/ẩn collection ẩn của module Content | Chỉ ở menu chuột phải của cây collection | Nút icon `visibility`/`visibility_off` (`aria-pressed`) trên dòng "Content" của sidebar (đích `module-actions-<id>` của `AppSidebar`, `Teleport`), chỉ khi module đang mở và có collection ẩn; menu chuột phải giữ | Đường bàn phím (014) nay không chiếm một hàng riêng trên ô tìm; owner yêu cầu (Clarifications 2026-10-16) | khác | — |
+| D-99 | Cuộn ở trang danh sách Content, Files, Users | Cả vùng nội dung cuộn (`private-view-main` `overflow: auto`, header bar `sticky`); phân trang nằm dưới bảng, cuộn theo | `PrivateView fill`: trang cao đúng cửa sổ, chỉ thân bảng cuộn; page header và phân trang đứng yên; khung gốc `relative` để nhãn `sr-only` trong bảng không kéo dài trang | Owner yêu cầu (Clarifications 2026-10-16); hành vi và request không đổi | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -1141,6 +1143,7 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
 | Q-25 | Danh sách kéo thả của `system-modules` (ô bật, ổ khóa, dòng link bấm sửa và nút gỡ, nút `add_link`), `system-fields` (đường dẫn field với mũi tên, nút gỡ, menu thêm), `system-folder` (ô chỉ đọc + menu cây), `system-scope` (select ba mục với mục giá trị hiện tại), `system-owner` (dòng email + nút sửa, drawer SetupForm) | Nháp 2026-10-16 (T005–T007), chờ design owner duyệt |
 | Q-26 | Trình sửa preset: form tám field, vạch `layout_preview`, layout thật chỉ đọc bên dưới trong khung viền, notice khi chưa chọn; danh sách preset và translations dùng Q-2 | Nháp 2026-10-16 (T005–T007), chờ design owner duyệt |
 | Q-27 | Drawer tạo collection hai bước (tab dọc, notice đầu bước, sáu dòng field tùy chọn với ô bật + ô tên), hộp tạo role (một ô), hộp tạo policy (ô tên + hai ô bật), hộp nhân bản policy/field, hộp xóa collection với notice danger phụ thuộc | Nháp 2026-10-16 (T005–T007), chờ design owner duyệt |
+| Q-28 | Chỉnh hiển thị theo góp ý owner khi xem lượt 2 (2026-10-16): lớp phủ drawer tối hơn (`bg-gray-900/50`, tối `gray-950/80`) và viền trái drawer ở chế độ tối; lớp phủ modal nhạt hơn TailAdmin (`bg-gray-900/40` + `backdrop-blur-[2px]`, tối `gray-950/60`) và viền modal ở chế độ tối; tiêu đề nhóm "Modules" của sidebar chỉ còn `sr-only`; popover bộ lọc ở chế độ tối nền `gray-800` viền `gray-700`, mỗi điều kiện lọc là viên pill có viền như `.header` của Directus | Recipe đã sửa (layout-patterns §7, §8; component-specs Modal, Comparison modal), chờ design owner duyệt |
 
 ## Clarifications
 
@@ -1166,6 +1169,16 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   theo Directus hoặc ghi D-xx chờ duyệt.
 - Release-gate (owner, 2026-10-16): áp toàn bộ đề xuất CHK001–CHK105 của `checklists/release-gate-proposals.md` vào
   spec, plan, research, data-model, contracts.
+- Góp ý giao diện khi xem lượt 2 (owner, 2026-10-16), áp ngay:
+  - Nút hiện/ẩn collection ẩn lên dòng "Content" của sidebar (D-98).
+  - Drawer chọn item (`DrawerCollection`) bỏ cột Layout Options cho giống Directus. Đây là bổ sung của 014; slot
+    `sidebar` vẫn giữ.
+  - Drawer và modal dễ phân biệt với trang; tiêu đề "Modules" của sidebar ẩn (Q-28).
+  - Trang danh sách chỉ cuộn trong bảng (D-99).
+  - Nút "Update Bookmark" dùng icon SVG riêng của Directus: `BoIcon` port đủ 20 icon `custom-icons`; tên trùng font
+    như `box`, `logout` cũng vẽ SVG như Directus.
+  - Khung bộ lọc rõ hơn ở chế độ tối (Q-28).
+
 
 ## Assumptions
 
@@ -1252,6 +1265,6 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   options `list`.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 015 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-92 đến D-97 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
+- **SC-010**: D-92 đến D-99 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
   D-85 ghi "đã gỡ ở 016" ở spec gốc; ghi chú cho 017 và 018 trong `SPECKIT-GUIDE.md`. Duyệt ghi ở bảng trạng thái khác
   biệt của spec (như 015 T103).

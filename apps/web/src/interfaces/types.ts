@@ -1,7 +1,7 @@
 import type { ContentVersion, InterfaceConfig as DirectusInterfaceConfig, Field } from '@directus/types';
 
 // Config of an interface (`<id>/index.ts`), as in Directus. `options` keeps every Directus form (array,
-// `{ standard, advanced }`, function, null) for 016; an options component is not used (D-56).
+// `{ standard, advanced }`, function, null, or a component: `list` and `map` since 016, D-56 lifted).
 export type InterfaceConfig = DirectusInterfaceConfig;
 
 export type InterfaceOptions = InterfaceConfig['options'];

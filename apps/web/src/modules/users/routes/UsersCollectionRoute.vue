@@ -223,7 +223,7 @@ const createUserVisible = computed(() => canInviteUsers.value && (!props.status 
 		:reset-preset="resetPreset"
 		:clear-filters="clearFilters"
 	>
-		<PrivateView :title="title" icon="people_alt" :breadcrumb="breadcrumb">
+		<PrivateView fill :title="title" icon="people_alt" :breadcrumb="breadcrumb">
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 

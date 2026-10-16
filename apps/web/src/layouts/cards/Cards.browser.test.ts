@@ -161,7 +161,8 @@ test('renders the cards with image, fallback icon and title template, the header
 	expect(
 		cardLinks()
 			.filter((_, i) => i > 0)
-			.some((link) => link.querySelector('.material-symbols-rounded')?.textContent === 'box'),
+			// `box` is a Directus custom SVG icon (BoIcon custom-icons), not a font glyph.
+			.some((link) => link.querySelector('span:not(.material-symbols-rounded) > svg') !== null),
 	).toBe(true);
 
 	// Grid of size 4: 160 px columns.

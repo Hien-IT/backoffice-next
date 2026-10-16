@@ -1,0 +1,86 @@
+[
+	{
+		"source": "app/src/components/v-icon/custom-icons/bookmark_save.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconBookmarkSave.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/box.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconBox.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/commit_node.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconCommitNode.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/directus.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconDirectus.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/flip_horizontal.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconFlipHorizontal.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/flip_vertical.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconFlipVertical.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/folder_lock.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconFolderLock.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/folder_move.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconFolderMove.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_1.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid1.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_2.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid2.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_3.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid3.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_4.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid4.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_5.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid5.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/grid_6.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconGrid6.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/logout.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconLogout.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/netlify.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconNetlify.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/signal_wifi_1_bar.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconSignalWifi1Bar.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/signal_wifi_2_bar.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconSignalWifi2Bar.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/signal_wifi_3_bar.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconSignalWifi3Bar.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons/vercel.vue",
+		"dest": "apps/web/src/components/custom-icons/CustomIconVercel.vue"
+	},
+	{
+		"source": "app/src/components/v-icon/custom-icons.ts",
+		"dest": "apps/web/src/components/custom-icons/index.ts"
+	}
+]

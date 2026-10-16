@@ -33,6 +33,8 @@ export interface Props {
 	applyShortcut?: ApplyShortcut;
 	/** Feature 015 (recipe Q-16, image editor): full width at every breakpoint and a body without padding or scroll. */
 	flush?: boolean;
+	/** Feature 016 (recipe Q-22, field drawer): as wide as the window up to `max-w-5xl`. */
+	wide?: boolean;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -44,6 +46,7 @@ const props = withDefaults(defineProps<Props>(), {
 	cancelable: true,
 	applyShortcut: 'meta+enter',
 	flush: false,
+	wide: false,
 });
 
 const emit = defineEmits(['cancel', 'apply', 'update:modelValue']);
@@ -133,11 +136,11 @@ const FOCUS =
 		<DialogPortal>
 			<DialogOverlay
 				class="bo-drawer-overlay fixed inset-0 z-99999"
-				:class="depth > 0 ? 'bg-transparent' : 'bg-gray-900/50'"
+				:class="depth > 0 ? 'bg-transparent' : 'bg-gray-900/50 dark:bg-gray-950/80'"
 			/>
 			<DialogContent
-				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden dark:bg-gray-900"
-				:class="flush ? '' : $slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
+				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden dark:border-s dark:border-gray-800 dark:bg-gray-900"
+				:class="flush ? '' : wide ? 'max-w-5xl' : $slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
 				:data-depth="depth"
 				v-bind="subtitle ? {} : { 'aria-describedby': undefined }"
 				@escape-key-down="onEscape"

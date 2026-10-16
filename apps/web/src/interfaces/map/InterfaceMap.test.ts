@@ -190,7 +190,8 @@ describe('map', () => {
 	test('is registered with the Directus config and an async component', () => {
 		expect(config).toMatchObject({ id: 'map', group: 'selection', icon: 'map', recommendedDisplays: [] });
 		expect((config.component as { __asyncLoader?: unknown }).__asyncLoader).toBeTypeOf('function');
-		expect((config.options as { field: string }[]).map((o) => o.field)).toEqual(['geometryType', 'defaultView']);
+		// 016: the options component of Directus, async too (D-56 lifted).
+		expect((config.options as unknown as { __asyncLoader?: unknown }).__asyncLoader).toBeTypeOf('function');
 	});
 
 	test.each([

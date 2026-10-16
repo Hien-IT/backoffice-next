@@ -1,0 +1,78 @@
+[
+	{
+		"source": "app/src/composables/use-extension.ts",
+		"dest": "apps/web/src/composables/use-extension.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/file.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/file.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/files.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/files.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/global.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/global.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/group.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/group.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/index.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/index.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/m2a.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/m2a.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/m2m.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/m2m.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/m2o.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/m2o.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/o2m.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/o2m.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/presentation.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/presentation.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/standard.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/standard.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/alterations/translations.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/alterations/translations.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/index.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/index.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/index.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/index.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/field-detail/store/types.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/field-detail/store/types.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/utils/collection-exists.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/utils/collection-exists.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/utils/field-exists.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/utils/field-exists.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/utils/get-junction-collection-name.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/utils/get-junction-collection-name.ts"
+	}
+]
