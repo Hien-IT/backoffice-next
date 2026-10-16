@@ -3,11 +3,15 @@
 // the API of the app under test (appRequest), read-only fixtures still through Directus (spec 004 Assumptions).
 export type AppName = 'directus' | 'backoffice';
 
-const tokens = new Map<AppName, string>();
+const tokens = new Map<AppName, { token: string; at: number }>();
+
+// Both apps issue the admin token for ACCESS_TOKEN_TTL (15 min by default): a run longer than that (a matrix shard took
+// 905 s on CI run 38889659846) logs in again before it expires.
+const TOKEN_REUSE_MS = 10 * 60_000;
 
 async function login(app: AppName): Promise<string> {
 	const cached = tokens.get(app);
-	if (cached) return cached;
+	if (cached && Date.now() - cached.at < TOKEN_REUSE_MS) return cached.token;
 
 	const res = await fetch(new URL('/auth/login', appUrl(app)), {
 		method: 'POST',
@@ -17,7 +21,7 @@ async function login(app: AppName): Promise<string> {
 
 	if (!res.ok) throw new Error(`${app} login failed: ${res.status} ${await res.text()}`);
 	const token = ((await res.json()) as { data: { access_token: string } }).data.access_token;
-	tokens.set(app, token);
+	tokens.set(app, { token, at: Date.now() });
 	return token;
 }
 
