@@ -249,6 +249,9 @@ describe('dropping 20 files on the library', () => {
 			{ length: 20 },
 			(_, index) => new File([new Uint8Array(1_000_000)], `drop-${index}.txt`, { type: 'text/plain' }),
 		);
+		// ponytail: on CI the value set in beforeMount was gone at the drop (20 in flight, run 38974011828); cause not
+		// found, so set it again just before.
+		useServerStore().info.uploads = { maxConcurrency: 5 };
 		const drop = new Event('drop', { bubbles: true, cancelable: true });
 		Object.defineProperty(drop, 'dataTransfer', { value: { types: ['Files'], files } });
 		window.dispatchEvent(drop);

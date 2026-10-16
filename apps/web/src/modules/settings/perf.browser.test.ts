@@ -146,7 +146,8 @@ test('the field grid: 200 fields in 10 groups under 500 ms', async () => {
 	expect(fields).toHaveLength(201);
 
 	await measure('field grid 200', 500, async () => {
-		mockApi({});
+		// fields-management hydrates the fields store on mount, as Directus: the same 200 fields.
+		mockApi({ 'GET /fields': fields });
 		const { time, wrapper } = await timeMount(
 			FieldsManagement,
 			() => {

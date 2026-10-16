@@ -319,7 +319,12 @@ describe('other operations', () => {
 			method: 'POST',
 			path: `/flows/trigger/${id}`,
 			body: {},
-			normalize: (captured) => ({ ...captured, json: stable(captured.json) }),
+			// The body holds the upstream headers (Date): the ETag hash is time-dependent, its length part is compared.
+			normalize: (captured) => ({
+				...captured,
+				json: stable(captured.json),
+				headers: { ...captured.headers, etag: (captured.headers['etag'] ?? '').replace(/-[^-"]+"$/, '-<hash>"') },
+			}),
 		});
 
 		const all = result.directus.json as any;
