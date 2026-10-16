@@ -1,0 +1,30 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/policies/collection.vue",
+		"dest": "apps/web/src/modules/settings/routes/policies/PoliciesCollectionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/add-new.vue",
+		"dest": "apps/web/src/modules/settings/routes/policies/NewPolicy.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/use-save.ts",
+		"dest": "apps/web/src/modules/settings/routes/policies/use-save.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/use-duplicate.ts",
+		"dest": "apps/web/src/modules/settings/routes/policies/use-duplicate.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/use-duplicate.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/policies/use-duplicate.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/item.vue",
+		"dest": "apps/web/src/modules/settings/routes/policies/PolicyItemRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/policies/policy-info-sidebar-detail.vue",
+		"dest": "apps/web/src/modules/settings/routes/policies/PolicyInfoSidebarDetail.vue"
+	}
+]

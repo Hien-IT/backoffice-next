@@ -14,6 +14,13 @@ vi.mock('./settings/routes/data-model/CollectionsRoute.vue', () => ({ default: {
 vi.mock('./settings/routes/data-model/NewCollection.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/data-model/FieldsRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/data-model/field-detail/FieldDetail.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/roles/RolesCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/roles/NewRole.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/roles/RoleItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/roles/RolePublicRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/policies/PoliciesCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/policies/NewPolicy.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/policies/PolicyItemRoute.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({
@@ -41,9 +48,11 @@ describe('settings module routes', () => {
 			'/settings': 'settings-collections',
 			'/settings/data-model/+': 'settings-add-new',
 			'/settings/roles': 'settings-roles-collection',
+			'/settings/roles/+': 'settings-add-new-role',
 			'/settings/roles/public': 'settings-roles-public-item',
 			'/settings/roles/3f2a': 'settings-roles-item',
 			'/settings/policies': 'settings-policies-collection',
+			'/settings/policies/+': 'settings-add-new-policy',
 			'/settings/policies/3f2a': 'settings-policies-item',
 			'/settings/project': 'settings-project',
 			'/settings/appearance': 'settings-appearance',

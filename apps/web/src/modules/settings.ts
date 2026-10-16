@@ -1,7 +1,7 @@
 // Ported from directus/app/src/modules/settings/index.ts
 // Backoffice (spec 016 FR-001, data-model §1): route components are lazy (bundle budget). Out of scope routes are not
 // declared and fall to `settings-not-found` (D-93: ai, marketplace, extensions, system-logs). Flows keeps the 012 frame
-// until feature 017 (D-92). The screens of later waves (roles, policies, project, appearance, presets, translations)
+// until feature 017 (D-92). The screens of later waves (project, appearance, presets, translations)
 // show the frame with the Settings sub-menu until their wave replaces it. preRegisterCheck as in feature 012.
 import type { RouteLocationNormalized } from 'vue-router';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
@@ -99,16 +99,54 @@ export default defineModule({
 		{
 			path: 'policies',
 			children: [
-				{ name: 'settings-policies-collection', path: '', component: Frame, meta: FRAME_META },
-				{ name: 'settings-policies-item', path: ':primaryKey', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-policies-collection',
+					path: '',
+					component: () => import('./settings/routes/policies/PoliciesCollectionRoute.vue'),
+					children: [
+						{
+							path: '+',
+							name: 'settings-add-new-policy',
+							meta: { isFloatingView: true },
+							components: { add: () => import('./settings/routes/policies/NewPolicy.vue') },
+						},
+					],
+				},
+				{
+					name: 'settings-policies-item',
+					path: ':primaryKey',
+					component: () => import('./settings/routes/policies/PolicyItemRoute.vue'),
+					props: true,
+				},
 			],
 		},
 		{
 			path: 'roles',
 			children: [
-				{ name: 'settings-roles-collection', path: '', component: Frame, meta: FRAME_META },
-				{ name: 'settings-roles-public-item', path: 'public', component: Frame, meta: FRAME_META },
-				{ name: 'settings-roles-item', path: ':primaryKey', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-roles-collection',
+					path: '',
+					component: () => import('./settings/routes/roles/RolesCollectionRoute.vue'),
+					children: [
+						{
+							path: '+',
+							name: 'settings-add-new-role',
+							meta: { isFloatingView: true },
+							components: { add: () => import('./settings/routes/roles/NewRole.vue') },
+						},
+					],
+				},
+				{
+					name: 'settings-roles-public-item',
+					path: 'public',
+					component: () => import('./settings/routes/roles/RolePublicRoute.vue'),
+				},
+				{
+					name: 'settings-roles-item',
+					path: ':primaryKey',
+					component: () => import('./settings/routes/roles/RoleItemRoute.vue'),
+					props: true,
+				},
 			],
 		},
 		{

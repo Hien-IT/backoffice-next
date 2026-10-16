@@ -331,38 +331,38 @@ tiết; đích thật của D-85.
 
 ### Tests cho User Story 4
 
-- [ ] T070 [P] [US4] Test `SystemPermissions`, `PermissionsRow`, `PermissionsToggle` (mức `none|all|custom`, set
+- [x] T070 [P] [US4] Test `SystemPermissions`, `PermissionsRow`, `PermissionsToggle` (mức `none|all|custom`, set
       all/none/remove, `directus_extensions` khóa, hàng app tối thiểu khóa với `app_access` chưa lưu, `admin_access` ẩn
       bảng, reset hai kiểu, thêm collection, emit `{create,update,delete}` hoặc `undefined`, nạp lại sau lưu) trong
       `src/interfaces/_system/system-permissions/SystemPermissions.test.ts`
-- [ ] T071 [P] [US4] Test `PermissionsDetail` (hai request nạp, tab theo action, `*` → danh sách rõ, rỗng → null, giá trị
+- [x] T071 [P] [US4] Test `PermissionsDetail` (hai request nạp, tab theo action, `*` → danh sách rõ, rỗng → null, giá trị
       tối thiểu chỉ đọc, JSON không hợp lệ, `isPermissionEmpty` → delete) trong
       `src/interfaces/_system/system-permissions/detail/PermissionsDetail.test.ts`
-- [ ] T072 [P] [US4] Test route roles (request danh sách với `deep`, hàng Public, tìm kiếm client, hộp tạo `POST /roles
+- [x] T072 [P] [US4] Test route roles (request danh sách với `deep`, hàng Public, tìm kiếm client, hộp tạo `POST /roles
       {name}`, trang role `PATCH` lồng, mời với `role`, xóa, lỗi `UNPROCESSABLE_CONTENT`, Public ba request `/access`) trong
       `src/modules/settings/routes/roles/roles.test.ts`
-- [ ] T073 [P] [US4] Test route policies (danh sách với hai `deep`, nhân bản ba request, hộp tạo + minimal có `system:
+- [x] T073 [P] [US4] Test route policies (danh sách với hai `deep`, nhân bản ba request, hộp tạo + minimal có `system:
       true`, trang policy `PATCH` lồng gồm `permissions`, `use-edits-guard`, phím tắt) trong
       `src/modules/settings/routes/policies/policies.test.ts`
-- [ ] T074 [US4] E2E US4 (kịch bản 1–8, menu "sửa role" của Users mở trang role thật) trong
+- [x] T074 [US4] E2E US4 (kịch bản 1–8, menu "sửa role" của Users mở trang role thật) trong
       `e2e/settings-roles-policies.spec.ts` Chuyển hướng `/content/directus_roles` và item của nó tới màn thật (FR-002).
 
 ### Implementation cho User Story 4
 
 - [x] T075 [US4] Chỉ khi T004 lệch: sửa lưu quan hệ lồng ở `apps/api/src/services/` (port Directus tương ứng) kèm test
       đối chiếu trong `tests/parity/src/permissions/` (V); không lệch thì đóng task với ghi chú ở research R6
-- [ ] T076 [P] [US4] `SystemPermissions.vue`, `PermissionsHeader.vue`, `PermissionsRow.vue`, `PermissionsToggle.vue`,
+- [x] T076 [P] [US4] `SystemPermissions.vue`, `PermissionsHeader.vue`, `PermissionsRow.vue`, `PermissionsToggle.vue`,
       `AddCollection.vue` + `use-collections.ts`, `app-permissions.ts` (chép `directus/app/src/app-permissions.ts`, đọc
       `src/permissions/app-permissions-data.json`) và `index.ts` trong `src/interfaces/_system/system-permissions/` theo
       recipe Q-23
-- [ ] T077 [P] [US4] `detail/PermissionsDetail.vue`, `Tabs.vue`, `Actions.vue`, `AppMinimal.vue`, `Permissions.vue`,
+- [x] T077 [P] [US4] `detail/PermissionsDetail.vue`, `Tabs.vue`, `Actions.vue`, `AppMinimal.vue`, `Permissions.vue`,
       `Fields.vue`, `Validation.vue`, `Presets.vue` (`BoDrawer`, `BoTabs` dọc, `BoCheckboxTree` + `useFieldTree`,
       `system-filter`, `input-code` json) trong `src/interfaces/_system/system-permissions/detail/`
-- [ ] T078 [P] [US4] `RolesCollectionRoute.vue`, `NewRole.vue`, `use-save.ts`, `RoleItemRoute.vue`, `RolePublicRoute.vue`,
+- [x] T078 [P] [US4] `RolesCollectionRoute.vue`, `NewRole.vue`, `use-save.ts`, `RoleItemRoute.vue`, `RolePublicRoute.vue`,
       `RoleInfoSidebarDetail.vue` trong `src/modules/settings/routes/roles/`; nối route
-- [ ] T079 [P] [US4] `PoliciesCollectionRoute.vue`, `NewPolicy.vue`, `use-save.ts`, `use-duplicate.ts`,
+- [x] T079 [P] [US4] `PoliciesCollectionRoute.vue`, `NewPolicy.vue`, `use-save.ts`, `use-duplicate.ts`,
       `PolicyItemRoute.vue`, `PolicyInfoSidebarDetail.vue` trong `src/modules/settings/routes/policies/`; nối route
-- [ ] T080 [US4] Gỡ D-85: comment trong `src/modules/users/components/UsersNavigation.vue`;
+- [x] T080 [US4] Gỡ D-85: comment trong `src/modules/users/components/UsersNavigation.vue`;
       `e2e/users-directory.spec.ts` khẳng định menu "sửa role" mở trang role thật
 - [ ] T081 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003 phần dữ liệu ghi, SC-005 phần roles/policies; chunk ma trận
       ≤ 40 KB, dữ liệu quyền ≤ 10 KB); commit `feat(016): roles, policies and permissions matrix (wave 3)`; push; CI;
@@ -624,3 +624,19 @@ Lượt 3, Phase 6 (US4):
   - Preview SVG của drawer field ánh xạ biến `--theme--*` sang token.
   - Dữ liệu thử "Demo phân trang 01–40" trong `bo_content` (Directus 8155) chỉ để xem phân trang, phải xóa trước khi
     chạy E2E cục bộ.
+- Lượt 3 (US4, T070–T080). Một subagent làm song song route roles/policies (T072, T073, T078–T080); tôi làm
+  `system-permissions` (T070, T071, T076, T077) và E2E T074.
+  - Ma trận và drawer:
+    - Port script Directus nguyên văn, chỉ đổi import; `app-permissions.ts` đọc `app-permissions-data.json`.
+    - Thêm collection cuộn tới dòng mới theo `main-element` hoặc `document.scrollingElement`.
+    - Tab của drawer là BoTabs (có chấm) với tên `*Tab.vue`; `currentTabInfo` không port.
+    - `BoCheckboxTree` thêm prop `openGroups`; `BoMenu` cuộn được khi danh sách dài.
+    - Bảng thu padding để vừa khung form 706 px.
+  - SDK bỏ `page=0` của Directus (`query-to-params.ts` chỉ gửi page ≥ 1). Với `limit=-1` kết quả như nhau.
+  - Request US4 (#145–#148, #169–#172) thêm vào `KNOWN_REQUESTS` (web) và `ALLOWED_CALLS` (E2E).
+  - Route roles/policies: BoDialog không có chế độ `persistent`, nên bấm ra ngoài hộp tạo role/policy cũng về danh
+    sách (Directus chỉ có Esc). Ô tên rỗng giữ là `null`.
+  - Tìm kiếm tô từ khớp bằng `<mark>`. Bảng không `fixed-header`. Menu dòng policy là nút `more_vert` có tên.
+  - Trang Public truyền `primaryKey` `null as never` cho BoForm.
+  - Test `use-duplicate.test.ts` port từ Directus.
+  - T074 xanh 6/6 với cấu hình `dev`. Ba cấu hình proxy chạy ở T081.

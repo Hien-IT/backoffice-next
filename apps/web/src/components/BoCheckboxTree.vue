@@ -3,7 +3,8 @@
 // Backoffice: one flat Reka Tree (roving focus, expand/collapse, role=tree) instead of nested VList groups; the
 // per-node logic of VCheckboxTreeCheckbox.vue lives in checkbox-tree/value-combining.ts. The search input (more than
 // 10 choices, 250 ms debounce) and the "show selected" toggle come from Directus select-multiple-checkbox-tree.vue, as
-// the Tier 3 CheckboxTree recipe puts them in the component. Not ported: nonEditable, openGroups and the search
+// the Tier 3 CheckboxTree recipe puts them in the component. `openGroups` (016, the permission fields tab): a new
+// array opens exactly those groups; `null` leaves the open state to the user. Not ported: nonEditable and the search
 // highlight (v-highlight).
 import { refDebounced } from '@vueuse/core';
 import { deburr as removeDiacritics } from 'lodash-es';
@@ -45,6 +46,7 @@ const {
 	hint,
 	label,
 	id: idProp,
+	openGroups = null,
 } = defineProps<{
 	/** The choices that will be rendered as checkboxes */
 	choices?: Record<string, any>[];
@@ -64,6 +66,8 @@ const {
 	hint?: string;
 	error?: string;
 	id?: string;
+	/** Directus v-checkbox-tree `openGroups`: the values of the groups to open (expand / collapse all). */
+	openGroups?: string[] | null;
 }>();
 
 const emit = defineEmits<{
@@ -187,6 +191,13 @@ function toggleNode(node: TreeNode) {
 }
 
 const manualOpenSelection = ref<string[]>([]);
+
+watch(
+	() => openGroups,
+	(groups) => {
+		if (groups) manualOpenSelection.value = [...groups];
+	},
+);
 let showAllSelection: string[] = [];
 
 const searchOpenSelection = computed(() =>

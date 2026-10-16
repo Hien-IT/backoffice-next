@@ -35,6 +35,7 @@ const UNSEEDABLE: Record<string, string> = {
 	'system-inline-fields': 'Settings forms (016), tested in its own folder',
 	'system-collections': 'Settings forms (016), tested in its own folder',
 	'system-manual-flow-select': 'Settings forms (016), tested in its own folder',
+	'system-permissions': 'Policy page matrix (016), tested in its own folder',
 };
 
 describe('every registry id has a fixture field', () => {
@@ -46,9 +47,9 @@ describe('every registry id has a fixture field', () => {
 		expect(snapshot.fields.some((f) => f.meta?.display === id)).toBe(true);
 	});
 
-	test('the registry has the 62 interfaces (41 of 013, 2 system ones of 014, 6 of 015, 13 of 016) and 18 displays of Directus 11.17.4', () => {
+	test('the registry has the 63 interfaces (41 of 013, 2 system ones of 014, 6 of 015, 14 of 016) and 18 displays of Directus 11.17.4', () => {
 		expect(registry.directusVersion).toBe(snapshot.meta.version);
-		expect([interfaceIds.length, displayIds.length]).toEqual([62, 18]);
+		expect([interfaceIds.length, displayIds.length]).toEqual([63, 18]);
 		expect(Object.keys(UNSEEDABLE).filter((id) => !interfaceIds.includes(id))).toEqual([]);
 	});
 

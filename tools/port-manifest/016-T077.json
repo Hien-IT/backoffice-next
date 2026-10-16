@@ -1,0 +1,30 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/permissions-detail.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/PermissionsDetail.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/components/app-minimal.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/AppMinimal.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/components/permissions.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/PermissionsTab.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/components/fields.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/FieldsTab.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/components/validation.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/ValidationTab.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/detail/components/presets.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/detail/PresetsTab.vue"
+	},
+	{
+		"source": "app/src/utils/is-permission-empty.ts",
+		"dest": "apps/web/src/utils/is-permission-empty.ts"
+	}
+]

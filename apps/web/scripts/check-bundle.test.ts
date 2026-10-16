@@ -83,7 +83,7 @@ test('feature 015 lazy chunks: the largest chunk holding each marker, the entry 
 	expect(sizes['tus-js-client']).toBeNull();
 });
 
-test('feature 016 budgets: 20 KB over 015, three lazy chunks found by their markers', () => {
+test('feature 016 budgets: 20 KB over 015, three lazy chunks found by their markers or chunk name', () => {
 	expect(BUDGET_016).toBe(BUDGET_015 + 20 * 1024);
 	expect(BUDGET_016).toBeLessThan(LIMIT);
 	expect(LAZY_BUDGETS_016.map((b) => [b.name, b.limit / 1024])).toEqual([
@@ -94,7 +94,7 @@ test('feature 016 budgets: 20 KB over 015, three lazy chunks found by their mark
 
 	const root = dist('const entry = 1;');
 	writeFileSync(join(root, 'assets/field-1.js'), 'defineStore("fieldDetail", {});');
-	writeFileSync(join(root, 'assets/perm-1.js'), 'const d = { $source: "…/app-access-permissions.yaml" };');
+	writeFileSync(join(root, 'assets/app-permissions-data-1.js'), 'const e = [{ collection: "directus_users" }];');
 
 	const sizes = Object.fromEntries(
 		lazyChunkSizes(root, join(root, 'assets/index-abc.js')).map((chunk) => [chunk.name, chunk.gzip]),

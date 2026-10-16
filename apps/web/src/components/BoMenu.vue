@@ -47,7 +47,7 @@ const { side = 'bottom', align = 'start' } = defineProps<{
 				:side="side"
 				:align="align"
 				:side-offset="4"
-				class="z-99999 min-w-40 space-y-1 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+				class="custom-scrollbar z-99999 max-h-(--reka-dropdown-menu-content-available-height) min-w-40 space-y-1 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
 			>
 				<template v-for="(item, index) in items" :key="index">
 					<DropdownMenuItem

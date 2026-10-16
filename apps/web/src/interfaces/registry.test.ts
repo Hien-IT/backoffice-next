@@ -88,6 +88,7 @@ export const EXPECTED_INTERFACE_IDS = [
 	'system-inline-fields',
 	'system-collections',
 	'system-manual-flow-select',
+	'system-permissions',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [

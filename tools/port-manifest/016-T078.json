@@ -1,0 +1,26 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/roles/collection.vue",
+		"dest": "apps/web/src/modules/settings/routes/roles/RolesCollectionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/roles/add-new.vue",
+		"dest": "apps/web/src/modules/settings/routes/roles/NewRole.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/roles/use-save.ts",
+		"dest": "apps/web/src/modules/settings/routes/roles/use-save.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/roles/item.vue",
+		"dest": "apps/web/src/modules/settings/routes/roles/RoleItemRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/roles/public-item.vue",
+		"dest": "apps/web/src/modules/settings/routes/roles/RolePublicRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/roles/role-info-sidebar-detail.vue",
+		"dest": "apps/web/src/modules/settings/routes/roles/RoleInfoSidebarDetail.vue"
+	}
+]

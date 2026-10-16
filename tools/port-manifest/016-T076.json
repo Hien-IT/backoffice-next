@@ -1,0 +1,38 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-permissions/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/index.ts"
+	},
+	{
+		"source": "app/src/app-permissions.ts",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/app-permissions.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/system-permissions.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/SystemPermissions.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/permissions-header.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/PermissionsHeader.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/permissions-row.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/PermissionsRow.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/permissions-toggle.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/PermissionsToggle.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/add-collection/add-collection.vue",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/AddCollection.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/add-collection/use-collections.ts",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/use-collections.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-permissions/add-collection/use-collections.test.ts",
+		"dest": "apps/web/src/interfaces/_system/system-permissions/use-collections.test.ts"
+	}
+]

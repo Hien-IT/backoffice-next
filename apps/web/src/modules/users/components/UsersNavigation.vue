@@ -4,7 +4,7 @@
 // divider, then the role tree. NavigationRole.vue's recursion is flattened into rows with `aria-level`, walked with the
 // WAI-ARIA tree keyboard (use-tree-keyboard); open roles are the shared `openRoles` of useNavigation. Admins get the
 // "edit role" menu (D-85) on right click (one Reka ContextMenu on the tree) and on a row menu button for the keyboard;
-// it goes to /settings/roles/:id (the 012 frame until 016).
+// it opens the role page /settings/roles/:id of feature 016.
 import { ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuRoot, ContextMenuTrigger } from 'reka-ui';
 import { computed, ref, toRefs, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';

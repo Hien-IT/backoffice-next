@@ -96,8 +96,8 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
 	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
 	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
-	// Feature 016 (Settings module): data model rows; roles, policies, settings, presets and translations come with their
-	// waves.
+	// Feature 016 (Settings module): data model rows, then roles and policies (wave 3); settings, presets and
+	// translations come with their waves.
 	{ id: 138, method: 'GET', path: new RegExp(`^/collections/${ID}$`) },
 	{ id: 140, method: 'GET', path: new RegExp(`^/fields/${ID}/${ID}$`) },
 	{ id: 142, method: 'GET', path: /^\/schema\/snapshot$/ },
@@ -111,6 +111,20 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 166, method: 'PATCH', path: new RegExp(`^/relations/${ID}/${ID}$`) },
 	{ id: 167, method: 'POST', path: new RegExp(`^/items/${ID}$`) },
 	{ id: 168, method: 'POST', path: /^\/utils\/translations\/generate$/ },
+	{ id: 145, method: 'GET', path: /^\/policies$/ },
+	{ id: 146, method: 'GET', path: new RegExp(`^/policies/${ID}$`) },
+	{ id: 147, method: 'GET', path: /^\/permissions$/ },
+	{ id: 148, method: 'GET', path: new RegExp(`^/permissions/${ID}$`) },
+	{ id: 169, method: 'POST', path: /^\/roles$/ },
+	{ id: 169, method: 'PATCH', path: new RegExp(`^/roles/${ID}$`) },
+	{ id: 169, method: 'DELETE', path: new RegExp(`^/roles/${ID}$`) },
+	{ id: 170, method: 'POST', path: /^\/policies$/ },
+	{ id: 170, method: 'PATCH', path: new RegExp(`^/policies/${ID}$`) },
+	{ id: 170, method: 'DELETE', path: new RegExp(`^/policies/${ID}$`) },
+	{ id: 171, method: 'POST', path: /^\/permissions$/ },
+	{ id: 172, method: 'POST', path: /^\/access$/ },
+	{ id: 172, method: 'PATCH', path: /^\/access$/ },
+	{ id: 172, method: 'DELETE', path: /^\/access$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

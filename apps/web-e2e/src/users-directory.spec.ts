@@ -1,6 +1,6 @@
 // Feature 015 US3 (T067; US3-1 to US3-5, FR-050 to FR-066): the user directory on the fixture set: the sub-menu and the
 // role tree (bo-editor > bo-sub), the lists by status and role, invite without email (D-83), a new user from a role,
-// batch delete, the empty state.
+// batch delete, the empty state; the "edit role" menu opens the 016 role page (D-85).
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX } from './helpers/config.js';
 import { clearAdminPresets } from './helpers/content.js';
@@ -55,6 +55,18 @@ test('sub-menu: status lists and the role tree; a role lists its users (US3-1, U
 		await expect(title(page)).toHaveText(heading);
 		await expect(page.getByRole('main').getByText(email)).toBeVisible();
 	}
+});
+
+test('the "edit role" menu of a role opens the real role page, not the frame (US4-2, D-85)', async ({ page }) => {
+	await openUsers(page);
+	const tree = await roleTree(page);
+	await tree.getByRole('button', { name: 'Options for bo-editor' }).click();
+	await page.getByRole('menuitem', { name: 'Edit Role' }).click();
+
+	const editor = await roleId(api, 'bo-editor');
+	await expect(page).toHaveURL(new RegExp(`/admin/settings/roles/${editor}$`));
+	await expect(title(page)).toHaveText('bo-editor Role');
+	await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'User Roles' })).toBeVisible();
 });
 
 test('invite two new emails and a known one: two invited users, the known user unchanged, the notice (US3-3, D-83)', async ({

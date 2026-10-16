@@ -81,6 +81,7 @@ const INTERFACE_IDS = [
 	'system-inline-fields',
 	'system-collections',
 	'system-manual-flow-select',
+	'system-permissions',
 ];
 
 const DISPLAY_IDS = [

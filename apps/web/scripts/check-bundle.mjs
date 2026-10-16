@@ -2,7 +2,7 @@
 // not counted (FR-074 measures the main bundle).
 // Usage: node scripts/check-bundle.mjs [distDir]
 import { readdirSync, readFileSync } from 'node:fs';
-import { join, resolve } from 'node:path';
+import { basename, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
@@ -43,16 +43,20 @@ export const LAZY_BUDGETS_015 = [
 
 // Feature 016 (FR-109, research R12): the field drawer (its Pinia store id), the permissions matrix (the
 // `data-permissions-matrix` attribute of its table; i18n keys also sit in the language chunks) and the app permission
-// data (its source path). Not found until the wave that builds them.
+// data (its own chunk, named after app-permissions-data.json: the `$source` key is tree-shaken away). Not found until
+// the wave that builds them.
 export const LAZY_BUDGETS_016 = [
 	{ name: 'field drawer', marker: 'fieldDetail', limit: 80 * 1024 },
 	{ name: 'permissions matrix', marker: 'data-permissions-matrix', limit: 40 * 1024 },
-	{ name: 'app permission data', marker: 'app-access-permissions', limit: 10 * 1024 },
+	{ name: 'app permission data', file: 'app-permissions-data-', limit: 10 * 1024 },
 ];
 
 export const LAZY_BUDGETS = [...LAZY_BUDGETS_015, ...LAZY_BUDGETS_016];
 
-/** Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker; null when none holds it. */
+/**
+ * Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker, or named with its `file`
+ * prefix; null when none does.
+ */
 export function lazyChunkSizes(distDir, entryFile) {
 	const assets = join(distDir, 'assets');
 	const files = readdirSync(assets)
@@ -62,7 +66,9 @@ export function lazyChunkSizes(distDir, entryFile) {
 
 	return LAZY_BUDGETS.map((budget) => {
 		const sizes = files
-			.filter((file) => readFileSync(file, 'utf8').includes(budget.marker))
+			.filter((file) =>
+				budget.file ? basename(file).startsWith(budget.file) : readFileSync(file, 'utf8').includes(budget.marker),
+			)
 			.map((file) => gzipSync(readFileSync(file)).length);
 		return { ...budget, gzip: sizes.length ? Math.max(...sizes) : null };
 	});

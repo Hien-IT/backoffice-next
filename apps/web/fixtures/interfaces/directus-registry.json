@@ -4929,6 +4929,25 @@
 			"recommendedDisplays": null,
 			"optionsKind": "array",
 			"optionKeys": []
+		},
+		"system-permissions": {
+			"id": "system-permissions",
+			"name": "$t:permissions",
+			"icon": "verified",
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"o2m"
+			],
+			"group": null,
+			"relational": true,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
 		}
 	},
 	"displays": {
