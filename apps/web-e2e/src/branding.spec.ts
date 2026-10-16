@@ -8,6 +8,7 @@ import { ADMIN, apiUrl, CONTENT_URL, directusUrl } from './helpers/config.js';
 import { moduleBar } from './helpers/layout.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { openOwnPage } from './helpers/users.js';
 
 const BRANDING = [
 	'project_name',
@@ -73,7 +74,7 @@ test('default settings of a new Directus database: Backoffice everywhere, no "Di
 	await expect(page).toHaveTitle(/^.+ · Backoffice$/);
 	await noDirectus(page);
 
-	await page.goto('/admin/users/me');
+	await openOwnPage(page);
 	await moduleBar(page);
 	await noDirectus(page);
 });

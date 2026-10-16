@@ -112,6 +112,9 @@ test('a new password works at the next sign-in (US6-1)', async ({ page }) => {
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await login(page, { email: user.email, password: 'web-e2e-New-Password2' });
 	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
+	// The test ends on the user page: let its lazy chunks load before the page closes (same WebKit error as above).
+	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+	await page.waitForLoadState('networkidle');
 });
 
 test('vi-VN applies at once and after a reload, without raw keys (US6-2, SC-006)', async ({ page }) => {

@@ -6,6 +6,7 @@ import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { moduleBar } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { openOwnPage } from './helpers/users.js';
 
 test.afterAll(closeHostDb);
 
@@ -31,7 +32,7 @@ test('sign-in, six modules, profile and sign-out call only the allowed API route
 		await moduleBar(page);
 	}
 
-	await page.goto('/admin/users/me');
+	await openOwnPage(page);
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	await page.goto('/admin/logout');
 	await expect(page).toHaveURL(/reason=SIGN_OUT/);

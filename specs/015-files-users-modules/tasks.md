@@ -706,5 +706,9 @@ Lượt 3, Phase 7 (US4):
     `/users/me` gỡ như Directus (E2E mở `/users/<id>`); D-89 duyệt, bốn file đổi tên bỏ chữ "directus"
     (`theme/theme-presets.json`, `theme/theme-presets.test.ts`, `theme/use-theme-preset.ts`,
     `scripts/sync-theme-presets.mjs`); còn push và CI.
+  - Test của bốn route (T031, T041, T062, T073, T090) nằm ở `*.test.ts` (project `unit`, happy-dom) cạnh route:
+    `FilesCollectionRoute.test.ts`, `FileItemRoute.test.ts`, `UsersCollectionRoute.test.ts`, `UserItemRoute.test.ts`,
+    không phải `*.browser.test.ts` như task ghi; phần cần trình duyệt thật (axe, bàn phím) ở
+    `files-users.a11y.browser.test.ts` và E2E.
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

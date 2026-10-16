@@ -306,9 +306,13 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     # Feature 014 (T093): the Content specs run in the three configurations (firefox and webkit run the @core ones only);
-    # the payload and content-parity-ui specs run in proxy-api only. 75 minutes is not enough with retries on a
-    # loaded runner (the wave 1 run took 70 minutes with failures).
+    # the payload and content-parity-ui specs run in proxy-api only. Feature 015: one job per configuration, as the three
+    # in a row passed 100 minutes (proxy-directus alone took 46 minutes on run 38850422711).
     timeout-minutes: 100
+    strategy:
+      fail-fast: false
+      matrix:
+        config: [proxy-directus, proxy-api, cors]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -342,25 +346,11 @@ jobs:
               -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | node -e 'process.stdin.on("data", (d) => process.stdout.write(JSON.parse(d).data.access_token))')
             curl -sf -X POST "$api/utils/cache/clear?system" -H "authorization: Bearer $token"
           done
-      - name: E2E with the Directus API (proxy-directus)
+      - name: E2E (${{ matrix.config }})
         run: pnpm exec playwright test
         working-directory: apps/web-e2e
         env:
-          E2E_CONFIG: proxy-directus
-          CI: 'true'
-      - name: E2E with the new API (proxy-api)
-        if: success() || failure()
-        run: pnpm exec playwright test
-        working-directory: apps/web-e2e
-        env:
-          E2E_CONFIG: proxy-api
-          CI: 'true'
-      - name: E2E with the new API on another site (cors)
-        if: success() || failure()
-        run: pnpm exec playwright test
-        working-directory: apps/web-e2e
-        env:
-          E2E_CONFIG: cors
+          E2E_CONFIG: ${{ matrix.config }}
           CI: 'true'
       - name: container logs
         if: failure()
@@ -369,7 +359,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-web
+          name: e2e-web-${{ matrix.config }}
           path: |
             tests/parity/e2e-web.log
             apps/web-e2e/test-results

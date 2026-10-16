@@ -7,6 +7,7 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { openOwnPage } from './helpers/users.js';
 
 let api: AdminApi;
 
@@ -44,7 +45,8 @@ async function violations(page: Page) {
 }
 
 const PUBLIC = ['/admin/login', '/admin/reset-password', '/admin/accept-invite?token=x', '/admin/register'];
-const PRIVATE = ['/admin/content', '/admin/users/me', '/admin/files/not-there', '/admin/khong-co'];
+// `profile`: your own user page, opened from the avatar menu (no /users/me route, D-86).
+const PRIVATE = ['/admin/content', 'profile', '/admin/files/not-there', '/admin/khong-co'];
 
 for (const scheme of ['light', 'dark'] as const) {
 	test(`public and private screens have no serious violations (${scheme})`, async ({ page }) => {
@@ -63,7 +65,8 @@ for (const scheme of ['light', 'dark'] as const) {
 		await expect(page).toHaveURL(CONTENT_URL);
 
 		for (const path of PRIVATE) {
-			await page.goto(path);
+			if (path === 'profile') await openOwnPage(page);
+			else await page.goto(path);
 			await expect(page.locator('h1').first()).toBeVisible();
 			// Feature 015: the user page loads its form and interfaces after the title; scan the settled page, not
 			// colors in the middle of a load or a transition.

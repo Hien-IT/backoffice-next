@@ -11,7 +11,7 @@ import { closeHostDb } from './helpers/db-rows.js';
 import { Fixtures, TFA_SECRET, type TestUser } from './helpers/fixtures.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
-import { openUsers } from './helpers/users.js';
+import { openOwnPage, openUsers } from './helpers/users.js';
 
 let api: AdminApi;
 let fixtures: Fixtures;
@@ -72,8 +72,10 @@ test('token: generate signs API calls, regenerate replaces it, remove clears it 
 test('TFA: a password user turns it on with the OTP of the shown secret, then off with an OTP (FR-081)', async ({ page }) => {
 	const user: TestUser = await fixtures.user('tfa-self', { role: adminRole });
 	await signIn(page, user);
-	await page.goto('/admin/users/me');
+	await openOwnPage(page);
 	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
+	// The user page loads its form and interfaces after the title (as a11y.spec.ts).
+	await page.waitForLoadState('networkidle');
 
 	const checkbox = page.getByRole('checkbox', { name: /Two-Factor Authentication|Disabled|Enabled/ }).first();
 	await checkbox.click();

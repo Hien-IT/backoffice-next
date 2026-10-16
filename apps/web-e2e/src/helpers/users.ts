@@ -6,6 +6,13 @@ import type { AdminApi } from './api.js';
 import { DATA_PREFIX } from './config.js';
 import { moduleBar } from './layout.js';
 
+/** Opens your own user page from the header avatar menu: no /users/me route, as Directus (D-86). */
+export async function openOwnPage(page: Page): Promise<void> {
+	await page.locator('header [aria-haspopup="menu"]').click();
+	await page.getByRole('menuitem', { name: /^(Profile|Hồ sơ)/ }).click();
+	await expect(page).toHaveURL(/\/admin\/users\/[0-9a-f-]{36}$/);
+}
+
 /** Opens a Users route (`/users`, `/users/roles/<id>`, `/users/<id>`) and waits for the page title. */
 export async function openUsers(page: Page, path = '/users'): Promise<void> {
 	await page.goto(`/admin${path}`);

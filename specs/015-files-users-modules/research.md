@@ -171,6 +171,20 @@ ba cấu hình, bộ so payload thêm `files.spec.ts`, `users.spec.ts`; parity U
 marker `Tus-Resumable`). Perf browser test (`PERF=1`, `machineFactor()` của 014): cây 500 thư mục < 500 ms, lưới 100 +
 20 thẻ < 1 s, mở trình chỉnh ảnh 4000×3000 < 2 s sau khi ảnh tải; số request như SC-007.
 
+**Kết quả T096** (`benchmark.yml` job `benchmark-web`, run 38850450067, commit `d075c36`, 2026-10-16; 10.000 file và
+10.000 user, 11 lần, p95, ms):
+
+| Thao tác | Directus app | web → Directus | web → API | Request danh sách + đếm (Directus app / web → Directus / web → API) | Kết quả |
+|----------|--------------|----------------|-----------|---------------------------------------------------------------------|---------|
+| files: trang đầu | 1734 | 1122 | 1120 | 1 + 2 / 1 + 1 / 1 + 1 | đạt |
+| files: trang kế | 108 | 112 | 112 | 1 + 0 / 1 + 0 / 1 + 0 | đạt |
+| files: lọc `type` (preset) | 1752 | 1113 | 1097 | 1 + 3 / 1 + 3 / 1 + 3 | đạt |
+| users: trang đầu | 1700 | 1109 | 1091 | 1 + 1 / 1 + 1 / 1 + 1 | đạt |
+| users: trang kế | 134 | 128 | 116 | 1 + 0 / 1 + 0 / 1 + 0 | đạt |
+| users: lọc `status` (preset) | 1716 | 1114 | 1123 | 1 + 2 / 1 + 2 / 1 + 2 | đạt |
+
+Mọi phép đo ≤ Directus app + 10 % (SC-007). Trang đầu files của Directus app gửi thêm 1 request đếm.
+
 ## R11. Chuỗi dịch
 
 **Quyết định**: khóa của Files, Users, sáu interface, trình chỉnh ảnh đã có trong `en-US.json`/`vi-VN.json` sinh ở
