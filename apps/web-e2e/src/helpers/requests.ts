@@ -30,6 +30,9 @@ const WEBKIT_WORKER = /^Error: Worker failed to load\. Check that the worker URL
 const WEBKIT_IMPORT_ABORT = /^TypeError: Importing a module script failed\.$/;
 // The app's missingWarn (`[i18n] missing key ...`) and the vue-i18n default (`[intlify] Not found 'x' key ...`).
 const MISSING_KEY = /^\[i18n\] missing key|^\[intlify\] Not found '.*' key/;
+// Directus 11.17.4 has no strings for the notes of its deployment system collections (system-data collections.yaml
+// `$t:directus_collection.directus_deployment*`): both apps show the key on the data model page (feature 016).
+const DIRECTUS_MISSING_KEY = /missing key:? directus_collection\.directus_deployment(s|_projects|_runs)$/;
 
 /** `path` of a request to the API, or undefined for any other URL (the app's own files under /admin/ included). */
 export function apiPath(url: string, api: string): string | undefined {
@@ -62,6 +65,8 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 				// A request the next page.goto aborts rejects its promise (Directus app code does not catch these either):
 				// the network error text of webkit, firefox and chromium, not an app error.
 				if (NAVIGATION_ABORT.test(error.message)) return;
+				// A benign browser notice (WebKit), not an app error.
+				if (error.message === 'ResizeObserver loop completed with undelivered notifications.') return;
 				problems.push(`pageerror: ${error.message}`);
 			});
 
@@ -71,7 +76,8 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 					NETWORK_ERROR.test(text) ||
 					(browserName === 'webkit' && (WEBKIT_WORKER.test(text) || WEBKIT_IMPORT_ABORT.test(text)));
 				if (message.type() === 'error' && !ignored) problems.push(`console.error: ${text}`);
-				if (message.type() === 'warning' && MISSING_KEY.test(text)) problems.push(`missing key: ${text}`);
+				if (message.type() === 'warning' && MISSING_KEY.test(text) && !DIRECTUS_MISSING_KEY.test(text))
+					problems.push(`missing key: ${text}`);
 			});
 
 			await use(requests);

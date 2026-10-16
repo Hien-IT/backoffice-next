@@ -13,6 +13,8 @@ export async function openOwnPage(page: Page): Promise<void> {
 	if (await drawer.isVisible()) {
 		await page.keyboard.press('Escape');
 		await expect(drawer).toBeHidden();
+		// WebKit at 768 px still fades the overlay out: axe would see the next page dimmed (color-contrast).
+		await expect(page.locator('.fixed.inset-0.bg-gray-900\\/50')).toHaveCount(0);
 	}
 	await page.locator('header [aria-haspopup="menu"]').click();
 	await page.getByRole('menuitem', { name: /^(Profile|Hồ sơ)/ }).click();
@@ -35,7 +37,10 @@ export async function roleTree(page: Page): Promise<Locator> {
 
 /** The id of a fixture role by name. */
 export async function roleId(api: AdminApi, name: string): Promise<string> {
-	const roles = await api.call<{ id: string }[]>('GET', `/roles?fields=id&filter[name][_eq]=${encodeURIComponent(name)}`);
+	const roles = await api.call<{ id: string }[]>(
+		'GET',
+		`/roles?fields=id&filter[name][_eq]=${encodeURIComponent(name)}`,
+	);
 	if (!roles[0]) throw new Error(`No role ${name}: seed the fixture set first`);
 	return roles[0].id;
 }

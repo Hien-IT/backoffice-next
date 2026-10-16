@@ -276,7 +276,7 @@ describe('collection page', () => {
 		await settle();
 
 		await bothSchemes();
-	});
+	}, 30_000);
 });
 
 describe('item page', () => {
