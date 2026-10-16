@@ -20,6 +20,7 @@ describe('BoIcon', () => {
 		const span = mount(BoIcon, { props: { name: 'bookmark_save' } }).get('span');
 
 		expect(span.text()).toBe('');
+		expect(span.attributes('data-icon')).toBe('bookmark_save');
 		expect(span.find('svg').exists()).toBe(true);
 		expect(span.classes()).not.toContain('material-symbols-rounded');
 		expect(span.classes()).toContain('[&>svg]:fill-current');

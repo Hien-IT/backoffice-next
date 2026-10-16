@@ -5,7 +5,8 @@ import { customIcons } from './custom-icons/index.ts';
 import { socialIcons } from './icon-picker/social-icons.ts';
 
 // Material Symbols Rounded icon (research R8). Decorative by default; `label` makes it an image with a name.
-// `filled`: the filled glyph (Directus v-icon `filled`, font-variation-settings FILL 1).
+// `filled`: the filled glyph (Directus v-icon `filled`, font-variation-settings FILL 1). `data-icon` names the icon as
+// Directus v-icon does (a custom SVG icon has no ligature text).
 const {
 	name,
 	size = 'md',
@@ -30,6 +31,7 @@ const FONT_SIZES = { sm: 'var(--text-lg)', md: 'var(--text-2xl)', lg: 'var(--tex
 <template>
 	<span
 		class="select-none"
+		:data-icon="name"
 		:class="
 			customIcon || socialIconName
 				? 'inline-flex [&>svg]:h-[1em] [&>svg]:w-[1em] [&>svg]:fill-current'

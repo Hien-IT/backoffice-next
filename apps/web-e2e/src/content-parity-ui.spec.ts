@@ -67,7 +67,7 @@ async function backofficeScreen(page: Page, user: { email: string; password: str
 			items.map((i) => {
 				// The row without its icons (Material Symbols ligatures), screen-reader texts and row menu.
 				const row = (i.firstElementChild ?? i).cloneNode(true) as HTMLElement;
-				row.querySelectorAll('.material-symbols-rounded, .sr-only, button').forEach((e) => e.remove());
+				row.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
 				return row.textContent!.trim();
 			}),
 		);

@@ -100,7 +100,7 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 			// The row or button text without icon ligatures and screen-reader texts.
 			const label = (el: Element) => {
 				const copy = el.cloneNode(true) as HTMLElement;
-				copy.querySelectorAll('.material-symbols-rounded, .sr-only, button').forEach((e) => e.remove());
+				copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
 				return text(copy);
 			};
 			const h1 = document.querySelector('main h1');
@@ -109,7 +109,8 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 			const buttons: string[] = [];
 
 			for (const control of Array.from(actions?.querySelectorAll('button, a') ?? [])) {
-				const icon = text(control.querySelector(':scope > .material-symbols-rounded, :scope .material-symbols-rounded'));
+				// BoIcon carries its name in `data-icon` like Directus v-icon (custom SVG icons such as folder_move have no ligature).
+				const icon = control.querySelector('[data-icon]')?.getAttribute('data-icon') ?? '';
 				if (!icons.includes(icon)) continue;
 				const off = (control as HTMLButtonElement).disabled || control.getAttribute('aria-disabled') === 'true';
 				buttons.push(`${icon}:${off ? 'off' : 'on'}`);
@@ -134,7 +135,7 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 		const rows = sub ? Array.from(sub.querySelectorAll('[role="treeitem"] [data-tree-row], ul > li > a')) : [];
 		return rows.map((row) => {
 			const copy = row.cloneNode(true) as HTMLElement;
-			copy.querySelectorAll('.material-symbols-rounded, .sr-only, button').forEach((e) => e.remove());
+			copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
 			return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
 		});
 	});
