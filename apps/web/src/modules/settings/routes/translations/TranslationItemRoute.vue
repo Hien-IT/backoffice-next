@@ -227,7 +227,7 @@ async function revert(values: Record<string, any>) {
 	>
 		<template #actions>
 			<BoButton
-				v-if="!isNew && collectionInfo!.meta && collectionInfo!.meta.singleton === false"
+				v-if="!isNew && collectionInfo?.meta?.singleton === false"
 				variant="secondary"
 				icon="delete"
 				class="action-delete hover:bg-error-600 hover:text-white"
