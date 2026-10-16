@@ -52,7 +52,11 @@ jobs:
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             pnpm nx affected -t lint typecheck test build check-bundle --base=origin/${{ github.base_ref }} --head=HEAD
           else
-            pnpm nx run-many -t lint typecheck test build check-bundle
+            # web:test last and alone: run in parallel with the other targets, its browser tests starve on the runner
+            # and time out (runs 38956968191, 38963274762, 38969565336).
+            pnpm nx run-many -t lint typecheck test build check-bundle --exclude=web
+            pnpm nx run-many -t lint typecheck build check-bundle --projects=web
+            pnpm nx run web:test
           fi
       - name: web perf (SC-004 of 013, SC-011 of 014 table and tree, SC-007 of 015 and 016, alone and without coverage)
         working-directory: apps/web
