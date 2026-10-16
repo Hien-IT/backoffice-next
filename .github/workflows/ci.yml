@@ -9,9 +9,10 @@ on:
   push:
     branches: [main]
 
+# A newer push cancels the running run of the same ref, on main too (owner, 2026-10-17): its result is out of date.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -308,12 +309,18 @@ jobs:
     runs-on: ubuntu-latest
     # Feature 014 (T093): the Content specs run in the three configurations (firefox and webkit run the @core ones only);
     # the payload and content-parity-ui specs run in proxy-api only. Feature 015: one job per configuration, as the three
-    # in a row passed 100 minutes (proxy-directus alone took 46 minutes on run 38850422711).
+    # in a row passed 100 minutes (proxy-directus alone took 46 minutes on run 38850422711). Feature 016: proxy-directus
+    # and proxy-api in two shards each (50 and 57 minutes on run 38934146076); each shard has its own env and seed.
     timeout-minutes: 100
     strategy:
       fail-fast: false
       matrix:
-        config: [proxy-directus, proxy-api, cors]
+        include:
+          - { config: proxy-directus, shard: 1/2 }
+          - { config: proxy-directus, shard: 2/2 }
+          - { config: proxy-api, shard: 1/2 }
+          - { config: proxy-api, shard: 2/2 }
+          - { config: cors, shard: 1/1 }
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -347,8 +354,8 @@ jobs:
               -d "{\"email\":\"$ADMIN_EMAIL\",\"password\":\"$ADMIN_PASSWORD\"}" | node -e 'process.stdin.on("data", (d) => process.stdout.write(JSON.parse(d).data.access_token))')
             curl -sf -X POST "$api/utils/cache/clear?system" -H "authorization: Bearer $token"
           done
-      - name: E2E (${{ matrix.config }})
-        run: pnpm exec playwright test
+      - name: E2E (${{ matrix.config }}, shard ${{ matrix.shard }})
+        run: pnpm exec playwright test --shard=${{ matrix.shard }}
         working-directory: apps/web-e2e
         env:
           E2E_CONFIG: ${{ matrix.config }}
@@ -360,7 +367,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: e2e-web-${{ matrix.config }}
+          name: e2e-web-${{ matrix.config }}-${{ strategy.job-index }}
           path: |
             tests/parity/e2e-web.log
             apps/web-e2e/test-results
