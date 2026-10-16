@@ -348,9 +348,11 @@ describe('PresetItemRoute', () => {
 			expect(button('Delete')).toHaveProperty('disabled', false);
 			// The layout sidebar and, in the `layout_options` section, the layout options of the preview.
 			useSidebarStore().activeAccordionItem = 'layout-options';
-			await flushPromises();
-			expect(document.querySelector('[data-sidebar]')).not.toBeNull();
-			expect(document.querySelector('[data-options=""]')).not.toBeNull();
+			// The accordion opens later than one flush on a loaded CI runner.
+			await vi.waitFor(() => {
+				expect(document.querySelector('[data-sidebar]')).not.toBeNull();
+				expect(document.querySelector('[data-options=""]')).not.toBeNull();
+			});
 
 			document.querySelector<HTMLButtonElement>('[data-test="query"]')!.click();
 			await flushPromises();

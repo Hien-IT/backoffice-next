@@ -101,7 +101,7 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 				<div>
 					<p :class="LABEL">
 						{{ $t('key') }}
-						<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+						<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 					</p>
 					<BoInput
 						v-model="key"

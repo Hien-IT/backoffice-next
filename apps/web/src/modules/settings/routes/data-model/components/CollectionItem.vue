@@ -39,7 +39,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 <template>
 	<div>
-		<div class="flex min-h-9 items-center gap-3" :class="{ 'text-gray-400 dark:text-gray-500': collection.meta?.hidden }">
+		<div class="flex min-h-9 items-center gap-3" :class="{ 'text-gray-500 dark:text-gray-400': collection.meta?.hidden }">
 			<component
 				:is="collection.schema ? RouterLink : 'button'"
 				v-bind="
@@ -54,10 +54,14 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 					:name="collection.meta?.hidden ? 'visibility_off' : collection.icon"
 					size="sm"
 					class="shrink-0"
-					:class="iconColor ? '' : collection.meta?.hidden ? 'text-gray-400' : 'text-brand-500'"
+					:class="iconColor ? '' : collection.meta?.hidden ? 'text-gray-500 dark:text-gray-400' : 'text-brand-600 dark:text-brand-400'"
 					:style="iconColor ? { color: iconColor } : undefined"
 				/>
-				<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90" :class="{ 'opacity-60': collection.meta?.hidden }">
+				<!-- A hidden collection is dimmed with the FR-106 muted colors (gray-500 / gray-400), not opacity. -->
+				<span
+					class="font-mono text-theme-sm"
+					:class="collection.meta?.hidden ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
+				>
 					<template v-for="(part, index) in parts" :key="index">
 						<mark v-if="index === 1" class="rounded-sm bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400">{{ part }}</mark>
 						<template v-else>{{ part }}</template>

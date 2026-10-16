@@ -32,6 +32,12 @@ const pair = (data: unknown) => {
 };
 
 async function violations(page: Page) {
+	// Controls that turn enabled once the session loads fade in (`transition`); WebKit scanned them mid-fade (webkit-768
+	// color-contrast). Settle every transition first, as the browser a11y unit tests do.
+	await page.addStyleTag({
+		content: '*, *::before, *::after { transition: none !important; animation: none !important; }',
+	});
+	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 	const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
 
 	return results.violations

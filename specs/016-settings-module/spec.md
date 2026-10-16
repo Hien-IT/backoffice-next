@@ -1014,7 +1014,8 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
 - **FR-108**: Hiệu năng (ngân sách máy tham chiếu nhân `machineFactor()` như 014 R14; trung vị 3 lần; chromium;
   `PERF=1`): cây 300 collection trong 30 folder vẽ dưới 500 ms; lưới 200 field với 10 group vẽ dưới 500 ms; ma trận 60
   collection × 5 action vẽ dưới 500 ms; mở drawer field có sẵn dưới 300 ms sau `GET /fields/:c/:f`; số request mỗi thao
-  tác: mở màn collection = 1 `GET /collections/:c` + 1 `GET /fields` (+ 0 relations: store); kéo thả = 1 PATCH; mở trang
+  tác: mở màn collection = 1 `GET /collections/:c` + 2 `GET /fields` (guard và `fields-management` cùng hydrate, như
+  Directus; T115) (+ 0 relations: store); kéo thả = 1 PATCH; mở trang
   policy = 1 policy + 1 permissions (+ `list-m2m` users/roles: 2 trang + 2 đếm như 015 SC-007). Mốc kết thúc của "mở
   drawer field": `loading` của store về false và tab Schema vẽ xong. Thêm: ma trận 300 collection × 5 action dưới 1
   giây; cây field của drawer quyền nạp lười. Số request thêm: mở drawer field có sẵn = 1 `GET /fields/:c/:f`; trang role

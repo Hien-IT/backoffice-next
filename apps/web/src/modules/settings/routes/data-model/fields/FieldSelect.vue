@@ -71,9 +71,13 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 
 	<div v-else-if="localType === 'group'" class="flex flex-col gap-2">
 		<div class="flex min-h-7 items-center gap-2">
-			<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90">{{ field.field }}</span>
+			<span
+				class="font-mono text-theme-sm"
+				:class="hidden ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
+				>{{ field.field }}</span
+			>
 			<template v-if="field.meta?.required === true">
-				<BoIcon name="star" size="sm" class="text-error-500" aria-hidden="true" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" aria-hidden="true" />
 				<span class="sr-only">{{ $t('required') }}</span>
 			</template>
 			<BoIcon
@@ -109,7 +113,8 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 		</div>
 	</div>
 
-	<div v-else class="flex min-h-7 items-center gap-2" :class="{ 'opacity-60': hidden }">
+	<!-- A hidden field is dimmed with the FR-106 muted colors, not opacity (contrast). -->
+	<div v-else class="flex min-h-7 items-center gap-2" :class="{ 'hidden-field': hidden }">
 		<button
 			type="button"
 			class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded text-start"
@@ -119,7 +124,7 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 		>
 			<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90">{{ field.field }}</span>
 			<template v-if="field.meta?.required === true">
-				<BoIcon name="star" size="sm" class="text-error-500" aria-hidden="true" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" aria-hidden="true" />
 				<span class="sr-only">{{ $t('required') }}</span>
 			</template>
 			<span class="min-w-0 truncate text-theme-xs text-gray-500 dark:text-gray-400">

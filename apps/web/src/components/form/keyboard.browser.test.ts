@@ -286,6 +286,15 @@ describe('third-party editors', () => {
 
 	test('markdown: Tab reaches the toolbar, Shift+Tab from the toolbar leaves the editor', async () => {
 		const { before } = await mountForm('bo_std', ['rich_md']);
+		// The editor is a lazy chunk: on a loaded runner its toolbar appears later than the mount (016 CI).
+		await vi.waitFor(
+			() =>
+				expect(
+					document.querySelector('[data-field="rich_md"] button, [data-field="rich_md"] [tabindex="0"]'),
+				).not.toBeNull(),
+			{ timeout: 10_000 },
+		);
+		before.focus();
 
 		await userEvent.tab();
 		expect(fieldOf(active())).toBe('rich_md');

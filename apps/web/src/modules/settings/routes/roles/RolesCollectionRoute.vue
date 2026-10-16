@@ -187,8 +187,10 @@ const MARK = 'bg-transparent font-semibold text-brand-500 dark:text-brand-400';
 					</div>
 				</template>
 
+				<!-- Directus: a slot with only a comment falls back to the v-table cell, which shows ValueNull for 0. -->
 				<template #[`item.count`]="{ item }">
-					<ValueNull v-if="item.public" />
+					<ValueNull v-if="item.public || !item.count" />
+					<template v-else>{{ item.count }}</template>
 				</template>
 
 				<template #[`item.description`]="{ item }">

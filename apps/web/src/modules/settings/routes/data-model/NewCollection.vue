@@ -364,7 +364,7 @@ const LABEL = 'mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400
 							<div>
 								<label :for="'new-collection-name'" :class="LABEL">
 									{{ $t('name') }}
-									<span class="text-error-500" aria-hidden="true">*</span>
+									<span class="text-error-600 dark:text-error-400" aria-hidden="true">*</span>
 									<span class="sr-only">({{ $t('required') }})</span>
 								</label>
 								<BoInput

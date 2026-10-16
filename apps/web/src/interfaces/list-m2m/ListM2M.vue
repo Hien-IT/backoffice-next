@@ -45,6 +45,7 @@ import { addRelatedPrimaryKeyToFields } from '../../utils/add-related-primary-ke
 import BoRemove from '../../components/BoRemove.vue';
 import { formatItemsCountPaginated } from '../../utils/format-items-count.ts';
 import { renderStringTemplate } from '../../utils/render-string-template.ts';
+import { translateString } from '../../utils/translate-object-values.ts';
 import { useColumnWidths } from '../../composables/use-column-widths.ts';
 
 // Backoffice: LAYOUTS of @/types/interfaces as string literals.
@@ -532,8 +533,10 @@ function moveItems(index: number): BoMenuItem[] {
 }
 
 // Backoffice: the row name of the row menu label and the move announcement (D-60).
+// The rendered value is translated like the visible row (a stored `$t:` name, e.g. the Public policy `$t:public_label`).
 function itemLabel(item: DisplayItem, index: number): string {
-	return renderStringTemplate(templateWithDefaults.value ?? '', item).displayValue.value || String(index + 1);
+	const label = renderStringTemplate(templateWithDefaults.value ?? '', item).displayValue.value;
+	return label ? translateString(label) : String(index + 1);
 }
 
 const showTableActions = computed(() => !props.nonEditable || props.enableLink);

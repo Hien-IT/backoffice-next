@@ -43,7 +43,7 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 		<div v-if="localType === 'm2o'" class="sm:col-span-2">
 			<p :class="LABEL">
 				{{ $t('related_collection') }}
-				<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 			</p>
 			<RelatedCollectionSelect v-model="relatedCollectionM2O" />
 		</div>
@@ -51,14 +51,14 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 			<div>
 				<p :class="LABEL">
 					{{ $t('related_collection') }}
-					<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+					<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 				</p>
 				<RelatedCollectionSelect v-model="o2mCollection" />
 			</div>
 			<div>
 				<p :class="LABEL">
 					{{ $t('foreign_key') }}
-					<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+					<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 				</p>
 				<RelatedFieldSelect v-model="o2mField" :collection="o2mCollection" :disabled="!o2mCollection" />
 			</div>
@@ -66,14 +66,14 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 		<div v-if="localType === 'm2m'" class="sm:col-span-2">
 			<p :class="LABEL">
 				{{ $t('related_collection') }}
-				<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 			</p>
 			<RelatedCollectionSelect v-model="relatedCollectionM2O" />
 		</div>
 		<div v-if="localType === 'translations'" class="sm:col-span-2">
 			<p :class="LABEL">
 				{{ $t('languages_collection') }}
-				<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 			</p>
 			<RelatedCollectionSelect v-model="relatedCollectionM2O" />
 		</div>

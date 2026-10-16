@@ -84,7 +84,7 @@ const ROLE_FIELDS = [
 	),
 ];
 
-async function setup(path: string, answers: Record<string, unknown> = {}) {
+async function setup(path: string, answers: Record<string, unknown> = {}, disableDefault = false) {
 	const mounted = await mountLayout(
 		{ render: () => h(RouterView) },
 		{
@@ -101,6 +101,7 @@ async function setup(path: string, answers: Record<string, unknown> = {}) {
 				]);
 				useFieldsStore().fields.push(...ROLE_FIELDS);
 				useServerStore().info.queryLimit = { default: 100, max: -1 };
+				useServerStore().auth.disableDefault = disableDefault;
 			},
 		},
 	);
@@ -151,7 +152,8 @@ describe('RolesCollectionRoute', () => {
 			expect(list[1]).toContain('Editor');
 			expect(list[1]).toContain('3');
 			expect(list[2]).toContain('Viewer');
-			expect(list[2]).toContain('0');
+			// 0 users shows the null value like the Directus v-table cell.
+			expect(list[2]).toContain(t('no_value'));
 			expect(button(t('create_role'))!.getAttribute('href')).toBe('/settings/roles/+');
 
 			document.querySelectorAll<HTMLElement>('main tbody tr')[0]!.click();
@@ -308,9 +310,12 @@ describe('RoleItemRoute', () => {
 			await flushPromises();
 			expect(wrapper.findComponent(UsersInvite).props('modelValue')).toBe(true);
 
-			useServerStore().auth.disableDefault = true;
-			// The open invite dialog re-renders the page on a loaded runner later than one flush.
-			await vi.waitFor(() => expect(button(t('invite_users'))).toBeUndefined());
+			wrapper.unmount();
+
+			// The default login turned off before the page opens (set in the store before mount: deterministic on a
+			// loaded CI runner, where switching it while the invite dialog was open did not re-render in time).
+			await setup('/settings/roles/r-editor', answers(), true);
+			expect(button(t('invite_users'))).toBeUndefined();
 		},
 		SLOW,
 	);

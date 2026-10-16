@@ -1573,7 +1573,8 @@ the code (T006, T007, FR-107); the design owner approves them before 016 closes.
   value, required checkbox, the relationship block, the standard options form; at the end Save (primary, disabled until
   ready) and the link-styled Button `continue_in_advanced_field_creation_mode`.
 - Advanced mode: the drawer body is two columns: a vertical BoTabs list (`w-56`, rows `menu-dropdown-item`, a
-  `size-1.5 rounded-full bg-brand-500` dot when the tab holds a value) and the tab content. Header: Save icon Button
+  `size-1.5 rounded-full bg-brand-500` dot when the tab holds a value; the active row `bg-brand-50 text-brand-600`,
+  `text-brand-500` on `brand-50` failing axe color-contrast, T114) and the tab content. Header: Save icon Button
   (`check`, `aria-label` `save`). Below 1024px the tab list becomes a horizontal scrolling BoTabs on top.
 - Relationship tab: a `new_data_alert` BoNotice (warning) listing the collections and fields that will be created.
   Related collection / field selects: a `font-mono` BoInput with a trailing `list_alt` icon Button (`aria-label`

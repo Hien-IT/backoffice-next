@@ -5,7 +5,7 @@
 // has no dividers (BoSelect has none). Required marks are a star with an sr-only text.
 import type { Type } from '@directus/types';
 import { storeToRefs } from 'pinia';
-import { computed } from 'vue';
+import { computed, useId } from 'vue';
 import { type TranslateResult, useI18n } from 'vue-i18n';
 import { syncFieldDetailStoreProperty, useFieldDetailStore } from '../store/index.ts';
 import { translate } from '../../../../../../utils/translate-object-values.ts';
@@ -341,6 +341,10 @@ const typeItems = computed(() =>
 );
 
 const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 dark:text-gray-400';
+
+// Backoffice (FR-106): the selects get their visible label through `for` / `id` (axe button-name).
+const typeId = useId();
+const defaultId = useId();
 </script>
 
 <template>
@@ -348,7 +352,7 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 		<div class="sm:col-span-2">
 			<p :class="LABEL">
 				{{ $t('key') }}
-				<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
 			</p>
 
 			<BoInput
@@ -367,13 +371,14 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 		</div>
 
 		<div>
-			<p :class="LABEL">
+			<label :for="typeId" :class="LABEL">
 				{{ $t('type') }}
-				<BoIcon name="star" size="sm" class="text-error-500" :label="$t('required')" />
-			</p>
+				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" :label="$t('required')" />
+			</label>
 			<BoInput v-if="isAlias" :model-value="$t('alias')" :aria-label="$t('type')" disabled />
 			<BoSelect
 				v-else
+				:id="typeId"
 				v-model="type"
 				:disabled="typeDisabled || isExisting"
 				:items="typeItems"
@@ -421,7 +426,7 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 		</template>
 
 		<div v-if="!isAlias && !isPrimaryKey && !isGenerated" class="sm:col-span-2">
-			<p :class="LABEL">{{ $t('default_value') }}</p>
+			<label :for="defaultId" :class="LABEL">{{ $t('default_value') }}</label>
 
 			<BoInput
 				v-if="['string', 'uuid'].includes(type)"
@@ -455,6 +460,7 @@ const LABEL = 'mb-1.5 flex items-center gap-1 text-sm font-medium text-gray-700 
 			/>
 			<BoSelect
 				v-else-if="type === 'boolean'"
+				:id="defaultId"
 				class="font-mono"
 				:model-value="asKey(defaultValue)"
 				:items="[

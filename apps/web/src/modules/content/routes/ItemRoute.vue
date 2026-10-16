@@ -757,12 +757,13 @@ function useItemNavigation() {
 			:disabled="isMobile"
 		>
 			<template #start>
-				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page. -->
+				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page.
+				     `fields` only, as Directus item.vue: with `collection` BoForm reads the fields store and drops the field
+				     permissions (read-only fields, presets) that useItemPermissions puts on `fields` (016 T111). -->
 				<BoForm
 					ref="form"
 					v-model="edits"
 					class="max-w-5xl"
-					:collection="collection"
 					:autofocus="isNew"
 					:disabled="isFormDisabled"
 					:loading="loading"

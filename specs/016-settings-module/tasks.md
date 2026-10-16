@@ -452,21 +452,21 @@ tiết; đích thật của D-85.
 
 ### Tests cho User Story 7
 
-- [ ] T110 [P] [US7] Bộ so payload: mọi kịch bản của bảng `contracts/tests.md` §4, so body với Directus app sau chuẩn
+- [x] T110 [P] [US7] Bộ so payload: mọi kịch bản của bảng `contracts/tests.md` §4, so body với Directus app sau chuẩn
       hóa (SC-005) và `changesSince` 10 bảng trong `e2e/payload/settings.spec.ts`
-- [ ] T111 [P] [US7] Dùng chéo (SC-002, SC-003; giá trị điền §5; sáu thao tác của SC-003; chiều ngược) trong
+- [x] T111 [P] [US7] Dùng chéo (SC-002, SC-003; giá trị điền §5; sáu thao tác của SC-003; chiều ngược) trong
       `e2e/settings-cross-use.spec.ts`
-- [ ] T112 [P] [US7] Parity UI năm thuộc tính, 13 màn, 14 nút (SC-004) trong `e2e/settings-parity-ui.spec.ts`
+- [x] T112 [P] [US7] Parity UI năm thuộc tính, 13 màn, 14 nút (SC-004) trong `e2e/settings-parity-ui.spec.ts`
 - [x] T113 [P] [US7] Người không admin: module ẩn, route không có quyền, API 403 cho request ghi (FR-061) trong
       `e2e/settings-permissions.spec.ts`
-- [ ] T114 [P] [US7] axe 13 màn + 4 drawer/hộp sáng và tối (SC-008, FR-106) trong
+- [x] T114 [P] [US7] axe 13 màn + 4 drawer/hộp sáng và tối (SC-008, FR-106) trong
       `src/modules/settings/a11y.browser.test.ts`
-- [ ] T115 [P] [US7] Perf FR-108 (cây 300, lưới 200, ma trận 60 × 5 và 300 × 5, drawer field, số request) với
+- [x] T115 [P] [US7] Perf FR-108 (cây 300, lưới 200, ma trận 60 × 5 và 300 × 5, drawer field, số request) với
       `machineFactor()` trong `src/modules/settings/perf.browser.test.ts`
 
 ### Implementation cho User Story 7
 
-- [ ] T116 [US7] `apps/web-e2e/playwright.config.ts` (`DIRECTUS_APP_SPECS` thêm payload settings, parity UI, cross-use;
+- [x] T116 [US7] `apps/web-e2e/playwright.config.ts` (`DIRECTUS_APP_SPECS` thêm payload settings, parity UI, cross-use;
       worker 1 cho DDL) và `.github/workflows/ci.yml` (bước `PERF=1` thêm file perf của 016 nếu cần) Thêm `settings` vào
       biểu thức `CONTENT_NOT_CORE` và gắn `@core` cho `settings-data-model`, `settings-field-detail`,
       `settings-roles-policies` để firefox và webkit chỉ chạy ba spec lõi (SC-001).
@@ -675,3 +675,44 @@ Lượt 3, Phase 6 (US4):
     duyệt bằng biểu thức trong `CONTENT_NOT_CORE`, không gắn tag; `DIRECTUS_APP_SPECS` thêm parity UI và cross-use.
   - T120: spec 012–015 ghi "đã gỡ ở 016"; `SPECKIT-GUIDE.md` có ghi chú cho 017 (Flows, D-92) và 018 (D-66).
   - T121 (recipe theo code, chờ design owner) và T122 (bảng trạng thái, chờ tech lead) đã viết; chưa tick vì cần duyệt.
+- Lượt 5, T114–T116:
+  - `modules/settings/test-system-data.ts` dựng collection, field, relation hệ thống từ yaml system-data của Directus
+    (theo `processFields`) cho test browser. Fixture snapshot chỉ có các dòng hệ thống mà field bo_* trỏ tới.
+  - T114 axe (18 test, sáng và tối) tìm ra và đã sửa:
+    - Collection và field ẩn đổi `opacity-60` thành màu mờ `gray-500` / `gray-400` (FR-106).
+    - Ngôi sao bắt buộc đổi `error-500` thành `error-600` / `error-400`.
+    - Icon collection đổi `brand-500` thành `brand-600` / `brand-400`.
+    - Tab dọc đang active của `BoTabs` đổi chữ `brand-500` thành `brand-600`.
+    - Ô chọn Type và giá trị mặc định boolean ở tab Schema nối nhãn bằng `for`/`id`.
+  - T115 perf xanh với `PERF=1`, trung vị trên máy dev:
+    - cây 300 collection: 124 ms;
+    - lưới 200 field: 127 ms;
+    - ma trận 60×5: 67 ms, 300×5: 315 ms;
+    - drawer field: 27 ms.
+  - Số request ở FR-108 sửa thành 2 `GET /fields` khi mở màn collection (guard và `fields-management` cùng hydrate,
+    như Directus).
+  - T116: `.github/workflows/ci.yml`, bước web perf, thêm `modules/settings/perf.browser.test.ts`.
+- Lượt 5, T110–T112 (ba subagent chạy song song):
+  - T110 `payload/settings.spec.ts`:
+    - 21 kịch bản của §4 (contracts/tests.md) so payload và dòng DB giữa hai app; xanh 21/21 ở proxy-api.
+    - Kéo thả cây và lưới field (#158, #162) so với body trong nguồn Directus, không chạy trên Directus app.
+    - Chưa phủ #159 (PATCH collection có sẵn ở bước 2 của `save()`) và #166 (PATCH relation có sẵn).
+  - T111 `settings-cross-use.spec.ts`:
+    - Các kịch bản 1a/1b/1c, 3 (chiều ngược), 2a/2b theo §5, có giải thích các phần làm qua API thay UI.
+    - Tìm ra lỗi 014: form item không áp quyền theo field (field chỉ đọc vẫn sửa được, preset không điền sẵn), vì
+      `ItemRoute.vue` truyền `:collection` vào `BoForm`. Đã sửa: chỉ truyền `fields`, như `item.vue` của Directus.
+  - T112 `settings-parity-ui.spec.ts`:
+    - So 13 màn với Directus app; khác biệt được phép ghi rõ (D-93, D-94, D-95, D-41).
+    - Tìm ra cột user của role có 0 user hiện `0`, còn Directus hiện `--` (ô mặc định của v-table). Đã sửa
+      `RolesCollectionRoute`.
+  - Sửa thêm `list-m2m`: nhãn menu dòng dịch tên lưu dạng `$t:` (policy Public `$t:public_label`).
+  - Chập chờn phía API, cả Directus lẫn API mới: ngay sau DDL đôi khi ghi bị từ chối (403 "không tồn tại", 400 field
+    không có), khi nhiều spec chạy song song. [Inference] Có thể do cache schema dùng chung qua Redis; chưa kiểm
+    chứng. Chạy lại thì xanh.
+  - E2E `a11y.spec.ts`: tắt transition trước khi quét (webkit-768 quét giữa lúc mờ dần; session 015 chẩn đoán).
+  - CI 38934146076: test invite của roles đặt `disableDefault` trước khi mount; test presets chờ accordion bằng
+    `vi.waitFor`.
+- Cổng đóng feature (T123, cục bộ, 2026-10-17):
+  - Toàn bộ test web: 3.824 xanh. 9 test browser đỏ khi chạy cả bộ đều xanh khi chạy riêng (80/80).
+  - E2E proxy-api chromium-1280 xanh 77/77: Settings, payload, dùng chéo, parity UI, a11y, navigation, users-directory.
+  - CI 38934146076 (lượt 4): e2e ba cấu hình và mọi job parity xanh; chỉ `quality` đỏ ở hai test chờ, đã sửa ở lượt 5.
