@@ -80,7 +80,9 @@ function onKeydown(event: KeyboardEvent) {
 		:transition-duration="reducedMotion === 'reduce' ? 0 : 150"
 		:disabled="disabled"
 		:ui="{
-			start: 'overflow-auto',
+			// Room for the 3px focus ring of the form inputs, which the scrolling pane clipped at its left edge; the negative
+			// margins keep the content where it was.
+			start: 'overflow-auto -ms-1 -mt-1 ps-1 pe-1 pt-1 pb-1',
 			divider:
 				'group touch-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 [.sp-collapsed>&]:hidden',
 			end: 'overflow-y-auto',
