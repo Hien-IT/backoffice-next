@@ -349,10 +349,13 @@ describe('PresetItemRoute', () => {
 			// The layout sidebar and, in the `layout_options` section, the layout options of the preview.
 			useSidebarStore().activeAccordionItem = 'layout-options';
 			// The accordion opens later than one flush on a loaded CI runner.
-			await vi.waitFor(() => {
-				expect(document.querySelector('[data-sidebar]')).not.toBeNull();
-				expect(document.querySelector('[data-options=""]')).not.toBeNull();
-			});
+			await vi.waitFor(
+				() => {
+					expect(document.querySelector('[data-sidebar]')).not.toBeNull();
+					expect(document.querySelector('[data-options=""]')).not.toBeNull();
+				},
+				{ timeout: 5000 },
+			);
 
 			document.querySelector<HTMLButtonElement>('[data-test="query"]')!.click();
 			await flushPromises();

@@ -165,7 +165,8 @@ const named = (name: string) =>
 		(el) => el.getAttribute('aria-label') === name || el.textContent?.trim() === name,
 	);
 
-describe('data model', () => {
+// Each test mounts a page and runs axe twice (light, dark): past the 15 s default on a loaded CI runner.
+describe('data model', { timeout: 60_000 }, () => {
 	test('the collection list', async () => {
 		await mountPage('/settings/data-model');
 		await bothSchemes();
@@ -203,7 +204,7 @@ describe('data model', () => {
 	});
 });
 
-describe('roles and policies', () => {
+describe('roles and policies', { timeout: 60_000 }, () => {
 	test('the role list', async () => {
 		await mountPage('/settings/roles');
 		await bothSchemes();
@@ -248,7 +249,7 @@ describe('roles and policies', () => {
 	});
 });
 
-describe('project, presets, translations', () => {
+describe('project, presets, translations', { timeout: 60_000 }, () => {
 	test('project settings', async () => {
 		await mountPage('/settings/project');
 		await bothSchemes();
