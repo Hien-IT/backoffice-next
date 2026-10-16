@@ -39,9 +39,6 @@ Không có DB mới; mọi thứ là trạng thái trình duyệt dựng từ AP
 | 3 | `settings_appearance` | `palette` | `/settings/appearance` | |
 | 3 | `settings_presets` | `bookmark` | `/settings/presets` | |
 | 3 | `settings_translations` | `translate` | `/settings/translations` | |
-| 4 | `report_bug` | `bug_report` | `settings.report_bug_url` (ngoài, tab mới) | chỉ khi có giá trị (D-94) |
-| 4 | `request_feature` | `new_releases` | `settings.report_feature_url` | chỉ khi có giá trị (D-94) |
-| cuối | "Backoffice" | icon app | — | chữ tĩnh, mờ, không link (D-95) |
 
 Active: `aria-current="page"` theo tiền tố path; `/settings/data-model/...` → Data Model.
 

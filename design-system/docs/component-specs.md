@@ -1536,7 +1536,7 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 ## Tier 3 recipes, nháp (016)
 
 Drafts for the questions Q-21, Q-22, Q-23, Q-25, Q-26 and Q-27 of `specs/016-settings-module/spec.md`, written before
-the code (T006, T007, FR-107); the design owner approves them before 016 closes. Q-20 and Q-24 are in
+the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-24 are in
 `layout-patterns.md` §12. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
 
 ### Field grid (Q-21; Directus `routes/data-model/fields/components/fields-management.vue`, `FieldSelect.vue`)

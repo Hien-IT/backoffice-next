@@ -479,10 +479,12 @@ tiết; đích thật của D-85.
       (D-71, D-72 phần 016), 015 (D-85) trong `specs/01{2,3,4,5}-*/spec.md`; `SPECKIT-GUIDE.md` ghi chú cho 017 (mục Flows
       và khung D-92; `system-manual-flow-select`, `system-collections`, `system-inline-fields` đã có) và 018 (snackbar
       D-66)
-- [ ] T121 [P] Recipe Q-20 đến Q-27 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
-      đạt; ghi trạng thái Q-20 đến Q-27 trong `specs/016-settings-module/spec.md`
-- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-101 và R-40 đến R-42 (code đã làm, duyệt) trong
-      `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010)
+- [x] T121 [P] Recipe Q-20 đến Q-28 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
+      đạt; ghi trạng thái Q-20 đến Q-28 trong `specs/016-settings-module/spec.md` (owner duyệt 2026-10-17; Q-24 bỏ dòng
+      "Backoffice" cuối sub-menu)
+- [x] T122 Bảng trạng thái khác biệt D-92 đến D-101 và R-40 đến R-42 (code đã làm, duyệt) trong
+      `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010) (owner duyệt 2026-10-17; D-94 bỏ hẳn
+      link Report Bug, Request Feature)
 - [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
       `test(016): settings payload, cross-use and parity suites, close feature (wave 5)`; nhắn session khác; push; CI;
       `graphify update .`; cập nhật memory dự án

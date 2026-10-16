@@ -103,7 +103,7 @@ của interface và display (D-56); E2E ba cấu hình và bộ so payload. Ngo�
 `mcp_group`, `system-mcp-prompts-collection-validation` (AI, XI, D-41), `/settings/marketplace/*`,
 `/settings/extensions` (XI, D-41, D-93), `/settings/system-logs` (WebSocket, XI; Directus cũng ẩn khi
 `info.websocket.logs` tắt), gửi email (X), snackbar (D-66, 018), chỉ báo collab (D-68). Hai mục của mô tả feature được
-thu hẹp theo Directus 11.17.4: "thông tin hệ thống" là dòng "Backoffice" cuối sub-menu (D-95) và mục tải snapshot schema
+thu hẹp theo Directus 11.17.4: "thông tin hệ thống" là dòng phiên bản cuối sub-menu, app mới bỏ (D-95), và mục tải snapshot schema
 (Directus không có màn thông tin hệ thống riêng; system logs ngoài phạm vi, D-93); "giới hạn file" là nhóm
 `files_and_thumbnails` (`storage_asset_transform`, `storage_asset_presets`, `storage_default_folder`), còn giới hạn dung
 lượng tải lên là biến môi trường `FILES_MAX_UPLOAD_SIZE` (VIII), không có trong settings.
@@ -127,10 +127,10 @@ rồi mở `/admin/content/bo_articles` trên Directus app (8155) và tạo mộ
 **Acceptance Scenarios**:
 
 1. **Given** admin, **When** mở `/settings`, **Then** chuyển tới `/settings/data-model`; sub-menu của module Settings
-   trong sidebar là năm nhóm có vạch chia như `navigation.vue` trừ mục ngoài phạm vi: (Data Model `database`, Flows
+   trong sidebar là ba nhóm có vạch chia như `navigation.vue` trừ mục ngoài phạm vi: (Data Model `database`, Flows
    `bolt` → khung 012 tới 017), (Roles `group`, Access Policies `admin_panel_settings`), (Project `tune`, Appearance
-   `palette`, Bookmarks/Presets `bookmark`, Translations `translate`), (Report Bug, Request Feature chỉ khi settings có
-   URL, D-94), dòng cuối chỉ chữ "Backoffice", không số phiên bản (D-95); người không `admin_access` không thấy module (như
+   `palette`, Bookmarks/Presets `bookmark`, Translations `translate`); không có nhóm Report Bug, Request Feature (D-94),
+   không có dòng phiên bản ở cuối (D-95); người không `admin_access` không thấy module (như
    `preRegisterCheck` 012) và route trả màn không có quyền của 012.
 2. **Given** `/settings/data-model` với bộ mẫu, **When** mở, **Then** page header tiêu đề `settings_data_model`, icon
    `database`, breadcrumb Settings, ô tìm kiếm `search_collection` (autofocus khi hơn 25 collection không hệ thống), nút
@@ -566,7 +566,7 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
    D-xx ở năm thuộc tính của SC-004.
 2. **Given** cùng kịch bản ghi, **When** so body, **Then** 100% bằng sau chuẩn hóa (SC-005); lệch thật ghi R-xx.
 3. **Given** data model và quyền tạo ở app mới, **When** dùng ở Directus app (và ngược lại), **Then** SC-002, SC-003 đạt.
-4. **Given** recipe Q-20 đến Q-27, **When** đóng feature, **Then** design owner đã duyệt (SC-008).
+4. **Given** recipe Q-20 đến Q-28, **When** đóng feature, **Then** design owner đã duyệt (SC-008).
 
 ### Edge Cases
 
@@ -664,13 +664,11 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
   `directus_roles` → `/settings/roles` (item → `/settings/roles/:id`), `directus_presets` → `/settings/presets`,
   `directus_translations` → `/settings/translations`, `directus_flows` → `/settings/flows` (khung tới 017); nay là màn
   thật trừ flows (D-72 gỡ phần 016).
-- **FR-003**: Sub-menu của module Settings PHẢI là danh sách phẳng một cấp (L-3, không ngoại lệ cây) gồm năm nhóm có
+- **FR-003**: Sub-menu của module Settings PHẢI là danh sách phẳng một cấp (L-3, không ngoại lệ cây) gồm ba nhóm có
   vạch chia như `navigation.vue`, bỏ mục ngoài phạm vi (AI, Marketplace, Extensions, System logs): nhóm 1 Data Model,
-  Flows; nhóm 2 Roles, Access Policies; nhóm 3 Project, Appearance, Presets, Translations; nhóm 4 Report Bug, Request
-  Feature (chỉ khi `settings.report_bug_url` / `report_feature_url` có giá trị; link ngoài mở tab mới với gợi ý "mở tab
-  mới" như §7 layout-patterns; không có URL mặc định của Directus, D-94); dòng cuối chỉ chữ "Backoffice" (icon app,
-  không số phiên bản, không link, D-95); mục active theo tiền tố route (`aria-current`). Chữ "Backoffice" là chuỗi tĩnh,
-  không dịch, không lấy `project_name`.
+  Flows; nhóm 2 Roles, Access Policies; nhóm 3 Project, Appearance, Presets, Translations. Không có nhóm Report Bug,
+  Request Feature kể cả khi `settings.report_bug_url` / `report_feature_url` có giá trị (D-94); không có dòng phiên bản
+  ở cuối (D-95). Mục active theo tiền tố route (`aria-current`).
 - **FR-004**: Màn không tìm thấy của module PHẢI là `ContentNotFound` của 014 với prop module `settings` (tiêu đề
   `page_not_found`, `page_not_found_body`), sub-menu Settings vẫn hiện.
 - **FR-005**: Nút "tạo collection" (`ContentNavigation`, `NoCollections` của 014), menu "sửa collection" (014), menu
@@ -1112,9 +1110,9 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-92 | Mục "Flows" của sub-menu Settings và `/settings/flows(/*)` | Trình chỉnh sửa flows | Mục hiện, trỏ khung 012 (D-40) | 017 làm trình chỉnh sửa; `directus_flows` của D-72 trỏ cùng chỗ; owner chọn A (Clarifications 2026-10-16) | ngoài phạm vi (tạm thời) | 017 |
 | D-93 | `/settings/ai`, `/settings/marketplace/*`, `/settings/extensions`, `/settings/system-logs`; mục sub-menu tương ứng; nhóm `ai_group`, `mcp_group` của settings | Có (AI/MCP và logs khi bật; marketplace, extensions luôn) | Không đăng ký (→ không tìm thấy), không hiện mục, không hiện nhóm field; dữ liệu DB giữ nguyên | Nguyên tắc XI, D-41; Directus cũng ẩn AI và logs khi tắt | ngoài phạm vi | — |
-| D-94 | Mục "Report Bug", "Request Feature" của sub-menu | Luôn hiện; mặc định trỏ GitHub Directus (`DEFAULT_REPORT_*_URL`) | Chỉ hiện khi `report_bug_url` / `report_feature_url` có giá trị; không URL mặc định | Nguyên tắc IX (như D-49) | đổi thương hiệu | — |
-| D-95 | Dòng phiên bản cuối sub-menu | "Directus <version>" với icon Directus, link GitHub releases | Chỉ chữ "Backoffice" với icon app, không số phiên bản, không link | Nguyên tắc IX; `info.version` là phiên bản tương thích 11.17.4 nên hiện số sẽ gây hiểu nhầm; owner chọn B (Clarifications 2026-10-16) | đổi thương hiệu | — |
-| D-96 | Đường bàn phím cho kéo thả ở cây collection, lưới field (gồm vào/ra nhóm), danh sách `system-modules`, `system-fields`, `list` options | Chỉ chuột | Thêm menu dòng Lên/Xuống/Vào nhóm/Ra nhóm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; mở rộng D-69 (014); owner chọn A (Clarifications 2026-10-16), chờ tech lead | khác | — |
+| D-94 | Mục "Report Bug", "Request Feature" của sub-menu | Luôn hiện; mặc định trỏ GitHub Directus (`DEFAULT_REPORT_*_URL`) | Không hiện, kể cả khi `report_bug_url` / `report_feature_url` có giá trị; hai field vẫn sửa được ở màn Project và ghi như Directus | Nguyên tắc IX (như D-49); owner yêu cầu bỏ hẳn (2026-10-17) | đổi thương hiệu | — |
+| D-95 | Dòng phiên bản cuối sub-menu | "Directus <version>" với icon Directus, link GitHub releases | Không hiện dòng nào | Nguyên tắc IX; `info.version` là phiên bản tương thích 11.17.4 nên hiện số sẽ gây hiểu nhầm; owner chọn B (2026-10-16), rồi bỏ hẳn dòng "Backoffice" (2026-10-17) | đổi thương hiệu | — |
+| D-96 | Đường bàn phím cho kéo thả ở cây collection, lưới field (gồm vào/ra nhóm), danh sách `system-modules`, `system-fields`, `list` options | Chỉ chuột | Thêm menu dòng Lên/Xuống/Vào nhóm/Ra nhóm; kéo chuột giữ như Directus | WCAG 2.1.1, Nguyên tắc XII; mở rộng D-69 (014); owner chọn A (Clarifications 2026-10-16), ; duyệt | khác | — |
 | D-97 | Mở drawer field cho field không tồn tại (gõ URL) hoặc `?type=` không thuộc 10 localType | Lỗi JavaScript không bắt: `startEditing` gán `field` null rồi vẽ `field.field`; `alterations[type]` không có | Hộp lỗi (`showUnexpectedError`) rồi về màn collection | Không chép lỗi làm hỏng màn; E2E coi `pageerror` là lỗi (đã kiểm T002, 2026-10-16) | khác | — |
 | D-98 | Nút hiện/ẩn collection ẩn của module Content | Chỉ ở menu chuột phải của cây collection | Nút icon `visibility`/`visibility_off` (`aria-pressed`) trên dòng "Content" của sidebar (đích `module-actions-<id>` của `AppSidebar`, `Teleport`), chỉ khi module đang mở và có collection ẩn; menu chuột phải giữ | Đường bàn phím (014) nay không chiếm một hàng riêng trên ô tìm; owner yêu cầu (Clarifications 2026-10-16) | khác | — |
 | D-99 | Cuộn ở trang danh sách Content, Files, Users | Cả vùng nội dung cuộn (`private-view-main` `overflow: auto`, header bar `sticky`); phân trang nằm dưới bảng, cuộn theo | `PrivateView fill`: trang cao đúng cửa sổ, chỉ thân bảng cuộn; page header và phân trang đứng yên; khung gốc `relative` để nhãn `sr-only` trong bảng không kéo dài trang | Owner yêu cầu (Clarifications 2026-10-16); hành vi và request không đổi | khác | — |
@@ -1127,27 +1125,27 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 
 | Mã | Rủi ro | Nguồn và bằng chứng | Ảnh hưởng | Duyệt |
 |----|--------|---------------------|-----------|-------|
-| R-40 | `save()` của drawer field nuốt lỗi API (`unexpectedError`) nên drawer đóng dù một bước lỗi; các bước sau vẫn chạy | `field-detail/store/index.ts:221-293` Directus | Có thể tạo collection junction mà không tạo field; app không liệt kê bước đã ghi, dọn tay qua màn data model; như Directus; tái tạo, không sửa | Chờ tech lead |
-| R-41 | Trình sửa preset luôn về danh sách trong `finally` kể cả khi `POST`/`PATCH` lỗi | `presets/item.vue` Directus | Người dùng mất form đang sửa khi lỗi; như Directus; tái tạo | Chờ tech lead |
-| R-42 | `PATCH /collections` khi kéo thả không được Directus chờ (`onSort` không await) nên lỗi không hiện và cây giữ thứ tự cục bộ sai tới lần nạp sau | `collections.vue:115-141` Directus | App mới làm giống (owner chọn B, Clarifications 2026-10-16); tái tạo, không sửa | Chờ tech lead |
+| R-40 | `save()` của drawer field nuốt lỗi API (`unexpectedError`) nên drawer đóng dù một bước lỗi; các bước sau vẫn chạy | `field-detail/store/index.ts:221-293` Directus | Có thể tạo collection junction mà không tạo field; app không liệt kê bước đã ghi, dọn tay qua màn data model; như Directus; tái tạo, không sửa | Duyệt (owner, 2026-10-17) |
+| R-41 | Trình sửa preset luôn về danh sách trong `finally` kể cả khi `POST`/`PATCH` lỗi | `presets/item.vue` Directus | Người dùng mất form đang sửa khi lỗi; như Directus; tái tạo | Duyệt (owner, 2026-10-17) |
+| R-42 | `PATCH /collections` khi kéo thả không được Directus chờ (`onSort` không await) nên lỗi không hiện và cây giữ thứ tự cục bộ sai tới lần nạp sau | `collections.vue:115-141` Directus | App mới làm giống (owner chọn B, Clarifications 2026-10-16); tái tạo, không sửa | Duyệt (owner, 2026-10-17) |
 
-**Trạng thái khác biệt (T122, lượt 5, 2026-10-16; D-100, D-101 thêm 2026-10-17)**:
+**Trạng thái khác biệt (T122, lượt 5, 2026-10-16; D-100, D-101 thêm 2026-10-17; owner duyệt cả bảng 2026-10-17)**:
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
-| D-92 | `modules/settings.ts`: `/settings/flows(/*)` là khung 012 (`ModulePlaceholder`); mục "Flows" của `SettingsNavigation.vue` giữ vị trí và nhãn | Owner chọn A (Clarifications); chờ tech lead |
-| D-93 | `modules/settings.ts` không khai báo `ai`, `marketplace`, `extensions`, `system-logs` (rơi vào `settings-not-found`); `ProjectRoute.vue` bỏ `ai_group`, `mcp_group` | Chờ tech lead |
-| D-94 | `SettingsNavigation.vue`: "Report Bug", "Request Feature" chỉ khi `report_bug_url` / `report_feature_url` có giá trị | Chờ tech lead |
-| D-95 | `SettingsNavigation.vue`: dòng cuối chỉ chữ "Backoffice" với icon app, không số phiên bản, không link | Owner chọn B (Clarifications); chờ tech lead |
-| D-96 | `BoSortableList` (menu dòng Lên/Xuống/Vào nhóm/Ra nhóm) ở cây collection, lưới field, `system-modules`, `system-fields`, options `list` | Owner chọn A (Clarifications); chờ tech lead |
-| D-97 | `field-detail/FieldDetail.vue`: field không có hoặc `?type=` lạ → `showUnexpectedError` rồi `router.replace` về màn collection | Chờ tech lead |
-| D-98 | `layout/AppSidebar.vue` (đích `module-actions-<id>`) và `modules/content/components/ContentNavigation.vue` (`Teleport` nút hiện/ẩn) | Owner yêu cầu (2026-10-16); chờ tech lead |
-| D-99 | `layout/PrivateView.vue` prop `fill` (gốc `relative h-dvh overflow-hidden`), dùng ở `CollectionRoute`, `FilesCollectionRoute`, `UsersCollectionRoute` | Owner yêu cầu (2026-10-16); chờ tech lead |
-| D-100 | `interfaces/_system/system-modules/SystemModules.vue`: `isDocsLink` lọc khỏi danh sách; setter chèn lại link docs | Owner yêu cầu (2026-10-17); chờ tech lead |
-| D-101 | `layout/PageHeader.vue` không vẽ `nav[aria-label="Breadcrumb"]`; E2E đổi sang nút Back hoặc kiểm không có breadcrumb; `settings-parity-ui`, `files-users-parity-ui` coi breadcrumb của Directus là khác biệt được phép | Owner yêu cầu (2026-10-17); chờ tech lead |
-| R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Chờ tech lead |
-| R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Chờ tech lead |
-| R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); chờ tech lead |
+| D-92 | `modules/settings.ts`: `/settings/flows(/*)` là khung 012 (`ModulePlaceholder`); mục "Flows" của `SettingsNavigation.vue` giữ vị trí và nhãn | Owner chọn A (Clarifications); duyệt |
+| D-93 | `modules/settings.ts` không khai báo `ai`, `marketplace`, `extensions`, `system-logs` (rơi vào `settings-not-found`); `ProjectRoute.vue` bỏ `ai_group`, `mcp_group` | Duyệt (owner, 2026-10-17) |
+| D-94 | `SettingsNavigation.vue`: không có nhóm "Report Bug", "Request Feature" | Owner bỏ hẳn (2026-10-17); duyệt |
+| D-95 | `SettingsNavigation.vue`: không có dòng cuối | Owner bỏ hẳn (2026-10-17); duyệt |
+| D-96 | `BoSortableList` (menu dòng Lên/Xuống/Vào nhóm/Ra nhóm) ở cây collection, lưới field, `system-modules`, `system-fields`, options `list` | Owner chọn A (Clarifications); duyệt |
+| D-97 | `field-detail/FieldDetail.vue`: field không có hoặc `?type=` lạ → `showUnexpectedError` rồi `router.replace` về màn collection | Duyệt (owner, 2026-10-17) |
+| D-98 | `layout/AppSidebar.vue` (đích `module-actions-<id>`) và `modules/content/components/ContentNavigation.vue` (`Teleport` nút hiện/ẩn) | Owner yêu cầu (2026-10-16); duyệt |
+| D-99 | `layout/PrivateView.vue` prop `fill` (gốc `relative h-dvh overflow-hidden`), dùng ở `CollectionRoute`, `FilesCollectionRoute`, `UsersCollectionRoute` | Owner yêu cầu (2026-10-16); duyệt |
+| D-100 | `interfaces/_system/system-modules/SystemModules.vue`: `isDocsLink` lọc khỏi danh sách; setter chèn lại link docs | Owner yêu cầu (2026-10-17); duyệt |
+| D-101 | `layout/PageHeader.vue` không vẽ `nav[aria-label="Breadcrumb"]`; E2E đổi sang nút Back hoặc kiểm không có breadcrumb; `settings-parity-ui`, `files-users-parity-ui` coi breadcrumb của Directus là khác biệt được phép | Owner yêu cầu (2026-10-17); duyệt |
+| R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Duyệt (owner, 2026-10-17) |
+| R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Duyệt (owner, 2026-10-17) |
+| R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); duyệt |
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
@@ -1157,15 +1155,15 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-20 | Cây collection của Data Model: mục có tay kéo, icon màu, note, nút gập, menu; folder lồng với thụt cấp; mục mờ khi ẩn; mục "bảng chưa quản lý" với icon `add`; `BoDetail` collection hệ thống; thanh expand all/none; hộp folder (key khóa, icon, màu, note, list bản dịch) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-21 | Lưới field: ô chỉ đọc theo bề rộng half/full/fill với tay kéo, các icon trạng thái, khung group lồng có tiêu đề, dòng field khóa (hệ thống) với ổ khóa, nút `create_field` toàn bề ngang và nút nét đứt "chế độ nâng cao" với menu; badge `saves_automatically` | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-22 | Drawer field: chế độ đơn giản với lưới thẻ interface (preview SVG/icon, nhóm, cột theo bề ngang, khung cấu hình chèn dưới hàng thẻ, thẻ không chọn mờ), chế độ nâng cao với tab dọc trong cột trái của drawer (`BoTabs` vertical), notice `new_data_alert`, ô chọn collection/field liên quan với trạng thái "khớp" và menu `select_existing`; ở 768 px tab dọc thành tab ngang cuộn được | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-23 | Ma trận quyền: bảng collection × 5 action với chip ba mức (đề xuất: all = nền `success-50` chữ `success-700` icon `check`; none = viền `gray-300` chữ `gray-500` icon `block`; custom = nền `warning-50` chữ `warning-700` icon `rule`; chữ action luôn hiện, mức đọc bằng sr-only), chip khóa (app tối thiểu), vạch `system_collections`, nút gỡ dòng, chân bảng "đặt lại về…", nút thêm collection dạng select; drawer chi tiết với tab dọc có chấm trạng thái, cây field checkbox, ô JSON, cảnh báo tối thiểu | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-24 | Sub-menu Settings: năm nhóm có vạch chia trong sub-menu L-3, link ngoài với gợi ý tab mới, dòng "Backoffice" mờ ở cuối (D-95) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-25 | Danh sách kéo thả của `system-modules` (ô bật, ổ khóa, dòng link bấm sửa và nút gỡ, nút `add_link`), `system-fields` (đường dẫn field với mũi tên, nút gỡ, menu thêm), `system-folder` (ô chỉ đọc + menu cây), `system-scope` (select ba mục với mục giá trị hiện tại), `system-owner` (dòng email + nút sửa, drawer SetupForm) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-26 | Trình sửa preset: form tám field, vạch `layout_preview`, layout thật chỉ đọc bên dưới trong khung viền, notice khi chưa chọn; danh sách preset và translations dùng Q-2 | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-27 | Drawer tạo collection hai bước (tab dọc, notice đầu bước, sáu dòng field tùy chọn với ô bật + ô tên), hộp tạo role (một ô), hộp tạo policy (ô tên + hai ô bật), hộp nhân bản policy/field, hộp xóa collection với notice danger phụ thuộc | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), chờ design owner duyệt |
-| Q-28 | Chỉnh hiển thị theo góp ý owner khi xem lượt 2 (2026-10-16): lớp phủ drawer tối hơn (`bg-gray-900/50`, tối `gray-950/80`) và viền trái drawer ở chế độ tối; lớp phủ modal nhạt hơn TailAdmin (`bg-gray-900/40` + `backdrop-blur-[2px]`, tối `gray-950/60`) và viền modal ở chế độ tối; tiêu đề nhóm "Modules" của sidebar chỉ còn `sr-only`; popover bộ lọc ở chế độ tối nền `gray-800` viền `gray-700`, mỗi điều kiện lọc là viên pill có viền như `.header` của Directus | Recipe đã sửa (layout-patterns §7, §8; component-specs Modal, Comparison modal), chờ design owner duyệt |
+| Q-20 | Cây collection của Data Model: mục có tay kéo, icon màu, note, nút gập, menu; folder lồng với thụt cấp; mục mờ khi ẩn; mục "bảng chưa quản lý" với icon `add`; `BoDetail` collection hệ thống; thanh expand all/none; hộp folder (key khóa, icon, màu, note, list bản dịch) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-21 | Lưới field: ô chỉ đọc theo bề rộng half/full/fill với tay kéo, các icon trạng thái, khung group lồng có tiêu đề, dòng field khóa (hệ thống) với ổ khóa, nút `create_field` toàn bề ngang và nút nét đứt "chế độ nâng cao" với menu; badge `saves_automatically` | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-22 | Drawer field: chế độ đơn giản với lưới thẻ interface (preview SVG/icon, nhóm, cột theo bề ngang, khung cấu hình chèn dưới hàng thẻ, thẻ không chọn mờ), chế độ nâng cao với tab dọc trong cột trái của drawer (`BoTabs` vertical), notice `new_data_alert`, ô chọn collection/field liên quan với trạng thái "khớp" và menu `select_existing`; ở 768 px tab dọc thành tab ngang cuộn được | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-23 | Ma trận quyền: bảng collection × 5 action với chip ba mức (đề xuất: all = nền `success-50` chữ `success-700` icon `check`; none = viền `gray-300` chữ `gray-500` icon `block`; custom = nền `warning-50` chữ `warning-700` icon `rule`; chữ action luôn hiện, mức đọc bằng sr-only), chip khóa (app tối thiểu), vạch `system_collections`, nút gỡ dòng, chân bảng "đặt lại về…", nút thêm collection dạng select; drawer chi tiết với tab dọc có chấm trạng thái, cây field checkbox, ô JSON, cảnh báo tối thiểu | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-24 | Sub-menu Settings: ba nhóm có vạch chia trong sub-menu L-3; không link Report (D-94), không dòng cuối (D-95) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-25 | Danh sách kéo thả của `system-modules` (ô bật, ổ khóa, dòng link bấm sửa và nút gỡ, nút `add_link`), `system-fields` (đường dẫn field với mũi tên, nút gỡ, menu thêm), `system-folder` (ô chỉ đọc + menu cây), `system-scope` (select ba mục với mục giá trị hiện tại), `system-owner` (dòng email + nút sửa, drawer SetupForm) | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-26 | Trình sửa preset: form tám field, vạch `layout_preview`, layout thật chỉ đọc bên dưới trong khung viền, notice khi chưa chọn; danh sách preset và translations dùng Q-2 | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-27 | Drawer tạo collection hai bước (tab dọc, notice đầu bước, sáu dòng field tùy chọn với ô bật + ô tên), hộp tạo role (một ô), hộp tạo policy (ô tên + hai ô bật), hộp nhân bản policy/field, hộp xóa collection với notice danger phụ thuộc | Nháp 2026-10-16 (T005–T007), làm theo code ở lượt 1–4 (T121), owner duyệt 2026-10-17 |
+| Q-28 | Chỉnh hiển thị theo góp ý owner khi xem lượt 2 (2026-10-16): lớp phủ drawer tối hơn (`bg-gray-900/50`, tối `gray-950/80`) và viền trái drawer ở chế độ tối; lớp phủ modal nhạt hơn TailAdmin (`bg-gray-900/40` + `backdrop-blur-[2px]`, tối `gray-950/60`) và viền modal ở chế độ tối; tiêu đề nhóm "Modules" của sidebar chỉ còn `sr-only`; popover bộ lọc ở chế độ tối nền `gray-800` viền `gray-700`, mỗi điều kiện lọc là viên pill có viền như `.header` của Directus | Recipe đã sửa (layout-patterns §7, §8; component-specs Modal, Comparison modal), owner duyệt 2026-10-17 |
 
 ## Clarifications
 
@@ -1182,6 +1180,7 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
 - Q: Có kiểm tên collection/field trùng ở client không? → Không, như Directus; API trả lỗi (edge case).
 - Q: Dòng cuối sub-menu Settings (D-95) hiện gì khi `info.version` là phiên bản tương thích 11.17.4? → B (owner,
   2026-10-16): chỉ chữ "Backoffice", không số phiên bản, không link; không đổi `/server/info` (FR-003, D-95, Q-24).
+  Khi duyệt (owner, 2026-10-17): bỏ hẳn dòng này.
 - Q: Kéo thả sắp xếp collection: chờ `PATCH /collections` và báo lỗi, hay như Directus không chờ? → B (owner,
   2026-10-16): như Directus, không chờ, không báo lỗi; R-42 chỉ ghi nhận hành vi tái tạo (FR-012, Edge Cases, R-42).
 - Q: Đường bàn phím cho kéo thả ở Settings (cây collection, lưới field, `module_bar`, `system-fields`, options
@@ -1204,6 +1203,9 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   (D-100); dữ liệu vẫn giữ link như Directus.
 - Góp ý khi xem trang item (owner, 2026-10-17): bỏ breadcrumb ở đầu trang (D-101); page header dính dưới app header khi
   cuộn như header bar `sticky` của Directus (layout-patterns §5).
+- Duyệt (owner, 2026-10-17): recipe Q-20 đến Q-28 (T121) và bảng D-92 đến D-101, R-40 đến R-42 (T122) được duyệt, trừ
+  hai điểm sửa khi duyệt: sub-menu Settings bỏ hẳn nhóm Report Bug, Request Feature (D-94) và dòng "Backoffice" ở cuối
+  (D-95, Q-24).
 - Góp ý giao diện sau lượt 5 (owner, 2026-10-17). Các sửa này đưa app về giống Directus nên không thêm D-xx:
   - Ô chọn (`BoSelect`) hiện mục đã chọn kèm icon thật, như `v-select` của Directus. Trước đó in tên ligature, ví dụ
     "table_rows Table" ở ô Layout.
@@ -1299,7 +1301,7 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   field cho mọi interface và display 013 (test registry); 18 interface `_system` có test component với request đúng
   allowlist.
 - **SC-007**: Hiệu năng FR-108 đạt (ngân sách nhân `machineFactor()`); số request mỗi thao tác đúng như FR-108.
-- **SC-008**: Recipe Q-20 đến Q-27 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng; axe 0 vi phạm
+- **SC-008**: Recipe Q-20 đến Q-28 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng; axe 0 vi phạm
   serious/critical trên 13 màn của SC-004 và 4 drawer/hộp của FR-106 ở sáng và tối; đường bàn phím D-96 có test (di
   chuyển bằng menu gửi cùng body kéo thả) ở năm nơi: cây collection, lưới field, `system-modules`, `system-fields`,
   options `list`.

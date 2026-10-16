@@ -124,7 +124,7 @@ sidebar-detail ×3) + store `fieldDetail` (index + 10 alteration + types + utils
   `vi-VN`/`en-US`; mỗi thay đổi có test.
 - [x] **VII. Đa instance**: PASS. Build tĩnh; không state server.
 - [x] **VIII. Biến môi trường**: PASS. Không biến mới.
-- [x] **IX. Đổi thương hiệu**: PASS. D-94 (bỏ URL mặc định GitHub Directus), D-95 (chữ "Backoffice"); `id` theme và
+- [x] **IX. Đổi thương hiệu**: PASS. D-94 (bỏ link Report Bug/Request Feature), D-95 (bỏ dòng phiên bản); `id` theme và
   dữ liệu `module_bar` (`docs`) giữ vì là dữ liệu DB; khóa i18n Directus giữ.
 - [x] **X. Chất lượng**: PASS. Coverage 60 %, lint, typecheck, browser test, E2E, build image; không email (D-83); D-92
   đến D-96, R-40 đến R-42 trong spec, tech lead duyệt trước khi đóng (SC-010).
@@ -161,7 +161,7 @@ apps/web/
 ├── src/
 │   ├── modules/settings.ts                                # route thật (thay placeholderRoutes trừ flows)
 │   ├── modules/settings/
-│   │   ├── components/SettingsNavigation.vue              # 5 nhóm, D-94, D-95
+│   │   ├── components/SettingsNavigation.vue              # 3 nhóm, D-94, D-95
 │   │   ├── routes/data-model/
 │   │   │   ├── CollectionsRoute.vue, NewCollection.vue
 │   │   │   ├── components/{CollectionItem,CollectionDialog,CollectionOptions,SnapshotSidebarDetail}.vue

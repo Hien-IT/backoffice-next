@@ -30,9 +30,9 @@ trong web (lib Node với js-yaml, R5), thư viện cây/matrix (cây là `<ul>`
   `settings-flows-item` → `ModulePlaceholder`, D-92); `ai`, `marketplace`, `extensions`, `system-logs` không khai báo
   (rơi vào `settings-not-found`, D-93). Guard `beforeEnter` của `settings-collections` và `settings-fields` chép nguyên
   (`PATCH /collections/:c {meta:{}}` cho bảng không meta).
-- `SettingsNavigation.vue` (chép `navigation.vue`) vào slot `navigation` của `PrivateView`: năm nhóm `<ul>` với
-  `<hr>`; mục ngoài phạm vi bỏ; Report Bug/Request Feature chỉ khi settings có URL (D-94); dòng cuối `<li>` chữ
-  "Backoffice" mờ, không link (D-95).
+- `SettingsNavigation.vue` (chép `navigation.vue`) vào slot `navigation` của `PrivateView`: ba nhóm `<ul>` với
+  `<hr>`; mục ngoài phạm vi bỏ; không có Report Bug/Request Feature (D-94) và dòng phiên bản cuối (D-95); owner
+  chốt khi duyệt 2026-10-17.
 - Màn collection, role, policy, translation dùng `useItem(ref('directus_collections'|'directus_roles'|
   'directus_policies'|'directus_translations'), primaryKey, null, extraQuery)` của 014: `getEndpoint` cho
   `/collections`, `/roles`, `/policies`, `/translations`; `deep[users][_limit]=0` qua `extraQuery` ở role. Màn

@@ -446,18 +446,15 @@ not `error-600`.
 
 ## 12. Settings sub-menu and collection tree (nháp, 016)
 
-Draft for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code; the design owner approves it before 016
-closes. Behaviour is the Directus one (`modules/settings/components/navigation.vue`,
+Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and approved by the owner on 2026-10-17. Behaviour is the Directus one (`modules/settings/components/navigation.vue`,
 `routes/data-model/collections/*`).
 
 - **Settings sub-menu (Q-24)**: one level (L-3, no tree exception). Rows are `menu-dropdown-item` links with icon and
-  label, in five groups split by the §11 divider (`my-2 h-px bg-gray-200 dark:bg-gray-800`, `role="separator"`):
+  label, in three groups split by the §11 divider (`my-2 h-px bg-gray-200 dark:bg-gray-800`, `role="separator"`):
   Data Model (`database`), Flows (`bolt`, the 012 frame until 017, D-92); Roles (`group`), Access Policies
   (`admin_panel_settings`); Project (`tune`), Appearance (`palette`), Presets (`bookmark`), Translations
-  (`translate`); Report Bug (`bug_report`), Request Feature (`new_releases`) only when settings has their URL (D-94),
-  as external links (`target="_blank"`, `open_in_new` icon `aria-hidden` + sr-only "opens in a new tab"). Active row by
-  route prefix (`aria-current="page"`). Last row: the static word "Backoffice" (D-95) with the app icon,
-  `text-theme-xs text-gray-500 dark:text-gray-400`, not a link and not focusable.
+  (`translate`). Active row by route prefix (`aria-current="page"`). No Report Bug / Request Feature rows (D-94) and no
+  version row at the end (D-95).
 - **Collection tree (Q-20)**: in the page body (not the sidebar), inside a Card (`rounded-2xl border border-gray-200
   bg-white dark:border-gray-800 dark:bg-white/[0.03]`). A row is `flex min-h-11 items-center gap-3 px-4` with: drag
   handle (`drag_indicator`, `ICON_BTN` 32x32, `cursor-grab`, mouse only, `aria-hidden` on the icon), collection icon in

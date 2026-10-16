@@ -9,7 +9,7 @@ tính từ `directus/app/src/modules/settings/` trừ khi ghi khác.
 | Component / composable | Nguồn Directus | Props / API | Emit | Ghi chú |
 |------------------------|----------------|-------------|------|---------|
 | `modules/settings.ts` | `index.ts` | route data-model §1 | | flows giữ `ModulePlaceholder` (D-92) |
-| `modules/settings/components/SettingsNavigation.vue` | `components/navigation.vue` | — | | 5 nhóm, D-94, D-95; slot `navigation` của `PrivateView` |
+| `modules/settings/components/SettingsNavigation.vue` | `components/navigation.vue` | — | | 3 nhóm, D-94, D-95; slot `navigation` của `PrivateView` |
 | `modules/content/routes/ContentNotFound.vue` (mở rộng) | `routes/not-found.vue` | + `module: 'settings'` | | |
 
 ## 2. Data model

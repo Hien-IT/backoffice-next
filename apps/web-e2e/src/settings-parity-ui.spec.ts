@@ -75,10 +75,8 @@ function allowed(screen: Screen): Screen {
 	const nav = screen.nav
 		// D-93: AI, Marketplace, Extensions and System Logs are not registered and have no sub-menu row.
 		.filter((row) => !['AI', 'Marketplace', 'Extensions', 'System Logs'].includes(row))
-		// D-94: Report Bug / Request Feature only when settings report_bug_url / report_feature_url are set (null in the fixture).
-		.filter((row) => !['Report Bug', 'Request Feature'].includes(row))
-		// D-95: the last row is the plain text "Backoffice" instead of "Directus <version>".
-		.map((row) => (/^Directus \d/.test(row) ? 'Backoffice' : row));
+		// D-94: no Report Bug / Request Feature rows. D-95: no "Directus <version>" row.
+		.filter((row) => !['Report Bug', 'Request Feature'].includes(row) && !/^Directus \d/.test(row));
 	return { ...screen, nav };
 }
 
@@ -263,13 +261,11 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the module bar holds the sub-menu.
 	const bar = await moduleBar(page);
 	const nav = await bar.evaluate((root) =>
-		Array.from(root.querySelectorAll('nav[aria-label="Settings"] li > a, nav[aria-label="Settings"] > p')).map(
-			(row) => {
-				const copy = row.cloneNode(true) as HTMLElement;
-				copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
-				return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
-			},
-		),
+		Array.from(root.querySelectorAll('nav[aria-label="Settings"] li > a')).map((row) => {
+			const copy = row.cloneNode(true) as HTMLElement;
+			copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
+			return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
+		}),
 	);
 
 	const sections = (await page.locator('#sidebar h3').allTextContents())
