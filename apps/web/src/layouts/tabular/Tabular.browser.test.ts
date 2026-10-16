@@ -3,7 +3,7 @@
 import type { Filter } from '@directus/types';
 import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
+import { createPinia, type Pinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -25,19 +25,24 @@ enableAutoUnmount(afterEach);
 
 let fetch: ReturnType<typeof mockFixtureApi>;
 
+// The stores and the mounted layout use this pinia explicitly: a pinia action sets its own pinia active, so an action
+// of an earlier setup still running would otherwise switch a later setup back to that user (CI run 38872164807).
+let pinia: Pinia;
+
 async function setup(user: FixtureUser = 'admin', answers = {}) {
 	vi.unstubAllGlobals();
 	await replaceQueue();
-	setActivePinia(createPinia());
+	pinia = createPinia();
+	setActivePinia(pinia);
 	fetch = mockFixtureApi(loadSnapshot(), { user, answers });
-	await useUserStore().hydrate();
+	await useUserStore(pinia).hydrate();
 	await Promise.all([
-		useFieldsStore().hydrate(),
-		useRelationsStore().hydrate(),
-		useCollectionsStore().hydrate(),
-		usePermissionsStore().hydrate(),
+		useFieldsStore(pinia).hydrate(),
+		useRelationsStore(pinia).hydrate(),
+		useCollectionsStore(pinia).hydrate(),
+		usePermissionsStore(pinia).hydrate(),
 	]);
-	useServerStore().info.queryLimit = { default: 100, max: 100 };
+	useServerStore(pinia).info.queryLimit = { default: 100, max: 100 };
 }
 
 beforeEach(() => setup());
@@ -85,7 +90,7 @@ async function mountTabular(
 
 	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
 	await router.push('/content/bo_content');
-	const wrapper = mount(Harness, { global: { plugins: [router, i18n] }, attachTo: document.body });
+	const wrapper = mount(Harness, { global: { plugins: [pinia, router, i18n] }, attachTo: document.body });
 	if (waitRows) await vi.waitFor(() => expect(document.querySelectorAll('tbody tr').length).toBeGreaterThan(0));
 	await flushPromises();
 
@@ -257,16 +262,7 @@ test('manual sort is hidden without permission to update the sort field, and off
 	// Scoped to each wrapper: a table of an earlier test may still be in the document on a loaded runner.
 	await setup('bo-viewer');
 	const viewer = await mountTabular();
-	// ponytail: CI runs 38850422711 and 38860243184 showed the row menu here (not reproduced locally); the message says
-	// which store let it through. Drop it once the cause is known.
-	const state = () =>
-		JSON.stringify({
-			isAdmin: useUserStore().isAdmin,
-			email: (useUserStore().currentUser as { email?: string } | null)?.email,
-			update: usePermissionsStore().getPermission('bo_content', 'update'),
-			html: viewer.wrapper.element.tagName,
-		});
-	await vi.waitFor(() => expect(viewer.wrapper.element.querySelector('.row-menu'), state()).toBeNull());
+	expect(viewer.wrapper.element.querySelector('.row-menu')).toBeNull();
 	expect(viewer.wrapper.element.querySelector('.drag-handle')).toBeNull();
 	viewer.wrapper.unmount();
 
