@@ -719,3 +719,9 @@ Lượt 3, Phase 6 (US4):
 - Sau lượt 5 (owner, 2026-10-17): D-100. `system-modules` không liệt kê link "Documentation" tới tài liệu Directus.
   Setter chèn lại link vào đúng vị trí, với tên đã dịch như `valueToPreview` của Directus, nên dữ liệu ghi giống Directus
   app; test `SystemModules.test.ts` sửa theo.
+- Góp ý owner 2026-10-17, sau lượt 5 (không đổi hành vi Directus):
+  - `BoSelect` vẽ mục đã chọn kèm icon thật (trước đó in ra tên ligature, ví dụ "table_rows Table").
+  - Khung bộ lọc của `SearchInput` trong drawer lấy thân drawer làm vùng va chạm (trước đó tràn mép trái).
+  - Khung cuộn `start` của `SplitPanel` có đệm 4px cho vòng focus.
+  - `PrivateView`: page header dính dưới app header khi cuộn (như header bar `sticky` của Directus); `top` đo theo
+    border-box nên không giật 1px.

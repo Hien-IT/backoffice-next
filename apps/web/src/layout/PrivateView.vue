@@ -7,7 +7,8 @@
 // banner, notifications drawer or dialogs (D-38, D-45). The page title goes through useHead; the `%s · project`
 // template is in theme/use-app-head.ts.
 import { useHead } from '@unhead/vue';
-import { computed, watch } from 'vue';
+import { useElementSize } from '@vueuse/core';
+import { computed, useTemplateRef, watch } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
 import NoticeStack from '../components/NoticeStack.vue';
@@ -71,6 +72,16 @@ watch(
 	},
 	{ immediate: true },
 );
+
+// The page header stays under the app header while the page scrolls, as the Directus header bar (`position: sticky`).
+// The app header height changes with the breakpoint: measured. `fill` pages scroll inside their table instead.
+const appHeader = useTemplateRef<InstanceType<typeof AppHeader>>('appHeader');
+// border-box: the header's 1px bottom border counts, or the band jumps up 1px when it starts to stick.
+const { height: appHeaderHeight } = useElementSize(
+	computed(() => appHeader.value?.$el as HTMLElement | undefined),
+	undefined,
+	{ box: 'border-box' },
+);
 </script>
 
 <template>
@@ -87,19 +98,30 @@ watch(
 			class="flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out motion-reduce:transition-none"
 			:class="[navBarStore.collapsed ? 'xl:ms-[90px]' : 'xl:ms-[290px]', fill ? 'h-dvh' : 'min-h-screen']"
 		>
-			<AppHeader />
+			<AppHeader ref="appHeader" />
 
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent
 					class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6"
 					:class="{ 'flex min-h-0 flex-col': fill }"
 				>
-					<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
-						<template v-if="$slots['title']" #title><slot name="title" /></template>
-						<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
-						<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
-						<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
-					</PageHeader>
+					<!-- Sticky band in the page background; the negative margins cover the content padding so rows scrolling
+					     under it do not show above or beside it. -->
+					<div
+						:class="
+							fill
+								? ''
+								: 'page-header-sticky sticky z-30 -mx-4 -mt-4 bg-gray-50 px-4 pt-4 md:-mx-6 md:-mt-6 md:px-6 md:pt-6 dark:bg-gray-900'
+						"
+						:style="fill ? undefined : { top: `${appHeaderHeight}px` }"
+					>
+						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
+							<template v-if="$slots['title']" #title><slot name="title" /></template>
+							<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
+							<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
+							<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
+						</PageHeader>
+					</div>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
 					<NoticeStack />
 					<div v-if="fill" class="flex min-h-0 flex-1 flex-col overflow-auto">
