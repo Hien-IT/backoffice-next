@@ -1214,6 +1214,8 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
 - Filter panel: Popover
   `z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800`,
   `SystemFilter` inside (016 Q-28: the dark surface is lifted above the table card; nested filter popovers match).
+  Inside a drawer the drawer body is the collision boundary and the width is capped by
+  `--reka-popover-content-available-width`, so the panel stays within the drawer.
 - `SystemFilter`: the rule list in a box
   `mb-2 rounded-lg border border-gray-200 bg-white p-3 dark:border-gray-800 dark:bg-gray-900` (no box when `inline`),
   empty = `interfaces.filter.no_rules` in `font-mono text-theme-sm text-gray-500`; rule row = the Directus `.header`

@@ -7,7 +7,7 @@
 import type { Filter } from '@directus/types';
 import { isObject } from 'lodash-es';
 import { PopoverAnchor, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
-import { computed, defineAsyncComponent, onMounted, ref } from 'vue';
+import { computed, defineAsyncComponent, inject, onMounted, type Ref, ref } from 'vue';
 import BoIcon from './BoIcon.vue';
 
 // Backoffice: lazy, it only shows in the popover; a static import closes a cycle (relational interfaces → DrawerCollection
@@ -124,6 +124,11 @@ function emitValue() {
 
 const ICON_BTN =
 	'inline-flex size-8 shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400';
+
+// Inside a drawer (BoDrawer provides its body as `main-element`) the filter stays within the drawer: the body is the
+// collision boundary and the width shrinks to the room left in it (it ran past the drawer's left edge).
+const drawerBody = inject<Ref<HTMLElement | null> | null>('main-element', null);
+const collisionBoundary = computed(() => drawerBody?.value ?? null);
 </script>
 
 <template>
@@ -205,7 +210,9 @@ const ICON_BTN =
 			<PopoverContent
 				align="end"
 				:side-offset="8"
-				class="z-99999 w-[min(36rem,calc(100vw-2rem))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800"
+				:collision-padding="16"
+				v-bind="collisionBoundary ? { collisionBoundary } : {}"
+				class="z-99999 w-[min(36rem,calc(100vw-2rem),var(--reka-popover-content-available-width))] rounded-2xl border border-gray-200 bg-white p-4 shadow-theme-lg dark:border-gray-700 dark:bg-gray-800"
 				@escape-key-down="disable"
 				@interact-outside="onInteractOutside"
 			>
