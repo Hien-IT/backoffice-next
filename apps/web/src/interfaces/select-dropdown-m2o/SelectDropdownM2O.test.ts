@@ -400,6 +400,6 @@ describe('states', () => {
 			'aria-invalid': 'true',
 			type: 'button',
 		});
-		expect(wrapper.get('.list-item').classes()).toContain('border-error-600');
+		expect(wrapper.get('.item-row').classes()).toContain('border-error-600');
 	});
 });

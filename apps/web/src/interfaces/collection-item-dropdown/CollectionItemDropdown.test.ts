@@ -163,7 +163,7 @@ describe('collection-item-dropdown', () => {
 			'aria-invalid': 'true',
 			type: 'button',
 		});
-		expect(wrapper.get('.list-item').classes()).toContain('border-error-600');
+		expect(wrapper.get('.item-row').classes()).toContain('border-error-600');
 	});
 });
 
@@ -184,7 +184,7 @@ describe('edge cases and users', () => {
 
 		expect(wrapper.get('[role="alert"]').text()).toContain(i18n.global.t('errors.FORBIDDEN'));
 		expect(main(wrapper).text()).toBe('Select an item...');
-		expect(wrapper.get('.list-item').classes()).toContain('border-error-600');
+		expect(wrapper.get('.item-row').classes()).toContain('border-error-600');
 		expect(warn).toHaveBeenCalled();
 	});
 
