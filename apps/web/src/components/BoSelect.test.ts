@@ -25,6 +25,27 @@ async function key(el: HTMLElement, key: string) {
 }
 
 describe('BoSelect', () => {
+	test('the trigger shows the icon of the chosen item as an icon, not its ligature name; the placeholder when empty', async () => {
+		const withIcons = [
+			{ text: 'Table', value: 'tabular', icon: 'table_rows' },
+			{ text: 'Cards', value: 'cards', icon: 'grid_view' },
+		];
+		const wrapper = mount(BoSelect, {
+			props: { items: withIcons, modelValue: 'tabular', placeholder: 'Select an item...' },
+			attachTo: document.body,
+		});
+		await flushPromises();
+		const trigger = wrapper.get('button');
+
+		expect(trigger.text()).toContain('Table');
+		expect(trigger.find('[data-icon="table_rows"]').attributes('aria-hidden')).toBe('true');
+		expect(trigger.text().replace('table_rows', '')).not.toContain('table_rows');
+
+		await wrapper.setProps({ modelValue: null });
+		expect(trigger.text()).toContain('Select an item...');
+		wrapper.unmount();
+	});
+
 	test('label names the trigger and the current value is shown', async () => {
 		const wrapper = mount(BoSelect, {
 			props: { items, label: 'Provider', modelValue: 'ldap' },

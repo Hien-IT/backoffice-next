@@ -11,10 +11,11 @@ import {
 	SelectValue,
 	SelectViewport,
 } from 'reka-ui';
-import { useId } from 'vue';
+import { computed, useId } from 'vue';
 import BoIcon from './BoIcon.vue';
 
 const {
+	modelValue,
 	items,
 	disabled = false,
 	id: idProp,
@@ -36,6 +37,10 @@ const emit = defineEmits<{ 'update:modelValue': [value: string]; deselect: [] }>
 
 // Reka Select items cannot have an empty value: the "Deselect" row uses this one and emits `deselect`.
 const DESELECT = '__bo_deselect__';
+// The trigger shows the chosen item with its icon (Directus v-select): Reka SelectValue would print the item text
+// content, where an icon is its ligature name ("table_rows Table").
+const selectedItem = computed(() => items.find((item) => item.value === modelValue));
+
 const onUpdate = (value: unknown) => (value === DESELECT ? emit('deselect') : emit('update:modelValue', String(value)));
 
 const id = idProp ?? useId();
@@ -59,7 +64,13 @@ const TRIGGER =
 			@update:model-value="onUpdate"
 		>
 			<SelectTrigger :id="id" :class="TRIGGER">
-				<SelectValue :placeholder="placeholder ?? ''" class="truncate" />
+				<SelectValue :placeholder="placeholder ?? ''" class="flex min-w-0 items-center gap-2 truncate">
+					<template v-if="selectedItem">
+						<BoIcon v-if="selectedItem.icon" :name="selectedItem.icon" size="sm" class="shrink-0" />
+						<span class="truncate">{{ selectedItem.text }}</span>
+					</template>
+					<template v-else>{{ placeholder ?? '' }}</template>
+				</SelectValue>
 				<BoIcon name="expand_more" size="sm" class="text-gray-500 dark:text-gray-400" />
 			</SelectTrigger>
 			<SelectPortal>
