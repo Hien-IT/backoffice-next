@@ -7,6 +7,7 @@ import users from './users.ts';
 // router.push loads the lazy route components; their module graph took over 5 s on a loaded CI runner.
 vi.mock('./users/routes/UsersCollectionRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./users/routes/UserItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./content/routes/ContentNotFound.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({

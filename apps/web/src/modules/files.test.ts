@@ -1,7 +1,13 @@
 // Feature 015 (FR-001, data-model §1): the routes of directus/app/src/modules/files/index.ts.
-import { describe, expect, test } from 'vitest';
+import { describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router';
 import files from './files.ts';
+
+// router.push loads the lazy route components; their module graph can take over 5 s on a loaded CI runner.
+vi.mock('./files/routes/FilesCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./files/routes/AddNewFile.vue', () => ({ default: { render: () => null } }));
+vi.mock('./files/routes/FileItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./content/routes/ContentNotFound.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({
