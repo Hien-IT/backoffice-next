@@ -1,5 +1,6 @@
 // Feature 016 (T090, US5-4): system-modules as Directus: the saved bar (default MODULE_BAR_DEFAULT of Directus, with the
-// docs link) plus the modules it lacks (added disabled), the switch of a module, the lock of settings, the link rows
+// docs link, kept in the value but not listed, D-100) plus the modules it lacks (added disabled), the switch of a module,
+// the lock of settings, the link rows
 // (edit in the drawer, remove), add a link, the D-96 Up/Down menu, and the emitted value shape.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -40,7 +41,7 @@ const rows = (wrapper: ReturnType<typeof render>) =>
 
 const lastInput = (wrapper: ReturnType<typeof render>) => wrapper.emitted('input')!.at(-1)![0] as any[];
 
-test('no saved bar: the Directus default with the docs link, then the modules it lacks, disabled', () => {
+test('no saved bar: the Directus default without the docs link (D-100), then the modules it lacks, disabled', () => {
 	const wrapper = render();
 
 	// activity is hidden (Directus `hidden: true`), so not added.
@@ -51,10 +52,9 @@ test('no saved bar: the Directus default with the docs link, then the modules it
 		'files:true',
 		'insights:true',
 		'deployments:false',
-		'docs:true',
 		'settings:true',
 	]);
-	expect(wrapper.text()).toContain(t('documentation'));
+	expect(wrapper.text()).not.toContain(t('documentation'));
 });
 
 test('a saved bar keeps its order; missing modules come after it, disabled', () => {

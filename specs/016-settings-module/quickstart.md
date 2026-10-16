@@ -60,7 +60,7 @@ pnpm nx run web:docker-build
 ## Đóng feature
 
 - Recipe Q-20 đến Q-27 trong `design-system/docs/` được design owner duyệt; `qa/handoff-checklist.md` đạt.
-- D-92 đến D-99, R-40 đến R-42 tech lead duyệt; spec 012 (D-40 Settings), 013 (D-56, D-57), 014 (D-71, D-72 phần 016),
+- D-92 đến D-100, R-40 đến R-42 tech lead duyệt; spec 012 (D-40 Settings), 013 (D-56, D-57), 014 (D-71, D-72 phần 016),
   015 (D-85) ghi "đã gỡ ở 016"; `SPECKIT-GUIDE.md` ghi chú cho 017 (Flows: mục sub-menu và khung của 016, D-92;
   `system-manual-flow-select`, `system-collections`, `system-inline-fields` đã có) và 018 (snackbar D-66).
 - `CLAUDE.md` Active Technologies (chạy `.specify/scripts/bash/update-agent-context.sh claude` ở task đầu lượt 1; dòng

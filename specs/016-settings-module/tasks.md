@@ -481,7 +481,7 @@ tiết; đích thật của D-85.
       D-66)
 - [ ] T121 [P] Recipe Q-20 đến Q-27 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt; ghi trạng thái Q-20 đến Q-27 trong `specs/016-settings-module/spec.md`
-- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-99 và R-40 đến R-42 (code đã làm, duyệt) trong
+- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-100 và R-40 đến R-42 (code đã làm, duyệt) trong
       `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010)
 - [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
       `test(016): settings payload, cross-use and parity suites, close feature (wave 5)`; nhắn session khác; push; CI;
@@ -716,3 +716,6 @@ Lượt 3, Phase 6 (US4):
   - Toàn bộ test web: 3.824 xanh. 9 test browser đỏ khi chạy cả bộ đều xanh khi chạy riêng (80/80).
   - E2E proxy-api chromium-1280 xanh 77/77: Settings, payload, dùng chéo, parity UI, a11y, navigation, users-directory.
   - CI 38934146076 (lượt 4): e2e ba cấu hình và mọi job parity xanh; chỉ `quality` đỏ ở hai test chờ, đã sửa ở lượt 5.
+- Sau lượt 5 (owner, 2026-10-17): D-100. `system-modules` không liệt kê link "Documentation" tới tài liệu Directus.
+  Setter chèn lại link vào đúng vị trí, với tên đã dịch như `valueToPreview` của Directus, nên dữ liệu ghi giống Directus
+  app; test `SystemModules.test.ts` sửa theo.

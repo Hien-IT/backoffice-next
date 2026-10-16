@@ -474,9 +474,10 @@ logo, theme; đổi chủ dự án qua `system-owner` và so body `POST /setting
 4. **Given** `module_bar`, **When** sửa, **Then** danh sách kéo thả = `module_bar` đã lưu (mặc định `MODULE_BAR_DEFAULT`)
    cộng module chưa có (thêm ở trạng thái tắt): dòng module có ô bật, dòng `locked` (settings) có ổ khóa; dòng link bấm
    để sửa, nút `clear` gỡ; nút `add_link` mở drawer `custom_link` (name, icon, url bắt buộc); giá trị ghi
-   `[{type:'module', id, enabled, locked?} | {type:'link', id, name, url, icon, enabled}]` như Directus; mục `docs` và
-   module ngoài phạm vi vẫn giữ trong dữ liệu, hiện trong danh sách như Directus, chỉ sidebar bỏ qua (D-41, D-49); đường
-   bàn phím Lên/Xuống (D-96).
+   `[{type:'module', id, enabled, locked?} | {type:'link', id, name, url, icon, enabled}]` như Directus; module ngoài
+   phạm vi (visual, deployments) giữ trong dữ liệu và hiện trong danh sách như Directus, chỉ sidebar bỏ qua (D-41); link
+   `docs` tới tài liệu Directus giữ trong dữ liệu (ghi lại đúng vị trí, tên đã dịch) nhưng không hiện trong danh sách
+   (D-100) và sidebar cũng bỏ qua (D-49); đường bàn phím Lên/Xuống (D-96).
 5. **Given** `/settings/appearance`, **When** mở, **Then** tiêu đề `settings_appearance`, icon `palette`; form chỉ
    `theming_group`: vạch `branding` + `project_color` (`select-color`), `project_logo`, `public_foreground`,
    `public_background`, `public_favicon` (`file`), `public_note`; vạch `theming` + `default_appearance` (auto | light |
@@ -1041,7 +1042,7 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
   014 (D-71, D-72 phần 016), 015 (D-85) sửa khi 015 mở khóa; `CLAUDE.md` Active Technologies thêm dòng 016;
   `SPECKIT-GUIDE.md` ghi chú cho 017 (Flows: mục sub-menu và `/settings/flows` của 016 là khung, D-92;
   `system-manual-flow-select` đã có) và 018 (snackbar D-66); `graphify update .` sau mỗi lượt.
-- **FR-115**: Mọi D-92 đến D-99 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
+- **FR-115**: Mọi D-92 đến D-100 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
   (xem Clarifications).
 
 ### Key Entities *(include if feature involves data)*
@@ -1117,6 +1118,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | D-97 | Mở drawer field cho field không tồn tại (gõ URL) hoặc `?type=` không thuộc 10 localType | Lỗi JavaScript không bắt: `startEditing` gán `field` null rồi vẽ `field.field`; `alterations[type]` không có | Hộp lỗi (`showUnexpectedError`) rồi về màn collection | Không chép lỗi làm hỏng màn; E2E coi `pageerror` là lỗi (đã kiểm T002, 2026-10-16) | khác | — |
 | D-98 | Nút hiện/ẩn collection ẩn của module Content | Chỉ ở menu chuột phải của cây collection | Nút icon `visibility`/`visibility_off` (`aria-pressed`) trên dòng "Content" của sidebar (đích `module-actions-<id>` của `AppSidebar`, `Teleport`), chỉ khi module đang mở và có collection ẩn; menu chuột phải giữ | Đường bàn phím (014) nay không chiếm một hàng riêng trên ô tìm; owner yêu cầu (Clarifications 2026-10-16) | khác | — |
 | D-99 | Cuộn ở trang danh sách Content, Files, Users | Cả vùng nội dung cuộn (`private-view-main` `overflow: auto`, header bar `sticky`); phân trang nằm dưới bảng, cuộn theo | `PrivateView fill`: trang cao đúng cửa sổ, chỉ thân bảng cuộn; page header và phân trang đứng yên; khung gốc `relative` để nhãn `sr-only` trong bảng không kéo dài trang | Owner yêu cầu (Clarifications 2026-10-16); hành vi và request không đổi | khác | — |
+| D-100 | Link "Documentation" (`docs`, `https://docs.directus.io`) trong danh sách `system-modules` | Hiện trong danh sách (dòng link có nút gỡ) | Không hiện trong danh sách; vẫn giữ trong dữ liệu, ghi lại đúng vị trí với tên đã dịch khi lưu, nên dữ liệu ghi giống Directus app | Owner yêu cầu (2026-10-17); Nguyên tắc IX như D-49 (sidebar đã ẩn link này) | đổi thương hiệu | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -1128,7 +1130,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | R-41 | Trình sửa preset luôn về danh sách trong `finally` kể cả khi `POST`/`PATCH` lỗi | `presets/item.vue` Directus | Người dùng mất form đang sửa khi lỗi; như Directus; tái tạo | Chờ tech lead |
 | R-42 | `PATCH /collections` khi kéo thả không được Directus chờ (`onSort` không await) nên lỗi không hiện và cây giữ thứ tự cục bộ sai tới lần nạp sau | `collections.vue:115-141` Directus | App mới làm giống (owner chọn B, Clarifications 2026-10-16); tái tạo, không sửa | Chờ tech lead |
 
-**Trạng thái khác biệt (T122, lượt 5, 2026-10-16)**:
+**Trạng thái khác biệt (T122, lượt 5, 2026-10-16; D-100 thêm 2026-10-17)**:
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
@@ -1140,6 +1142,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | D-97 | `field-detail/FieldDetail.vue`: field không có hoặc `?type=` lạ → `showUnexpectedError` rồi `router.replace` về màn collection | Chờ tech lead |
 | D-98 | `layout/AppSidebar.vue` (đích `module-actions-<id>`) và `modules/content/components/ContentNavigation.vue` (`Teleport` nút hiện/ẩn) | Owner yêu cầu (2026-10-16); chờ tech lead |
 | D-99 | `layout/PrivateView.vue` prop `fill` (gốc `relative h-dvh overflow-hidden`), dùng ở `CollectionRoute`, `FilesCollectionRoute`, `UsersCollectionRoute` | Owner yêu cầu (2026-10-16); chờ tech lead |
+| D-100 | `interfaces/_system/system-modules/SystemModules.vue`: `isDocsLink` lọc khỏi danh sách; setter chèn lại link docs | Owner yêu cầu (2026-10-17); chờ tech lead |
 | R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Chờ tech lead |
 | R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Chờ tech lead |
 | R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); chờ tech lead |
@@ -1195,6 +1198,8 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   - Nút "Update Bookmark" dùng icon SVG riêng của Directus: `BoIcon` port đủ 20 icon `custom-icons`; tên trùng font
     như `box`, `logout` cũng vẽ SVG như Directus.
   - Khung bộ lọc rõ hơn ở chế độ tối (Q-28).
+- Góp ý khi xem trang Project (owner, 2026-10-17): app mới mặc định ẩn link "Documentation" trong danh sách thanh module
+  (D-100); dữ liệu vẫn giữ link như Directus.
 
 
 ## Assumptions
@@ -1282,6 +1287,6 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   options `list`.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 015 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-92 đến D-99 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
+- **SC-010**: D-92 đến D-100 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
   D-85 ghi "đã gỡ ở 016" ở spec gốc; ghi chú cho 017 và 018 trong `SPECKIT-GUIDE.md`. Duyệt ghi ở bảng trạng thái khác
   biệt của spec (như 015 T103).

@@ -1607,7 +1607,8 @@ the code (T006, T007, FR-107); the design owner approves them before 016 closes.
 
 - `system-modules`: a BoSortableList; a module row is `flex h-11 items-center gap-3` with handle, icon, name and a
   BoSwitch `enabled` (a `lock` icon instead for `locked`); a link row adds a `clear` icon Button and opens the
-  `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below.
+  `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below. The Directus
+  documentation link is not listed (D-100), only kept in the value.
 - `system-fields`: a BoSortableList of field paths (`font-mono`, ` → ` between levels, `functions.<fn>` for
   functions), a remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
 - `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`, a
