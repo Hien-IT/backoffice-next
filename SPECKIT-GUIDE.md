@@ -379,6 +379,10 @@ Ghi chú từ 015 (đưa vào spec 016): menu "sửa role" của cây role ở m
 /speckit.specify Admin tạo và chỉnh sửa flow bằng giao diện kéo thả như Directus: chọn trigger, thêm operation, nối nhánh resolve và reject, cấu hình từng operation, bật tắt flow, xem log các lần chạy. Nút chạy flow thủ công hiện trên trang item hoặc danh sách item. Tham chiếu directus/app/src/modules/settings/routes/flows và directus/app/src/operations. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: flow tạo ở app mới mở và sửa được trên Directus, và ngược lại.
 ```
 
+Ghi chú từ 016 (đưa vào spec 017): mục "Flows" của sub-menu Settings và `/settings/flows(/*)` đang là khung của 012
+(D-92 của 016); `/content/directus_flows` cũng trỏ về đó (D-72). Đã có sẵn ba interface `_system` mà màn flow dùng:
+`system-manual-flow-select`, `system-collections`, `system-inline-fields` (port của Directus, 016).
+
 ### 018: Insights, Activity, Notifications
 
 ```text
@@ -391,6 +395,10 @@ Ghi chú từ 014 (đưa vào spec 018): `/content/directus_dashboards` và `/co
 Ghi chú từ 015 (đưa vào spec 018): drawer thông báo chưa có danh sách upload TUS dở (D-90); khi 018 làm drawer thông
 báo thì thêm danh sách này như Directus (`tusResumableUploadsChanged`), `utils/upload-file.ts` đã giữ việc tiếp tục
 upload dở khi chọn lại cùng file.
+
+Ghi chú từ 016 (đưa vào spec 018): thông báo dạng snackbar của Directus vẫn là notice tại chỗ và hộp lỗi (D-66 của
+013); `settingsStore.updateSettings` và các màn Settings dùng `notify`/`showUnexpectedError`. Khi 018 làm Notifications
+thì xét lại cách hiển thị này.
 
 ### 019: Đóng gói và triển khai đa instance
 

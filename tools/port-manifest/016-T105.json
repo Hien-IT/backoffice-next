@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/presets/collection/collection.vue",
+		"dest": "apps/web/src/modules/settings/routes/presets/PresetsCollectionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/presets/collection/components/presets-info-sidebar-detail.vue",
+		"dest": "apps/web/src/modules/settings/routes/presets/PresetsInfoSidebarDetail.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/presets/item.vue",
+		"dest": "apps/web/src/modules/settings/routes/presets/PresetItemRoute.vue"
+	}
+]

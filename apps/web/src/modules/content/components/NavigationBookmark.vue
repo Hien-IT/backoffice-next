@@ -21,7 +21,7 @@ import InterfaceSelectIcon from '../../../interfaces/select-icon/SelectIcon.vue'
 import { usePresetsStore } from '../../../stores/presets.ts';
 import { useUserStore } from '../../../stores/user.ts';
 import { getCollectionRoute } from '../../../utils/get-item-route.ts';
-import { translate } from '../../../utils/translate-object-values.ts';
+import { translateString } from '../../../utils/translate-object-values.ts';
 import { unexpectedError } from '../../../utils/unexpected-error.ts';
 import { navigationContextKey, type NavigationNode } from '../composables/use-navigation.ts';
 import NavigationItemContent from './NavigationItemContent.vue';
@@ -38,7 +38,8 @@ const userStore = useUserStore();
 const presetsStore = usePresetsStore();
 
 const bookmark = computed(() => node.bookmark!);
-const name = computed(() => translate(bookmark.value.bookmark ?? ''));
+// Directus translates the whole name (translate-literal); the regex of `translate` cuts a `$t:` key at `_`.
+const name = computed(() => translateString(bookmark.value.bookmark ?? ''));
 const active = computed(() => nav.isActive(node));
 
 const isMine = computed(

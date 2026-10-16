@@ -1585,7 +1585,8 @@ the code (T006, T007, FR-107); the design owner approves them before 016 closes.
 - A Table (`BoTable` look) with a sr-only caption: first column `collection` (key in `font-mono`, tooltip the display
   name, two text Buttons `all` / `none`), then five action columns (create, read, update, delete, share) and a remove
   icon Button (`close`, `aria-label` `remove`). A divider row `system_collections` (`bg-gray-50 text-theme-xs
-  uppercase`) separates system collections.
+  uppercase`) separates system collections. The row header is a `th scope="row"`; cells keep `px-1` around the chips
+  (`ps-3 pe-2` for the collection cell) so the six columns fit the 706px form at 1109px without horizontal scroll.
 - Action chip: a `button` with `aria-haspopup="menu"`, `rounded-full px-2.5 py-0.5 text-theme-xs font-medium`, the
   action name always shown and the level in an sr-only text: all = `bg-success-50 text-success-700 dark:bg-success-500/15
   dark:text-success-500` + `check` icon; none = `border border-gray-300 text-gray-500 dark:border-gray-700` + `block`
@@ -1608,8 +1609,9 @@ the code (T006, T007, FR-107); the design owner approves them before 016 closes.
   `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below.
 - `system-fields`: a BoSortableList of field paths (`font-mono`, ` → ` between levels, `functions.<fn>` for
   functions), a remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
-- `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`) and a trailing
-  `folder` icon Button opening a menu tree (the 015 FolderPicker rows).
+- `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`, a
+  `folder_special` / `folder_open` icon inside) and a trailing `folder` icon Button opening a Popover with the 015
+  FolderPicker tree (its root row named `interfaces.system-folder.root_name`).
 - `system-scope`: a Select with the current user or role first (its name), then `all_users`, `user: select…`,
   `role: select…`; the two last open DrawerCollection.
 - `system-owner`: a read-only row with the owner email and an `edit` icon Button (tooltip

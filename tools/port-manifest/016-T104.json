@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-scope/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-scope/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-scope/system-scope.vue",
+		"dest": "apps/web/src/interfaces/_system/system-scope/SystemScope.vue"
+	}
+]

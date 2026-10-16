@@ -89,6 +89,10 @@ export const EXPECTED_INTERFACE_IDS = [
 	'system-collections',
 	'system-manual-flow-select',
 	'system-permissions',
+	'system-owner',
+	'system-modules',
+	'system-folder',
+	'system-scope',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [

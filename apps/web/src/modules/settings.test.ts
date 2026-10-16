@@ -21,6 +21,10 @@ vi.mock('./settings/routes/roles/RolePublicRoute.vue', () => ({ default: { rende
 vi.mock('./settings/routes/policies/PoliciesCollectionRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/policies/NewPolicy.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/policies/PolicyItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/presets/PresetsCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/presets/PresetItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/translations/TranslationsCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/translations/TranslationItemRoute.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({

@@ -4948,6 +4948,76 @@
 			"recommendedDisplays": null,
 			"optionsKind": "array",
 			"optionKeys": []
+		},
+		"system-owner": {
+			"id": "system-owner",
+			"name": "$t:interfaces.system-owner.system-owner",
+			"icon": "vpn_key",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-modules": {
+			"id": "system-modules",
+			"name": "$t:module_bar",
+			"icon": "arrow_drop_down_circle",
+			"types": [
+				"json"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-folder": {
+			"id": "system-folder",
+			"name": "$t:interfaces.system-folder.folder",
+			"icon": "folder",
+			"types": [
+				"uuid"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": [
+				"raw"
+			],
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-scope": {
+			"id": "system-scope",
+			"name": "$t:scope",
+			"icon": "arrow_drop_down_circle",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
 		}
 	},
 	"displays": {

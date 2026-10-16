@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-folder/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-folder/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-folder/folder.vue",
+		"dest": "apps/web/src/interfaces/_system/system-folder/SystemFolder.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-folder/FolderListItem.vue",
+		"dest": "apps/web/src/interfaces/_system/system-folder/SystemFolder.vue"
+	}
+]

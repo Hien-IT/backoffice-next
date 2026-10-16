@@ -379,30 +379,30 @@ tiết; đích thật của D-85.
 
 ### Tests cho User Story 5
 
-- [ ] T090 [P] [US5] Test `system-owner` (drawer `SetupForm`, `POST /settings/owner`, trống, lỗi), `system-modules`
+- [x] T090 [P] [US5] Test `system-owner` (drawer `SetupForm`, `POST /settings/owner`, trống, lỗi), `system-modules`
       (danh sách gộp `MODULE_BAR_DEFAULT`, ô bật, khóa, link thêm/sửa/gỡ, menu Lên/Xuống, giá trị phát), `system-folder`
       (đường dẫn, gốc, phát id/null), `system-theme` option `appearance` trong `src/interfaces/_system/<id>/*.test.ts`
-- [ ] T091 [P] [US5] Test `ProjectRoute` (lọc ba nhóm, `collaborative_editing_enabled` chỉ đọc, `PATCH /settings` chỉ
+- [x] T091 [P] [US5] Test `ProjectRoute` (lọc ba nhóm, `collaborative_editing_enabled` chỉ đọc, `PATCH /settings` chỉ
       khóa đổi, notice và hoàn tác, `serverStore.hydrate({isLanguageUpdated})`) và `AppearanceRoute` (chỉ
       `theming_group`) trong `src/modules/settings/routes/project/ProjectRoute.test.ts`,
       `src/modules/settings/routes/appearance/AppearanceRoute.test.ts` Thêm: mọi field của `settings.yaml` ngoài
       `_system` có interface và option trong registry 013, thiếu thì ghi R-xx (FR-072);
       `public_registration_email_filter` là `system-filter` trên `directus_users.email` và `report_error_url` là
       `system-display-template` với biến error.*, navigator.*, route.*, user.*, role.* (FR-076).
-- [ ] T092 [US5] E2E US5 (`describe.serial`, khôi phục settings ở `afterAll`; branding 012 đổi ngay; Directus app thấy
+- [x] T092 [US5] E2E US5 (`describe.serial`, khôi phục settings ở `afterAll`; branding 012 đổi ngay; Directus app thấy
       cùng sidebar) trong `e2e/settings-project.spec.ts` Chuyển hướng `/content/directus_settings` tới
       `/settings/project` (FR-002).
 
 ### Implementation cho User Story 5
 
-- [ ] T093 [P] [US5] Interface `system-owner` (`BoDrawer` + `SetupForm` 012, `setOwner`) trong
+- [x] T093 [P] [US5] Interface `system-owner` (`BoDrawer` + `SetupForm` 012, `setOwner`) trong
       `src/interfaces/_system/system-owner/`
-- [ ] T094 [P] [US5] Interface `system-modules` và `ModuleLinkDrawer.vue` (`BoSortableList`, `nanoid`) trong
+- [x] T094 [P] [US5] Interface `system-modules` và `ModuleLinkDrawer.vue` (`BoSortableList`, `nanoid`) trong
       `src/interfaces/_system/system-modules/`
-- [ ] T095 [P] [US5] Interface `system-folder` (`useFolders` 015) trong `src/interfaces/_system/system-folder/`
-- [ ] T096 [P] [US5] Option `appearance` cho `system-theme` trong `src/interfaces/_system/system-theme/index.ts`,
+- [x] T095 [P] [US5] Interface `system-folder` (`useFolders` 015) trong `src/interfaces/_system/system-folder/`
+- [x] T096 [P] [US5] Option `appearance` cho `system-theme` trong `src/interfaces/_system/system-theme/index.ts`,
       `SystemTheme.vue`
-- [ ] T097 [US5] `ProjectRoute.vue`, `AppearanceRoute.vue` trong `src/modules/settings/routes/project/`,
+- [x] T097 [US5] `ProjectRoute.vue`, `AppearanceRoute.vue` trong `src/modules/settings/routes/project/`,
       `src/modules/settings/routes/appearance/`; nối route; `get-item-route` (`directus_settings` → `/settings/project`)
       giữ, comment D-72 sửa
 
@@ -417,26 +417,26 @@ tiết; đích thật của D-85.
 
 ### Tests cho User Story 6
 
-- [ ] T100 [P] [US6] Test `system-scope` (ba lựa chọn, `DrawerCollection` user/role, nhãn giá trị hiện tại, phát giá trị)
+- [x] T100 [P] [US6] Test `system-scope` (ba lựa chọn, `DrawerCollection` user/role, nhãn giá trị hiện tại, phát giá trị)
       trong `src/interfaces/_system/system-scope/SystemScope.test.ts`
-- [ ] T101 [P] [US6] Test route presets (danh sách `systemDefaults`, panel đếm, xóa và sửa hàng loạt; trình sửa: mặc định
+- [x] T101 [P] [US6] Test route presets (danh sách `systemDefaults`, panel đếm, xóa và sửa hàng loạt; trình sửa: mặc định
       mới, scope → `{role,user}`, body chỉ khóa đổi, luôn về danh sách, xem trước layout với `limit` 25) trong
       `src/modules/settings/routes/presets/presets.test.ts`
-- [ ] T102 [P] [US6] Test route translations (danh sách, trang item, `refreshCurrentLanguage` sau lưu/xóa, `SaveOptions`,
+- [x] T102 [P] [US6] Test route translations (danh sách, trang item, `refreshCurrentLanguage` sau lưu/xóa, `SaveOptions`,
       nạp lỗi → không tìm thấy) trong `src/modules/settings/routes/translations/translations.test.ts`
-- [ ] T103 [US6] E2E US6 (từ cây Content "sửa bookmark role" mở trình sửa; preset hiện ở cây Content của hai app;
+- [x] T103 [US6] E2E US6 (từ cây Content "sửa bookmark role" mở trình sửa; preset hiện ở cây Content của hai app;
       translation hiện ở hai app) trong `e2e/settings-presets-translations.spec.ts` Chuyển hướng
       `/content/directus_presets`, `/content/directus_translations` và item của chúng tới màn thật (FR-002).
 
 ### Implementation cho User Story 6
 
-- [ ] T104 [P] [US6] Interface `system-scope` trong `src/interfaces/_system/system-scope/`
-- [ ] T105 [P] [US6] `PresetsCollectionRoute.vue`, `PresetsInfoSidebarDetail.vue` (layout wrapper 014) trong
+- [x] T104 [P] [US6] Interface `system-scope` trong `src/interfaces/_system/system-scope/`
+- [x] T105 [P] [US6] `PresetsCollectionRoute.vue`, `PresetsInfoSidebarDetail.vue` (layout wrapper 014) trong
       `src/modules/settings/routes/presets/`
-- [ ] T106 [US6] `PresetItemRoute.vue` (form cục bộ, ba ô cùng interface với `BookmarkAdd`, `use-layout` chỉ đọc, panel
+- [x] T106 [US6] `PresetItemRoute.vue` (form cục bộ, ba ô cùng interface với `BookmarkAdd`, `use-layout` chỉ đọc, panel
       `layout-options-*`, notice khi chưa chọn) trong `src/modules/settings/routes/presets/`; gỡ comment D-71 của
       `NavigationBookmark.vue` nếu T038 chưa làm
-- [ ] T107 [P] [US6] `TranslationsCollectionRoute.vue`, `TranslationItemRoute.vue` trong
+- [x] T107 [P] [US6] `TranslationsCollectionRoute.vue`, `TranslationItemRoute.vue` trong
       `src/modules/settings/routes/translations/` Chép `directus/app/src/lang/refresh-current-language.ts` vào
       `src/lang/refresh-current-language.ts` kèm test `src/lang/refresh-current-language.test.ts` (FR-086).
 - [ ] T108 [US6] Đóng lượt 4: cổng như T049 (SC-001, SC-004 phần presets, SC-005 phần settings/presets/translations);
@@ -457,7 +457,7 @@ tiết; đích thật của D-85.
 - [ ] T111 [P] [US7] Dùng chéo (SC-002, SC-003; giá trị điền §5; sáu thao tác của SC-003; chiều ngược) trong
       `e2e/settings-cross-use.spec.ts`
 - [ ] T112 [P] [US7] Parity UI năm thuộc tính, 13 màn, 14 nút (SC-004) trong `e2e/settings-parity-ui.spec.ts`
-- [ ] T113 [P] [US7] Người không admin: module ẩn, route không có quyền, API 403 cho request ghi (FR-061) trong
+- [x] T113 [P] [US7] Người không admin: module ẩn, route không có quyền, API 403 cho request ghi (FR-061) trong
       `e2e/settings-permissions.spec.ts`
 - [ ] T114 [P] [US7] axe 13 màn + 4 drawer/hộp sáng và tối (SC-008, FR-106) trong
       `src/modules/settings/a11y.browser.test.ts`
@@ -475,7 +475,7 @@ tiết; đích thật của D-85.
 
 ## Phase 10: Polish & đóng feature — Lượt 5
 
-- [ ] T120 [P] Tài liệu: spec 012 (D-40 phần Settings "đã gỡ ở 016"), 013 (D-56, D-57 "đã gỡ ở 016", MCP đóng), 014
+- [x] T120 [P] Tài liệu: spec 012 (D-40 phần Settings "đã gỡ ở 016"), 013 (D-56, D-57 "đã gỡ ở 016", MCP đóng), 014
       (D-71, D-72 phần 016), 015 (D-85) trong `specs/01{2,3,4,5}-*/spec.md`; `SPECKIT-GUIDE.md` ghi chú cho 017 (mục Flows
       và khung D-92; `system-manual-flow-select`, `system-collections`, `system-inline-fields` đã có) và 018 (snackbar
       D-66)
@@ -640,3 +640,38 @@ Lượt 3, Phase 6 (US4):
   - Trang Public truyền `primaryKey` `null as never` cho BoForm.
   - Test `use-duplicate.test.ts` port từ Directus.
   - T074 xanh 6/6 với cấu hình `dev`. Ba cấu hình proxy chạy ở T081.
+- Lượt 4, US5 (T090–T097):
+  - `ProjectRoute`, `AppearanceRoute` port nguyên script. `serverStore.hydrate({ isLanguageUpdated })` của Directus
+    truyền tham số mà hydrate không nhận, nên ở đây gọi `hydrate()`.
+  - `system-owner`: drawer với các field chủ dự án của `routes/setup/form.ts` (port thành `form.ts`, kiểm email bằng
+    pattern thay zod) cùng BoCheckbox `product_updates`; không có notice license (D-53).
+  - `system-modules`:
+    - Danh sách dùng `MODULE_BAR_DEFAULT` và danh sách module của Directus (có link docs, module visual và
+      deployments), nên dữ liệu lưu giống Directus app.
+    - Tên link được lưu ở dạng đã dịch, như `valueToPreview` của Directus.
+    - Component nạp lười để registry module (và router) không vào registry interface eager.
+  - `system-folder`: ô chỉ đọc kèm Popover chứa `FolderPicker` 015, có thêm prop `rootLabel`.
+  - T096: `SystemTheme` đã có prop `appearance` từ 015; `index.ts` của Directus cũng không khai báo option, nên không
+    đổi code.
+  - T091: test đọc `settings.yaml` của Directus. `mapbox_key` có `icon`, `title` không phải option của `input` (Directus
+    cũng bỏ qua).
+  - T092 xanh 5/5 với cấu hình `dev`, có khôi phục settings sau file.
+  - CI 38928008902: `roles.test.ts` (invite) chờ bằng `vi.waitFor`. Ba job parity đỏ ở `/assets` concurrency S3
+    (hạ tầng, không liên quan code web).
+- Lượt 4, US6 (T100–T107, do subagent làm song song):
+  - `system-scope`: BoSelect không có dòng chia, nên giá trị hiện tại là mục đầu, không có vạch dưới.
+  - `PresetsInfoSidebarDetail` dùng `apiFetch`, vì `sdk.request` bỏ `meta` (cần `filter_count`, `total_count`); request
+    giống Directus.
+  - `TranslationItemRoute`: trang không tìm thấy là `ContentNotFound module="settings"`.
+  - `PresetItemRoute`: xem trước trong khung viền (Q-26); sidebar và options layout chỉ hiện khi đã chọn collection.
+  - R-41: khi lưu lỗi, edits còn giữ nên guard sửa dở hiện hộp `unsaved_changes`, ở cả hai app (bảng trạng thái ghi
+    lại).
+  - Sửa thêm 014: `NavigationBookmark.vue` dịch tên bookmark bằng `translateString` (như translate-literal của
+    Directus); regex của `translate` cắt khóa `$t:` tại `_`.
+  - T103 xanh 4/4 với cấu hình `dev`.
+- Lượt 5, làm trước khi đóng lượt 4:
+  - T113: `settings-permissions.spec.ts` xanh 2/2 với `dev`.
+  - T116 (một phần): `playwright.config.ts`. Ba spec lõi (data model, field drawer, roles/policies) chạy mọi trình
+    duyệt bằng biểu thức trong `CONTENT_NOT_CORE`, không gắn tag; `DIRECTUS_APP_SPECS` thêm parity UI và cross-use.
+  - T120: spec 012–015 ghi "đã gỡ ở 016"; `SPECKIT-GUIDE.md` có ghi chú cho 017 (Flows, D-92) và 018 (D-66).
+  - T121 (recipe theo code, chờ design owner) và T122 (bảng trạng thái, chờ tech lead) đã viết; chưa tick vì cần duyệt.

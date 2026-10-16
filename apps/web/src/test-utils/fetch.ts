@@ -141,8 +141,8 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
 	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
 	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
-	// Feature 016 (specs/016-settings-module/contracts/api-calls.md, rows 137 to 177): data model rows, then the roles
-	// and policies rows (wave 3); the settings, presets and translations rows come with their waves.
+	// Feature 016 (specs/016-settings-module/contracts/api-calls.md, rows 137 to 177): data model rows, the roles and
+	// policies rows (wave 3), then settings, presets and translations (wave 4).
 	{ id: 138, method: 'GET', path: new RegExp(`^/collections/${ID}$`) },
 	{ id: 140, method: 'GET', path: new RegExp(`^/fields/${ID}/${ID}$`) },
 	{ id: 142, method: 'GET', path: /^\/schema\/snapshot$/ },
@@ -169,6 +169,14 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 172, method: 'POST', path: /^\/access$/ },
 	{ id: 172, method: 'PATCH', path: /^\/access$/ },
 	{ id: 172, method: 'DELETE', path: /^\/access$/ },
+	{ id: 152, method: 'GET', path: new RegExp(`^/presets/${ID}$`) },
+	{ id: 154, method: 'GET', path: new RegExp(`^/translations/${ID}$`) },
+	{ id: 173, method: 'PATCH', path: /^\/settings$/ },
+	{ id: 174, method: 'POST', path: /^\/settings\/owner$/ },
+	{ id: 175, method: 'PATCH', path: /^\/presets$/ },
+	{ id: 176, method: 'POST', path: /^\/translations$/ },
+	{ id: 176, method: 'PATCH', path: new RegExp(`^/translations(/${ID})?$`) },
+	{ id: 176, method: 'DELETE', path: new RegExp(`^/translations(/${ID})?$`) },
 ];
 
 /**

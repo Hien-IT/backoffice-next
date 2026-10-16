@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-modules/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-modules/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-modules/system-modules.vue",
+		"dest": "apps/web/src/interfaces/_system/system-modules/SystemModules.vue"
+	}
+]

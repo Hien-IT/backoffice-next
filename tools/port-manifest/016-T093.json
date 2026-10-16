@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-owner/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-owner/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-owner/system-owner.vue",
+		"dest": "apps/web/src/interfaces/_system/system-owner/SystemOwner.vue"
+	},
+	{
+		"source": "app/src/routes/setup/form.ts",
+		"dest": "apps/web/src/interfaces/_system/system-owner/form.ts"
+	}
+]

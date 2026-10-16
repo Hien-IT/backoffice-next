@@ -1,8 +1,7 @@
 // Ported from directus/app/src/modules/settings/index.ts
 // Backoffice (spec 016 FR-001, data-model §1): route components are lazy (bundle budget). Out of scope routes are not
 // declared and fall to `settings-not-found` (D-93: ai, marketplace, extensions, system-logs). Flows keeps the 012 frame
-// until feature 017 (D-92). The screens of later waves (project, appearance, presets, translations)
-// show the frame with the Settings sub-menu until their wave replaces it. preRegisterCheck as in feature 012.
+// until feature 017 (D-92); every other screen of the module is its port. preRegisterCheck as in feature 012.
 import type { RouteLocationNormalized } from 'vue-router';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { useCollectionsStore } from '../stores/collections.ts';
@@ -31,14 +30,12 @@ export default defineModule({
 		{
 			name: 'settings-project',
 			path: 'project',
-			component: Frame,
-			meta: FRAME_META,
+			component: () => import('./settings/routes/project/ProjectRoute.vue'),
 		},
 		{
 			name: 'settings-appearance',
 			path: 'appearance',
-			component: Frame,
-			meta: FRAME_META,
+			component: () => import('./settings/routes/appearance/AppearanceRoute.vue'),
 		},
 		{
 			path: 'data-model',
@@ -152,8 +149,17 @@ export default defineModule({
 		{
 			path: 'presets',
 			children: [
-				{ name: 'settings-presets-collection', path: '', component: Frame, meta: FRAME_META },
-				{ name: 'settings-presets-item', path: ':id', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-presets-collection',
+					path: '',
+					component: () => import('./settings/routes/presets/PresetsCollectionRoute.vue'),
+				},
+				{
+					name: 'settings-presets-item',
+					path: ':id',
+					component: () => import('./settings/routes/presets/PresetItemRoute.vue'),
+					props: true,
+				},
 			],
 		},
 		{
@@ -167,8 +173,17 @@ export default defineModule({
 		{
 			path: 'translations',
 			children: [
-				{ name: 'settings-translations-collection', path: '', component: Frame, meta: FRAME_META },
-				{ name: 'settings-translations-item', path: ':primaryKey', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-translations-collection',
+					path: '',
+					component: () => import('./settings/routes/translations/TranslationsCollectionRoute.vue'),
+				},
+				{
+					name: 'settings-translations-item',
+					path: ':primaryKey',
+					component: () => import('./settings/routes/translations/TranslationItemRoute.vue'),
+					props: true,
+				},
 			],
 		},
 		{

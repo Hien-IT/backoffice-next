@@ -82,6 +82,10 @@ const INTERFACE_IDS = [
 	'system-collections',
 	'system-manual-flow-select',
 	'system-permissions',
+	'system-owner',
+	'system-modules',
+	'system-folder',
+	'system-scope',
 ];
 
 const DISPLAY_IDS = [

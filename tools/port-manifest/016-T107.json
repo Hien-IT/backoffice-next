@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/translations/collection.vue",
+		"dest": "apps/web/src/modules/settings/routes/translations/TranslationsCollectionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/translations/item.vue",
+		"dest": "apps/web/src/modules/settings/routes/translations/TranslationItemRoute.vue"
+	},
+	{
+		"source": "app/src/lang/refresh-current-language.ts",
+		"dest": "apps/web/src/lang/refresh-current-language.ts"
+	}
+]

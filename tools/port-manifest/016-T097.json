@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/project/project.vue",
+		"dest": "apps/web/src/modules/settings/routes/project/ProjectRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/appearance/item.vue",
+		"dest": "apps/web/src/modules/settings/routes/appearance/AppearanceRoute.vue"
+	}
+]

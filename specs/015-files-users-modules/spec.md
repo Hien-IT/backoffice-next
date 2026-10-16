@@ -846,7 +846,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-83 | Hộp mời user sau khi gửi | Đóng, danh sách nạp lại; email mời do server gửi | Thêm notice tại chỗ "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (`contact_admin_for_link`) | Nguyên tắc X; API ghi log thay vì gửi (D-36 của 010); cùng cách D-42 | khác | — |
-| D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016 |
+| D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016: **đã gỡ ở 016** (trang role thật) |
 | ~~D-86~~ | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Bỏ (owner 2026-10-16): như Directus, không có route riêng; route `redirect` của 012 gỡ | — | — | — |
 | D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay; nhãn "Directus Default", "Directus Minimal", "Directus Color Match" | Danh sách và xem trước như Directus (Q1 = C); nhãn qua khóa dịch `theme_directus_*` của file dịch 012 nên hiện "Backoffice Default"...; `id` ghi DB giữ "Directus Default"...; chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
@@ -862,7 +862,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
 | D-83 | `modules/users/components/UsersInvite.vue` phát `invited`; `modules/users/routes/UsersCollectionRoute.vue` nạp lại rồi hiện notice `contact_admin_for_link` | Duyệt (owner, 2026-10-16) |
-| D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Duyệt (owner, 2026-10-16) |
+| D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Duyệt (owner, 2026-10-16); đã gỡ ở 016 |
 | D-86 | Bỏ: `modules/users.ts` không còn route `users-me`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Bỏ (owner, 2026-10-16), như Directus |
 | D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` nói theme lưu vào hồ sơ và không đổi giao diện Backoffice, không nêu tên app khác (owner 2026-10-16) | Duyệt (owner, 2026-10-16) |
 | D-89 | `theme/theme-presets.json` sinh bằng `scripts/sync-theme-presets.mjs` (target `web:sync-themes`), `theme/theme-presets.test.ts` so với nguồn | Duyệt (owner, 2026-10-16); tên file không chứa chữ "directus" |

@@ -21,6 +21,8 @@ type Row = TreeRow & { level: number; name: string; value: string | null; disabl
 const props = defineProps<{
 	modelValue: string | null;
 	disabledFolders?: string[] | undefined;
+	/** Name of the root row (default `file_library`; system-folder of 016 uses its own root name). */
+	rootLabel?: string | undefined;
 }>();
 
 const emit = defineEmits<{
@@ -57,7 +59,7 @@ const rows = computed<Row[]>(() => {
 		parent: null,
 		children: top.map((folder) => folder.id),
 		level: 1,
-		name: t('file_library'),
+		name: props.rootLabel ?? t('file_library'),
 		value: null,
 		disabled: false,
 	});

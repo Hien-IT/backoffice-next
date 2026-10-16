@@ -309,8 +309,8 @@ describe('RoleItemRoute', () => {
 			expect(wrapper.findComponent(UsersInvite).props('modelValue')).toBe(true);
 
 			useServerStore().auth.disableDefault = true;
-			await flushPromises();
-			expect(button(t('invite_users'))).toBeUndefined();
+			// The open invite dialog re-renders the page on a loaded runner later than one flush.
+			await vi.waitFor(() => expect(button(t('invite_users'))).toBeUndefined());
 		},
 		SLOW,
 	);
