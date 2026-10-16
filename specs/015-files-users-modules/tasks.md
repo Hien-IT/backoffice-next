@@ -277,7 +277,7 @@ chuyển thư mục, tải về, bản sao, xóa, chi tiết file, Revisions, Co
 - [x] T048 [US2] Bộ so payload `e2e/payload/files.spec.ts` (`proxy-api`, `DIRECTUS_APP_SPECS`): tải 1 file qua hộp,
       thay file, chuyển thư mục (một và hàng loạt), tạo/đổi tên/xóa thư mục (move), lưu metadata, bản sao, xóa; chuẩn
       hóa multipart (tên field thứ tự, tên file, `type`, kích thước) và nonce `/assets`; khác biệt thật → R-xx vào spec
-- [ ] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle` (tus là chunk
+- [x] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle` (tus là chunk
       lười: `BUDGET_015`, marker `Tus-Resumable` trong `LAZY_ONLY` của `apps/web/scripts/check-bundle.mjs`),
       `check-port-headers`, `guard-directus` (SC-003), E2E 012–014 + `files-*` ba cấu hình xanh (SC-001, SC-009),
       payload `files` xanh (SC-004); `git pull --rebase`; commit
@@ -322,7 +322,7 @@ Directus app (SC-006).
       -90° `bo-edit.png`, lưu đè → `width`/`height`/focal qua API; lưu mới → file mới trong cùng thư mục; từ
       `file-image` của `bo_std`; ở `proxy-api` chạy cùng thao tác trên Directus app (8155) và so pixel sau giải mã
       (canvas `getImageData`, RGBA từng byte) + ba trường (SC-006, `DIRECTUS_APP_SPECS`); ba cấu hình xanh
-- [ ] T055 [US5] Đóng lượt 2: cổng như T049 (SC-001, SC-003, SC-006, SC-009; `LAZY_ONLY` thêm `cropper-container`;
+- [x] T055 [US5] Đóng lượt 2: cổng như T049 (SC-001, SC-003, SC-006, SC-009; `LAZY_ONLY` thêm `cropper-container`;
       chunk cropperjs ≤ 60 KB gzip CHK088);
       commit `feat(015): shared image editor for the file page and file-image (wave 2)`; push; CI; `graphify update .`
 
@@ -453,7 +453,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 - [x] T083 [US4] Bộ so payload `e2e/payload/users.spec.ts` (`proxy-api`): tạo user, sửa (kể cả `language`, `theme_light`,
       overrides thêm/xóa khóa), archive, mời 2 email, token tạo/xóa, TFA bật/tắt (secret từ response), xóa hàng loạt;
       SC-005 10 thao tác; khác biệt thật → R-xx
-- [ ] T084 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003, SC-004, SC-005, SC-009; `LAZY_ONLY` không cần thêm; chunk
+- [x] T084 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003, SC-004, SC-005, SC-009; `LAZY_ONLY` không cần thêm; chunk
       màn user gồm theme JSON ≤ 15 KB gzip);
       spec 012 FR-024 và D-48 ghi "đã gỡ ở 015", D-44 "sau 015"; spec 013 D-57 phần sáu interface "đã gỡ ở 015";
       commit `feat(015): users directory, user page, system interfaces and theme data (wave 3)`; push; CI;
@@ -506,7 +506,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Implementation cho User Story 7
 
-- [ ] T096 [P] [US7] Benchmark `tests/benchmark/src/web-files-users.ts`: seed 10.000 file (multipart 1 KB, song song
+- [x] T096 [P] [US7] Benchmark `tests/benchmark/src/web-files-users.ts`: seed 10.000 file (multipart 1 KB, song song
       20) vào một thư mục và 10.000 user; ba phép đo (trang đầu cards, đổi trang, lọc `type`/`status`), 11 lần, p95,
       so Directus app ≤ +10 %; nối vào target `benchmark:web` (`tests/benchmark/project.json`) và `benchmark.yml`;
       chạy tay một lần bằng `gh workflow run benchmark.yml -f job=benchmark-web`, ghi kết quả vào `research.md` R10
@@ -532,7 +532,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
       "sau 015", FR-024), 013 (D-57 sáu interface, D-59, FR-051/FR-054), 014 (D-72 phần 015) ghi theo FR-121;
       `CLAUDE.md` mục "Recent Changes" thêm dòng 015; `SPECKIT-GUIDE.md` ghi chú từ 015 cho 016 (interface `_system`
       còn lại, "sửa role" D-85) và 018 (D-90 upload dở)
-- [ ] T104 Đóng lượt 4: cổng như T049 + `e2e-web` ba cấu hình đủ 9 spec + 2 payload + parity (SC-001 đến SC-004,
+- [x] T104 Đóng lượt 4: cổng như T049 + `e2e-web` ba cấu hình đủ 9 spec + 2 payload + parity (SC-001 đến SC-004,
       SC-007, SC-009); `benchmark.yml` chạy tay
       xanh; commit `feat(015): permissions, parity, benchmark and closing (wave 4)`; push; CI xanh; `graphify update .`;
       tech lead duyệt D-83 đến D-90 (SC-010); design owner duyệt Q-13 đến Q-19 (SC-008)
@@ -706,6 +706,14 @@ Lượt 3, Phase 7 (US4):
     `/users/me` gỡ như Directus (E2E mở `/users/<id>`); D-89 duyệt, bốn file đổi tên bỏ chữ "directus"
     (`theme/theme-presets.json`, `theme/theme-presets.test.ts`, `theme/use-theme-preset.ts`,
     `scripts/sync-theme-presets.mjs`); còn push và CI.
+  - 2026-10-16 đóng (T049, T055, T084, T104): lượt 2–4 push lần đầu ở `d075c36`; CI sửa ở `2262147` (jiti là
+    devDependency, chữ phụ đề trình chỉnh ảnh `warning-700`, test route mock component lười), `4872c88` (E2E mở trang
+    của mình qua menu avatar vì `/users/me` bỏ, `e2e-web` thành ma trận ba cấu hình vì quá 100 phút), `a1a5eee`
+    (`trackPage` lỗi sau khi tự xóa không còn là rejection không bắt; drawer ở 768 px; cây role của trang user ở parity
+    UI phụ thuộc thứ tự trả lời trong Directus app) và commit đóng (WebKit: import chunk bị điều hướng cắt, nút header
+    a11y). T096: run `benchmark.yml` 38850450067 đạt (research R10). Job chập chờn chạy lại: parity MySQL (thứ tự cột
+    `information_schema`), parity postgres shard 2 (`x-cache-status` của `graphql-nointro`), blackbox `/assets`
+    đồng thời.
   - Test của bốn route (T031, T041, T062, T073, T090) nằm ở `*.test.ts` (project `unit`, happy-dom) cạnh route:
     `FilesCollectionRoute.test.ts`, `FileItemRoute.test.ts`, `UsersCollectionRoute.test.ts`, `UserItemRoute.test.ts`,
     không phải `*.browser.test.ts` như task ghi; phần cần trình duyệt thật (axe, bàn phím) ở

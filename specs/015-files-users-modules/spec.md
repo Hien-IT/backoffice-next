@@ -3,7 +3,7 @@
 **Feature Branch**: `015-files-users-modules` (làm trên `main` như 012–014, không tạo branch vì dùng chung working tree
 với session 014 đang đóng; 015 chỉ sửa `specs/015-*` cho tới khi 014 báo đóng và CI của 014 xanh)
 **Created**: 2026-10-15
-**Status**: Draft
+**Status**: Done (2026-10-16, waves 1–4, owner approvals recorded)
 **Input**: User description: "Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước,
 sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo
 user, mời user (không gửi email), sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền

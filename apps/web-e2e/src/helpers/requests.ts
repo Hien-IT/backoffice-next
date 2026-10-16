@@ -25,6 +25,9 @@ const NAVIGATION_ABORT =
 // maplibre module worker of the map interface although the worker is served 200 as JavaScript; chromium and firefox
 // still catch a broken worker (the .mjs MIME bug of feature 014). Revisit when the Playwright WebKit build changes.
 const WEBKIT_WORKER = /^Error: Worker failed to load\. Check that the worker URL is correct\.$/;
+// WebKit logs a lazy route chunk whose import a navigation cut (sign-out, a new page.goto) as this console error; a
+// chunk that really fails to load still fails in chromium and firefox ("Failed to fetch dynamically imported module").
+const WEBKIT_IMPORT_ABORT = /^TypeError: Importing a module script failed\.$/;
 // The app's missingWarn (`[i18n] missing key ...`) and the vue-i18n default (`[intlify] Not found 'x' key ...`).
 const MISSING_KEY = /^\[i18n\] missing key|^\[intlify\] Not found '.*' key/;
 
@@ -64,7 +67,9 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 
 			page.on('console', (message) => {
 				const text = message.text();
-				const ignored = NETWORK_ERROR.test(text) || (browserName === 'webkit' && WEBKIT_WORKER.test(text));
+				const ignored =
+					NETWORK_ERROR.test(text) ||
+					(browserName === 'webkit' && (WEBKIT_WORKER.test(text) || WEBKIT_IMPORT_ABORT.test(text)));
 				if (message.type() === 'error' && !ignored) problems.push(`console.error: ${text}`);
 				if (message.type() === 'warning' && MISSING_KEY.test(text)) problems.push(`missing key: ${text}`);
 			});

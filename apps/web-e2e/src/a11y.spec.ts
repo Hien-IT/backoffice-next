@@ -65,8 +65,11 @@ for (const scheme of ['light', 'dark'] as const) {
 		await expect(page).toHaveURL(CONTENT_URL);
 
 		for (const path of PRIVATE) {
-			if (path === 'profile') await openOwnPage(page);
-			else await page.goto(path);
+			if (path === 'profile') {
+				await openOwnPage(page);
+				// The header actions turn on once the user and its permissions load (WebKit at 768 px scanned them off).
+				await expect(page.getByRole('button', { name: 'Archive' })).toBeEnabled();
+			} else await page.goto(path);
 			await expect(page.locator('h1').first()).toBeVisible();
 			// Feature 015: the user page loads its form and interfaces after the title; scan the settled page, not
 			// colors in the middle of a load or a transition.
