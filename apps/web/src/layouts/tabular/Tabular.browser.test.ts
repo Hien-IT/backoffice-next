@@ -257,8 +257,16 @@ test('manual sort is hidden without permission to update the sort field, and off
 	// Scoped to each wrapper: a table of an earlier test may still be in the document on a loaded runner.
 	await setup('bo-viewer');
 	const viewer = await mountTabular();
-	// ponytail: waits for the viewer's permissions; a CI run once showed the row menu right after mount (not reproduced locally).
-	await vi.waitFor(() => expect(viewer.wrapper.element.querySelector('.row-menu')).toBeNull());
+	// ponytail: CI runs 38850422711 and 38860243184 showed the row menu here (not reproduced locally); the message says
+	// which store let it through. Drop it once the cause is known.
+	const state = () =>
+		JSON.stringify({
+			isAdmin: useUserStore().isAdmin,
+			email: (useUserStore().currentUser as { email?: string } | null)?.email,
+			update: usePermissionsStore().getPermission('bo_content', 'update'),
+			html: viewer.wrapper.element.tagName,
+		});
+	await vi.waitFor(() => expect(viewer.wrapper.element.querySelector('.row-menu'), state()).toBeNull());
 	expect(viewer.wrapper.element.querySelector('.drag-handle')).toBeNull();
 	viewer.wrapper.unmount();
 
