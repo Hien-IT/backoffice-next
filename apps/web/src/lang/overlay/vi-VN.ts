@@ -52,5 +52,5 @@ export default {
 	theme_directus_minimal: 'Backoffice Tối giản',
 	theme_directus_colormatch: 'Backoffice Khớp màu',
 	// Feature 015 (D-88, CHK042): note under the system-theme list.
-	theme_applies_in_directus: 'Theme áp dụng ở Directus app. Giao diện Backoffice không đổi.', // brand-allowed: D-88 note names the app where the theme applies
+	theme_applies_in_directus: 'Theme được lưu vào hồ sơ. Giao diện Backoffice không đổi.',
 };

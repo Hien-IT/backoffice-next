@@ -666,8 +666,8 @@ Lượt 3, Phase 7 (US4):
     và `use-tfa-setup` do một agent con làm song song (T070–T072, T074–T079). Ba interface theme/mfa nạp lười: các
     chunk khoảng 8,5 KB gzip. Nhãn theme theo lựa chọn (a) của owner: overlay en-US/vi-VN đổi ba khóa
     `theme_directus_*` thành "Backoffice …", `id` ghi DB giữ "Directus …" (D-88); dòng ghi chú
-    `theme_applies_in_directus` có `data-brand-allowed="D-88"`, `branding.spec` bỏ qua phần tử đó. Owner cần xem lại
-    câu chữ của dòng ghi chú (có tên "Directus app").
+    `theme_applies_in_directus` theo owner (2026-10-16): "Theme được lưu vào hồ sơ. Giao diện Backoffice không đổi."
+    (en-US tương ứng), không nêu tên Directus; bỏ ngoại lệ `data-brand-allowed` của `branding.spec`.
   - `UsersNavigation` gộp `navigation.vue` và `NavigationRole.vue` thành cây phẳng (§11), như `FilesNavigation`.
   - `UserMenu` trỏ hồ sơ tới `/users/<id>`; `ProfileRoute` 012 đã xóa, `profile.spec.ts` viết lại trên màn user (lưu
     bằng "Save and Stay").

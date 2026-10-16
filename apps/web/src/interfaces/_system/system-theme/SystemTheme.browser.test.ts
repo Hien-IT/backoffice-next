@@ -103,7 +103,7 @@ describe('system-theme', () => {
 		const note = [...document.querySelectorAll('p')].find((p) => p.textContent?.includes('Backoffice look'))!;
 		const group = document.querySelector('[role="radiogroup"]')!;
 
-		expect(note.textContent).toBe('The theme applies in the Directus app. The Backoffice look does not change.');
+		expect(note.textContent).toBe('The theme is saved to your profile. The Backoffice look does not change.');
 		expect(group.getAttribute('aria-describedby')).toContain(note.id);
 	});
 

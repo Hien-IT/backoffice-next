@@ -98,8 +98,7 @@ const CARD =
 			</RadioGroupItem>
 		</RadioGroupRoot>
 
-		<!-- D-88: the one place the app names the Directus app on purpose; branding.spec skips data-brand-allowed. -->
-		<p :id="hintId" class="mt-2 text-theme-xs text-gray-500 dark:text-gray-400" data-brand-allowed="D-88">
+		<p :id="hintId" class="mt-2 text-theme-xs text-gray-500 dark:text-gray-400">
 			{{ $t('theme_applies_in_directus') }}
 		</p>
 	</div>

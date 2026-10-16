@@ -779,7 +779,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `drop_to_upload`, `upload_files_indeterminate`, `delete_folder_dialog.*`, `invite_users`, `email_already_invited`,
   `interfaces.system-token.*`, `sso_tfa_setup_notice`, `editing_image`, `changes_are_permanent`...);
   thiếu thì chạy lại script sinh; chuỗi riêng vào overlay: D-83 dùng `contact_admin_for_link` đã có, D-88 thêm
-  `theme_applies_in_directus` (en-US "Theme choice applies in the Directus app", vi-VN tương ứng) (CHK042).
+  `theme_applies_in_directus` (en-US "The theme is saved to your profile. The Backoffice look does not change.", vi-VN
+  "Theme được lưu vào hồ sơ. Giao diện Backoffice không đổi."; owner 2026-10-16: không nêu tên app khác) (CHK042).
 - **FR-113**: Thông báo thành công/lỗi là notice tại chỗ (D-66) tới 018; không snackbar.
 - **FR-114**: Không collab, không AI (D-41, D-54, D-68): bỏ `CollabIndicatorHeader`, `ComparisonModal` chế độ `collab`,
   hộp `unsaved_changes_collab` của hai màn item.
@@ -866,7 +867,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-83 | `modules/users/components/UsersInvite.vue` phát `invited`; `modules/users/routes/UsersCollectionRoute.vue` nạp lại rồi hiện notice `contact_admin_for_link` | Chờ tech lead (SC-010) |
 | D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Chờ tech lead (SC-010) |
 | D-86 | `modules/users.ts`: route `users-me` là `redirect` hàm tới `/users/<id>`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Chờ tech lead (SC-010) |
-| D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` có `data-brand-allowed` | Chờ tech lead (SC-010); owner xem lại câu chữ của dòng ghi chú |
+| D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` nói theme lưu vào hồ sơ và không đổi giao diện Backoffice, không nêu tên app khác (owner 2026-10-16) | Chờ tech lead (SC-010) |
 | D-89 | `theme/directus-themes.json` sinh bằng `scripts/sync-directus-themes.mjs` (target `web:sync-themes`), `theme/directus-themes.test.ts` so với nguồn | Chờ tech lead (SC-010) |
 | D-90 | Không có danh sách upload dở; `utils/upload-file.ts` vẫn `findPreviousUploads` khi chọn lại cùng file (FR-022) | Chờ tech lead (SC-010) |
 

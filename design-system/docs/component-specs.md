@@ -1520,10 +1520,10 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
 - Deviation: an email of a known user is not an error (Directus `UsersService.inviteUser` skips it); only a
   `RECORD_NOT_UNIQUE` answer shows in the dialog. The QR code is an `<img>` of the data URL (`alt` from
   `tfa_scan_code`), not a canvas. The token field is built on the form `InputField` (the VInput port), not BoInput. The
-  `theme_applies_in_directus` hint carries `data-brand-allowed="D-88"` (it names the Directus app on purpose). In the
+  `theme_applies_in_directus` hint reads "The theme is saved to your profile. The Backoffice look does not change."
+  (owner, 2026-10-16: no other app named, D-88). In the
   overrides each rule input is named by its full path (`navigation.background`), and the root rules sit in a collapsed
   `globals` group, as Directus.
-- Open: the owner approves the wording of `theme_applies_in_directus` (D-88).
 
 ## Acceptance criteria
 

@@ -53,5 +53,6 @@ export default {
 	theme_directus_minimal: 'Backoffice Minimal',
 	theme_directus_colormatch: 'Backoffice Color Match',
 	// Feature 015 (D-88, CHK042): note under the system-theme list.
-	theme_applies_in_directus: 'The theme applies in the Directus app. The Backoffice look does not change.', // brand-allowed: D-88 note names the app where the theme applies
+	// D-88: choosing a Directus theme does not change the Backoffice look; the note says so without naming another app.
+	theme_applies_in_directus: 'The theme is saved to your profile. The Backoffice look does not change.',
 };

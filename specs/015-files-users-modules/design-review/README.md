@@ -27,4 +27,3 @@ Each screen in light and dark, at 1280 px and 768 px.
 ## Decisions waiting for the owner
 
 - Q-14: name the card checkboxes after the card title (today the 014 Card names them with the item key).
-- Q-19 / D-88: the wording of the `theme_applies_in_directus` hint (it names the Directus app).
