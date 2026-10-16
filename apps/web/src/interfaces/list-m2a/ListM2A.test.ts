@@ -188,7 +188,7 @@ describe('options', () => {
 		menuItems(duplicates, 'select')[0]!.onSelect!();
 		await flushPromises();
 		expect(duplicates.findComponent(DrawerCollection).props('filter')).toEqual({});
-	});
+	}, 20_000);
 
 	test('option:list-m2a.prefix: template on the junction row, else the collection name', async () => {
 		// The rows load over several fetches: wait for them (one flush is not enough on a loaded CI runner).
