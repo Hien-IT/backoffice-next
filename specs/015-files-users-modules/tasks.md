@@ -701,5 +701,8 @@ Lượt 3, Phase 7 (US4):
     6100/6108/8155/8156 với môi trường parity đang chạy. Kết quả ghi vào research R10 sau lần chạy CI đầu tiên.
   - T104 chưa xong: push bị chặn trong phiên tự chạy (chế độ auto), nên CI và `benchmark.yml` chưa chạy; tech lead
     duyệt D-83 đến D-90 và design owner duyệt Q-13 đến Q-19 là việc của người.
+  - 2026-10-16 owner duyệt Q-13 đến Q-19 (Q-14 đổi: ô chọn thẻ tên "Select <tên thẻ>" qua `aria-labelledby` ở
+    `layouts/cards/components/Card.vue`), D-83, D-85, D-88, D-90, R-39 và màn user không có quyền đọc (FR-054); còn D-86,
+    D-89, push và CI.
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

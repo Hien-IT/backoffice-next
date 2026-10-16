@@ -216,7 +216,7 @@ Mỗi lượt: commit lên `main`, CI xanh (`quality`, `e2e-web`, `docker`), `gr
 - **CHK075**: `DrawerFiles` của 013 đã có chọn thư mục (select với cùng đích như cây, ghi chú đầu file); giữ, không thêm
   cây vào drawer.
 - **CHK077**: Directus 11.17.4 nhận `PATCH /folders/:a {parent: <con của a>}` (200, tạo vòng); app làm giống (picker
-  chỉ khóa chính thư mục đó), `nestFolders` bỏ qua thư mục không về gốc. Ghi R-39 khi tech lead duyệt.
+  chỉ khóa chính thư mục đó), `nestFolders` bỏ qua thư mục không về gốc. R-39 (owner duyệt 2026-10-16).
 - **CHK090**: profile `app` không bật TUS (`TUS_ENABLED` chỉ có ở `profile-blackbox`, `profile-cors-hsts`);
   `/server/info` của cả hai API không trả `uploads` khi TUS tắt. Nhánh TUS kiểm ở unit (XHR giả); E2E đi nhánh multipart.
   `uploads` thiếu → không TUS, `maxConcurrency` không giới hạn (như Directus).

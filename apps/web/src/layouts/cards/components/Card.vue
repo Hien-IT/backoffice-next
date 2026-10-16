@@ -4,7 +4,7 @@
 // Space and the click toggle the selection in select mode as Directus); the selector is a BoCheckbox outside the link
 // (no interactive element inside a link) named after the item key, visible on hover/focus or in select mode; the
 // selected card gets `ring-2 ring-brand-500` instead of the inner border; v-icon-file is inlined (file icon + extension).
-import { computed, ref } from 'vue';
+import { computed, ref, useId } from 'vue';
 import { useRouter } from 'vue-router';
 import BoCheckbox from '../../../components/BoCheckbox.vue';
 import BoIcon from '../../../components/BoIcon.vue';
@@ -19,6 +19,9 @@ type File = {
 	type: string;
 	modified_on: Date;
 };
+
+const titleId = useId();
+const selectId = useId();
 
 const props = withDefaults(
 	defineProps<{
@@ -156,7 +159,7 @@ const FOCUS =
 				/>
 				<span v-else class="text-gray-500 dark:text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>
 			</div>
-			<div v-if="$slots['title']" class="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
+			<div v-if="$slots['title']" :id="titleId" class="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
 				<slot name="title" />
 			</div>
 			<div v-if="$slots['subtitle']" class="truncate text-theme-xs text-gray-500 dark:text-gray-400">
@@ -168,10 +171,16 @@ const FOCUS =
 			class="absolute start-3 top-3 flex rounded-md bg-white transition-opacity group-hover:opacity-100 focus-within:opacity-100 motion-reduce:transition-none dark:bg-gray-900"
 			:class="selected || selectMode || modelValue.length > 0 ? 'opacity-100' : 'opacity-0'"
 		>
+			<!-- Feature 015 (owner, Q-14): named "Select <card title>"; the key only for a card without a title. -->
+			<span :id="selectId" class="sr-only">{{ $t('select_item_key', { item: '' }).trim() }}</span>
 			<BoCheckbox
 				:model-value="selected"
 				:disabled="readonly"
-				:aria-label="$t('select_item_key', { item: item[itemKey] })"
+				v-bind="
+					$slots['title']
+						? { 'aria-labelledby': `${selectId} ${titleId}` }
+						: { 'aria-label': $t('select_item_key', { item: item[itemKey] }) }
+				"
 				@update:model-value="toggleSelection"
 			/>
 		</div>

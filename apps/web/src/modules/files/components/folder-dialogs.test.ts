@@ -94,6 +94,16 @@ test('FolderSection renders a card per folder with its link; selecting one updat
 	expect(wrapper.findAll('a').map((a) => a.attributes('href'))).toEqual(['/files/folders/a', '/files/folders/b']);
 	expect(wrapper.text()).toContain('Alpha');
 
+	// Q-14 (owner): the checkbox is named "Select <folder name>", from a hidden prefix and the card title.
+	const names = wrapper.findAll('[role="checkbox"]').map((box) =>
+		box
+			.attributes('aria-labelledby')!
+			.split(' ')
+			.map((id) => document.getElementById(id)?.textContent?.trim())
+			.join(' '),
+	);
+	expect(names).toEqual(['Select Alpha', 'Select Beta']);
+
 	await wrapper.get('[role="checkbox"]').trigger('click');
 	await flushPromises();
 	expect(wrapper.props('selection')).toEqual(['a']);

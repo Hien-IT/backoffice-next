@@ -404,9 +404,9 @@ code as built (T098). Behaviour is Directus `routes/item.vue` + `live-preview.vu
 - Popup route (`/content/:collection/:primaryKey/preview`): the preview frame alone, full window (`in-popup`), no
   PublicView; the version comes from `?version=`; no `saved` message to the opener (no visual editing).
 
-## 11. Folder tree and role tree in the sub-menu (nháp, 015)
+## 11. Folder tree and role tree in the sub-menu (015)
 
-**Draft (nháp, 015)** for spec 015 Q-13 and Q-17 (owner choice 2026-10-16, Clarifications Q3): the Files and Users
+For spec 015 Q-13 and Q-17 (owner choice 2026-10-16, Clarifications Q3; approved by the design owner 2026-10-16): the Files and Users
 modules put the Directus module navigation (`views/private/components/files-navigation.vue`,
 `files-navigation-folder.vue`; `modules/users/components/navigation.vue`, `NavigationRole.vue`) inside their sidebar
 sub-menu like the Content tree of §9. Unlike §9 the sub-menu mixes flat rows and a tree. Behaviour is the Directus one.

@@ -53,7 +53,7 @@ test('viewer: create disabled, read-only form, no delete (US7-1, FR-101)', async
 	await signIn(page, VIEWER);
 	// The viewer has no user or role preset: the global preset of the fixture set opens the cards layout.
 	await openCollection(page, 'bo_content');
-	await expect(page.getByRole('checkbox', { name: /^Select \d+$/ }).first()).toBeVisible();
+	await expect(page.getByRole('checkbox', { name: /^Select Content \d+/ }).first()).toBeVisible();
 
 	await expect(page.getByRole('button', { name: 'Not Allowed' }).first()).toBeDisabled();
 	await expect(page.getByRole('link', { name: 'Create Item' })).toHaveCount(0);

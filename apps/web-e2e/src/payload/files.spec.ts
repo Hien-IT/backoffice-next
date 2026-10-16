@@ -275,9 +275,9 @@ test('batch move of two files from the library', async ({ browser, page }) => {
 			await card(p).getByRole('button', { name: 'Move' }).click();
 			await expect(p.locator('.card').filter({ hasText: /batch-a|batch a/i })).toHaveCount(0);
 		},
-		async (p, tag, ids) => {
-			for (const id of ids.slice(2)) {
-				await p.getByRole('main').getByRole('checkbox', { name: `Select ${id}` }).click({ force: true });
+		async (p, tag) => {
+			for (const name of ['batch-a', 'batch-b']) {
+				await p.getByRole('main').getByRole('checkbox', { name: `Select ${tag} ${name}`, exact: true }).click({ force: true });
 			}
 			await p.getByRole('button', { name: 'Move to Folder' }).click();
 			const dialog = p.getByRole('dialog', { name: 'Move to Folder' });

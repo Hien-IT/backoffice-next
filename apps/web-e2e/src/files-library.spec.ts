@@ -110,8 +110,8 @@ test('download a folder from its row menu (FR-004)', async ({ page }) => {
 
 test('select a folder card: only delete stays; the detail panel has layout and export (FR-011, FR-018)', async ({ page }) => {
 	await openFiles(page);
-	const root = await folderId(api, 'bo-files');
-	await page.getByRole('main').getByRole('checkbox', { name: `Select ${root}` }).click({ force: true });
+	// The card checkbox is named after the card title (Q-14).
+	await page.getByRole('main').getByRole('checkbox', { name: 'Select bo-files', exact: true }).click({ force: true });
 
 	await expect(page.getByRole('button', { name: 'Delete' })).toBeVisible();
 	await expect(page.getByRole('button', { name: 'Move to Folder' })).toHaveCount(0);

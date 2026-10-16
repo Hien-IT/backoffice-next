@@ -1399,10 +1399,11 @@ Built: `components/sidebar/{ExportSidebarDetail,ImportErrorDialog}.vue`, `module
   (loading); a failed delete opens `something_went_wrong` with the translated error. Batch edit is `DrawerBatch` (§8).
   Deviation: the 700 px BoDialog, not a small Modal (one dialog size in the app).
 
-## Tier 3 recipes, nháp (015)
+## Tier 3 recipes (015)
 
-**Draft (nháp, 015)** for the open questions Q-14 to Q-16, Q-18 and Q-19 of `specs/015-files-users-modules/spec.md`,
-written before the code (T006, T007, FR-110); compared with the code at the end of the feature. Q-13 and Q-17 are in
+Recipes for the questions Q-14 to Q-16, Q-18 and Q-19 of `specs/015-files-users-modules/spec.md`, written before the
+code (T006, T007, FR-110) and compared with the code at the end of the feature; approved by the design owner on
+2026-10-16 (Q-14 with the checkbox name change below). Q-13 and Q-17 are in
 `layout-patterns.md` §11. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
 
 ### Folder cards and drop zone (Q-14; Directus `modules/files/routes/collection.vue`, `folder-section.vue`)
@@ -1410,7 +1411,7 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
 - Folder cards come first in the cards grid through the layout `prepend` slot (`hasPrependContent`), only on the cards
   layout and only without search, filter and special view (Directus). A folder card is the 014 Card with
   `icon="folder"`, no image request, the folder name as title and no subtitle; the body is a link to
-  `/files/folders/<id>`; the selection BoCheckbox sits outside the link (`aria-label` `select_item_key` with the name).
+  `/files/folders/<id>`; the selection BoCheckbox sits outside the link, named "Select <card title>".
   Selected folders and files share the header count (`selection + extraSelection`) and select-all.
 - Drop zone over the whole library page while files are dragged from the OS: four fixed bars around the `<main>`
   box (`pointer-events-none fixed z-99999 bg-brand-500`, 2px thick, `aria-hidden`); not shown over a `BoUpload`
@@ -1424,9 +1425,9 @@ written before the code (T006, T007, FR-110); compared with the code at the end 
   `layouts/cards/Cards.vue` + `CardsHeader.vue` (`prepend` slot, `hasPrependContent`, `extraSelection`, `select-all`),
   drop zone and notices in `modules/files/routes/FilesCollectionRoute.vue`; folder delete in
   `modules/files/components/DeleteFolderDialog.vue`.
-- Deviation: the folder card checkbox is the 014 Card one, named `select_item_key` with the folder **id** (the Card is
-  shared with files), not the name.
-- Open: name the card checkboxes after the card title for both folders and files (a 014 Card change).
+- Owner change (2026-10-16): every card checkbox (folders and files, the shared 014 Card) is named by
+  `aria-labelledby` = an sr-only "Select" (`select_item_key` without the item) and the card title, so "Select bo-files";
+  a card without a title keeps `select_item_key` with the item key.
 
 ### File page and file details (Q-15; Directus `modules/files/routes/item.vue`, `file-info-sidebar-detail.vue`)
 

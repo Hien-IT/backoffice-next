@@ -62,7 +62,7 @@ async function openLayout(page: Page, layout: string, options: Record<string, un
 test('cards: one card per item with the cover image (US4-1, FR-035)', async ({ page }) => {
 	await openLayout(page, 'cards', { imageSource: 'cover', title: '{{ title }}' });
 
-	await expect(page.getByRole('checkbox', { name: /^Select \d+$/ })).toHaveCount(20);
+	await expect(page.getByRole('checkbox', { name: /^Select Content \d+/ })).toHaveCount(20);
 	await expect(page.getByRole('main').getByText('Content 02', { exact: true })).toBeVisible();
 	const image = page.getByRole('main').locator('img[src*="/assets/"]').first();
 	await expect(image).toHaveAttribute('src', /key=system-medium-cover/);
