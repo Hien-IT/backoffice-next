@@ -571,7 +571,7 @@ const PRESSED = 'bg-white text-gray-800 shadow-theme-xs dark:bg-gray-700 dark:te
 		</template>
 
 		<template #subtitle>
-			<p class="m-0 truncate text-theme-xs text-warning-600 dark:text-warning-500">{{ $t('changes_are_permanent') }}</p>
+			<p class="m-0 truncate text-theme-xs text-warning-700 dark:text-warning-500">{{ $t('changes_are_permanent') }}</p>
 		</template>
 
 		<template #actions>

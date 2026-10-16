@@ -1474,7 +1474,8 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 - Deviation: the pressed tool is a raised white segment (`bg-white text-gray-800 shadow-theme-xs`,
   `dark:bg-gray-700 dark:text-white`), the TailAdmin segmented control: `brand-500` on `brand-50` failed axe contrast;
   flip horizontal / vertical use the Material `flip` icon (rotated for horizontal) as Material Symbols has no
-  `flip_horizontal`; Cropper colors use `--color-brand-500` and `--color-gray-900` at 0.6 opacity.
+  `flip_horizontal`; Cropper colors use `--color-brand-500` and `--color-gray-900` at 0.6 opacity.; the subtitle is
+  `text-warning-700` in light mode (`warning-600` is 3.49:1 on white, axe failed in CI).
 
 ### User box (Q-18; Directus `modules/users/routes/item.vue`)
 

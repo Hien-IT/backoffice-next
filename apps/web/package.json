@@ -97,6 +97,7 @@
 		"@vue/test-utils": "catalog:",
 		"axe-core": "catalog:",
 		"happy-dom": "catalog:",
+		"jiti": "catalog:",
 		"js-yaml": "catalog:",
 		"sharp": "catalog:",
 		"tailwindcss": "catalog:",

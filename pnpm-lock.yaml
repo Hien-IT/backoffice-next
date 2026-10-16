@@ -438,6 +438,9 @@ catalogs:
     isolated-vm:
       specifier: 5.0.3
       version: 5.0.3
+    jiti:
+      specifier: 2.7.0
+      version: 2.7.0
     joi:
       specifier: 18.2.6
       version: 18.2.6
@@ -1356,6 +1359,9 @@ importers:
       happy-dom:
         specifier: 'catalog:'
         version: 20.8.9
+      jiti:
+        specifier: 'catalog:'
+        version: 2.7.0
       js-yaml:
         specifier: 'catalog:'
         version: 4.3.2

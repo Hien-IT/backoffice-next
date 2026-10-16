@@ -1,29 +1,9 @@
-// The committed theme data matches directus/packages/themes 11.17.4 (spec FR-084, FR-085, D-89, FR-121): the script
-// runs again under jiti into a temporary file, which must equal the committed one apart from the date.
-import { execFileSync } from 'node:child_process';
-import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
-import { tmpdir } from 'node:os';
-import { join } from 'node:path';
-import { afterAll, describe, expect, test } from 'vitest';
+// The committed theme data (spec FR-084, FR-085, D-89): its shape. scripts/sync-theme-presets.test.ts checks that it
+// equals a new render of the Directus 11.17.4 theme sources.
+import { describe, expect, test } from 'vitest';
 import data from './theme-presets.json';
 
-const WEB = join(import.meta.dirname, '../..');
-const OUT = join(import.meta.dirname, 'theme-presets.json');
-const tmp = mkdtempSync(join(tmpdir(), 'sync-themes-'));
-
-afterAll(() => rmSync(tmp, { recursive: true, force: true }));
-
-const withoutDate = (text: string) => text.replace(/"\$generated": "[^"]*"/, '"$generated": ""');
-
 describe('theme-presets.json', () => {
-	test('a new run of the script gives the committed file', () => {
-		const out = join(tmp, 'themes.json');
-
-		execFileSync(join(WEB, '../../node_modules/.bin/jiti'), ['scripts/sync-theme-presets.mjs', out], { cwd: WEB });
-
-		expect(withoutDate(readFileSync(out, 'utf8'))).toBe(withoutDate(readFileSync(OUT, 'utf8')));
-	});
-
 	test('three light themes and one dark theme with id, name, appearance and rules', () => {
 		expect(data.light.map((theme) => theme.id)).toEqual([
 			'Directus Default',

@@ -257,7 +257,8 @@ test('manual sort is hidden without permission to update the sort field, and off
 	// Scoped to each wrapper: a table of an earlier test may still be in the document on a loaded runner.
 	await setup('bo-viewer');
 	const viewer = await mountTabular();
-	expect(viewer.wrapper.element.querySelector('.row-menu')).toBeNull();
+	// ponytail: waits for the viewer's permissions; a CI run once showed the row menu right after mount (not reproduced locally).
+	await vi.waitFor(() => expect(viewer.wrapper.element.querySelector('.row-menu')).toBeNull());
 	expect(viewer.wrapper.element.querySelector('.drag-handle')).toBeNull();
 	viewer.wrapper.unmount();
 

@@ -126,6 +126,8 @@ catalog:
   zod: 4.1.12
   # Files, folders, assets (feature 007), same versions as Directus 11.17.4
   sharp: 0.34.5
+  # jiti 2.7.0 (already in the lockfile through eslint and vite): runs apps/web/scripts/sync-theme-presets.mjs (015, D-89)
+  jiti: 2.7.0
   '@tus/server': 2.3.0
   mime-types: 3.0.1
   '@types/mime-types': 3.0.1

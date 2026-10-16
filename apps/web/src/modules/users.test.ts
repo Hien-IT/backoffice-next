@@ -1,8 +1,12 @@
 // Feature 015 (FR-050, data-model §1, D-86): the routes of directus/app/src/modules/users/index.ts, without /users/me (D-86).
 import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, test } from 'vitest';
+import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router';
 import users from './users.ts';
+
+// router.push loads the lazy route components; their module graph took over 5 s on a loaded CI runner.
+vi.mock('./users/routes/UsersCollectionRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./users/routes/UserItemRoute.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({
