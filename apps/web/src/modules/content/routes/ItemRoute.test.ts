@@ -12,6 +12,7 @@ import { calls, mockFixtureApi } from '../../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import ItemRoute from './ItemRoute.vue';
+import PageHeader from '../../../layout/PageHeader.vue';
 
 enableAutoUnmount(afterEach);
 
@@ -58,7 +59,8 @@ describe('ItemRoute', () => {
 		const { wrapper, router } = await setup({ collection: 'bo_content', primaryKey: '2' });
 		await flushPromises();
 
-		expect(wrapper.get('nav[aria-label="Breadcrumb"] a').text()).toBe('Bo Content');
+		// D-101: the breadcrumb is passed to PageHeader but not shown.
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { name: string }[])[0]!.name).toBe('Bo Content');
 		expect((wrapper.get('input[type="text"]').element as HTMLInputElement).value).toBe('Content 02');
 		expect(button('Save')!.disabled).toBe(true);
 		expect(button('Delete')).not.toBeNull();

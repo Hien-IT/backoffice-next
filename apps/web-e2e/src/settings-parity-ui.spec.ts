@@ -196,7 +196,8 @@ async function directusScreen(page: Page, path: string): Promise<Screen> {
 					.filter((el) => (el as HTMLElement).checkVisibility())
 					.map(text),
 				title: text(header?.querySelector('.title') ?? null),
-				crumbs: Array.from(header?.querySelectorAll('.v-breadcrumb a') ?? []).map(text),
+				// D-101 of 016: the new app shows no breadcrumb (owner, 2026-10-17); its crumbs must be empty.
+				crumbs: [] as string[],
 				count: [new RegExp(count).exec(text(document.querySelector('.item-count')))?.[0] ?? '', ...info]
 					.filter(Boolean)
 					.join(' / '),

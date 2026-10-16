@@ -121,7 +121,7 @@ the detail panel drawer (section 7).
 - Page header (`PageBreadcrumb.vue`): `flex flex-wrap items-center justify-between gap-3 mb-6`; title
   `h2.text-xl.font-semibold.text-gray-800 dark:text-white/90`; breadcrumb `nav > ol.flex.items-center.gap-1.5`, links
   `inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400` followed by a chevron, current page
-  `text-sm text-gray-800 dark:text-white/90`.
+  `text-sm text-gray-800 dark:text-white/90`. The breadcrumb is not shown (016 D-101, owner 2026-10-17).
 - The page header stays in view while the page scrolls (Directus header bar is `position: sticky`; owner request
   2026-10-17): a band `sticky z-30 bg-gray-50 dark:bg-gray-900` with negative margins over the content padding, `top` =
   the measured border-box height of the app header (so it does not shift 1px when it starts to stick). `fill` list

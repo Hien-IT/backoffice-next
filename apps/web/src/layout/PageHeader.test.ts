@@ -24,7 +24,7 @@ describe('PageHeader', () => {
 		expect(wrapper.text()).toContain('Act');
 	});
 
-	test('breadcrumb links, icon color and title-append slot (feature 014)', async () => {
+	test('no breadcrumb shown (D-101), icon color and title-append slot (feature 014)', async () => {
 		const { wrapper } = await mountLayout(PageHeader, {
 			props: {
 				title: 'Articles',
@@ -35,9 +35,8 @@ describe('PageHeader', () => {
 			slots: { 'title-append': '<span data-append>bookmark</span>' },
 		});
 
-		const link = wrapper.get('nav[aria-label="Breadcrumb"] a');
-		expect(link.text()).toBe('Content');
-		expect(link.attributes('href')).toContain('/content');
+		expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(false);
+		expect(wrapper.text()).not.toContain('Content');
 		expect(wrapper.get('h1').element.previousElementSibling?.getAttribute('style')).toContain('color');
 		expect(wrapper.find('[data-append]').exists()).toBe(true);
 	});

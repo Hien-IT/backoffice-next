@@ -23,6 +23,7 @@ import { mountLayout, press } from '../../../test-utils/layout.ts';
 import { resetNavigationForTests } from '../composables/use-navigation.ts';
 import users from '../../users.ts';
 import UsersCollectionRoute from './UsersCollectionRoute.vue';
+import PageHeader from '../../../layout/PageHeader.vue';
 
 vi.mock('../../../auth.ts', async (original) => ({
 	...(await original<typeof import('../../../auth.ts')>()),
@@ -143,10 +144,11 @@ describe('directory views', () => {
 
 	test('a role: its name, the directory breadcrumb, the role filter, the add link with the role', async () => {
 		const sub = roleId('bo-sub');
-		await setup({ role: sub });
+		const { wrapper } = await setup({ role: sub });
 
 		expect(heading()).toBe('bo-sub');
-		expect(document.querySelector('nav[aria-label="Breadcrumb"] a')!.getAttribute('href')).toBe('/users');
+		// D-101: the breadcrumb is passed to PageHeader but not shown.
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { to: unknown }[])[0]!.to).toBe('/users');
 		expect(JSON.parse(layout().dataset['filterSystem']!)).toEqual({ _and: [{ role: { _eq: sub } }] });
 		expect(named(t('create_item'))!.getAttribute('href')).toBe(`/users/roles/${sub}/+`);
 	});

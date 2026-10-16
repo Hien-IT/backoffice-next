@@ -20,6 +20,7 @@ import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../../../test-ut
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import FilesCollectionRoute from './FilesCollectionRoute.vue';
+import PageHeader from '../../../layout/PageHeader.vue';
 
 vi.mock('file-saver', () => ({ default: { saveAs: vi.fn() } }));
 
@@ -140,7 +141,10 @@ describe('library views', () => {
 		const { wrapper } = await setup({ folder: folderId('bo-files') });
 
 		expect(wrapper.get('h1').text()).toBe('bo-files');
-		expect(wrapper.get('nav[aria-label="Breadcrumb"] a').text()).toBe('File Library');
+		// D-101: the breadcrumb is passed to PageHeader but not shown.
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { name: string }[]).map((c) => c.name)).toEqual([
+			'File Library',
+		]);
 		expect(JSON.parse(layout().dataset['filterSystem']!)._and[1]).toEqual({ folder: { _eq: folderId('bo-files') } });
 		expect(folderCards()).toEqual(['bo-files-sub']);
 	});

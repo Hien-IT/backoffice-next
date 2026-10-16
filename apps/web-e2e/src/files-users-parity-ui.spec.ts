@@ -73,7 +73,8 @@ async function directusScreen(page: Page, path: string): Promise<Screen> {
 					text(i.querySelector('.v-list-item-content, .v-text-overflow') ?? i),
 				),
 				title: text(document.querySelector('header .title, header h1')),
-				crumbs: Array.from(document.querySelectorAll('header .v-breadcrumb a, header .headline a')).map(text),
+				// D-101 of 016: the new app shows no breadcrumb (owner, 2026-10-17); its crumbs must be empty.
+				crumbs: [] as string[],
 				count: new RegExp(count).exec(text(document.querySelector('.item-count')))?.[0] ?? '',
 				buttons: buttons.sort(),
 				sections: Array.from(document.querySelectorAll('#sidebar .accordion-trigger, #sidebar .collapsible-trigger, .sidebar-detail-header .title'))

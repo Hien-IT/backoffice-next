@@ -1,11 +1,11 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view-header-bar.vue -->
 <script setup lang="ts">
 // Backoffice: the page header of the TailAdmin content area (layout-patterns §5, component-specs Breadcrumb): icon,
-// h1 title and actions, then the toggle of the right detail panel (L-4). Feature 014: the Directus `headline` breadcrumb
-// (component-specs Breadcrumb) above the title, the icon color of the collection and the `title-outer:append` slot as
+// h1 title and actions, then the toggle of the right detail panel (L-4). Feature 014: the Directus `headline` row above
+// the title (its breadcrumb is not shown, D-101 of 016; the version menu stays), the icon color of the collection and the `title-outer:append` slot as
 // `title-append`, and the back button of the item page (`back`, Directus `show-back`); labelled buttons instead of clickable icons with tooltips (FR-027); the panel toggle is always
 // shown, as the collapsed panel has no detail buttons to reopen it in 012 (D-45). The sidebar toggle is in AppHeader.
-import { RouterLink, type RouteLocationRaw, useRouter } from 'vue-router';
+import { type RouteLocationRaw, useRouter } from 'vue-router';
 import BoButton from '../components/BoButton.vue';
 import BoIcon from '../components/BoIcon.vue';
 import { useSidebarStore } from './stores/sidebar.ts';
@@ -15,7 +15,10 @@ defineProps<{
 	icon?: string | undefined;
 	/** Data color of the icon (collection color, Q-C of 013), as an inline style. */
 	iconColor?: string | null | undefined;
-	/** Parent pages, shown as links above the title (Directus v-breadcrumb in the `headline` slot). */
+	/**
+	 * Parent pages (Directus v-breadcrumb in the `headline` slot). Not shown (D-101, owner 2026-10-17); the pages keep
+	 * passing it, so the breadcrumb can come back in one place.
+	 */
 	breadcrumb?: { name: string; to: RouteLocationRaw }[] | undefined;
 	/** Back button before the title (Directus `show-back`): a route, or `true` for the browser history. */
 	back?: RouteLocationRaw | true | undefined;
@@ -29,20 +32,8 @@ const sidebarStore = useSidebarStore();
 <template>
 	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
 		<div class="flex min-w-0 flex-col gap-1">
-			<div v-if="breadcrumb?.length || $slots['headline-append']" class="flex flex-wrap items-center gap-2">
-				<nav v-if="breadcrumb?.length" aria-label="Breadcrumb">
-					<ol class="m-0 flex list-none items-center gap-1.5 p-0">
-						<li v-for="crumb in breadcrumb" :key="crumb.name" class="flex items-center gap-1.5">
-							<RouterLink
-								:to="crumb.to"
-								class="inline-flex items-center gap-1.5 rounded text-sm text-gray-500 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-gray-400 dark:hover:text-gray-300 dark:focus-visible:outline-brand-400"
-							>
-								{{ crumb.name }}
-							</RouterLink>
-							<BoIcon name="chevron_right" size="sm" class="text-gray-500 dark:text-gray-400" aria-hidden="true" />
-						</li>
-					</ol>
-				</nav>
+			<!-- D-101: no breadcrumb above the title (owner, 2026-10-17); the headline row keeps the version menu. -->
+			<div v-if="$slots['headline-append']" class="flex flex-wrap items-center gap-2">
 				<!-- The Directus headline: the version menu of the item page after the breadcrumb (recipe Q-8). -->
 				<slot name="headline-append" />
 			</div>

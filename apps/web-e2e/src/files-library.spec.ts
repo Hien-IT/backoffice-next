@@ -48,7 +48,7 @@ test('folder tree, special views and folder cards (US1-1 to US1-3) @core', async
 	const root = await folderId(api, 'bo-files');
 	await expect(page).toHaveURL(new RegExp(`/admin/files/folders/${root}$`));
 	await expect(title(page)).toHaveText('bo-files');
-	await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'File Library' })).toBeVisible();
+	await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveCount(0); // D-101 of 016
 	await expect(folderCard(page, 'bo-files-sub')).toBeVisible();
 	// The current folder's parents open in the tree and its row is selected.
 	const opened = await folderTree(page);

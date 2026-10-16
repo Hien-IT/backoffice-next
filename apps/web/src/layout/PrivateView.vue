@@ -33,7 +33,7 @@ const props = defineProps<{
 	/** Color of the icon (collection color) */
 	iconColor?: string | null | undefined;
 
-	/** Parent pages above the title (the Directus `headline` breadcrumb) */
+	/** Parent pages (the Directus `headline` breadcrumb); not shown, D-101 (PageHeader). */
 	breadcrumb?: { name: string; to: RouteLocationRaw }[] | undefined;
 
 	/** Back button before the title: a route, or `true` for the browser history */

@@ -45,7 +45,7 @@ test('sub-menu: status lists and the role tree; a role lists its users (US3-1, U
 	const sub = await roleId(api, 'bo-sub');
 	await expect(page).toHaveURL(new RegExp(`/admin/users/roles/${sub}$`));
 	await expect(title(page)).toHaveText('bo-sub');
-	await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'User Directory' })).toBeVisible();
+	await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveCount(0); // D-101 of 016
 
 	for (const [path, heading, email] of [
 		['/users/suspended', 'Suspended Users', 'bo-suspended@example.com'],
@@ -66,7 +66,7 @@ test('the "edit role" menu of a role opens the real role page, not the frame (US
 	const editor = await roleId(api, 'bo-editor');
 	await expect(page).toHaveURL(new RegExp(`/admin/settings/roles/${editor}$`));
 	await expect(title(page)).toHaveText('bo-editor Role');
-	await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'User Roles' })).toBeVisible();
+	await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveCount(0); // D-101 of 016
 });
 
 test('invite two new emails and a known one: two invited users, the known user unchanged, the notice (US3-3, D-83)', async ({

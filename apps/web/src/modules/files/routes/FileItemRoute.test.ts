@@ -15,6 +15,7 @@ import { assertOnlyKnownRequests, calls, mockFixtureApi } from '../../../test-ut
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import FileItemRoute from './FileItemRoute.vue';
+import PageHeader from '../../../layout/PageHeader.vue';
 
 enableAutoUnmount(afterEach);
 afterEach(() => vi.unstubAllGlobals());
@@ -82,7 +83,11 @@ describe('FileItemRoute', () => {
 		const { wrapper, file } = await setup();
 
 		expect(wrapper.get('h1').text()).toBe('bo-exif');
-		expect(wrapper.get('nav[aria-label="Breadcrumb"] a').attributes('href')).toBe(`/files/folders/${file['folder']}`);
+		// D-101: the breadcrumb is passed to PageHeader but not shown.
+		expect(wrapper.find('nav[aria-label="Breadcrumb"]').exists()).toBe(false);
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { to: unknown }[])[0]!.to).toEqual({
+			path: `/files/folders/${file['folder']}`,
+		});
 		expect(document.body.textContent).toContain('Replace File');
 		expect(button('Download')?.getAttribute('href')).toContain(`/assets/${file['id']}?download`);
 

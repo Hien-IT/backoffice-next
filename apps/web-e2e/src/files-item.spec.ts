@@ -92,10 +92,7 @@ test('move to a folder, download link, file details and revisions (US2-5, US2-6,
 	await dialog.getByRole('button', { name: 'Move', exact: true }).click();
 	await expect(page.getByText('File Moved', { exact: true })).toBeVisible();
 	await expect.poll(async () => (await row(file.id)).folder).toBe(sub);
-	await expect(page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'File Library' })).toHaveAttribute(
-		'href',
-		`/admin/files/folders/${sub}`,
-	);
+	await expect(page.getByRole('navigation', { name: 'Breadcrumb' })).toHaveCount(0); // D-101 of 016
 
 	await expect(page.getByRole('link', { name: 'Download' })).toHaveAttribute(
 		'href',
@@ -132,13 +129,15 @@ test('leaving with edits asks first; Keep Editing stays (FR-039)', async ({ page
 	await openFiles(page, `/files/${file.id}`);
 	await titleInput(page).fill(`${DATA_PREFIX} unsaved`);
 
-	await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'File Library' }).click();
+	// D-101 of 016: no breadcrumb; the back button (to the library) leaves the page.
+	await page.getByRole('link', { name: 'Back' }).click();
 	const dialog = page.getByRole('dialog', { name: 'Unsaved Changes' });
 	await expect(dialog.getByRole('button').first()).toHaveText('Keep Editing');
 	await dialog.getByRole('button', { name: 'Keep Editing' }).click();
 	await expect(page).toHaveURL(new RegExp(`/admin/files/${file.id}$`));
 
-	await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'File Library' }).click();
+	// D-101 of 016: no breadcrumb; the back button (to the library) leaves the page.
+	await page.getByRole('link', { name: 'Back' }).click();
 	await page.getByRole('dialog', { name: 'Unsaved Changes' }).getByRole('button', { name: 'Discard Changes' }).click();
 	await expect(page).toHaveURL(/\/admin\/files$/);
 	expect((await row(file.id)).title).toBe(`${DATA_PREFIX} item`);

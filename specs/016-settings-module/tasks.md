@@ -481,7 +481,7 @@ tiết; đích thật của D-85.
       D-66)
 - [ ] T121 [P] Recipe Q-20 đến Q-27 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt; ghi trạng thái Q-20 đến Q-27 trong `specs/016-settings-module/spec.md`
-- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-100 và R-40 đến R-42 (code đã làm, duyệt) trong
+- [ ] T122 Bảng trạng thái khác biệt D-92 đến D-101 và R-40 đến R-42 (code đã làm, duyệt) trong
       `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010)
 - [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
       `test(016): settings payload, cross-use and parity suites, close feature (wave 5)`; nhắn session khác; push; CI;
@@ -725,3 +725,9 @@ Lượt 3, Phase 6 (US4):
   - Khung cuộn `start` của `SplitPanel` có đệm 4px cho vòng focus.
   - `PrivateView`: page header dính dưới app header khi cuộn (như header bar `sticky` của Directus); `top` đo theo
     border-box nên không giật 1px.
+  - D-101: `PageHeader` không vẽ breadcrumb nữa (dữ liệu vẫn truyền vào). Sửa theo: 6 unit test kiểm prop
+    `breadcrumb`; E2E `content-item`, `files-item`, `files-library`, `users-directory` (nút Back hoặc kiểm không có
+    breadcrumb), `payload/files` (chờ `GET /files/<id>` nạp lại thay vì chờ link breadcrumb); hai bộ parity UI coi
+    breadcrumb của Directus là khác biệt được phép.
+  - `payload/files` dọn preset `directus_files` của admin trước khi chạy. Preset dùng chung hai app, và ô tìm kiếm
+    "nothing matches" do `files-library` để lại làm thư viện của Directus app rỗng khi hai spec chạy liền nhau.

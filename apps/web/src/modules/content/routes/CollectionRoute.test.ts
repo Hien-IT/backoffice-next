@@ -13,6 +13,7 @@ import { usePresetsStore } from '../../../stores/presets.ts';
 import { useUserStore } from '../../../stores/user.ts';
 import type { AppUser } from '../../../types/user.ts';
 import CollectionRoute from './CollectionRoute.vue';
+import PageHeader from '../../../layout/PageHeader.vue';
 
 vi.mock('../../../layouts/index.ts', () => {
 	const slot = (name: string) =>
@@ -75,7 +76,8 @@ describe('CollectionRoute', () => {
 		const { wrapper } = await setup({});
 
 		expect(wrapper.get('h1').text()).toBe('Articles');
-		expect(wrapper.get('nav[aria-label="Breadcrumb"] a').text()).toBe('Content');
+		// D-101: the breadcrumb is passed to PageHeader but not shown.
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { name: string }[])[0]!.name).toBe('Content');
 		expect(wrapper.find('[data-layout]').exists()).toBe(true);
 		expect(wrapper.find('[data-actions]').exists()).toBe(true);
 		// The detail panel is a closed drawer below `xl` (happy-dom width): its sections are checked through the store.
@@ -129,6 +131,6 @@ describe('CollectionRoute', () => {
 		});
 
 		expect(wrapper.get('h1').text()).toBe('Drafts');
-		expect(wrapper.get('nav[aria-label="Breadcrumb"] a').text()).toBe('Articles');
+		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { name: string }[]).at(-1)!.name).toBe('Articles');
 	});
 });

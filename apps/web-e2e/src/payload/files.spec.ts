@@ -6,6 +6,7 @@
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
+import { clearAdminPresets } from '../helpers/content.js';
 import { card, goto, headerButton, onDirectusApp } from '../helpers/directus-app.js';
 import { folderTree, openFiles } from '../helpers/files.js';
 import { calls, captureFormData, normalize, recordWrites, RUN_TAG, signInBackoffice } from '../helpers/payload.js';
@@ -20,6 +21,8 @@ const folders: string[] = [];
 
 test.beforeAll(async ({ playwright }) => {
 	api = new AdminApi(await playwright.request.newContext());
+	// The library preset is shared by both apps: a search left by files-library ("nothing matches") hid every card.
+	await clearAdminPresets(api, 'directus_files');
 	const [edit] = await api.call<{ id: string }[]>('GET', '/files?fields=id&filter[title][_eq]=bo-edit');
 	png = await api.bytes(`/assets/${edit!.id}`);
 });
@@ -183,7 +186,7 @@ test('file page: save metadata, move to a folder, save as copy, delete', async (
 			await card(p).getByRole('button', { name: 'Delete', exact: true }).click();
 			await p.waitForURL(/\/admin\/files(\/folders\/[^/]+)?$/);
 		},
-		async (p, tag, ids) => {
+		async (p, tag) => {
 			const title = p.getByRole('textbox', { name: 'Title' });
 			await title.fill(`${tag} saved`);
 			await p.getByRole('button', { name: 'More save options' }).click();
@@ -193,11 +196,14 @@ test('file page: save metadata, move to a folder, save as copy, delete', async (
 			await p.getByRole('button', { name: 'Move to Folder' }).click();
 			const dialog = p.getByRole('dialog', { name: 'Move to Folder' });
 			await dialog.locator('[data-tree-row]', { hasText: `${tag} target` }).click();
+			// The copy takes the folder of the reloaded item: wait for the item to load again (no breadcrumb, D-101 of 016).
+			const reload = p.waitForResponse(
+				(response) =>
+					response.request().method() === 'GET' && /\/files\/[^/]+$/.test(new URL(response.url()).pathname),
+			);
 			await dialog.getByRole('button', { name: 'Move', exact: true }).click();
 			await expect(p.getByText('File Moved', { exact: true })).toBeVisible();
-			await expect(
-				p.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'File Library' }),
-			).toHaveAttribute('href', `/admin/files/folders/${ids[1]}`);
+			await reload;
 
 			await title.fill(`${tag} copy`);
 			await p.getByRole('button', { name: 'More save options' }).click();

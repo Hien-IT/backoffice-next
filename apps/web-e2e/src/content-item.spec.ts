@@ -115,13 +115,15 @@ test('leaving with edits asks first (FR-084 of 013, FR-060)', { tag: '@core' }, 
 	await openItem(page, 'bo_content', 2);
 	await title(page).fill('unsaved');
 
-	await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Bo Content' }).click();
+	// D-101 of 016: no breadcrumb; the back button leaves the page.
+	await page.getByRole('link', { name: 'Back' }).click();
 	const dialog = page.getByRole('dialog', { name: 'Unsaved Changes' });
 	await expect(dialog).toBeVisible();
 	await dialog.getByRole('button', { name: 'Keep Editing' }).click();
 	await expect(page).toHaveURL(/\/bo_content\/2$/);
 
-	await page.getByRole('navigation', { name: 'Breadcrumb' }).getByRole('link', { name: 'Bo Content' }).click();
+	// D-101 of 016: no breadcrumb; the back button leaves the page.
+	await page.getByRole('link', { name: 'Back' }).click();
 	await page.getByRole('dialog', { name: 'Unsaved Changes' }).getByRole('button', { name: 'Discard Changes' }).click();
 	await expect(page).toHaveURL(/\/admin\/content\/bo_content$/);
 });
