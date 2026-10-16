@@ -30,7 +30,18 @@ export interface Snapshot {
 	revisions: number;
 }
 
-const keyOf = (row: Row) => String(row['id']);
+// directus_collections has no id: its key is the collection name (feature 016).
+const keyOf = (row: Row) => String(row['id'] ?? row['collection']);
+
+/** Feature 016 (contracts/tests.md §4): the Settings tables, passed as `extra` by the Settings specs. */
+export const SETTINGS_TABLES = [
+	'directus_collections',
+	'directus_fields',
+	'directus_relations',
+	'directus_presets',
+	'directus_translations',
+	'directus_settings',
+];
 
 /** `extra`: user collections a scenario writes too (feature 005, items.spec.ts). */
 export async function snapshot(extra: string[] = []): Promise<Snapshot> {

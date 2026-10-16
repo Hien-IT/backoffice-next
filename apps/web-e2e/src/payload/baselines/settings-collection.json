@@ -1,0 +1,191 @@
+[
+	{
+		"method": "POST",
+		"path": "/collections",
+		"body": {
+			"collection": "bo_t003_col",
+			"fields": [
+				{
+					"field": "id",
+					"meta": {
+						"hidden": true,
+						"interface": "input",
+						"readonly": true
+					},
+					"schema": {
+						"has_auto_increment": true,
+						"is_primary_key": true
+					},
+					"type": "integer"
+				},
+				{
+					"field": "status",
+					"meta": {
+						"display": "labels",
+						"display_options": {
+							"choices": [
+								{
+									"background": "var(--theme--primary-background)",
+									"color": "var(--theme--primary)",
+									"foreground": "var(--theme--primary)",
+									"text": "$t:published",
+									"value": "published"
+								},
+								{
+									"background": "var(--theme--background-normal)",
+									"color": "var(--theme--foreground)",
+									"foreground": "var(--theme--foreground)",
+									"text": "$t:draft",
+									"value": "draft"
+								},
+								{
+									"background": "var(--theme--warning-background)",
+									"color": "var(--theme--warning)",
+									"foreground": "var(--theme--warning)",
+									"text": "$t:archived",
+									"value": "archived"
+								}
+							],
+							"showAsDot": true
+						},
+						"interface": "select-dropdown",
+						"options": {
+							"choices": [
+								{
+									"color": "var(--theme--primary)",
+									"text": "$t:published",
+									"value": "published"
+								},
+								{
+									"color": "var(--theme--foreground)",
+									"text": "$t:draft",
+									"value": "draft"
+								},
+								{
+									"color": "var(--theme--warning)",
+									"text": "$t:archived",
+									"value": "archived"
+								}
+							]
+						},
+						"width": "full"
+					},
+					"schema": {
+						"default_value": "draft",
+						"is_nullable": false
+					},
+					"type": "string"
+				},
+				{
+					"field": "sort",
+					"meta": {
+						"hidden": true,
+						"interface": "input"
+					},
+					"schema": {},
+					"type": "integer"
+				},
+				{
+					"field": "user_created",
+					"meta": {
+						"display": "user",
+						"hidden": true,
+						"interface": "select-dropdown-m2o",
+						"options": {
+							"template": "{{avatar}} {{first_name}} {{last_name}}"
+						},
+						"readonly": true,
+						"special": [
+							"user-created"
+						],
+						"width": "half"
+					},
+					"schema": {},
+					"type": "uuid"
+				},
+				{
+					"field": "date_created",
+					"meta": {
+						"display": "datetime",
+						"display_options": {
+							"relative": true
+						},
+						"hidden": true,
+						"interface": "datetime",
+						"readonly": true,
+						"special": [
+							"date-created"
+						],
+						"width": "half"
+					},
+					"schema": {},
+					"type": "timestamp"
+				},
+				{
+					"field": "user_updated",
+					"meta": {
+						"display": "user",
+						"hidden": true,
+						"interface": "select-dropdown-m2o",
+						"options": {
+							"template": "{{avatar}} {{first_name}} {{last_name}}"
+						},
+						"readonly": true,
+						"special": [
+							"user-updated"
+						],
+						"width": "half"
+					},
+					"schema": {},
+					"type": "uuid"
+				},
+				{
+					"field": "date_updated",
+					"meta": {
+						"display": "datetime",
+						"display_options": {
+							"relative": true
+						},
+						"hidden": true,
+						"interface": "datetime",
+						"readonly": true,
+						"special": [
+							"date-updated"
+						],
+						"width": "half"
+					},
+					"schema": {},
+					"type": "timestamp"
+				}
+			],
+			"meta": {
+				"archive_field": "status",
+				"archive_value": "archived",
+				"singleton": false,
+				"sort_field": "sort",
+				"unarchive_value": "draft"
+			},
+			"schema": {}
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/relations",
+		"body": {
+			"collection": "bo_t003_col",
+			"field": "user_created",
+			"related_collection": "directus_users",
+			"schema": {}
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/relations",
+		"body": {
+			"collection": "bo_t003_col",
+			"field": "user_updated",
+			"related_collection": "directus_users",
+			"schema": {}
+		}
+	}
+]

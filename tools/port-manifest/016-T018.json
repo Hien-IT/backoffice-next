@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/components/navigation.vue",
+		"dest": "apps/web/src/modules/settings/components/SettingsNavigation.vue"
+	}
+]

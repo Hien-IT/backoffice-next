@@ -290,7 +290,7 @@ describe('mockFixtureApi writes and assets', () => {
 });
 
 describe('assertOnlyKnownRequests', () => {
-	test('accepts the 012 to 015 routes, rejects the others', () => {
+	test('accepts the 012 to 016 routes, rejects the others', () => {
 		expect(() =>
 			assertOnlyKnownRequests([
 				'GET /fields',
@@ -308,8 +308,9 @@ describe('assertOnlyKnownRequests', () => {
 			]),
 		).not.toThrow();
 
+		// PATCH /fields/:c/:f is allowed since feature 016 (row 162).
 		expect(() => assertOnlyKnownRequests(['GET /fields', 'PATCH /fields/bo_std/a', 'DELETE /roles'])).toThrow(
-			'Requests outside contracts/api-calls.md:\nPATCH /fields/bo_std/a\nDELETE /roles',
+			'Requests outside contracts/api-calls.md:\nDELETE /roles',
 		);
 		expect(() => assertOnlyKnownRequests(['GET /search?q=a'], [/^\/search$/])).not.toThrow();
 	});
@@ -427,11 +428,15 @@ describe('mockFixtureApi, feature 015', () => {
 		expect(folders.map((f) => f.name)).toEqual(expect.arrayContaining(['bo-files', 'bo-files-sub', 'bo-files-deep']));
 
 		const root = folders.find((f) => f.name === 'bo-files')!;
-		const files = (await get(`/files?filter=${encodeURIComponent(JSON.stringify({ folder: { _eq: root.id } }))}&limit=-1`)) as unknown[];
+		const files = (await get(
+			`/files?filter=${encodeURIComponent(JSON.stringify({ folder: { _eq: root.id } }))}&limit=-1`,
+		)) as unknown[];
 		expect(files).toHaveLength(31);
 
 		expect(((await get('/roles')) as { name: string }[]).map((r) => r.name)).toContain('bo-sub');
-		expect(((await get('/users?limit=-1')) as { email: string }[]).map((u) => u.email)).toContain('bo-invited@example.com');
+		expect(((await get('/users?limit=-1')) as { email: string }[]).map((u) => u.email)).toContain(
+			'bo-invited@example.com',
+		);
 		expect(await get('/utils/random/string')).toMatch(/^bo-random-/);
 	});
 
@@ -439,7 +444,10 @@ describe('mockFixtureApi, feature 015', () => {
 		mockFixtureApi(loadSnapshot());
 		const response = await globalThis.fetch('http://api.test/users/invite', {
 			method: 'POST',
-			body: JSON.stringify({ email: ['new@example.com', 'bo-active@example.com', 'bo-invited@example.com'], role: 'r1' }),
+			body: JSON.stringify({
+				email: ['new@example.com', 'bo-active@example.com', 'bo-invited@example.com'],
+				role: 'r1',
+			}),
 		});
 
 		expect(response.ok).toBe(true);
@@ -458,7 +466,9 @@ describe('mockFixtureApi, feature 015', () => {
 
 		const form = new FormData();
 		form.append('file', new File(['x'], 'new.png', { type: 'image/png' }));
-		const patched = (await (await globalThis.fetch(`http://api.test/files/${id}`, { method: 'PATCH', body: form })).json()).data;
+		const patched = (
+			await (await globalThis.fetch(`http://api.test/files/${id}`, { method: 'PATCH', body: form })).json()
+		).data;
 		expect(patched).toMatchObject({ id, filename_download: 'new.png', type: 'image/png' });
 
 		const zip = await globalThis.fetch('http://api.test/assets/files', { method: 'POST', body: '{}' });
@@ -466,5 +476,41 @@ describe('mockFixtureApi, feature 015', () => {
 
 		const info = (await (await globalThis.fetch('http://api.test/server/info')).json()).data;
 		expect(info.uploads).toEqual({ tus: false, maxConcurrency: 5 });
+	});
+});
+
+describe('mockFixtureApi, feature 016 data model', () => {
+	test('collections, fields and relations writes change what the next GET answers', async () => {
+		const fetch = mockFixtureApi(loadSnapshot());
+		const send = (method: string, path: string, body?: unknown) =>
+			fetch(`http://api.test${path}`, { method, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }).then(
+				async (r) => (r.status === 204 ? null : ((await r.json()) as { data: any }).data),
+			);
+
+		await send('POST', '/collections', {
+			collection: 'bo_new',
+			meta: { icon: 'box' },
+			schema: {},
+			fields: [{ field: 'id', type: 'integer' }],
+		});
+		expect((await send('GET', '/collections/bo_new')).meta.icon).toBe('box');
+		await send('PATCH', '/collections', [{ collection: 'bo_new', meta: { sort: 3, group: null } }]);
+		expect((await send('GET', '/collections/bo_new')).meta).toMatchObject({ icon: 'box', sort: 3 });
+
+		await send('POST', '/fields/bo_new', { field: 'title', type: 'string', meta: { width: 'full' } });
+		await send('PATCH', '/fields/bo_new/title', { meta: { hidden: true } });
+		expect((await send('GET', '/fields/bo_new/title')).meta).toMatchObject({ width: 'full', hidden: true });
+		await send('POST', '/relations', { collection: 'bo_new', field: 'title', related_collection: 'bo_std' });
+		expect((await send('GET', '/relations')).some((r: { collection: string }) => r.collection === 'bo_new')).toBe(true);
+
+		await send('DELETE', '/fields/bo_new/title');
+		expect((await send('GET', '/fields')).some((f: { collection: string }) => f.collection === 'bo_new' && f)).toBe(
+			true,
+		);
+		await send('DELETE', '/collections/bo_new');
+		expect((await send('GET', '/collections')).some((c: { collection: string }) => c.collection === 'bo_new')).toBe(
+			false,
+		);
+		expect(await send('GET', '/schema/snapshot')).toMatchObject({ version: 1 });
 	});
 });

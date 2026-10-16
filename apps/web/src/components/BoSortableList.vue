@@ -32,6 +32,12 @@ const props = withDefaults(
 		group?: string | undefined;
 		/** Rows that cannot be dragged or moved. */
 		itemDisabled?: ((item: T) => boolean) | undefined;
+		/** Classes of the list (default a vertical stack; the field grid of 016 uses a two-column grid). */
+		listClass?: string;
+		/** Extra classes of a row (e.g. its column span in a grid). */
+		rowClass?: ((item: T) => string | undefined) | undefined;
+		/** "Indent" is enabled for this row (default: any row but the first). */
+		canIndent?: ((item: T, index: number) => boolean) | undefined;
 	}>(),
 	{
 		disabled: false,
@@ -41,6 +47,9 @@ const props = withDefaults(
 		rowActions: undefined,
 		group: undefined,
 		itemDisabled: undefined,
+		listClass: 'space-y-2',
+		rowClass: undefined,
+		canIndent: undefined,
 	},
 );
 
@@ -103,7 +112,7 @@ function menuItems(item: T, index: number): BoMenuItem[] {
 			{
 				text: t('indent_item'),
 				icon: 'format_indent_increase',
-				disabled: index === 0,
+				disabled: props.canIndent ? !props.canIndent(item, index) : index === 0,
 				onSelect: () => emit('indent', index),
 			},
 			{
@@ -141,8 +150,7 @@ const ICON_BTN =
 		<Draggable
 			:model-value="modelValue"
 			tag="ul"
-			class="space-y-2"
-			:class="{ 'min-h-3': group }"
+			:class="[listClass, { 'min-h-3': group }]"
 			:item-key="itemKey"
 			handle=".drag-handle"
 			draggable=".draggable"
@@ -157,7 +165,7 @@ const ICON_BTN =
 				<li
 					:data-row-key="keyOf(element)"
 					class="flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 dark:border-gray-800 dark:bg-white/[0.03]"
-					:class="{ draggable: draggable(element) }"
+					:class="[{ draggable: draggable(element) }, rowClass?.(element)]"
 				>
 					<BoIcon
 						v-if="draggable(element)"

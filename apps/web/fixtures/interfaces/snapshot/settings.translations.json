@@ -1,0 +1,12 @@
+[
+	{
+		"key": "bo_hello",
+		"language": "en-US",
+		"value": "Hello"
+	},
+	{
+		"key": "bo_hello",
+		"language": "vi-VN",
+		"value": "Xin chào"
+	}
+]

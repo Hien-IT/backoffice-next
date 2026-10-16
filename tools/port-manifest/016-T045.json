@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-field-tree/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-field-tree/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-field-tree/system-field-tree.vue",
+		"dest": "apps/web/src/interfaces/_system/system-field-tree/SystemFieldTree.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display-template/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-display-template/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-display-template/system-display-template.vue",
+		"dest": "apps/web/src/interfaces/_system/system-display-template/SystemDisplayTemplate.vue"
+	}
+]

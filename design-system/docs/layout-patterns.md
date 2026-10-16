@@ -163,7 +163,7 @@ settings, permissions), not by this pack.
 | ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Module bar (left icon rail)                                                          | One sidebar group "Menu" (L-2), no "Others" group. Items in `module_bar` order: each enabled module and each `module_bar` link (internal or external) in the same list, icon + label (`menu-item`). Settings last, admins only                                                                                                       |
 | Module navigation (second column: collections, folders, presets, settings pages ...) | The module's sub-menu (`menu-dropdown-item`), **one level** (L-3): feature 012 provides this slot; each module feature (014+) decides what goes in it. Exception (owner, 2026-10-15, spec 014 Q2): the Content module renders its collection tree **nested inside this sub-menu** (groups, folders, bookmarks, search), see §9 (014); the Files and Users modules do the same with flat rows plus a tree (spec 015 Q3), see §11 (015) |
-| Settings module                                                                      | Last sidebar item, admins only (Directus permission)                                                                                                                                                                                                                                                                                 |
+| Settings module                                                                      | Last sidebar item, admins only (Directus permission); its sub-menu is the flat grouped list of §12 (016)                                                                                                                                                                                                                             |
 | Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                                                                                                                             |
 | Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                                                                                                                         |
 | Header bar (icon, title, breadcrumb, action buttons)                                 | Page header inside the content (`PageBreadcrumb` layout): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |
@@ -436,4 +436,44 @@ not `error-600`.
   `/users/roles/<id>`; admins get the row menu and right-click item `edit_role` (`list_alt`, link
   `/settings/roles/<id>`, the Settings frame of 012 until 016, D-85).
 - Below `xl` and collapsed sidebar: as §9.
+
+## 12. Settings sub-menu and collection tree (nháp, 016)
+
+Draft for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code; the design owner approves it before 016
+closes. Behaviour is the Directus one (`modules/settings/components/navigation.vue`,
+`routes/data-model/collections/*`).
+
+- **Settings sub-menu (Q-24)**: one level (L-3, no tree exception). Rows are `menu-dropdown-item` links with icon and
+  label, in five groups split by the §11 divider (`my-2 h-px bg-gray-200 dark:bg-gray-800`, `role="separator"`):
+  Data Model (`database`), Flows (`bolt`, the 012 frame until 017, D-92); Roles (`group`), Access Policies
+  (`admin_panel_settings`); Project (`tune`), Appearance (`palette`), Presets (`bookmark`), Translations
+  (`translate`); Report Bug (`bug_report`), Request Feature (`new_releases`) only when settings has their URL (D-94),
+  as external links (`target="_blank"`, `open_in_new` icon `aria-hidden` + sr-only "opens in a new tab"). Active row by
+  route prefix (`aria-current="page"`). Last row: the static word "Backoffice" (D-95) with the app icon,
+  `text-theme-xs text-gray-500 dark:text-gray-400`, not a link and not focusable.
+- **Collection tree (Q-20)**: in the page body (not the sidebar), inside a Card (`rounded-2xl border border-gray-200
+  bg-white dark:border-gray-800 dark:bg-white/[0.03]`). A row is `flex min-h-11 items-center gap-3 px-4` with: drag
+  handle (`drag_indicator`, `ICON_BTN` 32x32, `cursor-grab`, mouse only, `aria-hidden` on the icon), collection icon in
+  `meta.color` (inline `style="color: …"` from data; default `text-brand-500`), the key in `font-mono text-theme-sm`
+  with the search match in `bg-warning-50 text-warning-700`, the note in `text-theme-xs text-gray-500 truncate`, then
+  at the end the collapse toggle (`unfold_less`/`unfold_more`, `aria-expanded`, only with children) and the row menu
+  (`more_vert`, `aria-label` `item_options`). Hidden collections: icon `visibility_off`, row text `text-gray-400`.
+  Children nest in `ps-6` with a start border `border-s border-gray-100 dark:border-gray-800`. Clicking the row links
+  to the collection page; a folder row opens the folder dialog.
+- Row menu (BoMenu): `goto_collection_content`, hide/show, the three collapse defaults (current one checked), then the
+  move items of D-96 (Move up, Move down, Into the group above, Out of the group; disabled at the ends), divider, delete
+  (`text-error-600 dark:text-error-500`). Moving by menu announces the new place in a polite live region (the
+  BoSortableList strings) and keeps focus on the row.
+- "Expand all / none" bar above the tree: `text-theme-sm` label `expand` with two text buttons, only when a folder
+  exists. Search in the page header (`SearchInput` without filter).
+- Unmanaged tables: a second Card titled `db_only_click_to_configure` rows with `add` and `dns` icons, a link to the
+  collection page and the row menu with delete only.
+- System collections: a `BoDetail` (closed by default) titled `system_collections`; rows with the `settings` icon, no
+  handle, no menu.
+- Empty: the 014 blank state (`box` icon, `no_collections`, `no_collections_copy_admin`, primary Button
+  `create_collection`). Loading: six skeleton rows as §11.
+- Folder dialog: BoDialog (`create_folder` / `edit_folder`) with the key (BoInput `dbSafe`, `font-mono`, disabled when
+  editing), icon (BoIconPicker), color (BoColorPicker), note (BoInput) and the translations list (`list` interface);
+  Cancel first, Save primary (disabled without key).
+- At 768px a row keeps one line; the note truncates.
 

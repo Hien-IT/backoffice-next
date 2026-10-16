@@ -3,8 +3,8 @@
 // Backoffice: one flat Reka Tree (roving focus, expand/collapse, role=tree) instead of nested VList groups; the
 // per-node logic of VCheckboxTreeCheckbox.vue lives in checkbox-tree/value-combining.ts. The search input (more than
 // 10 choices, 250 ms debounce) and the "show selected" toggle come from Directus select-multiple-checkbox-tree.vue, as
-// the Tier 3 CheckboxTree recipe puts them in the component. Not ported: nonEditable, openGroups, group-toggle and the
-// search highlight (v-highlight).
+// the Tier 3 CheckboxTree recipe puts them in the component. Not ported: nonEditable, openGroups and the search
+// highlight (v-highlight).
 import { refDebounced } from '@vueuse/core';
 import { deburr as removeDiacritics } from 'lodash-es';
 import { TreeItem, TreeRoot } from 'reka-ui';
@@ -66,7 +66,11 @@ const {
 	id?: string;
 }>();
 
-const emit = defineEmits<{ 'update:modelValue': [value: Value[]] }>();
+const emit = defineEmits<{
+	'update:modelValue': [value: Value[]];
+	/** A group was opened or closed (Directus v-checkbox-tree `group-toggle`, used to load relational fields). */
+	'group-toggle': [event: { value: string; open: boolean }];
+}>();
 
 const { t } = useI18n();
 
@@ -194,6 +198,9 @@ const openSelection = computed({
 		return Array.from(new Set([...manualOpenSelection.value, ...searchOpenSelection.value]));
 	},
 	set(newValue: string[]) {
+		const before = new Set(openSelection.value);
+		for (const value of newValue) if (!before.has(value)) emit('group-toggle', { value, open: true });
+		for (const value of before) if (!newValue.includes(value)) emit('group-toggle', { value, open: false });
 		manualOpenSelection.value = newValue;
 	},
 });

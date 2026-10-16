@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-collection/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-collection/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collection/system-collection.vue",
+		"dest": "apps/web/src/interfaces/_system/system-collection/SystemCollection.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-field/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-field/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-field/system-field.vue",
+		"dest": "apps/web/src/interfaces/_system/system-field/SystemField.vue"
+	}
+]

@@ -1,7 +1,8 @@
 // Exports the fixture set seeded by seed.mjs into a normalized snapshot (data-model §6): bo_* collections, fields,
 // relations, items, the bo-fixtures files, the bo-flow flow and /permissions/me of admin, bo-editor and bo-viewer.
 // Feature 015 adds the bo-files folder tree and its files, the roles and the directory users (last in the snapshot, so
-// the 013 and 014 uuids keep their numbers).
+// the 013 and 014 uuids keep their numbers). Feature 016 adds the Settings role, policy, permissions, access and
+// translation, after 015.
 // Normalization: every uuid becomes `bo-<n>` (numbered in seed creation order, then in order of appearance), times,
 // user stamps, `filename_disk`, `meta.id` and permission ids become null, argon2 hashes a fixed string.
 // Usage: node export.mjs --api <url> (--token <admin token> | --email <e> --password <p>) [--out <dir>] [--kind directus]
@@ -16,11 +17,12 @@ import {
 	FIXED_UUIDS,
 	FLOW,
 	FOLDER,
+	query,
+	readArgs,
+	SETTINGS,
 	SHARE,
 	SUB_ROLE,
 	USERS,
-	query,
-	readArgs,
 } from './lib.mjs';
 
 const args = readArgs();
@@ -121,7 +123,8 @@ const allFields = (await api.get('/fields'))
 		),
 	);
 const fields = allFields.filter((f) => bo(f.collection));
-const systemFields = allFields.filter((f) => SYSTEM.includes(f.collection));
+// Feature 016: the fields of directus_collections too (the form of the Settings collection page), not its row.
+const systemFields = allFields.filter((f) => [...SYSTEM, 'directus_collections'].includes(f.collection));
 const relations = (await api.get('/relations'))
 	.filter((r) => bo(r.collection) || bo(r.related_collection ?? ''))
 	.map((r) => ({ ...r, meta: r.meta && { ...r.meta, id: null } }))
@@ -238,6 +241,31 @@ const directoryUsers = await api.get(
 	})}`,
 );
 
+/* Settings module (016). */
+const settingsRoles = await api.get(
+	`/roles${query({ filter: { name: { _eq: SETTINGS.role } }, fields: 'id,name,icon,description,parent' })}`,
+);
+const settingsPolicies = await api.get(
+	`/policies${query({
+		filter: { name: { _eq: SETTINGS.policy } },
+		fields: 'id,name,icon,description,ip_access,enforce_tfa,admin_access,app_access',
+	})}`,
+);
+const settingsPermissions = await api.get(
+	`/permissions${query({
+		filter: { policy: { _in: settingsPolicies.map((p) => p.id) } },
+		fields: 'policy,collection,action,permissions,validation,presets,fields',
+		sort: 'action',
+		limit: -1,
+	})}`,
+);
+const settingsAccess = await api.get(
+	`/access${query({ filter: { policy: { _in: settingsPolicies.map((p) => p.id) } }, fields: 'role,user,policy,sort' })}`,
+);
+const settingsTranslations = await api.get(
+	`/translations${query({ filter: { key: { _eq: SETTINGS.translationKey } }, fields: 'key,language,value', sort: 'language' })}`,
+);
+
 /* ---------------------------------------------------------------- normalize and write */
 
 // Seed creation order first, so the numbers do not depend on what the API returns first.
@@ -284,6 +312,12 @@ const snapshot = {
 	'files.directory.json': directoryFiles,
 	'roles.json': directoryRoles,
 	'users.directory.json': directoryUsers,
+	// 016 last, after 015.
+	'settings.roles.json': settingsRoles,
+	'settings.policies.json': settingsPolicies,
+	'settings.permissions.json': settingsPermissions,
+	'settings.access.json': settingsAccess,
+	'settings.translations.json': settingsTranslations,
 };
 
 mkdirSync(out, { recursive: true });

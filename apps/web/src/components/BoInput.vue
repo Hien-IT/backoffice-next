@@ -13,6 +13,7 @@ const {
 	invalid = false,
 	error,
 	id: idProp,
+	dbSafe = false,
 } = defineProps<{
 	modelValue?: string | number | null;
 	type?: string;
@@ -28,6 +29,8 @@ const {
 	maxlength?: number;
 	inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
 	id?: string;
+	/** Database-safe key (collection, field): only a-z, 0-9 and _ as `dbSafe` of Directus `v-input.vue` (spec 016 FR-007). */
+	dbSafe?: boolean;
 }>();
 
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>();
@@ -44,8 +47,49 @@ const FIELD_VALID =
 const FIELD_INVALID =
 	'border-error-600 focus:border-error-600 focus:ring-error-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error-600 dark:focus-visible:outline-error-400 dark:border-error-400 dark:focus:border-error-400';
 
+// Ported from directus/app/src/components/v-input.vue (`dbSafe` of onKeyDown and emitValue) and the system keys of
+// directus/packages/composables/src/use-shortcut.ts.
+const DB_SAFE_KEYS = 'abcdefghijklmnopqrstuvwxyz0123456789_ '.split('');
+const SYSTEM_KEYS = [
+	'meta',
+	'control',
+	'shift',
+	'alt',
+	'backspace',
+	'delete',
+	'tab',
+	'capslock',
+	'enter',
+	'home',
+	'end',
+	'escape',
+];
+
+function onKeydown(event: KeyboardEvent) {
+	if (!dbSafe || !event.key) return;
+	const key = event.key.toLowerCase();
+	const allowed = DB_SAFE_KEYS.includes(key) || SYSTEM_KEYS.includes(key) || key.startsWith('arrow');
+	const withModifier = event.metaKey || event.ctrlKey || event.altKey;
+	// Shortcuts (copy, paste, select all) go through; a pasted value is cleaned in onInput.
+	if (!allowed && !withModifier) event.preventDefault();
+	// No leading digit.
+	if (input.value!.value.length === 0 && /^[0-9]$/.test(key) && !withModifier && !event.shiftKey)
+		event.preventDefault();
+}
+
 function onInput() {
-	emit('update:modelValue', input.value!.value);
+	let value = input.value!.value;
+
+	if (dbSafe) {
+		value = value
+			.replace(/\s/g, '_')
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/[^a-zA-Z0-9_]/g, '');
+		if (value !== input.value!.value) input.value!.value = value;
+	}
+
+	emit('update:modelValue', value);
 }
 
 // The autofocus attribute only works on page load, not when a view mounts later.
@@ -75,6 +119,7 @@ onMounted(() => {
 			:aria-describedby="error ? errorId : undefined"
 			class="h-11"
 			:class="[FIELD, invalid || error ? FIELD_INVALID : FIELD_VALID]"
+			@keydown="onKeydown"
 			@input="onInput"
 		/>
 		<p

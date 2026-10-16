@@ -1527,6 +1527,115 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
   overrides each rule input is named by its full path (`navigation.background`), and the root rules sit in a collapsed
   `globals` group, as Directus.
 
+## Tier 3 recipes, nháp (016)
+
+Drafts for the questions Q-21, Q-22, Q-23, Q-25, Q-26 and Q-27 of `specs/016-settings-module/spec.md`, written before
+the code (T006, T007, FR-107); the design owner approves them before 016 closes. Q-20 and Q-24 are in
+`layout-patterns.md` §12. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+
+### Field grid (Q-21; Directus `routes/data-model/fields/components/fields-management.vue`, `FieldSelect.vue`)
+
+- Heading `fields_and_layout` (`text-theme-sm font-medium text-gray-800 dark:text-white/90`) with a Badge
+  `saves_automatically` (light gray). Below, a two-column grid (`grid grid-cols-2 gap-3`, one column below 600px);
+  `half` takes one column, `full` and `fill` take both (fill only differs on the item form).
+- Field row: a read-only box like Input (`h-11 rounded-lg border border-gray-300 bg-white px-3 dark:border-gray-700
+  dark:bg-gray-900`) holding the drag handle (`drag_indicator`, mouse only), the key in `font-mono`, a required star
+  (`text-error-500`, sr-only "required"), the interface name in `text-gray-500`, then status icons with tooltips
+  (`vpn_key` primary key, `report_problem` in `text-warning-500` for no meta, `visibility_off`, `open_in_new` link to
+  the related collection) and the row menu (`more_vert`). The box is a link to the field drawer.
+- Locked system fields come first: same box, `bg-gray-50 text-gray-500 dark:bg-white/[0.03]`, a `lock` icon with the
+  tooltip `system_fields_locked`, no handle, no menu.
+- Group field: a container spanning its width with a header row (handle, name, star, `visibility_off`, menu) and its
+  own grid inside (`rounded-xl border border-dashed border-gray-300 p-3 dark:border-gray-700`); an empty group shows a
+  `min-h-11` drop area.
+- Row menu (BoMenu): `edit_field`, `duplicate_field`, hide/show, divider, `half_width` / `full_width` / `fill_width`
+  (current one disabled), divider, `delete_field` (`text-error-600`), divider, then the D-96 move items of the
+  SortableList row (Move up, Move down, Into the group above (only below a group), Out of the group), as the collection
+  tree.
+- Under the grid: a full-width secondary Button `create_field` (`add`) and a dashed Button
+  `create_in_advanced_field_creation_mode` opening a BoMenu of the ten types with dividers as Directus.
+- Duplicate dialog (BoDialog `duplicate_where_to`): collection select (`system-collection`) and key (BoInput
+  `dbSafe`, default `<field>_copy`); Cancel first. Delete dialog: `delete_field_are_you_sure`, danger Button.
+
+### Field drawer (Q-22; Directus `field-detail/field-detail.vue`, `field-detail-simple/*`, `field-detail-advanced/*`)
+
+- BoDrawer, full width up to `max-w-5xl`, title `creating_new_field` / `field_in_collection`.
+- Simple mode: header search (SearchInput `search_field`, autofocus). Body: one section per interface group
+  (`interface_group_*` heading `text-theme-xs uppercase tracking-wide text-gray-500`), then a grid of interface cards
+  (`grid gap-3`, 1/2/3/4 columns from the window widths 0/400/600/840 like Directus). A card is a `radio` of a
+  `radiogroup` (arrow keys move, Enter/Space choose): `rounded-xl border border-gray-200 p-3`, the `preview` SVG in a
+  `h-20 rounded-lg bg-gray-50 dark:bg-white/[0.03]` box (`text-gray-500`, `currentColor`) or the interface icon, then
+  the name `text-theme-sm`. Chosen: `border-brand-500 ring-2 ring-brand-500/20`; the others `opacity-50`.
+- The configuration panel opens in the grid right after the chosen card's row (`col-span-full`,
+  `rounded-xl bg-gray-50 p-4 dark:bg-white/[0.03]`): key (`dbSafe`, `font-mono`, focused on open), type select, default
+  value, required checkbox, the relationship block, the standard options form; at the end Save (primary, disabled until
+  ready) and the link-styled Button `continue_in_advanced_field_creation_mode`.
+- Advanced mode: the drawer body is two columns: a vertical BoTabs list (`w-56`, rows `menu-dropdown-item`, a
+  `size-1.5 rounded-full bg-brand-500` dot when the tab holds a value) and the tab content. Header: Save icon Button
+  (`check`, `aria-label` `save`). Below 1024px the tab list becomes a horizontal scrolling BoTabs on top.
+- Relationship tab: a `new_data_alert` BoNotice (warning) listing the collections and fields that will be created.
+  Related collection / field selects: a `font-mono` BoInput with a trailing `list_alt` icon Button (`aria-label`
+  `select_existing`) opening a BoMenu (managed collections, divider, `system` group); a value that matches an existing
+  collection shows `text-success-700` and a `check` icon.
+
+### Permissions matrix (Q-23; Directus `interfaces/_system/system-permissions/*`)
+
+- A Table (`BoTable` look) with a sr-only caption: first column `collection` (key in `font-mono`, tooltip the display
+  name, two text Buttons `all` / `none`), then five action columns (create, read, update, delete, share) and a remove
+  icon Button (`close`, `aria-label` `remove`). A divider row `system_collections` (`bg-gray-50 text-theme-xs
+  uppercase`) separates system collections.
+- Action chip: a `button` with `aria-haspopup="menu"`, `rounded-full px-2.5 py-0.5 text-theme-xs font-medium`, the
+  action name always shown and the level in an sr-only text: all = `bg-success-50 text-success-700 dark:bg-success-500/15
+  dark:text-success-500` + `check` icon; none = `border border-gray-300 text-gray-500 dark:border-gray-700` + `block`
+  icon; custom = `bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400` + `rule` icon. App-minimal
+  chips are static (`cursor-default`, a `lock` icon, tooltip `required_for_app_access`). Menu: `all_access`,
+  `no_access`, divider, `use_custom`.
+- Footer (with `app_access`): `reset_system_permissions_to` followed by two link Buttons `app_access_minimum` and
+  `recommended_defaults`; confirmation BoDialog with Cancel first. Add collection: a secondary Button
+  `permission_add_collection` opening a BoMenu (managed collections, divider, system ones; existing rows disabled).
+- `admin_access`: a BoNotice info `admins_have_all_permissions` instead of the table.
+- Detail drawer: BoDrawer `<policy> → <collection> → <action>`, vertical BoTabs as Q-22 with the dot; notices
+  (`permissions_for_policy`…) as BoNotice info on top of each tab; the field tab is a BoCheckboxTree with `all` / `none`
+  text Buttons; the app-minimal values sit read-only under a BoNotice warning
+  `the_following_are_minimum_permissions`.
+
+### Settings system controls (Q-25)
+
+- `system-modules`: a BoSortableList; a module row is `flex h-11 items-center gap-3` with handle, icon, name and a
+  BoSwitch `enabled` (a `lock` icon instead for `locked`); a link row adds a `clear` icon Button and opens the
+  `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below.
+- `system-fields`: a BoSortableList of field paths (`font-mono`, ` → ` between levels, `functions.<fn>` for
+  functions), a remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
+- `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`) and a trailing
+  `folder` icon Button opening a menu tree (the 015 FolderPicker rows).
+- `system-scope`: a Select with the current user or role first (its name), then `all_users`, `user: select…`,
+  `role: select…`; the two last open DrawerCollection.
+- `system-owner`: a read-only row with the owner email and an `edit` icon Button (tooltip
+  `interfaces.system-owner.edit`) opening a BoDrawer with the 012 SetupForm fields; Save disabled until changed.
+
+### Preset editor (Q-26; Directus `routes/presets/item.vue`)
+
+- The form (BoForm, `max-w-5xl`) with name, icon, color (the 014 BookmarkAdd interfaces), collection, scope, layout,
+  search and filter, then a BoDivider `layout_preview`. Below, the chosen layout in a bordered box (`rounded-2xl border
+  border-gray-200 p-4 dark:border-gray-800`, read-only, `min-h-96`); without collection or layout, a BoNotice info
+  `no_layout_collection_selected_yet`. The layout options and layout sidebar go to the detail panel.
+- The preset and translation lists use the 014 table (Q-2) and blank states.
+
+### Data model dialogs (Q-27)
+
+- New collection: BoDrawer `creating_new_collection` with horizontal BoTabs over the form (`collection_setup`,
+  `optional_system_fields`, the second disabled until a name is set; two steps, and a vertical list leaves the 640px
+  drawer too narrow); header icon Button `arrow_forward` (`next`) then
+  `check` (`finish_setup`). Step 1: BoNotice info, name (`font-mono`, `dbSafe`, required star, note
+  `collection_names_are_case_sensitive`), singleton checkbox, divider, primary key name and type select. Step 2:
+  BoNotice info and six rows `flex items-center gap-3`: a BoCheckbox, the field label, a `font-mono` name input, the
+  field icon; focusing the input checks the box.
+- New role: BoDialog `create_role` with one Input (`role_name`), Cancel first, Save disabled when empty. New policy:
+  the same with two BoCheckbox rows (`app_access`, `admin_access`, label `enabled`). Duplicate policy: BoDialog
+  `duplicate_policy` with the name prefilled `<name> (copy)`.
+- Delete collection or folder: BoDialog with a danger BoNotice `delete_collection_peer_dependencies` listing
+  "field (collection)" when relations depend on it; Cancel first and focused; danger Button.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

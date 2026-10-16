@@ -8,10 +8,6 @@
 		"dest": "apps/web/src/components/FieldList.vue"
 	},
 	{
-		"source": "app/src/composables/use-field-tree.ts",
-		"dest": "apps/web/src/components/FieldList.vue"
-	},
-	{
 		"source": "app/src/components/v-field-list/v-field-list.test.ts",
 		"dest": "apps/web/src/components/FieldList.test.ts"
 	}

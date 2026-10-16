@@ -33,6 +33,13 @@ export const DIRECTORY_USERS = {
 	'bo-sso': { email: 'bo-sso@example.com', status: 'active', first_name: 'Sasha', last_name: 'Sso' },
 };
 
+// Feature 016 (Settings module, data-model §15): a role under bo-editor with an app-access policy holding three
+// permissions on bo_std (read all, create of two fields with a preset and a validation, update of rows that have
+// input_string), and one
+// custom translation in two languages. No collection: the 016 E2E specs create and remove their own, so the 013-015
+// collection trees and snapshots stay as they are.
+export const SETTINGS = { role: 'bo-settings-role', policy: 'bo-settings-policy', translationKey: 'bo_hello' };
+
 /** `--api <url>` plus `--token <token>` or `--email <e> --password <p>`; `--clean` for seed.mjs; `--out <dir>` and `--kind <directus|backoffice>` for export.mjs. */
 export function readArgs() {
 	const { values } = parseArgs({

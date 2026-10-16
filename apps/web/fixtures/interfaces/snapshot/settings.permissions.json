@@ -1,0 +1,54 @@
+[
+	{
+		"policy": "bo-68",
+		"collection": "bo_std",
+		"action": "create",
+		"permissions": null,
+		"validation": {
+			"_and": [
+				{
+					"input_string": {
+						"_nnull": true
+					}
+				}
+			]
+		},
+		"presets": {
+			"select_dropdown": "a"
+		},
+		"fields": [
+			"input_string",
+			"select_dropdown"
+		]
+	},
+	{
+		"policy": "bo-68",
+		"collection": "bo_std",
+		"action": "read",
+		"permissions": {},
+		"validation": null,
+		"presets": null,
+		"fields": [
+			"*"
+		]
+	},
+	{
+		"policy": "bo-68",
+		"collection": "bo_std",
+		"action": "update",
+		"permissions": {
+			"_and": [
+				{
+					"input_string": {
+						"_nnull": true
+					}
+				}
+			]
+		},
+		"validation": null,
+		"presets": null,
+		"fields": [
+			"input_string"
+		]
+	}
+]

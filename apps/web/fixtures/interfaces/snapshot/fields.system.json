@@ -1,5 +1,1344 @@
 [
 	{
+		"collection": "directus_collections",
+		"field": "collection_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "collection_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "box",
+				"title": "$t:field_options.directus_collections.collection_setup"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 1,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "collection",
+		"type": "string",
+		"schema": {
+			"name": "collection",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 64,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": true,
+			"is_indexed": false,
+			"is_primary_key": true,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "collection",
+			"special": null,
+			"interface": "input",
+			"options": {
+				"font": "monospace"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": true,
+			"hidden": false,
+			"sort": 2,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "note",
+		"type": "text",
+		"schema": {
+			"name": "note",
+			"table": "directus_collections",
+			"data_type": "text",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "note",
+			"special": null,
+			"interface": "input",
+			"options": {
+				"placeholder": "$t:field_options.directus_collections.note_placeholder"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 3,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "icon",
+		"type": "string",
+		"schema": {
+			"name": "icon",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 64,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "icon",
+			"special": null,
+			"interface": "select-icon",
+			"options": null,
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 4,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "color",
+		"type": "string",
+		"schema": {
+			"name": "color",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "color",
+			"special": null,
+			"interface": "select-color",
+			"options": {
+				"placeholder": "$t:interfaces.select-color.placeholder"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 5,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "display_template",
+		"type": "string",
+		"schema": {
+			"name": "display_template",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "display_template",
+			"special": null,
+			"interface": "system-display-template",
+			"options": {
+				"collectionField": "collection"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 6,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "hidden",
+		"type": "boolean",
+		"schema": {
+			"name": "hidden",
+			"table": "directus_collections",
+			"data_type": "boolean",
+			"default_value": false,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "hidden",
+			"special": [
+				"cast-boolean"
+			],
+			"interface": "boolean",
+			"options": {
+				"label": "$t:field_options.directus_collections.hidden_label"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 7,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "singleton",
+		"type": "boolean",
+		"schema": {
+			"name": "singleton",
+			"table": "directus_collections",
+			"data_type": "boolean",
+			"default_value": false,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "singleton",
+			"special": [
+				"cast-boolean"
+			],
+			"interface": "boolean",
+			"options": {
+				"label": "$t:singleton_label"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 8,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "translations",
+		"type": "json",
+		"schema": {
+			"name": "translations",
+			"table": "directus_collections",
+			"data_type": "json",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "translations",
+			"special": [
+				"cast-json"
+			],
+			"interface": "list",
+			"options": {
+				"template": "{{ translation }} ({{ language }})",
+				"fields": [
+					{
+						"field": "language",
+						"name": "$t:language",
+						"type": "string",
+						"schema": {
+							"default_value": "en-US"
+						},
+						"meta": {
+							"interface": "system-language",
+							"width": "half",
+							"required": true
+						}
+					},
+					{
+						"field": "translation",
+						"name": "$t:field_options.directus_collections.collection_name",
+						"type": "string",
+						"meta": {
+							"interface": "input",
+							"width": "half",
+							"required": true,
+							"options": {
+								"placeholder": "$t:field_options.directus_collections.translation_placeholder"
+							}
+						}
+					},
+					{
+						"field": "singular",
+						"name": "$t:field_options.directus_collections.singular_unit",
+						"type": "string",
+						"meta": {
+							"interface": "input",
+							"width": "half",
+							"options": {
+								"placeholder": "$t:field_options.directus_collections.translation_placeholder"
+							}
+						}
+					},
+					{
+						"field": "plural",
+						"name": "$t:field_options.directus_collections.plural_unit",
+						"type": "string",
+						"meta": {
+							"interface": "input",
+							"width": "half",
+							"options": {
+								"placeholder": "$t:field_options.directus_collections.translation_placeholder"
+							}
+						}
+					}
+				]
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 9,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": "$t:field_options.directus_collections.collection_naming_translations_note",
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "content_translations_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "content_translations_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "translate",
+				"title": "$t:field_options.directus_collections.content_translations_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 10,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "translations_enable_helper",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "translations_enable_helper",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "system-collections-translations",
+			"options": null,
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 11,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "preview_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "preview_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "preview",
+				"title": "$t:field_options.directus_collections.preview_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 12,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "preview_url",
+		"type": "string",
+		"schema": {
+			"name": "preview_url",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "preview_url",
+			"special": null,
+			"interface": "system-display-template",
+			"options": {
+				"collectionField": "collection",
+				"injectVersionField": true
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 13,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "content_versioning_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "content_versioning_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "published_with_changes",
+				"title": "$t:field_options.directus_collections.content_versioning_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 14,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "versioning",
+		"type": "boolean",
+		"schema": {
+			"name": "versioning",
+			"table": "directus_collections",
+			"data_type": "boolean",
+			"default_value": false,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "versioning",
+			"special": [
+				"cast-boolean"
+			],
+			"interface": "boolean",
+			"options": {
+				"label": "$t:field_options.directus_collections.enable_versioning"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 15,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "archive_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "archive_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "archive",
+				"title": "$t:field_options.directus_collections.archive_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 16,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "archive_field",
+		"type": "string",
+		"schema": {
+			"name": "archive_field",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 64,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "archive_field",
+			"special": null,
+			"interface": "system-field",
+			"options": {
+				"collectionField": "collection",
+				"allowNone": true,
+				"placeholder": "$t:field_options.directus_collections.archive_field_placeholder"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 17,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "archive_app_filter",
+		"type": "boolean",
+		"schema": {
+			"name": "archive_app_filter",
+			"table": "directus_collections",
+			"data_type": "boolean",
+			"default_value": true,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "archive_app_filter",
+			"special": [
+				"cast-boolean"
+			],
+			"interface": "boolean",
+			"options": {
+				"label": "$t:field_options.directus_collections.archive_app_filter"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 18,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "archive_value",
+		"type": "string",
+		"schema": {
+			"name": "archive_value",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "archive_value",
+			"special": null,
+			"interface": "input",
+			"options": {
+				"font": "monospace",
+				"iconRight": "archive",
+				"placeholder": "$t:field_options.directus_collections.archive_value"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 19,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "unarchive_value",
+		"type": "string",
+		"schema": {
+			"name": "unarchive_value",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "unarchive_value",
+			"special": null,
+			"interface": "input",
+			"options": {
+				"font": "monospace",
+				"iconRight": "unarchive",
+				"placeholder": "$t:field_options.directus_collections.unarchive_value"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 20,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "sort_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "sort_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "sort",
+				"title": "$t:field_options.directus_collections.sort_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 21,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "sort_field",
+		"type": "string",
+		"schema": {
+			"name": "sort_field",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 64,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "sort_field",
+			"special": null,
+			"interface": "system-field",
+			"options": {
+				"collectionField": "collection",
+				"placeholder": "$t:field_options.directus_collections.sort_field",
+				"typeAllowList": [
+					"float",
+					"decimal",
+					"integer"
+				],
+				"allowNone": true,
+				"allowPrimaryKey": false,
+				"allowForeignKeys": false
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 22,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "accountability_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "accountability_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "admin_panel_settings",
+				"title": "$t:field_options.directus_collections.accountability_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 23,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "accountability",
+		"type": "string",
+		"schema": {
+			"name": "accountability",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": "all",
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "accountability",
+			"special": null,
+			"interface": "select-dropdown",
+			"options": {
+				"choices": [
+					{
+						"text": "$t:field_options.directus_collections.track_activity_revisions",
+						"value": "all"
+					},
+					{
+						"text": "$t:field_options.directus_collections.only_track_activity",
+						"value": "activity"
+					},
+					{
+						"text": "$t:field_options.directus_collections.do_not_track_anything",
+						"value": null
+					}
+				]
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 24,
+			"width": "half",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "duplication_divider",
+		"type": "alias",
+		"schema": null,
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "duplication_divider",
+			"special": [
+				"alias",
+				"no-data"
+			],
+			"interface": "presentation-divider",
+			"options": {
+				"icon": "content_copy",
+				"title": "$t:field_options.directus_collections.duplication_divider"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 25,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "item_duplication_fields",
+		"type": "json",
+		"schema": {
+			"name": "item_duplication_fields",
+			"table": "directus_collections",
+			"data_type": "json",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "item_duplication_fields",
+			"special": [
+				"cast-json"
+			],
+			"interface": "system-field-tree",
+			"options": {
+				"collectionField": "collection"
+			},
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": false,
+			"sort": 26,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "sort",
+		"type": "integer",
+		"schema": {
+			"name": "sort",
+			"table": "directus_collections",
+			"data_type": "integer",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": null,
+			"numeric_precision": 32,
+			"numeric_scale": 0,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "sort",
+			"special": null,
+			"interface": null,
+			"options": null,
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": true,
+			"sort": 27,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "group",
+		"type": "string",
+		"schema": {
+			"name": "group",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": null,
+			"generation_expression": null,
+			"max_length": 64,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": true,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_collections",
+			"foreign_key_column": "collection",
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "group",
+			"special": null,
+			"interface": null,
+			"options": null,
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": true,
+			"sort": 28,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
+		"collection": "directus_collections",
+		"field": "collapse",
+		"type": "string",
+		"schema": {
+			"name": "collapse",
+			"table": "directus_collections",
+			"data_type": "character varying",
+			"default_value": "open",
+			"generation_expression": null,
+			"max_length": 255,
+			"numeric_precision": null,
+			"numeric_scale": null,
+			"is_generated": false,
+			"is_nullable": false,
+			"is_unique": false,
+			"is_indexed": false,
+			"is_primary_key": false,
+			"has_auto_increment": false,
+			"foreign_key_schema": null,
+			"foreign_key_table": null,
+			"foreign_key_column": null,
+			"comment": null
+		},
+		"meta": {
+			"system": true,
+			"collection": "directus_collections",
+			"field": "collapse",
+			"special": null,
+			"interface": null,
+			"options": null,
+			"display": null,
+			"display_options": null,
+			"readonly": false,
+			"hidden": true,
+			"sort": 29,
+			"width": "full",
+			"group": null,
+			"translations": null,
+			"note": null,
+			"conditions": null,
+			"required": false,
+			"searchable": true,
+			"id": null
+		}
+	},
+	{
 		"collection": "directus_files",
 		"field": "id",
 		"type": "uuid",

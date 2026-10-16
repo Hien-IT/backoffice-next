@@ -5,7 +5,7 @@
 // The row menu is BoMenu (the button follows the row's roving tabindex so Tab reaches it); without permission a `lock`
 // icon carries the `cannot_edit_<scope>_bookmarks` tooltip, also as its accessible name. The dialogs are BoDialogs
 // (Esc and outside click cancel, Enter applies, the delete text is the dialog description and Cancel comes first,
-// FR-115d). Role and global bookmarks are edited in Settings (`/settings/presets/:id`, frame of 012 until 016, D-71).
+// FR-115d). Role and global bookmarks are edited in Settings (`/settings/presets/:id`).
 // Deleting the open bookmark routes to the collection and focuses the page title (FR-115c).
 import { computed, inject, nextTick, reactive, ref, useId } from 'vue';
 import { useI18n } from 'vue-i18n';

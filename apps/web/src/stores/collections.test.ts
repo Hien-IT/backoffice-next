@@ -159,3 +159,40 @@ test('translateCollections renames after the locale changes', () => {
 		i18n.global.locale.value = 'en-US';
 	}
 });
+
+// Feature 016 T013: the write actions of Directus stores/collections.ts.
+test('upsertCollection: POST without app-only keys when new, PATCH when existing, nothing when equal', async () => {
+	const store = useCollectionsStore();
+	const fetch = mockApi({
+		'POST /collections': { collection: 'c', meta: { icon: 'box' }, schema: {} },
+		'PATCH /collections/c': { collection: 'c', meta: { icon: 'star' }, schema: {} },
+	});
+
+	await store.upsertCollection('c', { collection: 'c', meta: { icon: 'box' }, name: 'C', icon: 'x' } as never);
+	expect(JSON.parse(fetch.mock.calls[0]![1]!.body as string)).toEqual({ collection: 'c', meta: { icon: 'box' } });
+	await store.upsertCollection('c', { meta: { icon: 'star' } } as never);
+
+	expect(calls(fetch)).toEqual(['POST /collections', 'PATCH /collections/c']);
+	expect(store.getCollection('c')!.meta!.icon).toBe('star');
+});
+
+test('updateCollection and deleteCollection: request, then hydrate (deleteCollection also relations)', async () => {
+	const store = useCollectionsStore();
+	const fetch = mockApi({
+		'PATCH /collections/c': {},
+		'DELETE /collections/c': () => new Response(null, { status: 204 }),
+		'GET /collections': [],
+		'GET /relations': [],
+	});
+
+	await store.updateCollection('c', { meta: { hidden: true } } as never);
+	await store.deleteCollection('c');
+
+	expect(calls(fetch)).toEqual([
+		'PATCH /collections/c',
+		'GET /collections',
+		'DELETE /collections/c',
+		'GET /collections',
+		'GET /relations',
+	]);
+});

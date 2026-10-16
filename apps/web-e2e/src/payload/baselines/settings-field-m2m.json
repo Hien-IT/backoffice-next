@@ -1,0 +1,127 @@
+[
+	{
+		"method": "POST",
+		"path": "/fields/bo_t003_col",
+		"body": {
+			"field": "tags",
+			"meta": {
+				"interface": "list-m2m",
+				"special": [
+					"m2m"
+				]
+			},
+			"type": "alias"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/collections",
+		"body": {
+			"collection": "bo_t003_col_bo_t003_tag",
+			"fields": [
+				{
+					"field": "id",
+					"meta": {
+						"hidden": true
+					},
+					"schema": {
+						"has_auto_increment": true
+					},
+					"type": "integer"
+				}
+			],
+			"meta": {
+				"hidden": true,
+				"icon": "import_export"
+			},
+			"schema": {
+				"name": "bo_t003_col_bo_t003_tag"
+			}
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/collections",
+		"body": {
+			"collection": "bo_t003_tag",
+			"fields": [
+				{
+					"field": "id",
+					"meta": {
+						"hidden": true
+					},
+					"schema": {
+						"has_auto_increment": true
+					},
+					"type": "integer"
+				}
+			],
+			"meta": {},
+			"schema": {
+				"name": "bo_t003_tag"
+			}
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/fields/bo_t003_col_bo_t003_tag",
+		"body": {
+			"collection": "bo_t003_col_bo_t003_tag",
+			"field": "bo_t003_col_id",
+			"meta": {
+				"hidden": true
+			},
+			"schema": {},
+			"type": "integer"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/fields/bo_t003_col_bo_t003_tag",
+		"body": {
+			"collection": "bo_t003_col_bo_t003_tag",
+			"field": "bo_t003_tag_id",
+			"meta": {
+				"hidden": true
+			},
+			"schema": {},
+			"type": "integer"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/relations",
+		"body": {
+			"collection": "bo_t003_col_bo_t003_tag",
+			"field": "bo_t003_tag_id",
+			"meta": {
+				"junction_field": "bo_t003_col_id",
+				"one_deselect_action": "nullify",
+				"one_field": null,
+				"sort_field": null
+			},
+			"related_collection": "bo_t003_tag",
+			"schema": {
+				"on_delete": "SET NULL"
+			}
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/relations",
+		"body": {
+			"collection": "bo_t003_col_bo_t003_tag",
+			"field": "bo_t003_col_id",
+			"meta": {
+				"junction_field": "bo_t003_tag_id",
+				"one_deselect_action": "nullify",
+				"one_field": "tags",
+				"sort_field": null
+			},
+			"related_collection": "bo_t003_col",
+			"schema": {
+				"on_delete": "SET NULL"
+			}
+		}
+	}
+]

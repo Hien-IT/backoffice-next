@@ -1,6 +1,6 @@
 import type { Field, Relation } from '@directus/types';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { calls, mockApi } from '../test-utils/fetch.ts';
 import { useFieldsStore } from './fields.ts';
 import { useRelationsStore } from './relations.ts';
@@ -69,4 +69,26 @@ test('getRelationForField returns only the m2o of the field', () => {
 	expect(relationsStore.getRelationForField('articles', 'tags')).toBeNull();
 	expect(relationsStore.getRelationForField('articles', 'missing')).toBeNull();
 	expect(relationsStore.getRelationType).toBeTypeOf('function');
+});
+
+// Feature 016 T013: upsertRelation of Directus stores/relations.ts.
+describe('upsertRelation (016)', () => {
+	test('POST /relations when the field has no relation, PATCH /relations/:c/:f when it has one', async () => {
+		const fieldsStore = useFieldsStore();
+		fieldsStore.fields = [{ collection: 'a', field: 'm2o', type: 'integer', meta: null, schema: {} }].map(
+			fieldsStore.parseField as never,
+		) as never;
+		const store = useRelationsStore();
+		const created = { collection: 'a', field: 'm2o', related_collection: 'b', meta: null, schema: {} };
+		const fetch = mockApi({
+			'POST /relations': created,
+			'PATCH /relations/a/m2o': { ...created, schema: { on_delete: 'CASCADE' } },
+		});
+
+		await store.upsertRelation('a', 'm2o', created as never);
+		await store.upsertRelation('a', 'm2o', { schema: { on_delete: 'CASCADE' } } as never);
+
+		expect(calls(fetch)).toEqual(['POST /relations', 'PATCH /relations/a/m2o']);
+		expect((store.relations[0]!.schema as { on_delete: string }).on_delete).toBe('CASCADE');
+	});
 });

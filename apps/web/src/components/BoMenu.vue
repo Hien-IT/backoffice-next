@@ -25,6 +25,8 @@ export type BoMenuItem = {
 	active?: boolean;
 	/** A separator after this item. */
 	divider?: boolean;
+	/** A destructive action (Directus `.danger` list item): error color. */
+	danger?: boolean;
 };
 
 // Slot `trigger` is one focusable element (as-child); Reka returns focus to it when the menu closes.
@@ -52,6 +54,7 @@ const { side = 'bottom', align = 'start' } = defineProps<{
 						:as-child="item.to !== undefined || !!item.href"
 						v-bind="item.active === undefined ? {} : { role: 'menuitemradio', 'aria-checked': item.active }"
 						:disabled="!!item.disabled"
+						:class="{ 'text-error-600! dark:text-error-500!': item.danger && !item.disabled }"
 						class="flex w-full cursor-pointer items-center gap-3 whitespace-nowrap rounded-lg px-3 py-2 text-start text-theme-sm font-medium text-gray-700 no-underline outline-hidden data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[highlighted]:text-gray-800 dark:text-gray-400 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[highlighted]:text-gray-300"
 						@select="item.onSelect?.()"
 					>

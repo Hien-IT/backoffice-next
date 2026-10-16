@@ -16,8 +16,10 @@ export interface Write {
 
 const METHODS = new Set(['POST', 'PATCH', 'DELETE', 'SEARCH']);
 // Feature 015 adds the Files and Users modules (files, folders, users); the page tracking write (`last_page`) goes out on
-// a timer after each navigation, not from the steps, so it is left out.
-const PATHS = /^\/(items|presets|versions|comments|shares|utils|graphql|files|folders|users)(\/|$)(?!me\/track\/page)/;
+// a timer after each navigation, not from the steps, so it is left out. Feature 016 adds the Settings module (data
+// model, roles, policies, permissions, access, settings, translations).
+const PATHS =
+	/^\/(items|presets|versions|comments|shares|utils|graphql|files|folders|users|collections|fields|relations|roles|policies|permissions|access|settings|translations)(\/|$)(?!me\/track\/page)/;
 
 /** Names a scenario run writes: `<DATA_PREFIX>-dir` on the Directus app, `<DATA_PREFIX>-bo` on the Backoffice app. */
 export const RUN_TAG = { dir: `${DATA_PREFIX}-dir`, bo: `${DATA_PREFIX}-bo` } as const;

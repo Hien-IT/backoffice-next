@@ -113,7 +113,8 @@ test('admin, default module bar: order of Directus without Documentation, URLs a
 
 	await (await moduleBar(page)).locator('a[href="/admin/settings"]').click();
 	await expect(page).toHaveURL(/\/admin\/settings\/data-model$/);
-	await expect(page).toHaveTitle('Settings · Backoffice');
+	// Feature 016: the real data model page (its title, like the Directus app) replaces the 012 frame.
+	await expect(page).toHaveTitle('Data Model · Backoffice');
 });
 
 test('custom module_bar: order, enabled, internal and external links; the default docs link stays hidden (US2-2, FR-081)', async ({

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/fields/components/fields-management.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/fields/FieldsManagement.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/fields/components/FieldSelect.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/fields/FieldSelect.vue"
+	},
+	{
+		"source": "app/src/utils/get-special-for-type.ts",
+		"dest": "apps/web/src/utils/get-special-for-type.ts"
+	},
+	{
+		"source": "app/src/composables/use-schema.ts",
+		"dest": "apps/web/src/composables/use-schema.ts"
+	}
+]

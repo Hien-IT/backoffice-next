@@ -1,0 +1,14 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/components/CollectionItem.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/components/CollectionItem.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/components/collection-dialog.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/components/CollectionDialog.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/components/collection-options.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/components/DeleteCollectionDialog.vue"
+	}
+]

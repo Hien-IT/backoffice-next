@@ -1,36 +1,22 @@
-<!-- Ported from directus/app/src/components/v-field-list/v-field-list.vue; Ported from directus/app/src/components/v-field-list/VFieldListItem.vue; Ported from directus/app/src/composables/use-field-tree.ts -->
+<!-- Ported from directus/app/src/components/v-field-list/v-field-list.vue; Ported from directus/app/src/components/v-field-list/VFieldListItem.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Search and advanced filter (Q-7)" → Field list and the tree rules of layout-patterns §9. The
 // VFieldListItem recursion becomes one flat `role="tree"` list of `treeitem` rows (aria-level, roving tabindex,
-// Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree; useFieldTree is folded in (no
-// src/composables copy). `injectVersionField` (useFakeVersionField) is left out until the versions feature brings that
+// Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree (composables/use-field-tree.ts, 016). `injectVersionField` (useFakeVersionField) is left out until the versions feature brings that
 // composable. Groups are opened while searching once per search change (Directus: open + collapse-on-change), then
 // toggle freely. No search highlight (BoTextOverflow has no `highlight`). Readable fields only = the fields store,
 // which holds what `GET /fields` returns for the user, as in Directus.
 import formatTitle from '@directus/format-title';
-import type { Field, Relation, Type } from '@directus/types';
-import { getFunctionsForType, getRelationType } from '@directus/utils';
+import type { Field } from '@directus/types';
+import { getFunctionsForType } from '@directus/utils';
 import { debounce, isNil } from 'lodash-es';
 import { computed, nextTick, ref, toRefs, unref, useId, watch } from 'vue';
-import { useI18n } from 'vue-i18n';
+import { type FieldNode, useFieldTree } from '../composables/use-field-tree.ts';
 import { useFieldsStore } from '../stores/fields.ts';
 import { useRelationsStore } from '../stores/relations.ts';
 import BoIcon from './BoIcon.vue';
 import BoInput from './BoInput.vue';
 import BoTextOverflow from './BoTextOverflow.vue';
-
-type FieldNode = {
-	name: string;
-	field: string;
-	collection: string;
-	relatedCollection?: string | undefined;
-	key: string;
-	path: string;
-	type: Type;
-	children?: FieldNode[] | undefined;
-	group?: boolean;
-	_loading?: boolean;
-};
 
 type FieldInfo = FieldNode & { disabled: boolean; children?: FieldInfo[] | undefined };
 
@@ -65,7 +51,6 @@ const props = withDefaults(
 
 const emit = defineEmits<{ add: [keys: string[]] }>();
 
-const { t } = useI18n();
 const fieldsStore = useFieldsStore();
 const relationsStore = useRelationsStore();
 
@@ -88,7 +73,11 @@ const showSearch = computed(() => {
 	return false;
 });
 
-const { treeList: treeListOriginal, loadFieldRelations, refresh } = useFieldTree();
+const {
+	treeList: treeListOriginal,
+	loadFieldRelations,
+	refresh,
+} = useFieldTree(collection, undefined, filter, includeRelations);
 
 const open = ref(new Set<string>());
 
@@ -158,195 +147,6 @@ function filter(field: Field, parent?: FieldNode): boolean {
 			: null;
 
 		return relationalChildren?.some((field) => matchesSearch(field)) || matchesSearch(field);
-	}
-}
-
-// --- use-field-tree.ts (inject = null, includeAliasFields = false) ---
-function useFieldTree() {
-	const treeList = ref<FieldNode[]>([]);
-	const visitedPaths = ref<Set<string>>(new Set());
-
-	// Refresh when collection or fields of the collection are updated
-	watch([collection, () => collection.value && fieldsStore.getFieldsForCollectionSorted(collection.value)], refresh, {
-		immediate: true,
-	});
-
-	return { treeList, loadFieldRelations, refresh };
-
-	function refresh() {
-		visitedPaths.value = new Set();
-		treeList.value = getTree(collection.value) ?? [];
-
-		for (const node of treeList.value) {
-			if (node.relatedCollection) {
-				node.children = getTree(node.relatedCollection, node);
-			}
-		}
-	}
-
-	function getTree(collection?: string | null, parent?: FieldNode): FieldNode[] | undefined {
-		const allFields = fieldsStore
-			.getFieldsForCollectionSorted(collection!)
-			.filter(
-				(field) =>
-					field.meta?.special?.includes('group') ||
-					(!field.meta?.special?.includes('alias') && !field.meta?.special?.includes('no-data')),
-			)
-			.filter((field) => filter(field, parent));
-
-		const topLevelFields = allFields.filter((field) => {
-			if (parent?.group === true) return field.meta?.group === parent?.field;
-			return isNil(field.meta?.group);
-		});
-
-		const fieldNodes = topLevelFields.flatMap((field) => makeNode(field, parent));
-
-		return fieldNodes.length ? fieldNodes : undefined;
-	}
-
-	function makeNode(field: Field, parent?: FieldNode): FieldNode | FieldNode[] {
-		const pathContext = parent?.path ? parent.path + '.' : '';
-
-		if (field?.meta?.special?.includes('group')) {
-			const node: FieldNode = {
-				name: field.name,
-				field: field.field,
-				collection: field.collection,
-				relatedCollection: undefined,
-				key: parent ? parent.key : '',
-				path: pathContext + field.field,
-				group: true,
-				type: field.type,
-			};
-
-			const children = getTree(field.collection, node);
-
-			if (includeRelations.value && children) {
-				for (const child of children) {
-					if (child.relatedCollection) {
-						child.children = [
-							{ name: t('loading'), field: '', collection: '', key: '', path: '', type: 'alias', _loading: true },
-						];
-					}
-				}
-			}
-
-			return {
-				...node,
-				children,
-			};
-		}
-
-		if (!includeRelations.value) {
-			return {
-				name: field.name,
-				field: field.field,
-				collection: field.collection,
-				relatedCollection: undefined,
-				key: field.field,
-				path: field.field,
-				type: field.type,
-			};
-		}
-
-		const { relationType, relatedCollections } = getRelationTypeAndRelatedCollections(field);
-		const keyContext = parent?.key ? parent.key + '.' : '';
-
-		if (relatedCollections.length <= 1 && relationType !== 'm2a') {
-			return {
-				name: field.name,
-				field: field.field,
-				collection: field.collection,
-				relatedCollection: relatedCollections[0],
-				key: keyContext + field.field,
-				path: pathContext + field.field,
-				type: field.type,
-			};
-		}
-
-		return relatedCollections.map((collection) => {
-			return {
-				name: `${field.name} (${collection})`,
-				field: `${field.field}:${collection}`,
-				collection: field.collection,
-				relatedCollection: collection,
-				key: keyContext + `${field.field}:${collection}`,
-				path: pathContext + `${field.field}:${collection}`,
-				type: field.type,
-			};
-		});
-	}
-
-	function getRelationTypeAndRelatedCollections(field: Field): {
-		relationType: 'o2m' | 'm2o' | 'm2a' | null;
-		relatedCollections: string[];
-	} {
-		const relation = getRelationForField(field);
-		if (!relation?.meta) return { relationType: null, relatedCollections: [] };
-		const relationType = getRelationType({ relation, collection: field.collection, field: field.field });
-
-		switch (relationType) {
-			case 'o2m':
-				return { relationType: 'o2m', relatedCollections: [relation!.meta!.many_collection] };
-			case 'm2o':
-				return { relationType: 'm2o', relatedCollections: [relation!.meta!.one_collection!] };
-			case 'm2a':
-				return { relationType: 'm2a', relatedCollections: relation!.meta!.one_allowed_collections! };
-			default:
-				return { relationType: null, relatedCollections: [] };
-		}
-	}
-
-	function getRelationForField(field: { collection: string; field: string }) {
-		const relations = relationsStore.getRelationsForField(field.collection, field.field);
-
-		return relations.find(
-			(relation: Relation) =>
-				(relation.collection === field.collection && relation.field === field.field) ||
-				(relation.related_collection === field.collection && relation.meta?.one_field === field.field),
-		);
-	}
-
-	function getNodeAtPath([field, ...path]: string[], root?: FieldNode[]): FieldNode | undefined {
-		if (!root?.length) return undefined;
-
-		const node = findFieldNodeInTree(field, root);
-
-		if (node && path.length) return getNodeAtPath(path, node.children);
-
-		return node;
-	}
-
-	function findFieldNodeInTree(field: string | undefined, root: FieldNode[]): FieldNode | undefined {
-		const node = root.find((node) => node.field === field);
-		if (node) return node;
-
-		const childrenNodes = root.flatMap((node) => {
-			if (node.group && node.children?.length) return node.children;
-			return [];
-		});
-
-		if (!childrenNodes?.length) return undefined;
-
-		return findFieldNodeInTree(field, childrenNodes);
-	}
-
-	function loadFieldRelations(path: string) {
-		if (!visitedPaths.value.has(path)) {
-			visitedPaths.value.add(path);
-
-			const node = getNodeAtPath(path.split('.'), treeList.value);
-
-			if (node && node.children?.length === 1 && (node.children as [FieldNode])[0]._loading) {
-				node.children = getTree(node.relatedCollection, node);
-			}
-
-			for (const child of node?.children || []) {
-				if (child?.relatedCollection) {
-					child.children = getTree(child.relatedCollection, child);
-				}
-			}
-		}
 	}
 }
 

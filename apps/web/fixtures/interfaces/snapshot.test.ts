@@ -21,6 +21,12 @@ const UNSEEDABLE: Record<string, string> = {
 	'system-token': 'directus_users.token (015), tested in its own folder',
 	'system-theme': 'directus_users.theme_light / theme_dark (015), tested in its own folder',
 	'system-theme-overrides': 'directus_users.theme_*_overrides (015), tested in its own folder',
+	// Feature 016 (D-57): system interfaces of the Settings forms (directus_collections), tested in their own folders.
+	'system-collection': 'Settings forms and the field duplicate dialog (016), tested in its own folder',
+	'system-field': 'directus_collections.archive_field / sort_field (016), tested in its own folder',
+	'system-field-tree': 'directus_collections.item_duplication_fields (016), tested in its own folder',
+	'system-display-template': 'directus_collections.display_template (016), tested in its own folder',
+	'system-collections-translations': 'directus_collections.translations_enable_helper (016), tested in its own folder',
 };
 
 describe('every registry id has a fixture field', () => {
@@ -32,9 +38,9 @@ describe('every registry id has a fixture field', () => {
 		expect(snapshot.fields.some((f) => f.meta?.display === id)).toBe(true);
 	});
 
-	test('the registry has the 49 interfaces (41 of 013, 2 system ones of 014, 6 of 015) and 18 displays of Directus 11.17.4', () => {
+	test('the registry has the 54 interfaces (41 of 013, 2 system ones of 014, 6 of 015, 5 of 016) and 18 displays of Directus 11.17.4', () => {
 		expect(registry.directusVersion).toBe(snapshot.meta.version);
-		expect([interfaceIds.length, displayIds.length]).toEqual([49, 18]);
+		expect([interfaceIds.length, displayIds.length]).toEqual([54, 18]);
 		expect(Object.keys(UNSEEDABLE).filter((id) => !interfaceIds.includes(id))).toEqual([]);
 	});
 

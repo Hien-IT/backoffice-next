@@ -67,6 +67,12 @@ const INTERFACE_IDS = [
 	'system-token',
 	'system-theme',
 	'system-theme-overrides',
+	// Feature 016 (D-57): the system interfaces of the Settings module.
+	'system-collection',
+	'system-field',
+	'system-field-tree',
+	'system-display-template',
+	'system-collections-translations',
 ];
 
 const DISPLAY_IDS = [

@@ -1,8 +1,8 @@
 // Ported from directus/app/src/stores/relations.ts
-// Backoffice: read-only part of the store; upsertRelation comes with the data model screens (feature 015+, D-45); the
-// AI tools hook is removed (D-54).
-import type { Relation } from '@directus/types';
+// Backoffice: upsertRelation came with the Settings data model screens (016); the AI tools hook is removed (D-54).
+import type { DeepPartial, Relation } from '@directus/types';
 import { getRelations, getRelationType } from '@directus/utils';
+import { isEqual } from 'lodash-es';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
@@ -73,10 +73,31 @@ export const useRelationsStore = defineStore('relations', () => {
 		return relations.find((relation) => relation.collection === collection && relation.field === field) ?? null;
 	};
 
+	const upsertRelation = async (collection: string, field: string, values: DeepPartial<Relation>) => {
+		const existing = getRelationForField(collection, field);
+
+		if (existing) {
+			if (isEqual(existing, values)) return;
+
+			const updated = await sdk.request(
+				requestEndpoint<Relation>(`/relations/${collection}/${field}`, { method: 'PATCH', body: values }),
+			);
+
+			relations.value = relations.value.map((relation) =>
+				relation.collection === collection && relation.field === field ? updated : relation,
+			);
+		} else {
+			const created = await sdk.request(requestEndpoint<Relation>('/relations', { method: 'POST', body: values }));
+
+			relations.value = [...relations.value, created];
+		}
+	};
+
 	return {
 		relations,
 		hydrate,
 		dehydrate,
+		upsertRelation,
 		getRelationsForCollection,
 		getRelationForField,
 		getRelationsForField,

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/content/routes/no-collections.vue -->
 <script setup lang="ts">
-// Backoffice: v-info in the blank page card of the design-system (like PrivateNotFoundRoute); the create button goes to
-// the Settings frame (D-71).
+// Backoffice: v-info in the blank page card of the design-system (like PrivateNotFoundRoute); the create button opens
+// the new collection drawer of Settings (/settings/data-model/+).
 import BoButton from '../../../components/BoButton.vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import PrivateView from '../../../layout/PrivateView.vue';

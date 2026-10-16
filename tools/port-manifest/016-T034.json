@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/composables/use-expand-collapse.ts",
+		"dest": "apps/web/src/modules/settings/routes/data-model/composables/use-expand-collapse.ts"
+	}
+]

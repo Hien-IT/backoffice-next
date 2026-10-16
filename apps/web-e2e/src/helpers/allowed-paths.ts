@@ -1,7 +1,7 @@
 // The closed list of API calls of the web app (FR-002), copied from specs/012-backoffice-web-shell/contracts/api-calls.md
 // (32 routes), specs/013-interfaces-displays/contracts/api-calls.md (#33-#49) and
 // specs/014-content-module/contracts/api-calls.md (#50-#96) and specs/015-files-users-modules/contracts/api-calls.md
-// (rows 97 to 136). Matched on method and path (query ignored, path relative to
+// (rows 97 to 136) and specs/016-settings-module/contracts/api-calls.md (rows 137 to 177). Matched on method and path (query ignored, path relative to
 // apiUrl). Keep them in step with KNOWN_REQUESTS of apps/web/src/test-utils/fetch.ts.
 export interface AllowedCall {
 	/** Row number in contracts/api-calls.md. */
@@ -96,6 +96,21 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
 	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
 	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
+	// Feature 016 (Settings module): data model rows; roles, policies, settings, presets and translations come with their
+	// waves.
+	{ id: 138, method: 'GET', path: new RegExp(`^/collections/${ID}$`) },
+	{ id: 140, method: 'GET', path: new RegExp(`^/fields/${ID}/${ID}$`) },
+	{ id: 142, method: 'GET', path: /^\/schema\/snapshot$/ },
+	{ id: 157, method: 'POST', path: /^\/collections$/ },
+	{ id: 158, method: 'PATCH', path: new RegExp(`^/collections(/${ID})?$`) },
+	{ id: 160, method: 'DELETE', path: new RegExp(`^/collections/${ID}$`) },
+	{ id: 161, method: 'POST', path: new RegExp(`^/fields/${ID}$`) },
+	{ id: 162, method: 'PATCH', path: new RegExp(`^/fields/${ID}(/${ID})?$`) },
+	{ id: 164, method: 'DELETE', path: new RegExp(`^/fields/${ID}/${ID}$`) },
+	{ id: 165, method: 'POST', path: /^\/relations$/ },
+	{ id: 166, method: 'PATCH', path: new RegExp(`^/relations/${ID}/${ID}$`) },
+	{ id: 167, method: 'POST', path: new RegExp(`^/items/${ID}$`) },
+	{ id: 168, method: 'POST', path: /^\/utils\/translations\/generate$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

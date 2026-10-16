@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/new-collection.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/NewCollection.vue"
+	}
+]

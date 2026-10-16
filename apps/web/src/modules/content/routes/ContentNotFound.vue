@@ -2,18 +2,19 @@
 <script setup lang="ts">
 // Backoffice: v-info in the blank page card of the design-system, as PrivateNotFoundRoute. Feature 015 (FR-001,
 // FR-054): the same page serves the Files and Users modules, `module` picks the sub-menu (Directus has one not-found
-// route per module, with the same content).
+// route per module, with the same content). Feature 016 adds the Settings module.
 import { defineAsyncComponent } from 'vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import PrivateView from '../../../layout/PrivateView.vue';
 import ContentNavigation from '../components/ContentNavigation.vue';
 
-const { module = 'content' } = defineProps<{ module?: 'content' | 'files' | 'users' }>();
+const { module = 'content' } = defineProps<{ module?: 'content' | 'files' | 'users' | 'settings' }>();
 
 const NAVIGATION = {
 	content: ContentNavigation,
 	files: defineAsyncComponent(() => import('../../../components/files/FilesNavigation.vue')),
 	users: defineAsyncComponent(() => import('../../users/components/UsersNavigation.vue')),
+	settings: defineAsyncComponent(() => import('../../settings/components/SettingsNavigation.vue')),
 };
 </script>
 

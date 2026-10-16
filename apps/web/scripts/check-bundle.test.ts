@@ -2,7 +2,18 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { expect, test } from 'vitest';
-import { BUDGET_013, BUDGET_014, BUDGET_015, entrySize, LAZY_BUDGETS_015, LIMIT, lazyChunkSizes, lazyLeaks } from './check-bundle.mjs';
+import {
+	BUDGET_013,
+	BUDGET_014,
+	BUDGET_015,
+	BUDGET_016,
+	entrySize,
+	LAZY_BUDGETS_015,
+	LAZY_BUDGETS_016,
+	LIMIT,
+	lazyChunkSizes,
+	lazyLeaks,
+} from './check-bundle.mjs';
 
 function dist(js: string) {
 	const root = mkdtempSync(join(tmpdir(), 'check-bundle-'));
@@ -62,7 +73,7 @@ test('feature 015 lazy chunks: the largest chunk holding each marker, the entry 
 
 	const root = dist('const entry = "Tus-Resumable";');
 	writeFileSync(join(root, 'assets/cropper-1.js'), 'const c = "cropper-container";'.repeat(50));
-	writeFileSync(join(root, 'assets/theme-1.js'), 'const t = { $generated: "2026-10-16" };');
+	writeFileSync(join(root, 'assets/theme-1.js'), 'const t = { name: "$t:theme_directus_default" };');
 
 	const sizes = Object.fromEntries(
 		lazyChunkSizes(root, join(root, 'assets/index-abc.js')).map((chunk) => [chunk.name, chunk.gzip]),
@@ -70,4 +81,25 @@ test('feature 015 lazy chunks: the largest chunk holding each marker, the entry 
 	expect(sizes['cropperjs']).toBeGreaterThan(0);
 	expect(sizes['theme data']).toBeGreaterThan(0);
 	expect(sizes['tus-js-client']).toBeNull();
+});
+
+test('feature 016 budgets: 20 KB over 015, three lazy chunks found by their markers', () => {
+	expect(BUDGET_016).toBe(BUDGET_015 + 20 * 1024);
+	expect(BUDGET_016).toBeLessThan(LIMIT);
+	expect(LAZY_BUDGETS_016.map((b) => [b.name, b.limit / 1024])).toEqual([
+		['field drawer', 80],
+		['permissions matrix', 40],
+		['app permission data', 10],
+	]);
+
+	const root = dist('const entry = 1;');
+	writeFileSync(join(root, 'assets/field-1.js'), 'defineStore("fieldDetail", {});');
+	writeFileSync(join(root, 'assets/perm-1.js'), 'const d = { $source: "…/app-access-permissions.yaml" };');
+
+	const sizes = Object.fromEntries(
+		lazyChunkSizes(root, join(root, 'assets/index-abc.js')).map((chunk) => [chunk.name, chunk.gzip]),
+	);
+	expect(sizes['field drawer']).toBeGreaterThan(0);
+	expect(sizes['app permission data']).toBeGreaterThan(0);
+	expect(sizes['permissions matrix']).toBeNull();
 });

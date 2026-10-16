@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/interfaces/_system/system-collections-translations/index.ts",
+		"dest": "apps/web/src/interfaces/_system/system-collections-translations/index.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collections-translations/system-collections-translations.vue",
+		"dest": "apps/web/src/interfaces/_system/system-collections-translations/SystemCollectionsTranslations.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collections-translations/system-collections-translations-dialog.vue",
+		"dest": "apps/web/src/interfaces/_system/system-collections-translations/SystemCollectionsTranslationsDialog.vue"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collections-translations/utils.ts",
+		"dest": "apps/web/src/interfaces/_system/system-collections-translations/utils.ts"
+	},
+	{
+		"source": "app/src/interfaces/_system/system-collections-translations/utils.test.ts",
+		"dest": "apps/web/src/interfaces/_system/system-collections-translations/utils.test.ts"
+	}
+]

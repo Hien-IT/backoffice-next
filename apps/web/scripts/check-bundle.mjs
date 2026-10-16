@@ -15,6 +15,9 @@ export const BUDGET_013 = Math.round((132.4 + 120) * 1024);
 export const BUDGET_014 = Math.round((205.8 + 60) * 1024);
 // Feature 015 (research R10): at most 20 KB over the 014 budget; tus-js-client (resumable uploads) stays in a lazy chunk.
 export const BUDGET_015 = BUDGET_014 + 20 * 1024;
+// Feature 016 (FR-109, research R12): at most 20 KB over the 015 budget; the field drawer, the permissions matrix and the
+// app permission data stay in lazy chunks.
+export const BUDGET_016 = BUDGET_015 + 20 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
 // protocol header, Cropper.js (image editor) by its container class.
@@ -35,8 +38,19 @@ export const LAZY_ONLY = [
 export const LAZY_BUDGETS_015 = [
 	{ name: 'cropperjs', marker: 'cropper-container', limit: 60 * 1024 },
 	{ name: 'tus-js-client', marker: 'Tus-Resumable', limit: 25 * 1024 },
-	{ name: 'theme data', marker: '$generated', limit: 15 * 1024 },
+	{ name: 'theme data', marker: 'theme_directus_default', limit: 15 * 1024 },
 ];
+
+// Feature 016 (FR-109, research R12): the field drawer (its Pinia store id), the permissions matrix (the
+// `data-permissions-matrix` attribute of its table; i18n keys also sit in the language chunks) and the app permission
+// data (its source path). Not found until the wave that builds them.
+export const LAZY_BUDGETS_016 = [
+	{ name: 'field drawer', marker: 'fieldDetail', limit: 80 * 1024 },
+	{ name: 'permissions matrix', marker: 'data-permissions-matrix', limit: 40 * 1024 },
+	{ name: 'app permission data', marker: 'app-access-permissions', limit: 10 * 1024 },
+];
+
+export const LAZY_BUDGETS = [...LAZY_BUDGETS_015, ...LAZY_BUDGETS_016];
 
 /** Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker; null when none holds it. */
 export function lazyChunkSizes(distDir, entryFile) {
@@ -46,7 +60,7 @@ export function lazyChunkSizes(distDir, entryFile) {
 		.map((name) => join(assets, name))
 		.filter((file) => file !== entryFile);
 
-	return LAZY_BUDGETS_015.map((budget) => {
+	return LAZY_BUDGETS.map((budget) => {
 		const sizes = files
 			.filter((file) => readFileSync(file, 'utf8').includes(budget.marker))
 			.map((file) => gzipSync(readFileSync(file)).length);
@@ -76,7 +90,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const kb = (gzip / 1024).toFixed(1);
 
 	const leaks = lazyLeaks(file);
-	const limit = Math.min(LIMIT, BUDGET_015);
+	const limit = Math.min(LIMIT, BUDGET_016);
 
 	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
 	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);

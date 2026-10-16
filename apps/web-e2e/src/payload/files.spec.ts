@@ -266,6 +266,8 @@ test('batch move of two files from the library', async ({ browser, page }) => {
 			return { ids: [parent, target, a, b], path: `/files/folders/${parent}` };
 		},
 		async (p, tag) => {
+			// `.all()` does not wait: the two file cards must be there first (slow Directus app under emulation).
+			await expect(p.locator('.card').filter({ hasText: /batch[- ][ab]/i })).toHaveCount(2);
 			for (const card of await p.locator('.card').filter({ hasText: /batch/i }).all()) {
 				await card.hover();
 				await card.locator('.selector').click();
@@ -273,7 +275,7 @@ test('batch move of two files from the library', async ({ browser, page }) => {
 			await p.locator('header button:has(svg.custom-icon-svg)').first().click();
 			await card(p).getByText(`${tag} batch target`).click();
 			await card(p).getByRole('button', { name: 'Move' }).click();
-			await expect(p.locator('.card').filter({ hasText: /batch-a|batch a/i })).toHaveCount(0);
+			await expect(p.locator('.card').filter({ hasText: /batch-a|batch a/i })).toHaveCount(0, { timeout: 15_000 });
 		},
 		async (p, tag) => {
 			for (const name of ['batch-a', 'batch-b']) {

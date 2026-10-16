@@ -277,3 +277,87 @@ describe('getters', () => {
 		expect(fieldsStore.getField('a', 'm2a.id')).toBeNull();
 	});
 });
+
+// Feature 016 T013: the write actions of Directus stores/fields.ts.
+describe('write actions (016)', () => {
+	const raw = (field: string, extra: Record<string, unknown> = {}) =>
+		({ collection: 'a', field, type: 'string', schema: {}, meta: { collection: 'a', field, ...extra } }) as unknown as Field;
+
+	test('upsertField creates a new field (POST) without `name`, and updates an existing one (PATCH)', async () => {
+		const fetch = mockApi({
+			'POST /fields/a': raw('title'),
+			'PATCH /fields/a/title': raw('title', { hidden: true }),
+		});
+		const store = useFieldsStore();
+
+		await store.upsertField('a', 'title', { field: 'title', type: 'string', name: 'Title' } as never);
+		expect(store.getField('a', 'title')).toBeTruthy();
+		await store.upsertField('a', 'title', { meta: { hidden: true } } as never);
+
+		expect(calls(fetch)).toEqual(['POST /fields/a', 'PATCH /fields/a/title']);
+		expect(JSON.parse(fetch.mock.calls[0]![1]!.body as string)).toEqual({ field: 'title', type: 'string' });
+		expect(store.getField('a', 'title')!.meta!.hidden).toBe(true);
+	});
+
+	test('updateFields sends one PATCH with the array, and rolls back on error', async () => {
+		const store = useFieldsStore();
+		store.fields = [raw('one', { sort: 1 }), raw('two', { sort: 2 })].map(store.parseField);
+		const updates = [
+			{ field: 'two', meta: { sort: 1, group: null } },
+			{ field: 'one', meta: { sort: 2, group: null } },
+		];
+
+		const fetch = mockApi({ 'PATCH /fields/a': [raw('two', { sort: 1 }), raw('one', { sort: 2 })] });
+		await store.updateFields('a', updates as never);
+		expect(calls(fetch)).toEqual(['PATCH /fields/a']);
+		expect(JSON.parse(fetch.mock.calls[0]![1]!.body as string)).toEqual(updates);
+		expect(store.getField('a', 'two')!.meta!.sort).toBe(1);
+
+		mockApi({});
+		await store.updateFields('a', [{ field: 'one', meta: { sort: 9 } }] as never);
+		expect(store.getField('a', 'one')!.meta!.sort).toBe(2);
+	});
+
+	test('only the latest updateFields response is applied (one counter for every collection)', async () => {
+		const store = useFieldsStore();
+		store.fields = [raw('one', { sort: 1 })].map(store.parseField);
+		let release!: () => void;
+		const first = new Promise<void>((resolve) => (release = resolve));
+
+		mockApi({
+			'PATCH /fields/a': async () => {
+				await first;
+				return new Response(JSON.stringify({ data: [raw('one', { sort: 5 })] }), { status: 200 });
+			},
+			'PATCH /fields/b': [],
+		});
+
+		const slow = store.updateFields('a', [{ field: 'one', meta: { sort: 5 } }] as never);
+		await store.updateFields('b', []);
+		store.fields = store.fields.map((f) => (f.field === 'one' ? { ...f, meta: { ...f.meta!, sort: 7 } } : f));
+		release();
+		await slow;
+
+		expect(store.getField('a', 'one')!.meta!.sort).toBe(7);
+	});
+
+	test('deleteField removes the field and its relations first, then hydrates collections; rolls back on error', async () => {
+		const store = useFieldsStore();
+		const relationsStore = useRelationsStore();
+		store.fields = [raw('m2o')].map(store.parseField);
+		relationsStore.relations = [{ collection: 'a', field: 'm2o', related_collection: 'b', meta: null }] as never;
+
+		const fetch = mockApi({ 'DELETE /fields/a/m2o': () => new Response(null, { status: 204 }), 'GET /collections': [] });
+		await store.deleteField('a', 'm2o');
+		expect(calls(fetch)).toEqual(['DELETE /fields/a/m2o', 'GET /collections']);
+		expect(store.getField('a', 'm2o')).toBeNull();
+		expect(relationsStore.relations).toEqual([]);
+
+		store.fields = [raw('m2o')].map(store.parseField);
+		relationsStore.relations = [{ collection: 'a', field: 'm2o', related_collection: 'b', meta: null }] as never;
+		mockApi({});
+		await store.deleteField('a', 'm2o');
+		expect(store.getField('a', 'm2o')).toBeTruthy();
+		expect(relationsStore.relations).toHaveLength(1);
+	});
+});

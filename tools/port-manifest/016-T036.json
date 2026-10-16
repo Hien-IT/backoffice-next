@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/collections.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/CollectionsRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/data-model/collections/collections.vue",
+		"dest": "apps/web/src/modules/settings/routes/data-model/components/SnapshotSidebarDetail.vue"
+	}
+]

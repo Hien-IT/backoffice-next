@@ -1,0 +1,9 @@
+[
+	{
+		"id": "bo-67",
+		"name": "bo-settings-role",
+		"icon": "tune",
+		"description": "Settings fixture role",
+		"parent": "bo-8"
+	}
+]

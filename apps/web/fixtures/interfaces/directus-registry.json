@@ -2304,22 +2304,34 @@
 			"id": "boolean",
 			"name": "$t:interfaces.boolean.toggle",
 			"icon": "check_box",
-			"types": ["boolean"],
+			"types": [
+				"boolean"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["boolean"],
+			"recommendedDisplays": [
+				"boolean"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["colorOff", "colorOn", "iconOff", "iconOn", "label"]
+			"optionKeys": [
+				"colorOff",
+				"colorOn",
+				"iconOff",
+				"iconOn",
+				"label"
+			]
 		},
 		"collection-item-dropdown": {
 			"id": "collection-item-dropdown",
 			"name": "$t:interfaces.collection-item-dropdown.collection-item-dropdown",
 			"icon": "arrow_right_alt",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -2328,13 +2340,19 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["filter", "selectedCollection", "template"]
+			"optionKeys": [
+				"filter",
+				"selectedCollection",
+				"template"
+			]
 		},
 		"collection-item-multiple-dropdown": {
 			"id": "collection-item-multiple-dropdown",
 			"name": "$t:interfaces.collection-item-multiple-dropdown.collection-item-multiple-dropdown",
 			"icon": "arrow_right_alt",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -2343,122 +2361,430 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["filter", "selectedCollection", "template"]
+			"optionKeys": [
+				"filter",
+				"selectedCollection",
+				"template"
+			]
 		},
 		"datetime": {
 			"id": "datetime",
 			"name": "$t:interfaces.datetime.datetime",
 			"icon": "today",
-			"types": ["dateTime", "date", "time", "timestamp"],
+			"types": [
+				"dateTime",
+				"date",
+				"time",
+				"timestamp"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["datetime"],
+			"recommendedDisplays": [
+				"datetime"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 30, 32, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-						48, 49, 50, 51
+						0,
+						2,
+						4,
+						6,
+						8,
+						10,
+						12,
+						14,
+						16,
+						18,
+						20,
+						24,
+						28,
+						30,
+						32,
+						34,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["format", "includeSeconds", "relative", "use24"]
+					"keys": [
+						"format",
+						"includeSeconds",
+						"relative",
+						"use24"
+					]
 				},
 				{
-					"contexts": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35],
-					"keys": ["relative", "round", "strict", "suffix"]
+					"contexts": [
+						1,
+						3,
+						5,
+						7,
+						9,
+						11,
+						13,
+						15,
+						17,
+						19,
+						21,
+						23,
+						25,
+						27,
+						29,
+						31,
+						33,
+						35
+					],
+					"keys": [
+						"relative",
+						"round",
+						"strict",
+						"suffix"
+					]
 				},
 				{
-					"contexts": [22],
-					"keys": ["format", "includeSeconds", "relative", "tz", "use24"]
+					"contexts": [
+						22
+					],
+					"keys": [
+						"format",
+						"includeSeconds",
+						"relative",
+						"tz",
+						"use24"
+					]
 				},
 				{
-					"contexts": [26],
-					"keys": ["format", "relative"]
+					"contexts": [
+						26
+					],
+					"keys": [
+						"format",
+						"relative"
+					]
 				}
 			],
-			"optionKeys": ["format", "includeSeconds", "relative", "round", "strict", "suffix", "tz", "use24"]
+			"optionKeys": [
+				"format",
+				"includeSeconds",
+				"relative",
+				"round",
+				"strict",
+				"suffix",
+				"tz",
+				"use24"
+			]
 		},
 		"file": {
 			"id": "file",
 			"name": "$t:interfaces.file.file",
 			"icon": "note_add",
-			"types": ["uuid"],
-			"localTypes": ["file"],
+			"types": [
+				"uuid"
+			],
+			"localTypes": [
+				"file"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["file"],
+			"recommendedDisplays": [
+				"file"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder"]
+					"keys": [
+						"allowedMimeTypes",
+						"enableCreate",
+						"enableSelect",
+						"filter",
+						"folder"
+					]
 				}
 			],
-			"optionKeys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder"]
+			"optionKeys": [
+				"allowedMimeTypes",
+				"enableCreate",
+				"enableSelect",
+				"filter",
+				"folder"
+			]
 		},
 		"file-image": {
 			"id": "file-image",
 			"name": "$t:interfaces.file-image.image",
 			"icon": "insert_photo",
-			"types": ["uuid"],
-			"localTypes": ["file"],
+			"types": [
+				"uuid"
+			],
+			"localTypes": [
+				"file"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["image"],
+			"recommendedDisplays": [
+				"image"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowedMimeTypes", "crop", "enableCreate", "enableSelect", "filter", "folder", "letterbox"]
+					"keys": [
+						"allowedMimeTypes",
+						"crop",
+						"enableCreate",
+						"enableSelect",
+						"filter",
+						"folder",
+						"letterbox"
+					]
 				}
 			],
-			"optionKeys": ["allowedMimeTypes", "crop", "enableCreate", "enableSelect", "filter", "folder", "letterbox"]
+			"optionKeys": [
+				"allowedMimeTypes",
+				"crop",
+				"enableCreate",
+				"enableSelect",
+				"filter",
+				"folder",
+				"letterbox"
+			]
 		},
 		"files": {
 			"id": "files",
 			"name": "$t:interfaces.files.files",
 			"icon": "note_add",
-			"types": ["alias"],
-			"localTypes": ["files"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"files"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["related-values"],
+			"recommendedDisplays": [
+				"related-values"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder", "limit", "template"]
+					"keys": [
+						"allowedMimeTypes",
+						"enableCreate",
+						"enableSelect",
+						"filter",
+						"folder",
+						"limit",
+						"template"
+					]
 				}
 			],
-			"optionKeys": ["allowedMimeTypes", "enableCreate", "enableSelect", "filter", "folder", "limit", "template"]
+			"optionKeys": [
+				"allowedMimeTypes",
+				"enableCreate",
+				"enableSelect",
+				"filter",
+				"folder",
+				"limit",
+				"template"
+			]
 		},
 		"group-accordion": {
 			"id": "group-accordion",
 			"name": "$t:interfaces.group-accordion.name",
 			"icon": "horizontal_split",
-			"types": ["alias"],
-			"localTypes": ["group"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"group"
+			],
 			"group": "group",
 			"relational": null,
 			"hideLabel": true,
@@ -2466,14 +2792,21 @@
 			"autoKey": true,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["accordionMode", "start"]
+			"optionKeys": [
+				"accordionMode",
+				"start"
+			]
 		},
 		"group-detail": {
 			"id": "group-detail",
 			"name": "$t:interfaces.group-detail.name",
 			"icon": "menu_open",
-			"types": ["alias"],
-			"localTypes": ["group"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"group"
+			],
 			"group": "group",
 			"relational": null,
 			"hideLabel": null,
@@ -2481,14 +2814,22 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["headerColor", "headerIcon", "start"]
+			"optionKeys": [
+				"headerColor",
+				"headerIcon",
+				"start"
+			]
 		},
 		"group-raw": {
 			"id": "group-raw",
 			"name": "$t:interfaces.group-raw.name",
 			"icon": "view_in_ar",
-			"types": ["alias"],
-			"localTypes": ["group"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"group"
+			],
 			"group": "group",
 			"relational": null,
 			"hideLabel": null,
@@ -2502,8 +2843,12 @@
 			"id": "group-tabs",
 			"name": "$t:interfaces.group-tabs.name",
 			"icon": "tab",
-			"types": ["alias"],
-			"localTypes": ["group"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"group"
+			],
 			"group": "group",
 			"relational": null,
 			"hideLabel": true,
@@ -2511,13 +2856,23 @@
 			"autoKey": true,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["fillWidth"]
+			"optionKeys": [
+				"fillWidth"
+			]
 		},
 		"input": {
 			"id": "input",
 			"name": "$t:interfaces.input.input",
 			"icon": "text_fields",
-			"types": ["string", "uuid", "bigInteger", "integer", "float", "decimal", "text"],
+			"types": [
+				"string",
+				"uuid",
+				"bigInteger",
+				"integer",
+				"float",
+				"decimal",
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2529,14 +2884,83 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 6, 7, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-						32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						6,
+						7,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["clear", "font", "iconLeft", "iconRight", "masked", "placeholder", "slug", "softLength", "trim"]
+					"keys": [
+						"clear",
+						"font",
+						"iconLeft",
+						"iconRight",
+						"masked",
+						"placeholder",
+						"slug",
+						"softLength",
+						"trim"
+					]
 				},
 				{
-					"contexts": [4, 5, 8, 9],
-					"keys": ["font", "iconLeft", "iconRight", "max", "min", "placeholder", "step"]
+					"contexts": [
+						4,
+						5,
+						8,
+						9
+					],
+					"keys": [
+						"font",
+						"iconLeft",
+						"iconRight",
+						"max",
+						"min",
+						"placeholder",
+						"step"
+					]
 				}
 			],
 			"optionKeys": [
@@ -2558,14 +2982,21 @@
 			"id": "input-autocomplete-api",
 			"name": "$t:interfaces.input-autocomplete-api.input-autocomplete-api",
 			"icon": "find_in_page",
-			"types": ["string", "text"],
-			"localTypes": ["standard"],
+			"types": [
+				"string",
+				"text"
+			],
+			"localTypes": [
+				"standard"
+			],
 			"group": "standard",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["formatted-value"],
+			"recommendedDisplays": [
+				"formatted-value"
+			],
 			"optionsKind": "array",
 			"optionKeys": [
 				"font",
@@ -2584,7 +3015,9 @@
 			"id": "input-block-editor",
 			"name": "$t:interfaces.input-block-editor.input-block-editor",
 			"icon": "code",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2593,13 +3026,24 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["bordered", "folder", "font", "placeholder", "tools"]
+			"optionKeys": [
+				"bordered",
+				"folder",
+				"font",
+				"placeholder",
+				"tools"
+			]
 		},
 		"input-code": {
 			"id": "input-code",
 			"name": "$t:interfaces.input-code.code",
 			"icon": "code",
-			"types": ["string", "json", "text", "geometry"],
+			"types": [
+				"string",
+				"json",
+				"text",
+				"geometry"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2611,38 +3055,112 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30,
-						31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["language", "lineNumber", "lineWrapping", "template"]
+					"keys": [
+						"language",
+						"lineNumber",
+						"lineWrapping",
+						"template"
+					]
 				},
 				{
-					"contexts": [14, 15],
-					"keys": ["lineNumber", "lineWrapping", "template"]
+					"contexts": [
+						14,
+						15
+					],
+					"keys": [
+						"lineNumber",
+						"lineWrapping",
+						"template"
+					]
 				}
 			],
-			"optionKeys": ["language", "lineNumber", "lineWrapping", "template"]
+			"optionKeys": [
+				"language",
+				"lineNumber",
+				"lineWrapping",
+				"template"
+			]
 		},
 		"input-hash": {
 			"id": "input-hash",
 			"name": "$t:interfaces.input-hash.hash",
 			"icon": "fingerprint",
-			"types": ["hash"],
+			"types": [
+				"hash"
+			],
 			"localTypes": null,
 			"group": "other",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["hash"],
+			"recommendedDisplays": [
+				"hash"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["masked", "placeholder"]
+			"optionKeys": [
+				"masked",
+				"placeholder"
+			]
 		},
 		"input-multiline": {
 			"id": "input-multiline",
 			"name": "$t:interfaces.input-multiline.textarea",
 			"icon": "text_fields",
-			"types": ["text"],
+			"types": [
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2651,13 +3169,21 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["clear", "font", "placeholder", "softLength", "trim"]
+			"optionKeys": [
+				"clear",
+				"font",
+				"placeholder",
+				"softLength",
+				"trim"
+			]
 		},
 		"input-rich-text-html": {
 			"id": "input-rich-text-html",
 			"name": "$t:interfaces.input-rich-text-html.wysiwyg",
 			"icon": "format_quote",
-			"types": ["text"],
+			"types": [
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2666,13 +3192,23 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "standard-advanced",
-			"optionKeys": ["customFormats", "folder", "font", "imageToken", "softLength", "tinymceOverrides", "toolbar"]
+			"optionKeys": [
+				"customFormats",
+				"folder",
+				"font",
+				"imageToken",
+				"softLength",
+				"tinymceOverrides",
+				"toolbar"
+			]
 		},
 		"input-rich-text-md": {
 			"id": "input-rich-text-md",
 			"name": "$t:interfaces.input-rich-text-md.markdown",
 			"icon": "functions",
-			"types": ["text"],
+			"types": [
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -2697,7 +3233,9 @@
 			"id": "list",
 			"name": "$t:interfaces.list.repeater",
 			"icon": "replay",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
@@ -2706,15 +3244,24 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "component",
-			"optionKeys": ["addLabel", "fields", "sort", "template"],
+			"optionKeys": [
+				"addLabel",
+				"fields",
+				"sort",
+				"template"
+			],
 			"optionKeysManual": true
 		},
 		"list-m2a": {
 			"id": "list-m2a",
 			"name": "$t:list-m2a",
 			"icon": "note_add",
-			"types": ["alias"],
-			"localTypes": ["m2a"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"m2a"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
@@ -2725,32 +3272,142 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowDuplicates", "enableCreate", "enableSelect", "limit", "prefix"]
+					"keys": [
+						"allowDuplicates",
+						"enableCreate",
+						"enableSelect",
+						"limit",
+						"prefix"
+					]
 				}
 			],
-			"optionKeys": ["allowDuplicates", "enableCreate", "enableSelect", "limit", "prefix"]
+			"optionKeys": [
+				"allowDuplicates",
+				"enableCreate",
+				"enableSelect",
+				"limit",
+				"prefix"
+			]
 		},
 		"list-m2m": {
 			"id": "list-m2m",
 			"name": "$t:interfaces.list-m2m.many-to-many",
 			"icon": "note_add",
-			"types": ["alias"],
-			"localTypes": ["m2m"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"m2m"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["related-values"],
+			"recommendedDisplays": [
+				"related-values"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 42, 44, 46, 48, 50
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						38,
+						40,
+						42,
+						44,
+						46,
+						48,
+						50
 					],
 					"keys": [
 						"allowDuplicates",
@@ -2766,7 +3423,16 @@
 					]
 				},
 				{
-					"contexts": [37, 39, 41, 43, 45, 47, 49, 51],
+					"contexts": [
+						37,
+						39,
+						41,
+						43,
+						45,
+						47,
+						49,
+						51
+					],
 					"keys": [
 						"allowDuplicates",
 						"enableCreate",
@@ -2801,20 +3467,68 @@
 			"id": "list-o2m",
 			"name": "$t:interfaces.list-o2m.one-to-many",
 			"icon": "arrow_right_alt",
-			"types": ["alias"],
-			"localTypes": ["o2m"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"o2m"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["related-values"],
+			"recommendedDisplays": [
+				"related-values"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 38, 40, 42, 44, 46, 48, 50
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						38,
+						40,
+						42,
+						44,
+						46,
+						48,
+						50
 					],
 					"keys": [
 						"enableCreate",
@@ -2830,7 +3544,16 @@
 					]
 				},
 				{
-					"contexts": [37, 39, 41, 43, 45, 47, 49, 51],
+					"contexts": [
+						37,
+						39,
+						41,
+						43,
+						45,
+						47,
+						49,
+						51
+					],
 					"keys": [
 						"enableCreate",
 						"enableLink",
@@ -2865,8 +3588,12 @@
 			"id": "list-o2m-tree-view",
 			"name": "$t:tree_view",
 			"icon": "account_tree",
-			"types": ["alias"],
-			"localTypes": ["o2m"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"o2m"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
@@ -2877,13 +3604,73 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["displayTemplate", "enableCreate", "enableSelect", "filter"]
+					"keys": [
+						"displayTemplate",
+						"enableCreate",
+						"enableSelect",
+						"filter"
+					]
 				}
 			],
-			"optionKeys": ["displayTemplate", "enableCreate", "enableSelect", "filter"]
+			"optionKeys": [
+				"displayTemplate",
+				"enableCreate",
+				"enableSelect",
+				"filter"
+			]
 		},
 		"map": {
 			"id": "map",
@@ -2910,15 +3697,22 @@
 			"autoKey": null,
 			"recommendedDisplays": [],
 			"optionsKind": "component",
-			"optionKeys": ["defaultView", "geometryType"],
+			"optionKeys": [
+				"defaultView",
+				"geometryType"
+			],
 			"optionKeysManual": true
 		},
 		"presentation-divider": {
 			"id": "presentation-divider",
 			"name": "$t:interfaces.presentation-divider.divider",
 			"icon": "remove",
-			"types": ["alias"],
-			"localTypes": ["presentation"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"presentation"
+			],
 			"group": "presentation",
 			"relational": null,
 			"hideLabel": true,
@@ -2926,14 +3720,23 @@
 			"autoKey": true,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["color", "icon", "inlineTitle", "title"]
+			"optionKeys": [
+				"color",
+				"icon",
+				"inlineTitle",
+				"title"
+			]
 		},
 		"header": {
 			"id": "header",
 			"name": "$t:interfaces.header.header",
 			"icon": "exercise",
-			"types": ["alias"],
-			"localTypes": ["presentation"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"presentation"
+			],
 			"group": "presentation",
 			"relational": null,
 			"hideLabel": true,
@@ -2944,8 +3747,58 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
 					"keys": [
 						"color",
@@ -2976,8 +3829,12 @@
 			"id": "presentation-links",
 			"name": "$t:interfaces.presentation-links.presentation-links",
 			"icon": "smart_button",
-			"types": ["alias"],
-			"localTypes": ["presentation"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"presentation"
+			],
 			"group": "presentation",
 			"relational": null,
 			"hideLabel": true,
@@ -2988,20 +3845,78 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["links"]
+					"keys": [
+						"links"
+					]
 				}
 			],
-			"optionKeys": ["links"]
+			"optionKeys": [
+				"links"
+			]
 		},
 		"presentation-notice": {
 			"id": "presentation-notice",
 			"name": "$t:interfaces.presentation-notice.notice",
 			"icon": "info",
-			"types": ["alias"],
-			"localTypes": ["presentation"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"presentation"
+			],
 			"group": "presentation",
 			"relational": null,
 			"hideLabel": true,
@@ -3009,92 +3924,302 @@
 			"autoKey": true,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["color", "icon", "text"]
+			"optionKeys": [
+				"color",
+				"icon",
+				"text"
+			]
 		},
 		"select-color": {
 			"id": "select-color",
 			"name": "$t:interfaces.select-color.color",
 			"icon": "palette",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["color"],
+			"recommendedDisplays": [
+				"color"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["opacity", "presets"]
+					"keys": [
+						"opacity",
+						"presets"
+					]
 				}
 			],
-			"optionKeys": ["opacity", "presets"]
+			"optionKeys": [
+				"opacity",
+				"presets"
+			]
 		},
 		"select-dropdown": {
 			"id": "select-dropdown",
 			"name": "$t:dropdown",
 			"icon": "arrow_drop_down_circle",
-			"types": ["string", "integer", "float", "decimal", "bigInteger"],
+			"types": [
+				"string",
+				"integer",
+				"float",
+				"decimal",
+				"bigInteger"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["labels"],
+			"recommendedDisplays": [
+				"labels"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowNone", "allowOther", "choices", "icon", "placeholder"]
+					"keys": [
+						"allowNone",
+						"allowOther",
+						"choices",
+						"icon",
+						"placeholder"
+					]
 				}
 			],
-			"optionKeys": ["allowNone", "allowOther", "choices", "icon", "placeholder"]
+			"optionKeys": [
+				"allowNone",
+				"allowOther",
+				"choices",
+				"icon",
+				"placeholder"
+			]
 		},
 		"select-dropdown-m2o": {
 			"id": "select-dropdown-m2o",
 			"name": "$t:interfaces.select-dropdown-m2o.many-to-one",
 			"icon": "arrow_right_alt",
-			"types": ["uuid", "string", "text", "integer", "bigInteger"],
-			"localTypes": ["m2o"],
+			"types": [
+				"uuid",
+				"string",
+				"text",
+				"integer",
+				"bigInteger"
+			],
+			"localTypes": [
+				"m2o"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["related-values"],
+			"recommendedDisplays": [
+				"related-values"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["enableCreate", "enableLink", "enableSelect", "filter", "template"]
+					"keys": [
+						"enableCreate",
+						"enableLink",
+						"enableSelect",
+						"filter",
+						"template"
+					]
 				}
 			],
-			"optionKeys": ["enableCreate", "enableLink", "enableSelect", "filter", "template"]
+			"optionKeys": [
+				"enableCreate",
+				"enableLink",
+				"enableSelect",
+				"filter",
+				"template"
+			]
 		},
 		"select-icon": {
 			"id": "select-icon",
 			"name": "$t:interfaces.select-icon.icon",
 			"icon": "insert_emoticon",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["icon"],
+			"recommendedDisplays": [
+				"icon"
+			],
 			"optionsKind": "array",
 			"optionKeys": []
 		},
@@ -3102,76 +4227,180 @@
 			"id": "select-multiple-checkbox",
 			"name": "$t:interfaces.select-multiple-checkbox.checkboxes",
 			"icon": "check_box",
-			"types": ["json", "csv"],
+			"types": [
+				"json",
+				"csv"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["labels"],
+			"recommendedDisplays": [
+				"labels"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["allowOther", "choices", "color", "iconOff", "iconOn", "itemsShown"]
+			"optionKeys": [
+				"allowOther",
+				"choices",
+				"color",
+				"iconOff",
+				"iconOn",
+				"itemsShown"
+			]
 		},
 		"select-multiple-checkbox-tree": {
 			"id": "select-multiple-checkbox-tree",
 			"name": "$t:interfaces.select-multiple-checkbox-tree.name",
 			"icon": "account_tree",
-			"types": ["json", "csv"],
+			"types": [
+				"json",
+				"csv"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["labels"],
+			"recommendedDisplays": [
+				"labels"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["choices", "valueCombining"]
+			"optionKeys": [
+				"choices",
+				"valueCombining"
+			]
 		},
 		"select-multiple-dropdown": {
 			"id": "select-multiple-dropdown",
 			"name": "$t:interfaces.select-multiple-dropdown.select-multiple-dropdown",
 			"icon": "arrow_drop_down_circle",
-			"types": ["json", "csv"],
+			"types": [
+				"json",
+				"csv"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["labels"],
+			"recommendedDisplays": [
+				"labels"
+			],
 			"optionsKind": "standard-advanced",
-			"optionKeys": ["allowNone", "allowOther", "choices", "icon", "placeholder", "previewThreshold"]
+			"optionKeys": [
+				"allowNone",
+				"allowOther",
+				"choices",
+				"icon",
+				"placeholder",
+				"previewThreshold"
+			]
 		},
 		"select-radio": {
 			"id": "select-radio",
 			"name": "$t:interfaces.select-radio.radio-buttons",
 			"icon": "radio_button_checked",
-			"types": ["string", "integer", "float", "bigInteger"],
+			"types": [
+				"string",
+				"integer",
+				"float",
+				"bigInteger"
+			],
 			"localTypes": null,
 			"group": "selection",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["badge"],
+			"recommendedDisplays": [
+				"badge"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["allowOther", "choices", "color", "iconOff", "iconOn"]
+					"keys": [
+						"allowOther",
+						"choices",
+						"color",
+						"iconOff",
+						"iconOn"
+					]
 				}
 			],
-			"optionKeys": ["allowOther", "choices", "color", "iconOff", "iconOn"]
+			"optionKeys": [
+				"allowOther",
+				"choices",
+				"color",
+				"iconOff",
+				"iconOn"
+			]
 		},
 		"slider": {
 			"id": "slider",
 			"name": "$t:interfaces.slider.slider",
 			"icon": "linear_scale",
-			"types": ["integer", "float"],
+			"types": [
+				"integer",
+				"float"
+			],
 			"localTypes": null,
 			"group": "other",
 			"relational": null,
@@ -3180,20 +4409,30 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["alwaysShowValue", "maxValue", "minValue", "stepInterval"]
+			"optionKeys": [
+				"alwaysShowValue",
+				"maxValue",
+				"minValue",
+				"stepInterval"
+			]
 		},
 		"tags": {
 			"id": "tags",
 			"name": "$t:interfaces.tags.tags",
 			"icon": "local_offer",
-			"types": ["json", "csv"],
+			"types": [
+				"json",
+				"csv"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
 			"hideLabel": null,
 			"hideLoader": null,
 			"autoKey": null,
-			"recommendedDisplays": ["labels"],
+			"recommendedDisplays": [
+				"labels"
+			],
 			"optionsKind": "array",
 			"optionKeys": [
 				"allowCustom",
@@ -3210,8 +4449,12 @@
 			"id": "translations",
 			"name": "$t:translations",
 			"icon": "translate",
-			"types": ["alias"],
-			"localTypes": ["translations"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"translations"
+			],
 			"group": "relational",
 			"relational": true,
 			"hideLabel": null,
@@ -3222,10 +4465,66 @@
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["defaultLanguage", "defaultOpenSplitView", "languageDirectionField", "languageField", "userLanguage"]
+					"keys": [
+						"defaultLanguage",
+						"defaultOpenSplitView",
+						"languageDirectionField",
+						"languageField",
+						"userLanguage"
+					]
 				}
 			],
 			"optionKeys": [
@@ -3240,7 +4539,10 @@
 			"id": "system-raw-editor",
 			"name": "$t:interfaces.system-raw-editor.system-raw-editor",
 			"icon": "code",
-			"types": ["string", "text"],
+			"types": [
+				"string",
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -3249,13 +4551,18 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["placeholder"]
+			"optionKeys": [
+				"placeholder"
+			]
 		},
 		"system-input-translated-string": {
 			"id": "system-input-translated-string",
 			"name": "$t:interfaces.input-translated-string.input-translated-string",
 			"icon": "translate",
-			"types": ["string", "text"],
+			"types": [
+				"string",
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -3264,13 +4571,17 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["placeholder"]
+			"optionKeys": [
+				"placeholder"
+			]
 		},
 		"system-filter": {
 			"id": "system-filter",
 			"name": "$t:interfaces.filter.name",
 			"icon": "search",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -3285,7 +4596,9 @@
 			"id": "system-language",
 			"name": "$t:language",
 			"icon": "translate",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -3300,7 +4613,10 @@
 			"id": "system-input-password",
 			"name": "$t:interfaces.input-password.input-password",
 			"icon": "visibility",
-			"types": ["string", "text"],
+			"types": [
+				"string",
+				"text"
+			],
 			"localTypes": null,
 			"group": "standard",
 			"relational": null,
@@ -3309,13 +4625,17 @@
 			"autoKey": null,
 			"recommendedDisplays": null,
 			"optionsKind": "array",
-			"optionKeys": ["placeholder"]
+			"optionKeys": [
+				"placeholder"
+			]
 		},
 		"system-mfa-setup": {
 			"id": "system-mfa-setup",
 			"name": "mfa-setup",
 			"icon": "box",
-			"types": ["text"],
+			"types": [
+				"text"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -3330,7 +4650,9 @@
 			"id": "system-token",
 			"name": "$t:interfaces.system-token.system-token",
 			"icon": "vpn_key",
-			"types": ["hash"],
+			"types": [
+				"hash"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -3345,7 +4667,9 @@
 			"id": "system-theme",
 			"name": "$t:theme",
 			"icon": "palette",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
@@ -3360,11 +4684,104 @@
 			"id": "system-theme-overrides",
 			"name": "$t:theme-overrides",
 			"icon": "palette",
-			"types": ["json"],
+			"types": [
+				"json"
+			],
 			"localTypes": null,
 			"group": null,
 			"relational": null,
 			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-collection": {
+			"id": "system-collection",
+			"name": "$t:interfaces.system-collection.collection",
+			"icon": "featured_play_list",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": [
+				"collection"
+			],
+			"optionsKind": "array",
+			"optionKeys": [
+				"includeSystem"
+			]
+		},
+		"system-field": {
+			"id": "system-field",
+			"name": "$t:field",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-field-tree": {
+			"id": "system-field-tree",
+			"name": "$t:field",
+			"icon": "box",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": []
+		},
+		"system-display-template": {
+			"id": "system-display-template",
+			"name": "$t:interfaces.system-display-template.display-template",
+			"icon": "arrow_drop_down_circle",
+			"types": [
+				"string"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": null,
+			"hideLoader": null,
+			"autoKey": null,
+			"recommendedDisplays": null,
+			"optionsKind": "array",
+			"optionKeys": [
+				"collectionField"
+			]
+		},
+		"system-collections-translations": {
+			"id": "system-collections-translations",
+			"name": "$t:enable_translations",
+			"icon": "translate",
+			"types": [
+				"alias"
+			],
+			"localTypes": null,
+			"group": null,
+			"relational": null,
+			"hideLabel": true,
 			"hideLoader": null,
 			"autoKey": null,
 			"recommendedDisplays": null,
@@ -3377,65 +4794,172 @@
 			"id": "boolean",
 			"name": "$t:displays.boolean.boolean",
 			"icon": "check_box",
-			"types": ["boolean"],
+			"types": [
+				"boolean"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["colorOff", "colorOn", "iconOff", "iconOn", "labelOff", "labelOn"]
+			"optionKeys": [
+				"colorOff",
+				"colorOn",
+				"iconOff",
+				"iconOn",
+				"labelOff",
+				"labelOn"
+			]
 		},
 		"collection": {
 			"id": "collection",
 			"name": "$t:displays.collection.collection",
 			"icon": "label",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["icon"]
+			"optionKeys": [
+				"icon"
+			]
 		},
 		"color": {
 			"id": "color",
 			"name": "$t:displays.color.color",
 			"icon": "flag",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["defaultColor"]
+			"optionKeys": [
+				"defaultColor"
+			]
 		},
 		"datetime": {
 			"id": "datetime",
 			"name": "$t:displays.datetime.datetime",
 			"icon": "query_builder",
-			"types": ["dateTime", "date", "time", "timestamp"],
+			"types": [
+				"dateTime",
+				"date",
+				"time",
+				"timestamp"
+			],
 			"localTypes": null,
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 24, 28, 30, 32, 34, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-						48, 49, 50, 51
+						0,
+						2,
+						4,
+						6,
+						8,
+						10,
+						12,
+						14,
+						16,
+						18,
+						20,
+						24,
+						28,
+						30,
+						32,
+						34,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["format", "includeSeconds", "relative", "use24"]
+					"keys": [
+						"format",
+						"includeSeconds",
+						"relative",
+						"use24"
+					]
 				},
 				{
-					"contexts": [1, 3, 5, 7, 9, 11, 13, 15, 17, 19, 21, 23, 25, 27, 29, 31, 33, 35],
-					"keys": ["relative", "round", "strict", "suffix"]
+					"contexts": [
+						1,
+						3,
+						5,
+						7,
+						9,
+						11,
+						13,
+						15,
+						17,
+						19,
+						21,
+						23,
+						25,
+						27,
+						29,
+						31,
+						33,
+						35
+					],
+					"keys": [
+						"relative",
+						"round",
+						"strict",
+						"suffix"
+					]
 				},
 				{
-					"contexts": [22],
-					"keys": ["format", "includeSeconds", "relative", "tz", "use24"]
+					"contexts": [
+						22
+					],
+					"keys": [
+						"format",
+						"includeSeconds",
+						"relative",
+						"tz",
+						"use24"
+					]
 				},
 				{
-					"contexts": [26],
-					"keys": ["format", "relative"]
+					"contexts": [
+						26
+					],
+					"keys": [
+						"format",
+						"relative"
+					]
 				}
 			],
-			"optionKeys": ["format", "includeSeconds", "relative", "round", "strict", "suffix", "tz", "use24"]
+			"optionKeys": [
+				"format",
+				"includeSeconds",
+				"relative",
+				"round",
+				"strict",
+				"suffix",
+				"tz",
+				"use24"
+			]
 		},
 		"file": {
 			"id": "file",
 			"name": "$t:displays.file.file",
 			"icon": "insert_drive_file",
-			"types": ["uuid"],
-			"localTypes": ["file"],
+			"types": [
+				"uuid"
+			],
+			"localTypes": [
+				"file"
+			],
 			"optionsKind": "array",
 			"optionKeys": []
 		},
@@ -3443,7 +4967,10 @@
 			"id": "filesize",
 			"name": "$t:displays.filesize.filesize",
 			"icon": "description",
-			"types": ["integer", "bigInteger"],
+			"types": [
+				"integer",
+				"bigInteger"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
 			"optionKeys": []
@@ -3452,23 +4979,85 @@
 			"id": "formatted-json-value",
 			"name": "$t:displays.formatted-json-value.formatted-json-value",
 			"icon": "settings_ethernet",
-			"types": ["json", "geometry"],
+			"types": [
+				"json",
+				"geometry"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["format"]
+			"optionKeys": [
+				"format"
+			]
 		},
 		"formatted-value": {
 			"id": "formatted-value",
 			"name": "$t:displays.formatted-value.formatted-value",
 			"icon": "text_format",
-			"types": ["string", "text", "integer", "float", "decimal", "bigInteger"],
+			"types": [
+				"string",
+				"text",
+				"integer",
+				"float",
+				"decimal",
+				"bigInteger"
+			],
 			"localTypes": null,
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
 					"keys": [
 						"background",
@@ -3505,7 +5094,9 @@
 			"id": "hash",
 			"name": "$t:displays.hash.hash",
 			"icon": "fingerprint",
-			"types": ["hash"],
+			"types": [
+				"hash"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
 			"optionKeys": []
@@ -3514,46 +5105,79 @@
 			"id": "icon",
 			"name": "$t:displays.icon.icon",
 			"icon": "insert_emoticon",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["color", "filled"]
+			"optionKeys": [
+				"color",
+				"filled"
+			]
 		},
 		"image": {
 			"id": "image",
 			"name": "$t:displays.image.image",
 			"icon": "insert_photo",
-			"types": ["uuid"],
-			"localTypes": ["file"],
+			"types": [
+				"uuid"
+			],
+			"localTypes": [
+				"file"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["circle"]
+			"optionKeys": [
+				"circle"
+			]
 		},
 		"labels": {
 			"id": "labels",
 			"name": "$t:displays.labels.labels",
 			"icon": "flag",
-			"types": ["string", "json", "csv", "integer", "float", "decimal", "bigInteger"],
+			"types": [
+				"string",
+				"json",
+				"csv",
+				"integer",
+				"float",
+				"decimal",
+				"bigInteger"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["choices", "format", "showAsDot"]
+			"optionKeys": [
+				"choices",
+				"format",
+				"showAsDot"
+			]
 		},
 		"mime-type": {
 			"id": "mime-type",
 			"name": "$t:displays.mime-type.mime-type",
 			"icon": "picture_as_pdf",
-			"types": ["string"],
+			"types": [
+				"string"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["showAsExtension"]
+			"optionKeys": [
+				"showAsExtension"
+			]
 		},
 		"rating": {
 			"id": "rating",
 			"name": "$t:displays.rating.rating",
 			"icon": "star",
-			"types": ["integer", "decimal", "float"],
+			"types": [
+				"integer",
+				"decimal",
+				"float"
+			],
 			"localTypes": null,
 			"optionsKind": "array",
-			"optionKeys": ["simple"]
+			"optionKeys": [
+				"simple"
+			]
 		},
 		"raw": {
 			"id": "raw",
@@ -3586,7 +5210,18 @@
 				"geometry.MultiPolygon",
 				"unknown"
 			],
-			"localTypes": ["standard", "file", "files", "m2o", "o2m", "m2m", "m2a", "presentation", "translations", "group"],
+			"localTypes": [
+				"standard",
+				"file",
+				"files",
+				"m2o",
+				"o2m",
+				"m2m",
+				"m2a",
+				"presentation",
+				"translations",
+				"group"
+			],
 			"optionsKind": "array",
 			"optionKeys": []
 		},
@@ -3594,46 +5229,187 @@
 			"id": "related-values",
 			"name": "$t:displays.related-values.related-values",
 			"icon": "settings_ethernet",
-			"types": ["alias", "string", "uuid", "integer", "bigInteger", "json"],
-			"localTypes": ["file", "files", "m2o", "o2m", "m2m", "m2a", "translations"],
+			"types": [
+				"alias",
+				"string",
+				"uuid",
+				"integer",
+				"bigInteger",
+				"json"
+			],
+			"localTypes": [
+				"file",
+				"files",
+				"m2o",
+				"o2m",
+				"m2m",
+				"m2a",
+				"translations"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["template"]
+					"keys": [
+						"template"
+					]
 				}
 			],
-			"optionKeys": ["template"]
+			"optionKeys": [
+				"template"
+			]
 		},
 		"translations": {
 			"id": "translations",
 			"name": "$t:displays.translations.translations",
 			"icon": "translate",
-			"types": ["alias"],
-			"localTypes": ["translations"],
+			"types": [
+				"alias"
+			],
+			"localTypes": [
+				"translations"
+			],
 			"optionsKind": "function",
 			"optionKeysByContext": [
 				{
 					"contexts": [
-						0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28,
-						29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23,
+						24,
+						25,
+						26,
+						27,
+						28,
+						29,
+						30,
+						31,
+						32,
+						33,
+						34,
+						35,
+						36,
+						37,
+						38,
+						39,
+						40,
+						41,
+						42,
+						43,
+						44,
+						45,
+						46,
+						47,
+						48,
+						49,
+						50,
+						51
 					],
-					"keys": ["defaultLanguage", "languageField", "template", "userLanguage"]
+					"keys": [
+						"defaultLanguage",
+						"languageField",
+						"template",
+						"userLanguage"
+					]
 				}
 			],
-			"optionKeys": ["defaultLanguage", "languageField", "template", "userLanguage"]
+			"optionKeys": [
+				"defaultLanguage",
+				"languageField",
+				"template",
+				"userLanguage"
+			]
 		},
 		"user": {
 			"id": "user",
 			"name": "$t:displays.user.user",
 			"icon": "person",
-			"types": ["uuid", "string"],
-			"localTypes": ["m2o"],
+			"types": [
+				"uuid",
+				"string"
+			],
+			"localTypes": [
+				"m2o"
+			],
 			"optionsKind": "array",
-			"optionKeys": ["circle", "display"]
+			"optionKeys": [
+				"circle",
+				"display"
+			]
 		}
 	}
 }

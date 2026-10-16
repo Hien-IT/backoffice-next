@@ -149,7 +149,9 @@ test('save as a new file posts the folder then the file and emits new-file; hidd
 	await vi.waitFor(() => expect(button(t('save')).disabled).toBe(false));
 
 	await userEvent.click(button(t('options')));
-	await userEvent.click(document.querySelector<HTMLElement>('[role="menuitem"]')!);
+	// The menu opens on the next frames: a loaded runner may not have it yet.
+	const item = await vi.waitFor(() => document.querySelector<HTMLElement>('[role="menuitem"]') ?? Promise.reject());
+	await userEvent.click(item);
 	await vi.waitFor(() => expect(wrapper.emitted('new-file')).toEqual([['file-2']]), { timeout: SAVE });
 
 	const post = sent.find((s) => s.method === 'POST')!;
@@ -175,8 +177,19 @@ test('aspect ratio menu: custom ratios first then a separator, the current one c
 			.map((node) => node.textContent)
 			.join('')
 			.trim();
-	const items = [...document.querySelectorAll('[role="menuitemradio"]')].map(label);
-	expect(items).toEqual(['Banner', '16:9', '3:2', '5:4', '7:5', t('square'), t('free'), t('original')]);
+	// The menu opens on the next frames: a loaded runner may not have it yet.
+	await vi.waitFor(() =>
+		expect([...document.querySelectorAll('[role="menuitemradio"]')].map(label)).toEqual([
+			'Banner',
+			'16:9',
+			'3:2',
+			'5:4',
+			'7:5',
+			t('square'),
+			t('free'),
+			t('original'),
+		]),
+	);
 	expect(document.querySelector('[role="menu"] [role="separator"]')).not.toBeNull();
 	expect(label(document.querySelector('[aria-checked="true"]')!)).toBe(t('original'));
 

@@ -1,5 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
+import { i18n } from '../lang/index.ts';
 import BoSelect from './BoSelect.vue';
 
 const items = [
@@ -67,5 +68,30 @@ describe('BoSelect', () => {
 		expect(wrapper.get('button').attributes('disabled')).toBeDefined();
 		await wrapper.setProps({ disabled: false });
 		expect(wrapper.get('button').attributes('disabled')).toBeUndefined();
+	});
+
+	test('a disabled item is skipped; the Deselect row emits deselect (Directus show-deselect)', async () => {
+		const wrapper = mount(BoSelect, {
+			props: { items: [items[0]!, { ...items[1]!, disabled: true }, items[2]!], modelValue: 'default', showDeselect: true },
+			global: { plugins: [i18n] },
+			attachTo: document.body,
+		});
+		const trigger = wrapper.get('button').element;
+
+		trigger.focus();
+		await key(trigger, 'Enter');
+		const options = [...document.body.querySelectorAll('[role="option"]')];
+		expect(options.map((o) => o.textContent?.trim())).toEqual(['Deselectclose', 'Defaultcheck', 'LDAP', 'Keycloak']);
+		expect(options[2]!.getAttribute('aria-disabled')).toBe('true');
+
+		await key(document.activeElement as HTMLElement, 'ArrowDown');
+		await key(document.activeElement as HTMLElement, 'Enter');
+		expect(wrapper.emitted('update:modelValue')).toEqual([['keycloak']]);
+
+		await key(trigger, 'Enter');
+		await key(document.activeElement as HTMLElement, 'Home');
+		await key(document.activeElement as HTMLElement, 'Enter');
+		expect(wrapper.emitted('deselect')).toHaveLength(1);
+		wrapper.unmount();
 	});
 });

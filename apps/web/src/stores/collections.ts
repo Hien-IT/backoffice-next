@@ -1,16 +1,17 @@
 // Ported from directus/app/src/stores/collections.ts
-// Backoffice: read-only part of the store (hydrate, prepare, translate, getters). The write actions
-// (upsertCollection, updateCollection, deleteCollection) come with the data model screens (feature 015+, D-45); the
-// AI tools hook is removed (D-54).
+// Backoffice: the write actions (upsertCollection, updateCollection, deleteCollection) came with the Settings data model
+// screens (016); notices are the in-place notices of D-66; the AI tools hook is removed (D-54).
 import formatTitle from '@directus/format-title';
-import type { Collection as CollectionRaw, CollectionType } from '@directus/types';
+import type { Collection as CollectionRaw, CollectionType, DeepPartial, Field } from '@directus/types';
 import { getCollectionType } from '@directus/utils';
-import { groupBy, isNil, orderBy } from 'lodash-es';
+import { groupBy, isEqual, isNil, omit, orderBy } from 'lodash-es';
 import { defineStore } from 'pinia';
 import { computed, ref } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
+import { notify, showUnexpectedError } from '../composables/use-notices.ts';
 import { i18n } from '../lang/index.ts';
 import { getLiteralInterpolatedTranslation } from '../utils/get-literal-interpolated-translation.ts';
+import { useRelationsStore } from './relations.ts';
 
 // Backoffice: directus/app/src/types/collections.ts, kept next to the store.
 export interface Collection extends CollectionRaw {
@@ -125,6 +126,9 @@ export const useCollectionsStore = defineStore('collectionsStore', () => {
 		dehydrate,
 		prepareCollectionForApp,
 		translateCollections,
+		upsertCollection,
+		updateCollection,
+		deleteCollection,
 		getCollection,
 	};
 
@@ -204,6 +208,55 @@ export const useCollectionsStore = defineStore('collectionsStore', () => {
 
 			return collection;
 		});
+	}
+
+	async function upsertCollection(collection: string, values: DeepPartial<Collection & { fields: Field[] }>) {
+		const existing = getCollection(collection);
+
+		// Strip out any fields the app might've auto-generated at some point
+		const rawValues = omit(values, ['name', 'type', 'icon', 'color']);
+
+		if (existing) {
+			if (isEqual(existing, values)) return;
+
+			const updated = await sdk.request(
+				requestEndpoint<CollectionRaw>(`/collections/${collection}`, { method: 'PATCH', body: rawValues }),
+			);
+
+			collections.value = collections.value.map((existingCollection) =>
+				existingCollection.collection === collection ? prepareCollectionForApp(updated) : existingCollection,
+			);
+		} else {
+			const created = await sdk.request(
+				requestEndpoint<CollectionRaw>('/collections', { method: 'POST', body: rawValues }),
+			);
+
+			collections.value = [...collections.value, prepareCollectionForApp(created)];
+		}
+	}
+
+	async function updateCollection(collection: string, updates: DeepPartial<Collection>) {
+		try {
+			await sdk.request(requestEndpoint(`/collections/${collection}`, { method: 'PATCH', body: updates }));
+			await hydrate();
+
+			notify({ title: i18n.global.t('update_collection_success'), type: 'success' });
+		} catch (error) {
+			showUnexpectedError(error);
+		}
+	}
+
+	async function deleteCollection(collection: string) {
+		const relationsStore = useRelationsStore();
+
+		try {
+			await sdk.request(requestEndpoint(`/collections/${collection}`, { method: 'DELETE' }));
+			await Promise.all([hydrate(), relationsStore.hydrate()]);
+
+			notify({ title: i18n.global.t('delete_collection_success'), type: 'success' });
+		} catch (error) {
+			showUnexpectedError(error);
+		}
 	}
 
 	function getCollection(collectionKey: string): Collection | null {

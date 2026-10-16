@@ -7,6 +7,8 @@
 // Feature 015 (data-model §11, T021) adds the Files and Users set: the `bo-files` folder tree with an image of 400x300
 // (`bo-edit.png`), a JPEG with EXIF and text files, one file 10 days old, the `bo-sub` role under bo-editor and the
 // directory users of lib.mjs (one per status, a token user, an SSO user).
+// Feature 016 (data-model §15, T019) adds the Settings set of lib.mjs SETTINGS: a role and an app-access policy with three
+// permissions on bo_std, and the `bo_hello` custom translation.
 // Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
 // `--clean` only deletes the fixture set and exits.
 import {
@@ -17,11 +19,12 @@ import {
 	FIXED_UUIDS,
 	FLOW,
 	FOLDER,
+	query,
+	readArgs,
+	SETTINGS,
 	SHARE,
 	SUB_ROLE,
 	USERS,
-	query,
-	readArgs,
 } from './lib.mjs';
 
 const args = readArgs();
@@ -93,7 +96,19 @@ async function cleanup() {
 			users.map((u) => u.id),
 		);
 
-	const roles = await api.get(`/roles${query({ filter: { name: { _in: [...ROLES, SUB_ROLE] } }, fields: 'id' })}`);
+	const translations = await api.get(
+		`/translations${query({ filter: { key: { _eq: SETTINGS.translationKey } }, fields: 'id' })}`,
+	);
+	if (translations.length > 0)
+		await api.request(
+			'DELETE',
+			'/translations',
+			translations.map((t) => t.id),
+		);
+
+	const roles = await api.get(
+		`/roles${query({ filter: { name: { _in: [...ROLES, SUB_ROLE, SETTINGS.role] } }, fields: 'id' })}`,
+	);
 	if (roles.length > 0)
 		await api.request(
 			'DELETE',
@@ -101,7 +116,9 @@ async function cleanup() {
 			roles.map((r) => r.id),
 		);
 
-	const policies = await api.get(`/policies${query({ filter: { name: { _in: ROLES } }, fields: 'id' })}`);
+	const policies = await api.get(
+		`/policies${query({ filter: { name: { _in: [...ROLES, SETTINGS.policy] } }, fields: 'id' })}`,
+	);
 	if (policies.length > 0)
 		await api.request(
 			'DELETE',
@@ -1928,13 +1945,57 @@ async function createFilesFixtures({ users }) {
 	}
 }
 
+async function createSettingsFixtures({ users }) {
+	const role = await api.request('POST', '/roles', {
+		name: SETTINGS.role,
+		icon: 'tune',
+		description: 'Settings fixture role',
+		parent: users['bo-editor'].role,
+	});
+	const policy = await api.request('POST', '/policies', {
+		name: SETTINGS.policy,
+		icon: 'policy',
+		description: 'Settings fixture policy',
+		app_access: true,
+		admin_access: false,
+	});
+
+	await api.request('POST', '/permissions', [
+		{ policy: policy.id, collection: 'bo_std', action: 'read', fields: ['*'], permissions: {}, validation: null, presets: null },
+		{
+			policy: policy.id,
+			collection: 'bo_std',
+			action: 'create',
+			fields: ['input_string', 'select_dropdown'],
+			permissions: null,
+			validation: { _and: [{ input_string: { _nnull: true } }] },
+			presets: { select_dropdown: 'a' },
+		},
+		{
+			policy: policy.id,
+			collection: 'bo_std',
+			action: 'update',
+			fields: ['input_string'],
+			permissions: { _and: [{ input_string: { _nnull: true } }] },
+			validation: null,
+			presets: null,
+		},
+	]);
+	await api.request('POST', '/access', { role: role.id, policy: policy.id });
+
+	await api.request('POST', '/translations', [
+		{ key: SETTINGS.translationKey, language: 'en-US', value: 'Hello' },
+		{ key: SETTINGS.translationKey, language: 'vi-VN', value: 'Xin chào' },
+	]);
+}
+
 /* ---------------------------------------------------------------- run */
 
 await cleanup();
 
 if (args.clean) {
 	process.stdout.write(
-		`Cleaned ${api.url}: bo_* collections, folders ${[FOLDER, ...Object.values(FILES_FOLDERS)].join(', ')}, flows ${[FLOW, ...CONTENT_FLOWS].join(', ')}, roles ${[...ROLES, SUB_ROLE].join(', ')}\n`,
+		`Cleaned ${api.url}: bo_* collections, folders ${[FOLDER, ...Object.values(FILES_FOLDERS)].join(', ')}, flows ${[FLOW, ...CONTENT_FLOWS].join(', ')}, roles ${[...ROLES, SUB_ROLE, SETTINGS.role].join(', ')}\n`,
 	);
 	process.exit(0);
 }
@@ -1997,6 +2058,7 @@ const users = await createAccess(true);
 await createItems({ files, users });
 await createContentFixtures({ users, files, geometry });
 await createFilesFixtures({ users });
+await createSettingsFixtures({ users });
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

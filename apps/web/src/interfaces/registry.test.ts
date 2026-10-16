@@ -74,6 +74,12 @@ export const EXPECTED_INTERFACE_IDS = [
 	'system-token',
 	'system-theme',
 	'system-theme-overrides',
+	// Feature 016 (D-57): the system interfaces of the Settings module.
+	'system-collection',
+	'system-field',
+	'system-field-tree',
+	'system-display-template',
+	'system-collections-translations',
 ];
 
 export const EXPECTED_DISPLAY_IDS = [
@@ -184,9 +190,18 @@ describe('registry parity with the Directus registry', () => {
 	});
 
 	test('feature 015 adds the six system interfaces of directus_users (FR-086)', () => {
-		const ids = EXPECTED_INTERFACE_IDS.slice(-6);
+		const ids = ['system-language', 'system-input-password', 'system-mfa-setup', 'system-token', 'system-theme'];
+		ids.push('system-theme-overrides');
 
-		expect(getInterfaces()).toHaveLength(43 + 6);
+		for (const id of ids) {
+			expect(getInterfaces().find((config) => config.id === id)?.system, id).toBe(true);
+		}
+	});
+
+	test('feature 016 adds the system interfaces of the Settings module (D-57)', () => {
+		const ids = EXPECTED_INTERFACE_IDS.slice(EXPECTED_INTERFACE_IDS.indexOf('system-collection'));
+
+		expect(getInterfaces()).toHaveLength(43 + 6 + ids.length);
 
 		for (const id of ids) {
 			expect(getInterfaces().find((config) => config.id === id)?.system, id).toBe(true);

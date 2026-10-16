@@ -65,4 +65,19 @@ describe('BoTabs', () => {
 
 		expect(wrapper.findAll('[role="tab"]').map((tab) => tab.text())).toEqual(['one:false', 'two:true', 'off:false']);
 	});
+
+	test('vertical: the list is a column, Up/Down move between tabs (016 research R13)', async () => {
+		const wrapper = mountTabs({ orientation: 'vertical' });
+		const list = wrapper.get('[role="tablist"]');
+		const tabs = wrapper.findAll('[role="tab"]');
+
+		expect(list.attributes('aria-orientation')).toBe('vertical');
+		expect(list.classes()).toContain('flex-col');
+		(tabs[0]!.element as HTMLElement).focus();
+		await tabs[0]!.trigger('keydown', { key: 'ArrowRight' });
+		const afterRight = (document.activeElement as HTMLElement).textContent;
+		await tabs[0]!.trigger('keydown', { key: 'ArrowDown' });
+		expect([afterRight, (document.activeElement as HTMLElement).textContent]).toEqual(['One', 'Two']);
+		wrapper.unmount();
+	});
 });

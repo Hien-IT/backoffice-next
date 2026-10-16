@@ -1,16 +1,18 @@
 // Ported from directus/app/src/stores/fields.ts
-// Backoffice: read-only part of the store (hydrate, parse, translate, getters). The write actions (upsertField,
-// createField, updateField, updateFields, deleteField) come with the data model screens (feature 015+, D-45); the AI
-// tools hook is removed (D-54).
+// Backoffice: the write actions (upsertField, createField, updateField, updateFields, deleteField) came with the
+// Settings data model screens (016); errors go to the in-place notices (D-66); the AI tools hook is removed (D-54).
 import formatTitle from '@directus/format-title';
-import type { Field, FieldRaw, Relation } from '@directus/types';
-import { isEmpty, isNil, merge, orderBy } from 'lodash-es';
+import type { DeepPartial, Field, FieldRaw, Relation } from '@directus/types';
+import { isEmpty, isEqual, isNil, merge, omit, orderBy } from 'lodash-es';
+import { nanoid } from 'nanoid';
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
+import { showUnexpectedError } from '../composables/use-notices.ts';
 import { i18n } from '../lang/index.ts';
 import { getLiteralInterpolatedTranslation } from '../utils/get-literal-interpolated-translation.ts';
 import { translate } from '../utils/translate-object-values.ts';
+import { useCollectionsStore } from './collections.ts';
 import { useRelationsStore } from './relations.ts';
 
 type HydrateOptions = {
@@ -67,6 +69,16 @@ const fakeFilesField = {
 	},
 } as Field;
 
+/**
+ * @NOTE
+ * This keeps track of what update is the last one that's in progress. After every update, the store
+ * gets flushed with the updated values, which means that you can have racing conditions if you do
+ * multiple updates at the same time. By keeping track which one is the last one that's fired, we
+ * can ensure that only the last update gets used to flush the store with.
+ */
+// Backoffice: one counter for every collection, as Directus (spec 016 FR-022, research "Kết quả kiểm T002").
+let currentUpdate: string;
+
 export const useFieldsStore = defineStore('fieldsStore', () => {
 	const fields = ref<Field[]>([]);
 
@@ -82,6 +94,11 @@ export const useFieldsStore = defineStore('fieldsStore', () => {
 		getFieldsForCollectionSorted,
 		getField,
 		getFieldGroupChildren,
+		upsertField,
+		createField,
+		updateField,
+		updateFields,
+		deleteField,
 	};
 
 	async function hydrate(options?: HydrateOptions) {
@@ -165,6 +182,153 @@ export const useFieldsStore = defineStore('fieldsStore', () => {
 
 			return field;
 		});
+	}
+
+	async function upsertField(collection: string, field: string, values: DeepPartial<Field>) {
+		const existing = getField(collection, field);
+
+		// Strip out auto-generated fields the app might've added
+		const rawField = omit(values, ['name']);
+
+		if (existing) {
+			if (isEqual(values, existing)) return;
+
+			return await updateField(collection, field, rawField);
+		} else {
+			return await createField(collection, rawField);
+		}
+	}
+
+	async function createField(collectionKey: string, newField: DeepPartial<Field>) {
+		const stateClone = [...fields.value];
+
+		// Save to API, and update local state again to make sure everything is in sync with the API
+		try {
+			const response = await sdk.request(
+				requestEndpoint<FieldRaw>(`/fields/${collectionKey}`, { method: 'POST', body: newField }),
+			);
+
+			const createdField = parseField(response);
+
+			fields.value = [...fields.value, createdField];
+
+			return createdField;
+		} catch (error) {
+			// reset the changes if the api sync failed
+			fields.value = stateClone;
+			// we need the error to be thrown so the caller can handle it
+			throw error;
+		}
+	}
+
+	async function updateField(collectionKey: string, fieldKey: string, updates: DeepPartial<Field>) {
+		const stateClone = [...fields.value];
+
+		// Update locally first, so the changes are visible immediately
+		fields.value = fields.value.map((field) => {
+			if (field.collection === collectionKey && field.field === fieldKey) {
+				return merge({}, field, updates);
+			}
+
+			return field;
+		});
+
+		// Save to API, and update local state again to make sure everything is in sync with the API
+		try {
+			const response = await sdk.request(
+				requestEndpoint<FieldRaw>(`/fields/${collectionKey}/${fieldKey}`, { method: 'PATCH', body: updates }),
+			);
+
+			fields.value = fields.value.map((field) => {
+				if (field.collection === collectionKey && field.field === fieldKey) {
+					return parseField(response);
+				}
+
+				return field;
+			});
+		} catch (error) {
+			// reset the changes if the api sync failed
+			fields.value = stateClone;
+			// we need the error to be thrown so the caller can handle it
+			throw error;
+		}
+	}
+
+	async function updateFields(collectionKey: string, updates: DeepPartial<Field>[]) {
+		const updateID = nanoid();
+		const stateClone = [...fields.value];
+
+		currentUpdate = updateID;
+
+		// Update locally first, so the changes are visible immediately
+		fields.value = fields.value.map((field) => {
+			if (field.collection === collectionKey) {
+				const updatesForThisField = updates.find((update) => update.field === field.field);
+
+				if (updatesForThisField) {
+					return merge({}, field, updatesForThisField);
+				}
+			}
+
+			return field;
+		});
+
+		try {
+			// Save to API, and update local state again to make sure everything is in sync with the API
+			const response = await sdk.request(
+				requestEndpoint<FieldRaw[]>(`/fields/${collectionKey}`, { method: 'PATCH', body: updates }),
+			);
+
+			if (currentUpdate === updateID) {
+				fields.value = fields.value.map((field) => {
+					if (field.collection === collectionKey) {
+						const newDataForField = response.find((update) => update.field === field.field);
+						if (newDataForField) return parseField(newDataForField);
+					}
+
+					return field;
+				});
+
+				translateFields();
+			}
+		} catch (error) {
+			// reset the changes if the api sync failed
+			fields.value = stateClone;
+			showUnexpectedError(error);
+		}
+	}
+
+	async function deleteField(collectionKey: string, fieldKey: string) {
+		const relationsStore = useRelationsStore();
+		const collectionsStore = useCollectionsStore();
+
+		const stateClone = [...fields.value];
+		const relationsStateClone = [...relationsStore.relations];
+
+		fields.value = fields.value.filter((field) => {
+			if (field.field === fieldKey && field.collection === collectionKey) return false;
+			return true;
+		});
+
+		relationsStore.relations = relationsStore.relations.filter((relation) => {
+			if (
+				(relation.collection === collectionKey && relation.field === fieldKey) ||
+				(relation.related_collection === collectionKey && relation.meta?.one_field === fieldKey)
+			) {
+				return false;
+			}
+
+			return true;
+		});
+
+		try {
+			await sdk.request(requestEndpoint(`/fields/${collectionKey}/${fieldKey}`, { method: 'DELETE' }));
+			await collectionsStore.hydrate();
+		} catch (error) {
+			fields.value = stateClone;
+			relationsStore.relations = relationsStateClone;
+			showUnexpectedError(error);
+		}
 	}
 
 	function getPrimaryKeyFieldForCollection(collection: string): Field | null {

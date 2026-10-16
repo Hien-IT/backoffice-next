@@ -18,6 +18,13 @@
 			},
 			"cache": false
 		},
+		"sync-permissions-data": {
+			"command": "node_modules/.bin/jiti scripts/sync-permissions-data.mjs",
+			"options": {
+				"cwd": "apps/web"
+			},
+			"cache": false
+		},
 		"fixtures": {
 			"executor": "nx:run-commands",
 			"options": {

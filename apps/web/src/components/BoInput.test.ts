@@ -58,4 +58,28 @@ describe('BoInput', () => {
 		expect(document.activeElement).toBe(wrapper.get('input').element);
 		wrapper.unmount();
 	});
+
+	test('dbSafe: typing keeps a-z, 0-9 and _, a pasted value is cleaned, no leading digit (spec 016 FR-007)', async () => {
+		const wrapper = mount(BoInput, { props: { dbSafe: true } });
+		const input = wrapper.get('input');
+		const key = async (k: string, init: KeyboardEventInit = {}) => {
+			const event = new KeyboardEvent('keydown', { key: k, cancelable: true, ...init });
+			input.element.dispatchEvent(event);
+			return event.defaultPrevented;
+		};
+
+		expect(await key('a')).toBe(false);
+		expect(await key('_')).toBe(false);
+		expect(await key('Backspace')).toBe(false);
+		expect(await key('ArrowLeft')).toBe(false);
+		expect(await key('-')).toBe(true);
+		expect(await key('é')).toBe(true);
+		expect(await key('v', { ctrlKey: true })).toBe(false);
+		expect(await key('1')).toBe(true);
+
+		await input.setValue('Bài viết-2 x');
+		expect(wrapper.emitted('update:modelValue')!.at(-1)).toEqual(['Bai_viet2_x']);
+		expect(input.element.value).toBe('Bai_viet2_x');
+		expect(await key('1')).toBe(false);
+	});
 });

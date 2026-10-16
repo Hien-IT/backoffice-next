@@ -141,6 +141,20 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 120, method: 'DELETE', path: new RegExp(`^/files/tus/${ID}$`) },
 	{ id: 121, method: 'POST', path: new RegExp(`^/assets/(files|folder/${ID})$`) },
 	{ id: 130, method: 'POST', path: new RegExp(`^/users/(me|${ID})/tfa/disable$`) },
+	// Feature 016 (specs/016-settings-module/contracts/api-calls.md, rows 137 to 177): data model rows; the roles,
+	// policies, settings, presets and translations rows come with their waves.
+	{ id: 138, method: 'GET', path: new RegExp(`^/collections/${ID}$`) },
+	{ id: 140, method: 'GET', path: new RegExp(`^/fields/${ID}/${ID}$`) },
+	{ id: 142, method: 'GET', path: /^\/schema\/snapshot$/ },
+	{ id: 157, method: 'POST', path: /^\/collections$/ },
+	{ id: 158, method: 'PATCH', path: new RegExp(`^/collections(/${ID})?$`) },
+	{ id: 160, method: 'DELETE', path: new RegExp(`^/collections/${ID}$`) },
+	{ id: 161, method: 'POST', path: new RegExp(`^/fields/${ID}$`) },
+	{ id: 162, method: 'PATCH', path: new RegExp(`^/fields/${ID}(/${ID})?$`) },
+	{ id: 164, method: 'DELETE', path: new RegExp(`^/fields/${ID}/${ID}$`) },
+	{ id: 165, method: 'POST', path: /^\/relations$/ },
+	{ id: 166, method: 'PATCH', path: new RegExp(`^/relations/${ID}/${ID}$`) },
+	{ id: 168, method: 'POST', path: /^\/utils\/translations\/generate$/ },
 ];
 
 /**
@@ -194,6 +208,9 @@ class ApiError extends Error {
 }
 
 const forbidden = (message = "You don't have permission to access this.") => new ApiError(403, 'FORBIDDEN', message);
+const notFoundError = () => new ApiError(404, 'ROUTE_NOT_FOUND', 'Not found');
+/** Marks that a route helper of mockFixtureApi did not answer the request. */
+const NOT_HANDLED = Symbol('not handled');
 
 export interface FixtureApiOptions {
 	/** Whose permissions, `/users/me` and `/policies/me/globals` the API answers with (default `admin`). */
@@ -510,6 +527,116 @@ export function mockFixtureApi(
 		return row;
 	}
 
+	/**
+	 * Feature 016: the data model endpoints over the snapshot (collections, fields, relations), admin only as in Directus.
+	 * Writes change the snapshot so the next GET answers what was written.
+	 */
+	function dataModelRoute(
+		method: string,
+		first: string,
+		second: string | undefined,
+		third: string | undefined,
+		init: RequestInit,
+	): unknown {
+		const json = () => JSON.parse(String(init.body ?? 'null'));
+		const collections = snapshot.collections as Row[];
+		const collectionOf = (name: string) =>
+			[...(snapshot.systemCollections as Row[]), ...collections].find((c) => c['collection'] === name);
+		const fieldOf = (collection: string, field: string) =>
+			allFields.find((f) => f.collection === collection && f.field === field) as Row | undefined;
+
+		if (first === 'schema' && second === 'snapshot' && method === 'GET') return { version: 1, directus: '11.17.4' };
+		if (first === 'utils' && second === 'translations' && third === 'generate' && method === 'POST') return null;
+
+		if (first === 'collections') {
+			if (!isAdmin) throw forbidden();
+			if (method === 'GET' && second) {
+				const row = collectionOf(decodeURIComponent(second));
+				if (!row) throw notFoundError();
+				return row;
+			}
+			if (method === 'POST' && !second) {
+				const { fields = [], ...row } = json() as Row & { fields?: Row[] };
+				collections.push({ meta: null, schema: null, ...row });
+				for (const field of fields) allFields.push({ collection: row['collection'], ...field } as never);
+				return collectionOf(row['collection'] as string);
+			}
+			if (method === 'PATCH' && !second) {
+				for (const { collection, meta } of json() as Row[]) {
+					const row = collectionOf(collection as string);
+					if (row) row['meta'] = { ...(row['meta'] as Row), ...(meta as Row) };
+				}
+				return json();
+			}
+			if (method === 'PATCH' && second) {
+				const row = collectionOf(decodeURIComponent(second));
+				if (!row) throw notFoundError();
+				const { meta, ...rest } = json() as Row;
+				Object.assign(row, rest);
+				if (meta !== undefined) row['meta'] = { ...(row['meta'] as Row), ...(meta as Row) };
+				return row;
+			}
+			if (method === 'DELETE' && second) {
+				const name = decodeURIComponent(second);
+				snapshot.collections = collections.filter((c) => c['collection'] !== name) as never;
+				return new Response(null, { status: 204 });
+			}
+		}
+
+		if (first === 'fields' && second) {
+			if (!isAdmin && method !== 'GET') throw forbidden();
+			const collection = decodeURIComponent(second);
+			if (method === 'GET' && third) {
+				const field = fieldOf(collection, decodeURIComponent(third));
+				if (!field) throw notFoundError();
+				return field;
+			}
+			if (method === 'POST' && !third) {
+				const field = { collection, meta: null, schema: null, ...json() } as Row;
+				allFields.push(field as never);
+				return field;
+			}
+			if (method === 'PATCH' && !third) {
+				return (json() as Row[]).map((update) => {
+					const field = fieldOf(collection, update['field'] as string);
+					if (field) field['meta'] = { ...(field['meta'] as Row), ...(update['meta'] as Row) };
+					return field;
+				});
+			}
+			if (method === 'PATCH' && third) {
+				const field = fieldOf(collection, decodeURIComponent(third));
+				if (!field) throw notFoundError();
+				const { meta, schema, ...rest } = json() as Row;
+				Object.assign(field, rest);
+				if (meta !== undefined) field['meta'] = { ...(field['meta'] as Row), ...(meta as Row) };
+				if (schema !== undefined) field['schema'] = { ...(field['schema'] as Row), ...(schema as Row) };
+				return field;
+			}
+			if (method === 'DELETE' && third) {
+				const index = allFields.findIndex((f) => f.collection === collection && f.field === decodeURIComponent(third));
+				if (index >= 0) allFields.splice(index, 1);
+				return new Response(null, { status: 204 });
+			}
+		}
+
+		if (first === 'relations') {
+			if (!isAdmin && method !== 'GET') throw forbidden();
+			if (method === 'POST' && !second) {
+				const relation = { meta: null, schema: null, ...json() };
+				relations.push(relation);
+				return relation;
+			}
+			if (method === 'PATCH' && second && third) {
+				const relation = relations.find((r) => r.collection === second && r.field === third);
+				if (!relation) throw notFoundError();
+				Object.assign(relation, json());
+				return relation;
+			}
+		}
+
+		return NOT_HANDLED;
+	}
+
 	async function route(url: URL, init: RequestInit): Promise<unknown> {
 		const method = init.method ?? 'GET';
 		const path = url.pathname;
@@ -565,6 +692,11 @@ export function mockFixtureApi(
 				filesize: file?.size,
 			});
 		}
+
+		/* -------------------------------------------------------------- 016 data model (rows 137 to 168) */
+
+		const dataModel = dataModelRoute(method, first, second, third, init);
+		if (dataModel !== NOT_HANDLED) return dataModel;
 
 		/* -------------------------------------------------------------- 015 (rows 97 to 136) */
 

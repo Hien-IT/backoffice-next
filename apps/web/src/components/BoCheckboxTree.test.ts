@@ -97,6 +97,21 @@ describe('BoCheckboxTree', () => {
 		wrapper.unmount();
 	});
 
+	test('opening and closing a group emits group-toggle (Directus group-toggle)', async () => {
+		const wrapper = mountTree();
+
+		await expandAll(wrapper);
+		await row(wrapper, 'Citrus').get('[aria-hidden="true"]').trigger('click');
+		await flushPromises();
+
+		expect(wrapper.emitted('group-toggle')).toEqual([
+			[{ value: 'a', open: true }],
+			[{ value: 'a2', open: true }],
+			[{ value: 'a2', open: false }],
+		]);
+		wrapper.unmount();
+	});
+
 	test('valueCombining all', async () => {
 		const wrapper = mountTree();
 		await expandAll(wrapper);

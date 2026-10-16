@@ -1,5 +1,6 @@
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { useNotices } from '../composables/use-notices.ts';
 import { calls, json, mockApi } from '../test-utils/fetch.ts';
 import type { AppUser } from '../types/user.ts';
 import { useCollectionsStore } from './collections.ts';
@@ -45,9 +46,22 @@ describe('settings', () => {
 		expect(calls(fetch)).toEqual(['PATCH /settings']);
 		expect(store.settings).toEqual({ project_name: 'New', module_bar: null });
 
+		expect(useNotices().queue.value.at(-1)).toMatchObject({ title: 'Settings updated', type: 'success' });
+
 		mockApi({ 'PATCH /settings': () => json({ errors: [{ message: 'no' }] }, 403) });
-		await expect(store.updateSettings({ project_name: 'Other' })).rejects.toBeTruthy();
+		await store.updateSettings({ project_name: 'Other' });
 		expect(store.settings).toEqual({ project_name: 'New', module_bar: null });
+		expect(useNotices().dialogs.value.at(-1)).toMatchObject({ type: 'error' });
+	});
+
+	test('setOwner posts the owner information (016)', async () => {
+		const fetch = mockApi({ 'POST /settings/owner': () => new Response(null, { status: 204 }) });
+		const owner = { project_owner: 'a@b.c', project_usage: 'personal', org_name: null, product_updates: false };
+
+		await useSettingsStore().setOwner(owner as never);
+
+		expect(calls(fetch)).toEqual(['POST /settings/owner']);
+		expect(JSON.parse(fetch.mock.calls[0]![1]!.body as string)).toEqual(owner);
 	});
 });
 
