@@ -65,6 +65,10 @@ function mountEditor(props: Record<string, unknown> = {}) {
 const button = (label: string) => document.querySelector<HTMLButtonElement>(`button[aria-label="${label}"]`)!;
 const dimensions = () => document.querySelector('.dimensions')!.textContent!.trim();
 
+// Saving encodes the canvas: over a second on a loaded CI runner (run 38876032364), and a late PATCH of one test
+// would land in the next one's `sent`.
+const SAVE = 15000;
+
 async function ready() {
 	await vi.waitFor(() => expect(document.querySelector('.cropper-container')).not.toBeNull(), { timeout: 15000 });
 }
@@ -105,7 +109,7 @@ test('rotate shows the new size and saves the cropped image as FormData with the
 	expect(button(t('save')).disabled).toBe(false);
 
 	button(t('save')).click();
-	await vi.waitFor(() => expect(wrapper.emitted('refresh')).toHaveLength(1));
+	await vi.waitFor(() => expect(wrapper.emitted('refresh')).toHaveLength(1), { timeout: SAVE });
 
 	const patch = sent.find((s) => s.method === 'PATCH')!;
 	expect(patch.path).toBe('/files/file-1');
@@ -131,7 +135,7 @@ test('the focal point alone is a JSON PATCH of its center', async () => {
 	expect(document.body.textContent).toContain(t('cancel_selection'));
 
 	button(t('save')).click();
-	await vi.waitFor(() => expect(sent.some((s) => s.method === 'PATCH')).toBe(true));
+	await vi.waitFor(() => expect(sent.some((s) => s.method === 'PATCH')).toBe(true), { timeout: SAVE });
 
 	const patch = sent.find((s) => s.method === 'PATCH')!;
 	expect(JSON.parse(String(patch.body))).toEqual({ focal_point_x: 200, focal_point_y: 150 });
@@ -146,7 +150,7 @@ test('save as a new file posts the folder then the file and emits new-file; hidd
 
 	await userEvent.click(button(t('options')));
 	await userEvent.click(document.querySelector<HTMLElement>('[role="menuitem"]')!);
-	await vi.waitFor(() => expect(wrapper.emitted('new-file')).toEqual([['file-2']]));
+	await vi.waitFor(() => expect(wrapper.emitted('new-file')).toEqual([['file-2']]), { timeout: SAVE });
 
 	const post = sent.find((s) => s.method === 'POST')!;
 	const form = post.body as FormData;
