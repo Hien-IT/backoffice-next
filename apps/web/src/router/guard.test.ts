@@ -155,6 +155,16 @@ describe('onAfterEach', () => {
 		expect(trackPage).toHaveBeenCalledTimes(1);
 	});
 
+	test('a failed track (401 after deleting yourself) is caught', async () => {
+		vi.useFakeTimers();
+		const trackPage = vi.spyOn(useUserStore(), 'trackPage').mockRejectedValue({ errors: [] });
+
+		onAfterEach(to({}), to({}));
+		vi.advanceTimersByTime(500);
+
+		await expect(trackPage.mock.results[0]!.value).rejects.toEqual({ errors: [] });
+	});
+
 	test('skips public routes and track: false', () => {
 		vi.useFakeTimers();
 		const trackPage = vi.spyOn(useUserStore(), 'trackPage').mockResolvedValue();

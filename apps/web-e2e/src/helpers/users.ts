@@ -8,6 +8,12 @@ import { moduleBar } from './layout.js';
 
 /** Opens your own user page from the header avatar menu: no /users/me route, as Directus (D-86). */
 export async function openOwnPage(page: Page): Promise<void> {
+	// Below `xl` an open navigation drawer (a Reka dialog) covers the header: Escape closes it.
+	const drawer = page.locator('[role="dialog"]').filter({ has: page.getByTestId('module-bar') });
+	if (await drawer.isVisible()) {
+		await page.keyboard.press('Escape');
+		await expect(drawer).toBeHidden();
+	}
 	await page.locator('header [aria-haspopup="menu"]').click();
 	await page.getByRole('menuitem', { name: /^(Profile|Hồ sơ)/ }).click();
 	await expect(page).toHaveURL(/\/admin\/users\/[0-9a-f-]{36}$/);

@@ -30,6 +30,7 @@ const COUNT = /^(No|One|\d[\d,.]*) Items?/;
 
 let api: AdminApi;
 let paths: Record<string, string>;
+let childRoles: string[];
 
 test.beforeAll(async ({ playwright }) => {
 	api = new AdminApi(await playwright.request.newContext());
@@ -42,6 +43,7 @@ test.beforeAll(async ({ playwright }) => {
 		role: `/users/roles/${await one('/roles?fields=id&filter[name][_eq]=bo-editor')}`,
 		user: `/users/${await one('/users?fields=id&filter[email][_eq]=bo-active@example.com')}`,
 	};
+	childRoles = (await api.call<{ name: string }[]>('GET', '/roles?fields=name&filter[parent][_nnull]=true')).map((r) => r.name);
 });
 
 test.afterAll(async () => {
@@ -182,7 +184,11 @@ for (const [name, user] of [
 
 		for (const screen of screens) {
 			const backoffice = await backofficeScreen(page, paths[screen]!);
-			expect.soft(backoffice, `${name} ${screen}`).toEqual(directus[screen]);
+			// On a user page the Directus app opens the role tree to the user's role only when the user answers before
+			// /roles (use-navigation pushes into the array VItemGroup does not watch): the child roles are left out there.
+			const drop = (shown: Screen) =>
+				screen === 'user' ? { ...shown, nav: shown.nav.filter((row) => !childRoles.includes(row)) } : shown;
+			expect.soft(drop(backoffice), `${name} ${screen}`).toEqual(drop(directus[screen]!));
 		}
 	});
 }
