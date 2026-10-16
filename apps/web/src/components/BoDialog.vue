@@ -2,9 +2,10 @@
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 
 // Reka traps focus inside, closes on Esc and outside click, and returns focus to the element that opened it.
+// `persistent` keeps it open on an outside click, Esc still closes (Directus `v-dialog persistent`).
 const open = defineModel<boolean>('open', { default: false });
 
-defineProps<{ title: string; description?: string }>();
+defineProps<{ title: string; description?: string; persistent?: boolean }>();
 </script>
 
 <template>
@@ -14,6 +15,7 @@ defineProps<{ title: string; description?: string }>();
 			<DialogContent
 				class="no-scrollbar fixed top-1/2 left-1/2 z-99999 max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-[700px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-3xl bg-white p-4 lg:p-11 dark:border dark:border-gray-800 dark:bg-gray-900"
 				v-bind="description ? {} : { 'aria-describedby': undefined }"
+				@interact-outside="persistent && $event.preventDefault()"
 			>
 				<DialogTitle class="mb-2 text-2xl font-semibold text-gray-800 dark:text-white/90">{{ title }}</DialogTitle>
 				<DialogDescription v-if="description" class="mb-6 text-sm text-gray-500 lg:mb-7 dark:text-gray-400">

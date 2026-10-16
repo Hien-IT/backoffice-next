@@ -28,6 +28,35 @@ describe('BoDialog', () => {
 		wrapper.unmount();
 	});
 
+	test('persistent: an outside click keeps it open, Esc still closes', async () => {
+		const wrapper = mount(BoDialog, {
+			props: { open: true, title: 'Create Role', persistent: true },
+			attachTo: document.body,
+		});
+		// Reka adds its outside listener in a timeout after opening.
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+		await flushPromises();
+		expect(wrapper.emitted('update:open')).toBeUndefined();
+
+		document.activeElement!.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+		await flushPromises();
+		expect(wrapper.emitted('update:open')).toEqual([[false]]);
+		wrapper.unmount();
+	});
+
+	test('not persistent: an outside click closes', async () => {
+		const wrapper = mount(BoDialog, { props: { open: true, title: 'Sign Out' }, attachTo: document.body });
+		// Reka adds its outside listener in a timeout after opening.
+		await new Promise((resolve) => setTimeout(resolve, 10));
+
+		document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+		await flushPromises();
+		expect(wrapper.emitted('update:open')).toEqual([[false]]);
+		wrapper.unmount();
+	});
+
 	test('without description: no aria-describedby and no Reka warning; closed renders nothing', async () => {
 		const warn = vi.spyOn(console, 'warn');
 		const wrapper = mount(BoDialog, { props: { open: true, title: 'Error' }, attachTo: document.body });

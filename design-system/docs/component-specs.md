@@ -1017,7 +1017,8 @@ Shared parts (each component declares the constants it uses locally; there is no
 - Result: a Notice (success / danger, `role="status"` / `"alert"`) under the dialogs (`mt-3`), because there is no
   snackbar before feature 018 (D-45).
 - Open: BoDialog (all 013 dialogs) has no close button in the corner; Esc, the outside click and Cancel close it. The
-  Tier 1 Modal recipe has one.
+  Tier 1 Modal recipe has one. `persistent` (Directus `v-dialog persistent`, e.g. the 016 create role and create policy
+  dialogs) ignores the outside click; Esc and Cancel still close.
 
 ## Tier 3 recipes, nháp (014)
 

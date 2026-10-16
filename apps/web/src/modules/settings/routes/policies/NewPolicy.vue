@@ -2,8 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US4-5, recipe Q-27): BoDialog with a form, so Enter saves (Directus `apply`); Cancel first; the
 // two checkboxes are BoCheckbox rows under their field label. BoInput gives '' when emptied: it is kept as null like
-// the nullable v-input, so Save stays disabled. BoDialog has no `persistent` mode: Esc and a click outside both go back
-// to the list (Directus: Esc only).
+// the nullable v-input, so Save stays disabled. Persistent like Directus: only Esc and Cancel go back to the list.
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import BoButton from '../../../../components/BoButton.vue';
@@ -29,7 +28,7 @@ function close() {
 </script>
 
 <template>
-	<BoDialog :open="isOpen" :title="$t('create_policy')" @update:open="!$event && close()">
+	<BoDialog :open="isOpen" :title="$t('create_policy')" persistent @update:open="!$event && close()">
 		<form id="new-policy-form" class="grid grid-cols-2 gap-x-3 gap-y-5" @submit.prevent="save">
 			<div class="col-span-2">
 				<BoInput

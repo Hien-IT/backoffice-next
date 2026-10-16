@@ -482,7 +482,7 @@ tiết; đích thật của D-85.
 - [x] T121 [P] Recipe Q-20 đến Q-28 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt; ghi trạng thái Q-20 đến Q-28 trong `specs/016-settings-module/spec.md` (owner duyệt 2026-10-17; Q-24 bỏ dòng
       "Backoffice" cuối sub-menu)
-- [x] T122 Bảng trạng thái khác biệt D-92 đến D-101 và R-40 đến R-42 (code đã làm, duyệt) trong
+- [x] T122 Bảng trạng thái khác biệt D-92 đến D-103 và R-40 đến R-42 (code đã làm, duyệt) trong
       `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010) (owner duyệt 2026-10-17; D-94 bỏ hẳn
       link Report Bug, Request Feature)
 - [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
@@ -634,10 +634,11 @@ Lượt 3, Phase 6 (US4):
     - Tab của drawer là BoTabs (có chấm) với tên `*Tab.vue`; `currentTabInfo` không port.
     - `BoCheckboxTree` thêm prop `openGroups`; `BoMenu` cuộn được khi danh sách dài.
     - Bảng thu padding để vừa khung form 706 px.
-  - SDK bỏ `page=0` của Directus (`query-to-params.ts` chỉ gửi page ≥ 1). Với `limit=-1` kết quả như nhau.
+  - SDK bỏ `page=0` của Directus (`query-to-params.ts` chỉ gửi page ≥ 1). Với `limit=-1` kết quả như nhau (D-103,
+    owner duyệt 2026-10-17).
   - Request US4 (#145–#148, #169–#172) thêm vào `KNOWN_REQUESTS` (web) và `ALLOWED_CALLS` (E2E).
-  - Route roles/policies: BoDialog không có chế độ `persistent`, nên bấm ra ngoài hộp tạo role/policy cũng về danh
-    sách (Directus chỉ có Esc). Ô tên rỗng giữ là `null`.
+  - Route roles/policies: hộp tạo role/policy dùng `BoDialog persistent` (thêm 2026-10-17 theo owner): bấm ra ngoài
+    không đóng, chỉ Esc và Cancel về danh sách như Directus. Ô tên rỗng giữ là `null`.
   - Tìm kiếm tô từ khớp bằng `<mark>`. Bảng không `fixed-header`. Menu dòng policy là nút `more_vert` có tên.
   - Trang Public truyền `primaryKey` `null as never` cho BoForm.
   - Test `use-duplicate.test.ts` port từ Directus.

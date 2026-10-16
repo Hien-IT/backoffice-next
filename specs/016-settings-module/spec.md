@@ -1040,7 +1040,7 @@ sub-menu, tiêu đề, cột, `disabled` của nút, mục panel; kịch bản d
   014 (D-71, D-72 phần 016), 015 (D-85) sửa khi 015 mở khóa; `CLAUDE.md` Active Technologies thêm dòng 016;
   `SPECKIT-GUIDE.md` ghi chú cho 017 (Flows: mục sub-menu và `/settings/flows` của 016 là khung, D-92;
   `system-manual-flow-select` đã có) và 018 (snackbar D-66); `graphify update .` sau mỗi lượt.
-- **FR-115**: Mọi D-92 đến D-101 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
+- **FR-115**: Mọi D-92 đến D-103 và R-40 đến R-42 được tech lead duyệt trước khi đóng; không còn điểm cần làm rõ
   (xem Clarifications).
 
 ### Key Entities *(include if feature involves data)*
@@ -1118,6 +1118,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | D-99 | Cuộn ở trang danh sách Content, Files, Users | Cả vùng nội dung cuộn (`private-view-main` `overflow: auto`, header bar `sticky`); phân trang nằm dưới bảng, cuộn theo | `PrivateView fill`: trang cao đúng cửa sổ, chỉ thân bảng cuộn; page header và phân trang đứng yên; khung gốc `relative` để nhãn `sr-only` trong bảng không kéo dài trang | Owner yêu cầu (Clarifications 2026-10-16); hành vi và request không đổi | khác | — |
 | D-100 | Link "Documentation" (`docs`, `https://docs.directus.io`) trong danh sách `system-modules` | Hiện trong danh sách (dòng link có nút gỡ) | Không hiện trong danh sách; vẫn giữ trong dữ liệu, ghi lại đúng vị trí với tên đã dịch khi lưu, nên dữ liệu ghi giống Directus app | Owner yêu cầu (2026-10-17); Nguyên tắc IX như D-49 (sidebar đã ẩn link này) | đổi thương hiệu | — |
 | D-101 | Breadcrumb ở đầu trang (`headline` của header bar) | `v-breadcrumb` trên tiêu đề ở mọi trang có trang cha | Không hiện ở mọi trang; dòng tiêu đề giữ nút quay lại, icon, tiêu đề; trang vẫn truyền `breadcrumb` cho `PageHeader` để bật lại ở một chỗ. Hai bộ parity UI có so breadcrumb (files/users, settings) ghi nó là khác biệt được phép | Owner yêu cầu (2026-10-17) | khác | — |
+| D-103 | Tham số `page` khi nạp quyền của policy (`system-permissions`, `GET /permissions?filter[policy]…&limit=-1`) | Gửi `page=0` | Không gửi `page`: `@directus/sdk` 21.3.0 (`query-to-params.ts`) chỉ gửi `page` ≥ 1 | API Directus bỏ qua `page=0` (`sanitize-query.ts` giữ 0, `apply-query` chỉ tính offset khi `page` khác 0 và `limit` khác -1), nên kết quả như nhau; SDK là client duy nhất (012); owner duyệt (2026-10-17) | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -1129,7 +1130,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | R-41 | Trình sửa preset luôn về danh sách trong `finally` kể cả khi `POST`/`PATCH` lỗi | `presets/item.vue` Directus | Người dùng mất form đang sửa khi lỗi; như Directus; tái tạo | Duyệt (owner, 2026-10-17) |
 | R-42 | `PATCH /collections` khi kéo thả không được Directus chờ (`onSort` không await) nên lỗi không hiện và cây giữ thứ tự cục bộ sai tới lần nạp sau | `collections.vue:115-141` Directus | App mới làm giống (owner chọn B, Clarifications 2026-10-16); tái tạo, không sửa | Duyệt (owner, 2026-10-17) |
 
-**Trạng thái khác biệt (T122, lượt 5, 2026-10-16; D-100, D-101 thêm 2026-10-17; owner duyệt cả bảng 2026-10-17)**:
+**Trạng thái khác biệt (T122, lượt 5, 2026-10-16; D-100, D-101, D-103 thêm 2026-10-17; owner duyệt cả bảng 2026-10-17)**:
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
@@ -1143,6 +1144,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 | D-99 | `layout/PrivateView.vue` prop `fill` (gốc `relative h-dvh overflow-hidden`), dùng ở `CollectionRoute`, `FilesCollectionRoute`, `UsersCollectionRoute` | Owner yêu cầu (2026-10-16); duyệt |
 | D-100 | `interfaces/_system/system-modules/SystemModules.vue`: `isDocsLink` lọc khỏi danh sách; setter chèn lại link docs | Owner yêu cầu (2026-10-17); duyệt |
 | D-101 | `layout/PageHeader.vue` không vẽ `nav[aria-label="Breadcrumb"]`; E2E đổi sang nút Back hoặc kiểm không có breadcrumb; `settings-parity-ui`, `files-users-parity-ui` coi breadcrumb của Directus là khác biệt được phép | Owner yêu cầu (2026-10-17); duyệt |
+| D-103 | `system-permissions/SystemPermissions.vue` truyền `page: 0` như Directus, SDK bỏ khi gửi; test ghi dạng request của SDK | Owner duyệt (2026-10-17) |
 | R-40 | `field-detail/store/index.ts` port nguyên `save()` (nuốt lỗi từng bước như Directus) | Duyệt (owner, 2026-10-17) |
 | R-41 | `presets/PresetItemRoute.vue` gọi `router.push` về danh sách trong `finally` như Directus; khi lưu lỗi các sửa còn giữ nên guard sửa dở chặn và hiện hộp `unsaved_changes` (cả hai app), không mất form | Duyệt (owner, 2026-10-17) |
 | R-42 | `CollectionsRoute.vue`: `PATCH /collections` khi kéo thả không chờ, không báo lỗi | Owner chọn B (Clarifications); duyệt |
@@ -1206,6 +1208,9 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
 - Duyệt (owner, 2026-10-17): recipe Q-20 đến Q-28 (T121) và bảng D-92 đến D-101, R-40 đến R-42 (T122) được duyệt, trừ
   hai điểm sửa khi duyệt: sub-menu Settings bỏ hẳn nhóm Report Bug, Request Feature (D-94) và dòng "Backoffice" ở cuối
   (D-95, Q-24).
+- Hai khác biệt của lượt 3 (owner, 2026-10-17): hộp tạo role và tạo policy sửa cho giống Directus (`v-dialog
+  persistent`): bấm ra ngoài không đóng, chỉ Esc và Cancel về danh sách; `BoDialog` có prop `persistent`, không ghi D-xx
+  (mã D-102 bỏ trống). SDK bỏ `page=0` khi nạp quyền của policy: ghi D-103, duyệt.
 - Góp ý giao diện sau lượt 5 (owner, 2026-10-17). Các sửa này đưa app về giống Directus nên không thêm D-xx:
   - Ô chọn (`BoSelect`) hiện mục đã chọn kèm icon thật, như `v-select` của Directus. Trước đó in tên ligature, ví dụ
     "table_rows Table" ở ô Layout.
@@ -1307,6 +1312,6 @@ trước khi đóng 016. Q-1 (nhãn field), Q-2 (bảng), Q-7 (tìm kiếm, bộ
   options `list`.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 015 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-92 đến D-101 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
+- **SC-010**: D-92 đến D-103 và R-40 đến R-42 được tech lead duyệt; D-40 (Settings), D-56, D-57, D-71, D-72 (phần 016),
   D-85 ghi "đã gỡ ở 016" ở spec gốc; ghi chú cho 017 và 018 trong `SPECKIT-GUIDE.md`. Duyệt ghi ở bảng trạng thái khác
   biệt của spec (như 015 T103).
