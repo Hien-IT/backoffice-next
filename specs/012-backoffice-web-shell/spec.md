@@ -435,7 +435,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   feature này PHẢI hiện bố cục private với icon, tên module ở thanh tiêu đề, tên module trong tiêu đề tab, và trạng
   thái trống nói rõ nội dung thuộc feature sau (D-40); các route con của module (`:primaryKey`, `folders/:folder`...)
   PHẢI khớp và hiện cùng khung để `last_page` và link từ Directus không rơi vào 404.
-- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060) (đã gỡ ở 015: chuyển tới màn user `/users/<id>`, D-48, D-86); menu user ở header PHẢI có hồ sơ và đăng xuất
+- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060) (đã gỡ ở 015: màn user `/users/<id>`, D-48; `/users/me` bỏ như Directus); menu user ở header PHẢI có hồ sơ và đăng xuất
   (mục đích như `module-bar-avatar.vue`, vị trí theo `layout-patterns.md`, D-52).
 - **FR-025**: Path không khớp PHẢI hiện trang 404 private trong bố cục (đã đăng nhập) như `private-not-found.vue`.
 - **FR-026**: Vùng logo của sidebar PHẢI hiện `project_logo` từ `/assets/<id>` hoặc logo Backoffice và tên dự án

@@ -153,7 +153,7 @@ apps/web/
 ├── fixtures/interfaces/{seed.mjs, export.mjs, snapshot/}   # bo_files (thư mục 3 cấp, 30 file, EXIF), bo_users (role con, user mỗi status, token, SSO)
 ├── scripts/{sync-directus-themes.mjs, check-bundle.mjs (BUDGET_015, LAZY_ONLY)}
 ├── src/
-│   ├── modules/files.ts, modules/users.ts                 # route thật (thay placeholderRoutes); /users/me redirect
+│   ├── modules/files.ts, modules/users.ts                 # route thật (thay placeholderRoutes)
 │   ├── modules/files/
 │   │   ├── routes/{FilesCollectionRoute,AddNewFile,FileItemRoute}.vue   # not-found: ContentNotFound (module="files")
 │   │   └── components/{AddFolder,DeleteFolderDialog,FolderSection,FileInfoSidebarDetail}.vue

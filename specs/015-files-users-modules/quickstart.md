@@ -15,7 +15,7 @@ PUBLIC_URL=http://127.0.0.1:8155 pnpm nx run web:serve   # http://127.0.0.1:4200
 
 Đổi `PUBLIC_URL` sang `http://127.0.0.1:8156` cho API mới (sau seed xóa cache `?system` ở 8156 và 8163). Mở
 `/admin/files` (thư mục `bo-fixtures` > `sub` > `deep`, 30 file), `/admin/files/mine`, một ảnh → nút chỉnh ảnh;
-`/admin/users` (role `bo-editor` > `bo-sub`, user mỗi trạng thái), `/admin/users/me`.
+`/admin/users` (role `bo-editor` > `bo-sub`, user mỗi trạng thái), trang của chính mình (menu avatar).
 
 ## Dữ liệu theme Directus (R6)
 

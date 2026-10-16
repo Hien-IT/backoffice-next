@@ -1,9 +1,7 @@
 // Ported from directus/app/src/modules/users/index.ts
-// Backoffice: route components are lazy (bundle budget). `/users/me` (D-86, kept from feature 012) is a redirect to the
-// current user's page, declared before `:primaryKey`; the user store is hydrated before any private route. Routes that
-// match nothing show the module not-found page (ContentNotFound with `module: 'users'`, FR-054). preRegisterCheck as
+// Backoffice: route components are lazy (bundle budget). No `/users/me` route, as Directus (D-86, owner 2026-10-16):
+// `me` is a `:primaryKey`. Routes that match nothing show the module not-found page (ContentNotFound with `module: 'users'`, FR-054). preRegisterCheck as
 // in feature 012.
-import { useUserStore } from '../stores/user.ts';
 import { canRead, defineModule } from './types.ts';
 
 const Collection = () => import('./users/routes/UsersCollectionRoute.vue');
@@ -37,15 +35,6 @@ export default defineModule({
 			path: 'all',
 			component: Collection,
 			props: () => ({}),
-		},
-		{
-			name: 'users-me',
-			path: 'me',
-			redirect: () => {
-				const user = useUserStore().currentUser;
-				// A share user has no id: the user directory, which its permissions refuse (012 no-access screen).
-				return user && 'id' in user ? `/users/${user.id}` : '/users';
-			},
 		},
 		{
 			name: 'users-item',

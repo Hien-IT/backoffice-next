@@ -68,8 +68,7 @@ test('a vi-VN user reads the user page in Vietnamese (US6, FR-102)', async ({ pa
 	const user: TestUser = await fixtures.user('vi', { role, language: 'vi-VN', first_name: 'Vy' });
 	await signIn(page, user, user.id);
 
-	await page.goto('/admin/users/me');
-	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
+	await page.goto(`/admin/users/${user.id}`);
 	await expect(page.locator('html')).toHaveAttribute('lang', 'vi-VN');
 	await expect(page.getByLabel('Họ', { exact: true })).toBeVisible();
 });

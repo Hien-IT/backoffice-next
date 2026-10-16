@@ -1,5 +1,5 @@
 // Feature 015 US4 (T082; US4-1 to US4-6, FR-070 to FR-076): the user page. The user box and the form of a directory user,
-// your own profile through /users/me (language applies at once), archive, new users from /users/+ and from a role,
+// your own profile at /users/<id> (language applies at once), archive, new users from /users/+ and from a role,
 // deleting another user and deleting yourself (logout). Tagged @core: chromium, firefox and webkit (SC-001).
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
@@ -60,15 +60,14 @@ test('the user box and the form of a directory user; saving sends only the chang
 	await expect(page).toHaveURL(/\/admin\/users$/);
 });
 
-test('/users/me goes to your own page; the avatar menu links to it (US4-2, D-86) @core', async ({ page }) => {
+test('the avatar menu links to your own page /users/<id> (US4-2, D-86) @core', async ({ page }) => {
 	const me = (await api.call<{ id: string }>('GET', '/users/me?fields=id')).id;
 
-	await page.goto('/admin/users/me');
+	await openUsers(page);
+	await page.getByRole('button', { name: 'Admin User' }).click();
+	await page.getByRole('menuitem', { name: /Profile/ }).click();
 	await expect(page).toHaveURL(new RegExp(`/admin/users/${me}$`));
 	await expect(page.locator('.user-box')).toBeVisible();
-
-	await page.getByRole('button', { name: 'Admin User' }).click();
-	await expect(page.getByRole('menuitem', { name: /Profile/ })).toHaveAttribute('href', `/admin/users/${me}`);
 });
 
 test('archive sets the status and goes to the directory (US4-3)', async ({ page }) => {

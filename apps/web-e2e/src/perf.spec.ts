@@ -51,12 +51,14 @@ test('no horizontal scroll on login, content and profile (FR-028, SC-008)', asyn
 	await expect(page.getByRole('button', { name: 'Sign In', exact: true })).toBeVisible();
 	await noScroll();
 
-	await hostDb()('directus_users').where({ email: ADMIN.email }).update({ last_page: null });
+	const admin = hostDb()('directus_users').where({ email: ADMIN.email });
+	const { id } = (await admin.clone().first('id')) as { id: string };
+	await admin.update({ last_page: null });
 	await login(page, ADMIN);
 	await expect(page).toHaveURL(CONTENT_URL);
 	await noScroll();
 
-	await page.goto('/admin/users/me');
+	await page.goto(`/admin/users/${id}`);
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 	await noScroll();
 });

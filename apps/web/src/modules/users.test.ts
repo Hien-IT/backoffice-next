@@ -1,8 +1,7 @@
-// Feature 015 (FR-050, data-model §1, D-86): the routes of directus/app/src/modules/users/index.ts, plus /users/me.
+// Feature 015 (FR-050, data-model §1, D-86): the routes of directus/app/src/modules/users/index.ts, without /users/me (D-86).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router';
-import { useUserStore } from '../stores/user.ts';
 import users from './users.ts';
 
 function router() {
@@ -49,12 +48,10 @@ describe('users module routes', () => {
 		expect(propsOf(add)).toEqual({ primaryKey: '+', role: 'r1' });
 	});
 
-	test('/users/me goes to the current user (declared before :primaryKey); a share user goes to the directory', async () => {
-		useUserStore().currentUser = { id: 'u1' } as never;
-		expect((await resolve('/users/me')).fullPath).toBe('/users/u1');
-
-		useUserStore().currentUser = { share: 's1' } as never;
-		expect((await resolve('/users/me')).fullPath).toBe('/users');
+	test('/users/me has no route of its own: "me" is a user key, as Directus (D-86)', async () => {
+		const me = await resolve('/users/me');
+		expect(me.name).toBe('users-item');
+		expect(me.params['primaryKey']).toBe('me');
 	});
 
 	test('a key opens the user (+ is a new user); deeper paths are the module not-found page', async () => {

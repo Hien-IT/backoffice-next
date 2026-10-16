@@ -1,4 +1,4 @@
-// US6 (T064, contracts/e2e.md §2) moved to the user page by feature 015 (FR-051, D-48 lifted, T082): /users/me goes to
+// US6 (T064, contracts/e2e.md §2) moved to the user page by feature 015 (FR-051, D-48 lifted, T082): the own page is
 // /users/<id>; the form saves only the changed fields, shows API errors on the field, and language, appearance and
 // theme overrides apply at once and after a reload. "Save and Stay" keeps the page (Save goes to the directory, as in
 // Directus).
@@ -49,8 +49,7 @@ async function openProfile(page: Page) {
 	await page.goto('/admin/login');
 	await login(page, user);
 	await expect(page).toHaveURL(CONTENT_URL);
-	await page.goto('/admin/users/me');
-	await expect(page).toHaveURL(new RegExp(`/admin/users/${user.id}$`));
+	await page.goto(`/admin/users/${user.id}`);
 	await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 }
 

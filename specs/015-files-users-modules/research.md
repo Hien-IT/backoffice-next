@@ -29,8 +29,8 @@ giao thức có máy chủ ở 007, client Directus dùng đã kiểm); thư vi�
 **Quyết định**:
 
 - `modules/files.ts`, `modules/users.ts` thay `placeholderRoutes` bằng route chép từ `modules/files/index.ts` và
-  `modules/users/index.ts` (data-model §1); component route là `() => import(...)` (chunk lười). `/users/me` giữ
-  (`redirect` tới `/users/<id>` qua guard đọc store user; D-86); `UserMenu` trỏ `/users/<id>`.
+  `modules/users/index.ts` (data-model §1); component route là `() => import(...)` (chunk lười). `/users/me` bỏ
+  như Directus (owner 2026-10-16, D-86 bỏ); `UserMenu` trỏ `/users/<id>`.
 - Slot `navigation` của `PrivateView` (012, 014 đã dùng cho `ContentNavigation`) nhận `FilesNavigation.vue` (chép
   `files-navigation.vue` + `files-navigation-folder.vue`) và `UsersNavigation.vue` (chép `navigation.vue` +
   `NavigationRole.vue` + `use-navigation.ts`). Cây dùng cùng mẫu DOM của 014 §9: nhóm là `<button aria-expanded>` +

@@ -79,7 +79,7 @@ mục, tải lên, xem, sửa, chỉnh ảnh, chuyển, xóa, tải về; xem da
 
 Phạm vi: mọi route của hai module (`/files`, `/files/+`, `/files/folders/:folder`, `/files/folders/:folder/+`,
 `/files/all|mine|recent`, `/files/:primaryKey`; `/users`, `/users/suspended|invited|all`, `/users/roles/:role`,
-`/users/roles/:role/+`, `/users/:primaryKey`, `/users/me`), thay khung D-40 của 012 và đích chuyển hướng D-72 của 014;
+`/users/roles/:role/+`, `/users/:primaryKey`), thay khung D-40 của 012 và đích chuyển hướng D-72 của 014;
 trang hồ sơ đầy đủ thay form cố định của 012 (D-48); sáu interface `_system` của `directus_users` (D-57); trình chỉnh
 ảnh dùng chung với `file-image` (D-59); E2E ba cấu hình. Ngoài phạm vi: trang đăng ký công khai `/register` (D-44 giữ,
 owner chọn 2026-10-15, Clarifications Q2), màn Settings của role và policy (016, link tới khung 012 như D-71), drawer
@@ -229,7 +229,7 @@ TFA, theme sáng/tối và overrides, trạng thái, role, policy, token; sửa,
 **Independent Test**: Test component cho sáu interface với mock API (request allowlist như 013); E2E: mở
 `/users/:id`, sửa tên, email, mật khẩu, avatar, ngôn ngữ, theme, overrides, status, role, policies, tạo token, bật rồi
 tắt TFA; so body `PATCH /users/:id`, `POST /users/me/tfa/*`, `POST /users/:id/tfa/disable`, `GET /utils/random/string`
-với Directus app; mở `/users/me` và so với Directus app ở `/users/<id>`.
+với Directus app.
 
 **Acceptance Scenarios**:
 
@@ -262,8 +262,8 @@ với Directus app; mở `/users/me` và so với Directus app ở `/users/<id>`
    theo khóa theme Directus, ô nhập với placeholder là mặc định và swatch màu, xóa giá trị thì gỡ khóa và nhóm rỗng),
    `theme_light`/`theme_dark` (`system-theme`, xem trước đúng màu theme Directus, Q1 = C), **When** sửa và lưu, **Then** giá trị ghi ra bằng
    Directus app với cùng thao tác (bộ so payload).
-6. **Given** `/users/me`, **When** mở, **Then** chuyển hướng tới `/users/<id user hiện tại>` (D-86); menu avatar ở
-   header trỏ thẳng `/users/<id>` như `module-bar-avatar.vue`; form cố định của 012 bỏ (D-48 gỡ).
+6. **Given** menu avatar ở header, **When** chọn hồ sơ, **Then** mở `/users/<id user hiện tại>` như
+   `module-bar-avatar.vue`; không có route `/users/me` riêng, như Directus (D-86 bỏ, owner 2026-10-16); form cố định của 012 bỏ (D-48 gỡ).
 7. **Given** xóa chính mình ở màn user, **When** xác nhận, **Then** `DELETE /users/:id` rồi đăng xuất; xóa user khác
    thì về `/users`; archive thì `PATCH` `status: archived` rồi về `/users`, bỏ archive thì ở lại.
 
@@ -378,7 +378,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 - `theme_light_overrides` có khóa không thuộc cây theme (do Directus bản khác ghi): cây không hiện khóa đó, giữ nguyên khi
   lưu (chỉ ghi phần sửa) như Directus (`setWith` trên clone).
 - `language` là mã không có trong app (D-46): dropdown hiện mã thô, lưu giữ nguyên; giao diện rơi về `en-US`.
-- `/users/me` khi là user share: không có module Users; route về màn không có quyền của 012.
+- `/users/me` gõ tay: khớp `/users/:primaryKey` với khóa `me` như Directus (không có route riêng, D-86 bỏ).
 - Lưới cards với thư mục con nhưng `select-mode` (có lựa chọn file): thẻ thư mục cũng vào chế độ chọn
   (`selectMode = selection.length > 0 || anySelection`), bấm thẻ chọn thay vì mở.
 - Màn hẹp 768 px: panel là drawer (L-4); drawer chỉnh ảnh chiếm toàn màn; sub-menu cây thư mục cuộn trong sidebar.
@@ -600,10 +600,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
 
 - **FR-050**: Module `users` PHẢI thay route khung của 012 bằng các route của `modules/users/index.ts`: `/users`
   (`users-active`, `status=active`), `/users/suspended`, `/users/invited`, `/users/all`, `/users/:primaryKey`,
-  `/users/roles` → `/users`, `/users/roles/:role`, `/users/roles/:role/+` (item mới với `role`); `/users/me` giữ, khai
-  báo trước `:primaryKey`, là route `redirect` dạng hàm trả `/users/<id user hiện tại>` từ store user (store đã hydrate
-  trước mọi route private của 012, kể cả khi tải lại trang; user share không có id → màn không có quyền của 012) (D-86,
-  CHK027, CHK055); `preRegisterCheck` giữ của 012; `checkForSystem` chuyển
+  `/users/roles` → `/users`, `/users/roles/:role`, `/users/roles/:role/+` (item mới với `role`); không có route
+  `/users/me` riêng (route `redirect` của 012 bỏ, như Directus; owner 2026-10-16, D-86 bỏ; CHK027, CHK055); `preRegisterCheck` giữ của 012; `checkForSystem` chuyển
   `/content/directus_users` tới đây (D-72 gỡ phần Users).
 - **FR-051**: `UserMenu` của 012 PHẢI trỏ hồ sơ tới `/users/<id>` như `module-bar-avatar.vue`; user share không có mục
   hồ sơ (kiểm 012 đã vậy, CHK028); `ProfileRoute` của 012 bỏ (D-48 gỡ), E2E `profile.spec.ts` chuyển sang màn user.
@@ -809,7 +807,7 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   multipart); khác biệt thật ghi R-xx.
 - **FR-121**: `graphify update .` sau mỗi lượt code; tài liệu `design-system/docs/`, spec 012/013/014 (D-40, D-48,
   D-57, D-59, D-72 ghi "đã gỡ ở 015" phần tương ứng; D-44 cột "Gỡ ở" ghi "sau 015"; FR-024 của 012 ghi hồ sơ là
-  `/users/<id>` với `/users/me` chuyển hướng, D-86) sửa khi 014 mở khóa (CHK051, CHK101).
+  `/users/<id>`, `/users/me` bỏ như Directus) sửa khi 014 mở khóa (CHK051, CHK101).
 - **FR-122**: Không sửa file trong `directus/`; không sửa `apps/web`, `apps/web-e2e` trước khi 014 báo đóng (quy tắc
   session 014, 2026-10-15).
 - **FR-123**: Chia lượt commit (như Q3 của 014): lượt 1 Files (US1, US2), lượt 2 trình chỉnh ảnh + `file-image` (US5),
@@ -849,14 +847,13 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-83 | Hộp mời user sau khi gửi | Đóng, danh sách nạp lại; email mời do server gửi | Thêm notice tại chỗ "hệ thống không gửi email, liên hệ quản trị viên để nhận link" (`contact_admin_for_link`) | Nguyên tắc X; API ghi log thay vì gửi (D-36 của 010); cùng cách D-42 | khác | — |
 | D-85 | Menu "sửa role" trong cây role (admin) | Trang Settings role | Trỏ khung Settings của 012 (D-40) | 016 chưa có (như D-71) | ngoài phạm vi (tạm thời) | 016 |
-| D-86 | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Giữ route của 012 và chuyển hướng tới `/users/<id>`; menu avatar trỏ thẳng `/users/<id>` | Giữ link đã có từ 012 (FR-024) | khác | — |
+| ~~D-86~~ | Route `/users/me` | Không có (menu avatar trỏ `/users/<id>`) | Bỏ (owner 2026-10-16): như Directus, không có route riêng; route `redirect` của 012 gỡ | — | — | — |
 | D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay; nhãn "Directus Default", "Directus Minimal", "Directus Color Match" | Danh sách và xem trước như Directus (Q1 = C); nhãn qua khóa dịch `theme_directus_*` của file dịch 012 nên hiện "Backoffice Default"...; `id` ghi DB giữ "Directus Default"...; chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
 | D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có danh sách; việc tiếp tục upload dở khi chọn lại cùng file (`findPreviousUploads`, FR-022) vẫn như Directus, là hai thứ khác nhau (CHK059) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | 018 |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
-- D-86: route `/users/me` thêm so với Directus; không ảnh hưởng dữ liệu.
 - Khóa localStorage `backoffice-require_tfa_setup` (D-39, 012) dùng chung với `system-mfa-setup`: hai app không chia sẻ
   localStorage nên SSO user bật TFA ở app này chỉ bị ép thiết lập ở app này (Directus cũng theo app, không theo DB).
 
@@ -866,7 +863,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 |----|-------------------|-------|
 | D-83 | `modules/users/components/UsersInvite.vue` phát `invited`; `modules/users/routes/UsersCollectionRoute.vue` nạp lại rồi hiện notice `contact_admin_for_link` | Duyệt (owner, 2026-10-16) |
 | D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Duyệt (owner, 2026-10-16) |
-| D-86 | `modules/users.ts`: route `users-me` là `redirect` hàm tới `/users/<id>`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Chờ tech lead (SC-010) |
+| D-86 | Bỏ: `modules/users.ts` không còn route `users-me`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Bỏ (owner, 2026-10-16), như Directus |
 | D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` nói theme lưu vào hồ sơ và không đổi giao diện Backoffice, không nêu tên app khác (owner 2026-10-16) | Duyệt (owner, 2026-10-16) |
 | D-89 | `theme/directus-themes.json` sinh bằng `scripts/sync-directus-themes.mjs` (target `web:sync-themes`), `theme/directus-themes.test.ts` so với nguồn | Chờ tech lead (SC-010) |
 | D-90 | Không có danh sách upload dở; `utils/upload-file.ts` vẫn `findPreviousUploads` khi chọn lại cùng file (FR-022) | Duyệt (owner, 2026-10-16) |
@@ -1001,5 +998,5 @@ xuất nhập, hàng loạt).
   kéo thả nên ngoại lệ khung cắt chỉ chuột của FR-111 không làm SC này đỏ; ghi ở `qa/handoff-checklist.md`).
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 014 + 20 KB gzip; 0 màu thô ngoài danh sách miễn.
-- **SC-010**: D-83 đến D-90 (D-87 đã bỏ, không cần duyệt) và R-xx (nếu có) được tech lead duyệt (CHK066); D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
+- **SC-010**: D-83 đến D-90 (D-86, D-87 đã bỏ, không cần duyệt) và R-xx (nếu có) được tech lead duyệt (CHK066); D-40 (Files, Users), D-48, D-57 (sáu interface), D-59,
   D-72 (phần 015) ghi "đã gỡ ở 015" và D-44 ghi "sau 015" ở spec gốc.

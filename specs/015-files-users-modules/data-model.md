@@ -16,15 +16,14 @@ duyệt dựng từ API.
 | files | `files-not-found` | `/files/:_(.+)+` | `ContentNotFound` (`module="files"`) | | |
 | users | `users-active` | `/users` | `UsersCollectionRoute` | `status: 'active'` | |
 | users | `users-suspended\|invited\|all` | `/users/suspended\|invited\|all` | `UsersCollectionRoute` | `status` (all: không) | |
-| users | `users-me` | `/users/me` | `redirect: () => '/users/' + currentUser.id` (hàm, store đã hydrate; khai báo trước `users-item`) | | D-86, CHK055 |
 | users | `users-item` | `/users/:primaryKey` | `UserItemRoute` | `primaryKey` | |
 | users | — | `/users/roles` | redirect `/users` | | |
 | users | `roles-collection` | `/users/roles/:role` | `UsersCollectionRoute` | `role` | |
 | users | `roles-item-add` | `/users/roles/:role/+` | `UserItemRoute` | `primaryKey: '+'`, `role` | |
 | users | `users-not-found` | `/users/:_(.+)+` | `ContentNotFound` (`module="users"`) | | |
 
-Thứ tự khai báo như Directus để `/users/me`, `/users/roles/...`, `/users/suspended` khớp trước `:primaryKey`
-(`users-me` đặt trước `users-item`).
+Thứ tự khai báo như Directus để `/users/roles/...`, `/users/suspended` khớp trước `:primaryKey`;
+không có route `/users/me` riêng (D-86 bỏ, như Directus).
 
 ## 2. Thư mục (`useFolders`, FR-005, FR-006)
 

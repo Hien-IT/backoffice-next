@@ -86,14 +86,14 @@ describe('registerModules (FR-022)', () => {
 		expect(registeredModules.value).toEqual([]);
 	});
 
-	test('users/me goes to the user page (feature 015), settings redirects to data-model', async () => {
+	test('users/me is a user key (feature 015, D-86), settings redirects to data-model', async () => {
 		setUser(true, {});
 		const r = router.value as ReturnType<typeof createRouter>;
 		const { onHydrateModules } = registerModules(getInternalModules());
 
 		await onHydrateModules();
 
-		expect(r.resolve('/users/me').name).toBe('users-me');
+		expect(r.resolve('/users/me').name).toBe('users-item');
 		expect(r.resolve('/users/3f2a').name).toBe('users-item');
 		await r.push('/settings');
 		expect(r.currentRoute.value.fullPath).toBe('/settings/data-model');
