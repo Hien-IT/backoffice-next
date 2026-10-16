@@ -347,10 +347,11 @@ describe('PresetItemRoute', () => {
 			expect(JSON.parse(layoutEl()!.dataset['query']!)).toEqual(preset['layout_query'].tabular);
 			expect(button('Delete')).toHaveProperty('disabled', false);
 			// The layout sidebar and, in the `layout_options` section, the layout options of the preview.
-			useSidebarStore().activeAccordionItem = 'layout-options';
-			// The accordion opens later than one flush on a loaded CI runner.
+			// Below `xl` the detail panel is a drawer that a late focus can close again on a loaded CI runner (collapse
+			// clears the open section): open it on each try.
 			await vi.waitFor(
 				() => {
+					useSidebarStore().activeAccordionItem = 'layout-options';
 					expect(document.querySelector('[data-sidebar]')).not.toBeNull();
 					expect(document.querySelector('[data-options=""]')).not.toBeNull();
 				},

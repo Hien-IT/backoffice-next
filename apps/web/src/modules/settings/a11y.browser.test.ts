@@ -66,14 +66,26 @@ fixture.relations.push(...systemRelations());
 
 const PRESET = snapshot.presets.find((p) => p['bookmark'] !== null) ?? snapshot.presets[0]!;
 
+/** The rows, or the `aggregate[count]` answer of `use-relation-multiple` (`[{ count: { id } }]`) for the same path. */
+const rowsOrCount =
+	(rows: unknown[]) =>
+	({ url }: { url: URL }) =>
+		json({
+			data: [...url.searchParams.keys()].some((k) => k.startsWith('aggregate'))
+				? [{ count: { id: rows.length } }]
+				: rows,
+		});
+
+const ACCESS = access.map((row, index) => ({ id: `a${index + 1}`, ...row }));
+
 const answers = {
 	'GET /roles': [{ ...ROLE, users: [{ count: { id: 1 } }], children: [] }],
 	[`GET /roles/${ROLE.id}`]: ROLE,
 	'GET /policies': [{ ...POLICY, users: [{ count: { user: 0 } }], roles: [{ count: { role: 1 } }] }],
 	[`GET /policies/${POLICY.id}`]: POLICY,
-	'GET /permissions': PERMISSIONS,
+	'GET /permissions': rowsOrCount(PERMISSIONS),
 	'GET /permissions/1': PERMISSIONS[0],
-	'GET /access': access.map((row, index) => ({ id: `a${index + 1}`, ...row })),
+	'GET /access': rowsOrCount(ACCESS),
 	'GET /translations': ({ url }: { url: URL }) =>
 		json({ data: [...url.searchParams.keys()].some((k) => k.startsWith('aggregate')) ? [{ count: 2 }] : TRANSLATIONS }),
 	'GET /translations/t1': TRANSLATIONS[0],
