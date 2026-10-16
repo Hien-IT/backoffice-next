@@ -4,7 +4,7 @@
 // values of §5 and the new API reads it back. (2) Role, policy and the US4 permissions made in the new app: a user of
 // that role gets the same result for the six operations of SC-003 in both apps. (3) The other way: a collection and a
 // policy made through the Directus API show the same field grid, field drawer and matrix in both apps.
-// proxy-api only, chromium-1280 (DIRECTUS_APP_SPECS). Every collection, role, policy and user carries the configuration
+// Runs at proxy-api only, in chromium at 1280 px (listed in the Directus app specs of playwright.config.ts). Every collection, role, policy and user carries the configuration
 // prefix and is deleted in beforeAll and afterAll. Through the API, the same in both runs: the `name`/`text`/`title`
 // fields the values of §5 need in the generated collections, `seo_title` moved into `group_seo` (a drag in both apps),
 // the m2a blocks (one picker drawer per collection), the `vi-VN` language (not in the 8 seeded rows), the `status`
