@@ -1516,7 +1516,7 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
   (`rule:` label, text input with the default as placeholder, a swatch `size-5 rounded border` with the value as inline
   background when it parses as a color); the whole block `lang="en-US" dir="ltr"`.
 - Built: `modules/users/components/UsersInvite.vue`; `interfaces/_system/system-mfa-setup`, `system-token`,
-  `system-theme` (+ `ThemePreview.vue`, data `theme/directus-themes.json`), `system-theme-overrides` (+ group and rule
+  `system-theme` (+ `ThemePreview.vue`, data `theme/theme-presets.json`), `system-theme-overrides` (+ group and rule
   components), `system-language`, `system-input-password`.
 - Deviation: an email of a known user is not an error (Directus `UsersService.inviteUser` skips it); only a
   `RECORD_NOT_UNIQUE` answer shows in the dialog. The QR code is an `<img>` of the data URL (`alt` from

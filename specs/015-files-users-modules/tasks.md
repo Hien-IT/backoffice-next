@@ -384,7 +384,7 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Tests cho User Story 4
 
-- [x] T070 [P] [US4] Test `src/theme/directus-themes.test.ts` (file sinh bằng nguồn khi chạy lại script; 3 theme sáng,
+- [x] T070 [P] [US4] Test `src/theme/theme-presets.test.ts` (file sinh bằng nguồn khi chạy lại script; 3 theme sáng,
       1 tối; `id`, `name`, `appearance`, `rules`) và `src/theme/rules-to-css-vars.test.ts` (3 mẫu: lồng `fonts.display`
       → `--theme--fonts--display--font-family`, số, chuỗi `var(`)
 - [x] T071 [P] [US4] Test sáu interface: `SystemLanguage.test.ts` (mục mặc định dự án khi `includeProjectDefault`, mã lạ
@@ -408,10 +408,10 @@ payload `users.spec.ts`; so `/users/me` với Directus app `/users/<id>`.
 
 ### Implementation cho User Story 4
 
-- [x] T074 [P] [US4] Viết `apps/web/scripts/sync-directus-themes.mjs` (cách theo T003) sinh
-      `src/theme/directus-themes.json` (`{light, dark}`; header ghi nguồn và ngày) và `src/theme/rules-to-css-vars.ts`
+- [x] T074 [P] [US4] Viết `apps/web/scripts/sync-theme-presets.mjs` (cách theo T003) sinh
+      `src/theme/theme-presets.json` (`{light, dark}`; header ghi nguồn và ngày) và `src/theme/rules-to-css-vars.ts`
       (làm phẳng `--`, kebab-case bằng regex; `flat` nếu T002 chọn); chạy script, commit JSON; thêm target
-      `web:sync-themes` vào `apps/web/project.json`; thêm ngoại lệ đường dẫn `src/theme/directus-themes.json` (dữ liệu
+      `web:sync-themes` vào `apps/web/project.json`; thêm ngoại lệ đường dẫn `src/theme/theme-presets.json` (dữ liệu
       sinh, `id` theme "Directus Default"... là định danh lưu DB, IX) vào `apps/web/scripts/check-brand.mjs` kèm test ở
       `check-brand.test.ts`; manifest ghi nguồn `directus/packages/themes/src/themes/**`
 - [x] T075 [P] [US4] Mở rộng `src/composables/use-tfa-setup.ts`: `disableTFA` (`POST /users/me/tfa/disable {otp}`),
@@ -662,7 +662,7 @@ Lượt 3, Phase 7 (US4):
   - `createAllowed`/`updateAllowed` của `file-image` lấy từ `useRelationPermissionsM2O` như Directus (tasks ghi
     `useCollectionPermissions`).
 - Lượt 3 (2026-10-16):
-  - Sáu interface `_system`, dữ liệu theme (`sync-directus-themes.mjs`, `directus-themes.json`, `rules-to-css-vars`)
+  - Sáu interface `_system`, dữ liệu theme (`sync-theme-presets.mjs`, `theme-presets.json`, `rules-to-css-vars`)
     và `use-tfa-setup` do một agent con làm song song (T070–T072, T074–T079). Ba interface theme/mfa nạp lười: các
     chunk khoảng 8,5 KB gzip. Nhãn theme theo lựa chọn (a) của owner: overlay en-US/vi-VN đổi ba khóa
     `theme_directus_*` thành "Backoffice …", `id` ghi DB giữ "Directus …" (D-88); dòng ghi chú
@@ -703,6 +703,8 @@ Lượt 3, Phase 7 (US4):
     duyệt D-83 đến D-90 và design owner duyệt Q-13 đến Q-19 là việc của người.
   - 2026-10-16 owner duyệt Q-13 đến Q-19 (Q-14 đổi: ô chọn thẻ tên "Select <tên thẻ>" qua `aria-labelledby` ở
     `layouts/cards/components/Card.vue`), D-83, D-85, D-88, D-90, R-39 và màn user không có quyền đọc (FR-054); D-86 bỏ: route
-    `/users/me` gỡ như Directus (E2E mở `/users/<id>`); còn D-89, push và CI.
+    `/users/me` gỡ như Directus (E2E mở `/users/<id>`); D-89 duyệt, bốn file đổi tên bỏ chữ "directus"
+    (`theme/theme-presets.json`, `theme/theme-presets.test.ts`, `theme/use-theme-preset.ts`,
+    `scripts/sync-theme-presets.mjs`); còn push và CI.
 - T004: `tools/check-package-names.mjs` chỉ kiểm gói `@directus/*`, cropperjs không cần thêm; `sharp` (catalog) thêm
   vào devDependencies của `apps/web` cho T021.

@@ -54,7 +54,7 @@ p-queue 8.1.0, nanoid, color 5.0.2, qrcode 1.5.4, vuedraggable 4.1.0. Thêm (R1)
 
 **Storage**: không DB; Pinia (`presets.defaultPresets`, `server.info.uploads`, store `files`); state module-level
 `useFolders`, `useNavigation`; localStorage `backoffice-require_tfa_setup` (012); dữ liệu tĩnh
-`src/theme/directus-themes.json`; bộ mẫu `apps/web/fixtures/interfaces/snapshot/` thêm `folders`, `files`, `users`,
+`src/theme/theme-presets.json`; bộ mẫu `apps/web/fixtures/interfaces/snapshot/` thêm `folders`, `files`, `users`,
 `roles`.
 
 **Testing**: Vitest `unit` + `browser` (chromium) trong `apps/web`, coverage ≥ 60 % gộp; axe; Playwright `apps/web-e2e`
@@ -101,7 +101,7 @@ dòng mới (≈ 3.000 chép), ≈ 45 file test, 9 spec E2E, 2 payload spec, 1 b
 Đối chiếu `.specify/memory/constitution.md` 2.0.0. Lần 1 (trước research) và lần 2 (sau design) không vi phạm.
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`; file chép ghi nguồn, manifest `015-T*.json`,
-  `check-port-headers`; script `sync-directus-themes.mjs` chỉ đọc `directus/packages/themes`.
+  `check-port-headers`; script `sync-theme-presets.mjs` chỉ đọc `directus/packages/themes`.
 - [x] **II. Dùng chung DB**: PASS. Ghi chỉ qua API (`/files`, `/folders`, `/users`, `/presets`, `/utils/*`); dạng ghi
   (FormData multipart như `upload-file.ts`, `theme_*_overrides` cùng khóa Directus, preset mặc định chép từ
   `stores/presets.ts`) giữ để Directus đọc được (SC-004, SC-005).
@@ -151,7 +151,7 @@ specs/015-files-users-modules/
 ```text
 apps/web/
 ├── fixtures/interfaces/{seed.mjs, export.mjs, snapshot/}   # bo_files (thư mục 3 cấp, 30 file, EXIF), bo_users (role con, user mỗi status, token, SSO)
-├── scripts/{sync-directus-themes.mjs, check-bundle.mjs (BUDGET_015, LAZY_ONLY)}
+├── scripts/{sync-theme-presets.mjs, check-bundle.mjs (BUDGET_015, LAZY_ONLY)}
 ├── src/
 │   ├── modules/files.ts, modules/users.ts                 # route thật (thay placeholderRoutes)
 │   ├── modules/files/
@@ -173,7 +173,7 @@ apps/web/
 │   ├── layouts/cards/{Cards.vue,components/CardsHeader.vue}   # extraSelection, prepend, select-all
 │   ├── composables/{use-folders,use-dialog-route,use-tfa-setup (+4 hàm)}.ts
 │   ├── stores/{files.ts (mới), presets.ts (defaultPresets), server.ts (uploads, default_theme_*)}
-│   ├── theme/{directus-themes.json, rules-to-css-vars.ts}
+│   ├── theme/{theme-presets.json, rules-to-css-vars.ts}
 │   ├── utils/{get-folder-filter,delete-folder,collect-folder-ids,upload-file,upload-files,fetch-all}.ts
 │   ├── layout/UserMenu.vue                               # link /users/<id>; routes/ProfileRoute.vue xóa
 │   ├── test-utils/fetch.ts                               # mockFixtureApi #97–#134, FakeXMLHttpRequest cho tus
@@ -200,7 +200,7 @@ còn lại; dữ liệu theme ở `src/theme/` cạnh `override-map.ts` của 01
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
 | Không có vi phạm constitution. Rủi ro: cropperjs 1.6.2 là bản cuối của major 1 (2.x đổi API) [Đã kiểm 2026-10-16: `pnpm audit` không có advisory cho cropperjs và tus-js-client] | SC-006 (kết quả cắt bằng Directus) và D-59 | cropperjs 2 cho kết quả khác Directus; canvas tự viết mất tính năng |
-| Dữ liệu rule theme chép tĩnh (`directus-themes.json`, ≈ 30 KB) thay vì import `@directus/themes` | Q1 = C: xem trước đúng màu theme Directus; `@directus/themes` là gói workspace kéo theo store và plugin của Directus | Import gói: không có trên npm theo bản 11.17.4 độc lập với app, và vi phạm "không chép runtime Directus" của 012; dữ liệu tĩnh có test so với nguồn (FR-121) |
+| Dữ liệu rule theme chép tĩnh (`theme-presets.json`, ≈ 30 KB) thay vì import `@directus/themes` | Q1 = C: xem trước đúng màu theme Directus; `@directus/themes` là gói workspace kéo theo store và plugin của Directus | Import gói: không có trên npm theo bản 11.17.4 độc lập với app, và vi phạm "không chép runtime Directus" của 012; dữ liệu tĩnh có test so với nguồn (FR-121) |
 | TUS trong trình duyệt cần XHR giả trong unit test | FR-022 (Clarifications TUS = A) | Chỉ test TUS ở E2E `proxy-api`: thiếu khi env parity tắt TUS [Đã kiểm T002 (CHK090): profile `app` không bật TUS; nhánh TUS kiểm ở unit] |
 | Mock multipart `PATCH /files/:id` và zip trong `mockFixtureApi` | Trình chỉnh ảnh, thay file, tải nhiều file trong browser test | Chỉ E2E: chậm và không chạy trong `quality` |
 

@@ -52,8 +52,8 @@ chép có header `// Ported from directus/app/src/...` và manifest `tools/port-
 | `system-input-password` | `SystemInputPassword.vue` | `system-input-password/input-password.vue` | `BoInput` |
 | `system-mfa-setup` | `SystemMfaSetup.vue` | `system-mfa-setup/system-mfa-setup.vue` | `use-tfa-setup`, `BoCheckbox`, `BoDialog`, `qrcode` |
 | `system-token` | `SystemToken.vue` | `system-token/system-token.vue` | `BoInput`, `BoDialog`, `useClipboard` |
-| `system-theme` | `SystemTheme.vue`, `ThemePreview.vue` | `system-theme/*.vue` | `theme/directus-themes.json`, `theme/rules-to-css-vars.ts` |
-| `system-theme-overrides` | `SystemThemeOverrides.vue`, `SystemThemeOverridesGroup.vue`, `SystemThemeOverridesRule.vue`, `types.ts` | `system-theme-overrides/*` | `directus-themes.json`, `color`, `BoAccordion`? (nhóm gập là `<button aria-expanded>` như Directus) |
+| `system-theme` | `SystemTheme.vue`, `ThemePreview.vue` | `system-theme/*.vue` | `theme/theme-presets.json`, `theme/rules-to-css-vars.ts` |
+| `system-theme-overrides` | `SystemThemeOverrides.vue`, `SystemThemeOverridesGroup.vue`, `SystemThemeOverridesRule.vue`, `types.ts` | `system-theme-overrides/*` | `theme-presets.json`, `color`, `BoAccordion`? (nhóm gập là `<button aria-expanded>` như Directus) |
 
 Registry 013 (`interfaces/index.ts`) thêm sáu id; `registry.test.ts` cập nhật số lượng; option `appearance` của field
 `theme_*` trong `users.yaml` truyền vào prop `appearance`.
@@ -62,9 +62,9 @@ Registry 013 (`interfaces/index.ts`) thêm sáu id; `registry.test.ts` cập nh�
 
 | File | Nội dung |
 |------|----------|
-| `directus-themes.json` | `{light: Theme[], dark: Theme[]}` sinh bởi `scripts/sync-directus-themes.mjs` từ `directus/packages/themes/src/themes/**` (header ghi nguồn + ngày) |
+| `theme-presets.json` | `{light: Theme[], dark: Theme[]}` sinh bởi `scripts/sync-theme-presets.mjs` từ `directus/packages/themes/src/themes/**` (header ghi nguồn + ngày) |
 | `rules-to-css-vars.ts` | `rulesToCssVars(rules): Record<string, string\|number>` (làm phẳng `--`, kebab-case) |
-| `directus-themes.test.ts` | file sinh khớp nguồn (chạy lại script trong test, so JSON); ba theme sáng, một tối; `rulesToCssVars` cho 3 mẫu bằng kết quả Directus (chép từ `@directus/themes` test nếu có) |
+| `theme-presets.test.ts` | file sinh khớp nguồn (chạy lại script trong test, so JSON); ba theme sáng, một tối; `rulesToCssVars` cho 3 mẫu bằng kết quả Directus (chép từ `@directus/themes` test nếu có) |
 
 ## 5. E2E helpers (`apps/web-e2e/src/helpers/`)
 

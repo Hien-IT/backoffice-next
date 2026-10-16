@@ -66,7 +66,7 @@ spec/plan/contracts theo cột "Sửa ở" rồi đánh dấu `[x]`. Quy ước:
 | CHK038 | Q-18 quyết màu chip theo status (đề xuất: active `success`, invited `warning`, draft `gray`, suspended `error`, archived `gray` nhạt) | Q-18 |
 | CHK039 | FR-072: chuỗi hành động như Directus `setLang` + `userStore.hydrate`; `language` null → `default_language` | FR-072 |
 | CHK040 | FR-079: hộp user cùng bề ngang form (`max-w-5xl`) | FR-079 |
-| CHK041 | FR-084 ghi đường dẫn `src/theme/directus-themes.json`, nội dung, script + test | FR-084 |
+| CHK041 | FR-084 ghi đường dẫn `src/theme/theme-presets.json`, nội dung, script + test | FR-084 |
 | CHK042 | FR-112: overlay `theme_applies_in_directus` (en-US "Theme choice applies in the Directus app", vi-VN tương ứng), dưới danh sách | FR-112, FR-084 |
 | CHK043 | FR-063 đã ghi; thêm "không hiển thị token" | FR-063 |
 | CHK044 | SC-007: ảnh thẻ là data-URL PNG 1×1, `createApp`, `PERF=1` | SC-007 |

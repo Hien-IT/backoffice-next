@@ -133,7 +133,7 @@ trạng thái, chỉ dropdown.
 | `system-theme` | string | `appearance`, `includeNull` | — | `id` theme (`Directus Default`, `Directus Minimal`, `Directus Color Match`) hoặc null |
 | `system-theme-overrides` | json | `appearance` | — | `DeepPartial<Theme['rules']>` (`setWith`/`unset`, gỡ nhóm rỗng) |
 
-Dữ liệu theme `theme/directus-themes.json`: `{ light: Theme[], dark: Theme[] }`, `Theme = {id, name, appearance,
+Dữ liệu theme `theme/theme-presets.json`: `{ light: Theme[], dark: Theme[] }`, `Theme = {id, name, appearance,
 rules}`; `rulesToCssVars(rules)` → `Record<'--theme--<kebab--path>', string|number>`.
 
 ## 10. localStorage và store

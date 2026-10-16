@@ -721,8 +721,8 @@ bộ so UI (như `content-parity-ui.spec.ts`) cho sub-menu, tiêu đề, số đ
   `appearance` (`@directus/themes`: Directus Default, Minimal, Color Match... cùng `id` và `name`) dạng radio, mỗi mục có
   ô xem trước là port của `theme-preview.vue` (SVG khung app với biến `--theme--*` của theme đó cộng overrides đã lưu
   của user từ `useThemeConfiguration` như Directus, không phải giá trị đang sửa trong form, CHK026; `rulesToCssVars`)
-  để xem trước đúng màu Directus (Q1 = C, D-88); rule của từng theme là dữ liệu tĩnh `src/theme/directus-themes.json`
-  (`{light, dark}` với `id`, `name`, `appearance`, `rules`) sinh bởi `scripts/sync-directus-themes.mjs` từ
+  để xem trước đúng màu Directus (Q1 = C, D-88); rule của từng theme là dữ liệu tĩnh `src/theme/theme-presets.json`
+  (`{light, dark}` với `id`, `name`, `appearance`, `rules`) sinh bởi `scripts/sync-theme-presets.mjs` từ
   `directus/packages/themes` 11.17.4 và có test so với nguồn (D-89, FR-121, CHK041); giá trị null thì chọn theme đầu;
   giá trị là id không có trong dữ liệu thì không mục nào active và giá trị giữ nguyên khi lưu (CHK024); `includeNull`
   thêm mục đầu `default_sync_with_project` (null) xem trước bằng theme mặc định của dự án (`default_theme_light|dark`
@@ -865,7 +865,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-85 | `modules/users/components/UsersNavigation.vue`: menu "sửa role" (chuột phải và nút dòng) tới `/settings/roles/:id` | Duyệt (owner, 2026-10-16) |
 | D-86 | Bỏ: `modules/users.ts` không còn route `users-me`; `layout/UserMenu.vue` trỏ thẳng `/users/<id>` | Bỏ (owner, 2026-10-16), như Directus |
 | D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` nói theme lưu vào hồ sơ và không đổi giao diện Backoffice, không nêu tên app khác (owner 2026-10-16) | Duyệt (owner, 2026-10-16) |
-| D-89 | `theme/directus-themes.json` sinh bằng `scripts/sync-directus-themes.mjs` (target `web:sync-themes`), `theme/directus-themes.test.ts` so với nguồn | Chờ tech lead (SC-010) |
+| D-89 | `theme/theme-presets.json` sinh bằng `scripts/sync-theme-presets.mjs` (target `web:sync-themes`), `theme/theme-presets.test.ts` so với nguồn | Duyệt (owner, 2026-10-16); tên file không chứa chữ "directus" |
 | D-90 | Không có danh sách upload dở; `utils/upload-file.ts` vẫn `findPreviousUploads` khi chọn lại cùng file (FR-022) | Duyệt (owner, 2026-10-16) |
 
 Bộ so payload `files` và `users` (T048, T083) khớp Directus app; hai chỗ khác chỉ là thời điểm preset tự lưu (đã có bộ
@@ -911,7 +911,7 @@ xuất nhập, hàng loạt).
   tắt (FR-022, FR-124 thêm `tus-js-client`); không D-xx mới.
 - Q: Nhãn theme trong `system-theme` (file dịch 012 đổi "Directus" thành "Backoffice") hiện thế nào? → A: Nhãn theo
   file dịch ("Backoffice Default"...), `id` lưu DB giữ "Directus Default"... (owner, 2026-10-15; FR-084, D-88);
-  `src/theme/directus-themes.json` là ngoại lệ của `check-brand` (dữ liệu sinh).
+  `src/theme/theme-presets.json` là ngoại lệ của `check-brand` (dữ liệu sinh).
 - Q: So kết quả chỉnh ảnh với Directus app bằng gì? → A: `width`, `height`, `focal_point_x/y` và điểm ảnh sau giải
   mã bằng nhau; không so bytes (SC-006, US5 Independent Test).
 - Q: Sau khi mời user mà không có email (D-36), Backoffice làm gì để user được mời vào app? → A: Chỉ notice

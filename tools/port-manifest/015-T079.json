@@ -31,5 +31,5 @@
 		"source": "app/src/interfaces/_system/system-theme-overrides/types.ts",
 		"dest": "apps/web/src/interfaces/_system/system-theme-overrides/types.ts"
 	},
-	{ "source": "packages/themes/src/composables/use-theme.ts", "dest": "apps/web/src/theme/use-directus-theme.ts" }
+	{ "source": "packages/themes/src/composables/use-theme.ts", "dest": "apps/web/src/theme/use-theme-preset.ts" }
 ]

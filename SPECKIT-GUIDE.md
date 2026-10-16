@@ -371,7 +371,7 @@ Ghi chú từ 015 (đưa vào spec 016): menu "sửa role" của cây role ở m
 `/settings/roles/:id` (D-85, `modules/users/components/UsersNavigation.vue`), phải mở màn role thật. Sáu interface
 `_system` của màn user đã có (`system-language`, `system-input-password`, `system-token`, `system-mfa-setup`,
 `system-theme`, `system-theme-overrides`); 016 làm phần còn lại của D-57. Màn cài đặt dự án dùng lại `system-theme` và
-`system-theme-overrides` (dữ liệu theme tĩnh `apps/web/src/theme/directus-themes.json`, sinh bằng `web:sync-themes`).
+`system-theme-overrides` (dữ liệu theme tĩnh `apps/web/src/theme/theme-presets.json`, sinh bằng `web:sync-themes`).
 
 ### 017: Trình chỉnh sửa Flows
 

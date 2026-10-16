@@ -118,10 +118,10 @@ kết quả Directus).
 - `system-theme-overrides`: port ba SFC; `type: 'color'` cho mọi rule lá như Directus; swatch dùng `color` 5.0.2 và
   `cssVar` chép từ `@directus/utils/browser` [Đã kiểm T002: `cssVar` có trong `@directus/utils/browser` 13.4.1; ghi chú gốc về dự phòng:
   `getComputedStyle(document.documentElement).getPropertyValue`, CHK094].
-- Dữ liệu rule: script `apps/web/scripts/sync-directus-themes.mjs` đọc bốn file `directus/packages/themes/src/themes/
+- Dữ liệu rule: script `apps/web/scripts/sync-theme-presets.mjs` đọc bốn file `directus/packages/themes/src/themes/
   {light,dark}/*.ts` (import động qua `tsx`/`jiti` hoặc regex `defineTheme({...})` → chọn ở T002), ghi
-  `apps/web/src/theme/directus-themes.json` (`{ light: Theme[], dark: Theme[] }` với `id`, `name`, `appearance`,
-  `rules`); test `directus-themes.test.ts` so file sinh với nguồn (như script sync chuỗi dịch 012, FR-121). Kích
+  `apps/web/src/theme/theme-presets.json` (`{ light: Theme[], dark: Theme[] }` với `id`, `name`, `appearance`,
+  `rules`); test `theme-presets.test.ts` so file sinh với nguồn (như script sync chuỗi dịch 012, FR-121). Kích
   thước: ~840 dòng TS → JSON ~30 KB, nạp lười cùng chunk màn user (R10). `rulesToCssVars` port 10 dòng (làm phẳng
   với `--`, decamelize bằng regex `/([a-z\d])([A-Z])/g`).
 - Overrides của user vẫn áp lên theme Backoffice qua `OVERRIDE_MAP` của 012 (D-43); `ThemePreview` chỉ dùng để xem
@@ -166,7 +166,7 @@ ba cấu hình, bộ so payload thêm `files.spec.ts`, `users.spec.ts`; parity U
 ## R10. Hiệu năng và bundle
 
 **Quyết định**: chunk lười: `ImageEditor` + cropperjs + CSS, `tus-js-client` (import động trong `uploadFile` khi
-`uploads.tus`), `directus-themes.json` + `ThemePreview` + `system-theme-overrides` (nạp cùng màn user); chunk chính
+`uploads.tus`), `theme-presets.json` + `ThemePreview` + `system-theme-overrides` (nạp cùng màn user); chunk chính
 ≤ ngân sách 014 + 20 KB (`BUDGET_015` trong `check-bundle.mjs`, `LAZY_ONLY` thêm `cropper-container`, `tus-js-client`
 marker `Tus-Resumable`). Perf browser test (`PERF=1`, `machineFactor()` của 014): cây 500 thư mục < 500 ms, lưới 100 +
 20 thẻ < 1 s, mở trình chỉnh ảnh 4000×3000 < 2 s sau khi ảnh tải; số request như SC-007.

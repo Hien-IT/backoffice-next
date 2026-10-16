@@ -16,10 +16,10 @@ export function stripComments(source) {
 		.replace(/(^|[^:\\])\/\/.*$/gm, '$1');
 }
 
-// Paths relative to srcDir. lang/translations/: sync-translations.test.ts checks them. theme/directus-themes.json:
+// Paths relative to srcDir. lang/translations/: sync-translations.test.ts checks them. theme/theme-presets.json:
 // generated theme data whose ids ("Directus Default"...) are stored in directus_users and directus_settings (spec 015
 // D-88, D-89, principle IX); the labels shown come from the theme_directus_* translation keys.
-export const PATH_EXCEPTIONS = [/^lang\/translations\//, /^theme\/directus-themes\.json$/];
+export const PATH_EXCEPTIONS = [/^lang\/translations\//, /^theme\/theme-presets\.json$/];
 
 function* files(dir) {
 	for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {

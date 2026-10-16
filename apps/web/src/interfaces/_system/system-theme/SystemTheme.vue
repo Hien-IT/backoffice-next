@@ -14,7 +14,7 @@ import BoIcon from '../../../components/BoIcon.vue';
 import BoTextOverflow from '../../../components/BoTextOverflow.vue';
 import { FORM_FIELD_A11Y } from '../../../components/form/types.ts';
 import { useServerStore } from '../../../stores/server.ts';
-import { themes } from '../../../theme/use-directus-theme.ts';
+import { themes } from '../../../theme/use-theme-preset.ts';
 import ThemePreview from './ThemePreview.vue';
 
 const emit = defineEmits<{

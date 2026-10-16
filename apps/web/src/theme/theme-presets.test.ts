@@ -5,21 +5,21 @@ import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterAll, describe, expect, test } from 'vitest';
-import data from './directus-themes.json';
+import data from './theme-presets.json';
 
 const WEB = join(import.meta.dirname, '../..');
-const OUT = join(import.meta.dirname, 'directus-themes.json');
+const OUT = join(import.meta.dirname, 'theme-presets.json');
 const tmp = mkdtempSync(join(tmpdir(), 'sync-themes-'));
 
 afterAll(() => rmSync(tmp, { recursive: true, force: true }));
 
 const withoutDate = (text: string) => text.replace(/"\$generated": "[^"]*"/, '"$generated": ""');
 
-describe('directus-themes.json', () => {
+describe('theme-presets.json', () => {
 	test('a new run of the script gives the committed file', () => {
 		const out = join(tmp, 'themes.json');
 
-		execFileSync(join(WEB, '../../node_modules/.bin/jiti'), ['scripts/sync-directus-themes.mjs', out], { cwd: WEB });
+		execFileSync(join(WEB, '../../node_modules/.bin/jiti'), ['scripts/sync-theme-presets.mjs', out], { cwd: WEB });
 
 		expect(withoutDate(readFileSync(out, 'utf8'))).toBe(withoutDate(readFileSync(OUT, 'utf8')));
 	});

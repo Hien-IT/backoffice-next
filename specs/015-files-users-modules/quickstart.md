@@ -20,8 +20,8 @@ PUBLIC_URL=http://127.0.0.1:8155 pnpm nx run web:serve   # http://127.0.0.1:4200
 ## Dữ liệu theme Directus (R6)
 
 ```bash
-node apps/web/scripts/sync-directus-themes.mjs      # ghi src/theme/directus-themes.json từ directus/packages/themes
-cd apps/web && pnpm exec vitest run src/theme/directus-themes.test.ts   # file sinh khớp nguồn
+node apps/web/scripts/sync-theme-presets.mjs      # ghi src/theme/theme-presets.json từ directus/packages/themes
+cd apps/web && pnpm exec vitest run src/theme/theme-presets.test.ts   # file sinh khớp nguồn
 ```
 
 ## Test

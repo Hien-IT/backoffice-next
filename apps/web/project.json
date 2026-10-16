@@ -12,7 +12,7 @@
 			"cache": false
 		},
 		"sync-themes": {
-			"command": "../../node_modules/.bin/jiti scripts/sync-directus-themes.mjs",
+			"command": "../../node_modules/.bin/jiti scripts/sync-theme-presets.mjs",
 			"options": {
 				"cwd": "apps/web"
 			},

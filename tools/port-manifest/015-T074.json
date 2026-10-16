@@ -1,27 +1,27 @@
 [
 	{
 		"source": "packages/themes/src/themes/light/default.ts",
-		"dest": "apps/web/src/theme/directus-themes.json",
+		"dest": "apps/web/src/theme/theme-presets.json",
 		"header": false
 	},
 	{
 		"source": "packages/themes/src/themes/light/minimal.ts",
-		"dest": "apps/web/src/theme/directus-themes.json",
+		"dest": "apps/web/src/theme/theme-presets.json",
 		"header": false
 	},
 	{
 		"source": "packages/themes/src/themes/light/color-match.ts",
-		"dest": "apps/web/src/theme/directus-themes.json",
+		"dest": "apps/web/src/theme/theme-presets.json",
 		"header": false
 	},
 	{
 		"source": "packages/themes/src/themes/dark/default.ts",
-		"dest": "apps/web/src/theme/directus-themes.json",
+		"dest": "apps/web/src/theme/theme-presets.json",
 		"header": false
 	},
 	{
 		"source": "packages/themes/src/themes/index.ts",
-		"dest": "apps/web/src/theme/directus-themes.json",
+		"dest": "apps/web/src/theme/theme-presets.json",
 		"header": false
 	},
 	{ "source": "packages/themes/src/utils/rules-to-css-vars.ts", "dest": "apps/web/src/theme/rules-to-css-vars.ts" }

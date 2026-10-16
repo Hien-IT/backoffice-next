@@ -4,7 +4,7 @@
 
 | Project | File | Dùng cho |
 |---------|------|----------|
-| `unit` (happy-dom) | `src/**/*.test.ts` | `use-folders` (`nestFolders`, cây lồng, vòng `parent`), `get-folder-filter` (4 nhánh, ngày `recent`), `delete-folder` (thứ tự request move/delete), `upload-file`/`upload-files` (multipart: FormData thứ tự preset rồi `file`; TUS: `XMLHttpRequest` giả → header `Tus-Resumable`, `Upload-Metadata`, resume), `use-dialog-route`, `use-navigation` (users: `roleTree`, `openRoles`), `use-tfa-setup` mở rộng (4 hàm mới, khóa localStorage), `rules-to-css-vars`, `directus-themes` (sinh = nguồn), store `presets.defaultPresets`, store `server.uploads`, route của hai module (thứ tự, redirect `/users/me`), `lang/keys.test.ts` mở rộng, sáu interface (`SystemToken`: tạo/tạo lại/xóa và request; `SystemMfaSetup`: ba luồng với mock; `SystemLanguage`; `SystemInputPassword`; `SystemThemeOverrides`: `set`/`unset` gỡ nhóm rỗng; `SystemTheme`: mục và giá trị) |
+| `unit` (happy-dom) | `src/**/*.test.ts` | `use-folders` (`nestFolders`, cây lồng, vòng `parent`), `get-folder-filter` (4 nhánh, ngày `recent`), `delete-folder` (thứ tự request move/delete), `upload-file`/`upload-files` (multipart: FormData thứ tự preset rồi `file`; TUS: `XMLHttpRequest` giả → header `Tus-Resumable`, `Upload-Metadata`, resume), `use-dialog-route`, `use-navigation` (users: `roleTree`, `openRoles`), `use-tfa-setup` mở rộng (4 hàm mới, khóa localStorage), `rules-to-css-vars`, `theme-presets` (sinh = nguồn), store `presets.defaultPresets`, store `server.uploads`, route của hai module (thứ tự, redirect `/users/me`), `lang/keys.test.ts` mở rộng, sáu interface (`SystemToken`: tạo/tạo lại/xóa và request; `SystemMfaSetup`: ba luồng với mock; `SystemLanguage`; `SystemInputPassword`; `SystemThemeOverrides`: `set`/`unset` gỡ nhóm rỗng; `SystemTheme`: mục và giá trị) |
 | `browser` (chromium) | `src/**/*.browser.test.ts` | thư viện với thẻ thư mục + `extraSelection` (chọn tất cả, đếm), kéo thả toàn cửa sổ (DataTransfer giả, viền, notice), màn file (xem trước, thay file, chuyển, chi tiết EXIF), `ImageEditor` (ảnh PNG cố định: cắt/xoay/flip/tỉ lệ/focal → FormData của `PATCH`; lưu mới → `POST`), `file-image` nút chỉnh, danh bạ (sub-menu cây role, bộ lọc hệ thống), màn user (hộp user, form với sáu interface, archive, xóa chính mình → logout), `ThemePreview` (biến `--theme--*` inline), `SystemThemeOverrides` (swatch), axe sáng/tối trên 8 màn (SC-008), `PERF=1`: cây 500 thư mục, lưới 100 + 20, mở trình chỉnh ảnh 4000×3000 (`machineFactor()`) |
 
 Coverage v8 gộp ≥ 60 %.
@@ -62,4 +62,4 @@ Chạy riêng: `gh workflow run benchmark.yml -f job=benchmark-web` (input `job`
 ## 6. Cổng CI
 
 Như 014 §6, cộng: `web perf` thêm ba test perf của 015; `check-bundle` với `BUDGET_015`; `e2e-web` thêm chín spec và hai
-payload spec; `web:fixtures` seed mở rộng; `directus-themes.test.ts` trong `quality`.
+payload spec; `web:fixtures` seed mở rộng; `theme-presets.test.ts` trong `quality`.
