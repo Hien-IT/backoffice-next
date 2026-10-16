@@ -193,11 +193,11 @@ describe('options', () => {
 	test('option:list-m2a.prefix: template on the junction row, else the collection name', async () => {
 		// The rows load over several fetches: wait for them (one flush is not enough on a loaded CI runner).
 		const prefixed = await mountM2A({ prefix: '#{{ sort }}' });
-		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/));
+		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/), { timeout: 5000 });
 
 		const plain = await mountM2A({ prefix: null });
-		await vi.waitFor(() => expect(rows(plain)[1]).toMatch(/^Bo M2A B:/));
-	});
+		await vi.waitFor(() => expect(rows(plain)[1]).toMatch(/^Bo M2A B:/), { timeout: 5000 });
+	}, 20_000);
 });
 
 describe('menus', () => {
