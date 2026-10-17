@@ -1729,11 +1729,12 @@ as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--them
   `no_other_flows_copy`; Cancel first, confirm primary (disabled without choice).
 - Delete flow dialog: BoDialog `flow_delete_confirm`, Cancel first, danger Button `delete_label`.
 
-## Tier 3 recipes, nháp (018)
+## Tier 3 recipes, 018, duyệt 2026-10-18
 
 Drafts for the questions Q-36 to Q-39 of `specs/018-insights-activity-notifications/spec.md`, written before the code
-(T004, FR-107). Q-34 and Q-35 (dashboard grid, tiles, charts) are in `layout-patterns.md` §14. Q-36 blocks T082 (lượt 3);
-the others are approved before the feature closes. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+(T004, FR-107) and updated to it (T120, after the axe scans of waves 1 to 3); approved by the design owner on 2026-10-18.
+Q-34 and Q-35 (dashboard grid, tiles, charts) are in `layout-patterns.md` §14. Tokens and the `FOCUS`, `ICON_BTN`
+helpers as in the 014 recipes.
 
 ### Metric and metric list (Q-36; Directus `panels/metric`, `panels/metric-list`)
 
@@ -1744,19 +1745,22 @@ the others are approved before the feature closes. Tokens and the `FOCUS`, `ICON
   value `font-medium tabular-nums`; under each row a bar `h-1.5 rounded-full bg-gray-100 dark:bg-gray-800` filled to
   the value share in the panel color (default `bg-brand-500`).
 - Conditional formatting: the matching rule's `color` is user data (inline style), as Directus.
-- **Open (Q-36)**: metadata colors of Directus system fields (`var(--theme--primary)`, `--theme--primary-subdued`,
-  `--blue`, `--blue-25`, `--theme--danger`, `--danger-25`, `--purple`, `--purple-25`; used by the Activity `action`
-  labels display) are not defined in `apps/web`. Proposal: alias them in the theme layer to `brand-500`/`brand-50`,
-  `blue-light-500`/`blue-light-50`, `error-500`/`error-50`, `theme-purple-500` and a purple tint. Design owner decides
-  before T082.
+- Directus metadata colors (Q-36, decided 2026-10-17, shades 2026-10-18): `var(--theme--primary)`,
+  `--theme--primary-subdued`, `--blue`, `--blue-25`, `--theme--danger`, `--danger-25`, `--purple`, `--purple-25` (the
+  Activity `action` labels, the danger divider of the user page) are aliased in `apps/web/src/styles/base.css`. Text:
+  `brand-600`, `blue-light-700`, `error-700`, `theme-purple-500` mixed 80 % with `gray-900` (4.5:1 on white and on the
+  tint; the -500 shades of the draft fail it); tints `brand-50`, `blue-light-50`, `error-50`, `theme-purple-500` 12 % on
+  white. Dark: text `brand-400`, `blue-light-400`, `error-400`, `theme-purple-500` mixed 70 % with white; tints the -500
+  at 15 % on transparent.
 
 ### Panel drawer (Q-37; Directus `routes/panel-configuration.vue`)
 
 - BoDrawer `persistent`, `max-w-3xl`, title the panel name or the type name, icon the type icon or `insert_chart`;
   header action Done (`check`) disabled without a type.
 - Type picker: BoFancySelect `layout="grid"`: 2 columns at 768, 3 from `lg`; each card `rounded-xl border p-4` with a
-  40 px type icon in `text-brand-500`, name `text-theme-sm font-semibold`, description `text-theme-xs text-gray-600`
-  (no preview image, D-110); the chosen card `border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12]`.
+  30 px type icon (`BoIcon size="lg"`) in `text-brand-500 dark:text-brand-400`, name `text-theme-sm font-semibold`, description `text-theme-xs text-gray-600`
+  (no preview image, D-110); the chosen card `border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12]`, the others
+  `opacity-60` once a type is chosen; the options follow the grid (no Directus `configRow` insertion).
 - Options: ExtensionOptions form (BoForm grid of layout-patterns §8) with the raw editor toggle.
 - Header group after a divider titled `panel_header`: Show Header toggle, then Name, Icon, Color, Note (half/half rows),
   disabled while the header is off. Labels follow the 017 label recipe.
@@ -1766,18 +1770,21 @@ the others are approved before the feature closes. Tokens and the `FOCUS`, `ICON
 - TailAdmin header button: `relative flex size-11 items-center justify-center rounded-full border border-gray-200
   bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900
   dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white` + `FOCUS`, icon `notifications`.
-- Count badge instead of the TailAdmin dot: `absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error-500
+- Count badge instead of the TailAdmin dot: `absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error-600
   text-white text-theme-xs font-medium leading-5 text-center`; more than 99 shows `99+` (the full number stays in the
   `aria-label`); hidden at 0, the button stays enabled (Archive tab).
-- `aria-label` "notifications, N unread"; an sr-only `aria-live="polite"` region announces a changed count.
+- `aria-label` "Notifications, N unread" (`notifications_unread_count`); an sr-only `aria-live="polite"` region
+  announces a changed count, not the count on load. `bg-error-600` is the solid error badge of the design-system
+  (`error-500` fails 4.5:1 with white text).
 
 ### Notifications drawer (Q-39; Directus `notifications-drawer.vue`)
 
 - BoDrawer (not persistent), `max-w-2xl`, title `notifications`; header shows the item count, a SearchInput and, when
   rows are selected, Archive/Unarchive (`archive` / `move_to_inbox`) and Delete (`delete`, `text-error-600`)
   `ICON_BTN` buttons with labels.
-- Left column of the drawer: vertical BoTabs Inbox (`inbox`) / Archive (`archive`), then an "Activity" link
-  (`access_time`) to `/activity`.
+- Inside the drawer body (BoDrawer's own sidebar is on the end side and is not a tab panel): vertical BoTabs Inbox
+  (`inbox`) / Archive (`archive`), horizontal below 1024 px, then an "Activity" link to `/activity` in the BoTabs
+  `list-append` slot; the list is the tab panel.
 - List: a select-all BoCheckbox row (indeterminate when partly selected), then rows `flex items-start gap-3 border-b
   border-gray-100 py-3 dark:border-gray-800`: BoCheckbox, subject `text-theme-sm font-medium text-gray-800
   dark:text-white/90` (search hits in `<mark class="bg-warning-50 text-inherit">`), relative time `text-theme-xs

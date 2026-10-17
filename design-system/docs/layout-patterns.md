@@ -510,7 +510,7 @@ Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vu
 - **768 px**: the canvas keeps its size and scrolls; the detail panel becomes the L-4 drawer.
 
 
-## 14. Dashboard grid and charts (nháp, 018)
+## 14. Dashboard grid and charts (018, duyệt 2026-10-18)
 
 Recipe for spec 018 Q-34 and Q-35 (T003, FR-107), written before the code; the design owner approves before the feature
 closes. Behaviour is the Directus one (`modules/insights/routes/dashboard.vue`, `components/v-workspace*.vue`,

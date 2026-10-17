@@ -374,7 +374,7 @@ của SC-002.
 
 - Panel có `type` không đăng ký (extension ở Directus): Directus vẽ tile với header và thân rỗng (thành phần
   `panel-<type>` không tồn tại). App vẽ header và thân rỗng, không lỗi, các panel khác bình thường; drawer panel mở
-  được, lưới loại không chọn mục nào ("Cần xác nhận").
+  được, lưới loại không chọn mục nào ("đã xác nhận 2026-10-18").
 - Options có `{{ biến }}` không có panel biến nào khai: `applyOptionsData` giữ chuỗi hoặc thay bằng rỗng theo
   `skipUndefinedKeys` như `@directus/utils`; truy vấn có thể lỗi → tile lỗi, các panel khác bình thường.
 - Panel trên collection đã xóa, field đã xóa hoặc người xem không có quyền đọc: GraphQL trả lỗi cho query đó → tile lỗi
@@ -389,7 +389,7 @@ của SC-002.
 - Hai panel chồng nhau: vẽ chồng như Directus.
 - `position_x`/`position_y` ≤ 0 (ghi tay): vẽ như dữ liệu; kéo một lần là về ≥ 1.
 - Nhân bản dashboard lỗi (quyền tạo panel thiếu): Directus không bắt lỗi (`overview.vue:121-129`, nút giữ trạng thái
-  đang chạy); app bắt lỗi, hiện hộp lỗi và trả nút về bình thường (R-49, "Cần xác nhận").
+  đang chạy); app bắt lỗi, hiện hộp lỗi và trả nút về bình thường (R-49, "đã xác nhận 2026-10-18").
 - Dashboard bị xóa ở app khác khi đang mở: Save → lỗi → hộp lỗi; nạp lại → màn không tìm thấy.
 - Store insights nạp ở đăng nhập: dashboard tạo ở app kia sau đó chỉ thấy khi tải lại trang hoặc sau một lần ghi ở app
   này; mở thẳng URL của nó trước đó hiện màn không tìm thấy (như Directus: `refresh(pk)` chỉ nạp dữ liệu panel).
@@ -400,7 +400,7 @@ của SC-002.
 - Thông báo có `item` bắt đầu bằng `/` và không có `collection`: mở đường dẫn đó trong app (FR-072).
 - `message` có HTML/markdown nguy hiểm: làm sạch như `md()` của 013 (`dompurify`), không chạy script.
 - Badge chưa đọc lớn (> 99): `v-badge.vue` của Directus ghi "chỉ 2 ký tự" nhưng hiện nguyên `value`; cách hiện số lớn
-  chốt ở Q-38 ("Cần xác nhận").
+  chốt ở Q-38 ("đã xác nhận 2026-10-18").
 - Activity của collection đã xóa: cột collection hiện tên thô; nút mở item vẫn hiện (không phải hệ thống), trang đích báo
   không tìm thấy.
 - Activity `action` lạ (`run`, `comment`, `version_save`…): nhãn từ `field_options.directus_activity.<action>` hoặc khóa
@@ -415,10 +415,10 @@ của SC-002.
   toàn bộ staging nên panel đã tạo lần trước bị tạo trùng (R-56, như Directus).
 - Mở `/insights/<id>/<panelKey>` với `panelKey` không có trong store: drawer mở với options rỗng, lưới loại không chọn,
   Done khóa tới khi chọn loại (`panel-configuration.vue:54,148`); `stagePanelUpdate` của app bỏ qua id không có trong
-  store thay vì ném lỗi ("Cần xác nhận").
+  store thay vì ném lỗi ("đã xác nhận 2026-10-18").
 - Người không có quyền `update` trên `directus_panels`: nút sửa khóa (`useItemPermissions('directus_panels', <id
   dashboard>)` như nguồn), nhưng route `panel-detail` không có guard (như Directus): vào URL drawer được, Done vào
-  staging, Save → API 403 → hộp lỗi ("Cần xác nhận").
+  staging, Save → API 403 → hộp lỗi ("đã xác nhận 2026-10-18").
 - Mention trong bình luận của dashboard: API tạo thông báo `collection directus_dashboards`, nút mở dẫn `/insights/<id>`.
 - Auto Refresh khi phiên hết hạn: request 401 → luồng đăng xuất của 012 về `/login`; trang dashboard unmount dừng chu kỳ.
 - Thông báo mới trong lúc drawer đang mở: không hiện tới khi mở lại; badge không đổi (R-52).
@@ -481,7 +481,7 @@ của SC-002.
   lỗi, hộp xác nhận đóng, lựa chọn giữ (`:197-209`).
 - **FR-013**: Xuất PHẢI mở URL `GET /dashboards?export=json` với đúng 15 field của `overview.vue:139-160` và `filter id
   _in`; tải bằng `apiFetch` + blob + lưu file như mục xuất 014 (`ExportSidebarDetail`) thay `window.open` của Directus
-  (cookie phiên không đi theo ở cấu hình khác origin; cùng request, cùng file JSON; "Cần xác nhận", plan R2). Tên file
+  (cookie phiên không đi theo ở cấu hình khác origin; cùng request, cùng file JSON; "đã xác nhận 2026-10-18", plan R2). Tên file
   theo `Content-Disposition` của API (`directus_dashboards <YYYYMMDD-HMS>.json`, `respond.ts:79-90`), fallback
   `directus_dashboards.json`; dashboard 0 panel xuất với `panels: []`.
 - **FR-014**: Nhập PHẢI là port `basic-import-sidebar-detail.vue` (file `text/csv, application/json`; `POST
@@ -610,7 +610,7 @@ của SC-002.
 - **FR-063**: Drawer `/activity/:id` PHẢI như US5-4 (`GET /activity/:pk` với fields `user.id, user.email,
   user.first_name, user.last_name, action, timestamp, ip, user_agent, origin, collection, item`); `user` null → hàng User
   rỗng (`item.vue:111-116`); lỗi → `BoNotice danger` với thông điệp đã dịch (`translateAPIError` như 014; Directus in
-  object lỗi thô, "Cần xác nhận").
+  object lỗi thô, "đã xác nhận 2026-10-18").
 - **FR-064**: Không có ghi trên Activity (API không cho, `COLLECTIONS_DENY_LIST`); không ô chọn, không xóa.
 - **FR-065**: `/content/directus_activity(/:pk)` chuyển như US5-6.
 
@@ -618,7 +618,7 @@ của SC-002.
 
 - **FR-070**: Chuông PHẢI ở header TailAdmin (thay ghi chú D-45 ở `AppHeader.vue`), badge số chưa đọc từ store
   notifications (012, `refreshUnreadCount` đếm `inbox` của mình); nhãn truy cập `notifications` kèm số; vùng
-  `aria-live="polite"` sr-only báo số chưa đọc khi số đổi (Directus không có, "Cần xác nhận"); Q-38. Phiên share không
+  `aria-live="polite"` sr-only báo số chưa đọc khi số đổi (Directus không có, "đã xác nhận 2026-10-18"); Q-38. Phiên share không
   vào khung private nên không có chuông (store bỏ qua user share, như Directus).
 - **FR-071**: Drawer thông báo PHẢI là port `notifications-drawer.vue` như US6-2 đến US6-6; nạp khi mở, không làm mới
   khi đang mở (thông báo mới chỉ thấy khi mở lại); phân trang 25. Lỗi: Directus không bắt lỗi Archive/Unarchive và lỗi
@@ -695,7 +695,7 @@ của SC-002.
   điểm (sai số 0 sau làm tròn `decimals`); màu theo D-108 và Q-35.
 - **FR-106**: A11y: tile là `role="region"` với `aria-label` = `name` hoặc tên loại (khi tắt header hay không tên),
   `<caption>` của bảng sr-only dùng cùng nhãn; icon ghi chú (`note`) là nút icon có `aria-label` = note và tooltip mở khi
-  focus (Directus là `<span>` chỉ mở khi rê chuột, `v-workspace-tile.vue:292`; "Cần xác nhận"); chuỗi biểu đồ phân biệt
+  focus (Directus là `<span>` chỉ mở khi rê chuột, `v-workspace-tile.vue:292`; "đã xác nhận 2026-10-18"); chuỗi biểu đồ phân biệt
   không chỉ bằng màu nhờ chú giải, tooltip và bảng sr-only có tên chuỗi (không thêm nét đứt), tương phản màu chuỗi với
   nền ≥ 3:1 (Q-35); mỗi tile biểu đồ (bar, line, pie, time series, meter)
   có bảng ẩn `sr-only` sinh từ cùng dữ liệu đưa vào biểu đồ (nhãn trục, tên chuỗi, giá trị; owner chọn A, Clarifications
@@ -766,10 +766,10 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-109 | Nút "Report error" trong hộp lỗi (admin, mã `UNKNOWN`) | Mở link báo lỗi lên GitHub của Directus | Không có | Nguyên tắc IX (không dẫn người dùng Backoffice tới Directus) | đổi thương hiệu | — |
 | D-110 | Ảnh xem trước của loại panel trong drawer chọn loại | `preview.svg` của mỗi loại (`panel-configuration.vue:162-170`), icon khi không có | Luôn icon lớn của loại, tên, mô tả (nhánh rơi về icon của Directus); không chép tài sản SVG | Không chép tài sản của Directus app; ảnh theo theme Directus, không theo design-system (Nguyên tắc XII); owner chọn B (Clarifications 2026-10-17) | khác | — |
 
-**Cần xác nhận** (đang giữ như Directus; tech lead xác nhận khi duyệt bảng khác biệt, SC-010):
+**Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 
 - Panel loại lạ hiện thân rỗng (Edge Cases).
-- Cách hiện số chưa đọc lớn (> 99) — chờ Q-38.
+- Cách hiện số chưa đọc lớn (> 99): badge `99+`, số đủ trong `aria-label` (Q-38).
 - Nhân bản dashboard có bắt lỗi (R-49).
 - RTL của `v-workspace-tile` (lật tọa độ kéo/resize) không port, như 017.
 - Xuất dashboard tải bằng `apiFetch` + blob thay `window.open` (cùng request, cùng file; FR-013).
@@ -782,6 +782,9 @@ giữ và áp cho màn mới của 018 (FR-080).
 - Drawer activity in thông điệp lỗi đã dịch thay object lỗi thô.
 - Icon ghi chú của tile là nút tới được bằng phím, tooltip mở khi focus (Directus chỉ rê chuột).
 - Vùng `aria-live` báo số chưa đọc (Directus không có).
+- Drawer activity hiện khóa thô của action chưa dịch (Directus để trống).
+- Bấm sửa dashboard đưa focus tới "+" khi Save còn khóa (FR-029; Save khóa khi chưa có thay đổi, như Directus).
+- Drawer thông báo nhớ số đếm của `useItems` như Directus (không thêm request đếm sau Archive/Delete).
 
 | Mã | Rủi ro | Nguồn và bằng chứng | Ảnh hưởng | Duyệt |
 |----|--------|---------------------|-----------|-------|
@@ -805,12 +808,12 @@ dung drawer thông báo, badge số trên nút icon (TailAdmin chỉ có chấm)
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-34 | Tile dashboard: nền, viền, bo góc theo tile kề, header (icon màu, tên, tooltip note), tay cầm resize 8 hướng và nhãn `W×H`, trạng thái nạp/lỗi/`no_data`, zoom-to-fit | Mở |
-| Q-35 | Biểu đồ (bar, line, pie, time series, meter): bảng màu chuỗi từ token theme cho sáng/tối, lưới trục, chữ trục, tooltip, chú giải, nhãn dữ liệu; bảng ẩn `sr-only` cho trình đọc màn hình (FR-106) | Mở |
-| Q-36 | Thẻ metric và metric list: cỡ chữ số theo tile, định dạng có điều kiện (nền/chữ); ánh xạ biến CSS màu của Directus có trong metadata (`--theme--primary(-subdued)`, `--blue(-25)`, `--theme--danger`, `--danger-25`, `--purple(-25)`; nhãn action của Activity, FR-062) sang token theme | Mở |
-| Q-37 | Drawer panel: lưới chọn loại (icon lớn, tên, mô tả; không ảnh xem trước, D-110), nhóm header, raw editor | Mở |
-| Q-38 | Chuông header: badge số (cỡ, cách hiện số > 99, ẩn khi 0) thay chấm TailAdmin | Mở |
-| Q-39 | Drawer thông báo: tab Inbox/Archive, dòng có ô chọn, subject, thời gian, mở rộng markdown, nút mở, thanh hành động khi chọn | Mở |
+| Q-34 | Tile dashboard: nền, viền, bo góc theo tile kề, header (icon màu, tên, tooltip note), tay cầm resize 8 hướng và nhãn `W×H`, trạng thái nạp/lỗi/`no_data`, zoom-to-fit | Recipe theo code (T120); design owner duyệt 2026-10-18 |
+| Q-35 | Biểu đồ (bar, line, pie, time series, meter): bảng màu chuỗi từ token theme cho sáng/tối, lưới trục, chữ trục, tooltip, chú giải, nhãn dữ liệu; bảng ẩn `sr-only` cho trình đọc màn hình (FR-106) | Recipe theo code (T120); design owner duyệt 2026-10-18 |
+| Q-36 | Thẻ metric và metric list: cỡ chữ số theo tile, định dạng có điều kiện (nền/chữ); ánh xạ biến CSS màu của Directus có trong metadata (`--theme--primary(-subdued)`, `--blue(-25)`, `--theme--danger`, `--danger-25`, `--purple(-25)`; nhãn action của Activity, FR-062) sang token theme | Recipe theo code (T120); design owner duyệt 2026-10-18 |
+| Q-37 | Drawer panel: lưới chọn loại (icon lớn, tên, mô tả; không ảnh xem trước, D-110), nhóm header, raw editor | Recipe theo code (T120); design owner duyệt 2026-10-18 |
+| Q-38 | Chuông header: badge số (cỡ, cách hiện số > 99, ẩn khi 0) thay chấm TailAdmin | Recipe theo code (T120); design owner duyệt 2026-10-18 |
+| Q-39 | Drawer thông báo: tab Inbox/Archive, dòng có ô chọn, subject, thời gian, mở rộng markdown, nút mở, thanh hành động khi chọn | Recipe theo code (T120); design owner duyệt 2026-10-18 |
 
 ## Clarifications
 
@@ -833,7 +836,7 @@ dung drawer thông báo, badge số trên nút icon (TailAdmin chỉ có chấm)
   tile biểu đồ sinh từ cùng dữ liệu, biểu đồ `aria-hidden`; E2E dùng bảng này để so dữ liệu biểu đồ (FR-105, FR-106,
   Q-35).
 - Release-gate (`checklists/release-gate.md` CHK001–CHK055, 2026-10-17): owner yêu cầu áp toàn bộ lời giải
-  (`checklists/release-gate-proposals.md`); thêm R-56, R-57, sáu mục "Cần xác nhận", collection mẫu `bo_insights_data`,
+  (`checklists/release-gate-proposals.md`); thêm R-56, R-57, sáu mục "đã xác nhận 2026-10-18", collection mẫu `bo_insights_data`,
   thông báo E2E trên user tạm.
 - Q: Lưới chọn loại panel có chép `preview.svg` của Directus? → B (owner, 2026-10-17, /speckit.clarify): không chép; ô
   chọn gồm icon lớn của loại, tên, mô tả; ghi D-110 (FR-030, US3-2, Q-37).
@@ -886,6 +889,6 @@ dung drawer thông báo, badge số trên nút icon (TailAdmin chỉ có chấm)
   `qa/handoff-checklist.md`.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; ngân sách bundle
   FR-109; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-107 đến D-110, R-49 đến R-57 và mục "Cần xác nhận" được tech lead duyệt; D-40, D-45 (012), D-72 (014), D-90
+- **SC-010**: D-107 đến D-110, R-49 đến R-57 và mục "đã xác nhận 2026-10-18" được tech lead duyệt; D-40, D-45 (012), D-72 (014), D-90
   (015) ghi "đã gỡ ở 018" ở spec gốc; D-66 (013) ghi "giữ ở 018"; ngoại lệ a11y của lưới dashboard (FR-027) ghi trong
   `design-system/qa/handoff-checklist.md` và tech lead duyệt.

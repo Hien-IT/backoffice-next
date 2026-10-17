@@ -31,7 +31,7 @@ test('loads vi-VN on demand with the overlay, then sets the locale and html[lang
 	expect(loadedLanguages).toEqual(['en-US', 'vi-VN']);
 	expect(i18n.global.locale.value).toBe('vi-VN');
 	expect(html()).toBe('vi-VN');
-	expect(t('module_placeholder')).toBe('Nội dung của mục này sẽ có ở phiên bản sau.');
+	expect(t('skip_to_content')).toBe('Chuyển đến nội dung');
 	expect(t('sign_in')).not.toBe(i18n.global.t('sign_in', {}, { locale: 'en-US' }));
 	expect(getDateFNSLocale()?.code).toBe('vi');
 

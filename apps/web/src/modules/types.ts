@@ -17,16 +17,6 @@ export function defineModule(config: ModuleConfig): ModuleConfig {
 	return config;
 }
 
-/** Module routes of feature 012: the module root and every sub path show the module frame (FR-023, D-40). */
-export function placeholderRoutes(id: string): RouteRecordRaw[] {
-	const component = () => import('./ModulePlaceholder.vue');
-
-	return [
-		{ name: `${id}-root`, path: '', component, meta: { module: id } },
-		{ name: `${id}-any`, path: ':pathMatch(.*)*', component, meta: { module: id } },
-	];
-}
-
 /** Admin or partial/full read access to a collection (the preRegisterCheck of files, users, insights). */
 export function canRead(collection: string) {
 	return (user: AppUser | ShareUser, permissions: CollectionAccess): boolean => {

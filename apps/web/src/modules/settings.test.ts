@@ -9,7 +9,6 @@ import { calls, mockApi } from '../test-utils/fetch.ts';
 import settings from './settings.ts';
 
 // router.push loads the lazy route components: stub them so the test only checks the route table.
-vi.mock('./ModulePlaceholder.vue', () => ({ default: { render: () => null } }));
 vi.mock('./content/routes/ContentNotFound.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/data-model/CollectionsRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/data-model/NewCollection.vue', () => ({ default: { render: () => null } }));
