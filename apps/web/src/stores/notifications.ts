@@ -1,5 +1,6 @@
 // Ported from directus/app/src/stores/notifications.ts
-// Backoffice: only the unread count (D-45); snackbars, dialogs and the drawer come with feature 018.
+// Backoffice: only the unread count; the drawer (018) lists the notifications itself, and there are no snackbars or
+// dialogs here: notices stay in place (use-notices, D-66).
 import { defineStore } from 'pinia';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { useUserStore } from './user.ts';

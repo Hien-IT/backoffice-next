@@ -58,4 +58,6 @@ export default {
 	// Feature 017 (FR-106).
 	flow_operation_not_linked: 'Không nối tới trigger',
 	flow_run_failed: 'Thất bại',
+	// Feature 018 (FR-070).
+	notifications_unread_count: 'Thông báo, {count} chưa đọc',
 };

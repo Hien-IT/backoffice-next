@@ -397,7 +397,7 @@ FR-060–FR-065).
 
 ### Tests cho User Story 5
 
-- [ ] T080 [P] [US5] `activity/routes/ActivityCollectionRoute.browser.test.ts` (preset mặc định tabular, sort
+- [X] T080 [P] [US5] `activity/routes/ActivityCollectionRoute.browser.test.ts` (preset mặc định tabular, sort
       `-timestamp`, 4 cột và rộng; sub-menu 7 mục → `filterSystem` trong #199 và `aria-current`; lọc nâng cao gộp `_and`;
       `showSelect none`; rỗng) và `activity/routes/ActivityItemRoute.browser.test.ts` (#200 fields, nhãn action dịch hoặc
       khóa thô, ngày `toLocaleString`, `UserPopover`, `user` null → hàng User rỗng, nút `launch` ẩn khi hệ thống hoặc
@@ -406,20 +406,20 @@ FR-060–FR-065).
 
 ### Implementation cho User Story 5
 
-- [ ] T081 [US5] `src/modules/activity.ts`: thay khung bằng `activity-collection` và con `activity-item` (data-model §1),
+- [X] T081 [US5] `src/modules/activity.ts`: thay khung bằng `activity-collection` và con `activity-item` (data-model §1),
       giữ `hidden`; preset mặc định `directus_activity` vào `src/stores/presets.ts` nếu T001 (c) thấy thiếu (port
       `stores/presets.ts:63-82`)
-- [ ] T082 [P] [US5] `activity/components/ActivityNavigation.vue` port `modules/activity/components/navigation.vue`
+- [X] T082 [P] [US5] `activity/components/ActivityNavigation.vue` port `modules/activity/components/navigation.vue`
       (All, My Activity, vạch, Create/Update/Delete/Login/Logout; mục active theo T001 (e)); màu nhãn action của bảng: áp
       ánh xạ Q-36 đã chốt (ví dụ alias biến CSS Directus sang token trong `src/styles/theme.css` hoặc trong
       `DisplayLabels.vue`, có test), không tự chọn khi Q-36 chưa chốt;
       manifest `018-T082.json`
-- [ ] T083 [US5] `activity/routes/ActivityCollectionRoute.vue` port `modules/activity/routes/collection.vue` (research R8:
+- [X] T083 [US5] `activity/routes/ActivityCollectionRoute.vue` port `modules/activity/routes/collection.vue` (research R8:
       `usePreset`, `useLayout`, `createLayoutWrapper showSelect="none"`, `SearchInput showFilter`, `LayoutSidebarDetail`,
       tiêu đề `activity_feed` icon `access_time`, `RouterView name="detail"`); manifest `018-T083.json`
-- [ ] T084 [US5] `activity/routes/ActivityItemRoute.vue` port `modules/activity/routes/item.vue` (`BoDrawer`,
+- [X] T084 [US5] `activity/routes/ActivityItemRoute.vue` port `modules/activity/routes/item.vue` (`BoDrawer`,
       `useDialogRoute`, #200, `getItemRoute`); manifest `018-T084.json`
-- [ ] T085 [US5] E2E `e2e/activity.spec.ts`: tạo/sửa/xóa item `bo_content` tạm, cột và thứ tự, 4 mục sub-menu, lọc nâng
+- [X] T085 [US5] E2E `e2e/activity.spec.ts`: tạo/sửa/xóa item `bo_content` tạm, cột và thứ tự, 4 mục sub-menu, lọc nâng
       cao `collection`, drawer, `launch` tới trang item 014, chuyển hướng `/content/directus_activity`, role tối thiểu
       (Fixtures 014–016) chỉ thấy của mình; chromium 768/1280 ba cấu hình
 
@@ -436,10 +436,10 @@ FR-070–FR-077).
 
 ### Tests cho User Story 6
 
-- [ ] T090 [P] [US6] `src/layout/NotificationsBell.browser.test.ts` (badge số từ store, ẩn khi 0 và nút vẫn bấm được,
+- [X] T090 [P] [US6] `src/layout/NotificationsBell.browser.test.ts` (badge số từ store, ẩn khi 0 và nút vẫn bấm được,
       `aria-label` kèm số, vùng `aria-live="polite"` báo khi số đổi, bấm → `notificationsDrawerOpen`) và
       `src/stores/app.test.ts` (`notificationsDrawerOpen`)
-- [ ] T091 [P] [US6] `src/components/NotificationsDrawer.browser.test.ts`: không request khi đóng; mở → #201 tab Inbox;
+- [X] T091 [P] [US6] `src/components/NotificationsDrawer.browser.test.ts`: không request khi đóng; mở → #201 tab Inbox;
       đổi tab bỏ chọn và nạp Archive; chọn một/tất cả (lưng chừng); Archive/Unarchive #202 + #201 + #26; Delete hộp xác
       nhận #203; lỗi (500) của danh sách, Archive, Delete → hộp lỗi; Archive lỗi giữ lựa chọn, Delete lỗi bỏ lựa chọn và
       đóng hộp (R-57); skeleton 10 dòng khi nạp; không làm mới khi đang mở; đích FR-072 ba dạng (singleton theo
@@ -449,20 +449,20 @@ FR-070–FR-077).
 
 ### Implementation cho User Story 6
 
-- [ ] T092 [P] [US6] `src/stores/app.ts`: `notificationsDrawerOpen` (gỡ ghi chú hoãn :24-25); `src/stores/notifications.ts`
+- [X] T092 [P] [US6] `src/stores/app.ts`: `notificationsDrawerOpen` (gỡ ghi chú hoãn :24-25); `src/stores/notifications.ts`
       sửa comment đầu file (drawer có ở 018, không snackbar)
-- [ ] T093 [P] [US6] `src/layout/NotificationsBell.vue` port `module-bar-avatar.vue:56-65` theo recipe Q-38 (+ vùng
+- [X] T093 [P] [US6] `src/layout/NotificationsBell.vue` port `module-bar-avatar.vue:56-65` theo recipe Q-38 (+ vùng
       `aria-live` sr-only, FR-070); chèn trước
       `UserMenu` trong `src/layout/AppHeader.vue` (sửa comment D-45); manifest `018-T093.json`
-- [ ] T094 [P] [US6] `src/components/NotificationItem.vue` port `views/private/components/notification-item.vue`
+- [X] T094 [P] [US6] `src/components/NotificationItem.vue` port `views/private/components/notification-item.vue`
       (`BoCheckbox`, subject `mark`, `formatDistanceToNow`, nút `open_in_new`, mở rộng `md(message)`) theo recipe Q-39;
       manifest `018-T094.json`
-- [ ] T095 [US6] `src/components/NotificationsDrawer.vue` port `views/private/components/notifications-drawer.vue`
+- [X] T095 [US6] `src/components/NotificationsDrawer.vue` port `views/private/components/notifications-drawer.vue`
       (research R8: `BoDrawer` từ store app, `BoTabs vertical` Inbox/Archive, link Activity, `SearchInput`, hành động khi
       chọn, `BoDialog` xóa, `BoPagination`, skeleton 10 dòng, `refreshUnreadCount` sau ghi, hộp lỗi cho lỗi nạp/Archive/
       Delete (R-57), `data-notifications-drawer` cho bundle); gắn một
       lần trong `src/layout/PrivateView.vue`; không danh sách upload TUS (FR-076); manifest `018-T095.json`
-- [ ] T096 [US6] E2E `e2e/notifications.spec.ts`: user tạm `Fixtures` + 3 thông báo tạo ở `beforeAll` (xóa ở
+- [X] T096 [US6] E2E `e2e/notifications.spec.ts`: user tạm `Fixtures` + 3 thông báo tạo ở `beforeAll` (xóa ở
       `afterAll`; không dùng thông báo của admin): badge 3, drawer hai tab, mở ba dạng đích, archive → badge 2 và dòng sang
       Archive, unarchive, xóa thông báo tạm có xác nhận, tìm, link Activity; chromium 768/1280 ba cấu hình
 
@@ -477,14 +477,14 @@ US7, FR-080–FR-082).
 
 **Independent Test**: spec US7 Independent Test.
 
-- [ ] T100 [US7] Kiểm và hoàn thiện hộp lỗi của `src/components/NoticeStack.vue`/`src/composables/use-notices.ts` theo
+- [X] T100 [US7] Kiểm và hoàn thiện hộp lỗi của `src/components/NoticeStack.vue`/`src/composables/use-notices.ts` theo
       T001 (g): tiêu đề `errors.<code>` hoặc `unexpected_error`, chi tiết, Dismiss, focus Dismiss, không "Report error"
       (D-109); `utils/unexpected-error.ts` không đổi (Clarifications); test cạnh file thêm ca thiếu; rà mọi lời gọi lỗi ở
       `insights/`, `activity/`, `src/panels/`, `NotificationsDrawer.vue`, `BasicImportSidebarDetail.vue` dùng
       `showUnexpectedError`/`notify`
-- [ ] T101 [US7] E2E thêm vào `e2e/notifications.spec.ts`: notice tại chỗ `role="status"` sau nhập dashboard, tự ẩn sau
+- [X] T101 [US7] E2E thêm vào `e2e/notifications.spec.ts`: notice tại chỗ `role="status"` sau nhập dashboard, tự ẩn sau
       3000 ms; `page.route` trả 500 cho Save dashboard → hộp lỗi, focus Dismiss
-- [ ] T102 [US7] Đóng lượt 3: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
+- [X] T102 [US7] Đóng lượt 3: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
       `check-raw-colors`, E2E `insights-*`, `activity`, `notifications`, `settings-*`, `content-*` xanh ở `proxy-api`
       local; nhắn phiên chung checkout; commit `feat(018): activity module, notifications bell and drawer (wave 3)`; push;
       CI xanh; `graphify update .`
@@ -692,3 +692,41 @@ Lượt 2 (2026-10-17, T060–T073):
 - `apps/web-e2e/src/helpers/payload.ts`: `recordWrites` thêm `dashboards`, `panels`, `notifications`.
 - `bo_dash_all` trên env chung bị sửa lưới từ trình duyệt lúc 15:00; đã khôi phục từ snapshot (chủ dự án đồng ý).
 - E2E local cấu hình `dev` (chromium 768/1280): `insights-*` 28/28; firefox/webkit cho `insights-edit` để CI chạy.
+
+Lượt 3 (2026-10-17, T080–T102):
+
+- Q-36 chốt (chủ dự án): alias biến màu Directus `--theme--primary(-subdued)`, `--blue(-25)`, `--theme--danger`,
+  `--danger-25`, `--purple(-25)` sang `brand-*`, `blue-light-*`, `error-*`, `theme-purple-500` (tint 12% sáng, 15% trong
+  suốt khi tối), trong `src/styles/base.css` (`theme.css` giữ nguyên bản chép).
+- T080 là unit (happy-dom): `src/modules/activity.test.ts`, `activity/routes/collection.test.ts` (dựng
+  `directus_activity` trong bộ nhớ từ `directus/packages/system-data` vì snapshot không có), `activity/routes/item.test.ts`.
+  Chuyển hướng `/content/directus_activity(/<id>)` đã có từ 014 (`checkForSystem`), không đổi code.
+- T082: mục sub-menu là `<button aria-current="true">` (lọc là `ref` cục bộ như Directus, không có URL). Module ẩn
+  (Activity) không có dòng ở module bar: `AppSidebar.vue` thêm một dòng tên module (không phải link) chứa sub-menu khi
+  module đang mở không có trong bar (test ở `AppSidebar.test.ts`).
+- T084 lệch có lý do: action chưa dịch hiện khóa thô (Directus để trống); lỗi nạp hiện `translateAPIError`; đóng giữ
+  query (FR-063); giá trị là `<dl>`.
+- T090/T091 là unit: `src/layout/NotificationsBell.test.ts`, `src/components/NotificationsDrawer.test.ts`,
+  `src/stores/app.test.ts`. Axe hai tab chưa chạy (để T115).
+- T093–T095: nguồn của dòng thông báo là `notifications-drawer.vue:356-394` (file `notification-item.vue` của Directus là
+  snackbar); tab Inbox/Archive là `BoTabs` dọc trong thân drawer (ngang dưới 1024 px; `BoTabs` thêm slot `list-append`
+  cho link Activity); khóa i18n mới `notifications_unread_count` (overlay en-US, vi-VN); drawer là chunk lười 4,2 KB gzip
+  (`data-notifications-drawer`); `DELETE /notifications` gửi mảng khóa (hợp đồng #203). Đếm của `useItems` được nhớ như
+  Directus: sau Archive hết Inbox có thể còn dòng chọn tất cả thay vì `no_notifications` ([Inference] chưa thử, như
+  Directus).
+- T096: quyền tối thiểu của Directus không cho user xóa thông báo của mình (Delete trả FORBIDDEN, hộp lỗi R-57 hiện
+  đúng); spec cấp thêm quyền `delete` thông báo `recipient = $CURRENT_USER` cho role tạm.
+- T100: hộp lỗi của `NoticeStack` đã đủ (Dismiss duy nhất, focus, `errors.<code>`, không "Report error"); thêm test.
+- Sửa sau CI lượt 2 (run 39048165868): E2E `insights-variables` tìm user trong drawer (danh sách user dài trên CI);
+  `dashboard.test.ts` dùng pinia của app đang mount (ca guard lỗi một lần trên CI, không tái hiện local);
+  `DashboardRoute`/`PanelConfiguration` giữ registry panel bằng `shallowRef` (component panel không bị bọc reactive).
+- Q-36 chỉnh sắc theo a11y (FR-106, axe `a11y.spec.ts`): sắc -500 của nháp không đạt 4,5:1 cho chữ nhỏ trên nền trắng và
+  tint (`blue-light-500` 2,8:1, `error-500` 3,8:1); alias chữ dùng `brand-600`, `blue-light-700`, `error-700`, tím trộn
+  80% với `gray-900` (sáng) và `-400` / tím trộn 70% với trắng (tối). Alias này cũng tô tiêu đề nhóm "Admin Options" của
+  trang user (metadata Directus `var(--theme--danger)`, trước 018 không có màu). Badge chuông `bg-error-600` (badge solid
+  error của design-system), `error-500` không đủ tương phản. Cần design owner xác nhận khi duyệt Q-36 (T120).
+- `BoTabs`: slot `list-append` chỉ bọc tablist khi có slot (giữ cấu trúc DOM cho `GroupTabs` và các nơi khác).
+- `navigation.spec.ts` (012): tiêu đề `/activity` giờ là "Activity Feed · Backoffice" (màn thật thay khung).
+- E2E local cấu hình `dev` (chromium 768/1280): `insights-*`, `activity`, `notifications`, `navigation`, `requests`,
+  `content-navigation`, `login`, `a11y` xanh; `branding` đỏ ở dev vì `index.html` của Vite thêm link favicon
+  `/admin/admin/favicon.ico` ([Inference] chỉ ở dev server, CI chạy bản build đã xanh).

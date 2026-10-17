@@ -9,7 +9,7 @@ import type { Field, Panel } from '@directus/types';
 import { assign, clone, isUndefined, omitBy } from 'lodash-es';
 import { nanoid } from 'nanoid/non-secure';
 import { storeToRefs } from 'pinia';
-import { computed, onUnmounted, reactive, ref, unref } from 'vue';
+import { computed, onUnmounted, reactive, shallowRef, unref } from 'vue';
 import { useRouter } from 'vue-router';
 import BoButton from '../../../components/BoButton.vue';
 import BoCheckbox from '../../../components/BoCheckbox.vue';
@@ -50,7 +50,7 @@ const insightsStore = useInsightsStore();
 
 const { panels } = storeToRefs(insightsStore);
 
-const panelTypes = ref<PanelConfig[]>([]);
+const panelTypes = shallowRef<PanelConfig[]>([]);
 loadPanelRegistry().then((registry) => (panelTypes.value = registry.getPanels().map((type) => translate(type))));
 
 const router = useRouter();

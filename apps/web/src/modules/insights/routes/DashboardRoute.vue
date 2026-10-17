@@ -6,7 +6,7 @@
 // from the static registry (loaded by the store, FR-109). Save leaves edit mode even when it fails, as Directus (R-56).
 import { applyOptionsData } from '@directus/utils';
 import { assign } from 'lodash-es';
-import { computed, nextTick, ref, toRefs, unref, useTemplateRef, watch } from 'vue';
+import { computed, nextTick, ref, shallowRef, toRefs, unref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
 import BoButton from '../../../components/BoButton.vue';
@@ -43,7 +43,7 @@ const insightsStore = useInsightsStore();
 const { loading, errors, data, saving, hasEdits, refreshIntervals, variables } = toRefs(insightsStore);
 
 // Backoffice: the registry is a lazy chunk the store loads in hydrate; this covers a route opened before that finished.
-const panelTypes = ref<PanelConfig[]>([]);
+const panelTypes = shallowRef<PanelConfig[]>([]);
 loadPanelRegistry().then((registry) => (panelTypes.value = registry.getPanels()));
 
 const getPanelType = (type: string) => panelTypes.value.find((panelType) => panelType.id === type);

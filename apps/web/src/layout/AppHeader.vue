@@ -1,10 +1,12 @@
 <script setup lang="ts">
 // TailAdmin AppHeader (design-system layout-patterns §4, D-52): the sidebar toggle and the user menu. From `xl` the
 // toggle collapses the inline sidebar to its rail (saved); below `xl` it opens the sidebar drawer, which takes focus
-// and gives it back to this button on close. No search, theme toggle or notifications in 012 (D-45).
+// and gives it back to this button on close. No search or theme toggle (D-45); the notifications bell comes before the
+// user menu since 018 (FR-070, recipe Q-38).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoButton from '../components/BoButton.vue';
+import NotificationsBell from './NotificationsBell.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
 import UserMenu from './UserMenu.vue';
 
@@ -33,7 +35,10 @@ const toggle = computed(() =>
 				@click="toggle.onClick"
 			/>
 
-			<UserMenu />
+			<div class="flex items-center gap-3">
+				<NotificationsBell />
+				<UserMenu />
+			</div>
 		</div>
 	</header>
 </template>

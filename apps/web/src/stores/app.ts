@@ -21,11 +21,13 @@ export const useAppStore = defineStore('appStore', () => {
 	/** How long until the access token will expire */
 	const accessTokenExpiry = ref(0);
 
-	// Backoffice: layout state of the private view (data-model §1); notificationsDrawerOpen belongs to a later feature
-	// (D-45).
+	// Backoffice: layout state of the private view (data-model §1).
 	const navbarOpen = ref(false);
 	const sidebarOpen = ref(false);
 	const fullScreen = ref(false);
+
+	/** Is the notifications drawer open (spec 018 FR-077) */
+	const notificationsDrawerOpen = ref(false);
 
 	/** What basemap provider should be used in global map interfaces */
 	const basemap = ref('OpenStreetMap');
@@ -39,6 +41,7 @@ export const useAppStore = defineStore('appStore', () => {
 		navbarOpen,
 		sidebarOpen,
 		fullScreen,
+		notificationsDrawerOpen,
 		basemap,
 	};
 });

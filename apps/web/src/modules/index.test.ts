@@ -80,7 +80,7 @@ describe('registerModules (FR-022)', () => {
 		expect(r.hasRoute('settings')).toBe(false);
 		// Feature 014: the Content module routes of Directus (collection, item).
 		expect(r.resolve('/content/articles/1').matched.map((m) => m.name)).toEqual(['content', undefined, 'content-item']);
-		expect(r.resolve('/activity').matched.map((m) => m.name)).toEqual(['activity', 'activity-root']);
+		expect(r.resolve('/activity').matched.map((m) => m.name)).toEqual(['activity', 'activity-collection']);
 
 		await onDehydrateModules();
 		expect(r.hasRoute('content')).toBe(false);

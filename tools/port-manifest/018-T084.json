@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/activity/routes/item.vue",
+		"dest": "apps/web/src/modules/activity/routes/ActivityItemRoute.vue"
+	}
+]

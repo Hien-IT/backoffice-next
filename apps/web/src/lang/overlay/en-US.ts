@@ -62,4 +62,6 @@ export default {
 	flow_operation_not_linked: 'Not linked to the trigger',
 	// Feature 017 (FR-106): screen-reader name of the icon of a failed flow run in the Logs section.
 	flow_run_failed: 'Failed',
+	// Feature 018 (FR-070, recipe Q-38): accessible name of the header bell and the text of its live region.
+	notifications_unread_count: 'Notifications, {count} unread',
 };

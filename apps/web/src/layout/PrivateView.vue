@@ -4,11 +4,11 @@
 // private-view-main.vue: sidebar (modules, the `navigation` slot as the current module's sub-menu), header (sidebar
 // toggle, user menu), content with the page header (title, icon, `actions`) and the right detail panel (`sidebar`
 // slot). One breakpoint, `xl` (L-1): from `xl` sidebar and panel are inline, below `xl` both are drawers. No license
-// banner, notifications drawer or dialogs (D-38, D-45). The page title goes through useHead; the `%s · project`
-// template is in theme/use-app-head.ts.
+// banner (D-38); the notifications drawer (018 FR-077) is mounted here once, as a lazy chunk (FR-109). The page title
+// goes through useHead; the `%s · project` template is in theme/use-app-head.ts.
 import { useHead } from '@unhead/vue';
 import { useElementSize } from '@vueuse/core';
-import { computed, useTemplateRef, watch } from 'vue';
+import { computed, defineAsyncComponent, useTemplateRef, watch } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
 import NoticeStack from '../components/NoticeStack.vue';
@@ -22,6 +22,8 @@ import NoAppAccess from './NoAppAccess.vue';
 import PageHeader from './PageHeader.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
 import { useSidebarStore } from './stores/sidebar.ts';
+
+const NotificationsDrawer = defineAsyncComponent(() => import('../components/NotificationsDrawer.vue'));
 
 const props = defineProps<{
 	/** Title to show in the page header and the browser tab */
@@ -135,5 +137,7 @@ const { height: appHeaderHeight } = useElementSize(
 				</DetailPanel>
 			</div>
 		</div>
+
+		<NotificationsDrawer />
 	</div>
 </template>

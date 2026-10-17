@@ -143,6 +143,16 @@ describe('AppSidebar layout (FR-020, layout-patterns §2)', () => {
 		expect(items.map((li) => li.textContent!.includes('Folder'))).toEqual([false, false, true, false, false]);
 	});
 
+	test('a hidden module (Activity) gets a row with its name, not a link, holding its sub-menu (018 FR-061)', async () => {
+		await render(null, { path: '/activity', slots: { navigation: '<button type="button">My Activity</button>' } });
+
+		const row = document.body.querySelector('[data-module-unlisted]')!;
+		expect(accessibleText(row)).toContain('Activity');
+		expect(row.querySelector('a')).toBeNull();
+		expect(row.textContent).toContain('My Activity');
+		expect(document.body.querySelectorAll('[data-testid="module-bar"] [aria-current="page"]')).toHaveLength(0);
+	});
+
 	test('from xl: 290 px, collapsed to the 90 px rail (labels kept for screen readers), hover expands it', async () => {
 		const { wrapper } = await render(null, { path: '/files', slots: { navigation: '<p>Sub</p>' } });
 		const aside = wrapper.get('aside');

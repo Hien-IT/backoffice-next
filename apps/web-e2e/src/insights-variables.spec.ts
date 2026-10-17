@@ -4,6 +4,7 @@
 // INSIGHTS_ROWS: rows 1-7 owned by admin, 8-12 by bo-editor). The spec never writes bo_dash_vars.
 import type { Page, Request } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
+import { ADMIN } from './helpers/config.js';
 import { dashboardId, DASHBOARDS, openInsights, readTileText, tileOfType } from './helpers/insights.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -33,6 +34,10 @@ async function nextQuery(page: Page, action: () => Promise<void>) {
 async function pickOwner(page: Page, email: string) {
 	await tileOfType(page, 'relational-variable').getByRole('button', { name: 'Add Existing' }).click();
 	const drawer = page.getByRole('dialog');
+	// The users list grows with the users other specs create: search instead of relying on the first page.
+	await drawer.getByRole('button', { name: 'Search', exact: true }).click();
+	await drawer.getByRole('searchbox').fill(email);
+	await expect(drawer.getByRole('row').filter({ hasText: email })).toHaveCount(1);
 	await drawer.getByRole('row').filter({ hasText: email }).getByRole('checkbox').click();
 	await drawer.getByRole('button', { name: 'Save' }).click();
 	await expect(drawer).toBeHidden();
@@ -56,7 +61,7 @@ test('the variables filter the metric and the list; only those panels ask their 
 	await expect(tileOfType(page, 'metric')).toContainText('No Data');
 	await expect(tileOfType(page, 'variable').getByRole('combobox')).toContainText('published');
 
-	expect(await nextQuery(page, () => pickOwner(page, 'admin@example.com'))).toBe(2);
+	expect(await nextQuery(page, () => pickOwner(page, ADMIN.email))).toBe(2);
 	await expect.poll(() => metric(page)).toMatch(/\b4\b/);
 	await expect(listRows(page)).toHaveCount(4);
 

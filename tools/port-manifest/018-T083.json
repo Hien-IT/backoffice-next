@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/activity/routes/collection.vue",
+		"dest": "apps/web/src/modules/activity/routes/ActivityCollectionRoute.vue"
+	}
+]

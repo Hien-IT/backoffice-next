@@ -10,6 +10,7 @@ import { RouterView, type RouteRecordRaw } from 'vue-router';
 import { replaceQueue } from '../../../api/sdk.ts';
 import { resetNotices, useNotices } from '../../../composables/use-notices.ts';
 import { i18n } from '../../../lang/index.ts';
+import type { Pinia } from 'pinia';
 import { useCollectionsStore } from '../../../stores/collections.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useInsightsStore } from '../../../stores/insights.ts';
@@ -132,8 +133,13 @@ async function setup(answers: Record<string, unknown> = {}) {
 
 	await flushPromises();
 	await flushPromises();
+	appPinia = mounted.wrapper.vm.$pinia;
 	return mounted;
 }
+
+// The store of the mounted app: under load a late callback of an earlier test can change the active pinia.
+let appPinia: Pinia;
+const insights = () => useInsightsStore(appPinia);
 
 const openMenu = (id: string) => {
 	const trigger = tile(id).querySelector<HTMLButtonElement>('button[aria-label^="Options"]')!;
@@ -233,7 +239,7 @@ test(
 				.map(([, init]) => JSON.parse(String(init!.body)).query as string);
 		const before = bodies().length;
 
-		useInsightsStore().setVariable('status', 'draft');
+		insights().setVariable('status', 'draft');
 		await vi.waitFor(() => expect(bodies().length).toBe(before + 1));
 		await flushPromises();
 
@@ -266,7 +272,7 @@ describe('DashboardRoute edit mode', () => {
 				.click();
 			await flushPromises();
 
-			useInsightsStore().stagePanelDelete('p4');
+			insights().stagePanelDelete('p4');
 			await flushPromises();
 			expect(document.querySelectorAll('[data-panel-id]')).toHaveLength(4);
 
@@ -297,7 +303,7 @@ describe('DashboardRoute edit mode', () => {
 			});
 			button(t('edit_panels'))!.click();
 			await flushPromises();
-			useInsightsStore().stagePanelDelete('p4');
+			insights().stagePanelDelete('p4');
 			await flushPromises();
 
 			button(t('save'))!.click();
@@ -305,7 +311,7 @@ describe('DashboardRoute edit mode', () => {
 			await flushPromises();
 
 			expect(useNotices().dialogs.value).toHaveLength(1);
-			expect(useInsightsStore().hasEdits).toBe(true);
+			expect(insights().hasEdits).toBe(true);
 			expect(button(t('edit_panels'))).toBeDefined();
 		},
 		SLOW,
@@ -317,7 +323,7 @@ describe('DashboardRoute edit mode', () => {
 			await setup();
 			button(t('edit_panels'))!.click();
 			await flushPromises();
-			useInsightsStore().stagePanelDelete('p4');
+			insights().stagePanelDelete('p4');
 			await flushPromises();
 
 			button(t('clear_changes'))!.click();
@@ -327,7 +333,7 @@ describe('DashboardRoute edit mode', () => {
 			[...dialog.querySelectorAll('button')].find((b) => b.textContent?.trim() === t('discard_changes'))!.click();
 			await flushPromises();
 
-			expect(useInsightsStore().hasEdits).toBe(false);
+			expect(insights().hasEdits).toBe(false);
 			expect(document.querySelectorAll('[data-panel-id]')).toHaveLength(4);
 		},
 		SLOW,
@@ -379,7 +385,7 @@ describe('DashboardRoute edit mode', () => {
 			[...dialog.querySelectorAll('button')].find((b) => b.textContent?.trim() === t('copy'))!.click();
 			await flushPromises();
 
-			expect(useInsightsStore().edits.create).toEqual([
+			expect(insights().edits.create).toEqual([
 				expect.objectContaining({ dashboard: 'dash-2', type: 'label', position_x: 3, position_y: 7 }),
 			]);
 			// The copy is on the other dashboard: this one still shows 4 tiles.
@@ -402,7 +408,7 @@ describe('DashboardRoute edit mode', () => {
 			const { router } = await setup();
 			button(t('edit_panels'))!.click();
 			await flushPromises();
-			useInsightsStore().stagePanelDelete('p4');
+			insights().stagePanelDelete('p4');
 			await flushPromises();
 
 			await router.push(`/insights/${DASHBOARD}/p1`);
@@ -410,6 +416,7 @@ describe('DashboardRoute edit mode', () => {
 			expect(router.currentRoute.value.params['panelKey']).toBe('p1');
 			expect(document.body.textContent).not.toContain(t('unsaved_changes'));
 
+			await vi.waitFor(() => expect(insights().hasEdits).toBe(true));
 			await router.push('/insights');
 			await flushPromises();
 			expect(router.currentRoute.value.name).toBe('panel-detail');

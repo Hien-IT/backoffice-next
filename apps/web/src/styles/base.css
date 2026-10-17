@@ -5,6 +5,32 @@
 	--project-color: var(--color-brand-500);
 }
 
+/* Directus theme variables used as colors in system field metadata (the `action` labels of directus_activity, spec 018
+   FR-062; the danger divider of the user page), aliased to theme tokens as decided for Q-36: primary → brand, blue →
+   blue-light, danger → error, purple → theme-purple; `-subdued` / `-25` are the light tints, a translucent tint in dark
+   mode. The text shades are the ones with 4.5:1 on the page and on the tint (FR-106), not the -500 of the draft. */
+:root {
+	--theme--primary: var(--color-brand-600);
+	--theme--primary-subdued: var(--color-brand-50);
+	--blue: var(--color-blue-light-700);
+	--blue-25: var(--color-blue-light-50);
+	--theme--danger: var(--color-error-700);
+	--danger-25: var(--color-error-50);
+	--purple: color-mix(in srgb, var(--color-theme-purple-500) 80%, var(--color-gray-900));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 12%, var(--color-white));
+}
+
+.dark {
+	--theme--primary: var(--color-brand-400);
+	--theme--primary-subdued: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+	--blue: var(--color-blue-light-400);
+	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 15%, transparent);
+	--theme--danger: var(--color-error-400);
+	--danger-25: color-mix(in srgb, var(--color-error-500) 15%, transparent);
+	--purple: color-mix(in srgb, var(--color-theme-purple-500) 70%, var(--color-white));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 15%, transparent);
+}
+
 @layer base {
 	html {
 		color-scheme: light;

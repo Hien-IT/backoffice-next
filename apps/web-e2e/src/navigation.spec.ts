@@ -168,7 +168,8 @@ test('a user who only reads directus_files: same modules as the Directus app, no
 	await moduleBar(page);
 
 	await page.goto('/admin/activity');
-	await expect(page).toHaveTitle('Activity · Backoffice');
+	// Feature 018 replaced the module frame with the Activity Feed page (Directus title `activity_feed`).
+	await expect(page).toHaveTitle('Activity Feed · Backoffice');
 });
 
 test('last_page is written after navigation and used on the next sign-in (US2-5, FR-018)', async ({ page }) => {

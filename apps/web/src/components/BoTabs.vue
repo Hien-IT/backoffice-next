@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { createReusableTemplate } from '@vueuse/core';
 import { TabsContent, TabsList, TabsRoot, TabsTrigger } from 'reka-ui';
 
 export interface TabItem {
@@ -9,7 +10,9 @@ export interface TabItem {
 
 // Tier 3 Tabs recipe. `fillWidth` stretches the triggers over the list; `dir` follows the form direction (Reka
 // mirrors the arrow keys in rtl). `orientation="vertical"` (016, research R13): the list is a column at the start of
-// the drawer (Q-22, Q-23), Up/Down move between tabs; callers switch back to horizontal on narrow screens.
+// the drawer (Q-22, Q-23), Up/Down move between tabs; callers switch back to horizontal on narrow screens. Feature 018
+// (Q-39): `list-append` adds content under the list (the Activity link of the notifications drawer), outside the
+// tablist; the wrapper is `display: contents` in horizontal mode.
 const {
 	items,
 	label,
@@ -35,6 +38,8 @@ const VERTICAL_TRIGGER =
 	'flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-start text-theme-sm font-medium text-gray-700 hover:bg-gray-100 data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[state=active]:bg-brand-50 data-[state=active]:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:data-[disabled]:text-white/15 dark:data-[state=active]:bg-brand-500/[0.12] dark:data-[state=active]:text-brand-400';
 
 const model = defineModel<string>({ default: '' });
+
+const [DefineList, ReuseList] = createReusableTemplate();
 </script>
 
 <template>
@@ -44,21 +49,33 @@ const model = defineModel<string>({ default: '' });
 		:orientation="orientation"
 		:class="{ 'flex items-start gap-6': orientation === 'vertical' }"
 	>
-		<TabsList :aria-label="label" :class="orientation === 'vertical' ? VERTICAL_LIST : HORIZONTAL_LIST">
-			<TabsTrigger
-				v-for="item in items"
-				:key="item.value"
-				:value="item.value"
-				:disabled="item.disabled ?? false"
-				:class="[
-					orientation === 'vertical' ? VERTICAL_TRIGGER : HORIZONTAL_TRIGGER,
-					TRIGGER_FOCUS,
-					{ 'flex-1 justify-center': fillWidth && orientation !== 'vertical' },
-				]"
-			>
-				<slot name="trigger" :item="item" :active="model === item.value">{{ item.label }}</slot>
-			</TabsTrigger>
-		</TabsList>
+		<DefineList>
+			<TabsList :aria-label="label" :class="orientation === 'vertical' ? VERTICAL_LIST : HORIZONTAL_LIST">
+				<TabsTrigger
+					v-for="item in items"
+					:key="item.value"
+					:value="item.value"
+					:disabled="item.disabled ?? false"
+					:class="[
+						orientation === 'vertical' ? VERTICAL_TRIGGER : HORIZONTAL_TRIGGER,
+						TRIGGER_FOCUS,
+						{ 'flex-1 justify-center': fillWidth && orientation !== 'vertical' },
+					]"
+				>
+					<slot name="trigger" :item="item" :active="model === item.value">{{ item.label }}</slot>
+				</TabsTrigger>
+			</TabsList>
+		</DefineList>
+
+		<!-- Without `list-append` the tablist stays a direct child of the root (callers select it so). -->
+		<div
+			v-if="$slots['list-append']"
+			:class="orientation === 'vertical' ? 'flex w-56 shrink-0 flex-col gap-4' : 'contents'"
+		>
+			<ReuseList />
+			<slot name="list-append" />
+		</div>
+		<ReuseList v-else />
 		<TabsContent
 			v-for="item in items"
 			:key="item.value"

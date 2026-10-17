@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/views/private/components/notifications-drawer.vue",
+		"dest": "apps/web/src/components/NotificationItem.vue"
+	}
+]

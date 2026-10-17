@@ -10,3 +10,10 @@ it('defaults basemap to OpenStreetMap like @directus/stores', () => {
 	store.basemap = 'Custom';
 	expect(store.basemap).toBe('Custom');
 });
+
+it('has a closed notifications drawer by default (spec 018 FR-077)', () => {
+	const store = useAppStore();
+	expect(store.notificationsDrawerOpen).toBe(false);
+	store.notificationsDrawerOpen = true;
+	expect(store.notificationsDrawerOpen).toBe(true);
+});

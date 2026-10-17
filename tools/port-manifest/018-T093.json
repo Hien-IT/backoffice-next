@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/views/private/components/module-bar-avatar.vue",
+		"dest": "apps/web/src/layout/NotificationsBell.vue"
+	}
+]

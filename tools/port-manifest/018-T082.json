@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/activity/components/navigation.vue",
+		"dest": "apps/web/src/modules/activity/components/ActivityNavigation.vue"
+	}
+]
