@@ -6,10 +6,8 @@ import type { RouteLocationNormalized } from 'vue-router';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { useCollectionsStore } from '../stores/collections.ts';
 import { useFieldsStore } from '../stores/fields.ts';
+import { useFlowsStore } from '../stores/flows.ts';
 import { defineModule } from './types.ts';
-
-const Frame = () => import('./ModulePlaceholder.vue');
-const FRAME_META = { module: 'settings' };
 
 /** Not-found of the module with the path that was asked for, as the Directus guards do. */
 const notFound = (to: RouteLocationNormalized) => ({
@@ -163,7 +161,8 @@ export default defineModule({
 			],
 		},
 		{
-			// Feature 017 (FR-001, D-92 lifted): the flows overview; the flow page replaces the 012 frame in wave 2 (T050).
+			// Feature 017 (FR-001, D-92 lifted): the flows overview, the flow page and its operation drawer (a child route drawn by
+			// the page's unnamed RouterView, as Directus flow.vue).
 			path: 'flows',
 			children: [
 				{
@@ -171,7 +170,26 @@ export default defineModule({
 					path: '',
 					component: () => import('./settings/routes/flows/FlowsOverviewRoute.vue'),
 				},
-				{ name: 'settings-flows-item', path: ':primaryKey(.*)', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-flows-item',
+					path: ':primaryKey',
+					component: () => import('./settings/routes/flows/FlowRoute.vue'),
+					props: true,
+					// Directus: the flow comes from the store hydrated at sign-in; an unknown id is the not-found page.
+					beforeEnter: (to) => {
+						if (!useFlowsStore().flows.some((flow) => flow.id === to.params['primaryKey'])) return notFound(to);
+						return;
+					},
+					children: [
+						{
+							name: 'settings-flows-operation',
+							path: ':operationId',
+							component: () => import('./settings/routes/flows/OperationDetail.vue'),
+							props: true,
+							meta: { isFloatingView: true },
+						},
+					],
+				},
 			],
 		},
 		{

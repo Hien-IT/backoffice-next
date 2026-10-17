@@ -172,14 +172,31 @@ test('next month: viewInfo goes to the layout options and the request asks for t
 	);
 });
 
+/**
+ * Drags the event of October 3 to October 10 until the PATCH is sent: on a loaded CI runner a pointer drag sometimes
+ * ends before FullCalendar takes it as a drop (no PATCH, the event stays), so the drag is tried again, at most 3 times.
+ */
+async function dragUntilPatched() {
+	for (let attempt = 1; ; attempt++) {
+		await userEvent.dragAndDrop(
+			document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event')!,
+			document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
+		);
+
+		try {
+			await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'), { timeout: 3_000 });
+			return;
+		} catch (error) {
+			if (attempt >= 3) throw error;
+		}
+	}
+}
+
 test('dragging an event to another day PATCHes the start date cut to 19 characters', async () => {
 	await mountCalendar({ layoutOptions: { startDateField: 'date_published', viewInfo: OCTOBER } });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull());
 
-	await userEvent.dragAndDrop(
-		document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event')!,
-		document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
-	);
+	await dragUntilPatched();
 
 	await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'));
 	const [, init] = fetch.mock.calls.find(([, init]) => init?.method === 'PATCH')!;
@@ -195,10 +212,7 @@ test('a failed PATCH puts the event back', async () => {
 	await mountCalendar({ layoutOptions: { startDateField: 'date_published', viewInfo: OCTOBER } });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull());
 
-	await userEvent.dragAndDrop(
-		document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event')!,
-		document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
-	);
+	await dragUntilPatched();
 
 	// The drag, the PATCH and the revert take longer than the default second on a loaded CI runner.
 	await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 15_000 });

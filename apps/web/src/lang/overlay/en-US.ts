@@ -58,4 +58,6 @@ export default {
 	// Feature 017 (D-106): above the options of the flow operation "Send Email"; the API only writes a log entry.
 	operations_mail_not_sent_notice:
 		'Backoffice does not send email. This operation only writes a log entry and returns success.',
+	// Feature 017 (FR-106): screen-reader text of a dimmed operation panel that no chain from the trigger reaches.
+	flow_operation_not_linked: 'Not linked to the trigger',
 };

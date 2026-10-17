@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/operation-detail.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/OperationDetail.vue"
+	}
+]

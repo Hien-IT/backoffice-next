@@ -195,13 +195,13 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Tests cho User Story 2
 
-- [ ] T040 [P] [US2] Port 9 test arrows `components/arrows/{lib,utils}/*.test.ts` vào `flows/arrows/{lib,utils}/` cạnh
+- [x] T040 [P] [US2] Port 9 test arrows `components/arrows/{lib,utils}/*.test.ts` vào `flows/arrows/{lib,utils}/` cạnh
       file port ở T043; chạy đỏ trước
-- [ ] T041 [P] [US2] `flows/use-flow-editor.test.ts`: 12 kịch bản SC-006 (thêm con resolve, con reject, nối lại sang cha
+- [x] T041 [P] [US2] `flows/use-flow-editor.test.ts`: 12 kịch bản SC-006 (thêm con resolve, con reject, nối lại sang cha
       khác, tháo, xóa có con, xóa operation đầu, nhân bản, đổi vị trí, đổi trạng thái, Save rỗng, Save sau xóa + thêm
       cùng key, vòng dữ liệu → không request, lỗi console, như Directus) so body `PATCH /operations` và `PATCH /flows/:id` với
       `e2e/payload/baselines/flows-*.json` của T003; Save lỗi giữ staging và Save lại gửi lại (R-47); `hasEdits` (R-44)
-- [ ] T042 [P] [US2] `flows/FlowRoute.browser.test.ts`: chế độ xem `bo_all_ops` (15 panel, số mũi tên, lớp mờ của
+- [x] T042 [P] [US2] `flows/FlowRoute.browser.test.ts`: chế độ xem `bo_all_ops` (15 panel, số mũi tên, lớp mờ của
       `bo_orphan`, overview, trigger null), Edit Flow, kéo panel, "+" gọi
       `router.push` với `settings-flows-operation` và `operationId: '+'` (kiểm lời gọi bằng router giả; route con có ở T061), kéo nối/tháo, Duplicate, Copy To
       (`POST /operations`, lỗi giữ hộp), Delete, Save, Clear Changes, guard rời trang, `Ctrl/Cmd+S`, Delete Flow (về danh
@@ -209,30 +209,30 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Implementation cho User Story 2
 
-- [ ] T043 [US2] Chép `components/arrows/{lib,utils}/*.ts` và `types.ts` vào `flows/arrows/` nguyên vẹn (header nguồn,
+- [x] T043 [US2] Chép `components/arrows/{lib,utils}/*.ts` và `types.ts` vào `flows/arrows/` nguyên vẹn (header nguồn,
       bỏ nhánh RTL nếu có trong lib và ghi `// Backoffice`); T040 xanh; manifest `017-T043.json`
-- [ ] T044 [P] [US2] `flows/components/Arrows.vue` port `arrows/arrows.vue` (SVG `aria-hidden`, lớp `stroke-brand-500
+- [x] T044 [P] [US2] `flows/components/Arrows.vue` port `arrows/arrows.vue` (SVG `aria-hidden`, lớp `stroke-brand-500
       dark:stroke-brand-400` / `stroke-orange-500 dark:stroke-orange-400`, reject `stroke-dasharray`, `opacity-50` khi
       mờ, `motion-reduce:transition-none`) theo Q-29
-- [ ] T045 [P] [US2] `flows/components/OptionsOverview.vue` port `options-overview.vue` (`<dl>` nội suy chữ, tiêu đề
+- [x] T045 [P] [US2] `flows/components/OptionsOverview.vue` port `options-overview.vue` (`<dl>` nội suy chữ, tiêu đề
       `name` với tooltip `key`, Trigger `t('triggers.<type>.name')`, nút sao chép khi `copyable` và `isCopySupported`)
-- [ ] T046 [US2] `flows/use-flow-editor.ts` port script `flow.vue` (staging, `stageOperation`, `duplicateOperation`,
+- [x] T046 [US2] `flows/use-flow-editor.ts` port script `flow.vue` (staging, `stageOperation`, `duplicateOperation`,
       `copyTo`, `deleteOperation`, `onDrag`, `onLink` từ chối vòng, `isLoner`, `getTrees` dừng khi gặp lại id (không request, `console.error`, như kết quả Directus của T002),
       `saveChanges`, `clearChanges`, `hasEdits`) theo data-model §6; T041 xanh; manifest `017-T046.json`
-- [ ] T047 [US2] `flows/components/Operation.vue` port `components/operation.vue` (header icon và tên loại, màu
+- [x] T047 [US2] `flows/components/Operation.vue` port `components/operation.vue` (header icon và tên loại, màu
       `brand`/`orange`, tay cầm `<button>` 32 px resolve/reject/attachment, nút "+" khi hover, kéo mũi tên pointer,
       chân Trigger chấm + select trạng thái, sr-only trạng thái mờ, error boundary `unexpected_error`) theo Q-30
-- [ ] T048 [US2] `flows/components/CopyToDialog.vue` (BoDialog thường, select flow khác từ store, notice
+- [x] T048 [US2] `flows/components/CopyToDialog.vue` (BoDialog thường, select flow khác từ store, notice
       `no_other_flows_copy`, nút khóa khi rỗng)
-- [ ] T049 [US2] `flows/FlowRoute.vue` port template `flow.vue` (`PrivateView fill`, `PageHeader` hai chế độ, tiêu đề
+- [x] T049 [US2] `flows/FlowRoute.vue` port template `flow.vue` (`PrivateView fill`, `PageHeader` hai chế độ, tiêu đề
       chấm trạng thái, `BoWorkspace` + `Operation` + `Arrows`, `RouterView` không tên với `operation`,
       `existing-operation-keys`, `flow`, `@save`, `@cancel`, hộp Clear Changes, hộp xóa flow, `CopyToDialog`,
       `FlowDrawer startTab trigger_setup` cho pencil Trigger, `use-edits-guard` `ignorePrefix`, `use-shortcut` `meta+s`,
       `DetailPanel` có slot cho Logs ở T072); manifest `017-T049.json`
-- [ ] T050 [US2] `src/modules/settings.ts`: thêm `settings-flows-item` (`:primaryKey`, `props: true`, `beforeEnter` tra
+- [x] T050 [US2] `src/modules/settings.ts`: thêm `settings-flows-item` (`:primaryKey`, `props: true`, `beforeEnter` tra
       store, thiếu → `notFound(to)`); `src/modules/settings.test.ts` thêm ca item và id không có → not-found. Route con
       `settings-flows-operation` thêm ở T061 (cùng lúc với `OperationDetail.vue`) để build không import file chưa có
-- [ ] T051 [US2] E2E `e2e/settings-flows-editor.spec.ts` (contracts/tests §3): xem `bo_all_ops`; trên flow tạm: kéo panel,
+- [x] T051 [US2] E2E `e2e/settings-flows-editor.spec.ts` (contracts/tests §3): xem `bo_all_ops`; trên flow tạm: kéo panel,
       "+" thêm, kéo nối/tháo (cả hai ví dụ US2-6), Duplicate, Copy To, Delete, Save (so body bằng `recordWrites`), Clear
       Changes, guard, Ctrl+S, Delete Flow; chromium 768/1280 ba cấu hình + firefox/webkit-1280 cùng origin; thêm vào
       biểu thức spec lõi của `apps/web-e2e/playwright.config.ts`; webkit flake → `test.fixme` có lý do (CHK048)
@@ -249,7 +249,7 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Tests cho User Story 3
 
-- [ ] T060 [P] [US3] `flows/OperationDetail.browser.test.ts`: tiêu đề tạo/sửa, Name/Key (placeholder, key theo tên,
+- [x] T060 [P] [US3] `flows/OperationDetail.browser.test.ts`: tiêu đề tạo/sửa, Name/Key (placeholder, key theo tên,
       `dbSafe`, trùng → `operation_key_unique_error`), 15 loại (số field, điều kiện ẩn của `json-web-token`, `mail`,
       `trigger`), notice D-106 ở `mail` hai ngôn ngữ, đổi loại → options `{}`, loại lạ → `operation_not_found`, Done emit
       `{...defaults, ...options}`, Cancel; mount qua router thật có route con (sau T061): "+" trên `FlowRoute` mở drawer,
@@ -257,17 +257,17 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Implementation cho User Story 3
 
-- [ ] T061 [US3] `flows/OperationDetail.vue` port `components/operation-detail.vue` (`useDialogRoute`, `BoDrawer
+- [x] T061 [US3] `flows/OperationDetail.vue` port `components/operation-detail.vue` (`useDialogRoute`, `BoDrawer
       persistent`, `BoInput dbSafe`, `@sindresorhus/slugify`, `BoFancySelect` 15 loại, `ExtensionOptions
       type="operation"` với options đã gọi hàm và `translate`, `getDefaultValuesFromFields`, `BoNotice` D-106 khi `mail`)
       theo Q-31; nối `@save` vào `stageOperation` của T046 (staging, vị trí con theo cha, US2-5, US2-12); thêm route con
       `settings-flows-operation` (`:operationId`, `props: true`, `meta.isFloatingView`, vẽ qua `RouterView` không tên
       của `FlowRoute.vue`) vào `src/modules/settings.ts` và ca `/settings/flows/3f2a/+` vào `src/modules/settings.test.ts`;
       manifest `017-T061.json`
-- [ ] T062 [US3] E2E `e2e/settings-flows-operations.spec.ts`: mở drawer từng operation của `bo_all_ops` và so field với
+- [x] T062 [US3] E2E `e2e/settings-flows-operations.spec.ts`: mở drawer từng operation của `bo_all_ops` và so field với
       bảng data-model §5 (nhãn, loại input), key tự sinh và trùng trên flow tạm, loại lạ ở `bo_orphan`, notice `mail`;
       "+" nhiều lần trước Save (US2-12) rồi Save; chromium ba cấu hình
-- [ ] T063 [US3] Đóng lượt 2: bốn cổng, `check-bundle` (chunk canvas, registry), `check-port-headers`, E2E
+- [x] T063 [US3] Đóng lượt 2: bốn cổng, `check-bundle` (chunk canvas, registry), `check-port-headers`, E2E
       `settings-flows-*` + `settings-*` xanh ở `proxy-api` local; commit `feat(017): flow canvas, operation drawer and the
       15 operations (wave 2)`; push; CI xanh; `graphify update .`
 
@@ -451,3 +451,15 @@ Lượt 4, Phase 8:
     đích; E2E lượt 1 chỉ kiểm URL (O1).
   - T014: snapshot mới `flows.editor.json`, `operations.json`, `flows.runs.json` (không đặt tiền tố `revisions.` để mock
     không lẫn với revisions của 014); các file cũ không bị đánh số lại; parity `fixtures-seed` xanh.
+- Lượt 2 (2026-10-17, làm trong lúc CI lượt 1 chạy):
+  - CI lượt 1 (run 39009810351): mọi job e2e-web và parity xanh; `quality` đỏ ở `Calendar.browser.test.ts` (test của
+    014, chập chờn trên runner tải nặng, phiên 016 báo): kéo được thử lại tới khi có `PATCH` (tối đa 3 lần);
+    `parity-matrix-rotating` lỗi hạ tầng MinIO, phiên 016 đã chạy lại.
+  - T046: `use-flow-editor.ts` giữ nguyên logic `flow.vue`; `getTrees` dừng ở id lặp (ghi console, không request), và
+    `connectedToTrigger` có tập đã thăm để dữ liệu vòng không treo vòng lặp.
+  - T047, T044: tên `FlowOperation.vue`, `FlowArrows.vue` (luật eslint tên nhiều từ).
+  - T061: tên và key giữ đúng Directus: operation có `name` null thì watcher tên làm rỗng key và Done dùng key sinh.
+  - T019 (phần lượt 2): `readGrid`, `countArrows`, `dragPanel`, `linkHandle` (cuộn panel vào khung nhìn trước khi kéo).
+  - T051: `settings-flows-editor` chạy mọi trình duyệt ở cùng origin (`playwright.config.ts`); firefox, webkit chưa cài
+    trên máy dev nên chỉ CI chạy.
+  - Test toàn bộ cục bộ: 4121 xanh, 1 đỏ chập chờn (`Tabular` header menu, xanh khi chạy riêng).

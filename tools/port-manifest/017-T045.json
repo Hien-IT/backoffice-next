@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/options-overview.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/OptionsOverview.vue"
+	}
+]

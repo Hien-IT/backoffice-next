@@ -22,9 +22,9 @@ tính từ `directus/app/src/modules/settings/routes/flows/` trừ khi ghi khác
 | `components/workspace/BoWorkspace.vue` | `components/v-workspace/v-workspace.vue` | `tiles: Panel[]`, `editMode`, `gridSize = 18` | `update(id, {x,y})` | kích thước +25 ô khi sửa; slot tile |
 | `components/workspace/BoWorkspaceTile.vue` | `v-workspace-tile.vue` | `tile`, `editMode`, `draggable`, `showOptions`, `resizable = false` | `move`, `edit`, `duplicate`, `delete`, `copy` | nhãn `(x-1:y-1)` khi kéo; pencil, `BoMenu`; `data-pos-x/y` |
 | `operations/throw-error/error-codes.ts` | `directus/packages/errors/src/codes.ts` | `ErrorCode` enum | | test so `libs/errors/src/codes.ts` |
-| `components/Operation.vue` | `components/operation.vue` | `panel`, `flow`, `editMode`, `type?: 'resolve' \| 'reject'`, `isHovered`, `subdued`, `arrowInfo` | `create(type)`, `arrow-move`, `arrow-stop`, `flow-status`, `edit` | tay cầm `<button>` 32 px; header `brand`/`orange`; chân Trigger |
+| `components/FlowOperation.vue` | `components/operation.vue` | `panel`, `flow`, `editMode`, `type?: 'resolve' \| 'reject'`, `isHovered`, `subdued`, `arrowInfo` | `create(type)`, `arrow-move`, `arrow-stop`, `flow-status`, `edit` | tay cầm `<button>` 32 px; header `brand`/`orange`; chân Trigger |
 | `components/OptionsOverview.vue` | `components/options-overview.vue` | `panel`, `flow`, `currentOperation` | | `<dl>` nội suy chữ; nút sao chép khi `copyable` và `isCopySupported` (`use-clipboard`, notice D-45) |
-| `components/Arrows.vue` | `components/arrows/arrows.vue` | `panels`, `arrowInfo`, `editMode`, `hoveredPanelId`, `subdued`, `size` | | SVG `aria-hidden`, lớp `stroke-brand-500`/`stroke-orange-500`, reject nét đứt |
+| `components/FlowArrows.vue` | `components/arrows/arrows.vue` | `panels`, `arrowInfo`, `editMode`, `hoveredPanelId`, `subdued`, `size` | | SVG `aria-hidden`, lớp `stroke-brand-500`/`stroke-orange-500`, reject nét đứt |
 | `arrows/lib/*`, `arrows/utils/*`, `arrows/types.ts` | cùng tên | như Directus | | chép nguyên + 9 `.test.ts` |
 | `constants.ts` | `constants.ts` | | | chép nguyên |
 | `components/CopyToDialog.vue` | `flow.vue:751-776` | `open`, `flows: FlowRaw[]` (trừ hiện tại) | `confirm(flowId)`, `cancel` | notice `no_other_flows_copy` |

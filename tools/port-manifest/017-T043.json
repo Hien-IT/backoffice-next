@@ -1,0 +1,78 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/create-line.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/create-line.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/create-line.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/create-line.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/find-best-position.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/find-best-position.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/find-best-position.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/find-best-position.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/generate-arrows.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/generate-arrows.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/generate-arrows.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/generate-arrows.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/generate-path.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/generate-path.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/lib/generate-path.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/lib/generate-path.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/generate-corner.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/generate-corner.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/generate-corner.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/generate-corner.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/get-points.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/get-points.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/get-points.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/get-points.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/is-point-in-panel.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/is-point-in-panel.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/is-point-in-panel.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/is-point-in-panel.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/min-max-point.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/min-max-point.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/min-max-point.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/min-max-point.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/range.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/range.test.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/utils/range.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/utils/range.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/types.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/arrows/types.ts"
+	}
+]

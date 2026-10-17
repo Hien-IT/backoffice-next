@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/arrows/arrows.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/FlowArrows.vue"
+	}
+]

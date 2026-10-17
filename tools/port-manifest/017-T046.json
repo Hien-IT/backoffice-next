@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/flow.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/use-flow-editor.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/components/operation.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/types.ts"
+	}
+]
