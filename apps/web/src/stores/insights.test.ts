@@ -153,6 +153,19 @@ describe('panel data', () => {
 	});
 
 	// The failing alias has no data key (a key with data, even null, counts as succeeded and clears the error, as Directus).
+	test('a panel on a collection the viewer cannot read gets its own FORBIDDEN error; the others load (D-111)', async () => {
+		const hidden = panel('h', 'metric', { collection: 'bo_secret', field: 'id', function: 'count' });
+		const { fetch, store } = await setup([metric('m1'), hidden], { 'POST /graphql': graphqlAnswer() });
+
+		await store.refresh(DASHBOARD);
+
+		expect(graphqlBodies(fetch)).toHaveLength(1);
+		expect(graphqlBodies(fetch)[0]!.match(/query_/g)).toHaveLength(1);
+		expect(store.data['m1']).toEqual([{ count: { id: 1 } }]);
+		expect(store.errors['h']).toMatchObject({ errors: [{ extensions: { code: 'FORBIDDEN' } }] });
+		expect(store.loading).toEqual([]);
+	});
+
 	test('a partial GraphQL error is stored for its panel only', async () => {
 		const { store } = await setup([metric('m1'), metric('m2')], {
 			'POST /graphql': ({ init }: { init: RequestInit }) => {

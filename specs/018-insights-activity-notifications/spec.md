@@ -766,6 +766,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-108 | Màu mặc định của panel và biểu đồ khi `color` null | `--theme--primary` và bảng màu của theme Directus | Token theme (`brand-*` và bảng màu biểu đồ của Q-35); `color` đã lưu vẫn dùng nguyên | Nguyên tắc XII; `--theme--primary` → `--color-brand-500` là ánh xạ có sẵn của 012 (constitution XII, override map), không phải chọn mới; Q-35 chỉ chốt bảng màu chuỗi sinh ra và màu trục/lưới | khác | — |
 | D-109 | Nút "Report error" trong hộp lỗi (admin, mã `UNKNOWN`) | Mở link báo lỗi lên GitHub của Directus | Không có | Nguyên tắc IX (không dẫn người dùng Backoffice tới Directus) | đổi thương hiệu | — |
 | D-110 | Ảnh xem trước của loại panel trong drawer chọn loại | `preview.svg` của mỗi loại (`panel-configuration.vue:162-170`), icon khi không có | Luôn icon lớn của loại, tên, mô tả (nhánh rơi về icon của Directus); không chép tài sản SVG | Không chép tài sản của Directus app; ảnh theo theme Directus, không theo design-system (Nguyên tắc XII); owner chọn B (Clarifications 2026-10-17) | khác | — |
+| D-111 | Panel trên collection người xem không đọc được | Lỗi trang `Cannot read properties of null (reading 'field')` ở `query-to-gql-string.ts` (`formatQuery`), hoặc tile `no_data` khi `query()` của panel tự trả rỗng | Chỉ tile đó hiện lỗi `FORBIDDEN` (thông điệp và mã); các tile khác nạp bình thường | Một panel không làm hỏng cả dashboard; chủ dự án chọn 2026-10-18 (T113) | khác | — |
 
 **Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 
@@ -807,6 +808,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-108 | `src/panels/shared/apex-charts.ts` (`THEME`), `src/styles/apexcharts.css` (`--chart-*`, biến thể `.dark`), `src/panels/pie-chart/index.ts` (`cssVar('--color-brand-500')`); `color` đã lưu dùng nguyên; `panels/charts.browser.test.ts` | Duyệt (tech lead, 2026-10-18) |
 | D-109 | `src/components/NoticeStack.vue`: hộp lỗi chỉ có Dismiss (`NoticeStack.test.ts`, E2E `notifications.spec.ts` lỗi Save 500) | Duyệt (tech lead, 2026-10-18) |
 | D-110 | `src/panels/<id>/index.ts` không chép `preview`; `routes/PanelConfiguration.vue` lưới `BoFancySelect layout="grid"` icon, tên, mô tả (`panel-configuration.test.ts`) | Duyệt (tech lead, 2026-10-18) |
+| D-111 | `stores/insights.ts` `loadPanelData`: collection của panel (theo `query()` hoặc `options.collection`) không có trong store fields → `errors[panel]` mã `FORBIDDEN`, panel bỏ khỏi tài liệu GraphQL (`insights.test.ts`) | Duyệt (owner, 2026-10-18) |
 | R-49 | `routes/InsightsOverviewRoute.vue` duplicate có `try/catch` → `showUnexpectedError`, nút về bình thường (`overview.test.ts`) | Duyệt (tech lead, 2026-10-18) |
 | R-50 | `routes/DashboardRoute.vue` `now = new Date()` một lần mỗi trang, như `dashboard.vue:53` | Duyệt (tech lead, 2026-10-18) |
 | R-51 | `stores/insights.ts` `stagePanelDelete` không hộp; `DashboardRoute.vue` `deletePanel` chỉ chuyển focus (`dashboard.test.ts`) | Duyệt (tech lead, 2026-10-18) |

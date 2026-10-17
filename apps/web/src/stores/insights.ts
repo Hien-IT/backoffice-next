@@ -15,6 +15,7 @@ import { apiFetch, requestEndpoint, sdk } from '../api/sdk.ts';
 import { showUnexpectedError } from '../composables/use-notices.ts';
 import { fetchAll } from '../utils/fetch-all.ts';
 import { isSystemCollection } from '../utils/get-item-route.ts';
+import { useFieldsStore } from './fields.ts';
 import { usePermissionsStore } from './permissions.ts';
 
 type PanelRegistry = typeof import('../panels/index.ts');
@@ -259,6 +260,8 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 	): Promise<void> {
 		panels = toArray(panels);
 
+		const fieldsStore = useFieldsStore();
+
 		const queries = new Map<
 			string,
 			{ panel: string; collection: string; query: any; key: string; index: number; length: number }
@@ -266,6 +269,28 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 
 		for (const panel of panels) {
 			const req = prepareQuery(panel);
+
+			// Backoffice (D-111, owner 2026-10-18): a collection the viewer cannot read is not in the collections and
+			// fields stores. Directus then throws in queryToGqlString (formatQuery) and the whole dashboard breaks, or the
+			// panel's own query() returns nothing and the tile shows no data. Here only this tile shows a FORBIDDEN error.
+			const collections: string[] = req
+				? toArray(req).map(({ collection }) => collection)
+				: getPanel(panel.type)?.query && typeof panel.options?.['collection'] === 'string'
+					? [panel.options['collection']]
+					: [];
+			const unreadable = collections.find((collection) => !fieldsStore.getPrimaryKeyFieldForCollection(collection));
+
+			if (unreadable) {
+				errors.value[panel.id] = {
+					errors: [
+						{
+							message: `You don't have permission to access collection "${unreadable}" or it does not exist.`,
+							extensions: { code: 'FORBIDDEN' },
+						},
+					],
+				};
+				continue;
+			}
 
 			if (!req) continue;
 

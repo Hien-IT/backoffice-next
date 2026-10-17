@@ -771,7 +771,8 @@ Lượt 4 (2026-10-18, đang làm):
   báo; `readDirectusGrid` thêm `w`, `h`). Lọc `collection` của activity đặt qua preset, không qua UI lọc.
 - T116 (từ T110–T113): ô Note trống của bảng dashboard hiện `--` (`ValueNull`) như Directus. Khi người xem không đọc
   được collection của một panel, cả Directus 11.17.4 và app đều lỗi trang `Cannot read properties of null (reading
-  'field')` ở `query-to-gql-string.ts` (`formatQuery`); spec ghi tile phải hiện lỗi: chờ chủ dự án quyết. Directus nhớ số
+  'field')` ở `query-to-gql-string.ts` (`formatQuery`): chủ dự án chọn khác Directus (D-111), chỉ tile đó hiện lỗi
+  `FORBIDDEN`, các tile khác nạp (`stores/insights.ts`, test `insights.test.ts`). Directus nhớ số
   dòng mỗi tab của drawer thông báo (tab rỗng mở trước có thể hiện "No Notifications"): kịch bản tránh, app giữ như
   Directus (mục 17 đã xác nhận).
 - Sau `eager` của relational variable: `perf.browser.test.ts` mở `bo_dash_all` có thêm 2 `GET /users` (danh sách + đếm
