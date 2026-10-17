@@ -320,10 +320,11 @@ test('(3) drag a panel, detach and relink the reject arrow, Save (#180, #181)', 
 			await expect(dirTile(p, 'Transform Payload')).toHaveAttribute('style', /--pos-x: 58; --pos-y: 4;/);
 			await dirLink(p, 'Condition', '.add-reject', null);
 			await expect(p.locator('.v-workspace-tile.subdued')).toHaveCount(1);
-			// CI 39018596094 and 39023103236 missed this drop twice on the Directus app (green locally): a missed drop
-			// lands on empty space and stages nothing, so the drag is tried again (at most 3 times) and each miss is logged.
+			// The mouse drag of this relink misses on the CI runner (CI 39018596094 to 39031268612, green locally: same
+			// geometry, one .workspace, no drawer, the tile text selected by the drag). A miss stages nothing, so the next
+			// tries send the pointer events in the page to the same operation.vue handlers; each miss is logged.
 			for (let attempt = 1; ; attempt++) {
-				const used = await dirLink(p, 'Condition', '.add-reject', 'Throw Error');
+				const used = await dirLink(p, 'Condition', '.add-reject', 'Throw Error', { events: attempt > 1 });
 				if ((await p.locator('.v-workspace-tile.subdued').count()) === 0) break;
 				// eslint-disable-next-line no-console
 				console.log(

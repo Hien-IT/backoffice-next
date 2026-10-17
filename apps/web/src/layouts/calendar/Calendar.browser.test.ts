@@ -6,6 +6,7 @@ import { userEvent } from '@vitest/browser/context';
 import axe from 'axe-core';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { Calendar as FullCalendar } from '@fullcalendar/core';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -22,6 +23,10 @@ import { calls, json, mockFixtureApi } from '../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../test-utils/fixtures.ts';
 import { createLayoutWrapper } from '../use-layout.ts';
 import calendar from './index.ts';
+
+// The Calendar instance the layout renders (not exposed by the layout state), for moveEvent: the spy keeps `render`.
+const render = vi.spyOn(FullCalendar.prototype, 'render');
+const fullCalendar = () => render.mock.contexts.at(-1) as FullCalendar | undefined;
 
 enableAutoUnmount(afterEach);
 
@@ -55,7 +60,10 @@ async function setup(answers: Record<string, any> = {}, max = 100) {
 	useServerStore().info.queryLimit = { default: 100, max };
 }
 
-beforeEach(() => setup());
+beforeEach(() => {
+	render.mockClear();
+	return setup();
+});
 
 const OCTOBER = { type: 'dayGridMonth', startDateStr: '2026-10-01T00:00:00' };
 
@@ -173,37 +181,21 @@ test('next month: viewInfo goes to the layout options and the request asks for t
 });
 
 /**
- * Drags the event of October 3 to October 10 until the PATCH is sent: on a loaded CI runner a pointer drag sometimes
- * ends before FullCalendar takes it as a drop (no PATCH, the event stays), so the drag is tried again, at most 3 times.
+ * Moves the event of October 3 to October 10 the way a drop ends: FullCalendar's `EventApi.moveDates`, which fires the
+ * layout's `eventChange` (with `revert`) like a drag does. A pointer drag on the loaded CI runner was not taken as a drop
+ * even after retries (CI 39018596094, 39031268612); what this file checks is the layout's handler, not FullCalendar's
+ * own drag.
  */
-async function dragUntilPatched() {
-	for (let attempt = 1; ; attempt++) {
-		const event = document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event');
-		// The last drag was taken as a drop (the event left October 3) but its PATCH is slow: wait for it, no new drag.
-		if (!event) {
-			await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'), { timeout: 15_000 });
-			return;
-		}
-
-		await userEvent.dragAndDrop(
-			event,
-			document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
-		);
-
-		try {
-			await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'), { timeout: 3_000 });
-			return;
-		} catch (error) {
-			if (attempt >= 3) throw error;
-		}
-	}
+async function moveEvent() {
+	await vi.waitFor(() => expect(fullCalendar()).toBeDefined());
+	fullCalendar()!.getEventById('3')!.moveDates({ days: 7 });
 }
 
-test('dragging an event to another day PATCHes the start date cut to 19 characters', async () => {
+test('moving an event to another day (a drop) PATCHes the start date cut to 19 characters', async () => {
 	await mountCalendar({ layoutOptions: { startDateField: 'date_published', viewInfo: OCTOBER } });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull());
 
-	await dragUntilPatched();
+	await moveEvent();
 
 	await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'));
 	const [, init] = fetch.mock.calls.find(([, init]) => init?.method === 'PATCH')!;
@@ -219,9 +211,9 @@ test('a failed PATCH puts the event back', async () => {
 	await mountCalendar({ layoutOptions: { startDateField: 'date_published', viewInfo: OCTOBER } });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull());
 
-	await dragUntilPatched();
+	await moveEvent();
 
-	// The drag, the PATCH and the revert take longer than the default second on a loaded CI runner.
+	// The PATCH and the revert take longer than the default second on a loaded CI runner.
 	await vi.waitFor(() => expect(warn).toHaveBeenCalled(), { timeout: 15_000 });
 	await vi.waitFor(() => expect(document.querySelector('td[data-date="2026-10-03"] .fc-event')).not.toBeNull(), {
 		timeout: 5_000,

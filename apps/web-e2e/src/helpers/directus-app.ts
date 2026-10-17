@@ -252,10 +252,18 @@ export async function dirDragTile(page: Page, name: string, cells: { dx: number;
 
 /**
  * Drags the `.add-resolve`/`.add-reject` handle of `from` onto the input of `to`, or 20 cells down (detach). The Directus
- * app places the drop at `pageX - rect.left` (page minus viewport coordinates, `operation.vue`): with the window
- * scrolled, the aim is short by the scroll. Returns what the drag used, for a failure message.
+ * app places the drop at `pageX - rect.left` of the first `.workspace` (`operation.vue`); with the window scrolled the
+ * aim is short by the scroll. `events: true` sends the pointer events in the page instead of driving the mouse: the
+ * same `operation.vue` handlers (pointerdown on the handle, pointermove and pointerup on window, a frame between moves).
+ * Returns what the drag used, for a failure message.
  */
-export async function dirLink(page: Page, from: string, handle: string, to: string | null): Promise<string> {
+export async function dirLink(
+	page: Page,
+	from: string,
+	handle: string,
+	to: string | null,
+	{ events = false } = {},
+): Promise<string> {
 	const source = dirTile(page, from).locator(handle);
 	if (!to) {
 		await dirDrag(page, source, { x: 0, y: 20 * GRID });
@@ -265,11 +273,39 @@ export async function dirLink(page: Page, from: string, handle: string, to: stri
 	const a = (await source.boundingBox())!;
 	const b = (await dirTile(page, to).locator('.attachment').boundingBox())!;
 	const scroll = await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY }));
-	const delta = {
-		x: b.x + b.width / 2 - (a.x + a.width / 2) - scroll.x,
-		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)) - scroll.y,
-	};
-	await dirDrag(page, source, delta);
+	const start = { x: a.x + a.width / 2, y: a.y + Math.min(a.height / 2, 10) };
+	const end = { x: b.x + b.width / 2 - scroll.x, y: b.y + b.height / 2 - scroll.y };
+
+	if (events) {
+		await source.evaluate(
+			async (el, { start, end }) => {
+				const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+				const at = (x: number, y: number, buttons: number) => ({
+					bubbles: true,
+					cancelable: true,
+					clientX: x,
+					clientY: y,
+					pointerId: 1,
+					pointerType: 'mouse',
+					isPrimary: true,
+					buttons,
+				});
+				el.dispatchEvent(new PointerEvent('pointerdown', at(start.x, start.y, 1)));
+				for (let i = 1; i <= 10; i++) {
+					const x = start.x + ((end.x - start.x) * i) / 10;
+					const y = start.y + ((end.y - start.y) * i) / 10;
+					window.dispatchEvent(new PointerEvent('pointermove', at(x, y, 1)));
+					await frame();
+				}
+				await frame();
+				window.dispatchEvent(new PointerEvent('pointerup', at(end.x, end.y, 0)));
+			},
+			{ start, end },
+		);
+	} else {
+		await dirDrag(page, source, { x: end.x - start.x, y: end.y - start.y });
+	}
+
 	// What `operation.vue` reads: the first `.workspace` element is the origin of the drop position.
 	const workspaces = await page.evaluate(() =>
 		Array.from(document.getElementsByClassName('workspace')).map((el) => {
@@ -277,7 +313,16 @@ export async function dirLink(page: Page, from: string, handle: string, to: stri
 			return { tag: el.tagName, cls: el.className.toString().slice(0, 60), x: r.left, y: r.top };
 		}),
 	);
-	return JSON.stringify({ source: a, target: b, scroll, delta, viewport: page.viewportSize(), workspaces });
+	return JSON.stringify({
+		events,
+		source: a,
+		target: b,
+		scroll,
+		start,
+		end,
+		viewport: page.viewportSize(),
+		workspaces,
+	});
 }
 
 /** Opens the menu of a tile in edit mode and picks `entry` (`Duplicate`, `Delete`, `Copy To...`). */
