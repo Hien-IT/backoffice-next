@@ -10,7 +10,7 @@
 //   1 PATCH /flows/:id then 1 GET /flows, no PATCH /operations (no link removed).
 import { page } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
-import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
 import { RouterView, type RouteRecordRaw, useRoute } from 'vue-router';
 import { replaceQueue } from '../../../../api/sdk.ts';
@@ -40,6 +40,12 @@ const t = (key: string) => (i18n.global.t as (k: string) => string)(key);
 
 enableAutoUnmount(afterEach);
 afterEach(() => vi.unstubAllGlobals());
+
+// At xl the detail panel (with the Logs section) is part of the page; below it is a closed drawer. Set for the whole
+// file: a viewport change in the middle of the file came too late for the request test (CI 39023103236).
+beforeAll(async () => {
+	await page.viewport(1280, 900);
+});
 
 beforeEach(async () => {
 	localStorage.clear();
@@ -260,8 +266,6 @@ test('the Logs list: 10 runs under 300 ms after its GET /revisions', async () =>
 });
 
 test('requests: the flow page reads the log count only; Save sends one PATCH /flows/:id then GET /flows', async () => {
-	// At xl the detail panel (with the Logs section) is part of the page; below it is a closed drawer.
-	await page.viewport(1280, 900);
 	const { fetch, id } = await mountFlow('/settings/flows/:id');
 	const sent = () => calls(fetch).map((call) => call.split('?')[0]);
 	expect(sent()).toEqual(['GET /revisions']);
