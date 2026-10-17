@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/insights/routes/panel-configuration.vue",
+		"dest": "apps/web/src/modules/insights/routes/PanelConfiguration.vue"
+	}
+]

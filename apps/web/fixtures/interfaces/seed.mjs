@@ -2115,7 +2115,7 @@ function allPanels(id) {
 }
 
 function varsPanels(id) {
-	const filter = { _and: [{ status: { _eq: '{{ vars_status }}' } }, { owner: { _in: '{{ vars_author }}' } }] };
+	const filter = { _and: [{ status: { _eq: '{{ vars_status }}' } }, { owner: { id: { _in: '{{ vars_author }}' } } }] };
 	return [
 		panel(id, 'variable', 'Status', [1, 1, 12, 6], {
 			field: 'vars_status',

@@ -202,12 +202,26 @@ const header = useTemplateRef<HTMLElement>('header');
 async function startEditing() {
 	editMode.value = true;
 	await nextTick();
-	header.value?.querySelector<HTMLButtonElement>('[data-action="save"]')?.focus();
+	// Save is disabled until something changes (as Directus), so "+" takes the focus then.
+	header.value?.querySelector<HTMLElement>('[data-action="save"]:not(:disabled), [data-action="create"]')?.focus();
 }
 
 async function focusEditButton() {
 	await nextTick();
 	header.value?.querySelector<HTMLButtonElement>('[data-action="edit"]')?.focus();
+}
+
+// The focus goes to the previous tile, else to "+", once the menu gave it back to its removed trigger.
+function deletePanel(tile: AppTile) {
+	const previous = tiles.value[tiles.value.findIndex(({ id }) => id === tile.id) - 1];
+	insightsStore.stagePanelDelete(tile.id);
+
+	setTimeout(() => {
+		const target = previous
+			? document.querySelector<HTMLElement>(`[data-tile-id="${previous.id}"] button`)
+			: header.value?.querySelector<HTMLElement>('[data-action="create"]');
+		target?.focus();
+	});
 }
 
 function editPanel(tile: AppTile) {
@@ -236,6 +250,7 @@ const PRESSED = 'bg-brand-50! text-brand-600! dark:bg-brand-500/15! dark:text-br
 						icon="add"
 						:aria-label="t('create_panel')"
 						:title="t('create_panel')"
+						data-action="create"
 						:to="{ name: 'panel-detail', params: { primaryKey: currentDashboard.id, panelKey: '+' } }"
 					/>
 
@@ -310,7 +325,7 @@ const PRESSED = 'bg-brand-50! text-brand-600! dark:bg-brand-500/15! dark:text-br
 						@edit="editPanel(tile)"
 						@move="copyPanelID = tile.id"
 						@duplicate="insightsStore.stagePanelDuplicate(tile.id)"
-						@delete="insightsStore.stagePanelDelete(tile.id)"
+						@delete="deletePanel(tile)"
 					/>
 				</template>
 			</BoWorkspace>

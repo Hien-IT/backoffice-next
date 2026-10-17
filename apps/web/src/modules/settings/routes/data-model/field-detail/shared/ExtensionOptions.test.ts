@@ -116,3 +116,15 @@ describe('type operation', () => {
 		expect(keys(wrapper)).toEqual(['operation', 'token', 'options']);
 	});
 });
+
+// Feature 018 (FR-031): a panel's options come through the options prop too, without the field detail store.
+test('type panel renders the options prop without the field detail store', () => {
+	const wrapper = mountOptions({
+		type: 'panel',
+		extension: 'label',
+		options: [{ field: 'text', type: 'string', name: 'Text', meta: { interface: 'input', width: 'full' } }],
+	});
+
+	expect(keys(wrapper)).toEqual(['text']);
+	expect(pinia.state.value['fieldDetailStore']).toBeUndefined();
+});

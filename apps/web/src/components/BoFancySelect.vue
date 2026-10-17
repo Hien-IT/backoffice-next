@@ -2,7 +2,9 @@
 <script setup lang="ts">
 // Backoffice (recipe Q-22, field drawer Interface / Display tabs): a list of option buttons (`aria-pressed`) with an
 // icon, a name and a description; once one is chosen only it stays, with a `cancel` button to choose again. Dividers
-// between groups. No TransitionGroup.
+// between groups. No TransitionGroup. Feature 018 (recipe Q-37): `layout="grid"` is the type grid of the Directus panel
+// drawer (`panel-configuration.vue`): every item stays, the others subdued once one is chosen, pressing the chosen one
+// clears it.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from './BoIcon.vue';
@@ -26,11 +28,14 @@ interface Props {
 	modelValue?: string | number | null;
 	/** Disable selecting / deselecting a value */
 	disabled?: boolean;
+	/** `grid`: cards in 2 columns at 768 px, 3 from lg, all items kept (018) */
+	layout?: 'list' | 'grid';
 }
 
 const props = withDefaults(defineProps<Props>(), {
 	modelValue: null,
 	disabled: false,
+	layout: 'list',
 });
 
 const emit = defineEmits<{ 'update:modelValue': [value: string | number | null] }>();
@@ -38,6 +43,7 @@ const emit = defineEmits<{ 'update:modelValue': [value: string | number | null] 
 const { t } = useI18n();
 
 const visibleItems = computed(() => {
+	if (props.layout === 'grid') return props.items.filter((item) => item['divider'] !== true);
 	if (props.modelValue === null) return props.items;
 
 	return props.items.filter((item) => item['value'] === props.modelValue);
@@ -54,7 +60,34 @@ const FOCUS =
 </script>
 
 <template>
-	<div class="flex flex-col gap-2">
+	<div v-if="layout === 'grid'" class="grid grid-cols-2 gap-3 lg:grid-cols-3">
+		<button
+			v-for="item in visibleItems"
+			:key="item['value']"
+			type="button"
+			class="flex flex-col items-start gap-2 rounded-xl border p-4 text-start disabled:cursor-not-allowed"
+			:class="[
+				FOCUS,
+				item['value'] === modelValue
+					? 'border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12]'
+					: 'border-gray-200 hover:border-gray-300 dark:border-gray-800 dark:hover:border-gray-700',
+				modelValue !== null && item['value'] !== modelValue ? 'opacity-60' : '',
+			]"
+			:disabled="disabled"
+			:aria-pressed="item['value'] === modelValue"
+			@click="toggle(item)"
+		>
+			<BoIcon :name="item['icon']" size="lg" class="text-brand-500 dark:text-brand-400" />
+			<span class="block w-full truncate text-theme-sm font-semibold text-gray-800 dark:text-white/90">
+				{{ item['text'] }}
+			</span>
+			<span v-if="item['description']" class="block text-theme-xs text-gray-600 dark:text-gray-400">
+				{{ item['description'] }}
+			</span>
+		</button>
+	</div>
+
+	<div v-else class="flex flex-col gap-2">
 		<template v-for="(item, index) in visibleItems" :key="item['value'] ?? `divider-${index}`">
 			<hr v-if="item['divider'] === true" class="my-2 border-gray-200 dark:border-gray-800" />
 			<div

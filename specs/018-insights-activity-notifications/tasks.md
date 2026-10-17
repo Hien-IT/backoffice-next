@@ -314,17 +314,17 @@ FR-023, FR-040–FR-052).
 
 ### Tests cho User Story 3
 
-- [ ] T060 [P] [US3] `src/components/workspace/BoWorkspaceTile.browser.test.ts` thêm: 8 tay cầm chỉ ở chế độ sửa và khi
+- [X] T060 [P] [US3] `src/components/workspace/BoWorkspaceTile.browser.test.ts` thêm: 8 tay cầm chỉ ở chế độ sửa và khi
       `resizable`; delta ô; kẹp `minWidth/minHeight` và vị trí ≥ 1; top/left trôi ở cỡ tối thiểu (R-54); `update` chỉ
       khóa đổi; nhãn `W×H`; `color`, `note`, `borderRadius`; ca flows 017 (không resize) giữ xanh; chạy lại
       `src/modules/settings/routes/flows` xanh
-- [ ] T061 [P] [US3] `insights/routes/DashboardRoute.edit.browser.test.ts`: vào sửa (zoom tắt, +25 ô, nút), kéo và
+- [X] T061 [P] [US3] `insights/routes/DashboardRoute.edit.browser.test.ts`: vào sửa (zoom tắt, +25 ô, nút), kéo và
       resize → staging, Duplicate (+2/+2), Copy To (staging với `dashboard` đích, Clear bỏ cả bản sao), Delete không hộp,
       Save → #193/#194/#195 chỉ khi có, body so mốc T002, `hydrate`, về chế độ xem; Save lỗi một phần (một request 500):
       hộp lỗi, không `hydrate`, staging giữ, về chế độ xem, guard còn chặn (R-56); Clear Changes hộp xác nhận; guard
       `unsaved_changes` (bỏ qua `/insights/<id>/*`, chặn khi chỉ có bản sao Copy To); `meta+s` cả ngoài chế độ sửa (không
       thay đổi → 0 request); người không quyền `update`: nút sửa khóa, URL `/insights/<id>/+` vẫn mở drawer; focus FR-029
-- [ ] T062 [P] [US3] `insights/routes/PanelConfiguration.browser.test.ts`: lưới 11 loại (icon, tên, mô tả; không ảnh),
+- [X] T062 [P] [US3] `insights/routes/PanelConfiguration.browser.test.ts`: lưới 11 loại (icon, tên, mô tả; không ảnh),
       chọn loại → options `ExtensionOptions type panel` + raw editor, đổi loại đặt lại options; nhóm header khóa khi tắt
       Show Header; Done mới → `stagePanelCreate` cỡ tối thiểu, vị trí (1,1); Done sửa → `stagePanelUpdate`; `panelKey`
       không có trong store → drawer rỗng, Done khóa tới khi chọn loại, không lỗi; type lạ → lưới không chọn; Cancel; axe
@@ -332,24 +332,24 @@ FR-023, FR-040–FR-052).
 
 ### Implementation cho User Story 3
 
-- [ ] T063 [US3] `src/components/workspace/BoWorkspaceTile.vue`: `resizable`, `minWidth`, `minHeight`, `color`, `note`,
+- [X] T063 [US3] `src/components/workspace/BoWorkspaceTile.vue`: `resizable`, `minWidth`, `minHeight`, `color`, `note`,
       `borderRadius`, 8 tay cầm `data-resize`, nhãn `W×H`, `update` mở rộng, `data-width/height`, icon ghi chú là nút có
       `aria-label` = note với `BoTooltip` mở khi focus (FR-106, "Cần xác nhận"), `role="region"` + `aria-label` theo research R3 và
       data-model §8 (thuật toán `v-workspace-tile.vue:141-269`, quirk R-54); manifest `018-T063.json`
-- [ ] T064 [P] [US3] `src/components/BoFancySelect.vue`: prop `layout: 'list' | 'grid'` (grid 2 cột ở 768, 3 cột từ lg;
+- [X] T064 [P] [US3] `src/components/BoFancySelect.vue`: prop `layout: 'list' | 'grid'` (grid 2 cột ở 768, 3 cột từ lg;
       mục icon lớn + tên + mô tả) theo recipe Q-37
-- [ ] T065 [P] [US3] `src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue`: `type` thêm
+- [X] T065 [P] [US3] `src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue`: `type` thêm
       `'panel'` (như `operation`: không chạm store field)
-- [ ] T066 [P] [US3] `insights/components/CopyPanelDialog.vue` port `dashboard.vue:330-355` (`BoDialog`, `BoSelect`
+- [X] T066 [P] [US3] `insights/components/CopyPanelDialog.vue` port `dashboard.vue:330-355` (`BoDialog`, `BoSelect`
       dashboard khác, mặc định đầu tiên, notice `no_other_dashboards_copy`, Copy khóa khi rỗng) → `stagePanelDuplicate(id,
       {dashboard})`; manifest `018-T066.json`
-- [ ] T067 [US3] `insights/routes/PanelConfiguration.vue` port `routes/panel-configuration.vue` theo research R6
+- [X] T067 [US3] `insights/routes/PanelConfiguration.vue` port `routes/panel-configuration.vue` theo research R6
       (`BoDrawer persistent`, `useDialogRoute`, `BoFancySelect layout="grid"`, `ExtensionOptions type="panel"`, nhóm
       header, id tạm `_<nanoid>`); route `panel-detail` trỏ component thật; manifest `018-T067.json`
-- [ ] T068 [US3] `insights/routes/DashboardRoute.vue` chế độ sửa: nút Clear/+/Save, `useShortcut('meta+s')`,
+- [X] T068 [US3] `insights/routes/DashboardRoute.vue` chế độ sửa: nút Clear/+/Save, `useShortcut('meta+s')`,
       `useEditsGuard` + hộp `unsaved_changes` (D-76), hộp Clear, `PanelTile` sự kiện → store, `CopyPanelDialog`, focus
       FR-029 theo recipe Q-34
-- [ ] T069 [US3] E2E `e2e/insights-edit.spec.ts` (contracts/tests §3): dashboard tạm, "+" metric và bar chart, kéo (13,1),
+- [X] T069 [US3] E2E `e2e/insights-edit.spec.ts` (contracts/tests §3): dashboard tạm, "+" metric và bar chart, kéo (13,1),
       resize 8×4, Save (body qua `recordWrites`), Duplicate, Copy To sang dashboard tạm 2 rồi Save, Delete, Clear, guard,
       `meta+s`; thêm vào danh sách core của `apps/web-e2e/playwright.config.ts` (firefox/webkit 1280 cùng origin); kéo theo
       bài học 017 (`moveAndRelease`, `settleFrames`); chromium 768/1280 ba cấu hình
@@ -366,20 +366,20 @@ FR-023, FR-040–FR-052).
 
 ### Tests cho User Story 4
 
-- [ ] T070 [P] [US4] `src/panels/variable/PanelVariable.browser.test.ts` và
+- [X] T070 [P] [US4] `src/panels/variable/PanelVariable.browser.test.ts` và
       `src/panels/relational-variable/PanelRelationalVariable.browser.test.ts` thêm: đổi giá trị → `setVariable` → một
       #196 chỉ chứa panel có `{{ status }}`; chọn item qua `DrawerCollection` (`multiple`, giới hạn `limit`) → biến là mảng
       khóa; bỏ chọn hết → panel dùng biến `data = {}` không request; mặc định `defaultValue` trước lần nạp đầu
 
 ### Implementation cho User Story 4
 
-- [ ] T071 [US4] Hoàn thiện tương tác biến trong `src/panels/variable/PanelVariable.vue`,
+- [X] T071 [US4] Hoàn thiện tương tác biến trong `src/panels/variable/PanelVariable.vue`,
       `src/panels/relational-variable/PanelRelationalVariable.vue` (giới hạn `limit`, chế độ một giá trị lưu scalar như
       Directus, đổi `collection` xóa biến qua `stagePanelUpdate`) và `DashboardRoute.vue` (`applyOptionsData` tính lại
       khi `variables` đổi); sửa store T014 nếu test T070 thấy lệch
-- [ ] T072 [US4] E2E `e2e/insights-variables.spec.ts`: `bo_dash_vars` đổi `vars_status` 3 giá trị, chọn `vars_author`, so giá trị
+- [X] T072 [US4] E2E `e2e/insights-variables.spec.ts`: `bo_dash_vars` đổi `vars_status` 3 giá trị, chọn `vars_author`, so giá trị
       metric và số dòng list, chỉ panel liên quan phát request, tải lại → về mặc định; chromium ba cấu hình
-- [ ] T073 [US4] Đóng lượt 2: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
+- [X] T073 [US4] Đóng lượt 2: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
       `check-raw-colors`, E2E `insights-*` + `settings-flows-*` xanh ở `proxy-api` local; nhắn phiên chung checkout; commit
       `feat(018): dashboard edit mode, panel drawer, tile resize and variables (wave 2)`; push; CI xanh;
       `graphify update .`
@@ -665,3 +665,30 @@ Lượt 1 (2026-10-17, T001, T003–T019, T030–T050; T002 hoãn):
 - E2E chạy local trên dev server Vite 4218 (cấu hình `dev`, chromium-768 và chromium-1280, 20/20); ba cấu hình proxy
   chạy trên CI. E2E `settings-flows-*` không chạy local (cần dựng lại image web của env chung, ảnh hưởng 017); thay
   bằng test browser `BoWorkspace` + flows (không đổi hành vi khi không truyền `zoomToFit`) và để CI chạy ba cấu hình.
+
+Lượt 2 (2026-10-17, T060–T073):
+
+- T060 là `src/components/workspace/BoWorkspaceTile.browser.test.ts` (8 tay cầm, delta ô, kẹp min, R-54, nhãn W×H,
+  `borderRadius`); `color`, `note` của tile nằm ở `PanelTile` (lượt 1), không ở `BoWorkspaceTile`. T063, T066 đã làm ở
+  lượt 1.
+- T061 gộp vào `insights/routes/dashboard.test.ts` (unit): zoom tắt khi vào sửa, Duplicate, Copy To (staging trên
+  dashboard đích, Save gửi `POST /panels` với `dashboard` đích), Delete + focus, Save, R-56, Clear, guard (bỏ qua
+  `/insights/<id>/*`), `meta+s` không thay đổi → 0 request. Chưa có: so body với mốc T002 (T002 hoãn), ca người không
+  quyền `update` (snapshot không có role đọc dashboard mà không sửa panel).
+- FR-029 lệch có lý do: Save khóa khi chưa có thay đổi (như Directus) nên không nhận focus; bấm sửa đưa focus tới "+"
+  (`data-action="create"`), Save nhận focus khi đã bật. Xóa tile → nút đầu của tile trước, không có thì "+". Done ở
+  drawer → nút đầu của tile vừa tạo/sửa.
+- T062 là `insights/routes/panel-configuration.test.ts` (unit, registry thật): 11 loại, chọn loại, header bật mặc định
+  (FR-032) và khóa field khi tắt, Done tạo ở (1,1) cỡ tối thiểu, Done sửa, đổi loại đặt lại options (FR-030), key lạ,
+  Cancel. Axe của drawer chưa chạy (để T115).
+- T064: thẻ lưới dùng `BoIcon size="lg"` (30 px) thay 40 px của recipe Q-37; cập nhật recipe ở T120.
+- T067: không chép `configRow` của Directus (options nằm dưới lưới, không chèn giữa hàng thẻ).
+- T071: Directus không xóa biến khi đổi `collection` của relational variable, nên không làm phần đó; các ca còn lại có
+  test ở `stores/insights.test.ts` (`setVariable`, biến rỗng → `{}`, mặc định) và `panels/variables.browser.test.ts`
+  (limit, scalar), thêm ca trang ở `dashboard.test.ts`.
+- T072: bộ mẫu sai: filter `owner: { _in }` trên m2o bị GraphQL từ chối (Directus cũng vậy); sửa thành
+  `owner: { id: { _in } }` trong `seed.mjs`, snapshot `panels.json` và hai panel trên env chung (PATCH qua API 8156, đã
+  báo 017).
+- `apps/web-e2e/src/helpers/payload.ts`: `recordWrites` thêm `dashboards`, `panels`, `notifications`.
+- `bo_dash_all` trên env chung bị sửa lưới từ trình duyệt lúc 15:00; đã khôi phục từ snapshot (chủ dự án đồng ý).
+- E2E local cấu hình `dev` (chromium 768/1280): `insights-*` 28/28; firefox/webkit cho `insights-edit` để CI chạy.

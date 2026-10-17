@@ -36,7 +36,10 @@ vi.mock('../../../panels/index.ts', () => {
 		minHeight: 2,
 		query: (options: Record<string, any>) =>
 			options['collection']
-				? { collection: options['collection'], query: { aggregate: { count: ['id'] }, limit: 1 } }
+				? {
+						collection: options['collection'],
+						query: { aggregate: { count: ['id'] }, filter: options['filter'], limit: 1 },
+					}
 				: undefined,
 		...extra,
 	});
@@ -132,6 +135,13 @@ async function setup(answers: Record<string, unknown> = {}) {
 	return mounted;
 }
 
+const openMenu = (id: string) => {
+	const trigger = tile(id).querySelector<HTMLButtonElement>('button[aria-label^="Options"]')!;
+	trigger.focus();
+	trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }));
+};
+const menuItem = (text: string) =>
+	[...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) => el.textContent?.includes(text))!;
 const tile = (id: string) => document.querySelector<HTMLElement>(`[data-panel-id="${id}"]`)!;
 const button = (label: string) =>
 	[...document.querySelectorAll<HTMLButtonElement>('button')].find((el) => el.getAttribute('aria-label') === label);
@@ -202,6 +212,41 @@ describe('DashboardRoute view mode', () => {
 		SLOW,
 	);
 });
+
+// Spec 018 US4 (T070, FR-053, FR-054): a variable change reloads only the panels whose options use it, in one request,
+// with the value applied to their query (applyOptionsData).
+test(
+	'a variable change asks the data of the panels that use it only',
+	async () => {
+		await setup({
+			'GET /panels': [
+				panel('p1', 'metric', [1, 1, 6, 4], {
+					collection: 'bo_insights_data',
+					filter: { status: { _eq: '{{ status }}' } },
+				}),
+				panel('p2', 'metric', [7, 1, 6, 4], { collection: 'bo_insights_data' }),
+			],
+		});
+		const bodies = () =>
+			fetch.mock.calls
+				.filter(([input, init]) => init?.method === 'POST' && new URL(String(input)).pathname === '/graphql')
+				.map(([, init]) => JSON.parse(String(init!.body)).query as string);
+		const before = bodies().length;
+
+		useInsightsStore().setVariable('status', 'draft');
+		await vi.waitFor(() => expect(bodies().length).toBe(before + 1));
+		await flushPromises();
+
+		expect(
+			bodies()
+				.at(-1)!
+				.match(/query_[0-9a-f]+:/g),
+		).toHaveLength(1);
+		expect(bodies().at(-1)).toContain('draft');
+		expect(tile('p1').querySelector('[data-stub]')!.textContent).toContain('12');
+	},
+	SLOW,
+);
 
 describe('DashboardRoute edit mode', () => {
 	test(
@@ -284,6 +329,105 @@ describe('DashboardRoute edit mode', () => {
 
 			expect(useInsightsStore().hasEdits).toBe(false);
 			expect(document.querySelectorAll('[data-panel-id]')).toHaveLength(4);
+		},
+		SLOW,
+	);
+
+	test(
+		'entering edit mode turns zoom off and focuses "+" (Save is disabled); deleting a tile focuses the previous one',
+		async () => {
+			await setup();
+			button(t('fit_to_screen'))!.click();
+			await flushPromises();
+			button(t('edit_panels'))!.click();
+			await flushPromises();
+
+			expect(button(t('fit_to_screen'))).toBeUndefined();
+			expect(document.querySelector('[data-workspace]')!.hasAttribute('data-zoom')).toBe(false);
+			// Save is disabled without edits: "+" gets the focus.
+			expect(document.activeElement).toBe(document.querySelector('[data-action="create"]'));
+
+			openMenu('p2');
+			await flushPromises();
+			menuItem(t('delete')).click();
+			await flushPromises();
+			await new Promise((resolve) => setTimeout(resolve, 10));
+
+			expect(document.querySelector('[data-panel-id="p2"]')).toBeNull();
+			expect(document.activeElement?.closest('[data-tile-id]')?.getAttribute('data-tile-id')).toBe('p1');
+		},
+		SLOW,
+	);
+
+	test(
+		'Copy To stages a duplicate on the other dashboard; Save posts it there',
+		async () => {
+			await setup({
+				'GET /dashboards': [
+					{ id: DASHBOARD, name: 'Sales', icon: 'dashboard' },
+					{ id: 'dash-2', name: 'Ops', icon: 'dashboard' },
+				],
+			});
+			button(t('edit_panels'))!.click();
+			await flushPromises();
+
+			openMenu('p3');
+			await flushPromises();
+			menuItem(t('copy_to')).click();
+			await flushPromises();
+			const dialog = document.querySelector('[role="dialog"]')!;
+			[...dialog.querySelectorAll('button')].find((b) => b.textContent?.trim() === t('copy'))!.click();
+			await flushPromises();
+
+			expect(useInsightsStore().edits.create).toEqual([
+				expect.objectContaining({ dashboard: 'dash-2', type: 'label', position_x: 3, position_y: 7 }),
+			]);
+			// The copy is on the other dashboard: this one still shows 4 tiles.
+			expect(document.querySelectorAll('[data-panel-id]')).toHaveLength(4);
+
+			button(t('save'))!.click();
+			await flushPromises();
+			await flushPromises();
+			const posts = fetch.mock.calls.filter(
+				([input, init]) => init?.method === 'POST' && new URL(String(input)).pathname === '/panels',
+			);
+			expect(JSON.parse(String(posts[0]![1]!.body))).toEqual([expect.objectContaining({ dashboard: 'dash-2' })]);
+		},
+		SLOW,
+	);
+
+	test(
+		'leaving with edits asks first (unsaved_changes); opening the panel drawer does not',
+		async () => {
+			const { router } = await setup();
+			button(t('edit_panels'))!.click();
+			await flushPromises();
+			useInsightsStore().stagePanelDelete('p4');
+			await flushPromises();
+
+			await router.push(`/insights/${DASHBOARD}/p1`);
+			await flushPromises();
+			expect(router.currentRoute.value.params['panelKey']).toBe('p1');
+			expect(document.body.textContent).not.toContain(t('unsaved_changes'));
+
+			await router.push('/insights');
+			await flushPromises();
+			expect(router.currentRoute.value.name).toBe('panel-detail');
+			expect(document.querySelector('[role="dialog"]')!.textContent).toContain(t('unsaved_changes'));
+		},
+		SLOW,
+	);
+
+	test(
+		'meta+s without changes sends nothing, even outside edit mode',
+		async () => {
+			await setup();
+			fetch.mockClear();
+
+			document.dispatchEvent(new KeyboardEvent('keydown', { key: 's', metaKey: true, bubbles: true }));
+			await flushPromises();
+
+			expect(fetch.mock.calls.filter(([, init]) => (init?.method ?? 'GET') !== 'GET')).toEqual([]);
 		},
 		SLOW,
 	);

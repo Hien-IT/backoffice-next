@@ -30,3 +30,22 @@ test('lists every option, then only the chosen one with a deselect button', asyn
 	await wrapper.setProps({ disabled: true });
 	expect(wrapper.find(`button[aria-label="${i18n.global.t('deselect')}"]`).exists()).toBe(false);
 });
+
+// Feature 018 (recipe Q-37): the grid of the panel drawer keeps every item (no divider), subdues the others once one is
+// chosen, and pressing the chosen card clears it.
+test('grid layout: all items stay, the chosen one pressed, the others subdued', async () => {
+	const wrapper = mount(BoFancySelect, {
+		props: { items, modelValue: 'tags', layout: 'grid' },
+		global: { plugins: [i18n] },
+	});
+
+	const cards = wrapper.findAll('button[aria-pressed]');
+	expect(cards.map((b) => b.text())).toEqual(['titleInput', 'local_offerTagsKeywords']);
+	expect(wrapper.find('hr').exists()).toBe(false);
+	expect(cards.map((b) => b.attributes('aria-pressed'))).toEqual(['false', 'true']);
+	expect(cards[0]!.classes()).toContain('opacity-60');
+
+	await cards[1]!.trigger('click');
+	await cards[0]!.trigger('click');
+	expect(wrapper.emitted('update:modelValue')).toEqual([[null], ['input']]);
+});

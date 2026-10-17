@@ -13,7 +13,7 @@ import { useFieldDetailStore } from '../store/index.ts';
 
 const props = withDefaults(
 	defineProps<{
-		type: 'interface' | 'display' | 'operation';
+		type: 'interface' | 'display' | 'operation' | 'panel';
 		extension?: string | null | undefined;
 		showAdvanced?: boolean;
 		options?: Record<string, any> | undefined;
@@ -31,13 +31,15 @@ const props = withDefaults(
 const emit = defineEmits(['update:modelValue']);
 
 // Backoffice (spec 017 FR-042): the operation drawer has no field detail store and always passes `options` (the
-// operation's array or the result of its options function), so the operations registry stays out of this chunk.
-const { collection, field } =
-	props.type === 'operation' ? { collection: ref(null), field: ref(null) } : storeToRefs(useFieldDetailStore());
+// operation's array or the result of its options function), so the operations registry stays out of this chunk. The
+// panel drawer of feature 018 does the same with the panel registry.
+const standalone = props.type === 'operation' || props.type === 'panel';
+const { collection, field } = standalone
+	? { collection: ref(null), field: ref(null) }
+	: storeToRefs(useFieldDetailStore());
 const { extension, type } = toRefs(props);
 
-const extensionInfo =
-	props.type === 'operation' ? ref(null) : useExtension(type as Ref<'interface' | 'display'>, extension);
+const extensionInfo = standalone ? ref(null) : useExtension(type as Ref<'interface' | 'display'>, extension);
 
 const usesCustomComponent = computed(() => {
 	if (!extensionInfo.value) return false;
