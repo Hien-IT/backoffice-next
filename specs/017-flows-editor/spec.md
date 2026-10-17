@@ -796,11 +796,11 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-29 | Canvas flow: nền lưới 18 px (chấm hoặc ô mờ `gray-100`/tối `gray-800`), vùng cuộn hai chiều trong `PrivateView fill`; màu nhánh resolve = `brand-500` và reject = `orange-500` (tối `brand-400`/`orange-400`; owner chọn 2026-10-17 thay `--theme--secondary` hồng của Directus; recipe chỉ còn chốt sắc độ lớp mờ và tay cầm), nét 2 px, mũi tên ">" 8 px, reject nét đứt (a11y); lớp mờ panel lẻ/inactive (`opacity-50`); mũi tên gợi ý 3 ô và nút "+" khi rê chuột | Recipe theo code (T101, 2026-10-17), chờ design owner duyệt |
-| Q-30 | Panel operation 14×14 ô (252 px): header icon + tên loại (nền `gray-50`/tối `gray-800`), tiêu đề `name` với tooltip key, `<dl>` label/text cắt dòng, nút sao chép; tay cầm tròn resolve/reject/attachment nhô ra mép (32 px vùng bấm); panel Trigger với chân trạng thái (chấm + select inline); menu tile `more_vert` và pencil ở góc; nhãn `(x:y)` khi kéo | Recipe theo code (T101, 2026-10-17), chờ design owner duyệt |
-| Q-31 | Drawer operation nổi trên canvas: hàng Name + Key (half/half), fancy select 15 mục (icon, tên, mô tả; dùng `BoFancySelect` của 016 Q-22), form options bên dưới với nút raw editor; notice `operation_not_found` | Recipe theo code (T101, 2026-10-17), chờ design owner duyệt |
-| Q-32 | Mục Logs trong panel: badge số đếm, nhóm ngày (Q-10), dòng icon trạng thái + giờ, toggle "Show Failed Only", phân trang 3 nút; drawer log: dòng thời gian dọc với chấm màu trạng thái, khối Trigger và từng bước, `BoDetail` Options/Payload chứa `<pre>` JSON cuộn ngang | Recipe theo code (T101, 2026-10-17), chờ design owner duyệt |
-| Q-33 | Drawer flow hai tab (Q-22 dùng lại): nhóm "Activity & Logs Tracking" sau vạch chia; tab Trigger Setup với fancy select 5 mục rồi form options; hộp "Copy To…" với select flow; hộp xóa flow; trạng thái rỗng `no_flows` | Recipe theo code (T101, 2026-10-17), chờ design owner duyệt |
+| Q-29 | Canvas flow: nền lưới 18 px (chấm hoặc ô mờ `gray-100`/tối `gray-800`), vùng cuộn hai chiều trong `PrivateView fill`; màu nhánh resolve = `brand-500` và reject = `orange-500` (tối `brand-400`/`orange-400`; owner chọn 2026-10-17 thay `--theme--secondary` hồng của Directus; recipe chỉ còn chốt sắc độ lớp mờ và tay cầm), nét 2 px, mũi tên ">" 8 px, reject nét đứt (a11y); lớp mờ panel lẻ/inactive (`opacity-50`); mũi tên gợi ý 3 ô và nút "+" khi rê chuột | Recipe theo code (T101); design owner duyệt 2026-10-17 |
+| Q-30 | Panel operation 14×14 ô (252 px): header icon + tên loại (nền `gray-50`/tối `gray-800`), tiêu đề `name` với tooltip key, `<dl>` label/text cắt dòng, nút sao chép; tay cầm tròn resolve/reject/attachment nhô ra mép (32 px vùng bấm); panel Trigger với chân trạng thái (chấm + select inline); menu tile `more_vert` và pencil ở góc; nhãn `(x:y)` khi kéo | Recipe theo code (T101); design owner duyệt 2026-10-17 |
+| Q-31 | Drawer operation nổi trên canvas: hàng Name + Key (half/half), fancy select 15 mục (icon, tên, mô tả; dùng `BoFancySelect` của 016 Q-22), form options bên dưới với nút raw editor; notice `operation_not_found` | Recipe theo code (T101); design owner duyệt 2026-10-17 |
+| Q-32 | Mục Logs trong panel: badge số đếm, nhóm ngày (Q-10), dòng icon trạng thái + giờ, toggle "Show Failed Only", phân trang 3 nút; drawer log: dòng thời gian dọc với chấm màu trạng thái, khối Trigger và từng bước, `BoDetail` Options/Payload chứa `<pre>` JSON cuộn ngang | Recipe theo code (T101); design owner duyệt 2026-10-17 |
+| Q-33 | Drawer flow hai tab (Q-22 dùng lại): nhóm "Activity & Logs Tracking" sau vạch chia; tab Trigger Setup với fancy select 5 mục rồi form options; hộp "Copy To…" với select flow; hộp xóa flow; trạng thái rỗng `no_flows` | Recipe theo code (T101); design owner duyệt 2026-10-17 |
 
 ## Clarifications
 
@@ -822,7 +822,9 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 - Q: Còn điểm nào cần làm rõ trước plan? → Ba điểm có nhiều cách hiểu (canvas chỉ chuột, notice mail, màu nhánh
   reject) đã chốt; không chặn plan.
 - Duyệt (tech lead, 2026-10-17): bảng khác biệt D-106, R-43 đến R-48, ngoại lệ a11y của canvas và mục "Cần xác nhận"
-  (T102). Recipe Q-29 đến Q-33 (T101) còn chờ design owner.
+  (T102).
+- Duyệt (design owner, 2026-10-17): recipe Q-29 đến Q-33 (T101), gồm đổi recipe nhãn field/nhãn lựa chọn của
+  design-system làm trong lúc review 017.
 
 ## Assumptions
 

@@ -1653,10 +1653,10 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 - Delete collection or folder: BoDialog with a danger BoNotice `delete_collection_peer_dependencies` listing
   "field (collection)" when relations depend on it; Cancel first and focused; danger Button.
 
-## Tier 3 recipes, nháp (017)
+## Tier 3 recipes, 017, duyệt 2026-10-17
 
 Drafts for the questions Q-30 to Q-33 of `specs/017-flows-editor/spec.md`, written before the code (T005, FR-107) and
-updated to it (T101, 2026-10-17, after the axe scans of T094); design owner approval pending. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
+updated to it (T101, 2026-10-17, after the axe scans of T094); approved by the design owner on 2026-10-17. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
 as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--theme--secondary`) is `orange`.
 
 ### Flow operation panel (Q-30; Directus `components/operation.vue`, `options-overview.vue`, `v-workspace-tile.vue`)

@@ -483,8 +483,8 @@ Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and ap
 
 ## 13. Flow canvas (nháp, 017)
 
-Recipe for spec 017 Q-29 (T004, FR-107), written before the code and updated to it (T101, 2026-10-17); design owner
-approval pending. Behaviour is the
+Recipe for spec 017 Q-29 (T004, FR-107), written before the code and updated to it (T101, 2026-10-17); approved by the design
+owner on 2026-10-17. Behaviour is the
 Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vue`, `components/arrows/*`,
 `components/v-workspace*.vue`); this section only sets the look.
 
