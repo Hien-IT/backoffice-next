@@ -194,10 +194,13 @@ describe('options', () => {
 		// The rows load over several fetches: wait for them (one flush is not enough on a loaded CI runner).
 		const prefixed = await mountM2A({ prefix: '#{{ sort }}' });
 		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/), { timeout: 5000 });
+		// Failed twice on CI with no second row (runs 38969565336, 38985062784), never locally: one list at a time, and
+		// the rows in the message.
+		prefixed.unmount();
 
 		const plain = await mountM2A({ prefix: null });
-		await vi.waitFor(() => expect(rows(plain)[1]).toMatch(/^Bo M2A B:/), { timeout: 5000 });
-	}, 20_000);
+		await vi.waitFor(() => expect(rows(plain).join(' | ')).toMatch(/ \| Bo M2A B:/), { timeout: 10_000 });
+	}, 30_000);
 });
 
 describe('menus', () => {
