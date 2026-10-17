@@ -41,10 +41,11 @@ const t = (key: string) => (i18n.global.t as (k: string) => string)(key);
 enableAutoUnmount(afterEach);
 afterEach(() => vi.unstubAllGlobals());
 
-// At xl the detail panel (with the Logs section) is part of the page; below it is a closed drawer. Set for the whole
-// file: a viewport change in the middle of the file came too late for the request test (CI 39023103236).
+// At xl (1280 px) the detail panel (with the Logs section) is part of the page; below it is a closed drawer. Set for
+// the whole file, and wider than xl: on the Linux CI runner the scrollbar takes its width from a 1280 px viewport and
+// the page lays out below xl (CI 39023103236 to 39035041743).
 beforeAll(async () => {
-	await page.viewport(1280, 900);
+	await page.viewport(1440, 900);
 });
 
 beforeEach(async () => {
