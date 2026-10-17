@@ -191,8 +191,13 @@ export async function openDirectusFlow(page: Page, id: string): Promise<void> {
 	await expect(dirTile(page, 'Trigger')).toBeVisible({ timeout: 15_000 });
 }
 
-/** `{ name, x, y }` of every tile, from `--pos-x/--pos-y` (the cells the Backoffice app exposes as `data-pos-*`). */
-export async function readDirectusGrid(page: Page): Promise<{ name: string; x: number; y: number }[]> {
+/**
+ * `{ name, x, y, w, h }` of every tile, from `--pos-x/--pos-y` and `--width/--height` (the cells and size the Backoffice
+ * app exposes as `data-pos-*`, `data-width`, `data-height`; feature 018 adds the size).
+ */
+export async function readDirectusGrid(
+	page: Page,
+): Promise<{ name: string; x: number; y: number; w: number; h: number }[]> {
 	return page.locator('.v-workspace-tile').evaluateAll((tiles) =>
 		tiles
 			.map((tile) => {
@@ -201,6 +206,8 @@ export async function readDirectusGrid(page: Page): Promise<{ name: string; x: n
 					name: tile.querySelector('.header .name')?.textContent?.trim() ?? '',
 					x: Number(style.getPropertyValue('--pos-x')),
 					y: Number(style.getPropertyValue('--pos-y')),
+					w: Number(style.getPropertyValue('--width')),
+					h: Number(style.getPropertyValue('--height')),
 				};
 			})
 			.sort((a, b) => a.name.localeCompare(b.name) || a.x - b.x || a.y - b.y),
@@ -336,4 +343,130 @@ export async function dirTileMenu(page: Page, tile: Locator, entry: string): Pro
 export async function dirSaveFlow(page: Page): Promise<void> {
 	await headerButton(page, 'check').click();
 	await expect(headerButton(page, 'edit')).toBeVisible({ timeout: 30_000 });
+}
+
+// Insights and notifications (feature 018, contracts/components.md §8): a dashboard tile is a `.v-workspace-tile` with its
+// cell and size in `--pos-x/--pos-y/--width/--height`, the header name in `.header .name` (when shown) and the panel
+// component in `.tile-content`; the panel type shows only as the root class of that component.
+
+/** The root class of the panel component of a type (directus/app/src/panels/<type>/panel-<type>.vue). */
+const PANEL_CLASS: Record<string, string> = {
+	metric: 'metric',
+	'metric-list': 'metric-list',
+	list: 'list',
+	meter: 'panel-meter',
+	label: 'label',
+	variable: 'variable',
+	'relational-variable': 'one-to-many',
+	'bar-chart': 'bar-chart',
+	'line-chart': 'line-chart',
+	'pie-chart': 'pie-chart',
+	'time-series': 'time-series',
+};
+
+/** Opens a dashboard page of the Directus app and waits for its first tile (`tiles: false` for an empty one). */
+export async function openDirectusDashboard(page: Page, id: string, { tiles = true } = {}): Promise<void> {
+	await goto(page, `/insights/${id}`);
+	if (tiles) await expect(page.locator('.v-workspace-tile').first()).toBeVisible({ timeout: 15_000 });
+	await page.waitForLoadState('networkidle');
+}
+
+/** Switches the dashboard page to edit mode. */
+export async function dirEditPanels(page: Page): Promise<void> {
+	await headerButton(page, 'edit').click();
+	await expect(headerButton(page, 'check')).toBeVisible();
+}
+
+/** The tiles of a size (`--width`/`--height`): new panels have no header to name them. */
+export function dirSized(page: Page, w: number, h: number): Locator {
+	return page.locator(`.v-workspace-tile[style*="--width: ${w}; --height: ${h};"]`);
+}
+
+/** The tile of a panel type (by the root class of its component). */
+export function dirTileOfType(page: Page, type: string): Locator {
+	return page
+		.locator('.v-workspace-tile')
+		.filter({ has: page.locator(`.tile-content .${PANEL_CLASS[type] ?? type}`) })
+		.first();
+}
+
+/** Moves the pressed mouse by whole cells from `from` (v-workspace-tile reads pageX/pageY deltas). */
+export async function dirDragBy(
+	page: Page,
+	from: { x: number; y: number },
+	cells: { dx: number; dy: number },
+): Promise<void> {
+	await page.mouse.move(from.x, from.y);
+	await page.mouse.down();
+	for (let i = 1; i <= 10; i++) {
+		await page.mouse.move(from.x + (cells.dx * GRID * i) / 10, from.y + (cells.dy * GRID * i) / 10);
+		await page.waitForTimeout(40);
+	}
+	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+	await page.mouse.up();
+	await page.waitForTimeout(200);
+}
+
+/** The panel drawer: picks `type` (its name, `null` keeps it), sets the options (`[label, choice]` menus), Done. */
+export async function dirPanelDrawer(page: Page, type: string | null, options: [string, string][]): Promise<void> {
+	const drawer = page.locator('.v-drawer').last();
+	if (type) {
+		await drawer
+			.locator('button.interface')
+			.filter({ has: page.locator('.name', { hasText: new RegExp(`^${type}$`) }) })
+			.click();
+	}
+	for (const [label, choice] of options) {
+		// One menu at a time: a closing menu still holds the choices of the previous field.
+		await expect(page.locator('.v-menu-content')).toHaveCount(0);
+		await field(drawer, label).first().locator('.v-input').first().click();
+		await chooseInMenu(page, choice);
+	}
+	await expect(page.locator('.v-menu-content')).toHaveCount(0);
+	await drawer.getByRole('button', { name: 'check', exact: true }).click();
+	await expect(page.locator('.v-drawer')).toHaveCount(0);
+}
+
+/** `{ x, y, name }` of every tile with a header, sorted by cell. */
+export async function readDirectusTileHeaders(page: Page): Promise<{ x: number; y: number; name: string }[]> {
+	return page.locator('.v-workspace-tile').evaluateAll((tiles) =>
+		tiles
+			.filter((tile) => tile.querySelector('.header'))
+			.map((tile) => {
+				const style = (tile as HTMLElement).style;
+				return {
+					x: Number(style.getPropertyValue('--pos-x')),
+					y: Number(style.getPropertyValue('--pos-y')),
+					name: tile.querySelector('.header .name')?.textContent?.trim() ?? '',
+				};
+			})
+			.sort((a, b) => a.y - b.y || a.x - b.x),
+	);
+}
+
+/** The visible text of the panel body of a type (header left out), whitespace collapsed. */
+export async function readDirectusTileText(page: Page, type: string): Promise<string> {
+	const text = await dirTileOfType(page, type).locator('.tile-content').innerText();
+	return text.replace(/\s+/g, ' ').trim();
+}
+
+/** Opens the notifications drawer from the module bar bell; returns the drawer. */
+export async function openDirectusNotifications(page: Page): Promise<Locator> {
+	await page.locator('.module-bar-avatar').getByRole('button', { name: 'notifications', exact: true }).click();
+	const drawer = page.locator('.v-drawer').last();
+	await expect(drawer).toBeVisible();
+	// The list loads once the drawer is open (the "No Notifications" info shows until the request starts): a row, or
+	// the info once the requests are done.
+	await page.waitForLoadState('networkidle');
+	await expect(drawer.locator('.notifications .v-list-item, .v-info').first()).toBeVisible();
+	return drawer;
+}
+
+/** Archives (inbox tab) or unarchives (archive tab) the notification `subject` in the open drawer. */
+export async function archiveDirectusNotification(page: Page, subject: string): Promise<void> {
+	const drawer = page.locator('.v-drawer').last();
+	const row = drawer.locator('.v-list-item', { hasText: subject });
+	await row.locator('.v-checkbox').click();
+	await drawer.getByRole('button', { name: /^(archive|move_to_inbox)$/ }).click();
+	await expect(row).toHaveCount(0);
 }

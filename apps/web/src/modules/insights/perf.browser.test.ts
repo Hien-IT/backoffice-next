@@ -4,7 +4,8 @@
 // median of 3 warm runs, on the fixture API that answers at once.
 // - bo_dash_all (the 11 panel types, real registry): from the route entry (stores hydrated) to every tile drawn (no
 //   loading state, the 4 charts with their sr-only ChartTable) under 1500 ms; 1 POST /graphql (8 aliases), no
-//   /graphql/system, no dashboard or panel request (the store), plus the comments count of the page sidebar;
+//   /graphql/system, no dashboard or panel request (the store), plus the comments count of the page sidebar and the
+//   list and count of the relational variable's closed item drawer (as Directus);
 // - a variable change on bo_dash_vars (an owner selected, so the metric and the list query): the two dependent panels
 //   updated under 500 ms; 1 POST /graphql with their 2 aliases only;
 // - the notifications drawer with 25 rows: open to rows drawn under 300 ms; the first open sends the list and one
@@ -166,13 +167,14 @@ test('bo_dash_all: 11 panel types drawn under 1500 ms after the route entry, 1 P
 	for (let index = 0; index < RUNS; index++) {
 		const { time, wrapper, fetch } = await mountDashboard(loadSnapshot(), id, ready);
 		expect(document.querySelectorAll('[data-panel-id] .apexcharts-canvas').length).toBe(4);
-		// 8 panels query bo_insights_data in one POST /graphql (no /graphql/system: no system collection); label, variable
-		// and relational-variable (no value) send nothing. The comments count is the page sidebar's (CommentsSidebarDetail).
+		// 8 panels query bo_insights_data in one POST /graphql (no /graphql/system: no system collection); label and
+		// variable send nothing. The comments count is the page sidebar's (CommentsSidebarDetail); the relational variable
+		// loads its closed item drawer (list and count of directus_users) as Directus does (owner 2026-10-18).
 		expect(
 			calls(fetch)
 				.map((call) => call.split('?')[0])
 				.sort(),
-		).toEqual(['GET /comments', 'POST /graphql']);
+		).toEqual(['GET /comments', 'GET /users', 'GET /users', 'POST /graphql']);
 		expect(aliasesOf(graphqlBodies(fetch)[0])).toHaveLength(8);
 		timings.push(time);
 		wrapper.unmount();

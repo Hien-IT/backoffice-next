@@ -46,6 +46,12 @@ export const SETTINGS_TABLES = [
 /** Feature 017 (contracts/tests.md §4): the Flows editor tables. */
 export const FLOWS_TABLES = ['directus_flows', 'directus_operations'];
 
+/** Feature 018 (contracts/tests.md §4, data-model §3): the Insights tables. */
+export const INSIGHTS_TABLES = ['directus_dashboards', 'directus_panels'];
+
+/** Feature 018 (contracts/tests.md §4, data-model §10): the notifications table (serial ids become `<serial>`). */
+export const NOTIFICATIONS_TABLES = ['directus_notifications'];
+
 /** `extra`: user collections a scenario writes too (feature 005, items.spec.ts). */
 export async function snapshot(extra: string[] = []): Promise<Snapshot> {
 	const tables: Record<string, Map<string, Row>> = {};
@@ -127,4 +133,36 @@ export async function changesSince(before: Snapshot, extra: string[] = []): Prom
 
 	// Normalized in one pass so markers follow the order of appearance in the whole result.
 	return normalize(changes);
+}
+
+const MARKER = /<id\d+>/g;
+
+/**
+ * Feature 018 (data-model §3, §10): `changesSince` reduced to `tables` and their activity, so two runs compare. One worker
+ * runs the specs and only the scenario writes these tables meanwhile (the sign-in writes directus_users, left out). The
+ * run tags in `tags` become `<prefix>`, the rows are sorted and the markers renumbered in order of appearance: dates
+ * (`date_created`, `timestamp`) are `<date>`, serial keys (notifications) `<serial>`, and `user_created`, `recipient`,
+ * `dashboard` carry the marker of their user or dashboard row, the same row in both runs.
+ */
+export function scopeChanges(changes: Record<string, unknown>, tables: string[], tags: string[]): unknown {
+	const text = (v: unknown) => JSON.stringify(v);
+	const sortRows = (rows: unknown[]) =>
+		[...rows].sort((a, b) => text(a).replace(MARKER, '<id>').localeCompare(text(b).replace(MARKER, '<id>')));
+	const result: Record<string, unknown> = {};
+	for (const table of tables) {
+		const rows = changes[table] as { added: unknown[]; changed: unknown[]; removed: unknown[] };
+		result[table] = { added: sortRows(rows.added), changed: sortRows(rows.changed), removed: sortRows(rows.removed) };
+	}
+	result['activity'] = sortRows(
+		(changes['activity'] as { collection: string }[]).filter((a) => tables.includes(a.collection)),
+	);
+	let out = text(result);
+	for (const tag of tags) out = out.replaceAll(tag, '<prefix>');
+	const markers = new Map<string, string>();
+	return JSON.parse(
+		out.replace(MARKER, (m) => {
+			if (!markers.has(m)) markers.set(m, `<id${markers.size + 1}>`);
+			return markers.get(m)!;
+		}),
+	);
 }

@@ -499,16 +499,16 @@ US7, FR-080–FR-082).
 
 **Independent Test**: spec US8 Independent Test.
 
-- [ ] T110 [P] [US8] `e2e/payload/insights.spec.ts` (contracts/tests §4, 10 kịch bản trên Directus app 8155 rồi
+- [X] T110 [P] [US8] `e2e/payload/insights.spec.ts` (contracts/tests §4, 10 kịch bản trên Directus app 8155 rồi
       Backoffice; tài liệu GraphQL `bo_dash_all`, `bo_dash_vars` so sau `normalizeGraphql`; DB `INSIGHTS_TABLES` sau (1)–
       (7), (9), (10)); `e2e/helpers/db-rows.ts` thêm `INSIGHTS_TABLES`, `NOTIFICATIONS_TABLES` và chuẩn hóa data-model §3,
       §10; `e2e/helpers/directus-app.ts` thêm bước Directus app cần cho kịch bản
-- [ ] T111 [P] [US8] `e2e/payload/activity.spec.ts` và `e2e/payload/notifications.spec.ts` (contracts/tests §4; DB
+- [X] T111 [P] [US8] `e2e/payload/activity.spec.ts` và `e2e/payload/notifications.spec.ts` (contracts/tests §4; DB
       `NOTIFICATIONS_TABLES` sau archive/unarchive/xóa)
-- [ ] T112 [P] [US8] `e2e/insights-parity-ui.spec.ts` (SC-004 (a)–(f); (c) lọc `collection bo_insights_data`, dòng cùng
+- [X] T112 [P] [US8] `e2e/insights-parity-ui.spec.ts` (SC-004 (a)–(f); (c) lọc `collection bo_insights_data`, dòng cùng
       `timestamp` so như tập; `test.skip(e2eConfig !== 'proxy-api')`, so
       `innerText`/`aria-disabled` hai app); thêm vào `DIRECTUS_APP_SPECS`
-- [ ] T113 [US8] `e2e/insights-cross-use.spec.ts` (contracts/tests §5 (1)–(5), SC-002, SC-003); `e2e/helpers/directus-app.ts`
+- [X] T113 [US8] `e2e/insights-cross-use.spec.ts` (contracts/tests §5 (1)–(5), SC-002, SC-003); `e2e/helpers/directus-app.ts`
       thêm `openDirectusDashboard`, `readDirectusGrid` (+`--width`/`--height`), `readDirectusTileHeaders`,
       `readDirectusTileText`, `openDirectusNotifications`, `archiveDirectusNotification`; thêm vào `DIRECTUS_APP_SPECS`
 - [X] T114 [P] [US8] Perf `insights/perf.browser.test.ts` (`PERF=1`, `machineFactor()`; thêm file vào bước "web perf" của
@@ -761,4 +761,19 @@ Lượt 4 (2026-10-18, đang làm):
   #194, #196, #198, #201, #203. Khác biệt đọc cuối (Directus nạp danh sách của drawer chọn item khi đóng ở relational
   variable): chủ dự án chọn làm giống, `DrawerCollection` thêm prop `eager` (mặc định tắt như 013), panel relational
   variable bật.
+- T110–T113: `payload/insights.spec.ts` (10 kịch bản + tài liệu GraphQL `bo_dash_all`, `bo_dash_system`, `bo_dash_vars`,
+  DB `INSIGHTS_TABLES`), `payload/activity.spec.ts`, `payload/notifications.spec.ts` (user tạm 27 thông báo, DB
+  `NOTIFICATIONS_TABLES`), `insights-parity-ui.spec.ts` (SC-004 (a)–(f), admin và role chỉ đọc), `insights-cross-use.spec.ts`
+  (§5 (1)–(5)); 29/29 xanh local với `E2E_CONFIG=proxy-api BASE_URL=http://127.0.0.1:4218` (dev server → API 8156,
+  Directus 8155; image web của env chung cũ nên không chạy 8162). Helper: `db-rows.ts` (`INSIGHTS_TABLES`,
+  `NOTIFICATIONS_TABLES`, `scopeChanges`), `payload.ts` (`normalizeGraphql`, `normalizeInsightsBody`; `canonicalPath` đọc
+  `sort` là danh sách có thứ tự: `sort[]=a` của axios và `sort=a` của SDK), `directus-app.ts` (helper dashboard/thông
+  báo; `readDirectusGrid` thêm `w`, `h`). Lọc `collection` của activity đặt qua preset, không qua UI lọc.
+- T116 (từ T110–T113): ô Note trống của bảng dashboard hiện `--` (`ValueNull`) như Directus. Khi người xem không đọc
+  được collection của một panel, cả Directus 11.17.4 và app đều lỗi trang `Cannot read properties of null (reading
+  'field')` ở `query-to-gql-string.ts` (`formatQuery`); spec ghi tile phải hiện lỗi: chờ chủ dự án quyết. Directus nhớ số
+  dòng mỗi tab của drawer thông báo (tab rỗng mở trước có thể hiện "No Notifications"): kịch bản tránh, app giữ như
+  Directus (mục 17 đã xác nhận).
+- Sau `eager` của relational variable: `perf.browser.test.ts` mở `bo_dash_all` có thêm 2 `GET /users` (danh sách + đếm
+  của drawer đóng), như mốc Directus.
 

@@ -1,7 +1,15 @@
 // Feature 014 US7 (T087, contracts/tests.md §4): `normalize` of helpers/payload.ts, without a browser.
 import { expect, test } from '@playwright/test';
 import { DATA_PREFIX } from './config.js';
-import { calls, canonicalPath, normalize, normalizeFlowsBody, RUN_TAG } from './payload.js';
+import {
+	calls,
+	canonicalPath,
+	normalize,
+	normalizeFlowsBody,
+	normalizeGraphql,
+	normalizeInsightsBody,
+	RUN_TAG,
+} from './payload.js';
 
 test('send order kept, object keys sorted, arrays kept in order', () => {
 	const writes = [
@@ -104,9 +112,11 @@ test('feature 017: canonicalPath compares the axios and the SDK query by meaning
 
 	expect(axios).toBe(sdk);
 	expect(axios).toBe(
-		'/revisions?{"fields":["id","item"],"filter":{"_and":[{"collection":{"_eq":"directus_flows"}},{"version":{"_null":"true"}}]},"limit":"10","sort":"-id"}',
+		'/revisions?{"fields":["id","item"],"filter":{"_and":[{"collection":{"_eq":"directus_flows"}},{"version":{"_null":"true"}}]},"limit":"10","sort":["-id"]}',
 	);
 	expect(canonicalPath('/flows?fields[]=id')).toBe(canonicalPath('/flows?fields=id'));
+	// Feature 018: `sort[]=a&sort[]=b` (axios) and `sort=a,b` (SDK), order kept.
+	expect(canonicalPath('/activity?sort[]=-timestamp&sort[]=id')).toBe(canonicalPath('/activity?sort=-timestamp,id'));
 	expect(canonicalPath('/flows/abc')).toBe('/flows/abc');
 });
 
@@ -116,4 +126,20 @@ test('feature 017: normalizeFlowsBody drops the generated part of operation keys
 	]);
 
 	expect(write!.body).toEqual({ operation: { key: 'condition_*', resolve: { key: 'log' } } });
+});
+
+test('feature 018: GraphQL aliases and their order, panel arrays and parallel writes are normalized', () => {
+	expect(normalizeGraphql('query {  query_b2: b { id }\n query_a1: a (limit: 1) { id } }')).toBe(
+		'query { query_*: a (limit: 1) { id } query_*: b { id } }',
+	);
+	const one = normalizeInsightsBody([
+		{ method: 'POST', path: '/graphql', body: { query: 'query { query_1f: x { id } }' } },
+		{ method: 'POST', path: '/panels', body: [{ type: 'metric' }, { type: 'bar-chart' }] },
+	]);
+	const two = normalizeInsightsBody([
+		{ method: 'POST', path: '/panels', body: [{ type: 'bar-chart' }, { type: 'metric' }] },
+		{ method: 'POST', path: '/graphql', body: { query: 'query { query_9c: x { id } }' } },
+	]);
+	expect(one).toEqual(two);
+	expect(calls(one)).toEqual(['POST /graphql', 'POST /panels']);
 });

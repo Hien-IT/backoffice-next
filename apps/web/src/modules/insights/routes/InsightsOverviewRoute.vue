@@ -18,6 +18,7 @@ import BoInfo from '../../../components/BoInfo.vue';
 import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
 import BoTable, { type BoTableColumn, type BoTableSort } from '../../../components/BoTable.vue';
 import SearchInput from '../../../components/SearchInput.vue';
+import ValueNull from '../../../components/render/ValueNull.vue';
 import BasicImportSidebarDetail from '../../../components/sidebar/BasicImportSidebarDetail.vue';
 import { showUnexpectedError } from '../../../composables/use-notices.ts';
 import { useCollectionPermissions } from '../../../composables/use-permissions/index.ts';
@@ -323,6 +324,8 @@ const FOCUS =
 
 			<template #[`item.note`]="{ item }">
 				<div v-if="item.note" class="truncate" :title="item.note">{{ item.note }}</div>
+				<!-- Directus v-table default cell: ValueNull ("--") for an empty note (table-row.vue). -->
+				<ValueNull v-else />
 			</template>
 
 			<template #item-append="{ item }">

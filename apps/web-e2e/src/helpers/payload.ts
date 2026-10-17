@@ -227,7 +227,8 @@ export function normalizeFlowsBody(writes: Write[]): Write[] {
 /**
  * Feature 017: the query of `path` as one JSON object, so the Directus app (axios, `fields[]=id`, `filter[a][_eq]=x`) and
  * the Backoffice app (@directus/sdk, `fields=id`, `filter={"a":{"_eq":"x"}}`) compare by meaning: bracket keys nest, a
- * JSON value is parsed, `fields` is a sorted list, leaves are strings, and `page=0` (ignored by the API) is dropped.
+ * JSON value is parsed, `fields` is a sorted list, `sort` a list in its order (feature 018), leaves are strings, and
+ * `page=0` (ignored by the API) is dropped.
  */
 export function canonicalPath(path: string): string {
 	const [pathname, search] = path.split('?') as [string, string | undefined];
@@ -257,6 +258,8 @@ export function canonicalPath(path: string): string {
 		}
 		return String(input);
 	};
+	// `sort[]=a` (axios) and `sort=a,b` (@directus/sdk): a list in its order.
+	if (query['sort'] !== undefined) query['sort'] = [query['sort']].flat().flatMap((s) => String(s).split(','));
 	const fields = query['fields'];
 	if (fields !== undefined)
 		query['fields'] = [fields]
@@ -264,4 +267,40 @@ export function canonicalPath(path: string): string {
 			.flatMap((f) => String(f).split(','))
 			.sort();
 	return `${pathname}?${JSON.stringify(tidy(query))}`;
+}
+
+/**
+ * Feature 018 (contracts/components.md §8, data-model §5): a GraphQL document of the panels with its aliases
+ * `query_<hash>` as `query_*`, whitespace collapsed and the aliased queries sorted: their order follows the order of the
+ * panels in each app's store (sorted by dashboard key only, so not stable between runs).
+ */
+export function normalizeGraphql(query: string): string {
+	const text = query
+		.replace(/query_[0-9a-f]+/g, 'query_*')
+		.replace(/\s+/g, ' ')
+		.trim();
+	const inner = /^query \{ (.*) \}$/.exec(text);
+	return inner
+		? `query { ${inner[1]!
+				.split(/ (?=query_\*: )/)
+				.sort()
+				.join(' ')} }`
+		: text;
+}
+
+/**
+ * Feature 018 (contracts/tests.md §4): after `normalize`, REST queries by meaning (`canonicalPath`), GraphQL documents
+ * through `normalizeGraphql`, the panel arrays of `POST/PATCH/DELETE /panels` sorted, then the writes sorted by
+ * (method, path, body): the `/panels` requests of a Save and the reads after it go out in parallel.
+ */
+export function normalizeInsightsBody(writes: Write[]): Write[] {
+	const text = (v: unknown) => JSON.stringify(v);
+	const body = (input: unknown): unknown => {
+		if (Array.isArray(input)) return [...input].sort((a, b) => text(a).localeCompare(text(b)));
+		const query = (input as { query?: unknown } | null)?.query;
+		return typeof query === 'string' ? { ...(input as object), query: normalizeGraphql(query) } : input;
+	};
+	return writes
+		.map((write) => ({ ...write, path: canonicalPath(write.path), body: body(write.body) }))
+		.sort((a, b) => text(a).localeCompare(text(b)));
 }
