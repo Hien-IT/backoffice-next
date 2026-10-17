@@ -63,3 +63,24 @@ test('the unread count is recounted when the tab becomes visible, throttled', as
 
 	visible.mockRestore();
 });
+
+// An ended session makes the recount fail (401); that is no unhandled rejection (the auth refresh signs out).
+test('a failed recount is swallowed', async () => {
+	let refresh!: ReturnType<typeof vi.spyOn>;
+	await mountLayout(NotificationsBell, {
+		beforeMount: () => {
+			refresh = vi.spyOn(useNotificationsStore(), 'refreshUnreadCount').mockRejectedValue({ errors: [] });
+		},
+	});
+	const unhandled = vi.fn();
+	process.on('unhandledRejection', unhandled);
+	const visible = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+
+	document.dispatchEvent(new Event('visibilitychange'));
+	await new Promise((resolve) => setTimeout(resolve));
+	expect(refresh).toHaveBeenCalledTimes(1);
+	expect(unhandled).not.toHaveBeenCalled();
+
+	visible.mockRestore();
+	process.off('unhandledRejection', unhandled);
+});

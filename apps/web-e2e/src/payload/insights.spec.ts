@@ -21,6 +21,7 @@ import {
 	dirPanelDrawer,
 	dirSaveFlow,
 	dirSized,
+	dirDrawerRow,
 	dirTile,
 	dirTileMenu,
 	headerButton,
@@ -569,8 +570,7 @@ test('bo_dash_vars: the same GraphQL documents for each variable value (SC-003)'
 			await expect(dirTile(p, 'Owners')).toBeVisible({ timeout: 15_000 });
 		});
 		await dirTile(p, 'Owners').getByRole('button', { name: 'Add Existing' }).click();
-		const users = p.locator('.v-drawer').last();
-		await users.locator('.table-row', { hasText: ADMIN.email }).click();
+		const users = await dirDrawerRow(p, ADMIN.email);
 		steps['owner'] = await graphqlReads(p, directusUrl, () =>
 			users.getByRole('button', { name: 'check', exact: true }).click(),
 		);

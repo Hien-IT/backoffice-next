@@ -296,6 +296,26 @@ describe('staging and Save (FR-028, R-56)', () => {
 		expect(store.hasEdits).toBe(false);
 	});
 
+	// Directus clears the edits after loadPanelData, so the temporary created panel loads once more with the real one.
+	test('after Save the created panel loads twice, temporary and saved, like Directus', async () => {
+		let hydrated = 0;
+		const { fetch, store } = await setup({
+			'GET /panels': () =>
+				json({ data: hydrated++ === 0 ? [metric('m1'), metric('m2')] : [metric('m1'), metric('m2'), metric('m3')] }),
+		});
+
+		await store.refresh(DASHBOARD);
+		await vi.waitFor(() => expect(Object.keys(store.data)).toEqual(['m1', 'm2']), { timeout: 5000 });
+		fetch.mockClear();
+		store.stagePanelCreate(metric('_new') as never);
+		await vi.waitFor(() => expect(graphqlBodies(fetch)).toHaveLength(1), { timeout: 5000 });
+		await store.saveChanges();
+
+		await vi.waitFor(() => expect(graphqlBodies(fetch)).toHaveLength(2), { timeout: 5000 });
+		expect(graphqlBodies(fetch)[1]!.match(/query_[0-9a-f]+: bo_insights_data_aggregated/g)).toHaveLength(2);
+		expect(store.hasEdits).toBe(false);
+	});
+
 	test('Save without edits sends nothing', async () => {
 		const { fetch, store } = await setup();
 

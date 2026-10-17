@@ -557,11 +557,12 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 					data.value = omit(data.value, ...edits.create.map(({ id }) => id));
 				}
 
-				for (const kind of done) edits[kind] = [];
-
 				// Fetch data for panels that now exist in the dashboard (from create) but haven't been fetched yet
+				// (like Directus, before the edits are cleared: the temporary created panels load once more).
 				const panelsToLoad = unref(panelsWithEdits).filter(({ id }) => id in unref(data) === false);
 				loadPanelData(panelsToLoad);
+
+				for (const kind of done) edits[kind] = [];
 			}
 
 			if (failure) showUnexpectedError(failure.reason);

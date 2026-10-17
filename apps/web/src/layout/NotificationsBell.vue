@@ -23,7 +23,8 @@ watch(unread, (count) => (announcement.value = t('notifications_unread_count', {
 // Backoffice (D-116, owner 2026-10-18): Directus never refreshes the count by itself (R-52). Here it is recounted when
 // the browser tab becomes visible again, at most once a minute (no polling while the tab stays open in front).
 const notificationsStore = useNotificationsStore();
-const recount = useThrottleFn(() => notificationsStore.refreshUnreadCount(), 60_000, false, true);
+// A failed recount keeps the old count: an ended session is handled by the auth refresh on the same event.
+const recount = useThrottleFn(() => notificationsStore.refreshUnreadCount().catch(() => {}), 60_000, false, true);
 useEventListener(document, 'visibilitychange', () => {
 	if (document.visibilityState === 'visible') recount();
 });

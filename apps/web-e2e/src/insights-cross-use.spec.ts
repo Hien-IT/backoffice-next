@@ -23,6 +23,7 @@ import {
 	dirPanelDrawer,
 	dirSaveFlow,
 	dirSized,
+	dirDrawerRow,
 	dirTile,
 	dirTileOfType,
 	field,
@@ -472,8 +473,7 @@ test('(5) bo_dash_vars: the same owner and status show the same metric and list 
 		};
 		await openDirectusDashboard(p, id);
 		await dirTile(p, 'Owners').getByRole('button', { name: 'Add Existing' }).click();
-		const users = p.locator('.v-drawer').last();
-		await users.locator('.table-row', { hasText: ADMIN.email }).click();
+		const users = await dirDrawerRow(p, ADMIN.email);
 		await users.getByRole('button', { name: 'check', exact: true }).click();
 		steps['published'] = await texts();
 		for (const status of STATUSES) {

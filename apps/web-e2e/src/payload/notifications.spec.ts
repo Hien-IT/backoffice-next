@@ -216,6 +216,13 @@ test('the drawer: list, page 2, tabs, search, Archive, Unarchive, Delete (#196â€
 
 	expect(dir.calls['archive']!.map((c) => c.method)).toContain('PATCH');
 	expect(dir.calls['delete']!.map((c) => c.method)).toContain('DELETE');
-	for (const step of Object.keys(dir.calls)) expect.soft(bo.calls[step], step).toEqual(dir.calls[step]);
+	// D-115 (owner 2026-10-18): after a write the drawer recounts its items (Directus keeps the memoized count), also when
+	// a tab is opened again; that count is the only extra request.
+	const recount = (c: { method: string; path: string }) => c.method === 'GET' && c.path.includes('"countDistinct"');
+	for (const step of Object.keys(dir.calls)) {
+		const strip = (calls: Call[]) => (step === 'open' ? calls : calls.filter((c) => !recount(c)));
+		expect.soft(strip(bo.calls[step]!), step).toEqual(strip(dir.calls[step]!));
+	}
+	expect(bo.calls['archive']!.filter(recount)).toHaveLength(1);
 	expect(bo.db).toEqual(dir.db);
 });

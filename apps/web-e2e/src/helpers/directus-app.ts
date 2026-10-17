@@ -178,6 +178,15 @@ export async function saveShare(page: Page): Promise<void> {
 
 const GRID = 18;
 
+/** Searches the last open Directus drawer and clicks the row with `text` (the users list grows with other specs). */
+export async function dirDrawerRow(page: Page, text: string): Promise<Locator> {
+	const drawer = page.locator('.v-drawer').last();
+	await drawer.locator('.search-input').click();
+	await drawer.locator('.search-input input').fill(text);
+	await drawer.locator('.table-row', { hasText: text }).click();
+	return drawer;
+}
+
 /** The canvas tile whose header names `name` (the operation name, or `Trigger`). */
 export function dirTile(page: Page, name: string): Locator {
 	return page

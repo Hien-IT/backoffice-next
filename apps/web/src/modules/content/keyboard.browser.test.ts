@@ -167,9 +167,15 @@ describe('drag and drop keyboard paths (contracts/layouts.md §5)', () => {
 		await userEvent.keyboard('{Enter}');
 		const width = await found(() => document.querySelector<HTMLInputElement>('[role="menu"] input[type="number"]'));
 		width.focus();
-		await userEvent.keyboard('{Control>}a{/Control}300{Enter}');
+		// Select the old value directly: Control+A is "line start" on macOS, which typed "300144" there.
+		width.select();
+		await userEvent.keyboard('300{Enter}');
+		expect(width.value).toBe('300');
 		await userEvent.keyboard('{Escape}');
-		await vi.waitFor(() => expect(th().getBoundingClientRect().width).toBeGreaterThan(before + 100));
+		// The new width goes through the preset and a re-render: slow on a loaded runner (1 s default failed on CI).
+		await vi.waitFor(() => expect(th().getBoundingClientRect().width).toBeGreaterThan(before + 100), {
+			timeout: 10_000,
+		});
 	});
 
 	test('kanban: card menu "Move down" and "Move to group…" (submenu), column menu "Move right"', async () => {

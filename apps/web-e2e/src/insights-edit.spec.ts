@@ -66,7 +66,17 @@ async function addPanel(page: Page, typeName: string) {
 async function pointerDrag(page: Page, from: { x: number; y: number }, dx: number, dy: number) {
 	await page.mouse.move(from.x, from.y);
 	await page.mouse.down();
-	await moveAndRelease(page, from, { x: from.x + dx, y: from.y + dy });
+	// The tile reads pointermove through a 20 ms throttle and drops the pending call on release, as Directus: moves that
+	// reach a busy browser in one burst (webkit on CI) moved the tile one cell. The last position is sent again once the
+	// throttle is idle, so it is read before the release.
+	const to = { x: from.x + dx, y: from.y + dy };
+	for (let i = 1; i <= 10; i++) {
+		await page.mouse.move(from.x + (dx * i) / 10, from.y + (dy * i) / 10);
+		await page.waitForTimeout(40);
+	}
+	await page.waitForTimeout(100);
+	await page.mouse.move(to.x + 1, to.y);
+	await moveAndRelease(page, { x: to.x + 1, y: to.y }, to);
 }
 
 test('add a metric and a bar chart, drag and resize, Save sends one POST /panels (US3-1 to US3-5)', async ({
