@@ -2,7 +2,7 @@
 // 0, the button stays usable), names the count in its aria-label, announces a changed count in a polite live region and
 // opens the notifications drawer.
 import { enableAutoUnmount } from '@vue/test-utils';
-import { afterEach, expect, test } from 'vitest';
+import { afterEach, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';
 import { useAppStore } from '../stores/app.ts';
 import { useNotificationsStore } from '../stores/notifications.ts';
@@ -45,4 +45,21 @@ test('more than 99 shows 99+, the label keeps the number', async () => {
 
 	expect(badge()!.textContent!.trim()).toBe('99+');
 	expect(bell().getAttribute('aria-label')).toBe('Notifications, 120 unread');
+});
+
+// D-116 (owner 2026-10-18): the count is recounted when the browser tab becomes visible again, at most once a minute.
+test('the unread count is recounted when the tab becomes visible, throttled', async () => {
+	let refresh!: ReturnType<typeof vi.spyOn>;
+	await mountLayout(NotificationsBell, {
+		beforeMount: () => {
+			refresh = vi.spyOn(useNotificationsStore(), 'refreshUnreadCount').mockResolvedValue();
+		},
+	});
+	const visible = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible');
+
+	document.dispatchEvent(new Event('visibilitychange'));
+	document.dispatchEvent(new Event('visibilitychange'));
+	expect(refresh).toHaveBeenCalledTimes(1);
+
+	visible.mockRestore();
 });

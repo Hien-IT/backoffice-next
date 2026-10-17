@@ -74,7 +74,7 @@ describe('bar-chart', () => {
 		expect(config(wrapper)['series'][0].data.map((point: any) => point.y)).toEqual(['30.50', '0.00']);
 	});
 
-	test('color null falls back to the chart theme token; `<=` matches like `<`', async () => {
+	test('color null falls back to the chart theme token; `<=` includes the value (D-113)', async () => {
 		const wrapper = await mountChart(PanelBarChart, {
 			...base,
 			color: null,
@@ -86,12 +86,12 @@ describe('bar-chart', () => {
 		});
 
 		expect(config(wrapper)['series'][0].data.map((point: any) => point.fillColor)).toEqual([
-			'var(--chart-primary)',
+			'rgb(1, 2, 3)',
 			'rgb(1, 2, 3)',
 		]);
 	});
 
-	test('X-axis contains compares reversed (the rule value contains the label)', async () => {
+	test('X-axis contains: the label contains the rule value (D-113; Directus compares the other way round)', async () => {
 		const wrapper = await mountChart(PanelBarChart, {
 			...base,
 			conditionalFill: [{ axis: 'X', operator: 'contains', value: 'published-and-more', color: 'rgb(4, 5, 6)' }],
@@ -102,8 +102,8 @@ describe('bar-chart', () => {
 		});
 
 		expect(config(wrapper)['series'][0].data.map((point: any) => point.fillColor)).toEqual([
-			'rgb(4, 5, 6)',
 			'var(--chart-primary)',
+			'rgb(4, 5, 6)',
 		]);
 	});
 

@@ -139,7 +139,8 @@ function getColor(input?: number) {
 				case '<':
 					return value < compareValue;
 				case '<=':
-					return value < compareValue;
+					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` (R-53).
+					return value <= compareValue;
 			}
 		}
 

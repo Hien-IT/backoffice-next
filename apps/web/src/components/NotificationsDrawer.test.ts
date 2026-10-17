@@ -256,6 +256,11 @@ describe('NotificationsDrawer', () => {
 		const after = calls(fetch).slice(1);
 		expect(after.some((c) => c.includes('fields='))).toBe(true);
 		expect(after.some((c) => c.includes('aggregate={"count":"id"}'))).toBe(true);
+		// D-115: the drawer's own counts are recounted after the write (Directus reuses the memoized ones).
+		// (`count: *` here: the fixture fields store has no primary key for directus_notifications.)
+		expect(
+			after.some((c) => /aggregate=\{"(countDistinct|count)":"(id|\*)"\}/.test(c) && !c.includes('"count":"id"')),
+		).toBe(true);
 		expect(notificationsStore.unread).toBe(2);
 		expect(rowCheckbox('bo_notification_path').getAttribute('aria-checked')).toBe('false');
 

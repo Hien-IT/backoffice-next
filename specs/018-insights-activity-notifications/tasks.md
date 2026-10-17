@@ -777,4 +777,7 @@ Lượt 4 (2026-10-18, đang làm):
   Directus (mục 17 đã xác nhận).
 - Sau `eager` của relational variable: `perf.browser.test.ts` mở `bo_dash_all` có thêm 2 `GET /users` (danh sách + đếm
   của drawer đóng), như mốc Directus.
+- T116 (chủ dự án chọn khác Directus, 2026-10-18): D-112 Save lỗi một phần chỉ giữ phần lỗi trong staging (R-56); D-113
+  `<=` gồm bằng và toán tử chuỗi của bar chart theo nhãn (R-53); D-114 `now` mới mỗi lần refresh (R-50); D-115 drawer
+  thông báo đếm lại sau ghi (`useItems.clearCountCache`); D-116 chuông đếm lại khi tab hiện lại, tối đa mỗi phút (R-52).
 

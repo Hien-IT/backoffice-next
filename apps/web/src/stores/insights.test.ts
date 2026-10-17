@@ -313,17 +313,34 @@ describe('staging and Save (FR-028, R-56)', () => {
 		expect(writes(fetch)[0]!.body[0]).toMatchObject({ dashboard: 'd2', position_x: 3, position_y: 3 });
 	});
 
-	test('a failing request keeps the edits, skips hydrate and opens the error dialog (R-56)', async () => {
+	test('a failing request keeps only its own edits; the parts that succeeded are saved and reloaded (D-112)', async () => {
 		const { fetch, store } = await setup({ 'PATCH /panels': () => json({ errors: [{ message: 'no' }] }, 403) });
 
 		store.stagePanelCreate(metric('_new') as never);
 		store.stagePanelUpdate({ id: 'm1', edits: { width: 9 } });
 		await store.saveChanges();
 
+		expect(store.edits.create).toEqual([]);
+		expect(store.edits.update).toEqual([{ id: 'm1', width: 9 }]);
 		expect(store.hasEdits).toBe(true);
 		expect(store.saving).toBe(false);
-		expect(calls(fetch).some((call) => call.startsWith('GET /panels'))).toBe(false);
+		expect(calls(fetch).some((call) => call.startsWith('GET /panels'))).toBe(true);
 		expect(useNotices().dialogs.value).toHaveLength(1);
+
+		// A second Save sends the update only: the panel created the first time is not created again.
+		fetch.mockClear();
+		await store.saveChanges();
+		expect(writes(fetch).map(({ method }) => method)).toEqual(['PATCH']);
+	});
+
+	test('when every request fails nothing is reloaded and all edits stay', async () => {
+		const { fetch, store } = await setup({ 'PATCH /panels': () => json({ errors: [{ message: 'no' }] }, 403) });
+
+		store.stagePanelUpdate({ id: 'm1', edits: { width: 9 } });
+		await store.saveChanges();
+
+		expect(store.edits.update).toEqual([{ id: 'm1', width: 9 }]);
+		expect(calls(fetch).some((call) => call.startsWith('GET /panels'))).toBe(false);
 	});
 
 	test('an update for an id that is not in the store is ignored', async () => {

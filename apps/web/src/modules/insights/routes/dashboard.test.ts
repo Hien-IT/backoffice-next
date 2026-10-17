@@ -19,6 +19,9 @@ import { useUserStore } from '../../../stores/user.ts';
 import { calls, json, mockFixtureApi } from '../../../test-utils/fetch.ts';
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
+import { useSidebarStore } from '../../../layout/stores/sidebar.ts';
+import RefreshSidebarDetail from '../../../components/sidebar/RefreshSidebarDetail.vue';
+import PanelTile from '../components/PanelTile.vue';
 import DashboardRoute from './DashboardRoute.vue';
 
 const StubPanel = defineComponent({
@@ -250,6 +253,33 @@ test(
 		).toHaveLength(1);
 		expect(bodies().at(-1)).toContain('draft');
 		expect(tile('p1').querySelector('[data-stub]')!.textContent).toContain('12');
+	},
+	SLOW,
+);
+
+// D-114 (owner 2026-10-18): every refresh (auto refresh, sidebar) takes a new `now` for the tiles; Directus keeps the
+// page's first one (R-50).
+test(
+	'a refresh gives the tiles a new now',
+	async () => {
+		vi.useFakeTimers({ shouldAdvanceTime: true, now: new Date('2026-10-18T08:00:00Z') });
+		try {
+			const { wrapper } = await setup();
+			const tileNow = () => (wrapper.findAllComponents(PanelTile)[0]!.props('now') as Date).getTime();
+			// The fake clock keeps running (shouldAdvanceTime): compare against the minute, not the millisecond.
+			expect(tileNow()).toBeLessThan(Date.parse('2026-10-18T08:01:00Z'));
+
+			vi.setSystemTime(new Date('2026-10-18T08:05:00Z'));
+			// Below xl the detail panel is a drawer: open it so the refresh section is rendered.
+			useSidebarStore().expand();
+			await flushPromises();
+			wrapper.findComponent(RefreshSidebarDetail).vm.$emit('refresh');
+			await flushPromises();
+
+			expect(tileNow()).toBeGreaterThanOrEqual(Date.parse('2026-10-18T08:05:00Z'));
+		} finally {
+			vi.useRealTimers();
+		}
 	},
 	SLOW,
 );

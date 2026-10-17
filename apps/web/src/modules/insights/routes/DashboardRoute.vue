@@ -52,7 +52,14 @@ const zoomToFit = ref(false);
 
 const { updateAllowed } = useItemPermissions('directus_panels', props.primaryKey, false);
 
-const now = new Date();
+// Backoffice (D-114, owner 2026-10-18): Directus takes `now` once per page, so auto refresh never moves the time series
+// window (R-50); here every refresh takes a new `now`.
+const now = ref(new Date());
+
+function refreshDashboard() {
+	now.value = new Date();
+	insightsStore.refresh(props.primaryKey);
+}
 
 const editMode = ref(false);
 
@@ -135,9 +142,7 @@ const tiles = computed<AppTile[]>(() => {
 
 watch(
 	() => props.primaryKey,
-	() => {
-		insightsStore.refresh(props.primaryKey);
-	},
+	() => refreshDashboard(),
 );
 
 const confirmCancel = ref(false);
@@ -292,7 +297,7 @@ const PRESSED = 'bg-brand-50! text-brand-600! dark:bg-brand-500/15! dark:text-br
 		<template #sidebar>
 			<CommentsSidebarDetail :key="primaryKey" collection="directus_dashboards" :primary-key="primaryKey" />
 
-			<RefreshSidebarDetail v-model="refreshInterval" @refresh="insightsStore.refresh(primaryKey)" />
+			<RefreshSidebarDetail v-model="refreshInterval" @refresh="refreshDashboard" />
 		</template>
 
 		<template #navigation>

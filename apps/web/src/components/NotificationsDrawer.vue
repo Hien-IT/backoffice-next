@@ -75,18 +75,26 @@ const filterSystem = computed(
 		}) as Filter,
 );
 
-const { items, loading, error, totalPages, totalCount, itemCount, getItems, getItemCount, getTotalCount } = useItems(
-	collection,
-	{
-		filter: computed(() => mergeFilters(filter.value, filterSystem.value)),
-		filterSystem,
-		fields: ref(['id', 'subject', 'message', 'collection', 'item', 'timestamp']),
-		sort: ref(['-timestamp']),
-		search,
-		limit,
-		page,
-	},
-);
+const {
+	items,
+	loading,
+	error,
+	totalPages,
+	totalCount,
+	itemCount,
+	getItems,
+	getItemCount,
+	getTotalCount,
+	clearCountCache,
+} = useItems(collection, {
+	filter: computed(() => mergeFilters(filter.value, filterSystem.value)),
+	filterSystem,
+	fields: ref(['id', 'subject', 'message', 'collection', 'item', 'timestamp']),
+	sort: ref(['-timestamp']),
+	search,
+	limit,
+	page,
+});
 
 watch(error, (err) => err && showUnexpectedError(err));
 
@@ -132,7 +140,11 @@ const allItemsSelected = computed(
 	() => selection.value.length === notifications.value.length && notifications.value.length > 0,
 );
 
+// Backoffice (D-115, owner 2026-10-18): useItems memoizes the counts by their query, so after an archive or a delete
+// Directus shows the counts of before (an emptied tab can still say it has rows, a tab can say "No Notifications" over
+// its rows). The counts are recounted after every write.
 async function refresh() {
+	clearCountCache();
 	await getItems();
 	await getTotalCount();
 	await getItemCount();

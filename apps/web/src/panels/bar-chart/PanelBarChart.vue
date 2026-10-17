@@ -377,46 +377,48 @@ async function setUpChart() {
 				case '<':
 					return Number(value) < compareValue;
 				case '<=':
-					return Number(value) < compareValue;
+					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` and the string operators the
+					// other way round (`compareValue.includes(value)`, R-53); here the bar's value is tested against the rule.
+					return Number(value) <= compareValue;
 				case 'contains':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? (compareValue as string).includes(value)
+						? (value as string).includes(compareValue as string)
 						: false;
 				case 'ncontains':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? !(compareValue as string).includes(value)
+						? !(value as string).includes(compareValue as string)
 						: false;
 				case 'starts_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? (compareValue as string).startsWith(value)
+						? (value as string).startsWith(compareValue as string)
 						: false;
 				case 'nstarts_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? !(compareValue as string).startsWith(value)
+						? !(value as string).startsWith(compareValue as string)
 						: false;
 				case 'istarts_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? (compareValue as string).toLocaleLowerCase().startsWith(value.toLocaleLowerCase())
+						? (value as string).toLocaleLowerCase().startsWith((compareValue as string).toLocaleLowerCase())
 						: false;
 				case 'nistarts_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? !(compareValue as string).toLocaleLowerCase().startsWith(value.toLocaleLowerCase())
+						? !(value as string).toLocaleLowerCase().startsWith((compareValue as string).toLocaleLowerCase())
 						: false;
 				case 'ends_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? (compareValue as string).endsWith(value)
+						? (value as string).endsWith(compareValue as string)
 						: false;
 				case 'nends_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? !(compareValue as string).endsWith(value)
+						? !(value as string).endsWith(compareValue as string)
 						: false;
 				case 'iends_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? (compareValue as string).toLocaleLowerCase().endsWith(value.toLocaleLowerCase())
+						? (value as string).toLocaleLowerCase().endsWith((compareValue as string).toLocaleLowerCase())
 						: false;
 				case 'niends_with':
 					return typeof compareValue === 'string' && typeof value === 'string'
-						? !(compareValue as string).toLocaleLowerCase().endsWith(value.toLocaleLowerCase())
+						? !(value as string).toLocaleLowerCase().endsWith((compareValue as string).toLocaleLowerCase())
 						: false;
 				default:
 					return false;

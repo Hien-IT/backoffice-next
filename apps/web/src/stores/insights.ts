@@ -512,40 +512,59 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 		data.value = omit(data.value, panelKey);
 	}
 
+	// Backoffice (D-112, owner 2026-10-18): Directus sends the three requests in parallel and on any error keeps every
+	// staged edit, so a second Save creates the already created panels again (R-56). Here the parts that succeeded leave
+	// the staging and the store is reloaded; only the failed parts stay staged for the next Save.
 	async function saveChanges() {
 		saving.value = true;
 
 		try {
-			const requests: Promise<unknown>[] = [];
+			const jobs: { kind: 'create' | 'update' | 'delete'; request: Promise<unknown> }[] = [];
 
 			if (edits.create.length > 0) {
 				// Created edits might come with a temporary ID for editing. Make sure to submit to API without temp ID
-				requests.push(
-					sdk.request(
+				jobs.push({
+					kind: 'create',
+					request: sdk.request(
 						requestEndpoint('/panels', { method: 'POST', body: edits.create.map((create) => omit(create, 'id')) }),
 					),
-				);
+				});
 			}
 
 			if (edits.update.length > 0) {
-				requests.push(sdk.request(requestEndpoint('/panels', { method: 'PATCH', body: edits.update })));
+				jobs.push({
+					kind: 'update',
+					request: sdk.request(requestEndpoint('/panels', { method: 'PATCH', body: edits.update })),
+				});
 			}
 
 			if (edits.delete.length > 0) {
-				requests.push(sdk.request(requestEndpoint('/panels', { method: 'DELETE', body: edits.delete })));
+				jobs.push({
+					kind: 'delete',
+					request: sdk.request(requestEndpoint('/panels', { method: 'DELETE', body: edits.delete })),
+				});
 			}
 
-			await Promise.all(requests);
-			await hydrate();
+			const results = await Promise.allSettled(jobs.map(({ request }) => request));
+			const done = jobs.filter((_, index) => results[index]!.status === 'fulfilled').map(({ kind }) => kind);
+			const failure = results.find((result): result is PromiseRejectedResult => result.status === 'rejected');
 
-			// Remove cached data for the newly created panels
-			data.value = omit(data.value, ...edits.create.map(({ id }) => id));
+			if (done.length > 0) {
+				await hydrate();
 
-			// Fetch data for panels that now exist in the dashboard (from create) but haven't been fetched yet
-			const panelsToLoad = unref(panelsWithEdits).filter(({ id }) => id in unref(data) === false);
-			loadPanelData(panelsToLoad);
+				if (done.includes('create')) {
+					// Remove cached data for the newly created panels
+					data.value = omit(data.value, ...edits.create.map(({ id }) => id));
+				}
 
-			clearEdits();
+				for (const kind of done) edits[kind] = [];
+
+				// Fetch data for panels that now exist in the dashboard (from create) but haven't been fetched yet
+				const panelsToLoad = unref(panelsWithEdits).filter(({ id }) => id in unref(data) === false);
+				loadPanelData(panelsToLoad);
+			}
+
+			if (failure) showUnexpectedError(failure.reason);
 		} catch (error) {
 			showUnexpectedError(error);
 		} finally {

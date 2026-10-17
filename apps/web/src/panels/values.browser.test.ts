@@ -1,7 +1,8 @@
 // Value panels of spec 018 (FR-042..FR-046): metric, metric-list, meter, label and list, fed with data shaped like the
 // Directus panel queries (aggregate `[{ count: { id: 12 } }]`, first/last `[{ amount: '12.50' }]`, grouped
 // `[{ group: { country }, sum: { amount } }]`). Expected values follow directus/app/src/panels/*/panel-*.vue, quirks
-// included: metric(-list) takes the last matching rule, meter the first, and `<=` compares with `<`.
+// included: metric(-list) takes the last matching rule, meter the first; `<=` includes the value (D-113, Directus
+// compares it with `<`).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
@@ -80,7 +81,7 @@ test('metric reads first/last raw values and the count without a field', () => {
 	).toBe('3');
 });
 
-test('metric conditional color: the last matching rule wins, `<=` behaves like `<`', () => {
+test('metric conditional color: the last matching rule wins, `<=` includes the value (D-113)', () => {
 	const rules = [
 		{ operator: '>', value: 1, color: A },
 		{ operator: '>=', value: 5, color: B },
@@ -88,7 +89,7 @@ test('metric conditional color: the last matching rule wins, `<=` behaves like `
 	];
 	const wrapper = metric({ data: [{ count: { id: 10 } }], conditionalFormatting: rules });
 
-	expect((wrapper.get('p').element as HTMLElement).style.color).toBe(B);
+	expect((wrapper.get('p').element as HTMLElement).style.color).toBe(C);
 });
 
 test('metric string values only match = and !=', () => {
@@ -141,7 +142,7 @@ test('metric list ascending sort', () => {
 	expect(rows.map((row) => row.text().slice(0, 2))).toEqual(['FR', 'VN', 'JP', 'US']);
 });
 
-test('metric list colors: last matching rule, `<=` as `<`, else the brand color', () => {
+test('metric list colors: last matching rule, `<=` inclusive (D-113), else the brand color', () => {
 	const rows = metricList({
 		conditionalFormatting: [
 			{ operator: '>=', value: 100, color: A },
@@ -151,7 +152,7 @@ test('metric list colors: last matching rule, `<=` as `<`, else the brand color'
 	const bar = (index: number) => (rows[index]!.get('[data-metric-bar]').element as HTMLElement).style.backgroundColor;
 
 	expect(bar(0)).toBe(A);
-	expect(bar(1)).toBe(A);
+	expect(bar(1)).toBe(B);
 	expect(bar(2)).toBe(B);
 });
 
@@ -192,17 +193,17 @@ test('meter conditional fill: the first matching rule wins', () => {
 	expect(wrapper.get('[data-meter-value]').attributes('stroke')).toBe(A);
 });
 
-test('meter `<=` behaves like `<` and falls back to the panel color', () => {
+test('meter `<=` includes the value (D-113), with or without the panel color', () => {
 	expect(
 		meter({ conditionalFill: [{ operator: '<=', value: 75, color: A }] })
 			.get('[data-meter-value]')
 			.attributes('stroke'),
-	).toBe('var(--color-brand-500)');
+	).toBe(A);
 	expect(
 		meter({ color: C, conditionalFill: [{ operator: '<=', value: 75, color: A }] })
 			.get('[data-meter-value]')
 			.attributes('stroke'),
-	).toBe(C);
+	).toBe(A);
 });
 
 test('meter dash offset follows the percentage (full size)', () => {

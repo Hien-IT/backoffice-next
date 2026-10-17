@@ -29,6 +29,7 @@ export type UsableItems = {
 	changeManualSort: (data: ManualSortData) => Promise<void>;
 	getItems: () => Promise<void>;
 	getTotalCount: () => Promise<void>;
+	clearCountCache: () => void;
 	getItemCount: () => Promise<void>;
 };
 
@@ -172,6 +173,8 @@ export function useItems(collection: Ref<string | null>, query: ComputedQuery): 
 		getItems,
 		getItemCount,
 		getTotalCount,
+		// Backoffice (018 D-115): the counts are memoized by their query; a caller that writes clears them before counting.
+		clearCountCache: () => fetchAggregate.clear(),
 	};
 
 	async function getItems() {

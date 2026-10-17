@@ -4,6 +4,7 @@
 // TailAdmin header button with a count badge instead of VBadge (hidden at 0, the button stays usable for the Archive
 // tab; above 99 shows `99+`, the full number is in the accessible name). An sr-only `aria-live="polite"` region
 // announces a changed count (Directus has none). No avatar or sign-out here: those are the UserMenu (D-45).
+import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -18,6 +19,14 @@ const { unread } = storeToRefs(useNotificationsStore());
 // Only a change is announced, not the count on load.
 const announcement = ref('');
 watch(unread, (count) => (announcement.value = t('notifications_unread_count', { count })));
+
+// Backoffice (D-116, owner 2026-10-18): Directus never refreshes the count by itself (R-52). Here it is recounted when
+// the browser tab becomes visible again, at most once a minute (no polling while the tab stays open in front).
+const notificationsStore = useNotificationsStore();
+const recount = useThrottleFn(() => notificationsStore.refreshUnreadCount(), 60_000, false, true);
+useEventListener(document, 'visibilitychange', () => {
+	if (document.visibilityState === 'visible') recount();
+});
 </script>
 
 <template>

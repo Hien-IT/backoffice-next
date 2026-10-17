@@ -137,7 +137,8 @@ const conditionalColor = computed(() => {
 				case '<':
 					return percentValue < compareValue;
 				case '<=':
-					return percentValue < compareValue;
+					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` (R-53).
+					return percentValue <= compareValue;
 			}
 		})?.color ?? defaultColor
 	);

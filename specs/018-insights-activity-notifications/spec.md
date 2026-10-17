@@ -520,7 +520,8 @@ của SC-002.
   hay phím mũi tên. Những gì Directus đã có bằng phím vẫn phải tới được bằng phím: nút sửa, "+", Save, Clear Changes,
   pencil và menu `more_vert` của tile (Copy To, Duplicate, Delete), drawer panel, zoom-to-fit.
 - **FR-028**: Save PHẢI như US3-5 (ba request hàng loạt song song như `insights.ts:421-461`, chỉ gửi loại có thay đổi;
-  `hydrate`; thoát chế độ sửa; lỗi: hộp lỗi, không `hydrate`, staging giữ, vẫn thoát chế độ sửa, R-56); `Ctrl/Cmd+S` gọi
+  `hydrate`; thoát chế độ sửa; lỗi: hộp lỗi, phần đã ghi thành công rời staging và store nạp lại, chỉ phần lỗi giữ
+  trong staging, vẫn thoát chế độ sửa: D-112, khác R-56 của Directus); `Ctrl/Cmd+S` gọi
   Save cả ngoài chế độ sửa như `dashboard.vue:164-166` (khi không có thay đổi thì không request); Clear Changes và guard
   như US3-6.
 - **FR-029**: Thứ tự focus: bấm sửa → nút Save; Save thành công hoặc Clear Changes → nút sửa; Done ở drawer panel →
@@ -767,6 +768,11 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-109 | Nút "Report error" trong hộp lỗi (admin, mã `UNKNOWN`) | Mở link báo lỗi lên GitHub của Directus | Không có | Nguyên tắc IX (không dẫn người dùng Backoffice tới Directus) | đổi thương hiệu | — |
 | D-110 | Ảnh xem trước của loại panel trong drawer chọn loại | `preview.svg` của mỗi loại (`panel-configuration.vue:162-170`), icon khi không có | Luôn icon lớn của loại, tên, mô tả (nhánh rơi về icon của Directus); không chép tài sản SVG | Không chép tài sản của Directus app; ảnh theo theme Directus, không theo design-system (Nguyên tắc XII); owner chọn B (Clarifications 2026-10-17) | khác | — |
 | D-111 | Panel trên collection người xem không đọc được | Lỗi trang `Cannot read properties of null (reading 'field')` ở `query-to-gql-string.ts` (`formatQuery`), hoặc tile `no_data` khi `query()` của panel tự trả rỗng | Chỉ tile đó hiện lỗi `FORBIDDEN` (thông điệp và mã); các tile khác nạp bình thường | Một panel không làm hỏng cả dashboard; chủ dự án chọn 2026-10-18 (T113) | khác | — |
+| D-112 | Save lỗi một phần | Ba request song song; một lỗi thì giữ mọi staging, Save lại tạo trùng các panel đã tạo (R-56) | Phần thành công rời staging, store nạp lại; chỉ phần lỗi còn staging cho lần Save sau | Tránh tạo trùng dữ liệu; chủ dự án 2026-10-18 | khác | — |
+| D-113 | Toán tử định dạng có điều kiện | `<=` so như `<` (metric, metric list, meter, bar chart); `contains`, `starts_with`, `ends_with`… của bar chart so ngược (giá trị luật chứa nhãn) (R-53) | `<=` gồm cả giá trị bằng; nhãn chứa / bắt đầu / kết thúc bằng giá trị luật | Đúng nghĩa toán tử; màu ở biên khác Directus với cùng dữ liệu; chủ dự án 2026-10-18 | khác | — |
+| D-114 | Mốc `now` của time series | Lấy một lần khi mở trang, auto refresh không dời cửa sổ (R-50) | Mỗi lần refresh (auto, sidebar, đổi dashboard) lấy `now` mới | Dashboard treo màn hình hiện số liệu mới; chủ dự án 2026-10-18 | khác | — |
+| D-115 | Số đếm của drawer thông báo | `useItems` nhớ số đếm theo truy vấn: sau Archive/Delete tab có thể báo sai số hoặc "No Notifications" dù còn dòng | Đếm lại sau mỗi lần ghi (xóa bộ nhớ đếm của `useItems`) | Số và trạng thái rỗng đúng; thêm request đếm sau ghi; chủ dự án 2026-10-18 | khác | — |
+| D-116 | Số chưa đọc của chuông | Không tự cập nhật (R-52) | Đếm lại khi tab trình duyệt hiện lại, tối đa một lần mỗi phút (không thăm dò) | Thấy thông báo mới khi quay lại tab; chủ dự án 2026-10-18 | khác | — |
 
 **Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 
@@ -786,18 +792,18 @@ giữ và áp cho màn mới của 018 (FR-080).
 - Vùng `aria-live` báo số chưa đọc (Directus không có).
 - Drawer activity hiện khóa thô của action chưa dịch (Directus để trống).
 - Bấm sửa dashboard đưa focus tới "+" khi Save còn khóa (FR-029; Save khóa khi chưa có thay đổi, như Directus).
-- Drawer thông báo nhớ số đếm của `useItems` như Directus (không thêm request đếm sau Archive/Delete).
+- (Thay bởi D-115, 2026-10-18) ~~Drawer thông báo nhớ số đếm của `useItems` như Directus.~~
 
 | Mã | Rủi ro | Nguồn và bằng chứng | Ảnh hưởng | Duyệt |
 |----|--------|---------------------|-----------|-------|
 | R-49 | Nhân bản dashboard không bắt lỗi, nút kẹt trạng thái đang chạy | `overview.vue:121-129` Directus | App bắt lỗi (hộp lỗi); hành vi thành công giữ nguyên | Duyệt (tech lead, 2026-10-18) |
-| R-50 | Mốc `now` của time-series lấy một lần khi mở trang, auto refresh không dời | `dashboard.vue:53` Directus | Dữ liệu mới vẫn vào, nhưng cửa sổ thời gian không trượt tới khi tải lại; tái tạo | Duyệt (tech lead, 2026-10-18) |
+| R-50 | Mốc `now` của time-series lấy một lần khi mở trang, auto refresh không dời | `dashboard.vue:53` Directus | Dữ liệu mới vẫn vào, nhưng cửa sổ thời gian không trượt tới khi tải lại; tái tạo | Thay bởi D-114 (owner, 2026-10-18) |
 | R-51 | Xóa panel không hộp xác nhận | `dashboard.vue`, `insights.ts` Directus | Chỉ staging, Clear Changes khôi phục; tái tạo | Duyệt (tech lead, 2026-10-18) |
-| R-52 | Số chưa đọc không tự cập nhật khi người khác gửi thông báo | `stores/notifications.ts:20-55` Directus (không thăm dò, không WebSocket) | Người dùng thấy số cũ tới khi có thao tác làm mới hoặc tải lại; tái tạo (D-41) | Duyệt (tech lead, 2026-10-18) |
-| R-53 | Toán tử định dạng có điều kiện: `<=` xử lý như `<` ở metric, metric-list, meter, bar-chart; `contains`/`starts_with`… của bar-chart so ngược chiều (`giá trị so sánh.includes(giá trị)`); metric lấy luật khớp cuối, meter lấy luật đầu | `panel-metric.vue:197`, `panel-meter.vue:127`, `panel-bar-chart.vue:329-332` Directus (plan R5, 2026-10-17) | Màu có điều kiện sai ở biên; chép nguyên để hai app hiện giống nhau với cùng dữ liệu; tái tạo | Duyệt (tech lead, 2026-10-18) |
+| R-52 | Số chưa đọc không tự cập nhật khi người khác gửi thông báo | `stores/notifications.ts:20-55` Directus (không thăm dò, không WebSocket) | Người dùng thấy số cũ tới khi có thao tác làm mới hoặc tải lại; tái tạo (D-41) | Thay bởi D-116 (owner, 2026-10-18) |
+| R-53 | Toán tử định dạng có điều kiện: `<=` xử lý như `<` ở metric, metric-list, meter, bar-chart; `contains`/`starts_with`… của bar-chart so ngược chiều (`giá trị so sánh.includes(giá trị)`); metric lấy luật khớp cuối, meter lấy luật đầu | `panel-metric.vue:197`, `panel-meter.vue:127`, `panel-bar-chart.vue:329-332` Directus (plan R5, 2026-10-17) | Màu có điều kiện sai ở biên; chép nguyên để hai app hiện giống nhau với cùng dữ liệu; tái tạo | Thay bởi D-113 (owner, 2026-10-18) |
 | R-54 | Đổi cỡ tile từ cạnh trên/trái vẫn dời `x`/`y` khi cỡ đã chạm tối thiểu (tile trôi) | `v-workspace-tile.vue:215-221` Directus | Vị trí ghi ra khác ý người dùng ở biên; chép nguyên để `position_x/y` ghi ra bằng Directus với cùng thao tác (SC-002); tái tạo | Duyệt (tech lead, 2026-10-18) |
 | R-55 | Biến dashboard dùng chung theo `field` cho mọi dashboard; `defaultValue` trùng `field` thì panel sau thắng | `stores/insights.ts:41,125-135,467-499` Directus (kiểm 2026-10-17, /speckit.analyze F1) | Hai dashboard cùng tên biến ảnh hưởng lẫn nhau; tái tạo; bộ mẫu dùng tên biến riêng cho mỗi dashboard (data-model §12) | Duyệt (tech lead, 2026-10-18) |
-| R-56 | Save lỗi một phần: ba request `/panels` song song, một lỗi thì không `hydrate`, staging giữ nhưng trang về chế độ xem; Save lại gửi lại toàn bộ staging → panel đã tạo lần trước bị tạo trùng | `stores/insights.ts:421-461`, `dashboard.vue:168-171` Directus (release-gate CHK001) | Panel trùng sau khi Save lại; người dùng xóa tay; tái tạo như Directus | Duyệt (tech lead, 2026-10-18) |
+| R-56 | Save lỗi một phần: ba request `/panels` song song, một lỗi thì không `hydrate`, staging giữ nhưng trang về chế độ xem; Save lại gửi lại toàn bộ staging → panel đã tạo lần trước bị tạo trùng | `stores/insights.ts:421-461`, `dashboard.vue:168-171` Directus (release-gate CHK001) | Panel trùng sau khi Save lại; người dùng xóa tay; tái tạo như Directus | Thay bởi D-112 (owner, 2026-10-18) |
 | R-57 | Drawer thông báo không bắt lỗi Archive/Unarchive và lỗi nạp danh sách; Delete chỉ `try/finally` | `notifications-drawer.vue:180-210` Directus (release-gate CHK003) | App thêm hộp lỗi (như R-49), hành vi thành công và trạng thái lựa chọn giữ như nguồn | Duyệt (tech lead, 2026-10-18) |
 
 **Trạng thái khác biệt (T122, lượt 4, 2026-10-18; tech lead duyệt cả bảng 2026-10-18, SC-010)**:
@@ -809,14 +815,19 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-109 | `src/components/NoticeStack.vue`: hộp lỗi chỉ có Dismiss (`NoticeStack.test.ts`, E2E `notifications.spec.ts` lỗi Save 500) | Duyệt (tech lead, 2026-10-18) |
 | D-110 | `src/panels/<id>/index.ts` không chép `preview`; `routes/PanelConfiguration.vue` lưới `BoFancySelect layout="grid"` icon, tên, mô tả (`panel-configuration.test.ts`) | Duyệt (tech lead, 2026-10-18) |
 | D-111 | `stores/insights.ts` `loadPanelData`: collection của panel (theo `query()` hoặc `options.collection`) không có trong store fields → `errors[panel]` mã `FORBIDDEN`, panel bỏ khỏi tài liệu GraphQL (`insights.test.ts`) | Duyệt (owner, 2026-10-18) |
+| D-112 | `stores/insights.ts` `saveChanges` (`Promise.allSettled`; `insights.test.ts`) | Duyệt (owner, 2026-10-18) |
+| D-113 | `panels/metric`, `metric-list`, `meter`, `bar-chart` (`<=` gồm bằng; toán tử chuỗi của bar chart theo nhãn); `values.browser.test.ts`, `charts.browser.test.ts` | Duyệt (owner, 2026-10-18) |
+| D-114 | `routes/DashboardRoute.vue` `now` là ref, `refreshDashboard()` lấy mốc mới (`dashboard.test.ts`) | Duyệt (owner, 2026-10-18) |
+| D-115 | `composables/use-items.ts` `clearCountCache`; `components/NotificationsDrawer.vue` `refresh()` (`NotificationsDrawer.test.ts`) | Duyệt (owner, 2026-10-18) |
+| D-116 | `layout/NotificationsBell.vue` (`visibilitychange`, throttle 60 s; `NotificationsBell.test.ts`) | Duyệt (owner, 2026-10-18) |
 | R-49 | `routes/InsightsOverviewRoute.vue` duplicate có `try/catch` → `showUnexpectedError`, nút về bình thường (`overview.test.ts`) | Duyệt (tech lead, 2026-10-18) |
-| R-50 | `routes/DashboardRoute.vue` `now = new Date()` một lần mỗi trang, như `dashboard.vue:53` | Duyệt (tech lead, 2026-10-18) |
+| R-50 | `routes/DashboardRoute.vue` `now = new Date()` một lần mỗi trang, như `dashboard.vue:53` | Thay bởi D-114 (owner, 2026-10-18) |
 | R-51 | `stores/insights.ts` `stagePanelDelete` không hộp; `DashboardRoute.vue` `deletePanel` chỉ chuyển focus (`dashboard.test.ts`) | Duyệt (tech lead, 2026-10-18) |
-| R-52 | `stores/notifications.ts` không thăm dò; số chưa đọc làm mới sau ghi của drawer và chạy flow thủ công | Duyệt (tech lead, 2026-10-18) |
-| R-53 | `panels/metric`, `metric-list`, `meter`, `bar-chart` chép nguyên phép so (`<=` như `<`, `contains` ngược của bar-chart); `panels/values.browser.test.ts` | Duyệt (tech lead, 2026-10-18) |
+| R-52 | `stores/notifications.ts` không thăm dò; số chưa đọc làm mới sau ghi của drawer và chạy flow thủ công | Thay bởi D-116 (owner, 2026-10-18) |
+| R-53 | `panels/metric`, `metric-list`, `meter`, `bar-chart` chép nguyên phép so (`<=` như `<`, `contains` ngược của bar-chart); `panels/values.browser.test.ts` | Thay bởi D-113 (owner, 2026-10-18) |
 | R-54 | `components/workspace/BoWorkspaceTile.vue` `onPointerMove` như `v-workspace-tile.vue:215-221` (`BoWorkspaceTile.browser.test.ts` ca R-54) | Duyệt (tech lead, 2026-10-18) |
 | R-55 | `stores/insights.ts` `variables` theo `field`, `defaultValue` của panel sau thắng (`insights.test.ts`) | Duyệt (tech lead, 2026-10-18) |
-| R-56 | `stores/insights.ts` `saveChanges`: ba request song song, lỗi thì không `hydrate`, staging giữ, `DashboardRoute` vẫn thoát chế độ sửa (`insights.test.ts`, `dashboard.test.ts`) | Duyệt (tech lead, 2026-10-18) |
+| R-56 | `stores/insights.ts` `saveChanges`: ba request song song, lỗi thì không `hydrate`, staging giữ, `DashboardRoute` vẫn thoát chế độ sửa (`insights.test.ts`, `dashboard.test.ts`) | Thay bởi D-112 (owner, 2026-10-18) |
 | R-57 | `components/NotificationsDrawer.vue` bắt lỗi nạp, Archive/Unarchive, Delete → `showUnexpectedError`; Archive lỗi giữ lựa chọn, Delete lỗi bỏ lựa chọn và đóng hộp (`NotificationsDrawer.test.ts`) | Duyệt (tech lead, 2026-10-18) |
 | Ngoại lệ a11y lưới dashboard | Kéo tile và 8 tay cầm chỉ bằng chuột như Directus (`design-system/qa/handoff-checklist.md`); lưới là `role="region"` nhận focus; axe sáng/tối sạch ở các màn 018 (`a11y.spec.ts` khối 018) | Duyệt (tech lead, 2026-10-18) |
 | Đã xác nhận | Các mục ở danh sách "Đã xác nhận" trên | Duyệt (owner, 2026-10-18) |
