@@ -268,7 +268,7 @@ describe('NotificationsDrawer', () => {
 		expect(notificationsStore.unread).toBe(3);
 	});
 
-	test('Delete asks for confirmation, then DELETE the key array (#203)', async () => {
+	test('Delete asks for confirmation, then DELETE { keys } as Directus (#203)', async () => {
 		await setup();
 		await click(rowCheckbox('bo_notification_path'));
 		await click(button(t('delete_label'))!);
@@ -285,7 +285,7 @@ describe('NotificationsDrawer', () => {
 			)!,
 		);
 		await vi.waitFor(() => expect(subjects()).toEqual(['bo_notification_collection', 'bo_notification_item']));
-		expect(bodies('DELETE')).toEqual([[3]]);
+		expect(bodies('DELETE')).toEqual([{ keys: [3] }]);
 		expect(document.body.textContent).not.toContain(t('delete_are_you_sure'));
 		expect(errorDialogs()).toEqual([]);
 	});

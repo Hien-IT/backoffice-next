@@ -1,0 +1,63 @@
+[
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: 1) { count { id } } }"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"status\"]) { sum { amount } group } }"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/panels",
+		"body": [
+			{
+				"dashboard": "dashboard:web-e2e-baseline-insights-dash",
+				"height": 2,
+				"options": {
+					"collection": "bo_insights_data",
+					"field": "id",
+					"function": "count"
+				},
+				"position_x": 1,
+				"position_y": 1,
+				"type": "metric",
+				"width": 6
+			},
+			{
+				"dashboard": "dashboard:web-e2e-baseline-insights-dash",
+				"height": 10,
+				"options": {
+					"collection": "bo_insights_data",
+					"function": "sum",
+					"xAxis": "status",
+					"yAxis": "amount"
+				},
+				"position_x": 1,
+				"position_y": 1,
+				"type": "bar-chart",
+				"width": 12
+			}
+		]
+	},
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"status\"]) { sum { amount } group } query_*: bo_insights_data_aggregated (limit: 1) { count { id } } query_*: bo_insights_data (limit: 5, sort: \"-id\", filter: {}) { id status category } query_*: bo_insights_data_aggregated (limit: 1) { count { id } } query_*: bo_insights_data_aggregated { sum { qty } } query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"category\"]) { sum { qty } group } query_*: bo_insights_data_aggregated (limit: 5, sort: [\"-count.id\"], groupBy: [\"status\"]) { count { id } group } query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"category\"]) { count { category } group } query_*: bo_insights_data_aggregated (limit: -1, filter: {_and: [{}]}, groupBy: [\"year(happened_at)\", \"month(happened_at)\", \"day(happened_at)\"]) { count { id } group } query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"status\"]) { sum { amount } group } query_*: bo_insights_data_aggregated (limit: 1) { count { id } } query_*: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"status\"]) { sum { amount } group } }"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/graphql/system",
+		"body": {
+			"query": "query { query_*: users_aggregated (limit: 1) { count { id } } query_*: files (limit: 5, sort: \"title\", filter: {}) { id title } }"
+		}
+	}
+]

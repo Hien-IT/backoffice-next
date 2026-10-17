@@ -534,7 +534,8 @@ của SC-002.
 - **FR-031**: Options của mỗi loại PHẢI dựng bằng `ExtensionOptions` (016) với `type panel` từ registry 11 loại (port
   `panels/<id>/index.ts`: `id`, `name`, `icon`, `description`, `options` mảng hoặc hàm, `minWidth`, `minHeight`,
   `query`, `variable`, `skipUndefinedKeys`), kèm nút raw editor; test so nguồn như registry operation của 017.
-- **FR-032**: Nhóm header PHẢI như US3-2 (Show Header bật mặc định, các field khác khóa khi tắt).
+- **FR-032**: Nhóm header PHẢI như US3-2: các field khác khóa khi tắt Show Header; panel mới không bật sẵn header (không
+  gửi `show_header`, cột mặc định false), như Directus (mốc T002 `insights-add.json`, sửa 2026-10-18).
 
 **11 panel (US2)**
 
@@ -711,9 +712,9 @@ của SC-002.
   tile có dữ liệu dưới 1500 ms tính từ lúc vào route tới khi tile cuối vẽ xong, với API giả lập trả ngay (browser
   test); đổi biến → panel liên quan cập nhật dưới 500 ms sau khi response về; kéo/resize: mỗi `pointermove` xử lý dưới
   16 ms với 20 tile; drawer thông báo 25 dòng vẽ dưới 300 ms sau khi response về; số request: mở dashboard = 1 `POST
-  /graphql` (+1 `/graphql/system` khi có panel hệ thống), 0 request dashboard/panel (store); mở `/insights` = 0; mở drawer
-  thông báo = 1 `GET /notifications` danh sách (đếm #26 chỉ chạy sau ghi, như `notifications-drawer.vue`; T002 xác
-  nhận). Thời gian với API thật phụ thuộc API (benchmark BE đã có) và ngoài phạm vi FR-108; E2E chỉ đếm request.
+  /graphql` (+1 `/graphql/system` khi có panel hệ thống) và 1 `GET /comments` đếm bình luận của sidebar, 0 request
+  dashboard/panel (store); mở `/insights` = 0; mở drawer thông báo = 1 `GET /notifications` danh sách + 1 đếm
+  `aggregate[countDistinct]=id` của `useItems` (đếm #26 chỉ chạy sau ghi), như Directus (mốc T002, T114 2026-10-18). Thời gian với API thật phụ thuộc API (benchmark BE đã có) và ngoài phạm vi FR-108; E2E chỉ đếm request.
 - **FR-109**: Bundle: module Insights, registry panel và thư viện biểu đồ là chunk lười; chunk chính ≤ ngân sách 017 +
   15 KB gzip (chuông, drawer thông báo, cách hiện FR-080); chunk lười gzip: route Insights ≤ 60 KB, component panel ≤
   40 KB, `apexcharts` ≤ 170 KB (đo ở T050: 152,0 KB), `NotificationsDrawer` ≤ 15 KB; đo bằng

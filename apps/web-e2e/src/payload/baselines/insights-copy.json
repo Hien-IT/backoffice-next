@@ -1,0 +1,42 @@
+[
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: 1) { count { id } } }"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/panels",
+		"body": [
+			{
+				"color": null,
+				"dashboard": "dashboard:web-e2e-baseline-insights-target",
+				"date_created": "<ts>",
+				"height": 4,
+				"icon": null,
+				"name": null,
+				"note": null,
+				"options": {
+					"collection": "bo_insights_data",
+					"field": "id",
+					"function": "count"
+				},
+				"position_x": 3,
+				"position_y": 3,
+				"show_header": false,
+				"type": "metric",
+				"user_created": "<me>",
+				"width": 8
+			}
+		]
+	},
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: 1) { count { id } } query_*: bo_insights_data_aggregated (limit: 1) { count { id } } }"
+		}
+	}
+]

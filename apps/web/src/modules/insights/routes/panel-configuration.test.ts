@@ -110,17 +110,18 @@ describe('PanelConfiguration', () => {
 			expect(typeCard(t('panels.metric.name')).getAttribute('aria-pressed')).toBe('true');
 			expect(done().disabled).toBe(false);
 			expect(dialog().textContent).toContain(t('panel_header'));
-			expect(input(t('name'))!.disabled).toBe(false);
+			// As Directus: a new panel starts without a header (no `show_header` sent; the column default is false).
+			expect(input(t('name'))!.disabled).toBe(true);
 
 			done().click();
 			await flushPromises();
 
+			expect(create.mock.calls[0]![0]).not.toHaveProperty('show_header');
 			expect(create).toHaveBeenCalledWith(
 				expect.objectContaining({
 					id: expect.stringMatching(/^_/),
 					dashboard: DASHBOARD,
 					type: 'metric',
-					show_header: true,
 					position_x: 1,
 					position_y: 1,
 					width: 6,

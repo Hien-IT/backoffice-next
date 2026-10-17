@@ -859,7 +859,9 @@ export function mockFixtureApi(
 			}
 
 			if (method === 'DELETE') {
-				const keys = key ? [decodeURIComponent(key)] : (body() as unknown[]);
+				// The API takes the key array or `{ keys }` (Directus notifications drawer).
+				const sent = body() as unknown[] | { keys: unknown[] };
+				const keys = key ? [decodeURIComponent(key)] : Array.isArray(sent) ? sent : sent.keys;
 				db[collection] = (db[collection] ?? []).filter((row) => !keys.some((k) => loose(row[pkOf(collection)], k)));
 				return new Response(null, { status: 204 });
 			}

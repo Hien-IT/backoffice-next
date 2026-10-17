@@ -1,0 +1,14 @@
+[
+	{
+		"method": "POST",
+		"path": "/utils/import/directus_dashboards",
+		"body": {
+			"multipart": [
+				{
+					"filename": "web-e2e-baseline-insights-dash.json",
+					"name": "file"
+				}
+			]
+		}
+	}
+]

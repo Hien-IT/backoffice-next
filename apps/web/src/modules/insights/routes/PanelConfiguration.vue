@@ -3,8 +3,8 @@
 // Backoffice (spec 018 FR-029 to FR-032, recipe Q-37, research R6): VDrawer is BoDrawer (persistent, `apply` =
 // meta+Enter), the type grid is BoFancySelect `layout="grid"` without the preview images (D-110) and without the
 // Directus `configRow` placement (the options follow the grid); the types come from the static registry (no
-// extensions, XI) translated here. Choosing another type resets the options (FR-030); the header group starts on
-// (FR-032). Done moves the focus to the tile that was created or edited (FR-029).
+// extensions, XI) translated here. Choosing another type resets the options (FR-030); a new panel starts without
+// a header, as Directus (no `show_header` sent, the column default is false; T002 baseline, FR-032). Done moves the focus to the tile that was created or edited (FR-029).
 import type { Field, Panel } from '@directus/types';
 import { assign, clone, isUndefined, omitBy } from 'lodash-es';
 import { nanoid } from 'nanoid/non-secure';
@@ -56,7 +56,7 @@ loadPanelRegistry().then((registry) => (panelTypes.value = registry.getPanels().
 const router = useRouter();
 
 const panel = computed<Partial<Panel>>(() => {
-	if (props.panelKey === '+') return { show_header: true, ...omitBy(edits, isUndefined) };
+	if (props.panelKey === '+') return omitBy(edits, isUndefined);
 	const existing: Partial<Panel> = unref(panels).find((panel) => panel.id === props.panelKey) ?? {};
 	return assign({}, existing, omitBy(edits, isUndefined));
 });

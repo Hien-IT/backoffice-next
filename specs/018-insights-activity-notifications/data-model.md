@@ -52,7 +52,7 @@ Hàm: `hydrate()` (chỉ khi đọc được `directus_dashboards` và `directus
 |--------|------|---------|
 | Dashboard `id` | uuid | |
 | `name` | string | bắt buộc ở hộp |
-| `icon` | string | mặc định `dashboard` |
+| `icon` | string | hộp tạo gửi `space_dashboard` (Directus đặt lại khi mở hộp; mốc T002) |
 | `color` | string \| null | inline style |
 | `note` | string \| null | |
 | `date_created`, `user_created` | | bỏ khi so |
@@ -60,7 +60,7 @@ Hàm: `hydrate()` (chỉ khi đọc được `directus_dashboards` và `directus
 | Panel `id` | uuid | id tạm client `_<nanoid>` |
 | `dashboard` | uuid | Copy To đổi sang đích |
 | `name`, `icon`, `color`, `note` | string \| null | header; `icon` rơi về icon của loại |
-| `show_header` | boolean | mặc định `true` ở drawer |
+| `show_header` | boolean | panel mới không gửi (cột mặc định false), như Directus (mốc T002) |
 | `type` | string | 11 id có sẵn hoặc lạ |
 | `position_x`, `position_y` | integer | ô 1-based; mới `(1, 1)`; nhân bản `+2/+2` |
 | `width`, `height` | integer | ô; mới = `minWidth/minHeight` của loại hoặc 4×4; resize kẹp ≥ min |
@@ -181,8 +181,9 @@ user_agent,origin,collection,item`.
 
 Drawer: `GET /notifications?filter={"_and":[{"recipient":{"_eq":"<me>"}},{"status":{"_eq":"<tab>"}}]}&fields[]=id,
 subject,message,collection,item,timestamp&sort[]=-timestamp&limit=25&page=<n>&search=<q>` (`<me>` theo cách Directus
-gửi, kiểm T001); `PATCH /notifications {keys: [...], data: {status}}`; `DELETE /notifications [ids]`; đếm `GET
-/notifications?aggregate[count]=id&filter=…inbox` (#26). Đích: `collection` + singleton hoặc không `item` → route
+gửi, kiểm T001; không `meta`) và khi mở thêm một đếm `aggregate[countDistinct]=id` của `useItems`; `PATCH /notifications
+{keys: [...], data: {status}}`; `DELETE /notifications {keys: [...]}` (như Directus); sau ghi: danh sách + đếm `GET
+/notifications?aggregate[count]=id&filter=…inbox` (#26) (mốc T002). Đích: `collection` + singleton hoặc không `item` → route
 collection; `collection` + `item` → `getItemRoute`; không `collection` + `item` bắt đầu `/` → path; khác → không nút.
 
 ## 11. Snackbar / notice (FR-080..FR-082)

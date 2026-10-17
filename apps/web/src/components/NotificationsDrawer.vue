@@ -169,7 +169,7 @@ async function toggleArchive() {
 
 async function deleteSelected() {
 	try {
-		await sdk.request(requestEndpoint('/notifications', { method: 'DELETE', body: selection.value }));
+		await sdk.request(requestEndpoint('/notifications', { method: 'DELETE', body: { keys: selection.value } }));
 
 		await refresh();
 		await notificationsStore.refreshUnreadCount();

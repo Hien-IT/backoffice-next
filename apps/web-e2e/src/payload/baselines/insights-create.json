@@ -1,0 +1,12 @@
+[
+	{
+		"method": "POST",
+		"path": "/dashboards?fields[]=id",
+		"body": {
+			"color": null,
+			"icon": "space_dashboard",
+			"name": "web-e2e-baseline-insights-dash",
+			"note": null
+		}
+	}
+]

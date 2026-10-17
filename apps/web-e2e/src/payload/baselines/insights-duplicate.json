@@ -1,0 +1,47 @@
+[
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: 1) { sum { id } } }"
+		}
+	},
+	{
+		"method": "POST",
+		"path": "/panels",
+		"body": [
+			{
+				"color": null,
+				"dashboard": "dashboard:web-e2e-baseline-insights-dash",
+				"date_created": "<ts>",
+				"height": 4,
+				"icon": null,
+				"name": null,
+				"note": null,
+				"options": {
+					"collection": "bo_insights_data",
+					"field": "id",
+					"function": "sum"
+				},
+				"position_x": 3,
+				"position_y": 3,
+				"show_header": false,
+				"type": "metric",
+				"user_created": "<me>",
+				"width": 8
+			}
+		]
+	},
+	{
+		"method": "DELETE",
+		"path": "/panels",
+		"body": ["panel:bar-chart@dashboard:web-e2e-baseline-insights-dash"]
+	},
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"body": {
+			"query": "query { query_*: bo_insights_data_aggregated (limit: 1) { sum { id } } query_*: bo_insights_data_aggregated (limit: 1) { sum { id } } }"
+		}
+	}
+]

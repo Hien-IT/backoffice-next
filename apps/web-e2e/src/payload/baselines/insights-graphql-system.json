@@ -1,0 +1,43 @@
+[
+	{
+		"method": "POST",
+		"path": "/graphql/system",
+		"request": {
+			"query": "query { query_1: files (limit: 5, sort: \"title\", filter: {}) { id title } query_2: users_aggregated (limit: 1) { count { id } } }"
+		},
+		"response": {
+			"data": {
+				"query_1": [
+					{
+						"id": "<uuid>",
+						"title": "bo-deep-text"
+					},
+					{
+						"id": "<uuid>",
+						"title": "bo-edit"
+					},
+					{
+						"id": "<uuid>",
+						"title": "bo-exif"
+					},
+					{
+						"id": "<uuid>",
+						"title": "bo-old"
+					},
+					{
+						"id": "<uuid>",
+						"title": "bo-sample-pdf"
+					}
+				],
+				"query_2": [
+					{
+						"count": {
+							"id": 10
+						}
+					}
+				]
+			}
+		},
+		"status": 200
+	}
+]

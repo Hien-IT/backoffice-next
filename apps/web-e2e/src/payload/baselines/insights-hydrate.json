@@ -1,0 +1,16 @@
+[
+	{
+		"method": "GET",
+		"path": "/dashboards?{\"fields\":[\"*\"],\"limit\":\"-1\",\"sort\":[\"name\"]}",
+		"request": null,
+		"response": null,
+		"status": 200
+	},
+	{
+		"method": "GET",
+		"path": "/panels?{\"fields\":[\"*\"],\"limit\":\"-1\",\"sort\":[\"dashboard\"]}",
+		"request": null,
+		"response": null,
+		"status": 200
+	}
+]

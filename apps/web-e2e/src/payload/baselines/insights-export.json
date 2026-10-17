@@ -1,0 +1,51 @@
+{
+	"method": "GET",
+	"path": "/dashboards?{\"export\":\"json\",\"fields\":[\"color\",\"icon\",\"name\",\"note\",\"panels.color\",\"panels.height\",\"panels.icon\",\"panels.name\",\"panels.note\",\"panels.options\",\"panels.position_x\",\"panels.position_y\",\"panels.show_header\",\"panels.type\",\"panels.width\"],\"filter\":{\"id\":{\"_in\":[\"dashboard:web-e2e-baseline-insights-dash\"]}}}",
+	"request": null,
+	"response": [
+		{
+			"color": null,
+			"icon": "space_dashboard",
+			"name": "web-e2e-baseline-insights-dash",
+			"note": null,
+			"panels": [
+				{
+					"color": null,
+					"height": 4,
+					"icon": null,
+					"name": null,
+					"note": null,
+					"options": {
+						"collection": "bo_insights_data",
+						"field": "id",
+						"function": "count"
+					},
+					"position_x": 1,
+					"position_y": 1,
+					"show_header": false,
+					"type": "metric",
+					"width": 8
+				},
+				{
+					"color": null,
+					"height": 10,
+					"icon": null,
+					"name": null,
+					"note": null,
+					"options": {
+						"collection": "bo_insights_data",
+						"function": "sum",
+						"xAxis": "status",
+						"yAxis": "amount"
+					},
+					"position_x": 13,
+					"position_y": 1,
+					"show_header": false,
+					"type": "bar-chart",
+					"width": 12
+				}
+			]
+		}
+	],
+	"status": 200
+}

@@ -82,7 +82,7 @@ hiện có + mới xanh, commit, push sau khi nhắn phiên chung checkout, CI x
       `_self` mặc định, `rel` cho `_blank`), thiếu thì ghi vào T094 (FR-074); (j) chép
       `directus/packages/utils/shared/apply-options-data.test.ts` thành `src/utils/apply-options-data.test.ts` chạy với
       `@directus/utils` đã cài, xanh (FR-053, CHK051)
-- [ ] T002 [P] (chạy SAU T016: cần bộ mẫu `bo_insights`; viết spec ghi được làm trước) Mốc Directus app (SC-005,
+- [X] T002 [P] (chạy SAU T016: cần bộ mẫu `bo_insights`; viết spec ghi được làm trước) Mốc Directus app (SC-005,
       SC-006): `e2e/payload/insights-baselines.spec.ts` (`RECORD_BASELINES=1`, như 017 `flows-baselines.spec.ts`) điều
       khiển Directus app 8155 và ghi request (`page.on('request')`, response GraphQL) chín luồng: (1) tạo dashboard tạm qua
       hộp, (2) "+" metric (count `bo_insights_data`) và bar chart rồi Save, (3) kéo bar chart sang (13,1) và đổi cỡ metric 8×4
@@ -751,4 +751,13 @@ Lượt 4 (2026-10-18, đang làm):
 - T121: D-40, D-45 (012), D-66 (013, giữ), D-72 (014), D-90 (015) ghi đã gỡ/xét lại ở 018; `CLAUDE.md` thêm Recent
   Changes 018.
 - T122: bảng "Trạng thái khác biệt" viết xong; tech lead duyệt cả bảng 2026-10-18 (ghi vào spec và Clarifications).
+- T002: `apps/web-e2e/src/payload/insights-baselines.spec.ts` (RECORD_BASELINES=1, Directus 8155, chromium-1280, chạy
+  với `E2E_CONFIG=proxy-directus` để Playwright không khởi dev server), đủ 9 luồng + GraphQL `bo_dash_all`,
+  `bo_dash_system`, `bo_dash_vars` + drawer thông báo; mốc ở `src/payload/baselines/insights-*.json` (thời điểm giữ là
+  `<ts>`). Không có `fixtures/snapshot/graphql.bo_dash_all.json` (dữ liệu ở `insights-graphql-all.json`).
+- T116 (phần từ mốc T002): app sửa theo Directus: panel mới không gửi `show_header` (FR-032 sửa); `DELETE /notifications`
+  gửi `{keys}` (mock API nhận cả hai dạng). Tài liệu sửa: FR-108 (đếm bình luận khi mở dashboard; drawer mở gửi danh sách
+  + `countDistinct`), data-model §3 (`icon` gửi `space_dashboard`, `show_header`), §10, api-calls #185, #186, #193,
+  #194, #196, #198, #201, #203. Còn một khác biệt đọc (Directus nạp danh sách user của drawer đóng ở relational
+  variable) chờ chủ dự án xác nhận.
 

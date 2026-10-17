@@ -1,0 +1,58 @@
+{
+	"archive": [
+		{
+			"method": "PATCH",
+			"path": "/notifications",
+			"request": {
+				"data": {
+					"status": "archived"
+				},
+				"keys": ["notification:bo_notification_item"]
+			},
+			"response": null,
+			"status": 200
+		},
+		{
+			"method": "GET",
+			"path": "/notifications?{\"fields\":[\"collection\",\"id\",\"item\",\"message\",\"subject\",\"timestamp\"],\"filter\":{\"_and\":[{\"recipient\":{\"_eq\":\"<me>\"}},{\"status\":{\"_eq\":\"inbox\"}}]},\"limit\":\"25\",\"page\":\"1\",\"sort\":[\"-timestamp\"]}",
+			"request": null,
+			"response": null,
+			"status": 200
+		},
+		{
+			"method": "GET",
+			"path": "/notifications?{\"aggregate\":{\"count\":\"id\"},\"filter\":{\"_and\":[{\"recipient\":{\"_eq\":\"<me>\"}},{\"status\":{\"_eq\":\"inbox\"}}]}}",
+			"request": null,
+			"response": null,
+			"status": 200
+		}
+	],
+	"unarchive": [
+		{
+			"method": "PATCH",
+			"path": "/notifications",
+			"request": {
+				"data": {
+					"status": "inbox"
+				},
+				"keys": ["notification:bo_notification_item"]
+			},
+			"response": null,
+			"status": 200
+		},
+		{
+			"method": "GET",
+			"path": "/notifications?{\"fields\":[\"collection\",\"id\",\"item\",\"message\",\"subject\",\"timestamp\"],\"filter\":{\"_and\":[{\"recipient\":{\"_eq\":\"<me>\"}},{\"status\":{\"_eq\":\"archived\"}}]},\"limit\":\"25\",\"page\":\"1\",\"sort\":[\"-timestamp\"]}",
+			"request": null,
+			"response": null,
+			"status": 200
+		},
+		{
+			"method": "GET",
+			"path": "/notifications?{\"aggregate\":{\"count\":\"id\"},\"filter\":{\"_and\":[{\"recipient\":{\"_eq\":\"<me>\"}},{\"status\":{\"_eq\":\"inbox\"}}]}}",
+			"request": null,
+			"response": null,
+			"status": 200
+		}
+	]
+}

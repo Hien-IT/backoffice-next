@@ -1,0 +1,270 @@
+[
+	{
+		"step": "open (vars_status published, vars_author empty)",
+		"calls": [
+			{
+				"method": "GET",
+				"path": "/users?{\"fields\":[\"avatar.id\",\"avatar.modified_on\",\"avatar.title\",\"avatar.type\",\"email\",\"first_name\",\"id\",\"last_name\",\"role.id\",\"role.name\"],\"limit\":\"25\",\"page\":\"1\",\"sort\":[\"email\"]}",
+				"request": null,
+				"response": {
+					"data": [
+						{
+							"avatar": null,
+							"email": "admin@example.com",
+							"first_name": "Admin",
+							"id": "<me>",
+							"last_name": "User",
+							"role": {
+								"id": "<uuid>",
+								"name": "Administrator"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-active@example.com",
+							"first_name": "Ada",
+							"id": "<uuid>",
+							"last_name": "Active",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-sub"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-archived@example.com",
+							"first_name": "Archie",
+							"id": "<uuid>",
+							"last_name": "Archived",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-draft@example.com",
+							"first_name": "Dee",
+							"id": "<uuid>",
+							"last_name": "Draft",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-editor@example.com",
+							"first_name": "Edith",
+							"id": "<uuid>",
+							"last_name": "Editor",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-invited@example.com",
+							"first_name": null,
+							"id": "<uuid>",
+							"last_name": null,
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-sso@example.com",
+							"first_name": "Sasha",
+							"id": "<uuid>",
+							"last_name": "Sso",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-suspended@example.com",
+							"first_name": "Sam",
+							"id": "<uuid>",
+							"last_name": "Suspended",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-token@example.com",
+							"first_name": "Toby",
+							"id": "<uuid>",
+							"last_name": "Token",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-editor"
+							}
+						},
+						{
+							"avatar": null,
+							"email": "bo-viewer@example.com",
+							"first_name": "Victor",
+							"id": "<uuid>",
+							"last_name": "Viewer",
+							"role": {
+								"id": "<uuid>",
+								"name": "bo-viewer"
+							}
+						}
+					]
+				},
+				"status": 200
+			},
+			{
+				"method": "GET",
+				"path": "/users?{\"aggregate\":{\"countDistinct\":\"id\"}}",
+				"request": null,
+				"response": {
+					"data": [
+						{
+							"countDistinct": {
+								"id": "10"
+							}
+						}
+					]
+				},
+				"status": 200
+			}
+		]
+	},
+	{
+		"step": "vars_author [<me>] (vars_status published)",
+		"calls": [
+			{
+				"method": "GET",
+				"path": "/users?{\"fields\":[\"first_name\",\"id\",\"last_name\"],\"filter\":{\"id\":{\"_in\":[\"<me>\"]}}}",
+				"request": null,
+				"response": {
+					"data": [
+						{
+							"first_name": "Admin",
+							"id": "<me>",
+							"last_name": "User"
+						}
+					]
+				},
+				"status": 200
+			},
+			{
+				"method": "POST",
+				"path": "/graphql",
+				"request": {
+					"query": "query { query_1: bo_insights_data_aggregated (limit: 1, filter: {_and: [{status: {_eq: \"published\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { count { id } } query_2: bo_insights_data (limit: 10, sort: \"id\", filter: {_and: [{status: {_eq: \"published\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { id status qty } }"
+				},
+				"response": {
+					"data": {
+						"query_1": [
+							{
+								"count": {
+									"id": 4
+								}
+							}
+						],
+						"query_2": [
+							{
+								"id": "1",
+								"qty": 3,
+								"status": "published"
+							},
+							{
+								"id": "2",
+								"qty": 5,
+								"status": "published"
+							},
+							{
+								"id": "4",
+								"qty": 8,
+								"status": "published"
+							},
+							{
+								"id": "7",
+								"qty": 6,
+								"status": "published"
+							}
+						]
+					}
+				},
+				"status": 200
+			}
+		]
+	},
+	{
+		"step": "vars_status draft",
+		"calls": [
+			{
+				"method": "POST",
+				"path": "/graphql",
+				"request": {
+					"query": "query { query_1: bo_insights_data_aggregated (limit: 1, filter: {_and: [{status: {_eq: \"draft\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { count { id } } query_2: bo_insights_data (limit: 10, sort: \"id\", filter: {_and: [{status: {_eq: \"draft\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { id status qty } }"
+				},
+				"response": {
+					"data": {
+						"query_1": [
+							{
+								"count": {
+									"id": 2
+								}
+							}
+						],
+						"query_2": [
+							{
+								"id": "3",
+								"qty": 1,
+								"status": "draft"
+							},
+							{
+								"id": "6",
+								"qty": 4,
+								"status": "draft"
+							}
+						]
+					}
+				},
+				"status": 200
+			}
+		]
+	},
+	{
+		"step": "vars_status archived",
+		"calls": [
+			{
+				"method": "POST",
+				"path": "/graphql",
+				"request": {
+					"query": "query { query_1: bo_insights_data_aggregated (limit: 1, filter: {_and: [{status: {_eq: \"archived\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { count { id } } query_2: bo_insights_data (limit: 10, sort: \"id\", filter: {_and: [{status: {_eq: \"archived\"}}, {owner: {id: {_in: [\"<me>\"]}}}]}) { id status qty } }"
+				},
+				"response": {
+					"data": {
+						"query_1": [
+							{
+								"count": {
+									"id": 1
+								}
+							}
+						],
+						"query_2": [
+							{
+								"id": "5",
+								"qty": 2,
+								"status": "archived"
+							}
+						]
+					}
+				},
+				"status": 200
+			}
+		]
+	}
+]

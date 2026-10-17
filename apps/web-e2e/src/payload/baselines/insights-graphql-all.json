@@ -1,0 +1,221 @@
+[
+	{
+		"method": "POST",
+		"path": "/graphql",
+		"request": {
+			"query": "query { query_1: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"category\"]) { count { category } group } query_2: bo_insights_data_aggregated { sum { qty } } query_3: bo_insights_data (limit: 5, sort: \"-id\", filter: {}) { id status category } query_4: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"status\"]) { sum { amount } group } query_5: bo_insights_data_aggregated (limit: -1, filter: {_and: [{}]}, groupBy: [\"year(happened_at)\", \"month(happened_at)\", \"day(happened_at)\"]) { count { id } group } query_6: bo_insights_data_aggregated (limit: 1) { count { id } } query_7: bo_insights_data_aggregated (limit: -1, filter: {}, groupBy: [\"category\"]) { sum { qty } group } query_8: bo_insights_data_aggregated (limit: 5, sort: [\"-count.id\"], groupBy: [\"status\"]) { count { id } group } }"
+		},
+		"response": {
+			"data": {
+				"query_1": [
+					{
+						"count": {
+							"category": 6
+						},
+						"group": {
+							"category": "a"
+						}
+					},
+					{
+						"count": {
+							"category": 4
+						},
+						"group": {
+							"category": "b"
+						}
+					},
+					{
+						"count": {
+							"category": 2
+						},
+						"group": {
+							"category": "c"
+						}
+					}
+				],
+				"query_2": [
+					{
+						"sum": {
+							"qty": 62
+						}
+					}
+				],
+				"query_3": [
+					{
+						"category": "a",
+						"id": "12",
+						"status": "archived"
+					},
+					{
+						"category": "b",
+						"id": "11",
+						"status": "draft"
+					},
+					{
+						"category": "c",
+						"id": "10",
+						"status": "published"
+					},
+					{
+						"category": "a",
+						"id": "9",
+						"status": "archived"
+					},
+					{
+						"category": "a",
+						"id": "8",
+						"status": "draft"
+					}
+				],
+				"query_4": [
+					{
+						"group": {
+							"status": "archived"
+						},
+						"sum": {
+							"amount": 26.35
+						}
+					},
+					{
+						"group": {
+							"status": "draft"
+						},
+						"sum": {
+							"amount": 70.35
+						}
+					},
+					{
+						"group": {
+							"status": "published"
+						},
+						"sum": {
+							"amount": 48.14
+						}
+					}
+				],
+				"query_5": [
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 1,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					},
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 2,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					},
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 3,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					},
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 4,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					},
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 5,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					},
+					{
+						"count": {
+							"id": 2
+						},
+						"group": {
+							"happened_at_day": 6,
+							"happened_at_month": 10,
+							"happened_at_year": 2026
+						}
+					}
+				],
+				"query_6": [
+					{
+						"count": {
+							"id": 12
+						}
+					}
+				],
+				"query_7": [
+					{
+						"group": {
+							"category": "a"
+						},
+						"sum": {
+							"qty": 37
+						}
+					},
+					{
+						"group": {
+							"category": "b"
+						},
+						"sum": {
+							"qty": 21
+						}
+					},
+					{
+						"group": {
+							"category": "c"
+						},
+						"sum": {
+							"qty": 4
+						}
+					}
+				],
+				"query_8": [
+					{
+						"count": {
+							"id": 5
+						},
+						"group": {
+							"status": "published"
+						}
+					},
+					{
+						"count": {
+							"id": 4
+						},
+						"group": {
+							"status": "draft"
+						}
+					},
+					{
+						"count": {
+							"id": 3
+						},
+						"group": {
+							"status": "archived"
+						}
+					}
+				]
+			}
+		},
+		"status": 200
+	}
+]
