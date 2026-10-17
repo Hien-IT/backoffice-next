@@ -90,7 +90,8 @@ test('add a metric and a bar chart, drag and resize, Save sends one POST /panels
 	await expect(tiles(page)).toHaveCount(2);
 
 	// Both start at (1,1): the later one is on top, so move the bar chart away first by its body. The small metric (2 rows)
-	// is held on its header icon, away from its edit and menu buttons and from the bottom resize handle (webkit hit it).
+	// is held in the header padding before its icon: outside the corner and edge resize handles, the edit and menu
+	// buttons, and any text (on CI webkit a grab on the icon glyph moved the tile one cell, then started a selection).
 	const bar = tileOf(page, 'bar-chart');
 	const barBox = (await bar.boundingBox())!;
 	await pointerDrag(page, { x: barBox.x + barBox.width / 2, y: barBox.y + barBox.height / 2 }, 0, 10 * GRID);
@@ -98,7 +99,18 @@ test('add a metric and a bar chart, drag and resize, Save sends one POST /panels
 
 	const metric = tileOf(page, 'metric');
 	const box = (await metric.boundingBox())!;
-	await pointerDrag(page, { x: box.x + 12, y: box.y + 10 }, 12 * GRID, 0);
+	const grab = { x: box.x + 8, y: box.y + 8 };
+	// The point hits the tile or its header, not a handle, a button or the icon.
+	expect(
+		await page.evaluate(
+			({ x, y }) =>
+				document
+					.elementFromPoint(x, y)
+					?.matches('[data-panel-type="metric"], [data-panel-type="metric"] > div:first-child'),
+			grab,
+		),
+	).toBe(true);
+	await pointerDrag(page, grab, 12 * GRID, 0);
 	await expect(metric).toHaveAttribute('data-pos-x', '13');
 
 	await metric.hover();

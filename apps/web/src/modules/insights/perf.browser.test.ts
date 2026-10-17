@@ -66,6 +66,9 @@ let settleLimit = 10_000;
 beforeAll(() => {
 	settleLimit = 10_000 * Math.max(1, machineFactor());
 });
+// The 15 s default timed out the four variable changes on CI (run 39071346091, machine factor ~5, 9 perf files in
+// parallel); a case still fails on its own budget, or at `settleLimit` when a page never settles.
+vi.setConfig({ testTimeout: 90_000 });
 
 /** Waits a frame at a time until `ready`, then for a settled frame. */
 async function settled(ready: () => boolean) {
