@@ -358,7 +358,7 @@ commit, push, CI xanh, `graphify update .`).
       đạt (gồm ngoại lệ canvas của T006); ghi trạng thái Q-29 đến Q-33 trong `specs/017-flows-editor/spec.md`
 - [x] T102 Bảng trạng thái khác biệt D-106, R-43 đến R-48, ngoại lệ a11y canvas và mục "Cần xác nhận" (code đã
       làm, duyệt) trong `specs/017-flows-editor/spec.md` như 016 T122; tech lead duyệt (SC-010)
-- [ ] T103 Đóng feature: mọi cổng của T083 + payload, cross-use, parity UI, axe, perf, bundle xanh; coverage ≥ 60 %;
+- [x] T103 Đóng feature: mọi cổng của T083 + payload, cross-use, parity UI, axe, perf, bundle xanh; coverage ≥ 60 %;
       commit `test(017): flows payload, cross-use and parity suites, close feature (wave 4)`; push; CI xanh;
       `graphify update .`; cập nhật memory dự án (feature 017 đóng, run id CI)
 
@@ -491,4 +491,17 @@ Lượt 4, Phase 8:
     (4.46:1 trên `brand-50`), icon lần chạy lỗi và nút "Show Failed Only" → `orange-700`/`gray-500`, khung canvas thành
     `role="region"` nhận focus; icon flow trong bảng mang màu flow lưu (dữ liệu, như Directus) được loại khỏi quét.
     Bảng tương phản `migration-guide.md` thêm hai cặp.
+- Đóng feature (2026-10-17):
+  - Tech lead duyệt bảng khác biệt (D-106, R-43 đến R-48, ngoại lệ a11y canvas, "Cần xác nhận"); design owner duyệt
+    recipe Q-29 đến Q-33, kèm đổi recipe nhãn field/nhãn lựa chọn của design-system (21ae3e9).
+  - CI 39039468046 (10cd2f8): mọi E2E (ba cấu hình, chromium/firefox/webkit), parity và bước web perf xanh; đỏ còn lại
+    là test a11y của 016 (sửa ở fcac0c6) và flake `/assets` đã biết của parity-blackbox.
+  - Bài học CI:
+    - Firefox không gửi vị trí chuột ngoài khung nhìn: lần move cuối là (0,-85) và pointerup bị mất. Helper kéo giữ cả
+      hai đầu trong khung và chờ 2 animation frame trước khi nhả.
+    - Trên runner, kéo bằng chuột thật vào canvas Directus app trượt dù đúng hình học: `dirLink` chuyển sang gửi
+      sự kiện pointer trong trang.
+    - Kéo bằng chuột trong lịch FullCalendar cũng trượt: test dùng `EventApi.moveDates`.
+    - Thanh cuộn Linux làm viewport 1280 px tụt dưới xl: test cần mục ở panel chi tiết dùng 1440 px.
+  - Coverage dòng web 95 %.
 
