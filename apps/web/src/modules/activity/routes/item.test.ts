@@ -4,6 +4,7 @@
 // the related item except for system collections and deletes, shows a translated error notice, and closes back to the
 // list with the page query. directus_activity fields and relations come from directus/packages/system-data (the
 // fixture set has none).
+import type { Pinia } from 'pinia';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { h } from 'vue';
@@ -18,6 +19,9 @@ import { mountLayout } from '../../../test-utils/layout.ts';
 import { userName } from '../../../utils/user-name.ts';
 import { systemFields, systemRelations } from '../../settings/test-system-data.ts';
 import ActivityItemRoute from './ActivityItemRoute.vue';
+
+// The pinia of the mounted app: under load a late callback of an earlier test can change the active pinia.
+let appPinia: Pinia;
 
 enableAutoUnmount(afterEach);
 afterEach(() => {
@@ -78,6 +82,7 @@ async function setup(path = '/activity/1', answers: Record<string, unknown> = {}
 	);
 
 	await vi.waitFor(() => expect(drawer()?.querySelector('dl, [role="alert"], .border-error-500')).toBeTruthy());
+	appPinia = mounted.wrapper.vm.$pinia;
 	return mounted;
 }
 
@@ -116,7 +121,7 @@ describe('activity drawer (US5-4)', () => {
 
 		expect(drawer()!.textContent).toContain(t('activity_item'));
 		expect(rows()).toEqual({
-			[t('user')]: userName(useUserStore().currentUser as never),
+			[t('user')]: userName(useUserStore(appPinia).currentUser as never),
 			[t('action')]: t('field_options.directus_activity.create'),
 			[t('date')]: new Date(row['timestamp'] as string).toLocaleString(i18n.global.locale.value),
 			[t('ip_address')]: '',

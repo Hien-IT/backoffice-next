@@ -34,10 +34,10 @@ beforeEach(() => {
 
 const ADMIN = { id: 'u1', first_name: 'Ada', admin_access: true, app_access: true, avatar: null };
 
-async function render(user: Partial<AppUser> | ShareUser = ADMIN) {
+async function render(user: Partial<AppUser> | ShareUser = ADMIN, props: Record<string, unknown> = {}) {
 	return mountLayout(PrivateView, {
 		path: '/content',
-		props: { title: 'Content', icon: 'box' },
+		props: { title: 'Content', icon: 'box', ...props },
 		slots: {
 			default: '<p>Body</p>',
 			navigation: '<p>Nav items</p>',
@@ -112,6 +112,13 @@ describe('PrivateView (FR-020, FR-028)', () => {
 
 		button('Open sidebar')!.click();
 		await vi.waitFor(() => expect(q('[role="dialog"] aside[aria-label="Sidebar"]')).not.toBeNull());
+	});
+
+	test('the content fills the width after the sidebar: no 1536 px cap, the page header spans it (owner 2026-10-18)', async () => {
+		await render();
+
+		expect(q('main')!.className).not.toMatch(/mx-auto|max-w-/);
+		expect(q('main h1')!.closest('.mb-6')!.className).not.toMatch(/max-w-/);
 	});
 
 	test('user without app access: the no-app-access screen instead of the layout', async () => {

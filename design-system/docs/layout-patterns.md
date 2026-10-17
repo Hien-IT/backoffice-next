@@ -17,7 +17,7 @@ behaviour, the line says **Backoffice**; the Backoffice value wins. All interact
       Backdrop    div (below xl, when the sidebar drawer is open)
       div.flex-1  margin-start follows the sidebar width (xl:ms-[290px] or xl:ms-[90px]), transition-all duration-300 ease-in-out
         AppHeader header (sticky)
-        div       mx-auto max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6     ← page content
+        div       w-full p-4 pb-20 md:p-6 md:pb-6                               ← page content
           PageBreadcrumb (page title + breadcrumb)
           page body (cards, tables, forms)
           [DetailPanel] aside (Backoffice, optional, section 7)
@@ -116,8 +116,11 @@ the detail panel drawer (section 7).
 
 ## 5. Content area and page header
 
-- Container: `mx-auto max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6` (max width 1536px; 16px padding, 24px from
-  `md`).
+- Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
+  TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
+  wide screen shows no empty band on either side. The page header always spans the content width, so its actions line
+  up with the app header (bell, user menu) at the right edge; a body capped at `max-w-5xl` (item pages, Settings forms,
+  D-82) stays at the left like Directus.
 - Page header (`PageBreadcrumb.vue`): `flex flex-wrap items-center justify-between gap-3 mb-6`; title
   `h2.text-xl.font-semibold.text-gray-800 dark:text-white/90`; breadcrumb `nav > ol.flex.items-center.gap-1.5`, links
   `inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400` followed by a chevron, current page

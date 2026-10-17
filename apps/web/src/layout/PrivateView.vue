@@ -103,10 +103,7 @@ const { height: appHeaderHeight } = useElementSize(
 			<AppHeader ref="appHeader" />
 
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
-				<MainContent
-					class="mx-auto w-full max-w-(--breakpoint-2xl) p-4 pb-20 md:p-6 md:pb-6"
-					:class="{ 'flex min-h-0 flex-col': fill }"
-				>
+				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">
 					<!-- Sticky band in the page background; the negative margins cover the content padding so rows scrolling
 					     under it do not show above or beside it. -->
 					<div

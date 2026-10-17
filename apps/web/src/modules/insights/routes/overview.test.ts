@@ -2,6 +2,7 @@
 // sorts by name, filters by name, opens a dashboard on row click, gates the actions by permission, duplicates (POST with
 // the panels, an error opens the dialog and stops the spinner: R-49), exports (GET ?export=json through apiFetch), deletes
 // one or many; the dashboard dialog creates (POST fields=id, then the dashboard page) and edits (PATCH, no navigation).
+import type { Pinia } from 'pinia';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { h } from 'vue';
@@ -16,6 +17,9 @@ import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../../t
 import { loadSnapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout, press } from '../../../test-utils/layout.ts';
 import InsightsOverviewRoute from './InsightsOverviewRoute.vue';
+
+// The pinia of the mounted app: under load a late callback of an earlier test can change the active pinia.
+let appPinia: Pinia;
 
 vi.mock('file-saver', () => ({ default: { saveAs: vi.fn() } }));
 
@@ -58,6 +62,7 @@ async function setup(answers: Record<string, unknown> = {}, { hydrated = true } 
 	);
 
 	await flushPromises();
+	appPinia = mounted.wrapper.vm.$pinia;
 	return mounted;
 }
 
@@ -170,7 +175,7 @@ describe('InsightsOverviewRoute', () => {
 		'delete one asks first, DELETE /dashboards/<id> then GET /dashboards',
 		async () => {
 			await setup();
-			const id = useInsightsStore().dashboards.find((d) => d.name === 'bo_dash_empty')!.id;
+			const id = useInsightsStore(appPinia).dashboards.find((d) => d.name === 'bo_dash_empty')!.id;
 			await openRowMenu('bo_dash_empty');
 			await chooseMenu(t('delete_dashboard'));
 
@@ -235,7 +240,7 @@ describe('DashboardDialog', () => {
 		'edit: PATCH /dashboards/<id> with the values, the dialog closes, no navigation',
 		async () => {
 			const { router } = await setup();
-			const dashboard = useInsightsStore().dashboards.find((d) => d.name === 'bo_dash_vars')!;
+			const dashboard = useInsightsStore(appPinia).dashboards.find((d) => d.name === 'bo_dash_vars')!;
 			await openRowMenu('bo_dash_vars');
 			await chooseMenu(t('edit_dashboard'));
 

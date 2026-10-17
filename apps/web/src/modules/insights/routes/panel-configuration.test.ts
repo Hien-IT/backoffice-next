@@ -4,6 +4,7 @@
 // an existing panel an update; an unknown panel key opens an empty drawer with Done disabled until a type is chosen;
 // Cancel goes back to the dashboard.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
+import type { Pinia } from 'pinia';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { h } from 'vue';
 import { RouterView, type Router, type RouteRecordRaw } from 'vue-router';
@@ -42,6 +43,9 @@ const LABEL = {
 };
 
 let router: Router;
+// The store of the mounted app: under load a late callback of an earlier test can change the active pinia.
+let appPinia: Pinia;
+const insights = () => useInsightsStore(appPinia);
 
 async function setup(panelKey: string) {
 	const routes: RouteRecordRaw[] = [
@@ -77,6 +81,7 @@ async function setup(panelKey: string) {
 	);
 
 	router = mounted.router;
+	appPinia = mounted.wrapper.vm.$pinia;
 	await flushPromises();
 	await flushPromises();
 	return mounted;
@@ -94,7 +99,7 @@ describe('PanelConfiguration', () => {
 		'new panel: 11 types, options and header group, Done stages a create at (1,1) with the minimum size',
 		async () => {
 			await setup('+');
-			const store = useInsightsStore();
+			const store = insights();
 			const create = vi.spyOn(store, 'stagePanelCreate');
 
 			expect(types()).toHaveLength(11);
@@ -132,7 +137,7 @@ describe('PanelConfiguration', () => {
 		'existing panel: opens with its values; Show Header off disables the header fields; Done stages an update',
 		async () => {
 			await setup(LABEL.id);
-			const update = vi.spyOn(useInsightsStore(), 'stagePanelUpdate');
+			const update = vi.spyOn(insights(), 'stagePanelUpdate');
 
 			expect(typeCard(t('panels.label.name')).getAttribute('aria-pressed')).toBe('true');
 			expect(input(t('name'))!.value).toBe('Title');
@@ -157,12 +162,12 @@ describe('PanelConfiguration', () => {
 		'choosing another type resets the options',
 		async () => {
 			await setup(LABEL.id);
-			const update = vi.spyOn(useInsightsStore(), 'stagePanelUpdate');
+			const update = vi.spyOn(insights(), 'stagePanelUpdate');
 
 			typeCard(t('panels.metric.name')).click();
 			await flushPromises();
 			done().click();
-			await flushPromises();
+			await vi.waitFor(() => expect(update).toHaveBeenCalled());
 
 			expect(update.mock.calls[0]![0].edits).toMatchObject({ type: 'metric', options: {} });
 		},
@@ -173,7 +178,7 @@ describe('PanelConfiguration', () => {
 		'an unknown panel key: no type chosen, Done disabled; Cancel goes back without staging',
 		async () => {
 			await setup('missing');
-			const store = useInsightsStore();
+			const store = insights();
 
 			expect(types().every((card) => card.getAttribute('aria-pressed') === 'false')).toBe(true);
 			expect(done().disabled).toBe(true);

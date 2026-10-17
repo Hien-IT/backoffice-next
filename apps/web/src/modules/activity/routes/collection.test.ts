@@ -4,6 +4,7 @@
 // user filter merged with it by `_and`, no row selection, the empty state, a row click opening the detail view. The
 // directus_activity collection, fields and relations are built from directus/packages/system-data (the fixture set has
 // none); `timestamp` gets its real type (the yaml has none).
+import type { Pinia } from 'pinia';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { defineComponent, h } from 'vue';
@@ -23,6 +24,9 @@ import { loadSnapshot, type Snapshot } from '../../../test-utils/fixtures.ts';
 import { mountLayout } from '../../../test-utils/layout.ts';
 import { systemCollections, systemFields, systemRelations } from '../../settings/test-system-data.ts';
 import ActivityCollectionRoute from './ActivityCollectionRoute.vue';
+
+// The pinia of the mounted app: under load a late callback of an earlier test can change the active pinia.
+let appPinia: Pinia;
 
 // The sidebar shows the `navigation` slot under the module bar entry of the open module (inside a drawer below `xl`);
 // the stand-in renders the slot as is, so the test reaches the sub-menu without a module bar.
@@ -109,6 +113,7 @@ async function setup(snapshot = activitySnapshot()) {
 	await vi.waitFor(() => expect(document.querySelector('main [aria-busy="true"]')).toBeNull());
 	await vi.waitFor(() => expect(document.querySelectorAll('nav button[aria-current]')).toHaveLength(1));
 	await flushPromises();
+	appPinia = mounted.wrapper.vm.$pinia;
 	return mounted;
 }
 
@@ -215,7 +220,7 @@ describe('sub-menu (US5-2, FR-061)', () => {
 		'each row sends its system filter and becomes current; All clears it',
 		async () => {
 			await setup();
-			const me = (useUserStore().currentUser as { id: string }).id;
+			const me = (useUserStore(appPinia).currentUser as { id: string }).id;
 
 			expect(current()).toEqual([t('all_activity')]);
 
