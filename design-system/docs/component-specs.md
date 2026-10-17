@@ -57,8 +57,11 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
   (+ `FOCUS`)
 - `FIELD_DISABLED`:
   `disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 disabled:placeholder:text-gray-300 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03] dark:disabled:placeholder:text-white/15`
-- Label: `mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400`; disabled label
-  `text-gray-300 dark:text-white/15`
+- Label: `mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90`; disabled label
+  `text-gray-300 dark:text-white/15`. Changed from TailAdmin (owner, 2026-10-17, feature 017): a field label is
+  semibold gray-800 and an option label (Checkbox, Radio, Toggle, CheckboxTree row) normal gray-700 / dark gray-300,
+  so a field and its choices read apart (TailAdmin gives both `font-medium text-gray-700 dark:text-gray-400`; Directus
+  also sets the field label above its options).
 - Required mark: `<span class="text-error-600 dark:text-error-400" aria-hidden="true">*</span>`
 - Hint: `mt-1.5 text-theme-xs text-gray-500 dark:text-gray-400`
 - Error message: `mt-1.5 text-theme-xs text-error-600 dark:text-error-400`
@@ -126,7 +129,8 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
 ### Checkbox (`forms/FormElements/CheckboxInput.vue`)
 
 - Reka `CheckboxRoot` + `CheckboxIndicator`; label row
-  `flex items-center gap-3 text-sm font-medium text-gray-700 cursor-pointer select-none dark:text-gray-400`
+  `flex items-center gap-3 text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-300` (option
+  label, see Label)
 - Box:
   `flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-500 bg-transparent hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 dark:border-gray-500 dark:hover:border-brand-400`
 - Indicator: white check (14px, stroke 1.94) or a dash for indeterminate, `text-white`
@@ -139,7 +143,8 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
 ### Toggle (`forms/FormElements/ToggleSwitch.vue`)
 
 - Reka `SwitchRoot` (`role="switch"`) + `SwitchThumb`; label row
-  `flex cursor-pointer select-none items-center gap-3 text-sm font-medium text-gray-700 dark:text-gray-400`
+  `flex cursor-pointer select-none items-center gap-3 text-sm font-normal text-gray-700 dark:text-gray-300` (option
+  label, see Label)
 - Track:
   `relative inline-flex h-6 w-11 shrink-0 rounded-full bg-gray-500 data-[state=checked]:bg-brand-500 FOCUS dark:bg-gray-500 dark:data-[state=checked]:bg-brand-500`
 - Thumb:
@@ -340,7 +345,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   is a `<label for>` of its item.
 - Layout: `grid gap-x-6 gap-y-3` + `grid-cols-1`, or `grid-cols-1 sm:grid-cols-2` / `-3` / `-4` from the Directus
   `getMinimalGridClass` (longest label).
-- Row: `flex items-center gap-3 text-sm font-medium select-none text-gray-700 dark:text-gray-400` (disabled
+- Row: `flex items-center gap-3 text-sm font-normal select-none text-gray-700 dark:text-gray-300` (disabled
   `text-gray-300 dark:text-gray-700`); item:
   `flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.25px] bg-transparent border-gray-500 hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:border-gray-200 dark:border-gray-500 dark:hover:border-brand-400 dark:data-[disabled]:border-gray-800`;
   indicator `block h-2 w-2 rounded-full bg-white`.
@@ -447,7 +452,7 @@ Shared parts (each component declares the constants it uses locally; there is no
 - Frame: `rounded-lg border p-2 border-gray-200 dark:border-gray-800` (invalid
   `border-error-600 dark:border-error-400`).
 - Row:
-  `flex cursor-pointer items-center gap-2 rounded-lg py-1.5 pe-2 text-sm text-gray-700 outline-hidden hover:bg-gray-50 FOCUS aria-disabled:cursor-not-allowed aria-disabled:text-gray-300 dark:text-gray-400 dark:hover:bg-white/[0.03] dark:aria-disabled:text-gray-700`,
+  `flex cursor-pointer items-center gap-2 rounded-lg py-1.5 pe-2 text-sm text-gray-700 outline-hidden hover:bg-gray-50 FOCUS aria-disabled:cursor-not-allowed aria-disabled:text-gray-300 dark:text-gray-300 dark:hover:bg-white/[0.03] dark:aria-disabled:text-gray-700`,
   indent by `style` `padding-inline-start: (level − 1) × 1.5rem`; text `truncate`.
 - Chevron (rows with children): `span` `aria-hidden`, mouse only,
   `inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-transform hover:bg-gray-100 hover:text-gray-700 motion-reduce:transition-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300`,
@@ -967,7 +972,8 @@ Shared parts (each component declares the constants it uses locally; there is no
 ### Field label row (Q-1; Directus `form-field-label`, `form-field-menu`)
 
 - Built: `components/form/FormFieldLabel.vue`, `FormFieldMenu.vue`, `FormField.vue`, `FormFieldRawEditor.vue`.
-- Row: `group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-medium text-gray-700 dark:text-gray-400`; the name
+- Row: `group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-white/90` (the
+  Tier 1 Label, owner 2026-10-17); the name
   is the `<label for>` (`min-w-0 truncate`, full name in `title`; its `id` is used by `aria-labelledby` for groups);
   batch-edit Checkbox (labelled by the label) before it (Directus batch mode). Disabled field:
   `text-gray-500 dark:text-gray-400`. Deviation: Tier 1 disabled labels are gray-300; the form keeps disabled labels

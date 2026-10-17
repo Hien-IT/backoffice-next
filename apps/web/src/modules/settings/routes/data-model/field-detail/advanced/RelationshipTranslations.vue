@@ -41,18 +41,18 @@ const relatedPrimaryKey = computed(
 	<div>
 		<div class="relative grid grid-cols-3 gap-x-7 gap-y-3 font-mono" data-cols="3">
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('this_collection') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">{{ $t('this_collection') }}</p>
 				<BoInput disabled :model-value="collection ?? ''" :aria-label="$t('this_collection')" />
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{ $t('translations_collection') }}
 				</p>
 				<RelatedCollectionSelect v-model="junctionCollection" :disabled="autoGenerateJunctionRelation || isExisting" />
 			</div>
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{ $t('languages_collection') }}
 				</p>
 				<RelatedCollectionSelect v-model="relatedCollection" :disabled="(type as string) === 'files' || isExisting" />
@@ -90,7 +90,7 @@ const relatedPrimaryKey = computed(
 			</p>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_o2m', {
 							collection: junctionCollection || '',
@@ -120,7 +120,7 @@ const relatedPrimaryKey = computed(
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_m2o', {
 							collection: collection || 'related',
@@ -156,7 +156,7 @@ const relatedPrimaryKey = computed(
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_m2o', {
 							collection: relatedCollection || 'related',

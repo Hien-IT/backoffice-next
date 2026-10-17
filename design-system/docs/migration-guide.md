@@ -86,8 +86,8 @@ points of feature 013 for the design owner. Add a row (and recompute) for any ne
 | light | `white`          | `brand-600`           | Primary button hover                                                                                      | 6.50:1  | 4.5:1  | pass   |
 | light | `brand-500`      | `white`               | Link                                                                                                      | 4.84:1  | 4.5:1  | pass   |
 | light | `brand-600`      | `brand-50`            | Active menu item and icon, light primary badge, selected option                                           | 5.83:1  | 4.5:1  | pass   |
-| light | `gray-800`       | `white`               | Titles, input value                                                                                       | 14.70:1 | 4.5:1  | pass   |
-| light | `gray-700`       | `white`               | Labels, inactive menu item, outline button                                                                | 10.46:1 | 4.5:1  | pass   |
+| light | `gray-800`       | `white`               | Titles, input value, field labels                                                                         | 14.70:1 | 4.5:1  | pass   |
+| light | `gray-700`       | `white`               | Option labels, inactive menu item, outline button                                                         | 10.46:1 | 4.5:1  | pass   |
 | light | `gray-500`       | `white`               | Secondary text, hints, placeholder, table header, "MENU" label                                            | 4.97:1  | 4.5:1  | pass   |
 | light | `gray-500`       | `gray-50`             | Secondary text on page background, hovered table row                                                      | 4.76:1  | 4.5:1  | pass   |
 | light | `gray-500`       | `gray-100`            | Modal close icon, avatar fallback icon                                                                    | 4.51:1  | 4.5:1  | pass   |
@@ -141,7 +141,8 @@ points of feature 013 for the design owner. Add a row (and recompute) for any ne
 | light | `warning-500`    | `gray-100`            | Translations display progress 34–66 % (013, Directus colors; open point)                                  | 2.13:1  | 3:1    | fail   |
 | light | `success-500`    | `gray-100`            | Translations display progress above 66 % (013, Directus colors; open point)                               | 2.38:1  | 3:1    | fail   |
 | light | `warning-600`    | `white`               | `input` / `input-multiline` counter under 10 % left (013, code; recipe warning-700; open point)           | 3.49:1  | 4.5:1  | fail   |
-| dark  | `white/0.9`      | `gray-900`            | Titles, input value                                                                                       | 14.46:1 | 4.5:1  | pass   |
+| dark  | `white/0.9`      | `gray-900`            | Titles, input value, field labels                                                                         | 14.46:1 | 4.5:1  | pass   |
+| dark  | `gray-300`       | `gray-900`            | Option labels: Checkbox, Radio, Toggle, CheckboxTree row (017)                                            | 12.04:1 | 4.5:1  | pass   |
 | dark  | `gray-400`       | `gray-900`            | Secondary text, labels, hints, placeholder                                                                | 6.89:1  | 4.5:1  | pass   |
 | dark  | `gray-300`       | `gray-900`            | Inactive menu item                                                                                        | 12.04:1 | 4.5:1  | pass   |
 | dark  | `brand-400`      | `brand-500/0.12`      | Active menu item                                                                                          | 5.52:1  | 4.5:1  | pass   |

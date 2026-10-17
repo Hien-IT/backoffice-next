@@ -514,7 +514,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 				<div class="flex items-end gap-2">
 					<div class="grow">
-						<label :for="`${inputId}-hex`" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+						<label :for="`${inputId}-hex`" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 							HEX
 						</label>
 						<input

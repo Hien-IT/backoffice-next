@@ -491,7 +491,7 @@ const storageAssetPresetItems = computed(() =>
 				/>
 				<BoInput v-model="linkSelection.title" :label="t('tooltip')" :placeholder="t('tooltip_placeholder')" />
 				<fieldset>
-					<legend class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+					<legend class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 						{{ t('open_link_in') }}
 					</legend>
 					<BoCheckbox v-model="linkSelection.newTab" class="py-3" :label="t('new_tab')" />
@@ -544,7 +544,7 @@ const storageAssetPresetItems = computed(() =>
 						/>
 					</template>
 					<fieldset>
-						<legend class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+						<legend class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 							{{ t('wysiwyg_options.lazy_loading') }}
 						</legend>
 						<BoCheckbox v-model="imageSelection.lazy" class="py-3" :label="t('wysiwyg_options.lazy_loading_label')" />

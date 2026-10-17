@@ -57,8 +57,8 @@ const ICON_BTN =
 
 <template>
 	<div
-		class="group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-medium"
-		:class="disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-700 dark:text-gray-400'"
+		class="group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-semibold"
+		:class="disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
 	>
 		<BoCheckbox
 			v-if="batchMode"

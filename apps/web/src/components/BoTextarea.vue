@@ -54,7 +54,7 @@ const FONTS = {
 
 <template>
 	<div>
-		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 			{{ label }}
 		</label>
 		<textarea

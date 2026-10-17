@@ -117,7 +117,7 @@ function boxStyle(checked: boolean): Record<string, string> {
 
 <template>
 	<div ref="root">
-		<span v-if="label" :id="labelId" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+		<span v-if="label" :id="labelId" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 			{{ label }}
 			<span v-if="required" class="text-error-600 dark:text-error-400" aria-hidden="true">*</span>
 		</span>
@@ -132,8 +132,8 @@ function boxStyle(checked: boolean): Record<string, string> {
 			<div
 				v-for="(item, index) in choicesDisplayed"
 				:key="item.value"
-				class="flex items-center gap-3 text-sm font-medium select-none"
-				:class="disabled || item.disabled ? 'text-gray-300 dark:text-gray-700' : 'text-gray-700 dark:text-gray-400'"
+				class="flex items-center gap-3 text-sm font-normal select-none"
+				:class="disabled || item.disabled ? 'text-gray-300 dark:text-gray-700' : 'text-gray-700 dark:text-gray-300'"
 			>
 				<CheckboxRoot
 					:id="`${id}-${index}`"

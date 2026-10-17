@@ -49,8 +49,8 @@ const FOCUS = computed(() =>
 
 <template>
 	<span
-		class="inline-flex items-center gap-3 text-sm font-medium select-none"
-		:class="disabled ? 'text-gray-300 dark:text-gray-700' : 'cursor-pointer text-gray-700 dark:text-gray-400'"
+		class="inline-flex items-center gap-3 text-sm font-normal select-none"
+		:class="disabled ? 'text-gray-300 dark:text-gray-700' : 'cursor-pointer text-gray-700 dark:text-gray-300'"
 	>
 		<CheckboxRoot
 			v-bind="$attrs"

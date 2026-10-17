@@ -52,8 +52,8 @@ const THUMB =
 			<label
 				v-if="label"
 				:for="id"
-				class="cursor-pointer text-sm font-medium select-none"
-				:class="disabled ? 'cursor-not-allowed text-gray-400' : 'text-gray-700 dark:text-gray-400'"
+				class="cursor-pointer text-sm font-normal select-none"
+				:class="disabled ? 'cursor-not-allowed text-gray-400' : 'text-gray-700 dark:text-gray-300'"
 			>
 				{{ label }}
 			</label>

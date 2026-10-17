@@ -506,7 +506,7 @@ const sortFieldItems = computed(() =>
 
 const ids = { fields: useId(), filter: useId() };
 
-const LABEL = 'mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400';
+const LABEL = 'mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90';
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const POPOVER =

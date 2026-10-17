@@ -89,18 +89,22 @@ const unsortableJunctionFields = computed(() => {
 	<div>
 		<div class="relative grid grid-cols-3 gap-x-7 gap-y-3 font-mono" data-cols="3">
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('this_collection') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">{{ $t('this_collection') }}</p>
 				<BoInput disabled :model-value="collection ?? ''" :aria-label="$t('this_collection')" />
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('junction_collection') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
+					{{ $t('junction_collection') }}
+				</p>
 
 				<RelatedCollectionSelect v-model="junctionCollection" :disabled="autoGenerateJunctionRelation || isExisting" />
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('related_collection') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
+					{{ $t('related_collection') }}
+				</p>
 				<RelatedCollectionSelect v-model="relatedCollection" :disabled="isExisting" />
 			</div>
 
@@ -145,11 +149,11 @@ const unsortableJunctionFields = computed(() => {
 
 		<div v-if="!isExisting" class="relative grid grid-cols-2 gap-x-7 gap-y-3 font-mono" data-cols="2">
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('create_field') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">{{ $t('create_field') }}</p>
 				<BoCheckbox v-model="hasCorresponding" :label="correspondingLabel" />
 			</div>
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">{{ $t('field_name') }}</p>
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">{{ $t('field_name') }}</p>
 				<BoInput
 					v-model="correspondingFieldKey"
 					:disabled="hasCorresponding === false"
@@ -185,7 +189,7 @@ const unsortableJunctionFields = computed(() => {
 			</p>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_o2m', {
 							collection: junctionCollection || '',
@@ -215,7 +219,7 @@ const unsortableJunctionFields = computed(() => {
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_m2o', {
 							collection: collection || 'related',
@@ -251,7 +255,7 @@ const unsortableJunctionFields = computed(() => {
 			</div>
 
 			<div>
-				<p class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<p class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{
 						$t('referential_action_field_label_m2o', {
 							collection: relatedCollection || 'related',

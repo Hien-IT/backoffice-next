@@ -102,7 +102,7 @@ const POPOVER =
 			/>
 
 			<div>
-				<span :id="iconLabelId" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+				<span :id="iconLabelId" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 					{{ $t('fallback_icon') }}
 				</span>
 				<BoIconPicker

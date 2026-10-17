@@ -119,7 +119,7 @@ const NOTE = 'flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark
 
 <template>
 	<div>
-		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-medium text-gray-700 dark:text-gray-400">
+		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 			{{ label }}
 		</label>
 		<ComboboxRoot
