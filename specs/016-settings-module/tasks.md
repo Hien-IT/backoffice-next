@@ -253,7 +253,7 @@ translations.
 - [x] T048 [US2] `FieldsRoute.vue` (`useItem('directus_collections')`, `BoForm` với `edits.meta`, page header, xóa, lưu,
       `use-edits-guard`, `RouterView name="field"` trỏ tạm khung tới lượt 2) trong
       `src/modules/settings/routes/data-model/FieldsRoute.vue`
-- [ ] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle`
+- [x] T049 [US2] Đóng lượt 1: `web:lint`, `typecheck`, `test` (coverage ≥ 60 %), `build` + `check-bundle`
       (`BUDGET_016`), `check-port-headers`, `guard-directus` (SC-009), E2E 012–015 + `settings-data-model` ba cấu hình
       xanh; nhắn session khác; `git pull --rebase`; commit
       `feat(016): settings module routes, data model list and collection page (wave 1)`; push; theo dõi CI, sửa đỏ;
@@ -316,7 +316,7 @@ translations.
 - [x] T063 [US3] `Relationship.vue`, `RelationshipM2o.vue`, `RelationshipO2m.vue`, `RelationshipM2m.vue`,
       `RelationshipM2a.vue`, `RelationshipTranslations.vue` (chép `field-detail-advanced-relationship*.vue`) trong
       `src/modules/settings/routes/data-model/field-detail/advanced/`
-- [ ] T064 [US3] Đóng lượt 2: cổng như T049 (SC-001, SC-002 phần data model, SC-006; chunk drawer field ≤ 80 KB); commit
+- [x] T064 [US3] Đóng lượt 2: cổng như T049 (SC-001, SC-002 phần data model, SC-006; chunk drawer field ≤ 80 KB); commit
       `feat(016): field drawer, field detail store, interface and display options (wave 2)`; push; CI; `graphify update .`
 
 ---
@@ -364,7 +364,7 @@ tiết; đích thật của D-85.
       `PolicyItemRoute.vue`, `PolicyInfoSidebarDetail.vue` trong `src/modules/settings/routes/policies/`; nối route
 - [x] T080 [US4] Gỡ D-85: comment trong `src/modules/users/components/UsersNavigation.vue`;
       `e2e/users-directory.spec.ts` khẳng định menu "sửa role" mở trang role thật
-- [ ] T081 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003 phần dữ liệu ghi, SC-005 phần roles/policies; chunk ma trận
+- [x] T081 [US4] Đóng lượt 3: cổng như T049 (SC-001, SC-003 phần dữ liệu ghi, SC-005 phần roles/policies; chunk ma trận
       ≤ 40 KB, dữ liệu quyền ≤ 10 KB); commit `feat(016): roles, policies and permissions matrix (wave 3)`; push; CI;
       `graphify update .`
 
@@ -439,7 +439,7 @@ tiết; đích thật của D-85.
 - [x] T107 [P] [US6] `TranslationsCollectionRoute.vue`, `TranslationItemRoute.vue` trong
       `src/modules/settings/routes/translations/` Chép `directus/app/src/lang/refresh-current-language.ts` vào
       `src/lang/refresh-current-language.ts` kèm test `src/lang/refresh-current-language.test.ts` (FR-086).
-- [ ] T108 [US6] Đóng lượt 4: cổng như T049 (SC-001, SC-004 phần presets, SC-005 phần settings/presets/translations);
+- [x] T108 [US6] Đóng lượt 4: cổng như T049 (SC-001, SC-004 phần presets, SC-005 phần settings/presets/translations);
       commit `feat(016): project, appearance, presets and translations (wave 4)`; push; CI; `graphify update .`
 
 ---
@@ -485,9 +485,10 @@ tiết; đích thật của D-85.
 - [x] T122 Bảng trạng thái khác biệt D-92 đến D-103 và R-40 đến R-42 (code đã làm, duyệt) trong
       `specs/016-settings-module/spec.md` như 015 T103; tech lead duyệt (SC-010) (owner duyệt 2026-10-17; D-94 bỏ hẳn
       link Report Bug, Request Feature)
-- [ ] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
+- [x] T123 Đóng feature: mọi cổng của T049 + payload, cross-use, parity UI, axe, perf, bundle xanh; commit
       `test(016): settings payload, cross-use and parity suites, close feature (wave 5)`; nhắn session khác; push; CI;
-      `graphify update .`; cập nhật memory dự án
+      `graphify update .`; cập nhật memory dự án (CI 38979296812 trên d369728 xanh, job sqlite chạy lại vì flake
+      `/assets` S3 đã biết; T049, T064, T081, T108 đóng cùng lần chạy này, 2026-10-17)
 
 ---
 

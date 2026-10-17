@@ -3,7 +3,7 @@
 **Feature Branch**: `016-settings-module` (làm trên `main` như 012–015, không tạo branch vì dùng chung working tree với
 session 015 đang đóng; 016 chỉ sửa `specs/016-*` cho tới khi 015 báo đóng và CI của 015 xanh)
 **Created**: 2026-10-16
-**Status**: Draft
+**Status**: Done (2026-10-17, waves 1–5, owner approvals recorded)
 **Input**: User description: "Module Settings cho admin, giống Directus: data model (tạo và sửa collection, field,
 relation, sắp xếp và nhóm field, cấu hình interface và display, điều kiện, validation), roles và policies (gán quyền theo
 collection, action, field, điều kiện lọc), cài đặt dự án (tên, logo, màu, theme, ngôn ngữ, bản đồ, giới hạn file), presets
