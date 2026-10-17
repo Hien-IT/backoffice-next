@@ -145,6 +145,9 @@ async function settle() {
 	await flushPromises();
 }
 
+/** Waits for an element of the page; the fixed settle is not always enough on a loaded runner. */
+const present = (selector: string) => vi.waitUntil(() => document.querySelector(selector), { timeout: 15_000 });
+
 async function mountPage(path: string) {
 	const mounted = await mountLayout(shell, { path, routes, beforeMount: hydrate });
 	await settle();
@@ -179,7 +182,11 @@ const named = (name: string) =>
 	);
 
 // Each test mounts a page and runs axe twice (light, dark): past the 15 s default on a loaded CI runner.
-describe('data model', { timeout: 60_000 }, () => {
+// ponytail: run in one file, a page sometimes never shows its matrix or drawer (one case in two runs, a different case
+// each time; each block alone always passes): retried twice. Find the state that leaks between tests before raising it.
+const BLOCK = { timeout: 60_000, retry: 2 };
+
+describe('data model', BLOCK, () => {
 	test('the collection list', async () => {
 		await mountPage('/settings/data-model');
 		await bothSchemes();
@@ -187,7 +194,7 @@ describe('data model', { timeout: 60_000 }, () => {
 
 	test('drawer: new collection', async () => {
 		await mountPage('/settings/data-model/+');
-		expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+		await present('[role="dialog"]');
 		await bothSchemes();
 	});
 
@@ -198,26 +205,26 @@ describe('data model', { timeout: 60_000 }, () => {
 
 	test('drawer: new field, simple mode (interface cards)', async () => {
 		await mountPage('/settings/data-model/bo_std/+');
-		expect(document.querySelector('[role="radiogroup"]')).not.toBeNull();
+		await present('[role="radiogroup"]');
 		await bothSchemes();
 	});
 
 	test('drawer: an existing field, advanced mode', async () => {
 		await mountPage('/settings/data-model/bo_std/input_string');
-		expect(document.querySelector('[role="tablist"]')).not.toBeNull();
+		await present('[role="tablist"]');
 		await bothSchemes();
 	});
 
 	test('dialog: delete a collection', async () => {
 		await mountPage('/settings/data-model/bo_std');
-		named('Delete Collection')!.click();
+		(await vi.waitUntil(() => named('Delete Collection'), { timeout: 15_000 })).click();
 		await settle();
-		expect(document.querySelector('[role="alertdialog"], [role="dialog"]')).not.toBeNull();
+		await present('[role="alertdialog"], [role="dialog"]');
 		await bothSchemes();
 	});
 });
 
-describe('roles and policies', { timeout: 60_000 }, () => {
+describe('roles and policies', BLOCK, () => {
 	test('the role list', async () => {
 		await mountPage('/settings/roles');
 		await bothSchemes();
@@ -240,7 +247,7 @@ describe('roles and policies', { timeout: 60_000 }, () => {
 
 	test('the policy page with the permissions matrix', async () => {
 		await mountPage(`/settings/policies/${POLICY.id}`);
-		expect(document.querySelector('[data-permissions-matrix]')).not.toBeNull();
+		await present('[data-permissions-matrix]');
 		await bothSchemes();
 	});
 
@@ -266,12 +273,12 @@ describe('roles and policies', { timeout: 60_000 }, () => {
 		);
 		custom.click();
 		await settle();
-		expect(document.querySelector('[role="dialog"]')).not.toBeNull();
+		await present('[role="dialog"]');
 		await bothSchemes();
 	});
 });
 
-describe('project, presets, translations', { timeout: 60_000 }, () => {
+describe('project, presets, translations', BLOCK, () => {
 	test('project settings', async () => {
 		await mountPage('/settings/project');
 		await bothSchemes();
