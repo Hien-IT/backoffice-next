@@ -205,7 +205,14 @@ const copyOpen = computed(() => !!copyPanelId.value);
 			<LogsSidebarDetail :flow="flow" />
 		</template>
 
-		<div class="relative min-h-full min-w-max p-1" data-flow-canvas>
+		<!-- The page scrolls inside the canvas: focusable so the keyboard can scroll it (axe scrollable-region-focusable). -->
+		<div
+			class="relative min-h-full min-w-max p-1 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
+			role="region"
+			tabindex="0"
+			:aria-label="flow.name"
+			data-flow-canvas
+		>
 			<div class="relative">
 				<FlowArrows
 					:panels="panels"

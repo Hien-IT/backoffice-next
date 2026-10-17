@@ -63,4 +63,5 @@
 - Flow canvas (feature 017, FR-106, owner 2026-10-17; tech lead approval pending): dragging panels, dragging arrows
   between handles and the hint "+" buttons are mouse/pointer only, as in Directus; touch drag on tablets is not
   guaranteed (no `touch-action` handling, as Directus). Reachable by keyboard: pencil, tile menu (Copy To, Duplicate,
-  Delete), trigger status select, header buttons, drawers. axe does not check dragging.
+  Delete), trigger status select, header buttons, drawers; the canvas box itself is a focusable region, so the
+  keyboard scrolls it. axe does not check dragging; the Flows screens pass axe light and dark (a11y.spec, T094).

@@ -86,7 +86,7 @@ export async function onDirectusApp<T>(
 /** Opens a page of the Directus app and waits for its main area. */
 export async function goto(page: Page, path: string): Promise<void> {
 	await page.goto(`${directusUrl}/admin${path}`);
-	await expect(page.getByRole('main')).toBeVisible({ timeout: 15_000 });
+	await expect(page.getByRole('main').first()).toBeVisible({ timeout: 15_000 });
 	await dismissOwnerDialog(page);
 }
 
@@ -171,4 +171,104 @@ export function shareField(page: Page, label: string): Locator {
 export async function saveShare(page: Page): Promise<void> {
 	await page.locator('.v-drawer').last().getByRole('button', { name: 'check', exact: true }).click();
 	await expect(page.locator('.v-drawer')).toHaveCount(0);
+}
+
+// Flows (feature 017, contracts/components.md §6): the canvas of the Directus app, a `.v-workspace-tile` per panel with
+// its cell in `--pos-x/--pos-y`, handles `.add-resolve`/`.add-reject`/`.attachment`, and the arrows of `.arrows`.
+
+const GRID = 18;
+
+/** The canvas tile whose header names `name` (the operation name, or `Trigger`). */
+export function dirTile(page: Page, name: string): Locator {
+	return page
+		.locator('.v-workspace-tile')
+		.filter({ has: page.locator('.header .name', { hasText: new RegExp(`^${name}$`) }) });
+}
+
+/** Opens a flow page of the Directus app and waits for its trigger tile. */
+export async function openDirectusFlow(page: Page, id: string): Promise<void> {
+	await goto(page, `/settings/flows/${id}`);
+	await expect(dirTile(page, 'Trigger')).toBeVisible({ timeout: 15_000 });
+}
+
+/** `{ name, x, y }` of every tile, from `--pos-x/--pos-y` (the cells the Backoffice app exposes as `data-pos-*`). */
+export async function readDirectusGrid(page: Page): Promise<{ name: string; x: number; y: number }[]> {
+	return page.locator('.v-workspace-tile').evaluateAll((tiles) =>
+		tiles
+			.map((tile) => {
+				const style = (tile as HTMLElement).style;
+				return {
+					name: tile.querySelector('.header .name')?.textContent?.trim() ?? '',
+					x: Number(style.getPropertyValue('--pos-x')),
+					y: Number(style.getPropertyValue('--pos-y')),
+				};
+			})
+			.sort((a, b) => a.name.localeCompare(b.name) || a.x - b.x || a.y - b.y),
+	);
+}
+
+/** The drawn arrows (the hint arrow of the hovered handle left out) by branch. */
+export async function countDirectusArrows(page: Page): Promise<{ resolve: number; reject: number }> {
+	const count = (type: string) => page.locator(`.arrows path.${type}:not(.hint)`).count();
+	return { resolve: await count('resolve'), reject: await count('reject') };
+}
+
+/** Clicks a handle (`.add-resolve`, `.add-reject`) of `from`, picks `type` in the operation drawer, Done. */
+export async function dirAddOperation(page: Page, from: Locator, handle: string, type: string): Promise<void> {
+	await from.scrollIntoViewIfNeeded();
+	await from.hover();
+	await from.locator(handle).click();
+	const drawer = page.locator('.v-drawer').last();
+	await drawer
+		.locator('.v-fancy-select-option', { hasText: new RegExp(`^\\s*\\S*\\s*${type}`) })
+		.first()
+		.click();
+	await drawer.getByRole('button', { name: 'check', exact: true }).click();
+	await expect(page.locator('.v-drawer')).toHaveCount(0);
+}
+
+/** Moves the mouse from the centre of `from` by `to` (px) in small steps (the canvas reads pointermove in rAF/throttle). */
+export async function dirDrag(page: Page, from: Locator, to: { x: number; y: number }): Promise<void> {
+	await from.scrollIntoViewIfNeeded();
+	const box = (await from.boundingBox())!;
+	const start = { x: box.x + box.width / 2, y: box.y + Math.min(box.height / 2, 10) };
+	await page.mouse.move(start.x, start.y);
+	await page.mouse.down();
+	for (let i = 1; i <= 10; i++) {
+		await page.mouse.move(start.x + (to.x * i) / 10, start.y + (to.y * i) / 10);
+		await page.waitForTimeout(40);
+	}
+	await page.mouse.up();
+	await page.waitForTimeout(200);
+}
+
+/** Drags a tile by its header by whole cells. */
+export async function dirDragTile(page: Page, name: string, cells: { dx: number; dy: number }): Promise<void> {
+	await dirDrag(page, dirTile(page, name).locator('.header'), { x: cells.dx * GRID, y: cells.dy * GRID });
+}
+
+/** Drags the `.add-resolve`/`.add-reject` handle of `from` onto the input of `to`, or 20 cells down (detach). */
+export async function dirLink(page: Page, from: string, handle: string, to: string | null): Promise<void> {
+	const source = dirTile(page, from).locator(handle);
+	if (!to) return dirDrag(page, source, { x: 0, y: 20 * GRID });
+	await source.scrollIntoViewIfNeeded();
+	const a = (await source.boundingBox())!;
+	const b = (await dirTile(page, to).locator('.attachment').boundingBox())!;
+	await dirDrag(page, source, {
+		x: b.x + b.width / 2 - (a.x + a.width / 2),
+		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)),
+	});
+}
+
+/** Opens the menu of a tile in edit mode and picks `entry` (`Duplicate`, `Delete`, `Copy To...`). */
+export async function dirTileMenu(page: Page, tile: Locator, entry: string): Promise<void> {
+	await tile.scrollIntoViewIfNeeded();
+	await tile.locator('.edit-actions .more-icon').click();
+	await chooseInMenu(page, entry);
+}
+
+/** Saves the flow page (header `check`) and waits for view mode. */
+export async function dirSaveFlow(page: Page): Promise<void> {
+	await headerButton(page, 'check').click();
+	await expect(headerButton(page, 'edit')).toBeVisible({ timeout: 30_000 });
 }

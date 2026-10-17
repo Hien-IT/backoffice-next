@@ -1,7 +1,7 @@
 // Feature 017 (contracts/components.md §6): the flows of the fixture set and the temporary flows a spec creates. A spec
 // names its flows `${DATA_PREFIX}-<spec>-<n>` (the three configurations never touch each other's rows) and deletes
 // them in `afterAll`; no spec runs `bo_all_ops`, whose three log rows come from the seed (CHK007).
-import type { Page } from '@playwright/test';
+import { expect, type Locator, type Page } from '@playwright/test';
 import type { AdminApi } from './api.js';
 import { DATA_PREFIX } from './config.js';
 
@@ -84,6 +84,20 @@ export async function countArrows(page: Page): Promise<{ resolve: number; reject
 	return { resolve: await count('resolve'), reject: await count('reject') };
 }
 
+/**
+ * Moves the pressed mouse to (x, y) in 10 steps, waiting between them, then waits before release. The canvas reads
+ * pointermove in requestAnimationFrame (tile drag and arrow drag, as Directus) and pointerup cancels the pending frame:
+ * moves sent in one burst can all land in one frame that is cancelled (firefox, webkit), losing the drop position.
+ */
+async function moveAndRelease(page: Page, from: { x: number; y: number }, to: { x: number; y: number }) {
+	for (let i = 1; i <= 10; i++) {
+		await page.mouse.move(from.x + ((to.x - from.x) * i) / 10, from.y + ((to.y - from.y) * i) / 10);
+		await page.waitForTimeout(40);
+	}
+	await page.waitForTimeout(100);
+	await page.mouse.up();
+}
+
 /** Drags a panel by its header by whole cells (18 px), in small steps so the pointer events follow. */
 export async function dragPanel(page: Page, key: string, cells: { dx: number; dy: number }): Promise<void> {
 	const header = panel(page, key).locator(':scope > div').first();
@@ -93,8 +107,7 @@ export async function dragPanel(page: Page, key: string, cells: { dx: number; dy
 	const y = box.y + 10;
 	await page.mouse.move(x, y);
 	await page.mouse.down();
-	await page.mouse.move(x + cells.dx * 18, y + cells.dy * 18, { steps: 8 });
-	await page.mouse.up();
+	await moveAndRelease(page, { x, y }, { x: x + cells.dx * 18, y: y + cells.dy * 18 });
 }
 
 /** Drags the resolve or reject handle of `from` onto the input handle of `to` (or `null`: empty space, detach). */
@@ -106,7 +119,8 @@ export async function linkHandle(
 ): Promise<void> {
 	await panel(page, from).locator(`[data-handle="${type}"]`).scrollIntoViewIfNeeded();
 	const handle = (await panel(page, from).locator(`[data-handle="${type}"]`).boundingBox())!;
-	await page.mouse.move(handle.x + handle.width / 2, handle.y + handle.height / 2);
+	const start = { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 };
+	await page.mouse.move(start.x, start.y);
 	await page.mouse.down();
 
 	let target: { x: number; y: number };
@@ -118,6 +132,43 @@ export async function linkHandle(
 		target = { x: handle.x + 20 * 18, y: handle.y + 30 * 18 };
 	}
 
-	await page.mouse.move(target.x, target.y, { steps: 10 });
-	await page.mouse.up();
+	await moveAndRelease(page, start, target);
+}
+
+/** The first panel whose key starts with `prefix` (keys the app generates: `condition_ab12c`). */
+export const panelByPrefix = (page: Page, prefix: string) => page.locator(`[data-panel-key^="${prefix}"]`).first();
+
+/** Switches the flow page to edit mode (a flow without operations opens in it). */
+export async function editFlow(page: Page): Promise<void> {
+	await expect(panel(page, '$trigger')).toBeVisible({ timeout: 15_000 });
+	const edit = page.getByRole('button', { name: 'Edit Flow' });
+	if (await edit.isVisible()) await edit.click();
+	await expect(page.getByRole('button', { name: 'Save', exact: true })).toBeVisible();
+}
+
+/** Saves the flow page and waits for view mode. */
+export async function saveFlow(page: Page): Promise<void> {
+	await page.getByRole('button', { name: 'Save', exact: true }).click();
+	await expect(page.getByRole('button', { name: 'Edit Flow' })).toBeVisible({ timeout: 30_000 });
+}
+
+/** "+" on the resolve or reject handle of `from`, picks `type` in the operation drawer (default name and key), Done. */
+export async function addOperation(page: Page, from: Locator, hint: 'resolve' | 'reject', type: string): Promise<void> {
+	await from.scrollIntoViewIfNeeded();
+	await from.hover();
+	await from.locator(`[data-hint="${hint}"]`).click();
+	await page
+		.getByRole('dialog')
+		.getByRole('button', { name: new RegExp(`^${type}`) })
+		.click();
+	await page.getByRole('button', { name: 'Done' }).click();
+	await expect(page.getByRole('dialog')).toHaveCount(0);
+}
+
+/** Opens the menu of a panel in edit mode and picks `entry` (`Duplicate`, `Delete`, `Copy To`). */
+export async function tileMenu(page: Page, key: string, entry: string): Promise<void> {
+	await panel(page, key)
+		.getByRole('button', { name: /^Options for/ })
+		.click();
+	await page.getByRole('menuitem', { name: entry }).click();
 }

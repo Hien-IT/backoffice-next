@@ -196,6 +196,8 @@ points of feature 013 for the design owner. Add a row (and recompute) for any ne
 | dark  | `warning-500`    | `white/0.05`          | Translations display progress 34–66 %, over `gray-dark` (013)                                             | 5.89:1  | 3:1    | pass   |
 | dark  | `success-500`    | `white/0.05`          | Translations display progress above 66 %, over `gray-dark` (013)                                          | 5.27:1  | 3:1    | pass   |
 | dark  | `warning-500`    | `gray-900`            | `input` / `input-multiline` counter under 10 % left (013)                                                 | 7.56:1  | 4.5:1  | pass   |
+| light | `gray-600`       | `brand-50`            | BoFancySelect description and change button on the chosen option (017, axe 4.46:1 with `gray-500`)       | 6.89:1  | 4.5:1  | pass   |
+| light | `orange-700`     | `white`               | Failed run icon and "Show Failed Only" icon of the flow Logs (017, axe 3.01:1 with `orange-500`)          | 5.52:1  | 4.5:1  | pass   |
 
 TailAdmin values replaced because they failed: placeholder gray-400 (2.58) / white/30 (2.70); field error-500 (3.76) and
 success-500 (2.62) text; light badge text -500/-600 (2.59–4.44); active menu brand-500 on brand-50 (4.34); dark

@@ -99,7 +99,7 @@ const FOCUS =
 				<BoIcon
 					:name="showFailedOnly ? 'cancel' : 'circle'"
 					size="sm"
-					:class="showFailedOnly ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400'"
+					:class="showFailedOnly ? 'text-orange-700 dark:text-orange-400' : 'text-gray-500 dark:text-gray-400'"
 				/>
 				{{ $t('show_failed_only') }}
 			</button>
@@ -133,7 +133,7 @@ const FOCUS =
 								v-else
 								name="cancel"
 								size="sm"
-								class="text-orange-500 dark:text-orange-400"
+								class="text-orange-700 dark:text-orange-400"
 								:label="$t('flow_run_failed')"
 							/>
 							{{ revision.timeRelative }}

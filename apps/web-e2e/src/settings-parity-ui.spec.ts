@@ -6,10 +6,11 @@
 // detail-panel sections, for the admin (non-admins have no Settings module, FR-061). Read only: the new-collection
 // drawer is filled but never saved. Runs in E2E_CONFIG=proxy-api only and drives the Directus app, so chromium-1280
 // only (DIRECTUS_APP_SPECS). Deviations the spec allows are applied to the Directus values in `allowed`, each with its D-xx.
-import type { Page } from '@playwright/test';
+import type { Locator, Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, DATA_PREFIX, directusUrl, e2eConfig } from './helpers/config.js';
-import { goto as gotoDirectus, onDirectusApp } from './helpers/directus-app.js';
+import { chooseInMenu, dirTile, goto as gotoDirectus, headerButton, onDirectusApp } from './helpers/directus-app.js';
+import { flowId, FLOWS, panel } from './helpers/flows.js';
 import { openSidebar } from './helpers/content.js';
 import { moduleBar } from './helpers/layout.js';
 import { login, resetLastPage } from './helpers/login.js';
@@ -395,4 +396,236 @@ test('admin: sub-menu, tree, titles, breadcrumbs, counts, chips, 14 buttons and 
 	}
 
 	expect.soft(await backofficeExtra(page), 'create field, drawers and duplicate policy').toEqual(directus.extra);
+});
+
+/* ------------------------------------------------------------------------------------------- feature 017: Flows */
+
+// Feature 017 T092 (SC-004): the Flows screens of both apps on the bo_flows fixture: (a) the fixture rows of the flow
+// table with their status, (b) the titles of the flow table, the bo_all_ops page, the flow drawer and the operation
+// drawer, and the type and name of every bo_all_ops panel, (c) the overview `<dl>` of its 16 panels and of the trigger
+// of the other 4 fixture flows (the webhook URL compared from `/flows/trigger/`), (d) on/off/absent of the 9 buttons,
+// (e) the detail-panel sections with the Logs badge. Read only: the drawers are closed and the canvas never saved.
+
+type FlowsUi = {
+	rows: string[];
+	titles: string[];
+	panels: string[];
+	triggers: string[];
+	buttons: Record<string, string>;
+	sections: string[];
+};
+
+const FIXTURE_FLOWS = Object.values(FLOWS) as string[];
+const OTHER_TRIGGERS = [FLOWS.webhook, FLOWS.schedule, FLOWS.child, FLOWS.event];
+
+/** Runs in the page of either app: `<name>:<status>` of the fixture rows of the flow table, in table order. */
+function readFlowRows(names: string[]): string[] {
+	return Array.from(document.querySelectorAll('main tbody tr'))
+		.map((row) => {
+			const text = row.textContent ?? '';
+			const name = names.find((n) => text.includes(n));
+			return name ? `${name}:${/Inactive/.test(text) ? 'Inactive' : 'Active'}` : '';
+		})
+		.filter(Boolean);
+}
+
+/** Runs in the page of either app: `type | name | dt=dd...` of every panel, by cell. */
+function readPanels(args: { tile: string; header: string; name: string }): string[] {
+	const text = (el: Element | null | undefined) => (el?.textContent ?? '').replace(/\s+/g, ' ').trim();
+	return Array.from(document.querySelectorAll(args.tile))
+		.map((tile) => {
+			const style = (tile as HTMLElement).style;
+			const x = Number(tile.getAttribute('data-pos-x') ?? style.getPropertyValue('--pos-x'));
+			const y = Number(tile.getAttribute('data-pos-y') ?? style.getPropertyValue('--pos-y'));
+			const dl = Array.from(tile.querySelectorAll('dl > div')).map(
+				(d) => `${text(d.querySelector('dt'))}=${text(d.querySelector('dd'))}`,
+			);
+			const line = [text(tile.querySelector(args.header)), text(tile.querySelector(args.name)), ...dl]
+				.join(' | ')
+				// The webhook URL starts with each app's API URL.
+				.replace(/\S*(\/flows\/trigger\/)/g, '$1');
+			return { x, y, line };
+		})
+		.sort((a, b) => a.y - b.y || a.x - b.x)
+		.map((p) => p.line);
+}
+
+/** `on`, `off` or `absent` of the first control `control` finds. */
+async function controlState(control: Locator): Promise<string> {
+	if ((await control.count()) === 0 || !(await control.first().isVisible())) return 'absent';
+	const el = control.first();
+	const off =
+		(await el.isDisabled()) ||
+		(await el.getAttribute('aria-disabled')) === 'true' ||
+		(await el.getAttribute('data-disabled')) !== null ||
+		((await el.getAttribute('class')) ?? '').split(' ').includes('disabled');
+	return off ? 'off' : 'on';
+}
+
+const SECTIONS = (t: string) => `${t.replace(/\d+/g, '').trim()} ${t.replace(/\D+/g, '')}`.trim();
+
+async function directusFlowsUi(p: Page, ids: { all: string; log: string; triggers: string[] }): Promise<FlowsUi> {
+	const title = (root: string) => p.locator(`${root} .title`).first().innerText();
+	const drawer = () => p.locator('.v-drawer').last();
+	const buttons: Record<string, string> = {};
+
+	await gotoDirectus(p, '/settings/flows');
+	await expect(p.locator('main tbody tr').first()).toBeVisible();
+	const rows = await p.evaluate(readFlowRows, FIXTURE_FLOWS);
+	const titles = [await title('header.header-bar')];
+	buttons['createFlow'] = await controlState(headerButton(p, 'add'));
+
+	await headerButton(p, 'add').click();
+	buttons['next'] = await controlState(drawer().getByRole('button', { name: 'arrow_forward', exact: true }));
+	await drawer().getByPlaceholder('Name', { exact: true }).fill('parity');
+	await drawer().getByRole('button', { name: 'arrow_forward', exact: true }).click();
+	buttons['finishSetup'] = await controlState(drawer().getByRole('button', { name: 'check', exact: true }));
+	await p.keyboard.press('Escape');
+	await expect(p.locator('.v-drawer')).toHaveCount(0);
+
+	await p.locator('.table-row', { hasText: FLOWS.all }).locator('.ctx-toggle').click();
+	await chooseInMenu(p, 'Edit Flow');
+	titles.push(await title('.v-drawer .header-bar'));
+	buttons['saveDrawer'] = await controlState(drawer().getByRole('button', { name: 'check', exact: true }));
+	await p.keyboard.press('Escape');
+	await expect(p.locator('.v-drawer')).toHaveCount(0);
+
+	await gotoDirectus(p, `/settings/flows/${ids.all}`);
+	await expect(dirTile(p, 'Trigger')).toBeVisible();
+	await p.waitForLoadState('networkidle');
+	titles.push(await title('header.header-bar'));
+	const panels = await p.evaluate(readPanels, {
+		tile: '.v-workspace-tile',
+		header: '.header .name',
+		name: '.tile-content .name',
+	});
+	const sections = (await p.locator('#sidebar .accordion-trigger').allTextContents())
+		.map((t) => t.replace(/\s+/g, ' ').trim())
+		.filter((t) => t && t !== 'AI Assistant')
+		.map(SECTIONS);
+	buttons['editFlow'] = await controlState(headerButton(p, 'edit'));
+	await headerButton(p, 'edit').click();
+	buttons['saveCanvas'] = await controlState(headerButton(p, 'check'));
+	buttons['clearChanges'] = await controlState(headerButton(p, 'clear'));
+	await dirTile(p, 'Log to Console').locator('.edit-actions .more-icon').click();
+	buttons['copyTo'] = await controlState(
+		p.locator('.v-menu-content').last().locator('.v-list-item', { hasText: 'Copy To...' }),
+	);
+	await p.keyboard.press('Escape');
+
+	await gotoDirectus(p, `/settings/flows/${ids.all}/${ids.log}`);
+	await expect(drawer()).toBeVisible();
+	titles.push(await title('.v-drawer .header-bar'));
+	buttons['done'] = await controlState(drawer().getByRole('button', { name: 'check', exact: true }));
+
+	const triggers: string[] = [];
+	for (const id of ids.triggers) {
+		await gotoDirectus(p, `/settings/flows/${id}`);
+		await expect(dirTile(p, 'Trigger')).toBeVisible();
+		triggers.push(
+			(
+				await p.evaluate(readPanels, {
+					tile: '.v-workspace-tile',
+					header: '.header .name',
+					name: '.tile-content .name',
+				})
+			)[0]!,
+		);
+	}
+
+	return { rows, titles, panels, triggers, buttons, sections };
+}
+
+async function backofficeFlowsUi(p: Page, ids: { all: string; log: string; triggers: string[] }): Promise<FlowsUi> {
+	const h1 = async () =>
+		p.locator('main h1').evaluate((el) => {
+			const copy = el.cloneNode(true) as HTMLElement;
+			copy.querySelectorAll('[data-icon], .sr-only, button').forEach((e) => e.remove());
+			return (copy.textContent ?? '').replace(/\s+/g, ' ').trim();
+		});
+	const dialog = () => p.getByRole('dialog');
+	const buttons: Record<string, string> = {};
+	const read = { tile: '[data-panel-key]', header: ':scope > div > span.truncate', name: '[data-panel-title]' };
+
+	await p.goto('/admin/settings/flows');
+	await expect(p.locator('main tbody tr').first()).toBeVisible();
+	const rows = await p.evaluate(readFlowRows, FIXTURE_FLOWS);
+	const titles = [await h1()];
+	buttons['createFlow'] = await controlState(p.getByRole('button', { name: 'Create Flow' }).first());
+
+	await p.getByRole('button', { name: 'Create Flow' }).first().click();
+	buttons['next'] = await controlState(p.getByRole('button', { name: 'Next' }));
+	await dialog().getByRole('textbox', { name: /^Name/ }).fill('parity');
+	await p.getByRole('button', { name: 'Next' }).click();
+	buttons['finishSetup'] = await controlState(p.getByRole('button', { name: 'Finish Setup' }));
+	await p.keyboard.press('Escape');
+	await expect(dialog()).toHaveCount(0);
+
+	await p.getByRole('button', { name: `Options for ${FLOWS.all}`, exact: true }).click();
+	await p.getByRole('menuitem', { name: 'Edit Flow' }).click();
+	titles.push(await dialog().locator('h2').first().innerText());
+	buttons['saveDrawer'] = await controlState(dialog().getByRole('button', { name: 'Save', exact: true }));
+	await p.keyboard.press('Escape');
+	await expect(dialog()).toHaveCount(0);
+
+	await p.goto(`/admin/settings/flows/${ids.all}`);
+	await expect(panel(p, '$trigger')).toBeVisible();
+	await p.waitForLoadState('networkidle');
+	titles.push(await h1());
+	const panels = await p.evaluate(readPanels, read);
+	await openSidebar(p);
+	const sections = (await p.locator('#sidebar h3').allTextContents())
+		.map((t) => t.replace(/expand_more|[a-z_]+(?=[A-Z])/g, '').trim())
+		.map(SECTIONS);
+	buttons['editFlow'] = await controlState(p.getByRole('button', { name: 'Edit Flow' }));
+	await p.getByRole('button', { name: 'Edit Flow' }).click();
+	buttons['saveCanvas'] = await controlState(p.getByRole('button', { name: 'Save', exact: true }));
+	buttons['clearChanges'] = await controlState(p.getByRole('button', { name: 'Clear Changes' }));
+	await panel(p, 'log')
+		.getByRole('button', { name: /^Options for/ })
+		.click();
+	buttons['copyTo'] = await controlState(p.getByRole('menuitem', { name: 'Copy To' }));
+	await p.keyboard.press('Escape');
+
+	await p.goto(`/admin/settings/flows/${ids.all}/${ids.log}`);
+	await expect(dialog()).toBeVisible();
+	titles.push(await dialog().locator('h2').first().innerText());
+	buttons['done'] = await controlState(p.getByRole('button', { name: 'Done' }));
+
+	const triggers: string[] = [];
+	for (const id of ids.triggers) {
+		await p.goto(`/admin/settings/flows/${id}`);
+		await expect(panel(p, '$trigger')).toBeVisible();
+		triggers.push((await p.evaluate(readPanels, read))[0]!);
+	}
+
+	return { rows, titles, panels, triggers, buttons, sections };
+}
+
+test('admin: flow table, bo_all_ops page, flow and operation drawers, 9 buttons and the Logs section match the Directus app (SC-004)', async ({
+	page,
+	browser,
+}) => {
+	test.setTimeout(300_000);
+	const all = await flowId(api, FLOWS.all);
+	const [log] = await api.call<{ id: string }[]>(
+		'GET',
+		`/operations?filter[flow][_eq]=${all}&filter[key][_eq]=log&fields=id`,
+	);
+	const ids = {
+		all,
+		log: log!.id,
+		triggers: await Promise.all(OTHER_TRIGGERS.map((name) => flowId(api, name))),
+	};
+
+	const directus = await onDirectusApp(browser, (p) => directusFlowsUi(p, ids));
+
+	await resetLastPage(api);
+	await page.goto('/admin/login');
+	await login(page, ADMIN);
+	await expect(page).toHaveURL(/\/admin\/(?!login)/);
+	const backoffice = await backofficeFlowsUi(page, ids);
+
+	for (const key of Object.keys(directus) as (keyof FlowsUi)[])
+		expect.soft(backoffice[key], key).toEqual(directus[key]);
 });

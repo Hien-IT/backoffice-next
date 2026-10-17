@@ -83,7 +83,7 @@ const FOCUS =
 						<span class="block truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
 							{{ item['text'] }}
 						</span>
-						<span class="block truncate text-theme-xs text-gray-500 dark:text-gray-400">{{ item['description'] }}</span>
+						<span class="block truncate text-theme-xs text-gray-600 dark:text-gray-400">{{ item['description'] }}</span>
 					</span>
 					<BoIcon
 						v-if="item['iconRight'] && modelValue !== item['value']"
@@ -95,7 +95,7 @@ const FOCUS =
 				<button
 					v-if="modelValue === item['value'] && disabled === false"
 					type="button"
-					class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
+					class="inline-flex size-8 shrink-0 items-center justify-center rounded-lg text-gray-600 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5"
 					:class="FOCUS"
 					:aria-label="t('deselect')"
 					:title="t('deselect')"

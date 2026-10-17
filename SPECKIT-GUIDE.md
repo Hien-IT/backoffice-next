@@ -396,6 +396,11 @@ Ghi chú từ 015 (đưa vào spec 018): drawer thông báo chưa có danh sách
 báo thì thêm danh sách này như Directus (`tusResumableUploadsChanged`), `utils/upload-file.ts` đã giữ việc tiếp tục
 upload dở khi chọn lại cùng file.
 
+Ghi chú từ 017 (đưa vào spec 018): `BoWorkspace` và `BoWorkspaceTile` (`src/components/workspace`, port của
+`v-workspace`, `v-workspace-tile`) đã có cho canvas flows: kéo bám lưới 18 px, menu tile, `data-pos-x/y`; chưa có resize
+và zoom mà dashboard Insights cần. `/content/directus_operations` không chuyển hướng, giống Directus
+(`get-route.ts` không có dòng đó).
+
 Ghi chú từ 016 (đưa vào spec 018): thông báo dạng snackbar của Directus vẫn là notice tại chỗ và hộp lỗi (D-66 của
 013); `settingsStore.updateSettings` và các màn Settings dùng `notify`/`showUnexpectedError`. Khi 018 làm Notifications
 thì xét lại cách hiển thị này.

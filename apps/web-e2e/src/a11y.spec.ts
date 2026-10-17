@@ -5,6 +5,8 @@ import { AxeBuilder } from '@axe-core/playwright';
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
+import { openSidebar } from './helpers/content.js';
+import { flowId, FLOWS, panel } from './helpers/flows.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 import { openOwnPage } from './helpers/users.js';
@@ -31,14 +33,16 @@ const pair = (data: unknown) => {
 	return `${fgColor} on ${bgColor}`;
 };
 
-async function violations(page: Page) {
+async function violations(page: Page, exclude: string[] = []) {
 	// Controls that turn enabled once the session loads fade in (`transition`); WebKit scanned them mid-fade (webkit-768
 	// color-contrast). Settle every transition first, as the browser a11y unit tests do.
 	await page.addStyleTag({
 		content: '*, *::before, *::after { transition: none !important; animation: none !important; }',
 	});
 	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-	const results = await new AxeBuilder({ page }).withTags(TAGS).analyze();
+	let builder = new AxeBuilder({ page }).withTags(TAGS);
+	for (const selector of exclude) builder = builder.exclude(selector);
+	const results = await builder.analyze();
 
 	return results.violations
 		.filter((v) => v.impact === 'serious' || v.impact === 'critical')
@@ -83,6 +87,77 @@ for (const scheme of ['light', 'dark'] as const) {
 			await page.waitForTimeout(300);
 			found[path] = await violations(page);
 		}
+
+		expect(Object.fromEntries(Object.entries(found).filter(([, v]) => v.length))).toEqual({});
+	});
+}
+
+// The flow icon of the table rows takes the color the flow stores (Directus does the same): user data, not a token.
+const FLOW_COLOR = ['main tbody [data-icon][style*="color"]'];
+
+// Feature 017 T094 (FR-106, SC-008): the Flows screens, light and dark: the flow table, the bo_all_ops page in view and
+// edit mode, the flow drawer on both tabs, the operation drawer of exec, mail (D-106 notice) and trigger, the Logs
+// section and a run's drawer. The canvas is mouse-only like Directus (approved exception): axe still checks its DOM.
+for (const scheme of ['light', 'dark'] as const) {
+	test(`Flows screens have no serious violations (${scheme})`, async ({ page }) => {
+		test.setTimeout(120_000);
+		await page.emulateMedia({ colorScheme: scheme });
+		const all = await flowId(api, FLOWS.all);
+		const operations = await api.call<{ id: string; key: string }[]>(
+			'GET',
+			`/operations?filter[flow][_eq]=${all}&fields=id,key&limit=-1`,
+		);
+		const operation = (key: string) => operations.find((o) => o.key === key)!.id;
+		const found: Record<string, string[]> = {};
+		const scan = async (name: string) => {
+			await page.waitForLoadState('networkidle');
+			await page.waitForTimeout(300);
+			found[name] = await violations(page, FLOW_COLOR);
+		};
+		const dialog = () => page.getByRole('dialog');
+
+		await resetLastPage(api);
+		await page.goto('/admin/login');
+		await login(page, ADMIN);
+		await expect(page).toHaveURL(CONTENT_URL);
+
+		await page.goto('/admin/settings/flows');
+		await expect(page.locator('main tbody tr').first()).toBeVisible();
+		await scan('flow table');
+
+		await page.getByRole('button', { name: 'Create Flow' }).first().click();
+		await expect(dialog()).toBeVisible();
+		await scan('flow drawer, setup tab');
+		await dialog().getByRole('textbox', { name: /^Name/ }).fill('a11y');
+		await page.getByRole('button', { name: 'Next' }).click();
+		await dialog()
+			.getByRole('button', { name: /^Webhook/ })
+			.click();
+		await scan('flow drawer, trigger tab');
+		await page.keyboard.press('Escape');
+		await expect(dialog()).toHaveCount(0);
+
+		await page.goto(`/admin/settings/flows/${all}`);
+		await expect(panel(page, '$trigger')).toBeVisible();
+		await scan('flow page');
+		await page.getByRole('button', { name: 'Edit Flow' }).click();
+		await scan('flow page, edit mode');
+
+		for (const key of ['exec', 'mail', 'trigger']) {
+			await page.goto(`/admin/settings/flows/${all}/${operation(key)}`);
+			await expect(dialog()).toContainText('Edit Operation');
+			await scan(`operation drawer ${key}`);
+		}
+
+		await page.goto(`/admin/settings/flows/${all}`);
+		await expect(panel(page, '$trigger')).toBeVisible();
+		await openSidebar(page);
+		await page.getByRole('button', { name: /^Logs/ }).click();
+		await expect(page.locator('[data-flow-log] button').first()).toBeVisible();
+		await scan('logs section');
+		await page.locator('[data-flow-log] button').first().click();
+		await expect(page.locator('[data-flow-log-steps]')).toBeVisible();
+		await scan('log drawer');
 
 		expect(Object.fromEntries(Object.entries(found).filter(([, v]) => v.length))).toEqual({});
 	});

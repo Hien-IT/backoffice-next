@@ -43,6 +43,9 @@ export const SETTINGS_TABLES = [
 	'directus_settings',
 ];
 
+/** Feature 017 (contracts/tests.md §4): the Flows editor tables. */
+export const FLOWS_TABLES = ['directus_flows', 'directus_operations'];
+
 /** `extra`: user collections a scenario writes too (feature 005, items.spec.ts). */
 export async function snapshot(extra: string[] = []): Promise<Snapshot> {
 	const tables: Record<string, Map<string, Row>> = {};

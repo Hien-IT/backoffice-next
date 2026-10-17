@@ -483,12 +483,15 @@ Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and ap
 
 ## 13. Flow canvas (nháp, 017)
 
-Recipe for spec 017 Q-29 (T004, FR-107), written before the code; design owner approval pending. Behaviour is the
+Recipe for spec 017 Q-29 (T004, FR-107), written before the code and updated to it (T101, 2026-10-17); design owner
+approval pending. Behaviour is the
 Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vue`, `components/arrows/*`,
 `components/v-workspace*.vue`); this section only sets the look.
 
 - **Page**: `PrivateView fill` (D-99): page header stays, the canvas is the only scroll area (`overflow-auto` on both
-  axes, `relative`). The right detail panel (L-4) holds the Logs section (component-specs "Flow logs").
+  axes, `relative`). The canvas box is a focusable `role="region"` labelled with the flow name (`tabindex="0"`, `FOCUS`
+  inset): in view mode it holds no control, and the keyboard scrolls the canvas from it (axe
+  `scrollable-region-focusable`). The right detail panel (L-4) holds the Logs section (component-specs "Flow logs").
 - **Grid**: one cell is 18 px (CSS grid, tiles placed by row/column span). In edit mode only (as Directus) a dot grid
   appears: a CSS `radial-gradient` of `var(--color-gray-300)` (dark `var(--color-gray-700)`) every 18 px, fading in
   150 ms (none with `motion-reduce`); no raw color. The canvas background stays the page background. Size in cells as

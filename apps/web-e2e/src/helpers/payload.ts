@@ -207,3 +207,60 @@ export async function signInBackoffice(
 	await login(page, user);
 	await expect(page).toHaveURL(CONTENT_URL);
 }
+
+/**
+ * Feature 017 (contracts/components.md §6): operation keys either app generates end in random characters
+ * (`condition_ab12c`, a duplicate `log_ab12c`): `key` values lose them (`condition_*`). Run after `normalize`.
+ */
+export function normalizeFlowsBody(writes: Write[]): Write[] {
+	const strip = (input: unknown, key?: string): unknown => {
+		if (key === 'key' && typeof input === 'string') return input.replace(/_[a-z0-9]{5}$/, '_*');
+		if (Array.isArray(input)) return input.map((v) => strip(v));
+		if (input && typeof input === 'object')
+			return Object.fromEntries(Object.entries(input).map(([k, v]) => [k, strip(v, k)]));
+		return input;
+	};
+	return writes.map((write) => ({ ...write, path: canonicalPath(write.path), body: strip(write.body) }));
+}
+
+/**
+ * Feature 017: the query of `path` as one JSON object, so the Directus app (axios, `fields[]=id`, `filter[a][_eq]=x`) and
+ * the Backoffice app (@directus/sdk, `fields=id`, `filter={"a":{"_eq":"x"}}`) compare by meaning: bracket keys nest, a
+ * JSON value is parsed, `fields` is a sorted list, leaves are strings, and `page=0` (ignored by the API) is dropped.
+ */
+export function canonicalPath(path: string): string {
+	const [pathname, search] = path.split('?') as [string, string | undefined];
+	if (search === undefined) return path;
+	const query: Record<string, unknown> = {};
+	for (const [raw, value] of new URLSearchParams(search)) {
+		if (raw === 'page' && value === '0') continue;
+		const list = raw.endsWith('[]');
+		const keys = raw
+			.slice(0, list ? -2 : undefined)
+			.replace(/\]/g, '')
+			.split('[');
+		const parsed: unknown = /^[[{]/.test(value) ? JSON.parse(value) : value;
+		let target = query;
+		for (const key of keys.slice(0, -1)) target = (target[key] ??= {}) as Record<string, unknown>;
+		const last = keys.at(-1)!;
+		if (list) ((target[last] ??= []) as unknown[]).push(parsed);
+		else target[last] = parsed;
+	}
+	// `a[0][b]` nests as { 0: ... }: objects with keys 0..n become arrays; leaves become strings.
+	const tidy = (input: unknown): unknown => {
+		if (Array.isArray(input)) return input.map(tidy);
+		if (input && typeof input === 'object') {
+			const entries = Object.entries(input);
+			if (entries.length > 0 && entries.every(([k], i) => k === String(i))) return entries.map(([, v]) => tidy(v));
+			return Object.fromEntries(entries.sort(([a], [b]) => a.localeCompare(b)).map(([k, v]) => [k, tidy(v)]));
+		}
+		return String(input);
+	};
+	const fields = query['fields'];
+	if (fields !== undefined)
+		query['fields'] = [fields]
+			.flat()
+			.flatMap((f) => String(f).split(','))
+			.sort();
+	return `${pathname}?${JSON.stringify(tidy(query))}`;
+}

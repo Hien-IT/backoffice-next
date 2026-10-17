@@ -15,9 +15,22 @@
 // Normalized: flow ids → `flow:<name>`, operation ids → their `key`, the 5 random chars of generated keys → `_*`,
 // timestamps removed; then `normalize` (sorted keys, uuids → `<uuid>`).
 import { writeFileSync } from 'node:fs';
-import { expect, test, type Locator, type Page } from '@playwright/test';
+import { expect, test } from '@playwright/test';
 import { directusUrl } from '../helpers/config.js';
-import { card, chooseInMenu, directusApi, goto, headerButton, onDirectusApp } from '../helpers/directus-app.js';
+import {
+	card,
+	chooseInMenu,
+	dirAddOperation,
+	dirDragTile,
+	dirLink,
+	dirSaveFlow,
+	dirTile,
+	dirTileMenu,
+	directusApi,
+	goto,
+	headerButton,
+	onDirectusApp,
+} from '../helpers/directus-app.js';
 import { normalize, recordWrites, type Recorded } from '../helpers/payload.js';
 
 test.skip(process.env['RECORD_BASELINES'] !== '1', 'records Directus app baselines on demand (RECORD_BASELINES=1)');
@@ -26,7 +39,6 @@ test.use({ actionTimeout: 15_000 });
 const FLOW = 'web-e2e-baseline-flow';
 const TARGET = 'web-e2e-baseline-target';
 const OUT = new URL('./baselines/', import.meta.url);
-const GRID = 18;
 
 async function cleanup(): Promise<void> {
 	const flows: { id: string }[] = await directusApi(
@@ -82,63 +94,6 @@ function save(name: string, recorded: Recorded): void {
 	writeFileSync(new URL(`flows-${name}.json`, OUT), `${JSON.stringify(normalize({ writes, keys: [] }), null, '\t')}\n`);
 }
 
-/** The canvas tile whose header names the operation type (`Trigger`, `Condition`, `Log to Console`...). */
-function tile(page: Page, type: string): Locator {
-	return page
-		.locator('.v-workspace-tile')
-		.filter({ has: page.locator('.header .name', { hasText: new RegExp(`^${type}$`) }) });
-}
-
-/** Clicks a handle (`.add-resolve`, `.add-reject`) of `from`, picks `type` in the operation drawer, Done. */
-async function addOperation(page: Page, from: Locator, handle: string, type: string): Promise<void> {
-	await from.locator(handle).click();
-	const drawer = page.locator('.v-drawer').last();
-	await drawer
-		.locator('.v-fancy-select-option', { hasText: new RegExp(`^\\s*\\S*\\s*${type}`) })
-		.first()
-		.click();
-	await drawer.getByRole('button', { name: 'check', exact: true }).click();
-	await expect(page.locator('.v-drawer')).toHaveCount(0);
-}
-
-/** Moves the mouse from the centre of `from` to (x, y) in small steps (the canvas reads pointermove in rAF/throttle). */
-async function drag(page: Page, from: Locator, to: { x: number; y: number }): Promise<void> {
-	await from.scrollIntoViewIfNeeded();
-	const box = (await from.boundingBox())!;
-	const start = { x: box.x + box.width / 2, y: box.y + Math.min(box.height / 2, 10) };
-	await page.mouse.move(start.x, start.y);
-	await page.mouse.down();
-	const target = { x: start.x + to.x, y: start.y + to.y };
-	for (let i = 1; i <= 10; i++) {
-		await page.mouse.move(start.x + ((target.x - start.x) * i) / 10, start.y + ((target.y - start.y) * i) / 10);
-		await page.waitForTimeout(40);
-	}
-	await page.mouse.up();
-	await page.waitForTimeout(200);
-}
-
-/** Absolute drag target: the centre of `to`, as an offset from the centre of `from`. */
-async function offset(from: Locator, to: Locator): Promise<{ x: number; y: number }> {
-	await from.scrollIntoViewIfNeeded();
-	const a = (await from.boundingBox())!;
-	const b = (await to.boundingBox())!;
-	return {
-		x: b.x + b.width / 2 - (a.x + a.width / 2),
-		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)),
-	};
-}
-
-async function tileMenu(page: Page, t: Locator, entry: string): Promise<void> {
-	await t.scrollIntoViewIfNeeded();
-	await t.locator('.edit-actions .more-icon').click();
-	await chooseInMenu(page, entry);
-}
-
-async function saveFlow(page: Page): Promise<void> {
-	await headerButton(page, 'check').click();
-	await expect(headerButton(page, 'edit')).toBeVisible({ timeout: 30_000 });
-}
-
 test.beforeAll(cleanup);
 test.afterAll(cleanup);
 
@@ -164,41 +119,38 @@ test('flows editor writes of the Directus app', async ({ browser }) => {
 
 		const flowSave = await recordWrites(page, directusUrl, async () => {
 			await expect(headerButton(page, 'check')).toBeVisible();
-			await addOperation(page, tile(page, 'Trigger'), '.add-resolve', 'Condition');
-			await addOperation(page, tile(page, 'Condition'), '.add-resolve', 'Log to Console');
-			await addOperation(page, tile(page, 'Condition'), '.add-reject', 'Throw Error');
-			await addOperation(page, tile(page, 'Log to Console'), '.add-resolve', 'Transform Payload');
-			await saveFlow(page);
+			await dirAddOperation(page, dirTile(page, 'Trigger'), '.add-resolve', 'Condition');
+			await dirAddOperation(page, dirTile(page, 'Condition'), '.add-resolve', 'Log to Console');
+			await dirAddOperation(page, dirTile(page, 'Condition'), '.add-reject', 'Throw Error');
+			await dirAddOperation(page, dirTile(page, 'Log to Console'), '.add-resolve', 'Transform Payload');
+			await dirSaveFlow(page);
 		});
 		await collectLabels();
 
 		const edit = await recordWrites(page, directusUrl, async () => {
 			await headerButton(page, 'edit').click();
-			const transform = tile(page, 'Transform Payload');
-			await drag(page, transform.locator('.header'), { x: 3 * GRID, y: 3 * GRID });
-			await expect(transform).toHaveAttribute('style', /--pos-x: 58; --pos-y: 4;/);
+			await dirDragTile(page, 'Transform Payload', { dx: 3, dy: 3 });
+			await expect(dirTile(page, 'Transform Payload')).toHaveAttribute('style', /--pos-x: 58; --pos-y: 4;/);
 
-			const condition = tile(page, 'Condition');
-			const reject = condition.locator('.add-reject');
 			// Empty space: 20 cells below the Condition panel (the Throw Error panel sits at its right).
-			await drag(page, reject, { x: 0, y: 20 * GRID });
+			await dirLink(page, 'Condition', '.add-reject', null);
 			await expect(page.locator('.v-workspace-tile.subdued')).toHaveCount(1); // Throw Error has no parent
-			await drag(page, reject, await offset(reject, tile(page, 'Throw Error').locator('.attachment')));
+			await dirLink(page, 'Condition', '.add-reject', 'Throw Error');
 			await expect(page.locator('.v-workspace-tile.subdued')).toHaveCount(0);
 
-			await tileMenu(page, tile(page, 'Log to Console'), 'Duplicate');
-			await expect(tile(page, 'Log to Console')).toHaveCount(2);
+			await dirTileMenu(page, dirTile(page, 'Log to Console'), 'Duplicate');
+			await expect(dirTile(page, 'Log to Console')).toHaveCount(2);
 			// The original is Condition's resolve: the one not subdued (the duplicate has no parent).
-			await tileMenu(page, tile(page, 'Log to Console').and(page.locator(':not(.subdued)')), 'Delete');
-			await expect(tile(page, 'Log to Console')).toHaveCount(1);
-			await saveFlow(page);
+			await dirTileMenu(page, dirTile(page, 'Log to Console').and(page.locator(':not(.subdued)')), 'Delete');
+			await expect(dirTile(page, 'Log to Console')).toHaveCount(1);
+			await dirSaveFlow(page);
 		});
 		await collectLabels();
 
 		// The target flow was created before the session: the flows store already has it.
 		const copy = await recordWrites(page, directusUrl, async () => {
 			await headerButton(page, 'edit').click();
-			await tileMenu(page, tile(page, 'Log to Console'), 'Copy To...');
+			await dirTileMenu(page, dirTile(page, 'Log to Console'), 'Copy To...');
 			const dialog = card(page);
 			await expect(dialog).toContainText('Copy To...');
 			await dialog.locator('.v-select .v-input').click();

@@ -1108,7 +1108,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
-| D-92 | Mục "Flows" của sub-menu Settings và `/settings/flows(/*)` | Trình chỉnh sửa flows | Mục hiện, trỏ khung 012 (D-40) | 017 làm trình chỉnh sửa; `directus_flows` của D-72 trỏ cùng chỗ; owner chọn A (Clarifications 2026-10-16) | ngoài phạm vi (tạm thời) | 017 |
+| D-92 | Mục "Flows" của sub-menu Settings và `/settings/flows(/*)` | Trình chỉnh sửa flows | Mục hiện, trỏ khung 012 (D-40) | 017 làm trình chỉnh sửa; `directus_flows` của D-72 trỏ cùng chỗ; owner chọn A (Clarifications 2026-10-16) | ngoài phạm vi (tạm thời) | 017: **đã gỡ ở 017** (trình chỉnh sửa flows thật, cùng route) |
 | D-93 | `/settings/ai`, `/settings/marketplace/*`, `/settings/extensions`, `/settings/system-logs`; mục sub-menu tương ứng; nhóm `ai_group`, `mcp_group` của settings | Có (AI/MCP và logs khi bật; marketplace, extensions luôn) | Không đăng ký (→ không tìm thấy), không hiện mục, không hiện nhóm field; dữ liệu DB giữ nguyên | Nguyên tắc XI, D-41; Directus cũng ẩn AI và logs khi tắt | ngoài phạm vi | — |
 | D-94 | Mục "Report Bug", "Request Feature" của sub-menu | Luôn hiện; mặc định trỏ GitHub Directus (`DEFAULT_REPORT_*_URL`) | Không hiện, kể cả khi `report_bug_url` / `report_feature_url` có giá trị; hai field vẫn sửa được ở màn Project và ghi như Directus | Nguyên tắc IX (như D-49); owner yêu cầu bỏ hẳn (2026-10-17) | đổi thương hiệu | — |
 | D-95 | Dòng phiên bản cuối sub-menu | "Directus <version>" với icon Directus, link GitHub releases | Không hiện dòng nào | Nguyên tắc IX; `info.version` là phiên bản tương thích 11.17.4 nên hiện số sẽ gây hiểu nhầm; owner chọn B (2026-10-16), rồi bỏ hẳn dòng "Backoffice" (2026-10-17) | đổi thương hiệu | — |
@@ -1134,7 +1134,7 @@ collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `direc
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
-| D-92 | `modules/settings.ts`: `/settings/flows(/*)` là khung 012 (`ModulePlaceholder`); mục "Flows" của `SettingsNavigation.vue` giữ vị trí và nhãn | Owner chọn A (Clarifications); duyệt |
+| D-92 | `modules/settings.ts`: `/settings/flows(/*)` là khung 012 (`ModulePlaceholder`); mục "Flows" của `SettingsNavigation.vue` giữ vị trí và nhãn | Owner chọn A (Clarifications); duyệt; **đã gỡ ở 017** |
 | D-93 | `modules/settings.ts` không khai báo `ai`, `marketplace`, `extensions`, `system-logs` (rơi vào `settings-not-found`); `ProjectRoute.vue` bỏ `ai_group`, `mcp_group` | Duyệt (owner, 2026-10-17) |
 | D-94 | `SettingsNavigation.vue`: không có nhóm "Report Bug", "Request Feature" | Owner bỏ hẳn (2026-10-17); duyệt |
 | D-95 | `SettingsNavigation.vue`: không có dòng cuối | Owner bỏ hẳn (2026-10-17); duyệt |

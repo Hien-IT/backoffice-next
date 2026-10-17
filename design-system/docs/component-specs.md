@@ -1649,8 +1649,8 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 
 ## Tier 3 recipes, nháp (017)
 
-Drafts for the questions Q-30 to Q-33 of `specs/017-flows-editor/spec.md`, written before the code (T005, FR-107);
-design owner approval pending. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
+Drafts for the questions Q-30 to Q-33 of `specs/017-flows-editor/spec.md`, written before the code (T005, FR-107) and
+updated to it (T101, 2026-10-17, after the axe scans of T094); design owner approval pending. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
 as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--theme--secondary`) is `orange`.
 
 ### Flow operation panel (Q-30; Directus `components/operation.vue`, `options-overview.vue`, `v-workspace-tile.vue`)
@@ -1684,21 +1684,24 @@ as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--them
 - First row `grid grid-cols-2 gap-6`: Name (BoInput, placeholder the chosen type name) and Key (BoInput `dbSafe`,
   `font-mono`, placeholder the generated key, error `operation_key_unique_error` linked by `aria-describedby`).
 - Type: BoFancySelect (the 016 Field drawer recipe) with icon, name and description of the 15 operations; once chosen only the chosen
-  card stays with a change button.
+  card stays with a change button. Description and change button `text-gray-600` (`gray-500` is 4.46:1 on the chosen
+  card's `brand-50`).
 - Options: the form of ExtensionOptions (BoForm grid of §8) with the raw editor toggle; for `mail` an info BoNotice
   `operations_mail_not_sent_notice` above the form (D-106). Unknown type: danger BoNotice `operation_not_found` with a
   text button to reset the type.
 
 ### Flow logs (Q-32; Directus `components/logs-sidebar-detail.vue`, `logs-drawer.vue`)
 
-- Detail panel section (SidebarDetail) `logs`, icon `fact_check`, badge = abbreviated count. Top: a toggle row
-  `show_failed_only` (switch, `text-theme-sm`). Loading: BoProgressLinear indeterminate.
-- List: RevisionsDateGroup headings (Q-10); a row is a full-width button `flex items-center gap-2 rounded-lg px-2
-  py-1.5 hover:bg-gray-100 dark:hover:bg-white/5` with `check_circle` `text-brand-500` (resolve) or `cancel`
-  `text-orange-500` (other) and `HH:mm (x ago)` in `text-theme-sm`. Empty: `text-theme-sm text-gray-500` `no_logs` /
+- Detail panel section (SidebarDetail) `logs`, icon `fact_check`, badge = abbreviated count. Top: a toggle button
+  `show_failed_only` with `aria-pressed` (`text-theme-sm`; icon `circle` `text-gray-500`, pressed `cancel`
+  `text-orange-700`, dark `text-gray-400` / `text-orange-400`). Loading: BoProgressLinear indeterminate.
+- List: one open BoDetail per day (its title the day), a `<ul data-flow-log>` of rows; a row is a full-width button
+  `flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-white/5` with `check_circle`
+  `text-brand-500` (resolve, label `success`) or `cancel` `text-orange-700` (other, label `flow_run_failed`; dark
+  `text-orange-400`; `orange-500` is 3.01:1 on white) and the relative time in `text-theme-sm`. Empty: `text-theme-sm text-gray-500` `no_logs` /
   `no_logs_on_page`. Pager: BoPagination compact (3 visible).
 - Log drawer: BoDrawer (not persistent), title the run time, icon `fact_check`. Body is an `<ol>` timeline: each step a
-  `relative ps-6` item with a dot (`absolute start-0 top-1.5 size-2.5 rounded-full`, `bg-brand-500` default and
+  `relative ps-6` item with a dot (`absolute -start-1.5 top-1.5 size-3 rounded-full`, `bg-brand-500` default and
   resolve, `bg-orange-500` reject) on a `border-s border-gray-200 dark:border-gray-800` line; heading = name
   (`font-medium`, tooltip key) + type in `text-gray-500`; under it BoDetail sections Options / Payload (/
   Accountability for the trigger), each a `<pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 font-mono

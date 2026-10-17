@@ -329,34 +329,34 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Tests cho User Story 6
 
-- [ ] T090 [P] [US6] Bộ so payload `e2e/payload/flows.spec.ts` (proxy-api, `DIRECTUS_APP_SPECS`): 10 kịch bản của
+- [x] T090 [P] [US6] Bộ so payload `e2e/payload/flows.spec.ts` (proxy-api, `DIRECTUS_APP_SPECS`): 10 kịch bản của
       contracts/tests §4 trên Directus app 8155 rồi Backoffice, `recordWrites` + `normalizeFlowsBody`, mốc T003, bộ so DB
       `FLOWS_TABLES` sau (1)–(7), (10); seed lại giữa hai lượt
-- [ ] T091 [P] [US6] Dùng chéo `e2e/settings-flows-cross-use.spec.ts` (proxy-api, thêm vào `DIRECTUS_APP_SPECS` của
+- [x] T091 [P] [US6] Dùng chéo `e2e/settings-flows-cross-use.spec.ts` (proxy-api, thêm vào `DIRECTUS_APP_SPECS` của
       `apps/web-e2e/playwright.config.ts`): năm bước của contracts/tests §5 (SC-002, SC-003)
-- [ ] T092 [P] [US6] Parity UI `e2e/settings-parity-ui.spec.ts` thêm bảng flow, trang `bo_all_ops`, drawer flow, drawer
+- [x] T092 [P] [US6] Parity UI `e2e/settings-parity-ui.spec.ts` thêm bảng flow, trang `bo_all_ops`, drawer flow, drawer
       operation theo SC-004 (a)–(e); URL webhook so phần đường dẫn; ghi khác biệt được phép (D-101, D-106)
-- [ ] T093 [P] [US6] Perf `flows/perf.browser.test.ts` (`PERF=1`, `machineFactor()`): canvas 50 operation/60 mũi tên
+- [x] T093 [P] [US6] Perf `flows/perf.browser.test.ts` (`PERF=1`, `machineFactor()`): canvas 50 operation/60 mũi tên
       < 500 ms, `generateArrows` 50 panel < 8 ms mỗi lần di chuyển, drawer operation < 200 ms, log 10 dòng < 300 ms, số
       request mỗi thao tác của FR-108; thêm vào bước web perf của `.github/workflows/ci.yml`
-- [ ] T094 [P] [US6] A11y E2E `e2e/a11y.spec.ts` thêm bảng flow, trang flow hai chế độ, drawer flow hai tab, drawer
+- [x] T094 [P] [US6] A11y E2E `e2e/a11y.spec.ts` thêm bảng flow, trang flow hai chế độ, drawer flow hai tab, drawer
       operation (exec, mail, trigger), Logs và drawer log ở sáng và tối (FR-106, SC-008)
 
 ### Implementation cho User Story 6
 
-- [ ] T095 [US6] Sửa lệch do T090–T094 tìm ra (body, DOM, a11y, perf) theo hành vi Directus; lệch thật không sửa được
+- [x] T095 [US6] Sửa lệch do T090–T094 tìm ra (body, DOM, a11y, perf) theo hành vi Directus; lệch thật không sửa được
       ghi R-xx mới trong `specs/017-flows-editor/spec.md` kèm bằng chứng
 
 ---
 
 ## Phase 9: Polish & đóng feature — Lượt 4
 
-- [ ] T100 [P] Tài liệu: spec 016 (D-92 "đã gỡ ở 017") và 014 (D-72 phần `directus_flows` "đã gỡ ở 017") trong
+- [x] T100 [P] Tài liệu: spec 016 (D-92 "đã gỡ ở 017") và 014 (D-72 phần `directus_flows` "đã gỡ ở 017") trong
       `specs/01{4,6}-*/spec.md`; `SPECKIT-GUIDE.md` ghi chú cho 018 (`BoWorkspace*` dùng lại cho Insights;
       `/content/directus_operations` không chuyển hướng như Directus)
-- [ ] T101 [P] Recipe Q-29 đến Q-33 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
+- [x] T101 [P] Recipe Q-29 đến Q-33 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt (gồm ngoại lệ canvas của T006); ghi trạng thái Q-29 đến Q-33 trong `specs/017-flows-editor/spec.md`
-- [ ] T102 Bảng trạng thái khác biệt D-106, R-43 đến R-48, ngoại lệ a11y canvas và mục "Cần xác nhận" (code đã
+- [x] T102 Bảng trạng thái khác biệt D-106, R-43 đến R-48, ngoại lệ a11y canvas và mục "Cần xác nhận" (code đã
       làm, duyệt) trong `specs/017-flows-editor/spec.md` như 016 T122; tech lead duyệt (SC-010)
 - [ ] T103 Đóng feature: mọi cổng của T083 + payload, cross-use, parity UI, axe, perf, bundle xanh; coverage ≥ 60 %;
       commit `test(017): flows payload, cross-use and parity suites, close feature (wave 4)`; push; CI xanh;
@@ -472,3 +472,23 @@ Lượt 4, Phase 8:
     `flowsStore.hydrate()` sau khi xong; không cần sửa.
   - T082: ở 768 px panel chi tiết là drawer modal che bảng: test đóng nó để chọn dòng rồi mở lại.
   - `openSidebar` của 014 xem nút trước khi header dựng xong: các spec 017 đợi trang sẵn sàng rồi mới gọi.
+- Lượt 4 (2026-10-17, làm trong lúc CI lượt 3 chạy):
+  - T090: `payload/flows.spec.ts` chạy 10 kịch bản trên Directus app rồi Backoffice (không so file mốc T003, so trực
+    tiếp hai app); DB `FLOWS_TABLES` sau (1)–(7), (10). Query của SDK (`fields=id`, filter JSON) khác dạng axios
+    (`fields[]=id`, filter lồng, `page=0`): `canonicalPath` so theo nghĩa (test trong `helpers/payload.spec.ts`), ghi ở
+    mục "Cần xác nhận". Directus app đặt tên tile theo loại operation, không theo `name`.
+  - Bước điều khiển canvas Directus chuyển từ `flows-baselines.spec.ts` sang `helpers/directus-app.ts` (`dirTile`,
+    `dirAddOperation`, `dirLink`, `dirDragTile`, `dirTileMenu`, `dirSaveFlow`, `openDirectusFlow`, `readDirectusGrid`,
+    `countDirectusArrows`); bước Backoffice vào `helpers/flows.ts` (`editFlow`, `saveFlow`, `addOperation`, `tileMenu`,
+    `panelByPrefix`). `goto` của Directus lấy `main` đầu (drawer có `main` riêng).
+  - T091: số mũi tên đọc bằng `expect.poll` (mũi tên cũ mờ dần sau Save khi id tạm đổi thành id thật); dòng log là
+    `[data-flow-log] button`, payload của Trigger mở BoDetail trước khi đọc.
+  - T092: test mới trong `settings-parity-ui.spec.ts` (6 dòng bảng, 4 tiêu đề, 16 panel, 4 trigger, 9 nút, mục Logs
+    badge 3) bằng nhau, không cần khác biệt được phép.
+  - T093: FR-108 ghi 60 mũi tên nhưng 50 operation vẽ tối đa 50 (`resolve`/`reject` duy nhất): sửa FR-108; đếm request
+    cần viewport xl (mục Logs nằm trong panel chi tiết).
+  - T094/T095: axe tìm ra 4 lỗi tương phản và vùng cuộn: mô tả và nút đổi của `BoFancySelect` đang chọn → `gray-600`
+    (4.46:1 trên `brand-50`), icon lần chạy lỗi và nút "Show Failed Only" → `orange-700`/`gray-500`, khung canvas thành
+    `role="region"` nhận focus; icon flow trong bảng mang màu flow lưu (dữ liệu, như Directus) được loại khỏi quét.
+    Bảng tương phản `migration-guide.md` thêm hai cặp.
+

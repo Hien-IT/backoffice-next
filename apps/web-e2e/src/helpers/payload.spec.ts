@@ -1,7 +1,7 @@
 // Feature 014 US7 (T087, contracts/tests.md §4): `normalize` of helpers/payload.ts, without a browser.
 import { expect, test } from '@playwright/test';
 import { DATA_PREFIX } from './config.js';
-import { calls, normalize, RUN_TAG } from './payload.js';
+import { calls, canonicalPath, normalize, normalizeFlowsBody, RUN_TAG } from './payload.js';
 
 test('send order kept, object keys sorted, arrays kept in order', () => {
 	const writes = [
@@ -92,4 +92,28 @@ test('block editor time and block ids, version mainHash, query strings', () => {
 			mainHash: '<hash>',
 		},
 	});
+});
+
+test('feature 017: canonicalPath compares the axios and the SDK query by meaning', () => {
+	const axios = canonicalPath(
+		'/revisions?fields[]=id&fields[]=item&filter[_and][0][collection][_eq]=directus_flows&filter[_and][1][version][_null]=true&limit=10&page=0&sort=-id',
+	);
+	const sdk = canonicalPath(
+		'/revisions?fields=item,id&filter={"_and":[{"collection":{"_eq":"directus_flows"}},{"version":{"_null":true}}]}&limit=10&sort=-id',
+	);
+
+	expect(axios).toBe(sdk);
+	expect(axios).toBe(
+		'/revisions?{"fields":["id","item"],"filter":{"_and":[{"collection":{"_eq":"directus_flows"}},{"version":{"_null":"true"}}]},"limit":"10","sort":"-id"}',
+	);
+	expect(canonicalPath('/flows?fields[]=id')).toBe(canonicalPath('/flows?fields=id'));
+	expect(canonicalPath('/flows/abc')).toBe('/flows/abc');
+});
+
+test('feature 017: normalizeFlowsBody drops the generated part of operation keys', () => {
+	const [write] = normalizeFlowsBody([
+		{ method: 'PATCH', path: '/flows/x', body: { operation: { key: 'condition_ab12c', resolve: { key: 'log' } } } },
+	]);
+
+	expect(write!.body).toEqual({ operation: { key: 'condition_*', resolve: { key: 'log' } } });
 });
