@@ -77,6 +77,14 @@ describe('ItemRoute', () => {
 		expect(router.currentRoute.value.fullPath).toBe('/content/bo_content');
 	});
 
+	test('the form is centred in a column as wide as it shows; the page header keeps the full width (owner 2026-10-18)', async () => {
+		await setup({ collection: 'bo_content', primaryKey: '2' });
+		await flushPromises();
+
+		expect(document.body.querySelector('main [class*="grid-cols"]')!.className).toMatch(/mx-auto.*max-w-\[44\.25rem\]/);
+		expect(document.body.querySelector('main h1')!.closest('.mb-6')!.className).not.toMatch(/mx-auto|max-w-/);
+	});
+
 	test('new item: creating title, no delete, save as copy disabled', async () => {
 		const { wrapper } = await setup({ collection: 'bo_content', primaryKey: '+' });
 

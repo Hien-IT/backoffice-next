@@ -25,6 +25,7 @@ import { useItem } from '../../../composables/use-item/index.ts';
 import { notify, showUnexpectedError } from '../../../composables/use-notices.ts';
 import { useShortcut } from '../../../composables/use-shortcut.ts';
 import PrivateView from '../../../layout/PrivateView.vue';
+import { formColumnClass } from '../../../utils/form-column.ts';
 import { getAssetUrl } from '../../../utils/get-asset-url.ts';
 import { uploadFile } from '../../../utils/upload-file.ts';
 import ContentNotFound from '../../content/routes/ContentNotFound.vue';
@@ -102,6 +103,9 @@ useShortcut('meta+s', saveAndStay, form as never);
 const fieldsFiltered = computed(() => {
 	return fields.value.filter((field: Field) => fieldsDenyList.includes(field.field) === false);
 });
+
+// Backoffice (owner 2026-10-18): the body is centred, the page header keeps the full width (layout-patterns §5).
+const formColumn = computed(() => formColumnClass(fieldsFiltered.value));
 
 function useBreadcrumb() {
 	const breadcrumb = computed(() => {
@@ -274,7 +278,12 @@ function revert(values: Record<string, any>) {
 
 <template>
 	<ContentNotFound v-if="!loading && !item" module="files" />
-	<PrivateView v-else :title="loading || !item ? $t('loading') : (item.title ?? undefined)" back="/files" :breadcrumb="breadcrumb">
+	<PrivateView
+		v-else
+		:title="loading || !item ? $t('loading') : (item.title ?? undefined)"
+		back="/files"
+		:breadcrumb="breadcrumb"
+	>
 		<template #actions>
 			<BoButton
 				variant="secondary"
@@ -338,7 +347,7 @@ function revert(values: Record<string, any>) {
 			<FilesNavigation :current-folder="(item?.folder as string | null) ?? undefined" />
 		</template>
 
-		<div class="file-item flex max-w-5xl flex-col gap-8">
+		<div class="file-item flex flex-col gap-8" :class="formColumn">
 			<FilePreviewReplace v-if="item" :disabled="updateAllowed === false" :file="item" @replace="refresh" />
 
 			<ImageEditor

@@ -26,6 +26,7 @@ import { useCollectionsStore } from '../../../stores/collections.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useServerStore } from '../../../stores/server.ts';
 import { useUserStore } from '../../../stores/user.ts';
+import { formColumnClass } from '../../../utils/form-column.ts';
 import { getAssetUrl } from '../../../utils/get-asset-url.ts';
 import { userName } from '../../../utils/user-name.ts';
 import ContentNotFound from '../../content/routes/ContentNotFound.vue';
@@ -144,6 +145,9 @@ const fieldsFiltered = computed(() => {
 			return field;
 		});
 });
+
+// Backoffice (owner 2026-10-18): the body is centred, the page header keeps the full width (layout-patterns §5).
+const formColumn = computed(() => formColumnClass(fieldsFiltered.value));
 
 const archiveTooltip = computed(() => {
 	if (archiveAllowed.value === false) return t('not_allowed');
@@ -348,7 +352,7 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 			<UsersNavigation :current-role="item?.role?.id ?? role" />
 		</template>
 
-		<div class="user-item flex max-w-5xl flex-col gap-8">
+		<div class="user-item flex flex-col gap-8" :class="formColumn">
 			<div
 				v-if="isNew === false"
 				class="user-box flex items-center gap-5 rounded-2xl border border-gray-200 p-5 dark:border-gray-800"

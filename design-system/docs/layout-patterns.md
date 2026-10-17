@@ -119,8 +119,10 @@ the detail panel drawer (section 7).
 - Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
   wide screen shows no empty band on either side. The page header always spans the content width, so its actions line
-  up with the app header (bell, user menu) at the right edge; a body capped at `max-w-5xl` (item pages, Settings forms,
-  D-82) stays at the left like Directus.
+  up with the app header (bell, user menu) at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
+  at the left like Directus. The item pages (Content, File, User) centre their body in a column as wide as the form shows
+  (`mx-auto max-w-[44.25rem]`: two 21.375rem columns and the gap; `max-w-5xl` when a field is `fill`; `utils/form-column.ts`); their page header
+  keeps the full width, title at the left and actions at the right (owner 2026-10-18).
 - Page header (`PageBreadcrumb.vue`): `flex flex-wrap items-center justify-between gap-3 mb-6`; title
   `h2.text-xl.font-semibold.text-gray-800 dark:text-white/90`; breadcrumb `nav > ol.flex.items-center.gap-1.5`, links
   `inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400` followed by a chevron, current page

@@ -45,6 +45,7 @@ import RevisionsSidebarDetail from '../../../components/sidebar/RevisionsSidebar
 import SharesSidebarDetail from '../../../components/sidebar/SharesSidebarDetail.vue';
 import { useItemPermissions } from '../../../composables/use-permissions/index.ts';
 import { useFlows } from '../../../composables/use-run-manual-flow.ts';
+import { formColumnClass } from '../../../utils/form-column.ts';
 import { translateShortcut } from '../../../composables/use-shortcut.ts';
 import { useVersions } from '../../../composables/use-versions.ts';
 import FlowDialogs from '../../../interfaces/presentation-header/FlowDialogs.vue';
@@ -123,6 +124,9 @@ const {
 } = permissions;
 
 const { templateData } = useTemplateData(collectionInfo, primaryKey);
+
+// Backoffice (owner 2026-10-18): the form is centred, the page header keeps the full width (layout-patterns §5).
+const formColumn = computed(() => formColumnClass(unref(fields)));
 
 const { confirmLeave, leaveTo } = useEditsGuard(hasEdits, { compareQuery: ['version'] });
 const confirmDelete = ref(false);
@@ -757,13 +761,14 @@ function useItemNavigation() {
 			:disabled="isMobile"
 		>
 			<template #start>
-				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page.
+				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page;
+				     centred (owner 2026-10-18, `formColumn`).
 				     `fields` only, as Directus item.vue: with `collection` BoForm reads the fields store and drops the field
 				     permissions (read-only fields, presets) that useItemPermissions puts on `fields` (016 T111). -->
 				<BoForm
 					ref="form"
 					v-model="edits"
-					class="max-w-5xl"
+					:class="formColumn"
 					:autofocus="isNew"
 					:disabled="isFormDisabled"
 					:loading="loading"
