@@ -12,13 +12,15 @@ payload; kết quả ghi lại vào bảng cuối.
 operation), `lodash-es` (`sortBy`, `cloneDeep`, `throttle`, `isEqual`), `codemirror` 5 qua interface `input-code`
 (JavaScript và JSON của `exec`, `condition`, `transform`, `payload`, `query`), `@directus/types` (`FlowRaw`,
 `OperationRaw`, `OperationAppConfig`, `TriggerType`), `vuedraggable` không dùng (canvas kéo tự do, không sắp danh sách).
-`ErrorCode` và mã/thông điệp mặc định của `InternalServerError` cho operation `throw-error` lấy từ lib workspace
-`@backoffice/errors` (`libs/errors/src/codes.ts`, enum thuần không import Node; 34 mã) thay `@directus/errors`
-(không cài ở web); `apps/web/package.json` thêm `"@backoffice/errors": "workspace:*"` (lib nội bộ, không phải gói mới).
+`ErrorCode` (34 mã) cho operation `throw-error` chép vào `operations/throw-error/error-codes.ts` (header nguồn
+`directus/packages/errors/src/codes.ts`), test so với `libs/errors/src/codes.ts` (đọc file trong test); fallback
+`INTERNAL_SERVER_ERROR`, 500, "An unexpected error occurred." giống `internal.ts` của Directus và `libs/errors` (kiểm
+2026-10-17). Web không thêm phụ thuộc `@backoffice/errors` (CHK050: lib chỉ export `dist` cần build trước và kéo
+`@backoffice/types`; web chưa dùng lib workspace nào).
 
 **Phương án bỏ**: thư viện node-graph (`vue-flow`, `rete`, `jsplumb`): khác cách vẽ của Directus (lưới 18 px, mũi tên
 tự sinh theo `create-line.ts`), tọa độ lưu `position_x/y` sẽ phải quy đổi và mất parity vị trí (SC-002); `@directus/errors`
-trong web (thêm gói, kéo `@directus/types` bản khác); chép danh sách `ErrorCode` thành JSON (trùng lib đã có).
+trong web (thêm gói); phụ thuộc `@backoffice/errors` (cần build `dist`, ràng buộc Nx mới cho web).
 
 ## R2. Route, trang flow và named view của drawer operation
 
@@ -34,8 +36,8 @@ trong web (thêm gói, kéo `@directus/types` bản khác); chép danh sách `Er
 - `beforeEnter` của Directus (`index.ts:221-230`) chỉ tra store (đã hydrate ở đăng nhập), không gọi API; app giữ.
   Vào `/settings/flows` gọi `flowsStore.hydrate()` (không chờ) để lấy flow mới do app kia tạo (Directus `overview.vue`
   không gọi nhưng `hydrate` sau mỗi ghi; thêm một `GET /flows` khi vào route là khác biệt số request → **không thêm**,
-  giữ như Directus: dữ liệu mới xuất hiện sau thao tác ghi kế tiếp hoặc tải lại trang). FR-108 đã ghi "mở
-  `/settings/flows` = 1 `GET /flows` (hydrate)": sửa thành 0 ở plan (store đã nạp), spec cập nhật ở T001.
+  giữ như Directus: dữ liệu mới xuất hiện sau thao tác ghi kế tiếp hoặc tải lại trang). Spec FR-010, FR-108 đã sửa
+  theo (release-gate CHK021).
 - `get-item-route.ts` không đổi (`directus_flows` → `/settings/flows`), chỉ sửa comment "khung 012 tới 017".
 
 **Phương án bỏ**: named view `operation` (phải sửa cả route và `FlowRoute`, khác Directus); nạp flow bằng
@@ -70,8 +72,8 @@ trí pixel với Directus app trong E2E dùng chéo).
 `createOperation`, `duplicateOperation`, `deleteOperation`, `getTrees`, `saveChanges`, `onLink`, `onDrag`,
 `isLoner`) sang composable `use-flow-editor.ts` (một file, có test unit cho 12 kịch bản SC-006) để `FlowRoute.vue` chỉ
 còn template; `getTrees` thêm `Set` id đã thăm, gặp lại → ném lỗi → `showUnexpectedError` (D-105). Body `PATCH
-/flows/:id` giữ đúng thứ tự khóa của Directus (`...stagedFlow`, `operations`, `operation`) để bộ so payload bằng
-sau chuẩn hóa thứ tự khóa.
+/flows/:id` giữ thứ tự khóa của Directus (`...stagedFlow`, `operations`, `operation`) cho dễ đọc; bộ so payload so
+object không theo thứ tự khóa (CHK020). Save lỗi: staging giữ, Save lại gửi lại cả hai request (R-47).
 
 **Phương án bỏ**: Pinia store riêng (staging chỉ sống trong trang, Directus cũng là `ref` cục bộ); dùng `use-item`
 (không có quan hệ lồng tạm).
@@ -141,14 +143,18 @@ dòng `BoMenu` ba mục; nút tạo gated bởi `useCollectionPermissions('direc
   `settings-parity-ui` mở rộng.
 - Kéo thả trong Playwright: `page.mouse.move(x, y, {steps: 8})` giữa `down`/`up` trên tay cầm và điểm nhận (pointer
   events, `setPointerCapture`); vị trí panel đọc bằng `getBoundingClientRect` của `[data-panel-id]` chia 18 làm tròn.
+- Không E2E nào chạy `bo_all_ops`; flow tạm `web-e2e-<cfg>-*` (CHK007). Webkit flake với kéo → `test.fixme` có lý do
+  (CHK048).
 - Bộ so payload `payload/flows.spec.ts`: `recordWrites` + `normalize` (014) mở rộng: bỏ `_<nanoid>` (đã bỏ trước gửi),
   thay 5 ký tự ngẫu nhiên của key nhân bản/placeholder bằng `*`, sắp `operations.create/update` theo `key`,
   `delete` theo id ánh xạ `key`; đọc `GET /revisions` so query sau khi sắp `fields[]`.
 - Bộ so DB: `FLOWS_TABLES = ['directus_flows', 'directus_operations']` trong `db-rows.ts`; chuẩn hóa `id`,
   `date_created`, `user_created`, và `flow`/`operation`/`resolve`/`reject` ánh xạ sang `key` (hoặc `name` của flow).
 - Dùng chéo (FR-102) điều khiển Directus app 8155 bằng `helpers/directus-app.ts` (016): mở `/admin/settings/flows/<id>`,
-  đọc `.v-workspace .tile` → vị trí lưới, đếm `svg path`, lớp `.reject`; mở drawer operation bằng click pencil.
-- Fixture `bo_flows` (FR-103): `seed.mjs` thêm sáu flow, mỗi flow một `POST /flows {…, operations: [cây]}` với
+  đọc `--pos-x`/`--pos-y` của `.v-workspace-tile` → vị trí lưới (Backoffice: `data-pos-x/y`); tải lại app mới trước khi
+  mở flow do Directus app tạo; đếm `svg path`, lớp `.reject`; mở drawer operation bằng click pencil.
+- Fixture `bo_flows` (FR-103, release-gate CHK006, CHK049): `bo_all_ops` chỉ chạy nhánh không tác dụng phụ (sáu
+  operation có tác dụng phụ nằm dưới reject của `log`); seed thử lại trigger tối đa 10 × 500 ms. `seed.mjs` thêm sáu flow, mỗi flow một `POST /flows {…, operations: [cây]}` với
   `resolve`/`reject` là object lồng (cùng dạng `saveChanges` của Directus gửi trong `create`; parity 009 `crud` đã
   kiểm API nhận cây lồng); snapshot `flows.json` mở rộng,
   thêm `operations.json`; chạy `bo_all_ops` 3 lần qua `POST /flows/trigger/:id` trong seed (sau khi API nạp flow:
@@ -175,7 +181,7 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 ## R12. Hiệu năng và bundle
 
 **Quyết định**: perf `modules/settings/routes/flows/perf.browser.test.ts` (`PERF=1`, `machineFactor()`): 50 operation /
-60 mũi tên < 500 ms; `generateArrows` 50 panel < 8 ms/khung (đo thuần hàm); drawer operation < 200 ms; log 10 dòng
+60 mũi tên < 500 ms; `generateArrows` 50 panel < 8 ms mỗi lần di chuyển (đo thuần hàm, CHK030); drawer operation < 200 ms; log 10 dòng
 < 300 ms. Số request: mở `/settings/flows` = 0 (store, R2); trang flow = 1 đếm (+1 danh sách khi Logs mở); Save = n
 `PATCH /operations` + 1 `PATCH /flows/:id` + 1 `GET /flows`. Chunk lười: `FlowRoute` (canvas + arrows + workspace +
 `use-flow-editor`) ≤ 60 KB gzip, registry operation ≤ 25 KB, `LogsDrawer` ≤ 15 KB; `BUDGET_017 = BUDGET_016 + 20 KB`,
@@ -191,7 +197,12 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 | `getDefaultValuesFromFields` | `components/form/utils/get-default-values-from-fields.ts` | R5 |
 | `translate` | `utils/translate-object-values.ts` | R5, R7 |
 | `useCollectionPermissions` | `composables/use-permissions/collection/use-collection-permissions.ts` | R8 |
-| `ErrorCode` | `libs/errors/src/codes.ts` (34 mã, không import) | R1 |
+| `ErrorCode` | `libs/errors/src/codes.ts` 34 mã; lib export `dist` (cần build) và import `@backoffice/types` → chép vào web | R1 |
+| Logs Directus | trạng thái lần chạy = bước cuối (`use-revisions.ts:171`); lọc `status === 'reject'` trang hiện tại; badge `abbreviateNumber`; nạp = `VProgressLinear`; chấm bước mặc định/`resolve` màu chính, `reject` màu phụ; drawer log không `persistent` | spec US4, FR-004, FR-052 |
+| Lỗi ghi Directus | drawer flow, menu bảng, Save: `unexpectedError`, không đổi store; Save chỉ xóa staging sau `hydrate` | spec FR-012..FR-014, FR-030, R-47 |
+| Vị trí tile Directus | biến CSS `--pos-x`, `--pos-y` (ô) trên `.v-workspace-tile`; kích thước canvas `(x+width+25)×18` (sửa), `(x+width−1)×18` (xem) | spec FR-021, SC-002 |
+| Trigger null | panel Trigger `t('triggers.<type>.name')`, không overview (`flow.vue:167-181`) | spec Edge Cases |
+| Sao chép | `isCopySupported`; `use-clipboard` (web đã có) | spec FR-022 |
 | `@directus/types` ở web | `FlowRaw`, `OperationRaw`, `OperationAppConfig` trong `apps/web/node_modules/@directus/types/dist/index.d.ts` | không đổi |
 | `getPublicURL` | web dùng `getApiUrl()` (`api/sdk.ts`) ở mọi chỗ (`get-asset-url.ts`) | R7 |
 | Overlay i18n | `lang/overlay/{en-US,vi-VN}.ts` object phẳng | R10 |

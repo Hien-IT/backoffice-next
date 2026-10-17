@@ -24,7 +24,7 @@ Cách làm:
   operation`), `use-revisions`, `RevisionsDateGroup`, `use-edits-guard`, `use-dialog-route`, `use-shortcut`,
   `useCollectionPermissions`, `getDefaultValuesFromFields`, `translate`, store flows (`hydrate` sau ghi), nút chạy thủ
   công của 014 nguyên vẹn.
-- Không thư viện mới; `ErrorCode` từ lib workspace `@backoffice/errors` (R1). Màu nhánh: resolve `brand-500`, reject
+- Không thư viện mới; `ErrorCode` chép vào `operations/throw-error/error-codes.ts` (nguồn `directus/packages/errors/src/codes.ts`, test so `libs/errors/src/codes.ts`; web không phụ thuộc lib workspace) (R1). Màu nhánh: resolve `brand-500`, reject
   `orange-500` (Clarifications); canvas chỉ chuột như Directus, ngoại lệ a11y ghi và duyệt (FR-106).
 - Test: Vitest `unit` (use-flow-editor 12 kịch bản, arrows lib port, registry so nguồn qua fixture trích) + `browser`
   (overview, drawer flow, canvas, drawer operation, logs, axe, perf); Playwright sáu spec `settings-flows-*` ở ba cấu
@@ -52,8 +52,8 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 
 **Primary Dependencies**: đã có (012–016): vue 3.5, pinia 3, vue-router 4, vue-i18n 11, reka-ui 2.8.2, tailwindcss
 4.3, @directus/sdk 21.3.0, @directus/types 15.0.3, @directus/utils 13.4.1, @vueuse/core 14, lodash-es, nanoid,
-@sindresorhus/slugify, codemirror 5.65.18, date-fns. Thêm: `@backoffice/errors` (`workspace:*`, lib nội bộ đã có, R1);
-không gói npm mới.
+@sindresorhus/slugify, codemirror 5.65.18, date-fns. Thêm: không (R1; `ErrorCode` chép,
+không phụ thuộc `@backoffice/errors`).
 
 **Storage**: không DB; Pinia store flows (012) không đổi API (`hydrate` gọi sau mỗi ghi); trạng thái canvas là `ref`
 trong `use-flow-editor.ts` (staging); không localStorage mới; bộ mẫu `apps/web/fixtures/interfaces/snapshot/` mở rộng
@@ -66,7 +66,7 @@ và bộ so DB ở `proxy-api`; dùng chéo (SC-002) ở `proxy-api` (`DIRECTUS_
 
 **Target Platform**: như 012 (image nginx tĩnh, cùng hoặc khác origin).
 
-**Project Type**: Monorepo web. Chạm `apps/web` (src, fixtures, scripts, package.json dep workspace), `apps/web-e2e`,
+**Project Type**: Monorepo web. Chạm `apps/web` (src, fixtures, scripts), `apps/web-e2e`,
 `design-system/docs` (recipe Q-29..Q-33), `design-system/qa/handoff-checklist.md` (ngoại lệ a11y canvas),
 `.github/workflows/ci.yml` (nếu cần), `tools/port-manifest`, spec 014 (D-72 phần `directus_flows`), 016 (D-92),
 `SPECKIT-GUIDE.md`, `CLAUDE.md` (Active Technologies).
@@ -109,7 +109,7 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 - [x] **VIII. Biến môi trường**: PASS. Không biến mới.
 - [x] **IX. Đổi thương hiệu**: PASS. Notice D-106 viết "Backoffice"; khóa i18n Directus giữ; dữ liệu DB không đổi.
 - [x] **X. Chất lượng**: PASS. Coverage 60 %, lint, typecheck, browser test, E2E, build image; không email (D-34,
-  D-106); D-105, D-106, R-43..R-46 trong spec, tech lead duyệt trước khi đóng (SC-010).
+  D-106); D-105, D-106, R-43..R-47 trong spec, tech lead duyệt trước khi đóng (SC-010).
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (registry tĩnh, type lạ chỉ hiển thị), AI (D-54), WebSocket.
 - [x] **XII. Design-system**: PASS. Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
   `handoff-checklist.md`; theme qua `@theme`; không hex trong class; Q-29..Q-33 ghi ở spec, recipe nháp trước khi
@@ -138,7 +138,6 @@ specs/017-flows-editor/
 
 ```text
 apps/web/
-├── package.json                                           # + "@backoffice/errors": "workspace:*"
 ├── fixtures/interfaces/{seed.mjs, export.mjs, snapshot/flows.json, snapshot/operations.json, directus-registry.json}
 ├── scripts/{extract-directus-registry.mjs (+operations), check-bundle.mjs (BUDGET_017, LAZY_BUDGETS_017)}
 ├── src/
@@ -156,6 +155,7 @@ apps/web/
 │   │   ├── arrows/types.ts
 │   │   └── perf.browser.test.ts
 │   ├── components/workspace/{BoWorkspace,BoWorkspaceTile}.vue   # v-workspace*.vue (018 mở rộng)
+│   ├── operations/throw-error/error-codes.ts (+ .test.ts)   # ErrorCode chép (R1)
 │   ├── operations/{index.ts, registry.test.ts, condition, exec, item-create, item-delete, item-read, item-update, json-web-token, log, mail, notification, request, sleep, throw-error, transform, trigger}/index.ts
 │   ├── modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue   # + type 'operation', collection?/field?
 │   ├── lang/overlay/{en-US,vi-VN}.ts                       # operations_mail_not_sent_notice (D-106)
@@ -183,7 +183,7 @@ mới tách từ `flow.vue` để test unit (Directus để trong SFC).
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Không có vi phạm constitution. Ngoại lệ a11y: kéo panel và kéo nối trên canvas chỉ bằng chuột (XII yêu cầu bàn phím) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
+| Không có vi phạm constitution. Ngoại lệ a11y: kéo panel, kéo nối/tháo và nút "+" trên canvas chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer (spec FR-106) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
 | Tách `use-flow-editor.ts` khỏi `FlowRoute.vue` (Directus để trong SFC) | 12 kịch bản staging/Save so JSON với Directus (SC-006) cần gọi hàm không mount DOM | Test qua browser test mount cả canvas: chậm, khó cô lập body Save |
 | `BoWorkspace*` là component chung thay vì nằm trong flows | 018 (Insights) dùng cùng `v-workspace` của Directus (resize, zoom) | Chép hai lần ở 017 và 018 |
 | Script trích registry mở rộng cho operations (thay import trực tiếp từ `directus/`) | Test so nguồn FR-044 không được import `directus/app/src` vào bundle test của web (alias vào mã Directus kéo theo `@/` của Directus) | Import trực tiếp: lỗi resolve `@/stores/flows` của operation `trigger` |
@@ -191,10 +191,12 @@ mới tách từ `flow.vue` để test unit (Directus để trong SFC).
 ## Phase 0, 1: kết quả
 
 - research.md: R1 đến R12; bảng kiểm 2026-10-17 (đọc mã nguồn): nested `PATCH /flows` có parity 009, `use-revisions`
-  đủ, `ExtensionOptions` cần prop mới, `ErrorCode` từ `@backoffice/errors`, `getApiUrl` thay `getPublicURL`, allowlist
+  đủ, `ExtensionOptions` cần prop mới, `ErrorCode` chép (lib workspace cần build), `getApiUrl` thay `getPublicURL`, allowlist
   bắt đầu #178, `RouterView` không tên. T002 (lượt 1): chạy tay bốn luồng trên Directus app 8155 và lưu body làm mốc
   (`payload/baselines/flows-*.json`) trước khi viết bộ so payload; kiểm dữ liệu vòng có treo Directus không (D-105).
-- Sửa spec ở T001: FR-108 "mở `/settings/flows` = 0 request" (R2).
+- Release-gate 52 mục (`checklists/release-gate.md`) áp toàn bộ 2026-10-17 (owner): lời giải ở
+  `checklists/release-gate-proposals.md`; spec thêm US2-12, US5-4, R-47, chín Edge Cases; FR-010, FR-108 về 0 request
+  khi vào danh sách.
 - data-model.md: route, store, Flow/Operation, trigger definition, operation definition, staging, body Save, log, bộ mẫu.
 - contracts/: `api-calls.md` (#178–#184), `components.md`, `tests.md`.
 - quickstart.md: cài, seed, trích registry, test, E2E ba cấu hình, payload, bộ so DB, dùng chéo, lint, build, đóng.

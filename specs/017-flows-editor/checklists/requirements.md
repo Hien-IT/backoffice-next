@@ -49,3 +49,5 @@
   `directus_operations` trong `get-route.ts`; `trigger-detail.vue` không được import.
 - Không tạo branch (làm trên `main` như 012–016); thư mục `specs/017-flows-editor` là feature hiện tại theo quy tắc
   "số cao nhất" của `common.sh`.
+- Release-gate 52 mục (`release-gate.md`) áp toàn bộ 2026-10-17; thêm R-47; danh sách chờ duyệt: D-105, D-106, R-43
+  đến R-47, ngoại lệ a11y canvas, "Cần xác nhận".

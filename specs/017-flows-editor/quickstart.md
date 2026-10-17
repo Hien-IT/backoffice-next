@@ -6,7 +6,7 @@ trên `main`, không branch; nhắn session dùng chung checkout (nếu có) tr�
 ## Cài và chạy dev
 
 ```bash
-pnpm install                                   # chỉ thêm "@backoffice/errors": "workspace:*" vào apps/web (research R1)
+pnpm install                                   # không gói mới (research R1)
 pnpm nx run parity-tests:env-up --vendor=postgres --profiles=app   # Directus 8155, API mới 8156, proxy 8160
 set -a; . tests/parity/env/postgres.env; set +a
 node apps/web/fixtures/interfaces/seed.mjs --api http://127.0.0.1:8155 --email "$ADMIN_EMAIL" --password "$ADMIN_PASSWORD"   # bo_* + bo_flows + 3 log
@@ -57,7 +57,7 @@ graphify update .
 
 - Recipe Q-29..Q-33 trong `design-system/docs/` được design owner duyệt; ngoại lệ a11y canvas trong
   `design-system/qa/handoff-checklist.md` được tech lead duyệt; D-105, D-106, R-43..R-46 duyệt và ghi vào bảng trạng
-  thái khác biệt của spec.
+  thái khác biệt của spec. R-47 và "Cần xác nhận" cũng duyệt ở đó.
 - Spec 016 (D-92) và 014 (D-72 phần `directus_flows`) ghi "đã gỡ ở 017"; `SPECKIT-GUIDE.md` ghi chú cho 018
   (`BoWorkspace*` dùng lại cho Insights; `/content/directus_operations` không chuyển hướng như Directus).
 - `CLAUDE.md` Active Technologies: dòng 017 đã thêm ở bước plan (2026-10-17); sửa lại khi đóng nếu phạm vi đổi.

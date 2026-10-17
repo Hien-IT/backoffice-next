@@ -79,7 +79,7 @@ PERM = `permissions` string `select-dropdown` mặc định `$trigger`, choices 
 | `notification` | `notifications` | `recipient` tags half; PERM half; `subject` input full; `message` input-rich-text-md full; `collection` system-collection half; `item` input half | Subject, Message |
 | `request` | `link` | `method` select half GET/POST/PATCH/DELETE allowOther (GET); `url` input half; `headers` json list full (`header`, `value` required half); `body` text input-multiline monospace full | URL, Method |
 | `sleep` | `schedule` | `milliseconds` integer input full `{min 0, type integer, placeholder 1000}` | Milliseconds |
-| `throw-error` | `error` | fn: `code` select `Object.values(ErrorCode)` (`@backoffice/errors`) allowOther placeholder `INTERNAL_SERVER_ERROR`; `status` select 400…500 chuỗi allowOther placeholder `500`; `message` input placeholder "An unexpected error occurred." | Code, Status, Message |
+| `throw-error` | `error` | fn: `code` select `Object.values(ErrorCode)` (`operations/throw-error/error-codes.ts`, chép) allowOther placeholder `INTERNAL_SERVER_ERROR`; `status` select 400…500 chuỗi allowOther placeholder `500`; `message` input placeholder "An unexpected error occurred." | Code, Status, Message |
 | `transform` | `move_down` | `json` json input-code full (template `$accountability.user` / `$last`) | JSON |
 | `trigger` | `flag` | fn(`iterationMode`): `flow` select half `bolt` placeholder `a_flow_uuid` choices = store flows `trigger === 'operation'`; `iterationMode` json select half parallel/serial/batch (`parallel`); `batchSize` integer half (10) chỉ batch; `payload` json input-code full | Flow (id thô) |
 
@@ -87,7 +87,8 @@ Registry: `operations/index.ts` export `operations: OperationAppConfig[]` sắp 
 
 ## 6. Canvas và staging (`use-flow-editor.ts`, FR-020 đến FR-031)
 
-Hằng số (`constants.ts`): `GRID_SIZE = 18`; `PANEL_WIDTH = PANEL_HEIGHT = 14`; `ATTACHMENT_OFFSET = (0, 3·18)`;
+Kích thước canvas (ô lưới, hai trục): sửa `(x + width + 25) × 18` px, xem `(x + width − 1) × 18` px; panel ghi
+`data-pos-x`, `data-pos-y`. Save lỗi: staging giữ (R-47). Hằng số (`constants.ts`): `GRID_SIZE = 18`; `PANEL_WIDTH = PANEL_HEIGHT = 14`; `ATTACHMENT_OFFSET = (0, 3·18)`;
 `RESOLVE_OFFSET = (14·18, 10·18)`; `REJECT_OFFSET = (14·18, 12·18)`.
 
 | Trạng thái | Kiểu | Ghi chú |
@@ -134,9 +135,9 @@ nguyên 9 file.
 
 Dòng: `{ id, activity: { action: 'run', timestamp, user, ip, user_agent, origin }, data: { steps: [{ operation, key,
 status: 'resolve' | 'reject' | string, options }], data: { $trigger, $accountability, $last, [key]: … } }, delta }`.
-Nhóm theo ngày (`RevisionsDateGroup`); icon theo `steps.at(-1).status === 'resolve'`; toggle "Show Failed Only" lọc
-client trên trang hiện tại theo trạng thái bước cuối `=== 'reject'` ([Unverified] biểu thức chính xác ở
-`logs-sidebar-detail.vue:49-63`, T002 chép đúng). Drawer: bước Trigger (`flow.options`, `data.$trigger`,
+Trạng thái lần chạy = `steps.at(-1)?.status` (`use-revisions.ts:171`); nhóm theo ngày (`RevisionsDateGroup`); icon
+`check_circle` khi `resolve`, `cancel` khi khác; "Show Failed Only" lọc client trên trang hiện tại giữ `status ===
+'reject'` (`logs-sidebar-detail.vue:54-62`); `data` null hoặc thiếu `steps` → không bước. Badge `abbreviateNumber`. Drawer: bước Trigger (`flow.options`, `data.$trigger`,
 `data.$accountability`) + từng bước (`options`, `data.data[key]`).
 
 ## 9. Bộ mẫu `bo_flows` (FR-103)
@@ -144,13 +145,13 @@ client trên trang hiện tại theo trạng thái bước cuối `=== 'reject'`
 | Flow | Trigger | Options | Operations | Dùng ở |
 |------|---------|---------|------------|--------|
 | `bo-flow`, `bo-flow-content`, `bo-flow-item` | manual | của 013/014 | không | giữ |
-| `bo_all_ops` | manual | `bo_content`, `both`, `requireSelection true`, `requireConfirmation true`, field `reason` required | 15 operation mỗi loại một, chuỗi resolve `condition → log → transform → item-read → … → trigger (bo_child)`; reject của `condition` → `throw-error`; reject của `request` → `log`; vị trí trải ngang (x tăng 18) và xuống (y+16) | US2, US3, US4, perf, parity UI |
+| `bo_all_ops` | manual | `bo_content`, `both`, `requireSelection true`, `requireConfirmation true`, field `reason` required | 15 operation: resolve `condition` (`$trigger.body.reason _neq fail`) → `log` → `transform` → `sleep` (10) → `json-web-token` (sign, secret literal) → `item-read` (`bo_content` key 1) → `exec` (trả `{}`) → `trigger` (`bo_child`); reject của `condition` → `throw-error`; reject của `log` (không bao giờ chạy) → `item-create` → `item-update` → `item-delete` → `request` (`http://127.0.0.1/`) → `mail` → `notification`; vị trí trải ngang (x tăng 18) và xuống (y+16) | US2, US3, US4, perf, parity UI |
 | `bo_webhook` | webhook | GET, `cacheEnabled true` | `transform → log` | US1 overview, parity UI |
 | `bo_schedule` | schedule | `0 0 * * * *`, `status inactive` | `log` | US1 (badge inactive, panel mờ) |
 | `bo_child` | operation | `return $last` | `log` | `trigger.flow` select |
 | `bo_event` | event | `action`, `items.create`, `bo_content` | `log` | US1 drawer event |
 | `bo_orphan` | manual | `bo_std`, `location item` | `log` không nối (panel lẻ), `bo-unknown` type lạ | Edge Cases |
 
-Log mẫu: `bo_all_ops` chạy 3 lần trong seed (`POST /flows/trigger/:id {collection: 'bo_content', keys: [1], reason}`;
-lần 3 với `reason` làm `condition` reject → `throw-error`). Snapshot `operations.json` ghi `key`, `type`, `position_x/y`,
+Không E2E nào chạy `bo_all_ops`. Seed thử lại trigger tối đa 10 × 500 ms khi API chưa nạp flow. Log mẫu: `bo_all_ops` chạy 3 lần trong seed (`POST /flows/trigger/:id {collection: 'bo_content', keys: [1], reason}`;
+lần 3 với `reason: 'fail'` làm `condition` reject → `throw-error`). Snapshot `operations.json` ghi `key`, `type`, `position_x/y`,
 `options`, `resolve`/`reject` theo `key`, `flow` theo tên.

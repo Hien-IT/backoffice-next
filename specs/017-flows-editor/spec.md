@@ -128,7 +128,7 @@ Admin mở `/settings/flows/:id`: canvas lưới với panel Trigger ở góc tr
 mũi tên resolve (màu chính) và reject (màu phụ), panel mờ khi flow inactive hoặc panel không nối về trigger. Trong
 spec này "màu chính" là `brand-500` (tối `brand-400`) thay `--theme--primary` và "màu phụ" là `orange-500` (tối
 `orange-400`) thay `--theme--secondary` của Directus (owner chọn, Clarifications 2026-10-17); áp cho mũi tên, tay cầm,
-icon và chấm trạng thái của log. Bấm "Edit
+icon trạng thái và chấm bước của log, header panel con reject (CHK026). Bấm "Edit
 Flow" sang chế độ sửa: kéo panel đổi vị trí (bám lưới 18 px), bấm "+" ở tay cầm resolve/reject để thêm operation, kéo từ
 tay cầm tới điểm nhận của panel khác để nối hoặc thả ra ngoài để tháo, menu panel nhân bản / sao chép sang flow khác /
 xóa, đổi trạng thái flow ở chân panel Trigger, bấm pencil ở Trigger để mở drawer trigger. "Save" ghi mọi thay đổi trong
@@ -148,7 +148,7 @@ khác, lưu, so lại.
 1. **Given** flow có operation, **When** mở `/settings/flows/:id`, **Then** chế độ xem: tiêu đề = tên flow với chấm
    trạng thái (tooltip), nút "Delete Flow" (`delete`) và "Edit Flow" (`edit`); panel Trigger ảo `$trigger` ở ô (1,1),
    không kéo được, icon `offline_bolt`, tiêu đề "Trigger", thân là tên trigger và `overview` của trigger (ví dụ
-   webhook: Method và URL `<PUBLIC_URL>/flows/trigger/<id>` có nút sao chép), chân là trạng thái flow; mỗi operation là
+   webhook: Method và URL `<API URL>flows/trigger/<id>` có nút sao chép, FR-012), chân là trạng thái flow; mỗi operation là
    panel 14×14 ô tại (`position_x`, `position_y`) với icon và tên loại ở header, tiêu đề = `name` (tooltip = `key`),
    `<dl>` label/text từ `overview(options, {flow})` của loại; panel `DetailPanel` có mục Logs (US4).
 2. **Given** chế độ xem, **When** nhìn mũi tên, **Then** SVG phủ lên canvas (`pointer-events: none`): từ tay cầm
@@ -170,7 +170,9 @@ khác, lưu, so lại.
 6. **Given** chế độ sửa, **When** kéo từ tay cầm resolve/reject (hoặc từ điểm nhận của panel con để đổi cha), **Then**
    mũi tên sống bám lưới theo con trỏ; thả trong 40 px của một điểm nhận thì nối (từ chối vòng bằng cách đi ngược
    chuỗi cha; điểm nhận chỉ một cha nên link cũ vào đích bị gỡ); thả ra chỗ trống thì tháo (`null`); Trigger gán
-   `flow.operation`.
+   `flow.operation`. Ví dụ: nối reject của `log` vào điểm nhận của `transform` đang là con resolve của `condition`
+   → `condition.resolve` thành null, `log.reject = transform`; nối Trigger vào operation đang có cha → link của cha cũ
+   gỡ, `flow.operation` = operation đó.
 7. **Given** menu panel, **When** chọn, **Then** "Duplicate" tạo bản sao không `id`/`resolve`/`reject`, vị trí +2/+2,
    key `<key>_<5 chữ a-z>`, vào staging; "Copy To..." mở hộp chọn flow khác (không có → notice `no_other_flows_copy`,
    nút khóa) và gửi ngay `POST /operations` với panel bỏ `id`, `date_created`, `user_created`, `resolve`, `reject`,
@@ -189,6 +191,9 @@ khác, lưu, so lại.
     `stagedPanels` hoặc `panelsToBeDeleted` khác rỗng → hộp `unsaved_changes` (Keep Editing trước, D-76).
 11. **Given** nút Delete Flow trên trang, **When** xác nhận, **Then** `DELETE /flows/:id`, về `/settings/flows` kể cả
     khi lỗi (như `flow.vue:91-105`); flow không có trong store → màn không tìm thấy của Settings (016 FR-004).
+12. **Given** chế độ sửa, **When** bấm "+" nhiều lần trước Save (kể cả "+" trên operation vừa thêm, id `_…`), **Then**
+    mỗi operation mới có id tạm riêng, con của operation tạm nằm lồng trong cây `create` khi Save; pencil trên operation
+    tạm mở `/settings/flows/:id/_<nanoid>` với giá trị đang staging.
 
 ---
 
@@ -251,23 +256,26 @@ bước, cùng Options và Payload sau chuẩn hóa thời gian; so request `GET
 
 **Acceptance Scenarios**:
 
-1. **Given** trang flow, **When** panel chi tiết mở, **Then** mục `logs` (`fact_check`) với badge số đếm rút gọn khi
-   > 0; đếm nạp khi mount (`GET /revisions?aggregate[count]=id&filter…`); danh sách nạp khi mount nếu mục đang mở,
+1. **Given** trang flow, **When** panel chi tiết mở, **Then** mục `logs` (`fact_check`) với badge số đếm rút gọn bằng
+   `abbreviateNumber` của `@directus/utils` (không theo locale, như Directus) khi > 0; đếm nạp khi mount (`GET /revisions?aggregate[count]=id&filter…`); danh sách nạp khi mount nếu mục đang mở,
    không thì ở lần mở đầu: `GET /revisions` lọc `_and[collection directus_flows, item <id>, version _null,
    activity.action run]`, `sort -id`, `limit min(10, queryLimit.max)`, `page`, fields `id, collection, item,
    activity.{action, timestamp, user.{id,email,first_name,last_name}, ip, user_agent, origin}, data, delta`.
 2. **Given** có log, **When** hiện, **Then** nhóm theo ngày (Today / Yesterday / ngày ngắn, bỏ năm nếu năm nay) mới
-   nhất trước; mỗi dòng icon `check_circle` (màu chính) khi bước cuối `data.steps` là `resolve`, `cancel` (màu phụ)
-   khi không; chữ `HH:mm (x ago)`; không hiện user, IP (như Directus).
-3. **Given** toggle `show_failed_only`, **When** bật, **Then** lọc client trên trang hiện tại theo `status reject`;
+   nhất trước; trạng thái một lần chạy = trạng thái bước cuối của `data.steps`; icon `check_circle` (màu chính) khi
+   `resolve`, `cancel` (màu phụ) khi khác; chữ giờ theo `date-fns_time` và "x ago" theo ngôn ngữ người dùng, giờ địa
+   phương trình duyệt (port `use-revisions.ts:160-185` đã có ở 014); không hiện user, IP (như Directus).
+3. **Given** toggle `show_failed_only`, **When** bật, **Then** lọc client trên trang hiện tại, giữ lần chạy có trạng thái
+   (bước cuối) `reject`;
    rỗng → `no_logs_on_page`; không có log → `no_logs`; nhiều trang → phân trang (`total-visible 3`).
 4. **Given** bấm một dòng, **When** drawer mở, **Then** tiêu đề = thời gian (ngày ngắn + giờ), icon `fact_check`; dòng
    thời gian: bước "Trigger" + tên trigger với `BoDetail` Options (= `flow.options` hiện tại), Payload
    (`data.$trigger`), Accountability (`data.$accountability`); mỗi `data.steps[]` `{operation, status, key, options}`:
-   chấm màu theo status, tên operation (từ store theo `operation`, không có → `key`, tooltip key), tên loại (hoặc
+   chấm màu theo status (mặc định và `resolve` màu chính, `reject` màu phụ; như `logs-drawer.vue:193-203`), tên operation (từ store theo `operation`, không có → `key`, tooltip key), tên loại (hoặc
    type thô, hoặc `--`), Options (options đã resolve của bước) và Payload (`data.data[key]`) dạng `<pre>` JSON.
 5. **Given** flow `accountability` là `activity` hoặc `null`, **When** mở Logs, **Then** không có dòng (API không ghi
-   revision) — mục vẫn hiện với số 0 như Directus.
+   revision) — mục vẫn hiện với số 0 như Directus; log cũ ghi khi còn `all` vẫn hiện (lọc theo `item`, không theo
+   `accountability`).
 
 ---
 
@@ -296,6 +304,9 @@ panel Flows, tooltip và `disabled` đúng (chưa chọn → khóa với `requir
    (D-45) thay snackbar `trigger_flow_success`; `refreshUnreadCount`.
 3. **Given** `system-manual-flow-select` ở options của `presentation-links`/`presentation-header` (016), **When** mở
    sau khi tạo flow manual mới, **Then** flow mới có trong danh sách (`location !== 'collection'`).
+4. **Given** flow manual `async true` hoặc `error_on_reject true`, **When** chạy, **Then** hành vi của 014 giữ: async
+   trả ngay và hiện notice thành công; reject với `error_on_reject` trả lỗi và hiện notice danger; E2E manual có một
+   flow tạm `async`.
 
 ---
 
@@ -341,15 +352,16 @@ dùng chéo của SC-002.
   flow (ghi tay hoặc Copy To) vẫn vẽ, drawer báo `operation_key_unique_error` khi mở một trong hai.
 - Tên flow trùng: không kiểm (như Directus).
 - Xóa operation có con: con thành panel lẻ, không nối lại, không hộp xác nhận (như Directus, ghi R-43).
-- Save khi một `PATCH /operations` gỡ link cũ lỗi: `PATCH /flows/:id` vẫn chạy như Directus? → Directus `await
-  Promise.all` rồi `await api.patch` trong cùng `try`; lỗi ở bước nào thì `unexpectedError`, staging giữ, chế độ sửa
-  giữ; app giống.
+- Save lỗi ở bước nào (`PATCH /operations` hoặc `PATCH /flows/:id`): như `flow.vue` (`try/catch`, staging chỉ xóa
+  sau `hydrate` thành công) → hộp lỗi, staging và chế độ sửa giữ; Save lần sau tính lại và gửi lại cùng `PATCH
+  /operations` (gán null lần hai không đổi gì) rồi `PATCH /flows/:id`. Nếu `PATCH /operations` đã ghi mà `PATCH
+  /flows/:id` lỗi và người dùng tải lại trang: staging mất, DB còn link đã gỡ (operation thành panel lẻ) → R-47.
 - Copy To flow khác khi `key` đã có ở flow đích: API chấp nhận (không unique), flow đích có hai key trùng (như
-  Directus); `POST /operations` lỗi vì lý do khác → hộp lỗi, hộp Copy To còn mở.
+  Directus); danh sách flow đích lấy từ store (có thể cũ); `POST /operations` lỗi (flow đích đã bị xóa ở app khác,
+  hoặc lý do khác) → hộp lỗi, hộp Copy To còn mở.
 - Trình sửa mở ở hai tab hoặc hai app, lưu lệch nhau: ghi sau thắng; staging bên kia ghi đè khi Save (như Directus).
 - Flow bị xóa ở app khác khi đang mở: Save → 403/404 → hộp lỗi; nạp lại → không tìm thấy.
-- Log có `data.steps` rỗng (flow chạy mà không có operation): icon `cancel` (bước cuối không tồn tại → không
-  `resolve`), drawer chỉ có bước Trigger.
+- Log có `data.steps` rỗng (flow chạy mà không có operation): như revision thiếu `steps` bên dưới.
 - Log của operation đã bị xóa: tên từ `key`, loại từ `operation` thô (như Directus).
 - `data` của revision bị redact (`--redacted--` cho header auth, mật khẩu, token, biến env): hiện nguyên chuỗi.
 - `queryLimit.max` của server nhỏ hơn 10: `limit` theo server.
@@ -360,7 +372,28 @@ dùng chéo của SC-002.
 - RTL: Directus lật tọa độ kéo; app không hỗ trợ RTL (012, không có ngôn ngữ RTL) → không port nhánh RTL (ghi "Cần xác
   nhận").
 - Phiên hết hạn khi Save: 401 → về đăng nhập (012); staging mất (như Directus).
-- Webhook URL trong overview dùng `PUBLIC_URL` của `/server/info`; khác origin (cors) vẫn là URL API, như Directus.
+- Webhook URL trong overview là `${getApiUrl()}flows/trigger/<id>` (`getApiUrl()` của 012 kết thúc bằng `/`, thay
+  `getPublicURL()` của Directus): ở cấu hình `cors` là origin API, ở cùng origin là URL của app; parity UI so phần
+  `/flows/trigger/<id>` (SC-004).
+- Flow có `trigger` null (tạo bằng API) hoặc trigger không đăng ký: như `flow.vue:167-181` và `options-overview.vue:18`,
+  panel Trigger hiện tiêu đề `t('triggers.<type>.name')` (vue-i18n trả về khóa thô khi thiếu), không overview; drawer tab
+  Trigger Setup không chọn mục nào và form rỗng; Save ở tab Flow Setup gửi `trigger` và `options` như store (không xóa).
+- Mở `/settings/flows/<id>` của flow vừa tạo ở app kia sau khi đã đăng nhập: store chưa có flow → màn không tìm thấy
+  tới khi tải lại trang (như Directus: store chỉ nạp khi đăng nhập và sau ghi); bảng flow cũng chưa có dòng đó.
+- Người không admin mở URL `/settings/flows(/*)`: module Settings không đăng ký (`preRegisterCheck` 012) nên rơi vào màn
+  không tìm thấy của app như 016; admin luôn qua quyền `directus_operations` (`admin_access`).
+- `trigger.flow` trỏ tới flow đã xóa hoặc đã đổi trigger khác `operation`: select hiện giá trị thô (như
+  `select-dropdown`), overview hiện id thô.
+- `options` của operation null hoặc không phải object (dữ liệu cũ): overview gọi với `{}`; drawer mở với `{}`.
+- Flow rất lớn hoặc panel ở xa: không giới hạn số operation; canvas lớn theo biên panel và cuộn; hiệu năng chỉ cam kết
+  tới 50 operation (FR-108).
+- Revision có `data` null hoặc thiếu `steps`: không có bước, trạng thái không phải `resolve` (icon `cancel`), drawer
+  chỉ có bước Trigger.
+- Tên flow hoặc operation rất dài: cắt một dòng với "…" ở ô bảng (`BoTable`), tiêu đề trang (`PageHeader`, chuỗi đầy
+  đủ ở `title`) và tiêu đề panel (tooltip `key` giữ) (Q-30).
+- Máy tính bảng cảm ứng: kéo panel và kéo mũi tên dùng pointer events như Directus, không xử lý cảm ứng riêng
+  (`touch-action` mặc định) nên chạm kéo có thể cuộn trang thay vì kéo; không bảo đảm, ghi trong ngoại lệ a11y
+  (FR-106); E2E chỉ dùng chuột.
 
 ### Truy vết user story và requirement
 
@@ -368,11 +401,12 @@ dùng chéo của SC-002.
 |-------|---------------------|----|----|
 | Mọi story | — | FR-001 đến FR-006 (route, sub-menu, khung màn, store) | SC-001 |
 | US1 | 1–7 | FR-010 đến FR-016 | SC-001, SC-002, SC-004, SC-005 |
-| US2 | 1–11 | FR-020 đến FR-032 | SC-001, SC-002, SC-005, SC-006 |
+| US2 | 1–12 | FR-020 đến FR-032 | SC-001, SC-002, SC-005, SC-006 |
 | US3 | 1–5 | FR-040 đến FR-045 | SC-001, SC-002, SC-005, SC-006 |
 | US4 | 1–5 | FR-050 đến FR-055 | SC-001, SC-003 |
-| US5 | 1–3 | FR-060 đến FR-062 | SC-001, SC-003 |
-| US6 | 1–4 | FR-100 đến FR-114 | SC-002 đến SC-010 |
+| US5 | 1–4 | FR-060 đến FR-062 | SC-001, SC-003 |
+| US6 | 1–4 | FR-100 đến FR-114 (FR-106: ngoại lệ a11y canvas) | SC-002 đến SC-010 |
+| Edge Cases | Save lỗi giữa chừng | FR-030, R-47 | SC-006 |
 
 ## Requirements *(mandatory)*
 
@@ -394,18 +428,20 @@ dùng chéo của SC-002.
 - **FR-004**: Mọi màn PHẢI dùng `PageHeader` (tiêu đề, nút; không breadcrumb D-101), `DetailPanel` L-4 cho mục Logs,
   hộp `unsaved_changes` với Keep Editing trước (D-76), notice tại chỗ (D-45, D-66), hộp lỗi `showUnexpectedError` khi
   request lỗi. Trạng thái nạp: bảng flow `BoTable loading`; canvas vẽ từ store (đã hydrate ở đăng nhập) nên không
-  skeleton, chỉ `SettingsNotFound` khi không có; danh sách log skeleton 3 dòng khi nạp.
+  skeleton, chỉ `SettingsNotFound` khi không có; danh sách log là `BoProgressLinear indeterminate` khi chưa có dữ liệu
+  và đang nạp (như `logs-sidebar-detail.vue:86`).
 - **FR-005**: Store flows (012) PHẢI giữ `hydrate` (`GET /flows?fields=*,operations.*`, không quyền → `[]`),
   `getManualFlowsForCollection`, `isActiveFlow`; mọi thao tác ghi của 017 gọi `hydrate()` sau khi xong như Directus
   (không cập nhật lạc quan); không thêm hàm ghi vào store (các màn gọi SDK trực tiếp như Directus).
 - **FR-006**: Hộp xác nhận xóa flow, hộp Clear Changes, hộp Copy To là `BoDialog` thường (bấm ra ngoài đóng = Cancel,
-  như `v-dialog` của Directus); chỉ drawer flow và drawer operation là `persistent`. Focus vào lựa chọn an toàn
+  như `v-dialog` của Directus); chỉ drawer flow và drawer operation là `persistent`; drawer log không `persistent`
+  (`logs-drawer.vue:72-77`), đóng bằng Esc, bấm ngoài hoặc nút đóng. Focus vào lựa chọn an toàn
   (Cancel / Keep Editing).
 
 **Danh sách flow và drawer flow (US1)**
 
-- **FR-010**: Màn `/settings/flows` PHẢI dựng bảng như kịch bản US1-1 từ store (không request riêng; `hydrate()` khi
-  vào route để lấy mới), sắp xếp client bằng `sortBy` theo cột, mặc định `{by: 'name', desc: false}`; không có mục
+- **FR-010**: Màn `/settings/flows` PHẢI dựng bảng như kịch bản US1-1 từ store, không gọi API khi vào route (như
+  `overview.vue`; store nạp ở đăng nhập và sau mỗi ghi), sắp xếp client bằng `sortBy` theo cột, mặc định `{by: 'name', desc: false}`; không có mục
   panel chi tiết (Directus chỉ có navigation); `PrivateView fill` (D-99) để chỉ thân bảng cuộn.
 - **FR-011**: Nút "+" PHẢI khóa khi `useCollectionPermissions('directus_flows').createAllowed === false` với tooltip
   `not_allowed`, không thì tooltip `create_flow`; trạng thái rỗng như kịch bản US1-2.
@@ -425,8 +461,8 @@ dùng chéo của SC-002.
     khi rỗng).
   - `webhook`: `method` GET/POST (mặc định GET), `async` (bắt buộc, mặc định false), `error_on_reject` (ẩn khi async),
     `return` (`$last`/`$all`/khác, mặc định `$last`, ẩn khi async), `cacheEnabled` (mặc định true, ẩn khi không GET),
-    `cacheQueryParams` (tags, ẩn khi cache tắt hoặc không GET); overview Method và URL `<PUBLIC_URL>flows/trigger/<id>`
-    `copyable`.
+    `cacheQueryParams` (tags, ẩn khi cache tắt hoặc không GET); overview Method và URL `${getApiUrl()}flows/trigger/<id>`
+    `copyable` (Edge Cases).
   - `schedule`: `cron` (`input`, placeholder `* * 1 * * *`); overview Interval.
   - `operation`: chỉ `return`; overview rỗng.
   - `manual`: `collections` (`system-collections`), `async` (mặc định false), `error_on_reject` (ẩn khi async),
@@ -434,9 +470,11 @@ dùng chéo của SC-002.
     item`), vạch "Confirmation Dialog" (`quiz`), `requireConfirmation` (mặc định false), `confirmationDescription`
     (`system-input-translated-string`, placeholder `$t:run_flow_confirm`, ẩn khi không xác nhận), `fields`
     (`system-inline-fields`, ẩn khi không xác nhận); không có `return`; overview mô tả + Collections.
+  Lưu lỗi (`POST`/`PATCH`): như `flow-drawer.vue:148-151`, hộp lỗi, drawer còn mở, giá trị giữ, nút hết loading.
 - **FR-013**: Menu dòng PHẢI như kịch bản US1-6 (ba mục, không nhân bản); đổi trạng thái gửi `PATCH /flows/:id
-  {status}` ngay rồi `hydrate()`.
-- **FR-014**: Hộp xóa PHẢI như kịch bản US1-6; sau xóa `hydrate()`; từ trang flow thì về danh sách kể cả khi lỗi
+  {status}` ngay rồi `hydrate()`; lỗi → hộp lỗi, store không đổi (badge giữ giá trị cũ), như `overview.vue:132-140`.
+- **FR-014**: Hộp xóa PHẢI như kịch bản US1-6; sau xóa `hydrate()`; lỗi ở bảng → hộp lỗi, dòng còn (như
+  `overview.vue:116-128`); từ trang flow thì về danh sách kể cả khi lỗi
   (US2-11).
 - **FR-015**: Sau `done` của drawer: tạo mới → `router.push('/settings/flows/<id>')`; sửa → chỉ đóng drawer.
 - **FR-016**: Body ghi của US1: `POST /flows?fields=id {name, icon, color, description, status, accountability,
@@ -451,13 +489,17 @@ dùng chéo của SC-002.
   flow không có trong store.
 - **FR-021**: Lưới và kích thước PHẢI theo `constants.ts`: `GRID_SIZE 18`, panel 14×14 ô, `ATTACHMENT_OFFSET (0,
   3·18)`, `RESOLVE_OFFSET (14·18, 10·18)`, `REJECT_OFFSET (14·18, 12·18)`; `position_x/y` là ô 1-based lưu trên
-  operation; panel Trigger ảo `$trigger` ở (1,1), không kéo, `resolve = flow.operation`; canvas rộng thêm 25 ô ở chế
-  độ sửa; kích thước SVG = biên panel xa nhất + 100.
+  operation; panel Trigger ảo `$trigger` ở (1,1), không kéo, `resolve = flow.operation`; kích thước canvas tính theo ô
+  lưới trên cả hai trục: chế độ sửa `(x + width + 25) × 18` px, chế độ xem `(x + width − 1) × 18` px với `x`, `width`
+  của panel xa nhất (`v-workspace.vue:76-86`); SVG mũi tên = biên panel xa nhất + 100 px.
 - **FR-022**: Panel operation PHẢI như kịch bản US2-1: header icon và tên loại (hoặc "Trigger"/`offline_bolt`), thân
   `options-overview` (tiêu đề `name`, tooltip `key`; `<dl>` từ `overview(options, {flow})` đã `translate`, nút sao
-  chép khi `copyable`), chân panel Trigger với chấm + select trạng thái (sửa) hoặc chữ (xem); lớp mờ khi flow inactive
+  chép khi `copyable` và trình duyệt hỗ trợ clipboard (`use-clipboard`, chuỗi `copy_raw_value_success`/
+  `copy_raw_value_fail` hiện bằng notice tại chỗ, D-45)), chân panel Trigger với chấm + select trạng thái (sửa) hoặc chữ (xem); lớp mờ khi flow inactive
   hoặc panel lẻ (không cha hoặc chuỗi cha không về `$trigger`, `flow.vue:202-239`); panel là con reject dùng màu phụ;
-  loại không đăng ký → không overview, lỗi vẽ vào error boundary `unexpected_error`.
+  loại không đăng ký → không overview, lỗi vẽ vào error boundary `unexpected_error`. Mọi chuỗi người dùng nhập (tên
+  flow, tên và key operation, text của overview, JSON log) hiện bằng nội suy chữ, không HTML (như Directus).
+  Vị trí ô của panel ghi ở `data-pos-x`, `data-pos-y` trên `[data-panel-key]` để E2E đọc (SC-002).
 - **FR-023**: Tay cầm và nút gợi ý PHẢI như kịch bản US2-3: resolve (`check_circle`, màu chính) hiện ở chế độ sửa hoặc
   khi có link; reject (`cancel`, màu phụ) và điểm nhận (`adjust`) chỉ ở operation; nút "+" khi rê chuột ở chế độ sửa và
   tay cầm chưa nối (luôn ở resolve của Trigger); tooltip `operation_handle_resolve`/`operation_handle_reject`; click
@@ -482,7 +524,8 @@ dùng chéo của SC-002.
   sửa; có → `getTrees` từ panel gốc, bỏ id tạm, `PATCH /operations [{id, resolve|reject: null}]` cho link cũ sẽ nối
   lại, rồi `PATCH /flows/:id {...stagedFlow, operation, operations: {create, update, delete}}`; `hydrate()`, xóa
   staging, thoát chế độ sửa; `Ctrl/Cmd+S` qua `use-shortcut` (không khi drawer operation hoặc drawer trigger mở);
-  lỗi → hộp lỗi, staging giữ. Vòng trong dữ liệu → dừng và hộp lỗi (D-105).
+  lỗi → hộp lỗi, staging và chế độ sửa giữ, Save lại gửi lại toàn bộ (Edge Cases, R-47). Vòng trong dữ liệu → dừng
+  và hộp lỗi (D-105).
 - **FR-031**: Clear Changes và guard PHẢI như kịch bản US2-10 (`use-edits-guard` với `ignorePrefix
   '/settings/flows/<id>'`; `hasEdits` = `stagedPanels` hoặc `panelsToBeDeleted` khác rỗng; `stagedFlow` một mình không
   tính, R-44).
@@ -522,8 +565,10 @@ dùng chéo của SC-002.
     định `markdown` (`markdown`/`wysiwyg`/`template`), `template` half placeholder `base` (chỉ `template`), `body`
     text full (`input-rich-text-html` khi `wysiwyg`, không thì `input-rich-text-md`; ẩn khi `template`), `data` json
     `input-code` full (chỉ `template`); overview Subject, To, Type, và CC/BCC/Reply-To khi có. Form giữ nguyên dù API
-    chỉ ghi log (D-34); đầu form có `BoNotice` info `operations.mail.not_sent_notice` (chuỗi mới, en-US và vi-VN):
-    "Backoffice không gửi email; operation này chỉ ghi log và trả thành công" (D-106); không đổi field hay giá trị ghi.
+    chỉ ghi log (D-34); đầu form có `BoNotice` info khóa overlay `operations_mail_not_sent_notice` (D-106): en-US
+    "Backoffice does not send email. This operation only writes a log entry and returns success.", vi-VN "Backoffice
+    không gửi email. Operation này chỉ ghi log và trả kết quả thành công."; "Backoffice" là tên sản phẩm (IX); không đổi
+    field hay giá trị ghi.
   - `notification`: `recipient` csv `tags` half (`people_alt`, note), PERM half, `subject` `input` full, `message`
     `input-rich-text-md` full, `collection` `system-collection` half (không bắt buộc), `item` `input` half (`vpn_key`,
     note); overview Subject, Message.
@@ -531,9 +576,11 @@ dùng chéo của SC-002.
     json `list` full (`header`, `value` bắt buộc, half), `body` text `input-multiline` monospace full; overview URL,
     Method (`?? GET`).
   - `sleep`: `milliseconds` integer `input` full `{min 0, type integer, placeholder 1000}`; overview Milliseconds.
-  - `throw-error`: `code` select mọi `ErrorCode` của `@directus/errors` `allowOther` placeholder
+  - `throw-error`: `code` select mọi `ErrorCode` (danh sách chép từ `directus/packages/errors/src/codes.ts`, test so
+    với `libs/errors/src/codes.ts`) `allowOther` placeholder
     `INTERNAL_SERVER_ERROR`, `status` select 400/401/403/404/405/422/429/500 (chuỗi) `allowOther` placeholder `500`,
-    `message` `input` placeholder "An unexpected error occurred."; overview Code, Status, Message với fallback đó.
+    `message` `input` placeholder "An unexpected error occurred."; overview Code, Status, Message với fallback đó (giống
+    `InternalServerError` của Directus và `libs/errors`, đã kiểm 2026-10-17).
   - `transform`: `json` json `input-code` full template `{"user":"{{ $accountability.user }}","data":"{{ $last }}"}`;
     overview JSON.
   - `trigger`: `flow` select half `iconRight bolt` placeholder `a_flow_uuid` với choices = flow trong store có
@@ -561,13 +608,13 @@ dùng chéo của SC-002.
   `show_failed_only` client-side trang hiện tại, phân trang và trạng thái rỗng như kịch bản US4-3; không hiện user/IP.
 - **FR-052**: Drawer log PHẢI là port của `logs-drawer.vue` như kịch bản US4-4: `BoDrawer`, dòng thời gian dọc, `BoDetail`
   cho Options/Payload/Accountability của bước Trigger (Options = `flow.options` hiện tại, R-45) và Options/Payload của
-  từng bước; JSON `<pre>` pretty 2 khoảng trắng; chấm màu theo status (resolve = màu chính, reject = màu phụ,
-  khác = `gray`).
+  từng bước; JSON `<pre>` pretty 2 khoảng trắng; chấm màu theo status (mặc định và `resolve` = màu chính, `reject` = màu phụ, như `logs-drawer.vue:193-203`). Chỉ
+  admin xem; dữ liệu đã redact ở API (`--redacted--`) hiện nguyên, không che thêm (như Directus).
 - **FR-053**: Số đếm PHẢI nạp khi mount trang flow (không chờ mở mục) để badge hiện; danh sách nạp lười.
 - **FR-054**: Request đọc của US4: `GET /revisions` (danh sách, đếm) với filter đúng kịch bản US4-1; so với Directus
   ở bộ so payload đọc (FR-101).
-- **FR-055**: Không có chỉ báo "chưa xem", không tự nạp lại khi có lần chạy mới (như Directus; bấm Refresh của panel
-  nếu có → không có ở trang flow của Directus, nên không thêm).
+- **FR-055**: Không có chỉ báo "chưa xem", không tự nạp lại khi có lần chạy mới, không nút Refresh (như Directus);
+  danh sách mới khi đổi trang log, bật/tắt lọc hoặc tải lại trang.
 
 **Nút chạy thủ công (US5)**
 
@@ -584,28 +631,36 @@ dùng chéo của SC-002.
   `settings-flows-logs.spec.ts`, `settings-flows-manual.spec.ts`, `settings-flows-cross-use.spec.ts` (FR-102) PHẢI
   chạy ở ba cấu hình như 014–016; `settings-flows-editor` chạy cả firefox-1280 và webkit-1280 ở cùng origin (kéo thả
   pointer events); spec điều khiển Directus app chỉ chromium-1280 (`DIRECTUS_APP_SPECS`); `settings-parity-ui.spec.ts`
-  thêm bảng flow, trang flow, drawer flow, drawer operation.
+  thêm bảng flow, trang flow, drawer flow, drawer operation. Không E2E nào chạy `bo_all_ops` (log của nó chỉ do seed
+  tạo, badge 3 ổn định); E2E tạo và chạy flow tạm tên `web-e2e-<cfg>-<spec>-<n>`, xóa ở `afterAll`. Nếu webkit flake
+  với kéo pointer, test kéo đánh `test.fixme` riêng cho webkit kèm lý do ghi ở bảng trạng thái (SC-001).
 - **FR-101**: Bộ so payload `apps/web-e2e/src/payload/flows.spec.ts` PHẢI so body ghi của FR-016, FR-032 và request
   `POST /flows/trigger/:id`, cùng request đọc `GET /revisions` của FR-054 với Directus app cùng kịch bản sau chuẩn hóa
-  (id, id tạm `_…` đã bỏ trước gửi, thời gian, 5 ký tự ngẫu nhiên của key nhân bản và placeholder key, thứ tự khóa;
-  mảng `operations.create/update/delete` sắp theo `key`); bộ so DB (`helpers/db-rows.ts`) thêm `directus_flows`,
+  (id, id tạm `_…` đã bỏ trước gửi, thời gian, 5 ký tự ngẫu nhiên của key nhân bản và placeholder key → `*`; object so không
+  theo thứ tự khóa; mảng giữ thứ tự trừ `operations.create/update/delete` sắp theo `key`); bộ so DB (`helpers/db-rows.ts`) thêm `directus_flows`,
   `directus_operations` vào `SETTINGS_TABLES` hoặc bảng `FLOWS_TABLES` (bỏ `id`, `date_created`, `user_created`, và
   với operation mới: `flow` ánh xạ theo tên).
 - **FR-102**: Kịch bản dùng chéo PHẢI có trong E2E ở `proxy-api`: (a) flow `bo_manual` + 4 operation tạo ở app mới
   (US2 Independent Test) → mở `/admin/settings/flows/<id>` trên Directus app 8155 bằng Playwright → so vị trí panel
-  (`getBoundingClientRect` chuẩn hóa về ô lưới), số mũi tên và lớp nhánh, mở drawer operation `condition` và so
+  (Directus: biến CSS `--pos-x`, `--pos-y` của `.v-workspace-tile`; Backoffice: `data-pos-x`, `data-pos-y`), số mũi tên và lớp nhánh, mở drawer operation `condition` và so
   `filter`; sửa trên Directus app (thêm `log` vào reject của `transform`, lưu) → nạp lại app mới → panel mới đúng vị
-  trí và mũi tên; (b) ngược lại: tạo flow và operation trên Directus app → mở ở app mới → so như (a); (c) chạy
+  trí và mũi tên; (b) ngược lại: tạo flow và operation trên Directus app → tải lại app mới (Edge Cases) → mở → so như (a); (c) chạy
   `bo_manual` từ trang item ở cả hai app → cùng số log và cùng bước (US4); (d) flow có `trigger operation` tạo ở app
   mới xuất hiện trong select `trigger.flow` của Directus app.
 - **FR-103**: Bộ mẫu `bo_flows` PHẢI seed qua Directus REST (`apps/web/fixtures/interfaces` mở rộng `flows.json` và
   thêm `operations.json`; snapshot commit; parity `tests/parity/src/web/fixtures-seed.test.ts` mở rộng): giữ `bo-flow`,
   `bo-flow-content`, `bo-flow-item` của 013/014; thêm `bo_all_ops` (manual trên `bo_content`, 15 operation mỗi loại
-  một, nối thành chuỗi resolve với hai nhánh reject, vị trí trải trên lưới), `bo_webhook` (webhook GET, cache bật, 2
+  một; chỉ nhánh không tác dụng phụ chạy: resolve `condition → log → transform → sleep (10 ms) → json-web-token (sign,
+  secret literal) → item-read (`bo_content` key 1) → exec (trả `{}`) → trigger (`bo_child`)`, reject của `condition` →
+  `throw-error`; sáu operation có tác dụng phụ `item-create`, `item-update`, `item-delete`, `request` (URL
+  `http://127.0.0.1/`), `mail`, `notification` là chuỗi dưới reject của `log`, không bao giờ chạy; vị trí trải trên
+  lưới), `bo_webhook` (webhook GET, cache bật, 2
   operation), `bo_schedule` (inactive, cron `0 0 * * * *`, 1 operation), `bo_child` (trigger `operation`, 1 `log`;
   `bo_all_ops` có `trigger` trỏ tới nó), `bo_event` (action `items.create` trên `bo_content`, 1 `log`), `bo_orphan`
   (1 operation không nối, 1 operation có `type` lạ `bo-unknown` để kiểm Edge Cases). Seed lại giữa hai lượt so
-  payload. Log mẫu: chạy `bo_all_ops` 3 lần trong seed để US4 có dữ liệu (2 resolve, 1 reject qua `reason`).
+  payload. Log mẫu: chạy `bo_all_ops` 3 lần trong seed để US4 có dữ liệu (2 resolve, 1 reject khi `reason` là `fail`); seed thử
+  lại `POST /flows/trigger/:id` tối đa 10 lần cách 500 ms khi API chưa nạp flow (bus reload); `fixtures-seed.test.ts`
+  bỏ `directus_revisions`, `directus_activity` khi so hai app.
 - **FR-104**: Test component với mock API (allowlist như 013): drawer flow (5 trigger, reset options, nút theo tab),
   drawer operation (15 loại, key tự sinh, duy nhất, loại lạ), canvas (staging: thêm/nối/tháo/xóa/nhân bản/Save body),
   arrows lib (port `.test.ts` Directus), Logs (nhóm ngày, lọc, phân trang, drawer), `ExtensionOptions type operation`;
@@ -613,28 +668,32 @@ dùng chéo của SC-002.
 - **FR-105**: Registry 15 operation sinh tay (port) nhưng PHẢI có test so nguồn (FR-044); không có dữ liệu tĩnh sinh
   bằng script (khác 016 FR-105).
 - **FR-106**: A11y: kéo panel, kéo nối/tháo mũi tên và nút "+" ở tay cầm chỉ bằng chuột/pointer như Directus (owner
-  chọn B, Clarifications 2026-10-17): ghi ngoại lệ a11y cho canvas (WCAG 2.1.1) trong `qa/handoff-checklist.md`, tech
-  lead duyệt trước khi đóng; không thêm menu di chuyển/nối. Những gì Directus đã có bằng phím vẫn phải tới được bằng
+  chọn B, Clarifications 2026-10-17): ghi ngoại lệ a11y cho canvas (WCAG 2.1.1) trong `design-system/qa/handoff-checklist.md` (gồm cả
+  thao tác cảm ứng trên máy tính bảng, Edge Cases), tech lead duyệt trước khi đóng; không thêm menu di chuyển/nối. Những gì Directus đã có bằng phím vẫn phải tới được bằng
   phím: nút pencil, menu `more_vert` (Duplicate, Copy To, Delete), select trạng thái ở chân Trigger, nút header, drawer;
   mũi tên là SVG `aria-hidden`; trạng thái mờ không chỉ bằng màu (sr-only "không nối tới trigger" / "flow inactive");
   drawer có focus trap, Esc, trả focus; axe 0 vi phạm serious/critical ở
   bảng flow, trang flow (hai chế độ), drawer flow (hai tab), drawer operation (3 loại: exec, mail, trigger), mục Logs
-  và drawer log, ở sáng và tối (SC-008). Focus sau hành động: tạo flow → tiêu đề trang flow (`h1 tabindex=-1`); Done
-  ở drawer operation → panel vừa tạo; xóa panel → panel cha hoặc Trigger; đóng drawer → phần tử đã mở nó. Màu nhánh
+  và drawer log, ở sáng và tối (SC-008). Focus sau hành động: tạo flow → tiêu đề trang flow (`h1 tabindex=-1`); Edit Flow
+  → nút Save; Save thành công hoặc Clear Changes → nút Edit Flow; Done ở drawer operation → panel vừa tạo hoặc sửa; xóa
+  panel → panel cha hoặc Trigger; đóng drawer → phần tử đã mở nó. Chế độ tối: nền lưới `gray-800`, panel `gray-900`
+  viền `gray-800`, mũi tên và tay cầm `brand-400`/`orange-400`, `<pre>` JSON nền `gray-900` chữ `gray-300` (Q-29, Q-32). Màu nhánh
   theo Q-29 kèm hình dạng khác nhau (resolve `check_circle`, reject `cancel`, và mũi tên reject nét đứt) để không chỉ
   dựa màu. Tương phản theo `migration-guide.md`; nút icon và tay cầm tối thiểu 32×32 px; `motion-reduce` tắt hiệu
   ứng.
 - **FR-107**: Recipe design-system Q-29 đến Q-33 PHẢI viết nháp vào `design-system/docs/component-specs.md` và
   `layout-patterns.md` (mục "Tier 3 recipes (017)") trước khi code màn tương ứng; design owner duyệt trước khi đóng.
 - **FR-108**: Hiệu năng (ngân sách máy tham chiếu nhân `machineFactor()` như 014 R14; trung vị 3 lần; chromium;
-  `PERF=1`): canvas 50 operation với 60 mũi tên vẽ dưới 500 ms sau khi store sẵn; kéo panel 60 fps (mỗi khung tính
-  mũi tên dưới 8 ms với 50 panel); mở drawer operation dưới 200 ms; danh sách log 10 dòng dưới 300 ms sau `GET
-  /revisions`; số request: mở `/settings/flows` = 1 `GET /flows` (hydrate); mở trang flow = 0 (store) + 1 đếm log (+ 1
+  `PERF=1`): canvas 50 operation với 60 mũi tên vẽ dưới 500 ms sau khi store sẵn; mỗi lần di chuyển khi kéo,
+  `generateArrows` cho 50 panel dưới 8 ms; mở drawer operation dưới 200 ms; danh sách log 10 dòng dưới 300 ms sau `GET
+  /revisions`; số request: mở `/settings/flows` = 0 (store); mở trang flow = 0 (store) + 1 đếm log (+ 1
   danh sách khi mục Logs đang mở); Save = n `PATCH /operations` (số link gỡ, thường 0) + 1 `PATCH /flows/:id` + 1
   `GET /flows`; không benchmark hằng tuần (màn quản trị).
 - **FR-109**: Bundle: canvas (arrows, workspace), registry operation, drawer log là chunk lười; chunk chính ≤ ngân sách
-  016 + 20 KB gzip; chunk canvas ≤ 60 KB gzip; `scripts/check-bundle.mjs`.
-- **FR-110**: Không request ngoài danh sách FR-016, FR-032, FR-045, FR-054 và danh sách 012–016 (`allowed-paths.ts`,
+  016 + 20 KB gzip; chunk lười: canvas ≤ 60 KB, registry operation ≤ 25 KB, drawer log ≤
+  15 KB gzip; `scripts/check-bundle.mjs`.
+- **FR-110**: Không request ngoài danh sách FR-016, FR-032, FR-045, FR-054 (`contracts/api-calls.md` #178–#184, cùng
+  #33, #48 đã có) và danh sách 012–016 (`allowed-paths.ts`,
   `KNOWN_REQUESTS`); 0 request ra ngoài.
 - **FR-111**: Không sửa file trong `directus/`; không sửa `apps/api` trừ khi T002 phát hiện lệch so với Directus (khi
   đó thêm task sửa API kèm parity 009).
@@ -642,11 +701,11 @@ dùng chéo của SC-002.
   thả, staging, Save, menu panel (US2) + drawer operation và registry 15 operation, `ExtensionOptions type operation`
   (US3); lượt 3 Logs và drawer log (US4), E2E manual (US5); lượt 4 bộ so payload, bộ so DB, dùng
   chéo, parity UI, perf, bundle, a11y, recipe (US6); mỗi lượt commit lên `main` với CI xanh.
-- **FR-113**: Thư viện mới: không (`nanoid`, `@sindresorhus/slugify`, `codemirror`, `vuedraggable` đã có trong
+- **FR-113**: Thư viện mới: không; web không phụ thuộc lib workspace (danh sách `ErrorCode` chép, FR-041) (`nanoid`, `@sindresorhus/slugify`, `codemirror`, `vuedraggable` đã có trong
   `apps/web/package.json`; không thêm thư viện node-graph hay pan-zoom: canvas là lưới CSS + SVG như Directus).
 - **FR-114**: Tài liệu: spec 016 (D-92 ghi "đã gỡ ở 017"), 014 (D-72 phần `directus_flows`), `CLAUDE.md` Active
   Technologies thêm dòng 017; `SPECKIT-GUIDE.md` ghi chú cho 018 nếu có (ví dụ `/content/directus_operations`);
-  `graphify update .` sau mỗi lượt. D-105, D-106, R-43 đến R-46 và ngoại lệ a11y của canvas (FR-106) được tech lead duyệt
+  `graphify update .` sau mỗi lượt. D-105, D-106, R-43 đến R-47 và ngoại lệ a11y của canvas (FR-106) được tech lead duyệt
   trước khi đóng.
 
 ### Key Entities *(include if feature involves data)*
@@ -675,10 +734,11 @@ dụng cho mọi màn của 017, không lặp. Gỡ ở 017: D-92 (016), D-72 (p
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
-| D-105 | `getTrees` khi Save với `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB; `resolve`/`reject` unique nên vòng vẫn tạo được) | Đệ quy vô hạn (treo tab) [Unverified: kiểm T002 bằng dữ liệu vòng] | Dừng khi gặp lại id trong đường đi và hộp lỗi (`showUnexpectedError`), chế độ sửa giữ | Không chép lỗi làm hỏng màn (như D-97); E2E coi `pageerror` là lỗi | khác | — |
+| D-105 | `getTrees` khi Save với `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB; `resolve`/`reject` unique nên vòng vẫn tạo được) | Đệ quy vô hạn (treo tab) [Unverified: kiểm T002 bằng dữ liệu vòng] | Dừng khi gặp lại id trong đường đi và hộp lỗi (`showUnexpectedError`), chế độ sửa giữ | Không chép lỗi làm hỏng màn (như D-97); E2E coi `pageerror` là lỗi; T002 thử dữ liệu vòng trên Directus app: treo thì giữ D-105, không treo thì bỏ mã và làm giống | khác | — |
 | D-106 | Form options của operation `mail` trong drawer operation | Chỉ các field của `operations/mail/index.ts` | Thêm `BoNotice` info ở đầu form: Backoffice không gửi email, operation chỉ ghi log và trả thành công (D-34); field và giá trị ghi giữ nguyên | Nguyên tắc X (không gửi email); người dùng cần biết trước khi cấu hình; owner chọn B (Clarifications 2026-10-17) | khác | — |
 
-**Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
+**Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên; tech lead xác nhận khi duyệt bảng khác
+biệt, SC-010):
 
 - Nhánh RTL của kéo mũi tên (`operation.vue`, lật tọa độ khi `document.dir === 'rtl'`): app không có ngôn ngữ RTL (012)
   nên không port; không phải khác biệt hành vi với vi-VN/en-US.
@@ -694,6 +754,7 @@ dụng cho mọi màn của 017, không lặp. Gỡ ở 017: D-92 (016), D-72 (p
 | R-44 | Guard sửa dở chỉ tính `stagedPanels`/`panelsToBeDeleted`; đổi trạng thái ở chân Trigger hay nối lại Trigger (`stagedFlow`) một mình không chặn rời trang | `flow.vue:578-607` Directus | Mất thay đổi trạng thái chưa lưu khi rời trang; tái tạo | Chờ duyệt |
 | R-45 | Drawer log hiện Options của bước Trigger là `flow.options` hiện tại, không phải lúc chạy | `logs-drawer.vue` Directus | Log cũ hiện options mới sau khi sửa trigger; tái tạo | Chờ duyệt |
 | R-46 | "Show Failed Only" lọc client trên trang hiện tại (10 dòng), không đổi request | `logs-sidebar-detail.vue:49-63` Directus | Trang có thể rỗng (`no_logs_on_page`) dù có lần thất bại ở trang khác; tái tạo | Chờ duyệt |
+| R-47 | Save gửi `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id` trong hai request; bước sau lỗi thì DB còn link đã gỡ | `flow.vue:310-384` Directus | Staging giữ nên Save lại khôi phục; tải lại trang trước khi Save lại thì operation thành panel lẻ, nối lại tay; tái tạo | Chờ duyệt |
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
@@ -754,11 +815,12 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   `id`, thời gian, `user_created`, và `flow`/`resolve`/`reject` ánh xạ theo `key`.
 - Seed `bo_flows` chạy sau `bo_content` (014) vì trỏ collection đó; chạy `bo_all_ops` 3 lần trong seed cần API chạy
   flow thật (manual trigger qua REST), làm trên cả hai app trong parity `fixtures-seed`.
-- `PUBLIC_URL` trong overview webhook lấy từ `serverStore.info.project.public_url` hoặc tương đương đã có ở 012 (như
-  Directus `getPublicURL`).
+- URL trong overview webhook dùng `getApiUrl()` của 012 (kết thúc bằng `/`, cùng vai trò `getPublicURL()` của
+  Directus; đã kiểm 2026-10-17).
 - Playwright kéo thả bằng `mouse.move/down/up` với bước nhỏ hoạt động trên pointer events của canvas ở chromium,
-  firefox, webkit (014 Kanban đã dùng); nếu webkit flake thì chỉ chromium cho kéo nối và ghi ở plan.
-- D-105, D-106, R-43 đến R-46 và ngoại lệ a11y của canvas chờ tech lead duyệt.
+  firefox, webkit (014 Kanban đã dùng); nếu webkit flake thì test kéo đánh `test.fixme` cho webkit (FR-100, SC-001).
+  Thao tác cảm ứng không có E2E (Edge Cases).
+- D-105, D-106, R-43 đến R-47 và ngoại lệ a11y của canvas chờ tech lead duyệt.
 
 ## Success Criteria *(mandatory)*
 
@@ -766,9 +828,10 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 
 - **SC-001**: 100% kịch bản E2E của US1 đến US6 đạt ở ba cấu hình API (Directus thật, API mới cùng origin, API mới
   khác origin) trên chromium 768 và 1280; cùng origin thêm firefox-1280 và webkit-1280 cho `settings-flows-editor`;
-  cors chỉ chromium-1280; spec điều khiển Directus app chỉ chromium-1280 (`DIRECTUS_APP_SPECS`).
+  cors chỉ chromium-1280; spec điều khiển Directus app chỉ chromium-1280 (`DIRECTUS_APP_SPECS`); test kéo trên webkit
+  có thể `test.fixme` nếu flake, ghi lý do ở bảng trạng thái (FR-100).
 - **SC-002**: Flow `bo_manual` + 4 operation (US2 Independent Test) tạo ở app mới mở được trên Directus app 8155 với
-  cùng vị trí panel (sai số 0 ô), cùng số mũi tên và lớp nhánh, cùng options ở drawer từng operation, cùng giá trị ở
+  cùng vị trí panel (sai số 0 ô; ô đọc từ `--pos-x/--pos-y` của Directus và `data-pos-x/y` của Backoffice), cùng số mũi tên và lớp nhánh, cùng options ở drawer từng operation, cùng giá trị ở
   drawer trigger; sửa trên Directus app (thêm operation, đổi vị trí, đổi trạng thái) rồi mở ở app mới thấy đúng; và
   ngược lại (tạo ở Directus app, mở và sửa ở app mới, lưu, Directus app thấy đúng); dòng `directus_flows`,
   `directus_operations` bằng dòng Directus app ghi cho cùng thao tác sau chuẩn hóa — đây là tiêu chí "flow tạo ở app
@@ -781,7 +844,8 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   drawer flow, drawer operation) và tên/loại của mọi panel trên trang `bo_all_ops`, (c) chuỗi `<dl>` overview của 15
   panel và 5 trigger (bộ mẫu có đủ 5 trigger), (d) `disabled`/ẩn của 9 nút (tạo flow, Next, Finish Setup, Save
   drawer, Edit Flow, Save canvas, Clear Changes, Done operation, Copy To), (e) mục panel hiện (Logs) và badge số đếm;
-  thu bằng `innerText` và `aria-disabled`.
+  thu bằng `innerText` và `aria-disabled` (không so màu); URL webhook so phần `/flows/trigger/<id>`; notice
+  D-106 nằm ở drawer operation, không thuộc (c).
 - **SC-005**: 100% body ghi (FR-016, FR-032, `POST /flows/trigger/:id`) và request đọc `GET /revisions` của kịch bản
   E2E bằng Directus app cho cùng kịch bản sau chuẩn hóa (FR-101); lệch thật ghi R-xx.
 - **SC-006**: Registry 15 operation và 5 trigger: test so nguồn đạt 100% (options tĩnh, options hàm với 3 bộ đối số
@@ -789,12 +853,15 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   `find-best-position`, `generate-arrows`, `generate-path`, `generate-corner`, `get-points`, `is-point-in-panel`,
   `min-max-point`, `range`) đạt 100%; staging/Save: 12 kịch bản mẫu (thêm con resolve, thêm con reject, nối lại sang
   cha khác, tháo, xóa có con, xóa operation đầu, nhân bản, đổi vị trí, đổi trạng thái, Save rỗng, Save sau xóa + thêm
-  cùng key, vòng dữ liệu) sinh cùng body `PATCH /operations` và `PATCH /flows/:id` như Directus (so JSON).
+  cùng key, vòng dữ liệu) sinh cùng body `PATCH /operations` và `PATCH /flows/:id` như Directus (so JSON với mốc ghi tay trên Directus app 8155
+  ở T002, `payload/baselines/flows-*.json`, test unit dùng cùng file; chuẩn hóa id thật → `key`, 5 ký tự ngẫu nhiên →
+  `*`).
 - **SC-007**: Hiệu năng FR-108 đạt (ngân sách nhân `machineFactor()`); số request mỗi thao tác đúng FR-108.
 - **SC-008**: Recipe Q-29 đến Q-33 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng; axe 0 vi
-  phạm serious/critical trên các màn của FR-106 ở sáng và tối; ngoại lệ a11y của canvas (chỉ chuột) ghi trong
-  `qa/handoff-checklist.md` và được tech lead duyệt.
+  phạm serious/critical trên các màn của FR-106 ở sáng và tối; ngoại lệ a11y của canvas (chỉ chuột, cảm ứng không
+  bảo đảm) ghi trong `design-system/qa/handoff-checklist.md`, tech lead duyệt trước khi đóng và ghi duyệt ở bảng trạng
+  thái khác biệt của spec.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 016 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-105, D-106 và R-43 đến R-46 được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
+- **SC-010**: D-105, D-106, R-43 đến R-47 và mục "Cần xác nhận" được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
   "đã gỡ ở 017" ở spec gốc. Duyệt ghi ở bảng trạng thái khác biệt của spec (như 016 T122).
