@@ -7,6 +7,7 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { openSidebar } from './helpers/content.js';
 import { flowId, FLOWS, panel } from './helpers/flows.js';
+import { dashboardId, DASHBOARDS } from './helpers/insights.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 import { openOwnPage } from './helpers/users.js';
@@ -158,6 +159,74 @@ for (const scheme of ['light', 'dark'] as const) {
 		await page.locator('[data-flow-log] button').first().click();
 		await expect(page.locator('[data-flow-log-steps]')).toBeVisible();
 		await scan('log drawer');
+
+		expect(Object.fromEntries(Object.entries(found).filter(([, v]) => v.length))).toEqual({});
+	});
+}
+
+// Feature 018 T115 (FR-106, SC-008): the Insights, Activity and notifications screens, light and dark: the dashboards
+// table, bo_dash_all in view and edit mode, the panel drawer of a metric, a time series and a variable, the activity
+// list and an activity drawer, the notifications drawer on both tabs. Colors the user stores (dashboard and panel
+// colors, conditional formatting, chart series) are user data, as in Directus: excluded like the flow icon colors.
+const INSIGHTS_USER_COLORS = [
+	'[data-icon][style*="color"]',
+	'[style*="color"] > [data-icon]',
+	'[data-panel-id] [style*="color"]',
+	'[data-panel-id] .apexcharts-canvas',
+];
+
+for (const scheme of ['light', 'dark'] as const) {
+	test(`Insights, Activity and notifications screens have no serious violations (${scheme})`, async ({ page }) => {
+		test.setTimeout(180_000);
+		await page.emulateMedia({ colorScheme: scheme });
+		const all = await dashboardId(api, DASHBOARDS.all);
+		const panels = await api.call<{ id: string; type: string }[]>(
+			'GET',
+			`/panels?filter[dashboard][_eq]=${all}&fields=id,type&limit=-1`,
+		);
+		const panelOf = (type: string) => panels.find((p) => p.type === type)!.id;
+		const found: Record<string, string[]> = {};
+		const scan = async (name: string) => {
+			await page.waitForLoadState('networkidle');
+			await page.waitForTimeout(300);
+			found[name] = await violations(page, INSIGHTS_USER_COLORS);
+		};
+		const dialog = () => page.getByRole('dialog');
+
+		await resetLastPage(api);
+		await page.goto('/admin/login');
+		await login(page, ADMIN);
+		await expect(page).toHaveURL(CONTENT_URL);
+
+		await page.goto('/admin/insights');
+		await expect(page.locator('main tbody tr').first()).toBeVisible();
+		await scan('dashboards table');
+
+		await page.goto(`/admin/insights/${all}`);
+		await expect(page.locator('[data-panel-type="metric"]')).toContainText('12');
+		await scan('dashboard');
+		await page.getByRole('button', { name: 'Edit Panels' }).click();
+		await scan('dashboard, edit mode');
+
+		for (const type of ['metric', 'time-series', 'variable']) {
+			await page.goto(`/admin/insights/${all}/${panelOf(type)}`);
+			await expect(dialog()).toContainText('Panel Options');
+			await scan(`panel drawer ${type}`);
+		}
+
+		await page.goto('/admin/activity');
+		await expect(page.locator('main tbody tr').first()).toBeVisible();
+		await scan('activity');
+		await page.locator('main tbody tr').first().click();
+		await expect(dialog()).toBeVisible();
+		await scan('activity drawer');
+		await page.keyboard.press('Escape');
+
+		await page.locator('button[aria-label^="Notifications, "]').click();
+		await expect(page.locator('[data-notifications-drawer]')).toBeVisible();
+		await scan('notifications inbox');
+		await dialog().getByRole('tab', { name: 'Archive' }).click();
+		await scan('notifications archive');
 
 		expect(Object.fromEntries(Object.entries(found).filter(([, v]) => v.length))).toEqual({});
 	});

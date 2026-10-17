@@ -69,7 +69,13 @@ async function saveEdits(item: Record<string, any>) {
 </script>
 
 <template>
-	<div class="size-full overflow-y-auto" :class="{ 'has-header': showHeader }">
+	<!-- Backoffice (FR-106): the body scrolls when the rows overflow, so it takes the keyboard focus (axe
+	     scrollable-region-focusable). -->
+	<div
+		class="size-full overflow-y-auto focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
+		:class="{ 'has-header': showHeader }"
+		tabindex="0"
+	>
 		<ul>
 			<li
 				v-for="row in data"

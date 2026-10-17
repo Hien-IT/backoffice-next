@@ -78,7 +78,7 @@ The pairs used by the final recipes (`component-specs.md`, `layout-patterns.md`,
 `tokens/tokens.json`: alpha colors are composited on the stated background, the dark page is `gray-900`. Text needs
 4.5:1 (no use here is large text); input boundaries, toggle tracks, icons that carry meaning and focus indicators need
 3:1 (WCAG 1.4.11). Disabled controls are exempt. All pairs pass except the three rows marked "fail", which are open
-points of feature 013 for the design owner. Add a row (and recompute) for any new pair. Feature 014 (Content module) uses only pairs already listed.
+points of feature 013 for the design owner. Add a row (and recompute) for any new pair. Feature 014 (Content module) uses only pairs already listed. Feature 018 adds the Activity label pairs of Q-36 (the light ones reuse the badge rows above).
 
 | Mode  | Foreground       | Background            | Use                                                                                                       | Ratio   | Needed | Result |
 | ----- | ---------------- | --------------------- | --------------------------------------------------------------------------------------------------------- | ------- | ------ | ------ |
@@ -199,6 +199,11 @@ points of feature 013 for the design owner. Add a row (and recompute) for any ne
 | dark  | `warning-500`    | `gray-900`            | `input` / `input-multiline` counter under 10 % left (013)                                                 | 7.56:1  | 4.5:1  | pass   |
 | light | `gray-600`       | `brand-50`            | BoFancySelect description and change button on the chosen option (017, axe 4.46:1 with `gray-500`)       | 6.89:1  | 4.5:1  | pass   |
 | light | `orange-700`     | `white`               | Failed run icon and "Show Failed Only" icon of the flow Logs (017, axe 3.01:1 with `orange-500`)          | 5.52:1  | 4.5:1  | pass   |
+| light | `theme-purple-500` 80 % + `gray-900` | `theme-purple-500` 12 % on `white` | Activity `login` label (Q-36 `--purple` / `--purple-25`, 018) | 5.13:1  | 4.5:1  | pass   |
+| dark  | `theme-purple-500` 70 % + `white` | `theme-purple-500` 15 % on `gray-900` | Activity `login` label, dark (018) | 5.55:1  | 4.5:1  | pass   |
+| dark  | `brand-400`      | `brand-500` 15 % on `gray-900` | Activity `create` label, dark (Q-36, 018) | 5.33:1  | 4.5:1  | pass   |
+| dark  | `blue-light-400` | `blue-light-500` 15 % on `gray-900` | Activity `update` label, dark (Q-36, 018) | 6.74:1  | 4.5:1  | pass   |
+| dark  | `error-400`      | `error-500` 15 % on `gray-900` | Activity `delete` label, dark (Q-36, 018) | 5.52:1  | 4.5:1  | pass   |
 
 TailAdmin values replaced because they failed: placeholder gray-400 (2.58) / white/30 (2.70); field error-500 (3.76) and
 success-500 (2.62) text; light badge text -500/-600 (2.59–4.44); active menu brand-500 on brand-50 (4.34); dark

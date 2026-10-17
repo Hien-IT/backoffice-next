@@ -511,10 +511,10 @@ US7, FR-080–FR-082).
 - [ ] T113 [US8] `e2e/insights-cross-use.spec.ts` (contracts/tests §5 (1)–(5), SC-002, SC-003); `e2e/helpers/directus-app.ts`
       thêm `openDirectusDashboard`, `readDirectusGrid` (+`--width`/`--height`), `readDirectusTileHeaders`,
       `readDirectusTileText`, `openDirectusNotifications`, `archiveDirectusNotification`; thêm vào `DIRECTUS_APP_SPECS`
-- [ ] T114 [P] [US8] Perf `insights/perf.browser.test.ts` (`PERF=1`, `machineFactor()`; thêm file vào bước "web perf" của
+- [X] T114 [P] [US8] Perf `insights/perf.browser.test.ts` (`PERF=1`, `machineFactor()`; thêm file vào bước "web perf" của
       `.github/workflows/ci.yml` (job `quality` chạy `web:test` rồi mới tới bước này, theo 016); FR-108: 11 tile < 1500 ms, đổi
       biến < 500 ms, drawer thông báo 25 dòng < 300 ms, kéo/resize 20 tile < 16 ms mỗi move; đếm request mỗi thao tác)
-- [ ] T115 [P] [US8] A11y `e2e/a11y.spec.ts` thêm khối 018 (FR-106: `/insights`, dashboard hai chế độ, drawer panel 3
+- [X] T115 [P] [US8] A11y `e2e/a11y.spec.ts` thêm khối 018 (FR-106: `/insights`, dashboard hai chế độ, drawer panel 3
       loại, `/activity`, drawer activity, drawer thông báo hai tab, chuông; sáng/tối; axe 0 serious/critical; màu do người
       dùng chọn loại khỏi quét như 017)
 - [ ] T116 [US8] Sửa lệch do T110–T115 tìm ra (spec, code, hoặc ghi R-xx mới với lý do); lặp tới khi SC-002..SC-007 đạt
@@ -525,13 +525,13 @@ US7, FR-080–FR-082).
 
 ## Phase 11: Polish & Cross-Cutting Concerns — Lượt 4
 
-- [ ] T120 [P] Recipe Q-34..Q-39 trong `design-system/docs/` cập nhật theo code (trạng thái "Recipe theo code (T120)");
+- [X] T120 [P] Recipe Q-34..Q-39 trong `design-system/docs/` cập nhật theo code (trạng thái "Recipe theo code (T120)");
       bảng tương phản `design-system/docs/migration-guide.md` thêm cặp mới nếu T115 sửa màu; gửi design owner duyệt
-- [ ] T121 [P] Tài liệu: spec 012 (D-40 phần Insights/Activity, D-45 phần insights và drawer thông báo ghi "đã gỡ ở
+- [X] T121 [P] Tài liệu: spec 012 (D-40 phần Insights/Activity, D-45 phần insights và drawer thông báo ghi "đã gỡ ở
       018"), 013 (D-66 ghi "xét lại ở 018: giữ"), 014 (D-72 ghi "đã gỡ ở 018" cho `directus_dashboards`,
       `directus_activity`), 015 (D-90 ghi "đã gỡ ở 018: Directus 11.17.4 không có danh sách"); `SPECKIT-GUIDE.md` ghi chú
       cho 019 nếu có; `CLAUDE.md` dòng 018 khớp phạm vi thật, thêm mục Recent Changes 018
-- [ ] T122 Bảng "Trạng thái khác biệt" trong `specs/018-insights-activity-notifications/spec.md` (như 017 T102): mỗi D-107..
+- [X] T122 Bảng "Trạng thái khác biệt" trong `specs/018-insights-activity-notifications/spec.md` (như 017 T102): mỗi D-107..
       D-110, R-49..R-57, ngoại lệ a11y lưới dashboard và mục "Cần xác nhận" với nơi làm trong code; gửi tech lead duyệt;
       ghi duyệt vào bảng và Clarifications
 - [ ] T123 Đóng feature: mọi task xong, CI xanh (quality, e2e-web ba cấu hình, parity web), coverage ≥ 60 %, design owner
@@ -730,3 +730,25 @@ Lượt 3 (2026-10-17, T080–T102):
 - E2E local cấu hình `dev` (chromium 768/1280): `insights-*`, `activity`, `notifications`, `navigation`, `requests`,
   `content-navigation`, `login`, `a11y` xanh; `branding` đỏ ở dev vì `index.html` của Vite thêm link favicon
   `/admin/admin/favicon.ico` ([Inference] chỉ ở dev server, CI chạy bản build đã xanh).
+
+Lượt 4 (2026-10-18, đang làm):
+
+- Chủ dự án duyệt Q-34..Q-39, tech lead duyệt ngoại lệ a11y lưới dashboard, các mục "Cần xác nhận" đã xác nhận, xóa
+  `ModulePlaceholder`/`placeholderRoutes` (khung 012). Bố cục (chủ dự án): vùng nội dung tràn hết bề ngang sau sidebar
+  (bỏ khung 1536 px căn giữa của TailAdmin); trang item Content, File, User căn giữa thân theo bề rộng form
+  (`utils/form-column.ts`), header trang trải hai bên.
+- T114: `src/modules/insights/perf.browser.test.ts` (PERF=1, thêm vào bước "web perf" của CI). Trung vị trên Mac: 11 tile
+  ~52 ms, đổi biến ~50 ms, drawer 25 dòng ~53 ms (các số ~50 ms là sàn của cách chờ frame), kéo/resize một move < 1,5 ms
+  (đo tới layout, không gồm paint: một frame 60 Hz đã 16,7 ms). Request: mở dashboard `GET /comments` (đếm bình luận
+  của sidebar) + 1 `POST /graphql`; đổi biến 1 `POST /graphql` chỉ panel phụ thuộc; mở drawer thông báo 2
+  `GET /notifications` (danh sách + đếm của `useItems`). Hai chỗ FR-108 ghi khác (chỉ `POST /graphql`, một GET) để T116
+  đối chiếu mốc T002.
+- T115: khối 018 trong `a11y.spec.ts` (sáng/tối). axe tìm ra và đã sửa: thân panel list/metric-list cuộn được nay nhận
+  focus (`tabindex="0"`); thẻ chưa chọn trong lưới loại panel bỏ `opacity-60` (chữ mờ dưới 4,5:1). Màu người dùng đặt
+  (icon dashboard, màu panel, chuỗi biểu đồ) loại khỏi quét như 017.
+- T120: recipe `layout-patterns.md` §14 và `component-specs.md` Q-36..Q-39 sửa theo code; `migration-guide.md` thêm cặp
+  tương phản nhãn Activity (tím sáng/tối, ba nhãn tối).
+- T121: D-40, D-45 (012), D-66 (013, giữ), D-72 (014), D-90 (015) ghi đã gỡ/xét lại ở 018; `CLAUDE.md` thêm Recent
+  Changes 018.
+- T122: bảng "Trạng thái khác biệt" viết xong; tech lead duyệt cả bảng 2026-10-18 (ghi vào spec và Clarifications).
+

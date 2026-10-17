@@ -31,9 +31,9 @@ test('lists every option, then only the chosen one with a deselect button', asyn
 	expect(wrapper.find(`button[aria-label="${i18n.global.t('deselect')}"]`).exists()).toBe(false);
 });
 
-// Feature 018 (recipe Q-37): the grid of the panel drawer keeps every item (no divider), subdues the others once one is
-// chosen, and pressing the chosen card clears it.
-test('grid layout: all items stay, the chosen one pressed, the others subdued', async () => {
+// Feature 018 (recipe Q-37): the grid of the panel drawer keeps every item (no divider) at full contrast (FR-106), and
+// pressing the chosen card clears it.
+test('grid layout: all items stay at full contrast, the chosen one pressed', async () => {
 	const wrapper = mount(BoFancySelect, {
 		props: { items, modelValue: 'tags', layout: 'grid' },
 		global: { plugins: [i18n] },
@@ -43,7 +43,7 @@ test('grid layout: all items stay, the chosen one pressed, the others subdued', 
 	expect(cards.map((b) => b.text())).toEqual(['titleInput', 'local_offerTagsKeywords']);
 	expect(wrapper.find('hr').exists()).toBe(false);
 	expect(cards.map((b) => b.attributes('aria-pressed'))).toEqual(['false', 'true']);
-	expect(cards[0]!.classes()).toContain('opacity-60');
+	expect(cards[0]!.classes()).not.toContain('opacity-60');
 
 	await cards[1]!.trigger('click');
 	await cards[0]!.trigger('click');

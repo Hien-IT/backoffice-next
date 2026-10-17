@@ -517,29 +517,34 @@ Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vu
 
 ## 14. Dashboard grid and charts (018, duyệt 2026-10-18)
 
-Recipe for spec 018 Q-34 and Q-35 (T003, FR-107), written before the code; the design owner approves before the feature
-closes. Behaviour is the Directus one (`modules/insights/routes/dashboard.vue`, `components/v-workspace*.vue`,
+Recipe for spec 018 Q-34 and Q-35 (T003, FR-107), written before the code and updated to it (T120, after the axe scans
+of T115); approved by the design owner on 2026-10-18. Behaviour is the Directus one (`modules/insights/routes/dashboard.vue`, `components/v-workspace*.vue`,
 `panels/*`); this section only sets the look.
 
 - **Page**: `PrivateView fill`, the grid is the only scroll area (`overflow-auto` on both axes), a focusable
   `role="region"` labelled with the dashboard name, as the flow canvas (§13). Header actions: zoom-to-fit toggle
-  (`fit_screen`, pressed state `bg-brand-50 text-brand-600`), edit (`edit`); in edit mode Clear Changes, "+" and Save.
+  (`aspect_ratio`, pressed state `bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400`), edit (`edit`);
+  in edit mode Clear Changes, "+" and Save.
 - **Grid**: 18 px cells, tiles absolutely positioned at `(position_x − 1) × 18`, `(position_y − 1) × 18`, size
   `width × 18` by `height × 18` px. Edit mode adds the dot grid of §13 and 25 cells of room. Zoom-to-fit: one CSS
   `transform: scale()` from the top left corner, the outer box takes the scaled size (no scroll when it fits).
-- **Tile** (Q-34): `rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`, no shadow
-  in view mode, `shadow-theme-md` while dragged. A corner that touches another tile has radius 0 (Directus rule).
+- **Tile** (Q-34): `rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900`;
+  in edit mode `cursor-move border-gray-300` (hover `gray-400`; dark `gray-700` / `gray-600`); while dragged
+  `border-brand-300 shadow-theme-md` (dark `border-brand-700`) and every corner rounded. A corner that touches another
+  tile has radius 0 (Directus rule).
   Header (`show_header`): `h-10 px-4 flex items-center gap-2`, icon 20 px in the panel `color` (inline style, user
   data; default `text-brand-500`), name `text-theme-sm font-semibold text-gray-800 dark:text-white/90 truncate`, note
   as an info icon button (`ICON_BTN`, `aria-label` = note) with a BoTooltip on hover and focus. Body `px-4 pb-4`
-  (`pt-4` without header).
+  (`p-4` without header); a list or metric list body that scrolls takes the keyboard focus (`tabindex="0"`, focus
+  ring, axe scrollable-region-focusable).
 - **Tile states**: first load: centered `BoProgressCircular`; reload: body `opacity-50` (transition 150 ms, none with
   `motion-reduce`); error: `error-500` warning icon, `unexpected_error` and the error text `text-theme-xs`; empty:
   `no_data` `text-theme-sm text-gray-500` centered.
 - **Edit mode**: pencil and `more_vert` `ICON_BTN` at the header end (menu Copy To, Duplicate, Delete
-  `text-error-600`); 8 resize handles (corners `size-3`, edges `h-3 w-8` / `w-3 h-8`, `rounded-full bg-white border
-  border-gray-300 dark:bg-gray-800 dark:border-gray-600`, hit area 24 px, cursor per direction); while resizing a label
-  `W × H` and while moving `(x:y)` (`rounded bg-gray-800 px-1.5 text-theme-xs text-white`). Drag and resize are
+  `text-error-600`); 8 resize handles shown on hover (corners `size-3`, edges `h-3` / `w-3` along the side inset by
+  12 px, `rounded-full bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-600`, cursor per direction);
+  while resizing a label `W×H` and while moving `(x:y)` (`rounded bg-gray-800 px-1.5 font-mono text-theme-xs
+  text-white`). Drag and resize are
   mouse/pointer only (recorded exception in `qa/handoff-checklist.md`).
 - **Charts** (Q-35, ApexCharts): font `Outfit`; axis labels and legend `var(--color-gray-500)` (dark
   `var(--color-gray-400)`), grid lines `var(--color-gray-100)` (dark `var(--color-gray-800)`), no toolbar; default
