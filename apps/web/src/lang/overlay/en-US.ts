@@ -60,4 +60,6 @@ export default {
 		'Backoffice does not send email. This operation only writes a log entry and returns success.',
 	// Feature 017 (FR-106): screen-reader text of a dimmed operation panel that no chain from the trigger reaches.
 	flow_operation_not_linked: 'Not linked to the trigger',
+	// Feature 017 (FR-106): screen-reader name of the icon of a failed flow run in the Logs section.
+	flow_run_failed: 'Failed',
 };

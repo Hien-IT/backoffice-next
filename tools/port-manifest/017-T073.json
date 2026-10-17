@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/logs-drawer.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/LogsDrawer.vue"
+	}
+]

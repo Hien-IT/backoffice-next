@@ -57,4 +57,5 @@ export default {
 	operations_mail_not_sent_notice: 'Backoffice không gửi email. Operation này chỉ ghi log và trả kết quả thành công.',
 	// Feature 017 (FR-106).
 	flow_operation_not_linked: 'Không nối tới trigger',
+	flow_run_failed: 'Thất bại',
 };

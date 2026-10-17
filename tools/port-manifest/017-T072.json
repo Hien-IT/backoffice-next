@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/components/logs-sidebar-detail.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/components/LogsSidebarDetail.vue"
+	}
+]

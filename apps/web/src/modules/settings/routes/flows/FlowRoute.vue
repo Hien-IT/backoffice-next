@@ -3,8 +3,8 @@
 // Backoffice (spec 017 US2, FR-020 to FR-032, recipes Q-29, Q-30, Q-33): the script logic is use-flow-editor.ts;
 // PrivateView `fill` with the canvas as the scroll area (D-99), no breadcrumb (D-101), BoButton header actions,
 // VWorkspace is BoWorkspace, VDialog is BoDialog with Keep Editing first (D-76), SettingsNotFound is ContentNotFound of
-// the settings module. Focus after Edit Flow goes to Save, after Save or Clear Changes to Edit Flow (FR-106). The Logs
-// section of the detail panel comes in wave 3 (US4).
+// the settings module. Focus after Edit Flow goes to Save, after Save or Clear Changes to Edit Flow (FR-106). The detail
+// panel holds the Logs section (US4).
 import { computed, nextTick, ref, toRef, unref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
@@ -20,6 +20,7 @@ import ContentNotFound from '../../../content/routes/ContentNotFound.vue';
 import SettingsNavigation from '../../components/SettingsNavigation.vue';
 import FlowArrows from './components/FlowArrows.vue';
 import CopyToDialog from './components/CopyToDialog.vue';
+import LogsSidebarDetail from './components/LogsSidebarDetail.vue';
 import FlowOperation from './components/FlowOperation.vue';
 import { GRID_SIZE } from './constants.ts';
 import FlowDrawer from './FlowDrawer.vue';
@@ -198,6 +199,10 @@ const copyOpen = computed(() => !!copyPanelId.value);
 
 		<template #navigation>
 			<SettingsNavigation />
+		</template>
+
+		<template #sidebar>
+			<LogsSidebarDetail :flow="flow" />
 		</template>
 
 		<div class="relative min-h-full min-w-max p-1" data-flow-canvas>

@@ -283,21 +283,21 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Tests cho User Story 4
 
-- [ ] T070 [P] [US4] `flows/components/LogsSidebarDetail.browser.test.ts`: request đếm khi mount và danh sách khi mở (query
+- [x] T070 [P] [US4] `flows/components/LogsSidebarDetail.browser.test.ts`: request đếm khi mount và danh sách khi mở (query
       #183, #184), badge `abbreviateNumber`, `BoProgressLinear` khi nạp, nhóm ngày, icon theo bước cuối, lọc
       `show_failed_only` trang hiện tại, `no_logs`, `no_logs_on_page`, phân trang, `data` null
-- [ ] T071 [P] [US4] `flows/components/LogsDrawer.browser.test.ts`: tiêu đề thời gian, bước Trigger (Options =
+- [x] T071 [P] [US4] `flows/components/LogsDrawer.browser.test.ts`: tiêu đề thời gian, bước Trigger (Options =
       `flow.options`, Payload, Accountability), bước operation (tên, key, loại, Options, Payload, chấm màu theo status),
       operation đã xóa, `--redacted--` hiện nguyên, không `persistent`, axe sáng/tối
 
 ### Implementation cho User Story 4
 
-- [ ] T072 [US4] `flows/components/LogsSidebarDetail.vue` port `logs-sidebar-detail.vue` trên `use-revisions` (014) với
+- [x] T072 [US4] `flows/components/LogsSidebarDetail.vue` port `logs-sidebar-detail.vue` trên `use-revisions` (014) với
       `{action: 'run', full: true}`, `RevisionsDateGroup`, `BoPagination`; gắn vào `DetailPanel` của `FlowRoute.vue`
       theo Q-32; manifest `017-T072.json`
-- [ ] T073 [US4] `flows/components/LogsDrawer.vue` port `logs-drawer.vue` (`BoDrawer`, `<ol>` bước, `BoDetail`, `<pre>`
+- [x] T073 [US4] `flows/components/LogsDrawer.vue` port `logs-drawer.vue` (`BoDrawer`, `<ol>` bước, `BoDetail`, `<pre>`
       `JSON.stringify(v, null, 2)`) theo Q-32; manifest `017-T073.json`
-- [ ] T074 [US4] E2E `e2e/settings-flows-logs.spec.ts`: badge 3 của `bo_all_ops` (seed), nhóm ngày, 2 resolve/1 reject,
+- [x] T074 [US4] E2E `e2e/settings-flows-logs.spec.ts`: badge 3 của `bo_all_ops` (seed), nhóm ngày, 2 resolve/1 reject,
       lọc, drawer lần reject (bước `throw-error`); chromium ba cấu hình
 
 ---
@@ -308,14 +308,14 @@ commit, push, CI xanh, `graphify update .`).
 
 **Independent Test**: spec US5 Independent Test.
 
-- [ ] T080 [P] [US5] `src/composables/use-run-manual-flow.test.ts` thêm ca flow mới xuất hiện sau `flowsStore.hydrate()`;
+- [x] T080 [P] [US5] `src/composables/use-run-manual-flow.test.ts` thêm ca flow mới xuất hiện sau `flowsStore.hydrate()`;
       `src/interfaces/_system/system-manual-flow-select/*.test.ts` thêm ca flow manual mới (FR-062)
-- [ ] T081 [US5] Rà các đường ghi của 017 (`FlowsOverviewRoute`, `FlowDrawer`, `FlowRoute` Save/Copy To/Delete) đều gọi
+- [x] T081 [US5] Rà các đường ghi của 017 (`FlowsOverviewRoute`, `FlowDrawer`, `FlowRoute` Save/Copy To/Delete) đều gọi
       `flowsStore.hydrate()` sau khi thành công (FR-060); thiếu thì sửa
-- [ ] T082 [US5] E2E `e2e/settings-flows-manual.spec.ts`: tạo flow manual tạm (location `both`, xác nhận với `reason` bắt
+- [x] T082 [US5] E2E `e2e/settings-flows-manual.spec.ts`: tạo flow manual tạm (location `both`, xác nhận với `reason` bắt
       buộc) và flow `async` qua drawer; mở `/content/bo_content` và một item: nút, tooltip, `disabled`, hộp xác nhận,
       `POST /flows/trigger/:id`, notice; Logs của flow tạm có lần chạy mới; chromium ba cấu hình
-- [ ] T083 [US5] Đóng lượt 3: bốn cổng, `check-bundle` (drawer log), E2E `settings-flows-*`, `content-sidebar`
+- [x] T083 [US5] Đóng lượt 3: bốn cổng, `check-bundle` (drawer log), E2E `settings-flows-*`, `content-sidebar`
       xanh ở `proxy-api` local; commit `feat(017): flow logs and manual run end to end (wave 3)`; push; CI xanh;
       `graphify update .`
 
@@ -463,3 +463,12 @@ Lượt 4, Phase 8:
   - T051: `settings-flows-editor` chạy mọi trình duyệt ở cùng origin (`playwright.config.ts`); firefox, webkit chưa cài
     trên máy dev nên chỉ CI chạy.
   - Test toàn bộ cục bộ: 4121 xanh, 1 đỏ chập chờn (`Tabular` header menu, xanh khi chạy riêng).
+- Lượt 3 (2026-10-17):
+  - T070, T071: một file unit `components/logs.test.ts` gắn mục Logs riêng (dưới xl panel chi tiết là drawer đóng);
+    `mockFixtureApi` lọc được field đã mở rộng theo field con (`activity.action`).
+  - T072: hành động `run` viết literal (web không có `@directus/constants`); nhãn sr-only của lần chạy lỗi là chuỗi
+    overlay mới `flow_run_failed` (Directus chỉ dùng màu và icon).
+  - T081: mọi đường ghi của 017 (`FlowDrawer`, `FlowsOverviewRoute`, `use-flow-editor` Save, Copy To, Delete Flow) gọi
+    `flowsStore.hydrate()` sau khi xong; không cần sửa.
+  - T082: ở 768 px panel chi tiết là drawer modal che bảng: test đóng nó để chọn dòng rồi mở lại.
+  - `openSidebar` của 014 xem nút trước khi header dựng xong: các spec 017 đợi trang sẵn sàng rồi mới gọi.

@@ -434,6 +434,19 @@ export function mockFixtureApi(
 				return quantified(relation.collection, related, value);
 			}
 
+			// Feature 017: a field the snapshot row holds expanded (`activity` of a revision) filtered by its own fields
+			// (`activity.action`, the Logs section), compared one level down.
+			const embedded = row[key];
+			if (!relation && embedded && typeof embedded === 'object' && operators.every((op) => !op.startsWith('_'))) {
+				return Object.entries(value as Record<string, unknown>).every(([field, condition]) =>
+					condition !== null && typeof condition === 'object'
+						? Object.entries(condition).every(([op, arg]) =>
+								compare(op, (embedded as Record<string, unknown>)[field], variable(arg)),
+							)
+						: compare('_eq', (embedded as Record<string, unknown>)[field], variable(condition)),
+				);
+			}
+
 			return Object.entries(value as Record<string, unknown>).every(([op, arg]) =>
 				compare(op, row[key], variable(arg)),
 			);

@@ -89,6 +89,20 @@ describe('useInjectRunManualFlow', () => {
 		flows = withSetup(() => useInjectRunManualFlow(fallback()));
 		expect(flows.isActiveFlow('bo-6')).toBeFalsy();
 	});
+
+	// Feature 017 (FR-060, T080): a manual flow saved in the flows editor shows once the store is hydrated again.
+	test('a flow added to the store after mount is a manual flow of the page', () => {
+		const flows = withSetup(() =>
+			useFlows({ collection: ref('bo_groups'), primaryKey: ref(1), location: 'item', onRefreshCallback: () => {} }),
+		);
+		expect(flows.manualFlows.value.map((flow) => flow.id)).toEqual(['bo-6']);
+
+		useFlowsStore().flows = [
+			...useFlowsStore().flows,
+			{ ...useFlowsStore().flows[0]!, id: 'new-flow', name: 'New', options: { collections: ['bo_groups'] } },
+		];
+		expect(flows.manualFlows.value.map((flow) => flow.id)).toEqual(['bo-6', 'new-flow']);
+	});
 });
 
 describe('useFlows (default run)', () => {
