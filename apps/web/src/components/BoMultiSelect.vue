@@ -7,6 +7,7 @@ import {
 	ComboboxItem,
 	ComboboxPortal,
 	ComboboxRoot,
+	ComboboxSeparator,
 	ComboboxTrigger,
 	ComboboxViewport,
 } from 'reka-ui';
@@ -16,6 +17,8 @@ import BoChip from './BoChip.vue';
 import BoIcon from './BoIcon.vue';
 
 export type MultiSelectItem = { text: string; value: string | number; disabled?: boolean };
+/** A separator row (Directus v-select `{ divider: true }` choice). */
+export type MultiSelectDivider = { divider: true };
 type Value = string | number;
 
 const {
@@ -36,7 +39,7 @@ const {
 	ariaDescribedby,
 } = defineProps<{
 	modelValue?: Value[] | null;
-	items: MultiSelectItem[];
+	items: (MultiSelectItem | MultiSelectDivider)[];
 	/** From this many selected values the trigger shows a count instead of chips (Directus previewThreshold). */
 	previewThreshold?: number;
 	/** Typed text that matches no item can be added as a value (Directus allowOther). */
@@ -81,33 +84,35 @@ const DESELECT = '__bo_deselect_all__';
 const open = ref(false);
 const search = ref('');
 const value = computed(() => modelValue ?? []);
+const options = computed(() => items.filter((item): item is MultiSelectItem => !('divider' in item)));
 
 // Directus v-select isDisabled.
 const isDisabled = computed(() => disabled && !(nonEditable && value.value.length > 0));
 
 // Selected values that are not items (added with allowOther) stay listed so they can be unchecked.
-const otherValues = computed(() => value.value.filter((val) => !items.some((item) => item.value === val)));
+const otherValues = computed(() => value.value.filter((val) => !options.value.some((item) => item.value === val)));
 
 const addText = computed(() => {
 	const text = search.value.trim();
 	if (!allowOther || !text) return null;
 	const lower = text.toLowerCase();
-	const known = [...items.map((item) => item.text), ...value.value.map(String)];
+	const known = [...options.value.map((item) => item.text), ...value.value.map(String)];
 	return known.some((existing) => existing.toLowerCase() === lower) ? null : text;
 });
 
-const listItems = computed<MultiSelectItem[]>(() => [
-	...items,
+// Dividers are hidden while searching (they would separate filtered-out groups).
+const listItems = computed<(MultiSelectItem | MultiSelectDivider)[]>(() => [
+	...(search.value ? options.value : items),
 	...otherValues.value.map((val) => ({ text: String(val), value: val })),
 ]);
 
 function textFor(val: Value) {
-	return items.find((item) => item.value === val)?.text ?? String(val);
+	return options.value.find((item) => item.value === val)?.text ?? String(val);
 }
 
 // Directus v-select displayValue: "All Items" or the item count once previewThreshold is reached.
 const countText = computed(() =>
-	value.value.length === items.length + otherValues.value.length ? t('all_items') : t('item_count', value.value.length),
+	value.value.length === options.value.length + otherValues.value.length ? t('all_items') : t('item_count', value.value.length),
 );
 
 function onSelect(event: Event, val: Value) {
@@ -216,19 +221,25 @@ const NOTE = 'flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark
 							</ComboboxItem>
 							<div v-if="items.length === 0 && !allowOther" :class="NOTE">{{ t('no_options_available') }}</div>
 							<ComboboxEmpty v-else :class="NOTE">{{ t('no_results') }}</ComboboxEmpty>
-							<ComboboxItem
-								v-for="item in listItems"
-								:key="item.value"
-								:value="item.value"
-								:text-value="item.text"
-								:disabled="item.disabled || nonEditable"
-								:class="ITEM"
-							>
-								<span :class="BOX" aria-hidden="true">
-									<BoIcon name="check" size="sm" class="hidden group-data-[state=checked]:inline" />
-								</span>
-								{{ item.text }}
-							</ComboboxItem>
+							<template v-for="(item, index) in listItems" :key="'divider' in item ? `divider-${index}` : item.value">
+								<ComboboxSeparator
+									v-if="'divider' in item"
+									data-divider
+									class="my-1 h-px bg-gray-200 dark:bg-gray-800"
+								/>
+								<ComboboxItem
+									v-else
+									:value="item.value"
+									:text-value="item.text"
+									:disabled="item.disabled || nonEditable"
+									:class="ITEM"
+								>
+									<span :class="BOX" aria-hidden="true">
+										<BoIcon name="check" size="sm" class="hidden group-data-[state=checked]:inline" />
+									</span>
+									{{ item.text }}
+								</ComboboxItem>
+							</template>
 							<ComboboxItem v-if="addText && !nonEditable" :value="addText" :text-value="addText" :class="ITEM">
 								<BoIcon name="add" size="sm" />
 								{{ addText }}

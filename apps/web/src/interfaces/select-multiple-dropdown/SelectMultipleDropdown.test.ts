@@ -159,12 +159,13 @@ describe('select-multiple-dropdown', () => {
 });
 
 // Like Directus v-select (and the flow trigger scopes of 017): a string choice is its own text and value; a divider
-// entry is dropped.
-test('string choices get their text; divider entries are dropped', () => {
+// entry stays a separator row.
+test('string choices get their text; divider entries stay separators', () => {
 	const wrapper = mountDropdown({ value: null, choices: ['items.create', { divider: true }, 'server.start'] });
 
 	expect(wrapper.findComponent(BoMultiSelect).props('items')).toEqual([
 		{ text: 'items.create', value: 'items.create' },
+		{ divider: true },
 		{ text: 'server.start', value: 'server.start' },
 	]);
 });

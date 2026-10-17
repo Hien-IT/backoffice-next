@@ -1106,6 +1106,11 @@ Mã tiếp theo sau D-91 (014). D-39, D-41, D-43, D-45, D-47, D-49, D-52, D-66, 
 collection-validation` đóng vĩnh viễn theo D-41), D-71, D-72 (phần `directus_settings`, `directus_collections`,
 `directus_roles`, `directus_presets`, `directus_translations`), D-85.
 
+Từ 018 (owner, 2026-10-18): Data Model (danh sách collection hệ thống, tìm kiếm, menu thêm collection) và ma trận quyền
+của policy hiện khóa collection hệ thống là `backoffice_*` (chỉ hiển thị; route, API và dữ liệu vẫn `directus_*`), ghi
+chú chưa dịch dạng `directus_collection.x` không hiện (D-118 của 018); tên collection hệ thống bỏ chữ "Directus "
+("Users", "Activity", D-117 của 018). Xem bảng khác biệt của specs/018-insights-activity-notifications/spec.md.
+
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-92 | Mục "Flows" của sub-menu Settings và `/settings/flows(/*)` | Trình chỉnh sửa flows | Mục hiện, trỏ khung 012 (D-40) | 017 làm trình chỉnh sửa; `directus_flows` của D-72 trỏ cùng chỗ; owner chọn A (Clarifications 2026-10-16) | ngoài phạm vi (tạm thời) | 017: **đã gỡ ở 017** (trình chỉnh sửa flows thật, cùng route) |

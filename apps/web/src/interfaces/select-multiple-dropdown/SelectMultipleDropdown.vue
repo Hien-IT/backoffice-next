@@ -4,7 +4,7 @@
 import { sortBy } from 'lodash-es';
 import { computed, inject } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
-import BoMultiSelect from '../../components/BoMultiSelect.vue';
+import BoMultiSelect, { type MultiSelectDivider } from '../../components/BoMultiSelect.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 
 type Option = {
@@ -44,19 +44,16 @@ const a11y = inject(FORM_FIELD_A11Y, null);
 
 // Backoffice: BoMultiSelect takes string and number values (boolean choice values are not supported).
 // Like Directus v-select, a string choice is its own text and value (the flow trigger scopes are plain strings); a
-// `{ divider: true }` entry is dropped (BoMultiSelect has no divider row).
-const items = computed(
-	() =>
-		((props.choices || []) as (Option | string | { divider: true })[])
-			.filter((choice) => typeof choice === 'string' || !('divider' in choice && choice.divider === true))
-			.map((choice) => (typeof choice === 'string' ? { text: choice, value: choice } : choice)) as (Option & {
-			value: string | number;
-		})[],
+// `{ divider: true }` entry is a separator row.
+const items = computed(() =>
+	((props.choices || []) as (Option | string | MultiSelectDivider)[]).map((choice) =>
+		typeof choice === 'string' ? { text: choice, value: choice } : choice,
+	) as ((Option & { value: string | number }) | MultiSelectDivider)[],
 );
 
 function updateValue(value: string[]) {
 	const sortedValue = sortBy(value, (val) => {
-		const sortIndex = items.value!.findIndex((item) => val === item.value);
+		const sortIndex = items.value!.findIndex((item) => 'value' in item && val === item.value);
 		return sortIndex !== -1 ? sortIndex : value.length;
 	});
 

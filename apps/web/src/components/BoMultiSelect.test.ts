@@ -153,6 +153,28 @@ describe('BoMultiSelect', () => {
 	});
 });
 
+// Directus v-select `{ divider: true }` choice: a separator row, not an option; hidden while searching.
+test('divider items render separators, not options, and do not count as items', async () => {
+	const wrapper = mount(BoMultiSelect, {
+		props: { items: [items[0]!, { divider: true }, items[1]!], modelValue: ['red', 'green'], previewThreshold: 2 },
+		global,
+		attachTo: document.body,
+	});
+	expect(wrapper.get('button').text()).toContain('All Items');
+	await openList(wrapper);
+
+	expect(labels()).toEqual(['Red', 'Green']);
+	expect(document.body.querySelectorAll('[data-divider]')).toHaveLength(1);
+	expect(document.body.querySelector('[data-divider]')!.getAttribute('aria-hidden')).toBe('true');
+
+	const input = document.body.querySelector('input')!;
+	input.value = 'Gr';
+	input.dispatchEvent(new Event('input'));
+	await settle();
+	expect(document.body.querySelectorAll('[data-divider]')).toHaveLength(0);
+	wrapper.unmount();
+});
+
 describe('BoMultiSelect form linking, prepend and nonEditable', () => {
 	test('aria-labelledby and aria-describedby land on the trigger', () => {
 		const wrapper = mount(BoMultiSelect, {
