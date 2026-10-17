@@ -118,3 +118,19 @@ test('the corners follow borderRadius and are all rounded while dragging', async
 	expect(el.className).toContain('rounded-xl');
 	await release();
 });
+
+// In edit mode the tile cannot be selected and starts no native drag (webkit turned a pointer drag over a selection
+// into a native one); out of edit mode both stay as the browser does them.
+test('edit mode: no text selection, no native drag', async () => {
+	const tile = mountTile();
+	expect(tile.classes()).toContain('select-none');
+	const dragstart = new Event('dragstart', { cancelable: true, bubbles: true });
+	tile.element.dispatchEvent(dragstart);
+	expect(dragstart.defaultPrevented).toBe(true);
+
+	await tile.setProps({ editMode: false });
+	expect(tile.classes()).not.toContain('select-none');
+	const outside = new Event('dragstart', { cancelable: true, bubbles: true });
+	tile.element.dispatchEvent(outside);
+	expect(outside.defaultPrevented).toBe(false);
+});

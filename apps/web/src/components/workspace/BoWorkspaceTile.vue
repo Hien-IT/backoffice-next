@@ -6,7 +6,10 @@
 // (`borderRadius`). The tile exposes its cell and size in `data-pos-x/y`, `data-width/height` for the E2E comparison
 // with the Directus app (SC-002). Dragging and resizing are pointer only, as Directus (recorded a11y exceptions, 017
 // FR-106, 018 FR-027); the edit and options buttons are keyboard reachable. Unlike Directus the pointer listeners are
-// always removed on release (an empty edit leaves them attached there; no effect on the data).
+// always removed on release (an empty edit leaves them attached there; no effect on the data). In edit mode the tile
+// is not selectable and starts no native drag (Directus: `user-select: none` only once dragging): on webkit a text
+// selection left by a previous drag turned the next pointer drag into a native one, which stopped the pointer events
+// after the first move (CI run 39076577997).
 import { throttle } from 'lodash-es';
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -241,7 +244,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		:class="[
 			radius,
 			editMode && draggable
-				? 'cursor-move border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600'
+				? 'cursor-move select-none border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600'
 				: 'border-gray-200 dark:border-gray-800',
 			{ 'z-3! border-brand-300! shadow-theme-md select-none dark:border-brand-700!': dragging },
 		]"
@@ -255,6 +258,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		:data-width="positioning.width"
 		:data-height="positioning.height"
 		@pointerdown="onPointerDown($event)"
+		@dragstart="editMode && draggable && $event.preventDefault()"
 	>
 		<div
 			v-if="showHeader"
