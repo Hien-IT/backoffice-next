@@ -7,9 +7,11 @@ import {
 	BUDGET_014,
 	BUDGET_015,
 	BUDGET_016,
+	BUDGET_017,
 	entrySize,
 	LAZY_BUDGETS_015,
 	LAZY_BUDGETS_016,
+	LAZY_BUDGETS_017,
 	LIMIT,
 	lazyChunkSizes,
 	lazyLeaks,
@@ -102,4 +104,14 @@ test('feature 016 budgets: 20 KB over 015, three lazy chunks found by their mark
 	expect(sizes['field drawer']).toBeGreaterThan(0);
 	expect(sizes['app permission data']).toBeGreaterThan(0);
 	expect(sizes['permissions matrix']).toBeNull();
+});
+
+test('feature 017 budgets: 20 KB over 016, three lazy chunks found by their markers', () => {
+	expect(BUDGET_017).toBe(BUDGET_016 + 20 * 1024);
+	expect(BUDGET_017).toBeLessThan(LIMIT);
+	expect(LAZY_BUDGETS_017.map((b) => [b.name, b.limit / 1024])).toEqual([
+		['flow canvas', 60],
+		['operations registry', 25],
+		['flow log drawer', 15],
+	]);
 });

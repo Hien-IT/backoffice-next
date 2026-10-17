@@ -173,7 +173,9 @@ khác, lưu, so lại.
    `flow.operation`. Ví dụ: nối reject của `log` vào điểm nhận của `transform` đang là con resolve của `condition`
    → `condition.resolve` thành null, `log.reject = transform`; nối Trigger vào operation đang có cha → link của cha cũ
    gỡ, `flow.operation` = operation đó.
-7. **Given** menu panel, **When** chọn, **Then** "Duplicate" tạo bản sao không `id`/`resolve`/`reject`, vị trí +2/+2,
+7. **Given** menu panel, **When** chọn, **Then** "Duplicate" tạo bản sao (chép cả panel như Directus `cloneDeep`, gồm
+   trường giao diện `x`, `y`, `width`, `height`, `panel_name`, `user_created`, `date_created`; T003) không
+   `id`/`resolve`/`reject`, `position_x/y` +2/+2,
    key `<key>_<5 chữ a-z>`, vào staging; "Copy To..." mở hộp chọn flow khác (không có → notice `no_other_flows_copy`,
    nút khóa) và gửi ngay `POST /operations` với panel bỏ `id`, `date_created`, `user_created`, `resolve`, `reject`,
    `flow` = đích rồi nạp lại (không qua staging); "Delete" xóa khỏi staging không hộp xác nhận, id thật vào
@@ -183,9 +185,13 @@ khác, lưu, so lại.
    `PATCH /flows/:id` ngay, ngoài staging. Pencil ở operation mở `/settings/flows/:id/<operationId>`.
 9. **Given** có thay đổi, **When** bấm Save hoặc `Ctrl/Cmd+S` (không khi drawer đang mở), **Then** dựng cây từ panel
    gốc với sửa đổi gộp vào, bỏ id tạm; trước hết `PATCH /operations` mảng `{id, resolve: null}` / `{id, reject: null}`
-   cho link cũ sẽ bị nối lại; rồi `PATCH /flows/:id` body `{...stagedFlow, operation: <resolve của Trigger>,
-   operations: {create: [cây không id], update: [cây có id, trừ $trigger], delete: [ids]}}`; nạp lại, xóa staging, về
-   chế độ xem. Không thay đổi → về chế độ xem, không request.
+   chỉ khi một đích đã có cha cùng loại được nối sang cha khác; rồi `PATCH /flows/:id` body `{...stagedFlow,
+   operations: {create, update, delete}, operation}` với dạng thật đã ghi trên Directus app (T003,
+   `payload/baselines/flows-*.json`): `operation` là cây con của Trigger dạng object lồng (không phải id) mỗi khi Trigger
+   có con, gồm cả operation mới; `create` chỉ chứa cây mới không có cha, `update` cây có sẵn không có cha (`$trigger`
+   trừ ra), `delete` mảng id; mỗi nút có `flow` = id flow; nút có sẵn chỉ gửi `{id, flow, <trường đổi>}`; con không có
+   thì không có khóa `resolve`/`reject`, link bị gỡ thì `null`; nạp lại, xóa staging, về chế độ xem. Không thay đổi →
+   về chế độ xem, không request.
 10. **Given** có thay đổi, **When** bấm Clear Changes, **Then** hộp "Unsaved Changes" / `discard_changes_copy` với
     Discard và Keep Editing; không thay đổi thì bỏ ngay. Rời route (ngoài tiền tố `/settings/flows/<id>`) khi
     `stagedPanels` hoặc `panelsToBeDeleted` khác rỗng → hộp `unsaved_changes` (Keep Editing trước, D-76).
@@ -341,9 +347,12 @@ dùng chéo của SC-002.
   kiểm ở client (như Directus); API quyết khi chạy.
 - `flow.operation` trỏ tới operation không thuộc flow hoặc đã xóa ở app khác: panel Trigger không có mũi tên; mọi
   operation là panel lẻ (mờ); không treo.
-- `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB): `getTrees` của Directus đệ quy vô hạn khi Save →
-  app dừng khi gặp lại một id trong đường đi và hiện hộp lỗi (D-105); chế độ xem vẽ bình thường (mũi tên vẫn vẽ);
-  kéo nối trên canvas đã từ chối vòng nên chỉ dữ liệu ngoài tạo được.
+- `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB; T002 kiểm 2026-10-17): Directus app vẽ trang bình thường;
+  Save ném `RangeError` trong `getTrees` trước khối `try` nên không request nào, không hộp lỗi, trang ở chế độ sửa, lỗi
+  chỉ ở console. App làm giống về kết quả: dừng dựng cây khi gặp lại một id (không tràn stack), ghi lỗi console, không
+  request, giữ chế độ sửa (không là khác biệt; mã D-105 bỏ trống). Kéo nối trên canvas đã từ chối vòng nên chỉ dữ liệu
+  ngoài tạo được. Phía API (009, cả Directus và API mới): dữ liệu vòng làm `FlowManager` nạp lỗi và không nạp flow nào
+  nữa tới khi khởi động lại (R-48); test không được tạo dữ liệu vòng trên môi trường dùng chung.
 - Hai operation cùng `position_x/y`: chồng lên nhau như Directus; kéo tách ra.
 - `position_x`/`position_y` là `NOT NULL` trong `directus_operations` (migration `20220429A-add-flows.ts`, đã kiểm
   2026-10-17) nên không có ca vị trí null; vị trí 0 hoặc âm (ghi tay): Directus vẽ ngoài lưới; app giữ, kéo một lần
@@ -526,8 +535,9 @@ dùng chéo của SC-002.
   sửa; có → `getTrees` từ panel gốc, bỏ id tạm, `PATCH /operations [{id, resolve|reject: null}]` cho link cũ sẽ nối
   lại, rồi `PATCH /flows/:id {...stagedFlow, operation, operations: {create, update, delete}}`; `hydrate()`, xóa
   staging, thoát chế độ sửa; `Ctrl/Cmd+S` qua `use-shortcut` (không khi drawer operation hoặc drawer trigger mở);
-  lỗi → hộp lỗi, staging và chế độ sửa giữ, Save lại gửi lại toàn bộ (Edge Cases, R-47). Vòng trong dữ liệu → dừng
-  và hộp lỗi (D-105).
+  lỗi → hộp lỗi, staging và chế độ sửa giữ, Save lại gửi lại toàn bộ (Edge Cases, R-47). Vòng trong dữ liệu → không
+  request, lỗi console, giữ chế độ sửa, như Directus (Edge Cases). Body đúng dạng ghi trên Directus app ở T003
+  (kịch bản US2-9; data-model §6).
 - **FR-031**: Clear Changes và guard PHẢI như kịch bản US2-10 (`use-edits-guard` với `ignorePrefix
   '/settings/flows/<id>'`; `hasEdits` = `stagedPanels` hoặc `panelsToBeDeleted` khác rỗng; `stagedFlow` một mình không
   tính, R-44).
@@ -708,7 +718,7 @@ dùng chéo của SC-002.
   `apps/web/package.json`; không thêm thư viện node-graph hay pan-zoom: canvas là lưới CSS + SVG như Directus).
 - **FR-114**: Tài liệu: spec 016 (D-92 ghi "đã gỡ ở 017"), 014 (D-72 phần `directus_flows`), `CLAUDE.md` Active
   Technologies thêm dòng 017; `SPECKIT-GUIDE.md` ghi chú cho 018 nếu có (ví dụ `/content/directus_operations`);
-  `graphify update .` sau mỗi lượt. D-105, D-106, R-43 đến R-47 và ngoại lệ a11y của canvas (FR-106) được tech lead duyệt
+  `graphify update .` sau mỗi lượt. D-106, R-43 đến R-48 và ngoại lệ a11y của canvas (FR-106) được tech lead duyệt
   trước khi đóng.
 
 ### Key Entities *(include if feature involves data)*
@@ -730,14 +740,13 @@ dùng chéo của SC-002.
 
 ## Khác biệt so với Directus *(mandatory)*
 
-Mã tiếp theo sau D-103 (016); D-104 bỏ trống (đường bàn phím cho canvas: owner chọn giữ như Directus, không phải khác
+Mã tiếp theo sau D-103 (016); D-105 bỏ trống (T002: Directus không treo với dữ liệu vòng, app làm giống); D-104 bỏ trống (đường bàn phím cho canvas: owner chọn giữ như Directus, không phải khác
 biệt). D-39, D-41, D-43, D-45, D-47, D-49, D-52, D-54, D-66, D-68, D-76, D-82, D-99, D-101 áp
 dụng cho mọi màn của 017, không lặp. Gỡ ở 017: D-92 (016), D-72 (phần `directus_flows`, 014). D-34 (009: operation
 `mail` chỉ ghi log) ảnh hưởng hành vi chạy, không ảnh hưởng màn.
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
-| D-105 | `getTrees` khi Save với `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB; `resolve`/`reject` unique nên vòng vẫn tạo được) | Đệ quy vô hạn (treo tab) [Unverified: kiểm T002 bằng dữ liệu vòng] | Dừng khi gặp lại id trong đường đi và hộp lỗi (`showUnexpectedError`), chế độ sửa giữ | Không chép lỗi làm hỏng màn (như D-97); E2E coi `pageerror` là lỗi; T002 thử dữ liệu vòng trên Directus app: treo thì giữ D-105, không treo thì bỏ mã và làm giống | khác | — |
 | D-106 | Form options của operation `mail` trong drawer operation | Chỉ các field của `operations/mail/index.ts` | Thêm `BoNotice` info ở đầu form: Backoffice không gửi email, operation chỉ ghi log và trả thành công (D-34); field và giá trị ghi giữ nguyên | Nguyên tắc X (không gửi email); người dùng cần biết trước khi cấu hình; owner chọn B (Clarifications 2026-10-17) | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên; tech lead xác nhận khi duyệt bảng khác
@@ -758,6 +767,7 @@ biệt, SC-010):
 | R-45 | Drawer log hiện Options của bước Trigger là `flow.options` hiện tại, không phải lúc chạy | `logs-drawer.vue` Directus | Log cũ hiện options mới sau khi sửa trigger; tái tạo | Chờ duyệt |
 | R-46 | "Show Failed Only" lọc client trên trang hiện tại (10 dòng), không đổi request | `logs-sidebar-detail.vue:49-63` Directus | Trang có thể rỗng (`no_logs_on_page`) dù có lần thất bại ở trang khác; tái tạo | Chờ duyệt |
 | R-47 | Save gửi `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id` trong hai request; bước sau lỗi thì DB còn link đã gỡ | `flow.vue:310-384` Directus | Staging giữ nên Save lại khôi phục; tải lại trang trước khi Save lại thì operation thành panel lẻ, nối lại tay; tái tạo | Chờ duyệt |
+| R-48 | Dữ liệu `resolve`/`reject` có vòng làm `FlowManager` của API (Directus 11.17.4 và API mới 009, cùng hành vi) nạp lỗi (`RangeError`) và bỏ nạp mọi flow cho tới khi khởi động lại; flow manual/webhook trả 403 "không tìm thấy" | T002 (2026-10-17): sau khi tạo flow vòng, log cả hai container ghi `Flows have to be loaded before they can be reloaded`, phải `docker restart` | Không do giao diện 017 (canvas từ chối vòng), chỉ dữ liệu ghi tay qua API; tái tạo ở API (V); ghi để test không tạo dữ liệu vòng | Chờ duyệt |
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
@@ -823,7 +833,7 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 - Playwright kéo thả bằng `mouse.move/down/up` với bước nhỏ hoạt động trên pointer events của canvas ở chromium,
   firefox, webkit (014 Kanban đã dùng); nếu webkit flake thì test kéo đánh `test.fixme` cho webkit (FR-100, SC-001).
   Thao tác cảm ứng không có E2E (Edge Cases).
-- D-105, D-106, R-43 đến R-47 và ngoại lệ a11y của canvas chờ tech lead duyệt.
+- D-106, R-43 đến R-48 và ngoại lệ a11y của canvas chờ tech lead duyệt.
 
 ## Success Criteria *(mandatory)*
 
@@ -866,5 +876,5 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   thái khác biệt của spec.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 016 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-105, D-106, R-43 đến R-47 và mục "Cần xác nhận" được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
+- **SC-010**: D-106, R-43 đến R-48 và mục "Cần xác nhận" được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
   "đã gỡ ở 017" ở spec gốc. Duyệt ghi ở bảng trạng thái khác biệt của spec (như 016 T122).

@@ -1,0 +1,47 @@
+[
+	{
+		"method": "PATCH",
+		"path": "/flows/flow:web-e2e-baseline-flow",
+		"body": {
+			"operation": {
+				"flow": "flow:web-e2e-baseline-flow",
+				"id": "condition_*",
+				"reject": {
+					"flow": "flow:web-e2e-baseline-flow",
+					"id": "throw_error_*"
+				},
+				"resolve": null
+			},
+			"operations": {
+				"create": [
+					{
+						"flow": "flow:web-e2e-baseline-flow",
+						"height": 14,
+						"key": "log_*_*",
+						"name": "Log to Console",
+						"options": {},
+						"panel_name": "Log to Console",
+						"position_x": 39,
+						"position_y": 3,
+						"type": "log",
+						"user_created": "<uuid>",
+						"width": 14,
+						"x": 37,
+						"y": 1
+					}
+				],
+				"delete": [
+					"log_*"
+				],
+				"update": [
+					{
+						"flow": "flow:web-e2e-baseline-flow",
+						"id": "transform_*",
+						"position_x": 58,
+						"position_y": 4
+					}
+				]
+			}
+		}
+	}
+]

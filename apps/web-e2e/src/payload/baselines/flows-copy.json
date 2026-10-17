@@ -1,0 +1,20 @@
+[
+	{
+		"method": "POST",
+		"path": "/operations",
+		"body": {
+			"flow": "flow:web-e2e-baseline-target",
+			"height": 14,
+			"key": "log_*_*",
+			"name": "Log to Console",
+			"options": {},
+			"panel_name": "Log to Console",
+			"position_x": 39,
+			"position_y": 3,
+			"type": "log",
+			"width": 14,
+			"x": 39,
+			"y": 3
+		}
+	}
+]

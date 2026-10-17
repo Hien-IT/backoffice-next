@@ -58,7 +58,7 @@ const ID = '[^/]+';
 
 /**
  * The closed list of API requests of the web app: specs/012-backoffice-web-shell/contracts/api-calls.md (#1-#32) and
- * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96) and 015 (rows 97 to 136), on method and path
+ * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96), 015 (rows 97 to 136), 016 and 017 (rows 178 to 184), on method and path
  * (query ignored). Same idea as
  * apps/web-e2e/src/helpers/allowed-paths.ts, which only lists what the 012 pages send.
  */
@@ -177,6 +177,12 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 176, method: 'POST', path: /^\/translations$/ },
 	{ id: 176, method: 'PATCH', path: new RegExp(`^/translations(/${ID})?$`) },
 	{ id: 176, method: 'DELETE', path: new RegExp(`^/translations(/${ID})?$`) },
+	// Feature 017 (specs/017-flows-editor/contracts/api-calls.md rows 178 to 184; GET /revisions is #55).
+	{ id: 178, method: 'POST', path: /^\/flows$/ },
+	{ id: 179, method: 'PATCH', path: new RegExp(`^/flows/${ID}$`) },
+	{ id: 180, method: 'DELETE', path: new RegExp(`^/flows/${ID}$`) },
+	{ id: 181, method: 'PATCH', path: /^\/operations$/ },
+	{ id: 182, method: 'POST', path: /^\/operations$/ },
 ];
 
 /**
@@ -216,6 +222,8 @@ const ENDPOINTS: Record<string, string> = {
 	revisions: 'directus_revisions',
 	// Feature 015.
 	roles: 'directus_roles',
+	// Feature 017.
+	operations: 'directus_operations',
 };
 
 class ApiError extends Error {
@@ -318,14 +326,37 @@ export function mockFixtureApi(
 			...(snapshot.directoryFolders ?? []),
 		],
 		directus_roles: (snapshot.roles ?? []) as Row[],
-		directus_flows: snapshot.flows as Row[],
+		// Feature 017: the editor flows with their operations expanded, as the flows store reads them (`operations.*`).
+		directus_flows: [
+			...(snapshot.flows as Row[]),
+			...(snapshot.editorFlows ?? []).map((flow) => ({
+				...flow,
+				operations: (snapshot.operations ?? []).filter((operation) => operation['flow'] === flow.id),
+			})),
+		],
+		directus_operations: (snapshot.operations ?? []) as Row[],
 		directus_presets: (snapshot.presets ?? []) as Row[],
 		directus_translations: [],
 		directus_notifications: [],
 		directus_versions: (snapshot.versions ?? []) as Row[],
 		directus_shares: (snapshot.shares ?? []) as Row[],
 		directus_comments: (snapshot.comments ?? []) as Row[],
-		directus_revisions: Object.values(snapshot.revisions ?? {}).flat() as Row[],
+		directus_revisions: [
+			...(Object.values(snapshot.revisions ?? {}).flat() as Row[]),
+			// Feature 017: the three runs of bo_all_ops as the Logs section reads them (one minute apart, newest last).
+			...(snapshot.flowRuns ?? []).map((run, index) => ({
+				id: 9000 + index,
+				collection: 'directus_flows',
+				item: snapshot.editorFlows?.find((flow) => flow.name === 'bo_all_ops')?.id,
+				version: null,
+				activity: { action: 'run', timestamp: `2026-10-17T09:0${index}:00.000Z` },
+				data: {
+					steps: run.steps.map((step) => ({ ...step, options: {} })),
+					data: { $trigger: { body: { reason: run.reason } }, $accountability: { role: null, user: null } },
+				},
+				delta: null,
+			})),
+		],
 	};
 
 	/* ---------------------------------------------------------------- permissions */

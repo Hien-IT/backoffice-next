@@ -133,6 +133,12 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 176, method: 'POST', path: /^\/translations$/ },
 	{ id: 176, method: 'PATCH', path: new RegExp(`^/translations(/${ID})?$`) },
 	{ id: 176, method: 'DELETE', path: new RegExp(`^/translations(/${ID})?$`) },
+	// Feature 017 (specs/017-flows-editor/contracts/api-calls.md rows 178 to 184; GET /revisions is #55).
+	{ id: 178, method: 'POST', path: /^\/flows$/ },
+	{ id: 179, method: 'PATCH', path: new RegExp(`^/flows/${ID}$`) },
+	{ id: 180, method: 'DELETE', path: new RegExp(`^/flows/${ID}$`) },
+	{ id: 181, method: 'PATCH', path: /^\/operations$/ },
+	{ id: 182, method: 'POST', path: /^\/operations$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

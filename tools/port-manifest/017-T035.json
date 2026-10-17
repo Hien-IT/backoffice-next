@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/overview.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/FlowsOverviewRoute.vue"
+	}
+]

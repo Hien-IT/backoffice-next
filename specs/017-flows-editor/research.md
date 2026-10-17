@@ -66,12 +66,12 @@ trong web (thêm gói); phụ thuộc `@backoffice/errors` (cần build `dist`, 
 (`grid-template-columns: repeat(auto, 18px)`) thay `position: absolute` (Directus dùng absolute theo px; giữ để so vị
 trí pixel với Directus app trong E2E dùng chéo).
 
-## R4. Staging và `saveChanges` (FR-027 đến FR-031, D-105)
+## R4. Staging và `saveChanges` (FR-027 đến FR-031)
 
 **Quyết định**: chép logic `flow.vue` (`stagedPanels`, `panelsToBeDeleted`, `stagedFlow`, `stageOperation`,
 `createOperation`, `duplicateOperation`, `deleteOperation`, `getTrees`, `saveChanges`, `onLink`, `onDrag`,
 `isLoner`) sang composable `use-flow-editor.ts` (một file, có test unit cho 12 kịch bản SC-006) để `FlowRoute.vue` chỉ
-còn template; `getTrees` thêm `Set` id đã thăm, gặp lại → ném lỗi → `showUnexpectedError` (D-105). Body `PATCH
+còn template; `getTrees` thêm `Set` id đã thăm, gặp lại → `console.error` và dừng Save trước mọi request, như kết quả quan sát của Directus (T002; D-105 bỏ). Body `PATCH
 /flows/:id` giữ thứ tự khóa của Directus (`...stagedFlow`, `operations`, `operation`) cho dễ đọc; bộ so payload so
 object không theo thứ tự khóa (CHK020). Save lỗi: staging giữ, Save lại gửi lại cả hai request (R-47).
 
@@ -174,7 +174,7 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 | Lượt | Nội dung | Kiểm |
 |------|----------|------|
 | 1 | Phase 1 (kiểm, mốc Directus app T003, recipe nháp Q-29..Q-33, ngoại lệ a11y), Phase 2 (registry, triggers, workspace, bộ mẫu), route, `FlowsOverviewRoute`, `FlowDrawer`, `triggers.ts`, `settings-flows-overview.spec.ts` | US1; test unit/browser; E2E ba cấu hình |
-| 2 | `BoWorkspace*`, `Operation.vue`, `Arrows.vue` + lib port + test, `use-flow-editor.ts`, `FlowRoute.vue`, `OperationDetail.vue`, registry 15 operation + script trích + test so nguồn, `ExtensionOptions type operation`, D-105, D-106, `settings-flows-editor.spec.ts`, `settings-flows-operations.spec.ts` | US2, US3; SC-006 |
+| 2 | `BoWorkspace*`, `Operation.vue`, `Arrows.vue` + lib port + test, `use-flow-editor.ts`, `FlowRoute.vue`, `OperationDetail.vue`, registry 15 operation + script trích + test so nguồn, `ExtensionOptions type operation`, D-106, `settings-flows-editor.spec.ts`, `settings-flows-operations.spec.ts` | US2, US3; SC-006 |
 | 3 | `LogsSidebarDetail`, `LogsDrawer`, `settings-flows-logs.spec.ts`, `settings-flows-manual.spec.ts`, fixture `bo_flows` + log mẫu, `hydrate()` sau ghi | US4, US5 |
 | 4 | `payload/flows.spec.ts`, `FLOWS_TABLES`, `settings-flows-cross-use.spec.ts`, `settings-parity-ui` mở rộng, perf, bundle `BUDGET_017`, axe, ngoại lệ a11y trong `handoff-checklist.md`, docs (spec 014/016 "đã gỡ ở 017", `CLAUDE.md`, `SPECKIT-GUIDE.md`), duyệt D/R | US6; SC-002..SC-010 |
 
@@ -215,3 +215,28 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 | `directus_operations` | `position_x/y` NOT NULL, `resolve`/`reject` unique, `key` không unique (`20220429A-add-flows.ts`) | spec Edge Cases |
 | `trigger-detail.vue` | không được import | không port |
 | Nút chạy thủ công | `use-run-manual-flow.ts`, `FlowSidebarDetail.vue`, `FlowDialogs.vue` (014) dùng ở `CollectionRoute`, `ItemRoute`, `DrawerItem`, `presentation-*` | không đổi |
+
+## Kết quả kiểm T002 (2026-10-17)
+
+- Dữ liệu: flow `web-e2e-t002-cycle` (manual, `bo_content`), hai operation log `a`, `b`, `a.resolve = b`, `b.resolve = a`
+  (`PATCH /operations` nhận), `flow.operation = a`. Trang `/admin/settings/flows/<id>` của Directus app 8155 mở bình
+  thường: 3 panel, mũi tên vẽ cả vòng.
+- Edit Flow, kéo panel `b` 3 ô mỗi trục (`--pos-x` 37 → 40, `--pos-y` 1 → 4), Save: tab không treo (`page.evaluate`
+  trả lời sau 3 ms). Console có `RangeError: Maximum call stack size exceeded` (từ `Array.find` trong đệ quy dựng cây)
+  dưới dạng warning `[app-private-view-header-bar-action-button-error]` của Vue.
+- Không có request ghi nào (không `PATCH /operations`, không `PATCH /flows/:id`); không hộp lỗi, không thông báo; trang
+  ở lại chế độ sửa; DB không đổi (`position_x/y` của `b` vẫn 37/1). Flow thử đã xóa.
+
+## Kết quả T001 và T003 (2026-10-17)
+
+- T001: môi trường parity (Directus 8155, API mới 8156, proxy 8160–8163, web 8180/8181) đang chạy; bảng "Kết quả kiểm"
+  ở trên xác nhận lại bằng đọc code, không đổi.
+- Hậu quả của T002 trên môi trường dùng chung: sau khi tạo flow vòng, `FlowManager` của Directus và của API mới cùng
+  nạp lỗi (`RangeError`) và bỏ nạp mọi flow (log `Flows have to be loaded before they can be reloaded`); manual trigger
+  trả 403. Khởi động lại ba container API (`directus`, `backoffice-api`, `backoffice-api-web-cors`) thì hết. Ghi R-48;
+  test không tạo dữ liệu vòng.
+- T003: `apps/web-e2e/src/payload/flows-baselines.spec.ts` (chạy với `RECORD_BASELINES=1`, như 016) ghi
+  `payload/baselines/flows-{create,save,edit,copy}.json`; `helpers/payload.ts` ghi thêm `/flows`, `/operations`. Dạng
+  body thật đã đưa vào data-model §6 và spec US2-7, US2-9: `operation` là cây object lồng, `create`/`update` chỉ chứa
+  cây không cha, `flow` ở mọi nút, nút có sẵn chỉ gửi trường đổi, nhân bản chép cả trường giao diện của panel.
+

@@ -104,24 +104,39 @@ Kích thước canvas (ô lưới, hai trục): sửa `(x + width + 25) × 18` p
 
 Hàm: `stageOperation(op)` (mới → id tạm, link cha, vị trí; có sẵn → gộp), `duplicateOperation(id)`, `copyTo(id,
 flowId)` (`POST /operations` ngay), `deleteOperation(id)` (R-43), `onDrag(panelId, {x,y})` (throttle 20 ms),
-`onLink(from, type, to | null)` (từ chối vòng, gỡ link cũ của đích), `getTrees()` (`Set` đã thăm → lỗi D-105),
+`onLink(from, type, to | null)` (từ chối vòng, gỡ link cũ của đích), `getTrees()` (`Set` đã thăm → `console.error`, Save dừng trước mọi request, như Directus; T002),
 `saveChanges()`, `clearChanges()`.
 
-Body Save (`PATCH /flows/:id`):
+Body Save (`PATCH /flows/:id`), dạng ghi trên Directus app ở T003 (`apps/web-e2e/src/payload/baselines/flows-*.json`):
 
 ```json
 {
-  "status": "<stagedFlow.status nếu có>",
+  "status": "<chỉ khi stagedFlow có>",
   "operations": {
-    "create": [ { "name", "key", "type", "position_x", "position_y", "options", "resolve": { …cây con… } | null, "reject": … } ],
-    "update": [ { "id", …trường đổi…, "resolve": { "id" | cây } | null, "reject": … } ],
+    "create": [ { "flow", "name", "key", "type", "position_x", "position_y", "options", "resolve"?: { …cây… }, "reject"?: … } ],
+    "update": [ { "id", "flow", …chỉ trường đổi…, "resolve"?: { "id", "flow" } | null, "reject"?: … } ],
     "delete": [ "<id>" ]
   },
-  "operation": "<id operation đầu>" | { …cây mới… } | null
+  "operation": { …cây con của Trigger… }
 }
 ```
 
-Trước đó `PATCH /operations` `[{ "id", "resolve": null }, { "id", "reject": null }]` cho link cũ sẽ nối lại.
+- `operation` có mặt khi Trigger có con và là object lồng (không bao giờ là id), kể cả khi link của Trigger không đổi:
+  nút mới đầy đủ trường, nút có sẵn `{id, flow}` cộng trường đổi. Vì vậy operation mới thêm từ Trigger nằm trong
+  `operation`, còn `create`/`update` chỉ chứa cây không có cha (`[]` nếu không có).
+- Mọi nút có `flow`. Con không có thì không có khóa `resolve`/`reject`; link bị gỡ thì `null`.
+- Nhân bản chép cả panel (Directus `cloneDeep`): thêm `x`, `y`, `width`, `height`, `panel_name`, `user_created`,
+  `date_created`; `x`/`y` giữ vị trí cũ, `position_x/y` +2; key `<key>_<5 a-z>`.
+- Vị trí: operation đầu từ Trigger (19, 1); con resolve `(x+18, y)`; con reject `(x+18, y+16)`.
+- `PATCH /operations` `[{ "id", "resolve": null } | { "id", "reject": null }]` chỉ khi một đích đã có cha cùng loại được
+  nối sang cha khác; tháo rồi nối lại cùng đích hay xóa panel không gửi request này.
+- Thứ tự khóa: `...stagedFlow`, `operations`, `operation` (`flow.vue:323-334`); bộ so payload không so thứ tự khóa.
+
+Copy To (`POST /operations`): panel như đang hiển thị (gồm `x`, `y`, `width`, `height`, `panel_name`, cùng `key`), bỏ
+`id`, `resolve`, `reject`, `date_created`, `user_created`, `flow` = flow đích.
+
+Tạo flow (`POST /flows?fields[]=id` ở Directus; SDK gửi `fields=id`): `{accountability, color, description, icon, name,
+options, status, trigger}`.
 
 ## 7. Mũi tên (`arrows/*`)
 

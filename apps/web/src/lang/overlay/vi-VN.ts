@@ -53,4 +53,6 @@ export default {
 	theme_directus_colormatch: 'Backoffice Khớp màu',
 	// Feature 015 (D-88, CHK042): note under the system-theme list.
 	theme_applies_in_directus: 'Theme được lưu vào hồ sơ. Giao diện Backoffice không đổi.',
+	// Feature 017 (D-106).
+	operations_mail_not_sent_notice: 'Backoffice không gửi email. Operation này chỉ ghi log và trả kết quả thành công.',
 };

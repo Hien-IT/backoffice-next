@@ -9,6 +9,8 @@
 // directory users of lib.mjs (one per status, a token user, an SSO user).
 // Feature 016 (data-model §15, T019) adds the Settings set of lib.mjs SETTINGS: a role and an app-access policy with three
 // permissions on bo_std, and the `bo_hello` custom translation.
+// Feature 017 (data-model §9, T014) adds the flows of lib.mjs FLOWS, saved the way the flows editor saves them (flow
+// first, then the operation trees in one PATCH), and three runs of `bo_all_ops` (two resolve, one reject).
 // Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
 // `--clean` only deletes the fixture set and exits.
 import {
@@ -18,6 +20,7 @@ import {
 	FILES_FOLDERS,
 	FIXED_UUIDS,
 	FLOW,
+	FLOWS,
 	FOLDER,
 	query,
 	readArgs,
@@ -79,7 +82,9 @@ async function cleanup() {
 		await api.request('DELETE', '/folders', ids);
 	}
 
-	const flows = await api.get(`/flows${query({ filter: { name: { _in: [FLOW, ...CONTENT_FLOWS] } }, fields: 'id' })}`);
+	const flows = await api.get(
+		`/flows${query({ filter: { name: { _in: [FLOW, ...CONTENT_FLOWS, ...Object.values(FLOWS)] } }, fields: 'id' })}`,
+	);
 	if (flows.length > 0)
 		await api.request(
 			'DELETE',
@@ -1891,7 +1896,10 @@ async function createFilesFixtures({ users }) {
 	};
 
 	// 400x300 PNG with four colored quadrants, the image of SC-006 (crop and rotate compared pixel by pixel).
-	const quadrant = (color) => sharp({ create: { width: 200, height: 150, channels: 3, background: color } }).png().toBuffer();
+	const quadrant = (color) =>
+		sharp({ create: { width: 200, height: 150, channels: 3, background: color } })
+			.png()
+			.toBuffer();
 	const png = await sharp({ create: { width: 400, height: 300, channels: 3, background: WHITE } })
 		.composite([
 			{ input: await quadrant(PURPLE), left: 0, top: 0 },
@@ -1929,7 +1937,11 @@ async function createFilesFixtures({ users }) {
 	await api.request('PATCH', `/files/${old}`, { uploaded_on: oldDate });
 	await api.request('PATCH', `/files/${old}`, { uploaded_by: users['bo-editor'].user }).catch(() => {});
 
-	const subRole = await api.request('POST', '/roles', { name: SUB_ROLE, icon: 'supervisor_account', parent: users['bo-editor'].role });
+	const subRole = await api.request('POST', '/roles', {
+		name: SUB_ROLE,
+		icon: 'supervisor_account',
+		parent: users['bo-editor'].role,
+	});
 
 	for (const [key, user] of Object.entries(DIRECTORY_USERS)) {
 		await api.request('POST', '/users', {
@@ -1941,6 +1953,256 @@ async function createFilesFixtures({ users }) {
 			...(key === 'bo-token' && { token: 'bo-token-fixture-value' }),
 			...(key === 'bo-sso' && { provider: 'oidc', external_identifier: 'bo-sso-subject' }),
 			...(key === 'bo-active' && { title: 'Fixture lead', location: 'Ha Noi' }),
+		});
+	}
+}
+
+/* ---------------------------------------------------------------- flows (017) */
+
+/**
+ * One operation node of a tree as the flows editor sends it (Directus flow.vue saveChanges): `flow` on every node, the
+ * children nested in `resolve` / `reject`, no key for a missing child.
+ */
+function op(flow, key, type, [x, y], options, children = {}) {
+	return { flow, name: null, key, type, position_x: x, position_y: y, options, ...children };
+}
+
+/** Creates a flow, then its operations in one PATCH: `operation` is the tree under the trigger, `create` the loners. */
+async function createFlow(flow, tree = null, loners = []) {
+	const { id } = await api.request('POST', '/flows?fields=id', {
+		icon: 'bolt',
+		color: null,
+		description: null,
+		status: 'active',
+		accountability: 'all',
+		...flow,
+	});
+
+	const operations = { create: loners.map((build) => build(id)), update: [], delete: [] };
+	await api.request('PATCH', `/flows/${id}`, { operations, ...(tree ? { operation: tree(id) } : {}) });
+	return id;
+}
+
+/** POST /flows/trigger/:id, retried while the API has not loaded the new flow yet (bus reload, CHK049). */
+async function runFlow(id, body) {
+	for (let attempt = 1; ; attempt++) {
+		try {
+			return await api.request('POST', `/flows/trigger/${id}`, body);
+		} catch (error) {
+			if (attempt >= 10) throw error;
+			await new Promise((resolve) => setTimeout(resolve, 500));
+		}
+	}
+}
+
+async function createFlowsFixtures() {
+	const log = (flow, key, at, message, children) => op(flow, key, 'log', at, { message }, children);
+
+	const child = await createFlow({ name: FLOWS.child, trigger: 'operation', options: { return: '$last' } }, (f) =>
+		log(f, 'child_log', [19, 1], 'Child flow'),
+	);
+
+	// Only the resolve chain and the reject of `condition` run; the operations with side effects hang under the reject of
+	// `log`, which never rejects (CHK006).
+	const all = await createFlow(
+		{
+			name: FLOWS.all,
+			icon: 'account_tree',
+			description: 'Every built-in operation',
+			trigger: 'manual',
+			options: {
+				collections: ['bo_content'],
+				location: 'both',
+				requireSelection: true,
+				requireConfirmation: true,
+				confirmationDescription: 'Run every operation?',
+				fields: [
+					{
+						field: 'reason',
+						type: 'string',
+						name: 'Reason',
+						meta: { interface: 'input', width: 'full', required: true },
+					},
+				],
+			},
+		},
+		(f) =>
+			op(
+				f,
+				'condition',
+				'condition',
+				[19, 1],
+				{ filter: { $trigger: { body: { reason: { _neq: 'fail' } } } } },
+				{
+					resolve: log(f, 'log', [37, 1], 'Reason: {{ $trigger.body.reason }}', {
+						resolve: op(
+							f,
+							'transform',
+							'transform',
+							[55, 1],
+							{ json: { ok: true } },
+							{
+								resolve: op(
+									f,
+									'sleep',
+									'sleep',
+									[73, 1],
+									{ milliseconds: 10 },
+									{
+										resolve: op(
+											f,
+											'json_web_token',
+											'json-web-token',
+											[91, 1],
+											{ operation: 'sign', payload: { a: 1 }, secret: 'bo-secret', options: { expiresIn: '1h' } },
+											{
+												resolve: op(
+													f,
+													'item_read',
+													'item-read',
+													[109, 1],
+													{ collection: 'bo_content', key: ['1'], permissions: '$full', emitEvents: false },
+													{
+														resolve: op(
+															f,
+															'exec',
+															'exec',
+															[127, 1],
+															{ code: 'module.exports = async function(data) {\n\treturn { done: true };\n}' },
+															{
+																resolve: op(f, 'trigger', 'trigger', [145, 1], {
+																	flow: child,
+																	iterationMode: 'serial',
+																	payload: { from: 'bo_all_ops' },
+																}),
+															},
+														),
+													},
+												),
+											},
+										),
+									},
+								),
+							},
+						),
+						reject: op(
+							f,
+							'item_create',
+							'item-create',
+							[55, 17],
+							{ collection: 'bo_content', permissions: '$trigger', emitEvents: false, payload: { title: 'never' } },
+							{
+								resolve: op(
+									f,
+									'item_update',
+									'item-update',
+									[73, 17],
+									{
+										collection: 'bo_content',
+										permissions: '$trigger',
+										emitEvents: false,
+										key: ['1'],
+										payload: { title: 'never' },
+									},
+									{
+										resolve: op(
+											f,
+											'item_delete',
+											'item-delete',
+											[91, 17],
+											{ collection: 'bo_content', permissions: '$trigger', emitEvents: false, key: ['999999'] },
+											{
+												resolve: op(
+													f,
+													'request',
+													'request',
+													[109, 17],
+													{ method: 'GET', url: 'http://127.0.0.1/' },
+													{
+														resolve: op(
+															f,
+															'mail',
+															'mail',
+															[127, 17],
+															{ to: ['bo@example.com'], subject: 'Never sent', type: 'markdown', body: 'Hello' },
+															{
+																resolve: op(f, 'notification', 'notification', [145, 17], {
+																	recipient: ['00000000-0000-0000-0000-000000000000'],
+																	permissions: '$trigger',
+																	subject: 'Never',
+																	message: 'Never',
+																}),
+															},
+														),
+													},
+												),
+											},
+										),
+									},
+								),
+							},
+						),
+					}),
+					reject: op(f, 'throw_error', 'throw-error', [37, 17], {
+						code: 'FORBIDDEN',
+						status: '403',
+						message: 'Reason is fail',
+					}),
+				},
+			),
+	);
+
+	await createFlow(
+		{
+			name: FLOWS.webhook,
+			icon: 'link',
+			trigger: 'webhook',
+			options: { method: 'GET', async: false, cacheEnabled: true },
+		},
+		(f) =>
+			op(
+				f,
+				'transform',
+				'transform',
+				[19, 1],
+				{ json: { hook: true } },
+				{ resolve: log(f, 'log', [37, 1], 'Webhook') },
+			),
+	);
+
+	await createFlow(
+		{
+			name: FLOWS.schedule,
+			icon: 'schedule',
+			status: 'inactive',
+			trigger: 'schedule',
+			options: { cron: '0 0 * * * *' },
+		},
+		(f) => log(f, 'log', [19, 1], 'Schedule'),
+	);
+
+	await createFlow(
+		{
+			name: FLOWS.event,
+			icon: 'anchor',
+			accountability: null,
+			trigger: 'event',
+			options: { type: 'action', scope: ['items.create'], collections: ['bo_content'] },
+		},
+		(f) => log(f, 'log', [19, 1], 'Created'),
+	);
+
+	// A loner operation and one of a type no app registers (Edge Cases: unknown type).
+	await createFlow(
+		{ name: FLOWS.orphan, trigger: 'manual', options: { collections: ['bo_std'], location: 'item' } },
+		null,
+		[(f) => log(f, 'loner', [19, 1], 'Not linked'), (f) => op(f, 'unknown', 'bo-unknown', [37, 1], { anything: true })],
+	);
+
+	// Three runs for the Logs section: two resolve, one reject (throw-error).
+	for (const reason of ['first', 'second', 'fail']) {
+		await runFlow(all, { collection: 'bo_content', keys: ['1'], reason }).catch((error) => {
+			if (reason !== 'fail') throw error;
 		});
 	}
 }
@@ -1961,7 +2223,15 @@ async function createSettingsFixtures({ users }) {
 	});
 
 	await api.request('POST', '/permissions', [
-		{ policy: policy.id, collection: 'bo_std', action: 'read', fields: ['*'], permissions: {}, validation: null, presets: null },
+		{
+			policy: policy.id,
+			collection: 'bo_std',
+			action: 'read',
+			fields: ['*'],
+			permissions: {},
+			validation: null,
+			presets: null,
+		},
 		{
 			policy: policy.id,
 			collection: 'bo_std',
@@ -2059,6 +2329,7 @@ await createItems({ files, users });
 await createContentFixtures({ users, files, geometry });
 await createFilesFixtures({ users });
 await createSettingsFixtures({ users });
+await createFlowsFixtures();
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

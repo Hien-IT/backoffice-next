@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/components/v-workspace.vue",
+		"dest": "apps/web/src/components/workspace/BoWorkspace.vue"
+	},
+	{
+		"source": "app/src/components/v-workspace-tile.vue",
+		"dest": "apps/web/src/components/workspace/BoWorkspaceTile.vue"
+	}
+]

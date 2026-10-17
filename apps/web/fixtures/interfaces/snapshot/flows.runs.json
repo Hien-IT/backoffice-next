@@ -1,0 +1,107 @@
+[
+	{
+		"reason": "first",
+		"steps": [
+			{
+				"operation": "bo-70",
+				"key": "condition",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-80",
+				"key": "log",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-90",
+				"key": "transform",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-94",
+				"key": "sleep",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-89",
+				"key": "json_web_token",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-88",
+				"key": "item_read",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-82",
+				"key": "exec",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-83",
+				"key": "trigger",
+				"status": "resolve"
+			}
+		]
+	},
+	{
+		"reason": "second",
+		"steps": [
+			{
+				"operation": "bo-70",
+				"key": "condition",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-80",
+				"key": "log",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-90",
+				"key": "transform",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-94",
+				"key": "sleep",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-89",
+				"key": "json_web_token",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-88",
+				"key": "item_read",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-82",
+				"key": "exec",
+				"status": "resolve"
+			},
+			{
+				"operation": "bo-83",
+				"key": "trigger",
+				"status": "resolve"
+			}
+		]
+	},
+	{
+		"reason": "fail",
+		"steps": [
+			{
+				"operation": "bo-70",
+				"key": "condition",
+				"status": "reject"
+			},
+			{
+				"operation": "bo-81",
+				"key": "throw_error",
+				"status": "reject"
+			}
+		]
+	}
+]

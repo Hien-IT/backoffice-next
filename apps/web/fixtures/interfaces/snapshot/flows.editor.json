@@ -1,0 +1,115 @@
+[
+	{
+		"id": "bo-69",
+		"name": "bo_all_ops",
+		"icon": "account_tree",
+		"color": null,
+		"description": "Every built-in operation",
+		"status": "active",
+		"trigger": "manual",
+		"options": {
+			"collections": [
+				"bo_content"
+			],
+			"location": "both",
+			"requireSelection": true,
+			"requireConfirmation": true,
+			"confirmationDescription": "Run every operation?",
+			"fields": [
+				{
+					"field": "reason",
+					"type": "string",
+					"name": "Reason",
+					"meta": {
+						"interface": "input",
+						"width": "full",
+						"required": true
+					}
+				}
+			]
+		},
+		"accountability": "all",
+		"operation": "bo-70"
+	},
+	{
+		"id": "bo-71",
+		"name": "bo_child",
+		"icon": "bolt",
+		"color": null,
+		"description": null,
+		"status": "active",
+		"trigger": "operation",
+		"options": {
+			"return": "$last"
+		},
+		"accountability": "all",
+		"operation": "bo-72"
+	},
+	{
+		"id": "bo-73",
+		"name": "bo_event",
+		"icon": "anchor",
+		"color": null,
+		"description": null,
+		"status": "active",
+		"trigger": "event",
+		"options": {
+			"type": "action",
+			"scope": [
+				"items.create"
+			],
+			"collections": [
+				"bo_content"
+			]
+		},
+		"accountability": null,
+		"operation": "bo-74"
+	},
+	{
+		"id": "bo-75",
+		"name": "bo_orphan",
+		"icon": "bolt",
+		"color": null,
+		"description": null,
+		"status": "active",
+		"trigger": "manual",
+		"options": {
+			"collections": [
+				"bo_std"
+			],
+			"location": "item"
+		},
+		"accountability": "all",
+		"operation": null
+	},
+	{
+		"id": "bo-76",
+		"name": "bo_schedule",
+		"icon": "schedule",
+		"color": null,
+		"description": null,
+		"status": "inactive",
+		"trigger": "schedule",
+		"options": {
+			"cron": "0 0 * * * *"
+		},
+		"accountability": "all",
+		"operation": "bo-77"
+	},
+	{
+		"id": "bo-78",
+		"name": "bo_webhook",
+		"icon": "link",
+		"color": null,
+		"description": null,
+		"status": "active",
+		"trigger": "webhook",
+		"options": {
+			"method": "GET",
+			"async": false,
+			"cacheEnabled": true
+		},
+		"accountability": "all",
+		"operation": "bo-79"
+	}
+]

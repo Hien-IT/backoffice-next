@@ -18,10 +18,10 @@ khác ở #183–#184).
 | # | Method | Path | Ai gọi | Body | Ghi chú |
 |---|--------|------|--------|------|---------|
 | 178 | POST | `/flows` | `FlowDrawer` (tạo) | `{name, icon, color, description, status, accountability, trigger, options}`; query `fields=id` | sau đó #33 |
-| 179 | PATCH | `/flows/<id>` | `FlowDrawer` (sửa, cả body như #178); `FlowsOverviewRoute` menu (`{status}`); `FlowRoute` Save (`{...stagedFlow, operations: {create, update, delete}, operation}`); pencil Trigger (cả body) | | sau đó #33 |
+| 179 | PATCH | `/flows/<id>` | `FlowDrawer` (sửa, cả body như #178); `FlowsOverviewRoute` menu (`{status}`); `FlowRoute` Save (`{...stagedFlow, operations: {create, update, delete}, operation}`, dạng ở data-model §6); pencil Trigger (cả body) | | sau đó #33 |
 | 180 | DELETE | `/flows/<id>` | `FlowsOverviewRoute`, `FlowRoute` | | sau đó #33; trang flow về danh sách kể cả khi lỗi |
 | 181 | PATCH | `/operations` | `FlowRoute` Save (trước #179) | `[{id, resolve: null} \| {id, reject: null}]` | chỉ khi có link cũ sẽ nối lại |
-| 182 | POST | `/operations` | `CopyToDialog` | panel bỏ `id`, `date_created`, `user_created`, `resolve`, `reject`; `flow = <đích>` | ngay, không staging; sau đó #33 |
+| 182 | POST | `/operations` | `CopyToDialog` | panel bỏ `id`, `date_created`, `user_created`, `resolve`, `reject` (giữ `x`, `y`, `width`, `height`, `panel_name`, `key`); `flow = <đích>` | ngay, không staging; sau đó #33 |
 
 Không có request nào khác trong E2E (SC-009). Fixture seed (`seed.mjs`) gọi thêm `POST /flows` với `operations` lồng
 dạng cây, `POST /flows/trigger/<id>` và `DELETE /flows` mảng; không thuộc allowlist của app.

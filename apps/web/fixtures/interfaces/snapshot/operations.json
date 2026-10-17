@@ -1,0 +1,369 @@
+[
+	{
+		"id": "bo-70",
+		"flow": "bo-69",
+		"name": null,
+		"key": "condition",
+		"type": "condition",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"filter": {
+				"$trigger": {
+					"body": {
+						"reason": {
+							"_neq": "fail"
+						}
+					}
+				}
+			}
+		},
+		"resolve": "bo-80",
+		"reject": "bo-81"
+	},
+	{
+		"id": "bo-82",
+		"flow": "bo-69",
+		"name": null,
+		"key": "exec",
+		"type": "exec",
+		"position_x": 127,
+		"position_y": 1,
+		"options": {
+			"code": "module.exports = async function(data) {\n\treturn { done: true };\n}"
+		},
+		"resolve": "bo-83",
+		"reject": null
+	},
+	{
+		"id": "bo-84",
+		"flow": "bo-69",
+		"name": null,
+		"key": "item_create",
+		"type": "item-create",
+		"position_x": 55,
+		"position_y": 17,
+		"options": {
+			"collection": "bo_content",
+			"permissions": "$trigger",
+			"emitEvents": false,
+			"payload": {
+				"title": "never"
+			}
+		},
+		"resolve": "bo-85",
+		"reject": null
+	},
+	{
+		"id": "bo-86",
+		"flow": "bo-69",
+		"name": null,
+		"key": "item_delete",
+		"type": "item-delete",
+		"position_x": 91,
+		"position_y": 17,
+		"options": {
+			"collection": "bo_content",
+			"permissions": "$trigger",
+			"emitEvents": false,
+			"key": [
+				"999999"
+			]
+		},
+		"resolve": "bo-87",
+		"reject": null
+	},
+	{
+		"id": "bo-88",
+		"flow": "bo-69",
+		"name": null,
+		"key": "item_read",
+		"type": "item-read",
+		"position_x": 109,
+		"position_y": 1,
+		"options": {
+			"collection": "bo_content",
+			"key": [
+				"1"
+			],
+			"permissions": "$full",
+			"emitEvents": false
+		},
+		"resolve": "bo-82",
+		"reject": null
+	},
+	{
+		"id": "bo-85",
+		"flow": "bo-69",
+		"name": null,
+		"key": "item_update",
+		"type": "item-update",
+		"position_x": 73,
+		"position_y": 17,
+		"options": {
+			"collection": "bo_content",
+			"permissions": "$trigger",
+			"emitEvents": false,
+			"key": [
+				"1"
+			],
+			"payload": {
+				"title": "never"
+			}
+		},
+		"resolve": "bo-86",
+		"reject": null
+	},
+	{
+		"id": "bo-89",
+		"flow": "bo-69",
+		"name": null,
+		"key": "json_web_token",
+		"type": "json-web-token",
+		"position_x": 91,
+		"position_y": 1,
+		"options": {
+			"operation": "sign",
+			"payload": {
+				"a": 1
+			},
+			"secret": "bo-secret",
+			"options": {
+				"expiresIn": "1h"
+			}
+		},
+		"resolve": "bo-88",
+		"reject": null
+	},
+	{
+		"id": "bo-80",
+		"flow": "bo-69",
+		"name": null,
+		"key": "log",
+		"type": "log",
+		"position_x": 37,
+		"position_y": 1,
+		"options": {
+			"message": "Reason: {{ $trigger.body.reason }}"
+		},
+		"resolve": "bo-90",
+		"reject": "bo-84"
+	},
+	{
+		"id": "bo-91",
+		"flow": "bo-69",
+		"name": null,
+		"key": "mail",
+		"type": "mail",
+		"position_x": 127,
+		"position_y": 17,
+		"options": {
+			"to": [
+				"bo@example.com"
+			],
+			"subject": "Never sent",
+			"type": "markdown",
+			"body": "Hello"
+		},
+		"resolve": "bo-92",
+		"reject": null
+	},
+	{
+		"id": "bo-92",
+		"flow": "bo-69",
+		"name": null,
+		"key": "notification",
+		"type": "notification",
+		"position_x": 145,
+		"position_y": 17,
+		"options": {
+			"recipient": [
+				"bo-93"
+			],
+			"permissions": "$trigger",
+			"subject": "Never",
+			"message": "Never"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-87",
+		"flow": "bo-69",
+		"name": null,
+		"key": "request",
+		"type": "request",
+		"position_x": 109,
+		"position_y": 17,
+		"options": {
+			"method": "GET",
+			"url": "http://127.0.0.1/"
+		},
+		"resolve": "bo-91",
+		"reject": null
+	},
+	{
+		"id": "bo-94",
+		"flow": "bo-69",
+		"name": null,
+		"key": "sleep",
+		"type": "sleep",
+		"position_x": 73,
+		"position_y": 1,
+		"options": {
+			"milliseconds": 10
+		},
+		"resolve": "bo-89",
+		"reject": null
+	},
+	{
+		"id": "bo-81",
+		"flow": "bo-69",
+		"name": null,
+		"key": "throw_error",
+		"type": "throw-error",
+		"position_x": 37,
+		"position_y": 17,
+		"options": {
+			"code": "FORBIDDEN",
+			"status": "403",
+			"message": "Reason is fail"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-90",
+		"flow": "bo-69",
+		"name": null,
+		"key": "transform",
+		"type": "transform",
+		"position_x": 55,
+		"position_y": 1,
+		"options": {
+			"json": {
+				"ok": true
+			}
+		},
+		"resolve": "bo-94",
+		"reject": null
+	},
+	{
+		"id": "bo-83",
+		"flow": "bo-69",
+		"name": null,
+		"key": "trigger",
+		"type": "trigger",
+		"position_x": 145,
+		"position_y": 1,
+		"options": {
+			"flow": "bo-71",
+			"iterationMode": "serial",
+			"payload": {
+				"from": "bo_all_ops"
+			}
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-72",
+		"flow": "bo-71",
+		"name": null,
+		"key": "child_log",
+		"type": "log",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"message": "Child flow"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-74",
+		"flow": "bo-73",
+		"name": null,
+		"key": "log",
+		"type": "log",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"message": "Created"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-95",
+		"flow": "bo-75",
+		"name": null,
+		"key": "loner",
+		"type": "log",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"message": "Not linked"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-96",
+		"flow": "bo-75",
+		"name": null,
+		"key": "unknown",
+		"type": "bo-unknown",
+		"position_x": 37,
+		"position_y": 1,
+		"options": {
+			"anything": true
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-77",
+		"flow": "bo-76",
+		"name": null,
+		"key": "log",
+		"type": "log",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"message": "Schedule"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-97",
+		"flow": "bo-78",
+		"name": null,
+		"key": "log",
+		"type": "log",
+		"position_x": 37,
+		"position_y": 1,
+		"options": {
+			"message": "Webhook"
+		},
+		"resolve": null,
+		"reject": null
+	},
+	{
+		"id": "bo-79",
+		"flow": "bo-78",
+		"name": null,
+		"key": "transform",
+		"type": "transform",
+		"position_x": 19,
+		"position_y": 1,
+		"options": {
+			"json": {
+				"hook": true
+			}
+		},
+		"resolve": "bo-97",
+		"reject": null
+	}
+]

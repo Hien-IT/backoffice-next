@@ -89,10 +89,10 @@ research, data-model, contracts nên mọi mục `[x]`.
 ## Ambiguities & Conflicts
 
 - [x] CHK051 "Cần xác nhận" còn mục nào chưa chốt (RTL, `trigger-detail.vue`, request "created", chuỗi literal) và ai xác nhận trước khi đóng? [Ambiguity, Spec Khác biệt] (5)
-- [x] CHK052 (lời giải đã ghi; kiểm thật ở T002, chưa chạy) D-105 còn [Unverified] (Directus có treo với vòng không): nếu T002 thấy Directus không treo, spec ghi lại thế nào (bỏ D-105, làm giống)? [Ambiguity, Spec D-105, Edge Cases] (1)
+- [x] CHK052 (T002 chạy 2026-10-17: Directus không treo; D-105 bỏ, R-48 thêm) D-105 còn [Unverified] (Directus có treo với vòng không): nếu T002 thấy Directus không treo, spec ghi lại thế nào (bỏ D-105, làm giống)? [Ambiguity, Spec D-105, Edge Cases] (1)
 
 ## Notes
 
 - Áp toàn bộ 2026-10-17 (owner). Ba mâu thuẫn (CHK013 URL webhook, CHK021 request khi vào danh sách, CHK022 khóa
   notice) đã sửa thống nhất ở mọi file. Mục mới sinh ra: R-47 (Save hai request), US2-12, US5-4, chín Edge Cases.
-- Còn kiểm ở T002 (không chặn tasks): Directus có treo với dữ liệu vòng không (D-105, CHK052).
+- T002 (2026-10-17): Directus không treo với dữ liệu vòng, D-105 bỏ; dữ liệu vòng làm hỏng phần nạp flow của cả hai API (R-48).

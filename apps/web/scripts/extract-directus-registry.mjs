@@ -124,6 +124,93 @@ const INTERFACE_FIELDS = [
 ];
 const DISPLAY_FIELDS = ['id', 'name', 'icon', 'types', 'localTypes'];
 
+// Feature 017 (FR-044): the 15 operations of the flows editor (`directus/app/src/operations/<id>/index.ts`). Their
+// options and overviews are plain data or functions of the options, so the whole result is kept for a list of sample
+// arguments; the arguments are written next to each result so src/operations/registry.test.ts calls the Backoffice
+// configs with the same ones.
+const OPERATION_IDS = [
+	'condition',
+	'exec',
+	'item-create',
+	'item-delete',
+	'item-read',
+	'item-update',
+	'json-web-token',
+	'log',
+	'mail',
+	'notification',
+	'request',
+	'sleep',
+	'throw-error',
+	'transform',
+	'trigger',
+];
+
+const OPERATION_OPTION_ARGS = [
+	{},
+	{ type: 'template' },
+	{ type: 'wysiwyg' },
+	{ operation: 'sign' },
+	{ operation: 'verify' },
+	{ operation: 'decode' },
+	{ iterationMode: 'batch' },
+];
+
+const OPERATION_OVERVIEW_ARGS = [
+	{},
+	{
+		collection: 'bo_content',
+		key: ['1', '2'],
+		payload: { a: 1 },
+		filter: { $trigger: { a: { _eq: 1 } } },
+		message: 'hello',
+		subject: 'Subject',
+		to: ['a@example.com', 'b@example.com'],
+		cc: ['c@example.com'],
+		type: 'wysiwyg',
+		url: 'https://example.com',
+		method: 'POST',
+		milliseconds: 1000,
+		code: 'FORBIDDEN',
+		status: '403',
+		json: { a: 1 },
+		flow: 'flow-child',
+		operation: 'sign',
+	},
+	{ key: '7' },
+];
+
+// The flows store the `trigger` operation reads (its options keep the trigger `operation` flows only).
+const OPERATION_FLOWS = [
+	{ id: 'flow-child', name: 'Child', trigger: 'operation' },
+	{ id: 'flow-manual', name: 'Manual', trigger: 'manual' },
+];
+
+function describeOperation(config) {
+	const options =
+		typeof config.options === 'function'
+			? OPERATION_OPTION_ARGS.map((args) => ({ args, fields: config.options(args) }))
+			: [{ args: null, fields: config.options }];
+	const overview = OPERATION_OVERVIEW_ARGS.map((args) => ({
+		args,
+		items: typeof config.overview === 'function' ? config.overview(args, { flow: { id: 'flow-1' } }) : null,
+	}));
+
+	// JSON round trip: drops functions and undefined, like the comparison in the test.
+	return JSON.parse(
+		JSON.stringify({
+			id: config.id,
+			name: config.name,
+			icon: config.icon,
+			description: config.description ?? null,
+			optionsKind: optionsKind(config.options),
+			flows: OPERATION_FLOWS,
+			options,
+			overview,
+		}),
+	);
+}
+
 // Option keys of the two interfaces whose options are a Vue component (read from their options.vue: the keys the
 // component emits).
 const COMPONENT_OPTION_KEYS = {
@@ -284,6 +371,9 @@ const FAKES = {
 	useRelationsStore: `() => ({ getRelationsForField: () => [], getRelationsForCollection: () => [] })`,
 	useCollectionsStore: `() => ({ getCollection: () => null })`,
 	useExtension: `() => ({ value: null })`,
+	// Feature 017: the real behaviour of @directus/utils toArray, and the flows store of the `trigger` operation.
+	toArray: `(value) => (Array.isArray(value) ? value : typeof value === 'string' ? value.split(',') : [value])`,
+	useFlowsStore: `() => ({ flows: ${JSON.stringify(OPERATION_FLOWS)} })`,
 };
 
 function stubPlugin() {
@@ -293,6 +383,7 @@ function stubPlugin() {
 		async resolveId(id, importer) {
 			if (!importer?.startsWith(APP_SRC) && !importer?.startsWith('\0stub:')) return null;
 			if (id === '@directus/extensions') return '\0stub:extensions';
+			if (id === '@directus/errors') return '\0stub:errors';
 			if (id.startsWith('@/') || id.endsWith('.vue') || id.includes('?raw')) return `\0stub:${id}`;
 			// Load-time only (choices, handlers): not needed for the option keys.
 			// (`@directus/utils` and micromustache are only used by handlers and `fields`; their CJS builds do not inline.)
@@ -319,7 +410,8 @@ function stubPlugin() {
 			if (!id.startsWith('\0stub:')) return null;
 			const spec = id.slice('\0stub:'.length);
 			if (spec === 'extensions')
-				return 'export const defineInterface = (c) => c; export const defineDisplay = (c) => c;';
+				return 'export const defineInterface = (c) => c; export const defineDisplay = (c) => c; export const defineOperationApp = (c) => c;';
+			if (spec === 'errors') return errorsStub();
 			if (spec === 'codemirror') return 'export default { modeInfo: [] };';
 			const names = importedNames(spec);
 			return [
@@ -330,12 +422,24 @@ function stubPlugin() {
 	};
 }
 
+// @directus/errors for throw-error: the ErrorCode enum as an object, and the three fields of InternalServerError.
+function errorsStub() {
+	const codes = [
+		...readFileSync(join(ROOT, 'directus/packages/errors/src/codes.ts'), 'utf8').matchAll(/(\w+) = '([A-Z_]+)'/g),
+	];
+	return [
+		`export const ErrorCode = {${codes.map(([, name, code]) => `${name}: '${code}'`).join(', ')}};`,
+		"export class InternalServerError { code = 'INTERNAL_SERVER_ERROR'; status = 500; message = 'An unexpected error occurred.'; }",
+	].join('\n');
+}
+
 let indexSources;
 
 function importedNames(spec) {
 	indexSources ??= [
 		...INTERFACE_IDS.map((id) => join(interfaceDir(id), 'index.ts')),
 		...DISPLAY_IDS.map((id) => join(APP_SRC, 'displays', id, 'index.ts')),
+		...OPERATION_IDS.map((id) => join(APP_SRC, 'operations', id, 'index.ts')),
 	].map((file) => readFileSync(file, 'utf8'));
 
 	const names = new Set();
@@ -394,6 +498,17 @@ async function main() {
 	try {
 		const interfaces = await extract('interfaces', INTERFACE_IDS, interfaceDir, INTERFACE_FIELDS);
 		const displays = await extract('displays', DISPLAY_IDS, (id) => join(APP_SRC, 'displays', id), DISPLAY_FIELDS);
+		const operations = {};
+
+		for (const id of OPERATION_IDS) {
+			try {
+				const mod = await server.ssrLoadModule(join(APP_SRC, 'operations', id, 'index.ts'));
+				operations[id] = describeOperation(mod.default);
+				report.loaded++;
+			} catch (error) {
+				report.manual.push(`operations/${id}: ${error.message}`);
+			}
+		}
 
 		const json = {
 			directusVersion: VERSION,
@@ -401,6 +516,7 @@ async function main() {
 			contexts: descriptors.map(buildContext),
 			interfaces,
 			displays,
+			operations,
 		};
 
 		mkdirSync(dirname(OUT), { recursive: true });

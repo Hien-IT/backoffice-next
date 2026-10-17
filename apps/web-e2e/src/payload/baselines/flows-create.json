@@ -1,0 +1,20 @@
+[
+	{
+		"method": "POST",
+		"path": "/flows?fields[]=id",
+		"body": {
+			"accountability": "all",
+			"color": null,
+			"description": null,
+			"icon": "bolt",
+			"name": "web-e2e-baseline-flow",
+			"options": {
+				"collections": [
+					"bo_content"
+				]
+			},
+			"status": "active",
+			"trigger": "manual"
+		}
+	}
+]

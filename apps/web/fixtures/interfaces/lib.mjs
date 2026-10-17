@@ -17,6 +17,17 @@ export const FLOW = 'bo-flow';
 export const CONTENT_FLOWS = ['bo-flow-content', 'bo-flow-item'];
 export const SHARE = { name: 'bo-share', password: 'bo-share-password' };
 
+// Feature 017 (Flows editor, data-model §9): one flow per trigger, `bo_all_ops` with the 15 operations (only the branch
+// without side effects runs), its three runs as log rows.
+export const FLOWS = {
+	all: 'bo_all_ops',
+	webhook: 'bo_webhook',
+	schedule: 'bo_schedule',
+	child: 'bo_child',
+	event: 'bo_event',
+	orphan: 'bo_orphan',
+};
+
 // Feature 015 (Files and Users modules, data-model §11): a folder tree of its own (the 013 `bo-fixtures` folder and
 // snapshot stay as they are), the role under bo-editor and directory users, one per status, a token user and an SSO
 // user (test values; they only exist on test databases).

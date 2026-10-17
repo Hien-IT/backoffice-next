@@ -1,5 +1,5 @@
 // Feature 016 T018 (FR-001, data-model §1): the routes of directus/app/src/modules/settings/index.ts in scope, the two
-// data model guards, the flows frame (D-92) and the out-of-scope paths that fall to the module not-found page (D-93).
+// data model guards, the flows overview of 017 (the flow page stays the 012 frame until 017 wave 2) and the out-of-scope paths that fall to the module not-found page (D-93).
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, createRouter, type RouteRecordRaw } from 'vue-router';
@@ -25,6 +25,7 @@ vi.mock('./settings/routes/presets/PresetsCollectionRoute.vue', () => ({ default
 vi.mock('./settings/routes/presets/PresetItemRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/translations/TranslationsCollectionRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/translations/TranslationItemRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/flows/FlowsOverviewRoute.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({
@@ -119,4 +120,12 @@ describe('settings module routes', () => {
 		expect(settings.preRegisterCheck!({ admin_access: true } as never, {} as never)).toBe(true);
 		expect(settings.preRegisterCheck!({ admin_access: false } as never, {} as never)).toBe(false);
 	});
+});
+
+// Feature 017 (T032, FR-001): the flows overview is the real page (D-92 lifted); the flow page is still the 012 frame.
+test('/settings/flows is the flows overview, not the 012 frame', async () => {
+	const r = router();
+	await r.push('/settings/flows');
+	expect(r.currentRoute.value.name).toBe('settings-flows-collection');
+	expect(r.currentRoute.value.matched.at(-1)!.meta).not.toHaveProperty('module');
 });

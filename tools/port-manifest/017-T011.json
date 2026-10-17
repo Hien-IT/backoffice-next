@@ -1,0 +1,70 @@
+[
+	{
+		"source": "app/src/operations/index.ts",
+		"dest": "apps/web/src/operations/index.ts"
+	},
+	{
+		"source": "app/src/operations/exec/index.test.ts",
+		"dest": "apps/web/src/operations/exec/index.test.ts"
+	},
+	{
+		"source": "app/src/operations/condition/index.ts",
+		"dest": "apps/web/src/operations/condition/index.ts"
+	},
+	{
+		"source": "app/src/operations/exec/index.ts",
+		"dest": "apps/web/src/operations/exec/index.ts"
+	},
+	{
+		"source": "app/src/operations/item-create/index.ts",
+		"dest": "apps/web/src/operations/item-create/index.ts"
+	},
+	{
+		"source": "app/src/operations/item-delete/index.ts",
+		"dest": "apps/web/src/operations/item-delete/index.ts"
+	},
+	{
+		"source": "app/src/operations/item-read/index.ts",
+		"dest": "apps/web/src/operations/item-read/index.ts"
+	},
+	{
+		"source": "app/src/operations/item-update/index.ts",
+		"dest": "apps/web/src/operations/item-update/index.ts"
+	},
+	{
+		"source": "app/src/operations/json-web-token/index.ts",
+		"dest": "apps/web/src/operations/json-web-token/index.ts"
+	},
+	{
+		"source": "app/src/operations/log/index.ts",
+		"dest": "apps/web/src/operations/log/index.ts"
+	},
+	{
+		"source": "app/src/operations/mail/index.ts",
+		"dest": "apps/web/src/operations/mail/index.ts"
+	},
+	{
+		"source": "app/src/operations/notification/index.ts",
+		"dest": "apps/web/src/operations/notification/index.ts"
+	},
+	{
+		"source": "app/src/operations/request/index.ts",
+		"dest": "apps/web/src/operations/request/index.ts"
+	},
+	{
+		"source": "app/src/operations/sleep/index.ts",
+		"dest": "apps/web/src/operations/sleep/index.ts"
+	},
+	{
+		"source": "app/src/operations/throw-error/index.ts",
+		"dest": "apps/web/src/operations/throw-error/index.ts"
+	},
+	{
+		"source": "app/src/operations/transform/index.ts",
+		"dest": "apps/web/src/operations/transform/index.ts"
+	},
+	{
+		"source": "app/src/operations/trigger/index.ts",
+		"dest": "apps/web/src/operations/trigger/index.ts"
+	}
+]

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/utils/vector2.ts",
+		"dest": "apps/web/src/utils/vector2.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/constants.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/constants.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/triggers.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/triggers.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/flows/triggers.test.ts",
+		"dest": "apps/web/src/modules/settings/routes/flows/triggers.test.ts"
+	}
+]

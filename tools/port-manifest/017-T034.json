@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/flows/flow-drawer.vue",
+		"dest": "apps/web/src/modules/settings/routes/flows/FlowDrawer.vue"
+	}
+]

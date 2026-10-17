@@ -55,4 +55,7 @@ export default {
 	// Feature 015 (D-88, CHK042): note under the system-theme list.
 	// D-88: choosing a Directus theme does not change the Backoffice look; the note says so without naming another app.
 	theme_applies_in_directus: 'The theme is saved to your profile. The Backoffice look does not change.',
+	// Feature 017 (D-106): above the options of the flow operation "Send Email"; the API only writes a log entry.
+	operations_mail_not_sent_notice:
+		'Backoffice does not send email. This operation only writes a log entry and returns success.',
 };

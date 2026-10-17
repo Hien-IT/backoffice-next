@@ -14,6 +14,7 @@ import { getDisplays } from '../../../../../../displays/index.ts';
 import { getInterfaces } from '../../../../../../interfaces/index.ts';
 import { i18n } from '../../../../../../lang/index.ts';
 import { mockApi } from '../../../../../../test-utils/fetch.ts';
+import { getOperation } from '../../../../../../operations/index.ts';
 import ExtensionOptions from './ExtensionOptions.vue';
 
 type Entry = { optionsKind: string; optionKeys: string[] };
@@ -91,5 +92,27 @@ describe('the option keys of every registered extension (registry fixture)', () 
 		expect([...keys(mountOptions({ type, extension: id, showAdvanced: true }))].sort()).toEqual(
 			[...entry!.optionKeys].sort(),
 		);
+	});
+});
+
+// Feature 017 (FR-042): an operation's options (array, or the result of its options function passed by the caller)
+// render without the field detail store.
+describe('type operation', () => {
+	test('an array of options renders without creating the field detail store', () => {
+		const wrapper = mountOptions({ type: 'operation', extension: 'log', options: getOperation('log')!.options });
+
+		expect(keys(wrapper)).toEqual(['message']);
+		expect(pinia.state.value['fieldDetailStore']).toBeUndefined();
+	});
+
+	test('function options come through the options prop', () => {
+		const options = getOperation('json-web-token')!.options as (values: Record<string, unknown>) => unknown[];
+		const wrapper = mountOptions({
+			type: 'operation',
+			extension: 'json-web-token',
+			options: options({ operation: 'decode' }),
+		});
+
+		expect(keys(wrapper)).toEqual(['operation', 'token', 'options']);
 	});
 });

@@ -5642,5 +5642,5577 @@
 				"display"
 			]
 		}
+	},
+	"operations": {
+		"condition": {
+			"id": "condition",
+			"name": "$t:operations.condition.name",
+			"icon": "rule",
+			"description": "$t:operations.condition.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "filter",
+							"name": "$t:condition_rules",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}",
+									"template": "{\n  \"$trigger\": {\n    \"category\": {\n      \"_eq\": \"Example\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:condition_rules"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:condition_rules",
+							"text": {
+								"$trigger": {
+									"a": {
+										"_eq": 1
+									}
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:condition_rules"
+						}
+					]
+				}
+			]
+		},
+		"exec": {
+			"id": "exec",
+			"name": "$t:operations.exec.name",
+			"icon": "code",
+			"description": "$t:operations.exec.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "javascript"
+								}
+							},
+							"schema": {
+								"default_value": "module.exports = async function(data) {\n\t// Do something...\n\treturn {};\n}"
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": []
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": []
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": []
+				}
+			]
+		},
+		"item-create": {
+			"id": "item-create",
+			"name": "$t:operations.item-create.name",
+			"icon": "add",
+			"description": "$t:operations.item-create.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "collection",
+							"name": "$t:collection",
+							"type": "string",
+							"meta": {
+								"required": true,
+								"width": "half",
+								"interface": "system-collection"
+							}
+						},
+						{
+							"field": "permissions",
+							"name": "$t:permissions",
+							"type": "string",
+							"schema": {
+								"default_value": "$trigger"
+							},
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "From Trigger",
+											"value": "$trigger"
+										},
+										{
+											"text": "Public Role",
+											"value": "$public"
+										},
+										{
+											"text": "Full Access",
+											"value": "$full"
+										}
+									],
+									"allowOther": true
+								}
+							}
+						},
+						{
+							"field": "emitEvents",
+							"name": "$t:operations.item-create.emit_events",
+							"type": "boolean",
+							"meta": {
+								"width": "half",
+								"interface": "boolean"
+							},
+							"schema": {
+								"default_value": false
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:operations.item-create.payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "$t:item_payload_placeholder"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-create.payload"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:collection",
+							"text": "bo_content"
+						},
+						{
+							"label": "$t:operations.item-create.payload",
+							"text": {
+								"a": 1
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-create.payload"
+						}
+					]
+				}
+			]
+		},
+		"item-delete": {
+			"id": "item-delete",
+			"name": "$t:operations.item-delete.name",
+			"icon": "delete",
+			"description": "$t:operations.item-delete.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "collection",
+							"name": "$t:collection",
+							"type": "string",
+							"meta": {
+								"required": true,
+								"width": "half",
+								"interface": "system-collection"
+							}
+						},
+						{
+							"field": "permissions",
+							"name": "$t:permissions",
+							"type": "string",
+							"schema": {
+								"default_value": "$trigger"
+							},
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "From Trigger",
+											"value": "$trigger"
+										},
+										{
+											"text": "Public Role",
+											"value": "$public"
+										},
+										{
+											"text": "Full Access",
+											"value": "$full"
+										}
+									],
+									"allowOther": true
+								}
+							}
+						},
+						{
+							"field": "emitEvents",
+							"name": "$t:operations.item-delete.emit_events",
+							"type": "boolean",
+							"meta": {
+								"width": "half",
+								"interface": "boolean"
+							},
+							"schema": {
+								"default_value": false
+							}
+						},
+						{
+							"field": "key",
+							"name": "$t:operations.item-delete.key",
+							"type": "csv",
+							"meta": {
+								"width": "half",
+								"interface": "tags",
+								"options": {
+									"iconRight": "vpn_key"
+								}
+							}
+						},
+						{
+							"field": "query",
+							"name": "$t:operations.item-delete.query",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}",
+									"template": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-delete.key",
+							"text": ""
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:collection",
+							"text": "bo_content"
+						},
+						{
+							"label": "$t:operations.item-delete.key",
+							"text": "1, 2"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-delete.key",
+							"text": "7"
+						}
+					]
+				}
+			]
+		},
+		"item-read": {
+			"id": "item-read",
+			"name": "$t:operations.item-read.name",
+			"icon": "visibility",
+			"description": "$t:operations.item-read.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "permissions",
+							"name": "$t:permissions",
+							"type": "string",
+							"schema": {
+								"default_value": "$trigger"
+							},
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "From Trigger",
+											"value": "$trigger"
+										},
+										{
+											"text": "Public Role",
+											"value": "$public"
+										},
+										{
+											"text": "Full Access",
+											"value": "$full"
+										}
+									],
+									"allowOther": true
+								}
+							}
+						},
+						{
+							"field": "collection",
+							"name": "$t:collection",
+							"type": "string",
+							"meta": {
+								"required": true,
+								"width": "half",
+								"interface": "system-collection"
+							}
+						},
+						{
+							"field": "key",
+							"name": "$t:operations.item-read.key",
+							"type": "csv",
+							"meta": {
+								"width": "half",
+								"interface": "tags",
+								"options": {
+									"iconRight": "vpn_key"
+								}
+							}
+						},
+						{
+							"field": "query",
+							"name": "$t:operations.item-read.query",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}",
+									"template": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}"
+								}
+							}
+						},
+						{
+							"field": "emitEvents",
+							"name": "$t:operations.item-create.emit_events",
+							"type": "boolean",
+							"meta": {
+								"width": "half",
+								"interface": "boolean"
+							},
+							"schema": {
+								"default_value": false
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-read.key",
+							"text": ""
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:collection",
+							"text": "bo_content"
+						},
+						{
+							"label": "$t:operations.item-read.key",
+							"text": "1, 2"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-read.key",
+							"text": "7"
+						}
+					]
+				}
+			]
+		},
+		"item-update": {
+			"id": "item-update",
+			"name": "$t:operations.item-update.name",
+			"icon": "edit",
+			"description": "$t:operations.item-update.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "collection",
+							"name": "$t:collection",
+							"type": "string",
+							"meta": {
+								"required": true,
+								"width": "half",
+								"interface": "system-collection"
+							}
+						},
+						{
+							"field": "permissions",
+							"name": "$t:permissions",
+							"type": "string",
+							"schema": {
+								"default_value": "$trigger"
+							},
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "From Trigger",
+											"value": "$trigger"
+										},
+										{
+											"text": "Public Role",
+											"value": "$public"
+										},
+										{
+											"text": "Full Access",
+											"value": "$full"
+										}
+									],
+									"allowOther": true
+								}
+							}
+						},
+						{
+							"field": "emitEvents",
+							"name": "$t:operations.item-update.emit_events",
+							"type": "boolean",
+							"meta": {
+								"width": "half",
+								"interface": "boolean"
+							},
+							"schema": {
+								"default_value": false
+							}
+						},
+						{
+							"field": "key",
+							"name": "$t:operations.item-update.key",
+							"type": "csv",
+							"meta": {
+								"width": "half",
+								"interface": "tags",
+								"options": {
+									"iconRight": "vpn_key"
+								}
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:operations.item-update.payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "$t:item_payload_placeholder"
+								}
+							}
+						},
+						{
+							"field": "query",
+							"name": "$t:operations.item-update.query",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}",
+									"template": "{\n  \"filter\": {\n    \"status\": {\n      \"_eq\": \"active\"\n    }\n  }\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-update.key",
+							"text": ""
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:collection",
+							"text": "bo_content"
+						},
+						{
+							"label": "$t:operations.item-update.key",
+							"text": "1, 2"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:collection"
+						},
+						{
+							"label": "$t:operations.item-update.key",
+							"text": "7"
+						}
+					]
+				}
+			]
+		},
+		"json-web-token": {
+			"id": "json-web-token",
+			"name": "$t:operations.json-web-token.name",
+			"icon": "key",
+			"description": "$t:operations.json-web-token.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:operations.json-web-token.payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-multiline",
+								"options": {
+									"font": "monospace",
+									"placeholder": "$t:any_string_or_json"
+								}
+							}
+						},
+						{
+							"field": "secret",
+							"name": "$t:operations.json-web-token.secret",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.json-web-token.secret_placeholder"
+								}
+							}
+						},
+						{
+							"field": "options",
+							"name": "$t:operations.json-web-token.options",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "$t:operations.json-web-token.options_placeholder"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "token",
+							"name": "$t:operations.json-web-token.token",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.json-web-token.token_placeholder"
+								}
+							}
+						},
+						{
+							"field": "secret",
+							"name": "$t:operations.json-web-token.secret",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.json-web-token.secret_placeholder"
+								}
+							}
+						},
+						{
+							"field": "options",
+							"name": "$t:operations.json-web-token.options",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "$t:operations.json-web-token.options_placeholder"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "token",
+							"name": "$t:operations.json-web-token.token",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.json-web-token.token_placeholder"
+								}
+							}
+						},
+						{
+							"field": "options",
+							"name": "$t:operations.json-web-token.options",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "$t:operations.json-web-token.options_placeholder"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "operation",
+							"name": "$t:operations.json-web-token.operation",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.json-web-token.sign",
+											"value": "sign"
+										},
+										{
+											"text": "$t:operations.json-web-token.verify",
+											"value": "verify"
+										},
+										{
+											"text": "$t:operations.json-web-token.decode",
+											"value": "decode"
+										}
+									]
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.json-web-token.operation"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.json-web-token.operation",
+							"text": "sign"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.json-web-token.operation"
+						}
+					]
+				}
+			]
+		},
+		"log": {
+			"id": "log",
+			"name": "$t:operations.log.name",
+			"icon": "terminal",
+			"description": "$t:operations.log.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "message",
+							"name": "$t:operations.log.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.log.message_placeholder"
+								},
+								"note": "$t:operation_variables_note"
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.log.message"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.log.message",
+							"text": "hello"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.log.message"
+						}
+					]
+				}
+			]
+		},
+		"mail": {
+			"id": "mail",
+			"name": "$t:operations.mail.name",
+			"icon": "mail",
+			"description": "$t:operations.mail.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": false,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": true
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": false,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-html",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "to",
+							"name": "$t:operations.mail.to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.to_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "cc",
+							"name": "$t:operations.mail.cc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.cc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "bcc",
+							"name": "$t:operations.mail.bcc",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.bcc_placeholder",
+									"iconRight": "alternate_email"
+								}
+							}
+						},
+						{
+							"field": "replyTo",
+							"name": "$t:operations.mail.reply_to",
+							"type": "csv",
+							"meta": {
+								"width": "full",
+								"interface": "tags",
+								"options": {
+									"placeholder": "$t:operations.mail.reply_to_placeholder",
+									"iconRight": "reply"
+								}
+							}
+						},
+						{
+							"field": "type",
+							"name": "$t:type",
+							"type": "string",
+							"schema": {
+								"default_value": "markdown"
+							},
+							"meta": {
+								"interface": "select-dropdown",
+								"width": "half",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:interfaces.input-rich-text-md.markdown",
+											"value": "markdown"
+										},
+										{
+											"text": "$t:interfaces.input-rich-text-html.wysiwyg",
+											"value": "wysiwyg"
+										},
+										{
+											"text": "$t:operations.mail.template",
+											"value": "template"
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "template",
+							"name": "$t:operations.mail.template",
+							"type": "string",
+							"meta": {
+								"interface": "input",
+								"hidden": true,
+								"width": "half",
+								"options": {
+									"placeholder": "base"
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:operations.mail.body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md",
+								"hidden": false
+							}
+						},
+						{
+							"field": "data",
+							"name": "$t:operations.mail.data",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"hidden": true,
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"url\": \"example.com\"\n}",
+									"template": "{\n  \"url\": \"example.com\"\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:subject"
+						},
+						{
+							"label": "$t:operations.mail.to"
+						},
+						{
+							"label": "$t:type",
+							"text": "markdown"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:subject",
+							"text": "Subject"
+						},
+						{
+							"label": "$t:operations.mail.to",
+							"text": "a@example.com, b@example.com"
+						},
+						{
+							"label": "$t:type",
+							"text": "wysiwyg"
+						},
+						{
+							"label": "$t:operations.mail.cc",
+							"text": "c@example.com"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:subject"
+						},
+						{
+							"label": "$t:operations.mail.to"
+						},
+						{
+							"label": "$t:type",
+							"text": "markdown"
+						}
+					]
+				}
+			]
+		},
+		"notification": {
+			"id": "notification",
+			"name": "$t:operations.notification.name",
+			"icon": "notifications",
+			"description": "$t:operations.notification.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "recipient",
+							"name": "$t:operations.notification.recipient",
+							"type": "csv",
+							"meta": {
+								"width": "half",
+								"interface": "tags",
+								"options": {
+									"iconRight": "people_alt",
+									"placeholder": "$t:operations.notification.recipient_placeholder"
+								},
+								"note": "$t:operations.notification.recipient_note"
+							}
+						},
+						{
+							"field": "permissions",
+							"name": "$t:permissions",
+							"type": "string",
+							"schema": {
+								"default_value": "$trigger"
+							},
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "From Trigger",
+											"value": "$trigger"
+										},
+										{
+											"text": "Public Role",
+											"value": "$public"
+										},
+										{
+											"text": "Full Access",
+											"value": "$full"
+										}
+									],
+									"allowOther": true
+								}
+							}
+						},
+						{
+							"field": "subject",
+							"name": "$t:operations.notification.subject",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"iconRight": "title"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.notification.message",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-rich-text-md"
+							}
+						},
+						{
+							"field": "collection",
+							"name": "$t:collection",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "system-collection"
+							}
+						},
+						{
+							"field": "item",
+							"name": "$t:item",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "input",
+								"options": {
+									"iconRight": "vpn_key"
+								},
+								"note": "$t:operations.notification.item_note"
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:subject"
+						},
+						{
+							"label": "$t:message"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:subject",
+							"text": "Subject"
+						},
+						{
+							"label": "$t:message",
+							"text": "hello"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:subject"
+						},
+						{
+							"label": "$t:message"
+						}
+					]
+				}
+			]
+		},
+		"request": {
+			"id": "request",
+			"name": "$t:operations.request.name",
+			"icon": "link",
+			"description": "$t:operations.request.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "method",
+							"name": "$t:operations.request.method",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"value": "GET",
+											"text": "GET"
+										},
+										{
+											"value": "POST",
+											"text": "POST"
+										},
+										{
+											"value": "PATCH",
+											"text": "PATCH"
+										},
+										{
+											"value": "DELETE",
+											"text": "DELETE"
+										}
+									],
+									"allowOther": true
+								}
+							},
+							"schema": {
+								"default_value": "GET"
+							}
+						},
+						{
+							"field": "url",
+							"name": "$t:operations.request.url",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "input",
+								"options": {
+									"placeholder": "$t:operations.request.url_placeholder"
+								}
+							}
+						},
+						{
+							"field": "headers",
+							"name": "$t:operations.request.headers",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "list",
+								"options": {
+									"fields": [
+										{
+											"field": "header",
+											"name": "$t:operations.request.header",
+											"type": "string",
+											"meta": {
+												"width": "half",
+												"interface": "input",
+												"required": true,
+												"options": {
+													"placeholder": "$t:operations.request.header_placeholder"
+												}
+											}
+										},
+										{
+											"field": "value",
+											"name": "$t:value",
+											"type": "string",
+											"meta": {
+												"width": "half",
+												"interface": "input",
+												"required": true,
+												"options": {
+													"placeholder": "$t:operations.request.value_placeholder"
+												}
+											}
+										}
+									]
+								}
+							}
+						},
+						{
+							"field": "body",
+							"name": "$t:request_body",
+							"type": "text",
+							"meta": {
+								"width": "full",
+								"interface": "input-multiline",
+								"options": {
+									"font": "monospace",
+									"placeholder": "$t:any_string_or_json"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.request.url"
+						},
+						{
+							"label": "$t:operations.request.method",
+							"text": "GET"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.request.url",
+							"text": "https://example.com"
+						},
+						{
+							"label": "$t:operations.request.method",
+							"text": "POST"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.request.url"
+						},
+						{
+							"label": "$t:operations.request.method",
+							"text": "GET"
+						}
+					]
+				}
+			]
+		},
+		"sleep": {
+			"id": "sleep",
+			"name": "$t:operations.sleep.name",
+			"icon": "schedule",
+			"description": "$t:operations.sleep.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "milliseconds",
+							"name": "$t:operations.sleep.milliseconds",
+							"type": "integer",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"min": 0,
+									"type": "integer",
+									"placeholder": "1000"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.sleep.milliseconds"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.sleep.milliseconds",
+							"text": 1000
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.sleep.milliseconds"
+						}
+					]
+				}
+			]
+		},
+		"throw-error": {
+			"id": "throw-error",
+			"name": "$t:operations.throw-error.name",
+			"icon": "error",
+			"description": "$t:operations.throw-error.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "code",
+							"name": "$t:operations.throw-error.code",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "CONTAINS_NULL_VALUES",
+											"value": "CONTAINS_NULL_VALUES"
+										},
+										{
+											"text": "CONTENT_TOO_LARGE",
+											"value": "CONTENT_TOO_LARGE"
+										},
+										{
+											"text": "EMAIL_LIMIT_EXCEEDED",
+											"value": "EMAIL_LIMIT_EXCEEDED"
+										},
+										{
+											"text": "FORBIDDEN",
+											"value": "FORBIDDEN"
+										},
+										{
+											"text": "ILLEGAL_ASSET_TRANSFORMATION",
+											"value": "ILLEGAL_ASSET_TRANSFORMATION"
+										},
+										{
+											"text": "INTERNAL_SERVER_ERROR",
+											"value": "INTERNAL_SERVER_ERROR"
+										},
+										{
+											"text": "INVALID_CREDENTIALS",
+											"value": "INVALID_CREDENTIALS"
+										},
+										{
+											"text": "INVALID_FOREIGN_KEY",
+											"value": "INVALID_FOREIGN_KEY"
+										},
+										{
+											"text": "INVALID_INVITE",
+											"value": "INVALID_INVITE"
+										},
+										{
+											"text": "INVALID_IP",
+											"value": "INVALID_IP"
+										},
+										{
+											"text": "INVALID_OTP",
+											"value": "INVALID_OTP"
+										},
+										{
+											"text": "INVALID_PAYLOAD",
+											"value": "INVALID_PAYLOAD"
+										},
+										{
+											"text": "INVALID_PATH_PARAMETER",
+											"value": "INVALID_PATH_PARAMETER"
+										},
+										{
+											"text": "INVALID_PROVIDER",
+											"value": "INVALID_PROVIDER"
+										},
+										{
+											"text": "INVALID_PROVIDER_CONFIG",
+											"value": "INVALID_PROVIDER_CONFIG"
+										},
+										{
+											"text": "INVALID_QUERY",
+											"value": "INVALID_QUERY"
+										},
+										{
+											"text": "INVALID_TOKEN",
+											"value": "INVALID_TOKEN"
+										},
+										{
+											"text": "LIMIT_EXCEEDED",
+											"value": "LIMIT_EXCEEDED"
+										},
+										{
+											"text": "METHOD_NOT_ALLOWED",
+											"value": "METHOD_NOT_ALLOWED"
+										},
+										{
+											"text": "NOT_NULL_VIOLATION",
+											"value": "NOT_NULL_VIOLATION"
+										},
+										{
+											"text": "OUT_OF_DATE",
+											"value": "OUT_OF_DATE"
+										},
+										{
+											"text": "OUT_OF_TIME",
+											"value": "OUT_OF_TIME"
+										},
+										{
+											"text": "RANGE_NOT_SATISFIABLE",
+											"value": "RANGE_NOT_SATISFIABLE"
+										},
+										{
+											"text": "RECORD_NOT_UNIQUE",
+											"value": "RECORD_NOT_UNIQUE"
+										},
+										{
+											"text": "REQUESTS_EXCEEDED",
+											"value": "REQUESTS_EXCEEDED"
+										},
+										{
+											"text": "ROUTE_NOT_FOUND",
+											"value": "ROUTE_NOT_FOUND"
+										},
+										{
+											"text": "SERVICE_UNAVAILABLE",
+											"value": "SERVICE_UNAVAILABLE"
+										},
+										{
+											"text": "TOKEN_EXPIRED",
+											"value": "TOKEN_EXPIRED"
+										},
+										{
+											"text": "UNEXPECTED_RESPONSE",
+											"value": "UNEXPECTED_RESPONSE"
+										},
+										{
+											"text": "UNPROCESSABLE_CONTENT",
+											"value": "UNPROCESSABLE_CONTENT"
+										},
+										{
+											"text": "UNSUPPORTED_MEDIA_TYPE",
+											"value": "UNSUPPORTED_MEDIA_TYPE"
+										},
+										{
+											"text": "USER_SUSPENDED",
+											"value": "USER_SUSPENDED"
+										},
+										{
+											"text": "VALUE_OUT_OF_RANGE",
+											"value": "VALUE_OUT_OF_RANGE"
+										},
+										{
+											"text": "VALUE_TOO_LONG",
+											"value": "VALUE_TOO_LONG"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "INTERNAL_SERVER_ERROR"
+								}
+							}
+						},
+						{
+							"field": "status",
+							"name": "$t:operations.throw-error.status",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "400 (Bad Request)",
+											"value": "400"
+										},
+										{
+											"text": "401 (Unauthorized)",
+											"value": "401"
+										},
+										{
+											"text": "403 (Forbidden)",
+											"value": "403"
+										},
+										{
+											"text": "404 (Not Found)",
+											"value": "404"
+										},
+										{
+											"text": "405 (Method Not Allowed)",
+											"value": "405"
+										},
+										{
+											"text": "422 (Unprocessable Entity)",
+											"value": "422"
+										},
+										{
+											"text": "429 (Too Many Requests)",
+											"value": "429"
+										},
+										{
+											"text": "500 (Internal Server Error)",
+											"value": "500"
+										}
+									],
+									"allowOther": true,
+									"placeholder": "500"
+								}
+							}
+						},
+						{
+							"field": "message",
+							"name": "$t:operations.throw-error.message",
+							"type": "string",
+							"meta": {
+								"width": "full",
+								"interface": "input",
+								"options": {
+									"placeholder": "An unexpected error occurred."
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.throw-error.code",
+							"text": "INTERNAL_SERVER_ERROR"
+						},
+						{
+							"label": "$t:operations.throw-error.status",
+							"text": "500"
+						},
+						{
+							"label": "$t:operations.throw-error.message",
+							"text": "An unexpected error occurred."
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.throw-error.code",
+							"text": "FORBIDDEN"
+						},
+						{
+							"label": "$t:operations.throw-error.status",
+							"text": "403"
+						},
+						{
+							"label": "$t:operations.throw-error.message",
+							"text": "hello"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.throw-error.code",
+							"text": "INTERNAL_SERVER_ERROR"
+						},
+						{
+							"label": "$t:operations.throw-error.status",
+							"text": "500"
+						},
+						{
+							"label": "$t:operations.throw-error.message",
+							"text": "An unexpected error occurred."
+						}
+					]
+				}
+			]
+		},
+		"transform": {
+			"id": "transform",
+			"name": "$t:operations.transform.name",
+			"icon": "move_down",
+			"description": "$t:operations.transform.description",
+			"optionsKind": "array",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": null,
+					"fields": [
+						{
+							"field": "json",
+							"name": "$t:json",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:json"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:json",
+							"text": {
+								"a": 1
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:json"
+						}
+					]
+				}
+			]
+		},
+		"trigger": {
+			"id": "trigger",
+			"name": "$t:operations.trigger.name",
+			"icon": "flag",
+			"description": "$t:operations.trigger.description",
+			"optionsKind": "function",
+			"flows": [
+				{
+					"id": "flow-child",
+					"name": "Child",
+					"trigger": "operation"
+				},
+				{
+					"id": "flow-manual",
+					"name": "Manual",
+					"trigger": "manual"
+				}
+			],
+			"options": [
+				{
+					"args": {},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "template"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"type": "wysiwyg"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "sign"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "verify"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"operation": "decode"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				},
+				{
+					"args": {
+						"iterationMode": "batch"
+					},
+					"fields": [
+						{
+							"field": "flow",
+							"name": "$t:operations.trigger.flow",
+							"type": "string",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"options": {
+									"choices": [
+										{
+											"text": "Child",
+											"value": "flow-child"
+										}
+									],
+									"iconRight": "bolt",
+									"placeholder": "$t:a_flow_uuid"
+								}
+							}
+						},
+						{
+							"field": "iterationMode",
+							"name": "$t:operations.trigger.iteration_mode",
+							"type": "json",
+							"meta": {
+								"width": "half",
+								"interface": "select-dropdown",
+								"note": "$t:operations.trigger.iteration_mode_note",
+								"options": {
+									"choices": [
+										{
+											"text": "$t:operations.trigger.parallel",
+											"value": "parallel"
+										},
+										{
+											"text": "$t:operations.trigger.serial",
+											"value": "serial"
+										},
+										{
+											"text": "$t:operations.trigger.batch",
+											"value": "batch"
+										}
+									]
+								}
+							},
+							"schema": {
+								"default_value": "parallel"
+							}
+						},
+						{
+							"field": "batchSize",
+							"name": "$t:operations.trigger.batch_size",
+							"type": "integer",
+							"meta": {
+								"width": "half",
+								"interface": "input"
+							},
+							"schema": {
+								"default_value": 10
+							}
+						},
+						{
+							"field": "payload",
+							"name": "$t:payload",
+							"type": "json",
+							"meta": {
+								"width": "full",
+								"interface": "input-code",
+								"options": {
+									"language": "json",
+									"placeholder": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}",
+									"template": "{\n  \"user\": \"{{ $accountability.user }}\",\n  \"data\": \"{{ $last }}\"\n}"
+								}
+							}
+						}
+					]
+				}
+			],
+			"overview": [
+				{
+					"args": {},
+					"items": [
+						{
+							"label": "$t:operations.trigger.flow"
+						}
+					]
+				},
+				{
+					"args": {
+						"collection": "bo_content",
+						"key": [
+							"1",
+							"2"
+						],
+						"payload": {
+							"a": 1
+						},
+						"filter": {
+							"$trigger": {
+								"a": {
+									"_eq": 1
+								}
+							}
+						},
+						"message": "hello",
+						"subject": "Subject",
+						"to": [
+							"a@example.com",
+							"b@example.com"
+						],
+						"cc": [
+							"c@example.com"
+						],
+						"type": "wysiwyg",
+						"url": "https://example.com",
+						"method": "POST",
+						"milliseconds": 1000,
+						"code": "FORBIDDEN",
+						"status": "403",
+						"json": {
+							"a": 1
+						},
+						"flow": "flow-child",
+						"operation": "sign"
+					},
+					"items": [
+						{
+							"label": "$t:operations.trigger.flow",
+							"text": "flow-child"
+						}
+					]
+				},
+				{
+					"args": {
+						"key": "7"
+					},
+					"items": [
+						{
+							"label": "$t:operations.trigger.flow"
+						}
+					]
+				}
+			]
+		}
 	}
 }

@@ -24,3 +24,9 @@ test('D-88: the theme names read "Backoffice ..." in both languages', () => {
 		for (const key of SHADOWED) expect(overlay[key]).toMatch(/^Backoffice /);
 	}
 });
+
+// Feature 017 (D-106, CHK008): the mail operation notice names the product in both languages.
+test('D-106: the mail notice says Backoffice does not send email', () => {
+	expect(enUS.operations_mail_not_sent_notice).toMatch(/^Backoffice does not send email\./);
+	expect(viVN.operations_mail_not_sent_notice).toMatch(/^Backoffice không gửi email\./);
+});

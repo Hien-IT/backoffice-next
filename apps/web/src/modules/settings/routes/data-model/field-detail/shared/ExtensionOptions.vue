@@ -5,7 +5,7 @@
 // onErrorCaptured showing the same warning notice.
 import { isVueComponent } from '@directus/utils';
 import { storeToRefs } from 'pinia';
-import { type Component, computed, onErrorCaptured, ref, toRefs } from 'vue';
+import { type Component, computed, onErrorCaptured, type Ref, ref, toRefs } from 'vue';
 import BoNotice from '../../../../../../components/BoNotice.vue';
 import BoForm from '../../../../../../components/form/BoForm.vue';
 import { useExtension } from '../../../../../../composables/use-extension.ts';
@@ -13,7 +13,7 @@ import { useFieldDetailStore } from '../store/index.ts';
 
 const props = withDefaults(
 	defineProps<{
-		type: 'interface' | 'display';
+		type: 'interface' | 'display' | 'operation';
 		extension?: string | null | undefined;
 		showAdvanced?: boolean;
 		options?: Record<string, any> | undefined;
@@ -30,12 +30,14 @@ const props = withDefaults(
 
 const emit = defineEmits(['update:modelValue']);
 
-const fieldDetailStore = useFieldDetailStore();
-
-const { collection, field } = storeToRefs(fieldDetailStore);
+// Backoffice (spec 017 FR-042): the operation drawer has no field detail store and always passes `options` (the
+// operation's array or the result of its options function), so the operations registry stays out of this chunk.
+const { collection, field } =
+	props.type === 'operation' ? { collection: ref(null), field: ref(null) } : storeToRefs(useFieldDetailStore());
 const { extension, type } = toRefs(props);
 
-const extensionInfo = useExtension(type, extension);
+const extensionInfo =
+	props.type === 'operation' ? ref(null) : useExtension(type as Ref<'interface' | 'display'>, extension);
 
 const usesCustomComponent = computed(() => {
 	if (!extensionInfo.value) return false;

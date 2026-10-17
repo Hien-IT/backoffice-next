@@ -1647,6 +1647,79 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 - Delete collection or folder: BoDialog with a danger BoNotice `delete_collection_peer_dependencies` listing
   "field (collection)" when relations depend on it; Cancel first and focused; danger Button.
 
+## Tier 3 recipes, nháp (017)
+
+Drafts for the questions Q-30 to Q-33 of `specs/017-flows-editor/spec.md`, written before the code (T005, FR-107);
+design owner approval pending. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
+as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--theme--secondary`) is `orange`.
+
+### Flow operation panel (Q-30; Directus `components/operation.vue`, `options-overview.vue`, `v-workspace-tile.vue`)
+
+- Box: `absolute w-[252px] h-[252px] rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800
+  dark:bg-gray-900`, attribute `data-panel-key`, `data-pos-x`, `data-pos-y`. Selected for drag: `shadow-theme-md`.
+- Header (`flex h-10 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`): type icon (`text-brand-500`,
+  a reject child `text-orange-500`; trigger `offline_bolt`), type name `text-theme-xs font-medium uppercase
+  text-gray-500`. In edit mode at the end: pencil `ICON_BTN` (`edit`, `aria-label` edit) and, for operations, a
+  `more_vert` `ICON_BTN` opening BoMenu `copy_to` (disabled for unsaved `_` ids), `duplicate`, `delete`
+  (`text-error-600`).
+- Body (`p-3`): title = operation name `text-theme-sm font-semibold text-gray-800 dark:text-white/90 truncate`, tooltip
+  the key; then a `<dl>` of overview rows: `dt` `text-theme-xs text-gray-500`, `dd` `text-theme-sm text-gray-700
+  dark:text-gray-300 font-mono break-all line-clamp-2`; copy `ICON_BTN` `content_copy` after a copyable value. All
+  text is plain interpolation.
+- Trigger footer (`border-t px-3 py-2`): status dot (`size-2 rounded-full bg-brand-500` active, `bg-gray-400`
+  inactive) + in edit mode a compact BoSelect (`active` / `inactive`), in view mode the text.
+- Handles: round buttons on the right edge, 32 × 32 hit area with a 20 px icon: resolve `check_circle` `text-brand-500`
+  at 10 cells from the top, reject `cancel` `text-orange-500` at 12 cells; input `adjust` `text-gray-400` on the left
+  edge at 3 cells (operations only). Hint "+" (`add_circle_outline`) next to a free handle on hover in edit mode.
+  Tooltips `operation_handle_resolve` / `operation_handle_reject`.
+- Subdued (flow inactive or loner): `opacity-50` and an sr-only line ("not linked to the trigger" / "flow inactive").
+- Drag position label while moving: `absolute -top-6 start-0 rounded bg-gray-800 px-1.5 text-theme-xs text-white`
+  showing `(x:y)`.
+- Error boundary: a danger BoNotice `unexpected_error` inside the body.
+
+### Flow operation drawer (Q-31; Directus `components/operation-detail.vue`)
+
+- BoDrawer `persistent`, `max-w-3xl`, title `create_operation` / `edit_operation`, subtitle the flow name, icon
+  `offline_bolt`; one primary header action Done (`check`), disabled without type or with a duplicate key.
+- First row `grid grid-cols-2 gap-6`: Name (BoInput, placeholder the chosen type name) and Key (BoInput `dbSafe`,
+  `font-mono`, placeholder the generated key, error `operation_key_unique_error` linked by `aria-describedby`).
+- Type: BoFancySelect (the 016 Field drawer recipe) with icon, name and description of the 15 operations; once chosen only the chosen
+  card stays with a change button.
+- Options: the form of ExtensionOptions (BoForm grid of §8) with the raw editor toggle; for `mail` an info BoNotice
+  `operations_mail_not_sent_notice` above the form (D-106). Unknown type: danger BoNotice `operation_not_found` with a
+  text button to reset the type.
+
+### Flow logs (Q-32; Directus `components/logs-sidebar-detail.vue`, `logs-drawer.vue`)
+
+- Detail panel section (SidebarDetail) `logs`, icon `fact_check`, badge = abbreviated count. Top: a toggle row
+  `show_failed_only` (switch, `text-theme-sm`). Loading: BoProgressLinear indeterminate.
+- List: RevisionsDateGroup headings (Q-10); a row is a full-width button `flex items-center gap-2 rounded-lg px-2
+  py-1.5 hover:bg-gray-100 dark:hover:bg-white/5` with `check_circle` `text-brand-500` (resolve) or `cancel`
+  `text-orange-500` (other) and `HH:mm (x ago)` in `text-theme-sm`. Empty: `text-theme-sm text-gray-500` `no_logs` /
+  `no_logs_on_page`. Pager: BoPagination compact (3 visible).
+- Log drawer: BoDrawer (not persistent), title the run time, icon `fact_check`. Body is an `<ol>` timeline: each step a
+  `relative ps-6` item with a dot (`absolute start-0 top-1.5 size-2.5 rounded-full`, `bg-brand-500` default and
+  resolve, `bg-orange-500` reject) on a `border-s border-gray-200 dark:border-gray-800` line; heading = name
+  (`font-medium`, tooltip key) + type in `text-gray-500`; under it BoDetail sections Options / Payload (/
+  Accountability for the trigger), each a `<pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 font-mono
+  text-theme-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">`.
+
+### Flow list, flow drawer and dialogs (Q-33; Directus `overview.vue`, `flow-drawer.vue`, `flow.vue`)
+
+- List: Data table (Q-2) with columns icon (42 px, flow icon in the flow color inline, default `text-brand-500`),
+  Status (Badge: `active` brand light, `inactive` gray light), Name, Description (truncate); header "+" Button
+  (`create_flow`, disabled with tooltip `not_allowed`); row menu `more_vert` (BoMenu: `set_flow_inactive` `block` /
+  `set_flow_active` `check`, `edit_flow` `edit`, divider, `delete_flow` `text-error-600`). Empty: the 014 blank state
+  with `bolt`, `no_flows`, `no_flows_copy` and the create Button.
+- Flow drawer: BoDrawer `persistent`, title `creating_new_flow` / `updating_flow`, vertical BoTabs (Q-22) `flow_setup`
+  and `trigger_setup` (second disabled without a name). Flow setup grid: Name (half, required star, autofocus), Status
+  (half), Description (full), Icon (half), Color (half), Divider, `flow_tracking` select (full). Trigger setup:
+  BoFancySelect of the five triggers, then the options BoForm. Header action changes with the tab: Next
+  (`arrow_forward`), Save / Finish Setup (`check`).
+- Copy To dialog: BoDialog `copy_to` with one BoSelect of the other flows; empty → info BoNotice
+  `no_other_flows_copy`; Cancel first, confirm primary (disabled without choice).
+- Delete flow dialog: BoDialog `flow_delete_confirm`, Cancel first, danger Button `delete_label`.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

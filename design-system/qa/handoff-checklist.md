@@ -60,3 +60,7 @@
 
 - Image editor (feature 015, FR-111, owner 2026-10-15): dragging the crop box and the focal point is mouse only, as in
   Directus; every toolbar control is reachable by keyboard. axe does not check dragging.
+- Flow canvas (feature 017, FR-106, owner 2026-10-17; tech lead approval pending): dragging panels, dragging arrows
+  between handles and the hint "+" buttons are mouse/pointer only, as in Directus; touch drag on tablets is not
+  guaranteed (no `touch-action` handling, as Directus). Reachable by keyboard: pencil, tile menu (Copy To, Duplicate,
+  Delete), trigger status select, header buttons, drawers. axe does not check dragging.

@@ -49,6 +49,10 @@ export interface Snapshot {
 	directoryFiles: Row[];
 	roles: Row[];
 	directoryUsers: Row[];
+	/** Feature 017 (data-model §9): the flows of the editor set, their operations, the steps of the bo_all_ops runs. */
+	editorFlows: FlowRaw[];
+	operations: Row[];
+	flowRuns: { reason: string; steps: { operation: string; key: string; status: string }[] }[];
 }
 
 const files = import.meta.glob<unknown>('../../fixtures/interfaces/snapshot/*.json', {
@@ -93,6 +97,9 @@ const snapshot = {
 	directoryFiles: byName['files.directory'] ?? [],
 	roles: byName['roles'] ?? [],
 	directoryUsers: byName['users.directory'] ?? [],
+	editorFlows: byName['flows.editor'] ?? [],
+	operations: byName['operations'] ?? [],
+	flowRuns: byName['flows.runs'] ?? [],
 } as Snapshot;
 
 /** A fresh copy of the snapshot (tests may change it freely). */

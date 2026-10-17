@@ -3,7 +3,7 @@
 ## 1. Vitest trong `apps/web` (như 013–016)
 
 - `unit` (happy-dom): `use-flow-editor.test.ts` (12 kịch bản SC-006 so JSON body `PATCH /operations` + `PATCH
-  /flows/:id` với mốc chép từ Directus app ở T002; vòng dữ liệu → lỗi D-105), 9 test arrows port nguyên,
+  /flows/:id` với mốc chép từ Directus app ở T002; vòng dữ liệu → không request, như Directus T002), 9 test arrows port nguyên,
   `triggers.test.ts` (port `triggers.test.ts` Directus + overview URL dùng `getApiUrl`), `operations/registry.test.ts`
   (so fixture trích: id, icon, name, description, options tĩnh, options hàm với 4 bộ đối số, overview với options
   mẫu), `modules/settings.test.ts` (route flows, guard not-found), `ExtensionOptions.test.ts` (+ `type operation`

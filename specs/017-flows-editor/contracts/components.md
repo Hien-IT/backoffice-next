@@ -18,7 +18,7 @@ tính từ `directus/app/src/modules/settings/routes/flows/` trừ khi ghi khác
 | Component / composable | Nguồn Directus | Props / API | Emit | Ghi chú |
 |------------------------|----------------|-------------|------|---------|
 | `FlowRoute.vue` | `flow.vue` (template, header, dialogs) | `primaryKey` | | `PrivateView fill`; `RouterView` không tên với `:operation`, `:existing-operation-keys`, `:flow`, `@save`, `@cancel`; `DetailPanel` mục Logs |
-| `use-flow-editor.ts` | `flow.vue` (script) | `useFlowEditor(flow: Ref<FlowRaw>)` → data-model §6 | | test 12 kịch bản SC-006; D-105 |
+| `use-flow-editor.ts` | `flow.vue` (script) | `useFlowEditor(flow: Ref<FlowRaw>)` → data-model §6 | | test 12 kịch bản SC-006; dữ liệu vòng: không request (T002) |
 | `components/workspace/BoWorkspace.vue` | `components/v-workspace/v-workspace.vue` | `tiles: Panel[]`, `editMode`, `gridSize = 18` | `update(id, {x,y})` | kích thước +25 ô khi sửa; slot tile |
 | `components/workspace/BoWorkspaceTile.vue` | `v-workspace-tile.vue` | `tile`, `editMode`, `draggable`, `showOptions`, `resizable = false` | `move`, `edit`, `duplicate`, `delete`, `copy` | nhãn `(x-1:y-1)` khi kéo; pencil, `BoMenu`; `data-pos-x/y` |
 | `operations/throw-error/error-codes.ts` | `directus/packages/errors/src/codes.ts` | `ErrorCode` enum | | test so `libs/errors/src/codes.ts` |

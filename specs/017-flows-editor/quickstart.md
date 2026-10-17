@@ -56,7 +56,7 @@ graphify update .
 ## Đóng feature
 
 - Recipe Q-29..Q-33 trong `design-system/docs/` được design owner duyệt; ngoại lệ a11y canvas trong
-  `design-system/qa/handoff-checklist.md` được tech lead duyệt; D-105, D-106, R-43..R-46 duyệt và ghi vào bảng trạng
+  `design-system/qa/handoff-checklist.md` được tech lead duyệt; D-106, R-43..R-48 duyệt và ghi vào bảng trạng
   thái khác biệt của spec. R-47 và "Cần xác nhận" cũng duyệt ở đó.
 - Spec 016 (D-92) và 014 (D-72 phần `directus_flows`) ghi "đã gỡ ở 017"; `SPECKIT-GUIDE.md` ghi chú cho 018
   (`BoWorkspace*` dùng lại cho Insights; `/content/directus_operations` không chuyển hướng như Directus).

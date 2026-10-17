@@ -110,7 +110,7 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 - [x] **VIII. Biến môi trường**: PASS. Không biến mới.
 - [x] **IX. Đổi thương hiệu**: PASS. Notice D-106 viết "Backoffice"; khóa i18n Directus giữ; dữ liệu DB không đổi.
 - [x] **X. Chất lượng**: PASS. Coverage 60 %, lint, typecheck, browser test, E2E, build image; không email (D-34,
-  D-106); D-105, D-106, R-43..R-47 trong spec, tech lead duyệt trước khi đóng (SC-010).
+  D-106); D-106, R-43..R-48 trong spec, tech lead duyệt trước khi đóng (SC-010).
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (registry tĩnh, type lạ chỉ hiển thị), AI (D-54), WebSocket.
 - [x] **XII. Design-system**: VIOLATION có lý do (chờ tech lead duyệt). Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
   `handoff-checklist.md`; theme qua `@theme`; không hex trong class; Q-29..Q-33 ghi ở spec, recipe nháp trước khi
@@ -196,7 +196,7 @@ mới tách từ `flow.vue` để test unit (Directus để trong SFC).
 - research.md: R1 đến R12; bảng kiểm 2026-10-17 (đọc mã nguồn): nested `PATCH /flows` có parity 009, `use-revisions`
   đủ, `ExtensionOptions` cần prop mới, `ErrorCode` chép (lib workspace cần build), `getApiUrl` thay `getPublicURL`, allowlist
   bắt đầu #178, `RouterView` không tên. T002 (lượt 1): chạy tay bốn luồng trên Directus app 8155 và lưu body làm mốc
-  (`payload/baselines/flows-*.json`) trước khi viết bộ so payload; kiểm dữ liệu vòng có treo Directus không (D-105).
+  (`payload/baselines/flows-*.json`) trước khi viết bộ so payload; kiểm dữ liệu vòng có treo Directus không. Kết quả (2026-10-17): không treo, D-105 bỏ; dữ liệu vòng làm hỏng phần nạp flow của cả hai API (R-48); body Save thật ghi ở data-model §6.
 - Release-gate 52 mục (`checklists/release-gate.md`) áp toàn bộ 2026-10-17 (owner): lời giải ở
   `checklists/release-gate-proposals.md`; spec thêm US2-12, US5-4, R-47, chín Edge Cases; FR-010, FR-108 về 0 request
   khi vào danh sách.

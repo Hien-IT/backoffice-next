@@ -1,0 +1,49 @@
+[
+	{
+		"method": "PATCH",
+		"path": "/flows/flow:web-e2e-baseline-flow",
+		"body": {
+			"operation": {
+				"flow": "flow:web-e2e-baseline-flow",
+				"key": "condition_*",
+				"name": "Condition",
+				"options": {},
+				"position_x": 19,
+				"position_y": 1,
+				"reject": {
+					"flow": "flow:web-e2e-baseline-flow",
+					"key": "throw_error_*",
+					"name": "Throw Error",
+					"options": {},
+					"position_x": 37,
+					"position_y": 17,
+					"type": "throw-error"
+				},
+				"resolve": {
+					"flow": "flow:web-e2e-baseline-flow",
+					"key": "log_*",
+					"name": "Log to Console",
+					"options": {},
+					"position_x": 37,
+					"position_y": 1,
+					"resolve": {
+						"flow": "flow:web-e2e-baseline-flow",
+						"key": "transform_*",
+						"name": "Transform Payload",
+						"options": {},
+						"position_x": 55,
+						"position_y": 1,
+						"type": "transform"
+					},
+					"type": "log"
+				},
+				"type": "condition"
+			},
+			"operations": {
+				"create": [],
+				"delete": [],
+				"update": []
+			}
+		}
+	}
+]

@@ -22,7 +22,7 @@ và sau mỗi push và trước `parity-tests:env-up`/`env-down`; E2E local ch�
   parity 009 (FR-111). Đối chiếu ở mức màn: E2E ba cấu hình (§3), bộ so payload `flows` và bộ so DB ở `proxy-api` (§4),
   dùng chéo trên Directus app (§5, SC-002, SC-003), parity UI (SC-004); `fixtures-seed.test.ts` giữ xanh với bộ mẫu mở
   rộng.
-- Chỗ còn [Unverified] (D-105) kiểm ở T002; kết quả ghi vào `research.md` và spec.
+- [Unverified] cuối cùng (Directus có treo với dữ liệu vòng) đã kiểm ở T002: không treo, D-105 bỏ, R-48 thêm.
 
 **Organization**: Task nhóm theo user story của spec, xếp theo bốn lượt commit (FR-112, research R11): **Lượt 1** =
 Phase 1, 2, 3 (US1); **Lượt 2** = Phase 4 (US2), 5 (US3); **Lượt 3** = Phase 6 (US4), 7 (US5); **Lượt 4** = Phase 8
@@ -59,25 +59,25 @@ commit, push, CI xanh, `graphify update .`).
 **Purpose**: kiểm giả định còn lại, lấy mốc body ghi của Directus app, viết recipe nháp trước mọi task giao diện
 (FR-107, SC-008).
 
-- [ ] T001 Kiểm môi trường và bảng kiểm của research: `pnpm nx run parity-tests:env-up --vendor=postgres
+- [x] T001 Kiểm môi trường và bảng kiểm của research: `pnpm nx run parity-tests:env-up --vendor=postgres
       --profiles=app,web` lên được; xác nhận lại bảng "Kết quả kiểm" của `specs/017-flows-editor/research.md` bằng đọc
       code (không đổi gì thì ghi "T001 xác nhận 2026-10-xx"); dòng 017 của `CLAUDE.md` Active Technologies đúng với plan
-- [ ] T002 [P] Kiểm D-105 và hành vi Save của Directus trên Directus app 8155 (CHK052, R-47): tạo flow có vòng `resolve`
+- [x] T002 [P] Kiểm D-105 và hành vi Save của Directus trên Directus app 8155 (CHK052, R-47): tạo flow có vòng `resolve`
       bằng `PATCH /operations` trực tiếp, mở `/admin/settings/flows/<id>`, Edit Flow, đổi vị trí một panel, Save; ghi
       treo hay không vào `specs/017-flows-editor/research.md` (mục "Kết quả kiểm T002"); không treo → bỏ D-105 khỏi
       `spec.md` (Khác biệt, Edge Cases, FR-030) và ghi làm giống; xóa flow thử
-- [ ] T003 [P] Mốc Directus app (CHK032, SC-006): trên Directus app 8155 chạy tay bằng Playwright ghi request
+- [x] T003 [P] Mốc Directus app (CHK032, SC-006): trên Directus app 8155 chạy tay bằng Playwright ghi request
       (`page.on('request')`) bốn luồng: (1) tạo flow manual qua drawer, (2) thêm 4 operation (condition → resolve log,
       reject throw-error; log → resolve transform) và Save, (3) kéo panel transform, tháo rồi nối lại reject, Duplicate,
       Delete, Save, (4) Copy To; lưu body vào `e2e/payload/baselines/flows-*.json` (chuẩn hóa id thật → `key`, 5 ký tự
       ngẫu nhiên → `*`); so với body ở `data-model.md` §6 và spec US2-9; lệch thì sửa spec và data-model
-- [ ] T004 [P] Recipe nháp Q-29 (canvas: lưới 18 px, nền sáng/tối, mũi tên `brand`/`orange` nét đứt cho reject, lớp
+- [x] T004 [P] Recipe nháp Q-29 (canvas: lưới 18 px, nền sáng/tối, mũi tên `brand`/`orange` nét đứt cho reject, lớp
       mờ, nhánh gợi ý, vùng cuộn hai chiều trong `PrivateView fill`) vào `design-system/docs/layout-patterns.md` §13
       (mới) và dòng Settings của §7
-- [ ] T005 [P] Recipe nháp Q-30 (panel operation, tay cầm 32 px, chân Trigger, menu tile, nhãn `(x:y)`, cắt dòng), Q-31
+- [x] T005 [P] Recipe nháp Q-30 (panel operation, tay cầm 32 px, chân Trigger, menu tile, nhãn `(x:y)`, cắt dòng), Q-31
       (drawer operation), Q-32 (mục Logs, drawer log dòng thời gian), Q-33 (drawer flow hai tab, hộp Copy To, hộp xóa,
       trạng thái rỗng) vào `design-system/docs/component-specs.md` mục "Tier 3 recipes, nháp (017)"
-- [ ] T006 [P] Ngoại lệ a11y canvas (FR-106, CHK045): thêm mục "017 canvas flow: chỉ chuột/pointer, cảm ứng không bảo
+- [x] T006 [P] Ngoại lệ a11y canvas (FR-106, CHK045): thêm mục "017 canvas flow: chỉ chuột/pointer, cảm ứng không bảo
       đảm; tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer" vào
       `design-system/qa/handoff-checklist.md` với trạng thái "chờ tech lead duyệt"
 
@@ -91,55 +91,55 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Registry và định nghĩa
 
-- [ ] T010 [P] Chép `ErrorCode` từ `directus/packages/errors/src/codes.ts` vào `src/operations/throw-error/error-codes.ts`
+- [x] T010 [P] Chép `ErrorCode` từ `directus/packages/errors/src/codes.ts` vào `src/operations/throw-error/error-codes.ts`
       (enum, header nguồn) và test `src/operations/throw-error/error-codes.test.ts` đọc `libs/errors/src/codes.ts` bằng
       `fs` và so danh sách mã (CHK050); manifest `tools/port-manifest/017-T010.json`
-- [ ] T011 Chép 15 operation `directus/app/src/operations/<id>/index.ts` vào `src/operations/<id>/index.ts` (header
+- [x] T011 Chép 15 operation `directus/app/src/operations/<id>/index.ts` vào `src/operations/<id>/index.ts` (header
       nguồn; `defineOperationApp` identity inline trong `src/operations/define.ts`; `throw-error` dùng T010 với fallback
       `INTERNAL_SERVER_ERROR`, `500`, "An unexpected error occurred."; `trigger` dùng `useFlowsStore` của 012) và
       registry tĩnh `src/operations/index.ts` (`operations` sắp theo `id`, `getOperation(id)`) theo data-model §5;
       manifest `017-T011.json`
-- [ ] T012 Mở rộng `apps/web/scripts/extract-directus-registry.mjs` trích `operations` (id, icon, name, description,
+- [x] T012 Mở rộng `apps/web/scripts/extract-directus-registry.mjs` trích `operations` (id, icon, name, description,
       options tĩnh; options hàm với bộ đối số `{}`, `{type:'template'}`, `{type:'wysiwyg'}`, `{operation:'sign'}`,
       `{operation:'verify'}`, `{operation:'decode'}`, `{iterationMode:'batch'}`; overview với options mẫu) vào
       `fixtures/directus-registry.json`; test `src/operations/registry.test.ts` so registry của T011 với fixture
       (FR-044, SC-006)
-- [ ] T013 [P] Chép `constants.ts` và `triggers.ts` vào `flows/constants.ts`, `flows/triggers.ts` (`getPublicURL()` →
+- [x] T013 [P] Chép `constants.ts` và `triggers.ts` vào `flows/constants.ts`, `flows/triggers.ts` (`getPublicURL()` →
       `getApiUrl()`, `// Backoffice: CHK013`) và port `triggers.test.ts` thành `flows/triggers.test.ts` (thêm ca URL
       webhook `${getApiUrl()}flows/trigger/<id>`); manifest `017-T013.json`
 
 ### Mở rộng component
 
-- [ ] T014 Bộ mẫu `bo_flows` (FR-103, data-model §9): `fixtures/seed.mjs` thêm `bo_all_ops` (cây theo data-model §9,
+- [x] T014 Bộ mẫu `bo_flows` (FR-103, data-model §9): `fixtures/seed.mjs` thêm `bo_all_ops` (cây theo data-model §9,
       sáu operation có tác dụng phụ dưới reject của `log`), `bo_webhook`, `bo_schedule`, `bo_child`, `bo_event`,
       `bo_orphan` (mỗi flow một `POST /flows {…, operations: [cây lồng]}`; `bo_all_ops.trigger` trỏ `bo_child`), chạy
       `bo_all_ops` 3 lần (`reason` `ok`, `ok`, `fail`) với thử lại 10 × 500 ms khi API chưa nạp flow; dọn theo tên;
       `fixtures/export.mjs` xuất `snapshot/flows.json` (mở rộng), `snapshot/operations.json`, `snapshot/revisions.flows.json`;
       `tests/parity/src/web/fixtures-seed.test.ts` so hai app bỏ `directus_revisions`, `directus_activity`; chạy seed trên
       8155 và 8156 rồi commit snapshot
-- [ ] T015 API giả lập: `src/test-utils/fetch.ts` thêm #178–#184 vào `KNOWN_REQUESTS` và `mockFixtureApi` trả
+- [x] T015 API giả lập: `src/test-utils/fetch.ts` thêm #178–#184 vào `KNOWN_REQUESTS` và `mockFixtureApi` trả
       `snapshot/flows.json`, `operations.json`, `revisions.flows.json` (lọc `item`, `page`, `aggregate`), nhận body lồng
       `PATCH /flows/<id>` và cho phép test ép 500 (contracts/tests §2)
-- [ ] T016 [P] `src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue`: thêm `type:
+- [x] T016 [P] `src/modules/settings/routes/data-model/field-detail/shared/ExtensionOptions.vue`: thêm `type:
       'operation'`, prop `collection?`, `field?`; khi `operation` không gọi `useFieldDetailStore`; test
       `ExtensionOptions.test.ts` thêm ca `operation` (mảng options, không store field) và giữ ca cũ xanh (FR-042)
-- [ ] T017 [P] Port `directus/app/src/components/v-workspace.vue`, `v-workspace-tile.vue` thành
+- [x] T017 [P] Port `directus/app/src/components/v-workspace.vue`, `v-workspace-tile.vue` thành
       `src/components/workspace/BoWorkspace.vue`, `BoWorkspaceTile.vue` (kéo pointer bám lưới, throttle 20 ms, nhãn
       `(x-1:y-1)`, menu tile `BoMenu` + pencil, kích thước `(x+width+25)×18` khi sửa và `(x+width−1)×18` khi xem,
       `data-panel-key`, `data-pos-x`, `data-pos-y`; không resize, không zoom) với test
       `src/components/workspace/BoWorkspace.browser.test.ts`; manifest `017-T017.json`
-- [ ] T018 [P] Overlay `src/lang/overlay/en-US.ts`, `vi-VN.ts`: `operations_mail_not_sent_notice` với chữ của spec
+- [x] T018 [P] Overlay `src/lang/overlay/en-US.ts`, `vi-VN.ts`: `operations_mail_not_sent_notice` với chữ của spec
       FR-041 (D-106); `src/lang/overlay.test.ts` thêm ca hai ngôn ngữ
 
 ### Harness E2E và ngân sách
 
-- [ ] T019 [P] E2E harness: `e2e/helpers/allowed-paths.ts` thêm #178–#184; `e2e/helpers/flows.ts` (mới: `openFlow`,
+- [x] T019 [P] E2E harness: `e2e/helpers/allowed-paths.ts` thêm #178–#184; `e2e/helpers/flows.ts` (mới: `openFlow`,
       `dragPanel`, `linkHandle`, `readGrid`, `countArrows`, `openOperation`, `createTempFlow`, `deleteTempFlows`);
       `e2e/helpers/fixtures.ts` thêm `FLOWS`; `e2e/helpers/db-rows.ts` thêm `FLOWS_TABLES` và chuẩn hóa ánh xạ
       `flow`/`operation`/`resolve`/`reject` → tên/key; `e2e/helpers/directus-app.ts` thêm `openDirectusFlow`,
       `readDirectusGrid` (`--pos-x/--pos-y`), `countDirectusArrows`; `e2e/helpers/payload.ts` thêm `normalizeFlowsBody`
       (contracts/components §6)
-- [ ] T020 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_017 = BUDGET_016 + 20 * 1024`, `LAZY_BUDGETS_017` (FlowRoute
+- [x] T020 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_017 = BUDGET_016 + 20 * 1024`, `LAZY_BUDGETS_017` (FlowRoute
       60 KB, registry 25 KB, LogsDrawer 15 KB gzip) gộp vào `LAZY_BUDGETS`; test của script cập nhật
 
 **Checkpoint**: registry, triggers, `ExtensionOptions`, workspace, bộ mẫu, mock và harness sẵn sàng.
@@ -154,32 +154,32 @@ commit, push, CI xanh, `graphify update .`).
 
 ### Tests cho User Story 1
 
-- [ ] T030 [P] [US1] `flows/FlowsOverviewRoute.browser.test.ts`: cột, sắp xếp mặc định và bỏ sắp xếp, click/Ctrl-click,
+- [x] T030 [P] [US1] `flows/FlowsOverviewRoute.browser.test.ts`: cột, sắp xếp mặc định và bỏ sắp xếp, click/Ctrl-click,
       menu (`PATCH {status}` rồi `GET /flows`; lỗi 500 → hộp lỗi, store không đổi), hộp xóa (`DELETE`, lỗi giữ dòng),
       nút tạo khóa khi không quyền `create`, trạng thái rỗng, axe sáng/tối
-- [ ] T031 [P] [US1] `flows/FlowDrawer.browser.test.ts`: mặc định flow mới, tab 2 khóa khi tên rỗng, Next/Save/Finish
+- [x] T031 [P] [US1] `flows/FlowDrawer.browser.test.ts`: mặc định flow mới, tab 2 khóa khi tên rỗng, Next/Save/Finish
       theo tab, 5 trigger và field ẩn/hiện theo `triggers.ts`, reset options khi đổi trigger và khi đổi `type` của
       event, body `POST /flows?fields=id` và `PATCH` cả body, lỗi lưu giữ drawer và giá trị, `startTab trigger_setup`,
       axe hai tab
-- [ ] T032 [P] [US1] `src/modules/settings.test.ts`: `/settings/flows` → `settings-flows-collection` (component thật,
+- [x] T032 [P] [US1] `src/modules/settings.test.ts`: `/settings/flows` → `settings-flows-collection` (component thật,
       không `Frame`); `SettingsNavigation.test.ts` giữ mục Flows
 
 ### Implementation cho User Story 1
 
-- [ ] T033 [US1] `src/modules/settings.ts`: khối `flows` thay `Frame` bằng `settings-flows-collection` →
+- [x] T033 [US1] `src/modules/settings.ts`: khối `flows` thay `Frame` bằng `settings-flows-collection` →
       `() => import('./settings/routes/flows/FlowsOverviewRoute.vue')` (FR-001; route item ở T050); sửa comment D-92 và
       comment "khung" ở `src/utils/get-item-route.ts`
-- [ ] T034 [US1] `flows/FlowDrawer.vue` port `flow-drawer.vue` (BoDrawer persistent, `BoTabs orientation="vertical"`,
+- [x] T034 [US1] `flows/FlowDrawer.vue` port `flow-drawer.vue` (BoDrawer persistent, `BoTabs orientation="vertical"`,
       `BoFancySelect` trigger, `BoForm` options đã `translate`, `select-icon`, `select-color`, select accountability, lưu
       và lỗi như FR-012, emit `done(id)`/`cancel`) theo recipe Q-33; manifest `017-T034.json`
-- [ ] T035 [US1] `flows/FlowsOverviewRoute.vue` port `overview.vue` (`PrivateView fill`, `BoTable` 4 cột, `BoMenu` dòng,
+- [x] T035 [US1] `flows/FlowsOverviewRoute.vue` port `overview.vue` (`PrivateView fill`, `BoTable` 4 cột, `BoMenu` dòng,
       `BoDialog` xóa, `FlowDrawer`, sắp xếp `sortBy`, không gọi API khi vào route, `hydrate()` sau ghi, điều hướng sau
       tạo FR-015) theo recipe Q-2, Q-33; manifest `017-T035.json`
-- [ ] T036 [US1] E2E `e2e/settings-flows-overview.spec.ts` (contracts/tests §3): bảng `bo_flows`, sắp xếp, menu đổi trạng
+- [x] T036 [US1] E2E `e2e/settings-flows-overview.spec.ts` (contracts/tests §3): bảng `bo_flows`, sắp xếp, menu đổi trạng
       thái flow tạm, drawer tạo flow tạm với mỗi trigger, sửa, xóa, lỗi lưu (`page.route` trả 500), điều hướng sau tạo
       (lượt 1 chỉ kiểm URL `/settings/flows/<id>`; route item có ở T050, trang đích kiểm ở T051); chromium 768/1280 ba
       cấu hình
-- [ ] T037 [US1] Đóng lượt 1: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
+- [x] T037 [US1] Đóng lượt 1: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
       `check-raw-colors`, E2E `settings-*` + `content-sidebar` xanh ở `proxy-api` local; commit
       `feat(017): flows overview, flow drawer and triggers (wave 1)`; push; CI xanh; `graphify update .`
 
@@ -199,7 +199,7 @@ commit, push, CI xanh, `graphify update .`).
       file port ở T043; chạy đỏ trước
 - [ ] T041 [P] [US2] `flows/use-flow-editor.test.ts`: 12 kịch bản SC-006 (thêm con resolve, con reject, nối lại sang cha
       khác, tháo, xóa có con, xóa operation đầu, nhân bản, đổi vị trí, đổi trạng thái, Save rỗng, Save sau xóa + thêm
-      cùng key, vòng dữ liệu → lỗi D-105) so body `PATCH /operations` và `PATCH /flows/:id` với
+      cùng key, vòng dữ liệu → không request, lỗi console, như Directus) so body `PATCH /operations` và `PATCH /flows/:id` với
       `e2e/payload/baselines/flows-*.json` của T003; Save lỗi giữ staging và Save lại gửi lại (R-47); `hasEdits` (R-44)
 - [ ] T042 [P] [US2] `flows/FlowRoute.browser.test.ts`: chế độ xem `bo_all_ops` (15 panel, số mũi tên, lớp mờ của
       `bo_orphan`, overview, trigger null), Edit Flow, kéo panel, "+" gọi
@@ -217,7 +217,7 @@ commit, push, CI xanh, `graphify update .`).
 - [ ] T045 [P] [US2] `flows/components/OptionsOverview.vue` port `options-overview.vue` (`<dl>` nội suy chữ, tiêu đề
       `name` với tooltip `key`, Trigger `t('triggers.<type>.name')`, nút sao chép khi `copyable` và `isCopySupported`)
 - [ ] T046 [US2] `flows/use-flow-editor.ts` port script `flow.vue` (staging, `stageOperation`, `duplicateOperation`,
-      `copyTo`, `deleteOperation`, `onDrag`, `onLink` từ chối vòng, `isLoner`, `getTrees` với `Set` đã thăm D-105,
+      `copyTo`, `deleteOperation`, `onDrag`, `onLink` từ chối vòng, `isLoner`, `getTrees` dừng khi gặp lại id (không request, `console.error`, như kết quả Directus của T002),
       `saveChanges`, `clearChanges`, `hasEdits`) theo data-model §6; T041 xanh; manifest `017-T046.json`
 - [ ] T047 [US2] `flows/components/Operation.vue` port `components/operation.vue` (header icon và tên loại, màu
       `brand`/`orange`, tay cầm `<button>` 32 px resolve/reject/attachment, nút "+" khi hover, kéo mũi tên pointer,
@@ -356,7 +356,7 @@ commit, push, CI xanh, `graphify update .`).
       `/content/directus_operations` không chuyển hướng như Directus)
 - [ ] T101 [P] Recipe Q-29 đến Q-33 hoàn thiện theo code và gửi design owner duyệt; `design-system/qa/handoff-checklist.md`
       đạt (gồm ngoại lệ canvas của T006); ghi trạng thái Q-29 đến Q-33 trong `specs/017-flows-editor/spec.md`
-- [ ] T102 Bảng trạng thái khác biệt D-105, D-106, R-43 đến R-47, ngoại lệ a11y canvas và mục "Cần xác nhận" (code đã
+- [ ] T102 Bảng trạng thái khác biệt D-106, R-43 đến R-48, ngoại lệ a11y canvas và mục "Cần xác nhận" (code đã
       làm, duyệt) trong `specs/017-flows-editor/spec.md` như 016 T122; tech lead duyệt (SC-010)
 - [ ] T103 Đóng feature: mọi cổng của T083 + payload, cross-use, parity UI, axe, perf, bundle xanh; coverage ≥ 60 %;
       commit `test(017): flows payload, cross-use and parity suites, close feature (wave 4)`; push; CI xanh;
@@ -433,4 +433,21 @@ Lượt 4, Phase 8:
 
 ## Ghi chú khi làm
 
-- (trống; ghi kết quả từng lượt ở đây như 016)
+- Lượt 1 (2026-10-17):
+  - T002, T003 do một subagent chạy trên Directus app 8155: Directus không treo với dữ liệu vòng (D-105 bỏ), nhưng dữ
+    liệu vòng làm `FlowManager` của cả hai API bỏ nạp flow tới khi khởi động lại (R-48; đã `docker restart` ba
+    container API). Body Save thật khác data-model §6 ban đầu (cây trong `operation`, `flow` ở mọi nút, nhân bản chép
+    trường giao diện): đã sửa spec US2-7, US2-9, FR-030, data-model §6, contracts. Mốc ghi bằng
+    `payload/flows-baselines.spec.ts` (`RECORD_BASELINES=1`).
+  - T011: registry dùng `import.meta.glob` eager như `interfaces/index.ts` (mẫu của codebase) thay danh sách import tay;
+    vẫn chỉ 15 operation có sẵn. `ErrorCode` chép (T010), không phụ thuộc lib workspace.
+  - T016: `ExtensionOptions type="operation"` không tra registry (drawer luôn truyền `options`), nên registry operation
+    không vào chunk của drawer field; `use-extension` không đổi.
+  - T019: phần dùng ở lượt 1 xong (allowlist, `helpers/flows.ts` với flow tạm và tên bộ mẫu). Kéo/đọc lưới, `FLOWS_TABLES`,
+    `normalizeFlowsBody`, phần Directus app của `directus-app.ts` làm cùng task dùng chúng (T051, T090, T091).
+  - T030, T031: một file unit `flows/flows.test.ts` (happy-dom, mẫu `policies.test.ts` của 016) thay hai browser test;
+    axe ở E2E T094.
+  - T033: route item vẫn là khung 012 tới T050, để `router.push({ name: 'settings-flows-item' })` sau khi tạo flow có
+    đích; E2E lượt 1 chỉ kiểm URL (O1).
+  - T014: snapshot mới `flows.editor.json`, `operations.json`, `flows.runs.json` (không đặt tiền tố `revisions.` để mock
+    không lẫn với revisions của 014); các file cũ không bị đánh số lại; parity `fixtures-seed` xanh.

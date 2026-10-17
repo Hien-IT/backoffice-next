@@ -58,4 +58,4 @@ Owner yêu cầu áp toàn bộ (2026-10-17). Mỗi mục: lời giải ngắn v
 | CHK049 | Seed thử lại `POST /flows/trigger/:id` tối đa 10 lần cách 500 ms khi lỗi "flow không có" (bus reload chưa tới); `fixtures-seed` bỏ `directus_revisions`/`directus_activity` khi so | Spec FR-103 |
 | CHK050 | Web không phụ thuộc lib workspace (cần build `dist`, kéo `@backoffice/types`): chép danh sách `ErrorCode` vào `operations/throw-error/error-codes.ts` (nguồn `directus/packages/errors/src/codes.ts`) với test so `libs/errors/src/codes.ts` | research R1, plan, contracts |
 | CHK051 | "Cần xác nhận": RTL, `trigger-detail.vue`, request "created", chuỗi literal; tech lead xác nhận khi duyệt bảng khác biệt | Spec Khác biệt, SC-010 |
-| CHK052 | T002 thử dữ liệu vòng trên Directus app: treo → giữ D-105; không treo → bỏ D-105 và làm giống | Spec D-105 |
+| CHK052 | T002 thử dữ liệu vòng trên Directus app: treo → giữ D-105; không treo → bỏ D-105 và làm giống | Spec Edge Cases (T002 xong 2026-10-17: không treo, D-105 bỏ, R-48) |

@@ -16,7 +16,7 @@
 ## Requirement Completeness
 
 - [x] No [NEEDS CLARIFICATION] markers remain — ba điểm nhiều cách hiểu (canvas chỉ chuột, notice ở form `mail`, màu nhánh reject) owner đã chốt 2026-10-17
-      có đề xuất mặc định và ghi ở Clarifications và "Cần xác nhận"; một [Unverified] còn lại (D-105: Directus treo khi
+      có đề xuất mặc định và ghi ở Clarifications và "Cần xác nhận"; [Unverified] cuối (Directus treo khi
       dữ liệu có vòng) là việc kiểm T002 của plan, không chặn.
 - [x] Requirements are testable and unambiguous
 - [x] Success criteria are measurable
@@ -40,7 +40,7 @@
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
 - Owner chọn B cho canvas (chỉ chuột như Directus, ngoại lệ a11y; D-104 bỏ trống); owner chọn B cho form `mail`
-  (thêm notice, D-106); chờ tech lead duyệt D-105, D-106, R-43 đến R-46 (hành vi Directus tái tạo) và ngoại lệ a11y.
+  (thêm notice, D-106); chờ tech lead duyệt D-106, R-43 đến R-48 (hành vi Directus tái tạo) và ngoại lệ a11y.
 - Giả định cần plan kiểm (T002): API mới nhận `PATCH /flows/:id` với `operations: {create, update, delete}` lồng và
   cây operation lồng; `GET /revisions` nhận filter `activity.action` và `aggregate[count]`; `ExtensionOptions` tách
   được khỏi `useFieldDetailStore` cho `type operation`; `use-revisions` nhận `action`/`full`.
@@ -49,5 +49,5 @@
   `directus_operations` trong `get-route.ts`; `trigger-detail.vue` không được import.
 - Không tạo branch (làm trên `main` như 012–016); thư mục `specs/017-flows-editor` là feature hiện tại theo quy tắc
   "số cao nhất" của `common.sh`.
-- Release-gate 52 mục (`release-gate.md`) áp toàn bộ 2026-10-17; thêm R-47; danh sách chờ duyệt: D-105, D-106, R-43
+- Release-gate 52 mục (`release-gate.md`) áp toàn bộ 2026-10-17; thêm R-47; danh sách chờ duyệt: D-106, R-43
   đến R-47, ngoại lệ a11y canvas, "Cần xác nhận".

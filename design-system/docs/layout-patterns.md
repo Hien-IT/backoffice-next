@@ -451,7 +451,7 @@ Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and ap
 
 - **Settings sub-menu (Q-24)**: one level (L-3, no tree exception). Rows are `menu-dropdown-item` links with icon and
   label, in three groups split by the §11 divider (`my-2 h-px bg-gray-200 dark:bg-gray-800`, `role="separator"`):
-  Data Model (`database`), Flows (`bolt`, the 012 frame until 017, D-92); Roles (`group`), Access Policies
+  Data Model (`database`), Flows (`bolt`, the flows editor of §13, 017); Roles (`group`), Access Policies
   (`admin_panel_settings`); Project (`tune`), Appearance (`palette`), Presets (`bookmark`), Translations
   (`translate`). Active row by route prefix (`aria-current="page"`). No Report Bug / Request Feature rows (D-94) and no
   version row at the end (D-95).
@@ -480,4 +480,28 @@ Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and ap
   editing), icon (BoIconPicker), color (BoColorPicker), note (BoInput) and the translations list (`list` interface);
   Cancel first, Save primary (disabled without key).
 - At 768px a row keeps one line; the note truncates.
+
+## 13. Flow canvas (nháp, 017)
+
+Recipe for spec 017 Q-29 (T004, FR-107), written before the code; design owner approval pending. Behaviour is the
+Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vue`, `components/arrows/*`,
+`components/v-workspace*.vue`); this section only sets the look.
+
+- **Page**: `PrivateView fill` (D-99): page header stays, the canvas is the only scroll area (`overflow-auto` on both
+  axes, `relative`). The right detail panel (L-4) holds the Logs section (component-specs "Flow logs").
+- **Grid**: one cell is 18 px (CSS grid, tiles placed by row/column span). In edit mode only (as Directus) a dot grid
+  appears: a CSS `radial-gradient` of `var(--color-gray-300)` (dark `var(--color-gray-700)`) every 18 px, fading in
+  150 ms (none with `motion-reduce`); no raw color. The canvas background stays the page background. Size in cells as
+  Directus: edit mode `(x + width + 25) × 18` px, view mode `(x + width − 1) × 18` px from the furthest panel.
+- **Panels** are absolutely positioned at `(position_x − 1) × 18`, `(position_y − 1) × 18`, 14 × 14 cells (252 px);
+  recipe in component-specs "Flow operation panel".
+- **Arrows**: one SVG over the canvas (`pointer-events-none`, `aria-hidden`), size = furthest panel + 100 px. Stroke
+  2 px, round caps, rounded corners, 8 px ">" head. Resolve `stroke-brand-500` (dark `stroke-brand-400`), reject
+  `stroke-orange-500` (dark `stroke-orange-400`) with `stroke-dasharray="6 4"` so the branch is not told by color
+  only. Subdued (flow inactive, or panel not linked to the trigger): `opacity-50`. Hint stub (3 cells) and the arrow
+  being dragged use the same stroke at `opacity-60`. Fade transition 150 ms, none with `motion-reduce`.
+- **Modes**: view mode shows arrows of existing links only; edit mode adds the hint stubs, the "+" buttons and drag.
+  Dragging panels and arrows is mouse/pointer only, as Directus (recorded exception in `qa/handoff-checklist.md`);
+  everything else on the canvas (pencil, tile menu, trigger status select, header buttons) is a focusable control.
+- **768 px**: the canvas keeps its size and scrolls; the detail panel becomes the L-4 drawer.
 

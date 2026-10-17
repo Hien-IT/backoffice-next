@@ -1,0 +1,6 @@
+[
+	{
+		"source": "packages/errors/src/codes.ts",
+		"dest": "apps/web/src/operations/throw-error/error-codes.ts"
+	}
+]

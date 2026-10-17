@@ -16,6 +16,7 @@ import {
 	FILES_FOLDERS,
 	FIXED_UUIDS,
 	FLOW,
+	FLOWS,
 	FOLDER,
 	query,
 	readArgs,
@@ -236,7 +237,8 @@ const directoryRoles = await api.get(
 const directoryUsers = await api.get(
 	`/users${query({
 		filter: { email: { _in: Object.values(DIRECTORY_USERS).map((u) => u.email) } },
-		fields: 'id,email,first_name,last_name,status,role,provider,external_identifier,title,location,token,tfa_secret,avatar',
+		fields:
+			'id,email,first_name,last_name,status,role,provider,external_identifier,title,location,token,tfa_secret,avatar',
 		sort: 'email',
 	})}`,
 );
@@ -262,6 +264,41 @@ const settingsPermissions = await api.get(
 const settingsAccess = await api.get(
 	`/access${query({ filter: { policy: { _in: settingsPolicies.map((p) => p.id) } }, fields: 'role,user,policy,sort' })}`,
 );
+// Feature 017: the flows of the editor set, their operations (ids become keys through the stable ids) and the steps of
+// the three runs of bo_all_ops (statuses only: the payloads hold times and tokens).
+const editorFlows = await api.get(
+	`/flows${query({
+		filter: { name: { _in: Object.values(FLOWS) } },
+		fields: 'id,name,icon,color,description,status,trigger,options,accountability,operation',
+		sort: 'name',
+	})}`,
+);
+const editorOperations = (
+	await api.get(
+		`/operations${query({
+			filter: { flow: { _in: editorFlows.map((f) => f.id) } },
+			fields: 'id,flow,name,key,type,position_x,position_y,options,resolve,reject',
+			limit: -1,
+		})}`,
+	)
+).sort((a, b) => {
+	const flowName = (o) => editorFlows.find((f) => f.id === o.flow).name;
+	return flowName(a).localeCompare(flowName(b)) || a.key.localeCompare(b.key);
+});
+const allOps = editorFlows.find((f) => f.name === FLOWS.all);
+const flowRuns = (
+	await api.get(
+		`/revisions${query({
+			filter: { collection: { _eq: 'directus_flows' }, item: { _eq: allOps.id }, activity: { action: { _eq: 'run' } } },
+			fields: 'data',
+			sort: 'id',
+		})}`,
+	)
+).map((revision) => ({
+	reason: revision.data.data.$trigger.body.reason,
+	steps: revision.data.steps.map(({ operation, key, status }) => ({ operation, key, status })),
+}));
+
 const settingsTranslations = await api.get(
 	`/translations${query({ filter: { key: { _eq: SETTINGS.translationKey } }, fields: 'key,language,value', sort: 'language' })}`,
 );
@@ -318,6 +355,10 @@ const snapshot = {
 	'settings.permissions.json': settingsPermissions,
 	'settings.access.json': settingsAccess,
 	'settings.translations.json': settingsTranslations,
+	// 017 last, after 016.
+	'flows.editor.json': editorFlows,
+	'operations.json': editorOperations,
+	'flows.runs.json': flowRuns,
 };
 
 mkdirSync(out, { recursive: true });

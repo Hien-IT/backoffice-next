@@ -163,10 +163,14 @@ export default defineModule({
 			],
 		},
 		{
-			// D-92: the flows editor is feature 017.
+			// Feature 017 (FR-001, D-92 lifted): the flows overview; the flow page replaces the 012 frame in wave 2 (T050).
 			path: 'flows',
 			children: [
-				{ name: 'settings-flows-collection', path: '', component: Frame, meta: FRAME_META },
+				{
+					name: 'settings-flows-collection',
+					path: '',
+					component: () => import('./settings/routes/flows/FlowsOverviewRoute.vue'),
+				},
 				{ name: 'settings-flows-item', path: ':primaryKey(.*)', component: Frame, meta: FRAME_META },
 			],
 		},
