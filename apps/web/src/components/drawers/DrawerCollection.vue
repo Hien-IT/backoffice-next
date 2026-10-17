@@ -3,7 +3,8 @@
 // Backoffice: the layout of the collection preset (FR-029, D-58 lifted), rendered from the layout registry like
 // CollectionRoute. The temporary preset (FR-019) is never written. No layout options in the drawer, as Directus
 // drawer-collection.vue (016: the 014 sidebar section was removed). The layout is only mounted while the drawer is
-// open, so nothing is fetched while it is closed (013). The `sidebar` slot of the callers (folders of the files
+// open, so nothing is fetched while it is closed (013), unless `eager` (018: the relational variable panel loads it like
+// Directus). The `sidebar` slot of the callers (folders of the files
 // drawer) is the drawer sidebar, only when given.
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
@@ -29,12 +30,16 @@ const props = withDefaults(
 		multiple?: boolean;
 		filter?: Filter | undefined;
 		drawerProps?: Partial<BoDrawerProps> | undefined;
+		/** Mount the layout (and fetch its items) while the drawer is closed, as Directus always does (018 relational
+		 * variable panel, owner 2026-10-18); off by default (013). */
+		eager?: boolean;
 	}>(),
 	{
 		active: undefined,
 		selection: () => [],
 		filter: undefined,
 		drawerProps: undefined,
+		eager: false,
 	},
 );
 
@@ -163,7 +168,7 @@ function useActions() {
 <template>
 	<component
 		:is="layoutWrapper"
-		v-if="internalActive"
+		v-if="internalActive || eager"
 		v-slot="{ layoutState }"
 		v-model:selection="layoutSelection"
 		v-model:layout-options="localOptions"

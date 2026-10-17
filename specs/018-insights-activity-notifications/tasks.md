@@ -758,6 +758,7 @@ Lượt 4 (2026-10-18, đang làm):
 - T116 (phần từ mốc T002): app sửa theo Directus: panel mới không gửi `show_header` (FR-032 sửa); `DELETE /notifications`
   gửi `{keys}` (mock API nhận cả hai dạng). Tài liệu sửa: FR-108 (đếm bình luận khi mở dashboard; drawer mở gửi danh sách
   + `countDistinct`), data-model §3 (`icon` gửi `space_dashboard`, `show_header`), §10, api-calls #185, #186, #193,
-  #194, #196, #198, #201, #203. Còn một khác biệt đọc (Directus nạp danh sách user của drawer đóng ở relational
-  variable) chờ chủ dự án xác nhận.
+  #194, #196, #198, #201, #203. Khác biệt đọc cuối (Directus nạp danh sách của drawer chọn item khi đóng ở relational
+  variable): chủ dự án chọn làm giống, `DrawerCollection` thêm prop `eager` (mặc định tắt như 013), panel relational
+  variable bật.
 

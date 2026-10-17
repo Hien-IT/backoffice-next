@@ -39,8 +39,7 @@ Bổ sung vào danh sách đóng của 012 (#1–#32), 013 (#33–#49), 014 (#50
 Không có request nào khác trong E2E (SC-009). Fixture seed (`seed.mjs`) gọi thêm `POST /dashboards`, `POST /panels`
 mảng, `POST /notifications` (admin), `DELETE /dashboards`, `DELETE /notifications` mảng; không thuộc allowlist của app.
 
-**Mốc Directus (T002, 2026-10-18)**: `apps/web-e2e/src/payload/baselines/insights-*.json`. Một khác biệt về đọc còn lại,
-không ảnh hưởng dữ liệu: khi mở dashboard có relational variable, Directus gửi thêm `GET /users` (danh sách) và một đếm
-`countDistinct` của drawer chọn item dù drawer đang đóng (`drawer-collection` luôn được dựng); app không gửi vì
-`DrawerCollection` chỉ dựng khi mở. Chờ chủ dự án xác nhận.
+**Mốc Directus (T002, 2026-10-18)**: `apps/web-e2e/src/payload/baselines/insights-*.json`. Khi mở dashboard có relational
+variable, Directus gửi thêm danh sách item của drawer chọn item (`GET /users`… ) và một đếm `countDistinct` dù drawer
+đang đóng; app làm giống (chủ dự án 2026-10-18): panel relational variable dùng `DrawerCollection eager`.
 

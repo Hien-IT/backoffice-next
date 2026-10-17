@@ -93,7 +93,9 @@ function onSelection(data: (number | string)[] | null) {
 			@select="selectModalOpen = true"
 		/>
 
+		<!-- Backoffice: `eager` loads the items while the drawer is closed, as Directus (owner 2026-10-18, T002 baseline). -->
 		<DrawerCollection
+			eager
 			:active="selectModalOpen"
 			:collection="collection"
 			:selection="value ?? []"
