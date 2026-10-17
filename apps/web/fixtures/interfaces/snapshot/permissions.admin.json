@@ -63,6 +63,38 @@
 			]
 		}
 	},
+	"bo_insights_data": {
+		"create": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"read": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"update": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"delete": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		},
+		"share": {
+			"access": "full",
+			"fields": [
+				"*"
+			]
+		}
+	},
 	"bo_junction_files": {
 		"create": {
 			"access": "full",

@@ -1,0 +1,50 @@
+[
+	{
+		"source": "app/src/panels/index.ts",
+		"dest": "apps/web/src/panels/index.ts"
+	},
+	{
+		"source": "app/src/panels/bar-chart/index.ts",
+		"dest": "apps/web/src/panels/bar-chart/index.ts"
+	},
+	{
+		"source": "app/src/panels/label/index.ts",
+		"dest": "apps/web/src/panels/label/index.ts"
+	},
+	{
+		"source": "app/src/panels/line-chart/index.ts",
+		"dest": "apps/web/src/panels/line-chart/index.ts"
+	},
+	{
+		"source": "app/src/panels/list/index.ts",
+		"dest": "apps/web/src/panels/list/index.ts"
+	},
+	{
+		"source": "app/src/panels/meter/index.ts",
+		"dest": "apps/web/src/panels/meter/index.ts"
+	},
+	{
+		"source": "app/src/panels/metric/index.ts",
+		"dest": "apps/web/src/panels/metric/index.ts"
+	},
+	{
+		"source": "app/src/panels/metric-list/index.ts",
+		"dest": "apps/web/src/panels/metric-list/index.ts"
+	},
+	{
+		"source": "app/src/panels/pie-chart/index.ts",
+		"dest": "apps/web/src/panels/pie-chart/index.ts"
+	},
+	{
+		"source": "app/src/panels/relational-variable/index.ts",
+		"dest": "apps/web/src/panels/relational-variable/index.ts"
+	},
+	{
+		"source": "app/src/panels/time-series/index.ts",
+		"dest": "apps/web/src/panels/time-series/index.ts"
+	},
+	{
+		"source": "app/src/panels/variable/index.ts",
+		"dest": "apps/web/src/panels/variable/index.ts"
+	}
+]

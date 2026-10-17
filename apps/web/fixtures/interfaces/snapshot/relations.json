@@ -81,6 +81,33 @@
 		}
 	},
 	{
+		"collection": "bo_insights_data",
+		"field": "owner",
+		"related_collection": "directus_users",
+		"schema": {
+			"constraint_name": "bo_insights_data_owner_foreign",
+			"table": "bo_insights_data",
+			"column": "owner",
+			"foreign_key_schema": "public",
+			"foreign_key_table": "directus_users",
+			"foreign_key_column": "id",
+			"on_update": "NO ACTION",
+			"on_delete": "SET NULL"
+		},
+		"meta": {
+			"id": null,
+			"many_collection": "bo_insights_data",
+			"many_field": "owner",
+			"one_collection": "directus_users",
+			"one_field": null,
+			"one_collection_field": null,
+			"one_allowed_collections": null,
+			"junction_field": null,
+			"sort_field": null,
+			"one_deselect_action": "nullify"
+		}
+	},
+	{
 		"collection": "bo_junction_files",
 		"field": "bo_rel_id",
 		"related_collection": "bo_rel",

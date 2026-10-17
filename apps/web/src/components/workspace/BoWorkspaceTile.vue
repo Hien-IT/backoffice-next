@@ -1,9 +1,12 @@
 <!-- Ported from directus/app/src/components/v-workspace-tile.vue -->
 <script setup lang="ts">
-// Backoffice (spec 017 FR-025, recipe Q-30): only the move drag of the flows editor (no resize, the flows editor passes
-// `resizable: false`), no RTL mirroring (no RTL language in the app). The tile is placed on the workspace grid and
-// exposes its cell in `data-pos-x` / `data-pos-y` for the E2E comparison with the Directus app (SC-002). Dragging is
-// pointer only, as Directus (recorded a11y exception, FR-106); the edit and options buttons are keyboard reachable.
+// Backoffice (spec 017 FR-025, recipe Q-30): the move drag of the flows editor, no RTL mirroring (no RTL language in the
+// app). Feature 018 (FR-024, recipe Q-34) adds the 8 resize handles of the Insights dashboard (`resizable`, off by
+// default so the flows editor keeps its behaviour), the min size clamp, the `W×H` label and the per-corner radius
+// (`borderRadius`). The tile exposes its cell and size in `data-pos-x/y`, `data-width/height` for the E2E comparison
+// with the Directus app (SC-002). Dragging and resizing are pointer only, as Directus (recorded a11y exceptions, 017
+// FR-106, 018 FR-027); the edit and options buttons are keyboard reachable. Unlike Directus the pointer listeners are
+// always removed on release (an empty edit leaves them attached there; no effect on the data).
 import { throttle } from 'lodash-es';
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -24,7 +27,37 @@ export type AppTile = {
 	[key: string]: any;
 };
 
-export type TilePosition = { position_x?: number | undefined; position_y?: number | undefined };
+export type TilePosition = {
+	position_x?: number | undefined;
+	position_y?: number | undefined;
+	width?: number | undefined;
+	height?: number | undefined;
+};
+
+type Operation =
+	| 'move'
+	| 'resize-top'
+	| 'resize-right'
+	| 'resize-bottom'
+	| 'resize-left'
+	| 'resize-top-left'
+	| 'resize-top-right'
+	| 'resize-bottom-right'
+	| 'resize-bottom-left';
+
+const HANDLES: { operation: Operation; class: string }[] = [
+	{ operation: 'resize-top', class: 'top-0 left-3 right-3 h-3 -translate-y-1/2 cursor-ns-resize' },
+	{ operation: 'resize-right', class: 'right-0 top-3 bottom-3 w-3 translate-x-1/2 cursor-ew-resize' },
+	{ operation: 'resize-bottom', class: 'bottom-0 left-3 right-3 h-3 translate-y-1/2 cursor-ns-resize' },
+	{ operation: 'resize-left', class: 'left-0 top-3 bottom-3 w-3 -translate-x-1/2 cursor-ew-resize' },
+	{ operation: 'resize-top-left', class: 'top-0 left-0 size-3 -translate-1/2 cursor-nwse-resize' },
+	{ operation: 'resize-top-right', class: 'top-0 right-0 size-3 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize' },
+	{ operation: 'resize-bottom-right', class: 'bottom-0 right-0 size-3 translate-1/2 cursor-nwse-resize' },
+	{
+		operation: 'resize-bottom-left',
+		class: 'bottom-0 left-0 size-3 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize',
+	},
+];
 
 const props = withDefaults(
 	defineProps<{
@@ -50,6 +83,13 @@ const props = withDefaults(
 		alwaysUpdatePosition?: boolean;
 		/** Grid cell size in px */
 		gridSize?: number;
+		/** Shows the 8 resize handles in edit mode (018) */
+		resizable?: boolean;
+		/** Smallest size in cells while resizing */
+		minWidth?: number;
+		minHeight?: number;
+		/** Rounded corners [top-left, top-right, bottom-right, bottom-left]; all rounded while dragging */
+		borderRadius?: [boolean, boolean, boolean, boolean];
 	}>(),
 	{
 		name: undefined,
@@ -60,6 +100,10 @@ const props = withDefaults(
 		showOptions: true,
 		alwaysUpdatePosition: false,
 		gridSize: 18,
+		resizable: false,
+		minWidth: 8,
+		minHeight: 6,
+		borderRadius: () => [true, true, true, true],
 	},
 );
 
@@ -73,14 +117,32 @@ const emit = defineEmits<{
 
 const { t } = useI18n();
 
-const editedPosition = reactive<TilePosition>({ position_x: undefined, position_y: undefined });
+const editedPosition = reactive<TilePosition>({
+	position_x: undefined,
+	position_y: undefined,
+	width: undefined,
+	height: undefined,
+});
 
 const { onPointerDown, dragging } = useDragDrop();
 
 const positioning = computed(() => ({
 	x: dragging.value ? (editedPosition.position_x ?? props.x) : props.x,
 	y: dragging.value ? (editedPosition.position_y ?? props.y) : props.y,
+	width: dragging.value ? (editedPosition.width ?? props.width) : props.width,
+	height: dragging.value ? (editedPosition.height ?? props.height) : props.height,
 }));
+
+const radius = computed(() => {
+	const [tl, tr, br, bl] = props.borderRadius;
+	if (dragging.value) return 'rounded-xl';
+	return [
+		tl ? 'rounded-tl-xl' : 'rounded-tl-none',
+		tr ? 'rounded-tr-xl' : 'rounded-tr-none',
+		br ? 'rounded-br-xl' : 'rounded-br-none',
+		bl ? 'rounded-bl-xl' : 'rounded-bl-none',
+	];
+});
 
 const menuItems = computed<BoMenuItem[]>(() => [
 	{ text: t('copy_to'), icon: 'input', disabled: props.id.startsWith('_'), onSelect: () => emit('move') },
@@ -95,6 +157,9 @@ function useDragDrop() {
 	let pointerStartPosY = 0;
 	let panelStartPosX = 0;
 	let panelStartPosY = 0;
+	let panelStartWidth = 0;
+	let panelStartHeight = 0;
+	let operation: Operation = 'move';
 
 	const onPointerMove = throttle((event: PointerEvent) => {
 		if (props.editMode === false || dragging.value === false || props.draggable === false) return;
@@ -102,23 +167,47 @@ function useDragDrop() {
 		const gridDeltaX = Math.round((event.pageX - pointerStartPosX) / props.gridSize);
 		const gridDeltaY = Math.round((event.pageY - pointerStartPosY) / props.gridSize);
 
-		editedPosition.position_y = Math.max(1, panelStartPosY + gridDeltaY);
-		editedPosition.position_x = Math.max(1, panelStartPosX + gridDeltaX);
+		if (operation === 'move') {
+			editedPosition.position_y = Math.max(1, panelStartPosY + gridDeltaY);
+			editedPosition.position_x = Math.max(1, panelStartPosX + gridDeltaX);
+		} else {
+			// Same as Directus v-workspace-tile: a top/left resize keeps moving x/y once the size hits the minimum (R-54).
+			if (operation.includes('top')) {
+				editedPosition.height = panelStartHeight - gridDeltaY;
+				editedPosition.position_y = panelStartPosY + gridDeltaY;
+			}
+
+			if (operation.includes('right')) editedPosition.width = panelStartWidth + gridDeltaX;
+			if (operation.includes('bottom')) editedPosition.height = panelStartHeight + gridDeltaY;
+
+			if (operation.includes('left')) {
+				editedPosition.width = panelStartWidth - gridDeltaX;
+				editedPosition.position_x = panelStartPosX + gridDeltaX;
+			}
+
+			if (editedPosition.position_x && editedPosition.position_x < 1) editedPosition.position_x = 1;
+			if (editedPosition.position_y && editedPosition.position_y < 1) editedPosition.position_y = 1;
+			if (editedPosition.width && editedPosition.width < props.minWidth) editedPosition.width = props.minWidth;
+			if (editedPosition.height && editedPosition.height < props.minHeight) editedPosition.height = props.minHeight;
+		}
 
 		if (props.alwaysUpdatePosition) emit('update', { ...editedPosition });
 	}, 20);
 
 	return { dragging, onPointerDown };
 
-	function onPointerDown(event: PointerEvent) {
+	function onPointerDown(event: PointerEvent, op: Operation = 'move') {
 		if (props.editMode === false || props.draggable === false || event.button !== 0) return;
 
+		operation = op;
 		dragging.value = true;
 
 		pointerStartPosX = event.pageX;
 		pointerStartPosY = event.pageY;
 		panelStartPosX = props.x;
 		panelStartPosY = props.y;
+		panelStartWidth = props.width;
+		panelStartHeight = props.height;
 
 		window.addEventListener('pointerup', onPointerUp);
 		window.addEventListener('pointermove', onPointerMove);
@@ -136,6 +225,8 @@ function useDragDrop() {
 
 		editedPosition.position_x = undefined;
 		editedPosition.position_y = undefined;
+		editedPosition.width = undefined;
+		editedPosition.height = undefined;
 	}
 }
 
@@ -146,18 +237,24 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 <template>
 	<div
-		class="bo-workspace-tile relative z-1 flex flex-col rounded-xl border bg-white shadow-theme-xs transition-[border-color,box-shadow] hover:z-3 motion-reduce:transition-none dark:bg-gray-900"
+		class="bo-workspace-tile group/tile relative z-1 flex flex-col border bg-white shadow-theme-xs transition-[border-color,box-shadow] hover:z-3 motion-reduce:transition-none dark:bg-gray-900"
 		:class="[
+			radius,
 			editMode && draggable
 				? 'cursor-move border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600'
 				: 'border-gray-200 dark:border-gray-800',
 			{ 'z-3! border-brand-300! shadow-theme-md select-none dark:border-brand-700!': dragging },
 		]"
-		:style="{ gridRow: `${positioning.y} / span ${height}`, gridColumn: `${positioning.x} / span ${width}` }"
+		:style="{
+			gridRow: `${positioning.y} / span ${positioning.height}`,
+			gridColumn: `${positioning.x} / span ${positioning.width}`,
+		}"
 		:data-tile-id="id"
 		:data-pos-x="positioning.x"
 		:data-pos-y="positioning.y"
-		@pointerdown="onPointerDown"
+		:data-width="positioning.width"
+		:data-height="positioning.height"
+		@pointerdown="onPointerDown($event)"
 	>
 		<div
 			v-if="showHeader"
@@ -189,7 +286,20 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 			aria-hidden="true"
 		>
 			({{ positioning.x - 1 }}:{{ positioning.y - 1 }})
+			<template v-if="resizable">{{ positioning.width }}×{{ positioning.height }}</template>
 		</div>
+
+		<template v-if="editMode && resizable">
+			<div
+				v-for="handle in HANDLES"
+				:key="handle.operation"
+				class="absolute z-2 rounded-full border border-gray-300 bg-white opacity-0 transition-opacity group-hover/tile:opacity-100 hover:opacity-100 motion-reduce:transition-none dark:border-gray-600 dark:bg-gray-800"
+				:class="[handle.class, { 'opacity-100': dragging }]"
+				:data-resize="handle.operation.replace('resize-', '')"
+				aria-hidden="true"
+				@pointerdown.stop="onPointerDown($event, handle.operation)"
+			/>
+		</template>
 
 		<div class="relative flex min-h-0 flex-1 flex-col overflow-hidden" :class="{ 'pointer-events-none': editMode }">
 			<slot />

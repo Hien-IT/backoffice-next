@@ -1,0 +1,34 @@
+[
+	{
+		"source": "app/src/utils/get-groups.ts",
+		"dest": "apps/web/src/utils/get-groups.ts"
+	},
+	{
+		"source": "app/src/utils/point-on-line.ts",
+		"dest": "apps/web/src/utils/point-on-line.ts"
+	},
+	{
+		"source": "app/src/utils/format-number.ts",
+		"dest": "apps/web/src/utils/format-number.ts"
+	},
+	{
+		"source": "app/src/utils/query-to-gql-string.ts",
+		"dest": "apps/web/src/utils/query-to-gql-string.ts"
+	},
+	{
+		"source": "app/src/utils/get-groups.test.ts",
+		"dest": "apps/web/src/utils/get-groups.test.ts"
+	},
+	{
+		"source": "app/src/utils/point-on-line.test.ts",
+		"dest": "apps/web/src/utils/point-on-line.test.ts"
+	},
+	{
+		"source": "app/src/utils/query-to-gql-string.test.ts",
+		"dest": "apps/web/src/utils/query-to-gql-string.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/apply-options-data.test.ts",
+		"dest": "apps/web/src/utils/apply-options-data.test.ts"
+	}
+]

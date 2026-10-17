@@ -242,6 +242,7 @@ catalog:
   cropperjs: 1.6.2 # image editor (feature 015), same version as directus/pnpm-workspace.yaml 11.17.4
   '@types/file-saver': 2.0.7
   '@directus/vue-split-panel': 0.8.9
+  apexcharts: 4.7.0 # Insights charts (feature 018), same version as directus/pnpm-workspace.yaml 11.17.4 (research R1)
   # json-to-graphql-query 2.3.0 is already in the catalog above (shared with the API)
   # Benchmark
   autocannon: 8.0.0

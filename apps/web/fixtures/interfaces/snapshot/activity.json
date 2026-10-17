@@ -1,0 +1,134 @@
+[
+	{
+		"id": 1,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "1",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 2,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "10",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 3,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "11",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 4,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "12",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 5,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "2",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 6,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "3",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 7,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "4",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 8,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "5",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 9,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "6",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 10,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "7",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 11,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "8",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	},
+	{
+		"id": 12,
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"action": "create",
+		"collection": "bo_insights_data",
+		"item": "9",
+		"user": "bo-1",
+		"ip": null,
+		"user_agent": null,
+		"origin": null
+	}
+]

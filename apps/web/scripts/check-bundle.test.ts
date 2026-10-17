@@ -8,11 +8,14 @@ import {
 	BUDGET_015,
 	BUDGET_016,
 	BUDGET_017,
+	BUDGET_018,
 	entrySize,
 	LAZY_BUDGETS_015,
 	LAZY_BUDGETS_016,
 	LAZY_BUDGETS_017,
+	LAZY_BUDGETS_018,
 	LIMIT,
+	LAZY_ONLY,
 	lazyChunkSizes,
 	lazyLeaks,
 } from './check-bundle.mjs';
@@ -114,4 +117,16 @@ test('feature 017 budgets: 20 KB over 016, three lazy chunks found by their mark
 		['operations registry', 25],
 		['flow log drawer', 15],
 	]);
+});
+
+test('feature 018 budgets: 15 KB over 017, four lazy chunks, ApexCharts lazy only', () => {
+	expect(BUDGET_018).toBe(BUDGET_017 + 15 * 1024);
+	expect(BUDGET_018).toBeLessThan(LIMIT);
+	expect(LAZY_BUDGETS_018.map((b) => [b.name, b.limit / 1024])).toEqual([
+		['insights route', 60],
+		['panel registry', 40],
+		['apexcharts', 170],
+		['notifications drawer', 15],
+	]);
+	expect(LAZY_ONLY).toContain('apexcharts-canvas');
 });

@@ -58,7 +58,7 @@ const ID = '[^/]+';
 
 /**
  * The closed list of API requests of the web app: specs/012-backoffice-web-shell/contracts/api-calls.md (#1-#32) and
- * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96), 015 (rows 97 to 136), 016 and 017 (rows 178 to 184), on method and path
+ * specs/013-interfaces-displays/contracts/api-calls.md (#33-#49), 014 (#50-#96), 015 (rows 97 to 136), 016 and 017 (rows 178 to 184), 018 (rows 185 to 203), on method and path
  * (query ignored). Same idea as
  * apps/web-e2e/src/helpers/allowed-paths.ts, which only lists what the 012 pages send.
  */
@@ -183,6 +183,22 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 180, method: 'DELETE', path: new RegExp(`^/flows/${ID}$`) },
 	{ id: 181, method: 'PATCH', path: /^\/operations$/ },
 	{ id: 182, method: 'POST', path: /^\/operations$/ },
+	// Feature 018 (specs/018-insights-activity-notifications/contracts/api-calls.md rows 185 to 203; GraphQL is #93,
+	// GET /items/<c> #50, GET /notifications #26).
+	{ id: 185, method: 'GET', path: /^\/dashboards$/ },
+	{ id: 186, method: 'GET', path: /^\/panels$/ },
+	{ id: 187, method: 'POST', path: /^\/dashboards$/ },
+	{ id: 188, method: 'PATCH', path: new RegExp(`^/dashboards/${ID}$`) },
+	{ id: 189, method: 'DELETE', path: new RegExp(`^/dashboards/${ID}$`) },
+	{ id: 190, method: 'DELETE', path: /^\/dashboards$/ },
+	{ id: 192, method: 'POST', path: /^\/utils\/import\/directus_dashboards$/ },
+	{ id: 193, method: 'POST', path: /^\/panels$/ },
+	{ id: 194, method: 'PATCH', path: /^\/panels$/ },
+	{ id: 195, method: 'DELETE', path: /^\/panels$/ },
+	{ id: 199, method: 'GET', path: /^\/activity$/ },
+	{ id: 200, method: 'GET', path: new RegExp(`^/activity/${ID}$`) },
+	{ id: 202, method: 'PATCH', path: /^\/notifications$/ },
+	{ id: 203, method: 'DELETE', path: /^\/notifications$/ },
 ];
 
 /**
@@ -224,6 +240,10 @@ const ENDPOINTS: Record<string, string> = {
 	roles: 'directus_roles',
 	// Feature 017.
 	operations: 'directus_operations',
+	// Feature 018.
+	dashboards: 'directus_dashboards',
+	panels: 'directus_panels',
+	activity: 'directus_activity',
 };
 
 class ApiError extends Error {
@@ -337,7 +357,11 @@ export function mockFixtureApi(
 		directus_operations: (snapshot.operations ?? []) as Row[],
 		directus_presets: (snapshot.presets ?? []) as Row[],
 		directus_translations: [],
-		directus_notifications: [],
+		// Feature 018: the admin notifications, the Insights dashboards and panels, the activity of bo_insights_data.
+		directus_notifications: (snapshot.notifications ?? []) as Row[],
+		directus_dashboards: (snapshot.dashboards ?? []) as Row[],
+		directus_panels: (snapshot.panels ?? []) as Row[],
+		directus_activity: (snapshot.activity ?? []) as Row[],
 		directus_versions: (snapshot.versions ?? []) as Row[],
 		directus_shares: (snapshot.shares ?? []) as Row[],
 		directus_comments: (snapshot.comments ?? []) as Row[],

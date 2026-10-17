@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/panels/metric/panel-metric.vue",
+		"dest": "apps/web/src/panels/metric/PanelMetric.vue"
+	},
+	{
+		"source": "app/src/panels/metric-list/panel-metric-list.vue",
+		"dest": "apps/web/src/panels/metric-list/PanelMetricList.vue"
+	},
+	{
+		"source": "app/src/panels/meter/panel-meter.vue",
+		"dest": "apps/web/src/panels/meter/PanelMeter.vue"
+	},
+	{
+		"source": "app/src/panels/label/panel-label.vue",
+		"dest": "apps/web/src/panels/label/PanelLabel.vue"
+	},
+	{
+		"source": "app/src/panels/list/panel-list.vue",
+		"dest": "apps/web/src/panels/list/PanelList.vue"
+	}
+]

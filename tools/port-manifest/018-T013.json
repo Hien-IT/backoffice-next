@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/composables/use-auto-fit-text.ts",
+		"dest": "apps/web/src/composables/use-auto-fit-text.ts"
+	},
+	{
+		"source": "app/src/panels/pie-chart/color-generator.ts",
+		"dest": "apps/web/src/panels/shared/color-generator.ts"
+	}
+]

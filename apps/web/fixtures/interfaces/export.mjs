@@ -12,12 +12,14 @@ import { fileURLToPath } from 'node:url';
 import {
 	Api,
 	CONTENT_FLOWS,
+	DASHBOARDS,
 	DIRECTORY_USERS,
 	FILES_FOLDERS,
 	FIXED_UUIDS,
 	FLOW,
 	FLOWS,
 	FOLDER,
+	NOTIFICATIONS,
 	query,
 	readArgs,
 	SETTINGS,
@@ -303,6 +305,62 @@ const settingsTranslations = await api.get(
 	`/translations${query({ filter: { key: { _eq: SETTINGS.translationKey } }, fields: 'key,language,value', sort: 'language' })}`,
 );
 
+// Feature 018: the dashboards of the Insights set with their panels (sorted by name), the admin notifications (serial ids
+// and times dropped) and the activity of bo_insights_data for the mock API (ids by position, one fixed time).
+const insightsDashboards = await api.get(
+	`/dashboards${query({
+		filter: { name: { _in: Object.values(DASHBOARDS) } },
+		fields: 'id,name,icon,color,note',
+		sort: 'name',
+	})}`,
+);
+const insightsPanels = (
+	await api.get(
+		`/panels${query({
+			filter: { dashboard: { _in: insightsDashboards.map((d) => d.id) } },
+			fields: 'id,dashboard,name,icon,color,note,show_header,type,position_x,position_y,width,height,options',
+			limit: -1,
+		})}`,
+	)
+).sort(
+	by(
+		(p) => insightsDashboards.findIndex((d) => d.id === p.dashboard),
+		(p) => p.position_y,
+		(p) => p.position_x,
+	),
+);
+const insightsNotifications = (
+	await api.get(
+		`/notifications${query({
+			filter: { subject: { _in: Object.values(NOTIFICATIONS) } },
+			fields: 'subject,message,collection,item,status',
+			sort: 'subject',
+		})}`,
+	)
+).map((notification, index) => ({
+	id: index + 1,
+	recipient: admin.id,
+	timestamp: '2026-10-01T00:00:00.000Z',
+	...notification,
+}));
+const insightsActivity = (
+	await api.get(
+		`/activity${query({
+			filter: { collection: { _eq: 'bo_insights_data' } },
+			fields: 'action,collection,item,user,ip,user_agent,origin',
+			sort: 'item',
+			limit: 20,
+		})}`,
+	)
+).map((row, index) => ({
+	id: index + 1,
+	timestamp: '2026-10-01T00:00:00.000Z',
+	...row,
+	ip: null,
+	user_agent: null,
+	origin: null,
+}));
+
 /* ---------------------------------------------------------------- normalize and write */
 
 // Seed creation order first, so the numbers do not depend on what the API returns first.
@@ -359,6 +417,11 @@ const snapshot = {
 	'flows.editor.json': editorFlows,
 	'operations.json': editorOperations,
 	'flows.runs.json': flowRuns,
+	// 018 last, after 017.
+	'dashboards.json': insightsDashboards,
+	'panels.json': insightsPanels,
+	'notifications.json': insightsNotifications,
+	'activity.json': insightsActivity,
 };
 
 mkdirSync(out, { recursive: true });

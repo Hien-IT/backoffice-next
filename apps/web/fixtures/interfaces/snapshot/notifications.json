@@ -1,0 +1,32 @@
+[
+	{
+		"id": 1,
+		"recipient": "bo-1",
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"subject": "bo_notification_collection",
+		"message": null,
+		"collection": "bo_content",
+		"item": null,
+		"status": "inbox"
+	},
+	{
+		"id": 2,
+		"recipient": "bo-1",
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"subject": "bo_notification_item",
+		"message": "An **item** of `bo_content`, see [the item](/admin/content/bo_content/1).",
+		"collection": "bo_content",
+		"item": "1",
+		"status": "inbox"
+	},
+	{
+		"id": 3,
+		"recipient": "bo-1",
+		"timestamp": "2026-10-01T00:00:00.000Z",
+		"subject": "bo_notification_path",
+		"message": "A link to a page.",
+		"collection": null,
+		"item": "/settings/project",
+		"status": "inbox"
+	}
+]

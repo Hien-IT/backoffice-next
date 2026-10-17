@@ -89,7 +89,7 @@ export async function countArrows(page: Page): Promise<{ resolve: number; reject
  * pointermove in requestAnimationFrame (tile drag and arrow drag, as Directus) and pointerup cancels the pending frame:
  * moves sent in one burst can all land in one frame that is cancelled (firefox, webkit), losing the drop position.
  */
-async function moveAndRelease(page: Page, from: { x: number; y: number }, to: { x: number; y: number }) {
+export async function moveAndRelease(page: Page, from: { x: number; y: number }, to: { x: number; y: number }) {
 	for (let i = 1; i <= 10; i++) {
 		await page.mouse.move(from.x + ((to.x - from.x) * i) / 10, from.y + ((to.y - from.y) * i) / 10);
 		await page.waitForTimeout(40);

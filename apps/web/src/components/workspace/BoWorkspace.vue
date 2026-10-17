@@ -2,9 +2,12 @@
 <script setup lang="ts">
 // Backoffice (spec 017 FR-021, recipe Q-29 / layout-patterns §13): the tiles sit on an 18 px CSS grid, sized from the
 // furthest tile as in Directus (edit mode adds 25 cells). Only the `tile` slot rendering the flows editor uses is
-// ported: no zoom to fit, no default tile rendering, no content padding (the canvas scroller pads instead). 018
-// (Insights) extends it.
-import { computed } from 'vue';
+// ported: no default tile rendering, no content padding (the scroller pads instead). Feature 018 (FR-022) adds
+// `zoomToFit`: one CSS scale of the grid from the top left corner (Directus `zoomScale`), measured against the scroll
+// container this workspace sits in (the app has no `main-element` injection: research T001 (b)); the outer box takes the
+// scaled size. Without zoom the outer box is `display: contents`, so the flows canvas keeps its layout.
+import { useElementSize, useParentElement } from '@vueuse/core';
+import { computed, ref } from 'vue';
 import type { AppTile } from './BoWorkspaceTile.vue';
 
 const props = withDefaults(
@@ -15,11 +18,17 @@ const props = withDefaults(
 		editMode?: boolean;
 		/** Grid cell size in px */
 		gridSize?: number;
+		/** Scales the grid down so every tile fits the scroll container (018) */
+		zoomToFit?: boolean;
 	}>(),
-	{ editMode: false, gridSize: 18 },
+	{ editMode: false, gridSize: 18, zoomToFit: false },
 );
 
-defineSlots<{ tile(props: { tile: AppTile }): unknown }>();
+defineSlots<{ tile(props: { tile: AppTile; gridSize: number }): unknown }>();
+
+const box = ref<HTMLElement | null>(null);
+const scroller = useParentElement(box);
+const { width: scrollerWidth, height: scrollerHeight } = useElementSize(scroller);
 
 const workspaceSize = computed(() => {
 	const furthestTileX = props.tiles.reduce(
@@ -58,25 +67,48 @@ const workspaceSize = computed(() => {
 		height: (furthestTileY.y + furthestTileY.height - 1) * props.gridSize,
 	};
 });
+
+const zoomScale = computed(() => {
+	if (props.zoomToFit === false || !scroller.value) return 1;
+
+	// useElementSize measures the content box: the scroller's padding plays the part of Directus --content-padding.
+	const scaleWidth = scrollerWidth.value / workspaceSize.value.width;
+	const scaleHeight = scrollerHeight.value / workspaceSize.value.height;
+
+	const scale = Math.min(scaleWidth, scaleHeight);
+	return Number.isFinite(scale) && scale > 0 ? scale : 1;
+});
 </script>
 
 <template>
 	<div
-		class="bo-workspace relative min-h-full min-w-full"
-		:class="{ editing: editMode }"
-		data-workspace
-		:style="{
-			display: 'grid',
-			inlineSize: `${workspaceSize.width}px`,
-			blockSize: `${workspaceSize.height}px`,
-			gridTemplateColumns: `repeat(auto-fill, ${gridSize}px)`,
-			gridTemplateRows: `repeat(auto-fill, ${gridSize}px)`,
-			'--grid-size': `${gridSize}px`,
-		}"
+		ref="box"
+		:class="zoomToFit ? 'relative overflow-hidden' : 'contents'"
+		:style="
+			zoomToFit
+				? { inlineSize: `${workspaceSize.width * zoomScale}px`, blockSize: `${workspaceSize.height * zoomScale}px` }
+				: undefined
+		"
 	>
-		<template v-for="tile in tiles" :key="tile.id">
-			<slot name="tile" :tile="tile" />
-		</template>
+		<div
+			class="bo-workspace relative"
+			:class="{ editing: editMode, 'min-h-full min-w-full': !zoomToFit, 'origin-top-left': zoomToFit }"
+			data-workspace
+			:data-zoom="zoomToFit ? zoomScale : undefined"
+			:style="{
+				display: 'grid',
+				inlineSize: `${workspaceSize.width}px`,
+				blockSize: `${workspaceSize.height}px`,
+				gridTemplateColumns: `repeat(auto-fill, ${gridSize}px)`,
+				gridTemplateRows: `repeat(auto-fill, ${gridSize}px)`,
+				'--grid-size': `${gridSize}px`,
+				transform: zoomToFit ? `scale(${zoomScale})` : undefined,
+			}"
+		>
+			<template v-for="tile in tiles" :key="tile.id">
+				<slot name="tile" :tile="tile" :grid-size="gridSize" />
+			</template>
+		</div>
 	</div>
 </template>
 

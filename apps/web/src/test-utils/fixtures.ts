@@ -53,6 +53,11 @@ export interface Snapshot {
 	editorFlows: FlowRaw[];
 	operations: Row[];
 	flowRuns: { reason: string; steps: { operation: string; key: string; status: string }[] }[];
+	/** Feature 018 (data-model §12): the bo_dash_* dashboards, their panels, the admin notifications, some activity. */
+	dashboards: Row[];
+	panels: Row[];
+	notifications: Row[];
+	activity: Row[];
 }
 
 const files = import.meta.glob<unknown>('../../fixtures/interfaces/snapshot/*.json', {
@@ -100,6 +105,10 @@ const snapshot = {
 	editorFlows: byName['flows.editor'] ?? [],
 	operations: byName['operations'] ?? [],
 	flowRuns: byName['flows.runs'] ?? [],
+	dashboards: byName['dashboards'] ?? [],
+	panels: byName['panels'] ?? [],
+	notifications: byName['notifications'] ?? [],
+	activity: byName['activity'] ?? [],
 } as Snapshot;
 
 /** A fresh copy of the snapshot (tests may change it freely). */

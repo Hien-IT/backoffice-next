@@ -51,6 +51,7 @@
 		"@turf/meta": "catalog:",
 		"@unhead/vue": "catalog:",
 		"@vueuse/core": "catalog:",
+		"apexcharts": "catalog:",
 		"codemirror": "catalog:",
 		"color": "catalog:",
 		"cropperjs": "catalog:",

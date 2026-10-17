@@ -28,6 +28,21 @@ export const FLOWS = {
 	orphan: 'bo_orphan',
 };
 
+// Feature 018 (Insights, data-model §12): the dashboards of the bo_insights set and the subjects of the admin
+// notifications (the E2E specs create their own notifications for a temporary user).
+export const DASHBOARDS = {
+	all: 'bo_dash_all',
+	vars: 'bo_dash_vars',
+	system: 'bo_dash_system',
+	empty: 'bo_dash_empty',
+	unknown: 'bo_dash_unknown',
+};
+export const NOTIFICATIONS = {
+	item: 'bo_notification_item',
+	collection: 'bo_notification_collection',
+	path: 'bo_notification_path',
+};
+
 // Feature 015 (Files and Users modules, data-model §11): a folder tree of its own (the 013 `bo-fixtures` folder and
 // snapshot stay as they are), the role under bo-editor and directory users, one per status, a token user and an SSO
 // user (test values; they only exist on test databases).

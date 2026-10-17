@@ -62,7 +62,10 @@ beforeAll(async () => {
 });
 
 const snapshot = loadSnapshot();
-const COLLECTIONS = Object.keys(snapshot.items).sort();
+// bo_insights_data (018) is the data of the Insights dashboards: no interface set and no editor/viewer permission.
+const COLLECTIONS = Object.keys(snapshot.items)
+	.filter((collection) => collection !== 'bo_insights_data')
+	.sort();
 const USERS: FixtureUser[] = ['admin', 'bo-editor', 'bo-viewer'];
 
 const LIST_PROP_WARNING = `Invalid prop: type check failed for prop "value". Expected Array | Null, got Object at <InterfaceList>

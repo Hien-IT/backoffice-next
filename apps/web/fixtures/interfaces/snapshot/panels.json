@@ -1,0 +1,446 @@
+[
+	{
+		"id": "bo-103",
+		"dashboard": "bo-98",
+		"name": "Items",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "metric",
+		"position_x": 1,
+		"position_y": 1,
+		"width": 6,
+		"height": 2,
+		"options": {
+			"collection": "bo_insights_data",
+			"field": "id",
+			"function": "count",
+			"prefix": "#",
+			"conditionalFormatting": [
+				{
+					"operator": ">=",
+					"value": 3,
+					"color": "#2ECDA7"
+				}
+			]
+		}
+	},
+	{
+		"id": "bo-104",
+		"dashboard": "bo-98",
+		"name": "Label",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "label",
+		"position_x": 7,
+		"position_y": 1,
+		"width": 6,
+		"height": 2,
+		"options": {
+			"text": "Backoffice",
+			"fontWeight": 700,
+			"textAlign": "center"
+		}
+	},
+	{
+		"id": "bo-105",
+		"dashboard": "bo-98",
+		"name": "Quantity",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "meter",
+		"position_x": 13,
+		"position_y": 1,
+		"width": 6,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"field": "qty",
+			"fn": "sum",
+			"max": 100,
+			"size": "half"
+		}
+	},
+	{
+		"id": "bo-106",
+		"dashboard": "bo-98",
+		"name": "Quantity by category",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "line-chart",
+		"position_x": 25,
+		"position_y": 1,
+		"width": 6,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"xAxis": "category",
+			"yAxis": "qty",
+			"aggregation": "sum"
+		}
+	},
+	{
+		"id": "bo-107",
+		"dashboard": "bo-98",
+		"name": "By status",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "metric-list",
+		"position_x": 1,
+		"position_y": 3,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"groupByField": "status",
+			"aggregateField": "id",
+			"aggregateFunction": "count",
+			"limit": 5,
+			"sortDirection": "desc",
+			"conditionalFormatting": [
+				{
+					"operator": ">=",
+					"value": 4,
+					"color": "#E35169"
+				}
+			]
+		}
+	},
+	{
+		"id": "bo-108",
+		"dashboard": "bo-98",
+		"name": "Latest",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "list",
+		"position_x": 13,
+		"position_y": 7,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"limit": 5,
+			"sortField": "id",
+			"sortDirection": "desc",
+			"displayTemplate": "{{ status }} {{ category }}",
+			"linkToItem": true
+		}
+	},
+	{
+		"id": "bo-109",
+		"dashboard": "bo-98",
+		"name": "Amount by status",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "bar-chart",
+		"position_x": 1,
+		"position_y": 9,
+		"width": 12,
+		"height": 10,
+		"options": {
+			"collection": "bo_insights_data",
+			"xAxis": "status",
+			"yAxis": "amount",
+			"function": "sum",
+			"decimals": 2,
+			"conditionalFill": [
+				{
+					"axis": "y",
+					"operator": ">=",
+					"value": 40,
+					"color": "#6644FF"
+				}
+			]
+		}
+	},
+	{
+		"id": "bo-110",
+		"dashboard": "bo-98",
+		"name": "Categories",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "pie-chart",
+		"position_x": 19,
+		"position_y": 13,
+		"width": 10,
+		"height": 10,
+		"options": {
+			"collection": "bo_insights_data",
+			"column": "category",
+			"function": "count",
+			"donut": true
+		}
+	},
+	{
+		"id": "bo-111",
+		"dashboard": "bo-98",
+		"name": "Per day",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "time-series",
+		"position_x": 1,
+		"position_y": 19,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"dateField": "happened_at",
+			"valueField": "id",
+			"function": "count",
+			"precision": "day",
+			"range": "auto"
+		}
+	},
+	{
+		"id": "bo-112",
+		"dashboard": "bo-98",
+		"name": "Status variable",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "variable",
+		"position_x": 13,
+		"position_y": 19,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"field": "all_status",
+			"type": "string",
+			"inter": "select-dropdown",
+			"defaultValue": "published",
+			"options": {
+				"choices": [
+					{
+						"text": "published",
+						"value": "published"
+					},
+					{
+						"text": "draft",
+						"value": "draft"
+					},
+					{
+						"text": "archived",
+						"value": "archived"
+					}
+				]
+			}
+		}
+	},
+	{
+		"id": "bo-113",
+		"dashboard": "bo-98",
+		"name": "Owners",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "relational-variable",
+		"position_x": 25,
+		"position_y": 19,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"field": "all_author",
+			"collection": "directus_users",
+			"multiple": true,
+			"limit": 5
+		}
+	},
+	{
+		"id": "bo-114",
+		"dashboard": "bo-100",
+		"name": "Users",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "metric",
+		"position_x": 1,
+		"position_y": 1,
+		"width": 6,
+		"height": 2,
+		"options": {
+			"collection": "directus_users",
+			"field": "id",
+			"function": "count"
+		}
+	},
+	{
+		"id": "bo-115",
+		"dashboard": "bo-100",
+		"name": "Files",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "list",
+		"position_x": 7,
+		"position_y": 1,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"collection": "directus_files",
+			"limit": 5,
+			"sortField": "title",
+			"sortDirection": "asc",
+			"displayTemplate": "{{ title }}"
+		}
+	},
+	{
+		"id": "bo-116",
+		"dashboard": "bo-101",
+		"name": "Unknown",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "bo-unknown",
+		"position_x": 1,
+		"position_y": 1,
+		"width": 6,
+		"height": 6,
+		"options": {}
+	},
+	{
+		"id": "bo-117",
+		"dashboard": "bo-102",
+		"name": "Status",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "variable",
+		"position_x": 1,
+		"position_y": 1,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"field": "vars_status",
+			"type": "string",
+			"inter": "select-dropdown",
+			"defaultValue": "published",
+			"options": {
+				"choices": [
+					{
+						"text": "published",
+						"value": "published"
+					},
+					{
+						"text": "draft",
+						"value": "draft"
+					},
+					{
+						"text": "archived",
+						"value": "archived"
+					}
+				]
+			}
+		}
+	},
+	{
+		"id": "bo-118",
+		"dashboard": "bo-102",
+		"name": "Owners",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "relational-variable",
+		"position_x": 13,
+		"position_y": 1,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"field": "vars_author",
+			"collection": "directus_users",
+			"multiple": true,
+			"limit": 5
+		}
+	},
+	{
+		"id": "bo-119",
+		"dashboard": "bo-102",
+		"name": "Matching items",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "metric",
+		"position_x": 1,
+		"position_y": 7,
+		"width": 6,
+		"height": 2,
+		"options": {
+			"collection": "bo_insights_data",
+			"field": "id",
+			"function": "count",
+			"filter": {
+				"_and": [
+					{
+						"status": {
+							"_eq": "{{ vars_status }}"
+						}
+					},
+					{
+						"owner": {
+							"_in": "{{ vars_author }}"
+						}
+					}
+				]
+			}
+		}
+	},
+	{
+		"id": "bo-120",
+		"dashboard": "bo-102",
+		"name": "Matching rows",
+		"icon": null,
+		"color": null,
+		"note": null,
+		"show_header": true,
+		"type": "list",
+		"position_x": 7,
+		"position_y": 7,
+		"width": 12,
+		"height": 6,
+		"options": {
+			"collection": "bo_insights_data",
+			"limit": 10,
+			"sortField": "id",
+			"sortDirection": "asc",
+			"displayTemplate": "{{ status }} {{ qty }}",
+			"filter": {
+				"_and": [
+					{
+						"status": {
+							"_eq": "{{ vars_status }}"
+						}
+					},
+					{
+						"owner": {
+							"_in": "{{ vars_author }}"
+						}
+					}
+				]
+			}
+		}
+	}
+]

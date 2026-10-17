@@ -14,9 +14,11 @@ const BROWSERS = {
 // Feature 014 (SC-001): outside chromium, the Content specs (content-*.spec.ts) run only when tagged @core; feature 015
 // (contracts/tests.md) does the same for files-*.spec.ts and users-*.spec.ts. Feature 016 (SC-001, T116): of the
 // settings-*.spec.ts, the three core specs (data model, field drawer, roles and policies) run on every browser, the
-// others on chromium only; feature 017 adds the flow canvas (pointer drag, T051). Playwright tests grep against "<project> <file> <describe> <title> <tags>".
+// others on chromium only; feature 017 adds the flow canvas (pointer drag, T051). Feature 018 (SC-001): of the
+// insights-*, activity and notifications specs only insights-edit (tile drag and resize) runs on every browser.
+// Playwright tests grep against "<project> <file> <describe> <title> <tags>".
 const CONTENT_NOT_CORE =
-	/(?:content|files|users)-[\w-]+\.spec\.ts(?!.*@core)|settings-(?!data-model|field-detail|roles-policies|flows-editor)[\w-]+\.spec\.ts/;
+	/(?:content|files|users)-[\w-]+\.spec\.ts(?!.*@core)|settings-(?!data-model|field-detail|roles-policies|flows-editor)[\w-]+\.spec\.ts|insights-(?!edit)[\w-]+\.spec\.ts|(?:activity|notifications)\.spec\.ts/;
 // Feature 014 (US7): the specs that also drive the Directus app (payload suite, parity UI) compare one browser and one
 // width, chromium-1280; on the other projects they only add run time (the e2e-web job has a timeout). Feature 015
 // adds the image editor spec (pixel comparison with the Directus app, SC-006); feature 016 the Settings parity UI and

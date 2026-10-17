@@ -1,0 +1,22 @@
+[
+	{
+		"source": "app/src/panels/variable/panel-variable.vue",
+		"dest": "apps/web/src/panels/variable/PanelVariable.vue"
+	},
+	{
+		"source": "app/src/panels/relational-variable/panel-relational-variable.vue",
+		"dest": "apps/web/src/panels/relational-variable/PanelRelationalVariable.vue"
+	},
+	{
+		"source": "app/src/panels/relational-variable/single-relation.vue",
+		"dest": "apps/web/src/panels/relational-variable/SingleRelation.vue"
+	},
+	{
+		"source": "app/src/panels/relational-variable/multiple-relation.vue",
+		"dest": "apps/web/src/panels/relational-variable/MultipleRelation.vue"
+	},
+	{
+		"source": "app/src/panels/relational-variable/use-display-items.ts",
+		"dest": "apps/web/src/panels/relational-variable/use-display-items.ts"
+	}
+]

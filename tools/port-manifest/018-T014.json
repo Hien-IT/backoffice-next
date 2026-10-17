@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/stores/insights.ts",
+		"dest": "apps/web/src/stores/insights.ts"
+	}
+]

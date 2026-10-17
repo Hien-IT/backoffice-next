@@ -716,7 +716,7 @@ của SC-002.
   nhận). Thời gian với API thật phụ thuộc API (benchmark BE đã có) và ngoài phạm vi FR-108; E2E chỉ đếm request.
 - **FR-109**: Bundle: module Insights, registry panel và thư viện biểu đồ là chunk lười; chunk chính ≤ ngân sách 017 +
   15 KB gzip (chuông, drawer thông báo, cách hiện FR-080); chunk lười gzip: route Insights ≤ 60 KB, component panel ≤
-  40 KB, `apexcharts` ≤ 170 KB (số đo thật ghi lại ở T050), `NotificationsDrawer` ≤ 15 KB; đo bằng
+  40 KB, `apexcharts` ≤ 170 KB (đo ở T050: 152,0 KB), `NotificationsDrawer` ≤ 15 KB; đo bằng
   `scripts/check-bundle.mjs` trong job `quality`; vượt → CI đỏ, sửa bằng nạp lười theo loại panel (không đổi thư viện).
 - **FR-110**: Không request ngoài danh sách FR-013, FR-014, FR-015, FR-028, FR-041, FR-052, FR-063, FR-071 và danh sách
   012–017 (`allowed-paths.ts`, `KNOWN_REQUESTS`); 0 request ra ngoài.

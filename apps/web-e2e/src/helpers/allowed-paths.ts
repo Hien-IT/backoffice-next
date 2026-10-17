@@ -1,7 +1,8 @@
 // The closed list of API calls of the web app (FR-002), copied from specs/012-backoffice-web-shell/contracts/api-calls.md
 // (32 routes), specs/013-interfaces-displays/contracts/api-calls.md (#33-#49) and
 // specs/014-content-module/contracts/api-calls.md (#50-#96) and specs/015-files-users-modules/contracts/api-calls.md
-// (rows 97 to 136) and specs/016-settings-module/contracts/api-calls.md (rows 137 to 177). Matched on method and path (query ignored, path relative to
+// (rows 97 to 136) and specs/016-settings-module/contracts/api-calls.md (rows 137 to 177), 017 (rows 178 to 184) and 018
+// (rows 185 to 203). Matched on method and path (query ignored, path relative to
 // apiUrl). Keep them in step with KNOWN_REQUESTS of apps/web/src/test-utils/fetch.ts.
 export interface AllowedCall {
 	/** Row number in contracts/api-calls.md. */
@@ -139,6 +140,22 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 180, method: 'DELETE', path: new RegExp(`^/flows/${ID}$`) },
 	{ id: 181, method: 'PATCH', path: /^\/operations$/ },
 	{ id: 182, method: 'POST', path: /^\/operations$/ },
+	// Feature 018 (specs/018-insights-activity-notifications/contracts/api-calls.md rows 185 to 203; GraphQL is #93,
+	// GET /items/<c> #50, GET /notifications #26).
+	{ id: 185, method: 'GET', path: /^\/dashboards$/ },
+	{ id: 186, method: 'GET', path: /^\/panels$/ },
+	{ id: 187, method: 'POST', path: /^\/dashboards$/ },
+	{ id: 188, method: 'PATCH', path: new RegExp(`^/dashboards/${ID}$`) },
+	{ id: 189, method: 'DELETE', path: new RegExp(`^/dashboards/${ID}$`) },
+	{ id: 190, method: 'DELETE', path: /^\/dashboards$/ },
+	{ id: 192, method: 'POST', path: /^\/utils\/import\/directus_dashboards$/ },
+	{ id: 193, method: 'POST', path: /^\/panels$/ },
+	{ id: 194, method: 'PATCH', path: /^\/panels$/ },
+	{ id: 195, method: 'DELETE', path: /^\/panels$/ },
+	{ id: 199, method: 'GET', path: /^\/activity$/ },
+	{ id: 200, method: 'GET', path: new RegExp(`^/activity/${ID}$`) },
+	{ id: 202, method: 'PATCH', path: /^\/notifications$/ },
+	{ id: 203, method: 'DELETE', path: /^\/notifications$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

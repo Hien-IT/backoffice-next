@@ -377,3 +377,23 @@ app + wiring drawer); `LAZY_BUDGETS_018`.
 | Parity GraphQL 011 | `_aggregated` + `groupBy` hàm ngày (`tests/parity/src/graphql/e2e-app.test.ts:59`), `*_func` trong filter (`read.test.ts:81-118`); `/graphql/system` aggregate chưa có → bộ so payload `bo_dash_system` (T110) phủ | tasks T110 |
 | Chuông Directus | `VBadge :value="unread" :disabled="unread == 0"` chỉ ẩn badge; nút luôn bấm được | spec US6-1 |
 | `tusResumableUploadsChanged` | chỉ phát, không nghe | spec FR-076 |
+
+## Kết quả T001 (2026-10-17, đọc code)
+
+- (a) `escape-string-regexp` không có trong `apps/web`: store dùng `escapeRegExp` của `lodash-es` (cùng kết quả cho tên
+  field). `color` 5.0.2 có; `apexcharts` thêm ở T006.
+- (b) `PrivateView.vue` không `provide('main-element')`; trang `fill` cuộn trong `div.overflow-auto` (`:127`).
+  `BoWorkspace` đo phần tử cha cuộn của chính nó bằng `ResizeObserver` (không thêm `provide`).
+- (c) Preset mặc định `directus_activity` đã có trong `src/stores/presets.ts:69` (014): T081 không cần thêm.
+- (d) Directus lọc `recipient: { _eq: userStore.currentUser.id }` (`notifications-drawer.vue:79-80`), không
+  `$CURRENT_USER`: app gửi id người dùng (#201).
+- (e) Mục active của sub-menu Activity là `v-model:filter` (`roleFilter` cục bộ của trang, `collection.vue:48`), không
+  query URL: app giữ `ref` cục bộ, mất khi rời trang (như Directus).
+- (f) Theme tối: class `dark` trên `html` do `use-app-head.ts:54` đặt; biểu đồ theo dõi bằng `useMutationObserver`
+  (`@vueuse/core`) trên `document.documentElement` `class`.
+- (g) `NoticeStack` hộp lỗi đã có tiêu đề, `[code] message`, nút Dismiss, không "Report error" (D-109): T100 không đổi
+  code, chỉ kiểm lời gọi.
+- (h) bỏ (bộ mẫu dùng `bo_insights_data`).
+- (i) `md()` của 013 (`utils/markdown.ts`) khác Directus: link khác origin mở `_blank` + `rel`, link cùng origin không đặt
+  `target` (Directus đặt `_self` cho mọi link). Khác biệt này đã duyệt ở 013 (an toàn hơn), dùng nguyên cho thông báo.
+- (j) Port `apply-options-data.test.ts` làm ở T012 (`src/utils/apply-options-data.test.ts`).

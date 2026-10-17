@@ -2,19 +2,23 @@
 <script setup lang="ts">
 // Backoffice: v-info in the blank page card of the design-system, as PrivateNotFoundRoute. Feature 015 (FR-001,
 // FR-054): the same page serves the Files and Users modules, `module` picks the sub-menu (Directus has one not-found
-// route per module, with the same content). Feature 016 adds the Settings module.
-import { defineAsyncComponent } from 'vue';
+// route per module, with the same content). Feature 016 adds the Settings module, 018 Insights and Activity (Activity has
+// no sub-menu until its navigation exists).
+import { type Component, defineAsyncComponent } from 'vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import PrivateView from '../../../layout/PrivateView.vue';
 import ContentNavigation from '../components/ContentNavigation.vue';
 
-const { module = 'content' } = defineProps<{ module?: 'content' | 'files' | 'users' | 'settings' }>();
+const { module = 'content' } = defineProps<{
+	module?: 'content' | 'files' | 'users' | 'settings' | 'insights' | 'activity';
+}>();
 
-const NAVIGATION = {
+const NAVIGATION: Partial<Record<typeof module, Component>> = {
 	content: ContentNavigation,
 	files: defineAsyncComponent(() => import('../../../components/files/FilesNavigation.vue')),
 	users: defineAsyncComponent(() => import('../../users/components/UsersNavigation.vue')),
 	settings: defineAsyncComponent(() => import('../../settings/components/SettingsNavigation.vue')),
+	insights: defineAsyncComponent(() => import('../../insights/components/InsightsNavigation.vue')),
 };
 </script>
 

@@ -65,3 +65,7 @@
   guaranteed (no `touch-action` handling, as Directus). Reachable by keyboard: pencil, tile menu (Copy To, Duplicate,
   Delete), trigger status select, header buttons, drawers; the canvas box itself is a focusable region, so the
   keyboard scrolls it. axe does not check dragging; the Flows screens pass axe light and dark (a11y.spec, T094).
+- Insights dashboard grid (feature 018, FR-027, owner 2026-10-17; waiting for tech lead approval): dragging tiles and
+  the 8 resize handles are mouse/pointer only, as in Directus; touch on tablets is not guaranteed. Reachable by
+  keyboard: edit, "+", Save, Clear Changes, zoom-to-fit, pencil, tile menu (Copy To, Duplicate, Delete), note button,
+  panel drawer; the grid box is a focusable region so the keyboard scrolls it. axe does not check dragging.

@@ -173,7 +173,8 @@ settings, permissions), not by this pack.
 | Header bar (icon, title, breadcrumb, action buttons)                                 | Page header inside the content (`PageBreadcrumb` layout): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |
 | Right sidebar (info, revisions, comments, layout options)                            | Optional right detail panel (L-4, below)                                                                                                                                                                                                                                                                                             |
 | User avatar / menu at the bottom of the module bar                                   | `UserMenu` in the header: avatar, name, email, items (profile = Directus user detail page, other Directus entries), Sign out                                                                                                                                                                                                         |
-| Notifications drawer                                                                 | `NotificationMenu` button in the header (only if the feature ships it)                                                                                                                                                                                                                                                               |
+| Notifications drawer                                                                 | Bell button in the header before `UserMenu` (feature 018, D-107): TailAdmin round header button with a count badge (component-specs "Notifications bell", Q-38); opens the notifications drawer (Q-39)                                                                                                                               |
+| Insights dashboards (018)                                                            | Dashboard list in the module sub-menu (L-3, flat rows with colored icon); the dashboard page is a `fill` page with the dashboard grid of §14                                                                                                                                                                                          |
 | Theme (light/dark/auto from user/settings)                                           | `ThemeToggler` in the header sets the `dark` class; the initial value follows the Directus user/settings appearance                                                                                                                                                                                                                  |
 
 ### Right detail panel (L-4, Backoffice; TailAdmin has none)
@@ -508,3 +509,40 @@ Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vu
   everything else on the canvas (pencil, tile menu, trigger status select, header buttons) is a focusable control.
 - **768 px**: the canvas keeps its size and scrolls; the detail panel becomes the L-4 drawer.
 
+
+## 14. Dashboard grid and charts (nháp, 018)
+
+Recipe for spec 018 Q-34 and Q-35 (T003, FR-107), written before the code; the design owner approves before the feature
+closes. Behaviour is the Directus one (`modules/insights/routes/dashboard.vue`, `components/v-workspace*.vue`,
+`panels/*`); this section only sets the look.
+
+- **Page**: `PrivateView fill`, the grid is the only scroll area (`overflow-auto` on both axes), a focusable
+  `role="region"` labelled with the dashboard name, as the flow canvas (§13). Header actions: zoom-to-fit toggle
+  (`fit_screen`, pressed state `bg-brand-50 text-brand-600`), edit (`edit`); in edit mode Clear Changes, "+" and Save.
+- **Grid**: 18 px cells, tiles absolutely positioned at `(position_x − 1) × 18`, `(position_y − 1) × 18`, size
+  `width × 18` by `height × 18` px. Edit mode adds the dot grid of §13 and 25 cells of room. Zoom-to-fit: one CSS
+  `transform: scale()` from the top left corner, the outer box takes the scaled size (no scroll when it fits).
+- **Tile** (Q-34): `rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`, no shadow
+  in view mode, `shadow-theme-md` while dragged. A corner that touches another tile has radius 0 (Directus rule).
+  Header (`show_header`): `h-10 px-4 flex items-center gap-2`, icon 20 px in the panel `color` (inline style, user
+  data; default `text-brand-500`), name `text-theme-sm font-semibold text-gray-800 dark:text-white/90 truncate`, note
+  as an info icon button (`ICON_BTN`, `aria-label` = note) with a BoTooltip on hover and focus. Body `px-4 pb-4`
+  (`pt-4` without header).
+- **Tile states**: first load: centered `BoProgressCircular`; reload: body `opacity-50` (transition 150 ms, none with
+  `motion-reduce`); error: `error-500` warning icon, `unexpected_error` and the error text `text-theme-xs`; empty:
+  `no_data` `text-theme-sm text-gray-500` centered.
+- **Edit mode**: pencil and `more_vert` `ICON_BTN` at the header end (menu Copy To, Duplicate, Delete
+  `text-error-600`); 8 resize handles (corners `size-3`, edges `h-3 w-8` / `w-3 h-8`, `rounded-full bg-white border
+  border-gray-300 dark:bg-gray-800 dark:border-gray-600`, hit area 24 px, cursor per direction); while resizing a label
+  `W × H` and while moving `(x:y)` (`rounded bg-gray-800 px-1.5 text-theme-xs text-white`). Drag and resize are
+  mouse/pointer only (recorded exception in `qa/handoff-checklist.md`).
+- **Charts** (Q-35, ApexCharts): font `Outfit`; axis labels and legend `var(--color-gray-500)` (dark
+  `var(--color-gray-400)`), grid lines `var(--color-gray-100)` (dark `var(--color-gray-800)`), no toolbar; default
+  series color `var(--color-brand-500)` (D-108) when the panel `color` is empty; more series get the Directus
+  mono-theme generator applied to that base (lighter/darker steps), each step at least 3:1 against the tile background.
+  Tooltip and legend CSS of ApexCharts is overridden in `src/styles/apexcharts.css` with theme variables only (dark
+  variant on `.dark`): tooltip `bg-white border-gray-200 shadow-theme-lg text-theme-xs` / dark `bg-gray-900
+  border-gray-800`. Every chart has an sr-only table (caption = tile label) with the same series; the drawn chart is
+  `aria-hidden`. Animations off with `prefers-reduced-motion`.
+- **768 px**: the grid keeps its size and scrolls; the detail panel becomes the L-4 drawer; the panel drawer is full
+  screen.

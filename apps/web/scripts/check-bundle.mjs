@@ -21,6 +21,9 @@ export const BUDGET_016 = BUDGET_015 + 20 * 1024;
 // Feature 017 (FR-109, research R12): at most 20 KB over the 016 budget; the flow canvas, the operations registry and the
 // log drawer stay in lazy chunks.
 export const BUDGET_017 = BUDGET_016 + 20 * 1024;
+// Feature 018 (FR-109, research R12): at most 15 KB over the 017 budget; the Insights route, the panel registry,
+// ApexCharts and the notifications drawer stay in lazy chunks.
+export const BUDGET_018 = BUDGET_017 + 15 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
 // protocol header, Cropper.js (image editor) by its container class.
@@ -34,6 +37,7 @@ export const LAZY_ONLY = [
 	'__aliasFor',
 	'Tus-Resumable',
 	'cropper-container',
+	'apexcharts-canvas',
 ];
 
 // Feature 015 (T101, CHK088): the lazy chunks of the image editor, resumable uploads and the theme data stay small. Each
@@ -63,7 +67,17 @@ export const LAZY_BUDGETS_017 = [
 	{ name: 'flow log drawer', marker: 'data-flow-log', limit: 15 * 1024 },
 ];
 
-export const LAZY_BUDGETS = [...LAZY_BUDGETS_015, ...LAZY_BUDGETS_016, ...LAZY_BUDGETS_017];
+// Feature 018 (FR-109): the Insights route (`data-insights-route` of its pages), the panel registry (the i18n key of the
+// time series name), ApexCharts (its canvas class; size measured at T050) and the notifications drawer
+// (`data-notifications-drawer`). Not found until the wave that builds them.
+export const LAZY_BUDGETS_018 = [
+	{ name: 'insights route', marker: 'data-insights-route', limit: 60 * 1024 },
+	{ name: 'panel registry', marker: 'panels.time_series.name', limit: 40 * 1024 },
+	{ name: 'apexcharts', marker: 'apexcharts-canvas', limit: 170 * 1024 },
+	{ name: 'notifications drawer', marker: 'data-notifications-drawer', limit: 15 * 1024 },
+];
+
+export const LAZY_BUDGETS = [...LAZY_BUDGETS_015, ...LAZY_BUDGETS_016, ...LAZY_BUDGETS_017, ...LAZY_BUDGETS_018];
 
 /**
  * Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker, or named with its `file`
@@ -108,7 +122,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const kb = (gzip / 1024).toFixed(1);
 
 	const leaks = lazyLeaks(file);
-	const limit = Math.min(LIMIT, BUDGET_017);
+	const limit = Math.min(LIMIT, BUDGET_018);
 
 	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
 	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);

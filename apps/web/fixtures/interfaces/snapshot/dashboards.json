@@ -1,0 +1,37 @@
+[
+	{
+		"id": "bo-98",
+		"name": "bo_dash_all",
+		"icon": "dashboard",
+		"color": "#6644FF",
+		"note": "Every panel type"
+	},
+	{
+		"id": "bo-99",
+		"name": "bo_dash_empty",
+		"icon": "space_dashboard",
+		"color": null,
+		"note": null
+	},
+	{
+		"id": "bo-100",
+		"name": "bo_dash_system",
+		"icon": "admin_panel_settings",
+		"color": null,
+		"note": null
+	},
+	{
+		"id": "bo-101",
+		"name": "bo_dash_unknown",
+		"icon": "help",
+		"color": null,
+		"note": null
+	},
+	{
+		"id": "bo-102",
+		"name": "bo_dash_vars",
+		"icon": "tune",
+		"color": null,
+		"note": "Dashboard variables"
+	}
+]

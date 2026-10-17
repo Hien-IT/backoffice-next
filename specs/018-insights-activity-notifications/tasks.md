@@ -69,7 +69,7 @@ hiện có + mới xanh, commit, push sau khi nhắn phiên chung checkout, CI x
 **Purpose**: kiểm giả định còn mở của research, lấy mốc body ghi và tài liệu GraphQL của Directus app, thêm
 `apexcharts`, viết recipe nháp trước mọi task giao diện (FR-107, SC-008).
 
-- [ ] T001 Kiểm môi trường và các điểm "kiểm T001" của research: `pnpm nx run parity-tests:env-up --vendor=postgres
+- [X] T001 Kiểm môi trường và các điểm "kiểm T001" của research: `pnpm nx run parity-tests:env-up --vendor=postgres
       --profiles=app,web` lên được; xác nhận bằng đọc code và ghi kết quả vào `specs/018-insights-activity-notifications/research.md`
       (mục "Kết quả T001"): (a) `escape-string-regexp` có trong `apps/web` hay dùng `lodash-es/escapeRegExp`; (b)
       `PrivateView.vue` có `provide('main-element')` cho vùng nội dung hay cần thêm (R3); (c) preset mặc định
@@ -93,22 +93,22 @@ hiện có + mới xanh, commit, push sau khi nhắn phiên chung checkout, CI x
       drawer thông báo (danh sách, có đếm hay không, FR-108); lưu vào `e2e/payload/baselines/insights-*.json`
       và `fixtures/snapshot/graphql.bo_dash_all.json` (cần T016 seed trước); so với `data-model.md` §2, §3, §5 và
       `contracts/api-calls.md`; lệch thì sửa spec, data-model, contracts; xóa dữ liệu tạm
-- [ ] T003 [P] Recipe nháp Q-34 (lưới dashboard và tile: nền, viền, bo góc theo tile kề, header icon màu + tên + tooltip
+- [X] T003 [P] Recipe nháp Q-34 (lưới dashboard và tile: nền, viền, bo góc theo tile kề, header icon màu + tên + tooltip
       note, tay cầm resize 8 hướng 12 px vùng bấm 24 px, nhãn `W×H`, trạng thái nạp/lỗi/`no_data`, zoom-to-fit) và Q-35
       (biểu đồ: bảng màu chuỗi từ `brand-*` cho sáng/tối, trục, lưới, chữ `gray-500`/tối `gray-400`, tooltip, chú giải,
       nhãn dữ liệu, bảng `sr-only`) vào `design-system/docs/layout-patterns.md` §14 (mới) và dòng Insights của §7
-- [ ] T004 [P] Recipe nháp Q-36 (thẻ metric/metric-list, định dạng có điều kiện; đề xuất ánh xạ biến CSS màu của
+- [X] T004 [P] Recipe nháp Q-36 (thẻ metric/metric-list, định dạng có điều kiện; đề xuất ánh xạ biến CSS màu của
       Directus trong metadata (`--theme--primary`, `--theme--primary-subdued`, `--blue`, `--blue-25`, `--theme--danger`,
       `--danger-25`, `--purple`, `--purple-25`) sang token, ví dụ `brand-500`/`brand-50`, `blue-light-500`/`blue-light-50`,
       `error-500`/`error-50`, `theme-purple-500`; trạng thái "Mở", design owner chốt trước T082), Q-37 (drawer panel: `BoFancySelect` lưới, nhóm header, raw editor), Q-38
       (chuông header: nút tròn TailAdmin + badge số, cách hiện > 99, ẩn khi 0), Q-39 (drawer thông báo: tab dọc, dòng ô
       chọn + subject + thời gian + mở rộng markdown + nút mở, thanh hành động khi chọn, rỗng) vào
       `design-system/docs/component-specs.md` mục "Tier 3 recipes, nháp (018)"
-- [ ] T005 [P] Ngoại lệ a11y lưới dashboard (FR-027, FR-106): thêm mục "018 lưới dashboard Insights: kéo tile và 8 tay
+- [X] T005 [P] Ngoại lệ a11y lưới dashboard (FR-027, FR-106): thêm mục "018 lưới dashboard Insights: kéo tile và 8 tay
       cầm đổi cỡ chỉ chuột/pointer, cảm ứng không bảo đảm; tới được bằng phím: nút sửa, +, Save, Clear Changes, pencil,
       menu tile, drawer panel, zoom" vào `design-system/qa/handoff-checklist.md` cạnh mục canvas 017, trạng thái "chờ tech
       lead duyệt"
-- [ ] T006 [P] Thư viện (R1): `pnpm-workspace.yaml` catalog thêm `apexcharts: 4.7.0` trong nhóm 013 "same versions as
+- [X] T006 [P] Thư viện (R1): `pnpm-workspace.yaml` catalog thêm `apexcharts: 4.7.0` trong nhóm 013 "same versions as
       directus/pnpm-workspace.yaml 11.17.4"; `apps/web/package.json` `"apexcharts": "catalog:"`; `pnpm install`;
       `pnpm audit --prod` không có advisory cho `apexcharts` (ghi kết quả vào research bảng kiểm)
 
@@ -123,23 +123,23 @@ tương ứng.
 
 ### Registry và utils
 
-- [ ] T010 Chép 11 `directus/app/src/panels/<id>/index.ts` vào `src/panels/<id>/index.ts` (bỏ `import PreviewSVG` và
+- [X] T010 Chép 11 `directus/app/src/panels/<id>/index.ts` vào `src/panels/<id>/index.ts` (bỏ `import PreviewSVG` và
       khóa `preview`, D-110; `definePanel` identity trong `src/panels/define.ts`; `component` trỏ `./Panel<Id>.vue` tạm là
       component rỗng tới T044–T046), kiểu `src/panels/types.ts` (`PanelConfig`, `PanelQuery`) và registry tĩnh
       `src/panels/index.ts` (`panels` sắp theo `id`, `getPanel(id)`; theo mẫu `src/operations/index.ts` của 017) theo
       data-model §4; `get-groups` dùng ở `line-chart`, `time-series` trỏ T012; manifest `tools/port-manifest/018-T010.json`
-- [ ] T011 Mở rộng `apps/web/scripts/extract-directus-registry.mjs` thêm `PANEL_IDS` (11 id) và trích `panels` (id, icon,
+- [X] T011 Mở rộng `apps/web/scripts/extract-directus-registry.mjs` thêm `PANEL_IDS` (11 id) và trích `panels` (id, icon,
       name, description, minWidth, minHeight, variable, skipUndefinedKeys, options tĩnh; options hàm với bộ đối số mẫu
       cho `variable` (`{type: 'string'}`, `{type: 'integer'}`) và mọi loại có options hàm; `query(options)` với 3 bộ
       options mẫu mỗi loại có query) vào `fixtures/directus-registry.json`; test `src/panels/registry.test.ts` so registry
       T010 với fixture (FR-040, FR-031, SC-006)
-- [ ] T012 [P] Chép `utils/get-groups.ts`, `utils/query-to-gql-string.ts`, `utils/point-on-line.ts`,
+- [X] T012 [P] Chép `utils/get-groups.ts`, `utils/query-to-gql-string.ts`, `utils/point-on-line.ts`,
       `utils/format-number.ts` vào `src/utils/` (header nguồn; `query-to-gql-string` dùng `useFieldsStore` 012 cho khóa
       chính và `json-to-graphql-query` đã có) với test `src/utils/{get-groups,query-to-gql-string,point-on-line,format-number}.test.ts`
       (port test Directus nếu có, thêm ca: aggregate + groupBy, filter `year(x)` → `x_func`, collection hệ thống bỏ
       tiền tố, không `fields` → khóa chính; điểm trên/ngoài đoạn; `notation compact`, `style currency`, `unit`); manifest
       `018-T012.json`
-- [ ] T013 [P] Chép `composables/use-auto-fit-text.ts` vào `src/composables/use-auto-fit-text.ts`; viết lại
+- [X] T013 [P] Chép `composables/use-auto-fit-text.ts` vào `src/composables/use-auto-fit-text.ts`; viết lại
       `panels/pie-chart/color-generator.ts` vào `src/panels/shared/color-generator.ts` trên `color` 5.0.2 (`lab()`, R1,
       `// Backoffice: color instead of chroma-js`); `src/panels/shared/conditional.ts` chép các hàm so sánh của từng
       panel (metric, metric-list, meter, bar-chart, pie-chart) giữ quirk R-53; test
@@ -148,7 +148,7 @@ tương ứng.
 
 ### Store insights
 
-- [ ] T014 Port `stores/insights.ts` vào `src/stores/insights.ts` theo research R4 và data-model §2, §5, §6 (`apiFetch`
+- [X] T014 Port `stores/insights.ts` vào `src/stores/insights.ts` theo research R4 và data-model §2, §5, §6 (`apiFetch`
       cho `/graphql`, `/graphql/system`; `fetchAll`; `getSimpleHash`, `applyOptionsData` của `@directus/utils`;
       `isSystemCollection` của `src/utils/get-item-route.ts`; `showUnexpectedError`); `src/hydrate.ts` gọi `hydrate`/
       `dehydrate` của store sau store permissions (D-45 phần insights gỡ); test `src/stores/insights.test.ts`
@@ -160,9 +160,9 @@ tương ứng.
 
 ### Bộ mẫu, mock, mở rộng nhỏ
 
-- [ ] T015 [P] `src/modules/content/routes/ContentNotFound.vue`: `module` thêm `'insights' | 'activity'` (link về module
+- [X] T015 [P] `src/modules/content/routes/ContentNotFound.vue`: `module` thêm `'insights' | 'activity'` (link về module
       tương ứng); test cạnh file thêm hai ca
-- [ ] T016 Bộ mẫu `bo_insights` (FR-103, data-model §12): `fixtures/seed.mjs` thêm `createInsightsFixtures()` sau
+- [X] T016 Bộ mẫu `bo_insights` (FR-103, data-model §12): `fixtures/seed.mjs` thêm `createInsightsFixtures()` sau
       `createFlowsFixtures` (collection `bo_insights_data` qua `POST /collections` với 7 field và 12 dòng cố định, user cố
       định `bo-insights-user`; `POST /dashboards` ×5 rồi `POST /panels` mảng theo bảng §12; 3 `POST /notifications` cho
       admin với ba dạng đích, chỉ cho dev/parity UI), cleanup theo tên `bo_dash_*`, subject `bo_notification_*`, xóa
@@ -170,20 +170,20 @@ tương ứng.
       `DASHBOARDS`, `NOTIFICATIONS`; `fixtures/export.mjs` xuất `snapshot/dashboards.json`, `panels.json`,
       `notifications.json`, `items.bo_insights_data.json`, `activity.json` (20 dòng đầu của admin); `tests/parity/src/web/fixtures-seed.test.ts` so hai
       app (bỏ `timestamp`, `directus_activity`); chạy seed trên 8155 và 8156 rồi commit snapshot
-- [ ] T017 API giả lập: `src/test-utils/fetch.ts` thêm #185–#203 vào `KNOWN_REQUESTS`, `ENDPOINTS` thêm `dashboards`,
+- [X] T017 API giả lập: `src/test-utils/fetch.ts` thêm #185–#203 vào `KNOWN_REQUESTS`, `ENDPOINTS` thêm `dashboards`,
       `panels`, `activity`, `notifications`; `mockFixtureApi` trả snapshot T016, `POST /graphql` theo alias từ
       `graphql.bo_dash_all.json` (T002), nhận ghi `/dashboards`, `/panels`, `/notifications` vào `fetch.db`, cho phép
       test ép 500 và lỗi GraphQL từng phần; `src/test-utils/fixtures.ts` `Snapshot` thêm bốn khóa (contracts/tests §2)
 
 ### Harness E2E và ngân sách
 
-- [ ] T018 [P] E2E harness: `e2e/helpers/allowed-paths.ts` thêm #185–#203; `e2e/helpers/flows.ts` export
+- [X] T018 [P] E2E harness: `e2e/helpers/allowed-paths.ts` thêm #185–#203; `e2e/helpers/flows.ts` export
       `moveAndRelease` (một dòng, 017 không đổi); `e2e/helpers/insights.ts` (mới: `openDashboard`, `readGrid`,
       `dragTile`, `resizeTile`, `readChartTable`, `readTileText`, `setVariable`, `createTempDashboard`,
       `deleteTempDashboards`, `createTempNotification`, `deleteTempNotifications`); `e2e/helpers/fixtures.ts` thêm
       `DASHBOARDS`, `NOTIFICATIONS`; `e2e/helpers/payload.ts` `PATHS` thêm dashboards/panels/notifications/activity/
       graphql/utils-import, `normalizeInsightsBody`, `normalizeGraphql` (contracts/components §8)
-- [ ] T019 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_018 = BUDGET_017 + 15 * 1024`, `LAZY_BUDGETS_018` (route
+- [X] T019 [P] `apps/web/scripts/check-bundle.mjs`: `BUDGET_018 = BUDGET_017 + 15 * 1024`, `LAZY_BUDGETS_018` (route
       Insights `data-insights-route` 60 KB, panel components 40 KB, `apexcharts` 170 KB, `NotificationsDrawer` 15 KB gzip;
       chốt số `apexcharts` sau lần build đầu ở T050) gộp vào `LAZY_BUDGETS`; test của script cập nhật
 
@@ -201,39 +201,39 @@ trị; nhân bản, xuất/nhập, xóa so DB.
 
 ### Tests cho User Story 1
 
-- [ ] T030 [P] [US1] `insights/routes/InsightsOverviewRoute.browser.test.ts`: cột, sắp xếp, tìm không phân biệt hoa
+- [X] T030 [P] [US1] `insights/routes/InsightsOverviewRoute.browser.test.ts`: cột, sắp xếp, tìm không phân biệt hoa
       thường, autofocus khi > 25, ô tìm ẩn khi 0, nút tạo/xuất/xóa gated theo quyền (`useCollectionPermissions`), menu
       dòng (Edit/Duplicate/Export/Delete), nhân bản body #187 và lỗi 500 → hộp lỗi + nút trở lại (R-49), xuất #191 qua
       `apiFetch` + blob, xóa một (#189) và nhiều (#190) có hộp xác nhận, rỗng `no_dashboards`/`no_results`, click/Ctrl-click
-- [ ] T031 [P] [US1] `insights/components/DashboardDialog.browser.test.ts` (tạo: body #187 `fields=id` → `hydrate` →
+- [X] T031 [P] [US1] `insights/components/DashboardDialog.browser.test.ts` (tạo: body #187 `fields=id` → `hydrate` →
       điều hướng; sửa: #188, không điều hướng; Name bắt buộc; icon mặc định `dashboard`) và
       `src/components/sidebar/BasicImportSidebarDetail.browser.test.ts` (file JSON/CSV, #192 multipart, thành công notice
       `import_data_success` + `refresh`, lỗi → `ImportErrorDialog`)
-- [ ] T032 [P] [US1] `src/modules/insights.test.ts`: `/insights` → `insights-overview`, `/insights/<id>` →
+- [X] T032 [P] [US1] `src/modules/insights.test.ts`: `/insights` → `insights-overview`, `/insights/<id>` →
       `insights-dashboard` với `beforeEnter` gọi `refresh`, `/insights/<id>/+` → `panel-detail`;
       `/content/directus_dashboards(/<id>)` chuyển hướng (FR-003)
 
 ### Implementation cho User Story 1
 
-- [ ] T033 [US1] `src/modules/insights.ts`: thay `placeholderRoutes('insights')` bằng ba route của data-model §1 (lazy
+- [X] T033 [US1] `src/modules/insights.ts`: thay `placeholderRoutes('insights')` bằng ba route của data-model §1 (lazy
       import, `props: true`, `meta.isFloatingView` cho `panel-detail`); `DashboardRoute` và `PanelConfiguration` tạm là
       `InsightsNotFound` tới T048, T067; sửa comment "khung" ở `src/utils/get-item-route.ts`
-- [ ] T034 [P] [US1] `insights/routes/InsightsNotFound.vue` port `routes/not-found.vue` (dùng `ContentNotFound
+- [X] T034 [P] [US1] `insights/routes/InsightsNotFound.vue` port `routes/not-found.vue` (dùng `ContentNotFound
       module="insights"`); manifest `018-T034.json`
-- [ ] T035 [P] [US1] `insights/components/DashboardDialog.vue` port `components/dashboard-dialog.vue` (`BoDialog`, Name,
+- [X] T035 [P] [US1] `insights/components/DashboardDialog.vue` port `components/dashboard-dialog.vue` (`BoDialog`, Name,
       `select-icon`, `select-color`, Note; request và điều hướng như data-model §3) theo recipe Q-36/Q-2; manifest
       `018-T035.json`
-- [ ] T036 [P] [US1] `src/components/sidebar/BasicImportSidebarDetail.vue` port
+- [X] T036 [P] [US1] `src/components/sidebar/BasicImportSidebarDetail.vue` port
       `views/private/components/basic-import-sidebar-detail.vue` (`SidebarDetail id="import" icon="publish"`, chọn file,
       `apiFetch` multipart #192, trạng thái tải/nhập, `notify`, `ImportErrorDialog`); manifest `018-T036.json`
-- [ ] T037 [P] [US1] `insights/components/InsightsNavigation.vue` port `components/navigation.vue` (sub-menu L-2 từ
+- [X] T037 [P] [US1] `insights/components/InsightsNavigation.vue` port `components/navigation.vue` (sub-menu L-2 từ
       `insightsStore.dashboards` với icon màu inline, `aria-current`, nút tạo khi rỗng mở `DashboardDialog`); gắn vào slot
       `navigation` của `PrivateView`; manifest `018-T037.json`
-- [ ] T038 [US1] `insights/routes/InsightsOverviewRoute.vue` port `routes/overview.vue` theo research R7 (`PrivateView
+- [X] T038 [US1] `insights/routes/InsightsOverviewRoute.vue` port `routes/overview.vue` theo research R7 (`PrivateView
       fill`, `BoTable`, `SearchInput`, header Export/Delete/+, `BoMenu` dòng, `BoDialog` xóa, `DashboardDialog`,
       nhân bản với `try/catch` R-49, xuất blob R2, sidebar `BasicImportSidebarDetail collection="directus_dashboards"
       @refresh="hydrate"`, `data-insights-route` cho bundle) theo recipe Q-2; manifest `018-T038.json`
-- [ ] T039 [US1] E2E `e2e/insights-overview.spec.ts` (contracts/tests §3): bảng 5 dashboard, sub-menu, tìm, tạo dashboard
+- [X] T039 [US1] E2E `e2e/insights-overview.spec.ts` (contracts/tests §3): bảng 5 dashboard, sub-menu, tìm, tạo dashboard
       tạm (URL `/insights/<id>`; trang đích kiểm ở T049), sửa, nhân bản (số panel bản sao qua API), xuất (request + file
       tải), nhập lại file đã xuất, xóa một và nhiều; chromium 768/1280 ba cấu hình
 
@@ -251,53 +251,53 @@ FR-023, FR-040–FR-052).
 
 ### Tests cho User Story 2
 
-- [ ] T040 [P] [US2] `insights/routes/DashboardRoute.browser.test.ts` (chế độ xem với mock T017): 11 tile đúng
+- [X] T040 [P] [US2] `insights/routes/DashboardRoute.browser.test.ts` (chế độ xem với mock T017): 11 tile đúng
       `data-pos-x/y`, `data-width/height`, header khi `show_header` (icon/màu/tên/tooltip note), bo góc theo tile kề,
       vòng quay khi đang nạp, lỗi panel (GraphQL từng phần) chỉ ở tile đó, `no_data`, type lạ `bo-unknown` thân rỗng, một
       #196 + một #197 cho `bo_dash_system`, zoom bật/tắt (scale < 1 khi lưới lớn hơn vùng nội dung), auto refresh 10 s
       (fake timers → #196 lần hai), Comments sidebar, dashboard không có → not-found
-- [ ] T041 [P] [US2] Test component 11 panel `src/panels/<id>/Panel<Id>.browser.test.ts` với dữ liệu mẫu (FR-042–FR-052):
+- [X] T041 [P] [US2] Test component 11 panel `src/panels/<id>/Panel<Id>.browser.test.ts` với dữ liệu mẫu (FR-042–FR-052):
       metric (aggregate, `first`/`last`, prefix/suffix/notation/unit, màu điều kiện khớp cuối, auto-fit), metric-list
       (nhóm, thanh %, màu), meter (phần trăm, half, màu điều kiện khớp đầu), label, list (template, `linkToItem` mở
       `DrawerItem` → `PATCH` → `refresh`), bar/line/pie/time-series (options apexcharts dựng đúng type/series/categories/
       màu mặc định token, `ChartTable` cột và dòng, sparkline khi nhỏ, `missingData` của time-series, `range auto` và
       `now`), variable (interface theo `inter`, nửa rộng khi `width < 20`), relational-variable (hiển thị item đã chọn qua
       `use-display-items` #198); axe một tile mỗi loại sáng/tối
-- [ ] T042 [P] [US2] `src/components/workspace/BoWorkspace.browser.test.ts` thêm: `zoomToFit` tính scale theo vùng nội
+- [X] T042 [P] [US2] `src/components/workspace/BoWorkspace.browser.test.ts` thêm: `zoomToFit` tính scale theo vùng nội
       dung và đổi khi resize cửa sổ; slot `{tile, gridSize}`; ca flows 017 giữ nguyên
 
 ### Implementation cho User Story 2
 
-- [ ] T043 [US2] `src/components/workspace/BoWorkspace.vue`: prop `zoomToFit`, `resizable`, slot `gridSize`, `transform:
+- [X] T043 [US2] `src/components/workspace/BoWorkspace.vue`: prop `zoomToFit`, `resizable`, slot `gridSize`, `transform:
       scale()` theo research R3 (inject vùng nội dung theo T001 (b); thêm `provide` ở `src/layout/PrivateView.vue` nếu
       thiếu); flows 017 không truyền prop mới; manifest `018-T043.json` (phần zoom của `v-workspace.vue`)
-- [ ] T044 [P] [US2] `src/panels/shared/use-apex-chart.ts` (nạp lười `import('apexcharts')`, `render`/`updateOptions`/
+- [X] T044 [P] [US2] `src/panels/shared/use-apex-chart.ts` (nạp lười `import('apexcharts')`, `render`/`updateOptions`/
       `destroy`, vẽ lại khi theme tối đổi theo T001 (f), `prefers-reduced-motion` tắt animation) và
       `src/panels/shared/ChartTable.vue` (`<table class="sr-only">` + `<caption>` = nhãn tile, `data-chart-table`, giá trị
       số sau biến đổi của panel trước định dạng, FR-105) và `src/styles/apexcharts.css` (ghi đè CSS tooltip/legend của
       thư viện chỉ bằng biến theme, biến thể `.dark`, quét bởi `check-raw-colors`; CHK043); test cạnh file
-- [ ] T045 [P] [US2] Port `panel-metric.vue`, `panel-metric-list.vue`, `panel-meter.vue`, `panel-label.vue`,
+- [X] T045 [P] [US2] Port `panel-metric.vue`, `panel-metric-list.vue`, `panel-meter.vue`, `panel-label.vue`,
       `panel-list.vue` thành `src/panels/{metric,metric-list,meter,label,list}/Panel*.vue` (`formatNumber`,
       `useAutoFontFit`, `conditional.ts`, `RenderTemplate`, `DrawerItem`; màu mặc định `cssVar('--color-brand-500')`
       D-108) theo recipe Q-36; manifest `018-T045.json`
-- [ ] T046 [P] [US2] Port `panel-bar-chart.vue`, `panel-line-chart.vue`, `panel-pie-chart.vue`, `panel-time-series.vue`
+- [X] T046 [P] [US2] Port `panel-bar-chart.vue`, `panel-line-chart.vue`, `panel-pie-chart.vue`, `panel-time-series.vue`
       thành `src/panels/{bar-chart,line-chart,pie-chart,time-series}/Panel*.vue` (options apexcharts như Directus, màu từ
       token + `color-generator`, `ChartTable` từ cùng series, `abbreviateNumber`, `n()`, `adjustDate`, `fillGaps` của
       time-series) theo recipe Q-35; manifest `018-T046.json`
-- [ ] T047 [P] [US2] Port `panel-variable.vue`, `panel-relational-variable.vue`, `use-display-items.ts` thành
+- [X] T047 [P] [US2] Port `panel-variable.vue`, `panel-relational-variable.vue`, `use-display-items.ts` thành
       `src/panels/{variable,relational-variable}/Panel*.vue` và `src/panels/relational-variable/use-display-items.ts`
       (hiển thị và chọn: `getInterface(inter)?.component`, `DrawerCollection`, `getVariable`/`setVariable` của store);
       manifest `018-T047.json`
-- [ ] T048 [US2] `insights/components/PanelTile.vue` (`BoWorkspaceTile` + trạng thái + `onErrorCaptured` + component của
+- [X] T048 [US2] `insights/components/PanelTile.vue` (`BoWorkspaceTile` + trạng thái + `onErrorCaptured` + component của
       registry; `aria-label` tên panel hoặc loại) và `insights/routes/DashboardRoute.vue` port `routes/dashboard.vue` phần
       xem (`PrivateView fill`, nút zoom `fit_to_screen` và sửa (khóa theo `useItemPermissions('directus_panels')`),
       `BoWorkspace`, bo góc `pointOnLine`, `now` một lần, `applyOptionsData` cho tile, sidebar Comments + Refresh với
       `refreshIntervals`, `InsightsNotFound` khi không có, `RouterView name="detail"`) theo recipe Q-34; route ở T033 trỏ
       component thật; manifest `018-T048.json`
-- [ ] T049 [US2] E2E `e2e/insights-dashboard.spec.ts` (contracts/tests §3): `bo_dash_all` lưới/header/giá trị text,
+- [X] T049 [US2] E2E `e2e/insights-dashboard.spec.ts` (contracts/tests §3): `bo_dash_all` lưới/header/giá trị text,
       `readChartTable` 5 biểu đồ so mốc T002, `bo_dash_system`, `bo_dash_empty`, `bo_dash_unknown`, zoom, auto refresh
       10 s, Comments; trang đích của tạo dashboard (T039); chromium 768/1280 ba cấu hình
-- [ ] T050 [US2] Đóng lượt 1: lint, typecheck, `web:test`, `web:build`, `check-bundle` (chốt `apexcharts` trong
+- [X] T050 [US2] Đóng lượt 1: lint, typecheck, `web:test`, `web:build`, `check-bundle` (chốt `apexcharts` trong
       `LAZY_BUDGETS_018` và ghi số đo vào spec FR-109), ghi thời gian job `e2e-web` (CHK054), `check-port-headers`, `check-raw-colors`, E2E `insights-*` + `settings-flows-*` xanh ở
       `proxy-api` local; nhắn phiên chung checkout; commit `feat(018): insights overview, dashboard view and the 11 panels
       (wave 1)`; push; CI xanh; `graphify update .`
@@ -644,4 +644,24 @@ Lượt 4, Phase 10:
 
 ## Ghi chú khi làm
 
-- (trống; ghi theo lượt như 017)
+Lượt 1 (2026-10-17, T001, T003–T019, T030–T050; T002 hoãn):
+
+- T002 (mốc Directus app) chưa chạy: kỳ vọng của E2E `insights-dashboard` lấy từ các dòng seed (`INSIGHTS_ROWS` trong
+  `fixtures/interfaces/seed.mjs`), không từ mốc Directus; làm T002 trước khi đóng 018.
+- T030/T031 gộp vào `insights/routes/overview.test.ts` (unit, happy-dom; có cả `DashboardDialog`), T040 là
+  `insights/routes/dashboard.test.ts` với registry panel giả lập; T041 gộp theo nhóm `src/panels/{charts,values,
+  variables}.browser.test.ts`.
+- T034: không có `InsightsNotFound.vue`, `DashboardRoute` dùng `ContentNotFound module="insights"` (T015).
+- T035: Directus đặt lại icon `space_dashboard` khi hộp mở (không phải `dashboard`); test theo Directus.
+- T044: nạp lười nằm ở `src/panels/shared/apex-charts.ts` (`loadApexCharts`, biến `--chart-*`), không có
+  `use-apex-chart.ts`; `conditional.ts` không tạo, logic định dạng có điều kiện ở từng component như Directus.
+- T048: header tile (icon, tên, nút note có tooltip) nằm trong `PanelTile` (`show-header` của `BoWorkspaceTile` tắt),
+  có `data-panel-header`.
+- T043: `BoWorkspace` đo vùng nội dung của phần tử cha (`useElementSize` content-box, padding của cha thay cho Directus
+  `--content-padding`); scale không chặn ở 1 như Directus (ở 768 px dashboard `bo_dash_all` phóng ~1,06).
+- T014/T050: `query-to-gql-string` (kéo theo `json-to-graphql-query`) được import lười trong `loadPanelData` để không
+  vào chunk chính (store nạp từ `hydrate`); entry 251,2 KB gzip, `apexcharts` lười 152,0 KB, registry panel 18,6 KB,
+  route insights 5,2 KB.
+- E2E chạy local trên dev server Vite 4218 (cấu hình `dev`, chromium-768 và chromium-1280, 20/20); ba cấu hình proxy
+  chạy trên CI. E2E `settings-flows-*` không chạy local (cần dựng lại image web của env chung, ảnh hưởng 017); thay
+  bằng test browser `BoWorkspace` + flows (không đổi hành vi khi không truyền `zoomToFit`) và để CI chạy ba cấu hình.

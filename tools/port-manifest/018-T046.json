@@ -1,0 +1,18 @@
+[
+	{
+		"source": "app/src/panels/bar-chart/panel-bar-chart.vue",
+		"dest": "apps/web/src/panels/bar-chart/PanelBarChart.vue"
+	},
+	{
+		"source": "app/src/panels/line-chart/panel-line-chart.vue",
+		"dest": "apps/web/src/panels/line-chart/PanelLineChart.vue"
+	},
+	{
+		"source": "app/src/panels/pie-chart/panel-pie-chart.vue",
+		"dest": "apps/web/src/panels/pie-chart/PanelPieChart.vue"
+	},
+	{
+		"source": "app/src/panels/time-series/panel-time-series.vue",
+		"dest": "apps/web/src/panels/time-series/PanelTimeSeries.vue"
+	}
+]

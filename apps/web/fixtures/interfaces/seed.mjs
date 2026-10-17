@@ -11,17 +11,22 @@
 // permissions on bo_std, and the `bo_hello` custom translation.
 // Feature 017 (data-model §9, T014) adds the flows of lib.mjs FLOWS, saved the way the flows editor saves them (flow
 // first, then the operation trees in one PATCH), and three runs of `bo_all_ops` (two resolve, one reject).
+// Feature 018 (data-model §12, T016) adds the Insights set: the `bo_insights_data` collection (12 fixed rows that only the
+// seed writes, owners admin and bo-editor), the dashboards of lib.mjs DASHBOARDS with their panels, and three admin
+// notifications of lib.mjs NOTIFICATIONS.
 // Usage: node seed.mjs --api http://127.0.0.1:8155 (--token <admin token> | --email <e> --password <p>) [--clean]
 // `--clean` only deletes the fixture set and exits.
 import {
 	Api,
 	CONTENT_FLOWS,
+	DASHBOARDS,
 	DIRECTORY_USERS,
 	FILES_FOLDERS,
 	FIXED_UUIDS,
 	FLOW,
 	FLOWS,
 	FOLDER,
+	NOTIFICATIONS,
 	query,
 	readArgs,
 	SETTINGS,
@@ -90,6 +95,26 @@ async function cleanup() {
 			'DELETE',
 			'/flows',
 			flows.map((f) => f.id),
+		);
+
+	// Insights (018): dashboards cascade to their panels; the admin notifications by subject.
+	const dashboards = await api.get(
+		`/dashboards${query({ filter: { name: { _in: Object.values(DASHBOARDS) } }, fields: 'id' })}`,
+	);
+	if (dashboards.length > 0)
+		await api.request(
+			'DELETE',
+			'/dashboards',
+			dashboards.map((d) => d.id),
+		);
+	const notifications = await api.get(
+		`/notifications${query({ filter: { subject: { _in: Object.values(NOTIFICATIONS) } }, fields: 'id', limit: -1 })}`,
+	);
+	if (notifications.length > 0)
+		await api.request(
+			'DELETE',
+			'/notifications',
+			notifications.map((n) => n.id),
 		);
 
 	const emails = [...Object.values(USERS), ...Object.values(DIRECTORY_USERS)].map((u) => u.email);
@@ -1957,6 +1982,244 @@ async function createFilesFixtures({ users }) {
 	}
 }
 
+/* ---------------------------------------------------------------- insights (018) */
+
+const INSIGHTS_ROWS = [
+	['published', 'a', '12.50', 3, '2026-10-01T09:00:00'],
+	['published', 'a', '7.25', 5, '2026-10-01T15:30:00'],
+	['draft', 'b', '20.00', 1, '2026-10-02T10:00:00'],
+	['published', 'a', null, 8, '2026-10-02T18:45:00'],
+	['archived', 'c', '3.10', 2, '2026-10-03T08:15:00'],
+	['draft', 'b', '15.75', 4, '2026-10-03T12:00:00'],
+	['published', 'b', '9.99', 6, '2026-10-04T07:20:00'],
+	['draft', 'a', '30.00', 7, '2026-10-04T21:10:00'],
+	['archived', 'a', '1.05', 9, '2026-10-05T11:11:00'],
+	['published', 'c', '18.40', 2, '2026-10-05T16:00:00'],
+	['draft', 'b', '4.60', 10, '2026-10-06T06:30:00'],
+	['archived', 'a', '22.20', 5, '2026-10-06T23:59:00'],
+];
+
+const insightsData = () =>
+	collection(
+		'bo_insights_data',
+		[
+			intPk(),
+			field('status', 'string', 'input', null, { width: 'half' }),
+			field('category', 'string', 'input', null, { width: 'half' }),
+			field('amount', 'decimal', 'input', null, { width: 'half' }, { numeric_precision: 10, numeric_scale: 2 }),
+			field('qty', 'integer', 'input', null, { width: 'half' }),
+			field('happened_at', 'dateTime', 'datetime', null, { width: 'half' }),
+			field(
+				'owner',
+				'uuid',
+				'select-dropdown-m2o',
+				{ template: '{{ first_name }} {{ last_name }}' },
+				{ width: 'half', special: ['m2o'] },
+			),
+		],
+		{ icon: 'insights', sort: 200 },
+	);
+
+const INSIGHTS_COLLECTION = 'bo_insights_data';
+
+/** A panel of the bo_insights set: `at` is [x, y, width, height] in grid cells. */
+function panel(dashboard, type, name, [x, y, width, height], options) {
+	return {
+		dashboard,
+		type,
+		name,
+		icon: null,
+		color: null,
+		note: null,
+		show_header: true,
+		position_x: x,
+		position_y: y,
+		width,
+		height,
+		options,
+	};
+}
+
+/** Every panel type once, on a collection only the seed writes (data-model §12, release-gate CHK052). */
+function allPanels(id) {
+	const on = { collection: INSIGHTS_COLLECTION };
+	return [
+		panel(id, 'metric', 'Items', [1, 1, 6, 2], {
+			...on,
+			field: 'id',
+			function: 'count',
+			prefix: '#',
+			conditionalFormatting: [{ operator: '>=', value: 3, color: GREEN }],
+		}),
+		panel(id, 'label', 'Label', [7, 1, 6, 2], { text: 'Backoffice', fontWeight: 700, textAlign: 'center' }),
+		panel(id, 'meter', 'Quantity', [13, 1, 6, 6], { ...on, field: 'qty', fn: 'sum', max: 100, size: 'half' }),
+		panel(id, 'line-chart', 'Quantity by category', [25, 1, 6, 6], {
+			...on,
+			xAxis: 'category',
+			yAxis: 'qty',
+			aggregation: 'sum',
+		}),
+		panel(id, 'metric-list', 'By status', [1, 3, 12, 6], {
+			...on,
+			groupByField: 'status',
+			aggregateField: 'id',
+			aggregateFunction: 'count',
+			limit: 5,
+			sortDirection: 'desc',
+			conditionalFormatting: [{ operator: '>=', value: 4, color: RED }],
+		}),
+		panel(id, 'list', 'Latest', [13, 7, 12, 6], {
+			...on,
+			limit: 5,
+			sortField: 'id',
+			sortDirection: 'desc',
+			displayTemplate: '{{ status }} {{ category }}',
+			linkToItem: true,
+		}),
+		panel(id, 'pie-chart', 'Categories', [19, 13, 10, 10], {
+			...on,
+			column: 'category',
+			function: 'count',
+			donut: true,
+		}),
+		panel(id, 'bar-chart', 'Amount by status', [1, 9, 12, 10], {
+			...on,
+			xAxis: 'status',
+			yAxis: 'amount',
+			function: 'sum',
+			decimals: 2,
+			conditionalFill: [{ axis: 'y', operator: '>=', value: 40, color: PURPLE }],
+		}),
+		panel(id, 'time-series', 'Per day', [1, 19, 12, 6], {
+			...on,
+			dateField: 'happened_at',
+			valueField: 'id',
+			function: 'count',
+			precision: 'day',
+			range: 'auto',
+		}),
+		panel(id, 'variable', 'Status variable', [13, 19, 12, 6], {
+			field: 'all_status',
+			type: 'string',
+			inter: 'select-dropdown',
+			defaultValue: 'published',
+			options: { choices: ['published', 'draft', 'archived'].map((value) => ({ text: value, value })) },
+		}),
+		panel(id, 'relational-variable', 'Owners', [25, 19, 12, 6], {
+			field: 'all_author',
+			collection: 'directus_users',
+			multiple: true,
+			limit: 5,
+		}),
+	];
+}
+
+function varsPanels(id) {
+	const filter = { _and: [{ status: { _eq: '{{ vars_status }}' } }, { owner: { _in: '{{ vars_author }}' } }] };
+	return [
+		panel(id, 'variable', 'Status', [1, 1, 12, 6], {
+			field: 'vars_status',
+			type: 'string',
+			inter: 'select-dropdown',
+			defaultValue: 'published',
+			options: { choices: ['published', 'draft', 'archived'].map((value) => ({ text: value, value })) },
+		}),
+		panel(id, 'relational-variable', 'Owners', [13, 1, 12, 6], {
+			field: 'vars_author',
+			collection: 'directus_users',
+			multiple: true,
+			limit: 5,
+		}),
+		panel(id, 'metric', 'Matching items', [1, 7, 6, 2], {
+			collection: INSIGHTS_COLLECTION,
+			field: 'id',
+			function: 'count',
+			filter,
+		}),
+		panel(id, 'list', 'Matching rows', [7, 7, 12, 6], {
+			collection: INSIGHTS_COLLECTION,
+			limit: 10,
+			sortField: 'id',
+			sortDirection: 'asc',
+			displayTemplate: '{{ status }} {{ qty }}',
+			filter,
+		}),
+	];
+}
+
+function systemPanels(id) {
+	return [
+		panel(id, 'metric', 'Users', [1, 1, 6, 2], { collection: 'directus_users', field: 'id', function: 'count' }),
+		panel(id, 'list', 'Files', [7, 1, 12, 6], {
+			collection: 'directus_files',
+			limit: 5,
+			sortField: 'title',
+			sortDirection: 'asc',
+			displayTemplate: '{{ title }}',
+		}),
+	];
+}
+
+async function createInsightsFixtures({ users }) {
+	const admin = (await api.get('/users/me?fields=id')).id;
+	const editor = users['bo-editor'].user;
+
+	await api.request('POST', '/collections', insightsData());
+	await api.request('POST', '/relations', {
+		collection: INSIGHTS_COLLECTION,
+		field: 'owner',
+		related_collection: 'directus_users',
+		meta: { one_field: null, junction_field: null, sort_field: null, one_deselect_action: 'nullify' },
+		schema: { on_delete: 'SET NULL' },
+	});
+
+	await api.request(
+		'POST',
+		`/items/${INSIGHTS_COLLECTION}`,
+		INSIGHTS_ROWS.map(([status, category, amount, qty, happened_at], index) => ({
+			status,
+			category,
+			amount,
+			qty,
+			happened_at,
+			owner: index % 12 < 7 ? admin : editor,
+		})),
+	);
+
+	const dashboards = [
+		[DASHBOARDS.all, 'dashboard', PURPLE, 'Every panel type', allPanels],
+		[DASHBOARDS.vars, 'tune', null, 'Dashboard variables', varsPanels],
+		[DASHBOARDS.system, 'admin_panel_settings', null, null, systemPanels],
+		[DASHBOARDS.empty, 'space_dashboard', null, null, () => []],
+		[DASHBOARDS.unknown, 'help', null, null, (id) => [panel(id, 'bo-unknown', 'Unknown', [1, 1, 6, 6], {})]],
+	];
+
+	for (const [name, icon, color, note, panels] of dashboards) {
+		const { id } = await api.request('POST', '/dashboards?fields=id', { name, icon, color, note });
+		const rows = panels(id);
+		if (rows.length > 0) await api.request('POST', '/panels', rows);
+	}
+
+	// Admin notifications for dev and the parity UI only; the E2E specs create their own for a temporary user (CHK053).
+	await api.request('POST', '/notifications', [
+		{
+			recipient: admin,
+			subject: NOTIFICATIONS.item,
+			message: 'An **item** of `bo_content`, see [the item](/admin/content/bo_content/1).',
+			collection: 'bo_content',
+			item: '1',
+		},
+		{ recipient: admin, subject: NOTIFICATIONS.collection, message: null, collection: 'bo_content', item: null },
+		{
+			recipient: admin,
+			subject: NOTIFICATIONS.path,
+			message: 'A link to a page.',
+			collection: null,
+			item: '/settings/project',
+		},
+	]);
+}
+
 /* ---------------------------------------------------------------- flows (017) */
 
 /**
@@ -2330,6 +2593,7 @@ await createContentFixtures({ users, files, geometry });
 await createFilesFixtures({ users });
 await createSettingsFixtures({ users });
 await createFlowsFixtures();
+await createInsightsFixtures({ users });
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

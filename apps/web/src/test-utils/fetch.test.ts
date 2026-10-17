@@ -56,7 +56,11 @@ describe('mockFixtureApi hydrate routes', () => {
 		expect(await get('/settings')).toMatchObject({ module_bar: null });
 		// The Content module presets and bookmarks of the fixture set (014).
 		expect(await get('/presets')).toHaveLength(snapshot.presets.length);
-		expect(await get('/notifications', { aggregate: { count: 'id' } })).toEqual([{ count: { id: '0' } }]);
+		// The unread count of the store filters by recipient (018 seeds three admin notifications).
+		const recipient = snapshot.users['bo-editor'].me.id;
+		expect(
+			await get('/notifications', { aggregate: { count: 'id' }, filter: { recipient: { _eq: recipient } } }),
+		).toEqual([{ count: { id: '0' } }]);
 		expect(await get('/server/info')).toMatchObject({ queryLimit: { max: -1 } });
 	});
 

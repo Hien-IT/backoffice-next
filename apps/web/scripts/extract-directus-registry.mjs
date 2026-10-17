@@ -211,6 +211,113 @@ function describeOperation(config) {
 	);
 }
 
+// Feature 018 (FR-040, FR-031, SC-006): the 11 dashboard panels (`directus/app/src/panels/<id>/index.ts`). Like the
+// operations, the whole config is kept for sample arguments: options for each `PANEL_OPTION_ARGS` panel, query for each
+// `PANEL_QUERY_ARGS` options object. The panels load in a second Vite server with `PANEL_FAKES` (stores that know the
+// sample collection), so the interface, display and operation results above do not change.
+const PANEL_IDS = [
+	'bar-chart',
+	'label',
+	'line-chart',
+	'list',
+	'meter',
+	'metric',
+	'metric-list',
+	'pie-chart',
+	'relational-variable',
+	'time-series',
+	'variable',
+];
+
+const PANEL_OPTION_ARGS = [
+	{},
+	{ options: { collection: 'bo_insights_data' } },
+	{ options: { collection: 'bo_insights_data', field: 'amount', type: 'integer', function: 'sum' } },
+	{ options: { type: 'string', inter: 'select-dropdown', collection: 'directus_users', fillType: 'disabled' } },
+];
+
+const PANEL_QUERY_ARGS = [
+	{},
+	{
+		collection: 'bo_insights_data',
+		function: 'count',
+		field: 'id',
+		fn: 'sum',
+		aggregation: 'sum',
+		aggregateFunction: 'count',
+		aggregateField: 'id',
+		groupByField: 'status',
+		xAxis: 'status',
+		yAxis: 'amount',
+		column: 'category',
+		valueField: 'qty',
+		dateField: 'happened_at',
+		precision: 'day',
+		range: 'auto',
+		displayTemplate: '{{ status }} {{ category }}',
+		limit: 7,
+		sortField: 'qty',
+		sortDirection: 'asc',
+		filter: { status: { _eq: 'published' } },
+	},
+	{
+		collection: 'bo_insights_data',
+		function: 'last',
+		field: 'amount',
+		sortField: 'happened_at',
+		fn: 'max',
+		aggregation: 'avg',
+		xAxis: 'happened_at',
+		yAxis: 'qty',
+		datePrecision: 'month',
+		grouping: 'category',
+		dateField: 'happened_at',
+		valueField: 'amount',
+		range: '1 month',
+		xAxisDisplayField: 'name',
+	},
+];
+
+const PANEL_FAKES = {
+	useCollectionsStore: `() => ({ getCollection: (collection) => (collection ? { collection, meta: { singleton: false } } : null) })`,
+	useFieldsStore: `() => ({ getFieldsForCollection: () => [], getField: () => null, getPrimaryKeyFieldForCollection: () => ({ field: 'id' }) })`,
+	useRelationsStore: `() => ({ getRelationsForField: () => [], getRelationsForCollection: () => [], getRelationForField: () => null })`,
+	// Same logic as directus/app/src/utils/get-groups.ts (the web test uses the ported copy).
+	getGroups: `(precision, field) => (({ year: ['year'], month: ['year', 'month'], week: ['year', 'month', 'week'], day: ['year', 'month', 'day'], hour: ['year', 'month', 'day', 'hour'], minute: ['year', 'month', 'day', 'hour', 'minute'], second: ['year', 'month', 'day', 'hour', 'minute', 'second'] })[precision ?? 'hour'] ?? []).map((part) => part + '(' + field + ')')`,
+	adjustFieldsForDisplays: `(fields) => fields`,
+	getFieldsFromTemplate: `(template) => [...String(template ?? '').matchAll(/{{\\s*([^}]+?)\\s*}}/g)].map((m) => m[1])`,
+	getDefaultInterfaceForType: `(type) => 'interface-for-' + type`,
+	translate: `(value) => value`,
+	cssVar: `(name) => 'cssVar(' + name + ')'`,
+	useI18n: `() => ({ t: (key) => key })`,
+	computed: `(fn) => ({ get value() { return fn(); } })`,
+	FIELD_TYPES_SELECT: `[{ text: '$t:string', value: 'string' }]`,
+};
+
+function describePanel(config) {
+	const options =
+		typeof config.options === 'function'
+			? PANEL_OPTION_ARGS.map((args) => ({ args, fields: config.options(args) }))
+			: [{ args: null, fields: config.options }];
+	const query = PANEL_QUERY_ARGS.map((args) => ({ args, result: config.query ? (config.query(args) ?? null) : null }));
+
+	return JSON.parse(
+		JSON.stringify({
+			id: config.id,
+			name: config.name,
+			icon: config.icon,
+			description: config.description ?? null,
+			minWidth: config.minWidth,
+			minHeight: config.minHeight,
+			variable: config.variable ?? null,
+			skipUndefinedKeys: config.skipUndefinedKeys ?? null,
+			optionsKind: optionsKind(config.options),
+			options,
+			query,
+		}),
+	);
+}
+
 // Option keys of the two interfaces whose options are a Vue component (read from their options.vue: the keys the
 // component emits).
 const COMPONENT_OPTION_KEYS = {
@@ -376,7 +483,7 @@ const FAKES = {
 	useFlowsStore: `() => ({ flows: ${JSON.stringify(OPERATION_FLOWS)} })`,
 };
 
-function stubPlugin() {
+function stubPlugin(fakes = FAKES) {
 	return {
 		name: 'directus-registry-stubs',
 		enforce: 'pre',
@@ -396,6 +503,8 @@ function stubPlugin() {
 					'vue',
 					'micromustache',
 					'@directus/utils',
+					'@directus/utils/browser',
+					'vue-i18n',
 				].includes(id)
 			) {
 				return `\0stub:${id}`;
@@ -410,13 +519,13 @@ function stubPlugin() {
 			if (!id.startsWith('\0stub:')) return null;
 			const spec = id.slice('\0stub:'.length);
 			if (spec === 'extensions')
-				return 'export const defineInterface = (c) => c; export const defineDisplay = (c) => c; export const defineOperationApp = (c) => c;';
+				return 'export const defineInterface = (c) => c; export const defineDisplay = (c) => c; export const defineOperationApp = (c) => c; export const definePanel = (c) => c;';
 			if (spec === 'errors') return errorsStub();
 			if (spec === 'codemirror') return 'export default { modeInfo: [] };';
 			const names = importedNames(spec);
 			return [
 				'export default {};',
-				...names.map((name) => `export const ${name} = ${FAKES[name] ?? '() => undefined'};`),
+				...names.map((name) => `export const ${name} = ${fakes[name] ?? FAKES[name] ?? '() => undefined'};`),
 			].join('\n');
 		},
 	};
@@ -440,6 +549,7 @@ function importedNames(spec) {
 		...INTERFACE_IDS.map((id) => join(interfaceDir(id), 'index.ts')),
 		...DISPLAY_IDS.map((id) => join(APP_SRC, 'displays', id, 'index.ts')),
 		...OPERATION_IDS.map((id) => join(APP_SRC, 'operations', id, 'index.ts')),
+		...PANEL_IDS.map((id) => join(APP_SRC, 'panels', id, 'index.ts')),
 	].map((file) => readFileSync(file, 'utf8'));
 
 	const names = new Set();
@@ -461,8 +571,8 @@ function importedNames(spec) {
 	return [...names];
 }
 
-async function main() {
-	const server = await createServer({
+function createRegistryServer(fakes) {
+	return createServer({
 		configFile: false,
 		root: WEB,
 		logLevel: 'error',
@@ -473,9 +583,12 @@ async function main() {
 		esbuild: { tsconfigRaw: '{"compilerOptions":{"target":"es2022","useDefineForClassFields":true}}' },
 		// Everything goes through the plugin: Vite would otherwise resolve bare imports from directus/app (no node_modules).
 		ssr: { noExternal: true },
-		plugins: [stubPlugin()],
+		plugins: [stubPlugin(fakes)],
 	});
+}
 
+async function main() {
+	const server = await createRegistryServer(FAKES);
 	const descriptors = contextDescriptors();
 	const report = { manual: [], loaded: 0 };
 
@@ -510,6 +623,23 @@ async function main() {
 			}
 		}
 
+		const panels = {};
+		const panelServer = await createRegistryServer(PANEL_FAKES);
+
+		try {
+			for (const id of PANEL_IDS) {
+				try {
+					const mod = await panelServer.ssrLoadModule(join(APP_SRC, 'panels', id, 'index.ts'));
+					panels[id] = describePanel(mod.default);
+					report.loaded++;
+				} catch (error) {
+					report.manual.push(`panels/${id}: ${error.message}`);
+				}
+			}
+		} finally {
+			await panelServer.close();
+		}
+
 		const json = {
 			directusVersion: VERSION,
 			generatedBy: 'apps/web/scripts/extract-directus-registry.mjs',
@@ -517,6 +647,7 @@ async function main() {
 			interfaces,
 			displays,
 			operations,
+			panels,
 		};
 
 		mkdirSync(dirname(OUT), { recursive: true });

@@ -1,12 +1,13 @@
 // Ported from directus/app/src/hydrate.ts
-// Backoffice: insights and AI stores are not loaded (D-45, D-54); modules are registered here instead of through
-// the extensions (no app extensions, D-41).
+// Backoffice: the AI store is not loaded (D-54); the insights store is loaded since feature 018 (D-45 lifted); modules
+// are registered here instead of through the extensions (no app extensions, D-41).
 import { setLanguage } from './lang/set-language.ts';
 import { onDehydrateModules, onHydrateModules } from './modules/index.ts';
 import { useAppStore } from './stores/app.ts';
 import { useCollectionsStore } from './stores/collections.ts';
 import { useFieldsStore } from './stores/fields.ts';
 import { useFlowsStore } from './stores/flows.ts';
+import { useInsightsStore } from './stores/insights.ts';
 import { useNotificationsStore } from './stores/notifications.ts';
 import { usePermissionsStore } from './stores/permissions.ts';
 import { usePresetsStore } from './stores/presets.ts';
@@ -35,6 +36,7 @@ export function useStores(
 		useServerStore,
 		useRelationsStore,
 		usePermissionsStore,
+		useInsightsStore,
 		useFlowsStore,
 		useNotificationsStore,
 	],
