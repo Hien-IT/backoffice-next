@@ -43,7 +43,16 @@ const emit = defineEmits(['input']);
 const a11y = inject(FORM_FIELD_A11Y, null);
 
 // Backoffice: BoMultiSelect takes string and number values (boolean choice values are not supported).
-const items = computed(() => (props.choices || []) as (Option & { value: string | number })[]);
+// Like Directus v-select, a string choice is its own text and value (the flow trigger scopes are plain strings); a
+// `{ divider: true }` entry is dropped (BoMultiSelect has no divider row).
+const items = computed(
+	() =>
+		((props.choices || []) as (Option | string | { divider: true })[])
+			.filter((choice) => typeof choice === 'string' || !('divider' in choice && choice.divider === true))
+			.map((choice) => (typeof choice === 'string' ? { text: choice, value: choice } : choice)) as (Option & {
+			value: string | number;
+		})[],
+);
 
 function updateValue(value: string[]) {
 	const sortedValue = sortBy(value, (val) => {

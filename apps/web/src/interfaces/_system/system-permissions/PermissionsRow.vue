@@ -6,6 +6,7 @@ import type { Permission, PermissionsAction } from '@directus/types';
 import BoButton from '../../../components/BoButton.vue';
 import ValueNull from '../../../components/render/ValueNull.vue';
 import type { Collection } from '../../../stores/collections.ts';
+import { displayCollectionKey } from '../../../utils/display-collection-key.ts';
 import { editablePermissionActions, type EditablePermissionsAction } from './app-permissions.ts';
 import PermissionsToggle from './PermissionsToggle.vue';
 
@@ -35,7 +36,7 @@ const SHORTCUT =
 		<th scope="row" class="collection ps-3 pe-2 text-start font-normal" :class="TD">
 			<div class="flex flex-col gap-0.5">
 				<span class="name font-mono text-gray-800 dark:text-white/90" :title="collection.name">
-					{{ collection.collection }}
+					{{ displayCollectionKey(collection.collection) }}
 				</span>
 				<span class="shortcuts flex items-center gap-1">
 					<button type="button" class="all" :class="SHORTCUT" @click="emit('setFullAccessAll')">{{ $t('all') }}</button>

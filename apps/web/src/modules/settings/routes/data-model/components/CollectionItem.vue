@@ -10,6 +10,7 @@ import { RouterLink } from 'vue-router';
 import BoIcon from '../../../../../components/BoIcon.vue';
 import BoSortableList from '../../../../../components/BoSortableList.vue';
 import type { Collection } from '../../../../../stores/collections.ts';
+import { displayCollectionKey, isUntranslatedKey } from '../../../../../utils/display-collection-key.ts';
 import { COLLECTION_TREE } from '../composables/collection-tree.ts';
 
 const props = defineProps<{ collection: Collection }>();
@@ -23,7 +24,7 @@ const collapsed = computed(() => tree.isCollapsed(props.collection.collection));
 const searching = computed(() => !!tree.search());
 
 const parts = computed(() => {
-	const name = props.collection.collection;
+	const name = displayCollectionKey(props.collection.collection);
 	const query = tree.search()?.toLowerCase();
 	const at = query ? name.toLowerCase().indexOf(query) : -1;
 	if (!query || at < 0) return [name];
@@ -39,7 +40,10 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 <template>
 	<div>
-		<div class="flex min-h-9 items-center gap-3" :class="{ 'text-gray-500 dark:text-gray-400': collection.meta?.hidden }">
+		<div
+			class="flex min-h-9 items-center gap-3"
+			:class="{ 'text-gray-500 dark:text-gray-400': collection.meta?.hidden }"
+		>
 			<component
 				:is="collection.schema ? RouterLink : 'button'"
 				v-bind="
@@ -54,7 +58,13 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 					:name="collection.meta?.hidden ? 'visibility_off' : collection.icon"
 					size="sm"
 					class="shrink-0"
-					:class="iconColor ? '' : collection.meta?.hidden ? 'text-gray-500 dark:text-gray-400' : 'text-brand-600 dark:text-brand-400'"
+					:class="
+						iconColor
+							? ''
+							: collection.meta?.hidden
+								? 'text-gray-500 dark:text-gray-400'
+								: 'text-brand-600 dark:text-brand-400'
+					"
 					:style="iconColor ? { color: iconColor } : undefined"
 				/>
 				<!-- A hidden collection is dimmed with the FR-106 muted colors (gray-500 / gray-400), not opacity. -->
@@ -63,11 +73,19 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 					:class="collection.meta?.hidden ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
 				>
 					<template v-for="(part, index) in parts" :key="index">
-						<mark v-if="index === 1" class="rounded-sm bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400">{{ part }}</mark>
+						<mark
+							v-if="index === 1"
+							class="rounded-sm bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400"
+						>
+							{{ part }}
+						</mark>
 						<template v-else>{{ part }}</template>
 					</template>
 				</span>
-				<span v-if="collection.meta?.note" class="min-w-0 truncate text-theme-xs text-gray-500 dark:text-gray-400">
+				<span
+					v-if="collection.meta?.note && !isUntranslatedKey(collection.meta.note)"
+					class="min-w-0 truncate text-theme-xs text-gray-500 dark:text-gray-400"
+				>
 					{{ collection.meta.note }}
 				</span>
 			</component>
@@ -112,4 +130,3 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		</div>
 	</div>
 </template>
-

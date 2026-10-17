@@ -341,7 +341,8 @@ describe('add collection, detail drawer, reload', () => {
 
 		expect(items[0]).toEqual(['bo_other', false, false]);
 		expect(items[1]).toEqual(['bo_std', true, true]);
-		expect(items.find((item: unknown[]) => item[0] === 'directus_users')).toEqual(['directus_users', true, false]);
+		// D-118: system collections are labelled backoffice_*.
+		expect(items.find((item: unknown[]) => item[0] === 'backoffice_users')).toEqual(['backoffice_users', true, false]);
 
 		wrapper.findComponent(AddCollection).vm.$emit('select', 'bo_other');
 		await flushPromises();

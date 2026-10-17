@@ -60,12 +60,20 @@ function report(name: string, timings: number[], budget: number) {
 	expect(median(timings)).toBeLessThan(budget * factor);
 }
 
+// The CI runner is several times slower (machineFactor); a fixed 10 s cap failed there (run 39058333187). Measured once:
+// machineFactor() runs its own benchmark, which must not fall inside a timed case.
+let settleLimit = 10_000;
+beforeAll(() => {
+	settleLimit = 10_000 * Math.max(1, machineFactor());
+});
+
 /** Waits a frame at a time until `ready`, then for a settled frame. */
 async function settled(ready: () => boolean) {
-	const deadline = performance.now() + 10_000;
+	const limit = settleLimit;
+	const deadline = performance.now() + limit;
 
 	while (!ready()) {
-		if (performance.now() > deadline) throw new Error('perf: the page did not settle in 10 s');
+		if (performance.now() > deadline) throw new Error(`perf: the page did not settle in ${Math.round(limit / 1000)} s`);
 		await flushPromises();
 		await frame();
 	}

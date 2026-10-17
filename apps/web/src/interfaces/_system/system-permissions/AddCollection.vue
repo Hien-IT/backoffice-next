@@ -7,6 +7,7 @@ import BoButton from '../../../components/BoButton.vue';
 import BoIcon from '../../../components/BoIcon.vue';
 import BoMenu, { type BoMenuItem } from '../../../components/BoMenu.vue';
 import { useCollections } from './use-collections.ts';
+import { displayCollectionKey } from '../../../utils/display-collection-key.ts';
 
 const props = defineProps<{
 	excludeCollections?: string[];
@@ -27,7 +28,11 @@ const menuItems = computed(() => {
 			continue;
 		}
 
-		items.push({ text: item.collection, disabled: !!item.disabled, onSelect: () => emit('select', item.collection) });
+		items.push({
+			text: displayCollectionKey(item.collection),
+			disabled: !!item.disabled,
+			onSelect: () => emit('select', item.collection),
+		});
 	}
 
 	return items;

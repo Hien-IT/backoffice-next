@@ -249,9 +249,11 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 				title: label(h1),
 				crumbs: Array.from(header?.querySelectorAll('nav[aria-label="Breadcrumb"] a') ?? []).map(label),
 				// The collection tree, the database-only list and the system collections of the data model page.
+				// 018 D-118: the app shows system keys as `backoffice_*` (display only); compared as the stored key.
 				tree: Array.from(document.querySelectorAll('main span.font-mono'))
 					.filter((el) => (el as HTMLElement).checkVisibility())
-					.map(text),
+					.map(text)
+					.map((name) => name.replace(/^backoffice_/, 'directus_')),
 				count: [status ? new RegExp(count).exec(status)![0] : '', ...info].filter(Boolean).join(' / '),
 			};
 		},

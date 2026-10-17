@@ -404,8 +404,10 @@ function onPointerUp() {
 										<DropdownMenuContent
 											align="start"
 											:side-offset="4"
-											class="z-99999 min-w-40 space-y-1 rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+											class="z-99999 max-h-(--reka-dropdown-menu-content-available-height) min-w-40 space-y-1 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg custom-scrollbar dark:border-gray-800 dark:bg-gray-dark"
 										>
+											<!-- Backoffice: capped to the room left in the window and scrollable, so the last entry (Hide Field) stays
+											     reachable on a short window. -->
 											<slot name="header-context-menu" :column="column" :index="index" />
 										</DropdownMenuContent>
 									</DropdownMenuPortal>

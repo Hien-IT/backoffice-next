@@ -24,6 +24,7 @@ import BoSortableList from '../../../../components/BoSortableList.vue';
 import SearchInput from '../../../../components/SearchInput.vue';
 import PrivateView from '../../../../layout/PrivateView.vue';
 import { type Collection, useCollectionsStore } from '../../../../stores/collections.ts';
+import { displayCollectionKey, isUntranslatedKey } from '../../../../utils/display-collection-key.ts';
 import { getCollectionRoute } from '../../../../utils/get-item-route.ts';
 import { translate } from '../../../../utils/translate-object-values.ts';
 import SettingsNavigation from '../../components/SettingsNavigation.vue';
@@ -45,8 +46,8 @@ const deleteTarget = ref<Collection | null>(null);
 
 const isSystem = (collection: string) => collection.startsWith('directus_');
 
-const collections = computed(() =>
-	translate(collectionsStore.allCollections.filter((collection) => collection.meta)) as Collection[],
+const collections = computed(
+	() => translate(collectionsStore.allCollections.filter((collection) => collection.meta)) as Collection[],
 );
 
 const childrenOf = (parent: string | null) =>
@@ -65,7 +66,8 @@ const visibleIds = computed(() => {
 
 		for (const collection of all.filter((c) => (c.meta?.group ?? null) === parent)) {
 			const childVisible = visit(collection.collection);
-			const visible = !query || collection.collection.toLowerCase().includes(query) || childVisible;
+			const visible =
+				!query || displayCollectionKey(collection.collection).toLowerCase().includes(query) || childVisible;
 			if (visible) result.add(collection.collection);
 			any ||= visible;
 		}
@@ -85,7 +87,9 @@ const tableCollections = computed(
 
 const systemCollections = computed(
 	() =>
-		translate(collectionsStore.systemCollections.map((collection) => ({ ...collection, icon: 'settings' }))) as Collection[],
+		translate(
+			collectionsStore.systemCollections.map((collection) => ({ ...collection, icon: 'settings' })),
+		) as Collection[],
 );
 
 function sortList(list: Collection[], parent: string | null) {
@@ -280,7 +284,10 @@ const TEXT_BTN = `rounded px-1 text-brand-500 hover:text-brand-600 dark:text-bra
 				</BoSortableList>
 			</section>
 
-			<section v-if="tableCollections.some((c) => visible(c.collection))" :aria-label="$t('db_only_click_to_configure')">
+			<section
+				v-if="tableCollections.some((c) => visible(c.collection))"
+				:aria-label="$t('db_only_click_to_configure')"
+			>
 				<ul class="m-0 flex list-none flex-col gap-2 p-0">
 					<template v-for="collection in tableCollections" :key="collection.collection">
 						<li
@@ -327,8 +334,13 @@ const TEXT_BTN = `rounded px-1 text-brand-500 hover:text-brand-600 dark:text-bra
 								:class="FOCUS"
 							>
 								<BoIcon name="settings" size="sm" class="text-brand-500" />
-								<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90">{{ collection.collection }}</span>
-								<span v-if="collection.meta?.note" class="truncate text-theme-xs text-gray-500 dark:text-gray-400">
+								<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90">
+									{{ displayCollectionKey(collection.collection) }}
+								</span>
+								<span
+									v-if="collection.meta?.note && !isUntranslatedKey(collection.meta.note)"
+									class="truncate text-theme-xs text-gray-500 dark:text-gray-400"
+								>
 									{{ collection.meta.note }}
 								</span>
 							</RouterLink>
