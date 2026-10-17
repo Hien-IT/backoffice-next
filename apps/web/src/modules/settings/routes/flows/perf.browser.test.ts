@@ -268,6 +268,11 @@ test('the Logs list: 10 runs under 300 ms after its GET /revisions', async () =>
 
 test('requests: the flow page reads the log count only; Save sends one PATCH /flows/:id then GET /flows', async () => {
 	const { fetch, id } = await mountFlow('/settings/flows/:id');
+	// The Logs section (and its count request) lives in the detail panel: inline from xl, a drawer below. The CI
+	// runner can lay the file out below xl despite the viewport (CI 39058333187, two perf files in parallel), so the
+	// panel is opened; at xl this changes nothing.
+	useSidebarStore().expand();
+	await flushPromises();
 	const sent = () => calls(fetch).map((call) => call.split('?')[0]);
 	// The log count goes out after the page mounts; a loaded runner sends it a little later.
 	await vi.waitFor(() => expect(sent()).toEqual(['GET /revisions']), { timeout: 5_000 });
