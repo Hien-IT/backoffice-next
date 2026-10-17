@@ -349,7 +349,8 @@ test('a viewer gets no card or column menus and no add column', async () => {
 	await setup('bo-viewer');
 	await mountLayout('bo_groups', { layoutOptions: { groupField: 'target', groupTitle: 'name' } });
 
-	expect(document.querySelector('.card-menu')).toBeNull();
+	// The viewer's permissions can land after the first cards on a loaded runner (run 39076577997).
+	await vi.waitFor(() => expect(document.querySelector('.card-menu')).toBeNull(), { timeout: 5000 });
 	expect(
 		[...document.querySelectorAll('button')].some((b) => b.textContent?.includes(t('layouts.kanban.add_group'))),
 	).toBe(false);

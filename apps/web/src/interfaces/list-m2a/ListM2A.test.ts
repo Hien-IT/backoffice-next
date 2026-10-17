@@ -173,25 +173,28 @@ describe('options', () => {
 		expect(wrapper.find('.pagination').text()).toContain('1 / 1');
 	});
 
-	test('option:list-m2a.allowDuplicates: the select drawer filter drops items already linked unless true', async () => {
+	// One list per test (see the prefix tests below).
+	test('option:list-m2a.allowDuplicates: the select drawer filter drops items already linked', async () => {
 		// The menus wait for the relation and permission loads (several fetches on a loaded CI runner).
 		const wrapper = await mountM2A();
-		await vi.waitFor(() => expect(menuItems(wrapper, 'select')).toBeDefined(), { timeout: 5000 });
+		await vi.waitFor(() => expect(menuItems(wrapper, 'select')).toBeDefined(), { timeout: 10_000 });
 		menuItems(wrapper, 'select')[0]!.onSelect!();
 		await flushPromises();
 
 		const filter = JSON.stringify(wrapper.findComponent(DrawerCollection).props('filter'));
 		expect(filter).toContain('$FOLLOW(bo_junction_m2a,item,collection)');
+	}, 30_000);
 
+	test('option:list-m2a.allowDuplicates: true keeps the select drawer unfiltered', async () => {
 		const duplicates = await mountM2A({ allowDuplicates: true });
-		await vi.waitFor(() => expect(menuItems(duplicates, 'select')).toBeDefined(), { timeout: 5000 });
+		await vi.waitFor(() => expect(menuItems(duplicates, 'select')).toBeDefined(), { timeout: 10_000 });
 		menuItems(duplicates, 'select')[0]!.onSelect!();
 		await flushPromises();
 		expect(duplicates.findComponent(DrawerCollection).props('filter')).toEqual({});
-	}, 20_000);
+	}, 30_000);
 
-	// One list per test: two mounts in one test left the second without rows on CI (runs 38969565336, 38985062784,
-	// 39044041413), never locally.
+	// One list per test: two mounts in one test left the second without rows or menus on CI (runs 38969565336,
+	// 38985062784, 39044041413, 39076577997), never locally.
 	test('option:list-m2a.prefix: the template on the junction row', async () => {
 		const prefixed = await mountM2A({ prefix: '#{{ sort }}' });
 		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/), { timeout: 10_000 });
