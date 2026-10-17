@@ -268,7 +268,8 @@ test('the Logs list: 10 runs under 300 ms after its GET /revisions', async () =>
 test('requests: the flow page reads the log count only; Save sends one PATCH /flows/:id then GET /flows', async () => {
 	const { fetch, id } = await mountFlow('/settings/flows/:id');
 	const sent = () => calls(fetch).map((call) => call.split('?')[0]);
-	expect(sent()).toEqual(['GET /revisions']);
+	// The log count goes out after the page mounts; a loaded runner sends it a little later.
+	await vi.waitFor(() => expect(sent()).toEqual(['GET /revisions']), { timeout: 5_000 });
 
 	fetch.mockClear();
 	const button = (label: string) =>

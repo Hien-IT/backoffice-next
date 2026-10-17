@@ -320,8 +320,15 @@ test('(3) drag a panel, detach and relink the reject arrow, Save (#180, #181)', 
 			await expect(dirTile(p, 'Transform Payload')).toHaveAttribute('style', /--pos-x: 58; --pos-y: 4;/);
 			await dirLink(p, 'Condition', '.add-reject', null);
 			await expect(p.locator('.v-workspace-tile.subdued')).toHaveCount(1);
-			await dirLink(p, 'Condition', '.add-reject', 'Throw Error');
-			await expect(p.locator('.v-workspace-tile.subdued')).toHaveCount(0);
+			// CI 39018596094 and 39023103236 missed this drop twice on the Directus app (green locally): a missed drop
+			// lands on empty space and stages nothing, so the drag is tried again (at most 3 times) and each miss is logged.
+			for (let attempt = 1; ; attempt++) {
+				const used = await dirLink(p, 'Condition', '.add-reject', 'Throw Error');
+				if ((await p.locator('.v-workspace-tile.subdued').count()) === 0) break;
+				// eslint-disable-next-line no-console
+				console.log(`payload (3): relink ${attempt} missed on the Directus app: ${used}`);
+				expect(attempt, 'relink on the Directus app').toBeLessThan(3);
+			}
 			await dirSaveFlow(p);
 		},
 		async backoffice(p) {

@@ -250,17 +250,27 @@ export async function dirDragTile(page: Page, name: string, cells: { dx: number;
 	await dirDrag(page, dirTile(page, name).locator('.header'), { x: cells.dx * GRID, y: cells.dy * GRID });
 }
 
-/** Drags the `.add-resolve`/`.add-reject` handle of `from` onto the input of `to`, or 20 cells down (detach). */
-export async function dirLink(page: Page, from: string, handle: string, to: string | null): Promise<void> {
+/**
+ * Drags the `.add-resolve`/`.add-reject` handle of `from` onto the input of `to`, or 20 cells down (detach). The Directus
+ * app places the drop at `pageX - rect.left` (page minus viewport coordinates, `operation.vue`): with the window
+ * scrolled, the aim is short by the scroll. Returns what the drag used, for a failure message.
+ */
+export async function dirLink(page: Page, from: string, handle: string, to: string | null): Promise<string> {
 	const source = dirTile(page, from).locator(handle);
-	if (!to) return dirDrag(page, source, { x: 0, y: 20 * GRID });
+	if (!to) {
+		await dirDrag(page, source, { x: 0, y: 20 * GRID });
+		return 'detach';
+	}
 	await source.scrollIntoViewIfNeeded();
 	const a = (await source.boundingBox())!;
 	const b = (await dirTile(page, to).locator('.attachment').boundingBox())!;
-	await dirDrag(page, source, {
-		x: b.x + b.width / 2 - (a.x + a.width / 2),
-		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)),
-	});
+	const scroll = await page.evaluate(() => ({ x: window.scrollX, y: window.scrollY }));
+	const delta = {
+		x: b.x + b.width / 2 - (a.x + a.width / 2) - scroll.x,
+		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)) - scroll.y,
+	};
+	await dirDrag(page, source, delta);
+	return JSON.stringify({ source: a, target: b, scroll, delta, viewport: page.viewportSize() });
 }
 
 /** Opens the menu of a tile in edit mode and picks `entry` (`Duplicate`, `Delete`, `Copy To...`). */
