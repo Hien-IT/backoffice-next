@@ -202,7 +202,8 @@ commit, push, CI xanh, `graphify update .`).
       cùng key, vòng dữ liệu → lỗi D-105) so body `PATCH /operations` và `PATCH /flows/:id` với
       `e2e/payload/baselines/flows-*.json` của T003; Save lỗi giữ staging và Save lại gửi lại (R-47); `hasEdits` (R-44)
 - [ ] T042 [P] [US2] `flows/FlowRoute.browser.test.ts`: chế độ xem `bo_all_ops` (15 panel, số mũi tên, lớp mờ của
-      `bo_orphan`, overview, trigger null), Edit Flow, kéo panel, "+" → route `+`, kéo nối/tháo, Duplicate, Copy To
+      `bo_orphan`, overview, trigger null), Edit Flow, kéo panel, "+" gọi
+      `router.push` với `settings-flows-operation` và `operationId: '+'` (kiểm lời gọi bằng router giả; route con có ở T061), kéo nối/tháo, Duplicate, Copy To
       (`POST /operations`, lỗi giữ hộp), Delete, Save, Clear Changes, guard rời trang, `Ctrl/Cmd+S`, Delete Flow (về danh
       sách kể cả lỗi), focus sau Edit/Save/Clear, sao chép URL webhook (`use-clipboard`), axe hai chế độ sáng/tối
 
@@ -251,7 +252,8 @@ commit, push, CI xanh, `graphify update .`).
 - [ ] T060 [P] [US3] `flows/OperationDetail.browser.test.ts`: tiêu đề tạo/sửa, Name/Key (placeholder, key theo tên,
       `dbSafe`, trùng → `operation_key_unique_error`), 15 loại (số field, điều kiện ẩn của `json-web-token`, `mail`,
       `trigger`), notice D-106 ở `mail` hai ngôn ngữ, đổi loại → options `{}`, loại lạ → `operation_not_found`, Done emit
-      `{...defaults, ...options}`, Cancel; axe với exec, mail, trigger
+      `{...defaults, ...options}`, Cancel; mount qua router thật có route con (sau T061): "+" trên `FlowRoute` mở drawer,
+      Done đưa operation vào staging của canvas; axe với exec, mail, trigger
 
 ### Implementation cho User Story 3
 

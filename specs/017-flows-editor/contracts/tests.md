@@ -10,7 +10,8 @@
   không chạm store field), `lang/overlay.test.ts` (+ khóa D-106 ở hai ngôn ngữ).
 - `browser` (chromium): `FlowsOverviewRoute` (bảng, sắp xếp, menu: `PATCH {status}` và lỗi giữ store, xóa, nút tạo
   khóa theo quyền, rỗng), `FlowDrawer` (hai tab, khóa Next, 5 trigger và reset options, body `POST`/`PATCH`), `FlowRoute` (chế độ
-  xem/sửa, panel và mũi tên từ `bo_all_ops`, kéo panel → staging, kéo nối/tháo, "+" → route `+`, Duplicate, Copy To
+  xem/sửa, panel và mũi tên từ `bo_all_ops`, kéo panel → staging, kéo nối/tháo, "+" gọi `router.push` tới
+  `settings-flows-operation` `operationId '+'` (router giả; mở drawer thật kiểm ở `OperationDetail` sau khi có route con), Duplicate, Copy To
   `POST /operations`, Delete, Save body, Clear Changes, guard), `OperationDetail` (15 loại: số field, điều kiện ẩn,
   key tự sinh, duy nhất, loại lạ, Done với defaults; `mail` có notice D-106 hai ngôn ngữ), `error-codes.test.ts` (so
   `libs/errors/src/codes.ts`), Save lỗi giữ staging (R-47), trigger null, `LogsSidebarDetail` + `LogsDrawer` (nhóm
