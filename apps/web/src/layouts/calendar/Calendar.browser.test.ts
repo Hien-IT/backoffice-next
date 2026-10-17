@@ -178,8 +178,15 @@ test('next month: viewInfo goes to the layout options and the request asks for t
  */
 async function dragUntilPatched() {
 	for (let attempt = 1; ; attempt++) {
+		const event = document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event');
+		// The last drag was taken as a drop (the event left October 3) but its PATCH is slow: wait for it, no new drag.
+		if (!event) {
+			await vi.waitFor(() => expect(calls(fetch)).toContain('PATCH /items/bo_content/3'), { timeout: 15_000 });
+			return;
+		}
+
 		await userEvent.dragAndDrop(
-			document.querySelector<HTMLElement>('td[data-date="2026-10-03"] .fc-event')!,
+			event,
 			document.querySelector<HTMLElement>('td[data-date="2026-10-10"] .fc-daygrid-day-frame')!,
 		);
 
