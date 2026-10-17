@@ -33,8 +33,8 @@ describe('BoDialog', () => {
 			props: { open: true, title: 'Create Role', persistent: true },
 			attachTo: document.body,
 		});
-		// Reka adds its outside listener in a timeout after opening.
-		await new Promise((resolve) => setTimeout(resolve, 10));
+		// Reka adds its outside listener in a timeout after opening; 200 ms covers a loaded runner.
+		await new Promise((resolve) => setTimeout(resolve, 200));
 
 		document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
 		await flushPromises();
@@ -48,12 +48,13 @@ describe('BoDialog', () => {
 
 	test('not persistent: an outside click closes', async () => {
 		const wrapper = mount(BoDialog, { props: { open: true, title: 'Sign Out' }, attachTo: document.body });
-		// Reka adds its outside listener in a timeout after opening.
-		await new Promise((resolve) => setTimeout(resolve, 10));
-
-		document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
 		await flushPromises();
-		expect(wrapper.emitted('update:open')).toEqual([[false]]);
+
+		// Reka adds its outside listener in a timeout after opening: click until it is there (later on a loaded runner).
+		await vi.waitFor(() => {
+			document.body.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+			expect(wrapper.emitted('update:open')).toEqual([[false]]);
+		});
 		wrapper.unmount();
 	});
 

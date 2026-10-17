@@ -190,14 +190,14 @@ describe('options', () => {
 		expect(duplicates.findComponent(DrawerCollection).props('filter')).toEqual({});
 	}, 20_000);
 
-	test('option:list-m2a.prefix: template on the junction row, else the collection name', async () => {
-		// The rows load over several fetches: wait for them (one flush is not enough on a loaded CI runner).
+	// One list per test: two mounts in one test left the second without rows on CI (runs 38969565336, 38985062784,
+	// 39044041413), never locally.
+	test('option:list-m2a.prefix: the template on the junction row', async () => {
 		const prefixed = await mountM2A({ prefix: '#{{ sort }}' });
-		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/), { timeout: 5000 });
-		// Failed twice on CI with no second row (runs 38969565336, 38985062784), never locally: one list at a time, and
-		// the rows in the message.
-		prefixed.unmount();
+		await vi.waitFor(() => expect(rows(prefixed)[0]).toMatch(/^#1:/), { timeout: 10_000 });
+	}, 30_000);
 
+	test('option:list-m2a.prefix: the collection name without a template', async () => {
 		const plain = await mountM2A({ prefix: null });
 		await vi.waitFor(() => expect(rows(plain).join(' | ')).toMatch(/ \| Bo M2A B:/), { timeout: 10_000 });
 	}, 30_000);
