@@ -766,26 +766,26 @@ biệt, SC-010):
 
 | Mã | Rủi ro | Nguồn và bằng chứng | Ảnh hưởng | Duyệt |
 |----|--------|---------------------|-----------|-------|
-| R-43 | Xóa operation không có hộp xác nhận và con không được nối lại (thành panel lẻ) | `flow.vue:429-447` Directus | Người dùng có thể xóa nhầm; Clear Changes hoặc rời không lưu khôi phục được vì chỉ là staging; tái tạo, không sửa | Chờ duyệt |
-| R-44 | Guard sửa dở chỉ tính `stagedPanels`/`panelsToBeDeleted`; đổi trạng thái ở chân Trigger hay nối lại Trigger (`stagedFlow`) một mình không chặn rời trang | `flow.vue:578-607` Directus | Mất thay đổi trạng thái chưa lưu khi rời trang; tái tạo | Chờ duyệt |
-| R-45 | Drawer log hiện Options của bước Trigger là `flow.options` hiện tại, không phải lúc chạy | `logs-drawer.vue` Directus | Log cũ hiện options mới sau khi sửa trigger; tái tạo | Chờ duyệt |
-| R-46 | "Show Failed Only" lọc client trên trang hiện tại (10 dòng), không đổi request | `logs-sidebar-detail.vue:49-63` Directus | Trang có thể rỗng (`no_logs_on_page`) dù có lần thất bại ở trang khác; tái tạo | Chờ duyệt |
-| R-47 | Save gửi `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id` trong hai request; bước sau lỗi thì DB còn link đã gỡ | `flow.vue:310-384` Directus | Staging giữ nên Save lại khôi phục; tải lại trang trước khi Save lại thì operation thành panel lẻ, nối lại tay; tái tạo | Chờ duyệt |
-| R-48 | Dữ liệu `resolve`/`reject` có vòng làm `FlowManager` của API (Directus 11.17.4 và API mới 009, cùng hành vi) nạp lỗi (`RangeError`) và bỏ nạp mọi flow cho tới khi khởi động lại; flow manual/webhook trả 403 "không tìm thấy" | T002 (2026-10-17): sau khi tạo flow vòng, log cả hai container ghi `Flows have to be loaded before they can be reloaded`, phải `docker restart` | Không do giao diện 017 (canvas từ chối vòng), chỉ dữ liệu ghi tay qua API; tái tạo ở API (V); ghi để test không tạo dữ liệu vòng | Chờ duyệt |
+| R-43 | Xóa operation không có hộp xác nhận và con không được nối lại (thành panel lẻ) | `flow.vue:429-447` Directus | Người dùng có thể xóa nhầm; Clear Changes hoặc rời không lưu khôi phục được vì chỉ là staging; tái tạo, không sửa | Duyệt (tech lead, 2026-10-17) |
+| R-44 | Guard sửa dở chỉ tính `stagedPanels`/`panelsToBeDeleted`; đổi trạng thái ở chân Trigger hay nối lại Trigger (`stagedFlow`) một mình không chặn rời trang | `flow.vue:578-607` Directus | Mất thay đổi trạng thái chưa lưu khi rời trang; tái tạo | Duyệt (tech lead, 2026-10-17) |
+| R-45 | Drawer log hiện Options của bước Trigger là `flow.options` hiện tại, không phải lúc chạy | `logs-drawer.vue` Directus | Log cũ hiện options mới sau khi sửa trigger; tái tạo | Duyệt (tech lead, 2026-10-17) |
+| R-46 | "Show Failed Only" lọc client trên trang hiện tại (10 dòng), không đổi request | `logs-sidebar-detail.vue:49-63` Directus | Trang có thể rỗng (`no_logs_on_page`) dù có lần thất bại ở trang khác; tái tạo | Duyệt (tech lead, 2026-10-17) |
+| R-47 | Save gửi `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id` trong hai request; bước sau lỗi thì DB còn link đã gỡ | `flow.vue:310-384` Directus | Staging giữ nên Save lại khôi phục; tải lại trang trước khi Save lại thì operation thành panel lẻ, nối lại tay; tái tạo | Duyệt (tech lead, 2026-10-17) |
+| R-48 | Dữ liệu `resolve`/`reject` có vòng làm `FlowManager` của API (Directus 11.17.4 và API mới 009, cùng hành vi) nạp lỗi (`RangeError`) và bỏ nạp mọi flow cho tới khi khởi động lại; flow manual/webhook trả 403 "không tìm thấy" | T002 (2026-10-17): sau khi tạo flow vòng, log cả hai container ghi `Flows have to be loaded before they can be reloaded`, phải `docker restart` | Không do giao diện 017 (canvas từ chối vòng), chỉ dữ liệu ghi tay qua API; tái tạo ở API (V); ghi để test không tạo dữ liệu vòng | Duyệt (tech lead, 2026-10-17) |
 
-**Trạng thái khác biệt (T102, lượt 4, 2026-10-17; tech lead chưa duyệt, SC-010)**:
+**Trạng thái khác biệt (T102, lượt 4, 2026-10-17; tech lead duyệt cả bảng 2026-10-17, SC-010)**:
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
-| D-106 | `routes/flows/OperationDetail.vue`: `BoNotice` info `operations_mail_not_sent_notice` (overlay en-US, vi-VN) trên form options khi loại là `mail`; field và giá trị ghi giữ nguyên (bộ so payload T090, E2E `settings-flows-operations`) | Owner chọn B (Clarifications); chờ tech lead |
-| R-43 | `use-flow-editor.ts` port `deletePanel` của `flow.vue`: không hộp xác nhận, con thành panel lẻ (`flow.test.ts`, payload (4)) | Chờ duyệt |
-| R-44 | `use-flow-editor.ts`: guard sửa dở chỉ xét `stagedPanels`/`panelsToBeDeleted` như Directus | Chờ duyệt |
-| R-45 | `components/LogsDrawer.vue`: Options của bước Trigger lấy `flow.options` hiện tại như Directus | Chờ duyệt |
-| R-46 | `components/LogsSidebarDetail.vue`: `filterRevisions` lọc trên trang hiện tại như Directus (`logs.test.ts`) | Chờ duyệt |
-| R-47 | `use-flow-editor.ts` `saveChanges`: `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id`, hai request như Directus | Chờ duyệt |
-| R-48 | Không đổi API; `getTrees` dừng ở id lặp (ghi console, không request) và `connectedToTrigger` có tập đã thăm; mọi E2E và bộ mẫu không tạo dữ liệu vòng | Chờ duyệt |
-| Ngoại lệ a11y canvas | Kéo panel và mũi tên chỉ bằng chuột như Directus (`design-system/qa/handoff-checklist.md`); khung canvas là `role="region"` nhận focus để cuộn bằng bàn phím; axe sáng/tối sạch ở mọi màn flows (`a11y.spec.ts`, T094) | Owner chọn B (Clarifications); chờ tech lead |
-| Cần xác nhận | RTL không port; `trigger-detail.vue` không port; request "created" giữ; query dạng SDK so theo nghĩa; chuỗi literal giữ | Chờ tech lead |
+| D-106 | `routes/flows/OperationDetail.vue`: `BoNotice` info `operations_mail_not_sent_notice` (overlay en-US, vi-VN) trên form options khi loại là `mail`; field và giá trị ghi giữ nguyên (bộ so payload T090, E2E `settings-flows-operations`) | Owner chọn B (Clarifications); duyệt (tech lead, 2026-10-17) |
+| R-43 | `use-flow-editor.ts` port `deletePanel` của `flow.vue`: không hộp xác nhận, con thành panel lẻ (`flow.test.ts`, payload (4)) | Duyệt (tech lead, 2026-10-17) |
+| R-44 | `use-flow-editor.ts`: guard sửa dở chỉ xét `stagedPanels`/`panelsToBeDeleted` như Directus | Duyệt (tech lead, 2026-10-17) |
+| R-45 | `components/LogsDrawer.vue`: Options của bước Trigger lấy `flow.options` hiện tại như Directus | Duyệt (tech lead, 2026-10-17) |
+| R-46 | `components/LogsSidebarDetail.vue`: `filterRevisions` lọc trên trang hiện tại như Directus (`logs.test.ts`) | Duyệt (tech lead, 2026-10-17) |
+| R-47 | `use-flow-editor.ts` `saveChanges`: `PATCH /operations` (gỡ link) rồi `PATCH /flows/:id`, hai request như Directus | Duyệt (tech lead, 2026-10-17) |
+| R-48 | Không đổi API; `getTrees` dừng ở id lặp (ghi console, không request) và `connectedToTrigger` có tập đã thăm; mọi E2E và bộ mẫu không tạo dữ liệu vòng | Duyệt (tech lead, 2026-10-17) |
+| Ngoại lệ a11y canvas | Kéo panel và mũi tên chỉ bằng chuột như Directus (`design-system/qa/handoff-checklist.md`); khung canvas là `role="region"` nhận focus để cuộn bằng bàn phím; axe sáng/tối sạch ở mọi màn flows (`a11y.spec.ts`, T094) | Owner chọn B (Clarifications); duyệt (tech lead, 2026-10-17) |
+| Cần xác nhận | RTL không port; `trigger-detail.vue` không port; request "created" giữ; query dạng SDK so theo nghĩa; chuỗi literal giữ | Duyệt (tech lead, 2026-10-17) |
 
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
@@ -821,6 +821,8 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   như Directus; nút chạy thủ công cho người không admin đã ở 014.
 - Q: Còn điểm nào cần làm rõ trước plan? → Ba điểm có nhiều cách hiểu (canvas chỉ chuột, notice mail, màu nhánh
   reject) đã chốt; không chặn plan.
+- Duyệt (tech lead, 2026-10-17): bảng khác biệt D-106, R-43 đến R-48, ngoại lệ a11y của canvas và mục "Cần xác nhận"
+  (T102). Recipe Q-29 đến Q-33 (T101) còn chờ design owner.
 
 ## Assumptions
 
@@ -851,7 +853,7 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 - Playwright kéo thả bằng `mouse.move/down/up` với bước nhỏ hoạt động trên pointer events của canvas ở chromium,
   firefox, webkit (014 Kanban đã dùng); nếu webkit flake thì test kéo đánh `test.fixme` cho webkit (FR-100, SC-001).
   Thao tác cảm ứng không có E2E (Edge Cases).
-- D-106, R-43 đến R-48 và ngoại lệ a11y của canvas chờ tech lead duyệt.
+- D-106, R-43 đến R-48, ngoại lệ a11y của canvas và mục "Cần xác nhận": tech lead duyệt (2026-10-17).
 
 ## Success Criteria *(mandatory)*
 
