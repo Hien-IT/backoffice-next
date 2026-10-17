@@ -238,6 +238,9 @@ export async function dirDrag(page: Page, from: Locator, to: { x: number; y: num
 		await page.mouse.move(start.x + (to.x * i) / 10, start.y + (to.y * i) / 10);
 		await page.waitForTimeout(40);
 	}
+	// The canvas reads pointermove in requestAnimationFrame and pointerup cancels the pending frame: let the last
+	// position land first (CI 39018596094, payload (3)).
+	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 	await page.mouse.up();
 	await page.waitForTimeout(200);
 }

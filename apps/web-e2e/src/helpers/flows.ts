@@ -94,8 +94,13 @@ async function moveAndRelease(page: Page, from: { x: number; y: number }, to: { 
 		await page.mouse.move(from.x + ((to.x - from.x) * i) / 10, from.y + ((to.y - from.y) * i) / 10);
 		await page.waitForTimeout(40);
 	}
-	await page.waitForTimeout(100);
+	await settleFrames(page);
 	await page.mouse.up();
+}
+
+/** Waits for two animation frames of the page: the rAF pointermove handlers have read the last position. */
+export async function settleFrames(page: Page): Promise<void> {
+	await page.evaluate(() => new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve))));
 }
 
 /** Drags a panel by its header by whole cells (18 px), in small steps so the pointer events follow. */
@@ -117,19 +122,36 @@ export async function linkHandle(
 	type: 'resolve' | 'reject',
 	to: string | null,
 ): Promise<void> {
-	await panel(page, from).locator(`[data-handle="${type}"]`).scrollIntoViewIfNeeded();
-	const handle = (await panel(page, from).locator(`[data-handle="${type}"]`).boundingBox())!;
+	const source = panel(page, from).locator(`[data-handle="${type}"]`);
+	const input = to ? panel(page, to).locator('[data-handle="input"]') : null;
+	const view = page.viewportSize()!;
+	await source.scrollIntoViewIfNeeded();
+
+	// Both ends must be in the viewport: Firefox sends no pointer position outside it (the move reads (0, -85) and the
+	// pointerup is lost). Scroll the canvas under the pointer until the target fits.
+	if (input) {
+		const [s, t] = [(await source.boundingBox())!, (await input.boundingBox())!];
+		const dx = Math.max(0, t.x + t.width + 16 - view.width);
+		const dy = Math.max(0, t.y + t.height + 16 - view.height);
+		if (dx || dy) {
+			await page.mouse.move(s.x + s.width / 2, s.y + s.height / 2);
+			await page.mouse.wheel(dx, dy);
+			await page.waitForTimeout(200);
+		}
+	}
+
+	const handle = (await source.boundingBox())!;
 	const start = { x: handle.x + handle.width / 2, y: handle.y + handle.height / 2 };
 	await page.mouse.move(start.x, start.y);
 	await page.mouse.down();
 
 	let target: { x: number; y: number };
-	if (to) {
-		// Both ends must be in the viewport: the canvas scrolls, the pointer does not.
-		const input = (await panel(page, to).locator('[data-handle="input"]').boundingBox())!;
-		target = { x: input.x + input.width / 2, y: input.y + input.height / 2 };
+	if (input) {
+		const box = (await input.boundingBox())!;
+		target = { x: box.x + box.width / 2, y: box.y + box.height / 2 };
 	} else {
-		target = { x: handle.x + 20 * 18, y: handle.y + 30 * 18 };
+		// Empty space straight below the handle, inside the viewport: attachments sit 72 px to the side of a handle.
+		target = { x: start.x, y: Math.min(start.y + 30 * 18, view.height - 24) };
 	}
 
 	await moveAndRelease(page, start, target);
