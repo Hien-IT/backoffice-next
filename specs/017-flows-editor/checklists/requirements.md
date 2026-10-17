@@ -15,7 +15,7 @@
 
 ## Requirement Completeness
 
-- [x] No [NEEDS CLARIFICATION] markers remain — hai điểm chờ owner (đường bàn phím canvas D-104, notice ở form `mail`)
+- [x] No [NEEDS CLARIFICATION] markers remain — ba điểm nhiều cách hiểu (canvas chỉ chuột, notice ở form `mail`, màu nhánh reject) owner đã chốt 2026-10-17
       có đề xuất mặc định và ghi ở Clarifications và "Cần xác nhận"; một [Unverified] còn lại (D-105: Directus treo khi
       dữ liệu có vòng) là việc kiểm T002 của plan, không chặn.
 - [x] Requirements are testable and unambiguous
@@ -39,8 +39,8 @@
 ## Notes
 
 - Items marked incomplete require spec updates before `/speckit.clarify` or `/speckit.plan`
-- Chờ owner chọn D-104 (A: thêm đường bàn phím cho canvas như D-96; B: chỉ chuột như Directus) và xác nhận không thêm
-  notice ở form operation `mail`; chờ tech lead duyệt D-104, D-105 và R-43 đến R-46 (hành vi Directus tái tạo).
+- Owner chọn B cho canvas (chỉ chuột như Directus, ngoại lệ a11y; D-104 bỏ trống); owner chọn B cho form `mail`
+  (thêm notice, D-106); chờ tech lead duyệt D-105, D-106, R-43 đến R-46 (hành vi Directus tái tạo) và ngoại lệ a11y.
 - Giả định cần plan kiểm (T002): API mới nhận `PATCH /flows/:id` với `operations: {create, update, delete}` lồng và
   cây operation lồng; `GET /revisions` nhận filter `activity.action` và `aggregate[count]`; `ExtensionOptions` tách
   được khỏi `useFieldDetailStore` cho `type operation`; `use-revisions` nhận `action`/`full`.

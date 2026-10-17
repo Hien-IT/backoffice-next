@@ -74,7 +74,7 @@ có sẵn của Directus 11.17.4 với đúng `id`, option fields, `overview`; l
 so payload và DB, kịch bản dùng chéo. Ngoài phạm vi: operation và trigger từ extension (XI, D-41; dữ liệu có loại lạ
 vẫn hiện, xem Edge Cases), AI (`useAiToolsStore` trong store flows, đã gỡ D-54), WebSocket (không có trong các file
 flows), gửi email thật của operation `mail` (X, D-34: API ghi log; form options giữ nguyên như Directus để dữ liệu
-tương thích), snackbar (D-45, D-66, 018), `/settings/flows` cho người không admin (module Settings chỉ admin như
+tương thích, thêm notice D-106), snackbar (D-45, D-66, 018), `/settings/flows` cho người không admin (module Settings chỉ admin như
 Directus; nút chạy thủ công cho người không admin đã ở 014).
 
 ### User Story 1 - Danh sách flow, tạo flow và chọn trigger, bật tắt, xóa (Priority: P1)
@@ -125,7 +125,10 @@ cùng giá trị; so dòng `directus_flows` với cùng thao tác trên Directus
 ### User Story 2 - Canvas trình sửa: panel, nối resolve/reject, kéo vị trí, lưu một lần (Priority: P1)
 
 Admin mở `/settings/flows/:id`: canvas lưới với panel Trigger ở góc trên trái và các panel operation; ở chế độ xem thấy
-mũi tên resolve (màu chính) và reject (màu phụ), panel mờ khi flow inactive hoặc panel không nối về trigger. Bấm "Edit
+mũi tên resolve (màu chính) và reject (màu phụ), panel mờ khi flow inactive hoặc panel không nối về trigger. Trong
+spec này "màu chính" là `brand-500` (tối `brand-400`) thay `--theme--primary` và "màu phụ" là `orange-500` (tối
+`orange-400`) thay `--theme--secondary` của Directus (owner chọn, Clarifications 2026-10-17); áp cho mũi tên, tay cầm,
+icon và chấm trạng thái của log. Bấm "Edit
 Flow" sang chế độ sửa: kéo panel đổi vị trí (bám lưới 18 px), bấm "+" ở tay cầm resolve/reject để thêm operation, kéo từ
 tay cầm tới điểm nhận của panel khác để nối hoặc thả ra ngoài để tháo, menu panel nhân bản / sao chép sang flow khác /
 xóa, đổi trạng thái flow ở chân panel Trigger, bấm pencil ở Trigger để mở drawer trigger. "Save" ghi mọi thay đổi trong
@@ -464,9 +467,9 @@ dùng chéo của SC-002.
   `is-point-in-panel`) với các `.test.ts` của Directus port đạt 100%; vẽ như kịch bản US2-2; nhánh gợi ý 3 ô; mũi tên
   đang kéo tới con trỏ; không nhánh RTL (xem Cần xác nhận).
 - **FR-025**: Kéo panel PHẢI như kịch bản US2-4 (port `v-workspace-tile.vue`): bám lưới, tối thiểu 1, nhãn
-  `(x-1:y-1)`, không đổi cỡ, throttle 20 ms, chỉ chế độ sửa, Trigger không kéo; đường bàn phím theo D-104.
+  `(x-1:y-1)`, không đổi cỡ, throttle 20 ms, chỉ chế độ sửa, Trigger không kéo; chỉ chuột/pointer như Directus (ngoại lệ a11y, Clarifications 2026-10-17).
 - **FR-026**: Kéo nối PHẢI như kịch bản US2-6 (`flow.vue:503-574`): điểm nhận gần nhất trong 40 px, từ chối vòng, gỡ
-  link cũ vào đích, thả ra ngoài = tháo; Trigger ghi `stagedFlow.operation`; đường bàn phím theo D-104.
+  link cũ vào đích, thả ra ngoài = tháo; Trigger ghi `stagedFlow.operation`; chỉ chuột/pointer như Directus (ngoại lệ a11y).
 - **FR-027**: Staging PHẢI như `flow.vue:244-302`: id tạm `_<nanoid>`, gán link ở cha, vị trí con resolve `(x+18, y)`,
   reject `(x+18, y+16)`, không cha `(15,15)`; sửa operation có sẵn gộp vào `stagedPanels`.
 - **FR-028**: Menu panel PHẢI như kịch bản US2-7: Duplicate (bỏ `id`, `resolve`, `reject`; +2/+2; key `<key>_<5 a-z>`),
@@ -519,7 +522,8 @@ dùng chéo của SC-002.
     định `markdown` (`markdown`/`wysiwyg`/`template`), `template` half placeholder `base` (chỉ `template`), `body`
     text full (`input-rich-text-html` khi `wysiwyg`, không thì `input-rich-text-md`; ẩn khi `template`), `data` json
     `input-code` full (chỉ `template`); overview Subject, To, Type, và CC/BCC/Reply-To khi có. Form giữ nguyên dù API
-    chỉ ghi log (D-34; xem Cần xác nhận).
+    chỉ ghi log (D-34); đầu form có `BoNotice` info `operations.mail.not_sent_notice` (chuỗi mới, en-US và vi-VN):
+    "Backoffice không gửi email; operation này chỉ ghi log và trả thành công" (D-106); không đổi field hay giá trị ghi.
   - `notification`: `recipient` csv `tags` half (`people_alt`, note), PERM half, `subject` `input` full, `message`
     `input-rich-text-md` full, `collection` `system-collection` half (không bắt buộc), `item` `input` half (`vpn_key`,
     note); overview Subject, Message.
@@ -608,12 +612,12 @@ dùng chéo của SC-002.
   `use-run-manual-flow` test có sẵn mở rộng cho flow mới sau `hydrate`.
 - **FR-105**: Registry 15 operation sinh tay (port) nhưng PHẢI có test so nguồn (FR-044); không có dữ liệu tĩnh sinh
   bằng script (khác 016 FR-105).
-- **FR-106**: A11y: canvas có đường bàn phím theo D-104 (panel là `button`/`group` focus được; menu panel có "Move
-  up/down/left/right" (một ô, Shift = 5 ô), "Connect resolve to…"/"Connect reject to…" (hộp chọn operation, loại trừ
-  chính nó và tổ tiên), "Detach resolve"/"Detach reject", "Add operation on resolve/reject"; mũi tên là SVG `aria-hidden`
-  với mô tả quan hệ bằng `sr-only` trong panel: "Resolve → <tên>", "Reject → <tên>"); thông báo `aria-live` khi di
-  chuyển ("<tên> tới ô (x, y)") và khi nối/tháo; không dùng `aria-grabbed`; trạng thái mờ không chỉ bằng màu (sr-only
-  "không nối tới trigger" / "flow inactive"); drawer có focus trap, Esc, trả focus; axe 0 vi phạm serious/critical ở
+- **FR-106**: A11y: kéo panel, kéo nối/tháo mũi tên và nút "+" ở tay cầm chỉ bằng chuột/pointer như Directus (owner
+  chọn B, Clarifications 2026-10-17): ghi ngoại lệ a11y cho canvas (WCAG 2.1.1) trong `qa/handoff-checklist.md`, tech
+  lead duyệt trước khi đóng; không thêm menu di chuyển/nối. Những gì Directus đã có bằng phím vẫn phải tới được bằng
+  phím: nút pencil, menu `more_vert` (Duplicate, Copy To, Delete), select trạng thái ở chân Trigger, nút header, drawer;
+  mũi tên là SVG `aria-hidden`; trạng thái mờ không chỉ bằng màu (sr-only "không nối tới trigger" / "flow inactive");
+  drawer có focus trap, Esc, trả focus; axe 0 vi phạm serious/critical ở
   bảng flow, trang flow (hai chế độ), drawer flow (hai tab), drawer operation (3 loại: exec, mail, trigger), mục Logs
   và drawer log, ở sáng và tối (SC-008). Focus sau hành động: tạo flow → tiêu đề trang flow (`h1 tabindex=-1`); Done
   ở drawer operation → panel vừa tạo; xóa panel → panel cha hoặc Trigger; đóng drawer → phần tử đã mở nó. Màu nhánh
@@ -636,13 +640,14 @@ dùng chéo của SC-002.
   đó thêm task sửa API kèm parity 009).
 - **FR-112**: Chia lượt commit: lượt 1 route, bảng, drawer flow, 5 trigger (US1); lượt 2 canvas, panel, mũi tên, kéo
   thả, staging, Save, menu panel (US2) + drawer operation và registry 15 operation, `ExtensionOptions type operation`
-  (US3); lượt 3 Logs và drawer log (US4), E2E manual (US5), đường bàn phím D-104; lượt 4 bộ so payload, bộ so DB, dùng
+  (US3); lượt 3 Logs và drawer log (US4), E2E manual (US5); lượt 4 bộ so payload, bộ so DB, dùng
   chéo, parity UI, perf, bundle, a11y, recipe (US6); mỗi lượt commit lên `main` với CI xanh.
 - **FR-113**: Thư viện mới: không (`nanoid`, `@sindresorhus/slugify`, `codemirror`, `vuedraggable` đã có trong
   `apps/web/package.json`; không thêm thư viện node-graph hay pan-zoom: canvas là lưới CSS + SVG như Directus).
 - **FR-114**: Tài liệu: spec 016 (D-92 ghi "đã gỡ ở 017"), 014 (D-72 phần `directus_flows`), `CLAUDE.md` Active
   Technologies thêm dòng 017; `SPECKIT-GUIDE.md` ghi chú cho 018 nếu có (ví dụ `/content/directus_operations`);
-  `graphify update .` sau mỗi lượt. Mọi D-104, D-105 và R-43 đến R-45 được tech lead duyệt trước khi đóng.
+  `graphify update .` sau mỗi lượt. D-105, D-106, R-43 đến R-46 và ngoại lệ a11y của canvas (FR-106) được tech lead duyệt
+  trước khi đóng.
 
 ### Key Entities *(include if feature involves data)*
 
@@ -663,20 +668,18 @@ dùng chéo của SC-002.
 
 ## Khác biệt so với Directus *(mandatory)*
 
-Mã tiếp theo sau D-103 (016). D-39, D-41, D-43, D-45, D-47, D-49, D-52, D-54, D-66, D-68, D-76, D-82, D-99, D-101 áp
+Mã tiếp theo sau D-103 (016); D-104 bỏ trống (đường bàn phím cho canvas: owner chọn giữ như Directus, không phải khác
+biệt). D-39, D-41, D-43, D-45, D-47, D-49, D-52, D-54, D-66, D-68, D-76, D-82, D-99, D-101 áp
 dụng cho mọi màn của 017, không lặp. Gỡ ở 017: D-92 (016), D-72 (phần `directus_flows`, 014). D-34 (009: operation
 `mail` chỉ ghi log) ảnh hưởng hành vi chạy, không ảnh hưởng màn.
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
-| D-104 | Đường bàn phím cho canvas: di chuyển panel, nối/tháo nhánh, thêm operation ở nhánh | Chỉ chuột/pointer (`v-workspace-tile.vue`, `operation.vue`) | Thêm mục menu panel Move up/down/left/right (Shift = 5 ô), Connect resolve/reject to… (hộp chọn), Detach resolve/reject, Add operation on resolve/reject; kéo chuột giữ như Directus; thông báo `aria-live` | WCAG 2.1.1, Nguyên tắc XII; cùng hướng D-96 (016) và D-69 (014); đề xuất A, chờ owner (Clarifications) | khác | — |
 | D-105 | `getTrees` khi Save với `resolve`/`reject` tạo vòng trong dữ liệu (ghi tay vào DB; `resolve`/`reject` unique nên vòng vẫn tạo được) | Đệ quy vô hạn (treo tab) [Unverified: kiểm T002 bằng dữ liệu vòng] | Dừng khi gặp lại id trong đường đi và hộp lỗi (`showUnexpectedError`), chế độ sửa giữ | Không chép lỗi làm hỏng màn (như D-97); E2E coi `pageerror` là lỗi | khác | — |
+| D-106 | Form options của operation `mail` trong drawer operation | Chỉ các field của `operations/mail/index.ts` | Thêm `BoNotice` info ở đầu form: Backoffice không gửi email, operation chỉ ghi log và trả thành công (D-34); field và giá trị ghi giữ nguyên | Nguyên tắc X (không gửi email); người dùng cần biết trước khi cấu hình; owner chọn B (Clarifications 2026-10-17) | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
-- Form options của operation `mail` giữ đủ `type`, `template`, `body`, `data` dù API mới chỉ ghi log (D-34): giữ để
-  dữ liệu ghi giống Directus và flow sửa chéo không mất field; không thêm notice "không gửi email" (sẽ là khác biệt
-  giao diện) — đề xuất giữ nguyên, owner xác nhận.
 - Nhánh RTL của kéo mũi tên (`operation.vue`, lật tọa độ khi `document.dir === 'rtl'`): app không có ngôn ngữ RTL (012)
   nên không port; không phải khác biệt hành vi với vi-VN/en-US.
 - `trigger-detail.vue` không được Directus import: không port.
@@ -701,8 +704,8 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-29 | Canvas flow: nền lưới 18 px (chấm hoặc ô mờ `gray-100`/tối `gray-800`), vùng cuộn hai chiều trong `PrivateView fill`; màu nhánh resolve = `brand-500` và reject = ? (Directus dùng `--theme--secondary` hồng; đề xuất `error-500` hay `orange-500` theo `theme.css`), nét 2 px, mũi tên ">" 8 px, reject nét đứt (a11y); lớp mờ panel lẻ/inactive (`opacity-50`); mũi tên gợi ý 3 ô và nút "+" khi rê chuột | Mở |
-| Q-30 | Panel operation 14×14 ô (252 px): header icon + tên loại (nền `gray-50`/tối `gray-800`), tiêu đề `name` với tooltip key, `<dl>` label/text cắt dòng, nút sao chép; tay cầm tròn resolve/reject/attachment nhô ra mép (32 px vùng bấm); panel Trigger với chân trạng thái (chấm + select inline); menu tile `more_vert` và pencil ở góc; nhãn `(x:y)` khi kéo; trạng thái focus của panel (D-104) | Mở |
+| Q-29 | Canvas flow: nền lưới 18 px (chấm hoặc ô mờ `gray-100`/tối `gray-800`), vùng cuộn hai chiều trong `PrivateView fill`; màu nhánh resolve = `brand-500` và reject = `orange-500` (tối `brand-400`/`orange-400`; owner chọn 2026-10-17 thay `--theme--secondary` hồng của Directus; recipe chỉ còn chốt sắc độ lớp mờ và tay cầm), nét 2 px, mũi tên ">" 8 px, reject nét đứt (a11y); lớp mờ panel lẻ/inactive (`opacity-50`); mũi tên gợi ý 3 ô và nút "+" khi rê chuột | Mở |
+| Q-30 | Panel operation 14×14 ô (252 px): header icon + tên loại (nền `gray-50`/tối `gray-800`), tiêu đề `name` với tooltip key, `<dl>` label/text cắt dòng, nút sao chép; tay cầm tròn resolve/reject/attachment nhô ra mép (32 px vùng bấm); panel Trigger với chân trạng thái (chấm + select inline); menu tile `more_vert` và pencil ở góc; nhãn `(x:y)` khi kéo | Mở |
 | Q-31 | Drawer operation nổi trên canvas: hàng Name + Key (half/half), fancy select 15 mục (icon, tên, mô tả; dùng `BoFancySelect` của 016 Q-22), form options bên dưới với nút raw editor; notice `operation_not_found` | Mở |
 | Q-32 | Mục Logs trong panel: badge số đếm, nhóm ngày (Q-10), dòng icon trạng thái + giờ, toggle "Show Failed Only", phân trang 3 nút; drawer log: dòng thời gian dọc với chấm màu trạng thái, khối Trigger và từng bước, `BoDetail` Options/Payload chứa `<pre>` JSON cuộn ngang | Mở |
 | Q-33 | Drawer flow hai tab (Q-22 dùng lại): nhóm "Activity & Logs Tracking" sau vạch chia; tab Trigger Setup với fancy select 5 mục rồi form options; hộp "Copy To…" với select flow; hộp xóa flow; trạng thái rỗng `no_flows` | Mở |
@@ -714,16 +717,18 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
 - Q: Nút chạy flow thủ công trên trang item/danh sách có làm lại không? → Không: 014 đã port `use-flows.ts`,
   `FlowSidebarDetail`, `FlowDialogs` và dùng ở Content, `DrawerItem`, `presentation-header`, `presentation-links`
   (Directus cũng chỉ dùng ở các chỗ này, không ở Files/Users); 017 chỉ thêm `hydrate()` sau ghi và E2E hai đầu (US5).
-- Q: Đường bàn phím cho kéo thả canvas (di chuyển panel, nối/tháo nhánh)? → Đề xuất A: thêm menu panel như D-96/D-69
-  (D-104), kéo chuột giữ như Directus; B: chỉ chuột như Directus và ghi ngoại lệ a11y. Chờ owner chọn trước plan;
-  spec viết theo A.
-- Q: Có hiện notice "API mới không gửi email" ở form operation `mail`? → Đề xuất không (giữ form y Directus, D-34 chỉ
-  là hành vi chạy); ghi ở "Cần xác nhận".
-- Q: Màu nhánh reject khi theme không có `secondary` của Directus? → Câu hỏi design-system Q-29, design owner chọn.
+- Q: Đường bàn phím cho kéo thả canvas (di chuyển panel, nối/tháo nhánh)? → B (owner, 2026-10-17): chỉ chuột/pointer
+  như Directus, ghi ngoại lệ a11y cho canvas (tech lead duyệt); không thêm menu di chuyển/nối (khác D-96, D-69 vì
+  canvas không có danh sách tuyến tính để sắp); mã D-104 bỏ trống (FR-025, FR-026, FR-106, SC-008).
+- Q: Có hiện notice "API mới không gửi email" ở form operation `mail`? → B (owner, 2026-10-17): giữ form y Directus và
+  thêm `BoNotice` info ở đầu form (D-106, FR-041 `mail`); không đổi field hay dữ liệu ghi.
+- Q: Màu nhánh reject khi theme không có `secondary` của Directus? → B (owner, 2026-10-17): resolve `brand-500`, reject
+  `orange-500` (tối `brand-400`/`orange-400`), gần sắc của Directus và không trùng màu lỗi của form; reject vẫn nét đứt
+  (FR-106); dùng cho mũi tên, tay cầm, icon và chấm trạng thái log (US2, US4, FR-022, FR-023, FR-052, Q-29).
 - Q: Có trang `/settings/flows` cho người không admin đọc flow? → Không, module Settings `preRegisterCheck admin_access`
   như Directus; nút chạy thủ công cho người không admin đã ở 014.
-- Q: Còn điểm nào cần làm rõ trước plan? → Hai điểm chờ owner (D-104, mail notice) đã có đề xuất mặc định; không
-  chặn plan.
+- Q: Còn điểm nào cần làm rõ trước plan? → Ba điểm có nhiều cách hiểu (canvas chỉ chuột, notice mail, màu nhánh
+  reject) đã chốt; không chặn plan.
 
 ## Assumptions
 
@@ -753,7 +758,7 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   Directus `getPublicURL`).
 - Playwright kéo thả bằng `mouse.move/down/up` với bước nhỏ hoạt động trên pointer events của canvas ở chromium,
   firefox, webkit (014 Kanban đã dùng); nếu webkit flake thì chỉ chromium cho kéo nối và ghi ở plan.
-- Mọi khác biệt D-104, D-105 và R-43 đến R-46 chờ tech lead duyệt; D-104 chờ owner chọn A/B (Clarifications).
+- D-105, D-106, R-43 đến R-46 và ngoại lệ a11y của canvas chờ tech lead duyệt.
 
 ## Success Criteria *(mandatory)*
 
@@ -787,9 +792,9 @@ Q-8 (page header), Q-9 (panel), Q-10 (revisions theo ngày), Q-22 (drawer tab d�
   cùng key, vòng dữ liệu) sinh cùng body `PATCH /operations` và `PATCH /flows/:id` như Directus (so JSON).
 - **SC-007**: Hiệu năng FR-108 đạt (ngân sách nhân `machineFactor()`); số request mỗi thao tác đúng FR-108.
 - **SC-008**: Recipe Q-29 đến Q-33 được design owner duyệt, `qa/handoff-checklist.md` đạt trước khi đóng; axe 0 vi
-  phạm serious/critical trên các màn của FR-106 ở sáng và tối; đường bàn phím D-104 có test (menu panel sinh cùng
-  staging và cùng body Save như kéo thả) nếu owner chọn A.
+  phạm serious/critical trên các màn của FR-106 ở sáng và tối; ngoại lệ a11y của canvas (chỉ chuột) ghi trong
+  `qa/handoff-checklist.md` và được tech lead duyệt.
 - **SC-009**: Coverage `apps/web` ≥ 60%; lint, typecheck, unit, E2E ba cấu hình, build image xanh; chunk chính ≤ ngân
   sách 016 + 20 KB gzip; 0 màu thô ngoài danh sách miễn; 0 file trong `directus/` bị sửa; 0 request ngoài FR-110.
-- **SC-010**: D-104, D-105 và R-43 đến R-46 được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
+- **SC-010**: D-105, D-106 và R-43 đến R-46 được tech lead duyệt; D-92 (016) và D-72 phần `directus_flows` (014) ghi
   "đã gỡ ở 017" ở spec gốc. Duyệt ghi ở bảng trạng thái khác biệt của spec (như 016 T122).
