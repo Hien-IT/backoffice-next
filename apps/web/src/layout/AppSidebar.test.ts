@@ -143,14 +143,17 @@ describe('AppSidebar layout (FR-020, layout-patterns §2)', () => {
 		expect(items.map((li) => li.textContent!.includes('Folder'))).toEqual([false, false, true, false, false]);
 	});
 
-	test('a hidden module (Activity) gets a row with its name, not a link, holding its sub-menu (018 FR-061)', async () => {
+	test('a hidden module (Activity): only its sub-menu under the list, no title row (018 FR-061, owner 2026-10-18)', async () => {
 		await render(null, { path: '/activity', slots: { navigation: '<button type="button">My Activity</button>' } });
 
-		const row = document.body.querySelector('[data-module-unlisted]')!;
-		expect(accessibleText(row)).toContain('Activity');
-		expect(row.querySelector('a')).toBeNull();
-		expect(row.textContent).toContain('My Activity');
+		const block = document.body.querySelector('[data-module-unlisted]')!;
+		expect(block.textContent!.trim()).toBe('My Activity');
 		expect(document.body.querySelectorAll('[data-testid="module-bar"] [aria-current="page"]')).toHaveLength(0);
+	});
+
+	test('the sub-menu block is absent outside the hidden module', async () => {
+		await render(null, { path: '/files', slots: { navigation: '<p>Folders</p>' } });
+		expect(document.body.querySelector('[data-module-unlisted]')).toBeNull();
 	});
 
 	test('from xl: 290 px, collapsed to the 90 px rail (labels kept for screen readers), hover expands it', async () => {

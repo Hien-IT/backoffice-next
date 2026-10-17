@@ -196,3 +196,15 @@ test('updateCollection and deleteCollection: request, then hydrate (deleteCollec
 		'GET /relations',
 	]);
 });
+
+// Feature 018 D-117 (owner 2026-10-18, branding D-51): a system collection is named without the `directus_` prefix.
+test('system collection names drop the directus_ prefix; user collections keep their title', () => {
+	const collectionsStore = useCollectionsStore();
+	const [users, content] = [
+		{ collection: 'directus_users', meta: null, schema: null },
+		{ collection: 'bo_content', meta: null, schema: null },
+	].map((raw) => collectionsStore.prepareCollectionForApp(raw as never));
+
+	expect(users!.name).toBe('Users');
+	expect(content!.name).toBe('Bo Content');
+});

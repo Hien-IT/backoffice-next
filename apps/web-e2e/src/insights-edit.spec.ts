@@ -79,8 +79,8 @@ test('add a metric and a bar chart, drag and resize, Save sends one POST /panels
 	await addPanel(page, 'Bar Chart');
 	await expect(tiles(page)).toHaveCount(2);
 
-	// Both start at (1,1): the later one is on top, so move the bar chart away first by its body. The small metric is
-	// held at its left edge, away from its edit and menu buttons.
+	// Both start at (1,1): the later one is on top, so move the bar chart away first by its body. The small metric (2 rows)
+	// is held on its header icon, away from its edit and menu buttons and from the bottom resize handle (webkit hit it).
 	const bar = tileOf(page, 'bar-chart');
 	const barBox = (await bar.boundingBox())!;
 	await pointerDrag(page, { x: barBox.x + barBox.width / 2, y: barBox.y + barBox.height / 2 }, 0, 10 * GRID);
@@ -88,7 +88,7 @@ test('add a metric and a bar chart, drag and resize, Save sends one POST /panels
 
 	const metric = tileOf(page, 'metric');
 	const box = (await metric.boundingBox())!;
-	await pointerDrag(page, { x: box.x + 12, y: box.y + box.height - 6 }, 12 * GRID, 0);
+	await pointerDrag(page, { x: box.x + 12, y: box.y + 10 }, 12 * GRID, 0);
 	await expect(metric).toHaveAttribute('data-pos-x', '13');
 
 	await metric.hover();

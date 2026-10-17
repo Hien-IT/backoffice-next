@@ -780,4 +780,7 @@ Lượt 4 (2026-10-18, đang làm):
 - T116 (chủ dự án chọn khác Directus, 2026-10-18): D-112 Save lỗi một phần chỉ giữ phần lỗi trong staging (R-56); D-113
   `<=` gồm bằng và toán tử chuỗi của bar chart theo nhãn (R-53); D-114 `now` mới mỗi lần refresh (R-50); D-115 drawer
   thông báo đếm lại sau ghi (`useItems.clearCountCache`); D-116 chuông đếm lại khi tab hiện lại, tối đa mỗi phút (R-52).
+- Chủ dự án 2026-10-18: mục Activity ẩn như Directus (`AppSidebar.vue` chỉ hiện sub-menu dưới danh sách khi đang ở
+  `/activity`, không có dòng tiêu đề); D-117 tên collection hệ thống bỏ tiền tố `directus_` (`stores/collections.ts`).
+  `insights-edit.spec.ts`: metric được nắm ở header (webkit nhận nhầm tay cầm resize cạnh dưới, CI 39058333187).
 

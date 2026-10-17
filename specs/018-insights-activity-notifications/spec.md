@@ -773,6 +773,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-114 | Mốc `now` của time series | Lấy một lần khi mở trang, auto refresh không dời cửa sổ (R-50) | Mỗi lần refresh (auto, sidebar, đổi dashboard) lấy `now` mới | Dashboard treo màn hình hiện số liệu mới; chủ dự án 2026-10-18 | khác | — |
 | D-115 | Số đếm của drawer thông báo | `useItems` nhớ số đếm theo truy vấn: sau Archive/Delete tab có thể báo sai số hoặc "No Notifications" dù còn dòng | Đếm lại sau mỗi lần ghi (xóa bộ nhớ đếm của `useItems`) | Số và trạng thái rỗng đúng; thêm request đếm sau ghi; chủ dự án 2026-10-18 | khác | — |
 | D-116 | Số chưa đọc của chuông | Không tự cập nhật (R-52) | Đếm lại khi tab trình duyệt hiện lại, tối đa một lần mỗi phút (không thăm dò) | Thấy thông báo mới khi quay lại tab; chủ dự án 2026-10-18 | khác | — |
+| D-117 | Tên collection hệ thống (cột Collection của Activity, cây Content, Settings…) | `formatTitle("directus_users")` = "Directus Users" | Bỏ tiền tố `directus_`: "Users", "Dashboards"; bản dịch tên collection vẫn ưu tiên | Không hiện chữ "Directus" cho người dùng Backoffice (D-51 của 012); chủ dự án 2026-10-18 | đổi thương hiệu | — |
 
 **Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 
@@ -820,6 +821,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-114 | `routes/DashboardRoute.vue` `now` là ref, `refreshDashboard()` lấy mốc mới (`dashboard.test.ts`) | Duyệt (owner, 2026-10-18) |
 | D-115 | `composables/use-items.ts` `clearCountCache`; `components/NotificationsDrawer.vue` `refresh()` (`NotificationsDrawer.test.ts`) | Duyệt (owner, 2026-10-18) |
 | D-116 | `layout/NotificationsBell.vue` (`visibilitychange`, throttle 60 s; `NotificationsBell.test.ts`) | Duyệt (owner, 2026-10-18) |
+| D-117 | `stores/collections.ts` `prepareCollectionForApp` (`collections.test.ts`) | Duyệt (owner, 2026-10-18) |
 | R-49 | `routes/InsightsOverviewRoute.vue` duplicate có `try/catch` → `showUnexpectedError`, nút về bình thường (`overview.test.ts`) | Duyệt (tech lead, 2026-10-18) |
 | R-50 | `routes/DashboardRoute.vue` `now = new Date()` một lần mỗi trang, như `dashboard.vue:53` | Thay bởi D-114 (owner, 2026-10-18) |
 | R-51 | `stores/insights.ts` `stagePanelDelete` không hộp; `DashboardRoute.vue` `deletePanel` chỉ chuyển focus (`dashboard.test.ts`) | Duyệt (tech lead, 2026-10-18) |

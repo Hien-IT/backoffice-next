@@ -63,8 +63,9 @@ function isActive(item: ModuleBarItem) {
 	return item.to !== undefined && (route.path === item.to || route.path.startsWith(`${item.to}/`));
 }
 
-// Backoffice (spec 018 FR-061, L-2): a module without a row in the bar (Activity is `hidden`, as in Directus, where its
-// navigation still shows in the module's own column) gets a row with its name, not a link, holding its sub-menu.
+// Backoffice (spec 018 FR-061, owner 2026-10-18): a module without a row in the bar (Activity is `hidden`, as in
+// Directus, where its navigation still shows in the module's own column) shows only its sub-menu under the list, no
+// title row; it is reached from the notifications drawer, as in Directus.
 const openUnlisted = computed<ModuleBarItem | null>(() => {
 	if (modules.value.some(isActive)) return null;
 	const module = registeredModules.value.find(({ id }) => route.path === `/${id}` || route.path.startsWith(`/${id}/`));
@@ -161,17 +162,9 @@ function onFocusout(event: FocusEvent) {
 							</div>
 						</li>
 
-						<li v-if="openUnlisted" class="relative" data-module-unlisted>
-							<span
-								class="menu-item menu-item-active before:absolute before:inset-y-2 before:-start-2 before:w-1 before:rounded-full before:bg-brand-500 dark:before:bg-brand-400"
-								:class="{ 'justify-center': !expanded }"
-							>
-								<span class="flex menu-item-icon-active"><BoIcon :name="openUnlisted.icon" /></span>
-								<span class="truncate" :class="{ 'sr-only': !expanded }">{{ openUnlisted.name }}</span>
-							</span>
-							<div v-if="expanded && $slots['navigation']" class="ms-9 mt-2">
-								<slot name="navigation" />
-							</div>
+						<!-- The sub-menu of an open module without a row (Activity), under the list, without a title row. -->
+						<li v-if="openUnlisted && expanded && $slots['navigation']" class="mt-3" data-module-unlisted>
+							<slot name="navigation" />
 						</li>
 					</ul>
 				</nav>
