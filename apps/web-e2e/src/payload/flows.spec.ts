@@ -326,8 +326,18 @@ test('(3) drag a panel, detach and relink the reject arrow, Save (#180, #181)', 
 				const used = await dirLink(p, 'Condition', '.add-reject', 'Throw Error');
 				if ((await p.locator('.v-workspace-tile.subdued').count()) === 0) break;
 				// eslint-disable-next-line no-console
-				console.log(`payload (3): relink ${attempt} missed on the Directus app: ${used}`);
+				console.log(
+					`payload (3): relink ${attempt} missed on the Directus app: ${used} url=${p.url()} drawers=${await p.locator('.v-drawer').count()}`,
+				);
+				await test
+					.info()
+					.attach(`directus-relink-miss-${attempt}`, { body: await p.screenshot(), contentType: 'image/png' });
 				expect(attempt, 'relink on the Directus app').toBeLessThan(3);
+				// A drop taken as a click opens the "+" operation drawer: close it before the next try.
+				if (await p.locator('.v-drawer').count()) {
+					await p.keyboard.press('Escape');
+					await expect(p.locator('.v-drawer')).toHaveCount(0);
+				}
 			}
 			await dirSaveFlow(p);
 		},

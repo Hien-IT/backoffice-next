@@ -270,7 +270,14 @@ export async function dirLink(page: Page, from: string, handle: string, to: stri
 		y: b.y + b.height / 2 - (a.y + Math.min(a.height / 2, 10)) - scroll.y,
 	};
 	await dirDrag(page, source, delta);
-	return JSON.stringify({ source: a, target: b, scroll, delta, viewport: page.viewportSize() });
+	// What `operation.vue` reads: the first `.workspace` element is the origin of the drop position.
+	const workspaces = await page.evaluate(() =>
+		Array.from(document.getElementsByClassName('workspace')).map((el) => {
+			const r = el.getBoundingClientRect();
+			return { tag: el.tagName, cls: el.className.toString().slice(0, 60), x: r.left, y: r.top };
+		}),
+	);
+	return JSON.stringify({ source: a, target: b, scroll, delta, viewport: page.viewportSize(), workspaces });
 }
 
 /** Opens the menu of a tile in edit mode and picks `entry` (`Duplicate`, `Delete`, `Copy To...`). */
