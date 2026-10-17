@@ -33,7 +33,7 @@
 
 | Spec | Nội dung | Projects |
 |------|----------|----------|
-| `settings-flows-overview.spec.ts` | US1: bảng, sắp xếp, menu đổi trạng thái, drawer tạo (5 trigger), sửa, xóa, lỗi lưu (route chặn trả 500 → hộp lỗi, drawer còn), điều hướng sau tạo; trạng thái rỗng chỉ ở browser test (mock) vì bảng thật luôn có bộ mẫu | chromium 768/1280 ba cấu hình |
+| `settings-flows-overview.spec.ts` | US1: bảng, sắp xếp, menu đổi trạng thái, drawer tạo (5 trigger), sửa, xóa, lỗi lưu (route chặn trả 500 → hộp lỗi, drawer còn), điều hướng sau tạo (lượt 1 chỉ kiểm URL `/settings/flows/<id>`, trang đích kiểm ở `settings-flows-editor` lượt 2); trạng thái rỗng chỉ ở browser test (mock) vì bảng thật luôn có bộ mẫu | chromium 768/1280 ba cấu hình |
 | `settings-flows-editor.spec.ts` | US2: xem `bo_all_ops` (panel, mũi tên, mờ), sửa: kéo panel, "+" thêm, kéo nối/tháo, Duplicate, Copy To, Delete, Save (so body qua `recordWrites`), Clear Changes, guard, Ctrl+S, Delete Flow | chromium 768/1280 ba cấu hình + firefox/webkit 1280 cùng origin |
 | `settings-flows-operations.spec.ts` | US3: mở drawer từng loại trong `bo_all_ops`, so field với bảng data-model §5 (nhãn, loại input), key tự sinh/duy nhất, loại lạ `bo_orphan`, notice `mail` | chromium |
 | `settings-flows-logs.spec.ts` | US4: badge 3, nhóm ngày, icon 2 resolve/1 reject, lọc, drawer bước và JSON | chromium |

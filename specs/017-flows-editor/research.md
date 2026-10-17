@@ -173,7 +173,7 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 
 | Lượt | Nội dung | Kiểm |
 |------|----------|------|
-| 1 | T001–T002 (spec sửa FR-108, mốc Directus app), recipe Q-29..Q-33 nháp, route, `FlowsOverviewRoute`, `FlowDrawer`, `triggers.ts`, `settings-flows-overview.spec.ts` | US1; test unit/browser; E2E ba cấu hình |
+| 1 | Phase 1 (kiểm, mốc Directus app T003, recipe nháp Q-29..Q-33, ngoại lệ a11y), Phase 2 (registry, triggers, workspace, bộ mẫu), route, `FlowsOverviewRoute`, `FlowDrawer`, `triggers.ts`, `settings-flows-overview.spec.ts` | US1; test unit/browser; E2E ba cấu hình |
 | 2 | `BoWorkspace*`, `Operation.vue`, `Arrows.vue` + lib port + test, `use-flow-editor.ts`, `FlowRoute.vue`, `OperationDetail.vue`, registry 15 operation + script trích + test so nguồn, `ExtensionOptions type operation`, D-105, D-106, `settings-flows-editor.spec.ts`, `settings-flows-operations.spec.ts` | US2, US3; SC-006 |
 | 3 | `LogsSidebarDetail`, `LogsDrawer`, `settings-flows-logs.spec.ts`, `settings-flows-manual.spec.ts`, fixture `bo_flows` + log mẫu, `hydrate()` sau ghi | US4, US5 |
 | 4 | `payload/flows.spec.ts`, `FLOWS_TABLES`, `settings-flows-cross-use.spec.ts`, `settings-parity-ui` mở rộng, perf, bundle `BUDGET_017`, axe, ngoại lệ a11y trong `handoff-checklist.md`, docs (spec 014/016 "đã gỡ ở 017", `CLAUDE.md`, `SPECKIT-GUIDE.md`), duyệt D/R | US6; SC-002..SC-010 |
@@ -182,7 +182,7 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 
 **Quyết định**: perf `modules/settings/routes/flows/perf.browser.test.ts` (`PERF=1`, `machineFactor()`): 50 operation /
 60 mũi tên < 500 ms; `generateArrows` 50 panel < 8 ms mỗi lần di chuyển (đo thuần hàm, CHK030); drawer operation < 200 ms; log 10 dòng
-< 300 ms. Số request: mở `/settings/flows` = 0 (store, R2); trang flow = 1 đếm (+1 danh sách khi Logs mở); Save = n
+< 300 ms. Số request: mở `/settings/flows` = 0 (store, R2); trang flow = 1 đếm (+2 khi Logs mở: danh sách và request "created" của `use-revisions`); Save = n
 `PATCH /operations` + 1 `PATCH /flows/:id` + 1 `GET /flows`. Chunk lười: `FlowRoute` (canvas + arrows + workspace +
 `use-flow-editor`) ≤ 60 KB gzip, registry operation ≤ 25 KB, `LogsDrawer` ≤ 15 KB; `BUDGET_017 = BUDGET_016 + 20 KB`,
 `LAZY_BUDGETS_017`.
@@ -193,7 +193,7 @@ nhóm, 17 khóa phẳng mẫu); `vi-VN.json` thiếu khóa nào thì rơi về `
 |-----|---------|-------|
 | API mới nhận `operations: {create, update, delete}` lồng trong `PATCH /flows/:id` | `FlowsService extends ItemsService`; parity `tests/parity/src/flows/crud.test.ts:176-190` đã so với Directus | không đổi |
 | `GET /revisions` với `activity.action`, `aggregate[count]` | `use-revisions.ts` (014) có `action`, `full`, đếm; API 008 serve `/revisions` với `sanitizeQuery` | không đổi |
-| `ExtensionOptions` | import `useFieldDetailStore` ở dòng 12, 33–35; prop `type: 'interface' \| 'display'` | R5, T0xx |
+| `ExtensionOptions` | import `useFieldDetailStore` ở dòng 12, 33–35; prop `type: 'interface' \| 'display'` | R5, T016 |
 | `getDefaultValuesFromFields` | `components/form/utils/get-default-values-from-fields.ts` | R5 |
 | `translate` | `utils/translate-object-values.ts` | R5, R7 |
 | `useCollectionPermissions` | `composables/use-permissions/collection/use-collection-permissions.ts` | R8 |

@@ -1,7 +1,7 @@
 # Contract: component, composable, registry và dữ liệu mới của 017
 
 Mọi component `<script setup lang="ts">`, Reka UI, `modelValue`/`update:modelValue`, theo `component-specs.md`; file
-chép có header `// Ported from directus/app/src/...` và manifest `tools/port-manifest/T0xx.json`. Đường dẫn Directus
+chép có header `// Ported from directus/app/src/...` và manifest `tools/port-manifest/017-T###.json`. Đường dẫn Directus
 tính từ `directus/app/src/modules/settings/routes/flows/` trừ khi ghi khác.
 
 ## 1. Module, route, overview, drawer flow
@@ -52,7 +52,7 @@ tính từ `directus/app/src/modules/settings/routes/flows/` trừ khi ghi khác
 - `lang/overlay/en-US.ts`, `vi-VN.ts`: `operations_mail_not_sent_notice` (D-106).
 - `scripts/check-bundle.mjs`: `BUDGET_017 = BUDGET_016 + 20 * 1024`; `LAZY_BUDGETS_017` = FlowRoute (canvas) 60 KB,
   operations registry 25 KB, LogsDrawer 15 KB.
-- `tools/port-manifest/T0xx.json`: `constants.ts`, `triggers.ts`, `arrows/**` (18 file), `operations/**/index.ts` (16
+- `tools/port-manifest/017-T###.json` (một file mỗi task chép): `constants.ts`, `triggers.ts`, `arrows/**` (18 file), `operations/**/index.ts` (16
   file), `v-workspace*.vue` → `BoWorkspace*.vue`, `flow.vue` → `use-flow-editor.ts` + `FlowRoute.vue`,
   `operation-detail.vue`, `operation.vue`, `options-overview.vue`, `logs-*.vue`, `flow-drawer.vue`, `overview.vue`.
 

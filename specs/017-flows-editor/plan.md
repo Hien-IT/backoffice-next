@@ -43,7 +43,7 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 | Settings áp lên theme như `app.vue` | Không đổi (012) |
 | vue-i18n từ `directus/app/src/lang` | Khóa `flows`, `triggers.*`, `operations.*`… đã sinh ở 012 (R10); một khóa overlay mới `operations_mail_not_sent_notice` (D-106) |
 | `@directus/sdk` | Mọi request qua `requestEndpoint`; `GET /revisions` qua `use-revisions` |
-| Copy composable/utils, viết lại component bằng Reka UI | R2–R8; manifest `tools/port-manifest/T0xx.json`; `check-port-headers` |
+| Copy composable/utils, viết lại component bằng Reka UI | R2–R8; manifest `tools/port-manifest/017-T###.json`; `check-port-headers` |
 | Vitest + VTU; Playwright E2E với Directus thật và API mới | `contracts/tests.md`; dùng chéo điều khiển Directus app bằng `helpers/directus-app.ts` (R9) |
 | GitHub Actions, coverage FE 60% | Job `quality`, `e2e-web` (ma trận ba cấu hình) như 016; `check-bundle` `BUDGET_017` |
 | Phần riêng 017 (prompt) | Port đúng danh sách file nêu trong prompt (R2–R7); canvas lưới CSS + SVG, không node-graph (R1, R3); `ExtensionOptions type operation` (R5); dùng lại 014 (R6, FR-060); E2E/payload/DB/fixture (R9); recipe trước code (FR-107); không sửa `apps/api` (kiểm xong: nested PATCH đã có parity, R-bảng cuối research) |
@@ -94,9 +94,10 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Đối chiếu `.specify/memory/constitution.md` 2.0.0. Lần 1 (trước research) và lần 2 (sau design) không vi phạm.
+Đối chiếu `.specify/memory/constitution.md` 2.0.0. Lần 1 (trước research) và lần 2 (sau design): một vi phạm có lý do
+(XII, canvas chỉ chuột), ghi ở Complexity Tracking và chờ tech lead duyệt theo Governance (T006, T102); còn lại PASS.
 
-- [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`; file chép ghi nguồn, manifest `T0xx.json`,
+- [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`; file chép ghi nguồn, manifest `017-T###.json`,
   `check-port-headers`; script trích registry chỉ đọc `directus/app/src/operations`.
 - [x] **II. Dùng chung DB**: PASS. Ghi chỉ qua `/flows`, `/operations`, `/flows/trigger/:id` (009); body và thứ tự
   request chép từ Directus (SC-005) để `directus_flows`, `directus_operations` ghi ra bằng Directus (SC-002).
@@ -111,10 +112,12 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 - [x] **X. Chất lượng**: PASS. Coverage 60 %, lint, typecheck, browser test, E2E, build image; không email (D-34,
   D-106); D-105, D-106, R-43..R-47 trong spec, tech lead duyệt trước khi đóng (SC-010).
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (registry tĩnh, type lạ chỉ hiển thị), AI (D-54), WebSocket.
-- [x] **XII. Design-system**: PASS. Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
+- [x] **XII. Design-system**: VIOLATION có lý do (chờ tech lead duyệt). Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
   `handoff-checklist.md`; theme qua `@theme`; không hex trong class; Q-29..Q-33 ghi ở spec, recipe nháp trước khi
-  code, design owner duyệt trước khi đóng; ngoại lệ a11y canvas (chỉ chuột, owner chọn) ghi trong checklist và được
-  tech lead duyệt — xem Complexity Tracking.
+  code, design owner duyệt trước khi đóng. Vi phạm: XII yêu cầu component dùng được bằng bàn phím, canvas thì kéo
+  panel, kéo nối/tháo và nút "+" chỉ bằng chuột (owner chọn B, Clarifications 2026-10-17); ghi ở Complexity Tracking
+  và `design-system/qa/handoff-checklist.md` (T006), tech lead duyệt trước khi đóng (T102); chưa duyệt lúc đóng thì
+  feature không đóng được.
 
 ## Project Structure
 
@@ -169,7 +172,7 @@ apps/web-e2e/src/
 apps/web-e2e/playwright.config.ts                          # core specs + settings-flows-editor; DIRECTUS_APP_SPECS + cross-use
 design-system/docs/{component-specs.md (Tier 3 (017): Q-30, Q-31, Q-32, Q-33), layout-patterns.md (§13 canvas flow Q-29)}
 design-system/qa/handoff-checklist.md                      # ngoại lệ a11y canvas
-tools/port-manifest/T0xx.json
+tools/port-manifest/017-T###.json
 specs/014-*/spec.md (D-72), specs/016-*/spec.md (D-92)     # "đã gỡ ở 017"
 SPECKIT-GUIDE.md, CLAUDE.md
 ```
@@ -183,7 +186,7 @@ mới tách từ `flow.vue` để test unit (Directus để trong SFC).
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Không có vi phạm constitution. Ngoại lệ a11y: kéo panel, kéo nối/tháo và nút "+" trên canvas chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer (spec FR-106) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
+| Vi phạm XII (chờ tech lead duyệt). Ngoại lệ a11y: kéo panel, kéo nối/tháo và nút "+" trên canvas chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer (spec FR-106) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
 | Tách `use-flow-editor.ts` khỏi `FlowRoute.vue` (Directus để trong SFC) | 12 kịch bản staging/Save so JSON với Directus (SC-006) cần gọi hàm không mount DOM | Test qua browser test mount cả canvas: chậm, khó cô lập body Save |
 | `BoWorkspace*` là component chung thay vì nằm trong flows | 018 (Insights) dùng cùng `v-workspace` của Directus (resize, zoom) | Chép hai lần ở 017 và 018 |
 | Script trích registry mở rộng cho operations (thay import trực tiếp từ `directus/`) | Test so nguồn FR-044 không được import `directus/app/src` vào bundle test của web (alias vào mã Directus kéo theo `@/` của Directus) | Import trực tiếp: lỗi resolve `@/stores/flows` của operation `trigger` |

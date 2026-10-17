@@ -88,7 +88,7 @@ có xác nhận.
 Directus) và điều kiện để dùng `system-manual-flow-select`, nút chạy thủ công của 014 với flow do app mới tạo.
 
 **Independent Test**: E2E trên bộ mẫu `bo_flows` (xem FR-103): mở `/settings/flows`, so bảng, menu, nút tạo với
-Directus app; tạo flow `bo_manual` (trigger manual trên `bo_content`, `location both`, `requireConfirmation` với một
+Directus app; tạo flow `bo_manual` (flow tạm do E2E tạo, FR-100; trigger manual trên `bo_content`, `location both`, `requireConfirmation` với một
 field `reason` bắt buộc) qua app mới rồi mở `/admin/settings/flows/<id>` trên Directus app 8155: drawer trigger hiện
 cùng giá trị; so dòng `directus_flows` với cùng thao tác trên Directus app (bộ so DB).
 
@@ -214,8 +214,8 @@ drawer trên Directus app 8155 và so giá trị; so `directus_operations.option
 
 **Acceptance Scenarios**:
 
-1. **Given** mở `/settings/flows/:id/+`, **When** drawer hiện, **Then** drawer `persistent` nổi trên canvas (named
-   view như `settings-add-new` của 016), tiêu đề `create_operation` (hoặc `edit_operation`), phụ đề = tên flow, icon
+1. **Given** mở `/settings/flows/:id/+`, **When** drawer hiện, **Then** drawer `persistent` nổi trên canvas (`RouterView`
+   không tên của trang flow, FR-001), tiêu đề `create_operation` (hoặc `edit_operation`), phụ đề = tên flow, icon
    `offline_bolt`, một nút "Done" (`check`) khóa khi chưa chọn loại hoặc key trùng; Name placeholder = tên loại đã
    chọn hoặc `operation_name`; Key db-safe (016 FR-007) placeholder = `slugify(<id>_<5 ký tự a-z0-9>, '_')` hoặc
    `operation_key`; key theo tên (`slugify(name, '_')`) chừng nào key còn bằng slug của tên cũ hoặc tên rỗng; key có
@@ -250,9 +250,10 @@ trạng thái.
 **Why this priority**: Là mục "xem log các lần chạy" của mô tả feature; dùng dữ liệu 009 đã ghi giống Directus nên rủi
 ro thấp, có thể làm sau canvas.
 
-**Independent Test**: Chạy `bo_manual` 3 lần (2 resolve, 1 reject qua `throw-error`) từ trang item của app mới và từ
-Directus app; mở Logs ở cả hai app: cùng số đếm, cùng nhóm ngày, cùng icon; mở drawer của lần reject: cùng danh sách
-bước, cùng Options và Payload sau chuẩn hóa thời gian; so request `GET /revisions` với Directus (bộ so payload đọc).
+**Independent Test**: E2E `settings-flows-logs.spec.ts` trên 3 log của `bo_all_ops` do seed tạo (2 resolve, 1 reject
+qua `throw-error`): badge, nhóm ngày, icon, lọc, drawer của lần reject. Phần hai app: FR-102 (c) chạy `bo_manual` từ
+trang item ở app mới và ở Directus app rồi so Logs của hai app (cùng số đếm, nhóm ngày, icon, bước, Options và
+Payload sau chuẩn hóa thời gian); bộ so payload so request `GET /revisions` với Directus (FR-101).
 
 **Acceptance Scenarios**:
 
@@ -417,8 +418,9 @@ dùng chéo của SC-002.
 - **FR-001**: Module `settings` PHẢI thay hai route khung `flows` của 016 (`modules/settings.ts:165-172`,
   `ModulePlaceholder`) bằng `settings-flows-collection` (`/settings/flows`), `settings-flows-item`
   (`/settings/flows/:primaryKey`, `props: true`, `beforeEnter` tra `useFlowsStore().flows`, thiếu → `settings-not-found`
-  với `params._`), con `settings-flows-operation` (`:operationId`, `props: true`, `meta.isFloatingView`, named view
-  nổi trên canvas như `settings-add-new` của 016); test `modules/settings.test.ts:67-68` cập nhật (`/settings/flows/3f2a`
+  với `params._`), con `settings-flows-operation` (`:operationId`, `props: true`, `meta.isFloatingView`, vẽ qua
+  `RouterView` không tên của trang flow với props `operation`, `existing-operation-keys`, `flow` và sự kiện `save`,
+  `cancel`, như `flow.vue:778-784`; khác named view `add` của `settings-add-new` 016); test `modules/settings.test.ts:67-68` cập nhật (`/settings/flows/3f2a`
   → `settings-flows-item`, thêm `/settings/flows/3f2a/+` → `settings-flows-operation`). D-92 gỡ.
 - **FR-002**: `get-item-route.ts` giữ `directus_flows: { route: '/settings/flows' }` (item → `/settings/flows/:pk`);
   nay là màn thật (D-72 gỡ phần `directus_flows`). `directus_operations` không có trong bảng ánh xạ của Directus
@@ -632,13 +634,14 @@ dùng chéo của SC-002.
   chạy ở ba cấu hình như 014–016; `settings-flows-editor` chạy cả firefox-1280 và webkit-1280 ở cùng origin (kéo thả
   pointer events); spec điều khiển Directus app chỉ chromium-1280 (`DIRECTUS_APP_SPECS`); `settings-parity-ui.spec.ts`
   thêm bảng flow, trang flow, drawer flow, drawer operation. Không E2E nào chạy `bo_all_ops` (log của nó chỉ do seed
-  tạo, badge 3 ổn định); E2E tạo và chạy flow tạm tên `web-e2e-<cfg>-<spec>-<n>`, xóa ở `afterAll`. Nếu webkit flake
+  tạo, badge 3 ổn định); E2E tạo và chạy flow tạm tên `web-e2e-<cfg>-<spec>-<n>`, xóa ở `afterAll`. Trong spec,
+  `bo_manual` và `bo_manual_item` là tên logic của các flow tạm đó (không thuộc bộ mẫu `bo_flows`). Nếu webkit flake
   với kéo pointer, test kéo đánh `test.fixme` riêng cho webkit kèm lý do ghi ở bảng trạng thái (SC-001).
 - **FR-101**: Bộ so payload `apps/web-e2e/src/payload/flows.spec.ts` PHẢI so body ghi của FR-016, FR-032 và request
   `POST /flows/trigger/:id`, cùng request đọc `GET /revisions` của FR-054 với Directus app cùng kịch bản sau chuẩn hóa
   (id, id tạm `_…` đã bỏ trước gửi, thời gian, 5 ký tự ngẫu nhiên của key nhân bản và placeholder key → `*`; object so không
   theo thứ tự khóa; mảng giữ thứ tự trừ `operations.create/update/delete` sắp theo `key`); bộ so DB (`helpers/db-rows.ts`) thêm `directus_flows`,
-  `directus_operations` vào `SETTINGS_TABLES` hoặc bảng `FLOWS_TABLES` (bỏ `id`, `date_created`, `user_created`, và
+  `directus_operations` vào bảng mới `FLOWS_TABLES` (bỏ `id`, `date_created`, `user_created`, và
   với operation mới: `flow` ánh xạ theo tên).
 - **FR-102**: Kịch bản dùng chéo PHẢI có trong E2E ở `proxy-api`: (a) flow `bo_manual` + 4 operation tạo ở app mới
   (US2 Independent Test) → mở `/admin/settings/flows/<id>` trên Directus app 8155 bằng Playwright → so vị trí panel
@@ -686,8 +689,8 @@ dùng chéo của SC-002.
 - **FR-108**: Hiệu năng (ngân sách máy tham chiếu nhân `machineFactor()` như 014 R14; trung vị 3 lần; chromium;
   `PERF=1`): canvas 50 operation với 60 mũi tên vẽ dưới 500 ms sau khi store sẵn; mỗi lần di chuyển khi kéo,
   `generateArrows` cho 50 panel dưới 8 ms; mở drawer operation dưới 200 ms; danh sách log 10 dòng dưới 300 ms sau `GET
-  /revisions`; số request: mở `/settings/flows` = 0 (store); mở trang flow = 0 (store) + 1 đếm log (+ 1
-  danh sách khi mục Logs đang mở); Save = n `PATCH /operations` (số link gỡ, thường 0) + 1 `PATCH /flows/:id` + 1
+  /revisions`; số request: mở `/settings/flows` = 0 (store); mở trang flow = 0 (store) + 1 đếm log (+ 2
+  khi mục Logs đang mở: danh sách và request "created" của `use-revisions`, như Directus); Save = n `PATCH /operations` (số link gỡ, thường 0) + 1 `PATCH /flows/:id` + 1
   `GET /flows`; không benchmark hằng tuần (màn quản trị).
 - **FR-109**: Bundle: canvas (arrows, workspace), registry operation, drawer log là chunk lười; chunk chính ≤ ngân sách
   016 + 20 KB gzip; chunk lười: canvas ≤ 60 KB, registry operation ≤ 25 KB, drawer log ≤

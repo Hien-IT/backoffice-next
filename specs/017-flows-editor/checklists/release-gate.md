@@ -89,7 +89,7 @@ research, data-model, contracts nên mọi mục `[x]`.
 ## Ambiguities & Conflicts
 
 - [x] CHK051 "Cần xác nhận" còn mục nào chưa chốt (RTL, `trigger-detail.vue`, request "created", chuỗi literal) và ai xác nhận trước khi đóng? [Ambiguity, Spec Khác biệt] (5)
-- [x] CHK052 D-105 còn [Unverified] (Directus có treo với vòng không): nếu T002 thấy Directus không treo, spec ghi lại thế nào (bỏ D-105, làm giống)? [Ambiguity, Spec D-105, Edge Cases] (1)
+- [x] CHK052 (lời giải đã ghi; kiểm thật ở T002, chưa chạy) D-105 còn [Unverified] (Directus có treo với vòng không): nếu T002 thấy Directus không treo, spec ghi lại thế nào (bỏ D-105, làm giống)? [Ambiguity, Spec D-105, Edge Cases] (1)
 
 ## Notes
 

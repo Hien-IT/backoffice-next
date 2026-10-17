@@ -62,7 +62,7 @@ commit, push, CI xanh, `graphify update .`).
 - [ ] T001 Kiểm môi trường và bảng kiểm của research: `pnpm nx run parity-tests:env-up --vendor=postgres
       --profiles=app,web` lên được; xác nhận lại bảng "Kết quả kiểm" của `specs/017-flows-editor/research.md` bằng đọc
       code (không đổi gì thì ghi "T001 xác nhận 2026-10-xx"); dòng 017 của `CLAUDE.md` Active Technologies đúng với plan
-- [ ] T002 Kiểm D-105 và hành vi Save của Directus trên Directus app 8155 (CHK052, R-47): tạo flow có vòng `resolve`
+- [ ] T002 [P] Kiểm D-105 và hành vi Save của Directus trên Directus app 8155 (CHK052, R-47): tạo flow có vòng `resolve`
       bằng `PATCH /operations` trực tiếp, mở `/admin/settings/flows/<id>`, Edit Flow, đổi vị trí một panel, Save; ghi
       treo hay không vào `specs/017-flows-editor/research.md` (mục "Kết quả kiểm T002"); không treo → bỏ D-105 khỏi
       `spec.md` (Khác biệt, Edge Cases, FR-030) và ghi làm giống; xóa flow thử
@@ -176,8 +176,9 @@ commit, push, CI xanh, `graphify update .`).
       `BoDialog` xóa, `FlowDrawer`, sắp xếp `sortBy`, không gọi API khi vào route, `hydrate()` sau ghi, điều hướng sau
       tạo FR-015) theo recipe Q-2, Q-33; manifest `017-T035.json`
 - [ ] T036 [US1] E2E `e2e/settings-flows-overview.spec.ts` (contracts/tests §3): bảng `bo_flows`, sắp xếp, menu đổi trạng
-      thái flow tạm, drawer tạo flow tạm với mỗi trigger, sửa, xóa, lỗi lưu (`page.route` trả 500), điều hướng sau tạo;
-      chromium 768/1280 ba cấu hình
+      thái flow tạm, drawer tạo flow tạm với mỗi trigger, sửa, xóa, lỗi lưu (`page.route` trả 500), điều hướng sau tạo
+      (lượt 1 chỉ kiểm URL `/settings/flows/<id>`; route item có ở T050, trang đích kiểm ở T051); chromium 768/1280 ba
+      cấu hình
 - [ ] T037 [US1] Đóng lượt 1: lint, typecheck, `web:test`, `web:build`, `check-bundle`, `check-port-headers`,
       `check-raw-colors`, E2E `settings-*` + `content-sidebar` xanh ở `proxy-api` local; commit
       `feat(017): flows overview, flow drawer and triggers (wave 1)`; push; CI xanh; `graphify update .`
@@ -228,9 +229,8 @@ commit, push, CI xanh, `graphify update .`).
       `FlowDrawer startTab trigger_setup` cho pencil Trigger, `use-edits-guard` `ignorePrefix`, `use-shortcut` `meta+s`,
       `DetailPanel` có slot cho Logs ở T072); manifest `017-T049.json`
 - [ ] T050 [US2] `src/modules/settings.ts`: thêm `settings-flows-item` (`:primaryKey`, `props: true`, `beforeEnter` tra
-      store, thiếu → `notFound(to)`) và con `settings-flows-operation` (`:operationId`, `props: true`,
-      `meta.isFloatingView`, component `OperationDetail.vue` của T061); `src/modules/settings.test.ts` thêm ca item,
-      operation `+`, id không có → not-found
+      store, thiếu → `notFound(to)`); `src/modules/settings.test.ts` thêm ca item và id không có → not-found. Route con
+      `settings-flows-operation` thêm ở T061 (cùng lúc với `OperationDetail.vue`) để build không import file chưa có
 - [ ] T051 [US2] E2E `e2e/settings-flows-editor.spec.ts` (contracts/tests §3): xem `bo_all_ops`; trên flow tạm: kéo panel,
       "+" thêm, kéo nối/tháo (cả hai ví dụ US2-6), Duplicate, Copy To, Delete, Save (so body bằng `recordWrites`), Clear
       Changes, guard, Ctrl+S, Delete Flow; chromium 768/1280 ba cấu hình + firefox/webkit-1280 cùng origin; thêm vào
@@ -258,8 +258,10 @@ commit, push, CI xanh, `graphify update .`).
 - [ ] T061 [US3] `flows/OperationDetail.vue` port `components/operation-detail.vue` (`useDialogRoute`, `BoDrawer
       persistent`, `BoInput dbSafe`, `@sindresorhus/slugify`, `BoFancySelect` 15 loại, `ExtensionOptions
       type="operation"` với options đã gọi hàm và `translate`, `getDefaultValuesFromFields`, `BoNotice` D-106 khi `mail`)
-      theo Q-31; nối `@save` vào `stageOperation` của T046 (staging, vị trí con theo cha, US2-5, US2-12); manifest
-      `017-T061.json`
+      theo Q-31; nối `@save` vào `stageOperation` của T046 (staging, vị trí con theo cha, US2-5, US2-12); thêm route con
+      `settings-flows-operation` (`:operationId`, `props: true`, `meta.isFloatingView`, vẽ qua `RouterView` không tên
+      của `FlowRoute.vue`) vào `src/modules/settings.ts` và ca `/settings/flows/3f2a/+` vào `src/modules/settings.test.ts`;
+      manifest `017-T061.json`
 - [ ] T062 [US3] E2E `e2e/settings-flows-operations.spec.ts`: mở drawer từng operation của `bo_all_ops` và so field với
       bảng data-model §5 (nhãn, loại input), key tự sinh và trùng trên flow tạm, loại lạ ở `bo_orphan`, notice `mail`;
       "+" nhiều lần trước Save (US2-12) rồi Save; chromium ba cấu hình
@@ -369,7 +371,7 @@ commit, push, CI xanh, `graphify update .`).
 - Phase 3 (US1): sau Phase 2 và T005 (Q-33); T037 đóng lượt 1.
 - Phase 4 (US2): sau lượt 1, T003 (mốc cho T041) và T004, T005 (Q-29, Q-30); T043 trước T044, T046; T046 trước T047,
   T049; T049 trước T050, T051.
-- Phase 5 (US3): sau T049, T050 (route con và staging); T063 đóng lượt 2.
+- Phase 5 (US3): sau T049, T050 (route item và staging); T061 thêm route con; T063 đóng lượt 2.
 - Phase 6 (US4) và Phase 7 (US5): sau lượt 2; song song với nhau; T083 đóng lượt 3.
 - Phase 8, 9: sau lượt 3; T103 đóng feature.
 
@@ -377,7 +379,7 @@ commit, push, CI xanh, `graphify update .`).
 
 - US1 → không phụ thuộc story khác (MVP).
 - US2 → US1 (route `flows`, `FlowDrawer` cho pencil Trigger).
-- US3 → US2 (route con `:operationId` trên `FlowRoute`, staging).
+- US3 → US2 (`FlowRoute` với `RouterView` không tên, staging); route con `:operationId` thêm ở T061.
 - US4 → US2 (`DetailPanel` của `FlowRoute`); độc lập với US3.
 - US5 → US1 (tạo flow manual); độc lập với US2–US4 về code.
 - US6 → tất cả.
@@ -406,7 +408,7 @@ Lượt 1, Phase 2 (sau T001):
 Lượt 2, Phase 4–5:
   song song: T040 arrows tests | T041 use-flow-editor tests | T042 FlowRoute test
   rồi: T043 arrows lib → song song T044 Arrows | T045 OptionsOverview; T046 use-flow-editor
-  rồi: T047 Operation → T048 CopyTo → T049 FlowRoute → T050 route → T060 → T061 OperationDetail → T051, T062 E2E → T063
+  rồi: T047 Operation → T048 CopyTo → T049 FlowRoute → T050 route item → T060 → T061 OperationDetail + route con → T051, T062 E2E → T063
 
 Lượt 4, Phase 8:
   song song: T090 payload | T091 cross-use | T092 parity UI | T093 perf | T094 a11y

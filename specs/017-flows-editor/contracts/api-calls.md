@@ -11,7 +11,7 @@ khác ở #183–#184).
 | # | Method | Path | Ai gọi | Query | Ghi chú |
 |---|--------|------|--------|-------|---------|
 | 183 | GET | `/revisions` | `LogsSidebarDetail` (`useRevisions` danh sách) | `filter[_and][0][collection][_eq]=directus_flows` `[1][item][_eq]=<id>` `[2][version][_null]=true` `[3][activity][action][_eq]=run` `sort=-id` `limit=10` `page=<n>` `fields[]=id,collection,item,activity.action,activity.timestamp,activity.user.id,activity.user.email,activity.user.first_name,activity.user.last_name,activity.ip,activity.user_agent,activity.origin,data,delta` | `limit = min(10, queryLimit.max)`; dạng query đúng của SDK (`fields[]`) |
-| 184 | GET | `/revisions` | `LogsSidebarDetail` (đếm) và request "created" của `use-revisions` | `aggregate[count]=id` + cùng filter; "created": filter `activity.action _eq create` `limit 1` | đếm khi mount; "created" giữ như Directus (không dùng) |
+| 184 | GET | `/revisions` | `LogsSidebarDetail`: (a) đếm khi mount; (b) request "created" của `use-revisions`, gửi cùng lần nạp danh sách #183 (`use-revisions.ts:124`) | (a) `aggregate[count]=id` + cùng filter; (b) filter `activity.action _eq create` `limit 1` | "created" giữ như Directus (không dùng); mở mục Logs = #183 + #184 (b) |
 
 ## Ghi
 
