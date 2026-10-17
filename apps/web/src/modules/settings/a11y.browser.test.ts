@@ -98,7 +98,8 @@ const answers = {
 let noTransitions: HTMLStyleElement;
 
 beforeAll(async () => {
-	await page.viewport(1280, 900);
+	// Wider than xl: on the Linux CI runner the scrollbar takes its width from a 1280 px viewport (below xl).
+	await page.viewport(1440, 900);
 	noTransitions = document.head.appendChild(document.createElement('style'));
 	noTransitions.textContent = '*, *::before, *::after { transition: none !important; animation: none !important; }';
 });
@@ -245,15 +246,24 @@ describe('roles and policies', { timeout: 60_000 }, () => {
 
 	test('drawer: permission detail', async () => {
 		await mountPage(`/settings/policies/${POLICY.id}`);
-		const chip = document.querySelector<HTMLElement>(
-			`[data-permissions-matrix] tr[data-collection="${PERMISSIONS[0]!.collection}"] button[aria-haspopup="menu"]`,
-		)!;
+		// The matrix rows come after the permissions request: wait for the chip on a loaded runner.
+		const chip = await vi.waitUntil(
+			() =>
+				document.querySelector<HTMLElement>(
+					`[data-permissions-matrix] tr[data-collection="${PERMISSIONS[0]!.collection}"] button[aria-haspopup="menu"]`,
+				),
+			{ timeout: 10_000 },
+		);
 		chip.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, button: 0, pointerType: 'mouse' }));
 		chip.click();
 		await settle();
-		const custom = [...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) =>
-			el.textContent?.includes('Use Custom'),
-		)!;
+		const custom = await vi.waitUntil(
+			() =>
+				[...document.querySelectorAll<HTMLElement>('[role="menuitem"]')].find((el) =>
+					el.textContent?.includes('Use Custom'),
+				),
+			{ timeout: 10_000 },
+		);
 		custom.click();
 		await settle();
 		expect(document.querySelector('[role="dialog"]')).not.toBeNull();
