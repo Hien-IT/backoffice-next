@@ -517,7 +517,9 @@ US7, FR-080–FR-082).
 - [X] T115 [P] [US8] A11y `e2e/a11y.spec.ts` thêm khối 018 (FR-106: `/insights`, dashboard hai chế độ, drawer panel 3
       loại, `/activity`, drawer activity, drawer thông báo hai tab, chuông; sáng/tối; axe 0 serious/critical; màu do người
       dùng chọn loại khỏi quét như 017)
-- [ ] T116 [US8] Sửa lệch do T110–T115 tìm ra (spec, code, hoặc ghi R-xx mới với lý do); lặp tới khi SC-002..SC-007 đạt
+- [X] T116 [US8] Sửa lệch do T110–T115 tìm ra (spec, code, hoặc ghi R-xx mới với lý do); lặp tới khi SC-002..SC-007 đạt
+      (2026-10-18: D-111..D-119 owner duyệt; Save nạp panel trước khi xóa edits như Directus; payload notifications chấp
+      nhận lần đếm lại D-115; drawer user Directus tìm trước khi chọn; perf mount trên pinia của chính nó)
 
 **Checkpoint**: tiêu chí chấp nhận có bằng chứng tự động.
 
@@ -534,9 +536,11 @@ US7, FR-080–FR-082).
 - [X] T122 Bảng "Trạng thái khác biệt" trong `specs/018-insights-activity-notifications/spec.md` (như 017 T102): mỗi D-107..
       D-110, R-49..R-57, ngoại lệ a11y lưới dashboard và mục "Cần xác nhận" với nơi làm trong code; gửi tech lead duyệt;
       ghi duyệt vào bảng và Clarifications
-- [ ] T123 Đóng feature: mọi task xong, CI xanh (quality, e2e-web ba cấu hình, parity web), coverage ≥ 60 %, design owner
+- [X] T123 Đóng feature: mọi task xong, CI xanh (quality, e2e-web ba cấu hình, parity web), coverage ≥ 60 %, design owner
       duyệt Q-34..Q-39 (SC-008), tech lead duyệt T122 (SC-010) và ngoại lệ a11y trong `handoff-checklist.md`; nhắn phiên
       chung checkout; commit `docs(018): close insights, activity and notifications`; push; `graphify update .`
+      (2026-10-18: CI 39107695073 trên ee10ecd xanh toàn bộ, parity-blackbox (backoffice) xanh khi chạy lại sau flake
+      `/assets` đã biết; coverage web 95,32 % dòng; Q-34..Q-39, T122 và ngoại lệ a11y đã duyệt)
 
 ---
 
