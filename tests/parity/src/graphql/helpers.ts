@@ -45,6 +45,27 @@ export interface GqlOptions {
 	method?: 'GET' | 'POST';
 	/** Extra headers (Cache-Control for the cache cases). */
 	headers?: Record<string, string>;
+	/** Applied to both answers before the comparison. */
+	normalize?: (captured: Captured) => Captured;
+}
+
+/**
+ * `fields_in_collection` sorted by field name, the ETag hash masked (same length). On MySQL the inspector reads
+ * INFORMATION_SCHEMA.COLUMNS without ORDER BY (as Directus), so each app gets the columns in the order of its query plan
+ * (CI 39095641641: ordinal at Directus, by name at Backoffice).
+ */
+export function fieldsByName(captured: Captured): Captured {
+	const json = captured.json as { data?: { fields_in_collection?: { field: string }[] } } | null;
+	const fields = json?.data?.fields_in_collection;
+	if (!fields) return captured;
+	return {
+		...captured,
+		json: {
+			...json,
+			data: { ...json.data, fields_in_collection: [...fields].sort((a, b) => a.field.localeCompare(b.field)) },
+		},
+		headers: { ...captured.headers, etag: captured.headers['etag']?.replace(/-[^-"]+"$/, '-<hash>"') ?? '' },
+	};
 }
 
 /** The parity request of a GraphQL document. */
@@ -64,7 +85,13 @@ export function gqlRequest(scope: Scope, query: string, options: GqlOptions = {}
 	const body: Record<string, unknown> = { query };
 	if (options.variables !== undefined) body['variables'] = options.variables;
 	if (options.operationName !== undefined) body['operationName'] = options.operationName;
-	return { method: 'POST', path: endpoint(scope), headers, body };
+	return {
+		method: 'POST',
+		path: endpoint(scope),
+		headers,
+		body,
+		...(options.normalize && { normalize: options.normalize }),
+	};
 }
 
 /** Sends a document to one app. */

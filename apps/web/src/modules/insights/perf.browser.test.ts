@@ -76,13 +76,15 @@ beforeAll(() => {
 // parallel); a case still fails on its own budget, or at `settleLimit` when a page never settles.
 vi.setConfig({ testTimeout: 90_000 });
 
-/** Waits a frame at a time until `ready`, then for a settled frame. */
-async function settled(ready: () => boolean, step: string) {
+/** Waits a frame at a time until `ready`, then for a settled frame; `state` describes the page when it never is. */
+async function settled(ready: () => boolean, step: string, state: () => unknown = () => null) {
 	const limit = settleLimit;
 	const deadline = performance.now() + limit;
 
 	while (!ready()) {
-		if (performance.now() > deadline) throw new Error(`perf: ${step} did not settle in ${Math.round(limit / 1000)} s`);
+		if (performance.now() > deadline) {
+			throw new Error(`perf: ${step} did not settle in ${Math.round(limit / 1000)} s: ${JSON.stringify(state())}`);
+		}
 		await flushPromises();
 		await frame();
 	}
@@ -90,6 +92,21 @@ async function settled(ready: () => boolean, step: string) {
 	await flushPromises();
 	await frame();
 	await frame();
+}
+
+/** What a settle that never comes waits on (CI only, bo_dash_vars: runs 39071346091 to 39095641641). */
+function insightsState(insights: ReturnType<typeof useInsightsStore>, fetch: ReturnType<typeof mockFixtureApi>) {
+	return {
+		tiles: [...document.querySelectorAll<HTMLElement>('[data-panel-id]')].map((tile) => tile.dataset['panelType']),
+		loading: insights.loading,
+		data: Object.keys(insights.data),
+		errors: insights.errors,
+		variables: insights.variables,
+		route: document.querySelector('[data-insights-route]') ? 'dashboard' : document.body.innerText.slice(0, 200),
+		workspace: document.querySelector('[data-insights-route]')?.innerHTML.slice(0, 300),
+		requests: calls(fetch).length,
+		last: calls(fetch).slice(-5),
+	};
 }
 
 type Row = Record<string, unknown>;
@@ -143,6 +160,7 @@ const routes: RouteRecordRaw[] = [
 const tiles = () => document.querySelectorAll('[data-panel-id]').length;
 const charts = () => document.querySelectorAll('[data-panel-id] [data-chart-table]').length;
 const states = () => document.querySelectorAll('[data-panel-id] [data-panel-state]').length;
+const canvases = () => document.querySelectorAll('[data-panel-id] .apexcharts-canvas').length;
 
 async function mountDashboard(
 	snapshot: ReturnType<typeof loadSnapshot>,
@@ -158,11 +176,13 @@ async function mountDashboard(
 		{
 			routes,
 			path: `/insights/${dashboard}`,
-			async beforeMount() {
-				await useUserStore().hydrate();
-				await Promise.all([useCollectionsStore().hydrate(), useFieldsStore().hydrate()]);
-				await usePermissionsStore().hydrate();
-				insights = useInsightsStore();
+			// The stores of this mount's pinia: under load another pinia became active between these awaits (the app then
+			// showed "Page Not Found" for a dashboard hydrated into the other store).
+			async beforeMount(pinia) {
+				await useUserStore(pinia).hydrate();
+				await Promise.all([useCollectionsStore(pinia).hydrate(), useFieldsStore(pinia).hydrate()]);
+				await usePermissionsStore(pinia).hydrate();
+				insights = useInsightsStore(pinia);
 				await insights.hydrate();
 				prepare(insights);
 				fetch.mockClear();
@@ -170,20 +190,25 @@ async function mountDashboard(
 			},
 		},
 	);
-	await settled(() => insights.loading.length === 0 && ready(insights), `the mount of ${dashboard}`);
+	await settled(
+		() => insights.loading.length === 0 && ready(insights),
+		`the mount of ${dashboard}`,
+		() => insightsState(insights, fetch),
+	);
 	return { ...mounted, fetch, insights, time: performance.now() - start };
 }
 
 test('bo_dash_all: 11 panel types drawn under 1500 ms after the route entry, 1 POST /graphql', async () => {
 	const snapshot = loadSnapshot();
 	const id = dashboardId(snapshot, 'bo_dash_all');
-	const ready = () => tiles() === 11 && charts() === 4 && states() === 0;
+	// Drawn: the 4 ApexCharts canvases too, not only their sr-only tables (rendered first; under load the canvas came later).
+	const ready = () => tiles() === 11 && charts() === 4 && canvases() === 4 && states() === 0;
 	(await mountDashboard(snapshot, id, ready)).wrapper.unmount(); // warm-up: the lazy chunks load on the first mount
 	const timings: number[] = [];
 
 	for (let index = 0; index < RUNS; index++) {
 		const { time, wrapper, fetch } = await mountDashboard(loadSnapshot(), id, ready);
-		expect(document.querySelectorAll('[data-panel-id] .apexcharts-canvas').length).toBe(4);
+		expect(canvases()).toBe(4);
 		// 8 panels query bo_insights_data in one POST /graphql (no /graphql/system: no system collection); label and
 		// variable send nothing. The comments count is the page sidebar's (CommentsSidebarDetail); the relational variable
 		// loads its closed item drawer (list and count of directus_users) as Directus does (owner 2026-10-18).
@@ -223,6 +248,7 @@ test('bo_dash_vars: a variable change updates the dependent panels under 500 ms,
 		await settled(
 			() => insights.loading.length === 0 && dependent.every((panel, i) => insights.data[panel] !== before[i]),
 			`the variable change ${index} (${status})`,
+			() => insightsState(insights, fetch),
 		);
 		const time = performance.now() - start;
 		expect(calls(fetch)).toEqual(['POST /graphql']);

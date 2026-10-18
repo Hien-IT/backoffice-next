@@ -3,12 +3,12 @@
 import type { Panel } from '@directus/types';
 import { flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { resetNotices, useNotices } from '../composables/use-notices.ts';
 import { calls, json, mockApi } from '../test-utils/fetch.ts';
 import { useCollectionsStore } from './collections.ts';
 import { useFieldsStore } from './fields.ts';
-import { useInsightsStore } from './insights.ts';
+import { loadPanelRegistry, useInsightsStore } from './insights.ts';
 import { usePermissionsStore } from './permissions.ts';
 
 const DASHBOARD = 'd1';
@@ -49,6 +49,9 @@ function graphqlAnswer(extra: Record<string, unknown> = {}) {
 		return json({ data: Object.fromEntries(aliases.map((alias) => [alias, [{ count: { id: 1 } }]])), ...extra });
 	};
 }
+
+// The panel registry chunk (apexcharts) is imported once, outside the first test's 5 s (it timed out in a full run).
+beforeAll(() => loadPanelRegistry(), 60_000);
 
 beforeEach(() => {
 	setActivePinia(createPinia());

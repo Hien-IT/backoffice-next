@@ -104,11 +104,11 @@ export function capture(baseUrl: string, req: ParityRequest): Promise<Captured> 
 	const method = (req.method ?? 'GET').toUpperCase();
 
 	// Feature 005 (research R4): fresh reads at both apps, the env files set CACHE_SKIP_ALLOWED=true; a request that sets
-	// its own Cache-Control (the cache tests) keeps it.
-	if (
-		(method === 'GET' || method === 'HEAD') &&
-		!Object.keys(headers).some((h) => h.toLowerCase() === 'cache-control')
-	) {
+	// its own Cache-Control (the cache tests) keeps it. POST /graphql(/system) is cached too (011): the two apps were sent
+	// the same query at once and one could read the other's entry (x-cache-status HIT vs MISS, graphql-nointro, CI).
+	const cachedRead =
+		method === 'GET' || method === 'HEAD' || (method === 'POST' && /^\/graphql(\/system)?(\?|$)/.test(req.path));
+	if (cachedRead && !Object.keys(headers).some((h) => h.toLowerCase() === 'cache-control')) {
 		headers['cache-control'] = 'no-store';
 	}
 	let body: string | Buffer | undefined;

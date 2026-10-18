@@ -15,6 +15,7 @@ import {
 	adminJwt,
 	createGraphqlModel,
 	createGraphqlUsers,
+	fieldsByName,
 	gql,
 	gqlRequest,
 	type GraphqlModel,
@@ -72,6 +73,7 @@ describe('system collections and the data model (US3.1)', () => {
 				`{ fields_in_collection(collection: "${m.articles}") { field type schema { is_primary_key } } }`,
 				{
 					token,
+					normalize: fieldsByName,
 				},
 			);
 			await sameGql('system', `{ fields_by_name(collection: "${m.articles}", field: "title") { field type } }`, {
