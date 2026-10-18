@@ -3,6 +3,7 @@
 // API with the system collections, fields and relations of Directus system-data and the Settings rows of the fixture
 // set (settings.*.json). 0 serious or critical violations outside EXCEPTIONS.
 import { page } from '@vitest/browser/context';
+import type { Pinia } from 'pinia';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import axe from 'axe-core';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -116,18 +117,19 @@ afterEach(() => {
 	document.documentElement.classList.remove('dark');
 });
 
-async function hydrate() {
+/** Stores of the mount's own pinia: another pinia can become active between the awaits (see mountLayout). */
+async function hydrate(pinia: Pinia) {
 	mockFixtureApi(fixture, { answers: answers as never });
-	await useUserStore().hydrate();
+	await useUserStore(pinia).hydrate();
 	registeredModules.value = getInternalModules();
-	await Promise.all([usePermissionsStore().hydrate(), useFieldsStore().hydrate()]);
+	await Promise.all([usePermissionsStore(pinia).hydrate(), useFieldsStore(pinia).hydrate()]);
 	await Promise.all([
-		useRelationsStore().hydrate(),
-		useCollectionsStore().hydrate(),
-		usePresetsStore().hydrate(),
-		useSettingsStore().hydrate(),
+		useRelationsStore(pinia).hydrate(),
+		useCollectionsStore(pinia).hydrate(),
+		usePresetsStore(pinia).hydrate(),
+		useSettingsStore(pinia).hydrate(),
 	]);
-	const server = useServerStore();
+	const server = useServerStore(pinia);
 	server.info.queryLimit = { default: 100, max: -1 };
 	server.info.websocket = false;
 }
@@ -182,9 +184,7 @@ const named = (name: string) =>
 	);
 
 // Each test mounts a page and runs axe twice (light, dark): past the 15 s default on a loaded CI runner.
-// ponytail: run in one file, a page sometimes never shows its matrix or drawer (one case in two runs, a different case
-// each time; each block alone always passes): retried twice. Find the state that leaks between tests before raising it.
-const BLOCK = { timeout: 60_000, retry: 2 };
+const BLOCK = { timeout: 60_000 };
 
 describe('data model', BLOCK, () => {
 	test('the collection list', async () => {

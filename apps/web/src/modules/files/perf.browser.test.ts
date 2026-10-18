@@ -215,7 +215,7 @@ describe('dropping 20 files on the library', () => {
 
 		await mountLayout(FilesCollectionRoute, {
 			path: '/files',
-			async beforeMount() {
+			async beforeMount(pinia) {
 				fetch = mockFixtureApi(loadSnapshot(), {
 					answers: {
 						'POST /files': async () => {
@@ -227,17 +227,17 @@ describe('dropping 20 files on the library', () => {
 						},
 					},
 				});
-				await useUserStore().hydrate();
+				await useUserStore(pinia).hydrate();
 				await Promise.all([
-					useFieldsStore().hydrate(),
-					useRelationsStore().hydrate(),
-					useCollectionsStore().hydrate(),
-					usePermissionsStore().hydrate(),
-					usePresetsStore().hydrate(),
+					useFieldsStore(pinia).hydrate(),
+					useRelationsStore(pinia).hydrate(),
+					useCollectionsStore(pinia).hydrate(),
+					usePermissionsStore(pinia).hydrate(),
+					usePresetsStore(pinia).hydrate(),
 				]);
-				useServerStore().info.queryLimit = { default: 100, max: -1 };
-				useServerStore().info.files = { mimeTypeAllowList: ['*/*'] };
-				useServerStore().info.uploads = { maxConcurrency: 5 };
+				useServerStore(pinia).info.queryLimit = { default: 100, max: -1 };
+				useServerStore(pinia).info.files = { mimeTypeAllowList: ['*/*'] };
+				useServerStore(pinia).info.uploads = { maxConcurrency: 5 };
 			},
 		});
 
@@ -249,9 +249,6 @@ describe('dropping 20 files on the library', () => {
 			{ length: 20 },
 			(_, index) => new File([new Uint8Array(1_000_000)], `drop-${index}.txt`, { type: 'text/plain' }),
 		);
-		// ponytail: on CI the value set in beforeMount was gone at the drop (20 in flight, run 38974011828); cause not
-		// found, so set it again just before.
-		useServerStore().info.uploads = { maxConcurrency: 5 };
 		const drop = new Event('drop', { bubbles: true, cancelable: true });
 		Object.defineProperty(drop, 'dataTransfer', { value: { types: ['Files'], files } });
 		window.dispatchEvent(drop);
