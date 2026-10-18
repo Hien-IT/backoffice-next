@@ -166,7 +166,11 @@ describe('drag and drop keyboard paths (contracts/layouts.md §5)', () => {
 		trigger(first).focus();
 		await userEvent.keyboard('{Enter}');
 		const width = await found(() => document.querySelector<HTMLInputElement>('[role="menu"] input[type="number"]'));
+		// The menu moves the focus into itself once open; on a loaded runner that came after the focus below and the
+		// typing went to the first item (CI 39103368273). Wait for it, then hold the input.
+		await vi.waitFor(() => expect(document.activeElement?.closest('[role="menu"]')).not.toBeNull());
 		width.focus();
+		await vi.waitFor(() => expect(document.activeElement).toBe(width));
 		// Select the old value directly: Control+A is "line start" on macOS, which typed "300144" there.
 		width.select();
 		await userEvent.keyboard('300{Enter}');
