@@ -82,6 +82,7 @@ const FOCUS =
 		:min-height="tile['minHeight']"
 		:border-radius="tile['borderRadius']"
 		resizable
+		unselectable
 		role="region"
 		:aria-label="label"
 		:data-panel-id="tile.id"

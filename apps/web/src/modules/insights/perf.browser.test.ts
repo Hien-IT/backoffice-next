@@ -35,7 +35,13 @@ import { machineFactor } from '../../test-utils/perf.ts';
 import DashboardRoute from './routes/DashboardRoute.vue';
 
 const RUNS = 3;
-const frame = () => new Promise((resolve) => requestAnimationFrame(resolve));
+// ponytail: a frame or 250 ms, whichever comes first. bo_dash_vars hung on CI past every limit (runs 39071346091,
+// 39080871586) while it takes under 1 s locally; [Inference] a paused requestAnimationFrame of a hidden test frame.
+const frame = () =>
+	new Promise((resolve) => {
+		requestAnimationFrame(resolve);
+		setTimeout(resolve, 250);
+	});
 const median = (values: number[]) => [...values].sort((a, b) => a - b)[Math.floor(values.length / 2)]!;
 
 enableAutoUnmount(afterEach);
@@ -71,12 +77,12 @@ beforeAll(() => {
 vi.setConfig({ testTimeout: 90_000 });
 
 /** Waits a frame at a time until `ready`, then for a settled frame. */
-async function settled(ready: () => boolean) {
+async function settled(ready: () => boolean, step: string) {
 	const limit = settleLimit;
 	const deadline = performance.now() + limit;
 
 	while (!ready()) {
-		if (performance.now() > deadline) throw new Error(`perf: the page did not settle in ${Math.round(limit / 1000)} s`);
+		if (performance.now() > deadline) throw new Error(`perf: ${step} did not settle in ${Math.round(limit / 1000)} s`);
 		await flushPromises();
 		await frame();
 	}
@@ -164,7 +170,7 @@ async function mountDashboard(
 			},
 		},
 	);
-	await settled(() => insights.loading.length === 0 && ready(insights));
+	await settled(() => insights.loading.length === 0 && ready(insights), `the mount of ${dashboard}`);
 	return { ...mounted, fetch, insights, time: performance.now() - start };
 }
 
@@ -216,6 +222,7 @@ test('bo_dash_vars: a variable change updates the dependent panels under 500 ms,
 		insights.setVariable('vars_status', status);
 		await settled(
 			() => insights.loading.length === 0 && dependent.every((panel, i) => insights.data[panel] !== before[i]),
+			`the variable change ${index} (${status})`,
 		);
 		const time = performance.now() - start;
 		expect(calls(fetch)).toEqual(['POST /graphql']);
@@ -255,7 +262,7 @@ test('the notifications drawer: 25 rows drawn under 300 ms after opening', async
 		fetch.mockClear();
 		const start = performance.now();
 		app.notificationsDrawerOpen = true;
-		await settled(() => document.querySelectorAll('[data-notification]').length === 25);
+		await settled(() => document.querySelectorAll('[data-notification]').length === 25, 'the notifications drawer');
 		return { time: performance.now() - start, wrapper, fetch };
 	};
 
@@ -293,7 +300,7 @@ test('drag and resize with 20 tiles in edit mode: one pointermove under 16 ms', 
 	);
 	await mountDashboard(snapshot, id, () => tiles() === 20 && charts() === 8);
 	document.querySelector<HTMLButtonElement>('[data-action="edit"]')!.click();
-	await settled(() => document.querySelectorAll('[data-resize]').length === 20 * 8);
+	await settled(() => document.querySelectorAll('[data-resize]').length === 20 * 8, 'the edit mode tiles');
 
 	const gesture = async (handle: HTMLElement, attribute: 'posX' | 'width') => {
 		const tile = handle.closest<HTMLElement>('[data-tile-id]')!;

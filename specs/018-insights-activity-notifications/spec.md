@@ -775,6 +775,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-116 | Số chưa đọc của chuông | Không tự cập nhật (R-52) | Đếm lại khi tab trình duyệt hiện lại, tối đa một lần mỗi phút (không thăm dò) | Thấy thông báo mới khi quay lại tab; chủ dự án 2026-10-18 | khác | — |
 | D-117 | Tên collection hệ thống (cột Collection của Activity, cây Content, Settings…) | `formatTitle("directus_users")` = "Directus Users" | Bỏ tiền tố `directus_`: "Users", "Dashboards"; bản dịch tên collection vẫn ưu tiên | Không hiện chữ "Directus" cho người dùng Backoffice (D-51 của 012); chủ dự án 2026-10-18 | đổi thương hiệu | — |
 | D-118 | Khóa collection hệ thống ở Settings → Data Model và ma trận quyền của policy | `directus_access`…; ghi chú chưa dịch hiện nguyên khóa (`directus_collection.directus_deployment_projects`) | Hiện `backoffice_access`… (chỉ hiển thị, khóa thật và route giữ `directus_`); ghi chú chỉ là khóa chưa dịch thì ẩn | Không hiện chữ "Directus" (D-51); chủ dự án 2026-10-18 | đổi thương hiệu | — |
+| D-119 | Chọn chữ và kéo-thả gốc trên tile dashboard ở chế độ sửa | `user-select: none` chỉ khi đang kéo; không chặn `dragstart` | Tile Insights ở chế độ sửa (`unselectable`) không chọn được chữ và chặn `dragstart`; canvas flows giữ như Directus | Trên webkit, vùng chữ bị chọn từ lần kéo trước biến lần kéo sau thành kéo-thả gốc, tile dừng sau ô đầu (CI 39076577997); chủ dự án 2026-10-18 chọn chỉ Insights | khác | — |
 
 **Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 
@@ -824,6 +825,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-116 | `layout/NotificationsBell.vue` (`visibilitychange`, throttle 60 s; `NotificationsBell.test.ts`) | Duyệt (owner, 2026-10-18) |
 | D-117 | `stores/collections.ts` `prepareCollectionForApp` (`collections.test.ts`) | Duyệt (owner, 2026-10-18) |
 | D-118 | `utils/display-collection-key.ts`; `routes/data-model/CollectionsRoute.vue`, `components/CollectionItem.vue` (tìm theo khóa hiển thị); ma trận quyền `system-permissions/PermissionsRow.vue`, `AddCollection.vue`; `settings-parity-ui.spec.ts` so khóa đã chuẩn hóa | Duyệt (owner, 2026-10-18) |
+| D-119 | `components/workspace/BoWorkspaceTile.vue` prop `unselectable` (`select-none` + `dragstart` chặn ở chế độ sửa), bật trong `modules/insights/components/PanelTile.vue`; `BoWorkspaceTile.browser.test.ts` | Duyệt (owner, 2026-10-18) |
 | R-49 | `routes/InsightsOverviewRoute.vue` duplicate có `try/catch` → `showUnexpectedError`, nút về bình thường (`overview.test.ts`) | Duyệt (tech lead, 2026-10-18) |
 | R-50 | `routes/DashboardRoute.vue` `now = new Date()` một lần mỗi trang, như `dashboard.vue:53` | Thay bởi D-114 (owner, 2026-10-18) |
 | R-51 | `stores/insights.ts` `stagePanelDelete` không hộp; `DashboardRoute.vue` `deletePanel` chỉ chuyển focus (`dashboard.test.ts`) | Duyệt (tech lead, 2026-10-18) |

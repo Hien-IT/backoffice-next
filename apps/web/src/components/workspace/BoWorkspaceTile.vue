@@ -6,10 +6,11 @@
 // (`borderRadius`). The tile exposes its cell and size in `data-pos-x/y`, `data-width/height` for the E2E comparison
 // with the Directus app (SC-002). Dragging and resizing are pointer only, as Directus (recorded a11y exceptions, 017
 // FR-106, 018 FR-027); the edit and options buttons are keyboard reachable. Unlike Directus the pointer listeners are
-// always removed on release (an empty edit leaves them attached there; no effect on the data). In edit mode the tile
-// is not selectable and starts no native drag (Directus: `user-select: none` only once dragging): on webkit a text
-// selection left by a previous drag turned the next pointer drag into a native one, which stopped the pointer events
-// after the first move (CI run 39076577997).
+// always removed on release (an empty edit leaves them attached there; no effect on the data). With `unselectable`
+// (Insights, owner 2026-10-18) the tile in edit mode is not selectable and starts no native drag (Directus:
+// `user-select: none` only once dragging): on webkit a text selection left by a previous drag turned the next pointer
+// drag into a native one, which stopped the pointer events after the first move (CI run 39076577997). The flows canvas
+// keeps the Directus behaviour.
 import { throttle } from 'lodash-es';
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -88,6 +89,8 @@ const props = withDefaults(
 		gridSize?: number;
 		/** Shows the 8 resize handles in edit mode (018) */
 		resizable?: boolean;
+		/** In edit mode: no text selection and no native drag (018 Insights) */
+		unselectable?: boolean;
 		/** Smallest size in cells while resizing */
 		minWidth?: number;
 		minHeight?: number;
@@ -104,6 +107,7 @@ const props = withDefaults(
 		alwaysUpdatePosition: false,
 		gridSize: 18,
 		resizable: false,
+		unselectable: false,
 		minWidth: 8,
 		minHeight: 6,
 		borderRadius: () => [true, true, true, true],
@@ -244,9 +248,10 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		:class="[
 			radius,
 			editMode && draggable
-				? 'cursor-move select-none border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600'
+				? 'cursor-move border-gray-300 hover:border-gray-400 dark:border-gray-700 dark:hover:border-gray-600'
 				: 'border-gray-200 dark:border-gray-800',
 			{ 'z-3! border-brand-300! shadow-theme-md select-none dark:border-brand-700!': dragging },
+			{ 'select-none': editMode && draggable && unselectable },
 		]"
 		:style="{
 			gridRow: `${positioning.y} / span ${positioning.height}`,
@@ -258,7 +263,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		:data-width="positioning.width"
 		:data-height="positioning.height"
 		@pointerdown="onPointerDown($event)"
-		@dragstart="editMode && draggable && $event.preventDefault()"
+		@dragstart="editMode && draggable && unselectable && $event.preventDefault()"
 	>
 		<div
 			v-if="showHeader"
