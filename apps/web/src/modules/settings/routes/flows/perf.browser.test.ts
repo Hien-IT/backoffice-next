@@ -11,6 +11,7 @@
 import { page } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeAll, beforeEach, expect, test, vi } from 'vitest';
+import type { Pinia } from 'pinia';
 import { defineComponent, h } from 'vue';
 import { RouterView, type RouteRecordRaw, useRoute } from 'vue-router';
 import { replaceQueue } from '../../../../api/sdk.ts';
@@ -118,16 +119,19 @@ async function mountFlow(path: string, beforeMount: () => void = () => undefined
 	const { snapshot, id, operations } = snapshotWithPerfFlow();
 	const fetch = mockFixtureApi(snapshot, { user: 'admin', answers: { [`PATCH /flows/${id}`]: { id } } });
 	let start = 0;
+	let pinia!: Pinia;
 	const mounted = await mountLayout(
 		{ render: () => h(RouterView) },
 		{
 			routes,
 			path: path.replace(':id', id),
-			async beforeMount() {
-				await useUserStore().hydrate();
-				await usePermissionsStore().hydrate();
-				await useFlowsStore().hydrate();
-				useServerStore().info.queryLimit = { default: 100, max: -1 };
+			// The stores of this mount's pinia: under load another pinia can become active between the awaits (018 e23595c).
+			async beforeMount(own) {
+				pinia = own;
+				await useUserStore(pinia).hydrate();
+				await usePermissionsStore(pinia).hydrate();
+				await useFlowsStore(pinia).hydrate();
+				useServerStore(pinia).info.queryLimit = { default: 100, max: -1 };
 				beforeMount();
 				fetch.mockClear();
 				start = performance.now();
@@ -137,7 +141,7 @@ async function mountFlow(path: string, beforeMount: () => void = () => undefined
 	await flushPromises();
 	await frame();
 	await frame();
-	return { ...mounted, fetch, id, operations, time: performance.now() - start };
+	return { ...mounted, fetch, id, operations, pinia, time: performance.now() - start };
 }
 
 const arrows = () => document.querySelectorAll('[data-flow-arrows] path[data-arrow]:not([data-hint])').length;
@@ -237,12 +241,12 @@ test('the Logs list: 10 runs under 300 ms after its GET /revisions', async () =>
 			{
 				routes: logRoutes,
 				path: `/settings/flows/${all}`,
-				async beforeMount() {
-					await useUserStore().hydrate();
-					await usePermissionsStore().hydrate();
-					await useFlowsStore().hydrate();
-					useServerStore().info.queryLimit = { default: 100, max: -1 };
-					useSidebarStore().activeAccordionItem = 'logs';
+				async beforeMount(pinia) {
+					await useUserStore(pinia).hydrate();
+					await usePermissionsStore(pinia).hydrate();
+					await useFlowsStore(pinia).hydrate();
+					useServerStore(pinia).info.queryLimit = { default: 100, max: -1 };
+					useSidebarStore(pinia).activeAccordionItem = 'logs';
 					start = performance.now();
 				},
 			},
@@ -267,11 +271,11 @@ test('the Logs list: 10 runs under 300 ms after its GET /revisions', async () =>
 });
 
 test('requests: the flow page reads the log count only; Save sends one PATCH /flows/:id then GET /flows', async () => {
-	const { fetch, id } = await mountFlow('/settings/flows/:id');
+	const { fetch, id, pinia } = await mountFlow('/settings/flows/:id');
 	// The Logs section (and its count request) lives in the detail panel: inline from xl, a drawer below. The CI
 	// runner can lay the file out below xl despite the viewport (CI 39058333187, two perf files in parallel), so the
 	// panel is opened; at xl this changes nothing.
-	useSidebarStore().expand();
+	useSidebarStore(pinia).expand();
 	await flushPromises();
 	const sent = () => calls(fetch).map((call) => call.split('?')[0]);
 	// The log count goes out after the page mounts; a loaded runner sends it a little later.
