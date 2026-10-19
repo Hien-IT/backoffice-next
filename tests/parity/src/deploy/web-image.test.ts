@@ -99,6 +99,10 @@ describe.skipIf(SEPARATE)('FE image', () => {
 	it('carries the version labels', () => {
 		const labels = JSON.parse(docker('image', 'inspect', WEB_IMAGE, '--format', '{{json .Config.Labels}}'));
 		expect(labels['org.opencontainers.image.version']).toBeTruthy();
+		// The labels inherited from the nginx base image are emptied (FR-022).
+		for (const key of ['source', 'url', 'description', 'created', 'licenses'])
+			expect(labels[`org.opencontainers.image.${key}`], key).toBe('');
+		expect(labels['maintainer']).toBe('');
 		expect(labels['org.opencontainers.image.revision']).toMatch(/^[0-9a-f]{40}$/);
 	});
 });

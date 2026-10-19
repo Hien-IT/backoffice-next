@@ -47,7 +47,15 @@ EXPOSE 8080
 # Feature 019 (FR-022): version labels, last so that a new commit keeps the cached layers (CI sets both ARGs).
 ARG BACKOFFICE_VERSION=0.0.0
 ARG VCS_REF=unknown
+# The nginx base image labels describe nginx (repo, licence, maintainer, its build date): emptied, as labels cannot be
+# removed (owner decision 2026-10-20).
 LABEL \
 	org.opencontainers.image.title="backoffice-web" \
 	org.opencontainers.image.version="${BACKOFFICE_VERSION}" \
-	org.opencontainers.image.revision="${VCS_REF}"
+	org.opencontainers.image.revision="${VCS_REF}" \
+	org.opencontainers.image.source="" \
+	org.opencontainers.image.url="" \
+	org.opencontainers.image.description="" \
+	org.opencontainers.image.created="" \
+	org.opencontainers.image.licenses="" \
+	maintainer=""

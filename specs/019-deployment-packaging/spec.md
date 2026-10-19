@@ -348,7 +348,9 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - **FR-021**: Image BE PHẢI chạy một process, không chạy migration hay ghi bảng hệ thống khi khởi động (D-19 của 001,
   Nguyên tắc II); biến Directus BE không dùng chỉ gây cảnh báo (001), biến `PM2_*` bị bỏ qua.
 - **FR-022**: Image BE và FE PHẢI có nhãn OCI `org.opencontainers.image.title`, `.version` (phiên bản Backoffice) và
-  `.revision` (commit build). Không có nhãn `source` và nhãn phiên bản Directus (chủ dự án bỏ, 2026-10-20).
+  `.revision` (commit build). Không có nhãn `source` và nhãn phiên bản Directus (chủ dự án bỏ, 2026-10-20). Nhãn image
+  web kế thừa từ image nền nginx (`source`, `url`, `description`, `created`, `licenses`, `maintainer`) bị ghi đè thành rỗng
+  (Docker không xóa được nhãn kế thừa; chủ dự án 2026-10-20).
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
 - **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap; bỏ ghi đè
   `command`/`args` gọi CLI Directus (ghi đè `command` trên Kubernetes còn bỏ qua init của FR-026); extension của Directus

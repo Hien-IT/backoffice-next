@@ -29,6 +29,9 @@
 | `GET /admin/config.json` | `200` `{ "apiUrl": "<PUBLIC_URL hoặc />" }`, `Cache-Control: no-store` |
 | `*.mjs` | `Content-Type: application/javascript` (012) |
 
+Nhãn: `title=backoffice-web`, `version`, `revision`; các nhãn kế thừa từ nginx (`org.opencontainers.image.{source,url,
+description,created,licenses}`, `maintainer`) ghi đè thành rỗng (FR-022).
+
 Cổng 8080, user `backoffice` uid/gid 1001 (`USER 1001:1001`), không bao giờ root (FR-025). nginx master thu dọn worker nên không cần init thêm.
 Probe: `GET /admin/config.json`.
 
