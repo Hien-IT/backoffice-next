@@ -57,7 +57,8 @@ xóa hàng loạt. Khác biệt thật → R-xx trong spec.
 Target `benchmark:web` thêm hai kịch bản: thư viện với 10.000 file trong một thư mục (seed bằng `POST /files` multipart
 Chạy riêng: `gh workflow run benchmark.yml -f job=benchmark-web` (input `job` của 014).
 1 KB, song song 20) và danh bạ 10.000 user; đo trang đầu cards, đổi trang, lọc `type`/`status`; so với Directus app ≤
-+10 % p95; không chặn CI.
++10 % p95 và +25 ms (sàn tuyệt đối, owner duyệt 2026-10-20; 014 contracts/tests.md); bước nào đỏ thì đo
+lại, đỏ ở đa số trong 3 lần mới tính; không chặn CI.
 
 ## 6. Cổng CI
 

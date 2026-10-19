@@ -9,7 +9,7 @@
 import { appendFileSync, readFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
 import { type Browser, type BrowserContext, chromium, type Page } from '@playwright/test';
-import { TOLERANCE } from './compare.ts';
+import { webSlower } from './compare.ts';
 import { ARTICLES, cleanup, seed } from './seed-items.ts';
 import { directus } from './seed-permissions.ts';
 
@@ -236,8 +236,8 @@ try {
 		const reasons: string[] = [];
 		for (const app of ['web → Directus', 'web → API'] as const) {
 			const value = p95(timings[app][action]);
-			if (value > reference * (1 + TOLERANCE))
-				reasons.push(`${app} ${value} ms is more than ${TOLERANCE * 100}% above ${reference} ms`);
+			const slower = webSlower(app, value, reference);
+			if (slower) reasons.push(slower);
 		}
 		passed &&= reasons.length === 0;
 		const cells = (Object.keys(APPS) as App[]).map((app) => p95(timings[app][action]));

@@ -10,6 +10,7 @@ import {
 	table,
 	type Round,
 	type Verdict,
+	webSlower,
 } from './compare.ts';
 
 const round = (p95: number, rps: number, errors = 0): Round => ({ p95, rps, errors });
@@ -136,5 +137,17 @@ describe('confirmed (a failure counts when most attempts fail)', () => {
 		const both = compare('/x', [round(10, 1000, 1)], [round(10, 1000, 3)]);
 		const r = runs(both, ok, ok);
 		expect((await confirmed(r.measure)).ok).toBe(true);
+	});
+});
+
+describe('webSlower (TOLERANCE and WEB_FLOOR_MS)', () => {
+	test('a short step needs both 10 % and 25 ms', () => {
+		expect(webSlower('web', 134, 119)).toBeUndefined();
+		expect(webSlower('web', 145, 119)).toContain('145 ms');
+	});
+
+	test('a long step fails at 10 %', () => {
+		expect(webSlower('web', 1700, 1500)).toContain('1700 ms');
+		expect(webSlower('web', 1640, 1500)).toBeUndefined();
 	});
 });

@@ -5,6 +5,19 @@ import * as hdr from 'hdr-histogram-js';
 
 export const TOLERANCE = 0.1;
 
+/**
+ * Web benchmarks (owner 2026-10-20): a step is slower only when it is both more than TOLERANCE and more than
+ * WEB_FLOOR_MS above the Directus app. A step of about 100 ms moves by a frame or a network stall (benchmark runs
+ * 39167500790 and 39286312657: "files: next page" failed at web → Directus, then at web → API, with the same requests).
+ */
+export const WEB_FLOOR_MS = 25;
+
+export function webSlower(app: string, value: number, reference: number): string | undefined {
+	if (value > reference * (1 + TOLERANCE) && value - reference > WEB_FLOOR_MS)
+		return `${app} ${value} ms is more than ${TOLERANCE * 100}% and ${WEB_FLOOR_MS} ms above ${reference} ms`;
+	return undefined;
+}
+
 export interface Round {
 	/** p95 latency in ms. */
 	p95: number;

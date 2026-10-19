@@ -538,7 +538,10 @@ spec (đến 019) đã xong.
     cao hơn Directus. Chưa có số đo CI nào sau lần điều tra này.
   - `benchmark-web`: với 11 lần chạy, p95 là lần chậm nhất, nên một lần giật làm đỏ một bước khoảng 100 ms (mốc Directus
     app là 108 ms lần trước, 81 ms lần này). `web-files-users.ts` giờ đo lại bước bị đỏ và lấy đa số 2/3, như
-    `confirmed()` của benchmark API.
+    `confirmed()` của benchmark API. Run 39286312657 vẫn đỏ ở "files: next page", lần này ở web → API (134 / 119 ms,
+    cả hai lần đo), với cùng request. Owner chọn (2026-10-20): một bước chỉ tính là chậm khi vượt cả 10 % lẫn 25 ms
+    (`WEB_FLOOR_MS`, `webSlower()` của `compare.ts`, dùng cho `web-content.ts` và `web-files-users.ts`).
+  - Chạy lại 2026-10-19: presets-list đạt (Bo 635,9 / Directus 682,5 ms, run 39286285717).
 
   Chạy lại một job: `gh workflow run benchmark.yml -f job=<job>`.
 - **Parity GraphQL chập chờn**: đã sửa ở e23595c (2026-10-18). `schema.test.ts` (profile `graphql-nointro`): hai app

@@ -88,6 +88,8 @@ Directus 8155 / API 8156) [Unverified: T0xx]. Playwright chromium headless, 11 l
 
 Ghi vào báo cáo markdown như `items.ts`. Tiêu chí chặn (SC-003): cùng phép đo trên Directus app (8155/admin) chạy xen
 kẽ; app mới không chậm hơn quá 10 % p95 ở cả hai cấu hình API; ngưỡng tuyệt đối trong bảng là mục tiêu, chỉ ghi.
+Từ 2026-10-20 (owner duyệt): một bước chỉ tính là chậm khi vượt cả 10 % lẫn 25 ms (`WEB_FLOOR_MS` của
+`tests/benchmark/src/compare.ts`); bước khoảng 100 ms lệch một khung hình hay một lần trễ mạng là quá 10 %.
 Số request kỳ vọng: đổi trang và sắp xếp = 1 danh sách, 0 đếm; lọc/tìm = 1 + 1 `itemCount`; vào route = 1 + 2.
 
 ## 6. Cổng CI

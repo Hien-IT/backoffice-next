@@ -7,14 +7,14 @@
 // /users/all (tabular, goto until row 25 shows), the next page, a filter (files by `type`, users by `status`, written in
 // the admin preset before the goto). BENCH_RUNS runs (11) after one unmeasured run, nearest-rank p95, requests to
 // /files or /users per action (list + count). API reads skip the shared response cache (Cache-Control: no-store,
-// CACHE_SKIP_ALLOWED=true). Fails when a web app's p95 is more than TOLERANCE above the Directus app's
+// CACHE_SKIP_ALLOWED=true). Fails when a web app's p95 is more than TOLERANCE and WEB_FLOOR_MS above the Directus app's
 // in a majority of up to 3 attempts (a failing action is measured again). Needs
 // `benchmark:env-up-web` first.
 import { randomBytes, randomUUID } from 'node:crypto';
 import { appendFileSync, readFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
 import { type Browser, type BrowserContext, chromium, type Page } from '@playwright/test';
-import { TOLERANCE } from './compare.ts';
+import { webSlower } from './compare.ts';
 import { deleteFiles } from './seed-files.ts';
 import { db, directus } from './seed-permissions.ts';
 
@@ -356,8 +356,8 @@ try {
 			const reasons: string[] = [];
 			for (const app of ['web → Directus', 'web → API'] as const) {
 				const value = p95(timings[app][action]);
-				if (value > reference * (1 + TOLERANCE))
-					reasons.push(`${app} ${value} ms is more than ${TOLERANCE * 100}% above ${reference} ms`);
+				const slower = webSlower(app, value, reference);
+				if (slower) reasons.push(slower);
 			}
 			const cells = (Object.keys(APPS) as App[]).map((app) => p95(timings[app][action]));
 			const split = (Object.keys(APPS) as App[]).map((app) => usual(requests[app][action])).join(' / ');
