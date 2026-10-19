@@ -6,11 +6,11 @@
 |-----|---------|-------|
 | Cổng | 8055 (`PORT`, `HOST`, `UNIX_SOCKET_PATH` như Directus) | 001 FR-081 |
 | `WORKDIR` | `/directus`; thư mục `database`, `extensions`, `uploads` có sẵn, chủ `node` | `apps/api/Dockerfile`, `directus/Dockerfile` |
-| User | `node`, uid/gid 1000 (giống image Directus); không bao giờ root lúc chạy | R3, FR-025 |
+| User | `node`, uid/gid 1000 (giống image Directus, `directus/Dockerfile:56`); không bao giờ root lúc chạy | FR-020, FR-025 |
 | Entrypoint | `["/sbin/tini", "--"]` (PID 1: dọn zombie, chuyển tín hiệu) | FR-026 |
 | Lệnh | `["node", "dist/main.js"]`, một process Node; không `bootstrap`, không PM2 | 001 D-19, D-121 |
 | Env mặc định trong image | `DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite`, `NODE_ENV=production` (như Directus) | `apps/api/Dockerfile` |
-| Nhãn OCI | `org.opencontainers.image.title=backoffice-api`, `.version=<BACKOFFICE_VERSION>`, `.revision=<VCS_REF>`, `.source=<repo>`, `io.backoffice.directus-compat=11.17.4` | FR-022 |
+| Nhãn OCI | `org.opencontainers.image.title=backoffice-api`, `.version=<BACKOFFICE_VERSION>`, `.revision=<VCS_REF>` (không `source`, không nhãn phiên bản Directus) | FR-022 |
 | Tín hiệu | SIGTERM/SIGINT/SIGHUP → trình tự 001 FR-080, mã thoát 143 với SIGTERM | 001 |
 | Probe | startup + liveness `GET /server/ping` (`200 pong`), readiness `GET /server/health` (`503` khi `error`, gồm lúc đang tắt) | FR-031, FR-032 |
 
@@ -29,7 +29,7 @@
 | `GET /admin/config.json` | `200` `{ "apiUrl": "<PUBLIC_URL hoặc />" }`, `Cache-Control: no-store` |
 | `*.mjs` | `Content-Type: application/javascript` (012) |
 
-Cổng 8080, user nginx (101), không bao giờ root (FR-025). nginx master thu dọn worker nên không cần init thêm.
+Cổng 8080, user `backoffice` uid/gid 1001 (`USER 1001:1001`), không bao giờ root (FR-025). nginx master thu dọn worker nên không cần init thêm.
 Probe: `GET /admin/config.json`.
 
 ### CSP

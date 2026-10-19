@@ -190,7 +190,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       chờ `/server/health` 200; đăng nhập admin; `POST /files` một ảnh nhỏ; `GET /files/<id>` qua Directus (8095)
       thấy file; (2) `docker inspect` hai container: tập `Config.Env`
       bằng nhau, `Mounts` (Destination) bằng nhau, `Config.User`/uid bằng nhau; (3) nhãn
-      `io.backoffice.directus-compat=11.17.4`, `org.opencontainers.image.revision` có; (4) thêm `PM2_INSTANCES=2` và `SERVE_APP=true`
+      `org.opencontainers.image.version`, `org.opencontainers.image.revision` có; (4) thêm `PM2_INSTANCES=2` và `SERVE_APP=true`
       vào env: BE khởi động bình thường, log có dòng cảnh báo `SERVE_APP` của 001, không có dòng nào về `PM2_*`; (5) với DB rỗng (Postgres
       tạm `docker run`), BE thoát mã ≠ 0 và log nêu migration thiếu; (6) FR-026: `docker exec <c> cat /proc/1/cmdline`
       chứa `tini`, `docker exec <c> ps -o pid,ppid,user,comm` có `node` con của PID 1 chạy bằng user `node`; zombie:
@@ -202,8 +202,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
 
 - [X] T031 [US1] Sửa `apps/api/Dockerfile`: `ARG BACKOFFICE_VERSION=0.0.0 VCS_REF=unknown`; `LABEL
       org.opencontainers.image.title="backoffice-api" org.opencontainers.image.version=$BACKOFFICE_VERSION
-      org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source="<URL repo>"
-      io.backoffice.directus-compat="11.17.4"`; runtime stage: `RUN apk add --no-cache tini` (bản T001 (h)) trước `USER
+      org.opencontainers.image.revision=$VCS_REF` (không `source`, không nhãn phiên bản Directus); runtime stage: `RUN apk add --no-cache tini` (bản T001 (h)) trước `USER
       node`, `ENTRYPOINT ["/sbin/tini", "--"]`, `CMD ["node", "dist/main.js"]` (FR-026, R3; comment một dòng lý do: Node
       làm PID 1 không dọn zombie); không `HEALTHCHECK` (R3); giữ nguyên phần còn lại. Đọc
       `BACKOFFICE_VERSION` mặc định từ `apps/api/package.json` trong lệnh build của CI (T110), không trong Dockerfile.
@@ -452,12 +451,12 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       (tên, nhãn chuẩn `app.kubernetes.io/*`, nhãn pool), `chart/.helmignore`.
 - [ ] T093 [P] [US7] Viết `chart/templates/api-deployment.yaml` (envFrom `required`, `env` chỉ `PUBLIC_URL` khi
       `domain.publicUrl` khác rỗng, probe theo `contracts/images.md`, `lifecycle.preStop.exec sleep`, `terminationGracePeriodSeconds`,
-      `strategy`, `securityContext` uid/gid 1000 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+      `strategy`, `securityContext` uid/gid/fsGroup 1000 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
       `capabilities.drop: [ALL]` (FR-025), `resources`, volume `uploads.existingClaim`, `replicas` chỉ khi autoscaling
       tắt), `chart/templates/api-service.yaml` (selector chỉ nhãn pool), `chart/templates/api-hpa.yaml`
       (`autoscaling/v2`, CPU utilization).
 - [ ] T094 [P] [US7] Viết `chart/templates/web-deployment.yaml` (envFrom chỉ ConfigMap, `env PUBLIC_URL` khi
-      `domain.publicUrl`, probe `/admin/config.json`, uid/gid 101 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+      `domain.publicUrl`, probe `/admin/config.json`, uid/gid/fsGroup 1001 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
       `capabilities.drop: [ALL]` (FR-025), `resources`), `chart/templates/web-service.yaml`,
       `chart/templates/ingress.yaml` (`ingress.extraPaths` trước, `/admin` Prefix → web 8080, `/` Prefix → api 8055,
       `className`, `tls`, `annotations`), `chart/templates/NOTES.txt` (URL, cách thêm nhãn pool cho Directus, chế độ domain

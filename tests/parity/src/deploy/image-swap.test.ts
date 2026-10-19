@@ -79,7 +79,7 @@ describe.skipIf(SEPARATE)('BE image in place of the Directus image', () => {
 
 	it('carries the version labels', () => {
 		const labels = JSON.parse(docker('image', 'inspect', API_IMAGE, '--format', '{{json .Config.Labels}}'));
-		expect(labels['io.backoffice.directus-compat']).toBe('11.17.4');
+		expect(labels['org.opencontainers.image.version']).toBeTruthy();
 		expect(labels['org.opencontainers.image.revision']).toMatch(/^[0-9a-f]{40}$/);
 	});
 

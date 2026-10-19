@@ -1366,8 +1366,14 @@ services:
       dockerfile: apps/web/Dockerfile
     image: hiennd23/backoffice-web:local
     # Read by docker/40-config.sh: config.json gets apiUrl "/" (the API on the same origin, behind the proxies).
+    # Feature 019: the FE sends the Directus CSP, made for an app on the API origin. The specs also point the app at
+    # pairs on other local ports (setup pair, password-invite.spec.ts) and frame the live preview site of the fixture
+    # set, so this test env lists them like an operator would. Lists merge item by item with the Directus ones
+    # (apps/web/docker/csp.awk), so each list repeats the Directus items first.
     environment:
       PUBLIC_URL: /
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "array:'self',https://*,wss://*,http://127.0.0.1:*"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: https://preview.example
     ports:
       - '8180:8080'
     healthcheck:
@@ -1439,14 +1445,16 @@ services:
       dockerfile: apps/web/Dockerfile
     image: hiennd23/backoffice-web:local
     # config.json apiUrl: the API of the pair on another site (the browser opens http://localhost:8181).
-    # Feature 019: the FE sends the Directus CSP, made for an app on the API origin; an app on another origin lists the
-    # API in connect-src and img-src/media-src (thumbnails, previews). Lists merge item by item with the Directus ones
+    # Feature 019: the FE sends the Directus CSP, made for an app on the API origin; this app talks to APIs on other
+    # local ports (8163, the SSO and setup pairs) and shows their /assets, so connect-src, img-src and media-src list
+    # them, and frame-src the live preview site. Lists merge item by item with the Directus ones
     # (apps/web/docker/csp.awk), so each list repeats the Directus items first.
     environment:
       PUBLIC_URL: http://127.0.0.1:8163
-      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "array:'self',https://*,wss://*,http://127.0.0.1:8163"
-      CONTENT_SECURITY_POLICY_DIRECTIVES__IMG_SRC: "array:'self',data:,blob:,https://raw.githubusercontent.com,https://avatars.githubusercontent.com,http://127.0.0.1:8163"
-      CONTENT_SECURITY_POLICY_DIRECTIVES__MEDIA_SRC: "array:'self',http://127.0.0.1:8163"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "array:'self',https://*,wss://*,http://127.0.0.1:*"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__IMG_SRC: "array:'self',data:,blob:,https://raw.githubusercontent.com,https://avatars.githubusercontent.com,http://127.0.0.1:*"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__MEDIA_SRC: "array:'self',http://127.0.0.1:*"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC: https://preview.example
     depends_on:
       backoffice-api-web-cors: { condition: service_healthy }
     ports:

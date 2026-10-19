@@ -24,15 +24,23 @@ COPY --chown=node:node . .
 RUN pnpm install --recursive --offline --frozen-lockfile --filter '@backoffice/web...' \
 	&& pnpm --filter @backoffice/web run build
 
-# Runs as the unprivileged nginx user (uid 101) on port 8080; it owns the build so 40-config.sh can write config.json.
+# Unprivileged nginx on port 8080, run as uid/gid 1001 (FR-025, owner decision 2026-10-20) instead of the image's 101:
+# 1001 owns the nginx cache and conf.d (pid file in /tmp) and the build, so 40-config.sh can write config.json and csp.inc.
 FROM nginxinc/nginx-unprivileged:1.28.0-alpine AS runtime
+
+USER root
+RUN addgroup -S -g 1001 backoffice \
+	&& adduser -S -D -H -u 1001 -G backoffice backoffice \
+	&& chown -R 1001:1001 /var/cache/nginx /etc/nginx/conf.d
 
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
 COPY apps/web/docker/csp.awk /etc/nginx/csp.awk
-# Empty until 40-config.sh writes the header at start; owned by nginx so the script can overwrite it.
-COPY --chown=101:101 apps/web/docker/csp.inc /etc/nginx/conf.d/csp.inc
+# Empty until 40-config.sh writes the header at start.
+COPY --chown=1001:1001 apps/web/docker/csp.inc /etc/nginx/conf.d/csp.inc
 COPY --chmod=755 apps/web/docker/40-config.sh /docker-entrypoint.d/40-config.sh
-COPY --from=builder --chown=101:101 /build/apps/web/dist /usr/share/nginx/html/admin
+COPY --from=builder --chown=1001:1001 /build/apps/web/dist /usr/share/nginx/html/admin
+
+USER 1001:1001
 
 EXPOSE 8080
 

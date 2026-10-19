@@ -37,8 +37,8 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
 ## R3. Image BE
 
 - **Decision**: giữ `apps/api/Dockerfile`; thêm `ARG BACKOFFICE_VERSION`, `ARG VCS_REF` và nhãn OCI
-  `org.opencontainers.image.{title,version,revision,source}` cộng `io.backoffice.directus-compat=11.17.4` (FR-022), cùng
-  nhãn cho FE. Không `HEALTHCHECK` trong image (Directus không có; compose và chart tự khai báo). User `node` của
+  `org.opencontainers.image.{title,version,revision}` (FR-022; chủ dự án bỏ `source` và `io.backoffice.directus-compat`,
+  2026-10-20), cùng nhãn cho FE. Không `HEALTHCHECK` trong image (Directus không có; compose và chart tự khai báo). User `node` của
   `node:22-alpine` là uid/gid 1000, trùng image Directus (`directus/Dockerfile:56` cũng `USER node` trên node alpine) nên
   file trên volume dùng chung không lệch quyền (FR-020).
 - **Init chặn zombie (FR-026)**: runtime stage cài `tini` bằng `apk add --no-cache tini` (trước `USER node`),
@@ -50,7 +50,9 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   - Alternatives: `dumb-init` (cũng có trong Alpine; tương đương, bị loại chỉ vì `tini` là init mà `docker run --init`
     dùng và phổ biến hơn); `docker run --init` / `init: true` của compose (bị loại: Kubernetes không có tùy chọn này, và
     "chỉ đổi image" thì không thêm được); package npm (bị loại: init phải là PID 1 trước Node).
-- **Non-root (FR-025)**: BE `USER node` (1000) và FE nginx-unprivileged (101) đã có; `lb` của compose đổi sang
+- **Non-root (FR-025)**: BE giữ `USER node` (1000:1000, như Directus); FE chạy 1001:1001 (chủ dự án 2026-10-20): runtime
+  stage tạo user `backoffice` 1001:1001 (`addgroup`/`adduser` của busybox), `USER 1001:1001` dạng số để `runAsNonRoot` của
+  Kubernetes kiểm được, `chown` cho 1001 thư mục cache nginx và `conf.d` (image unprivileged mặc định cho 101:0); `lb` của compose đổi sang
   `nginxinc/nginx-unprivileged:1.28.0-alpine` (cùng image FE), nghe 8080/8081 trong container, publish ra 8090/8091.
   Chart thêm `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]` (không cần quyền nào: cổng > 1024).
   Không đặt `readOnlyRootFilesystem` (FE ghi `config.json`, `csp.inc` lúc khởi động; không có trong yêu cầu).
@@ -124,7 +126,7 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   - Probe: `startupProbe` `/server/ping` (period 2 s, 30 lần), `readinessProbe` `/server/health` (period 5 s, 2 lần),
     `livenessProbe` `/server/ping` (period 10 s, 3 lần) (FR-031, FR-032). FE: `/admin/config.json`.
   - `strategy.rollingUpdate: maxSurge 1, maxUnavailable 0`; `preStop` và grace period theo R4; `securityContext`
-    `runAsNonRoot`, uid 1000 (BE), 101 (FE); `resources` từ values.
+    `runAsNonRoot`, uid/gid/fsGroup 1000 (BE), 1001 (FE); `resources` từ values.
   - HPA `autoscaling/v2` CPU `averageUtilization` 70, `minReplicas` 2, `maxReplicas` 10; khi HPA bật, Deployment không đặt
     `replicas`.
   - `uploads.existingClaim` → volume ở `/directus/uploads` (FR-047).
@@ -292,3 +294,20 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   zombie của `image-swap.test.ts` bắt được lỗi thật.
 - DB chưa bootstrap: BE thoát mã khác 0 với `database doesn't have directus tables installed` (001).
 - Lần chạy sạch `parity-tests:deploy` (env mới, 3 replica, teardown): 20/20 test, 55 s khi image đã có.
+
+## Kết quả CI lượt 1 (run 39310045859, `d49a853`) và bản sửa
+
+- `db-unchanged.test.ts`: `compose('wait', 'backoffice-api')` sau SIGTERM báo "no containers". Trước 019 Node là PID 1:
+  lần tự gửi lại SIGTERM ở cuối terminus bị kernel bỏ qua với PID 1, nên container thoát chậm (khi event loop rảnh, mã 0).
+  Có `tini`, container thoát ngay với mã 143, trước khi `compose wait` tìm container đang chạy. Sửa harness: lấy id rồi
+  `docker wait <id>` (trả mã cả khi container đã dừng).
+- `history/retention.test.ts` (4 ca đỏ, cả "chỉ Directus chạy"): Directus của cặp retention bị dừng lúc 19:31:00.570,
+  ngay sau tick `*/10` giây. App bị dừng khi đang giữ khóa `schedule--data-retention` để lại khóa 10 phút (timeout của
+  Directus, `schedules/retention.ts:22`), app kia bỏ qua mọi tick. [Inference] Race theo thời điểm dừng so với tick, không
+  phải hành vi mới; thời gian khởi động image đổi nên thời điểm dừng đổi. Sửa harness: xóa khóa sau mỗi lần dừng và trước
+  ca "both run".
+- E2E web: FE gửi CSP ở cả ba cấu hình. `content-live-preview.spec.ts` (iframe `https://preview.example`),
+  `sso.spec.ts` (cặp 8955/8956), `password-invite.spec.ts` (cặp setup 10456) bị CSP chặn (fixture cấm lỗi console). Env
+  parity của hai container web thêm `CONNECT_SRC` có `http://127.0.0.1:*`, `IMG_SRC`/`MEDIA_SRC` (cors), `FRAME_SRC`
+  `https://preview.example` (như người vận hành Directus cấu hình live preview). Chạy lại ở máy: cors 18/18, proxy-api
+  7/7, proxy-directus 7/7, không còn vi phạm CSP. Lượt cors đầy đủ ở máy: 200 đạt, 13 đỏ, tất cả do CSP trên.

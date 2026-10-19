@@ -60,6 +60,15 @@ async function left(ids: { activity: number[]; revisions: number[] }) {
 	return { activity: Number(activity[0]!['n']), revisions: Number(revisions[0]!['n']) };
 }
 
+/**
+ * An app stopped while it holds the retention lock leaves it for 10 minutes (the lock timeout of Directus), and the
+ * other app then skips every tick. Stopping on a tick boundary is a timing accident of the test, not the behaviour under
+ * test: clear the lock after each stop (feature 019, CI run 39310045859).
+ */
+function clearLock(): void {
+	compose('exec', '-T', 'redis', 'redis-cli', 'del', 'parity-retention:lock:schedule--data-retention');
+}
+
 async function up(service: string, port: number) {
 	compose('up', '-d', '--wait', service);
 	await awaitDirectusConnection(`http://127.0.0.1:${port}`, 60, 1000);
@@ -86,6 +95,7 @@ describe('the retention job (US5)', () => {
 		'only %s runs: the history of both apps older than the timeframes is gone after a tick',
 		async (runs, stopped) => {
 			compose('stop', SERVICES[stopped]);
+			clearLock();
 
 			try {
 				const ids = await history();
@@ -102,6 +112,7 @@ describe('the retention job (US5)', () => {
 	);
 
 	it('both run: one process takes the lock in each of 10 ticks, and the old history is gone (SC-005)', async () => {
+		clearLock();
 		const ids = await history();
 		const setters = lockSetters((10 * TICK) / 1000 + 3);
 

@@ -48,5 +48,5 @@ Chuyển trạng thái:
 
 | Image | Nhãn | User | Cổng | Probe |
 |-------|------|------|------|-------|
-| `hiennd23/backoffice-api:<sha>` | version, revision, `io.backoffice.directus-compat=11.17.4` | `node` (1000) | 8055 | `/server/ping`, `/server/health` |
-| `hiennd23/backoffice-web:<sha>` | version, revision | nginx (101) | 8080 | `/admin/config.json` |
+| `hiennd23/backoffice-api:<sha>` | title, version, revision | `node` (1000:1000) | 8055 | `/server/ping`, `/server/health` |
+| `hiennd23/backoffice-web:<sha>` | version, revision | `backoffice` (1001:1001) | 8080 | `/admin/config.json` |

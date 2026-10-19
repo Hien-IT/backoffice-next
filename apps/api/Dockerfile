@@ -41,6 +41,7 @@ FROM node:${NODE_VERSION} AS runtime
 # FR-026: Node as PID 1 does not reap orphaned children (zombies); tini does and forwards signals to Node.
 RUN apk add --no-cache tini
 
+# FR-020, FR-025: uid/gid 1000 (`node`) like the Directus image, so files on a shared volume keep one owner.
 USER node
 
 # Same working directory and defaults as the Directus image, so relative paths in a shared config
@@ -64,7 +65,6 @@ LABEL \
 	org.opencontainers.image.title="backoffice-api" \
 	org.opencontainers.image.version="${BACKOFFICE_VERSION}" \
 	org.opencontainers.image.revision="${VCS_REF}"
-
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/main.js"]

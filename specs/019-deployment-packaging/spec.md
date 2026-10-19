@@ -21,7 +21,7 @@ không làm lỗi request."
 
 - `apps/api/Dockerfile`: image theo `directus/Dockerfile` (R20 của 001), một process `node dist/main.js`, không
   `bootstrap`, không PM2 (D-19 của 001), `WORKDIR /directus`, cổng 8055, user `node`.
-- `apps/web/Dockerfile`, `apps/web/nginx.conf`, `apps/web/docker/40-config.sh`: nginx-unprivileged (uid 101, cổng 8080)
+- `apps/web/Dockerfile`, `apps/web/nginx.conf`, `apps/web/docker/40-config.sh`: nginx-unprivileged (uid 101 lúc đó, cổng 8080)
   phục vụ build ở `/admin`, `/` → `302 /admin/`, `config.json` sinh từ `PUBLIC_URL` lúc khởi động (`no-store`), SPA
   fallback về `/admin/index.html`, MIME `.mjs` cho worker maplibre. Plan 001 ghi "hoàn thiện ở 019".
 - `apps/api/src/server.ts`, `shutdown.ts`: trình tự tắt máy của Directus (terminus, FR-080 của 001): `/server/health`
@@ -70,11 +70,11 @@ trường cần một bộ cấu hình riêng, trái Nguyên tắc VIII.
    `SERVE_APP=true` gây cảnh báo như 001 (D-08); biến `PM2_*` bị bỏ qua không cảnh báo, vì chúng không phải biến của
    `@directus/env` (chỉ `directus/ecosystem.config.cjs` đọc).
 3. **Given** file trên volume local do Directus ghi, **When** BE đọc, ghi, xóa file đó, **Then** không lỗi quyền: hai
-   image chạy cùng uid/gid.
+   image chạy cùng uid/gid 1000.
 4. **Given** DB mới chưa có bảng hệ thống, **When** chỉ chạy BE (không có Directus nào), **Then** BE dừng và báo thiếu
    migration như 001; tài liệu ghi phải chạy `directus bootstrap` (image Directus) một lần trước.
 5. **Given** container BE đang chạy, **When** xem tiến trình, **Then** PID 1 là init, Node là tiến trình con chạy bằng
-   uid 1000; một tiến trình con mồ côi đã thoát được dọn trong vòng 1 giây (không còn trạng thái zombie); SIGTERM làm
+   uid/gid 1000; một tiến trình con mồ côi đã thoát được dọn trong vòng 1 giây (không còn trạng thái zombie); SIGTERM làm
    container thoát mã 143 sau trình tự tắt máy của 001 (FR-025, FR-026).
 
 ---
@@ -343,11 +343,12 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 - **FR-020**: Image BE PHẢI thay được image `directus/directus:11.17.4` trong một service đang chạy mà chỉ đổi image:
   cùng cổng mặc định 8055, cùng thư mục làm việc `/directus`, cùng path volume (`/directus/uploads`,
-  `/directus/database`, `/directus/extensions`), cùng uid/gid, cùng cách đọc env, `.env`, `CONFIG_PATH`, `_FILE` (001).
+  `/directus/database`, `/directus/extensions`), cùng uid/gid 1000, cùng cách đọc env, `.env`, `CONFIG_PATH`, `_FILE`
+  (001).
 - **FR-021**: Image BE PHẢI chạy một process, không chạy migration hay ghi bảng hệ thống khi khởi động (D-19 của 001,
   Nguyên tắc II); biến Directus BE không dùng chỉ gây cảnh báo (001), biến `PM2_*` bị bỏ qua.
-- **FR-022**: Image BE PHẢI có nhãn phiên bản: phiên bản Backoffice và phiên bản Directus tương thích (11.17.4), và
-  commit build.
+- **FR-022**: Image BE và FE PHẢI có nhãn OCI `org.opencontainers.image.title`, `.version` (phiên bản Backoffice) và
+  `.revision` (commit build). Không có nhãn `source` và nhãn phiên bản Directus (chủ dự án bỏ, 2026-10-20).
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
 - **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap; bỏ ghi đè
   `command`/`args` gọi CLI Directus (ghi đè `command` trên Kubernetes còn bỏ qua init của FR-026); extension của Directus
@@ -355,9 +356,10 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 **Bảo mật container**
 
-- **FR-025**: Mọi container do 019 định nghĩa hoặc build PHẢI chạy tiến trình chính bằng user không phải root: BE (uid
-  1000, `node`), FE (uid 101, nginx), load balancer của compose (image nginx unprivileged). Chart PHẢI đặt cho pod BE và FE
-  `runAsNonRoot: true`, `runAsUser`/`runAsGroup` theo image, `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]`.
+- **FR-025**: Mọi container do 019 định nghĩa hoặc build PHẢI chạy tiến trình chính bằng user không phải root. BE chạy uid/gid
+  **1000** (`node`, như image Directus, FR-020); FE chạy uid/gid **1001** (user `backoffice`); chủ dự án 2026-10-20. Load
+  balancer của compose dùng image nginx unprivileged có sẵn (uid 101). Chart PHẢI đặt `runAsNonRoot: true`,
+  `runAsUser`/`runAsGroup`/`fsGroup` 1000 cho pod BE và 1001 cho pod FE, `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]`.
   Image bên thứ ba chỉ dùng cho dev (Postgres, Redis, MinIO) và image Directus: tiến trình chính sau entrypoint không phải
   root (Directus `USER node`, MinIO của Chainguard non-root, Postgres và Redis hạ quyền trong entrypoint); test kiểm uid của
   tiến trình chính mọi service.
@@ -519,6 +521,11 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - Chủ dự án (2026-10-20, "mặc định bật REDIS"): env thật của Directus đã bật Redis sẵn (`REDIS`, các `*_STORE=redis`).
   FR-053 chỉ là lưới an toàn: cài chart trên env đó không bị dừng; chỉ báo khi thiếu (ví dụ chưa có
   `SYNCHRONIZATION_STORE=redis`). Compose dev bật Redis sẵn. Chart không cài Redis riêng và không tự đặt `*_STORE`.
+- Chủ dự án (2026-10-20): "docker image dùng user 1001" (chọn 1001:1001 cho cả BE và FE), rồi sau khi biết Directus chạy
+  uid 1000: "vậy backoffice api dùng user 1000" → BE 1000:1000 như Directus (FR-020 giữ "cùng uid/gid"), FE 1001:1001
+  (FR-025).
+- Chủ dự án (2026-10-20): bỏ hai nhãn image `org.opencontainers.image.source` và `io.backoffice.directus-compat`
+  → FR-022 chỉ còn `title`, `version`, `revision`.
 - Chủ dự án (2026-10-20): dùng image non-root; image Node của BE thêm thư viện chặn tiến trình zombie → FR-025, FR-026
   (`tini` từ kho Alpine; lý do chọn ở research R3).
 - Cảnh báo một instance của 001 (`apps/api/src/config/warn-single-instance.ts`) chưa có `SYNCHRONIZATION_STORE`. Thêm vào

@@ -90,6 +90,12 @@ describe.skipIf(SEPARATE)('FE image', () => {
 		expect(ours.headers.get('content-security-policy')).toBe(theirs.headers.get('content-security-policy'));
 	});
 
+	it('runs as uid/gid 1001 (FR-025)', () => {
+		expect(docker('exec', containers[0]!, 'id', '-u')).toBe('1001');
+		expect(docker('exec', containers[0]!, 'id', '-g')).toBe('1001');
+		expect(docker('exec', containers[0]!, 'sh', '-c', 'ps -o user,comm | grep nginx | sort -u')).not.toMatch(/root/);
+	});
+
 	it('carries the version labels', () => {
 		const labels = JSON.parse(docker('image', 'inspect', WEB_IMAGE, '--format', '{{json .Config.Labels}}'));
 		expect(labels['org.opencontainers.image.version']).toBeTruthy();

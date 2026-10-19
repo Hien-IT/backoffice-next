@@ -1,5 +1,6 @@
 // US1.9, SC-003: the API never writes the database. Directus is stopped while measuring, so only the new API
 // acts on the database between the two snapshots: start → every request of request-set → SIGTERM.
+import { execFileSync } from 'node:child_process';
 import knex, { type Knex } from 'knex';
 import { afterAll, beforeAll, expect, test } from 'vitest';
 import { awaitDirectusConnection } from './await-connection.js';
@@ -81,8 +82,11 @@ test('schema and data of every table are identical before and after the API runs
 		await capture(process.env['BACKOFFICE_URL']!, req);
 	}
 
+	// Feature 019: with tini as PID 1 the API exits as soon as its shutdown sequence ends, often before `compose wait`
+	// looks for a running container; `docker wait` on the container id also answers for a stopped one.
+	const id = compose('ps', '-q', 'backoffice-api').trim();
 	compose('kill', '-s', 'SIGTERM', 'backoffice-api');
-	compose('wait', 'backoffice-api');
+	execFileSync('docker', ['wait', id]);
 
 	const after = await snapshot(db);
 
