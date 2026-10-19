@@ -469,9 +469,9 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 | ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Duyệt (Nguyên tắc X) |
 |----|----------|------------------|---------|-------|------|----------------------|
-| D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | chờ tech lead (T005) |
+| D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | Duyệt (chủ dự án, 2026-10-20) |
 | D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | chờ tech lead (T005) |
-| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | chờ tech lead (T005) |
+| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, 2026-10-20) |
 
 **Cần xác nhận**: Không có.
 
