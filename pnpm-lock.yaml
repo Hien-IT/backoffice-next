@@ -1718,6 +1718,9 @@ importers:
       '@backoffice/utils':
         specifier: workspace:*
         version: link:../../libs/utils
+      '@types/autocannon':
+        specifier: 'catalog:'
+        version: 7.12.7
       '@types/js-yaml':
         specifier: 'catalog:'
         version: 4.0.9

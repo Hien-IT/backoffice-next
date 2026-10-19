@@ -4,7 +4,7 @@
 
 - Config `tests/parity/vitest.deploy.config.ts`: `include: ['src/deploy/**/*.test.ts']`, `globalSetup:
   ['src/deploy/global-setup.ts']`, `fileParallelism: false`, `testTimeout: 120_000`.
-- `global-setup.ts`: `init-env.sh` vào thư mục tạm (thêm `AUTH_LOGIN_ATTEMPTS=5`, `TUS_CHUNK_SIZE=1mb`), `docker compose -p
+- `global-setup.ts`: `init-env.sh` ra `deploy/compose/.env.deploy-test` (không thêm biến test), `docker compose -p
   bo-deploy up -d --wait` với `BACKOFFICE_REPLICAS=3`, `BACKOFFICE_TAG=${BACKOFFICE_TAG:-local}`; teardown `down -v`.
   `DEPLOY_MODE=separate-domain` thêm file override.
 - `instances.ts`: danh sách instance `{ name, url }` = 3 replica (`docker compose port --index i backoffice-api 8055`) +
@@ -14,7 +14,7 @@
 |------|--------|------|------|
 | `smoke.test.ts` | chung | 4 instance `pong`; health qua `lb`; `config.json`; số replica | FR-040, FR-043 |
 | `compose.test.ts` | chung | env giống nhau; healthy; thứ tự khởi động; xoay vòng gồm Directus; SPA fallback qua `lb`; `X-Forwarded-For` → `directus_activity.ip` như Directus; image Backoffice `amd64`; scale 6 replica rồi về 3; tiến trình chính mọi service không chạy uid 0 | US2, FR-023, FR-025, FR-030, FR-041..FR-044, FR-051 |
-| `sessions.test.ts` | chung | token, cookie, session qua 4 instance; refresh chéo; logout chéo; khóa sau `AUTH_LOGIN_ATTEMPTS` lần sai luân phiên | US3, FR-030 |
+| `sessions.test.ts` | chung | token, cookie, session qua 4 instance; refresh chéo; logout chéo; khóa sau `auth_login_attempts` (setting) lần đăng nhập luân phiên | US3, FR-030 |
 | `schema.test.ts` | chung | field mới thấy ngay ở 3 instance còn lại; permission sửa ở Directus có hiệu lực ở BE; response cache không trả bản cũ | US4, FR-063 |
 | `flows-schedule.test.ts` | chung | ≥ 10 lượt cron `*/2 * * * * *`, đúng 1 lần mỗi lượt; tắt instance rồi lượt kế vẫn chạy | US5, FR-062 |
 | `tus.test.ts` | chung | ≥ 4 chunk xoay vòng 4 instance; SHA-256 trên MinIO; 1 dòng `directus_files`; tiếp tục sau khi tắt instance | US5, FR-061 |

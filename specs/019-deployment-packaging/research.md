@@ -161,14 +161,14 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   `docker` (`PARITY_NO_BUILD` như e2e-web).
 - `sessions.test.ts` (US3): đăng nhập `mode: json`, `cookie`, `session` ở instance 1; `/users/me`, `/items` trên 4
   instance; refresh ở instance khác; logout ở instance thứ ba rồi token cũ `401` ở cả 4; đăng nhập sai luân phiên tới khi
-  khóa (`AUTH_LOGIN_ATTEMPTS` nhỏ trong `.env` của test).
+  khóa (ngưỡng là setting `auth_login_attempts`, đặt nhỏ qua `PATCH /settings` rồi trả lại; xem "Kết quả lượt 2").
 - `schema.test.ts` (US4): `POST /collections` + `POST /fields` ở A, đọc ngay ở B, C, D; sửa permission ở Directus, kiểm ở
   BE; sửa item với `CACHE_ENABLED`, đọc ở instance khác không ra bản cũ.
 - `flows-schedule.test.ts` (US5): flow `schedule` cron `*/2 * * * * *` (giây, như `tests/parity/src/flows/schedule.test.ts`)
   với operation `log`; đếm dòng `directus_activity`/revisions của flow qua ≥ 10 lượt; mỗi lượt đúng 1; tắt instance đang
   giữ lượt rồi kiểm lượt kế tiếp vẫn chạy.
 - `tus.test.ts` (US5, FR-061): tách hàm `tus()` của `files/tus.test.ts` sang `src/tus-request.ts` (dùng chung); file
-  ≥ 4 × `TUS_CHUNK_SIZE` (đặt `TUS_CHUNK_SIZE` nhỏ trong `.env` test); chunk k tới instance k mod 4; so SHA-256 với object
+  ≥ 4 × `TUS_CHUNK_SIZE` (mặc định 8 MB; xem "Kết quả lượt 2"); chunk k tới instance k mod 4; so SHA-256 với object
   trên MinIO; đếm `directus_files`; tắt instance giữa chừng, `HEAD` lấy offset ở instance khác, gửi tiếp.
 - `compose.test.ts` (US2, FR-030, FR-051, FR-023): ngoài thứ tự và env, `POST /auth/login` qua `lb` với
   `X-Forwarded-For: 203.0.113.9` một lần rơi vào replica BE, một lần gọi Directus qua cùng `lb` (lặp tới khi
@@ -313,3 +313,29 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   7/7, proxy-directus 7/7, không còn vi phạm CSP. Lượt cors đầy đủ ở máy: 200 đạt, 13 đỏ, tất cả do CSP trên.
 - `files-image-editor.spec.ts:133` (proxy-api, cùng run): helper `pixels()` của test gọi `fetch('data:...')` trong trang,
   bị `connect-src` (không có `data:`) chặn. Sửa helper: giải mã PNG thành `Blob` bằng `atob`. Chạy lại ở máy: 4/4.
+
+## Kết quả lượt 2 (2026-10-20)
+
+- T052 (US3, US4): đạt không cần sửa app. Ngưỡng khóa user là setting `auth_login_attempts` của DB
+  (`directus/api/src/services/authentication.ts:137-149`), không phải biến env (biến `AUTH_LOGIN_ATTEMPTS` thêm lúc đầu
+  không có tác dụng, đã bỏ). Mỗi lần đăng nhập của user `active` trừ một điểm; vượt ngưỡng thì user `suspended`. Rải lần
+  đăng nhập qua 4 instance cho cùng kết quả (mã lỗi, trạng thái user) như chỉ dùng một Directus. `/items/directus_users`
+  bị cả Directus trả 403 (collection hệ thống), test dùng `/users`.
+- T062 (US5): flow `*/2 * * * * *` qua 3 replica + Directus: 10 lần chạy / 10 tick, vẫn một lần mỗi tick khi một replica
+  bị SIGTERM. Lần đo đầu ra 24–25 lần chỉ vì test đếm qua `GET /activity` lặp cùng query: dòng `run` do job ghi không xóa
+  response cache dùng chung (`CACHE_ENABLED`), số đếm cũ làm vòng chờ kéo dài; test thêm một filter đổi mỗi lần. Log của 4
+  container khớp số tick (Redis MONITOR: mỗi tick đúng một `SET` khóa đồng hồ). TUS: `TUS_CHUNK_SIZE=1mb` trên S3 cho
+  `PATCH` 204 mà `Upload-Offset` đứng yên (phần multipart S3 tối thiểu 5 MB [Inference]); dùng chunk mặc định 8 MB như test
+  TUS của 007: 2/2 đạt (chunk xoay vòng 4 instance; tiếp tục sau khi instance vừa nhận chunk bị dừng).
+- T071 (US6): lần đầu 21 259 request, 0 mã lỗi HTTP nhưng 20 timeout (đúng số kết nối của autocannon): IP của replica đã
+  dừng còn trong upstream tối đa `valid=5s` của resolver, kết nối tới IP không còn host treo tới `proxy_connect_timeout`
+  (60 s mặc định). Thêm `proxy_connect_timeout 1s` vào `lb/shared-domain.conf` (cấu hình triển khai, không đổi app, không
+  biến mới): 25 683 request, 0 lỗi, 0 timeout, mã 143, dừng trong 66 ms, sẵn sàng lại 3,4 s, kết nối DB 2→0 và Redis 8→0.
+  Không cần `entrypoint` bọc.
+- `docker compose up --no-recreate --scale` không khởi động lại container đã dừng; test dùng `compose up -d --wait
+  backoffice-api`.
+- Toàn bộ `parity-tests:deploy` từ trạng thái sạch: dựng env (3 replica, image đã có) 22 s (SC-007: dưới 10 phút; T043).
+  Lượt đầu 40/41: `shutdown.test.ts` có 20 response không phải 2xx (0 lỗi, 0 timeout); mã trạng thái chưa được ghi, log
+  `lb` mất khi teardown. Hai lượt sau (riêng file và toàn bộ theo cùng thứ tự) 41/41, 0 non-2xx; log `lb` chỉ có thử
+  lại `502`/`504` rồi `200`. Còn mở: test giờ in `statusCodes`; SC-001 (10 lượt liên tiếp, T116) sẽ cho biết có lặp lại
+  không.

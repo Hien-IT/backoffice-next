@@ -48,3 +48,57 @@ dụ `CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC=array:'self',https://*,wss
 
 Live preview (khung xem trang ở trang item) mở một site khác trong iframe: thêm site đó vào `frame-src`, ví dụ
 `CONTENT_SECURITY_POLICY_DIRECTIVES__FRAME_SRC=https://preview.example.com`. Directus cũng cần đúng biến này.
+
+## Máy dev (`deploy/compose`)
+
+Chỉ cần Docker. Directus 11.17.4, BE (mặc định 2 replica), FE, Postgres, Redis, MinIO (S3) và một load balancer nginx
+non-root, dùng chung một file `.env` (Directus và BE đọc nguyên file này, chỉ khác image).
+
+```bash
+cd deploy/compose
+./init-env.sh
+docker compose up -d --wait
+```
+
+| Cổng trên máy | Dịch vụ                                                                         |
+| ------------- | ------------------------------------------------------------------------------- |
+| 8090          | load balancer: `/admin` vào FE, còn lại vào pool gồm Directus và các replica BE |
+| 8091          | load balancer của chế độ domain riêng (Backoffice)                              |
+| 8095          | Directus gọi thẳng                                                              |
+| ngẫu nhiên    | mỗi replica BE: `docker compose port --index <i> backoffice-api 8055`           |
+
+- Số replica: `BACKOFFICE_REPLICAS=3 docker compose up -d --wait`. Tag image: `BACKOFFICE_TAG=local` (mặc định
+  `latest`).
+- Log: `docker compose logs -f backoffice-api`; log truy cập của `lb` có cột upstream (`$upstream_addr`).
+- Tắt: `docker compose down`; xóa cả dữ liệu: `docker compose down -v`.
+- Test chấp nhận (BE 3 replica + 1 Directus): `pnpm nx run parity-tests:deploy`.
+
+## Ràng buộc khi chạy nhiều instance
+
+Cấu hình chung phải có đủ các biến ở bảng "Bắt buộc" của spec 019 (mục "Env Directus bắt buộc khi chạy nhiều instance"):
+`REDIS`, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis`, `SECRET` cố định, cùng một DB
+thật, storage S3 (hoặc volume `ReadWriteMany` dùng chung). Thiếu `SYNCHRONIZATION_STORE=redis` thì flow theo lịch chạy
+trên mọi instance. BE vẫn khởi động với cấu hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_STORE`);
+chart dừng cài và báo. Tự kiểm cho compose:
+
+```bash
+grep -E '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE|SECRET|DB_CLIENT|STORAGE_LOCATIONS)=' .env
+```
+
+## Tắt máy an toàn
+
+Khi nhận SIGTERM, BE theo trình tự của 001: `/server/health` chuyển `error`, ngừng nhận kết nối mới, chờ request dở tối
+đa `SERVER_SHUTDOWN_TIMEOUT` (mặc định 1000 ms), đóng DB, Redis và job theo lịch, rồi thoát mã 143 (`tini` là PID 1 nên
+mã này về tới Docker và Kubernetes).
+
+Khoảng trễ để load balancer gỡ replica ra trước khi nó ngừng nhận nằm ở cấu hình triển khai, không phải env:
+
+- Kubernetes: `preStop` `sleep` (chart: `api.shutdownDelaySeconds`, mặc định 10) và `terminationGracePeriodSeconds` (mặc
+  định 30).
+- Compose: `lb` không giữ keepalive tới upstream, chuyển request chưa gửi được sang replica khác
+  (`proxy_next_upstream error timeout`) và cắt nhanh kết nối tới IP của replica đã dừng (`proxy_connect_timeout 1s`);
+  `stop_grace_period: 30s`.
+
+Thời hạn tắt máy phải lớn hơn khoảng trễ + `SERVER_SHUTDOWN_TIMEOUT` + thời gian đóng kết nối. Request dài hơn
+`SERVER_SHUTDOWN_TIMEOUT` (export lớn, chunk TUS chậm) bị cắt khi tắt replica, giống Directus: tăng biến này trong cấu
+hình chung nếu cần. Client TUS tiếp tục được từ offset ở instance khác.

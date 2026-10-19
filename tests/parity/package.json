@@ -13,6 +13,7 @@
 		"@backoffice/schema": "workspace:*",
 		"@backoffice/types": "workspace:*",
 		"@backoffice/utils": "workspace:*",
+		"@types/autocannon": "catalog:",
 		"@types/js-yaml": "catalog:",
 		"@types/jsonwebtoken": "catalog:",
 		"@types/lodash-es": "catalog:",

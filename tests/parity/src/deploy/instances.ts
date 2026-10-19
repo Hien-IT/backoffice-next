@@ -122,3 +122,59 @@ export function runDirectus(env: string[]) {
 		8055,
 	);
 }
+
+export interface ApiResponse {
+	status: number;
+	headers: Headers;
+	body: any;
+}
+
+/** A JSON request to an instance; never throws on 4xx/5xx (the cases check the status). */
+export async function api(
+	url: string,
+	method: string,
+	path: string,
+	opts: { token?: string; body?: unknown; headers?: Record<string, string> } = {},
+): Promise<ApiResponse> {
+	const res = await fetch(new URL(path, url), {
+		method,
+		redirect: 'manual',
+		headers: {
+			...(opts.body === undefined ? {} : { 'content-type': 'application/json' }),
+			...(opts.token ? { authorization: `Bearer ${opts.token}` } : {}),
+			...opts.headers,
+		},
+		...(opts.body === undefined ? {} : { body: JSON.stringify(opts.body) }),
+	});
+	const text = await res.text();
+	let body: any = text;
+	try {
+		body = text ? JSON.parse(text) : null;
+	} catch {
+		// not JSON
+	}
+	return { status: res.status, headers: res.headers, body };
+}
+
+/** Lines of the load balancer access log (`$remote_addr "$request" $status $upstream_addr $upstream_status`). */
+export function lbLog(since?: string): string[] {
+	return compose('logs', '--no-log-prefix', '--no-color', ...(since ? ['--since', since] : []), 'lb')
+		.split('\n')
+		.filter((l) => l.includes('"'));
+}
+
+/** IP of a container in the compose network. */
+export function containerIp(name: string): string {
+	return docker('inspect', '-f', '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}', name);
+}
+
+/** Runs SQL in the shared Postgres (one value per line). */
+export function psql(sql: string): string[] {
+	const env = sharedEnv();
+	return compose('exec', '-T', 'postgres', 'psql', '-U', env['DB_USER']!, '-d', env['DB_DATABASE']!, '-Atc', sql)
+		.trim()
+		.split('\n')
+		.filter(Boolean);
+}
+
+export const sleep = (ms: number) => new Promise((r) => setTimeout(r, Math.max(0, ms)));

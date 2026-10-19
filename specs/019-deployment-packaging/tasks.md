@@ -120,8 +120,8 @@ trở đi về mặt test; nội dung compose hoàn thiện ở Phase 5.
       `proxy_read_timeout 300s`; header `Host`, `X-Forwarded-For`, `X-Forwarded-Proto`) và service `lb` trong
       `compose/docker-compose.yml` (`nginxinc/nginx-unprivileged:1.28.0-alpine` như FE, non-root FR-025; conf nghe 8080,
       publish `8090:8080`; mount conf read-only, `depends_on` web và api healthy).
-- [X] T013 Viết `deploy-tests/global-setup.ts`: chạy `compose/init-env.sh --out <tmp>/.env` rồi ghi thêm
-      `AUTH_LOGIN_ATTEMPTS=5`, `TUS_CHUNK_SIZE=1mb` (giá trị test, contracts/tests.md); `docker compose -p bo-deploy
+- [X] T013 Viết `deploy-tests/global-setup.ts`: chạy `compose/init-env.sh --out <tmp>/.env` (không thêm biến
+      test: ngưỡng khóa là setting `auth_login_attempts`, TUS dùng chunk mặc định, research "Kết quả lượt 2"); `docker compose -p bo-deploy
       up -d --wait` với `BACKOFFICE_REPLICAS=3`, `BACKOFFICE_TAG=${BACKOFFICE_TAG:-local}`, thêm override khi
       `DEPLOY_MODE=separate-domain`; teardown `down -v`; khi `DEPLOY_KEEP=1` thì không teardown (dev). Kiểm bằng tay:
       `docker build` hai image `:local` rồi `pnpm nx run parity-tests:deploy` lên env và xuống sạch.
@@ -227,7 +227,7 @@ thấy request rơi vào cả hai replica.
 
 ### Tests cho User Story 2
 
-- [ ] T040 [P] [US2] Viết `deploy-tests/compose.test.ts`: (1) `docker compose config` của `directus` và `backoffice-api`
+- [X] T040 [P] [US2] Viết `deploy-tests/compose.test.ts`: (1) `docker compose config` của `directus` và `backoffice-api`
       có cùng `env_file` và không có `environment:` riêng (FR-041; so `docker inspect Config.Env` của hai container trừ
       `PATH`, `HOSTNAME`, `NODE_VERSION`, `YARN_VERSION`, biến image của Directus); (2) `docker compose ps --format json`:
       mọi service `healthy` hoặc `exited 0` (`minio-init`), `backoffice-api` có đúng `BACKOFFICE_REPLICAS` container; (3)
@@ -245,17 +245,17 @@ thấy request rơi vào cả hai replica.
 
 ### Implementation cho User Story 2
 
-- [ ] T041 [US2] Hoàn thiện `compose/docker-compose.yml` và `compose/lb/shared-domain.conf`: `log_format upstream` (như
+- [X] T041 [US2] Hoàn thiện `compose/docker-compose.yml` và `compose/lb/shared-domain.conf`: `log_format upstream` (như
       `tests/parity/proxy/nginx.conf.template`) để test đọc `$upstream_addr`; `name: bo-deploy`; comment đầu file theo
       kiểu `dev/directus-reference/docker-compose.yml` (lệnh, cổng, tài khoản); đảm bảo `minio-init` chạy trước
       `directus` (`depends_on: minio-init: service_completed_successfully`); volume đặt tên cho pg, redis, minio.
-- [ ] T042 [US2] Viết `deploy/README.md` mục "Máy dev": lệnh của `quickstart.md`, bảng cổng (8090 lb, 8091 lb domain
+- [X] T042 [US2] Viết `deploy/README.md` mục "Máy dev": lệnh của `quickstart.md`, bảng cổng (8090 lb, 8091 lb domain
       riêng, 8095 Directus, replica BE cổng ngẫu nhiên), cách xem log, `BACKOFFICE_REPLICAS`, `BACKOFFICE_TAG`, `down
       -v`; mục "Ràng buộc đa replica" (Redis bắt buộc, `CACHE_STORE`/`RATE_LIMITER_STORE` = `redis`,
       `SYNCHRONIZATION_STORE=redis`, storage S3 hoặc volume RWX; cảnh báo một instance của 001 chưa có
       `SYNCHRONIZATION_STORE`; bảng FR-053 của `contracts/helm-values.md`; lệnh tự kiểm `grep -E
       '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE)' .env` cho compose và manifest thường).
-- [ ] T043 [US2] Chạy T040 xanh; kiểm bằng tay SC-007: từ `docker compose down -v`, đo thời gian `init-env.sh` + `up -d
+- [X] T043 [US2] Chạy T040 xanh; kiểm bằng tay SC-007: từ `docker compose down -v`, đo thời gian `init-env.sh` + `up -d
       --wait` tới đăng nhập được ở `http://localhost:8090/admin` (image đã có) và ghi vào `research.md` "Kết quả T043".
 
 **Checkpoint**: compose dev đầy đủ; `compose.test.ts` xanh.
@@ -269,13 +269,13 @@ response.
 
 ### Tests cho User Story 3 và 4
 
-- [ ] T050 [P] [US3] Viết `deploy-tests/sessions.test.ts` theo `contracts/tests.md`: `mode: json` (Bearer), `cookie`
+- [X] T050 [P] [US3] Viết `deploy-tests/sessions.test.ts` theo `contracts/tests.md`: `mode: json` (Bearer), `cookie`
       (refresh cookie), `session` (session cookie) đăng nhập ở replica 1; `GET /users/me` và `GET /items/directus_users`
       (hoặc collection mẫu tạo trong test) 200 cùng `id` ở cả 4 instance; `POST /auth/refresh` ở replica 2 rồi token
       mới dùng được ở replica 3 và Directus; `POST /auth/logout` ở Directus rồi token cũ 401 ở cả 3 replica; đăng nhập
       sai 5 lần luân phiên 4 instance với user test → lần 6 với mật khẩu đúng bị từ chối (`USER_SUSPENDED` hoặc mã Directus
       dùng; so với hành vi Directus một instance bằng chính Directus 8095), giải khóa sau test bằng `PATCH /users`.
-- [ ] T051 [P] [US4] Viết `deploy-tests/schema.test.ts`: `POST /collections` `bo_deploy_<ts>` ở replica 1; ngay khi có
+- [X] T051 [P] [US4] Viết `deploy-tests/schema.test.ts`: `POST /collections` `bo_deploy_<ts>` ở replica 1; ngay khi có
       response, `GET /collections/<name>` và `GET /fields/<name>` ở replica 2, 3 và Directus → 200 (không retry, không
       sleep: FR-063); `POST /fields/<name>` ở Directus → `GET /fields/<name>/<field>` 200 ở 3 replica; tạo policy + role
       + user, sửa `permissions` ở Directus → request của user đó ở replica 1 thấy quyền mới ngay; `CACHE_ENABLED`: `GET
@@ -284,7 +284,7 @@ response.
 
 ### Implementation cho User Story 3 và 4
 
-- [ ] T052 [US3] [US4] Chạy T050, T051 trên compose 3 replica. Kỳ vọng xanh không cần sửa (002–011 đã dùng chung
+- [X] T052 [US3] [US4] Chạy T050, T051 trên compose 3 replica. Kỳ vọng xanh không cần sửa (002–011 đã dùng chung
       Redis). Nếu đỏ: ghi nguyên nhân vào `research.md` "Kết quả T052"; nếu nguyên nhân ở code API thì DỪNG và hỏi chủ
       dự án (quy ước); nếu ở cấu hình compose (ví dụ thiếu `CACHE_AUTO_PURGE`, `REDIS` cho rate limiter) thì sửa
       `compose/.env.example` + README.
@@ -300,14 +300,14 @@ MinIO khớp.
 
 ### Tests cho User Story 5
 
-- [ ] T060 [P] [US5] Viết `deploy-tests/flows-schedule.test.ts`: tạo flow `trigger: schedule`, `options.cron: '*/2 * * *
+- [X] T060 [P] [US5] Viết `deploy-tests/flows-schedule.test.ts`: tạo flow `trigger: schedule`, `options.cron: '*/2 * * *
       * *'`, operation `log` (theo `tests/parity/src/flows/schedule.test.ts`); chờ ≥ 22 s (≥ 10 lượt) rồi đếm
       `directus_revisions`/`directus_activity` của flow qua `GET /activity?filter[collection]=directus_flows` hoặc
       cách đếm của 009 (`contracts/tests.md`); kỳ vọng số lượt = số lần chạy ±0; `docker kill -s TERM` replica đang
       giữ khóa (xác định qua log `lb`/log flow của từng container) rồi chờ 2 lượt nữa, đếm tiếp vẫn đủ; đặt flow
       `inactive`, scale lại 3.
-- [ ] T061 [P] [US5] Viết `deploy-tests/tus.test.ts` dùng `tests/parity/src/tus-request.ts`: file ngẫu nhiên 4.5 MB
-      (`TUS_CHUNK_SIZE=1mb` → 5 chunk); `POST /files/tus` ở replica 1 (lấy `Location`, chuyển host sang từng instance);
+- [X] T061 [P] [US5] Viết `deploy-tests/tus.test.ts` dùng `tests/parity/src/tus-request.ts`: file ngẫu nhiên 4.5 × 8 MB
+      (chunk mặc định 8 MB → 5 chunk); `POST /files/tus` ở replica 1 (lấy `Location`, chuyển host sang từng instance);
       chunk k `PATCH` tới instance k mod 4 (gồm Directus); `HEAD` ở instance kế để lấy `Upload-Offset`; sau chunk cuối
       `GET /files/<id>` 200, tải `GET /assets/<id>` qua Directus và một replica → SHA-256 bằng file gốc; `GET
       /files?filter[filename_download]` đúng 1 dòng; lần 2: sau chunk 2, `docker kill -s TERM` instance vừa nhận
@@ -315,7 +315,7 @@ MinIO khớp.
 
 ### Implementation cho User Story 5
 
-- [ ] T062 [US5] Chạy T060, T061. Kỳ vọng xanh (009 lock Redis, 007 TUS dùng chung). Nếu đỏ: như T052 (ghi "Kết quả
+- [X] T062 [US5] Chạy T060, T061. Kỳ vọng xanh (009 lock Redis, 007 TUS dùng chung). Nếu đỏ: như T052 (ghi "Kết quả
       T062"; code API → hỏi; compose → sửa `.env.example`/README). Riêng TUS: nếu `Location` trả về `PUBLIC_URL` là
       `http://localhost:8090` (lb) thì test đổi host sang từng instance là đúng thiết kế, ghi vào README mục "TUS sau load
       balancer".
@@ -331,7 +331,7 @@ FR-064, SC-002).
 
 ### Tests cho User Story 6
 
-- [ ] T070 [US6] Viết `deploy-tests/shutdown.test.ts`: `autocannon` (có trong `tests/parity`) 60 s, 20 kết nối, 2 luồng
+- [X] T070 [US6] Viết `deploy-tests/shutdown.test.ts`: `autocannon` (có trong `tests/parity`) 60 s, 20 kết nối, 2 luồng
       request: `GET /items/<collection mẫu>?limit=1` và `POST /items/<collection>` + `DELETE` (body nhỏ) với Bearer
       admin, qua `lbUrl`; giây 15 `docker kill -s TERM bo-deploy-backoffice-api-2`, ghi `docker wait` → mã 143 và thời
       gian từ TERM tới thoát ≤ 30 s; trước TERM đếm kết nối của container đó ở Postgres (`SELECT count(*) FROM
@@ -343,12 +343,12 @@ FR-064, SC-002).
 
 ### Implementation cho User Story 6
 
-- [ ] T071 [US6] Chạy T070. Nếu có `errors`/5xx: kiểm log `lb` (`$upstream_addr`, `$upstream_status`), xác định cửa sổ
+- [X] T071 [US6] Chạy T070. Nếu có `errors`/5xx: kiểm log `lb` (`$upstream_addr`, `$upstream_status`), xác định cửa sổ
       R4; sửa trong phạm vi cấu hình: `proxy_next_upstream error timeout http_502` (chỉ cho request idempotent: tách
       `location` GET/HEAD), `stop_grace_period`, hoặc `entrypoint` bọc `sh -c 'trap "sleep N; kill -TERM \$pid" TERM; node
       dist/main.js & pid=$!; wait $pid'` trong compose (không đổi image, không biến mới; ghi `ponytail:` nếu dùng và lý do
       vào `research.md` "Kết quả T071"). Không sửa `apps/api/src`.
-- [ ] T072 [US6] Ghi vào `deploy/README.md` mục "Tắt máy an toàn": trình tự 001 (FR-080), khoảng trễ ở đâu (compose: retry
+- [X] T072 [US6] Ghi vào `deploy/README.md` mục "Tắt máy an toàn": trình tự 001 (FR-080), khoảng trễ ở đâu (compose: retry
       nginx; Kubernetes: `preStop`), công thức grace ≥ delay + `SERVER_SHUTDOWN_TIMEOUT` + đóng kết nối, request dài hơn
       `SERVER_SHUTDOWN_TIMEOUT` bị cắt (edge case của spec), cách tăng biến này trong cấu hình chung, D-122.
 - [ ] T073 [US6] Đóng lượt 2: `lint`, `typecheck`; `parity-tests:deploy` xanh toàn bộ (smoke, web-image, image-swap,
