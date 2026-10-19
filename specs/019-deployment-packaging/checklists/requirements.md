@@ -36,3 +36,4 @@
   ingress annotations, test harness) stay in the plan.
 - Q1 and Q2 resolved in session 2026-10-20 (spec Clarifications): LB pool includes Directus; liveness on /server/ping.
 - US9 (separate domain, FR-070..FR-075) added 2026-10-20 at the owner's request; re-validated, all items still pass.
+- analyze 2026-10-20: C1, C2, G1–G6 applied (FR-053, T005, T079; US7 scenario 3, FR-030, SC-001 aligned with tests); owner: Directus env already has Redis on, FR-053 is a safety net.

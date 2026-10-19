@@ -201,8 +201,9 @@ Directus; probe đạt; Ingress định tuyến đúng; rolling update dưới t
    đúng toàn bộ biến đó; chart không chứa biến môi trường nào của Directus.
 2. **Given** chart đã cài, **When** gọi `https://<domain>/admin/...` và `https://<domain>/items/...`, **Then** request
    thứ nhất tới FE, thứ hai tới BE.
-3. **Given** HPA bật, **When** tải CPU của BE vượt ngưỡng, **Then** số replica tăng tới tối đa đã khai báo; khi tải
-   giảm, giảm về tối thiểu mà không lỗi request (US6).
+3. **Given** HPA bật và cụm có metrics-server, **When** chart cài xong, **Then** HPA trỏ đúng Deployment BE, đọc được
+   mức CPU hiện tại (không `<unknown>`), có `minReplicas`/`maxReplicas`/ngưỡng CPU đã khai báo; số replica đổi (tăng hoặc
+   giảm) dưới tải không làm lỗi request (US6). Quyết định khi nào scale là việc của Kubernetes, không kiểm.
 4. **Given** storage `local` trên volume dùng chung với Directus, **When** khai báo tên PVC đang dùng, **Then** pod BE
    mount cùng PVC ở `/directus/uploads`.
 
@@ -269,8 +270,11 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   (`/server/specs/oas`) đã cache ở domain này có thể được trả ở domain kia, giống hai bản Directus khác domain dùng chung
   Redis. Ghi trong tài liệu, không sửa (Nguyên tắc III).
 
-- **Thiếu Redis hoặc `CACHE_STORE=memory` khi chạy nhiều replica**: BE vẫn khởi động và ghi cảnh báo một instance như
-  001; chart và compose luôn cấu hình Redis; tài liệu ghi rõ hậu quả. App không tự biết số replica nên không chặn.
+- **Cấu hình chỉ an toàn cho một instance** (thiếu Redis; `CACHE_STORE`, `RATE_LIMITER_STORE` là `memory`, đây là mặc
+  định của Directus; `SYNCHRONIZATION_STORE` khác `redis`, mặc định Directus là bộ nhớ process,
+  `directus/api/src/synchronization.ts:20`): flow theo lịch chạy trên mọi instance, cache và bộ đếm đăng nhập lệch giữa
+  instance. BE vẫn khởi động như 001 (app không tự biết số replica). Compose đặt sẵn các biến này; chart dừng cài và báo
+  để chủ dự án sửa env của Directus (FR-053). 001 chưa cảnh báo `SYNCHRONIZATION_STORE` (Assumptions).
 - **Storage `local` không dùng chung**: mỗi replica thấy file khác nhau. Compose dùng MinIO (S3); chart chỉ cho mount
   PVC dùng chung (Nguyên tắc VII), tài liệu ghi PVC phải `ReadWriteMany`.
 - **Request dài hơn `SERVER_SHUTDOWN_TIMEOUT`** (mặc định 1000 ms: export lớn, chunk TUS chậm, import): bị cắt khi
@@ -303,7 +307,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | US2 | FR-040..FR-044 |
 | US3, US4, US5 | FR-030, FR-060..FR-063 |
 | US6 | FR-031..FR-035, FR-064 |
-| US7 | FR-045..FR-049, FR-050..FR-052 |
+| US7 | FR-045..FR-049, FR-050..FR-053 |
 | US8 | FR-001..FR-006 |
 | US9 | FR-070..FR-076 |
 
@@ -340,7 +344,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 **Đa replica và tắt máy**
 
-- **FR-030**: BE PHẢI chạy được với số replica bất kỳ (tối thiểu 1, kiểm tới 6 trong CI) cùng Directus, không cần
+- **FR-030**: BE PHẢI chạy được với số replica bất kỳ (tối thiểu 1; CI kiểm 3 và 6 replica trên compose, 2 đến 4 trên
+  cụm Kubernetes thử) cùng Directus, không cần
   sticky session: mọi trạng thái dùng chung giữa request (phiên, bộ đếm đăng nhập, rate limiter, cache, lock, dữ liệu dở
   của TUS) nằm ở DB, Redis hoặc storage dùng chung như Directus.
 - **FR-031**: Readiness PHẢI dùng `GET /server/health`: replica chỉ nhận traffic khi health không phải `error`; khi nhận
@@ -394,6 +399,14 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   `X-Forwarded-Proto`, `Host` để `IP_TRUST_PROXY` và `PUBLIC_URL` của Directus chạy như sau proxy.
 - **FR-052**: Tài liệu triển khai PHẢI có mục định tuyến `/auth/login/<provider SAML>` và các path SAML về Directus cho
   hệ thống có user SAML (D-24 của 003), kèm ví dụ Ingress.
+- **FR-053**: Khi cài hoặc nâng cấp chart, chart PHẢI đọc ConfigMap và Secret chung và dừng cài nếu thiếu một biến ở bảng
+  "Bắt buộc" của mục "Env Directus bắt buộc khi chạy nhiều instance", theo đúng cách Directus đọc biến: không có Redis
+  (`REDIS_ENABLED` khác `true` khi có biến này; khi không có thì không có `REDIS` và không có biến `REDIS_*` nào);
+  `CACHE_STORE` hoặc `RATE_LIMITER_STORE` là `memory` hoặc không đặt (mặc định `memory`); `SYNCHRONIZATION_STORE` khác
+  `redis` hoặc không đặt; không có `SECRET`; `DB_CLIENT` không đặt hoặc là `sqlite3`; `STORAGE_LOCATIONS` không đặt hoặc
+  có location `local` mà `uploads.existingClaim` rỗng. Thông báo PHẢI nêu từng biến, giá
+  trị đang có, ConfigMap/Secret, và giá trị cần đặt trong env của Directus. Compose đặt sẵn các giá trị đúng; tài liệu ghi
+  lệnh tự kiểm cho nơi không dùng Helm.
 
 **Test chấp nhận (BE 3 replica cộng 1 Directus)**
 
@@ -437,11 +450,11 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 ## Khác biệt so với Directus *(mandatory)*
 
-| ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại |
-|----|----------|------------------|---------|-------|------|
-| D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác |
-| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`) | Một process, không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác |
-| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác |
+| ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Duyệt (Nguyên tắc X) |
+|----|----------|------------------|---------|-------|------|----------------------|
+| D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | chờ tech lead (T005) |
+| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`) | Một process, không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | chờ tech lead (T005) |
+| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | chờ tech lead (T005) |
 
 **Cần xác nhận**: Không có.
 
@@ -457,6 +470,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   s3" → US9, FR-070..FR-075. Đổi domain bắt buộc đặt riêng `PUBLIC_URL` (Directus dùng nó cho `Location` của TUS, link
   mời, share, đặt lại mật khẩu, callback SSO, bỏ qua cache theo Referer); đây là ngoại lệ có giới hạn của "không khai báo
   lại biến" (FR-071).
+- Phân tích 2026-10-20 (`/speckit.analyze`): thêm FR-053 (kiểm cấu hình đa instance, gồm `SYNCHRONIZATION_STORE`), sửa
+  US7 kịch bản 3, FR-030, SC-001 cho khớp với test; D-120..D-122 và ngoại lệ VIII chờ tech lead duyệt (T005, T079).
 - Chủ dự án (2026-10-20): `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` không đặt riêng cho bản Backoffice; "nếu
   như có sẵn và cần thiết thì báo tôi sửa env của directus" → FR-076 (chart dừng cài và báo), FR-071 chỉ còn `PUBLIC_URL`.
 
@@ -477,14 +492,58 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - App ở gốc domain như bố cục Directus; `PUBLIC_URL` có path con ngoài phạm vi.
 - TLS kết thúc ở Ingress hoặc load balancer ngoài; compose dev chạy HTTP.
 - Bật lại lịch nightly (001 FR-112) không thuộc 019; chủ dự án quyết sau khi 019 đóng.
+- Chủ dự án (2026-10-20, "mặc định bật REDIS"): env thật của Directus đã bật Redis sẵn (`REDIS`, các `*_STORE=redis`).
+  FR-053 chỉ là lưới an toàn: cài chart trên env đó không bị dừng; chỉ báo khi thiếu (ví dụ chưa có
+  `SYNCHRONIZATION_STORE=redis`). Compose dev bật Redis sẵn. Chart không cài Redis riêng và không tự đặt `*_STORE`.
+- Cảnh báo một instance của 001 (`apps/api/src/config/warn-single-instance.ts`) chưa có `SYNCHRONIZATION_STORE`. Thêm vào
+  đó là sửa code API, ngoài phạm vi 019 (019 không sửa `apps/api/src`); 019 kiểm ở chart (FR-053) và tài liệu.
 - Test chấp nhận chạy trên compose; trên cụm Kubernetes cục bộ CI chỉ kiểm cài chart, probe, định tuyến Ingress và
   rolling update dưới tải.
+
+## Env Directus bắt buộc khi chạy nhiều instance
+
+Áp cho cấu hình chung (`.env`, ConfigMap, Secret) mà mọi instance Directus và Backoffice cùng đọc. Kiểm trong source
+Directus 11.17.4 ngày 2026-10-20; mặc định lấy từ `directus/packages/env/src/constants/defaults.ts`.
+
+**Bắt buộc** (thiếu thì hệ thống nhiều instance chạy sai):
+
+| Biến | Giá trị cần | Mặc định Directus | Thiếu thì sao | Nguồn |
+|------|-------------|-------------------|---------------|-------|
+| `DB_CLIENT` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` (hoặc `DB_CONNECTION_STRING`) | cùng một DB thật cho mọi instance | image đặt `sqlite3` với file trong container | mỗi container một DB riêng | `apps/api/Dockerfile`, `directus/Dockerfile` |
+| `SECRET` | một chuỗi cố định, giống nhau ở mọi instance | không có; mỗi process tự sinh ngẫu nhiên | token do instance này cấp bị instance kia từ chối | `directus/api/src/utils/get-secret.ts:13-18` |
+| `REDIS` (hoặc `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`...) | trỏ cùng một Redis | không có | bus xóa cache schema/quyền và lock chỉ chạy trong từng process | `directus/api/src/bus/lib/use-bus.ts:18`, `lock/lib/use-lock.ts:17`, `redis/utils/redis-config-available.ts` |
+| `REDIS_ENABLED` (nếu có đặt) | `true` | không có | có đặt mà khác `true` thì Redis bị tắt dù có `REDIS` | như trên |
+| `CACHE_STORE` | `redis` | `memory` | cache hệ thống và lock cache riêng từng instance (kể cả khi `CACHE_ENABLED=false`) | `directus/api/src/cache.ts:62-84` |
+| `RATE_LIMITER_STORE` | `redis` | `memory` | bộ đếm đăng nhập sai (`AUTH_LOGIN_ATTEMPTS`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34` |
+| `SYNCHRONIZATION_STORE` | `redis` | không có (dùng bộ nhớ process) | flow theo lịch, job dọn TUS, retention chạy trên mọi instance | `directus/api/src/synchronization.ts:20` |
+| `STORAGE_LOCATIONS` + `STORAGE_<LOCATION>_DRIVER` và khóa của driver | `s3` (hoặc `local` trên volume `ReadWriteMany` dùng chung) | `local` | mỗi container thấy file khác nhau | Nguyên tắc VII |
+
+**Bắt buộc theo tình huống**:
+
+| Biến | Khi nào | Giá trị cần |
+|------|---------|-------------|
+| `PUBLIC_URL` | dùng SSO, share, link mời; chế độ domain riêng | URL thật của domain (mặc định `/`); chế độ domain riêng: bản Backoffice đặt riêng (FR-071) |
+| `TUS_ENABLED` | muốn upload TUS (mặc định `false`) | `true`; cần thêm `REDIS` và storage dùng chung |
+| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` | chế độ domain riêng | không đặt, hoặc domain cha phủ cả hai domain (FR-076) |
+| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS` | SSO và chế độ domain riêng | thêm URL của domain Backoffice |
+
+**Khuyến nghị**:
+
+| Biến | Giá trị | Lý do |
+|------|---------|-------|
+| `WEBSOCKETS_ENABLED` | `false` (mặc định) | Backoffice không có `/websocket` (Nguyên tắc XI); Directus trong cùng pool mà bật thì chỉ một phần instance trả được |
+| `CACHE_ENABLED`, `CACHE_AUTO_PURGE` | tùy; compose đặt `true` | response cache dùng chung qua `CACHE_STORE=redis` |
+| `SERVER_SHUTDOWN_TIMEOUT` | lớn hơn request dài nhất cần giữ khi tắt (mặc định 1000 ms) | FR-033, edge case request dài |
+| `IP_TRUST_PROXY` | giữ mặc định `true` | đứng sau load balancer (FR-051) |
+
+Các biến "Bắt buộc" là bảng kiểm của chart (FR-053) và của tài liệu cho compose, manifest thường.
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: Với BE 3 replica cộng 1 Directus, 100% test chấp nhận (US3–US6) đạt trong 10 lần chạy liên tiếp trên CI.
+- **SC-001**: Với BE 3 replica cộng 1 Directus, 100% test chấp nhận (US3–US6) đạt trong 10 lần chạy liên tiếp của
+  `parity-tests:deploy` (một vòng lặp chạy lại cả bộ, mỗi lần dựng env mới), trước khi đóng feature.
 - **SC-002**: Khi tắt một replica BE dưới tải liên tục, 0 request lỗi trên tổng số request trong lần chạy (ít nhất
   5.000 request); replica thoát trong thời hạn tắt máy đã khai báo.
 - **SC-003**: Rolling update toàn bộ BE trên cụm Kubernetes thử dưới tải: 0 request lỗi.

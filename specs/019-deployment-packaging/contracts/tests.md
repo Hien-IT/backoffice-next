@@ -12,6 +12,8 @@
 
 | File | Chế độ | Kiểm | Spec |
 |------|--------|------|------|
+| `smoke.test.ts` | chung | 4 instance `pong`; health qua `lb`; `config.json`; số replica | FR-040, FR-043 |
+| `compose.test.ts` | chung | env giống nhau; healthy; thứ tự khởi động; xoay vòng gồm Directus; SPA fallback qua `lb`; `X-Forwarded-For` → `directus_activity.ip` như Directus; image Backoffice `amd64`; scale 6 replica rồi về 3 | US2, FR-023, FR-030, FR-041..FR-044, FR-051 |
 | `sessions.test.ts` | chung | token, cookie, session qua 4 instance; refresh chéo; logout chéo; khóa sau `AUTH_LOGIN_ATTEMPTS` lần sai luân phiên | US3, FR-030 |
 | `schema.test.ts` | chung | field mới thấy ngay ở 3 instance còn lại; permission sửa ở Directus có hiệu lực ở BE; response cache không trả bản cũ | US4, FR-063 |
 | `flows-schedule.test.ts` | chung | ≥ 10 lượt cron `*/2 * * * * *`, đúng 1 lần mỗi lượt; tắt instance rồi lượt kế vẫn chạy | US5, FR-062 |
@@ -19,15 +21,16 @@
 | `shutdown.test.ts` | chung | `autocannon` 60 s qua `lb`; TERM một replica; scale lại 3; 0 lỗi; mã 143; kết nối DB/Redis về 0 | US6, FR-064 |
 | `image-swap.test.ts` | chung | container BE với env/mount của `directus`; health, đăng nhập, upload; `docker inspect` env và mount giống | US1, FR-020 |
 | `web-image.test.ts` | chung | 2 FE khác `PUBLIC_URL`; deep link; header cache; CSP FE = CSP Directus `/admin` ở 3 bộ env | US8, FR-001..006 |
-| `separate-domain.test.ts` | riêng | `Location` TUS ở 8091; link mời theo 8091; sửa ở 8090 thấy ở 8091 và ngược lại; `Set-Cookie` không `Domain`; `config.json` của 8091 | US9, FR-075 |
+| `separate-domain.test.ts` | riêng | `Location` TUS ở 8091; link share (`/shares/invite`, log D-36) theo 8091; sửa ở 8090 thấy ở 8091 và ngược lại; `Set-Cookie` không `Domain`; `config.json` của 8091 | US9, FR-075 |
 
-Mỗi test in số liệu đo (số request, lỗi, thời gian thoát) vào log để SC-001, SC-002 đối chiếu được.
+Mỗi test in số liệu đo (số request, lỗi, thời gian thoát) vào log để SC-001, SC-002 đối chiếu được. SC-001: trước khi
+đóng feature, chạy `parity-tests:deploy` 10 lần liên tiếp (mỗi lần dựng env mới) và ghi kết quả từng lần (T116).
 
 ## Job CI (`.github/workflows/ci.yml`)
 
 | Job | needs | Bước | Thời gian ước lượng |
 |-----|-------|------|---------------------|
 | `deploy` | `docker` | nạp image `:ci`; `parity-tests:deploy` chung domain; rồi `DEPLOY_MODE=separate-domain`; log container khi lỗi | ~15 phút [Inference] |
-| `deploy-k8s` | `docker` | `helm lint`; `helm template` (values mặc định tối thiểu và domain riêng) `| kubeconform -strict -kubernetes-version 1.29.0`; kind; `kind load`; Traefik; `ci/deps.yaml`; `helm install -f ci/values-kind.yaml --wait`; probe Ready; curl `/admin/` và `/server/ping` qua Ingress; `rollout restart` BE dưới `autocannon` → 0 lỗi; `kubectl scale` 2→4→2 dưới tải → 0 lỗi | ~15 phút [Inference] |
+| `deploy-k8s` | `docker` | `helm lint`; `helm template` (values mặc định tối thiểu và domain riêng) `| kubeconform -strict -kubernetes-version 1.29.0`; kind; `kind load`; Traefik; `ci/deps.yaml`; `helm install -f ci/values-kind.yaml --wait`; probe Ready; curl `/admin/` và `/server/ping` qua Ingress; `rollout restart` BE dưới `autocannon` → 0 lỗi; `kubectl scale` 2→4→2 dưới tải → 0 lỗi; metrics-server, HPA có TARGETS khác `<unknown>`; FR-053 (ConfigMap thiếu `SYNCHRONIZATION_STORE` → cài bị dừng, thông báo nêu biến) và FR-076 | ~15 phút [Inference] |
 
 `publish` thêm `deploy`, `deploy-k8s` vào `needs`.

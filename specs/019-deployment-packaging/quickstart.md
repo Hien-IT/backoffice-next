@@ -22,8 +22,8 @@ docker compose -f docker-compose.yml -f docker-compose.separate-domain.yml up -d
 ## Test chấp nhận
 
 ```bash
-docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:local .
-docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:local .
+docker build --platform linux/amd64 -f apps/api/Dockerfile -t hiennd23/backoffice-api:local .
+docker build --platform linux/amd64 -f apps/web/Dockerfile -t hiennd23/backoffice-web:local .
 pnpm nx run parity-tests:deploy
 DEPLOY_MODE=separate-domain pnpm nx run parity-tests:deploy
 ```

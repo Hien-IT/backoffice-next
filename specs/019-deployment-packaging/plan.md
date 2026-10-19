@@ -63,12 +63,14 @@ Directus (trừ FR-071); làm trên `main`, phối hợp push qua phiên 018.
   comment của `40-config.sh`.
 - [x] II. BE không chạy migration; DB chỉ được Directus bootstrap (chính Directus làm, như hiện nay ở
   `dev/directus-reference`).
-- [x] III. Không đổi API; khác biệt D-120..D-122 ghi trong spec (vị trí phục vụ `/admin`, image, khoảng trễ ở cấu hình).
+- [x] III. Không đổi API; khác biệt D-120..D-122 ghi trong spec (vị trí phục vụ `/admin`, image, khoảng trễ ở cấu hình);
+  tech lead duyệt ở T005 (Nguyên tắc X).
 - [x] IV. Mọi trạng thái dùng chung qua DB/Redis như 002–011; test US3–US5 kiểm lại với 4 instance.
 - [x] V. Có test so với Directus: CSP và header `/admin` (FE vs Directus), các test đa instance chạy cả trên Directus.
 - [x] VI. Không thêm app Nx; test nằm trong project `parity-tests` sẵn có.
 - [x] VII. Trọng tâm feature: FE runtime config, nhiều replica, storage dùng chung (S3/PVC RWX), khởi động chỉ đọc, SIGTERM
-  an toàn, chung domain.
+  an toàn, chung domain. Redis bắt buộc cho cache, rate limiter, lock flow theo lịch: compose đặt `CACHE_STORE`,
+  `RATE_LIMITER_STORE`, `SYNCHRONIZATION_STORE` là `redis`; chart dừng cài khi cấu hình chung thiếu (FR-053).
 - [ ] VIII. Ngoại lệ: chế độ domain riêng đặt riêng `PUBLIC_URL` — xem Complexity
   Tracking. Chế độ chung domain: không biến nào.
 - [x] IX. Image, chart, nhãn mang tên Backoffice; giữ cổng, path, tên biến của Directus.
@@ -110,7 +112,7 @@ apps/
 deploy/
 ├── README.md                          # vận hành: hai chế độ, đổi image, SIGTERM, Ingress, SAML, CSP, giới hạn
 ├── compose/
-│   ├── docker-compose.yml             # chung domain (mặc định)
+│   ├── docker-compose.yml             # chung domain (mặc định); service Backoffice `platform: linux/amd64`
 │   ├── docker-compose.separate-domain.yml
 │   ├── .env.example
 │   ├── init-env.sh                    # sinh .env với secret ngẫu nhiên
@@ -119,14 +121,15 @@ deploy/
     ├── Chart.yaml
     ├── values.yaml
     ├── values-separate-domain.yaml
-    ├── templates/{_helpers.tpl,api-deployment,api-service,api-hpa,web-deployment,web-service,ingress}.yaml, NOTES.txt
-    └── ci/{deps.yaml,values-kind.yaml}  # chỉ cho job deploy-k8s
+    ├── templates/{_helpers.tpl,_checks.tpl,api-deployment,api-service,api-hpa,web-deployment,web-service,ingress}.yaml, NOTES.txt
+    └── ci/{deps.yaml,values-kind.yaml,test-template.sh,kind-test.sh}  # chỉ cho job deploy-k8s
 tests/parity/
 ├── vitest.deploy.config.ts
 ├── project.json                       # sửa: target deploy
 └── src/
     ├── tus-request.ts                 # tách từ files/tus.test.ts
-    └── deploy/{global-setup,instances,sessions,schema,flows-schedule,tus,shutdown,image-swap,web-image,separate-domain}.ts
+    └── deploy/{global-setup,instances}.ts, {instances,smoke,compose,sessions,schema,flows-schedule,tus,shutdown,
+        image-swap,web-image,separate-domain}.test.ts
 .github/workflows/ci.yml               # sửa: job deploy, deploy-k8s; needs của publish
 ```
 
@@ -135,6 +138,6 @@ tests/parity/
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| Nguyên tắc VIII: chế độ domain riêng đặt riêng `PUBLIC_URL` | Chủ dự án yêu cầu bản Backoffice ở domain khác (2026-10-20). Directus dùng `PUBLIC_URL` cho `Location` TUS, link mời, share, đặt lại mật khẩu, callback SSO, `<base href>` (R10); giữ giá trị của Directus thì các URL đó trỏ sai domain | Dùng nguyên `PUBLIC_URL` của Directus và CORS: TUS và link vẫn về domain Directus, không đạt US9 kịch bản 3, 5. Map env tự do trong chart: mở đường khai báo lại mọi biến, trái FR-046 |
+| Violation | Why Needed | Simpler Alternative Rejected Because | Duyệt |
+|-----------|------------|-------------------------------------|-------|
+| Nguyên tắc VIII: chế độ domain riêng đặt riêng `PUBLIC_URL` | Chủ dự án yêu cầu bản Backoffice ở domain khác (2026-10-20). Directus dùng `PUBLIC_URL` cho `Location` TUS, link mời, share, đặt lại mật khẩu, callback SSO, `<base href>` (R10); giữ giá trị của Directus thì các URL đó trỏ sai domain | Dùng nguyên `PUBLIC_URL` của Directus và CORS: TUS và link vẫn về domain Directus, không đạt US9 kịch bản 3, 5. Map env tự do trong chart: mở đường khai báo lại mọi biến, trái FR-046 | chờ tech lead (Governance: vi phạm chỉ được chấp nhận khi tech lead duyệt; T079, trước Phase 9) |

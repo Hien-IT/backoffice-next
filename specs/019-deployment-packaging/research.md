@@ -86,8 +86,11 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   admin, healthcheck `/server/health`) → `backoffice-api` (`deploy.replicas: ${BACKOFFICE_REPLICAS:-2}`) và
   `backoffice-web` → `lb`. Một file `.env` (sinh bằng `deploy/compose/init-env.sh` từ `.env.example`, secret ngẫu nhiên
   bằng `openssl rand`), `env_file: .env` cho cả `directus` và `backoffice-api` (FR-041). Storage `s3` trỏ MinIO,
-  `TUS_ENABLED=true`, `CACHE_ENABLED=true`, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis` (Redis bắt buộc cho đa
-  replica, Nguyên tắc VII).
+  `TUS_ENABLED=true`, `CACHE_ENABLED=true`, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis`
+  (Redis bắt buộc cho đa replica, Nguyên tắc VII). `SYNCHRONIZATION_STORE` không có trong `defaults.ts` của Directus;
+  khác `redis` thì `directus/api/src/synchronization.ts:20` dùng bộ nhớ process, nên lock flow theo lịch, job dọn TUS,
+  retention chạy riêng trên từng instance (phát hiện ở analyze 2026-10-20; profile `flows-schedule` của parity đã đặt
+  biến này). Service Backoffice ghim `platform: linux/amd64` như `tests/parity/docker-compose.yml` (FR-023).
 - **Rationale**: FR-040..FR-043; BE không chạy migration (Nguyên tắc II) nên Directus phải khởi tạo DB trước.
 
 ## R7. Helm chart
@@ -113,6 +116,14 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
     `replicas`.
   - `uploads.existingClaim` → volume ở `/directus/uploads` (FR-047).
   - `values-separate-domain.yaml` mẫu cho chế độ domain riêng.
+  - Kiểm cấu hình đa instance (FR-053), cùng `_checks.tpl` với FR-076, chạy ở mọi chế độ: `lookup` ConfigMap và Secret;
+    gộp hai map (Secret qua `b64dec`); lý do lỗi theo đúng quy tắc của Directus: Redis có khi `REDIS_ENABLED` = `true` (nếu
+    có biến này), không thì khi có `REDIS` hoặc một khóa bắt đầu bằng `REDIS_`
+    (`directus/api/src/redis/utils/redis-config-available.ts`); `CACHE_STORE`, `RATE_LIMITER_STORE` mặc định `memory`
+    (`directus/packages/env/src/constants/defaults.ts:32,82`); `SYNCHRONIZATION_STORE` phải đúng `redis`; có `SECRET`
+    (`utils/get-secret.ts`: không có thì mỗi process sinh ngẫu nhiên); `DB_CLIENT` khác rỗng và khác `sqlite3`;
+    `STORAGE_LOCATIONS` có `local` thì phải có `uploads.existingClaim`. Có lý do nào thì
+    `fail` với danh sách lý do và giá trị cần đặt.
 - **Rationale**: FR-045..FR-049, FR-070..FR-072; `helm template` cho ra manifest thường.
 - **Alternatives**: Kustomize (bị loại: người yêu cầu nêu Helm hoặc manifest; Helm có `required` và điều kiện cho hai chế
   độ); chart con cho Postgres/Redis (bị loại: môi trường thật đã có, chart chỉ đóng gói app).
@@ -144,6 +155,11 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
 - `tus.test.ts` (US5, FR-061): tách hàm `tus()` của `files/tus.test.ts` sang `src/tus-request.ts` (dùng chung); file
   ≥ 4 × `TUS_CHUNK_SIZE` (đặt `TUS_CHUNK_SIZE` nhỏ trong `.env` test); chunk k tới instance k mod 4; so SHA-256 với object
   trên MinIO; đếm `directus_files`; tắt instance giữa chừng, `HEAD` lấy offset ở instance khác, gửi tiếp.
+- `compose.test.ts` (US2, FR-030, FR-051, FR-023): ngoài thứ tự và env, `POST /auth/login` qua `lb` với
+  `X-Forwarded-For: 203.0.113.9` một lần rơi vào replica BE, một lần gọi Directus qua cùng `lb` (lặp tới khi
+  `$upstream_addr` là Directus): `directus_activity.ip` của hai lần đăng nhập đều `203.0.113.9` (`IP_TRUST_PROXY` mặc
+  định của Directus); `docker image inspect` image Backoffice `Architecture=amd64`; `up -d --scale backoffice-api=6`,
+  6 replica `pong` và `/users/me` cùng một token, rồi scale về 3.
 - `shutdown.test.ts` (US6, FR-064): `autocannon` qua `lb` (GET `/items`, POST rồi DELETE item) trong 60 s; giây 15
   `docker kill -s TERM` một replica BE; giây 35 `docker compose up -d --scale backoffice-api=3`; kiểm
   `errors + non2xx = 0`, mã thoát 143, thời gian từ TERM tới thoát ≤ grace; kết nối DB (`pg_stat_activity` theo
@@ -159,7 +175,9 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
 - Kubernetes (FR-049, SC-003): job CI tạo cụm kind, nạp image, cài Traefik, Postgres/Redis/MinIO/Directus từ
   `deploy/helm/backoffice/ci/deps.yaml` (chỉ cho CI), ConfigMap/Secret kiểu Directus, cài chart; kiểm probe Ready, Ingress
   định tuyến `/admin` và `/server/ping`; `kubectl rollout restart` BE dưới `autocannon` qua Ingress → 0 lỗi; `kubectl
-  scale` thay cho HPA (cụm kind không có metrics-server; HPA chỉ kiểm được tạo đúng).
+  scale` 2→4→2 dưới tải (cùng đường với HPA đổi replica). Cài metrics-server (manifest chính thức,
+  `--kubelet-insecure-tls` cho kind) để kiểm HPA đọc được CPU (cột TARGETS không `<unknown>`); không chờ HPA tự scale
+  (phụ thuộc thời gian, dễ chập chờn); kiểm FR-053 bằng một ConfigMap thiếu `SYNCHRONIZATION_STORE`.
 
 ## R10. Chế độ domain riêng (US9)
 

@@ -76,8 +76,13 @@ sau chỉ thêm file test.
       http://127.0.0.1:8090`, `boLbUrl = http://127.0.0.1:8091` (domain riêng), `containerId(service, index)`,
       `login(url, mode)` dùng helper sẵn có của `tests/parity/src/auth-helpers` nếu phù hợp; test
       `deploy-tests/instances.test.ts` chỉ kiểm hàm dựng lệnh (không gọi Docker).
+- [ ] T005 Xin tech lead duyệt D-120, D-121, D-122 (Nguyên tắc X: mọi khác biệt với Directus PHẢI được tech lead duyệt):
+      gửi bảng "Khác biệt so với Directus" của `specs/019-deployment-packaging/spec.md` cho chủ dự án qua chat; ghi kết quả
+      (ngày, người duyệt, ý kiến) vào cột "Duyệt" của bảng thay cho "chờ tech lead (T005)". Mục nào bị từ chối: dừng và
+      sửa spec/plan trước khi làm task chạm mục đó (T021, T022 cho D-120; T031 cho D-121; T071, T093 cho D-122).
 
-**Checkpoint**: `pnpm nx run parity-tests:deploy` chạy, 0 test; research có "Kết quả T001".
+**Checkpoint**: `pnpm nx run parity-tests:deploy` chạy, 0 test; research có "Kết quả T001"; D-120..D-122 đã có kết quả
+duyệt.
 
 ## Phase 2: Foundational (compose tối thiểu và global-setup)
 
@@ -85,12 +90,14 @@ sau chỉ thêm file test.
 trở đi về mặt test; nội dung compose hoàn thiện ở Phase 5.
 
 - [ ] T010 Viết `compose/.env.example` theo `contracts/compose.md` mục Env (secret để rỗng, `PUBLIC_URL=http://localhost:8090`,
-      pg, Redis, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `STORAGE_LOCATIONS=s3` + `STORAGE_S3_*` MinIO,
+      pg, Redis, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis` (FR-053; không có thì
+      flow theo lịch chạy trên mọi instance), `STORAGE_LOCATIONS=s3` + `STORAGE_S3_*` MinIO,
       `TUS_ENABLED=true`, `WEBSOCKETS_ENABLED=false`) và `compose/init-env.sh` (POSIX sh: sao `.env.example` → `.env`
       nếu chưa có, điền `SECRET`, `DB_PASSWORD`, `ADMIN_PASSWORD`, `STORAGE_S3_KEY/SECRET` bằng `openssl rand -hex`,
       `chmod 600`; tùy chọn `--out <file>` cho test); thêm `deploy/compose/.env` vào `.gitignore`.
 - [ ] T011 Viết `compose/docker-compose.yml` phần hạ tầng và app theo `contracts/compose.md`: `postgres`, `redis`,
-      `minio`, `minio-init` (bản ảnh như T001 (g) và parity), `directus` (cổng 8095, healthcheck `/server/health`,
+      `minio`, `minio-init` (bản ảnh như T001 (g) và parity), `platform: linux/amd64` cho `backoffice-api` và
+      `backoffice-web` (FR-023, như `tests/parity/docker-compose.yml`), `directus` (cổng 8095, healthcheck `/server/health`,
       `depends_on` healthy, `env_file: .env`, `stop_grace_period: 30s`), `backoffice-api` (`image:
       hiennd23/backoffice-api:${BACKOFFICE_TAG:-latest}`, `deploy.replicas: ${BACKOFFICE_REPLICAS:-2}`, `ports:
       ['8055']`, healthcheck, `depends_on: directus: service_healthy`, `env_file: .env`, `stop_grace_period: 30s`),
@@ -208,7 +215,12 @@ thấy request rơi vào cả hai replica.
       thứ tự: `docker inspect .State.StartedAt` của `backoffice-api-*` > `directus` > `postgres`/`redis` (FR-042); (4)
       100 request `GET /server/info` qua `lb` rơi vào ≥ 3 `$upstream_addr` khác nhau trong log `lb` (xoay vòng gồm
       Directus); (5) `GET /admin/content` và `/admin/files/abc` qua `lb` trả `index.html`; `GET /` qua `lb` trả như
-      Directus (`ROOT_REDIRECT`, 302 `./admin`). Chạy đỏ ở (4) nếu `lb` chưa ghi log upstream.
+      Directus (`ROOT_REDIRECT`, 302 `./admin`); (6) FR-051: `POST /auth/login` qua `lb` với `X-Forwarded-For:
+      203.0.113.9`, lặp tới khi có một lần rơi vào replica BE và một lần rơi vào Directus (đọc `$upstream_addr` trong log
+      `lb`): `directus_activity.ip` của cả hai lần đăng nhập là `203.0.113.9`; (7) FR-023: `docker image inspect` image
+      `backoffice-api` và `backoffice-web` có `Architecture=amd64`; (8) FR-030: `docker compose up -d --scale
+      backoffice-api=6 --wait`, 6 replica trả `pong` và `GET /users/me` 200 với cùng một token, rồi scale về 3. Chạy đỏ
+      ở (4), (6) nếu `lb` chưa ghi log upstream.
 
 ### Implementation cho User Story 2
 
@@ -218,8 +230,10 @@ thấy request rơi vào cả hai replica.
       `directus` (`depends_on: minio-init: service_completed_successfully`); volume đặt tên cho pg, redis, minio.
 - [ ] T042 [US2] Viết `deploy/README.md` mục "Máy dev": lệnh của `quickstart.md`, bảng cổng (8090 lb, 8091 lb domain
       riêng, 8095 Directus, replica BE cổng ngẫu nhiên), cách xem log, `BACKOFFICE_REPLICAS`, `BACKOFFICE_TAG`, `down
-      -v`; mục "Ràng buộc đa replica" (Redis bắt buộc, `CACHE_STORE`/`RATE_LIMITER_STORE` ≠ `memory`, storage S3 hoặc
-      volume RWX, cảnh báo một instance của 001).
+      -v`; mục "Ràng buộc đa replica" (Redis bắt buộc, `CACHE_STORE`/`RATE_LIMITER_STORE` = `redis`,
+      `SYNCHRONIZATION_STORE=redis`, storage S3 hoặc volume RWX; cảnh báo một instance của 001 chưa có
+      `SYNCHRONIZATION_STORE`; bảng FR-053 của `contracts/helm-values.md`; lệnh tự kiểm `grep -E
+      '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE)' .env` cho compose và manifest thường).
 - [ ] T043 [US2] Chạy T040 xanh; kiểm bằng tay SC-007: từ `docker compose down -v`, đo thời gian `init-env.sh` + `up -d
       --wait` tới đăng nhập được ở `http://localhost:8090/admin` (image đã có) và ghi vào `research.md` "Kết quả T043".
 
@@ -330,6 +344,11 @@ FR-064, SC-002).
 **Independent Test**: `DEPLOY_MODE=separate-domain`: Directus ở 8090, Backoffice ở 8091; `Location` TUS và link mời theo
 8091; sửa ở 8090 thấy ở 8091.
 
+- [ ] T079 [US9] Xin tech lead duyệt ngoại lệ Nguyên tắc VIII trong Complexity Tracking của
+      `specs/019-deployment-packaging/plan.md` (chế độ domain riêng đặt riêng `PUBLIC_URL`; Governance: vi phạm chỉ được
+      chấp nhận khi tech lead duyệt): gửi dòng đó kèm FR-071, FR-076 cho chủ dự án qua chat; ghi kết quả vào cột "Duyệt"
+      của plan và mục Clarifications của spec. Bị từ chối thì dừng Phase 9 và hỏi hướng khác.
+
 ### Tests cho User Story 9
 
 - [ ] T080 [P] [US9] Viết `deploy-tests/separate-domain.test.ts` (chỉ chạy khi `DEPLOY_MODE=separate-domain`, `describe.skipIf`):
@@ -393,9 +412,14 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       `/server/info` qua Ingress rơi vào ≥ 2 pod (kiểm `kubectl logs`); FR-076: tạo ConfigMap `directus-config-cookie` (bản
       sao có `REFRESH_TOKEN_COOKIE_DOMAIN=cms.test`), `helm install bo2 chart/ -f values-separate-domain.yaml --set
       directus.configMap=directus-config-cookie --set ingress.host=backoffice.test` → thoát ≠ 0 và stderr chứa
-      `REFRESH_TOKEN_COOKIE_DOMAIN="cms.test"` cùng `backoffice.test`; lặp lại với giá trị `test` → cài được, rồi gỡ; `autocannon` 60 s qua Ingress, giây 10 `kubectl
+      `REFRESH_TOKEN_COOKIE_DOMAIN="cms.test"` cùng `backoffice.test`; lặp lại với giá trị `test` → cài được, rồi gỡ;
+      FR-053: ConfigMap `directus-config-single` (bản sao bỏ `SYNCHRONIZATION_STORE`, đặt `CACHE_STORE=memory`,
+      `STORAGE_LOCATIONS=local`) và Secret `directus-secret-nosecret` (bản sao bỏ `SECRET`) → `helm install bo3` thoát ≠ 0,
+      stderr nêu cả bốn lý do và giá trị cần đặt; G2: cài metrics-server (manifest chính thức, bản
+      T001, thêm `--kubelet-insecure-tls`), chờ `kubectl get hpa bo-api` có TARGETS khác `<unknown>` (≤ 3 phút) và
+      `scaleTargetRef` = `bo-api`, `minReplicas`/`maxReplicas` đúng `ci/values-kind.yaml`; `autocannon` 60 s qua Ingress, giây 10 `kubectl
       rollout restart deployment/bo-api`, giây 35 `kubectl scale --replicas=4`, giây 50 `--replicas=2` → `errors == 0`,
-      `non2xx == 0`; `kubectl get hpa bo-api` tồn tại; `helm uninstall`; `kind delete cluster`. Chạy đỏ.
+      `non2xx == 0`; `helm uninstall`; `kind delete cluster`. Chạy đỏ.
 
 ### Implementation cho User Story 7
 
@@ -417,7 +441,11 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       ConfigMap `directus.configMap` và Secret `directus.secret` (giá trị `b64dec`); với `REFRESH_TOKEN_COOKIE_DOMAIN`,
       `SESSION_COOKIE_DOMAIN` có giá trị `v`, `d = trimPrefix "." v`; nếu `ingress.host` ≠ `d` và không kết thúc bằng
       `.d` thì `fail` đúng thông báo trong `contracts/helm-values.md` (tên biến, giá trị, ConfigMap/Secret, host, cách
-      sửa env Directus); gọi `include "backoffice.checks" .` ở đầu `api-deployment.yaml`.
+      sửa env Directus); thêm kiểm cấu hình đa instance ở mọi chế độ (FR-053, bảng trong `contracts/helm-values.md`:
+      Redis theo quy tắc `directus/api/src/redis/utils/redis-config-available.ts`, `CACHE_STORE`, `RATE_LIMITER_STORE`
+      mặc định `memory`, `SYNCHRONIZATION_STORE` phải là `redis`, có `SECRET`, `DB_CLIENT` khác `sqlite3`/rỗng,
+      `STORAGE_LOCATIONS` có `local` thì phải có `uploads.existingClaim`), gom mọi lý do vào một `fail`; gọi `include
+      "backoffice.checks" .` ở đầu `api-deployment.yaml`.
 - [ ] T096 [US7] Chạy `ci/test-template.sh` xanh (sửa template tới khi `kubeconform` và các `grep` đạt).
 - [ ] T097 [US7] Viết `chart/ci/deps.yaml` và `chart/ci/values-kind.yaml` (image `:local`, `pullPolicy: Never`,
       `directus.configMap=directus-config`, `directus.secret=directus-secret`, `ingress.host=cms.test`,
@@ -451,7 +479,8 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       get pods -A`, `kubectl describe`, log pod api thành artifact.
 - [ ] T113 Thêm `deploy`, `deploy-k8s` vào `needs` của job `publish` trong `ci.yml`; kiểm `actionlint` nếu có trong repo
       (không thì `node -e "require('js-yaml').load(...)"`) để YAML hợp lệ.
-- [ ] T114 [P] Hoàn thiện `deploy/README.md`: mục lục; "Hai chế độ" (chung domain mặc định, domain riêng); "Probe"
+- [ ] T114 [P] Hoàn thiện `deploy/README.md`: mục lục; mục "Env Directus bắt buộc" chép ba bảng của spec (bắt buộc, theo
+      tình huống, khuyến nghị) kèm lệnh tự kiểm cho compose và manifest thường; "Hai chế độ" (chung domain mặc định, domain riêng); "Probe"
       (readiness `/server/health`, liveness `/server/ping`, lý do Q2); "CSP" (sinh từ env, các biến hỗ trợ, biến bỏ qua);
       "Giới hạn" (request dài hơn `SERVER_SHUTDOWN_TIMEOUT`, cache OAS chung host, storage `local` cần RWX, SAML, arm64
       ngoài phạm vi, nightly 001 FR-112 chưa bật lại); bảng tham chiếu FR → mục README. Thêm một dòng trỏ tới
@@ -461,7 +490,9 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       nếu dùng `entrypoint` bọc trong compose thì ghi vào D-122), "Kết quả" các task vào `research.md`, trạng thái
       checklist `checklists/requirements.md`; cập nhật mục `Active Technologies`/`Recent Changes` của `CLAUDE.md` (dòng
       019 đã có từ plan; sửa nếu khác thực tế).
-- [ ] T116 Chạy toàn bộ: `pnpm nx run-many -t lint,typecheck`; `parity-tests:deploy` hai chế độ; `ci/test-template.sh`;
+- [ ] T116 Chạy toàn bộ: `pnpm nx run-many -t lint,typecheck`; `parity-tests:deploy` hai chế độ; SC-001: `for i in $(seq
+      10); do pnpm nx run parity-tests:deploy || break; done` (mỗi lần global-setup dựng env mới), ghi số lần đạt / lỗi và
+      file lỗi của từng lần; `ci/test-template.sh`;
       (`ci/kind-test.sh` nếu máy chạy được); kiểm thủ công SC-004: lấy `docker compose config` của service `directus`,
       đổi `image` sang `hiennd23/backoffice-api:local`, `diff` chỉ ra một dòng; ghi số liệu SC-001..SC-010 vào
       `research.md` "Kết quả T116".
@@ -477,14 +508,14 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 ### Phase Dependencies
 
 - Phase 1 (Setup): T001 trước mọi task dùng kết quả của nó (T012 cần (a), T031 cần (b), T091/T112 cần (c)(d)(e), T020/T022
-  cần (f), T011 cần (g)); T002, T003, T004 song song.
+  cần (f), T011 cần (g)); T002, T003, T004, T005 song song; T005 (duyệt D-120..D-122) xong trước T021, T031, T071.
 - Phase 2 (Foundational): T010 → T011 → T012 → T013 → T014 (tuần tự, cùng cụm file compose). Chặn mọi story về mặt
   chạy test; T020 và T030 (viết test) có thể viết song song với Phase 2 vì chỉ dùng `docker run`.
 - Phase 3 (US8) và Phase 4 (US1) độc lập, cùng lượt 1; T033 đóng lượt sau cả hai.
 - Phase 5 (US2) cần Phase 2; Phase 6, 7, 8 cần Phase 5 (compose hoàn thiện, log upstream). Phase 6 và 7 song song (khác
   file test, cùng env; chạy test tuần tự vì `fileParallelism: false`); Phase 8 sau 6 và 7 (tắt replica làm nhiễu test
   khác).
-- Phase 9 (US9) cần Phase 5 và 8 (retry/`lb` ổn); Phase 10 (US7) cần Phase 3, 4 (image) và có thể song song Phase 9
+- Phase 9 (US9) cần Phase 5 và 8 (retry/`lb` ổn) và T079 (duyệt ngoại lệ VIII) trước T080; Phase 10 (US7) cần Phase 3, 4 (image) và có thể song song Phase 9
   (khác thư mục).
 - Phase 11 sau tất cả; T110 → T111/T112 → T113 → T116 → T117; T114, T115 song song với T111/T112.
 
@@ -499,11 +530,11 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ### Parallel Opportunities
 
-- Phase 1: T002 | T003 | T004 (sau hoặc cùng lúc T001).
+- Phase 1: T002 | T003 | T004 | T005 (sau hoặc cùng lúc T001).
 - Lượt 1: T020 | T030 (test) song song với Phase 2; T021 → T022 → T023 | T031 → T032; rồi T033.
 - Lượt 2: T040 → T041 → T042 → T043; rồi T050 | T051 | T060 | T061 (viết) → T052 | T062 (chạy, tuần tự trên env) → T070 →
   T071 → T072 → T073.
-- Lượt 3: [US9] T080 → T081 → T082 → T083 song song với [US7] T090 | T091 → T092 → T093 | T094 | T095 → T096 → T097 → T098; rồi
+- Lượt 3: [US9] T079 → T080 → T081 → T082 → T083 song song với [US7] T090 | T091 → T092 → T093 | T094 | T095 → T096 → T097 → T098; rồi
   T099.
 - Lượt 4: T110 → T111 | T112 | T114 | T115 → T113 → T116 → T117.
 
@@ -511,7 +542,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ```text
 Lượt 1:
-  T001 → song song: T002 | T003 | T004 | T020 (viết) | T030 (viết)
+  T001 → song song: T002 | T003 | T004 | T005 (duyệt) | T020 (viết) | T030 (viết)
   tuần tự: T010 → T011 → T012 → T013 → T014
   song song: [US8] T021 → T022 → T023   |   [US1] T031 → T032
   rồi: T033
@@ -522,7 +553,7 @@ Lượt 2:
   tuần tự (chạy trên env): T052 → T062 → T070 → T071 → T072 → T073
 
 Lượt 3:
-  song song: [US9] T080 → T081 → T082 → T083   |   [US7] (T090 | T091) → T092 → (T093 | T094 | T095) → T096 → T097 → T098
+  song song: [US9] T079 → T080 → T081 → T082 → T083   |   [US7] (T090 | T091) → T092 → (T093 | T094 | T095) → T096 → T097 → T098
   rồi: T099
 
 Lượt 4:

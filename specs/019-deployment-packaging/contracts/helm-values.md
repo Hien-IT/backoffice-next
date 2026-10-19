@@ -55,6 +55,31 @@ or set a parent domain that covers both hosts (for example "example.com"), then 
 `helm template` với values tối thiểu (`directus.configMap`, `directus.secret`, `ingress.host`) phải qua
 `kubeconform -strict` cho Kubernetes 1.29.
 
+## Kiểm cấu hình đa instance (FR-053)
+
+Mọi chế độ, khi cài/nâng cấp thật (`lookup`). Đọc ConfigMap `directus.configMap` và Secret `directus.secret` như Directus
+đọc env. Lý do dừng:
+
+| Điều kiện | Lý do trong thông báo | Giá trị cần đặt trong env Directus |
+|-----------|----------------------|-------------------------------------|
+| có `REDIS_ENABLED` mà khác `true`; hoặc không có `REDIS_ENABLED`, không có `REDIS` và không có khóa `REDIS_*` | No Redis configured | `REDIS=redis://...` (hoặc `REDIS_HOST`...) |
+| `CACHE_STORE` không đặt hoặc `memory` | CACHE_STORE is "memory" | `CACHE_STORE=redis` |
+| `RATE_LIMITER_STORE` không đặt hoặc `memory` | RATE_LIMITER_STORE is "memory" | `RATE_LIMITER_STORE=redis` |
+| `SYNCHRONIZATION_STORE` khác `redis` | SYNCHRONIZATION_STORE is not "redis" (scheduled flows run on every instance) | `SYNCHRONIZATION_STORE=redis` |
+| không có `SECRET` | SECRET is not set (each instance generates its own: tokens fail across instances) | `SECRET=<chuỗi cố định>` |
+| `DB_CLIENT` không đặt hoặc `sqlite3` | DB_CLIENT is "sqlite3" or not set (each container has its own database) | `DB_CLIENT=pg` (hoặc vendor đang dùng) + `DB_*` |
+| `STORAGE_LOCATIONS` không đặt hoặc có `local`, và `uploads.existingClaim` rỗng | storage "local" without a shared volume | location `s3`, hoặc đặt `uploads.existingClaim` (PVC RWX) |
+
+Danh sách đầy đủ, gồm biến theo tình huống và khuyến nghị: spec mục "Env Directus bắt buộc khi chạy nhiều instance".
+
+Ví dụ:
+
+```text
+Error: ConfigMap directus-config / Secret directus-secret are only safe for a single instance:
+  - SYNCHRONIZATION_STORE is not "redis" (scheduled flows run on every instance): set SYNCHRONIZATION_STORE=redis
+Change the Directus env, then install again.
+```
+
 ## Chế độ domain riêng (`values-separate-domain.yaml`)
 
 ```yaml

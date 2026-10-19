@@ -21,8 +21,8 @@ Image mặc định: `hiennd23/backoffice-{api,web}:${BACKOFFICE_TAG:-latest}`; 
 | `minio` | `cgr.dev/chainguard/minio` (như parity; image có sẵn `mc` và shell) | không | `mc ready local` | — |
 | `minio-init` | `cgr.dev/chainguard/minio` (như parity: `mc mb --ignore-existing`) | — | thoát 0 sau khi tạo bucket | `minio` healthy |
 | `directus` | `directus/directus:11.17.4` | 8095 | `/server/health` | postgres, redis healthy; minio-init xong |
-| `backoffice-api` | BE, `deploy.replicas: ${BACKOFFICE_REPLICAS:-2}` | `8055` → cổng ngẫu nhiên mỗi replica | `/server/health` | directus healthy |
-| `backoffice-web` | FE | không | `/admin/config.json` | — |
+| `backoffice-api` | BE, `platform: linux/amd64`, `deploy.replicas: ${BACKOFFICE_REPLICAS:-2}` | `8055` → cổng ngẫu nhiên mỗi replica | `/server/health` | directus healthy |
+| `backoffice-web` | FE, `platform: linux/amd64` | không | `/admin/config.json` | — |
 | `lb` | `nginx:1.28-alpine` | 8090 (và 8091 ở chế độ domain riêng) | `nginx -t` lúc khởi động | backoffice-api, backoffice-web healthy |
 
 `stop_grace_period: 30s` cho `backoffice-api` và `directus`.
@@ -33,7 +33,8 @@ Image mặc định: `hiennd23/backoffice-{api,web}:${BACKOFFICE_TAG:-latest}`; 
 - `backoffice-web`: `env_file: .env` (chỉ đọc `PUBLIC_URL`, `CONTENT_SECURITY_POLICY_*`).
 - `.env.example` (khóa chính): `PUBLIC_URL=http://localhost:8090`, `SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `DB_*`
   (pg), `REDIS=redis://redis:6379`, `CACHE_ENABLED=true`, `CACHE_STORE=redis`, `CACHE_AUTO_PURGE=true`,
-  `RATE_LIMITER_STORE=redis`, `STORAGE_LOCATIONS=s3`, `STORAGE_S3_*` (MinIO, `FORCE_PATH_STYLE=true`), `TUS_ENABLED=true`,
+  `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis` (lock flow theo lịch, job dọn TUS, retention; mặc định
+  Directus là bộ nhớ process), `STORAGE_LOCATIONS=s3`, `STORAGE_S3_*` (MinIO, `FORCE_PATH_STYLE=true`), `TUS_ENABLED=true`,
   `WEBSOCKETS_ENABLED=false`. Secret là chuỗi rỗng trong `.env.example`; `init-env.sh` điền bằng `openssl rand`.
 - Domain riêng (`docker-compose.separate-domain.yml`): `backoffice-api` và `backoffice-web` thêm `environment:
   PUBLIC_URL: http://localhost:8091`; `.env` không đổi.
