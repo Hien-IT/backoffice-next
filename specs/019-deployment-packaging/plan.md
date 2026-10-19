@@ -31,9 +31,9 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 
 **Primary Dependencies**: đã có: `node:22.23.3-alpine3.24` (build và runtime BE), `nginxinc/nginx-unprivileged:1.28.0-alpine`
 (FE), `directus/directus:11.17.4`, `postgis/postgis`, `redis:7-alpine`, `cgr.dev/chainguard/minio`, Vitest 3.2.4,
-`autocannon` (catalog, tests/benchmark), `ioredis`, `knex`/`pg` của `tests/parity`. Thêm (không phải package npm):
-`nginx:1.28-alpine` cho `lb`, Helm, kind, kubeconform, chart Traefik chỉ trong CI (R12, ghim ở T001). Thêm `autocannon`
-vào devDependencies của `tests/parity` (catalog sẵn).
+`autocannon`, `ioredis`, `knex`, `pg` (đã có trong devDependencies của `tests/parity`). Thêm (không phải package npm):
+`tini` (package Alpine, PID 1 của image BE, FR-026), `nginx-unprivileged` cho `lb` (cùng image FE, FR-025), Helm, kind,
+kubeconform, chart Traefik chỉ trong CI (R12, ghim ở T001).
 
 **Storage**: không bảng mới, không migration. Compose: volume Postgres, Redis, MinIO; storage `s3` trên MinIO (bucket
 tạo bởi `minio-init`). Chart: không lưu gì; tùy chọn PVC có sẵn cho storage `local`.

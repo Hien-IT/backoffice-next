@@ -71,6 +71,9 @@ trường cần một bộ cấu hình riêng, trái Nguyên tắc VIII.
    image chạy cùng uid/gid.
 4. **Given** DB mới chưa có bảng hệ thống, **When** chỉ chạy BE (không có Directus nào), **Then** BE dừng và báo thiếu
    migration như 001; tài liệu ghi phải chạy `directus bootstrap` (image Directus) một lần trước.
+5. **Given** container BE đang chạy, **When** xem tiến trình, **Then** PID 1 là init, Node là tiến trình con chạy bằng
+   uid 1000; một tiến trình con mồ côi đã thoát được dọn trong vòng 1 giây (không còn trạng thái zombie); SIGTERM làm
+   container thoát mã 143 sau trình tự tắt máy của 001 (FR-025, FR-026).
 
 ---
 
@@ -303,7 +306,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 | User story | Requirement |
 |------------|-------------|
-| US1 | FR-020..FR-024 |
+| US1 | FR-020..FR-026 |
 | US2 | FR-040..FR-044 |
 | US3, US4, US5 | FR-030, FR-060..FR-063 |
 | US6 | FR-031..FR-035, FR-064 |
@@ -340,7 +343,21 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   commit build.
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
 - **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap; bỏ ghi đè
-  `command`/`args` gọi CLI Directus; extension của Directus không chạy trên BE (Nguyên tắc XI).
+  `command`/`args` gọi CLI Directus (ghi đè `command` trên Kubernetes còn bỏ qua init của FR-026); extension của Directus
+  không chạy trên BE (Nguyên tắc XI).
+
+**Bảo mật container**
+
+- **FR-025**: Mọi container do 019 định nghĩa hoặc build PHẢI chạy tiến trình chính bằng user không phải root: BE (uid
+  1000, `node`), FE (uid 101, nginx), load balancer của compose (image nginx unprivileged). Chart PHẢI đặt cho pod BE và FE
+  `runAsNonRoot: true`, `runAsUser`/`runAsGroup` theo image, `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]`.
+  Image bên thứ ba chỉ dùng cho dev (Postgres, Redis, MinIO) và image Directus: tiến trình chính sau entrypoint không phải
+  root (Directus `USER node`, MinIO của Chainguard non-root, Postgres và Redis hạ quyền trong entrypoint); test kiểm uid của
+  tiến trình chính mọi service.
+- **FR-026**: Image BE PHẢI chạy một init nhỏ làm PID 1 (`tini`, cài từ kho package của Alpine trong image Node, không phải
+  package npm) với `node dist/main.js` là tiến trình con: init dọn mọi tiến trình con mồ côi đã thoát (không để lại tiến
+  trình zombie) và chuyển SIGTERM/SIGINT/SIGHUP cho Node; mã thoát của container là mã của Node (143 khi SIGTERM, FR-033).
+  Trình tự tắt máy của 001 không đổi. FE không cần thêm: nginx master đã thu dọn worker của nó.
 
 **Đa replica và tắt máy**
 
@@ -453,7 +470,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Duyệt (Nguyên tắc X) |
 |----|----------|------------------|---------|-------|------|----------------------|
 | D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | chờ tech lead (T005) |
-| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`) | Một process, không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | chờ tech lead (T005) |
+| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | chờ tech lead (T005) |
 | D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | chờ tech lead (T005) |
 
 **Cần xác nhận**: Không có.
@@ -495,6 +512,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - Chủ dự án (2026-10-20, "mặc định bật REDIS"): env thật của Directus đã bật Redis sẵn (`REDIS`, các `*_STORE=redis`).
   FR-053 chỉ là lưới an toàn: cài chart trên env đó không bị dừng; chỉ báo khi thiếu (ví dụ chưa có
   `SYNCHRONIZATION_STORE=redis`). Compose dev bật Redis sẵn. Chart không cài Redis riêng và không tự đặt `*_STORE`.
+- Chủ dự án (2026-10-20): dùng image non-root; image Node của BE thêm thư viện chặn tiến trình zombie → FR-025, FR-026
+  (`tini` từ kho Alpine; lý do chọn ở research R3).
 - Cảnh báo một instance của 001 (`apps/api/src/config/warn-single-instance.ts`) chưa có `SYNCHRONIZATION_STORE`. Thêm vào
   đó là sửa code API, ngoài phạm vi 019 (019 không sửa `apps/api/src`); 019 kiểm ở chart (FR-053) và tài liệu.
 - Test chấp nhận chạy trên compose; trên cụm Kubernetes cục bộ CI chỉ kiểm cài chart, probe, định tuyến Ingress và

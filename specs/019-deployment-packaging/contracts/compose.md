@@ -23,7 +23,7 @@ Image mặc định: `hiennd23/backoffice-{api,web}:${BACKOFFICE_TAG:-latest}`; 
 | `directus` | `directus/directus:11.17.4` | 8095 | `/server/health` | postgres, redis healthy; minio-init xong |
 | `backoffice-api` | BE, `platform: linux/amd64`, `deploy.replicas: ${BACKOFFICE_REPLICAS:-2}` | `8055` → cổng ngẫu nhiên mỗi replica | `/server/health` | directus healthy |
 | `backoffice-web` | FE, `platform: linux/amd64` | không | `/admin/config.json` | — |
-| `lb` | `nginx:1.28-alpine` | 8090 (và 8091 ở chế độ domain riêng) | `nginx -t` lúc khởi động | backoffice-api, backoffice-web healthy |
+| `lb` | `nginxinc/nginx-unprivileged:1.28.0-alpine` (non-root, FR-025; nghe 8080/8081 trong container) | 8090 → 8080 (và 8091 → 8081 ở chế độ domain riêng) | `nginx -t` lúc khởi động | backoffice-api, backoffice-web healthy |
 
 `stop_grace_period: 30s` cho `backoffice-api` và `directus`.
 
@@ -41,7 +41,7 @@ Image mặc định: `hiennd23/backoffice-{api,web}:${BACKOFFICE_TAG:-latest}`; 
 
 ## Định tuyến của `lb`
 
-Chung domain (`lb/shared-domain.conf`), cổng 8090:
+Chung domain (`lb/shared-domain.conf`), cổng 8090 trên máy (8080 trong container):
 
 | Path | Đích |
 |------|------|
@@ -50,11 +50,11 @@ Chung domain (`lb/shared-domain.conf`), cổng 8090:
 
 Domain riêng (`lb/separate-domain.conf`):
 
-| Cổng | Path | Đích |
-|------|------|------|
-| 8090 | mọi path (kể cả `/admin` của Directus) | `directus:8055` |
-| 8091 | `= /admin`, `/admin/` | `backoffice-web:8080` |
-| 8091 | còn lại | `upstream bo_pool { backoffice-api:8055 resolve; }` |
+| Cổng trên máy (trong container) | Path | Đích |
+|---------------------------------|------|------|
+| 8090 (8080) | mọi path (kể cả `/admin` của Directus) | `directus:8055` |
+| 8091 (8081) | `= /admin`, `/admin/` | `backoffice-web:8080` |
+| 8091 (8081) | còn lại | `upstream bo_pool { backoffice-api:8055 resolve; }` |
 
 Chung cho mọi `location` proxy: `proxy_http_version 1.1`, không `keepalive` tới upstream, `proxy_next_upstream error
 timeout`, `client_max_body_size 0`, `proxy_request_buffering off`, `proxy_read_timeout 300s`, header `Host`,

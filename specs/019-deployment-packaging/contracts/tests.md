@@ -13,13 +13,13 @@
 | File | Chế độ | Kiểm | Spec |
 |------|--------|------|------|
 | `smoke.test.ts` | chung | 4 instance `pong`; health qua `lb`; `config.json`; số replica | FR-040, FR-043 |
-| `compose.test.ts` | chung | env giống nhau; healthy; thứ tự khởi động; xoay vòng gồm Directus; SPA fallback qua `lb`; `X-Forwarded-For` → `directus_activity.ip` như Directus; image Backoffice `amd64`; scale 6 replica rồi về 3 | US2, FR-023, FR-030, FR-041..FR-044, FR-051 |
+| `compose.test.ts` | chung | env giống nhau; healthy; thứ tự khởi động; xoay vòng gồm Directus; SPA fallback qua `lb`; `X-Forwarded-For` → `directus_activity.ip` như Directus; image Backoffice `amd64`; scale 6 replica rồi về 3; tiến trình chính mọi service không chạy uid 0 | US2, FR-023, FR-025, FR-030, FR-041..FR-044, FR-051 |
 | `sessions.test.ts` | chung | token, cookie, session qua 4 instance; refresh chéo; logout chéo; khóa sau `AUTH_LOGIN_ATTEMPTS` lần sai luân phiên | US3, FR-030 |
 | `schema.test.ts` | chung | field mới thấy ngay ở 3 instance còn lại; permission sửa ở Directus có hiệu lực ở BE; response cache không trả bản cũ | US4, FR-063 |
 | `flows-schedule.test.ts` | chung | ≥ 10 lượt cron `*/2 * * * * *`, đúng 1 lần mỗi lượt; tắt instance rồi lượt kế vẫn chạy | US5, FR-062 |
 | `tus.test.ts` | chung | ≥ 4 chunk xoay vòng 4 instance; SHA-256 trên MinIO; 1 dòng `directus_files`; tiếp tục sau khi tắt instance | US5, FR-061 |
 | `shutdown.test.ts` | chung | `autocannon` 60 s qua `lb`; TERM một replica; scale lại 3; 0 lỗi; mã 143; kết nối DB/Redis về 0 | US6, FR-064 |
-| `image-swap.test.ts` | chung | container BE với env/mount của `directus`; health, đăng nhập, upload; `docker inspect` env và mount giống | US1, FR-020 |
+| `image-swap.test.ts` | chung | container BE với env/mount của `directus`; health, đăng nhập, upload; `docker inspect` env và mount giống; PID 1 là `tini`, zombie được dọn, `docker stop` → 143, uid 1000 | US1, FR-020, FR-025, FR-026 |
 | `web-image.test.ts` | chung | 2 FE khác `PUBLIC_URL`; deep link; header cache; CSP FE = CSP Directus `/admin` ở 3 bộ env | US8, FR-001..006 |
 | `separate-domain.test.ts` | riêng | `Location` TUS ở 8091; link share (`/shares/invite`, log D-36) theo 8091; sửa ở 8090 thấy ở 8091 và ngược lại; `Set-Cookie` không `Domain`; `config.json` của 8091 | US9, FR-075 |
 

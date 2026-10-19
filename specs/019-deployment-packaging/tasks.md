@@ -59,7 +59,12 @@ sau chỉ thêm file test.
       kubeconform, chart Traefik, action `azure/setup-helm`, `helm/kind-action` (R12) kèm ngày phát hành ≥ 14 ngày; (f)
       `curl -sI http://localhost:8055/admin` trên `dev/directus-reference` (đã chạy) lấy chuỗi CSP, `Cache-Control`,
       `Vary` mặc định của Directus và ghi nguyên văn (mốc cho T020); (g) ảnh `postgis/postgis` và Redis đang dùng ở
-      `dev/directus-reference/docker-compose.yml` để compose 019 dùng cùng bản.
+      `dev/directus-reference/docker-compose.yml` để compose 019 dùng cùng bản; (h) FR-026: `docker run --rm
+      node:22.23.3-alpine3.24 sh -c 'apk add --no-cache tini && tini --version'` có package `tini` trên Alpine 3.24 và ghi
+      bản; chạy `docker run -d` cùng image với lệnh `sh -c 'apk add --no-cache tini && exec tini -- node -e
+      "setInterval(() => {}, 1000)"'` (cần `--user root` cho `apk`, chỉ trong bước kiểm này), `docker stop` rồi
+      `docker inspect .State.ExitCode` = 143 (Node thoát theo SIGTERM, `tini` trả 128 + 15); kiểm thật trên image BE ở T030
+      (7). Không có package `tini` thì dùng `dumb-init` của Alpine (R3) và sửa T031.
 - [ ] T002 [P] Thêm target Nx `deploy` vào `tests/parity/project.json` (`PARITY_SUITE=deploy node scripts/parity.mjs`
       hoặc lệnh `vitest run -c vitest.deploy.config.ts`, cùng kiểu với `parity-blackbox`), file
       `tests/parity/vitest.deploy.config.ts` (`include: ['src/deploy/**/*.test.ts']`, `globalSetup:
@@ -106,8 +111,8 @@ trở đi về mặt test; nội dung compose hoàn thiện ở Phase 5.
       còn lại → `upstream api_pool` gồm `directus:8055` và `backoffice-api:8055` theo kết quả T001 (a); không
       `keepalive`; `proxy_next_upstream error timeout`; `client_max_body_size 0`; `proxy_request_buffering off`;
       `proxy_read_timeout 300s`; header `Host`, `X-Forwarded-For`, `X-Forwarded-Proto`) và service `lb` trong
-      `compose/docker-compose.yml` (`nginx:1.28-alpine`, cổng 8090, mount conf read-only, `depends_on` web và api
-      healthy).
+      `compose/docker-compose.yml` (`nginxinc/nginx-unprivileged:1.28.0-alpine` như FE, non-root FR-025; conf nghe 8080,
+      publish `8090:8080`; mount conf read-only, `depends_on` web và api healthy).
 - [ ] T013 Viết `deploy-tests/global-setup.ts`: chạy `compose/init-env.sh --out <tmp>/.env` rồi ghi thêm
       `AUTH_LOGIN_ATTEMPTS=5`, `TUS_CHUNK_SIZE=1mb` (giá trị test, contracts/tests.md); `docker compose -p bo-deploy
       up -d --wait` với `BACKOFFICE_REPLICAS=3`, `BACKOFFICE_TAG=${BACKOFFICE_TAG:-local}`, thêm override khi
@@ -179,14 +184,20 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       bằng nhau, `Mounts` (Destination) bằng nhau, `Config.User`/uid bằng nhau; (3) nhãn
       `io.backoffice.directus-compat=11.17.4`, `org.opencontainers.image.revision` có; (4) log khởi động có cảnh báo cho
       biến chỉ Directus dùng nếu thêm `PM2_INSTANCES=2` và `SERVE_APP=true` vào env (không dừng); (5) với DB rỗng (Postgres
-      tạm `docker run`), BE thoát mã ≠ 0 và log nêu migration thiếu. Chạy đỏ (nhãn chưa có).
+      tạm `docker run`), BE thoát mã ≠ 0 và log nêu migration thiếu; (6) FR-026: `docker exec <c> cat /proc/1/cmdline`
+      chứa `tini`, `docker exec <c> ps -o pid,ppid,user,comm` có `node` con của PID 1 chạy bằng user `node`; zombie:
+      `docker exec <c> sh -c 'sh -c "sleep 0.2 &"'` (tiến trình `sleep` mồ côi bị gán về PID 1), chờ 1 s, `ps -o stat` không
+      còn dòng `Z`; (7) `docker stop` container BE → `docker inspect .State.ExitCode` = 143, log có dòng tắt máy của 001;
+      (8) FR-025: `docker exec <c> id -u` = 1000. Chạy đỏ (nhãn, `tini` chưa có).
 
 ### Implementation cho User Story 1
 
 - [ ] T031 [US1] Sửa `apps/api/Dockerfile`: `ARG BACKOFFICE_VERSION=0.0.0 VCS_REF=unknown`; `LABEL
       org.opencontainers.image.title="backoffice-api" org.opencontainers.image.version=$BACKOFFICE_VERSION
       org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source="<URL repo>"
-      io.backoffice.directus-compat="11.17.4"`; không `HEALTHCHECK` (R3); giữ nguyên phần còn lại. Đọc
+      io.backoffice.directus-compat="11.17.4"`; runtime stage: `RUN apk add --no-cache tini` (bản T001 (h)) trước `USER
+      node`, `ENTRYPOINT ["/sbin/tini", "--"]`, `CMD ["node", "dist/main.js"]` (FR-026, R3; comment một dòng lý do: Node
+      làm PID 1 không dọn zombie); không `HEALTHCHECK` (R3); giữ nguyên phần còn lại. Đọc
       `BACKOFFICE_VERSION` mặc định từ `apps/api/package.json` trong lệnh build của CI (T110), không trong Dockerfile.
 - [ ] T032 [US1] Build `hiennd23/backoffice-api:local` với `--build-arg`, chạy T030 xanh; ghi vào `deploy/README.md`
       (tạo file, mục "Thay image Directus bằng Backoffice") các giới hạn FR-024: DB phải đã bootstrap, bỏ `command`/`args`
@@ -219,8 +230,10 @@ thấy request rơi vào cả hai replica.
       203.0.113.9`, lặp tới khi có một lần rơi vào replica BE và một lần rơi vào Directus (đọc `$upstream_addr` trong log
       `lb`): `directus_activity.ip` của cả hai lần đăng nhập là `203.0.113.9`; (7) FR-023: `docker image inspect` image
       `backoffice-api` và `backoffice-web` có `Architecture=amd64`; (8) FR-030: `docker compose up -d --scale
-      backoffice-api=6 --wait`, 6 replica trả `pong` và `GET /users/me` 200 với cùng một token, rồi scale về 3. Chạy đỏ
-      ở (4), (6) nếu `lb` chưa ghi log upstream.
+      backoffice-api=6 --wait`, 6 replica trả `pong` và `GET /users/me` 200 với cùng một token, rồi scale về 3; (9)
+      FR-025: `docker compose top` (cột UID) cho mọi service đang chạy: tiến trình chính của `backoffice-api`,
+      `backoffice-web`, `lb`, `directus`, `minio`, `postgres`, `redis` không chạy bằng uid 0 (nginx: cả master và worker).
+      Chạy đỏ ở (4), (6) nếu `lb` chưa ghi log upstream, ở (9) nếu `lb` còn image root.
 
 ### Implementation cho User Story 2
 
@@ -398,7 +411,8 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       bằng `grep`/`yq` (nếu có, không thì `grep -c`): không có `name: PUBLIC_URL` trong a.yaml; `envFrom` có `cm` và
       `sec` ở api, chỉ `cm` ở web; selector Service api chỉ có `backoffice.io/api-pool`; readiness path
       `/server/health`, liveness và startup `/server/ping`; `preStop` `sleep 10`; `terminationGracePeriodSeconds: 30`;
-      `maxUnavailable: 0`; HPA `autoscaling/v2` có; `runAsNonRoot: true`; với `-f values-separate-domain.yaml` thêm
+      `maxUnavailable: 0`; HPA `autoscaling/v2` có; `runAsNonRoot: true`, `allowPrivilegeEscalation: false`,
+      `capabilities.drop` có `ALL` ở cả hai Deployment (FR-025); với `-f values-separate-domain.yaml` thêm
       `--set directus.configMap=cm --set directus.secret=sec`: có đúng một `name: PUBLIC_URL` ở api và một ở web, không có
       biến khác; không có `COOKIE_DOMAIN` nào trong output ở mọi bộ values; với `--set
       uploads.existingClaim=pvc` có volume ở `/directus/uploads`; `--set ingress.extraPaths[0].path=/auth/login/saml`…
@@ -429,11 +443,13 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       (tên, nhãn chuẩn `app.kubernetes.io/*`, nhãn pool), `chart/.helmignore`.
 - [ ] T093 [P] [US7] Viết `chart/templates/api-deployment.yaml` (envFrom `required`, `env` chỉ `PUBLIC_URL` khi
       `domain.publicUrl` khác rỗng, probe theo `contracts/images.md`, `lifecycle.preStop.exec sleep`, `terminationGracePeriodSeconds`,
-      `strategy`, `securityContext` uid 1000, `resources`, volume `uploads.existingClaim`, `replicas` chỉ khi autoscaling
+      `strategy`, `securityContext` uid/gid 1000 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+      `capabilities.drop: [ALL]` (FR-025), `resources`, volume `uploads.existingClaim`, `replicas` chỉ khi autoscaling
       tắt), `chart/templates/api-service.yaml` (selector chỉ nhãn pool), `chart/templates/api-hpa.yaml`
       (`autoscaling/v2`, CPU utilization).
 - [ ] T094 [P] [US7] Viết `chart/templates/web-deployment.yaml` (envFrom chỉ ConfigMap, `env PUBLIC_URL` khi
-      `domain.publicUrl`, probe `/admin/config.json`, uid 101, `resources`), `chart/templates/web-service.yaml`,
+      `domain.publicUrl`, probe `/admin/config.json`, uid/gid 101 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
+      `capabilities.drop: [ALL]` (FR-025), `resources`), `chart/templates/web-service.yaml`,
       `chart/templates/ingress.yaml` (`ingress.extraPaths` trước, `/admin` Prefix → web 8080, `/` Prefix → api 8055,
       `className`, `tls`, `annotations`), `chart/templates/NOTES.txt` (URL, cách thêm nhãn pool cho Directus, chế độ domain
       riêng).

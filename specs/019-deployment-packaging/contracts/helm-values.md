@@ -45,10 +45,10 @@ or set a parent domain that covers both hosts (for example "example.com"), then 
 
 | Tài nguyên | Tên | Ghi chú |
 |------------|-----|---------|
-| Deployment | `<release>-api` | nhãn pod `app.kubernetes.io/{name,instance,component=api}`, `backoffice.io/api-pool: <apiPool.name>`; `rollingUpdate maxSurge 1, maxUnavailable 0`; `securityContext` `runAsNonRoot`, `runAsUser/runAsGroup/fsGroup 1000`; probe theo contracts/images.md; `preStop` |
+| Deployment | `<release>-api` | nhãn pod `app.kubernetes.io/{name,instance,component=api}`, `backoffice.io/api-pool: <apiPool.name>`; `rollingUpdate maxSurge 1, maxUnavailable 0`; `securityContext` `runAsNonRoot`, `runAsUser/runAsGroup/fsGroup 1000`, container `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]` (FR-025); probe theo contracts/images.md; `preStop` |
 | Service | `<release>-api` | ClusterIP 8055, selector chỉ `backoffice.io/api-pool: <apiPool.name>` |
 | HorizontalPodAutoscaler | `<release>-api` | khi `api.autoscaling.enabled` |
-| Deployment | `<release>-web` | uid 101, probe `/admin/config.json`, `envFrom` chỉ ConfigMap |
+| Deployment | `<release>-web` | uid/gid 101, `runAsNonRoot`, `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]`, probe `/admin/config.json`, `envFrom` chỉ ConfigMap |
 | Service | `<release>-web` | ClusterIP 8080 |
 | Ingress | `<release>` | `ingress.extraPaths`, rồi `/admin` (Prefix) → web, `/` (Prefix) → api |
 

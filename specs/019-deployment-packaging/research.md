@@ -41,6 +41,19 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   nhãn cho FE. Không `HEALTHCHECK` trong image (Directus không có; compose và chart tự khai báo). User `node` của
   `node:22-alpine` là uid/gid 1000, trùng image Directus (`directus/Dockerfile:56` cũng `USER node` trên node alpine) nên
   file trên volume dùng chung không lệch quyền (FR-020).
+- **Init chặn zombie (FR-026)**: runtime stage cài `tini` bằng `apk add --no-cache tini` (trước `USER node`),
+  `ENTRYPOINT ["/sbin/tini", "--"]`, `CMD ["node", "dist/main.js"]`. Hiện nay `docker-entrypoint.sh` của image Node
+  `exec` thẳng `node`, nên Node là PID 1: Node không gọi `wait()` cho tiến trình mồ côi bị gán lại về PID 1, chúng thành
+  zombie. `tini` chuyển tín hiệu cho con và thoát với mã của con (bị tín hiệu giết thì 128 + số tín hiệu, tức 143 với
+  SIGTERM) [Unverified: T001 (h) kiểm trên image đã build]. Phiên bản: bản `tini` của Alpine 3.24 [Unverified: T001 (h)
+  ghi bản].
+  - Alternatives: `dumb-init` (cũng có trong Alpine; tương đương, bị loại chỉ vì `tini` là init mà `docker run --init`
+    dùng và phổ biến hơn); `docker run --init` / `init: true` của compose (bị loại: Kubernetes không có tùy chọn này, và
+    "chỉ đổi image" thì không thêm được); package npm (bị loại: init phải là PID 1 trước Node).
+- **Non-root (FR-025)**: BE `USER node` (1000) và FE nginx-unprivileged (101) đã có; `lb` của compose đổi sang
+  `nginxinc/nginx-unprivileged:1.28.0-alpine` (cùng image FE), nghe 8080/8081 trong container, publish ra 8090/8091.
+  Chart thêm `allowPrivilegeEscalation: false`, `capabilities.drop: [ALL]` (không cần quyền nào: cổng > 1024).
+  Không đặt `readOnlyRootFilesystem` (FE ghi `config.json`, `csp.inc` lúc khởi động; không có trong yêu cầu).
 - **Rationale**: image đã đạt FR-020/021 từ 001 (`WORKDIR /directus`, cổng 8055, một process, không bootstrap).
 - **Alternatives**: `HEALTHCHECK` trong image (bị loại: Kubernetes bỏ qua, compose tự khai báo được, khác Directus).
 
