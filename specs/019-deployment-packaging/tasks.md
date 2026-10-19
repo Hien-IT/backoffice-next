@@ -81,7 +81,7 @@ sau chỉ thêm file test.
       http://127.0.0.1:8090`, `boLbUrl = http://127.0.0.1:8091` (domain riêng), `containerId(service, index)`,
       `login(url, mode)` dùng helper sẵn có của `tests/parity/src/auth-helpers` nếu phù hợp; test
       `deploy-tests/instances.test.ts` chỉ kiểm hàm dựng lệnh (không gọi Docker).
-- [ ] T005 Xin tech lead duyệt D-120, D-121, D-122 (Nguyên tắc X: mọi khác biệt với Directus PHẢI được tech lead duyệt):
+- [X] T005 Xin tech lead duyệt D-120, D-121, D-122 (Nguyên tắc X: mọi khác biệt với Directus PHẢI được tech lead duyệt):
       gửi bảng "Khác biệt so với Directus" của `specs/019-deployment-packaging/spec.md` cho chủ dự án qua chat; ghi kết quả
       (ngày, người duyệt, ý kiến) vào cột "Duyệt" của bảng thay cho "chờ tech lead (T005)". Mục nào bị từ chối: dừng và
       sửa spec/plan trước khi làm task chạm mục đó (T021, T022 cho D-120; T031 cho D-121; T071, T093 cho D-122).
@@ -182,8 +182,8 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       chờ `/server/health` 200; đăng nhập admin; `POST /files` một ảnh nhỏ; `GET /files/<id>` qua Directus (8095)
       thấy file; (2) `docker inspect` hai container: tập `Config.Env`
       bằng nhau, `Mounts` (Destination) bằng nhau, `Config.User`/uid bằng nhau; (3) nhãn
-      `io.backoffice.directus-compat=11.17.4`, `org.opencontainers.image.revision` có; (4) log khởi động có cảnh báo cho
-      biến chỉ Directus dùng nếu thêm `PM2_INSTANCES=2` và `SERVE_APP=true` vào env (không dừng); (5) với DB rỗng (Postgres
+      `io.backoffice.directus-compat=11.17.4`, `org.opencontainers.image.revision` có; (4) thêm `PM2_INSTANCES=2` và `SERVE_APP=true`
+      vào env: BE khởi động bình thường, log có dòng cảnh báo `SERVE_APP` của 001, không có dòng nào về `PM2_*`; (5) với DB rỗng (Postgres
       tạm `docker run`), BE thoát mã ≠ 0 và log nêu migration thiếu; (6) FR-026: `docker exec <c> cat /proc/1/cmdline`
       chứa `tini`, `docker exec <c> ps -o pid,ppid,user,comm` có `node` con của PID 1 chạy bằng user `node`; zombie:
       `docker exec <c> sh -c 'sh -c "sleep 0.2 &"'` (tiến trình `sleep` mồ côi bị gán về PID 1), chờ 1 s, `ps -o stat` không
@@ -201,7 +201,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       `BACKOFFICE_VERSION` mặc định từ `apps/api/package.json` trong lệnh build của CI (T110), không trong Dockerfile.
 - [ ] T032 [US1] Build `hiennd23/backoffice-api:local` với `--build-arg`, chạy T030 xanh; ghi vào `deploy/README.md`
       (tạo file, mục "Thay image Directus bằng Backoffice") các giới hạn FR-024: DB phải đã bootstrap, bỏ `command`/`args`
-      gọi CLI Directus, extension không chạy, `PM2_*`/`SERVE_APP` chỉ cảnh báo.
+      gọi CLI Directus, extension không chạy, `SERVE_APP` chỉ cảnh báo, `PM2_*` bị bỏ qua (scale bằng replica).
 - [ ] T033 [US1] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests web`; `parity-tests:deploy` xanh
       (smoke, web-image, image-swap); commit `feat(019): FE image serves /admin like Directus with CSP from env; OCI
       labels; deploy compose base and test harness` (Co-Authored-By theo quy ước); gửi hash + path cho 018; chờ id run;

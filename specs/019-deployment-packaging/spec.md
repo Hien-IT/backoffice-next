@@ -65,8 +65,10 @@ trường cần một bộ cấu hình riêng, trái Nguyên tắc VIII.
 1. **Given** một service Directus 11.17.4 với env, volume `/directus/uploads`, `/directus/database`,
    `/directus/extensions` và probe `/server/health`, **When** chỉ đổi image sang BE mới, **Then** instance khởi động,
    probe đạt, API trả như Directus (theo các spec 001–011), không có biến nào phải thêm, đổi tên hay xóa.
-2. **Given** env có biến chỉ Directus dùng (`PM2_INSTANCES`, `SERVE_APP`, biến extension, websocket),
-   **When** BE khởi động, **Then** BE chỉ ghi cảnh báo như 001 (FR về biến chưa hỗ trợ, D-08), không dừng.
+2. **Given** env có biến Directus mà BE không dùng (`SERVE_APP=true`, biến extension, websocket) và biến PM2 của image
+   Directus (`PM2_INSTANCES`...), **When** BE khởi động, **Then** BE không dừng: biến Directus chưa hỗ trợ và
+   `SERVE_APP=true` gây cảnh báo như 001 (D-08); biến `PM2_*` bị bỏ qua không cảnh báo, vì chúng không phải biến của
+   `@directus/env` (chỉ `directus/ecosystem.config.cjs` đọc).
 3. **Given** file trên volume local do Directus ghi, **When** BE đọc, ghi, xóa file đó, **Then** không lỗi quyền: hai
    image chạy cùng uid/gid.
 4. **Given** DB mới chưa có bảng hệ thống, **When** chỉ chạy BE (không có Directus nào), **Then** BE dừng và báo thiếu
@@ -338,7 +340,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   cùng cổng mặc định 8055, cùng thư mục làm việc `/directus`, cùng path volume (`/directus/uploads`,
   `/directus/database`, `/directus/extensions`), cùng uid/gid, cùng cách đọc env, `.env`, `CONFIG_PATH`, `_FILE` (001).
 - **FR-021**: Image BE PHẢI chạy một process, không chạy migration hay ghi bảng hệ thống khi khởi động (D-19 của 001,
-  Nguyên tắc II); biến chỉ Directus dùng chỉ gây cảnh báo.
+  Nguyên tắc II); biến Directus BE không dùng chỉ gây cảnh báo (001), biến `PM2_*` bị bỏ qua.
 - **FR-022**: Image BE PHẢI có nhãn phiên bản: phiên bản Backoffice và phiên bản Directus tương thích (11.17.4), và
   commit build.
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
@@ -470,7 +472,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Duyệt (Nguyên tắc X) |
 |----|----------|------------------|---------|-------|------|----------------------|
 | D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | Duyệt (chủ dự án, 2026-10-20) |
-| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | chờ tech lead (T005) |
+| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | Duyệt (chủ dự án, 2026-10-20) |
 | D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, 2026-10-20) |
 
 **Cần xác nhận**: Không có.
