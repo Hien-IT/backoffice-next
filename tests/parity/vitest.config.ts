@@ -11,6 +11,8 @@ export default defineConfig({
 			'src/flows/helpers.test.ts',
 			'src/system/helpers.test.ts',
 			'src/graphql/helpers.test.ts',
+			// Feature 019: the command builders of the deploy suite.
+			'src/deploy/instances.test.ts',
 		],
 		exclude: ['src/db-unchanged.test.ts', 'src/readonly-account.test.ts', 'src/redis-down.test.ts'],
 	},

@@ -36,14 +36,23 @@ Probe: `GET /admin/config.json`.
 
 Header `Content-Security-Policy` trên mọi response của FE, sinh một lần khi container khởi động:
 
-1. Nếu `CONTENT_SECURITY_POLICY_USE_DEFAULTS` khác `false`: bắt đầu từ directive mặc định của helmet.
-2. Gộp directive của Directus 11.17.4 (`directus/api/src/app.ts:166-195`): `script-src 'self' 'unsafe-eval'`, bỏ
-   `upgrade-insecure-requests`, `worker-src 'self' blob:`, `child-src 'self' blob:`, `img-src 'self' data: blob:
-   https://raw.githubusercontent.com https://avatars.githubusercontent.com`, `media-src 'self'`, `connect-src 'self'
-   https://* wss://*`.
-3. Với mỗi biến `CONTENT_SECURITY_POLICY_DIRECTIVES__<NAME>`: tên → `kebab-case` thường; giá trị bỏ tiền tố `array:`, tách
-   theo dấu phẩy, nối bằng khoảng trắng, thay directive cùng tên; giá trị `false` hoặc rỗng → bỏ directive.
-4. Thứ tự và cách viết khớp đúng header Directus trả cho `/admin` với cùng env (test `web-image.test.ts` so chuỗi).
+1. Directive của Directus 11.17.4 trước (`directus/api/src/app.ts:166-195`): `script-src 'self' 'unsafe-eval'`,
+   `worker-src 'self' blob:`, `child-src 'self' blob:`, `img-src 'self' data: blob: https://raw.githubusercontent.com
+   https://avatars.githubusercontent.com`, `media-src 'self'`, `connect-src 'self' https://* wss://*`
+   (`upgrade-insecure-requests` bị bỏ).
+2. Cuối cùng, nếu `CONTENT_SECURITY_POLICY_USE_DEFAULTS` khác `false`: các directive mặc định của helmet chưa có, theo thứ
+   tự `default-src`, `base-uri`, `font-src`, `form-action`, `frame-ancestors`, `object-src`, `script-src-attr`,
+   `style-src` (đo trên Directus thật, research "Kết quả T001" (f)).
+3. Với mỗi biến `CONTENT_SECURITY_POLICY_DIRECTIVES__<NAME>` (theo thứ tự tên biến): tên → `kebab-case` thường. Giá trị là
+   danh sách khi có tiền tố `array:` hoặc có dấu phẩy, không thì là một giá trị. Directive của Directus + giá trị danh sách:
+   gộp theo vị trí như lodash `merge` (phần tử i của env thay phần tử i của Directus, phần còn lại giữ nguyên; vì vậy
+   `IMG_SRC=array:'self',data:` không đổi gì). Directive của Directus + một giá trị: thay cả directive. Directive mới: thêm
+   sau directive của Directus, trước phần mặc định của helmet.
+4. Giá trị `false` làm Directus 11.17.4 không khởi động (đo ở T022): FE bỏ biến đó và ghi cảnh báo. Giá trị có `"`, `$`,
+   `\` (nginx không chứa được trong header): bỏ và ghi cảnh báo.
+5. Thứ tự và cách viết (`;` không khoảng trắng) khớp đúng header Directus trả cho `/admin` với cùng env; test
+   `web-image.test.ts` so chuỗi ở bốn bộ env (mặc định, `SCRIPT_SRC` dài hơn, `USE_DEFAULTS=false` + `DEFAULT_SRC`,
+   `FRAME_SRC` mới + `IMG_SRC` ngắn hơn).
 
 Ngoài phạm vi: các biến `CONTENT_SECURITY_POLICY_*` khác (`REPORT_ONLY`...): nếu có trong env thì `40-config.sh` ghi
 cảnh báo ra stderr và bỏ qua.

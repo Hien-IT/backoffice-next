@@ -38,6 +38,9 @@ EOF
 
 FROM node:${NODE_VERSION} AS runtime
 
+# FR-026: Node as PID 1 does not reap orphaned children (zombies); tini does and forwards signals to Node.
+RUN apk add --no-cache tini
+
 USER node
 
 # Same working directory and defaults as the Directus image, so relative paths in a shared config
@@ -54,4 +57,14 @@ COPY --from=builder --chown=node:node /directus/dist .
 
 EXPOSE 8055
 
+# Feature 019 (FR-022): version labels, last so that a new commit keeps the cached layers (CI sets both ARGs).
+ARG BACKOFFICE_VERSION=0.0.0
+ARG VCS_REF=unknown
+LABEL \
+	org.opencontainers.image.title="backoffice-api" \
+	org.opencontainers.image.version="${BACKOFFICE_VERSION}" \
+	org.opencontainers.image.revision="${VCS_REF}"
+
+
+ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/main.js"]

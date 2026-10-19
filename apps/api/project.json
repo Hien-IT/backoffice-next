@@ -2,5 +2,19 @@
 	"name": "api",
 	"$schema": "../../node_modules/nx/schemas/project-schema.json",
 	"projectType": "application",
-	"sourceRoot": "apps/api/src"
+	"sourceRoot": "apps/api/src",
+	"targets": {
+		"container": {
+			"executor": "@nx-tools/nx-container:build",
+			"options": {
+				"engine": "docker",
+				"context": ".",
+				"file": "apps/api/Dockerfile",
+				"platforms": ["linux/amd64"],
+				"load": true,
+				"tags": ["hiennd23/backoffice-api:local"]
+			},
+			"cache": false
+		}
+	}
 }

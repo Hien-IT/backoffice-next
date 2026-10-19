@@ -21,6 +21,7 @@
 	},
 	"devDependencies": {
 		"@eslint/js": "catalog:",
+		"@nx-tools/nx-container": "catalog:",
 		"@nx/eslint": "catalog:",
 		"@nx/js": "catalog:",
 		"@nx/playwright": "catalog:",

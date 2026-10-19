@@ -1439,8 +1439,14 @@ services:
       dockerfile: apps/web/Dockerfile
     image: hiennd23/backoffice-web:local
     # config.json apiUrl: the API of the pair on another site (the browser opens http://localhost:8181).
+    # Feature 019: the FE sends the Directus CSP, made for an app on the API origin; an app on another origin lists the
+    # API in connect-src and img-src/media-src (thumbnails, previews). Lists merge item by item with the Directus ones
+    # (apps/web/docker/csp.awk), so each list repeats the Directus items first.
     environment:
       PUBLIC_URL: http://127.0.0.1:8163
+      CONTENT_SECURITY_POLICY_DIRECTIVES__CONNECT_SRC: "array:'self',https://*,wss://*,http://127.0.0.1:8163"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__IMG_SRC: "array:'self',data:,blob:,https://raw.githubusercontent.com,https://avatars.githubusercontent.com,http://127.0.0.1:8163"
+      CONTENT_SECURITY_POLICY_DIRECTIVES__MEDIA_SRC: "array:'self',http://127.0.0.1:8163"
     depends_on:
       backoffice-api-web-cors: { condition: service_healthy }
     ports:

@@ -10,6 +10,7 @@ dist
 **/dist
 .nx
 specs
+deploy
 
 # Secrets and local env files never enter an image
 .env

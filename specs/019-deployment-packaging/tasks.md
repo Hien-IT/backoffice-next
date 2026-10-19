@@ -50,7 +50,7 @@ domain riêng), 10 (US7 chart); **Lượt 4** = Phase 11 (CI, tài liệu, Polis
 **Purpose**: kiểm các điểm "[Unverified]" của research, ghim phiên bản công cụ, dựng khung chạy test deploy để các phase
 sau chỉ thêm file test.
 
-- [ ] T001 Kiểm và ghi "Kết quả T001" vào `specs/019-deployment-packaging/research.md`: (a) `docker run --rm
+- [X] T001 Kiểm và ghi "Kết quả T001" vào `specs/019-deployment-packaging/research.md`: (a) `docker run --rm
       nginx:1.28-alpine nginx -V` và `nginx -t` với một upstream có `server backoffice-api:8055 resolve;` + `resolver
       127.0.0.11` (R5) — có hỗ trợ thì dùng, không thì chuyển sang template liệt kê `backoffice-api-1..N`; (b)
       `docker run --rm hiennd23/backoffice-api:local id` và cùng lệnh trên `directus/directus:11.17.4` cho ra cùng
@@ -65,16 +65,16 @@ sau chỉ thêm file test.
       "setInterval(() => {}, 1000)"'` (cần `--user root` cho `apk`, chỉ trong bước kiểm này), `docker stop` rồi
       `docker inspect .State.ExitCode` = 143 (Node thoát theo SIGTERM, `tini` trả 128 + 15); kiểm thật trên image BE ở T030
       (7). Không có package `tini` thì dùng `dumb-init` của Alpine (R3) và sửa T031.
-- [ ] T002 [P] Thêm target Nx `deploy` vào `tests/parity/project.json` (`PARITY_SUITE=deploy node scripts/parity.mjs`
+- [X] T002 [P] Thêm target Nx `deploy` vào `tests/parity/project.json` (`PARITY_SUITE=deploy node scripts/parity.mjs`
       hoặc lệnh `vitest run -c vitest.deploy.config.ts`, cùng kiểu với `parity-blackbox`), file
       `tests/parity/vitest.deploy.config.ts` (`include: ['src/deploy/**/*.test.ts']`, `globalSetup:
       ['src/deploy/global-setup.ts']`, `fileParallelism: false`, `testTimeout: 120_000`, `hookTimeout: 600_000`) và
       kiểm `pnpm nx run parity-tests:deploy` chạy được với 0 test (global-setup tạm là no-op).
-- [ ] T003 [P] Tách hàm `tus()` và `b64()`/`metadata()` của `tests/parity/src/files/tus.test.ts` sang
+- [X] T003 [P] Tách hàm `tus()` và `b64()`/`metadata()` của `tests/parity/src/files/tus.test.ts` sang
       `tests/parity/src/tus-request.ts` (export), `files/tus.test.ts` import lại; chạy
       `pnpm nx run parity-tests:parity -- --testPathPattern files/tus` (hoặc lệnh tương đương của `scripts/parity.mjs`)
       xanh trên env parity nếu env đang lên, nếu không thì chỉ `typecheck`.
-- [ ] T004 [P] Viết `deploy-tests/instances.ts`: `composeProject = 'bo-deploy'`, `composeDir =
+- [X] T004 [P] Viết `deploy-tests/instances.ts`: `composeProject = 'bo-deploy'`, `composeDir =
       <repo>/deploy/compose`, `compose(...args)` (execFileSync `docker compose -p bo-deploy -f docker-compose.yml [-f
       docker-compose.separate-domain.yml khi DEPLOY_MODE=separate-domain]`), `replicaUrls()` qua `docker compose port
       --index i backoffice-api 8055` cho i = 1..`BACKOFFICE_REPLICAS`, `directusUrl = http://127.0.0.1:8095`, `lbUrl =
@@ -85,6 +85,13 @@ sau chỉ thêm file test.
       gửi bảng "Khác biệt so với Directus" của `specs/019-deployment-packaging/spec.md` cho chủ dự án qua chat; ghi kết quả
       (ngày, người duyệt, ý kiến) vào cột "Duyệt" của bảng thay cho "chờ tech lead (T005)". Mục nào bị từ chối: dừng và
       sửa spec/plan trước khi làm task chạm mục đó (T021, T022 cho D-120; T031 cho D-121; T071, T093 cho D-122).
+- [X] T006 [P] Build image qua Nx (R13, chủ dự án 2026-10-20): thêm `'@nx-tools/nx-container': 7.3.0` vào catalog
+      `pnpm-workspace.yaml` và devDependencies `package.json` (đã kiểm peer Nx 23, MIT, không advisory); thêm target
+      `container` (executor `@nx-tools/nx-container:build`, `engine: docker`, `context: "."`, `file:
+      apps/<app>/Dockerfile`, `platforms: ["linux/amd64"]`, `load: true`, `tags: ["hiennd23/backoffice-<app>:local"]`,
+      `cache: false`) vào `apps/api/project.json` và `apps/web/project.json`; kiểm `pnpm nx run api:container` và
+      `pnpm nx run web:container` tạo image `:local` amd64 (`docker image inspect --format {{.Architecture}}`) và
+      `INPUT_API_TAGS=hiennd23/backoffice-api:t006 pnpm nx run api:container` đổi được tag.
 
 **Checkpoint**: `pnpm nx run parity-tests:deploy` chạy, 0 test; research có "Kết quả T001"; D-120..D-122 đã có kết quả
 duyệt.
@@ -94,31 +101,31 @@ duyệt.
 **Purpose**: có một môi trường compose chạy được (chung domain, N replica) để mọi test của các story dùng. Chặn Phase 3
 trở đi về mặt test; nội dung compose hoàn thiện ở Phase 5.
 
-- [ ] T010 Viết `compose/.env.example` theo `contracts/compose.md` mục Env (secret để rỗng, `PUBLIC_URL=http://localhost:8090`,
+- [X] T010 Viết `compose/.env.example` theo `contracts/compose.md` mục Env (secret để rỗng, `PUBLIC_URL=http://localhost:8090`,
       pg, Redis, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis` (FR-053; không có thì
       flow theo lịch chạy trên mọi instance), `STORAGE_LOCATIONS=s3` + `STORAGE_S3_*` MinIO,
       `TUS_ENABLED=true`, `WEBSOCKETS_ENABLED=false`) và `compose/init-env.sh` (POSIX sh: sao `.env.example` → `.env`
       nếu chưa có, điền `SECRET`, `DB_PASSWORD`, `ADMIN_PASSWORD`, `STORAGE_S3_KEY/SECRET` bằng `openssl rand -hex`,
       `chmod 600`; tùy chọn `--out <file>` cho test); thêm `deploy/compose/.env` vào `.gitignore`.
-- [ ] T011 Viết `compose/docker-compose.yml` phần hạ tầng và app theo `contracts/compose.md`: `postgres`, `redis`,
+- [X] T011 Viết `compose/docker-compose.yml` phần hạ tầng và app theo `contracts/compose.md`: `postgres`, `redis`,
       `minio`, `minio-init` (bản ảnh như T001 (g) và parity), `platform: linux/amd64` cho `backoffice-api` và
       `backoffice-web` (FR-023, như `tests/parity/docker-compose.yml`), `directus` (cổng 8095, healthcheck `/server/health`,
       `depends_on` healthy, `env_file: .env`, `stop_grace_period: 30s`), `backoffice-api` (`image:
       hiennd23/backoffice-api:${BACKOFFICE_TAG:-latest}`, `deploy.replicas: ${BACKOFFICE_REPLICAS:-2}`, `ports:
       ['8055']`, healthcheck, `depends_on: directus: service_healthy`, `env_file: .env`, `stop_grace_period: 30s`),
       `backoffice-web` (healthcheck `/admin/config.json`, `env_file: .env`); chưa có `lb`.
-- [ ] T012 Viết `compose/lb/shared-domain.conf` theo `contracts/compose.md` mục Định tuyến (`= /admin`, `/admin/` → web;
+- [X] T012 Viết `compose/lb/shared-domain.conf` theo `contracts/compose.md` mục Định tuyến (`= /admin`, `/admin/` → web;
       còn lại → `upstream api_pool` gồm `directus:8055` và `backoffice-api:8055` theo kết quả T001 (a); không
       `keepalive`; `proxy_next_upstream error timeout`; `client_max_body_size 0`; `proxy_request_buffering off`;
       `proxy_read_timeout 300s`; header `Host`, `X-Forwarded-For`, `X-Forwarded-Proto`) và service `lb` trong
       `compose/docker-compose.yml` (`nginxinc/nginx-unprivileged:1.28.0-alpine` như FE, non-root FR-025; conf nghe 8080,
       publish `8090:8080`; mount conf read-only, `depends_on` web và api healthy).
-- [ ] T013 Viết `deploy-tests/global-setup.ts`: chạy `compose/init-env.sh --out <tmp>/.env` rồi ghi thêm
+- [X] T013 Viết `deploy-tests/global-setup.ts`: chạy `compose/init-env.sh --out <tmp>/.env` rồi ghi thêm
       `AUTH_LOGIN_ATTEMPTS=5`, `TUS_CHUNK_SIZE=1mb` (giá trị test, contracts/tests.md); `docker compose -p bo-deploy
       up -d --wait` với `BACKOFFICE_REPLICAS=3`, `BACKOFFICE_TAG=${BACKOFFICE_TAG:-local}`, thêm override khi
       `DEPLOY_MODE=separate-domain`; teardown `down -v`; khi `DEPLOY_KEEP=1` thì không teardown (dev). Kiểm bằng tay:
       `docker build` hai image `:local` rồi `pnpm nx run parity-tests:deploy` lên env và xuống sạch.
-- [ ] T014 Viết `deploy-tests/smoke.test.ts`: 4 instance trả `GET /server/ping` = `pong`, `GET /server/health` 200 qua
+- [X] T014 Viết `deploy-tests/smoke.test.ts`: 4 instance trả `GET /server/ping` = `pong`, `GET /server/health` 200 qua
       `lb`, `GET /admin/config.json` qua `lb` có `apiUrl` = `http://localhost:8090`; `docker compose ps` cho thấy 3
       replica `backoffice-api`; chạy xanh.
 
@@ -134,7 +141,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
 
 ### Tests cho User Story 8
 
-- [ ] T020 [P] [US8] Viết `deploy-tests/web-image.test.ts` theo `contracts/images.md`: (1) `docker run -d -e
+- [X] T020 [P] [US8] Viết `deploy-tests/web-image.test.ts` theo `contracts/images.md`: (1) `docker run -d -e
       PUBLIC_URL=http://a.test hiennd23/backoffice-web:<tag>` và một container với `http://b.test`: `config.json` khác
       nhau, `Cache-Control: no-store`; (2) `GET /admin` và `/admin/` → 200, body chứa `<div id="app"`, `Cache-Control:
       no-cache`, `Vary: Origin, Cache-Control`; (3) `GET /admin/content/x` và `/admin/missing.js` → 200 `index.html`;
@@ -147,20 +154,21 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
 
 ### Implementation cho User Story 8
 
-- [ ] T021 [US8] Sửa `apps/web/nginx.conf`: `location = /admin { try_files /admin/index.html =404; add_header
+- [X] T021 [US8] Sửa `apps/web/nginx.conf`: `location = /admin { try_files /admin/index.html =404; add_header
       Cache-Control "no-cache"; add_header Vary "Origin, Cache-Control"; }`; `location /admin/ { try_files $uri
       /admin/index.html; }` với `location = /admin/index.html` `no-cache` + `Vary`, các file khác `max-age=31536000,
       immutable` + `Vary` (dùng `map $uri` hoặc `location ~* ^/admin/.+\.(js|css|woff2|png|svg|...)$`); giữ
       `config.json` `no-store` và khối `.mjs`; `include /etc/nginx/conf.d/csp.inc;` ở mức `server`. Ghi comment nguồn
       `directus/api/src/app.ts:277-290`.
-- [ ] T022 [US8] Sửa `apps/web/docker/40-config.sh`: ngoài `config.json`, sinh `/etc/nginx/conf.d/csp.inc` chứa
+- [X] T022 [US8] Sửa `apps/web/docker/40-config.sh`: ngoài `config.json`, sinh `/etc/nginx/conf.d/csp.inc` chứa
       `add_header Content-Security-Policy "<chuỗi>" always;` theo thuật toán `contracts/images.md` mục CSP (mặc định
       helmet khi `USE_DEFAULTS` ≠ `false`, gộp directive Directus `app.ts:166-195`, áp
       `CONTENT_SECURITY_POLICY_DIRECTIVES__*` qua `env | awk`, bỏ directive khi `false`/rỗng); chuỗi mặc định và thứ
       tự khớp mốc T001 (f); biến `CONTENT_SECURITY_POLICY_*` khác → cảnh báo stderr; thêm `csp.inc` mặc định (rỗng hợp
       lệ) vào image để nginx khởi động được nếu script không chạy. Sửa `apps/web/Dockerfile`: `COPY` csp mặc định, `ARG
       BACKOFFICE_VERSION VCS_REF` + `LABEL org.opencontainers.image.{title,version,revision,source}` (FR-022).
-- [ ] T023 [US8] Build `hiennd23/backoffice-web:local` với `--build-arg VCS_REF=$(git rev-parse HEAD)`, chạy T020 xanh;
+- [ ] T023 [US8] Build `hiennd23/backoffice-web:local` bằng `INPUT_WEB_BUILD_ARGS="VCS_REF=$(git rev-parse HEAD)" pnpm nx
+      run web:container` (R13), chạy T020 xanh;
       chạy lại E2E `apps/web-e2e` cấu hình `proxy-directus` một spec khói (`login`) trên env parity (hỏi 018 trước khi
       `env-up`) để chắc `nginx.conf` mới không phá `web` profile.
 
@@ -176,7 +184,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
 
 ### Tests cho User Story 1
 
-- [ ] T030 [P] [US1] Viết `deploy-tests/image-swap.test.ts`: (1) `docker run -d --name bo-swap` với image
+- [X] T030 [P] [US1] Viết `deploy-tests/image-swap.test.ts`: (1) `docker run -d --name bo-swap` với image
       `hiennd23/backoffice-api:<tag>`, env lấy nguyên từ `docker inspect` container `directus` (`Config.Env`), cùng
       network `bo-deploy_default`, cùng `Mounts` (`docker compose run` không đổi được image nên dùng `docker run`);
       chờ `/server/health` 200; đăng nhập admin; `POST /files` một ảnh nhỏ; `GET /files/<id>` qua Directus (8095)
@@ -192,14 +200,15 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
 
 ### Implementation cho User Story 1
 
-- [ ] T031 [US1] Sửa `apps/api/Dockerfile`: `ARG BACKOFFICE_VERSION=0.0.0 VCS_REF=unknown`; `LABEL
+- [X] T031 [US1] Sửa `apps/api/Dockerfile`: `ARG BACKOFFICE_VERSION=0.0.0 VCS_REF=unknown`; `LABEL
       org.opencontainers.image.title="backoffice-api" org.opencontainers.image.version=$BACKOFFICE_VERSION
       org.opencontainers.image.revision=$VCS_REF org.opencontainers.image.source="<URL repo>"
       io.backoffice.directus-compat="11.17.4"`; runtime stage: `RUN apk add --no-cache tini` (bản T001 (h)) trước `USER
       node`, `ENTRYPOINT ["/sbin/tini", "--"]`, `CMD ["node", "dist/main.js"]` (FR-026, R3; comment một dòng lý do: Node
       làm PID 1 không dọn zombie); không `HEALTHCHECK` (R3); giữ nguyên phần còn lại. Đọc
       `BACKOFFICE_VERSION` mặc định từ `apps/api/package.json` trong lệnh build của CI (T110), không trong Dockerfile.
-- [ ] T032 [US1] Build `hiennd23/backoffice-api:local` với `--build-arg`, chạy T030 xanh; ghi vào `deploy/README.md`
+- [X] T032 [US1] Build `hiennd23/backoffice-api:local` bằng `pnpm nx run api:container` (build-args qua
+      `INPUT_API_BUILD_ARGS`, R13), chạy T030 xanh; ghi vào `deploy/README.md`
       (tạo file, mục "Thay image Directus bằng Backoffice") các giới hạn FR-024: DB phải đã bootstrap, bỏ `command`/`args`
       gọi CLI Directus, extension không chạy, `SERVE_APP` chỉ cảnh báo, `PM2_*` bị bỏ qua (scale bằng replica).
 - [ ] T033 [US1] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests web`; `parity-tests:deploy` xanh
@@ -482,9 +491,13 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 **Purpose**: đưa hai bộ test vào CI làm cổng của `publish` (FR-065), hoàn thiện tài liệu, đóng feature.
 
-- [ ] T110 Sửa `.github/workflows/ci.yml` job `docker`: build hai image với `--build-arg BACKOFFICE_VERSION=$(node -p
-      "require('./apps/api/package.json').version") --build-arg VCS_REF=$GITHUB_SHA`; thêm bước `docker inspect` kiểm
-      nhãn `org.opencontainers.image.revision == $GITHUB_SHA`.
+- [ ] T110 Sửa `.github/workflows/ci.yml` job `docker`: thay hai lệnh `docker build` bằng `pnpm nx run api:container` và
+      `pnpm nx run web:container` (R13; thêm setup-node 22, `corepack enable`, `pnpm install --frozen-lockfile` vào job),
+      với `INPUT_API_TAGS=hiennd23/backoffice-api:ci`, `INPUT_WEB_TAGS=hiennd23/backoffice-web:ci` và
+      `INPUT_API_BUILD_ARGS`/`INPUT_WEB_BUILD_ARGS` = `BACKOFFICE_VERSION=$(node -p
+      "require('./apps/api/package.json').version")` và `VCS_REF=$GITHUB_SHA` (mỗi dòng một biến); các bước sau (`docker run
+      ... isolated-vm`, `docker save`) giữ nguyên; thêm bước `docker inspect` kiểm nhãn
+      `org.opencontainers.image.revision == $GITHUB_SHA`.
 - [ ] T111 [P] Thêm job `deploy` vào `ci.yml` (needs `docker`, `timeout-minutes: 40`): checkout, setup-node 22,
       `pnpm install --frozen-lockfile`, download + load image, tag `:local`, `pnpm nx run parity-tests:deploy`, rồi
       `DEPLOY_MODE=separate-domain pnpm nx run parity-tests:deploy`; `if: failure()` dump `docker compose -p bo-deploy
@@ -546,7 +559,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ### Parallel Opportunities
 
-- Phase 1: T002 | T003 | T004 | T005 (sau hoặc cùng lúc T001).
+- Phase 1: T002 | T003 | T004 | T005 | T006 (sau hoặc cùng lúc T001).
 - Lượt 1: T020 | T030 (test) song song với Phase 2; T021 → T022 → T023 | T031 → T032; rồi T033.
 - Lượt 2: T040 → T041 → T042 → T043; rồi T050 | T051 | T060 | T061 (viết) → T052 | T062 (chạy, tuần tự trên env) → T070 →
   T071 → T072 → T073.
@@ -558,7 +571,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ```text
 Lượt 1:
-  T001 → song song: T002 | T003 | T004 | T005 (duyệt) | T020 (viết) | T030 (viết)
+  T001 → song song: T002 | T003 | T004 | T005 (duyệt) | T006 | T020 (viết) | T030 (viết)
   tuần tự: T010 → T011 → T012 → T013 → T014
   song song: [US8] T021 → T022 → T023   |   [US1] T031 → T032
   rồi: T033

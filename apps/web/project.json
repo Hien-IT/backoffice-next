@@ -40,6 +40,18 @@
 				"cwd": "apps/web"
 			},
 			"dependsOn": ["build"]
+		},
+		"container": {
+			"executor": "@nx-tools/nx-container:build",
+			"options": {
+				"engine": "docker",
+				"context": ".",
+				"file": "apps/web/Dockerfile",
+				"platforms": ["linux/amd64"],
+				"load": true,
+				"tags": ["hiennd23/backoffice-web:local"]
+			},
+			"cache": false
 		}
 	}
 }

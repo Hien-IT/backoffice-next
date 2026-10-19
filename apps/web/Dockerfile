@@ -28,7 +28,18 @@ RUN pnpm install --recursive --offline --frozen-lockfile --filter '@backoffice/w
 FROM nginxinc/nginx-unprivileged:1.28.0-alpine AS runtime
 
 COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+COPY apps/web/docker/csp.awk /etc/nginx/csp.awk
+# Empty until 40-config.sh writes the header at start; owned by nginx so the script can overwrite it.
+COPY --chown=101:101 apps/web/docker/csp.inc /etc/nginx/conf.d/csp.inc
 COPY --chmod=755 apps/web/docker/40-config.sh /docker-entrypoint.d/40-config.sh
 COPY --from=builder --chown=101:101 /build/apps/web/dist /usr/share/nginx/html/admin
 
 EXPOSE 8080
+
+# Feature 019 (FR-022): version labels, last so that a new commit keeps the cached layers (CI sets both ARGs).
+ARG BACKOFFICE_VERSION=0.0.0
+ARG VCS_REF=unknown
+LABEL \
+	org.opencontainers.image.title="backoffice-web" \
+	org.opencontainers.image.version="${BACKOFFICE_VERSION}" \
+	org.opencontainers.image.revision="${VCS_REF}"

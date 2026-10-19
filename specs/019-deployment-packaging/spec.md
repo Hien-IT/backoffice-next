@@ -298,6 +298,11 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   thôi không đủ; tài liệu ghi phải bỏ ghi đè đó. Đây là giới hạn duy nhất của "chỉ đổi image".
 - **User SAML**: SAML không được port (D-24 của 003); Ingress cần định tuyến `/auth/login/<saml>` và
   `/auth/login/<saml>/acs` về Directus (FR-052).
+- **FE ở origin khác API** (cấu hình cross-site của 012, không phải chế độ của 019): CSP của Directus chỉ cho
+  `connect-src 'self' https://* wss://*` và `img-src`/`media-src` không có origin của API, nên app không gọi được API qua
+  http và không hiện ảnh từ `/assets`. Người vận hành thêm origin API vào các directive này qua
+  `CONTENT_SECURITY_POLICY_DIRECTIVES__*` (danh sách gộp theo vị trí với của Directus); env parity `backoffice-web-cors`
+  làm đúng như vậy. Live preview (`frame-src`) cần cấu hình như với Directus.
 - **`/websocket`**: đi vào BE, BE trả như Directus khi `WEBSOCKETS_ENABLED=false` (Nguyên tắc XI).
 - **Upload lớn qua load balancer**: load balancer không giới hạn kích thước body thấp hơn `FILES_MAX_UPLOAD_SIZE` và
   không đệm toàn bộ body (FR-051).

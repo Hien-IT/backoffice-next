@@ -33,7 +33,8 @@ Chi tiết: [research.md](./research.md), [data-model.md](./data-model.md), [con
 (FE), `directus/directus:11.17.4`, `postgis/postgis`, `redis:7-alpine`, `cgr.dev/chainguard/minio`, Vitest 3.2.4,
 `autocannon`, `ioredis`, `knex`, `pg` (đã có trong devDependencies của `tests/parity`). Thêm (không phải package npm):
 `tini` (package Alpine, PID 1 của image BE, FR-026), `nginx-unprivileged` cho `lb` (cùng image FE, FR-025), Helm, kind,
-kubeconform, chart Traefik chỉ trong CI (R12, ghim ở T001).
+kubeconform, chart Traefik chỉ trong CI (R12, ghim ở T001). Package npm thêm: `@nx-tools/nx-container` 7.3.0
+(devDependency root; target `container` build hai image, R13).
 
 **Storage**: không bảng mới, không migration. Compose: volume Postgres, Redis, MinIO; storage `s3` trên MinIO (bucket
 tạo bởi `minio-init`). Chart: không lưu gì; tùy chọn PVC có sẵn cho storage `local`.

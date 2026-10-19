@@ -223,3 +223,72 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
 | Helm 3.x hoặc 4.x | lint, template, cài | [Unverified] bản mới nhất; chart `apiVersion: v2` chạy trên cả hai |
 | kind, kubeconform, Traefik chart | job `deploy-k8s` | [Unverified] ghim bản mới nhất có ≥ 14 ngày |
 | `azure/setup-helm`, `helm/kind-action` | GitHub Actions | [Unverified] ghim theo SHA hoặc tag như các action hiện có |
+
+## Kết quả T001 (2026-10-20)
+
+- (a) `nginxinc/nginx-unprivileged:1.28.0-alpine` (nginx 1.28.0, uid 101): `nginx -t` chấp nhận `upstream { zone ...;
+  server backend:80 resolve; }` với `resolver 127.0.0.11 valid=5s` → dùng `resolve` cho `lb` (R5). Kiểm chạy thật với nhiều
+  replica ở `compose.test.ts` (4).
+- (b) `docker run --entrypoint id` trên `hiennd23/backoffice-api:local` và `directus/directus:11.17.4`: cả hai
+  `uid=1000(node) gid=1000(node)`.
+- (c) Không kiểm `preStop.sleep` gốc: chart dùng `exec sleep` chạy được trên mọi bản ≥ 1.29, nên kết quả không đổi thiết kế.
+- (d) Không kiểm tình trạng ingress-nginx [Unverified]; chart không phụ thuộc controller, CI dùng Traefik.
+- (e) Bản ghim (bản ổn định mới nhất phát hành trước 2026-10-06, theo `gh api repos/<repo>/releases`):
+
+  | Công cụ | Bản | Ngày phát hành |
+  |---------|-----|----------------|
+  | Helm | v4.3.0 | 2026-09-09 (v4.3.1, v3.22.1 ngày 2026-10-15: quá mới) |
+  | kind | v0.33.0 | 2026-08-26 |
+  | kubeconform | v0.8.0 | 2026-06-04 |
+  | chart Traefik | v41.6.1 | 2026-09-30 (v41.7.x, v42.0.0: quá mới) |
+  | metrics-server | v0.9.0 | 2026-07-13 |
+  | `azure/setup-helm` | v5.0.1 | 2026-06-23 |
+  | `helm/kind-action` | v1.15.0 | 2026-09-02 (v1.15.1 ngày 2026-10-06: quá mới) |
+  | `@nx-tools/nx-container` | 7.3.0 | 2026-06-26 (R13) |
+
+- (f) Header Directus 11.17.4 thật (Directus của env benchmark, `PUBLIC_URL=http://localhost:8155`, không có biến
+  `CONTENT_SECURITY_POLICY_*`):
+  - `GET /admin`: `Content-Security-Policy: script-src 'self' 'unsafe-eval';worker-src 'self' blob:;child-src 'self'
+    blob:;img-src 'self' data: blob: https://raw.githubusercontent.com https://avatars.githubusercontent.com;media-src
+    'self';connect-src 'self' https://* wss://*;default-src 'self';base-uri 'self';font-src 'self' https: data:;form-action
+    'self';frame-ancestors 'self';object-src 'none';script-src-attr 'none';style-src 'self' https: 'unsafe-inline'`
+    (directive của Directus trước, rồi mặc định helmet chưa bị ghi đè; không có `upgrade-insecure-requests`; ngăn cách
+    `;` không khoảng trắng), `Cache-Control: no-cache`, `Vary: Origin, Cache-Control`.
+  - Asset `./assets/*.js`: `Cache-Control: max-age=31536000, immutable`, `Vary: Origin, Cache-Control`, cùng CSP.
+  - `/admin` (không `/`), `/admin/content/abc`, `/admin/missing.js`: `200 text/html` (index).
+- (g) `dev/directus-reference`: `postgis/postgis:16-3.4-alpine`, `redis:7-alpine`, `cgr.dev/chainguard/minio:latest`.
+- (h) Alpine 3.24.2 có `tini` 0.19.0 (`apk add --no-cache tini`); `tini -- node ...`: PID 1 là `tini`, tiến trình `sleep`
+  mồ côi được dọn (không còn `Z`), `docker stop` → mã thoát 143.
+
+## R13. Build image bằng `@nx-tools/nx-container` (chủ dự án, 2026-10-20)
+
+- **Decision**: build hai image qua Nx: target `container` (executor `@nx-tools/nx-container:build`, engine `docker`
+  = `docker buildx build`) khai báo trong `apps/api/project.json` và `apps/web/project.json` (không bật plugin suy ra task
+  trong `nx.json`, để chỉ hai project này có target). Options: `context: "."`, `file`, `platforms: ["linux/amd64"]`,
+  `load: true`, `tags: ["hiennd23/backoffice-<app>:local"]`, `build-args` mặc định. CI ghi đè bằng biến
+  `INPUT_API_TAGS`, `INPUT_API_BUILD_ARGS`, `INPUT_WEB_TAGS`, `INPUT_WEB_BUILD_ARGS` (quy tắc
+  `@nx-tools/core` `getInput`: `INPUT_<PROJECT>_<NAME>` rồi `INPUT_<NAME>`; danh sách trong env thay hẳn danh sách của
+  options). Target `cache: false`.
+- **Kiểm**: 7.3.0 có peer `nx >=18 <24`, `@nx/devkit`, `@nx/js` (repo Nx 23.3.0), MIT, không advisory trên GitHub; thêm
+  catalog `'@nx-tools/nx-container': 7.3.0` và devDependency root; lockfile thêm `@nx-tools/{core,ci-context,
+  container-metadata}` và `@actions/*`, `@octokit/*` (devDependency, không vào image).
+- **Lưu ý**: executor nạp `dotenv/config` (đọc `.env` ở thư mục chạy, tức gốc repo nếu có). Không dùng `metadata` (tag
+  tự sinh từ CI) vì CI đã tự đặt `ci`, `latest`, SHA.
+- **Phạm vi**: thay mọi lệnh `docker build` của 019 (quickstart, T023, T032, job `docker` của CI ở T110). `build:` trong
+  `tests/parity/docker-compose.yml` (env parity của các feature trước) giữ nguyên.
+
+## Kết quả T022, T023, T030 (2026-10-20)
+
+- CSP của Directus 11.17.4 đo trên 4 container (SQLite): ghi đè danh sách gộp theo vị trí (lodash `merge`;
+  `IMG_SRC=array:'self',data:` không đổi gì), giá trị có dấu phẩy không cần `array:` cũng là danh sách, directive mới
+  thêm sau `connect-src`, `USE_DEFAULTS=false` chỉ còn directive của Directus + env; `FRAME_ANCESTORS=false` làm Directus
+  không khởi động (PM2 "0 application online"). `csp.awk` chạy bằng awk của busybox trong image nginx cho đúng từng ký
+  tự ở cả 4 bộ env; `web-image.test.ts` so lại mỗi lần chạy.
+- Hệ quả: FE gửi CSP ở cả ba cấu hình E2E của 012 (trước 019 nginx không gửi). Cấu hình `cors` (FE `localhost:8181`, API
+  `http://127.0.0.1:8163`) cần origin API trong `connect-src`, `img-src`, `media-src`: thêm env vào `backoffice-web-cors`
+  của `tests/parity/docker-compose.yml`. Không chạy E2E local ở T023 (env benchmark của phiên 018 đang giữ các cổng
+  8155/8156 của env parity); job `e2e-web` của CI kiểm trên image mới.
+- Không có `tini`, Node làm PID 1 để lại tiến trình `sleep` mồ côi ở trạng thái `Z` (ppid 1); có `tini` thì không: test
+  zombie của `image-swap.test.ts` bắt được lỗi thật.
+- DB chưa bootstrap: BE thoát mã khác 0 với `database doesn't have directus tables installed` (001).
+- Lần chạy sạch `parity-tests:deploy` (env mới, 3 replica, teardown): 20/20 test, 55 s khi image đã có.
