@@ -7,7 +7,8 @@
 // /users/all (tabular, goto until row 25 shows), the next page, a filter (files by `type`, users by `status`, written in
 // the admin preset before the goto). BENCH_RUNS runs (11) after one unmeasured run, nearest-rank p95, requests to
 // /files or /users per action (list + count). API reads skip the shared response cache (Cache-Control: no-store,
-// CACHE_SKIP_ALLOWED=true). Fails when a web app's p95 is more than TOLERANCE above the Directus app's. Needs
+// CACHE_SKIP_ALLOWED=true). Fails when a web app's p95 is more than TOLERANCE above the Directus app's
+// in a majority of up to 3 attempts (a failing action is measured again). Needs
 // `benchmark:env-up-web` first.
 import { randomBytes, randomUUID } from 'node:crypto';
 import { appendFileSync, readFileSync } from 'node:fs';
@@ -343,25 +344,49 @@ try {
 	for (const app of Object.keys(APPS) as App[]) await measure(app, contexts[app], me, folder);
 	resetResults();
 
-	for (let i = 0; i < RUNS; i++) {
-		for (const app of Object.keys(APPS) as App[]) await measure(app, contexts[app], me, folder);
-		process.stdout.write(`run ${i + 1}/${RUNS} done\n`);
-	}
+	const runAll = async (attempt: number) => {
+		resetResults();
+		for (let i = 0; i < RUNS; i++) {
+			for (const app of Object.keys(APPS) as App[]) await measure(app, contexts[app], me!, folder!);
+			process.stdout.write(`attempt ${attempt}, run ${i + 1}/${RUNS} done\n`);
+		}
+		const out = new Map<Action, { reasons: string[]; row: string }>();
+		for (const action of ACTIONS) {
+			const reference = p95(timings['Directus app'][action]);
+			const reasons: string[] = [];
+			for (const app of ['web → Directus', 'web → API'] as const) {
+				const value = p95(timings[app][action]);
+				if (value > reference * (1 + TOLERANCE))
+					reasons.push(`${app} ${value} ms is more than ${TOLERANCE * 100}% above ${reference} ms`);
+			}
+			const cells = (Object.keys(APPS) as App[]).map((app) => p95(timings[app][action]));
+			const split = (Object.keys(APPS) as App[]).map((app) => usual(requests[app][action])).join(' / ');
+			out.set(action, { reasons, row: `| ${action} | ${cells.join(' | ')} | ${split}` });
+		}
+		return out;
+	};
+
+	// Like confirmed() of compare.ts: with RUNS runs the p95 is the slowest run, so one stall on the shared runner moves
+	// an action of about 100 ms past the 10 % (benchmark run 39167500790: "files: next page", Directus app 81 ms, while
+	// the run before measured 108 ms). A failing action is measured again; it fails only in a majority of 3 attempts.
+	const attempts: Map<Action, { reasons: string[]; row: string }>[] = [await runAll(1)];
+	const outcome = (action: Action) => attempts.map((a) => (a.get(action)!.reasons.length ? 'fail' : 'ok'));
+	const decided = (action: Action) => {
+		const o = outcome(action);
+		return o[0] === 'ok' || o.filter((v) => v === 'fail').length >= 2 || o.filter((v) => v === 'ok').length >= 2;
+	};
+	while (!ACTIONS.every(decided)) attempts.push(await runAll(attempts.length + 1));
 
 	for (const action of ACTIONS) {
-		const reference = p95(timings['Directus app'][action]);
-		const reasons: string[] = [];
-		for (const app of ['web → Directus', 'web → API'] as const) {
-			const value = p95(timings[app][action]);
-			if (value > reference * (1 + TOLERANCE))
-				reasons.push(`${app} ${value} ms is more than ${TOLERANCE * 100}% above ${reference} ms`);
-		}
-		passed &&= reasons.length === 0;
-		const cells = (Object.keys(APPS) as App[]).map((app) => p95(timings[app][action]));
-		const split = (Object.keys(APPS) as App[]).map((app) => usual(requests[app][action])).join(' / ');
-		rows.push(
-			`| ${action} | ${cells.join(' | ')} | ${split} | ${reasons.length ? `FAIL: ${reasons.join('; ')}` : 'ok'} |`,
-		);
+		const o = outcome(action);
+		const failed = o.filter((v) => v === 'fail').length >= 2;
+		const kept = [...attempts]
+			.reverse()
+			.find((a) => a.get(action)!.reasons.length > 0 === failed)!
+			.get(action)!;
+		passed &&= !failed;
+		const tried = o.length > 1 ? ` (attempts: ${o.join(', ')})` : '';
+		rows.push(`${kept.row} | ${failed ? `FAIL: ${kept.reasons.join('; ')}` : 'ok'}${tried} |`);
 	}
 } finally {
 	await browser?.close();

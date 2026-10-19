@@ -516,16 +516,32 @@ Owner quyết định 2026-10-16 (chuyển qua phiên 014): không làm trong c�
 spec (đến 019) đã xong.
 
 - **p95 benchmark API chậm hơn Directus 11.17.4**: điều tra rồi sửa trong `apps/api`, hoặc ghi thành khác biệt được tech
-  lead duyệt. Số đo của run 38752626188 (`benchmark.yml`, 2026-10-15):
+  lead duyệt. Số đo của run 38752626188 (2026-10-15) so với run hằng tuần 39167500790 (2026-10-18, commit 12b7246):
 
-  | Job                  | Request                                          | p95 Backoffice | p95 Directus |
-  | -------------------- | ------------------------------------------------ | -------------- | ------------ |
-  | `benchmark`          | GET /server/specs/oas, 182 req/s                 | 279.6 ms       | 249.3 ms     |
-  | `benchmark-system`   | GET presets-list, user, 50 kết nối, 84 req/s     | 639.5 ms       | 559.1 ms     |
-  | `benchmark-history`  | POST version-save, admin, 10 kết nối, 101 req/s  | 206.0 ms       | 174.0 ms     |
-  | `benchmark-files`    | POST files-upload, admin, 50 kết nối, 119 req/s  | 472.3 ms       | 346.9 ms     |
+  | Job                 | Request                                         | 2026-10-15 Bo / Directus | 2026-10-18 Bo / Directus | Kết quả 2026-10-18      |
+  | ------------------- | ----------------------------------------------- | ------------------------ | ------------------------ | ----------------------- |
+  | `benchmark`         | GET /server/specs/oas                           | 279.6 / 249.3 ms         | 211.3 / 251.4 ms         | đạt                     |
+  | `benchmark-system`  | GET presets-list, user, 50 kết nối              | 639.5 / 559.1 ms         | 873.0 / 722.9 ms         | đỏ (fail, ok, fail)     |
+  | `benchmark-history` | POST version-save, admin, 10 kết nối            | 206.0 / 174.0 ms         | 63.2 / 64.1 ms           | đạt                     |
+  | `benchmark-files`   | POST files-upload, admin, 50 kết nối            | 472.3 / 346.9 ms         | 376.1 / 384.8 ms         | đạt                     |
+  | `benchmark-schema`  | GET /fields, admin, cached                      | 792.1 / 788.0 ms (đạt)   | 790.0 / 704.5 ms         | đỏ (fail, fail)         |
+  | `benchmark-web`     | files: next page (web → Directus / Directus app) | 112 / 108 ms (đạt)      | 107 / 81 ms              | đỏ (web → API 88 ms đạt) |
 
-  Các run 2026-10-13 (38422115962 và các run khác) đã đỏ ở `benchmark-schema` và `benchmark-files`. Chạy lại một job:
-  `gh workflow run benchmark.yml -f job=<job>`.
-- **Parity GraphQL chập chờn**: `src/graphql/system.test.ts` và `schema.test.ts` trên mysql/postgres báo
-  "POST /graphql/system: N unaccepted difference(s)" rồi qua khi chạy lại.
+  Điều tra 2026-10-19 (env benchmark ở máy local, hai app chạy kiểu amd64 giả lập, cùng tải):
+  - presets-list ở tốc độ cố định: Bo 861 ms, Directus 813 ms (6 %, đạt). Ở tải tối đa, Bo nhanh hơn: trung bình 822 ms
+    so với 849 ms, p99 999 ms so với 1433 ms, 59,5 so với 57,6 req/s.
+  - `/fields` admin cached ở 67 req/s (80 % của Directus): p97.5 của Bo 566–567 ms, của Directus 586–626 ms.
+  - Profile `--cpu-prof` của hai container dưới cùng tải presets-list: cùng lượng CPU (33,3 s so với 33,6 s, GC 2,08 s
+    so với 2,19 s). Các hàm nóng giống nhau: `cloneDeep` schema ở mỗi request (`CACHE_SCHEMA_FREEZE_ENABLED=false`
+    như Directus), nén JSON khi `respond` ghi cache response, `removeTemporaryFields`. Không có điểm nóng riêng của Bo.
+  - [Inference] Chênh lệch trên runner GitHub là do biến động của runner, không phải code; trên CI, req/s của Bo luôn
+    cao hơn Directus. Chưa có số đo CI nào sau lần điều tra này.
+  - `benchmark-web`: với 11 lần chạy, p95 là lần chậm nhất, nên một lần giật làm đỏ một bước khoảng 100 ms (mốc Directus
+    app là 108 ms lần trước, 81 ms lần này). `web-files-users.ts` giờ đo lại bước bị đỏ và lấy đa số 2/3, như
+    `confirmed()` của benchmark API.
+
+  Chạy lại một job: `gh workflow run benchmark.yml -f job=<job>`.
+- **Parity GraphQL chập chờn**: đã sửa ở e23595c (2026-10-18). `schema.test.ts` (profile `graphql-nointro`): hai app
+  nhận cùng truy vấn một lúc và đọc cache của nhau (`x-cache-status` HIT so với MISS); `capture()` giờ gửi
+  `Cache-Control: no-store` cho POST /graphql. `system.test.ts` trên MySQL: `INFORMATION_SCHEMA.COLUMNS` không có
+  ORDER BY (như Directus), nên `fields_in_collection` được so theo tên field. Các run 39107695073 và 39112828931 xanh.
