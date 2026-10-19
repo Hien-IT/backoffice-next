@@ -311,3 +311,5 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   parity của hai container web thêm `CONNECT_SRC` có `http://127.0.0.1:*`, `IMG_SRC`/`MEDIA_SRC` (cors), `FRAME_SRC`
   `https://preview.example` (như người vận hành Directus cấu hình live preview). Chạy lại ở máy: cors 18/18, proxy-api
   7/7, proxy-directus 7/7, không còn vi phạm CSP. Lượt cors đầy đủ ở máy: 200 đạt, 13 đỏ, tất cả do CSP trên.
+- `files-image-editor.spec.ts:133` (proxy-api, cùng run): helper `pixels()` của test gọi `fetch('data:...')` trong trang,
+  bị `connect-src` (không có `data:`) chặn. Sửa helper: giải mã PNG thành `Blob` bằng `atob`. Chạy lại ở máy: 4/4.

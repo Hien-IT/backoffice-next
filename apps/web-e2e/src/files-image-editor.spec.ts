@@ -161,7 +161,9 @@ test('the Directus app saves the same pixels, size and focal point (SC-006)', as
 	const pixels = async (id: string) => {
 		const base64 = (await api.bytes(`/assets/${id}`)).toString('base64');
 		return page.evaluate(async (data) => {
-			const bitmap = await createImageBitmap(await (await fetch(`data:image/png;base64,${data}`)).blob());
+			// A Blob, not fetch('data:...'): the app sends the Directus CSP, whose connect-src has no data: (feature 019).
+			const png = Uint8Array.from(atob(data), (c) => c.charCodeAt(0));
+			const bitmap = await createImageBitmap(new Blob([png], { type: 'image/png' }));
 			const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
 			const context = canvas.getContext('2d')!;
 			context.drawImage(bitmap, 0, 0);
