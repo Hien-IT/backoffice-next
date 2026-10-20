@@ -505,14 +505,14 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       get pods -A`, `kubectl describe`, log pod api thành artifact.
 - [X] T113 Thêm `deploy`, `deploy-k8s` vào `needs` của job `publish` trong `ci.yml`; kiểm `actionlint` nếu có trong repo
       (không thì `node -e "require('js-yaml').load(...)"`) để YAML hợp lệ.
-- [ ] T114 [P] Hoàn thiện `deploy/README.md`: mục lục; mục "Env Directus bắt buộc" chép ba bảng của spec (bắt buộc, theo
+- [X] T114 [P] Hoàn thiện `deploy/README.md`: mục lục; mục "Env Directus bắt buộc" chép ba bảng của spec (bắt buộc, theo
       tình huống, khuyến nghị) kèm lệnh tự kiểm cho compose và manifest thường; "Hai chế độ" (chung domain mặc định, domain riêng); "Probe"
       (readiness `/server/health`, liveness `/server/ping`, lý do Q2); "CSP" (sinh từ env, các biến hỗ trợ, biến bỏ qua);
       "Giới hạn" (request dài hơn `SERVER_SHUTDOWN_TIMEOUT`, cache OAS chung host, storage `local` cần RWX, SAML, arm64
       ngoài phạm vi, nightly 001 FR-112 chưa bật lại); bảng tham chiếu FR → mục README. Thêm một dòng trỏ tới
       `deploy/README.md` trong `README.md` gốc và `SPECKIT-GUIDE.md` mục môi trường dev (giữ `dev/directus-reference` cho
       parity).
-- [ ] T115 [P] Cập nhật `specs/019-deployment-packaging/spec.md`: bảng khác biệt D-120..D-122 (kiểm còn đúng sau T071;
+- [X] T115 [P] Cập nhật `specs/019-deployment-packaging/spec.md`: bảng khác biệt D-120..D-122 (kiểm còn đúng sau T071;
       nếu dùng `entrypoint` bọc trong compose thì ghi vào D-122), "Kết quả" các task vào `research.md`, trạng thái
       checklist `checklists/requirements.md`; cập nhật mục `Active Technologies`/`Recent Changes` của `CLAUDE.md` (dòng
       019 đã có từ plan; sửa nếu khác thực tế).

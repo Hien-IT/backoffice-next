@@ -14,6 +14,11 @@ pnpm nx run api:container
 pnpm nx run web:container
 ```
 
+Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng-backoffice) ·
+[CSP của app quản trị](#csp-của-app-quản-trị) · [Máy dev](#máy-dev-deploycompose) ·
+[Env Directus bắt buộc](#env-directus-bắt-buộc-khi-chạy-nhiều-instance) · [Tắt máy an toàn](#tắt-máy-an-toàn) ·
+[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice)
+
 ## Thay image Directus bằng Backoffice
 
 Trong một service Directus đang chạy (compose hoặc Deployment Kubernetes), chỉ đổi `image:` thành
@@ -73,16 +78,51 @@ docker compose up -d --wait
 - Tắt: `docker compose down`; xóa cả dữ liệu: `docker compose down -v`.
 - Test chấp nhận (BE 3 replica + 1 Directus): `pnpm nx run parity-tests:deploy`.
 
-## Ràng buộc khi chạy nhiều instance
+## Env Directus bắt buộc khi chạy nhiều instance
 
-Cấu hình chung phải có đủ các biến ở bảng "Bắt buộc" của spec 019 (mục "Env Directus bắt buộc khi chạy nhiều instance"):
-`REDIS`, `CACHE_STORE=redis`, `RATE_LIMITER_STORE=redis`, `SYNCHRONIZATION_STORE=redis`, `SECRET` cố định, cùng một DB
-thật, storage S3 (hoặc volume `ReadWriteMany` dùng chung). Thiếu `SYNCHRONIZATION_STORE=redis` thì flow theo lịch chạy
-trên mọi instance. BE vẫn khởi động với cấu hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_STORE`);
-chart dừng cài và báo. Tự kiểm cho compose:
+Áp cho cấu hình chung (`.env`, ConfigMap, Secret) mà mọi instance Directus và Backoffice cùng đọc (bảng của spec 019,
+kiểm trong source Directus 11.17.4). Chart dừng cài khi thiếu một biến "Bắt buộc" (FR-053); BE vẫn khởi động với cấu
+hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_STORE`).
+
+**Bắt buộc** (thiếu thì hệ thống nhiều instance chạy sai):
+
+| Biến                                                                                                      | Giá trị cần                                                | Mặc định Directus                            | Thiếu thì sao                                                                                                                   | Nguồn                                                                                                        |
+| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `DB_CLIENT` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` (hoặc `DB_CONNECTION_STRING`) | cùng một DB thật cho mọi instance                          | image đặt `sqlite3` với file trong container | mỗi container một DB riêng                                                                                                      | `apps/api/Dockerfile`, `directus/Dockerfile`                                                                 |
+| `SECRET`                                                                                                  | một chuỗi cố định, giống nhau ở mọi instance               | không có; mỗi process tự sinh ngẫu nhiên     | token do instance này cấp bị instance kia từ chối                                                                               | `directus/api/src/utils/get-secret.ts:13-18`                                                                 |
+| `REDIS` (hoặc `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`...)                                            | trỏ cùng một Redis                                         | không có                                     | bus xóa cache schema/quyền và lock chỉ chạy trong từng process                                                                  | `directus/api/src/bus/lib/use-bus.ts:18`, `lock/lib/use-lock.ts:17`, `redis/utils/redis-config-available.ts` |
+| `REDIS_ENABLED` (nếu có đặt)                                                                              | `true`                                                     | không có                                     | có đặt mà khác `true` thì Redis bị tắt dù có `REDIS`                                                                            | như trên                                                                                                     |
+| `CACHE_STORE`                                                                                             | `redis`                                                    | `memory`                                     | cache hệ thống và lock cache riêng từng instance (kể cả khi `CACHE_ENABLED=false`)                                              | `directus/api/src/cache.ts:62-84`                                                                            |
+| `RATE_LIMITER_STORE`                                                                                      | `redis`                                                    | `memory`                                     | bộ đếm lần đăng nhập (ngưỡng là setting `auth_login_attempts`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34,137-149`                                                     |
+| `SYNCHRONIZATION_STORE`                                                                                   | `redis`                                                    | không có (dùng bộ nhớ process)               | flow theo lịch, job dọn TUS, retention chạy trên mọi instance                                                                   | `directus/api/src/synchronization.ts:20`                                                                     |
+| `STORAGE_LOCATIONS` + `STORAGE_<LOCATION>_DRIVER` và khóa của driver                                      | `s3` (hoặc `local` trên volume `ReadWriteMany` dùng chung) | `local`                                      | mỗi container thấy file khác nhau                                                                                               | Nguyên tắc VII                                                                                               |
+
+**Bắt buộc theo tình huống**:
+
+| Biến                                                              | Khi nào                                        | Giá trị cần                                                                                |
+| ----------------------------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `PUBLIC_URL`                                                      | dùng SSO, share, link mời; chế độ domain riêng | URL thật của domain (mặc định `/`); chế độ domain riêng: bản Backoffice đặt riêng (FR-071) |
+| `TUS_ENABLED`                                                     | muốn upload TUS (mặc định `false`)             | `true`; cần thêm `REDIS` và storage dùng chung                                             |
+| `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN`            | chế độ domain riêng                            | không đặt, hoặc domain cha phủ cả hai domain (FR-076)                                      |
+| `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS` | SSO và chế độ domain riêng                     | thêm URL của domain Backoffice                                                             |
+
+**Khuyến nghị**:
+
+| Biến                                | Giá trị                                                     | Lý do                                                                                                                |
+| ----------------------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `WEBSOCKETS_ENABLED`                | `false` (mặc định)                                          | Backoffice không có `/websocket` (Nguyên tắc XI); Directus trong cùng pool mà bật thì chỉ một phần instance trả được |
+| `CACHE_ENABLED`, `CACHE_AUTO_PURGE` | tùy; compose đặt `true`                                     | response cache dùng chung qua `CACHE_STORE=redis`                                                                    |
+| `SERVER_SHUTDOWN_TIMEOUT`           | lớn hơn request dài nhất cần giữ khi tắt (mặc định 1000 ms) | FR-033, edge case request dài                                                                                        |
+| `IP_TRUST_PROXY`                    | giữ mặc định `true`                                         | đứng sau load balancer (FR-051)                                                                                      |
+
+Tự kiểm khi không dùng Helm:
 
 ```bash
-grep -E '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE|SECRET|DB_CLIENT|STORAGE_LOCATIONS)=' .env
+# compose
+grep -E '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE|SECRET|DB_CLIENT|STORAGE_)' .env
+# Kubernetes
+kubectl get configmap <tên> -o yaml | grep -E 'REDIS|_STORE|DB_CLIENT|STORAGE_'
+kubectl get secret <tên> -o jsonpath='{.data.SECRET}' | base64 -d | wc -c
 ```
 
 ## Tắt máy an toàn

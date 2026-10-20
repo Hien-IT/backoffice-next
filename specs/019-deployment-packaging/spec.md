@@ -483,7 +483,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 |----|----------|------------------|---------|-------|------|----------------------|
 | D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | Duyệt (chủ dự án, 2026-10-20) |
 | D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | Duyệt (chủ dự án, 2026-10-20) |
-| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai (compose, chart), không đổi code tắt máy | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, 2026-10-20) |
+| D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai, không đổi code tắt máy: Kubernetes `preStop` `sleep` (chart); compose: `lb` chuyển request chưa gửi được sang replica khác (`proxy_next_upstream`, `proxy_connect_timeout 1s`) | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, 2026-10-20) |
 
 **Cần xác nhận**: Không có.
 
@@ -552,7 +552,7 @@ Directus 11.17.4 ngày 2026-10-20; mặc định lấy từ `directus/packages/e
 | `REDIS` (hoặc `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`...) | trỏ cùng một Redis | không có | bus xóa cache schema/quyền và lock chỉ chạy trong từng process | `directus/api/src/bus/lib/use-bus.ts:18`, `lock/lib/use-lock.ts:17`, `redis/utils/redis-config-available.ts` |
 | `REDIS_ENABLED` (nếu có đặt) | `true` | không có | có đặt mà khác `true` thì Redis bị tắt dù có `REDIS` | như trên |
 | `CACHE_STORE` | `redis` | `memory` | cache hệ thống và lock cache riêng từng instance (kể cả khi `CACHE_ENABLED=false`) | `directus/api/src/cache.ts:62-84` |
-| `RATE_LIMITER_STORE` | `redis` | `memory` | bộ đếm đăng nhập sai (`AUTH_LOGIN_ATTEMPTS`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34` |
+| `RATE_LIMITER_STORE` | `redis` | `memory` | bộ đếm lần đăng nhập (ngưỡng là setting `auth_login_attempts`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34,137-149` |
 | `SYNCHRONIZATION_STORE` | `redis` | không có (dùng bộ nhớ process) | flow theo lịch, job dọn TUS, retention chạy trên mọi instance | `directus/api/src/synchronization.ts:20` |
 | `STORAGE_LOCATIONS` + `STORAGE_<LOCATION>_DRIVER` và khóa của driver | `s3` (hoặc `local` trên volume `ReadWriteMany` dùng chung) | `local` | mỗi container thấy file khác nhau | Nguyên tắc VII |
 

@@ -94,6 +94,9 @@ prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`
    docker compose down -v        # tắt và xóa toàn bộ dữ liệu
    ```
 
+   Môi trường triển khai đầy đủ (Directus + BE nhiều replica + FE sau load balancer) là `deploy/compose` của feature
+   019, xem `deploy/README.md`; `dev/directus-reference` giữ cho test đối chiếu.
+
 ---
 
 ## 4. Bước 1: Constitution
