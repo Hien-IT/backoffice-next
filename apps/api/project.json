@@ -12,7 +12,7 @@
 				"file": "apps/api/Dockerfile",
 				"platforms": ["linux/amd64"],
 				"load": true,
-				"tags": ["hiennd23/backoffice-api:local"]
+				"tags": ["hiennd23/backoffice-api:local", "hiennd23/backoffice-api:latest"]
 			},
 			"cache": false
 		}

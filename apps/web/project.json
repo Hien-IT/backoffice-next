@@ -49,7 +49,7 @@
 				"file": "apps/web/Dockerfile",
 				"platforms": ["linux/amd64"],
 				"load": true,
-				"tags": ["hiennd23/backoffice-web:local"]
+				"tags": ["hiennd23/backoffice-web:local", "hiennd23/backoffice-web:latest"]
 			},
 			"cache": false
 		}

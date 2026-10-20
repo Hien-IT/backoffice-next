@@ -14,6 +14,10 @@ pnpm nx run api:container
 pnpm nx run web:container
 ```
 
+Image được gắn tag `hiennd23/backoffice-<app>:local` (compose của parity dùng) và `:latest`; lệnh không tự push lên
+Docker Hub. Muốn push thì đăng nhập (`docker login`) rồi đặt `INPUT_API_PUSH=true` / `INPUT_WEB_PUSH=true` cho lệnh trên
+(D-134).
+
 Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng-backoffice) ·
 [CSP của app quản trị](#csp-của-app-quản-trị) · [Máy dev](#máy-dev-deploycompose) ·
 [Env Directus bắt buộc](#env-directus-bắt-buộc-khi-chạy-nhiều-instance) · [Tắt máy an toàn](#tắt-máy-an-toàn) ·

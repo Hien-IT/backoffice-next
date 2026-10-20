@@ -349,8 +349,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   Nguyên tắc II); biến Directus BE không dùng chỉ gây cảnh báo (001), biến `PM2_*` bị bỏ qua.
 - **FR-022**: Image BE và FE PHẢI có nhãn OCI `org.opencontainers.image.title`, `.version` (phiên bản Backoffice) và
   `.revision` (commit build). Không có nhãn `source` và nhãn phiên bản Directus (chủ dự án bỏ, 2026-10-20). Nhãn image
-  web kế thừa từ image nền nginx (`source`, `url`, `description`, `created`, `licenses`, `maintainer`) bị ghi đè thành rỗng
-  (Docker không xóa được nhãn kế thừa; chủ dự án 2026-10-20).
+  web kế thừa từ image nền nginx (`source`, `url`, `description`, `created`, `licenses`) bị ghi đè thành rỗng
+  (Docker không xóa được nhãn kế thừa; chủ dự án 2026-10-20); `maintainer` của cả hai image là "Hien Nguyen" (D-134).
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
 - **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap; bỏ ghi đè
   `command`/`args` gọi CLI Directus (ghi đè `command` trên Kubernetes còn bỏ qua init của FR-026); extension của Directus
@@ -485,6 +485,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
 | D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai, không đổi code tắt máy: Kubernetes `preStop` `sleep` (chart); compose: `lb` chuyển request chưa gửi được sang replica khác (`proxy_next_upstream`, `proxy_connect_timeout 1s`) | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
 | D-123 | Lệnh CLI (`bootstrap`, `database install`/`migrate:*`, `init`, `schema snapshot`/`apply`, `users create`/`passwd`, `roles create`, `cache clear`, `count`, `security key:generate`/`secret:generate`) | Có trong image Directus (`node cli.js <lệnh>` ở `/directus`) | Image Backoffice không có CLI; chạy lệnh qua image Directus trên cùng env (hướng dẫn ở `deploy/README.md`) | Directus luôn chạy cùng hệ thống trên DB dùng chung; migration là việc của Directus (D-05 của 001); `/schema` đã có qua API (006) | ngoài phạm vi | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
+| D-134 | Nhãn `maintainer` và tag của target `container` | Image Directus có `maintainer` của nhóm Directus | `maintainer="Hien Nguyen"` ở image API và web; target `container` gắn `hiennd23/backoffice-<app>:local` và `:latest`, không tự push (push khi cần bằng biến `INPUT_<APP>_PUSH=true`, CI vẫn thay tag bằng `INPUT_<APP>_TAGS`) | Chủ dự án 2026-10-21 | khác | — |
 
 **Cần xác nhận**: Không có.
 

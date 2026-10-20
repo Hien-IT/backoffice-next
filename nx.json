@@ -6,9 +6,22 @@
 		"sharedGlobals": ["{workspaceRoot}/tsconfig.base.json", "{workspaceRoot}/vitest.shared.ts"]
 	},
 	"targetDefaults": {
-		"build": { "dependsOn": ["^build"], "inputs": ["production", "^production"], "cache": true },
-		"typecheck": { "dependsOn": ["^build"], "cache": true },
-		"lint": { "cache": true },
-		"test": { "dependsOn": ["^build"], "cache": true }
-	}
+		"build": {
+			"dependsOn": ["^build"],
+			"inputs": ["production", "^production"],
+			"cache": true
+		},
+		"typecheck": {
+			"dependsOn": ["^build"],
+			"cache": true
+		},
+		"lint": {
+			"cache": true
+		},
+		"test": {
+			"dependsOn": ["^build"],
+			"cache": true
+		}
+	},
+	"analytics": false
 }

@@ -58,4 +58,4 @@ LABEL \
 	org.opencontainers.image.description="" \
 	org.opencontainers.image.created="" \
 	org.opencontainers.image.licenses="" \
-	maintainer=""
+	maintainer="Hien Nguyen"

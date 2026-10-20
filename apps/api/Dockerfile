@@ -64,7 +64,8 @@ ARG VCS_REF=unknown
 LABEL \
 	org.opencontainers.image.title="backoffice-api" \
 	org.opencontainers.image.version="${BACKOFFICE_VERSION}" \
-	org.opencontainers.image.revision="${VCS_REF}"
+	org.opencontainers.image.revision="${VCS_REF}" \
+	maintainer="Hien Nguyen"
 
 ENTRYPOINT ["/sbin/tini", "--"]
 CMD ["node", "dist/main.js"]
