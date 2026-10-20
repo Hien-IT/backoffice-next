@@ -2,7 +2,6 @@
 import { useEnv } from '@backoffice/env';
 import type { CollectionAccess } from '@backoffice/types';
 import type { GraphQLParams } from '../../../types/index.js';
-import { toBoolean } from '@backoffice/utils';
 import {
 	GraphQLBoolean,
 	GraphQLEnumType,
@@ -93,58 +92,8 @@ export function injectSystemResolvers(
 						}),
 					}
 				: GraphQLBoolean,
-			websocket: toBoolean(env['WEBSOCKETS_ENABLED'])
-				? {
-						type: new GraphQLObjectType({
-							name: 'server_info_websocket',
-							fields: {
-								rest: {
-									type: toBoolean(env['WEBSOCKETS_REST_ENABLED'])
-										? new GraphQLObjectType({
-												name: 'server_info_websocket_rest',
-												fields: {
-													authentication: {
-														type: new GraphQLEnumType({
-															name: 'server_info_websocket_rest_authentication',
-															values: {
-																public: { value: 'public' },
-																handshake: { value: 'handshake' },
-																strict: { value: 'strict' },
-															},
-														}),
-													},
-													path: { type: GraphQLString },
-												},
-											})
-										: GraphQLBoolean,
-								},
-								graphql: {
-									type: toBoolean(env['WEBSOCKETS_GRAPHQL_ENABLED'])
-										? new GraphQLObjectType({
-												name: 'server_info_websocket_graphql',
-												fields: {
-													authentication: {
-														type: new GraphQLEnumType({
-															name: 'server_info_websocket_graphql_authentication',
-															values: {
-																public: { value: 'public' },
-																handshake: { value: 'handshake' },
-																strict: { value: 'strict' },
-															},
-														}),
-													},
-													path: { type: GraphQLString },
-												},
-											})
-										: GraphQLBoolean,
-								},
-								heartbeat: {
-									type: toBoolean(env['WEBSOCKETS_HEARTBEAT_ENABLED']) ? GraphQLInt : GraphQLBoolean,
-								},
-							},
-						}),
-					}
-				: GraphQLBoolean,
+			// Always false like the REST /server/info: no WebSocket server (Principle XI, D-17).
+			websocket: GraphQLBoolean,
 			queryLimit: {
 				type: new GraphQLObjectType({
 					name: 'server_info_query_limit',

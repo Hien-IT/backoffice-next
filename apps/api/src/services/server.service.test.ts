@@ -185,8 +185,8 @@ describe('serverInfo (logged-in user)', () => {
 		expect(info).toEqual({
 			project: { project_name: 'P' },
 			setupCompleted: true,
-			mcp_enabled: true,
-			ai_enabled: true,
+			mcp_enabled: false,
+			ai_enabled: false,
 			files: { mimeTypeAllowList: ['*/*'] },
 			rateLimit: { points: 50, duration: 1 },
 			rateLimitGlobal: false,
@@ -197,9 +197,7 @@ describe('serverInfo (logged-in user)', () => {
 		});
 	});
 
-	test('websocket logs for admins only; upload concurrency and TUS', async () => {
-		vi.mocked(useLogger).mockReturnValue({ levels: { values: { info: 30, error: 50, debug: 20 } } } as any);
-
+	test('websocket, MCP and AI stay false whatever the env (D-17); upload concurrency and TUS', async () => {
 		vi.mocked(useEnv).mockReturnValue({
 			...env,
 			WEBSOCKETS_ENABLED: true,
@@ -209,25 +207,19 @@ describe('serverInfo (logged-in user)', () => {
 			WEBSOCKETS_HEARTBEAT_ENABLED: true,
 			WEBSOCKETS_HEARTBEAT_PERIOD: 30,
 			WEBSOCKETS_LOGS_ENABLED: true,
+			MCP_ENABLED: true,
+			AI_ENABLED: true,
 			FILES_MAX_UPLOAD_CONCURRENCY: 5,
 			TUS_ENABLED: true,
 			TUS_CHUNK_SIZE: '8mb',
 		});
 
-		const read = (admin: boolean) =>
-			new ServerService({ knex: knexWithUsers(true), accountability: { user: 'u', admin } as any }).serverInfo();
+		const admin = await new ServerService({
+			knex: knexWithUsers(true),
+			accountability: { user: 'u', admin: true } as any,
+		}).serverInfo();
 
-		const admin = await read(true);
-
-		expect(admin['websocket']).toEqual({
-			rest: { authentication: 'handshake', path: '/websocket' },
-			graphql: false,
-			heartbeat: 30,
-			collaborativeEditing: false,
-			logs: { allowedLogLevels: { info: 30, error: 50 } },
-		});
-
+		expect(admin).toMatchObject({ websocket: false, mcp_enabled: false, ai_enabled: false });
 		expect(admin['uploads']).toEqual({ maxConcurrency: 5, tus: true, chunkSize: 8_388_608 });
-		expect((await read(false))['websocket'].logs).toBe(false);
 	});
 });

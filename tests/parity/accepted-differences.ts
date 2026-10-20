@@ -99,6 +99,14 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		location: { any: true },
 		reason: 'WebSocket, extensions, AI/MCP and deployments are out of scope (Principle XI).',
 	},
+	{
+		id: 'D-17',
+		feature: '001',
+		kind: 'http',
+		endpoints: ['GET /server/info', 'SEARCH /server/info'],
+		location: { jsonPointer: /^\/data\/(mcp_enabled|ai_enabled|websocket)(\/.*)?$/ },
+		reason: 'mcp_enabled, ai_enabled and websocket are always false: no AI, MCP or WebSocket (Principle XI).',
+	},
 	{ id: 'D-18', feature: '001', kind: 'doc', reason: 'Additional startup and credential log lines.' },
 	{ id: 'D-19', feature: '001', kind: 'doc', reason: 'One process per container, no bootstrap or PM2.' },
 	{

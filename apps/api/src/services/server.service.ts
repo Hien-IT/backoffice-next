@@ -1,10 +1,11 @@
 // Ported from directus/api/src/services/server.ts. `email:connection` is always ok, no mail transport is created
-// (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047).
+// (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047). mcp_enabled, ai_enabled and websocket
+// are always false: no AI, MCP or WebSocket here, whatever the shared env says (Principle XI, D-17).
 import { Readable } from 'node:stream';
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';
 import type { AbstractServiceOptions, Accountability } from '@backoffice/types';
-import { toArray, toBoolean } from '@backoffice/utils';
+import { toArray } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { merge } from 'lodash-es';
 import { getCache } from '../cache.js';
@@ -15,7 +16,6 @@ import { rateLimiterGlobal } from '../middleware/rate-limiter-global.js';
 import { rateLimiter } from '../middleware/rate-limiter-ip.js';
 import { SERVER_ONLINE } from '../server.js';
 import { getStorage } from '../storage/index.js';
-import { getAllowedLogLevels } from '../utils/get-allowed-log-levels.js';
 import { SettingsService } from './settings.service.js';
 
 export class ServerService {
@@ -67,8 +67,8 @@ export class ServerService {
 		if (this.accountability?.user) {
 			const env = useEnv();
 
-			info['mcp_enabled'] = toBoolean(env['MCP_ENABLED'] ?? true);
-			info['ai_enabled'] = toBoolean(env['AI_ENABLED'] ?? true);
+			info['mcp_enabled'] = false;
+			info['ai_enabled'] = false;
 
 			info['files'] = {
 				mimeTypeAllowList: toArray(env['FILES_MIME_TYPE_ALLOW_LIST'] as string | string[]),
@@ -101,38 +101,7 @@ export class ServerService {
 				max: Number.isFinite(env['QUERY_LIMIT_MAX']) ? env['QUERY_LIMIT_MAX'] : -1,
 			};
 
-			if (toBoolean(env['WEBSOCKETS_ENABLED'])) {
-				info['websocket'] = {};
-
-				info['websocket'].rest = toBoolean(env['WEBSOCKETS_REST_ENABLED'])
-					? {
-							authentication: env['WEBSOCKETS_REST_AUTH'],
-							path: env['WEBSOCKETS_REST_PATH'],
-						}
-					: false;
-
-				info['websocket'].graphql = toBoolean(env['WEBSOCKETS_GRAPHQL_ENABLED'])
-					? {
-							authentication: env['WEBSOCKETS_GRAPHQL_AUTH'],
-							path: env['WEBSOCKETS_GRAPHQL_PATH'],
-						}
-					: false;
-
-				info['websocket'].heartbeat = toBoolean(env['WEBSOCKETS_HEARTBEAT_ENABLED'])
-					? env['WEBSOCKETS_HEARTBEAT_PERIOD']
-					: false;
-
-				info['websocket'].collaborativeEditing = toBoolean(env['WEBSOCKETS_COLLAB_ENABLED']);
-
-				info['websocket'].logs =
-					toBoolean(env['WEBSOCKETS_LOGS_ENABLED']) && this.accountability.admin
-						? {
-								allowedLogLevels: getAllowedLogLevels((env['WEBSOCKETS_LOGS_LEVEL'] as string) || 'info'),
-							}
-						: false;
-			} else {
-				info['websocket'] = false;
-			}
+			info['websocket'] = false;
 
 			if (FILE_UPLOADS.MAX_CONCURRENCY && FILE_UPLOADS.MAX_CONCURRENCY !== Infinity) {
 				info['uploads'] = {
