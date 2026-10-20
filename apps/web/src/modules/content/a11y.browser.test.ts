@@ -69,7 +69,7 @@ const snapshot = loadSnapshot();
 let fetch: ReturnType<typeof mockFixtureApi>;
 let noTransitions: HTMLStyleElement;
 
-// From `xl` the detail panel is inline (layout-patterns): every section is in the page.
+// The detail panel is a popover of the page header toggle (D-128): openSection opens it first.
 beforeAll(async () => {
 	await page.viewport(1280, 900);
 	noTransitions = document.head.appendChild(document.createElement('style'));
@@ -229,8 +229,10 @@ const found = <T>(get: () => T | null | undefined, timeout = 10000) =>
 		{ timeout },
 	);
 
-/** Opens a detail panel section by its header button; returns its content region. */
+/** Opens the detail panel popover (closed on load, D-128), then a section by its header button; returns its region. */
 async function openSection(title: string) {
+	const toggle = document.querySelector<HTMLButtonElement>('button[aria-label="Open sidebar"]');
+	if (toggle) await userEvent.click(toggle);
 	const header = await found(() => byText('h3 > button', title));
 	await userEvent.click(header);
 	await vi.waitFor(() => expect(header.getAttribute('aria-expanded')).toBe('true'));
