@@ -3,7 +3,7 @@
 **Feature Branch**: `019-deployment-packaging` (làm trên `main` như 012–018, không tạo branch; `specs/019-*` là thư mục
 feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-20
-**Status**: Draft
+**Status**: Done (2026-10-20; 56/56 task, CI 39371162920)
 **Input**: User description: "Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load
 balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi
 trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không
@@ -500,7 +500,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   mời, share, đặt lại mật khẩu, callback SSO, bỏ qua cache theo Referer); đây là ngoại lệ có giới hạn của "không khai báo
   lại biến" (FR-071).
 - Phân tích 2026-10-20 (`/speckit.analyze`): thêm FR-053 (kiểm cấu hình đa instance, gồm `SYNCHRONIZATION_STORE`), sửa
-  US7 kịch bản 3, FR-030, SC-001 cho khớp với test; D-120..D-122 và ngoại lệ VIII chờ tech lead duyệt (T005, T079).
+  US7 kịch bản 3, FR-030, SC-001 cho khớp với test; D-120..D-122 và ngoại lệ VIII lúc đó chờ duyệt; chủ dự án duyệt sau cùng ngày (T005, T079, bảng khác biệt, plan).
 - Chủ dự án (2026-10-20): `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` không đặt riêng cho bản Backoffice; "nếu
   như có sẵn và cần thiết thì báo tôi sửa env của directus" → FR-076 (chart dừng cài và báo), FR-071 chỉ còn `PUBLIC_URL`.
 

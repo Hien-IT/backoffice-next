@@ -367,3 +367,6 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   Directus (mất `image`): dùng strategic merge mặc định.
 - SC-001 (T116, ở máy, trước bản sửa `lb`): 10/10 lần `parity-tests:deploy` sạch, 41/41, shutdown 22 218–26 171 request,
   0 lỗi mỗi lần.
+- CI 39371162920 (`a2a5eae`): `deploy` xanh ở hai chế độ (shutdown 16 471 request, 0 lỗi, sẵn sàng lại 9,3 s);
+  `deploy-k8s` xanh: 40 kiểm template, rồi trên kind: Ingress, Directus trong pool, rolling update + HPA 2→4→2 dưới tải
+  14 169 request 0 lỗi, HPA đọc CPU, FR-076 và FR-053 dừng cài đúng (T097).

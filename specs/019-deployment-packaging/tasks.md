@@ -351,7 +351,7 @@ FR-064, SC-002).
 - [X] T072 [US6] Ghi vào `deploy/README.md` mục "Tắt máy an toàn": trình tự 001 (FR-080), khoảng trễ ở đâu (compose: retry
       nginx; Kubernetes: `preStop`), công thức grace ≥ delay + `SERVER_SHUTDOWN_TIMEOUT` + đóng kết nối, request dài hơn
       `SERVER_SHUTDOWN_TIMEOUT` bị cắt (edge case của spec), cách tăng biến này trong cấu hình chung, D-122.
-- [ ] T073 [US6] Đóng lượt 2: `lint`, `typecheck`; `parity-tests:deploy` xanh toàn bộ (smoke, web-image, image-swap,
+- [X] T073 [US6] Đóng lượt 2: `lint`, `typecheck`; `parity-tests:deploy` xanh toàn bộ (smoke, web-image, image-swap,
       compose, sessions, schema, flows-schedule, tus, shutdown); commit `feat(019): dev compose with N replicas behind
       nginx; multi-instance acceptance suite`; gửi hash + path cho 018; CI xanh (job `deploy` chưa có, chỉ job hiện tại);
       `graphify update .`.
@@ -469,7 +469,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       `STORAGE_LOCATIONS` có `local` thì phải có `uploads.existingClaim`), gom mọi lý do vào một `fail`; gọi `include
       "backoffice.checks" .` ở đầu `api-deployment.yaml`.
 - [X] T096 [US7] Chạy `ci/test-template.sh` xanh (sửa template tới khi `kubeconform` và các `grep` đạt).
-- [ ] T097 [US7] Viết `chart/ci/deps.yaml` và `chart/ci/values-kind.yaml` (image `:local`, `pullPolicy: Never`,
+- [X] T097 [US7] Viết `chart/ci/deps.yaml` và `chart/ci/values-kind.yaml` (image `:local`, `pullPolicy: Never`,
       `directus.configMap=directus-config`, `directus.secret=directus-secret`, `ingress.host=cms.test`,
       `api.autoscaling.enabled=true` với `minReplicas 2`, `resources` nhỏ); chạy `ci/kind-test.sh` local xanh (cần
       Docker đủ RAM; nếu máy không chạy được kind, ghi rõ và để CI T111 kiểm).
@@ -478,7 +478,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       ingress-nginx (`proxy-body-size: "0"`, `proxy-request-buffering: "off"`, `proxy-read-timeout`) (FR-051), SAML về
       Directus qua `ingress.extraPaths` với ví dụ `/auth/login/<provider>` và `/auth/login/<provider>/acs` (FR-052,
       D-24 của 003), PVC RWX cho storage `local` (FR-047), HPA cần metrics-server, `helm template` cho nơi không dùng Helm.
-- [ ] T099 [US7] Đóng lượt 3: `lint`, `typecheck`; `parity-tests:deploy` hai chế độ xanh; `ci/test-template.sh` xanh;
+- [X] T099 [US7] Đóng lượt 3: `lint`, `typecheck`; `parity-tests:deploy` hai chế độ xanh; `ci/test-template.sh` xanh;
       commit `feat(019): separate-domain compose override; Helm chart reusing the Directus ConfigMap and Secret`; gửi
       hash + path cho 018; CI xanh; `graphify update .`.
 
@@ -516,13 +516,13 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       nếu dùng `entrypoint` bọc trong compose thì ghi vào D-122), "Kết quả" các task vào `research.md`, trạng thái
       checklist `checklists/requirements.md`; cập nhật mục `Active Technologies`/`Recent Changes` của `CLAUDE.md` (dòng
       019 đã có từ plan; sửa nếu khác thực tế).
-- [ ] T116 Chạy toàn bộ: `pnpm nx run-many -t lint,typecheck`; `parity-tests:deploy` hai chế độ; SC-001: `for i in $(seq
+- [X] T116 Chạy toàn bộ: `pnpm nx run-many -t lint,typecheck`; `parity-tests:deploy` hai chế độ; SC-001: `for i in $(seq
       10); do pnpm nx run parity-tests:deploy || break; done` (mỗi lần global-setup dựng env mới), ghi số lần đạt / lỗi và
       file lỗi của từng lần; `ci/test-template.sh`;
       (`ci/kind-test.sh` nếu máy chạy được); kiểm thủ công SC-004: lấy `docker compose config` của service `directus`,
       đổi `image` sang `hiennd23/backoffice-api:local`, `diff` chỉ ra một dòng; ghi số liệu SC-001..SC-010 vào
       `research.md` "Kết quả T116".
-- [ ] T117 Đóng lượt 4: commit `ci(019): deploy and deploy-k8s jobs gate publish; deployment guide`; gửi hash + path
+- [X] T117 Đóng lượt 4: commit `ci(019): deploy and deploy-k8s jobs gate publish; deployment guide`; gửi hash + path
       cho 018; chờ CI xanh gồm `deploy`, `deploy-k8s`, `publish` (đẩy image có nhãn); nếu job mới đỏ vì flake môi
       trường (kind, Docker Hub rate limit) thì sửa trong commit tiếp theo theo quy ước `workflow-merge-main`; `graphify
       update .`; ghi memory feature 019 đóng (quyết định Q1, Q2, US9, bài học CI) theo cách các feature trước.
