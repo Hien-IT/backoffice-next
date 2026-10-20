@@ -18,7 +18,7 @@ prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`
 | Cache              | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay.                                                                                                                                                   |
 | Flows              | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy.                                                                                                                         |
 | FE                 | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0). |
-| Extensions         | **Chưa làm** trong giai đoạn này.                                                                                                                                                                                                               |
+| Extensions         | **Feature 020**: extension đã build cho Directus chạy trên API và app mới (mọi loại trừ `theme`), marketplace, sandbox, nhiều instance (constitution 2.1.0).                                                                                    |
 | Biến môi trường    | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy.                                                                                      |
 | Ngôn ngữ           | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**.                                                                                                                                                    |
 | Runtime            | **Node 22 + pnpm 10**, giống Directus.                                                                                                                                                                                                          |
@@ -149,7 +149,8 @@ VII. Triển khai đa instance
 - BE chạy được nhiều container cùng lúc sau load balancer, cùng với các instance Directus, tất cả ngang hàng trên cùng DB và Redis. Không cần sticky session.
 - Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và lock upload TUS. Không dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi instance, như Directus.
 - File và ảnh đã transform lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng chung). Không dùng storage local riêng từng container.
-- Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động.
+- Khi chạy nhiều instance, extension nạp từ storage dùng chung (EXTENSIONS_LOCATION) hoặc đóng sẵn vào mọi image; cài, gỡ, bật tắt reload mọi instance (cả Directus) qua bus Redis như Directus.
+- Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động (ngoại lệ duy nhất: dòng `directus_extensions` cho extension mới thấy lần đầu, như Directus, có khóa Redis; constitution 2.2.0).
 - Có /server/health cho readiness và liveness probe. Khi nhận SIGTERM, ngừng nhận request mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
 - FE và BE nên đặt chung một domain: /admin/* vào FE, các path API còn lại vào BE, giống bố cục của Directus.
 
@@ -192,7 +193,7 @@ XII. Giao diện theo design-system
 XI. Ngoài phạm vi giai đoạn này
 - SSO bằng SAML (làm OpenID Connect, OAuth2, LDAP). Storage Azure, GCS, Cloudinary, Supabase (chỉ làm Local và S3/tương thích S3). Gửi email.
 - Realtime WebSocket: /websocket, GraphQL subscription, collaborative editing, system logs realtime. /server/info trả websocket: false, giống Directus khi WEBSOCKETS_ENABLED=false. App web ẩn các tính năng này như Directus app.
-- Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...), visual editing, telemetry.
+- Extension loại theme, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...), visual editing, telemetry. Các loại extension khác làm ở feature 020.
 
 Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên bản theo semver và cập nhật lại các template liên quan.
 ```
@@ -224,6 +225,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 017 | Trình chỉnh sửa Flows                                                                                           | 016       | FE     |
 | 018 | Insights, Activity, Notifications                                                                               | 013       | FE     |
 | 019 | Đóng gói và triển khai đa instance (Docker, K8s)                                                                | 001, 012  | DevOps |
+| 020 | Extensions (API, app, marketplace, sandbox, nhiều instance)                                                     | 009–019   | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -369,7 +371,6 @@ menu chuột phải "sửa collection" mở `/settings/data-model/:collection`. 
 (`system-filter`, `system-input-translated-string`, D-73); màn presets của Settings dùng lại `system-filter`, layout
 options và `BookmarkAdd` của 014.
 
-
 Ghi chú từ 015 (đưa vào spec 016): menu "sửa role" của cây role ở module Users (admin, chuột phải và nút dòng) trỏ
 `/settings/roles/:id` (D-85, `modules/users/components/UsersNavigation.vue`), phải mở màn role thật. Sáu interface
 `_system` của màn user đã có (`system-language`, `system-input-password`, `system-token`, `system-mfa-setup`,
@@ -395,24 +396,62 @@ Ghi chú từ 016 (đưa vào spec 017): mục "Flows" của sub-menu Settings v
 Ghi chú từ 014 (đưa vào spec 018): `/content/directus_dashboards` và `/content/directus_activity` chuyển hướng sang
 `/insights`, `/activity` (khung của 012, D-72); 018 thay khung bằng màn thật, giữ route.
 
-Ghi chú từ 015 (đưa vào spec 018): drawer thông báo chưa có danh sách upload TUS dở (D-90); khi 018 làm drawer thông
-báo thì thêm danh sách này như Directus (`tusResumableUploadsChanged`), `utils/upload-file.ts` đã giữ việc tiếp tục
-upload dở khi chọn lại cùng file.
+Ghi chú từ 015 (đưa vào spec 018): drawer thông báo chưa có danh sách upload TUS dở (D-90); khi 018 làm drawer thông báo
+thì thêm danh sách này như Directus (`tusResumableUploadsChanged`), `utils/upload-file.ts` đã giữ việc tiếp tục upload
+dở khi chọn lại cùng file.
 
 Ghi chú từ 017 (đưa vào spec 018): `BoWorkspace` và `BoWorkspaceTile` (`src/components/workspace`, port của
 `v-workspace`, `v-workspace-tile`) đã có cho canvas flows: kéo bám lưới 18 px, menu tile, `data-pos-x/y`; chưa có resize
-và zoom mà dashboard Insights cần. `/content/directus_operations` không chuyển hướng, giống Directus
-(`get-route.ts` không có dòng đó).
+và zoom mà dashboard Insights cần. `/content/directus_operations` không chuyển hướng, giống Directus (`get-route.ts`
+không có dòng đó).
 
-Ghi chú từ 016 (đưa vào spec 018): thông báo dạng snackbar của Directus vẫn là notice tại chỗ và hộp lỗi (D-66 của
-013); `settingsStore.updateSettings` và các màn Settings dùng `notify`/`showUnexpectedError`. Khi 018 làm Notifications
-thì xét lại cách hiển thị này.
+Ghi chú từ 016 (đưa vào spec 018): thông báo dạng snackbar của Directus vẫn là notice tại chỗ và hộp lỗi (D-66 của 013);
+`settingsStore.updateSettings` và các màn Settings dùng `notify`/`showUnexpectedError`. Khi 018 làm Notifications thì
+xét lại cách hiển thị này.
 
 ### 019: Đóng gói và triển khai đa instance
 
 ```text
 /speckit.specify Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không cần sticky session, có readiness và liveness probe qua /server/health, tắt máy an toàn khi nhận SIGTERM (ngừng nhận request, chạy nốt request đang dở, đóng kết nối DB và Redis). Định tuyến chung một domain: /admin/* vào FE, các path còn lại vào BE. Cung cấp docker-compose cho máy dev (Directus 11.17.4, BE 2 replica, FE, Postgres, Redis, MinIO làm S3) và manifest Kubernetes hoặc Helm chart cho môi trường thật (Deployment, Service, Ingress, HPA cho BE, dùng lại nguyên ConfigMap và Secret đang cấp cho Directus, không khai báo lại biến). Thay một instance Directus bằng BE mới chỉ cần đổi image, giữ nguyên toàn bộ biến môi trường. Tiêu chí chấp nhận: với BE 3 replica cộng 1 Directus, các bài test sau đều đạt: đăng nhập rồi gọi API lần lượt vào từng replica; sửa schema ở một replica thì replica khác thấy ngay; flow theo lịch chỉ chạy một lần mỗi lượt; upload TUS nhiều chunk qua các replica khác nhau vẫn thành công; tắt một replica khi đang tải không làm lỗi request.
 ```
+
+### 020: Extensions
+
+```text
+/speckit.specify Hỗ trợ extension của Directus 11.17.4 trên API mới và app web mới: extension đã build cho Directus chạy được mà không cần build lại. Gỡ D-37, phần extensions của D-45, phần Extensions/Marketplace của D-93. Loại trong phạm vi: interface, display, layout, module, panel, hook, endpoint, operation, bundle; ngoài phạm vi: theme. API: port directus/api/src/extensions (manager, get-extensions, sync, installation, sandbox, wrap-embeds); nạp hook (filter, action, init, schedule, embed), endpoint, operation với cùng context như Directus (services, database, getSchema, env, logger, emitter...); env EXTENSIONS_PATH, EXTENSIONS_LOCATION, EXTENSIONS_MUST_LOAD, EXTENSIONS_AUTO_RELOAD, EXTENSIONS_SANDBOX_MEMORY, EXTENSIONS_SANDBOX_TIMEOUT; extension sandboxed chạy trong isolated-vm; /extensions trả schema thật, PATCH bật tắt, cài gỡ từ registry (bỏ 503), GraphQL extensions và update_extensions_item theo cùng hành vi. Nhiều instance (compose N replica, k8s nhiều pod, HPA): mọi node trong pool, cả Directus lẫn Backoffice, nạp cùng một bộ extension; bắt buộc EXTENSIONS_LOCATION khi chạy nhiều replica và Helm kiểm tra lúc install; reload qua kênh bus chung extensions.reload (cùng payload partialSync, origin); hook schedule dùng cùng tên lock <tên>:<index> với Directus; pod chỉ ready sau khi sync và nạp xong. Web, tương thích hoàn toàn: nạp /extensions/sources/index.js, đăng ký lúc chạy vào registry interface, display, layout, module, panel, operation; shim toàn bộ 77 component toàn cục v-* (directus/app/src/components/register.ts), PrivateView, PublicView, SharedView, 7 directive toàn cục, inject useStores, useApi (AxiosInstance), useSdk, useExtensions, shared deps vue, vue-router, vue-i18n, pinia, @directus/extensions-sdk, biến CSS --theme--* ánh xạ sang token. Shim theo design-system/ (TailAdmin): bọc Bo* khi đã có, giữ đủ props, slot, emit của v-*; component chưa có thì viết mới trên Reka UI và token theme, đủ trạng thái và bàn phím theo docs/component-specs.md. Màn Settings > Extensions và Marketplace theo design-system; màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: cùng một bộ extension mẫu (mỗi loại một cái) chạy giống nhau trên Directus và app mới; hook bắn cùng event, endpoint trả cùng response, flow có operation tùy biến cho cùng kết quả; props, slot, emit của từng v-* shim khớp Directus; với BE 3 replica cộng 1 Directus (compose và kind): cài ở một node thì mọi node thấy, gỡ thì mọi node trả 404, hook schedule chạy một lần mỗi lượt, scale lên thì pod mới có extension trước khi ready.
+```
+
+Quyết định của owner (2026-10-21): tương thích hoàn toàn với extension app của Directus (phương án A: shim toàn bộ
+`v-*`), bỏ loại theme, bật marketplace, bật sandbox, shim theo giao diện TailAdmin (không chép CSS của Directus).
+
+Số đo trước khi viết spec (2026-10-21, đếm bằng regex, chỉ là xấp xỉ):
+
+| Phần extension app dùng                           | Hiện trạng apps/web                                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 77 component `v-*`                                | 31 có cặp `Bo*` nhưng thiếu khoảng 160 props (nặng nhất `v-select`, `v-button`, `v-input`, `v-menu`, `v-chip`, `v-checkbox`, `v-table`); khoảng 11 đã port với tên khác (`RenderDisplay`, `RenderTemplate`, các drawer, `FieldList`...); khoảng 35 chưa có (`VList*`, `VCard*`, `VTab*`, `VSkeletonLoader`, `VTemplateInput`, `VEmojiPicker`, `Transition*`...) |
+| `PrivateView`, `PublicView`, `SharedView`         | Không có component toàn cục; khung là TailAdmin (D-127, D-128)                                                                                                                                                                                                                                                                                                  |
+| 7 directive (`tooltip`, `md`, `click-outside`...) | Không có directive toàn cục                                                                                                                                                                                                                                                                                                                                     |
+| `useStores`, `useApi`, `useSdk`, `useExtensions`  | 14 store có đủ; `useApi` trả AxiosInstance nhưng apps/web không có axios (012 chỉ dùng `@directus/sdk`, cần owner duyệt); chưa có `useExtensions`                                                                                                                                                                                                               |
+| Biến CSS `--theme--*`                             | Directus styles dùng 39 biến (chưa đếm biến sinh lúc chạy), apps/web có 3                                                                                                                                                                                                                                                                                       |
+| Registry interface, display, panel, operation     | Tĩnh (013, 017, 018); cần thêm đường đăng ký lúc chạy                                                                                                                                                                                                                                                                                                           |
+
+Ghi chú đưa vào spec và plan 020:
+
+- Extension API phải chạy ở API mới: pool `api_pool` trong `deploy/compose/lb/shared-domain.conf` có cả Directus và
+  Backoffice, và `bo_pool` của chế độ separate-domain chỉ có Backoffice. Nạp ở một phía thì hook, endpoint, operation
+  lúc chạy lúc không.
+- Nhiều instance: Directus đồng bộ extension từ storage `EXTENSIONS_LOCATION` về đĩa local lúc khởi động
+  (`lib/sync/sync.ts`), cài gỡ thì ghi lên storage rồi publish `extensions.reload` (`manager.ts`). Không có
+  `EXTENSIONS_LOCATION` thì cài từ marketplace chỉ vào một pod.
+- Kết quả plan (2026-10-21, `specs/020-extensions/research.md`): machine-id trong container = sha256(hostname) nên mỗi
+  pod tự sync (không có pod đọc đĩa trống), nhưng khóa không có TTL: app mới xóa khóa cũ của máy mình lúc khởi động;
+  `directus_extensions` không unique nên N node khởi động cùng lúc chèn trùng: khóa Redis `extensions-settings` (R-58).
+  Express 5 cho endpoint và `init` với danh sách D-139 (owner chọn B). Shared dep của bundle qua **import map** trong
+  `index.html` (owner chọn D ở plan; C/D-140 của clarify bị bỏ vì manifest hỏng ở domain riêng và cross-site); `pinia`
+  ghim 2.3.1. Directus 11.17.4 không có chọn phiên bản, nhãn sandbox, hộp xác nhận ở Extensions/Marketplace (spec đã
+  sửa). 173 biến `--theme--*` (không phải 45). Kiểm kê 77 shim: 13 cùng hợp đồng, 30 mở rộng `Bo*`, 34 viết mới.
+- Ba lượt lên `main` (clarify): API + nhiều instance (+ Settings > Extensions chỉ đọc, bật tắt) → web shim + nạp bundle
+  - module → marketplace cài gỡ.
 
 ---
 
@@ -453,7 +492,7 @@ bước khó.
 khuôn có sẵn thì dùng model rẻ hơn.
 
 **Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và
-**013, 014** (FE).
+**013, 014** (FE), và **020** (cả hai).
 
 | Bước                    | Feature lõi                                                                                                                                | Feature còn lại                                                                | Lý do                                                                          |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
@@ -515,34 +554,34 @@ khuôn có sẵn thì dùng model rẻ hơn.
 
 ## 11. Hoãn tới khi xong mọi spec
 
-Owner quyết định 2026-10-16 (chuyển qua phiên 014): không làm trong các lượt của 015 hay feature nào, chỉ làm sau khi mọi
-spec (đến 019) đã xong.
+Owner quyết định 2026-10-16 (chuyển qua phiên 014): không làm trong các lượt của 015 hay feature nào, chỉ làm sau khi
+mọi spec (đến 019) đã xong.
 
 - **p95 benchmark API chậm hơn Directus 11.17.4**: điều tra rồi sửa trong `apps/api`, hoặc ghi thành khác biệt được tech
   lead duyệt. Số đo của run 38752626188 (2026-10-15) so với run hằng tuần 39167500790 (2026-10-18, commit 12b7246):
 
-  | Job                 | Request                                         | 2026-10-15 Bo / Directus | 2026-10-18 Bo / Directus | Kết quả 2026-10-18      |
-  | ------------------- | ----------------------------------------------- | ------------------------ | ------------------------ | ----------------------- |
-  | `benchmark`         | GET /server/specs/oas                           | 279.6 / 249.3 ms         | 211.3 / 251.4 ms         | đạt                     |
-  | `benchmark-system`  | GET presets-list, user, 50 kết nối              | 639.5 / 559.1 ms         | 873.0 / 722.9 ms         | đỏ (fail, ok, fail)     |
-  | `benchmark-history` | POST version-save, admin, 10 kết nối            | 206.0 / 174.0 ms         | 63.2 / 64.1 ms           | đạt                     |
-  | `benchmark-files`   | POST files-upload, admin, 50 kết nối            | 472.3 / 346.9 ms         | 376.1 / 384.8 ms         | đạt                     |
-  | `benchmark-schema`  | GET /fields, admin, cached                      | 792.1 / 788.0 ms (đạt)   | 790.0 / 704.5 ms         | đỏ (fail, fail)         |
-  | `benchmark-web`     | files: next page (web → Directus / Directus app) | 112 / 108 ms (đạt)      | 107 / 81 ms              | đỏ (web → API 88 ms đạt) |
+  | Job                 | Request                                          | 2026-10-15 Bo / Directus | 2026-10-18 Bo / Directus | Kết quả 2026-10-18       |
+  | ------------------- | ------------------------------------------------ | ------------------------ | ------------------------ | ------------------------ |
+  | `benchmark`         | GET /server/specs/oas                            | 279.6 / 249.3 ms         | 211.3 / 251.4 ms         | đạt                      |
+  | `benchmark-system`  | GET presets-list, user, 50 kết nối               | 639.5 / 559.1 ms         | 873.0 / 722.9 ms         | đỏ (fail, ok, fail)      |
+  | `benchmark-history` | POST version-save, admin, 10 kết nối             | 206.0 / 174.0 ms         | 63.2 / 64.1 ms           | đạt                      |
+  | `benchmark-files`   | POST files-upload, admin, 50 kết nối             | 472.3 / 346.9 ms         | 376.1 / 384.8 ms         | đạt                      |
+  | `benchmark-schema`  | GET /fields, admin, cached                       | 792.1 / 788.0 ms (đạt)   | 790.0 / 704.5 ms         | đỏ (fail, fail)          |
+  | `benchmark-web`     | files: next page (web → Directus / Directus app) | 112 / 108 ms (đạt)       | 107 / 81 ms              | đỏ (web → API 88 ms đạt) |
 
   Điều tra 2026-10-19 (env benchmark ở máy local, hai app chạy kiểu amd64 giả lập, cùng tải):
   - presets-list ở tốc độ cố định: Bo 861 ms, Directus 813 ms (6 %, đạt). Ở tải tối đa, Bo nhanh hơn: trung bình 822 ms
     so với 849 ms, p99 999 ms so với 1433 ms, 59,5 so với 57,6 req/s.
   - `/fields` admin cached ở 67 req/s (80 % của Directus): p97.5 của Bo 566–567 ms, của Directus 586–626 ms.
   - Profile `--cpu-prof` của hai container dưới cùng tải presets-list: cùng lượng CPU (33,3 s so với 33,6 s, GC 2,08 s
-    so với 2,19 s). Các hàm nóng giống nhau: `cloneDeep` schema ở mỗi request (`CACHE_SCHEMA_FREEZE_ENABLED=false`
-    như Directus), nén JSON khi `respond` ghi cache response, `removeTemporaryFields`. Không có điểm nóng riêng của Bo.
+    so với 2,19 s). Các hàm nóng giống nhau: `cloneDeep` schema ở mỗi request (`CACHE_SCHEMA_FREEZE_ENABLED=false` như
+    Directus), nén JSON khi `respond` ghi cache response, `removeTemporaryFields`. Không có điểm nóng riêng của Bo.
   - [Inference] Chênh lệch trên runner GitHub là do biến động của runner, không phải code; trên CI, req/s của Bo luôn
     cao hơn Directus. Chưa có số đo CI nào sau lần điều tra này.
   - `benchmark-web`: với 11 lần chạy, p95 là lần chậm nhất, nên một lần giật làm đỏ một bước khoảng 100 ms (mốc Directus
     app là 108 ms lần trước, 81 ms lần này). `web-files-users.ts` giờ đo lại bước bị đỏ và lấy đa số 2/3, như
-    `confirmed()` của benchmark API. Run 39286312657 vẫn đỏ ở "files: next page", lần này ở web → API (134 / 119 ms,
-    cả hai lần đo), với cùng request. Owner chọn (2026-10-20): một bước chỉ tính là chậm khi vượt cả 10 % lẫn 25 ms
+    `confirmed()` của benchmark API. Run 39286312657 vẫn đỏ ở "files: next page", lần này ở web → API (134 / 119 ms, cả
+    hai lần đo), với cùng request. Owner chọn (2026-10-20): một bước chỉ tính là chậm khi vượt cả 10 % lẫn 25 ms
     (`WEB_FLOOR_MS`, `webSlower()` của `compare.ts`, dùng cho `web-content.ts` và `web-files-users.ts`).
   - Chạy lại 2026-10-19: presets-list đạt (Bo 635,9 / Directus 682,5 ms, run 39286285717).
   - Chạy lại `benchmark-web` 2026-10-20 trên 7fb8faf: đạt (run 39417286435). "files: next page" 126 / 112 ms (web →
@@ -551,7 +590,8 @@ spec (đến 019) đã xong.
     gửi; profile JS gần bằng nhau, không có điểm nóng riêng của Bo. Không sửa code.
 
   Chạy lại một job: `gh workflow run benchmark.yml -f job=<job>`.
+
 - **Parity GraphQL chập chờn**: đã sửa ở e23595c (2026-10-18). `schema.test.ts` (profile `graphql-nointro`): hai app
   nhận cùng truy vấn một lúc và đọc cache của nhau (`x-cache-status` HIT so với MISS); `capture()` giờ gửi
-  `Cache-Control: no-store` cho POST /graphql. `system.test.ts` trên MySQL: `INFORMATION_SCHEMA.COLUMNS` không có
-  ORDER BY (như Directus), nên `fields_in_collection` được so theo tên field. Các run 39107695073 và 39112828931 xanh.
+  `Cache-Control: no-store` cho POST /graphql. `system.test.ts` trên MySQL: `INFORMATION_SCHEMA.COLUMNS` không có ORDER
+  BY (như Directus), nên `fields_in_collection` được so theo tên field. Các run 39107695073 và 39112828931 xanh.

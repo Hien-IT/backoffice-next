@@ -41,12 +41,13 @@ a row in Complexity Tracking.
 - [ ] IV. Shared SECRET/JWT/Redis keys; no critical in-process state; scheduled flows use Redis lock
 - [ ] V. Parity tests (Directus vs new app) planned for every endpoint added or changed
 - [ ] VI. Nx layout, NestJS provider per Directus service, Knex (no ORM), Vue 3 Composition API
-- [ ] VII. Multi-instance safe: runtime FE config, shared storage, read-only startup, graceful SIGTERM; in-process
-  caches only if rebuilt from DB/Redis and cleared via the Redis bus on every instance
+- [ ] VII. Multi-instance safe: runtime FE config, shared storage (files and extensions), read-only startup (except new
+  `directus_extensions` rows, 2.2.0), graceful SIGTERM; in-process caches only if rebuilt from DB/Redis and cleared via
+  the Redis bus on every instance
 - [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept
 - [ ] X. Coverage, perf (≤10% vs Directus), logging/metrics, no email sending, deviations in spec
-- [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, extensions, AI/MCP...)
+- [ ] XI. Nothing out of scope (SAML, non-S3 storage, websockets, theme extensions, AI/MCP...)
 - [ ] XII. (FE only) Read `design-system/` docs (TailAdmin based); theme names (`brand-*`, `gray-*`...) via Tailwind 4
   `@theme`, no raw hex or palette outside the theme; app shell per `docs/layout-patterns.md`; component-specs
   conventions (Reka UI, states, keyboard, linked labels); gaps listed as open questions in the spec; settings

@@ -1,4 +1,33 @@
 <!--
+Sync Impact Report (2.2.0, 2026-10-21)
+- Version change: 2.1.0 → 2.2.0
+- Modified principles: VII. Triển khai đa instance: câu "KHÔNG ghi gì vào bảng hệ thống khi khởi động" thêm một ngoại
+  lệ duy nhất: dòng `directus_extensions` cho extension mới thấy lần đầu (và entry bundle), như Directus
+  (`get-extensions-settings.ts`), ghi qua ItemsService và khóa Redis giữa các instance. Lý do: `/speckit.analyze` của
+  020 (C1): không có dòng thì extension mặc định tắt và không bao giờ nạp khi hệ thống không có node Directus. Chủ dự án
+  (kiêm tech lead) chọn sửa constitution (phương án a), 2026-10-21.
+- MINOR: mở rộng có điều kiện hướng dẫn của một nguyên tắc; mọi thứ hợp lệ theo 2.1.0 vẫn hợp lệ.
+- Templates: ✅ .specify/templates/plan-template.md (dòng VII); ✅ SPECKIT-GUIDE.md (prompt nguồn mục VII); spec, tasks,
+  checklist template không nhắc mục này.
+- Follow-up: plan 020 Constitution Check VII trỏ tới ngoại lệ này.
+
+Sync Impact Report (2.1.0, 2026-10-21)
+- Version change: 2.0.0 → 2.1.0
+- Modified sections: XI. Ngoài phạm vi giai đoạn này: bỏ "Hệ thống extension" khỏi danh sách; chỉ còn
+  extension loại `theme` ngoài phạm vi. Lý do: chủ dự án (kiêm tech lead) yêu cầu feature 020 (spec
+  `specs/020-extensions/spec.md`, 2026-10-21): extension đã build cho Directus 11.17.4 chạy trên API và app
+  mới không cần build lại, gồm marketplace và sandbox. Load balancer đưa request vào cả Directus lẫn
+  Backoffice, nên extension API chỉ chạy ở Directus làm kết quả phụ thuộc node nhận request (Nguyên tắc IV).
+- Modified principles: VII. Triển khai đa instance: thêm câu extension PHẢI nạp từ storage dùng chung
+  (`EXTENSIONS_LOCATION`) hoặc đóng sẵn vào mọi image khi chạy nhiều instance, reload qua bus Redis như
+  Directus.
+- MINOR: mở rộng phạm vi và hướng dẫn; mọi thứ hợp lệ theo 2.0.0 vẫn hợp lệ.
+- Templates: ✅ .specify/templates/plan-template.md (dòng VII, XI của Constitution Check);
+  ✅ SPECKIT-GUIDE.md (bảng quyết định đã chốt, prompt nguồn của constitution mục VII, XI); spec, tasks,
+  checklist template không nhắc mục này.
+- Follow-up: các khác biệt D-17 (001), D-37 (010), D-41, D-45 (012), D-93 (016) và 011 FR-035 được gỡ ở
+  feature 020 (ghi trong spec 020). Tech lead duyệt ngày 2026-10-21 (chủ dự án yêu cầu; quy trình không có PR).
+
 Sync Impact Report (2.0.0, 2026-10-15)
 - Version change: 1.5.0 → 2.0.0
 - Modified principles: XII. Giao diện theo design-system: design-system chuyển từ bộ E-Hiring (token
@@ -204,8 +233,11 @@ Lý do: bám cấu trúc service và Knex của Directus giúp port code trực 
   instance, như Directus.
 - File và ảnh đã transform PHẢI lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng
   chung). KHÔNG dùng storage local riêng từng container.
+- Khi chạy nhiều instance, extension PHẢI nạp từ storage dùng chung (`EXTENSIONS_LOCATION`) hoặc đóng
+  sẵn vào mọi image; cài, gỡ, bật tắt PHẢI reload mọi instance (cả Directus) qua bus Redis như Directus.
 - Khởi động nhiều replica cùng lúc PHẢI an toàn: chỉ đọc và kiểm tra migration, KHÔNG ghi gì vào
-  bảng hệ thống khi khởi động.
+  bảng hệ thống khi khởi động. Ngoại lệ duy nhất: tạo dòng `directus_extensions` cho extension mới thấy lần đầu, như
+  Directus, qua ItemsService và có khóa Redis giữa các instance.
 - PHẢI có `/server/health` cho readiness và liveness probe. Khi nhận SIGTERM: ngừng nhận request
   mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
 - FE và BE nên đặt chung một domain: `/admin/*` vào FE, các path API còn lại vào BE, giống bố cục
@@ -316,8 +348,8 @@ có sẵn bố cục admin, theme sáng/tối và cùng công nghệ (Vue 3, Tai
 - Realtime WebSocket: `/websocket`, GraphQL subscription, collaborative editing, system logs
   realtime. `/server/info` trả `websocket: false`, giống Directus khi `WEBSOCKETS_ENABLED=false`.
   App web ẩn các tính năng này như Directus app.
-- Hệ thống extension, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...),
-  visual editing, telemetry.
+- Extension loại `theme`, AI/MCP, module deployment của Directus (deploy lên Vercel, Netlify...),
+  visual editing, telemetry. Các loại extension khác làm ở feature 020.
 
 Spec hoặc plan chạm vào các mục trên PHẢI dừng lại và hỏi trước. Hành vi của app mới với các mục
 này PHẢI giống Directus khi tính năng đó tắt.
@@ -350,4 +382,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 2.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-15
+**Version**: 2.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-21
