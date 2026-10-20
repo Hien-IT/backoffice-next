@@ -1,16 +1,16 @@
 // Ported from directus/app/src/utils/upload-file.ts
-// Backoffice: TUS (tus-js-client, loaded on demand) when the server enables it, otherwise multipart through the SDK
-// (`uploadFiles` POST /files, `updateFile` PATCH /files/:id) like BoUpload of 013 (research R5): fetch has no upload
-// progress, so a multipart file reports 100 when it is done (TUS reports bytes). The TUS endpoint is the SDK API URL
-// (may be another origin; cookies go with `withCredentials`). No `notifications` toasts and no `upload` /
-// `tusResumableUploadsChanged` events (no listener in the app; the resumable uploads list is 018, D-90): failures go
-// to `onError` (shown in place by the caller, D-66), or to unexpectedError, and resolve to undefined like Directus.
+// Backoffice: TUS (tus-js-client, loaded on demand) when the server enables it, otherwise multipart POST /files or
+// PATCH /files/:id through uploadWithProgress (XMLHttpRequest: fetch has no upload progress), which reports bytes like
+// axios `onUploadProgress` in Directus. The TUS endpoint is the SDK API URL (may be another origin; cookies go with
+// `withCredentials`). No `notifications` toasts and no `upload` / `tusResumableUploadsChanged` events (no listener in
+// the app; the resumable uploads list is 018, D-90): failures go to `onError` (shown in place by the caller, D-66), or
+// to unexpectedError, and resolve to undefined like Directus.
 import type { File } from '@directus/types';
-import { updateFile, uploadFiles } from '@directus/sdk';
 import type { PreviousUpload, Upload } from 'tus-js-client';
 import { getApiUrl, requestEndpoint, sdk } from '../api/sdk.ts';
 import { useServerStore } from '../stores/server.ts';
 import { unexpectedError } from './unexpected-error.ts';
+import { uploadWithProgress } from './upload-with-progress.ts';
 
 /** Ported from directus/packages/constants/src/files.ts (8 MiB; @directus/constants is not a dependency). */
 export const DEFAULT_CHUNK_SIZE = 8_388_608;
@@ -51,13 +51,9 @@ export async function uploadFile(file: globalThis.File, options?: UploadFileOpti
 	formData.append('file', file);
 
 	try {
-		const uploaded = (await sdk.request(
-			options?.fileId ? updateFile(options.fileId, formData) : uploadFiles(formData),
-		)) as unknown as File;
-
-		progressHandler(100);
-
-		return uploaded;
+		return options?.fileId
+			? await uploadWithProgress<File>(`/files/${options.fileId}`, formData, progressHandler, undefined, 'PATCH')
+			: await uploadWithProgress<File>('/files', formData, progressHandler);
 	} catch (error) {
 		fail(error);
 	}

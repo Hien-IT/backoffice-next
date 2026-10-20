@@ -12,13 +12,58 @@ export function json(body: unknown, status = 200): Response {
 
 const notFound = () => json({ errors: [{ message: 'Not found', extensions: { code: 'ROUTE_NOT_FOUND' } }] }, 404);
 
-/** Stubs the global fetch with `handler` and creates the SDK on http://api.test/. */
+/**
+ * Stubs the global fetch with `handler` and creates the SDK on http://api.test/. XMLHttpRequest (multipart uploads,
+ * utils/upload-with-progress.ts) goes through the current global fetch, so its calls are listed with the others.
+ */
 function stubFetch(handler: (url: URL, init: RequestInit) => Response | Promise<Response>) {
 	const fetch = vi.fn(async (input: RequestInfo | URL, init: RequestInit = {}) =>
 		handler(new URL(input instanceof Request ? input.url : String(input)), init),
 	);
 
+	class FetchXhr {
+		method = 'GET';
+		url = '';
+		withCredentials = false;
+		status = 0;
+		responseText = '';
+		upload: { onprogress: ((event: { lengthComputable: boolean; loaded: number; total: number }) => void) | null } = {
+			onprogress: null,
+		};
+		onload: (() => void) | null = null;
+		onerror: (() => void) | null = null;
+		onabort: (() => void) | null = null;
+
+		open(method: string, url: string) {
+			this.method = method;
+			this.url = url;
+		}
+
+		send(body: XMLHttpRequestBodyInit) {
+			globalThis
+				.fetch(this.url, {
+					method: this.method,
+					body,
+					credentials: this.withCredentials ? 'include' : 'same-origin',
+				})
+				.then(
+					async (response) => {
+						this.upload.onprogress?.({ lengthComputable: true, loaded: 1, total: 1 });
+						this.status = response.status;
+						this.responseText = await response.text();
+						this.onload?.();
+					},
+					() => this.onerror?.(),
+				);
+		}
+
+		abort() {
+			this.onabort?.();
+		}
+	}
+
 	vi.stubGlobal('fetch', fetch);
+	vi.stubGlobal('XMLHttpRequest', FetchXhr);
 	createSdk(API);
 
 	return fetch;

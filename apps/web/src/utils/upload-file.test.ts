@@ -6,6 +6,7 @@ import { useServerStore } from '../stores/server.ts';
 import { uploadFile } from './upload-file.ts';
 
 const request = vi.hoisted(() => vi.fn());
+const xhrUpload = vi.hoisted(() => vi.fn());
 const tus = vi.hoisted(() => ({ instances: [] as any[], previous: [] as any[] }));
 
 vi.mock('../api/sdk.ts', () => ({
@@ -13,6 +14,8 @@ vi.mock('../api/sdk.ts', () => ({
 	sdk: { request: (command: () => unknown) => request(command()) },
 	requestEndpoint: (path: string, options: object) => () => ({ path, ...options }),
 }));
+
+vi.mock('./upload-with-progress.ts', () => ({ uploadWithProgress: xhrUpload }));
 
 vi.mock('tus-js-client', () => ({
 	Upload: class {
@@ -43,49 +46,46 @@ const file = () => new File(['hello'], 'hello.txt', { type: 'text/plain' });
 beforeEach(() => {
 	setActivePinia(createPinia());
 	request.mockReset();
+	xhrUpload.mockReset();
 	tus.instances.length = 0;
 	tus.previous = [];
 });
 
-test('multipart: preset fields first, then the file, POST /files', async () => {
-	request.mockResolvedValue({ id: 'f1' });
+test('multipart: preset fields first, then the file, POST /files with byte progress', async () => {
+	xhrUpload.mockImplementation(async (_path, _body, onProgress) => {
+		onProgress(40);
+		return { id: 'f1' };
+	});
 
-	const result = await uploadFile(file(), { preset: { folder: 'd1', title: 'T' } });
+	const onProgressChange = vi.fn();
+	const result = await uploadFile(file(), { preset: { folder: 'd1', title: 'T' }, onProgressChange });
 
 	expect(result).toEqual({ id: 'f1' });
+	expect(onProgressChange.mock.calls).toEqual([[40]]);
 
-	const { path, method, body } = request.mock.calls[0]![0];
+	const [path, body, , , method = 'POST'] = xhrUpload.mock.calls[0]!;
 	expect([path, method]).toEqual(['/files', 'POST']);
 	expect([...(body as FormData).keys()]).toEqual(['folder', 'title', 'file']);
 	expect(((body as FormData).get('file') as File).name).toBe('hello.txt');
 });
 
 test('multipart with fileId replaces the file with PATCH /files/:id', async () => {
-	request.mockResolvedValue({ id: 'f1' });
+	xhrUpload.mockResolvedValue({ id: 'f1' });
 
 	await uploadFile(file(), { fileId: 'f1' });
 
-	const { path, method, body } = request.mock.calls[0]![0];
+	const [path, body, , , method] = xhrUpload.mock.calls[0]!;
 	expect([path, method]).toEqual(['/files/f1', 'PATCH']);
 	expect([...(body as FormData).keys()]).toEqual(['file']);
 });
 
 test('a failed upload calls onError and resolves undefined', async () => {
 	const error = { errors: [{ message: 'too large' }], response: { status: 413 } };
-	request.mockRejectedValue(error);
+	xhrUpload.mockRejectedValue(error);
 	const onError = vi.fn();
 
 	expect(await uploadFile(file(), { onError })).toBeUndefined();
 	expect(onError).toHaveBeenCalledWith(error);
-});
-
-test('multipart reports 100 when the file is done (fetch has no upload progress)', async () => {
-	request.mockResolvedValue({ id: 'f1' });
-
-	const onProgressChange = vi.fn();
-	await uploadFile(file(), { onProgressChange });
-
-	expect(onProgressChange.mock.calls).toEqual([[100]]);
 });
 
 test('TUS: options as Directus, id from the response header, then GET /files/:id', async () => {

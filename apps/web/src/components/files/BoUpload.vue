@@ -1,9 +1,8 @@
 <!-- Ported from directus/app/src/components/v-upload.vue -->
 <script setup lang="ts">
 // Backoffice: Upload recipe (component-specs Tier 3). Uploads go through utils/upload-files.ts and upload-file.ts
-// (feature 015: TUS when the server enables it, otherwise multipart through the SDK, `maxConcurrency` from the server;
-// multipart progress moves per finished file, fetch has no upload progress); no `start` controller. `fileId` replaces
-// that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
+// (feature 015: TUS when the server enables it, otherwise multipart with byte progress, `maxConcurrency` from the
+// server); no `start` controller. `fileId` replaces that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
 // dialogs comes with 018): invalid files as Directus words them, failed uploads one line per file with
 // translateAPIError. "Choose from library" emits `library`; the files drawer (T069) calls the exposed `setSelection`
 // (GET /files or /files/:id as Directus).

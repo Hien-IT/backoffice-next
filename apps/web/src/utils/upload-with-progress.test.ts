@@ -63,6 +63,13 @@ test('posts the form to the API URL with credentials, reports the progress and r
 	await expect(promise).resolves.toEqual({ ok: 1 });
 });
 
+test('PATCH when asked (replacing a file)', async () => {
+	const promise = uploadWithProgress('/files/f1', new FormData(), undefined, undefined, 'PATCH');
+	expect([FakeXhr.last.method, FakeXhr.last.url]).toEqual(['PATCH', 'http://api.test/base/files/f1']);
+	FakeXhr.last.answer(200, { data: { id: 'f1' } });
+	await expect(promise).resolves.toEqual({ id: 'f1' });
+});
+
 test('an empty 204 answer resolves with undefined', async () => {
 	const promise = uploadWithProgress('/utils/import/c', new FormData());
 	FakeXhr.last.status = 204;
