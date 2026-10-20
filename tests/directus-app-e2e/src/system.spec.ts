@@ -373,8 +373,10 @@ test('Content: the search saved in the preset of a collection, a personal bookma
 		['directus_presets'],
 	);
 
-	// last_page of the admin names the bookmark by its serial id.
-	const serial = (value: unknown) => JSON.parse(JSON.stringify(value).replace(/bookmark=\d+/g, 'bookmark=<id>'));
+	// last_page of the admin is written 500 ms after a navigation (trackPage, as setup.spec.ts): with or without the
+	// bookmark query depending on timing, so it is not compared.
+	const serial = (value: unknown) =>
+		JSON.parse(JSON.stringify(value).replace(/"last_page":"[^"]*"/g, '"last_page":"<page>"'));
 	expect(serial(changes['prx'])).toEqual(serial(changes['dir']));
 	expect(presets['prx']).toEqual(presets['dir']);
 	expect(presets['dir']).toEqual([expect.objectContaining({ bookmark: null, search: 't' })]);
