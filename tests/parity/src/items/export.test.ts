@@ -91,7 +91,9 @@ const sources: [string, () => ParityRequest][] = [
 		}),
 	],
 	['GET /users', () => ({ path: '/users?fields=id,email,role.name&filter[email][_eq]=admin@example.com' })],
-	['GET /server/info', () => ({ path: '/server/info' })],
+	// Without a token: the logged-in answer carries mcp_enabled, ai_enabled and websocket, always false here (D-17),
+	// which the byte comparison below cannot accept.
+	['GET /server/info', () => ({ path: '/server/info', headers: {} })],
 	// A key that does not exist: a 204 without payload at both apps, nothing to clean up.
 	['204 (no payload)', () => ({ method: 'DELETE', path: `/items/${ARTICLES}/999999` })],
 	['collection name outside ASCII', () => ({ path: `/items/${encodeURIComponent(UNICODE)}?sort=id` })],
@@ -102,7 +104,8 @@ const withExport = (path: string, format: string) => `${path}${path.includes('?'
 describe.each(sources)('%s', (_name, source) => {
 	it.each(FORMATS)('export=%s: status, content-type, content-disposition, body byte for byte', async (format) => {
 		const req = source();
-		const result = await parity({ ...req, path: withExport(req.path, format), headers: { authorization: admin } });
+		const headers = req.headers ?? { authorization: admin };
+		const result = await parity({ ...req, path: withExport(req.path, format), headers });
 
 		assertParity(result);
 		// parity() compares JSON bodies by structure; the file is compared as bytes (tab indentation included).
