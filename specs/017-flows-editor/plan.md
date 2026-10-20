@@ -95,7 +95,7 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 Đối chiếu `.specify/memory/constitution.md` 2.0.0. Lần 1 (trước research) và lần 2 (sau design): một vi phạm có lý do
-(XII, canvas chỉ chuột), ghi ở Complexity Tracking và chờ tech lead duyệt theo Governance (T006, T102); còn lại PASS.
+(XII, canvas chỉ chuột), ghi ở Complexity Tracking và tech lead duyệt 2026-10-17 theo Governance (T006, T102); còn lại PASS.
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`; file chép ghi nguồn, manifest `017-T###.json`,
   `check-port-headers`; script trích registry chỉ đọc `directus/app/src/operations`.
@@ -112,7 +112,7 @@ mở rộng. `tasks.md` chia bốn lượt (R11).
 - [x] **X. Chất lượng**: PASS. Coverage 60 %, lint, typecheck, browser test, E2E, build image; không email (D-34,
   D-106); D-106, R-43..R-48 trong spec, tech lead duyệt trước khi đóng (SC-010).
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (registry tĩnh, type lạ chỉ hiển thị), AI (D-54), WebSocket.
-- [x] **XII. Design-system**: VIOLATION có lý do (chờ tech lead duyệt). Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
+- [x] **XII. Design-system**: VIOLATION có lý do (tech lead duyệt 2026-10-17). Đã đọc `README.md`, `component-specs.md`, `layout-patterns.md`,
   `handoff-checklist.md`; theme qua `@theme`; không hex trong class; Q-29..Q-33 ghi ở spec, recipe nháp trước khi
   code, design owner duyệt trước khi đóng. Vi phạm: XII yêu cầu component dùng được bằng bàn phím, canvas thì kéo
   panel, kéo nối/tháo và nút "+" chỉ bằng chuột (owner chọn B, Clarifications 2026-10-17); ghi ở Complexity Tracking
@@ -186,7 +186,7 @@ mới tách từ `flow.vue` để test unit (Directus để trong SFC).
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Vi phạm XII (chờ tech lead duyệt). Ngoại lệ a11y: kéo panel, kéo nối/tháo và nút "+" trên canvas chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer (spec FR-106) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
+| Vi phạm XII (tech lead duyệt 2026-10-17). Ngoại lệ a11y: kéo panel, kéo nối/tháo và nút "+" trên canvas chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: pencil, menu tile, select trạng thái Trigger, nút header, drawer (spec FR-106) | Owner chọn B (Clarifications 2026-10-17): giữ y Directus; canvas không có danh sách tuyến tính để áp menu Lên/Xuống như D-69/D-96 | Menu panel Move/Connect/Detach (phương án A): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
 | Tách `use-flow-editor.ts` khỏi `FlowRoute.vue` (Directus để trong SFC) | 12 kịch bản staging/Save so JSON với Directus (SC-006) cần gọi hàm không mount DOM | Test qua browser test mount cả canvas: chậm, khó cô lập body Save |
 | `BoWorkspace*` là component chung thay vì nằm trong flows | 018 (Insights) dùng cùng `v-workspace` của Directus (resize, zoom) | Chép hai lần ở 017 và 018 |
 | Script trích registry mở rộng cho operations (thay import trực tiếp từ `directus/`) | Test so nguồn FR-044 không được import `directus/app/src` vào bundle test của web (alias vào mã Directus kéo theo `@/` của Directus) | Import trực tiếp: lỗi resolve `@/stores/flows` của operation `trigger` |

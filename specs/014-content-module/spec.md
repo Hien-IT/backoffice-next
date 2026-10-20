@@ -3,7 +3,7 @@
 **Feature Branch**: `014-content-module` (làm trên `main` như 012 và 013, không tạo branch vì dùng chung working tree; 013
 chưa commit lúc viết spec này, 014 chỉ sửa `specs/014-*` cho tới khi 013 commit xong)
 **Created**: 2026-10-15
-**Status**: Implementing (waves 1–4 code done, closing)
+**Status**: Done (2026-10-16, waves 1–4, 91025bb)
 **Duyệt khác biệt**: tech lead duyệt ngày 2026-10-15 D-69 (đường bàn phím cho kéo thả) và D-73 (`system-filter`,
 `system-input-translated-string` làm ở 014); D-67, D-68, D-70 đến D-72 là hệ quả của XI và D-40, duyệt gộp cùng Q5
 (release-gate CHK067). D-74 (xác nhận xóa nhóm kanban) chỉ ghi nếu T003 thấy Directus không hỏi.

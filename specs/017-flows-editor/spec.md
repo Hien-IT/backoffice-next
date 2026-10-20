@@ -3,7 +3,7 @@
 **Feature Branch**: `017-flows-editor` (làm trên `main` như 012–016, không tạo branch; `specs/017-*` là thư mục feature
 hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-17
-**Status**: Draft
+**Status**: Done (2026-10-17, e61eae1)
 **Input**: User description: "Admin tạo và chỉnh sửa flow bằng giao diện kéo thả như Directus: chọn trigger, thêm
 operation, nối nhánh resolve và reject, cấu hình từng operation, bật tắt flow, xem log các lần chạy. Nút chạy flow thủ
 công hiện trên trang item hoặc danh sách item. Tham chiếu directus/app/src/modules/settings/routes/flows và

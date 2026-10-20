@@ -37,5 +37,5 @@
 - `/speckit.clarify` 2026-10-15: 4 câu (Q2 vị trí cây collection, Q3 chia bốn lượt, Q4 bảng vẽ đủ dòng + SC-011, Q5
   duyệt D-69, D-73); D-69 và D-73 không còn chờ duyệt. FR nêu tên API, route và file Directus vì constitution I, III, VI yêu cầu hành vi giống
   Directus theo code tham chiếu (cùng quy ước với spec 012, 013); đó là mô tả hành vi chuẩn, không phải lựa chọn công
-  nghệ của app mới (công nghệ chốt ở plan). D-69 và D-73 chờ tech lead duyệt (mục "Cần xác nhận").
+  nghệ của app mới (công nghệ chốt ở plan). D-69 và D-73 đã duyệt ở Q5 (clarify 2026-10-15).
 - `/speckit.checklist` 2026-10-15: release-gate 101 mục, owner duyệt toàn bộ đề xuất, đã áp vào spec/plan/contracts.

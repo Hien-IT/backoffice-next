@@ -118,7 +118,7 @@ nguồn mới, ước lượng 5.000 dòng mới (≈ 2.200 chép), ≈ 35 file 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
 Đối chiếu `.specify/memory/constitution.md` 2.0.0. Lần 1 (trước research) và lần 2 (sau design): một vi phạm có lý do
-(XII, kéo/đổi cỡ tile chỉ chuột), ghi ở Complexity Tracking và chờ tech lead duyệt theo Governance; còn lại PASS.
+(XII, kéo/đổi cỡ tile chỉ chuột), ghi ở Complexity Tracking và tech lead duyệt 2026-10-18 theo Governance; còn lại PASS.
 
 - [x] **I. Directus chỉ đọc**: PASS. Không sửa `directus/`; file chép ghi nguồn, manifest `018-T###.json`,
   `check-port-headers`; script trích registry chỉ đọc `directus/app/src/panels`.
@@ -141,7 +141,7 @@ nguồn mới, ước lượng 5.000 dòng mới (≈ 2.200 chép), ≈ 35 file 
   `apexcharts` (0 advisory, R1); D-107..D-110, R-49..R-57 trong spec, tech lead duyệt trước khi đóng (SC-010).
 - [x] **XI. Ngoài phạm vi**: PASS. Không extension (registry tĩnh, type lạ chỉ hiển thị), AI, WebSocket (thông báo
   không realtime, R-52).
-- [x] **XII. Design-system**: VIOLATION có lý do (chờ tech lead duyệt). Đã đọc `README.md`, `component-specs.md`,
+- [x] **XII. Design-system**: VIOLATION có lý do (tech lead duyệt 2026-10-18). Đã đọc `README.md`, `component-specs.md`,
   `layout-patterns.md`, `handoff-checklist.md`; theme qua `@theme`; không hex trong class; Q-34..Q-39 ghi ở spec, recipe
   nháp trước khi code, design owner duyệt trước khi đóng. Vi phạm: XII yêu cầu component dùng được bằng bàn phím, kéo
   tile và 8 tay cầm đổi cỡ chỉ bằng chuột (owner chọn A, Clarifications 2026-10-17); ghi ở Complexity Tracking và
@@ -227,7 +227,7 @@ các mục panel 014.
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Vi phạm XII (chờ tech lead duyệt). Ngoại lệ a11y: kéo tile và 8 tay cầm đổi cỡ chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: nút sửa, "+", Save, Clear Changes, pencil, menu tile, drawer panel, zoom (spec FR-027, FR-106) | Owner chọn A (Clarifications 2026-10-17): giữ y Directus và nhất quán với canvas 017 | Field vị trí/cỡ trong drawer panel hoặc phím mũi tên (B, C): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
+| Vi phạm XII (tech lead duyệt 2026-10-18). Ngoại lệ a11y: kéo tile và 8 tay cầm đổi cỡ chỉ bằng chuột/pointer, cảm ứng không bảo đảm (XII yêu cầu bàn phím); vẫn tới được bằng phím: nút sửa, "+", Save, Clear Changes, pencil, menu tile, drawer panel, zoom (spec FR-027, FR-106) | Owner chọn A (Clarifications 2026-10-17): giữ y Directus và nhất quán với canvas 017 | Field vị trí/cỡ trong drawer panel hoặc phím mũi tên (B, C): thêm UI không có ở Directus, lệch parity UI; owner từ chối. Ghi ngoại lệ trong `handoff-checklist.md`, tech lead duyệt (SC-008) |
 | Thư viện `apexcharts` (CSS riêng ngoài theme TailAdmin) | Directus vẽ 4 loại biểu đồ bằng apexcharts; cùng thư viện cho cùng cách nhóm, trục, chú giải (FR-105); TailAdmin cũng dùng ApexCharts (`theme.css:12` ghi CSS bên thứ ba bỏ ra) | Vẽ SVG tay: 4 loại biểu đồ với tooltip, legend, datetime axis là một thư viện mới tự viết; thư viện khác (`chart.js`, `echarts`): dữ liệu và cách nhóm khác Directus, khó so |
 | `color-generator` viết lại trên `color` thay chép nguyên với `chroma-js` | Không thêm gói; `color` 5.0.2 (013) có `lab()`; màu chuỗi không được so với Directus (FR-105, D-108) nên sai lệch làm tròn Lab không ảnh hưởng parity | Thêm `chroma-js` 3.1.2 + `@types/chroma-js`: một gói nữa cho một hàm 30 dòng |
 | Registry panel tĩnh + script trích (thay `import.meta.glob` và import `@directus/extensions`) | Như 013/017: không extension, bundle đoán được, test so nguồn không import mã Directus | `import.meta.glob`: không có lợi khi danh sách cố định |

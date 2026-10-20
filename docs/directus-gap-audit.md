@@ -41,23 +41,23 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 
 ### 2.2 App
 
-| Phần Directus                                      | Hành vi Backoffice                    | Căn cứ                           |
-| -------------------------------------------------- | ------------------------------------- | -------------------------------- |
-| Module `visual` (visual editor)                    | Không có; live preview vẫn có         | D-41, D-67 (014)                 |
-| Module `deployment`                                | Không có                              | Hiến pháp XI                     |
-| Settings: AI, Marketplace, Extensions, System logs | Không có                              | D-93 (016)                       |
-| Nhóm AI, MCP trong Project settings                | Ẩn                                    | D-93 (016)                       |
-| Interface `system-mcp-prompts`                     | Không có                              | D-93 (016)                       |
-| Link "Report bug", "Request feature"               | Không có                              | D-94, D-95 (016)                 |
-| AI assistant, realtime, collab                     | Không có                              | Hiến pháp XI                     |
-| Banner license, bước license ở `/setup`            | Không có                              | D-53 (012)                       |
-| Link docs                                          | Không có                              | D-49 (012), D-100 (016)          |
-| Breadcrumb                                         | Không có                              | D-101 (016)                      |
-| 68 gói ngôn ngữ khác                               | Chỉ `en-US`, `vi-VN`                  | D-46 (012)                       |
-| Theme Directus                                     | Theme TailAdmin, override từ settings | D-43, D-47, D-89; hiến pháp XII  |
-| Nút "Report error"                                 | Không có                              | D-109 (018)                      |
-| Snackbar                                           | Notice tại chỗ (`BoNotice`), hộp lỗi  | D-66 (013), xét lại và giữ ở 018 |
-| Tìm kiếm toàn cục, store AI, store extensions      | Không nạp                             | D-45 (012), phần còn lại chưa gỡ |
+| Phần Directus                                      | Hành vi Backoffice                    | Căn cứ                              |
+| -------------------------------------------------- | ------------------------------------- | ----------------------------------- |
+| Module `visual` (visual editor)                    | Không có; live preview vẫn có         | D-41, D-67 (014)                    |
+| Module `deployment`                                | Không có                              | Hiến pháp XI                        |
+| Settings: AI, Marketplace, Extensions, System logs | Không có                              | D-93 (016)                          |
+| Nhóm AI, MCP trong Project settings                | Ẩn                                    | D-93 (016)                          |
+| Interface `system-mcp-prompts`                     | Không có                              | D-93 (016)                          |
+| Link "Report bug", "Request feature"               | Không có                              | D-94, D-95 (016)                    |
+| AI assistant, realtime, collab                     | Không có                              | Hiến pháp XI                        |
+| Banner license, bước license ở `/setup`            | Không có                              | D-53 (012)                          |
+| Link docs                                          | Không có                              | D-49 (012), D-100 (016)             |
+| Breadcrumb                                         | Không có                              | D-101 (016)                         |
+| 68 gói ngôn ngữ khác                               | Chỉ `en-US`, `vi-VN`                  | D-46 (012)                          |
+| Theme Directus                                     | Theme TailAdmin, override từ settings | D-43, D-47, D-89; hiến pháp XII     |
+| Nút "Report error"                                 | Không có                              | D-109 (018)                         |
+| Snackbar                                           | Notice tại chỗ (`BoNotice`), hộp lỗi  | D-66 (013), xét lại và giữ ở 018    |
+| Store AI, store extensions                         | Không nạp                             | D-45 (012), vĩnh viễn từ 2026-10-20 |
 
 ## 3. Đã có, chạy được nhưng thiếu một phần (có ghi trong spec)
 
@@ -121,6 +121,10 @@ màu.
 
 ### 4.5 Comment cũ về `injectVersionField`
 
+**Đã làm 2026-10-20**: không chỉ là comment cũ, field `$version` thật sự chưa có. `FieldList` nhận `injectVersionField`
+(useFakeVersionField như `v-field-list.vue`), `SystemFilter` truyền xuống, `InputGroup` hiện ô chọn cho `$version` như
+`input-group.vue`.
+
 - `apps/web/src/components/FieldList.vue:5` ghi `injectVersionField` "chờ feature versions". Versions đã có từ 014.
 - `apps/web/src/interfaces/_system/system-filter/SystemFilter.vue:5` nhận option này. `AdvancedConditions.vue:54` có
   truyền vào.
@@ -162,6 +166,10 @@ màu.
 
 ### 5.4 Vệ sinh tài liệu
 
+**Đã dọn 2026-10-20**: Status 014, 017, 018 thành Done kèm commit đóng; dòng "chờ tech lead duyệt" ở plan 017, 018 ghi
+ngày duyệt; checklist 014 sửa; D-67 của 013 đổi thành D-125; D-45 đánh dấu phần 013, 017 đã gỡ, phần còn lại vĩnh viễn,
+bỏ "tìm kiếm toàn cục" (Directus 11.17.4 không có trong `directus/app/src`); D-66 thành vĩnh viễn.
+
 | Chỗ                                                 | Vấn đề                                                                                                                                                   |
 | --------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `specs/014-content-module/spec.md`                  | Status "Implementing (… closing)", feature đã đóng 2026-10-16                                                                                            |
@@ -176,6 +184,6 @@ màu.
 
 1. ~~Sửa 4.1 và 4.2~~: đã sửa 2026-10-20 (D-17).
 2. ~~Quyết 4.3, 4.4, 4.6~~: đã làm 4.3, 4.4; 4.6 ghi D-123. Còn 3.2 (`/shared` chỉ-đọc) và D-44 (`/register`) chờ quyết.
-3. Dọn 4.5 và mục 5.4 trong một commit tài liệu.
+3. ~~Dọn 4.5 và mục 5.4~~: đã làm 2026-10-20.
 4. Bật lại nightly sau khi chạy tay `workflow_dispatch` một lần xanh.
 5. Xin duyệt: D-16 và 019 (tech lead), Q-1..Q-12 và Q-7 (design owner), T075 (lịch buổi dùng thử).

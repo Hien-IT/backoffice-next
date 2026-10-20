@@ -3,7 +3,7 @@
 **Feature Branch**: `018-insights-activity-notifications` (làm trên `main` như 012–017, không tạo branch; `specs/018-*`
 là thư mục feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-17
-**Status**: Draft
+**Status**: Done (2026-10-18, 12b7246)
 **Input**: User description: "Module Insights: tạo dashboard, thêm và sắp xếp panel (metric, metric list, meter, time
 series, line chart, bar chart, pie chart, list, label, variable, relational variable), lọc theo biến dashboard. Module
 Activity: xem nhật ký hoạt động, lọc theo user, collection, hành động. Notifications: chuông thông báo, đánh dấu đã đọc,
