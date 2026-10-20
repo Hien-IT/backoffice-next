@@ -57,5 +57,5 @@ Domain riêng (`lb/separate-domain.conf`):
 | 8091 (8081) | còn lại | `upstream bo_pool { backoffice-api:8055 resolve; }` |
 
 Chung cho mọi `location` proxy: `proxy_http_version 1.1`, không `keepalive` tới upstream, `proxy_next_upstream error
-timeout`, `client_max_body_size 0`, `proxy_request_buffering off`, `proxy_read_timeout 300s`, header `Host`,
+timeout http_503` (503 chỉ thử lại request idempotent, mặc định nginx; thêm 2026-10-20), `client_max_body_size 0`, `proxy_request_buffering off`, `proxy_read_timeout 300s`, header `Host`,
 `X-Forwarded-For`, `X-Forwarded-Proto` (FR-035, FR-051).
