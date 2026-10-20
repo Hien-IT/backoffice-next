@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The /register page until the registration form lands with the Users module (D-44): no form, a link to sign in.
+// The /register page: no registration form (D-44, dropped by the owner 2026-10-20), a link to sign in.
 import { useHead } from '@unhead/vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';

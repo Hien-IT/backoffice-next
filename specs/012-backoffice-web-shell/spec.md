@@ -619,8 +619,8 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-41 | Module Visual editor, Deployments, AI, Marketplace, System logs, notifications realtime, collaborative editing, app extension | Có khi bật | Không đăng ký, không nạp; giống Directus khi tính năng tắt | Nguyên tắc XI, D-17 | ngoài phạm vi | — |
 | D-42 | Dòng hướng dẫn ở quên mật khẩu và nhận lời mời | Không có | Thêm một dòng "liên hệ quản trị viên để nhận link" | Mô tả feature; Nguyên tắc X (không gửi email) | khác | — |
 | D-43 | Theme: tên theme (`Directus Default`, `Minimal`, `Color Match`), bộ biến `--theme--*`, overrides theo khóa Directus | `@directus/themes` | Theme TailAdmin của design-system; tên theme bỏ qua; chỉ overrides có ánh xạ sang biến theme được áp, khóa khác bỏ qua; class theme đặt trên `html` thay vì `body` | Nguyên tắc XII | khác | — |
-| D-44 | Route `/register` (đăng ký công khai, xác minh email) | Có khi `public_registration` | Link hiện như Directus; `/register` là trang public "chưa có sẵn" với link về đăng nhập, không có form | Thuộc feature module Users; cần luồng xác minh email (D-28) | ngoài phạm vi (tạm thời) | sau 015 (owner Q2 = B: 015 không làm trang đăng ký) |
-| D-45 | Dữ liệu nạp sau đăng nhập: store flows, insights, AI, extensions; drawer thông báo; sidebar chi tiết (thông tin, bình luận, revision...); tìm kiếm toàn cục | Có | Không nạp, không hiện; `GET /notifications` vẫn gọi để đếm | Thuộc feature module tương ứng | ngoài phạm vi | 013 (store flows: hydrate cho nút flow thủ công của `header`, `presentation-links`: **đã gỡ ở 013**), 014 (sidebar chi tiết item: **đã gỡ ở 014**, gồm revisions, comments, shares, flows, layout, archive, refresh, xuất/nhập), 017 (trình chỉnh sửa flows: **đã gỡ ở 017**), 018 (store insights, drawer thông báo: **đã gỡ ở 018**). Còn lại (2026-10-20): store AI, extensions ngoài phạm vi vĩnh viễn (Nguyên tắc XI); Directus 11.17.4 không có tìm kiếm toàn cục trong `directus/app/src`, mục đó bỏ |
+| D-44 | Route `/register` (đăng ký công khai, xác minh email) | Có khi `public_registration` | Link hiện như Directus; `/register` là trang public "chưa có sẵn" với link về đăng nhập, không có form | Thuộc feature module Users; cần luồng xác minh email (D-28) | ngoài phạm vi | — (owner 2026-10-20: bỏ, không làm form đăng ký; trước đó "sau 015", Q2 = B) |
+| D-45 | Dữ liệu nạp sau đăng nhập: store flows, insights, AI, extensions; drawer thông báo; sidebar chi tiết (thông tin, bình luận, revision...); tìm kiếm toàn cục | Có | Không nạp, không hiện; `GET /notifications` vẫn gọi để đếm | Thuộc feature module tương ứng | ngoài phạm vi | 013 (store flows: hydrate cho nút flow thủ công của `header`, `presentation-links`: **đã gỡ ở 013**), 014 (sidebar chi tiết item: **đã gỡ ở 014**, gồm revisions, comments, shares, flows, layout, archive, refresh, xuất/nhập), 017 (trình chỉnh sửa flows: **đã gỡ ở 017**), 018 (store insights, drawer thông báo: **đã gỡ ở 018**). Còn lại (owner 2026-10-20): store AI ngoài phạm vi vĩnh viễn (Nguyên tắc XI); store extensions chờ spec extensions làm sau; Directus 11.17.4 không có tìm kiếm toàn cục trong `directus/app/src`, mục đó bỏ |
 | D-46 | Ngôn ngữ đóng gói | Hơn 60 ngôn ngữ | `en-US`, `vi-VN`; ngôn ngữ khác trong hồ sơ rơi về `en-US` | Mô tả feature | khác | — |
 | D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system TailAdmin (`brand-*`, `gray-*`, font Outfit) | Nguyên tắc XII 2.0.0; owner chọn TailAdmin 2026-10-15 | khác | — |
 | D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải; route, luồng và hành vi giữ như Directus ; đăng xuất ở menu user đi thẳng `/logout`, không có hộp `sign_out_confirm`; màn không có quyền vào app dùng nút `sign_out` thay cho `switch_user` (cùng đích `/logout`) | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
@@ -629,6 +629,7 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-51 | `project_name = 'Directus'`, `project_color = '#6644FF'` (giá trị mặc định cột mà Directus ghi vào mọi DB; API không cho đặt null) | Hiện "Directus", màu tím | Coi là chưa đặt khi hiển thị: tên `Backoffice`, màu primary design-system; không ghi DB; giá trị khác admin đặt vẫn dùng | Nguyên tắc IX; SC-005 với DB do Directus tạo; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-50 | Video `public_background` khi trình duyệt bật `prefers-reduced-motion: reduce` | `autoplay muted loop` luôn | Không autoplay (hiện khung đầu, có nút phát); không reduce thì như Directus | WCAG 2.2.2 (mức A) mà FR-067 yêu cầu; owner chọn 2026-10-14 | khác | — |
 | D-53 | Bước license ở `/setup` (thông báo BSL, link đăng ký license, ô `setup_accept_license`, khóa `license` trong payload) | Có | Không có; form chỉ có thông tin admin và dự án, payload không có `license` | Nguyên tắc IX, XI: không dẫn người dùng Backoffice tới license Directus; owner chọn 2026-10-15 | đổi thương hiệu | — |
+| D-126 | Trang `/shared/:id` sau khi đăng nhập share | Màn xem item chỉ-đọc riêng (`routes/shared/components/share-item.vue`, một `v-form` trong `shared-view.vue`), tiêu đề theo tên collection | Mở trang item của module Content trong session share (`SharedRoute.vue`), không có màn chỉ-đọc riêng | Owner 2026-10-20: bỏ màn chỉ-đọc, không port | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -642,7 +643,7 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 ## Câu hỏi mở về design-system (Nguyên tắc XII)
 
 Ngày 2026-10-15 owner chuyển design-system sang TailAdmin (constitution 2.0.0), nên Q-1 đến Q-6 và Q-8 đã có lời giải
-từ theme TailAdmin; còn Q-7.
+từ theme TailAdmin; Q-7 đóng 2026-10-20.
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
@@ -652,7 +653,7 @@ từ theme TailAdmin; còn Q-7.
 | Q-4 | Thang radius và chiều cao control | Đóng: thang mặc định Tailwind như TailAdmin (`rounded-lg`, input `h-11`) |
 | Q-5 | Theme tối | Đóng: theo TailAdmin (`dark:`, nền `gray-900`) |
 | Q-6 | Ánh xạ override Directus | Đóng: FR-063 (`primary`, trạng thái, font) |
-| Q-7 | Logo và favicon Backoffice | Mở: vẫn chữ "B" tạm (`assets/logo-*.svg`, `favicon.*`) |
+| Q-7 | Logo và favicon Backoffice | Đóng 2026-10-20 (owner duyệt): giữ chữ "B" (`assets/logo-*.svg`, `favicon.*`) |
 | Q-8 | Tương phản token | Đóng theo bảng tương phản của `design-system/docs/migration-guide.md`; cặp dưới 4.5:1 (nếu có) ghi ở đó và là ngoại lệ của `a11y.spec.ts` |
 
 ## Clarifications

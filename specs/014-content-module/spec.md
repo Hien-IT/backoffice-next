@@ -966,7 +966,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-81 | `components/sidebar/ExportSidebarDetail.vue`: khóa nút xuất khi chưa chọn field | Tech lead duyệt 2026-10-15 |
 | D-82 | `modules/content/routes/ItemRoute.vue`: `BoForm` `max-w-5xl` | Chủ dự án duyệt 2026-10-15 |
 | D-91 | `components/sidebar/CommentInput.vue`, `CommentItem.vue` giữ ô nhập Q-11; `e2e/payload/comments-shares.spec.ts` khẳng định hai payload khác nhau | Chủ dự án duyệt 2026-10-16 |
-| D-124 | `components/comparison/use-comparison.ts` (`raw`), `ComparisonModal.vue` (khôi phục đọc `raw`); `use-comparison.test.ts` | Chủ dự án duyệt 2026-10-20 |
+| D-124 | `components/comparison/use-comparison.ts` (`raw`), `ComparisonModal.vue` (khôi phục đọc `raw`); `use-comparison.test.ts` | Chủ dự án duyệt, tech lead duyệt 2026-10-20 |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.
@@ -992,18 +992,18 @@ như 013: recipe nháp vào `design-system/docs/` trước khi code, design owne
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) **bên trong sub-menu của sidebar** (owner chọn 2026-10-15, Clarifications Q2): thụt cấp, icon gập mở, mục bookmark, ô tìm dính đầu cây, menu "hiện collection ẩn" | Mở: recipe nháp `layout-patterns.md` §9 đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-2 | Bảng dữ liệu lớn: header dính, kéo độ rộng và thứ tự cột, menu header, ô chọn, kéo sắp xếp tay, ba khoảng cách dòng, footer phân trang và kích thước trang (TailAdmin chỉ có BasicTable) | Mở: recipe nháp `component-specs.md` (Q-2) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-3 | Lưới thẻ (cards): thẻ ảnh, kích thước thẻ, chọn, trạng thái tải | Mở: recipe nháp `component-specs.md` (Q-3) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-4 | Lịch (toolbar, view tháng/tuần/ngày/danh sách, sự kiện, kéo) trên theme TailAdmin (TailAdmin có mẫu Calendar với FullCalendar: dùng được không) | Mở: recipe nháp `component-specs.md` (Q-4) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-5 | Bảng kanban: cột, thẻ (ảnh, tag, avatar, ngày), kéo thả, thêm/sửa cột | Mở: recipe nháp `component-specs.md` (Q-5) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-6 | Khung layout bản đồ toàn trang, popup item, chọn vùng, menu nền; panel chia đôi live preview (tay cầm kéo, thanh công cụ khung xem trước, chọn kích thước màn hình) | Mở: recipe nháp "Map layout" và `layout-patterns.md` §10 đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-7 | Bộ lọc nâng cao: cây điều kiện lồng, chọn field (cây), toán tử, ô giá trị theo kiểu, nút `_and`/`_or`, kéo thả; thanh tìm kiếm mở rộng có nút bộ lọc và số điều kiện | Mở: recipe nháp `component-specs.md` (Q-7) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-8 | Nút bookmark cạnh tiêu đề page header; menu version trong breadcrumb; nút lưu có menu phụ (split button) | Mở: recipe nháp `component-specs.md` (Q-8) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-9 | Mục accordion trong panel L-4: Layout (menu chọn + option), Archive, Refresh, Export/Import, Flows (nút chạy, trạng thái) | Mở: recipe nháp `component-specs.md` (Q-9) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-10 | Revisions: nhóm theo ngày, mục revision, phân trang; hộp so sánh (hai cột, chọn field, chỉ khác biệt) | Mở: recipe nháp `component-specs.md` (Q-10) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-11 | Comments: luồng theo ngày, ô nhập với gợi ý `@`, `<mark>` tên user; Shares: mục share, drawer tạo/sửa, hộp gửi email | Mở: recipe nháp `component-specs.md` (Q-11) đã đối chiếu code (T098), chờ design owner duyệt |
-| Q-12 | Hộp thoại xuất (nhiều trường), nhập (chọn file, tiến độ), hộp lỗi nhập; hộp xác nhận hàng loạt | Mở: recipe nháp `component-specs.md` (Q-12) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-1 | Cây collection nhiều cấp (nhóm lồng, folder, collection ẩn, bookmark dưới collection, ô tìm, menu chuột phải) **bên trong sub-menu của sidebar** (owner chọn 2026-10-15, Clarifications Q2): thụt cấp, icon gập mở, mục bookmark, ô tìm dính đầu cây, menu "hiện collection ẩn" | Đóng 2026-10-20 (design owner duyệt): recipe nháp `layout-patterns.md` §9 đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-2 | Bảng dữ liệu lớn: header dính, kéo độ rộng và thứ tự cột, menu header, ô chọn, kéo sắp xếp tay, ba khoảng cách dòng, footer phân trang và kích thước trang (TailAdmin chỉ có BasicTable) | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-2) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-3 | Lưới thẻ (cards): thẻ ảnh, kích thước thẻ, chọn, trạng thái tải | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-3) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-4 | Lịch (toolbar, view tháng/tuần/ngày/danh sách, sự kiện, kéo) trên theme TailAdmin (TailAdmin có mẫu Calendar với FullCalendar: dùng được không) | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-4) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-5 | Bảng kanban: cột, thẻ (ảnh, tag, avatar, ngày), kéo thả, thêm/sửa cột | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-5) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-6 | Khung layout bản đồ toàn trang, popup item, chọn vùng, menu nền; panel chia đôi live preview (tay cầm kéo, thanh công cụ khung xem trước, chọn kích thước màn hình) | Đóng 2026-10-20 (design owner duyệt): recipe nháp "Map layout" và `layout-patterns.md` §10 đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-7 | Bộ lọc nâng cao: cây điều kiện lồng, chọn field (cây), toán tử, ô giá trị theo kiểu, nút `_and`/`_or`, kéo thả; thanh tìm kiếm mở rộng có nút bộ lọc và số điều kiện | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-7) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-8 | Nút bookmark cạnh tiêu đề page header; menu version trong breadcrumb; nút lưu có menu phụ (split button) | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-8) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-9 | Mục accordion trong panel L-4: Layout (menu chọn + option), Archive, Refresh, Export/Import, Flows (nút chạy, trạng thái) | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-9) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-10 | Revisions: nhóm theo ngày, mục revision, phân trang; hộp so sánh (hai cột, chọn field, chỉ khác biệt) | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-10) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-11 | Comments: luồng theo ngày, ô nhập với gợi ý `@`, `<mark>` tên user; Shares: mục share, drawer tạo/sửa, hộp gửi email | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-11) đã đối chiếu code (T098), chờ design owner duyệt |
+| Q-12 | Hộp thoại xuất (nhiều trường), nhập (chọn file, tiến độ), hộp lỗi nhập; hộp xác nhận hàng loạt | Đóng 2026-10-20 (design owner duyệt): recipe nháp `component-specs.md` (Q-12) đã đối chiếu code (T098), chờ design owner duyệt |
 
 ## Clarifications
 

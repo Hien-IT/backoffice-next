@@ -41,30 +41,30 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 
 ### 2.2 App
 
-| Phần Directus                                      | Hành vi Backoffice                    | Căn cứ                              |
-| -------------------------------------------------- | ------------------------------------- | ----------------------------------- |
-| Module `visual` (visual editor)                    | Không có; live preview vẫn có         | D-41, D-67 (014)                    |
-| Module `deployment`                                | Không có                              | Hiến pháp XI                        |
-| Settings: AI, Marketplace, Extensions, System logs | Không có                              | D-93 (016)                          |
-| Nhóm AI, MCP trong Project settings                | Ẩn                                    | D-93 (016)                          |
-| Interface `system-mcp-prompts`                     | Không có                              | D-93 (016)                          |
-| Link "Report bug", "Request feature"               | Không có                              | D-94, D-95 (016)                    |
-| AI assistant, realtime, collab                     | Không có                              | Hiến pháp XI                        |
-| Banner license, bước license ở `/setup`            | Không có                              | D-53 (012)                          |
-| Link docs                                          | Không có                              | D-49 (012), D-100 (016)             |
-| Breadcrumb                                         | Không có                              | D-101 (016)                         |
-| 68 gói ngôn ngữ khác                               | Chỉ `en-US`, `vi-VN`                  | D-46 (012)                          |
-| Theme Directus                                     | Theme TailAdmin, override từ settings | D-43, D-47, D-89; hiến pháp XII     |
-| Nút "Report error"                                 | Không có                              | D-109 (018)                         |
-| Snackbar                                           | Notice tại chỗ (`BoNotice`), hộp lỗi  | D-66 (013), xét lại và giữ ở 018    |
-| Store AI, store extensions                         | Không nạp                             | D-45 (012), vĩnh viễn từ 2026-10-20 |
+| Phần Directus                                      | Hành vi Backoffice                    | Căn cứ                                                                          |
+| -------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
+| Module `visual` (visual editor)                    | Không có; live preview vẫn có         | D-41, D-67 (014)                                                                |
+| Module `deployment`                                | Không có                              | Hiến pháp XI                                                                    |
+| Settings: AI, Marketplace, Extensions, System logs | Không có                              | D-93 (016)                                                                      |
+| Nhóm AI, MCP trong Project settings                | Ẩn                                    | D-93 (016)                                                                      |
+| Interface `system-mcp-prompts`                     | Không có                              | D-93 (016)                                                                      |
+| Link "Report bug", "Request feature"               | Không có                              | D-94, D-95 (016)                                                                |
+| AI assistant, realtime, collab                     | Không có                              | Hiến pháp XI                                                                    |
+| Banner license, bước license ở `/setup`            | Không có                              | D-53 (012)                                                                      |
+| Link docs                                          | Không có                              | D-49 (012), D-100 (016)                                                         |
+| Breadcrumb                                         | Không có                              | D-101 (016)                                                                     |
+| 68 gói ngôn ngữ khác                               | Chỉ `en-US`, `vi-VN`                  | D-46 (012)                                                                      |
+| Theme Directus                                     | Theme TailAdmin, override từ settings | D-43, D-47, D-89; hiến pháp XII                                                 |
+| Nút "Report error"                                 | Không có                              | D-109 (018)                                                                     |
+| Snackbar                                           | Notice tại chỗ (`BoNotice`), hộp lỗi  | D-66 (013), xét lại và giữ ở 018                                                |
+| Store AI; store extensions                         | Không nạp                             | D-45 (012): AI vĩnh viễn; extensions chờ spec extensions sau (owner 2026-10-20) |
 
-## 3. Đã có, chạy được nhưng thiếu một phần (có ghi trong spec)
+## 3. Đã có, chạy được nhưng thiếu một phần (có ghi trong spec; cả hai bỏ theo quyết định 2026-10-20)
 
-| Mục           | Hiện trạng                                                                                                                                              | Căn cứ                                                         |
-| ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
-| `/register`   | Trang public "chưa có sẵn" với link về đăng nhập; không có form đăng ký, không xác minh email                                                           | D-44 (012), mở                                                 |
-| `/shared/:id` | Đăng nhập share xong mở trang item của module Content trong session share, không có form chỉ-đọc `share-item.vue`, không đọc tên collection cho tiêu đề | Assumptions của 012; `apps/web/src/routes/SharedRoute.vue:1-6` |
+| Mục           | Hiện trạng                                                                                                       | Căn cứ                                       |
+| ------------- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `/register`   | Trang public "chưa có sẵn" với link về đăng nhập; không có form đăng ký                                          | D-44 (012): owner 2026-10-20 bỏ, không làm   |
+| `/shared/:id` | Đăng nhập share xong mở trang item của module Content trong session share; không có màn chỉ-đọc `share-item.vue` | D-126 (012): owner 2026-10-20 bỏ, không port |
 
 ## 4. Thiếu mà spec không ghi lý do
 
@@ -145,17 +145,16 @@ màu.
 
 ### 5.1 Chờ người duyệt hoặc người dùng
 
-| Mục                                                | Spec               | Trạng thái                |
-| -------------------------------------------------- | ------------------ | ------------------------- |
-| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533` | Chưa làm, không chặn đóng |
-| Q-7: logo, favicon                                 | 012 `spec.md:655`  | Vẫn chữ "B" tạm           |
-| Q-1..Q-12: recipe design cho màn CMS, SC-009       | 014 `spec.md:1094` | Chờ design owner          |
-| D-44: `/register`                                  | 012 `spec.md:622`  | "Chưa có sẵn"             |
+| Mục                                                | Spec               | Trạng thái                          |
+| -------------------------------------------------- | ------------------ | ----------------------------------- |
+| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533` | Chưa làm, không chặn đóng           |
+| Q-7: logo, favicon                                 | 012                | Đóng 2026-10-20: giữ chữ "B"        |
+| Q-1..Q-12: recipe design cho màn CMS, SC-009       | 014                | Đóng 2026-10-20: design owner duyệt |
+| D-44: `/register`                                  | 012                | Bỏ (owner 2026-10-20)               |
 
 ### 5.2 Thiếu bản ghi duyệt
 
-- D-16 (001 `spec.md:633`): trái chữ hiến pháp VIII, ghi "cần tech lead duyệt trong PR", chưa có bản ghi đã duyệt.
-- 019: D-120..D-122 và T079 ghi "chủ dự án duyệt", chưa có tech lead.
+Đã xong 2026-10-20: tech lead duyệt D-16 (001), D-120..D-123 và T079 (019), D-17 mở rộng (001), D-124 (014).
 
 ### 5.3 CI và đo hiệu năng
 
@@ -183,7 +182,8 @@ bỏ "tìm kiếm toàn cục" (Directus 11.17.4 không có trong `directus/app/
 ## 6. Đề xuất thứ tự
 
 1. ~~Sửa 4.1 và 4.2~~: đã sửa 2026-10-20 (D-17).
-2. ~~Quyết 4.3, 4.4, 4.6~~: đã làm 4.3, 4.4; 4.6 ghi D-123. Còn 3.2 (`/shared` chỉ-đọc) và D-44 (`/register`) chờ quyết.
+2. ~~Quyết 4.3, 4.4, 4.6~~: đã làm 4.3, 4.4; 4.6 ghi D-123. 3.2 (`/shared` chỉ-đọc, D-126) và D-44 (`/register`) bỏ
+   (owner 2026-10-20).
 3. ~~Dọn 4.5 và mục 5.4~~: đã làm 2026-10-20.
 4. Bật lại nightly sau khi chạy tay `workflow_dispatch` một lần xanh.
-5. Xin duyệt: D-16 và 019 (tech lead), Q-1..Q-12 và Q-7 (design owner), T075 (lịch buổi dùng thử).
+5. ~~Xin duyệt D-16, 019, Q-1..Q-12, Q-7~~: đã duyệt 2026-10-20. Còn T075 (lịch buổi dùng thử).

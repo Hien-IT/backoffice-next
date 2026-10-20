@@ -18,7 +18,7 @@ checkForSystem trong apps/web/src/modules/content.ts, bảng accessibleSystemCol
 thay khung bằng màn thật, giữ route. Danh sách file và user dùng lại phần đã có của 014: năm layout (src/layouts,
 use-layout), SearchInput + system-filter, preset/bookmark (use-preset), panel chi tiết (components/sidebar/*: layout,
 xuất/nhập, revisions, comments, shares), DrawerCollection theo layout của preset, DrawerBatch, recipe nháp Q-2 đến Q-12
-của component-specs.md và §8–§10 của layout-patterns.md (chờ design owner duyệt ở 014). CardsHeader bỏ extraSelection và
+của component-specs.md và §8–§10 của layout-patterns.md (design owner duyệt 2026-10-20 ở 014). CardsHeader bỏ extraSelection và
 Cards bỏ slot prepend (chỉ module Files dùng): 015 thêm lại. Interface _system còn lại của 015 như ghi chú 013 (D-57)."
 
 **Tham chiếu Directus** (chỉ đọc, đường dẫn tính từ `directus/app/src` trừ khi ghi khác):
