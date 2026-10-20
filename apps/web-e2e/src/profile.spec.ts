@@ -9,6 +9,7 @@ import { closeHostDb } from './helpers/db-rows.js';
 import { Fixtures, PASSWORD, type TestUser } from './helpers/fixtures.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { moduleBar } from './helpers/layout.js';
 
 let api: AdminApi;
 let fixtures: Fixtures;
@@ -75,7 +76,8 @@ test('saves only the changed fields; the new name shows in the avatar menu (US6-
 	await save(page);
 	expect((await patch).postDataJSON()).toEqual({ first_name: 'Grace' });
 
-	// The user menu of the header (D-52) is named after the user.
+	// The user menu under the sidebar logo (D-127; in the navigation drawer below `xl`) is named after the user.
+	await moduleBar(page);
 	await expect(page.getByRole('button', { name: 'Grace E2E' })).toBeVisible();
 });
 

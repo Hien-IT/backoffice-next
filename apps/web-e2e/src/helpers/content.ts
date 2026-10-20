@@ -37,7 +37,8 @@ export async function waitForTable(page: Page) {
 export async function openSidebar(page: Page): Promise<void> {
 	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
 	if (await toggle.isVisible()) await toggle.click();
-	await expect(page.locator('#sidebar')).toBeVisible();
+	// Attached, not visible: a page without sections (a new item) opens an empty popover.
+	await expect(page.locator('#sidebar')).toBeAttached();
 }
 
 /** Picks a layout in the sidebar "Layout Options" (Directus `layout` select). */

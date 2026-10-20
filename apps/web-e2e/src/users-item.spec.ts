@@ -9,6 +9,7 @@ import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 import { clearCreatedUsers, openUsers, roleId, userEmail } from './helpers/users.js';
+import { moduleBar } from './helpers/layout.js';
 
 let api: AdminApi;
 let fixtures: Fixtures;
@@ -64,6 +65,8 @@ test('the avatar menu links to your own page /users/<id> (US4-2, D-86) @core', a
 	const me = (await api.call<{ id: string }>('GET', '/users/me?fields=id')).id;
 
 	await openUsers(page);
+	// The avatar menu is under the sidebar logo (D-127), in the navigation drawer below `xl`.
+	await moduleBar(page);
 	await page.getByRole('button', { name: 'Admin User' }).click();
 	await page.getByRole('menuitem', { name: /Profile/ }).click();
 	await expect(page).toHaveURL(new RegExp(`/admin/users/${me}$`));

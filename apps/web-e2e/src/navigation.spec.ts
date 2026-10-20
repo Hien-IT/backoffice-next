@@ -217,7 +217,7 @@ test('/server/info failing shows the error screen; without project the defaults 
 	await expect(page.getByText('Backoffice').first()).toBeVisible();
 });
 
-test('collapsed navigation and sidebar stay collapsed after reload; below lg the navigation is a keyboard drawer (US2-4, FR-027, FR-028)', async ({
+test('collapsed navigation stays collapsed after reload, the detail popover is closed again; below lg the navigation is a keyboard drawer (US2-4, FR-027, FR-028, D-128)', async ({
 	page,
 }) => {
 	await signIn(page);
@@ -226,7 +226,9 @@ test('collapsed navigation and sidebar stay collapsed after reload; below lg the
 	if (width >= 1280) {
 		// TailAdmin: the collapsed sidebar stays as a 90 px rail; the toggle reports the state.
 		const toggle = page.getByRole('button', { name: 'Toggle Navigation' });
-		await page.getByRole('button', { name: 'Close sidebar' }).click();
+		// The detail panel is a popover closed on every page load (D-128): opened here, closed after the reload.
+		await page.getByRole('button', { name: 'Open sidebar' }).click();
+		await page.keyboard.press('Escape');
 		await toggle.click();
 		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
 
