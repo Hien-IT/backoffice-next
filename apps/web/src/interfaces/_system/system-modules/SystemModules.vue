@@ -3,8 +3,8 @@
 // Backoffice (spec 016 US5-4, recipe Q-25): BoSortableList (mouse drag and the D-96 Up/Down menu) instead of
 // vuedraggable in a VList; module rows have a BoSwitch, the locked row a lock icon, link rows open the drawer on their
 // name and have a named remove button. The default and the module list are those of Directus 11.17.4, so a save writes
-// what the Directus app writes: the visual / deployments modules are kept and listed (the sidebar skips them, D-41); the
-// Directus documentation link is kept in the data but not listed (D-100; the sidebar skips it too, D-49).
+// what the Directus app writes: the visual / deployments modules (D-41, owner 2026-10-21) and the Directus documentation
+// link (D-100, D-49) are kept in the data but not listed; the sidebar skips them too.
 import type { DeepPartial, Field } from '@directus/types';
 import { assign } from 'lodash-es';
 import { nanoid } from 'nanoid';
@@ -17,7 +17,7 @@ import BoDrawer from '../../../components/drawers/BoDrawer.vue';
 import BoForm from '../../../components/form/BoForm.vue';
 import { DIRECTUS_DOCS_URL, type ModuleBarLink, type ModuleBarModule } from '../../../constants.ts';
 import { translate } from '../../../utils/translate-object-values.ts';
-import { DIRECTUS_MODULE_BAR_DEFAULT as MODULE_BAR_DEFAULT, useAllModules } from './modules.ts';
+import { DIRECTUS_MODULE_BAR_DEFAULT as MODULE_BAR_DEFAULT, OUT_OF_SCOPE_MODULES, useAllModules } from './modules.ts';
 
 // @directus/types SettingsModuleBarLink / SettingsModuleBarModule (both may carry `locked`).
 type SettingsModuleBarLink = ModuleBarLink & { locked?: boolean | undefined };
@@ -98,35 +98,38 @@ const availableModulesAsBarModule = computed<SettingsModuleBarModule[]>(() => {
 		);
 });
 
-/** D-100: the Directus documentation link is kept in the data but not listed (the sidebar skips it too, D-49). */
-function isDocsLink(part: { type: string; id: string; url?: string }) {
-	return part.type === 'link' && part.id === 'docs' && part.url === DIRECTUS_DOCS_URL;
+/** Kept in the data but not listed: the Directus documentation link (D-100) and the modules without a port (D-41). */
+function isHiddenPart(part: { type: string; id: string; url?: string }) {
+	if (part.type === 'link') return part.id === 'docs' && part.url === DIRECTUS_DOCS_URL;
+	return OUT_OF_SCOPE_MODULES.some((module) => module.id === part.id);
 }
+
+/** Every part as the Directus app lists it: the saved bar, then the modules it does not have yet. */
+const allValuesWithData = computed<PreviewValue[]>(() => {
+	const savedModules = (
+		(props.value ?? MODULE_BAR_DEFAULT).filter((value) => value.type === 'module') as SettingsModuleBarModule[]
+	).map((value) => value.id);
+
+	return valueToPreview([
+		...(props.value ?? MODULE_BAR_DEFAULT),
+		...availableModulesAsBarModule.value.filter(
+			(availableModuleAsBarModule) => savedModules.includes(availableModuleAsBarModule.id) === false,
+		),
+	]);
+});
 
 const valuesWithData = computed<PreviewValue[]>({
 	get() {
-		const savedModules = (
-			(props.value ?? MODULE_BAR_DEFAULT).filter((value) => value.type === 'module') as SettingsModuleBarModule[]
-		).map((value) => value.id);
-
-		return valueToPreview([
-			...(props.value ?? MODULE_BAR_DEFAULT),
-			...availableModulesAsBarModule.value.filter(
-				(availableModuleAsBarModule) => savedModules.includes(availableModuleAsBarModule.id) === false,
-			),
-		]).filter((part) => !isDocsLink(part));
+		return allValuesWithData.value.filter((part) => !isHiddenPart(part));
 	},
 	set(previewValue: PreviewValue[]) {
-		// The hidden docs link goes back at its place, so the saved value is what the Directus app writes.
-		const value = previewToValue(previewValue);
-		const source = props.value ?? MODULE_BAR_DEFAULT;
-		const docsIndex = source.findIndex(isDocsLink);
-		if (docsIndex !== -1) {
-			const docs = source[docsIndex] as SettingsModuleBarLink;
-			// valueToPreview translates link names: Directus writes the translated name.
-			value.splice(Math.min(docsIndex, value.length), 0, { ...docs, name: translate(docs.name) });
-		}
-		emit('input', value);
+		// The hidden parts go back at their place, so the saved value is what the Directus app writes (valueToPreview
+		// translates link names: Directus writes the translated name).
+		const value = [...previewValue];
+		allValuesWithData.value.forEach((part, index) => {
+			if (isHiddenPart(part)) value.splice(Math.min(index, value.length), 0, part);
+		});
+		emit('input', previewToValue(value));
 	},
 });
 

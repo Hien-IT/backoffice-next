@@ -11,6 +11,7 @@ import { dashboardId, DASHBOARDS } from './helpers/insights.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 import { openOwnPage } from './helpers/users.js';
+import { openNotificationsPanel } from './helpers/layout.js';
 
 let api: AdminApi;
 
@@ -222,7 +223,9 @@ for (const scheme of ['light', 'dark'] as const) {
 		await scan('activity drawer');
 		await page.keyboard.press('Escape');
 
-		await page.locator('button[aria-label^="Notifications, "]').click();
+		await openNotificationsPanel(page);
+		await scan('notifications panel');
+		await page.getByRole('button', { name: 'View all', exact: true }).click();
 		await expect(page.locator('[data-notifications-drawer]')).toBeVisible();
 		await scan('notifications inbox');
 		await dialog().getByRole('tab', { name: 'Archive' }).click();
@@ -246,10 +249,10 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	const focused = () =>
 		page.evaluate(() => document.activeElement?.getAttribute('name') ?? document.activeElement?.textContent?.trim());
 
-	const tabTo = async (predicate: () => Promise<boolean>, max = 30) => {
+	const tabTo = async (predicate: () => Promise<boolean>, max = 30, key = 'Tab') => {
 		for (let i = 0; i < max; i++) {
 			if (await predicate()) return;
-			await page.keyboard.press('Tab');
+			await page.keyboard.press(key);
 		}
 		throw new Error('focus never reached the target');
 	};
@@ -268,8 +271,12 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/admin\/files$/);
 
-	const avatar = page.getByRole('button', { name: /Admin|User/ }).last();
-	await tabTo(() => avatar.evaluate((el) => el === document.activeElement));
+	// The user menu sits under the sidebar logo, before the modules (owner 2026-10-20).
+	const avatar = page
+		.locator('#navigation')
+		.getByRole('button', { name: /Admin|User/ })
+		.first();
+	await tabTo(() => avatar.evaluate((el) => el === document.activeElement), 30, 'Shift+Tab');
 	await page.keyboard.press('Enter');
 	await expect(page.getByRole('menuitem').first()).toBeVisible();
 	await page.keyboard.press('Escape');

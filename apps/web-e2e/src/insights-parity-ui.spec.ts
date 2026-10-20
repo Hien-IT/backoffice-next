@@ -24,6 +24,7 @@ import { Fixtures } from './helpers/fixtures.js';
 import { dashboardId, DASHBOARDS } from './helpers/insights.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { openNotificationsDrawer } from './helpers/layout.js';
 
 test.skip(e2eConfig !== 'proxy-api', 'compares with the Directus app of the main pair (proxy-api only)');
 test.use({ actionTimeout: 15_000 });
@@ -327,8 +328,8 @@ async function backofficeUi(p: Page): Promise<Ui> {
 	await expect(p.locator('[data-testid="notifications-badge"]')).toBeVisible();
 	const badge = ((await p.locator('[data-testid="notifications-badge"]').textContent()) ?? '').trim();
 	const inboxList = tabList(p, 'inbox');
-	await p.locator('button[aria-label^="Notifications, "]').click();
-	const notifications = p.getByRole('dialog', { name: 'Notifications' });
+	await openNotificationsDrawer(p);
+	const notifications = p.getByRole('dialog', { name: 'Notifications', exact: true });
 	await expect(notifications).toBeVisible();
 	await inboxList;
 	await p.waitForTimeout(500);
@@ -391,8 +392,8 @@ async function backofficeButtons(p: Page): Promise<Buttons> {
 	buttons['clearChanges'] = await controlState(header.getByRole('button', { name: 'Clear Changes' }));
 
 	await p.goto('/admin/insights');
-	await p.locator('button[aria-label^="Notifications, "]').click();
-	const drawer = p.getByRole('dialog', { name: 'Notifications' });
+	await openNotificationsDrawer(p);
+	const drawer = p.getByRole('dialog', { name: 'Notifications', exact: true });
 	await expect(drawer).toBeVisible();
 	await p.waitForLoadState('networkidle');
 	const archive = drawer.getByRole('button', { name: 'Archive', exact: true });

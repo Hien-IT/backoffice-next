@@ -41,12 +41,16 @@ describe('PageHeader', () => {
 		expect(wrapper.find('[data-append]').exists()).toBe(true);
 	});
 
-	test('detail panel toggle: label and aria-expanded follow the panel state', async () => {
+	test('detail panel toggle only when the page has details (the `sidebar` slot)', async () => {
 		await mountLayout(PageHeader, { props: { title: 'Content' } });
+		expect(button('Open sidebar') ?? button('Close sidebar')).toBeNull();
+	});
+
+	test('detail panel toggle: label and aria-expanded follow the panel state', async () => {
+		await mountLayout(PageHeader, { props: { title: 'Content' }, slots: { sidebar: '<p>Details</p>' } });
 		const sidebarStore = useSidebarStore();
 
 		expect(button('Close sidebar')!.getAttribute('aria-expanded')).toBe('true');
-		expect(button('Close sidebar')!.getAttribute('aria-controls')).toBe('sidebar');
 
 		button('Close sidebar')!.click();
 		await nextTick();

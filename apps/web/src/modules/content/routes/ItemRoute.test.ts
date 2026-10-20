@@ -82,7 +82,7 @@ describe('ItemRoute', () => {
 		await flushPromises();
 
 		expect(document.body.querySelector('main [class*="grid-cols"]')!.className).toMatch(/mx-auto.*max-w-\[44\.25rem\]/);
-		expect(document.body.querySelector('main h1')!.closest('.mb-6')!.className).not.toMatch(/mx-auto|max-w-/);
+		expect(document.body.querySelector('main header')!.className).not.toMatch(/mx-auto|max-w-/);
 	});
 
 	test('new item: creating title, no delete, save as copy disabled', async () => {

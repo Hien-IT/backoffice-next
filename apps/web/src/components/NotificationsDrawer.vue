@@ -21,11 +21,10 @@ import { requestEndpoint, sdk } from '../api/sdk.ts';
 import { useItems } from '../composables/use-items.ts';
 import { showUnexpectedError } from '../composables/use-notices.ts';
 import { useAppStore } from '../stores/app.ts';
-import { useCollectionsStore } from '../stores/collections.ts';
 import { useNotificationsStore } from '../stores/notifications.ts';
 import { useUserStore } from '../stores/user.ts';
 import { formatItemsCountPaginated } from '../utils/format-items-count.ts';
-import { getCollectionRoute, getItemRoute } from '../utils/get-item-route.ts';
+import { notificationTarget } from '../utils/notification-target.ts';
 import BoButton from './BoButton.vue';
 import BoCheckbox from './BoCheckbox.vue';
 import BoDialog from './BoDialog.vue';
@@ -40,7 +39,6 @@ import SearchInput from './SearchInput.vue';
 const { t, n } = useI18n();
 const appStore = useAppStore();
 const userStore = useUserStore();
-const collectionsStore = useCollectionsStore();
 const notificationsStore = useNotificationsStore();
 const router = useRouter();
 
@@ -99,23 +97,7 @@ const {
 watch(error, (err) => err && showUnexpectedError(err));
 
 const notifications = computed<LocalNotification[]>(() =>
-	items.value.map((item) => {
-		let to: string | undefined = undefined;
-
-		if (item['collection']) {
-			const itemCollection = collectionsStore.getCollection(item['collection']);
-
-			if (itemCollection?.meta?.singleton || !item['item']) {
-				to = getCollectionRoute(item['collection']);
-			} else {
-				to = getItemRoute(item['collection'], item['item']);
-			}
-		} else if (String(item['item']).startsWith('/')) {
-			to = String(item['item']);
-		}
-
-		return { ...item, to } as LocalNotification;
-	}),
+	items.value.map((item) => ({ ...item, to: notificationTarget(item) }) as LocalNotification),
 );
 
 const showingCount = computed(() => {

@@ -15,6 +15,13 @@ describe('BoAvatar', () => {
 		expect(img.attributes('alt')).toBe('Admin User');
 	});
 
+	test('48px by default, 40px with `small` (sidebar user menu)', () => {
+		expect(mount(BoAvatar, { props: { name: 'A' } }).classes()).toContain('size-12');
+		const small = mount(BoAvatar, { props: { name: 'A', small: true } });
+		expect(small.classes()).toContain('size-10');
+		expect(small.get('.material-symbols-rounded').attributes('style')).toContain('font-size: 2rem');
+	});
+
 	test('shows the account_circle icon without avatar', () => {
 		const icon = mount(BoAvatar, { props: { avatarId: null, name: 'Admin User' } }).get('.material-symbols-rounded');
 

@@ -57,7 +57,7 @@ const sidebarAside = () => q('aside[aria-label="Sidebar"]');
 const button = (label: string) => q(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
 
 describe('PrivateView (FR-020, FR-028)', () => {
-	test('from xl: sidebar with the module sub-menu, header, page header, main and detail panel inline; title; skip menu', async () => {
+	test('from xl: sidebar with the module sub-menu, header with the page header in main, detail panel closed; title; skip menu', async () => {
 		const { head } = await render();
 
 		expect(navAside()!.id).toBe('navigation');
@@ -65,14 +65,17 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(navAside()!.textContent).toContain('Backoffice');
 		expect(navAside()!.textContent).toContain('Nav items');
 		expect(q('header button[aria-label="Toggle Navigation"]')).not.toBeNull();
-		expect(q('header button[aria-label="Ada"]')).not.toBeNull();
+		expect(q('aside#navigation button[aria-label="Ada"]')).not.toBeNull();
 		expect(q('main#main-content h1')!.textContent).toBe('Content');
 		expect(q('main#main-content')!.textContent).toContain('Act');
 		expect(q('main#main-content')!.textContent).toContain('Body');
-		expect(sidebarAside()!.textContent).toBe('Details');
+		expect(sidebarAside()).toBeNull();
 		expect(q('[role="dialog"]')).toBeNull();
 		expect(q('a[href="#main-content"]')).not.toBeNull();
 		expect(button('Open navigation')).toBeNull();
+
+		button('Open sidebar')!.click();
+		await vi.waitFor(() => expect(sidebarAside()!.textContent).toBe('Details'));
 
 		const tags = await head.resolveTags();
 		expect(tags.find((tag) => tag.tag === 'title')?.textContent).toBe('Content');
@@ -92,7 +95,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('false');
 	});
 
-	test('below xl: sidebar and detail panel are drawers, opened by keyboard, Esc closes, focus returns', async () => {
+	test('below xl: the sidebar is a drawer, the detail panel a popover; opened by keyboard, Esc closes, focus returns', async () => {
 		viewport(1000);
 		await render();
 
@@ -118,7 +121,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		await render();
 
 		expect(q('main')!.className).not.toMatch(/mx-auto|max-w-/);
-		expect(q('main h1')!.closest('.mb-6')!.className).not.toMatch(/max-w-/);
+		expect(q('main header')!.className).not.toMatch(/max-w-/);
 	});
 
 	test('user without app access: the no-app-access screen instead of the layout', async () => {

@@ -1,6 +1,6 @@
 // Spec 018 US6 (T090; FR-070, recipe Q-38): the header bell shows the unread count of the notifications store (hidden at
 // 0, the button stays usable), names the count in its aria-label, announces a changed count in a polite live region and
-// opens the notifications drawer.
+// opens the notifications panel popover (owner 2026-10-21, D-132; its "View all" opens the drawer).
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';
@@ -9,13 +9,19 @@ import { useNotificationsStore } from '../stores/notifications.ts';
 import { mountLayout } from '../test-utils/layout.ts';
 import NotificationsBell from './NotificationsBell.vue';
 
+// The panel content is NotificationsPanel.test.ts; here only that the bell opens it.
+vi.mock('../components/NotificationsPanel.vue', async () => {
+	const { h } = await import('vue');
+	return { default: { render: () => h('button', { type: 'button' }, 'View all') } };
+});
+
 enableAutoUnmount(afterEach);
 
 const bell = () => document.querySelector<HTMLButtonElement>('button')!;
 const badge = () => document.querySelector('[data-testid="notifications-badge"]');
 const live = () => document.querySelector('[aria-live="polite"]')!;
 
-test('badge from the store, hidden at 0, aria-label with the count, live region on change, click opens the drawer', async () => {
+test('badge from the store, hidden at 0, aria-label with the count, live region on change, click opens the panel', async () => {
 	await mountLayout(NotificationsBell, { beforeMount: () => void (useNotificationsStore().unread = 3) });
 
 	expect(badge()!.textContent!.trim()).toBe('3');
@@ -37,7 +43,21 @@ test('badge from the store, hidden at 0, aria-label with the count, live region 
 	expect(bell().getAttribute('aria-label')).toBe('Notifications, 0 unread');
 
 	bell().click();
-	expect(useAppStore().notificationsDrawerOpen).toBe(true);
+	await vi.waitFor(() => expect(bell().getAttribute('aria-expanded')).toBe('true'));
+	expect(bell().getAttribute('aria-haspopup')).toBe('dialog');
+	expect(useAppStore().notificationsDrawerOpen).toBe(false);
+});
+
+test('compact (the collapsed rail): no button, the live region stays', async () => {
+	await mountLayout(NotificationsBell, {
+		props: { compact: true },
+		beforeMount: () => void (useNotificationsStore().unread = 3),
+	});
+
+	expect(document.querySelector('button')).toBeNull();
+	useNotificationsStore().unread = 4;
+	await nextTick();
+	expect(live().textContent).toBe('Notifications, 4 unread');
 });
 
 test('more than 99 shows 99+, the label keeps the number', async () => {

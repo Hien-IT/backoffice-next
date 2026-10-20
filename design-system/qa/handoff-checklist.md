@@ -20,8 +20,10 @@
       `max-w-(--breakpoint-2xl) p-4 md:p-6`; checked at 768px, 1024px, 1279px and 1280px.
 - [ ] One "Menu" group: modules and `module_bar` links in `module_bar` order, Settings last for admins; module
       navigation as one sub-menu level; external links open a new tab with a hint.
-- [ ] Page header (title, breadcrumb, actions) inside the content; right detail panel 333px, inline and open from `xl`,
-      closed drawer with Backdrop below `xl`.
+- [ ] Page header (title, breadcrumb, actions) in the header row after the sidebar toggle, at the top of `main`; right
+      detail panel 333px as a popover of its page header toggle, closed on load, on every width (owner 2026-10-20).
+- [ ] User menu and notifications bell under the sidebar logo; on the 90px rail the avatar only, with the unread badge;
+      the rail stays expanded while the user menu is open.
 - [ ] No horizontal page scroll from 768px; tables scroll in their own container.
 
 ## Components

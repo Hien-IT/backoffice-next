@@ -101,16 +101,16 @@ async function mountCards(
 										}
 									: layoutState,
 								{
-								...(initial.prepend && {
-									prepend: () => [
-										h('div', { 'data-test': 'prepend' }, 'folder-1'),
-										h('div', { 'data-test': 'prepend' }, 'folder-2'),
-									],
-								}),
-								'no-items': () => h('p', { 'data-test': 'no-items' }, 'empty'),
-								'no-results': () => h('p', { 'data-test': 'no-results' }, 'no results'),
-								error: ({ error }: { error: any }) =>
-									h('p', { 'data-test': 'error' }, String(error?.errors?.[0]?.message)),
+									...(initial.prepend && {
+										prepend: () => [
+											h('div', { 'data-test': 'prepend' }, 'folder-1'),
+											h('div', { 'data-test': 'prepend' }, 'folder-2'),
+										],
+									}),
+									'no-items': () => h('p', { 'data-test': 'no-items' }, 'empty'),
+									'no-results': () => h('p', { 'data-test': 'no-results' }, 'no results'),
+									error: ({ error }: { error: any }) =>
+										h('p', { 'data-test': 'error' }, String(error?.errors?.[0]?.message)),
 								},
 							),
 						]),
@@ -187,6 +187,10 @@ test('selection: card checkbox, click in select mode, header clear and select al
 	await vi.waitFor(() => expect(selection.value).toEqual([2]));
 	expect(cardBoxes()[1]!.dataset['selected']).toBe('true');
 	expect(cardBoxes()[1]!.className).toContain('ring-brand-500');
+	// Drawn inside the card (owner 2026-10-21): an outer ring was clipped by the scrolling grid of `fill` pages.
+	expect(cardBoxes()[1]!.className).toContain('ring-inset');
+	expect(cardBoxes()[1]!.className).toContain('border-brand-500');
+	expect(cardBoxes()[1]!.className).not.toContain('ring-2');
 	expect(checkbox('Select 5').parentElement!.parentElement!.className).toContain('opacity-100');
 
 	// With a selection a card click toggles instead of opening the item.

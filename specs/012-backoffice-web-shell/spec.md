@@ -417,8 +417,9 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
 
 - **FR-020**: Bố cục private PHẢI theo `design-system/docs/layout-patterns.md` (TailAdmin, Nguyên tắc XII 2.0.0, D-52):
   sidebar trái có logo và tên dự án, các module có icon và nhãn chữ, menu con của module (slot điều hướng của module),
-  thu gọn được; header trên cùng có nút mở hoặc thu gọn sidebar và menu user (avatar); vùng nội dung có page header
-  (icon, tiêu đề, slot action) rồi nội dung; panel chi tiết bên phải (gập mở được, slot chi tiết). Trạng thái gập mở
+  thu gọn được, menu user (avatar) và chuông thông báo dưới logo (D-127); header ở đầu vùng nội dung có nút mở hoặc thu
+  gọn sidebar rồi page header (icon, tiêu đề, slot action) trên cùng một hàng (D-127), sau đó là nội dung; panel chi
+  tiết là popover mở từ nút ở cuối page header (đóng khi vào trang, slot chi tiết, D-128). Trạng thái gập mở
   PHẢI lưu localStorage với tiền tố `backoffice-` (thay `directus-`, Nguyên tắc IX). Có menu bỏ qua tới nội dung
   (skip menu) cho bàn phím.
 - **FR-021**: Danh sách module của sidebar PHẢI lấy `settings.module_bar` (hoặc mặc định như `MODULE_BAR_DEFAULT`), lọc `enabled` và
@@ -435,8 +436,9 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   feature này PHẢI hiện bố cục private với icon, tên module ở thanh tiêu đề, tên module trong tiêu đề tab, và trạng
   thái trống nói rõ nội dung thuộc feature sau (D-40); các route con của module (`:primaryKey`, `folders/:folder`...)
   PHẢI khớp và hiện cùng khung để `last_page` và link từ Directus không rơi vào 404.
-- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060) (đã gỡ ở 015: màn user `/users/<id>`, D-48; `/users/me` bỏ như Directus); menu user ở header PHẢI có hồ sơ và đăng xuất
-  (mục đích như `module-bar-avatar.vue`, vị trí theo `layout-patterns.md`, D-52).
+- **FR-024**: Route `/admin/users/me` PHẢI hiện trang hồ sơ (FR-060) (đã gỡ ở 015: màn user `/users/<id>`, D-48; `/users/me` bỏ như Directus); menu user dưới logo
+  sidebar PHẢI có hồ sơ và đăng xuất (mục đích như `module-bar-avatar.vue`, vị trí theo `layout-patterns.md`, D-52,
+  D-127).
 - **FR-025**: Path không khớp PHẢI hiện trang 404 private trong bố cục (đã đăng nhập) như `private-not-found.vue`.
 - **FR-026**: Vùng logo của sidebar PHẢI hiện `project_logo` từ `/assets/<id>` hoặc logo Backoffice và tên dự án
   (`project_name` hoặc `Backoffice`), bấm mở `project_url` nếu có, và chạy thanh tiến trình khi hàng đợi request còn
@@ -446,7 +448,7 @@ Người vận hành triển khai một image, đổi `apiUrl` để trỏ sang 
   (`aria-label` cho nút chỉ có icon) theo `design-system/docs/component-specs.md`.
 - **FR-028**: Bố cục PHẢI hiển thị đủ từ bề rộng 768 px, không cuộn ngang, với breakpoint của design-system
   (TailAdmin, `layout-patterns.md`, owner chọn 2026-10-15): từ `xl` (1280 px) sidebar nằm trong bố cục (mở 290 px, thu
-  gọn thành rail 90 px) và panel chi tiết mở trong bố cục; dưới `xl` sidebar và panel chi tiết là drawer có lớp phủ.
+  gọn thành rail 90 px); dưới `xl` sidebar là drawer có lớp phủ; panel chi tiết là popover ở mọi bề rộng (D-128).
   Biên 768 và 1280 px được kiểm như các bề rộng khác; zoom 200% (tương đương dưới 768 px) ngoài phạm vi.
 - **FR-029**: Tiêu đề tab PHẢI theo mẫu `<tiêu đề trang> · <project_name || Backoffice>`; `html[lang]` và `dir`
   theo ngôn ngữ user.
@@ -623,13 +625,15 @@ D-37...) áp dụng qua API mới, không lặp ở đây.
 | D-45 | Dữ liệu nạp sau đăng nhập: store flows, insights, AI, extensions; drawer thông báo; sidebar chi tiết (thông tin, bình luận, revision...); tìm kiếm toàn cục | Có | Không nạp, không hiện; `GET /notifications` vẫn gọi để đếm | Thuộc feature module tương ứng | ngoài phạm vi | 013 (store flows: hydrate cho nút flow thủ công của `header`, `presentation-links`: **đã gỡ ở 013**), 014 (sidebar chi tiết item: **đã gỡ ở 014**, gồm revisions, comments, shares, flows, layout, archive, refresh, xuất/nhập), 017 (trình chỉnh sửa flows: **đã gỡ ở 017**), 018 (store insights, drawer thông báo: **đã gỡ ở 018**). Còn lại (owner 2026-10-20): store AI ngoài phạm vi vĩnh viễn (Nguyên tắc XI); store extensions chờ spec extensions làm sau; Directus 11.17.4 không có tìm kiếm toàn cục trong `directus/app/src`, mục đó bỏ |
 | D-46 | Ngôn ngữ đóng gói | Hơn 60 ngôn ngữ | `en-US`, `vi-VN`; ngôn ngữ khác trong hồ sơ rơi về `en-US` | Mô tả feature | khác | — |
 | D-47 | Giao diện (màu, chữ, khoảng cách, bo góc, component) | Theme Directus | Design-system TailAdmin (`brand-*`, `gray-*`, font Outfit) | Nguyên tắc XII 2.0.0; owner chọn TailAdmin 2026-10-15 | khác | — |
-| D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải; route, luồng và hành vi giữ như Directus ; đăng xuất ở menu user đi thẳng `/logout`, không có hộp `sign_out_confirm`; màn không có quyền vào app dùng nút `sign_out` thay cho `switch_user` (cùng đích `/logout`) | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
+| D-52 | Bố cục khung | Thanh module chỉ icon, thanh điều hướng riêng, thanh tiêu đề, avatar và đăng xuất ở thanh module, sidebar phải | Sidebar TailAdmin có nhãn (module + menu con), header có menu user (hồ sơ, đăng xuất), page header trong vùng nội dung, panel chi tiết phải (vị trí menu user, page header và panel đổi ở D-127, D-128); route, luồng và hành vi giữ như Directus ; đăng xuất ở menu user đi thẳng `/logout`, không có hộp `sign_out_confirm`; màn không có quyền vào app dùng nút `sign_out` thay cho `switch_user` (cùng đích `/logout`) | Nguyên tắc XII 2.0.0 (design-system quyết định bố cục khung); owner chọn 2026-10-15 | khác | — |
 | D-48 | Trang hồ sơ `/users/me` | Form đầy đủ theo metadata field của `directus_users` | Form cố định với field ở FR-060 | Form theo metadata thuộc feature Users | ngoài phạm vi (tạm thời) | 015: **đã gỡ ở 015** (`/users/me` chuyển tới màn user `/users/<id>`, form theo metadata, D-86) |
 | D-49 | Link Documentation mặc định trên thanh module (`docs` → `https://docs.directus.io`) | Hiện (mặc định và khi `module_bar` đã lưu có mục này) | Ẩn ở cả hai trường hợp; mục `docs` đã đổi `url` và link khác vẫn hiện; không sửa dữ liệu `module_bar` (FR-081) | Nguyên tắc IX: không dẫn người dùng Backoffice tới tài liệu Directus; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-51 | `project_name = 'Directus'`, `project_color = '#6644FF'` (giá trị mặc định cột mà Directus ghi vào mọi DB; API không cho đặt null) | Hiện "Directus", màu tím | Coi là chưa đặt khi hiển thị: tên `Backoffice`, màu primary design-system; không ghi DB; giá trị khác admin đặt vẫn dùng | Nguyên tắc IX; SC-005 với DB do Directus tạo; owner chọn 2026-10-14 | đổi thương hiệu | — |
 | D-50 | Video `public_background` khi trình duyệt bật `prefers-reduced-motion: reduce` | `autoplay muted loop` luôn | Không autoplay (hiện khung đầu, có nút phát); không reduce thì như Directus | WCAG 2.2.2 (mức A) mà FR-067 yêu cầu; owner chọn 2026-10-14 | khác | — |
 | D-53 | Bước license ở `/setup` (thông báo BSL, link đăng ký license, ô `setup_accept_license`, khóa `license` trong payload) | Có | Không có; form chỉ có thông tin admin và dự án, payload không có `license` | Nguyên tắc IX, XI: không dẫn người dùng Backoffice tới license Directus; owner chọn 2026-10-15 | đổi thương hiệu | — |
 | D-126 | Trang `/shared/:id` sau khi đăng nhập share | Màn xem item chỉ-đọc riêng (`routes/shared/components/share-item.vue`, một `v-form` trong `shared-view.vue`), tiêu đề theo tên collection | Mở trang item của module Content trong session share (`SharedRoute.vue`), không có màn chỉ-đọc riêng | Owner 2026-10-20: bỏ màn chỉ-đọc, không port | khác | — |
+| D-127 | Vị trí menu user, chuông và tiêu đề trang | Avatar và chuông ở cuối thanh module; header bar (tiêu đề, action) trong `main` | Menu user (avatar, tên) và chuông dưới logo sidebar (rail 90 px: chỉ avatar 40 px, chuông gom vào avatar thành badge, owner 2026-10-21; rail giữ mở rộng khi menu user hoặc popup chuông mở; dưới `xl` chuông ở cuối header vì sidebar là drawer đóng); header ở đầu `main` (sticky) gồm nút sidebar rồi page header (tiêu đề, action) trên một hàng; tiêu đề vẫn là `main h1` | Owner 2026-10-20 (thay vị trí header của D-52, FR-070/D-107 của 018) | khác | — |
+| D-128 | Panel chi tiết bên phải | Cột sidebar phải trong bố cục, kéo đổi cỡ, dải icon khi gập | Popover (Reka) mở từ nút ở cuối page header ở mọi bề rộng, rộng 333 px, đóng khi vào trang; Esc hoặc click ngoài đóng, focus về nút; dialog mở từ panel không đóng popover; nút chỉ hiện khi trang có slot chi tiết; bỏ kéo đổi cỡ (`ResizeHandle.vue` gỡ) | Owner 2026-10-20 | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 

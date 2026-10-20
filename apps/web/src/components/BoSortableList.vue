@@ -143,6 +143,16 @@ async function move(from: number, to: number) {
 
 const ICON_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
+
+// Lists of a `group` are nested trees: rows slide (`animation`), a row swaps once the pointer is 30% into its neighbour
+// (Directus `swap-threshold`), the dragged clone lives on `body` so it does not push the nested lists around, and an
+// empty list takes a drop from 20px away (SortableJS nested-list settings; owner 2026-10-21, smoother drags).
+const NESTED_DRAG = {
+	animation: 150,
+	'swap-threshold': 0.3,
+	'fallback-on-body': true,
+	'empty-insert-threshold': 20,
+};
 </script>
 
 <template>
@@ -158,7 +168,7 @@ const ICON_BTN =
 			:disabled="disabled"
 			ghost-class="shadow-theme-lg"
 			chosen-class="opacity-50"
-			v-bind="{ 'force-fallback': true }"
+			v-bind="{ 'force-fallback': true, ...(group ? NESTED_DRAG : {}) }"
 			@change="onChange"
 		>
 			<template #item="{ element, index }">

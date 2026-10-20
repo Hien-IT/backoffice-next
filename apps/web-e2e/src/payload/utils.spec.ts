@@ -7,7 +7,7 @@
 import type { Browser, Locator, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, DATA_PREFIX, directusUrl, e2eConfig } from '../helpers/config.js';
-import { openCollection, waitForTable } from '../helpers/content.js';
+import { openCollection, openSidebar, waitForTable } from '../helpers/content.js';
 import {
 	card,
 	chooseInMenu,
@@ -249,6 +249,7 @@ test('export: downloaded file and export to the file library', async ({ browser,
 		async (page) => {
 			const drawer = page.getByRole('dialog', { name: 'Export Items' });
 			const open = async () => {
+				await openSidebar(page);
 				const section = page
 					.getByRole('complementary', { name: 'Sidebar' })
 					.getByRole('button', { name: 'Import / Export' });
@@ -289,6 +290,7 @@ test('import CSV: multipart part names and file name', async ({ browser, page })
 			await expect(sidebar(page).getByRole('button', { name: 'Start Import' })).toBeDisabled();
 		},
 		async (page, tag) => {
+			await openSidebar(page);
 			const side = page.getByRole('complementary', { name: 'Sidebar' });
 			await side.getByRole('button', { name: 'Import / Export' }).click();
 			await side.locator('input[type="file"]').setInputFiles(csv(tag));

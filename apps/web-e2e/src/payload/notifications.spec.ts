@@ -12,6 +12,7 @@ import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
 import { changesSince, closeHostDb, NOTIFICATIONS_TABLES, scopeChanges, snapshot } from '../helpers/db-rows.js';
 import { card, onDirectusApp, openDirectusNotifications } from '../helpers/directus-app.js';
 import { Fixtures, type TestUser } from '../helpers/fixtures.js';
+import { openNotificationsPanel } from '../helpers/layout.js';
 import { canonicalPath, RUN_TAG, signInBackoffice } from '../helpers/payload.js';
 import { apiPath, expect, test } from '../helpers/requests.js';
 
@@ -100,6 +101,8 @@ async function notificationCalls(page: Page, api: string, ids: number[], steps: 
 }
 
 interface Steps {
+	/** Not recorded: the Backoffice bell opens its panel first (D-132); the recorded `open` is its "View all". */
+	beforeOpen?: () => Promise<void>;
 	open: () => Promise<void>;
 	page2: () => Promise<void>;
 	tab: (name: 'Inbox' | 'Archive') => Promise<void>;
@@ -115,6 +118,7 @@ async function runSteps(page: Page, api: string, run: Run, ids: number[], steps:
 	const out: Record<string, Call[]> = {};
 	const step = async (name: string, action: () => Promise<void>) =>
 		(out[name] = await notificationCalls(page, api, ids, action));
+	await steps.beforeOpen?.();
 	await step('open', steps.open);
 	// The writes on the newest rows (page 1), before paging and searching. The Archive tab is opened only once it has a
 	// row: the Directus drawer keeps the count of a tab (useItems), so an empty tab seen first stays "No Notifications".
@@ -168,10 +172,13 @@ function directusSteps(p: Page): Steps {
 }
 
 function backofficeSteps(p: Page): Steps {
-	const drawer = () => p.getByRole('dialog', { name: 'Notifications' });
+	const drawer = () => p.getByRole('dialog', { name: 'Notifications', exact: true });
 	return {
+		async beforeOpen() {
+			await openNotificationsPanel(p);
+		},
 		async open() {
-			await p.locator('button[aria-label^="Notifications, "]').click();
+			await p.getByRole('button', { name: 'View all', exact: true }).click();
 			await expect(drawer()).toBeVisible();
 			await expect(drawer().getByRole('checkbox').nth(1)).toBeVisible();
 		},

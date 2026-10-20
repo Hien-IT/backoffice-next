@@ -1,14 +1,15 @@
 <script setup lang="ts">
-// TailAdmin AppHeader (design-system layout-patterns §4, D-52): the sidebar toggle and the user menu. From `xl` the
+// TailAdmin AppHeader (design-system layout-patterns §4, D-52): the sidebar toggle, then the page header of the
+// default slot (owner 2026-10-20: one sticky band instead of the header plus the page header under it). From `xl` the
 // toggle collapses the inline sidebar to its rail (saved); below `xl` it opens the sidebar drawer, which takes focus
-// and gives it back to this button on close. No search or theme toggle (D-45); the notifications bell comes before the
-// user menu since 018 (FR-070, recipe Q-38).
+// and gives it back to this button on close. No search or theme toggle (D-45); the notifications bell and the user menu
+// moved under the sidebar logo (owner 2026-10-20, AppSidebar.vue). Below `xl` the sidebar is a closed drawer, so the
+// bell stays at the end of this row there: its badge, live region and recount are always mounted.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoButton from '../components/BoButton.vue';
 import NotificationsBell from './NotificationsBell.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
-import UserMenu from './UserMenu.vue';
 
 const { t } = useI18n();
 const navBarStore = useNavBarStore();
@@ -21,10 +22,8 @@ const toggle = computed(() =>
 </script>
 
 <template>
-	<header
-		class="sticky top-0 z-999 flex w-full border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900"
-	>
-		<div class="flex grow items-center justify-between gap-2 px-3 py-3 sm:gap-4 lg:py-4 xl:px-6">
+	<header class="sticky top-0 z-999 flex border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+		<div class="flex grow items-center gap-2 px-3 py-3 sm:gap-4 lg:py-4 xl:px-6">
 			<BoButton
 				variant="ghost"
 				icon="menu"
@@ -35,10 +34,9 @@ const toggle = computed(() =>
 				@click="toggle.onClick"
 			/>
 
-			<div class="flex items-center gap-3">
-				<NotificationsBell />
-				<UserMenu />
-			</div>
+			<div class="min-w-0 flex-1"><slot /></div>
+
+			<NotificationsBell v-if="!navBarStore.inlineNav" />
 		</div>
 	</header>
 </template>

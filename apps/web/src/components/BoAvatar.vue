@@ -5,11 +5,17 @@ import { computed, ref, watch } from 'vue';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
 import BoIcon from './BoIcon.vue';
 
-const { avatarId, cacheBuster } = defineProps<{
+const {
+	avatarId = null,
+	cacheBuster = null,
+	small = false,
+} = defineProps<{
 	avatarId?: string | null;
 	name: string;
 	/** avatar.modified_on, so a changed avatar is fetched again. */
 	cacheBuster?: string | null;
+	/** 40px instead of 48px (the sidebar user menu, as wide as the logo; owner 2026-10-21). */
+	small?: boolean;
 }>();
 
 const avatarUrl = computed(() =>
@@ -23,7 +29,8 @@ watch(avatarUrl, () => (avatarError.value = false));
 
 <template>
 	<span
-		class="relative flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+		class="relative flex shrink-0 items-center justify-center rounded-full bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400"
+		:class="small ? 'size-10' : 'size-12'"
 	>
 		<img
 			v-if="avatarUrl && !avatarError"
@@ -32,7 +39,7 @@ watch(avatarUrl, () => (avatarError.value = false));
 			class="h-full w-full rounded-full object-cover"
 			@error="avatarError = true"
 		/>
-		<!-- 40px, about 80 % of the 48px avatar (component-specs Avatar fallback). -->
-		<BoIcon v-else name="account_circle" :label="name" :style="{ fontSize: '2.5rem' }" />
+		<!-- About 80 % of the avatar (component-specs Avatar fallback): 40px of 48px, 32px of 40px. -->
+		<BoIcon v-else name="account_circle" :label="name" :style="{ fontSize: small ? '2rem' : '2.5rem' }" />
 	</span>
 </template>

@@ -106,7 +106,7 @@ Dashboard, panel và trạng thái thông báo ghi ở app này mở được ng
 liệu.
 
 Phạm vi: `/insights`, `/insights/:primaryKey`, `/insights/:primaryKey/:panelKey` (`+` = mới), `/activity`,
-`/activity/:primaryKey`, chuông ở header và drawer thông báo; thay khung D-40 (012) của Insights và Activity, đích thật
+`/activity/:primaryKey`, chuông (ở header, dưới logo sidebar từ D-127 của 012) và drawer thông báo; thay khung D-40 (012) của Insights và Activity, đích thật
 cho `directus_dashboards` và `directus_activity` của D-72 (014), gỡ D-45 phần insights và drawer thông báo (012); 11
 panel có sẵn của Directus 11.17.4 với đúng `id`, option fields, cỡ tối thiểu, truy vấn; xét lại D-66 (giữ notice tại
 chỗ, FR-080) và D-90 (gỡ: Directus không có danh sách upload, FR-076); E2E ba cấu hình, bộ so payload, kịch bản dùng chéo.
@@ -618,7 +618,9 @@ của SC-002.
 
 **Thông báo (US6)**
 
-- **FR-070**: Chuông PHẢI ở header TailAdmin (thay ghi chú D-45 ở `AppHeader.vue`), badge số chưa đọc từ store
+- **FR-070**: Chuông PHẢI ở dưới logo sidebar, sau menu user, từ `xl`; dưới `xl` ở cuối header (D-127 của 012, owner
+  2026-10-20; trước đó ở header TailAdmin, thay ghi chú D-45 ở `AppHeader.vue`), kiểu nút tròn header TailAdmin; bấm
+  chuông mở popup thông báo, "Xem tất cả" mở drawer (D-132), badge số chưa đọc từ store
   notifications (012, `refreshUnreadCount` đếm `inbox` của mình); nhãn truy cập `notifications` kèm số; vùng
   `aria-live="polite"` sr-only báo số chưa đọc khi số đổi (Directus không có, "đã xác nhận 2026-10-18"); Q-38. Phiên share không
   vào khung private nên không có chuông (store bỏ qua user share, như Directus).
@@ -763,7 +765,8 @@ giữ và áp cho màn mới của 018 (FR-080).
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
-| D-107 | Vị trí chuông thông báo | Thanh module, cạnh avatar | Header TailAdmin (nút chuông có badge) | Khung 012 (D-52), mẫu header TailAdmin | khác | — |
+| D-107 | Vị trí chuông thông báo | Thanh module, cạnh avatar | Dưới logo sidebar, sau menu user (D-127 của 012, 2026-10-20; trước đó header TailAdmin), nút chuông có badge | Khung 012 (D-52), mẫu header TailAdmin | khác | — |
+| D-132 | Bấm chuông | Mở drawer thông báo | Mở popup cạnh chuông (mẫu notification panel TailAdmin): 10 thông báo Inbox mới nhất có link tới item, nút "đánh dấu đã xem" từng dòng và "đánh dấu tất cả đã xem" (= chuyển `status` sang `archived`, Directus không có cờ đã đọc; tất cả là một `PATCH /notifications` theo query), "Xem tất cả" mở drawer như cũ; mở popup thì đếm lại số chưa đọc | Owner 2026-10-21 | khác | — |
 | D-108 | Màu mặc định của panel và biểu đồ khi `color` null | `--theme--primary` và bảng màu của theme Directus | Token theme (`brand-*` và bảng màu biểu đồ của Q-35); `color` đã lưu vẫn dùng nguyên | Nguyên tắc XII; `--theme--primary` → `--color-brand-500` là ánh xạ có sẵn của 012 (constitution XII, override map), không phải chọn mới; Q-35 chỉ chốt bảng màu chuỗi sinh ra và màu trục/lưới | khác | — |
 | D-109 | Nút "Report error" trong hộp lỗi (admin, mã `UNKNOWN`) | Mở link báo lỗi lên GitHub của Directus | Không có | Nguyên tắc IX (không dẫn người dùng Backoffice tới Directus) | đổi thương hiệu | — |
 | D-110 | Ảnh xem trước của loại panel trong drawer chọn loại | `preview.svg` của mỗi loại (`panel-configuration.vue:162-170`), icon khi không có | Luôn icon lớn của loại, tên, mô tả (nhánh rơi về icon của Directus); không chép tài sản SVG | Không chép tài sản của Directus app; ảnh theo theme Directus, không theo design-system (Nguyên tắc XII); owner chọn B (Clarifications 2026-10-17) | khác | — |
@@ -813,7 +816,8 @@ giữ và áp cho màn mới của 018 (FR-080).
 
 | Mã | Đã làm trong code | Duyệt |
 |----|-------------------|-------|
-| D-107 | `src/layout/NotificationsBell.vue` trong `src/layout/AppHeader.vue` trước `UserMenu` (badge `bg-error-600`, `99+`, `aria-live`); `NotificationsBell.test.ts`, E2E `notifications.spec.ts` | Duyệt (tech lead, 2026-10-18) |
+| D-107 | `src/layout/NotificationsBell.vue` trong `src/layout/AppSidebar.vue` sau `UserMenu` (D-127; trước đó `AppHeader.vue`) (badge `bg-error-600`, `99+`, `aria-live`); `NotificationsBell.test.ts`, E2E `notifications.spec.ts` | Duyệt (tech lead, 2026-10-18) |
+| D-132 | `components/NotificationsPanel.vue` (popup), `layout/NotificationsBell.vue` (Reka Popover, `open`), `utils/notification-target.ts` (đích dùng chung với drawer); chuỗi overlay `notifications_mark_read`, `notifications_mark_all_read`, `notifications_view_all`; `NotificationsPanel.test.ts`, `NotificationsBell.test.ts`; E2E mở drawer qua `openNotificationsDrawer` (`helpers/layout.ts`), payload `notifications` mở popup ngoài bước được ghi | Owner yêu cầu (2026-10-21) |
 | D-108 | `src/panels/shared/apex-charts.ts` (`THEME`), `src/styles/apexcharts.css` (`--chart-*`, biến thể `.dark`), `src/panels/pie-chart/index.ts` (`cssVar('--color-brand-500')`); `color` đã lưu dùng nguyên; `panels/charts.browser.test.ts` | Duyệt (tech lead, 2026-10-18) |
 | D-109 | `src/components/NoticeStack.vue`: hộp lỗi chỉ có Dismiss (`NoticeStack.test.ts`, E2E `notifications.spec.ts` lỗi Save 500) | Duyệt (tech lead, 2026-10-18) |
 | D-110 | `src/panels/<id>/index.ts` không chép `preview`; `routes/PanelConfiguration.vue` lưới `BoFancySelect layout="grid"` icon, tên, mô tả (`panel-configuration.test.ts`) | Duyệt (tech lead, 2026-10-18) |

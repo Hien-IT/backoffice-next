@@ -52,23 +52,6 @@ function onFolderClick() {
 				nav.dense.value ? 'min-h-8 text-theme-sm' : 'min-h-9 text-sm',
 			]"
 		>
-			<button
-				v-if="node.group && !locked"
-				type="button"
-				tabindex="-1"
-				class="relative z-1 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded"
-				:class="FOCUS"
-				:aria-label="`${open ? $t('collapse') : $t('expand')} ${collection.name}`"
-				@click="nav.toggle(node)"
-			>
-				<BoIcon
-					name="chevron_right"
-					size="sm"
-					class="transition-transform motion-reduce:transition-none"
-					:class="{ 'rotate-90': open }"
-				/>
-			</button>
-
 			<RouterLink
 				v-if="to"
 				:to="to"
@@ -99,6 +82,25 @@ function onFolderClick() {
 					:hidden="hidden"
 				/>
 			</div>
+
+			<!-- At the end of the row, as the TailAdmin sub-menu chevron: siblings with and without children stay aligned and
+			     the children (ps-4) sit deeper than their parent. -->
+			<button
+				v-if="node.group && !locked"
+				type="button"
+				tabindex="-1"
+				class="relative z-1 flex size-6 shrink-0 cursor-pointer items-center justify-center rounded"
+				:class="FOCUS"
+				:aria-label="`${open ? $t('collapse') : $t('expand')} ${collection.name}`"
+				@click="nav.toggle(node)"
+			>
+				<BoIcon
+					name="expand_more"
+					size="sm"
+					class="transition-transform motion-reduce:transition-none"
+					:class="{ 'rotate-180': open }"
+				/>
+			</button>
 		</div>
 
 		<ul v-if="open" role="group" class="m-0 mt-1 flex list-none flex-col gap-1 p-0 ps-4">

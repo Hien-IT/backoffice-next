@@ -1,6 +1,7 @@
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { createSdk } from '../api/sdk.ts';
+import { useNotificationsStore } from '../stores/notifications.ts';
 import { useUserStore } from '../stores/user.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import type { AppUser, ShareUser } from '../types/user.ts';
@@ -59,5 +60,22 @@ describe('UserMenu (FR-024)', () => {
 
 		expect(trigger.getAttribute('aria-label')).toBe('Unknown User');
 		expect((await openMenu(trigger)).map((item) => item.getAttribute('href'))).toEqual(['/logout']);
+	});
+
+	test('collapsed rail: the bell folds into the avatar (badge, count in the name); the menu stays profile and sign out', async () => {
+		createSdk('http://api.test/');
+		const { wrapper } = await mountLayout(UserMenu, {
+			props: { collapsed: true },
+			beforeMount: () => {
+				useUserStore().currentUser = { id: 'u1', first_name: 'Ada', avatar: null } as AppUser;
+				useNotificationsStore().unread = 3;
+			},
+		});
+		const trigger = wrapper.get('button').element;
+
+		expect(trigger.getAttribute('aria-label')).toBe('Ada, Notifications, 3 unread');
+		expect(wrapper.get('[data-testid="notifications-badge"]').text()).toBe('3');
+		expect((await openMenu(trigger)).map((item) => item.getAttribute('href'))).toEqual(['/users/u1', '/logout']);
+		expect(wrapper.emitted('update:open')).toEqual([[true]]);
 	});
 });

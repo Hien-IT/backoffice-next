@@ -32,7 +32,7 @@ import CollectionDialog from './components/CollectionDialog.vue';
 import CollectionItem from './components/CollectionItem.vue';
 import DeleteCollectionDialog from './components/DeleteCollectionDialog.vue';
 import SnapshotSidebarDetail from './components/SnapshotSidebarDetail.vue';
-import { COLLECTION_TREE } from './composables/collection-tree.ts';
+import { COLLECTION_TREE, folderRowClass } from './composables/collection-tree.ts';
 import { useExpandCollapse } from './composables/use-expand-collapse.ts';
 
 const { t } = useI18n();
@@ -274,6 +274,7 @@ const TEXT_BTN = `rounded px-1 text-brand-500 hover:text-brand-600 dark:text-bra
 					:disabled="searching"
 					:item-label="(item: Collection) => item.collection"
 					:row-actions="(item: Collection) => optionsFor(item, childrenOf(item.collection).length > 0)"
+					:row-class="folderRowClass"
 					@update:model-value="sortList($event, null)"
 					@change="'added' in $event && dropInto(null, $event.added)"
 					@indent="indent(rootCollections, $event)"

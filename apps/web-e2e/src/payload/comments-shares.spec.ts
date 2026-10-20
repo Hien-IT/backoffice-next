@@ -7,7 +7,7 @@
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
-import { openItem } from '../helpers/content.js';
+import { openItem, openSidebar } from '../helpers/content.js';
 import {
 	card,
 	goto,
@@ -79,8 +79,11 @@ async function compare(
 }
 
 const boSidebar = (page: Page) => page.getByRole('complementary', { name: 'Sidebar' });
+/** A dialog other than the detail popover, which stays open (also `role="dialog"`, owner 2026-10-20). */
+const boDialog = (page: Page) => page.getByRole('dialog').filter({ hasNot: page.locator('#sidebar') });
 
 async function boSection(page: Page, name: string) {
+	await openSidebar(page);
 	const button = boSidebar(page).getByRole('button', { name: new RegExp(`^${name}( \\d+)?$`) });
 	if ((await button.getAttribute('aria-expanded')) !== 'true') await button.click();
 }
@@ -124,7 +127,7 @@ test('comment with a mention: create, edit, delete', async ({ browser, page }) =
 
 			await options.click();
 			await page.getByRole('menuitem', { name: 'Delete' }).click();
-			await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+			await boDialog(page).getByRole('button', { name: 'Delete' }).click();
 			await expect(options).toHaveCount(0);
 		},
 	);
@@ -169,7 +172,7 @@ test('share: create, edit, invite, delete', async ({ browser, page }) => {
 			await boSection(page, 'Shares');
 			const side = boSidebar(page);
 			await side.getByRole('button', { name: 'New Share' }).click();
-			const drawer = page.getByRole('dialog');
+			const drawer = boDialog(page);
 			await drawer.getByRole('textbox', { name: 'Name' }).fill(`${tag} share`);
 			await drawer.getByRole('spinbutton', { name: 'Max Uses' }).fill('3');
 			await drawer.getByRole('button', { name: 'Save' }).click();
@@ -184,13 +187,13 @@ test('share: create, edit, invite, delete', async ({ browser, page }) => {
 
 			await options.click();
 			await page.getByRole('menuitem', { name: 'Send Link' }).click();
-			await page.getByRole('dialog').getByRole('textbox', { name: 'Emails' }).fill(INVITE);
-			await page.getByRole('dialog').getByRole('button', { name: 'Send Link' }).click();
-			await expect(page.getByRole('dialog')).toHaveCount(0);
+			await boDialog(page).getByRole('textbox', { name: 'Emails' }).fill(INVITE);
+			await boDialog(page).getByRole('button', { name: 'Send Link' }).click();
+			await expect(boDialog(page)).toHaveCount(0);
 
 			await options.click();
 			await page.getByRole('menuitem', { name: 'Delete' }).click();
-			await page.getByRole('dialog').getByRole('button', { name: 'Delete' }).click();
+			await boDialog(page).getByRole('button', { name: 'Delete' }).click();
 			await expect(side.getByText('No shares to show')).toBeVisible();
 		},
 	);

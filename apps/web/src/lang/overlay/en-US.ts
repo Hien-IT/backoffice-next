@@ -63,4 +63,10 @@ export default {
 	flow_run_failed: 'Failed',
 	// Feature 018 (FR-070, recipe Q-38): accessible name of the header bell and the text of its live region.
 	notifications_unread_count: 'Notifications, {count} unread',
+	// Data Model (owner 2026-10-21): the drop area under an empty folder.
+	drop_collections_here: 'Drag collections here',
+	// Bell panel (owner 2026-10-21): a notification moves to the archive when it is marked as read (Directus status).
+	notifications_mark_read: 'Mark as read',
+	notifications_mark_all_read: 'Mark all as read',
+	notifications_view_all: 'View all',
 };

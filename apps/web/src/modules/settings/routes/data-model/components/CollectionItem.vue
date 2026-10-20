@@ -11,7 +11,7 @@ import BoIcon from '../../../../../components/BoIcon.vue';
 import BoSortableList from '../../../../../components/BoSortableList.vue';
 import type { Collection } from '../../../../../stores/collections.ts';
 import { displayCollectionKey, isUntranslatedKey } from '../../../../../utils/display-collection-key.ts';
-import { COLLECTION_TREE } from '../composables/collection-tree.ts';
+import { COLLECTION_TREE, folderRowClass } from '../composables/collection-tree.ts';
 
 const props = defineProps<{ collection: Collection }>();
 
@@ -22,6 +22,8 @@ const children = computed(() => tree.childrenOf(props.collection.collection));
 const visibleChildren = computed(() => children.value.filter((child) => tree.visible(child.collection)));
 const collapsed = computed(() => tree.isCollapsed(props.collection.collection));
 const searching = computed(() => !!tree.search());
+// An empty folder shows a visible drop area; an empty collection keeps a drop target without layout height.
+const emptyFolder = computed(() => !props.collection.schema && children.value.length === 0);
 
 const parts = computed(() => {
 	const name = displayCollectionKey(props.collection.collection);
@@ -103,12 +105,26 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 			</button>
 		</div>
 
-		<!-- An empty list stays as a small drop target (BoSortableList `min-h-3`) so a row can be dragged into any collection. -->
+		<!-- An empty list stays as a small drop target (BoSortableList `min-h-3`) so a row can be dragged into any collection.
+		     It takes no layout height (`h-0`, overflowing into the row padding), so the row stays centred on its handle; an
+		     empty folder shows a dashed drop area with a hint instead (owner 2026-10-21). -->
 		<div
 			v-if="!collapsed && (children.length > 0 || !searching)"
 			class="ms-2 ps-4"
-			:class="children.length > 0 ? 'mt-2 border-s border-gray-100 dark:border-gray-800' : ''"
+			:class="
+				children.length > 0
+					? 'mt-2 border-s border-gray-100 dark:border-gray-800'
+					: emptyFolder
+						? 'relative mt-2 mb-1'
+						: 'h-0'
+			"
 		>
+			<p
+				v-if="emptyFolder"
+				class="pointer-events-none absolute inset-0 m-0 flex items-center justify-center ps-4 text-theme-xs text-gray-500 dark:text-gray-400"
+			>
+				{{ t('drop_collections_here') }}
+			</p>
 			<BoSortableList
 				:model-value="searching ? visibleChildren : children"
 				item-key="collection"
@@ -118,6 +134,12 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 				:disabled="searching"
 				:item-label="(item: Collection) => item.collection"
 				:row-actions="(item: Collection) => tree.optionsFor(item, tree.childrenOf(item.collection).length > 0)"
+				:row-class="folderRowClass"
+				:list-class="
+					emptyFolder
+						? 'space-y-2 min-h-10 rounded-lg border border-dashed border-gray-300 dark:border-gray-700'
+						: 'space-y-2'
+				"
 				@update:model-value="tree.sortList($event, collection.collection)"
 				@change="'added' in $event && tree.dropInto(collection.collection, $event.added)"
 				@indent="tree.indent(children, $event, collection.collection)"

@@ -11,6 +11,7 @@ import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { createTempDashboard, deleteTempDashboards, openInsights, tempDashboardName } from './helpers/insights.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { openSidebar } from './helpers/content.js';
+import { notificationsBell, openNotificationsDrawer } from './helpers/layout.js';
 import { expect, test } from './helpers/requests.js';
 
 let api: AdminApi;
@@ -76,14 +77,13 @@ async function signIn(page: Page, who: { email: string; password: string } = use
 }
 
 // The drawer is modal: while it is open the header is aria-hidden, so the bell is found by its label attribute.
-const bell = (page: Page) => page.locator('button[aria-label^="Notifications, "]');
-const drawer = (page: Page) => page.getByRole('dialog', { name: 'Notifications' });
+const bell = notificationsBell;
+const drawer = (page: Page) => page.getByRole('dialog', { name: 'Notifications', exact: true });
 const row = (page: Page, subject: string) =>
 	drawer(page).locator('li, [role="listitem"], .notification').filter({ hasText: subject }).first();
 
 async function openDrawer(page: Page) {
-	await bell(page).click();
-	await expect(drawer(page)).toBeVisible();
+	await openNotificationsDrawer(page);
 }
 
 async function select(page: Page, subject: string) {

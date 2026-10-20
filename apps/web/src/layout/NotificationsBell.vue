@@ -3,14 +3,22 @@
 // Backoffice (spec 018 FR-070, recipe Q-38): the notifications button of module-bar-avatar.vue (:56-65) as the round
 // TailAdmin header button with a count badge instead of VBadge (hidden at 0, the button stays usable for the Archive
 // tab; above 99 shows `99+`, the full number is in the accessible name). An sr-only `aria-live="polite"` region
-// announces a changed count (Directus has none). No avatar or sign-out here: those are the UserMenu (D-45).
+// announces a changed count (Directus has none). No avatar or sign-out here: those are the UserMenu (D-45). `compact`
+// (the collapsed rail, owner 2026-10-21) leaves out the button, folded into the avatar of UserMenu; the live region
+// and the recount stay. Owner 2026-10-21 (D-132): the button opens the NotificationsPanel popover (latest inbox, mark
+// as read), whose "View all" opens the drawer; `open` lets the sidebar stay expanded while it is open.
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
+import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../components/BoIcon.vue';
+import NotificationsPanel from '../components/NotificationsPanel.vue';
 import { useAppStore } from '../stores/app.ts';
 import { useNotificationsStore } from '../stores/notifications.ts';
+
+const { compact = false } = defineProps<{ compact?: boolean }>();
+const open = defineModel<boolean>('open', { default: false });
 
 const { t } = useI18n();
 const { notificationsDrawerOpen } = storeToRefs(useAppStore());
@@ -28,25 +36,44 @@ const recount = useThrottleFn(() => notificationsStore.refreshUnreadCount().catc
 useEventListener(document, 'visibilitychange', () => {
 	if (document.visibilityState === 'visible') recount();
 });
+
+function viewAll() {
+	open.value = false;
+	notificationsDrawerOpen.value = true;
+}
 </script>
 
 <template>
-	<button
-		type="button"
-		class="relative flex size-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:outline-brand-400"
-		:aria-label="t('notifications_unread_count', { count: unread })"
-		:title="t('notifications')"
-		@click="notificationsDrawerOpen = true"
-	>
-		<BoIcon name="notifications" />
-		<span
-			v-if="unread > 0"
-			aria-hidden="true"
-			class="absolute -end-0.5 -top-0.5 h-5 min-w-5 rounded-full bg-error-600 px-1 text-center text-theme-xs leading-5 font-medium text-white"
-			data-testid="notifications-badge"
-		>
-			{{ unread > 99 ? '99+' : unread }}
-		</span>
-	</button>
+	<PopoverRoot v-if="!compact" v-model:open="open">
+		<PopoverTrigger as-child>
+			<button
+				type="button"
+				class="relative flex size-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:outline-brand-400"
+				:aria-label="t('notifications_unread_count', { count: unread })"
+				:title="t('notifications')"
+			>
+				<BoIcon name="notifications" />
+				<span
+					v-if="unread > 0"
+					aria-hidden="true"
+					class="absolute -end-0.5 -top-0.5 h-5 min-w-5 rounded-full bg-error-600 px-1 text-center text-theme-xs leading-5 font-medium text-white"
+					data-testid="notifications-badge"
+				>
+					{{ unread > 99 ? '99+' : unread }}
+				</span>
+			</button>
+		</PopoverTrigger>
+		<PopoverPortal>
+			<PopoverContent
+				side="bottom"
+				align="start"
+				:side-offset="8"
+				:collision-padding="16"
+				class="z-99999 rounded-2xl border border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+			>
+				<NotificationsPanel @close="open = false" @view-all="viewAll" />
+			</PopoverContent>
+		</PopoverPortal>
+	</PopoverRoot>
 	<span class="sr-only" aria-live="polite">{{ announcement }}</span>
 </template>

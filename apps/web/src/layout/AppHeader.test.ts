@@ -63,9 +63,14 @@ describe('AppHeader (layout-patterns §4)', () => {
 		expect(button('Open navigation')!.getAttribute('aria-expanded')).toBe('true');
 	});
 
-	test('user menu trigger named after the user', async () => {
+	test('the bell is in the header below xl only (the sidebar is a closed drawer there)', async () => {
 		await render();
+		expect(document.body.querySelector('header button[title="Notifications"]')).toBeNull();
+	});
 
-		expect(button('Ada Lovelace')).not.toBeNull();
+	test('below xl: the bell at the end of the header row', async () => {
+		breakpoints.xl = false;
+		await render();
+		expect(document.body.querySelector('header button[title="Notifications"]')).not.toBeNull();
 	});
 });

@@ -41,20 +41,13 @@ const rows = (wrapper: ReturnType<typeof render>) =>
 
 const lastInput = (wrapper: ReturnType<typeof render>) => wrapper.emitted('input')!.at(-1)![0] as any[];
 
-test('no saved bar: the Directus default without the docs link (D-100), then the modules it lacks, disabled', () => {
+test('no saved bar: the Directus default without the docs link (D-100) and the visual / deployments modules (owner 2026-10-21)', () => {
 	const wrapper = render();
 
 	// activity is hidden (Directus `hidden: true`), so not added.
-	expect(rows(wrapper)).toEqual([
-		'content:true',
-		'visual:false',
-		'users:true',
-		'files:true',
-		'insights:true',
-		'deployments:false',
-		'settings:true',
-	]);
+	expect(rows(wrapper)).toEqual(['content:true', 'users:true', 'files:true', 'insights:true', 'settings:true']);
 	expect(wrapper.text()).not.toContain(t('documentation'));
+	expect(wrapper.text()).not.toContain(t('visual_editor'));
 });
 
 test('a saved bar keeps its order; missing modules come after it, disabled', () => {
@@ -63,10 +56,25 @@ test('a saved bar keeps its order; missing modules come after it, disabled', () 
 		{ type: 'module', id: 'settings', enabled: true, locked: true },
 	]);
 
-	expect(rows(wrapper)).toEqual([
+	expect(rows(wrapper)).toEqual(['files:true', 'settings:true', 'content:false', 'insights:false', 'users:false']);
+});
+
+test('a save puts the unlisted modules back at their place, as the Directus app writes them', async () => {
+	const wrapper = render([
+		{ type: 'module', id: 'files', enabled: true },
+		{ type: 'module', id: 'settings', enabled: true, locked: true },
+	]);
+
+	wrapper
+		.findAllComponents(BoSwitch)
+		.find((s) => s.props('label') === t('content'))!
+		.vm.$emit('update:modelValue', true);
+	await flushPromises();
+
+	expect(lastInput(wrapper).map((part) => `${part.id}:${part.enabled}`)).toEqual([
 		'files:true',
 		'settings:true',
-		'content:false',
+		'content:true',
 		'deployments:false',
 		'insights:false',
 		'users:false',

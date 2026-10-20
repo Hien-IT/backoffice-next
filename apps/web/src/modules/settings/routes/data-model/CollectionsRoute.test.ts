@@ -132,6 +132,18 @@ test('the tree shows roots with nested children, tables without meta and the sys
 	expect(document.querySelector('a[href="/settings/data-model/directus_users"]')).not.toBeNull();
 });
 
+test('a folder row stands out; an empty folder shows a drop area, an empty table none (owner 2026-10-21)', async () => {
+	await mountRoute([...RAW, { collection: 'empty_folder', schema: null, meta: meta(3) }]);
+
+	const row = (key: string) => document.querySelector(`[data-row-key="${key}"]`)!;
+	expect(row('a_folder').className).toContain('border-dashed!');
+	expect(row('b_col').className).not.toContain('border-dashed!');
+	expect(row('empty_folder').textContent).toContain(t('drop_collections_here'));
+	expect(row('empty_folder').querySelector('.min-h-10')).not.toBeNull();
+	expect(row('a_folder').textContent).not.toContain(t('drop_collections_here'));
+	expect(row('b_col').textContent).not.toContain(t('drop_collections_here'));
+});
+
 test('the collapse button hides the children and is kept in localStorage', async () => {
 	await mountRoute();
 

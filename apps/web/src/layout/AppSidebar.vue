@@ -6,13 +6,15 @@
 // holding keyboard focus; below `xl` it is a drawer (Reka Dialog: backdrop, focus trap, Esc, focus back to the
 // opener). Module list as Directus: registeredModules from modules/index.ts (no extensions store); the Documentation
 // link of the Directus default is dropped even from a saved module_bar (FR-081, D-49); the active module gets
-// aria-current and a bar marker (FR-021); links open in a new tab with rel="noopener noreferrer". The avatar menu
-// moved to the header (UserMenu.vue).
+// aria-current and a bar marker (FR-021); links open in a new tab with rel="noopener noreferrer". The user menu and the
+// notifications bell sit under the logo (owner 2026-10-20), stacked on the rail.
 import { createReusableTemplate } from '@vueuse/core';
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import { computed, ref, useId } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import BoIcon from '../components/BoIcon.vue';
+import NotificationsBell from './NotificationsBell.vue';
+import UserMenu from './UserMenu.vue';
 import { DIRECTUS_DOCS_URL, MODULE_BAR_DEFAULT } from '../constants.ts';
 import { registeredModules } from '../modules/index.ts';
 import { useSettingsStore } from '../stores/settings.ts';
@@ -76,7 +78,13 @@ const openUnlisted = computed<ModuleBarItem | null>(() => {
 // focuses the link, so only :focus-visible counts.
 const hovered = ref(false);
 const focused = ref(false);
-const expanded = computed(() => drawer || !navBarStore.collapsed || hovered.value || focused.value);
+// The user menu and the bell panel are portaled out of the sidebar: moving into them is a mouseleave, so the rail
+// stays expanded while one is open.
+const userMenuOpen = ref(false);
+const bellOpen = ref(false);
+const expanded = computed(
+	() => drawer || !navBarStore.collapsed || hovered.value || focused.value || userMenuOpen.value || bellOpen.value,
+);
 
 function onFocusin(event: FocusEvent) {
 	try {
@@ -112,6 +120,12 @@ function onFocusout(event: FocusEvent) {
 			@focusout="onFocusout"
 		>
 			<SidebarLogo :collapsed="!expanded" />
+
+			<div class="mb-6 flex items-center gap-3" :class="expanded ? 'justify-between' : 'flex-col'">
+				<UserMenu v-model:open="userMenuOpen" :collapsed="!expanded" />
+				<!-- Below `xl` (drawer) the bell is in the header (AppHeader.vue). -->
+				<NotificationsBell v-if="!drawer" v-model:open="bellOpen" :compact="!expanded" />
+			</div>
 
 			<div class="no-scrollbar flex min-h-0 flex-col overflow-y-auto">
 				<nav :aria-labelledby="groupId" data-testid="module-bar" class="mb-6">

@@ -59,4 +59,10 @@ export default {
 	flow_run_failed: 'Thất bại',
 	// Feature 018 (FR-070).
 	notifications_unread_count: 'Thông báo, {count} chưa đọc',
+	// Data Model (owner 2026-10-21).
+	drop_collections_here: 'Kéo collection vào đây',
+	// Bell panel (owner 2026-10-21).
+	notifications_mark_read: 'Đánh dấu đã xem',
+	notifications_mark_all_read: 'Đánh dấu tất cả đã xem',
+	notifications_view_all: 'Xem tất cả',
 };

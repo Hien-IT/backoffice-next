@@ -35,10 +35,13 @@ const { side = 'bottom', align = 'start' } = defineProps<{
 	side?: 'top' | 'right' | 'bottom' | 'left';
 	align?: 'start' | 'center' | 'end';
 }>();
+
+/** Open state, for a caller that reacts to it (the sidebar stays expanded while the user menu is open). */
+const open = defineModel<boolean>('open', { default: false });
 </script>
 
 <template>
-	<DropdownMenuRoot>
+	<DropdownMenuRoot v-model:open="open">
 		<DropdownMenuTrigger as-child>
 			<slot name="trigger" />
 		</DropdownMenuTrigger>
@@ -49,7 +52,8 @@ const { side = 'bottom', align = 'start' } = defineProps<{
 				:side-offset="4"
 				class="custom-scrollbar z-99999 max-h-(--reka-dropdown-menu-content-available-height) min-w-40 space-y-1 overflow-y-auto rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
 			>
-				<template v-for="(item, index) in items" :key="index">
+				<!-- Keyed by text too: a list that changes must not patch a link item into a plain one (as-child). -->
+				<template v-for="(item, index) in items" :key="`${index}-${item.text}`">
 					<DropdownMenuItem
 						:as-child="item.to !== undefined || !!item.href"
 						v-bind="item.active === undefined ? {} : { role: 'menuitemradio', 'aria-checked': item.active }"

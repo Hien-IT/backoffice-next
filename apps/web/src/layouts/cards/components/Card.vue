@@ -3,7 +3,8 @@
 // Backoffice: recipe "Cards grid (Q-3)". The card body is a link to the item (`href` from the router, Enter opens it,
 // Space and the click toggle the selection in select mode as Directus); the selector is a BoCheckbox outside the link
 // (no interactive element inside a link) named after the item key, visible on hover/focus or in select mode; the
-// selected card gets `ring-2 ring-brand-500` instead of the inner border; v-icon-file is inlined (file icon + extension).
+// selected card gets a 2px brand border drawn inside it (`border-brand-500` + `ring-1 ring-inset`, owner 2026-10-21: an
+// outer ring was clipped by the scrolling grid of `fill` pages) instead of the inner border; v-icon-file is inlined (file icon + extension).
 import { computed, ref, useId } from 'vue';
 import { useRouter } from 'vue-router';
 import BoCheckbox from '../../../components/BoCheckbox.vue';
@@ -121,8 +122,13 @@ const FOCUS =
 
 <template>
 	<div
-		class="group relative flex flex-col rounded-2xl border border-gray-200 bg-white p-2 dark:border-gray-800 dark:bg-white/[0.03]"
-		:class="{ 'ring-2 ring-brand-500': selected, 'pointer-events-none': readonly }"
+		class="group relative flex flex-col rounded-2xl border bg-white p-2 dark:bg-white/[0.03]"
+		:class="[
+			selected
+				? 'border-brand-500 ring-1 ring-brand-500 ring-inset dark:border-brand-400 dark:ring-brand-400'
+				: 'border-gray-200 dark:border-gray-800',
+			{ 'pointer-events-none': readonly },
+		]"
 		:data-selected="selected || undefined"
 	>
 		<template v-if="loading">
@@ -159,7 +165,11 @@ const FOCUS =
 				/>
 				<span v-else class="text-gray-500 dark:text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>
 			</div>
-			<div v-if="$slots['title']" :id="titleId" class="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90">
+			<div
+				v-if="$slots['title']"
+				:id="titleId"
+				class="truncate text-theme-sm font-medium text-gray-800 dark:text-white/90"
+			>
 				<slot name="title" />
 			</div>
 			<div v-if="$slots['subtitle']" class="truncate text-theme-xs text-gray-500 dark:text-gray-400">

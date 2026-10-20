@@ -142,3 +142,20 @@ test('itemDisabled rows have no handle, are not draggable and have no move items
 	expect(wrapper.findAll('li')[1]!.find('.drag-handle').exists()).toBe(false);
 	expect(wrapper.findAll('button.row-menu')).toHaveLength(2);
 });
+
+// D-131 (owner 2026-10-21): lists of a `group` (nested trees) get the SortableJS nested-list settings; others do not.
+test('a `group` list slides rows, swaps at 30%, drags its clone on body and takes drops into an empty list', () => {
+	const options = (wrapper: ReturnType<typeof mountList>) => {
+		const ul = wrapper.get('ul').element as unknown as Record<string, { options: Record<string, unknown> }>;
+		return ul[Object.keys(ul).find((k) => k.startsWith('Sortable'))!]!.options;
+	};
+
+	expect(options(mountList({ group: 'collections' }))).toMatchObject({
+		animation: 150,
+		swapThreshold: 0.3,
+		fallbackOnBody: true,
+		emptyInsertThreshold: 20,
+		forceFallback: true,
+	});
+	expect(options(mountList())).toMatchObject({ animation: 0, swapThreshold: 1, fallbackOnBody: false });
+});

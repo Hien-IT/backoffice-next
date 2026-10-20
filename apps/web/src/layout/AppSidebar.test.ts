@@ -5,12 +5,20 @@ import type { ModuleBarPart } from '../constants.ts';
 import { getInternalModules, registeredModules } from '../modules/index.ts';
 import { useSettingsStore, type Settings } from '../stores/settings.ts';
 import { useUserStore } from '../stores/user.ts';
+import type { AppUser } from '../types/user.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import AppSidebar from './AppSidebar.vue';
+import NotificationsBell from './NotificationsBell.vue';
+import UserMenu from './UserMenu.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
 
 vi.mock('../router/index.ts', () => ({ router: {} }));
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
+// The bell panel loads from the API; here only that its open state keeps the rail expanded.
+vi.mock('../components/NotificationsPanel.vue', async () => {
+	const { h } = await import('vue');
+	return { default: { render: () => h('button', { type: 'button' }, 'View all') } };
+});
 
 enableAutoUnmount(afterEach);
 
@@ -173,6 +181,49 @@ describe('AppSidebar layout (FR-020, layout-patterns §2)', () => {
 
 		await aside.trigger('mouseleave');
 		expect(aside.classes()).toContain('w-[90px]');
+	});
+
+	test('user menu and notifications bell under the logo; the rail keeps the avatar only (owner 2026-10-20)', async () => {
+		const { wrapper } = await mountLayout(AppSidebar, {
+			beforeMount: () => {
+				useUserStore().currentUser = { id: 'u1', first_name: 'Ada', last_name: 'Lovelace', avatar: null } as AppUser;
+			},
+		});
+		const aside = wrapper.get('aside');
+		const user = aside.get('button[aria-label="Ada Lovelace"]');
+		expect(aside.find('button[title="Notifications"]').exists()).toBe(true);
+		expect(user.text()).toContain('Ada Lovelace');
+
+		useNavBarStore().collapse();
+		await nextTick();
+		expect(user.text()).not.toContain('Ada Lovelace');
+		// The bell folds into the avatar on the rail (owner 2026-10-21).
+		expect(aside.find('button[title="Notifications"]').exists()).toBe(false);
+	});
+
+	test('the rail stays expanded while the user menu or the bell panel is open (both portaled out of it)', async () => {
+		const { wrapper } = await mountLayout(AppSidebar, {
+			beforeMount: () => {
+				useUserStore().currentUser = { id: 'u1', first_name: 'Ada', avatar: null } as AppUser;
+			},
+		});
+		const aside = wrapper.get('aside');
+		useNavBarStore().collapse();
+		await nextTick();
+		expect(aside.classes()).toContain('w-[90px]');
+
+		wrapper.findComponent(UserMenu).vm.$emit('update:open', true);
+		await nextTick();
+		expect(aside.classes()).toContain('w-[290px]');
+
+		wrapper.findComponent(UserMenu).vm.$emit('update:open', false);
+		await nextTick();
+		expect(aside.classes()).toContain('w-[90px]');
+
+		await aside.trigger('mouseenter');
+		wrapper.findComponent(NotificationsBell).vm.$emit('update:open', true);
+		await aside.trigger('mouseleave');
+		expect(aside.classes()).toContain('w-[290px]');
 	});
 
 	test('below xl: a modal drawer opened from the store, Esc closes it', async () => {

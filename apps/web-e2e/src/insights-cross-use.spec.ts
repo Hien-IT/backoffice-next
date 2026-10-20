@@ -49,6 +49,7 @@ import {
 } from './helpers/insights.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
+import { openNotificationsDrawer } from './helpers/layout.js';
 
 test.skip(e2eConfig !== 'proxy-api', 'drives the Directus app of the main pair (proxy-api only)');
 // Default mode: in order in the one worker, a failed test does not skip the next ones (each sets up its own rows).
@@ -422,13 +423,13 @@ test('(4) a notification archived in the Backoffice app is archived in the Direc
 }) => {
 	const bell = page.locator('button[aria-label^="Notifications, "]');
 	const unread = async () => Number((await bell.getAttribute('aria-label'))!.match(/\d+/)![0]);
-	const drawer = page.getByRole('dialog', { name: 'Notifications' });
+	const drawer = page.getByRole('dialog', { name: 'Notifications', exact: true });
 
 	try {
 		await signIn(page);
 		await expect(bell).toHaveAttribute('aria-label', /Notifications, [1-9]/);
 		const before = await unread();
-		await bell.click();
+		await openNotificationsDrawer(page);
 		await drawer.getByRole('checkbox', { name: `Select ${NOTIFICATION}` }).click();
 		await drawer.getByRole('button', { name: 'Archive', exact: true }).click();
 		await expect(drawer).not.toContainText(NOTIFICATION);
@@ -447,7 +448,7 @@ test('(4) a notification archived in the Backoffice app is archived in the Direc
 
 		await page.reload();
 		await expect.poll(unread).toBe(before);
-		await bell.click();
+		await openNotificationsDrawer(page);
 		await expect(drawer).toContainText(NOTIFICATION);
 	} finally {
 		await cleanup();

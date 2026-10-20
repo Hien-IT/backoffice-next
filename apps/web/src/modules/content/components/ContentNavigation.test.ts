@@ -106,6 +106,9 @@ describe('ContentNavigation', () => {
 		expect(folder.find('a').exists()).toBe(false);
 		expect(folder.attributes('aria-expanded')).toBe('false');
 		expect(folder.get('button').attributes('aria-label')).toBe('Expand FOLDER');
+		// D-129 (owner 2026-10-21): the toggle is the last control of the row, so siblings stay aligned.
+		expect(folder.element.firstElementChild!.lastElementChild).toBe(folder.get('button').element);
+		expect(folder.get('button').text()).toContain('expand_more');
 
 		// Locked: open, no toggle, child at level 2.
 		const locked = row(wrapper, 'locked');

@@ -29,3 +29,9 @@ export interface CollectionTreeContext {
 }
 
 export const COLLECTION_TREE: InjectionKey<CollectionTreeContext> = Symbol('collection-tree');
+
+/** A folder row (a collection without a table) stands out: dashed brand border on a brand tint (owner 2026-10-21). */
+export function folderRowClass(collection: Collection): string | undefined {
+	if (collection.schema) return undefined;
+	return 'border-dashed! border-brand-300! bg-brand-25! dark:border-brand-500/40! dark:bg-brand-500/[0.06]!';
+}

@@ -33,7 +33,7 @@ export async function waitForTable(page: Page) {
 	return table;
 }
 
-/** Opens the detail panel when it is closed (below `xl` it is a drawer, closed on load like the Directus app). */
+/** Opens the detail panel when it is closed (a popover under the page header toggle, closed on load; owner 2026-10-20). */
 export async function openSidebar(page: Page): Promise<void> {
 	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
 	if (await toggle.isVisible()) await toggle.click();

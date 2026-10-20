@@ -943,6 +943,8 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-82 | Bề ngang form của màn item trên màn rộng | Form chiếm hết bề ngang nội dung; field `fill` kéo hết bề ngang | Form dừng ở 64rem (`max-w-5xl`); field `fill` dừng ở đó | Dễ đọc trên màn rộng (chủ dự án, 2026-10-15) | khác | — |
 | D-91 | Nội dung gửi khi sửa comment (`PATCH /comments/<id>`) | Ô soạn thảo contenteditable (`comment-input.vue`, `v-template-input`) nạp comment cũ dạng HTML `md()` có `\n` sau `</p>`; trên Chromium thay toàn bộ nội dung gửi `"\nEdited comment"` (người gõ tay còn bị đảo chữ: `"\nyped commentT"`), Firefox và WebKit gửi đúng chữ đã gõ | Ô nhập văn bản (recipe Q-11) gửi đúng chữ đã gõ trên mọi trình duyệt | Ký tự `\n` là lỗi contenteditable của Chromium, không phải logic Directus; chép lại phải bỏ Q-11 và chỉ khớp trên Chromium (phiên 015 dò trên Directus app 8155, 2026-10-16; chủ dự án quyết giữ, 2026-10-16) | khác | — |
 | D-124 | Giá trị gửi khi khôi phục revision có field `input-rich-text-html` khác nhau | Gửi HTML đã chèn thẻ tô màu diff (`<span class="comparison-diff--added">`), vì `processRichTextHtmlFields` ghi đè chính `incoming`/`base` mà `comparison-modal` dùng để khôi phục (đọc code 11.17.4, chưa đo) | Hiển thị diff như Directus; khôi phục gửi giá trị gốc trước khi chèn thẻ (`raw` của comparison) | Không ghi markup hiển thị vào dữ liệu | khác | — |
+| D-129 | Nút mở/đóng nhóm trong cây collection của sidebar | Mũi tên sau tên (`v-list-group`) | Mũi tên `expand_more` ở cuối dòng (xoay 180° khi mở); các mục cùng cấp thẳng hàng, mục con thụt 16 px so với cha (trước đó nút ở đầu dòng làm mục con lệch trái hơn icon của cha) | Owner 2026-10-21 | khác | — |
+| D-133 | Viền thẻ đang chọn của layout cards | Viền chọn của `v-card` | Viền brand 2px vẽ bên trong thẻ (`border-brand-500` + `ring-1 ring-inset`); trước đó `ring-2` vẽ ra ngoài bị khung cuộn của trang `fill` cắt mất ở thẻ sát mép | Owner 2026-10-21 (lỗi hiển thị) | khác | — |
 
 **Trạng thái khác biệt (T099, cuối lượt 4)**:
 
@@ -967,6 +969,8 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-82 | `modules/content/routes/ItemRoute.vue`: `BoForm` `max-w-5xl` | Chủ dự án duyệt 2026-10-15 |
 | D-91 | `components/sidebar/CommentInput.vue`, `CommentItem.vue` giữ ô nhập Q-11; `e2e/payload/comments-shares.spec.ts` khẳng định hai payload khác nhau | Chủ dự án duyệt 2026-10-16 |
 | D-124 | `components/comparison/use-comparison.ts` (`raw`), `ComparisonModal.vue` (khôi phục đọc `raw`); `use-comparison.test.ts` | Chủ dự án duyệt, tech lead duyệt 2026-10-20 |
+| D-129 | `modules/content/components/NavigationItem.vue` (nút ở cuối dòng); `design-system/docs/layout-patterns.md` §9 | Owner yêu cầu (2026-10-21) |
+| D-133 | `layouts/cards/components/Card.vue`; `Cards.browser.test.ts`; `design-system/docs/component-specs.md` (Cards grid) | Owner yêu cầu (2026-10-21) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.

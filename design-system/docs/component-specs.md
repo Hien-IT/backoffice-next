@@ -947,6 +947,9 @@ Shared parts (each component declares the constants it uses locally; there is no
   drag handle `drag_handle` (sm) `cursor-grab text-gray-500 dark:text-gray-400` (mouse only); chosen row `opacity-50`,
   ghost `shadow-theme-lg`. Rows that cannot move (deleted, disabled field, sorting off) have no handle and no move
   items.
+- Nested trees (a `group` is set: Data Model collections and fields, `list-o2m-tree-view`): `animation` 150 ms,
+  `swap-threshold` 0.3 (Directus data model), `fallback-on-body` (the dragged clone does not push the nested lists) and
+  `empty-insert-threshold` 20px (owner 2026-10-21, smoother drags into a group).
 - Row content of the interfaces: a button that opens the item
   `min-w-0 flex-1 rounded text-start text-sm text-gray-800 FOCUS dark:text-white/90`; deleted rows
   `text-error-600 line-through dark:text-error-400`; link `ICON_BTN` `launch` (`navigate_to_item`); Remove.
@@ -1107,7 +1110,8 @@ Built: `layouts/cards/{Cards,CardsActions,CardsOptions}.vue`, `layouts/cards/com
 - Selection: a BoCheckbox outside the link (no interactive element inside a link),
   `absolute start-3 top-3 rounded-md bg-white dark:bg-gray-900`,
   `opacity-0 group-hover:opacity-100 focus-within:opacity-100` (always visible in select mode or when any card is
-  selected), `aria-label` `select_item_key`; selected card `ring-2 ring-brand-500`.
+  selected), `aria-label` `select_item_key`; selected card `border-brand-500 ring-1 ring-inset ring-brand-500` (dark `brand-400`): a 2px brand
+  border drawn inside the card, as an outer ring is clipped by the scrolling grid of `fill` pages (owner 2026-10-21).
 - Header bar above the grid (`CardsHeader`):
   `mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 px-2 py-2 dark:border-gray-800`:
   select-all BoCheckbox (indeterminate while items are selected, a click clears them), then card size `ICON_BTN`
@@ -1619,7 +1623,8 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 - `system-modules`: a BoSortableList; a module row is `flex h-11 items-center gap-3` with handle, icon, name and a
   BoSwitch `enabled` (a `lock` icon instead for `locked`); a link row adds a `clear` icon Button and opens the
   `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below. The Directus
-  documentation link is not listed (D-100), only kept in the value.
+  documentation link (D-100) and the modules without a port, `visual` and `deployments` (D-41, owner 2026-10-21), are
+  not listed, only kept in the value at their place.
 - `system-fields`: a BoSortableList of field paths (`font-mono`, ` → ` between levels, `functions.<fn>` for
   functions), a remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
 - `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`, a
@@ -1767,7 +1772,10 @@ helpers as in the 014 recipes.
 
 ### Notifications bell (Q-38; Directus `module-bar-avatar.vue`)
 
-- TailAdmin header button: `relative flex size-11 items-center justify-center rounded-full border border-gray-200
+- Placed in the sidebar after the user menu, under the logo (owner 2026-10-20); on the collapsed rail it folds into the
+  avatar (`compact`: no button, the badge on the avatar, 2026-10-21); below `xl` it is at the end of the header. A click opens the
+  notification panel (layout-patterns §4, D-132); "View all" opens the drawer. The look stays the
+  TailAdmin header button: `relative flex size-11 items-center justify-center rounded-full border border-gray-200
   bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900
   dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white` + `FOCUS`, icon `notifications`.
 - Count badge instead of the TailAdmin dot: `absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error-600

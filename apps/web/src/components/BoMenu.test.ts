@@ -1,6 +1,6 @@
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
-import { defineComponent, h } from 'vue';
+import { defineComponent, h, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
 import BoMenu, { type BoMenuItem } from './BoMenu.vue';
 
@@ -90,6 +90,30 @@ describe('BoMenu', () => {
 		expect(onSelect).not.toHaveBeenCalled();
 		expect(items[2]!.querySelector('[role="progressbar"]')).not.toBeNull();
 		expect(items[2]!.querySelector('.sr-only')!.textContent).toBe('Running');
+		wrapper.unmount();
+	});
+
+	test('a list that changes while open re-renders its items (keyed by text, not only by index)', async () => {
+		const router = createRouter({
+			history: createMemoryHistory(),
+			routes: [{ path: '/:p(.*)*', component: { render: () => null } }],
+		});
+		await router.push('/');
+		const items = ref<BoMenuItem[]>([{ text: 'Profile', to: '/profile' }]);
+		const wrapper = mount(
+			defineComponent(
+				() => () => h(BoMenu, { items: items.value }, { trigger: () => h('button', { type: 'button' }, 'open') }),
+			),
+			{ attachTo: document.body, global: { plugins: [router] } },
+		);
+		const trigger = wrapper.get('button').element;
+		trigger.focus();
+		await key(trigger, 'Enter');
+
+		items.value = [{ text: 'Notifications', icon: 'notifications', onSelect: () => {} }, ...items.value];
+		await flushPromises();
+		const rendered = [...document.body.querySelectorAll('[role="menuitem"]')].map((el) => el.tagName);
+		expect(rendered).toEqual(['DIV', 'A']);
 		wrapper.unmount();
 	});
 });

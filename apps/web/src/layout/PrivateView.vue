@@ -1,14 +1,13 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view.vue -->
 <script setup lang="ts">
 // Backoffice: the TailAdmin AdminLayout of design-system layout-patterns (D-52) instead of private-view-root.vue and
-// private-view-main.vue: sidebar (modules, the `navigation` slot as the current module's sub-menu), header (sidebar
-// toggle, user menu), content with the page header (title, icon, `actions`) and the right detail panel (`sidebar`
-// slot). One breakpoint, `xl` (L-1): from `xl` sidebar and panel are inline, below `xl` both are drawers. No license
-// banner (D-38); the notifications drawer (018 FR-077) is mounted here once, as a lazy chunk (FR-109). The page title
-// goes through useHead; the `%s · project` template is in theme/use-app-head.ts.
+// private-view-main.vue: sidebar (modules, the `navigation` slot as the current module's sub-menu, user menu and
+// bell), header (sidebar toggle and the page header: title, icon, `actions`; owner 2026-10-20), content; the right
+// detail panel (`sidebar` slot) is a popover of the page header (owner 2026-10-20). One breakpoint, `xl` (L-1): from
+// `xl` the sidebar is inline, below `xl` a drawer. No license banner (D-38); the notifications drawer (018 FR-077) is
+// mounted here once, as a lazy chunk (FR-109). The page title goes through useHead; the `%s · project` template is in theme/use-app-head.ts.
 import { useHead } from '@unhead/vue';
-import { useElementSize } from '@vueuse/core';
-import { computed, defineAsyncComponent, useTemplateRef, watch } from 'vue';
+import { computed, defineAsyncComponent } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
 import NoticeStack from '../components/NoticeStack.vue';
@@ -16,7 +15,6 @@ import { useLayoutBreakpoints } from '../composables/use-media-query.ts';
 import { useUserStore } from '../stores/user.ts';
 import AppHeader from './AppHeader.vue';
 import AppSidebar from './AppSidebar.vue';
-import DetailPanel from './DetailPanel.vue';
 import MainContent from './MainContent.vue';
 import NoAppAccess from './NoAppAccess.vue';
 import PageHeader from './PageHeader.vue';
@@ -66,24 +64,8 @@ const { xl } = useLayoutBreakpoints();
 const navBarStore = useNavBarStore();
 const sidebarStore = useSidebarStore();
 
-// private-view-main.vue collapses the sidebar on small screens; here the detail panel below `xl` (closed drawer).
-watch(
-	xl,
-	(wide) => {
-		if (!wide) sidebarStore.collapse();
-	},
-	{ immediate: true },
-);
-
-// The page header stays under the app header while the page scrolls, as the Directus header bar (`position: sticky`).
-// The app header height changes with the breakpoint: measured. `fill` pages scroll inside their table instead.
-const appHeader = useTemplateRef<InstanceType<typeof AppHeader>>('appHeader');
-// border-box: the header's 1px bottom border counts, or the band jumps up 1px when it starts to stick.
-const { height: appHeaderHeight } = useElementSize(
-	computed(() => appHeader.value?.$el as HTMLElement | undefined),
-	undefined,
-	{ box: 'border-box' },
-);
+// The detail popover starts closed on every page.
+sidebarStore.collapse();
 </script>
 
 <template>
@@ -100,27 +82,19 @@ const { height: appHeaderHeight } = useElementSize(
 			class="flex min-w-0 flex-1 flex-col transition-all duration-300 ease-in-out motion-reduce:transition-none"
 			:class="[navBarStore.collapsed ? 'xl:ms-[90px]' : 'xl:ms-[290px]', fill ? 'h-dvh' : 'min-h-screen']"
 		>
-			<AppHeader ref="appHeader" />
-
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">
-					<!-- Sticky band in the page background; the negative margins cover the content padding so rows scrolling
-					     under it do not show above or beside it. -->
-					<div
-						:class="
-							fill
-								? ''
-								: 'page-header-sticky sticky z-30 -mx-4 -mt-4 bg-gray-50 px-4 pt-4 md:-mx-6 md:-mt-6 md:px-6 md:pt-6 dark:bg-gray-900'
-						"
-						:style="fill ? undefined : { top: `${appHeaderHeight}px` }"
-					>
+					<!-- In main, as the Directus header bar (the page title is `main h1`); sticky, so it stays on top while the
+					     page scrolls. The negative margins span the content padding. -->
+					<AppHeader class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6">
 						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 							<template v-if="$slots['title']" #title><slot name="title" /></template>
 							<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
 							<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
 							<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
+							<template v-if="$slots['sidebar']" #sidebar><slot name="sidebar" /></template>
 						</PageHeader>
-					</div>
+					</AppHeader>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
 					<NoticeStack />
 					<div v-if="fill" class="flex min-h-0 flex-1 flex-col overflow-auto">
@@ -128,10 +102,6 @@ const { height: appHeaderHeight } = useElementSize(
 					</div>
 					<slot v-else />
 				</MainContent>
-
-				<DetailPanel :drawer="!xl">
-					<slot name="sidebar" />
-				</DetailPanel>
 			</div>
 		</div>
 

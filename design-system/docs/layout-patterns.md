@@ -16,11 +16,10 @@ behaviour, the line says **Backoffice**; the Backoffice value wins. All interact
       AppSidebar  aside (fixed, full height)
       Backdrop    div (below xl, when the sidebar drawer is open)
       div.flex-1  margin-start follows the sidebar width (xl:ms-[290px] or xl:ms-[90px]), transition-all duration-300 ease-in-out
-        AppHeader header (sticky)
-        div       w-full p-4 pb-20 md:p-6 md:pb-6                               ← page content
-          PageBreadcrumb (page title + breadcrumb)
+        div       w-full p-4 pb-20 md:p-6 md:pb-6                               ← page content (Backoffice: main)
+          AppHeader header (sticky): sidebar toggle + PageBreadcrumb (page title + breadcrumb)   ← Backoffice, owner 2026-10-20
           page body (cards, tables, forms)
-          [DetailPanel] aside (Backoffice, optional, section 7)
+          [DetailPanel] popover of the page header toggle (Backoffice, optional, section 7)
 ```
 
 Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen > main > slot`.
@@ -74,8 +73,8 @@ What TailAdmin does (not consistent):
 ## 3. Backdrop (`Backdrop.vue`)
 
 TailAdmin: `fixed inset-0 bg-gray-900/50 z-9999 lg:hidden`, rendered only while `isMobileOpen`; click closes the
-sidebar. **Backoffice:** `fixed inset-0 z-9999 bg-gray-900/50 xl:hidden`, `aria-hidden="true"`; the same Backdrop serves
-the detail panel drawer (section 7).
+sidebar. **Backoffice:** `fixed inset-0 z-9999 bg-gray-900/50 xl:hidden`, `aria-hidden="true"`. The detail panel is a popover
+without Backdrop (section 7, owner 2026-10-20).
 
 ## 4. Header (`AppHeader.vue`)
 
@@ -113,13 +112,26 @@ the detail panel drawer (section 7).
 - **Backoffice:** Reka `DropdownMenu` with the Dropdown menu recipe of component-specs; trigger has `FOCUS` and an
   accessible name (user name); no Language item (Directus language comes from the user profile); avatar without image
   uses the Avatar fallback (B-2).
+- **Backoffice (owner 2026-10-20): header and user block.** The header holds only the sidebar toggle and the page header
+  of §5 (`min-w-0 flex-1` slot); it sits at the top of `main` (sticky `top-0`, negative margins over the content
+  padding), so it is not a `banner` landmark. The user menu and the bell are under the sidebar logo:
+  `mb-6 flex items-center gap-3`, `justify-between` when expanded, `flex-col` on the 90px rail (avatar only, name and
+  chevron hidden; the bell folds into the avatar, owner 2026-10-21: its badge on the avatar and the count in the trigger
+  name; the bell keeps its live region). The rail expands on hover and keyboard focus and stays expanded while the user
+  menu is open (the menu is portaled, so entering it is a mouseleave); the avatar trigger keeps `min-w-10` so the bell
+  never covers it while the width animates. Below `xl` (sidebar drawer) the bell sits at the end of the header row
+  instead, so its badge and live region stay on screen. The bell opens the notification panel (D-132, the TailAdmin
+  "Notification panel" above): Reka Popover, `side` bottom, `align` start, `rounded-2xl border p-3 shadow-theme-lg`,
+  `w-87.5 max-h-120`; title `text-lg font-semibold` with a ghost "Mark all as read", the 10 newest inbox rows (brand dot,
+  subject `text-theme-sm font-medium truncate` as a link to its target, relative time `text-theme-xs`, an `ICON_BTN`
+  `done` "Mark as read"), then a full-width secondary "View all" that opens the notifications drawer. The avatar is 40px like the logo (BoAvatar `small`, owner 2026-10-21). The menu opens
+  `align="start"`; the name truncates (`min-w-0 truncate`).
 
 ## 5. Content area and page header
 
 - Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
-  wide screen shows no empty band on either side. The page header always spans the content width, so its actions line
-  up with the app header (bell, user menu) at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
+  wide screen shows no empty band on either side. The page header always spans the content width, its actions at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
   at the left like Directus. The item pages (Content, File, User) centre their body in a column as wide as the form shows
   (`mx-auto max-w-[44.25rem]`: two 21.375rem columns and the gap; `max-w-5xl` when a field is `fill`; `utils/form-column.ts`); their page header
   keeps the full width, title at the left and actions at the right (owner 2026-10-18).
@@ -127,9 +139,9 @@ the detail panel drawer (section 7).
   `h2.text-xl.font-semibold.text-gray-800 dark:text-white/90`; breadcrumb `nav > ol.flex.items-center.gap-1.5`, links
   `inline-flex items-center gap-1.5 text-sm text-gray-500 dark:text-gray-400` followed by a chevron, current page
   `text-sm text-gray-800 dark:text-white/90`. The breadcrumb is not shown (016 D-101, owner 2026-10-17).
-- The page header stays in view while the page scrolls (Directus header bar is `position: sticky`; owner request
-  2026-10-17): a band `sticky z-30 bg-gray-50 dark:bg-gray-900` with negative margins over the content padding, `top` =
-  the measured border-box height of the app header (so it does not shift 1px when it starts to stick). `fill` list
+- The page header sits in the app header row after the sidebar toggle, at the top of `main` like the Directus header
+  bar (owner 2026-10-20; the page title stays `main h1`). The app header is `sticky top-0` with negative margins over
+  the content padding, so the page header stays in view while the page scrolls (owner request 2026-10-17). `fill` list
   pages keep their header fixed already (D-99).
 - Page body blocks: card `rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]` (see
   Card in component-specs); grids with `gap-4 md:gap-6`.
@@ -175,22 +187,23 @@ settings, permissions), not by this pack.
 | Settings module                                                                      | Last sidebar item, admins only (Directus permission); its sub-menu is the flat grouped list of §12 (016)                                                                                                                                                                                                                             |
 | Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                                                                                                                             |
 | Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                                                                                                                         |
-| Header bar (icon, title, breadcrumb, action buttons)                                 | Page header inside the content (`PageBreadcrumb` layout): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |
+| Header bar (icon, title, breadcrumb, action buttons)                                 | Page header in the app header row after the sidebar toggle (`PageBreadcrumb` layout, owner 2026-10-20): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |
 | Right sidebar (info, revisions, comments, layout options)                            | Optional right detail panel (L-4, below)                                                                                                                                                                                                                                                                                             |
-| User avatar / menu at the bottom of the module bar                                   | `UserMenu` in the header: avatar, name, email, items (profile = Directus user detail page, other Directus entries), Sign out                                                                                                                                                                                                         |
-| Notifications drawer                                                                 | Bell button in the header before `UserMenu` (feature 018, D-107): TailAdmin round header button with a count badge (component-specs "Notifications bell", Q-38); opens the notifications drawer (Q-39)                                                                                                                               |
+| User avatar / menu at the bottom of the module bar                                   | `UserMenu` in the sidebar under the logo (owner 2026-10-20; avatar only on the rail): avatar, name, email, items (profile = Directus user detail page, other Directus entries), Sign out                                                                                                                                                                                                         |
+| Notifications drawer                                                                 | Bell button in the sidebar after `UserMenu`, under the logo (feature 018, D-107; owner 2026-10-20; folded into the avatar on the rail, 2026-10-21): TailAdmin round header button with a count badge (component-specs "Notifications bell", Q-38); opens the notifications drawer (Q-39)                                                                                                                               |
 | Insights dashboards (018)                                                            | Dashboard list in the module sub-menu (L-3, flat rows with colored icon); the dashboard page is a `fill` page with the dashboard grid of §14                                                                                                                                                                                          |
 | Theme (light/dark/auto from user/settings)                                           | `ThemeToggler` in the header sets the `dark` class; the initial value follows the Directus user/settings appearance                                                                                                                                                                                                                  |
 
 ### Right detail panel (L-4, Backoffice; TailAdmin has none)
 
-- Width 333px like Directus: `w-[333px]` (max `max-w-[calc(100vw-2rem)]` in drawer mode).
-- From `xl`: inline at the end of the content row (`xl:flex` next to the page body), open by default, collapsible with a
-  toggle in the page header (`aria-expanded`, `aria-controls`); the page body takes the remaining width.
-- Below `xl`: closed by default; opens as a drawer from the end side:
-  `fixed inset-y-0 end-0 z-99999 w-[333px] overflow-y-auto bg-white shadow-theme-xl dark:bg-gray-900` with the Backdrop,
-  focus trap, Esc and Backdrop click close, focus returns to the toggle (Reka `Dialog`).
-- Look: `border-s border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900`; sections as collapsible blocks
+- Owner 2026-10-20: on every screen a popover under its toggle at the end of the page header (Reka `Popover`, `side`
+  bottom, `align` end), closed on every page load; the toggle shows only when the page has details. Esc and a click
+  outside close it, focus returns to the toggle; focus moving out does not close it (a dialog opened from a detail
+  stays usable). No inline column, no drawer, no resize.
+- Width 333px like Directus: `w-[333px] max-w-[calc(100vw-2rem)]`, height up to the available space
+  (`max-h-(--reka-popover-content-available-height) overflow-y-auto`).
+- Look: dropdown surface `z-99999 rounded-2xl border border-gray-200 bg-white shadow-theme-lg dark:border-gray-800
+  dark:bg-gray-dark`; sections as collapsible blocks
   (`px-5 py-4 border-b border-gray-200 dark:border-gray-800`, title
   `text-theme-sm font-medium text-gray-800 dark:text-white/90`, toggle `<button aria-expanded>` with `FOCUS`), content
   text `text-theme-sm text-gray-500 dark:text-gray-400`.
@@ -199,8 +212,8 @@ settings, permissions), not by this pack.
 ### Accessibility and keyboard requirements
 
 - Skip link as the first focusable element: "Skip to main content" → `<main id="main">`; visually hidden until focused.
-- Landmarks: `<aside aria-label="…">` with `<nav aria-label="Main">` for the sidebar, `<header>`, `<main>`, the right
-  panel as `<aside aria-label="…">`.
+- Landmarks: `<aside aria-label="…">` with `<nav aria-label="Main">` for the sidebar, `<main>` (Backoffice: the
+  `<header>` of the page is inside it, owner 2026-10-20), the right panel as `<aside aria-label="…">` inside its popover.
 - Active link: `aria-current="page"` on the active item or sub-item (not only the `-active` classes).
 - Sub-menu toggles are `<button aria-expanded="true|false" aria-controls="…">`; the header sidebar toggle has
   `aria-expanded`, `aria-controls` and a label ("Open menu" / "Close menu"); the collapse state is not only visual.
@@ -209,8 +222,9 @@ settings, permissions), not by this pack.
   and show a tooltip on hover/focus.
 - Hover-to-expand also needs a keyboard path: focus inside the collapsed sidebar expands it like hover (or the collapse
   toggle is used); never hide focused content.
-- Off-canvas sidebar and right drawer (below `xl`): focus moves into the drawer on open, is trapped while open (Reka
-  `Dialog` or equivalent), Esc closes, focus returns to the trigger, the Backdrop click closes.
+- Off-canvas sidebar (below `xl`): focus moves into the drawer on open, is trapped while open (Reka `Dialog` or
+  equivalent), Esc closes, focus returns to the trigger, the Backdrop click closes. Right detail panel: Reka `Popover`,
+  Esc and an outside click close it, focus returns to its toggle (section 7).
 - Dropdowns (user menu, notifications) use Reka `DropdownMenu`/`Popover`: arrow keys, Esc, focus return.
 - Visible focus on every control (see component-specs: focus-visible recipe).
 - Minimum supported width 768px; no horizontal page scroll from 768px (tables scroll inside their own `overflow-x-auto`
@@ -320,7 +334,8 @@ drafts). "Deviation" lines say where the code differs from the first draft.
 - Nested drawers: each one opens its own `DialogRoot` above the previous (same `z-99999`, later in the DOM wins); a
   nested drawer's overlay is `bg-transparent` (depth > 0) so the page dims once; only the top drawer reacts to Esc and
   outside clicks, and focus returns to its trigger inside the drawer below.
-- Below `xl` a drawer covers the right detail panel drawer if both are open; only one Backdrop dims the page.
+- A drawer opened from the detail panel popover opens above it; the popover stays open (focus moving out does not close
+  it, owner 2026-10-20).
 
 ## 9. Content module navigation tree (nháp, 014)
 
@@ -340,11 +355,12 @@ search, bookmarks, last accessed collection) is the Directus one. Built: `apps/w
   `has-focus-visible:`. The icon is `BoIcon` `sm` `shrink-0` with the collection `color` as inline style (data color,
   Q-C of 013), else the row color (Directus foreground; gray-500 on the active brand-50 row fails axe color-contrast);
   the name truncates (`BoTextOverflow`). Deviation: no search highlight (BoTextOverflow has none).
-- Nesting: children in a `ul role="group"` `mt-1 flex flex-col gap-1 ps-4`; a group row has a toggle button first
-  (`size-6 rounded FOCUS`, `chevron_right` turning 90° when open, `motion-reduce:transition-none`, `aria-label` `expand`
-  / `collapse` + name); a folder (collection without `schema`) is a row whose label is not a link and toggles on click;
-  `collapse: locked` groups have no toggle. Deviation: the toggle comes first (Directus: after the name) and has
-  `tabindex="-1"`: the tree keys open and close groups, so the toggle is for the mouse.
+- Nesting: children in a `ul role="group"` `mt-1 flex flex-col gap-1 ps-4`; a group row has a toggle button at the end
+  of the row (`size-6 rounded FOCUS`, `expand_more` turning 180° when open, `motion-reduce:transition-none`,
+  `aria-label` `expand` / `collapse` + name), as the TailAdmin sub-menu chevron and Directus (owner 2026-10-21: siblings
+  with and without children stay aligned and children sit 16px deeper than their parent); a folder (collection without
+  `schema`) is a row whose label is not a link and toggles on click; `collapse: locked` groups have no toggle. The toggle
+  has `tabindex="-1"`: the tree keys open and close groups, so the toggle is for the mouse.
 - Dense (more than 5 visible collections, Directus `dense`): `min-h-8 text-theme-sm`; otherwise `min-h-9 text-sm`.
 - Bookmarks: child rows of their collection (`?bookmark=<id>` link), the bookmark icon (default `bookmark`) and color; a
   row menu button at the end
@@ -470,6 +486,12 @@ Recipe for spec 016 Q-20 and Q-24 (T005, FR-107), written before the code and ap
   (`more_vert`, `aria-label` `item_options`). Hidden collections: icon `visibility_off`, row text `text-gray-400`.
   Children nest in `ps-6` with a start border `border-s border-gray-100 dark:border-gray-800`. Clicking the row links
   to the collection page; a folder row opens the folder dialog.
+- Folders and drops (owner 2026-10-21): a folder row (no `schema`) has a dashed brand border on a brand tint
+  (`border-dashed border-brand-300 bg-brand-25`, dark `border-brand-500/40 bg-brand-500/[0.06]`, `folderRowClass`). An
+  empty folder shows a drop area under its name (`min-h-10 rounded-lg border border-dashed border-gray-300
+  dark:border-gray-700`, centred hint `drop_collections_here` in `text-theme-xs text-gray-500`, `pointer-events-none`);
+  an empty table keeps a drop target of no layout height (`h-0`, the list's `min-h-3` overflows into the row padding)
+  so its row stays centred on the handle. The lists use the nested-drag settings of the SortableList recipe.
 - Row menu (BoMenu): `goto_collection_content`, hide/show, the three collapse defaults (current one checked), then the
   move items of D-96 (Move up, Move down, Into the group above, Out of the group; disabled at the ends), divider, delete
   (`text-error-600 dark:text-error-500`). Moving by menu announces the new place in a polite live region (the
@@ -512,7 +534,7 @@ Directus one (`modules/settings/routes/flows/flow.vue`, `components/operation.vu
 - **Modes**: view mode shows arrows of existing links only; edit mode adds the hint stubs, the "+" buttons and drag.
   Dragging panels and arrows is mouse/pointer only, as Directus (recorded exception in `qa/handoff-checklist.md`);
   everything else on the canvas (pencil, tile menu, trigger status select, header buttons) is a focusable control.
-- **768 px**: the canvas keeps its size and scrolls; the detail panel becomes the L-4 drawer.
+- **768 px**: the canvas keeps its size and scrolls; the detail panel stays the L-4 popover.
 
 
 ## 14. Dashboard grid and charts (018, duyệt 2026-10-18)
@@ -554,5 +576,5 @@ of T115); approved by the design owner on 2026-10-18. Behaviour is the Directus 
   variant on `.dark`): tooltip `bg-white border-gray-200 shadow-theme-lg text-theme-xs` / dark `bg-gray-900
   border-gray-800`. Every chart has an sr-only table (caption = tile label) with the same series; the drawn chart is
   `aria-hidden`. Animations off with `prefers-reduced-motion`.
-- **768 px**: the grid keeps its size and scrolls; the detail panel becomes the L-4 drawer; the panel drawer is full
+- **768 px**: the grid keeps its size and scrolls; the detail panel stays the L-4 popover; the panel drawer is full
   screen.

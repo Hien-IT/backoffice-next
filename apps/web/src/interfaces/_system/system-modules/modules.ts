@@ -26,7 +26,7 @@ export const DIRECTUS_MODULE_BAR_DEFAULT: ModuleBarPart[] = [
 ];
 
 /** Directus modules without a Backoffice port (D-41): only their id, name and icon. */
-const OUT_OF_SCOPE_MODULES = [
+export const OUT_OF_SCOPE_MODULES = [
 	{ id: 'deployments', name: '$t:deployment.deployment', icon: 'rocket_launch' },
 	{ id: 'visual', name: '$t:visual_editor', icon: 'edit_square' },
 ];

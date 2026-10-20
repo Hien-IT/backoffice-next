@@ -1,14 +1,14 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view-header-bar.vue -->
 <script setup lang="ts">
 // Backoffice: the page header of the TailAdmin content area (layout-patterns §5, component-specs Breadcrumb): icon,
-// h1 title and actions, then the toggle of the right detail panel (L-4). Feature 014: the Directus `headline` row above
+// h1 title and actions, then the toggle of the right detail panel (L-4, a popover since 2026-10-20: DetailPanel.vue). Feature 014: the Directus `headline` row above
 // the title (its breadcrumb is not shown, D-101 of 016; the version menu stays), the icon color of the collection and the `title-outer:append` slot as
-// `title-append`, and the back button of the item page (`back`, Directus `show-back`); labelled buttons instead of clickable icons with tooltips (FR-027); the panel toggle is always
-// shown, as the collapsed panel has no detail buttons to reopen it in 012 (D-45). The sidebar toggle is in AppHeader.
+// `title-append`, and the back button of the item page (`back`, Directus `show-back`); labelled buttons instead of clickable icons with tooltips (FR-027); the panel toggle shows when
+// the page has details (the `sidebar` slot). The sidebar toggle is in AppHeader.
 import { type RouteLocationRaw, useRouter } from 'vue-router';
 import BoButton from '../components/BoButton.vue';
 import BoIcon from '../components/BoIcon.vue';
-import { useSidebarStore } from './stores/sidebar.ts';
+import DetailPanel from './DetailPanel.vue';
 
 defineProps<{
 	title?: string | undefined;
@@ -25,12 +25,10 @@ defineProps<{
 }>();
 
 const router = useRouter();
-
-const sidebarStore = useSidebarStore();
 </script>
 
 <template>
-	<div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+	<div class="flex flex-wrap items-center justify-between gap-3">
 		<div class="flex min-w-0 flex-col gap-1">
 			<!-- D-101: no breadcrumb above the title (owner, 2026-10-17); the headline row keeps the version menu. -->
 			<div v-if="$slots['headline-append']" class="flex flex-wrap items-center gap-2">
@@ -63,14 +61,7 @@ const sidebarStore = useSidebarStore();
 		<div class="flex shrink-0 items-center gap-3">
 			<slot name="actions" />
 
-			<BoButton
-				variant="ghost"
-				:icon="sidebarStore.collapsed ? 'right_panel_open' : 'right_panel_close'"
-				:aria-label="$t(sidebarStore.collapsed ? 'open_sidebar' : 'close_sidebar')"
-				:aria-expanded="!sidebarStore.collapsed"
-				aria-controls="sidebar"
-				@click="sidebarStore.toggle"
-			/>
+			<DetailPanel v-if="$slots['sidebar']"><slot name="sidebar" /></DetailPanel>
 		</div>
 	</div>
 </template>

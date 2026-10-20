@@ -900,7 +900,13 @@ export function mockFixtureApi(
 				const data = body();
 				if (isSingleton(collection)) return update(collection, rowsOf(collection)[0]?.[pkOf(collection)], data);
 				if (Array.isArray(data)) return data.map((row) => update(collection, row[pkOf(collection)], row));
-				return (data.keys as unknown[]).map((k) => update(collection, k, data.data));
+				// `{ query, data }`: updateByQuery (the bell panel's "mark all as read", owner 2026-10-21).
+				const keys = data.query
+					? rowsOf(collection)
+							.filter((row) => matches(collection, row, (data.query as { filter?: unknown }).filter))
+							.map((row) => row[pkOf(collection)])
+					: (data.keys as unknown[]);
+				return keys.map((k) => update(collection, k, data.data));
 			}
 
 			if (method === 'DELETE') {
