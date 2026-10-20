@@ -8,14 +8,6 @@
 		"dest": "apps/api/src/controllers/permissions.controller.ts"
 	},
 	{
-		"source": "api/src/utils/get-allowed-log-levels.ts",
-		"dest": "apps/api/src/utils/get-allowed-log-levels.ts"
-	},
-	{
-		"source": "api/src/utils/get-allowed-log-levels.test.ts",
-		"dest": "apps/api/src/utils/get-allowed-log-levels.test.ts"
-	},
-	{
 		"source": "tests/blackbox/common/common.test.ts",
 		"dest": "tests/parity/src/permissions/blackbox-common.test.ts"
 	}

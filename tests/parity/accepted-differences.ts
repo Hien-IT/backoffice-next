@@ -107,6 +107,15 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		location: { jsonPointer: /^\/data\/(mcp_enabled|ai_enabled|websocket)(\/.*)?$/ },
 		reason: 'mcp_enabled, ai_enabled and websocket are always false: no AI, MCP or WebSocket (Principle XI).',
 	},
+	{
+		id: 'D-17',
+		feature: '001',
+		kind: 'http',
+		endpoints: ['GET /server/info', 'SEARCH /server/info', 'HEAD /server/info'],
+		location: { header: 'etag' },
+		// The body check above still compares every other key of a GET /server/info.
+		reason: 'The ETag of the logged-in /server/info, whose three flags read false.',
+	},
 	{ id: 'D-18', feature: '001', kind: 'doc', reason: 'Additional startup and credential log lines.' },
 	{ id: 'D-19', feature: '001', kind: 'doc', reason: 'One process per container, no bootstrap or PM2.' },
 	{
