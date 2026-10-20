@@ -15,6 +15,8 @@ paths = [
   '''^apps/api/src/utils/get-cache-key\.test\.ts$''',
   # Feature 009: the fake keys of the ported redact-object test (the values it checks are redacted).
   '''^apps/api/src/utils/redact-object\.test\.ts$''',
+  # Feature 019: the credentials of the throwaway kind cluster of the CI job deploy-k8s.
+  '''^deploy/helm/backoffice/ci/deps\.yaml$''',
   '''(^|/)node_modules/''',
   '''(^|/)(dist|coverage|graphify-out)/''',
 ]

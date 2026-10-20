@@ -295,10 +295,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: docker build -f apps/api/Dockerfile -t hiennd23/backoffice-api:ci .
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      # Feature 019 (T110, research R13): both images through @nx-tools/nx-container (docker buildx, linux/amd64), with
+      # the Backoffice version and the commit as OCI labels; INPUT_<PROJECT>_* replace the tags and build args of the
+      # `container` targets.
+      - name: build the API and web images
+        run: |
+          args=$(printf 'BACKOFFICE_VERSION=%s\nVCS_REF=%s' "$(node -p "require('./apps/api/package.json').version")" "$GITHUB_SHA")
+          INPUT_API_TAGS=hiennd23/backoffice-api:ci INPUT_API_BUILD_ARGS="$args" pnpm nx run api:container --output-style=static
+          INPUT_WEB_TAGS=hiennd23/backoffice-web:ci INPUT_WEB_BUILD_ARGS="$args" pnpm nx run web:container --output-style=static
+      - name: both images carry the commit
+        run: |
+          for app in api web; do
+            test "$(docker image inspect -f '{{index .Config.Labels "org.opencontainers.image.revision"}}' "hiennd23/backoffice-$app:ci")" = "$GITHUB_SHA"
+          done
       # Feature 009: the native isolated-vm addon (Run Script operation) loads in the runtime image.
       - run: docker run --rm hiennd23/backoffice-api:ci node -e "require('isolated-vm')"
-      - run: docker build -f apps/web/Dockerfile -t hiennd23/backoffice-web:ci .
       - run: docker save hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci | gzip > images.tar.gz
       - uses: actions/upload-artifact@v4
         with:
@@ -379,6 +395,87 @@ jobs:
       - if: always()
         run: pnpm nx run parity-tests:env-down --vendor=postgres
 
+  # Feature 019 (T111, contracts/tests.md): the acceptance suite on deploy/compose with 3 BE replicas + 1 Directus, then
+  # the separate-domain mode, with the images of the `docker` job.
+  deploy:
+    needs: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      BACKOFFICE_TAG: ci
+      DEPLOY_KEEP: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - run: pnpm nx run parity-tests:deploy --output-style=static
+      - run: pnpm nx run parity-tests:deploy --output-style=static
+        env:
+          DEPLOY_MODE: separate-domain
+      - name: container logs
+        if: failure()
+        working-directory: deploy/compose
+        run: docker compose -p bo-deploy --env-file .env.deploy-test logs --no-color > deploy.log
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: deploy-logs
+          path: deploy/compose/deploy.log
+      - if: always()
+        working-directory: deploy/compose
+        run: docker compose -p bo-deploy --env-file .env.deploy-test down -v --remove-orphans || true
+
+  # Feature 019 (T112, FR-049): the Helm chart: lint, kubeconform on Kubernetes 1.29 and the template checks, then an
+  # install on kind next to a Directus deployment (ci/deps.yaml): routing, rolling update and HPA scaling under load, the
+  # install-time checks. Tool versions: research.md "Kết quả T001".
+  deploy-k8s:
+    needs: docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: corepack enable
+      - run: pnpm install --frozen-lockfile
+      - uses: actions/download-artifact@v4
+        with:
+          name: images
+      - run: gunzip -c images.tar.gz | docker load
+      - uses: azure/setup-helm@v5.0.1
+        with:
+          version: v4.3.0
+      - name: kubeconform v0.8.0
+        run: |
+          cd "$RUNNER_TEMP"
+          curl -sSfLO https://github.com/yannh/kubeconform/releases/download/v0.8.0/kubeconform-linux-amd64.tar.gz
+          curl -sSfLO https://github.com/yannh/kubeconform/releases/download/v0.8.0/CHECKSUMS
+          grep ' kubeconform-linux-amd64.tar.gz$' CHECKSUMS | sha256sum -c -
+          tar xzf kubeconform-linux-amd64.tar.gz kubeconform
+          echo "$RUNNER_TEMP" >> "$GITHUB_PATH"
+      - run: deploy/helm/backoffice/ci/test-template.sh
+      - uses: helm/kind-action@v1.15.0
+        with:
+          version: v0.33.0
+          cluster_name: bo-deploy
+      - run: deploy/helm/backoffice/ci/kind-test.sh
+        env:
+          KIND_CLUSTER: bo-deploy
+      - name: cluster state
+        if: failure()
+        run: |
+          kubectl get pods -A -o wide
+          kubectl describe pods
+          for p in $(kubectl get pods -o name); do echo "== $p"; kubectl logs "$p" --all-containers --tail=200 || true; done
+
   security:
     runs-on: ubuntu-latest
     steps:
@@ -409,6 +506,8 @@ jobs:
         e2e-directus-app,
         docker,
         e2e-web,
+        deploy,
+        deploy-k8s,
         security,
       ]
     runs-on: ubuntu-latest

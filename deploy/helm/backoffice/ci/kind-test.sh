@@ -17,7 +17,9 @@ api() { curl -s -H 'Host: cms.test' "$@"; }
 kind load docker-image --name "$cluster" hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci
 
 helm repo add traefik https://traefik.github.io/charts >/dev/null
-helm upgrade --install traefik traefik/traefik --version "$traefik_version" --namespace traefik --create-namespace --wait
+# ClusterIP: a LoadBalancer Service never gets an address on kind, and the script reaches Traefik through port-forward.
+helm upgrade --install traefik traefik/traefik --version "$traefik_version" --namespace traefik --create-namespace \
+	--set service.type=ClusterIP --wait
 kubectl apply -f "https://github.com/kubernetes-sigs/metrics-server/releases/download/$metrics_version/components.yaml"
 kubectl -n kube-system patch deployment metrics-server --type=json \
 	-p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'

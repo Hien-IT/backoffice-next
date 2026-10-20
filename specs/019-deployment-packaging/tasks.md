@@ -488,22 +488,22 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 **Purpose**: đưa hai bộ test vào CI làm cổng của `publish` (FR-065), hoàn thiện tài liệu, đóng feature.
 
-- [ ] T110 Sửa `.github/workflows/ci.yml` job `docker`: thay hai lệnh `docker build` bằng `pnpm nx run api:container` và
+- [X] T110 Sửa `.github/workflows/ci.yml` job `docker`: thay hai lệnh `docker build` bằng `pnpm nx run api:container` và
       `pnpm nx run web:container` (R13; thêm setup-node 22, `corepack enable`, `pnpm install --frozen-lockfile` vào job),
       với `INPUT_API_TAGS=hiennd23/backoffice-api:ci`, `INPUT_WEB_TAGS=hiennd23/backoffice-web:ci` và
       `INPUT_API_BUILD_ARGS`/`INPUT_WEB_BUILD_ARGS` = `BACKOFFICE_VERSION=$(node -p
       "require('./apps/api/package.json').version")` và `VCS_REF=$GITHUB_SHA` (mỗi dòng một biến); các bước sau (`docker run
       ... isolated-vm`, `docker save`) giữ nguyên; thêm bước `docker inspect` kiểm nhãn
       `org.opencontainers.image.revision == $GITHUB_SHA`.
-- [ ] T111 [P] Thêm job `deploy` vào `ci.yml` (needs `docker`, `timeout-minutes: 40`): checkout, setup-node 22,
+- [X] T111 [P] Thêm job `deploy` vào `ci.yml` (needs `docker`, `timeout-minutes: 40`): checkout, setup-node 22,
       `pnpm install --frozen-lockfile`, download + load image, tag `:local`, `pnpm nx run parity-tests:deploy`, rồi
       `DEPLOY_MODE=separate-domain pnpm nx run parity-tests:deploy`; `if: failure()` dump `docker compose -p bo-deploy
       logs` thành artifact `deploy.log`; `if: always()` `down -v`.
-- [ ] T112 [P] Thêm job `deploy-k8s` vào `ci.yml` (needs `docker`, `timeout-minutes: 40`): `azure/setup-helm` (bản T001),
+- [X] T112 [P] Thêm job `deploy-k8s` vào `ci.yml` (needs `docker`, `timeout-minutes: 40`): `azure/setup-helm` (bản T001),
       cài `kubeconform` (tải binary bản T001, kiểm checksum), `helm/kind-action` (bản T001), download + load image,
       `deploy/helm/backoffice/ci/test-template.sh`, `deploy/helm/backoffice/ci/kind-test.sh`; `if: failure()` `kubectl
       get pods -A`, `kubectl describe`, log pod api thành artifact.
-- [ ] T113 Thêm `deploy`, `deploy-k8s` vào `needs` của job `publish` trong `ci.yml`; kiểm `actionlint` nếu có trong repo
+- [X] T113 Thêm `deploy`, `deploy-k8s` vào `needs` của job `publish` trong `ci.yml`; kiểm `actionlint` nếu có trong repo
       (không thì `node -e "require('js-yaml').load(...)"`) để YAML hợp lệ.
 - [ ] T114 [P] Hoàn thiện `deploy/README.md`: mục lục; mục "Env Directus bắt buộc" chép ba bảng của spec (bắt buộc, theo
       tình huống, khuyến nghị) kèm lệnh tự kiểm cho compose và manifest thường; "Hai chế độ" (chung domain mặc định, domain riêng); "Probe"
