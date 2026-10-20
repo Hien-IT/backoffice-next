@@ -160,8 +160,9 @@ màu.
 
 - Nightly (`.github/workflows/nightly.yml:2-4`): lịch tắt "cho đến khi xong mọi chức năng". Mọi feature đã xong, có thể
   bật lại `cron: '0 18 * * *'`. Cần kiểm trước: startup test cho các vendor khác (ghi chú cùng file) đã hỗ trợ chưa.
-- Benchmark web "files: next page" đỏ (phiên 018 theo dõi). Ngưỡng p95 trong `SPECKIT-GUIDE.md` §11 không đo lại trong
-  CI thường, chỉ chạy job `benchmark` hằng tuần.
+- ~~Benchmark web "files: next page" đỏ~~: chạy lại 2026-10-20 trên 7fb8faf thì đạt (run 39417286435; 126 / 112 ms so
+  với 113 ms), không sửa code. Ngưỡng p95 trong `SPECKIT-GUIDE.md` §11 không đo lại trong CI thường, chỉ chạy job
+  `benchmark` hằng tuần.
 
 ### 5.4 Vệ sinh tài liệu
 

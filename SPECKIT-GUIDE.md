@@ -545,6 +545,10 @@ spec (đến 019) đã xong.
     cả hai lần đo), với cùng request. Owner chọn (2026-10-20): một bước chỉ tính là chậm khi vượt cả 10 % lẫn 25 ms
     (`WEB_FLOOR_MS`, `webSlower()` của `compare.ts`, dùng cho `web-content.ts` và `web-files-users.ts`).
   - Chạy lại 2026-10-19: presets-list đạt (Bo 635,9 / Directus 682,5 ms, run 39286285717).
+  - Chạy lại `benchmark-web` 2026-10-20 trên 7fb8faf: đạt (run 39417286435). "files: next page" 126 / 112 ms (web →
+    Directus / web → API) so với Directus app 113 ms. Điều tra ở máy cùng ngày (10 000 file, CPU chậm 2–4 lần): tổng
+    thời gian hai bên ngang nhau; Bo gửi request sớm hơn rồi render 25 card sau, Directus làm phần lớn việc trước khi
+    gửi; profile JS gần bằng nhau, không có điểm nóng riêng của Bo. Không sửa code.
 
   Chạy lại một job: `gh workflow run benchmark.yml -f job=<job>`.
 - **Parity GraphQL chập chờn**: đã sửa ở e23595c (2026-10-18). `schema.test.ts` (profile `graphql-nointro`): hai app
