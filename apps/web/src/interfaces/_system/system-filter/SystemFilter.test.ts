@@ -5,6 +5,7 @@
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import { i18n } from '../../../lang/index.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
@@ -62,7 +63,9 @@ type Sample = keyof typeof SAMPLES;
 function setup(value: Record<string, any> | string | null = null, props: Record<string, unknown> = {}) {
 	const wrapper = mount(SystemFilter, {
 		props: { value, collectionName: 'bo_content', ...props },
-		global: { plugins: [i18n] },
+		global: {
+			plugins: [i18n, createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] })],
+		},
 		attachTo: document.body,
 	});
 

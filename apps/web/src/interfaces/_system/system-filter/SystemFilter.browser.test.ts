@@ -4,6 +4,7 @@ import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import { defineComponent, h, ref } from 'vue';
 import { i18n } from '../../../lang/index.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
@@ -40,7 +41,12 @@ const Harness = defineComponent(() => {
 });
 
 test('Move down with the keyboard reorders the rules and keeps focus on the moved rule', async () => {
-	mount(Harness, { global: { plugins: [i18n] }, attachTo: document.body });
+	mount(Harness, {
+		global: {
+			plugins: [i18n, createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] })],
+		},
+		attachTo: document.body,
+	});
 
 	document.querySelector<HTMLElement>('[aria-label="Options for Title"]')!.focus();
 	await userEvent.keyboard('{Enter}');

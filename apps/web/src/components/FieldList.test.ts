@@ -5,7 +5,9 @@ import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';
 import { nextTick } from 'vue';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import { i18n } from '../lang/index.ts';
+import { useCollectionsStore } from '../stores/collections.ts';
 import { useFieldsStore } from '../stores/fields.ts';
 import { useRelationsStore } from '../stores/relations.ts';
 import { loadSnapshot } from '../test-utils/fixtures.ts';
@@ -23,7 +25,9 @@ beforeEach(() => {
 });
 
 function setup(props: Record<string, unknown> = {}) {
-	return mount(FieldList, { props: { collection: 'bo_rel', ...props }, global: { plugins: [i18n] } });
+	// useFakeVersionField reads the `version` query (useVersions), as in the app.
+	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] });
+	return mount(FieldList, { props: { collection: 'bo_rel', ...props }, global: { plugins: [i18n, router] } });
 }
 
 type Wrapper = ReturnType<typeof setup>;
@@ -61,6 +65,17 @@ describe('FieldList', () => {
 		expect(item(wrapper, 'M2O').attributes('aria-expanded')).toBe('false');
 		expect(item(wrapper, 'Title').attributes('aria-expanded')).toBeUndefined();
 		expect(wrapper.find('[role="tree"]').attributes('aria-label')).toBe('Fields');
+	});
+
+	test('injectVersionField adds the $version field when the collection has versioning (Directus)', async () => {
+		useCollectionsStore().collections = [{ collection: 'bo_rel', meta: { versioning: true } } as any];
+
+		expect(tree(setup()).includes('1:Version')).toBe(false);
+
+		const wrapper = setup({ injectVersionField: true });
+		expect(tree(wrapper)).toContain('1:Version');
+		await item(wrapper, 'Version').trigger('click');
+		expect(wrapper.emitted('add')).toEqual([[['$version']]]);
 	});
 
 	test('clicking a field emits its key', async () => {

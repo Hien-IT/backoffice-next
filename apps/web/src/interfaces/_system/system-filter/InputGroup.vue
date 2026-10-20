@@ -1,13 +1,14 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-filter/input-group.vue -->
 <script setup lang="ts">
-// Backoffice: `$version` (useFakeVersionField) is not ported: the version field is not injected in FieldList yet (see
-// FieldList.vue), so a `$version` rule falls back to a text input like any unknown field. Icon buttons are buttons
-// with labels (FR-027); `{{ }}` braces of the variable input are text around a compact input.
+// Backoffice: icon buttons are buttons with labels (FR-027); `{{ }}` braces of the variable input are text around a
+// compact input.
 import type { FieldFilter } from '@directus/types';
 import { clone, get } from 'lodash-es';
-import { computed, nextTick, onBeforeMount, ref } from 'vue';
+import { computed, nextTick, onBeforeMount, ref, toRef } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../../components/BoIcon.vue';
+import { useCollection } from '../../../composables/use-collection.ts';
+import { useFakeVersionField } from '../../../composables/use-fake-version-field.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
 import { useRelationsStore } from '../../../stores/relations.ts';
 import InputComponent from './InputComponent.vue';
@@ -32,8 +33,17 @@ const fieldsStore = useFieldsStore();
 const relationsStore = useRelationsStore();
 
 const fieldPath = computed(() => getField(props.field));
+const isVersionField = computed(() => fieldPath.value === '$version');
+
+const { info: collectionInfo } = useCollection(computed(() => props.collection));
+const versioningEnabled = computed(() => !!collectionInfo.value?.meta?.versioning && isVersionField.value);
+const { fakeVersionField } = useFakeVersionField(toRef(props, 'collection'), versioningEnabled, isVersionField);
 
 const fieldInfo = computed(() => {
+	if (isVersionField.value) {
+		return fakeVersionField.value;
+	}
+
 	const fieldInfo = fieldsStore.getField(props.collection, fieldPath.value);
 
 	// Alias uses the foreign key type

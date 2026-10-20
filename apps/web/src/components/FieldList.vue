@@ -2,16 +2,18 @@
 <script setup lang="ts">
 // Backoffice: recipe "Search and advanced filter (Q-7)" → Field list and the tree rules of layout-patterns §9. The
 // VFieldListItem recursion becomes one flat `role="tree"` list of `treeitem` rows (aria-level, roving tabindex,
-// Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree (composables/use-field-tree.ts, 016). `injectVersionField` (useFakeVersionField) is left out until the versions feature brings that
-// composable. Groups are opened while searching once per search change (Directus: open + collapse-on-change), then
-// toggle freely. No search highlight (BoTextOverflow has no `highlight`). Readable fields only = the fields store,
-// which holds what `GET /fields` returns for the user, as in Directus.
+// Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree (composables/use-field-tree.ts, 016). Groups
+// are opened while searching once per search change (Directus: open + collapse-on-change), then toggle freely. No
+// search highlight (BoTextOverflow has no `highlight`). Readable fields only = the fields store, which holds what
+// `GET /fields` returns for the user, as in Directus.
 import formatTitle from '@directus/format-title';
 import type { Field } from '@directus/types';
 import { getFunctionsForType } from '@directus/utils';
 import { debounce, isNil } from 'lodash-es';
 import { computed, nextTick, ref, toRefs, unref, useId, watch } from 'vue';
+import { useFakeVersionField } from '../composables/use-fake-version-field.ts';
 import { type FieldNode, useFieldTree } from '../composables/use-field-tree.ts';
+import { useCollectionsStore } from '../stores/collections.ts';
 import { useFieldsStore } from '../stores/fields.ts';
 import { useRelationsStore } from '../stores/relations.ts';
 import BoIcon from './BoIcon.vue';
@@ -32,6 +34,7 @@ const props = withDefaults(
 		disabledFields?: string[];
 		includeFunctions?: boolean;
 		includeRelations?: boolean;
+		injectVersionField?: boolean;
 		relationalFieldSelectable?: boolean;
 		allowSelectAll?: boolean;
 		rawFieldNames?: boolean;
@@ -42,6 +45,7 @@ const props = withDefaults(
 		disabledFields: () => [],
 		includeFunctions: false,
 		includeRelations: true,
+		injectVersionField: false,
 		relationalFieldSelectable: true,
 		allowSelectAll: false,
 		rawFieldNames: false,
@@ -51,6 +55,7 @@ const props = withDefaults(
 
 const emit = defineEmits<{ add: [keys: string[]] }>();
 
+const collectionsStore = useCollectionsStore();
 const fieldsStore = useFieldsStore();
 const relationsStore = useRelationsStore();
 
@@ -73,11 +78,19 @@ const showSearch = computed(() => {
 	return false;
 });
 
+const collectionInfo = computed(() => collectionsStore.getCollection(collection.value));
+const versioningEnabled = computed(() => Boolean(collectionInfo.value?.meta?.versioning && props.injectVersionField));
+const { fakeVersionField } = useFakeVersionField(collection, versioningEnabled);
+
+const injectFields = computed(() => {
+	return fakeVersionField.value ? { fields: [fakeVersionField.value] } : null;
+});
+
 const {
 	treeList: treeListOriginal,
 	loadFieldRelations,
 	refresh,
-} = useFieldTree(collection, undefined, filter, includeRelations);
+} = useFieldTree(collection, injectFields, filter, includeRelations);
 
 const open = ref(new Set<string>());
 

@@ -2,9 +2,8 @@
 <script setup lang="ts">
 // Backoffice: recipe "Search and advanced filter (Q-7)": the rule list is a bordered box (none when `inline`), "Add
 // filter" is a ghost button opening FieldList (readable fields only, functions, lazy relations) in a Reka popover with
-// "And / Or group" on top, as the Directus v-menu + v-field-list `#prepend`. `injectVersionField` is accepted but
-// not used: FieldList has no `$version` field yet (see FieldList.vue). Values, operators and the emitted JSON follow
-// Directus (SC-004).
+// "And / Or group" on top, as the Directus v-menu + v-field-list `#prepend`. Values, operators and the emitted JSON
+// follow Directus (SC-004).
 import type { ClientFilterOperator, FieldFunction, Filter, Type } from '@directus/types';
 import {
 	getFilterOperatorsForType,
@@ -239,6 +238,7 @@ const POPOVER =
 						:collection="collection"
 						include-functions
 						:include-relations="includeRelations"
+						:inject-version-field="injectVersionField"
 						:relational-field-selectable="relationalFieldSelectable"
 						:allow-select-all="false"
 						:raw-field-names="rawFieldNames"

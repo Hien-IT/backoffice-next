@@ -8,6 +8,7 @@ import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import fileSaver from 'file-saver';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import { createMemoryHistory, createRouter } from 'vue-router';
 import { replaceQueue } from '../../api/sdk.ts';
 import { resetNotices, useNotices } from '../../composables/use-notices.ts';
 import { i18n } from '../../lang/index.ts';
@@ -66,7 +67,9 @@ beforeEach(async () => {
 function mountComponent(props: Record<string, unknown> = {}) {
 	return mount(ExportSidebarDetail, {
 		props: { collection: 'bo_content', ...props },
-		global: { plugins: [i18n] },
+		global: {
+			plugins: [i18n, createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] })],
+		},
 		attachTo: document.body,
 	});
 }
