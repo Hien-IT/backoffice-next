@@ -61,10 +61,23 @@ export function parseEnv(text: string): Record<string, string> {
 	return env;
 }
 
+/**
+ * fetch with one retry when the server closed a pooled keep-alive socket as the request went out (undici
+ * UND_ERR_SOCKET, "other side closed"): nothing reached the app, so sending again is safe (CI run 39368507371).
+ */
+async function send(input: URL, init: RequestInit): Promise<Response> {
+	try {
+		return await fetch(input, init);
+	} catch (error) {
+		if ((error as { cause?: { code?: string } }).cause?.code !== 'UND_ERR_SOCKET') throw error;
+		return fetch(input, init);
+	}
+}
+
 /** Access token of the admin of the shared env file, issued by `url`. */
 export async function adminToken(url: string): Promise<string> {
 	const env = sharedEnv();
-	const res = await fetch(new URL('/auth/login', url), {
+	const res = await send(new URL('/auth/login', url), {
 		method: 'POST',
 		headers: { 'content-type': 'application/json' },
 		body: JSON.stringify({ email: env['ADMIN_EMAIL'], password: env['ADMIN_PASSWORD'] }),
@@ -136,7 +149,7 @@ export async function api(
 	path: string,
 	opts: { token?: string; body?: unknown; headers?: Record<string, string> } = {},
 ): Promise<ApiResponse> {
-	const res = await fetch(new URL(path, url), {
+	const res = await send(new URL(path, url), {
 		method,
 		redirect: 'manual',
 		headers: {

@@ -351,3 +351,19 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
 - T097 (`ci/kind-test.sh` trên kind) chưa chạy ở máy: máy không có `kind`, image Directus và Backoffice là amd64 trên máy
   arm64. Kịch bản qua `sh -n`; `deps.yaml` + chart với `values-kind.yaml` qua kubeconform (17 tài nguyên). Chạy thật ở job
   `deploy-k8s` (lượt 4, T112).
+
+## Kết quả CI lượt 4 (run 39368507371) và bản sửa
+
+- `deploy`: `shutdown.test.ts` 20 × 502 trên CI (ở máy 10/10 sạch, rồi tái hiện được 1 lần). Log `lb`: lần thử đầu tới IP
+  của replica đã dừng hết `proxy_connect_timeout` (IP không còn host), lần thử sau ghi upstream `api_pool` (`no live
+  upstreams`). `max_fails=0` (không loại server sau lỗi) chưa đủ. [Inference] Danh sách server của request bị cũ khi
+  `resolve` cập nhật DNS; chưa xác minh trong mã nginx. Sửa ở cấu hình `lb`: `error_page 502 504 = @retry` (chỉ lỗi nginx
+  tự sinh, `proxy_intercept_errors` tắt) chọn lại một lần từ pool hiện tại. 4 lần chạy liên tiếp sau đó: 0 lỗi; log có 71
+  lần `no live upstreams` đều được cứu. Giới hạn ghi trong cấu hình: request bị cắt sau khi đã tới replica (dài hơn
+  `SERVER_SHUTDOWN_TIMEOUT`) bị gửi thêm một lần.
+- `deploy`: `tus.test.ts` lỗi `other side closed` khi gọi Directus: socket keep-alive bị server đóng đúng lúc request
+  đi; helper test thử lại một lần khi `UND_ERR_SOCKET` (chưa có gì tới app).
+- `deploy-k8s`: chart cài được, Ingress định tuyến đúng; `kubectl patch --type=merge` thay cả mảng `containers` của
+  Directus (mất `image`): dùng strategic merge mặc định.
+- SC-001 (T116, ở máy, trước bản sửa `lb`): 10/10 lần `parity-tests:deploy` sạch, 41/41, shutdown 22 218–26 171 request,
+  0 lỗi mỗi lần.

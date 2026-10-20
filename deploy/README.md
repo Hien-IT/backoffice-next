@@ -136,8 +136,9 @@ Khoảng trễ để load balancer gỡ replica ra trước khi nó ngừng nh�
 - Kubernetes: `preStop` `sleep` (chart: `api.shutdownDelaySeconds`, mặc định 10) và `terminationGracePeriodSeconds` (mặc
   định 30).
 - Compose: `lb` không giữ keepalive tới upstream, chuyển request chưa gửi được sang replica khác
-  (`proxy_next_upstream error timeout`) và cắt nhanh kết nối tới IP của replica đã dừng (`proxy_connect_timeout 1s`);
-  `stop_grace_period: 30s`.
+  (`proxy_next_upstream error timeout`), cắt nhanh kết nối tới IP của replica đã dừng (`proxy_connect_timeout 1s`),
+  không loại server sau lỗi (`max_fails=0`) và chọn lại một lần khi chính nginx sinh 502/504 (`error_page ... @retry`,
+  lúc DNS chưa kịp bỏ IP của replica đã dừng); `stop_grace_period: 30s`.
 
 Thời hạn tắt máy phải lớn hơn khoảng trễ + `SERVER_SHUTDOWN_TIMEOUT` + thời gian đóng kết nối. Request dài hơn
 `SERVER_SHUTDOWN_TIMEOUT` (export lớn, chunk TUS chậm) bị cắt khi tắt replica, giống Directus: tăng biến này trong cấu

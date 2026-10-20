@@ -40,7 +40,8 @@ if api "$base/admin/" | grep -q '<div id="app"'; then ok "Ingress /admin -> web"
 if [ "$(api "$base/server/ping")" = pong ]; then ok "Ingress /server/ping -> api"; else fail "Ingress /server/ping -> api"; fi
 
 # Directus joins the pool with the label (Q1: A): requests reach BE pods and the Directus pod.
-kubectl patch deployment directus --type=merge -p '{"spec":{"template":{"metadata":{"labels":{"backoffice.io/api-pool":"bo"}},"spec":{"containers":[{"name":"directus","lifecycle":{"preStop":{"exec":{"command":["sleep","10"]}}}}]}}}}'
+# Strategic merge (the default): containers merge by name; a JSON merge patch would replace the list and drop the image.
+kubectl patch deployment directus -p '{"spec":{"template":{"metadata":{"labels":{"backoffice.io/api-pool":"bo"}},"spec":{"containers":[{"name":"directus","lifecycle":{"preStop":{"exec":{"command":["sleep","10"]}}}}]}}}}'
 kubectl rollout status deployment/directus --timeout=600s
 if [ "$(kubectl get endpoints bo-api -o jsonpath='{.subsets[0].addresses[*].ip}' | wc -w)" -ge 3 ]; then
 	ok "Service bo-api has the BE pods and Directus"
