@@ -228,6 +228,9 @@ catalogs:
     '@types/deep-diff':
       specifier: 1.0.5
       version: 1.0.5
+    '@types/diff':
+      specifier: 7.0.1
+      version: 7.0.1
     '@types/encodeurl':
       specifier: 1.0.3
       version: 1.0.3
@@ -372,6 +375,9 @@ catalogs:
     deep-diff:
       specifier: 1.0.2
       version: 1.0.2
+    diff:
+      specifier: 7.0.0
+      version: 7.0.0
     dompurify:
       specifier: 3.3.2
       version: 3.3.2
@@ -1253,6 +1259,9 @@ importers:
       date-fns-tz:
         specifier: 'catalog:'
         version: 3.2.0(date-fns@4.1.0)
+      diff:
+        specifier: 'catalog:'
+        version: 7.0.0
       dompurify:
         specifier: 'catalog:'
         version: 3.3.2
@@ -1338,6 +1347,9 @@ importers:
       '@types/codemirror':
         specifier: 'catalog:'
         version: 5.60.16
+      '@types/diff':
+        specifier: 'catalog:'
+        version: 7.0.1
       '@types/file-saver':
         specifier: 'catalog:'
         version: 2.0.7
@@ -4836,6 +4848,9 @@ packages:
   '@types/deep-eql@4.0.2':
     resolution: {integrity: sha512-c9h9dVVMigMPc4bwTvC5dxqtqJZwQPePsWjPlpSOnojbor6pGqdk541lfA7AqFQr5pB1BRdq0juY9db81BwyFw==}
 
+  '@types/diff@7.0.1':
+    resolution: {integrity: sha512-R/BHQFripuhW6XPXy05hIvXJQdQ4540KnTvEFHSLjXfHYM41liOLKgIJEyYYiQe796xpaMHfe4Uj/p7Uvng2vA==}
+
   '@types/encodeurl@1.0.3':
     resolution: {integrity: sha512-s10aRcePnVw+iUr5GtTQdzf1GC2jQqkLef2bBUFSX3E52RYnuQ4a7KFHifCFdi4QECiSbyFj7eO9CvZeCnvVkA==}
 
@@ -6094,6 +6109,10 @@ packages:
 
   dezalgo@1.0.4:
     resolution: {integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==}
+
+  diff@7.0.0:
+    resolution: {integrity: sha512-PJWHUb1RFevKCwaFA9RlG5tCd+FO5iRh9A8HEtkmBH2Li03iJriB6m6JIN4rGz3K3JLawI7/veA1xzRKP6ISBw==}
+    engines: {node: '>=0.3.1'}
 
   dijkstrajs@1.0.3:
     resolution: {integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==}
@@ -12945,6 +12964,8 @@ snapshots:
 
   '@types/deep-eql@4.0.2': {}
 
+  '@types/diff@7.0.1': {}
+
   '@types/encodeurl@1.0.3': {}
 
   '@types/esquery@1.5.4':
@@ -14450,6 +14471,8 @@ snapshots:
     dependencies:
       asap: 2.0.6
       wrappy: 1.0.2
+
+  diff@7.0.0: {}
 
   dijkstrajs@1.0.3: {}
 

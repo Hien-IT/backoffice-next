@@ -295,6 +295,48 @@ describe('useComparison', () => {
 			expect(normalizedData.value?.base.id).toBe(1250);
 		});
 
+		it('highlights rich text HTML differences and keeps the raw values for restoring (D-124)', async () => {
+			mockFieldsStore.getFieldsForCollection.mockImplementation(() =>
+				getFieldData().map((field: any) =>
+					field.field === 'description'
+						? { ...field, meta: { ...field.meta, interface: 'input-rich-text-html' } }
+						: field,
+				),
+			);
+
+			const revision = (id: number, description: string) => ({
+				id,
+				collection: 'test_collection',
+				item: 1,
+				data: { title: 'Title', description },
+				delta: { description },
+				activity: { action: 'update', timestamp: '2026-01-13T20:27:50.000Z', user: null },
+			});
+
+			const previous = revision(1250, '<p>Hello world</p>');
+			const current = revision(1280, '<p>Hello brave world</p>');
+
+			const testCase = getTestData('revision', {
+				currentRevisionOverwrites: current,
+				revisionsListOverwrites: [current, previous],
+				previousRevisionOverwrites: previous,
+			});
+
+			mockApi.get.mockImplementation(testCase.mockApiGet);
+
+			const { comparisonData, fetchComparisonData } = useComparison(testCase.comparisonOptions);
+
+			await fetchComparisonData();
+
+			expect(comparisonData.value?.incoming['description']).toBe(
+				'<p>Hello <span class="comparison-diff--added">brave </span>world</p>',
+			);
+
+			expect(comparisonData.value?.base['description']).toBe('<p>Hello world</p>');
+			expect(comparisonData.value?.raw?.incoming['description']).toBe('<p>Hello brave world</p>');
+			expect(comparisonData.value?.raw?.base['description']).toBe('<p>Hello world</p>');
+		});
+
 		it('should use previous revision user and timestamp for base metadata', async () => {
 			const previousRevisionData = {
 				id: 1250,

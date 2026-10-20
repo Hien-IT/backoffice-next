@@ -213,8 +213,8 @@ function usePromote() {
 				const selectedFields = unref(selectedComparisonFields);
 
 				// Get the delta from the comparison data
-				const delta = comparisonData.value!.incoming;
-				const base = comparisonData.value!.base;
+				const delta = comparisonData.value!.raw?.incoming ?? comparisonData.value!.incoming;
+				const base = comparisonData.value!.raw?.base ?? comparisonData.value!.base;
 
 				for (const [field, newValue] of Object.entries(delta)) {
 					if (selectedFields.length > 0 && !selectedFields.includes(field)) continue;

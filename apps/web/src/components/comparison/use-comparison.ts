@@ -1,13 +1,13 @@
 // Ported from directus/app/src/views/private/components/comparison/use-comparison.ts
 // Backoffice: axios -> sdk (FR-001); unexpectedError -> showUnexpectedError; no `collab` mode (D-68: no
-// currentCollab, no `your_version` name). The rich text HTML diff (processRichTextHtmlFields, with
-// use-comparison-diff.ts and reconstruct-comparison-html.ts) is not ported: it needs the `diff` package, which is not a
-// dependency of apps/web; both sides show the plain values and the field is still listed as a difference.
+// currentCollab, no `your_version` name). processRichTextHtmlFields returns copies and a revision comparison keeps the
+// values before the diff markup in `raw`: restoring a revision writes them, not the highlighted HTML (D-124).
 import type { ContentVersion, Field, PrimaryKey, User } from '@directus/types';
 import { getEndpoint } from '@directus/utils';
 import { has, isEqual, mergeWith, orderBy } from 'lodash-es';
 import { computed, type Ref, ref, watch } from 'vue';
 import { requestEndpoint, sdk } from '../../api/sdk.ts';
+import { isHtmlString, useComparisonDiff } from '../../composables/use-comparison-diff.ts';
 import { showUnexpectedError } from '../../composables/use-notices.ts';
 import { i18n } from '../../lang/index.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
@@ -22,6 +22,8 @@ import {
 } from '../../utils/field-utils.ts';
 import { getRevisionFields } from '../../utils/get-revision-fields.ts';
 import { getVersionDisplayName } from '../../utils/get-version-display-name.ts';
+import { reconstructComparisonHtml } from '../../utils/reconstruct-comparison-html.ts';
+import { shouldShowComparisonDiff } from '../../utils/should-show-comparison-diff.ts';
 import { getDefaultValuesFromFields } from '../form/utils/get-default-values-from-fields.ts';
 import type {
 	ComparisonData,
@@ -262,6 +264,54 @@ export function useComparison(options: UseComparisonOptions) {
 		}
 	}
 
+	function processRichTextHtmlFields(
+		base: Record<string, any>,
+		incoming: Record<string, any>,
+		collectionName: string,
+	): { base: Record<string, any>; incoming: Record<string, any> } {
+		const fields = fieldsStore.getFieldsForCollection(collectionName);
+
+		if (!fields || fields.length === 0) {
+			return { base, incoming };
+		}
+
+		const { computeDiff } = useComparisonDiff();
+		const processedBase = { ...base };
+		const processedIncoming = { ...incoming };
+
+		for (const field of fields) {
+			if (field.meta?.interface !== 'input-rich-text-html') continue;
+
+			const fieldKey = field.field;
+			const baseValue = base[fieldKey];
+			const incomingValue = incoming[fieldKey];
+
+			if (baseValue === undefined && incomingValue === undefined) continue;
+
+			if (
+				shouldShowComparisonDiff(true, 'base', baseValue, incomingValue) &&
+				(isHtmlString(baseValue) || isHtmlString(incomingValue))
+			) {
+				const changes = computeDiff(baseValue, incomingValue, field);
+
+				if (changes.length > 0) {
+					const baseHtml = reconstructComparisonHtml(changes, 'base', false);
+					const incomingHtml = reconstructComparisonHtml(changes, 'incoming', false);
+
+					if (baseHtml !== null) {
+						processedBase[fieldKey] = baseHtml;
+					}
+
+					if (incomingHtml !== null) {
+						processedIncoming[fieldKey] = incomingHtml;
+					}
+				}
+			}
+		}
+
+		return { base: processedBase, incoming: processedIncoming };
+	}
+
 	async function buildVersionComparison(version: ContentVersion): Promise<ComparisonData> {
 		try {
 			const data = await get<VersionComparisonResponse>(`/versions/${version.id}/compare`);
@@ -270,9 +320,15 @@ export function useComparison(options: UseComparisonOptions) {
 
 			const mainVersionMeta = await fetchLatestRevisionActivityOfMainVersion(collection.value, primaryKey.value);
 
-			return {
+			const { base: processedBase, incoming: processedIncoming } = processRichTextHtmlFields(
 				base,
-				incoming: incomingMerged,
+				incomingMerged,
+				collection.value,
+			);
+
+			return {
+				base: processedBase,
+				incoming: processedIncoming,
 				mainVersionMeta,
 				selectableDeltas: [version],
 				comparisonType: 'version',
@@ -371,9 +427,16 @@ export function useComparison(options: UseComparisonOptions) {
 		const specialFields = applyValuesToSpecialFields(fields, incoming, base, activity);
 		incoming = mergeWith({}, incoming, specialFields, replaceArraysInMergeCustomizer);
 
-		return {
+		const { base: processedBase, incoming: processedIncoming } = processRichTextHtmlFields(
 			base,
 			incoming,
+			targetCollection,
+		);
+
+		return {
+			base: processedBase,
+			incoming: processedIncoming,
+			raw: { base, incoming },
 			selectableDeltas: revisionsList,
 			revisionFields,
 			comparisonType: 'revision',

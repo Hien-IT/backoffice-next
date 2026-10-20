@@ -57,4 +57,6 @@ export type ComparisonData = {
 	currentVersion?: ContentVersion | null;
 	initialSelectedDeltaId?: number | string | undefined;
 	previousRevision?: Revision | null;
+	/** Backoffice: base and incoming before the rich text diff markup, restored instead of the highlighted HTML. */
+	raw?: { base: Record<string, any>; incoming: Record<string, any> };
 };
