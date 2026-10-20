@@ -1,0 +1,15 @@
+# Feature 019, CI only (T097): the chart on a kind cluster with the images of the CI `docker` job.
+directus:
+  configMap: directus-config
+  secret: directus-secret
+api:
+  image: { tag: ci, pullPolicy: Never }
+  autoscaling: { enabled: true, minReplicas: 2, maxReplicas: 4, targetCPUUtilizationPercentage: 70 }
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 768Mi }
+web:
+  image: { tag: ci, pullPolicy: Never }
+ingress:
+  className: traefik
+  host: cms.test

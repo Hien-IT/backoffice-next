@@ -102,3 +102,95 @@ Khoảng trễ để load balancer gỡ replica ra trước khi nó ngừng nh�
 Thời hạn tắt máy phải lớn hơn khoảng trễ + `SERVER_SHUTDOWN_TIMEOUT` + thời gian đóng kết nối. Request dài hơn
 `SERVER_SHUTDOWN_TIMEOUT` (export lớn, chunk TUS chậm) bị cắt khi tắt replica, giống Directus: tăng biến này trong cấu
 hình chung nếu cần. Client TUS tiếp tục được từ offset ở instance khác.
+
+## Domain riêng
+
+Dùng khi muốn chạy Backoffice ở một domain khác (ví dụ `backoffice.example.com`) bên cạnh Directus đang phục vụ người
+dùng ở domain của nó (ví dụ `cms.example.com`), không chạm vào Deployment, Service, Ingress của Directus. Hai bản dùng
+chung DB, Redis, storage và cùng ConfigMap/Secret; thay đổi ở bản này hiện ngay ở bản kia.
+
+Bản Backoffice chỉ đặt riêng **một** biến: `PUBLIC_URL` = URL của domain Backoffice (ngoại lệ Nguyên tắc VIII, đã duyệt
+T079). Directus dùng `PUBLIC_URL` cho `Location` của TUS, link share và mời, callback SSO, `<base href>` của app; giữ
+giá trị của Directus thì các URL này trỏ sai domain.
+
+- Compose: `docker compose -f docker-compose.yml -f docker-compose.separate-domain.yml up -d --wait` (Directus ở 8090,
+  Backoffice ở 8091). Trên `localhost`, cookie không tách theo cổng nên hai bản dùng chung cookie khi dev (vô hại: cùng
+  `SECRET`).
+- Kubernetes: `helm install ... -f deploy/helm/backoffice/values-separate-domain.yaml` (`domain.publicUrl`, host riêng,
+  Directus không mang nhãn pool).
+
+**Cookie domain.** `REFRESH_TOKEN_COOKIE_DOMAIN`, `SESSION_COOKIE_DOMAIN` không bị đặt riêng. Nếu cấu hình chung có đặt
+mà giá trị không phủ host Backoffice (ví dụ `cms.example.com` với host `backoffice.example.com`), trình duyệt bỏ cookie
+đăng nhập của Backoffice. Chart dừng cài và báo; sửa env Directus: bỏ biến, hoặc đặt domain cha phủ cả hai (ví dụ
+`example.com`). Tự kiểm khi không dùng Helm:
+
+```bash
+kubectl get configmap,secret <tên> -o yaml | grep COOKIE_DOMAIN
+```
+
+**SSO.** IdP phải có callback của domain Backoffice; thêm URL domain Backoffice vào
+`AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST` (và `AUTH_ALLOWED_PUBLIC_URLS` nếu dùng) trong cấu hình chung: thêm giá trị vào
+biến đã có, không thêm biến mới.
+
+**Phiên.** Phiên đăng nhập không chia sẻ giữa hai domain (cookie theo host); cả hai phiên cùng nằm trong
+`directus_sessions` và cùng hợp lệ.
+
+**Cache.** Khóa response cache của Directus không chứa host, nên `/server/specs/oas` (URL theo host) đã cache ở domain
+này có thể được trả ở domain kia, giống hai bản Directus khác domain dùng chung Redis.
+
+## Kubernetes (`deploy/helm/backoffice`)
+
+Chart tạo Deployment, Service cho BE và FE, Ingress chung một domain, HPA cho BE. Chart không khai báo biến Directus
+nào: pod đọc nguyên ConfigMap và Secret mà Deployment Directus đang dùng (`envFrom`; FE chỉ đọc ConfigMap).
+
+```bash
+helm install backoffice deploy/helm/backoffice \
+  --set directus.configMap=directus-config \
+  --set directus.secret=directus-secret \
+  --set ingress.host=cms.example.com
+```
+
+Không dùng Helm: `helm template ... > manifests.yaml` rồi `kubectl apply -f manifests.yaml` (khi đó không có bước kiểm
+cấu hình của chart: tự kiểm theo mục "Ràng buộc khi chạy nhiều instance").
+
+| Value                                                               | Mặc định                    | Ý nghĩa                                                                     |
+| ------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------- |
+| `directus.configMap`, `directus.secret`                             | (bắt buộc)                  | ConfigMap, Secret của Directus                                              |
+| `api.autoscaling.*`                                                 | bật, 2–10 replica, CPU 70 % | HPA `autoscaling/v2` (cần metrics-server)                                   |
+| `api.shutdownDelaySeconds`, `api.terminationGracePeriodSeconds`     | 10, 30                      | `preStop` và thời hạn tắt máy                                               |
+| `apiPool.name`                                                      | tên release                 | nhãn `backoffice.io/api-pool` mà Service của BE chọn                        |
+| `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/directus/uploads` |
+| `ingress.host`, `.className`, `.tls`, `.annotations`, `.extraPaths` |                             | Ingress                                                                     |
+| `domain.publicUrl`                                                  | rỗng                        | chế độ domain riêng: `PUBLIC_URL` của Backoffice                            |
+
+Probe: readiness `/server/health`, liveness và startup `/server/ping` (DB hoặc Redis mất thì pod ra khỏi traffic, không
+bị khởi động lại hàng loạt). Pod chạy non-root (BE 1000, FE 1001), không leo quyền, bỏ mọi capability.
+
+**Kiểm cấu hình khi cài.** Khi `helm install`/`upgrade`, chart đọc ConfigMap và Secret của Directus và dừng nếu cấu hình
+chỉ an toàn cho một instance (thiếu Redis, `CACHE_STORE`/`RATE_LIMITER_STORE`/`SYNCHRONIZATION_STORE` khác `redis`,
+thiếu `SECRET`, SQLite, storage driver `local` không có PVC dùng chung), hoặc, ở chế độ domain riêng, khi cookie domain
+không phủ host Backoffice. Thông báo nêu biến, giá trị và giá trị cần đặt trong env Directus. `helm template` và
+`--dry-run=client` không đọc được cụm nên bỏ qua bước này.
+
+**Đưa Directus vào pool (chung domain).** Thêm vào pod template của Deployment Directus nhãn
+`backoffice.io/api-pool: <apiPool.name>` và `lifecycle.preStop.exec.command: ["sleep", "10"]`, rồi gỡ host đó khỏi
+Ingress của Directus (tránh hai Ingress cùng host). Bỏ nhãn để đưa Directus ra khỏi pool.
+
+**Ingress annotation.** Chart không đặt annotation riêng của controller. Upload lớn cần bỏ giới hạn body và không đệm
+body; request dài cần timeout đọc đủ lâu (FR-051):
+
+- ingress-nginx: `nginx.ingress.kubernetes.io/proxy-body-size: "0"`,
+  `nginx.ingress.kubernetes.io/proxy-request-buffering: "off"`, `nginx.ingress.kubernetes.io/proxy-read-timeout: "300"`.
+- Controller khác (Traefik...): đặt giới hạn body, đệm body và timeout đọc tương đương theo tài liệu của controller (CI
+  019 chạy Traefik với cấu hình mặc định).
+
+**SAML.** Backoffice không có SAML (D-24 của 003). Hệ thống có user SAML định tuyến login SAML về Directus qua
+`ingress.extraPaths`, ví dụ:
+
+```yaml
+ingress:
+  extraPaths:
+    - { path: /auth/login/saml, pathType: Prefix, service: directus, port: 8055 }
+```
+
+(`saml` là tên provider trong `AUTH_PROVIDERS`; path này gồm cả callback `/auth/login/saml/acs`.)

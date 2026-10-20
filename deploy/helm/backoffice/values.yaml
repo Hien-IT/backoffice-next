@@ -1,0 +1,60 @@
+# Feature 019 (specs/019-deployment-packaging/contracts/helm-values.md). The chart declares no Directus variable: the
+# pods read the ConfigMap and Secret the Directus deployment already uses (envFrom).
+directus:
+  # Required: name of the ConfigMap that holds the Directus env (BE and FE read it).
+  configMap: ''
+  # Required: name of the Secret that holds the Directus secrets (BE only).
+  secret: ''
+
+api:
+  image:
+    repository: hiennd23/backoffice-api
+    tag: '' # defaults to the chart appVersion
+    pullPolicy: IfNotPresent
+  # Used when autoscaling is off.
+  replicas: 2
+  autoscaling:
+    enabled: true
+    minReplicas: 2
+    maxReplicas: 10
+    targetCPUUtilizationPercentage: 70
+  resources:
+    requests: { cpu: 250m, memory: 512Mi }
+    limits: { memory: 1Gi }
+  # preStop sleep: the pod keeps serving while the endpoint leaves the Service, then gets SIGTERM (research R4).
+  shutdownDelaySeconds: 10
+  # Must exceed shutdownDelaySeconds + SERVER_SHUTDOWN_TIMEOUT + closing connections.
+  terminationGracePeriodSeconds: 30
+
+# The Service of the API selects every pod with the label backoffice.io/api-pool: <name>. Add the same label to the
+# pod template of a Directus Deployment to put it in the pool (shared domain); leave it out for a separate domain.
+apiPool:
+  name: '' # defaults to the release name
+
+# PVC already used by Directus for STORAGE_LOCATIONS=local (ReadWriteMany), mounted at /directus/uploads.
+uploads:
+  existingClaim: ''
+
+web:
+  image:
+    repository: hiennd23/backoffice-web
+    tag: '' # defaults to the chart appVersion
+    pullPolicy: IfNotPresent
+  replicas: 1
+  resources:
+    requests: { cpu: 50m, memory: 64Mi }
+
+ingress:
+  enabled: true
+  className: ''
+  # Required: the domain of the app (shared domain: the Directus domain; separate domain: the Backoffice domain).
+  host: ''
+  tls: []
+  # Controller annotations (body size, buffering, timeouts): see deploy/README.md.
+  annotations: {}
+  # Paths routed before `/`, e.g. the SAML login of Directus: [{ path: /auth/login/saml, pathType: Prefix, service: directus, port: 8055 }]
+  extraPaths: []
+
+# Separate domain only (FR-071): the PUBLIC_URL of the Backoffice domain. No other variable can be set here.
+domain:
+  publicUrl: ''

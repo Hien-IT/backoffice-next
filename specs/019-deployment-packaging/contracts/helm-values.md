@@ -68,7 +68,7 @@ Mọi chế độ, khi cài/nâng cấp thật (`lookup`). Đọc ConfigMap `dir
 | `SYNCHRONIZATION_STORE` khác `redis` | SYNCHRONIZATION_STORE is not "redis" (scheduled flows run on every instance) | `SYNCHRONIZATION_STORE=redis` |
 | không có `SECRET` | SECRET is not set (each instance generates its own: tokens fail across instances) | `SECRET=<chuỗi cố định>` |
 | `DB_CLIENT` không đặt hoặc `sqlite3` | DB_CLIENT is "sqlite3" or not set (each container has its own database) | `DB_CLIENT=pg` (hoặc vendor đang dùng) + `DB_*` |
-| `STORAGE_LOCATIONS` không đặt hoặc có `local`, và `uploads.existingClaim` rỗng | storage "local" without a shared volume | location `s3`, hoặc đặt `uploads.existingClaim` (PVC RWX) |
+| một location của `STORAGE_LOCATIONS` (mặc định `local`) có `STORAGE_<LOCATION>_DRIVER` = `local` (mặc định của location `local`), và `uploads.existingClaim` rỗng | storage location "<tên>" uses the local driver without a shared volume | location `s3`, hoặc đặt `uploads.existingClaim` (PVC RWX) |
 
 Danh sách đầy đủ, gồm biến theo tình huống và khuyến nghị: spec mục "Env Directus bắt buộc khi chạy nhiều instance".
 

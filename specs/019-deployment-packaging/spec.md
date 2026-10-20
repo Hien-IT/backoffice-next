@@ -431,8 +431,9 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   "Bắt buộc" của mục "Env Directus bắt buộc khi chạy nhiều instance", theo đúng cách Directus đọc biến: không có Redis
   (`REDIS_ENABLED` khác `true` khi có biến này; khi không có thì không có `REDIS` và không có biến `REDIS_*` nào);
   `CACHE_STORE` hoặc `RATE_LIMITER_STORE` là `memory` hoặc không đặt (mặc định `memory`); `SYNCHRONIZATION_STORE` khác
-  `redis` hoặc không đặt; không có `SECRET`; `DB_CLIENT` không đặt hoặc là `sqlite3`; `STORAGE_LOCATIONS` không đặt hoặc
-  có location `local` mà `uploads.existingClaim` rỗng. Thông báo PHẢI nêu từng biến, giá
+  `redis` hoặc không đặt; không có `SECRET`; `DB_CLIENT` không đặt hoặc là `sqlite3`; một location của `STORAGE_LOCATIONS` (mặc định
+  `local`) dùng driver `local` (`STORAGE_<LOCATION>_DRIVER`, mặc định `local` cho location `local`) mà
+  `uploads.existingClaim` rỗng. Thông báo PHẢI nêu từng biến, giá
   trị đang có, ConfigMap/Secret, và giá trị cần đặt trong env của Directus. Compose đặt sẵn các giá trị đúng; tài liệu ghi
   lệnh tự kiểm cho nơi không dùng Helm.
 
@@ -526,6 +527,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - Chủ dự án (2026-10-20): "docker image dùng user 1001" (chọn 1001:1001 cho cả BE và FE), rồi sau khi biết Directus chạy
   uid 1000: "vậy backoffice api dùng user 1000" → BE 1000:1000 như Directus (FR-020 giữ "cùng uid/gid"), FE 1001:1001
   (FR-025).
+- Chủ dự án (2026-10-20, T079): duyệt ngoại lệ Nguyên tắc VIII của Complexity Tracking (chế độ domain riêng đặt riêng
+  `PUBLIC_URL`).
 - Chủ dự án (2026-10-20): bỏ hai nhãn image `org.opencontainers.image.source` và `io.backoffice.directus-compat`
   → FR-022 chỉ còn `title`, `version`, `revision`.
 - Chủ dự án (2026-10-20): dùng image non-root; image Node của BE thêm thư viện chặn tiến trình zombie → FR-025, FR-026

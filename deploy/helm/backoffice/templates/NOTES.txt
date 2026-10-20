@@ -1,0 +1,12 @@
+Backoffice {{ .Chart.AppVersion }} on {{ .Values.ingress.host }}: /admin -> {{ include "backoffice.name" . }}-web, the rest -> {{ include "backoffice.name" . }}-api.
+
+{{- if not .Values.domain.publicUrl }}
+
+To put a Directus Deployment in the API pool (shared domain), add to its pod template:
+  metadata.labels:  backoffice.io/api-pool: {{ include "backoffice.pool" . }}
+  lifecycle.preStop.exec.command: ["sleep", "{{ .Values.api.shutdownDelaySeconds }}"]
+and remove the host {{ .Values.ingress.host }} from the Ingress of Directus.
+{{- else }}
+
+Separate domain: PUBLIC_URL={{ .Values.domain.publicUrl }} for the Backoffice pods; Directus keeps its own domain.
+{{- end }}

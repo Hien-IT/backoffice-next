@@ -1,0 +1,68 @@
+{{- /*
+Feature 019 FR-053, FR-076: read the Directus ConfigMap and Secret at install/upgrade (lookup; `helm template` and
+client dry runs get nothing back and skip the checks) and stop when the shared config is only safe for one instance, or
+when, on a separate domain, a cookie domain variable does not cover the Backoffice host. The fix belongs in the Directus
+env: the chart never overrides these variables. Rules follow how Directus 11.17.4 reads its env
+(redis/utils/redis-config-available.ts, packages/env/src/constants/defaults.ts, synchronization.ts).
+*/ -}}
+{{- define "backoffice.checks" -}}
+{{- $cm := lookup "v1" "ConfigMap" .Release.Namespace .Values.directus.configMap -}}
+{{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.directus.secret -}}
+{{- if or $cm $secret -}}
+{{- $env := dict -}}
+{{- $from := dict -}}
+{{- range $k, $v := (get $cm "data" | default dict) -}}
+{{- $_ := set $env $k (toString $v) -}}{{- $_ := set $from $k (printf "ConfigMap %s" $.Values.directus.configMap) -}}
+{{- end -}}
+{{- range $k, $v := (get $secret "data" | default dict) -}}
+{{- $_ := set $env $k (b64dec $v) -}}{{- $_ := set $from $k (printf "Secret %s" $.Values.directus.secret) -}}
+{{- end -}}
+
+{{- if .Values.domain.publicUrl -}}
+{{- $host := .Values.ingress.host -}}
+{{- range $var := list "REFRESH_TOKEN_COOKIE_DOMAIN" "SESSION_COOKIE_DOMAIN" -}}
+{{- $value := get $env $var -}}
+{{- if $value -}}
+{{- $domain := trimPrefix "." $value -}}
+{{- if not (or (eq $host $domain) (hasSuffix (printf ".%s" $domain) $host)) -}}
+{{- fail (printf "%s=%q in %s does not cover the Backoffice host %q: browsers would drop the Backoffice login cookies. Change the Directus env: remove the variable, or set a parent domain that covers both hosts (for example %q), then install again." $var $value (get $from $var) $host (regexReplaceAll "^[^.]+\\." $host "")) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{- $reasons := list -}}
+{{- $redis := false -}}
+{{- if hasKey $env "REDIS_ENABLED" -}}
+{{- $redis = has (get $env "REDIS_ENABLED") (list "true" "boolean:true") -}}
+{{- else -}}
+{{- range $k, $_ := $env -}}{{- if or (eq $k "REDIS") (hasPrefix "REDIS_" $k) -}}{{- $redis = true -}}{{- end -}}{{- end -}}
+{{- end -}}
+{{- if not $redis -}}
+{{- $reasons = append $reasons "No Redis configured: set REDIS=redis://... (or REDIS_HOST...)" -}}
+{{- end -}}
+{{- range $var := list "CACHE_STORE" "RATE_LIMITER_STORE" -}}
+{{- if ne (get $env $var | default "memory") "redis" -}}
+{{- $reasons = append $reasons (printf "%s is %q: set %s=redis" $var (get $env $var | default "memory") $var) -}}
+{{- end -}}
+{{- end -}}
+{{- if ne (get $env "SYNCHRONIZATION_STORE") "redis" -}}
+{{- $reasons = append $reasons "SYNCHRONIZATION_STORE is not \"redis\" (scheduled flows run on every instance): set SYNCHRONIZATION_STORE=redis" -}}
+{{- end -}}
+{{- if not (get $env "SECRET") -}}
+{{- $reasons = append $reasons "SECRET is not set (each instance generates its own: tokens fail across instances): set SECRET to one fixed value" -}}
+{{- end -}}
+{{- if has (get $env "DB_CLIENT" | default "sqlite3") (list "sqlite3") -}}
+{{- $reasons = append $reasons "DB_CLIENT is \"sqlite3\" or not set (each container has its own database): set DB_CLIENT and DB_* to the shared database" -}}
+{{- end -}}
+{{- range $location := regexSplit "\\s*,\\s*" (get $env "STORAGE_LOCATIONS" | default "local") -1 -}}
+{{- $driver := get $env (printf "STORAGE_%s_DRIVER" (upper $location)) | default (ternary "local" "" (eq $location "local")) -}}
+{{- if and (eq $driver "local") (not $.Values.uploads.existingClaim) -}}
+{{- $reasons = append $reasons (printf "storage location %q uses the local driver without a shared volume: use an s3 location, or set uploads.existingClaim (ReadWriteMany PVC)" $location) -}}
+{{- end -}}
+{{- end -}}
+{{- if $reasons -}}
+{{- fail (printf "%s / %s are only safe for a single instance:\n  - %s\nChange the Directus env, then install again." (printf "ConfigMap %s" .Values.directus.configMap) (printf "Secret %s" .Values.directus.secret) (join "\n  - " $reasons)) -}}
+{{- end -}}
+{{- end -}}
+{{- end -}}

@@ -1,0 +1,46 @@
+{{- $configMap := required "directus.configMap is required (the ConfigMap of the Directus deployment)" .Values.directus.configMap -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "backoffice.name" . }}-web
+  labels:
+    {{- include "backoffice.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.web.replicas }}
+  selector:
+    matchLabels:
+      {{- include "backoffice.selector" (dict "Release" .Release "component" "web") | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "backoffice.selector" (dict "Release" .Release "component" "web") | nindent 8 }}
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        runAsGroup: 1001
+        fsGroup: 1001
+      containers:
+        - name: web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          securityContext:
+            {{- include "backoffice.securityContext" . | nindent 12 }}
+          ports:
+            - { name: http, containerPort: 8080 }
+          # The ConfigMap only: the app reads PUBLIC_URL and CONTENT_SECURITY_POLICY_*, never a secret.
+          envFrom:
+            - configMapRef: { name: {{ $configMap }} }
+          {{- with .Values.domain.publicUrl }}
+          env:
+            - { name: PUBLIC_URL, value: {{ . | quote }} }
+          {{- end }}
+          readinessProbe:
+            httpGet: { path: /admin/config.json, port: http }
+            periodSeconds: 5
+          livenessProbe:
+            httpGet: { path: /admin/config.json, port: http }
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}

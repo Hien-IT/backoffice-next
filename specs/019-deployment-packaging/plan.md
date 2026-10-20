@@ -72,7 +72,7 @@ Directus (trừ FR-071); làm trên `main`, phối hợp push qua phiên 018.
 - [x] VII. Trọng tâm feature: FE runtime config, nhiều replica, storage dùng chung (S3/PVC RWX), khởi động chỉ đọc, SIGTERM
   an toàn, chung domain. Redis bắt buộc cho cache, rate limiter, lock flow theo lịch: compose đặt `CACHE_STORE`,
   `RATE_LIMITER_STORE`, `SYNCHRONIZATION_STORE` là `redis`; chart dừng cài khi cấu hình chung thiếu (FR-053).
-- [ ] VIII. Ngoại lệ: chế độ domain riêng đặt riêng `PUBLIC_URL` — xem Complexity
+- [x] VIII. Ngoại lệ đã duyệt (T079, 2026-10-20): chế độ domain riêng đặt riêng `PUBLIC_URL` — xem Complexity
   Tracking. Chế độ chung domain: không biến nào.
 - [x] IX. Image, chart, nhãn mang tên Backoffice; giữ cổng, path, tên biến của Directus.
 - [x] X. Không đổi hiệu năng; log của compose/chart là log JSON sẵn có; không gửi email.
@@ -141,4 +141,4 @@ tests/parity/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because | Duyệt |
 |-----------|------------|-------------------------------------|-------|
-| Nguyên tắc VIII: chế độ domain riêng đặt riêng `PUBLIC_URL` | Chủ dự án yêu cầu bản Backoffice ở domain khác (2026-10-20). Directus dùng `PUBLIC_URL` cho `Location` TUS, link mời, share, đặt lại mật khẩu, callback SSO, `<base href>` (R10); giữ giá trị của Directus thì các URL đó trỏ sai domain | Dùng nguyên `PUBLIC_URL` của Directus và CORS: TUS và link vẫn về domain Directus, không đạt US9 kịch bản 3, 5. Map env tự do trong chart: mở đường khai báo lại mọi biến, trái FR-046 | chờ tech lead (Governance: vi phạm chỉ được chấp nhận khi tech lead duyệt; T079, trước Phase 9) |
+| Nguyên tắc VIII: chế độ domain riêng đặt riêng `PUBLIC_URL` | Chủ dự án yêu cầu bản Backoffice ở domain khác (2026-10-20). Directus dùng `PUBLIC_URL` cho `Location` TUS, link mời, share, đặt lại mật khẩu, callback SSO, `<base href>` (R10); giữ giá trị của Directus thì các URL đó trỏ sai domain | Dùng nguyên `PUBLIC_URL` của Directus và CORS: TUS và link vẫn về domain Directus, không đạt US9 kịch bản 3, 5. Map env tự do trong chart: mở đường khai báo lại mọi biến, trái FR-046 | Duyệt (chủ dự án, 2026-10-20, T079) |

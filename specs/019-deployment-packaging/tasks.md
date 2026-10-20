@@ -167,7 +167,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       tự khớp mốc T001 (f); biến `CONTENT_SECURITY_POLICY_*` khác → cảnh báo stderr; thêm `csp.inc` mặc định (rỗng hợp
       lệ) vào image để nginx khởi động được nếu script không chạy. Sửa `apps/web/Dockerfile`: `COPY` csp mặc định, `ARG
       BACKOFFICE_VERSION VCS_REF` + `LABEL org.opencontainers.image.{title,version,revision,source}` (FR-022).
-- [ ] T023 [US8] Build `hiennd23/backoffice-web:local` bằng `INPUT_WEB_BUILD_ARGS="VCS_REF=$(git rev-parse HEAD)" pnpm nx
+- [X] T023 [US8] Build `hiennd23/backoffice-web:local` bằng `INPUT_WEB_BUILD_ARGS="VCS_REF=$(git rev-parse HEAD)" pnpm nx
       run web:container` (R13), chạy T020 xanh;
       chạy lại E2E `apps/web-e2e` cấu hình `proxy-directus` một spec khói (`login`) trên env parity (hỏi 018 trước khi
       `env-up`) để chắc `nginx.conf` mới không phá `web` profile.
@@ -210,7 +210,7 @@ Directus đo ở T001 (f) và với Directus chạy cùng env ghi đè.
       `INPUT_API_BUILD_ARGS`, R13), chạy T030 xanh; ghi vào `deploy/README.md`
       (tạo file, mục "Thay image Directus bằng Backoffice") các giới hạn FR-024: DB phải đã bootstrap, bỏ `command`/`args`
       gọi CLI Directus, extension không chạy, `SERVE_APP` chỉ cảnh báo, `PM2_*` bị bỏ qua (scale bằng replica).
-- [ ] T033 [US1] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests web`; `parity-tests:deploy` xanh
+- [X] T033 [US1] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p parity-tests web`; `parity-tests:deploy` xanh
       (smoke, web-image, image-swap); commit `feat(019): FE image serves /admin like Directus with CSP from env; OCI
       labels; deploy compose base and test harness` (Co-Authored-By theo quy ước); gửi hash + path cho 018; chờ id run;
       CI xanh (job `docker`, `e2e-web` phải còn xanh vì `nginx.conf` đổi); `graphify update .`.
@@ -365,20 +365,18 @@ FR-064, SC-002).
 **Independent Test**: `DEPLOY_MODE=separate-domain`: Directus ở 8090, Backoffice ở 8091; `Location` TUS và link mời theo
 8091; sửa ở 8090 thấy ở 8091.
 
-- [ ] T079 [US9] Xin tech lead duyệt ngoại lệ Nguyên tắc VIII trong Complexity Tracking của
+- [X] T079 [US9] Xin tech lead duyệt ngoại lệ Nguyên tắc VIII trong Complexity Tracking của
       `specs/019-deployment-packaging/plan.md` (chế độ domain riêng đặt riêng `PUBLIC_URL`; Governance: vi phạm chỉ được
       chấp nhận khi tech lead duyệt): gửi dòng đó kèm FR-071, FR-076 cho chủ dự án qua chat; ghi kết quả vào cột "Duyệt"
       của plan và mục Clarifications của spec. Bị từ chối thì dừng Phase 9 và hỏi hướng khác.
 
 ### Tests cho User Story 9
 
-- [ ] T080 [P] [US9] Viết `deploy-tests/separate-domain.test.ts` (chỉ chạy khi `DEPLOY_MODE=separate-domain`, `describe.skipIf`):
+- [X] T080 [P] [US9] Viết `deploy-tests/separate-domain.test.ts` (chỉ chạy khi `DEPLOY_MODE=separate-domain`, `describe.skipIf`):
       (1) `GET http://127.0.0.1:8090/admin` trả app Directus (body có `directus`), `GET :8091/admin` trả app Backoffice
       (`config.json` `apiUrl` = `http://localhost:8091`); (2) `POST /files/tus` qua 8091 → `Location` bắt đầu
-      `http://localhost:8091/files/tus/`; (3) link sinh từ `PUBLIC_URL`: tạo share trên collection mẫu rồi `POST
-      /shares/invite` qua 8091 (D-36 của 010: không gửi mail, log một dòng cảnh báo mỗi email chứa URL
-      `PUBLIC_URL/admin/shared/<id>`) → `docker compose logs backoffice-api` có `http://localhost:8091/admin/shared/<id>`
-      (user invite không dùng được: dòng log D-27 không chứa URL); (4)
+      `http://localhost:8091/files/tus/`; (3) bỏ: dòng log share invite (D-36) và user invite (D-27) không chứa URL
+      (`apps/api/src/services/shares.service.ts:166-173`), `PUBLIC_URL` được kiểm qua `Location` TUS (2) và env (7); (4)
       `POST /collections` qua 8090 (Directus) → `GET /collections/<name>` qua 8091 200 ngay; `PATCH /settings` qua 8091
       → `GET /settings` qua 8090 thấy ngay; (5) `Set-Cookie` của `POST /auth/login` `mode: session` qua 8091 không có
       `Domain=`; (6) 50 request qua 8091 chỉ rơi vào `backoffice-api` trong log `lb` (không `directus:8055`); 20 request
@@ -387,14 +385,14 @@ FR-064, SC-002).
 
 ### Implementation cho User Story 9
 
-- [ ] T081 [US9] Viết `compose/docker-compose.separate-domain.yml` (`backoffice-api`, `backoffice-web`: `environment:
+- [X] T081 [US9] Viết `compose/docker-compose.separate-domain.yml` (`backoffice-api`, `backoffice-web`: `environment:
       PUBLIC_URL: http://localhost:8091`; `lb`: cổng 8090 và 8091, mount `lb/separate-domain.conf`) và
       `compose/lb/separate-domain.conf` theo `contracts/compose.md` (8090 → `directus:8055` mọi path; 8091 → `/admin` web,
       còn lại `upstream bo_pool` chỉ `backoffice-api`); cùng các chỉ thị proxy của T012.
-- [ ] T082 [US9] Sửa `deploy-tests/global-setup.ts` nếu cần (override, chờ 8091); chạy `DEPLOY_MODE=separate-domain pnpm
+- [X] T082 [US9] Sửa `deploy-tests/global-setup.ts` nếu cần (override, chờ 8091); chạy `DEPLOY_MODE=separate-domain pnpm
       nx run parity-tests:deploy` → T080 xanh; các test chung domain `skipIf` ở chế độ này trừ `smoke`, `sessions`,
       `schema` (chạy được với 3 replica + Directus gọi thẳng, không qua lb).
-- [ ] T083 [US9] Ghi `deploy/README.md` mục "Domain riêng": khi nào dùng, chỉ `PUBLIC_URL` được đặt riêng (FR-071) và lý do
+- [X] T083 [US9] Ghi `deploy/README.md` mục "Domain riêng": khi nào dùng, chỉ `PUBLIC_URL` được đặt riêng (FR-071) và lý do
       (các chỗ Directus dùng `PUBLIC_URL`, R10), SSO (callback của domain B ở IdP; thêm URL domain B vào
       `AUTH_<PROVIDER>_REDIRECT_ALLOW_LIST`, `AUTH_ALLOWED_PUBLIC_URLS` của cấu hình chung), cookie, giới hạn cache
       `/server/specs/oas` chung host, phiên không chia sẻ giữa hai domain; mục "Cookie domain" (FR-076): bảng
@@ -413,7 +411,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ### Tests cho User Story 7
 
-- [ ] T090 [P] [US7] Viết `deploy/helm/backoffice/ci/test-template.sh` (POSIX sh, chạy được local và CI): `helm lint
+- [X] T090 [P] [US7] Viết `deploy/helm/backoffice/ci/test-template.sh` (POSIX sh, chạy được local và CI): `helm lint
       chart/`; `helm template bo chart/ --set directus.configMap=cm --set directus.secret=sec --set
       ingress.host=h.test > /tmp/a.yaml`; `kubeconform -strict -kubernetes-version 1.29.0 -summary /tmp/a.yaml`; kiểm
       bằng `grep`/`yq` (nếu có, không thì `grep -c`): không có `name: PUBLIC_URL` trong a.yaml; `envFrom` có `cm` và
@@ -425,7 +423,7 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       biến khác; không có `COOKIE_DOMAIN` nào trong output ở mọi bộ values; với `--set
       uploads.existingClaim=pvc` có volume ở `/directus/uploads`; `--set ingress.extraPaths[0].path=/auth/login/saml`…
       ra trước `/`. Chạy đỏ (chưa có chart).
-- [ ] T091 [P] [US7] Viết `deploy/helm/backoffice/ci/kind-test.sh`: tạo cụm kind (bản T001), `kind load docker-image`
+- [X] T091 [P] [US7] Viết `deploy/helm/backoffice/ci/kind-test.sh`: tạo cụm kind (bản T001), `kind load docker-image`
       hai image `:local`, cài Traefik (chart bản T001) với `hostPort` 80, `kubectl apply -f ci/deps.yaml` (Postgres,
       Redis, MinIO, `minio-init` Job, Directus 11.17.4 Deployment + ConfigMap `directus-config` + Secret
       `directus-secret` với cùng khóa như `compose/.env.example`, `PUBLIC_URL=http://cms.test`), chờ Directus Ready; `helm
@@ -445,23 +443,23 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
 
 ### Implementation cho User Story 7
 
-- [ ] T092 [US7] Viết `chart/Chart.yaml` (`apiVersion: v2`, `name: backoffice`, `version: 0.1.0`, `appVersion` = version
+- [X] T092 [US7] Viết `chart/Chart.yaml` (`apiVersion: v2`, `name: backoffice`, `version: 0.1.0`, `appVersion` = version
       của `apps/api/package.json`, `kubeVersion: ">=1.29.0-0"`), `chart/values.yaml` đúng bảng `contracts/helm-values.md`
       (kèm comment từng key), `chart/values-separate-domain.yaml` (ví dụ trong contract), `chart/templates/_helpers.tpl`
       (tên, nhãn chuẩn `app.kubernetes.io/*`, nhãn pool), `chart/.helmignore`.
-- [ ] T093 [P] [US7] Viết `chart/templates/api-deployment.yaml` (envFrom `required`, `env` chỉ `PUBLIC_URL` khi
+- [X] T093 [P] [US7] Viết `chart/templates/api-deployment.yaml` (envFrom `required`, `env` chỉ `PUBLIC_URL` khi
       `domain.publicUrl` khác rỗng, probe theo `contracts/images.md`, `lifecycle.preStop.exec sleep`, `terminationGracePeriodSeconds`,
       `strategy`, `securityContext` uid/gid/fsGroup 1000 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
       `capabilities.drop: [ALL]` (FR-025), `resources`, volume `uploads.existingClaim`, `replicas` chỉ khi autoscaling
       tắt), `chart/templates/api-service.yaml` (selector chỉ nhãn pool), `chart/templates/api-hpa.yaml`
       (`autoscaling/v2`, CPU utilization).
-- [ ] T094 [P] [US7] Viết `chart/templates/web-deployment.yaml` (envFrom chỉ ConfigMap, `env PUBLIC_URL` khi
+- [X] T094 [P] [US7] Viết `chart/templates/web-deployment.yaml` (envFrom chỉ ConfigMap, `env PUBLIC_URL` khi
       `domain.publicUrl`, probe `/admin/config.json`, uid/gid/fsGroup 1001 + `runAsNonRoot`, `allowPrivilegeEscalation: false`,
       `capabilities.drop: [ALL]` (FR-025), `resources`), `chart/templates/web-service.yaml`,
       `chart/templates/ingress.yaml` (`ingress.extraPaths` trước, `/admin` Prefix → web 8080, `/` Prefix → api 8055,
       `className`, `tls`, `annotations`), `chart/templates/NOTES.txt` (URL, cách thêm nhãn pool cho Directus, chế độ domain
       riêng).
-- [ ] T095 [P] [US7] Viết `chart/templates/_checks.tpl` (FR-076, research R7): khi `domain.publicUrl` khác rỗng, `lookup`
+- [X] T095 [P] [US7] Viết `chart/templates/_checks.tpl` (FR-076, research R7): khi `domain.publicUrl` khác rỗng, `lookup`
       ConfigMap `directus.configMap` và Secret `directus.secret` (giá trị `b64dec`); với `REFRESH_TOKEN_COOKIE_DOMAIN`,
       `SESSION_COOKIE_DOMAIN` có giá trị `v`, `d = trimPrefix "." v`; nếu `ingress.host` ≠ `d` và không kết thúc bằng
       `.d` thì `fail` đúng thông báo trong `contracts/helm-values.md` (tên biến, giá trị, ConfigMap/Secret, host, cách
@@ -470,12 +468,12 @@ Directus; Ingress định tuyến; rolling restart dưới tải 0 lỗi.
       mặc định `memory`, `SYNCHRONIZATION_STORE` phải là `redis`, có `SECRET`, `DB_CLIENT` khác `sqlite3`/rỗng,
       `STORAGE_LOCATIONS` có `local` thì phải có `uploads.existingClaim`), gom mọi lý do vào một `fail`; gọi `include
       "backoffice.checks" .` ở đầu `api-deployment.yaml`.
-- [ ] T096 [US7] Chạy `ci/test-template.sh` xanh (sửa template tới khi `kubeconform` và các `grep` đạt).
+- [X] T096 [US7] Chạy `ci/test-template.sh` xanh (sửa template tới khi `kubeconform` và các `grep` đạt).
 - [ ] T097 [US7] Viết `chart/ci/deps.yaml` và `chart/ci/values-kind.yaml` (image `:local`, `pullPolicy: Never`,
       `directus.configMap=directus-config`, `directus.secret=directus-secret`, `ingress.host=cms.test`,
       `api.autoscaling.enabled=true` với `minReplicas 2`, `resources` nhỏ); chạy `ci/kind-test.sh` local xanh (cần
       Docker đủ RAM; nếu máy không chạy được kind, ghi rõ và để CI T111 kiểm).
-- [ ] T098 [US7] Ghi `deploy/README.md` mục "Kubernetes": cài chart (quickstart), values chính, cách đưa Directus vào pool
+- [X] T098 [US7] Ghi `deploy/README.md` mục "Kubernetes": cài chart (quickstart), values chính, cách đưa Directus vào pool
       (nhãn + `preStop`, gỡ Ingress trùng host; `contracts/helm-values.md`), Ingress annotation cho Traefik và
       ingress-nginx (`proxy-body-size: "0"`, `proxy-request-buffering: "off"`, `proxy-read-timeout`) (FR-051), SAML về
       Directus qua `ingress.extraPaths` với ví dụ `/auth/login/<provider>` và `/auth/login/<provider>/acs` (FR-052,

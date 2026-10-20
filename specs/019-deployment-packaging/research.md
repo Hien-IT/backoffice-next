@@ -339,3 +339,15 @@ Khảo sát 2026-10-20. Đường dẫn `directus/...` là bản Directus 11.17.
   `lb` mất khi teardown. Hai lượt sau (riêng file và toàn bộ theo cùng thứ tự) 41/41, 0 non-2xx; log `lb` chỉ có thử
   lại `502`/`504` rồi `200`. Còn mở: test giờ in `statusCodes`; SC-001 (10 lượt liên tiếp, T116) sẽ cho biết có lặp lại
   không.
+
+## Kết quả lượt 3 (2026-10-20)
+
+- US9: `docker-compose.separate-domain.yml` + `lb/separate-domain.conf`; `separate-domain.test.ts` 6/6 (chỉ chạy với
+  `DEPLOY_MODE=separate-domain`). Ý (3) của T080 bỏ: log share invite không chứa URL.
+- US7: chart `deploy/helm/backoffice` (Helm v4.3.0). `ci/test-template.sh` 40/40: lint, kubeconform 1.29 trên 3 bộ values,
+  các kiểm cấu trúc, và FR-053/FR-076 không cần cụm (bản sao chart thay `lookup` bằng dữ liệu từ values). FR-053 xét
+  driver (`STORAGE_<LOCATION>_DRIVER`), không xét tên location. Directus coi `REDIS=` rỗng là đã có Redis (khóa có mặt);
+  chart theo đúng vậy.
+- T097 (`ci/kind-test.sh` trên kind) chưa chạy ở máy: máy không có `kind`, image Directus và Backoffice là amd64 trên máy
+  arm64. Kịch bản qua `sh -n`; `deps.yaml` + chart với `values-kind.yaml` qua kubeconform (17 tài nguyên). Chạy thật ở job
+  `deploy-k8s` (lượt 4, T112).

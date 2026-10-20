@@ -1,0 +1,39 @@
+{{- if .Values.ingress.enabled }}
+{{- $host := required "ingress.host is required" .Values.ingress.host -}}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "backoffice.name" . }}
+  labels:
+    {{- include "backoffice.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ $host | quote }}
+      http:
+        paths:
+          {{- range .Values.ingress.extraPaths }}
+          - path: {{ .path }}
+            pathType: {{ .pathType | default "Prefix" }}
+            backend:
+              service: { name: {{ .service }}, port: { number: {{ .port }} } }
+          {{- end }}
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service: { name: {{ include "backoffice.name" . }}-web, port: { number: 8080 } }
+          - path: /
+            pathType: Prefix
+            backend:
+              service: { name: {{ include "backoffice.name" . }}-api, port: { number: 8055 } }
+{{- end }}

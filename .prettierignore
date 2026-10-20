@@ -7,3 +7,5 @@ dev/
 graphify-out/
 .nx/
 specs/
+# Helm templates are Go templates, not YAML until rendered (feature 019)
+deploy/helm/*/templates/

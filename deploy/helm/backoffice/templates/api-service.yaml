@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backoffice.name" . }}-api
+  labels:
+    {{- include "backoffice.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  # The pool: BE pods of this release and any Directus pod that carries the same label (spec FR-050).
+  selector:
+    backoffice.io/api-pool: {{ include "backoffice.pool" . }}
+  ports:
+    - { name: http, port: 8055, targetPort: 8055 }

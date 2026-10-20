@@ -1,0 +1,7 @@
+apiVersion: v2
+name: backoffice
+description: Backoffice (API and admin app) next to Directus 11.17.4, on the Directus ConfigMap and Secret
+type: application
+version: 0.1.0
+appVersion: '0.1.0'
+kubeVersion: '>=1.29.0-0'
