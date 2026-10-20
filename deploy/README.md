@@ -17,7 +17,7 @@ pnpm nx run web:container
 Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng-backoffice) ·
 [CSP của app quản trị](#csp-của-app-quản-trị) · [Máy dev](#máy-dev-deploycompose) ·
 [Env Directus bắt buộc](#env-directus-bắt-buộc-khi-chạy-nhiều-instance) · [Tắt máy an toàn](#tắt-máy-an-toàn) ·
-[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice)
+[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice) · [Lệnh CLI](#lệnh-cli)
 
 ## Thay image Directus bằng Backoffice
 
@@ -235,3 +235,37 @@ ingress:
 ```
 
 (`saml` là tên provider trong `AUTH_PROVIDERS`; path này gồm cả callback `/auth/login/saml/acs`.)
+
+## Lệnh CLI
+
+Image Backoffice không có CLI (D-123 của 019). Mọi lệnh CLI chạy bằng image Directus `11.17.4` trên cùng env (cùng DB,
+Redis, storage), trong thư mục `/directus` của image:
+
+| Việc                                  | Lệnh                                                                                                        |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Tạo hoặc nâng schema hệ thống         | `node cli.js bootstrap`, `node cli.js database migrate:latest`                                              |
+| Tạo user, đổi mật khẩu                | `node cli.js users create --email <e> --password <p> --role <id>`                                           |
+|                                       | `node cli.js users passwd --email <e> --password <p>`                                                       |
+| Tạo role                              | `node cli.js roles create --role <tên> --admin`                                                             |
+| Xóa cache (dùng chung với Backoffice) | `node cli.js cache clear` (`--system` hoặc `--data` để xóa một phần)                                        |
+| Đếm item                              | `node cli.js count <collection>`                                                                            |
+| Sinh `KEY`, `SECRET`                  | `node cli.js security key:generate`, `node cli.js security secret:generate`                                 |
+| Schema snapshot, apply                | `node cli.js schema snapshot <file>`, `node cli.js schema apply <file>` (hoặc API `/schema` của Backoffice) |
+
+Migration là việc của Directus: Backoffice không chạy migration và dừng khi migration của DB khác bản Directus 11.17.4
+(D-05 của 001).
+
+Máy dev (`deploy/compose`), qua service `directus` đang chạy:
+
+```bash
+docker compose -p bo-deploy exec directus node cli.js users passwd --email admin@example.com --password '<mật khẩu mới>'
+```
+
+Kubernetes, qua Deployment Directus đang chạy (đổi tên theo cụm):
+
+```bash
+kubectl exec deploy/directus -- node cli.js cache clear
+```
+
+Khi không có pod Directus nào chạy, dùng một Pod hoặc Job tạm bằng image `directus/directus:11.17.4` với cùng `envFrom`
+(ConfigMap, Secret của Directus) và `command: ["node", "cli.js", ...]`.
