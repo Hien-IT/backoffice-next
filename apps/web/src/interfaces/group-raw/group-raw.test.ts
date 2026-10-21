@@ -54,7 +54,7 @@ describe('group-raw on the bo_groups fixture', () => {
 		expect(group.findAll('label').map((label) => label.text())).toEqual(['Raw Text']);
 		expect(inputs(wrapper)).toEqual(['Raw']);
 		expect(group.find('h3').exists()).toBe(false);
-		expect(group.classes()).toEqual(expect.arrayContaining(['col-start-1', 'col-span-2']));
+		expect(group.classes()).toEqual(expect.arrayContaining(['@min-[31.25rem]:col-start-1', '@min-[31.25rem]:col-span-2']));
 		expect(wrapper.emitted('update:modelValue')).toBeUndefined();
 	});
 
