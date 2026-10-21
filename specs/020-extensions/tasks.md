@@ -545,7 +545,7 @@ src/directus-shim` (axe, bàn phím).
 
 ## Phase 12: Polish & Cross-Cutting Concerns — Lượt 3
 
-- [ ] T200 [P] Tài liệu: `specs/020-extensions/spec.md` (Status, bảng D-139 cuối, R-58..R-68), `SPECKIT-GUIDE.md` (020 đã
+- [X] T200 [P] Tài liệu: `specs/020-extensions/spec.md` (Status, bảng D-139 cuối, R-58..R-68), `SPECKIT-GUIDE.md` (020 đã
       xong), `CLAUDE.md` (`update-agent-context.sh claude`, Recent Changes 020), `deploy/README.md` rà lại, memory
 - [ ] T201 Design owner duyệt Q-41..Q-46 (SC-008) với ảnh sáng/tối; `design-system/qa/handoff-checklist.md` ghi ngoại lệ
       chỉ chuột (`VWorkspace`) nếu shim dùng

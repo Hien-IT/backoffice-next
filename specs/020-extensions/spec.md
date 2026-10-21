@@ -3,7 +3,8 @@
 **Feature Branch**: `020-extensions` (làm trên `main` như 012–019, không tạo branch; `specs/020-*` là thư mục feature
 hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-21
-**Status**: Draft
+**Status**: Implemented (2026-10-21; ba lượt trên `main`), chờ duyệt Q-41..Q-46 (design owner) và D-135..D-141,
+R-58..R-68 (owner) trước khi đóng
 **Input**: User description: "Hỗ trợ extension của Directus 11.17.4 trên API mới và app web mới: extension đã build cho
 Directus chạy được mà không cần build lại. Gỡ D-37, phần extensions của D-45, phần Extensions/Marketplace của D-93. Loại
 trong phạm vi: interface, display, layout, module, panel, hook, endpoint, operation, bundle; ngoài phạm vi: theme. API:
