@@ -3,6 +3,7 @@
 // kanban and map options: the first write is a POST, then PATCH), bookmark create/update/delete, and a three-level filter
 // (the `filter` of the PATCH bodies). A fixture admin user (DATA_PREFIX) owns the presets, so the admin's presets of other
 // specs stay out; its presets are reset before each run. proxy-api only.
+import { isDeepStrictEqual } from 'node:util';
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
@@ -98,7 +99,8 @@ function withoutCamera<T>(writes: readonly T[]): T[] {
 		delete (copy as { body?: { layout_options?: { map?: Record<string, unknown> } } }).body?.layout_options?.map?.[
 			'cameraOptions'
 		];
-		if (JSON.stringify(copy) !== JSON.stringify(result.at(-1))) result.push(copy);
+		// Key order differs between writes (the camera comes first or last): compare deeply, not as JSON text.
+		if (!isDeepStrictEqual(copy, result.at(-1))) result.push(copy);
 	}
 	return result;
 }
