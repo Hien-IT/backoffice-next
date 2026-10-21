@@ -291,6 +291,7 @@ overrides:
   fast-xml-parser@>=5.0.0 <5.5.6: 5.5.12 # via @aws-sdk/client-s3
   js-yaml@>=4.0.0 <4.3.2: 4.3.2 # via @directus/utils 13.4.1 (apps/web, feature 013)
   joi@>=18.0.0 <18.2.6: 18.2.6 # via @directus/utils 13.4.1 (apps/web, feature 013), same patch as apps/api
+  nanoid@>=4.0.0 <5.1.16: 5.1.16 # via @directus/composables 11.4.1 (apps/web, spec 020): GHSA-28wg-ghj8-5hjv, GHSA-xwg4-73v4-xw9w, same patch as the catalog
 
 # tar 6 comes with sqlite3 5.1.7 (same as Directus 11.17.4); only sqlite3/deps/extract.js loads it, to unpack the
 # bundled SQLite source when node-gyp builds from source. Runtime code never loads it, and tar 7 would change major

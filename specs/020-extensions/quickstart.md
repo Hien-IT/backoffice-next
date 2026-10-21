@@ -14,8 +14,8 @@ pnpm audit --prod
 ## Bộ extension mẫu
 
 ```bash
-pnpm --filter @backoffice/extension-fixtures run build      # directus-extension build từng package → dist/ (commit)
-pnpm --filter @backoffice/extension-fixtures run pack       # .tgz cho fake registry (commit)
+pnpm --filter @backoffice/extension-fixtures run fixtures:build      # directus-extension build từng package → dist/ (commit)
+pnpm --filter @backoffice/extension-fixtures run fixtures:pack       # .tgz cho fake registry (commit)
 cd apps/web && pnpm exec vitest run ../../tests/fixtures/extensions/fixtures-build.test.ts
 ```
 

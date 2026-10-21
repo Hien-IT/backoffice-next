@@ -5,8 +5,8 @@
 	"type": "module",
 	"description": "Directus 11.17.4 extensions used by the 020 parity, E2E and acceptance tests (specs/020-extensions data-model §9)",
 	"scripts": {
-		"build": "node scripts/build.mjs",
-		"pack": "node scripts/build.mjs --pack",
+		"fixtures:build": "node scripts/build.mjs",
+		"fixtures:pack": "node scripts/build.mjs --pack",
 		"test": "vitest run"
 	},
 	"devDependencies": {
