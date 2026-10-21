@@ -126,7 +126,7 @@ const zoomScale = computed(() => {
 	pointer-events: none;
 }
 
-:global(.dark) .bo-workspace::before {
+.dark .bo-workspace::before {
 	background-image: radial-gradient(var(--color-gray-700) 10%, transparent 10%);
 }
 

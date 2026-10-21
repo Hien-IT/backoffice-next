@@ -195,7 +195,7 @@ const FOCUS =
 	--theme--background: var(--color-white);
 }
 
-:global(.dark) .preview {
+.dark .preview {
 	--theme--primary: var(--color-brand-400);
 	--theme--background: var(--color-gray-900);
 }
