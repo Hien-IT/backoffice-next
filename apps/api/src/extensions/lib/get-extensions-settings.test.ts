@@ -14,7 +14,8 @@ vi.mock('../registry/index.js', () => ({
 	list: vi.fn(),
 }));
 
-vi.mock('./settings-lock.js', () => ({ withSettingsLock: (fn: () => unknown) => fn() }));
+const mockWithSettingsLock = vi.fn((fn: () => unknown) => fn());
+vi.mock('./settings-lock.js', () => ({ withSettingsLock: (fn: () => unknown) => mockWithSettingsLock(fn) }));
 
 vi.mock('../../database/index.js', () => ({
 	default: vi.fn(() => ({})),
@@ -112,6 +113,38 @@ describe('getExtensionsSettings', () => {
 			});
 
 			expect(list).not.toHaveBeenCalled();
+		});
+	});
+
+	// Backoffice: the lock only to write, so a node never waits for it while an uninstall deletes a row (the row would
+	// be created again by the waiting node).
+	describe('settings lock', () => {
+		test('every extension has its row: read without the lock, nothing written', async () => {
+			const row = { id: 'row-1', source: 'registry', folder: 'some-folder', bundle: null, enabled: true };
+			mockReadByQuery.mockResolvedValue([row]);
+
+			const settings = await getExtensionsSettings({
+				local: new Map(),
+				module: new Map(),
+				registry: new Map([['some-folder', mockRegistryExtension]]),
+			});
+
+			expect(settings).toEqual([row]);
+			expect(mockWithSettingsLock).not.toHaveBeenCalled();
+			expect(mockCreateMany).not.toHaveBeenCalled();
+		});
+
+		test('a row to create: created inside the lock', async () => {
+			vi.mocked(list).mockResolvedValue({ data: [], meta: {} } as any);
+
+			await getExtensionsSettings({
+				local: new Map([['local-folder', { ...mockRegistryExtension, local: true }]]),
+				module: new Map(),
+				registry: new Map(),
+			});
+
+			expect(mockWithSettingsLock).toHaveBeenCalledTimes(1);
+			expect(mockCreateMany).toHaveBeenCalledTimes(1);
 		});
 	});
 });

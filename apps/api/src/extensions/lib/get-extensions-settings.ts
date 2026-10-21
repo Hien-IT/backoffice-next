@@ -18,17 +18,26 @@ export const getExtensionsSettings = (maps: {
 	local: Map<string, Extension>;
 	module: Map<string, Extension>;
 	registry: Map<string, Extension>;
-}): Promise<ExtensionSettings[]> => withSettingsLock(() => readAndCreateSettings(maps));
+}): Promise<ExtensionSettings[]> =>
+	// Backoffice: a read-only pass first, without the lock, as Directus reads the rows. Waiting for the lock while another
+	// node holds it let an extension uninstalled meanwhile get its row created again; the lock is taken only to write.
+	readAndCreateSettings(maps, false).then(
+		(settings) => settings ?? withSettingsLock(async () => (await readAndCreateSettings(maps, true))!),
+	);
 
-const readAndCreateSettings = async ({
-	local,
-	module,
-	registry,
-}: {
-	local: Map<string, Extension>;
-	module: Map<string, Extension>;
-	registry: Map<string, Extension>;
-}) => {
+/** With `write` false, returns null instead of changing a row. */
+const readAndCreateSettings = async (
+	{
+		local,
+		module,
+		registry,
+	}: {
+		local: Map<string, Extension>;
+		module: Map<string, Extension>;
+		registry: Map<string, Extension>;
+	},
+	write: boolean,
+): Promise<ExtensionSettings[] | null> => {
 	const database = getDatabase();
 
 	const service = new ExtensionsService({
@@ -149,6 +158,8 @@ const readAndCreateSettings = async ({
 		 * with the package name, too. On a match and if there's no other local extension
 		 * with such a folder name, these settings can be taken over with the folder updated.
 		 */
+		if (!write) return null;
+
 		if (settingsForName && !local.has(extension.name)) {
 			await service.extensionsItemService.updateOne(settingsForName.id, { folder });
 			continue;
@@ -161,6 +172,7 @@ const readAndCreateSettings = async ({
 		const existingSettings = moduleSettings.find((settings) => settings.folder === folder);
 
 		if (!existingSettings) {
+			if (!write) return null;
 			await generateSettingsEntry(folder, extension, 'module');
 		} else if (extension.type === 'bundle') {
 			updateBundleEntriesSettings(extension, existingSettings, moduleSettings);
@@ -171,11 +183,14 @@ const readAndCreateSettings = async ({
 		const existingSettings = registrySettings.find((settings) => settings.folder === folder);
 
 		if (!existingSettings) {
+			if (!write) return null;
 			await generateSettingsEntry(folder, extension, 'registry');
 		} else if (extension.type === 'bundle') {
 			updateBundleEntriesSettings(extension, existingSettings, registrySettings);
 		}
 	}
+
+	if (!write && (removedSettingIds.length > 0 || newSettings.length > 0)) return null;
 
 	if (removedSettingIds.length > 0) {
 		await service.extensionsItemService.deleteMany(removedSettingIds);
