@@ -17,6 +17,8 @@ paths = [
   '''^apps/api/src/utils/redact-object\.test\.ts$''',
   # Feature 019: the credentials of the throwaway kind cluster of the CI job deploy-k8s.
   '''^deploy/helm/backoffice/ci/deps\.yaml$''',
+  # Spec 021: the same throwaway kind credentials for the standalone namespaces.
+  '''^deploy/helm/backoffice/ci/deps-standalone\.yaml$''',
   '''(^|/)node_modules/''',
   '''(^|/)(dist|coverage|graphify-out)/''',
 ]
