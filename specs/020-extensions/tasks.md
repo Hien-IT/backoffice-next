@@ -778,6 +778,10 @@ Lượt 3:
   (3) extension render component toàn cục `interface-input-code` → đăng ký `interface-*`, `interface-options-*`,
   `display-*`, `display-options-*`, `layout-*`, `panel-*`, `panel-options-*`, `operation-overview/options-*` như
   `directus/app/src/{interfaces,displays,layouts,panels,operations}/index.ts` khi bundle có extension app.
+- Thử extension API thật (owner 2026-10-21): `dirserve` (endpoint sandbox, route `/*`) không nạp trên Express 5 (404,
+  Directus 200) → owner chọn Express 4 riêng cho endpoint (D-139 sửa): `express4` + `lib/endpoint-app.ts`, test
+  `endpoint-app.test.ts`, parity `endpoints.test.ts` đổi sang `same` cho cả 6 mục; đo local: hai fixture và `dirserve`
+  trả như Directus, ca async treo cả hai. `telegram-send-message-operation` nạp ở cả hai (không chạy flow: gọi Telegram).
 - Directus thoát (NoSuchKey) khi node đang sync `extensions/.registry/*` mà file bị gỡ giữa chừng: test parity và E2E
   chỉ gỡ sau khi mọi node đã nạp (`loadedEverywhere`); vận hành thật nên tránh gỡ ngay sau khi cài.
 

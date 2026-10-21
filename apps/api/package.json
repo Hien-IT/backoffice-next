@@ -57,6 +57,7 @@
 		"eventemitter2": "catalog:",
 		"exif-reader": "catalog:",
 		"express": "catalog:",
+		"express4": "npm:express@4.21.2",
 		"flat": "catalog:",
 		"graphql": "catalog:",
 		"graphql-compose": "catalog:",

@@ -34,7 +34,8 @@ import type {
 import { isTypeIn, toBoolean } from '@backoffice/utils';
 import { pathToRelativeUrl, processId } from '@backoffice/utils/node';
 import chokidar, { FSWatcher } from 'chokidar';
-import express, { Router } from 'express';
+import type { RequestHandler, Router } from 'express';
+import express4 from 'express4';
 import ivm from 'isolated-vm';
 import { clone, debounce, isPlainObject } from 'lodash-es';
 import PQueue from 'p-queue';
@@ -49,6 +50,7 @@ import getModuleDefault from '../utils/get-module-default.js';
 import { getSchema } from '../schema/get-database-schema.js';
 import { importFileUrl } from '../utils/import-file-url.js';
 import { scheduleSynchronizedJob, validateCron } from '../utils/schedule.js';
+import { createEndpointApp } from './lib/endpoint-app.js';
 import { getExtensionsPath } from './lib/get-extensions-path.js';
 import { getExtensionsSettings } from './lib/get-extensions-settings.js';
 import { getExtensions } from './lib/get-extensions.js';
@@ -117,7 +119,10 @@ export class ExtensionManager {
 	 * Locally scoped express router used for custom endpoints. Allows extensions to dynamically
 	 * register and de-register endpoints without affecting the regular global router
 	 */
-	private endpointRouter: Router = Router();
+	private endpointRouter: Router = express4.Router();
+
+	/** Backoffice (D-139): the Express 4 app around `endpointRouter`, the one mounted in the Express 5 Nest app. */
+	private endpointApp: RequestHandler | null = null;
 
 	/**
 	 * Custom HTML to be injected at the end of the `<head>` tag of the app's index.html
@@ -464,6 +469,15 @@ export class ExtensionManager {
 	 */
 	public getEndpointRouter(): Router {
 		return this.endpointRouter;
+	}
+
+	/**
+	 * Backoffice (D-139): the router inside an Express 4 app, the handler the Express 5 Nest app mounts
+	 * (extensions.module.ts), so endpoint extensions get Express 4 requests and responses as in Directus.
+	 */
+	public getEndpointApp(): RequestHandler {
+		this.endpointApp ??= createEndpointApp(this.endpointRouter);
+		return this.endpointApp;
 	}
 
 	/**
@@ -1025,7 +1039,7 @@ export class ExtensionManager {
 		const nameWithoutType = name.includes(':') ? name.split(':')[0] : name;
 		const routeName = typeof config === 'function' ? nameWithoutType : config.id;
 
-		const scopedRouter = express.Router();
+		const scopedRouter = express4.Router();
 
 		this.endpointRouter.use(`/${routeName}`, scopedRouter);
 

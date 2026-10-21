@@ -290,6 +290,7 @@ overrides:
   vue@<3.5.43: 3.5.43 # @directus/extensions-sdk 17.1.4 (tests/fixtures/extensions) pins vue 3.5.24: same security patch as the catalog, one vue in the tree
   fast-xml-parser@>=5.0.0 <5.5.6: 5.5.12 # via @aws-sdk/client-s3
   js-yaml@>=4.0.0 <4.3.2: 4.3.2 # via @directus/utils 13.4.1 (apps/web, feature 013)
+  path-to-regexp@<0.1.13: 0.1.13 # express4 (express@4.21.2 as Directus, spec 020 D-139) pins 0.1.12: GHSA-37ch-88jc-xwx2
   joi@>=18.0.0 <18.2.6: 18.2.6 # via @directus/utils 13.4.1 (apps/web, feature 013), same patch as apps/api
   nanoid@>=4.0.0 <5.1.16: 5.1.16 # via @directus/composables 11.4.1 (apps/web, spec 020): GHSA-28wg-ghj8-5hjv, GHSA-xwg4-73v4-xw9w, same patch as the catalog
 

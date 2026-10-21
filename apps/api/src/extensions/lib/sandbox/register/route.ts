@@ -1,13 +1,14 @@
 // Ported from directus/api/src/extensions/lib/sandbox/register/route.ts
 import type { IncomingHttpHeaders } from 'node:http';
 import type { RequestHandler, Router } from 'express';
-import express from 'express';
+import express4 from 'express4';
 import type { Reference } from 'isolated-vm';
 import asyncHandler from '../../../../utils/async-handler.js';
 import { callReference } from './call-reference.js';
 
 export function registerRouteGenerator(endpointName: string, endpointRouter: Router) {
-	const router = express.Router();
+	// Backoffice (D-139): an Express 4 router like the endpoint ones (lib/endpoint-app.ts).
+	const router = express4.Router();
 
 	endpointRouter.use(`/${endpointName}`, router);
 

@@ -1,5 +1,6 @@
 // Spec 020 US1 (FR-016, FR-019, T034): the endpoint fixtures at both apps. parity-endpoint-demo answers the same; the
-// Express 4 idioms of parity-endpoint-express4(-path) give the results D-139 expects on Express 5 (T042 records them).
+// Express 4 idioms of parity-endpoint-express4(-path) answer the same too since endpoints run on Express 4 like
+// Directus (D-139 revised 2026-10-21, apps/api/src/extensions/lib/endpoint-app.ts).
 import { beforeAll, describe, expect, it } from 'vitest';
 import { appUrl } from '../directus-api.js';
 import { capture, type Captured, type ParityRequest } from '../parity.js';
@@ -38,50 +39,32 @@ async function both(req: ParityRequest): Promise<{ directus: Captured | 'timeout
 
 const status = (c: Captured | 'timeout') => (c === 'timeout' ? 'timeout' : c.status);
 
-describe('D-139: Express 4 idioms', () => {
-	it('(1) path syntax: the extension registers at Directus, not on Express 5 (404)', async () => {
-		const optional = await both({ path: '/parity-endpoint-express4-path/optional' });
-		expect(status(optional.directus)).toBe(200);
-		expect(status(optional.backoffice)).toBe(404);
-
-		const wild = await both({ path: '/parity-endpoint-express4-path/wild/a/b' });
-		expect(status(wild.directus)).toBe(200);
-		expect(status(wild.backoffice)).toBe(404);
+describe('D-139 revised: Express 4 idioms answer as in Directus', () => {
+	it('(1) path syntax: optional parameter and unnamed wildcard', async () => {
+		await same({ path: '/parity-endpoint-express4-path/optional' });
+		await same({ path: '/parity-endpoint-express4-path/optional/9' });
+		await same({ path: '/parity-endpoint-express4-path/wild/a/b' });
 	});
 
-	it('(2) removed APIs and (3) req.query assignment: 500 on Express 5; res.send(status) sends the number', async () => {
-		for (const path of ['/param?id=1', '/query-assign']) {
-			const result = await both({ path: `/parity-endpoint-express4${path}` });
-			expect(status(result.directus), path).not.toBe(500);
-			expect(status(result.backoffice), path).toBe(500);
-		}
-
-		// Express 4 sends status 201; Express 5 dropped res.send(status) and sends 201 as the body (measured 2026-10-21).
-		const sendStatus = await both({ path: '/parity-endpoint-express4/send-status' });
-		expect(status(sendStatus.directus)).toBe(201);
-		expect(status(sendStatus.backoffice)).toBe(200);
-		expect((sendStatus.backoffice as Captured).text).toBe('201');
+	it('(2) req.param() and res.send(status); (3) req.query assignment', async () => {
+		await same({ path: '/parity-endpoint-express4/param?id=1' });
+		await same({ path: '/parity-endpoint-express4/send-status' });
+		await same({ path: '/parity-endpoint-express4/query-assign' });
 	});
 
-	it('(4) req.host keeps the port; (6) urlencoded bodies are parsed flat', async () => {
-		const host = await both({ path: '/parity-endpoint-express4/host', headers: { host: 'cms.test:8055' } });
-		expect((host.directus as Captured).json).toEqual({ host: 'cms.test' });
-		expect((host.backoffice as Captured).json).toEqual({ host: 'cms.test:8055' });
-
-		const form = await both({
+	it('(4) req.host without the port; (6) an urlencoded body', async () => {
+		await same({ path: '/parity-endpoint-express4/host', headers: { host: 'cms.test:8055' } });
+		await same({
 			method: 'POST',
 			path: '/parity-endpoint-express4/form',
 			headers: { 'content-type': 'application/x-www-form-urlencoded' },
 			body: 'a[b]=1',
 		});
-
-		expect(status(form.directus)).toBe(200);
-		expect(status(form.backoffice)).toBe(200);
 	});
 
-	it('(5) a rejected async handler: 500 on Express 5, Directus does not answer', async () => {
+	it('(5) a rejected async handler: neither app answers', async () => {
 		const result = await both({ path: '/parity-endpoint-express4/async-reject' });
-		expect(status(result.backoffice)).toBe(500);
 		expect(status(result.directus)).toBe('timeout');
+		expect(status(result.backoffice)).toBe('timeout');
 	}, 15_000);
 });

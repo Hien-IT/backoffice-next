@@ -445,6 +445,14 @@ ghi nhận lỗi 500/404 có chủ đích (entry D-139 trong `accepted-differenc
 
 **Phương án bỏ**: `express@4` alias cạnh 5 (owner từ chối, clarify B); chuyển đổi path tự động (không đủ tin cậy).
 
+**Đổi 2026-10-21 (owner chọn cách 2)**: extension registry thật `dirserve` (route `/*`) không nạp trên Express 5 nên
+endpoint chuyển sang Express 4.21.2: `express4` (alias `npm:express@4.21.2`) tạo một app với settings của Directus
+(`trust proxy`, `query parser`), `req.body` mặc định `{}`; app đó được gắn như một middleware thường (không `use(app)`:
+sự kiện `mount` của Express 4 làm request/response kế thừa của Express 5 và mất hàm riêng), đặt prototype Express 4
+trước khi chạy (middleware query của Express 4 chạy trước `init`) và trả prototype cũ khi request ra khỏi app. Router
+endpoint và router của sandbox (`register/route.ts`) là `express4.Router()`. Đo trên hai fixture và `dirserve`: mục 1–6
+giống Directus. Hook `init` vẫn nhận app Express 5. `path-to-regexp` 0.1.12 của Express 4 override lên 0.1.13.
+
 ## R13. Nhiều instance, compose, Helm
 
 **Quyết định**:

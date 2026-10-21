@@ -11,7 +11,7 @@ import { ExtensionsModule } from './extensions.module.js';
 
 const endpointRouter = Router();
 
-vi.mock('./index.js', () => ({ getExtensionManager: () => ({ getEndpointRouter: () => endpointRouter }) }));
+vi.mock('./index.js', () => ({ getExtensionManager: () => ({ getEndpointApp: () => endpointRouter }) }));
 vi.mock('../emitter.js', () => ({ default: { emitInit: vi.fn() } }));
 
 @Controller('server')

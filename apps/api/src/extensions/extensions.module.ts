@@ -17,7 +17,8 @@ export class ExtensionsModule implements OnModuleInit {
 		const app = this.adapterHost.httpAdapter.getInstance<Express>();
 
 		await emitter.emitInit('routes.custom.before', { app });
-		app.use(getExtensionManager().getEndpointRouter());
+		// Express 4 around the endpoint router, as Directus (D-139, lib/endpoint-app.ts).
+		app.use(getExtensionManager().getEndpointApp());
 		await emitter.emitInit('routes.custom.after', { app });
 	}
 }
