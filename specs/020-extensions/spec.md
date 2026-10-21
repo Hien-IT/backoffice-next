@@ -687,7 +687,11 @@ của 012 spec dòng 345 ("app không nạp `/extensions/sources/index.js`"), 01
 | D-139 | Express cấp cho endpoint và hook `init` | Express 4.21.2 | Express 5.2.1: (1) cú pháp path của path-to-regexp 8 (`*` phải có tên `/*splat`, không `?`/`+` sau param, không regex trong chuỗi, nhóm tùy chọn `{/:p}`; path kiểu cũ ném lỗi khi đăng ký); (2) API đã bỏ: `req.param()`, `res.sendfile()`, `app.del()`, `res.json(status, obj)`, `res.send(status)`, `res.redirect('back')`, `res.jsonp(status, obj)`; (3) `req.query` là getter chỉ đọc; (4) `req.host` giữ port, `req.body` `undefined` khi không có body parser; (5) handler async bị reject → `next(err)` (Directus treo); (6) `express.urlencoded` mặc định `extended: false`. `req.query` đã giống Directus (`qs.parse` chép từ Directus, `app-pipeline.ts:40`). Kết quả đo ngày 2026-10-21 (parity `src/extensions/endpoints.test.ts`, T042): (1) ném lúc đăng ký → extension không nạp (cảnh báo `PathError`) → `404`, Directus 200; (2) `req.param()` → 500; `res.send(201)` → 200 với body `201` (Express 5 coi số là body; Directus 201, khác dự kiến 500 ban đầu); (3) gán `req.query` → 500; (4) `req.host` giữ port (`cms.test:8055`, Directus `cms.test`); (6) body urlencoded lồng phân tích phẳng (cả hai 200, giá trị khác); (5) app mới 500, Directus không trả lời (test timeout 5 s). Fixture `parity-endpoint-express4` một route cho mỗi mục; task đầu lượt 1 chạy trên hai app và cập nhật danh sách, mục đổi thì owner duyệt lại khi đóng | Nguyên tắc VI (NestJS 12 trên Express 5, 001); owner chọn B (Clarifications 2026-10-21): không cài Express 4 cạnh Express 5; plan R12 | khác | — |
 | D-138 | Hook `embed` (mã chèn vào `<head>`, `<body>` của app) | Chèn vào `index.html` của Directus app khi API phục vụ app | API nhận đăng ký và kiểm tra như Directus, app web mới không chèn; Directus app vẫn có embed | App web mới là image nginx tĩnh (019); owner chọn không hỗ trợ (Clarifications 2026-10-21) | khác | — |
 
-**Cần xác nhận và rủi ro giữ như Directus** (plan và release-gate 2026-10-21, owner duyệt áp toàn bộ):
+Owner duyệt toàn bộ D-135 đến D-141 (D-140 đã bỏ), gồm kết quả đo D-139 (`res.send(201)` trả 200), ngày 2026-10-21
+(T202).
+
+**Cần xác nhận và rủi ro giữ như Directus** (plan và release-gate 2026-10-21, owner duyệt áp toàn bộ; R-58 đến R-68
+owner duyệt lại 2026-10-21, T202):
 
 - R-58: `directus_extensions` không có unique `(source, folder)`; N node khởi động cùng lúc có thể cùng chèn dòng cho một
   extension local mới. App mới khóa Redis `extensions-settings` giữa các node Backoffice (research R6): thử mỗi 250 ms tối
@@ -715,12 +719,12 @@ cho các mục dưới.
 
 | Mã | Câu hỏi | Trạng thái |
 |----|---------|------------|
-| Q-41 | Settings > Extensions: dòng extension (icon, tên, phiên bản, nguồn, nhãn trạng thái), nhóm theo loại, bundle lồng, menu dòng, trạng thái nạp và rỗng (FR-083) | Mở |
-| Q-42 | Marketplace registry: ô tìm, lọc loại, sắp xếp, dòng extension (icon, tên, chip loại và "installed", mô tả, tác giả có dấu verified, ngày cập nhật, lượt tải, giấy phép), phân trang | Mở |
-| Q-43 | Marketplace trang extension và trang tài khoản: banner, readme, cột metadata (sparkline lượt tải, phiên bản mới nhất, tương thích, giấy phép, kích thước, link), nút cài/manage và trạng thái, trang tài khoản; trạng thái nạp, nạp lại, lỗi, rỗng (FR-087) | Mở |
-| Q-44 | Recipe cho các component mới của shim (plan data-model §7: họ list, card, item group, tab tách rời, breadcrumb, badge, skeleton, overlay, resizeable, highlight, hover, image, icon file, emoji picker, template input, field template, sheet, error, transition) và các component dùng chung mới (`BoPopover` cho `v-menu`, dialog không tiêu đề cho `v-dialog`, select có nhóm/divider); thang z-index và ca lồng (menu shim trong dialog Bo, dialog shim trong drawer Bo; FR-077); ảnh từng shim sáng/tối (SC-008) | Mở |
-| Q-45 | `PrivateView` trong khung TailAdmin: ánh xạ 11 slot và 7 prop (FR-074); `PublicView` (`wide`), `SharedView` (`title`, `inline`) | Mở |
-| Q-46 | Ánh xạ 173 biến `--theme--*` và class `.type-*`, `.form-grid` sang token theme cho sáng và tối (FR-080) | Mở |
+| Q-41 | Settings > Extensions: dòng extension (icon, tên, phiên bản, nguồn, nhãn trạng thái), nhóm theo loại, bundle lồng, menu dòng, trạng thái nạp và rỗng (FR-083) | Duyệt (owner + design owner, 2026-10-21) |
+| Q-42 | Marketplace registry: ô tìm, lọc loại, sắp xếp, dòng extension (icon, tên, chip loại và "installed", mô tả, tác giả có dấu verified, ngày cập nhật, lượt tải, giấy phép), phân trang | Duyệt (owner + design owner, 2026-10-21) |
+| Q-43 | Marketplace trang extension và trang tài khoản: banner, readme, cột metadata (sparkline lượt tải, phiên bản mới nhất, tương thích, giấy phép, kích thước, link), nút cài/manage và trạng thái, trang tài khoản; trạng thái nạp, nạp lại, lỗi, rỗng (FR-087) | Duyệt (owner + design owner, 2026-10-21) |
+| Q-44 | Recipe cho các component mới của shim (plan data-model §7: họ list, card, item group, tab tách rời, breadcrumb, badge, skeleton, overlay, resizeable, highlight, hover, image, icon file, emoji picker, template input, field template, sheet, error, transition) và các component dùng chung mới (`BoPopover` cho `v-menu`, dialog không tiêu đề cho `v-dialog`, select có nhóm/divider); thang z-index và ca lồng (menu shim trong dialog Bo, dialog shim trong drawer Bo; FR-077); ảnh từng shim sáng/tối (SC-008) | Duyệt (owner + design owner, 2026-10-21) |
+| Q-45 | `PrivateView` trong khung TailAdmin: ánh xạ 11 slot và 7 prop (FR-074); `PublicView` (`wide`), `SharedView` (`title`, `inline`) | Duyệt (owner + design owner, 2026-10-21) |
+| Q-46 | Ánh xạ 173 biến `--theme--*` và class `.type-*`, `.form-grid` sang token theme cho sáng và tối (FR-080) | Duyệt (owner + design owner, 2026-10-21) |
 
 ## Clarifications
 

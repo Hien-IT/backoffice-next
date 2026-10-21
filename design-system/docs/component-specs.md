@@ -1809,10 +1809,10 @@ Drafts for the questions Q-36 to Q-39 of `specs/018-insights-activity-notificati
 - Loading: 10 skeleton rows (`h-12 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse`, no pulse with
   `motion-reduce`). Empty: `no_notifications` / `no_results` with a clear-filters button. BoPagination under the list.
 
-## Tier 3 recipes, 020, nháp
+## Tier 3 recipes, 020, duyệt 2026-10-21
 
 Drafts for the questions Q-41 to Q-46 of `specs/020-extensions/spec.md`, written before the code (T003, T101, T170);
-design owner approval before 020 closes (SC-008). Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
 
 ### Extensions list (Q-41; Directus `modules/settings/routes/extensions/*`)
 

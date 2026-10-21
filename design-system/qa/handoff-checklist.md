@@ -71,3 +71,6 @@
   the 8 resize handles are mouse/pointer only, as in Directus; touch on tablets is not guaranteed. Reachable by
   keyboard: edit, "+", Save, Clear Changes, zoom-to-fit, pencil, tile menu (Copy To, Duplicate, Delete), note button,
   panel drawer; the grid box is a focusable region so the keyboard scrolls it. axe does not check dragging.
+- Extension shim `v-workspace` / `v-workspace-tile` (feature 020, SC-007, owner and design owner 2026-10-21): an app
+  extension that edits a workspace drags and resizes tiles with the mouse/pointer only, as the Insights grid above;
+  `v-resizeable` has keyboard handles. Everything else of the shim is keyboard reachable (contract and axe tests).

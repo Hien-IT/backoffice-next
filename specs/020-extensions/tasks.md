@@ -547,9 +547,9 @@ src/directus-shim` (axe, bàn phím).
 
 - [X] T200 [P] Tài liệu: `specs/020-extensions/spec.md` (Status, bảng D-139 cuối, R-58..R-68), `SPECKIT-GUIDE.md` (020 đã
       xong), `CLAUDE.md` (`update-agent-context.sh claude`, Recent Changes 020), `deploy/README.md` rà lại, memory
-- [ ] T201 Design owner duyệt Q-41..Q-46 (SC-008) với ảnh sáng/tối; `design-system/qa/handoff-checklist.md` ghi ngoại lệ
+- [X] T201 Design owner duyệt Q-41..Q-46 (SC-008) với ảnh sáng/tối; `design-system/qa/handoff-checklist.md` ghi ngoại lệ
       chỉ chuột (`VWorkspace`) nếu shim dùng
-- [ ] T202 Owner duyệt khác biệt D-135..D-141, mục "Cần xác nhận và rủi ro" R-58..R-68, D-139 sau T042
+- [X] T202 Owner duyệt khác biệt D-135..D-141, mục "Cần xác nhận và rủi ro" R-58..R-68, D-139 sau T042
 - [ ] T203 Đóng 020: CI xanh ở `quality`, `parity`, `e2e-web`, `deploy`, `deploy-k8s` (SC-009); commit, theo dõi CI
 
 ---
@@ -762,4 +762,11 @@ Lượt 3:
   trong kind; ghi lại cho T192).
 - Quality CI: script `build` của gói fixtures (xóa `dist` tại chỗ) bị `nx run-many -t build` chạy song song với test
   so `dist` → đổi tên `fixtures:build`/`fixtures:pack`. Security: `nanoid` 5.1.16 cho `@directus/composables`.
+- T201, T202 (2026-10-21): owner (kiêm design owner) duyệt hết: Q-41..Q-46, D-135..D-141, R-58..R-68 và các quyết định
+  lúc làm (bundle +12 KB, sandbox abort, Marketplace trước Extensions, vi-VN rơi về en-US, dialog/menu teleport `body`,
+  T177 kind một phần, `MARKETPLACE_TRUST` mặc định); ngoại lệ chỉ chuột `v-workspace` ghi ở handoff-checklist.
+- Thử registry thật `https://registry.directus.io` (owner 2026-10-21, chỉ API chạy từ source ở máy, CI vẫn fake registry):
+  duyệt 341 extension sandbox, trang extension, readme; cài `directus-extension-sortable-gallery` 1.0.1 → registry trả 500
+  cho `/download/848b8c5f…` (cả không `sandbox`), app trả 503 "Could not download the extension" và để lại dòng cha + 2 dòng
+  con bundle như Directus (R-59), gỡ bằng uninstall. Tải của extension khác (group-tabs, computed) trả 200.
 
