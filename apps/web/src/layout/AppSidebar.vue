@@ -212,14 +212,8 @@ function onFocusout(event: FocusEvent) {
 								<span class="flex" :class="extensionsActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
 									<BoIcon name="extension" />
 								</span>
+								<!-- No chevron, like the Content and Settings rows (owner 2026-10-22); aria-expanded tells the state. -->
 								<span class="truncate" :class="{ 'sr-only': !expanded }">{{ $t('extensions') }}</span>
-								<BoIcon
-									v-if="expanded"
-									name="expand_more"
-									size="sm"
-									class="menu-item-arrow ms-auto"
-									:class="extensionsOpen ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive'"
-								/>
 							</button>
 
 							<ul
