@@ -171,10 +171,12 @@ describe('drag and drop keyboard paths (contracts/layouts.md §5)', () => {
 		await vi.waitFor(() => expect(document.activeElement?.closest('[role="menu"]')).not.toBeNull());
 		width.focus();
 		await vi.waitFor(() => expect(document.activeElement).toBe(width));
-		// Select the old value directly: Control+A is "line start" on macOS, which typed "300144" there.
-		width.select();
-		await userEvent.keyboard('300{Enter}');
-		expect(width.value).toBe('300');
+		// fill() replaces the value (typed keys were lost on a loaded runner: '1440' left, CI 39603142732); the commit is
+		// still the keyboard Enter on the input.
+		await userEvent.fill(width, '300');
+		await vi.waitFor(() => expect(width.value).toBe('300'));
+		width.focus();
+		await userEvent.keyboard('{Enter}');
 		await userEvent.keyboard('{Escape}');
 		// The new width goes through the preset and a re-render: slow on a loaded runner (1 s default failed on CI).
 		await vi.waitFor(() => expect(th().getBoundingClientRect().width).toBeGreaterThan(before + 100), {

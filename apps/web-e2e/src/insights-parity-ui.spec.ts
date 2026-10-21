@@ -428,7 +428,11 @@ test('admin: dashboards table, sub-menus, titles, activity table and drawer, not
 
 	expect(directus.activityRows.length).toBeGreaterThan(0);
 	expect(directus.inbox.length).toBeGreaterThan(0);
-	for (const key of Object.keys(directus) as (keyof Ui)[]) expect.soft(backoffice[key], key).toEqual(directus[key]);
+	// The apps are read one after the other: "35 minutes ago" can turn "36 minutes ago" in between (CI 39603142732).
+	const relative = (value: unknown) =>
+		JSON.parse(JSON.stringify(value).replace(/\b\d+ (second|minute|hour)s? ago\b/g, 'N $1(s) ago'));
+	for (const key of Object.keys(directus) as (keyof Ui)[])
+		expect.soft(relative(backoffice[key]), key).toEqual(relative(directus[key]));
 });
 
 test('buttons on, off or absent for the admin and a user who only reads dashboards (SC-004 (f))', async ({
