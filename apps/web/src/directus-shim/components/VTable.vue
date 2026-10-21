@@ -151,9 +151,12 @@ function slotProps(name: string, scope: Record<string, any>) {
 
 <template>
 	<div
-		class="v-table relative overflow-y-auto [&_thead]:top-(--v-table-sticky-offset-top,0)"
+		class="v-table relative overflow-y-auto [&_thead]:top-(--v-table-sticky-offset-top,0) [&_tbody_tr[style]_td]:whitespace-nowrap [&_tbody_tr[style]_td>*]:max-h-(--v-table-row-height) [&_tbody_tr[style]_td>*]:overflow-hidden"
 		:class="fixedHeader ? 'flex max-h-full min-h-0 flex-col' : undefined"
+		:style="{ '--v-table-row-height': `${rowHeight}px` }"
 	>
+		<!-- Rows keep `rowHeight`: cell content taller than the row is clipped, not growing the row (table-row.vue:98-107). Data rows
+		     carry the height style; the empty and loading rows do not. -->
 		<BoTable
 			:columns="columns"
 			:rows="items"

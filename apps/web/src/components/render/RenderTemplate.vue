@@ -168,8 +168,10 @@ function isNullPart(subPart: unknown) {
 </script>
 
 <template>
-	<!-- a nested render-template (e.g. through related-values) stays inline: render-template.vue:194-196 -->
-	<div class="render-template relative h-full max-w-full truncate pe-[0.4375rem] *:align-middle [&_.render-template]:inline">
+	<div
+		class="render-template relative h-full max-w-full truncate pe-[0.4375rem] *:align-middle [&_.render-template]:inline"
+	>
+		<!-- a nested render-template (e.g. through related-values) stays inline: render-template.vue:194-196 -->
 		<span class="inline-block h-full w-0 align-middle" />
 		<template v-for="(part, index) in parts" :key="index">
 			<template v-for="(subPart, subIndex) in part" :key="subIndex">

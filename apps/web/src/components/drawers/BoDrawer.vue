@@ -209,9 +209,11 @@ const FOCUS =
 					>
 						<slot />
 					</main>
+					<!-- Below xl the open sidebar is above the content: at most half the height, scrolling, so main keeps room
+					     (Directus scrolls it with the content, v-drawer.vue:187-219). -->
 					<aside
 						:aria-label="sidebarLabel || $t('sidebar')"
-						class="order-1 shrink-0 border-b border-gray-200 xl:order-2 xl:w-60 xl:overflow-y-auto xl:border-s xl:border-b-0 dark:border-gray-800"
+						class="order-1 shrink-0 border-b border-gray-200 max-xl:max-h-[50%] max-xl:overflow-y-auto xl:order-2 xl:w-60 xl:overflow-y-auto xl:border-s xl:border-b-0 dark:border-gray-800"
 					>
 						<button
 							type="button"

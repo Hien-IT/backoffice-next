@@ -82,12 +82,14 @@ limitWritable.value = selectedSize;
 
 <template>
 	<div
-		class="relative h-[calc(100vh-12rem)] min-h-120 w-full overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+		class="relative h-full min-h-80 w-full flex-1 overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
 		data-layout="map"
 		:aria-busy="loading || geojsonLoading"
 	>
+		<!-- Fills the page content height like Directus `.layout-map { block-size: 100% }` (map.vue:153-157); 20rem at least outside a flex page,
+		     where the map is laid over the box (a percent height of a min-height box is 0). -->
 		<MapView
-			class="transition-opacity motion-reduce:transition-none"
+			class="absolute! inset-0 transition-opacity motion-reduce:transition-none"
 			:class="{ 'opacity-90': loading, 'opacity-40': error || geojsonError || !geometryOptions }"
 			:data="geojson"
 			:feature-id="featureId"

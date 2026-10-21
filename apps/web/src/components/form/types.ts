@@ -41,9 +41,10 @@ export const FORM_FIELD_A11Y: InjectionKey<ComputedRef<FormFieldA11y>> = Symbol(
  * in the two-column grid and in the `with-fill` grid (two 342px columns and the fill column).
  */
 export const WIDTH_CLASSES: Record<string, string> = {
-	half: 'col-start-1 col-span-1',
-	'half-left': 'col-start-1 col-span-1',
-	'half-right': 'col-start-2 col-span-1',
-	full: 'col-start-1 col-span-2',
+	// Below a 31.25rem form (the grid is the `@container`), every field spans the row: _form-grid.scss:22-56.
+	half: 'col-span-full @min-[31.25rem]:col-start-1 @min-[31.25rem]:col-span-1',
+	'half-left': 'col-span-full @min-[31.25rem]:col-start-1 @min-[31.25rem]:col-span-1',
+	'half-right': 'col-span-full @min-[31.25rem]:col-start-2 @min-[31.25rem]:col-span-1',
+	full: 'col-span-full @min-[31.25rem]:col-start-1 @min-[31.25rem]:col-span-2',
 	fill: 'col-span-full',
 };

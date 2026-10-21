@@ -246,4 +246,17 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'No `directus` package, CLI or mail transport for extensions; the deployment and WebSocket services do not exist.',
 	},
+	{
+		id: 'D-142',
+		feature: '020',
+		kind: 'doc',
+		reason:
+			'App shell stacking (sidebar, header and overlays at z-99999), --header-bar-height outside the scroller, Reka modal dialogs disable pointer events on body; minor visual leftovers of the CSS audit.',
+	},
+	{
+		id: 'D-143',
+		feature: '020',
+		kind: 'doc',
+		reason: 'The Roles and Policies lists have no sticky table header.',
+	},
 ];

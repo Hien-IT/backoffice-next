@@ -5,8 +5,9 @@
 // mapped back to the Directus value. `multiple` is BoMultiSelect (groups flattened, `showDeselect` = `allowNone`), a
 // single `allowOther` is BoCombobox (the typed text is the value). Not honoured: `group-toggle` (groups are always
 // open), the search row above 10 items in single mode (Reka typeahead instead), `closeOnContentClick: false`,
-// `placement`, `attached`, `showArrow`, `menuFullHeight`, `itemLabelFontFamily`, `mandatory`; `preview`/`inline` and
-// the count translations in multiple mode; `showDeselect` with a single `allowOther`.
+// `placement`, `attached`, `showArrow`, `itemLabelFontFamily`, `mandatory`; `preview`/`inline` and
+// the count translations in multiple mode; `showDeselect` with a single `allowOther`. The menu is at most 30vh high
+// unless `menuFullHeight` (v-select.vue:290).
 import { get } from 'lodash-es';
 import { computed, useAttrs } from 'vue';
 import BoCombobox from '../../components/BoCombobox.vue';
@@ -160,6 +161,7 @@ const LABEL =
 		<BoMultiSelect
 			v-if="multiple"
 			:id="fieldId"
+			:short-menu="!menuFullHeight"
 			:model-value="Array.isArray(modelValue) ? modelValue : null"
 			:items="flat"
 			:preview-threshold="multiplePreviewThreshold"
@@ -176,6 +178,7 @@ const LABEL =
 		<BoCombobox
 			v-else-if="allowOther"
 			:id="fieldId"
+			:short-menu="!menuFullHeight"
 			:model-value="otherValue"
 			:items="choices"
 			allow-other
@@ -192,6 +195,7 @@ const LABEL =
 		<BoSelect
 			v-else
 			:id="fieldId"
+			:short-menu="!menuFullHeight"
 			:model-value="selectedKey"
 			:items="single.items"
 			:show-deselect="!!showDeselect && !nonEditable"

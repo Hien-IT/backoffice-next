@@ -451,7 +451,7 @@ function getGroupInterface(fieldName: string) {
 <template>
 	<div
 		ref="el"
-		class="grid gap-x-6 gap-y-5"
+		class="@container grid gap-x-6 gap-y-5"
 		:class="withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2'"
 		:aria-busy="loading ? 'true' : undefined"
 	>

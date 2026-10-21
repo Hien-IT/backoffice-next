@@ -54,11 +54,15 @@ const tooltip = computed(
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
+// Template: rows are not text-selectable and long names cut with an ellipsis: FieldSelect.vue:381-382, 515-527
 </script>
 
 <template>
-	<!-- rows are not text-selectable and long names cut with an ellipsis: FieldSelect.vue:381-382, 515-527 -->
-	<div v-if="disabled" class="flex min-h-7 items-center gap-2 text-gray-500 select-none dark:text-gray-400" :title="tooltip">
+	<div
+		v-if="disabled"
+		class="flex min-h-7 items-center gap-2 text-gray-500 select-none dark:text-gray-400"
+		:title="tooltip"
+	>
 		<BoIcon
 			name="lock"
 			size="sm"
@@ -75,8 +79,9 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 			<span
 				class="truncate font-mono text-theme-sm"
 				:class="hidden ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
-				>{{ field.field }}</span
 			>
+				{{ field.field }}
+			</span>
 			<template v-if="field.meta?.required === true">
 				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" aria-hidden="true" />
 				<span class="sr-only">{{ $t('required') }}</span>

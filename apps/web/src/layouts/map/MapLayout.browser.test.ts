@@ -153,7 +153,8 @@ describe.skipIf(!webgl)(SUITE, () => {
 		// the feature click in box select mode adds the item (the zero-size box before it selects nothing, as Directus)
 		await vi.waitFor(() => expect(handleSelect).toHaveBeenCalledWith({ ids: [1], replace: false }));
 		expect(handleClick).toHaveBeenCalledTimes(1);
-		expect(map.getContainer().getBoundingClientRect().height).toBeGreaterThanOrEqual(480);
+		// Outside a flex page (here, the test body) the map keeps the 20rem minimum of the layout box.
+		expect(map.getContainer().getBoundingClientRect().height).toBeGreaterThanOrEqual(300);
 		wrapper.unmount();
 	});
 

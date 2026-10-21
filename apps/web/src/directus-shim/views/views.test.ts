@@ -163,7 +163,9 @@ describe('PublicView and SharedView', () => {
 		const fallback = mountView(SharedView, {}, { default: '<p data-content>c</p>' });
 		expect(fallback.get('h1.type-title').text()).toBe('Access Shared Page');
 		expect(fallback.find('[data-content]').exists()).toBe(true);
-		expect(column(fallback)).toContain('max-w-160');
+		// The Directus shared container (48.125rem), wide content scrolls.
+		expect(column(fallback)).toContain('max-w-[48.125rem]');
+		expect(column(fallback)).toContain('overflow-auto');
 
 		expect(mountView(SharedView, { title: 'Report' }).get('h1.type-title').text()).toBe('Report');
 

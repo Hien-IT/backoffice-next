@@ -418,7 +418,7 @@ const DROP_BAR = 'pointer-events-none fixed z-99999 bg-brand-500';
 		:reset-preset="resetPreset"
 		:clear-filters="clearFilters"
 	>
-		<PrivateView fill :title="title" icon="folder" :breadcrumb="breadcrumb" :class="{ dragging }">
+		<PrivateView fill :title="title" icon="folder" :breadcrumb="breadcrumb">
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 
@@ -487,113 +487,120 @@ const DROP_BAR = 'pointer-events-none fixed z-99999 bg-brand-500';
 				<FilesNavigation :current-folder="folder" :current-special="special" />
 			</template>
 
-			<div aria-live="polite" class="empty:hidden mb-4 flex flex-col gap-3">
-				<BoNotice v-if="showDropEffect" icon="cloud_upload">{{ $t('drop_to_upload') }}</BoNotice>
-				<BoNotice v-if="uploadProgress">
-					<span class="flex flex-col gap-2">
-						<span>
-							{{
-								$t(
-									'upload_files_indeterminate',
-									{ done: uploadProgress.done, total: uploadProgress.total },
-									uploadProgress.total,
-								)
-							}}
+			<!-- While files are dragged over the page only drop zones take the pointer, so dragenter/dragleave do not fire on
+			     every child (collection.vue:704-712); `contents` keeps the fill layout. -->
+			<div
+				class="contents"
+				:class="dragging ? '[&_*]:pointer-events-none [&_[data-dropzone]]:pointer-events-auto' : undefined"
+			>
+				<div aria-live="polite" class="empty:hidden mb-4 flex flex-col gap-3">
+					<BoNotice v-if="showDropEffect" icon="cloud_upload">{{ $t('drop_to_upload') }}</BoNotice>
+					<BoNotice v-if="uploadProgress">
+						<span class="flex flex-col gap-2">
+							<span>
+								{{
+									$t(
+										'upload_files_indeterminate',
+										{ done: uploadProgress.done, total: uploadProgress.total },
+										uploadProgress.total,
+									)
+								}}
+							</span>
+							<BoProgressLinear :value="uploadProgress.percentage" />
 						</span>
-						<BoProgressLinear :value="uploadProgress.percentage" />
-					</span>
-				</BoNotice>
+					</BoNotice>
+				</div>
+
+				<component
+					:is="currentLayout?.component"
+					v-bind="layoutState"
+					v-model:extra-selection="folderSelection"
+					:loading="layoutState.loading || isTransitioning"
+					:has-prepend-content="!isTransitioning && subfolders.length > 0 && !search && !filter"
+					:select-mode="layoutState.selectMode"
+					@select-all="folderSelection = subfolders.map((f) => f.id)"
+				>
+					<template v-if="!special && !search && !filter" #prepend>
+						<FolderSection
+							v-model:selection="folderSelection"
+							:subfolders="subfolders"
+							:any-selection="selection.length > 0"
+						/>
+					</template>
+
+					<template #no-results>
+						<BoInfo v-if="!filter && !search" :title="$t('file_count', 0)" icon="folder">
+							{{ $t('no_files_copy') }}
+
+							<template #append>
+								<BoButton :to="addFileLink">{{ $t('add_file') }}</BoButton>
+							</template>
+						</BoInfo>
+
+						<BoInfo v-else :title="$t('no_results')" icon="search">
+							{{ $t('no_results_copy') }}
+
+							<template #append>
+								<BoButton @click="clearFilters">{{ $t('clear_filters') }}</BoButton>
+							</template>
+						</BoInfo>
+					</template>
+
+					<template #no-items>
+						<BoInfo :title="$t('file_count', 0)" icon="folder">
+							{{ $t('no_files_copy') }}
+
+							<template #append>
+								<BoButton
+									v-bind="createAllowed ? { to: addFileLink } : {}"
+									:disabled="createAllowed === false"
+									:title="createAllowed ? $t('add_file') : $t('not_allowed')"
+								>
+									{{ $t('add_file') }}
+								</BoButton>
+							</template>
+						</BoInfo>
+					</template>
+				</component>
+
+				<RouterView name="addNew" :folder="folder" @upload="refresh" />
+
+				<BoDialog v-model:open="moveToDialogActive" :title="$t('move_to_folder')">
+					<FolderPicker v-model="selectedFolder" />
+					<template #actions>
+						<BoButton variant="secondary" @click="moveToDialogActive = false">{{ $t('cancel') }}</BoButton>
+						<BoButton :loading="moving" @click="moveToFolder">{{ $t('move') }}</BoButton>
+					</template>
+				</BoDialog>
+
+				<DeleteFolderDialog
+					v-if="folderSelection.length > 0"
+					v-model="confirmDelete"
+					:folders="selectedFolderObjects"
+					:all-folders="folders ?? []"
+					@done="onFolderDeleteDone"
+				/>
+
+				<BoDialog
+					v-if="folderSelection.length === 0 && selection.length > 0"
+					v-model:open="confirmDelete"
+					:title="$t('batch_delete_confirm', selection.length)"
+				>
+					<template #actions>
+						<BoButton variant="secondary" @click="confirmDelete = false">{{ $t('cancel') }}</BoButton>
+						<BoButton variant="danger" :loading="deletingFiles" @click="batchDeleteFiles">
+							{{ $t('delete_label') }}
+						</BoButton>
+					</template>
+				</BoDialog>
+
+				<DrawerBatch
+					v-model:active="batchEditActive"
+					:primary-keys="selection as PrimaryKey[]"
+					collection="directus_files"
+					@refresh="refresh"
+				/>
 			</div>
-
-			<component
-				:is="currentLayout?.component"
-				v-bind="layoutState"
-				v-model:extra-selection="folderSelection"
-				:loading="layoutState.loading || isTransitioning"
-				:has-prepend-content="!isTransitioning && subfolders.length > 0 && !search && !filter"
-				:select-mode="layoutState.selectMode"
-				@select-all="folderSelection = subfolders.map((f) => f.id)"
-			>
-				<template v-if="!special && !search && !filter" #prepend>
-					<FolderSection
-						v-model:selection="folderSelection"
-						:subfolders="subfolders"
-						:any-selection="selection.length > 0"
-					/>
-				</template>
-
-				<template #no-results>
-					<BoInfo v-if="!filter && !search" :title="$t('file_count', 0)" icon="folder">
-						{{ $t('no_files_copy') }}
-
-						<template #append>
-							<BoButton :to="addFileLink">{{ $t('add_file') }}</BoButton>
-						</template>
-					</BoInfo>
-
-					<BoInfo v-else :title="$t('no_results')" icon="search">
-						{{ $t('no_results_copy') }}
-
-						<template #append>
-							<BoButton @click="clearFilters">{{ $t('clear_filters') }}</BoButton>
-						</template>
-					</BoInfo>
-				</template>
-
-				<template #no-items>
-					<BoInfo :title="$t('file_count', 0)" icon="folder">
-						{{ $t('no_files_copy') }}
-
-						<template #append>
-							<BoButton
-								v-bind="createAllowed ? { to: addFileLink } : {}"
-								:disabled="createAllowed === false"
-								:title="createAllowed ? $t('add_file') : $t('not_allowed')"
-							>
-								{{ $t('add_file') }}
-							</BoButton>
-						</template>
-					</BoInfo>
-				</template>
-			</component>
-
-			<RouterView name="addNew" :folder="folder" @upload="refresh" />
-
-			<BoDialog v-model:open="moveToDialogActive" :title="$t('move_to_folder')">
-				<FolderPicker v-model="selectedFolder" />
-				<template #actions>
-					<BoButton variant="secondary" @click="moveToDialogActive = false">{{ $t('cancel') }}</BoButton>
-					<BoButton :loading="moving" @click="moveToFolder">{{ $t('move') }}</BoButton>
-				</template>
-			</BoDialog>
-
-			<DeleteFolderDialog
-				v-if="folderSelection.length > 0"
-				v-model="confirmDelete"
-				:folders="selectedFolderObjects"
-				:all-folders="folders ?? []"
-				@done="onFolderDeleteDone"
-			/>
-
-			<BoDialog
-				v-if="folderSelection.length === 0 && selection.length > 0"
-				v-model:open="confirmDelete"
-				:title="$t('batch_delete_confirm', selection.length)"
-			>
-				<template #actions>
-					<BoButton variant="secondary" @click="confirmDelete = false">{{ $t('cancel') }}</BoButton>
-					<BoButton variant="danger" :loading="deletingFiles" @click="batchDeleteFiles">
-						{{ $t('delete_label') }}
-					</BoButton>
-				</template>
-			</BoDialog>
-
-			<DrawerBatch
-				v-model:active="batchEditActive"
-				:primary-keys="selection as PrimaryKey[]"
-				collection="directus_files"
-				@refresh="refresh"
-			/>
 
 			<template #sidebar>
 				<LayoutSidebarDetail v-model="layout">
@@ -618,12 +625,22 @@ const DROP_BAR = 'pointer-events-none fixed z-99999 bg-brand-500';
 				<div
 					aria-hidden="true"
 					:class="DROP_BAR"
-					:style="{ top: `${dropBox.top}px`, left: `${dropBox.right - 2}px`, width: '2px', height: `${dropBox.height}px` }"
+					:style="{
+						top: `${dropBox.top}px`,
+						left: `${dropBox.right - 2}px`,
+						width: '2px',
+						height: `${dropBox.height}px`,
+					}"
 				/>
 				<div
 					aria-hidden="true"
 					:class="DROP_BAR"
-					:style="{ top: `${dropBox.bottom - 2}px`, left: `${dropBox.left}px`, width: `${dropBox.width}px`, height: '2px' }"
+					:style="{
+						top: `${dropBox.bottom - 2}px`,
+						left: `${dropBox.left}px`,
+						width: `${dropBox.width}px`,
+						height: '2px',
+					}"
 				/>
 				<div
 					aria-hidden="true"

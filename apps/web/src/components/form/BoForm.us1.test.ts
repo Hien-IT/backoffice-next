@@ -69,7 +69,11 @@ function field(name: string, { type = 'string', schema = {}, meta = {}, name: la
 }
 
 function group(name: string, meta: Record<string, unknown> = {}) {
-	return field(name, { type: 'alias', schema: null, meta: { special: ['alias', 'no-data', 'group'], interface: 'group-detail', ...meta } });
+	return field(name, {
+		type: 'alias',
+		schema: null,
+		meta: { special: ['alias', 'no-data', 'group'], interface: 'group-detail', ...meta },
+	});
 }
 
 function mountForm(props: Record<string, unknown>) {
@@ -125,10 +129,10 @@ describe('FR-011 widths', () => {
 			],
 		});
 
-		expect(wrapper.get('[data-field="a"]').classes()).toContain('col-start-1');
-		expect(wrapper.get('[data-field="b"]').classes()).toContain('col-start-2');
+		expect(wrapper.get('[data-field="a"]').classes()).toContain('@min-[31.25rem]:col-start-1');
+		expect(wrapper.get('[data-field="b"]').classes()).toContain('@min-[31.25rem]:col-start-2');
 		expect(wrapper.get('[data-field="c"]').classes()).toContain('col-span-full');
-		expect(wrapper.get('[data-field="d"]').classes()).toContain('col-start-2');
+		expect(wrapper.get('[data-field="d"]').classes()).toContain('@min-[31.25rem]:col-start-2');
 	});
 
 	test('the grid gets the fill column when the form is wider than 726px', async () => {
@@ -293,7 +297,10 @@ describe('FR-015 values', () => {
 		const wrapper = mountForm({ fields: [field('title'), field('body')], initialValues: { title: 'A', body: 'B' } });
 		const vm = wrapper.vm as unknown as { hasEdits: boolean };
 
-		expect(input(wrapper, 'title').element.getAttribute('value') ?? (input(wrapper, 'title').element as HTMLInputElement).value).toBe('A');
+		expect(
+			input(wrapper, 'title').element.getAttribute('value') ??
+				(input(wrapper, 'title').element as HTMLInputElement).value,
+		).toBe('A');
 		expect(vm.hasEdits).toBe(false);
 
 		await input(wrapper, 'title').setValue('changed');
@@ -485,7 +492,11 @@ describe('FR-018 validation errors', () => {
 	});
 
 	test('showValidationErrors false hides the notice', () => {
-		const wrapper = mountForm({ fields: [field('title')], validationErrors: [error('title')], showValidationErrors: false });
+		const wrapper = mountForm({
+			fields: [field('title')],
+			validationErrors: [error('title')],
+			showValidationErrors: false,
+		});
 
 		expect(wrapper.find('[role="alert"]').exists()).toBe(false);
 	});
@@ -494,7 +505,11 @@ describe('FR-018 validation errors', () => {
 describe('FR-019 autofocus, direction, batch mode, empty form, errors per field', () => {
 	test('autofocus goes to the first visible editable field; direction reaches the interface', () => {
 		const wrapper = mountForm({
-			fields: [field('locked', { meta: { readonly: true, sort: 1 } }), field('a', { meta: { sort: 2 } }), field('b', { meta: { sort: 3 } })],
+			fields: [
+				field('locked', { meta: { readonly: true, sort: 1 } }),
+				field('a', { meta: { sort: 2 } }),
+				field('b', { meta: { sort: 3 } }),
+			],
 			autofocus: true,
 			direction: 'rtl',
 		});

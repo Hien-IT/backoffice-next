@@ -16,6 +16,8 @@ import { md } from '../utils/markdown.ts';
 defineProps<{
 	/** Spec 020 (Q-45): the wider form column of the Directus `wide` public view (40 rem). */
 	wide?: boolean;
+	/** The Directus shared view of extensions: a 48.125rem column whose wide content scrolls (shared-view.vue:62-81). */
+	shared?: boolean;
 }>();
 
 const serverStore = useServerStore();
@@ -103,8 +105,8 @@ function playVideo() {
 		/>
 
 		<div
-			class="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900"
-			:class="wide ? 'max-w-160' : 'max-w-md'"
+			class="w-full rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900"
+			:class="shared ? 'max-w-[48.125rem] overflow-auto' : ['overflow-hidden', wide ? 'max-w-160' : 'max-w-md']"
 		>
 			<div class="px-6 pt-8 sm:px-10">
 				<div class="flex items-center gap-3" data-testid="public-title">

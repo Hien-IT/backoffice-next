@@ -36,6 +36,7 @@ const {
 	disabled = false,
 	id: idProp,
 	showDeselect = false,
+	shortMenu = false,
 } = defineProps<{
 	modelValue?: string | null;
 	/** `icon`: an icon before the text, in the list and in the trigger (Directus v-select `item-icon`). */
@@ -47,6 +48,8 @@ const {
 	disabled?: boolean;
 	/** Id of the trigger, for a label outside the component (a form field). */
 	id?: string | undefined;
+	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	shortMenu?: boolean;
 }>();
 
 const emit = defineEmits<{ 'update:modelValue': [value: string]; deselect: [] }>();
@@ -156,7 +159,12 @@ const TRIGGER =
 				<SelectContent
 					position="popper"
 					:side-offset="4"
-					class="z-99999 max-h-(--reka-select-content-available-height) min-w-(--reka-select-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
+					:class="
+						shortMenu
+							? 'max-h-[min(30vh,var(--reka-select-content-available-height))]'
+							: 'max-h-(--reka-select-content-available-height)'
+					"
+					class="z-99999 min-w-(--reka-select-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark"
 					@close-auto-focus="onCloseAutoFocus"
 				>
 					<SelectViewport class="custom-scrollbar">

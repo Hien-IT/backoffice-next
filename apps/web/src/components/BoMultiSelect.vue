@@ -37,6 +37,7 @@ const {
 	id: idProp,
 	ariaLabelledby,
 	ariaDescribedby,
+	shortMenu = false,
 } = defineProps<{
 	modelValue?: Value[] | null;
 	items: (MultiSelectItem | MultiSelectDivider)[];
@@ -61,6 +62,8 @@ const {
 	 * hint and error ids. */
 	ariaLabelledby?: string | undefined;
 	ariaDescribedby?: string | undefined;
+	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	shortMenu?: boolean;
 }>();
 
 const emit = defineEmits<{ 'update:modelValue': [value: Value[] | null] }>();
@@ -112,7 +115,9 @@ function textFor(val: Value) {
 
 // Directus v-select displayValue: "All Items" or the item count once previewThreshold is reached.
 const countText = computed(() =>
-	value.value.length === options.value.length + otherValues.value.length ? t('all_items') : t('item_count', value.value.length),
+	value.value.length === options.value.length + otherValues.value.length
+		? t('all_items')
+		: t('item_count', value.value.length),
 );
 
 function onSelect(event: Event, val: Value) {
@@ -136,7 +141,7 @@ const FIELD_INVALID =
 const SEARCH =
 	'h-9 w-full rounded-lg border border-gray-500 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400';
 const CONTENT =
-	'z-99999 max-h-(--reka-combobox-content-available-height) min-w-(--reka-combobox-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark';
+	'z-99999 min-w-(--reka-combobox-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark';
 const ITEM =
 	'group relative flex cursor-pointer items-center gap-3 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 dark:text-gray-300 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400';
 // Checkbox box (visual only; Reka sets aria-selected on the option).
@@ -190,7 +195,17 @@ const NOTE = 'flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark
 				</ComboboxTrigger>
 			</ComboboxAnchor>
 			<ComboboxPortal>
-				<ComboboxContent position="popper" :side-offset="4" :class="CONTENT" :aria-busy="loading ? 'true' : undefined">
+				<ComboboxContent
+					position="popper"
+					:side-offset="4"
+					:class="[
+						CONTENT,
+						shortMenu
+							? 'max-h-[min(30vh,var(--reka-combobox-content-available-height))]'
+							: 'max-h-(--reka-combobox-content-available-height)',
+					]"
+					:aria-busy="loading ? 'true' : undefined"
+				>
 					<ComboboxInput
 						v-model="search"
 						:aria-label="t('search')"

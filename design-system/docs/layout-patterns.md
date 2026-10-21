@@ -246,12 +246,13 @@ drafts). "Deviation" lines say where the code differs from the first draft.
   (`WIDTH_CLASSES`).
 - Grid: `grid grid-cols-2 gap-x-6 gap-y-5`, two columns from 768px (the minimum supported width, L-1) and in the drawer.
 - Item page (014, D-82): the form is capped at `max-w-5xl` (64rem) so `fill` fields stop there on wide screens; the
-  drawers keep their own width. Directus stacks halves only below a 500px form width (container query), which the shell
-  from 768px and the 640px drawer do not reach [Inference: content and drawer widths minus padding stay above 500px], so
-  there is no container query.
+  drawers keep their own width. Below a 500px (31.25rem) form width every field spans
+  the row, as the Directus `form-grid` container query: the grid is an `@container` and the width classes apply from
+  `@min-[31.25rem]` (forms in dialogs, narrow groups and extension boxes are under 500px).
 - Widths (Directus `meta.width`, after the Directus `updateFieldWidths`, which turns a `half` that follows a visible
-  `half` into `half-right`): `half` / `half-left` → `col-start-1 col-span-1`, `half-right` → `col-start-2 col-span-1`,
-  `full` → `col-start-1 col-span-2`, `fill` → `col-span-full`. Groups use the same classes.
+  `half` into `half-right`): `col-span-full` below 31.25rem, then `half` / `half-left` → `col-start-1 col-span-1`,
+  `half-right` → `col-start-2 col-span-1`, `full` → `col-start-1 col-span-2`; `fill` → `col-span-full`. Groups use the
+  same classes.
 - Fill: when the form is wider than 726px (Directus `v-form`: 770 drawer − 2 × 22 padding, measured with
   `useElementSize`) the grid gets a third column like Directus `.with-fill`:
   `grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]`; `half` and `full` stay in the first two columns (342px max

@@ -122,12 +122,12 @@ describe('bo_std form from the fixture snapshot', () => {
 	test('US1-4: a half after a visible half goes right; full and fill take the row', async () => {
 		const wrapper = await mountForm();
 
-		expect(fieldEl(wrapper, 'input_string').classes()).toContain('col-start-1');
-		expect(fieldEl(wrapper, 'input_masked').classes()).toContain('col-start-2');
-		expect(fieldEl(wrapper, 'input_slug').classes()).toContain('col-start-1');
+		expect(fieldEl(wrapper, 'input_string').classes()).toContain('@min-[31.25rem]:col-start-1');
+		expect(fieldEl(wrapper, 'input_masked').classes()).toContain('@min-[31.25rem]:col-start-2');
+		expect(fieldEl(wrapper, 'input_slug').classes()).toContain('@min-[31.25rem]:col-start-1');
 		expect(fieldEl(wrapper, 'input_text').classes()).toContain('col-span-full');
 		expect(fieldEl(wrapper, 'input_multiline').classes()).toEqual(
-			expect.arrayContaining(['col-start-1', 'col-span-2']),
+			expect.arrayContaining(['@min-[31.25rem]:col-start-1', '@min-[31.25rem]:col-span-2']),
 		);
 	});
 

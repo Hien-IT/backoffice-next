@@ -32,6 +32,7 @@ const {
 	hint,
 	id: idProp,
 	ariaDescribedby,
+	shortMenu = false,
 } = defineProps<{
 	modelValue?: string | number | null;
 	items: ComboboxItemOption[];
@@ -54,6 +55,8 @@ const {
 	/** Form linking on the input (FormField ids), merged with the hint and error ids. */
 	ariaLabelledby?: string | undefined;
 	ariaDescribedby?: string | undefined;
+	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	shortMenu?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -110,7 +113,7 @@ const FIELD_INVALID =
 const ICON_BTN =
 	'absolute end-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300';
 const CONTENT =
-	'z-99999 max-h-(--reka-combobox-content-available-height) min-w-(--reka-combobox-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark';
+	'z-99999 min-w-(--reka-combobox-trigger-width) overflow-hidden rounded-2xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark';
 const ITEM =
 	'relative flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 dark:text-gray-300 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400';
 const DOT = 'h-3 w-3 shrink-0 rounded-full';
@@ -172,7 +175,17 @@ const NOTE = 'flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark
 				</ComboboxTrigger>
 			</ComboboxAnchor>
 			<ComboboxPortal>
-				<ComboboxContent position="popper" :side-offset="4" :class="CONTENT" :aria-busy="loading ? 'true' : undefined">
+				<ComboboxContent
+					position="popper"
+					:side-offset="4"
+					:class="[
+						CONTENT,
+						shortMenu
+							? 'max-h-[min(30vh,var(--reka-combobox-content-available-height))]'
+							: 'max-h-(--reka-combobox-content-available-height)',
+					]"
+					:aria-busy="loading ? 'true' : undefined"
+				>
 					<ComboboxViewport class="custom-scrollbar">
 						<div v-if="loading" :class="NOTE">
 							<BoIcon

@@ -333,7 +333,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 <template>
 	<div
-		class="input-code bo-codemirror relative w-full overflow-hidden rounded-lg border shadow-theme-xs"
+		class="input-code bo-codemirror relative w-full overflow-hidden rounded-lg border shadow-theme-xs [&_.CodeMirror-scroll]:min-h-[9.4375rem]"
 		:class="[
 			{ disabled, 'non-editable': nonEditable },
 			disabled
@@ -344,6 +344,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		]"
 		dir="ltr"
 	>
+		<!-- An empty editor keeps the Directus min height (--input-height-md, _codemirror.scss:360). -->
 		<div ref="codemirrorEl"></div>
 
 		<template v-if="!nonEditable && template">
