@@ -130,25 +130,21 @@ const FOCUS =
 			]"
 			:data-extension="name"
 		>
-			<BoIcon
-				:name="icon"
-				:title="t(`extension_${type}`)"
-				:class="disabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-500 dark:text-gray-400'"
-			/>
+			<BoIcon :name="icon" :title="t(`extension_${type}`)" class="text-gray-500 dark:text-gray-400" />
 			<span class="flex min-w-0 flex-1 items-center gap-2 text-theme-sm font-medium">
 				<RouterLink
 					v-if="hasMarketplace && extension.meta.source === 'registry' && !extension.bundle"
 					:to="{ name: 'marketplace-extension', params: { extensionId: extension.id } }"
 					:title="t('open_in_marketplace')"
 					class="truncate rounded underline-offset-2 hover:underline"
-					:class="[FOCUS, disabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-white/90']"
+					:class="[FOCUS, disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90']"
 				>
 					{{ name }}
 				</RouterLink>
 				<span
 					v-else
 					class="truncate"
-					:class="disabled ? 'text-gray-400 dark:text-gray-500' : 'text-gray-800 dark:text-white/90'"
+					:class="disabled ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
 				>
 					{{ name }}
 				</span>

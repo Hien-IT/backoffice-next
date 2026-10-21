@@ -1,10 +1,11 @@
 // Builds every fixture extension with the Directus extensions SDK (`directus-extension build`), like a real extension
 // author, so dist/ is what Directus 11.17.4 loads. `--pack` also writes <name>-<version>.tgz for the fake registry.
 // Usage: node scripts/build.mjs [--pack] [--out <dir>] [name...]
-import { execFileSync } from 'node:child_process';
+import { execFile, execFileSync } from 'node:child_process';
 import { cpSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { promisify } from 'node:util';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const cli = join(root, 'node_modules', '.bin', 'directus-extension');
@@ -17,8 +18,11 @@ export function listFixtures() {
 		.sort();
 }
 
-/** Builds one fixture into `outDir/<name>` (default: in place) and returns the dist folder. */
-export function buildFixture(name, outDir) {
+/**
+ * Builds one fixture into `outDir/<name>` (default: in place) and resolves the dist folder. Async: a synchronous build
+ * blocks the Vitest worker for minutes on CI ("Timeout calling onTaskUpdate").
+ */
+export async function buildFixture(name, outDir) {
 	let cwd = join(root, name);
 
 	if (outDir) {
@@ -31,7 +35,7 @@ export function buildFixture(name, outDir) {
 	}
 
 	rmSync(join(cwd, 'dist'), { recursive: true, force: true });
-	execFileSync(cli, ['build'], { cwd, stdio: 'pipe' });
+	await promisify(execFile)(cli, ['build'], { cwd });
 	return join(cwd, 'dist');
 }
 
@@ -50,7 +54,7 @@ if (import.meta.url === `file://${process.argv[1]}`) {
 	const names = args.filter((arg, i) => !arg.startsWith('--') && (outIndex < 0 || i !== outIndex + 1));
 
 	for (const name of names.length ? names : listFixtures()) {
-		buildFixture(name, out);
+		await buildFixture(name, out);
 		if (pack) packFixture(name);
 		console.log(`built ${name}`);
 	}

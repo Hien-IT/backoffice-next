@@ -3,12 +3,16 @@
 // operation runs in a flow. The /slow and /memory routes are not called here: a handler past
 // EXTENSIONS_SANDBOX_TIMEOUT makes isolated-vm 5.0.3 report "Script failed to terminate" on Node 22 and the process
 // aborts (tasks.md, notes of wave 1); the load case of SC-004 waits for that answer.
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { type AppName, appUrl } from '../directus-api.js';
 import { cleanupFlows, seedFlow } from '../flows/helpers.js';
 import { capture } from '../parity.js';
-import { admin, same } from './helpers.js';
+import { admin, ensureExtensionCollections, same } from './helpers.js';
+
+beforeAll(async () => {
+	await ensureExtensionCollections();
+});
 
 afterAll(async () => {
 	await hostDb()('bo_ext_items').where({ title: 'sandbox-filtered' }).delete();

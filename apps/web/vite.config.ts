@@ -4,7 +4,7 @@ import { defineConfig } from 'vite';
 
 // The API routes the app calls (specs/012-backoffice-web-shell/contracts/api-calls.md, 013 and 014 contracts).
 const API_PATHS =
-	'^/(auth|server|users|policies|roles|permissions|settings|collections|fields|relations|presets|translations|notifications|assets|shares|files|folders|utils|items|flows|revisions|versions|comments|activity|graphql|access|operations|dashboards|panels)([/?]|$)';
+	'^/(auth|server|users|policies|roles|permissions|settings|collections|fields|relations|presets|translations|notifications|assets|shares|files|folders|utils|items|flows|revisions|versions|comments|activity|graphql|access|operations|dashboards|panels|extensions)([/?]|$)';
 
 // Served under /admin/ like the Directus app. In dev, API paths go to PUBLIC_URL (like Directus, default the local
 // API) on the same origin, so the session cookie works without CORS. Route components are imported lazily, which

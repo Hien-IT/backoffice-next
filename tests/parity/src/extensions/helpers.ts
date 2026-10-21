@@ -4,6 +4,7 @@
 import { setTimeout as sleep } from 'node:timers/promises';
 import { hostDb } from '../auth/db-effects.js';
 import { appPorts, secondBackofficePort } from '../config.js';
+import { directusRequest } from '../directus-api.js';
 import { compose } from '../docker.js';
 
 export { admin } from '../files/helpers.js';
@@ -101,4 +102,36 @@ export function mc(script: string): string {
 		'-c',
 		`mc alias set local http://127.0.0.1:9000 minioadmin minioadmin >/dev/null && ${script}`,
 	);
+}
+
+const field = (name: string, type: string, extra: Record<string, unknown> = {}) => ({ field: name, type, ...extra });
+
+/**
+ * The collections of the fixture extensions (apps/web/fixtures/interfaces/seed.mjs `extensionsCollections`), created
+ * through Directus when missing: CI does not seed the fixture set for parity, and src/web/fixtures-seed.test.ts removes
+ * it with `--clean`.
+ */
+export async function ensureExtensionCollections(): Promise<void> {
+	const existing = new Set(
+		((await directusRequest('GET', '/collections?limit=-1')).data as { collection: string }[]).map((c) => c.collection),
+	);
+
+	const id = field('id', 'integer', {
+		schema: { is_primary_key: true, has_auto_increment: true },
+		meta: { hidden: true },
+	});
+
+	const collections = [
+		{ collection: 'bo_ext_items', fields: [id, field('title', 'string'), field('audited', 'boolean')] },
+		{
+			collection: 'bo_ext_log',
+			fields: [id, field('kind', 'string'), field('event', 'string'), field('payload', 'text')],
+		},
+	];
+
+	for (const collection of collections) {
+		if (!existing.has(collection.collection)) {
+			await directusRequest('POST', '/collections', { ...collection, schema: {}, meta: {} });
+		}
+	}
 }

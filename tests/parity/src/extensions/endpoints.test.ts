@@ -1,9 +1,13 @@
 // Spec 020 US1 (FR-016, FR-019, T034): the endpoint fixtures at both apps. parity-endpoint-demo answers the same; the
 // Express 4 idioms of parity-endpoint-express4(-path) give the results D-139 expects on Express 5 (T042 records them).
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { appUrl } from '../directus-api.js';
 import { capture, type Captured, type ParityRequest } from '../parity.js';
-import { admin, same } from './helpers.js';
+import { admin, ensureExtensionCollections, same } from './helpers.js';
+
+beforeAll(async () => {
+	await ensureExtensionCollections();
+});
 
 describe('parity-endpoint-demo', () => {
 	it('GET with and without a token, POST echo with a nested query, the services context', async () => {

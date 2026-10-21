@@ -11,8 +11,8 @@ const out = mkdtempSync(join(tmpdir(), 'fixture-extensions-'));
 afterAll(() => rmSync(out, { recursive: true, force: true }));
 
 describe.each(listFixtures() as string[])('%s', (name) => {
-	test('dist matches a fresh build', () => {
-		const fresh = buildFixture(name, out) as string;
+	test('dist matches a fresh build', async () => {
+		const fresh = (await buildFixture(name, out)) as string;
 		const committed = join(import.meta.dirname, name, 'dist');
 
 		expect(readdirSync(fresh).sort()).toEqual(readdirSync(committed).sort());

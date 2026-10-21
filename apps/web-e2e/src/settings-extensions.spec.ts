@@ -6,16 +6,25 @@ import type { Page } from '@playwright/test';
 import { randomUUID } from 'node:crypto';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
-import { login } from './helpers/login.js';
+import { AdminApi } from './helpers/api.js';
+import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
 test.describe.configure({ mode: 'serial' });
+
+let api: AdminApi;
+
+test.beforeAll(async ({ playwright }) => {
+	api = new AdminApi(await playwright.request.newContext());
+});
 
 test.afterAll(async () => {
 	await closeHostDb();
 });
 
 async function open(page: Page) {
+	// Sign-in lands on last_page, which the previous test left on this screen.
+	await resetLastPage(api);
 	await page.goto('/admin/login');
 	await login(page, ADMIN);
 	await expect(page).toHaveURL(CONTENT_URL);

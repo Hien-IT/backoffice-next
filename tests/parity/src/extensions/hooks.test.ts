@@ -4,14 +4,18 @@
 // schedule hook runs on the extensions pair only (BO_EXT_SCHEDULE=1): once per minute across both apps.
 import { randomUUID } from 'node:crypto';
 import { setTimeout as sleep } from 'node:timers/promises';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { type AppName, appUrl } from '../directus-api.js';
 import { capture } from '../parity.js';
-import { admin, extLog, lastLogId, same } from './helpers.js';
+import { admin, ensureExtensionCollections, extLog, lastLogId, same } from './helpers.js';
 
 const full = process.env['PARITY_SUITE'] !== 'reduced';
 const run = randomUUID().slice(0, 8);
+
+beforeAll(async () => {
+	await ensureExtensionCollections();
+});
 
 afterAll(async () => {
 	await closeHostDb();

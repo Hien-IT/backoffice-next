@@ -3,9 +3,13 @@
 // 10 s (from the response of the request): disabling an endpoint, a new extension folder on the storage, a disabled
 // hook. Each node is called on its own port.
 import { randomUUID } from 'node:crypto';
-import { afterAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
-import { admin, extRows, lastLogId, extLog, mc, nodes, waitAll } from './helpers.js';
+import { admin, ensureExtensionCollections, extLog, extRows, lastLogId, mc, nodes, waitAll } from './helpers.js';
+
+beforeAll(async () => {
+	await ensureExtensionCollections();
+});
 
 afterAll(async () => {
 	await closeHostDb();
