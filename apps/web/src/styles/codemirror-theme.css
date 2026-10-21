@@ -17,6 +17,14 @@
 	min-height: 2.625rem;
 }
 
+/*
+ * As directus `_codemirror.scss` (max-block-size 56.25rem): a bounded scroller keeps CodeMirror's line virtualization,
+ * an unbounded one renders every line (a 50k-line schema froze the page). :where() lets editors set their own height.
+ */
+:where(.bo-codemirror) .CodeMirror-scroll {
+	max-height: 56.25rem;
+}
+
 .bo-codemirror .CodeMirror-lines {
 	padding: 0.625rem 0;
 }
