@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/cli/commands/users/create.ts",
+		"dest": "apps/api/src/cli/commands/users/create.ts"
+	},
+	{
+		"source": "api/src/cli/commands/users/passwd.ts",
+		"dest": "apps/api/src/cli/commands/users/passwd.ts"
+	},
+	{
+		"source": "api/src/cli/commands/roles/create.ts",
+		"dest": "apps/api/src/cli/commands/roles/create.ts"
+	}
+]

@@ -1455,6 +1455,7 @@ services:
     volumes:
       - ./.data/bootstrap:/directus/database/bootstrap
       - ./fixtures/migrations:/directus/migrations:ro
+      - uploads:/directus/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-bootstrap.env
@@ -1489,6 +1490,7 @@ services:
     volumes:
       - ./.data/bootstrap:/directus/database/bootstrap
       - ./fixtures/migrations:/directus/migrations:ro
+      - uploads:/directus/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-bootstrap.env
@@ -1519,6 +1521,7 @@ services:
     volumes:
       - ./.data/bootstrap:/directus/database/bootstrap
       - ./fixtures/migrations:/directus/migrations:ro
+      - uploads:/directus/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-bootstrap.env

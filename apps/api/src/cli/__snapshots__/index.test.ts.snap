@@ -1,0 +1,245 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`createCli > Help and errors > the help of the program and of each command 1`] = `
+"Usage: backoffice [command] [options]
+
+Options:
+  -v, --version        output the version number
+  -h, --help           display help for command
+
+Commands:
+  start                Start the Backoffice API
+  init                 Create a new Backoffice Project
+  security
+  database
+  users
+  roles
+  cache
+  count <collection>   Count the amount of items in a given collection
+  bootstrap [options]  Initialize or update the database
+  schema
+  help [command]       display help for command
+
+----
+Usage: backoffice start [options]
+
+Start the Backoffice API
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice init [options]
+
+Create a new Backoffice Project
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice security [options] [command]
+
+Options:
+  -h, --help       display help for command
+
+Commands:
+  key:generate     Generate the app key
+  secret:generate  Generate the app secret
+  help [command]   display help for command
+
+----
+Usage: backoffice security key:generate [options]
+
+Generate the app key
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice security secret:generate [options]
+
+Generate the app secret
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice database [options] [command]
+
+Options:
+  -h, --help      display help for command
+
+Commands:
+  install         Install the database
+  migrate:latest  Upgrade the database
+  migrate:up      Upgrade the database
+  migrate:down    Downgrade the database
+  help [command]  display help for command
+
+----
+Usage: backoffice database install [options]
+
+Install the database
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice database migrate:latest [options]
+
+Upgrade the database
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice database migrate:up [options]
+
+Upgrade the database
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice database migrate:down [options]
+
+Downgrade the database
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice users [options] [command]
+
+Options:
+  -h, --help        display help for command
+
+Commands:
+  create [options]  Create a new user
+  passwd [options]  Set user password
+  help [command]    display help for command
+
+----
+Usage: backoffice users create [options]
+
+Create a new user
+
+Options:
+  --email <value>     user's email
+  --password <value>  user's password
+  --role <value>      user's role
+  -h, --help          display help for command
+
+----
+Usage: backoffice users passwd [options]
+
+Set user password
+
+Options:
+  --email <value>     user's email
+  --password <value>  user's new password
+  -h, --help          display help for command
+
+----
+Usage: backoffice roles [options] [command]
+
+Options:
+  -h, --help        display help for command
+
+Commands:
+  create [options]  Create a new role
+  help [command]    display help for command
+
+----
+Usage: backoffice roles create [options]
+
+Create a new role
+
+Options:
+  --role <value>  name for the role
+  --admin         whether or not the role has admin access
+  --app           whether or not the role has app access
+  -h, --help      display help for command
+
+----
+Usage: backoffice cache [options] [command]
+
+Options:
+  -h, --help       display help for command
+
+Commands:
+  clear [options]  Clear the data and system caches
+  help [command]   display help for command
+
+----
+Usage: backoffice cache clear [options]
+
+Clear the data and system caches
+
+Options:
+  --system    Clear the system cache only (schema, permissions)
+  --data      Clear the data cache only
+  -h, --help  display help for command
+
+----
+Usage: backoffice count [options] <collection>
+
+Count the amount of items in a given collection
+
+Options:
+  -h, --help  display help for command
+
+----
+Usage: backoffice bootstrap [options]
+
+Initialize or update the database
+
+Options:
+  --skipAdminInit  Skips the creation of the default Admin Role and User
+  -h, --help       display help for command
+
+----
+Usage: backoffice schema [options] [command]
+
+Options:
+  -h, --help                 display help for command
+
+Commands:
+  snapshot [options] [path]  Create a new Schema Snapshot
+  apply [options] <path>     Apply a snapshot file to the current database
+  help [command]             display help for command
+
+----
+Usage: backoffice schema snapshot [options] [path]
+
+Create a new Schema Snapshot
+
+Arguments:
+  path               Path to snapshot file
+
+Options:
+  -y, --yes          Assume "yes" as answer to all prompts and run
+                     non-interactively (default: false)
+  --format <format>  JSON or YAML format (choices: "json", "yaml", default:
+                     "yaml")
+  -h, --help         display help for command
+
+----
+Usage: backoffice schema apply [options] <path>
+
+Apply a snapshot file to the current database
+
+Arguments:
+  path                   Path to snapshot file
+
+Options:
+  -y, --yes              Assume "yes" as answer to all prompts and run
+                         non-interactively
+  -d, --dry-run          Plan and log changes to be applied (default: false)
+  --ignoreRules <value>  Comma-separated list of collections and or fields to
+                         ignore. Format: "products.title,reviews" this will
+                         ignore applying changes to the title field in the
+                         products collection and the entire reviews collection
+  -h, --help             display help for command
+"
+`;

@@ -106,6 +106,13 @@ const result = spawnSync('docker', command, { stdio: 'inherit', env });
 if (action === 'up' && values.vendor === 'sqlite3' && result.status === 0) {
 	const chmod = ['exec', '-T', 'directus', 'chmod', '666', '/directus/database/sqlite/data.db'];
 	const fixed = spawnSync('docker', [...args, ...chmod], { stdio: 'inherit', env });
+
+	// Spec 021: the databases each app of profile bootstrap made, written by cross.test.ts from the runner.
+	if (fixed.status === 0 && profiles.includes('bootstrap')) {
+		const files = ['exec', '-T', 'directus-bootstrap', 'sh', '-c', 'chmod 666 /directus/database/bootstrap/*.db'];
+		process.exit(spawnSync('docker', [...args, ...files], { stdio: 'inherit', env }).status ?? 1);
+	}
+
 	process.exit(fixed.status ?? 1);
 }
 

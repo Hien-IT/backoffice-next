@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/cli/commands/init/index.ts",
+		"dest": "apps/api/src/cli/commands/init/index.ts"
+	}
+]

@@ -695,6 +695,8 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
     function`): bỏ hậu tố `$<số>` của tên đứng trước ` is not a function` / ` is not defined`. Thêm khi làm T042
     (2026-10-22, fixture `noup`: cùng cảnh báo, cùng mã 1, chỉ khác tên biến trong bản build của Directus); chờ chủ dự
     án duyệt.
+  - khung `Update available!` mà `cli.js` của image Directus in trước mỗi lệnh (`@directus/update-check`, D-149) → bỏ.
+    Thêm khi làm T056 (2026-10-22); chờ chủ dự án duyệt.
   Hàm chuẩn hóa nằm ở một chỗ dùng chung cho mọi test của profile `bootstrap`; thêm quy tắc mới PHẢI sửa spec này.
 - **FR-103**: Test chấp nhận compose độc lập (`parity-tests:deploy`, thêm cặp hoặc profile): US5 kịch bản 1–3, cộng các
   bài của 019 US3–US6 (sessions, schema, flow theo lịch, TUS, tắt replica) chạy không có Directus trong pool.
@@ -725,13 +727,14 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
 Bảng theo mẫu của 020 (cột cuối "Gỡ ở" là cột `guard-differences` đọc; `—` là vĩnh viễn). D-145..D-147 đăng ký trong
 `tests/parity/accepted-differences.ts` dạng `doc` (`feature: '021'`). Trạng thái duyệt: D-145, D-146, D-147 duyệt
 (chủ dự án kiêm tech lead, 2026-10-22; D-147 chọn ở clarify Q3). Mã D-148 không dùng (DB cài dở làm giống Directus,
-FR-015).
+FR-015). D-149 đề xuất khi làm lượt 2, chờ duyệt.
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-145 | Vendor được `bootstrap`, `database install`, `database migrate:*` | Postgres, Redshift, CockroachDB, MySQL/MariaDB, SQLite, MSSQL, Oracle | Postgres và SQLite (`getDatabaseClient()` là `postgres` hoặc `sqlite`). Vendor khác, gồm `redshift`: DB trống → lỗi và mã 1, không ghi; DB đã cài → `bootstrap` thoát mã 0 không migrate; `install`, `migrate:*` → mã 1; DB do Directus khởi tạo và migrate | Chủ dự án 2026-10-22; constitution 3.0.0 II | ngoài phạm vi | — |
 | D-146 | `init`: danh sách vendor và cài driver | 6 vendor; `npm install <driver> --production` với spinner | Chỉ `PostgreSQL / Redshift` (nhãn giữ nguyên văn, luôn ghi `DB_CLIENT="pg"`) và `SQLite`; không `npm install`, không spinner (driver đã có trong image) | D-145; image không có `npm` ghi được | ngoài phạm vi | — |
 | D-147 | Thương hiệu trong CLI | `directus [command] [options]`, `--version` là 11.17.4, log và `.env` mẫu ghi Directus, `init` in `npx directus start`, `schema apply` báo `Directus isn't installed ... "directus bootstrap"` | `backoffice [command] [options]`, `--version` là phiên bản Backoffice, log mới và `.env` mẫu ghi Backoffice, `init` in `node cli.js start`, `schema apply` báo `Backoffice isn't installed ... "backoffice bootstrap"`; giữ nguyên các dòng nêu bảng, migration hay phiên bản Directus (`Installing Directus system tables...`, `Database doesn't have Directus tables installed.`, `... do not match Directus 11.17.4`) và mọi tên bảng, biến, mã lỗi | Nguyên tắc IX; test chuẩn hóa theo FR-107 | đổi thương hiệu | — |
+| D-149 | Kiểm phiên bản mới khi chạy CLI | `cli.js` của image gọi `@directus/update-check`: hỏi `https://registry.npmjs.org/directus` (8 s), in khung `Update available!` ra stdout khi có bản mới hơn 11.17.4 | Không kiểm, không gọi registry npm (Backoffice không phát hành qua npm, phiên bản ghim 11.17.4) | Phát hiện khi làm T056 (2026-10-22); đề xuất, chờ chủ dự án duyệt | khác | — |
 
 **Khác biệt của feature trước được sửa hoặc giữ** (dòng tham chiếu; bản sửa nằm ở spec của feature đó, FR-091):
 
@@ -745,7 +748,9 @@ FR-015).
 | D-38 (010) | `setOwner` không gửi owner report | giữ; nay áp cả cho lần gọi trong migration `20251014A` (FR-010); khi Directus gửi report lỗi, Directus đặt `project_status = 'pending'`, Backoffice luôn `null` |
 | XI | Gửi email, WebSocket và realtime, SAML, storage Azure/GCS/Cloudinary/Supabase, theme extension, AI/MCP, deployment module, visual editing, telemetry: không có (D-17, D-24, D-33, D-34, D-36, D-135... giữ) | giữ; khi không có Directus bên cạnh, người dùng mất hẳn các tính năng này |
 
-**Cần xác nhận**: Không có (tên giá trị Helm chốt ở FR-080; tên chương trình chốt ở clarify Q3).
+**Cần xác nhận** (phát sinh khi làm, 2026-10-22): D-149 (không kiểm phiên bản mới khi chạy CLI) và hai quy tắc chuẩn
+hóa thêm vào FR-107 (tên biến do bundler của image Directus đổi; khung `Update available!`). Tên giá trị Helm chốt ở
+FR-080; tên chương trình chốt ở clarify Q3.
 
 ## Clarifications
 

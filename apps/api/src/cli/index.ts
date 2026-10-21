@@ -1,11 +1,21 @@
 // Ported from directus/api/src/cli/index.ts
-import { Command } from 'commander';
+import { Command, Option } from 'commander';
 import emitter from '../emitter.js';
 import { BACKOFFICE_VERSION } from '../version.js';
 import bootstrap from './commands/bootstrap/index.js';
+import cacheClear from './commands/cache/clear.js';
+import count from './commands/count/index.js';
 import dbInstall from './commands/database/install.js';
 import dbMigrate from './commands/database/migrate.js';
+import init from './commands/init/index.js';
+import rolesCreate from './commands/roles/create.js';
+import { apply } from './commands/schema/apply.js';
+import { snapshot } from './commands/schema/snapshot.js';
+import keyGenerate from './commands/security/key.js';
+import secretGenerate from './commands/security/secret.js';
 import start from './commands/start.js';
+import usersCreate from './commands/users/create.js';
+import usersPasswd from './commands/users/passwd.js';
 import { loadExtensions } from './load-extensions.js';
 
 export async function createCli(): Promise<Command> {
@@ -16,11 +26,18 @@ export async function createCli(): Promise<Command> {
 
 	await emitter.emitInit('cli.before', { program });
 
-	// Backoffice (spec 021 D-147): program name and version; the commands keep the Directus names and options.
+	// Backoffice (spec 021 D-147): program name, version and the product name in two descriptions; the commands keep the
+	// Directus names and options. `start` runs the startup checks of main.ts before startServer (commands/start.ts).
 	program.name('backoffice').usage('[command] [options]');
 	program.version(BACKOFFICE_VERSION, '-v, --version');
 
 	program.command('start').description('Start the Backoffice API').action(start);
+	program.command('init').description('Create a new Backoffice Project').action(init);
+
+	// Security
+	const securityCommand = program.command('security');
+	securityCommand.command('key:generate').description('Generate the app key').action(keyGenerate);
+	securityCommand.command('secret:generate').description('Generate the app secret').action(secretGenerate);
 
 	const dbCommand = program.command('database');
 	dbCommand.command('install').description('Install the database').action(dbInstall);
@@ -40,11 +57,70 @@ export async function createCli(): Promise<Command> {
 		.description('Downgrade the database')
 		.action(() => dbMigrate('down'));
 
+	const usersCommand = program.command('users');
+
+	usersCommand
+		.command('create')
+		.description('Create a new user')
+		.option('--email <value>', `user's email`)
+		.option('--password <value>', `user's password`)
+		.option('--role <value>', `user's role`)
+		.action(usersCreate);
+
+	usersCommand
+		.command('passwd')
+		.description('Set user password')
+		.option('--email <value>', `user's email`)
+		.option('--password <value>', `user's new password`)
+		.action(usersPasswd);
+
+	const rolesCommand = program.command('roles');
+
+	rolesCommand
+		.command('create')
+		.description('Create a new role')
+		.option('--role <value>', `name for the role`)
+		.option('--admin', `whether or not the role has admin access`)
+		.option('--app', `whether or not the role has app access`)
+		.action(rolesCreate);
+
+	program
+		.command('cache')
+		.command('clear')
+		.description('Clear the data and system caches')
+		.option('--system', 'Clear the system cache only (schema, permissions)')
+		.option('--data', 'Clear the data cache only')
+		.action(cacheClear);
+
+	program.command('count <collection>').description('Count the amount of items in a given collection').action(count);
+
 	program
 		.command('bootstrap')
 		.description('Initialize or update the database')
 		.option('--skipAdminInit', 'Skips the creation of the default Admin Role and User')
 		.action(bootstrap);
+
+	const schemaCommands = program.command('schema');
+
+	schemaCommands
+		.command('snapshot')
+		.description('Create a new Schema Snapshot')
+		.option('-y, --yes', `Assume "yes" as answer to all prompts and run non-interactively`, false)
+		.addOption(new Option('--format <format>', 'JSON or YAML format').choices(['json', 'yaml']).default('yaml'))
+		.argument('[path]', 'Path to snapshot file')
+		.action(snapshot);
+
+	schemaCommands
+		.command('apply')
+		.description('Apply a snapshot file to the current database')
+		.option('-y, --yes', `Assume "yes" as answer to all prompts and run non-interactively`)
+		.option('-d, --dry-run', 'Plan and log changes to be applied', false)
+		.option(
+			'--ignoreRules <value>',
+			`Comma-separated list of collections and or fields to ignore. Format: "products.title,reviews" this will ignore applying changes to the title field in the products collection and the entire reviews collection`,
+		)
+		.argument('<path>', 'Path to snapshot file')
+		.action(apply);
 
 	await emitter.emitInit('cli.after', { program });
 

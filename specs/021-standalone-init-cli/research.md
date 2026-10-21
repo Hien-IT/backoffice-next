@@ -390,3 +390,23 @@ với R1–R14:
   chung. Trên máy có `DOCKER_DEFAULT_PLATFORM=linux/amd64`, `postgres-bootstrap` và `registry-bootstrap` phải bật với
   platform gốc (`node:22-alpine` local chỉ có arm64).
 
+## Kết quả lượt 2 (2026-10-22)
+
+- T058 (R15): `inquirer` 12 đọc stdin không TTY trong image (`compose exec -T`), với điều kiện phím đến **sau** khi
+  prompt hiện: đẩy mọi câu trả lời một lần thì prompt đầu nuốt hết, prompt sau treo. Test dùng `interactive()` của
+  `parity/src/bootstrap/cli.ts` (trả lời khi thấy câu hỏi, chờ 300 ms). Không cần pseudo-TTY.
+- `init` của Directus 11.17.4 (kiểm trên image thật): migration `20251014A-add-project-owner` gọi `getSchema()` không
+  truyền DB, nên đọc DB của env (`DB_*`). Env trỏ tới DB trống (image chạy `docker run` mặc định, file
+  `/directus/database/database.sqlite` chưa có) → `no such table: directus_collections`, "Please try again", hỏi lại.
+  Backoffice port nguyên văn nên giống hệt; README "Lệnh CLI" ghi cách chạy.
+- Test `init` đích là Postgres (`directus_partial`, `backoffice_partial`) thay vì SQLite: `init` của Directus luôn chạy
+  `npm install <driver>`; `pg` thuần JS cài nhanh, `sqlite3` là module native trên Alpine (rủi ro build). `init` chạy
+  trong `directus-bootstrap` và `backoffice-api-bootstrap` (DB của env đã cài) với `PROJECT_OWNER` rỗng (để migration
+  `20251014A` không ghi owner vào DB của env).
+- Khác biệt mới D-149: `cli.js` của image Directus gọi `@directus/update-check` (registry npm, khung `Update
+  available!` trên stdout). Backoffice không kiểm; test bỏ khung trước khi so (quy tắc FR-107 mới). Chờ duyệt.
+- `knex.default` trong Vitest: default import của knex là hàm trần (không có `.default` như dưới Node ESM);
+  `create-db-connection.ts` giữ nguyên văn `knex.default(...)` của Directus, test `init` vá mock `knex` cho giống Node.
+- Parity profile `bootstrap` trên Postgres local: 66 test xanh (`cli.test.ts` 38 lệnh/ca, `init.test.ts` 4, `cross` 8,
+  `partial` 1, `schema` 6, unit 9); `cli.test.ts` khoảng 5 phút.
+

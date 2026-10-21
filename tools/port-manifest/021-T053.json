@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/utils/apply-snapshot.ts",
+		"dest": "apps/api/src/utils/apply-snapshot.ts"
+	},
+	{
+		"source": "api/src/utils/apply-snapshot.test.ts",
+		"dest": "apps/api/src/utils/apply-snapshot.test.ts"
+	},
+	{
+		"source": "api/src/__utils__/snapshots.ts",
+		"dest": "apps/api/src/__utils__/snapshots.ts"
+	}
+]

@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/cli/commands/cache/clear.ts",
+		"dest": "apps/api/src/cli/commands/cache/clear.ts"
+	},
+	{
+		"source": "api/src/cli/commands/count/index.ts",
+		"dest": "apps/api/src/cli/commands/count/index.ts"
+	},
+	{
+		"source": "api/src/cli/commands/security/key.ts",
+		"dest": "apps/api/src/cli/commands/security/key.ts"
+	},
+	{
+		"source": "api/src/cli/commands/security/secret.ts",
+		"dest": "apps/api/src/cli/commands/security/secret.ts"
+	},
+	{
+		"source": "api/src/cli/commands/cache/clear.test.ts",
+		"dest": "apps/api/src/cli/commands/cache/clear.test.ts"
+	}
+]

@@ -1,0 +1,22 @@
+[
+	{
+		"source": "api/src/cli/utils/drivers.ts",
+		"dest": "apps/api/src/cli/utils/drivers.ts"
+	},
+	{
+		"source": "api/src/cli/utils/create-db-connection.ts",
+		"dest": "apps/api/src/cli/utils/create-db-connection.ts"
+	},
+	{
+		"source": "api/src/cli/commands/init/questions.ts",
+		"dest": "apps/api/src/cli/commands/init/questions.ts"
+	},
+	{
+		"source": "api/src/cli/utils/create-env/index.ts",
+		"dest": "apps/api/src/cli/utils/create-env/index.ts"
+	},
+	{
+		"source": "api/src/cli/utils/create-env/env-stub.liquid",
+		"dest": "apps/api/src/cli/utils/create-env/env-stub.liquid"
+	}
+]

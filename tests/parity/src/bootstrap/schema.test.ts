@@ -2,14 +2,15 @@
 // database of profile bootstrap with the same env; the baseline captured by global-setup (before any other test writes)
 // must hold the same schema and the same rows after the FR-107 rules.
 import { describe, expect, test } from 'vitest';
-import { readBaseline } from './baseline.js';
+import { type Baseline, readBaseline } from './baseline.js';
 import { profileEnv } from './cli.js';
 import { normalizeRows, pinoLines } from './normalize.js';
 
 const baseline = readBaseline();
 
 describe.skipIf(!baseline)('profile bootstrap: two empty databases, one per app (FR-100)', () => {
-	const { dumps, logs, ownerReports, bootstrapMs, vendor } = baseline!;
+	// Vitest runs the body of a skipped describe to collect its tests: no baseline means nothing to read.
+	const { dumps, logs, ownerReports, bootstrapMs, vendor } = baseline ?? ({} as Baseline);
 
 	test('same directus_* tables, columns, primary keys, foreign keys and indexes', () => {
 		expect(dumps.backoffice.tables).toEqual(dumps.directus.tables);

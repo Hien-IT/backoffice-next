@@ -133,7 +133,8 @@ describe.skipIf(SEPARATE)('BE image in place of the Directus image', () => {
 	}, 300_000);
 
 	it('has the Backoffice CLI (spec 021 FR-040)', () => {
-		const version = docker('exec', swapped.id, 'node', 'cli.js', '--version').trim();
+		// The last line: like Directus, the CLI logs "Extensions loaded" before it prints the version.
+		const version = docker('exec', swapped.id, 'node', 'cli.js', '--version').trim().split('\n').at(-1)!.trim();
 		expect(version).toMatch(/^\d+\.\d+\.\d+/);
 		expect(version).not.toBe('11.17.4');
 		expect(docker('exec', swapped.id, 'node', 'cli.js', '--help')).toContain('Usage: backoffice [command] [options]');

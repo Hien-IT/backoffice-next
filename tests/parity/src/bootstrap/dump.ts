@@ -1,6 +1,7 @@
 // Spec 021 FR-100: schema and rows of every directus_* table, to compare a database bootstrapped by Directus 11.17.4
 // with one bootstrapped by Backoffice. db-snapshot.ts only keeps a checksum per table, so the rows are read here.
 import { createInspector } from '@backoffice/schema';
+import { rmSync } from 'node:fs';
 import knex, { type Knex } from 'knex';
 import { bootstrapDbPort } from '../config.js';
 import { indexesOf } from '../db-snapshot.js';
@@ -91,4 +92,22 @@ export function bootstrapDb(vendor: string, app: BootstrapApp, database = `${app
 			database,
 		},
 	});
+}
+
+/** Drops every table of a database of profile bootstrap (Postgres keeps PostGIS' spatial_ref_sys), or removes the file. */
+export async function emptyBootstrapDb(vendor: string, app: BootstrapApp, database: string): Promise<void> {
+	if (vendor === 'sqlite3') {
+		rmSync(new URL(`../../.data/bootstrap/${database}.db`, import.meta.url), { force: true });
+		return;
+	}
+
+	const db = bootstrapDb(vendor, app, database);
+
+	try {
+		for (const table of await createInspector(db).tables()) {
+			if (table !== 'spatial_ref_sys') await db.raw('DROP TABLE IF EXISTS ?? CASCADE', [table]);
+		}
+	} finally {
+		await db.destroy();
+	}
 }

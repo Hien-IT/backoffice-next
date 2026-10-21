@@ -29,14 +29,15 @@ export interface TextOptions {
 
 /** Branding (D-147), versions, uuids, argon2 hashes, times and temporary directories of a text. */
 export function normalizeText(text: string, options: TextOptions = {}): string {
-	let out = text;
+	// The update banner the `cli.js` of the Directus image prints (@directus/update-check, D-149).
+	let out = text.replace(/[ \t]*╭─+╮[\s\S]*?╰─+╯\n*/g, '');
 
 	for (const dir of options.dirs ?? []) out = out.split(dir).join('<dir>');
 	for (const version of options.versions ?? []) if (version) out = out.split(version).join('<version>');
 
 	out = out
 		.replace(/npx directus start|node cli\.js start/g, '<start>')
-		.replace(/\b(?:directus|backoffice)(?= \[command\]| bootstrap"| [a-z:]+ \[options\])/g, '<app>')
+		.replace(/\b(?:directus|backoffice)(?= \[command\]| bootstrap"|(?: [a-z:]+)+ \[options\])/g, '<app>')
 		.replace(/\bDirectus\b|\bBackoffice\b/g, '<app>')
 		.replace(ARGON2, '<argon2>')
 		.replace(ISO_TIME, '<time>')

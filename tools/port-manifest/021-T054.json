@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/cli/commands/schema/snapshot.ts",
+		"dest": "apps/api/src/cli/commands/schema/snapshot.ts"
+	},
+	{
+		"source": "api/src/cli/commands/schema/apply.ts",
+		"dest": "apps/api/src/cli/commands/schema/apply.ts"
+	},
+	{
+		"source": "api/src/cli/commands/schema/apply.test.ts",
+		"dest": "apps/api/src/cli/commands/schema/apply.test.ts"
+	}
+]

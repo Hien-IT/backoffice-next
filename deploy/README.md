@@ -32,11 +32,13 @@ Trong một service Directus đang chạy (compose hoặc Deployment Kubernetes)
 
 Giới hạn (FR-024):
 
-- DB phải đã được Directus khởi tạo. Backoffice không chạy `bootstrap` và không ghi bảng hệ thống khi khởi động: gặp DB
-  trống hoặc thiếu migration thì dừng và báo migration nào lệch. DB mới: chạy image Directus một lần trước (hoặc giữ ít
-  nhất một instance Directus). Nâng phiên bản Directus thì Directus chạy migration.
-- Bỏ mọi ghi đè `command`/`args` gọi CLI Directus (ví dụ `npx directus bootstrap && pm2-runtime ...`). Trên Kubernetes,
-  ghi đè `command` còn bỏ qua `tini` (ENTRYPOINT của image).
+- Image Backoffice chạy `node cli.js bootstrap` rồi `node cli.js start` như image Directus (021): DB Postgres hoặc
+  SQLite trống thì tự cài (seed, 101 migration, admin từ `ADMIN_*`), DB đã cài thì chạy migration còn thiếu.
+  MySQL/MariaDB, MSSQL, Oracle, CockroachDB: DB do image Directus cài và migrate, Backoffice bỏ qua bước này (D-145).
+  Gặp migration lạ (không thuộc Directus 11.17.4 và không có trong `MIGRATIONS_PATH`) thì `start` dừng và báo version
+  nào lệch.
+- Bỏ mọi ghi đè `command`/`args` gọi CLI Directus (ví dụ `npx directus bootstrap && pm2-runtime ...`): CMD của image đã
+  làm việc đó. Trên Kubernetes, ghi đè `command` còn bỏ qua `tini` (ENTRYPOINT của image).
 - Extension của Directus không chạy trên Backoffice.
 - `SERVE_APP=true` chỉ gây một dòng cảnh báo: app quản trị chạy ở image web. Các biến `PM2_*` không có tác dụng (không
   phải biến của Directus, chỉ PM2 trong image Directus đọc): muốn thêm tiến trình thì tăng số replica.
@@ -139,10 +141,10 @@ interface, display, layout, module, panel trong app web mới.
   `EXTENSIONS_LOCATION` (vd `s3`, prefix `extensions/` trong bucket). Mỗi node sync từ storage lúc khởi động (pod chỉ
   ready sau khi sync và nạp xong) và khi có thông báo trên kênh bus `extensions.reload`. Chart dừng cài và nâng cấp khi
   nhiều replica (hoặc HPA) mà `EXTENSIONS_LOCATION` rỗng, trừ khi `extensions.inImage=true`.
-- **Một máy, không MinIO cho extension**: `docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d
-  --wait` gắn chung volume `extensions` vào `/directus/extensions` của Directus và mọi replica Backoffice, để
-  `EXTENSIONS_LOCATION` rỗng (không node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều
-  máy hay Kubernetes.
+- **Một máy, không MinIO cho extension**:
+  `docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d --wait` gắn chung volume
+  `extensions` vào `/directus/extensions` của Directus và mọi replica Backoffice, để `EXTENSIONS_LOCATION` rỗng (không
+  node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều máy hay Kubernetes.
 - **Cài**: Settings > Marketplace của app web mới hoặc của Directus app (cùng bảng `directus_extensions`, cùng storage);
   cài ở một node thì node khác thấy trong vài giây.
 - **Nguồn `module`**: khai báo gói extension trong `dependencies` của `apps/api/package.json`, build lại image API.
@@ -275,34 +277,40 @@ ingress:
 
 ## Lệnh CLI
 
-Image Backoffice không có CLI (D-123 của 019). Mọi lệnh CLI chạy bằng image Directus `11.17.4` trên cùng env (cùng DB,
-Redis, storage), trong thư mục `/directus` của image:
+Image Backoffice có CLI của Directus 11.17.4 (021): cùng lệnh, option, log và mã thoát, tên chương trình `backoffice`
+(D-147). Chạy `node cli.js <lệnh>` trong thư mục `/directus` của image, trên cùng env với API (cùng DB, Redis, storage):
 
-| Việc                                  | Lệnh                                                                                                        |
-| ------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Tạo hoặc nâng schema hệ thống         | `node cli.js bootstrap`, `node cli.js database migrate:latest`                                              |
-| Tạo user, đổi mật khẩu                | `node cli.js users create --email <e> --password <p> --role <id>`                                           |
-|                                       | `node cli.js users passwd --email <e> --password <p>`                                                       |
-| Tạo role                              | `node cli.js roles create --role <tên> --admin`                                                             |
-| Xóa cache (dùng chung với Backoffice) | `node cli.js cache clear` (`--system` hoặc `--data` để xóa một phần)                                        |
-| Đếm item                              | `node cli.js count <collection>`                                                                            |
-| Sinh `KEY`, `SECRET`                  | `node cli.js security key:generate`, `node cli.js security secret:generate`                                 |
-| Schema snapshot, apply                | `node cli.js schema snapshot <file>`, `node cli.js schema apply <file>` (hoặc API `/schema` của Backoffice) |
+| Việc                                | Lệnh                                                                                                                               |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Tạo hoặc nâng schema hệ thống       | `node cli.js bootstrap [--skipAdminInit]`, `node cli.js database install`                                                          |
+| Migration                           | `node cli.js database migrate:latest`, `migrate:up`, `migrate:down` (gồm custom migration ở `MIGRATIONS_PATH`)                     |
+| Tạo user, đổi mật khẩu              | `node cli.js users create --email <e> --password <p> --role <id>`                                                                  |
+|                                     | `node cli.js users passwd --email <e> --password <p>`                                                                              |
+| Tạo role                            | `node cli.js roles create --role <tên> [--admin] [--app]`                                                                          |
+| Xóa cache (dùng chung với Directus) | `node cli.js cache clear` (`--system` hoặc `--data` để xóa một phần; chỉ khi `CACHE_STORE=redis`)                                  |
+| Đếm item                            | `node cli.js count <collection>`                                                                                                   |
+| Sinh `KEY`, `SECRET`                | `node cli.js security key:generate`, `node cli.js security secret:generate`                                                        |
+| Schema snapshot, apply              | `node cli.js schema snapshot [file] [--format json\|yaml] [-y]`, `node cli.js schema apply <file> [-d] [-y] [--ignoreRules <...>]` |
+| Tạo project mới (hỏi đáp)           | `node cli.js init` (chỉ PostgreSQL và SQLite, không cài driver: D-146)                                                             |
 
-Migration là việc của Directus: Backoffice không chạy migration và dừng khi migration của DB khác bản Directus 11.17.4
-(D-05 của 001).
+Vendor khác Postgres và SQLite: `bootstrap`, `database install`, `database migrate:*` dùng image Directus `11.17.4`
+(D-145); các lệnh còn lại chạy được bằng image Backoffice.
 
-Máy dev (`deploy/compose`), qua service `directus` đang chạy:
+`init`: như Directus 11.17.4, migration `20251014A` đọc schema qua DB của env (`DB_*`), không phải DB vừa nhập. Chạy
+`init` ở nơi `DB_*` trỏ tới DB đã cài hoặc chính DB sắp tạo (ví dụ `DB_CLIENT=sqlite3 DB_FILENAME=<cùng file>`); env trỏ
+tới DB trống thì cả hai app báo `no such table: directus_collections` và hỏi lại.
+
+Máy dev (`deploy/compose`), qua service đang chạy:
 
 ```bash
-docker compose -p bo-deploy exec directus node cli.js users passwd --email admin@example.com --password '<mật khẩu mới>'
+docker compose -p bo-deploy exec backoffice-api node cli.js users passwd --email admin@example.com --password '<mật khẩu mới>'
 ```
 
-Kubernetes, qua Deployment Directus đang chạy (đổi tên theo cụm):
+Kubernetes, qua Deployment đang chạy (đổi tên theo cụm):
 
 ```bash
-kubectl exec deploy/directus -- node cli.js cache clear
+kubectl exec deploy/backoffice-api -- node cli.js cache clear
 ```
 
-Khi không có pod Directus nào chạy, dùng một Pod hoặc Job tạm bằng image `directus/directus:11.17.4` với cùng `envFrom`
-(ConfigMap, Secret của Directus) và `command: ["node", "cli.js", ...]`.
+Khi không có pod nào chạy, dùng một Pod hoặc Job tạm bằng image Backoffice với cùng `envFrom` và
+`args: ["node", "cli.js", ...]` (giữ ENTRYPOINT `tini`).

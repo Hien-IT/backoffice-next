@@ -307,45 +307,45 @@ Directus làm cùng việc.
 
 ### Tests cho User Story 3
 
-- [ ] T045 [P] [US3] Unit test `api/src/cli/commands/users/create.test.ts`, `passwd.test.ts` (FR-050, FR-051: thiếu tham
+- [X] T045 [P] [US3] Unit test `api/src/cli/commands/users/create.test.ts`, `passwd.test.ts` (FR-050, FR-051: thiếu tham
       số, email không phân biệt hoa thường, không có user mã 1, stdout `<id>\n`).
-- [ ] T046 [P] [US3] Unit test `api/src/cli/commands/roles/create.test.ts` (FR-052: policy `Policy for <name>`, icon,
+- [X] T046 [P] [US3] Unit test `api/src/cli/commands/roles/create.test.ts` (FR-052: policy `Policy for <name>`, icon,
       `admin_access`/`app_access`, access, stdout).
-- [ ] T047 [P] [US3] Unit test `api/src/cli/commands/cache/clear.test.ts` (FR-053: `CACHE_STORE=memory` thông báo mã 0;
+- [X] T047 [P] [US3] Unit test `api/src/cli/commands/cache/clear.test.ts` (FR-053: `CACHE_STORE=memory` thông báo mã 0;
       `--system`, `--data`, không cờ → chuỗi `Cleared ... successfully`).
-- [ ] T048 [P] [US3] Unit test `api/src/cli/commands/count/index.test.ts` và `security/key.test.ts`, `secret.test.ts`
+- [X] T048 [P] [US3] Unit test `api/src/cli/commands/count/index.test.ts` và `security/key.test.ts`, `secret.test.ts`
       (FR-054, FR-055).
-- [ ] T049 [P] [US3] Unit test `api/src/cli/commands/schema/snapshot.test.ts`, `apply.test.ts` (FR-056, FR-057: yaml/JSON,
+- [X] T049 [P] [US3] Unit test `api/src/cli/commands/schema/snapshot.test.ts`, `apply.test.ts` (FR-056, FR-057: yaml/JSON,
       hỏi ghi đè, `-y`, chưa cài → thông điệp D-147 mã 0, `No changes to apply.`, kế hoạch `--dry-run` giống chuỗi của
       `apply.ts`, `--ignoreRules`; `inquirer.prompt` giả).
-- [ ] T050 [P] [US3] Unit test `api/src/utils/apply-snapshot.test.ts` (port test Directus nếu có).
+- [X] T050 [P] [US3] Unit test `api/src/utils/apply-snapshot.test.ts` (port test Directus nếu có).
 
 ### Implementation cho User Story 3
 
-- [ ] T051 [P] [US3] Port `cli/commands/users/create.ts`, `users/passwd.ts`, `roles/create.ts` sang
+- [X] T051 [P] [US3] Port `cli/commands/users/create.ts`, `users/passwd.ts`, `roles/create.ts` sang
       `api/src/cli/commands/` (service từ `../../../services/*.service.js`, `generateHash` của 003); manifest
       `tools/port-manifest/021-T051.json`; T045, T046 xanh.
-- [ ] T052 [P] [US3] Port `cli/commands/cache/clear.ts`, `count/index.ts`, `security/key.ts`, `security/secret.ts`;
+- [X] T052 [P] [US3] Port `cli/commands/cache/clear.ts`, `count/index.ts`, `security/key.ts`, `security/secret.ts`;
       manifest `021-T052.json`; T047, T048 xanh.
-- [ ] T053 [P] [US3] Port `utils/apply-snapshot.ts` sang `api/src/utils/apply-snapshot.ts` (`getSchema`, `getSnapshot`,
+- [X] T053 [P] [US3] Port `utils/apply-snapshot.ts` sang `api/src/utils/apply-snapshot.ts` (`getSchema`, `getSnapshot`,
       `getSnapshotDiff`, `applyDiff`, `flushCaches` đã có ở 006); manifest `021-T053.json`; T050 xanh.
-- [ ] T054 [US3] Port `cli/commands/schema/snapshot.ts`, `schema/apply.ts` (`chalk`, `inquirer`, `js-yaml`,
+- [X] T054 [US3] Port `cli/commands/schema/snapshot.ts`, `schema/apply.ts` (`chalk`, `inquirer`, `js-yaml`,
       `isNestedMetaUpdate` của `../../../utils/apply-diff.js`; thông điệp chưa cài theo D-147); manifest `021-T054.json`;
       T049 xanh.
-- [ ] T055 [US3] Hoàn thiện `api/src/cli/index.ts` đủ cây lệnh FR-040 (users, roles, cache, count, schema, security,
+- [X] T055 [US3] Hoàn thiện `api/src/cli/index.ts` đủ cây lệnh FR-040 (users, roles, cache, count, schema, security,
       init — `init` nối ở T061) với mô tả, option, mặc định như Directus; cập nhật `api/src/cli/index.test.ts`: snapshot
       `--help` của chương trình và từng lệnh, lỗi commander khi lệnh/option không tồn tại, `cli.before`/`cli.after` phát
       với `{ program }` (FR-040, FR-043, FR-044).
 
 ### Parity cho User Story 3
 
-- [ ] T056 [US3] `parity/src/bootstrap/cli.test.ts` (FR-102, FR-050..FR-059, FR-016, SC-003): mỗi lệnh chạy ở
+- [X] T056 [US3] `parity/src/bootstrap/cli.test.ts` (FR-102, FR-050..FR-059, FR-016, SC-003): mỗi lệnh chạy ở
       `directus-bootstrap` và `backoffice-api-bootstrap` với cùng tham số (đưa hai DB về cùng trạng thái trước mỗi khối);
       so `{ code, stdout, logs }` sau chuẩn hóa; `--help` chương trình và từng lệnh, lệnh/option lạ; tác động DB (`users`,
       `roles`); `cache clear` ở `backoffice-api-bootstrap` → khóa Redis namespace `parity-bootstrap-b` trống (và ở `directus-bootstrap` → `parity-bootstrap-d` trống); `bootstrap` với `DB_PASSWORD` sai → log
       không chứa bí mật; mọi log không chứa giá trị `ADMIN_PASSWORD`, `ADMIN_TOKEN`, `DB_PASSWORD`, `SECRET`, `KEY` của env.
       (FR-041)
-- [ ] T057 [US3] Sửa `deploy/README.md` mục "Lệnh CLI": chạy bằng image Backoffice (`node cli.js <lệnh>` ở `/directus`),
+- [X] T057 [US3] Sửa `deploy/README.md` mục "Lệnh CLI": chạy bằng image Backoffice (`node cli.js <lệnh>` ở `/directus`),
       giữ bảng lệnh, thêm ghi chú vendor ngoài Postgres/SQLite dùng image Directus cho `bootstrap`/`migrate` (D-145), bỏ
       câu "Image Backoffice không có CLI (D-123)" (FR-090).
 
@@ -358,27 +358,27 @@ Directus làm cùng việc.
 **Independent Test**: `init` trong container với SQLite: `.env` (0640, `SECRET` 32), bảng, admin; so phần hỏi đáp với
 Directus.
 
-- [ ] T058 [US8] Kiểm `inquirer` 12 với stdin không TTY trong image (`docker compose exec -T backoffice-api-bootstrap node
+- [X] T058 [US8] Kiểm `inquirer` 12 với stdin không TTY trong image (`docker compose exec -T backoffice-api-bootstrap node
       cli.js init` với input dựng sẵn); ghi kết quả vào research R15; nếu không đọc được, chốt cách pseudo-TTY (`script`,
       xem T001 b) hoặc phương án dự phòng (unit test với `inquirer.prompt` giả, parity chỉ so phần không hỏi đáp).
-- [ ] T059 [P] [US8] Unit test `api/src/cli/commands/init/index.test.ts` (FR-030..FR-032): danh sách vendor 2 mục,
+- [X] T059 [P] [US8] Unit test `api/src/cli/commands/init/index.test.ts` (FR-030..FR-032): danh sách vendor 2 mục,
       không gọi `npm install`, 5 lần thử với thông điệp của Directus, `.env` từ mẫu (D-147) với `SECRET`, `DB_*`, mode
       0640, ghi đè `.env` có sẵn, admin insert thẳng 4 bảng với `randomUUID` và argon2, dòng in cuối `node cli.js start`.
-- [ ] T060 [P] [US8] Port `cli/utils/drivers.ts` (chỉ `pg`, `sqlite3`, D-146; nhãn `PostgreSQL / Redshift` nguyên văn),
+- [X] T060 [P] [US8] Port `cli/utils/drivers.ts` (chỉ `pg`, `sqlite3`, D-146; nhãn `PostgreSQL / Redshift` nguyên văn),
       `cli/utils/create-db-connection.ts` (nguyên văn), `cli/commands/init/questions.ts` (nguyên văn),
       `cli/utils/create-env/index.ts` (nguyên văn) và `create-env/env-stub.liquid` (chép rồi đổi chữ Directus thành
       Backoffice, bỏ link docs.directus.io; D-147; header dòng 1 là comment Liquid `{%- comment -%}Ported from
       directus/api/src/cli/utils/create-env/env-stub.liquid{%- endcomment -%}` để không in ra `.env`, unit test T059 kiểm
       `.env` không chứa "Ported from") sang `api/src/cli/`; manifest `021-T060.json`; kiểm
       `api/dist/cli/utils/create-env/env-stub.liquid` có sau build (T013). (FR-031)
-- [ ] T061 [US8] Port `cli/commands/init/index.ts` sang `api/src/cli/commands/init/index.ts`: bỏ `execa`/`ora` và bước
+- [X] T061 [US8] Port `cli/commands/init/index.ts` sang `api/src/cli/commands/init/index.ts`: bỏ `execa`/`ora` và bước
       `npm install` (D-146), in `Start Backoffice by running:` / `node cli.js start` (D-147); nối vào `cli/index.ts`; T059
       xanh.
-- [ ] T062 [US8] `parity/src/bootstrap/init.test.ts` (US8, FR-030..FR-032): theo cách chốt ở T058, chạy `init` trong
+- [X] T062 [US8] `parity/src/bootstrap/init.test.ts` (US8, FR-030..FR-032): theo cách chốt ở T058, chạy `init` trong
       `backoffice-api-bootstrap` ở `/tmp/init` với SQLite; kiểm `.env`, file DB có đủ bảng và 101 migration, admin đăng
       nhập được khi `start` với `.env` đó (cổng tạm); `.env` có sẵn bị ghi đè; so câu hỏi chung với `init` của Directus
       (trừ danh sách vendor, D-146).
-- [ ] T063 Đóng lượt 2: lint, typecheck, unit test Phase 7–8 (từng file), `check-port-headers`, image local, parity
+- [X] T063 Đóng lượt 2: lint, typecheck, unit test Phase 7–8 (từng file), `check-port-headers`, image local, parity
       profile `bootstrap` (postgres, sqlite3) local; commit theo đường dẫn; nhắn phiên khác, chờ CI, push; CI xanh;
       `graphify update .`.
 

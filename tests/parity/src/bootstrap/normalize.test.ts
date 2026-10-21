@@ -6,6 +6,9 @@ test('branding, start command and program name (D-147)', () => {
 	expect(normalizeText('  npx directus start')).toBe(normalizeText('  node cli.js start'));
 	expect(normalizeText('Usage: directus [command] [options]')).toBe('Usage: <app> [command] [options]');
 	expect(normalizeText('Usage: backoffice [command] [options]')).toBe('Usage: <app> [command] [options]');
+	expect(normalizeText('Usage: directus security key:generate [options]')).toBe(
+		'Usage: <app> security key:generate [options]',
+	);
 	expect(normalizeText('Please run "directus bootstrap" first.')).toBe(
 		normalizeText('Please run "backoffice bootstrap" first.'),
 	);
@@ -30,6 +33,12 @@ test('versions, directories, hashes, times and numbered uuids', () => {
 	expect(normalizeText(text, { versions: ['11.17.4', '0.1.0'], dirs: ['/tmp/init-a'], uuids })).toBe(
 		'<version> <version> <dir> <argon2> <time> <uuid:1> <uuid:1> <uuid:2>',
 	);
+});
+
+test('the update banner of the Directus image (D-149)', () => {
+	const banner =
+		'\n   ╭────╮\n   │ Update available! │\n   │ 11.17.4 → 12.5.0 │\n   ╰────╯\n\nUsage: directus start [options]';
+	expect(normalizeText(banner)).toBe('\nUsage: <app> start [options]');
 });
 
 test('variable names renamed by the bundler of the Directus image', () => {
