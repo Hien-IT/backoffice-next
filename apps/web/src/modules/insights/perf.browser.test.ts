@@ -210,13 +210,13 @@ test('bo_dash_all: 11 panel types drawn under 1500 ms after the route entry, 1 P
 		const { time, wrapper, fetch } = await mountDashboard(loadSnapshot(), id, ready);
 		expect(canvases()).toBe(4);
 		// 8 panels query bo_insights_data in one POST /graphql (no /graphql/system: no system collection); label and
-		// variable send nothing. The comments count is the page sidebar's (CommentsSidebarDetail); the relational variable
-		// loads its closed item drawer (list and count of directus_users) as Directus does (owner 2026-10-18).
+		// variable send nothing. The relational variable loads its closed item drawer (list and count of directus_users) as
+		// Directus does (owner 2026-10-18). No comments count: the page sidebar is a closed popover since D-128.
 		expect(
 			calls(fetch)
 				.map((call) => call.split('?')[0])
 				.sort(),
-		).toEqual(['GET /comments', 'GET /users', 'GET /users', 'POST /graphql']);
+		).toEqual(['GET /users', 'GET /users', 'POST /graphql']);
 		expect(aliasesOf(graphqlBodies(fetch)[0])).toHaveLength(8);
 		timings.push(time);
 		wrapper.unmount();

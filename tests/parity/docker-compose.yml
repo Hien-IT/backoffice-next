@@ -1481,6 +1481,8 @@ services:
       - uploads:/directus/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
+      # Spec 020: the same fixture extensions as the main pair (Settings > Extensions in the cors configuration).
+      - ./env/${PARITY_EXTENSIONS_ENV:-extensions}.env
       - ./env/profile-web-cors.env
     # Starts after Directus has bootstrapped the database (the API never writes migrations).
     depends_on:
