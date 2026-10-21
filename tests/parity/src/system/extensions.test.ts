@@ -6,6 +6,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
+import { nodes, waitAll } from '../extensions/helpers.js';
 import { admin, same } from './helpers.js';
 
 const full = process.env['PARITY_SUITE'] !== 'reduced';
@@ -17,6 +18,15 @@ const ACCOUNT = 'a1b2c3d4-0000-4000-8000-000000000001';
 const UNKNOWN = 'a1b2c3d4-0000-4000-8000-0000000000ff';
 
 let appUser: TestUser;
+
+/** Every node of the pool answers the endpoint fixture again (their reloads are done), within 30 s. */
+const settled = () =>
+	waitAll(async () => {
+		for (const node of nodes()) {
+			const res = await fetch(`${node.url}/parity-endpoint-demo`);
+			if (res.status !== 200) throw new Error(`${node.name} /parity-endpoint-demo: ${res.status}`);
+		}
+	}, 30_000);
 
 const bearer = (user: TestUser) => ({ authorization: `Bearer ${user.token}` });
 const rows = async () => Number((await hostDb()('directus_extensions').count({ n: '*' }))[0]!['n']);
@@ -128,7 +138,10 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then t
 			seen[app] = { install, installed, reinstall, uninstall, after: await rows() };
 		}
 
-		expect(seen['backoffice']).toEqual(seen['directus']);
+		expect(seen['backoffice'], JSON.stringify(seen)).toEqual(seen['directus']);
+		// Each install and uninstall reloads every node (bus): wait until all serve the endpoint fixture again, so the next
+		// file starts on settled nodes.
+		await settled();
 		expect(seen['directus']).toMatchObject({
 			install: 204,
 			installed: { id: EXTENSION, folder: VERSION, source: 'registry', bundle: null },

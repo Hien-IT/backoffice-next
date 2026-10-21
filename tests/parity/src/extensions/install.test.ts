@@ -5,7 +5,7 @@
 // downloaded: 503 with the same reason at both, the row written before the download is left (as Directus).
 import { afterAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
-import { admin, mc, nodes } from './helpers.js';
+import { admin, mc, nodes, waitAll } from './helpers.js';
 
 const SANDBOXED = {
 	extension: 'e0000000-0000-4000-8000-000000000001',
@@ -18,6 +18,13 @@ const NOT_SANDBOXED = {
 
 afterAll(async () => {
 	await hostDb()('directus_extensions').whereIn('id', [SANDBOXED.extension, NOT_SANDBOXED.extension]).delete();
+	// Every install and uninstall reloaded the nodes: the next file starts once they all serve the endpoint fixture.
+	await waitAll(async () => {
+		for (const node of nodes()) {
+			const res = await fetch(`${node.url}/parity-endpoint-demo`);
+			if (res.status !== 200) throw new Error(`${node.name} /parity-endpoint-demo: ${res.status}`);
+		}
+	}, 30_000);
 	await closeHostDb();
 });
 
@@ -61,7 +68,7 @@ describe('install through the fake registry, at each app', () => {
 			};
 		}
 
-		expect(seen['backoffice']).toEqual(seen['directus']);
+		expect(seen['backoffice'], JSON.stringify(seen)).toEqual(seen['directus']);
 		expect(seen['directus']).toMatchObject({
 			install: 204,
 			row: { id: SANDBOXED.extension, folder: SANDBOXED.version, source: 'registry', bundle: null },
@@ -84,7 +91,7 @@ describe('install through the fake registry, at each app', () => {
 			seen[node.name] = { status: install.status, error: install.json?.errors?.[0]?.extensions, row };
 		}
 
-		expect(seen['backoffice']).toEqual(seen['directus']);
+		expect(seen['backoffice'], JSON.stringify(seen)).toEqual(seen['directus']);
 		expect(seen['directus']).toEqual({
 			status: 503,
 			error: { service: 'marketplace', reason: 'Could not download the extension', code: 'SERVICE_UNAVAILABLE' },
