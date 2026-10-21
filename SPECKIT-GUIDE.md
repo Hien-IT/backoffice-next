@@ -12,7 +12,7 @@ prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`
 | Code mẫu           | `directus/` (Directus 11.17.4, api 35.2.0, app 15.10.0). **Chỉ đọc, không sửa.** Được copy code sang app mới.                                                                                                                                   |
 | Cấu trúc           | Nx monorepo tại `backoffice-next/`: `apps/api` (NestJS), `apps/web` (Vue 3), `libs/*` dùng chung.                                                                                                                                               |
 | Database           | Dùng **chung DB** với Directus. Hỗ trợ mọi DB Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) qua **Knex**.                                                                                                       |
-| Migration          | **Chỉ Directus** chạy migration cho bảng `directus_*`. App mới kiểm tra phiên bản migration khi khởi động.                                                                                                                                      |
+| Migration          | Directus chạy migration cho bảng `directus_*`. **Feature 021** (constitution 3.0.0): Backoffice cũng tự khởi tạo DB và migrate như Directus với Postgres, SQLite. App mới kiểm tra phiên bản migration khi khởi động.                           |
 | API                | REST **giống hệt** Directus: path, query, response, mã lỗi. `@directus/sdk` dùng được.                                                                                                                                                          |
 | Auth               | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token.                                                                                                                                                        |
 | Cache              | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay.                                                                                                                                                   |
@@ -112,9 +112,10 @@ I. Directus là nguồn tham chiếu, chỉ đọc
 - Hành vi chuẩn là hành vi của Directus 11.17.4 (api 35.2.0, app 15.10.0). Khi spec không nói rõ, làm giống Directus.
 
 II. Dùng chung database với Directus
-- App mới dùng chung DB với một Directus đang chạy.
-- Không tạo, sửa, xóa bảng hệ thống directus_* hay cột gốc của chúng. Không chạy migration hệ thống. Chỉ Directus được migrate. Được, như Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua schema.is_indexed.
-- Khi khởi động, app mới đối chiếu bảng directus_migrations với danh sách migration của 11.17.4. Lệch thì dừng và báo lỗi rõ ràng.
+- Backoffice chạy được cùng Directus trên một DB hoặc một mình, không cần Directus.
+- Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 101 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH. Chỉ Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate.
+- Không thêm bảng, cột hay migration hệ thống riêng của Backoffice. Ngoài seed và migration port từ Directus, không tạo, sửa, xóa bảng hệ thống directus_* hay cột gốc của chúng. DB do Backoffice tạo phải dùng được với Directus 11.17.4 và ngược lại. Được, như Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua schema.is_indexed.
+- Khi khởi động (sau bootstrap), app mới đối chiếu bảng directus_migrations với danh sách migration của 11.17.4. Lệch thì dừng và báo lỗi rõ ràng.
 - Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid, ngày giờ, JSON) phải có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
 - Được tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.
 
@@ -150,7 +151,7 @@ VII. Triển khai đa instance
 - Khi chạy nhiều instance, Redis là bắt buộc cho cache, bus, rate limiter, lock flow theo lịch và lock upload TUS. Không dùng cache hay lock trong bộ nhớ process làm nguồn dữ liệu duy nhất. Cache trong process chỉ được phép khi được dựng lại từ DB hoặc Redis và bị xóa qua bus Redis trên mọi instance, như Directus.
 - File và ảnh đã transform lưu trên storage dùng chung (S3, GCS, Azure hoặc volume dùng chung). Không dùng storage local riêng từng container.
 - Khi chạy nhiều instance, extension nạp từ storage dùng chung (EXTENSIONS_LOCATION) hoặc đóng sẵn vào mọi image; cài, gỡ, bật tắt reload mọi instance (cả Directus) qua bus Redis như Directus.
-- Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động (ngoại lệ duy nhất: dòng `directus_extensions` cho extension mới thấy lần đầu, như Directus, có khóa Redis; constitution 2.2.0).
+- Khởi động nhiều replica cùng lúc phải an toàn: chỉ đọc và kiểm tra migration, không ghi gì vào bảng hệ thống khi khởi động (ngoại lệ: dòng `directus_extensions` cho extension mới thấy lần đầu, như Directus, có khóa Redis, constitution 2.2.0; lệnh bootstrap, constitution 3.0.0: image chạy bootstrap rồi start như Directus; chế độ chung thì mỗi replica như một container Directus; chế độ độc lập nhiều replica thì bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; không có lock như Directus).
 - Có /server/health cho readiness và liveness probe. Khi nhận SIGTERM, ngừng nhận request mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
 - FE và BE nên đặt chung một domain: /admin/* vào FE, các path API còn lại vào BE, giống bố cục của Directus.
 
@@ -201,20 +202,22 @@ Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên
 ### Sửa constitution cho 021 (2.2.0 → 3.0.0)
 
 Feature 021 trái với Nguyên tắc II ("Không chạy migration hệ thống. Chỉ Directus được migrate.") và VII ("KHÔNG ghi gì
-vào bảng hệ thống khi khởi động"). Chạy prompt sau trước `/speckit.specify` của 021, rồi cho tech lead duyệt:
+vào bảng hệ thống khi khởi động"). Chạy prompt sau trước `/speckit.specify` của 021, rồi cho tech lead duyệt. Đã chạy
+ngày 2026-10-22: constitution 3.0.0, prompt nguồn mục II, VII ở trên đã sửa theo; tech lead (chủ dự án) duyệt
+2026-10-22.
 
 ```text
 /speckit.constitution Sửa constitution 2.2.0 thành 3.0.0 (MAJOR: định nghĩa lại Nguyên tắc II) cho feature 021: Backoffice chạy độc lập, tự khởi tạo DB và chạy migration giống Directus 11.17.4. Lý do: <lý do nghiệp vụ>.
 
 II. Dùng chung database với Directus
 - Backoffice chạy được cùng Directus trên một DB (như hiện nay) hoặc một mình, không cần Directus.
-- Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 103 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH.
+- Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 101 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH.
 - Backoffice tự khởi tạo và migrate với Postgres và SQLite. Vendor khác: DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations.
 - Không thêm bảng, cột hay migration hệ thống riêng của Backoffice. DB do Backoffice tạo phải dùng được với Directus 11.17.4 và ngược lại.
 - Giữ nguyên: kiểm tra directus_migrations lúc khởi động (sau bootstrap), định dạng dữ liệu giống hệt Directus, cột người dùng trong collection hệ thống qua API fields.
 
 VII. Triển khai đa instance
-- Thêm ngoại lệ thứ hai cho câu "KHÔNG ghi gì vào bảng hệ thống khi khởi động": lệnh bootstrap. Image API mặc định chạy bootstrap rồi start như Dockerfile của Directus (một container). Khi nhiều replica, bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; các replica chỉ chạy start. Bootstrap không có lock, như Directus.
+- Thêm ngoại lệ thứ hai cho câu "KHÔNG ghi gì vào bảng hệ thống khi khởi động": lệnh bootstrap. Image API mặc định chạy bootstrap rồi start như Dockerfile của Directus; ở chế độ chạy chung mỗi replica khởi động như một container Directus. Ở chế độ độc lập với nhiều replica, bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; các replica chỉ chạy start. Bootstrap không có lock, như Directus.
 
 Giữ nguyên V (Directus vẫn là mốc test đối chiếu) và XI (khi chạy độc lập, các tính năng ngoài phạm vi như gửi email, WebSocket, SAML, storage ngoài Local/S3 không có).
 
@@ -482,7 +485,7 @@ Ghi chú đưa vào spec và plan 020:
 Chạy `/speckit.constitution` ở mục 4 ("Sửa constitution cho 021") trước.
 
 ```text
-/speckit.specify Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4. Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây, chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi PROJECT_OWNER là email (không gửi report, D-38). DB đã cài: chỉ migrate latest. Không có lock, giống Directus. Vendor: Backoffice tự khởi tạo và migrate với Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations như hiện nay (ghi thành khác biệt). CLI cho apps/api, port directus/api/src/cli với cùng lệnh, option, log và exit code: start, init, bootstrap [--skipAdminInit], database install, database migrate:latest|up|down, users create|passwd, roles create, cache clear [--system|--data], count <collection>, schema snapshot|apply, security key:generate|secret:generate. Lệnh init chỉ hiện các vendor Backoffice hỗ trợ khởi tạo (Postgres, SQLite) và không chạy npm install driver vì driver đã có trong image (ghi thành khác biệt); dùng DB khác thì khởi tạo bằng Directus. Migration: port nguyên văn directus/api/src/database/migrations/run.ts và 103 file của 11.17.4, cùng custom migration trong MIGRATIONS_PATH; ghim 11.17.4. Tương thích: DB do Backoffice bootstrap thì Directus 11.17.4 khởi động, đăng nhập và migrate được, và ngược lại; validate-migrations.ts vẫn đạt. Deploy chế độ độc lập: compose có service chạy bootstrap một lần rồi mới start các replica API, không có Directus; Helm có Job hook pre-install/pre-upgrade tạo pod riêng chạy bootstrap một lần, Deployment chỉ tạo sau khi Job xong và pod API chỉ chạy start, ConfigMap/Secret mà Job cần phải có trước Job, không cần ConfigMap, Secret hay PVC của Directus; chế độ chạy chung của 019 giữ nguyên. Ngoài phạm vi khi chạy độc lập: gửi email, WebSocket, SAML, storage ngoài Local/S3 và các mục XI khác; liệt kê trong "Khác biệt so với Directus". Test đối chiếu trên Postgres và SQLite: bootstrap DB trống bằng Directus và bằng Backoffice rồi so sánh schema, các hàng hệ thống (bỏ qua uuid, thời gian, hash) và directus_migrations; chạy migrate latest/up/down với bộ custom migration mẫu ở cả hai app; so sánh output và exit code của từng lệnh CLI; acceptance deploy độc lập trên compose và kind (install, rồi upgrade có custom migration mới).
+/speckit.specify Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4. Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây, chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi PROJECT_OWNER là email (không gửi report, D-38). DB đã cài: chỉ migrate latest. Không có lock, giống Directus. Vendor: Backoffice tự khởi tạo và migrate với Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations như hiện nay (ghi thành khác biệt). CLI cho apps/api, port directus/api/src/cli với cùng lệnh, option, log và exit code: start, init, bootstrap [--skipAdminInit], database install, database migrate:latest|up|down, users create|passwd, roles create, cache clear [--system|--data], count <collection>, schema snapshot|apply, security key:generate|secret:generate. Lệnh init chỉ hiện các vendor Backoffice hỗ trợ khởi tạo (Postgres, SQLite) và không chạy npm install driver vì driver đã có trong image (ghi thành khác biệt); dùng DB khác thì khởi tạo bằng Directus. Migration: port nguyên văn directus/api/src/database/migrations/run.ts và 101 file của 11.17.4, cùng custom migration trong MIGRATIONS_PATH; ghim 11.17.4. Tương thích: DB do Backoffice bootstrap thì Directus 11.17.4 khởi động, đăng nhập và migrate được, và ngược lại; validate-migrations.ts vẫn đạt. Deploy chế độ độc lập: compose có service chạy bootstrap một lần rồi mới start các replica API, không có Directus; Helm có Job hook pre-install/pre-upgrade tạo pod riêng chạy bootstrap một lần, Deployment chỉ tạo sau khi Job xong và pod API chỉ chạy start, ConfigMap/Secret mà Job cần phải có trước Job, không cần ConfigMap, Secret hay PVC của Directus; chế độ chạy chung của 019 giữ nguyên. Ngoài phạm vi khi chạy độc lập: gửi email, WebSocket, SAML, storage ngoài Local/S3 và các mục XI khác; liệt kê trong "Khác biệt so với Directus". Test đối chiếu trên Postgres và SQLite: bootstrap DB trống bằng Directus và bằng Backoffice rồi so sánh schema, các hàng hệ thống (bỏ qua uuid, thời gian, hash) và directus_migrations; chạy migrate latest/up/down với bộ custom migration mẫu ở cả hai app; so sánh output và exit code của từng lệnh CLI; acceptance deploy độc lập trên compose và kind (install, rồi upgrade có custom migration mới).
 ```
 
 Quyết định của owner (2026-10-22): chạy độc lập nhưng DB vẫn dùng được với Directus 11.17.4; port toàn bộ CLI của
@@ -503,7 +506,7 @@ Ghi chú đưa vào spec và plan 021:
 - Helm hook `pre-install` chạy trước mọi resource của chart: ConfigMap/Secret mà Job cần phải là hook có weight nhỏ hơn,
   hoặc được tạo sẵn ngoài chart. Init container chạy riêng trong từng pod nên N pod vẫn bootstrap song song; vì vậy
   owner chọn Job.
-- Plan phải kiểm tra: 103 migration dùng helper Directus nào mà Backoffice chưa port; `schema snapshot|apply` dùng lại
+- Plan phải kiểm tra: 101 migration dùng helper Directus nào mà Backoffice chưa port; `schema snapshot|apply` dùng lại
   SchemaService của 006 được không.
 - Chia lượt khi `/speckit.tasks`: (1) bootstrap, database install, migrate; (2) các lệnh CLI còn lại; (3) deploy độc
   lập.
