@@ -43,6 +43,7 @@ async function resolve(project: Record<string, unknown> | null, pageTitle?: stri
 		overrides: tags.find((t) => t.tag === 'style' && (t.props as Record<string, string>)['id'] === 'theme-overrides')
 			?.textContent,
 		html: tags.find((t) => t.tag === 'htmlAttrs')?.props,
+		body: tags.find((t) => t.tag === 'bodyAttrs')?.props,
 	};
 }
 
@@ -88,7 +89,10 @@ describe('useAppHead', () => {
 
 describe('theme', () => {
 	test('html class dark from the settings appearance', async () => {
-		expect((await resolve({ default_appearance: 'dark' })).html).toMatchObject({ class: 'dark' });
+		const head = await resolve({ default_appearance: 'dark' });
+		expect(head.html).toMatchObject({ class: 'dark' });
+		// Also on body as the Directus app sets it (extension styles may target `body.dark`).
+		expect(head.body).toMatchObject({ class: 'dark' });
 	});
 
 	test('html class follows the user appearance over the settings', async () => {

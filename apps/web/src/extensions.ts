@@ -97,20 +97,24 @@ export async function registerExtensions(app?: App): Promise<void> {
 	setModules(modules);
 
 	// Directus registers each config as a global component (interfaces/index.ts, displays/index.ts... of directus/app):
-	// extensions render them by name (e.g. `interface-input-code`), so they are registered too, with the same checks.
+	// extensions render them by name (e.g. `interface-input-code`), so they are registered too, with the same checks:
+	// components and layout slots as they are (functional ones included, e.g. display-raw, layout-sidebar-tabular),
+	// options and operation overviews only when they are a component (not a function, an array or null).
 	if (app) {
-		const isComponent = (value: unknown) => value != null && typeof value !== 'function' && !Array.isArray(value);
 		const add = (name: string, component: unknown) => {
-			if (isComponent(component) && !app.component(name)) app.component(name, component as Component);
+			if (component != null && !app.component(name)) app.component(name, component as Component);
+		};
+		const addOptions = (name: string, options: unknown) => {
+			if (typeof options !== 'function' && !Array.isArray(options)) add(name, options);
 		};
 
 		for (const { id, component, options } of interfaces) {
 			add(`interface-${id}`, component);
-			add(`interface-options-${id}`, options);
+			addOptions(`interface-options-${id}`, options);
 		}
 		for (const { id, component, options } of displays) {
 			add(`display-${id}`, component);
-			add(`display-options-${id}`, options);
+			addOptions(`display-options-${id}`, options);
 		}
 		for (const { id, component, slots } of layoutsRegistry.getLayouts()) {
 			add(`layout-${id}`, component);
@@ -120,11 +124,11 @@ export async function registerExtensions(app?: App): Promise<void> {
 		}
 		for (const { id, component, options } of panels) {
 			add(`panel-${id}`, component);
-			add(`panel-options-${id}`, options);
+			addOptions(`panel-options-${id}`, options);
 		}
 		for (const { id, overview, options } of operations) {
-			add(`operation-overview-${id}`, overview);
-			add(`operation-options-${id}`, options);
+			addOptions(`operation-overview-${id}`, overview);
+			addOptions(`operation-options-${id}`, options);
 		}
 	}
 

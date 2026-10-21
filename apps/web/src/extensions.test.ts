@@ -85,6 +85,9 @@ describe('extensions (spec 020, FR-060..FR-069)', () => {
 			'interface-parity-interface',
 			'display-parity-display',
 			'layout-tabular',
+			'layout-sidebar-tabular',
+			'display-raw',
+			'display-filesize',
 			'panel-parity-panel',
 		])
 			expect(app.component(name), name).toBeTruthy();

@@ -53,6 +53,8 @@ export function useAppHead() {
 			dir: userStore.textDirection,
 			class: darkMode.value ? 'dark' : 'light',
 		})),
+		// The Directus app sets it on body (app.vue): extension styles may target `body.dark`.
+		bodyAttrs: computed(() => ({ class: darkMode.value ? 'dark' : 'light' })),
 		meta: computed(() => {
 			const content = projectColor.value ?? cssVar('--color-brand-500', document.documentElement);
 
