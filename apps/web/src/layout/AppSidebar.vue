@@ -7,23 +7,27 @@
 // opener). Module list as Directus: registeredModules from modules/index.ts (no extensions store); the Documentation
 // link of the Directus default is dropped even from a saved module_bar (FR-081, D-49); the active module gets
 // aria-current and a bar marker (FR-021); links open in a new tab with rel="noopener noreferrer". The user menu and the
-// notifications bell sit under the logo (owner 2026-10-20), stacked on the rail.
+// notifications bell sit under the logo (owner 2026-10-20), stacked on the rail. Modules of app extensions are grouped
+// under one "Extensions" row like the Settings sub-menu (owner 2026-10-22, D-144): in module_bar order and enabled
+// state, the open one shows its own navigation one level below.
 import { createReusableTemplate } from '@vueuse/core';
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
-import { computed, ref, useId } from 'vue';
+import { computed, ref, useId, watch } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import BoIcon from '../components/BoIcon.vue';
 import NotificationsBell from './NotificationsBell.vue';
 import UserMenu from './UserMenu.vue';
 import { DIRECTUS_DOCS_URL, MODULE_BAR_DEFAULT } from '../constants.ts';
-import { registeredModules } from '../modules/index.ts';
+import { getInternalModules, registeredModules } from '../modules/index.ts';
 import { useSettingsStore } from '../stores/settings.ts';
 import { useUserStore } from '../stores/user.ts';
 import { translate } from '../utils/translate-object-values.ts';
 import SidebarLogo from './SidebarLogo.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
 
-type ModuleBarItem = { id: string; name: string; icon: string; to?: string; href?: string };
+type ModuleBarItem = { id: string; name: string; icon: string; to?: string; href?: string; extension?: boolean };
+
+const INTERNAL_MODULE_IDS = new Set(getInternalModules().map(({ id }) => id));
 
 const { drawer = false } = defineProps<{ drawer?: boolean }>();
 
@@ -57,9 +61,24 @@ const modules = computed<ModuleBarItem[]>(() => {
 
 			const module = registeredModules.value.find((module) => module.id === modulePart.id)!;
 
-			return translate({ id: module.id, name: module.name, icon: module.icon, to: `/${module.id}` });
+			return translate({
+				id: module.id,
+				name: module.name,
+				icon: module.icon,
+				to: `/${module.id}`,
+				extension: !INTERNAL_MODULE_IDS.has(module.id),
+			});
 		});
 });
+
+const mainModules = computed(() => modules.value.filter((modulePart) => !modulePart.extension));
+const extensionModules = computed(() => modules.value.filter((modulePart) => modulePart.extension));
+const extensionsActive = computed(() => extensionModules.value.some(isActive));
+const extensionsOpen = ref(false);
+const extensionsListId = useId();
+
+// The group opens on the page of an extension module; the user closes or opens it with its row.
+watch(extensionsActive, (active) => active && (extensionsOpen.value = true), { immediate: true });
 
 function isActive(item: ModuleBarItem) {
 	return item.to !== undefined && (route.path === item.to || route.path.startsWith(`${item.to}/`));
@@ -133,7 +152,7 @@ function onFocusout(event: FocusEvent) {
 					<h2 :id="groupId" class="sr-only">{{ $t('modules') }}</h2>
 
 					<ul class="m-0 flex list-none flex-col gap-1 p-0">
-						<li v-for="modulePart in modules" :key="modulePart.id" class="relative">
+						<li v-for="modulePart in mainModules" :key="modulePart.id" class="relative">
 							<component
 								:is="modulePart.to !== undefined ? RouterLink : 'a'"
 								v-bind="
@@ -174,6 +193,62 @@ function onFocusout(event: FocusEvent) {
 							<div v-if="expanded && isActive(modulePart) && $slots['navigation']" class="ms-9 mt-2">
 								<slot name="navigation" />
 							</div>
+						</li>
+
+						<li v-if="extensionModules.length > 0" class="relative" data-module-group="extensions">
+							<button
+								type="button"
+								class="menu-item group w-full before:absolute before:inset-y-2 before:-start-2 before:w-1 before:rounded-full"
+								:class="[
+									extensionsActive
+										? 'menu-item-active before:bg-brand-500 dark:before:bg-brand-400'
+										: 'menu-item-inactive',
+									{ 'justify-center': !expanded },
+								]"
+								:aria-expanded="extensionsOpen"
+								:aria-controls="extensionsListId"
+								@click="extensionsOpen = !extensionsOpen"
+							>
+								<span class="flex" :class="extensionsActive ? 'menu-item-icon-active' : 'menu-item-icon-inactive'">
+									<BoIcon name="extension" />
+								</span>
+								<span class="truncate" :class="{ 'sr-only': !expanded }">{{ $t('extensions') }}</span>
+								<BoIcon
+									v-if="expanded"
+									name="expand_more"
+									size="sm"
+									class="menu-item-arrow ms-auto"
+									:class="extensionsOpen ? 'menu-item-arrow-active' : 'menu-item-arrow-inactive'"
+								/>
+							</button>
+
+							<ul
+								v-if="expanded && extensionsOpen"
+								:id="extensionsListId"
+								class="m-0 ms-9 mt-2 flex list-none flex-col gap-1 p-0"
+							>
+								<li v-for="modulePart in extensionModules" :key="modulePart.id" class="relative">
+									<RouterLink
+										:to="modulePart.to!"
+										:aria-current="isActive(modulePart) ? 'page' : undefined"
+										class="menu-dropdown-item min-h-9 gap-2 py-1 text-sm no-underline"
+										:class="isActive(modulePart) ? 'menu-dropdown-item-active' : 'menu-dropdown-item-inactive'"
+									>
+										<BoIcon :name="modulePart.icon" size="sm" class="shrink-0" />
+										<span class="truncate">{{ modulePart.name }}</span>
+									</RouterLink>
+
+									<div
+										v-if="isActive(modulePart) && $slots['navigation']"
+										:id="`module-actions-${modulePart.id}`"
+										class="absolute end-1 top-0.5 flex items-center empty:hidden"
+									/>
+
+									<div v-if="isActive(modulePart) && $slots['navigation']" class="ms-6 mt-2">
+										<slot name="navigation" />
+									</div>
+								</li>
+							</ul>
 						</li>
 
 						<!-- The sub-menu of an open module without a row (Activity), under the list, without a title row. -->

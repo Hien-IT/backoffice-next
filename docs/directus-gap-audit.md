@@ -60,6 +60,7 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 | Store AI; store extensions                         | Không nạp                             | D-45 (012): AI vĩnh viễn; store extensions có từ 020 |
 | Lớp chồng so với khung app (`z-index`), `--header-bar-height`, dialog chặn chuột trên `body`; vài khác biệt hình thức nhỏ | Như hiện tại; sửa khi một extension cụ thể bị ảnh hưởng | D-142 (020) |
 | Header dính của danh sách Roles, Policies | Không dính | D-143 (020) |
+| Module extension trên thanh module | Gom vào một nhóm `Extensions` của sidebar, theo `module_bar` | D-144 (020) |
 
 ## 3. Đã có, chạy được nhưng thiếu một phần (có ghi trong spec; cả hai bỏ theo quyết định 2026-10-20)
 

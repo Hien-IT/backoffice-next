@@ -36,11 +36,22 @@ async function render(
 	{
 		path = '/',
 		modules = getInternalModules().map((m) => m.id),
+		extensions = [],
 		props = {},
 		slots = {},
-	}: { path?: string; modules?: string[]; props?: Record<string, unknown>; slots?: Record<string, string> } = {},
+	}: {
+		path?: string;
+		modules?: string[];
+		extensions?: string[];
+		props?: Record<string, unknown>;
+		slots?: Record<string, string>;
+	} = {},
 ) {
-	registeredModules.value = getInternalModules().filter((m) => modules.includes(m.id));
+	registeredModules.value = [
+		...getInternalModules().filter((m) => modules.includes(m.id)),
+		// App extension modules (spec 020): only id, name and icon matter to the bar.
+		...extensions.map((id) => ({ id, name: `Ext ${id}`, icon: 'box', routes: [] }) as any),
+	];
 
 	const { wrapper } = await mountLayout(AppSidebar, {
 		path,
@@ -157,6 +168,57 @@ describe('AppSidebar layout (FR-020, layout-patterns §2)', () => {
 		const block = document.body.querySelector('[data-module-unlisted]')!;
 		expect(block.textContent!.trim()).toBe('My Activity');
 		expect(document.body.querySelectorAll('[data-testid="module-bar"] [aria-current="page"]')).toHaveLength(0);
+	});
+
+	test('extension modules are one "Extensions" group in module_bar order, the open one with its sub-menu (D-144)', async () => {
+		const bar: ModuleBarPart[] = [
+			{ type: 'module', id: 'content', enabled: true },
+			{ type: 'module', id: 'report', enabled: true },
+			{ type: 'module', id: 'hidden-ext', enabled: false },
+			{ type: 'module', id: 'viewer', enabled: true },
+			{ type: 'module', id: 'settings', enabled: true, locked: true },
+		];
+		const { hrefs } = await render(bar, {
+			path: '/report/schema',
+			extensions: ['report', 'hidden-ext', 'viewer'],
+			slots: { navigation: '<a href="/report/roles">Roles</a>' },
+		});
+
+		const nav = document.body.querySelector('[data-testid="module-bar"]')!;
+		const group = nav.querySelector('[data-module-group="extensions"]')!;
+		const items = [...group.querySelectorAll(':scope > ul > li')];
+
+		expect([...nav.querySelectorAll(':scope > ul > li > a')].map((a) => a.getAttribute('href'))).toEqual([
+			'/content',
+			'/settings',
+		]);
+		expect(group.querySelector('button')!.getAttribute('aria-expanded')).toBe('true');
+		expect(items.map((li) => li.querySelector('a')!.getAttribute('href'))).toEqual(['/report', '/viewer']);
+		expect(items[0]!.querySelector('a')!.getAttribute('aria-current')).toBe('page');
+		expect(items.map((li) => li.textContent!.includes('Roles'))).toEqual([true, false]);
+		expect(hrefs).toContain('/report/roles');
+	});
+
+	test('the Extensions group is closed outside its modules and toggles with its row; absent without extensions', async () => {
+		const bar: ModuleBarPart[] = [
+			{ type: 'module', id: 'files', enabled: true },
+			{ type: 'module', id: 'report', enabled: true },
+		];
+		await render(bar, { path: '/files', extensions: ['report'] });
+
+		const button = document.body.querySelector<HTMLButtonElement>('[data-module-group="extensions"] button')!;
+		expect(button.getAttribute('aria-expanded')).toBe('false');
+		expect(document.body.querySelector('[data-module-group="extensions"] ul')).toBeNull();
+
+		button.click();
+		await nextTick();
+		expect(button.getAttribute('aria-expanded')).toBe('true');
+		expect(document.body.querySelector('[data-module-group="extensions"] ul a')!.getAttribute('href')).toBe('/report');
+	});
+
+	test('no Extensions group when no extension module is in the bar', async () => {
+		await render(null, { path: '/files', extensions: ['report'] });
+		expect(document.body.querySelector('[data-module-group="extensions"]')).toBeNull();
 	});
 
 	test('the sub-menu block is absent outside the hidden module', async () => {

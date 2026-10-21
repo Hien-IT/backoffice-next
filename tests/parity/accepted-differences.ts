@@ -259,4 +259,10 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason: 'The Roles and Policies lists have no sticky table header.',
 	},
+	{
+		id: 'D-144',
+		feature: '020',
+		kind: 'doc',
+		reason: 'App extension modules are grouped under one Extensions row of the sidebar (module_bar order and state).',
+	},
 ];
