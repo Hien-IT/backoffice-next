@@ -35,17 +35,27 @@ export async function waitForTable(page: Page) {
 
 /** Opens the detail panel when it is closed (a popover under the page header toggle, closed on load; owner 2026-10-20). */
 export async function openSidebar(page: Page): Promise<void> {
+	await expect(page.locator('main h1')).toBeVisible({ timeout: 15_000 });
 	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
+	const close = page.getByRole('button', { name: 'Close sidebar', exact: true });
+	// A page without details has no toggle (D-128): nothing to open.
+	if ((await toggle.count()) === 0 && (await close.count()) === 0) return;
 	if (await toggle.isVisible()) await toggle.click();
 	// Attached, not visible: a page without sections (a new item) opens an empty popover.
 	await expect(page.locator('#sidebar')).toBeAttached();
 }
 
+/** Opens the detail popover and its "Layout Options" section: a click outside closes the popover (D-128). */
+export async function openLayoutOptions(page: Page): Promise<void> {
+	await openSidebar(page);
+	const trigger = page.locator('#sidebar').getByRole('button', { name: 'Layout Options', exact: true });
+	if ((await trigger.getAttribute('aria-expanded')) !== 'true') await trigger.click();
+}
+
 /** Picks a layout in the sidebar "Layout Options" (Directus `layout` select). */
 export async function chooseLayout(page: Page, name: 'Table' | 'Cards' | 'Calendar' | 'Kanban' | 'Map'): Promise<void> {
-	await openSidebar(page);
+	await openLayoutOptions(page);
 	const select = page.getByRole('combobox', { name: 'Layout', exact: true });
-	if (!(await select.isVisible())) await page.getByRole('button', { name: 'Layout Options', exact: true }).click();
 	await select.click();
 	await page.getByRole('option', { name, exact: true }).click();
 }

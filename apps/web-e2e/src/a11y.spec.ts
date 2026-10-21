@@ -278,12 +278,14 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/admin\/files$/);
 
-	// The user menu sits under the sidebar logo, before the modules (owner 2026-10-20).
+	// The user menu sits under the sidebar logo, above the modules (D-127). WebKit drops the focus of the clicked link on
+	// navigation, so the walk starts from the top of the page like after a load: skip links, then the avatar.
 	const avatar = page
 		.locator('#navigation')
 		.getByRole('button', { name: /Admin|User/ })
 		.first();
-	await tabTo(() => avatar.evaluate((el) => el === document.activeElement), 30, 'Shift+Tab');
+	await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
+	await tabTo(() => avatar.evaluate((el) => el === document.activeElement));
 	await page.keyboard.press('Enter');
 	await expect(page.getByRole('menuitem').first()).toBeVisible();
 	await page.keyboard.press('Escape');

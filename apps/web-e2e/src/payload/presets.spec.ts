@@ -6,7 +6,7 @@
 import type { Browser, Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
-import { chooseLayout, openCollection, waitForTable } from '../helpers/content.js';
+import { chooseLayout, openCollection, openLayoutOptions, waitForTable } from '../helpers/content.js';
 import {
 	card,
 	chooseInMenu,
@@ -118,6 +118,7 @@ test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', asy
 		async backoffice(page) {
 			const main = page.getByRole('main');
 			const option = async (label: string, name: string) => {
+				await openLayoutOptions(page);
 				await page.getByRole('combobox', { name: label, exact: true }).click();
 				await page.getByRole('option', { name, exact: true }).click();
 			};
@@ -142,7 +143,10 @@ test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', asy
 			await saved(page, () => chooseLayout(page, 'Kanban'));
 			await saved(page, () => option('Card Title', 'Title'));
 			await saved(page, () => chooseLayout(page, 'Map'));
-			await saved(page, () => page.getByRole('checkbox', { name: 'Cluster Nearby Data' }).click());
+			await saved(page, async () => {
+				await openLayoutOptions(page);
+				await page.getByRole('checkbox', { name: 'Cluster Nearby Data' }).click();
+			});
 		},
 	});
 

@@ -494,11 +494,12 @@ test('(8) run a manual flow from the item page with its confirmation (#183)', as
 				.getByRole('complementary')
 				.getByRole('button', { name: new RegExp(name) })
 				.click();
-			const dialog = p.getByRole('dialog');
+			// The detail popover is a dialog too (D-128): the confirmation is the other one.
+			const dialog = p.getByRole('dialog').filter({ hasNot: p.locator('#sidebar') });
 			await expect(dialog).toContainText('Run it?');
 			await dialog.getByRole('textbox').fill('from the item');
 			await dialog.getByRole('button', { name: /Run Flow/ }).click();
-			await expect(p.getByRole('dialog')).toHaveCount(0);
+			await expect(dialog).toHaveCount(0);
 		},
 	});
 	same(result, ['POST /flows/trigger/<id1>']);
@@ -549,15 +550,11 @@ test('(9) the Logs section reads the runs with the same GET /revisions (#184)', 
 	await signInBackoffice(page, api);
 	await page.goto(`/admin/settings/flows/${ids[0]}`);
 	await expect(panel(page, '$trigger')).toBeVisible({ timeout: 15_000 });
-	const bo = await reads(
-		page,
-		apiUrl,
-		async () => {
-			await openSidebar(page);
-			await page.getByRole('button', { name: /^Logs/ }).click();
-		},
-		ids,
-	);
+	// The detail popover mounts its sections when it opens (D-128): their count request is the page-load one of
+	// Directus, so it is opened before the recording.
+	await openSidebar(page);
+	await page.waitForTimeout(1_500);
+	const bo = await reads(page, apiUrl, () => page.getByRole('button', { name: /^Logs/ }).click(), ids);
 	await cleanup();
 
 	expect(dir.length).toBeGreaterThan(0);

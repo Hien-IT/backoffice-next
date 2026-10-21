@@ -145,7 +145,7 @@ function buttonsIn(args: { root?: string; last?: boolean; icons: string[] }): st
 		? args.last
 			? roots.pop()
 			: roots[0]
-		: document.querySelector('main h1')?.closest('.mb-6')?.lastElementChild;
+		: document.querySelector('main h1')?.closest('[data-page-header]')?.lastElementChild;
 	return (
 		Array.from(root?.querySelectorAll('button, a') ?? [])
 			// A control inside another one (a link around a button) counts once; the closed Directus filter keeps a hidden
@@ -219,11 +219,12 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 	await expect(page.locator('main h1')).toBeVisible({ timeout: 15_000 });
 	await page.waitForLoadState('networkidle');
 	await page.waitForTimeout(800);
+	// A click in the page closes the detail popover (D-128): the page clicks come first.
+	if (path === '/settings/data-model')
+		await page.getByRole('main').getByRole('button', { name: 'System Collections', exact: true }).click();
 	await openSidebar(page);
 	if (path === '/settings/presets')
 		await page.locator('#sidebar').getByRole('button', { name: 'Information', exact: true }).click();
-	if (path === '/settings/data-model')
-		await page.getByRole('main').getByRole('button', { name: 'System Collections', exact: true }).click();
 	await page.waitForTimeout(300);
 
 	const tables = await page.evaluate(readTables, { rows: ROWS, chipRows: CHIP_ROWS, levels: LEVELS });
@@ -237,7 +238,7 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 				return text(copy);
 			};
 			const h1 = document.querySelector('main h1')!;
-			const header = h1.closest('.mb-6');
+			const header = h1.closest('[data-page-header]');
 			const status = Array.from(document.querySelectorAll('main [role="status"]'))
 				.map(text)
 				.find((t) => new RegExp(count).test(t));

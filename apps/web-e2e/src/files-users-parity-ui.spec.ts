@@ -105,7 +105,7 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 				return text(copy);
 			};
 			const h1 = document.querySelector('main h1');
-			const header = h1?.closest('.mb-6');
+			const header = h1?.closest('[data-page-header]');
 			const actions = header?.lastElementChild;
 			const buttons: string[] = [];
 

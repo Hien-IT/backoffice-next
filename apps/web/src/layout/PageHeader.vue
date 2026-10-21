@@ -28,7 +28,7 @@ const router = useRouter();
 </script>
 
 <template>
-	<div class="flex flex-wrap items-center justify-between gap-3">
+	<div data-page-header class="flex flex-wrap items-center justify-between gap-3">
 		<div class="flex min-w-0 flex-col gap-1">
 			<!-- D-101: no breadcrumb above the title (owner, 2026-10-17); the headline row keeps the version menu. -->
 			<div v-if="$slots['headline-append']" class="flex flex-wrap items-center gap-2">

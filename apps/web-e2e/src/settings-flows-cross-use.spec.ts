@@ -197,12 +197,11 @@ test('(4) runs from the item page of both apps are in the Logs of both (SC-003)'
 		.getByRole('complementary')
 		.getByRole('button', { name: new RegExp(BO_FLOW) })
 		.click();
-	await page.getByRole('dialog').getByRole('textbox').fill('from backoffice');
-	await page
-		.getByRole('dialog')
-		.getByRole('button', { name: /Run Flow/ })
-		.click();
-	await expect(page.getByRole('dialog')).toHaveCount(0);
+	// The detail popover is a dialog too (D-128): the confirmation is the other one.
+	const confirm = page.getByRole('dialog').filter({ hasNot: page.locator('#sidebar') });
+	await confirm.getByRole('textbox').fill('from backoffice');
+	await confirm.getByRole('button', { name: /Run Flow/ }).click();
+	await expect(confirm).toHaveCount(0);
 
 	await expect
 		.poll(
