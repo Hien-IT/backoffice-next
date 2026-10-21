@@ -141,8 +141,13 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 		});
 	});
 
+	// The detail popover mounts its sections when it opens (D-128): the revisions count loads only then, sometimes after
+	// a first network idle (CI 39652197946: "Revisions" without its count). Pages without the section send no request.
+	const counted = page
+		.waitForResponse((r) => r.url().includes('/revisions?') && r.url().includes('aggregate'), { timeout: 10_000 })
+		.catch(() => null);
 	await openSidebar(page);
-	// The detail popover mounts its sections when it opens (D-128): the revisions count loads only then.
+	await counted;
 	await page.waitForLoadState('networkidle');
 	const sections = (await page.locator('#sidebar h3').allTextContents())
 		.map((t) => t.replace(/expand_more|[a-z_]+(?=[A-Z])/g, '').trim())

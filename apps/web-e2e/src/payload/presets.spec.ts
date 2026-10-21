@@ -85,8 +85,26 @@ async function compare(
 	return [normalize(bo), normalize(dir)] as const;
 }
 
+/**
+ * The map layout saves `cameraOptions` on moveend, also after it fits the data when the items arrive after the map
+ * loaded: in both apps the same code, but whether that write happens depends on the API and tile timing (an extra PATCH
+ * at Backoffice in CI 39603142732, 39629189282, 39652197946, none in other runs). The camera is left out and a write that
+ * only changed it is dropped; MapLayout.browser.test.ts checks the camera writes.
+ */
+function withoutCamera<T>(writes: readonly T[]): T[] {
+	const result: T[] = [];
+	for (const write of writes) {
+		const copy = structuredClone(write);
+		delete (copy as { body?: { layout_options?: { map?: Record<string, unknown> } } }).body?.layout_options?.map?.[
+			'cameraOptions'
+		];
+		if (JSON.stringify(copy) !== JSON.stringify(result.at(-1))) result.push(copy);
+	}
+	return result;
+}
+
 test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', async ({ browser, page }) => {
-	const [bo, dir] = await compare(browser, page, {
+	const [boWrites, dirWrites] = await compare(browser, page, {
 		async directus(page) {
 			const main = page.getByRole('main');
 			await goto(page, '/content/bo_content');
@@ -150,6 +168,7 @@ test('layout state auto-save: cards, table, calendar, kanban, map (SC-005)', asy
 		},
 	});
 
+	const [bo, dir] = [withoutCamera(boWrites), withoutCamera(dirWrites)];
 	expect(calls(dir)).toEqual(['POST /presets', ...Array(11).fill('PATCH /presets/<id1>')]);
 	expect(bo).toEqual(dir);
 });
