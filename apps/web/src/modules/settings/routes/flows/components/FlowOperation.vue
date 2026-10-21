@@ -294,7 +294,8 @@ const ICON_COLOR = computed(() => ({
 			</span>
 		</template>
 
-		<div class="flex min-h-0 flex-1 flex-col p-3">
+		<!-- long overviews scroll inside the tile: operation.vue:331-336 -->
+		<div class="flex min-h-0 flex-1 flex-col overflow-y-auto p-3">
 			<p v-if="overviewError" class="m-0 flex items-center gap-2 text-theme-sm text-warning-600 dark:text-warning-400">
 				<BoIcon name="warning" size="sm" />
 				{{ t('unexpected_error') }}

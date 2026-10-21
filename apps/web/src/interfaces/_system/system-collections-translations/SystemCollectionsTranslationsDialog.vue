@@ -397,7 +397,8 @@ const TEXT_BTN =
 					{{ isManageMode ? $t('translations_fields_up_to_date') : $t('no_fields_in_collection', { collection }) }}
 				</BoNotice>
 
-				<div v-else class="rounded-lg border border-gray-200 p-3 dark:border-gray-800">
+				<!-- the panel scrolls past 15.75rem with a sticky Select all footer: system-collections-translations-dialog.vue:536-540, 564-566 -->
+				<div v-else class="max-h-[15.75rem] overflow-auto rounded-lg border border-gray-200 p-3 dark:border-gray-800">
 					<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
 						<BoCheckbox
 							v-for="field in targetFieldOptions"
@@ -407,7 +408,9 @@ const TEXT_BTN =
 							@update:model-value="toggleField(field.field, $event)"
 						/>
 					</div>
-					<p class="m-0 mt-2 text-end text-theme-sm text-gray-500 dark:text-gray-400">
+					<p
+						class="sticky bottom-0 float-end m-0 mt-2 w-max rounded-ss-lg bg-white px-1.5 py-1 text-end text-theme-sm text-gray-500 dark:bg-gray-900 dark:text-gray-400"
+					>
 						<button type="button" :class="TEXT_BTN" :disabled="isAllSelected" @click="selectAllFields">
 							{{ $t('select_all') }}
 						</button>

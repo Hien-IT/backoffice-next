@@ -57,7 +57,8 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 </script>
 
 <template>
-	<div v-if="disabled" class="flex min-h-7 items-center gap-2 text-gray-500 dark:text-gray-400" :title="tooltip">
+	<!-- rows are not text-selectable and long names cut with an ellipsis: FieldSelect.vue:381-382, 515-527 -->
+	<div v-if="disabled" class="flex min-h-7 items-center gap-2 text-gray-500 select-none dark:text-gray-400" :title="tooltip">
 		<BoIcon
 			name="lock"
 			size="sm"
@@ -65,14 +66,14 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 			:label="$t('system_fields_locked')"
 			:title="$t('system_fields_locked')"
 		/>
-		<span class="font-mono text-theme-sm">{{ field.field }}</span>
+		<span class="truncate font-mono text-theme-sm">{{ field.field }}</span>
 		<span v-if="interfaceName" class="truncate text-theme-xs">{{ interfaceName }}</span>
 	</div>
 
-	<div v-else-if="localType === 'group'" class="flex flex-col gap-2">
+	<div v-else-if="localType === 'group'" class="flex flex-col gap-2 select-none">
 		<div class="flex min-h-7 items-center gap-2">
 			<span
-				class="font-mono text-theme-sm"
+				class="truncate font-mono text-theme-sm"
 				:class="hidden ? 'text-gray-500 dark:text-gray-400' : 'text-gray-800 dark:text-white/90'"
 				>{{ field.field }}</span
 			>
@@ -114,7 +115,7 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 	</div>
 
 	<!-- A hidden field is dimmed with the FR-106 muted colors, not opacity (contrast). -->
-	<div v-else class="flex min-h-7 items-center gap-2" :class="{ 'hidden-field': hidden }">
+	<div v-else class="flex min-h-7 items-center gap-2 select-none" :class="{ 'hidden-field': hidden }">
 		<button
 			type="button"
 			class="flex min-w-0 flex-1 cursor-pointer items-center gap-2 rounded text-start"
@@ -122,7 +123,7 @@ const ICON = 'shrink-0 text-gray-500 dark:text-gray-400';
 			:title="tooltip"
 			@click="grid.open(field)"
 		>
-			<span class="font-mono text-theme-sm text-gray-800 dark:text-white/90">{{ field.field }}</span>
+			<span class="truncate font-mono text-theme-sm text-gray-800 dark:text-white/90">{{ field.field }}</span>
 			<template v-if="field.meta?.required === true">
 				<BoIcon name="star" size="sm" class="text-error-600 dark:text-error-400" aria-hidden="true" />
 				<span class="sr-only">{{ $t('required') }}</span>

@@ -68,7 +68,8 @@ const sidebarStore = useSidebarStore();
 sidebarStore.collapse();
 
 // Spec 020: the scrolling content of a `fill` page, the `main-element` of the extension view shim.
-const scrollElement = useTemplateRef<HTMLElement>('scroll');
+const scroll = useTemplateRef<HTMLElement>('scroll');
+const scrollElement = computed(() => (props.fill ? scroll.value : null));
 defineExpose({ scrollElement });
 </script>
 
@@ -110,10 +111,10 @@ defineExpose({ scrollElement });
 					</AppHeader>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
 					<NoticeStack />
-					<div v-if="fill" ref="scroll" class="flex min-h-0 flex-1 flex-col overflow-auto">
+					<!-- One element either way: switching `fill` (item page live preview) keeps the page mounted. -->
+					<div ref="scroll" :class="fill ? 'flex min-h-0 flex-1 flex-col overflow-auto' : 'contents'">
 						<slot />
 					</div>
-					<slot v-else />
 				</MainContent>
 			</div>
 		</div>

@@ -372,7 +372,8 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 					/>
 					<BoIcon v-else name="account_circle" class="text-gray-500 dark:text-gray-400 [font-size:5rem]!" aria-hidden="true" />
 				</div>
-				<div class="user-box-content flex min-w-0 flex-col gap-1">
+				<!-- long names/emails are clipped, the name on one line: users/routes/item.vue:582, 615 -->
+				<div class="user-box-content flex min-w-0 grow flex-col gap-1 overflow-hidden">
 					<template v-if="loading">
 						<div
 							v-for="n in 3"
@@ -382,7 +383,7 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 						/>
 					</template>
 					<template v-else-if="isNew === false && item">
-						<p class="name m-0 text-lg font-semibold text-gray-800 dark:text-white/90">
+						<p class="name m-0 truncate text-lg font-semibold text-gray-800 dark:text-white/90">
 							{{ userName(item as Record<string, any>) }}
 							<span v-if="item.title" class="title font-normal text-gray-500 dark:text-gray-400">, {{ item.title }}</span>
 						</p>

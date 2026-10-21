@@ -161,12 +161,13 @@ const FOCUS =
 			class="h-9 animate-pulse rounded-lg bg-gray-100 motion-reduce:animate-none dark:bg-gray-800"
 		/>
 	</div>
+	<!-- max height = --input-height-md * 2, then scroll: folder-picker.vue:165-166 -->
 	<ul
 		v-else
 		ref="tree"
 		role="tree"
 		:aria-label="$t('folder')"
-		class="folder-picker m-0 flex list-none flex-col gap-1 p-0"
+		class="folder-picker m-0 flex max-h-[18.875rem] list-none flex-col gap-1 overflow-auto p-0"
 		@keydown="onKeydown"
 		@focusin="onFocusin"
 	>

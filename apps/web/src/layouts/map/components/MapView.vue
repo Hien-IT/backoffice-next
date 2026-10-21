@@ -179,7 +179,8 @@ async function loadGeocoder() {
 	if (unmounted) return;
 
 	const marker = document.createElement('div');
-	marker.className = 'maplibregl-user-location-dot';
+	// The dot does not catch clicks meant for the map: styles/lib/_mapbox.scss:54-59.
+	marker.className = 'maplibregl-user-location-dot pointer-events-none';
 
 	const geocoderControl = new MapboxGeocoder({
 		accessToken: mapboxKey,
@@ -389,11 +390,12 @@ const CANVAS_FOCUS =
 
 <template>
 	<div class="relative h-full w-full">
-		<!-- The library's own control groups (geolocate, box select) are hidden: the buttons below drive them. -->
+		<!-- The library's own control groups (geolocate, box select) are hidden: the buttons below drive them. The
+			top-right controls (geocoder) keep to 80% of the width: styles/lib/_mapbox.scss:193-195. -->
 		<div
 			ref="container"
 			data-map
-			class="h-full w-full [&_.maplibregl-ctrl-group]:hidden"
+			class="h-full w-full [&_.maplibregl-ctrl-group]:hidden [&_.maplibregl-ctrl-top-right]:max-w-[80%]"
 			:class="[
 				CANVAS_FOCUS,
 				{

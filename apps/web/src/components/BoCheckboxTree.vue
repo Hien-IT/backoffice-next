@@ -49,6 +49,7 @@ const {
 	openGroups = null,
 	search: searchProp,
 	showSelectionOnly: showSelectionOnlyProp = null,
+	scroll = false,
 } = defineProps<{
 	/** The choices that will be rendered as checkboxes */
 	choices?: Record<string, any>[];
@@ -76,6 +77,8 @@ const {
 	/** Directus v-checkbox-tree `showSelectionOnly` (spec 020): set by the caller, the "show selected" switch is hidden;
 	 * null keeps the switch. */
 	showSelectionOnly?: boolean | null;
+	/** select-multiple-checkbox-tree: the box scrolls past 28.125rem with a sticky search and footer. */
+	scroll?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -305,6 +308,7 @@ const CHEVRON =
 	'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-transform hover:bg-gray-100 hover:text-gray-700 motion-reduce:transition-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300';
 const SEARCH =
 	'mb-3 h-9 w-full rounded-lg border border-gray-500 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400';
+const STICKY_BG = 'bg-white dark:bg-gray-900';
 const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 </script>
 
@@ -317,9 +321,16 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 		<div
 			v-else
 			class="rounded-lg border p-2"
-			:class="invalid || error ? 'border-error-600 dark:border-error-400' : 'border-gray-200 dark:border-gray-800'"
+			:class="[
+				invalid || error ? 'border-error-600 dark:border-error-400' : 'border-gray-200 dark:border-gray-800',
+				{ 'max-h-[28.125rem] overflow-auto': scroll },
+			]"
 		>
-			<template v-if="searchProp === undefined && choices.length > 10">
+			<!-- sticky search and footer in the scrolling box: select-multiple-checkbox-tree.vue:98-125 -->
+			<div
+				v-if="searchProp === undefined && choices.length > 10"
+				:class="{ [`sticky top-0 z-2 -mx-2 -mt-2 px-2 pt-2 ${STICKY_BG}`]: scroll }"
+			>
 				<label :for="`${id}-search`" class="sr-only">{{ t('search') }}</label>
 				<input
 					:id="`${id}-search`"
@@ -329,7 +340,7 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 					:disabled="disabled"
 					:class="SEARCH"
 				/>
-			</template>
+			</div>
 			<TreeRoot
 				v-slot="{ flattenItems }"
 				v-model:expanded="openSelection"
@@ -382,6 +393,7 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 				v-if="showSelectionOnlyProp === null"
 				v-model="showSelectionToggle"
 				class="mt-3"
+				:class="{ [`sticky bottom-0 z-2 -mx-2 -mb-2 p-2 ${STICKY_BG}`]: scroll }"
 				:label="t('interfaces.select-multiple-checkbox-tree.show_selected')"
 				:disabled="disabled || value.length === 0"
 			/>

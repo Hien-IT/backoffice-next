@@ -131,12 +131,12 @@ const ICON_BTN =
 				<BoIcon :name="open ? 'expand_less' : 'expand_more'" size="sm" />
 			</button>
 		</div>
-		<!-- sanitized by md() (DOMPurify, FR-074) -->
+		<!-- sanitized by md() (DOMPurify, FR-074); wide pre/media stay in the panel: mixins/_markdown.scss:84-125 -->
 		<!-- eslint-disable vue/no-v-html -->
 		<div
 			v-if="open && notification.message"
 			:id="messageId"
-			class="mt-2 ps-8 text-theme-sm wrap-break-word text-gray-700 dark:text-gray-300 [&_a]:text-brand-500 [&_a]:underline [&_a:hover]:text-brand-600 dark:[&_a]:text-brand-400 [&_p:not(:last-child)]:mb-2"
+			class="mt-2 ps-8 text-theme-sm wrap-break-word text-gray-700 dark:text-gray-300 [&_a]:text-brand-500 [&_a]:underline [&_a:hover]:text-brand-600 dark:[&_a]:text-brand-400 [&_iframe]:max-w-full [&_img]:h-auto [&_img]:max-w-full [&_p:not(:last-child)]:mb-2 [&_pre]:overflow-auto [&_video]:h-auto [&_video]:max-w-full"
 			v-html="html"
 		/>
 		<!-- eslint-enable vue/no-v-html -->

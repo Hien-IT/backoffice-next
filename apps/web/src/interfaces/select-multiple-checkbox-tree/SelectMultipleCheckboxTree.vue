@@ -50,6 +50,7 @@ const items = computed(() => choices.value || []);
 			:invalid="invalid"
 			:choices="items"
 			:value-combining="valueCombining"
+			scroll
 			@update:model-value="$emit('input', $event)"
 		/>
 	</div>

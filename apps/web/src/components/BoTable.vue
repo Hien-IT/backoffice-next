@@ -59,6 +59,8 @@ const props = withDefaults(
 		appendWidth?: number;
 		/** The table scrolls in its own box (the parent bounds the height), the header stays on top (v-table). */
 		fixedHeader?: boolean;
+		/** The `item-append` column stays at the inline end when the table scrolls sideways (list-o2m.vue:753-758). */
+		stickyAppend?: boolean;
 		/** Row height in px (v-table `rowHeight`), instead of the `spacing` heights. */
 		rowHeight?: number | undefined;
 		/** Headers can be dragged to another position (v-table `allowHeaderReorder`), emits `update:columns`. */
@@ -83,6 +85,7 @@ const props = withDefaults(
 		manualSortKey: undefined,
 		appendWidth: 160,
 		fixedHeader: false,
+		stickyAppend: false,
 		rowHeight: undefined,
 		allowHeaderReorder: false,
 		clickable: undefined,
@@ -323,8 +326,10 @@ function onPointerUp() {
 			:class="fixedHeader ? 'min-h-0 flex-1 overflow-auto' : 'overflow-x-auto'"
 			:data-fixed-header="fixedHeader ? 'true' : undefined"
 		>
+			<!-- rows are not clickable while loading: v-table.vue:435-437 -->
 			<table
 				class="w-full table-fixed"
+				:class="{ 'pointer-events-none': loading }"
 				:style="{ minWidth: `${minWidth}px` }"
 				:aria-busy="loading ? 'true' : undefined"
 			>
@@ -453,7 +458,12 @@ function onPointerUp() {
 							/>
 						</th>
 						<th aria-hidden="true" class="p-0" />
-						<th v-if="hasItemAppendSlot" scope="col" class="p-0">
+						<th
+							v-if="hasItemAppendSlot"
+							scope="col"
+							class="p-0"
+							:class="{ 'sticky end-0 bg-white dark:bg-gray-900': stickyAppend }"
+						>
 							<slot name="header-append" />
 						</th>
 					</tr>
@@ -494,7 +504,7 @@ function onPointerUp() {
 						<tr
 							:aria-selected="showSelectColumn ? (getSelectedState(row) ? 'true' : 'false') : undefined"
 							:tabindex="hasClickListener ? 0 : undefined"
-							class="border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]"
+							class="group border-t border-gray-100 hover:bg-gray-50 dark:border-gray-800 dark:hover:bg-white/[0.03]"
 							:style="rowHeight ? { height: `${rowHeight}px` } : undefined"
 							:class="[
 								rowHeight ? '' : ROW_HEIGHTS[spacing],
@@ -534,8 +544,21 @@ function onPointerUp() {
 								<slot :name="`item.${column.key}`" :item="row">{{ row[column.key] }}</slot>
 							</td>
 							<td class="p-0" />
+							<!-- sticky at the inline end with an opaque row background: list-o2m.vue:753-758 -->
 							<!-- eslint-disable-next-line vuejs-accessibility/click-events-have-key-events -- only stops the row click -->
-							<td v-if="hasItemAppendSlot" class="px-2 py-0" @click.stop>
+							<td
+								v-if="hasItemAppendSlot"
+								class="px-2 py-0"
+								:class="
+									stickyAppend
+										? [
+												'sticky end-0 border-s border-gray-100 group-hover:bg-gray-50 dark:border-gray-800 dark:group-hover:bg-gray-800',
+												getSelectedState(row) ? 'bg-gray-50 dark:bg-gray-800' : 'bg-white dark:bg-gray-dark',
+											]
+										: undefined
+								"
+								@click.stop
+							>
 								<slot name="item-append" :item="row" />
 							</td>
 						</tr>

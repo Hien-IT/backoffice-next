@@ -81,9 +81,11 @@ function onOpenChange(open: boolean) {
 		:title="disabled ? $t('view_raw_value') : $t('edit_raw_value')"
 		@update:open="onOpenChange"
 	>
+		<!-- the JSON editor is capped at --input-height-xl: form-field-raw-editor.vue:107-114 -->
 		<component
 			:is="inputCode"
 			v-if="type === 'object' && inputCode"
+			class="[&_.CodeMirror]:max-h-[28.125rem] [&_.CodeMirror-scroll]:max-h-[28.125rem]"
 			:value="internalValue"
 			:disabled="disabled"
 			:line-number="false"

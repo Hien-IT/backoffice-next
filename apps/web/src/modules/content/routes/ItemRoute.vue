@@ -626,9 +626,12 @@ function useItemNavigation() {
 		v-if="error || !collectionInfo || (collectionInfo?.meta?.singleton === true && primaryKey !== null)"
 	/>
 
+	<!-- With live preview open the page is `fill` and the split takes its height, so the form and the preview scroll on
+	     their own: private-view-main.vue:223-231, routes/item.vue:1064-1077. -->
 	<PrivateView
 		v-else
 		:title="collectionInfo.meta?.singleton ? collectionInfo.name : title"
+		:fill="livePreviewActive"
 		:tab-title="tabTitle"
 		:back="collectionInfo.meta?.singleton ? undefined : backRoute"
 		:icon="collectionInfo.meta?.singleton ? (collectionInfo.icon ?? undefined) : undefined"
@@ -753,6 +756,7 @@ function useItemNavigation() {
 		<SplitPanel
 			v-model:size="livePreviewSize"
 			v-model:collapsed="livePreviewCollapsed"
+			:class="{ 'min-h-0 flex-1': livePreviewActive }"
 			:label="$t('live_preview.change_size')"
 			:collapse-threshold="15"
 			:min-size="livePreviewSizeMinSize"

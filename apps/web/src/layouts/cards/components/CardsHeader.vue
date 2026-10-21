@@ -91,8 +91,9 @@ const ICON_BTN =
 </script>
 
 <template>
+	<!-- sticky at the top of the page scroller (PrivateView `fill`): cards/components/header.vue:136-139 -->
 	<div
-		class="mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 px-2 py-2 dark:border-gray-800"
+		class="sticky top-0 z-4 mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 bg-white px-2 py-2 dark:border-gray-800 dark:bg-gray-900"
 	>
 		<BoCheckbox
 			:model-value="totalSelectionCount ? null : false"

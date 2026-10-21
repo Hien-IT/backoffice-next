@@ -599,6 +599,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 
 			<BoTable
 				v-if="layout === 'table'"
+				sticky-append
 				v-model="selectionKeys"
 				v-model:columns="headers"
 				:sort="manualSort"
