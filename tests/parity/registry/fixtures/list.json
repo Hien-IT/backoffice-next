@@ -83,5 +83,22 @@
 			"verified": true,
 			"github_name": "Alice Parity"
 		}
+	},
+	{
+		"id": "e0000000-0000-4000-8000-000000000006",
+		"name": "parity-endpoint-demo",
+		"description": "Parity fixture endpoint extension",
+		"total_downloads": 30,
+		"verified": false,
+		"type": "endpoint",
+		"last_updated": "2026-07-01T10:00:00.000Z",
+		"host_version": "^11.0.0",
+		"sandbox": false,
+		"license": "MIT",
+		"publisher": {
+			"username": "parity-alice",
+			"verified": true,
+			"github_name": "Alice Parity"
+		}
 	}
 ]

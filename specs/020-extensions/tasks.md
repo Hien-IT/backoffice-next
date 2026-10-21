@@ -332,7 +332,7 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
       dòng missing tạo bằng đổi tên thư mục trên MinIO); `e2e/payload/extensions.spec.ts` + `e2e/helpers/db-rows.ts`
       `EXTENSIONS_TABLES = ['directus_extensions']` (so với Directus app 8155 cùng thao tác); `e2e/settings-parity-ui.spec.ts:
       77-78`; `e2e/a11y.spec.ts` thêm màn
-- [ ] T096 [US5] (lượt 3, sau T174) Menu `uninstall`, `reinstall` gọi thật (#207, #208); E2E `settings-extensions.spec.ts`
+- [X] T096 [US5] (lượt 3, sau T174) Menu `uninstall`, `reinstall` gọi thật (#207, #208); E2E `settings-extensions.spec.ts`
       thêm ca uninstall/reinstall qua fake registry
 - [ ] T097 [US5] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck,test,build`, `check-port-headers`, parity đủ
       (`--profiles` như CI + `multi,extensions`), `deploy` hai chế độ, `test-template.sh`; ghi "Ghi chú khi làm" cuối file
@@ -498,20 +498,20 @@ src/directus-shim` (axe, bàn phím).
 
 - [ ] T170 [P] [US6] Recipe nháp Q-42, Q-43 (registry, trang extension, trang tài khoản, trạng thái nạp/nạp lại/lỗi/rỗng)
       vào `design-system/docs/component-specs.md`
-- [ ] T171 [P] [US6] Fake registry: `parity/registry/server.mjs` thêm `GET /download/:versionId[?sandbox=true]` trả `.tgz`
+- [X] T171 [P] [US6] Fake registry: `parity/registry/server.mjs` thêm `GET /download/:versionId[?sandbox=true]` trả `.tgz`
       của `fx/` (404 khi `sandbox=true` mà extension không sandbox); `parity/registry/fixtures/{list,describe}.json`
       thêm `…0006..0013`; `api/extensions/registry/fixtures.test.ts` giữ xanh
-- [ ] T172 [P] [US6] Unit: port `D/api/extensions/lib/installation/manager.test.ts`; `api/extensions/lib/installation/
+- [X] T172 [P] [US6] Unit: port `D/api/extensions/lib/installation/manager.test.ts`; `api/extensions/lib/installation/
       tarball-safety.test.ts` (tarball có đường dẫn tuyệt đối, `..`, symlink ra ngoài: không file nào ngoài thư mục tạm,
       R-68); service `preInstall` (limit, `points`), `install` (dòng cha + con), `uninstall`/`reinstall` (400 các ca)
-- [ ] T173 [P] [US6] `parity/src/extensions/install.test.ts` (profile `extensions`): install/reinstall/uninstall qua fake
+- [X] T173 [P] [US6] `parity/src/extensions/install.test.ts` (profile `extensions`): install/reinstall/uninstall qua fake
       registry, `LIMIT_EXCEEDED`, tải lỗi 503, so `directus_extensions` và thư mục trên MinIO; gỡ entry D-37 khỏi
       `parity/accepted-differences.ts`; sửa `parity/src/system/extensions.test.ts`, `tests/directus-app-e2e/src/
       system.spec.ts` phần install
 
 ### Implementation cho User Story 6
 
-- [ ] T174 [US6] API: port `@directus/extensions-registry` `download` → `api/extensions/registry/download.ts` (+ export
+- [X] T174 [US6] API: port `@directus/extensions-registry` `download` → `api/extensions/registry/download.ts` (+ export
       `index.ts`); `D/api/extensions/lib/installation/{index,manager}.ts` → `api/extensions/lib/installation/`;
       `install`/`uninstall` trong manager (broadcast `partialSync`, reload `skipSync`, action); service `preInstall`,
       `install`, `uninstall`, `reinstall`; controller bỏ `NO_INSTALL`; spec 010 D-37 ghi "gỡ ở 020"
@@ -732,4 +732,19 @@ Lượt 3:
   dev local đúng luồng, số đo thật chờ workflow tuần.
 - Store (T105): `notifications.add/hide/remove/update` đi vào notice tại chỗ của `use-notices` (D-66); `update` cập nhật
   `previous` theo id (Directus gán `previous = queue.map(...)`, lỗi của bản gốc, không chép).
+
+### Lượt 3 (2026-10-21, đang làm)
+
+- T174: installation manager, `download` và service `install`/`reinstall`/`uninstall` đã port ở lượt 1; lượt 3 chỉ bỏ 503
+  ở controller. Đo trên env local: Directus 11.17.4 và Backoffice cùng 204 cho cài, cài lại, gỡ `parity-interface-color`
+  qua fake registry; extension không sandbox với `MARKETPLACE_TRUST` mặc định (`sandbox`) → 503 "Could not download the
+  extension" và dòng `directus_extensions` ghi trước khi tải vẫn còn, ở cả hai app.
+- T171: id version của fixture registry trước trùng nhau (`…00a` cho mọi extension) → đổi thành id extension với tiền tố
+  `f`; thêm `parity-endpoint-demo` (…0006, không sandbox) thay vì `…0006..0013`; registry mount `tests/fixtures/extensions`.
+- T172: `tarball-safety.test.ts` chạy tar 7 thật với entry tuyệt đối, `..` và symlink ra ngoài rồi file đi qua symlink:
+  không file nào ra ngoài thư mục tạm.
+- T096: menu Directus chỉ có Reinstall ở dòng Missing; E2E thử Uninstall một extension cài từ registry (dòng tìm theo
+  `data-extension-id`, vì bản registry và bản local cùng tên).
+- Toggle extension app bị khóa khi web chạy Vite dev (`import.meta.env.DEV`, như Directus): ca bật tắt của
+  `settings-extensions.spec.ts` không chạy được ở cấu hình `dev`.
 

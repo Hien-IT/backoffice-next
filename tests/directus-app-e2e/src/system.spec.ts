@@ -240,47 +240,37 @@ test('Insights: create a dashboard, add a Label panel, edit it, delete the panel
 	]);
 });
 
-test('Settings > Marketplace: the fake registry list, an extension, Install is refused (D-37)', async ({ browser }) => {
+test('Settings > Marketplace: the fake registry list, an extension, Install (spec 020 wave 3)', async ({ browser }) => {
 	const EXTENSION = 'e0000000-0000-4000-8000-000000000001'; // tests/parity/registry/fixtures
-	const reasons: Record<string, string> = {};
-	// Directus writes the directus_extensions row before it downloads (ExtensionsService.install), so a failed
-	// download leaves it: remove it before and after.
 	const clear = () => hostDb()('directus_extensions').where({ id: EXTENSION }).delete();
 	await clear();
 
 	try {
 		const changes = await bothRuns(
 			browser,
-			async (page, url, tag) => {
+			async (page, url) => {
 				await page.goto(`${url}/admin/settings/marketplace`);
 				await page.getByText('Parity Interface Color').click();
 				await expect(page.getByRole('heading', { name: 'Parity Interface Color' })).toBeVisible();
 
 				const install = call(page, 'POST', /^\/extensions\/registry\/install$/);
 				await page.getByRole('button', { name: 'Install Extension' }).click();
-				const res = await install;
-				expect(res.status()).toBe(503);
-				reasons[tag.slice(-3)] = ((await res.json()) as any).errors[0].extensions.reason;
-				await expect(page.locator('.v-notification, .v-dialog').first()).toBeVisible();
+				expect((await install).status()).toBe(204);
+
+				// Both runs share the database and the storage: the next run installs again from a clean table.
+				const uninstall = await adminAt(url, 'DELETE', `/extensions/registry/uninstall/${EXTENSION}`);
+				expect(uninstall.status).toBe(204);
 			},
 			['directus_extensions'],
 		);
 
-		const [prx, dir] = [changes['prx'] as any, changes['dir'] as any];
 		const installed = (a: any) => a.collection === 'directus_extensions';
+		const [prx, dir] = [changes['prx'] as any, changes['dir'] as any];
 
-		// D-37: the new app refuses before writing; Directus writes the row, then cannot download from the fake registry.
-		expect(reasons).toEqual({
-			prx: 'Backoffice does not install extensions',
-			dir: 'Could not download the extension',
-		});
-		expect(prx.directus_extensions).toEqual({ added: [], changed: [], removed: [] });
-		expect(prx.activity.filter(installed)).toEqual([]);
-		expect(dir.directus_extensions.added).toEqual([
-			{ id: expect.any(String), enabled: true, folder: expect.any(String), source: 'registry', bundle: null },
-		]);
+		expect(prx.activity.filter(installed)).toEqual(dir.activity.filter(installed));
 		expect(dir.activity.filter(installed)).toEqual([
 			{ action: 'create', collection: 'directus_extensions', item: '<serial>' },
+			{ action: 'delete', collection: 'directus_extensions', item: '<serial>' },
 		]);
 	} finally {
 		await clear();

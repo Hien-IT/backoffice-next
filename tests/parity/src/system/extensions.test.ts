@@ -1,20 +1,18 @@
 // Feature 010, US8 (spec FR-070 to FR-072, contracts/system-api.md §4, D-37): /extensions at both apps. Reads, the
 // app bundle (status and headers; the body is D-137 until spec 020 wave 2) and the registry browse through the fake
-// registry are the same; install, reinstall, uninstall keep the checks of Directus, then the new app refuses (503)
-// where Directus answers 503 "Could not download the extension" or 204 (measured 2026-10-14 on Directus 11.17.4);
-// PATCH and DELETE /:pk are those of Directus since spec 020 wave 1.
-// Directus writes the directus_extensions row before it downloads, so its failed install leaves the row (its uninstall
-// removes it); the new app writes nothing.
+// registry are the same; PATCH and DELETE /:pk are those of Directus since spec 020 wave 1; install, reinstall and
+// uninstall through the fake registry since spec 020 wave 3 (D-37 lifted): one app after the other (they share the
+// database and the storage), the same status and the same directus_extensions row at each.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
-import { parity } from '../parity.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
 import { admin, same } from './helpers.js';
 
 const full = process.env['PARITY_SUITE'] !== 'reduced';
 
 const EXTENSION = 'e0000000-0000-4000-8000-000000000001'; // tests/parity/registry/fixtures
-const VERSION = 'e0000000-0000-4000-8000-00000000000a';
+// The version of parity-interface-color (sandboxed: MARKETPLACE_TRUST defaults to `sandbox`, as Directus).
+const VERSION = 'f0000000-0000-4000-8000-000000000001';
 const ACCOUNT = 'a1b2c3d4-0000-4000-8000-000000000001';
 const UNKNOWN = 'a1b2c3d4-0000-4000-8000-0000000000ff';
 
@@ -86,8 +84,8 @@ describe.runIf(full)('the registry through the fake registry', () => {
 	});
 });
 
-describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D-37', () => {
-	it('the same 403 and 404 before the action; then Directus 503 or 204, the new app 503; PATCH, DELETE the same', async () => {
+describe.runIf(full)('install, uninstall, enable: the checks of Directus, then the action at each app', () => {
+	it('the same 403 and 404 before the action; install, reinstall, uninstall the same at each app; PATCH, DELETE the same', async () => {
 		const headers = { ...(await admin()), 'content-type': 'application/json' };
 		await hostDb()('directus_extensions').where({ id: EXTENSION }).delete();
 		const before = await rows();
@@ -105,30 +103,38 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D
 		await same({ method: 'PATCH', path: '/extensions/xyz', headers, body: {} });
 		await same({ method: 'DELETE', path: `/extensions/${EXTENSION}`, headers: bearer(appUser) });
 
-		// The action itself (D-37), with the rows of directus_extensions after it (only Directus writes).
-		for (const [req, directus, backoffice, added] of [
-			[
-				{ method: 'POST', path: '/extensions/registry/install', body: { extension: EXTENSION, version: VERSION } },
-				503,
-				503,
-				1,
-			],
-			[{ method: 'POST', path: '/extensions/registry/reinstall', body: { extension: EXTENSION } }, 503, 503, 1],
-			[{ method: 'DELETE', path: `/extensions/registry/uninstall/${EXTENSION}` }, 204, 503, 0],
-		] as const) {
-			const result = await parity({ ...req, headers });
-			expect(result.directus.status, `${req.method} ${req.path}`).toBe(directus);
-			expect(result.backoffice.status, `${req.method} ${req.path}`).toBe(backoffice);
-			expect(await rows(), `rows after ${req.method} ${req.path}`).toBe(before + added);
+		// The action itself, at one app then the other; each leaves the table as it found it.
+		const urls = { directus: process.env['DIRECTUS_URL']!, backoffice: process.env['BACKOFFICE_URL']! };
+		const call = async (url: string, method: string, path: string, body?: unknown) =>
+			(
+				await fetch(`${url}${path}`, {
+					method,
+					headers,
+					...(body === undefined ? {} : { body: JSON.stringify(body) }),
+				})
+			).status;
+		const row = async () =>
+			hostDb()('directus_extensions').where({ id: EXTENSION }).first('id', 'folder', 'source', 'bundle', 'enabled');
+		const seen: Record<string, unknown> = {};
 
-			if (backoffice === 503) {
-				expect((result.backoffice.json as any).errors[0].extensions).toEqual({
-					service: 'marketplace',
-					reason: 'Backoffice does not install extensions',
-					code: 'SERVICE_UNAVAILABLE',
-				});
-			}
+		for (const [app, url] of Object.entries(urls)) {
+			const install = await call(url, 'POST', '/extensions/registry/install', {
+				extension: EXTENSION,
+				version: VERSION,
+			});
+			const installed = await row();
+			const reinstall = await call(url, 'POST', '/extensions/registry/reinstall', { extension: EXTENSION });
+			const uninstall = await call(url, 'DELETE', `/extensions/registry/uninstall/${EXTENSION}`);
+			seen[app] = { install, installed, reinstall, uninstall, after: await rows() };
 		}
+
+		expect(seen['backoffice']).toEqual(seen['directus']);
+		expect(seen['directus']).toMatchObject({
+			install: 204,
+			installed: { id: EXTENSION, folder: VERSION, source: 'registry', bundle: null },
+			reinstall: 204,
+			uninstall: 204,
+		});
 
 		expect(await rows()).toBe(before);
 

@@ -6,6 +6,9 @@ import { RegistryAccountResponse } from './modules/account/schemas/registry-acco
 import { RegistryDescribeResponse } from './modules/describe/schemas/registry-describe-response.js';
 import { RegistryListResponse } from './modules/list/schemas/registry-list-response.js';
 
+// Read by server.mjs when it loads: the packed fixture extensions of the repository (the container mounts them at /fixtures).
+process.env['FIXTURES_DIR'] = new URL('../../../../../tests/fixtures/extensions', import.meta.url).pathname;
+
 const fixture = (name: string) =>
 	JSON.parse(
 		readFileSync(new URL(`../../../../../tests/parity/registry/fixtures/${name}.json`, import.meta.url), 'utf8'),
@@ -33,3 +36,30 @@ test('accounts.json: every entry is a RegistryAccountResponse', () => {
 	expect(entries.length).toBeGreaterThan(0);
 	for (const entry of entries) RegistryAccountResponse.parse(entry);
 });
+
+test('GET /download/:versionId: the .tgz of every version; 404 for sandbox=true on a non-sandboxed extension (T171)', async () => {
+	// @ts-expect-error plain ESM script without types
+	const { createRegistryServer } = await import('../../../../../tests/parity/registry/server.mjs');
+	const server = createRegistryServer();
+	await new Promise<void>((resolve) => server.listen(0, '127.0.0.1', resolve));
+	const base = `http://127.0.0.1:${(server.address() as { port: number }).port}`;
+
+	try {
+		const rows = fixture('list') as { id: string; sandbox: boolean }[];
+		const describe = fixture('describe') as Record<string, { data: { versions: { id: string }[] } }>;
+
+		for (const row of rows) {
+			const versionId = describe[row.id]!.data.versions[0]!.id;
+			const res = await fetch(`${base}/download/${versionId}`);
+			expect(res.status, row.id).toBe(200);
+			// gzip magic number of the packed tarball
+			expect([...new Uint8Array(await res.arrayBuffer()).slice(0, 2)]).toEqual([0x1f, 0x8b]);
+			expect((await fetch(`${base}/download/${versionId}?sandbox=true`)).status).toBe(row.sandbox ? 200 : 404);
+		}
+
+		expect((await fetch(`${base}/download/f0000000-0000-4000-8000-0000000000ff`)).status).toBe(404);
+	} finally {
+		server.close();
+	}
+});
+

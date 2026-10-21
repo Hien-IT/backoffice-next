@@ -17,7 +17,7 @@
 			"license": "MIT",
 			"versions": [
 				{
-					"id": "e0000000-0000-4000-8000-00000000000a",
+					"id": "f0000000-0000-4000-8000-000000000001",
 					"version": "1.0.0",
 					"verified": true,
 					"type": "interface",
@@ -60,7 +60,7 @@
 			"license": "MIT",
 			"versions": [
 				{
-					"id": "e0000000-0000-4000-8000-00000000000a",
+					"id": "f0000000-0000-4000-8000-000000000002",
 					"version": "1.0.0",
 					"verified": false,
 					"type": "display",
@@ -103,7 +103,7 @@
 			"license": null,
 			"versions": [
 				{
-					"id": "e0000000-0000-4000-8000-00000000000a",
+					"id": "f0000000-0000-4000-8000-000000000003",
 					"version": "1.0.0",
 					"verified": true,
 					"type": "operation",
@@ -146,7 +146,7 @@
 			"license": "GPL-3.0",
 			"versions": [
 				{
-					"id": "e0000000-0000-4000-8000-00000000000a",
+					"id": "f0000000-0000-4000-8000-000000000004",
 					"version": "1.0.0",
 					"verified": false,
 					"type": "bundle",
@@ -198,7 +198,7 @@
 			"license": "MIT",
 			"versions": [
 				{
-					"id": "e0000000-0000-4000-8000-00000000000a",
+					"id": "f0000000-0000-4000-8000-000000000005",
 					"version": "1.0.0",
 					"verified": false,
 					"type": "hook",
@@ -209,6 +209,49 @@
 					"url_bugs": null,
 					"url_homepage": null,
 					"url_repository": "https://example.com/parity-hook-audit",
+					"license": "MIT",
+					"publisher": {
+						"id": "a1b2c3d4-0000-4000-8000-000000000001",
+						"username": "parity-alice",
+						"verified": true,
+						"github_name": "Alice Parity",
+						"github_avatar_url": null
+					},
+					"bundled": [],
+					"maintainers": null
+				}
+			]
+		}
+	},
+	"e0000000-0000-4000-8000-000000000006": {
+		"data": {
+			"id": "e0000000-0000-4000-8000-000000000006",
+			"name": "parity-endpoint-demo",
+			"description": "Parity fixture endpoint extension",
+			"total_downloads": 30,
+			"downloads": [
+				{
+					"date": "2026-10-01",
+					"count": 5
+				}
+			],
+			"verified": false,
+			"readme": "# parity-endpoint-demo\n\nFixture of the parity registry.",
+			"type": "endpoint",
+			"license": "MIT",
+			"versions": [
+				{
+					"id": "f0000000-0000-4000-8000-000000000006",
+					"version": "1.0.0",
+					"verified": false,
+					"type": "endpoint",
+					"host_version": "^11.0.0",
+					"publish_date": "2026-07-01T10:00:00.000Z",
+					"unpacked_size": 1024,
+					"file_count": 3,
+					"url_bugs": null,
+					"url_homepage": null,
+					"url_repository": "https://example.com/parity-endpoint-demo",
 					"license": "MIT",
 					"publisher": {
 						"id": "a1b2c3d4-0000-4000-8000-000000000001",

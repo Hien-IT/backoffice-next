@@ -5,12 +5,14 @@
 // the parity files check that Backoffice sends none (D-38). Only node:http and node:fs, so the `node:22-alpine` image
 // runs it without a build. The fixtures follow the zod schemas of @directus/extensions-registry
 // (apps/api/src/extensions/registry/fixtures.test.ts).
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { pathToFileURL } from 'node:url';
 
 /** The registry API version Directus 11.17.4 accepts (packages/extensions-registry/src/constants.ts). */
 export const REGISTRY_VERSION = '2024-01-29';
+
+const FIXTURES_DIR = process.env.FIXTURES_DIR ?? '/fixtures';
 
 const load = (name) => JSON.parse(readFileSync(new URL(`./fixtures/${name}.json`, import.meta.url), 'utf8'));
 
@@ -71,6 +73,20 @@ export function createRegistryServer() {
 		const extension = /^\/extensions\/([^/]+)$/.exec(url.pathname);
 		if (extension)
 			return describe[extension[1]] ? send(res, 200, describe[extension[1]]) : send(res, 404, { error: 'not found' });
+
+		// Spec 020 (T171): the packed fixture extension of a version (`npm pack` of tests/fixtures/extensions, mounted at
+		// FIXTURES_DIR); 404 with `sandbox=true` for an extension that is not sandboxed, as the real registry.
+		const download = /^\/download\/([^/]+)$/.exec(url.pathname);
+		if (download) {
+			const found = Object.values(describe).find(({ data }) => data.versions.some((v) => v.id === download[1]));
+			const version = found?.data.versions.find((v) => v.id === download[1]);
+			const sandboxed = list.find((e) => e.id === found?.data.id)?.sandbox === true;
+			const file = found && `${FIXTURES_DIR}/${found.data.name}/${found.data.name}-${version.version}.tgz`;
+			if (!file || !existsSync(file) || (url.searchParams.get('sandbox') === 'true' && !sandboxed))
+				return send(res, 404, { error: 'not found' });
+			res.writeHead(200, { 'Content-Type': 'application/octet-stream' });
+			return res.end(readFileSync(file));
+		}
 
 		const account = /^\/accounts\/([^/]+)$/.exec(url.pathname);
 		if (account)

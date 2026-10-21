@@ -218,28 +218,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'No share invitation email: SharesService.invite writes a warning line per address (Principle X).',
 	},
 	{
-		id: 'D-37',
-		feature: '010',
-		removeAt: '020',
-		kind: 'doc',
-		reason:
-			'Narrowed by spec 020 wave 1: extensions are loaded, listed and toggled; marketplace installs wait for wave 3.',
-	},
-	{
-		id: 'D-37',
-		feature: '010',
-		removeAt: '020',
-		kind: 'http',
-		endpoints: [
-			'POST /extensions/registry/install',
-			'POST /extensions/registry/reinstall',
-			'DELETE /extensions/registry/uninstall/*',
-		],
-		location: { any: true },
-		reason:
-			'Extensions are not installed or removed from the registry yet: 503 after the checks of Directus (spec 020 wave 3).',
-	},
-	{
 		id: 'D-38',
 		feature: '010',
 		kind: 'doc',

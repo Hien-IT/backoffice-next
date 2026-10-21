@@ -1,6 +1,6 @@
 // Feature 010 (T050): the /extensions controller (port of directus/api/src/controllers/extensions.ts, which Directus
 // does not unit test) through the real app pipeline on SQLite, with ExtensionsService and the registry client mocked:
-// the ListQuery of /registry, the uuid params, admin checks, the 503 of D-37 (narrowed by spec 020 wave 1), PATCH/DELETE /:pk and the empty app bundle.
+// the ListQuery of /registry, the uuid params, admin checks, install/reinstall/uninstall through the service (D-37 lifted), PATCH/DELETE /:pk and the empty app bundle.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import type { Knex } from 'knex';
@@ -11,16 +11,19 @@ import { clearSystemCache } from '../cache.js';
 import { account, describe as describeExtension, list } from '../extensions/registry/index.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
-const { readAll, updateOne, deleteOne } = vi.hoisted(() => ({
+const { readAll, updateOne, deleteOne, install, reinstall, uninstall } = vi.hoisted(() => ({
 	readAll: vi.fn(),
 	updateOne: vi.fn(),
 	deleteOne: vi.fn(),
+	install: vi.fn(),
+	reinstall: vi.fn(),
+	uninstall: vi.fn(),
 }));
 
 vi.mock('../services/extensions.service.js', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../services/extensions.service.js')>()),
 	ExtensionsService: vi.fn(function (this: unknown, options: unknown) {
-		return { readAll, updateOne, deleteOne, options };
+		return { readAll, updateOne, deleteOne, install, reinstall, uninstall, options };
 	}),
 }));
 
@@ -163,13 +166,8 @@ test('GET /extensions/registry/account|extension/:pk: uuid only (404), admin onl
 	}
 });
 
-test('install, reinstall, uninstall: the checks of Directus, then 503 (D-37)', async () => {
+test('install, reinstall, uninstall: the checks of Directus, then ExtensionsService (D-37 lifted by spec 020)', async () => {
 	const request = await agent();
-	const noInstall = {
-		code: 'SERVICE_UNAVAILABLE',
-		service: 'marketplace',
-		reason: 'Backoffice does not install extensions',
-	};
 
 	const user = await request
 		.post('/extensions/registry/install')
@@ -182,27 +180,29 @@ test('install, reinstall, uninstall: the checks of Directus, then 503 (D-37)', a
 		.set('Authorization', admin())
 		.send({ extension: UUID });
 	expect(missing.status).toBe(403);
+	expect(install).not.toHaveBeenCalled();
 
-	const install = await request
+	const installed = await request
 		.post('/extensions/registry/install')
 		.set('Authorization', admin())
 		.send({ extension: UUID, version: UUID });
-	expect(install.status).toBe(503);
-	expect(install.body.errors[0].extensions).toEqual(noInstall);
+	expect(installed.status).toBe(204);
+	expect(install).toHaveBeenCalledWith(UUID, UUID);
 
 	expect((await request.post('/extensions/registry/reinstall').set('Authorization', admin()).send({})).status).toBe(
 		403,
 	);
-	const reinstall = await request
+	const reinstalled = await request
 		.post('/extensions/registry/reinstall')
 		.set('Authorization', admin())
 		.send({ extension: UUID });
-	expect(reinstall.status).toBe(503);
+	expect(reinstalled.status).toBe(204);
+	expect(reinstall).toHaveBeenCalledWith(UUID);
 
 	expect((await request.delete('/extensions/registry/uninstall/x').set('Authorization', admin())).status).toBe(404);
-	const uninstall = await request.delete(`/extensions/registry/uninstall/${UUID}`).set('Authorization', admin());
-	expect(uninstall.status).toBe(503);
-	expect(uninstall.body.errors[0].extensions).toEqual(noInstall);
+	const uninstalled = await request.delete(`/extensions/registry/uninstall/${UUID}`).set('Authorization', admin());
+	expect(uninstalled.status).toBe(204);
+	expect(uninstall).toHaveBeenCalledWith(UUID);
 });
 
 test('PATCH, DELETE /extensions/:pk: uuid only (404), admin only (403)', async () => {

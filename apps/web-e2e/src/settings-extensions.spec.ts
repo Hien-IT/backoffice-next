@@ -86,3 +86,27 @@ test('a row whose folder is gone is under Missing; Remove deletes it without a c
 		await hostDb()('directus_extensions').where({ id }).delete();
 	}
 });
+
+test('a registry extension: Uninstall through the fake registry (T096, #207; Reinstall is on Missing rows only)', async ({
+	page,
+}) => {
+	// parity-interface-color of tests/parity/registry/fixtures (sandboxed, so MARKETPLACE_TRUST=sandbox downloads it).
+	const extension = 'e0000000-0000-4000-8000-000000000001';
+	await hostDb()('directus_extensions').where({ id: extension }).delete();
+	await api.call('POST', '/extensions/registry/install', {
+		data: { extension, version: 'f0000000-0000-4000-8000-000000000001' },
+	});
+
+	try {
+		await open(page);
+		const registryRow = page.locator(`[data-extension-id="${extension}"]`);
+		await expect(registryRow).toBeVisible();
+
+		await registryRow.getByRole('button', { name: /options/i }).click();
+		await page.getByRole('menuitem', { name: 'Uninstall' }).click();
+		await expect(registryRow).toHaveCount(0);
+		expect(await hostDb()('directus_extensions').where({ id: extension })).toEqual([]);
+	} finally {
+		await hostDb()('directus_extensions').where({ id: extension }).delete();
+	}
+});

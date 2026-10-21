@@ -1,20 +1,14 @@
 // Ported from directus/api/src/controllers/extensions.ts
 // Backoffice: one Nest handler per Directus route, in the same order (research R6, R16 of spec 010);
 // useCollection('directus_extensions') is applied in app.module.ts, `next()` to `respond` is respond(), the uuid route
-// params are checked by uuidParam. Spec 020 (D-37 narrowed): install, reinstall and uninstall answer 503 after the checks
-// of Directus until wave 3; the app chunks are those of the extension manager's last build, streamed like Directus.
+// params are checked by uuidParam. Spec 020 (D-37 lifted): install, reinstall and uninstall go through ExtensionsService
+// like Directus; the app chunks are those of the extension manager's last build, streamed like Directus.
 import { EXTENSION_TYPES } from '@backoffice/constants';
 import { useEnv } from '@backoffice/env';
-import {
-	ErrorCode,
-	ForbiddenError,
-	isBackofficeError,
-	RouteNotFoundError,
-	ServiceUnavailableError,
-} from '@backoffice/errors';
+import { ErrorCode, ForbiddenError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
 import type { FieldFilter } from '@backoffice/types';
 import { isIn } from '@backoffice/utils';
-import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res } from '@nestjs/common';
+import { Controller, Delete, Get, Inject, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { isNil } from 'lodash-es';
 import {
@@ -34,8 +28,6 @@ import { getCacheControlHeader } from '../utils/get-cache-headers.js';
 import { getMilliseconds } from '../utils/get-milliseconds.js';
 import { uuidParam } from '../utils/uuid-param.js';
 import { handleRegistryError } from './utils/handle-registry-error.js';
-
-const NO_INSTALL = { service: 'marketplace', reason: 'Backoffice does not install extensions' };
 
 function assertAdmin(req: Request) {
 	if (req.accountability && req.accountability.admin !== true) {
@@ -168,8 +160,7 @@ export class ExtensionsController {
 	}
 
 	@Post('registry/install')
-	@HttpCode(200)
-	async install(@Req() req: Request): Promise<void> {
+	async install(@Req() req: Request, @Res() res: Response): Promise<void> {
 		assertAdmin(req);
 
 		const { version, extension } = req.body ?? {};
@@ -178,12 +169,14 @@ export class ExtensionsController {
 			throw new ForbiddenError();
 		}
 
-		throw new ServiceUnavailableError(NO_INSTALL);
+		const service = this.extensionsService({ accountability: req.accountability, schema: req.schema });
+
+		await service.install(extension, version);
+		return respond(req, res);
 	}
 
 	@Post('registry/reinstall')
-	@HttpCode(200)
-	async reinstall(@Req() req: Request): Promise<void> {
+	async reinstall(@Req() req: Request, @Res() res: Response): Promise<void> {
 		assertAdmin(req);
 
 		const { extension } = req.body ?? {};
@@ -192,15 +185,21 @@ export class ExtensionsController {
 			throw new ForbiddenError();
 		}
 
-		throw new ServiceUnavailableError(NO_INSTALL);
+		const service = this.extensionsService({ accountability: req.accountability, schema: req.schema });
+
+		await service.reinstall(extension);
+		return respond(req, res);
 	}
 
 	@Delete('registry/uninstall/:pk')
-	async uninstall(@Req() req: Request): Promise<void> {
-		uuidParam(req);
+	async uninstall(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const pk = uuidParam(req);
 		assertAdmin(req);
 
-		throw new ServiceUnavailableError(NO_INSTALL);
+		const service = this.extensionsService({ accountability: req.accountability, schema: req.schema });
+
+		await service.uninstall(pk);
+		return respond(req, res);
 	}
 
 	@Patch(':pk')

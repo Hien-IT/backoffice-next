@@ -129,6 +129,7 @@ const FOCUS =
 				disabled ? 'bg-gray-50 dark:bg-transparent' : 'bg-white dark:bg-white/[0.03]',
 			]"
 			:data-extension="name"
+			:data-extension-id="extension.id"
 		>
 			<BoIcon :name="icon" :title="t(`extension_${type}`)" class="text-gray-500 dark:text-gray-400" />
 			<span class="flex min-w-0 flex-1 items-center gap-2 text-theme-sm font-medium">

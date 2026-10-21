@@ -176,6 +176,8 @@ services:
     command: ['node', '/registry/server.mjs']
     volumes:
       - ./registry:/registry:ro
+      # Spec 020 (T171): the packed fixture extensions served by GET /download/:versionId.
+      - ../fixtures/extensions:/fixtures:ro
     environment:
       PORT: '9100'
     ports:
