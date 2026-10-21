@@ -153,7 +153,19 @@ function setupMap() {
 			emit('featureselect', { ids, replace: !event.alt });
 		});
 
+		// Backoffice (D-62): MapLibre 6 resizes on every container size change (ResizeObserver) and fires
+		// movestart/move/resize/moveend; Directus' MapLibre 1.15 only on window resize. A moveend right after a resize is
+		// not a camera move, so it does not save cameraOptions (it was an extra preset PATCH, CI 39629189282).
+		// While the camera moves, a resize fires no moveend of its own: the flag would eat the move's.
+		let resized = false;
+		map.on('resize', () => (resized = !map.isMoving()));
+
 		map.on('moveend', () => {
+			if (resized) {
+				resized = false;
+				return;
+			}
+
 			emit('moveend', {
 				center: map.getCenter(),
 				zoom: map.getZoom(),

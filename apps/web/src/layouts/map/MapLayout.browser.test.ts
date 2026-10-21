@@ -174,6 +174,19 @@ describe.skipIf(!webgl)(SUITE, () => {
 		wrapper.unmount();
 	});
 
+	test('a container resize (MapLibre 6 ResizeObserver) does not write cameraOptions; the next move does', async () => {
+		const { wrapper, map } = await mountLoaded();
+		const before = wrapper.emitted('update:cameraOptions')?.length ?? 0;
+
+		map.resize();
+		await flushPromises();
+		expect(wrapper.emitted('update:cameraOptions')?.length ?? 0).toBe(before);
+
+		map.jumpTo({ center: [106, 21], zoom: 6 });
+		await vi.waitFor(() => expect(wrapper.emitted('update:cameraOptions')?.length).toBe(before + 1));
+		wrapper.unmount();
+	});
+
 	test('controls are keyboard buttons: zoom, fit data, box select toggle', async () => {
 		const fitDataBounds = vi.fn();
 		const { wrapper, map } = await mountLoaded({ fitDataBounds });
