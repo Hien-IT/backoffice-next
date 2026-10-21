@@ -44,8 +44,10 @@ async function menu(page: Page, name: string, item: string | RegExp) {
 test('the list: groups by type, the bundle entries nested, the sub-menu row', async ({ page }) => {
 	await open(page);
 
-	const groups = page.locator('main h2');
-	await expect(groups).toContainText(['Interfaces', 'Displays', 'Layouts', 'Modules', 'Panels', 'Hooks']);
+	// The groups follow the order of the /extensions rows (lodash groupBy, as Directus), which differs between the APIs.
+	for (const group of ['Interfaces', 'Displays', 'Layouts', 'Modules', 'Panels', 'Hooks']) {
+		await expect(page.locator('main h2', { hasText: group })).toHaveCount(1);
+	}
 	await expect(row(page, 'parity-interface-color')).toContainText('Enabled');
 
 	const bundle = row(page, 'parity-bundle-tools').locator('xpath=..');
