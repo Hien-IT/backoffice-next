@@ -72,7 +72,7 @@ test.each([
 });
 
 test('isNotApplicable', () => {
-	expect(isNotApplicable('PROJECT_OWNER')).toBe(true);
+	expect(isNotApplicable('PROJECT_OWNER')).toBe(false);
 	expect(isNotApplicable('ADMIN_EMAIL')).toBe(false);
 	expect(isNotApplicable('PORT')).toBe(false);
 });
@@ -172,7 +172,6 @@ test.each([
 	['ADMIN_EMAIL', true],
 	['ADMIN_PASSWORD', true],
 	['ADMIN_TOKEN', true],
-	['PROJECT_OWNER', false],
 	['EMAIL_TRANSPORT', false],
 	['TELEMETRY', false],
 	['COMPLIANCE_URL', false],
@@ -205,4 +204,11 @@ test.each([
 	'PACKAGE_FILE_LOCATION',
 ])('isSupported(%s) (feature 020)', (name) => {
 	expect(isSupported(name)).toBe(true);
+});
+
+// Feature 021 (specs/021 spec FR-010): the bootstrap command and the ported migrations read these.
+test('PROJECT_OWNER is supported (feature 021); ACCEPT_TERMS is read through the env defaults, not a listed variable', () => {
+	expect(isSupported('PROJECT_OWNER')).toBe(true);
+	expect(isNotApplicable('PROJECT_OWNER')).toBe(false);
+	expect(isDirectusVariable('ACCEPT_TERMS')).toBe(false);
 });

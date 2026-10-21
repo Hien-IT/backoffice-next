@@ -13,6 +13,8 @@ export default defineConfig({
 			'src/graphql/helpers.test.ts',
 			// Feature 019: the command builders of the deploy suite.
 			'src/deploy/instances.test.ts',
+			// Spec 021: the comparison helpers of profile bootstrap (no Docker).
+			'src/bootstrap/{normalize,dump}.test.ts',
 		],
 		exclude: ['src/db-unchanged.test.ts', 'src/readonly-account.test.ts', 'src/redis-down.test.ts'],
 	},

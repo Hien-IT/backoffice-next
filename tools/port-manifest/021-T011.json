@@ -1,0 +1,62 @@
+[
+	{
+		"source": "api/src/database/seeds/01-collections.yaml",
+		"dest": "apps/api/src/database/seeds/01-collections.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/02-roles.yaml",
+		"dest": "apps/api/src/database/seeds/02-roles.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/03-users.yaml",
+		"dest": "apps/api/src/database/seeds/03-users.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/04-fields.yaml",
+		"dest": "apps/api/src/database/seeds/04-fields.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/05-activity.yaml",
+		"dest": "apps/api/src/database/seeds/05-activity.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/06-folders.yaml",
+		"dest": "apps/api/src/database/seeds/06-folders.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/07-files.yaml",
+		"dest": "apps/api/src/database/seeds/07-files.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/08-permissions.yaml",
+		"dest": "apps/api/src/database/seeds/08-permissions.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/09-presets.yaml",
+		"dest": "apps/api/src/database/seeds/09-presets.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/10-relations.yaml",
+		"dest": "apps/api/src/database/seeds/10-relations.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/11-revisions.yaml",
+		"dest": "apps/api/src/database/seeds/11-revisions.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/12-sessions.yaml",
+		"dest": "apps/api/src/database/seeds/12-sessions.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/13-settings.yaml",
+		"dest": "apps/api/src/database/seeds/13-settings.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/14-webhooks.yaml",
+		"dest": "apps/api/src/database/seeds/14-webhooks.yaml"
+	},
+	{
+		"source": "api/src/database/seeds/15-migrations.yaml",
+		"dest": "apps/api/src/database/seeds/15-migrations.yaml"
+	}
+]

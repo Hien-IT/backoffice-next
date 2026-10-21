@@ -5,7 +5,7 @@ import { useEnv } from '@backoffice/env';
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { useLogger } from '../logger/index.js';
 import { DIRECTUS_MIGRATIONS } from './migrations/directus-11.17.4.js';
-import { checkMigrations, getCustomMigrations, validateMigrations } from './validate-migrations.js';
+import { checkMigrations, getCustomMigrations, migrationsValid, validateMigrations } from './validate-migrations.js';
 
 vi.mock('@backoffice/env');
 vi.mock('../logger/index.js');
@@ -151,5 +151,24 @@ describe('custom migrations (FR-031, FR-035)', () => {
 		});
 		files('extensions/migrations', ['20990101A-a.js']);
 		expect(getCustomMigrations()).toEqual([{ version: '20990101A', directory: join(dir, 'extensions', 'migrations') }]);
+	});
+});
+
+// Spec 021 FR-043: the CLI loads extensions only when no migration is missing (Directus' boolean validateMigrations).
+describe('migrationsValid', () => {
+	test('true with the exact list and with an unknown extra version', async () => {
+		await expect(migrationsValid(db([...DIRECTUS_MIGRATIONS]))).resolves.toBe(true);
+		await expect(migrationsValid(db([...DIRECTUS_MIGRATIONS, '20990101A']))).resolves.toBe(true);
+	});
+
+	test('false when a version is missing, without exiting', async () => {
+		await expect(migrationsValid(db(DIRECTUS_MIGRATIONS.slice(1)))).resolves.toBe(false);
+		expect(exit).not.toHaveBeenCalled();
+	});
+
+	test('a failing read logs "Database migrations cannot be found" and exits 1', async () => {
+		await expect(migrationsValid(db(new Error('no table')))).rejects.toBeUndefined();
+		expect(logger.error).toHaveBeenCalledWith('Database migrations cannot be found');
+		expect(exit).toHaveBeenCalledWith(1);
 	});
 });

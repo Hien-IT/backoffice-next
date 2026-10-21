@@ -439,7 +439,8 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   `COMPLIANCE_URL`, log cảnh báo, `project_status: null`). Trên DB trống, `setOwner` chạy hai lần như Directus: lần đầu
   trong migration `20251014A-add-project-owner` (`up` gọi `setOwner` khi `PROJECT_OWNER` là email), lần sau ở bước cuối
   của `bootstrap`; cả hai theo D-38. Biến env mà migration port đọc PHẢI được hỗ trợ: `PROJECT_OWNER` rời
-  `NOT_APPLICABLE_VARIABLES` vào danh sách hỗ trợ; `ACCEPT_TERMS` (mặc định `false`; `20250609A-license-banner` tạo cột
+  `NOT_APPLICABLE_VARIABLES` vào danh sách hỗ trợ; `ACCEPT_TERMS` (mặc định `false` trong env của Directus, không nằm trong
+  danh sách biến Directus nên không bao giờ bị cảnh báo và không cần thêm vào danh sách; `20250609A-license-banner` tạo cột
   `accepted_terms` với default này, `20251014A` xóa cột đó, `down` của `20251014A` tạo lại cột với default này) vào danh
   sách hỗ trợ. DB 11.17.4 sau `latest` không còn cột `accepted_terms`.
 
@@ -689,7 +690,11 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
     `<nanoid32>`;
   - thời gian: cột ngày giờ của hàng DB (`date_created`, `timestamp`, `last_access`...) và dấu thời gian trong
     output → `<time>`;
-  - đường dẫn tuyệt đối của thư mục tạm của test → `<dir>`.
+  - đường dẫn tuyệt đối của thư mục tạm của test → `<dir>`;
+  - tên biến mà bundler của image Directus đổi trong thông điệp `TypeError` (`up$1 is not a function` → `up is not a
+    function`): bỏ hậu tố `$<số>` của tên đứng trước ` is not a function` / ` is not defined`. Thêm khi làm T042
+    (2026-10-22, fixture `noup`: cùng cảnh báo, cùng mã 1, chỉ khác tên biến trong bản build của Directus); chờ chủ dự
+    án duyệt.
   Hàm chuẩn hóa nằm ở một chỗ dùng chung cho mọi test của profile `bootstrap`; thêm quy tắc mới PHẢI sửa spec này.
 - **FR-103**: Test chấp nhận compose độc lập (`parity-tests:deploy`, thêm cặp hoặc profile): US5 kịch bản 1–3, cộng các
   bài của 019 US3–US6 (sessions, schema, flow theo lịch, TUS, tắt replica) chạy không có Directus trong pool.

@@ -4,11 +4,15 @@
 	"private": true,
 	"type": "module",
 	"main": "dist/main.js",
+	"bin": {
+		"backoffice": "cli.js"
+	},
 	"files": [
-		"dist"
+		"dist",
+		"cli.js"
 	],
 	"scripts": {
-		"build": "swc src -d dist --strip-leading-paths --config-file .swcrc --ignore '**/*.test.ts' --ignore '**/*.d.ts'",
+		"build": "swc src -d dist --strip-leading-paths --config-file .swcrc --ignore '**/*.test.ts' --ignore '**/*.d.ts' && node -e \"const fs = require('fs'); fs.cpSync('src', 'dist', { recursive: true, filter: (s) => fs.statSync(s).isDirectory() || s.endsWith('.yaml') || s.endsWith('.liquid') })\"",
 		"typecheck": "tsc -p tsconfig.json --noEmit",
 		"test": "vitest run",
 		"lint": "eslint src",
@@ -118,7 +122,12 @@
 		"node-machine-id": "catalog:",
 		"tar": "catalog:",
 		"fs-extra": "catalog:",
-		"glob-to-regexp": "catalog:"
+		"glob-to-regexp": "catalog:",
+		"commander": "catalog:",
+		"inquirer": "catalog:",
+		"chalk": "catalog:",
+		"liquidjs": "catalog:",
+		"uuid": "catalog:"
 	},
 	"devDependencies": {
 		"@backoffice/schema-builder": "workspace:*",

@@ -1,0 +1,23 @@
+// Ported from directus/api/src/database/migrations/20220402A-remove-default-value-panel-icon.ts
+import type { Knex } from 'knex';
+import { getHelpers } from '../helpers/index.js';
+
+export async function up(knex: Knex): Promise<void> {
+	const helper = getHelpers(knex).schema;
+
+	await helper.changeToType('directus_panels', 'icon', 'string', {
+		nullable: true,
+		default: null,
+		length: 30,
+	});
+}
+
+export async function down(knex: Knex): Promise<void> {
+	const helper = getHelpers(knex).schema;
+
+	await helper.changeToType('directus_panels', 'icon', 'string', {
+		nullable: true,
+		default: 'insert_chart',
+		length: 30,
+	});
+}

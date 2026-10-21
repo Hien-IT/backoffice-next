@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/database/migrations/run.ts",
+		"dest": "apps/api/src/database/migrations/run.ts"
+	}
+]

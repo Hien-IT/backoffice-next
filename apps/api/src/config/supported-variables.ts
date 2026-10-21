@@ -212,10 +212,16 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'EXTENSIONS_LIMIT',
 	'EXTENSIONS_ROLLDOWN',
 	'PACKAGE_FILE_LOCATION',
+	// Feature 021: read by the bootstrap command and the ported migration 20251014A (setOwner). ACCEPT_TERMS, read by
+	// 20250609A and 20251014A, is not in the Directus variable list, so it is never warned about and needs no entry.
+	'PROJECT_OWNER',
 ].map((name) => new RegExp(`^${name}$`));
 
-/** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */
-export const NOT_APPLICABLE_VARIABLES: RegExp[] = ['PROJECT_OWNER'].map((name) => new RegExp(`^${name}$`));
+/**
+ * Group B: Directus variables the API ignores without a warning. Empty since feature 021 (PROJECT_OWNER moved to group A
+ * with the bootstrap command); kept so the contract table keeps its three groups.
+ */
+export const NOT_APPLICABLE_VARIABLES: RegExp[] = [];
 
 export const isSupported = (name: string): boolean => SUPPORTED_VARIABLES.some((r) => r.test(name));
 export const isNotApplicable = (name: string): boolean => NOT_APPLICABLE_VARIABLES.some((r) => r.test(name));

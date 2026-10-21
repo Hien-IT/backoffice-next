@@ -22,12 +22,13 @@ beforeEach(() => {
 
 afterEach(() => vi.unstubAllEnvs());
 
-test('one line, A–Z, names only: EMAIL_TRANSPORT (C) yes, ADMIN_EMAIL (A since 010) and PROJECT_OWNER (B) no, FOO (not Directus) no', () => {
+test('one line, A–Z, names only: EMAIL_TRANSPORT (C) yes, ADMIN_EMAIL (A since 010), PROJECT_OWNER (A since 021) and ACCEPT_TERMS (not a listed Directus variable) no, FOO (not Directus) no', () => {
 	warnUnsupportedVariables({
 		PORT: '1',
 		EMAIL_TRANSPORT: 'secret-looking-value',
 		ADMIN_EMAIL: 'a@b.c',
 		PROJECT_OWNER: 'a@b.c',
+		ACCEPT_TERMS: 'true',
 		FOO: 'x',
 		EMAIL_FROM: 'x',
 	});

@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/cli/index.ts",
+		"dest": "apps/api/src/cli/index.ts"
+	},
+	{
+		"source": "api/src/cli/index.test.ts",
+		"dest": "apps/api/src/cli/index.test.ts"
+	}
+]

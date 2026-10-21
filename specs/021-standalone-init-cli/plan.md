@@ -36,7 +36,7 @@ build; Dockerfile, compose YAML (override với `profiles`, `!reset`), Helm temp
 **Primary Dependencies**: có sẵn: NestJS 12 (không dùng cho CLI), Knex 3.1, `pg`, `sqlite3`, `@backoffice/{env,types,
 utils,schema,constants,format-title}`, `fs-extra`, `js-yaml` 4.3.2, `joi` 18.2.6, `nanoid` 5.1.16, `zod` 4.1.12,
 `lodash-es`, `knex-mock-client` (test). Thêm (bản của catalog Directus 11.17.4): `commander` 14.0.2, `inquirer` 12.11.0,
-`chalk` 5.6.2, `liquidjs` 10.25.7, `uuid` 11.1.0 (đã có trong catalog gốc). Không thêm `ora`, `execa` (D-146),
+`chalk` 5.6.2, `liquidjs` 10.27.2, `uuid` 11.1.0 (đã có trong catalog gốc). Không thêm `ora`, `execa` (D-146),
 `copyfiles` (R3), `@types/inquirer`. Image: `directus/directus:11.17.4` (test), `node:22.23.3-alpine3.24` + `tini`
 (không đổi).
 

@@ -44,6 +44,8 @@ export function compose(...args: string[]): string {
 		'graphql-nointro',
 		// Feature 020 (contracts/tests.md §3): the extensions pair.
 		'extensions',
+		// Spec 021 (contracts/tests.md): the bootstrap pair, its Postgres and registry, Directus on the Backoffice database.
+		'bootstrap',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

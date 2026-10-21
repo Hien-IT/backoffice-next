@@ -1,7 +1,8 @@
 import { awaitDirectusConnection } from './await-connection.js';
+import { captureBaseline } from './bootstrap/baseline.js';
 import { appPorts, type Profile, profilePorts, proxyPort, secondBackofficePort } from './config.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
-import { profileEnvKeys } from './profiles.js';
+import { profileEnvKeys, profileUrls } from './profiles.js';
 
 async function answers(url: string): Promise<boolean> {
 	try {
@@ -42,4 +43,7 @@ export default async function setup(): Promise<void> {
 			process.env[backofficeKey] ??= backoffice;
 		}
 	}
+
+	// Spec 021: the state of profile bootstrap right after both apps started, before any test writes to its databases.
+	if (profileUrls('bootstrap')) await captureBaseline(vendor!);
 }

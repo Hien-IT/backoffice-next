@@ -1,0 +1,15 @@
+# Ported from directus/api/src/database/seeds/15-migrations.yaml
+table: directus_migrations
+
+columns:
+  version:
+    type: string
+    primary: true
+    nullable: false
+  name:
+    type: string
+    length: 255
+    nullable: false
+  timestamp:
+    type: timestamp
+    default: $now

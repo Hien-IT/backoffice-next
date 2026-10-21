@@ -114,7 +114,18 @@ export const profilePorts = {
 	'graphql-nointro': { directus: 10555, backoffice: 10556 },
 	// Feature 020 (contracts/tests.md §3): the extensions pair (own storage prefix, EXTENSIONS_LIMIT=3, schedule hook).
 	extensions: { directus: 10655, backoffice: 10656 },
+	// Spec 021 (contracts/tests.md): two empty databases, each bootstrapped by one app (bootstrapDbPort, SQLite files).
+	bootstrap: { directus: 10755, backoffice: 10756 },
 } as const;
+
+/** Spec 021: host port of the Postgres of profile bootstrap (databases directus_bootstrap, backoffice_bootstrap...). */
+export const bootstrapDbPort = 6114;
+
+/** Spec 021: host port of the test registry of profile bootstrap (counts the owner reports of that profile only). */
+export const bootstrapRegistryPort = 6115;
+
+/** Spec 021: host port of Directus running on the database Backoffice bootstrapped (directus-on-backoffice-db). */
+export const bootstrapCrossPort = 10757;
 
 /** Host port of the own Postgres of the setup pair (feature 010, research R11). */
 export const setupDbPort = 6112;

@@ -141,7 +141,8 @@ thử ghi "[Unverified]".
     bằng `process.exit` nên không treo.
 - **Dependency mới** (ghim bản của catalog Directus 11.17.4, thêm vào catalog gốc `pnpm-workspace.yaml`):
   `commander` 14.0.2, `inquirer` 12.11.0 (ESM, tự có `.d.ts`, không cần `@types/inquirer`), `chalk` 5.6.2, `liquidjs`
-  10.25.7; `uuid` 11.1.0 (R4). Không thêm `ora`, `execa` (D-146), `copyfiles` (R3). `nanoid` 5.1.16, `joi` 18.2.6,
+  10.27.2 (bản vá bảo mật; Directus 11.17.4 có 10.25.7 dính GHSA-gf2q-c269-pqgc critical và 4 high, `pnpm audit --prod
+  --audit-level=high` của CI chặn); `uuid` 11.1.0 (R4). Không thêm `ora`, `execa` (D-146), `copyfiles` (R3). `nanoid` 5.1.16, `joi` 18.2.6,
   `js-yaml` 4.3.2 giữ bản đã vá bảo mật của repo (khác Directus, đã ghi ở 010/013). `inquirer` 12 là ESM-only như
   `apps/api` (`"type": "module"`).
 - **Rationale**: giữ cây file của Directus để test đối chiếu so từng lệnh; dependency đúng bản để prompt, màu và cú pháp
@@ -351,3 +352,41 @@ với R1–R14:
   migration này; DB trống (bootstrap) và DB 11.17.4 (đã chạy) không chạy lại nó, nên đường dẫn `__dirname` mới chỉ ảnh
   hưởng DB Directus cũ hơn có extension được Backoffice nâng lên (Edge Cases, CHK033); khi đó kết quả phân loại
   `module`/`local` phải giống image Directus, kiểm bằng tay ở lượt 1 nếu có DB mẫu cũ, nếu không ghi [Unverified].
+
+## Kết quả T001 (2026-10-22)
+
+- (a) Image `hiennd23/backoffice-api:local` hiện có: `/directus/{package.json, dist/, node_modules/, database/, extensions/,
+  uploads/}`; `dist/` là cây của `apps/api/dist` (`main.js`, `cache.js`, ...). `cli.js` ở gốc package sẽ vào
+  `/directus/cli.js` khi thêm vào `files` (R1 đúng).
+- (b) Image không có lệnh `script` (util-linux): test `init` không dùng được pseudo-TTY bằng `script` trong container;
+  T058 thử stdin không TTY, nếu không được thì dùng phương án dự phòng (unit test với `inquirer.prompt` giả).
+- (c) Docker Compose local v5.5.0. Runner CI `ubuntu-24.04` (image 20261018.339.1); phiên bản Compose của runner chưa
+  in trong log, [Unverified] ≥ 2.24; T065 chạy `docker compose ... config` trong CI để chứng minh `!reset` đọc được.
+- (d) `directus/directus:11.17.4` không env (SQLite): từ khi container chạy tới `Server started` 12 s, trong đó từ
+  `Initializing bootstrap...` tới `Server started` khoảng 6 s; 101 dòng `Applying`. Postgres đo ở profile `bootstrap`
+  (SC-010).
+- (e) Run 39660476604: `deploy-k8s` 4 phút 37 giây, `deploy` 6 phút 45 giây; còn nhiều chỗ dưới trần 40 phút.
+
+## Kết quả lượt 1 (2026-10-22)
+
+- Image `hiennd23/backoffice-api:local` (build local, linux/amd64): không env (SQLite) → seed, 101 `Applying`, admin,
+  `Done`, rồi `Server started`; `/server/ping` 200 sau 7 s từ `docker run` (SC-007 < 60 s). PID 1 là `/sbin/tini`,
+  `node cli.js start` là con của tini (ppid 1), uid 1000 (FR-060, FR-062).
+- T026: `DB_PASSWORD=t026-secret-value-77`, DB không tới được → mã 1 sau 5 lần chờ, 0 dòng log chứa giá trị (FR-016).
+- Lỗi tìm thấy khi chạy `start` trên image: CLI nạp extension trước server, `extensions/services.ts` import
+  `server.service` → `server.js` → module Nest → `server.controller` (`@Inject(ServerService)`) trong vòng import →
+  `ReferenceError: Cannot access 'ServerService' before initialization`. Sửa: `extraServices()` import `../server.js`
+  trước (file riêng của Backoffice, không phải bản port).
+- Parity profile `bootstrap` trên Postgres (local, chỉ các service của profile, `--no-deps`): `schema.test.ts` 6/6
+  (bảng, cột, FK, index, hàng sau FR-107, 101 migration cùng thứ tự, Directus gửi 2 owner report, Backoffice 0 và log
+  D-38 hai lần, log không chứa bí mật), `cross.test.ts` 8/8, `partial.test.ts` 1/1. Thời gian bootstrap (SC-010):
+  Directus 1215 ms, Backoffice 1177 ms.
+- Khác biệt mới: fixture `noup` → Directus log `up$1 is not a function` (bundler của image đổi tên biến), Backoffice
+  `up is not a function`; cùng cảnh báo, cùng mã 1. Thêm quy tắc chuẩn hóa vào FR-107 (chờ chủ dự án duyệt).
+- SQLite và MySQL (`vendor.test.ts`) không chạy local: cặp chính SQLite/MySQL cần cổng của cặp Postgres đang chạy cho
+  phiên khác; để CI (parity sqlite3 có `bootstrap`, mysql chạy `vendor.test.ts` trong bộ reduced).
+- Registry: dùng service riêng `registry-bootstrap` (cổng 6115, cùng `server.mjs`) thay cho đếm theo `project_owner`
+  trong `server.mjs` (contracts/tests.md, T033 a): số report của profile tách hẳn, không phải khởi động lại registry
+  chung. Trên máy có `DOCKER_DEFAULT_PLATFORM=linux/amd64`, `postgres-bootstrap` và `registry-bootstrap` phải bật với
+  platform gốc (`node:22-alpine` local chỉ có arm64).
+

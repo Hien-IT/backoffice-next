@@ -57,9 +57,10 @@ tự file. Vì vậy trạng thái ngay sau bootstrap được chụp một lầ
 `profileUrls('bootstrap')`, bằng `parity/src/bootstrap/baseline.ts`: `dump()` hai DB (`directus_bootstrap`,
 `backoffice_bootstrap` hoặc hai file SQLite), log khởi động (`level`, `msg`) của `directus-bootstrap` và
 `backoffice-api-bootstrap` (`docker compose logs`), số owner report của `owner-bootstrap@example.com` từ registry
-(`GET /v1/owner?project_owner=owner-bootstrap@example.com`); ghi vào `parity/.data/bootstrap/baseline.json`.
-`schema.test.ts` chỉ đọc file này, không đọc DB đang chạy. Registry giả (`parity/registry/server.mjs`) thêm đếm theo
-`project_owner` của body (giữ `count`, `last` cũ cho 010).
+(`GET /v1/owner` của `registry-bootstrap`); ghi vào `parity/.data/bootstrap/baseline.json`.
+`schema.test.ts` chỉ đọc file này, không đọc DB đang chạy. Owner report của profile đến service riêng
+`registry-bootstrap` (cổng 6115, cùng `parity/registry/server.mjs`), nên `count` của nó chỉ thuộc profile này (đổi khi
+làm T033: không sửa và không khởi động lại registry chung).
 
 | Test | FR | Nội dung |
 |------|----|----------|

@@ -1,0 +1,6 @@
+[
+	{
+		"source": "api/src/cli/commands/bootstrap/index.ts",
+		"dest": "apps/api/src/cli/commands/bootstrap/index.ts"
+	}
+]

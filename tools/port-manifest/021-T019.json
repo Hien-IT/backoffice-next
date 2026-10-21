@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/cli/run.ts",
+		"dest": "apps/api/src/cli/run.ts"
+	},
+	{
+		"source": "api/src/cli/load-extensions.ts",
+		"dest": "apps/api/src/cli/load-extensions.ts"
+	}
+]

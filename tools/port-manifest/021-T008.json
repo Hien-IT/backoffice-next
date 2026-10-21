@@ -1,0 +1,406 @@
+[
+	{
+		"source": "api/src/database/migrations/20201028A-remove-collection-foreign-keys.ts",
+		"dest": "apps/api/src/database/migrations/20201028A-remove-collection-foreign-keys.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20201029A-remove-system-relations.ts",
+		"dest": "apps/api/src/database/migrations/20201029A-remove-system-relations.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20201029B-remove-system-collections.ts",
+		"dest": "apps/api/src/database/migrations/20201029B-remove-system-collections.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20201029C-remove-system-fields.ts",
+		"dest": "apps/api/src/database/migrations/20201029C-remove-system-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20201105A-add-cascade-system-relations.ts",
+		"dest": "apps/api/src/database/migrations/20201105A-add-cascade-system-relations.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20201105B-change-webhook-url-type.ts",
+		"dest": "apps/api/src/database/migrations/20201105B-change-webhook-url-type.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210225A-add-relations-sort-field.ts",
+		"dest": "apps/api/src/database/migrations/20210225A-add-relations-sort-field.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210304A-remove-locked-fields.ts",
+		"dest": "apps/api/src/database/migrations/20210304A-remove-locked-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210312A-webhooks-collections-text.ts",
+		"dest": "apps/api/src/database/migrations/20210312A-webhooks-collections-text.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210331A-add-refresh-interval.ts",
+		"dest": "apps/api/src/database/migrations/20210331A-add-refresh-interval.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210415A-make-filesize-nullable.ts",
+		"dest": "apps/api/src/database/migrations/20210415A-make-filesize-nullable.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210416A-add-collections-accountability.ts",
+		"dest": "apps/api/src/database/migrations/20210416A-add-collections-accountability.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210422A-remove-files-interface.ts",
+		"dest": "apps/api/src/database/migrations/20210422A-remove-files-interface.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210506A-rename-interfaces.ts",
+		"dest": "apps/api/src/database/migrations/20210506A-rename-interfaces.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210510A-restructure-relations.ts",
+		"dest": "apps/api/src/database/migrations/20210510A-restructure-relations.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210518A-add-foreign-key-constraints.ts",
+		"dest": "apps/api/src/database/migrations/20210518A-add-foreign-key-constraints.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210519A-add-system-fk-triggers.ts",
+		"dest": "apps/api/src/database/migrations/20210519A-add-system-fk-triggers.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210521A-add-collections-icon-color.ts",
+		"dest": "apps/api/src/database/migrations/20210521A-add-collections-icon-color.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210525A-add-insights.ts",
+		"dest": "apps/api/src/database/migrations/20210525A-add-insights.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210608A-add-deep-clone-config.ts",
+		"dest": "apps/api/src/database/migrations/20210608A-add-deep-clone-config.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210626A-change-filesize-bigint.ts",
+		"dest": "apps/api/src/database/migrations/20210626A-change-filesize-bigint.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210716A-add-conditions-to-fields.ts",
+		"dest": "apps/api/src/database/migrations/20210716A-add-conditions-to-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210721A-add-default-folder.ts",
+		"dest": "apps/api/src/database/migrations/20210721A-add-default-folder.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210802A-replace-groups.ts",
+		"dest": "apps/api/src/database/migrations/20210802A-replace-groups.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210803A-add-required-to-fields.ts",
+		"dest": "apps/api/src/database/migrations/20210803A-add-required-to-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210805A-update-groups.ts",
+		"dest": "apps/api/src/database/migrations/20210805A-update-groups.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210805B-change-image-metadata-structure.ts",
+		"dest": "apps/api/src/database/migrations/20210805B-change-image-metadata-structure.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210811A-add-geometry-config.ts",
+		"dest": "apps/api/src/database/migrations/20210811A-add-geometry-config.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210831A-remove-limit-column.ts",
+		"dest": "apps/api/src/database/migrations/20210831A-remove-limit-column.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210903A-add-auth-provider.ts",
+		"dest": "apps/api/src/database/migrations/20210903A-add-auth-provider.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210907A-webhooks-collections-not-null.ts",
+		"dest": "apps/api/src/database/migrations/20210907A-webhooks-collections-not-null.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210910A-move-module-setup.ts",
+		"dest": "apps/api/src/database/migrations/20210910A-move-module-setup.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210920A-webhooks-url-not-null.ts",
+		"dest": "apps/api/src/database/migrations/20210920A-webhooks-url-not-null.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210924A-add-collection-organization.ts",
+		"dest": "apps/api/src/database/migrations/20210924A-add-collection-organization.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210927A-replace-fields-group.ts",
+		"dest": "apps/api/src/database/migrations/20210927A-replace-fields-group.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210927B-replace-m2m-interface.ts",
+		"dest": "apps/api/src/database/migrations/20210927B-replace-m2m-interface.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20210929A-rename-login-action.ts",
+		"dest": "apps/api/src/database/migrations/20210929A-rename-login-action.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211007A-update-presets.ts",
+		"dest": "apps/api/src/database/migrations/20211007A-update-presets.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211009A-add-auth-data.ts",
+		"dest": "apps/api/src/database/migrations/20211009A-add-auth-data.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211016A-add-webhook-headers.ts",
+		"dest": "apps/api/src/database/migrations/20211016A-add-webhook-headers.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211103A-set-unique-to-user-token.ts",
+		"dest": "apps/api/src/database/migrations/20211103A-set-unique-to-user-token.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211103B-update-special-geometry.ts",
+		"dest": "apps/api/src/database/migrations/20211103B-update-special-geometry.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211104A-remove-collections-listing.ts",
+		"dest": "apps/api/src/database/migrations/20211104A-remove-collections-listing.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211118A-add-notifications.ts",
+		"dest": "apps/api/src/database/migrations/20211118A-add-notifications.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211211A-add-shares.ts",
+		"dest": "apps/api/src/database/migrations/20211211A-add-shares.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20211230A-add-project-descriptor.ts",
+		"dest": "apps/api/src/database/migrations/20211230A-add-project-descriptor.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220303A-remove-default-project-color.ts",
+		"dest": "apps/api/src/database/migrations/20220303A-remove-default-project-color.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220308A-add-bookmark-icon-and-color.ts",
+		"dest": "apps/api/src/database/migrations/20220308A-add-bookmark-icon-and-color.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220314A-add-translation-strings.ts",
+		"dest": "apps/api/src/database/migrations/20220314A-add-translation-strings.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220322A-rename-field-typecast-flags.ts",
+		"dest": "apps/api/src/database/migrations/20220322A-rename-field-typecast-flags.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220323A-add-field-validation.ts",
+		"dest": "apps/api/src/database/migrations/20220323A-add-field-validation.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220325A-fix-typecast-flags.ts",
+		"dest": "apps/api/src/database/migrations/20220325A-fix-typecast-flags.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220325B-add-default-language.ts",
+		"dest": "apps/api/src/database/migrations/20220325B-add-default-language.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220402A-remove-default-value-panel-icon.ts",
+		"dest": "apps/api/src/database/migrations/20220402A-remove-default-value-panel-icon.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220429A-add-flows.ts",
+		"dest": "apps/api/src/database/migrations/20220429A-add-flows.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220429B-add-color-to-insights-icon.ts",
+		"dest": "apps/api/src/database/migrations/20220429B-add-color-to-insights-icon.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220429C-drop-non-null-from-ip-of-activity.ts",
+		"dest": "apps/api/src/database/migrations/20220429C-drop-non-null-from-ip-of-activity.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220429D-drop-non-null-from-sender-of-notifications.ts",
+		"dest": "apps/api/src/database/migrations/20220429D-drop-non-null-from-sender-of-notifications.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220614A-rename-hook-trigger-to-event.ts",
+		"dest": "apps/api/src/database/migrations/20220614A-rename-hook-trigger-to-event.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220801A-update-notifications-timestamp-column.ts",
+		"dest": "apps/api/src/database/migrations/20220801A-update-notifications-timestamp-column.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220802A-add-custom-aspect-ratios.ts",
+		"dest": "apps/api/src/database/migrations/20220802A-add-custom-aspect-ratios.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20220826A-add-origin-to-accountability.ts",
+		"dest": "apps/api/src/database/migrations/20220826A-add-origin-to-accountability.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230401A-update-material-icons.ts",
+		"dest": "apps/api/src/database/migrations/20230401A-update-material-icons.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230525A-add-preview-settings.ts",
+		"dest": "apps/api/src/database/migrations/20230525A-add-preview-settings.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230526A-migrate-translation-strings.ts",
+		"dest": "apps/api/src/database/migrations/20230526A-migrate-translation-strings.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230721A-require-shares-fields.ts",
+		"dest": "apps/api/src/database/migrations/20230721A-require-shares-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230823A-add-content-versioning.ts",
+		"dest": "apps/api/src/database/migrations/20230823A-add-content-versioning.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20230927A-themes.ts",
+		"dest": "apps/api/src/database/migrations/20230927A-themes.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20231009A-update-csv-fields-to-text.ts",
+		"dest": "apps/api/src/database/migrations/20231009A-update-csv-fields-to-text.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20231009B-update-panel-options.ts",
+		"dest": "apps/api/src/database/migrations/20231009B-update-panel-options.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20231010A-add-extensions.ts",
+		"dest": "apps/api/src/database/migrations/20231010A-add-extensions.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20231215A-add-focalpoints.ts",
+		"dest": "apps/api/src/database/migrations/20231215A-add-focalpoints.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240122A-add-report-url-fields.ts",
+		"dest": "apps/api/src/database/migrations/20240122A-add-report-url-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240204A-marketplace.ts",
+		"dest": "apps/api/src/database/migrations/20240204A-marketplace.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240305A-change-useragent-type.ts",
+		"dest": "apps/api/src/database/migrations/20240305A-change-useragent-type.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240311A-deprecate-webhooks.ts",
+		"dest": "apps/api/src/database/migrations/20240311A-deprecate-webhooks.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240422A-public-registration.ts",
+		"dest": "apps/api/src/database/migrations/20240422A-public-registration.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240515A-add-session-window.ts",
+		"dest": "apps/api/src/database/migrations/20240515A-add-session-window.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240701A-add-tus-data.ts",
+		"dest": "apps/api/src/database/migrations/20240701A-add-tus-data.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240716A-update-files-date-fields.ts",
+		"dest": "apps/api/src/database/migrations/20240716A-update-files-date-fields.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240806A-permissions-policies.ts",
+		"dest": "apps/api/src/database/migrations/20240806A-permissions-policies.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240817A-update-icon-fields-length.ts",
+		"dest": "apps/api/src/database/migrations/20240817A-update-icon-fields-length.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240909A-separate-comments.ts",
+		"dest": "apps/api/src/database/migrations/20240909A-separate-comments.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240909B-consolidate-content-versioning.ts",
+		"dest": "apps/api/src/database/migrations/20240909B-consolidate-content-versioning.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240924A-migrate-legacy-comments.ts",
+		"dest": "apps/api/src/database/migrations/20240924A-migrate-legacy-comments.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20240924B-populate-versioning-deltas.ts",
+		"dest": "apps/api/src/database/migrations/20240924B-populate-versioning-deltas.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20250224A-visual-editor.ts",
+		"dest": "apps/api/src/database/migrations/20250224A-visual-editor.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20250609A-license-banner.ts",
+		"dest": "apps/api/src/database/migrations/20250609A-license-banner.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20250613A-add-project-id.ts",
+		"dest": "apps/api/src/database/migrations/20250613A-add-project-id.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20250718A-add-direction.ts",
+		"dest": "apps/api/src/database/migrations/20250718A-add-direction.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20250813A-add-mcp.ts",
+		"dest": "apps/api/src/database/migrations/20250813A-add-mcp.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20251012A-add-field-searchable.ts",
+		"dest": "apps/api/src/database/migrations/20251012A-add-field-searchable.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20251014A-add-project-owner.ts",
+		"dest": "apps/api/src/database/migrations/20251014A-add-project-owner.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20251028A-add-retention-indexes.ts",
+		"dest": "apps/api/src/database/migrations/20251028A-add-retention-indexes.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20251103A-add-ai-settings.ts",
+		"dest": "apps/api/src/database/migrations/20251103A-add-ai-settings.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20251224A-remove-webhooks.ts",
+		"dest": "apps/api/src/database/migrations/20251224A-remove-webhooks.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20260110A-add-ai-provider-settings.ts",
+		"dest": "apps/api/src/database/migrations/20260110A-add-ai-provider-settings.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20260113A-add-revisions-index.ts",
+		"dest": "apps/api/src/database/migrations/20260113A-add-revisions-index.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20260128A-add-collaborative-editing.ts",
+		"dest": "apps/api/src/database/migrations/20260128A-add-collaborative-editing.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20260204A-add-deployment.ts",
+		"dest": "apps/api/src/database/migrations/20260204A-add-deployment.ts"
+	},
+	{
+		"source": "api/src/database/migrations/20260211A-add-deployment-webhooks.ts",
+		"dest": "apps/api/src/database/migrations/20260211A-add-deployment-webhooks.ts"
+	}
+]

@@ -102,14 +102,14 @@ jobs:
               vendor: postgres,
               suite: full,
               shard: 1,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap',
               storages: 'local,s3',
             }
           - {
               vendor: postgres,
               suite: full,
               shard: 2,
-              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions',
+              profiles: 'ratelimit,cors-hsts,pressure,metrics,multi,cache-config,sso,user-limits,assets-limit,assets-stress,setup,graphql-nointro,extensions,bootstrap',
               storages: 'local,s3',
             }
           # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.
@@ -120,10 +120,11 @@ jobs:
               blackbox: integer,
               storages: s3,
             }
+          # Spec 021: profile bootstrap (two empty databases, one per app) on Postgres (full) and SQLite (reduced).
           - {
               vendor: sqlite3,
               suite: reduced,
-              profiles: 'blackbox,assets-limit,assets-stress,cache-mem',
+              profiles: 'blackbox,assets-limit,assets-stress,cache-mem,bootstrap',
               blackbox: integer,
               storages: s3,
             }
@@ -315,6 +316,11 @@ jobs:
           done
       # Feature 009: the native isolated-vm addon (Run Script operation) loads in the runtime image.
       - run: docker run --rm hiennd23/backoffice-api:ci node -e "require('isolated-vm')"
+      # Spec 021 (FR-040, FR-061): the CLI entry and the 15 seed files are in the image.
+      - name: the image has the CLI and the seeds
+        run: |
+          docker run --rm hiennd23/backoffice-api:ci node cli.js --version
+          test "$(docker run --rm hiennd23/backoffice-api:ci sh -c 'ls dist/database/seeds/*.yaml | wc -l')" -eq 15
       - run: docker save hiennd23/backoffice-api:ci hiennd23/backoffice-web:ci | gzip > images.tar.gz
       - uses: actions/upload-artifact@v4
         with:

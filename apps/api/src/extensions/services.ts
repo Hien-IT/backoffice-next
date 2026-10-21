@@ -2,6 +2,10 @@
 // item service index here (they import the HTTP server or are not item services), handed to extensions with it.
 // WebSocketService and the deployment services do not exist (out of scope, Principle XI).
 export async function extraServices(): Promise<Record<string, unknown>> {
+	// server.service imports server.js, whose module graph reaches the controllers that inject ServerService: loading
+	// server.js first keeps the Nest decorators out of the cycle when the CLI loads extensions before the server.
+	await import('../server.js');
+
 	const [authentication, extensions, graphql, mail, server, settings, specifications, tfa, utils] = await Promise.all([
 		import('../services/authentication.service.js'),
 		import('../services/extensions.service.js'),

@@ -54,6 +54,8 @@ const ALL_PROFILES = [
 	'web',
 	// Feature 020 (contracts/tests.md §3): the extensions pair; `up` only with --profiles=extensions.
 	'extensions',
+	// Spec 021 (contracts/tests.md): the bootstrap pair on empty databases; `up` only with --profiles=bootstrap.
+	'bootstrap',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [
@@ -79,6 +81,10 @@ if (action === 'up') {
 	mkdirSync('.data/sqlite', { recursive: true });
 	// Both containers run as uid 1000 (node), the CI runner user is another uid: let them create the file.
 	chmodSync('.data/sqlite', 0o777);
+	// Spec 021: profile bootstrap, the SQLite files each app creates on an empty start (and baseline.json).
+	rmSync('.data/bootstrap', { recursive: true, force: true });
+	mkdirSync('.data/bootstrap', { recursive: true });
+	chmodSync('.data/bootstrap', 0o777);
 	// Feature 007: files-fixtures serves this directory; made by the runner before Docker would make it as root.
 	mkdirSync('.data/files-runtime', { recursive: true });
 }

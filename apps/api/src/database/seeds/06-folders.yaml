@@ -1,0 +1,17 @@
+# Ported from directus/api/src/database/seeds/06-folders.yaml
+table: directus_folders
+
+columns:
+  id:
+    type: uuid
+    primary: true
+    nullable: false
+  name:
+    type: string
+    length: 255
+    nullable: false
+  parent:
+    type: uuid
+    references:
+      table: directus_folders
+      column: id

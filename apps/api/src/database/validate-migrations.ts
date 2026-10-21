@@ -75,6 +75,22 @@ export async function checkMigrations(database: Knex = getDatabase()): Promise<M
 	};
 }
 
+/**
+ * The boolean check of Directus' validateMigrations (database/index.ts), used by the CLI before it loads extensions
+ * (spec 021 FR-043): true when no required migration is missing; unknown versions do not count, as in Directus. A
+ * failing read logs and exits with code 1, as Directus does.
+ */
+export async function migrationsValid(database: Knex = getDatabase()): Promise<boolean> {
+	try {
+		return (await checkMigrations(database)).missing.length === 0;
+	} catch (error: any) {
+		const logger = useLogger();
+		logger.error(`Database migrations cannot be found`);
+		logger.error(error);
+		throw process.exit(1);
+	}
+}
+
 /** Exits with code 1 when directus_migrations does not match; never waits nor retries (FR-036). */
 export async function validateMigrations(database?: Knex): Promise<void> {
 	const logger = useLogger();

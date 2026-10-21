@@ -9,7 +9,9 @@ export default {
 		swc: true,
 		// Entry point only (process start, listen, signals): exercised by tests/parity/src/startup.
 		// Test helpers ported with the Directus unit tests (feature 006).
-		coverageExclude: ['src/main.ts', 'src/test-utils/**', 'src/__utils__/**'],
+		// Spec 021 FR-106: the 101 system migrations are verbatim copies checked by port.test.ts and run for real by the
+		// parity profile `bootstrap` (Postgres, SQLite); unit tests do not execute them.
+		coverageExclude: ['src/main.ts', 'src/test-utils/**', 'src/__utils__/**', 'src/database/migrations/2*.ts'],
 	}),
 	resolve: {
 		// Feature 011: graphql ships CJS (`main`) and ESM (`module`) builds without an exports map. Node loads the CJS

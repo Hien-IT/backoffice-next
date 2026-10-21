@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/cli/commands/database/install.ts",
+		"dest": "apps/api/src/cli/commands/database/install.ts"
+	},
+	{
+		"source": "api/src/cli/commands/database/migrate.ts",
+		"dest": "apps/api/src/cli/commands/database/migrate.ts"
+	}
+]

@@ -30,7 +30,7 @@ RUN <<EOF
 	pnpm install --recursive --offline --frozen-lockfile
 	pnpm --filter '@backoffice/api...' run build
 	pnpm --filter @backoffice/api deploy --legacy --prod dist
-	mkdir -p dist/database dist/extensions dist/uploads
+	mkdir -p dist/database dist/extensions dist/uploads dist/migrations
 EOF
 
 ####################################################################################################
@@ -68,4 +68,7 @@ LABEL \
 	maintainer="Hien Nguyen"
 
 ENTRYPOINT ["/sbin/tini", "--"]
-CMD ["node", "dist/main.js"]
+# Spec 021 (FR-001, FR-060): like `node cli.js bootstrap && pm2-runtime start` of the Directus image: bootstrap (install an
+# empty database, run pending migrations) then start; `exec` keeps node a direct child of tini. A failed bootstrap
+# exits with its code and the server never starts. `node dist/main.js` still works for an overridden command (019).
+CMD ["/bin/sh", "-c", "node cli.js bootstrap && exec node cli.js start"]

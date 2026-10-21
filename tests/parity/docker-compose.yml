@@ -1411,6 +1411,136 @@ services:
       timeout: 5s
       retries: 100
 
+  # Spec 021 (contracts/tests.md): profile bootstrap. Directus 11.17.4 and Backoffice each bootstrap an EMPTY database
+  # (Postgres postgres-bootstrap, or a SQLite file under .data/bootstrap when TEST_DB=sqlite3) with the image CMD, then
+  # src/bootstrap compares the databases; directus-on-backoffice-db runs Directus on the database Backoffice made. Two
+  # databases never share a Redis db or namespace (cache keys do not include the database; pub/sub ignores the db
+  # number). The owner reports go to registry-bootstrap so their count belongs to this profile.
+  postgres-bootstrap:
+    profiles: [bootstrap]
+    image: postgis/postgis:13-3.4-alpine
+    environment:
+      POSTGRES_PASSWORD: bootstrap-db-pass-91c2
+      POSTGRES_DB: postgres
+    volumes:
+      - ./env/bootstrap-init.sql:/docker-entrypoint-initdb.d/bootstrap-init.sql:ro
+    ports:
+      - '6114:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -h 127.0.0.1 -U postgres -d backoffice_partial']
+      interval: 2s
+      timeout: 5s
+      retries: 60
+
+  registry-bootstrap:
+    profiles: [bootstrap]
+    image: node:22-alpine
+    command: ['node', '/registry/server.mjs']
+    volumes:
+      - ./registry:/registry:ro
+      - ../fixtures/extensions:/fixtures:ro
+    environment:
+      PORT: '9100'
+    ports:
+      - '6115:9100'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9100/version || exit 1']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  directus-bootstrap:
+    profiles: [bootstrap]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/bootstrap:/directus/database/bootstrap
+      - ./fixtures/migrations:/directus/migrations:ro
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-bootstrap.env
+    environment:
+      DB_DATABASE: directus_bootstrap
+      DB_FILENAME: /directus/database/bootstrap/directus_bootstrap.db
+      PUBLIC_URL: http://localhost:10755
+      REDIS: redis://redis:6379/10
+      CACHE_NAMESPACE: parity-bootstrap-d
+      REDIS_BUS_NAMESPACE: parity-bootstrap-d:bus
+      REDIS_LOCK_NAMESPACE: parity-bootstrap-d:lock
+      MIGRATIONS_PATH: ${BOOTSTRAP_MIGRATIONS_DIR:-/directus/migrations}
+    depends_on:
+      postgres-bootstrap: { condition: service_healthy }
+      registry-bootstrap: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports:
+      - '10755:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  backoffice-api-bootstrap:
+    profiles: [bootstrap]
+    build:
+      context: ../..
+      dockerfile: apps/api/Dockerfile
+    image: hiennd23/backoffice-api:local
+    platform: linux/amd64 # feature 007 (research R2): one image for every pair
+    volumes:
+      - ./.data/bootstrap:/directus/database/bootstrap
+      - ./fixtures/migrations:/directus/migrations:ro
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-bootstrap.env
+    environment:
+      DB_DATABASE: backoffice_bootstrap
+      DB_FILENAME: /directus/database/bootstrap/backoffice_bootstrap.db
+      PUBLIC_URL: http://localhost:10756
+      REDIS: redis://redis:6379/11
+      CACHE_NAMESPACE: parity-bootstrap-b
+      REDIS_BUS_NAMESPACE: parity-bootstrap-b:bus
+      REDIS_LOCK_NAMESPACE: parity-bootstrap-b:lock
+      MIGRATIONS_PATH: ${BOOTSTRAP_MIGRATIONS_DIR:-/directus/migrations}
+    depends_on:
+      postgres-bootstrap: { condition: service_healthy }
+      registry-bootstrap: { condition: service_healthy }
+      redis: { condition: service_healthy }
+    ports:
+      - '10756:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
+  directus-on-backoffice-db:
+    profiles: [bootstrap]
+    image: directus/directus:11.17.4
+    volumes:
+      - ./.data/bootstrap:/directus/database/bootstrap
+      - ./fixtures/migrations:/directus/migrations:ro
+    env_file:
+      - ./env/${TEST_DB:-postgres}.env
+      - ./env/profile-bootstrap.env
+    environment:
+      DB_DATABASE: backoffice_bootstrap
+      DB_FILENAME: /directus/database/bootstrap/backoffice_bootstrap.db
+      PUBLIC_URL: http://localhost:10757
+      REDIS: redis://redis:6379/11
+      CACHE_NAMESPACE: parity-bootstrap-b
+      REDIS_BUS_NAMESPACE: parity-bootstrap-b:bus
+      REDIS_LOCK_NAMESPACE: parity-bootstrap-b:lock
+      MIGRATIONS_PATH: ${BOOTSTRAP_MIGRATIONS_DIR:-/directus/migrations}
+    depends_on:
+      backoffice-api-bootstrap: { condition: service_healthy }
+    ports:
+      - '10757:8055'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:8055/server/ping || exit 1']
+      interval: 3s
+      timeout: 5s
+      retries: 100
+
   # Feature 012 (research R10, R13, contracts/e2e.md §3): the Backoffice web app (apps/web) in the three E2E configurations
   # of FR-071. backoffice-web (config.json apiUrl "/") sits behind two reverse proxies: /admin/ goes to it, the rest to
   # Directus (proxy-web-directus) or to the new API (proxy-web-api). backoffice-web-cors calls backoffice-api-web-cors

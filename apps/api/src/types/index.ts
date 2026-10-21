@@ -6,3 +6,4 @@ export * from './events.js';
 export * from './graphql.js';
 export * from './meta.js';
 export * from './rolemap.js';
+export * from './migration.js';

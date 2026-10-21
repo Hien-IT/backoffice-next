@@ -1,5 +1,6 @@
 // Feature 019, US1 (FR-020..FR-026): the BE image replaces the Directus image of a running service with no other change,
-// runs as a non-root user under tini (PID 1), reaps orphaned children and ends with 143 on SIGTERM.
+// runs as a non-root user under tini (PID 1), reaps orphaned children and ends with 143 on SIGTERM. Spec 021: the image
+// bootstraps then starts, like the Directus image, so an empty database is installed instead of stopping the app.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
 	adminToken,
@@ -103,21 +104,39 @@ describe.skipIf(SEPARATE)('BE image in place of the Directus image', () => {
 		expect(logs).not.toContain('PM2');
 	});
 
-	it('stops on a database Directus never bootstrapped', async () => {
+	it('bootstraps a database Directus never bootstrapped, then serves it (spec 021 FR-063)', async () => {
 		const env = directusServiceEnv();
-		const psql = (sql: string) =>
-			compose('exec', '-T', 'postgres', 'psql', '-U', env['DB_USER']!, '-d', env['DB_DATABASE']!, '-c', sql);
+		const psql = (sql: string, database = env['DB_DATABASE']!) =>
+			compose('exec', '-T', 'postgres', 'psql', '-U', env['DB_USER']!, '-d', database, '-Atc', sql);
 		psql('DROP DATABASE IF EXISTS swap_empty');
 		psql('CREATE DATABASE swap_empty');
+		let id: string | undefined;
 		try {
-			const c = swap(['DB_DATABASE=swap_empty']);
-			expect(docker('wait', c.id)).not.toBe('0');
-			// 001: an empty database stops the app ("doesn't have directus tables installed"), a partial one names the
-			// missing migrations.
-			expect(docker('logs', c.id)).toMatch(/directus tables|migration/i);
+			// Its own Redis db and namespaces: this instance has another database than the pool (cache keys and the bus
+			// would otherwise carry its schema to the replicas).
+			const c = swap([
+				'DB_DATABASE=swap_empty',
+				'REDIS=redis://redis:6379/5',
+				'CACHE_NAMESPACE=swap-empty',
+				'REDIS_BUS_NAMESPACE=swap-empty:bus',
+				'REDIS_LOCK_NAMESPACE=swap-empty:lock',
+			]);
+			id = c.id;
+			await waitFor(`${c.url}/server/health`);
+			expect(await adminToken(c.url)).toBeTruthy();
+			expect(psql('SELECT count(*) FROM directus_migrations', 'swap_empty').trim()).toBe('101');
+			expect(docker('logs', c.id)).toContain('Installing Directus system tables...');
 		} finally {
+			if (id) docker('rm', '-f', id);
 			psql('DROP DATABASE IF EXISTS swap_empty');
 		}
+	}, 300_000);
+
+	it('has the Backoffice CLI (spec 021 FR-040)', () => {
+		const version = docker('exec', swapped.id, 'node', 'cli.js', '--version').trim();
+		expect(version).toMatch(/^\d+\.\d+\.\d+/);
+		expect(version).not.toBe('11.17.4');
+		expect(docker('exec', swapped.id, 'node', 'cli.js', '--help')).toContain('Usage: backoffice [command] [options]');
 	});
 
 	it('ends with 143 after the shutdown sequence on SIGTERM', () => {

@@ -155,6 +155,11 @@ catalog:
   '@types/stream-json': 1.7.8
   async: 3.2.6
   '@types/async': 3.2.25
+  # Standalone CLI (feature 021, research R6), same versions as directus/pnpm-workspace.yaml 11.17.4
+  commander: 14.0.2
+  inquirer: 12.11.0
+  chalk: 5.6.2
+  liquidjs: 10.27.2 # security patch (Directus 11.17.4 has 10.25.7: GHSA-gf2q-c269-pqgc critical, GHSA-4r6h-5v86-94p3 and 3 more high)
   # Blackbox port (feature 005, tests/parity), same versions as directus/tests/blackbox
   json-to-graphql-query: 2.3.0
   seedrandom: 3.0.5

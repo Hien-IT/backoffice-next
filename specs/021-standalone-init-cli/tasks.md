@@ -48,7 +48,7 @@ lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test liên qu
 
 **Purpose**: chốt các điểm "[Unverified]" của research R14/R15 trước khi viết code, thêm dependency.
 
-- [ ] T001 Kiểm và ghi "Kết quả T001" vào `specs/021-standalone-init-cli/research.md`: (a) `pnpm nx run api:container`
+- [X] T001 Kiểm và ghi "Kết quả T001" vào `specs/021-standalone-init-cli/research.md`: (a) `pnpm nx run api:container`
       rồi `docker run --rm --entrypoint sh hiennd23/backoffice-api:local -c 'ls -la /directus /directus/dist | head -40'`:
       chốt bố cục `/directus` (`package.json`, `dist/main.js`, `node_modules/`) và nơi đặt `cli.js` (R14); (b)
       `docker run --rm --entrypoint sh hiennd23/backoffice-api:local -c 'command -v script || echo none'` (pseudo-TTY
@@ -57,12 +57,12 @@ lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test liên qu
       `directus/directus:11.17.4` trên một Postgres trống (container tạm, cổng ngẫu nhiên, xóa sau khi đo) và trên
       SQLite (không env): mốc cho SC-010; (e) thời gian job `deploy-k8s` của run CI gần nhất (`gh run view`) để ước
       thêm phần standalone (R12).
-- [ ] T002 [P] Thêm vào catalog `pnpm-workspace.yaml` (bản của `directus/pnpm-workspace.yaml`, kiểm lại lúc làm):
+- [X] T002 [P] Thêm vào catalog `pnpm-workspace.yaml` (bản của `directus/pnpm-workspace.yaml`, kiểm lại lúc làm):
       `commander` 14.0.2, `inquirer` 12.11.0, `chalk` 5.6.2, `liquidjs` 10.25.7; thêm `commander`, `inquirer`, `chalk`,
       `liquidjs`, `uuid` (`catalog:`, 11.1.0 đã có) vào `dependencies` của `api/package.json`; `pnpm install`; chạy
       `pnpm audit --prod` và đối chiếu `auditConfig` (không có advisory high/critical mới; nếu có thì dừng và hỏi chủ dự
       án). Không thêm `ora`, `execa`, `copyfiles`, `@types/inquirer` (research R6).
-- [ ] T003 [P] Sửa `api/src/config/supported-variables.ts`: thêm `PROJECT_OWNER` và `ACCEPT_TERMS` vào
+- [X] T003 [P] Sửa `api/src/config/supported-variables.ts`: thêm `PROJECT_OWNER` và `ACCEPT_TERMS` vào
       `SUPPORTED_VARIABLES` (nhóm comment "Feature 021"), xóa `PROJECT_OWNER` khỏi `NOT_APPLICABLE_VARIABLES` (danh sách
       thành rỗng, giữ export); test trong `api/src/config/supported-variables.test.ts` và
       `api/src/config/warn-unsupported-variables.test.ts` (không còn cảnh báo cho hai biến) (FR-010).
@@ -75,48 +75,48 @@ lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test liên qu
 
 **⚠️ CRITICAL**: chưa xong phase này thì không làm phase 3 trở đi.
 
-- [ ] T004 [P] Port `directus/packages/utils/shared/process-chunk.ts` sang `libs/utils/src/shared/process-chunk.ts`,
+- [X] T004 [P] Port `directus/packages/utils/shared/process-chunk.ts` sang `libs/utils/src/shared/process-chunk.ts`,
       re-export ở `libs/utils/src/shared/index.ts`; test `libs/utils/src/shared/process-chunk.test.ts` (port test
       Directus nếu có, nếu không thì viết test chia mảng thành các khúc và gọi callback theo thứ tự); manifest
       `tools/port-manifest/021-T004.json` (research R4).
-- [ ] T005 [P] Port `SettingsModuleBarLink`, `SettingsModuleBarModule` từ `directus/packages/types/src/settings.ts:3-18`
+- [X] T005 [P] Port `SettingsModuleBarLink`, `SettingsModuleBarModule` từ `directus/packages/types/src/settings.ts:3-18`
       vào `libs/types/src/settings.ts` (re-export qua `libs/types/src/index.ts` nếu `settings.ts` chưa được export); build
       `libs/types` và `libs/utils` (`pnpm --filter @backoffice/types --filter @backoffice/utils build`).
-- [ ] T006 [P] Thêm `api/src/types/migration.ts` (port `types/migration.ts`: `{ version: string; name: string;
+- [X] T006 [P] Thêm `api/src/types/migration.ts` (port `types/migration.ts`: `{ version: string; name: string;
       timestamp: Date }`), export ở `api/src/types/index.ts`; manifest `tools/port-manifest/021-T006.json`.
-- [ ] T007 Viết test `api/src/database/migrations/port.test.ts` (chạy đỏ trước T008): với mỗi file
+- [X] T007 Viết test `api/src/database/migrations/port.test.ts` (chạy đỏ trước T008): với mỗi file
       `directus/api/src/database/migrations/<file>` khớp `^[0-9]+[A-Z]-[^.]+\.ts$`, đọc bản port cùng tên, bỏ dòng 1 (phải
       là `// Ported from directus/api/src/database/migrations/<file>`), áp bảng thay thế specifier của spec FR-025 lên bản
       gốc, so bằng nhau từng ký tự; tập version của thư mục port (101, `20201028A` … `20260211A`) bằng
       `DIRECTUS_MIGRATIONS` của `directus-11.17.4.ts`; thư mục port không có file migration thừa. (FR-025, FR-105)
-- [ ] T008 Chép 101 migration vào `api/src/database/migrations/` bằng một script tạm trong scratchpad (không commit):
+- [X] T008 Chép 101 migration vào `api/src/database/migrations/` bằng một script tạm trong scratchpad (không commit):
       thêm dòng 1 header, thay 9 specifier theo bảng FR-025 (`@directus/{utils,utils/node,schema,env,constants,types}` →
       `@backoffice/...`; `../../utils/get-schema.js` → `../../schema/get-database-schema.js`; `../../services/fields.js`
       → `../../services/fields.service.js`; `../../services/settings.js` → `../../services/settings.service.js`);
       manifest `tools/port-manifest/021-T008.json` (101 mục); `pnpm --filter @backoffice/api typecheck` đạt (nếu một
       import thiếu export, port thêm vào lib theo Nguyên tắc I, không sửa migration); T007 xanh.
-- [ ] T009 [P] Port test `migrations/run.test.ts` sang `api/src/database/migrations/run.test.ts` (8 test,
+- [X] T009 [P] Port test `migrations/run.test.ts` sang `api/src/database/migrations/run.test.ts` (8 test,
       `knex-mock-client`; header; đổi import theo FR-025; manifest `tools/port-manifest/021-T009.json`) (chạy đỏ trước
       T010). (FR-020..FR-024, FR-105)
-- [ ] T010 Port `migrations/run.ts` sang `api/src/database/migrations/run.ts` (đổi `@directus/env` → `@backoffice/env`,
+- [X] T010 Port `migrations/run.ts` sang `api/src/database/migrations/run.ts` (đổi `@directus/env` → `@backoffice/env`,
       `@directus/format-title` → `@backoffice/format-title`; `flushCaches` từ `../../cache.js`, `getModuleDefault` từ
       `../../utils/get-module-default.js`, `Migration` từ `../../types/index.js`); manifest
       `tools/port-manifest/021-T010.json` (run.ts); T009 xanh (contracts/migrations.md). (FR-022, FR-023)
-- [ ] T011 [P] Chép 15 file `database/seeds/*.yaml` sang `api/src/database/seeds/` với dòng 1 `# Ported from
+- [X] T011 [P] Chép 15 file `database/seeds/*.yaml` sang `api/src/database/seeds/` với dòng 1 `# Ported from
       directus/api/src/database/seeds/<file>`; viết test `api/src/database/seeds/run.test.ts` (chạy đỏ trước T012): (a)
       mỗi yaml bằng bản Directus sau khi bỏ dòng 1; (b) SQLite in-memory: `runSeed` tạo đúng 15 bảng với cột như yaml
       (kiểm bằng `createInspector(...).columnInfo`); (c) DB đã có `directus_collections` → `Database is already
       installed` (FR-011..FR-013); manifest `tools/port-manifest/021-T011.json` (15 yaml; Directus không có
       test cho seed nên `run.test.ts` là file mới). (FR-105)
-- [ ] T012 Port `database/seeds/run.ts` sang `api/src/database/seeds/run.ts` (`getHelpers` của `../helpers/index.js`);
+- [X] T012 Port `database/seeds/run.ts` sang `api/src/database/seeds/run.ts` (`getHelpers` của `../helpers/index.js`);
       manifest `tools/port-manifest/021-T012.json` (seeds/run.ts); T011 xanh.
-- [ ] T013 Sửa script `build` của `api/package.json`: sau `swc ...` thêm bước copy `.yaml` và `.liquid` từ `src` sang
+- [X] T013 Sửa script `build` của `api/package.json`: sau `swc ...` thêm bước copy `.yaml` và `.liquid` từ `src` sang
       `dist` giữ cây thư mục (`node -e` với `fs.cpSync` và `filter` như `libs/system-data`, research R3); kiểm
       `pnpm --filter @backoffice/api build` rồi `ls api/dist/database/seeds/*.yaml | wc -l` = 15. (FR-061)
-- [ ] T014 [P] Thêm `migrationsValid(database?: Knex): Promise<boolean>` vào `api/src/database/validate-migrations.ts`
+- [X] T014 [P] Thêm `migrationsValid(database?: Knex): Promise<boolean>` vào `api/src/database/validate-migrations.ts`
       (`checkMigrations` rồi `missing.length === 0`, như `validateMigrations` boolean của Directus, không `process.exit`);
       test trong `api/src/database/validate-migrations.test.ts` (R5).
-- [ ] T015 [P] Thêm `'src/database/migrations/2*.ts'` vào `coverageExclude` của `api/vitest.config.ts` với comment lý do
+- [X] T015 [P] Thêm `'src/database/migrations/2*.ts'` vào `coverageExclude` của `api/vitest.config.ts` với comment lý do
       (bản chép máy kiểm ở `port.test.ts`, chạy thật ở profile parity `bootstrap`; spec FR-106).
 
 **Checkpoint**: `port.test.ts`, `run.test.ts`, `seeds/run.test.ts` xanh; build có seed trong `dist`.
@@ -132,50 +132,50 @@ hàng hệ thống, `directus_migrations` bằng nhau sau chuẩn hóa; `docker 
 
 ### Tests cho User Story 1
 
-- [ ] T016 [P] [US1] Unit test `api/src/cli/commands/bootstrap/index.test.ts` (chạy đỏ trước T021): chờ DB 5 lần × 5 s
+- [X] T016 [P] [US1] Unit test `api/src/cli/commands/bootstrap/index.test.ts` (chạy đỏ trước T021): chờ DB 5 lần × 5 s
       với fake timers (`hasDatabaseConnection` giả), hết lượt thì `validateDatabaseConnection`; DB trống: thứ tự `runSeed`,
       `run('latest')`, `createAdmin`, `upsertSingleton({ project_name })`, `setOwner` khi `PROJECT_OWNER` là email (không
       khi không phải email); `--skipAdminInit`; DB đã cài: chỉ `run('latest')`; dòng log (`level`, `msg`) đúng contracts/cli.md
       (D-147); `database.destroy()` và mã 0. (FR-002..FR-006, FR-009, FR-010)
-- [ ] T017 [P] [US1] Unit test `api/src/cli/commands/database/install.test.ts` và `migrate.test.ts`: mã thoát, log
+- [X] T017 [P] [US1] Unit test `api/src/cli/commands/database/install.test.ts` và `migrate.test.ts`: mã thoát, log
       `Running migrations...`, `Database up to date`, `Downgrade successful`, lỗi → mã 1 (FR-058, FR-059).
-- [ ] T018 [P] [US1] Unit test `api/src/cli/index.test.ts` cho cây lệnh lượt 1 (`start`, `bootstrap [--skipAdminInit]`,
+- [X] T018 [P] [US1] Unit test `api/src/cli/index.test.ts` cho cây lệnh lượt 1 (`start`, `bootstrap [--skipAdminInit]`,
       `database install|migrate:latest|migrate:up|migrate:down`), `program.name('backoffice')`, `--version` =
       `BACKOFFICE_VERSION`, `allowExcessArguments`; `loadExtensions` gọi trước khi khai báo lệnh (mock) (FR-040, FR-044).
 
 ### Implementation cho User Story 1
 
-- [ ] T019 [P] [US1] Port `cli/run.ts` sang `api/src/cli/run.ts` (`console.error` với `eslint-disable-next-line
+- [X] T019 [P] [US1] Port `cli/run.ts` sang `api/src/cli/run.ts` (`console.error` với `eslint-disable-next-line
       no-console` như Directus, mã 1) và `cli/load-extensions.ts` sang `api/src/cli/load-extensions.ts` (dùng
       `migrationsValid` của T014; `getExtensionManager().initialize({ schedule: false, watch: false })`); manifest
       `tools/port-manifest/021-T019.json`.
-- [ ] T020 [US1] Port `cli/index.ts` sang `api/src/cli/index.ts` (commander 14): lượt 1 khai báo `start`, `bootstrap`,
+- [X] T020 [US1] Port `cli/index.ts` sang `api/src/cli/index.ts` (commander 14): lượt 1 khai báo `start`, `bootstrap`,
       `database install`, `database migrate:latest|up|down` với mô tả và option như Directus; `program.name('backoffice')`,
       `program.version(BACKOFFICE_VERSION)` (D-147); `emitter.emitInit('cli.before', { program })` và `cli.after` như
       Directus (FR-043); T018 xanh. Các lệnh còn lại thêm ở lượt 2 (T055).
-- [ ] T021 [US1] Port `cli/commands/bootstrap/index.ts` sang `api/src/cli/commands/bootstrap/index.ts` (`waitForDatabase`,
+- [X] T021 [US1] Port `cli/commands/bootstrap/index.ts` sang `api/src/cli/commands/bootstrap/index.ts` (`waitForDatabase`,
       `isInstalled`, `runSeed` T012, `runMigrations` T010, `getSchema` của `../../../schema/get-database-schema.js`,
       `createAdmin` của 010, `SettingsService` `upsertSingleton`/`setOwner` (D-38), `email()` của zod); log `Installing
       Directus system tables...` giữ nguyên (D-147); T016 xanh (phần không thuộc US7). (FR-002..FR-006, FR-009)
-- [ ] T022 [P] [US1] Port `cli/commands/database/install.ts` và `migrate.ts` sang `api/src/cli/commands/database/`;
+- [X] T022 [P] [US1] Port `cli/commands/database/install.ts` và `migrate.ts` sang `api/src/cli/commands/database/`;
       T017 xanh.
-- [ ] T023 [P] [US1] Viết `api/src/cli/commands/start.ts`: `logUnhandledRejections()`, `await runStartupChecks()`, `await
+- [X] T023 [P] [US1] Viết `api/src/cli/commands/start.ts`: `logUnhandledRejections()`, `await runStartupChecks()`, `await
       import('../../server.js')`, `startServer()` (giống `api/src/main.ts`, research R2); test `start.test.ts` (mock thứ tự
       gọi). `api/src/main.ts` giữ nguyên.
-- [ ] T024 [US1] Thêm `api/cli.js` (`#!/usr/bin/env node` + `import('./dist/cli/run.js');`), `api/package.json`:
+- [X] T024 [US1] Thêm `api/cli.js` (`#!/usr/bin/env node` + `import('./dist/cli/run.js');`), `api/package.json`:
       `"files": ["dist", "cli.js"]`, `"bin": { "backoffice": "cli.js" }`; kiểm `node apps/api/cli.js --version` và
       `node apps/api/cli.js --help` sau build (FR-040).
-- [ ] T025 [US1] Sửa `api/Dockerfile`: builder `mkdir -p dist/database dist/extensions dist/uploads dist/migrations`;
+- [X] T025 [US1] Sửa `api/Dockerfile`: builder `mkdir -p dist/database dist/extensions dist/uploads dist/migrations`;
       runtime `CMD ["/bin/sh", "-c", "node cli.js bootstrap && exec node cli.js start"]`, `ENTRYPOINT` tini giữ; build
       lại `pnpm nx run api:container`; kiểm `docker run --rm hiennd23/backoffice-api:local` không env: log bootstrap SQLite
       rồi `Server started`, `/server/ping` trong dưới 60 s (SC-007), `docker exec ... ps` cho PID 1 là tini và node là con
       của tini (FR-001, FR-060, FR-062).
-- [ ] T026 [US1] Kiểm FR-016 ở mức code: `api/src/cli/run.ts` và lỗi kết nối DB không log cấu hình knex (thử
+- [X] T026 [US1] Kiểm FR-016 ở mức code: `api/src/cli/run.ts` và lỗi kết nối DB không log cấu hình knex (thử
       `DB_PASSWORD=sai` trên image local, `grep` giá trị trong log = 0 dòng); ghi kết quả vào research "Kết quả T001".
 
 ### Parity cho User Story 1
 
-- [ ] T027 [US1] Profile `bootstrap` trong `parity/docker-compose.yml`: `postgres-bootstrap` (`postgis/postgis:13-3.4-alpine`,
+- [X] T027 [US1] Profile `bootstrap` trong `parity/docker-compose.yml`: `postgres-bootstrap` (`postgis/postgis:13-3.4-alpine`,
       cổng `6114:5432`, init SQL `parity/env/bootstrap-init.sql` tạo DB `directus_bootstrap`, `backoffice_bootstrap`,
       `directus_partial`, `backoffice_partial`), `directus-bootstrap` (10755), `backoffice-api-bootstrap` (10756, CMD mặc
       định, `build` như `backoffice-api-setup`), `directus-on-backoffice-db` (10757, `depends_on`
@@ -186,25 +186,25 @@ hàng hệ thống, `directus_migrations` bằng nhau sau chuẩn hóa; `docker 
       `backoffice_bootstrap`), `CACHE_NAMESPACE`/`REDIS_BUS_NAMESPACE`/`REDIS_LOCK_NAMESPACE` (`parity-bootstrap-d`,
       `parity-bootstrap-b`), `MIGRATIONS_PATH: ${BOOTSTRAP_MIGRATIONS_DIR:-/directus/migrations}`; bind
       `./fixtures/migrations:/directus/migrations:ro`, sqlite `./.data/bootstrap`; mọi app `depends_on: registry`.
-- [ ] T028 [US1] Đăng ký profile: `parity/scripts/env.mjs` (`ALL_PROFILES`, tạo `.data/bootstrap` 0777 như sqlite),
+- [X] T028 [US1] Đăng ký profile: `parity/scripts/env.mjs` (`ALL_PROFILES`, tạo `.data/bootstrap` 0777 như sqlite),
       `parity/src/docker.ts` (danh sách profile của `compose()`), `parity/src/config.ts` (`profilePorts.bootstrap = {
       directus: 10755, backoffice: 10756 }`, `bootstrapDbPort = 6114`, `bootstrapCrossPort = 10757`); kiểm `node
       scripts/env.mjs up --vendor=postgres --profiles=bootstrap` dựng được và `global-setup` đặt `DIRECTUS_URL_BOOTSTRAP`.
-- [ ] T029 [P] [US1] Fixture `parity/fixtures/migrations/{ok,collide,nodash,noup,fail}/` theo contracts/tests.md
+- [X] T029 [P] [US1] Fixture `parity/fixtures/migrations/{ok,collide,nodash,noup,fail}/` theo contracts/tests.md
       (`ok/20990101A-create-sample.js`, `20990102A-add-column-default.js`, `20990103A-in-transaction.js`;
       `collide/20201028A-collide.js`; `nodash/utils.js`, `nodash/20990104A-ts-ignored.ts`; `noup/20990105A-no-up.js`;
       `fail/20990106A-throws.js`), ESM `export async function up(knex)`/`down(knex)`.
-- [ ] T030 [P] [US1] `parity/src/bootstrap/normalize.ts` cài đúng danh sách FR-107 (dùng `comparable()` của
+- [X] T030 [P] [US1] `parity/src/bootstrap/normalize.ts` cài đúng danh sách FR-107 (dùng `comparable()` của
       `parity/src/system/helpers.ts`); unit test `parity/src/bootstrap/normalize.test.ts` (thêm vào `include` của
       `parity/vitest.config.ts`).
-- [ ] T031 [P] [US1] `parity/src/bootstrap/dump.ts` (`dump(db)`: mọi bảng `directus_*`, cột từ `createInspector().columnInfo`,
+- [X] T031 [P] [US1] `parity/src/bootstrap/dump.ts` (`dump(db)`: mọi bảng `directus_*`, cột từ `createInspector().columnInfo`,
       PK, FK gồm `on_delete`, index qua `indexesOf` của `db-snapshot.ts`, hàng sắp theo PK; FR-100); unit test trên SQLite
       in-memory `parity/src/bootstrap/dump.test.ts`.
-- [ ] T032 [P] [US1] `parity/src/bootstrap/cli.ts`: `cli(service, args, env?, stdin?) → { code, stdout, stderr }` qua
+- [X] T032 [P] [US1] `parity/src/bootstrap/cli.ts`: `cli(service, args, env?, stdin?) → { code, stdout, stderr }` qua
       `docker compose -p parity-<vendor> exec -T [-e K=V]... <service> node cli.js ...` (bắt `status`); `logs(service,
       since)` lọc pino raw → (`level`, `msg`).
-- [ ] T033 [US1] Baseline và `parity/src/bootstrap/schema.test.ts` (FR-100, FR-014, FR-010, FR-016, SC-001): (a)
-      `parity/registry/server.mjs` đếm thêm report theo `project_owner` của body (`GET /v1/owner?project_owner=<email>` →
+- [X] T033 [US1] Baseline và `parity/src/bootstrap/schema.test.ts` (FR-100, FR-014, FR-010, FR-016, SC-001): (a)
+      (làm bằng service riêng `registry-bootstrap`, xem research "Kết quả lượt 1") `parity/registry/server.mjs` đếm thêm report theo `project_owner` của body (`GET /v1/owner?project_owner=<email>` →
       `{ count }`; giữ `count`, `last` toàn cục cho 010); (b) `parity/src/bootstrap/baseline.ts` chụp một lần trong
       `parity/src/global-setup.ts` khi có `profileUrls('bootstrap')`, trước mọi test: `dump()` hai DB (Postgres:
       `directus_bootstrap`, `backoffice_bootstrap`; SQLite: hai file), log khởi động (`level`, `msg`) của
@@ -215,10 +215,10 @@ hàng hệ thống, `directus_migrations` bằng nhau sau chuẩn hóa; `docker 
       Backoffice có 2 dòng `owner report is out of scope`; log khởi động không chứa `ADMIN_PASSWORD`, `ADMIN_TOKEN`,
       `DB_PASSWORD`, `SECRET`, `KEY` của env; in thời gian `bootstrap` của hai app (SC-010). Thêm `src/bootstrap/**/*.test.ts`
       vào `FULL_FILES` và `REDUCED_FILES` của `parity/src/suite.ts`.
-- [ ] T034 [US1] Sửa `parity/src/deploy/image-swap.test.ts` (FR-063): "stops on a database Directus never bootstrapped"
+- [X] T034 [US1] Sửa `parity/src/deploy/image-swap.test.ts` (FR-063): "stops on a database Directus never bootstrapped"
       → "bootstraps an empty database" (container healthy, đăng nhập bằng `ADMIN_*`, `directus_migrations` = 101); thêm
       `node cli.js --version` in phiên bản Backoffice; giữ các bài tini/PID 1, uid 1000, SIGTERM 143.
-- [ ] T035 [US1] CI `.github/workflows/ci.yml`: job `parity` thêm `bootstrap` vào `profiles` của postgres (2 shard) và
+- [X] T035 [US1] CI `.github/workflows/ci.yml`: job `parity` thêm `bootstrap` vào `profiles` của postgres (2 shard) và
       sqlite3; job `docker` thêm bước `docker run --rm --entrypoint node hiennd23/backoffice-api:ci cli.js --version` và
       `ls /directus/dist/database/seeds` (15 yaml) (research R12).
 
@@ -233,13 +233,13 @@ hàng hệ thống, `directus_migrations` bằng nhau sau chuẩn hóa; `docker 
 **Independent Test**: `TEST_DB=mysql`: `bootstrap` DB trống mã 1; DB do Directus bootstrap: container Backoffice khởi
 động như trước, `bootstrap` không migrate.
 
-- [ ] T036 [P] [US7] Unit test `api/src/cli/utils/assert-vendor.test.ts` (chạy đỏ trước T037): `getDatabaseClient()` là
+- [X] T036 [P] [US7] Unit test `api/src/cli/utils/assert-vendor.test.ts` (chạy đỏ trước T037): `getDatabaseClient()` là
       `postgres`, `sqlite` → tiếp; `mysql`, `mssql`, `oracle`, `cockroachdb`, `redshift` → thông điệp đúng FR-008/FR-026
       theo chế độ (`bootstrap` DB trống mã 1, `bootstrap` DB đã cài mã 0 + `Done`, `install`/`migrate:*` mã 1). (FR-105)
-- [ ] T037 [US7] Viết `api/src/cli/utils/assert-vendor.ts` (`assertBootstrapVendor(mode)`) và gọi ở
+- [X] T037 [US7] Viết `api/src/cli/utils/assert-vendor.ts` (`assertBootstrapVendor(mode)`; làm thành `unsupportedClient()` + `vendorMessages`, mỗi lệnh tự chọn mã thoát) và gọi ở
       `cli/commands/bootstrap/index.ts` (sau `waitForDatabase`), `database/install.ts`, `database/migrate.ts`; mở rộng
       T016 với các nhánh vendor; T036, T016 xanh (D-145, research R5).
-- [ ] T038 [US7] `parity/src/bootstrap/vendor.test.ts` (FR-008, FR-026, SC-008): chỉ khi `TEST_DB=mysql`, không khởi động
+- [X] T038 [US7] `parity/src/bootstrap/vendor.test.ts` (FR-008, FR-026, SC-008): chỉ khi `TEST_DB=mysql`, không khởi động
       lại cặp chính (các test khác đang dùng nó): log khởi động của `backoffice-api` (`docker compose logs`) có `Database on
       mysql is migrated by Directus 11.17.4 (D-145); skipping migrations` và không `Applying`; `cli('backoffice-api',
       ['database','migrate:latest'])` mã 1 với thông điệp D-145; `docker compose run --rm --no-deps backoffice-api node
@@ -256,14 +256,14 @@ hàng hệ thống, `directus_migrations` bằng nhau sau chuẩn hóa; `docker 
 **Independent Test**: DB đã bootstrap; thêm custom migration vào `MIGRATIONS_PATH`; khởi động lại container; so với
 Directus làm cùng việc.
 
-- [ ] T039 [US2] Thêm vào `parity/src/bootstrap/cross.test.ts` khối "installed DB" (US2): (1) restart
+- [X] T039 [US2] Thêm vào `parity/src/bootstrap/cross.test.ts` khối "installed DB" (US2): (1) restart
       `backoffice-api-bootstrap` không migration mới → log `Database already initialized, skipping install`, `Running
       migrations...`, `Done`, số hàng mọi bảng không đổi; (2) đặt `process.env.BOOTSTRAP_MIGRATIONS_DIR=/directus/migrations/ok`
       rồi `compose('up', '-d', '--force-recreate', '--wait', 'directus-bootstrap', 'backoffice-api-bootstrap')` (compose
       nội suy `${BOOTSTRAP_MIGRATIONS_DIR}` của T027) → 3 hàng mới ở mỗi DB, `name` qua `formatTitle`, `directus_migrations`
       hai DB bằng nhau; xóa biến và tạo lại hai service sau khối; (3) chèn tay một version lạ vào `directus_migrations` của
       `backoffice_bootstrap` → `bootstrap` mã 0, `start` mã 1 liệt kê version thừa (001 D-05), rồi xóa hàng đó. (FR-036)
-- [ ] T040 [P] [US2] Unit test bổ sung `api/src/database/migrations/run.test.ts`: custom migration ở `MIGRATIONS_PATH`
+- [X] T040 [P] [US2] Unit test bổ sung `api/src/database/migrations/run.test.ts`: custom migration ở `MIGRATIONS_PATH`
       (thư mục tạm) được đọc, `.ts` và file không `-` bị bỏ, `.cjs`/`.mjs` được nhận; `flushCaches(true)` gọi một lần sau
       `latest` có áp (FR-020, FR-021, FR-027).
 
@@ -275,7 +275,7 @@ Directus làm cùng việc.
 
 **Independent Test**: `latest` ở Backoffice → Directus khởi động; `down` ở Directus → `up` ở Backoffice; so sau mỗi bước.
 
-- [ ] T041 [US4] Hoàn thiện `parity/src/bootstrap/cross.test.ts` (FR-035, FR-101, SC-002, SC-004): 10757
+- [X] T041 [US4] Hoàn thiện `parity/src/bootstrap/cross.test.ts` (FR-035, FR-101, SC-002, SC-004): 10757
       (`directus-on-backoffice-db`) `/server/health` không `error`, log không có `Database migrations have not all been
       run`, đăng nhập admin, tạo collection + item; `cli('directus-on-backoffice-db', ['database','migrate:latest'])` →
       `Database up to date`, không `Applying`; với `MIGRATIONS_PATH=/directus/migrations/ok` (`cli()` truyền `-e`):
@@ -283,14 +283,14 @@ Directus làm cùng việc.
       `backoffice_bootstrap`, so `directus_migrations` và schema sau mỗi bước; cache: collection `bo_bootstrap_cache`,
       `GET /items/bo_bootstrap_cache` hai lần ở 10756 và 10757 (cùng DB, cùng namespace `parity-bootstrap-b`; lần hai
       `HIT`), sau mỗi bước lần đầu `MISS` ở cả hai.
-- [ ] T042 [US4] Thêm vào `cross.test.ts` các ca lỗi US4 (FR-020, FR-024): `MIGRATIONS_PATH=.../collide` → cả hai app
+- [X] T042 [US4] Thêm vào `cross.test.ts` các ca lỗi US4 (FR-020, FR-024): `MIGRATIONS_PATH=.../collide` → cả hai app
       `Migration keys collide! ...` mã 1, không hàng mới; `nodash` → file bị bỏ qua ở cả hai; `noup` → cảnh báo
       `Couldn't find the "up" function from migration <file>` rồi mã 1 ở cả hai; so mã thoát và log sau chuẩn hóa.
-- [ ] T043 [US4] `parity/src/bootstrap/partial.test.ts` (FR-015): `database install` bằng image Directus trên
+- [X] T043 [US4] `parity/src/bootstrap/partial.test.ts` (FR-015): `database install` bằng image Directus trên
       `directus_partial` và `backoffice_partial`, `DROP TABLE directus_fields` ở cả hai; `bootstrap` bằng Directus (DB
       một) và Backoffice (DB hai) qua `docker compose run --rm` với `DB_DATABASE` ghi đè → cùng mã thoát (1), cùng dòng
       log lỗi sau chuẩn hóa, cùng `directus_migrations`; dọn hai DB sau test.
-- [ ] T044 Đóng lượt 1: `pnpm --filter @backoffice/api lint typecheck`, unit test các file của Phase 1–6 (từng file,
+- [X] T044 Đóng lượt 1: `pnpm --filter @backoffice/api lint typecheck`, unit test các file của Phase 1–6 (từng file,
       `--maxWorkers=1`), `pnpm run check-port-headers`, `pnpm nx run api:container`, parity profile `bootstrap` trên
       postgres và sqlite3 local, `TEST_DB=mysql` cho `vendor.test.ts` nếu máy đủ tài nguyên (không thì để CI); ghi kết quả
       đo vào research "Kết quả lượt 1"; commit theo đường dẫn (Conventional Commits, trailer); nhắn hai phiên khác, chờ CI
