@@ -49,7 +49,7 @@ const FOCUS =
 
 <template>
 	<div
-		class="flex max-h-[50vh] items-start gap-3 overflow-auto rounded-lg bg-error-50 px-3 py-1 font-mono text-theme-sm text-error-700 dark:bg-error-500/15 dark:text-error-400"
+		class="v-error flex max-h-[50vh] items-start gap-3 overflow-auto rounded-lg bg-error-50 px-3 py-1 font-mono text-theme-sm text-error-700 dark:bg-error-500/15 dark:text-error-400"
 	>
 		<output class="min-w-0 flex-1">[{{ code }}] {{ message }}</output>
 		<button

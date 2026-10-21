@@ -32,12 +32,16 @@ const size = computed(() => {
 	if (props.small) return '1.125rem';
 	if (props.large) return '2.6875rem';
 	if (props.xLarge) return '3.625rem';
-	return '1.5625rem';
+	// Directus v-progress-circular.vue:77: the default size reads --v-progress-circular-size.
+	return 'var(--v-progress-circular-size, 1.5625rem)';
 });
 </script>
 
 <template>
-	<div class="relative inline-flex items-center justify-center" :style="{ fontSize: size, width: size, height: size }">
+	<div
+		class="v-progress-circular relative inline-flex items-center justify-center"
+		:style="{ fontSize: size, width: size, height: size }"
+	>
 		<BoProgressCircular
 			class="absolute inset-0"
 			:value="value"

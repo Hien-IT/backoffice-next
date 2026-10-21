@@ -11,7 +11,13 @@ describe('VBadge', () => {
 		const badge = wrapper.get('span');
 
 		expect(badge.text()).toBe('3');
-		expect(badge.classes()).toEqual(expect.arrayContaining(['bg-error-600', '-top-1.75', '-end-1.75']));
+		expect(badge.classes()).toEqual(
+			expect.arrayContaining([
+				'bg-error-600',
+				'top-[calc(var(--v-badge-size,0.875rem)/-2_+_var(--v-badge-offset-y,0rem))]',
+				'end-[calc(var(--v-badge-size,0.875rem)/-2_+_var(--v-badge-offset-x,0rem))]',
+			]),
+		);
 		expect(wrapper.find('.target').exists()).toBe(true);
 	});
 
@@ -19,7 +25,13 @@ describe('VBadge', () => {
 		const badge = mount(VBadge, { props: { icon: 'check', left: true, bottom: true, bordered: true } }).get('span');
 
 		expect(badge.find('[data-icon="check"]').exists()).toBe(true);
-		expect(badge.classes()).toEqual(expect.arrayContaining(['-start-1.75', '-bottom-1.75', 'ring-2']));
+		expect(badge.classes()).toEqual(
+			expect.arrayContaining([
+				'start-[calc(var(--v-badge-size,0.875rem)/-2_+_var(--v-badge-offset-x,0rem))]',
+				'bottom-[calc(var(--v-badge-size,0.875rem)/-2_+_var(--v-badge-offset-y,0rem))]',
+				'ring-2',
+			]),
+		);
 	});
 
 	test('dot without content; disabled hides the badge', () => {

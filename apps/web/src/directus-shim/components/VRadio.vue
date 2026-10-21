@@ -61,7 +61,7 @@ const BLOCK = 'h-11 w-full rounded-lg border border-gray-200 px-4 dark:border-gr
 		role="radio"
 		:aria-checked="isChecked ? 'true' : 'false'"
 		:disabled="disabled"
-		class="group inline-flex items-center gap-3 text-start text-sm font-normal select-none"
+		class="v-radio group inline-flex items-center gap-3 text-start text-sm font-normal select-none"
 		:class="[
 			FOCUS,
 			block ? BLOCK : 'rounded-lg',

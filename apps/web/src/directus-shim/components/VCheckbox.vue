@@ -133,7 +133,7 @@ const BLOCK = 'h-11 w-full rounded-lg border border-gray-200 px-4 dark:border-gr
 
 <template>
 	<span
-		class="inline-flex items-center gap-3"
+		class="v-checkbox inline-flex items-center gap-3"
 		:class="[block && BLOCK, $attrs['class']]"
 		:style="$attrs['style'] as string"
 		@click.stop

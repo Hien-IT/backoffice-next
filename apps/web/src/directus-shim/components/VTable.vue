@@ -10,6 +10,8 @@
 import { computed } from 'vue';
 import BoTable, { type BoTableColumn } from '../../components/BoTable.vue';
 
+// Directus v-table.vue:370-374, table-header.vue:406: a height given by the extension scrolls the table, the header
+// sticks at the offset hook (with fixedHeader the inner BoTable box scrolls instead).
 type Alignment = 'left' | 'center' | 'right';
 type HeaderRaw = {
 	text: string;
@@ -148,7 +150,10 @@ function slotProps(name: string, scope: Record<string, any>) {
 </script>
 
 <template>
-	<div :class="fixedHeader ? 'flex max-h-full min-h-0 flex-col' : undefined">
+	<div
+		class="v-table relative overflow-y-auto [&_thead]:top-(--v-table-sticky-offset-top,0)"
+		:class="fixedHeader ? 'flex max-h-full min-h-0 flex-col' : undefined"
+	>
 		<BoTable
 			:columns="columns"
 			:rows="items"

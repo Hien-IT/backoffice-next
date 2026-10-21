@@ -40,10 +40,15 @@ useGroupableParent(
 	{ mandatory, multiple },
 	props.scope,
 );
+
+// Directus v-list.vue:80-83,85: sizing hooks and padding variable (`nav` sets its own).
 </script>
 
 <template>
-	<ul class="v-list flex flex-col gap-0.5 overflow-auto" :class="nav ? 'p-3' : 'py-1'">
+	<ul
+		class="v-list flex min-h-(--v-list-min-height,none) max-h-(--v-list-max-height,none) min-w-(--v-list-min-width,12.375rem) max-w-(--v-list-max-width,none) flex-col gap-0.5 overflow-auto"
+		:class="nav ? 'p-3' : 'p-(--v-list-padding,0.25rem_0)'"
+	>
 		<slot />
 	</ul>
 </template>

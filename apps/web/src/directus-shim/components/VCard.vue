@@ -6,11 +6,13 @@ withDefaults(defineProps<{ disabled?: boolean | undefined; tile?: boolean | unde
 	disabled: false,
 	tile: false,
 });
+
+// Directus v-card.vue:35: min width hook (v-dialog sets it on its cards).
 </script>
 
 <template>
 	<div
-		class="v-card max-h-[90vh] max-w-90 overflow-auto border border-gray-200 bg-white text-sm dark:border-gray-800 dark:bg-gray-900"
+		class="v-card max-h-[90vh] max-w-90 min-w-(--v-card-min-width,none) overflow-auto border border-gray-200 bg-white text-sm dark:border-gray-800 dark:bg-gray-900"
 		:class="[
 			tile ? 'rounded-none' : 'rounded-2xl',
 			{ 'pointer-events-none cursor-not-allowed *:opacity-40': disabled },

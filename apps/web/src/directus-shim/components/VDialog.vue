@@ -106,12 +106,13 @@ function onOpenAutoFocus() {
 				>
 					<DialogTitle class="sr-only">{{ label || $t('dialog') }}</DialogTitle>
 					<VOverlay active absolute style="--v-overlay-z-index: 1" @click="close" />
+					<!-- Directus v-dialog.vue:204,241 card min width, :230-233 sheet hooks of the dialog content. -->
 					<div
 						ref="body"
 						class="v-dialog-body relative z-2 flex *:shadow-theme-xl"
 						:class="
 							placement === 'center'
-								? 'max-h-full max-w-full [&>.v-card]:min-w-[calc(100vw-2.25rem)] sm:[&>.v-card]:min-w-121.5'
+								? 'max-h-full max-w-full [&>.v-card]:[--v-card-min-width:calc(100vw-2.25rem)] sm:[&>.v-card]:[--v-card-min-width:30.375rem] [&>.v-sheet]:[--v-sheet-max-width:31.5rem] [&>.v-sheet]:[--v-sheet-padding:1.375rem]'
 								: 'pointer-events-none h-full w-full *:pointer-events-auto'
 						"
 					>

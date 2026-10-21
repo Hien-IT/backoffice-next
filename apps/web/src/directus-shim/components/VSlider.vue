@@ -56,7 +56,7 @@ const labelledBy = computed(() => (attrs['aria-label'] ? labelId : (attrs['aria-
 </script>
 
 <template>
-	<div v-bind="rootAttrs" class="flex items-center gap-3">
+	<div v-bind="rootAttrs" class="v-slider flex items-center gap-3">
 		<div v-if="$slots['prepend']" class="shrink-0">
 			<slot name="prepend" :value="modelValue" />
 		</div>

@@ -1,6 +1,6 @@
 // Ported from directus/app/src/directives/tooltip.test.ts
 import { describe, expect, it } from 'vitest';
-import { isDisabled } from './tooltip.ts';
+import { animateIn, getTooltip, isDisabled } from './tooltip.ts';
 
 function createElement(html: string): HTMLElement {
 	const div = document.createElement('div');
@@ -48,5 +48,16 @@ describe('isDisabled', () => {
 			const element = createElement('<span><span><button disabled>Click</button></span></span>');
 			expect(isDisabled(element)).toBe(false);
 		});
+	});
+});
+
+// Backoffice: a dialog portal opened after the first tooltip must not cover it (equal z-index).
+describe('animateIn', () => {
+	it('moves the tooltip after the portals added since', () => {
+		const tooltip = getTooltip();
+		const portal = document.body.appendChild(document.createElement('div'));
+		animateIn(tooltip);
+		expect(document.body.lastElementChild).toBe(tooltip);
+		portal.remove();
 	});
 });

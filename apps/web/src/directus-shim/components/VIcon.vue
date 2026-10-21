@@ -135,7 +135,7 @@ function emitClick(event: MouseEvent) {
 	<component
 		:is="clickable ? 'button' : 'span'"
 		:type="clickable ? 'button' : undefined"
-		class="relative inline-flex size-[var(--v-icon-size,1.375rem)] min-w-[var(--v-icon-size,1.375rem)] shrink-0 items-center justify-center text-(color:--v-icon-color)"
+		class="v-icon relative inline-flex size-[var(--v-icon-size,1.375rem)] min-w-[var(--v-icon-size,1.375rem)] shrink-0 items-center justify-center text-(color:--v-icon-color)"
 		:class="[
 			sup ? 'align-[0.3125rem]' : 'align-middle',
 			{

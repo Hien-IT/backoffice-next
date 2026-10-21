@@ -201,7 +201,7 @@ function onPointerUp() {
 	<div
 		v-if="!disabled"
 		ref="wrapper"
-		class="relative max-h-full"
+		class="resize-wrapper relative max-h-full"
 		:class="{
 			'[&>:first-child]:transition-[width] [&>:first-child]:duration-300 motion-reduce:[&>:first-child]:transition-none':
 				!dragging && !options?.disableTransition,

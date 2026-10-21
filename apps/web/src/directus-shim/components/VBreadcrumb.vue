@@ -25,7 +25,7 @@ const FOCUS =
 </script>
 
 <template>
-	<span class="flex items-center text-theme-sm text-gray-500 dark:text-gray-400">
+	<span class="v-breadcrumb flex items-center text-theme-sm text-gray-500 dark:text-gray-400">
 		<template v-for="(item, index) in items" :key="item.name">
 			<BoIcon v-if="index > 0" name="chevron_right" size="sm" class="mx-1" />
 			<RouterLink

@@ -21,6 +21,7 @@ withDefaults(
 
 <template>
 	<BoInfo
+		class="v-info"
 		:title="title"
 		:icon="icon"
 		:type="type"

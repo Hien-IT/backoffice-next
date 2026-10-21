@@ -22,12 +22,13 @@ function onClick() {
 	if (props.disabled === false) toggle();
 }
 
+// Directus v-tab.vue:53-54: a disabled tab only shows the not-allowed cursor (hover and tooltips stay); onClick blocks it.
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const HORIZONTAL =
-	'-mb-px inline-flex flex-1 shrink-0 items-center justify-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-theme-sm font-medium text-gray-500 hover:text-gray-700 disabled:pointer-events-none disabled:text-gray-300 data-[state=active]:border-brand-500 data-[state=active]:text-brand-600 dark:text-gray-400 dark:hover:text-gray-300 dark:disabled:text-white/15 dark:data-[state=active]:border-brand-400 dark:data-[state=active]:text-brand-400';
+	'-mb-px inline-flex flex-1 shrink-0 items-center justify-center gap-2 border-b-2 border-transparent px-3 py-2.5 text-theme-sm font-medium text-gray-500 hover:text-gray-700 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:text-gray-300 data-[state=active]:border-brand-500 data-[state=active]:text-brand-600 dark:text-gray-400 dark:hover:text-gray-300 dark:disabled:text-white/15 dark:data-[state=active]:border-brand-400 dark:data-[state=active]:text-brand-400';
 const VERTICAL =
-	'flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-start text-theme-sm font-medium text-gray-700 hover:bg-gray-100 disabled:pointer-events-none disabled:text-gray-300 data-[state=active]:bg-brand-50 data-[state=active]:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:disabled:text-white/15 dark:data-[state=active]:bg-brand-500/[0.12] dark:data-[state=active]:text-brand-400';
+	'flex min-h-9 items-center gap-2 rounded-lg px-3 py-2 text-start text-theme-sm font-medium text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:text-gray-300 disabled:hover:bg-transparent data-[state=active]:bg-brand-50 data-[state=active]:text-brand-600 dark:text-gray-300 dark:hover:bg-white/5 dark:disabled:text-white/15 dark:data-[state=active]:bg-brand-500/[0.12] dark:data-[state=active]:text-brand-400';
 </script>
 
 <template>

@@ -41,6 +41,7 @@ const mapped = computed(() =>
 
 <template>
 	<BoFancySelect
+		class="v-fancy-select"
 		:items="mapped as FancySelectItem[]"
 		:model-value="modelValue"
 		:disabled="disabled"

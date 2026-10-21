@@ -46,6 +46,51 @@
 		@apply text-gray-800 dark:text-white/90;
 	}
 
+	/* Directus _base.scss:153-159: no native spin buttons on number inputs nor clear/decoration on search inputs. */
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='search']::-webkit-search-decoration,
+	input[type='search']::-webkit-search-cancel-button,
+	input[type='search']::-webkit-search-results-button,
+	input[type='search']::-webkit-search-results-decoration {
+		-webkit-appearance: none;
+	}
+
+	/* Directus _base.scss:161-164: iframes (live preview) ignore the pointer while a split panel divider drags. */
+	.sp-dragging iframe {
+		pointer-events: none !important;
+	}
+
+	/* Spec 020: Directus _base.scss:11,86-88,121-143 element defaults that the Tailwind preflight resets, for what an
+	   app extension renders. In the base layer so the utilities of the app's own components inside it still win. */
+	[data-bo-extension] {
+		tab-size: 2;
+	}
+
+	[data-bo-extension] label {
+		display: block;
+	}
+
+	[data-bo-extension] dl > div {
+		display: flex;
+		margin-block-end: 0.4375rem;
+	}
+
+	[data-bo-extension] :is(dt, dd) {
+		display: inline-block;
+	}
+
+	[data-bo-extension] dt {
+		flex-shrink: 0;
+		margin-inline-end: 0.4375rem;
+	}
+
+	[data-bo-extension] dd {
+		flex-grow: 1;
+		overflow: hidden;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		*,
 		*::before,

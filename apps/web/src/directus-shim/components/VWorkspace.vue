@@ -33,7 +33,7 @@ defineEmits<{
 </script>
 
 <template>
-	<BoWorkspace :tiles="tiles" :edit-mode="editMode" :zoom-to-fit="zoomToFit" :grid-size="gridSize">
+	<BoWorkspace class="v-workspace" :tiles="tiles" :edit-mode="editMode" :zoom-to-fit="zoomToFit" :grid-size="gridSize">
 		<template #tile="{ tile }">
 			<slot v-if="$slots['tile']" name="tile" :tile="tile" />
 			<VWorkspaceTile

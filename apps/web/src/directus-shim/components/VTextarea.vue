@@ -69,7 +69,8 @@ function trimIfEnabled() {
 	}
 }
 
-const EXPAND = 'h-11 resize-none transition-[height] focus:h-40 motion-reduce:transition-none';
+// Directus v-textarea.vue:164: never user-resizable (resize-none on the textarea).
+const EXPAND = 'h-11 transition-[height] focus:h-40 motion-reduce:transition-none';
 const SLOT = computed(() => [
 	'shrink-0 text-gray-500 dark:text-gray-400',
 	props.expandOnFocus && !hasContent.value && 'opacity-0 group-focus-within:opacity-100',
@@ -79,7 +80,7 @@ const SLOT = computed(() => [
 <template>
 	<div
 		ref="root"
-		class="group items-start gap-2"
+		class="v-textarea group items-start gap-2"
 		:class="[fullWidth ? 'flex w-full' : 'inline-flex', $attrs['class']]"
 		:style="$attrs['style'] as string"
 	>
@@ -89,7 +90,7 @@ const SLOT = computed(() => [
 				v-bind="placeholder === undefined ? fieldAttrs : { ...fieldAttrs, placeholder }"
 				:model-value="modelValue ?? null"
 				:disabled
-				:class="expandOnFocus && (hasContent ? 'h-40' : EXPAND)"
+				:class="['resize-none', expandOnFocus && (hasContent ? 'h-40' : EXPAND)]"
 				@update:model-value="emitValue"
 				@blur="trimIfEnabled"
 			/>

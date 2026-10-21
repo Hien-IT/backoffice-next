@@ -40,7 +40,7 @@ defineExpose({ abort });
 </script>
 
 <template>
-	<div>
+	<div class="v-upload">
 		<BoUpload
 			ref="upload"
 			v-bind="props"

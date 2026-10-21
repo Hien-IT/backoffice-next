@@ -53,7 +53,9 @@ const back = computed(() => (props.showBack ? (props.backTo ?? true) : undefined
 			<template v-if="$slots['actions:append']" #actions:append><slot name="actions:append" /></template>
 			<template v-if="$slots['sidebar']" #sidebar><slot name="sidebar" /></template>
 
-			<slot />
+			<!-- Directus private-view-main.vue:216-221,242-245: the content sits in block flow in a full-height box, so the
+				 scroller above stays the one scrolling element and extension roots do not shrink as flex items. -->
+			<div class="h-full shrink-0"><slot /></div>
 		</LayoutPrivateView>
 	</div>
 </template>

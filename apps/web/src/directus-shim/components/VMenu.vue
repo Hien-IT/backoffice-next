@@ -214,7 +214,7 @@ const hoverListeners = computed(() =>
 			:arrow="showArrow"
 			:arrow-padding="arrowPadding"
 			seamless
-			class="v-menu-popper min-w-22.5"
+			class="v-menu-popper min-w-22.5 [&>div:first-child]:overflow-visible"
 			:class="{ 'min-w-(--reka-popper-anchor-width)': attached, 'z-9999!': keepBehind }"
 			@interact-outside="onInteractOutside"
 			@open-auto-focus.prevent
@@ -224,10 +224,13 @@ const hoverListeners = computed(() =>
 				:id="id"
 				ref="menuEl"
 				tabindex="-1"
-				class="v-menu-content overflow-y-auto rounded-[inherit] outline-hidden"
+				class="v-menu-content custom-scrollbar overflow-x-hidden overflow-y-auto rounded-[inherit] outline-hidden"
 				:class="[
 					seamless ? 'p-0' : 'p-2',
-					fullHeight ? '' : 'max-h-[30vh]',
+					// Directus v-menu.vue:82-88,662-664: the one scroll box, 30vh unless fullHeight, shrunk to the room left.
+					fullHeight
+						? 'max-h-(--reka-popover-content-available-height)'
+						: 'max-h-[min(30vh,var(--reka-popover-content-available-height))]',
 					invert ? 'bg-gray-900 text-white dark:bg-gray-100 dark:text-gray-900' : '',
 				]"
 				v-on="{ ...(closeOnContentClick ? { click: onContentClick } : {}), ...hoverListeners }"

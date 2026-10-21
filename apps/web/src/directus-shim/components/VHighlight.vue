@@ -84,7 +84,7 @@ const parts = computed<HighlightPart[]>(() => {
 </script>
 
 <template>
-	<span>
+	<span class="v-highlight">
 		<template v-for="(part, index) in parts" :key="index">
 			<mark v-if="part.highlighted" class="rounded-xs bg-warning-50 text-inherit dark:bg-warning-500/15">
 				{{ part.text }}

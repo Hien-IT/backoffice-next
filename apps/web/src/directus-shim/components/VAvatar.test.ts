@@ -8,7 +8,9 @@ describe('VAvatar', () => {
 
 		expect(wrapper.element.tagName).toBe('DIV');
 		expect(wrapper.find('img').exists()).toBe(true);
-		expect(wrapper.classes()).toEqual(expect.arrayContaining(['rounded-full', 'size-10']));
+		expect(wrapper.classes()).toEqual(
+			expect.arrayContaining(['v-avatar', 'rounded-full', 'size-(--v-avatar-size,2.5rem)']),
+		);
 	});
 
 	test('tile, sizes, border color, clickable button', () => {

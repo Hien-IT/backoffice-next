@@ -95,6 +95,11 @@ function onClick(event: MouseEvent) {
 	emit('click', event);
 }
 
+// Directus v-list-item.vue:258-260 keeps a disabled item hoverable (cursor only); the link must not navigate either.
+function onClickCapture(event: MouseEvent) {
+	if (props.disabled === true) event.preventDefault();
+}
+
 // In a list a link or button sits in an `li`; else the item element is the root.
 const wrap = computed(() => !!list && kind.value !== 'li');
 const Bare: FunctionalComponent = (_, { slots }) => slots['default']?.()[0]; // one root, not a fragment
@@ -105,9 +110,10 @@ const Bare: FunctionalComponent = (_, { slots }) => slots['default']?.()[0]; // 
 		<component
 			:is="element"
 			v-bind="{ ...$attrs, ...additionalProps }"
-			class="v-list-item flex w-full items-center gap-3 rounded-lg px-3 text-start text-theme-sm"
+			class="v-list-item flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg px-3 text-start text-theme-sm"
 			:class="[
-				isDense ? 'min-h-8 py-1' : 'min-h-10 py-2',
+				// Directus v-list-item.vue:187,189,193: shrinkable, clipped, min height hook.
+				isDense ? 'min-h-(--v-list-item-min-height,2rem) py-1' : 'min-h-(--v-list-item-min-height,2.5rem) py-2',
 				isNav ? 'font-medium' : undefined,
 				isActiveRoute
 					? 'active bg-brand-50 text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400'
@@ -117,13 +123,17 @@ const Bare: FunctionalComponent = (_, { slots }) => slots['default']?.()[0]; // 
 				{
 					[FOCUS]: kind !== 'li',
 					'cursor-pointer hover:bg-gray-100 dark:hover:bg-white/5': isLink && !disabled && !isActiveRoute,
-					'pointer-events-none cursor-not-allowed': disabled,
+					'cursor-not-allowed': disabled,
 					'cursor-default': nonEditable,
 					'border border-dashed border-gray-300 dark:border-gray-700': dashed,
 					'min-h-11 border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]': block && !dashed,
+					// Directus v-list-item.vue:300-312,331-333: drag handle cursors and the sortable ghost of block items.
+					'[&_.drag-handle]:cursor-grab [&_.drag-handle:active]:cursor-grabbing': block && !disabled,
+					'[&.sortable-ghost]:pointer-events-none': block,
 				},
 			]"
 			:download="download"
+			@click.capture="onClickCapture"
 			@click="onClick"
 		>
 			<slot />

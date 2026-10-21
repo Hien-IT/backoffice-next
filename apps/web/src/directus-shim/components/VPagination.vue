@@ -23,6 +23,7 @@ defineEmits(['update:modelValue']);
 
 <template>
 	<BoPagination
+		class="v-pagination"
 		:model-value="modelValue"
 		:length="length"
 		:disabled="!!disabled"

@@ -64,5 +64,5 @@ const formProps = computed(() => {
 </script>
 
 <template>
-	<BoForm v-bind="formProps" @update:model-value="$emit('update:modelValue', $event)" />
+	<BoForm class="v-form" v-bind="formProps" @update:model-value="$emit('update:modelValue', $event)" />
 </template>

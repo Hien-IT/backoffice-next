@@ -23,7 +23,12 @@ withDefaults(
 </script>
 
 <template>
-	<BoNotice :type="type" :icon="icon === false ? false : typeof icon === 'string' ? icon : null" :center="center">
+	<BoNotice
+		class="v-notice"
+		:type="type"
+		:icon="icon === false ? false : typeof icon === 'string' ? icon : null"
+		:center="center"
+	>
 		<template v-if="$slots['title']" #title><slot name="title" /></template>
 		<slot />
 	</BoNotice>

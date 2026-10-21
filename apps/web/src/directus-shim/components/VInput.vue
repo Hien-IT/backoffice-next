@@ -324,6 +324,8 @@ const FRAME_DISABLED =
 	'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]';
 const INPUT =
 	'h-full min-w-0 flex-1 bg-transparent outline-hidden placeholder:text-gray-500 disabled:cursor-not-allowed dark:placeholder:text-gray-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
+// Directus v-input.vue:561-567: a clickable input is not selectable.
+const CLICKABLE_INPUT = 'pointer-events-none select-none selection:bg-transparent';
 const AFFIX = 'shrink-0 text-gray-500 dark:text-gray-400';
 const ARROW =
 	'flex h-4 items-center text-gray-500 hover:text-brand-500 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400';
@@ -331,7 +333,7 @@ const ARROW =
 
 <template>
 	<div
-		class="items-center gap-2"
+		class="v-input items-center gap-2"
 		:class="[
 			fullWidth ? 'flex w-full' : 'inline-flex',
 			clickable && (disabled ? 'cursor-not-allowed' : 'cursor-pointer'),
@@ -369,7 +371,7 @@ const ARROW =
 					:disabled="disabled"
 					:aria-invalid="isBadInput ? 'true' : (attributes['aria-invalid'] as Booleanish | undefined)"
 					:value="modelValue === undefined || modelValue === null ? '' : String(modelValue)"
-					:class="[INPUT, { 'pointer-events-none': clickable, 'line-through not-focus:text-gray-500': isBadInput }]"
+					:class="[INPUT, { [CLICKABLE_INPUT]: clickable, 'line-through not-focus:text-gray-500': isBadInput }]"
 					@input="
 						onInput($event);
 						emitValue($event);

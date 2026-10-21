@@ -67,6 +67,7 @@ defineEmits(['update', 'move', 'duplicate', 'delete', 'edit', 'preview']);
 <template>
 	<BoWorkspaceTile
 		:id="id"
+		class="v-workspace-tile"
 		:x="x"
 		:y="y"
 		:width="width"

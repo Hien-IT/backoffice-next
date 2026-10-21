@@ -219,6 +219,9 @@ export function updateTooltip(element: HTMLElement, binding: DirectiveBinding, t
 }
 
 export function animateIn(tooltip: HTMLElement): void {
+	// Directus _tooltip.scss:11 puts the tooltip above dialogs and drawers; Reka portals share its z-index, so the tooltip
+	// moves after them (DOM order wins at an equal z-index).
+	if (tooltip.nextElementSibling) document.body.appendChild(tooltip);
 	tooltip.classList.add('visible', 'enter');
 	tooltip.classList.remove('leave', 'leave-active');
 

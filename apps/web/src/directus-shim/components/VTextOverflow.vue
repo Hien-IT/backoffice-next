@@ -39,7 +39,7 @@ watch(
 </script>
 
 <template>
-	<div ref="el" v-tooltip:[placement]="hasEllipsis && text" class="truncate">
+	<div ref="el" v-tooltip:[placement]="hasEllipsis && text" class="v-text-overflow truncate">
 		<!-- Resolved by name only when highlighting: VHighlight is another shim, registered globally. -->
 		<component :is="'VHighlight'" v-if="highlight" :query="highlight" :text="text" />
 		<template v-else>{{ text }}</template>

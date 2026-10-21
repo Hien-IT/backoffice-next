@@ -32,7 +32,11 @@ const SHAPES: Record<string, string> = {
 </script>
 
 <template>
-	<div class="relative cursor-progress overflow-hidden" :class="SHAPES[type] ?? SHAPES['input']" aria-hidden="true">
+	<div
+		class="v-skeleton-loader relative cursor-progress overflow-hidden"
+		:class="SHAPES[type] ?? SHAPES['input']"
+		aria-hidden="true"
+	>
 		<template v-if="type === 'list-item-icon'">
 			<div class="size-6 shrink-0 rounded-full" :class="PULSE" />
 			<div class="h-3 grow rounded-md" :class="PULSE" />

@@ -73,6 +73,7 @@ function onCloseClick(event: MouseEvent) {
 <template>
 	<BoChip
 		v-if="internalActive"
+		class="v-chip"
 		:size
 		:removable="close"
 		:remove-icon="closeIcon"

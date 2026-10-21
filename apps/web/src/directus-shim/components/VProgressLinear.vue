@@ -51,6 +51,7 @@ const style = computed(() => ({
 
 <template>
 	<BoProgressLinear
+		class="v-progress-linear"
 		:value="value"
 		:indeterminate="indeterminate"
 		:colorful="colorful"

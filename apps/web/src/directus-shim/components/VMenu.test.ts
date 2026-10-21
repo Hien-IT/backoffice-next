@@ -39,7 +39,7 @@ describe('VMenu', () => {
 		expect(wrapper.get('button.opener').text()).toBe('Close');
 		expect(content()!.id).toBe((wrapper.vm as unknown as { id: string }).id);
 		expect(content()!.className).toEqual(expect.stringContaining('p-2'));
-		expect(content()!.className).toContain('max-h-[30vh]');
+		expect(content()!.className).toContain('max-h-[min(30vh,var(--reka-popover-content-available-height))]');
 		expect(popper()!.className).toEqual(expect.stringContaining('rounded-xl border border-gray-200 bg-white'));
 		expect(wrapper.element.contains(content())).toBe(false);
 	});
@@ -175,7 +175,7 @@ describe('VMenu', () => {
 		expect(popper()!.className).toContain('min-w-(--reka-popper-anchor-width)');
 		expect(popper()!.className).toContain('z-9999!');
 		expect(content()!.className).toContain('p-0');
-		expect(content()!.className).not.toContain('max-h-[30vh]');
+		expect(content()!.className).toContain('max-h-(--reka-popover-content-available-height)');
 		expect(content()!.className).toContain('bg-gray-900');
 	});
 });

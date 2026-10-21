@@ -25,7 +25,8 @@ const size = computed(() => {
 	if (props.small) return 'size-8';
 	if (props.large) return 'size-12';
 	if (props.xLarge) return 'size-14';
-	return 'size-10';
+	// Directus v-avatar.vue:58-59: the default size reads --v-avatar-size.
+	return 'size-(--v-avatar-size,2.5rem)';
 });
 </script>
 
@@ -33,7 +34,7 @@ const size = computed(() => {
 	<component
 		:is="clickable ? 'button' : 'div'"
 		:type="clickable ? 'button' : undefined"
-		class="relative flex shrink-0 items-center justify-center overflow-hidden bg-gray-100 text-gray-700 whitespace-nowrap dark:bg-white/5 dark:text-white/80 [&>img]:size-full [&>img]:object-cover"
+		class="v-avatar relative flex shrink-0 items-center justify-center overflow-hidden bg-gray-100 text-gray-700 whitespace-nowrap dark:bg-white/5 dark:text-white/80 [&>img]:size-full [&>img]:object-cover"
 		:class="[
 			size,
 			tile && !round ? 'rounded-lg' : 'rounded-full',
