@@ -232,7 +232,8 @@ const MENU_ITEM =
 			/>
 		</Teleport>
 
-		<div v-if="showSearch" class="sticky top-0 z-1 flex items-center gap-2 bg-white pb-2 dark:bg-gray-900">
+		<!-- z-2: above the row chevrons of the tree (NavigationItem `relative z-1`), which scroll under it. -->
+		<div v-if="showSearch" class="sticky top-0 z-2 flex items-center gap-2 bg-white pb-2 dark:bg-gray-900">
 			<div v-if="showSearch" class="min-w-0 flex-1">
 				<BoInput
 					v-model="search"
