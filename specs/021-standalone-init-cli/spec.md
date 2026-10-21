@@ -3,8 +3,9 @@
 **Feature Branch**: `021-standalone-init-cli` (làm trên `main` như 012–020, không tạo branch; `specs/021-*` là thư mục
 feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-22
-**Status**: Approved (spec, plan, khác biệt D-145..D-147, sửa D-19/D-121/D-123/D-141, ngoại lệ coverage FR-106;
-chủ dự án kiêm tech lead duyệt 2026-10-22), chưa implement
+**Status**: Implemented (2026-10-22, ba lượt trên `main`); spec, plan, D-145..D-147, sửa D-19/D-121/D-123/D-141,
+ngoại lệ coverage FR-106 đã duyệt (chủ dự án kiêm tech lead, 2026-10-22); chờ duyệt D-149, hai quy tắc FR-107 mới và
+câu chữ US5 kịch bản 2 (mục "Cần xác nhận")
 **Input**: User description: "Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4.
 Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây,
 chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi

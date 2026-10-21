@@ -446,7 +446,7 @@ Directus.
       `--wait`, Job Complete trước pod, đăng nhập qua Traefik, `directus_migrations` = 102; thêm file, `helm upgrade`
       dưới tải `ci/load.mjs` ≥ 5.000 request 0 lỗi, = 103; ConfigMap `fail/` → upgrade lỗi, Deployment không đổi; namespace
       `bo-standalone-fail` install lỗi → `failed`, Job còn log, `helm uninstall` được) (FR-084, SC-006). (FR-104)
-- [ ] T074 [US6] Chạy `chart/ci/test-template.sh` local và `chart/ci/kind-test.sh` trên kind local (nếu máy đủ tài nguyên;
+- [X] T074 [US6] Chạy `chart/ci/test-template.sh` local và `chart/ci/kind-test.sh` trên kind local (nếu máy đủ tài nguyên;
       không thì CI) tới xanh; đo thời gian thêm vào job `deploy-k8s`; nếu tổng gần 40 phút, tách job
       `deploy-k8s-standalone` trong `.github/workflows/ci.yml` và thêm vào `needs` của `publish` (R12).
 
@@ -468,11 +468,11 @@ Directus.
 - [X] T078 Sửa spec cũ theo FR-091: `specs/001-platform-foundation/spec.md` dòng D-19; `specs/019-deployment-packaging/spec.md`
       dòng D-121, D-123, US1 kịch bản 4, FR-024, FR-042; `specs/020-extensions/spec.md` dòng D-141 (bỏ phần CLI); mỗi chỗ
       trỏ "xem 021"; kiểm `guard-differences` vẫn đạt.
-- [ ] T079 Chạy đo tiêu chí trước khi đóng: parity profile `bootstrap` 10 lần liên tiếp trên postgres (SC-002);
+- [X] T079 Chạy đo tiêu chí trước khi đóng: parity profile `bootstrap` 10 lần liên tiếp trên postgres (SC-002);
       `DEPLOY_MODE=standalone parity-tests:deploy` 10 lần liên tiếp (SC-005); ghi số đo (thời gian `bootstrap` SC-010,
       ping SC-007) vào research "Kết quả đóng feature"; coverage `apps/api` ≥ 80% (SC-009).
-- [ ] T080 [P] Chạy lại các lệnh trong `specs/021-standalone-init-cli/quickstart.md` trên máy local và sửa chỗ sai.
-- [ ] T081 Đóng lượt 3 và feature: lint, typecheck, unit test liên quan, `check-port-headers`; spec `**Status**:
+- [X] T080 [P] Chạy lại các lệnh trong `specs/021-standalone-init-cli/quickstart.md` trên máy local và sửa chỗ sai.
+- [X] T081 Đóng lượt 3 và feature: lint, typecheck, unit test liên quan, `check-port-headers`; spec `**Status**:
       Implemented`; dòng 021 trong `CLAUDE.md` (bỏ "not implemented"); memory `project-021-standalone.md`; commit theo
       đường dẫn; nhắn phiên khác, chờ CI, push; CI xanh mọi job (gồm `deploy` standalone, `deploy-k8s`); `graphify update .`.
 

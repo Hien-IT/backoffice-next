@@ -41,11 +41,15 @@ function comparable(result: CliResult, uuids: UuidMap) {
 	};
 }
 
+/** Lets Vitest's worker RPC replies in between the synchronous docker commands (CI: "Timeout calling onTaskUpdate"). */
+const yieldToVitest = () => new Promise((resolve) => setImmediate(resolve));
+
 /** Runs `node cli.js <args>` in both apps (per-app arguments when `args` is a function) and returns both results. */
-function both(args: string[] | ((app: BootstrapApp) => string[]), env: Record<string, string> = {}) {
+async function both(args: string[] | ((app: BootstrapApp) => string[]), env: Record<string, string> = {}) {
 	const results = {} as Record<BootstrapApp, CliResult>;
 
 	for (const app of APPS) {
+		await yieldToVitest();
 		results[app] = cli(SERVICES[app], typeof args === 'function' ? args(app) : args, env);
 		outputs.push(results[app].stdout + results[app].stderr);
 	}
@@ -119,66 +123,66 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 			['schema', 'apply'],
 		];
 
-		test.each(COMMANDS)('%s --help', (...command) => {
-			expectSame(both([...command, '--help']), 0);
+		test.each(COMMANDS)('%s --help', async (...command) => {
+			expectSame(await both([...command, '--help']), 0);
 		});
 
-		test('--version prints each program version', () => {
-			const results = both(['--version']);
+		test('--version prints each program version', async () => {
+			const results = await both(['--version']);
 			expect(lastLine(results.directus)).toBe('11.17.4');
 			expectSame(results, 0);
 		});
 
 		test.each([[['nope']], [['bootstrap', '--nope']], [['count']], [['schema', 'snapshot', '--format', 'xml']]])(
 			'%j fails like Directus',
-			(args) => {
-				expectSame(both(args), 1);
+			async (args) => {
+				expectSame(await both(args), 1);
 			},
 		);
 	});
 
 	describe('commands that only read (FR-054, FR-055)', () => {
-		test('security key:generate and secret:generate', () => {
-			const key = both(['security', 'key:generate']);
+		test('security key:generate and secret:generate', async () => {
+			const key = await both(['security', 'key:generate']);
 			expect(lastLine(key.backoffice)).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
 			expectSame(key, 0);
 
-			const secret = both(['security', 'secret:generate']);
+			const secret = await both(['security', 'secret:generate']);
 			expect(lastLine(secret.directus)).toMatch(/^[A-Za-z0-9_-]{32}$/);
 			expect(lastLine(secret.backoffice)).toMatch(/^[A-Za-z0-9_-]{32}$/);
 			expect(secret.backoffice.code).toBe(secret.directus.code);
 		});
 
-		test('count of a system collection and of a missing table', () => {
-			expectSame(both(['count', 'directus_roles']), 0);
-			expectSame(both(['count', 'bo_missing_table']), 1);
+		test('count of a system collection and of a missing table', async () => {
+			expectSame(await both(['count', 'directus_roles']), 0);
+			expectSame(await both(['count', 'bo_missing_table']), 1);
 		});
 
-		test('database install on an installed database, migrate:latest with nothing pending', () => {
-			expectSame(both(['database', 'install']), 1);
-			expectSame(both(['database', 'migrate:latest']), 0);
+		test('database install on an installed database, migrate:latest with nothing pending', async () => {
+			expectSame(await both(['database', 'install']), 1);
+			expectSame(await both(['database', 'migrate:latest']), 0);
 		});
 
-		test('schema snapshot to stdout, in YAML and JSON', () => {
-			expectSame(both(['schema', 'snapshot']), 0);
-			expectSame(both(['schema', 'snapshot', '--format', 'json']), 0);
+		test('schema snapshot to stdout, in YAML and JSON', async () => {
+			expectSame(await both(['schema', 'snapshot']), 0);
+			expectSame(await both(['schema', 'snapshot', '--format', 'json']), 0);
 		});
 	});
 
 	describe('commands that write (FR-050..FR-053, FR-056, FR-057)', () => {
 		test('users create, then passwd with another case of the e-mail', async () => {
-			expectSame(both(['users', 'create', '--email', 'cli-user@example.com']), 1);
+			expectSame(await both(['users', 'create', '--email', 'cli-user@example.com']), 1);
 
 			const roles = { directus: await adminRole('directus'), backoffice: await adminRole('backoffice') };
 			const create = (app: BootstrapApp) => [
 				...['users', 'create', '--email', 'cli-user@example.com', '--password', 'cli-user-pass'],
 				...['--role', roles[app]],
 			];
-			const results = both(create);
+			const results = await both(create);
 
 			expectSame(results, 0);
 			// The same e-mail again: the unique constraint error of each app.
-			expectSame(both(create), 1);
+			expectSame(await both(create), 1);
 
 			for (const app of APPS) {
 				const user = await dbs[app]('directus_users').where({ email: 'cli-user@example.com' }).first();
@@ -186,14 +190,17 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 				expect(user).toMatchObject({ status: 'active', role: roles[app] });
 			}
 
-			expectSame(both(['users', 'passwd', '--email', 'CLI-USER@example.com', '--password', 'cli-user-pass-2']), 0);
-			expectSame(both(['users', 'passwd', '--email', 'nobody@example.com', '--password', 'x']), 1);
-			expectSame(both(['users', 'passwd', '--email', 'cli-user@example.com']), 1);
+			expectSame(
+				await both(['users', 'passwd', '--email', 'CLI-USER@example.com', '--password', 'cli-user-pass-2']),
+				0,
+			);
+			expectSame(await both(['users', 'passwd', '--email', 'nobody@example.com', '--password', 'x']), 1);
+			expectSame(await both(['users', 'passwd', '--email', 'cli-user@example.com']), 1);
 		});
 
 		test('roles create with admin and app access', async () => {
-			expectSame(both(['roles', 'create']), 1);
-			expectSame(both(['roles', 'create', '--role', 'CliRole', '--admin', '--app']), 0);
+			expectSame(await both(['roles', 'create']), 1);
+			expectSame(await both(['roles', 'create', '--role', 'CliRole', '--admin', '--app']), 0);
 
 			for (const app of APPS) {
 				const role = await dbs[app]('directus_roles').where({ name: 'CliRole' }).first();
@@ -214,7 +221,7 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 				});
 
 				for (const flags of [['--system'], ['--data'], []]) {
-					expectSame(both(['cache', 'clear', ...flags]), 0);
+					expectSame(await both(['cache', 'clear', ...flags]), 0);
 				}
 
 				const keys = (await redis.keys('parity-bootstrap-b*')).filter((k) => !k.includes(':lock'));
@@ -231,10 +238,7 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 			const after = file('after');
 			const token = profileEnv(vendor)['ADMIN_TOKEN'];
 
-			expectSame(
-				both((app) => ['schema', 'snapshot', '-y', '--format', 'json', before(app)]),
-				0,
-			);
+			expectSame(await both((app) => ['schema', 'snapshot', '-y', '--format', 'json', before(app)]), 0);
 
 			// The same collection made through each app's REST API, then snapshotted.
 			for (const [app, url] of [
@@ -262,35 +266,14 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 				expect(res.status, app).toBe(200);
 			}
 
-			expectSame(
-				both((app) => ['schema', 'snapshot', '-y', '--format', 'json', after(app)]),
-				0,
-			);
+			expectSame(await both((app) => ['schema', 'snapshot', '-y', '--format', 'json', after(app)]), 0);
 
-			expectSame(
-				both((app) => ['schema', 'apply', '--dry-run', before(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', '-y', before(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', '-y', before(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', '--dry-run', after(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', '--ignoreRules', 'bo_cli_schema', after(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', '-y', after(app)]),
-				0,
-			);
+			expectSame(await both((app) => ['schema', 'apply', '--dry-run', before(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', '-y', before(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', '-y', before(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', '--dry-run', after(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', '--ignoreRules', 'bo_cli_schema', after(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', '-y', after(app)]), 0);
 
 			for (const app of APPS) {
 				const fields = await dbs[app]('directus_fields').where({ collection: 'bo_cli_schema' }).orderBy('field');
@@ -300,22 +283,17 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 				).toEqual(['id', 'title']);
 			}
 
-			expectSame(
-				both((app) => ['schema', 'apply', '-y', before(app)]),
-				0,
-			);
-			expectSame(
-				both((app) => ['schema', 'apply', `${FILE_DIRS[app]}/missing.json`]),
-				1,
-			);
+			expectSame(await both((app) => ['schema', 'apply', '-y', before(app)]), 0);
+			expectSame(await both((app) => ['schema', 'apply', `${FILE_DIRS[app]}/missing.json`]), 1);
 		});
 	});
 
-	test('bootstrap with a wrong DB_PASSWORD: same exit code, no secret in the output (FR-016)', () => {
+	test('bootstrap with a wrong DB_PASSWORD: same exit code, no secret in the output (FR-016)', async () => {
 		const wrong = 'cli-wrong-db-pass-3e9d';
 		const results = {} as Record<BootstrapApp, CliResult>;
 
 		for (const app of APPS) {
+			await yieldToVitest();
 			results[app] = cliRun(SERVICES[app], ['bootstrap'], { DB_PASSWORD: wrong });
 			outputs.push(results[app].stdout + results[app].stderr);
 		}

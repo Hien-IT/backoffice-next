@@ -15,8 +15,12 @@ docker run --rm -p 8055:8055 \
   hiennd23/backoffice-api:latest
 ```
 
-Log: `Initializing bootstrap...` → `Installing Directus system tables...` → `Applying ...` ×101 → `Adding first admin
-user...` → `Done` → `Server started at http://0.0.0.0:8055`.
+Log: `Initializing bootstrap...` → `Installing Directus system tables...` → `Running migrations...` → `Applying ...`
+×101 → `Setting up first admin role...` → `Adding first admin user...` → `Done` → `Server started at
+http://0.0.0.0:8055` (kiểm lượt 1: `/server/ping` 200 sau 7 s, không env).
+
+`init` (hỏi đáp) đọc schema qua DB của env trong migration `20251014A` như Directus: chạy nó ở nơi `DB_*` trỏ tới DB đã
+cài hoặc chính DB sắp tạo (`deploy/README.md` mục "Lệnh CLI").
 
 ## Lệnh CLI (image Backoffice)
 
@@ -42,7 +46,9 @@ BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.sta
 ```
 
 - App: http://localhost:8090/admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD` trong `.env`). Không có container Directus.
-- Thêm migration: `docker compose cp ./20990101A-x.js bootstrap:/directus/migrations/` rồi `up -d` lại.
+- Thêm migration: `docker compose -f docker-compose.yml -f docker-compose.standalone.yml cp ./20990101A-x.js
+  bootstrap:/directus/migrations/` rồi `up -d --wait` lại: `bootstrap` chạy lại, replica đang chạy giữ nguyên.
+- Scale: `up -d --wait --no-deps --scale backoffice-api=<n> backoffice-api`.
 - Chế độ chung của 019 không đổi: `docker compose up -d --wait`.
 
 ## Helm chế độ độc lập
@@ -57,7 +63,8 @@ helm install bo deploy/helm/backoffice --set mode=standalone \
 ```
 
 - Job `bo-bootstrap` chạy trước Deployment; `kubectl logs job/bo-bootstrap`.
-- Thêm migration: cập nhật ConfigMap `migrations` rồi `helm upgrade bo ...` (Job chạy lại trước rolling update).
+- Thêm migration: cập nhật ConfigMap `migrations` rồi `helm upgrade bo ...` ngay: Job chạy lại và áp file mới; pod chỉ
+  roll khi template đổi.
 
 ## Vendor ngoài Postgres và SQLite
 
@@ -70,7 +77,8 @@ helm install bo deploy/helm/backoffice --set mode=standalone \
 pnpm nx run api:container
 cd tests/parity && node scripts/env.mjs up --vendor=postgres --profiles=bootstrap
 pnpm nx run parity-tests:parity -- src/bootstrap            # schema, cross, cli, init
-node scripts/env.mjs up --vendor=sqlite3 --profiles=bootstrap && pnpm nx run parity-tests:parity -- src/bootstrap
+node scripts/env.mjs down --vendor=postgres                  # cổng của hai vendor trùng nhau
+node scripts/env.mjs up --vendor=sqlite3 --profiles=bootstrap && TEST_DB=sqlite3 pnpm nx run parity-tests:parity -- src/bootstrap
 DEPLOY_MODE=standalone pnpm nx run parity-tests:deploy
 deploy/helm/backoffice/ci/test-template.sh
 ```

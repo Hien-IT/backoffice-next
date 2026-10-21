@@ -428,3 +428,17 @@ với R1–R14:
 - `tests/parity/src/deploy/instances.ts`: `directusUrl` là lb khi `DEPLOY_MODE=standalone` (các bài 019 gọi qua pool chỉ
   có Backoffice); `DEPLOY_PROJECT` đổi tên project.
 
+## Kết quả đóng feature (2026-10-22)
+
+- SC-002 (cùng SC-001, SC-010): 10 vòng liên tiếp, mỗi vòng xóa và tạo lại `directus_bootstrap`/`backoffice_bootstrap`,
+  flush Redis db 10/11, registry mới, khởi động lại hai app rồi `schema.test.ts` + ca FR-035 của `cross.test.ts`:
+  10/10 xanh (7 test mỗi vòng). Thời gian bootstrap Postgres (local): Directus 1105–1167 ms, Backoffice 1047–1133 ms.
+  CI run 39676151517: SQLite Directus 2393 ms, Backoffice 2163 ms (SC-010 < 2 phút).
+- SC-005: 10 lần liên tiếp `DEPLOY_MODE=standalone` (môi trường mới mỗi lần, 3 replica) với smoke, sessions, schema,
+  flows-schedule, TUS, shutdown, standalone: 10/10 xanh (16 test), 185–187 s mỗi lần gồm dựng và gỡ môi trường.
+- SC-007: `/server/ping` 200 sau 7 s từ `docker run` không env (lượt 1).
+- SC-009: coverage `apps/api` đo ở job CI `quality` (ngưỡng 80% của cấu hình); không chạy toàn bộ local (máy có thể treo).
+- CI run 39683831882 (lượt 2): `deploy`, `deploy-k8s`, `docker` xanh; parity sqlite3 và postgres shard 2 đỏ vì Vitest
+  `Timeout calling "onTaskUpdate"`: `cli.test.ts` gọi `spawnSync` liền nhau quá 60 s (ca `schema apply`), worker không
+  trả lời RPC. Sửa: `both()` async, nhường vòng lặp sự kiện trước mỗi lệnh docker.
+
