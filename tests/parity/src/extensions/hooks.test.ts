@@ -59,7 +59,8 @@ describe('hooks of the fixture extension', () => {
 		const directus = await scenario('directus');
 		const backoffice = await scenario('backoffice');
 
-		expect(directus.audited).toBe(true);
+		// MySQL and SQLite store booleans as 1/0, both apps answer the same.
+		expect(Boolean(directus.audited)).toBe(true);
 		expect(backoffice).toEqual(directus);
 		expect(directus.events.map((e) => e.event)).toEqual(
 			expect.arrayContaining(['items.create', 'items.update', 'items.delete', 'fields.create', 'fields.delete']),

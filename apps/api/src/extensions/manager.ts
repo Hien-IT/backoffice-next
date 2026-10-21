@@ -4,7 +4,7 @@
 // list of feature 009; the `services` context is loaded lazily (research R3); `init` hooks are removed by event (R-61);
 // a failed reload rejects (R-64); the sync lock of this machine is cleared before the first sync (research R6).
 import type { ReadStream, Stats } from 'node:fs';
-import { readFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import os from 'node:os';
 import { join, relative, resolve, sep } from 'node:path';
 import path from 'path';
@@ -33,15 +33,11 @@ import type {
 } from '@backoffice/types';
 import { isTypeIn, toBoolean } from '@backoffice/utils';
 import { pathToRelativeUrl, processId } from '@backoffice/utils/node';
-import nodeResolveDefault from '@rollup/plugin-node-resolve';
-import virtualDefault from '@rollup/plugin-virtual';
 import chokidar, { FSWatcher } from 'chokidar';
 import express, { Router } from 'express';
 import ivm from 'isolated-vm';
 import { clone, debounce, isPlainObject } from 'lodash-es';
 import PQueue from 'p-queue';
-import { rolldown } from 'rolldown';
-import { rollup } from 'rollup';
 import { useBus } from '../bus/index.js';
 import getDatabase from '../database/index.js';
 import emitter, { Emitter } from '../emitter.js';
@@ -63,9 +59,12 @@ import { instantiateSandboxSdk } from './lib/sandbox/sdk/instantiate.js';
 import { clearOwnSyncLock, type ExtensionSyncOptions, syncExtensions } from './lib/sync/sync.js';
 import { wrapEmbeds } from './lib/wrap-embeds.js';
 
-// Workaround for https://github.com/rollup/plugins/issues/1329
-const virtual = virtualDefault as unknown as typeof virtualDefault.default;
-const nodeResolve = nodeResolveDefault as unknown as typeof nodeResolveDefault.default;
+/**
+ * Backoffice: the bundle rollup writes for an entrypoint without extensions (byte for byte, spec 010 research R6),
+ * written directly so a node without app extensions does not load and run rollup at startup.
+ */
+export const EMPTY_APP_EXTENSION_BUNDLE =
+	'const interfaces = [];const displays = [];const layouts = [];const modules = [];const panels = [];const themes = [];const operations = [];\n\nexport { displays, interfaces, layouts, modules, operations, panels, themes };\n';
 
 const env = useEnv();
 
@@ -611,7 +610,29 @@ export class ExtensionManager {
 			this.extensionsSettings,
 		);
 
+		const tempDir = join(env['TEMP_PATH'] as string, 'app-extensions');
+
 		try {
+			if (!entrypoint.includes('import ')) {
+				await mkdir(tempDir, { recursive: true });
+				await writeFile(join(tempDir, 'index.js'), EMPTY_APP_EXTENSION_BUNDLE);
+				this.appExtensionChunks = ['index.js'];
+				return;
+			}
+
+			// Backoffice: loaded on first use, not at startup (memory and event loop of a starting replica).
+			const [{ rolldown }, { rollup }, { default: virtualDefault }, { default: nodeResolveDefault }] =
+				await Promise.all([
+					import('rolldown'),
+					import('rollup'),
+					import('@rollup/plugin-virtual'),
+					import('@rollup/plugin-node-resolve'),
+				]);
+
+			// Workaround for https://github.com/rollup/plugins/issues/1329
+			const virtual = virtualDefault as unknown as typeof virtualDefault.default;
+			const nodeResolve = nodeResolveDefault as unknown as typeof nodeResolveDefault.default;
+
 			/** Opt In for now. Should be @deprecated later to always use rolldown! */
 			const rollDirection = (env['EXTENSIONS_ROLLDOWN'] ?? false) ? rolldown : rollup;
 
@@ -623,8 +644,6 @@ export class ExtensionManager {
 				makeAbsoluteExternalsRelative: false,
 				plugins: [virtual({ entry: entrypoint }), nodeResolve({ browser: true })],
 			} as any);
-
-			const tempDir = join(env['TEMP_PATH'] as string, 'app-extensions');
 
 			const { output } = await bundle.write({
 				format: 'es',
