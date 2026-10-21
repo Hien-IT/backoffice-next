@@ -66,7 +66,8 @@ describe('PATCH /extensions/:pk', () => {
 			[patch(bundle.id, false), patch(bundle.id, true), patch(entry.id, false), patch(entry.id, true)],
 			watched,
 		);
-	});
+		// Eight PATCHes, each one reloads every node and rebuilds the app bundle: over 30 s on the CI runner.
+	}, 90_000);
 
 	it('the checks: no meta, not a uuid, an unknown id, not admin', async () => {
 		const row = await rowOf('parity-display-badge');

@@ -4,7 +4,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from '../helpers/api.js';
 import { apiUrl, directusUrl, e2eConfig } from '../helpers/config.js';
-import { changesSince, closeHostDb, EXTENSIONS_TABLES, snapshot } from '../helpers/db-rows.js';
+import { changesSince, closeHostDb, EXTENSIONS_TABLES, scopeChanges, snapshot } from '../helpers/db-rows.js';
 import { onDirectusApp } from '../helpers/directus-app.js';
 import { normalize, recordWrites, signInBackoffice } from '../helpers/payload.js';
 import { expect, test } from '../helpers/requests.js';
@@ -58,7 +58,11 @@ test('disable then enable an extension: the same PATCH bodies and rows', async (
 		);
 	});
 
-	const dirRows = await changesSince(before, EXTENSIONS_TABLES);
+	// The rows and activity of directus_extensions only: each run also signs in (activity of directus_users).
+	const extensionChanges = async (since: Awaited<ReturnType<typeof snapshot>>) =>
+		scopeChanges((await changesSince(since, EXTENSIONS_TABLES)) as Record<string, unknown>, EXTENSIONS_TABLES, []);
+	const dirRows = await extensionChanges(before);
+	const beforeBackoffice = await snapshot(EXTENSIONS_TABLES);
 
 	await signInBackoffice(page, api);
 	await page.goto('/admin/settings/extensions');
@@ -77,5 +81,5 @@ test('disable then enable an extension: the same PATCH bodies and rows', async (
 	);
 
 	expect(normalize(bo)).toEqual(normalize(dir));
-	expect(await changesSince(before, EXTENSIONS_TABLES)).toEqual(dirRows);
+	expect(await extensionChanges(beforeBackoffice)).toEqual(dirRows);
 });

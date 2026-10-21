@@ -6,7 +6,7 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
-import { nodes, waitAll } from '../extensions/helpers.js';
+import { loadedEverywhere, nodes, waitAll } from '../extensions/helpers.js';
 import { admin, same } from './helpers.js';
 
 const full = process.env['PARITY_SUITE'] !== 'reduced';
@@ -133,7 +133,9 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then t
 				version: VERSION,
 			});
 			const installed = await row();
+			if (install === 204) await loadedEverywhere(EXTENSION);
 			const reinstall = await call(url, 'POST', '/extensions/registry/reinstall', { extension: EXTENSION });
+			if (reinstall === 204) await loadedEverywhere(EXTENSION);
 			const uninstall = await call(url, 'DELETE', `/extensions/registry/uninstall/${EXTENSION}`);
 			seen[app] = { install, installed, reinstall, uninstall, after: await rows() };
 		}
@@ -155,5 +157,5 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then t
 		await same({ method: 'PATCH', path: `/extensions/${EXTENSION}`, headers, body: { meta: { enabled: false } } });
 		await same({ method: 'DELETE', path: `/extensions/${EXTENSION}`, headers });
 		expect(await rows()).toBe(before);
-	});
+	}, 240_000);
 });

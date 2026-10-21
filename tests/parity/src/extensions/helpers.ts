@@ -135,3 +135,19 @@ export async function ensureExtensionCollections(): Promise<void> {
 		}
 	}
 }
+
+/**
+ * Waits until every node has loaded the registry extension `id` (its row in each node's `GET /extensions` has a
+ * `schema`). A node that syncs `extensions/.registry/*` while another uninstalls it reads a deleted file and Directus
+ * exits on that (NoSuchKey), so a test uninstalls only once every node is done with the install.
+ */
+export async function loadedEverywhere(id: string, timeout = 30_000): Promise<void> {
+	const { admin } = await import('../files/helpers.js');
+	await waitAll(async () => {
+		for (const node of nodes()) {
+			const res = await fetch(`${node.url}/extensions`, { headers: await admin() });
+			const rows = ((await res.json()) as { data?: { id: string; schema: unknown }[] }).data ?? [];
+			if (!rows.some((row) => row.id === id && row.schema)) throw new Error(`${node.name} has not loaded ${id}`);
+		}
+	}, timeout);
+}

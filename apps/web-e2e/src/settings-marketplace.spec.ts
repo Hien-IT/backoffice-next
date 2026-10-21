@@ -7,6 +7,7 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
+import { loadedEverywhere } from './helpers/extensions.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -52,7 +53,10 @@ test('the registry: the sandboxed fixtures, search and type in the route query',
 	await expect(rows(page)).toContainText('Parity Bundle Tools');
 });
 
-test('an extension: metadata, compatibility; Install then Manage opens Settings > Extensions', async ({ page }) => {
+test('an extension: metadata, compatibility; Install then Manage opens Settings > Extensions', async ({
+	page,
+	request,
+}) => {
 	await hostDb()('directus_extensions').where({ id: EXTENSION }).delete();
 	await open(page, `/extension/${EXTENSION}`);
 
@@ -72,6 +76,7 @@ test('an extension: metadata, compatibility; Install then Manage opens Settings 
 	await expect(page).toHaveURL(/\/admin\/settings\/extensions$/);
 	await expect(page.locator(`[data-extension-id="${EXTENSION}"]`)).toBeVisible();
 
+	await loadedEverywhere(request, EXTENSION);
 	await api.call('DELETE', `/extensions/registry/uninstall/${EXTENSION}`);
 });
 

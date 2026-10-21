@@ -5,7 +5,7 @@
 // downloaded: 503 with the same reason at both, the row written before the download is left (as Directus).
 import { afterAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
-import { admin, mc, nodes, waitAll } from './helpers.js';
+import { admin, loadedEverywhere, mc, nodes, waitAll } from './helpers.js';
 
 const SANDBOXED = {
 	extension: 'e0000000-0000-4000-8000-000000000001',
@@ -52,6 +52,7 @@ describe('install through the fake registry, at each app', () => {
 
 		for (const node of nodes().slice(0, 2)) {
 			const install = await call(node.url, 'POST', '/extensions/registry/install', SANDBOXED);
+			if (install.status === 204) await loadedEverywhere(SANDBOXED.extension);
 			const row = await hostDb()('directus_extensions')
 				.where({ id: SANDBOXED.extension })
 				.first('id', 'folder', 'source', 'bundle');
@@ -79,7 +80,7 @@ describe('install through the fake registry, at each app', () => {
 		expect((seen['directus'] as { files: string[] }).files).toEqual(
 			expect.arrayContaining(['package.json', 'dist/index.js']),
 		);
-	});
+	}, 180_000);
 
 	it('a non-sandboxed extension under MARKETPLACE_TRUST=sandbox: 503 with the same reason, the row left', async () => {
 		const seen: Record<string, unknown> = {};

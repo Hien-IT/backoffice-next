@@ -7,6 +7,7 @@ import { randomUUID } from 'node:crypto';
 import { ADMIN, CONTENT_URL } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { AdminApi } from './helpers/api.js';
+import { loadedEverywhere } from './helpers/extensions.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -53,9 +54,12 @@ test('the list: groups by type, the bundle entries nested, the sub-menu row', as
 	const bundle = row(page, 'parity-bundle-tools').locator('xpath=..');
 	await expect(bundle.locator('[data-extension]')).toHaveCount(4);
 
-	await expect(
-		page.getByRole('navigation', { name: 'Settings' }).getByRole('link', { name: 'Extensions' }),
-	).toHaveAttribute('aria-current', 'page');
+	// The Settings sub-menu is in the sidebar, collapsed below xl (1280 px).
+	if ((page.viewportSize()?.width ?? 0) >= 1280) {
+		await expect(
+			page.getByRole('navigation', { name: 'Settings' }).getByRole('link', { name: 'Extensions' }),
+		).toHaveAttribute('aria-current', 'page');
+	}
 });
 
 test('disable then enable an app extension: the state, the reload notice', async ({ page }) => {
@@ -89,6 +93,7 @@ test('a row whose folder is gone is under Missing; Remove deletes it without a c
 
 test('a registry extension: Uninstall through the fake registry (T096, #207; Reinstall is on Missing rows only)', async ({
 	page,
+	request,
 }) => {
 	// parity-interface-color of tests/parity/registry/fixtures (sandboxed, so MARKETPLACE_TRUST=sandbox downloads it).
 	const extension = 'e0000000-0000-4000-8000-000000000001';
@@ -96,6 +101,7 @@ test('a registry extension: Uninstall through the fake registry (T096, #207; Rei
 	await api.call('POST', '/extensions/registry/install', {
 		data: { extension, version: 'f0000000-0000-4000-8000-000000000001' },
 	});
+	await loadedEverywhere(request, extension);
 
 	try {
 		await open(page);
