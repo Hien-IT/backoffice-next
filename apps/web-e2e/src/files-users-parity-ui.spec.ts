@@ -142,6 +142,8 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 	});
 
 	await openSidebar(page);
+	// The detail popover mounts its sections when it opens (D-128): the revisions count loads only then.
+	await page.waitForLoadState('networkidle');
 	const sections = (await page.locator('#sidebar h3').allTextContents())
 		.map((t) => t.replace(/expand_more|[a-z_]+(?=[A-Z])/g, '').trim())
 		.map((t) => `${t.replace(/\d+/g, '').trim()} ${t.replace(/\D+/g, '')}`.trim());
