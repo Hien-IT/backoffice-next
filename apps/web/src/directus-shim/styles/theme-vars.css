@@ -122,6 +122,8 @@
 	--theme--sidebar--section--toggle--border-color: transparent;
 	--theme--sidebar--section--form--column-gap: var(--theme--form--column-gap);
 	--theme--sidebar--section--form--row-gap: var(--theme--form--row-gap);
+	--theme--sidebar--section--form--label--foreground: var(--theme--form--field--label--foreground);
+	--theme--sidebar--section--form--label--font-family: var(--theme--form--field--label--font-family);
 	--theme--sidebar--section--form--field--label--foreground: var(--theme--form--field--label--foreground);
 	--theme--sidebar--section--form--field--label--font-family: var(--theme--form--field--label--font-family);
 	--theme--sidebar--section--form--field--label--font-weight: var(--theme--form--field--label--font-weight);
@@ -154,6 +156,8 @@
 	--theme--public--art--speed: 1;
 	--theme--public--form--column-gap: var(--theme--form--column-gap);
 	--theme--public--form--row-gap: var(--theme--form--row-gap);
+	--theme--public--form--label--foreground: var(--theme--form--field--label--foreground);
+	--theme--public--form--label--font-family: var(--theme--form--field--label--font-family);
 	--theme--public--form--field--label--foreground: var(--theme--form--field--label--foreground);
 	--theme--public--form--field--label--font-family: var(--theme--form--field--label--font-family);
 	--theme--public--form--field--label--font-weight: var(--theme--form--field--label--font-weight);

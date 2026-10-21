@@ -39,6 +39,11 @@ test('the variables the Directus app uses without a rule, the palette and the cl
 
 	for (const name of [
 		'--theme--banner--foreground',
+		// In the default themes of directus/packages/themes, not in the ThemeSchema (E2E extensions-runtime-parity).
+		'--theme--sidebar--section--form--label--foreground',
+		'--theme--sidebar--section--form--label--font-family',
+		'--theme--public--form--label--foreground',
+		'--theme--public--form--label--font-family',
 		'--theme--card--shadow',
 		'--theme--primary-75',
 		'--theme--shadow',
