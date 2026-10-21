@@ -28,6 +28,11 @@ const WEBKIT_WORKER = /^Error: Worker failed to load\. Check that the worker URL
 // WebKit logs a lazy route chunk whose import a navigation cut (sign-out, a new page.goto) as this console error; a
 // chunk that really fails to load still fails in chromium and firefox ("Failed to fetch dynamically imported module").
 const WEBKIT_IMPORT_ABORT = /^TypeError: Importing a module script failed\.$/;
+// Spec 020: specs that point config.json at another API pair (sso, setup) load its extension bundle from an origin the
+// CSP of the web image does not list (the image allows the API of its PUBLIC_URL, as in a real deployment); the app
+// carries on without extensions (loadExtensions warns), the browser logs the blocked script.
+const CSP_EXTENSIONS =
+	/^Loading the script '[^']+\/extensions\/sources\/index\.js' violates the following Content Security Policy/;
 // The app's missingWarn (`[i18n] missing key ...`) and the vue-i18n default (`[intlify] Not found 'x' key ...`).
 const MISSING_KEY = /^\[i18n\] missing key|^\[intlify\] Not found '.*' key/;
 // Directus 11.17.4 has no strings for the notes of its deployment system collections (system-data collections.yaml
@@ -74,6 +79,7 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 				const text = message.text();
 				const ignored =
 					NETWORK_ERROR.test(text) ||
+					CSP_EXTENSIONS.test(text) ||
 					(browserName === 'webkit' && (WEBKIT_WORKER.test(text) || WEBKIT_IMPORT_ABORT.test(text)));
 				if (message.type() === 'error' && !ignored) problems.push(`console.error: ${text}`);
 				if (message.type() === 'warning' && MISSING_KEY.test(text) && !DIRECTUS_MISSING_KEY.test(text))

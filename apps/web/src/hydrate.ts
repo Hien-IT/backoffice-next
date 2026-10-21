@@ -1,6 +1,7 @@
 // Ported from directus/app/src/hydrate.ts
 // Backoffice: the AI store is not loaded (D-54); the insights store is loaded since feature 018 (D-45 lifted); modules
 // are registered here instead of through the extensions (no app extensions, D-41).
+import { extensionsReady } from './extensions.ts';
 import { setLanguage } from './lang/set-language.ts';
 import { onDehydrateModules, onHydrateModules } from './modules/index.ts';
 import { useAppStore } from './stores/app.ts';
@@ -75,6 +76,7 @@ export async function hydrate(): Promise<void> {
 			const hydratedStores = ['userStore', 'permissionsStore', 'fieldsStore', 'serverStore'];
 			await Promise.all(stores.filter(({ $id }) => !hydratedStores.includes($id)).map((store) => store.hydrate?.()));
 
+			await extensionsReady();
 			await onHydrateModules();
 		} else if (currentUser && 'share' in currentUser) {
 			// Backoffice: a share session opens the item route of the Content module (FR-084, D-40), so it loads the
@@ -83,6 +85,7 @@ export async function hydrate(): Promise<void> {
 			await permissionsStore.hydrate();
 			await fieldsStore.hydrate({ skipTranslation: true });
 			await useRelationsStore().hydrate();
+			await extensionsReady();
 			await onHydrateModules();
 		}
 

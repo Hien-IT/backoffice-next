@@ -19,9 +19,9 @@
 	--theme--border-color: var(--color-gray-200);
 	--theme--border-color-accent: var(--color-gray-300);
 	--theme--border-color-subdued: var(--color-gray-100);
-	--theme--primary: var(--color-brand-500);
+	--theme--primary: var(--color-brand-600); /* Q-36 AA value, same as styles/base.css */
 	--theme--primary-background: color-mix(in srgb, var(--theme--background), var(--theme--primary) 10%);
-	--theme--primary-subdued: color-mix(in srgb, var(--theme--background), var(--theme--primary) 50%);
+	--theme--primary-subdued: var(--color-brand-50); /* Q-36 AA value, same as styles/base.css */
 	--theme--primary-accent: color-mix(in srgb, var(--theme--primary), var(--color-gray-800) 25%);
 	--theme--secondary: var(--color-blue-light-500);
 	--theme--secondary-background: color-mix(in srgb, var(--theme--background), var(--theme--secondary) 10%);
@@ -35,7 +35,7 @@
 	--theme--warning-background: color-mix(in srgb, var(--theme--background), var(--theme--warning) 10%);
 	--theme--warning-subdued: color-mix(in srgb, var(--theme--background), var(--theme--warning) 50%);
 	--theme--warning-accent: color-mix(in srgb, var(--theme--warning), var(--color-gray-800) 25%);
-	--theme--danger: var(--color-error-500);
+	--theme--danger: var(--color-error-700); /* Q-36 AA value, same as styles/base.css */
 	--theme--danger-background: color-mix(in srgb, var(--theme--background), var(--theme--danger) 10%);
 	--theme--danger-subdued: color-mix(in srgb, var(--theme--background), var(--theme--danger) 50%);
 	--theme--danger-accent: color-mix(in srgb, var(--theme--danger), var(--color-gray-800) 25%);
@@ -239,9 +239,9 @@
 	--shadow-color: color-mix(in srgb, var(--color-black) 10%, transparent);
 
 	/* directus/app/src/styles/_colors.scss: each color and its steps mixed with the tint (< 100) or the shade (> 100) */
-	--purple: var(--color-theme-purple-500);
+	--purple: color-mix(in srgb, var(--color-theme-purple-500) 80%, var(--color-gray-900)); /* Q-36 AA value, same as styles/base.css */
 	--purple-10: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-white));
-	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-white));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 12%, var(--color-white)); /* Q-36 AA value, same as styles/base.css */
 	--purple-50: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-white));
 	--purple-75: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-white));
 	--purple-90: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-white));
@@ -261,9 +261,9 @@
 	--pink-150: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-gray-800));
 	--pink-175: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-gray-800));
 	--pink-190: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-gray-800));
-	--blue: var(--color-blue-light-500);
+	--blue: var(--color-blue-light-700); /* Q-36 AA value, same as styles/base.css */
 	--blue-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-white));
-	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-white));
+	--blue-25: var(--color-blue-light-50); /* Q-36 AA value, same as styles/base.css */
 	--blue-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-white));
 	--blue-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-white));
 	--blue-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-white));
@@ -362,7 +362,7 @@
 	--warning-190: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-gray-800));
 	--danger: var(--color-error-500);
 	--danger-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-white));
-	--danger-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-white));
+	--danger-25: var(--color-error-50); /* Q-36 AA value, same as styles/base.css */
 	--danger-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-white));
 	--danger-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-white));
 	--danger-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-white));
@@ -374,6 +374,10 @@
 }
 
 :root.dark {
+	/* Q-36 AA values of styles/base.css for dark (this sheet loads later, its :root would win over .dark). */
+	--theme--primary: var(--color-brand-400);
+	--theme--primary-subdued: color-mix(in srgb, var(--color-brand-500) 15%, transparent);
+	--theme--danger: var(--color-error-400);
 	--theme--foreground: var(--color-gray-300);
 	--theme--foreground-subdued: var(--color-gray-400);
 	--theme--foreground-accent: var(--color-white);
@@ -408,9 +412,9 @@
 	--background-inverted: var(--color-gray-100);
 	--overlay-color: color-mix(in srgb, var(--color-black) 80%, transparent);
 	--shadow-color: color-mix(in srgb, var(--color-black) 30%, transparent);
-	--purple: var(--color-theme-purple-500);
+	--purple: color-mix(in srgb, var(--color-theme-purple-500) 70%, var(--color-white)); /* Q-36 AA value, same as styles/base.css */
 	--purple-10: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-gray-900));
-	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-gray-900));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 15%, transparent); /* Q-36 AA value, same as styles/base.css */
 	--purple-50: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-gray-900));
 	--purple-75: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-gray-900));
 	--purple-90: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-gray-900));
@@ -430,9 +434,9 @@
 	--pink-150: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-white));
 	--pink-175: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-white));
 	--pink-190: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-white));
-	--blue: var(--color-blue-light-500);
+	--blue: var(--color-blue-light-400); /* Q-36 AA value, same as styles/base.css */
 	--blue-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-gray-900));
-	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-gray-900));
+	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 15%, transparent); /* Q-36 AA value, same as styles/base.css */
 	--blue-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-gray-900));
 	--blue-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-gray-900));
 	--blue-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-gray-900));
@@ -531,7 +535,7 @@
 	--warning-190: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-white));
 	--danger: var(--color-error-500);
 	--danger-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-gray-900));
-	--danger-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-gray-900));
+	--danger-25: color-mix(in srgb, var(--color-error-500) 15%, transparent); /* Q-36 AA value, same as styles/base.css */
 	--danger-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-gray-900));
 	--danger-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-gray-900));
 	--danger-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-gray-900));

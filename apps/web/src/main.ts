@@ -5,7 +5,7 @@ import { createHead } from '@unhead/vue';
 import { createPinia } from 'pinia';
 import { createSdk } from './api/sdk.ts';
 import App from './App.vue';
-import { hasAppExtensions, loadExtensions, registerExtensions } from './extensions.ts';
+import { startExtensions } from './extensions.ts';
 import { startIdleTracking } from './idle.ts';
 import { i18n } from './lang/index.ts';
 import { router } from './router/index.ts';
@@ -23,22 +23,9 @@ app.use(i18n);
 app.use(createPinia());
 app.use(createHead());
 
-// Spec 020 (research R4, directus/app/src/main.ts): the app extensions of the API, then the global components,
-// directives and injects they expect (loaded only when the bundle has app extensions), then the registries; the
-// router comes last so the first navigation sees the extension modules.
-await loadExtensions();
-
-if (hasAppExtensions()) {
-	const [{ registerShims }, { useSystem }] = await Promise.all([
-		import('./directus-shim/register.ts'),
-		import('./directus-shim/use-system.ts'),
-	]);
-
-	registerShims(app);
-	useSystem(app);
-}
-
-await registerExtensions(app);
+// Spec 020 (research R4, directus/app/src/main.ts): the app extensions load in the background; hydrate() waits for them
+// before the modules register (extension modules included), so the first navigation inside the app sees them.
+startExtensions(app);
 
 app.use(router);
 

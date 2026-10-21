@@ -111,6 +111,38 @@ export async function registerExtensions(_app?: App): Promise<void> {
 	);
 }
 
+let ready: Promise<void> = Promise.resolve();
+
+/**
+ * Loads the app extensions of the API, then the global components, directives and injects they expect (only when the
+ * bundle has app extensions), then the registries, in the background: public pages (login) do not wait for them (012
+ * SC-008). `hydrate()` awaits `extensionsReady()` before the modules register, and extensions render only after it.
+ */
+export function startExtensions(app: App): void {
+	ready = (async () => {
+		await loadExtensions();
+
+		if (hasAppExtensions()) {
+			const [{ registerShims }, { useSystem }] = await Promise.all([
+				import('./directus-shim/register.ts'),
+				import('./directus-shim/use-system.ts'),
+			]);
+
+			registerShims(app);
+			useSystem(app);
+		}
+
+		await registerExtensions(app);
+	})().catch((error: unknown) => {
+		// eslint-disable-next-line no-console
+		console.warn(error);
+	});
+}
+
+export function extensionsReady(): Promise<void> {
+	return ready;
+}
+
 export function useExtensions(): RefRecord<AppExtensionConfigs> {
 	return extensions;
 }
