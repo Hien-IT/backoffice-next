@@ -135,6 +135,14 @@
 				"cwd": "tests/benchmark"
 			},
 			"cache": false
+		},
+		"web-extensions": {
+			"executor": "nx:run-commands",
+			"options": {
+				"command": "node src/web-extensions.ts",
+				"cwd": "tests/benchmark"
+			},
+			"cache": false
 		}
 	}
 }

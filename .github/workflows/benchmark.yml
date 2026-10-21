@@ -159,6 +159,20 @@ jobs:
         if: ${{ !cancelled() }}
         env:
           BENCH_RUNS: 11
+      # Spec 020 (FR-096, SC-006, T149): the first open with the fixture extension set; the two steps above measure
+      # without extensions (SC-005), so the API services are recreated with the extensions env first.
+      - name: API services with the fixture extensions
+        if: ${{ !cancelled() }}
+        working-directory: tests/benchmark
+        run:
+          docker compose -p benchmark -f docker-compose.yml --profile postgres --profile bench-web up -d --wait
+          --no-deps --force-recreate directus backoffice-api
+        env:
+          PARITY_EXTENSIONS_ENV: extensions
+      - run: pnpm nx run benchmark:web-extensions --output-style=stream
+        if: ${{ !cancelled() }}
+        env:
+          BENCH_RUNS: 11
       - name: container logs
         if: failure()
         run: |

@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/server.ts
-// Backoffice: requests go through the SDK client; mcp_enabled, ai_enabled and extensions are not read (D-41,
-// Principle XI). `files` is read from feature 013 (upload accept lists, FR-053), `uploads` from feature 015 (TUS,
+// Backoffice: requests go through the SDK client; mcp_enabled and ai_enabled stay false (D-17, Principle XI) and
+// extensions is read for app extensions (spec 020, FR-079). `files` is read from feature 013 (upload accept lists, FR-053), `uploads` from feature 015 (TUS,
 // chunk size and upload concurrency, FR-022).
 import formatTitle from '@directus/format-title';
 import { defineStore } from 'pinia';
@@ -46,6 +46,9 @@ export type Info = {
 		| undefined;
 	websocket?: false | Record<string, unknown> | undefined;
 	version?: string | undefined;
+	mcp_enabled: boolean;
+	ai_enabled: boolean;
+	extensions?: { limit: number | null } | undefined;
 	files?:
 		| {
 				mimeTypeAllowList: string[];
@@ -92,6 +95,9 @@ export const useServerStore = defineStore('serverStore', () => {
 		websocket: undefined,
 		files: undefined,
 		uploads: undefined,
+		mcp_enabled: false,
+		ai_enabled: false,
+		extensions: undefined,
 	});
 
 	const auth = reactive<Auth>({
@@ -133,6 +139,7 @@ export const useServerStore = defineStore('serverStore', () => {
 		info.version = serverInfo?.version;
 		info.files = serverInfo?.files;
 		info.uploads = serverInfo?.uploads;
+		info.extensions = serverInfo?.extensions;
 
 		auth.providers = authResponse?.data ?? [];
 		auth.disableDefault = authResponse?.disableDefault ?? false;

@@ -7,7 +7,7 @@
 // `xl` the sidebar is inline, below `xl` a drawer. No license banner (D-38); the notifications drawer (018 FR-077) is
 // mounted here once, as a lazy chunk (FR-109). The page title goes through useHead; the `%s · project` template is in theme/use-app-head.ts.
 import { useHead } from '@unhead/vue';
-import { computed, defineAsyncComponent } from 'vue';
+import { computed, defineAsyncComponent, useTemplateRef } from 'vue';
 import type { RouteLocationRaw } from 'vue-router';
 import BoSkipMenu from '../components/BoSkipMenu.vue';
 import NoticeStack from '../components/NoticeStack.vue';
@@ -66,6 +66,10 @@ const sidebarStore = useSidebarStore();
 
 // The detail popover starts closed on every page.
 sidebarStore.collapse();
+
+// Spec 020: the scrolling content of a `fill` page, the `main-element` of the extension view shim.
+const scrollElement = useTemplateRef<HTMLElement>('scroll');
+defineExpose({ scrollElement });
 </script>
 
 <template>
@@ -89,6 +93,15 @@ sidebarStore.collapse();
 					<AppHeader class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6">
 						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 							<template v-if="$slots['title']" #title><slot name="title" /></template>
+							<!-- Spec 020 (Q-45): the extra title and action slots of the Directus view, for extensions. -->
+							<template v-if="$slots['heading']" #heading><slot name="heading" /></template>
+							<template v-if="$slots['title-outer:prepend']" #title-outer:prepend>
+								<slot name="title-outer:prepend" />
+							</template>
+							<template v-if="$slots['title:prepend']" #title:prepend><slot name="title:prepend" /></template>
+							<template v-if="$slots['title:append']" #title:append><slot name="title:append" /></template>
+							<template v-if="$slots['actions:prepend']" #actions:prepend><slot name="actions:prepend" /></template>
+							<template v-if="$slots['actions:append']" #actions:append><slot name="actions:append" /></template>
 							<template v-if="$slots['headline-append']" #headline-append><slot name="headline-append" /></template>
 							<template v-if="$slots['title-append']" #title-append><slot name="title-append" /></template>
 							<template v-if="$slots['actions']" #actions><slot name="actions" /></template>
@@ -97,7 +110,7 @@ sidebarStore.collapse();
 					</AppHeader>
 					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
 					<NoticeStack />
-					<div v-if="fill" class="flex min-h-0 flex-1 flex-col overflow-auto">
+					<div v-if="fill" ref="scroll" class="flex min-h-0 flex-1 flex-col overflow-auto">
 						<slot />
 					</div>
 					<slot v-else />

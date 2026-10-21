@@ -163,6 +163,8 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 207, method: 'DELETE', path: new RegExp(`^/extensions/registry/uninstall/${ID}$`) },
 	{ id: 208, method: 'POST', path: /^\/extensions\/registry\/reinstall$/ },
 	{ id: 213, method: 'GET', path: /^\/extensions\/sources\/[^/]+\.js$/ },
+	// Not an app call: the useApi request of the fixture interface parity-interface-color (extensions-app.spec.ts).
+	{ id: 214, method: 'GET', path: /^\/server\/ping$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

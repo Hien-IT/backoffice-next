@@ -113,4 +113,22 @@ describe('one change, every node', () => {
 			await patch(second!.url, row.id, true);
 		}
 	});
+
+	it('the app bundle: the same index.js at 8156 and 8157, each chunk it imports served by the other (FR-047, FR-051)', async () => {
+		const [, first, second] = nodes();
+		const source = async (url: string, chunk: string) => {
+			const res = await fetch(`${url}/extensions/sources/${chunk}`);
+			expect(res.status, `${url} ${chunk}`).toBe(200);
+			return res.text();
+		};
+
+		const index = await source(first!.url, 'index.js');
+		expect(await source(second!.url, 'index.js')).toBe(index);
+
+		// The fixture set has app extensions: rollup splits them into chunks the entry imports by relative path.
+		const chunks = [...index.matchAll(/from\s*['"]\.\/([^'"]+\.js)['"]|import\(\s*['"]\.\/([^'"]+\.js)['"]\s*\)/g)].map(
+			(match) => match[1] ?? match[2]!,
+		);
+		for (const chunk of chunks) expect(await source(second!.url, chunk)).toBe(await source(first!.url, chunk));
+	});
 });

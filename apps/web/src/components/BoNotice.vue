@@ -2,10 +2,16 @@
 import { computed } from 'vue';
 import BoIcon from './BoIcon.vue';
 
-const { type = 'info', icon } = defineProps<{
+const {
+	type = 'info',
+	icon = null,
+	center = false,
+} = defineProps<{
 	type?: 'normal' | 'info' | 'success' | 'warning' | 'danger';
-	/** Replaces the icon of the type (v-notice `icon`). */
-	icon?: string;
+	/** Replaces the icon of the type (v-notice `icon`); false hides it (null default: no Boolean absent-cast). */
+	icon?: string | false | null;
+	/** Centers the content (v-notice `center`, spec 020). */
+	center?: boolean;
 }>();
 
 // Icons as v-notice of Directus, colors from the component-specs Alert recipe (danger = error).
@@ -45,9 +51,13 @@ const look = computed(() => TYPES[type as keyof typeof TYPES] ?? TYPES.normal);
 	<div
 		:role="type === 'danger' ? 'alert' : type === 'normal' ? undefined : 'status'"
 		class="flex items-start gap-3 rounded-xl border p-4"
-		:class="look.box"
+		:class="[look.box, { 'justify-center text-center': center }]"
 	>
-		<BoIcon :name="icon ?? look.icon" class="-mt-0.5" :class="look.iconColor" />
-		<div class="min-w-0 flex-1 text-sm text-gray-500 dark:text-gray-400"><slot /></div>
+		<BoIcon v-if="icon !== false" :name="icon ?? look.icon" class="-mt-0.5" :class="look.iconColor" />
+		<div class="min-w-0 text-sm text-gray-500 dark:text-gray-400" :class="{ 'flex-1': !center }">
+			<!-- v-notice `title` slot (spec 020): the heading line above the text. -->
+			<p v-if="$slots['title']" class="m-0 font-medium text-gray-800 dark:text-white/90"><slot name="title" /></p>
+			<slot />
+		</div>
 	</div>
 </template>

@@ -23,6 +23,10 @@ export const useSettingsStore = defineStore('settingsStore', {
 	state: () => ({
 		settings: null as null | Settings,
 	}),
+	getters: {
+		/** Spec 020 (FR-079): no AI providers in Backoffice (Principle XI). */
+		availableAiProviders: (): string[] => [],
+	},
 	actions: {
 		async hydrate() {
 			const userStore = useUserStore();

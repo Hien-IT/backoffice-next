@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/components/register.ts",
+		"dest": "apps/web/src/directus-shim/register.ts"
+	}
+]

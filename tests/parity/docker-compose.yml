@@ -1445,6 +1445,7 @@ services:
     depends_on:
       directus: { condition: service_healthy }
       backoffice-web: { condition: service_healthy }
+      backoffice-api: { condition: service_healthy }
     ports:
       - '8161:80'
     healthcheck:

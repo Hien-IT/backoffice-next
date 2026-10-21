@@ -65,4 +65,8 @@ export default {
 	notifications_mark_read: 'Đánh dấu đã xem',
 	notifications_mark_all_read: 'Đánh dấu tất cả đã xem',
 	notifications_view_all: 'Xem tất cả',
+	// VEmojiPicker shim (spec 020): name of the icon-only button (Directus has none).
+	insert_emoji: 'Chèn emoji',
+	// Spec 020: the nav label of the v-pagination shim of app extensions.
+	pagination: 'Phân trang',
 };

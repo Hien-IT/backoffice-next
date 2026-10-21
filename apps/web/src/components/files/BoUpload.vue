@@ -2,7 +2,8 @@
 <script setup lang="ts">
 // Backoffice: Upload recipe (component-specs Tier 3). Uploads go through utils/upload-files.ts and upload-file.ts
 // (feature 015: TUS when the server enables it, otherwise multipart with byte progress, `maxConcurrency` from the
-// server); no `start` controller. `fileId` replaces that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
+// server). Spec 020 (VUpload shim): a TUS upload emits `start` with its controller (start/abort, all files at once with
+// `multiple`) and `abort` is exposed, as Directus. `fileId` replaces that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
 // dialogs comes with 018): invalid files as Directus words them, failed uploads one line per file with
 // translateAPIError. "Choose from library" emits `library`; the files drawer (T069) calls the exposed `setSelection`
 // (GET /files or /files/:id as Directus).
@@ -19,7 +20,7 @@ import BoInput from '../BoInput.vue';
 import BoMenu, { type BoMenuItem } from '../BoMenu.vue';
 import BoProgressLinear from '../BoProgressLinear.vue';
 import { useServerStore } from '../../stores/server.ts';
-import { uploadFile } from '../../utils/upload-file.ts';
+import { type ChunkedUploadController, uploadFile } from '../../utils/upload-file.ts';
 import { uploadFiles } from '../../utils/upload-files.ts';
 
 interface Props {
@@ -50,11 +51,14 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
 	input: [files: null | File | File[]];
 	library: [];
+	start: [controller: ChunkedUploadController];
 }>();
 
 const { t } = useI18n();
 
 const errors = ref<string[]>([]);
+
+let uploadController: ChunkedUploadController | null = null;
 const announcement = ref('');
 
 const { uploading, progress, upload, onBrowseSelect, done, numberOfFiles } = useUpload();
@@ -150,6 +154,15 @@ function useUpload() {
 
 		try {
 			if (props.multiple === true) {
+				const fileControllers: (ChunkedUploadController | null)[] = new Array(files.length).fill(null);
+
+				const controller: ChunkedUploadController = {
+					start: () => fileControllers.forEach((fileController) => fileController?.start()),
+					abort: async () => {
+						await Promise.all(fileControllers.map((fileController) => fileController?.abort()));
+					},
+				};
+
 				const uploadedFiles = await uploadFiles(files, {
 					preset,
 					maxConcurrency: useServerStore().info.uploads?.maxConcurrency,
@@ -157,6 +170,16 @@ function useUpload() {
 					onProgressChange: (percentages) => {
 						progress.value = Math.round(percentages.reduce((total, p) => total + p, 0) / percentages.length);
 						done.value = percentages.filter((p) => p === 100).length;
+
+						// Directus: done uploads are not resumed after a pause.
+						percentages.forEach((p, index) => p === 100 && (fileControllers[index] = null));
+					},
+					onChunkedUpload: (controllers) => {
+						controllers.forEach((fileController, index) => (fileControllers[index] = fileController));
+						uploadController = controller;
+
+						// Only emit start once every upload started
+						if (controllers.every((fileController) => fileController !== null)) emit('start', controller);
 					},
 				});
 
@@ -169,6 +192,10 @@ function useUpload() {
 					...(props.fileId && { fileId: props.fileId }),
 					onError: (error) => uploadError(files[0]!, error),
 					onProgressChange: (percentage) => (progress.value = Math.round(percentage)),
+					onChunkedUpload: (controller) => {
+						uploadController = controller;
+						emit('start', controller);
+					},
 				});
 
 				progress.value = 100;
@@ -182,6 +209,7 @@ function useUpload() {
 			emit('input', null);
 		} finally {
 			uploading.value = false;
+			uploadController = null;
 		}
 	}
 
@@ -322,7 +350,11 @@ const menuItems = computed<BoMenuItem[]>(() => [
 		: []),
 ]);
 
-defineExpose({ setSelection });
+function abort() {
+	uploadController?.abort();
+}
+
+defineExpose({ setSelection, abort });
 
 const ICON_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';

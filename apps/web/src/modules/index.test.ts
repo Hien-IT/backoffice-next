@@ -107,4 +107,24 @@ describe('registerModules (FR-022)', () => {
 		await onHydrateModules();
 		expect(registeredModules.value).toEqual([]);
 	});
+
+	test('extension modules: preRegisterCheck applies, a duplicate id keeps the internal one (R-67)', async () => {
+		setUser(false, {});
+		const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
+		const ext = (id: string, allowed: boolean) =>
+			({ id, name: id, icon: 'box', routes: [], preRegisterCheck: () => allowed }) as never;
+		const { registeredModules, onHydrateModules, setModules, getModules } = registerModules([]);
+		const content = getInternalModules().find((m) => m.id === 'content')!;
+		setModules([content, ext('report', true), ext('hidden-report', false), ext('content', true)]);
+
+		expect(ids(getModules())).toEqual(['content', 'report', 'hidden-report']);
+		expect(getModules()[0]).toBe(content);
+		expect(warn).toHaveBeenCalledWith('Module "content" is already registered');
+
+		await onHydrateModules();
+		expect(ids(registeredModules.value)).toContain('report');
+		expect(ids(registeredModules.value)).not.toContain('hidden-report');
+		expect((router.value as ReturnType<typeof createRouter>).hasRoute('report')).toBe(true);
+		warn.mockRestore();
+	});
 });

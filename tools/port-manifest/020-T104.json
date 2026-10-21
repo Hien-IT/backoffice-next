@@ -1,0 +1,10 @@
+[
+	{
+		"source": "app/src/api.ts",
+		"dest": "apps/web/src/api/axios.ts"
+	},
+	{
+		"source": "app/src/composables/use-system.ts",
+		"dest": "apps/web/src/directus-shim/use-system.ts"
+	}
+]

@@ -1,0 +1,8 @@
+[
+	{
+		"source": "app/src/views/private/private-view/components/private-view.vue",
+		"dest": "apps/web/src/directus-shim/views/PrivateView.vue"
+	},
+	{ "source": "app/src/views/public/public-view.vue", "dest": "apps/web/src/directus-shim/views/PublicView.vue" },
+	{ "source": "app/src/views/shared/shared-view.vue", "dest": "apps/web/src/directus-shim/views/SharedView.vue" }
+]

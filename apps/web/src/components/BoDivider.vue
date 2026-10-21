@@ -4,13 +4,15 @@ import { computed, useSlots } from 'vue';
 import BoIcon from './BoIcon.vue';
 
 // Tier 3 Divider recipe (Directus v-divider / presentation-divider). `color` is data (field options): applied to the
-// icon and title with `style`, never a class.
+// icon and title with `style`, never a class. Spec 020 (VDivider shim): `large` title text and an `icon` slot that
+// replaces the `icon` prop.
 const {
 	title,
 	icon,
 	color,
 	inlineTitle = true,
 	vertical = false,
+	large = false,
 } = defineProps<{
 	title?: string | null | undefined;
 	icon?: string | null | undefined;
@@ -18,11 +20,13 @@ const {
 	/** Title and line on one row (Directus `inlineTitle`), else the title above a full-width line. */
 	inlineTitle?: boolean | undefined;
 	vertical?: boolean | undefined;
+	/** Larger title text (Directus `large`). */
+	large?: boolean | undefined;
 }>();
 
 const slots = useSlots();
 
-const hasTitle = computed(() => !vertical && (!!title || !!icon || !!slots['default']));
+const hasTitle = computed(() => !vertical && (!!title || !!icon || !!slots['default'] || !!slots['icon']));
 </script>
 
 <template>
@@ -34,8 +38,10 @@ const hasTitle = computed(() => !vertical && (!!title || !!icon || !!slots['defa
 			:class="color ? undefined : 'text-gray-800 dark:text-white/90'"
 			:style="color ? { color } : undefined"
 		>
-			<BoIcon v-if="icon" :name="icon" :class="color ? undefined : 'text-gray-500 dark:text-gray-400'" />
-			<h3 class="truncate text-sm font-semibold">
+			<slot name="icon">
+				<BoIcon v-if="icon" :name="icon" :class="color ? undefined : 'text-gray-500 dark:text-gray-400'" />
+			</slot>
+			<h3 v-if="title || $slots['default']" class="truncate font-semibold" :class="large ? 'text-xl' : 'text-sm'">
 				<slot>{{ title }}</slot>
 			</h3>
 		</div>

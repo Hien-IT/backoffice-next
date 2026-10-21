@@ -1844,6 +1844,56 @@ design owner approval before 020 closes (SC-008). Tokens and the `FOCUS`, `ICON_
 - "Reload required" (after a toggle changes the enabled app extensions): persistent in-place warning notice (D-66) with
   title `reload_required`, text `extension_reload_required_copy` and a button `extension_reload_now` (`refresh`).
 
+### Shim components of app extensions (Q-44; Directus `components/v-*`, data-model §7 of spec 020)
+
+- Rule: a shim keeps the Directus contract (props, slots, emits, expose) and draws with the recipes of this file. Where
+  a Bo* component exists the shim wraps it (optional props added to the Bo* component keep their old default); where
+  none exists the shim is built on the Reka primitive named below with the same tokens, `FOCUS` and states.
+- `BoPopover` (new shared component, Reka `PopoverRoot`/`PopoverTrigger`/`PopoverContent`): panel
+  `rounded-xl border border-gray-200 bg-white p-2 shadow-theme-lg dark:border-gray-800 dark:bg-gray-dark`, offset 8 px,
+  `side`/`align` from the Directus `placement`, Esc closes and focus returns to the activator; `v-model:open`. `VMenu`
+  sits on it; its content lists use the menu item recipe of `BoMenu`.
+- Dialog without a title (`VDialog`): the `BoDialog` panel without the header row, `aria-label` from the first heading
+  of the content or `dialog`; `placement` left/right draws the panel at that edge full height (drawer sizes);
+  `persistent` keeps it open on Esc and outside click.
+- Select groups (`VSelect` items with `children` or `{divider: true}`): group label
+  `px-3 pt-2 pb-1 text-theme-xs font-medium uppercase text-gray-500 dark:text-gray-400`, divider
+  `my-1 h-px bg-gray-200 dark:bg-gray-800`, item icon before the text (`text-gray-500`), item color as a 10 px dot.
+- Lists (`VList`, `VListItem`, `VListGroup`): the sub-menu row recipe of `layout-patterns.md` (`menu-dropdown-item`),
+  `dense` = `min-h-8 py-1`, active = `menu-dropdown-item-active`, `block` = bordered row
+  `rounded-lg border border-gray-200 px-3 dark:border-gray-800`.
+- Tabs (`VTabs`): the `BoTabs` trigger row; vertical tabs stack with the active bar on the start edge.
+- Cards (`VCard*`): the Card recipe
+  (`rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`), title
+  `text-theme-sm font-medium text-gray-800 dark:text-white/90`, actions row `flex justify-end gap-3 px-5 pb-5`.
+- Badge (`VBadge`): Badge solid small, dot 8 px; Avatar (`VAvatar`):
+  `rounded-full bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80`, sizes 24/32/40/48 px, `tile` =
+  `rounded-lg`.
+- z-index scale with the app shell (lowest to highest): page content, sticky page header, sidebar, drawer (`BoDrawer`),
+  dialog, popover/menu (`#menu-outlet`), tooltip (`#tooltip`), notices. A menu opened inside a dialog or drawer stacks
+  above it (it is teleported to `#menu-outlet`, after `#dialog-outlet` in `index.html`).
+
+### App views of extensions (Q-45; `PrivateView`, `PublicView`, `SharedView`)
+
+- `PrivateView` (11 slots, 7 props) maps onto the app shell of D-127/D-128: `title`/`icon` → page header; `navigation` →
+  module sub-menu; `actions`, `actions:prepend`, `actions:append` → page header actions row in that order;
+  `title-outer:prepend`, `title:prepend`, `title:append`, `title-outer:append`, `headline` → around the page header
+  title; `sidebar` → the detail panel popover (sections are `SidebarDetail` accordions); `showBack`/`backTo` → the back
+  button of the page header. `provide('main-element')` is the scrolling element of the content area.
+- `PublicView` → the public layout of 012 (`wide` widens the form column to 40 rem); `SharedView` → the same layout with
+  the title row of the share page.
+
+### Theme variables of extensions (Q-46; `--theme--*`)
+
+- The 173 `--theme--*` rules of the Directus theme schema are declared in
+  `apps/web/src/directus-shim/styles/theme-vars.css` from the tokens of this design system (base mapping: foreground
+  `gray-700`/`gray-300`, foreground-accent `gray-800`/`white`, foreground-subdued `gray-500`/`gray-400`, background
+  `white`/`gray-900`, background-normal `gray-50`/`gray-dark`, background-accent `gray-100`/`gray-800`, border
+  `gray-200`/`gray-800`, primary `brand-500`, secondary `blue-light-500`, success/warning/danger the matching 500
+  tokens, border radius 0.5 rem, border width 1 px, fonts Outfit, inputs 44 px high with 16 px padding and the focus
+  ring of the Input recipe); every other rule chains these like the Directus default theme. `.type-*` and `.form-grid`
+  keep the Directus metrics.
+
 ## Acceptance criteria
 
 - Recipes above copied as they are; only theme classes; `dark:` classes present.

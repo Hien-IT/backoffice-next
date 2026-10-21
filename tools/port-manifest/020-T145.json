@@ -1,0 +1,6 @@
+[
+	{
+		"source": "app/src/extensions.ts",
+		"dest": "apps/web/src/extensions.ts"
+	}
+]

@@ -1,0 +1,50 @@
+[
+	{
+		"source": "app/src/components/v-input.vue",
+		"dest": "apps/web/src/directus-shim/components/VInput.vue"
+	},
+	{
+		"source": "app/src/components/v-textarea.vue",
+		"dest": "apps/web/src/directus-shim/components/VTextarea.vue"
+	},
+	{
+		"source": "app/src/components/v-checkbox.vue",
+		"dest": "apps/web/src/directus-shim/components/VCheckbox.vue"
+	},
+	{
+		"source": "app/src/components/v-radio.vue",
+		"dest": "apps/web/src/directus-shim/components/VRadio.vue"
+	},
+	{
+		"source": "app/src/components/v-select/v-select.vue",
+		"dest": "apps/web/src/directus-shim/components/VSelect.vue"
+	},
+	{
+		"source": "app/src/components/v-fancy-select.vue",
+		"dest": "apps/web/src/directus-shim/components/VFancySelect.vue"
+	},
+	{
+		"source": "app/src/components/v-upload.vue",
+		"dest": "apps/web/src/directus-shim/components/VUpload.vue"
+	},
+	{
+		"source": "app/src/components/v-template-input.vue",
+		"dest": "apps/web/src/directus-shim/components/VTemplateInput.vue"
+	},
+	{
+		"source": "app/src/components/v-field-template/v-field-template.vue",
+		"dest": "apps/web/src/directus-shim/components/VFieldTemplate.vue"
+	},
+	{
+		"source": "app/src/utils/flatten-field-groups.ts",
+		"dest": "apps/web/src/directus-shim/components/VFieldTemplate.vue"
+	},
+	{
+		"source": "app/src/components/v-collection-field-template.vue",
+		"dest": "apps/web/src/directus-shim/components/VCollectionFieldTemplate.vue"
+	},
+	{
+		"source": "app/src/components/v-emoji-picker.vue",
+		"dest": "apps/web/src/directus-shim/components/VEmojiPicker.vue"
+	}
+]

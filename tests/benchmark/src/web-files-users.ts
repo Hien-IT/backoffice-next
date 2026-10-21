@@ -11,12 +11,13 @@
 // in a majority of up to 3 attempts (a failing action is measured again). Needs
 // `benchmark:env-up-web` first.
 import { randomBytes, randomUUID } from 'node:crypto';
-import { appendFileSync, readFileSync } from 'node:fs';
+import { appendFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
 import { type Browser, type BrowserContext, chromium, type Page } from '@playwright/test';
 import { webSlower } from './compare.ts';
 import { deleteFiles } from './seed-files.ts';
 import { db, directus } from './seed-permissions.ts';
+import { envValue, p95, signIn, TIMEOUT, usual } from './web-shared.ts';
 
 const RUNS = Number(process.env['BENCH_RUNS'] ?? 11);
 const FILES = Number(process.env['BENCH_WEB_FILES'] ?? 10_000);
@@ -39,9 +40,6 @@ const ACTIONS = [
 ] as const;
 type Action = (typeof ACTIONS)[number];
 
-const env = readFileSync(new URL('../../parity/env/postgres.env', import.meta.url), 'utf8');
-const envValue = (name: string) => env.match(new RegExp(`^${name}=(.*)$`, 'm'))?.[1]?.trim() ?? '';
-const TIMEOUT = 120_000;
 const tag = `bench-fu-${randomBytes(3).toString('hex')}`;
 const name = (i: number) => `${tag}-${String(i).padStart(5, '0')}`;
 
@@ -171,34 +169,6 @@ async function resetPreset(me: string, collection: 'directus_files' | 'directus_
 	);
 }
 
-// shortcut: signIn, track, p95 and usual are copies of web-content.ts (that file is not ours to change), merge them into
-// a shared module when a third web benchmark comes.
-async function signIn(browser: Browser, baseURL: string): Promise<BrowserContext> {
-	const context = await browser.newContext({
-		baseURL,
-		viewport: { width: 1440, height: 900 },
-		extraHTTPHeaders: { 'cache-control': 'no-store' },
-	});
-	// The Directus app asks an admin without a project owner to set one: the cookie of "Remind Later" keeps it closed.
-	await context.addCookies([{ name: 'license-banner-dismissed', value: 'true', url: baseURL }]);
-	const page = await context.newPage();
-	await page.goto('/admin/login');
-	// Label in the new app, placeholder in the Directus app (en-US strings of both).
-	const field = (label: string) =>
-		page.getByLabel(label, { exact: true }).or(page.getByPlaceholder(label, { exact: true }));
-	await field('Email').fill(envValue('ADMIN_EMAIL'));
-	await field('Password').fill(envValue('ADMIN_PASSWORD'));
-	await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-	await page.waitForURL((url) => !url.pathname.endsWith('/login'), { timeout: TIMEOUT });
-	const later = page.getByRole('button', { name: 'Remind Later' });
-	await later
-		.waitFor({ timeout: 3_000 })
-		.then(() => later.click())
-		.catch(() => undefined);
-	await page.close();
-	return context;
-}
-
 /** Counts list and count requests to /files or /users, and waits until the page is quiet. */
 function track(page: Page, path: '/files' | '/users') {
 	const seen = { list: 0, count: 0 };
@@ -306,19 +276,6 @@ async function measure(app: App, context: BrowserContext, me: string, folder: st
 		await page.locator(ROW_25).waitFor({ timeout: TIMEOUT });
 	});
 	await page.close();
-}
-
-/** Nearest-rank p95 (with 11 runs: the slowest). */
-function p95(values: number[]): number {
-	const sorted = [...values].sort((a, b) => a - b);
-	return Math.round(sorted[Math.ceil(0.95 * sorted.length) - 1]!);
-}
-
-/** The request split seen in most runs. */
-function usual(values: string[]): string {
-	const counts = new Map<string, number>();
-	for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
-	return [...counts].sort((a, b) => b[1] - a[1])[0]![0];
 }
 
 const started = Date.now();

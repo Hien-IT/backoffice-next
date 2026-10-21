@@ -128,3 +128,7 @@ describe('data stores hydrate (D-45)', () => {
 		expect(fetch).toHaveBeenCalledTimes(2);
 	});
 });
+
+test('availableAiProviders is empty (spec 020 FR-079, Principle XI)', () => {
+	expect(useSettingsStore().availableAiProviders).toEqual([]);
+});

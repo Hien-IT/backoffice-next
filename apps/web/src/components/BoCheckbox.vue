@@ -16,6 +16,7 @@ const {
 	disabled = false,
 	invalid = false,
 	id: idProp,
+	icon,
 } = defineProps<{
 	modelValue?: boolean | null | undefined;
 	/** Renders the checkbox neither selected nor unselected */
@@ -24,6 +25,9 @@ const {
 	disabled?: boolean | undefined;
 	invalid?: boolean | undefined;
 	id?: string | undefined;
+	/** Material Symbols name drawn instead of the box (Directus v-checkbox custom iconOn / iconOff / iconIndeterminate,
+	 * CheckboxGroup recipe); the caller picks the name of the current state. */
+	icon?: string | undefined;
 }>();
 
 const emit = defineEmits<{ 'update:modelValue': [value: boolean]; 'update:indeterminate': [value: boolean] }>();
@@ -45,6 +49,13 @@ const FOCUS = computed(() =>
 		? 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-error-600 dark:focus-visible:outline-error-400'
 		: 'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400',
 );
+const BOX =
+	'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] bg-transparent data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 data-[disabled]:border-gray-200 data-[disabled]:bg-transparent dark:data-[disabled]:border-gray-800';
+const BOX_VALID = 'border-gray-500 hover:border-brand-500 dark:border-gray-500 dark:hover:border-brand-400';
+const BOX_INVALID = 'border-error-600 dark:border-error-400';
+// CheckboxGroup recipe for custom icons: the icon only, brand when checked.
+const ICON =
+	'inline-flex shrink-0 items-center justify-center rounded-md text-gray-500 data-[state=checked]:text-brand-500 data-[state=indeterminate]:text-brand-500 data-[disabled]:text-gray-300 dark:text-gray-400 dark:data-[state=checked]:text-brand-400 dark:data-[state=indeterminate]:text-brand-400 dark:data-[disabled]:text-gray-700';
 </script>
 
 <template>
@@ -58,16 +69,17 @@ const FOCUS = computed(() =>
 			:model-value="state"
 			:disabled="disabled"
 			:aria-invalid="invalid ? 'true' : undefined"
-			class="flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] bg-transparent data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 data-[disabled]:border-gray-200 data-[disabled]:bg-transparent dark:data-[disabled]:border-gray-800"
 			:class="[
 				FOCUS,
-				invalid
-					? 'border-error-600 dark:border-error-400'
-					: 'border-gray-500 hover:border-brand-500 dark:border-gray-500 dark:hover:border-brand-400',
+				icon ? [ICON, invalid && 'text-error-600 dark:text-error-400'] : [BOX, invalid ? BOX_INVALID : BOX_VALID],
 			]"
 			@update:model-value="toggleInput"
 		>
-			<CheckboxIndicator class="flex text-white data-[disabled]:text-gray-200 dark:data-[disabled]:text-gray-800">
+			<BoIcon v-if="icon" :name="icon" />
+			<CheckboxIndicator
+				v-else
+				class="flex text-white data-[disabled]:text-gray-200 dark:data-[disabled]:text-gray-800"
+			>
 				<BoIcon :name="state === 'indeterminate' ? 'remove' : 'check'" size="sm" />
 			</CheckboxIndicator>
 		</CheckboxRoot>

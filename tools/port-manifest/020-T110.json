@@ -1,0 +1,11 @@
+[
+	{ "source": "app/src/components/v-avatar.vue", "dest": "apps/web/src/directus-shim/components/VAvatar.vue" },
+	{ "source": "app/src/components/v-badge.vue", "dest": "apps/web/src/directus-shim/components/VBadge.vue" },
+	{ "source": "app/src/components/v-button.vue", "dest": "apps/web/src/directus-shim/components/VButton.vue" },
+	{ "source": "app/src/components/v-chip.vue", "dest": "apps/web/src/directus-shim/components/VChip.vue" },
+	{ "source": "app/src/components/v-highlight.vue", "dest": "apps/web/src/directus-shim/components/VHighlight.vue" },
+	{ "source": "app/src/components/v-hover.vue", "dest": "apps/web/src/directus-shim/components/VHover.vue" },
+	{ "source": "app/src/components/v-icon/v-icon.vue", "dest": "apps/web/src/directus-shim/components/VIcon.vue" },
+	{ "source": "app/src/components/v-icon-file.vue", "dest": "apps/web/src/directus-shim/components/VIconFile.vue" },
+	{ "source": "app/src/components/v-image.vue", "dest": "apps/web/src/directus-shim/components/VImage.vue" }
+]

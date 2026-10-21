@@ -7,9 +7,20 @@ export function sortDisplays(displays: DisplayConfig[]): DisplayConfig[] {
 	return sortBy(displays, 'id');
 }
 
-const displays = sortDisplays(
+const internal = sortDisplays(
 	Object.values(import.meta.glob<DisplayConfig>('./*/index.ts', { import: 'default', eager: true })),
 );
+
+let displays = internal;
+
+export function getInternalDisplays(): DisplayConfig[] {
+	return [...internal];
+}
+
+/** Spec 020 (FR-064): the internal displays and those of app extensions. */
+export function registerDisplays(list: DisplayConfig[]): void {
+	displays = sortDisplays(list);
+}
 
 export function getDisplays(): DisplayConfig[] {
 	return displays;

@@ -9,6 +9,8 @@ const {
 	max = 100,
 	step = 1,
 	alwaysShowValue = false,
+	showThumbLabel = true,
+	showTicks = null,
 	disabled = false,
 	invalid = false,
 	error,
@@ -24,6 +26,10 @@ const {
 	step?: number;
 	/** Directus slider `alwaysShowValue`; otherwise the value shows on hover, focus and drag. */
 	alwaysShowValue?: boolean;
+	/** Directus v-slider `showThumbLabel`: the value bubble on the thumb (spec 020; on by default here). */
+	showThumbLabel?: boolean;
+	/** Directus v-slider `showTicks`: a tick per step; null = ticks when there are at most 20 steps. */
+	showTicks?: boolean | null;
 	label?: string;
 	disabled?: boolean;
 	invalid?: boolean;
@@ -37,7 +43,11 @@ const {
 	ariaDescribedby?: string | undefined;
 }>();
 
-const emit = defineEmits<{ 'update:modelValue': [value: number] }>();
+const emit = defineEmits<{
+	'update:modelValue': [value: number];
+	/** The value at the end of a drag or a key press (Directus v-slider `change`). */
+	change: [value: number];
+}>();
 
 const id = idProp ?? useId();
 const labelId = `${id}-label`;
@@ -54,10 +64,11 @@ const position = computed(() => {
 	return Math.round((mid - min) / step) * step + min;
 });
 
-// Recipe: ticks only when there are at most 20 steps.
+// Recipe: ticks only when there are at most 20 steps (or always / never with `showTicks`).
 const ticks = computed(() => {
 	const count = (max - min) / step;
-	return count > 0 && count <= 20 ? Math.floor(count) + 1 : 0;
+	if (count <= 0) return 0;
+	return (showTicks ?? count <= 20) ? Math.floor(count) + 1 : 0;
 });
 
 const THUMB =
@@ -85,6 +96,7 @@ const BUBBLE =
 				:disabled="disabled"
 				class="relative flex h-5 w-full touch-none items-center select-none"
 				@update:model-value="$event?.[0] !== undefined && emit('update:modelValue', $event[0])"
+				@value-commit="$event[0] !== undefined && emit('change', $event[0])"
 			>
 				<SliderTrack class="relative h-1.5 grow overflow-hidden rounded-full bg-gray-200 dark:bg-gray-800">
 					<SliderRange class="absolute h-full rounded-full bg-brand-500 dark:bg-brand-400" />
@@ -98,12 +110,12 @@ const BUBBLE =
 					:class="[THUMB, invalid || error ? THUMB_INVALID : THUMB_VALID]"
 				>
 					<span
-						v-if="modelValue !== null"
+						v-if="showThumbLabel && modelValue !== null"
 						data-value
 						aria-hidden="true"
 						:class="[BUBBLE, alwaysShowValue ? '' : 'hidden group-hover:block group-focus:block']"
 					>
-						{{ modelValue }}
+						<slot name="value" :value="modelValue">{{ modelValue }}</slot>
 					</span>
 				</SliderThumb>
 			</SliderRoot>

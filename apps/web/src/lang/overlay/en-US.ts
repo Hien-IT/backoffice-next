@@ -69,4 +69,8 @@ export default {
 	notifications_mark_read: 'Mark as read',
 	notifications_mark_all_read: 'Mark all as read',
 	notifications_view_all: 'View all',
+	// VEmojiPicker shim (spec 020): name of the icon-only button (Directus has none).
+	insert_emoji: 'Insert emoji',
+	// Spec 020: the nav label of the v-pagination shim of app extensions.
+	pagination: 'Pagination',
 };

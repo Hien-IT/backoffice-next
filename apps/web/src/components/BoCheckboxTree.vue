@@ -47,6 +47,8 @@ const {
 	label,
 	id: idProp,
 	openGroups = null,
+	search: searchProp,
+	showSelectionOnly: showSelectionOnlyProp = null,
 } = defineProps<{
 	/** The choices that will be rendered as checkboxes */
 	choices?: Record<string, any>[];
@@ -68,6 +70,12 @@ const {
 	id?: string;
 	/** Directus v-checkbox-tree `openGroups`: the values of the groups to open (expand / collapse all). */
 	openGroups?: string[] | null;
+	/** Directus v-checkbox-tree `search` (spec 020): the caller's search text replaces the search input (`null` = no
+	 * search); undefined keeps the input of select-multiple-checkbox-tree. */
+	search?: string | null | undefined;
+	/** Directus v-checkbox-tree `showSelectionOnly` (spec 020): set by the caller, the "show selected" switch is hidden;
+	 * null keeps the switch. */
+	showSelectionOnly?: boolean | null;
 }>();
 
 const emit = defineEmits<{
@@ -87,11 +95,13 @@ const value = computed(() => modelValue ?? []);
 
 const search = ref('');
 const searchDebounced = refDebounced(search, 250);
-const showSelectionOnly = ref(false);
+const showSelectionToggle = ref(false);
+const showSelectionOnly = computed(() => showSelectionOnlyProp ?? showSelectionToggle.value);
 
-const normalizedSearch = computed(() =>
-	searchDebounced.value ? removeDiacritics(searchDebounced.value).toLowerCase() : null,
-);
+const normalizedSearch = computed(() => {
+	const text = searchProp !== undefined ? searchProp : searchDebounced.value;
+	return text ? removeDiacritics(text).toLowerCase() : null;
+});
 
 const tree = computed(() => build(choices, null, null, '', ''));
 
@@ -197,6 +207,7 @@ watch(
 	(groups) => {
 		if (groups) manualOpenSelection.value = [...groups];
 	},
+	{ immediate: true },
 );
 let showAllSelection: string[] = [];
 
@@ -308,7 +319,7 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 			class="rounded-lg border p-2"
 			:class="invalid || error ? 'border-error-600 dark:border-error-400' : 'border-gray-200 dark:border-gray-800'"
 		>
-			<template v-if="choices.length > 10">
+			<template v-if="searchProp === undefined && choices.length > 10">
 				<label :for="`${id}-search`" class="sr-only">{{ t('search') }}</label>
 				<input
 					:id="`${id}-search`"
@@ -368,7 +379,8 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 			</TreeRoot>
 			<p v-if="tree.length === 0" :class="NOTE">{{ t('no_results') }}</p>
 			<BoSwitch
-				v-model="showSelectionOnly"
+				v-if="showSelectionOnlyProp === null"
+				v-model="showSelectionToggle"
 				class="mt-3"
 				:label="t('interfaces.select-multiple-checkbox-tree.show_selected')"
 				:disabled="disabled || value.length === 0"

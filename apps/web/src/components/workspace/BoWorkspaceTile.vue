@@ -16,6 +16,7 @@ import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../BoIcon.vue';
 import BoMenu, { type BoMenuItem } from '../BoMenu.vue';
+import BoTooltip from '../BoTooltip.vue';
 
 export type AppTile = {
 	id: string;
@@ -77,6 +78,8 @@ const props = withDefaults(
 		icon?: string | undefined;
 		/** Allows to hide the header */
 		showHeader?: boolean;
+		/** Info icon at the end of the header with this text as tooltip (v-workspace-tile `note`, spec 020) */
+		note?: string | undefined;
 		/** If enabled, makes the tile draggable */
 		draggable?: boolean;
 		/** Enable the edit mode of the panel */
@@ -101,6 +104,7 @@ const props = withDefaults(
 		name: undefined,
 		icon: 'space_dashboard',
 		showHeader: true,
+		note: undefined,
 		editMode: false,
 		draggable: true,
 		showOptions: true,
@@ -273,6 +277,12 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 				<BoIcon :name="icon ?? 'space_dashboard'" size="sm" class="text-gray-500 dark:text-gray-400" />
 			</slot>
 			<span class="truncate text-theme-xs font-medium text-gray-500 uppercase dark:text-gray-400">{{ name }}</span>
+			<BoTooltip v-if="note" :text="note">
+				<!-- eslint-disable-next-line vuejs-accessibility/no-noninteractive-tabindex -- focusable so the note tooltip opens from the keyboard -->
+				<span tabindex="0" class="ms-auto inline-flex rounded" :class="FOCUS" @pointerdown.stop>
+					<BoIcon name="info" size="sm" :label="note" class="text-gray-500 dark:text-gray-400" />
+				</span>
+			</BoTooltip>
 		</div>
 
 		<div v-if="editMode" class="absolute end-1 top-1 z-2 flex items-center gap-0.5" @pointerdown.stop>

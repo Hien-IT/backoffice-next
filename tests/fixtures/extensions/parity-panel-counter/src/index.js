@@ -10,7 +10,8 @@ export default {
 	component: PanelComponent,
 	query(options) {
 		if (!options?.collection) return;
-		return { collection: options.collection, query: { aggregate: { count: ['*'] } } };
+		// count of the primary key: the insights store sends panel queries as GraphQL, where `count { * }` is not valid.
+		return { collection: options.collection, query: { aggregate: { count: ['id'] } } };
 	},
 	options: OptionsComponent,
 	minWidth: 8,

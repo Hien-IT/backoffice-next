@@ -99,7 +99,7 @@ export function getRemoveAction(props: RemoveActionProps): {
 <script setup lang="ts">
 // Backoffice: the clickable icon and the `button` form are both an icon button (an icon with a click handler is not
 // keyboard usable) whose aria-label is the Directus tooltip text (kept when disabled, where Directus has no tooltip);
-// the `button` look (round button on an image) comes from the caller's classes through $attrs. The confirm dialog is
+// the `button` look comes from the `button` prop (spec 020) or the caller's classes through $attrs. The confirm dialog is
 // BoDialog (Reka keeps the focus inside it, so v-prevent-focusout is not needed).
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -117,6 +117,7 @@ const {
 	deselect,
 	disabled = false,
 	confirm,
+	button = false,
 } = defineProps<{
 	itemType?: DisplayItem['$type'];
 	itemInfo?: RelationM2O | RelationO2M | RelationM2M | RelationM2A | undefined;
@@ -125,6 +126,8 @@ const {
 	deselect?: boolean;
 	disabled?: boolean | undefined;
 	confirm?: boolean;
+	/** Directus v-remove `button`: a round filled button instead of the plain icon button (spec 020). */
+	button?: boolean | undefined;
 }>();
 
 const emit = defineEmits(['action']);
@@ -151,6 +154,9 @@ function onConfirmDelete() {
 	emit('action');
 }
 
+// Directus `button`: VButton icon rounded (primary kind).
+const ROUND_BTN =
+	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const ICON_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-error-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-error-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 </script>
@@ -158,7 +164,7 @@ const ICON_BTN =
 <template>
 	<button
 		type="button"
-		:class="ICON_BTN"
+		:class="button ? ROUND_BTN : ICON_BTN"
 		v-bind="$attrs"
 		:disabled
 		:aria-label="tooltip"

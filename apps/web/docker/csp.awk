@@ -58,6 +58,9 @@ END {
 		split("'self'|'self'|'self' https: data:|'self'|'self'|'none'|'none'|'self' https: 'unsafe-inline'", values, "|")
 		for (i = 1; i in names; i++) if (!(names[i] in val)) add(names[i], values[i])
 	}
+	# Spec 020 (FR-062): the hash of the import map and the API origin (variables set by 40-config.sh).
+	if (importmap != "") val["script-src"] = val["script-src"] " 'sha256-" importmap "'"
+	if (api != "") val["script-src"] = val["script-src"] " " api
 	for (i = 1; i <= n; i++) out = out (i > 1 ? ";" : "") order[i] " " val[order[i]]
 	print out
 }

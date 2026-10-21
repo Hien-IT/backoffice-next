@@ -1,6 +1,8 @@
 import tailwindcss from '@tailwindcss/vite';
 import vue from '@vitejs/plugin-vue';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vite';
+import { backofficeExtensions } from './vite-plugin-extensions.ts';
 
 // The API routes the app calls (specs/012-backoffice-web-shell/contracts/api-calls.md, 013 and 014 contracts).
 const API_PATHS =
@@ -11,7 +13,11 @@ const API_PATHS =
 // splits public, private and module code into their own chunks (research R12).
 export default defineConfig({
 	base: '/admin/',
-	plugins: [vue(), tailwindcss()],
+	plugins: [vue(), tailwindcss(), backofficeExtensions(fileURLToPath(new URL('./index.html', import.meta.url)))],
+	// Spec 020 (contracts/web.md §3): the module app extensions import as @directus/extensions-sdk.
+	resolve: {
+		alias: { '@directus/extensions-sdk': fileURLToPath(new URL('./src/extensions/sdk.ts', import.meta.url)) },
+	},
 	// Pre-bundled up front so the browser test project does not reload mid-run when it first meets them (feature 013).
 	optimizeDeps: {
 		include: [

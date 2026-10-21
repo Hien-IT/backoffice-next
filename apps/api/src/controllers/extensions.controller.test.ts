@@ -9,7 +9,6 @@ import { ADMIN, createDataModelDb, SECRET, startApp, token, USER } from '../../t
 import type { App } from '../app.js';
 import { clearSystemCache } from '../cache.js';
 import { account, describe as describeExtension, list } from '../extensions/registry/index.js';
-import { EMPTY_APP_EXTENSION_BUNDLE } from '../services/extensions.service.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
 const { readAll, updateOne, deleteOne } = vi.hoisted(() => ({
@@ -258,7 +257,7 @@ test('DELETE /extensions/:pk: deleteOne, 204', async () => {
 });
 
 describe('GET /extensions/sources/:chunk', () => {
-	test('index.js: the empty bundle, streamed, no auth needed', async () => {
+	test('index.js: the bundle the extension manager built (no extension here), streamed, no auth needed', async () => {
 		const request = await agent();
 
 		const res = await request
@@ -271,7 +270,7 @@ describe('GET /extensions/sources/:chunk', () => {
 			});
 
 		expect(res.status).toBe(200);
-		expect(res.body).toBe(EMPTY_APP_EXTENSION_BUNDLE);
+		expect(res.body).toContain('export { displays, interfaces, layouts, modules, operations, panels, themes }');
 		expect(res.headers['content-type']).toBe('application/javascript; charset=UTF-8');
 		expect(res.headers['cache-control']).toBe('no-cache');
 		expect(res.headers['vary']).toBe('Origin, Cache-Control');
@@ -279,14 +278,15 @@ describe('GET /extensions/sources/:chunk', () => {
 		expect(res.headers['content-length']).toBeUndefined();
 	});
 
-	test('another chunk, or SERVE_APP off → 404 ROUTE_NOT_FOUND', async () => {
+	test('a chunk of no build → 404 ROUTE_NOT_FOUND; SERVE_APP off still serves the bundle (D-137)', async () => {
 		let request = await agent();
-		expect((await request.get('/extensions/sources/chunk-1.js')).status).toBe(404);
+		const res = await request.get('/extensions/sources/chunk-1.js');
+		expect(res.status).toBe(404);
+		expect(res.body.errors[0].extensions).toEqual({ code: 'ROUTE_NOT_FOUND', path: '/sources/chunk-1.js' });
+		expect((await request.get('/extensions/sources/..%2Fpackage.json')).status).toBe(404);
 		await app.nest.close();
 
 		request = await agent({ SERVE_APP: false });
-		const res = await request.get('/extensions/sources/index.js');
-		expect(res.status).toBe(404);
-		expect(res.body.errors[0].extensions).toEqual({ code: 'ROUTE_NOT_FOUND', path: '/sources/index.js' });
+		expect((await request.get('/extensions/sources/index.js')).status).toBe(200);
 	});
 });

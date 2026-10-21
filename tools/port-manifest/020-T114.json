@@ -1,0 +1,66 @@
+[
+	{
+		"source": "app/src/components/v-notice.vue",
+		"dest": "apps/web/src/directus-shim/components/VNotice.vue"
+	},
+	{
+		"source": "app/src/components/v-info.vue",
+		"dest": "apps/web/src/directus-shim/components/VInfo.vue"
+	},
+	{
+		"source": "app/src/components/v-error.vue",
+		"dest": "apps/web/src/directus-shim/components/VError.vue"
+	},
+	{
+		"source": "app/src/components/v-skeleton-loader.vue",
+		"dest": "apps/web/src/directus-shim/components/VSkeletonLoader.vue"
+	},
+	{
+		"source": "app/src/components/v-progress-circular.vue",
+		"dest": "apps/web/src/directus-shim/components/VProgressCircular.vue"
+	},
+	{
+		"source": "app/src/components/v-progress-linear.vue",
+		"dest": "apps/web/src/directus-shim/components/VProgressLinear.vue"
+	},
+	{
+		"source": "app/src/components/v-pagination.vue",
+		"dest": "apps/web/src/directus-shim/components/VPagination.vue"
+	},
+	{
+		"source": "app/src/components/v-table/v-table.vue",
+		"dest": "apps/web/src/directus-shim/components/VTable.vue"
+	},
+	{
+		"source": "app/src/components/v-text-overflow.vue",
+		"dest": "apps/web/src/directus-shim/components/VTextOverflow.vue"
+	},
+	{
+		"source": "app/src/components/v-breadcrumb.vue",
+		"dest": "apps/web/src/directus-shim/components/VBreadcrumb.vue"
+	},
+	{
+		"source": "app/src/components/v-resizeable.vue",
+		"dest": "apps/web/src/directus-shim/components/VResizeable.vue"
+	},
+	{
+		"source": "app/src/components/v-workspace.vue",
+		"dest": "apps/web/src/directus-shim/components/VWorkspace.vue"
+	},
+	{
+		"source": "app/src/components/v-workspace-tile.vue",
+		"dest": "apps/web/src/directus-shim/components/VWorkspaceTile.vue"
+	},
+	{
+		"source": "app/src/components/v-form/v-form.vue",
+		"dest": "apps/web/src/directus-shim/components/VForm.vue"
+	},
+	{
+		"source": "app/src/views/private/components/drawer-collection.vue",
+		"dest": "apps/web/src/directus-shim/components/DrawerCollection.vue"
+	},
+	{
+		"source": "app/src/views/private/components/drawer-item.vue",
+		"dest": "apps/web/src/directus-shim/components/DrawerItem.vue"
+	}
+]

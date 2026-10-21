@@ -4,8 +4,8 @@
 // and overlay-item-content.vue are folded in here (no modal or popover overlay: no 013 interface opens one). Collab and
 // the comparison modal are removed (D-54), the route-leave guard (use-edits-guard) comes with the item screens (014),
 // item permissions come from /permissions/me only (see usePermissions below), there are no nested validation errors
-// (use-nested-validation) and no `version` prop (visual editor only). Unexpected errors keep only their console
-// warning until the notifications store has snackbars (D-45).
+// (use-nested-validation); `version` only reads that version of the item (spec 020 shim). Unexpected errors keep only
+// their console warning until the notifications store has snackbars (D-45).
 import type { Field, PrimaryKey, Relation } from '@directus/types';
 import { getEndpoint } from '@directus/utils';
 import { cloneDeep, isEmpty, set } from 'lodash-es';
@@ -17,6 +17,7 @@ import { useCollection } from '../../composables/use-collection.ts';
 import { useFlows } from '../../composables/use-run-manual-flow.ts';
 import { useTemplateData } from '../../composables/use-template-data.ts';
 import FlowDialogs from '../../interfaces/presentation-header/FlowDialogs.vue';
+import { useCollectionsStore } from '../../stores/collections.ts';
 import { useFieldsStore } from '../../stores/fields.ts';
 import { usePermissionsStore } from '../../stores/permissions.ts';
 import { useRelationsStore } from '../../stores/relations.ts';
@@ -57,6 +58,8 @@ export interface DrawerItemProps {
 	applyShortcut?: ApplyShortcut;
 	/** Backoffice: true by default, a drawer with edits asks before discarding them (FR-084). */
 	preventCancelWithEdits?: boolean;
+	/** Reads this content version of the item when the collection is versioned (overlay-item.vue; spec 020 shim). */
+	version?: string | null | undefined;
 }
 
 const props = withDefaults(defineProps<DrawerItemProps>(), {
@@ -72,6 +75,7 @@ const props = withDefaults(defineProps<DrawerItemProps>(), {
 	selectedFields: null,
 	applyShortcut: 'meta+enter',
 	preventCancelWithEdits: true,
+	version: null,
 });
 
 const emit = defineEmits<{
@@ -309,8 +313,16 @@ function useItem() {
 			fields = `*,${props.junctionField}.*`;
 		}
 
+		const params: Record<string, any> = { fields };
+
+		// The collections store, not collectionInfo: this runs from an immediate watcher declared before it.
+		if (props.version && useCollectionsStore().getCollection(props.collection)?.meta?.versioning) {
+			params['version'] = props.version;
+			params['versionRaw'] = true;
+		}
+
 		try {
-			initialValues.value = await sdk.request<Record<string, any>>(requestEndpoint(endpoint, { params: { fields } }));
+			initialValues.value = await sdk.request<Record<string, any>>(requestEndpoint(endpoint, { params }));
 		} catch (error) {
 			internalActive.value = false;
 			unexpectedError(error);

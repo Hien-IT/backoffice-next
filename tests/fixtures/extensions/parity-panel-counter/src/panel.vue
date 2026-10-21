@@ -12,6 +12,6 @@ const props = defineProps({ data: { type: [Array, Object], default: null } });
 
 const count = computed(() => {
 	const row = Array.isArray(props.data) ? props.data[0] : props.data;
-	return row?.count?.['*'] ?? row?.count ?? 0;
+	return row?.count?.id ?? 0;
 });
 </script>

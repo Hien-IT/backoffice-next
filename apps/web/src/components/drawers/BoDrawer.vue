@@ -35,6 +35,8 @@ export interface Props {
 	flush?: boolean;
 	/** Feature 016 (recipe Q-22, field drawer): as wide as the window up to `max-w-5xl`. */
 	wide?: boolean;
+	/** Spec 020 (Directus v-drawer `sidebarLabel`): name of the sidebar, "Sidebar" when unset. */
+	sidebarLabel?: string | undefined;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -47,6 +49,7 @@ const props = withDefaults(defineProps<Props>(), {
 	applyShortcut: 'meta+enter',
 	flush: false,
 	wide: false,
+	sidebarLabel: undefined,
 });
 
 const emit = defineEmits(['cancel', 'apply', 'update:modelValue']);
@@ -207,7 +210,7 @@ const FOCUS =
 						<slot />
 					</main>
 					<aside
-						:aria-label="$t('sidebar')"
+						:aria-label="sidebarLabel || $t('sidebar')"
 						class="order-1 shrink-0 border-b border-gray-200 xl:order-2 xl:w-60 xl:overflow-y-auto xl:border-s xl:border-b-0 dark:border-gray-800"
 					>
 						<button
@@ -217,7 +220,7 @@ const FOCUS =
 							:aria-expanded="sidebarOpen"
 							@click="sidebarOpen = !sidebarOpen"
 						>
-							{{ $t('sidebar') }}
+							{{ sidebarLabel || $t('sidebar') }}
 							<BoIcon name="expand_more" size="sm" :class="{ 'rotate-180': sidebarOpen }" />
 						</button>
 						<div :class="{ 'max-xl:hidden': !sidebarOpen }"><slot name="sidebar" /></div>

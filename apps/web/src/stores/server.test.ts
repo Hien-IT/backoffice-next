@@ -19,6 +19,9 @@ describe('hydrate', () => {
 				version: '11.17.4',
 				files: { mimeTypeAllowList: ['image/*'] },
 				uploads: { tus: true, chunkSize: 1024, maxConcurrency: 5 },
+				extensions: { limit: null },
+				ai_enabled: true,
+				mcp_enabled: true,
 			},
 			'GET /auth': () => json({ data: [{ name: 'ldap', driver: 'ldap' }], disableDefault: false }),
 		});
@@ -32,6 +35,9 @@ describe('hydrate', () => {
 		expect(store.info.queryLimit).toEqual({ default: 100, max: -1 });
 		expect(store.info.files).toEqual({ mimeTypeAllowList: ['image/*'] });
 		expect(store.info.uploads).toEqual({ tus: true, chunkSize: 1024, maxConcurrency: 5 });
+		// Spec 020 (FR-079): extensions read for app extensions; AI and MCP stay off (D-17).
+		expect(store.info.extensions).toEqual({ limit: null });
+		expect([store.info.ai_enabled, store.info.mcp_enabled]).toEqual([false, false]);
 		expect(store.auth.providers).toEqual([{ name: 'ldap', driver: 'ldap' }]);
 	});
 

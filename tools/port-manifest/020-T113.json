@@ -1,0 +1,38 @@
+[
+	{ "source": "app/src/components/v-list.vue", "dest": "apps/web/src/directus-shim/components/VList.vue" },
+	{ "source": "app/src/components/v-list-item.vue", "dest": "apps/web/src/directus-shim/components/VListItem.vue" },
+	{ "source": "app/src/components/v-list-group.vue", "dest": "apps/web/src/directus-shim/components/VListGroup.vue" },
+	{
+		"source": "app/src/components/v-list-item-content.vue",
+		"dest": "apps/web/src/directus-shim/components/VListItemContent.vue"
+	},
+	{
+		"source": "app/src/components/v-list-item-hint.vue",
+		"dest": "apps/web/src/directus-shim/components/VListItemHint.vue"
+	},
+	{
+		"source": "app/src/components/v-list-item-icon.vue",
+		"dest": "apps/web/src/directus-shim/components/VListItemIcon.vue"
+	},
+	{ "source": "app/src/components/v-item-group.vue", "dest": "apps/web/src/directus-shim/components/VItemGroup.vue" },
+	{ "source": "app/src/components/v-item.vue", "dest": "apps/web/src/directus-shim/components/VItem.vue" },
+	{ "source": "app/src/components/v-tabs.vue", "dest": "apps/web/src/directus-shim/components/VTabs.vue" },
+	{ "source": "app/src/components/v-tab.vue", "dest": "apps/web/src/directus-shim/components/VTab.vue" },
+	{ "source": "app/src/components/v-tabs-items.vue", "dest": "apps/web/src/directus-shim/components/VTabsItems.vue" },
+	{ "source": "app/src/components/v-tab-item.vue", "dest": "apps/web/src/directus-shim/components/VTabItem.vue" },
+	{ "source": "app/src/components/v-card.vue", "dest": "apps/web/src/directus-shim/components/VCard.vue" },
+	{ "source": "app/src/components/v-card-title.vue", "dest": "apps/web/src/directus-shim/components/VCardTitle.vue" },
+	{
+		"source": "app/src/components/v-card-subtitle.vue",
+		"dest": "apps/web/src/directus-shim/components/VCardSubtitle.vue"
+	},
+	{ "source": "app/src/components/v-card-text.vue", "dest": "apps/web/src/directus-shim/components/VCardText.vue" },
+	{
+		"source": "app/src/components/v-card-actions.vue",
+		"dest": "apps/web/src/directus-shim/components/VCardActions.vue"
+	},
+	{ "source": "app/src/components/v-sheet.vue", "dest": "apps/web/src/directus-shim/components/VSheet.vue" },
+	{ "source": "app/src/components/v-divider.vue", "dest": "apps/web/src/directus-shim/components/VDivider.vue" },
+	{ "source": "app/src/components/v-detail.vue", "dest": "apps/web/src/directus-shim/components/VDetail.vue" },
+	{ "source": "app/src/components/v-list-item.vue", "dest": "apps/web/src/directus-shim/components/list.ts" }
+]

@@ -9,15 +9,18 @@ import {
 	BUDGET_016,
 	BUDGET_017,
 	BUDGET_018,
+	BUDGET_020,
 	entrySize,
 	LAZY_BUDGETS_015,
 	LAZY_BUDGETS_016,
 	LAZY_BUDGETS_017,
 	LAZY_BUDGETS_018,
+	LAZY_BUDGETS_020,
 	LIMIT,
 	LAZY_ONLY,
 	lazyChunkSizes,
 	lazyLeaks,
+	staticClosure,
 } from './check-bundle.mjs';
 
 function dist(js: string) {
@@ -129,4 +132,25 @@ test('feature 018 budgets: 15 KB over 017, four lazy chunks, ApexCharts lazy onl
 		['notifications drawer', 15],
 	]);
 	expect(LAZY_ONLY).toContain('apexcharts-canvas');
+});
+
+test('feature 020: 3 KB over 018, the main bundle follows static imports only, the v-* shim stays lazy', () => {
+	expect(BUDGET_020).toBe(BUDGET_018 + 3 * 1024);
+	expect(LAZY_BUDGETS_020.map((b) => [b.name, b.limit / 1024])).toEqual([['v-* shim', 150]]);
+	expect(LAZY_ONLY).toContain('VErrorBoundary');
+
+	const root = dist('import{a}from"./vue.x.entry.js";import"./i18n-1.js";const r=()=>import("./register-1.js");');
+	writeFileSync(join(root, 'assets/vue.x.entry.js'), 'import{b}from"./index-abc.js";export const a=1;');
+	writeFileSync(join(root, 'assets/i18n-1.js'), 'const t = "theme_directus_default";');
+	writeFileSync(join(root, 'assets/register-1.js'), 'export const s = { VErrorBoundary: 1 };');
+
+	const { files, gzip } = entrySize(root);
+	expect(files.map((file) => file.split('/').pop())).toEqual(['index-abc.js', 'vue.x.entry.js', 'i18n-1.js']);
+	expect(staticClosure(join(root, 'assets/register-1.js'))).toHaveLength(1);
+	expect(gzip).toBeGreaterThan(0);
+	expect(lazyLeaks(files)).toEqual([]);
+
+	const sizes = Object.fromEntries(lazyChunkSizes(root, files).map((chunk) => [chunk.name, chunk.gzip]));
+	expect(sizes['theme data']).toBeNull();
+	expect(sizes['v-* shim']).toBeGreaterThan(0);
 });

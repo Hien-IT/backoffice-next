@@ -16,6 +16,7 @@ import { useRequestsStore } from './stores/requests.ts';
 import { useServerStore } from './stores/server.ts';
 import { useSettingsStore } from './stores/settings.ts';
 import { useUserStore } from './stores/user.ts';
+import { getBasemapSources } from './utils/geometry/basemap.ts';
 
 type GenericStore = {
 	$id: string;
@@ -86,6 +87,8 @@ export async function hydrate(): Promise<void> {
 		}
 
 		await setLanguage(userStore.language);
+
+		appStore.basemap = getBasemapSources()[0].name;
 	} catch (error: unknown) {
 		appStore.error = error;
 	} finally {

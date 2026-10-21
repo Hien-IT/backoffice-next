@@ -4,7 +4,7 @@
 // and replicas added by a scale-up serve the extension as soon as they are healthy (FR-048: healthy within 60 s).
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
 	adminToken,
 	api,
@@ -20,8 +20,26 @@ import {
 	sleep,
 } from './instances.js';
 
-const FIXTURE = fileURLToPath(new URL('../../../fixtures/extensions/parity-endpoint-demo/', import.meta.url));
+const FIXTURES = fileURLToPath(new URL('../../../fixtures/extensions/', import.meta.url));
+// T148: an app extension too, so the bundle has chunks; removed from the bucket after the file, so replicas the later
+// files restart start without app extensions (no rollup at startup).
+const UPLOADED = ['parity-endpoint-demo', 'parity-display-badge'];
 let admin: string;
+
+/** Runs `script` with mc in the minio container, the alias `local` set; `env` is passed as environment variables. */
+function minio(script: string, env: Record<string, string> = {}) {
+	const shared = sharedEnv();
+	const vars = { K: shared['STORAGE_S3_KEY']!, S: shared['STORAGE_S3_SECRET']!, ...env };
+	compose(
+		'exec',
+		'-T',
+		...Object.entries(vars).flatMap(([key, value]) => ['-e', `${key}=${value}`]),
+		'minio',
+		'sh',
+		'-c',
+		`mc alias set local http://127.0.0.1:9000 "$K" "$S" >/dev/null && ${script}`,
+	);
+}
 
 /** Every URL answers `path` with `status` within 10 s, polled every 500 ms. */
 async function everywhere(urls: string[], path: string, status: number) {
@@ -37,31 +55,20 @@ async function everywhere(urls: string[], path: string, status: number) {
 
 beforeAll(async () => {
 	// `compose exec` reads stdin from the input of the test process: pipe the file content in through `sh -c`.
-	for (const [key, file] of [
-		['extensions/parity-endpoint-demo/package.json', 'package.json'],
-		['extensions/parity-endpoint-demo/dist/index.js', 'dist/index.js'],
-	] as const) {
-		const text = readFileSync(`${FIXTURE}${file}`, 'utf8');
-		const env = sharedEnv();
-		compose(
-			'exec',
-			'-T',
-			'-e',
-			`K=${env['STORAGE_S3_KEY']}`,
-			'-e',
-			`S=${env['STORAGE_S3_SECRET']}`,
-			'-e',
-			`BODY=${text}`,
-			'minio',
-			'sh',
-			'-c',
-			`mc alias set local http://127.0.0.1:9000 "$K" "$S" >/dev/null && printf '%s' "$BODY" | mc pipe local/directus/${key}`,
-		);
+	for (const name of UPLOADED) {
+		for (const file of ['package.json', 'dist/index.js']) {
+			const text = readFileSync(`${FIXTURES}${name}/${file}`, 'utf8');
+			minio(`printf '%s' "$BODY" | mc pipe local/directus/extensions/${name}/${file}`, { BODY: text });
+		}
 	}
 
 	compose('up', '-d', '--wait', '--wait-timeout', '300', '--force-recreate', '--no-deps', 'directus', 'backoffice-api');
 	admin = await adminToken(directusUrl);
 }, 600_000);
+
+afterAll(() => {
+	minio('mc rm --recursive --force local/directus/extensions/parity-display-badge >/dev/null');
+});
 
 describe('extensions on every node', () => {
 	it('every BE replica and Directus serve the endpoint extension', async () => {
@@ -95,6 +102,23 @@ describe('extensions on every node', () => {
 		const lines = lbLog(since).filter((line) => line.includes('/extensions/sources/index.js'));
 		expect(lines.length).toBeGreaterThanOrEqual(8);
 		expect(lines.filter((line) => line.includes(`${directusIp}:8055`))).toEqual([]);
+	});
+
+	it('the app bundle: the same index.js at every replica, each chunk it imports served by another (T148, FR-047)', async () => {
+		const source = async (url: string, chunk: string) => {
+			const res = await api(url, 'GET', `/extensions/sources/${chunk}`);
+			expect(res.status, `${url} ${chunk}`).toBe(200);
+			return String(res.body);
+		};
+
+		const index = await source(replicaUrl(1), 'index.js');
+		expect(index).toContain('parity-display-badge');
+		for (let i = 2; i <= REPLICAS; i++) expect(await source(replicaUrl(i), 'index.js')).toBe(index);
+
+		const chunks = [...index.matchAll(/from\s*['"]\.\/([^'"]+\.js)['"]|import\(\s*['"]\.\/([^'"]+\.js)['"]\s*\)/g)].map(
+			(match) => match[1] ?? match[2]!,
+		);
+		for (const chunk of chunks) expect(await source(replicaUrl(2), chunk)).toBe(await source(replicaUrl(1), chunk));
 	});
 
 	it('a scale-up: the new replicas are healthy within 60 s and serve the extension at once (US2-5, FR-048)', async () => {

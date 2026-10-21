@@ -63,6 +63,8 @@ const props = withDefaults(
 		rowHeight?: number | undefined;
 		/** Headers can be dragged to another position (v-table `allowHeaderReorder`), emits `update:columns`. */
 		allowHeaderReorder?: boolean;
+		/** Rows are clickable (v-table `clickable`, spec 020); undefined: when the caller listens to `click:row`. */
+		clickable?: boolean | undefined;
 	}>(),
 	{
 		rowKey: 'id',
@@ -83,6 +85,7 @@ const props = withDefaults(
 		fixedHeader: false,
 		rowHeight: undefined,
 		allowHeaderReorder: false,
+		clickable: undefined,
 	},
 );
 
@@ -102,7 +105,9 @@ const hasHeaderMenu = computed(() => slots['header-context-menu'] !== undefined)
 
 // v-table `clickable`: a row is clickable (and focusable) when the caller listens to `click:row`.
 const instance = getCurrentInstance();
-const hasClickListener = computed(() => !props.disabled && !!instance?.vnode.props?.['onClick:row']);
+const hasClickListener = computed(
+	() => !props.disabled && (props.clickable ?? !!instance?.vnode.props?.['onClick:row']),
+);
 
 const ROW_HEIGHTS = { compact: 'h-[29px]', cozy: 'h-[43px]', comfortable: 'h-[58px]' };
 const ALIGN = { left: 'text-start', center: 'text-center', right: 'text-end' };

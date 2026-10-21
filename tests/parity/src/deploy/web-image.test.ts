@@ -1,5 +1,6 @@
 // Feature 019, US8 (FR-001..FR-006, contracts/images.md): one FE image for every environment, serving /admin like
 // Directus 11.17.4 (cache headers, SPA fallback) with the same Content-Security-Policy for the same env.
+import { createHash } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { docker, runContainer, runDirectus, SEPARATE, waitFor, WEB_IMAGE } from './instances.js';
 
@@ -84,10 +85,29 @@ describe.skipIf(SEPARATE)('FE image', () => {
 		expect(res.headers.get('location')).toBe('/admin/');
 	});
 
-	it.each(Object.keys(CSP_ENVS))('sends the CSP Directus sends for /admin (%s)', async (name) => {
-		const [ours, theirs] = await Promise.all([head(`${fe[name]}/admin`), head(`${directus[name]}/admin`)]);
-		expect(theirs.headers.get('content-security-policy')).toBeTruthy();
-		expect(ours.headers.get('content-security-policy')).toBe(theirs.headers.get('content-security-policy'));
+	/** `'sha256-…'` of the import map script of the served index.html (spec 020, FR-062). */
+	const importMapSource = (html: string) => {
+		const content = /<script type="importmap">([^<]*)<\/script>/.exec(html)![1]!;
+		return `'sha256-${createHash('sha256').update(content).digest('base64')}'`;
+	};
+
+	it.each(Object.keys(CSP_ENVS))(
+		'sends the CSP Directus sends for /admin, with the hash of the import map in script-src (%s)',
+		async (name) => {
+			const [ours, theirs] = await Promise.all([head(`${fe[name]}/admin`), head(`${directus[name]}/admin`)]);
+			const expected = theirs.headers
+				.get('content-security-policy')!
+				.replace(/(^|;)script-src ([^;]*)/, `$1script-src $2 ${importMapSource(ours.body)}`);
+
+			expect(theirs.headers.get('content-security-policy')).toBeTruthy();
+			expect(ours.headers.get('content-security-policy')).toBe(expected);
+		},
+	);
+
+	it('an absolute PUBLIC_URL adds the API origin to script-src (spec 020: extension chunks load from the API)', async () => {
+		const res = await head(`${fe['a']}/admin`);
+		const scriptSrc = /(?:^|;)script-src ([^;]*)/.exec(res.headers.get('content-security-policy')!)![1]!;
+		expect(scriptSrc.split(' ')).toEqual(expect.arrayContaining([importMapSource(res.body), 'http://a.test']));
 	});
 
 	it('runs as uid/gid 1001 (FR-025)', () => {

@@ -5,7 +5,9 @@
 // Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree (composables/use-field-tree.ts, 016). Groups
 // are opened while searching once per search change (Directus: open + collapse-on-change), then toggle freely. No
 // search highlight (BoTextOverflow has no `highlight`). Readable fields only = the fields store, which holds what
-// `GET /fields` returns for the user, as in Directus.
+// `GET /fields` returns for the user, as in Directus. Spec 020 (VFieldTemplate shim): `fieldTree` lists a given field
+// tree instead of the collection's, `loadPathLevel` loads a level when a node opens (with its key, as
+// v-field-template) and `depth` stops the nesting (0 = top level only).
 import formatTitle from '@directus/format-title';
 import type { Field } from '@directus/types';
 import { getFunctionsForType } from '@directus/utils';
@@ -39,6 +41,9 @@ const props = withDefaults(
 		allowSelectAll?: boolean;
 		rawFieldNames?: boolean;
 		fieldFilter?: ((field: Field) => boolean) | undefined;
+		fieldTree?: FieldNode[] | undefined;
+		loadPathLevel?: ((fieldPath: string) => void) | undefined;
+		depth?: number | undefined;
 	}>(),
 	{
 		field: undefined,
@@ -50,6 +55,9 @@ const props = withDefaults(
 		allowSelectAll: false,
 		rawFieldNames: false,
 		fieldFilter: undefined,
+		fieldTree: undefined,
+		loadPathLevel: undefined,
+		depth: undefined,
 	},
 );
 
@@ -102,7 +110,7 @@ const debouncedRefresh = debounce(() => {
 watch(search, () => debouncedRefresh());
 
 const treeList = computed<FieldInfo[]>(() => {
-	const list = treeListOriginal.value.map(setDisabled);
+	const list = (props.fieldTree ?? treeListOriginal.value).map(setDisabled);
 
 	if (props.field) return list.filter((fieldNode) => fieldNode.field === props.field);
 
@@ -190,7 +198,7 @@ const rows = computed<Row[]>(() => {
 		for (const node of nodes) {
 			const id = `${uid}-${node._loading ? `${parent}-loading` : node.path || node.field}`;
 			const fns = supportedFunctions(node);
-			const expandable = !!node.children || fns.length > 0;
+			const expandable = (!!node.children || fns.length > 0) && (props.depth === undefined || level - 1 < props.depth);
 
 			result.push({ kind: 'field', id, level, parent, node, expandable });
 
@@ -250,7 +258,9 @@ function toggle(row: Row) {
 	}
 
 	open.value = next;
-	loadFieldRelations(row.node.path);
+
+	if (props.loadPathLevel) props.loadPathLevel(row.node.key);
+	else loadFieldRelations(row.node.path);
 }
 
 function activate(row: Row) {

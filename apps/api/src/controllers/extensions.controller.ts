@@ -1,10 +1,8 @@
 // Ported from directus/api/src/controllers/extensions.ts
 // Backoffice: one Nest handler per Directus route, in the same order (research R6, R16 of spec 010);
 // useCollection('directus_extensions') is applied in app.module.ts, `next()` to `respond` is respond(), the uuid route
-// params are checked by uuidParam. Spec 020 wave 1 (D-37 narrowed): install, reinstall and
-// uninstall answer 503 after the checks of Directus (until spec 020 wave 3), and the only app chunk is the empty bundle
-// (until spec 020 wave 2), sent as a stream like the file stream of Directus (chunked, no Content-Length).
-import { Readable } from 'node:stream';
+// params are checked by uuidParam. Spec 020 (D-37 narrowed): install, reinstall and uninstall answer 503 after the checks
+// of Directus until wave 3; the app chunks are those of the extension manager's last build, streamed like Directus.
 import { EXTENSION_TYPES } from '@backoffice/constants';
 import { useEnv } from '@backoffice/env';
 import {
@@ -15,7 +13,7 @@ import {
 	ServiceUnavailableError,
 } from '@backoffice/errors';
 import type { FieldFilter } from '@backoffice/types';
-import { isIn, toBoolean } from '@backoffice/utils';
+import { isIn } from '@backoffice/utils';
 import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res } from '@nestjs/common';
 import type { Request, Response } from 'express';
 import { isNil } from 'lodash-es';
@@ -30,7 +28,8 @@ import {
 } from '../extensions/registry/index.js';
 import { respond } from '../middleware/respond.js';
 import type { ServiceFactory } from '../providers.js';
-import { EMPTY_APP_EXTENSION_BUNDLE, ExtensionReadError, ExtensionsService } from '../services/extensions.service.js';
+import { getExtensionManager } from '../extensions/index.js';
+import { ExtensionReadError, ExtensionsService } from '../services/extensions.service.js';
 import { getCacheControlHeader } from '../utils/get-cache-headers.js';
 import { getMilliseconds } from '../utils/get-milliseconds.js';
 import { uuidParam } from '../utils/uuid-param.js';
@@ -252,9 +251,14 @@ export class ExtensionsController {
 	@Get('sources/:chunk')
 	async sources(@Req() req: Request, @Res() res: Response): Promise<void> {
 		const env = useEnv();
+		const chunk = req.params['chunk'] as string;
+		const extensionManager = getExtensionManager();
 
-		// Directus builds the app bundle only when SERVE_APP is on and has no other chunk without extensions.
-		if (req.params['chunk'] !== 'index.js' || !toBoolean(env['SERVE_APP'])) {
+		// Backoffice (D-137): the bundle is built whatever SERVE_APP says (the web app is its own image); only the chunk
+		// names of the last build are served (getAppExtensionChunk).
+		const source = await extensionManager.getAppExtensionChunk(chunk === 'index.js' ? undefined : chunk);
+
+		if (source === null) {
 			// req.path inside the Directus router: without the /extensions mount path.
 			throw new RouteNotFoundError({ path: req.path.slice('/extensions'.length) });
 		}
@@ -267,6 +271,6 @@ export class ExtensionsController {
 		);
 
 		res.setHeader('Vary', 'Origin, Cache-Control');
-		Readable.from([EMPTY_APP_EXTENSION_BUNDLE]).pipe(res);
+		source.pipe(res);
 	}
 }

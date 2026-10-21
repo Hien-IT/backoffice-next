@@ -51,15 +51,23 @@ const router = useRouter();
 					:class="iconColor ? '' : 'text-gray-500 dark:text-gray-400'"
 					:style="iconColor ? { color: iconColor } : undefined"
 				/>
-				<h1 class="m-0 min-w-0 truncate text-xl font-semibold text-gray-800 dark:text-white/90">
-					<slot name="title">{{ title }}</slot>
-				</h1>
+				<!-- Spec 020 (Q-45): the Directus title slots of extension views; `heading` replaces the h1 (Directus `title`). -->
+				<slot v-if="!back && !icon" name="title-outer:prepend" />
+				<slot name="heading">
+					<slot name="title:prepend" />
+					<h1 class="m-0 min-w-0 truncate text-xl font-semibold text-gray-800 dark:text-white/90">
+						<slot name="title">{{ title }}</slot>
+					</h1>
+					<slot name="title:append" />
+				</slot>
 				<slot name="title-append" />
 			</div>
 		</div>
 
 		<div class="flex shrink-0 items-center gap-3">
+			<slot name="actions:prepend" />
 			<slot name="actions" />
+			<slot name="actions:append" />
 
 			<DetailPanel v-if="$slots['sidebar']"><slot name="sidebar" /></DetailPanel>
 		</div>

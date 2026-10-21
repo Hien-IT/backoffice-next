@@ -6,7 +6,7 @@ import { sortBy } from 'lodash-es';
 import { computed } from 'vue';
 import { DIRECTUS_DOCS_URL, MODULE_BAR_DEFAULT, type ModuleBarPart } from '../../../constants.ts';
 import { i18n } from '../../../lang/index.ts';
-import { getInternalModules } from '../../../modules/index.ts';
+import { getModules } from '../../../modules/index.ts';
 import { translate } from '../../../utils/translate-object-values.ts';
 
 const DOCS_LINK: ModuleBarPart = {
@@ -33,17 +33,14 @@ export const OUT_OF_SCOPE_MODULES = [
 
 type ModuleInfo = { id: string; name: string; icon: string; hidden?: boolean | undefined };
 
-/** Directus useAllModules: every internal module (registered or not), translated. */
+/** Directus useAllModules: every internal and app extension module (registered or not), translated. */
 export function useAllModules() {
 	return computed<ModuleInfo[]>(() => {
 		void i18n.global.locale.value;
 
 		return translate(
 			sortBy(
-				[
-					...getInternalModules().map(({ id, name, icon, hidden }) => ({ id, name, icon, hidden })),
-					...OUT_OF_SCOPE_MODULES,
-				],
+				[...getModules().map(({ id, name, icon, hidden }) => ({ id, name, icon, hidden })), ...OUT_OF_SCOPE_MODULES],
 				'id',
 			),
 		);

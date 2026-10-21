@@ -1,0 +1,631 @@
+/*
+ * Spec 020 (FR-080, data-model §8, draft recipe Q-46, design owner approval before 020 closes): the CSS variables the
+ * Directus 11.17.4 app defines for its components, here on the TailAdmin theme, so app extensions that read them look
+ * like the rest of the app. The 173 --theme--* rules of ThemeSchema (@directus/types) with the Directus Default values
+ * where they chain other rules, the raw colors and sizes of the defaults replaced by design-system tokens; the variables
+ * of directus/app/src/styles/{_variables,_colors,themes/_light,themes/_dark}.scss; .type-* and .form-grid. Loaded with
+ * the shim only (directus-shim/register.ts). Settings theme overrides (012) set the design-system tokens these read.
+ */
+:root {
+	--theme--border-radius: 0.5rem;
+	--theme--border-width: 1px;
+	--theme--foreground: var(--color-gray-700);
+	--theme--foreground-subdued: var(--color-gray-500);
+	--theme--foreground-accent: var(--color-gray-800);
+	--theme--background: var(--color-white);
+	--theme--background-normal: var(--color-gray-50);
+	--theme--background-accent: var(--color-gray-100);
+	--theme--background-subdued: var(--color-gray-25);
+	--theme--border-color: var(--color-gray-200);
+	--theme--border-color-accent: var(--color-gray-300);
+	--theme--border-color-subdued: var(--color-gray-100);
+	--theme--primary: var(--color-brand-500);
+	--theme--primary-background: color-mix(in srgb, var(--theme--background), var(--theme--primary) 10%);
+	--theme--primary-subdued: color-mix(in srgb, var(--theme--background), var(--theme--primary) 50%);
+	--theme--primary-accent: color-mix(in srgb, var(--theme--primary), var(--color-gray-800) 25%);
+	--theme--secondary: var(--color-blue-light-500);
+	--theme--secondary-background: color-mix(in srgb, var(--theme--background), var(--theme--secondary) 10%);
+	--theme--secondary-subdued: color-mix(in srgb, var(--theme--background), var(--theme--secondary) 50%);
+	--theme--secondary-accent: color-mix(in srgb, var(--theme--secondary), var(--color-gray-800) 25%);
+	--theme--success: var(--color-success-500);
+	--theme--success-background: color-mix(in srgb, var(--theme--background), var(--theme--success) 10%);
+	--theme--success-subdued: color-mix(in srgb, var(--theme--background), var(--theme--success) 50%);
+	--theme--success-accent: color-mix(in srgb, var(--theme--success), var(--color-gray-800) 25%);
+	--theme--warning: var(--color-warning-500);
+	--theme--warning-background: color-mix(in srgb, var(--theme--background), var(--theme--warning) 10%);
+	--theme--warning-subdued: color-mix(in srgb, var(--theme--background), var(--theme--warning) 50%);
+	--theme--warning-accent: color-mix(in srgb, var(--theme--warning), var(--color-gray-800) 25%);
+	--theme--danger: var(--color-error-500);
+	--theme--danger-background: color-mix(in srgb, var(--theme--background), var(--theme--danger) 10%);
+	--theme--danger-subdued: color-mix(in srgb, var(--theme--background), var(--theme--danger) 50%);
+	--theme--danger-accent: color-mix(in srgb, var(--theme--danger), var(--color-gray-800) 25%);
+	--theme--fonts--display--font-family: var(--font-outfit);
+	--theme--fonts--display--font-weight: 600;
+	--theme--fonts--sans--font-family: var(--font-outfit);
+	--theme--fonts--sans--font-weight: 400;
+	--theme--fonts--serif--font-family: Georgia, serif;
+	--theme--fonts--serif--font-weight: 400;
+	--theme--fonts--monospace--font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+	--theme--fonts--monospace--font-weight: 400;
+	--theme--navigation--background: var(--theme--background-normal);
+	--theme--navigation--background-accent: var(--theme--background-accent);
+	--theme--navigation--border-width: 0px;
+	--theme--navigation--border-color: transparent;
+	--theme--navigation--project--background: var(--theme--navigation--background-accent);
+	--theme--navigation--project--foreground: var(--theme--foreground-accent);
+	--theme--navigation--project--font-family: var(--theme--fonts--sans--font-family);
+	--theme--navigation--project--border-width: 0px;
+	--theme--navigation--project--border-color: transparent;
+	--theme--navigation--modules--background: var(--color-gray-900);
+	--theme--navigation--modules--border-width: 0px;
+	--theme--navigation--modules--border-color: transparent;
+	--theme--navigation--modules--button--foreground: var(--color-gray-400);
+	--theme--navigation--modules--button--foreground-hover: var(--color-white);
+	--theme--navigation--modules--button--foreground-active: var(--theme--foreground-accent);
+	--theme--navigation--modules--button--background: transparent;
+	--theme--navigation--modules--button--background-hover: transparent;
+	--theme--navigation--modules--button--background-active: var(--theme--background-normal);
+	--theme--navigation--list--icon--foreground: var(--theme--primary);
+	--theme--navigation--list--icon--foreground-hover: var(--theme--navigation--list--icon--foreground);
+	--theme--navigation--list--icon--foreground-active: var(--theme--navigation--list--icon--foreground);
+	--theme--navigation--list--foreground: var(--theme--foreground-accent);
+	--theme--navigation--list--foreground-hover: var(--theme--navigation--list--foreground);
+	--theme--navigation--list--foreground-active: var(--theme--navigation--list--foreground);
+	--theme--navigation--list--background: transparent;
+	--theme--navigation--list--background-hover: var(--theme--navigation--background-accent);
+	--theme--navigation--list--background-active: var(--theme--navigation--background-accent);
+	--theme--navigation--list--font-family: var(--theme--fonts--sans--font-family);
+	--theme--navigation--list--divider--border-color: var(--theme--border-color-accent);
+	--theme--navigation--list--divider--border-width: var(--theme--border-width);
+	--theme--header--background: var(--theme--background);
+	--theme--header--border-width: 1px;
+	--theme--header--border-color: var(--theme--border-color);
+	--theme--header--box-shadow: none;
+	--theme--header--headline--foreground: var(--theme--foreground-subdued);
+	--theme--header--headline--font-family: var(--theme--fonts--sans--font-family);
+	--theme--header--title--foreground: var(--theme--foreground-accent);
+	--theme--header--title--font-family: var(--theme--fonts--display--font-family);
+	--theme--header--title--font-weight: var(--theme--fonts--display--font-weight);
+	--theme--form--column-gap: 1.5rem;
+	--theme--form--row-gap: 1.5rem;
+	--theme--form--field--label--foreground: var(--color-gray-700);
+	--theme--form--field--label--font-family: var(--theme--fonts--sans--font-family);
+	--theme--form--field--label--font-weight: 500;
+	--theme--form--field--input--background: var(--theme--background);
+	--theme--form--field--input--background-subdued: var(--theme--background-subdued);
+	--theme--form--field--input--foreground: var(--theme--foreground);
+	--theme--form--field--input--foreground-subdued: var(--theme--foreground-subdued);
+	--theme--form--field--input--border-color: var(--theme--border-color);
+	--theme--form--field--input--border-color-hover: var(--theme--border-color-accent);
+	--theme--form--field--input--border-color-focus: var(--color-brand-300);
+	--theme--form--field--input--box-shadow: var(--shadow-theme-xs);
+	--theme--form--field--input--box-shadow-hover: none;
+	--theme--form--field--input--box-shadow-focus: 0 0 0 4px color-mix(in srgb, var(--color-brand-500) 10%, transparent);
+	--theme--form--field--input--height: 2.75rem;
+	--theme--form--field--input--padding: 1rem;
+	--theme--sidebar--background: var(--theme--background-normal);
+	--theme--sidebar--foreground: var(--theme--foreground-subdued);
+	--theme--sidebar--font-family: var(--theme--fonts--sans--font-family);
+	--theme--sidebar--border-width: 0px;
+	--theme--sidebar--border-color: transparent;
+	--theme--sidebar--section--toggle--icon--foreground: var(--theme--foreground-accent);
+	--theme--sidebar--section--toggle--icon--foreground-hover: var(--theme--sidebar--section--toggle--icon--foreground);
+	--theme--sidebar--section--toggle--icon--foreground-active: var(--theme--sidebar--section--toggle--icon--foreground);
+	--theme--sidebar--section--toggle--foreground: var(--theme--foreground-accent);
+	--theme--sidebar--section--toggle--foreground-hover: var(--theme--sidebar--section--toggle--foreground);
+	--theme--sidebar--section--toggle--foreground-active: var(--theme--sidebar--section--toggle--foreground);
+	--theme--sidebar--section--toggle--background: var(--theme--background-accent);
+	--theme--sidebar--section--toggle--background-hover: var(--theme--sidebar--section--toggle--background);
+	--theme--sidebar--section--toggle--background-active: var(--theme--sidebar--section--toggle--background);
+	--theme--sidebar--section--toggle--font-family: var(--theme--fonts--sans--font-family);
+	--theme--sidebar--section--toggle--border-width: 0px;
+	--theme--sidebar--section--toggle--border-color: transparent;
+	--theme--sidebar--section--form--column-gap: var(--theme--form--column-gap);
+	--theme--sidebar--section--form--row-gap: var(--theme--form--row-gap);
+	--theme--sidebar--section--form--field--label--foreground: var(--theme--form--field--label--foreground);
+	--theme--sidebar--section--form--field--label--font-family: var(--theme--form--field--label--font-family);
+	--theme--sidebar--section--form--field--label--font-weight: var(--theme--form--field--label--font-weight);
+	--theme--sidebar--section--form--field--input--background: var(--theme--form--field--input--background);
+	--theme--sidebar--section--form--field--input--background-subdued: var(
+		--theme--form--field--input--background-subdued
+	);
+	--theme--sidebar--section--form--field--input--foreground: var(--theme--form--field--input--foreground);
+	--theme--sidebar--section--form--field--input--foreground-subdued: var(
+		--theme--form--field--input--foreground-subdued
+	);
+	--theme--sidebar--section--form--field--input--border-color: var(--theme--form--field--input--border-color);
+	--theme--sidebar--section--form--field--input--border-color-hover: var(
+		--theme--form--field--input--border-color-hover
+	);
+	--theme--sidebar--section--form--field--input--border-color-focus: var(
+		--theme--form--field--input--border-color-focus
+	);
+	--theme--sidebar--section--form--field--input--box-shadow: var(--theme--form--field--input--box-shadow);
+	--theme--sidebar--section--form--field--input--box-shadow-hover: var(--theme--form--field--input--box-shadow-hover);
+	--theme--sidebar--section--form--field--input--box-shadow-focus: var(--theme--form--field--input--box-shadow-focus);
+	--theme--sidebar--section--form--field--input--height: 2.75rem;
+	--theme--sidebar--section--form--field--input--padding: 1rem;
+	--theme--public--background: var(--theme--background);
+	--theme--public--foreground: var(--theme--foreground);
+	--theme--public--foreground-accent: var(--theme--foreground-accent);
+	--theme--public--art--background: var(--color-gray-900);
+	--theme--public--art--primary: var(--theme--primary);
+	--theme--public--art--secondary: var(--theme--secondary);
+	--theme--public--art--speed: 1;
+	--theme--public--form--column-gap: var(--theme--form--column-gap);
+	--theme--public--form--row-gap: var(--theme--form--row-gap);
+	--theme--public--form--field--label--foreground: var(--theme--form--field--label--foreground);
+	--theme--public--form--field--label--font-family: var(--theme--form--field--label--font-family);
+	--theme--public--form--field--label--font-weight: var(--theme--form--field--label--font-weight);
+	--theme--public--form--field--input--background: var(--theme--form--field--input--background);
+	--theme--public--form--field--input--background-subdued: var(--theme--form--field--input--background-subdued);
+	--theme--public--form--field--input--foreground: var(--theme--form--field--input--foreground);
+	--theme--public--form--field--input--foreground-subdued: var(--theme--form--field--input--foreground-subdued);
+	--theme--public--form--field--input--border-color: var(--theme--form--field--input--border-color);
+	--theme--public--form--field--input--border-color-hover: var(--theme--form--field--input--border-color-hover);
+	--theme--public--form--field--input--border-color-focus: var(--theme--form--field--input--border-color-focus);
+	--theme--public--form--field--input--box-shadow: var(--theme--form--field--input--box-shadow);
+	--theme--public--form--field--input--box-shadow-hover: var(--theme--form--field--input--box-shadow-hover);
+	--theme--public--form--field--input--box-shadow-focus: var(--theme--form--field--input--box-shadow-focus);
+	--theme--public--form--field--input--height: var(--theme--form--field--input--height);
+	--theme--public--form--field--input--padding: var(--theme--form--field--input--padding);
+	--theme--popover--menu--background: var(--color-white);
+	--theme--popover--menu--border-radius: var(--theme--border-radius);
+	--theme--popover--menu--box-shadow: var(--shadow-theme-lg);
+	--theme--banner--background: var(--color-gray-900);
+	--theme--banner--padding: 2.25rem;
+	--theme--banner--border-radius: var(--theme--border-radius);
+	--theme--banner--avatar--background: var(--color-white);
+	--theme--banner--avatar--foreground: var(--theme--primary);
+	--theme--banner--avatar--border-radius: 50%;
+	--theme--banner--headline--foreground: var(--color-white);
+	--theme--banner--headline--font-family: var(--theme--fonts--sans--font-family);
+	--theme--banner--headline--font-weight: var(--theme--fonts--sans--font-weight);
+	--theme--banner--title--foreground: var(--color-white);
+	--theme--banner--title--font-family: var(--theme--fonts--display--font-family);
+	--theme--banner--title--font-weight: var(--theme--fonts--display--font-weight);
+	--theme--banner--subtitle--foreground: var(--color-gray-400);
+	--theme--banner--subtitle--font-family: var(--theme--fonts--monospace--font-family);
+	--theme--banner--subtitle--font-weight: var(--theme--fonts--monospace--font-weight);
+	--theme--banner--art--foreground: var(--color-gray-700);
+
+	/* used by the Directus app without a ThemeSchema rule */
+	--theme--banner--foreground: var(--color-white);
+	--theme--banner--foreground-subdued: var(--color-gray-400);
+	--theme--card--shadow: var(--shadow-theme-sm);
+	--theme--foreground-normal: var(--theme--foreground);
+	--theme--form--field--input--foreground-accent: var(--theme--foreground-accent);
+	--theme--form--field--input--line-height: 1.5;
+	--theme--form--field--input--opacity-disabled: 0.5;
+	--theme--popover--menu--foreground: var(--theme--foreground);
+	--theme--primary-75: color-mix(in srgb, var(--theme--primary) 75%, var(--theme--background));
+	--theme--primary-foreground: var(--color-white);
+	--theme--shadow: var(--shadow-theme-md);
+
+	/* directus/app/src/styles/_variables.scss */
+	--white: var(--color-white);
+	--black: var(--color-black);
+	--transition: cubic-bezier(0.4, 0, 0.2, 1);
+	--transition-in: cubic-bezier(0, 0, 0.2, 1);
+	--transition-out: cubic-bezier(0.4, 0, 1, 1);
+	--fast: 125ms;
+	--medium: 200ms;
+	--slow: 300ms;
+	--header-bar-height: 4.5rem;
+	--content-padding: 1.5rem;
+	--content-padding-bottom: 3.375rem;
+	--input-height-md: 9.4375rem;
+	--input-height-lg: 16.875rem;
+	--input-height-xl: 28.125rem;
+	--form-column-width: 16.875rem;
+	--form-column-min-width: 12.375rem;
+	--form-column-max-width: 21.375rem;
+	--focus-ring-width: 2px;
+	--focus-ring-offset: 2px;
+	--focus-ring-offset-invert: calc(-1 * var(--focus-ring-width));
+	--focus-ring-offset-inset: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
+	--focus-ring-radius: var(--theme--border-radius);
+	--focus-ring-color: var(--color-brand-500);
+
+	/* directus/app/src/styles/themes/_light.scss */
+	--foreground-inverted: var(--color-white);
+	--background-normal-alt: var(--color-gray-100);
+	--background-highlight: var(--color-gray-25);
+	--background-input: var(--color-white);
+	--background-inverted: var(--color-gray-900);
+	--background-subdued: var(--theme--background-subdued);
+	--background-mark: var(--theme--primary-subdued);
+	--overlay-color: color-mix(in srgb, var(--color-gray-900) 80%, transparent);
+	--shadow-color: color-mix(in srgb, var(--color-black) 10%, transparent);
+
+	/* directus/app/src/styles/_colors.scss: each color and its steps mixed with the tint (< 100) or the shade (> 100) */
+	--purple: var(--color-theme-purple-500);
+	--purple-10: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-white));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-white));
+	--purple-50: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-white));
+	--purple-75: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-white));
+	--purple-90: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-white));
+	--purple-110: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-gray-800));
+	--purple-125: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-gray-800));
+	--purple-150: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-gray-800));
+	--purple-175: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-gray-800));
+	--purple-190: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-gray-800));
+	--pink: var(--color-theme-pink-500);
+	--pink-10: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-white));
+	--pink-25: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-white));
+	--pink-50: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-white));
+	--pink-75: color-mix(in srgb, var(--color-theme-pink-500) 75%, var(--color-white));
+	--pink-90: color-mix(in srgb, var(--color-theme-pink-500) 90%, var(--color-white));
+	--pink-110: color-mix(in srgb, var(--color-theme-pink-500) 90%, var(--color-gray-800));
+	--pink-125: color-mix(in srgb, var(--color-theme-pink-500) 75%, var(--color-gray-800));
+	--pink-150: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-gray-800));
+	--pink-175: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-gray-800));
+	--pink-190: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-gray-800));
+	--blue: var(--color-blue-light-500);
+	--blue-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-white));
+	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-white));
+	--blue-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-white));
+	--blue-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-white));
+	--blue-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-white));
+	--blue-110: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-gray-800));
+	--blue-125: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-gray-800));
+	--blue-150: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-gray-800));
+	--blue-175: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-gray-800));
+	--blue-190: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-gray-800));
+	--green: var(--color-success-500);
+	--green-10: color-mix(in srgb, var(--color-success-500) 10%, var(--color-white));
+	--green-25: color-mix(in srgb, var(--color-success-500) 25%, var(--color-white));
+	--green-50: color-mix(in srgb, var(--color-success-500) 50%, var(--color-white));
+	--green-75: color-mix(in srgb, var(--color-success-500) 75%, var(--color-white));
+	--green-90: color-mix(in srgb, var(--color-success-500) 90%, var(--color-white));
+	--green-110: color-mix(in srgb, var(--color-success-500) 90%, var(--color-gray-800));
+	--green-125: color-mix(in srgb, var(--color-success-500) 75%, var(--color-gray-800));
+	--green-150: color-mix(in srgb, var(--color-success-500) 50%, var(--color-gray-800));
+	--green-175: color-mix(in srgb, var(--color-success-500) 25%, var(--color-gray-800));
+	--green-190: color-mix(in srgb, var(--color-success-500) 10%, var(--color-gray-800));
+	--yellow: var(--color-warning-400);
+	--yellow-10: color-mix(in srgb, var(--color-warning-400) 10%, var(--color-white));
+	--yellow-25: color-mix(in srgb, var(--color-warning-400) 25%, var(--color-white));
+	--yellow-50: color-mix(in srgb, var(--color-warning-400) 50%, var(--color-white));
+	--yellow-75: color-mix(in srgb, var(--color-warning-400) 75%, var(--color-white));
+	--yellow-90: color-mix(in srgb, var(--color-warning-400) 90%, var(--color-white));
+	--yellow-110: color-mix(in srgb, var(--color-warning-400) 90%, var(--color-gray-800));
+	--yellow-125: color-mix(in srgb, var(--color-warning-400) 75%, var(--color-gray-800));
+	--yellow-150: color-mix(in srgb, var(--color-warning-400) 50%, var(--color-gray-800));
+	--yellow-175: color-mix(in srgb, var(--color-warning-400) 25%, var(--color-gray-800));
+	--yellow-190: color-mix(in srgb, var(--color-warning-400) 10%, var(--color-gray-800));
+	--orange: var(--color-orange-500);
+	--orange-10: color-mix(in srgb, var(--color-orange-500) 10%, var(--color-white));
+	--orange-25: color-mix(in srgb, var(--color-orange-500) 25%, var(--color-white));
+	--orange-50: color-mix(in srgb, var(--color-orange-500) 50%, var(--color-white));
+	--orange-75: color-mix(in srgb, var(--color-orange-500) 75%, var(--color-white));
+	--orange-90: color-mix(in srgb, var(--color-orange-500) 90%, var(--color-white));
+	--orange-110: color-mix(in srgb, var(--color-orange-500) 90%, var(--color-gray-800));
+	--orange-125: color-mix(in srgb, var(--color-orange-500) 75%, var(--color-gray-800));
+	--orange-150: color-mix(in srgb, var(--color-orange-500) 50%, var(--color-gray-800));
+	--orange-175: color-mix(in srgb, var(--color-orange-500) 25%, var(--color-gray-800));
+	--orange-190: color-mix(in srgb, var(--color-orange-500) 10%, var(--color-gray-800));
+	--red: var(--color-error-500);
+	--red-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-white));
+	--red-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-white));
+	--red-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-white));
+	--red-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-white));
+	--red-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-white));
+	--red-110: color-mix(in srgb, var(--color-error-500) 90%, var(--color-gray-800));
+	--red-125: color-mix(in srgb, var(--color-error-500) 75%, var(--color-gray-800));
+	--red-150: color-mix(in srgb, var(--color-error-500) 50%, var(--color-gray-800));
+	--red-175: color-mix(in srgb, var(--color-error-500) 25%, var(--color-gray-800));
+	--red-190: color-mix(in srgb, var(--color-error-500) 10%, var(--color-gray-800));
+	--primary: var(--color-brand-500);
+	--primary-10: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-white));
+	--primary-25: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-white));
+	--primary-50: color-mix(in srgb, var(--color-brand-500) 50%, var(--color-white));
+	--primary-75: color-mix(in srgb, var(--color-brand-500) 75%, var(--color-white));
+	--primary-90: color-mix(in srgb, var(--color-brand-500) 90%, var(--color-white));
+	--primary-110: color-mix(in srgb, var(--color-brand-500) 90%, var(--color-gray-800));
+	--primary-125: color-mix(in srgb, var(--color-brand-500) 75%, var(--color-gray-800));
+	--primary-150: color-mix(in srgb, var(--color-brand-500) 50%, var(--color-gray-800));
+	--primary-175: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-gray-800));
+	--primary-190: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-gray-800));
+	--secondary: var(--color-blue-light-500);
+	--secondary-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-white));
+	--secondary-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-white));
+	--secondary-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-white));
+	--secondary-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-white));
+	--secondary-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-white));
+	--secondary-110: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-gray-800));
+	--secondary-125: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-gray-800));
+	--secondary-150: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-gray-800));
+	--secondary-175: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-gray-800));
+	--secondary-190: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-gray-800));
+	--success: var(--color-success-500);
+	--success-10: color-mix(in srgb, var(--color-success-500) 10%, var(--color-white));
+	--success-25: color-mix(in srgb, var(--color-success-500) 25%, var(--color-white));
+	--success-50: color-mix(in srgb, var(--color-success-500) 50%, var(--color-white));
+	--success-75: color-mix(in srgb, var(--color-success-500) 75%, var(--color-white));
+	--success-90: color-mix(in srgb, var(--color-success-500) 90%, var(--color-white));
+	--success-110: color-mix(in srgb, var(--color-success-500) 90%, var(--color-gray-800));
+	--success-125: color-mix(in srgb, var(--color-success-500) 75%, var(--color-gray-800));
+	--success-150: color-mix(in srgb, var(--color-success-500) 50%, var(--color-gray-800));
+	--success-175: color-mix(in srgb, var(--color-success-500) 25%, var(--color-gray-800));
+	--success-190: color-mix(in srgb, var(--color-success-500) 10%, var(--color-gray-800));
+	--warning: var(--color-warning-500);
+	--warning-10: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-white));
+	--warning-25: color-mix(in srgb, var(--color-warning-500) 25%, var(--color-white));
+	--warning-50: color-mix(in srgb, var(--color-warning-500) 50%, var(--color-white));
+	--warning-75: color-mix(in srgb, var(--color-warning-500) 75%, var(--color-white));
+	--warning-90: color-mix(in srgb, var(--color-warning-500) 90%, var(--color-white));
+	--warning-110: color-mix(in srgb, var(--color-warning-500) 90%, var(--color-gray-800));
+	--warning-125: color-mix(in srgb, var(--color-warning-500) 75%, var(--color-gray-800));
+	--warning-150: color-mix(in srgb, var(--color-warning-500) 50%, var(--color-gray-800));
+	--warning-175: color-mix(in srgb, var(--color-warning-500) 25%, var(--color-gray-800));
+	--warning-190: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-gray-800));
+	--danger: var(--color-error-500);
+	--danger-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-white));
+	--danger-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-white));
+	--danger-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-white));
+	--danger-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-white));
+	--danger-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-white));
+	--danger-110: color-mix(in srgb, var(--color-error-500) 90%, var(--color-gray-800));
+	--danger-125: color-mix(in srgb, var(--color-error-500) 75%, var(--color-gray-800));
+	--danger-150: color-mix(in srgb, var(--color-error-500) 50%, var(--color-gray-800));
+	--danger-175: color-mix(in srgb, var(--color-error-500) 25%, var(--color-gray-800));
+	--danger-190: color-mix(in srgb, var(--color-error-500) 10%, var(--color-gray-800));
+}
+
+:root.dark {
+	--theme--foreground: var(--color-gray-300);
+	--theme--foreground-subdued: var(--color-gray-400);
+	--theme--foreground-accent: var(--color-white);
+	--theme--background: var(--color-gray-900);
+	--theme--background-normal: var(--color-gray-dark);
+	--theme--background-accent: var(--color-gray-800);
+	--theme--background-subdued: var(--color-gray-dark);
+	--theme--border-color: var(--color-gray-800);
+	--theme--border-color-accent: var(--color-gray-700);
+	--theme--border-color-subdued: var(--color-gray-800);
+	--theme--primary-accent: color-mix(in srgb, var(--theme--primary), var(--color-gray-950) 25%);
+	--theme--secondary-accent: color-mix(in srgb, var(--theme--secondary), var(--color-gray-950) 25%);
+	--theme--success-accent: color-mix(in srgb, var(--theme--success), var(--color-gray-950) 25%);
+	--theme--warning-accent: color-mix(in srgb, var(--theme--warning), var(--color-gray-950) 25%);
+	--theme--danger-accent: color-mix(in srgb, var(--theme--danger), var(--color-gray-950) 25%);
+	--theme--navigation--project--background: var(--theme--background-accent);
+	--theme--navigation--modules--background: var(--theme--background);
+	--theme--navigation--modules--button--foreground: var(--theme--foreground-subdued);
+	--theme--navigation--list--background-hover: var(--theme--background-accent);
+	--theme--navigation--list--background-active: var(--theme--background-accent);
+	--theme--navigation--list--divider--border-color: var(--theme--background-accent);
+	--theme--form--field--label--foreground: var(--color-gray-400);
+	--theme--form--field--input--border-color: var(--theme--background-normal);
+	--theme--form--field--input--border-color-hover: var(--theme--background-accent);
+	--theme--form--field--input--border-color-focus: var(--color-brand-800);
+	--theme--popover--menu--background: var(--color-gray-dark);
+
+	--foreground-inverted: var(--color-gray-900);
+	--background-normal-alt: var(--color-gray-800);
+	--background-highlight: var(--color-gray-dark);
+	--background-input: var(--color-gray-900);
+	--background-inverted: var(--color-gray-100);
+	--overlay-color: color-mix(in srgb, var(--color-black) 80%, transparent);
+	--shadow-color: color-mix(in srgb, var(--color-black) 30%, transparent);
+	--purple: var(--color-theme-purple-500);
+	--purple-10: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-gray-900));
+	--purple-25: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-gray-900));
+	--purple-50: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-gray-900));
+	--purple-75: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-gray-900));
+	--purple-90: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-gray-900));
+	--purple-110: color-mix(in srgb, var(--color-theme-purple-500) 90%, var(--color-white));
+	--purple-125: color-mix(in srgb, var(--color-theme-purple-500) 75%, var(--color-white));
+	--purple-150: color-mix(in srgb, var(--color-theme-purple-500) 50%, var(--color-white));
+	--purple-175: color-mix(in srgb, var(--color-theme-purple-500) 25%, var(--color-white));
+	--purple-190: color-mix(in srgb, var(--color-theme-purple-500) 10%, var(--color-white));
+	--pink: var(--color-theme-pink-500);
+	--pink-10: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-gray-900));
+	--pink-25: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-gray-900));
+	--pink-50: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-gray-900));
+	--pink-75: color-mix(in srgb, var(--color-theme-pink-500) 75%, var(--color-gray-900));
+	--pink-90: color-mix(in srgb, var(--color-theme-pink-500) 90%, var(--color-gray-900));
+	--pink-110: color-mix(in srgb, var(--color-theme-pink-500) 90%, var(--color-white));
+	--pink-125: color-mix(in srgb, var(--color-theme-pink-500) 75%, var(--color-white));
+	--pink-150: color-mix(in srgb, var(--color-theme-pink-500) 50%, var(--color-white));
+	--pink-175: color-mix(in srgb, var(--color-theme-pink-500) 25%, var(--color-white));
+	--pink-190: color-mix(in srgb, var(--color-theme-pink-500) 10%, var(--color-white));
+	--blue: var(--color-blue-light-500);
+	--blue-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-gray-900));
+	--blue-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-gray-900));
+	--blue-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-gray-900));
+	--blue-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-gray-900));
+	--blue-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-gray-900));
+	--blue-110: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-white));
+	--blue-125: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-white));
+	--blue-150: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-white));
+	--blue-175: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-white));
+	--blue-190: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-white));
+	--green: var(--color-success-500);
+	--green-10: color-mix(in srgb, var(--color-success-500) 10%, var(--color-gray-900));
+	--green-25: color-mix(in srgb, var(--color-success-500) 25%, var(--color-gray-900));
+	--green-50: color-mix(in srgb, var(--color-success-500) 50%, var(--color-gray-900));
+	--green-75: color-mix(in srgb, var(--color-success-500) 75%, var(--color-gray-900));
+	--green-90: color-mix(in srgb, var(--color-success-500) 90%, var(--color-gray-900));
+	--green-110: color-mix(in srgb, var(--color-success-500) 90%, var(--color-white));
+	--green-125: color-mix(in srgb, var(--color-success-500) 75%, var(--color-white));
+	--green-150: color-mix(in srgb, var(--color-success-500) 50%, var(--color-white));
+	--green-175: color-mix(in srgb, var(--color-success-500) 25%, var(--color-white));
+	--green-190: color-mix(in srgb, var(--color-success-500) 10%, var(--color-white));
+	--yellow: var(--color-warning-400);
+	--yellow-10: color-mix(in srgb, var(--color-warning-400) 10%, var(--color-gray-900));
+	--yellow-25: color-mix(in srgb, var(--color-warning-400) 25%, var(--color-gray-900));
+	--yellow-50: color-mix(in srgb, var(--color-warning-400) 50%, var(--color-gray-900));
+	--yellow-75: color-mix(in srgb, var(--color-warning-400) 75%, var(--color-gray-900));
+	--yellow-90: color-mix(in srgb, var(--color-warning-400) 90%, var(--color-gray-900));
+	--yellow-110: color-mix(in srgb, var(--color-warning-400) 90%, var(--color-white));
+	--yellow-125: color-mix(in srgb, var(--color-warning-400) 75%, var(--color-white));
+	--yellow-150: color-mix(in srgb, var(--color-warning-400) 50%, var(--color-white));
+	--yellow-175: color-mix(in srgb, var(--color-warning-400) 25%, var(--color-white));
+	--yellow-190: color-mix(in srgb, var(--color-warning-400) 10%, var(--color-white));
+	--orange: var(--color-orange-500);
+	--orange-10: color-mix(in srgb, var(--color-orange-500) 10%, var(--color-gray-900));
+	--orange-25: color-mix(in srgb, var(--color-orange-500) 25%, var(--color-gray-900));
+	--orange-50: color-mix(in srgb, var(--color-orange-500) 50%, var(--color-gray-900));
+	--orange-75: color-mix(in srgb, var(--color-orange-500) 75%, var(--color-gray-900));
+	--orange-90: color-mix(in srgb, var(--color-orange-500) 90%, var(--color-gray-900));
+	--orange-110: color-mix(in srgb, var(--color-orange-500) 90%, var(--color-white));
+	--orange-125: color-mix(in srgb, var(--color-orange-500) 75%, var(--color-white));
+	--orange-150: color-mix(in srgb, var(--color-orange-500) 50%, var(--color-white));
+	--orange-175: color-mix(in srgb, var(--color-orange-500) 25%, var(--color-white));
+	--orange-190: color-mix(in srgb, var(--color-orange-500) 10%, var(--color-white));
+	--red: var(--color-error-500);
+	--red-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-gray-900));
+	--red-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-gray-900));
+	--red-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-gray-900));
+	--red-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-gray-900));
+	--red-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-gray-900));
+	--red-110: color-mix(in srgb, var(--color-error-500) 90%, var(--color-white));
+	--red-125: color-mix(in srgb, var(--color-error-500) 75%, var(--color-white));
+	--red-150: color-mix(in srgb, var(--color-error-500) 50%, var(--color-white));
+	--red-175: color-mix(in srgb, var(--color-error-500) 25%, var(--color-white));
+	--red-190: color-mix(in srgb, var(--color-error-500) 10%, var(--color-white));
+	--primary: var(--color-brand-500);
+	--primary-10: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-gray-900));
+	--primary-25: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-gray-900));
+	--primary-50: color-mix(in srgb, var(--color-brand-500) 50%, var(--color-gray-900));
+	--primary-75: color-mix(in srgb, var(--color-brand-500) 75%, var(--color-gray-900));
+	--primary-90: color-mix(in srgb, var(--color-brand-500) 90%, var(--color-gray-900));
+	--primary-110: color-mix(in srgb, var(--color-brand-500) 90%, var(--color-white));
+	--primary-125: color-mix(in srgb, var(--color-brand-500) 75%, var(--color-white));
+	--primary-150: color-mix(in srgb, var(--color-brand-500) 50%, var(--color-white));
+	--primary-175: color-mix(in srgb, var(--color-brand-500) 25%, var(--color-white));
+	--primary-190: color-mix(in srgb, var(--color-brand-500) 10%, var(--color-white));
+	--secondary: var(--color-blue-light-500);
+	--secondary-10: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-gray-900));
+	--secondary-25: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-gray-900));
+	--secondary-50: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-gray-900));
+	--secondary-75: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-gray-900));
+	--secondary-90: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-gray-900));
+	--secondary-110: color-mix(in srgb, var(--color-blue-light-500) 90%, var(--color-white));
+	--secondary-125: color-mix(in srgb, var(--color-blue-light-500) 75%, var(--color-white));
+	--secondary-150: color-mix(in srgb, var(--color-blue-light-500) 50%, var(--color-white));
+	--secondary-175: color-mix(in srgb, var(--color-blue-light-500) 25%, var(--color-white));
+	--secondary-190: color-mix(in srgb, var(--color-blue-light-500) 10%, var(--color-white));
+	--success: var(--color-success-500);
+	--success-10: color-mix(in srgb, var(--color-success-500) 10%, var(--color-gray-900));
+	--success-25: color-mix(in srgb, var(--color-success-500) 25%, var(--color-gray-900));
+	--success-50: color-mix(in srgb, var(--color-success-500) 50%, var(--color-gray-900));
+	--success-75: color-mix(in srgb, var(--color-success-500) 75%, var(--color-gray-900));
+	--success-90: color-mix(in srgb, var(--color-success-500) 90%, var(--color-gray-900));
+	--success-110: color-mix(in srgb, var(--color-success-500) 90%, var(--color-white));
+	--success-125: color-mix(in srgb, var(--color-success-500) 75%, var(--color-white));
+	--success-150: color-mix(in srgb, var(--color-success-500) 50%, var(--color-white));
+	--success-175: color-mix(in srgb, var(--color-success-500) 25%, var(--color-white));
+	--success-190: color-mix(in srgb, var(--color-success-500) 10%, var(--color-white));
+	--warning: var(--color-warning-500);
+	--warning-10: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-gray-900));
+	--warning-25: color-mix(in srgb, var(--color-warning-500) 25%, var(--color-gray-900));
+	--warning-50: color-mix(in srgb, var(--color-warning-500) 50%, var(--color-gray-900));
+	--warning-75: color-mix(in srgb, var(--color-warning-500) 75%, var(--color-gray-900));
+	--warning-90: color-mix(in srgb, var(--color-warning-500) 90%, var(--color-gray-900));
+	--warning-110: color-mix(in srgb, var(--color-warning-500) 90%, var(--color-white));
+	--warning-125: color-mix(in srgb, var(--color-warning-500) 75%, var(--color-white));
+	--warning-150: color-mix(in srgb, var(--color-warning-500) 50%, var(--color-white));
+	--warning-175: color-mix(in srgb, var(--color-warning-500) 25%, var(--color-white));
+	--warning-190: color-mix(in srgb, var(--color-warning-500) 10%, var(--color-white));
+	--danger: var(--color-error-500);
+	--danger-10: color-mix(in srgb, var(--color-error-500) 10%, var(--color-gray-900));
+	--danger-25: color-mix(in srgb, var(--color-error-500) 25%, var(--color-gray-900));
+	--danger-50: color-mix(in srgb, var(--color-error-500) 50%, var(--color-gray-900));
+	--danger-75: color-mix(in srgb, var(--color-error-500) 75%, var(--color-gray-900));
+	--danger-90: color-mix(in srgb, var(--color-error-500) 90%, var(--color-gray-900));
+	--danger-110: color-mix(in srgb, var(--color-error-500) 90%, var(--color-white));
+	--danger-125: color-mix(in srgb, var(--color-error-500) 75%, var(--color-white));
+	--danger-150: color-mix(in srgb, var(--color-error-500) 50%, var(--color-white));
+	--danger-175: color-mix(in srgb, var(--color-error-500) 25%, var(--color-white));
+	--danger-190: color-mix(in srgb, var(--color-error-500) 10%, var(--color-white));
+}
+
+/* directus/app/src/styles/mixins/_type-styles.scss */
+.type-title {
+	color: var(--theme--foreground-accent);
+	font-size: 1rem;
+	font-weight: var(--theme--fonts--display--font-weight);
+	font-family: var(--theme--fonts--display--font-family);
+	font-style: normal;
+	line-height: 1.375;
+}
+
+.type-label {
+	color: var(--theme--foreground-accent);
+	font-size: 0.875rem;
+	font-weight: var(--theme--form--field--label--font-weight);
+	font-family: var(--theme--form--field--label--font-family);
+	font-style: normal;
+	line-height: 1.2143;
+}
+
+.type-text {
+	color: var(--theme--foreground);
+	font-weight: var(--theme--fonts--sans--font-weight);
+	font-size: 0.8125rem;
+	font-family: var(--theme--fonts--sans--font-family);
+	font-style: normal;
+	line-height: 1.5385;
+}
+
+.type-note {
+	color: var(--theme--foreground-subdued);
+	font-weight: var(--theme--fonts--sans--font-weight);
+	font-size: 0.75rem;
+	font-family: var(--theme--fonts--sans--font-family);
+	font-style: italic;
+	line-height: 1.3333;
+}
+
+/* directus/app/src/styles/mixins/_form-grid.scss */
+.form-grid {
+	display: grid;
+	grid-template-columns: [start] minmax(0, 1fr) [half] minmax(0, 1fr) [full];
+	gap: var(--theme--form--row-gap) var(--theme--form--column-gap);
+	container-type: inline-size;
+}
+
+.form-grid > * {
+	min-inline-size: var(--form-column-min-width);
+}
+
+.form-grid.with-fill {
+	grid-template-columns:
+		[start] minmax(0, var(--form-column-max-width)) [half] minmax(0, var(--form-column-max-width))
+		[full] 1fr [fill];
+}
+
+.form-grid .type-label {
+	margin-block-end: 0.4375rem;
+}
+
+.form-grid .field,
+.form-grid .half,
+.form-grid .half-left,
+.form-grid .half-space,
+.form-grid .half + .half,
+.form-grid .half-right,
+.form-grid .full,
+.form-grid .fill {
+	grid-column: start / fill;
+}
+
+@container (inline-size >= 31.25rem) {
+	.form-grid .field,
+	.form-grid .full {
+		grid-column: start / full;
+	}
+
+	.form-grid .half,
+	.form-grid .half-left,
+	.form-grid .half-space {
+		grid-column: start / half;
+	}
+
+	.form-grid .half + .half,
+	.form-grid .half-right {
+		grid-column: half / full;
+	}
+}

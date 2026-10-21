@@ -6,12 +6,13 @@
 // requests to /items/bench_articles per action (list + count). API reads skip the shared response cache (Cache-Control:
 // no-store, CACHE_SKIP_ALLOWED=true). Fails when the web app's p95 is more than 10% above the Directus app's in either
 // configuration; the absolute targets of SC-003 are only reported. Needs `benchmark:env-up-web` first.
-import { appendFileSync, readFileSync } from 'node:fs';
+import { appendFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
-import { type Browser, type BrowserContext, chromium, type Page } from '@playwright/test';
+import { type BrowserContext, chromium, type Page } from '@playwright/test';
 import { webSlower } from './compare.ts';
 import { ARTICLES, cleanup, seed } from './seed-items.ts';
 import { directus } from './seed-permissions.ts';
+import { p95, signIn, TIMEOUT, usual } from './web-shared.ts';
 
 const RUNS = Number(process.env['BENCH_RUNS'] ?? 11);
 const APPS = {
@@ -30,10 +31,6 @@ const ACTIONS = {
 	'filter status (preset)': 1500,
 } satisfies Record<string, number | undefined>;
 type Action = keyof typeof ACTIONS;
-
-const env = readFileSync(new URL('../../parity/env/postgres.env', import.meta.url), 'utf8');
-const envValue = (name: string) => env.match(new RegExp(`^${name}=(.*)$`, 'm'))?.[1]?.trim() ?? '';
-const TIMEOUT = 120_000;
 
 const timings = {} as Record<App, Record<Action, number[]>>;
 const requests = {} as Record<App, Record<Action, string[]>>;
@@ -59,33 +56,6 @@ async function resetPreset(me: string, filter: Record<string, unknown> | null) {
 		layout_query: { tabular: { fields: ['title', 'status', 'category', 'date_created'], sort: ['id'] } },
 		filter,
 	});
-}
-
-async function signIn(browser: Browser, baseURL: string): Promise<BrowserContext> {
-	const context = await browser.newContext({
-		baseURL,
-		viewport: { width: 1440, height: 900 },
-		extraHTTPHeaders: { 'cache-control': 'no-store' },
-	});
-	// The Directus app asks an admin without a project owner to set one (a dialog over the page): the cookie its
-	// "Remind Later" sets keeps it closed (as apps/web-e2e/src/helpers/directus-app.ts).
-	await context.addCookies([{ name: 'license-banner-dismissed', value: 'true', url: baseURL }]);
-	const page = await context.newPage();
-	await page.goto('/admin/login');
-	// Label in the new app, placeholder in the Directus app (en-US strings of both).
-	const field = (name: string) =>
-		page.getByLabel(name, { exact: true }).or(page.getByPlaceholder(name, { exact: true }));
-	await field('Email').fill(envValue('ADMIN_EMAIL'));
-	await field('Password').fill(envValue('ADMIN_PASSWORD'));
-	await page.getByRole('button', { name: 'Sign In', exact: true }).click();
-	await page.waitForURL((url) => !url.pathname.endsWith('/login'), { timeout: TIMEOUT });
-	const later = page.getByRole('button', { name: 'Remind Later' });
-	await later
-		.waitFor({ timeout: 3_000 })
-		.then(() => later.click())
-		.catch(() => undefined);
-	await page.close();
-	return context;
 }
 
 /** Counts list and count requests to /items/bench_articles, and waits until the page is quiet. */
@@ -192,19 +162,6 @@ async function measure(app: App, context: BrowserContext, me: string) {
 		await page.locator('table tbody tr:nth-child(25)').waitFor({ timeout: TIMEOUT });
 	});
 	await page.close();
-}
-
-/** Nearest-rank p95 (with 11 runs: the slowest). */
-function p95(values: number[]): number {
-	const sorted = [...values].sort((a, b) => a - b);
-	return Math.round(sorted[Math.ceil(0.95 * sorted.length) - 1]!);
-}
-
-/** The request split seen in most runs. */
-function usual(values: string[]): string {
-	const counts = new Map<string, number>();
-	for (const v of values) counts.set(v, (counts.get(v) ?? 0) + 1);
-	return [...counts].sort((a, b) => b[1] - a[1])[0]![0];
 }
 
 const seeded = await seed();

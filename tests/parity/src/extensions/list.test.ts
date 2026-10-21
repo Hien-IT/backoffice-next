@@ -56,8 +56,9 @@ describe('GET /extensions/sources/:chunk', () => {
 	it('index.js: status and headers of Directus (body D-137); an unknown chunk is the same 404', async () => {
 		const result = await same({ path: '/extensions/sources/index.js' });
 		expect(result.backoffice.status).toBe(200);
-		// Wave 1: the new app still serves the empty bundle (T142 builds it in wave 2).
+		// The chunks differ in their shared-dependency imports (D-137), not in the extensions they hold.
 		expect(result.directus.text).toContain('parity-interface-color');
+		expect(result.backoffice.text).toContain('parity-interface-color');
 
 		await same({ path: '/extensions/sources/nope.js' });
 		await same({ path: '/extensions/sources/..%2Fpackage.json' });

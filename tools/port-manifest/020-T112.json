@@ -1,0 +1,22 @@
+[
+	{ "source": "app/src/components/v-dialog.vue", "dest": "apps/web/src/directus-shim/components/VDialog.vue" },
+	{ "source": "app/src/components/v-drawer.vue", "dest": "apps/web/src/directus-shim/components/VDrawer.vue" },
+	{ "source": "app/src/components/v-menu.vue", "dest": "apps/web/src/directus-shim/components/VMenu.vue" },
+	{ "source": "app/src/components/v-overlay.vue", "dest": "apps/web/src/directus-shim/components/VOverlay.vue" },
+	{
+		"source": "app/src/components/transition/bounce.vue",
+		"dest": "apps/web/src/directus-shim/components/TransitionBounce.vue"
+	},
+	{
+		"source": "app/src/components/transition/dialog.vue",
+		"dest": "apps/web/src/directus-shim/components/TransitionDialog.vue"
+	},
+	{
+		"source": "app/src/components/transition/expand.vue",
+		"dest": "apps/web/src/directus-shim/components/TransitionExpand.vue"
+	},
+	{
+		"source": "app/src/components/transition/expand-methods.ts",
+		"dest": "apps/web/src/directus-shim/components/expand-methods.ts"
+	}
+]

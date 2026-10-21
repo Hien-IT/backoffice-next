@@ -13,6 +13,11 @@ import { useServerStore } from '../stores/server.ts';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
 import { md } from '../utils/markdown.ts';
 
+defineProps<{
+	/** Spec 020 (Q-45): the wider form column of the Directus `wide` public view (40 rem). */
+	wide?: boolean;
+}>();
+
 const serverStore = useServerStore();
 
 // /server/info may have no project (FR-037): every value falls back to a default.
@@ -98,7 +103,8 @@ function playVideo() {
 		/>
 
 		<div
-			class="w-full max-w-md overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900"
+			class="w-full overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-theme-xl dark:border-gray-800 dark:bg-gray-900"
+			:class="wide ? 'max-w-160' : 'max-w-md'"
 		>
 			<div class="px-6 pt-8 sm:px-10">
 				<div class="flex items-center gap-3" data-testid="public-title">

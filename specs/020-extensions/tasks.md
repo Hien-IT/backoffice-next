@@ -354,7 +354,7 @@ src/directus-shim` (axe, bàn phím).
 - [ ] T100 [US8] Hạ `pinia` 3.0.3 → 2.3.1 (catalog) và thêm vào `apps/web/package.json` `axios`, `@directus/composables`,
       `semver`, `@vueuse/router`; grep `defineStore(`, `storeToRefs`, `acceptHMRUpdate` tìm API chỉ có ở pinia 3, sửa nếu
       có; chạy toàn bộ `web:test` + E2E `navigation`, `content-*` một cấu hình (CHK039)
-- [ ] T101 [P] [US8] Recipe nháp Q-44 (component mới của shim, `BoPopover`, dialog không tiêu đề, select nhóm/divider, thang
+- [X] T101 [P] [US8] Recipe nháp Q-44 (component mới của shim, `BoPopover`, dialog không tiêu đề, select nhóm/divider, thang
       z-index và ca lồng, ảnh sáng/tối), Q-45 (`PrivateView` 11 slot/7 prop trên khung D-127/D-128, `PublicView`,
       `SharedView`), Q-46 (173 `--theme--*` + `.type-*`, `.form-grid` sang token) vào `design-system/docs/{component-specs,
       layout-patterns}.md`
@@ -365,53 +365,53 @@ src/directus-shim` (axe, bàn phím).
 
 ### Tests cho User Story 8
 
-- [ ] T103 [US8] `web/directus-shim/contract.test.ts` (đỏ trước): mọi tên đăng ký toàn cục có; props/emits/slots/expose
+- [X] T103 [US8] `web/directus-shim/contract.test.ts` (đỏ trước): mọi tên đăng ký toàn cục có; props/emits/slots/expose
       khớp JSON trừ danh sách `IGNORED` kèm lý do (data-model §7: `DrawerItem.overlay`, `popoverProps`,
       `VForm.collabContext`, …); slot đọc từ template shim
 
 ### Implementation cho User Story 8
 
-- [ ] T104 [US8] `web/api/axios.ts` (port `D/app/api.ts`: `baseURL = getApiUrl()`, `withCredentials`, interceptor
+- [X] T104 [US8] `web/api/axios.ts` (port `D/app/api.ts`: `baseURL = getApiUrl()`, `withCredentials`, interceptor
       `requestsStore.startRequest` + `requestQueue` + `sdk.getToken()`, `endRequest`); `web/directus-shim/use-system.ts`
       (port `D/app/composables/use-system.ts`: 14 store, `API_INJECT`, `SDK_INJECT`, `EXTENSIONS_INJECT`); test
-- [ ] T105 [US8] Thành viên store thiếu (FR-079): `web/stores/notifications.ts` (`queue`, `dialogs`, `previous`,
+- [X] T105 [US8] Thành viên store thiếu (FR-079): `web/stores/notifications.ts` (`queue`, `dialogs`, `previous`,
       `notifications`, `overlayIsActive`, `lastFour`, `setOverlayIsActive`, `add` → `notify`, `hide`, `remove`, `update`),
       `web/stores/server.ts` (`info.extensions`, `ai_enabled`/`mcp_enabled` `false`), `web/stores/settings.ts`
       (`availableAiProviders` `[]`), `web/hydrate.ts` (`appStore.basemap`); test từng store
 - [X] T106 [P] [US8] Port 7 directive `D/app/directives/{click-outside,context-menu,focus,prevent-focusout,
       input-auto-width,markdown,tooltip}.ts` → `web/directus-shim/directives/`; `web/utils/markdown.ts` thêm tùy chọn
       `target`; tooltip một `#tooltip` chung, delay 500/125 ms, modifier, RTL, style token; test từng directive
-- [ ] T107 [P] [US8] `web/directus-shim/styles/theme-vars.css` (173 `--theme--*` + 11 biến app dùng không khai +
+- [X] T107 [P] [US8] `web/directus-shim/styles/theme-vars.css` (173 `--theme--*` + 11 biến app dùng không khai +
       `_variables.scss` + palette `--{color}{,-10..-190}` + `.type-*` + `.form-grid` theo data-model §8, Q-46), đè
       `theme_*_overrides` như 012; test đọc schema `D/pkg/types/src/extensions/themes.ts` và kiểm đủ tên
-- [ ] T108 [P] [US8] `apps/web/index.html` thêm `#dialog-outlet`, `#menu-outlet` sau `#app` (z-index theo Q-44); component
+- [X] T108 [P] [US8] `apps/web/index.html` thêm `#dialog-outlet`, `#menu-outlet` sau `#app` (z-index theo Q-44); component
       dùng chung mới `web/components/BoPopover.vue` (Reka Popover, slot activator/default, `v-model:open`), `BoDialog` thêm
       chế độ không tiêu đề, `BoSelect` thêm `children`/nhóm/divider/`itemIcon`/`itemColor`; browser test + axe
-- [ ] T109 [P] [US8] Shim "cùng hợp đồng" (13, data-model §7): `VFieldList`, `VDatePicker`, `VErrorBoundary`,
+- [X] T109 [P] [US8] Shim "cùng hợp đồng" (13, data-model §7): `VFieldList`, `VDatePicker`, `VErrorBoundary`,
       `RenderDisplay`, `RenderTemplate`, `ExportSidebarDetail`, `SidebarDetail`, `UserPopover`, `ValueNull`, `DrawerFiles`,
       `DrawerBatch`, … đăng ký thẳng component sẵn có trong `web/directus-shim/register.ts`
-- [ ] T110 [P] [US8] Shim nhóm nút/biểu tượng: `VButton` (mở rộng `BoButton`), `VIcon` (mở rộng `BoIcon`), `VChip`
+- [X] T110 [P] [US8] Shim nhóm nút/biểu tượng: `VButton` (mở rộng `BoButton`), `VIcon` (mở rộng `BoIcon`), `VChip`
       (mở rộng `BoChip`), `VBadge`, `VAvatar`, `VIconFile`, `VImage`, `VHighlight`, `VHover` (mới) trong
       `web/directus-shim/components/`; browser test + axe từng cái
-- [ ] T111 [P] [US8] Shim nhóm nhập liệu: `VInput`, `VTextarea`, `VCheckbox`, `VCheckboxTree`, `VSlider`, `VSelect`,
+- [X] T111 [P] [US8] Shim nhóm nhập liệu: `VInput`, `VTextarea`, `VCheckbox`, `VCheckboxTree`, `VSlider`, `VSelect`,
       `VFancySelect`, `VUpload`, `VRemove` (mở rộng `Bo*`), `VRadio`, `VTemplateInput`, `VFieldTemplate`,
       `VCollectionFieldTemplate`, `VEmojiPicker` (mới; thư viện emoji như Directus); browser test + axe
-- [ ] T112 [P] [US8] Shim nhóm lớp phủ: `VMenu` (trên `BoPopover`, expose `activator/id/activate/deactivate`), `VDialog`,
+- [X] T112 [P] [US8] Shim nhóm lớp phủ: `VMenu` (trên `BoPopover`, expose `activator/id/activate/deactivate`), `VDialog`,
       `VDrawer` (mở rộng `BoDrawer`), `VOverlay`, `TransitionBounce`, `TransitionDialog`, `TransitionExpand` (port
       `expand-methods.ts`); focus theo FR-077 (Esc lớp trên cùng, trả focus); browser test + axe (ca lồng với Bo)
-- [ ] T113 [P] [US8] Shim nhóm danh sách/tab/thẻ: `VList`, `VListItem`, `VListGroup`, `VListItemContent`, `VListItemHint`,
+- [X] T113 [P] [US8] Shim nhóm danh sách/tab/thẻ: `VList`, `VListItem`, `VListGroup`, `VListItemContent`, `VListItemHint`,
       `VListItemIcon`, `VItemGroup`, `VItem` (`useGroupable` của `@directus/composables`), `VTabs`, `VTab`, `VTabsItems`,
       `VTabItem`, `VCard`, `VCardTitle`, `VCardSubtitle`, `VCardText`, `VCardActions`, `VSheet`, `VDivider`, `VDetail`;
       browser test + axe
-- [ ] T114 [P] [US8] Shim nhóm phản hồi/dữ liệu: `VNotice`, `VInfo`, `VError`, `VSkeletonLoader`, `VProgressCircular`,
+- [X] T114 [P] [US8] Shim nhóm phản hồi/dữ liệu: `VNotice`, `VInfo`, `VError`, `VSkeletonLoader`, `VProgressCircular`,
       `VProgressLinear`, `VPagination`, `VTable` (map `headers`/`items`/`itemKey`, chọn object dòng khi
       `selectionUseKeys=false`), `VTextOverflow`, `VBreadcrumb`, `VResizeable` (tay cầm có bàn phím), `VWorkspace`,
       `VWorkspaceTile`, `VForm` (`inline`), `DrawerCollection` (chuyển mọi slot), `DrawerItem`; browser test + axe
-- [ ] T115 [US8] View (FR-073, FR-074, Q-45): `web/directus-shim/views/{PrivateView,PublicView,SharedView}.vue`;
+- [X] T115 [US8] View (FR-073, FR-074, Q-45): `web/directus-shim/views/{PrivateView,PublicView,SharedView}.vue`;
       `web/layout/PageHeader.vue` thêm slot `title-outer:prepend`, `title:prepend`, `title:append`, `actions:prepend`,
       `actions:append`; `web/layout/PrivateView.vue` `provide('main-element')`; `web/layout/DetailPanel.vue` bọc
       `AccordionRoot`; `web/layout/PublicView.vue` thêm `wide`; test
-- [ ] T116 [US8] `web/directus-shim/register.ts` (`registerShims(app)`: 77 + 3 + 7, PascalCase) chỉ được import động khi
+- [X] T116 [US8] `web/directus-shim/register.ts` (`registerShims(app)`: 77 + 3 + 7, PascalCase) chỉ được import động khi
       bundle có extension app; T103 xanh; `apps/web/scripts/check-bundle.mjs` `BUDGET_020` (bundle chính ≤ `BUDGET_019`
       + 3 KB gzip), chunk shim ≤ 150 KB gzip
 
@@ -427,42 +427,42 @@ src/directus-shim` (axe, bàn phím).
 
 ### Tests cho User Story 3
 
-- [ ] T140 [P] [US3] `api/extensions/bundle.test.ts`: dựng từ bộ mẫu, chunk import bare `vue`/`pinia`/
+- [X] T140 [P] [US3] `api/extensions/bundle.test.ts`: dựng từ bộ mẫu, chunk import bare `vue`/`pinia`/
       `@directus/extensions-sdk` (không alias), extension tắt bị bỏ, entry bundle theo `enabled`, tên chunk ổn định giữa
       hai lần dựng cùng bộ file, dựng lỗi lần đầu → `getAppExtensionChunk()` null (R-63)
-- [ ] T141 [P] [US3] Web: `web/extensions.test.ts` (URL `${apiUrl}extensions/sources/index.js`, lỗi → warn, gộp nội bộ +
+- [X] T141 [P] [US3] Web: `web/extensions.test.ts` (URL `${apiUrl}extensions/sources/index.js`, lỗi → warn, gộp nội bộ +
       extension, `useExtensions`, `themes` rỗng), test `register*` của năm registry, `apps/web/vite-plugin-extensions.test.ts`
       (build nhỏ: 5 file `*.entry.js`, import map trước module script, `preserveEntrySignatures`)
 
 ### Implementation cho User Story 3
 
-- [ ] T142 [US3] `generateExtensionBundle` + `getAppExtensionChunk` trong `api/extensions/manager.ts` (rollup/rolldown,
+- [X] T142 [US3] `generateExtensionBundle` + `getAppExtensionChunk` trong `api/extensions/manager.ts` (rollup/rolldown,
       `virtual` + `nodeResolve({browser: true})`, `external: APP_SHARED_DEPS`, `TEMP_PATH/app-extensions`, luôn dựng,
       D-137); bỏ `EMPTY_APP_EXTENSION_BUNDLE`; `api/controllers/extensions.controller.ts` `sources/:chunk` whitelist + header;
       `parity/src/extensions/list.test.ts` thêm ca sources (status/header; body khác: entry `D-137` chuyển từ tạm sang
       lâu dài, chỉ body)
-- [ ] T143 [US3] `apps/web/vite.config.ts` plugin `backoffice-extensions-build` (input 5 shared dep, `entryFileNames:
+- [X] T143 [US3] `apps/web/vite.config.ts` plugin `backoffice-extensions-build` (input 5 shared dep, `entryFileNames:
       'assets/[name].[hash].entry.js'`, `preserveEntrySignatures`, chèn import map ở `generateBundle`; dev chèn ở
       `transformIndexHtml`); `web/extensions/sdk.ts` (module `@directus/extensions-sdk`, contracts/web.md §3); T020 của
       research: kiểm bằng Playwright (a) CSP không hash chặn import map, (b) dev Vite nạp được extension; ghi kết quả vào
       research (mục "Kết quả T143")
-- [ ] T144 [US3] CSP image web (FR-062): `apps/web/docker/40-config.sh` đọc import map trong `index.html`, tính sha256
+- [X] T144 [US3] CSP image web (FR-062): `apps/web/docker/40-config.sh` đọc import map trong `index.html`, tính sha256
       base64; `apps/web/docker/csp.awk` thêm `'sha256-…'` và origin `PUBLIC_URL` tuyệt đối vào `script-src`;
       `apps/web/docker/web-image.test.ts` thêm ca
-- [ ] T145 [US3] `web/extensions.ts` (port `D/app/extensions.ts`); `web/main.ts` thứ tự `loadExtensions` →
+- [X] T145 [US3] `web/extensions.ts` (port `D/app/extensions.ts`); `web/main.ts` thứ tự `loadExtensions` →
       (`registerShims` nếu có extension app) → `registerExtensions` → `useSystem` → `app.use(router)`; `web/hydrate.ts`
       `onHydrateExtensions`/`onDehydrateExtensions`
-- [ ] T146 [US3] Registry lúc chạy: `web/{interfaces,displays,layouts,panels,operations}/index.ts` thêm `register*`, giữ
+- [X] T146 [US3] Registry lúc chạy: `web/{interfaces,displays,layouts,panels,operations}/index.ts` thêm `register*`, giữ
       `get*`; `web/composables/use-extension.ts` mọi loại; `web/stores/insights.ts` đọc panel từ registry; bọc
       `ErrorBoundary` (fallback notice `unexpected_error`, FR-067) ở `FormFieldInterface.vue`, `RenderDisplay.vue`,
       wrapper layout (`web/layouts/use-layout.ts`), `PanelTile.vue`, `ExtensionOptions.vue`, `OperationDetail.vue`; test
-- [ ] T147 [US3] E2E `e2e/extensions-app-{interface,display,layout,panel,operation}.spec.ts` ba cấu hình (US3-1..7, gồm
+- [X] T147 [US3] E2E `e2e/extensions-app-{interface,display,layout,panel,operation}.spec.ts` ba cấu hình (US3-1..7, gồm
       user không phải admin); payload so Directus app ở `proxy-api`; `e2e/helpers/allowed-paths.ts` #213 cho chunk
-- [ ] T148 [US3] Acceptance chunk chéo replica (FR-051, FR-047): `parity/src/deploy/extensions.test.ts` thêm `index.js` từ
+- [X] T148 [US3] Acceptance chunk chéo replica (FR-051, FR-047): `parity/src/deploy/extensions.test.ts` thêm `index.js` từ
       replica 1 và chunk nó import từ replica 2 cùng nội dung; gọi `index.js` 20 lần qua lb chung domain, đọc log upstream
       của lb (`lbLog`): không lần nào vào `directus:8055`; `ci/kind-test.sh` kiểm endpoints của Service `-api-only` không có
       pod Directus; `parity/src/extensions/multi.test.ts` thêm ca tương tự 8156/8157
-- [ ] T149 [US3] Benchmark (FR-096, SC-006): `tests/benchmark/src/web-shared.ts` (gộp `signIn`, `track`, `p95`, `usual` của
+- [X] T149 [US3] Benchmark (FR-096, SC-006): `tests/benchmark/src/web-shared.ts` (gộp `signIn`, `track`, `p95`, `usual` của
       `web-content.ts`, `web-files-users.ts`, bỏ ghi chú `shortcut:`), `tests/benchmark/src/web-extensions.ts`, target
       `web-extensions` ở `tests/benchmark/project.json`, bước mới trong `.github/workflows/benchmark.yml` job
       `benchmark-web` (`if: ${{ !cancelled() }}`)
@@ -475,13 +475,13 @@ src/directus-shim` (axe, bàn phím).
 
 **Independent Test**: `E2E_CONFIG=<cfg> nx run web-e2e:e2e -- extensions-app-module`.
 
-- [ ] T160 [P] [US4] `web/modules/index.test.ts` (module extension đăng ký, `preRegisterCheck`, trùng id module nội bộ →
+- [X] T160 [P] [US4] `web/modules/index.test.ts` (module extension đăng ký, `preRegisterCheck`, trùng id module nội bộ →
       giữ nội bộ + warn, R-67) và `web/interfaces/_system/system-modules/modules.test.ts` (`useAllModules` có module
       extension, `OUT_OF_SCOPE_MODULES` vẫn ẩn)
-- [ ] T161 [US4] `web/modules/index.ts` nhận danh sách nội bộ + extension; `web/interfaces/_system/system-modules/
+- [X] T161 [US4] `web/modules/index.ts` nhận danh sách nội bộ + extension; `web/interfaces/_system/system-modules/
       modules.ts` `useAllModules` lấy từ `web/extensions.ts`; `web/layout/AppSidebar.vue` hiện module extension theo
       `module_bar`
-- [ ] T162 [US4] E2E `e2e/extensions-app-module.spec.ts` (bật `parity-module-report` ở Settings > Appearance, mục sidebar,
+- [X] T162 [US4] E2E `e2e/extensions-app-module.spec.ts` (bật `parity-module-report` ở Settings > Appearance, mục sidebar,
       route, slot `navigation`/`actions`/`sidebar` của `private-view` vào sub-menu, page header, popover chi tiết)
 - [ ] T163 [US4] Đóng lượt 2: như T097 + `e2e-web` ba cấu hình; commit, theo dõi CI tới xanh
 
@@ -698,3 +698,38 @@ Lượt 3:
 - Parity extensions chạy trên env có dữ liệu seed cũ: `bo_ext_items`, `bo_ext_log` tạo bằng tay theo `seed.mjs`
   (`extensionsCollections`). Một lần `toggle.test.ts` (ca bundle) quá 30 s khi chạy sau `endpoints`/`multi`, không tái
   hiện ở 5 lần chạy sau; theo dõi trên CI.
+
+### Lượt 2 (2026-10-21, đang làm)
+
+- Shim (T109–T116): 77 + 3 + 7 tên đăng ký, `contract.test.ts` xanh. Lệch có chủ đích: `VDialog`, `VMenu` teleport vào
+  `body` thay vì `#dialog-outlet`/`#menu-outlet` (modal Reka đánh `aria-hidden` lên outlet có sẵn trước khi mở, dialog mở
+  từ drawer sẽ bị ẩn); hai outlet vẫn có trong `index.html` cho extension tự teleport. `BoDialog` không cần chế độ không
+  tiêu đề: `VDialog` dựng thẳng trên Reka Dialog, tên lấy từ heading đầu của nội dung.
+- Bundle (T116): `extensions.ts` chỉ import động năm registry khi bundle có extension app; bản đầu import tĩnh làm
+  chunk chính lên 622 KB gzip (registry interface kéo theo CodeMirror). `check-bundle.mjs` nay đo entry cùng các chunk
+  nó import tĩnh (import map tách `vue`, `vue-router`, `vue-i18n`, `pinia`, `@directus/extensions-sdk` thành entry
+  riêng): 264,4 KB gzip so với 252,3 KB trước lượt 2 (+12,1 KB, research dự kiến +3 KB): mã mới khoảng +3 KB, phần còn
+  lại là năm entry giữ đủ export và gzip từng file. Vẫn dưới `BUDGET_020` (343,8 KB). Chunk shim 88,8 KB gzip (≤ 150).
+- T143 (kết quả kiểm dev): import map trỏ `/@id/<dep>` không dùng được (Vite trả 504 "Outdated Optimize Dep" vì thiếu
+  `?v=`, hoặc nạp bản thứ hai của module); dev trỏ vào module ảo `export * from '<dep>'`, Vite viết lại sang đúng URL
+  optimize app đang dùng. Kiểm bằng trình duyệt: 7 extension app đăng ký, interface lưu được giá trị.
+- `useExtension` giữ interface/display: thêm loại khác (import tĩnh registry panel/layout/operation) kéo registry panel
+  vào chunk `BoForm`, và không caller nào cần. Layout extension được bọc `ErrorBoundary` lúc `registerLayouts` (các màn
+  render layout trực tiếp ở tám chỗ). `hydrate.ts` gọi `onHydrateModules` như trước (không có `onHydrateExtensions`).
+- T142: manager vẫn giữ `EMPTY_APP_EXTENSION_BUNDLE` cho trường hợp không có extension app (fbe68014): không nạp
+  rollup lúc khởi động, tránh 503 của replica mới trong `deploy/shutdown.test.ts`; có extension app thì luôn dựng.
+- Module trùng id module nội bộ: giữ module nội bộ, `console.warn` (R-67), ở `setModules`.
+- Fixture `parity-panel-counter` sửa query `count: ['*']` → `count: ['id']`: store insights gửi query panel bằng GraphQL,
+  `count { * }` không hợp lệ ở cả hai app; dist và `.tgz` dựng lại.
+- E2E: một file `extensions-app.spec.ts` (interface, display, layout, panel, operation, module) thay sáu file, chromium;
+  `allowed-paths` #214 `GET /server/ping` là request của interface mẫu. Cấu hình `proxy-directus` đưa
+  `/extensions/sources/` vào Backoffice như lb deploy (bundle của Directus import `/admin/assets/*.entry.js` của chính nó).
+- T148: ca chunk chéo replica ở `deploy/extensions.test.ts` (tải thêm `parity-display-badge` lên bucket, gỡ ở `afterAll`
+  để replica các file sau khởi động không có extension app), `extensions/multi.test.ts` (8156/8157) và `kind-test.sh`
+  (endpoints của `bo-api-only` không có pod Directus); chưa chạy local (chờ CI).
+- T149: `web-shared.ts` gom `signIn`, `p95`, `usual`, `envValue`, `TIMEOUT` (`track` khác nhau theo màn, giữ riêng);
+  `web-extensions.ts` đo mở `/admin/content/<collection>` tới khi badge của display extension hiện; chạy thử 2 lượt trên
+  dev local đúng luồng, số đo thật chờ workflow tuần.
+- Store (T105): `notifications.add/hide/remove/update` đi vào notice tại chỗ của `use-notices` (D-66); `update` cập nhật
+  `previous` theo id (Directus gán `previous = queue.map(...)`, lỗi của bản gốc, không chép).
+

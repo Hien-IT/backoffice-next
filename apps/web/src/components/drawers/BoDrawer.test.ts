@@ -111,3 +111,16 @@ test('a nested drawer has a transparent overlay so the page dims once', async ()
 	expect(overlays[0]!.className).toContain('bg-gray-900/50');
 	expect(overlays[1]!.className).toContain('bg-transparent');
 });
+
+test('the sidebar is named by sidebarLabel, "Sidebar" when unset (spec 020)', async () => {
+	await mountDrawer({}, { sidebar: () => h('nav', 'Filters') });
+	expect(panel()!.querySelector('aside')?.getAttribute('aria-label')).toBe('Sidebar');
+});
+
+test('sidebarLabel names the sidebar and its toggle (spec 020)', async () => {
+	await mountDrawer({ sidebarLabel: 'Versions' }, { sidebar: () => h('nav', 'Filters') });
+
+	const aside = panel()!.querySelector('aside')!;
+	expect(aside.getAttribute('aria-label')).toBe('Versions');
+	expect(aside.querySelector('button')?.textContent).toContain('Versions');
+});

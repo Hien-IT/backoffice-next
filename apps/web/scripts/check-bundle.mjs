@@ -1,8 +1,8 @@
-// R12, FR-074 (T066): the entry chunk of the build, gzipped, stays within 350 KB. Fonts and lazy route chunks are
+// R12, FR-074 (T066): the main bundle of the build (entry chunk and its static imports), gzipped, stays within 350 KB. Fonts and lazy route chunks are
 // not counted (FR-074 measures the main bundle).
 // Usage: node scripts/check-bundle.mjs [distDir]
 import { readdirSync, readFileSync } from 'node:fs';
-import { basename, join, resolve } from 'node:path';
+import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { gzipSync } from 'node:zlib';
 
@@ -24,6 +24,10 @@ export const BUDGET_017 = BUDGET_016 + 20 * 1024;
 // Feature 018 (FR-109, research R12): at most 15 KB over the 017 budget; the Insights route, the panel registry,
 // ApexCharts and the notifications drawer stay in lazy chunks.
 export const BUDGET_018 = BUDGET_017 + 15 * 1024;
+// Feature 020 (T116, research R4): at most 3 KB over the 018 budget (019 left the web app as it was) for the extension
+// loader; the import map moves vue, vue-router, vue-i18n, pinia and @directus/extensions-sdk to their own entry chunks,
+// so the main bundle is the module script of index.html and every chunk it imports statically.
+export const BUDGET_020 = BUDGET_018 + 3 * 1024;
 // TinyMCE by its UI class: `tinymce` alone also names the option `tinymceOverrides` and its help links. FullCalendar by
 // its CSS class, the split panel by its root class, json-to-graphql-query by its alias keyword, tus-js-client by its
 // protocol header, Cropper.js (image editor) by its container class.
@@ -38,6 +42,7 @@ export const LAZY_ONLY = [
 	'Tus-Resumable',
 	'cropper-container',
 	'apexcharts-canvas',
+	'VErrorBoundary',
 ];
 
 // Feature 015 (T101, CHK088): the lazy chunks of the image editor, resumable uploads and the theme data stay small. Each
@@ -77,18 +82,29 @@ export const LAZY_BUDGETS_018 = [
 	{ name: 'notifications drawer', marker: 'data-notifications-drawer', limit: 15 * 1024 },
 ];
 
-export const LAZY_BUDGETS = [...LAZY_BUDGETS_015, ...LAZY_BUDGETS_016, ...LAZY_BUDGETS_017, ...LAZY_BUDGETS_018];
+// Feature 020 (T116): the v-* shim (the `VErrorBoundary` name of its registry), loaded only when the API bundle has app
+// extensions; the shim chunk alone, without the chunks it shares with the screens.
+export const LAZY_BUDGETS_020 = [{ name: 'v-* shim', marker: 'VErrorBoundary', limit: 150 * 1024 }];
+
+export const LAZY_BUDGETS = [
+	...LAZY_BUDGETS_015,
+	...LAZY_BUDGETS_016,
+	...LAZY_BUDGETS_017,
+	...LAZY_BUDGETS_018,
+	...LAZY_BUDGETS_020,
+];
 
 /**
- * Gzipped size of the largest lazy chunk (not the entry) holding each budget's marker, or named with its `file`
- * prefix; null when none does.
+ * Gzipped size of the largest lazy chunk (not one of the main bundle) holding each budget's marker, or named with its
+ * `file` prefix; null when none does.
  */
-export function lazyChunkSizes(distDir, entryFile) {
+export function lazyChunkSizes(distDir, mainFiles) {
+	const main = [mainFiles].flat();
 	const assets = join(distDir, 'assets');
 	const files = readdirSync(assets)
 		.filter((name) => name.endsWith('.js'))
 		.map((name) => join(assets, name))
-		.filter((file) => file !== entryFile);
+		.filter((file) => !main.includes(file));
 
 	return LAZY_BUDGETS.map((budget) => {
 		const sizes = files
@@ -100,34 +116,50 @@ export function lazyChunkSizes(distDir, entryFile) {
 	});
 }
 
-/** Library markers found in the entry chunk that must only be in lazy chunks. */
-export function lazyLeaks(file) {
-	const code = readFileSync(file, 'utf8');
+/** Library markers found in the main bundle that must only be in lazy chunks. */
+export function lazyLeaks(mainFiles) {
+	const code = [mainFiles]
+		.flat()
+		.map((file) => readFileSync(file, 'utf8'))
+		.join('\n');
 	return LAZY_ONLY.filter((marker) => code.includes(marker));
 }
 
-/** Gzipped size of the module script index.html loads (`/admin/assets/index-*.js`). */
+/** The chunk and the chunks it imports statically (`import"./x.js"`, `from"./x.js"`; not `import("./x.js")`). */
+export function staticClosure(file, seen = new Set()) {
+	if (seen.has(file)) return [...seen];
+	seen.add(file);
+	for (const [, name] of readFileSync(file, 'utf8').matchAll(/(?:\bimport|\bfrom)\s*["']\.\/([^"']+\.js)["']/g)) {
+		staticClosure(join(dirname(file), name), seen);
+	}
+	return [...seen];
+}
+
+/** Gzipped size of the module script index.html loads (`/admin/assets/index*.js`) and its static imports. */
 export function entrySize(distDir) {
 	const html = readFileSync(join(distDir, 'index.html'), 'utf8');
 	const src = /<script[^>]+type="module"[^>]+src="([^"]+)"/.exec(html)?.[1];
 	if (!src) throw new Error('no module script in index.html');
 
 	const file = join(distDir, src.replace(/^\/admin\//, ''));
-	return { file, gzip: gzipSync(readFileSync(file)).length };
+	const files = staticClosure(file);
+	return { file, files, gzip: files.reduce((sum, chunk) => sum + gzipSync(readFileSync(chunk)).length, 0) };
 }
 
 if (import.meta.url === pathToFileURL(process.argv[1] ?? '').href) {
 	const distDir = resolve(process.argv[2] ?? join(fileURLToPath(new URL('.', import.meta.url)), '../dist'));
-	const { file, gzip } = entrySize(distDir);
+	const { file, files, gzip } = entrySize(distDir);
 	const kb = (gzip / 1024).toFixed(1);
 
-	const leaks = lazyLeaks(file);
-	const limit = Math.min(LIMIT, BUDGET_018);
+	const leaks = lazyLeaks(files);
+	const limit = Math.min(LIMIT, BUDGET_020);
 
-	process.stdout.write(`check-bundle: ${file} ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`);
+	process.stdout.write(
+		`check-bundle: ${file} and ${files.length - 1} static imports ${kb} KB gzip (limit ${(limit / 1024).toFixed(1)} KB)\n`,
+	);
 	if (leaks.length) process.stdout.write(`check-bundle: lazy-only libraries in the entry chunk: ${leaks.join(', ')}\n`);
 
-	const lazy = lazyChunkSizes(distDir, file);
+	const lazy = lazyChunkSizes(distDir, files);
 	for (const chunk of lazy) {
 		const size = chunk.gzip === null ? 'not found' : `${(chunk.gzip / 1024).toFixed(1)} KB gzip`;
 		process.stdout.write(`check-bundle: lazy ${chunk.name} ${size} (limit ${(chunk.limit / 1024).toFixed(1)} KB)\n`);

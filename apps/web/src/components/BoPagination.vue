@@ -18,15 +18,17 @@ const props = withDefaults(
 		showFirstLast?: boolean;
 		/** Accessible name of the nav (for example the collection name) */
 		label: string;
+		/** Also shown with one page or none (v-pagination, spec 020) */
+		alwaysShow?: boolean;
 	}>(),
-	{ disabled: false, totalVisible: 7, showFirstLast: true },
+	{ disabled: false, totalVisible: 7, showFirstLast: true, alwaysShow: false },
 );
 
 /** Currently selected page */
 const modelValue = defineModel<number>({ required: true });
 
 const visiblePages = computed<number[]>(() => {
-	if (props.totalVisible === undefined) return [];
+	if (!props.totalVisible) return [];
 
 	let startPage: number;
 	let endPage: number;
@@ -53,16 +55,18 @@ const visiblePages = computed<number[]>(() => {
 	return Array.from(Array(endPage + 1 - startPage).keys()).map((i) => startPage + i);
 });
 
+// v-pagination: no first/last without `totalVisible` (0 here, since the default fills undefined in).
+const firstLast = computed(() => props.showFirstLast && !!props.totalVisible);
 const half = computed(() => Math.ceil(props.totalVisible / 2));
 const showFirst = computed(
-	() => props.showFirstLast && modelValue.value > half.value + 1 && props.length > props.totalVisible,
+	() => firstLast.value && modelValue.value > half.value + 1 && props.length > props.totalVisible,
 );
 const showStartGap = computed(() => showFirst.value && props.length > props.totalVisible + 1);
 const showEndGap = computed(
-	() => props.showFirstLast && modelValue.value < props.length - half.value && props.length > props.totalVisible + 1,
+	() => firstLast.value && modelValue.value < props.length - half.value && props.length > props.totalVisible + 1,
 );
 const showLast = computed(
-	() => props.showFirstLast && modelValue.value <= props.length - half.value && props.length > props.totalVisible,
+	() => firstLast.value && modelValue.value <= props.length - half.value && props.length > props.totalVisible,
 );
 
 function toPage(page: number) {
@@ -76,7 +80,7 @@ const CURRENT = 'bg-brand-500 text-white';
 </script>
 
 <template>
-	<nav v-if="length > 1" :aria-label="label" class="flex items-center gap-1">
+	<nav v-if="length > 1 || alwaysShow" :aria-label="label" class="flex items-center gap-1">
 		<button
 			type="button"
 			:class="[BUTTON, IDLE]"

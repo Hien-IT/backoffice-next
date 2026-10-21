@@ -52,6 +52,14 @@ if [ "$(kubectl get endpoints bo-api -o jsonpath='{.subsets[0].addresses[*].ip}'
 else
 	fail "Service bo-api has the BE pods and Directus"
 fi
+# Spec 020 (T148, D-137): the app extension chunks go to the BE pods only, through the -api-only Service.
+directus_ip=$(kubectl get pods -l app=directus -o jsonpath='{.items[0].status.podIP}')
+api_only=$(kubectl get endpoints bo-api-only -o jsonpath='{.subsets[0].addresses[*].ip}')
+if [ -n "$api_only" ] && [ -n "$directus_ip" ] && ! printf '%s\n' $api_only | grep -qx "$directus_ip"; then
+	ok "Service bo-api-only has the BE pods without Directus"
+else
+	fail "Service bo-api-only has the BE pods without Directus ($api_only; directus $directus_ip)"
+fi
 
 # Load through the Ingress while the BE rolls and the HPA changes the replica count (SC-003).
 password=$(kubectl get secret directus-secret -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)

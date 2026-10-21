@@ -1,6 +1,5 @@
 // Ported from directus/api/src/services/extensions.ts
-// Backoffice (spec 020): full port; EMPTY_APP_EXTENSION_BUNDLE (spec 010) stays the bundle the controller serves until
-// the app bundle is built (T142, wave 2).
+// Backoffice (spec 020): full port.
 import { useEnv } from '@backoffice/env';
 import { ForbiddenError, InvalidPayloadError, LimitExceededError, UnprocessableContentError } from '@backoffice/errors';
 import type {
@@ -20,13 +19,6 @@ import { getExtensionManager } from '../extensions/index.js';
 import { describe, type DescribeOptions } from '../extensions/registry/index.js';
 import { transaction } from '../utils/transaction.js';
 import { ItemsService } from './items.service.js';
-
-/**
- * The app extension bundle Directus builds with rollup from an entrypoint that registers no extension (research R6
- * of spec 010), byte for byte.
- */
-export const EMPTY_APP_EXTENSION_BUNDLE =
-	'const interfaces = [];const displays = [];const layouts = [];const modules = [];const panels = [];const themes = [];const operations = [];\n\nexport { displays, interfaces, layouts, modules, operations, panels, themes };\n';
 
 export class ExtensionReadError extends Error {
 	originalError: unknown;

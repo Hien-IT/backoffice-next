@@ -4,8 +4,8 @@
 // CollectionRoute. The temporary preset (FR-019) is never written. No layout options in the drawer, as Directus
 // drawer-collection.vue (016: the 014 sidebar section was removed). The layout is only mounted while the drawer is
 // open, so nothing is fetched while it is closed (013), unless `eager` (018: the relational variable panel loads it like
-// Directus). The `sidebar` slot of the callers (folders of the files
-// drawer) is the drawer sidebar, only when given.
+// Directus). Every slot of the caller is passed to the drawer as Directus does (the files drawer gives `sidebar`;
+// spec 020: extensions may give any BoDrawer slot).
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
 import { isEqual } from 'lodash-es';
@@ -190,6 +190,11 @@ function useActions() {
 			@cancel="cancel"
 			@apply="save"
 		>
+			<!-- Every slot of the caller goes to the drawer, as drawer-collection.vue (the files drawer gives `sidebar`). -->
+			<template v-for="(_, slot) of $slots" #[slot]="scope">
+				<slot :name="slot" v-bind="scope || {}" />
+			</template>
+
 			<template #actions:prepend>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 			</template>
@@ -198,10 +203,6 @@ function useActions() {
 				<SearchInput v-model="search" v-model:filter="presetFilter" :collection="collection" />
 
 				<BoButton icon="check" :aria-label="t('save')" :disabled="!hasSelectionChanged" @click="save" />
-			</template>
-
-			<template v-if="$slots['sidebar']" #sidebar>
-				<slot name="sidebar" />
 			</template>
 
 			<component :is="currentLayout?.component" v-bind="layoutState">

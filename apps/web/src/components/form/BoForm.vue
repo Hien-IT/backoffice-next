@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-form/v-form.vue -->
 <script setup lang="ts">
 // Backoffice: template per the form grid (layout-patterns §8: two columns, `with-fill` third column above 726px);
-// use-ai-tools and the collab context are removed (D-54); `inline` is not ported. Comparison mode (spec 014 FR-072,
+// use-ai-tools and the collab context are removed (D-54); `inline` only changes the no-fields info (spec 020). Comparison mode (spec 014 FR-072,
 // lifts D-55): a nested group form reads the parent's `comparison` through FORM_COMPARISON (group interfaces do not
 // pass it on), and a differing field gets the recipe Q-10 highlight instead of the field-indicator bar. Group interfaces come from the registry: a group field whose interface is null or
 // not registered is not rendered, nor its children, without a warning (measured on Directus, spec Edge Cases, T004).
@@ -56,6 +56,8 @@ const props = withDefaults(
 		disabledMenu?: boolean | undefined;
 		direction?: string | undefined;
 		showDivider?: boolean | undefined;
+		/** The "no visible fields" info without icon, aligned to the start (v-form `inline`, spec 020) */
+		inline?: boolean | undefined;
 		version?: ContentVersion | null;
 		comparison?: ComparisonContext | undefined;
 	}>(),
@@ -461,9 +463,10 @@ function getGroupInterface(fieldName: string) {
 		/>
 		<div
 			v-if="noVisibleFields && showNoVisibleFields && !loading"
-			class="col-span-full flex flex-col items-center rounded-2xl border border-gray-200 bg-white px-5 py-7 text-center xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]"
+			class="col-span-full flex flex-col rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]"
+			:class="{ 'items-center text-center': !inline }"
 		>
-			<BoIcon name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
+			<BoIcon v-if="!inline" name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
 			<p class="text-base font-medium text-gray-800 dark:text-white/90">{{ $t('no_visible_fields') }}</p>
 			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('no_visible_fields_copy') }}</p>
 		</div>
