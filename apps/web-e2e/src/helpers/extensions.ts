@@ -3,10 +3,13 @@
 import type { APIRequestContext } from '@playwright/test';
 import { expect } from '@playwright/test';
 import { AdminApi } from './api.js';
-import { apiUrl, directusUrl } from './config.js';
+import { apiUrl, directusUrl, isCors } from './config.js';
 
-/** Directus, the Backoffice API of the main pair and the API of the configuration. */
-const NODES = [...new Set([directusUrl, 'http://127.0.0.1:8156', apiUrl])];
+/**
+ * Directus, the Backoffice API of the main pair and the API of the configuration. The cors API (8163) has its own Redis
+ * namespaces: no node reloads on its bus message, so there only that API loads what it installs.
+ */
+const NODES = isCors ? [apiUrl] : [...new Set([directusUrl, 'http://127.0.0.1:8156', apiUrl])];
 
 export async function loadedEverywhere(request: APIRequestContext, id: string): Promise<void> {
 	const apis = NODES.map((url) => new AdminApi(request, url));

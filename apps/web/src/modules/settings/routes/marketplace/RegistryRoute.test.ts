@@ -86,13 +86,15 @@ test('the route query drives the request; a filter change sends page back to 1',
 	expect(wrapper.get('li a').text()).not.toContain('Interface');
 
 	await router.push({ query: { ...router.currentRoute.value.query, sort: 'downloads' } });
-	await vi.waitFor(() => expect(registryCalls(fetch)).toHaveLength(2));
+	// The sort change may send one request with page 2 before the page reset (2 or 3 calls by timing, CI 39616173873).
+	await vi.waitFor(() =>
+		expect(registryCalls(fetch).at(-1)).toBe(
+			'GET /extensions/registry?search=color&limit=10&offset=0&filter[type][_eq]=interface&sort=downloads',
+		),
+	);
 	await settled(wrapper);
 
 	expect(router.currentRoute.value.query['page']).toBeUndefined();
-	expect(registryCalls(fetch).at(-1)).toBe(
-		'GET /extensions/registry?search=color&limit=10&offset=0&filter[type][_eq]=interface&sort=downloads',
-	);
 });
 
 test('pagination writes the page to the query', async () => {

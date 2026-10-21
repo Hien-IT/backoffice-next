@@ -101,9 +101,9 @@ test('a registry extension: Uninstall through the fake registry (T096, #207; Rei
 	await api.call('POST', '/extensions/registry/install', {
 		data: { extension, version: 'f0000000-0000-4000-8000-000000000001' },
 	});
-	await loadedEverywhere(request, extension);
 
 	try {
+		await loadedEverywhere(request, extension);
 		await open(page);
 		const registryRow = page.locator(`[data-extension-id="${extension}"]`);
 		await expect(registryRow).toBeVisible();
