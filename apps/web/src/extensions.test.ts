@@ -1,5 +1,6 @@
 import { describe, expect, test, vi } from 'vitest';
-import { defineComponent } from 'vue';
+import { mount } from '@vue/test-utils';
+import { createApp, defineComponent, h } from 'vue';
 
 vi.mock('./api/sdk.ts', () => ({ getApiUrl: () => 'https://api.example.com/' }));
 
@@ -64,7 +65,8 @@ describe('extensions (spec 020, FR-060..FR-069)', () => {
 		await import('./layouts/index.ts');
 
 		expect(hasAppExtensions()).toBe(true);
-		await registerExtensions();
+		const app = createApp({ render: () => null });
+		await registerExtensions(app);
 
 		expect(getInterface('parity-interface')?.id).toBe('parity-interface');
 		expect(getInterface('input')?.id).toBe('input');
@@ -76,5 +78,20 @@ describe('extensions (spec 020, FR-060..FR-069)', () => {
 		const extensions = useExtensions();
 		expect(extensions.interfaces.value.map(({ id }) => id)).toContain('parity-interface');
 		expect(extensions.themes.value).toEqual([]);
+
+		// Global components as the Directus app registers them (extensions render e.g. `interface-input-code`).
+		for (const name of [
+			'interface-input',
+			'interface-parity-interface',
+			'display-parity-display',
+			'layout-tabular',
+			'panel-parity-panel',
+		])
+			expect(app.component(name), name).toBeTruthy();
+
+		// The DOM of an extension component sits in the data-bo-extension box (styles/base.css `.hidden` rule).
+		const wrapper = mount(defineComponent({ render: () => h(getInterface('parity-interface')!.component as never) }));
+		expect(wrapper.find('[data-bo-extension]').exists()).toBe(true);
+		expect((getInterface('input')!.component as { name?: string }).name).not.toBe('BoExtension');
 	}, 60_000);
 });

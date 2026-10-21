@@ -32,6 +32,7 @@ export function registerModules(initial: ModuleConfig[]): {
 	// of app extensions (extensions.ts); the shell keeps one registeredModules ref.
 	let modules = initial;
 	const registeredModules = shallowRef<ModuleConfig[]>([]);
+	const removeRoutes: (() => void)[] = [];
 
 	const onHydrateModules = async () => {
 		const userStore = useUserStore();
@@ -54,19 +55,22 @@ export function registerModules(initial: ModuleConfig[]): {
 		).filter((module): module is ModuleConfig => module !== null);
 
 		for (const module of registeredModules.value) {
-			router.addRoute({
-				name: module.id,
-				path: `/${module.id}`,
-				component: RouterPass,
-				children: module.routes,
-			});
+			// Backoffice: an extension that names a child route after its module id (Directus 11 builds allow it) would make
+			// the dev build of vue-router throw; the parent route stays unnamed then, its children keep their names.
+			const childNamed = module.routes.some((route) => route.name === module.id);
+			removeRoutes.push(
+				router.addRoute({
+					...(childNamed ? {} : { name: module.id }),
+					path: `/${module.id}`,
+					component: RouterPass,
+					children: module.routes,
+				}),
+			);
 		}
 	};
 
 	const onDehydrateModules = async () => {
-		for (const module of modules) {
-			if (router.hasRoute(module.id)) router.removeRoute(module.id);
-		}
+		for (const remove of removeRoutes.splice(0)) remove();
 
 		registeredModules.value = [];
 	};

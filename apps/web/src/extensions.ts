@@ -3,7 +3,7 @@
 // import map of index.html resolves its shared dependencies, research R4); the registries are the id lookups of
 // 013/017/018 with register* added; theme extensions are not registered (D-135, `themes` stays empty).
 import type { App } from 'vue';
-import { shallowRef, type ShallowRef, watch } from 'vue';
+import { type Component, defineComponent, h, shallowRef, type ShallowRef, watch } from 'vue';
 import { getApiUrl } from './api/sdk.ts';
 import type { DisplayConfig } from './displays/types.ts';
 import type { InterfaceConfig } from './interfaces/types.ts';
@@ -63,7 +63,7 @@ export function hasAppExtensions(): boolean {
  * Without app extensions the registries keep their internal configs and nothing is loaded: the registries stay in
  * the lazy chunks of their screens (bundle budget, T116). With app extensions they are loaded and extended here.
  */
-export async function registerExtensions(_app?: App): Promise<void> {
+export async function registerExtensions(app?: App): Promise<void> {
 	if (!customExtensions || !hasAppExtensions()) return;
 
 	const [interfacesRegistry, displaysRegistry, layoutsRegistry, panelsRegistry, operationsRegistry] = await Promise.all(
@@ -76,12 +76,18 @@ export async function registerExtensions(_app?: App): Promise<void> {
 		],
 	);
 
-	const interfaces = [...interfacesRegistry.getInternalInterfaces(), ...(customExtensions.interfaces ?? [])];
-	const displays = [...displaysRegistry.getInternalDisplays(), ...(customExtensions.displays ?? [])];
-	const layouts = [...layoutsRegistry.getInternalLayouts(), ...(customExtensions.layouts ?? [])];
-	const modules = [...getInternalModules(), ...(customExtensions.modules ?? [])];
-	const panels = [...panelsRegistry.getInternalPanels(), ...(customExtensions.panels ?? [])];
-	const operations = [...operationsRegistry.getInternalOperations(), ...(customExtensions.operations ?? [])];
+	const interfaces = [
+		...interfacesRegistry.getInternalInterfaces(),
+		...(customExtensions.interfaces ?? []).map(markConfig),
+	];
+	const displays = [...displaysRegistry.getInternalDisplays(), ...(customExtensions.displays ?? []).map(markConfig)];
+	const layouts = [...layoutsRegistry.getInternalLayouts(), ...(customExtensions.layouts ?? []).map(markConfig)];
+	const modules = [...getInternalModules(), ...(customExtensions.modules ?? []).map(markConfig)];
+	const panels = [...panelsRegistry.getInternalPanels(), ...(customExtensions.panels ?? []).map(markConfig)];
+	const operations = [
+		...operationsRegistry.getInternalOperations(),
+		...(customExtensions.operations ?? []).map(markConfig),
+	];
 
 	interfacesRegistry.registerInterfaces(interfaces);
 	displaysRegistry.registerDisplays(displays);
@@ -89,6 +95,38 @@ export async function registerExtensions(_app?: App): Promise<void> {
 	panelsRegistry.registerPanels(panels);
 	operationsRegistry.registerOperations(operations);
 	setModules(modules);
+
+	// Directus registers each config as a global component (interfaces/index.ts, displays/index.ts... of directus/app):
+	// extensions render them by name (e.g. `interface-input-code`), so they are registered too, with the same checks.
+	if (app) {
+		const isComponent = (value: unknown) => value != null && typeof value !== 'function' && !Array.isArray(value);
+		const add = (name: string, component: unknown) => {
+			if (isComponent(component) && !app.component(name)) app.component(name, component as Component);
+		};
+
+		for (const { id, component, options } of interfaces) {
+			add(`interface-${id}`, component);
+			add(`interface-options-${id}`, options);
+		}
+		for (const { id, component, options } of displays) {
+			add(`display-${id}`, component);
+			add(`display-options-${id}`, options);
+		}
+		for (const { id, component, slots } of layoutsRegistry.getLayouts()) {
+			add(`layout-${id}`, component);
+			add(`layout-options-${id}`, slots.options);
+			add(`layout-sidebar-${id}`, slots.sidebar);
+			add(`layout-actions-${id}`, slots.actions);
+		}
+		for (const { id, component, options } of panels) {
+			add(`panel-${id}`, component);
+			add(`panel-options-${id}`, options);
+		}
+		for (const { id, overview, options } of operations) {
+			add(`operation-overview-${id}`, overview);
+			add(`operation-options-${id}`, options);
+		}
+	}
 
 	watch(
 		i18n.global.locale,
@@ -109,6 +147,48 @@ export async function registerExtensions(_app?: App): Promise<void> {
 			immediate: true,
 		},
 	);
+}
+
+/**
+ * The DOM an app extension renders sits in `<div data-bo-extension style="display: contents">` (no box of its own):
+ * there the Tailwind `hidden` utility of the app does not hide an extension's own `.hidden` class (styles/base.css),
+ * as in the Directus app, which has no such global class. Component objects only: a function may be a lazy route or a
+ * functional display.
+ */
+function marked<T>(component: T): T {
+	// Not an array either: the `options` of an interface or operation can be a list of fields.
+	if (!component || typeof component !== 'object' || Array.isArray(component)) return component;
+
+	return defineComponent({
+		name: 'BoExtension',
+		inheritAttrs: false,
+		setup(_props, { attrs, slots }) {
+			return () =>
+				h('div', { 'data-bo-extension': '', style: 'display: contents' }, [h(component as Component, attrs, slots)]);
+		},
+	}) as T;
+}
+
+type Parts = { component?: unknown; options?: unknown; slots?: Record<string, unknown>; routes?: unknown[] };
+
+/** An extension config with its components marked (routes of a module included, nested children too). */
+function markConfig<T>(config: T): T {
+	const parts = config as Parts;
+	const route = (r: { component?: unknown; children?: unknown[] }): unknown => ({
+		...r,
+		component: marked(r.component),
+		...(r.children ? { children: r.children.map((c) => route(c as typeof r)) } : {}),
+	});
+
+	return {
+		...parts,
+		...('component' in parts ? { component: marked(parts.component) } : {}),
+		...('options' in parts ? { options: marked(parts.options) } : {}),
+		...(parts.slots
+			? { slots: Object.fromEntries(Object.entries(parts.slots).map(([key, slot]) => [key, marked(slot)])) }
+			: {}),
+		...(parts.routes ? { routes: parts.routes.map((r) => route(r as { component?: unknown })) } : {}),
+	} as T;
 }
 
 let ready: Promise<void> = Promise.resolve();

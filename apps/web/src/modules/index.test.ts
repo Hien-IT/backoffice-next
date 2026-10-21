@@ -127,4 +127,29 @@ describe('registerModules (FR-022)', () => {
 		expect((router.value as ReturnType<typeof createRouter>).hasRoute('report')).toBe(true);
 		warn.mockRestore();
 	});
+
+	test('an extension module whose child route has the module id registers and is removed on dehydrate', async () => {
+		setUser(true, {});
+		const component = { render: () => null };
+		const { onHydrateModules, onDehydrateModules } = registerModules([
+			{
+				id: 'schema-tool',
+				name: 'Schema',
+				icon: 'box',
+				routes: [
+					{ name: 'schema-tool', path: '', redirect: '/schema-tool/schema' },
+					{ name: 'schema-tool-schema', path: 'schema', component },
+				],
+			} as never,
+		]);
+		const r = router.value as ReturnType<typeof createRouter>;
+
+		await onHydrateModules();
+		await r.push('/schema-tool');
+		expect(r.currentRoute.value.name).toBe('schema-tool-schema');
+
+		await onDehydrateModules();
+		expect(r.hasRoute('schema-tool')).toBe(false);
+		expect(r.hasRoute('schema-tool-schema')).toBe(false);
+	});
 });

@@ -69,3 +69,13 @@
 		border: 0;
 	}
 }
+
+/* Spec 020: inside what an app extension renders (extensions.ts `marked`), an extension's own `.hidden` class (Directus
+   extensions use it for "hidden collection" styles) is not the Tailwind `display: none` utility: the Directus app has no
+   such global class. Utilities of the app's own components there always carry a variant (`hidden dark:block`), the
+   map controls toggle a bare `hidden`. A layer after `utilities`: the extension's own CSS (not layered) still wins. */
+@layer bo-extensions {
+	[data-bo-extension] .hidden:not([class*=':']):not(.maplibregl-ctrl *) {
+		display: revert;
+	}
+}

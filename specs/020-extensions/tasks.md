@@ -769,4 +769,15 @@ Lượt 3:
   duyệt 341 extension sandbox, trang extension, readme; cài `directus-extension-sortable-gallery` 1.0.1 → registry trả 500
   cho `/download/848b8c5f…` (cả không `sandbox`), app trả 503 "Could not download the extension" và để lại dòng cha + 2 dòng
   con bundle như Directus (R-59), gỡ bằng uninstall. Tải của extension khác (group-tabs, computed) trả 200.
+- Thử extension thật `directus-extension-schema-management-module` 2.0.1 (owner 2026-10-21, registry thật, API từ
+  source): ba lỗi sửa: (1) route con tên trùng id module (`schema-management-module`) làm vue-router bản dev ném lỗi
+  (Directus và bản build production không kiểm) → route cha không đặt tên khi trùng, gỡ route bằng handle của
+  `addRoute`; (2) class `hidden` của extension trùng utility Tailwind `display:none` (owner chọn chặn riêng `hidden`):
+  DOM của extension nằm trong `div[data-bo-extension]` (`display: contents`), layer `bo-extensions` sau `utilities`
+  trả `display` về mặc định cho `.hidden` không variant (trừ nút bản đồ); CSS của extension (không layer) vẫn thắng;
+  (3) extension render component toàn cục `interface-input-code` → đăng ký `interface-*`, `interface-options-*`,
+  `display-*`, `display-options-*`, `layout-*`, `panel-*`, `panel-options-*`, `operation-overview/options-*` như
+  `directus/app/src/{interfaces,displays,layouts,panels,operations}/index.ts` khi bundle có extension app.
+- Directus thoát (NoSuchKey) khi node đang sync `extensions/.registry/*` mà file bị gỡ giữa chừng: test parity và E2E
+  chỉ gỡ sau khi mọi node đã nạp (`loadedEverywhere`); vận hành thật nên tránh gỡ ngay sau khi cài.
 
