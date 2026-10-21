@@ -3,6 +3,7 @@
 // registry are the same; PATCH and DELETE /:pk are those of Directus since spec 020 wave 1; install, reinstall and
 // uninstall through the fake registry since spec 020 wave 3 (D-37 lifted): one app after the other (they share the
 // database and the storage), the same status and the same directus_extensions row at each.
+import { setTimeout as sleep } from 'node:timers/promises';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb, hostDb } from '../auth/db-effects.js';
 import { attachPolicy, cleanup, createPolicy, createUser, type TestUser } from '../permissions/fixtures.js';
@@ -135,7 +136,13 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then t
 			const installed = await row();
 			if (install === 204) await loadedEverywhere(EXTENSION);
 			const reinstall = await call(url, 'POST', '/extensions/registry/reinstall', { extension: EXTENSION });
-			if (reinstall === 204) await loadedEverywhere(EXTENSION);
+			// The extension is still loaded from the install, so loadedEverywhere returns at once while the nodes reload for the
+			// reinstall; an uninstall during such a reload lets that node create the row again (both apps, CI 39641635370).
+			// No API tells a reload has ended: give the reloads (1-2 s each) time first.
+			if (reinstall === 204) {
+				await sleep(5000);
+				await loadedEverywhere(EXTENSION);
+			}
 			const uninstall = await call(url, 'DELETE', `/extensions/registry/uninstall/${EXTENSION}`);
 			seen[app] = { install, installed, reinstall, uninstall, after: await rows() };
 		}
