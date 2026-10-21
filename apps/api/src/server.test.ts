@@ -118,6 +118,24 @@ describe('startServer', () => {
 		await vi.waitFor(() => expect(logger.info).toHaveBeenCalledWith(`Server started at http://127.0.0.1:${port}`));
 	});
 
+	// Spec 020 (FR-048, T065): createApp loads the extensions (sync included) before the port opens, so a pod is only
+	// ready, and only receives traffic, once its extensions are loaded.
+	test('the port opens only after createApp (extension loading) resolved', async () => {
+		const port = await getPort();
+		let resolveApp!: (value: unknown) => void;
+		vi.mocked(createApp).mockReturnValue(new Promise((resolve) => (resolveApp = resolve)) as any);
+
+		const { startServer } = await load({ PORT: String(port) });
+		const started = startServer();
+
+		await new Promise((resolve) => setTimeout(resolve, 50));
+		await expect(fetch(`http://127.0.0.1:${port}/`)).rejects.toThrow();
+
+		resolveApp({ express: (_req: any, res: any) => res.end('ok') });
+		servers.push(await started);
+		await vi.waitFor(async () => expect(await (await fetch(`http://127.0.0.1:${port}/`)).text()).toBe('ok'));
+	});
+
 	test('listens on UNIX_SOCKET_PATH', async () => {
 		const path = `/tmp/bo-${process.pid}-${Date.now()}.sock`;
 		const { startServer } = await load({ UNIX_SOCKET_PATH: path });

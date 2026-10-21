@@ -42,6 +42,8 @@ export function compose(...args: string[]): string {
 		'setup',
 		// Feature 011 (research R9): the GraphQL pair with introspection off.
 		'graphql-nointro',
+		// Feature 020 (contracts/tests.md §3): the extensions pair.
+		'extensions',
 	].flatMap((p) => ['--profile', p]);
 
 	return execFileSync(

@@ -36,3 +36,6 @@ playwright-report/
 
 # Local storage written by unit tests (default STORAGE_LOCAL_ROOT)
 apps/api/uploads/
+
+# Feature 020: fixture extensions commit their built dist/ (tests/fixtures/extensions, research R11)
+!tests/fixtures/extensions/*/dist/

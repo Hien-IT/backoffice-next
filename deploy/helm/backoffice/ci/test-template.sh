@@ -47,6 +47,8 @@ check "api runs as 1000, web as 1001" sh -c "grep -q 'runAsUser: 1000' '$d' && g
 check "no privilege escalation (both)" test "$(count "$d" 'allowPrivilegeEscalation: false')" -eq 2
 check "all capabilities dropped (both)" test "$(count "$d" 'drop: \[ALL\]')" -eq 2
 check "Ingress: /admin to web, / to api" sh -c "grep -q 'name: bo-web, port: { number: 8080 }' '$d' && grep -q 'name: bo-api, port: { number: 8055 }' '$d'"
+check "Ingress: /extensions/sources to api-only, before /admin" sh -c "grep -q 'name: bo-api-only, port: { number: 8055 }' '$d' && awk '/path: \\/extensions\\/sources/{e=NR} /path: \\/admin/{a=NR} END{exit !(e && a && e<a)}' '$d'"
+check "api-only Service selects the api pods, not the pool" sh -c "awk '/name: bo-api-only/{f=1} f&&/selector:/{s=1} s&&/app.kubernetes.io\\/component: api/{ok=1} END{exit !ok}' '$d' && ! awk '/name: bo-api-only/{f=1} f&&/backoffice.io\\/api-pool/{exit 0} END{exit 1}' '$d'"
 
 s=$out/separate.yaml
 check "separate domain: PUBLIC_URL on api and web only" test "$(count "$s" 'name: PUBLIC_URL')" -eq 2
@@ -69,7 +71,8 @@ sed -i.bak \
 good="--set-string fakeLookup.configMap.data.CACHE_STORE=redis
 --set-string fakeLookup.configMap.data.RATE_LIMITER_STORE=redis --set-string fakeLookup.configMap.data.SYNCHRONIZATION_STORE=redis
 --set-string fakeLookup.configMap.data.DB_CLIENT=pg --set-string fakeLookup.configMap.data.STORAGE_LOCATIONS=s3
---set-string fakeLookup.configMap.data.STORAGE_S3_DRIVER=s3 --set-string fakeLookup.secret.data.SECRET=$(printf s | base64)"
+--set-string fakeLookup.configMap.data.STORAGE_S3_DRIVER=s3 --set-string fakeLookup.configMap.data.EXTENSIONS_LOCATION=s3
+--set-string fakeLookup.secret.data.SECRET=$(printf s | base64)"
 redis="--set-string fakeLookup.configMap.data.REDIS=redis://r"
 render() { $helm template bo "$fake" $base $good ${NO_REDIS:-$redis} "$@" 2>&1; }
 expect_ok() { if render "$@" >/dev/null; then echo "ok   $desc"; else echo "FAIL $desc: $(render "$@" | tail -3)"; fails=$((fails + 1)); fi; }
@@ -93,6 +96,13 @@ desc="FR-053: sqlite" expect_fail 'DB_CLIENT is "sqlite3"' --set-string fakeLook
 desc="FR-053: local driver without PVC" expect_fail 'storage location "files" uses the local driver' \
 	--set-string fakeLookup.configMap.data.STORAGE_LOCATIONS=s3\\,files --set-string fakeLookup.configMap.data.STORAGE_FILES_DRIVER=local
 desc="FR-053: local driver with a PVC passes" expect_ok --set-string fakeLookup.configMap.data.STORAGE_LOCATIONS=local --set uploads.existingClaim=pvc
+desc="020 FR-045: no EXTENSIONS_LOCATION with HPA stops" expect_fail "EXTENSIONS_LOCATION is empty" \
+	--set-string fakeLookup.configMap.data.EXTENSIONS_LOCATION=
+desc="020 FR-045: no EXTENSIONS_LOCATION with 2 fixed replicas stops" expect_fail "EXTENSIONS_LOCATION is empty" \
+	--set-string fakeLookup.configMap.data.EXTENSIONS_LOCATION= --set api.autoscaling.enabled=false --set api.replicas=2
+desc="020 FR-045: one replica without EXTENSIONS_LOCATION passes" expect_ok \
+	--set-string fakeLookup.configMap.data.EXTENSIONS_LOCATION= --set api.autoscaling.enabled=false --set api.replicas=1
+desc="020 FR-045: extensions.inImage=true passes" expect_ok --set-string fakeLookup.configMap.data.EXTENSIONS_LOCATION= --set extensions.inImage=true
 sep="--set domain.publicUrl=https://backoffice.example.com --set ingress.host=backoffice.example.com"
 desc="FR-076: foreign cookie domain stops" expect_fail 'REFRESH_TOKEN_COOKIE_DOMAIN="cms.example.com" in ConfigMap cm does not cover the Backoffice host "backoffice.example.com"' \
 	$sep --set-string fakeLookup.configMap.data.REFRESH_TOKEN_COOKIE_DOMAIN=cms.example.com

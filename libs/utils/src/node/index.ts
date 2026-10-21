@@ -11,3 +11,6 @@ export * from './fetch-global-access/lib/fetch-global-access-for-roles.js';
 export * from './fetch-global-access/lib/fetch-global-access-for-user.js';
 export * from './fetch-roles-tree.js';
 export * from './tmp.js';
+export * from './list-folders.js';
+export * from './path-to-relative-url.js';
+export * from './resolve-package.js';

@@ -36,7 +36,7 @@ Chi tiết: [research.md](./research.md) R1–R14, [data-model.md](./data-model.
 
 **Language/Version**: TypeScript 5.9.3 strict, Node.js 22 LTS, ESM, pnpm 10.27, Nx 23; Express 5.2.1 (D-139); trình duyệt như 012 (import map: Chrome 89+, Firefox 108+, Safari 16.4+)
 
-**Primary Dependencies**: API thêm rollup 4.59.0, rolldown 1.0.0-beta.31, @rollup/plugin-virtual 3.0.2, @rollup/plugin-node-resolve 16.0.3, chokidar 5.0.0, node-machine-id 1.1.12, tar 7.5.8, fs-extra 11.3.2, glob-to-regexp 0.4.1 (cùng bản Directus 11.17.4; isolated-vm 5.0.3, p-queue, ky, express 5 đã có); web thêm @directus/composables 11.4.1, axios 1.15.0, semver 7.7.3, @vueuse/router 14.0.0, pinia đổi 3.0.3 → 2.3.1; fixtures @directus/extensions-sdk 17.1.4
+**Primary Dependencies**: API thêm rollup 4.59.0, rolldown 1.0.0-beta.31, @rollup/plugin-virtual 3.0.2, @rollup/plugin-node-resolve 16.0.3, chokidar 5.0.0, node-machine-id 1.1.12, tar 7.5.19 (security patch of the Directus 7.5.8), fs-extra 11.3.2, glob-to-regexp 0.4.1 (cùng bản Directus 11.17.4; isolated-vm 5.0.3, p-queue, ky, express 5 đã có); web thêm @directus/composables 11.4.1, axios 1.15.0, semver 7.7.3, @vueuse/router 14.0.0, pinia đổi 3.0.3 → 2.3.1; fixtures @directus/extensions-sdk 17.1.4
 
 **Storage**: không bảng mới; `directus_extensions` dùng chung, ghi qua ItemsService như Directus; file extension trên storage `EXTENSIONS_LOCATION` (S3/MinIO) + cache local `TEMP_PATH/extensions`; bundle app `TEMP_PATH/app-extensions` mỗi node; Redis: bus `extensions.reload`, khóa `extensions-sync/*`, `extensions-settings`, clock schedule
 

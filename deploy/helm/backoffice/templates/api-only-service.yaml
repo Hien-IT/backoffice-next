@@ -1,0 +1,15 @@
+# Spec 020 (D-137, Q2 = A): the Backoffice API pods only, without the Directus pods of the pool, for the app extension
+# chunks (/extensions/sources): the new web app needs the chunks that keep bare specifiers for its import map.
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "backoffice.name" . }}-api-only
+  labels:
+    {{- include "backoffice.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  type: ClusterIP
+  selector:
+    {{- include "backoffice.selector" (dict "Release" .Release "component" "api") | nindent 4 }}
+  ports:
+    - { name: http, port: 8055, targetPort: 8055 }

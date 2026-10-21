@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/components/navigation.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 FR-003, layout-patterns §12, Q-24): a flat sub-menu of three groups split by dividers. The AI,
-// Marketplace, Extensions and System Logs rows are out of scope (D-93). No Report Bug / Request Feature group (D-94)
+// Backoffice (spec 016 FR-003, layout-patterns §12, Q-24): a flat sub-menu of groups split by dividers. The AI and
+// System Logs rows are out of scope (D-93); Extensions since spec 020 (Marketplace in its wave 3). No Report Bug / Request Feature group (D-94)
 // and no version row at the end (D-95).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -29,6 +29,7 @@ const groups = computed<Link[][]>(() => [
 		{ icon: 'bookmark', name: t('settings_presets'), to: '/settings/presets' },
 		{ icon: 'translate', name: t('settings_translations'), to: '/settings/translations' },
 	],
+	[{ icon: 'category', name: t('extensions'), to: '/settings/extensions' }],
 ]);
 
 const isActive = (link: Link) => route.path === link.to || route.path.startsWith(`${link.to}/`);

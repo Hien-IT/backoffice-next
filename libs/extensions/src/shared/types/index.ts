@@ -1,0 +1,27 @@
+// Ported from directus/packages/extensions/src/shared/types/index.ts
+// Backoffice: API side types only (the web app takes the app configs from @directus/types, feature 013).
+export type {
+	ApiExtensionContext,
+	ApiOutput,
+	EndpointExtensionContext,
+	EndpointConfig,
+	AppExtensionType,
+	ApiExtensionType,
+	HybridExtensionType,
+	BundleExtensionType,
+	NestedExtensionType,
+	ExtensionType,
+	AppExtension,
+	ApiExtension,
+	HybridExtension,
+	BundleExtensionEntry,
+	BundleExtension,
+	Extension,
+	HookExtensionContext,
+	RegisterFunctions,
+	HookConfig,
+	OperationContext,
+	OperationHandler,
+	OperationApiConfig,
+	ExtensionSettings,
+} from '@backoffice/types';

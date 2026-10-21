@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/utils/import-file-url.ts",
+		"dest": "apps/api/src/utils/import-file-url.ts"
+	},
+	{
+		"source": "api/src/utils/get-module-default.ts",
+		"dest": "apps/api/src/utils/get-module-default.ts"
+	},
+	{
+		"source": "api/src/utils/delete-from-require-cache.ts",
+		"dest": "apps/api/src/utils/delete-from-require-cache.ts"
+	}
+]

@@ -32,7 +32,7 @@ pnpm nx run parity-tests:env-down --vendor=postgres
 
   | Profile             | Directus | Backoffice | Cấu hình                                                              |
   | ------------------- | -------- | ---------- | --------------------------------------------------------------------- |
-  | (chính)             | 8155     | 8156       | `env/<vendor>.env`                                                    |
+  | (chính)             | 8155     | 8156       | `env/<vendor>.env` + `env/extensions.env` (bộ extension mẫu, 020)     |
   | `ratelimit`         | 8255     | 8256       | `env/profile-ratelimit.env`                                           |
   | `cors-hsts`         | 8355     | 8356       | `env/profile-cors-hsts.env`                                           |
   | `pressure`          | 8455     | 8456       | `env/profile-pressure.env`                                            |
@@ -49,6 +49,7 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   | `websocket`         | 9455     | 9456       | `env/profile-websocket.env` (`WEBSOCKETS_ENABLED=true`)               |
   | `blackbox`          | 9555     | 9556       | `env/profile-blackbox.env` (bộ `blackbox`, env của Directus blackbox) |
   | `web`               | —        | 8163       | `env/profile-web-cors.env` (web 8180, 8181; proxy 8161, 8162)         |
+  | `extensions`        | 10655    | 10656      | `env/profile-extensions.env` (feature 020: prefix `extensions-ext`)   |
 
   Database dùng cổng host 6100–6107, Redis 6108, MinIO 8881.
 

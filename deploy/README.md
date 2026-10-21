@@ -90,16 +90,17 @@ hình thiếu (cảnh báo một instance của 001 chưa có `SYNCHRONIZATION_S
 
 **Bắt buộc** (thiếu thì hệ thống nhiều instance chạy sai):
 
-| Biến                                                                                                      | Giá trị cần                                                | Mặc định Directus                            | Thiếu thì sao                                                                                                                   | Nguồn                                                                                                        |
-| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `DB_CLIENT` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` (hoặc `DB_CONNECTION_STRING`) | cùng một DB thật cho mọi instance                          | image đặt `sqlite3` với file trong container | mỗi container một DB riêng                                                                                                      | `apps/api/Dockerfile`, `directus/Dockerfile`                                                                 |
-| `SECRET`                                                                                                  | một chuỗi cố định, giống nhau ở mọi instance               | không có; mỗi process tự sinh ngẫu nhiên     | token do instance này cấp bị instance kia từ chối                                                                               | `directus/api/src/utils/get-secret.ts:13-18`                                                                 |
-| `REDIS` (hoặc `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`...)                                            | trỏ cùng một Redis                                         | không có                                     | bus xóa cache schema/quyền và lock chỉ chạy trong từng process                                                                  | `directus/api/src/bus/lib/use-bus.ts:18`, `lock/lib/use-lock.ts:17`, `redis/utils/redis-config-available.ts` |
-| `REDIS_ENABLED` (nếu có đặt)                                                                              | `true`                                                     | không có                                     | có đặt mà khác `true` thì Redis bị tắt dù có `REDIS`                                                                            | như trên                                                                                                     |
-| `CACHE_STORE`                                                                                             | `redis`                                                    | `memory`                                     | cache hệ thống và lock cache riêng từng instance (kể cả khi `CACHE_ENABLED=false`)                                              | `directus/api/src/cache.ts:62-84`                                                                            |
-| `RATE_LIMITER_STORE`                                                                                      | `redis`                                                    | `memory`                                     | bộ đếm lần đăng nhập (ngưỡng là setting `auth_login_attempts`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34,137-149`                                                     |
-| `SYNCHRONIZATION_STORE`                                                                                   | `redis`                                                    | không có (dùng bộ nhớ process)               | flow theo lịch, job dọn TUS, retention chạy trên mọi instance                                                                   | `directus/api/src/synchronization.ts:20`                                                                     |
-| `STORAGE_LOCATIONS` + `STORAGE_<LOCATION>_DRIVER` và khóa của driver                                      | `s3` (hoặc `local` trên volume `ReadWriteMany` dùng chung) | `local`                                      | mỗi container thấy file khác nhau                                                                                               | Nguyên tắc VII                                                                                               |
+| Biến                                                                                                      | Giá trị cần                                                | Mặc định Directus                                | Thiếu thì sao                                                                                                                   | Nguồn                                                                                                        |
+| --------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| `DB_CLIENT` + `DB_HOST`, `DB_PORT`, `DB_DATABASE`, `DB_USER`, `DB_PASSWORD` (hoặc `DB_CONNECTION_STRING`) | cùng một DB thật cho mọi instance                          | image đặt `sqlite3` với file trong container     | mỗi container một DB riêng                                                                                                      | `apps/api/Dockerfile`, `directus/Dockerfile`                                                                 |
+| `SECRET`                                                                                                  | một chuỗi cố định, giống nhau ở mọi instance               | không có; mỗi process tự sinh ngẫu nhiên         | token do instance này cấp bị instance kia từ chối                                                                               | `directus/api/src/utils/get-secret.ts:13-18`                                                                 |
+| `REDIS` (hoặc `REDIS_HOST`, `REDIS_PORT`, `REDIS_PASSWORD`...)                                            | trỏ cùng một Redis                                         | không có                                         | bus xóa cache schema/quyền và lock chỉ chạy trong từng process                                                                  | `directus/api/src/bus/lib/use-bus.ts:18`, `lock/lib/use-lock.ts:17`, `redis/utils/redis-config-available.ts` |
+| `REDIS_ENABLED` (nếu có đặt)                                                                              | `true`                                                     | không có                                         | có đặt mà khác `true` thì Redis bị tắt dù có `REDIS`                                                                            | như trên                                                                                                     |
+| `CACHE_STORE`                                                                                             | `redis`                                                    | `memory`                                         | cache hệ thống và lock cache riêng từng instance (kể cả khi `CACHE_ENABLED=false`)                                              | `directus/api/src/cache.ts:62-84`                                                                            |
+| `RATE_LIMITER_STORE`                                                                                      | `redis`                                                    | `memory`                                         | bộ đếm lần đăng nhập (ngưỡng là setting `auth_login_attempts`) đếm riêng từng instance (kể cả khi `RATE_LIMITER_ENABLED=false`) | `directus/api/src/services/authentication.ts:34,137-149`                                                     |
+| `SYNCHRONIZATION_STORE`                                                                                   | `redis`                                                    | không có (dùng bộ nhớ process)                   | flow theo lịch, job dọn TUS, retention chạy trên mọi instance                                                                   | `directus/api/src/synchronization.ts:20`                                                                     |
+| `STORAGE_LOCATIONS` + `STORAGE_<LOCATION>_DRIVER` và khóa của driver                                      | `s3` (hoặc `local` trên volume `ReadWriteMany` dùng chung) | `local`                                          | mỗi container thấy file khác nhau                                                                                               | Nguyên tắc VII                                                                                               |
+| `EXTENSIONS_LOCATION` (spec 020)                                                                          | một location của `STORAGE_LOCATIONS` (vd `s3`)             | không có (đọc `EXTENSIONS_PATH` trong container) | mỗi node nạp bộ extension riêng; cài ở một node, node khác không thấy                                                           | `directus/api/src/extensions/lib/sync/sync.ts`                                                               |
 
 **Bắt buộc theo tình huống**:
 
@@ -123,11 +124,38 @@ Tự kiểm khi không dùng Helm:
 
 ```bash
 # compose
-grep -E '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE|SECRET|DB_CLIENT|STORAGE_)' .env
+grep -E '^(REDIS|CACHE_STORE|RATE_LIMITER_STORE|SYNCHRONIZATION_STORE|SECRET|DB_CLIENT|STORAGE_|EXTENSIONS_LOCATION)' .env
 # Kubernetes
-kubectl get configmap <tên> -o yaml | grep -E 'REDIS|_STORE|DB_CLIENT|STORAGE_'
+kubectl get configmap <tên> -o yaml | grep -E 'REDIS|_STORE|DB_CLIENT|STORAGE_|EXTENSIONS_LOCATION'
 kubectl get secret <tên> -o jsonpath='{.data.SECRET}' | base64 -d | wc -c
 ```
+
+## Extensions (spec 020)
+
+Backoffice nạp cùng extension đã build cho Directus 11.17.4 (trừ `theme`): hook, endpoint, operation chạy trong API mới,
+interface, display, layout, module, panel trong app web mới.
+
+- **Nhiều replica**: mọi node, Directus lẫn Backoffice, đặt cùng `EXTENSIONS_PATH` (mặc định `./extensions`) và cùng
+  `EXTENSIONS_LOCATION` (vd `s3`, prefix `extensions/` trong bucket). Mỗi node sync từ storage lúc khởi động (pod chỉ
+  ready sau khi sync và nạp xong) và khi có thông báo trên kênh bus `extensions.reload`. Chart dừng cài và nâng cấp khi
+  nhiều replica (hoặc HPA) mà `EXTENSIONS_LOCATION` rỗng, trừ khi `extensions.inImage=true`.
+- **Cài**: Settings > Marketplace của app web mới hoặc của Directus app (cùng bảng `directus_extensions`, cùng storage);
+  cài ở một node thì node khác thấy trong vài giây.
+- **Nguồn `module`**: khai báo gói extension trong `dependencies` của `apps/api/package.json`, build lại image API.
+- **Đóng sẵn vào image**: image dẫn xuất chép extension vào `/directus/extensions`, đặt `extensions.inImage=true`, không
+  dùng marketplace (bản cài sẽ không tới các pod khác).
+- **Nâng cấp từ 019**: đặt `EXTENSIONS_LOCATION` trong ConfigMap/`.env` dùng chung (hoặc `extensions.inImage=true`)
+  trước `helm upgrade`; compose: thêm `EXTENSIONS_LOCATION=s3` vào `.env`.
+- **Load balancer**: `/extensions/sources/*` (chunk app extension) chỉ tới Backoffice (`bo_pool` ở compose, Service
+  `<release>-api-only` ở Helm): chunk của app web mới giữ bare specifier cho import map (D-137), chunk của Directus thì
+  không.
+- **Extension làm crash**: tắt nó rồi khởi động lại các node:
+  `UPDATE directus_extensions SET enabled = false WHERE folder = '<thư mục>';` (hoặc xóa thư mục trên storage), rồi
+  `kubectl rollout restart deployment/<release>-api` / `docker compose up -d --force-recreate backoffice-api directus`.
+- **Node lệch bộ extension** (một node lỡ thông báo reload, R-65): `PATCH` bật tắt một extension bất kỳ (mọi node sync
+  lại) hoặc rollout restart.
+- Không bật `EXTENSIONS_AUTO_RELOAD` khi chạy nhiều instance (theo dõi thư mục cục bộ, không qua storage chung); mỗi
+  container một process (khóa sync theo máy).
 
 ## Tắt máy an toàn
 

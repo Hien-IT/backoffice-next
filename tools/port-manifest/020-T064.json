@@ -1,0 +1,34 @@
+[
+	{
+		"source": "api/src/extensions/lib/sync/status.test.ts",
+		"dest": "apps/api/src/extensions/lib/sync/status.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/status.ts",
+		"dest": "apps/api/src/extensions/lib/sync/status.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/sync.test.ts",
+		"dest": "apps/api/src/extensions/lib/sync/sync.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/sync.ts",
+		"dest": "apps/api/src/extensions/lib/sync/sync.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/tracker.test.ts",
+		"dest": "apps/api/src/extensions/lib/sync/tracker.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/tracker.ts",
+		"dest": "apps/api/src/extensions/lib/sync/tracker.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/utils.test.ts",
+		"dest": "apps/api/src/extensions/lib/sync/utils.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sync/utils.ts",
+		"dest": "apps/api/src/extensions/lib/sync/utils.ts"
+	}
+]

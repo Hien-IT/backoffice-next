@@ -23,7 +23,7 @@ Hai quyết định owner chốt khi plan (2026-10-21), ghi vào spec Clarificat
 | `@rollup/plugin-virtual` 3.0.2, `@rollup/plugin-node-resolve` 16.0.3 | | `apps/api` dependencies | entry ảo và resolve `node_modules` của extension. Không cần `@rollup/plugin-alias` (R4: shared dep là external bare, không đổi tên) |
 | `chokidar` | 5.0.0 | `apps/api` dependencies | `EXTENSIONS_AUTO_RELOAD` (FR-006) |
 | `node-machine-id` | 1.1.12 | `apps/api` dependencies | khóa sync theo máy (R6) |
-| `tar` | 7.5.8 | `apps/api` dependencies | giải nén tarball registry (R7). Lockfile có `tar@6.2.1` qua `sqlite3` (auditConfig bỏ qua advisory của tar 6); tar 7 là gói riêng |
+| `tar` | 7.5.19 (Directus 7.5.8; bản vá bảo mật, Kết quả T001) | `apps/api` dependencies | giải nén tarball registry (R7). Lockfile có `tar@6.2.1` qua `sqlite3` (auditConfig bỏ qua advisory của tar 6); tar 7 là gói riêng |
 | `fs-extra` 11.3.2 (+ `@types/fs-extra` 11.0.4, đã có catalog) | | `apps/api` | `move`, `remove` của installation; `listFolders` |
 | `glob-to-regexp` 0.4.1 (+ `@types/glob-to-regexp` 0.4.4) | | `apps/api` | scope `request.urls` của sandbox (R5) |
 | `p-queue` 8.1.0, `isolated-vm` 5.0.3, `ky`, `encodeurl`, `zod`, `lodash-es`, `express` 5.2.1 | | đã có | |
@@ -428,8 +428,8 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
 **Quyết định**: Router/app Express 5.2.1; `query parser` đã là hàm `qs.parse` chép từ Directus
 (`app-pipeline.ts:40-45`) nên `req.query` giống Directus; `strict routing`/`case sensitive routing` Directus không đặt
 (mặc định) → giữ mặc định. Danh sách D-139 (ghi vào spec; nguồn: `express@5.2.1` `lib/*.js`, `router@2.2.0`,
-`path-to-regexp@8.4.2`; mục cú pháp path theo README path-to-regexp 8 [Unverified, T042 kiểm bằng
-`parity-endpoint-express4`]):
+`path-to-regexp@8.4.2`; mục cú pháp path đã đo ở T042 bằng `parity-endpoint-express4(-path)` ngày 2026-10-21, kết quả
+từng mục ở bảng D-139 của spec; khác dự kiến: `res.send(status)` trả 200 với body là số, không 500):
 
 1. Cú pháp path (path-to-regexp 8): `*` phải có tên (`/*splat`), `?` và `+` sau param không còn, không regex trong
    chuỗi (`/:pk(uuid)`), nhóm tùy chọn viết `{/:param}`; `app.use('/x/*')` cũ ném lỗi khi đăng ký.
@@ -485,8 +485,21 @@ ghi nhận lỗi 500/404 có chủ đích (entry D-139 trong `accepted-differenc
 | `tests/parity` có `@aws-sdk/client-s3` | Có (`package.json:12`) | grep |
 | Fake registry không có `/download` | Đúng (`server.mjs:55-75`) | agent |
 | `requests.spec.ts:43` cấm `/extensions` | Đúng | agent |
-| `rolldown` musl binding | [Unverified] | T001 |
+| `rolldown` musl binding | Có (Kết quả T001) | T001 |
 | Import map trong Vite dev (`/@id/`) | [Unverified] | T143 |
 | Cú pháp path-to-regexp 8 | [Unverified] theo README | T042 |
 
 Chưa kiểm: không chạy mã nào, không build image; kiểm kê 77 component chờ báo cáo agent (bổ sung ở `data-model.md`).
+
+## Kết quả T001 (2026-10-21)
+
+- `rolldown` 1.0.0-beta.31 và `rollup` 4.59.0 nạp được trong `node:22.23.3-alpine3.24` linux/amd64 (binding musl có;
+  `npm i` trong container, `import('rolldown')` trả hàm). Giữ `EXTENSIONS_ROLLDOWN`.
+- `node-machine-id` 1.1.12 trong container alpine không có `/etc/machine-id`, `/var/lib/dbus/machine-id`: trả
+  sha256(hostname) (khớp `echo -n $(hostname) | sha256sum`). Mỗi container một khóa sync (R6 đúng).
+- Image `hiennd23/backoffice-api:local` (019): user `node` uid 1000 sở hữu `/directus`, `/directus/node_modules`,
+  `/directus/extensions`; tạo được `node_modules/.directus/{extensions,app-extensions,marketplace}`.
+- `pnpm audit --prod --audit-level=high` xanh. `tar` 7.5.8 (bản Directus) có 3 advisory mức moderate
+  (GHSA-vmf3-w455-68vh, GHSA-w8wr-v893-vjvp, GHSA-gvwx-54wh-qm9j, sửa ở 7.5.16–7.5.18) → dùng **tar 7.5.19** (bản vá
+  bảo mật, như joi 18.2.6 của 003; tar không quyết định định dạng dữ liệu dùng chung). Các gói mới khác không có
+  advisory.

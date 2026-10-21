@@ -58,10 +58,10 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
 - `FIELD_DISABLED`:
   `disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 disabled:placeholder:text-gray-300 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03] dark:disabled:placeholder:text-white/15`
 - Label: `mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90`; disabled label
-  `text-gray-300 dark:text-white/15`. Changed from TailAdmin (owner, 2026-10-17, feature 017): a field label is
-  semibold gray-800 and an option label (Checkbox, Radio, Toggle, CheckboxTree row) normal gray-700 / dark gray-300,
-  so a field and its choices read apart (TailAdmin gives both `font-medium text-gray-700 dark:text-gray-400`; Directus
-  also sets the field label above its options).
+  `text-gray-300 dark:text-white/15`. Changed from TailAdmin (owner, 2026-10-17, feature 017): a field label is semibold
+  gray-800 and an option label (Checkbox, Radio, Toggle, CheckboxTree row) normal gray-700 / dark gray-300, so a field
+  and its choices read apart (TailAdmin gives both `font-medium text-gray-700 dark:text-gray-400`; Directus also sets
+  the field label above its options).
 - Required mark: `<span class="text-error-600 dark:text-error-400" aria-hidden="true">*</span>`
 - Hint: `mt-1.5 text-theme-xs text-gray-500 dark:text-gray-400`
 - Error message: `mt-1.5 text-theme-xs text-error-600 dark:text-error-400`
@@ -975,12 +975,11 @@ Shared parts (each component declares the constants it uses locally; there is no
 ### Field label row (Q-1; Directus `form-field-label`, `form-field-menu`)
 
 - Built: `components/form/FormFieldLabel.vue`, `FormFieldMenu.vue`, `FormField.vue`, `FormFieldRawEditor.vue`.
-- Row: `group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-white/90` (the
-  Tier 1 Label, owner 2026-10-17); the name
-  is the `<label for>` (`min-w-0 truncate`, full name in `title`; its `id` is used by `aria-labelledby` for groups);
-  batch-edit Checkbox (labelled by the label) before it (Directus batch mode). Disabled field:
-  `text-gray-500 dark:text-gray-400`. Deviation: Tier 1 disabled labels are gray-300; the form keeps disabled labels
-  readable (4.97:1).
+- Row: `group mb-1.5 flex min-h-6 items-center gap-1.5 text-sm font-semibold text-gray-800 dark:text-white/90` (the Tier
+  1 Label, owner 2026-10-17); the name is the `<label for>` (`min-w-0 truncate`, full name in `title`; its `id` is used
+  by `aria-labelledby` for groups); batch-edit Checkbox (labelled by the label) before it (Directus batch mode).
+  Disabled field: `text-gray-500 dark:text-gray-400`. Deviation: Tier 1 disabled labels are gray-300; the form keeps
+  disabled labels readable (4.97:1).
 - Required: the Tier 1 required mark + sr-only "required". Edited dot:
   `h-1.5 w-1.5 rounded-full bg-gray-500 dark:bg-gray-400`, Tooltip and sr-only `edited` (Directus uses the subdued text
   color; research R6's `bg-warning-500` is not used); hidden in batch mode, on error and while loading.
@@ -1110,8 +1109,9 @@ Built: `layouts/cards/{Cards,CardsActions,CardsOptions}.vue`, `layouts/cards/com
 - Selection: a BoCheckbox outside the link (no interactive element inside a link),
   `absolute start-3 top-3 rounded-md bg-white dark:bg-gray-900`,
   `opacity-0 group-hover:opacity-100 focus-within:opacity-100` (always visible in select mode or when any card is
-  selected), `aria-label` `select_item_key`; selected card `border-brand-500 ring-1 ring-inset ring-brand-500` (dark `brand-400`): a 2px brand
-  border drawn inside the card, as an outer ring is clipped by the scrolling grid of `fill` pages (owner 2026-10-21).
+  selected), `aria-label` `select_item_key`; selected card `border-brand-500 ring-1 ring-inset ring-brand-500` (dark
+  `brand-400`): a 2px brand border drawn inside the card, as an outer ring is clipped by the scrolling grid of `fill`
+  pages (owner 2026-10-21).
 - Header bar above the grid (`CardsHeader`):
   `mb-6 flex flex-wrap items-center justify-between gap-3 border-y border-gray-200 px-2 py-2 dark:border-gray-800`:
   select-all BoCheckbox (indeterminate while items are selected, a click clears them), then card size `ICON_BTN`
@@ -1340,7 +1340,8 @@ Built: `components/sidebar/{RevisionsSidebarDetail,RevisionsDateGroup,RevisionIt
   `truncate text-theme-xs text-gray-500`; `revision_delta_created_externally` on the last page; BoPagination compact,
   centered. Deviation: the dot colors are the recipe ones (Directus: primary for create, update and version save, danger
   for delete); the user name is plain text (Directus nests a user popover button inside the row button, invalid HTML).
-- Comparison modal: a Reka Dialog with the Tier 1 Modal overlay (`bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60`) and panel
+- Comparison modal: a Reka Dialog with the Tier 1 Modal overlay
+  (`bg-gray-900/40 backdrop-blur-[2px] dark:bg-gray-950/60`) and panel
   `max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-6xl rounded-3xl bg-white dark:bg-gray-900`, sr-only title
   (`promote_version` / `item_revision`); body two columns `grid grid-cols-1 md:grid-cols-2` (the second with
   `md:border-l`), each with a `ComparisonHeader` (`text-lg font-semibold` title, date and `edited_by` user; the incoming
@@ -1420,31 +1421,31 @@ Built: `components/sidebar/{ExportSidebarDetail,ImportErrorDialog}.vue`, `module
 
 Recipes for the questions Q-14 to Q-16, Q-18 and Q-19 of `specs/015-files-users-modules/spec.md`, written before the
 code (T006, T007, FR-110) and compared with the code at the end of the feature; approved by the design owner on
-2026-10-16 (Q-14 with the checkbox name change below). Q-13 and Q-17 are in
-`layout-patterns.md` §11. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+2026-10-16 (Q-14 with the checkbox name change below). Q-13 and Q-17 are in `layout-patterns.md` §11. Tokens and the
+`FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
 
 ### Folder cards and drop zone (Q-14; Directus `modules/files/routes/collection.vue`, `folder-section.vue`)
 
 - Folder cards come first in the cards grid through the layout `prepend` slot (`hasPrependContent`), only on the cards
   layout and only without search, filter and special view (Directus). A folder card is the 014 Card with
   `icon="folder"`, no image request, the folder name as title and no subtitle; the body is a link to
-  `/files/folders/<id>`; the selection BoCheckbox sits outside the link, named "Select <card title>".
-  Selected folders and files share the header count (`selection + extraSelection`) and select-all.
-- Drop zone over the whole library page while files are dragged from the OS: four fixed bars around the `<main>`
-  box (`pointer-events-none fixed z-99999 bg-brand-500`, 2px thick, `aria-hidden`); not shown over a `BoUpload`
-  dropzone (`data-dropzone`).
+  `/files/folders/<id>`; the selection BoCheckbox sits outside the link, named "Select <card title>". Selected folders
+  and files share the header count (`selection + extraSelection`) and select-all.
+- Drop zone over the whole library page while files are dragged from the OS: four fixed bars around the `<main>` box
+  (`pointer-events-none fixed z-99999 bg-brand-500`, 2px thick, `aria-hidden`); not shown over a `BoUpload` dropzone
+  (`data-dropzone`).
 - Notices in the page header notice area (D-66, `BoNotice` info, `aria-live="polite"`): `drop_to_upload`
   (`cloud_upload`) while dragging; `upload_files_indeterminate` with done/total and a BoProgressLinear while uploading;
   removed when done.
-- Empty states: the 014 blank state with `folder` icon, `file_count` 0, `no_files_copy` and a primary Button
-  `add_file` (disabled with tooltip `not_allowed` without create).
+- Empty states: the 014 blank state with `folder` icon, `file_count` 0, `no_files_copy` and a primary Button `add_file`
+  (disabled with tooltip `not_allowed` without create).
 - Built: `modules/files/components/FolderSection.vue` (the 014 `layouts/cards/Card.vue` per folder, `icon="folder"`),
   `layouts/cards/Cards.vue` + `CardsHeader.vue` (`prepend` slot, `hasPrependContent`, `extraSelection`, `select-all`),
   drop zone and notices in `modules/files/routes/FilesCollectionRoute.vue`; folder delete in
   `modules/files/components/DeleteFolderDialog.vue`.
-- Owner change (2026-10-16): every card checkbox (folders and files, the shared 014 Card) is named by
-  `aria-labelledby` = an sr-only "Select" (`select_item_key` without the item) and the card title, so "Select bo-files";
-  a card without a title keeps `select_item_key` with the item key.
+- Owner change (2026-10-16): every card checkbox (folders and files, the shared 014 Card) is named by `aria-labelledby`
+  = an sr-only "Select" (`select_item_key` without the item) and the card title, so "Select bo-files"; a card without a
+  title keeps `select_item_key` with the item key.
 
 ### File page and file details (Q-15; Directus `modules/files/routes/item.vue`, `file-info-sidebar-detail.vue`)
 
@@ -1459,10 +1460,10 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
   parents open, `disabledFolders` rows `opacity-50` and `aria-disabled`.
 - File details section of the detail panel (014 SidebarDetail): a `dl` with rows
   `grid grid-cols-[7rem_1fr] gap-x-3 gap-y-2 text-theme-sm`, `dt` `text-gray-500 dark:text-gray-400`, `dd`
-  `text-gray-800 dark:text-white/90 break-words`; dates show the short form with the long form in a BoTooltip; owner
-  and editor are links with UserPopover; "open in new window" link with `open_in_new` and sr-only "opens in a new tab";
-  copy id is an `ICON_BTN` `content_copy` with `aria-label` `copy_id`; EXIF rows (camera, exposure, shutter, focal
-  length, ISO) after a divider.
+  `text-gray-800 dark:text-white/90 break-words`; dates show the short form with the long form in a BoTooltip; owner and
+  editor are links with UserPopover; "open in new window" link with `open_in_new` and sr-only "opens in a new tab"; copy
+  id is an `ICON_BTN` `content_copy` with `aria-label` `copy_id`; EXIF rows (camera, exposure, shutter, focal length,
+  ISO) after a divider.
 - Built: `modules/files/routes/FileItemRoute.vue`, `components/files/FilePreviewReplace.vue`,
   `components/files/FolderPicker.vue`, `modules/files/components/FileInfoSidebarDetail.vue`.
 - Deviation: the preview has no `max-h-[60vh]` (FilePreview of 013 sizes the media); delete and move are secondary icon
@@ -1472,16 +1473,17 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 
 ### Image editor (Q-16; Directus `views/private/components/image-editor.vue`)
 
-- BoDrawer (013) full width (`w-full` at every breakpoint), title `editing_image`, subtitle
-  `changes_are_permanent` in `text-warning-600 dark:text-warning-500`; header actions: primary save icon Button
-  (`check`, disabled without edits) with a menu button (`more_vert`) holding `save_as_new_file` when create is allowed.
-- Canvas area `flex-1 bg-gray-900` holding the Cropper.js view; Cropper colors set from the theme (crop box and
-  handles `brand-500`, modal backdrop `bg-gray-900/60`) in the editor's CSS, no raw hex.
-- Toolbar below the canvas: `flex flex-wrap items-center gap-2 border-t border-gray-200 bg-white px-4 py-3
-  dark:border-gray-800 dark:bg-gray-900`; a segmented group of three `ICON_BTN` (`pan_tool` move, `crop` crop,
-  `location_searching` focal point) with `aria-pressed`; then rotate (`rotate_90_degrees_ccw`), flip horizontal, flip
-  vertical, aspect ratio menu button (icon by ratio, BoMenu with custom ratios, a divider, 16:9, 3:2, 5:4, 7:5, square,
-  free, original; the active item has a check); a spacer; reset (`restart_alt`); the dimensions text
+- BoDrawer (013) full width (`w-full` at every breakpoint), title `editing_image`, subtitle `changes_are_permanent` in
+  `text-warning-600 dark:text-warning-500`; header actions: primary save icon Button (`check`, disabled without edits)
+  with a menu button (`more_vert`) holding `save_as_new_file` when create is allowed.
+- Canvas area `flex-1 bg-gray-900` holding the Cropper.js view; Cropper colors set from the theme (crop box and handles
+  `brand-500`, modal backdrop `bg-gray-900/60`) in the editor's CSS, no raw hex.
+- Toolbar below the canvas:
+  `flex flex-wrap items-center gap-2 border-t border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-gray-900`;
+  a segmented group of three `ICON_BTN` (`pan_tool` move, `crop` crop, `location_searching` focal point) with
+  `aria-pressed`; then rotate (`rotate_90_degrees_ccw`), flip horizontal, flip vertical, aspect ratio menu button (icon
+  by ratio, BoMenu with custom ratios, a divider, 16:9, 3:2, 5:4, 7:5, square, free, original; the active item has a
+  check); a spacer; reset (`restart_alt`); the dimensions text
   `text-theme-sm tabular-nums text-gray-500 dark:text-gray-400`; a secondary small Button `cancel_crop` /
   `cancel_selection` while cropping. Every button has a name and a BoTooltip.
 - Exception (FR-111, owner 2026-10-15): dragging the crop box and the focal point is mouse only, as Directus.
@@ -1496,12 +1498,13 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 
 ### User box (Q-18; Directus `modules/users/routes/item.vue`)
 
-- Above the form, same width (`max-w-5xl`): `flex items-center gap-5 rounded-2xl border border-gray-200 p-5
-  dark:border-gray-800`; avatar `size-20 rounded-full object-cover` (`system-medium-cover`), fallback BoIcon
-  `account_circle` `size-20 text-gray-400`; skeleton circle and three lines while loading.
+- Above the form, same width (`max-w-5xl`):
+  `flex items-center gap-5 rounded-2xl border border-gray-200 p-5 dark:border-gray-800`; avatar
+  `size-20 rounded-full object-cover` (`system-medium-cover`), fallback BoIcon `account_circle` `size-20 text-gray-400`;
+  skeleton circle and three lines while loading.
 - Text: name `text-lg font-semibold text-gray-800 dark:text-white/90` with `, <title>` in
-  `font-normal text-gray-500 dark:text-gray-400`; email and location rows `text-theme-sm text-gray-500 dark:text-gray-400`
-  with `alternate_email` / `place` icons (`aria-hidden`).
+  `font-normal text-gray-500 dark:text-gray-400`; email and location rows
+  `text-theme-sm text-gray-500 dark:text-gray-400` with `alternate_email` / `place` icons (`aria-hidden`).
 - Role chip: Badge (Tier 1) light variant by status: active `success`, invited `warning`, draft `light` (gray),
   suspended `error`, archived `light`; the status is also in the text for screen readers (sr-only "(<status>)").
 - Built: the user box in `modules/users/routes/UserItemRoute.vue`; information panel
@@ -1514,13 +1517,13 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 ### Invite, TFA, token and theme controls (Q-19)
 
 - Invite dialog: BoDialog `invite_users`; BoTextarea `emails` (label linked, placeholder
-  `admin@example.com, user@example.com...`), BoSelect `role` (hidden when the route has a role); duplicate emails in
-  an error BoNotice inside the dialog; Cancel then primary `invite` (disabled when empty, loading while sending). After
+  `admin@example.com, user@example.com...`), BoSelect `role` (hidden when the route has a role); duplicate emails in an
+  error BoNotice inside the dialog; Cancel then primary `invite` (disabled when empty, loading while sending). After
   closing, the page header shows `contact_admin_for_link` (D-83).
-- TFA field (`system-mfa-setup`): a block checkbox row (BoCheckbox in a bordered `h-11` box like inputs) with
-  `enabled` / `disabled` and a `launch` icon; dialogs: password step (BoInput password, `next`), QR step (the canvas
-  with `aria-label` from `tfa_scan_code`, the secret in a `font-mono select-all` output, an OTP BoInput, `done` enabled
-  at 6 digits), disable (OTP for oneself; admin text for another user; danger button), cancel SSO setup. Errors inline
+- TFA field (`system-mfa-setup`): a block checkbox row (BoCheckbox in a bordered `h-11` box like inputs) with `enabled`
+  / `disabled` and a `launch` icon; dialogs: password step (BoInput password, `next`), QR step (the canvas with
+  `aria-label` from `tfa_scan_code`, the secret in a `font-mono select-all` output, an OTP BoInput, `done` enabled at 6
+  digits), disable (OTP for oneself; admin text for another user; danger button), cancel SSO setup. Errors inline
   (`BoNotice` error).
 - Token field (`system-token`): a read-only BoInput (`password` until a new token is shown) with end icon buttons copy,
   generate / regenerate (`add` / `refresh`) and remove (`clear`), each named; notices under it; regenerate and remove
@@ -1540,30 +1543,30 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
   `RECORD_NOT_UNIQUE` answer shows in the dialog. The QR code is an `<img>` of the data URL (`alt` from
   `tfa_scan_code`), not a canvas. The token field is built on the form `InputField` (the VInput port), not BoInput. The
   `theme_applies_in_directus` hint reads "The theme is saved to your profile. The Backoffice look does not change."
-  (owner, 2026-10-16: no other app named, D-88). In the
-  overrides each rule input is named by its full path (`navigation.background`), and the root rules sit in a collapsed
-  `globals` group, as Directus.
+  (owner, 2026-10-16: no other app named, D-88). In the overrides each rule input is named by its full path
+  (`navigation.background`), and the root rules sit in a collapsed `globals` group, as Directus.
 
 ## Tier 3 recipes, nháp (016)
 
 Drafts for the questions Q-21, Q-22, Q-23, Q-25, Q-26 and Q-27 of `specs/016-settings-module/spec.md`, written before
-the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-24 are in
-`layout-patterns.md` §12. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-24 are in `layout-patterns.md` §12.
+Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
 
 ### Field grid (Q-21; Directus `routes/data-model/fields/components/fields-management.vue`, `FieldSelect.vue`)
 
 - Heading `fields_and_layout` (`text-theme-sm font-medium text-gray-800 dark:text-white/90`) with a Badge
   `saves_automatically` (light gray). Below, a two-column grid (`grid grid-cols-2 gap-3`, one column below 600px);
   `half` takes one column, `full` and `fill` take both (fill only differs on the item form).
-- Field row: a read-only box like Input (`h-11 rounded-lg border border-gray-300 bg-white px-3 dark:border-gray-700
-  dark:bg-gray-900`) holding the drag handle (`drag_indicator`, mouse only), the key in `font-mono`, a required star
-  (`text-error-500`, sr-only "required"), the interface name in `text-gray-500`, then status icons with tooltips
-  (`vpn_key` primary key, `report_problem` in `text-warning-500` for no meta, `visibility_off`, `open_in_new` link to
-  the related collection) and the row menu (`more_vert`). The box is a link to the field drawer.
+- Field row: a read-only box like Input
+  (`h-11 rounded-lg border border-gray-300 bg-white px-3 dark:border-gray-700 dark:bg-gray-900`) holding the drag handle
+  (`drag_indicator`, mouse only), the key in `font-mono`, a required star (`text-error-500`, sr-only "required"), the
+  interface name in `text-gray-500`, then status icons with tooltips (`vpn_key` primary key, `report_problem` in
+  `text-warning-500` for no meta, `visibility_off`, `open_in_new` link to the related collection) and the row menu
+  (`more_vert`). The box is a link to the field drawer.
 - Locked system fields come first: same box, `bg-gray-50 text-gray-500 dark:bg-white/[0.03]`, a `lock` icon with the
   tooltip `system_fields_locked`, no handle, no menu.
-- Group field: a container spanning its width with a header row (handle, name, star, `visibility_off`, menu) and its
-  own grid inside (`rounded-xl border border-dashed border-gray-300 p-3 dark:border-gray-700`); an empty group shows a
+- Group field: a container spanning its width with a header row (handle, name, star, `visibility_off`, menu) and its own
+  grid inside (`rounded-xl border border-dashed border-gray-300 p-3 dark:border-gray-700`); an empty group shows a
   `min-h-11` drop area.
 - Row menu (BoMenu): `edit_field`, `duplicate_field`, hide/show, divider, `half_width` / `full_width` / `fill_width`
   (current one disabled), divider, `delete_field` (`text-error-600`), divider, then the D-96 move items of the
@@ -1571,8 +1574,8 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
   tree.
 - Under the grid: a full-width secondary Button `create_field` (`add`) and a dashed Button
   `create_in_advanced_field_creation_mode` opening a BoMenu of the ten types with dividers as Directus.
-- Duplicate dialog (BoDialog `duplicate_where_to`): collection select (`system-collection`) and key (BoInput
-  `dbSafe`, default `<field>_copy`); Cancel first. Delete dialog: `delete_field_are_you_sure`, danger Button.
+- Duplicate dialog (BoDialog `duplicate_where_to`): collection select (`system-collection`) and key (BoInput `dbSafe`,
+  default `<field>_copy`); Cancel first. Delete dialog: `delete_field_are_you_sure`, danger Button.
 
 ### Field drawer (Q-22; Directus `field-detail/field-detail.vue`, `field-detail-simple/*`, `field-detail-advanced/*`)
 
@@ -1600,23 +1603,24 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 
 - A Table (`BoTable` look) with a sr-only caption: first column `collection` (key in `font-mono`, tooltip the display
   name, two text Buttons `all` / `none`), then five action columns (create, read, update, delete, share) and a remove
-  icon Button (`close`, `aria-label` `remove`). A divider row `system_collections` (`bg-gray-50 text-theme-xs
-  uppercase`) separates system collections. The row header is a `th scope="row"`; cells keep `px-1` around the chips
-  (`ps-3 pe-2` for the collection cell) so the six columns fit the 706px form at 1109px without horizontal scroll.
+  icon Button (`close`, `aria-label` `remove`). A divider row `system_collections`
+  (`bg-gray-50 text-theme-xs uppercase`) separates system collections. The row header is a `th scope="row"`; cells keep
+  `px-1` around the chips (`ps-3 pe-2` for the collection cell) so the six columns fit the 706px form at 1109px without
+  horizontal scroll.
 - Action chip: a `button` with `aria-haspopup="menu"`, `rounded-full px-2.5 py-0.5 text-theme-xs font-medium`, the
-  action name always shown and the level in an sr-only text: all = `bg-success-50 text-success-700 dark:bg-success-500/15
-  dark:text-success-500` + `check` icon; none = `border border-gray-300 text-gray-500 dark:border-gray-700` + `block`
-  icon; custom = `bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400` + `rule` icon. App-minimal
-  chips are static (`cursor-default`, a `lock` icon, tooltip `required_for_app_access`). Menu: `all_access`,
-  `no_access`, divider, `use_custom`.
+  action name always shown and the level in an sr-only text: all =
+  `bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-500` + `check` icon; none =
+  `border border-gray-300 text-gray-500 dark:border-gray-700` + `block` icon; custom =
+  `bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400` + `rule` icon. App-minimal chips are
+  static (`cursor-default`, a `lock` icon, tooltip `required_for_app_access`). Menu: `all_access`, `no_access`, divider,
+  `use_custom`.
 - Footer (with `app_access`): `reset_system_permissions_to` followed by two link Buttons `app_access_minimum` and
   `recommended_defaults`; confirmation BoDialog with Cancel first. Add collection: a secondary Button
   `permission_add_collection` opening a BoMenu (managed collections, divider, system ones; existing rows disabled).
 - `admin_access`: a BoNotice info `admins_have_all_permissions` instead of the table.
 - Detail drawer: BoDrawer `<policy> → <collection> → <action>`, vertical BoTabs as Q-22 with the dot; notices
   (`permissions_for_policy`…) as BoNotice info on top of each tab; the field tab is a BoCheckboxTree with `all` / `none`
-  text Buttons; the app-minimal values sit read-only under a BoNotice warning
-  `the_following_are_minimum_permissions`.
+  text Buttons; the app-minimal values sit read-only under a BoNotice warning `the_following_are_minimum_permissions`.
 
 ### Settings system controls (Q-25)
 
@@ -1625,11 +1629,11 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
   `custom_link` BoDrawer (name, icon, url, all required) on click; a secondary Button `add_link` below. The Directus
   documentation link (D-100) and the modules without a port, `visual` and `deployments` (D-41, owner 2026-10-21), are
   not listed, only kept in the value at their place.
-- `system-fields`: a BoSortableList of field paths (`font-mono`, ` → ` between levels, `functions.<fn>` for
-  functions), a remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
-- `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`, a
-  `folder_special` / `folder_open` icon inside) and a trailing `folder` icon Button opening a Popover with the 015
-  FolderPicker tree (its root row named `interfaces.system-folder.root_name`).
+- `system-fields`: a BoSortableList of field paths (`font-mono`, `→` between levels, `functions.<fn>` for functions), a
+  remove icon Button per row, and a secondary Button `add_field` opening the FieldList menu.
+- `system-folder`: a read-only Input with the folder path (root `interfaces.system-folder.root_name`, a `folder_special`
+  / `folder_open` icon inside) and a trailing `folder` icon Button opening a Popover with the 015 FolderPicker tree (its
+  root row named `interfaces.system-folder.root_name`).
 - `system-scope`: a Select with the current user or role first (its name), then `all_users`, `user: select…`,
   `role: select…`; the two last open DrawerCollection.
 - `system-owner`: a read-only row with the owner email and an `edit` icon Button (tooltip
@@ -1638,45 +1642,46 @@ the code (T006, T007, FR-107); approved by the owner on 2026-10-17. Q-20 and Q-2
 ### Preset editor (Q-26; Directus `routes/presets/item.vue`)
 
 - The form (BoForm, `max-w-5xl`) with name, icon, color (the 014 BookmarkAdd interfaces), collection, scope, layout,
-  search and filter, then a BoDivider `layout_preview`. Below, the chosen layout in a bordered box (`rounded-2xl border
-  border-gray-200 p-4 dark:border-gray-800`, read-only, `min-h-96`); without collection or layout, a BoNotice info
-  `no_layout_collection_selected_yet`. The layout options and layout sidebar go to the detail panel.
+  search and filter, then a BoDivider `layout_preview`. Below, the chosen layout in a bordered box
+  (`rounded-2xl border border-gray-200 p-4 dark:border-gray-800`, read-only, `min-h-96`); without collection or layout,
+  a BoNotice info `no_layout_collection_selected_yet`. The layout options and layout sidebar go to the detail panel.
 - The preset and translation lists use the 014 table (Q-2) and blank states.
 
 ### Data model dialogs (Q-27)
 
 - New collection: BoDrawer `creating_new_collection` with horizontal BoTabs over the form (`collection_setup`,
   `optional_system_fields`, the second disabled until a name is set; two steps, and a vertical list leaves the 640px
-  drawer too narrow); header icon Button `arrow_forward` (`next`) then
-  `check` (`finish_setup`). Step 1: BoNotice info, name (`font-mono`, `dbSafe`, required star, note
-  `collection_names_are_case_sensitive`), singleton checkbox, divider, primary key name and type select. Step 2:
-  BoNotice info and six rows `flex items-center gap-3`: a BoCheckbox, the field label, a `font-mono` name input, the
-  field icon; focusing the input checks the box.
-- New role: BoDialog `create_role` with one Input (`role_name`), Cancel first, Save disabled when empty. New policy:
-  the same with two BoCheckbox rows (`app_access`, `admin_access`, label `enabled`). Duplicate policy: BoDialog
+  drawer too narrow); header icon Button `arrow_forward` (`next`) then `check` (`finish_setup`). Step 1: BoNotice info,
+  name (`font-mono`, `dbSafe`, required star, note `collection_names_are_case_sensitive`), singleton checkbox, divider,
+  primary key name and type select. Step 2: BoNotice info and six rows `flex items-center gap-3`: a BoCheckbox, the
+  field label, a `font-mono` name input, the field icon; focusing the input checks the box.
+- New role: BoDialog `create_role` with one Input (`role_name`), Cancel first, Save disabled when empty. New policy: the
+  same with two BoCheckbox rows (`app_access`, `admin_access`, label `enabled`). Duplicate policy: BoDialog
   `duplicate_policy` with the name prefilled `<name> (copy)`.
-- Delete collection or folder: BoDialog with a danger BoNotice `delete_collection_peer_dependencies` listing
-  "field (collection)" when relations depend on it; Cancel first and focused; danger Button.
+- Delete collection or folder: BoDialog with a danger BoNotice `delete_collection_peer_dependencies` listing "field
+  (collection)" when relations depend on it; Cancel first and focused; danger Button.
 
 ## Tier 3 recipes, 017, duyệt 2026-10-17
 
 Drafts for the questions Q-30 to Q-33 of `specs/017-flows-editor/spec.md`, written before the code (T005, FR-107) and
-updated to it (T101, 2026-10-17, after the axe scans of T094); approved by the design owner on 2026-10-17. Q-29 (canvas) is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers
-as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--theme--secondary`) is `orange`.
+updated to it (T101, 2026-10-17, after the axe scans of T094); approved by the design owner on 2026-10-17. Q-29 (canvas)
+is in `layout-patterns.md` §13. Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes. "Primary" below is
+`brand`, "secondary" (Directus `--theme--secondary`) is `orange`.
 
 ### Flow operation panel (Q-30; Directus `components/operation.vue`, `options-overview.vue`, `v-workspace-tile.vue`)
 
-- Box: `absolute w-[252px] h-[252px] rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800
-  dark:bg-gray-900`, attribute `data-panel-key`, `data-pos-x`, `data-pos-y`. Selected for drag: `shadow-theme-md`.
-- Header (`flex h-10 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`): type icon (`text-brand-500`,
-  a reject child `text-orange-500`; trigger `offline_bolt`), type name `text-theme-xs font-medium uppercase
-  text-gray-500`. In edit mode at the end: pencil `ICON_BTN` (`edit`, `aria-label` edit) and, for operations, a
-  `more_vert` `ICON_BTN` opening BoMenu `copy_to` (disabled for unsaved `_` ids), `duplicate`, `delete`
-  (`text-error-600`).
+- Box:
+  `absolute w-[252px] h-[252px] rounded-xl border border-gray-200 bg-white shadow-theme-xs dark:border-gray-800 dark:bg-gray-900`,
+  attribute `data-panel-key`, `data-pos-x`, `data-pos-y`. Selected for drag: `shadow-theme-md`.
+- Header (`flex h-10 items-center gap-2 border-b border-gray-200 px-3 dark:border-gray-800`): type icon
+  (`text-brand-500`, a reject child `text-orange-500`; trigger `offline_bolt`), type name
+  `text-theme-xs font-medium uppercase text-gray-500`. In edit mode at the end: pencil `ICON_BTN` (`edit`, `aria-label`
+  edit) and, for operations, a `more_vert` `ICON_BTN` opening BoMenu `copy_to` (disabled for unsaved `_` ids),
+  `duplicate`, `delete` (`text-error-600`).
 - Body (`p-3`): title = operation name `text-theme-sm font-semibold text-gray-800 dark:text-white/90 truncate`, tooltip
-  the key; then a `<dl>` of overview rows: `dt` `text-theme-xs text-gray-500`, `dd` `text-theme-sm text-gray-700
-  dark:text-gray-300 font-mono break-all line-clamp-2`; copy `ICON_BTN` `content_copy` after a copyable value. All
-  text is plain interpolation.
+  the key; then a `<dl>` of overview rows: `dt` `text-theme-xs text-gray-500`, `dd`
+  `text-theme-sm text-gray-700 dark:text-gray-300 font-mono break-all line-clamp-2`; copy `ICON_BTN` `content_copy`
+  after a copyable value. All text is plain interpolation.
 - Trigger footer (`border-t px-3 py-2`): status dot (`size-2 rounded-full bg-brand-500` active, `bg-gray-400`
   inactive) + in edit mode a compact BoSelect (`active` / `inactive`), in view mode the text.
 - Handles: round buttons on the right edge, 32 × 32 hit area with a 20 px icon: resolve `check_circle` `text-brand-500`
@@ -1694,9 +1699,9 @@ as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--them
   `offline_bolt`; one primary header action Done (`check`), disabled without type or with a duplicate key.
 - First row `grid grid-cols-2 gap-6`: Name (BoInput, placeholder the chosen type name) and Key (BoInput `dbSafe`,
   `font-mono`, placeholder the generated key, error `operation_key_unique_error` linked by `aria-describedby`).
-- Type: BoFancySelect (the 016 Field drawer recipe) with icon, name and description of the 15 operations; once chosen only the chosen
-  card stays with a change button. Description and change button `text-gray-600` (`gray-500` is 4.46:1 on the chosen
-  card's `brand-50`).
+- Type: BoFancySelect (the 016 Field drawer recipe) with icon, name and description of the 15 operations; once chosen
+  only the chosen card stays with a change button. Description and change button `text-gray-600` (`gray-500` is 4.46:1
+  on the chosen card's `brand-50`).
 - Options: the form of ExtensionOptions (BoForm grid of §8) with the raw editor toggle; for `mail` an info BoNotice
   `operations_mail_not_sent_notice` above the form (D-106). Unknown type: danger BoNotice `operation_not_found` with a
   text button to reset the type.
@@ -1709,46 +1714,46 @@ as in the 014 recipes. "Primary" below is `brand`, "secondary" (Directus `--them
 - List: one open BoDetail per day (its title the day), a `<ul data-flow-log>` of rows; a row is a full-width button
   `flex items-center gap-2 rounded-lg px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-white/5` with `check_circle`
   `text-brand-500` (resolve, label `success`) or `cancel` `text-orange-700` (other, label `flow_run_failed`; dark
-  `text-orange-400`; `orange-500` is 3.01:1 on white) and the relative time in `text-theme-sm`. Empty: `text-theme-sm text-gray-500` `no_logs` /
-  `no_logs_on_page`. Pager: BoPagination compact (3 visible).
+  `text-orange-400`; `orange-500` is 3.01:1 on white) and the relative time in `text-theme-sm`. Empty:
+  `text-theme-sm text-gray-500` `no_logs` / `no_logs_on_page`. Pager: BoPagination compact (3 visible).
 - Log drawer: BoDrawer (not persistent), title the run time, icon `fact_check`. Body is an `<ol>` timeline: each step a
   `relative ps-6` item with a dot (`absolute -start-1.5 top-1.5 size-3 rounded-full`, `bg-brand-500` default and
   resolve, `bg-orange-500` reject) on a `border-s border-gray-200 dark:border-gray-800` line; heading = name
-  (`font-medium`, tooltip key) + type in `text-gray-500`; under it BoDetail sections Options / Payload (/
-  Accountability for the trigger), each a `<pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 font-mono
-  text-theme-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">`.
+  (`font-medium`, tooltip key) + type in `text-gray-500`; under it BoDetail sections Options / Payload (/ Accountability
+  for the trigger), each a
+  `<pre class="overflow-x-auto rounded-lg bg-gray-50 p-3 font-mono text-theme-xs text-gray-700 dark:bg-gray-900 dark:text-gray-300">`.
 
 ### Flow list, flow drawer and dialogs (Q-33; Directus `overview.vue`, `flow-drawer.vue`, `flow.vue`)
 
-- List: Data table (Q-2) with columns icon (42 px, flow icon in the flow color inline, default `text-brand-500`),
-  Status (Badge: `active` brand light, `inactive` gray light), Name, Description (truncate); header "+" Button
-  (`create_flow`, disabled with tooltip `not_allowed`); row menu `more_vert` (BoMenu: `set_flow_inactive` `block` /
-  `set_flow_active` `check`, `edit_flow` `edit`, divider, `delete_flow` `text-error-600`). Empty: the 014 blank state
-  with `bolt`, `no_flows`, `no_flows_copy` and the create Button.
+- List: Data table (Q-2) with columns icon (42 px, flow icon in the flow color inline, default `text-brand-500`), Status
+  (Badge: `active` brand light, `inactive` gray light), Name, Description (truncate); header "+" Button (`create_flow`,
+  disabled with tooltip `not_allowed`); row menu `more_vert` (BoMenu: `set_flow_inactive` `block` / `set_flow_active`
+  `check`, `edit_flow` `edit`, divider, `delete_flow` `text-error-600`). Empty: the 014 blank state with `bolt`,
+  `no_flows`, `no_flows_copy` and the create Button.
 - Flow drawer: BoDrawer `persistent`, title `creating_new_flow` / `updating_flow`, vertical BoTabs (Q-22) `flow_setup`
   and `trigger_setup` (second disabled without a name). Flow setup grid: Name (half, required star, autofocus), Status
   (half), Description (full), Icon (half), Color (half), Divider, `flow_tracking` select (full). Trigger setup:
   BoFancySelect of the five triggers, then the options BoForm. Header action changes with the tab: Next
   (`arrow_forward`), Save / Finish Setup (`check`).
-- Copy To dialog: BoDialog `copy_to` with one BoSelect of the other flows; empty → info BoNotice
-  `no_other_flows_copy`; Cancel first, confirm primary (disabled without choice).
+- Copy To dialog: BoDialog `copy_to` with one BoSelect of the other flows; empty → info BoNotice `no_other_flows_copy`;
+  Cancel first, confirm primary (disabled without choice).
 - Delete flow dialog: BoDialog `flow_delete_confirm`, Cancel first, danger Button `delete_label`.
 
 ## Tier 3 recipes, 018, duyệt 2026-10-18
 
 Drafts for the questions Q-36 to Q-39 of `specs/018-insights-activity-notifications/spec.md`, written before the code
-(T004, FR-107) and updated to it (T120, after the axe scans of waves 1 to 3); approved by the design owner on 2026-10-18.
-Q-34 and Q-35 (dashboard grid, tiles, charts) are in `layout-patterns.md` §14. Tokens and the `FOCUS`, `ICON_BTN`
-helpers as in the 014 recipes.
+(T004, FR-107) and updated to it (T120, after the axe scans of waves 1 to 3); approved by the design owner on
+2026-10-18. Q-34 and Q-35 (dashboard grid, tiles, charts) are in `layout-patterns.md` §14. Tokens and the `FOCUS`,
+`ICON_BTN` helpers as in the 014 recipes.
 
 ### Metric and metric list (Q-36; Directus `panels/metric`, `panels/metric-list`)
 
-- Metric: one value centered in the tile body, `font-semibold text-gray-800 dark:text-white/90`, size fitted to the
-  tile by the Directus auto-fit; `textAlign`, `fontWeight`, `fontStyle` and `font` (`sans-serif` → `font-outfit`,
-  `serif`, `monospace` → `font-mono`) from the options.
-- Metric list: rows `flex items-center justify-between gap-3 py-1.5 text-theme-sm`, label via the field display,
-  value `font-medium tabular-nums`; under each row a bar `h-1.5 rounded-full bg-gray-100 dark:bg-gray-800` filled to
-  the value share in the panel color (default `bg-brand-500`).
+- Metric: one value centered in the tile body, `font-semibold text-gray-800 dark:text-white/90`, size fitted to the tile
+  by the Directus auto-fit; `textAlign`, `fontWeight`, `fontStyle` and `font` (`sans-serif` → `font-outfit`, `serif`,
+  `monospace` → `font-mono`) from the options.
+- Metric list: rows `flex items-center justify-between gap-3 py-1.5 text-theme-sm`, label via the field display, value
+  `font-medium tabular-nums`; under each row a bar `h-1.5 rounded-full bg-gray-100 dark:bg-gray-800` filled to the value
+  share in the panel color (default `bg-brand-500`).
 - Conditional formatting: the matching rule's `color` is user data (inline style), as Directus.
 - Directus metadata colors (Q-36, decided 2026-10-17, shades 2026-10-18): `var(--theme--primary)`,
   `--theme--primary-subdued`, `--blue`, `--blue-25`, `--theme--danger`, `--danger-25`, `--purple`, `--purple-25` (the
@@ -1762,10 +1767,11 @@ helpers as in the 014 recipes.
 
 - BoDrawer `persistent`, `max-w-3xl`, title the panel name or the type name, icon the type icon or `insert_chart`;
   header action Done (`check`) disabled without a type.
-- Type picker: BoFancySelect `layout="grid"`: 2 columns at 768, 3 from `lg`; each card `rounded-xl border p-4` with a
-  30 px type icon (`BoIcon size="lg"`) in `text-brand-500 dark:text-brand-400`, name `text-theme-sm font-semibold`, description `text-theme-xs text-gray-600`
-  (no preview image, D-110); the chosen card `border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12]`, the others
-  `opacity-60` once a type is chosen; the options follow the grid (no Directus `configRow` insertion).
+- Type picker: BoFancySelect `layout="grid"`: 2 columns at 768, 3 from `lg`; each card `rounded-xl border p-4` with a 30
+  px type icon (`BoIcon size="lg"`) in `text-brand-500 dark:text-brand-400`, name `text-theme-sm font-semibold`,
+  description `text-theme-xs text-gray-600` (no preview image, D-110); the chosen card
+  `border-brand-500 bg-brand-50 dark:bg-brand-500/[0.12]`, the others `opacity-60` once a type is chosen; the options
+  follow the grid (no Directus `configRow` insertion).
 - Options: ExtensionOptions form (BoForm grid of layout-patterns §8) with the raw editor toggle.
 - Header group after a divider titled `panel_header`: Show Header toggle, then Name, Icon, Color, Note (half/half rows),
   disabled while the header is off. Labels follow the 017 label recipe.
@@ -1773,14 +1779,15 @@ helpers as in the 014 recipes.
 ### Notifications bell (Q-38; Directus `module-bar-avatar.vue`)
 
 - Placed in the sidebar after the user menu, under the logo (owner 2026-10-20); on the collapsed rail it folds into the
-  avatar (`compact`: no button, the badge on the avatar, 2026-10-21); below `xl` it is at the end of the header. A click opens the
-  notification panel (layout-patterns §4, D-132); "View all" opens the drawer. The look stays the
-  TailAdmin header button: `relative flex size-11 items-center justify-center rounded-full border border-gray-200
-  bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900
-  dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white` + `FOCUS`, icon `notifications`.
-- Count badge instead of the TailAdmin dot: `absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error-600
-  text-white text-theme-xs font-medium leading-5 text-center`; more than 99 shows `99+` (the full number stays in the
-  `aria-label`); hidden at 0, the button stays enabled (Archive tab).
+  avatar (`compact`: no button, the badge on the avatar, 2026-10-21); below `xl` it is at the end of the header. A click
+  opens the notification panel (layout-patterns §4, D-132); "View all" opens the drawer. The look stays the TailAdmin
+  header button:
+  `relative flex size-11 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white` +
+  `FOCUS`, icon `notifications`.
+- Count badge instead of the TailAdmin dot:
+  `absolute -top-0.5 -end-0.5 min-w-5 h-5 px-1 rounded-full bg-error-600 text-white text-theme-xs font-medium leading-5 text-center`;
+  more than 99 shows `99+` (the full number stays in the `aria-label`); hidden at 0, the button stays enabled (Archive
+  tab).
 - `aria-label` "Notifications, N unread" (`notifications_unread_count`); an sr-only `aria-live="polite"` region
   announces a changed count, not the count on load. `bg-error-600` is the solid error badge of the design-system
   (`error-500` fails 4.5:1 with white text).
@@ -1788,18 +1795,54 @@ helpers as in the 014 recipes.
 ### Notifications drawer (Q-39; Directus `notifications-drawer.vue`)
 
 - BoDrawer (not persistent), `max-w-2xl`, title `notifications`; header shows the item count, a SearchInput and, when
-  rows are selected, Archive/Unarchive (`archive` / `move_to_inbox`) and Delete (`delete`, `text-error-600`)
-  `ICON_BTN` buttons with labels.
+  rows are selected, Archive/Unarchive (`archive` / `move_to_inbox`) and Delete (`delete`, `text-error-600`) `ICON_BTN`
+  buttons with labels.
 - Inside the drawer body (BoDrawer's own sidebar is on the end side and is not a tab panel): vertical BoTabs Inbox
   (`inbox`) / Archive (`archive`), horizontal below 1024 px, then an "Activity" link to `/activity` in the BoTabs
   `list-append` slot; the list is the tab panel.
-- List: a select-all BoCheckbox row (indeterminate when partly selected), then rows `flex items-start gap-3 border-b
-  border-gray-100 py-3 dark:border-gray-800`: BoCheckbox, subject `text-theme-sm font-medium text-gray-800
-  dark:text-white/90` (search hits in `<mark class="bg-warning-50 text-inherit">`), relative time `text-theme-xs
-  text-gray-500`, then `ICON_BTN` open (`open_in_new`, only with a target) and expand (`expand_more`). Expanded: the
-  markdown message in the prose style of `md()` (013), `text-theme-sm`.
+- List: a select-all BoCheckbox row (indeterminate when partly selected), then rows
+  `flex items-start gap-3 border-b border-gray-100 py-3 dark:border-gray-800`: BoCheckbox, subject
+  `text-theme-sm font-medium text-gray-800 dark:text-white/90` (search hits in
+  `<mark class="bg-warning-50 text-inherit">`), relative time `text-theme-xs text-gray-500`, then `ICON_BTN` open
+  (`open_in_new`, only with a target) and expand (`expand_more`). Expanded: the markdown message in the prose style of
+  `md()` (013), `text-theme-sm`.
 - Loading: 10 skeleton rows (`h-12 rounded-lg bg-gray-100 dark:bg-gray-800 animate-pulse`, no pulse with
   `motion-reduce`). Empty: `no_notifications` / `no_results` with a clear-filters button. BoPagination under the list.
+
+## Tier 3 recipes, 020, nháp
+
+Drafts for the questions Q-41 to Q-46 of `specs/020-extensions/spec.md`, written before the code (T003, T101, T170);
+design owner approval before 020 closes (SC-008). Tokens and the `FOCUS`, `ICON_BTN` helpers as in the 014 recipes.
+
+### Extensions list (Q-41; Directus `modules/settings/routes/extensions/*`)
+
+- Page: `PrivateView` title `extensions`, icon `category`, Settings breadcrumb and sub-menu like the other settings
+  pages; content `max-w-5xl` with the layout-patterns §8 page padding.
+- Groups in API order (no sorting), one per `schema.type`, rows without schema in a last group `missing`. Group divider:
+  BoDivider with the type icon and `extension_<type>s` (`extension_missing`),
+  `text-theme-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400`, `mt-6 mb-2`.
+- Row:
+  `flex items-center gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 dark:border-gray-800 dark:bg-white/[0.03]`,
+  `mb-2`. Leading 20 px type icon (Directus icon map: interface `design_services`, display `label`, layout `dataset`,
+  module `web`, panel `analytics`, theme `palette`, hook `webhook`, endpoint `api`, operation `flowsheet`, bundle `hub`,
+  missing `warning`) in `text-gray-500`. Name `text-theme-sm font-medium text-gray-800 dark:text-white/90`
+  (`schema.name ?? meta.folder`); a registry extension that is not a bundle child links to the marketplace page
+  (`underline-offset-2 hover:underline` + `FOCUS`, tooltip `open_in_marketplace`). Version chip `BoChip size="sm"`
+  neutral; status chip after it: enabled `bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400`,
+  disabled `bg-error-50 text-error-700 dark:bg-error-500/15 dark:text-error-400`, partial
+  `bg-warning-50 text-warning-700 dark:bg-warning-500/15 dark:text-warning-400`; no status chip on missing rows.
+  Disabled and missing rows: name and icon `text-gray-400`, row `bg-gray-50 dark:bg-transparent`.
+- Trailing `ICON_BTN` `more_vert` (aria-label `options` + the extension name) opens a BoMenu: `enable`/`disable`
+  (`mode_off_on`; bundle `enable_all`/`disable_all`, partial bundles show both), divider, `uninstall` (`delete`,
+  disabled with tooltip `uninstall_locked` unless the source is `registry`); missing rows: `reinstall` (`download`,
+  registry only) and `remove` (`delete`). No confirm dialog, as Directus. While a request runs the button shows
+  BoProgressCircular `size="sm"`.
+- Bundle children: nested list `ms-8 mt-2 space-y-2` under the bundle row, same row recipe with `py-2`, no menu when the
+  bundle is not `partial`.
+- Loading: 6 skeleton rows `h-14 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse` (`motion-reduce:animate-none`)
+  until the first answer; empty: BoInfo icon `error`, title `no_extensions`, text `no_extensions_copy`.
+- "Reload required" (after a toggle changes the enabled app extensions): persistent in-place warning notice (D-66) with
+  title `reload_required`, text `extension_reload_required_copy` and a button `extension_reload_now` (`refresh`).
 
 ## Acceptance criteria
 

@@ -1,0 +1,1 @@
+import{log as t}from"directus:api";var e=({filter:e,action:i})=>{e("bo_ext_items.items.create",t=>t&&"sandbox"===t.title?{...t,title:"sandbox-filtered"}:t),i("bo_ext_items.items.create",()=>{t("parity-hook-sandbox: item created")})};export{e as default};

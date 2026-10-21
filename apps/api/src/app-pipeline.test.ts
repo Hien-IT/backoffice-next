@@ -66,6 +66,46 @@ test('createApp initializes the FlowManager once and unloads it on shutdown', as
 	expect(getFlowManager().unload).toHaveBeenCalled();
 });
 
+// Spec 020 (FR-012, research R3): the init events of directus/api/src/app.ts in the same order, around the same steps.
+test('createApp emits the 8 init events in order, with the Express app; extensions load before the flows', async () => {
+	const { default: emitter } = await import('./emitter.js');
+	const { getExtensionManager } = await import('./extensions/index.js');
+	const { getFlowManager } = await import('./flows.js');
+	const { runShutdownTasks } = await import('./shutdown.js');
+
+	const order: string[] = [];
+	const emitInit = vi.spyOn(emitter, 'emitInit').mockImplementation(async (event) => void order.push(event));
+	const initialize = vi
+		.spyOn(getExtensionManager(), 'initialize')
+		.mockImplementation(async () => void order.push('extensions'));
+	const unload = vi.spyOn(getExtensionManager(), 'unload').mockResolvedValue();
+	vi.mocked(getFlowManager().initialize).mockImplementation(async () => void order.push('flows'));
+
+	await start();
+
+	expect(order).toEqual([
+		'extensions',
+		'flows',
+		'app.before',
+		'middlewares.before',
+		'middlewares.after',
+		'routes.before',
+		'routes.custom.before',
+		'routes.custom.after',
+		'routes.after',
+		'app.after',
+	]);
+
+	for (const [, meta] of emitInit.mock.calls) expect(meta).toEqual({ app: app.express });
+
+	await runShutdownTasks();
+	expect(unload).toHaveBeenCalled();
+
+	emitInit.mockRestore();
+	initialize.mockRestore();
+	unload.mockRestore();
+});
+
 describe('GET /server/ping', () => {
 	test('returns pong as text/html without Cache-Control', async () => {
 		const res = await (await start()).get('/server/ping');

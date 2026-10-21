@@ -220,28 +220,52 @@ export const acceptedDifferences: AcceptedDifference[] = [
 	{
 		id: 'D-37',
 		feature: '010',
+		removeAt: '020',
 		kind: 'doc',
 		reason:
-			'No extension manager: /extensions lists rows with schema null and serves the empty app bundle (Principle XI).',
+			'Narrowed by spec 020 wave 1: extensions are loaded, listed and toggled; marketplace installs wait for wave 3.',
 	},
 	{
 		id: 'D-37',
 		feature: '010',
+		removeAt: '020',
 		kind: 'http',
 		endpoints: [
 			'POST /extensions/registry/install',
 			'POST /extensions/registry/reinstall',
 			'DELETE /extensions/registry/uninstall/*',
-			'PATCH /extensions/*',
-			'DELETE /extensions/*',
 		],
 		location: { any: true },
-		reason: 'Extensions are not installed, removed or toggled: 503 or 403 after the checks of Directus (Principle XI).',
+		reason:
+			'Extensions are not installed or removed from the registry yet: 503 after the checks of Directus (spec 020 wave 3).',
 	},
 	{
 		id: 'D-38',
 		feature: '010',
 		kind: 'doc',
 		reason: 'No project owner report to COMPLIANCE_URL: a warning line, project_status null as after a sent report.',
+	},
+	{
+		id: 'D-137',
+		feature: '020',
+		kind: 'http',
+		endpoints: ['GET /extensions/sources/*', 'HEAD /extensions/sources/*'],
+		location: { any: true },
+		when: { directusStatus: 200 },
+		reason:
+			'The app chunks keep the shared dependencies as bare specifiers for the import map of the new web app; Directus imports /admin/assets/<dep>.<hash>.entry.js (other bytes, ETag and chunk names).',
+	},
+	{
+		id: 'D-138',
+		feature: '020',
+		kind: 'doc',
+		reason: 'Embed hooks are registered but the new web app does not inject them.',
+	},
+	{
+		id: 'D-141',
+		feature: '020',
+		kind: 'doc',
+		reason:
+			'No `directus` package, CLI or mail transport for extensions; the deployment and WebSocket services do not exist.',
 	},
 ];

@@ -1,0 +1,18 @@
+[
+	{
+		"source": "api/src/extensions/lib/get-extensions-settings.test.ts",
+		"dest": "apps/api/src/extensions/lib/get-extensions-settings.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/get-extensions-settings.ts",
+		"dest": "apps/api/src/extensions/lib/get-extensions-settings.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/get-extensions.ts",
+		"dest": "apps/api/src/extensions/lib/get-extensions.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/wrap-embeds.ts",
+		"dest": "apps/api/src/extensions/lib/wrap-embeds.ts"
+	}
+]

@@ -40,14 +40,14 @@ và phần cài/gỡ của US5, đóng.
 
 **Purpose**: chốt các điểm [Unverified] của research, thêm thư viện cùng bản Directus, recipe nháp cho màn lượt 1.
 
-- [ ] T001 Kiểm môi trường và ghi kết quả vào `specs/020-extensions/research.md` (mục "Kết quả T001"): (a) build thử
+- [X] T001 Kiểm môi trường và ghi kết quả vào `specs/020-extensions/research.md` (mục "Kết quả T001"): (a) build thử
       `apps/api/Dockerfile` với `rolldown` 1.0.0-beta.31 trong `dependencies`, chạy `node -e "import('rolldown')"` trong
       container linux/amd64 alpine; không có binding musl thì ghi khác biệt mới (bỏ `EXTENSIONS_ROLLDOWN`, chỉ rollup) và
       báo owner trước khi đi tiếp; (b) trong container: `/directus/node_modules/.directus/{extensions,app-extensions,
       marketplace}` tạo và ghi được bởi uid 1000; (c) `node-machine-id` 1.1.12 trả sha256(hostname) (không có
-      `/etc/machine-id`); (d) `pnpm audit --prod` với gói mới (tar 7.5.8, rolldown, chokidar 5, glob-to-regexp), advisory
+      `/etc/machine-id`); (d) `pnpm audit --prod` với gói mới (tar 7.5.19 (security patch of the Directus 7.5.8), rolldown, chokidar 5, glob-to-regexp), advisory
       phải bỏ qua ghi `auditConfig` kèm lý do (spec Assumptions)
-- [ ] T002 Thư viện (research R1): `pnpm-workspace.yaml` catalog nhóm "same versions as directus" thêm `rollup` 4.59.0,
+- [X] T002 Thư viện (research R1): `pnpm-workspace.yaml` catalog nhóm "same versions as directus" thêm `rollup` 4.59.0,
       `rolldown` 1.0.0-beta.31, `@rollup/plugin-virtual` 3.0.2, `@rollup/plugin-node-resolve` 16.0.3, `chokidar` 5.0.0,
       `node-machine-id` 1.1.12, `tar` 7.5.8, `glob-to-regexp` 0.4.1, `@types/glob-to-regexp` 0.4.4,
       `@directus/composables` 11.4.1, `@directus/extensions-sdk` 17.1.4, `semver` 7.7.3, `@types/semver`,
@@ -55,11 +55,11 @@ và phần cài/gỡ của US5, đóng.
       rollup, rolldown, hai plugin, chokidar, node-machine-id, tar, fs-extra, glob-to-regexp (+ `@types/*` dev);
       `tools/check-package-names.mjs` cho phép `@directus/composables`, `@directus/extensions-sdk`; `pnpm install`,
       `pnpm nx run api:build` xanh (pinia, axios, semver, `@vueuse/router` cho web thêm ở T100)
-- [ ] T003 [P] Recipe nháp Q-41 (Settings > Extensions: dòng extension với icon loại, tên, chip phiên bản, nguồn, chip
+- [X] T003 [P] Recipe nháp Q-41 (Settings > Extensions: dòng extension với icon loại, tên, chip phiên bản, nguồn, chip
       trạng thái enabled/disabled/partial, nhóm theo loại với divider, bundle con lồng, menu dòng `more_vert`, trạng thái
       nạp và rỗng `no_extensions`) vào `design-system/docs/component-specs.md` (mục Tier 3 (020)) theo cách 018 làm
       Q-34..Q-39; ảnh nháp sáng/tối
-- [ ] T004 [P] Biến môi trường (contracts/api.md §3): `api/config/supported-variables.ts` thêm `EXTENSIONS_MUST_LOAD`,
+- [X] T004 [P] Biến môi trường (contracts/api.md §3): `api/config/supported-variables.ts` thêm `EXTENSIONS_MUST_LOAD`,
       `EXTENSIONS_AUTO_RELOAD`, `EXTENSIONS_SANDBOX_MEMORY`, `EXTENSIONS_SANDBOX_TIMEOUT`, `EXTENSIONS_LIMIT`,
       `EXTENSIONS_ROLLDOWN`, `PACKAGE_FILE_LOCATION` (bỏ khỏi `warn-unsupported-variables.ts`); sửa
       `api/config/supported-variables.test.ts:179` (`EXTENSIONS_AUTO_RELOAD` nay supported) và thêm ca cho 7 biến
@@ -72,28 +72,28 @@ và phần cài/gỡ của US5, đóng.
 
 ### Lib, types, utils
 
-- [ ] T010 [P] Tạo lib `libs/extensions` (`@backoffice/extensions`: `package.json`, `project.json`, `tsconfig*.json`,
+- [X] T010 [P] Tạo lib `libs/extensions` (`@backoffice/extensions`: `package.json`, `project.json`, `tsconfig*.json`,
       `vitest.config.ts` theo mẫu `libs/constants`); port `D/pkg/extensions/src/shared/` → `libs/extensions/src/shared/`:
       `constants/{pkg-key,shared-deps,languages}.ts` (`EXTENSION_PKG_KEY`, `APP_SHARED_DEPS`, `API_SHARED_DEPS`),
       `schemas/{options,manifest}.ts` (zod), `define*` (identity: interface, display, layout, module, panel,
       operationApp, operationApi, hook, endpoint, bundle); chép test schema của Directus nếu có; manifest
       `tools/port-manifest/020-T010.json`
-- [ ] T011 [P] Port `D/pkg/extensions/src/node/utils/{get-extensions,generate-extensions-entrypoint}.ts` →
+- [X] T011 [P] Port `D/pkg/extensions/src/node/utils/{get-extensions,generate-extensions-entrypoint}.ts` →
       `libs/extensions/src/node/` (`getExtensionDefinition`, `resolveFsExtensions`, `resolveModuleExtensions`,
       `generateExtensionsEntrypoint`) và test của chúng (gồm snapshot `generate-extensions-entrypoint.test.ts:34,319-321`);
       export `@backoffice/extensions/node`
-- [ ] T012 [P] Types (research R2): `libs/types/src/extensions/*.ts` thêm `Extension`, `ApiExtension`, `HybridExtension`,
+- [X] T012 [P] Types (research R2): `libs/types/src/extensions/*.ts` thêm `Extension`, `ApiExtension`, `HybridExtension`,
       `BundleExtension`, `ExtensionSettings`, `ApiOutput`, `BundleConfig`, `HookConfig`, `RegisterFunctions`,
       `EndpointConfig`, `HookExtensionContext`, `EndpointExtensionContext`, `ExtensionManagerOptions`, `ExtensionsServices`
       (port `D/pkg/types/src/extensions/*`); `ApiExtensionContext` thêm `emitter`
-- [ ] T013 [P] Utils: `libs/utils/src/shared/{pluralize,number-generator}.ts`, `libs/utils/src/node/{list-folders,
+- [X] T013 [P] Utils: `libs/utils/src/shared/{pluralize,number-generator}.ts`, `libs/utils/src/node/{list-folders,
       resolve-package,path-to-relative-url}.ts` (port `D/pkg/utils/{shared,node}/*` cùng test); export ở index
-- [ ] T014 [P] `api/utils/{import-file-url,get-module-default,delete-from-require-cache}.ts` (port `D/api/utils/*` cùng
+- [X] T014 [P] `api/utils/{import-file-url,get-module-default,delete-from-require-cache}.ts` (port `D/api/utils/*` cùng
       test; `importFileUrl(path, base, {fresh})` thêm `?t=` như Directus)
 
 ### Bộ mẫu và môi trường test
 
-- [ ] T015 Viết mã nguồn bộ extension mẫu theo data-model §9 trong `fx/<name>/{package.json,src/**}` (13 package:
+- [X] T015 Viết mã nguồn bộ extension mẫu theo data-model §9 trong `fx/<name>/{package.json,src/**}` (13 package:
       `parity-hook-audit` — hook ghi tên event nhận được vào `bo_ext_log` CHỈ khi request có header `x-bo-ext-trace`
       hoặc event chạm collection `bo_ext_*` (không làm nặng suite khác), filter `items.create` thêm `audited` cho
       `bo_ext_items`, action ghi log, `init('routes.custom.before')` header `x-bo-ext: 1`, `schedule('* * * * *')` chỉ
@@ -103,31 +103,31 @@ và phần cài/gỡ của US5, đóng.
       `parity-bundle-tools` (interface + hook + operation, `partial: true`); `parity-{hook,endpoint,operation}-sandbox`
       với scope `request` tới `http://files-fixtures/*`, `log`, `sleep` và option bật ca vượt bộ nhớ/thời gian/URL ngoài
       scope); `fx/package.json` (`@backoffice/extension-fixtures`, private, devDependency `@directus/extensions-sdk`)
-- [ ] T016 Build bộ mẫu: script `build` (`directus-extension build` từng package) và `pack` (`npm pack` → `fx/<name>/
+- [X] T016 Build bộ mẫu: script `build` (`directus-extension build` từng package) và `pack` (`npm pack` → `fx/<name>/
       <name>-<version>.tgz`); commit `dist/` và `.tgz`; `fx/fixtures-build.test.ts` build lại vào thư mục tạm và so byte với
       `dist/` (như test của script sync)
-- [ ] T017 [P] Seed: `apps/web/fixtures/interfaces/seed.mjs` + `lib.mjs` tạo `bo_ext_items` (id, title, audited boolean
+- [X] T017 [P] Seed: `apps/web/fixtures/interfaces/seed.mjs` + `lib.mjs` tạo `bo_ext_items` (id, title, audited boolean
       null) và `bo_ext_log` (id, kind, event, payload json, created_at), xóa ở `--clean`; `export.mjs` + snapshot
       `apps/web/fixtures/interfaces/snapshot/extensions.json`; `parity/src/web/fixtures-seed.test.ts` giữ xanh
-- [ ] T018 Env parity (contracts/tests.md §3): `parity/docker-compose.yml` cặp chính (8155/8156) và `multi` (8157) thêm
+- [X] T018 Env parity (contracts/tests.md §3): `parity/docker-compose.yml` cặp chính (8155/8156) và `multi` (8157) thêm
       `EXTENSIONS_LOCATION=s3`; `minio-init` chép `fx/*/{package.json,dist}` lên `s3://directus/extensions/<name>/` trước
       khi Directus khởi động; profile mới `extensions` (cặp 10655/10656, `EXTENSIONS_PATH=./extensions-ext`,
       `EXTENSIONS_LIMIT=3`, `MARKETPLACE_TRUST=sandbox`) thêm ở bốn chỗ (compose, `ALL_PROFILES` của
       `parity/scripts/env.mjs`, `compose()` của `parity/src/docker.ts`, `profilePorts` của `parity/src/config.ts`) và
       README; `env-up --profiles=app,multi,extensions` lên được, Directus 8155 nạp đủ bộ mẫu (log "Loaded extensions")
-- [ ] T019 [P] Harness parity: `parity/src/extensions/helpers.ts` (`admin()`, `nodes()` = 8155/8156/8157, `waitAll(fn,
+- [X] T019 [P] Harness parity: `parity/src/extensions/helpers.ts` (`admin()`, `nodes()` = 8155/8156/8157, `waitAll(fn,
       10_000)` thăm mỗi 500 ms, `containerLog(name, since)`, `extRows()` đọc `directus_extensions`, `extLog()` đọc
       `bo_ext_log`); `parity/src/suite.ts` thêm `src/extensions/**` vào `FULL_FILES`, `list`, `hooks`, `endpoints` vào
       `REDUCED_FILES`
 
 ### Manager lõi, service, controller (FR-001..FR-008, FR-031..FR-036)
 
-- [ ] T020 Port `D/api/extensions/lib/{get-extensions,get-extensions-settings,wrap-embeds}.ts` →
+- [X] T020 Port `D/api/extensions/lib/{get-extensions,get-extensions-settings,wrap-embeds}.ts` →
       `api/extensions/lib/`; `get-extensions-settings.ts` bọc bước tạo dòng trong khóa Redis `extensions-settings`
       (`useLock` increment/delete, thử mỗi 250 ms tối đa 30 s, quá hạn log warn + xóa khóa + tạo không khóa, đọc lại dòng
       sau khi giữ khóa; R-58); test: port `get-extensions-settings.test.ts` + ca khóa (hai lời gọi song song chỉ tạo một
       dòng; khóa kẹt quá hạn)
-- [ ] T021 Port `D/api/extensions/manager.ts` phần vòng đời → `api/extensions/manager.ts` + `api/extensions/index.ts`
+- [X] T021 Port `D/api/extensions/manager.ts` phần vòng đời → `api/extensions/manager.ts` + `api/extensions/index.ts`
       (`getExtensionManager()`): state (maps theo nguồn, `extensionsSettings`, `unregisterFunctionMap`, `localEmitter`,
       `endpointRouter`, `reloadQueue` PQueue 1, `messenger`, `processId`), `extensions` getter, `getExtension`,
       `initialize` (subscribe `extensions.reload` một lần, bỏ `origin` của mình), `load` (sync khi có
@@ -138,19 +138,19 @@ và phần cài/gỡ của US5, đóng.
       `registerApiExtensions` gọi các hàm đăng ký (thân ở T038, T040, T041, T082); test
       `api/extensions/manager.test.ts` (dedupe, reject R-64, settings lookup theo `(source, folder)`, MUST_LOAD, watcher:
       chokidar giả + timer giả, thêm/đổi/xóa thư mục kích reload sau 500/650/2000 ms, tắt khi `EXTENSIONS_AUTO_RELOAD=false`)
-- [ ] T022 Nối vào app (research R3): `api/app.ts` gọi `getExtensionManager().initialize()` ngay trước
+- [X] T022 Nối vào app (research R3): `api/app.ts` gọi `getExtensionManager().initialize()` ngay trước
       `flowManager.initialize()` và `onServerShutdown(() => manager.unload())` trước `flowManager.unload`;
       `api/extensions/extensions.module.ts` (Nest module, `onModuleInit` gọi `express.use(manager.getEndpointRouter())`
       — chạy sau route controller, trước 404 của `nest.init()`), đăng ký trong `api/app.module.ts`; test
       `api/extensions/mount.test.ts`: route hệ thống thắng endpoint trùng tên, endpoint tới được, 404 sau gỡ
-- [ ] T023 `services/index.ts` và context (FR-010, D-141): thêm export `AuthenticationService`, `ExtensionsService`,
+- [X] T023 `services/index.ts` và context (FR-010, D-141): thêm export `AuthenticationService`, `ExtensionsService`,
       `ExtensionReadError`, `GraphQLService`, `ServerService`, `SettingsService`, `SpecificationService`, `TFAService`,
       `UtilsService`; context `services` cấp qua getter lười trong manager (tránh vòng import qua `server.service`);
       `api/services/mail.service.ts` (`MailService` cùng chữ ký Directus; `send` phát filter `email.send` rồi log như
       D-33/D-34); script `tools/extract-service-signatures.mjs` (TS compiler API: export × constructor × method công khai
       của `D/api/services/index.ts` và `api/services/index.ts`) + `tools/extract-service-signatures.test.ts` (bằng nhau
       trừ D-141), chạy trong `test:tools`
-- [ ] T024 `api/services/extensions.service.ts` port đủ `D/api/services/extensions.ts` trừ install/uninstall/reinstall
+- [X] T024 `api/services/extensions.service.ts` port đủ `D/api/services/extensions.ts` trừ install/uninstall/reinstall
       (lượt 3): `readAll` (chờ `isReloading()`, entries bundle), `readOne`, `updateOne` (transaction, `"meta" is required`,
       `checkBundleAndSyncStatus`, 422, sau commit `reload().then(broadcast)` không chờ), `deleteOne`, `ExtensionReadError`;
       GIỮ `EMPTY_APP_EXTENSION_BUNDLE` và route `sources` hiện có tới T142 (lượt 2); `api/controllers/extensions.controller.ts`: `PATCH /:pk` (204 khi
@@ -158,7 +158,7 @@ và phần cài/gỡ của US5, đóng.
       `api/services/graphql/resolvers/system-admin.ts` `update_extensions_item` gọi `updateOne` rồi `readOne`, type
       `directus_extensions` như `D/api/services/graphql/resolvers/system-admin.ts:262-280`; test service + controller
       (sửa `extensions.controller.test.ts:163,205`)
-- [ ] T025 Parity của T024 (FR-031..FR-036): `parity/src/extensions/list.test.ts` (`GET /extensions`: schema, entries,
+- [X] T025 Parity của T024 (FR-031..FR-036): `parity/src/extensions/list.test.ts` (`GET /extensions`: schema, entries,
       dòng missing sau khi đổi tên thư mục; chunk lạ 404), `toggle.test.ts` (`PATCH` bật tắt, bundle ↔ entry, 422,
       `DELETE /:pk`, so `directus_extensions`), `graphql.test.ts` (`extensions` có và không có `name`,
       `update_extensions_item`); `parity/accepted-differences.ts`: entry D-37 http thu hẹp còn `POST
@@ -168,7 +168,7 @@ và phần cài/gỡ của US5, đóng.
       151-163`, `tests/directus-app-e2e/src/system.spec.ts:243-283`; spec 010 bảng D-37 cột "Gỡ ở" ghi "thu hẹp ở 020
       lượt 1, gỡ ở 020 lượt 3"
 
-- [ ] T026 [P] Benchmark không extension (SC-005, analyze G1): `tests/benchmark/docker-compose.yml` ghi đè env của
+- [X] T026 [P] Benchmark không extension (SC-005, analyze G1): `tests/benchmark/docker-compose.yml` ghi đè env của
       `directus`, `backoffice-api` bỏ `EXTENSIONS_LOCATION` (và `minio-init` không chép bộ mẫu) cho mọi job; chỉ target
       `web-extensions` (T149) bật lại bằng env file riêng `tests/benchmark/env/extensions.env`; kiểm `GET /extensions`
       rỗng trên env benchmark mặc định
@@ -187,44 +187,44 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
 
 ### Tests cho User Story 1
 
-- [ ] T030 [P] [US1] `api/extensions/manager.hook.test.ts`: `register` có `filter/action/init/schedule/embed`; context có
+- [X] T030 [P] [US1] `api/extensions/manager.hook.test.ts`: `register` có `filter/action/init/schedule/embed`; context có
       `services, env, database, emitter (riêng), logger, getSchema`; `init` gỡ bằng `offInit(event)` (R-61); `schedule`
       gọi `scheduleSynchronizedJob('<name>:<index>', cron)`, cron sai → `handleExtensionError`; `embed` rỗng → lỗi
       "Provided code is empty"
-- [ ] T031 [P] [US1] `api/extensions/manager.endpoint.test.ts`: mount `/<id>` (tên thư mục bỏ phần sau `:` khi config
+- [X] T031 [P] [US1] `api/extensions/manager.endpoint.test.ts`: mount `/<id>` (tên thư mục bỏ phần sau `:` khi config
       là hàm), `req.accountability`/`req.schema` có, `req.query` lồng (qs), gỡ → layer biến khỏi `endpointRouter.stack`
-- [ ] T032 [P] [US1] `api/extensions/manager.operation.test.ts`: `flowManager.addOperation(id, handler)`/`removeOperation`,
+- [X] T032 [P] [US1] `api/extensions/manager.operation.test.ts`: `flowManager.addOperation(id, handler)`/`removeOperation`,
       bundle chỉ đăng ký entry `enabled` theo `(source, folder = entry.name, bundle = id)`
-- [ ] T033 [P] [US1] `parity/src/extensions/hooks.test.ts` (US1-1, US1-4, US1-5): tạo/sửa/xóa `bo_ext_items`, đăng nhập,
+- [X] T033 [P] [US1] `parity/src/extensions/hooks.test.ts` (US1-1, US1-4, US1-5): tạo/sửa/xóa `bo_ext_items`, đăng nhập,
       upload file, tạo field tạm, mọi request gửi header `x-bo-ext-trace: <tiền tố app>` → so chuỗi tên event và payload
       `parity-hook-audit` ghi ở `bo_ext_log` giữa hai app; filter `audited` có trong item; header `x-bo-ext: 1` trên một route bất kỳ; schedule (cặp profile `extensions`, `BO_EXT_SCHEDULE=1`):
       chờ 3 phút đếm 3 dòng `tick` trên toàn hệ thống (cả hai app cùng chạy); embed: entry doc D-138
-- [ ] T034 [P] [US1] `parity/src/extensions/endpoints.test.ts` (US1-2): `/parity-endpoint-demo` GET/POST có và không có
+- [X] T034 [P] [US1] `parity/src/extensions/endpoints.test.ts` (US1-2): `/parity-endpoint-demo` GET/POST có và không có
       token; `/parity-endpoint-express4/*` mỗi route mỗi mục D-139 với kết quả mong đợi của spec (ca async: timeout 5 s
       cho Directus); entry `D-139` trong `parity/accepted-differences.ts` theo từng route
-- [ ] T035 [P] [US1] `parity/src/extensions/operations.test.ts` (US1-3): flow thủ công tạm dùng `parity-operation-slack`,
+- [X] T035 [P] [US1] `parity/src/extensions/operations.test.ts` (US1-3): flow thủ công tạm dùng `parity-operation-slack`,
       chạy `POST /flows/trigger/<id>`, so `$last`, `directus_revisions` của flow; gỡ operation (PATCH tắt) → lỗi như 009
-- [ ] T036 [P] [US1] `parity/src/extensions/must-load.test.ts` (US1-6): chạy container Directus và Backoffice profile
+- [X] T036 [P] [US1] `parity/src/extensions/must-load.test.ts` (US1-6): chạy container Directus và Backoffice profile
       `extensions` với thư mục extension hỏng (manifest sai) chép riêng; `EXTENSIONS_MUST_LOAD=false` → `/server/health`
       ok + log cảnh báo cùng nội dung; `true` → container thoát mã khác 0
 
 ### Implementation cho User Story 1
 
-- [ ] T037 [US1] Event init (FR-012, research R3 bảng): `api/app-pipeline.ts` `createExpressApp` thành async,
+- [X] T037 [US1] Event init (FR-012, research R3 bảng): `api/app-pipeline.ts` `createExpressApp` thành async,
       `await emitter.emitInit('app.before'|'middlewares.before', {app})` sau HSTS, `'middlewares.after'|'routes.before'`
       sau `beforeRoutes`; `api/extensions/extensions.module.ts` phát `routes.custom.before`/`after` quanh mount;
       `api/app.ts` phát `routes.after` sau `nest.init()`, `app.after` sau `startSchedules()`; sửa mọi chỗ gọi
       `createExpressApp`; `api/app-init-events.test.ts` kiểm thứ tự 8 event
-- [ ] T038 [US1] `registerHook` trong `api/extensions/manager.ts` (port `manager.ts:885-972`; `localEmitter`,
+- [X] T038 [US1] `registerHook` trong `api/extensions/manager.ts` (port `manager.ts:885-972`; `localEmitter`,
       `scheduleSynchronizedJob` của `api/utils/schedule.ts`, `offInit(event)` R-61, embed head/body); `registerHookExtension`
       (import `importFileUrl(..., {fresh: true})`, `getModuleDefault`, unregister + `deleteFromRequireCache`)
-- [ ] T039 [US1] Thứ tự filter (FR-011, R-62): test `api/extensions/manager.order.test.ts` (filter extension chạy trước
+- [X] T039 [US1] Thứ tự filter (FR-011, R-62): test `api/extensions/manager.order.test.ts` (filter extension chạy trước
       filter flow lúc khởi động; sau reload chạy sau, ghi R-62)
-- [ ] T040 [US1] `registerEndpoint` + `registerEndpointExtension` (port `manager.ts:977-1002`; `express.Router()` của
+- [X] T040 [US1] `registerEndpoint` + `registerEndpointExtension` (port `manager.ts:977-1002`; `express.Router()` của
       Express 5; context như hook; gỡ lọc `endpointRouter.stack`); không cache (FR-016 ghi chú)
-- [ ] T041 [US1] `registerOperation` + `registerOperationExtension` (`entrypoint.api`) + `registerBundleExtension`
+- [X] T041 [US1] `registerOperation` + `registerOperationExtension` (`entrypoint.api`) + `registerBundleExtension`
       (`manager.ts:801-862`, luôn in-process) trong `api/extensions/manager.ts`; reload flow qua bus `flows` (FR-018)
-- [ ] T042 [US1] D-139 chốt (CHK026): chạy T034 trên hai app, ghi kết quả thật từng mục vào bảng D-139 của
+- [X] T042 [US1] D-139 chốt (CHK026): chạy T034 trên hai app, ghi kết quả thật từng mục vào bảng D-139 của
       `specs/020-extensions/spec.md` và research R12 (bỏ [Unverified] nếu khớp); mục đổi → ghi "owner duyệt lại khi đóng"
 
 **Checkpoint**: US1 xanh trên cặp chính; extension API của bộ mẫu chạy như Directus.
@@ -241,19 +241,19 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
 
 ### Tests cho User Story 2
 
-- [ ] T060 [P] [US2] Port test `D/api/extensions/lib/sync/{sync,status,tracker,utils}.test.ts` →
+- [X] T060 [P] [US2] Port test `D/api/extensions/lib/sync/{sync,status,tracker,utils}.test.ts` →
       `api/extensions/lib/sync/`; thêm ca: khởi động xóa khóa `extensions-sync/<machineId>` cũ của chính máy (R6), sync lỗi
       lúc khởi động → `process.exit(1)` (mock)
-- [ ] T061 [P] [US2] `parity/src/extensions/multi.test.ts` (8155, 8156, 8157): `PATCH` tắt `parity-endpoint-demo` ở 8156
+- [X] T061 [P] [US2] `parity/src/extensions/multi.test.ts` (8155, 8156, 8157): `PATCH` tắt `parity-endpoint-demo` ở 8156
       → 8155, 8157 trả 404 trong 10 s (SC-003, mốc response); chép thư mục extension mới lên MinIO bằng
       `@aws-sdk/client-s3`, `PATCH` một extension khác → mọi node sync và có endpoint mới, `directus_extensions` có đúng
       một dòng cho nó (R-58); tắt hook ở 8157, tạo item qua 8156 → không có log hook (US2-3); schedule 5 lượt = 5 dòng
       (US2-4; cặp profile `extensions` + một container Backoffice thứ hai cùng env, `BO_EXT_SCHEDULE=1`)
-- [ ] T062 [P] [US2] `parity/src/deploy/extensions.test.ts` (compose 3 BE + Directus, `EXTENSIONS_LOCATION=s3`): ca của
+- [X] T062 [P] [US2] `parity/src/deploy/extensions.test.ts` (compose 3 BE + Directus, `EXTENSIONS_LOCATION=s3`): ca của
       T061 qua cổng riêng từng replica (env deploy test đặt `BO_EXT_SCHEDULE=1` cho ca schedule); container start → `/server/health` ok ≤ 60 s với bộ mẫu (FR-048);
       `compose up --scale backoffice-api=5` rồi gọi `/parity-endpoint-demo` vào replica mới ngay khi healthy (US2-5);
       chế độ `DEPLOY_MODE=separate-domain` chạy cùng ca
-- [ ] T063 [P] [US2] Helm CI: `deploy/helm/backoffice/ci/deps.yaml` ConfigMap `EXTENSIONS_LOCATION: s3`;
+- [X] T063 [P] [US2] Helm CI: `deploy/helm/backoffice/ci/deps.yaml` ConfigMap `EXTENSIONS_LOCATION: s3`;
       `ci/test-template.sh` bộ `good` thêm `EXTENSIONS_LOCATION`, `expect_fail` khi thiếu với HPA bật (mặc định) và với
       `api.replicas=2` không HPA, `expect_ok` với `extensions.inImage=true`, kiểm path Ingress `/extensions/sources` tới
       Service `-api-only`; `ci/kind-test.sh`: `PATCH` tắt `parity-endpoint-demo` qua Directus pod rồi gọi qua Ingress tới
@@ -261,18 +261,18 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
 
 ### Implementation cho User Story 2
 
-- [ ] T064 [US2] Port `D/api/extensions/lib/sync/{sync,status,tracker,utils}.ts` → `api/extensions/lib/sync/` (storage
+- [X] T064 [US2] Port `D/api/extensions/lib/sync/{sync,status,tracker,utils}.ts` → `api/extensions/lib/sync/` (storage
       `getStorage().location(EXTENSIONS_LOCATION)`, `useLock`, `useBus`, `node-machine-id`); `initialize()` xóa khóa cũ của
       máy mình trước sync `forceSync` (R6, một process mỗi container); nối vào `load()` của T021
-- [ ] T065 [US2] Readiness (FR-048): xác nhận `createApp` (gồm `initialize`) xong trước `listen` (`api/server.ts`); test
+- [X] T065 [US2] Readiness (FR-048): xác nhận `createApp` (gồm `initialize`) xong trước `listen` (`api/server.ts`); test
       `api/server.extensions.test.ts` (health chỉ trả sau khi manager loaded)
-- [ ] T066 [P] [US2] Compose (contracts/deploy.md §1): `deploy/compose/.env.example` `EXTENSIONS_LOCATION=s3`;
+- [X] T066 [P] [US2] Compose (contracts/deploy.md §1): `deploy/compose/.env.example` `EXTENSIONS_LOCATION=s3`;
       `deploy/compose/lb/shared-domain.conf` `upstream bo_pool` + `location ^~ /extensions/sources/` + `@retry_bo`;
       `deploy/compose/docker-compose.yml` service `registry` (profile `extensions-test`, mount
       `tests/parity/registry`); `deploy/README.md` mục "Extensions" đủ các ý của contracts/deploy.md §1 (cùng
       `EXTENSIONS_PATH`/`EXTENSIONS_LOCATION`, `module`, đóng sẵn, "Nâng cấp từ 019", runbook crash, node lệch R-65, không
       `EXTENSIONS_AUTO_RELOAD`, một process mỗi container, self-check); `tests/parity/src/proxy-conf.test.ts` giữ xanh
-- [ ] T067 [P] [US2] Helm (contracts/deploy.md §2): `values.yaml` `extensions.inImage: false`;
+- [X] T067 [P] [US2] Helm (contracts/deploy.md §2): `values.yaml` `extensions.inImage: false`;
       `templates/api-only-service.yaml`; `templates/ingress.yaml` path `/extensions/sources` trước `/admin`, `/`;
       `templates/_checks.tpl` reason mới (FR-045, chặn cả upgrade); `templates/NOTES.txt` dòng route + "Nâng cấp từ 019"
 
@@ -286,13 +286,13 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
 
 **Independent Test**: `nx run parity-tests:parity -- src/extensions/sandbox`; unit `api/extensions/lib/sandbox`.
 
-- [ ] T080 [P] [US7] Unit `api/extensions/lib/sandbox/**/*.test.ts`: scope `log`/`sleep`/`request` (thông điệp lỗi như
+- [X] T080 [P] [US7] Unit `api/extensions/lib/sandbox/**/*.test.ts`: scope `log`/`sleep`/`request` (thông điệp lỗi như
       `D/api/extensions/lib/sandbox/sdk/generators/*.ts`), URL glob, method, import khác `directus:api` bị từ chối, timeout,
       `RangeError` → log + `process.abort()` (mock), `process.env` chỉ `NODE_ENV`, dispose isolate khi gỡ
-- [ ] T081 [P] [US7] `parity/src/extensions/sandbox.test.ts`: hook/endpoint/operation sandboxed (US7-1..4), URL trong scope
+- [X] T081 [P] [US7] `parity/src/extensions/sandbox.test.ts`: hook/endpoint/operation sandboxed (US7-1..4), URL trong scope
       nhưng IP bị `IMPORT_IP_DENY_LIST` chặn, tải nền autocannon 30 s/10 kết nối ≥ 1.000 request vào `/server/ping` và
       `GET /items/bo_ext_items` trong lúc ca vượt thời gian chạy: 0 non-2xx (SC-004)
-- [ ] T082 [US7] Port 17 file `D/api/extensions/lib/sandbox/**` → `api/extensions/lib/sandbox/**` (entrypoint, host
+- [X] T082 [US7] Port 17 file `D/api/extensions/lib/sandbox/**` → `api/extensions/lib/sandbox/**` (entrypoint, host
       reference, `register/*`, `sdk/{index,instantiate,sdk}.ts`, `sdk/generators/*`, `sdk/utils/*`; `getAxios()` của
       `api/request/index.ts`, `numberGenerator` của T013); `registerSandboxedApiExtension` trong
       `api/extensions/manager.ts` (port `:616-674`)
@@ -308,21 +308,21 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
 
 ### Tests cho User Story 5
 
-- [ ] T090 [P] [US5] `web/stores/extensions.test.ts`: `refresh` (so id extension app/hybrid bật trước/sau → notice
+- [X] T090 [P] [US5] `web/stores/extensions.test.ts`: `refresh` (so id extension app/hybrid bật trước/sau → notice
       persist `reload-required` với nút reload), `toggleState` (`PATCH {meta: {enabled: !enabled}}`), `remove`, rồi
       `refresh`; `web/modules/settings/routes/extensions/ExtensionsRoute.test.ts`: nhóm theo `schema.type`, `missing`,
       bundle con lồng, trạng thái partial, menu theo nguồn (uninstall khóa khi không phải registry), không hộp xác nhận
-- [ ] T091 [P] [US5] Sửa test ghim D-93: `web/modules/settings.test.ts:76-83`, `web/modules/settings/components/
+- [X] T091 [P] [US5] Sửa test ghim D-93: `web/modules/settings.test.ts:76-83`, `web/modules/settings/components/
       SettingsNavigation.test.ts:26-37`; `e2e/requests.spec.ts:43` (cho phép `/extensions*` theo allowlist);
       `web/test-utils/fetch.ts` `KNOWN_REQUESTS` và `e2e/helpers/allowed-paths.ts` thêm #204–#208, #213 (contracts/web.md §7)
 
 ### Implementation cho User Story 5
 
-- [ ] T092 [US5] `web/composables/use-notices.ts` `NoticeRaw` thêm `id`, `icon`, `closeable`, `showReload`, `progress`,
+- [X] T092 [US5] `web/composables/use-notices.ts` `NoticeRaw` thêm `id`, `icon`, `closeable`, `showReload`, `progress`,
       `loading`, `alwaysShowText`, `dismissIcon`, `dismissText`, `dismissAction` (notify với `id` có sẵn thì không thêm
       trùng); `NoticeStack` vẽ nút dismiss theo `dismissIcon`/`dismissText`/`dismissAction`; test
-- [ ] T093 [US5] Port `D/app/stores/extensions.ts` → `web/stores/extensions.ts` (`apiFetch`; notice qua `notify`, D-66)
-- [ ] T094 [US5] Port `D/app/modules/settings/routes/extensions/{extensions.vue,constants.ts,types.ts,components/
+- [X] T093 [US5] Port `D/app/stores/extensions.ts` → `web/stores/extensions.ts` (`apiFetch`; notice qua `notify`, D-66)
+- [X] T094 [US5] Port `D/app/modules/settings/routes/extensions/{extensions.vue,constants.ts,types.ts,components/
       {ExtensionItem,extension-item-options,extension-group-divider}.vue}` → `web/modules/settings/routes/extensions/
       {ExtensionsRoute.vue,constants.ts,types.ts,components/{ExtensionItem,ExtensionItemOptions,ExtensionGroupDivider}.vue}`
       theo recipe Q-41 (T003); `web/modules/settings.ts` route `settings-extensions`; `SettingsNavigation.vue` nhóm 4 mục
@@ -358,7 +358,7 @@ src/directus-shim` (axe, bàn phím).
       z-index và ca lồng, ảnh sáng/tối), Q-45 (`PrivateView` 11 slot/7 prop trên khung D-127/D-128, `PublicView`,
       `SharedView`), Q-46 (173 `--theme--*` + `.type-*`, `.form-grid` sang token) vào `design-system/docs/{component-specs,
       layout-patterns}.md`
-- [ ] T102 [P] [US8] `apps/web/scripts/extract-directus-components.mjs` (`@vue/compiler-sfc` + `typescript`: props tên/
+- [X] T102 [P] [US8] `apps/web/scripts/extract-directus-components.mjs` (`@vue/compiler-sfc` + `typescript`: props tên/
       kiểu/mặc định, emits, slot `<slot name>` và slot props, `defineExpose`, của mọi file trong `D/app/components/
       register.ts`, `D/app/views/register.ts`, `D/app/directives/register.ts`) → `apps/web/fixtures/
       directus-components.json`; `apps/web/scripts/extract-directus-components.test.ts` sinh lại và so byte
@@ -378,7 +378,7 @@ src/directus-shim` (axe, bàn phím).
       `notifications`, `overlayIsActive`, `lastFour`, `setOverlayIsActive`, `add` → `notify`, `hide`, `remove`, `update`),
       `web/stores/server.ts` (`info.extensions`, `ai_enabled`/`mcp_enabled` `false`), `web/stores/settings.ts`
       (`availableAiProviders` `[]`), `web/hydrate.ts` (`appStore.basemap`); test từng store
-- [ ] T106 [P] [US8] Port 7 directive `D/app/directives/{click-outside,context-menu,focus,prevent-focusout,
+- [X] T106 [P] [US8] Port 7 directive `D/app/directives/{click-outside,context-menu,focus,prevent-focusout,
       input-auto-width,markdown,tooltip}.ts` → `web/directus-shim/directives/`; `web/utils/markdown.ts` thêm tùy chọn
       `target`; tooltip một `#tooltip` chung, delay 500/125 ms, modifier, RTL, style token; test từng directive
 - [ ] T107 [P] [US8] `web/directus-shim/styles/theme-vars.css` (173 `--theme--*` + 11 biến app dùng không khai +
@@ -666,3 +666,35 @@ Lượt 3:
 ## Ghi chú khi làm
 
 (Ghi kết quả T001, T042, T143 và lệch so với tài liệu ở đây khi đóng từng lượt.)
+
+### Lượt 1 (2026-10-21)
+
+- Bộ mẫu có 14 package (thêm `parity-endpoint-express4-path` cho các mục path-to-regexp của D-139, tách khỏi
+  `parity-endpoint-express4` vì một path kiểu cũ ném lỗi lúc đăng ký làm hỏng cả extension).
+- Manager port đủ ngay ở T021 (gồm đăng ký hook/endpoint/operation/bundle, sandbox, bundle app luôn dựng): T038, T040,
+  T041, T082 làm cùng T021; test gộp trong `api/extensions/manager.test.ts` (thay ba file `manager.{hook,endpoint,
+  operation,order}.test.ts`) và `api/extensions/sandbox.test.ts`; thứ tự 8 event init ở `app-pipeline.test.ts` (thay
+  `app-init-events.test.ts`); readiness ở `server.test.ts` (thay `server.extensions.test.ts`).
+- `services` của context: không thêm export vào `services/index.ts` (vòng import qua `server.service`); `extraServices()`
+  của `api/extensions/services.ts` nạp lười; `tools/extract-service-signatures.mjs` so `index.ts` + `extraServices` với
+  Directus: 0 khác biệt ngoài D-141 (thêm `MailService.getDefaultTemplateData`). Test dạng `node --test`
+  (`tools/extract-service-signatures.test.mjs`) cho khớp `test:tools`.
+- `MailService` mới làm `services/mail-sites.guard.test.ts` (cấm `class MailService`) đỏ: guard cho phép đúng file
+  log-only này và vẫn cấm transport.
+- Mọi test dựng app (`createApp`) nay chạy manager thật (không extension): `test-utils/flows.ts` thêm
+  `addOperation`/`removeOperation`; `flows.ts` vẫn tự đăng ký operation nội bộ (manager cũng đăng ký như Directus).
+- `@directus/extensions-sdk` 17.1.4 (devDependency của bộ mẫu) ghim `vite` 8.0.8: peer `vite` của gói ở root
+  (`unplugin-swc`, `@nx/vite`) chuyển sang 8 và `vitest.shared.ts` lỗi kiểu; root `package.json` thêm `vite` 7.3.7 (bản
+  vitest dùng) để peer ở root giữ như trước.
+- Sandbox [Unverified với Directus, chờ parity T081]: trên Node 22 (macOS và image API linux/amd64), isolated-vm 5.0.3 báo
+  "Script failed to terminate" khi một hàm vòng lặp bận vượt `EXTENSIONS_SANDBOX_TIMEOUT`, `onCatastrophicError` gọi
+  `process.abort()` (code giống Directus). Ca `/slow` của `parity-endpoint-sandbox` vì vậy có thể làm chết cả hai app; T081
+  so hành vi thật trước khi viết ca tải nền SC-004.
+- Menu dòng extension: mục bị khóa không có tooltip (Reka bỏ qua mục disabled), lý do `uninstall_locked` ghi trong chữ
+  của mục; nút menu có `title` `enabled_dev_tooltip` khi khóa ở dev. Link Marketplace chỉ hiện khi có route (lượt 3).
+- `NoticeRaw` có `progress`, `loading`, `showReload` trong type nhưng chưa vẽ (dành cho shim lượt 2).
+- T042 (D-139 đo thật): khác dự kiến một mục, `res.send(201)` trên Express 5 trả 200 với body `201` (dự kiến 500);
+  các mục khác khớp. Owner duyệt lại mục này khi đóng 020.
+- Parity extensions chạy trên env có dữ liệu seed cũ: `bo_ext_items`, `bo_ext_log` tạo bằng tay theo `seed.mjs`
+  (`extensionsCollections`). Một lần `toggle.test.ts` (ca bundle) quá 30 s khi chạy sau `endpoints`/`multi`, không tái
+  hiện ở 5 lần chạy sau; theo dõi trên CI.

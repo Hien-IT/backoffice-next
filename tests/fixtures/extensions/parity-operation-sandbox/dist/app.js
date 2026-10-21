@@ -1,0 +1,1 @@
+var t={id:"parity-operation-sandbox",name:"Parity Sandbox",icon:"shield",description:"Echoes its text option (parity fixture)",overview:({text:t})=>[{label:"Text",text:t??""}],options:[{field:"text",name:"Text",type:"string",meta:{width:"full",interface:"input"}}]};export{t as default};

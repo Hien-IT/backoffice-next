@@ -7,6 +7,7 @@ export * from './comments.js';
 export * from './database.js';
 export * from './error.js';
 export * from './events.js';
+export * from './extensions.js';
 export * from './fields.js';
 export * from './files.js';
 export * from './flows.js';

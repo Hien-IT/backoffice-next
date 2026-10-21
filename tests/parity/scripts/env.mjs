@@ -52,6 +52,8 @@ const ALL_PROFILES = [
 	'graphql-nointro',
 	// Feature 012 (research R10): the web app behind two proxies and the cross-site pair; `up` only with --profiles=web.
 	'web',
+	// Feature 020 (contracts/tests.md §3): the extensions pair; `up` only with --profiles=extensions.
+	'extensions',
 ];
 const profiles = [values.vendor, ...(action === 'up' ? values.profiles.split(',').filter(Boolean) : ALL_PROFILES)];
 const args = [

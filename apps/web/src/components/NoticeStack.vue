@@ -16,6 +16,12 @@ const NOTICE_TYPES = { info: 'info', success: 'success', warning: 'warning', err
 
 const firstDialog = computed<Notice | undefined>(() => dialogs.value[0]);
 
+/** Directus notification-item: a dismiss action replaces closing the notice. */
+async function dismiss(notice: Notice) {
+	if (notice.dismissAction) await notice.dismissAction();
+	else remove(notice.id);
+}
+
 function errorMessage(error: unknown): string | null {
 	const list = (error as { errors?: { message?: string }[] } | null)?.errors;
 	if (Array.isArray(list) && list[0]?.message) return list[0].message;
@@ -27,13 +33,32 @@ function errorMessage(error: unknown): string | null {
 <template>
 	<!-- Always in the page so screen readers announce the first notice too (design owner, recipe Q-8, 2026-10-15). -->
 	<div class="flex flex-col gap-2" :class="{ 'mb-4': queue.length > 0 }" role="status" aria-live="polite">
-		<BoNotice v-for="notice in queue" :key="notice.id" :type="NOTICE_TYPES[notice.type ?? 'success']">
+		<BoNotice
+			v-for="notice in queue"
+			:key="notice.id"
+			:type="NOTICE_TYPES[notice.type ?? 'success']"
+			v-bind="notice.icon ? { icon: notice.icon } : {}"
+		>
 			<div class="flex items-start gap-3">
 				<div class="min-w-0 flex-1">
 					<p class="m-0 font-medium text-gray-800 dark:text-white/90">{{ notice.title }}</p>
 					<p v-if="notice.text" class="m-0 mt-1">{{ notice.text }}</p>
 				</div>
-				<BoButton variant="ghost" icon="close" :aria-label="t('dismiss')" @click="remove(notice.id)" />
+				<BoButton
+					v-if="notice.dismissText"
+					variant="ghost"
+					v-bind="notice.dismissIcon ? { icon: notice.dismissIcon } : {}"
+					@click="dismiss(notice)"
+				>
+					{{ notice.dismissText }}
+				</BoButton>
+				<BoButton
+					v-else-if="notice.closeable !== false"
+					variant="ghost"
+					:icon="notice.dismissIcon ?? 'close'"
+					:aria-label="t('dismiss')"
+					@click="dismiss(notice)"
+				/>
 			</div>
 		</BoNotice>
 	</div>

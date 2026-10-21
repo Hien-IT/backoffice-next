@@ -45,8 +45,13 @@ test('no code of this app can open a mail connection (SC-005)', () => {
 	const pkg = readFileSync(join(ROOT, 'apps/api/package.json'), 'utf8');
 	expect(pkg).not.toMatch(/nodemailer|mailgun|@aws-sdk\/client-ses/);
 
+	// Spec 020 D-141: the log-only MailService handed to extensions; it has no transport (the checks below still apply).
+	const logOnly = join(API, 'services/mail.service.ts');
+	expect(readFileSync(logOnly, 'utf8')).toMatch(/mail sending is out of scope/);
+
 	const offenders = files(API).filter((path) => {
 		const text = readFileSync(path, 'utf8');
+		if (path === logOnly) return /from ['"]nodemailer|EMAIL_TRANSPORT|sendMail\(/.test(text);
 		return /from ['"](nodemailer|\.{1,2}\/.*services\/mail\/)|class MailService|EMAIL_TRANSPORT/.test(text);
 	});
 

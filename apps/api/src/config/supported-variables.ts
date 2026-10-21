@@ -204,6 +204,14 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'GRAPHQL_SCHEMA_GENERATION_MAX_CONCURRENT',
 	'GRAPHQL_QUERY_TOKEN_LIMIT',
 	'GRAPHQL_SCHEMA_CACHE_CAPACITY',
+	// Feature 020: the extension manager (specs/020 contracts/api.md §3).
+	'EXTENSIONS_MUST_LOAD',
+	'EXTENSIONS_AUTO_RELOAD',
+	'EXTENSIONS_SANDBOX_MEMORY',
+	'EXTENSIONS_SANDBOX_TIMEOUT',
+	'EXTENSIONS_LIMIT',
+	'EXTENSIONS_ROLLDOWN',
+	'PACKAGE_FILE_LOCATION',
 ].map((name) => new RegExp(`^${name}$`));
 
 /** Group B: used only by the Directus `bootstrap` command and CLI; ignored without a warning. */

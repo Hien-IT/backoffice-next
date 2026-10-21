@@ -1,0 +1,38 @@
+[
+	{
+		"source": "app/src/directives/click-outside.ts",
+		"dest": "apps/web/src/directus-shim/directives/click-outside.ts"
+	},
+	{
+		"source": "app/src/directives/context-menu.ts",
+		"dest": "apps/web/src/directus-shim/directives/context-menu.ts"
+	},
+	{
+		"source": "app/src/directives/focus.ts",
+		"dest": "apps/web/src/directus-shim/directives/focus.ts"
+	},
+	{
+		"source": "app/src/directives/input-auto-width.ts",
+		"dest": "apps/web/src/directus-shim/directives/input-auto-width.ts"
+	},
+	{
+		"source": "app/src/directives/markdown.ts",
+		"dest": "apps/web/src/directus-shim/directives/markdown.ts"
+	},
+	{
+		"source": "app/src/directives/prevent-focusout.ts",
+		"dest": "apps/web/src/directus-shim/directives/prevent-focusout.ts"
+	},
+	{
+		"source": "app/src/directives/tooltip.ts",
+		"dest": "apps/web/src/directus-shim/directives/tooltip.ts"
+	},
+	{
+		"source": "app/src/directives/tooltip.test.ts",
+		"dest": "apps/web/src/directus-shim/directives/tooltip.test.ts"
+	},
+	{
+		"source": "app/src/directives/register.ts",
+		"dest": "apps/web/src/directus-shim/directives/index.ts"
+	}
+]

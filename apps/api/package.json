@@ -18,6 +18,7 @@
 		"@backoffice/constants": "workspace:*",
 		"@backoffice/env": "workspace:*",
 		"@backoffice/errors": "workspace:*",
+		"@backoffice/extensions": "workspace:*",
 		"@backoffice/format-title": "workspace:*",
 		"@backoffice/memory": "workspace:*",
 		"@backoffice/pressure": "workspace:*",
@@ -107,7 +108,16 @@
 		"tedious": "catalog:",
 		"wellknown": "catalog:",
 		"zod": "catalog:",
-		"zod-validation-error": "catalog:"
+		"zod-validation-error": "catalog:",
+		"rollup": "catalog:",
+		"rolldown": "catalog:",
+		"@rollup/plugin-virtual": "catalog:",
+		"@rollup/plugin-node-resolve": "catalog:",
+		"chokidar": "catalog:",
+		"node-machine-id": "catalog:",
+		"tar": "catalog:",
+		"fs-extra": "catalog:",
+		"glob-to-regexp": "catalog:"
 	},
 	"devDependencies": {
 		"@backoffice/schema-builder": "workspace:*",
@@ -139,6 +149,8 @@
 		"@types/wellknown": "catalog:",
 		"get-port": "catalog:",
 		"knex-mock-client": "catalog:",
-		"supertest": "catalog:"
+		"supertest": "catalog:",
+		"@types/fs-extra": "catalog:",
+		"@types/glob-to-regexp": "catalog:"
 	}
 }

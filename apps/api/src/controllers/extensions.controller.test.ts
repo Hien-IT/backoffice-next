@@ -1,6 +1,6 @@
 // Feature 010 (T050): the /extensions controller (port of directus/api/src/controllers/extensions.ts, which Directus
 // does not unit test) through the real app pipeline on SQLite, with ExtensionsService and the registry client mocked:
-// the ListQuery of /registry, the uuid params, admin checks, the 503 and 403 of D-37 and the empty app bundle.
+// the ListQuery of /registry, the uuid params, admin checks, the 503 of D-37 (narrowed by spec 020 wave 1), PATCH/DELETE /:pk and the empty app bundle.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import type { Knex } from 'knex';
@@ -12,12 +12,16 @@ import { account, describe as describeExtension, list } from '../extensions/regi
 import { EMPTY_APP_EXTENSION_BUNDLE } from '../services/extensions.service.js';
 
 const state = vi.hoisted(() => ({ db: undefined as unknown as Knex }));
-const readAll = vi.hoisted(() => vi.fn());
+const { readAll, updateOne, deleteOne } = vi.hoisted(() => ({
+	readAll: vi.fn(),
+	updateOne: vi.fn(),
+	deleteOne: vi.fn(),
+}));
 
 vi.mock('../services/extensions.service.js', async (importOriginal) => ({
 	...(await importOriginal<typeof import('../services/extensions.service.js')>()),
 	ExtensionsService: vi.fn(function (this: unknown, options: unknown) {
-		return { readAll, options };
+		return { readAll, updateOne, deleteOne, options };
 	}),
 }));
 
@@ -202,21 +206,55 @@ test('install, reinstall, uninstall: the checks of Directus, then 503 (D-37)', a
 	expect(uninstall.body.errors[0].extensions).toEqual(noInstall);
 });
 
-test('PATCH, DELETE /extensions/:pk: uuid only (404), then 403 (D-37)', async () => {
+test('PATCH, DELETE /extensions/:pk: uuid only (404), admin only (403)', async () => {
 	const request = await agent();
 
 	expect((await request.patch('/extensions/x').set('Authorization', admin()).send({})).status).toBe(404);
 	expect((await request.delete('/extensions/x').set('Authorization', admin())).status).toBe(404);
 
-	for (const auth of [admin(), token(USER)]) {
-		const patch = await request
-			.patch(`/extensions/${UUID}`)
-			.set('Authorization', auth)
-			.send({ meta: { enabled: false } });
-		expect(patch.status).toBe(403);
-		expect(patch.body.errors[0].extensions.code).toBe('FORBIDDEN');
-		expect((await request.delete(`/extensions/${UUID}`).set('Authorization', auth)).status).toBe(403);
-	}
+	const patch = await request
+		.patch(`/extensions/${UUID}`)
+		.set('Authorization', token(USER))
+		.send({ meta: { enabled: false } });
+	expect(patch.status).toBe(403);
+	expect(patch.body.errors[0].extensions.code).toBe('FORBIDDEN');
+	expect((await request.delete(`/extensions/${UUID}`).set('Authorization', token(USER))).status).toBe(403);
+	expect(updateOne).not.toHaveBeenCalled();
+	expect(deleteOne).not.toHaveBeenCalled();
+});
+
+test('PATCH /extensions/:pk: { data } of updateOne; a Forbidden read error is a 204; other errors pass', async () => {
+	const request = await agent();
+	const { ExtensionReadError } = await vi.importActual<typeof import('../services/extensions.service.js')>(
+		'../services/extensions.service.js',
+	);
+	const { ForbiddenError, InvalidPayloadError } = await import('@backoffice/errors');
+
+	updateOne.mockResolvedValueOnce({ id: UUID, meta: { enabled: false } });
+	const ok = await request
+		.patch(`/extensions/${UUID}`)
+		.set('Authorization', admin())
+		.send({ meta: { enabled: false } });
+	expect(ok.status).toBe(200);
+	expect(ok.body).toEqual({ data: { id: UUID, meta: { enabled: false } } });
+	expect(updateOne).toHaveBeenCalledWith(UUID, { meta: { enabled: false } });
+
+	updateOne.mockRejectedValueOnce(new ExtensionReadError(new ForbiddenError()));
+	expect((await request.patch(`/extensions/${UUID}`).set('Authorization', admin()).send({ meta: {} })).status).toBe(
+		204,
+	);
+
+	updateOne.mockRejectedValueOnce(new ExtensionReadError(new InvalidPayloadError({ reason: 'x' })));
+	expect((await request.patch(`/extensions/${UUID}`).set('Authorization', admin()).send({ meta: {} })).status).toBe(
+		400,
+	);
+});
+
+test('DELETE /extensions/:pk: deleteOne, 204', async () => {
+	const request = await agent();
+
+	expect((await request.delete(`/extensions/${UUID}`).set('Authorization', admin())).status).toBe(204);
+	expect(deleteOne).toHaveBeenCalledWith(UUID);
 });
 
 describe('GET /extensions/sources/:chunk', () => {

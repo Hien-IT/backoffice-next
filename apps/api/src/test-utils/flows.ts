@@ -10,6 +10,9 @@ export function mockFlowManager() {
 		runWebhookFlow: vi.fn(),
 		runOperationFlow: vi.fn(),
 		getFlow: vi.fn(),
+		// spec 020: the extension manager registers the built-in operations
+		addOperation: vi.fn(),
+		removeOperation: vi.fn(),
 	};
 
 	return { getFlowManager: () => manager };

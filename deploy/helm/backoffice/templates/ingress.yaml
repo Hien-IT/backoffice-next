@@ -28,6 +28,11 @@ spec:
             backend:
               service: { name: {{ .service }}, port: { number: {{ .port }} } }
           {{- end }}
+          # Spec 020 (D-137): the app extension chunks come from the Backoffice pods only.
+          - path: /extensions/sources
+            pathType: Prefix
+            backend:
+              service: { name: {{ include "backoffice.name" . }}-api-only, port: { number: 8055 } }
           - path: /admin
             pathType: Prefix
             backend:

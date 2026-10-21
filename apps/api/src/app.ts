@@ -7,7 +7,9 @@ import type { Express } from 'express';
 import { AppModule } from './app.module.js';
 import { type ExpressAppOptions, createExpressApp } from './app-pipeline.js';
 import { subscribeSchemaChanged } from './cache.js';
+import emitter from './emitter.js';
 import { ErrorHandlerFilter } from './errors/error-handler.filter.js';
+import { getExtensionManager } from './extensions/index.js';
 import { getFlowManager } from './flows.js';
 import { NestLoggerService } from './logger/nest-logger.service.js';
 import { onServerShutdown } from './shutdown.js';
@@ -28,12 +30,17 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 
 	// Directus initializes the flows after the auth providers (end of runStartupChecks here) and before express()
 	// (app.ts:128-131), so event flows see the first request (feature 009, research R2).
+	const extensionManager = getExtensionManager();
 	const flowManager = getFlowManager();
+
+	await extensionManager.initialize();
 	await flowManager.initialize();
-	// Backoffice: stop the cron jobs of scheduled flows with the other shutdown tasks; Directus relies on pm2.
+	// Backoffice: stop the extensions and the cron jobs of scheduled flows with the other shutdown tasks; Directus
+	// relies on pm2.
+	onServerShutdown(() => extensionManager.unload());
 	onServerShutdown(() => flowManager.unload());
 
-	const express = createExpressApp(options);
+	const express = await createExpressApp(options);
 
 	const nest = await NestFactory.create<NestExpressApplication>(AppModule.forRoot(), new ExpressAdapter(express), {
 		bodyParser: false,
@@ -44,7 +51,11 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 
 	await nest.init();
 
+	await emitter.emitInit('routes.after', { app: express });
+
 	await startSchedules();
+
+	await emitter.emitInit('app.after', { app: express });
 
 	registerWebSocketBridge();
 

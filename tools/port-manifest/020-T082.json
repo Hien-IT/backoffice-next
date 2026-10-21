@@ -1,0 +1,70 @@
+[
+	{
+		"source": "api/src/extensions/lib/sandbox/generate-api-extensions-sandbox-entrypoint.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/generate-api-extensions-sandbox-entrypoint.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/generate-host-function-reference.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/generate-host-function-reference.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/action.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/action.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/call-reference.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/call-reference.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/filter.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/filter.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/index.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/index.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/operation.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/operation.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/register/route.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/register/route.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/generators/index.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/generators/index.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/generators/log.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/generators/log.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/generators/request.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/generators/request.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/generators/sleep.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/generators/sleep.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/index.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/index.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/instantiate.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/instantiate.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/sdk.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/sdk.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/utils/index.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/utils/index.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/sandbox/sdk/utils/wrap.ts",
+		"dest": "apps/api/src/extensions/lib/sandbox/sdk/utils/wrap.ts"
+	}
+]

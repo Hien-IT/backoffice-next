@@ -24,6 +24,10 @@ kubectl apply -f "https://github.com/kubernetes-sigs/metrics-server/releases/dow
 kubectl -n kube-system patch deployment metrics-server --type=json \
 	-p '[{"op":"add","path":"/spec/template/spec/containers/0/args/-","value":"--kubelet-insecure-tls"}]'
 
+# Spec 020: one fixture extension, uploaded to extensions/ of the shared storage by the minio-init job.
+fixture=$chart/../../../tests/fixtures/extensions/parity-endpoint-demo
+kubectl create configmap extension-fixture --from-file=package.json="$fixture/package.json" \
+	--from-file=index.js="$fixture/dist/index.js" --dry-run=client -o yaml | kubectl apply -f -
 kubectl apply -f "$chart/ci/deps.yaml"
 kubectl wait --for=condition=complete job/minio-init --timeout=300s
 kubectl rollout status deployment/directus --timeout=600s
@@ -71,6 +75,30 @@ if node -e 'const r=require("/tmp/bo-kind-load.json"); process.exit(r.errors===0
 else
 	fail "rolling update and HPA scaling under load: no failed request"
 fi
+
+# Spec 020 (US2, SC-003, FR-045): every pod of the pool (BE and Directus) serves the endpoint extension from the shared
+# storage; disabled through the Directus pod it answers 404 on every pod within 10 s, enabled again 200, and pods added
+# by the HPA have it before they are ready.
+demo() { # demo <expected status>: 12 calls through the Ingress (spread over the pool) answer <status>
+	for _ in $(seq 12); do [ "$(api -o /dev/null -w '%{http_code}' "$base/parity-endpoint-demo")" = "$1" ] || return 1; done
+}
+until_demo() { for _ in $(seq 20); do demo "$1" && return 0; sleep 0.5; done; return 1; }
+ext_id=$(api "$base/extensions" -H "authorization: Bearer $token" | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).data.find((e)=>e.meta.folder==="parity-endpoint-demo").id))')
+kubectl port-forward deployment/directus 18055:8055 >/dev/null 2>&1 &
+pfd=$!
+sleep 3
+toggle() { curl -s -o /dev/null -X PATCH "http://127.0.0.1:18055/extensions/$ext_id" -H "authorization: Bearer $token" \
+	-H 'content-type: application/json' -d "{\"meta\":{\"enabled\":$1}}"; }
+if demo 200; then ok "020: endpoint extension on every pod"; else fail "020: endpoint extension on every pod"; fi
+toggle false
+if until_demo 404; then ok "020: disabled at Directus -> 404 on every pod within 10 s"; else fail "020: disabled -> 404 everywhere"; fi
+toggle true
+if until_demo 200; then ok "020: enabled again -> 200 on every pod"; else fail "020: enabled again -> 200 everywhere"; fi
+kill $pfd 2>/dev/null || true
+kubectl patch hpa bo-api --type=merge -p '{"spec":{"minReplicas":4}}'
+kubectl rollout status deployment/bo-api --timeout=300s
+if demo 200; then ok "020: pods added by the HPA serve the extension"; else fail "020: pods added by the HPA serve the extension"; fi
+kubectl patch hpa bo-api --type=merge -p '{"spec":{"minReplicas":2}}'
 
 # The HPA reads the CPU of the BE pods (metrics-server), with the values of the chart (US7 scenario 3).
 cpu=""

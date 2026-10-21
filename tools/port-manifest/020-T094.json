@@ -1,0 +1,26 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/extensions/extensions.vue",
+		"dest": "apps/web/src/modules/settings/routes/extensions/ExtensionsRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/extensions/constants.ts",
+		"dest": "apps/web/src/modules/settings/routes/extensions/constants.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/extensions/types.ts",
+		"dest": "apps/web/src/modules/settings/routes/extensions/types.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/extensions/components/ExtensionItem.vue",
+		"dest": "apps/web/src/modules/settings/routes/extensions/components/ExtensionItem.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/extensions/components/extension-item-options.vue",
+		"dest": "apps/web/src/modules/settings/routes/extensions/components/ExtensionItemOptions.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/extensions/components/extension-group-divider.vue",
+		"dest": "apps/web/src/modules/settings/routes/extensions/components/ExtensionGroupDivider.vue"
+	}
+]

@@ -1,0 +1,22 @@
+[
+	{
+		"source": "packages/extensions/src/node/index.ts",
+		"dest": "libs/extensions/src/node/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/node/utils/index.ts",
+		"dest": "libs/extensions/src/node/utils/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/node/utils/get-extensions.ts",
+		"dest": "libs/extensions/src/node/utils/get-extensions.ts"
+	},
+	{
+		"source": "packages/extensions/src/node/utils/generate-extensions-entrypoint.ts",
+		"dest": "libs/extensions/src/node/utils/generate-extensions-entrypoint.ts"
+	},
+	{
+		"source": "packages/extensions/src/node/utils/generate-extensions-entrypoint.test.ts",
+		"dest": "libs/extensions/src/node/utils/generate-extensions-entrypoint.test.ts"
+	}
+]

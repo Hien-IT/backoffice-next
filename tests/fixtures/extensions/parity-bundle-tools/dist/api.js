@@ -1,0 +1,1 @@
+const e=[{name:"bundle-hook",config:({action:e},{database:n})=>{e("bo_ext_items.items.update",async e=>{await n("bo_ext_log").insert({kind:"bundle",event:"items.update",payload:JSON.stringify({keys:e.keys})})})}}],n=[],t=[{name:"bundle-op",config:{id:"parity-bundle-op",handler:()=>({bundled:!0})}}];export{n as endpoints,e as hooks,t as operations};

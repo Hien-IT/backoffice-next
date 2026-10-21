@@ -1,0 +1,97 @@
+/* Ported from directus/app/src/styles/_tooltip.scss: the one #tooltip of the v-tooltip directive, on theme tokens
+   (Tooltip recipe of component-specs.md: dark surface in light mode, light surface in dark mode). */
+#tooltip {
+	--tooltip-foreground-color: var(--color-white);
+	--tooltip-background-color: var(--color-gray-900);
+
+	position: absolute;
+	inset-block-start: 0;
+	inset-inline-start: 0;
+	z-index: var(--z-index-99999);
+	display: none;
+	max-inline-size: 14.625rem;
+	padding: 0.25rem 0.4375rem;
+	color: var(--tooltip-foreground-color);
+	font-size: var(--text-theme-xs);
+	overflow-wrap: break-word;
+	pointer-events: none;
+	background-color: var(--tooltip-background-color);
+	border-radius: 0.25rem;
+	transition: opacity 200ms;
+}
+
+.dark #tooltip,
+#tooltip.inverted {
+	--tooltip-foreground-color: var(--color-gray-800);
+	--tooltip-background-color: var(--color-gray-100);
+}
+
+#tooltip.monospace {
+	font-family: ui-monospace, monospace;
+}
+
+#tooltip.visible {
+	display: block;
+}
+
+#tooltip.enter,
+#tooltip.leave-active {
+	opacity: 0;
+}
+
+#tooltip.enter-active,
+#tooltip.leave {
+	opacity: 1;
+}
+
+#tooltip::after {
+	position: absolute;
+	inset-block-start: -0.3125rem;
+	inset-inline-start: calc(50% - 0.3125rem);
+	inline-size: 0;
+	block-size: 0;
+	border-inline-end: 6px solid transparent;
+	border-block-end: 6px solid var(--tooltip-background-color);
+	border-inline-start: 6px solid transparent;
+	content: '';
+}
+
+#tooltip.top::after {
+	inset-block-start: unset;
+	inset-block-end: -0.3125rem;
+	border-block-start: 6px solid var(--tooltip-background-color);
+	border-block-end: unset;
+}
+
+#tooltip.start::after {
+	inset-inline-end: 0.3125rem;
+	inset-inline-start: unset;
+}
+
+#tooltip.end::after {
+	inset-inline-start: 0.3125rem;
+}
+
+#tooltip.left::after,
+#tooltip.right::after {
+	inset-block-start: calc(50% - 0.3125rem);
+	border-block: 6px solid transparent;
+}
+
+#tooltip.left::after {
+	inset-inline: unset -0.3125rem;
+	border-inline-start: 6px solid var(--tooltip-background-color);
+	border-inline-end: unset;
+}
+
+#tooltip.right::after {
+	inset-inline-start: -0.3125rem;
+	border-inline-end: 6px solid var(--tooltip-background-color);
+	border-inline-start: unset;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	#tooltip {
+		transition: none;
+	}
+}

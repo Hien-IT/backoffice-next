@@ -1,0 +1,22 @@
+[
+	{
+		"source": "packages/extensions-registry/src/modules/download/download.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/download/download.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/download/download.ts",
+		"dest": "apps/api/src/extensions/registry/modules/download/download.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/download/lib/construct-url.test.ts",
+		"dest": "apps/api/src/extensions/registry/modules/download/lib/construct-url.test.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/download/lib/construct-url.ts",
+		"dest": "apps/api/src/extensions/registry/modules/download/lib/construct-url.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/download/types/download-options.ts",
+		"dest": "apps/api/src/extensions/registry/modules/download/types/download-options.ts"
+	}
+]

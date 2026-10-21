@@ -68,13 +68,14 @@ describe('settings module routes', () => {
 			'/settings/translations': 'settings-translations-collection',
 			'/settings/translations/7': 'settings-translations-item',
 			'/settings/flows': 'settings-flows-collection',
+			'/settings/extensions': 'settings-extensions',
 		};
 
 		for (const [path, name] of Object.entries(names)) expect((await go(path)).name, path).toBe(name);
 	});
 
-	test('out-of-scope paths are the module not-found page (D-93)', async () => {
-		for (const path of ['/settings/ai', '/settings/extensions', '/settings/marketplace', '/settings/system-logs']) {
+	test('out-of-scope paths are the module not-found page (D-93; marketplace until spec 020 wave 3)', async () => {
+		for (const path of ['/settings/ai', '/settings/marketplace', '/settings/system-logs']) {
 			const route = await go(path);
 
 			expect(route.name, path).toBe('settings-not-found');

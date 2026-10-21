@@ -28,6 +28,8 @@ export const REDUCED_FILES = [
 	// Feature 011 (spec FR-060): reads, writes, system operations and the introspection of admin and user A; errors,
 	// cache, the nointro pair and e2e-app run in `full` only.
 	'src/graphql/{read,write,system,schema}.test.ts',
+	// Spec 020 (contracts/tests.md §3): the extensions list, hooks and endpoints of the fixture extensions.
+	'src/extensions/{list,hooks,endpoints}.test.ts',
 ];
 
 export const FULL_FILES = [
@@ -52,6 +54,9 @@ export const FULL_FILES = [
 	// Feature 013 (contracts/tests.md §7, SC-009): the interfaces fixture set seeded and exported through both apps of the
 	// main pair, one after the other (Postgres with PostGIS keeps the geometry fields).
 	'src/web/**/*.test.ts',
+	// Spec 020: the fixture extensions at the main pair (list, toggle, GraphQL, hooks, endpoints, operations, sandbox),
+	// the multi-node cases and the install pair (profile `extensions`).
+	'src/extensions/**/*.test.ts',
 ];
 
 /** Feature 004 (spec SC-001): the full matrix runs alone, one shard per CI job (PARITY_MATRIX_SHARD). */

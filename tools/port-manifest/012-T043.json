@@ -6,9 +6,5 @@
 	{
 		"source": "app/src/views/private/private-view/components/private-view-sidebar.vue",
 		"dest": "apps/web/src/layout/DetailPanel.vue"
-	},
-	{
-		"source": "app/src/views/private/private-view/components/private-view-resize-handle.vue",
-		"dest": "apps/web/src/layout/ResizeHandle.vue"
 	}
 ]

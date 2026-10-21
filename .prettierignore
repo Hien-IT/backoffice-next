@@ -9,3 +9,5 @@ graphify-out/
 specs/
 # Helm templates are Go templates, not YAML until rendered (feature 019)
 deploy/helm/*/templates/
+# Spec 020: written by apps/web/scripts/extract-directus-components.mjs, compared byte for byte by its test
+apps/web/fixtures/directus-components.json

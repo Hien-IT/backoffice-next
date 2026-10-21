@@ -23,7 +23,22 @@ purify.addHook('afterSanitizeAttributes', (node) => {
 	node.setAttribute('rel', 'noopener noreferrer');
 });
 
-/** Render a markdown string to sanitized HTML (the only HTML the app may put in v-html, spec "Bảo mật"). */
-export function md(value: string): string {
-	return purify.sanitize(marked.parse(value, { async: false }));
+/**
+ * Render a markdown string to sanitized HTML (the only HTML the app may put in v-html, spec "Bảo mật"). `target`: the
+ * target of every link (Directus `md(value, { target })`, used by the v-md directive of extensions, spec 020).
+ */
+export function md(value: string, options: { target?: '_blank' | '_self' | '_parent' | '_top' } = {}): string {
+	const html = purify.sanitize(marked.parse(value, { async: false }));
+	if (!options.target) return html;
+
+	const template = document.createElement('template');
+	template.innerHTML = html;
+
+	for (const link of template.content.querySelectorAll('a')) {
+		link.setAttribute('target', options.target);
+		if (options.target === '_blank') link.setAttribute('rel', 'noopener noreferrer');
+		else link.removeAttribute('rel');
+	}
+
+	return template.innerHTML;
 }

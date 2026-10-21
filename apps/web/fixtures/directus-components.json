@@ -1,0 +1,3363 @@
+{
+	"version": "11.17.4",
+	"components": {
+		"DrawerBatch": {
+			"file": "directus/app/src/views/private/components/drawer-batch.vue",
+			"props": {
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"primaryKeys": {
+					"type": "Array",
+					"required": true
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false
+				},
+				"edits": {
+					"type": "Object",
+					"required": false
+				},
+				"stageOnSave": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"input",
+				"refresh",
+				"update:active"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"DrawerCollection": {
+			"file": "directus/app/src/views/private/components/drawer-collection.vue",
+			"props": {
+				"active": {
+					"type": "Boolean",
+					"required": false
+				},
+				"selection": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"multiple": {
+					"type": "Boolean",
+					"required": false
+				},
+				"filter": {
+					"type": "null",
+					"required": false
+				},
+				"drawerProps": {
+					"type": "Object",
+					"required": false
+				}
+			},
+			"emits": [
+				"input",
+				"update:active"
+			],
+			"slots": {
+				"[slot]": []
+			},
+			"expose": []
+		},
+		"DrawerFiles": {
+			"file": "directus/app/src/views/private/components/drawer-files.vue",
+			"props": {
+				"collection": {
+					"type": "String",
+					"required": false,
+					"default": "'directus_files'"
+				},
+				"folder": {
+					"type": "String",
+					"required": false
+				},
+				"field": {
+					"type": "String",
+					"required": false
+				},
+				"filter": {
+					"type": "null",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"DrawerItem": {
+			"file": "directus/app/src/views/private/components/drawer-item.vue",
+			"props": {
+				"overlay": {
+					"type": "String",
+					"required": false
+				},
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false
+				},
+				"primaryKey": {
+					"type": "null",
+					"required": false
+				},
+				"edits": {
+					"type": "Object",
+					"required": false
+				},
+				"junctionField": {
+					"type": "[String, null]",
+					"required": false
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false
+				},
+				"relatedPrimaryKey": {
+					"type": "null",
+					"required": false
+				},
+				"circularField": {
+					"type": "[String, null]",
+					"required": false
+				},
+				"junctionFieldLocation": {
+					"type": "String",
+					"required": false
+				},
+				"selectedFields": {
+					"type": "[Array, null]",
+					"required": false
+				},
+				"popoverProps": {
+					"type": "Object",
+					"required": false
+				},
+				"applyShortcut": {
+					"type": "String",
+					"required": false
+				},
+				"preventCancelWithEdits": {
+					"type": "Boolean",
+					"required": false
+				},
+				"version": {
+					"type": "null",
+					"required": false
+				}
+			},
+			"emits": [
+				"input",
+				"update:active"
+			],
+			"slots": {
+				"actions": []
+			},
+			"expose": []
+		},
+		"ExportSidebarDetail": {
+			"file": "directus/app/src/views/private/components/export-sidebar-detail.vue",
+			"props": {
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"layoutQuery": {
+					"type": "Object",
+					"required": false
+				},
+				"filter": {
+					"type": "null",
+					"required": false
+				},
+				"search": {
+					"type": "String",
+					"required": false
+				},
+				"onDownload": {
+					"type": "Function",
+					"required": false
+				}
+			},
+			"emits": [
+				"refresh"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"RenderDisplay": {
+			"file": "directus/app/src/views/private/components/render-display.vue",
+			"props": {
+				"display": {
+					"type": "[String, null]",
+					"required": true
+				},
+				"options": {
+					"type": "Object",
+					"required": false
+				},
+				"interface": {
+					"type": "String",
+					"required": false
+				},
+				"interfaceOptions": {
+					"type": "Object",
+					"required": false
+				},
+				"value": {
+					"type": "[String, Number, Boolean, Object, Array]",
+					"required": false
+				},
+				"type": {
+					"type": "String",
+					"required": true
+				},
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"field": {
+					"type": "String",
+					"required": true
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"RenderTemplate": {
+			"file": "directus/app/src/views/private/components/render-template.vue",
+			"props": {
+				"template": {
+					"type": "String",
+					"required": true
+				},
+				"collection": {
+					"type": "String",
+					"required": false
+				},
+				"fields": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"item": {
+					"type": "Object",
+					"required": false,
+					"default": "() => ({})"
+				},
+				"direction": {
+					"type": "String",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"SidebarDetail": {
+			"file": "directus/app/src/views/private/components/sidebar-detail.vue",
+			"props": {
+				"id": {
+					"type": "String",
+					"required": true
+				},
+				"title": {
+					"type": "String",
+					"required": true
+				},
+				"icon": {
+					"type": "String",
+					"required": true
+				},
+				"badge": {
+					"type": "[Boolean, String, Number]",
+					"required": false
+				}
+			},
+			"emits": [
+				"toggle"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"TransitionBounce": {
+			"file": "directus/app/src/components/transition/bounce.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"TransitionDialog": {
+			"file": "directus/app/src/components/transition/dialog.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"TransitionExpand": {
+			"file": "directus/app/src/components/transition/expand.vue",
+			"props": {
+				"xAxis": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"expandedParentClass": {
+					"type": "String",
+					"required": false,
+					"default": "''"
+				}
+			},
+			"emits": [
+				"afterEnter",
+				"afterLeave",
+				"beforeEnter",
+				"beforeLeave",
+				"enter",
+				"enterCancelled",
+				"leave",
+				"leaveCancelled"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"UserPopover": {
+			"file": "directus/app/src/views/private/components/user-popover.vue",
+			"props": {
+				"user": {
+					"type": "String",
+					"required": true
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VAvatar": {
+			"file": "directus/app/src/components/v-avatar.vue",
+			"props": {
+				"tile": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"round": {
+					"type": "Boolean",
+					"required": false
+				},
+				"border": {
+					"type": "[Boolean, String]",
+					"required": false
+				},
+				"xSmall": {
+					"type": "Boolean",
+					"required": false
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false
+				},
+				"xLarge": {
+					"type": "Boolean",
+					"required": false
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VBadge": {
+			"file": "directus/app/src/components/v-badge.vue",
+			"props": {
+				"value": {
+					"type": "[String, Number, Boolean, null]",
+					"required": false,
+					"default": "null"
+				},
+				"dot": {
+					"type": "Boolean",
+					"required": false
+				},
+				"left": {
+					"type": "Boolean",
+					"required": false
+				},
+				"bottom": {
+					"type": "Boolean",
+					"required": false
+				},
+				"icon": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"bordered": {
+					"type": "Boolean",
+					"required": false
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VBreadcrumb": {
+			"file": "directus/app/src/components/v-breadcrumb.vue",
+			"props": {
+				"items": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VButton": {
+			"file": "directus/app/src/components/v-button.vue",
+			"props": {
+				"autofocus": {
+					"type": "Boolean",
+					"required": false
+				},
+				"kind": {
+					"type": "String",
+					"required": false,
+					"default": "'normal'"
+				},
+				"fullWidth": {
+					"type": "Boolean",
+					"required": false
+				},
+				"rounded": {
+					"type": "Boolean",
+					"required": false
+				},
+				"outlined": {
+					"type": "Boolean",
+					"required": false
+				},
+				"icon": {
+					"type": "Boolean",
+					"required": false
+				},
+				"type": {
+					"type": "String",
+					"required": false,
+					"default": "'button'"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"loading": {
+					"type": "Boolean",
+					"required": false
+				},
+				"to": {
+					"type": "null",
+					"required": false,
+					"default": "''"
+				},
+				"href": {
+					"type": "String",
+					"required": false
+				},
+				"target": {
+					"type": "String",
+					"required": false,
+					"default": "'_blank'"
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"exact": {
+					"type": "Boolean",
+					"required": false
+				},
+				"query": {
+					"type": "Boolean",
+					"required": false
+				},
+				"secondary": {
+					"type": "Boolean",
+					"required": false
+				},
+				"warning": {
+					"type": "Boolean",
+					"required": false
+				},
+				"danger": {
+					"type": "Boolean",
+					"required": false
+				},
+				"value": {
+					"type": "[Number, String]",
+					"required": false
+				},
+				"dashed": {
+					"type": "Boolean",
+					"required": false
+				},
+				"tile": {
+					"type": "Boolean",
+					"required": false
+				},
+				"align": {
+					"type": "String",
+					"required": false,
+					"default": "'center'"
+				},
+				"download": {
+					"type": "String",
+					"required": false
+				},
+				"xSmall": {
+					"type": "Boolean",
+					"required": false
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false
+				},
+				"xLarge": {
+					"type": "Boolean",
+					"required": false
+				},
+				"tooltip": {
+					"type": "String",
+					"required": false
+				}
+			},
+			"emits": [
+				"click"
+			],
+			"slots": {
+				"append-outer": [],
+				"default": [
+					"active",
+					"toggle"
+				],
+				"loading": [],
+				"prepend-outer": []
+			},
+			"expose": []
+		},
+		"VCard": {
+			"file": "directus/app/src/components/v-card.vue",
+			"props": {
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"tile": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCardActions": {
+			"file": "directus/app/src/components/v-card-actions.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCardSubtitle": {
+			"file": "directus/app/src/components/v-card-subtitle.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCardText": {
+			"file": "directus/app/src/components/v-card-text.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCardTitle": {
+			"file": "directus/app/src/components/v-card-title.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCheckbox": {
+			"file": "directus/app/src/components/v-checkbox.vue",
+			"props": {
+				"value": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"modelValue": {
+					"type": "[Boolean, Array, null]",
+					"required": false,
+					"default": "null"
+				},
+				"label": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"indeterminate": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"iconOn": {
+					"type": "String",
+					"required": false,
+					"default": "'check_box'"
+				},
+				"iconOff": {
+					"type": "String",
+					"required": false,
+					"default": "'check_box_outline_blank'"
+				},
+				"iconIndeterminate": {
+					"type": "String",
+					"required": false,
+					"default": "'indeterminate_check_box'"
+				},
+				"block": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"customValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"autofocusCustomInput": {
+					"type": "Boolean",
+					"required": false
+				},
+				"checked": {
+					"type": "[Boolean, null]",
+					"required": false,
+					"default": "null"
+				}
+			},
+			"emits": [
+				"blur:custom-input",
+				"update:indeterminate",
+				"update:modelValue",
+				"update:value"
+			],
+			"slots": {
+				"append": [],
+				"default": [],
+				"prepend": []
+			},
+			"expose": []
+		},
+		"VCheckboxTree": {
+			"file": "directus/app/src/components/v-checkbox-tree/v-checkbox-tree.vue",
+			"props": {
+				"choices": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"valueCombining": {
+					"type": "String",
+					"required": false,
+					"default": "'all'"
+				},
+				"search": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"itemText": {
+					"type": "String",
+					"required": false,
+					"default": "'text'"
+				},
+				"itemValue": {
+					"type": "String",
+					"required": false,
+					"default": "'value'"
+				},
+				"itemChildren": {
+					"type": "String",
+					"required": false,
+					"default": "'children'"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"showSelectionOnly": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"openGroups": {
+					"type": "[Array, null]",
+					"required": false
+				}
+			},
+			"emits": [
+				"group-toggle",
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VChip": {
+			"file": "directus/app/src/components/v-chip.vue",
+			"props": {
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"close": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"closeIcon": {
+					"type": "String",
+					"required": false,
+					"default": "'close'"
+				},
+				"outlined": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"label": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"xSmall": {
+					"type": "Boolean",
+					"required": false
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false
+				},
+				"xLarge": {
+					"type": "Boolean",
+					"required": false
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"click",
+				"close",
+				"update:active"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VCollectionFieldTemplate": {
+			"file": "directus/app/src/components/v-collection-field-template.vue",
+			"props": {},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VDatePicker": {
+			"file": "directus/app/src/components/v-date-picker/v-date-picker.vue",
+			"props": {
+				"type": {
+					"type": "String",
+					"required": true
+				},
+				"modelValue": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "undefined"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"includeSeconds": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"use24": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				}
+			},
+			"emits": [
+				"close",
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VDetail": {
+			"file": "directus/app/src/components/v-detail.vue",
+			"props": {
+				"modelValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"label": {
+					"type": "String",
+					"required": false
+				},
+				"startOpen": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"activator": [
+					"active",
+					"disable",
+					"enable",
+					"toggle"
+				],
+				"default": [],
+				"title": []
+			},
+			"expose": []
+		},
+		"VDialog": {
+			"file": "directus/app/src/components/v-dialog.vue",
+			"props": {
+				"modelValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"persistent": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"placement": {
+					"type": "String",
+					"required": false,
+					"default": "'center'"
+				},
+				"keepBehind": {
+					"type": "Boolean",
+					"required": false
+				},
+				"applyShortcut": {
+					"type": "String",
+					"required": false,
+					"default": "'meta+enter'"
+				},
+				"keepMounted": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"apply",
+				"esc",
+				"update:modelValue"
+			],
+			"slots": {
+				"activator": [],
+				"default": []
+			},
+			"expose": []
+		},
+		"VDivider": {
+			"file": "directus/app/src/components/v-divider.vue",
+			"props": {
+				"vertical": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"inlineTitle": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [],
+				"icon": []
+			},
+			"expose": []
+		},
+		"VDrawer": {
+			"file": "directus/app/src/components/v-drawer.vue",
+			"props": {
+				"title": {
+					"type": "String",
+					"required": true
+				},
+				"subtitle": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"modelValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"persistent": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"icon": {
+					"type": "String",
+					"required": false,
+					"default": "'box'"
+				},
+				"iconColor": {
+					"type": "String",
+					"required": false
+				},
+				"sidebarResizeable": {
+					"type": "Boolean",
+					"required": false
+				},
+				"sidebarLabel": {
+					"type": "String",
+					"required": false
+				},
+				"cancelable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"applyShortcut": {
+					"type": "String",
+					"required": false
+				}
+			},
+			"emits": [
+				"apply",
+				"cancel",
+				"update:modelValue"
+			],
+			"slots": {
+				"actions": [],
+				"actions:append": [],
+				"actions:prepend": [],
+				"activator": [
+					"on"
+				],
+				"default": [],
+				"header:append": [],
+				"sidebar": [],
+				"subtitle": [],
+				"title": [],
+				"title-outer:prepend": []
+			},
+			"expose": []
+		},
+		"VEmojiPicker": {
+			"file": "directus/app/src/components/v-emoji-picker.vue",
+			"props": {},
+			"emits": [
+				"emoji-selected"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VError": {
+			"file": "directus/app/src/components/v-error.vue",
+			"props": {
+				"error": {
+					"type": "Object",
+					"required": true
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VErrorBoundary": {
+			"file": "directus/app/src/components/v-error-boundary.vue",
+			"props": {
+				"name": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"stopPropagation": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [],
+				"fallback": [
+					"error"
+				]
+			},
+			"expose": []
+		},
+		"VFancySelect": {
+			"file": "directus/app/src/components/v-fancy-select.vue",
+			"props": {
+				"items": {
+					"type": "Array",
+					"required": true
+				},
+				"modelValue": {
+					"type": "[String, Number, null]",
+					"required": false,
+					"default": "null"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"itemText": {
+					"type": "String",
+					"required": false,
+					"default": "'text'"
+				},
+				"itemValue": {
+					"type": "String",
+					"required": false,
+					"default": "'value'"
+				},
+				"itemDescription": {
+					"type": "String",
+					"required": false,
+					"default": "'description'"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VFieldList": {
+			"file": "directus/app/src/components/v-field-list/v-field-list.vue",
+			"props": {
+				"collection": {
+					"type": "String",
+					"required": true
+				},
+				"field": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"disabledFields": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"includeFunctions": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"includeRelations": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"injectVersionField": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"relationalFieldSelectable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"allowSelectAll": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"rawFieldNames": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"fieldFilter": {
+					"type": "Function",
+					"required": false,
+					"default": "undefined"
+				}
+			},
+			"emits": [
+				"add"
+			],
+			"slots": {
+				"prepend": []
+			},
+			"expose": []
+		},
+		"VFieldTemplate": {
+			"file": "directus/app/src/components/v-field-template/v-field-template.vue",
+			"props": {
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"modelValue": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"nullable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"tree": {
+					"type": "Array",
+					"required": true
+				},
+				"loadPathLevel": {
+					"type": "Function",
+					"required": false
+				},
+				"depth": {
+					"type": "Number",
+					"required": false,
+					"default": "undefined"
+				},
+				"placeholder": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VForm": {
+			"file": "directus/app/src/components/v-form/v-form.vue",
+			"props": {
+				"collection": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"fields": {
+					"type": "Array",
+					"required": false,
+					"default": "undefined"
+				},
+				"initialValues": {
+					"type": "[Object, null]",
+					"required": false,
+					"default": "null"
+				},
+				"modelValue": {
+					"type": "[Object, null]",
+					"required": false,
+					"default": "null"
+				},
+				"loading": {
+					"type": "Boolean",
+					"required": false
+				},
+				"batchMode": {
+					"type": "Boolean",
+					"required": false
+				},
+				"primaryKey": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false
+				},
+				"validationErrors": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"autofocus": {
+					"type": "Boolean",
+					"required": false
+				},
+				"group": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"badge": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"showValidationErrors": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"showNoVisibleFields": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"rawEditorEnabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"disabledMenuOptions": {
+					"type": "Array",
+					"required": false
+				},
+				"disabledMenu": {
+					"type": "Boolean",
+					"required": false
+				},
+				"direction": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"showDivider": {
+					"type": "Boolean",
+					"required": false
+				},
+				"inline": {
+					"type": "Boolean",
+					"required": false
+				},
+				"version": {
+					"type": "[Object, null]",
+					"required": false,
+					"default": "null"
+				},
+				"comparison": {
+					"type": "Object",
+					"required": false
+				},
+				"collabContext": {
+					"type": "Object",
+					"required": false
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VHighlight": {
+			"file": "directus/app/src/components/v-highlight.vue",
+			"props": {
+				"query": {
+					"type": "[String, Array, null]",
+					"required": false,
+					"default": "null"
+				},
+				"text": {
+					"type": "String",
+					"required": false,
+					"default": "''"
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VHover": {
+			"file": "directus/app/src/components/v-hover.vue",
+			"props": {
+				"closeDelay": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"openDelay": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"tag": {
+					"type": "String",
+					"required": false,
+					"default": "'div'"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [
+					"hover"
+				]
+			},
+			"expose": []
+		},
+		"VIcon": {
+			"file": "directus/app/src/components/v-icon/v-icon.vue",
+			"props": {
+				"name": {
+					"type": "String",
+					"required": true
+				},
+				"filled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"sup": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"left": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"right": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"color": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"xSmall": {
+					"type": "Boolean",
+					"required": false
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false
+				},
+				"xLarge": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"click"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VIconFile": {
+			"file": "directus/app/src/components/v-icon-file.vue",
+			"props": {
+				"ext": {
+					"type": "String",
+					"required": true
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VImage": {
+			"file": "directus/app/src/components/v-image.vue",
+			"props": {
+				"src": {
+					"type": "String",
+					"required": true
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VInfo": {
+			"file": "directus/app/src/components/v-info.vue",
+			"props": {
+				"title": {
+					"type": "String",
+					"required": true
+				},
+				"icon": {
+					"type": "[String, Boolean]",
+					"required": false,
+					"default": "false"
+				},
+				"type": {
+					"type": "String",
+					"required": false,
+					"default": "'info'"
+				},
+				"center": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"append": [],
+				"default": []
+			},
+			"expose": []
+		},
+		"VInput": {
+			"file": "directus/app/src/components/v-input.vue",
+			"props": {
+				"autofocus": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"prefix": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"suffix": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"fullWidth": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"placeholder": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				},
+				"modelValue": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				},
+				"nullable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"slug": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"slugSeparator": {
+					"type": "String",
+					"required": false,
+					"default": "'-'"
+				},
+				"type": {
+					"type": "String",
+					"required": false,
+					"default": "'text'"
+				},
+				"hideArrows": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"maxLength": {
+					"type": "Number",
+					"required": false
+				},
+				"max": {
+					"type": "Number",
+					"required": false,
+					"default": "undefined"
+				},
+				"min": {
+					"type": "Number",
+					"required": false,
+					"default": "undefined"
+				},
+				"step": {
+					"type": "Number",
+					"required": false,
+					"default": "1"
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"dbSafe": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"trim": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"autocomplete": {
+					"type": "String",
+					"required": false,
+					"default": "'off'"
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"integer": {
+					"type": "Boolean",
+					"required": false
+				},
+				"float": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"click",
+				"focus",
+				"keydown",
+				"keydown:enter",
+				"keydown:space",
+				"update:modelValue"
+			],
+			"slots": {
+				"append": [
+					"disabled",
+					"value"
+				],
+				"append-outer": [
+					"disabled",
+					"value"
+				],
+				"input": [],
+				"prepend": [
+					"disabled",
+					"value"
+				],
+				"prepend-outer": [
+					"disabled",
+					"value"
+				]
+			},
+			"expose": []
+		},
+		"VItem": {
+			"file": "directus/app/src/components/v-item.vue",
+			"props": {
+				"value": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				},
+				"scope": {
+					"type": "String",
+					"required": false,
+					"default": "'item-group'"
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"watch": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [
+					"active",
+					"toggle"
+				]
+			},
+			"expose": []
+		},
+		"VItemGroup": {
+			"file": "directus/app/src/components/v-item-group.vue",
+			"props": {
+				"mandatory": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"max": {
+					"type": "Number",
+					"required": false,
+					"default": "-1"
+				},
+				"multiple": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "undefined"
+				},
+				"scope": {
+					"type": "String",
+					"required": false,
+					"default": "'item-group'"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VList": {
+			"file": "directus/app/src/components/v-list.vue",
+			"props": {
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "undefined"
+				},
+				"nav": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"dense": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"multiple": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"mandatory": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"scope": {
+					"type": "String",
+					"required": false,
+					"default": "'v-list'"
+				}
+			},
+			"emits": [
+				"toggle",
+				"update:modelValue"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VListGroup": {
+			"file": "directus/app/src/components/v-list-group.vue",
+			"props": {
+				"multiple": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"to": {
+					"type": "String",
+					"required": false,
+					"default": "''"
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"exact": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"query": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"scope": {
+					"type": "String",
+					"required": false,
+					"default": "'v-list'"
+				},
+				"value": {
+					"type": "[Number, String]",
+					"required": false,
+					"default": "undefined"
+				},
+				"dense": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"open": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"collapseOnChange": {
+					"type": "null",
+					"required": false
+				},
+				"arrowPlacement": {
+					"type": "[String, Boolean]",
+					"required": false,
+					"default": "'after'"
+				}
+			},
+			"emits": [
+				"click"
+			],
+			"slots": {
+				"activator": [
+					"active"
+				],
+				"default": []
+			},
+			"expose": []
+		},
+		"VListItem": {
+			"file": "directus/app/src/components/v-list-item.vue",
+			"props": {
+				"block": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"grow": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"dense": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"to": {
+					"type": "null",
+					"required": false,
+					"default": "''"
+				},
+				"href": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"dashed": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"exact": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"query": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"download": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"value": {
+					"type": "[Number, String]",
+					"required": false,
+					"default": "undefined"
+				},
+				"nav": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"scope": {
+					"type": "String",
+					"required": false,
+					"default": "'v-list'"
+				},
+				"activator": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"click"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VListItemContent": {
+			"file": "directus/app/src/components/v-list-item-content.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VListItemHint": {
+			"file": "directus/app/src/components/v-list-item-hint.vue",
+			"props": {
+				"center": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VListItemIcon": {
+			"file": "directus/app/src/components/v-list-item-icon.vue",
+			"props": {
+				"center": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VMenu": {
+			"file": "directus/app/src/components/v-menu.vue",
+			"props": {
+				"placement": {
+					"type": "null",
+					"required": false,
+					"default": "'bottom'"
+				},
+				"modelValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"closeOnClick": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"closeOnContentClick": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"attached": {
+					"type": "Boolean",
+					"required": false
+				},
+				"showArrow": {
+					"type": "Boolean",
+					"required": false
+				},
+				"arrowPlacement": {
+					"type": "String",
+					"required": false
+				},
+				"arrowPadding": {
+					"type": "Number",
+					"required": false,
+					"default": "6"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"trigger": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"delay": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"offsetY": {
+					"type": "Number",
+					"required": false,
+					"default": "8"
+				},
+				"offsetX": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"fullHeight": {
+					"type": "Boolean",
+					"required": false
+				},
+				"seamless": {
+					"type": "Boolean",
+					"required": false
+				},
+				"keepBehind": {
+					"type": "Boolean",
+					"required": false
+				},
+				"noFocusReturn": {
+					"type": "Boolean",
+					"required": false
+				},
+				"invert": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"activator": [
+					"activate",
+					"active",
+					"deactivate",
+					"toggle"
+				],
+				"default": [
+					"activate",
+					"active",
+					"deactivate",
+					"toggle"
+				]
+			},
+			"expose": [
+				"activate",
+				"activator",
+				"deactivate",
+				"id"
+			]
+		},
+		"VNotice": {
+			"file": "directus/app/src/components/v-notice.vue",
+			"props": {
+				"type": {
+					"type": "String",
+					"required": false,
+					"default": "'info'"
+				},
+				"icon": {
+					"type": "[String, Boolean, null]",
+					"required": false,
+					"default": "null"
+				},
+				"center": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"multiline": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"indentContent": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [],
+				"title": []
+			},
+			"expose": []
+		},
+		"VOverlay": {
+			"file": "directus/app/src/components/v-overlay.vue",
+			"props": {
+				"active": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"absolute": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				}
+			},
+			"emits": [
+				"click"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VPagination": {
+			"file": "directus/app/src/components/v-pagination.vue",
+			"props": {
+				"modelValue": {
+					"type": "Number",
+					"required": true
+				},
+				"length": {
+					"type": "Number",
+					"required": true
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"totalVisible": {
+					"type": "Number",
+					"required": false
+				},
+				"showFirstLast": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VProgressCircular": {
+			"file": "directus/app/src/components/v-progress-circular.vue",
+			"props": {
+				"indeterminate": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"value": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"xSmall": {
+					"type": "Boolean",
+					"required": false
+				},
+				"small": {
+					"type": "Boolean",
+					"required": false
+				},
+				"large": {
+					"type": "Boolean",
+					"required": false
+				},
+				"xLarge": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"animationiteration"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VProgressLinear": {
+			"file": "directus/app/src/components/v-progress-linear.vue",
+			"props": {
+				"absolute": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"bottom": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"fixed": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"indeterminate": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"rounded": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"top": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"value": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"colorful": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [
+				"animationiteration"
+			],
+			"slots": {
+				"default": [
+					"value"
+				]
+			},
+			"expose": []
+		},
+		"VRadio": {
+			"file": "directus/app/src/components/v-radio.vue",
+			"props": {
+				"value": {
+					"type": "[String, Number, null]",
+					"required": true
+				},
+				"modelValue": {
+					"type": "[String, Number, null]",
+					"required": false,
+					"default": "null"
+				},
+				"label": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"iconOn": {
+					"type": "String",
+					"required": false,
+					"default": "'radio_button_checked'"
+				},
+				"iconOff": {
+					"type": "String",
+					"required": false,
+					"default": "'radio_button_unchecked'"
+				},
+				"block": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"label": []
+			},
+			"expose": []
+		},
+		"VRemove": {
+			"file": "directus/app/src/components/v-remove.vue",
+			"props": {
+				"itemType": {
+					"type": "String",
+					"required": false
+				},
+				"itemInfo": {
+					"type": "Object",
+					"required": false
+				},
+				"itemIsLocal": {
+					"type": "Boolean",
+					"required": false
+				},
+				"itemEdits": {
+					"type": "Object",
+					"required": false
+				},
+				"deselect": {
+					"type": "Boolean",
+					"required": false
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"button": {
+					"type": "Boolean",
+					"required": false
+				},
+				"confirm": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"action"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VResizeable": {
+			"file": "directus/app/src/components/v-resizeable.vue",
+			"props": {
+				"width": {
+					"type": "Number",
+					"required": true
+				},
+				"minWidth": {
+					"type": "Number",
+					"required": false,
+					"default": "(props) => props.width"
+				},
+				"maxWidth": {
+					"type": "Number",
+					"required": false,
+					"default": "Infinity"
+				},
+				"defaultWidth": {
+					"type": "Number",
+					"required": false,
+					"default": "(props) => props.minWidth ?? props.width"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"options": {
+					"type": "Object",
+					"required": false
+				}
+			},
+			"emits": [
+				"dragging",
+				"transitionEnd",
+				"update:width"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VSelect": {
+			"file": "directus/app/src/components/v-select/v-select.vue",
+			"props": {
+				"items": {
+					"type": "Array",
+					"required": true
+				},
+				"itemText": {
+					"type": "String",
+					"required": false,
+					"default": "'text'"
+				},
+				"itemValue": {
+					"type": "String",
+					"required": false,
+					"default": "'value'"
+				},
+				"itemIcon": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"itemColor": {
+					"type": "[String, null]",
+					"required": false
+				},
+				"itemLabelFontFamily": {
+					"type": "String",
+					"required": false
+				},
+				"itemDisabled": {
+					"type": "String",
+					"required": false,
+					"default": "'disabled'"
+				},
+				"itemSelectable": {
+					"type": "String",
+					"required": false,
+					"default": "'selectable'"
+				},
+				"itemChildren": {
+					"type": "String",
+					"required": false,
+					"default": "'children'"
+				},
+				"modelValue": {
+					"type": "[Array, String, Number, null]",
+					"required": false,
+					"default": "null"
+				},
+				"multiple": {
+					"type": "Boolean",
+					"required": false
+				},
+				"groupSelectable": {
+					"type": "Boolean",
+					"required": false
+				},
+				"mandatory": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"placeholder": {
+					"type": "[String, null]",
+					"required": false,
+					"default": "null"
+				},
+				"fullWidth": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false
+				},
+				"showDeselect": {
+					"type": "Boolean",
+					"required": false
+				},
+				"allowOther": {
+					"type": "Boolean",
+					"required": false
+				},
+				"closeOnContentClick": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"inline": {
+					"type": "Boolean",
+					"required": false
+				},
+				"attached": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"showArrow": {
+					"type": "Boolean",
+					"required": false,
+					"default": "undefined"
+				},
+				"label": {
+					"type": "Boolean",
+					"required": false
+				},
+				"allItemsTranslation": {
+					"type": "String",
+					"required": false
+				},
+				"itemCountTranslation": {
+					"type": "String",
+					"required": false
+				},
+				"multiplePreviewThreshold": {
+					"type": "Number",
+					"required": false,
+					"default": "3"
+				},
+				"placement": {
+					"type": "null",
+					"required": false,
+					"default": "'bottom'"
+				},
+				"menuFullHeight": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [
+				"group-toggle",
+				"update:modelValue"
+			],
+			"slots": {
+				"append": [],
+				"prepend": [],
+				"preview": [
+					"active",
+					"toggle"
+				]
+			},
+			"expose": []
+		},
+		"VSheet": {
+			"file": "directus/app/src/components/v-sheet.vue",
+			"props": {},
+			"emits": [],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VSkeletonLoader": {
+			"file": "directus/app/src/components/v-skeleton-loader.vue",
+			"props": {
+				"type": {
+					"type": "String",
+					"required": false,
+					"default": "'input'"
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VSlider": {
+			"file": "directus/app/src/components/v-slider.vue",
+			"props": {
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"showThumbLabel": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"max": {
+					"type": "Number",
+					"required": false,
+					"default": "100"
+				},
+				"min": {
+					"type": "Number",
+					"required": false,
+					"default": "0"
+				},
+				"step": {
+					"type": "Number",
+					"required": false,
+					"default": "1"
+				},
+				"showTicks": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"alwaysShowValue": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"modelValue": {
+					"type": "[Number, null]",
+					"required": false,
+					"default": "0"
+				}
+			},
+			"emits": [
+				"change",
+				"update:modelValue"
+			],
+			"slots": {
+				"append": [
+					"value"
+				],
+				"prepend": [
+					"value"
+				],
+				"thumb-label type-text": [
+					"value"
+				]
+			},
+			"expose": []
+		},
+		"VTab": {
+			"file": "directus/app/src/components/v-tab.vue",
+			"props": {
+				"value": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [
+					"active",
+					"toggle"
+				]
+			},
+			"expose": []
+		},
+		"VTabItem": {
+			"file": "directus/app/src/components/v-tab-item.vue",
+			"props": {
+				"value": {
+					"type": "[String, Number]",
+					"required": false,
+					"default": "undefined"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [
+					"active",
+					"toggle"
+				]
+			},
+			"expose": []
+		},
+		"VTable": {
+			"file": "directus/app/src/components/v-table/v-table.vue",
+			"props": {
+				"headers": {
+					"type": "Array",
+					"required": true
+				},
+				"items": {
+					"type": "Array",
+					"required": true
+				},
+				"itemKey": {
+					"type": "String",
+					"required": false,
+					"default": "'id'"
+				},
+				"sort": {
+					"type": "[Object, null]",
+					"required": false,
+					"default": "undefined"
+				},
+				"mustSort": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"showSelect": {
+					"type": "null",
+					"required": false,
+					"default": "'none'"
+				},
+				"showResize": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"showManualSort": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"manualSortKey": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"allowHeaderReorder": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "() => []"
+				},
+				"fixedHeader": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"loading": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"loadingText": {
+					"type": "String",
+					"required": false
+				},
+				"noItemsText": {
+					"type": "String",
+					"required": false
+				},
+				"rowHeight": {
+					"type": "Number",
+					"required": false,
+					"default": "48"
+				},
+				"selectionUseKeys": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"inline": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"clickable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				}
+			},
+			"emits": [
+				"click:row",
+				"item-selected",
+				"manual-sort",
+				"update:headers",
+				"update:items",
+				"update:modelValue",
+				"update:sort"
+			],
+			"slots": {
+				"[`header.${header.value}`]": [
+					"header"
+				],
+				"[`item.${header.value}`]": [
+					"item"
+				],
+				"footer": [],
+				"header-append": [],
+				"header-context-menu": [
+					"header"
+				],
+				"item-append": [
+					"item"
+				]
+			},
+			"expose": []
+		},
+		"VTabs": {
+			"file": "directus/app/src/components/v-tabs.vue",
+			"props": {
+				"vertical": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "undefined"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VTabsItems": {
+			"file": "directus/app/src/components/v-tabs-items.vue",
+			"props": {
+				"modelValue": {
+					"type": "Array",
+					"required": false,
+					"default": "undefined"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"default": []
+			},
+			"expose": []
+		},
+		"VTemplateInput": {
+			"file": "directus/app/src/components/v-template-input.vue",
+			"props": {
+				"captureGroup": {
+					"type": "String",
+					"required": true
+				},
+				"triggerCharacter": {
+					"type": "String",
+					"required": true
+				},
+				"items": {
+					"type": "Object",
+					"required": true
+				},
+				"modelValue": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"multiline": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"placeholder": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				}
+			},
+			"emits": [
+				"deactivate",
+				"down",
+				"enter",
+				"trigger",
+				"up",
+				"update:modelValue"
+			],
+			"slots": {},
+			"expose": []
+		},
+		"VTextOverflow": {
+			"file": "directus/app/src/components/v-text-overflow.vue",
+			"props": {
+				"text": {
+					"type": "[String, Number, Boolean, Object, Array]",
+					"required": false,
+					"default": "undefined"
+				},
+				"highlight": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"placement": {
+					"type": "String",
+					"required": false,
+					"default": "'top'"
+				}
+			},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		},
+		"VTextarea": {
+			"file": "directus/app/src/components/v-textarea.vue",
+			"props": {
+				"disabled": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"nonEditable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"autofocus": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"fullWidth": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"modelValue": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"nullable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"expandOnFocus": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"placeholder": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"trim": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [
+				"update:modelValue"
+			],
+			"slots": {
+				"append": [],
+				"prepend": []
+			},
+			"expose": []
+		},
+		"VUpload": {
+			"file": "directus/app/src/components/v-upload.vue",
+			"props": {
+				"multiple": {
+					"type": "Boolean",
+					"required": false
+				},
+				"preset": {
+					"type": "Object",
+					"required": false,
+					"default": "() => ({})"
+				},
+				"fileId": {
+					"type": "String",
+					"required": false
+				},
+				"fromUser": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"fromUrl": {
+					"type": "Boolean",
+					"required": false
+				},
+				"fromLibrary": {
+					"type": "Boolean",
+					"required": false
+				},
+				"folder": {
+					"type": "String",
+					"required": false
+				},
+				"filter": {
+					"type": "null",
+					"required": false
+				},
+				"disabled": {
+					"type": "Boolean",
+					"required": false
+				},
+				"accept": {
+					"type": "String",
+					"required": false
+				}
+			},
+			"emits": [
+				"input",
+				"start"
+			],
+			"slots": {},
+			"expose": [
+				"abort"
+			]
+		},
+		"VWorkspace": {
+			"file": "directus/app/src/components/v-workspace.vue",
+			"props": {
+				"tiles": {
+					"type": "Array",
+					"required": true
+				},
+				"editMode": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"zoomToFit": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"resizable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"gridSize": {
+					"type": "Number",
+					"required": false,
+					"default": "18"
+				}
+			},
+			"emits": [
+				"delete",
+				"duplicate",
+				"edit",
+				"move",
+				"preview",
+				"update"
+			],
+			"slots": {
+				"default": [
+					"grid-size",
+					"tile"
+				],
+				"tile": [
+					"tile"
+				]
+			},
+			"expose": []
+		},
+		"VWorkspaceTile": {
+			"file": "directus/app/src/components/v-workspace-tile.vue",
+			"props": {
+				"id": {
+					"type": "String",
+					"required": true
+				},
+				"x": {
+					"type": "Number",
+					"required": true
+				},
+				"y": {
+					"type": "Number",
+					"required": true
+				},
+				"width": {
+					"type": "Number",
+					"required": true
+				},
+				"height": {
+					"type": "Number",
+					"required": true
+				},
+				"name": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"icon": {
+					"type": "String",
+					"required": false,
+					"default": "'space_dashboard'"
+				},
+				"color": {
+					"type": "String",
+					"required": false,
+					"default": "'var(--theme--primary)'"
+				},
+				"note": {
+					"type": "String",
+					"required": false,
+					"default": "undefined"
+				},
+				"showHeader": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"minWidth": {
+					"type": "Number",
+					"required": false,
+					"default": "8"
+				},
+				"minHeight": {
+					"type": "Number",
+					"required": false,
+					"default": "6"
+				},
+				"draggable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"borderRadius": {
+					"type": "Array",
+					"required": false,
+					"default": "() => [true, true, true, true]"
+				},
+				"resizable": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"editMode": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"showOptions": {
+					"type": "Boolean",
+					"required": false,
+					"default": "true"
+				},
+				"alwaysUpdatePosition": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				},
+				"gridSize": {
+					"type": "Number",
+					"required": false,
+					"default": "18"
+				}
+			},
+			"emits": [
+				"delete",
+				"duplicate",
+				"edit",
+				"move",
+				"preview",
+				"update"
+			],
+			"slots": {
+				"body": [],
+				"default": [],
+				"footer": []
+			},
+			"expose": []
+		},
+		"ValueNull": {
+			"file": "directus/app/src/views/private/components/value-null.vue",
+			"props": {},
+			"emits": [],
+			"slots": {},
+			"expose": []
+		}
+	},
+	"views": {
+		"PrivateView": {
+			"file": "directus/app/src/views/private/private-view/components/private-view.vue",
+			"props": {
+				"title": {
+					"type": "String",
+					"required": false
+				},
+				"icon": {
+					"type": "String",
+					"required": false
+				},
+				"iconColor": {
+					"type": "String",
+					"required": false
+				},
+				"showBack": {
+					"type": "Boolean",
+					"required": false
+				},
+				"backTo": {
+					"type": "String",
+					"required": false
+				},
+				"sidebarShadow": {
+					"type": "Boolean",
+					"required": false
+				},
+				"showHeaderShadow": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {
+				"actions": [],
+				"actions:append": [],
+				"actions:prepend": [],
+				"default": [],
+				"headline": [],
+				"navigation": [],
+				"sidebar": [],
+				"title": [],
+				"title-outer:append": [],
+				"title-outer:prepend": [],
+				"title:append": [],
+				"title:prepend": []
+			},
+			"expose": []
+		},
+		"PublicView": {
+			"file": "directus/app/src/views/public/public-view.vue",
+			"props": {
+				"wide": {
+					"type": "Boolean",
+					"required": false,
+					"default": "false"
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [],
+				"notice": []
+			},
+			"expose": []
+		},
+		"SharedView": {
+			"file": "directus/app/src/views/shared/shared-view.vue",
+			"props": {
+				"title": {
+					"type": "String",
+					"required": false
+				},
+				"inline": {
+					"type": "Boolean",
+					"required": false
+				}
+			},
+			"emits": [],
+			"slots": {
+				"default": [],
+				"title": []
+			},
+			"expose": []
+		}
+	},
+	"directives": {
+		"click-outside": {
+			"file": "directus/app/src/directives/click-outside.ts"
+		},
+		"context-menu": {
+			"file": "directus/app/src/directives/context-menu.ts"
+		},
+		"focus": {
+			"file": "directus/app/src/directives/focus.ts"
+		},
+		"input-auto-width": {
+			"file": "directus/app/src/directives/input-auto-width.ts"
+		},
+		"md": {
+			"file": "directus/app/src/directives/markdown.ts"
+		},
+		"prevent-focusout": {
+			"file": "directus/app/src/directives/prevent-focusout.ts"
+		},
+		"tooltip": {
+			"file": "directus/app/src/directives/tooltip.ts"
+		}
+	}
+}

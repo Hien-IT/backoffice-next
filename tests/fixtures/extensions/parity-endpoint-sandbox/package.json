@@ -1,0 +1,27 @@
+{
+	"name": "parity-endpoint-sandbox",
+	"version": "1.0.0",
+	"type": "module",
+	"directus:extension": {
+		"type": "endpoint",
+		"path": "dist/index.js",
+		"source": "src/index.js",
+		"host": "^11.0.0",
+		"sandbox": {
+			"enabled": true,
+			"requestedScopes": {
+				"request": {
+					"urls": [
+						"http://files-fixtures/*",
+						"http://127.0.0.1:8882/*"
+					],
+					"methods": [
+						"GET"
+					]
+				},
+				"log": {},
+				"sleep": {}
+			}
+		}
+	}
+}

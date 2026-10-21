@@ -1,4 +1,4 @@
-Backoffice {{ .Chart.AppVersion }} on {{ .Values.ingress.host }}: /admin -> {{ include "backoffice.name" . }}-web, the rest -> {{ include "backoffice.name" . }}-api.
+Backoffice {{ .Chart.AppVersion }} on {{ .Values.ingress.host }}: /admin -> {{ include "backoffice.name" . }}-web, /extensions/sources -> {{ include "backoffice.name" . }}-api-only, the rest -> {{ include "backoffice.name" . }}-api.
 
 {{- if not .Values.domain.publicUrl }}
 

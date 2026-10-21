@@ -85,3 +85,33 @@ test('error dialog: Dismiss only, focused, closes; an error without a code is UN
 	await flushPromises();
 	expect(useNotices().dialogs.value).toHaveLength(0);
 });
+
+// Spec 020 (T092): the notice options of the Directus notifications store used by the extensions store.
+test('a notice with an id already queued is not added twice', () => {
+	notify({ id: 'reload-required', title: 'Reload required', persist: true });
+	expect(notify({ id: 'reload-required', title: 'Reload required', persist: true })).toBe('reload-required');
+	expect(useNotices().queue.value).toHaveLength(1);
+});
+
+test('the dismiss button takes dismissIcon, dismissText and dismissAction; closeable false hides it', async () => {
+	const wrapper = mountStack();
+	const action = vi.fn();
+
+	notify({
+		title: 'Reload required',
+		persist: true,
+		dismissIcon: 'refresh',
+		dismissText: 'Reload now',
+		dismissAction: action,
+	});
+	notify({ title: 'Working', persist: true, closeable: false, icon: 'sync' });
+	await flushPromises();
+
+	const buttons = wrapper.findAll('button');
+	expect(buttons).toHaveLength(1);
+	expect(buttons[0]!.text()).toContain('Reload now');
+
+	await buttons[0]!.trigger('click');
+	expect(action).toHaveBeenCalled();
+	expect(useNotices().queue.value).toHaveLength(2);
+});

@@ -1,0 +1,10 @@
+[
+	{
+		"source": "api/src/extensions/index.ts",
+		"dest": "apps/api/src/extensions/index.ts"
+	},
+	{
+		"source": "api/src/extensions/manager.ts",
+		"dest": "apps/api/src/extensions/manager.ts"
+	}
+]

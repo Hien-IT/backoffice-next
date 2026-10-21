@@ -40,5 +40,6 @@ test('sign-in, six modules, profile and sign-out call only the allowed API route
 	const paths = apiRequests.map((r) => r.path);
 	expect(paths.length).toBeGreaterThan(10);
 	// Feature 014: the Content module reads /items like the Directus app; the other Directus-only routes stay unused.
-	expect(paths.filter((p) => /^\/(websocket|extensions|graphql|mcp|ai|deployments)(\/|$)/.test(p))).toEqual([]);
+	// Spec 020: /extensions (Settings > Extensions, the app bundle) is in the allowlist.
+	expect(paths.filter((p) => /^\/(websocket|graphql|mcp|ai|deployments)(\/|$)/.test(p))).toEqual([]);
 });

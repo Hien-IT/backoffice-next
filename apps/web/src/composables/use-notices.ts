@@ -12,13 +12,28 @@ import { extractErrorCode } from '../utils/extract-error-code.ts';
 export type NoticeType = 'info' | 'success' | 'warning' | 'error';
 
 export interface NoticeRaw {
+	/** Spec 020 (T092): a notice with the id of one already queued is not added again (Directus store `add`). */
+	id?: string;
 	title: string;
 	text?: string;
 	type?: NoticeType;
+	icon?: string | null;
 	persist?: boolean;
 	dialog?: boolean;
 	code?: string;
 	error?: unknown;
+	/** false hides the dismiss button. */
+	closeable?: boolean;
+	// shortcut: progress, loading and showReload are kept for the extension shim (useStores) but not drawn; draw them
+	// when an extension needs them.
+	progress?: number;
+	loading?: boolean;
+	showReload?: boolean;
+	alwaysShowText?: boolean;
+	/** The dismiss button: its icon, its text, and what it does instead of closing. */
+	dismissIcon?: string;
+	dismissText?: string;
+	dismissAction?: () => void | Promise<void>;
 }
 
 export interface Notice extends NoticeRaw {
@@ -37,7 +52,10 @@ export function useNotices() {
 }
 
 export function notify(notification: NoticeRaw): string {
-	const id = nanoid();
+	const id = notification.id ?? nanoid();
+
+	if ([...queue.value, ...dialogs.value].some((notice) => notice.id === id)) return id;
+
 	const timestamp = Date.now();
 
 	if (notification.dialog === true) {

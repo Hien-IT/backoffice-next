@@ -10,7 +10,18 @@ export const ALLOWED_DIRECTUS_PACKAGES = ['@directus/sdk', '@directus/format-tit
 
 /** apps/web only: same versions as Directus 11.17.4 so the shared helpers and types behave like the Directus app
  * (feature 013 plan, research R1); the split panel of the live preview (feature 014, research R1). */
-export const WEB_ONLY_DIRECTUS_PACKAGES = ['@directus/utils', '@directus/types', '@directus/vue-split-panel'];
+export const WEB_ONLY_DIRECTUS_PACKAGES = [
+	'@directus/utils',
+	'@directus/types',
+	'@directus/vue-split-panel',
+	// feature 020: the runtime of the `@directus/extensions-sdk` shared dependency for app extensions (research R1)
+	'@directus/composables',
+];
+
+/** tests/fixtures/extensions only: the fixture extensions are built with the Directus extensions SDK, like real
+ * extensions (feature 020, research R11). */
+export const FIXTURES_ONLY_DIRECTUS_PACKAGES = ['@directus/extensions-sdk'];
+const FIXTURES_PACKAGE = join('tests', 'fixtures', 'extensions', 'package.json');
 
 const DEPENDENCY_FIELDS = ['dependencies', 'devDependencies', 'peerDependencies', 'optionalDependencies'];
 
@@ -28,6 +39,8 @@ export function checkPackageNames(root) {
 		}
 	}
 
+	if (existsSync(join(root, FIXTURES_PACKAGE))) files.push(FIXTURES_PACKAGE);
+
 	for (const file of files) {
 		const pkg = JSON.parse(readFileSync(join(root, file), 'utf8'));
 
@@ -39,7 +52,8 @@ export function checkPackageNames(root) {
 			for (const dep of Object.keys(pkg[field] ?? {})) {
 				const allowed =
 					ALLOWED_DIRECTUS_PACKAGES.includes(dep) ||
-					(file === join('apps', 'web', 'package.json') && WEB_ONLY_DIRECTUS_PACKAGES.includes(dep));
+					(file === join('apps', 'web', 'package.json') && WEB_ONLY_DIRECTUS_PACKAGES.includes(dep)) ||
+					(file === FIXTURES_PACKAGE && FIXTURES_ONLY_DIRECTUS_PACKAGES.includes(dep));
 
 				if (dep.startsWith('@directus/') && !allowed) {
 					errors.push(`${file}: ${field} must not use ${dep}`);

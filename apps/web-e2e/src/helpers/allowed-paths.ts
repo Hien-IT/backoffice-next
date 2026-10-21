@@ -156,6 +156,13 @@ export const ALLOWED_CALLS: AllowedCall[] = [
 	{ id: 200, method: 'GET', path: new RegExp(`^/activity/${ID}$`) },
 	{ id: 202, method: 'PATCH', path: /^\/notifications$/ },
 	{ id: 203, method: 'DELETE', path: /^\/notifications$/ },
+	// Spec 020 (specs/020-extensions/contracts/web.md §7, rows 204 to 213).
+	{ id: 204, method: 'GET', path: /^\/extensions$/ },
+	{ id: 205, method: 'PATCH', path: new RegExp(`^/extensions/${ID}$`) },
+	{ id: 206, method: 'DELETE', path: new RegExp(`^/extensions/${ID}$`) },
+	{ id: 207, method: 'DELETE', path: new RegExp(`^/extensions/registry/uninstall/${ID}$`) },
+	{ id: 208, method: 'POST', path: /^\/extensions\/registry\/reinstall$/ },
+	{ id: 213, method: 'GET', path: /^\/extensions\/sources\/[^/]+\.js$/ },
 ];
 
 export function isAllowedCall(method: string, path: string): boolean {

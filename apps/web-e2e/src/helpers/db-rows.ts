@@ -52,6 +52,9 @@ export const INSIGHTS_TABLES = ['directus_dashboards', 'directus_panels'];
 /** Feature 018 (contracts/tests.md §4, data-model §10): the notifications table (serial ids become `<serial>`). */
 export const NOTIFICATIONS_TABLES = ['directus_notifications'];
 
+/** Spec 020 (T095): the extension settings rows. */
+export const EXTENSIONS_TABLES = ['directus_extensions'];
+
 /** `extra`: user collections a scenario writes too (feature 005, items.spec.ts). */
 export async function snapshot(extra: string[] = []): Promise<Snapshot> {
 	const tables: Record<string, Map<string, Row>> = {};

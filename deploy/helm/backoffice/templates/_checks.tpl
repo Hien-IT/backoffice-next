@@ -61,6 +61,9 @@ env: the chart never overrides these variables. Rules follow how Directus 11.17.
 {{- $reasons = append $reasons (printf "storage location %q uses the local driver without a shared volume: use an s3 location, or set uploads.existingClaim (ReadWriteMany PVC)" $location) -}}
 {{- end -}}
 {{- end -}}
+{{- if and (or .Values.api.autoscaling.enabled (gt (int .Values.api.replicas) 1)) (not (get $env "EXTENSIONS_LOCATION")) (not .Values.extensions.inImage) -}}
+{{- $reasons = append $reasons "EXTENSIONS_LOCATION is empty: with several replicas extensions must come from shared storage (set EXTENSIONS_LOCATION in the Directus ConfigMap) or be baked into the image (extensions.inImage=true); upgrading from 019: see \"Extensions\" in deploy/README.md" -}}
+{{- end -}}
 {{- if $reasons -}}
 {{- fail (printf "%s / %s are only safe for a single instance:\n  - %s\nChange the Directus env, then install again." (printf "ConfigMap %s" .Values.directus.configMap) (printf "Secret %s" .Values.directus.secret) (join "\n  - " $reasons)) -}}
 {{- end -}}

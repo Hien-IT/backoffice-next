@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/services/extensions.test.ts",
+		"dest": "apps/api/src/services/extensions.service.test.ts"
+	},
+	{
+		"source": "api/src/services/extensions.ts",
+		"dest": "apps/api/src/services/extensions.service.ts"
+	},
+	{
+		"source": "api/src/services/mail/index.ts",
+		"dest": "apps/api/src/services/mail.service.ts"
+	}
+]

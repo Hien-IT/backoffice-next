@@ -1,7 +1,8 @@
 // Feature 010, US8 (spec FR-070 to FR-072, contracts/system-api.md §4, D-37): /extensions at both apps. Reads, the
-// empty app bundle (byte for byte) and the registry browse through the fake registry are the same; install,
-// reinstall, uninstall, PATCH and DELETE /:pk keep the checks of Directus, then the new app refuses (503 or 403)
-// where Directus answers 503 "Could not download the extension" or 204 (measured 2026-10-14 on Directus 11.17.4).
+// app bundle (status and headers; the body is D-137 until spec 020 wave 2) and the registry browse through the fake
+// registry are the same; install, reinstall, uninstall keep the checks of Directus, then the new app refuses (503)
+// where Directus answers 503 "Could not download the extension" or 204 (measured 2026-10-14 on Directus 11.17.4);
+// PATCH and DELETE /:pk are those of Directus since spec 020 wave 1.
 // Directus writes the directus_extensions row before it downloads, so its failed install leaves the row (its uninstall
 // removes it); the new app writes nothing.
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -41,7 +42,7 @@ describe('reads at both apps', () => {
 		await same({ method: 'OPTIONS', path: '/extensions' });
 	});
 
-	it('the empty app bundle: same bytes and headers, a request that skips the cache, another chunk → 404', async () => {
+	it('the app bundle: same status and headers (body D-137 until wave 2), a request that skips the cache, another chunk → 404', async () => {
 		const bundle = await same({ path: '/extensions/sources/index.js' });
 		expect(bundle.backoffice.status).toBe(200);
 		expect(bundle.backoffice.headers['transfer-encoding']).toBe('chunked');
@@ -86,7 +87,7 @@ describe.runIf(full)('the registry through the fake registry', () => {
 });
 
 describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D-37', () => {
-	it('the same 403 and 404 before the action; then Directus 503 or 204, the new app 503 or 403', async () => {
+	it('the same 403 and 404 before the action; then Directus 503 or 204, the new app 503; PATCH, DELETE the same', async () => {
 		const headers = { ...(await admin()), 'content-type': 'application/json' };
 		await hostDb()('directus_extensions').where({ id: EXTENSION }).delete();
 		const before = await rows();
@@ -114,8 +115,6 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D
 			],
 			[{ method: 'POST', path: '/extensions/registry/reinstall', body: { extension: EXTENSION } }, 503, 503, 1],
 			[{ method: 'DELETE', path: `/extensions/registry/uninstall/${EXTENSION}` }, 204, 503, 0],
-			[{ method: 'PATCH', path: `/extensions/${EXTENSION}`, body: { meta: { enabled: false } } }, 204, 403, 0],
-			[{ method: 'DELETE', path: `/extensions/${EXTENSION}` }, 204, 403, 0],
 		] as const) {
 			const result = await parity({ ...req, headers });
 			expect(result.directus.status, `${req.method} ${req.path}`).toBe(directus);
@@ -131,6 +130,11 @@ describe.runIf(full)('install, uninstall, enable: the checks of Directus, then D
 			}
 		}
 
+		expect(await rows()).toBe(before);
+
+		// Spec 020 wave 1: PATCH and DELETE /:pk are those of Directus (a missing row: 204 at both).
+		await same({ method: 'PATCH', path: `/extensions/${EXTENSION}`, headers, body: { meta: { enabled: false } } });
+		await same({ method: 'DELETE', path: `/extensions/${EXTENSION}`, headers });
 		expect(await rows()).toBe(before);
 	});
 });

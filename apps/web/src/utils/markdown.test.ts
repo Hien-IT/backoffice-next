@@ -30,3 +30,17 @@ describe('md', () => {
 		expect(links[2]!.hasAttribute('target')).toBe(false);
 	});
 });
+
+test('target: every link gets it, _blank with rel noopener (spec 020, v-md of extensions)', () => {
+	const links = (html: string) => {
+		const template = document.createElement('template');
+		template.innerHTML = html;
+		return [...template.content.querySelectorAll('a')].map((a) => [a.target, a.rel]);
+	};
+
+	expect(links(md('[a](/x) [b](https://example.com)', { target: '_self' }))).toEqual([
+		['_self', ''],
+		['_self', ''],
+	]);
+	expect(links(md('[a](/x)', { target: '_blank' }))).toEqual([['_blank', 'noopener noreferrer']]);
+});

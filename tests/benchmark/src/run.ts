@@ -70,6 +70,12 @@ function combine(throughput: Round[], latency: Round[]): Round[] {
 	return throughput.map((t, i) => ({ rps: t.rps, p95: latency[i]!.p95, errors: t.errors + latency[i]!.errors }));
 }
 
+// Spec 020 (SC-005, T026): both apps are measured without extensions (PARITY_EXTENSIONS_ENV=no-extensions).
+for (const base of [DIRECTUS, BACKOFFICE]) {
+	const { data } = (await (await fetch(`${base}/extensions`)).json()) as { data: unknown[] };
+	if (data.length > 0) throw new Error(`${base} loads extensions; run benchmark:env-up (no extensions)`);
+}
+
 const verdicts: Verdict[] = [];
 
 for (const endpoint of ENDPOINTS) {

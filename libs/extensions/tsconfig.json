@@ -1,0 +1,9 @@
+{
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"types": ["node"],
+		// zod schema constants infer their types (as in directus/packages/extensions); declarations are still emitted.
+		"isolatedDeclarations": false
+	},
+	"include": ["src"]
+}

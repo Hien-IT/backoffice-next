@@ -112,6 +112,8 @@ export const profilePorts = {
 	setup: { directus: 10455, backoffice: 10456 },
 	// Feature 011 (research R9): the pair with GRAPHQL_INTROSPECTION=false and small GraphQL limits.
 	'graphql-nointro': { directus: 10555, backoffice: 10556 },
+	// Feature 020 (contracts/tests.md §3): the extensions pair (own storage prefix, EXTENSIONS_LIMIT=3, schedule hook).
+	extensions: { directus: 10655, backoffice: 10656 },
 } as const;
 
 /** Host port of the own Postgres of the setup pair (feature 010, research R11). */

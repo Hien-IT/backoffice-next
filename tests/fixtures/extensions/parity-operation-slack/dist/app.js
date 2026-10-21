@@ -1,0 +1,1 @@
+var e={id:"parity-operation-slack",name:"Parity Slack",icon:"forum",description:"Sends a message (parity fixture)",overview:({text:e})=>[{label:"Text",text:e??""}],options:[{field:"text",name:"Text",type:"string",meta:{width:"full",interface:"input"}}]};export{e as default};

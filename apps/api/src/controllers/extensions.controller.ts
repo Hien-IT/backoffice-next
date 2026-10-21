@@ -1,13 +1,19 @@
 // Ported from directus/api/src/controllers/extensions.ts
 // Backoffice: one Nest handler per Directus route, in the same order (research R6, R16 of spec 010);
 // useCollection('directus_extensions') is applied in app.module.ts, `next()` to `respond` is respond(), the uuid route
-// params are checked by uuidParam. There is no extension manager (Principle XI, D-37): install, reinstall and
-// uninstall answer 503 after the checks of Directus, PATCH and DELETE /:pk answer 403, and the only app chunk is the
-// empty bundle, sent as a stream like the file stream of Directus (chunked, no Content-Length).
+// params are checked by uuidParam. Spec 020 wave 1 (D-37 narrowed): install, reinstall and
+// uninstall answer 503 after the checks of Directus (until spec 020 wave 3), and the only app chunk is the empty bundle
+// (until spec 020 wave 2), sent as a stream like the file stream of Directus (chunked, no Content-Length).
 import { Readable } from 'node:stream';
 import { EXTENSION_TYPES } from '@backoffice/constants';
 import { useEnv } from '@backoffice/env';
-import { ForbiddenError, RouteNotFoundError, ServiceUnavailableError } from '@backoffice/errors';
+import {
+	ErrorCode,
+	ForbiddenError,
+	isBackofficeError,
+	RouteNotFoundError,
+	ServiceUnavailableError,
+} from '@backoffice/errors';
 import type { FieldFilter } from '@backoffice/types';
 import { isIn, toBoolean } from '@backoffice/utils';
 import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res } from '@nestjs/common';
@@ -24,7 +30,7 @@ import {
 } from '../extensions/registry/index.js';
 import { respond } from '../middleware/respond.js';
 import type { ServiceFactory } from '../providers.js';
-import { EMPTY_APP_EXTENSION_BUNDLE, ExtensionsService } from '../services/extensions.service.js';
+import { EMPTY_APP_EXTENSION_BUNDLE, ExtensionReadError, ExtensionsService } from '../services/extensions.service.js';
 import { getCacheControlHeader } from '../utils/get-cache-headers.js';
 import { getMilliseconds } from '../utils/get-milliseconds.js';
 import { uuidParam } from '../utils/uuid-param.js';
@@ -199,19 +205,48 @@ export class ExtensionsController {
 	}
 
 	@Patch(':pk')
-	async updateOne(@Req() req: Request): Promise<void> {
-		uuidParam(req);
+	async updateOne(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const pk = uuidParam(req);
 		assertAdmin(req);
 
-		throw new ForbiddenError();
+		const service = this.extensionsService({
+			accountability: req.accountability,
+			schema: req.schema,
+		});
+
+		try {
+			const result = await service.updateOne(pk, req.body);
+			res.locals['payload'] = { data: result || null };
+		} catch (error) {
+			let finalError = error;
+
+			if (error instanceof ExtensionReadError) {
+				finalError = error.originalError;
+
+				if (isBackofficeError(finalError, ErrorCode.Forbidden)) {
+					return respond(req, res);
+				}
+			}
+
+			throw finalError;
+		}
+
+		return respond(req, res);
 	}
 
 	@Delete(':pk')
-	async deleteOne(@Req() req: Request): Promise<void> {
-		uuidParam(req);
+	async deleteOne(@Req() req: Request, @Res() res: Response): Promise<void> {
+		const pk = uuidParam(req);
 		assertAdmin(req);
 
-		throw new ForbiddenError();
+		const service = this.extensionsService({
+			accountability: req.accountability,
+			schema: req.schema,
+		});
+
+		await service.deleteOne(pk);
+
+		return respond(req, res);
 	}
 
 	@Get('sources/:chunk')

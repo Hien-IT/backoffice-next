@@ -7,7 +7,10 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres up -d --build --wait",
-				"cwd": "tests/benchmark"
+				"cwd": "tests/benchmark",
+				"env": {
+					"PARITY_EXTENSIONS_ENV": "no-extensions"
+				}
 			}
 		},
 		"env-down": {
@@ -21,14 +24,20 @@
 			"executor": "nx:run-commands",
 			"options": {
 				"command": "docker compose -p benchmark -f docker-compose.yml -f auth.compose.yml --profile postgres up -d --build --wait",
-				"cwd": "tests/benchmark"
+				"cwd": "tests/benchmark",
+				"env": {
+					"PARITY_EXTENSIONS_ENV": "no-extensions"
+				}
 			}
 		},
 		"env-up-web": {
 			"executor": "nx:run-commands",
 			"options": {
 				"command": "docker compose -p benchmark -f docker-compose.yml --profile postgres --profile bench-web up -d --build --wait",
-				"cwd": "tests/benchmark"
+				"cwd": "tests/benchmark",
+				"env": {
+					"PARITY_EXTENSIONS_ENV": "no-extensions"
+				}
 			}
 		},
 		"run": {

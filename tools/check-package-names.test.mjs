@@ -49,3 +49,18 @@ test('ignores folders without package.json', () => {
 	mkdirSync(join(root, 'libs/empty'));
 	assert.equal(checkPackageNames(root).count, 2);
 });
+
+test('allows the extensions SDK in the fixture extensions workspace only', () => {
+	const root = workspace({
+		'tests/fixtures/extensions/package.json': {
+			name: '@backoffice/extension-fixtures',
+			devDependencies: { '@directus/extensions-sdk': '17.1.4' },
+		},
+		'apps/web/package.json': { name: '@backoffice/web', dependencies: { '@directus/composables': '11.4.1' } },
+		'apps/api/package.json': { name: '@backoffice/api', dependencies: { '@directus/extensions-sdk': '17.1.4' } },
+	});
+
+	assert.deepEqual(checkPackageNames(root).errors, [
+		'apps/api/package.json: dependencies must not use @directus/extensions-sdk',
+	]);
+});

@@ -160,8 +160,8 @@ function ordered(collection, row) {
 const items = {};
 
 for (const { collection, meta, schema } of collections) {
-	// A folder (014 `bo_folder`) has no table.
-	if (!schema) continue;
+	// A folder (014 `bo_folder`) has no table; bo_ext_log (020) holds what the fixture extensions write while tests run.
+	if (!schema || collection === 'bo_ext_log') continue;
 	const pk = fields.find((f) => f.collection === collection && f.schema?.is_primary_key)?.field;
 	// uuid keys are random: sort those rows by their display field instead.
 	const sort = collection === 'bo_m2a_b' ? 'title' : pk;

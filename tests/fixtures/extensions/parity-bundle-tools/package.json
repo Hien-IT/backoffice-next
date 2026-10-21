@@ -1,0 +1,34 @@
+{
+	"name": "parity-bundle-tools",
+	"version": "1.0.0",
+	"type": "module",
+	"directus:extension": {
+		"type": "bundle",
+		"path": {
+			"app": "dist/app.js",
+			"api": "dist/api.js"
+		},
+		"entries": [
+			{
+				"type": "interface",
+				"name": "bundle-iface",
+				"source": "src/bundle-iface/index.js"
+			},
+			{
+				"type": "hook",
+				"name": "bundle-hook",
+				"source": "src/bundle-hook/index.js"
+			},
+			{
+				"type": "operation",
+				"name": "bundle-op",
+				"source": {
+					"app": "src/bundle-op/app.js",
+					"api": "src/bundle-op/api.js"
+				}
+			}
+		],
+		"partial": true,
+		"host": "^11.0.0"
+	}
+}

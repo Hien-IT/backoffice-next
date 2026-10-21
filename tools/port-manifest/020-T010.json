@@ -1,0 +1,58 @@
+[
+	{
+		"source": "packages/extensions/src/index.ts",
+		"dest": "libs/extensions/src/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/node.ts",
+		"dest": "libs/extensions/src/node.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/index.ts",
+		"dest": "libs/extensions/src/shared/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/constants/index.ts",
+		"dest": "libs/extensions/src/shared/constants/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/constants/languages.ts",
+		"dest": "libs/extensions/src/shared/constants/languages.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/constants/pkg-key.ts",
+		"dest": "libs/extensions/src/shared/constants/pkg-key.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/constants/shared-deps.ts",
+		"dest": "libs/extensions/src/shared/constants/shared-deps.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/schemas/index.ts",
+		"dest": "libs/extensions/src/shared/schemas/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/schemas/manifest.ts",
+		"dest": "libs/extensions/src/shared/schemas/manifest.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/schemas/options.ts",
+		"dest": "libs/extensions/src/shared/schemas/options.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/types/index.ts",
+		"dest": "libs/extensions/src/shared/types/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/utils/index.ts",
+		"dest": "libs/extensions/src/shared/utils/index.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/utils/define-extension.ts",
+		"dest": "libs/extensions/src/shared/utils/define-extension.ts"
+	},
+	{
+		"source": "packages/extensions/src/shared/utils/define-extension.test.ts",
+		"dest": "libs/extensions/src/shared/utils/define-extension.test.ts"
+	}
+]

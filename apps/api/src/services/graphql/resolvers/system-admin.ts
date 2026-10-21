@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/graphql/resolvers/system-admin.ts
-import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
+import { InvalidPayloadError } from '@backoffice/errors';
 import { isSystemField } from '@backoffice/system-data';
 import type { GraphQLParams } from '../../../types/index.js';
 import { GraphQLBoolean, GraphQLID, GraphQLList, GraphQLNonNull, GraphQLString } from 'graphql';
@@ -314,10 +314,14 @@ export function resolveSystemAdmin(
 					}),
 				),
 			},
-			resolve: async () => {
-				// Backoffice: no extension manager (D-37), like PATCH /extensions/:pk; the ExtensionsService of feature 010 only
-				// reads.
-				throw new ForbiddenError();
+			resolve: async (_, args) => {
+				const extensionsService = new ExtensionsService({
+					accountability: gql.accountability,
+					schema: gql.schema,
+				});
+
+				await extensionsService.updateOne(args['id'], args['data']);
+				return await extensionsService.readOne(args['id']);
 			},
 		},
 	});

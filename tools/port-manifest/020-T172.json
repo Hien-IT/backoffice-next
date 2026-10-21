@@ -1,0 +1,14 @@
+[
+	{
+		"source": "api/src/extensions/lib/installation/index.ts",
+		"dest": "apps/api/src/extensions/lib/installation/index.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/installation/manager.test.ts",
+		"dest": "apps/api/src/extensions/lib/installation/manager.test.ts"
+	},
+	{
+		"source": "api/src/extensions/lib/installation/manager.ts",
+		"dest": "apps/api/src/extensions/lib/installation/manager.ts"
+	}
+]

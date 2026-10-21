@@ -34,3 +34,5 @@ export * from './deep-map-with-schema.js';
 export * from './apply-options-data.js';
 export * from './is-valid-json.js';
 export * from './sieve-functions.js';
+export * from './pluralize.js';
+export * from './number-generator.js';

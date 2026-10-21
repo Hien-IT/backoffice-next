@@ -24,6 +24,8 @@ data:
   STORAGE_S3_ENDPOINT: http://minio:9000
   STORAGE_S3_FORCE_PATH_STYLE: 'true'
   WEBSOCKETS_ENABLED: 'false'
+  # Spec 020 (FR-045): every pod loads the extensions from the shared storage.
+  EXTENSIONS_LOCATION: s3
 ---
 apiVersion: v1
 kind: Secret
@@ -114,11 +116,21 @@ spec:
       containers:
         - name: init
           image: cgr.dev/chainguard/minio:latest
+          # Spec 020: the parity-endpoint-demo fixture (ConfigMap made by kind-test.sh, optional) goes to extensions/.
           command:
-            [sh, -c, 'mc alias set local http://minio:9000 "$KEY" "$SECRET" && mc mb --ignore-existing local/directus']
+            - sh
+            - -c
+            - >-
+              mc alias set local http://minio:9000 "$KEY" "$SECRET" && mc mb --ignore-existing local/directus && if [ -f
+              /fixture/package.json ]; then mc cp /fixture/package.json
+              local/directus/extensions/parity-endpoint-demo/package.json && mc cp /fixture/index.js
+              local/directus/extensions/parity-endpoint-demo/dist/index.js; fi
           env:
             - { name: KEY, valueFrom: { secretKeyRef: { name: directus-secret, key: STORAGE_S3_KEY } } }
             - { name: SECRET, valueFrom: { secretKeyRef: { name: directus-secret, key: STORAGE_S3_SECRET } } }
+          volumeMounts: [{ name: fixture, mountPath: /fixture }]
+      volumes:
+        - { name: fixture, configMap: { name: extension-fixture, optional: true } }
 ---
 apiVersion: apps/v1
 kind: Deployment

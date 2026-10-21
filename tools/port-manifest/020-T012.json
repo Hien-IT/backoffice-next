@@ -1,0 +1,6 @@
+[
+	{
+		"source": "packages/types/src/extensions/app-extension-config.ts",
+		"dest": "libs/types/src/extensions.ts"
+	}
+]

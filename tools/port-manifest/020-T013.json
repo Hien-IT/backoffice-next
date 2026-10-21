@@ -1,0 +1,38 @@
+[
+	{
+		"source": "packages/utils/shared/pluralize.ts",
+		"dest": "libs/utils/src/shared/pluralize.ts"
+	},
+	{
+		"source": "packages/utils/shared/pluralize.test.ts",
+		"dest": "libs/utils/src/shared/pluralize.test.ts"
+	},
+	{
+		"source": "packages/utils/shared/number-generator.ts",
+		"dest": "libs/utils/src/shared/number-generator.ts"
+	},
+	{
+		"source": "packages/utils/shared/number-generator.test.ts",
+		"dest": "libs/utils/src/shared/number-generator.test.ts"
+	},
+	{
+		"source": "packages/utils/node/list-folders.ts",
+		"dest": "libs/utils/src/node/list-folders.ts"
+	},
+	{
+		"source": "packages/utils/node/list-folders.test.ts",
+		"dest": "libs/utils/src/node/list-folders.test.ts"
+	},
+	{
+		"source": "packages/utils/node/path-to-relative-url.ts",
+		"dest": "libs/utils/src/node/path-to-relative-url.ts"
+	},
+	{
+		"source": "packages/utils/node/path-to-relative-url.test.ts",
+		"dest": "libs/utils/src/node/path-to-relative-url.test.ts"
+	},
+	{
+		"source": "packages/utils/node/resolve-package.ts",
+		"dest": "libs/utils/src/node/resolve-package.ts"
+	}
+]

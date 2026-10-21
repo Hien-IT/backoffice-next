@@ -124,6 +124,22 @@ services:
       timeout: 5s
       retries: 30
 
+  # Spec 020 (contracts/deploy.md §1): the fake extensions registry of the parity tests, for the acceptance suite only
+  # (tests/parity/src/deploy/extensions.test.ts sets MARKETPLACE_REGISTRY=http://registry:9100).
+  registry:
+    profiles: [extensions-test]
+    image: node:22-alpine
+    command: ['node', '/registry/server.mjs']
+    volumes:
+      - ../../tests/parity/registry:/registry:ro
+    environment:
+      PORT: '9100'
+    healthcheck:
+      test: ['CMD-SHELL', 'wget -qO- http://127.0.0.1:9100/version || exit 1']
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
 volumes:
   postgres-data:
   minio-data:

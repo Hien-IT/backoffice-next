@@ -9,6 +9,7 @@ import express, { type Express, type RequestHandler } from 'express';
 import { contentSecurityPolicy, crossOriginOpenerPolicy, hsts } from 'helmet';
 import { merge } from 'lodash-es';
 import qs from 'qs';
+import emitter from './emitter.js';
 import { createExpressLogger } from './logger/index.js';
 import checkCacheMiddleware from './middleware/cache.js';
 import cors from './middleware/cors.js';
@@ -29,7 +30,7 @@ export interface ExpressAppOptions {
 	beforeRoutes?: RequestHandler[];
 }
 
-export function createExpressApp(options: ExpressAppOptions = {}): Express {
+export async function createExpressApp(options: ExpressAppOptions = {}): Promise<Express> {
 	const env = useEnv();
 
 	const app = express();
@@ -112,6 +113,10 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 		app.use(hsts(getConfigFromEnv('HSTS_', { omitPrefix: 'HSTS_ENABLED' })));
 	}
 
+	await emitter.emitInit('app.before', { app });
+
+	await emitter.emitInit('middlewares.before', { app });
+
 	app.use(createExpressLogger());
 
 	app.use((_req, res, next) => {
@@ -162,6 +167,10 @@ export function createExpressApp(options: ExpressAppOptions = {}): Express {
 	app.use(checkCacheMiddleware);
 
 	for (const middleware of options.beforeRoutes ?? []) app.use(middleware);
+
+	await emitter.emitInit('middlewares.after', { app });
+
+	await emitter.emitInit('routes.before', { app });
 
 	app.use(createRouterOptions());
 

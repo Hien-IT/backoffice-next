@@ -176,7 +176,6 @@ test.each([
 	['EMAIL_TRANSPORT', false],
 	['TELEMETRY', false],
 	['COMPLIANCE_URL', false],
-	['EXTENSIONS_AUTO_RELOAD', false],
 ])('isSupported(%s) = %s (feature 010)', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
 });
@@ -193,4 +192,17 @@ test.each([
 	['WEBSOCKETS_GRAPHQL_PATH', false],
 ])('isSupported(%s) = %s (feature 011)', (name, expected) => {
 	expect(isSupported(name)).toBe(expected);
+});
+
+// Feature 020 (specs/020 contracts/api.md §3): the extension manager.
+test.each([
+	'EXTENSIONS_MUST_LOAD',
+	'EXTENSIONS_AUTO_RELOAD',
+	'EXTENSIONS_SANDBOX_MEMORY',
+	'EXTENSIONS_SANDBOX_TIMEOUT',
+	'EXTENSIONS_LIMIT',
+	'EXTENSIONS_ROLLDOWN',
+	'PACKAGE_FILE_LOCATION',
+])('isSupported(%s) (feature 020)', (name) => {
+	expect(isSupported(name)).toBe(true);
 });

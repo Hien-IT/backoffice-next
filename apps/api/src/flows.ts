@@ -99,7 +99,8 @@ class FlowManager {
 
 	public async initialize(): Promise<void> {
 		// Backoffice: Directus registers its built-in operations in ExtensionManager.initialize(), which runs right
-		// before this; there is no extension manager here, so the static list is registered instead (research R2).
+		// before this and does the same here since spec 020; registering them here too keeps this manager usable on its
+		// own (feature 009 research R2).
 		for (const operation of operations) this.addOperation(operation.id, operation.handler);
 
 		if (!this.isLoaded) {

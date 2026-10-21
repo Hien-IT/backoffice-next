@@ -2220,6 +2220,38 @@ async function createInsightsFixtures({ users }) {
 	]);
 }
 
+/* ---------------------------------------------------------------- extensions (020) */
+
+/**
+ * Collections the 020 fixture extensions touch (tests/fixtures/extensions, data-model §9): `bo_ext_items` gets the
+ * `audited` flag from the parity-hook-audit filter, `bo_ext_log` the rows its actions and schedule write. No rows.
+ */
+const extensionsCollections = () => [
+	collection(
+		'bo_ext_items',
+		[
+			intPk(),
+			field('title', 'string', 'input', null, { width: 'half' }),
+			field('audited', 'boolean', 'boolean', null, { width: 'half' }),
+		],
+		{ icon: 'extension', sort: 300 },
+	),
+	collection(
+		'bo_ext_log',
+		[
+			intPk(),
+			field('kind', 'string', 'input', null, { width: 'half' }),
+			field('event', 'string', 'input', null, { width: 'half' }),
+			field('payload', 'text', 'input-multiline'),
+		],
+		{ icon: 'receipt_long', sort: 301 },
+	),
+];
+
+async function createExtensionsFixtures() {
+	for (const payload of extensionsCollections()) await api.request('POST', '/collections', payload);
+}
+
 /* ---------------------------------------------------------------- flows (017) */
 
 /**
@@ -2594,6 +2626,7 @@ await createFilesFixtures({ users });
 await createSettingsFixtures({ users });
 await createFlowsFixtures();
 await createInsightsFixtures({ users });
+await createExtensionsFixtures();
 
 process.stdout.write(
 	`Seeded ${api.url}: folder ${FOLDER}, flow ${FLOW}, roles ${ROLES.join(', ')}, geometry ${geometry}\n`,

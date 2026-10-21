@@ -148,18 +148,14 @@ describe('server, me, extensions, utils (US3.5, US3.6)', () => {
 		await sameGql('system', `mutation { utils_cache_clear }`, { token: admin });
 	});
 
-	it('update_extensions_item is refused at the new app (D-37)', async () => {
-		const result = await gql(
-			'backoffice',
+	it('update_extensions_item on an unknown id: the same error at both apps (spec 020, D-37 narrowed)', async () => {
+		await sameGql(
 			'system',
 			`mutation { update_extensions_item(id: "x", data: { meta: { enabled: false } }) { name } }`,
 			{
 				token: admin,
 			},
 		);
-
-		expect(result.status).toBe(200);
-		expect((result.json as any).errors[0].extensions.code).toBe('FORBIDDEN');
 	});
 });
 

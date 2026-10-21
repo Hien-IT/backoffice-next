@@ -35,6 +35,12 @@ apiPool:
 uploads:
   existingClaim: ''
 
+# Spec 020 (FR-045): with several API replicas (or HPA) the chart requires EXTENSIONS_LOCATION in the Directus env, so
+# every pod loads the same extensions from the shared storage. true: the extensions are baked into the image
+# (/directus/extensions), the check is skipped and marketplace installs are not used.
+extensions:
+  inImage: false
+
 web:
   image:
     repository: hiennd23/backoffice-web

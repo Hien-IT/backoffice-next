@@ -58,7 +58,14 @@ async function violations(page: Page, exclude: string[] = []) {
 
 const PUBLIC = ['/admin/login', '/admin/reset-password', '/admin/accept-invite?token=x', '/admin/register'];
 // `profile`: your own user page, opened from the avatar menu (no /users/me route, D-86).
-const PRIVATE = ['/admin/content', 'profile', '/admin/files/not-there', '/admin/khong-co'];
+// Spec 020: Settings > Extensions with the fixture extensions.
+const PRIVATE = [
+	'/admin/content',
+	'profile',
+	'/admin/files/not-there',
+	'/admin/khong-co',
+	'/admin/settings/extensions',
+];
 
 for (const scheme of ['light', 'dark'] as const) {
 	test(`public and private screens have no serious violations (${scheme})`, async ({ page }) => {

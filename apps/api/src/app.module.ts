@@ -32,6 +32,7 @@ import { TusController } from './controllers/tus.controller.js';
 import { UtilsController } from './controllers/utils.controller.js';
 import { UsersController } from './controllers/users.controller.js';
 import { VersionsController } from './controllers/versions.controller.js';
+import { ExtensionsModule } from './extensions/extensions.module.js';
 import { MetricsModule } from './metrics/metrics.module.js';
 import useCollection from './middleware/use-collection.js';
 import { infrastructureProviders, serviceProviders } from './providers.js';
@@ -45,7 +46,7 @@ export class TusModule implements NestModule {
 }
 
 @Module({
-	imports: [MetricsModule],
+	imports: [MetricsModule, ExtensionsModule],
 	controllers: [
 		AccessController,
 		ActivityController,

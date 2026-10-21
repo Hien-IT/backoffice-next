@@ -29,6 +29,7 @@
 		"@backoffice/system-data": "workspace:*",
 		"@backoffice/types": "workspace:*",
 		"date-fns": "catalog:",
+		"fs-extra": "catalog:",
 		"joi": "catalog:",
 		"js-yaml": "catalog:",
 		"knex": "catalog:",
@@ -38,6 +39,7 @@
 	"devDependencies": {
 		"@backoffice/schema-builder": "workspace:*",
 		"@ngneat/falso": "catalog:",
+		"@types/fs-extra": "catalog:",
 		"@types/js-yaml": "catalog:",
 		"@types/lodash-es": "catalog:"
 	}
