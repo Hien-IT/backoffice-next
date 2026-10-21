@@ -139,6 +139,10 @@ interface, display, layout, module, panel trong app web mới.
   `EXTENSIONS_LOCATION` (vd `s3`, prefix `extensions/` trong bucket). Mỗi node sync từ storage lúc khởi động (pod chỉ
   ready sau khi sync và nạp xong) và khi có thông báo trên kênh bus `extensions.reload`. Chart dừng cài và nâng cấp khi
   nhiều replica (hoặc HPA) mà `EXTENSIONS_LOCATION` rỗng, trừ khi `extensions.inImage=true`.
+- **Một máy, không MinIO cho extension**: `docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d
+  --wait` gắn chung volume `extensions` vào `/directus/extensions` của Directus và mọi replica Backoffice, để
+  `EXTENSIONS_LOCATION` rỗng (không node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều
+  máy hay Kubernetes.
 - **Cài**: Settings > Marketplace của app web mới hoặc của Directus app (cùng bảng `directus_extensions`, cùng storage);
   cài ở một node thì node khác thấy trong vài giây.
 - **Nguồn `module`**: khai báo gói extension trong `dependencies` của `apps/api/package.json`, build lại image API.
