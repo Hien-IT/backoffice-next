@@ -47,6 +47,16 @@ const USER = 'd0000000-0000-4000-8000-000000000001';
 
 let app: App;
 
+/**
+ * A current OTP with at least 10 s left in its 30 s step: on a loaded runner the first request of an app can take a few
+ * seconds, and an OTP of the previous step is invalid (400 instead of the 403 under test, CI 39667786611).
+ */
+async function otp(secret: string): Promise<string> {
+	const remaining = authenticator.timeRemaining();
+	if (remaining < 10) await new Promise((resolve) => setTimeout(resolve, remaining * 1000 + 100));
+	return authenticator.generate(secret);
+}
+
 async function start() {
 	vi.mocked(env.useEnv).mockReturnValue({ ...defaults, SECRET });
 	app = await createApp();
@@ -214,7 +224,8 @@ describe('CRUD as admin (routes in the order of the Directus router)', () => {
 	});
 });
 
-describe('TFA enable and disable (FR-048)', () => {
+// The OTP helper may wait for the next 30 s step: more than the default 5 s.
+describe('TFA enable and disable (FR-048)', { timeout: 30_000 }, () => {
 	const ADMIN = 'd0000000-0000-4000-8000-000000000009';
 	const admin = () => token({ id: ADMIN, role: null });
 
@@ -236,24 +247,21 @@ describe('TFA enable and disable (FR-048)', () => {
 		expect((await enable({ secret })).body.errors[0].message).toBe('Invalid payload. "otp" is required.');
 		expect((await enable({ secret, otp: '000000' })).body.errors[0].message).toBe('Invalid payload. "otp" is invalid.');
 
-		const ok = await enable({ secret, otp: authenticator.generate(secret) });
+		const ok = await enable({ secret, otp: await otp(secret) });
 		expect(ok.status).toBe(204);
 		expect(await secretOf(ADMIN)).toBe(secret);
 
-		expect((await enable({ secret, otp: authenticator.generate(secret) })).body.errors[0].message).toBe(
+		expect((await enable({ secret, otp: await otp(secret) })).body.errors[0].message).toBe(
 			'Invalid payload. TFA Secret is already set for this user.',
 		);
 	});
 
 	test('a user without update permission on tfa_secret cannot enable it', async () => {
 		const secret = authenticator.generateSecret();
+		const agent = await start();
+		const code = await otp(secret);
 
-		const res = await (
-			await start()
-		)
-			.post('/users/me/tfa/enable')
-			.set('Authorization', token())
-			.send({ secret, otp: authenticator.generate(secret) });
+		const res = await agent.post('/users/me/tfa/enable').set('Authorization', token()).send({ secret, otp: code });
 
 		expect(res.status).toBe(403);
 		expect(await secretOf(USER)).toBeNull();
@@ -270,7 +278,7 @@ describe('TFA enable and disable (FR-048)', () => {
 		const own = await agent
 			.post('/users/me/tfa/disable')
 			.set('Authorization', admin())
-			.send({ otp: authenticator.generate(secret) });
+			.send({ otp: await otp(secret) });
 
 		expect(own.status).toBe(204);
 		expect(await secretOf(ADMIN)).toBeNull();
