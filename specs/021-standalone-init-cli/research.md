@@ -9,7 +9,7 @@ thử ghi "[Unverified]".
 - **Decision**: `apps/api/src/cli/` port nguyên cây `directus/api/src/cli/` (`index.ts` `createCli`, `run.ts`,
   `load-extensions.ts`, `commands/{bootstrap,cache,count,database,init,roles,schema,security,users}`,
   `utils/{create-db-connection,create-env,drivers}`), header `// Ported from ...` từng file, ghi vào
-  `tools/port-manifest/021-cli.json`. Lệnh gọi service bằng `new UsersService({ schema, knex })` như Directus, **không**
+  manifest theo task `tools/port-manifest/021-T###.json` (quy ước của repo, như `002-T005.json`). Lệnh gọi service bằng `new UsersService({ schema, knex })` như Directus, **không**
   dùng `NestFactory.createApplicationContext`. Điểm vào trong package: `apps/api/cli.js` (gốc package, `#!/usr/bin/env
   node`, `import('./dist/cli/run.js')`), thêm vào `files` và `bin: { backoffice: 'cli.js' }`; trong image là
   `/directus/cli.js`, cùng dòng lệnh `node cli.js <lệnh>` ở `WORKDIR /directus` như image Directus (ở Directus,
@@ -130,7 +130,8 @@ thử ghi "[Unverified]".
     `getSchema`, `getSnapshot`, `getSnapshotDiff`, `applyDiff`, `flushCaches`) vào `apps/api/src/utils/apply-snapshot.ts`
     (006 chưa port vì controller `/schema/apply` gọi `applyDiff` thẳng).
   - `commands/init`: `drivers.ts` chỉ còn `pg` và `sqlite3` (D-146); bỏ `execa` + `ora` (không `npm install`);
-    `create-env/env-stub.liquid` chép rồi đổi thương hiệu (D-147), copy vào `dist` theo R3; `questions.ts`,
+    `create-env/env-stub.liquid` chép rồi đổi thương hiệu (D-147), header dòng 1 là comment Liquid `{%- comment -%}Ported
+    from ...{%- endcomment -%}` để không in ra `.env`, copy vào `dist` theo R3; `questions.ts`,
     `create-db-connection.ts` nguyên văn (nhánh mssql/cockroach không chạy nhưng giữ để diff sạch).
   - `commands/bootstrap`: nguyên văn + `assertBootstrapVendor` (R5) + log thương hiệu (D-147).
   - `PROJECT_OWNER` rời `NOT_APPLICABLE_VARIABLES`, vào `SUPPORTED_VARIABLES` (nhóm "Feature 021"); `ACCEPT_TERMS`
@@ -163,18 +164,27 @@ thử ghi "[Unverified]".
 - **Decision**: profile mới `bootstrap` trong `tests/parity/docker-compose.yml` + `scripts/env.mjs` `ALL_PROFILES` +
   `src/docker.ts` `compose()` + `config.ts` `profilePorts.bootstrap = { directus: 10755, backoffice: 10756 }`,
   `bootstrapDbPort = 6114`, `bootstrapCrossPort = 10757`:
-  - `postgres-bootstrap` (`postgis/postgis:13-3.4-alpine`, cổng 6114, init SQL tạo hai DB `directus_bootstrap`,
-    `backoffice_bootstrap` qua `/docker-entrypoint-initdb.d`).
+  - `postgres-bootstrap` (`postgis/postgis:13-3.4-alpine`, cổng 6114, init SQL tạo bốn DB `directus_bootstrap`,
+    `backoffice_bootstrap`, `directus_partial`, `backoffice_partial` qua `/docker-entrypoint-initdb.d`).
   - `directus-bootstrap`: image Directus, `DB_DATABASE=directus_bootstrap`; `backoffice-api-bootstrap`: image API (CMD
     mặc định: bootstrap rồi start), `DB_DATABASE=backoffice_bootstrap`; **không** `depends_on` nhau (mỗi bên tự
-    bootstrap). Env chung `env/profile-bootstrap.env`: `ADMIN_EMAIL`/`ADMIN_PASSWORD` có giá trị (để so `createAdmin`
-    đầy đủ), `PROJECT_NAME`, `PROJECT_OWNER`, `REDIS=redis://redis:6379/10`, namespace `parity-bootstrap`,
-    `LOG_STYLE=raw`, `MIGRATIONS_PATH=/directus/migrations`, bind mount `./fixtures/migrations:/directus/migrations:ro`.
-  - `directus-on-backoffice-db`: image Directus trên `backoffice_bootstrap`, `depends_on backoffice-api-bootstrap
-    healthy`, cổng 10757 (FR-035 chiều Directus trên DB của Backoffice: khởi động, đăng nhập, ghi item).
+    bootstrap). Env chung `env/profile-bootstrap-<vendor>.env`: `ADMIN_EMAIL`/`ADMIN_PASSWORD` có giá trị (để so
+    `createAdmin` đầy đủ), `PROJECT_NAME`, `PROJECT_OWNER=owner-bootstrap@example.com`, `LOG_STYLE=raw`, `CACHE_*`,
+    `COMPLIANCE_URL`; phần riêng từng service trong `environment:` (DB, `PUBLIC_URL`, Redis db, namespace,
+    `MIGRATIONS_PATH: ${BOOTSTRAP_MIGRATIONS_DIR:-/directus/migrations}`). Hai DB khác nhau PHẢI có Redis db và namespace
+    khác nhau (`parity-bootstrap-d` db 10, `parity-bootstrap-b` db 11), vì khóa cache chỉ phụ thuộc request
+    (`get-cache-key.ts`) và pub/sub bỏ qua số db (analyze I1); bind `./fixtures/migrations:/directus/migrations:ro`.
+  - `directus-on-backoffice-db`: image Directus trên `backoffice_bootstrap`, cùng Redis db và namespace với
+    `backoffice-api-bootstrap`, `depends_on backoffice-api-bootstrap healthy`, cổng 10757 (FR-035 chiều Directus trên DB
+    của Backoffice: khởi động, đăng nhập, ghi item).
+  - Cô lập (analyze U2): `cross`, `cli`, `partial`, `init` ghi vào DB và Vitest không cố định thứ tự file, nên trạng thái
+    ngay sau bootstrap (dump hai DB, log khởi động, số owner report theo `project_owner`) được chụp một lần trong
+    `global-setup.ts` qua `src/bootstrap/baseline.ts` vào `.data/bootstrap/baseline.json`; `schema.test.ts` chỉ đọc file
+    này. Registry giả đếm thêm theo `project_owner` (`GET /v1/owner?project_owner=`).
   - SQLite (`TEST_DB=sqlite3`): `env_file: ./env/profile-bootstrap-${TEST_DB:-postgres}.env` chọn `DB_CLIENT=sqlite3`,
-    `DB_FILENAME=/directus/database/bootstrap/{directus,backoffice}.db` trên bind mount `./.data/bootstrap`; host đọc
-    hai file bằng knex sqlite3. Compose nội suy biến trong `env_file` (như `x-app` đang dùng `${TEST_DB:-postgres}`).
+    `DB_FILENAME` của từng service (`environment:`) là `/directus/database/bootstrap/{directus,backoffice}.db` trên bind
+    mount `./.data/bootstrap`; host đọc hai file bằng knex sqlite3. Compose nội suy biến trong đường dẫn `env_file` (như
+    `x-app` đang dùng `${TEST_DB:-postgres}`).
   - Test `src/bootstrap/`: `dump.ts` (schema qua `createInspector` của `@backoffice/schema`: `columnInfo`, `primary`,
     `foreignKeys`, `indexesOf` của `db-snapshot.ts`; hàng `select *` mọi bảng `directus_*` sắp theo khóa, chuẩn hóa
     `comparable()` của `src/system/helpers.ts` + ánh xạ uuid theo thứ tự xuất hiện → `<role:1>`...), `schema.test.ts`
@@ -183,7 +193,8 @@ thử ghi "[Unverified]".
     'exec', '-T', '-e', ..., service, 'node', 'cli.js', ...])` bắt `status`; so sau chuẩn hóa R7), `init.test.ts` (FR-032
     qua stdin vào `compose exec -T -i`). Bộ migration mẫu `tests/parity/fixtures/migrations/{ok,collide,nodash,noup}/`:
     `ok` có 3 file (tạo bảng, thêm cột có default, migration trong `transaction`); `MIGRATIONS_PATH` chọn thư mục con qua
-    `-e` của `compose exec`.
+    `-e` của `compose exec` (lệnh CLI) hoặc biến `BOOTSTRAP_MIGRATIONS_DIR` khi tạo lại container (`bootstrap` lúc khởi
+    động; analyze U4).
   - Suite: thêm `src/bootstrap/**/*.test.ts` vào `FULL_FILES` và `REDUCED_FILES` (test tự skip khi không có
     `profileUrls('bootstrap')`); CI job `parity`: thêm `bootstrap` vào `--profiles` của postgres (2 shard) và sqlite3.
 - **Rationale**: profile `setup` (010) là mẫu gần nhất (Postgres riêng, Redis db riêng, namespace riêng); `db-snapshot.ts`
@@ -195,13 +206,14 @@ thử ghi "[Unverified]".
 
 - **Decision**: file override `deploy/compose/docker-compose.standalone.yml` dùng chung `docker-compose.yml`:
   `directus: { profiles: [shared-only] }` (tắt service, không cần xóa), service mới `bootstrap` (image API,
-  `command: ["node", "cli.js", "bootstrap"]`, `restart: "no"`, cùng `env_file`, volume `migrations:/directus/migrations`),
+  `command: ["node", "cli.js", "bootstrap"]`, `restart: "no"`, `env_file: ${DEPLOY_ENV_FILE:-.env}` ghi thẳng vì anchor
+  `*app-env` của file gốc không dùng được ở file override, volume `migrations:/directus/migrations`),
   `backoffice-api`: `command: ["node", "cli.js", "start"]`, `depends_on: !reset` rồi `{ bootstrap: { condition:
   service_completed_successfully }, redis: ..., minio-init: ... }`, volume `migrations`; `lb`: mount
   `./lb/standalone.conf` (`api_pool` chỉ `backoffice-api`, không có `server directus:8055`: nginx không khởi động được
   khi host không có); volume mới `migrations`. Lệnh: `docker compose -f docker-compose.yml -f docker-compose.standalone.yml
-  up -d --wait`. `MIGRATIONS_PATH=/directus/migrations` là mặc định trong `.env.example`? Không: giữ `.env.example`
-  nguyên (VIII); `bootstrap` và replica đặt `environment: MIGRATIONS_PATH=/directus/migrations` trong override.
+  up -d --wait`. Không đặt `MIGRATIONS_PATH` ở đâu cả: mặc định `./migrations` ở `WORKDIR /directus` đã là
+  `/directus/migrations`, nơi mount volume; env chỉ đến từ `.env` (VIII, spec FR-070; analyze U1, I3).
 - **Rủi ro [Unverified]**: `docker compose up --wait` với service một lần đã thoát mã 0: compose v2 (≥ 2.17) coi
   container `exited (0)` của service có `depends_on ... service_completed_successfully` là xong; T-task kiểm trên Docker
   của máy dev và runner; dự phòng: tài liệu dùng `docker compose run --rm bootstrap` rồi `up -d --wait`.

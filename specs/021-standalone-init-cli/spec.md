@@ -182,7 +182,7 @@ exit code, stdout, log (sau chuẩn hóa thương hiệu, thời gian, uuid) và
    gì thì log `Nothing to upgrade`, mã 1; `migrate:down` khi không có hàng thì `Nothing to downgrade`, mã 1.
 10. **Given** DB đã cài và có extension hook (020), **When** chạy bất kỳ lệnh CLI nào, **Then** extension được nạp trước
     khi lệnh chạy (không schedule, không watch) và hook `cli.before` (trước khi khai báo lệnh) và `cli.after` nhận
-    `program`, như `createCli` của Directus; DB chưa cài hoặc migration lệch thì bỏ qua nạp extension với log như
+    `program`, như `createCli` của Directus; DB chưa cài hoặc còn migration chưa chạy thì bỏ qua nạp extension với log như
     Directus.
 11. **Given** bất kỳ, **When** `node cli.js --help`, `--version` và `node cli.js <lệnh> --help` cho từng lệnh, **Then**
     liệt kê đúng các lệnh, option, mô tả và giá trị mặc định của Directus 11.17.4 (tên chương trình và phiên bản theo
@@ -280,7 +280,7 @@ Ready, `directus_migrations` có hàng mới; `helm template` và kubeconform đ
 4. **Given** chế độ độc lập, **When** `helm install` mà ConfigMap hoặc Secret không tồn tại, **Then** chart dừng ở
    install với thông báo rõ ràng (hai resource phải có trước Job); các kiểm tra 019 FR-053 (Redis, `*_STORE`, `SECRET`,
    `DB_CLIENT`, storage) và 020 FR-045 (`EXTENSIONS_LOCATION`) vẫn chạy trên env đó; kiểm tra chỉ dành cho chế độ chung
-   (pool Directus, cookie domain của domain riêng) không chạy.
+   (cookie domain của domain riêng, 019 FR-076) không chạy.
 5. **Given** chế độ chung của 019 (Directus có trong namespace), **When** install/upgrade chart đã nâng lên 021, **Then**
    không có Job; pod Backoffice khởi động bằng CMD của image (`bootstrap` trên DB đã cài chỉ `migrate latest`, rồi
    `start`) như pod Directus; Deployment, Service, Ingress, HPA như 019; `deploy-k8s` của 019/020 vẫn đạt.
@@ -517,7 +517,8 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
 - **FR-042**: `start` PHẢI là trình tự khởi động hiện tại của `main.js` (001 contracts/startup.md, kể cả dừng khi
   migration lệch). `main.js` vẫn chạy được như trước (ghi đè `command` của 019 không hỏng).
 - **FR-043**: Trước khi khai báo lệnh, CLI PHẢI nạp extension như `load-extensions.ts`: bỏ qua nếu không có `DB_CLIENT`,
-  DB chưa cài, hoặc migration lệch (log `Skipping CLI extensions initialization due to outstanding migrations.`); nếu
+  DB chưa cài, hoặc còn migration chưa chạy (chỉ xét migration thiếu, như `validateMigrations` boolean của Directus;
+  log `Skipping CLI extensions initialization due to outstanding migrations.`); nếu
   nạp thì `initialize({ schedule: false, watch: false })` của manager 020 và phát `cli.before` rồi `cli.after` với
   `{ program }` (gỡ phần CLI của D-141).
 - **FR-044**: `--version` và `--help` theo IX (D-147): tên chương trình `backoffice`, phiên bản Backoffice; mô tả lệnh
@@ -625,8 +626,8 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   của image (`bootstrap` rồi `start`) như một Deployment Directus, không đặt `args`; N pod có thể áp cùng custom
   migration song song (Q1, như FR-072); DB phải được Directus bootstrap trước (019 FR-024), NOTES của chart nhắc điều
   này.
-- **FR-083**: Chế độ độc lập: kiểm tra install (019 FR-053, 020 FR-045) vẫn chạy trên ConfigMap/Secret; kiểm tra pool
-  Directus và cookie domain (019 FR-076) không chạy; ConfigMap hoặc Secret không tồn tại → `fail` với thông báo rõ.
+- **FR-083**: Chế độ độc lập: kiểm tra install (019 FR-053, 020 FR-045) vẫn chạy trên ConfigMap/Secret; kiểm tra cookie
+  domain (019 FR-076) không chạy; ConfigMap hoặc Secret không tồn tại → `fail` với thông báo rõ.
   `apiPool`, `extraPaths` cho Directus là tùy chọn không dùng.
 - **FR-084**: `helm template`, kubeconform và kịch bản kind (`ci/kind-test.sh`) PHẢI phủ cả hai chế độ: install độc lập
   từ namespace trống (có ConfigMap/Secret), đăng nhập, upgrade có custom migration qua ConfigMap (FR-085), rolling update
@@ -676,7 +677,7 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
 - **FR-102**: Test CLI: từng lệnh của FR-050..FR-059 và FR-030..FR-032 chạy ở hai image với cùng tham số trên hai DB
   giống nhau; so exit code, stdout, log sau chuẩn hóa FR-107; so tác động lên DB (hàng mới, cache Redis trống sau
   `cache clear`); log và output của mọi lần chạy không chứa giá trị bí mật (FR-016). `init` chạy qua stdin nếu
-  `inquirer` 12 đọc được stdin không TTY; nếu không, chạy dưới pseudo-TTY (`script`) — plan chốt cách (research R8).
+  `inquirer` 12 đọc được stdin không TTY; nếu không, chạy dưới pseudo-TTY (`script`) — plan chốt cách (research R15, task T058).
 - **FR-107**: Chuẩn hóa trước khi so output và log CLI giữa hai app (FR-006, FR-041, FR-102) và hàng DB (FR-100), áp
   đúng các quy tắc sau, không quy tắc nào khác:
   - chữ `Directus` và `Backoffice` → `<app>`; `directus` và `backoffice` khi là tên chương trình hay lệnh (`directus

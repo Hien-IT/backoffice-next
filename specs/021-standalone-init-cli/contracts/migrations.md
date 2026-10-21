@@ -28,8 +28,9 @@ Test: port `run.test.ts` (8 test, `knex-mock-client`), giữ thông điệp lỗ
   `../../services/fields.service.js`; `../../services/settings.js` → `../../services/settings.service.js`.
 - `migrations/port.test.ts`: với mỗi file Directus, đọc bản port, bỏ dòng 1, áp bảng thay thế lên bản gốc, so bằng
   nhau; tập version của thư mục (101) = `DIRECTUS_MIGRATIONS` = tập của thư mục Directus.
-- `tools/port-manifest/021-migrations.json` liệt kê 101 + `run.ts`; `021-seeds.json` 15 yaml + `run.ts`;
-  `021-cli.json` các file cli + `apply-snapshot.ts`, `process-chunk.ts`.
+- Manifest theo task (quy ước repo): `tools/port-manifest/021-T###.json` của task tạo file; 101 migration ở
+  `021-T008.json`, `run.test.ts` ở `021-T009.json`, `run.ts` ở `021-T010.json`, 15 seed ở `021-T011.json`,
+  `seeds/run.ts` ở `021-T012.json` (tasks.md).
 
 ## Bổ sung nhỏ cần cho migration
 

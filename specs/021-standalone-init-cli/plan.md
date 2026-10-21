@@ -48,7 +48,7 @@ ghi `{ version, name }`; không bảng, cột, khóa Redis mới. Redis: `flushC
 test từng lệnh với `knex-mock-client`, `cli/index.test.ts` cây lệnh); parity profile `bootstrap`
 (`tests/parity/src/bootstrap/{schema,cross,cli,init}.test.ts`, Postgres + SQLite, mỗi PR); deploy
 `DEPLOY_MODE=standalone` (`parity-tests:deploy`); kind standalone (`deploy-k8s`); `check-port-headers` với manifest
-`021-cli.json`, `021-migrations.json`, `021-seeds.json`.
+theo task `tools/port-manifest/021-T###.json`.
 
 **Target Platform**: Linux `amd64` container (image API), Docker Compose v2 (≥ 2.24 cho `!reset`), Kubernetes ≥ 1.29.
 
@@ -153,7 +153,7 @@ libs/
 ├── utils/src/shared/process-chunk.ts        # mới (port), re-export
 └── types/src/settings.ts                    # + SettingsModuleBarLink, SettingsModuleBarModule
 pnpm-workspace.yaml                          # catalog: commander, inquirer, chalk, liquidjs
-tools/port-manifest/{021-cli,021-migrations,021-seeds}.json
+tools/port-manifest/021-T###.json                # một manifest cho mỗi task tạo file port
 deploy/
 ├── README.md                                # sửa: Thay image, Lệnh CLI; mới: Chạy độc lập
 ├── compose/
@@ -169,7 +169,9 @@ tests/parity/
 ├── env/{profile-bootstrap-postgres,profile-bootstrap-sqlite3}.env
 ├── fixtures/migrations/{ok,collide,nodash,noup,fail}/*.js
 ├── scripts/env.mjs, src/docker.ts, src/config.ts, src/suite.ts     # + profile bootstrap, cổng
-├── src/bootstrap/{dump,normalize,cli}.ts, {schema,cross,partial,cli,init,vendor}.test.ts
+├── registry/server.mjs                      # sửa: đếm owner report theo project_owner
+├── src/global-setup.ts                       # sửa: chụp baseline của profile bootstrap
+├── src/bootstrap/{baseline,dump,normalize,cli}.ts, {schema,cross,partial,cli,init,vendor}.test.ts
 ├── src/deploy/{instances.ts,smoke,compose,image-swap}.test.ts       # sửa; standalone.test.ts mới
 ├── accepted-differences.ts                  # D-19, D-141 sửa chữ; D-145..D-147 doc (feature 021)
 └── README.md

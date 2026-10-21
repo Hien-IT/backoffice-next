@@ -20,12 +20,11 @@ services:
   directus:
     profiles: [shared-only]            # tắt: không có Directus
   bootstrap:
-    <<: *app-env                       # cùng env_file
+    env_file: ${DEPLOY_ENV_FILE:-.env} # anchor *app-env của file gốc không dùng được ở file override
     image: hiennd23/backoffice-api:${BACKOFFICE_TAG:-latest}
     platform: linux/amd64
     command: ["node", "cli.js", "bootstrap"]
     restart: "no"
-    environment: { MIGRATIONS_PATH: /directus/migrations }
     volumes: [migrations:/directus/migrations]
     depends_on:
       postgres: { condition: service_healthy }
@@ -33,7 +32,6 @@ services:
       minio-init: { condition: service_completed_successfully }
   backoffice-api:
     command: ["node", "cli.js", "start"]
-    environment: { MIGRATIONS_PATH: /directus/migrations }
     volumes: [migrations:/directus/migrations]
     depends_on: !reset
       bootstrap: { condition: service_completed_successfully }
@@ -47,6 +45,10 @@ volumes:
 ```
 
 - Lệnh: `docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait`; `BACKOFFICE_REPLICAS=3`.
+- Anchor YAML (`x-app-env: &app-env`) chỉ có hiệu lực trong file khai báo nó, nên service mới `bootstrap` ghi lại
+  `env_file` cùng giá trị; các service có sẵn (`backoffice-api`, `lb`) được gộp với file gốc nên giữ `env_file` của chúng.
+- Không đặt `MIGRATIONS_PATH` trong override: mặc định `./migrations` ở `WORKDIR /directus` đã là `/directus/migrations`,
+  chỗ volume `migrations` được mount; env vẫn chỉ đến từ `.env` (spec FR-070, Nguyên tắc VIII).
 - `lb/standalone.conf`: như `shared-domain.conf` nhưng `api_pool` chỉ `backoffice-api:8055 resolve`; `/admin` → web;
   `/extensions/sources/` → `bo_pool` (= api_pool).
 - Thêm migration: `docker compose cp <file> bootstrap:/directus/migrations/` (hoặc mount bind riêng) rồi `up -d` lại:
