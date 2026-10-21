@@ -35,7 +35,8 @@ export async function waitForTable(page: Page) {
 
 /** Opens the detail panel when it is closed (a popover under the page header toggle, closed on load; owner 2026-10-20). */
 export async function openSidebar(page: Page): Promise<void> {
-	await expect(page.locator('main h1')).toBeVisible({ timeout: 15_000 });
+	// Attached: some pages have an empty title (a bo-viewer screen), which Playwright counts as hidden.
+	await expect(page.locator('main h1')).toBeAttached({ timeout: 15_000 });
 	const toggle = page.getByRole('button', { name: 'Open sidebar', exact: true });
 	const close = page.getByRole('button', { name: 'Close sidebar', exact: true });
 	// A page without details has no toggle (D-128): nothing to open.
