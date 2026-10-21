@@ -14,6 +14,14 @@ describe('deploy instances', () => {
 			'ps',
 		]);
 		expect(composeArgs(['up'], true, '/tmp/e')).toContain('docker-compose.separate-domain.yml');
+		// Spec 021: the standalone override on top of the base file.
+		expect(composeArgs(['up'], false, '/tmp/e', true).slice(5, 9)).toEqual([
+			'-f',
+			'docker-compose.yml',
+			'-f',
+			'docker-compose.standalone.yml',
+		]);
+		expect(composeArgs(['up'], false, '/tmp/e', false)).not.toContain('docker-compose.standalone.yml');
 	});
 
 	it('names replicas like docker compose', () => {

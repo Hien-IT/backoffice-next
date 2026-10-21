@@ -24,7 +24,9 @@ $helm template bo "$chart" -f "$chart/values-separate-domain.yaml" --set directu
 $helm template bo "$chart" $base --set uploads.existingClaim=pvc --set api.autoscaling.enabled=false \
 	--set 'ingress.extraPaths[0].path=/auth/login/saml' --set 'ingress.extraPaths[0].service=directus' \
 	--set 'ingress.extraPaths[0].port=8055' >"$out/options.yaml"
-for f in default separate options; do
+# Spec 021 (FR-080..FR-085): the standalone mode with a migrations ConfigMap.
+$helm template bo "$chart" $base --set mode=standalone --set migrations.configMap=mig >"$out/standalone.yaml"
+for f in default separate options standalone; do
 	$kubeconform -strict -summary -kubernetes-version 1.29.0 - <"$out/$f.yaml"
 done
 
@@ -61,12 +63,34 @@ check "existing PVC mounted at /directus/uploads" sh -c "grep -q 'claimName: pvc
 check "fixed replicas when autoscaling is off" sh -c "grep -q 'replicas: 2' '$o' && ! grep -q HorizontalPodAutoscaler '$o'"
 check "extra path before /" sh -c "awk '/path: \\/auth\\/login\\/saml/{s=NR} /path: \\/\$/{r=NR} END{exit !(s && r && s<r)}' '$o'"
 
+t=$out/standalone.yaml
+check "shared: no Job, no args (image CMD)" sh -c "! grep -q 'kind: Job' '$d' && ! grep -q 'args:' '$d'"
+check "standalone: one hook Job, pre-install and pre-upgrade" sh -c "test \"\$(grep -c 'helm.sh/hook:' '$t')\" -eq 1 && grep -q 'helm.sh/hook: pre-install,pre-upgrade' '$t'"
+check "standalone: Job weight, delete policy, one pod at a time" sh -c "grep -q 'helm.sh/hook-weight: \"10\"' '$t' && grep -q 'hook-delete-policy: before-hook-creation' '$t' && grep -q 'parallelism: 1' '$t' && grep -q 'completions: 1' '$t'"
+check "standalone: Job backoffLimit, deadline, restartPolicy Never" sh -c "grep -q 'backoffLimit: 3' '$t' && grep -q 'activeDeadlineSeconds: 600' '$t' && grep -q 'restartPolicy: Never' '$t'"
+check "standalone: the Job bootstraps, the pods only start" sh -c "grep -q 'args: \\[\"node\", \"cli.js\", \"bootstrap\"\\]' '$t' && grep -q 'args: \\[\"node\", \"cli.js\", \"start\"\\]' '$t'"
+check "standalone: secretRef on api and Job" test "$(count "$t" 'secretRef:')" -eq 2
+check "standalone: runAsNonRoot on api, web, Job" test "$(count "$t" 'runAsNonRoot: true')" -eq 3
+check "standalone: no privilege escalation on api, web, Job" test "$(count "$t" 'allowPrivilegeEscalation: false')" -eq 3
+check "standalone: migrations ConfigMap on api and Job" sh -c "test \"\$(grep -c 'configMap: { name: mig }' '$t')\" -eq 2 && test \"\$(grep -c 'mountPath: /directus/migrations' '$t')\" -eq 2"
+check "shared: migrations ConfigMap mounted too" sh -c "$helm template bo '$chart' $base --set migrations.configMap=mig | grep -q 'mountPath: /directus/migrations'"
+check "mode must be shared or standalone" sh -c "! $helm template bo '$chart' $base --set mode=other"
+notes_has() { # notes_has <text> <helm args...>: the NOTES of a client dry run hold the text
+	text=$1
+	shift
+	$helm install bo "$chart" --dry-run=client $base "$@" | sed -n '/^NOTES:/,$p' | grep -qF -- "$text"
+}
+check "NOTES shared: Directus bootstraps the database first" notes_has "must be bootstrapped by Directus"
+check "NOTES standalone: the Job, no Directus pool label" sh -c "! $helm install bo '$chart' --dry-run=client $base --set mode=standalone | sed -n '/^NOTES:/,\$p' | grep -q api-pool"
+check "NOTES standalone with migrations: helm upgrade right away" notes_has "run helm upgrade right away" --set mode=standalone --set migrations.configMap=mig
+
 # FR-053, FR-076 without a cluster: a copy of the chart reads the ConfigMap and Secret from values instead of lookup.
 fake=$out/chart
 cp -R "$chart" "$fake"
 sed -i.bak \
-	-e 's#lookup "v1" "ConfigMap" .Release.Namespace .Values.directus.configMap#.Values.fakeLookup.configMap#' \
-	-e 's#lookup "v1" "Secret" .Release.Namespace .Values.directus.secret#.Values.fakeLookup.secret#' \
+	-e 's#lookup "v1" "ConfigMap" .Release.Namespace .Values.directus.configMap#(ternary (dict) .Values.fakeLookup.configMap (.Values.fakeLookup.noConfigMap | default false))#' \
+	-e 's#lookup "v1" "Secret" .Release.Namespace .Values.directus.secret#(ternary (dict) .Values.fakeLookup.secret (.Values.fakeLookup.noSecret | default false))#' \
+	-e 's#lookup "v1" "Namespace" "" .Release.Namespace#.Values.fakeLookup.namespace#' \
 	"$fake/templates/_checks.tpl"
 good="--set-string fakeLookup.configMap.data.CACHE_STORE=redis
 --set-string fakeLookup.configMap.data.RATE_LIMITER_STORE=redis --set-string fakeLookup.configMap.data.SYNCHRONIZATION_STORE=redis
@@ -110,6 +134,21 @@ desc="FR-076: parent domain passes" expect_ok $sep --set-string fakeLookup.confi
 desc="FR-076: secret cookie domain names the Secret" expect_fail "SESSION_COOKIE_DOMAIN=\"other.org\" in Secret sec" \
 	$sep --set-string fakeLookup.secret.data.SESSION_COOKIE_DOMAIN=$(printf other.org | base64)
 desc="FR-076: shared domain ignores cookie domains" expect_ok --set-string fakeLookup.configMap.data.REFRESH_TOKEN_COOKIE_DOMAIN=cms.example.com
+
+# Spec 021 (FR-083, FR-085). fakeLookup.namespace stands for a real install (lookup answers only with a cluster).
+desc="021 FR-083: standalone without the ConfigMap stops" expect_fail 'ConfigMap "cm" not found in namespace default: create the Backoffice env ConfigMap and Secret' \
+	--set mode=standalone --set-string fakeLookup.namespace.kind=Namespace --set fakeLookup.noConfigMap=true
+desc="021 FR-083: standalone with both passes" expect_ok --set mode=standalone --set-string fakeLookup.namespace.kind=Namespace
+desc="021 FR-083: helm template of standalone (no cluster) passes" expect_ok --set mode=standalone --set fakeLookup.noConfigMap=true \
+	--set fakeLookup.noSecret=true
+desc="021 FR-083: standalone without the Secret stops" expect_fail 'Secret "sec" not found in namespace default' \
+	--set mode=standalone --set-string fakeLookup.namespace.kind=Namespace --set fakeLookup.noSecret=true
+desc="021 FR-083: standalone ignores cookie domains" expect_ok --set mode=standalone $sep \
+	--set-string fakeLookup.configMap.data.REFRESH_TOKEN_COOKIE_DOMAIN=cms.example.com
+desc="021 FR-085: MIGRATIONS_PATH elsewhere stops" expect_fail 'MIGRATIONS_PATH="/data/mig" in ConfigMap cm does not point to /directus/migrations' \
+	--set migrations.configMap=mig --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=/data/mig
+desc="021 FR-085: MIGRATIONS_PATH=./migrations passes" expect_ok --set migrations.configMap=mig --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=./migrations
+desc="021 FR-085: MIGRATIONS_PATH elsewhere without the ConfigMap passes" expect_ok --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=/data/mig
 
 if $helm template bo "$chart" --set directus.secret=sec --set ingress.host=h.test >/dev/null 2>&1; then
 	echo "FAIL directus.configMap is required"; fails=$((fails + 1))

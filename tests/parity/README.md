@@ -256,6 +256,28 @@ Image Directus chỉ có bản amd64; trên máy arm64 nó chạy giả lập n�
   (`FAILED_VALIDATION collection, field`), cho `meta: { special: ['cast-json'] }`; `/versions` cần
   `meta.versioning: true` trên collection.
 
+### Khởi tạo DB, migration và CLI (spec 021)
+
+- Profile `bootstrap` (`env-up --vendor=postgres --profiles=bootstrap`, hoặc `--vendor=sqlite3`): Directus
+  `directus-bootstrap` (10755) và Backoffice `backoffice-api-bootstrap` (10756) mỗi app bootstrap một DB **trống** bằng
+  CMD của image (Postgres `postgres-bootstrap` cổng 6114: `directus_bootstrap`, `backoffice_bootstrap`, thêm
+  `directus_partial`, `backoffice_partial`; SQLite: file `.data/bootstrap/<db>.db`), cùng `env/profile-bootstrap.env`.
+  `directus-on-backoffice-db` (10757) chạy Directus trên DB của Backoffice. Owner report đi tới `registry-bootstrap`
+  (6115). Mỗi DB một Redis db (10, 11; test dùng thêm 12, 13, 14) và namespace riêng.
+- `global-setup` chụp trạng thái ngay sau bootstrap vào `.data/bootstrap/baseline.json` (một lần mỗi env; `env-up` xóa
+  thư mục); `src/bootstrap/schema.test.ts` chỉ đọc file đó.
+- `src/bootstrap/`: `schema` (bảng, cột, khóa, index, hàng sau FR-107, 101 migration, owner report, bí mật, thời gian),
+  `cross` (khởi động lại DB đã cài, custom migration `fixtures/migrations/ok` qua `BOOTSTRAP_MIGRATIONS_DIR`, migrate
+  chéo hai app, cache, migration bị từ chối), `partial` (DB cài dở), `cli` (mọi lệnh CLI hai app, so mã thoát, output,
+  log), `init` (trả lời từng prompt qua `interactive()`), `vendor` (cổng D-145, chỉ `TEST_DB=mysql`, trên cặp chính).
+  Chuẩn hóa: `src/bootstrap/normalize.ts` (đúng danh sách FR-107 của spec 021).
+- Chạy riêng khi env đã lên: `TEST_DB=postgres pnpm exec vitest run -c vitest.parity.config.ts src/bootstrap`.
+  `cli.test.ts` khoảng 5 phút. Máy có `DOCKER_DEFAULT_PLATFORM=linux/amd64`: bật `postgres-bootstrap` và
+  `registry-bootstrap` với platform gốc.
+- Deploy độc lập: `DEPLOY_MODE=standalone pnpm nx run parity-tests:deploy` (compose `docker-compose.standalone.yml`,
+  `src/deploy/standalone.test.ts`, nhánh standalone của `compose.test.ts`); `DEPLOY_PROJECT` đổi tên project khi máy đã
+  có môi trường `bo-deploy`.
+
 ## Đọc báo cáo
 
 Khi khác, test báo endpoint, vị trí (status, header hoặc JSON pointer), giá trị của Directus và của API mới, ví dụ:

@@ -4,7 +4,8 @@ import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-export const PROJECT = 'bo-deploy';
+// DEPLOY_PROJECT: another project name, to run the suite on a machine that keeps a bo-deploy environment.
+export const PROJECT = process.env['DEPLOY_PROJECT'] ?? 'bo-deploy';
 export const TAG = process.env['BACKOFFICE_TAG'] ?? 'local';
 export const API_IMAGE = `hiennd23/backoffice-api:${TAG}`;
 export const WEB_IMAGE = `hiennd23/backoffice-web:${TAG}`;
@@ -13,15 +14,31 @@ export const COMPOSE_DIR = fileURLToPath(new URL('../../../../deploy/compose/', 
 export const ENV_FILE = process.env['DEPLOY_ENV_FILE'] ?? `${COMPOSE_DIR}.env.deploy-test`;
 export const REPLICAS = Number(process.env['BACKOFFICE_REPLICAS'] ?? 3);
 export const SEPARATE = process.env['DEPLOY_MODE'] === 'separate-domain';
+/** Spec 021 (US5): docker-compose.standalone.yml, no Directus. */
+export const STANDALONE = process.env['DEPLOY_MODE'] === 'standalone';
 
-export const directusUrl = 'http://127.0.0.1:8095';
 export const lbUrl = 'http://127.0.0.1:8090';
+/**
+ * The instance the cases set up and check data through: Directus; in the standalone mode (no Directus, spec 021 FR-103)
+ * the load balancer, whose pool holds the BE replicas only.
+ */
+export const directusUrl = STANDALONE ? lbUrl : 'http://127.0.0.1:8095';
 /** Backoffice domain of the separate-domain mode. */
 export const boLbUrl = 'http://127.0.0.1:8091';
 
 /** Arguments of `docker compose` for this project, mode and env file. */
-export function composeArgs(args: string[], separate = SEPARATE, envFile = ENV_FILE): string[] {
-	const files = ['-f', 'docker-compose.yml', ...(separate ? ['-f', 'docker-compose.separate-domain.yml'] : [])];
+export function composeArgs(
+	args: string[],
+	separate = SEPARATE,
+	envFile = ENV_FILE,
+	standalone = STANDALONE,
+): string[] {
+	const files = [
+		'-f',
+		'docker-compose.yml',
+		...(separate ? ['-f', 'docker-compose.separate-domain.yml'] : []),
+		...(standalone ? ['-f', 'docker-compose.standalone.yml'] : []),
+	];
 	return ['compose', '-p', PROJECT, '--env-file', envFile, ...files, ...args];
 }
 
@@ -42,9 +59,10 @@ export function replicaUrl(index: number): string {
 	return `http://127.0.0.1:${port}`;
 }
 
-/** The BE replicas, then Directus: the instances of the shared-domain pool. */
-export function instanceUrls(replicas = REPLICAS): string[] {
-	return [...Array.from({ length: replicas }, (_, i) => replicaUrl(i + 1)), directusUrl];
+/** The BE replicas, then Directus (not in the standalone mode): the instances of the load balancer pool. */
+export function instanceUrls(replicas = REPLICAS, standalone = STANDALONE): string[] {
+	const replicaUrls = Array.from({ length: replicas }, (_, i) => replicaUrl(i + 1));
+	return standalone ? replicaUrls : [...replicaUrls, directusUrl];
 }
 
 /** Values of the env file shared by Directus and the BE (KEY=VALUE lines). */

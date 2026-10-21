@@ -1,0 +1,18 @@
+# Spec 021, CI only (T073): the chart in the standalone mode on kind, with the images of the CI `docker` job.
+mode: standalone
+directus:
+  configMap: backoffice-config
+  secret: backoffice-secret
+migrations:
+  configMap: migrations
+api:
+  image: { tag: ci, pullPolicy: Never }
+  autoscaling: { enabled: true, minReplicas: 2, maxReplicas: 3, targetCPUUtilizationPercentage: 70 }
+  resources:
+    requests: { cpu: 100m, memory: 256Mi }
+    limits: { memory: 768Mi }
+web:
+  image: { tag: ci, pullPolicy: Never }
+ingress:
+  className: traefik
+  host: bo.test

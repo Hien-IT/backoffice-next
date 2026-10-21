@@ -33,12 +33,12 @@ services:
   backoffice-api:
     command: ["node", "cli.js", "start"]
     volumes: [migrations:/directus/migrations]
-    depends_on: !reset
+    depends_on: !override
       bootstrap: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
       minio-init: { condition: service_completed_successfully }
   lb:
-    volumes: !reset
+    volumes: !override
       - ./lb/standalone.conf:/etc/nginx/conf.d/default.conf:ro
 volumes:
   migrations: {}
@@ -55,7 +55,10 @@ volumes:
   `bootstrap` chạy lại, replica khởi động lại sau khi xong.
 - Cổng: lb 8090; không có 8095.
 - Chế độ chung, `separate-domain`, `shared-extensions`: không đổi; replica dùng CMD image (bootstrap rồi start).
-- [Unverified] `up --wait` với `bootstrap` đã thoát 0: kiểm ở T-task; dự phòng `docker compose run --rm bootstrap`.
+- `!override` (Compose ≥ 2.24.4), không phải `!reset`: `!reset` kèm giá trị xóa trống thuộc tính (kiểm khi làm T065:
+  replica chạy trước khi `bootstrap` xong).
+- `up --wait` với `bootstrap` đã thoát 0: đạt (T066). Mỗi `up -d` chạy lại `bootstrap`; replica đang chạy không bị
+  khởi động lại (spec US5 kịch bản 2, chờ duyệt câu chữ). Scale: `--no-deps`, nếu không `bootstrap` chạy lại.
 
 ## Helm values mới (`deploy/helm/backoffice/values.yaml`)
 
@@ -75,7 +78,7 @@ Không key nào nhận map env tự do (019 FR-046 giữ).
 | Resource | `shared` | `standalone` |
 |----------|----------|--------------|
 | Deployment api | như 019; không `args` (CMD image) | `args: ["node", "cli.js", "start"]`; volume `migrations` nếu đặt |
-| Job `<release>-bootstrap` | không | có: hook `pre-install,pre-upgrade`, weight `10`, delete-policy `before-hook-creation`, `parallelism: 1`, `completions: 1`, `restartPolicy: Never`, `backoffLimit`, `activeDeadlineSeconds`, cùng image/envFrom, cùng `securityContext` pod (uid/gid 1000, `runAsNonRoot`, `fsGroup`) và container (`backoffice.securityContext`: `allowPrivilegeEscalation: false`, drop `ALL`) như Deployment, `resources` theo `bootstrap.resources`, volumes (uploads, migrations), `command: ["node", "cli.js", "bootstrap"]` |
+| Job `<release>-bootstrap` | không | có: hook `pre-install,pre-upgrade`, weight `10`, delete-policy `before-hook-creation`, `parallelism: 1`, `completions: 1`, `restartPolicy: Never`, `backoffLimit`, `activeDeadlineSeconds`, cùng image/envFrom, cùng `securityContext` pod (uid/gid 1000, `runAsNonRoot`, `fsGroup`) và container (`backoffice.securityContext`: `allowPrivilegeEscalation: false`, drop `ALL`) như Deployment, `resources` theo `bootstrap.resources`, volumes (uploads, migrations), `args: ["node", "cli.js", "bootstrap"]` (args, không `command`: giữ `tini`, như Deployment) |
 | Service api, api-only, web, Ingress, HPA | như 019 | như 019 (pool chỉ có pod Backoffice) |
 | NOTES | như 019, thêm: `The database must be bootstrapped by Directus before Backoffice pods start (shared mode).` | không hướng dẫn gắn nhãn Directus; khi đặt `migrations.configMap`: `After changing the migrations ConfigMap, run helm upgrade right away.` |
 

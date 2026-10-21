@@ -239,7 +239,10 @@ migration vào volume rồi `up` lại; kiểm `directus_migrations`.
    container Directus.
 2. **Given** hệ thống đang chạy, **When** thêm custom migration vào volume `MIGRATIONS_PATH` và `docker compose up -d`
    lại, **Then** service `bootstrap` chạy lại, áp migration một lần, các replica khởi động lại sau đó; không replica nào
-   tự chạy migration.
+   tự chạy migration. *(Khi làm T066, 2026-10-22: Compose v5.5.0 chạy lại `bootstrap` nhưng không khởi động lại replica
+   đang chạy, kể cả với `depends_on.restart: true`; replica tiếp tục phục vụ, cache bị xóa sau migration. Đề xuất sửa
+   "các replica khởi động lại" thành "các replica đang chạy giữ nguyên; muốn khởi động lại thì `up -d --no-deps
+   --force-recreate backoffice-api`"; chờ chủ dự án duyệt.)*
 3. **Given** service `bootstrap` lỗi (DB không kết nối được sau 5 lần, hoặc custom migration ném lỗi), **When** `up
    --wait`, **Then** replica API không được tạo hay tạo lại, lệnh báo lỗi của service `bootstrap` (mã khác 0); trên hệ
    thống đang chạy, các replica đã chạy giữ nguyên (không dừng, không khởi động lại) và vẫn phục vụ với schema cũ.
@@ -748,8 +751,9 @@ FR-015). D-149 đề xuất khi làm lượt 2, chờ duyệt.
 | D-38 (010) | `setOwner` không gửi owner report | giữ; nay áp cả cho lần gọi trong migration `20251014A` (FR-010); khi Directus gửi report lỗi, Directus đặt `project_status = 'pending'`, Backoffice luôn `null` |
 | XI | Gửi email, WebSocket và realtime, SAML, storage Azure/GCS/Cloudinary/Supabase, theme extension, AI/MCP, deployment module, visual editing, telemetry: không có (D-17, D-24, D-33, D-34, D-36, D-135... giữ) | giữ; khi không có Directus bên cạnh, người dùng mất hẳn các tính năng này |
 
-**Cần xác nhận** (phát sinh khi làm, 2026-10-22): D-149 (không kiểm phiên bản mới khi chạy CLI) và hai quy tắc chuẩn
-hóa thêm vào FR-107 (tên biến do bundler của image Directus đổi; khung `Update available!`). Tên giá trị Helm chốt ở
+**Cần xác nhận** (phát sinh khi làm, 2026-10-22): D-149 (không kiểm phiên bản mới khi chạy CLI); hai quy tắc chuẩn
+hóa thêm vào FR-107 (tên biến do bundler của image Directus đổi; khung `Update available!`); US5 kịch bản 2 (Compose
+không khởi động lại replica khi `bootstrap` chạy lại, đề xuất sửa câu chữ). Tên giá trị Helm chốt ở
 FR-080; tên chương trình chốt ở clarify Q3.
 
 ## Clarifications

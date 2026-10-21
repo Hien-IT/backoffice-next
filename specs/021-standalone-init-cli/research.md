@@ -410,3 +410,21 @@ với R1–R14:
 - Parity profile `bootstrap` trên Postgres local: 66 test xanh (`cli.test.ts` 38 lệnh/ca, `init.test.ts` 4, `cross` 8,
   `partial` 1, `schema` 6, unit 9); `cli.test.ts` khoảng 5 phút.
 
+## Kết quả lượt 3 (2026-10-22)
+
+- Compose: `depends_on: !reset <map>` xóa trống `depends_on` (replica khởi động trước khi `bootstrap` xong, thoát mã 1
+  vì DB chưa cài); dùng `!override` (Compose ≥ 2.24.4). `up -d --wait` với `bootstrap` đã thoát 0: đạt.
+- Compose v5.5.0 (local): mỗi `up -d` chạy lại `bootstrap` (StartedAt mới), áp migration mới một lần; replica đang chạy
+  **không** khởi động lại, kể cả với `depends_on.bootstrap.restart: true` (đã thử, bỏ). Spec US5 kịch bản 2 ghi câu hỏi.
+  `bootstrap` lỗi (migration ném lỗi): `up --wait` mã 1, `service "bootstrap" didn't complete successfully: exit 1`,
+  replica giữ nguyên, lb vẫn 200 (CHK036). `up --scale` không `--no-deps` chạy lại `bootstrap`.
+- Bộ deploy độc lập local (`DEPLOY_PROJECT=bo-standalone-try`, 3 replica): sessions, schema, flows-schedule, TUS,
+  shutdown, smoke, standalone (2 kịch bản), compose (nhánh standalone) xanh. Hai lỗi chỉ của máy local: `compose ps`
+  của Compose v5 liệt kê `registry` (profile `extensions-test`, chạy root) ở "runs no main process as root"; image web
+  build local không có nhãn git ("carries the version labels"). Cả hai xanh trên CI ở chế độ chung.
+- Helm: Job dùng `args` (giữ `tini`), volume uploads/migrations qua helper chung với Deployment; `_checks.tpl` nhận biết
+  cài thật bằng `lookup` Namespace (rỗng khi `helm template`); `ci/test-template.sh` 68 mục xanh local (kubeconform chạy
+  ở CI). `ci/kind-test.sh` phần standalone chỉ chạy ở CI (`deploy-k8s`).
+- `tests/parity/src/deploy/instances.ts`: `directusUrl` là lb khi `DEPLOY_MODE=standalone` (các bài 019 gọi qua pool chỉ
+  có Backoffice); `DEPLOY_PROJECT` đổi tên project.
+

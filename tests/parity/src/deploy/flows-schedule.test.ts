@@ -1,4 +1,5 @@
-// Feature 019, US5 (FR-062): a schedule flow runs once per tick over 3 BE replicas + Directus (shared clock and lock in
+// Feature 019, US5 (FR-062): a schedule flow runs once per tick over 3 BE replicas + Directus (spec 021: no Directus
+// in the standalone mode) (shared clock and lock in
 // Redis, SYNCHRONIZATION_STORE=redis), and keeps running each tick when the instance of a tick is stopped.
 import { randomUUID } from 'node:crypto';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
@@ -12,6 +13,7 @@ import {
 	REPLICAS,
 	SEPARATE,
 	sleep,
+	STANDALONE,
 } from './instances.js';
 
 const TICK = 2000;
@@ -22,7 +24,7 @@ let flowId: string;
 
 const containers = () => [
 	...Array.from({ length: REPLICAS }, (_, i) => containerName('backoffice-api', i + 1)),
-	containerName('directus'),
+	...(STANDALONE ? [] : [containerName('directus')]),
 ];
 
 /** Log lines of the flow's log operation, per container (the instance that ran each tick). */

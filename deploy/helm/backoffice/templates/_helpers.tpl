@@ -21,3 +21,30 @@ allowPrivilegeEscalation: false
 capabilities:
   drop: [ALL]
 {{- end }}
+
+{{- /* The uploads PVC (019) and the migrations ConfigMap (spec 021 FR-085) of the api pods and the bootstrap Job. */ -}}
+{{- define "backoffice.volumeMounts" -}}
+{{- if or .Values.uploads.existingClaim .Values.migrations.configMap -}}
+volumeMounts:
+{{- if .Values.uploads.existingClaim }}
+  - { name: uploads, mountPath: /directus/uploads }
+{{- end }}
+{{- if .Values.migrations.configMap }}
+  - { name: migrations, mountPath: /directus/migrations, readOnly: true }
+{{- end }}
+{{- end -}}
+{{- end }}
+
+{{- define "backoffice.volumes" -}}
+{{- if or .Values.uploads.existingClaim .Values.migrations.configMap -}}
+volumes:
+{{- with .Values.uploads.existingClaim }}
+  - name: uploads
+    persistentVolumeClaim: { claimName: {{ . }} }
+{{- end }}
+{{- with .Values.migrations.configMap }}
+  - name: migrations
+    configMap: { name: {{ . }} }
+{{- end }}
+{{- end -}}
+{{- end }}

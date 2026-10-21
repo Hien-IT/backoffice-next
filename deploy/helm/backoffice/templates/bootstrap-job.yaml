@@ -1,0 +1,51 @@
+{{- /*
+Spec 021 (FR-081, contracts/deploy.md): standalone mode only. Helm runs this Job before the other resources of an
+install or upgrade and waits for it: `node cli.js bootstrap` installs an empty database or runs the pending (custom)
+migrations once, then the Deployment rolls. A failed Job fails the install or upgrade; the running pods are kept.
+*/ -}}
+{{- if eq .Values.mode "standalone" }}
+{{- $configMap := required "directus.configMap is required (the ConfigMap of the Backoffice env)" .Values.directus.configMap -}}
+{{- $secret := required "directus.secret is required (the Secret of the Backoffice env)" .Values.directus.secret -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ include "backoffice.name" . }}-bootstrap
+  labels:
+    {{- include "backoffice.labels" . | nindent 4 }}
+    app.kubernetes.io/component: bootstrap
+  annotations:
+    helm.sh/hook: pre-install,pre-upgrade
+    helm.sh/hook-weight: "10"
+    helm.sh/hook-delete-policy: before-hook-creation
+spec:
+  parallelism: 1
+  completions: 1
+  backoffLimit: {{ .Values.bootstrap.backoffLimit }}
+  activeDeadlineSeconds: {{ .Values.bootstrap.activeDeadlineSeconds }}
+  template:
+    metadata:
+      labels:
+        {{- include "backoffice.selector" (dict "Release" .Release "component" "bootstrap") | nindent 8 }}
+    spec:
+      restartPolicy: Never
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1000
+        fsGroup: 1000
+      containers:
+        - name: bootstrap
+          image: "{{ .Values.api.image.repository }}:{{ .Values.api.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.api.image.pullPolicy }}
+          # args, not command: tini stays the entrypoint (019).
+          args: ["node", "cli.js", "bootstrap"]
+          securityContext:
+            {{- include "backoffice.securityContext" . | nindent 12 }}
+          envFrom:
+            - configMapRef: { name: {{ $configMap }} }
+            - secretRef: { name: {{ $secret }} }
+          resources:
+            {{- toYaml (.Values.bootstrap.resources | default .Values.api.resources) | nindent 12 }}
+          {{- with include "backoffice.volumeMounts" . }}{{ . | nindent 10 }}{{- end }}
+      {{- with include "backoffice.volumes" . }}{{ . | nindent 6 }}{{- end }}
+{{- end }}

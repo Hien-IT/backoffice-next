@@ -15,6 +15,8 @@ export default function setup(): () => void {
 		// (16 x 503 "Under pressure", answered before the request log, CI 39641635370): the suite checks graceful stops and
 		// readiness, not overload, so it runs without the limiter like profile-blackbox.env.
 		appendFileSync(ENV_FILE, 'PRESSURE_LIMITER_ENABLED=false\n');
+		// Spec 021 (standalone.test.ts): the cache status header shows the flush after a migration.
+		appendFileSync(ENV_FILE, 'CACHE_STATUS_HEADER=x-cache-status\n');
 	}
 	compose('--profile', 'extensions-test', 'up', '-d', '--wait', '--wait-timeout', '600');
 

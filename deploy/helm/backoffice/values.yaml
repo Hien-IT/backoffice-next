@@ -1,5 +1,25 @@
 # Feature 019 (specs/019-deployment-packaging/contracts/helm-values.md). The chart declares no Directus variable: the
 # pods read the ConfigMap and Secret the Directus deployment already uses (envFrom).
+
+# Spec 021 (FR-080): `shared` (019): the pods run the image CMD (bootstrap, then start) next to Directus, whose
+# Deployment bootstraps the database first. `standalone`: no Directus; a pre-install/pre-upgrade Job runs
+# `node cli.js bootstrap` once, then the pods only run `start`. directus.configMap / directus.secret then name the
+# Backoffice env (same variables as Directus), created before `helm install`.
+mode: shared
+
+# Spec 021 (FR-081): the bootstrap Job of the standalone mode.
+bootstrap:
+  backoffLimit: 3
+  # At least 3 times a bootstrap of an empty database (SC-010).
+  activeDeadlineSeconds: 600
+  resources: {} # empty: the api resources
+
+# Spec 021 (FR-085): a ConfigMap of custom migrations (.js files), mounted at /directus/migrations (the default
+# MIGRATIONS_PATH ./migrations) in the bootstrap Job and the api pods, in both modes. Run `helm upgrade` right after
+# changing it: the Job applies the new files, then the pods roll.
+migrations:
+  configMap: ''
+
 directus:
   # Required: name of the ConfigMap that holds the Directus env (BE and FE read it).
   configMap: ''

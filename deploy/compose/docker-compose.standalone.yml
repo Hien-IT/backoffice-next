@@ -1,0 +1,43 @@
+# Spec 021, US5 (FR-070..FR-073): Backoffice without Directus. A one-shot `bootstrap` service installs an empty database
+# (Postgres, SQLite) or runs the pending migrations, then the BE replicas start; the lb pool holds the BE replicas only.
+# Same env file as docker-compose.yml (Principle VIII). Needs Docker Compose >= 2.24.4 (`!override`).
+#
+#   docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
+#   BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
+#
+# Custom migrations: `docker compose -f ... cp <file>.js bootstrap:/directus/migrations/`, then `up -d --wait` again:
+# bootstrap runs them, the replicas restart after it. MIGRATIONS_PATH keeps its default (./migrations = the volume).
+
+services:
+  directus:
+    profiles: [shared-only]
+
+  bootstrap:
+    # The `x-app-env` anchor of docker-compose.yml does not reach this file: same env file, written out.
+    env_file: ${DEPLOY_ENV_FILE:-.env}
+    image: hiennd23/backoffice-api:${BACKOFFICE_TAG:-latest}
+    platform: linux/amd64
+    command: ['node', 'cli.js', 'bootstrap']
+    restart: 'no'
+    volumes:
+      - migrations:/directus/migrations
+    depends_on:
+      postgres: { condition: service_healthy }
+      redis: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+
+  backoffice-api:
+    command: ['node', 'cli.js', 'start']
+    volumes:
+      - migrations:/directus/migrations
+    depends_on: !override
+      bootstrap: { condition: service_completed_successfully }
+      redis: { condition: service_healthy }
+      minio-init: { condition: service_completed_successfully }
+
+  lb:
+    volumes: !override
+      - ./lb/standalone.conf:/etc/nginx/conf.d/default.conf:ro
+
+volumes:
+  migrations:

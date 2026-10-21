@@ -1,7 +1,14 @@
 Backoffice {{ .Chart.AppVersion }} on {{ .Values.ingress.host }}: /admin -> {{ include "backoffice.name" . }}-web, /extensions/sources -> {{ include "backoffice.name" . }}-api-only, the rest -> {{ include "backoffice.name" . }}-api.
 
-{{- if not .Values.domain.publicUrl }}
+{{- if eq .Values.mode "standalone" }}
 
+Standalone mode: the {{ include "backoffice.name" . }}-bootstrap Job installed or migrated the database before the pods started.
+{{- with .Values.migrations.configMap }}
+After changing the migrations ConfigMap, run helm upgrade right away.
+{{- end }}
+{{- else if not .Values.domain.publicUrl }}
+
+The database must be bootstrapped by Directus before Backoffice pods start (shared mode).
 To put a Directus Deployment in the API pool (shared domain), add to its pod template:
   metadata.labels:  backoffice.io/api-pool: {{ include "backoffice.pool" . }}
   lifecycle.preStop.exec.command: ["sleep", "{{ .Values.api.shutdownDelaySeconds }}"]

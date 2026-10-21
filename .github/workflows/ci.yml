@@ -430,10 +430,19 @@ jobs:
       - run: pnpm nx run parity-tests:deploy --output-style=static
         env:
           DEPLOY_MODE: separate-domain
+      # Spec 021 (US5): the standalone override on an empty database, without Directus.
+      - name: fresh environment for the standalone mode
+        working-directory: deploy/compose
+        run: docker compose -p bo-deploy --env-file .env.deploy-test --profile extensions-test down -v --remove-orphans
+      - run: pnpm nx run parity-tests:deploy --output-style=static
+        env:
+          DEPLOY_MODE: standalone
       - name: container logs
         if: failure()
         working-directory: deploy/compose
-        run: docker compose -p bo-deploy --env-file .env.deploy-test logs --no-color > deploy.log
+        run: >-
+          docker compose -p bo-deploy --env-file .env.deploy-test -f docker-compose.yml -f docker-compose.standalone.yml
+          --profile shared-only --profile extensions-test logs --no-color > deploy.log
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
@@ -441,7 +450,9 @@ jobs:
           path: deploy/compose/deploy.log
       - if: always()
         working-directory: deploy/compose
-        run: docker compose -p bo-deploy --env-file .env.deploy-test down -v --remove-orphans || true
+        run: >-
+          docker compose -p bo-deploy --env-file .env.deploy-test -f docker-compose.yml -f docker-compose.standalone.yml
+          --profile shared-only --profile extensions-test down -v --remove-orphans || true
 
   # Feature 019 (T112, FR-049): the Helm chart: lint, kubeconform on Kubernetes 1.29 and the template checks, then an
   # install on kind next to a Directus deployment (ci/deps.yaml): routing, rolling update and HPA scaling under load, the
@@ -486,6 +497,11 @@ jobs:
           kubectl get pods -A -o wide
           kubectl describe pods
           for p in $(kubectl get pods -o name); do echo "== $p"; kubectl logs "$p" --all-containers --tail=200 || true; done
+          # Spec 021: the standalone namespaces (bootstrap Jobs and their pods).
+          for ns in bo-standalone bo-standalone-fail; do
+            kubectl -n "$ns" get jobs,pods -o wide || true
+            for p in $(kubectl -n "$ns" get pods -o name 2>/dev/null); do echo "== $ns $p"; kubectl -n "$ns" logs "$p" --all-containers --tail=200 || true; done
+          done
 
   security:
     runs-on: ubuntu-latest

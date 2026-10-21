@@ -117,7 +117,12 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'The ETag of the logged-in /server/info, whose three flags read false.',
 	},
 	{ id: 'D-18', feature: '001', kind: 'doc', reason: 'Additional startup and credential log lines.' },
-	{ id: 'D-19', feature: '001', kind: 'doc', reason: 'One process per container, no bootstrap or PM2.' },
+	{
+		id: 'D-19',
+		feature: '001',
+		kind: 'doc',
+		reason: 'One Node process per container under tini, no PM2 (spec 021: the image runs bootstrap, then start).',
+	},
 	{
 		id: 'D-21',
 		feature: '001',
@@ -244,7 +249,7 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '020',
 		kind: 'doc',
 		reason:
-			'No `directus` package, CLI or mail transport for extensions; the deployment and WebSocket services do not exist.',
+			'No `directus` package or mail transport for extensions; the deployment and WebSocket services do not exist (the CLI and its cli.before/cli.after events came with spec 021).',
 	},
 	{
 		id: 'D-142',
@@ -264,5 +269,33 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '020',
 		kind: 'doc',
 		reason: 'App extension modules are grouped under one Extensions row of the sidebar (module_bar order and state).',
+	},
+	// Spec 021
+	{
+		id: 'D-145',
+		feature: '021',
+		kind: 'doc',
+		reason:
+			'bootstrap, database install and database migrate:* run on Postgres and SQLite only; the other vendors are installed and migrated by the Directus 11.17.4 image.',
+	},
+	{
+		id: 'D-146',
+		feature: '021',
+		kind: 'doc',
+		reason: 'init lists PostgreSQL / Redshift and SQLite only and runs no npm install (the drivers are in the image).',
+	},
+	{
+		id: 'D-147',
+		feature: '021',
+		kind: 'doc',
+		reason:
+			'CLI branding: program `backoffice`, its version, Backoffice in new log lines, the .env template and the init and schema apply messages.',
+	},
+	{
+		id: 'D-149',
+		feature: '021',
+		kind: 'doc',
+		reason:
+			'No update check before each CLI command (the cli.js of the Directus image asks the npm registry and prints an "Update available!" box); proposed, pending approval.',
 	},
 ];

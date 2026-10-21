@@ -11,6 +11,7 @@ import {
 	docker,
 	runContainer,
 	SEPARATE,
+	STANDALONE,
 	waitFor,
 } from './instances.js';
 
@@ -32,7 +33,8 @@ function swap(extraEnv: string[] = []) {
 	return c;
 }
 
-describe.skipIf(SEPARATE)('BE image in place of the Directus image', () => {
+// Spec 021: no Directus service to swap in the standalone mode.
+describe.skipIf(SEPARATE || STANDALONE)('BE image in place of the Directus image', () => {
 	let swapped: { id: string; url: string };
 
 	beforeAll(async () => {

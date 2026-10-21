@@ -1,0 +1,126 @@
+# Spec 021, CI only (T073): what a standalone install needs before the chart: the Backoffice env (ConfigMap and Secret,
+# the variables Directus reads), Postgres with an empty database, Redis, MinIO. No Directus. Not for production use.
+apiVersion: v1
+kind: ConfigMap
+metadata: { name: backoffice-config }
+data:
+  PUBLIC_URL: http://bo.test
+  ADMIN_EMAIL: admin@example.com
+  DB_CLIENT: pg
+  DB_HOST: postgres
+  DB_PORT: '5432'
+  DB_DATABASE: backoffice
+  DB_USER: backoffice
+  REDIS: redis://redis:6379
+  CACHE_ENABLED: 'true'
+  CACHE_STORE: redis
+  CACHE_AUTO_PURGE: 'true'
+  RATE_LIMITER_STORE: redis
+  SYNCHRONIZATION_STORE: redis
+  STORAGE_LOCATIONS: s3
+  STORAGE_S3_DRIVER: s3
+  STORAGE_S3_BUCKET: backoffice
+  STORAGE_S3_REGION: us-east-1
+  STORAGE_S3_ENDPOINT: http://minio:9000
+  STORAGE_S3_FORCE_PATH_STYLE: 'true'
+  WEBSOCKETS_ENABLED: 'false'
+  EXTENSIONS_LOCATION: s3
+---
+apiVersion: v1
+kind: Secret
+metadata: { name: backoffice-secret }
+stringData:
+  SECRET: kind-standalone-secret-0123456789
+  ADMIN_PASSWORD: kind-standalone-admin
+  DB_PASSWORD: kind-standalone-db
+  STORAGE_S3_KEY: kindstandalonekey
+  STORAGE_S3_SECRET: kind-standalone-s3-secret
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: postgres }
+spec:
+  selector: { matchLabels: { app: postgres } }
+  template:
+    metadata: { labels: { app: postgres } }
+    spec:
+      containers:
+        - name: postgres
+          image: postgis/postgis:16-3.4-alpine
+          env:
+            - { name: POSTGRES_USER, value: backoffice }
+            - { name: POSTGRES_DB, value: backoffice }
+            - { name: POSTGRES_PASSWORD, valueFrom: { secretKeyRef: { name: backoffice-secret, key: DB_PASSWORD } } }
+          ports: [{ containerPort: 5432 }]
+          readinessProbe: { exec: { command: [pg_isready, -U, backoffice] }, periodSeconds: 2 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: postgres }
+spec: { selector: { app: postgres }, ports: [{ port: 5432 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: redis }
+spec:
+  selector: { matchLabels: { app: redis } }
+  template:
+    metadata: { labels: { app: redis } }
+    spec:
+      containers:
+        - name: redis
+          image: redis:7-alpine
+          ports: [{ containerPort: 6379 }]
+          readinessProbe: { exec: { command: [redis-cli, ping] }, periodSeconds: 2 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: redis }
+spec: { selector: { app: redis }, ports: [{ port: 6379 }] }
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: { name: minio }
+spec:
+  selector: { matchLabels: { app: minio } }
+  template:
+    metadata: { labels: { app: minio } }
+    spec:
+      containers:
+        - name: minio
+          image: cgr.dev/chainguard/minio:latest
+          args: [server, /data]
+          env:
+            - { name: MINIO_ROOT_USER, valueFrom: { secretKeyRef: { name: backoffice-secret, key: STORAGE_S3_KEY } } }
+            - {
+                name: MINIO_ROOT_PASSWORD,
+                valueFrom: { secretKeyRef: { name: backoffice-secret, key: STORAGE_S3_SECRET } },
+              }
+          ports: [{ containerPort: 9000 }]
+          readinessProbe: { exec: { command: [mc, ready, local] }, periodSeconds: 2 }
+---
+apiVersion: v1
+kind: Service
+metadata: { name: minio }
+spec: { selector: { app: minio }, ports: [{ port: 9000 }] }
+---
+apiVersion: batch/v1
+kind: Job
+metadata: { name: minio-init }
+spec:
+  backoffLimit: 30
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+        - name: init
+          image: cgr.dev/chainguard/minio:latest
+          command:
+            [
+              sh,
+              -c,
+              'mc alias set local http://minio:9000 "$KEY" "$SECRET" && mc mb --ignore-existing local/backoffice',
+            ]
+          env:
+            - { name: KEY, valueFrom: { secretKeyRef: { name: backoffice-secret, key: STORAGE_S3_KEY } } }
+            - { name: SECRET, valueFrom: { secretKeyRef: { name: backoffice-secret, key: STORAGE_S3_SECRET } } }

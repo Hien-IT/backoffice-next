@@ -16,6 +16,7 @@ import {
 	REPLICAS,
 	replicaUrl,
 	SEPARATE,
+	STANDALONE,
 	sharedEnv,
 	sleep,
 } from './instances.js';
@@ -70,7 +71,8 @@ afterAll(() => {
 	minio('mc rm --recursive --force local/directus/extensions/parity-display-badge >/dev/null');
 });
 
-describe('extensions on every node', () => {
+// Spec 021 (FR-103): the standalone run covers sessions, schema, flows, TUS and shutdown; this file recreates Directus.
+describe.skipIf(STANDALONE)('extensions on every node', () => {
 	it('every BE replica and Directus serve the endpoint extension', async () => {
 		await everywhere(instanceUrls(), '/parity-endpoint-demo', 200);
 	});

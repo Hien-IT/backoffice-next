@@ -1,13 +1,26 @@
 {{- /*
-Feature 019 FR-053, FR-076: read the Directus ConfigMap and Secret at install/upgrade (lookup; `helm template` and
+Feature 019 FR-053, FR-076 (spec 021 FR-083, FR-085 for the standalone mode and the migrations ConfigMap): read the
+Directus ConfigMap and Secret at install/upgrade (lookup; `helm template` and
 client dry runs get nothing back and skip the checks) and stop when the shared config is only safe for one instance, or
 when, on a separate domain, a cookie domain variable does not cover the Backoffice host. The fix belongs in the Directus
 env: the chart never overrides these variables. Rules follow how Directus 11.17.4 reads its env
 (redis/utils/redis-config-available.ts, packages/env/src/constants/defaults.ts, synchronization.ts).
 */ -}}
 {{- define "backoffice.checks" -}}
+{{- if not (has .Values.mode (list "shared" "standalone")) -}}
+{{- fail (printf "mode is %q: use \"shared\" (next to Directus) or \"standalone\"" .Values.mode) -}}
+{{- end -}}
 {{- $cm := lookup "v1" "ConfigMap" .Release.Namespace .Values.directus.configMap -}}
 {{- $secret := lookup "v1" "Secret" .Release.Namespace .Values.directus.secret -}}
+{{- /* Spec 021 (FR-083): the standalone Job needs the env before it runs; the namespace answers only on a real install. */ -}}
+{{- if and (eq .Values.mode "standalone") (lookup "v1" "Namespace" "" .Release.Namespace) -}}
+{{- if not $cm -}}
+{{- fail (printf "ConfigMap %q not found in namespace %s: create the Backoffice env ConfigMap and Secret before \"helm install\"" .Values.directus.configMap .Release.Namespace) -}}
+{{- end -}}
+{{- if not $secret -}}
+{{- fail (printf "Secret %q not found in namespace %s: create the Backoffice env ConfigMap and Secret before \"helm install\"" .Values.directus.secret .Release.Namespace) -}}
+{{- end -}}
+{{- end -}}
 {{- if or $cm $secret -}}
 {{- $env := dict -}}
 {{- $from := dict -}}
@@ -18,7 +31,16 @@ env: the chart never overrides these variables. Rules follow how Directus 11.17.
 {{- $_ := set $env $k (b64dec $v) -}}{{- $_ := set $from $k (printf "Secret %s" $.Values.directus.secret) -}}
 {{- end -}}
 
-{{- if .Values.domain.publicUrl -}}
+{{- /* Spec 021 (FR-085): the migrations ConfigMap is mounted where the default MIGRATIONS_PATH points. */ -}}
+{{- if .Values.migrations.configMap -}}
+{{- $path := get $env "MIGRATIONS_PATH" -}}
+{{- if and $path (not (has $path (list "./migrations" "migrations" "/directus/migrations"))) -}}
+{{- fail (printf "MIGRATIONS_PATH=%q in %s does not point to /directus/migrations, where migrations.configMap is mounted: remove the variable or set it to ./migrations, then install again." $path (get $from "MIGRATIONS_PATH")) -}}
+{{- end -}}
+{{- end -}}
+
+{{- /* No Directus domain in the standalone mode (spec 021 FR-083). */ -}}
+{{- if and .Values.domain.publicUrl (ne .Values.mode "standalone") -}}
 {{- $host := .Values.ingress.host -}}
 {{- range $var := list "REFRESH_TOKEN_COOKIE_DOMAIN" "SESSION_COOKIE_DOMAIN" -}}
 {{- $value := get $env $var -}}

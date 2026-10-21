@@ -72,7 +72,9 @@ trường cần một bộ cấu hình riêng, trái Nguyên tắc VIII.
 3. **Given** file trên volume local do Directus ghi, **When** BE đọc, ghi, xóa file đó, **Then** không lỗi quyền: hai
    image chạy cùng uid/gid 1000.
 4. **Given** DB mới chưa có bảng hệ thống, **When** chỉ chạy BE (không có Directus nào), **Then** BE dừng và báo thiếu
-   migration như 001; tài liệu ghi phải chạy `directus bootstrap` (image Directus) một lần trước.
+   migration như 001; tài liệu ghi phải chạy `directus bootstrap` (image Directus) một lần trước. *(Sửa ở 021, xem spec
+   021 US1: image BE chạy `bootstrap` rồi `start`, DB Postgres/SQLite trống được cài; vendor khác vẫn cần Directus,
+   D-145.)*
 5. **Given** container BE đang chạy, **When** xem tiến trình, **Then** PID 1 là init, Node là tiến trình con chạy bằng
    uid/gid 1000; một tiến trình con mồ côi đã thoát được dọn trong vòng 1 giây (không còn trạng thái zombie); SIGTERM làm
    container thoát mã 143 sau trình tự tắt máy của 001 (FR-025, FR-026).
@@ -352,7 +354,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   web kế thừa từ image nền nginx (`source`, `url`, `description`, `created`, `licenses`) bị ghi đè thành rỗng
   (Docker không xóa được nhãn kế thừa; chủ dự án 2026-10-20); `maintainer` của cả hai image là "Hien Nguyen" (D-134).
 - **FR-023**: Image BE và FE PHẢI build cho `linux/amd64` (Assumptions: arm64 ngoài phạm vi).
-- **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap; bỏ ghi đè
+- **FR-024**: Tài liệu PHẢI ghi các giới hạn của "chỉ đổi image": DB phải đã được Directus bootstrap (sửa ở 021, xem
+  spec 021: image BE tự `bootstrap` DB Postgres/SQLite; vendor khác vẫn do Directus, D-145); bỏ ghi đè
   `command`/`args` gọi CLI Directus (ghi đè `command` trên Kubernetes còn bỏ qua init của FR-026); extension của Directus
   không chạy trên BE (Nguyên tắc XI).
 
@@ -397,7 +400,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 - **FR-041**: Directus và BE trong compose PHẢI dùng cùng một khối env (một file `.env` mẫu, secret sinh ngẫu nhiên như
   `dev/directus-reference`); khác nhau chỉ ở image.
 - **FR-042**: Thứ tự khởi động PHẢI là: Postgres, Redis, MinIO healthy → Directus bootstrap và healthy → BE, FE → load
-  balancer. Mọi service có healthcheck.
+  balancer. Mọi service có healthcheck. (021: replica BE chạy CMD của image, `bootstrap` gặp DB đã cài chỉ `migrate
+  latest`; chế độ độc lập không có Directus: `docker-compose.standalone.yml`, xem spec 021 FR-070.)
 - **FR-043**: Số replica BE PHẢI đổi được lúc chạy lệnh (ví dụ 3 cho test chấp nhận) mà không sửa file.
 - **FR-044**: Mỗi instance (từng replica BE và Directus) PHẢI gọi thẳng được từ test (không qua load balancer) để test
   US3–US5 nhắm đúng instance.
@@ -482,9 +486,9 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | ID | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại | Duyệt (Nguyên tắc X) |
 |----|----------|------------------|---------|-------|------|----------------------|
 | D-120 | Ai phục vụ `/admin` | API phục vụ app (`SERVE_APP`), CSP do helmet của API | Container FE riêng (nginx) phục vụ `/admin`, gửi cùng header CSP; BE trả `404` cho `/admin` (D-08 của 001) | Nguyên tắc VII | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
-| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không `bootstrap` (D-19 của 001); scale bằng replica | Nguyên tắc II, VII | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
+| D-121 | Image và tiến trình | Image chạy `bootstrap` rồi PM2 (`PM2_INSTANCES`); PID 1 là `/bin/sh` (CMD dạng shell), không init | Một process Node dưới `tini` (PID 1, FR-026), không PM2; scale bằng replica. Sửa ở 021 (xem spec 021): image chạy `node cli.js bootstrap` rồi `exec node cli.js start` | Nguyên tắc II, VII | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
 | D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai, không đổi code tắt máy: Kubernetes `preStop` `sleep` (chart); compose: `lb` chuyển request chưa gửi được sang replica khác (`proxy_next_upstream`, `proxy_connect_timeout 1s`) | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
-| D-123 | Lệnh CLI (`bootstrap`, `database install`/`migrate:*`, `init`, `schema snapshot`/`apply`, `users create`/`passwd`, `roles create`, `cache clear`, `count`, `security key:generate`/`secret:generate`) | Có trong image Directus (`node cli.js <lệnh>` ở `/directus`) | Image Backoffice không có CLI; chạy lệnh qua image Directus trên cùng env (hướng dẫn ở `deploy/README.md`) | Directus luôn chạy cùng hệ thống trên DB dùng chung; migration là việc của Directus (D-05 của 001); `/schema` đã có qua API (006) | ngoài phạm vi | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
+| D-123 | Lệnh CLI (`bootstrap`, `database install`/`migrate:*`, `init`, `schema snapshot`/`apply`, `users create`/`passwd`, `roles create`, `cache clear`, `count`, `security key:generate`/`secret:generate`) | Có trong image Directus (`node cli.js <lệnh>` ở `/directus`) | Gỡ ở 021 (xem spec 021): image Backoffice có CLI của Directus 11.17.4 (`node cli.js <lệnh>`); `bootstrap`/`migrate` chỉ trên Postgres và SQLite (D-145) | — | ngoài phạm vi | Duyệt (chủ dự án, tech lead duyệt 2026-10-20); gỡ ở 021 |
 | D-134 | Nhãn `maintainer` và tag của target `container` | Image Directus có `maintainer` của nhóm Directus | `maintainer="Hien Nguyen"` ở image API và web (thay phần `maintainer` để rỗng của quyết định chủ dự án 2026-10-20, FR-022); target `container` gắn `hiennd23/backoffice-<app>:local` và `:latest`, không tự push (push khi cần bằng biến `INPUT_<APP>_PUSH=true`, CI vẫn thay tag bằng `INPUT_<APP>_TAGS`) | Chủ dự án 2026-10-21 | khác | — |
 
 **Cần xác nhận**: Không có.

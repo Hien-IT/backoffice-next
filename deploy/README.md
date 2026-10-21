@@ -21,7 +21,8 @@ Docker Hub. Muốn push thì đăng nhập (`docker login`) rồi đặt `INPUT_
 Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng-backoffice) ·
 [CSP của app quản trị](#csp-của-app-quản-trị) · [Máy dev](#máy-dev-deploycompose) ·
 [Env Directus bắt buộc](#env-directus-bắt-buộc-khi-chạy-nhiều-instance) · [Tắt máy an toàn](#tắt-máy-an-toàn) ·
-[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice) · [Lệnh CLI](#lệnh-cli)
+[Domain riêng](#domain-riêng) · [Kubernetes](#kubernetes-deployhelmbackoffice) ·
+[Chạy độc lập](#chạy-độc-lập-không-directus) · [Lệnh CLI](#lệnh-cli)
 
 ## Thay image Directus bằng Backoffice
 
@@ -37,6 +38,7 @@ Giới hạn (FR-024):
   MySQL/MariaDB, MSSQL, Oracle, CockroachDB: DB do image Directus cài và migrate, Backoffice bỏ qua bước này (D-145).
   Gặp migration lạ (không thuộc Directus 11.17.4 và không có trong `MIGRATIONS_PATH`) thì `start` dừng và báo version
   nào lệch.
+- Đổi image nâng DB lên schema của Directus 11.17.4: mọi node Directus còn chạy trên DB đó phải là 11.17.4.
 - Bỏ mọi ghi đè `command`/`args` gọi CLI Directus (ví dụ `npx directus bootstrap && pm2-runtime ...`): CMD của image đã
   làm việc đó. Trên Kubernetes, ghi đè `command` còn bỏ qua `tini` (ENTRYPOINT của image).
 - Extension của Directus không chạy trên Backoffice.
@@ -242,6 +244,9 @@ cấu hình của chart: tự kiểm theo mục "Ràng buộc khi chạy nhiều
 | `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/directus/uploads` |
 | `ingress.host`, `.className`, `.tls`, `.annotations`, `.extraPaths` |                             | Ingress                                                                     |
 | `domain.publicUrl`                                                  | rỗng                        | chế độ domain riêng: `PUBLIC_URL` của Backoffice                            |
+| `mode`                                                              | `shared`                    | `shared` (cạnh Directus) hay `standalone` (mục "Chạy độc lập")              |
+| `migrations.configMap`                                              | rỗng                        | ConfigMap custom migration, mount ở `/directus/migrations`                  |
+| `bootstrap.backoffLimit`, `.activeDeadlineSeconds`, `.resources`    | 3, 600, `api.resources`     | Job `bootstrap` của chế độ `standalone`                                     |
 
 Probe: readiness `/server/health`, liveness và startup `/server/ping` (DB hoặc Redis mất thì pod ra khỏi traffic, không
 bị khởi động lại hàng loạt). Pod chạy non-root (BE 1000, FE 1001), không leo quyền, bỏ mọi capability.
@@ -274,6 +279,83 @@ ingress:
 ```
 
 (`saml` là tên provider trong `AUTH_PROVIDERS`; path này gồm cả callback `/auth/login/saml/acs`.)
+
+## Chạy độc lập (không Directus)
+
+Từ 021, Backoffice tự cài DB và chạy migration như Directus 11.17.4, nên chạy được một mình. DB vẫn dùng được với
+Directus 11.17.4 (không thêm bảng, cột hay migration riêng). Chỉ Postgres và SQLite (D-145); vendor khác cần image
+Directus để cài và migrate. Chạy `bootstrap` ở **một** nơi (service một lần của compose, Job của Helm); các replica chỉ
+`start`.
+
+Không có khi chạy một mình (ngoài phạm vi, Nguyên tắc XI): gửi email (log thay vì gửi), WebSocket và realtime, SAML,
+storage ngoài Local/S3, AI/MCP, deployment module, visual editing, telemetry.
+
+**Compose** (Docker Compose ≥ 2.24.4, file override dùng `!override`):
+
+```bash
+cd deploy/compose
+./init-env.sh
+BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
+```
+
+- Thứ tự: Postgres, Redis, MinIO healthy → service `bootstrap` (`node cli.js bootstrap`, cùng `.env`) thoát mã 0 → các
+  replica `backoffice-api` (`node cli.js start`), FE → lb (cổng 8090, pool chỉ có replica Backoffice). Không có
+  cổng 8095. Admin: `ADMIN_EMAIL`/`ADMIN_PASSWORD` của `.env`, tạo lúc bootstrap DB trống.
+- Custom migration: chép file `.js` vào volume `migrations` rồi `up` lại; mỗi lần `up -d` chạy lại `bootstrap`, áp file
+  mới đúng một lần:
+
+  ```bash
+  docker compose -f docker-compose.yml -f docker-compose.standalone.yml cp 20990101A-my-change.js bootstrap:/directus/migrations/
+  docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
+  ```
+
+  Compose không khởi động lại replica đang chạy: chúng tiếp tục phục vụ, cache bị xóa sau migration. Muốn khởi động lại:
+  `up -d --wait --no-deps --force-recreate backoffice-api`.
+
+- Scale: `up -d --wait --no-deps --scale backoffice-api=<n> backoffice-api` (thiếu `--no-deps` thì `bootstrap` chạy lại,
+  vô hại nhưng thừa).
+- `bootstrap` lỗi (DB không tới được sau 5 lần × 5 giây, migration ném lỗi): `up --wait` thoát mã khác 0 với
+  `service "bootstrap" didn't complete successfully`; replica đang chạy giữ nguyên. Xem
+  `docker compose ... logs bootstrap`.
+- SQLite: mount volume cho `/directus/database` (và `DB_FILENAME` trong đó), nếu không DB mất khi container bị xóa.
+
+**Kubernetes** (`mode: standalone`):
+
+```bash
+kubectl create configmap migrations --from-file=migrations/   # tùy chọn: custom migration
+helm install backoffice deploy/helm/backoffice \
+  --set mode=standalone \
+  --set directus.configMap=backoffice-config \
+  --set directus.secret=backoffice-secret \
+  --set migrations.configMap=migrations \
+  --set ingress.host=backoffice.example.com
+```
+
+- ConfigMap và Secret env (cùng biến như Directus) phải có trước `helm install`; thiếu thì chart dừng và nêu tên.
+- Job `<release>-bootstrap` (hook `pre-install,pre-upgrade`) chạy `node cli.js bootstrap` một lần, Helm chờ nó xong rồi
+  mới tạo hoặc cập nhật Deployment; pod chỉ chạy `start`. Job lỗi: `helm install` lỗi (release `failed`, không có
+  Deployment), `helm upgrade` lỗi (release và pod đang chạy giữ nguyên); log: `kubectl logs job/<release>-bootstrap`.
+- Đổi ConfigMap migration thì chạy `helm upgrade` ngay: pod mới (HPA) thấy file chưa chạy sẽ dừng ở `start` (migration
+  lệch). `MIGRATIONS_PATH` để trống hoặc `./migrations` (chart kiểm).
+- Không cần ConfigMap, Secret hay PVC của Directus; không gắn nhãn pool cho Directus.
+
+**Chế độ chung** (`mode: shared`, compose mặc định): replica Backoffice chạy CMD của image (`bootstrap` rồi `start`) như
+container Directus. DB phải do Directus bootstrap trước (019); N replica (và các container Directus) có thể cùng áp một
+custom migration mới, như N container Directus: thêm custom migration khi chỉ một instance đang chạy, hoặc dùng chế độ
+độc lập.
+
+**Phục hồi khi lỗi** (như Directus, FR-015):
+
+- DB cài dở (bootstrap dừng giữa seed hay migration hệ thống): `bootstrap` lần sau thấy `directus_collections` và chỉ
+  chạy migration, có thể lỗi tiếp. Xóa và tạo lại DB (DB mới), hoặc khôi phục bản sao lưu, rồi chạy lại.
+- Migration hệ thống lỗi giữa chừng trên DB đang dùng: khôi phục bản sao lưu trước khi đổi image; không sửa tay
+  `directus_migrations`.
+- Custom migration lỗi: các migration trước nó đã áp (mỗi file một hàng `directus_migrations`); sửa hoặc bỏ file lỗi rồi
+  chạy lại `bootstrap` (compose `up -d`, Helm `upgrade`).
+- Helm `install` lỗi: sửa nguyên nhân (DB, env, migration), `helm uninstall`, rồi `helm install` lại.
+- `database migrate:down` với migration hệ thống làm DB không còn khớp Directus 11.17.4 (`start` dừng); chỉ dùng cho
+  custom migration.
+- `init` ghi đè `.env` có sẵn trong thư mục đang chạy.
 
 ## Lệnh CLI
 

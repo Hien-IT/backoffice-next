@@ -16,18 +16,19 @@ import {
 	REPLICAS,
 	SEPARATE,
 	sharedEnv,
+	STANDALONE,
 	WEB_IMAGE,
 } from './instances.js';
 
 const started = (name: string) => Date.parse(docker('inspect', '-f', '{{.State.StartedAt}}', name));
 
 describe.skipIf(SEPARATE)('deploy compose', () => {
-	it('gives Directus and the BE the same env file (FR-041)', () => {
+	it.skipIf(STANDALONE)('gives Directus and the BE the same env file (FR-041)', () => {
 		const config = JSON.parse(compose('config', '--format', 'json'));
 		expect(config.services['backoffice-api'].environment).toEqual(config.services.directus.environment);
 	});
 
-	it('runs every service healthy, in the start order of FR-042', () => {
+	it.skipIf(STANDALONE)('runs every service healthy, in the start order of FR-042', () => {
 		const ps = compose('ps', '-a', '--format', 'json')
 			.trim()
 			.split('\n')
@@ -43,7 +44,7 @@ describe.skipIf(SEPARATE)('deploy compose', () => {
 		for (let i = 1; i <= REPLICAS; i++) expect(started(containerName('backoffice-api', i))).toBeGreaterThan(directus);
 	});
 
-	it('spreads API requests over the BE replicas and Directus (FR-050)', async () => {
+	it.skipIf(STANDALONE)('spreads API requests over the BE replicas and Directus (FR-050)', async () => {
 		const since = new Date().toISOString();
 		for (let i = 0; i < 100; i++) await fetch(`${lbUrl}/server/info`);
 		const upstreams = new Set(
@@ -65,7 +66,7 @@ describe.skipIf(SEPARATE)('deploy compose', () => {
 		expect(root.headers.get('location')).toBe('./admin');
 	});
 
-	it('passes X-Forwarded-For so the BE and Directus record the client IP (FR-051)', async () => {
+	it.skipIf(STANDALONE)('passes X-Forwarded-For so the BE and Directus record the client IP (FR-051)', async () => {
 		const directusIp = containerIp(containerName('directus'));
 		const env = sharedEnv();
 		const token = await adminToken(directusUrl);
@@ -96,7 +97,8 @@ describe.skipIf(SEPARATE)('deploy compose', () => {
 	});
 
 	it('scales to 6 BE replicas sharing the sessions, then back (FR-030)', async () => {
-		compose('up', '-d', '--wait', '--no-recreate', '--scale', 'backoffice-api=6', 'backoffice-api');
+		// --no-deps: in the standalone mode, `up` of a service also runs its finished `bootstrap` dependency again.
+		compose('up', '-d', '--wait', '--no-recreate', '--no-deps', '--scale', 'backoffice-api=6', 'backoffice-api');
 		try {
 			const urls = instanceUrls(6);
 			const token = await adminToken(urls[0]!);
@@ -105,7 +107,16 @@ describe.skipIf(SEPARATE)('deploy compose', () => {
 				expect((await api(url, 'GET', '/users/me', { token })).status, url).toBe(200);
 			}
 		} finally {
-			compose('up', '-d', '--wait', '--no-recreate', '--scale', `backoffice-api=${REPLICAS}`, 'backoffice-api');
+			compose(
+				'up',
+				'-d',
+				'--wait',
+				'--no-recreate',
+				'--no-deps',
+				'--scale',
+				`backoffice-api=${REPLICAS}`,
+				'backoffice-api',
+			);
 		}
 	});
 
@@ -119,5 +130,79 @@ describe.skipIf(SEPARATE)('deploy compose', () => {
 			expect(users.length, name).toBeGreaterThan(0);
 			for (const user of users) expect(['root', '0'], `${name}: ${user}`).not.toContain(user);
 		}
+	});
+});
+
+// Spec 021, US5 (FR-070, FR-071): no Directus; the one-shot bootstrap service runs before the BE replicas, with the
+// same env file, and the load balancer pool holds the BE replicas only.
+describe.skipIf(!STANDALONE)('deploy compose, standalone mode', () => {
+	const ps = () =>
+		compose('ps', '-a', '--format', 'json')
+			.trim()
+			.split('\n')
+			.map((l) => JSON.parse(l));
+	/** When the first bootstrap run logged "Done" (standalone.test.ts may run bootstrap again later). */
+	const firstDone = (name: string) =>
+		Date.parse(
+			docker('logs', '--timestamps', name)
+				.split('\n')
+				.find((line) => /\bDone\b/.test(line))!
+				.split(' ')[0]!,
+		);
+
+	it('has no Directus; bootstrap exits 0 after Postgres and Redis, before every replica (FR-070)', () => {
+		const containers = ps();
+		expect(containers.map((c) => c.Service)).not.toContain('directus');
+
+		for (const c of containers) {
+			if (['minio-init', 'bootstrap'].includes(c.Service)) expect(c.ExitCode, c.Name).toBe(0);
+			else expect(c.Health, c.Name).toBe('healthy');
+		}
+
+		const bootstrap = containerName('bootstrap');
+		for (const dep of ['postgres', 'redis']) expect(started(containerName(dep))).toBeLessThan(started(bootstrap));
+		for (let i = 1; i <= REPLICAS; i++) {
+			expect(started(containerName('backoffice-api', i))).toBeGreaterThan(firstDone(bootstrap));
+		}
+	});
+
+	it('gives bootstrap and the replicas the same env file (Principle VIII)', () => {
+		const config = JSON.parse(compose('config', '--format', 'json'));
+		expect(config.services.directus).toBeUndefined();
+		expect(config.services['backoffice-api'].environment).toEqual(config.services.bootstrap.environment);
+		expect(config.services['backoffice-api'].command).toEqual(['node', 'cli.js', 'start']);
+	});
+
+	it('spreads API requests over the BE replicas only', async () => {
+		const since = new Date().toISOString();
+		for (let i = 0; i < 60; i++) await fetch(`${lbUrl}/server/info`);
+		const upstreams = new Set(
+			lbLog(since)
+				.filter((l) => l.includes('/server/info'))
+				.map((l) => l.split(' ').at(-2)?.split(':')[0]),
+		);
+		// Every replica gets requests (IPs of replicas removed by a scale-down may linger in the pool for `valid` 5 s).
+		for (let i = 1; i <= REPLICAS; i++) {
+			expect(upstreams.has(containerIp(containerName('backoffice-api', i))), `replica ${i}`).toBe(true);
+		}
+		const conf = compose('exec', '-T', 'lb', 'cat', '/etc/nginx/conf.d/default.conf');
+		expect(conf).toContain('server backoffice-api:8055 resolve');
+		expect(conf).not.toContain('directus:8055');
+	});
+
+	it('scaling the replicas with --no-deps does not run bootstrap again', () => {
+		const before = started(containerName('bootstrap'));
+		compose('up', '-d', '--wait', '--no-recreate', '--no-deps', '--scale', 'backoffice-api=4', 'backoffice-api');
+		compose(
+			'up',
+			'-d',
+			'--wait',
+			'--no-recreate',
+			'--no-deps',
+			'--scale',
+			`backoffice-api=${REPLICAS}`,
+			'backoffice-api',
+		);
+		expect(started(containerName('bootstrap'))).toBe(before);
 	});
 });

@@ -390,7 +390,7 @@ Directus.
 
 **Independent Test**: `DEPLOY_MODE=standalone pnpm nx run parity-tests:deploy` với 3 replica.
 
-- [ ] T064 [US5] Viết test trước: `parity/src/deploy/instances.ts` thêm `STANDALONE = DEPLOY_MODE === 'standalone'`,
+- [X] T064 [US5] Viết test trước: `parity/src/deploy/instances.ts` thêm `STANDALONE = DEPLOY_MODE === 'standalone'`,
       `composeArgs` thêm `-f docker-compose.standalone.yml`, `instanceUrls` không thêm `directusUrl` khi STANDALONE;
       `parity/src/deploy/instances.test.ts` cho các nhánh mới; `smoke.test.ts` và `compose.test.ts` nhánh standalone
       (không container `directus`, `bootstrap` ExitCode 0, env replica = env bootstrap, `StartedAt` replica >
@@ -398,7 +398,7 @@ Directus.
       `parity/src/deploy/standalone.test.ts` (thêm migration bằng `docker compose cp` + `up -d`, `psql` +1 hàng,
       `x-cache-status` MISS; migration `fail/` trên hệ thống đang chạy → `up --wait` lỗi, replica cũ `running` cùng
       `StartedAt`) (FR-070, FR-071, FR-103, SC-005).
-- [ ] T065 [US5] Viết `compose/docker-compose.standalone.yml` theo contracts/deploy.md (`directus: profiles:
+- [X] T065 [US5] Viết `compose/docker-compose.standalone.yml` theo contracts/deploy.md (`directus: profiles:
       [shared-only]`; service `bootstrap` với `env_file: ${DEPLOY_ENV_FILE:-.env}` ghi thẳng vì anchor `*app-env` của file
       gốc không dùng được ở file override; `backoffice-api` `command` start + `depends_on: !reset`; volume `migrations`
       mount `/directus/migrations` ở `bootstrap` và `backoffice-api`; không đặt `MIGRATIONS_PATH` vì mặc định `./migrations`
@@ -406,10 +406,10 @@ Directus.
       docker-compose.standalone.yml config` không lỗi) và
       `compose/lb/standalone.conf` (`api_pool` chỉ `backoffice-api`); `parity/src/deploy/global-setup.ts` dựng thêm file
       override khi STANDALONE.
-- [ ] T066 [US5] Chạy `DEPLOY_MODE=standalone pnpm nx run parity-tests:deploy` local (3 replica) tới xanh, kể cả các bài
+- [X] T066 [US5] Chạy `DEPLOY_MODE=standalone pnpm nx run parity-tests:deploy` local (3 replica) tới xanh, kể cả các bài
       019 `sessions`, `schema`, `flows-schedule`, `tus`, `shutdown` không Directus; chốt hành vi compose khi `bootstrap` lỗi
       (research R15, CHK036) và ghi vào research "Kết quả lượt 3"; giữ xanh hai chế độ cũ (mặc định, `separate-domain`). (FR-072)
-- [ ] T067 [US5] CI job `deploy`: lượt chạy thứ ba `DEPLOY_MODE: standalone` (log khi lỗi, `down -v` luôn chạy với cả file
+- [X] T067 [US5] CI job `deploy`: lượt chạy thứ ba `DEPLOY_MODE: standalone` (log khi lỗi, `down -v` luôn chạy với cả file
       override).
 
 ---
@@ -420,26 +420,26 @@ Directus.
 
 **Independent Test**: kind: install từ namespace chỉ có ConfigMap/Secret, upgrade có migration dưới tải, Job lỗi.
 
-- [ ] T068 [US6] Viết test trước trong `chart/ci/test-template.sh` (contracts/tests.md bước 6): render `--set
+- [X] T068 [US6] Viết test trước trong `chart/ci/test-template.sh` (contracts/tests.md bước 6): render `--set
       mode=standalone --set migrations.configMap=mig`, kubeconform, đếm `secretRef` (2), `helm.sh/hook` (1 Job),
       `parallelism: 1`, `runAsNonRoot`/`allowPrivilegeEscalation` (3 mỗi loại), `args` có `start`; shared không Job,
       không `args`; NOTES hai chế độ; `_checks.tpl` qua `fakeLookup`: standalone thiếu ConfigMap → fail,
       `MIGRATIONS_PATH=/data/mig` với `migrations.configMap` → fail, `./migrations` → ok.
-- [ ] T069 [US6] `chart/values.yaml`: `mode: shared`, `bootstrap.backoffLimit: 3`, `bootstrap.activeDeadlineSeconds: 600`,
+- [X] T069 [US6] `chart/values.yaml`: `mode: shared`, `bootstrap.backoffLimit: 3`, `bootstrap.activeDeadlineSeconds: 600`,
       `bootstrap.resources: {}`, `migrations.configMap: ''` kèm comment (contracts/deploy.md, FR-080).
-- [ ] T070 [US6] `chart/templates/bootstrap-job.yaml` (chỉ `standalone`): hook `pre-install,pre-upgrade`, weight `10`,
+- [X] T070 [US6] `chart/templates/bootstrap-job.yaml` (chỉ `standalone`): hook `pre-install,pre-upgrade`, weight `10`,
       delete-policy `before-hook-creation`, `parallelism: 1`, `completions: 1`, `backoffLimit`, `activeDeadlineSeconds`,
       `restartPolicy: Never`, cùng image, `envFrom`, `securityContext` pod + `backoffice.securityContext`, `resources`
       (`bootstrap.resources` hoặc `api.resources`), volume uploads và migrations, `command: ["node","cli.js","bootstrap"]`
       (FR-081).
-- [ ] T071 [US6] `chart/templates/api-deployment.yaml`: `args: ["node","cli.js","start"]` khi `standalone`; volume
+- [X] T071 [US6] `chart/templates/api-deployment.yaml`: `args: ["node","cli.js","start"]` khi `standalone`; volume
       `migrations` (ConfigMap `migrations.configMap`, mount `/directus/migrations`) ở mọi chế độ khi đặt (FR-082, FR-085).
-- [ ] T072 [US6] `chart/templates/_checks.tpl`: `standalone` → `lookup` ConfigMap/Secret rỗng khi cài thật → `fail` với
+- [X] T072 [US6] `chart/templates/_checks.tpl`: `standalone` → `lookup` ConfigMap/Secret rỗng khi cài thật → `fail` với
       thông điệp contracts/deploy.md; bỏ kiểm cookie domain ở `standalone`; kiểm `MIGRATIONS_PATH` khi đặt
       `migrations.configMap` (mọi chế độ); giữ FR-053, 020 FR-045 (FR-083, FR-085). `chart/templates/NOTES.txt`: dòng
       chế độ chung (DB phải do Directus bootstrap trước) và dòng `standalone` + `migrations.configMap` (`helm upgrade`
       ngay sau khi đổi ConfigMap). T068 xanh.
-- [ ] T073 [US6] `chart/ci/deps-standalone.yaml` (ConfigMap `backoffice-config`, Secret `backoffice-secret`, postgres DB
+- [X] T073 [US6] `chart/ci/deps-standalone.yaml` (ConfigMap `backoffice-config`, Secret `backoffice-secret`, postgres DB
       `backoffice`, redis, minio + init; không Directus), `chart/ci/values-kind-standalone.yaml` (host `bo.test`, tag `ci`,
       `pullPolicy: Never`); `chart/ci/kind-test.sh` thêm phần standalone bước 1–5, 7 của contracts/tests.md (namespace
       `bo-standalone`, ConfigMap `migrations` từ `parity/fixtures/migrations/ok/20990101A-create-sample.js`, install
@@ -454,18 +454,18 @@ Directus.
 
 ## Phase 11: Polish & Cross-Cutting (lượt 3)
 
-- [ ] T075 [P] `deploy/README.md`: mục mới "Chạy độc lập" (compose override, Docker Compose ≥ 2.24, Helm `mode:
+- [X] T075 [P] `deploy/README.md`: mục mới "Chạy độc lập" (compose override, Docker Compose ≥ 2.24, Helm `mode:
       standalone`, Job, ConfigMap migration + `helm upgrade` ngay, chạy `bootstrap` ở một nơi, giới hạn XI); sửa "Thay
       image Directus bằng Backoffice" (Postgres/SQLite không cần `directus bootstrap`; vendor khác cần; đổi image nâng
       DB lên 11.17.4, mọi node Directus phải là 11.17.4); phục hồi khi lỗi (DB cài dở, migration lỗi giữa chừng, custom
       migration lỗi, Helm `install` lỗi; FR-015); cảnh báo `migrate:down` migration hệ thống; chế độ chung cần DB do
       Directus bootstrap trước, N replica có thể cùng áp custom migration; SQLite cần mount volume; `init` ghi đè `.env`
       (FR-090). (FR-073)
-- [ ] T076 [P] `parity/README.md`: mục profile `bootstrap` (dựng, cổng, DB, chạy `src/bootstrap`, `TEST_DB=sqlite3`).
-- [ ] T077 [P] `parity/accepted-differences.ts`: thêm D-145, D-146, D-147 (`feature: '021'`, `kind: 'doc'`, không
+- [X] T076 [P] `parity/README.md`: mục profile `bootstrap` (dựng, cổng, DB, chạy `src/bootstrap`, `TEST_DB=sqlite3`).
+- [X] T077 [P] `parity/accepted-differences.ts`: thêm D-145, D-146, D-147 (`feature: '021'`, `kind: 'doc'`, không
       `removeAt`, `reason` từ spec); sửa `reason` của `D-19` (001) và `D-141` (020) theo spec 021; `pnpm nx run
       parity-tests:test` (unit, gồm `accepted-differences.test.ts`) xanh.
-- [ ] T078 Sửa spec cũ theo FR-091: `specs/001-platform-foundation/spec.md` dòng D-19; `specs/019-deployment-packaging/spec.md`
+- [X] T078 Sửa spec cũ theo FR-091: `specs/001-platform-foundation/spec.md` dòng D-19; `specs/019-deployment-packaging/spec.md`
       dòng D-121, D-123, US1 kịch bản 4, FR-024, FR-042; `specs/020-extensions/spec.md` dòng D-141 (bỏ phần CLI); mỗi chỗ
       trỏ "xem 021"; kiểm `guard-differences` vẫn đạt.
 - [ ] T079 Chạy đo tiêu chí trước khi đóng: parity profile `bootstrap` 10 lần liên tiếp trên postgres (SC-002);

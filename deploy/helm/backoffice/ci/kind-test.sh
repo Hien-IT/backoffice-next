@@ -1,6 +1,6 @@
 #!/bin/sh
 # Feature 019 (T091, FR-049, FR-053, FR-076, SC-003, US7 scenario 3): the chart on a kind cluster next to a Directus
-# deployment (ci/deps.yaml). The current kubectl context must be the kind cluster $KIND_CLUSTER, and the images
+# deployment (ci/deps.yaml); spec 021 (US6): then the standalone mode in namespace bo-standalone (ci/deps-standalone.yaml). The current kubectl context must be the kind cluster $KIND_CLUSTER, and the images
 # hiennd23/backoffice-{api,web}:ci must exist locally. Needs kind, kubectl, helm, curl, node (with pnpm install done).
 #   TRAEFIK_CHART_VERSION, METRICS_SERVER_VERSION: pinned in research.md "Kết quả T001".
 set -eu
@@ -149,5 +149,123 @@ else
 fi
 
 helm uninstall bo >/dev/null
+
+# Spec 021, US6 (FR-080..FR-085, SC-006): the standalone mode in its own namespace, without Directus. Steps of
+# specs/021-standalone-init-cli/contracts/tests.md "kind".
+ns=bo-standalone
+fixtures=$chart/../../../tests/parity/fixtures/migrations
+sa() { curl -s -H 'Host: bo.test' "$@"; }
+sql() { kubectl -n "$1" exec deploy/postgres -- psql -U backoffice -d backoffice -Atc "$2"; }
+migrations() { # migrations <file...>: the migrations ConfigMap of $ns holds exactly these files
+	args=""
+	for f in "$@"; do args="$args --from-file=$f"; done
+	kubectl -n "$ns" create configmap migrations $args --dry-run=client -o yaml | kubectl apply -f - >/dev/null
+}
+kubectl create namespace "$ns"
+kubectl -n "$ns" apply -f "$chart/ci/deps-standalone.yaml"
+kubectl -n "$ns" wait --for=condition=complete job/minio-init --timeout=300s
+kubectl -n "$ns" rollout status deployment/postgres --timeout=300s
+migrations "$fixtures/ok/20990101A-create-sample.js"
+
+if helm install bo-sa "$chart" -n "$ns" -f "$chart/ci/values-kind-standalone.yaml" --wait --timeout 10m; then
+	ok "standalone: install on an empty database"
+else
+	fail "standalone: install on an empty database"
+	kubectl -n "$ns" logs job/bo-sa-bootstrap || true
+fi
+done_at=$(kubectl -n "$ns" get job bo-sa-bootstrap -o jsonpath='{.status.completionTime}')
+first_pod=$(kubectl -n "$ns" get pods -l app.kubernetes.io/component=api -o jsonpath='{.items[*].metadata.creationTimestamp}' | tr ' ' '\n' | sort | head -1)
+if [ -n "$done_at" ] && [ -n "$first_pod" ] && [ "$done_at" \< "$first_pod" -o "$done_at" = "$first_pod" ]; then
+	ok "standalone: Job Complete ($done_at) before the first api pod ($first_pod)"
+else
+	fail "standalone: Job Complete ($done_at) before the first api pod ($first_pod)"
+fi
+if [ "$(sql "$ns" 'select count(*) from directus_migrations')" = 102 ]; then
+	ok "standalone: 101 system migrations + 1 custom"
+else
+	fail "standalone: directus_migrations = $(sql "$ns" 'select count(*) from directus_migrations')"
+fi
+sa_password=$(kubectl -n "$ns" get secret backoffice-secret -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)
+sa_token=$(sa -X POST "$base/auth/login" -H 'content-type: application/json' \
+	-d "{\"email\":\"admin@example.com\",\"password\":\"$sa_password\"}" | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).data.access_token)}catch{}})')
+if [ -n "$sa_token" ]; then ok "standalone: admin signs in through the Ingress"; else fail "standalone: admin signs in through the Ingress"; fi
+if [ "$(kubectl -n "$ns" get deployment bo-sa-api -o jsonpath='{.spec.template.spec.containers[0].args}')" = '["node","cli.js","start"]' ]; then
+	ok "standalone: the pods only run start"
+else
+	fail "standalone: the pods only run start"
+fi
+
+# A new custom migration through helm upgrade, under load: the Job runs it once; no request fails.
+sa_collection=bo_kind_sa_load
+sa -X POST "$base/collections" -H "authorization: Bearer $sa_token" -H 'content-type: application/json' \
+	-d "{\"collection\":\"$sa_collection\",\"schema\":{},\"meta\":{},\"fields\":[{\"field\":\"id\",\"type\":\"integer\",\"schema\":{\"is_primary_key\":true,\"has_auto_increment\":true}},{\"field\":\"title\",\"type\":\"string\"}]}" >/dev/null
+old_job=$(kubectl -n "$ns" get job bo-sa-bootstrap -o jsonpath='{.metadata.uid}')
+migrations "$fixtures/ok/20990101A-create-sample.js" "$fixtures/ok/20990102A-add-column-default.js"
+node "$chart/ci/load.mjs" "$base" bo.test "$sa_token" "$sa_collection" 60 >/tmp/bo-kind-sa-load.json &
+load=$!
+sleep 5
+if helm upgrade bo-sa "$chart" -n "$ns" -f "$chart/ci/values-kind-standalone.yaml" --wait --timeout 10m; then
+	ok "standalone: upgrade with a new migration"
+else
+	fail "standalone: upgrade with a new migration"
+fi
+wait $load
+cat /tmp/bo-kind-sa-load.json
+if node -e 'const r=require("/tmp/bo-kind-sa-load.json"); process.exit(r.errors===0 && r.timeouts===0 && r.non2xx===0 && r.requests>=5000 ? 0 : 1)'; then
+	ok "standalone: upgrade under load (>= 5000 requests): no failed request"
+else
+	fail "standalone: upgrade under load (>= 5000 requests): no failed request"
+fi
+if [ "$(sql "$ns" 'select count(*) from directus_migrations')" = 103 ]; then ok "standalone: the new migration ran once"; else fail "standalone: directus_migrations = $(sql "$ns" 'select count(*) from directus_migrations')"; fi
+if [ "$(kubectl -n "$ns" get job bo-sa-bootstrap -o jsonpath='{.metadata.uid}')" != "$old_job" ]; then
+	ok "standalone: a new Job replaced the old one"
+else
+	fail "standalone: a new Job replaced the old one"
+fi
+
+# A migration that throws: the upgrade fails, the release and the pods stay as they were, the Job keeps its log.
+revision=$(helm history bo-sa -n "$ns" -o json | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>process.stdout.write(String(JSON.parse(s).filter((r)=>r.status==="deployed").at(-1).revision)))')
+pods=$(kubectl -n "$ns" get pods -l app.kubernetes.io/component=api -o jsonpath='{.items[*].metadata.name}')
+migrations "$fixtures/ok/20990101A-create-sample.js" "$fixtures/ok/20990102A-add-column-default.js" "$fixtures/fail/20990106A-throws.js"
+if helm upgrade bo-sa "$chart" -n "$ns" -f "$chart/ci/values-kind-standalone.yaml" --set bootstrap.backoffLimit=0 --wait --timeout 5m; then
+	fail "standalone: an upgrade whose migration throws fails"
+else
+	ok "standalone: an upgrade whose migration throws fails"
+fi
+deployed=$(helm history bo-sa -n "$ns" -o json | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>process.stdout.write(String(JSON.parse(s).filter((r)=>r.status==="deployed").at(-1).revision)))')
+if [ "$deployed" = "$revision" ] && [ "$(kubectl -n "$ns" get pods -l app.kubernetes.io/component=api -o jsonpath='{.items[*].metadata.name}')" = "$pods" ]; then
+	ok "standalone: release revision $revision and its pods kept"
+else
+	fail "standalone: release revision $revision and its pods kept (now $deployed)"
+fi
+if kubectl -n "$ns" logs job/bo-sa-bootstrap 2>/dev/null | grep -q '20990106A fails on purpose'; then
+	ok "standalone: the failed Job keeps its log"
+else
+	fail "standalone: the failed Job keeps its log"
+fi
+if [ "$(sa "$base/server/ping")" = pong ]; then ok "standalone: still serving"; else fail "standalone: still serving"; fi
+helm uninstall bo-sa -n "$ns" >/dev/null
+
+# A first install that fails (database unreachable): release failed, no Deployment, the Job log kept, uninstall works.
+nsf=bo-standalone-fail
+kubectl create namespace "$nsf"
+kubectl -n "$nsf" apply -f "$chart/ci/deps-standalone.yaml" >/dev/null
+kubectl -n "$nsf" patch configmap backoffice-config --type=merge -p '{"data":{"DB_HOST":"no-such-postgres"}}'
+kubectl -n "$nsf" create configmap migrations --from-file="$fixtures/ok/20990101A-create-sample.js"
+if helm install bo-sf "$chart" -n "$nsf" -f "$chart/ci/values-kind-standalone.yaml" --set ingress.host=bo-fail.test \
+	--set bootstrap.backoffLimit=0 --wait --timeout 3m; then
+	fail "standalone: install on an unreachable database fails"
+else
+	ok "standalone: install on an unreachable database fails"
+fi
+if [ "$(helm status bo-sf -n "$nsf" -o json | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>process.stdout.write(JSON.parse(s).info.status))')" = failed ] \
+	&& ! kubectl -n "$nsf" get deployment bo-sf-api >/dev/null 2>&1 \
+	&& kubectl -n "$nsf" logs job/bo-sf-bootstrap 2>/dev/null | grep -q .; then
+	ok "standalone: failed release, no Deployment, the Job log kept"
+else
+	fail "standalone: failed release, no Deployment, the Job log kept"
+fi
+if helm uninstall bo-sf -n "$nsf" >/dev/null; then ok "standalone: uninstall of the failed release"; else fail "standalone: uninstall of the failed release"; fi
+
 [ "$fails" -eq 0 ] || { echo "$fails check(s) failed"; exit 1; }
 echo "all kind checks passed"
