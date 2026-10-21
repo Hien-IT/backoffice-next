@@ -22,14 +22,18 @@ test.afterAll(async () => {
 	await closeHostDb();
 });
 
+type Locate = (page: Page) => ReturnType<Page['locator']>;
+
+/** The menu entries: role menuitem in the new app; `.v-list-item` in the Directus app (its v-list-item has no role). */
 async function toggleTwice(
 	page: Page,
-	rowLocator: (page: Page) => ReturnType<Page['locator']>,
+	rowLocator: Locate,
 	open: () => Promise<void>,
+	item: (page: Page, action: string) => ReturnType<Page['locator']>,
 ) {
 	for (const action of ['Disable', 'Enable']) {
 		await open();
-		await page.getByRole('menuitem', { name: action, exact: true }).click();
+		await item(page, action).click();
 		await expect(rowLocator(page)).toContainText(action === 'Disable' ? 'Disabled' : 'Enabled');
 	}
 }
@@ -42,7 +46,15 @@ test('disable then enable an extension: the same PATCH bodies and rows', async (
 		const dirRow = (p: Page) => p.locator('.v-list-item', { hasText: 'parity-display-badge' }).first();
 
 		return recordWrites(dirPage, directusUrl, () =>
-			toggleTwice(dirPage, dirRow, () => dirRow(dirPage).locator('.menu-toggle').click()),
+			toggleTwice(
+				dirPage,
+				dirRow,
+				() => dirRow(dirPage).locator('.menu-toggle').click(),
+				(p, action) =>
+					p
+						.locator('.v-list-item')
+						.filter({ has: p.locator('.v-list-item-content', { hasText: new RegExp(`^\\s*${action}\\s*$`) }) }),
+			),
 		);
 	});
 
@@ -53,10 +65,14 @@ test('disable then enable an extension: the same PATCH bodies and rows', async (
 	const boRow = (p: Page) => p.locator('[data-extension="parity-display-badge"]');
 
 	const bo = await recordWrites(page, apiUrl, () =>
-		toggleTwice(page, boRow, () =>
-			boRow(page)
-				.getByRole('button', { name: /options/i })
-				.click(),
+		toggleTwice(
+			page,
+			boRow,
+			() =>
+				boRow(page)
+					.getByRole('button', { name: /options/i })
+					.click(),
+			(p, action) => p.getByRole('menuitem', { name: action, exact: true }),
 		),
 	);
 
