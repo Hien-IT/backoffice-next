@@ -31,12 +31,16 @@ afterAll(async () => {
 	for (const step of cleanup.reverse()) await step();
 });
 
-/** Upstream addresses of the lb access log lines (format: ... $upstream_addr $upstream_status $server_port). */
+/**
+ * Upstream addresses of the lb access log lines (format: ... $upstream_addr $upstream_status $server_port). Every
+ * `ip:port` of the line counts: a retried request lists several, `A, B` or `A : B` after the @retry location (the third
+ * field from the end was then `:`, read as '' in CI 39660476604); the client address has no port.
+ */
 function upstreams(since: string, port: string, path: string): Set<string> {
 	return new Set(
 		lbLog(since)
 			.filter((l) => l.endsWith(` ${port}`) && l.includes(path))
-			.map((l) => l.split(' ').at(-3)!.split(':')[0]!),
+			.flatMap((l) => [...l.matchAll(/(\d+\.\d+\.\d+\.\d+):\d+/g)].map((m) => m[1]!)),
 	);
 }
 
