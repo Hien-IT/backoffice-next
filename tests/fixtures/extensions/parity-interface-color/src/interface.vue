@@ -57,11 +57,3 @@ onMounted(async () => {
 	info.value = `${userStore.currentUser?.email ?? 'anonymous'}: ${response.data}`;
 });
 </script>
-
-<style scoped>
-/* The input, the select and the note stacked with the spacing of a Directus form (the components have no margin). */
-.parity-interface-color {
-	display: grid;
-	gap: 8px;
-}
-</style>
