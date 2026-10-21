@@ -486,7 +486,8 @@ benchmark query GraphQL đọc nhiều.
   `schemaChanged` như REST; `collections`, `fields`, `relations` đọc qua cùng service với cùng cấu trúc `meta`,
   `schema` như REST.
 - **FR-035**: `extensions`, `update_extensions_item` PHẢI làm như D-37 (`GET /extensions` trả dòng với `schema` null;
-  cập nhật trả lỗi như `PATCH /extensions/:pk`); `utils_*` PHẢI gọi `UtilsService`, `RevisionsService.revert` (010).
+  cập nhật trả lỗi như `PATCH /extensions/:pk`); `utils_*` PHẢI gọi `UtilsService`, `RevisionsService.revert` (010). Từ 020: `extensions` trả
+  `schema` thật và `update_extensions_item` bật tắt như Directus (D-37 đã gỡ).
 - **FR-036**: `users_me`, `update_users_me`, `users_me_tfa_*` PHẢI làm như `/users/me`, `/users/me/tfa/*` (003).
 
 **Schema theo user, introspection, SDL và cache schema**

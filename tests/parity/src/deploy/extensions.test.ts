@@ -121,6 +121,44 @@ describe('extensions on every node', () => {
 		for (const chunk of chunks) expect(await source(replicaUrl(2), chunk)).toBe(await source(replicaUrl(1), chunk));
 	});
 
+	it('installed from the registry through Directus: every replica loads it within 10 s; uninstalled through a replica: gone everywhere (T177, US2-1, US2-2)', async () => {
+		// parity-interface-color of tests/parity/registry/fixtures: sandboxed (MARKETPLACE_TRUST defaults to sandbox) and
+		// not among the files uploaded above.
+		const extension = 'e0000000-0000-4000-8000-000000000001';
+		const loaded = async (url: string) =>
+			(await api(url, 'GET', '/extensions', { token: admin })).body.data.some(
+				(e: any) => e.id === extension && e.schema !== null,
+			);
+		const inBundle = async (url: string) =>
+			String((await api(url, 'GET', '/extensions/sources/index.js')).body).includes('parity-interface-color');
+		const backoffice = Array.from({ length: REPLICAS }, (_, i) => replicaUrl(i + 1));
+		const until = async (check: () => Promise<boolean>, what: string) => {
+			const end = Date.now() + 10_000;
+			while (!(await check())) {
+				if (Date.now() > end) throw new Error(what);
+				await sleep(500);
+			}
+		};
+
+		const installed = await api(directusUrl, 'POST', '/extensions/registry/install', {
+			token: admin,
+			body: { extension, version: 'f0000000-0000-4000-8000-000000000001' },
+		});
+		expect(installed.status).toBe(204);
+
+		try {
+			await until(async () => (await Promise.all(instanceUrls().map(loaded))).every(Boolean), 'not loaded everywhere');
+			await until(async () => (await Promise.all(backoffice.map(inBundle))).every(Boolean), 'not in every bundle');
+		} finally {
+			const removed = await api(replicaUrl(2), 'DELETE', `/extensions/registry/uninstall/${extension}`, {
+				token: admin,
+			});
+			expect(removed.status).toBe(204);
+		}
+
+		await until(async () => (await Promise.all(backoffice.map(inBundle))).every((b) => !b), 'still in a bundle');
+	});
+
 	it('a scale-up: the new replicas are healthy within 60 s and serve the extension at once (US2-5, FR-048)', async () => {
 		const target = REPLICAS + 2;
 		const start = Date.now();

@@ -63,3 +63,16 @@ test('GET /download/:versionId: the .tgz of every version; 404 for sandbox=true 
 	}
 });
 
+test('GET /extensions?by=: an account id (the account page) or a username', async () => {
+	// @ts-expect-error plain ESM script without types
+	const { listExtensions } = await import('../../../../../tests/parity/registry/server.mjs');
+	const rows = fixture('list') as { publisher: { username: string } }[];
+	const alice = rows.filter((row) => row.publisher.username === 'parity-alice').length;
+	const params = (by: string) => new URLSearchParams({ by, limit: '100' });
+
+	expect(alice).toBeGreaterThan(0);
+	expect(listExtensions(rows, params('a1b2c3d4-0000-4000-8000-000000000001'), fixture('accounts')).data).toHaveLength(
+		alice,
+	);
+	expect(listExtensions(rows, params('parity-alice'), fixture('accounts')).data).toHaveLength(alice);
+});

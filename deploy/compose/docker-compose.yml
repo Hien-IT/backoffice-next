@@ -125,13 +125,14 @@ services:
       retries: 30
 
   # Spec 020 (contracts/deploy.md §1): the fake extensions registry of the parity tests, for the acceptance suite only
-  # (tests/parity/src/deploy/extensions.test.ts sets MARKETPLACE_REGISTRY=http://registry:9100).
+  # (tests/parity/src/deploy/global-setup.ts adds MARKETPLACE_REGISTRY=http://registry:9100 to the test env file).
   registry:
     profiles: [extensions-test]
     image: node:22-alpine
     command: ['node', '/registry/server.mjs']
     volumes:
       - ../../tests/parity/registry:/registry:ro
+      - ../../tests/fixtures/extensions:/fixtures:ro
     environment:
       PORT: '9100'
     healthcheck:

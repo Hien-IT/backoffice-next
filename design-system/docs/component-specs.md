@@ -1844,6 +1844,50 @@ design owner approval before 020 closes (SC-008). Tokens and the `FOCUS`, `ICON_
 - "Reload required" (after a toggle changes the enabled app extensions): persistent in-place warning notice (D-66) with
   title `reload_required`, text `extension_reload_required_copy` and a button `extension_reload_now` (`refresh`).
 
+### Marketplace registry (Q-42; Directus `routes/marketplace/routes/registry/*`, `components/extension-list-item.vue`)
+
+- Page: `PrivateView` title `marketplace`, icon `storefront`, Settings breadcrumb and sub-menu (Settings navigation item
+  `marketplace`, icon `storefront`, before `extensions` as in Directus); content `max-w-5xl`.
+- Toolbar row `flex flex-wrap items-center gap-3 mb-4`: search BoInput (`search_extensions`, leading `search` icon,
+  debounced 500 ms, `type="search"`), type BoSelect (`all_types` + the extension types with their icon map of Q-41),
+  sort BoSelect (`popular`, `recent`, `downloads`), all three synced to the route query (`search`, `type`, `sort`,
+  `page`) like Directus.
+- Result list `space-y-2`. Row = a RouterLink card
+  `flex items-start gap-4 rounded-xl border border-gray-200 bg-white p-4 hover:border-brand-300 dark:border-gray-800
+  dark:bg-white/[0.03] dark:hover:border-brand-800` + `FOCUS`: 40 px icon tile `rounded-lg bg-gray-100 dark:bg-gray-800`
+  with the type icon; body: name (`formatName`) `text-theme-sm font-semibold text-gray-800 dark:text-white/90` with
+  `BoChip size="sm"` outlined for the type (when not filtered by type) and `installed`; author line
+  `text-theme-xs text-gray-500` (`github_name ?? username`, `verified` icon `text-brand-500` with sr-only `verified`);
+  description `text-theme-sm text-gray-500 line-clamp-2` (`no_description` when empty). Trailing meta column
+  `hidden sm:flex flex-col items-end gap-1 text-theme-xs text-gray-500`: relative update date (`event`), abbreviated
+  downloads (`download`), license or `unknown` (`policy`).
+- Pagination: BoPagination under the list when `filter_count > limit` (limit 10, as Directus).
+- States: loading 5 skeleton cards `h-24`; error: BoNotice danger with the registry error text (the 503 reason of
+  `handleRegistryError`); empty: BoInfo icon `search`, title `no_results`, text `no_results_copy`.
+
+### Marketplace extension and account pages (Q-43; Directus `routes/extension/*`, `routes/account/*`)
+
+- Extension page: `PrivateView` title `marketplace`, back to `/settings/marketplace`, Settings sub-menu. Two columns at
+  `xl` (`grid xl:grid-cols-[1fr_20rem] gap-6`), one below.
+- Banner: card `rounded-2xl border border-gray-200 p-6 dark:border-gray-800` with the 48 px type icon tile, name
+  `text-title-sm font-semibold`, description `text-theme-sm text-gray-500`, type chip.
+- Readme: card with the markdown of `readme` rendered by `md()` with `target: '_blank'` in the `prose` styles of the
+  011 markdown display (`max-w-none`), links `text-brand-500`.
+- Metadata column: card `space-y-4 p-5`. Top: the install button BoButton block (`install_extension`, `download`;
+  `loading` while installing; disabled with tooltip `reached_maximum_number_of_extensions` at the limit, R-60) or
+  `manage` (`settings`) linking to Settings > Extensions when installed; then author rows (avatar 32 px rounded-full,
+  name, `verified` icon) linking to the account page. Below a divider, metadata items `flex items-center gap-3
+  text-theme-sm` (20 px icon `text-gray-500`, label, value `text-gray-800 dark:text-white/90`): downloads sparkline
+  (ApexCharts area, 48 px high, brand-500 stroke, no axis, sr-only table of the weekly counts), total downloads,
+  latest version, compatibility (`success`/`warning` icon from `semver.satisfies(directusVersion, host_version)` with
+  the text `compatible`/`incompatible`), publish date, license, size (`formatFilesize` + `file_count` files), links
+  `homepage` (`link`), `repository` (`commit`), `report_an_issue` (`bug_report`) as external links with
+  `rel="noopener noreferrer"`.
+- Account page: banner with the 64 px avatar, `github_name ?? username`, verified chip, GitHub link; then the account's
+  extensions in the Q-42 row recipe, paginated.
+- States: loading skeleton of banner + column; not found or registry error: BoNotice danger (`extension_not_found` /
+  registry reason) with a link back to the registry.
+
 ### Shim components of app extensions (Q-44; Directus `components/v-*`, data-model §7 of spec 020)
 
 - Rule: a shim keeps the Directus contract (props, slots, emits, expose) and draws with the recipes of this file. Where

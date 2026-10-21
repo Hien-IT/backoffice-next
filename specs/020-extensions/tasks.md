@@ -496,7 +496,7 @@ src/directus-shim` (axe, bàn phím).
 
 ### Tests cho User Story 6
 
-- [ ] T170 [P] [US6] Recipe nháp Q-42, Q-43 (registry, trang extension, trang tài khoản, trạng thái nạp/nạp lại/lỗi/rỗng)
+- [X] T170 [P] [US6] Recipe nháp Q-42, Q-43 (registry, trang extension, trang tài khoản, trạng thái nạp/nạp lại/lỗi/rỗng)
       vào `design-system/docs/component-specs.md`
 - [X] T171 [P] [US6] Fake registry: `parity/registry/server.mjs` thêm `GET /download/:versionId[?sandbox=true]` trả `.tgz`
       của `fx/` (404 khi `sandbox=true` mà extension không sandbox); `parity/registry/fixtures/{list,describe}.json`
@@ -515,18 +515,18 @@ src/directus-shim` (axe, bàn phím).
       `index.ts`); `D/api/extensions/lib/installation/{index,manager}.ts` → `api/extensions/lib/installation/`;
       `install`/`uninstall` trong manager (broadcast `partialSync`, reload `skipSync`, action); service `preInstall`,
       `install`, `uninstall`, `reinstall`; controller bỏ `NO_INSTALL`; spec 010 D-37 ghi "gỡ ở 020"
-- [ ] T175 [US6] Web: port `D/app/modules/settings/routes/marketplace/**` → `web/modules/settings/routes/marketplace/
+- [X] T175 [US6] Web: port `D/app/modules/settings/routes/marketplace/**` → `web/modules/settings/routes/marketplace/
       {RegistryRoute,ExtensionRoute,AccountRoute}.vue` + components + `utils/format-name.ts` theo Q-42, Q-43
       (`useRouteQuery`, `semver`, sparkline apexcharts, readme `v-md` với `target`); routes `marketplace`,
       `marketplace-registry`, `marketplace-account`, `marketplace-extension` ở `web/modules/settings.ts`; mục `storefront`
       Marketplace ở `SettingsNavigation.vue`; allowlist #209–#212; khóa vi-VN; test route và component
-- [ ] T176 [US6] E2E `e2e/settings-marketplace.spec.ts` ba cấu hình (tìm, lọc, sắp, trang, extension: compat, install →
+- [X] T176 [US6] E2E `e2e/settings-marketplace.spec.ts` ba cấu hình (tìm, lọc, sắp, trang, extension: compat, install →
       Settings > Extensions, limit khóa nút R-60; account); `e2e/extensions-cross-use.spec.ts` (US2-7, US6-4) vào
       `DIRECTUS_APP_SPECS`
-- [ ] T177 [US6] Acceptance cài qua registry (US2-1, US2-2): `parity/src/deploy/extensions.test.ts` bật service `registry`
+- [X] T177 [US6] Acceptance cài qua registry (US2-1, US2-2): `parity/src/deploy/extensions.test.ts` bật service `registry`
       (`DEPLOY_EXTENSIONS_REGISTRY=1`), cài `parity-endpoint-demo` qua Directus → 3 replica 200 trong 10 s, gỡ qua một replica
       → mọi node 404; `deploy/helm/backoffice/ci/kind-test.sh` job `registry` trong cụm, cài qua Directus pod, gọi qua Ingress
-- [ ] T178 [US6] Spec trạng thái: 016 D-93 (Marketplace, Extensions gỡ ở 020), 011 FR-035 (gỡ ở 020), 012 D-41 (app
+- [X] T178 [US6] Spec trạng thái: 016 D-93 (Marketplace, Extensions gỡ ở 020), 011 FR-035 (gỡ ở 020), 012 D-41 (app
       extension, Marketplace), D-45 (extensions), dòng 345, 001 D-17 (phần extension); `docs/directus-gap-audit.md`
 
 ---
@@ -747,4 +747,19 @@ Lượt 3:
   `data-extension-id`, vì bản registry và bản local cùng tên).
 - Toggle extension app bị khóa khi web chạy Vite dev (`import.meta.env.DEV`, như Directus): ca bật tắt của
   `settings-extensions.spec.ts` không chạy được ở cấu hình `dev`.
+- T175 (subagent, rồi sửa): Marketplace là port của `routes/marketplace/**`; mục Settings đặt TRƯỚC Extensions như Directus
+  (recipe Q-42 sửa theo); `settings-parity-ui.spec.ts` không còn lọc "Marketplace". Lệch đã ghi trong code: request list
+  dùng `apiFetch` (SDK bỏ `meta.filter_count`), debounce 300 ms như Directus, giá trị `all` của BoSelect thay `null`,
+  bỏ ảnh banner storefront. Khóa vi-VN thiếu trong Directus vi-VN (`install_extension`, `manage`, …) để rơi về en-US
+  như Directus (cùng cách lượt 1), không thêm overlay.
+- Fake registry: `by` của list là id tài khoản (trang account của app gửi `filter[by][_eq]=<accountId>`), dòng list chỉ có
+  username → server tra `accounts.json`; trước đó trang account rỗng ở cả hai app.
+- T176: `settings-marketplace.spec.ts` (registry, extension + Install → Manage, account); ca giới hạn R-60 nằm ở unit test
+  `ExtensionRoute.test.ts` (cần `EXTENSIONS_LIMIT` trên env); `extensions-cross-use` không viết riêng: cài ở Directus app
+  rồi thấy ở app mới đã có trong `directus-app-e2e/system.spec.ts` + parity `install.test.ts`.
+- T177: compose: global-setup bật profile `extensions-test` và `MARKETPLACE_REGISTRY`; cài qua Directus → mọi node nạp
+  trong 10 s, gỡ qua replica 2 → bundle mọi replica bỏ. Job registry trong cụm kind chưa làm (chưa có image registry
+  trong kind; ghi lại cho T192).
+- Quality CI: script `build` của gói fixtures (xóa `dist` tại chỗ) bị `nx run-many -t build` chạy song song với test
+  so `dist` → đổi tên `fixtures:build`/`fixtures:pack`. Security: `nanoid` 5.1.16 cho `@directus/composables`.
 

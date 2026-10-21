@@ -250,6 +250,10 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 206, method: 'DELETE', path: new RegExp(`^/extensions/${ID}$`) },
 	{ id: 207, method: 'DELETE', path: new RegExp(`^/extensions/registry/uninstall/${ID}$`) },
 	{ id: 208, method: 'POST', path: /^\/extensions\/registry\/reinstall$/ },
+	{ id: 209, method: 'POST', path: /^\/extensions\/registry\/install$/ },
+	{ id: 210, method: 'GET', path: /^\/extensions\/registry$/ },
+	{ id: 211, method: 'GET', path: new RegExp(`^/extensions/registry/extension/${ID}$`) },
+	{ id: 212, method: 'GET', path: new RegExp(`^/extensions/registry/account/${ID}$`) },
 	{ id: 213, method: 'GET', path: /^\/extensions\/sources\/[^/]+\.js$/ },
 ];
 

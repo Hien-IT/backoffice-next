@@ -1,6 +1,6 @@
 // Ported from directus/app/src/modules/settings/index.ts
 // Backoffice (spec 016 FR-001, data-model §1): route components are lazy (bundle budget). Out of scope routes are not
-// declared and fall to `settings-not-found` (D-93: ai, marketplace, system-logs; extensions since spec 020). Flows keeps the 012 frame
+// declared and fall to `settings-not-found` (D-93: ai, system-logs; extensions and marketplace since spec 020). Flows keeps the 012 frame
 // until feature 017 (D-92); every other screen of the module is its port. preRegisterCheck as in feature 012.
 import type { RouteLocationNormalized } from 'vue-router';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
@@ -212,6 +212,29 @@ export default defineModule({
 			name: 'settings-extensions',
 			path: 'extensions',
 			component: () => import('./settings/routes/extensions/ExtensionsRoute.vue'),
+		},
+		{
+			name: 'marketplace',
+			path: 'marketplace',
+			children: [
+				{
+					name: 'marketplace-registry',
+					path: '',
+					component: () => import('./settings/routes/marketplace/RegistryRoute.vue'),
+				},
+				{
+					name: 'marketplace-account',
+					path: 'account/:accountId',
+					component: () => import('./settings/routes/marketplace/AccountRoute.vue'),
+					props: true,
+				},
+				{
+					name: 'marketplace-extension',
+					path: 'extension/:extensionId',
+					component: () => import('./settings/routes/marketplace/ExtensionRoute.vue'),
+					props: true,
+				},
+			],
 		},
 		{
 			name: 'settings-not-found',

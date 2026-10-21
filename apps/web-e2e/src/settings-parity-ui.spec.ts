@@ -74,8 +74,8 @@ type ScreenName = (typeof SCREENS)[number];
  */
 function allowed(screen: Screen): Screen {
 	const nav = screen.nav
-		// D-93: AI, Marketplace (until spec 020 wave 3) and System Logs are not registered and have no sub-menu row.
-		.filter((row) => !['AI', 'Marketplace', 'System Logs'].includes(row))
+		// D-93: AI and System Logs are not registered and have no sub-menu row (Marketplace since spec 020 wave 3).
+		.filter((row) => !['AI', 'System Logs'].includes(row))
 		// D-94: no Report Bug / Request Feature rows. D-95: no "Directus <version>" row.
 		.filter((row) => !['Report Bug', 'Request Feature'].includes(row) && !/^Directus \d/.test(row));
 	return { ...screen, nav };

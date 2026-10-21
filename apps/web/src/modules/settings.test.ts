@@ -28,6 +28,9 @@ vi.mock('./settings/routes/translations/TranslationItemRoute.vue', () => ({ defa
 vi.mock('./settings/routes/flows/FlowsOverviewRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/flows/FlowRoute.vue', () => ({ default: { render: () => null } }));
 vi.mock('./settings/routes/flows/OperationDetail.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/marketplace/RegistryRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/marketplace/AccountRoute.vue', () => ({ default: { render: () => null } }));
+vi.mock('./settings/routes/marketplace/ExtensionRoute.vue', () => ({ default: { render: () => null } }));
 
 function router() {
 	return createRouter({
@@ -69,13 +72,27 @@ describe('settings module routes', () => {
 			'/settings/translations/7': 'settings-translations-item',
 			'/settings/flows': 'settings-flows-collection',
 			'/settings/extensions': 'settings-extensions',
+			// Spec 020 T175: the Directus marketplace routes.
+			'/settings/marketplace': 'marketplace-registry',
+			'/settings/marketplace/account/acc-1': 'marketplace-account',
+			'/settings/marketplace/extension/ext-1': 'marketplace-extension',
 		};
 
 		for (const [path, name] of Object.entries(names)) expect((await go(path)).name, path).toBe(name);
 	});
 
-	test('out-of-scope paths are the module not-found page (D-93; marketplace until spec 020 wave 3)', async () => {
-		for (const path of ['/settings/ai', '/settings/marketplace', '/settings/system-logs']) {
+	test('the marketplace account and extension pages get their id as a prop (Directus props: true)', async () => {
+		const account = await go('/settings/marketplace/account/acc-1');
+		const extension = await go('/settings/marketplace/extension/ext-1');
+
+		expect(account.matched.at(-1)!.props['default']).toBe(true);
+		expect(account.params).toEqual({ accountId: 'acc-1' });
+		expect(extension.matched.at(-1)!.props['default']).toBe(true);
+		expect(extension.params).toEqual({ extensionId: 'ext-1' });
+	});
+
+	test('out-of-scope paths are the module not-found page (D-93)', async () => {
+		for (const path of ['/settings/ai', '/settings/system-logs']) {
 			const route = await go(path);
 
 			expect(route.name, path).toBe('settings-not-found');

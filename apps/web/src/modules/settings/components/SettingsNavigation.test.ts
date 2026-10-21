@@ -23,7 +23,7 @@ async function setup(path = '/settings/data-model') {
 }
 
 describe('SettingsNavigation', () => {
-	test('four groups (Extensions since spec 020), no AI/Marketplace/System Logs, no report links, no version row', async () => {
+	test('four groups (Marketplace and Extensions since spec 020), no AI/System Logs, no report links, no version row', async () => {
 		const wrapper = await setup();
 		const lists = wrapper.findAll('ul');
 
@@ -31,10 +31,10 @@ describe('SettingsNavigation', () => {
 			['Data Model', 'Flows'],
 			['User Roles', 'Access Policies'],
 			['Settings', 'Appearance', 'Bookmarks', 'Translations'],
-			['Extensions'],
+			['Marketplace', 'Extensions'],
 		]);
 		expect(wrapper.findAll('[role="separator"]')).toHaveLength(3);
-		expect(wrapper.text()).not.toMatch(/Marketplace|System Logs|AI|Report Bug|Request Feature|Backoffice/);
+		expect(wrapper.text()).not.toMatch(/System Logs|AI|Report Bug|Request Feature|Backoffice/);
 	});
 
 	test('the active row follows the route prefix', async () => {

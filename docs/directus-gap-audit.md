@@ -33,7 +33,7 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 | Gửi email (reset mật khẩu, invite, mention, flow mail)               | Ghi log `warn`                                                                | D-33, D-34, D-36               |
 | GraphQL subscription                                                 | Type `Subscription` vẫn có trong schema, không có transport                   | D-17 (011)                     |
 | `/websocket`, collaborative editing, system logs realtime            | Không có                                                                      | Hiến pháp XI                   |
-| Cài, gỡ, bật tắt extension; endpoint, hook, bundle app của extension | `GET /extensions` chỉ đọc; cài/gỡ `503`; bundle rỗng                          | D-37 (010)                     |
+| Cài, gỡ, bật tắt extension; endpoint, hook, bundle app của extension | Như Directus từ 020 (2026-10-21)                          | D-37 gỡ ở 020                     |
 | Báo cáo chủ dự án (`COMPLIANCE_URL`)                                 | Không gửi                                                                     | D-38 (010)                     |
 | `/deployments`, webhook deployment                                   | Không có                                                                      | Hiến pháp XI                   |
 | `/mcp`, `/ai/*`                                                      | Không có (`404`)                                                              | Hiến pháp XI; xem mục 4.2      |
@@ -45,7 +45,7 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 | -------------------------------------------------- | ------------------------------------- | ------------------------------------------------------------------------------- |
 | Module `visual` (visual editor)                    | Không có; live preview vẫn có         | D-41, D-67 (014)                                                                |
 | Module `deployment`                                | Không có                              | Hiến pháp XI                                                                    |
-| Settings: AI, Marketplace, Extensions, System logs | Không có                              | D-93 (016)                                                                      |
+| Settings: AI, System logs (Marketplace, Extensions có từ 020) | Không có                              | D-93 (016)                                                                      |
 | Nhóm AI, MCP trong Project settings                | Ẩn                                    | D-93 (016)                                                                      |
 | Interface `system-mcp-prompts`                     | Không có                              | D-93 (016)                                                                      |
 | Link "Report bug", "Request feature"               | Không có                              | D-94, D-95 (016)                                                                |
@@ -57,7 +57,7 @@ D-id và bảng Q trong `specs/*/spec.md`. Không chạy app để kiểm hành 
 | Theme Directus                                     | Theme TailAdmin, override từ settings | D-43, D-47, D-89; hiến pháp XII                                                 |
 | Nút "Report error"                                 | Không có                              | D-109 (018)                                                                     |
 | Snackbar                                           | Notice tại chỗ (`BoNotice`), hộp lỗi  | D-66 (013), xét lại và giữ ở 018                                                |
-| Store AI; store extensions                         | Không nạp                             | D-45 (012): AI vĩnh viễn; extensions chờ spec extensions sau (owner 2026-10-20) |
+| Store AI; store extensions                         | Không nạp                             | D-45 (012): AI vĩnh viễn; store extensions có từ 020 |
 
 ## 3. Đã có, chạy được nhưng thiếu một phần (có ghi trong spec; cả hai bỏ theo quyết định 2026-10-20)
 

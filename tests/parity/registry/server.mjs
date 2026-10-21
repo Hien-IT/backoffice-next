@@ -21,12 +21,15 @@ function send(res, status, body) {
 	res.end(JSON.stringify(body));
 }
 
-/** GET /extensions: the query of constructUrl (search, type, by, sort, limit, offset, sandbox). */
-export function listExtensions(all, params) {
+/**
+ * GET /extensions: the query of constructUrl (search, type, by, sort, limit, offset, sandbox). `by` is an account id
+ * (the account page of the app) or a username; list rows carry the publisher's username only.
+ */
+export function listExtensions(all, params, accounts = {}) {
 	let data = [...all];
 	const search = params.get('search');
 	const type = params.get('type');
-	const by = params.get('by');
+	const by = accounts[params.get('by')]?.data.username ?? params.get('by');
 
 	if (search) data = data.filter((e) => e.name.includes(search) || (e.description ?? '').includes(search));
 	if (type) data = data.filter((e) => e.type === type);
@@ -68,7 +71,7 @@ export function createRegistryServer() {
 		if (url.pathname === '/v1/owner' && req.method === 'GET') return send(res, 200, owner);
 		if (req.method !== 'GET') return send(res, 404, { error: 'not found' });
 		if (url.pathname === '/version') return send(res, 200, { version: REGISTRY_VERSION });
-		if (url.pathname === '/extensions') return send(res, 200, listExtensions(list, url.searchParams));
+		if (url.pathname === '/extensions') return send(res, 200, listExtensions(list, url.searchParams, accounts));
 
 		const extension = /^\/extensions\/([^/]+)$/.exec(url.pathname);
 		if (extension)

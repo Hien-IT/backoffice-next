@@ -1,0 +1,98 @@
+[
+	{
+		"source": "app/src/modules/settings/routes/marketplace/utils/format-name.ts",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/utils/format-name.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/list/schemas/registry-list-response.ts",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/types.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/describe/schemas/registry-describe-response.ts",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/types.ts"
+	},
+	{
+		"source": "packages/extensions-registry/src/modules/account/schemas/registry-account-response.ts",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/types.ts"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/components/metadata-item.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/MetadataItem.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/components/extension-list-item.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionListItem.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/registry/registry.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/RegistryRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/registry/components/inline-filter.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/InlineFilter.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/extension.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/ExtensionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-banner.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/ExtensionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-readme.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/ExtensionRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-install.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionInstall.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-downloads-sparkline.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/DownloadsSparkline.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-author.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-compatibility.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-date.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-downloads.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-license.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-size.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-version.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/components/ExtensionMetadata.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/account/account.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/AccountRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/account/components/account-banner.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/AccountRoute.vue"
+	},
+	{
+		"source": "app/src/modules/settings/routes/marketplace/routes/account/components/account-metadata.vue",
+		"dest": "apps/web/src/modules/settings/routes/marketplace/AccountRoute.vue"
+	}
+]
