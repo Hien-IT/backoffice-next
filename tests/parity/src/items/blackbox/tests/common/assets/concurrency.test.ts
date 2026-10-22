@@ -44,7 +44,10 @@ describe('/assets', () => {
 							// requests after the 10 s autocannon timeout at either app (p99 6 s, max 9-10 s; Directus on SQLite,
 							// the new app on Postgres and MySQL; CI runs 38299949458 to 38311791314); locally both apps pass at 100
 							// with the same CPU time and database work per request (spec 007 tasks.md, T052 notes).
-							const options = ['exec', 'autocannon', '-j', '-c', '50', url];
+							// Backoffice: a 30 s timeout instead of autocannon's 10 s. Both apps lost 1 or 2 of about 700 to 1000
+							// requests at 10 s while the slowest answered one took 6 to 7 s (Directus CI 39708053148, the new app CI
+							// 39781192802, every retry): the busy runner, not a hang, which still fails at 30 s.
+							const options = ['exec', 'autocannon', '-j', '-c', '50', '-t', '30', url];
 							const child = spawn('pnpm', options);
 
 							isSpawnRunning = true;
