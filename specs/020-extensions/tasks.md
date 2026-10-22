@@ -562,7 +562,8 @@ src/directus-shim` (axe, bàn phím).
 - [X] T201 Design owner duyệt Q-41..Q-46 (SC-008) với ảnh sáng/tối; `design-system/qa/handoff-checklist.md` ghi ngoại lệ
       chỉ chuột (`VWorkspace`) nếu shim dùng
 - [X] T202 Owner duyệt khác biệt D-135..D-141, mục "Cần xác nhận và rủi ro" R-58..R-68, D-139 sau T042
-- [ ] T203 Đóng 020: CI xanh ở `quality`, `parity`, `e2e-web`, `deploy`, `deploy-k8s` (SC-009); commit, theo dõi CI
+- [X] T203 Đóng 020: CI xanh ở `quality`, `parity`, `e2e-web`, `deploy`, `deploy-k8s` (SC-009); commit, theo dõi CI
+      — CI run 39736093957 (`ccdbd31c`, 2026-10-22, gồm commit docs T191 `2a868506`) xanh 25/25
 
 ---
 
