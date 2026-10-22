@@ -3,6 +3,10 @@
 :root {
 	/* project_color of the settings, set by the app head (FR-031); the theme primary until then. */
 	--project-color: var(--color-brand-500);
+	/* Text and module tiles on the project color (D-163), the values projectForegroundCss gives the theme primary. */
+	--project-foreground: var(--color-white);
+	--project-tile: color-mix(in srgb, var(--project-color), var(--color-gray-950) 10%);
+	--project-tile-hover: color-mix(in srgb, var(--project-color), var(--color-gray-950) 20%);
 }
 
 /* Directus theme variables used as colors in system field metadata (the `action` labels of directus_activity, spec 018
