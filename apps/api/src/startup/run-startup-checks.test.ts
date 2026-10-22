@@ -98,7 +98,7 @@ describe('SECRET and PUBLIC_URL warnings (rows 12–13), verbatim Directus plus 
 		await runStartupChecks();
 		expect(logger.warn.mock.calls.map(([m]) => m)).toEqual([
 			'"SECRET" env variable is missing. Using a random value instead. Tokens will not persist between restarts. This is not appropriate for production usage.',
-			'Tokens signed with this random SECRET will not be accepted by Directus.',
+			'Tokens signed with this random SECRET will not be accepted by the other apps on this database.',
 		]);
 	});
 

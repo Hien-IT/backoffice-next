@@ -28,7 +28,7 @@ Mọi bước khởi động **chỉ đọc**: không ghi DB, an toàn khi nhi�
 | 11c | Không đọc được `directus_migrations` | Lỗi truy vấn | error | `Database migrations cannot be found` + lỗi gốc | 1 |
 | 12 | `SECRET` | Thiếu | warn | `"SECRET" env variable is missing. Using a random value instead. Tokens will not persist between restarts. This is not appropriate for production usage.` | — |
 | 12b | | Ngắn hơn 32 byte | warn | `"SECRET" env variable is shorter than 32 bytes which is insecure. This is not appropriate for production usage.` | — |
-| 12c | `SECRET` `[mới]` | Thiếu | warn | `Tokens signed with this random SECRET will not be accepted by Directus.` | — |
+| 12c | `SECRET` `[mới]` | Thiếu | warn | `Tokens signed with this random SECRET will not be accepted by the other apps on this database.` | — |
 | 13 | `PUBLIC_URL` | Không phải URL tuyệt đối | warn | `"PUBLIC_URL" should be a full URL` | — |
 | 14 | Geometry | Postgres thiếu PostGIS / SQLite thiếu Spatialite | warn | `PostGIS isn't installed. Geometry type support will be limited.` / `Spatialite isn't installed. Geometry type support will be limited.` | — |
 | 15 | Storage driver `[mới]` (FR-034) | Location trong `STORAGE_LOCATIONS` có driver khác `local`, `s3` | error | `Storage location "<location>" uses driver "<driver>", which is not supported by Backoffice. Supported drivers: local, s3.` | 1 |

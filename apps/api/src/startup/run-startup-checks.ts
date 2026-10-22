@@ -48,7 +48,7 @@ export async function runStartupChecks(): Promise<void> {
 			`"SECRET" env variable is missing. Using a random value instead. Tokens will not persist between restarts. This is not appropriate for production usage.`,
 		);
 
-		logger.warn('Tokens signed with this random SECRET will not be accepted by Directus.');
+		logger.warn('Tokens signed with this random SECRET will not be accepted by the other apps on this database.');
 	}
 
 	if (typeof env['SECRET'] === 'string' && Buffer.byteLength(env['SECRET']) < 32) {

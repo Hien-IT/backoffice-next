@@ -15,7 +15,7 @@ docker run --rm -p 8055:8055 \
   hiennd23/backoffice-api:latest
 ```
 
-Log: `Initializing bootstrap...` → `Installing Directus system tables...` → `Running migrations...` → `Applying ...`
+Log: `Initializing bootstrap...` → `Installing Backoffice system tables...` → `Running migrations...` → `Applying ...`
 ×101 → `Setting up first admin role...` → `Adding first admin user...` → `Done` → `Server started at
 http://0.0.0.0:8055` (kiểm lượt 1: `/server/ping` 200 sau 7 s, không env).
 

@@ -154,7 +154,7 @@ thử ghi "[Unverified]".
   BACKOFFICE_VERSION)`, mô tả `start` ("Start the Backoffice API") và `init` ("Create a new Backoffice Project"),
   `init` in `Start Backoffice by running:` và `node cli.js start` (thay `npx directus start`), `.env` mẫu (chữ Directus và
   link docs → Backoffice), `schema apply`: `Backoffice isn't installed on this database. Please run "backoffice
-  bootstrap" first.`. Giữ: `Installing Directus system tables...`, `Database doesn't have Directus tables installed.`
+  bootstrap" first.`, `Installing Backoffice system tables...` (owner 2026-10-22). Giữ: `Database doesn't have Directus tables installed.`
   (001), mọi tên bảng, biến, mã lỗi, tên lệnh. Bộ chuẩn hóa parity (`tests/parity/src/bootstrap/normalize.ts`): thay
   `Directus|Backoffice` → `<app>`, `npx directus start|node cli.js start` → `<start>`, số phiên bản → `<version>`,
   thời gian pino, pid, hostname, uuid, hash.

@@ -127,7 +127,7 @@ describe.skipIf(SEPARATE || STANDALONE)('BE image in place of the Directus image
 			await waitFor(`${c.url}/server/health`);
 			expect(await adminToken(c.url)).toBeTruthy();
 			expect(psql('SELECT count(*) FROM directus_migrations', 'swap_empty').trim()).toBe('101');
-			expect(docker('logs', c.id)).toContain('Installing Directus system tables...');
+			expect(docker('logs', c.id)).toContain('Installing Backoffice system tables...');
 		} finally {
 			if (id) docker('rm', '-f', id);
 			psql('DROP DATABASE IF EXISTS swap_empty');

@@ -75,7 +75,7 @@ describe('empty database', () => {
 		expect(calls).toEqual(['seed', 'migrate:latest', 'admin']);
 		expect(messages()).toEqual([
 			'Initializing bootstrap...',
-			'Installing Directus system tables...',
+			'Installing Backoffice system tables...',
 			'Running migrations...',
 			'Done',
 		]);

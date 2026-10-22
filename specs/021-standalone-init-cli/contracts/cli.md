@@ -40,7 +40,7 @@ Initializing bootstrap...
   "node cli.js bootstrap" with the Directus 11.17.4 image (D-145)" mã 1; DB đã cài → "Database on <client> is migrated by
   Directus 11.17.4 (D-145); skipping migrations" → Done, mã 0]
 DB trống:
-  Installing Directus system tables...      (seed, 15 bảng)
+  Installing Backoffice system tables...    (seed, 15 bảng)
   Running migrations...
   Applying <name>...                         × 101 (+ custom)
   Setting up first admin role...
@@ -90,7 +90,8 @@ Sau `latest` có áp ít nhất một migration: `flushCaches(true)` (bus Redis 
 | `init` cuối | `Start Directus by running:` / `npx directus start` | `Start Backoffice by running:` / `node cli.js start` |
 | `.env` mẫu | chữ Directus, link docs.directus.io | chữ Backoffice, không link |
 | `schema apply` chưa cài | `Directus isn't installed ... "directus bootstrap"` | `Backoffice isn't installed ... "backoffice bootstrap"` |
-| giữ nguyên | `Installing Directus system tables...`, `Database doesn't have Directus tables installed.`, `... do not match Directus 11.17.4`, tên bảng, biến, mã lỗi, tên lệnh | như Directus |
+| log `bootstrap` (owner 2026-10-22) | `Installing Directus system tables...` | `Installing Backoffice system tables...` |
+| giữ nguyên | `Database doesn't have Directus tables installed.`, `... do not match Directus 11.17.4`, tên bảng, biến, mã lỗi, tên lệnh | như Directus |
 
 Bộ chuẩn hóa: đúng danh sách của spec FR-107 (không thêm quy tắc ở đây).
 

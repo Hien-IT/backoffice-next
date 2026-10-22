@@ -43,7 +43,7 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 	}
 
 	if ((await isInstalled()) === false) {
-		logger.info('Installing Directus system tables...');
+		logger.info('Installing Backoffice system tables...');
 
 		await installDatabase(database);
 
