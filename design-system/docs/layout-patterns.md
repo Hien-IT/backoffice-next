@@ -30,6 +30,9 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 `layout/AppSidebar.vue` (also the Directus module-bar port), `ModuleTabs.vue`, `composables/use-module-bar.ts`,
 `PrivateView.vue`. (The same day a top tab bar, then a Directus-like vertical icon rail came first; the owner chose this.)
 
+- App icon (D-159): without a `project_logo` the default icon `src/assets/logo.png` (256 px, transparent) shows as is;
+  the public pages show it at `size-12` and keep the project color tile for an uploaded `project_logo`. The default
+  favicon is `public/favicon.ico` from the same icon.
 - Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.
@@ -37,7 +40,8 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   `m-3 flex flex-col gap-4 rounded-2xl bg-(--project-color) p-4 shadow-theme-md`, flat: the owner dropped the gradient
   and the corner light the same day; dark mode
   `dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10`): the
-  logo (`SidebarLogo`, `size-12`, the default app icon or `project_logo`) with the project name
+  logo (`SidebarLogo`, `size-12`: the default app icon `src/assets/logo.png` without a tile, D-159, or an uploaded
+  `project_logo` on a white tile `bg-white p-1.5`, owner 2026-10-22) with the project name
   `text-lg font-semibold text-white` and descriptor `text-theme-xs text-white/80`, then the module tiles: `nav`
   `aria-label` `modules`, `data-testid="module-bar"`, `grid grid-cols-3 gap-2`; each tile
   `flex flex-col items-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium` with the icon and the name under it
