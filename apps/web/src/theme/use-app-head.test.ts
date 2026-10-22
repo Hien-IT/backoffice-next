@@ -6,7 +6,7 @@ import { defineComponent, nextTick } from 'vue';
 import { createSdk } from '../api/sdk.ts';
 import { useServerStore } from '../stores/server.ts';
 import { useUserStore } from '../stores/user.ts';
-import { safeColor, useAppHead } from './use-app-head.ts';
+import { projectForegroundCss, safeColor, useAppHead } from './use-app-head.ts';
 
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
@@ -53,7 +53,7 @@ describe('useAppHead', () => {
 
 		expect(head.title).toBe('Sign In · Backoffice');
 		expect(head.icon).toBe('/admin/favicon.ico');
-		expect(head.style).toBe(':root { --project-color: var(--color-brand-500) }');
+		expect(head.style).toBe(`:root { --project-color: var(--color-brand-500); ${projectForegroundCss(null)} }`);
 		expect(head.html).toMatchObject({ lang: 'en-US', dir: 'ltr', class: 'light' });
 		expect(head.overrides).toBe('');
 	});
@@ -71,6 +71,7 @@ describe('useAppHead', () => {
 		expect(head.style).toContain('--color-brand-50: color-mix(in srgb, #336699 9%, var(--color-white));');
 		expect(head.style).toContain('--color-brand-600: color-mix(in srgb, #336699 91%, var(--color-gray-950));');
 		expect(head.style!.match(/--color-brand-\d+:/g)).toHaveLength(12);
+		expect(head.style).toContain('--project-foreground: var(--color-white);');
 		expect(head.icon).toMatch(/^data:image\/svg\+xml;base64,/);
 		expect(atob(head.icon!.split(',')[1]!)).toContain('<path');
 		expect(head.html).toMatchObject({ lang: 'vi-VN' });
@@ -86,8 +87,24 @@ describe('useAppHead', () => {
 	test('an invalid project_color is ignored', async () => {
 		const head = await resolve({ project_color: 'red; } body { display: none' });
 
-		expect(head.style).toBe(':root { --project-color: var(--color-brand-500) }');
+		expect(head.style).toBe(`:root { --project-color: var(--color-brand-500); ${projectForegroundCss(null)} }`);
 		expect(head.icon).toBe('/admin/favicon.ico');
+	});
+});
+
+describe('projectForegroundCss (D-163)', () => {
+	test('white text and darker tiles on a dark color, gray-900 and lighter tiles on a light one', () => {
+		for (const color of [null, '#6644FF', '#465fff', '#0023C4', 'navy', 'not a color']) {
+			const css = projectForegroundCss(color);
+			expect(css).toContain('--project-foreground: var(--color-white);');
+			expect(css).toContain('--project-tile: color-mix(in srgb, var(--project-color), var(--color-gray-950) 10%);');
+		}
+
+		for (const color of ['#2ECDA7', '#F79009', 'rgb(255, 255, 0)', 'white']) {
+			const css = projectForegroundCss(color);
+			expect(css).toContain('--project-foreground: var(--color-gray-900);');
+			expect(css).toContain('--project-tile-hover: color-mix(in srgb, var(--project-color), var(--color-white) 35%);');
+		}
 	});
 });
 

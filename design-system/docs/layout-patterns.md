@@ -42,12 +42,19 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   `dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10`): the
   logo (`SidebarLogo`, `size-12`: the default app icon `src/assets/logo.png` without a tile, D-159, or an uploaded
   `project_logo` on a white tile `bg-white p-1.5`, owner 2026-10-22) with the project name
-  `text-lg font-semibold text-white` and descriptor `text-theme-xs text-white/80`, then the module tiles: `nav`
+  `text-lg font-semibold` and descriptor `text-theme-xs` in `text-(--project-foreground)` (dark `text-white`), then the
+  module tiles: `nav`
   `aria-label` `modules`, `data-testid="module-bar"`, `grid grid-cols-3 gap-2`; each tile
   `flex flex-col items-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium` with the icon and the name under it
   (truncated, full name in `title`); active `bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60` (dark
-  `bg-white/20 text-white ring-1 ring-white/30`) + `aria-current="page"`, others `bg-white/10 text-white hover:bg-white/20`
-  (dark `bg-white/5 hover:bg-white/10`); focus `outline-white`; `module_bar` order,
+  `bg-white/20 text-white ring-1 ring-white/30`) + `aria-current="page"`, others
+  `bg-(--project-tile) text-(--project-foreground) hover:bg-(--project-tile-hover)` (dark
+  `bg-white/5 text-white hover:bg-white/10`); focus `outline-(--project-foreground)` (dark `outline-white`). Text color
+  (D-163, owner 2026-10-22): `theme/use-app-head.ts` `projectForegroundCss` sets `--project-foreground` to white or
+  gray-900, whichever contrasts more with the project color (white without one: brand-500 4.84:1); the tiles mix the
+  color toward gray-950 (10%, hover 20%) under white text and toward white (20%, hover 35%) under gray-900 text, so a
+  tile only raises the contrast. Limit: a mid-tone color can give 4.17:1 to 4.5:1 on the card text itself (both
+  white and gray-900 near their crossover); the tiles stay above 4.5:1. `module_bar` order,
   FR-021, FR-081, D-49 unchanged; the tiles are the internal modules only. The `module_bar` links (Settings > Project >
   Module Bar, Add Link; internal router links or external links in a new tab) and the app extension modules (D-144)
   share one `apps` tile labelled `more_modules` ("More", accessible name "More: Links and extensions", D-162) opening a

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 // Backoffice (owner 2026-10-22, D-157): the module bar as a grid of tiles in the project color block of the sidebar
 // (AppSidebar, layout-patterns §2), after the owner's mock-up (2026-10-22): an icon per module with its name under it.
-// The active module has aria-current and the white tile. The module_bar links (Add Link) and the app extension modules (D-144) share one tile with a menu
-// (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it.
+// The active module has aria-current and the white tile; the others take the text and tile colors picked from the
+// project color (D-163). The module_bar links (Add Link) and the app extension modules (D-144) share one tile with a
+// menu (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
@@ -25,14 +26,14 @@ const moreItems = computed<BoMenuItem[]>(() =>
 );
 
 const ITEM =
-	'flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+	'flex w-full min-w-0 flex-col items-center justify-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--project-foreground) dark:focus-visible:outline-white';
 
 function itemClass(active: boolean) {
 	return [
 		ITEM,
 		active
 			? 'bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60 dark:bg-white/20 dark:text-white dark:shadow-none dark:ring-1 dark:ring-white/30'
-			: 'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10',
+			: 'bg-(--project-tile) text-(--project-foreground) hover:bg-(--project-tile-hover) dark:bg-white/5 dark:text-white dark:hover:bg-white/10',
 	];
 }
 

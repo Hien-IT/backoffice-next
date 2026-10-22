@@ -7,6 +7,7 @@
 // settings and user become design-system tokens in <style id="theme-overrides"> (override-map.ts) instead of
 // ThemeProvider of @directus/themes.
 import { useHead } from '@unhead/vue';
+import Color from 'color';
 import { computed } from 'vue';
 import { useServerStore } from '../stores/server.ts';
 import { useUserStore } from '../stores/user.ts';
@@ -49,6 +50,33 @@ export function brandScaleCss(color: string): string {
 	return [`--color-brand-500: ${color};`, ...steps].join(' ');
 }
 
+/**
+ * Text on the project color block of the sidebar (owner 2026-10-22, D-163): white or gray-900 (theme.css values),
+ * whichever contrasts more with the color; the module tiles mix the color toward gray-950 under white text and toward
+ * white under gray-900 text, so a tile never lowers the contrast. Without a project color (the theme brand-500, 4.84:1
+ * with white) or with one the parser does not know, the text stays white.
+ */
+export function projectForegroundCss(color: string | null): string {
+	let darkText = false;
+
+	try {
+		const background = color === null ? null : Color(color);
+		darkText = !!background && background.contrast(Color('#101828')) > background.contrast(Color('#ffffff'));
+	} catch {
+		darkText = false;
+	}
+
+	const [text, toward, tile, hover] = darkText
+		? ['var(--color-gray-900)', 'var(--color-white)', 20, 35]
+		: ['var(--color-white)', 'var(--color-gray-950)', 10, 20];
+
+	return [
+		`--project-foreground: ${text};`,
+		`--project-tile: color-mix(in srgb, var(--project-color), ${toward} ${tile}%);`,
+		`--project-tile-hover: color-mix(in srgb, var(--project-color), ${toward} ${hover}%);`,
+	].join(' ');
+}
+
 export function useAppHead() {
 	const serverStore = useServerStore();
 	const userStore = useUserStore();
@@ -57,8 +85,8 @@ export function useAppHead() {
 	const projectColor = computed(() => safeColor(serverStore.info?.project?.project_color));
 
 	const brandStyleCss = computed(() => {
-		if (!projectColor.value) return ':root { --project-color: var(--color-brand-500) }';
-		return `:root { --project-color: ${projectColor.value}; ${brandScaleCss(projectColor.value)} }`;
+		if (!projectColor.value) return `:root { --project-color: var(--color-brand-500); ${projectForegroundCss(null)} }`;
+		return `:root { --project-color: ${projectColor.value}; ${brandScaleCss(projectColor.value)} ${projectForegroundCss(projectColor.value)} }`;
 	});
 
 	const themeOverridesCss = computed(() =>
