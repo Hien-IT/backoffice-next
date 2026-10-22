@@ -391,8 +391,7 @@ function hasVersionEdits(version: ContentVersionMaybeNew | null) {
 
 <template>
 	<div class="version-menu-wrapper flex min-w-0 items-center">
-		<span aria-hidden="true" class="hidden pe-0.5 text-gray-500 sm:inline dark:text-gray-400">•</span>
-
+		<!-- Backoffice (owner 2026-10-22): after the title, without the breadcrumb `•` (no breadcrumb since D-101). -->
 		<DropdownMenuRoot :modal="false">
 			<DropdownMenuTrigger as-child>
 				<button

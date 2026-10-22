@@ -654,7 +654,7 @@ function useItemNavigation() {
 			/>
 		</template>
 
-		<template v-if="shouldShowVersioning" #headline-append>
+		<template v-if="shouldShowVersioning" #title-append>
 			<VersionMenu
 				:collection="collection"
 				:primary-key="internalPrimaryKey!"

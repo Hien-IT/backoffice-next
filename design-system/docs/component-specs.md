@@ -1274,7 +1274,8 @@ Built: `modules/content/routes/{CollectionRoute,ItemRoute}.vue`,
 - Bookmark dialog (`BookmarkAdd`): BoDialog (Tier 1 Modal) `create_bookmark`, form `grid grid-cols-2 gap-4`: name
   (`system-input-translated-string`, full width, autofocus), icon picker and color picker (half each); Cancel / Save
   (disabled without a name); Enter submits, Esc or outside click cancels.
-- Version menu (`VersionMenu`, `headline-append` = the breadcrumb line, after a `•`): button
+- Version menu (`VersionMenu`, `title-append`: after the title on the title row, owner 2026-10-22; no `•`, the
+  breadcrumb it followed is gone since D-101): button
   `inline-flex h-8 min-w-0 items-center gap-1 rounded-lg px-2 text-theme-sm text-gray-700 hover:bg-gray-100 FOCUS dark:text-gray-400 dark:hover:bg-white/5`
   with `published_with_changes`, the version name (truncated) and `arrow_drop_down`, `aria-label` "Version: <name>";
   menu (`max-w-64`): radio items main, the global draft and the local versions (checked `bg-brand-50 text-brand-600`,
