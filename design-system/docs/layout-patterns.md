@@ -33,9 +33,9 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 - Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.
-- Top block on the project color (`data-testid="module-rail"`, `flex flex-col gap-4 bg-(--project-color) p-4`): the logo
-  (`SidebarLogo`, the default app icon or `project_logo`) with the project name `text-base font-semibold text-white` and
-  descriptor `text-theme-xs text-white/80`, then the module tiles: `nav` `aria-label` `modules`, `data-testid="module-bar"`,
+- Logo row on white (`px-4 py-4`, owner 2026-10-22): `SidebarLogo` (the default app icon or `project_logo`) with the
+  project name `text-base font-semibold text-gray-800` and descriptor `text-theme-xs text-gray-500`.
+- Block on the project color (`data-testid="module-rail"`, `bg-(--project-color) p-4`) with the module tiles: `nav` `aria-label` `modules`, `data-testid="module-bar"`,
   `grid grid-cols-3 gap-2`; each tile `flex h-12 w-full items-center justify-center rounded-xl` with the icon, the name
   as sr-only text and a BoTooltip (`side="bottom"`); active `bg-white text-(--project-color) shadow-theme-xs` +
   `aria-current="page"`, others `bg-white/15 text-white hover:bg-white/25`; focus `outline-white`; `module_bar` order,
