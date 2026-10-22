@@ -34,7 +34,9 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.
 - Card on the project color (`data-testid="module-rail"`, after the owner's mock-up 2026-10-22:
-  `m-3 flex flex-col gap-4 rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md`): the
+  `relative m-3 flex flex-col gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4
+  shadow-theme-md`, plus a light at the top right corner, an `aria-hidden` layer
+  `absolute inset-0 bg-radial-[at_100%_0%] from-white/50 via-white/15 via-30% to-transparent to-65%`): the
   logo (`SidebarLogo`, `size-12`, the default app icon or `project_logo`) with the project name
   `text-lg font-semibold text-white` and descriptor `text-theme-xs text-white/80`, then the module tiles: `nav`
   `aria-label` `modules`, `data-testid="module-bar"`, `grid grid-cols-3 gap-2`; each tile

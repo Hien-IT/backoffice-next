@@ -37,10 +37,15 @@ const [DefineSidebar, ReuseSidebar] = createReusableTemplate();
 		>
 			<div
 				data-testid="module-rail"
-				class="m-3 flex shrink-0 flex-col gap-4 rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md"
+				class="relative m-3 flex shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md"
 			>
-				<SidebarLogo />
-				<ModuleTabs />
+				<!-- The light at the top right corner of the owner's mock-up. -->
+				<div
+					aria-hidden="true"
+					class="pointer-events-none absolute inset-0 bg-radial-[at_100%_0%] from-white/50 via-white/15 via-30% to-transparent to-65%"
+				/>
+				<SidebarLogo class="relative" />
+				<ModuleTabs class="relative" />
 			</div>
 
 			<div v-if="currentModule" class="flex items-center gap-2 px-5 pt-5 pb-3">
