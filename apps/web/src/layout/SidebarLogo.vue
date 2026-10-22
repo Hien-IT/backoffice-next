@@ -2,7 +2,8 @@
 <script setup lang="ts">
 // Backoffice: the logo at the top of the sidebar (layout-patterns §2, D-157; Directus module-bar-logo.vue and
 // private-view-nav-project-name.vue): the logo, the project name and the descriptor in white on the project color block
-// of the sidebar (owner's mock-up 2026-10-22; `Backoffice` when project_name is empty, FR-026). The default app icon (owner 2026-10-22, D-159) shows as is, without a tile; an
+// of the sidebar (owner's mock-up 2026-10-22; `Backoffice` when project_name is empty, FR-026). An uploaded
+// project_logo sits on a white tile (owner 2026-10-22), the default app icon on none. The default app icon (owner 2026-10-22, D-159) shows as is, without a tile; an
 // uploaded project_logo keeps the project color tile. The Backoffice logo (light/dark SVG) replaces the animated
 // Directus sprite, so the loader is the progress bar for both logos; project_url is a link only with an http(s)
 // scheme (FR-026).
@@ -69,7 +70,7 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 			>
 				<span
 					class="relative flex size-12 shrink-0 items-center justify-center rounded-lg"
-					:class="{ 'bg-(--project-color) p-1.5': customLogoPath }"
+					:class="{ 'bg-white p-1.5': customLogoPath }"
 				>
 					<img v-if="customLogoPath" :src="customLogoPath" :alt="name" class="size-full object-contain" />
 					<img v-else :src="logo" :alt="name" class="size-full object-contain" />

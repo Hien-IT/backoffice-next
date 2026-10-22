@@ -47,6 +47,8 @@ describe('SidebarLogo (FR-026)', () => {
 			rel: 'noopener noreferrer',
 		});
 		expect(wrapper.get('img').attributes()).toMatchObject({ src: 'http://api.test/assets/logo-id', alt: 'Acme' });
+		// An uploaded logo sits on a white tile (owner 2026-10-22).
+		expect(wrapper.get('img').element.parentElement!.className).toContain('bg-white');
 	});
 
 	test.each(['javascript:alert(1)', 'data:text/html,x', 'not a url'])('project_url %s is not a link', async (url) => {
