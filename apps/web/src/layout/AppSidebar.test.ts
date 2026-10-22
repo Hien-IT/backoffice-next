@@ -45,9 +45,9 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 		expect(wrapper.get('aside h2').text()).toBe('Activity');
 	});
 
-	test('from xl: 290 px under the top bar; the header toggle hides it (saved)', async () => {
+	test('from xl: 290 px next to the module rail; the header toggle hides it (saved)', async () => {
 		const { wrapper } = await render();
-		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'top-16']));
+		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'start-16']));
 
 		useNavBarStore().collapse();
 		await nextTick();

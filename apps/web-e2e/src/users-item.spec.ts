@@ -65,7 +65,7 @@ test('the avatar menu links to your own page /users/<id> (US4-2, D-86) @core', a
 	const me = (await api.call<{ id: string }>('GET', '/users/me?fields=id')).id;
 
 	await openUsers(page);
-	// The avatar menu is at the end of the top bar (D-157).
+	// The avatar menu is at the bottom of the module rail (D-157).
 	await moduleBar(page);
 	await page.getByRole('button', { name: 'Admin User' }).click();
 	await page.getByRole('menuitem', { name: /Profile/ }).click();

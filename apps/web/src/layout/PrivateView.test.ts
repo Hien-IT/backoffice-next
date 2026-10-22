@@ -57,17 +57,17 @@ const sidebarAside = () => q('aside[aria-label="Sidebar"]');
 const button = (label: string) => q(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
 
 describe('PrivateView (FR-020, FR-028)', () => {
-	test('from xl: top bar (logo, module tabs, user), sidebar with the module navigation, page header in main; title; skip menu', async () => {
+	test('from xl: module rail (logo, module icons, user), sidebar with the module navigation, page header in main; title; skip menu', async () => {
 		const { head } = await render();
 
-		const topBar = q('body header:not(main header)')!;
-		expect(topBar.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
-		expect(topBar.textContent).toContain('Backoffice');
-		expect(topBar.querySelector('button[aria-label="Ada"]')).not.toBeNull();
+		const rail = q('[data-testid="module-rail"]')!;
+		expect(rail.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
+		expect(rail.querySelector('img[alt="Backoffice"]')).not.toBeNull();
+		expect(rail.querySelector('button[aria-label="Ada"]')).not.toBeNull();
 		expect(navAside()!.getAttribute('aria-label')).toBe('Content');
 		expect(navAside()!.textContent).toContain('Nav items');
 		expect(navAside()!.querySelector('[data-testid="module-bar"]')).toBeNull();
-		expect(q('#navigation + div')!.className).toContain('xl:ms-[290px]');
+		expect(q('#navigation + div')!.className).toContain('xl:ms-[354px]');
 		expect(q('main header button[aria-label="Toggle Navigation"]')).not.toBeNull();
 		expect(q('main#main-content h1')!.textContent).toBe('Content');
 		expect(q('main#main-content')!.textContent).toContain('Act');
@@ -89,7 +89,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		await render();
 
 		expect(navAside()).toBeNull();
-		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[290px]');
+		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[354px]');
 		expect(button('Toggle Navigation')!.getAttribute('aria-expanded')).toBe('false');
 
 		button('Toggle Navigation')!.click();
@@ -117,7 +117,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		viewport(1000);
 		await render();
 
-		// The module tabs stay in the top bar below xl (they scroll sideways).
+		// The module rail stays below xl.
 		expect(q('[data-testid="module-bar"]')).not.toBeNull();
 		expect(navAside()).toBeNull();
 		expect(sidebarAside()).toBeNull();

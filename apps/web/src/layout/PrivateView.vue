@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view.vue -->
 <script setup lang="ts">
 // Backoffice: the TailAdmin AdminLayout of design-system layout-patterns (D-52) instead of private-view-root.vue and
-// private-view-main.vue: top bar (logo, module tabs, bell, user menu; owner 2026-10-22, D-157), sidebar (the
+// private-view-main.vue: module rail (logo, module icons, bell, user menu; owner 2026-10-22, D-157), sidebar (the
 // `navigation` slot of the current module, left out when the page has none), header (sidebar toggle and the page header: title, icon, `actions`; owner 2026-10-20), content; the right
 // detail panel (`sidebar` slot) is a popover of the page header (owner 2026-10-20). One breakpoint, `xl` (L-1): from
 // `xl` the sidebar is inline, below `xl` a drawer. No license banner (D-38); the notifications drawer (018 FR-077) is
@@ -15,7 +15,7 @@ import { useLayoutBreakpoints } from '../composables/use-media-query.ts';
 import { useUserStore } from '../stores/user.ts';
 import AppHeader from './AppHeader.vue';
 import AppSidebar from './AppSidebar.vue';
-import AppTopBar from './AppTopBar.vue';
+import AppModuleBar from './AppModuleBar.vue';
 import MainContent from './MainContent.vue';
 import NoAppAccess from './NoAppAccess.vue';
 import PageHeader from './PageHeader.vue';
@@ -80,10 +80,10 @@ defineExpose({ scrollElement });
 <template>
 	<NoAppAccess v-if="appAccess === false" />
 	<!-- `relative`: absolute descendants (sr-only labels in the table) would escape the clip and stretch the page. -->
-	<div v-else class="pt-16 xl:flex" :class="fill ? 'relative h-dvh overflow-hidden' : 'min-h-screen'">
+	<div v-else class="xl:flex" :class="fill ? 'relative h-dvh overflow-hidden' : 'min-h-screen'">
 		<BoSkipMenu />
 
-		<AppTopBar />
+		<AppModuleBar />
 
 		<AppSidebar v-if="$slots['navigation']" :drawer="!xl">
 			<template #navigation><slot name="navigation" /></template>
@@ -91,17 +91,15 @@ defineExpose({ scrollElement });
 
 		<div
 			class="flex min-w-0 flex-1 flex-col"
-			:class="[{ 'xl:ms-[290px]': inlineSidebar }, fill ? 'h-[calc(100dvh-4rem)]' : 'min-h-[calc(100vh-4rem)]']"
+			:class="[inlineSidebar ? 'ms-16 xl:ms-[354px]' : 'ms-16', fill ? 'h-dvh' : 'min-h-screen']"
 		>
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">
 					<!-- In main, as the Directus header bar (the page title is `main h1`); sticky, so it stays on top while the
 					     page scrolls. The negative margins span the content padding. -->
-					<!-- `top`: under the top bar; on a `fill` page the scroll box already starts under it (its padding). -->
 					<AppHeader
 						:navigation="!!$slots['navigation']"
 						class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6"
-						:class="fill ? 'top-0' : 'top-16'"
 					>
 						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 							<template v-if="$slots['title']" #title><slot name="title" /></template>

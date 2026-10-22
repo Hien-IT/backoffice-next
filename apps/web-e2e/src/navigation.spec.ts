@@ -248,7 +248,7 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 	await page.keyboard.press('Escape');
 	await expect(page.locator('aside#navigation')).toBeHidden();
 	await expect(open).toBeFocused();
-	// The module tabs stay in the top bar below xl (D-157).
+	// The module rail stays below xl (D-157).
 	await expect(page.getByTestId('module-bar')).toBeVisible();
 
 	// No horizontal scroll at the smallest supported width (FR-028, SC-008).

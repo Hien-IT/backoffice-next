@@ -132,8 +132,8 @@ describe('ModuleTabs module list (FR-021, D-157)', () => {
 		const { links } = await render(null, { path: '/files/folders/1' });
 
 		expect(links.map((a) => a.getAttribute('aria-current'))).toEqual([null, null, 'page', null, null]);
-		expect(links[2]!.className).toContain('border-brand-500');
-		expect(links[0]!.className).toContain('border-transparent');
+		expect(links[2]!.className).toContain('bg-white');
+		expect(links[0]!.className).toContain('text-white/80');
 	});
 });
 
@@ -150,7 +150,8 @@ describe('ModuleTabs Extensions tab (D-144)', () => {
 
 		expect(hrefs).toEqual(['/content', '/settings']);
 		const button = document.body.querySelector<HTMLButtonElement>('[data-module-group="extensions"] button')!;
-		expect(button.className).toContain('border-brand-500');
+		expect(button.getAttribute('aria-label')).toBe('Extensions');
+		expect(button.className).toContain('bg-white');
 
 		button.focus();
 		await press(button, 'Enter');

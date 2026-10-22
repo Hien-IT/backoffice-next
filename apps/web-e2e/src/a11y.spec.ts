@@ -278,10 +278,10 @@ test('keyboard only: sign in, open Files, open and close the avatar menu, sign o
 	await page.keyboard.press('Enter');
 	await expect(page).toHaveURL(/\/admin\/files$/);
 
-	// The user menu ends the top bar (D-157). WebKit drops the focus of the clicked link on navigation, so the walk starts
-	// from the top of the page like after a load: skip links, logo, module tabs, bell, then the avatar.
+	// The user menu ends the module rail (D-157). WebKit drops the focus of the clicked link on navigation, so the walk
+	// starts from the top of the page like after a load: skip links, logo, module icons, bell, then the avatar.
 	const avatar = page
-		.getByRole('banner')
+		.getByTestId('module-rail')
 		.getByRole('button', { name: /Admin|User/ })
 		.first();
 	await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());

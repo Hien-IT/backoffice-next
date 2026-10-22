@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar-logo.vue -->
 <script setup lang="ts">
-// Backoffice: logo area of the top bar (layout-patterns §2; the TailAdmin sidebar logo until D-157): the logo on the
-// --project-color background plus the project name and descriptor of private-view-nav-project-name.vue (`Backoffice`
-// when project_name is empty, FR-026), name hidden below `md` where the module tabs need the room. The Backoffice logo (light/dark SVG) replaces the animated
+// Backoffice: the logo at the top of the module bar (layout-patterns §2, D-157; Directus module-bar-logo.vue): the logo
+// on the --project-color background, named after the project (`Backoffice` when project_name is empty, FR-026); the
+// rail has no room for the name text. The Backoffice logo (light/dark SVG) replaces the animated
 // Directus sprite, so the loader is the progress bar for both logos; project_url is a link only with an http(s)
 // scheme (FR-026).
 import { computed, ref, toRefs, watch } from 'vue';
@@ -53,19 +53,18 @@ const url = computed(() => {
 
 // Backoffice: the name of the server info only, where the Directus default name is already dropped (D-51).
 const name = computed(() => serverStore.info.project?.project_name || 'Backoffice');
-const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 </script>
 
 <template>
 	<div class="flex shrink-0">
 		<component
 			:is="url ? BoTooltip : 'div'"
-			v-bind="url ? { text: t('view_project'), side: 'bottom' } : { class: 'contents' }"
+			v-bind="url ? { text: t('view_project'), side: 'right' } : { class: 'contents' }"
 		>
 			<component
 				:is="url ? 'a' : 'div'"
 				v-bind="url ? { href: url, target: '_blank', rel: 'noopener noreferrer' } : {}"
-				class="flex min-w-0 items-center gap-3 rounded-lg text-gray-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:text-white/90 dark:focus-visible:outline-brand-400"
+				class="flex min-w-0 items-center gap-3 rounded-lg text-gray-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:text-white/90"
 			>
 				<span class="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--project-color) p-1.5">
 					<img v-if="customLogoPath" :src="customLogoPath" :alt="name" class="size-full object-contain" />
@@ -79,17 +78,6 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 						:aria-label="$t('loading')"
 						class="absolute! inset-x-1 bottom-0.5 w-auto!"
 					/>
-				</span>
-				<!-- The logo alt already names the project: the visible name is not read twice. -->
-				<span class="hidden max-w-48 min-w-0 leading-tight md:block">
-					<span class="block truncate text-base font-semibold" aria-hidden="true" :title="name">{{ name }}</span>
-					<span
-						v-if="descriptor"
-						class="block truncate text-theme-xs text-gray-500 dark:text-gray-400"
-						:title="descriptor"
-					>
-						{{ descriptor }}
-					</span>
 				</span>
 			</component>
 		</component>

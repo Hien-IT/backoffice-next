@@ -1,8 +1,9 @@
-// The private layout (D-157, owner 2026-10-22): the module list is the tab bar at the top at every width; the navigation
-// of the open module is the sidebar, inline from the `xl` breakpoint (1280 px), a drawer below it.
+// The private layout (D-157, owner 2026-10-22): the module list is the dark icon rail at the start of the window at every
+// width, like the Directus module bar; the navigation of the open module is the sidebar next to it, inline from the `xl`
+// breakpoint (1280 px), a drawer below it.
 import { expect, type Locator, type Page } from '@playwright/test';
 
-/** The module tabs of the top bar. */
+/** The module icons of the rail (names are their accessible names). */
 export async function moduleBar(page: Page): Promise<Locator> {
 	const bar = page.getByTestId('module-bar');
 	await expect(bar).toBeVisible();
@@ -20,7 +21,7 @@ export async function moduleNavigation(page: Page): Promise<Locator> {
 	return navigation;
 }
 
-/** The bell: in the top bar, before the user menu (D-157). */
+/** The bell: at the bottom of the module rail, above the user menu (D-157). */
 export const notificationsBell = (page: Page): Locator => page.locator('button[aria-label^="Notifications, "]');
 
 /** Opens the bell panel (D-132: latest inbox, mark as read, "View all"). */

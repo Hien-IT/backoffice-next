@@ -6,10 +6,10 @@ import type { AdminApi } from './api.js';
 import { DATA_PREFIX } from './config.js';
 import { moduleNavigation } from './layout.js';
 
-/** Opens your own user page from the avatar menu at the end of the top bar (D-157): no /users/me route, as Directus (D-86). */
+/** Opens your own user page from the avatar menu at the bottom of the module rail (D-157): no /users/me route, as Directus (D-86). */
 export async function openOwnPage(page: Page): Promise<void> {
-	// The avatar is the last menu button of the top bar (the Extensions tab, when there is one, comes first).
-	await page.getByRole('banner').locator('button[aria-haspopup="menu"]').last().click();
+	// The avatar is the last menu button of the rail (the Extensions entry, when there is one, comes first).
+	await page.getByTestId('module-rail').locator('button[aria-haspopup="menu"]').last().click();
 	await page.getByRole('menuitem', { name: /^(Profile|Hồ sơ)/ }).click();
 	await expect(page).toHaveURL(/\/admin\/users\/[0-9a-f-]{36}$/);
 }

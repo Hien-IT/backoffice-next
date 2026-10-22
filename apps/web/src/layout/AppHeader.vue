@@ -1,9 +1,9 @@
 <script setup lang="ts">
 // TailAdmin AppHeader (design-system layout-patterns §4, D-52): the sidebar toggle, then the page header of the
-// default slot (owner 2026-10-20: one sticky band instead of the header plus the page header under it), sticky under
-// the 64 px top bar (D-157; its `top` comes from PrivateView). From `xl` the toggle hides the inline sidebar (saved);
+// default slot (owner 2026-10-20: one sticky band instead of the header plus the page header under it), sticky at the
+// top of the content. From `xl` the toggle hides the inline sidebar (saved);
 // below `xl` it opens the sidebar drawer, which takes focus and gives it back to this button on close. No toggle for a
-// module without navigation. No search or theme toggle (D-45); the bell and the user menu are in the top bar (D-157).
+// module without navigation. No search or theme toggle (D-45); the bell and the user menu are in the module rail (D-157).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoButton from '../components/BoButton.vue';
@@ -22,7 +22,7 @@ const toggle = computed(() =>
 </script>
 
 <template>
-	<header class="sticky z-999 flex border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+	<header class="sticky top-0 z-999 flex border-b border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
 		<div class="flex grow items-center gap-2 px-3 py-3 sm:gap-4 lg:py-4 xl:px-6">
 			<BoButton
 				v-if="navigation"
