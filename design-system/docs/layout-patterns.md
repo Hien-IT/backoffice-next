@@ -286,16 +286,21 @@ The owner asked (2026-10-22, after comparing with the TailAdmin Form Layout demo
 Card. Directus `v-form` has no card; fields, widths and behaviour stay those of Directus (principle VI), only the
 surface changes.
 
-- Built: `BoForm` prop `card`, `utils/form-column.ts`; used by the item pages Content (`ItemRoute`, also new items,
-  singletons and the start pane of the live preview split), File (`FileItemRoute`), User (`UserItemRoute`) and the
-  Settings pages Project, Appearance, Role, Public role, Policy, Preset, Translation and the Data Model collection page
+- Built: `BoForm` prop `card` (the sections reuse one field loop through `createReusableTemplate`),
+  `utils/form-column.ts`; used by the item pages Content (`ItemRoute`, also new items, singletons and the start pane of
+  the live preview split), File (`FileItemRoute`), User (`UserItemRoute`) and the Settings pages Project, Appearance, Role, Public role, Policy, Preset, Translation and the Data Model collection page
   (the collection options form under the fields list).
 - Unchanged: forms in drawers and dialogs (DrawerItem, DrawerBatch, FlowDrawer, field detail, ComparisonModal), nested
   group forms and ExtensionOptions; they already sit on a drawer or dialog surface.
-- Card: body only, on the grid itself:
-  `rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]` (Card container +
-  body padding, component-specs). No card header: the page title is already in the page header (D-127). The fill
-  threshold (726px) and the 31.25rem container query read the content box, so they measure the fields, not the card.
+- Cards: the form is a `flex flex-col gap-6` column of Cards (container
+  `rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]`), one per section: each
+  visible divider (`presentation-divider`, also the system divider) starts a new card (owner 2026-10-22). A divider with
+  a title or icon becomes the Card header (`flex items-center gap-3 px-6 py-5`, icon gray-500 / gray-400, `h3`
+  `text-base font-medium text-gray-800 dark:text-white/90`; the divider color stays an inline style); its body grid gets
+  `border-t border-gray-100 dark:border-gray-800`. The first card (fields before any divider) has no header: the page
+  title is already in the page header (D-127). Each body is the form grid with `p-4 sm:p-6`; the fill threshold (726px)
+  and the 31.25rem container query read the content box of the first grid, so they measure the fields, not the card. A
+  section without a visible field is left out; hidden dividers do not split.
 - The card holds the BoForm only. Blocks above or below stay outside it: file preview and image editor, user box,
   preset layout preview, Data Model fields list. The user box takes the card background
   `bg-white dark:bg-white/[0.03]` (it already had the card border) so the two blocks match.
@@ -303,15 +308,13 @@ surface changes.
   item pages `max-w-[47.375rem]` at the left (44.25rem + 2 × 1.5rem + 2px), `max-w-[67.125rem]` with a `fill` field (64rem +
   the same). Settings: the card sits in the existing `max-w-5xl` wrapper; the form is then 974px wide and keeps the
   three-column `fill` grid (> 726px).
-- Inside the card: grid, dividers, the validation notice and loading skeletons are unchanged. Empty form (no visible
-  fields): no card in the card, the info drops its border, background and padding (icon and the two lines stay
-  centred).
+- Inside the cards: grid, the validation notice (first card) and loading skeletons are unchanged. Empty form (no
+  visible fields): one card, no card in the card, the info drops its border, background and padding (icon and the two
+  lines stay centred).
 - Inputs keep their classes: on the white card they read white like TailAdmin; dark `bg-gray-900` on
   `bg-white/[0.03]` like TailAdmin. Their borders are the TailAdmin gray-300 (C-2 lifted 2026-10-22).
 - Accessibility: the card is a plain `div` (no role or landmark); focus order and labels unchanged.
-- The Directus divider (`presentation-divider`) keeps its look inside the card; the TailAdmin section title
-  (`pb-4 text-base font-medium text-gray-800 border-b border-gray-200`) would change an interface every form uses and
-  is a separate decision.
+- Forms without `card` (drawers, dialogs, nested groups) keep the single grid and the Directus divider look.
 
 ### Drawer (`BoDrawer`; Directus `v-drawer`)
 

@@ -271,8 +271,8 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
 - Header: `px-6 py-5`; title `text-base font-medium text-gray-800 dark:text-white/90`; description
   `mt-1 text-sm text-gray-500 dark:text-gray-400`
 - Body: `border-t border-gray-100 p-4 sm:p-6 dark:border-gray-800`, content `space-y-5`
-- Body-only card (Backoffice, D-150; page forms, layout-patterns §8 Form card): container + `p-4 sm:p-6`, no header and
-  no `border-t`.
+- Form cards (Backoffice, D-150; page forms, layout-patterns §8 Form card): one Card per divider section; the first
+  has no header (body `p-4 sm:p-6`, no `border-t`), the others take the divider title and icon as the header.
 - Blank/empty page card (`views/Pages/BlankPage.vue`):
   `rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]`.
 

@@ -124,6 +124,7 @@ export const FAKE_INTERFACES: Record<string, InterfaceConfig> = {
 	broken: config('broken', Broken),
 	'values-probe': config('values-probe', ValuesProbe),
 	'group-detail': config('group-detail', FakeGroup, { group: 'group', types: ['alias'] }),
+	'presentation-divider': config('presentation-divider', FakeInput, { hideLabel: true, types: ['alias'] }),
 };
 
 export const registryMock = {

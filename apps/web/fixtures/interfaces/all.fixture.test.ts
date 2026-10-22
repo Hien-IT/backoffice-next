@@ -68,10 +68,12 @@ const COLLECTIONS = Object.keys(snapshot.items)
 	.sort();
 const USERS: FixtureUser[] = ['admin', 'bo-editor', 'bo-viewer'];
 
+// `<Anonymous>`: the createReusableTemplate component that renders the BoForm field loop (D-150).
 const LIST_PROP_WARNING = `Invalid prop: type check failed for prop "value". Expected Array | Null, got Object at <InterfaceList>
 at <ErrorBoundary>
 at <FormFieldInterface>
 at <FormField>
+at <Anonymous>
 at <BoForm>
 at <VTUROOT>`;
 const STATUS_FORBIDDEN = `You don't have permission to access field "status" in collection "bo_rel_target" or it does not exist.`;

@@ -8,7 +8,7 @@
 // The system divider is drawn here (Directus: presentation-divider interface without title). `hasEdits` is exposed
 // for the unsaved-changes guard (FR-084).
 import type { ContentVersion, Field, ValidationError } from '@directus/types';
-import { useElementSize } from '@vueuse/core';
+import { createReusableTemplate, useElementSize } from '@vueuse/core';
 import { assign, cloneDeep, isEmpty, isEqual, isNil, omit } from 'lodash-es';
 import { computed, inject, onBeforeUpdate, provide, ref, watch } from 'vue';
 import { getInterface } from '../../interfaces/index.ts';
@@ -58,7 +58,7 @@ const props = withDefaults(
 		showDivider?: boolean | undefined;
 		/** The "no visible fields" info without icon, aligned to the start (v-form `inline`, spec 020) */
 		inline?: boolean | undefined;
-		/** Draw the grid as a body-only Card, page forms only (D-150, layout-patterns §8 Form card) */
+		/** Page forms only (D-150, layout-patterns §8 Form card): body-only Cards, one per visible divider section */
 		card?: boolean | undefined;
 		version?: ContentVersion | null;
 		comparison?: ComparisonContext | undefined;
@@ -116,8 +116,10 @@ const values = computed(() => {
 });
 
 const el = ref<HTMLElement>();
+// A card form (D-150) has one grid per card; the first one gives the form width.
+const firstCardGrid = ref<HTMLElement>();
 
-const { width } = useElementSize(el);
+const { width } = useElementSize(computed(() => (props.card ? firstCardGrid.value : el.value)));
 
 // 770 (drawer width) - 2 * 22 (content-padding) = 726
 const withFill = computed(() => width.value > 726);
@@ -158,6 +160,43 @@ const noVisibleFields = computed(() => {
 		return !isFieldVisible(fieldsMap.value[fieldKey]!);
 	});
 });
+
+type FormItem = { name: string; index: number };
+
+const [DefineFields, ReuseFields] = createReusableTemplate<{ items: FormItem[] }>();
+
+const formItems = computed<FormItem[]>(() => fieldNames.value.map((name, index) => ({ name, index })));
+
+// Backoffice (D-150, owner 2026-10-22): a card form starts a card at each visible divider, the divider title and icon
+// as the card header; a card without a visible field is left out, the first one keeps the notices.
+type CardHeader = { title?: string | undefined; icon?: string | undefined; color?: string | undefined };
+
+const cardSections = computed(() => {
+	const sections: { key: string; header: CardHeader | null; items: FormItem[] }[] = [
+		{ key: '$start', header: null, items: [] },
+	];
+
+	for (const item of formItems.value) {
+		const field = fieldsMap.value[item.name];
+
+		if (field?.meta?.interface === 'presentation-divider' && isFieldVisible(field)) {
+			const { title, icon, color } = (field.meta.options ?? {}) as CardHeader;
+			sections.push({ key: item.name, header: title || icon ? { title, icon, color } : null, items: [] });
+		} else {
+			sections.at(-1)!.items.push(item);
+		}
+	}
+
+	const visible = sections.filter((section) => section.items.some(isItemVisible));
+	return visible.length > 0 ? visible : sections.slice(0, 1);
+});
+
+function isItemVisible({ name, index }: FormItem) {
+	const field = fieldsMap.value[name];
+	if (!field) return false;
+	if (field.meta?.special?.includes('group')) return isGroupFieldVisible(field, fieldsForGroup.value[index] || []);
+	return isFieldVisible(field);
+}
 
 // Backoffice: FR-084, the screen asks `unsaved_changes` when the form has edits (use-edits-guard.ts).
 const hasEdits = computed(() => !isEmpty(props.modelValue));
@@ -453,120 +492,179 @@ function getGroupInterface(fieldName: string) {
 <template>
 	<div
 		ref="el"
-		class="@container grid gap-x-6 gap-y-5"
-		:class="[
-			withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2',
-			card && 'rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]',
-		]"
+		:class="
+			card
+				? 'flex flex-col gap-6'
+				: [
+						'@container grid gap-x-6 gap-y-5',
+						withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2',
+					]
+		"
 		:aria-busy="loading ? 'true' : undefined"
 	>
-		<ValidationErrors
-			v-if="showValidationErrors && validationErrors.length > 0"
-			:validation-errors="validationErrors"
-			:fields="finalFields"
-			@scroll-to-field="scrollToField"
-		/>
-		<!-- In a card form (D-150) the info drops its own card: no card in the card -->
-		<div
-			v-if="noVisibleFields && showNoVisibleFields && !loading"
-			class="col-span-full flex flex-col"
-			:class="[
-				{ 'items-center text-center': !inline },
-				!card &&
-					'rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]',
-			]"
-		>
-			<BoIcon v-if="!inline" name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
-			<p class="text-base font-medium text-gray-800 dark:text-white/90">{{ $t('no_visible_fields') }}</p>
-			<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('no_visible_fields_copy') }}</p>
-		</div>
-		<template v-for="(fieldName, index) in fieldNames" :key="fieldName">
-			<template v-if="fieldsMap[fieldName]">
-				<template v-if="fieldsMap[fieldName]!.meta?.special?.includes('group')">
-					<component
-						:is="getGroupInterface(fieldName)!.component"
-						v-if="
-							getGroupInterface(fieldName) && isGroupFieldVisible(fieldsMap[fieldName]!, fieldsForGroup[index] || [])
-						"
+		<!-- The field loop, once for the single grid and once per card of a card form (D-150) -->
+		<DefineFields v-slot="{ items }">
+			<template v-for="{ name: fieldName, index } in items" :key="fieldName">
+				<template v-if="fieldsMap[fieldName]">
+					<template v-if="fieldsMap[fieldName]!.meta?.special?.includes('group')">
+						<component
+							:is="getGroupInterface(fieldName)!.component"
+							v-if="
+								getGroupInterface(fieldName) && isGroupFieldVisible(fieldsMap[fieldName]!, fieldsForGroup[index] || [])
+							"
+							:ref="
+								(el: any) => {
+									formFieldEls[fieldName] = el;
+								}
+							"
+							:class="WIDTH_CLASSES[fieldsMap[fieldName]!.meta?.width || 'full']"
+							:field="fieldsMap[fieldName]"
+							:fields="fieldsForGroup[index] || []"
+							:values="modelValue || {}"
+							:initial-values="initialValues || {}"
+							:disabled="disabled || nonEditable"
+							:non-editable="nonEditable"
+							:batch-mode="batchMode"
+							:batch-active-fields="batchActiveFields"
+							:primary-key="primaryKey"
+							:loading="loading"
+							:validation-errors="validationErrors"
+							:badge="badge"
+							:raw-editor-enabled="rawEditorEnabled"
+							:direction="direction"
+							:version
+							v-bind="fieldsMap[fieldName]!.meta?.options || {}"
+							@apply="apply"
+						/>
+					</template>
+
+					<div
+						v-else-if="fieldName === '$system_divider'"
+						v-show="isFieldVisible(fieldsMap[fieldName]!)"
+						role="separator"
+						class="col-span-full border-t border-gray-200 dark:border-gray-800"
+					/>
+
+					<FormField
+						v-else-if="isFieldVisible(fieldsMap[fieldName]!)"
 						:ref="
 							(el: any) => {
 								formFieldEls[fieldName] = el;
 							}
 						"
-						:class="WIDTH_CLASSES[fieldsMap[fieldName]!.meta?.width || 'full']"
-						:field="fieldsMap[fieldName]"
-						:fields="fieldsForGroup[index] || []"
-						:values="modelValue || {}"
-						:initial-values="initialValues || {}"
-						:disabled="disabled || nonEditable"
+						:class="comparison?.fields.has(fieldName) ? COMPARISON_DIFF : undefined"
+						:field="fieldsMap[fieldName]!"
+						:comparison="comparison"
+						:comparison-active="comparison?.selectedFields.includes(fieldName)"
+						:autofocus="index === firstEditableFieldIndex && autofocus"
+						:model-value="(values || {})[fieldName]"
+						:initial-value="(initialValues || {})[fieldName]"
+						:disabled="isDisabled(fieldsMap[fieldName]!) || nonEditable"
 						:non-editable="nonEditable"
 						:batch-mode="batchMode"
-						:batch-active-fields="batchActiveFields"
+						:batch-active="batchActiveFields.includes(fieldName)"
 						:primary-key="primaryKey"
 						:loading="loading"
-						:validation-errors="validationErrors"
+						:validation-error="
+							validationErrors.find(
+								(err) =>
+									err.collection === fieldsMap[fieldName]!.collection &&
+									(err.field === fieldName || err.field.endsWith(`(${fieldName})`)),
+							)
+						"
 						:badge="badge"
 						:raw-editor-enabled="rawEditorEnabled"
+						:raw-editor-active="rawActiveFields.has(fieldName)"
+						:disabled-menu-options="disabledMenuOptions"
+						:disabled-menu="disabledMenu"
 						:direction="direction"
 						:version
-						v-bind="fieldsMap[fieldName]!.meta?.options || {}"
-						@apply="apply"
+						@update:model-value="setValue(fieldName, $event)"
+						@set-field-value="setValue($event.field, $event.value, { force: true })"
+						@unset="unsetValue(fieldsMap[fieldName]!)"
+						@toggle-batch="toggleBatchField(fieldsMap[fieldName]!)"
+						@toggle-raw="toggleRawField(fieldsMap[fieldName]!)"
 					/>
 				</template>
-
-				<div
-					v-else-if="fieldName === '$system_divider'"
-					v-show="isFieldVisible(fieldsMap[fieldName]!)"
-					role="separator"
-					class="col-span-full border-t border-gray-200 dark:border-gray-800"
-				/>
-
-				<FormField
-					v-else-if="isFieldVisible(fieldsMap[fieldName]!)"
-					:ref="
-						(el: any) => {
-							formFieldEls[fieldName] = el;
-						}
-					"
-					:class="comparison?.fields.has(fieldName) ? COMPARISON_DIFF : undefined"
-					:field="fieldsMap[fieldName]!"
-					:comparison="comparison"
-					:comparison-active="comparison?.selectedFields.includes(fieldName)"
-					:autofocus="index === firstEditableFieldIndex && autofocus"
-					:model-value="(values || {})[fieldName]"
-					:initial-value="(initialValues || {})[fieldName]"
-					:disabled="isDisabled(fieldsMap[fieldName]!) || nonEditable"
-					:non-editable="nonEditable"
-					:batch-mode="batchMode"
-					:batch-active="batchActiveFields.includes(fieldName)"
-					:primary-key="primaryKey"
-					:loading="loading"
-					:validation-error="
-						validationErrors.find(
-							(err) =>
-								err.collection === fieldsMap[fieldName]!.collection &&
-								(err.field === fieldName || err.field.endsWith(`(${fieldName})`)),
-						)
-					"
-					:badge="badge"
-					:raw-editor-enabled="rawEditorEnabled"
-					:raw-editor-active="rawActiveFields.has(fieldName)"
-					:disabled-menu-options="disabledMenuOptions"
-					:disabled-menu="disabledMenu"
-					:direction="direction"
-					:version
-					@update:model-value="setValue(fieldName, $event)"
-					@set-field-value="setValue($event.field, $event.value, { force: true })"
-					@unset="unsetValue(fieldsMap[fieldName]!)"
-					@toggle-batch="toggleBatchField(fieldsMap[fieldName]!)"
-					@toggle-raw="toggleRawField(fieldsMap[fieldName]!)"
-				/>
 			</template>
+		</DefineFields>
+
+		<template v-if="!card">
+			<ValidationErrors
+				v-if="showValidationErrors && validationErrors.length > 0"
+				:validation-errors="validationErrors"
+				:fields="finalFields"
+				@scroll-to-field="scrollToField"
+			/>
+			<div
+				v-if="noVisibleFields && showNoVisibleFields && !loading"
+				class="col-span-full flex flex-col rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]"
+				:class="{ 'items-center text-center': !inline }"
+			>
+				<BoIcon v-if="!inline" name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
+				<p class="text-base font-medium text-gray-800 dark:text-white/90">{{ $t('no_visible_fields') }}</p>
+				<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('no_visible_fields_copy') }}</p>
+			</div>
+			<ReuseFields :items="formItems" />
+			<div
+				v-if="showDivider && !noVisibleFields"
+				aria-hidden="true"
+				class="col-span-full border-t border-gray-200 dark:border-gray-800"
+			/>
 		</template>
+
+		<!-- Card form (D-150): body-only Card per divider section, the divider as the TailAdmin card header -->
 		<div
-			v-if="showDivider && !noVisibleFields"
-			aria-hidden="true"
-			class="col-span-full border-t border-gray-200 dark:border-gray-800"
-		/>
+			v-for="(section, sectionIndex) in card ? cardSections : []"
+			:key="section.key"
+			class="rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]"
+		>
+			<!-- Card header (component-specs Card); the divider color is data, an inline style like BoDivider -->
+			<div
+				v-if="section.header"
+				class="flex min-w-0 items-center gap-3 px-6 py-5"
+				:class="section.header.color ? undefined : 'text-gray-800 dark:text-white/90'"
+				:style="section.header.color ? { color: section.header.color } : undefined"
+			>
+				<BoIcon
+					v-if="section.header.icon"
+					:name="section.header.icon"
+					:class="section.header.color ? undefined : 'text-gray-500 dark:text-gray-400'"
+				/>
+				<h3 v-if="section.header.title" class="truncate text-base font-medium">{{ section.header.title }}</h3>
+			</div>
+			<div
+				:ref="
+					(gridEl: any) => {
+						if (sectionIndex === 0) firstCardGrid = gridEl;
+					}
+				"
+				class="@container grid gap-x-6 gap-y-5 p-4 sm:p-6"
+				:class="[
+					withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2',
+					section.header && 'border-t border-gray-100 dark:border-gray-800',
+				]"
+			>
+				<template v-if="sectionIndex === 0">
+					<ValidationErrors
+						v-if="showValidationErrors && validationErrors.length > 0"
+						:validation-errors="validationErrors"
+						:fields="finalFields"
+						@scroll-to-field="scrollToField"
+					/>
+					<!-- No card in the card: the info without its own card -->
+					<div
+						v-if="noVisibleFields && showNoVisibleFields && !loading"
+						class="col-span-full flex flex-col"
+						:class="{ 'items-center text-center': !inline }"
+					>
+						<BoIcon v-if="!inline" name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
+						<p class="text-base font-medium text-gray-800 dark:text-white/90">{{ $t('no_visible_fields') }}</p>
+						<p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ $t('no_visible_fields_copy') }}</p>
+					</div>
+				</template>
+				<ReuseFields :items="section.items" />
+			</div>
+		</div>
 	</div>
 </template>

@@ -135,16 +135,48 @@ describe('FR-011 widths', () => {
 		expect(wrapper.get('[data-field="d"]').classes()).toContain('@min-[31.25rem]:col-start-2');
 	});
 
-	test('card (D-150) draws the grid as a body-only card and the empty form info without its own card', () => {
-		const CARD = ['rounded-2xl', 'border', 'bg-white', 'sm:p-6'];
-		const plain = mountForm({ fields: [field('a', { meta: { hidden: true } })] });
-		const card = mountForm({ card: true, fields: [field('a', { meta: { hidden: true } })] });
+	test('card (D-150): a card per visible divider with its title as header; the empty form info has no card of its own', () => {
+		const divider = (name: string, sort: number, meta: Record<string, unknown> = {}) =>
+			field(name, {
+				type: 'alias',
+				schema: null,
+				meta: { interface: 'presentation-divider', special: ['alias', 'no-data'], sort, ...meta },
+			});
 
-		expect(plain.classes()).not.toContain('rounded-2xl');
-		expect(plain.get('.col-span-full').classes()).toEqual(expect.arrayContaining(CARD.slice(0, 3)));
-		expect(card.classes()).toEqual(expect.arrayContaining(CARD));
-		expect(card.text()).toContain('Empty Form');
-		expect(card.get('.col-span-full').classes()).not.toContain('border');
+		const plain = mountForm({ fields: [field('a', { meta: { hidden: true } })] });
+		const empty = mountForm({ card: true, fields: [field('a', { meta: { hidden: true } })] });
+		const card = mountForm({
+			card: true,
+			fields: [
+				field('a', { meta: { sort: 1 } }),
+				divider('prefs', 2, { options: { title: 'Preferences', icon: 'face' } }),
+				field('b', { meta: { sort: 3 } }),
+				divider('hidden_divider', 4, { hidden: true, options: { title: 'Hidden' } }),
+				field('c', { meta: { sort: 5 } }),
+				divider('nothing', 6, { options: { title: 'Nothing' } }),
+				field('d', { meta: { hidden: true, sort: 7 } }),
+			],
+		});
+
+		expect(plain.classes()).toContain('grid-cols-2');
+		expect(plain.get('.col-span-full').classes()).toEqual(
+			expect.arrayContaining(['rounded-2xl', 'border', 'bg-white']),
+		);
+
+		expect(empty.findAll(':scope > .rounded-2xl')).toHaveLength(1);
+		expect(empty.text()).toContain('Empty Form');
+		expect(empty.get('.col-span-full').classes()).not.toContain('border');
+
+		const cards = card.findAll(':scope > .rounded-2xl');
+		expect(cards.map((c) => c.findAll('[data-field]').map((f) => f.attributes('data-field')))).toEqual([
+			['a'],
+			['b', 'c'],
+		]);
+		expect(cards[0]!.find('h3').exists()).toBe(false);
+		expect(cards[1]!.get('h3').text()).toBe('Preferences');
+		expect(cards[1]!.get('.grid').classes()).toEqual(expect.arrayContaining(['border-t', 'sm:p-6']));
+		expect(card.text()).not.toContain('Hidden');
+		expect(card.text()).not.toContain('Nothing');
 	});
 
 	test('the grid gets the fill column when the form is wider than 726px', async () => {

@@ -81,10 +81,9 @@ describe('ItemRoute', () => {
 		await setup({ collection: 'bo_content', primaryKey: '2' });
 		await flushPromises();
 
-		expect(document.body.querySelector('main [class*="grid-cols"]')!.className).toMatch(
-			/rounded-2xl.*max-w-\[47\.375rem\]/,
-		);
-		expect(document.body.querySelector('main [class*="grid-cols"]')!.className).not.toContain('mx-auto');
+		const column = document.body.querySelector('main [class*="grid-cols"]')!.closest('.rounded-2xl')!.parentElement!;
+		expect(column.className).toMatch(/max-w-\[47\.375rem\]/);
+		expect(column.className).not.toContain('mx-auto');
 		expect(document.body.querySelector('main header')!.className).not.toMatch(/mx-auto|max-w-/);
 	});
 
