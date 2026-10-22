@@ -133,7 +133,7 @@ describe('ModuleTabs module list (FR-021, D-157)', () => {
 
 		expect(links.map((a) => a.getAttribute('aria-current'))).toEqual([null, null, 'page', null, null]);
 		expect(links[2]!.className).toContain('bg-white');
-		expect(links[0]!.className).toContain('text-white/80');
+		expect(links[0]!.className).toContain('bg-white/15');
 	});
 });
 

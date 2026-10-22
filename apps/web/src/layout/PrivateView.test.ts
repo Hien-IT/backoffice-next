@@ -57,17 +57,16 @@ const sidebarAside = () => q('aside[aria-label="Sidebar"]');
 const button = (label: string) => q(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
 
 describe('PrivateView (FR-020, FR-028)', () => {
-	test('from xl: module rail (logo, module icons, user), sidebar with the module navigation, page header in main; title; skip menu', async () => {
+	test('from xl: the sidebar column (logo, module tiles, module navigation, user), page header in main; title; skip menu', async () => {
 		const { head } = await render();
 
-		const rail = q('[data-testid="module-rail"]')!;
-		expect(rail.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
-		expect(rail.querySelector('img[alt="Backoffice"]')).not.toBeNull();
-		expect(rail.querySelector('button[aria-label="Ada"]')).not.toBeNull();
-		expect(navAside()!.getAttribute('aria-label')).toBe('Content');
+		const block = navAside()!.querySelector('[data-testid="module-rail"]')!;
+		expect(block.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
+		expect(block.querySelector('img[alt="Backoffice"]')).not.toBeNull();
+		expect(navAside()!.querySelector('button[aria-label="Ada"]')).not.toBeNull();
+		expect(navAside()!.querySelector('h2')!.textContent!.trim()).toBe('Content');
 		expect(navAside()!.textContent).toContain('Nav items');
-		expect(navAside()!.querySelector('[data-testid="module-bar"]')).toBeNull();
-		expect(q('#navigation + div')!.className).toContain('xl:ms-[354px]');
+		expect(q('#navigation + div')!.className).toContain('xl:ms-[290px]');
 		expect(q('main header button[aria-label="Toggle Navigation"]')).not.toBeNull();
 		expect(q('main#main-content h1')!.textContent).toBe('Content');
 		expect(q('main#main-content')!.textContent).toContain('Act');
@@ -89,7 +88,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		await render();
 
 		expect(navAside()).toBeNull();
-		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[354px]');
+		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[290px]');
 		expect(button('Toggle Navigation')!.getAttribute('aria-expanded')).toBe('false');
 
 		button('Toggle Navigation')!.click();
@@ -97,7 +96,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('false');
 	});
 
-	test('a page without navigation: no sidebar and no toggle', async () => {
+	test('a page without navigation: the sidebar keeps the module tiles and the toggle', async () => {
 		await mountLayout(PrivateView, {
 			path: '/insights',
 			props: { title: 'Insights' },
@@ -108,8 +107,8 @@ describe('PrivateView (FR-020, FR-028)', () => {
 			},
 		});
 
-		expect(navAside()).toBeNull();
-		expect(button('Toggle Navigation')).toBeNull();
+		expect(navAside()!.querySelector('[data-module-navigation]')!.textContent).toBe('');
+		expect(button('Toggle Navigation')).not.toBeNull();
 		expect(q('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/insights');
 	});
 
@@ -117,8 +116,8 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		viewport(1000);
 		await render();
 
-		// The module rail stays below xl.
-		expect(q('[data-testid="module-bar"]')).not.toBeNull();
+		// Below xl the whole column is the drawer.
+		expect(q('[data-testid="module-bar"]')).toBeNull();
 		expect(navAside()).toBeNull();
 		expect(sidebarAside()).toBeNull();
 
@@ -129,6 +128,8 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(q('[role="dialog"] aside#navigation')!.textContent).toContain('Nav items');
 
 		await press(document.activeElement!, 'Escape');
+		// The first focused tile may show its tooltip: the first Escape can close that.
+		if (q('[role="dialog"]')) await press(document.activeElement!, 'Escape');
 		await vi.waitFor(() => expect(q('[role="dialog"]')).toBeNull());
 		await vi.waitFor(() => expect(document.activeElement).toBe(openNav));
 

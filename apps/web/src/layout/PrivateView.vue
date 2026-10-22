@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view.vue -->
 <script setup lang="ts">
 // Backoffice: the TailAdmin AdminLayout of design-system layout-patterns (D-52) instead of private-view-root.vue and
-// private-view-main.vue: module rail (logo, module icons, bell, user menu; owner 2026-10-22, D-157), sidebar (the
-// `navigation` slot of the current module, left out when the page has none), header (sidebar toggle and the page header: title, icon, `actions`; owner 2026-10-20), content; the right
+// private-view-main.vue: sidebar in one column (owner 2026-10-22, D-157: logo and module tiles on the project color,
+// the `navigation` slot of the current module, bell and user menu), header (sidebar toggle and the page header: title, icon, `actions`; owner 2026-10-20), content; the right
 // detail panel (`sidebar` slot) is a popover of the page header (owner 2026-10-20). One breakpoint, `xl` (L-1): from
 // `xl` the sidebar is inline, below `xl` a drawer. No license banner (D-38); the notifications drawer (018 FR-077) is
 // mounted here once, as a lazy chunk (FR-109). The page title goes through useHead; the `%s · project` template is in theme/use-app-head.ts.
@@ -15,7 +15,6 @@ import { useLayoutBreakpoints } from '../composables/use-media-query.ts';
 import { useUserStore } from '../stores/user.ts';
 import AppHeader from './AppHeader.vue';
 import AppSidebar from './AppSidebar.vue';
-import AppModuleBar from './AppModuleBar.vue';
 import MainContent from './MainContent.vue';
 import NoAppAccess from './NoAppAccess.vue';
 import PageHeader from './PageHeader.vue';
@@ -64,9 +63,8 @@ useHead({ title: () => props.tabTitle ?? props.title ?? null });
 const { xl } = useLayoutBreakpoints();
 const navBarStore = useNavBarStore();
 const sidebarStore = useSidebarStore();
-const slots = defineSlots<Record<string, (() => unknown) | undefined>>();
-// The inline sidebar from `xl`, unless the page has no navigation or the user hid it.
-const inlineSidebar = computed(() => xl.value && !!slots['navigation'] && !navBarStore.collapsed);
+// The inline sidebar from `xl`, unless the user hid it.
+const inlineSidebar = computed(() => xl.value && !navBarStore.collapsed);
 
 // The detail popover starts closed on every page.
 sidebarStore.collapse();
@@ -83,24 +81,19 @@ defineExpose({ scrollElement });
 	<div v-else class="xl:flex" :class="fill ? 'relative h-dvh overflow-hidden' : 'min-h-screen'">
 		<BoSkipMenu />
 
-		<AppModuleBar />
-
-		<AppSidebar v-if="$slots['navigation']" :drawer="!xl">
-			<template #navigation><slot name="navigation" /></template>
+		<AppSidebar :drawer="!xl">
+			<template v-if="$slots['navigation']" #navigation><slot name="navigation" /></template>
 		</AppSidebar>
 
 		<div
 			class="flex min-w-0 flex-1 flex-col"
-			:class="[inlineSidebar ? 'ms-16 xl:ms-[354px]' : 'ms-16', fill ? 'h-dvh' : 'min-h-screen']"
+			:class="[{ 'xl:ms-[290px]': inlineSidebar }, fill ? 'h-dvh' : 'min-h-screen']"
 		>
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">
 					<!-- In main, as the Directus header bar (the page title is `main h1`); sticky, so it stays on top while the
 					     page scrolls. The negative margins span the content padding. -->
-					<AppHeader
-						:navigation="!!$slots['navigation']"
-						class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6"
-					>
+					<AppHeader class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6">
 						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 							<template v-if="$slots['title']" #title><slot name="title" /></template>
 							<!-- Spec 020 (Q-45): the extra title and action slots of the Directus view, for extensions. -->

@@ -28,16 +28,18 @@ async function render({ path = '/files', props = {} }: { path?: string; props?: 
 }
 
 describe('AppSidebar (layout-patterns §2, D-157)', () => {
-	test('the open module: its name as the title, the actions target, then its navigation', async () => {
+	test('one column (D-157, Arc style): logo and module tiles on the project color, the open module and its navigation, user and bell', async () => {
 		const { wrapper } = await render();
 		const aside = wrapper.get('aside#navigation');
 
-		expect(aside.attributes('aria-label')).toBe('File Library');
+		expect(aside.attributes('aria-label')).toBe('Navigation');
+		const block = aside.get('[data-testid="module-rail"]');
+		expect(block.classes()).toContain('bg-(--project-color)');
+		expect(block.find('[data-testid="module-bar"] a[aria-current="page"]').attributes('href')).toBe('/files');
 		expect(aside.get('h2').text()).toBe('File Library');
 		expect(aside.find('#module-actions-files').exists()).toBe(true);
 		expect(aside.get('[data-module-navigation]').text()).toBe('Folder');
-		// The modules are the top bar tabs now.
-		expect(aside.find('[data-testid="module-bar"]').exists()).toBe(false);
+		expect(aside.find('button[title="Notifications"]').exists()).toBe(true);
 	});
 
 	test('a module without a place in the bar (Activity, 018 FR-061) still heads its navigation', async () => {
@@ -45,9 +47,9 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 		expect(wrapper.get('aside h2').text()).toBe('Activity');
 	});
 
-	test('from xl: 290 px next to the module rail; the header toggle hides it (saved)', async () => {
+	test('from xl: 290 px at the start; the header toggle hides it (saved)', async () => {
 		const { wrapper } = await render();
-		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'start-16']));
+		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'start-0']));
 
 		useNavBarStore().collapse();
 		await nextTick();
@@ -64,7 +66,9 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 		await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"] aside#navigation')).not.toBeNull());
 		expect(document.body.querySelector('[role="dialog"] [data-module-navigation]')!.textContent).toBe('Folder');
 
+		// The first focused tile may show its tooltip: the first Escape can close that.
 		await press(document.activeElement!, 'Escape');
+		if (document.body.querySelector('[role="dialog"]')) await press(document.activeElement!, 'Escape');
 		await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull());
 		expect(navBarStore.drawerOpen).toBe(false);
 	});

@@ -61,11 +61,11 @@ describe('UserMenu (FR-024)', () => {
 		expect((await openMenu(trigger)).map((item) => item.getAttribute('href'))).toEqual(['/logout']);
 	});
 
-	test('module rail (D-157): the avatar only, named after the user; no bell badge on it (the bell is above it)', async () => {
+	test('sidebar bottom (D-157): avatar and name, named after the user; no bell badge on it (the bell is next to it)', async () => {
 		const { wrapper } = await render({ id: 'u1', first_name: 'Ada', avatar: null });
 
 		expect(wrapper.get('button').attributes('aria-label')).toBe('Ada');
-		expect(wrapper.get('button').text()).not.toContain('Ada');
+		expect(wrapper.get('button').text()).toContain('Ada');
 		expect(wrapper.find('[data-testid="notifications-badge"]').exists()).toBe(false);
 	});
 });

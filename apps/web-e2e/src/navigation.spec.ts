@@ -232,8 +232,9 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 		await page.reload();
 		await expect(page.getByRole('button', { name: 'Open sidebar' })).toHaveAttribute('aria-expanded', 'false');
 		await expect(page.getByRole('button', { name: 'Toggle Navigation' })).toHaveAttribute('aria-expanded', 'false');
+		// The module tiles are in the hidden sidebar too (D-157).
 		await expect(page.locator('aside#navigation')).toHaveCount(0);
-		await expect(page.getByTestId('module-bar')).toBeVisible();
+		await expect(page.getByTestId('module-bar')).toHaveCount(0);
 
 		await page.evaluate(() => localStorage.clear());
 		return;
@@ -244,12 +245,13 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 	await open.focus();
 	await page.keyboard.press('Enter');
 	await expect(page.locator('[role="dialog"] aside#navigation')).toBeVisible();
+	await expect(page.locator('[role="dialog"]').getByTestId('module-bar')).toBeVisible();
 	await page.keyboard.press('Escape');
 	await page.keyboard.press('Escape');
 	await expect(page.locator('aside#navigation')).toBeHidden();
 	await expect(open).toBeFocused();
-	// The module rail stays below xl (D-157).
-	await expect(page.getByTestId('module-bar')).toBeVisible();
+	// Below xl the module tiles are in the drawer too (D-157).
+	await expect(page.getByTestId('module-bar')).toBeHidden();
 
 	// No horizontal scroll at the smallest supported width (FR-028, SC-008).
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

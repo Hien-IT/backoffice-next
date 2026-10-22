@@ -5,7 +5,7 @@
 // tab; above 99 shows `99+`, the full number is in the accessible name). An sr-only `aria-live="polite"` region
 // announces a changed count (Directus has none). No avatar or sign-out here: those are the UserMenu (D-45). Owner
 // 2026-10-21 (D-132): the button opens the NotificationsPanel popover (latest inbox, mark as read), whose "View all"
-// opens the drawer. At the bottom of the project color module rail since 2026-10-22 (D-157), styled as its icon items.
+// opens the drawer. At the bottom of the sidebar next to the user menu since 2026-10-22 (D-157).
 import { useEventListener, useThrottleFn } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
@@ -46,7 +46,7 @@ function viewAll() {
 		<PopoverTrigger as-child>
 			<button
 				type="button"
-				class="relative flex size-12 shrink-0 items-center justify-center rounded-lg text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+				class="relative flex size-11 shrink-0 items-center justify-center rounded-full border border-gray-200 bg-white text-gray-500 hover:bg-gray-100 hover:text-gray-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-800 dark:bg-gray-900 dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-white dark:focus-visible:outline-brand-400"
 				:aria-label="t('notifications_unread_count', { count: unread })"
 				:title="t('notifications')"
 			>
@@ -54,7 +54,7 @@ function viewAll() {
 				<span
 					v-if="unread > 0"
 					aria-hidden="true"
-					class="absolute end-0.5 top-0.5 h-5 min-w-5 rounded-full bg-error-600 px-1 text-center text-theme-xs leading-5 font-medium text-white"
+					class="absolute -end-0.5 -top-0.5 h-5 min-w-5 rounded-full bg-error-600 px-1 text-center text-theme-xs leading-5 font-medium text-white"
 					data-testid="notifications-badge"
 				>
 					{{ unread > 99 ? '99+' : unread }}
@@ -63,7 +63,7 @@ function viewAll() {
 		</PopoverTrigger>
 		<PopoverPortal>
 			<PopoverContent
-				side="right"
+				side="top"
 				align="end"
 				:side-offset="8"
 				:collision-padding="16"

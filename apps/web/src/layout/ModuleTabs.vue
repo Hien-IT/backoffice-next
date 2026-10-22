@@ -1,8 +1,8 @@
 <script setup lang="ts">
-// Backoffice (owner 2026-10-22, D-157): the module bar as vertical icon tabs of the module rail on the project color
-// (AppModuleBar, layout-patterns §2), like the Directus module bar: an icon per module with its name in a tooltip and as the
-// accessible name (sr-only). The active module has aria-current and the white button; links to other sites open a new
-// tab. The app extension modules stay one "Extensions" entry (D-144), a button with a menu of the modules.
+// Backoffice (owner 2026-10-22, D-157): the module bar as a grid of tiles in the project color block of the sidebar
+// (AppSidebar, layout-patterns §2), like the pinned tiles of the Arc browser sidebar: an icon per module with its name in
+// a tooltip and as the accessible name (sr-only). The active module has aria-current and the white tile; links to other
+// sites open a new tab. The app extension modules stay one "Extensions" entry (D-144), a button with a menu of the modules.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
@@ -25,10 +25,13 @@ const extensionItems = computed<BoMenuItem[]>(() =>
 );
 
 const ITEM =
-	'flex size-12 items-center justify-center rounded-lg no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
+	'flex h-12 w-full items-center justify-center rounded-xl no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white';
 
 function itemClass(active: boolean) {
-	return [ITEM, active ? 'bg-white text-(--project-color)' : 'text-white/80 hover:bg-white/10 hover:text-white'];
+	return [
+		ITEM,
+		active ? 'bg-white text-(--project-color) shadow-theme-xs' : 'bg-white/15 text-white hover:bg-white/25',
+	];
 }
 
 function linkProps(modulePart: ModuleBarItem) {
@@ -39,10 +42,10 @@ function linkProps(modulePart: ModuleBarItem) {
 </script>
 
 <template>
-	<nav :aria-label="t('modules')" data-testid="module-bar" class="no-scrollbar min-h-0 overflow-y-auto">
-		<ul class="m-0 flex list-none flex-col items-center gap-2 p-0">
+	<nav :aria-label="t('modules')" data-testid="module-bar">
+		<ul class="m-0 grid list-none grid-cols-3 gap-2 p-0">
 			<li v-for="modulePart in mainModules" :key="modulePart.id">
-				<BoTooltip :text="modulePart.name" side="right">
+				<BoTooltip :text="modulePart.name" side="bottom">
 					<component
 						:is="modulePart.to !== undefined ? RouterLink : 'a'"
 						v-bind="linkProps(modulePart)"
@@ -57,7 +60,7 @@ function linkProps(modulePart: ModuleBarItem) {
 			</li>
 
 			<li v-if="extensionModules.length > 0" data-module-group="extensions">
-				<BoMenu :items="extensionItems" side="right" align="start">
+				<BoMenu :items="extensionItems" side="bottom" align="start">
 					<template #trigger>
 						<button type="button" :aria-label="t('extensions')" :class="itemClass(extensionsActive)">
 							<BoIcon name="extension" />
