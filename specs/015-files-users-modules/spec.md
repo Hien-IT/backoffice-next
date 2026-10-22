@@ -851,6 +851,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-88 | Interface `system-theme` (chọn theme Directus) | Chọn theme đổi giao diện app ngay; nhãn "Directus Default", "Directus Minimal", "Directus Color Match" | Danh sách và xem trước như Directus (Q1 = C); nhãn qua khóa dịch `theme_directus_*` của file dịch 012 nên hiện "Backoffice Default"...; `id` ghi DB giữ "Directus Default"...; chọn theme không đổi giao diện Backoffice, có dòng ghi chú "áp dụng ở Directus app" | D-43: Backoffice chỉ có theme TailAdmin; owner chọn C 2026-10-15 | khác | — |
 | D-89 | Nguồn rule theme cho `system-theme` và `system-theme-overrides` | `@directus/themes` lúc chạy | Rule của mọi theme Directus 11.17.4 là dữ liệu tĩnh chép vào `apps/web` (cùng `id`, khóa `--theme--*`), có test so với gói gốc; overrides: chỉ khóa có ánh xạ (D-43) đổi giao diện Backoffice | `@directus/themes` không phải dependency của `apps/web`; dữ liệu ghi ra giữ nguyên khóa Directus | khác | — |
 | D-90 | Danh sách upload TUS dở trong drawer thông báo | Có (`tusResumableUploadsChanged`) | Không có danh sách; việc tiếp tục upload dở khi chọn lại cùng file (`findPreviousUploads`, FR-022) vẫn như Directus, là hai thứ khác nhau (CHK059) | Drawer thông báo thuộc 018 (D-45) | ngoài phạm vi (tạm thời) | **đã gỡ ở 018**: Directus 11.17.4 không có danh sách này trong drawer thông báo (018 FR-076) |
+| D-150 | Khung form của màn file và màn user | `v-form` nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin chỉ có body, không header (D-150 của 014); preview file, image editor và hộp user nằm ngoài card, cùng bề ngang 47.375rem; hộp user thêm nền card (`bg-white dark:bg-white/[0.03]`) | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
 
 **Cần xác nhận** (tên chưa chắc có ảnh hưởng luồng hay không, đang giữ nguyên):
 
@@ -867,6 +868,7 @@ Gỡ ở 015: D-40 (phần Files, Users), D-48 (012; D-44 giữ, Q2); D-57 (sáu
 | D-88 | `interfaces/_system/system-theme/`: danh sách và xem trước như Directus; nhãn "Backoffice …" qua overlay `lang/overlay/*` trên khóa `theme_directus_*`, `id` ghi DB giữ "Directus …"; dòng `theme_applies_in_directus` nói theme lưu vào hồ sơ và không đổi giao diện Backoffice, không nêu tên app khác (owner 2026-10-16) | Duyệt (owner, 2026-10-16) |
 | D-89 | `theme/theme-presets.json` sinh bằng `scripts/sync-theme-presets.mjs` (target `web:sync-themes`), `theme/theme-presets.test.ts` so với nguồn | Duyệt (owner, 2026-10-16); tên file không chứa chữ "directus" |
 | D-90 | Không có danh sách upload dở; `utils/upload-file.ts` vẫn `findPreviousUploads` khi chọn lại cùng file (FR-022) | Duyệt (owner, 2026-10-16) |
+| D-150 | `modules/files/routes/FileItemRoute.vue`, `modules/users/routes/UserItemRoute.vue` (`BoForm card`, nền hộp user); `utils/form-column.ts`; `design-system/docs/layout-patterns.md` §8 (Form card) | Owner duyệt (2026-10-22) |
 
 Bộ so payload `files` và `users` (T048, T083) khớp Directus app; hai chỗ khác chỉ là thời điểm preset tự lưu (đã có bộ
 `presets` của 014) và chuỗi token ngẫu nhiên. Hành vi số đếm sau xóa hàng loạt là R-38 của 014.

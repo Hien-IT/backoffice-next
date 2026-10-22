@@ -133,7 +133,8 @@ without Backdrop (section 7, owner 2026-10-20).
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
   wide screen shows no empty band on either side. The page header always spans the content width, its actions at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
   at the left like Directus. The item pages (Content, File, User) centre their body in a column as wide as the form shows
-  (`mx-auto max-w-[44.25rem]`: two 21.375rem columns and the gap; `max-w-5xl` when a field is `fill`; `utils/form-column.ts`); their page header
+  (`mx-auto max-w-[47.375rem]`: two 21.375rem columns and the gap plus the form card padding and border, D-150;
+  `max-w-[67.125rem]` when a field is `fill`; `utils/form-column.ts`); their page header
   keeps the full width, title at the left and actions at the right (owner 2026-10-18).
 - Page header (`PageBreadcrumb.vue`): `flex flex-wrap items-center justify-between gap-3 mb-6`; title
   `h2.text-xl.font-semibold.text-gray-800 dark:text-white/90`; breadcrumb `nav > ol.flex.items-center.gap-1.5`, links
@@ -278,6 +279,39 @@ drafts). "Deviation" lines say where the code differs from the first draft.
   (`mt-1 text-sm text-gray-500 dark:text-gray-400`).
 - An interface that fails to render shows a warning Notice `unexpected_error`; an unknown interface a warning Notice
   `interface_not_found`.
+
+### Form card (D-150, owner 2026-10-22)
+
+The owner asked (2026-10-22, after comparing with the TailAdmin Form Layout demo) to put the page forms in a TailAdmin
+Card. Directus `v-form` has no card; fields, widths and behaviour stay those of Directus (principle VI), only the
+surface changes.
+
+- Built: `BoForm` prop `card`, `utils/form-column.ts`; used by the item pages Content (`ItemRoute`, also new items,
+  singletons and the start pane of the live preview split), File (`FileItemRoute`), User (`UserItemRoute`) and the
+  Settings pages Project, Appearance, Role, Public role, Policy, Preset, Translation and the Data Model collection page
+  (the collection options form under the fields list).
+- Unchanged: forms in drawers and dialogs (DrawerItem, DrawerBatch, FlowDrawer, field detail, ComparisonModal), nested
+  group forms and ExtensionOptions; they already sit on a drawer or dialog surface.
+- Card: body only, on the grid itself:
+  `rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]` (Card container +
+  body padding, component-specs). No card header: the page title is already in the page header (D-127). The fill
+  threshold (726px) and the 31.25rem container query read the content box, so they measure the fields, not the card.
+- The card holds the BoForm only. Blocks above or below stay outside it: file preview and image editor, user box,
+  preset layout preview, Data Model fields list. The user box takes the card background
+  `bg-white dark:bg-white/[0.03]` (it already had the card border) so the two blocks match.
+- Width: the fields keep their Directus widths (342px columns), so the card is the form column plus padding and border:
+  item pages `mx-auto max-w-[47.375rem]` (44.25rem + 2 × 1.5rem + 2px), `max-w-[67.125rem]` with a `fill` field (64rem +
+  the same). Settings: the card sits in the existing `max-w-5xl` wrapper; the form is then 974px wide and keeps the
+  three-column `fill` grid (> 726px).
+- Inside the card: grid, dividers, the validation notice and loading skeletons are unchanged. Empty form (no visible
+  fields): no card in the card, the info drops its border, background and padding (icon and the two lines stay
+  centred).
+- Inputs keep their classes: on the white card they read white like TailAdmin; dark `bg-gray-900` on
+  `bg-white/[0.03]` like TailAdmin. Contrast unchanged (gray-500 boundary on white 4.97:1).
+- Accessibility: the card is a plain `div` (no role or landmark); focus order and labels unchanged.
+- The Directus divider (`presentation-divider`) keeps its look inside the card; the TailAdmin section title
+  (`pb-4 text-base font-medium text-gray-800 border-b border-gray-200`) would change an interface every form uses and
+  is a separate decision.
 
 ### Drawer (`BoDrawer`; Directus `v-drawer`)
 

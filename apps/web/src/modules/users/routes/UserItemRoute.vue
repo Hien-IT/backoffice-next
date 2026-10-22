@@ -355,7 +355,7 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 		<div class="user-item flex flex-col gap-8" :class="formColumn">
 			<div
 				v-if="isNew === false"
-				class="user-box flex items-center gap-5 rounded-2xl border border-gray-200 p-5 dark:border-gray-800"
+				class="user-box flex items-center gap-5 rounded-2xl border border-gray-200 bg-white p-5 dark:border-gray-800 dark:bg-white/[0.03]"
 			>
 				<div class="avatar shrink-0">
 					<div
@@ -413,6 +413,7 @@ const notFound = computed(() => !isNew.value && !loading.value && !item.value);
 			<BoForm
 				ref="form"
 				v-model="edits"
+				card
 				:disabled="isNew ? false : updateAllowed === false"
 				:fields="fieldsFiltered"
 				:loading="loading"

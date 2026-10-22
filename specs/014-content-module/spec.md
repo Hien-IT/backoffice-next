@@ -945,6 +945,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-124 | Giá trị gửi khi khôi phục revision có field `input-rich-text-html` khác nhau | Gửi HTML đã chèn thẻ tô màu diff (`<span class="comparison-diff--added">`), vì `processRichTextHtmlFields` ghi đè chính `incoming`/`base` mà `comparison-modal` dùng để khôi phục (đọc code 11.17.4, chưa đo) | Hiển thị diff như Directus; khôi phục gửi giá trị gốc trước khi chèn thẻ (`raw` của comparison) | Không ghi markup hiển thị vào dữ liệu | khác | — |
 | D-129 | Nút mở/đóng nhóm trong cây collection của sidebar | Mũi tên sau tên (`v-list-group`) | Mũi tên `expand_more` ở cuối dòng (xoay 180° khi mở); các mục cùng cấp thẳng hàng, mục con thụt 16 px so với cha (trước đó nút ở đầu dòng làm mục con lệch trái hơn icon của cha) | Owner 2026-10-21 | khác | — |
 | D-133 | Viền thẻ đang chọn của layout cards | Viền chọn của `v-card` | Viền brand 2px vẽ bên trong thẻ (`border-brand-500` + `ring-1 ring-inset`); trước đó `ring-2` vẽ ra ngoài bị khung cuộn của trang `fill` cắt mất ở thẻ sát mép | Owner 2026-10-21 (lỗi hiển thị) | khác | — |
+| D-150 | Khung form của màn item | `v-form` nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin chỉ có body (`rounded-2xl border border-gray-200 bg-white p-4 sm:p-6`), không header (tiêu đề đã ở page header, D-127); field giữ bề ngang Directus (cột 342px) nên card rộng 47.375rem, 67.125rem khi có field `fill`; form rỗng không lồng card; divider Directus giữ nguyên | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
 
 **Trạng thái khác biệt (T099, cuối lượt 4)**:
 
@@ -971,6 +972,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-124 | `components/comparison/use-comparison.ts` (`raw`), `ComparisonModal.vue` (khôi phục đọc `raw`); `use-comparison.test.ts` | Chủ dự án duyệt, tech lead duyệt 2026-10-20 |
 | D-129 | `modules/content/components/NavigationItem.vue` (nút ở cuối dòng); `design-system/docs/layout-patterns.md` §9 | Owner yêu cầu (2026-10-21) |
 | D-133 | `layouts/cards/components/Card.vue`; `Cards.browser.test.ts`; `design-system/docs/component-specs.md` (Cards grid) | Owner yêu cầu (2026-10-21) |
+| D-150 | `components/form/BoForm.vue` prop `card`; `utils/form-column.ts`; `modules/content/routes/ItemRoute.vue`; `BoForm.us1.test.ts`, `form-column.test.ts`, `ItemRoute.test.ts`; `design-system/docs/layout-patterns.md` §5, §8 (Form card) | Owner duyệt (2026-10-22) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.

@@ -155,6 +155,7 @@ function discardAndStay() {
 		<div class="content flex max-w-5xl flex-col gap-6">
 			<BoForm
 				v-model="edits"
+				card
 				collection="directus_policies"
 				:primary-key="primaryKey"
 				:loading="loading"

@@ -143,6 +143,7 @@ const meta = computed({
 			<BoForm
 				ref="form"
 				v-model="meta"
+				card
 				collection="directus_collections"
 				:loading="loading"
 				:initial-values="(item?.['meta'] as Record<string, unknown> | undefined) ?? null"

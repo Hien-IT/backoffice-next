@@ -362,6 +362,7 @@ function revert(values: Record<string, any>) {
 			<BoForm
 				ref="form"
 				v-model="edits"
+				card
 				:fields="fieldsFiltered"
 				:loading="loading"
 				:initial-values="item"

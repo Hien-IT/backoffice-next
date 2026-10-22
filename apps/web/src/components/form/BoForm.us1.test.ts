@@ -135,6 +135,18 @@ describe('FR-011 widths', () => {
 		expect(wrapper.get('[data-field="d"]').classes()).toContain('@min-[31.25rem]:col-start-2');
 	});
 
+	test('card (D-150) draws the grid as a body-only card and the empty form info without its own card', () => {
+		const CARD = ['rounded-2xl', 'border', 'bg-white', 'sm:p-6'];
+		const plain = mountForm({ fields: [field('a', { meta: { hidden: true } })] });
+		const card = mountForm({ card: true, fields: [field('a', { meta: { hidden: true } })] });
+
+		expect(plain.classes()).not.toContain('rounded-2xl');
+		expect(plain.get('.col-span-full').classes()).toEqual(expect.arrayContaining(CARD.slice(0, 3)));
+		expect(card.classes()).toEqual(expect.arrayContaining(CARD));
+		expect(card.text()).toContain('Empty Form');
+		expect(card.get('.col-span-full').classes()).not.toContain('border');
+	});
+
 	test('the grid gets the fill column when the form is wider than 726px', async () => {
 		const wrapper = mountForm({ fields: [field('a')] });
 

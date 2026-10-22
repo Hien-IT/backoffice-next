@@ -174,6 +174,7 @@ function discardAndStay() {
 		<div class="content max-w-5xl">
 			<BoForm
 				v-model="edits"
+				card
 				collection="directus_roles"
 				:primary-key="primaryKey"
 				:loading="loading"

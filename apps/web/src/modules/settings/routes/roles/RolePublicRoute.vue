@@ -236,6 +236,7 @@ function isAlterations<T extends Item>(value: any): value is Alterations<T> {
 		<div class="content flex max-w-5xl flex-col gap-6">
 			<BoForm
 				v-model="edits"
+				card
 				:initial-values="initialValue"
 				:fields="fields"
 				:primary-key="null as never"

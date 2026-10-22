@@ -58,6 +58,8 @@ const props = withDefaults(
 		showDivider?: boolean | undefined;
 		/** The "no visible fields" info without icon, aligned to the start (v-form `inline`, spec 020) */
 		inline?: boolean | undefined;
+		/** Draw the grid as a body-only Card, page forms only (D-150, layout-patterns §8 Form card) */
+		card?: boolean | undefined;
 		version?: ContentVersion | null;
 		comparison?: ComparisonContext | undefined;
 	}>(),
@@ -452,7 +454,10 @@ function getGroupInterface(fieldName: string) {
 	<div
 		ref="el"
 		class="@container grid gap-x-6 gap-y-5"
-		:class="withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2'"
+		:class="[
+			withFill ? 'grid-cols-[minmax(0,21.375rem)_minmax(0,21.375rem)_1fr]' : 'grid-cols-2',
+			card && 'rounded-2xl border border-gray-200 bg-white p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]',
+		]"
 		:aria-busy="loading ? 'true' : undefined"
 	>
 		<ValidationErrors
@@ -461,10 +466,15 @@ function getGroupInterface(fieldName: string) {
 			:fields="finalFields"
 			@scroll-to-field="scrollToField"
 		/>
+		<!-- In a card form (D-150) the info drops its own card: no card in the card -->
 		<div
 			v-if="noVisibleFields && showNoVisibleFields && !loading"
-			class="col-span-full flex flex-col rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]"
-			:class="{ 'items-center text-center': !inline }"
+			class="col-span-full flex flex-col"
+			:class="[
+				{ 'items-center text-center': !inline },
+				!card &&
+					'rounded-2xl border border-gray-200 bg-white px-5 py-7 xl:px-10 xl:py-12 dark:border-gray-800 dark:bg-white/[0.03]',
+			]"
 		>
 			<BoIcon v-if="!inline" name="search" size="lg" class="mb-3 text-gray-500 dark:text-gray-400" />
 			<p class="text-base font-medium text-gray-800 dark:text-white/90">{{ $t('no_visible_fields') }}</p>

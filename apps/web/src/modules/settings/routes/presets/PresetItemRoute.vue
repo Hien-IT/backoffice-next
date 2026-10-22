@@ -516,6 +516,7 @@ function discardAndLeave() {
 			<div class="preset-item max-w-5xl">
 				<BoForm
 					v-model="edits"
+					card
 					:fields="fields as Field[]"
 					:loading="loading"
 					:initial-values="initialValues"

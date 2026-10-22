@@ -266,6 +266,7 @@ async function revert(values: Record<string, any>) {
 			<BoForm
 				ref="form"
 				v-model="edits"
+				card
 				:autofocus="isNew"
 				:loading="loading"
 				:initial-values="item"

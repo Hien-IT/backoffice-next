@@ -112,6 +112,7 @@ function discardAndLeave() {
 		<div class="settings max-w-5xl">
 			<BoForm
 				ref="form"
+				card
 				:model-value="edits ?? {}"
 				:initial-values="initialValues"
 				:fields="fields"
