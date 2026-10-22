@@ -76,7 +76,8 @@ describe('tokens', () => {
 		expect(jwt.verify(token, 's')).toMatchObject({ id: 'u', iss: 'directus', app_access: true });
 	});
 
-	test('generates OTPs that otplib accepts', async () => {
+	// totp() may wait up to 10 s for the next step.
+	test('generates OTPs that otplib accepts', { timeout: 15_000 }, async () => {
 		const secret = authenticator.generateSecret();
 		expect(authenticator.check(await totp(secret), secret)).toBe(true);
 	});
