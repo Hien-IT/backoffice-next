@@ -234,6 +234,9 @@ settings, permissions), not by this pack.
 
 ### Right detail panel (L-4, Backoffice; TailAdmin has none)
 
+- Toggle icon (owner 2026-10-22, D-161): `info` in both states (Directus `right_panel_open` / `right_panel_close`); the
+  open state is the button tint `data-[state=open]:bg-brand-500/[0.08] text-brand-600` (dark `text-brand-400`); the
+  name stays `open_sidebar` / `close_sidebar`.
 - Owner 2026-10-20: on every screen a popover under its toggle at the end of the page header (Reka `Popover`, `side`
   bottom, `align` end), closed on every page load; the toggle shows only when the page has details. Esc and a click
   outside close it, focus returns to the toggle; focus moving out does not close it (a dialog opened from a detail

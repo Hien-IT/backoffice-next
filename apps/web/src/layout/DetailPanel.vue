@@ -20,10 +20,13 @@ function onOpen(open: boolean) {
 <template>
 	<PopoverRoot :open="!sidebarStore.collapsed" @update:open="onOpen">
 		<PopoverTrigger as-child>
+			<!-- Owner 2026-10-22 (D-161): the `info` icon in both states (Directus right_panel_open/close); the open state
+			     is the brand tint of the button (Reka data-state). -->
 			<BoButton
 				variant="ghost"
-				:icon="sidebarStore.collapsed ? 'right_panel_open' : 'right_panel_close'"
+				icon="info"
 				:aria-label="$t(sidebarStore.collapsed ? 'open_sidebar' : 'close_sidebar')"
+				class="data-[state=open]:bg-brand-500/[0.08] data-[state=open]:text-brand-600 dark:data-[state=open]:text-brand-400"
 			/>
 		</PopoverTrigger>
 		<PopoverPortal>
