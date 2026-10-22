@@ -43,7 +43,10 @@
 	body {
 		margin: 0;
 		min-height: 100vh;
-		@apply text-gray-800 dark:text-white/90;
+		/* Owner 2026-10-22: the page background is a light project color tint like the Directus Color Match theme
+		   (`color-mix(in srgb, #FFFFFF, var(--theme--primary) 7%)`); dark keeps the theme gray-900 (no dark Color Match). */
+		background-color: color-mix(in srgb, var(--color-white), var(--project-color) 7%);
+		@apply text-gray-800 dark:bg-gray-900 dark:text-white/90;
 	}
 
 	/* Directus _base.scss:153-159: no native spin buttons on number inputs nor clear/decoration on search inputs. */

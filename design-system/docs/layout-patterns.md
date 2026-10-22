@@ -129,6 +129,8 @@ without Backdrop (section 7, owner 2026-10-20).
 
 ## 5. Content area and page header
 
+- Page background (owner 2026-10-22): light `color-mix(in srgb, var(--color-white), var(--project-color) 7%)` on `body`
+  (`styles/base.css`), the Directus Color Match background; dark keeps `gray-900`.
 - Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
   wide screen shows no empty band on either side. The page header always spans the content width, its actions at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
