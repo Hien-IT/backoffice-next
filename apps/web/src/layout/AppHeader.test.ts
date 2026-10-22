@@ -63,14 +63,11 @@ describe('AppHeader (layout-patterns §4)', () => {
 		expect(button('Open navigation')!.getAttribute('aria-expanded')).toBe('true');
 	});
 
-	test('the bell is in the header below xl only (the sidebar is a closed drawer there)', async () => {
+	test('no bell in the page header at any width: it is in the top bar (D-157)', async () => {
 		await render();
 		expect(document.body.querySelector('header button[title="Notifications"]')).toBeNull();
-	});
-
-	test('below xl: the bell at the end of the header row', async () => {
 		breakpoints.xl = false;
 		await render();
-		expect(document.body.querySelector('header button[title="Notifications"]')).not.toBeNull();
+		expect(document.body.querySelector('header button[title="Notifications"]')).toBeNull();
 	});
 });

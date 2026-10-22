@@ -12,7 +12,7 @@ import { ADMIN, DATA_PREFIX, directusUrl, e2eConfig } from './helpers/config.js'
 import { chooseInMenu, dirTile, goto as gotoDirectus, headerButton, onDirectusApp } from './helpers/directus-app.js';
 import { flowId, FLOWS, panel } from './helpers/flows.js';
 import { openSidebar } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -262,8 +262,8 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 	);
 	const buttons = await page.evaluate(buttonsIn, { icons: ICONS });
 
-	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the module bar holds the sub-menu.
-	const bar = await moduleBar(page);
+	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the sidebar holds the sub-menu (D-157).
+	const bar = await moduleNavigation(page);
 	const nav = await bar.evaluate((root) =>
 		Array.from(root.querySelectorAll('nav[aria-label="Settings"] li > a')).map((row) => {
 			const copy = row.cloneNode(true) as HTMLElement;

@@ -48,18 +48,6 @@ test('badge from the store, hidden at 0, aria-label with the count, live region 
 	expect(useAppStore().notificationsDrawerOpen).toBe(false);
 });
 
-test('compact (the collapsed rail): no button, the live region stays', async () => {
-	await mountLayout(NotificationsBell, {
-		props: { compact: true },
-		beforeMount: () => void (useNotificationsStore().unread = 3),
-	});
-
-	expect(document.querySelector('button')).toBeNull();
-	useNotificationsStore().unread = 4;
-	await nextTick();
-	expect(live().textContent).toBe('Notifications, 4 unread');
-});
-
 test('more than 99 shows 99+, the label keeps the number', async () => {
 	await mountLayout(NotificationsBell, { beforeMount: () => void (useNotificationsStore().unread = 120) });
 

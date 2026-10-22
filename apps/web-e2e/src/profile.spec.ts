@@ -76,7 +76,7 @@ test('saves only the changed fields; the new name shows in the avatar menu (US6-
 	await save(page);
 	expect((await patch).postDataJSON()).toEqual({ first_name: 'Grace' });
 
-	// The user menu under the sidebar logo (D-127; in the navigation drawer below `xl`) is named after the user.
+	// The user menu at the end of the top bar (D-157, every width) is named after the user.
 	await moduleBar(page);
 	await expect(page.getByRole('button', { name: 'Grace E2E' })).toBeVisible();
 });

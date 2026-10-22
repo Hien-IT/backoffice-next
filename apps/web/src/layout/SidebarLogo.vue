@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar-logo.vue -->
 <script setup lang="ts">
-// Backoffice: logo area of the TailAdmin sidebar (layout-patterns §2): the logo on the --project-color background
-// plus the project name and descriptor of private-view-nav-project-name.vue (`Backoffice` when project_name is
-// empty, FR-026), name hidden on the collapsed rail. The Backoffice logo (light/dark SVG) replaces the animated
+// Backoffice: logo area of the top bar (layout-patterns §2; the TailAdmin sidebar logo until D-157): the logo on the
+// --project-color background plus the project name and descriptor of private-view-nav-project-name.vue (`Backoffice`
+// when project_name is empty, FR-026), name hidden below `md` where the module tabs need the room. The Backoffice logo (light/dark SVG) replaces the animated
 // Directus sprite, so the loader is the progress bar for both logos; project_url is a link only with an http(s)
 // scheme (FR-026).
 import { computed, ref, toRefs, watch } from 'vue';
@@ -15,8 +15,6 @@ import { useRequestsStore } from '../stores/requests.ts';
 import { useServerStore } from '../stores/server.ts';
 import { useSettingsStore } from '../stores/settings.ts';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
-
-const { collapsed = false } = defineProps<{ collapsed?: boolean }>();
 
 const { t } = useI18n();
 
@@ -59,10 +57,10 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 </script>
 
 <template>
-	<div class="flex pt-8 pb-7" :class="{ 'justify-center': collapsed }">
+	<div class="flex shrink-0">
 		<component
 			:is="url ? BoTooltip : 'div'"
-			v-bind="url ? { text: t('view_project'), side: 'right' } : { class: 'contents' }"
+			v-bind="url ? { text: t('view_project'), side: 'bottom' } : { class: 'contents' }"
 		>
 			<component
 				:is="url ? 'a' : 'div'"
@@ -83,7 +81,7 @@ const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 					/>
 				</span>
 				<!-- The logo alt already names the project: the visible name is not read twice. -->
-				<span v-if="!collapsed" class="min-w-0 leading-tight">
+				<span class="hidden max-w-48 min-w-0 leading-tight md:block">
 					<span class="block truncate text-base font-semibold" aria-hidden="true" :title="name">{{ name }}</span>
 					<span
 						v-if="descriptor"

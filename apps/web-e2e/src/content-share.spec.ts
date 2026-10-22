@@ -5,7 +5,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { type ApiRequest, expect, test } from './helpers/requests.js';
 
@@ -43,7 +43,7 @@ test('share login opens the item with the permissions of the share (US7-2, FR-08
 	await expect(page.getByRole('button', { name: /^(Save|Not Allowed)$/ }).first()).toBeVisible();
 
 	// The tree lists only what the share reads: bo_content (in its folder), no bookmarks.
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'Collections' });
 	await expect(tree.locator('a[href="/admin/content/bo_content"]')).toBeVisible();
 	await expect(tree.locator('a')).toHaveCount(1);

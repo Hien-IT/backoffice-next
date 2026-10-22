@@ -52,7 +52,7 @@ const rootItems = computed(() => {
 const dense = computed(() => collectionsStore.visibleCollections.length > 5);
 const showSearch = computed(() => collectionsStore.visibleCollections.length > 20);
 
-// The hidden-collections toggle sits on the Content row of the sidebar (AppSidebar `module-actions-content`); without
+// The hidden-collections toggle sits in the sidebar title row (AppSidebar `module-actions-content`, D-157); without
 // that row (e.g. mounted alone) it stays above the tree.
 const actionsTarget = ref<HTMLElement | null>(null);
 onMounted(() => (actionsTarget.value = document.getElementById('module-actions-content')));

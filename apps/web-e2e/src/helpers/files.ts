@@ -3,7 +3,7 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { AdminApi } from './api.js';
 import { DATA_PREFIX } from './config.js';
-import { moduleBar } from './layout.js';
+import { moduleNavigation } from './layout.js';
 
 /** Opens a Files route (`/files`, `/files/folders/<id>`, `/files/<id>`) and waits for the page title. */
 export async function openFiles(page: Page, path = '/files'): Promise<void> {
@@ -13,7 +13,7 @@ export async function openFiles(page: Page, path = '/files'): Promise<void> {
 
 /** The folder tree of the sub-menu (below `xl` the navigation is a drawer to open first). */
 export async function folderTree(page: Page): Promise<Locator> {
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'File Library' });
 	await expect(tree).toBeVisible();
 	return tree;

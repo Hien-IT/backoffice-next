@@ -26,6 +26,30 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 
 ## 2. Sidebar (`AppSidebar.vue`)
 
+**Backoffice since D-157 (owner 2026-10-22): top bar with module tabs.** Built: `layout/AppTopBar.vue`,
+`ModuleTabs.vue`, `composables/use-module-bar.ts`, `AppSidebar.vue`, `PrivateView.vue`.
+
+- Top bar (`header`, the page banner): `fixed inset-x-0 top-0 z-1000 flex h-16 items-center gap-3 border-b
+  border-gray-200 bg-white ps-4 pe-3 sm:gap-6 xl:ps-6 dark:border-gray-800 dark:bg-gray-900`: the logo (`SidebarLogo`,
+  project name from `md`), the module tabs, then the bell and the user menu (name from `lg`). The page body starts with
+  `pt-16`; the page header is sticky at `top-16` (`top-0` on `fill` pages, whose scroll box starts under the bar).
+- Module tabs (`nav` `aria-label` `modules`, `data-testid="module-bar"`, `overflow-x-auto no-scrollbar`, scrolls sideways
+  at every width): `module_bar` items in order (FR-021, FR-081, D-49 unchanged), each a link
+  `flex h-full items-center gap-2 border-b-2 px-3 text-theme-sm font-medium whitespace-nowrap` with a `sm` icon; active
+  `border-brand-500 text-brand-600 dark:border-brand-400 dark:text-brand-400` + `aria-current="page"`, others
+  `border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300`; focus outline inset
+  (`-outline-offset-2`); external links `open_in_new` + sr-only "(Open in New Window)". App extension modules (D-144):
+  one `Extensions` tab (`extension` icon, `expand_more`) opening a BoMenu of the enabled modules in `module_bar` order,
+  the open one checked; the tab is active on their pages.
+- Sidebar: only the navigation of the open module: a title row (`pt-5 pb-3`, module icon gray-500 / gray-400, `h2`
+  `text-base font-semibold`, then the `module-actions-<id>` target for actions such as the Content hidden-collections
+  toggle), then the `navigation` slot. `aside#navigation` named after the module; from `xl`
+  `fixed start-0 top-16 bottom-0 w-[290px]`, the content `xl:ms-[290px]`; the header toggle hides it (saved in
+  `backoffice-nav-bar-collapsed`, no 90 px rail any more); below `xl` the drawer of §3 (☰ opens it). A page without a
+  `navigation` slot has no sidebar and no toggle.
+- The TailAdmin sidebar below (logo, groups, rail, hover expand) and the sidebar rows of §7 describe the layout before
+  D-157.
+
 State (`useSidebar`, provided once by `SidebarProvider`): `isExpanded` (default true, forced false on mobile),
 `isMobileOpen`, `isHovered`, `openSubmenu` (one open sub-menu at a time, key `group-item`).
 
@@ -129,8 +153,10 @@ without Backdrop (section 7, owner 2026-10-20).
 
 ## 5. Content area and page header
 
-- Page background (owner 2026-10-22): light `color-mix(in srgb, var(--color-white), var(--project-color) 7%)` on `body`
-  (`styles/base.css`), the Directus Color Match background; dark keeps `gray-900`.
+- Page background (owner 2026-10-22, D-152): light `color-mix(in srgb, var(--color-white), var(--project-color) 5%)` on
+  `body` (`styles/base.css`), the Directus Color Match background at 5% instead of 7% so brand-500 text keeps 4.5:1
+  (4.53:1, gray-500 4.66:1 with the default project color; a very dark project color can still go below); dark keeps
+  `gray-900`.
 - Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
   wide screen shows no empty band on either side. The page header always spans the content width, its actions at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
@@ -188,7 +214,7 @@ settings, permissions), not by this pack.
 | Module bar (left icon rail)                                                          | One sidebar group "Menu" (L-2), no "Others" group. Items in `module_bar` order: each enabled module and each `module_bar` link (internal or external) in the same list, icon + label (`menu-item`). Settings last, admins only                                                                                                       |
 | Module navigation (second column: collections, folders, presets, settings pages ...) | The module's sub-menu (`menu-dropdown-item`), **one level** (L-3): feature 012 provides this slot; each module feature (014+) decides what goes in it. Exception (owner, 2026-10-15, spec 014 Q2): the Content module renders its collection tree **nested inside this sub-menu** (groups, folders, bookmarks, search), see §9 (014); the Files and Users modules do the same with flat rows plus a tree (spec 015 Q3), see §11 (015) |
 | Settings module                                                                      | Last sidebar item, admins only (Directus permission); its sub-menu is the flat grouped list of §12 (016)                                                                                                                                                                                                                             |
-| Extension modules (020, D-144)                                                       | One `Extensions` row (`extension` icon, a `<button>` with `aria-expanded`) after the module_bar items; its sub-menu lists the enabled app extension modules in `module_bar` order (`menu-dropdown-item`), the open module shows its own navigation one level below (owner 2026-10-22: three levels here only). Opens on an extension page |
+| Extension modules (020, D-144)                                                       | Since D-157 an `Extensions` tab with a menu in the top bar (§2). Before: one `Extensions` row (`extension` icon, a `<button>` with `aria-expanded`) after the module_bar items; its sub-menu lists the enabled app extension modules in `module_bar` order (`menu-dropdown-item`), the open module shows its own navigation one level below (owner 2026-10-22: three levels here only). Opens on an extension page |
 | Module bar links                                                                     | Internal links: router links as items. External URLs: open in a new tab, `target="_blank" rel="noopener noreferrer"` plus an "opens in a new tab" hint (`open_in_new` icon `aria-hidden` + sr-only text)                                                                                                                             |
 | Project logo / name at the top of the module bar                                     | Sidebar logo area; logo background uses `--project-color` (branding, README)                                                                                                                                                                                                                                                         |
 | Header bar (icon, title, breadcrumb, action buttons)                                 | Page header in the app header row after the sidebar toggle (`PageBreadcrumb` layout, owner 2026-10-20): title + breadcrumb on the left, actions (Button recipes) on the right, wraps on small screens                                                                                                                                                                              |

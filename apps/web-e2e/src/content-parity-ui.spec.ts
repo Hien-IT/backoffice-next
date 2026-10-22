@@ -6,7 +6,7 @@ import type { Page } from '@playwright/test';
 import { ADMIN, e2eConfig } from './helpers/config.js';
 import { onDirectusApp, goto as gotoDirectus } from './helpers/directus-app.js';
 import { openCollection, openSidebar } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -59,7 +59,7 @@ async function backofficeScreen(page: Page, user: { email: string; password: str
 		.filter(Boolean);
 	const count = ((await status.textContent()) ?? '').match(/\d+ Items?/)![0];
 	const createDisabled = (await page.getByRole('link', { name: 'Create Item' }).count()) === 0;
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = await page
 		.getByRole('tree', { name: 'Collections' })
 		.getByRole('treeitem')

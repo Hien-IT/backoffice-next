@@ -52,20 +52,23 @@ async function render(user: Partial<AppUser> | ShareUser = ADMIN, props: Record<
 }
 
 const q = (selector: string) => document.body.querySelector(selector);
-const navAside = () => q('aside[aria-label="Navigation"]');
+const navAside = () => q('aside#navigation');
 const sidebarAside = () => q('aside[aria-label="Sidebar"]');
 const button = (label: string) => q(`button[aria-label="${label}"]`) as HTMLButtonElement | null;
 
 describe('PrivateView (FR-020, FR-028)', () => {
-	test('from xl: sidebar with the module sub-menu, header with the page header in main, detail panel closed; title; skip menu', async () => {
+	test('from xl: top bar (logo, module tabs, user), sidebar with the module navigation, page header in main; title; skip menu', async () => {
 		const { head } = await render();
 
-		expect(navAside()!.id).toBe('navigation');
-		expect(navAside()!.querySelector('[data-testid="module-bar"]')).not.toBeNull();
-		expect(navAside()!.textContent).toContain('Backoffice');
+		const topBar = q('body header:not(main header)')!;
+		expect(topBar.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
+		expect(topBar.textContent).toContain('Backoffice');
+		expect(topBar.querySelector('button[aria-label="Ada"]')).not.toBeNull();
+		expect(navAside()!.getAttribute('aria-label')).toBe('Content');
 		expect(navAside()!.textContent).toContain('Nav items');
-		expect(q('header button[aria-label="Toggle Navigation"]')).not.toBeNull();
-		expect(q('aside#navigation button[aria-label="Ada"]')).not.toBeNull();
+		expect(navAside()!.querySelector('[data-testid="module-bar"]')).toBeNull();
+		expect(q('#navigation + div')!.className).toContain('xl:ms-[290px]');
+		expect(q('main header button[aria-label="Toggle Navigation"]')).not.toBeNull();
 		expect(q('main#main-content h1')!.textContent).toBe('Content');
 		expect(q('main#main-content')!.textContent).toContain('Act');
 		expect(q('main#main-content')!.textContent).toContain('Body');
@@ -81,13 +84,12 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(tags.find((tag) => tag.tag === 'title')?.textContent).toBe('Content');
 	});
 
-	test('from xl: a collapsed sidebar stays collapsed (saved state): 90 px rail, content margin follows', async () => {
+	test('from xl: a hidden sidebar stays hidden (saved state), the content takes the width', async () => {
 		localStorage.setItem('backoffice-nav-bar-collapsed', 'true');
 		await render();
 
-		expect(navAside()!.className).toContain('w-[90px]');
-		expect(navAside()!.textContent).not.toContain('Nav items');
-		expect(q('#navigation + div')!.className).toContain('xl:ms-[90px]');
+		expect(navAside()).toBeNull();
+		expect(q('main')!.parentElement!.parentElement!.className).not.toContain('xl:ms-[290px]');
 		expect(button('Toggle Navigation')!.getAttribute('aria-expanded')).toBe('false');
 
 		button('Toggle Navigation')!.click();
@@ -95,19 +97,36 @@ describe('PrivateView (FR-020, FR-028)', () => {
 		expect(localStorage.getItem('backoffice-nav-bar-collapsed')).toBe('false');
 	});
 
+	test('a page without navigation: no sidebar and no toggle', async () => {
+		await mountLayout(PrivateView, {
+			path: '/insights',
+			props: { title: 'Insights' },
+			slots: { default: '<p>Body</p>' },
+			beforeMount: () => {
+				useUserStore().currentUser = ADMIN as AppUser;
+				useSettingsStore().settings = { module_bar: null } as Settings;
+			},
+		});
+
+		expect(navAside()).toBeNull();
+		expect(button('Toggle Navigation')).toBeNull();
+		expect(q('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/insights');
+	});
+
 	test('below xl: the sidebar is a drawer, the detail panel a popover; opened by keyboard, Esc closes, focus returns', async () => {
 		viewport(1000);
 		await render();
 
-		expect(q('[data-testid="module-bar"]')).toBeNull();
+		// The module tabs stay in the top bar below xl (they scroll sideways).
+		expect(q('[data-testid="module-bar"]')).not.toBeNull();
 		expect(navAside()).toBeNull();
 		expect(sidebarAside()).toBeNull();
 
 		const openNav = button('Open navigation')!;
 		openNav.focus();
 		openNav.click();
-		await vi.waitFor(() => expect(q('[role="dialog"] [data-testid="module-bar"]')).not.toBeNull());
-		expect(q('[role="dialog"] aside[aria-label="Navigation"]')!.textContent).toContain('Nav items');
+		await vi.waitFor(() => expect(q('[role="dialog"] aside#navigation')).not.toBeNull());
+		expect(q('[role="dialog"] aside#navigation')!.textContent).toContain('Nav items');
 
 		await press(document.activeElement!, 'Escape');
 		await vi.waitFor(() => expect(q('[role="dialog"]')).toBeNull());

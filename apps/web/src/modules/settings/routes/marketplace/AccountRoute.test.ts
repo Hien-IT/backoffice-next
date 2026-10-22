@@ -76,7 +76,7 @@ test('banner, metadata links and the account extensions', async () => {
 	const banner = wrapper.get('h2');
 	expect(banner.text()).toContain('Jane Doe');
 	expect(banner.text()).toContain('Verified');
-	expect(wrapper.get('img').attributes('alt')).toBe('Jane Doe');
+	expect(wrapper.get('main img').attributes('alt')).toBe('Jane Doe');
 	expect(wrapper.text()).toContain('Hanoi');
 	expect(wrapper.text()).toContain('Acme');
 	expect(wrapper.text()).toContain('Builds extensions');

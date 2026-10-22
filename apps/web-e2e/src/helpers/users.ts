@@ -4,25 +4,14 @@
 import { expect, type Locator, type Page } from '@playwright/test';
 import type { AdminApi } from './api.js';
 import { DATA_PREFIX } from './config.js';
-import { moduleBar } from './layout.js';
+import { moduleNavigation } from './layout.js';
 
-/** Opens your own user page from the avatar menu under the sidebar logo (D-127): no /users/me route, as Directus (D-86). */
+/** Opens your own user page from the avatar menu at the end of the top bar (D-157): no /users/me route, as Directus (D-86). */
 export async function openOwnPage(page: Page): Promise<void> {
-	// Below `xl` the user menu is in the navigation drawer: moduleBar opens it.
-	await moduleBar(page);
-	// The avatar menu comes first in the sidebar, before the module sub-menus (their option menus are menus too).
-	await page.locator('#navigation button[aria-haspopup="menu"]').first().click();
+	// The avatar is the last menu button of the top bar (the Extensions tab, when there is one, comes first).
+	await page.getByRole('banner').locator('button[aria-haspopup="menu"]').last().click();
 	await page.getByRole('menuitem', { name: /^(Profile|Hồ sơ)/ }).click();
 	await expect(page).toHaveURL(/\/admin\/users\/[0-9a-f-]{36}$/);
-
-	// Below `xl` a navigation drawer still open (a Reka dialog) would dim the page: Escape closes it.
-	const drawer = page.locator('[role="dialog"]').filter({ has: page.getByTestId('module-bar') });
-	if (await drawer.isVisible()) {
-		await page.keyboard.press('Escape');
-		await expect(drawer).toBeHidden();
-		// WebKit at 768 px still fades the overlay out: axe would see the next page dimmed (color-contrast).
-		await expect(page.locator('.fixed.inset-0.bg-gray-900\\/50')).toHaveCount(0);
-	}
 }
 
 /** Opens a Users route (`/users`, `/users/roles/<id>`, `/users/<id>`) and waits for the page title. */
@@ -33,7 +22,7 @@ export async function openUsers(page: Page, path = '/users'): Promise<void> {
 
 /** The role tree of the sub-menu (below `xl` the navigation is a drawer to open first). */
 export async function roleTree(page: Page): Promise<Locator> {
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'Roles' });
 	await expect(tree).toBeVisible();
 	return tree;

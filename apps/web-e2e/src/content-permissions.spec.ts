@@ -5,7 +5,7 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { Fixtures, type TestUser } from './helpers/fixtures.js';
 import { openCollection, openItem } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -41,7 +41,7 @@ async function signIn(page: Page, user: { email: string; password: string }) {
 test('a user reading only bo_content: the tree lists it alone (US7-1, FR-100)', async ({ page }) => {
 	await signIn(page, reader);
 	await openCollection(page, 'bo_content');
-	await moduleBar(page);
+	await moduleNavigation(page);
 
 	const tree = page.getByRole('tree', { name: 'Collections' });
 	await expect(tree.locator('a[href="/admin/content/bo_content"]')).toBeVisible();

@@ -45,10 +45,7 @@ async function signIn(page: Page, user: { email: string; password: string } = AD
 
 /** hrefs of the module bar of the Backoffice app, in order. */
 async function moduleBarHrefs(page: Page): Promise<string[]> {
-	// Feature 014: the Content sub-menu (collection tree) sits inside the module bar; its links are not modules.
-	return (await moduleBar(page))
-		.locator('a')
-		.evaluateAll((links) => links.filter((a) => !a.closest('[role="tree"]')).map((a) => a.getAttribute('href') ?? ''));
+	return (await moduleBar(page)).locator('a').evaluateAll((links) => links.map((a) => a.getAttribute('href') ?? ''));
 }
 
 /** hrefs of the module bar of the Directus app, read in its own browser context. */
@@ -224,7 +221,7 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 	const width = page.viewportSize()!.width;
 
 	if (width >= 1280) {
-		// TailAdmin: the collapsed sidebar stays as a 90 px rail; the toggle reports the state.
+		// The hidden sidebar stays hidden (D-157: no rail any more); the toggle reports the state.
 		const toggle = page.getByRole('button', { name: 'Toggle Navigation' });
 		// The detail panel is a popover closed on every page load (D-128): opened here, closed after the reload.
 		await page.getByRole('button', { name: 'Open sidebar' }).click();
@@ -235,8 +232,8 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 		await page.reload();
 		await expect(page.getByRole('button', { name: 'Open sidebar' })).toHaveAttribute('aria-expanded', 'false');
 		await expect(page.getByRole('button', { name: 'Toggle Navigation' })).toHaveAttribute('aria-expanded', 'false');
-		const rail = await page.getByRole('complementary', { name: 'Navigation' }).boundingBox();
-		expect(rail!.width).toBeLessThanOrEqual(90);
+		await expect(page.locator('aside#navigation')).toHaveCount(0);
+		await expect(page.getByTestId('module-bar')).toBeVisible();
 
 		await page.evaluate(() => localStorage.clear());
 		return;
@@ -246,11 +243,13 @@ test('collapsed navigation stays collapsed after reload, the detail popover is c
 	const open = page.getByRole('button', { name: 'Open navigation' });
 	await open.focus();
 	await page.keyboard.press('Enter');
-	await expect(page.getByTestId('module-bar')).toBeVisible();
+	await expect(page.locator('[role="dialog"] aside#navigation')).toBeVisible();
 	await page.keyboard.press('Escape');
 	await page.keyboard.press('Escape');
-	await expect(page.getByTestId('module-bar')).toBeHidden();
+	await expect(page.locator('aside#navigation')).toBeHidden();
 	await expect(open).toBeFocused();
+	// The module tabs stay in the top bar below xl (D-157).
+	await expect(page.getByTestId('module-bar')).toBeVisible();
 
 	// No horizontal scroll at the smallest supported width (FR-028, SC-008).
 	expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);

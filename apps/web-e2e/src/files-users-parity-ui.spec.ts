@@ -10,7 +10,7 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN, e2eConfig } from './helpers/config.js';
 import { goto as gotoDirectus, onDirectusApp } from './helpers/directus-app.js';
 import { openSidebar } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login, resetLastPage } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -129,8 +129,8 @@ async function backofficeScreen(page: Page, path: string): Promise<Screen> {
 		{ icons: ICONS, count: COUNT.source },
 	);
 
-	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the module bar holds the sub-menu.
-	const bar = await moduleBar(page);
+	// Below `xl` the navigation is a drawer; chromium-1280 is at `xl`, the sidebar holds the sub-menu (D-157).
+	const bar = await moduleNavigation(page);
 	const nav = await bar.evaluate((root) => {
 		const sub = root.querySelector('nav[aria-label="File Library"], nav[aria-label="User Directory"]');
 		const rows = sub ? Array.from(sub.querySelectorAll('[role="treeitem"] [data-tree-row], ul > li > a')) : [];

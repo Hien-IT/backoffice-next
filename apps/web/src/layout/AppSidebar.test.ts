@@ -1,302 +1,68 @@
 import { enableAutoUnmount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';
-import type { ModuleBarPart } from '../constants.ts';
 import { getInternalModules, registeredModules } from '../modules/index.ts';
 import { useSettingsStore, type Settings } from '../stores/settings.ts';
-import { useUserStore } from '../stores/user.ts';
-import type { AppUser } from '../types/user.ts';
 import { mountLayout, press } from '../test-utils/layout.ts';
 import AppSidebar from './AppSidebar.vue';
-import NotificationsBell from './NotificationsBell.vue';
-import UserMenu from './UserMenu.vue';
 import { useNavBarStore } from './stores/nav-bar.ts';
 
 vi.mock('../router/index.ts', () => ({ router: {} }));
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
-// The bell panel loads from the API; here only that its open state keeps the rail expanded.
-vi.mock('../components/NotificationsPanel.vue', async () => {
-	const { h } = await import('vue');
-	return { default: { render: () => h('button', { type: 'button' }, 'View all') } };
-});
 
 enableAutoUnmount(afterEach);
 
 beforeEach(() => localStorage.clear());
 
-/** Text of an element without its aria-hidden parts (icon ligatures). */
-function accessibleText(el: Element) {
-	const clone = el.cloneNode(true) as Element;
-	clone.querySelectorAll('[aria-hidden="true"]').forEach((node) => node.remove());
-	return clone.textContent!.replace(/\s+/g, ' ').trim();
-}
+async function render({ path = '/files', props = {} }: { path?: string; props?: Record<string, unknown> } = {}) {
+	registeredModules.value = getInternalModules();
 
-async function render(
-	moduleBar: ModuleBarPart[] | null,
-	{
-		path = '/',
-		modules = getInternalModules().map((m) => m.id),
-		extensions = [],
-		props = {},
-		slots = {},
-	}: {
-		path?: string;
-		modules?: string[];
-		extensions?: string[];
-		props?: Record<string, unknown>;
-		slots?: Record<string, string>;
-	} = {},
-) {
-	registeredModules.value = [
-		...getInternalModules().filter((m) => modules.includes(m.id)),
-		// App extension modules (spec 020): only id, name and icon matter to the bar.
-		...extensions.map((id) => ({ id, name: `Ext ${id}`, icon: 'box', routes: [] }) as any),
-	];
-
-	const { wrapper } = await mountLayout(AppSidebar, {
+	return mountLayout(AppSidebar, {
 		path,
 		props,
-		slots,
+		slots: { navigation: '<a href="/files/x">Folder</a>' },
 		beforeMount: () => {
-			useSettingsStore().settings = { module_bar: moduleBar } as Settings;
+			useSettingsStore().settings = { module_bar: null } as Settings;
 		},
 	});
-
-	const links = [...document.body.querySelectorAll('[data-testid="module-bar"] a')];
-
-	return {
-		wrapper,
-		links,
-		hrefs: links.map((a) => a.getAttribute('href')),
-		labels: links.map(accessibleText),
-	};
 }
 
-describe('AppSidebar module list (FR-021)', () => {
-	test('module_bar null: Directus default order without Documentation, Settings last', async () => {
-		const { hrefs, labels, wrapper } = await render(null);
+describe('AppSidebar (layout-patterns §2, D-157)', () => {
+	test('the open module: its name as the title, the actions target, then its navigation', async () => {
+		const { wrapper } = await render();
+		const aside = wrapper.get('aside#navigation');
 
-		expect(hrefs).toEqual(['/content', '/users', '/files', '/insights', '/settings']);
-		expect(labels).toEqual(['Content', 'User Directory', 'File Library', 'Insights', 'Settings']);
-		expect(wrapper.get('aside').attributes('aria-label')).toBe('Navigation');
-		const nav = wrapper.get('nav');
-		expect(document.getElementById(nav.attributes('aria-labelledby')!)!.textContent).toContain('Modules');
+		expect(aside.attributes('aria-label')).toBe('File Library');
+		expect(aside.get('h2').text()).toBe('File Library');
+		expect(aside.find('#module-actions-files').exists()).toBe(true);
+		expect(aside.get('[data-module-navigation]').text()).toBe('Folder');
+		// The modules are the top bar tabs now.
+		expect(aside.find('[data-testid="module-bar"]').exists()).toBe(false);
 	});
 
-	test('no settings yet: no module buttons', async () => {
-		registeredModules.value = getInternalModules();
-		const { wrapper } = await mountLayout(AppSidebar);
-
-		expect(wrapper.findAll('[data-testid="module-bar"] a')).toHaveLength(0);
+	test('a module without a place in the bar (Activity, 018 FR-061) still heads its navigation', async () => {
+		const { wrapper } = await render({ path: '/activity' });
+		expect(wrapper.get('aside h2').text()).toBe('Activity');
 	});
 
-	test('share session (no settings): the default bar of its registered modules (FR-084)', async () => {
-		registeredModules.value = getInternalModules().filter((m) => m.id === 'content');
-		const { wrapper } = await mountLayout(AppSidebar, {
-			beforeMount: () => {
-				useUserStore().currentUser = { share: 's1', app_access: false, admin_access: false };
-			},
-		});
-
-		expect(wrapper.findAll('[data-testid="module-bar"] a').map((a) => a.attributes('href'))).toEqual(['/content']);
-	});
-
-	test('saved order and enabled are used as is; unknown and unregistered modules are dropped', async () => {
-		const { hrefs } = await render(
-			[
-				{ type: 'module', id: 'files', enabled: true },
-				{ type: 'module', id: 'content', enabled: false },
-				{ type: 'module', id: 'visual', enabled: true },
-				{ type: 'module', id: 'unknown', enabled: true },
-				{ type: 'module', id: 'settings', enabled: true, locked: true },
-				{ type: 'module', id: 'users', enabled: true },
-			],
-			{ modules: ['activity', 'content', 'files', 'users'] },
-		);
-
-		expect(hrefs).toEqual(['/files', '/users']);
-	});
-
-	test('internal links are router links, external links open a new tab; $t: names are translated', async () => {
-		const { links } = await render([
-			{ type: 'link', id: 'activity', enabled: true, name: '$t:activity', icon: 'history', url: '/activity' },
-			{ type: 'link', id: 'site', enabled: true, name: 'Site', icon: 'public', url: 'https://example.test' },
-		]);
-
-		expect(links[0]!.getAttribute('href')).toBe('/activity');
-		expect(accessibleText(links[0]!)).toBe('Activity');
-		expect(links[0]!.getAttribute('target')).toBeNull();
-		expect(links[1]!.getAttribute('href')).toBe('https://example.test');
-		expect(links[1]!.getAttribute('target')).toBe('_blank');
-		expect(links[1]!.getAttribute('rel')).toBe('noopener noreferrer');
-		expect(accessibleText(links[1]!)).toBe('Site (Open in New Window)');
-	});
-
-	test('the Documentation link to the Directus docs is hidden even in a saved module_bar (FR-081, D-49)', async () => {
-		const docs = { type: 'link', id: 'docs', enabled: true, name: '$t:documentation', icon: 'help' } as const;
-
-		const saved = await render([
-			{ type: 'module', id: 'content', enabled: true },
-			{ ...docs, url: 'https://docs.directus.io' },
-		]);
-		expect(saved.hrefs).toEqual(['/content']);
-
-		saved.wrapper.unmount();
-		const changed = await render([{ ...docs, url: 'https://docs.example.test' }]);
-		expect(changed.hrefs).toEqual(['https://docs.example.test']);
-	});
-
-	test('the active module has aria-current="page", also on a sub path', async () => {
-		const { links } = await render(null, { path: '/files/folders/1' });
-
-		expect(links.map((a) => a.getAttribute('aria-current'))).toEqual([null, null, 'page', null, null]);
-		expect(links[2]!.className).toContain('menu-item-active');
-	});
-});
-
-describe('AppSidebar layout (FR-020, layout-patterns §2)', () => {
-	test('the navigation slot is the sub-menu of the active module only', async () => {
-		await render(null, { path: '/files', slots: { navigation: '<a href="/files/x">Folder</a>' } });
-
-		const items = [...document.body.querySelectorAll('[data-testid="module-bar"] > ul > li')];
-		expect(items.map((li) => li.textContent!.includes('Folder'))).toEqual([false, false, true, false, false]);
-	});
-
-	test('a hidden module (Activity): only its sub-menu under the list, no title row (018 FR-061, owner 2026-10-18)', async () => {
-		await render(null, { path: '/activity', slots: { navigation: '<button type="button">My Activity</button>' } });
-
-		const block = document.body.querySelector('[data-module-unlisted]')!;
-		expect(block.textContent!.trim()).toBe('My Activity');
-		expect(document.body.querySelectorAll('[data-testid="module-bar"] [aria-current="page"]')).toHaveLength(0);
-	});
-
-	test('extension modules are one "Extensions" group in module_bar order, the open one with its sub-menu (D-144)', async () => {
-		const bar: ModuleBarPart[] = [
-			{ type: 'module', id: 'content', enabled: true },
-			{ type: 'module', id: 'report', enabled: true },
-			{ type: 'module', id: 'hidden-ext', enabled: false },
-			{ type: 'module', id: 'viewer', enabled: true },
-			{ type: 'module', id: 'settings', enabled: true, locked: true },
-		];
-		const { hrefs } = await render(bar, {
-			path: '/report/schema',
-			extensions: ['report', 'hidden-ext', 'viewer'],
-			slots: { navigation: '<a href="/report/roles">Roles</a>' },
-		});
-
-		const nav = document.body.querySelector('[data-testid="module-bar"]')!;
-		const group = nav.querySelector('[data-module-group="extensions"]')!;
-		const items = [...group.querySelectorAll(':scope > ul > li')];
-
-		expect([...nav.querySelectorAll(':scope > ul > li > a')].map((a) => a.getAttribute('href'))).toEqual([
-			'/content',
-			'/settings',
-		]);
-		expect(group.querySelector('button')!.getAttribute('aria-expanded')).toBe('true');
-		expect(items.map((li) => li.querySelector('a')!.getAttribute('href'))).toEqual(['/report', '/viewer']);
-		expect(items[0]!.querySelector('a')!.getAttribute('aria-current')).toBe('page');
-		expect(items.map((li) => li.textContent!.includes('Roles'))).toEqual([true, false]);
-		expect(hrefs).toContain('/report/roles');
-	});
-
-	test('the Extensions group is closed outside its modules and toggles with its row; absent without extensions', async () => {
-		const bar: ModuleBarPart[] = [
-			{ type: 'module', id: 'files', enabled: true },
-			{ type: 'module', id: 'report', enabled: true },
-		];
-		await render(bar, { path: '/files', extensions: ['report'] });
-
-		const button = document.body.querySelector<HTMLButtonElement>('[data-module-group="extensions"] button')!;
-		expect(button.getAttribute('aria-expanded')).toBe('false');
-		expect(document.body.querySelector('[data-module-group="extensions"] ul')).toBeNull();
-
-		button.click();
-		await nextTick();
-		expect(button.getAttribute('aria-expanded')).toBe('true');
-		expect(document.body.querySelector('[data-module-group="extensions"] ul a')!.getAttribute('href')).toBe('/report');
-	});
-
-	test('no Extensions group when no extension module is in the bar', async () => {
-		await render(null, { path: '/files', extensions: ['report'] });
-		expect(document.body.querySelector('[data-module-group="extensions"]')).toBeNull();
-	});
-
-	test('the sub-menu block is absent outside the hidden module', async () => {
-		await render(null, { path: '/files', slots: { navigation: '<p>Folders</p>' } });
-		expect(document.body.querySelector('[data-module-unlisted]')).toBeNull();
-	});
-
-	test('from xl: 290 px, collapsed to the 90 px rail (labels kept for screen readers), hover expands it', async () => {
-		const { wrapper } = await render(null, { path: '/files', slots: { navigation: '<p>Sub</p>' } });
-		const aside = wrapper.get('aside');
-		expect(aside.classes()).toContain('w-[290px]');
+	test('from xl: 290 px under the top bar; the header toggle hides it (saved)', async () => {
+		const { wrapper } = await render();
+		expect(wrapper.get('aside').classes()).toEqual(expect.arrayContaining(['w-[290px]', 'top-16']));
 
 		useNavBarStore().collapse();
 		await nextTick();
-		expect(aside.classes()).toContain('w-[90px]');
-		expect(wrapper.findAll('[data-testid="module-bar"] a span.sr-only').map((s) => s.text())).toContain('Content');
-		expect(wrapper.text()).not.toContain('Sub');
-
-		await aside.trigger('mouseenter');
-		expect(aside.classes()).toContain('w-[290px]');
-		expect(wrapper.text()).toContain('Sub');
-
-		await aside.trigger('mouseleave');
-		expect(aside.classes()).toContain('w-[90px]');
-	});
-
-	test('user menu and notifications bell under the logo; the rail keeps the avatar only (owner 2026-10-20)', async () => {
-		const { wrapper } = await mountLayout(AppSidebar, {
-			beforeMount: () => {
-				useUserStore().currentUser = { id: 'u1', first_name: 'Ada', last_name: 'Lovelace', avatar: null } as AppUser;
-			},
-		});
-		const aside = wrapper.get('aside');
-		const user = aside.get('button[aria-label="Ada Lovelace"]');
-		expect(aside.find('button[title="Notifications"]').exists()).toBe(true);
-		expect(user.text()).toContain('Ada Lovelace');
-
-		useNavBarStore().collapse();
-		await nextTick();
-		expect(user.text()).not.toContain('Ada Lovelace');
-		// The bell folds into the avatar on the rail (owner 2026-10-21).
-		expect(aside.find('button[title="Notifications"]').exists()).toBe(false);
-	});
-
-	test('the rail stays expanded while the user menu or the bell panel is open (both portaled out of it)', async () => {
-		const { wrapper } = await mountLayout(AppSidebar, {
-			beforeMount: () => {
-				useUserStore().currentUser = { id: 'u1', first_name: 'Ada', avatar: null } as AppUser;
-			},
-		});
-		const aside = wrapper.get('aside');
-		useNavBarStore().collapse();
-		await nextTick();
-		expect(aside.classes()).toContain('w-[90px]');
-
-		wrapper.findComponent(UserMenu).vm.$emit('update:open', true);
-		await nextTick();
-		expect(aside.classes()).toContain('w-[290px]');
-
-		wrapper.findComponent(UserMenu).vm.$emit('update:open', false);
-		await nextTick();
-		expect(aside.classes()).toContain('w-[90px]');
-
-		await aside.trigger('mouseenter');
-		wrapper.findComponent(NotificationsBell).vm.$emit('update:open', true);
-		await aside.trigger('mouseleave');
-		expect(aside.classes()).toContain('w-[290px]');
+		expect(wrapper.find('aside').exists()).toBe(false);
 	});
 
 	test('below xl: a modal drawer opened from the store, Esc closes it', async () => {
-		await render(null, { props: { drawer: true } });
+		await render({ props: { drawer: true } });
 		const navBarStore = useNavBarStore();
 
-		expect(document.body.querySelector('[data-testid="module-bar"]')).toBeNull();
+		expect(document.body.querySelector('aside#navigation')).toBeNull();
 
 		navBarStore.drawerOpen = true;
 		await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"] aside#navigation')).not.toBeNull());
-		expect(document.body.querySelectorAll('[role="dialog"] [data-testid="module-bar"] a')).toHaveLength(5);
+		expect(document.body.querySelector('[role="dialog"] [data-module-navigation]')!.textContent).toBe('Folder');
 
 		await press(document.activeElement!, 'Escape');
 		await vi.waitFor(() => expect(document.body.querySelector('[role="dialog"]')).toBeNull());

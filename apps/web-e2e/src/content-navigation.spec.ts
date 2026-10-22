@@ -5,7 +5,7 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
 import { openCollection } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -35,7 +35,7 @@ const tree = (page: Page) => page.getByRole('tree', { name: 'Collections' });
 /** Opens collection in the Content module; below `xl` the navigation (with the tree) is a drawer to open first. */
 async function openTree(page: Page, collection: string) {
 	await openCollection(page, collection);
-	await moduleBar(page);
+	await moduleNavigation(page);
 	await expect(tree(page)).toBeVisible();
 }
 const link = (page: Page, collection: string) => tree(page).locator(`a[href="/admin/content/${collection}"]`);

@@ -60,9 +60,8 @@ async function openActivity(page: Page, user = ADMIN) {
 	return list;
 }
 
-// In the module bar: the pagination of the list is also a navigation named after the collection ("Activity", D-117).
-const subMenu = (page: Page) =>
-	page.getByTestId('module-bar').getByRole('navigation', { name: 'Activity', exact: true });
+// In the sidebar (D-157): the pagination of the list is also a navigation named after the collection ("Activity", D-117).
+const subMenu = (page: Page) => page.locator('aside#navigation').getByRole('navigation', { name: 'Activity', exact: true });
 
 async function chooseFilter(page: Page, name: string) {
 	const navigation = subMenu(page);

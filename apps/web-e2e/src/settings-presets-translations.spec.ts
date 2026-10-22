@@ -7,7 +7,7 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
 import { e2eName, waitForTable } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -117,7 +117,7 @@ test('a role bookmark made in the preset editor shows in the Content tree, whose
 	// The parity environment caches GET responses without auto purge (the other specs clear it the same way).
 	await api.call('POST', '/utils/cache/clear');
 	await page.goto('/admin/content/bo_content');
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'Collections' });
 	await expect(tree.getByRole('link', { name: NAME })).toBeVisible();
 	await tree.getByRole('button', { name: `Options for ${NAME}` }).click();
@@ -155,7 +155,7 @@ test('a custom translation made on its item page is used by the app (US6-4, US6-
 	});
 	await api.call('POST', '/utils/cache/clear');
 	await page.goto('/admin/content/bo_content');
-	await moduleBar(page);
+	await moduleNavigation(page);
 	await expect(page.getByRole('tree', { name: 'Collections' }).getByRole('link', { name: VALUE })).toBeVisible();
 });
 

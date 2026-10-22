@@ -6,7 +6,7 @@ import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
 import { e2eName, openCollection, waitForTable } from './helpers/content.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -139,7 +139,7 @@ test(
 		// A reload reads /presets again: the parity APIs cache it (CACHE_ENABLED).
 		await api.call('POST', '/utils/cache/clear');
 		await page.goto('/admin/content/bo_std');
-		await moduleBar(page);
+		await moduleNavigation(page);
 		await page
 			.getByRole('tree', { name: 'Collections' })
 			.getByRole('link', { name: e2eName('bookmark') })
@@ -155,7 +155,7 @@ test('rename and delete a personal bookmark from the tree (US3-4, FR-017)', { ta
 	await signIn(page);
 	await page.goto(`/admin/content/bo_content?bookmark=${created.id}`);
 	await waitForTable(page);
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'Collections' });
 
 	await tree.getByRole('button', { name: `Options for ${e2eName('tree')}` }).click();

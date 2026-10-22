@@ -7,7 +7,7 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX, e2eConfig } from './helpers/config.js';
 import { openCollection } from './helpers/content.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleNavigation } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -250,7 +250,7 @@ test('Content links open the real pages: edit collection, /content/directus_coll
 
 	await openCollection(page, 'bo_std');
 	// Below xl the navigation (with the tree) is a drawer to open first.
-	await moduleBar(page);
+	await moduleNavigation(page);
 	const tree = page.getByRole('tree', { name: 'Collections' });
 	await tree.locator('a[href="/admin/content/bo_std"]').click({ button: 'right' });
 	await page.getByRole('menuitem', { name: 'Edit Collection' }).click();
