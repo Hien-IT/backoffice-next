@@ -146,7 +146,7 @@ describe('ModuleTabs module list (FR-021, D-157)', () => {
 
 		expect(links.map((a) => a.getAttribute('aria-current'))).toEqual([null, null, 'page', null, null]);
 		expect(links[2]!.className).toContain('bg-white');
-		expect(links[0]!.className).toContain('bg-white/15');
+		expect(links[0]!.className).toContain('bg-white/10');
 	});
 });
 
@@ -164,7 +164,7 @@ describe('ModuleTabs Links and extensions menu (D-144, D-162)', () => {
 
 		expect(hrefs).toEqual(['/content', '/settings']);
 		const button = document.body.querySelector<HTMLButtonElement>('[data-module-group="more"] button')!;
-		expect(button.getAttribute('aria-label')).toBe('Links and extensions');
+		expect(button.textContent!.replace(/\s+/g, ' ')).toContain('More: Links and extensions');
 		expect(button.className).toContain('bg-white');
 
 		const items = await openMore();

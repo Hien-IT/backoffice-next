@@ -33,16 +33,19 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 - Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.
-- Logo row on white (`px-4 py-4`, owner 2026-10-22): `SidebarLogo` (the default app icon or `project_logo`) with the
-  project name `text-base font-semibold text-gray-800` and descriptor `text-theme-xs text-gray-500`.
-- Block on the project color (`data-testid="module-rail"`, `bg-(--project-color) p-4`) with the module tiles: `nav` `aria-label` `modules`, `data-testid="module-bar"`,
-  `grid grid-cols-3 gap-2`; each tile `flex h-12 w-full items-center justify-center rounded-xl` with the icon, the name
-  as sr-only text and a BoTooltip (`side="bottom"`); active `bg-white text-(--project-color) shadow-theme-xs` +
-  `aria-current="page"`, others `bg-white/15 text-white hover:bg-white/25`; focus `outline-white`; `module_bar` order,
+- Card on the project color (`data-testid="module-rail"`, after the owner's mock-up 2026-10-22:
+  `m-3 flex flex-col gap-4 rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md`): the
+  logo (`SidebarLogo`, `size-12`, the default app icon or `project_logo`) with the project name
+  `text-lg font-semibold text-white` and descriptor `text-theme-xs text-white/80`, then the module tiles: `nav`
+  `aria-label` `modules`, `data-testid="module-bar"`, `grid grid-cols-3 gap-2`; each tile
+  `flex flex-col items-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium` with the icon and the name under it
+  (truncated, full name in `title`); active `bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60` +
+  `aria-current="page"`, others `bg-white/10 text-white hover:bg-white/20`; focus `outline-white`; `module_bar` order,
   FR-021, FR-081, D-49 unchanged; the tiles are the internal modules only. The `module_bar` links (Settings > Project >
   Module Bar, Add Link; internal router links or external links in a new tab) and the app extension modules (D-144)
-  share one `apps` tile (`aria-label` `links_and_extensions`, owner 2026-10-22, D-162) opening a BoMenu of them in
-  `module_bar` order, the open one checked; the tile is active on their pages and absent when there are none.
+  share one `apps` tile labelled `more_modules` ("More", accessible name "More: Links and extensions", D-162) opening a
+  BoMenu of them in `module_bar` order, the open one checked; the tile is active on their pages and absent when there
+  are none.
 - Below the block, on white: the open module's title row (`px-5 pt-5 pb-3`, module icon gray-500 / gray-400, `h2`
   `text-base font-semibold`, then the `module-actions-<id>` target, e.g. the Content hidden-collections toggle), then its
   `navigation` slot (`px-5`, scrolls); pages without navigation keep the column with the tiles only.

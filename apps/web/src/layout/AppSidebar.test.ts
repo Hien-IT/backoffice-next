@@ -34,7 +34,8 @@ describe('AppSidebar (layout-patterns §2, D-157)', () => {
 
 		expect(aside.attributes('aria-label')).toBe('Navigation');
 		const block = aside.get('[data-testid="module-rail"]');
-		expect(block.classes()).toContain('bg-(--project-color)');
+		expect(block.classes()).toEqual(expect.arrayContaining(['from-(--project-color)', 'rounded-2xl']));
+		expect(block.find('img').exists()).toBe(true);
 		expect(block.find('[data-testid="module-bar"] a[aria-current="page"]').attributes('href')).toBe('/files');
 		expect(aside.get('h2').text()).toBe('File Library');
 		expect(aside.find('#module-actions-files').exists()).toBe(true);

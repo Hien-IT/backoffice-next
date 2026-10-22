@@ -62,8 +62,7 @@ describe('PrivateView (FR-020, FR-028)', () => {
 
 		const block = navAside()!.querySelector('[data-testid="module-rail"]')!;
 		expect(block.querySelector('[data-testid="module-bar"] [aria-current="page"]')!.getAttribute('href')).toBe('/content');
-		expect(navAside()!.querySelector('img[alt="Backoffice"]')).not.toBeNull();
-		expect(block.querySelector('img')).toBeNull();
+		expect(block.querySelector('img[alt="Backoffice"]')).not.toBeNull();
 		expect(navAside()!.querySelector('button[aria-label="Ada"]')).not.toBeNull();
 		expect(navAside()!.querySelector('h2')!.textContent!.trim()).toBe('Content');
 		expect(navAside()!.textContent).toContain('Nav items');

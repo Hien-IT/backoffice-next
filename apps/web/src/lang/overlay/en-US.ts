@@ -14,6 +14,7 @@ export default {
 	navigation: 'Navigation',
 	// D-162: the sidebar tile of the module_bar links and the extension modules.
 	links_and_extensions: 'Links and extensions',
+	more_modules: 'More',
 	pick_color: 'Pick color',
 	browser_color_picker: 'Browser picker',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.

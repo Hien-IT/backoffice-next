@@ -1,9 +1,10 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar.vue -->
 <script setup lang="ts">
 // Backoffice: the TailAdmin sidebar (design-system layout-patterns §2, D-52) holding the Directus module bar and the
-// module navigation in one column, in the manner of the Arc browser sidebar (owner 2026-10-22, D-157): the logo and the
-// project name on white, a block on the project color with the modules as a grid of tiles (ModuleTabs; the links and the
-// D-144 extension modules in one menu tile, D-162), then the open module's name with the actions it teleports to
+// module navigation in one column, in the manner of the Arc browser sidebar and the owner's mock-up (2026-10-22, D-157):
+// a rounded card on the project color (gradient to brand-800) with the logo, the project name and descriptor and the
+// modules as a grid of icon-and-name tiles (ModuleTabs; the links and the D-144 extension modules in one menu tile,
+// D-162), then the open module's name with the actions it teleports to
 // `module-actions-<id>` (the Content hidden-collections toggle) and its `navigation` slot on white, then the notifications bell and the user menu at the
 // bottom (Directus module-bar-avatar.vue). From `xl` it is fixed inline, 290 px, and the header toggle hides it
 // (saved); below `xl` it is a drawer (Reka Dialog: backdrop, focus trap, Esc, focus back to the opener).
@@ -34,8 +35,11 @@ const [DefineSidebar, ReuseSidebar] = createReusableTemplate();
 			class="flex h-full flex-col border-e border-gray-200 bg-white text-gray-900 dark:border-gray-800 dark:bg-gray-900"
 			:class="drawer ? 'w-full' : 'fixed inset-y-0 start-0 z-999 w-[290px]'"
 		>
-			<div class="shrink-0 px-4 py-4"><SidebarLogo /></div>
-			<div data-testid="module-rail" class="shrink-0 bg-(--project-color) p-4">
+			<div
+				data-testid="module-rail"
+				class="m-3 flex shrink-0 flex-col gap-4 rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md"
+			>
+				<SidebarLogo />
 				<ModuleTabs />
 			</div>
 

@@ -7,6 +7,7 @@ export default {
 	skip_to_content: 'Chuyển đến nội dung',
 	skip_to_navigation: 'Chuyển đến điều hướng',
 	links_and_extensions: 'Liên kết và extension',
+	more_modules: 'Thêm',
 	open_navigation: 'Mở điều hướng',
 	open_sidebar: 'Mở thanh bên',
 	close_sidebar: 'Đóng thanh bên',

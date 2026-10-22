@@ -16,7 +16,7 @@ export async function moduleBar(page: Page): Promise<Locator> {
  * its items; Escape closes it.
  */
 export async function openModuleMenu(page: Page): Promise<Locator> {
-	await (await moduleBar(page)).getByRole('button', { name: 'Links and extensions', exact: true }).click();
+	await (await moduleBar(page)).getByRole('button', { name: /Links and extensions/ }).click();
 	const items = page.locator('[role^="menuitem"]');
 	await expect(items.first()).toBeVisible();
 	return items;
