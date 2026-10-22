@@ -19,6 +19,7 @@ import {
 	table,
 	type Verdict,
 } from './compare.ts';
+import { envValue } from './web-shared.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
 const BACKOFFICE = process.env['BACKOFFICE_URL'] ?? 'http://127.0.0.1:8156';
@@ -70,9 +71,20 @@ function combine(throughput: Round[], latency: Round[]): Round[] {
 	return throughput.map((t, i) => ({ rps: t.rps, p95: latency[i]!.p95, errors: t.errors + latency[i]!.errors }));
 }
 
-// Spec 020 (SC-005, T026): both apps are measured without extensions (PARITY_EXTENSIONS_ENV=no-extensions).
+// Spec 020 (SC-005, T026): both apps are measured without extensions (PARITY_EXTENSIONS_ENV=no-extensions). GET
+// /extensions needs an admin; the token of one app works at the other (shared SECRET and sessions).
+const login = await fetch(`${DIRECTUS}/auth/login`, {
+	method: 'POST',
+	headers: { 'content-type': 'application/json' },
+	body: JSON.stringify({ email: envValue('ADMIN_EMAIL'), password: envValue('ADMIN_PASSWORD') }),
+});
+if (!login.ok) throw new Error(`login: ${login.status}`);
+const token = ((await login.json()) as { data: { access_token: string } }).data.access_token;
+
 for (const base of [DIRECTUS, BACKOFFICE]) {
-	const { data } = (await (await fetch(`${base}/extensions`)).json()) as { data: unknown[] };
+	const res = await fetch(`${base}/extensions`, { headers: { authorization: `Bearer ${token}` } });
+	if (!res.ok) throw new Error(`${base}/extensions: ${res.status}`);
+	const { data } = (await res.json()) as { data: unknown[] };
 	if (data.length > 0) throw new Error(`${base} loads extensions; run benchmark:env-up (no extensions)`);
 }
 
