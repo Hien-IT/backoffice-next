@@ -58,7 +58,7 @@ volumes:
 - `!override` (Compose ≥ 2.24.4), không phải `!reset`: `!reset` kèm giá trị xóa trống thuộc tính (kiểm khi làm T065:
   replica chạy trước khi `bootstrap` xong).
 - `up --wait` với `bootstrap` đã thoát 0: đạt (T066). Mỗi `up -d` chạy lại `bootstrap`; replica đang chạy không bị
-  khởi động lại (spec US5 kịch bản 2, chờ duyệt câu chữ). Scale: `--no-deps`, nếu không `bootstrap` chạy lại.
+  khởi động lại (spec US5 kịch bản 2, câu chữ duyệt 2026-10-22). Scale: `--no-deps`, nếu không `bootstrap` chạy lại.
 
 ## Helm values mới (`deploy/helm/backoffice/values.yaml`)
 

@@ -3,9 +3,9 @@
 **Feature Branch**: `021-standalone-init-cli` (làm trên `main` như 012–020, không tạo branch; `specs/021-*` là thư mục
 feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-22
-**Status**: Implemented (2026-10-22, ba lượt trên `main`); spec, plan, D-145..D-147, sửa D-19/D-121/D-123/D-141,
-ngoại lệ coverage FR-106 đã duyệt (chủ dự án kiêm tech lead, 2026-10-22); chờ duyệt D-149, hai quy tắc FR-107 mới và
-câu chữ US5 kịch bản 2 (mục "Cần xác nhận")
+**Status**: Implemented (2026-10-22, ba lượt trên `main`); spec, plan, D-145..D-147, D-149, sửa D-19/D-121/D-123/D-141,
+ngoại lệ coverage FR-106, hai quy tắc FR-107 thêm khi làm và câu chữ US5 kịch bản 2 đã duyệt (chủ dự án kiêm tech
+lead, 2026-10-22)
 **Input**: User description: "Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4.
 Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây,
 chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi
@@ -239,11 +239,10 @@ migration vào volume rồi `up` lại; kiểm `directus_migrations`.
    service `bootstrap` chạy xong (mã 0) → N replica API, FE → lb; đăng nhập qua `/admin` bằng `ADMIN_EMAIL`; không có
    container Directus.
 2. **Given** hệ thống đang chạy, **When** thêm custom migration vào volume `MIGRATIONS_PATH` và `docker compose up -d`
-   lại, **Then** service `bootstrap` chạy lại, áp migration một lần, các replica khởi động lại sau đó; không replica nào
-   tự chạy migration. *(Khi làm T066, 2026-10-22: Compose v5.5.0 chạy lại `bootstrap` nhưng không khởi động lại replica
-   đang chạy, kể cả với `depends_on.restart: true`; replica tiếp tục phục vụ, cache bị xóa sau migration. Đề xuất sửa
-   "các replica khởi động lại" thành "các replica đang chạy giữ nguyên; muốn khởi động lại thì `up -d --no-deps
-   --force-recreate backoffice-api`"; chờ chủ dự án duyệt.)*
+   lại, **Then** service `bootstrap` chạy lại, áp migration một lần; các replica đang chạy giữ nguyên và tiếp tục phục
+   vụ (cache bị xóa sau migration), muốn khởi động lại thì `up -d --no-deps --force-recreate backoffice-api`; không
+   replica nào tự chạy migration. *(Sửa câu chữ khi làm T066: Compose v5.5.0 không khởi động lại replica đang chạy, kể
+   cả với `depends_on.restart: true`; duyệt 2026-10-22.)*
 3. **Given** service `bootstrap` lỗi (DB không kết nối được sau 5 lần, hoặc custom migration ném lỗi), **When** `up
    --wait`, **Then** replica API không được tạo hay tạo lại, lệnh báo lỗi của service `bootstrap` (mã khác 0); trên hệ
    thống đang chạy, các replica đã chạy giữ nguyên (không dừng, không khởi động lại) và vẫn phục vụ với schema cũ.
@@ -697,10 +696,10 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   - đường dẫn tuyệt đối của thư mục tạm của test → `<dir>`;
   - tên biến mà bundler của image Directus đổi trong thông điệp `TypeError` (`up$1 is not a function` → `up is not a
     function`): bỏ hậu tố `$<số>` của tên đứng trước ` is not a function` / ` is not defined`. Thêm khi làm T042
-    (2026-10-22, fixture `noup`: cùng cảnh báo, cùng mã 1, chỉ khác tên biến trong bản build của Directus); chờ chủ dự
-    án duyệt.
+    (2026-10-22, fixture `noup`: cùng cảnh báo, cùng mã 1, chỉ khác tên biến trong bản build của Directus); duyệt
+    2026-10-22.
   - khung `Update available!` mà `cli.js` của image Directus in trước mỗi lệnh (`@directus/update-check`, D-149) → bỏ.
-    Thêm khi làm T056 (2026-10-22); chờ chủ dự án duyệt.
+    Thêm khi làm T056; duyệt 2026-10-22.
   Hàm chuẩn hóa nằm ở một chỗ dùng chung cho mọi test của profile `bootstrap`; thêm quy tắc mới PHẢI sửa spec này.
 - **FR-103**: Test chấp nhận compose độc lập (`parity-tests:deploy`, thêm cặp hoặc profile): US5 kịch bản 1–3, cộng các
   bài của 019 US3–US6 (sessions, schema, flow theo lịch, TUS, tắt replica) chạy không có Directus trong pool.
@@ -731,14 +730,14 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
 Bảng theo mẫu của 020 (cột cuối "Gỡ ở" là cột `guard-differences` đọc; `—` là vĩnh viễn). D-145..D-147 đăng ký trong
 `tests/parity/accepted-differences.ts` dạng `doc` (`feature: '021'`). Trạng thái duyệt: D-145, D-146, D-147 duyệt
 (chủ dự án kiêm tech lead, 2026-10-22; D-147 chọn ở clarify Q3). Mã D-148 không dùng (DB cài dở làm giống Directus,
-FR-015). D-149 đề xuất khi làm lượt 2, chờ duyệt.
+FR-015). D-149 phát hiện khi làm lượt 2, duyệt 2026-10-22.
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|------|
 | D-145 | Vendor được `bootstrap`, `database install`, `database migrate:*` | Postgres, Redshift, CockroachDB, MySQL/MariaDB, SQLite, MSSQL, Oracle | Postgres và SQLite (`getDatabaseClient()` là `postgres` hoặc `sqlite`). Vendor khác, gồm `redshift`: DB trống → lỗi và mã 1, không ghi; DB đã cài → `bootstrap` thoát mã 0 không migrate; `install`, `migrate:*` → mã 1; DB do Directus khởi tạo và migrate | Chủ dự án 2026-10-22; constitution 3.0.0 II | ngoài phạm vi | — |
 | D-146 | `init`: danh sách vendor và cài driver | 6 vendor; `npm install <driver> --production` với spinner | Chỉ `PostgreSQL / Redshift` (nhãn giữ nguyên văn, luôn ghi `DB_CLIENT="pg"`) và `SQLite`; không `npm install`, không spinner (driver đã có trong image) | D-145; image không có `npm` ghi được | ngoài phạm vi | — |
 | D-147 | Thương hiệu trong CLI | `directus [command] [options]`, `--version` là 11.17.4, log và `.env` mẫu ghi Directus, `init` in `npx directus start`, `schema apply` báo `Directus isn't installed ... "directus bootstrap"` | `backoffice [command] [options]`, `--version` là phiên bản Backoffice, log mới và `.env` mẫu ghi Backoffice, `init` in `node cli.js start`, `schema apply` báo `Backoffice isn't installed ... "backoffice bootstrap"`; giữ nguyên các dòng nêu bảng, migration hay phiên bản Directus (`Installing Directus system tables...`, `Database doesn't have Directus tables installed.`, `... do not match Directus 11.17.4`) và mọi tên bảng, biến, mã lỗi | Nguyên tắc IX; test chuẩn hóa theo FR-107 | đổi thương hiệu | — |
-| D-149 | Kiểm phiên bản mới khi chạy CLI | `cli.js` của image gọi `@directus/update-check`: hỏi `https://registry.npmjs.org/directus` (8 s), in khung `Update available!` ra stdout khi có bản mới hơn 11.17.4 | Không kiểm, không gọi registry npm (Backoffice không phát hành qua npm, phiên bản ghim 11.17.4) | Phát hiện khi làm T056 (2026-10-22); đề xuất, chờ chủ dự án duyệt | khác | — |
+| D-149 | Kiểm phiên bản mới khi chạy CLI | `cli.js` của image gọi `@directus/update-check`: hỏi `https://registry.npmjs.org/directus` (8 s), in khung `Update available!` ra stdout khi có bản mới hơn 11.17.4 | Không kiểm, không gọi registry npm (Backoffice không phát hành qua npm, phiên bản ghim 11.17.4) | Phát hiện khi làm T056; chủ dự án duyệt 2026-10-22 | khác | — |
 
 **Khác biệt của feature trước được sửa hoặc giữ** (dòng tham chiếu; bản sửa nằm ở spec của feature đó, FR-091):
 
@@ -752,10 +751,8 @@ FR-015). D-149 đề xuất khi làm lượt 2, chờ duyệt.
 | D-38 (010) | `setOwner` không gửi owner report | giữ; nay áp cả cho lần gọi trong migration `20251014A` (FR-010); khi Directus gửi report lỗi, Directus đặt `project_status = 'pending'`, Backoffice luôn `null` |
 | XI | Gửi email, WebSocket và realtime, SAML, storage Azure/GCS/Cloudinary/Supabase, theme extension, AI/MCP, deployment module, visual editing, telemetry: không có (D-17, D-24, D-33, D-34, D-36, D-135... giữ) | giữ; khi không có Directus bên cạnh, người dùng mất hẳn các tính năng này |
 
-**Cần xác nhận** (phát sinh khi làm, 2026-10-22): D-149 (không kiểm phiên bản mới khi chạy CLI); hai quy tắc chuẩn
-hóa thêm vào FR-107 (tên biến do bundler của image Directus đổi; khung `Update available!`); US5 kịch bản 2 (Compose
-không khởi động lại replica khi `bootstrap` chạy lại, đề xuất sửa câu chữ). Tên giá trị Helm chốt ở
-FR-080; tên chương trình chốt ở clarify Q3.
+**Cần xác nhận**: Không có (ba mục phát sinh khi làm đã duyệt 2026-10-22, xem Clarifications; tên giá trị Helm chốt ở
+FR-080; tên chương trình chốt ở clarify Q3).
 
 ## Clarifications
 
@@ -810,6 +807,13 @@ FR-080; tên chương trình chốt ở clarify Q3.
 - Rủi ro chấp nhận: `bootstrap` không lock (FR-007); chế độ chung N replica có thể cùng áp một custom migration (FR-072,
   Q1); chế độ chung cần DB do Directus bootstrap trước (019 FR-024, CHK034); DB cài dở và migration lỗi giữa chừng làm
   giống Directus, chỉ có tài liệu phục hồi (FR-015).
+
+### Duyệt sau khi implement 2026-10-22 (chủ dự án kiêm tech lead)
+
+- D-149: không kiểm phiên bản mới (không gọi registry npm, không khung `Update available!`) khi chạy CLI.
+- Hai quy tắc FR-107: bỏ hậu tố `$<số>` của tên biến do bundler của image Directus đổi; bỏ khung `Update available!`.
+- US5 kịch bản 2: replica đang chạy giữ nguyên khi `bootstrap` chạy lại; khởi động lại bằng `up -d --no-deps
+  --force-recreate backoffice-api`.
 
 ## Assumptions
 

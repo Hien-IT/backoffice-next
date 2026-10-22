@@ -296,6 +296,6 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		feature: '021',
 		kind: 'doc',
 		reason:
-			'No update check before each CLI command (the cli.js of the Directus image asks the npm registry and prints an "Update available!" box); proposed, pending approval.',
+			'No update check before each CLI command (the cli.js of the Directus image asks the npm registry and prints an "Update available!" box).',
 	},
 ];

@@ -382,7 +382,7 @@ với R1–R14:
   D-38 hai lần, log không chứa bí mật), `cross.test.ts` 8/8, `partial.test.ts` 1/1. Thời gian bootstrap (SC-010):
   Directus 1215 ms, Backoffice 1177 ms.
 - Khác biệt mới: fixture `noup` → Directus log `up$1 is not a function` (bundler của image đổi tên biến), Backoffice
-  `up is not a function`; cùng cảnh báo, cùng mã 1. Thêm quy tắc chuẩn hóa vào FR-107 (chờ chủ dự án duyệt).
+  `up is not a function`; cùng cảnh báo, cùng mã 1. Thêm quy tắc chuẩn hóa vào FR-107 (duyệt 2026-10-22).
 - SQLite và MySQL (`vendor.test.ts`) không chạy local: cặp chính SQLite/MySQL cần cổng của cặp Postgres đang chạy cho
   phiên khác; để CI (parity sqlite3 có `bootstrap`, mysql chạy `vendor.test.ts` trong bộ reduced).
 - Registry: dùng service riêng `registry-bootstrap` (cổng 6115, cùng `server.mjs`) thay cho đếm theo `project_owner`
@@ -404,7 +404,7 @@ với R1–R14:
   trong `directus-bootstrap` và `backoffice-api-bootstrap` (DB của env đã cài) với `PROJECT_OWNER` rỗng (để migration
   `20251014A` không ghi owner vào DB của env).
 - Khác biệt mới D-149: `cli.js` của image Directus gọi `@directus/update-check` (registry npm, khung `Update
-  available!` trên stdout). Backoffice không kiểm; test bỏ khung trước khi so (quy tắc FR-107 mới). Chờ duyệt.
+  available!` trên stdout). Backoffice không kiểm; test bỏ khung trước khi so (quy tắc FR-107 mới). Duyệt 2026-10-22.
 - `knex.default` trong Vitest: default import của knex là hàm trần (không có `.default` như dưới Node ESM);
   `create-db-connection.ts` giữ nguyên văn `knex.default(...)` của Directus, test `init` vá mock `knex` cho giống Node.
 - Parity profile `bootstrap` trên Postgres local: 66 test xanh (`cli.test.ts` 38 lệnh/ca, `init.test.ts` 4, `cross` 8,
