@@ -1,3 +1,4 @@
+<!-- Ported from directus/app/src/views/private/components/module-bar.vue -->
 <script setup lang="ts">
 // Backoffice (owner 2026-10-22, D-157, layout-patterns §2): the module bar as a vertical rail on the project color at
 // the start of the window, 64 px, like the Directus module bar: the logo, the module tabs (ModuleTabs), then at the
