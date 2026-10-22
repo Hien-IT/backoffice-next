@@ -437,6 +437,14 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   ghi cùng một object vào MinIO, nên ở 80% MinIO xếp hàng các lệnh ghi và p95 dao động 2 đến 4 lần giữa các vòng của
   cùng một app (Directus 654 đến 2.599 ms); dưới mức bão hòa p95 ổn định và so được hai app (100 req/s: Directus 7,1 ms,
   app mới 6,8 ms). Ngưỡng 10% và pha throughput giữ nguyên.
+  **Sửa 2026-10-22 (owner):** (1) p95 đo ở 50% req/s trung vị của Directus cho mọi bộ API (`RATE_SHARE` chung trong
+  `tests/benchmark/src/compare.ts`; `/server/health` vẫn 40%). (2) Thêm tiêu chí CPU: mỗi vòng đọc thời gian CPU của
+  container app (`docker exec … cat /sys/fs/cgroup/cpu.stat`, `src/diag.ts`) chia cho số request; fail khi trung vị
+  CPU/request của API mới cao hơn Directus quá 10% (chỉ khi mọi vòng của hai app đọc được). Lý do: ở 80% các endpoint
+  nặng (~14 ms CPU/request, ~63 req/s) giữ một process Node bận ~90%, p95 đo thời gian xếp hàng: ca đỏ đổi theo từng run
+  (presets-list, `/collections` và `/relations` của user, dashboards-panels) trong khi API mới tốn ít CPU hơn 4–6% mỗi
+  request và đọc Redis ngang Directus (benchmark run 39755111256: presets-list 13,9 so với 14,4 ms, dashboards-panels
+  13,5 so với 14,3 ms; GET Redis 12–14/request ở cả hai). CPU của Directus tính cả tiến trình pm2 trong container.
 - **Phạm vi ở feature này**: `/server/ping`, `/server/health`, `/server/info` so với Directus cấu hình
   mặc định. `/server/specs/oas` so với một container Directus thứ hai chạy `CACHE_SCHEMA=false`
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request

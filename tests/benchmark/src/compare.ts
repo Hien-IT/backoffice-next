@@ -1,9 +1,18 @@
 // Comparison rules of the benchmark (FR-113, R18): median of the rounds; the new API fails when its p95 is more
-// than 10% above Directus or its requests/second more than 10% below. A round with errors fails the endpoint. A failing
-// scenario is measured again and fails when most attempts fail (confirmed()).
+// than 10% above Directus, its requests/second more than 10% below, or (FR-113 revised by the owner 2026-10-22) its
+// container CPU time per request more than 10% above Directus. p95 is measured at RATE_SHARE of the Directus req/s.
+// A round with errors fails the endpoint. A failing scenario is measured again and fails when most attempts fail
+// (confirmed()).
 import * as hdr from 'hdr-histogram-js';
 
 export const TOLERANCE = 0.1;
+
+/**
+ * Share of the Directus req/s at which both apps are measured for p95 (FR-113 and R18 of spec 001, revised by the owner
+ * 2026-10-22; 0.8 before). At 0.8 a heavy endpoint kept one Node process ~90% busy, so p95 measured queueing: the
+ * failing scenario changed every run while Backoffice used 4-6% less CPU per request (benchmark run 39755111256).
+ */
+export const RATE_SHARE = 0.5;
 
 /**
  * Web benchmarks (owner 2026-10-20): a step is slower only when it is both more than TOLERANCE and more than
@@ -25,12 +34,14 @@ export interface Round {
 	rps: number;
 	/** Connection errors, timeouts and non-2xx answers. */
 	errors: number;
+	/** CPU time of the app container per request in ms (diag.ts); null or absent when it could not be read. */
+	cpuMs?: number | null | undefined;
 }
 
 export interface Verdict {
 	path: string;
-	directus: { p95: number; rps: number };
-	backoffice: { p95: number; rps: number };
+	directus: { p95: number; rps: number; cpuMs?: number };
+	backoffice: { p95: number; rps: number; cpuMs?: number };
 	ok: boolean;
 	reasons: string[];
 	/** Accepted difference (spec code and reason) that keeps a failing endpoint from failing the run. */
@@ -78,8 +89,26 @@ export function compare(path: string, directus: Round[], backoffice: Round[], to
 		});
 	}
 
-	const d = { p95: median(directus.map((r) => r.p95)), rps: median(directus.map((r) => r.rps)) };
-	const b = { p95: median(backoffice.map((r) => r.p95)), rps: median(backoffice.map((r) => r.rps)) };
+	const d: Verdict['directus'] = { p95: median(directus.map((r) => r.p95)), rps: median(directus.map((r) => r.rps)) };
+	const b: Verdict['backoffice'] = {
+		p95: median(backoffice.map((r) => r.p95)),
+		rps: median(backoffice.map((r) => r.rps)),
+	};
+
+	// The CPU rule applies only when every round of both apps has a reading.
+	const cpu = (rounds: Round[]) =>
+		rounds.length > 0 && rounds.every((r) => typeof r.cpuMs === 'number')
+			? Math.round(median(rounds.map((r) => r.cpuMs!)) * 1000) / 1000
+			: undefined;
+	const dCpu = cpu(directus);
+	const bCpu = cpu(backoffice);
+	if (dCpu !== undefined && bCpu !== undefined) {
+		d.cpuMs = dCpu;
+		b.cpuMs = bCpu;
+		if (bCpu > dCpu * (1 + tolerance)) {
+			reasons.push(`CPU ${bCpu} ms/request is more than ${tolerance * 100}% above Directus (${dCpu} ms/request)`);
+		}
+	}
 
 	if (b.p95 > d.p95 * (1 + tolerance)) {
 		reasons.push(`p95 ${b.p95} ms is more than ${tolerance * 100}% above Directus (${d.p95} ms)`);
@@ -124,12 +153,12 @@ export function gatePasses(verdicts: Verdict[]): boolean {
 export function table(verdicts: Verdict[]): string {
 	const rows = verdicts.map(
 		(v) =>
-			`| ${v.path} | ${v.directus.p95} | ${v.backoffice.p95} | ${v.directus.rps} | ${v.backoffice.rps} | ${result(v)} |`,
+			`| ${v.path} | ${v.directus.p95} | ${v.backoffice.p95} | ${v.directus.rps} | ${v.backoffice.rps} | ${v.directus.cpuMs ?? '-'} | ${v.backoffice.cpuMs ?? '-'} | ${result(v)} |`,
 	);
 
 	return [
-		'| Endpoint | p95 Directus (ms) | p95 Backoffice (ms) | req/s Directus | req/s Backoffice | Result |',
-		'| --- | --- | --- | --- | --- | --- |',
+		'| Endpoint | p95 Directus (ms) | p95 Backoffice (ms) | req/s Directus | req/s Backoffice | CPU Directus (ms/req) | CPU Backoffice (ms/req) | Result |',
+		'| --- | --- | --- | --- | --- | --- | --- | --- |',
 		...rows,
 	].join('\n');
 }

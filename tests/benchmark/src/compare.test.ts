@@ -78,8 +78,19 @@ describe('compare (median of the rounds, 10% tolerance)', () => {
 
 	test('table lists each endpoint with its result', () => {
 		const text = table([compare('/a', same, same), compare('/b', [round(10, 1000)], [round(20, 1000)])]);
-		expect(text).toContain('| /a | 11 | 11 | 950 | 950 | ok |');
-		expect(text).toMatch(/\| \/b \| 10 \| 20 \| 1000 \| 1000 \| FAIL: p95/);
+		expect(text).toContain('| /a | 11 | 11 | 950 | 950 | - | - | ok |');
+		expect(text).toMatch(/\| \/b \| 10 \| 20 \| 1000 \| 1000 \| - \| - \| FAIL: p95/);
+	});
+
+	test('CPU per request (FR-113 revised 2026-10-22): fails above Directus +10%, only when every round has a reading', () => {
+		const cpu = (p95: number, cpuMs: number | null): Round => ({ p95, rps: 100, errors: 0, cpuMs });
+		const d = [cpu(10, 10), cpu(10, 10.2), cpu(10, 9.8)];
+
+		expect(compare('/x', d, [cpu(10, 10.9), cpu(10, 11), cpu(10, 10.8)]).ok).toBe(true);
+		const slow = compare('/x', d, [cpu(10, 11.2), cpu(10, 11.4), cpu(10, 11)]);
+		expect(slow.reasons).toEqual(['CPU 11.2 ms/request is more than 10% above Directus (10 ms/request)']);
+		expect(table([slow])).toContain('| 100 | 100 | 10 | 11.2 | FAIL: CPU 11.2');
+		expect(compare('/x', d, [cpu(10, 20), cpu(10, null), cpu(10, 20)]).ok).toBe(true);
 	});
 });
 

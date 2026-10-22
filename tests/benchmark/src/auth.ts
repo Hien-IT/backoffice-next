@@ -23,7 +23,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
+import { cpuPerRequest, snapshot } from './diag.ts';
 import { cleanup, PASSWORD, SECRET, type Seed, seed, sessions, USERS } from './seed-auth.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -32,7 +34,6 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
 const CONNECTIONS = Number(process.env['BENCH_CONNECTIONS'] ?? 2000);
 const WARMUP = 200;
-const RATE_SHARE = 0.8;
 // The last of 2,000 logins answers after all the others (argon2 on 4 threads, the DB pool): never a timeout.
 const TIMEOUT = 300;
 
@@ -119,6 +120,7 @@ function endpoints(seeded: Seed): Endpoint[] {
 }
 
 async function measure(baseUrl: string, endpoint: Endpoint, amount: number, overallRate?: number): Promise<Round> {
+	const before = await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice');
 	const histogram = createLatencyHistogram();
 	const requests = await endpoint.requests();
 
@@ -160,6 +162,11 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 		p95: percentile(histogram, 95),
 		rps: Math.round(result.requests.total / seconds),
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(
+			before,
+			await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice'),
+			result.requests.total,
+		),
 	};
 
 	// Progress in the job log: which app and phase, and what failed (status codes, connection errors, timeouts).
@@ -177,7 +184,12 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 }
 
 const combine = (throughput: Round[], latency: Round[]): Round[] =>
-	throughput.map((t, i) => ({ rps: t.rps, p95: latency[i]!.p95, errors: t.errors + latency[i]!.errors }));
+	throughput.map((t, i) => ({
+		rps: t.rps,
+		p95: latency[i]!.p95,
+		errors: t.errors + latency[i]!.errors,
+		cpuMs: latency[i]!.cpuMs,
+	}));
 
 const seeded = await seed();
 const verdicts: Verdict[] = [];

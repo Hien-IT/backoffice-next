@@ -17,8 +17,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
-import { diagLine, snapshot } from './diag.ts';
+import { cpuPerRequest, diagLine, snapshot } from './diag.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, SHARE_PASSWORD, seed, type SystemSeed } from './seed-system.ts';
 
@@ -29,7 +30,6 @@ const DURATION = Number(process.env['BENCH_DURATION'] ?? 10);
 const WARMUP = 5;
 const CONNECTIONS = 50;
 const SLOW_CONNECTIONS = 10;
-const RATE_SHARE = 0.8;
 
 const json = (value: unknown) => encodeURIComponent(JSON.stringify(value));
 
@@ -124,14 +124,14 @@ async function measure(seeded: SystemSeed, s: Scenario, app: App, duration: numb
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 
-	process.stdout.write(
-		diagLine(`${s.name}${rate ? ` @${rate}` : ''}`, app, before, await snapshot(app), result.requests.total),
-	);
+	const after = await snapshot(app);
+	process.stdout.write(diagLine(`${s.name}${rate ? ` @${rate}` : ''}`, app, before, after, result.requests.total));
 
 	return {
 		p95: percentile(histogram, 95),
 		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(before, after, result.requests.total),
 	};
 }
 
@@ -162,7 +162,7 @@ try {
 			}
 
 			const combine = (t: Round[], l: Round[]) =>
-				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors, cpuMs: l[i]!.cpuMs }));
 
 			return compare(
 				`${s.method} ${s.name} (${s.user}, ${s.connections ?? CONNECTIONS} connections, p95 at ${rate} req/s)`,

@@ -56,3 +56,9 @@ export function diagLine(label: string, app: DiagApp, before: Snapshot, after: S
 	const cpu = before.cpuUsec !== null && after.cpuUsec !== null ? per((after.cpuUsec - before.cpuUsec) / 1000) : 'n/a';
 	return `diag ${label} ${app} requests=${requests} cpu_ms_per_req=${cpu} redis_get_per_req=${per(after.redisGets - before.redisGets)}\n`;
 }
+
+/** CPU ms per request of a round (the Round `cpuMs`), null when the container CPU could not be read. */
+export function cpuPerRequest(before: Snapshot, after: Snapshot, requests: number): number | null {
+	if (before.cpuUsec === null || after.cpuUsec === null || requests <= 0) return null;
+	return (after.cpuUsec - before.cpuUsec) / 1000 / requests;
+}

@@ -16,7 +16,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
+import { cpuPerRequest, snapshot } from './diag.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, type FlowsSeed, seed } from './seed-flows.ts';
 
@@ -26,7 +28,6 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 10);
 const WARMUP = 5;
 const CONNECTIONS = 50;
-const RATE_SHARE = 0.8;
 
 type App = 'directus' | 'backoffice';
 
@@ -65,6 +66,7 @@ function scenarios(seeded: FlowsSeed): Scenario[] {
 async function measure(seeded: FlowsSeed, s: Scenario, app: App, duration: number, rate?: number): Promise<Round> {
 	// Without it the app warmed first keeps the permissions in memory and the other reads Redis on every lookup.
 	await flushPermissions();
+	const before = await snapshot(app);
 	const histogram = createLatencyHistogram();
 	let next = 0;
 
@@ -100,6 +102,7 @@ async function measure(seeded: FlowsSeed, s: Scenario, app: App, duration: numbe
 		p95: percentile(histogram, 95),
 		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(before, await snapshot(app), result.requests.total),
 	};
 }
 
@@ -134,7 +137,7 @@ try {
 			}
 
 			const combine = (t: Round[], l: Round[]) =>
-				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors, cpuMs: l[i]!.cpuMs }));
 
 			return compare(
 				`${s.method} ${s.name} (${s.admin ? 'admin' : 'public'}, ${CONNECTIONS} connections, p95 at ${rate} req/s)${s.recordOnly ? ' [recorded only]' : ''}`,

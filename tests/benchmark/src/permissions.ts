@@ -17,7 +17,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
+import { cpuPerRequest, snapshot } from './diag.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, type Seed, seed } from './seed-permissions.ts';
 
@@ -27,10 +29,10 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 5);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
 const WARMUP = 5;
 const CONNECTIONS = 50;
-const RATE_SHARE = 0.8;
 const ENDPOINTS = ['/users/me', '/permissions/me', '/users?filter[status][_eq]=active&limit=25'];
 
 async function measure(seeded: Seed, baseUrl: string, path: string, duration: number, rate?: number): Promise<Round> {
+	const before = await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice');
 	const histogram = createLatencyHistogram();
 	let next = 0;
 
@@ -65,6 +67,11 @@ async function measure(seeded: Seed, baseUrl: string, path: string, duration: nu
 		// One decimal: at a few req/s (GET /fields without cache) a whole request is more than the 10% tolerance.
 		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(
+			before,
+			await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice'),
+			result.requests.total,
+		),
 	};
 }
 
@@ -98,7 +105,7 @@ try {
 			}
 
 			const combine = (t: Round[], l: Round[]) =>
-				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors, cpuMs: l[i]!.cpuMs }));
 			return compare(
 				`GET ${path} (p95 at ${rate} req/s)`,
 				combine(throughput.directus, latency.directus),

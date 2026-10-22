@@ -18,7 +18,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
+import { cpuPerRequest, snapshot } from './diag.ts';
 import { envValue } from './web-shared.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -27,7 +29,6 @@ const ROUNDS = Number(process.env['BENCH_ROUNDS'] ?? 3);
 const DURATION = Number(process.env['BENCH_DURATION'] ?? 20);
 const WARMUP = 5;
 const CONNECTIONS = 50;
-const RATE_SHARE = 0.8;
 
 // Every request sends Cache-Control: no-store (feature 005, research R10): both apps skip the shared response cache
 // (CACHE_SKIP_ALLOWED=true in the vendor env) and build each answer. Since feature 002 both build the schema step the
@@ -43,6 +44,7 @@ const ENDPOINTS: { path: string; directus: string; notBlocking?: string; rateSha
 ];
 
 async function measure(baseUrl: string, path: string, duration: number, overallRate?: number): Promise<Round> {
+	const before = await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice');
 	const histogram = createLatencyHistogram();
 	const url = new URL(path, baseUrl).href;
 	const result = await new Promise<autocannon.Result>((resolve, reject) => {
@@ -63,12 +65,22 @@ async function measure(baseUrl: string, path: string, duration: number, overallR
 		// One decimal: at a few req/s (GET /fields without cache) a whole request is more than the 10% tolerance.
 		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(
+			before,
+			await snapshot(baseUrl === DIRECTUS ? 'directus' : 'backoffice'),
+			result.requests.total,
+		),
 	};
 }
 
 /** One round per index: req/s from the throughput phase, p95 from the fixed-rate phase, errors from both. */
 function combine(throughput: Round[], latency: Round[]): Round[] {
-	return throughput.map((t, i) => ({ rps: t.rps, p95: latency[i]!.p95, errors: t.errors + latency[i]!.errors }));
+	return throughput.map((t, i) => ({
+		rps: t.rps,
+		p95: latency[i]!.p95,
+		errors: t.errors + latency[i]!.errors,
+		cpuMs: latency[i]!.cpuMs,
+	}));
 }
 
 // Spec 020 (SC-005, T026): both apps are measured without extensions (PARITY_EXTENSIONS_ENV=no-extensions). GET

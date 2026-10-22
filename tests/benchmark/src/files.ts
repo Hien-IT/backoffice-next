@@ -17,7 +17,9 @@ import {
 	type Round,
 	table,
 	type Verdict,
+	RATE_SHARE,
 } from './compare.ts';
+import { cpuPerRequest, snapshot } from './diag.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, deleteDerived, deleteFiles, type FilesSeed, multipart, seed } from './seed-files.ts';
 
@@ -29,7 +31,6 @@ const WARMUP = 5;
 const CONNECTIONS = 50;
 const TRANSFORM_CONNECTIONS = 10;
 const RAW_CONNECTIONS = 20;
-const RATE_SHARE = 0.8;
 const WIDTHS = Array.from({ length: 20 }, (_, i) => 120 + i * 37);
 
 type App = 'directus' | 'backoffice';
@@ -93,6 +94,7 @@ async function measure(seeded: FilesSeed, s: Scenario, app: App, duration: numbe
 	await s.reset?.();
 	// Without it the app warmed first keeps the permissions in memory and the other reads Redis on every lookup.
 	await flushPermissions();
+	const before = await snapshot(app);
 	const histogram = createLatencyHistogram();
 	let next = 0;
 
@@ -136,6 +138,7 @@ async function measure(seeded: FilesSeed, s: Scenario, app: App, duration: numbe
 		// One decimal: at a few req/s (GET /fields without cache) a whole request is more than the 10% tolerance.
 		rps: Math.round(result.requests.average * 10) / 10,
 		errors: result.errors + result.timeouts + result.non2xx,
+		cpuMs: cpuPerRequest(before, await snapshot(app), result.requests.total),
 	};
 }
 
@@ -168,7 +171,7 @@ try {
 			await s.reset?.();
 
 			const combine = (t: Round[], l: Round[]) =>
-				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors }));
+				t.map((r, i) => ({ rps: r.rps, p95: l[i]!.p95, errors: r.errors + l[i]!.errors, cpuMs: l[i]!.cpuMs }));
 
 			return compare(
 				`${s.method} ${s.name} (${s.user}, ${s.connections ?? CONNECTIONS} connections, p95 at ${rate} req/s)`,

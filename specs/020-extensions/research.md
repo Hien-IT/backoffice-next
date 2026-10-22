@@ -434,6 +434,9 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
   `/collections` 667 / 752 ms, `/relations` 567 / 771 ms), `web-files-users` "files: next page" web → Directus
   (89 / 126 ms; không đổi code web gọi Directus). 020 không thêm gì trên đường request của các ca này (chỉ
   `emitInit` lúc khởi động, router endpoint sau route Nest).
+- Xử lý 2026-10-22 (owner): đo CPU/request (run 39755111256) cho thấy API mới tốn ít CPU hơn Directus và đọc Redis ngang
+  nhau ở presets-list và dashboards-panels; ca đỏ là p95 đo ở ~90% tải. Tiêu chí đổi: CPU/request ≤ Directus +10% và
+  p95 ở 50% req/s (FR-113 và R18 của spec 001).
 - Run đầu lộ lỗi script: `run.ts` gọi `GET /extensions` không token (403 ở hai app), sửa ở `bcb6d2c8`.
 
 **Lý do**: FR-090..FR-096, SC-001..SC-006.
