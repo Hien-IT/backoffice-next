@@ -5,7 +5,7 @@
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, DATA_PREFIX } from './helpers/config.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleBar, openModuleMenu } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -86,7 +86,8 @@ test('module bar: Insights off and a new link; the sidebar follows (US5-4)', asy
 
 	const sidebar = await moduleBar(page);
 	await expect(sidebar.getByRole('link', { name: 'Insights' })).toHaveCount(0);
-	await expect(sidebar.getByRole('link', { name: LINK })).toBeVisible();
+	// D-162: a module_bar link is an item of the "Links and extensions" menu.
+	await expect((await openModuleMenu(page)).filter({ hasText: LINK })).toBeVisible();
 });
 
 test('appearance: the project color is saved (US5-5)', async ({ page }) => {

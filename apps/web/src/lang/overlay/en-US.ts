@@ -12,6 +12,8 @@ export default {
 	play_video: 'Play background video',
 	profile: 'Profile',
 	navigation: 'Navigation',
+	// D-162: the sidebar tile of the module_bar links and the extension modules.
+	links_and_extensions: 'Links and extensions',
 	pick_color: 'Pick color',
 	browser_color_picker: 'Browser picker',
 	// Feature 013: keyboard reorder of sortable lists (D-60), drawers, file previews.

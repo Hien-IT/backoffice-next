@@ -11,6 +11,17 @@ export async function moduleBar(page: Page): Promise<Locator> {
 	return bar;
 }
 
+/**
+ * Opens the "Links and extensions" tile menu (D-162: the module_bar links and the app extension modules) and returns
+ * its items; Escape closes it.
+ */
+export async function openModuleMenu(page: Page): Promise<Locator> {
+	await (await moduleBar(page)).getByRole('button', { name: 'Links and extensions', exact: true }).click();
+	const items = page.locator('[role^="menuitem"]');
+	await expect(items.first()).toBeVisible();
+	return items;
+}
+
 /** The sidebar with the open module's navigation; below `xl` this opens its drawer. */
 export async function moduleNavigation(page: Page): Promise<Locator> {
 	const navigation = page.locator('aside#navigation');

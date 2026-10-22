@@ -6,6 +6,7 @@ export default {
 	register_not_available: 'Không thể tự đăng ký tài khoản. Hãy liên hệ quản trị viên để được cấp tài khoản.',
 	skip_to_content: 'Chuyển đến nội dung',
 	skip_to_navigation: 'Chuyển đến điều hướng',
+	links_and_extensions: 'Liên kết và extension',
 	open_navigation: 'Mở điều hướng',
 	open_sidebar: 'Mở thanh bên',
 	close_sidebar: 'Đóng thanh bên',

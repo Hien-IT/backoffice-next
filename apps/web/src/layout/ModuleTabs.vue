@@ -2,7 +2,8 @@
 // Backoffice (owner 2026-10-22, D-157): the module bar as a grid of tiles in the project color block of the sidebar
 // (AppSidebar, layout-patterns §2), like the pinned tiles of the Arc browser sidebar: an icon per module with its name in
 // a tooltip and as the accessible name (sr-only). The active module has aria-current and the white tile; links to other
-// sites open a new tab. The app extension modules stay one "Extensions" entry (D-144), a button with a menu of the modules.
+// sites open a new tab. The module_bar links (Add Link) and the app extension modules (D-144) share one tile with a menu
+// (owner 2026-10-22, D-162), in module_bar order; links to other sites open a new tab from it.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RouterLink } from 'vue-router';
@@ -12,14 +13,15 @@ import BoTooltip from '../components/BoTooltip.vue';
 import { type ModuleBarItem, useModuleBar } from './composables/use-module-bar.ts';
 
 const { t } = useI18n();
-const { mainModules, extensionModules, isActive } = useModuleBar();
+const { mainModules, moreModules, isActive } = useModuleBar();
 
-const extensionsActive = computed(() => extensionModules.value.some(isActive));
-const extensionItems = computed<BoMenuItem[]>(() =>
-	extensionModules.value.map((modulePart) => ({
+const moreActive = computed(() => moreModules.value.some(isActive));
+const moreItems = computed<BoMenuItem[]>(() =>
+	moreModules.value.map((modulePart) => ({
 		text: modulePart.name,
 		icon: modulePart.icon,
 		to: modulePart.to,
+		href: modulePart.href,
 		active: isActive(modulePart),
 	})),
 );
@@ -54,16 +56,15 @@ function linkProps(modulePart: ModuleBarItem) {
 					>
 						<BoIcon :name="modulePart.icon" />
 						<span class="sr-only">{{ modulePart.name }}</span>
-						<span v-if="modulePart.href" class="sr-only">&#32;({{ t('open_in_new_window') }})</span>
 					</component>
 				</BoTooltip>
 			</li>
 
-			<li v-if="extensionModules.length > 0" data-module-group="extensions">
-				<BoMenu :items="extensionItems" side="bottom" align="start">
+			<li v-if="moreModules.length > 0" data-module-group="more">
+				<BoMenu :items="moreItems" side="bottom" align="start">
 					<template #trigger>
-						<button type="button" :aria-label="t('extensions')" :class="itemClass(extensionsActive)">
-							<BoIcon name="extension" />
+						<button type="button" :aria-label="t('links_and_extensions')" :class="itemClass(moreActive)">
+							<BoIcon name="apps" />
 						</button>
 					</template>
 				</BoMenu>

@@ -5,7 +5,7 @@ import { AdminApi } from './helpers/api.js';
 import { ADMIN, CONTENT_URL, directusUrl } from './helpers/config.js';
 import { closeHostDb, hostDb } from './helpers/db-rows.js';
 import { Fixtures, type TestUser } from './helpers/fixtures.js';
-import { moduleBar } from './helpers/layout.js';
+import { moduleBar, openModuleMenu } from './helpers/layout.js';
 import { login } from './helpers/login.js';
 import { expect, test } from './helpers/requests.js';
 
@@ -131,18 +131,16 @@ test('custom module_bar: order, enabled, internal and external links; the defaul
 	});
 
 	await signIn(page);
+	// D-162: the modules are tiles in module_bar order; the links share the "Links and extensions" menu, in order too.
 	const hrefs = await moduleBarHrefs(page);
-	expect(hrefs.filter((h) => h.startsWith('/admin/') || h.startsWith('http'))).toEqual([
-		'/admin/files',
+	expect(hrefs).toEqual(['/admin/files', '/admin/content', '/admin/settings']);
+	const items = await openModuleMenu(page);
+	expect(await items.evaluateAll((links) => links.map((a) => a.getAttribute('href')))).toEqual([
 		'/admin/activity',
-		'/admin/content',
 		'https://example.com/',
-		'/admin/settings',
 	]);
-	await expect(page.getByTestId('module-bar').locator('a[href="https://example.com/"]')).toHaveAttribute(
-		'target',
-		'_blank',
-	);
+	await expect(items.nth(1)).toHaveAttribute('target', '_blank');
+	await page.keyboard.press('Escape');
 
 	expect(await directusModuleBar(browser)).toContain(DOCS);
 	await api.patchSettings({ module_bar: null });

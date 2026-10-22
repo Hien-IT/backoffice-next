@@ -10,7 +10,16 @@ import { useSettingsStore } from '../../stores/settings.ts';
 import { useUserStore } from '../../stores/user.ts';
 import { translate } from '../../utils/translate-object-values.ts';
 
-export type ModuleBarItem = { id: string; name: string; icon: string; to?: string; href?: string; extension?: boolean };
+export type ModuleBarItem = {
+	id: string;
+	name: string;
+	icon: string;
+	to?: string;
+	href?: string;
+	extension?: boolean;
+	/** A `module_bar` link (Settings > Project > Module Bar, Add Link), internal or external. */
+	link?: boolean;
+};
 
 const INTERNAL_MODULE_IDS = new Set(getInternalModules().map(({ id }) => id));
 
@@ -34,7 +43,9 @@ export function useModuleBar() {
 			.map((modulePart) => {
 				if (modulePart.type === 'link') {
 					const { id, name, icon, url } = modulePart;
-					const link: ModuleBarItem = url.startsWith('/') ? { id, name, icon, to: url } : { id, name, icon, href: url };
+					const link: ModuleBarItem = url.startsWith('/')
+						? { id, name, icon, to: url, link: true }
+						: { id, name, icon, href: url, link: true };
 
 					return translate(link);
 				}
@@ -51,8 +62,9 @@ export function useModuleBar() {
 			});
 	});
 
-	const mainModules = computed(() => modules.value.filter((modulePart) => !modulePart.extension));
-	const extensionModules = computed(() => modules.value.filter((modulePart) => modulePart.extension));
+	const mainModules = computed(() => modules.value.filter((modulePart) => !modulePart.extension && !modulePart.link));
+	// Owner 2026-10-22 (D-162): the module_bar links and the extension modules share one menu, in module_bar order.
+	const moreModules = computed(() => modules.value.filter((modulePart) => modulePart.extension || modulePart.link));
 
 	function isActive(item: ModuleBarItem) {
 		return item.to !== undefined && (route.path === item.to || route.path.startsWith(`${item.to}/`));
@@ -68,5 +80,5 @@ export function useModuleBar() {
 		return module ? translate({ id: module.id, name: module.name, icon: module.icon }) : null;
 	});
 
-	return { modules, mainModules, extensionModules, isActive, currentModule };
+	return { modules, mainModules, moreModules, isActive, currentModule };
 }
