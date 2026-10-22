@@ -31,8 +31,8 @@ function itemClass(active: boolean) {
 	return [
 		ITEM,
 		active
-			? 'bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60'
-			: 'bg-white/10 text-white hover:bg-white/20',
+			? 'bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60 dark:bg-white/20 dark:text-white dark:shadow-none dark:ring-1 dark:ring-white/30'
+			: 'bg-white/10 text-white hover:bg-white/20 dark:bg-white/5 dark:hover:bg-white/10',
 	];
 }
 

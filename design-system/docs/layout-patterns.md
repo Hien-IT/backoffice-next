@@ -34,15 +34,16 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.
 - Card on the project color (`data-testid="module-rail"`, after the owner's mock-up 2026-10-22:
-  `relative m-3 flex flex-col gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4
-  shadow-theme-md`, plus a light at the top right corner, an `aria-hidden` layer
-  `absolute inset-0 bg-radial-[at_100%_0%] from-white/50 via-white/15 via-30% to-transparent to-65%`): the
+  `m-3 flex flex-col gap-4 rounded-2xl bg-(--project-color) p-4 shadow-theme-md`, flat: the owner dropped the gradient
+  and the corner light the same day; dark mode
+  `dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10`): the
   logo (`SidebarLogo`, `size-12`, the default app icon or `project_logo`) with the project name
   `text-lg font-semibold text-white` and descriptor `text-theme-xs text-white/80`, then the module tiles: `nav`
   `aria-label` `modules`, `data-testid="module-bar"`, `grid grid-cols-3 gap-2`; each tile
   `flex flex-col items-center gap-1.5 rounded-xl px-1 py-3 text-theme-xs font-medium` with the icon and the name under it
-  (truncated, full name in `title`); active `bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60` +
-  `aria-current="page"`, others `bg-white/10 text-white hover:bg-white/20`; focus `outline-white`; `module_bar` order,
+  (truncated, full name in `title`); active `bg-white text-gray-800 shadow-theme-sm ring-2 ring-white/60` (dark
+  `bg-white/20 text-white ring-1 ring-white/30`) + `aria-current="page"`, others `bg-white/10 text-white hover:bg-white/20`
+  (dark `bg-white/5 hover:bg-white/10`); focus `outline-white`; `module_bar` order,
   FR-021, FR-081, D-49 unchanged; the tiles are the internal modules only. The `module_bar` links (Settings > Project >
   Module Bar, Add Link; internal router links or external links in a new tab) and the app extension modules (D-144)
   share one `apps` tile labelled `more_modules` ("More", accessible name "More: Links and extensions", D-162) opening a

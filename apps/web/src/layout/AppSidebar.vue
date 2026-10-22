@@ -2,7 +2,8 @@
 <script setup lang="ts">
 // Backoffice: the TailAdmin sidebar (design-system layout-patterns §2, D-52) holding the Directus module bar and the
 // module navigation in one column, in the manner of the Arc browser sidebar and the owner's mock-up (2026-10-22, D-157):
-// a rounded card on the project color (gradient to brand-800) with the logo, the project name and descriptor and the
+// a rounded card on the project color (flat; in dark mode the project color mixed into gray-900) with the logo, the
+// project name and descriptor and the
 // modules as a grid of icon-and-name tiles (ModuleTabs; the links and the D-144 extension modules in one menu tile,
 // D-162), then the open module's name with the actions it teleports to
 // `module-actions-<id>` (the Content hidden-collections toggle) and its `navigation` slot on white, then the notifications bell and the user menu at the
@@ -37,15 +38,10 @@ const [DefineSidebar, ReuseSidebar] = createReusableTemplate();
 		>
 			<div
 				data-testid="module-rail"
-				class="relative m-3 flex shrink-0 flex-col gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--project-color) to-brand-800 p-4 shadow-theme-md"
+				class="m-3 flex shrink-0 flex-col gap-4 rounded-2xl bg-(--project-color) p-4 shadow-theme-md dark:bg-[color-mix(in_srgb,var(--project-color)_30%,var(--color-gray-900))] dark:shadow-none dark:ring-1 dark:ring-white/10"
 			>
-				<!-- The light at the top right corner of the owner's mock-up. -->
-				<div
-					aria-hidden="true"
-					class="pointer-events-none absolute inset-0 bg-radial-[at_100%_0%] from-white/50 via-white/15 via-30% to-transparent to-65%"
-				/>
-				<SidebarLogo class="relative" />
-				<ModuleTabs class="relative" />
+				<SidebarLogo />
+				<ModuleTabs />
 			</div>
 
 			<div v-if="currentModule" class="flex items-center gap-2 px-5 pt-5 pb-3">
