@@ -72,7 +72,7 @@ describe('empty database', () => {
 		const error = await run();
 
 		expect(error).toEqual(new Exit('0'));
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
 		expect(messages()).toEqual([
 			'Initializing bootstrap...',
 			'Installing Backoffice system tables...',
@@ -85,7 +85,7 @@ describe('empty database', () => {
 	test('--skipAdminInit skips createAdmin with the Directus log line', async () => {
 		await run({ skipAdminInit: true });
 
-		expect(calls).toEqual(['seed', 'migrate:latest']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'settings:Backoffice']);
 		expect(messages()).toContain('Skipping creation of default Admin user and role...');
 	});
 
@@ -103,12 +103,12 @@ describe('empty database', () => {
 		});
 	});
 
-	test('a PROJECT_OWNER that is not an e-mail and an empty PROJECT_NAME are ignored', async () => {
+	test('a PROJECT_OWNER that is not an e-mail is ignored; an empty PROJECT_NAME names the project Backoffice', async () => {
 		vi.mocked(useEnv).mockReturnValue({ PROJECT_NAME: '', PROJECT_OWNER: 'not-an-email' });
 
 		await run();
 
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
 	});
 });
 
@@ -192,6 +192,6 @@ describe('vendors Backoffice does not install or migrate (D-145)', () => {
 		vi.mocked(isInstalled).mockResolvedValue(false);
 
 		await run();
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
 	});
 });

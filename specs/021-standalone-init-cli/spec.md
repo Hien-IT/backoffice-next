@@ -686,6 +686,8 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   đúng các quy tắc sau, không quy tắc nào khác:
   - chữ `Directus` và `Backoffice` → `<app>`; `directus` và `backoffice` khi là tên chương trình hay lệnh (`directus
     bootstrap`, `backoffice [command]`) → `<app>`; `npx directus start` và `node cli.js start` → `<start>` (D-147);
+  - hàng `directus_settings`: `project_name` là `Directus` hoặc `Backoffice` → `<app>` (tên mặc định của project mới,
+    D-164, owner 2026-10-22);
   - phiên bản chương trình (`--version`, dòng phiên bản) → `<version>`;
   - pino raw: chỉ giữ `level` và `msg` (FR-006);
   - uuid → `<uuid:n>`, đánh số theo thứ tự xuất hiện trong mỗi lần chạy; id số tự tăng giữ nguyên;
@@ -738,6 +740,7 @@ FR-015). D-149 phát hiện khi làm lượt 2, duyệt 2026-10-22.
 | D-146 | `init`: danh sách vendor và cài driver | 6 vendor; `npm install <driver> --production` với spinner | Chỉ `PostgreSQL / Redshift` (nhãn giữ nguyên văn, luôn ghi `DB_CLIENT="pg"`) và `SQLite`; không `npm install`, không spinner (driver đã có trong image) | D-145; image không có `npm` ghi được | ngoài phạm vi | — |
 | D-147 | Thương hiệu trong CLI | `directus [command] [options]`, `--version` là 11.17.4, log và `.env` mẫu ghi Directus, `init` in `npx directus start`, `schema apply` báo `Directus isn't installed ... "directus bootstrap"` | `backoffice [command] [options]`, `--version` là phiên bản Backoffice, log mới và `.env` mẫu ghi Backoffice, `init` in `node cli.js start`, `schema apply` báo `Backoffice isn't installed ... "backoffice bootstrap"`; giữ nguyên các dòng nêu bảng, migration hay phiên bản Directus (`Database doesn't have Directus tables installed.`, `... do not match Directus 11.17.4`); `Installing Backoffice system tables...` (owner 2026-10-22: dòng log của `bootstrap` không ghi chữ Directus; chuẩn hóa FR-107 vẫn so khớp) và mọi tên bảng, biến, mã lỗi | Nguyên tắc IX; test chuẩn hóa theo FR-107 | đổi thương hiệu | — |
 | D-149 | Kiểm phiên bản mới khi chạy CLI | `cli.js` của image gọi `@directus/update-check`: hỏi `https://registry.npmjs.org/directus` (8 s), in khung `Update available!` ra stdout khi có bản mới hơn 11.17.4 | Không kiểm, không gọi registry npm (Backoffice không phát hành qua npm, phiên bản ghim 11.17.4) | Phát hiện khi làm T056; chủ dự án duyệt 2026-10-22 | khác | — |
+| D-164 | Tên project của DB mới | `project_name` là giá trị mặc định của cột, `Directus`; `bootstrap` chỉ ghi khi có `PROJECT_NAME` | `bootstrap` ghi `PROJECT_NAME`, không có thì `Backoffice` (qua `SettingsService.upsertSingleton`, nên ghi thêm activity/revision như khi có `PROJECT_NAME`); `init` ghi `Backoffice` vào dòng settings mà migration đã tạo; DB do Directus tạo (chế độ chung) giữ nguyên, shell vẫn hiện Backoffice (D-51); chuẩn hóa FR-107 coi hai tên mặc định là `<app>` | Owner 2026-10-22: project init xong tên là Backoffice | đổi thương hiệu | — |
 
 **Khác biệt của feature trước được sửa hoặc giữ** (dòng tham chiếu; bản sửa nằm ở spec của feature đó, FR-091):
 

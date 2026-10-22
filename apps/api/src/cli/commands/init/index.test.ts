@@ -104,6 +104,7 @@ test('SQLite: installs the database, writes .env and the first admin, prints the
 		expect(access).toMatchObject({ role: user.role });
 		expect(await db('directus_roles').where({ id: user.role }).first()).toMatchObject({ name: 'Administrator' });
 		expect(await db('directus_policies').where({ id: access.policy }).first()).toMatchObject({ admin_access: 1 });
+		expect(await db('directus_settings').select('project_name')).toEqual([{ project_name: 'Backoffice' }]);
 	} finally {
 		await db.destroy();
 	}

@@ -297,5 +297,11 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		kind: 'doc',
 		reason:
 			'No update check before each CLI command (the cli.js of the Directus image asks the npm registry and prints an "Update available!" box).',
+	},	{
+		id: 'D-164',
+		feature: '021',
+		kind: 'doc',
+		reason:
+			'A new project is named Backoffice: bootstrap writes PROJECT_NAME or "Backoffice", init sets "Backoffice" (Directus keeps its column default "Directus").',
 	},
 ];

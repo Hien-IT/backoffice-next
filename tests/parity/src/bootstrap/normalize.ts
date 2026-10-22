@@ -97,8 +97,14 @@ export function normalizeRows(rows: Record<string, Record<string, unknown>[]>): 
 		return value;
 	};
 
+	// D-164: the project name a new database gets (the Directus column default, Backoffice at Backoffice) is branding.
+	const branded = (table: string, row: Record<string, unknown>) =>
+		table === 'directus_settings' && (row['project_name'] === 'Directus' || row['project_name'] === 'Backoffice')
+			? { ...row, project_name: '<app>' }
+			: row;
+
 	for (const table of Object.keys(rows).sort()) {
-		const sorted = rows[table]!.map((row) => comparable(row))
+		const sorted = rows[table]!.map((row) => comparable(branded(table, row)))
 			.map((row) => ({ row, key: JSON.stringify(scrub(row, (t) => t.replace(UUID, '<uuid>'))) }))
 			.sort((a, b) => (a.key < b.key ? -1 : a.key > b.key ? 1 : 0));
 

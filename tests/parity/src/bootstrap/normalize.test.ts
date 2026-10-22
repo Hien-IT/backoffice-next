@@ -87,6 +87,13 @@ test('rows: generated uuids, hashes and times compare equal, references stay con
 	]);
 });
 
+test('rows: the default project name of a new database is branding (D-164)', () => {
+	const settings = (project_name: string) => ({ directus_settings: [{ id: 1, project_name }] });
+
+	expect(normalizeRows(settings('Backoffice'))).toEqual(normalizeRows(settings('Directus')));
+	expect(normalizeRows(settings('Acme'))).not.toEqual(normalizeRows(settings('Directus')));
+});
+
 test('rows: a real difference stays visible', () => {
 	expect(normalizeRows({ t: [{ id: 1, name: 'a' }] })).not.toEqual(normalizeRows({ t: [{ id: 1, name: 'b' }] }));
 });

@@ -110,6 +110,11 @@ export default async function init(): Promise<void> {
 		role,
 	});
 
+	// Backoffice (owner 2026-10-22, D-164): the new project is named Backoffice instead of the Directus column default
+	// (the migrations already wrote the settings row).
+	const named = await db('directus_settings').update({ project_name: 'Backoffice' });
+	if (named === 0) await db('directus_settings').insert({ project_name: 'Backoffice' });
+
 	await db.destroy();
 
 	process.stdout.write(`\nYour project has been created at ${chalk.green(rootPath)}.\n`);

@@ -60,9 +60,11 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 
 		const settingsService = new SettingsService({ schema });
 
-		if (env['PROJECT_NAME'] && typeof env['PROJECT_NAME'] === 'string' && env['PROJECT_NAME'].length > 0) {
-			await settingsService.upsertSingleton({ project_name: env['PROJECT_NAME'] });
-		}
+		// Backoffice (owner 2026-10-22, D-164): without PROJECT_NAME the new project is named Backoffice instead of the
+		// Directus column default.
+		const projectName =
+			typeof env['PROJECT_NAME'] === 'string' && env['PROJECT_NAME'].length > 0 ? env['PROJECT_NAME'] : 'Backoffice';
+		await settingsService.upsertSingleton({ project_name: projectName });
 
 		if (email().safeParse(env['PROJECT_OWNER']).success) {
 			await settingsService.setOwner({
