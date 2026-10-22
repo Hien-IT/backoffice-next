@@ -25,6 +25,9 @@ data:
   STORAGE_S3_FORCE_PATH_STYLE: 'true'
   WEBSOCKETS_ENABLED: 'false'
   EXTENSIONS_LOCATION: s3
+  # The upgrade under load checks that no request fails while the Job runs and the pods serve, not overload: no pressure
+  # limiter (like the compose acceptance suite of 019, CI 39641635370; 503 x3583 in CI 39722312362).
+  PRESSURE_LIMITER_ENABLED: 'false'
 ---
 apiVersion: v1
 kind: Secret

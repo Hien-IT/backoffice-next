@@ -186,8 +186,14 @@ else
 	fail "standalone: directus_migrations = $(sql "$ns" 'select count(*) from directus_migrations')"
 fi
 sa_password=$(kubectl -n "$ns" get secret backoffice-secret -o jsonpath='{.data.ADMIN_PASSWORD}' | base64 -d)
-sa_token=$(sa -X POST "$base/auth/login" -H 'content-type: application/json' \
-	-d "{\"email\":\"admin@example.com\",\"password\":\"$sa_password\"}" | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).data.access_token)}catch{}})')
+# Traefik picks the new Ingress up a moment after `helm install --wait` (CI 39722312362: login 0.1 s later got no token).
+sa_token=""
+for _ in $(seq 60); do
+	sa_token=$(sa -X POST "$base/auth/login" -H 'content-type: application/json' \
+		-d "{\"email\":\"admin@example.com\",\"password\":\"$sa_password\"}" | node -e 'let s="";process.stdin.on("data",(d)=>s+=d).on("end",()=>{try{process.stdout.write(JSON.parse(s).data.access_token)}catch{}})')
+	[ -n "$sa_token" ] && break
+	sleep 1
+done
 if [ -n "$sa_token" ]; then ok "standalone: admin signs in through the Ingress"; else fail "standalone: admin signs in through the Ingress"; fi
 if [ "$(kubectl -n "$ns" get deployment bo-sa-api -o jsonpath='{.spec.template.spec.containers[0].args}')" = '["node","cli.js","start"]' ]; then
 	ok "standalone: the pods only run start"
