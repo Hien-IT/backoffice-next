@@ -46,7 +46,7 @@ Chi tiết quyết định: [research.md](./research.md). Dữ liệu: [data-mod
   happy-dom 20.8.9, @playwright/test 1.64.0, vue-tsc 3.1.3, p-queue 8.1.0, lodash-es 4.18.1, date-fns 4.1.0,
   js-yaml 4.3.2.
 - Thêm (R1): reka-ui 2.8.2, tailwindcss + @tailwindcss/vite 4.3.x, @directus/sdk 21.3.0, @vueuse/core 14.0.0,
-  @unhead/vue 1.11.20, qrcode 1.5.4, marked 16.4.1, dompurify 3.3.2, mitt 3.0.1, @directus/format-title 12.1.2,
+  @unhead/vue 1.11.20, qrcode 1.5.4, marked 16.4.1, dompurify 3.4.17 (Directus 3.3.2; vá GHSA-mrv2-3pqr-j5jr, owner 2026-10-23), mitt 3.0.1, @directus/format-title 12.1.2,
   material-symbols (font, R8).
 - Bỏ: axios, ofetch ở app web.
 

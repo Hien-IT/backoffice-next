@@ -19,7 +19,13 @@ export default mergeConfig(
 			projects: [
 				{
 					extends: true,
-					test: { name: 'unit', environment: 'happy-dom', exclude: ['**/node_modules/**', '**/*.browser.test.ts'] },
+					test: {
+						name: 'unit',
+						environment: 'happy-dom',
+						exclude: ['**/node_modules/**', '**/*.browser.test.ts'],
+						// DOMPurify on a jsdom window (the test-utils file says why).
+						setupFiles: ['src/test-utils/dompurify-jsdom.ts'],
+					},
 				},
 				{
 					extends: true,
