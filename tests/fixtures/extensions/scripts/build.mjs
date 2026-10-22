@@ -40,6 +40,9 @@ export async function buildFixture(name, outDir) {
 }
 
 export function packFixture(name) {
+	// npm pack takes every file of the folder: an earlier tarball would end up inside the new one.
+	for (const file of readdirSync(join(root, name))) if (file.endsWith('.tgz')) rmSync(join(root, name, file));
+
 	execFileSync('npm', ['pack', '--silent', '--pack-destination', join(root, name)], {
 		cwd: join(root, name),
 		stdio: 'pipe',
