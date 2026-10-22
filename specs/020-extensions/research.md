@@ -421,6 +421,21 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
   gộp `signIn`/`track`/`p95`/`usual` thành module chung như ghi chú `shortcut:` ở `web-files-users.ts:174-175`; bước
   mới trong job `benchmark-web` với `if: ${{ !cancelled() }}`.
 
+**Kết quả (T191, 2026-10-22)**, p95 Directus / Backoffice:
+
+- SC-006, run 39717477240 (`a66d7916`, `benchmark-web`): mở app lần đầu với bộ extension mẫu: Directus app 1348 ms,
+  web → Directus 976 ms, web → API 957 ms, đạt.
+- SC-005, không extension: `benchmark` run 39722342806 (`bcb6d2c8`, kiểm tra `/extensions` rỗng ở hai app qua) đạt:
+  `/server/ping` 30,6 / 25,6 ms, `/server/health` 311 / 277 ms, `/server/info` 217 / 203 ms, `/server/specs/oas`
+  227 / 210 ms. `benchmark-auth`, `-permissions`, `-items`, `-history`, `-flows`, `-graphql` đạt ở run 39717477240.
+  `benchmark-files` đỏ ở run đó (`files-list` user 426 / 560 ms), chạy lại run 39726413518 đạt (420 / 454 ms,
+  `files-upload` 375 / 388 ms). Ba ca còn đỏ đã đỏ ở run 39167500790 (2026-10-18, `12b7246e`, trước 020) và các run
+  ngày 19: `system` presets-list (646 / 948 ms), `schema` `user, no-store` (ca đỏ đổi theo từng run; lần này
+  `/collections` 667 / 752 ms, `/relations` 567 / 771 ms), `web-files-users` "files: next page" web → Directus
+  (89 / 126 ms; không đổi code web gọi Directus). 020 không thêm gì trên đường request của các ca này (chỉ
+  `emitInit` lúc khởi động, router endpoint sau route Nest).
+- Run đầu lộ lỗi script: `run.ts` gọi `GET /extensions` không token (403 ở hai app), sửa ở `bcb6d2c8`.
+
 **Lý do**: FR-090..FR-096, SC-001..SC-006.
 
 ## R12. Express 5 cho endpoint và hook `init` (D-139)

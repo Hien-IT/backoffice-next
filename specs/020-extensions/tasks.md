@@ -328,15 +328,16 @@ endpoints,operations,must-load}` xanh; so `bo_ext_log` hai app.
       theo recipe Q-41 (T003); `web/modules/settings.ts` route `settings-extensions`; `SettingsNavigation.vue` nhóm 4 mục
       `category` Extensions (Marketplace ở T175); khóa vi-VN thiếu vào `web/lang/overlay/vi-VN.ts`; `web/lang/keys.test.ts`
       thêm thư mục
-- [ ] T095 [US5] E2E `e2e/settings-extensions.spec.ts` (ba cấu hình: danh sách, nhóm, bundle lồng, bật tắt + notice, remove
+- [X] T095 [US5] E2E `e2e/settings-extensions.spec.ts` (ba cấu hình: danh sách, nhóm, bundle lồng, bật tắt + notice, remove
       dòng missing tạo bằng đổi tên thư mục trên MinIO); `e2e/payload/extensions.spec.ts` + `e2e/helpers/db-rows.ts`
       `EXTENSIONS_TABLES = ['directus_extensions']` (so với Directus app 8155 cùng thao tác); `e2e/settings-parity-ui.spec.ts:
       77-78`; `e2e/a11y.spec.ts` thêm màn
 - [X] T096 [US5] (lượt 3, sau T174) Menu `uninstall`, `reinstall` gọi thật (#207, #208); E2E `settings-extensions.spec.ts`
       thêm ca uninstall/reinstall qua fake registry
-- [ ] T097 [US5] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck,test,build`, `check-port-headers`, parity đủ
+- [X] T097 [US5] Đóng lượt 1: `pnpm nx run-many -t lint,typecheck,test,build`, `check-port-headers`, parity đủ
       (`--profiles` như CI + `multi,extensions`), `deploy` hai chế độ, `test-template.sh`; ghi "Ghi chú khi làm" cuối file
       này; commit (nhắn phiên khác trước/sau push), theo dõi CI tới xanh
+      — xong qua CI: wave 1 a87c8d12 + 86dcd03b, sau đó run 39702265307 xanh toàn bộ (quality, parity, deploy)
 
 **Checkpoint**: lượt 1 lên `main`.
 
@@ -351,7 +352,7 @@ src/directus-shim` (axe, bàn phím).
 
 ### Chuẩn bị lượt 2
 
-- [ ] T100 [US8] Hạ `pinia` 3.0.3 → 2.3.1 (catalog) và thêm vào `apps/web/package.json` `axios`, `@directus/composables`,
+- [X] T100 [US8] Hạ `pinia` 3.0.3 → 2.3.1 (catalog) và thêm vào `apps/web/package.json` `axios`, `@directus/composables`,
       `semver`, `@vueuse/router`; grep `defineStore(`, `storeToRefs`, `acceptHMRUpdate` tìm API chỉ có ở pinia 3, sửa nếu
       có; chạy toàn bộ `web:test` + E2E `navigation`, `content-*` một cấu hình (CHK039)
 - [X] T101 [P] [US8] Recipe nháp Q-44 (component mới của shim, `BoPopover`, dialog không tiêu đề, select nhóm/divider, thang
@@ -483,7 +484,8 @@ src/directus-shim` (axe, bàn phím).
       `module_bar`
 - [X] T162 [US4] E2E `e2e/extensions-app-module.spec.ts` (bật `parity-module-report` ở Settings > Appearance, mục sidebar,
       route, slot `navigation`/`actions`/`sidebar` của `private-view` vào sub-menu, page header, popover chi tiết)
-- [ ] T163 [US4] Đóng lượt 2: như T097 + `e2e-web` ba cấu hình; commit, theo dõi CI tới xanh
+- [X] T163 [US4] Đóng lượt 2: như T097 + `e2e-web` ba cấu hình; commit, theo dõi CI tới xanh
+      — xong qua CI: wave 2 4f6067d1, sau đó run 39702265307 xanh toàn bộ (gồm e2e-web 8 shard)
 
 ---
 
@@ -539,10 +541,12 @@ src/directus-shim` (axe, bàn phím).
       `parity-blackbox`; 0 khác biệt ngoài D-135..D-144 (SC-001); `guard-differences` xanh (entry mới có trong bảng spec)
       — CI run 39702265307 (cc3ecd44, 2026-10-22, 25/25 job xanh): parity postgres full 1 và 2 (profile có `multi`,
       `extensions`), mysql, sqlite3, parity-blackbox hai app, guard-differences
-- [ ] T191 [US9] E2E đầy đủ ba cấu hình + `a11y.spec.ts` (SC-007), `DIRECTUS_APP_SPECS` (dùng chéo); benchmark
+- [X] T191 [US9] E2E đầy đủ ba cấu hình + `a11y.spec.ts` (SC-007), `DIRECTUS_APP_SPECS` (dùng chéo); benchmark
       `gh workflow run benchmark.yml` các job API và `benchmark-web` (SC-005, SC-006), ghi số vào research
       — E2E xanh ở CI run 39702265307 (e2e-web 8 shard: proxy-api 4, proxy-directus 3, cors; e2e-directus-app).
-      Còn benchmark: chạy tay `benchmark.yml` chờ owner đồng ý
+      Benchmark 2026-10-22 (runs 39717477240, 39722342806, 39726413518; số ở research R11): SC-006 đạt; SC-005 đạt
+      trừ ba ca đã đỏ trước 020 (run 39167500790): `system` presets-list, `schema` user no-store, `web-files-users`
+      "files: next page"
 - [X] T192 [US9] Acceptance `deploy` hai chế độ + `deploy-k8s` (SC-003), ghi thời gian readiness thực đo (FR-048)
       — CI run 39702265307: deploy (shared-domain, separate-domain, standalone) và deploy-k8s xanh. Readiness thực đo
       (container start → `/server/health` 200, có sync và nạp extension): 7,4 s và 19,4 s (`readyMs` của
