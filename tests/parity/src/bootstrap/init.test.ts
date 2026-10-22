@@ -182,7 +182,10 @@ describe.skipIf(!profileUrls('bootstrap'))('profile bootstrap: init (US8)', () =
 			spawnSync('docker', ['rm', '-f', `bo-init-empty-${app}`]);
 
 			const text = result.stdout.replace(ANSI, '');
-			failures[app] = text.slice(text.indexOf('Something went wrong while seeding the database:'));
+			// Up to "Please try again": the process is killed there, so the next prompt may or may not be printed yet.
+			const end = text.indexOf('Please try again');
+			expect(end, text).toBeGreaterThan(-1);
+			failures[app] = text.slice(text.indexOf('Something went wrong while seeding the database:'), end);
 		}
 
 		expect(failures.directus).toContain('no such table: directus_collections');
