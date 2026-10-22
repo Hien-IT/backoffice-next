@@ -376,7 +376,7 @@ const POPOVER =
 			<span class="sr-only" aria-live="polite" aria-atomic="true">{{ moveAnnouncement }}</span>
 
 			<div
-				class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800"
+				class="flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 pt-3 dark:border-gray-800"
 			>
 				<BoPagination
 					v-if="totalPages > 1"

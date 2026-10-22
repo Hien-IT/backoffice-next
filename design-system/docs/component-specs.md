@@ -1084,7 +1084,8 @@ Built: `components/BoTable.vue`, `components/BoPagination.vue`,
   (`me-2.5` / `ms-2.5`) with `arrow_back` / `arrow_forward` (mirrored in RTL) and `aria-label` `previous` / `next`; `totalVisible` 7 plus the first and last page
   (`showFirstLast`, Directus tabular values). Compact variant (revisions): `totalVisible` 3, no first/last.
 - Footer row:
-  `flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800`:
+  `flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 pt-3 dark:border-gray-800` (no bottom
+  padding since 2026-10-22: the page padding under it is enough, D-160):
   pagination at the start, `per_page` BoSelect at the end with its label inline
   (`flex items-center gap-2 text-theme-sm text-gray-500 dark:text-gray-400`, trigger `w-24`), shown when a page has 25
   rows or more or the limit is below 25 (Directus). Deviation: the Select is the Tier 1 `h-11` BoSelect, not `h-9` (one
