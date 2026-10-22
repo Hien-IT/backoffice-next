@@ -946,6 +946,8 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-129 | Nút mở/đóng nhóm trong cây collection của sidebar | Mũi tên sau tên (`v-list-group`) | Mũi tên `expand_more` ở cuối dòng (xoay 180° khi mở); các mục cùng cấp thẳng hàng, mục con thụt 16 px so với cha (trước đó nút ở đầu dòng làm mục con lệch trái hơn icon của cha) | Owner 2026-10-21 | khác | — |
 | D-133 | Viền thẻ đang chọn của layout cards | Viền chọn của `v-card` | Viền brand 2px vẽ bên trong thẻ (`border-brand-500` + `ring-1 ring-inset`); trước đó `ring-2` vẽ ra ngoài bị khung cuộn của trang `fill` cắt mất ở thẻ sát mép | Owner 2026-10-21 (lỗi hiển thị) | khác | — |
 | D-150 | Khung form của màn item | `v-form` nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin (`rounded-2xl border border-gray-200 bg-white`, thân `p-4 sm:p-6`); mỗi divider đang hiện mở một card mới, tiêu đề và icon của divider thành header card, card đầu không header (tiêu đề đã ở page header, D-127); field giữ bề ngang Directus (cột 342px) nên cột rộng 47.375rem, 67.125rem khi có field `fill`, canh trái nội dung; form rỗng không lồng card (owner 2026-10-22) | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
+| D-153 | Vị trí cột form của màn item | Form canh trái, chỉ có `--content-padding` (`modules/content/routes/item.vue`) | Cột form (card, 47.375rem / 67.125rem) canh trái vùng nội dung, bỏ căn giữa của owner 2026-10-18, về lại vị trí như Directus (`utils/form-column.ts`, layout-patterns §5) | Owner 2026-10-22 | khác | — |
+| D-155 | Vị trí menu phiên bản ở page header | Dòng headline trên tiêu đề, sau breadcrumb và dấu `•` | Ngay sau tiêu đề trên cùng dòng (`title-append`), bỏ dấu `•` thừa từ khi bỏ breadcrumb (D-101); header còn một dòng | Owner 2026-10-22 (lỗi hiển thị) | khác | — |
 
 **Trạng thái khác biệt (T099, cuối lượt 4)**:
 
@@ -973,6 +975,8 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-129 | `modules/content/components/NavigationItem.vue` (nút ở cuối dòng); `design-system/docs/layout-patterns.md` §9 | Owner yêu cầu (2026-10-21) |
 | D-133 | `layouts/cards/components/Card.vue`; `Cards.browser.test.ts`; `design-system/docs/component-specs.md` (Cards grid) | Owner yêu cầu (2026-10-21) |
 | D-150 | `components/form/BoForm.vue` prop `card`; `utils/form-column.ts`; `modules/content/routes/ItemRoute.vue`; `BoForm.us1.test.ts`, `form-column.test.ts`, `ItemRoute.test.ts`; `design-system/docs/layout-patterns.md` §5, §8 (Form card) | Owner duyệt (2026-10-22) |
+| D-153 | `utils/form-column.ts` bỏ `mx-auto`; `form-column.test.ts`, `ItemRoute.test.ts`; layout-patterns §5, §8 | Owner yêu cầu (2026-10-22) |
+| D-155 | `modules/content/routes/ItemRoute.vue` (`#title-append`), `components/VersionMenu.vue` (bỏ `•`), `layout/PageHeader.vue` (chú thích); component-specs (Page header controls) | Owner yêu cầu (2026-10-22) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.
