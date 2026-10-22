@@ -1,8 +1,7 @@
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import logoDark from '../assets/logo-dark.svg';
-import logoLight from '../assets/logo-light.svg';
+import logo from '../assets/logo.png';
 import { i18n } from '../lang/index.ts';
 import { type Info, useServerStore } from '../stores/server.ts';
 import PublicView from './PublicView.vue';
@@ -29,15 +28,13 @@ function stubReducedMotion(matches: boolean) {
 }
 
 describe('PublicView', () => {
-	test('no project (FR-037): Backoffice logos for light and dark, default name and descriptor, grid pattern', () => {
+	test('no project (FR-037): the Backoffice app icon without a tile (D-159), default name and descriptor, grid pattern', () => {
 		const wrapper = mountView();
 		const images = wrapper.get('[data-testid="public-title"]').findAll('img');
 
-		expect(images).toHaveLength(2);
-		expect(images[0]!.attributes('src')).toBe(logoLight);
-		expect(images[0]!.classes()).toContain('dark:hidden');
-		expect(images[1]!.attributes('src')).toBe(logoDark);
-		expect(images[1]!.classes()).toEqual(expect.arrayContaining(['hidden', 'dark:block']));
+		expect(images).toHaveLength(1);
+		expect(images[0]!.attributes('src')).toBe(logo);
+		expect(images[0]!.element.parentElement!.className).not.toContain('bg-(--project-color)');
 		expect(images[0]!.attributes('alt')).toBe('Backoffice');
 		expect(wrapper.text()).toContain('Backoffice');
 		expect(wrapper.text()).toContain('Application');
@@ -48,13 +45,13 @@ describe('PublicView', () => {
 		expect(wrapper.get('[data-testid="public-art"]').findAll('[aria-hidden="true"]')).toHaveLength(2);
 	});
 
-	test('project without logo: Backoffice logo with the project name as alt, on the project color box', () => {
+	test('project without logo: the Backoffice app icon with the project name as alt, without a tile (D-159)', () => {
 		project({ project_name: 'Acme', project_descriptor: 'Admin', project_color: 'red', project_logo: null });
 		const wrapper = mountView();
 		const title = wrapper.get('[data-testid="public-title"]');
 
-		expect(title.findAll('img').map((img) => img.attributes('alt'))).toEqual(['Acme', 'Acme']);
-		expect(title.get('img').element.parentElement!.classList).toContain('bg-(--project-color)');
+		expect(title.findAll('img').map((img) => img.attributes('alt'))).toEqual(['Acme']);
+		expect(title.get('img').element.parentElement!.classList).not.toContain('bg-(--project-color)');
 		expect(title.text()).toContain('Acme');
 		expect(title.text()).toContain('Admin');
 	});

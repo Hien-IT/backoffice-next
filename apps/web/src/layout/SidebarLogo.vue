@@ -2,13 +2,13 @@
 <script setup lang="ts">
 // Backoffice: the logo at the top of the module bar (layout-patterns §2, D-157; Directus module-bar-logo.vue): the logo
 // on the --project-color background, named after the project (`Backoffice` when project_name is empty, FR-026); the
-// rail has no room for the name text. The Backoffice logo (light/dark SVG) replaces the animated
+// rail has no room for the name text. The default app icon (owner 2026-10-22, D-159) shows as is, without a tile; an
+// uploaded project_logo keeps the project color tile. The Backoffice logo (light/dark SVG) replaces the animated
 // Directus sprite, so the loader is the progress bar for both logos; project_url is a link only with an http(s)
 // scheme (FR-026).
 import { computed, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import logoDark from '../assets/logo-dark.svg';
-import logoLight from '../assets/logo-light.svg';
+import logo from '../assets/logo.png';
 import BoProgressLinear from '../components/BoProgressLinear.vue';
 import BoTooltip from '../components/BoTooltip.vue';
 import { useRequestsStore } from '../stores/requests.ts';
@@ -66,12 +66,12 @@ const name = computed(() => serverStore.info.project?.project_name || 'Backoffic
 				v-bind="url ? { href: url, target: '_blank', rel: 'noopener noreferrer' } : {}"
 				class="flex min-w-0 items-center gap-3 rounded-lg text-gray-800 no-underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white dark:text-white/90"
 			>
-				<span class="relative flex size-10 shrink-0 items-center justify-center rounded-lg bg-(--project-color) p-1.5">
+				<span
+					class="relative flex size-10 shrink-0 items-center justify-center rounded-lg"
+					:class="{ 'bg-(--project-color) p-1.5': customLogoPath }"
+				>
 					<img v-if="customLogoPath" :src="customLogoPath" :alt="name" class="size-full object-contain" />
-					<template v-else>
-						<img :src="logoLight" :alt="name" class="size-full object-contain dark:hidden" />
-						<img :src="logoDark" :alt="name" class="hidden size-full object-contain dark:block" />
-					</template>
+					<img v-else :src="logo" :alt="name" class="size-full object-contain" />
 					<BoProgressLinear
 						v-if="showLoader"
 						indeterminate

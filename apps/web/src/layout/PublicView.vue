@@ -6,8 +6,7 @@
 // --project-color set by the app head (FR-031); a background video does not autoplay under reduced motion (D-50).
 import { useMediaQuery } from '@vueuse/core';
 import { computed, ref, useTemplateRef } from 'vue';
-import logoDark from '../assets/logo-dark.svg';
-import logoLight from '../assets/logo-light.svg';
+import logo from '../assets/logo.png';
 import BoButton from '../components/BoButton.vue';
 import { useServerStore } from '../stores/server.ts';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
@@ -110,12 +109,13 @@ function playVideo() {
 		>
 			<div class="px-6 pt-8 sm:px-10">
 				<div class="flex items-center gap-3" data-testid="public-title">
-					<div class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-(--project-color)">
+					<!-- The default app icon (owner 2026-10-22, D-159) shows as is, without the project color tile. -->
+					<div
+						class="flex size-12 shrink-0 items-center justify-center rounded-xl"
+						:class="{ 'bg-(--project-color)': logoURL }"
+					>
 						<img v-if="logoURL" :src="logoURL" :alt="projectName" class="size-9 object-contain" />
-						<template v-else>
-							<img :src="logoLight" :alt="projectName" class="size-9 dark:hidden" />
-							<img :src="logoDark" :alt="projectName" class="hidden size-9 dark:block" />
-						</template>
+						<img v-else :src="logo" :alt="projectName" class="size-12 object-contain" />
 					</div>
 					<div class="min-w-0">
 						<p class="truncate text-base font-semibold text-gray-800 dark:text-white/90" :title="projectName">

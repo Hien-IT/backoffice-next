@@ -30,6 +30,9 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 `layout/AppModuleBar.vue`, `ModuleTabs.vue`, `composables/use-module-bar.ts`, `AppSidebar.vue`, `PrivateView.vue`.
 (A horizontal tab bar at the top came first the same day; the owner chose the vertical Directus rail.)
 
+- App icon (owner 2026-10-22, D-159): without a `project_logo` the default icon `src/assets/logo.png` (256 px, transparent)
+  shows as is, no tile, in the rail (`size-10`) and on the public pages (`size-12`); an uploaded `project_logo` keeps the
+  project color tile. The default favicon is `public/favicon.ico` from the same icon.
 - Module rail (`data-testid="module-rail"`): `fixed inset-y-0 start-0 z-1000 flex w-16 flex-col items-center gap-4
   bg-(--project-color) py-3 dark:border-e dark:border-gray-800`, at every width (owner: the project color, not gray-900): the logo tile (`SidebarLogo`, the project name
   is its alt), the module icons, then at the bottom the bell and the user menu (avatar only, named after the user).

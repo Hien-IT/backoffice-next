@@ -27,11 +27,11 @@ async function render(settings: Partial<Settings>) {
 }
 
 describe('SidebarLogo (FR-026)', () => {
-	test('Backoffice logo (light and dark) without a link when there is no project_url', async () => {
+	test('the Backoffice app icon (D-159) without a link when there is no project_url', async () => {
 		const wrapper = await render({ project_url: null, project_logo: null });
 
 		expect(wrapper.find('a').exists()).toBe(false);
-		expect(wrapper.findAll('img').map((img) => img.attributes('alt'))).toEqual(['Backoffice', 'Backoffice']);
+		expect(wrapper.findAll('img').map((img) => img.attributes('alt'))).toEqual(['Backoffice']);
 	});
 
 	test('project_logo from /assets and an http(s) project_url as a new-tab link', async () => {
