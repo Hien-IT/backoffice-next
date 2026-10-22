@@ -48,7 +48,12 @@ async function window(during?: () => Promise<void>) {
 	while ((await runs()) === before.runs && Date.now() < end) await sleep(100);
 	const start = Date.now();
 	await during?.();
-	await sleep(start + (TICKS - 1) * TICK + TICK / 2 - Date.now());
+	// Not before the TICKS-th tick (a duplicate run still shows as one too many), then as soon as the TICKS-th run is
+	// read: the deactivation then has up to a whole tick to reach every instance (CI 39797665422 saw an 11th run when it
+	// was sent half a tick after the TICKS-th tick). Half a tick later at most: a tick lost with a stopped instance.
+	const deadline = start + (TICKS - 1) * TICK + TICK / 2;
+	await sleep(start + (TICKS - 1) * TICK - Date.now());
+	while ((await runs()) - before.runs < TICKS && Date.now() < deadline) await sleep(100);
 	await api(directusUrl, 'PATCH', `/flows/${flowId}`, { token: admin, body: { status: 'inactive' } });
 	await sleep(TICK);
 	const logs = executions();
