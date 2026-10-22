@@ -1,8 +1,8 @@
 // Benchmark of the Content module screen (feature 014, FR-125, SC-003, contracts/tests.md §5, research R14) on the 10
-// million rows of seed-items.ts. Playwright chromium signs in to three apps: the Directus app (8155/admin), the
-// Backoffice web app behind a proxy to Directus (8171) and behind a proxy to the new API (8172). Each run measures, the
-// three apps in turn: the first page (goto until row 25 shows), the next page, a sort on date_created (indexed) and on
-// title (not indexed), a filter on status (written in the admin preset before the goto). BENCH_RUNS runs (11), p95,
+// million rows of seed-items.ts. Playwright chromium signs in to three apps: the Directus app (8173/admin, proxied),
+// the Backoffice web app behind a proxy to Directus (8171) and behind a proxy to the new API (8172). Each run measures,
+// the three apps in turn: the first page (goto until row 25 shows), the next page, a sort on date_created (indexed) and
+// on title (not indexed), a filter on status (written in the admin preset before the goto). BENCH_RUNS runs (11), p95,
 // requests to /items/bench_articles per action (list + count). API reads skip the shared response cache (Cache-Control:
 // no-store, CACHE_SKIP_ALLOWED=true). Fails when the web app's p95 is more than 10% above the Directus app's in either
 // configuration; the absolute targets of SC-003 are only reported. Needs `benchmark:env-up-web` first.
@@ -16,7 +16,8 @@ import { p95, signIn, TIMEOUT, usual } from './web-shared.ts';
 
 const RUNS = Number(process.env['BENCH_RUNS'] ?? 11);
 const APPS = {
-	'Directus app': process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155',
+	// Through bench-proxy-directus-app (8173), the same extra nginx hop as the web setups (R11 of spec 020).
+	'Directus app': process.env['DIRECTUS_APP_URL'] ?? 'http://127.0.0.1:8173',
 	'web → Directus': process.env['WEB_DIRECTUS_URL'] ?? 'http://127.0.0.1:8171',
 	'web → API': process.env['WEB_API_URL'] ?? 'http://127.0.0.1:8172',
 };

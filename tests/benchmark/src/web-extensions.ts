@@ -1,12 +1,12 @@
 // Spec 020 (FR-096, SC-006, T149): the first open of an app page that uses an app extension, with the fixture extension
-// set loaded (PARITY_EXTENSIONS_ENV=extensions: the benchmark workflow recreates the API services with it after the other
-// web benchmarks, which measure without extensions, SC-005). Seed: a collection `bench-ext-<hex>` with one item whose
-// field uses the display parity-display-badge, deleted in a `finally`. Playwright chromium signs in to the Directus app
-// (8155/admin) and to the Backoffice web app behind a proxy to Directus (8171) and to the new API (8172); each run opens
-// a new page at /admin/content/<collection> and stops when the badge the display extension draws is visible (the app
-// loaded /extensions/sources/index.js, registered the extension and rendered the table). BENCH_RUNS runs (11) after one
-// unmeasured run, nearest-rank p95. Fails when a web app's p95 is more than TOLERANCE and WEB_FLOOR_MS above the Directus
-// app's. Needs `benchmark:env-up-web` with the extensions env first.
+// set loaded (PARITY_EXTENSIONS_ENV=extensions: the benchmark workflow recreates the API services with it after the
+// other web benchmarks, which measure without extensions, SC-005). Seed: a collection `bench-ext-<hex>` with one item
+// whose field uses the display parity-display-badge, deleted in a `finally`. Playwright chromium signs in to the
+// Directus app (8173/admin, proxied) and to the Backoffice web app behind a proxy to Directus (8171) and to the new API
+// (8172); each run opens a new page at /admin/content/<collection> and stops when the badge the display extension draws
+// is visible (the app loaded /extensions/sources/index.js, registered the extension and rendered the table). BENCH_RUNS
+// runs (11) after one unmeasured run, nearest-rank p95. Fails when a web app's p95 is more than TOLERANCE and
+// WEB_FLOOR_MS above the Directus app's. Needs `benchmark:env-up-web` with the extensions env first.
 import { randomBytes } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 import { type BrowserContext, chromium } from '@playwright/test';
@@ -16,7 +16,8 @@ import { p95, signIn, TIMEOUT } from './web-shared.ts';
 
 const RUNS = Number(process.env['BENCH_RUNS'] ?? 11);
 const APPS = {
-	'Directus app': process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155',
+	// Through bench-proxy-directus-app (8173), the same extra nginx hop as the web setups (R11 of spec 020).
+	'Directus app': process.env['DIRECTUS_APP_URL'] ?? 'http://127.0.0.1:8173',
 	'web → Directus': process.env['WEB_DIRECTUS_URL'] ?? 'http://127.0.0.1:8171',
 	'web → API': process.env['WEB_API_URL'] ?? 'http://127.0.0.1:8172',
 };

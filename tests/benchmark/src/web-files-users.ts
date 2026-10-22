@@ -1,15 +1,14 @@
 // Benchmark of the Files and Users module screens (feature 015, T096, US7, research R10), modelled on web-content.ts.
 // Seed: one folder with FILES files of 1 KB uploaded to the Directus API (multipart, 20 in parallel; half text/plain,
-// half application/octet-stream) and USERS users inserted on the host (half active, half suspended), all named with
-// one `bench-fu-<hex>` prefix and deleted in a `finally`. Playwright chromium signs in to the Directus app (8155/admin)
-// and to the Backoffice web app behind a proxy to Directus (8171) and to the new API (8172). Each run measures, the
-// three apps in turn: the first page of the folder (cards layout, goto until the 25th card shows) and of
-// /users/all (tabular, goto until row 25 shows), the next page, a filter (files by `type`, users by `status`, written in
-// the admin preset before the goto). BENCH_RUNS runs (11) after one unmeasured run, nearest-rank p95, requests to
+// half application/octet-stream) and USERS users inserted on the host (half active, half suspended), all named with one
+// `bench-fu-<hex>` prefix and deleted in a `finally`. Playwright chromium signs in to the Directus app (8173/admin,
+// proxied) and to the Backoffice web app behind a proxy to Directus (8171) and to the new API (8172). Each run
+// measures, the three apps in turn: the first page of the folder (cards layout, goto until the 25th card shows) and of
+// /users/all (tabular, goto until row 25 shows), the next page, a filter (files by `type`, users by `status`, written
+// in the admin preset before the goto). BENCH_RUNS runs (11) after one unmeasured run, nearest-rank p95, requests to
 // /files or /users per action (list + count). API reads skip the shared response cache (Cache-Control: no-store,
 // CACHE_SKIP_ALLOWED=true). Fails when a web app's p95 is more than TOLERANCE and WEB_FLOOR_MS above the Directus app's
-// in a majority of up to 3 attempts (a failing action is measured again). Needs
-// `benchmark:env-up-web` first.
+// in a majority of up to 3 attempts (a failing action is measured again). Needs `benchmark:env-up-web` first.
 import { randomBytes, randomUUID } from 'node:crypto';
 import { appendFileSync } from 'node:fs';
 import { setTimeout } from 'node:timers/promises';
@@ -24,7 +23,8 @@ const FILES = Number(process.env['BENCH_WEB_FILES'] ?? 10_000);
 const USERS = Number(process.env['BENCH_WEB_USERS'] ?? 10_000);
 const PARALLEL = 20;
 const APPS = {
-	'Directus app': process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155',
+	// Through bench-proxy-directus-app (8173), the same extra nginx hop as the web setups (R11 of spec 020).
+	'Directus app': process.env['DIRECTUS_APP_URL'] ?? 'http://127.0.0.1:8173',
 	'web → Directus': process.env['WEB_DIRECTUS_URL'] ?? 'http://127.0.0.1:8171',
 	'web → API': process.env['WEB_API_URL'] ?? 'http://127.0.0.1:8172',
 };
