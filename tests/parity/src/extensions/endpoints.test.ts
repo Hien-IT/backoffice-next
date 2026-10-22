@@ -3,6 +3,7 @@
 // Directus (D-139 revised 2026-10-21, apps/api/src/extensions/lib/endpoint-app.ts).
 import { beforeAll, describe, expect, it } from 'vitest';
 import { appUrl } from '../directus-api.js';
+import { multipart } from '../files/helpers.js';
 import { capture, type Captured, type ParityRequest } from '../parity.js';
 import { admin, ensureExtensionCollections, same } from './helpers.js';
 
@@ -67,4 +68,16 @@ describe('D-139 revised: Express 4 idioms answer as in Directus', () => {
 		expect(status(result.directus)).toBe('timeout');
 		expect(status(result.backoffice)).toBe('timeout');
 	}, 15_000);
+
+	it('(7) res.redirect(url, status); (8) a multipart body; (9) a Directus error thrown synchronously', async () => {
+		await same({ path: '/parity-endpoint-express4/redirect' });
+
+		const upload = multipart([
+			{ name: 'title', value: 'a' },
+			{ name: 'file', data: Buffer.alloc(4096, 1), filename: 'a.bin' },
+		]);
+		await same({ method: 'POST', path: '/parity-endpoint-express4/upload', ...upload });
+
+		await same({ path: '/parity-endpoint-express4/throw-sync' });
+	});
 });
