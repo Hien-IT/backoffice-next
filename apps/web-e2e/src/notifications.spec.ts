@@ -76,7 +76,7 @@ async function signIn(page: Page, who: { email: string; password: string } = use
 	await expect(page).toHaveURL(CONTENT_URL);
 }
 
-// The drawer is modal: while it is open the header is aria-hidden, so the bell is found by its label attribute.
+// The drawer is modal: while it is open the sidebar is aria-hidden, so the bell is found by its label attribute.
 const bell = notificationsBell;
 const drawer = (page: Page) => page.getByRole('dialog', { name: 'Notifications', exact: true });
 const row = (page: Page, subject: string) =>
@@ -94,7 +94,7 @@ async function select(page: Page, subject: string) {
 
 test('the badge, Inbox and Archive, Archive / Unarchive (US6-1 to US6-4)', async ({ page }) => {
 	await signIn(page);
-	await expect(bell(page)).toHaveAttribute('aria-label', 'Notifications, 3 unread');
+	await expect(await bell(page)).toHaveAttribute('aria-label', 'Notifications, 3 unread');
 
 	await openDrawer(page);
 	for (const subject of Object.values(SUBJECTS)) await expect(drawer(page)).toContainText(subject);
@@ -102,14 +102,14 @@ test('the badge, Inbox and Archive, Archive / Unarchive (US6-1 to US6-4)', async
 	await select(page, SUBJECTS.plain);
 	await drawer(page).getByRole('button', { name: 'Archive', exact: true }).click();
 	await expect(drawer(page)).not.toContainText(SUBJECTS.plain);
-	await expect(bell(page)).toHaveAttribute('aria-label', 'Notifications, 2 unread');
+	await expect(await bell(page)).toHaveAttribute('aria-label', 'Notifications, 2 unread');
 
 	await drawer(page).getByRole('tab', { name: 'Archive' }).click();
 	await expect(drawer(page)).toContainText(SUBJECTS.plain);
 	await select(page, SUBJECTS.plain);
 	await drawer(page).getByRole('button', { name: 'Unarchive', exact: true }).click();
 	await expect(drawer(page)).not.toContainText(SUBJECTS.plain);
-	await expect(bell(page)).toHaveAttribute('aria-label', 'Notifications, 3 unread');
+	await expect(await bell(page)).toHaveAttribute('aria-label', 'Notifications, 3 unread');
 });
 
 test('search, the message, opening an item and a singleton (US6-3, US6-5, US6-6)', async ({ page }) => {
@@ -157,7 +157,7 @@ test('Delete after confirming; the Activity link (US6-4, FR-075)', async ({ page
 	await confirm.getByRole('button', { name: 'Delete' }).click();
 	await expect(confirm).toBeHidden();
 	await expect(page.locator('[data-notifications-drawer]')).not.toContainText(SUBJECTS.plain);
-	await expect(bell(page)).toHaveAttribute('aria-label', 'Notifications, 2 unread');
+	await expect(await bell(page)).toHaveAttribute('aria-label', 'Notifications, 2 unread');
 
 	await drawer(page).getByRole('link', { name: 'Activity' }).click();
 	await expect(page).toHaveURL(/\/admin\/activity$/);

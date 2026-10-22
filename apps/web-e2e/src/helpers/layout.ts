@@ -33,12 +33,15 @@ export async function moduleNavigation(page: Page): Promise<Locator> {
 	return navigation;
 }
 
-/** The bell: at the bottom of the sidebar, next to the user menu (D-157). */
-export const notificationsBell = (page: Page): Locator => page.locator('button[aria-label^="Notifications, "]');
+/** The bell: at the bottom of the sidebar, next to the user menu (D-157); below `xl` this opens the drawer. */
+export async function notificationsBell(page: Page): Promise<Locator> {
+	await moduleNavigation(page);
+	return page.locator('button[aria-label^="Notifications, "]');
+}
 
 /** Opens the bell panel (D-132: latest inbox, mark as read, "View all"). */
 export async function openNotificationsPanel(page: Page): Promise<Locator> {
-	await notificationsBell(page).click();
+	await (await notificationsBell(page)).click();
 	const viewAll = page.getByRole('button', { name: 'View all', exact: true });
 	await expect(viewAll).toBeVisible();
 	return viewAll;

@@ -197,8 +197,10 @@ test('Clear Changes asks first; the guard holds a navigation with edits; Ctrl/Cm
 		.getByRole('navigation')
 		.getByRole('link', { name: tempDashboardName('edit', 'target') })
 		.click();
-	await expect(page.getByRole('dialog')).toContainText('Unsaved Changes');
-	await page.getByRole('dialog').getByRole('button', { name: 'Keep Editing' }).click();
+	// Below xl the navigation drawer stays open under the confirmation.
+	const unsaved = page.getByRole('dialog', { name: 'Unsaved Changes' });
+	await expect(unsaved).toBeVisible();
+	await unsaved.getByRole('button', { name: 'Keep Editing' }).click();
 	await expect(page).toHaveURL(new RegExp(mainId));
 	if (drawer) await page.keyboard.press('Escape');
 
