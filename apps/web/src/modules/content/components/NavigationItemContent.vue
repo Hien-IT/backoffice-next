@@ -8,14 +8,15 @@ import BoTextOverflow from '../../../components/BoTextOverflow.vue';
 
 defineProps<{
 	name: string;
-	icon: string;
+	/** No icon for a root folder shown as a group title (D-156). */
+	icon?: string | undefined;
 	color?: string | null | undefined;
 	hidden?: boolean | undefined;
 }>();
 </script>
 
 <template>
-	<BoIcon :name="icon" size="sm" class="shrink-0" :style="color ? { color } : undefined" />
+	<BoIcon v-if="icon" :name="icon" size="sm" class="shrink-0" :style="color ? { color } : undefined" />
 	<BoTextOverflow :text="name" class="min-w-0 flex-1" />
 	<template v-if="hidden">
 		<BoIcon name="visibility_off" size="sm" class="shrink-0" />

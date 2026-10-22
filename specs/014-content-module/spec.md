@@ -948,6 +948,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-150 | Khung form của màn item | `v-form` nằm thẳng trên nền trang, không khung | Form trong Card TailAdmin (`rounded-2xl border border-gray-200 bg-white`, thân `p-4 sm:p-6`); mỗi divider đang hiện mở một card mới, tiêu đề và icon của divider thành header card, card đầu không header (tiêu đề đã ở page header, D-127); field giữ bề ngang Directus (cột 342px) nên cột rộng 47.375rem, 67.125rem khi có field `fill`, canh trái nội dung; form rỗng không lồng card (owner 2026-10-22) | Design-system TailAdmin (Form Layout), owner 2026-10-22 | khác | — |
 | D-153 | Vị trí cột form của màn item | Form canh trái, chỉ có `--content-padding` (`modules/content/routes/item.vue`) | Cột form (card, 47.375rem / 67.125rem) canh trái vùng nội dung, bỏ căn giữa của owner 2026-10-18, về lại vị trí như Directus (`utils/form-column.ts`, layout-patterns §5) | Owner 2026-10-22 | khác | — |
 | D-155 | Vị trí menu phiên bản ở page header | Dòng headline trên tiêu đề, sau breadcrumb và dấu `•` | Ngay sau tiêu đề trên cùng dòng (`title-append`), bỏ dấu `•` thừa từ khi bỏ breadcrumb (D-101); header còn một dòng | Owner 2026-10-22 (lỗi hiển thị) | khác | — |
+| D-156 | Folder gốc trong cây collection của sidebar | Dòng folder như dòng collection (icon, tên), con thụt vào | Folder cấp 1 (không schema) là tiêu đề nhóm kiểu TailAdmin (`text-theme-xs uppercase tracking-wide text-gray-500`, không icon, cách nhóm trước `mt-3`), con không thụt; folder sâu hơn và collection có con giữ kiểu cũ; vẫn bấm để đóng/mở, bàn phím tree không đổi | Cây 3 cấp khó đọc, owner 2026-10-22 | khác | — |
 
 **Trạng thái khác biệt (T099, cuối lượt 4)**:
 
@@ -977,6 +978,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-150 | `components/form/BoForm.vue` prop `card`; `utils/form-column.ts`; `modules/content/routes/ItemRoute.vue`; `BoForm.us1.test.ts`, `form-column.test.ts`, `ItemRoute.test.ts`; `design-system/docs/layout-patterns.md` §5, §8 (Form card) | Owner duyệt (2026-10-22) |
 | D-153 | `utils/form-column.ts` bỏ `mx-auto`; `form-column.test.ts`, `ItemRoute.test.ts`; layout-patterns §5, §8 | Owner yêu cầu (2026-10-22) |
 | D-155 | `modules/content/routes/ItemRoute.vue` (`#title-append`), `components/VersionMenu.vue` (bỏ `•`), `layout/PageHeader.vue` (chú thích); component-specs (Page header controls) | Owner yêu cầu (2026-10-22) |
+| D-156 | `modules/content/components/NavigationItem.vue` (`heading`), `NavigationItemContent.vue` (icon tùy chọn); layout-patterns §9 | Owner yêu cầu (2026-10-22) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.

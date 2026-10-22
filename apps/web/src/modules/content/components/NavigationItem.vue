@@ -24,6 +24,9 @@ const active = computed(() => nav.isActive(node));
 const hidden = computed(() => collection.value.meta?.hidden === true);
 const to = computed(() => (collection.value.schema ? getCollectionRoute(collection.value.collection) : ''));
 const tabindex = computed(() => (nav.tabStop.value === node.key ? 0 : -1));
+// Owner 2026-10-22 (D-156): a root folder reads as a TailAdmin menu group title, its children are not indented, so the
+// tree looks two levels deep.
+const heading = computed(() => node.level === 1 && node.group && !collection.value.schema);
 
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
@@ -36,6 +39,7 @@ function onFolderClick() {
 <template>
 	<li
 		role="treeitem"
+		:class="{ 'not-first:mt-3': heading }"
 		:data-key="node.key"
 		:aria-level="node.level"
 		:aria-expanded="node.group ? open : undefined"
@@ -43,14 +47,18 @@ function onFolderClick() {
 	>
 		<div
 			class="menu-dropdown-item gap-2 py-1 has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-brand-500 dark:has-focus-visible:outline-brand-400"
-			:class="[
-				active
-					? 'menu-dropdown-item-active'
-					: hidden
-						? 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
-						: 'menu-dropdown-item-inactive',
-				nav.dense.value ? 'min-h-8 text-theme-sm' : 'min-h-9 text-sm',
-			]"
+			:class="
+				heading
+					? 'min-h-8 text-theme-xs uppercase tracking-wide text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300'
+					: [
+							active
+								? 'menu-dropdown-item-active'
+								: hidden
+									? 'text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5'
+									: 'menu-dropdown-item-inactive',
+							nav.dense.value ? 'min-h-8 text-theme-sm' : 'min-h-9 text-sm',
+						]
+			"
 		>
 			<RouterLink
 				v-if="to"
@@ -77,7 +85,7 @@ function onFolderClick() {
 			>
 				<NavigationItemContent
 					:name="collection.name"
-					:icon="collection.icon"
+					:icon="heading ? undefined : collection.icon"
 					:color="collection.color"
 					:hidden="hidden"
 				/>
@@ -103,7 +111,7 @@ function onFolderClick() {
 			</button>
 		</div>
 
-		<ul v-if="open" role="group" class="m-0 mt-1 flex list-none flex-col gap-1 p-0 ps-4">
+		<ul v-if="open" role="group" class="m-0 mt-1 flex list-none flex-col gap-1 p-0" :class="{ 'ps-4': !heading }">
 			<template v-for="child in node.children" :key="child.key">
 				<NavigationBookmark v-if="child.bookmark" :node="child" />
 				<NavigationItem v-else :node="child" />

@@ -402,6 +402,11 @@ search, bookmarks, last accessed collection) is the Directus one. Built: `apps/w
   with and without children stay aligned and children sit 16px deeper than their parent); a folder (collection without
   `schema`) is a row whose label is not a link and toggles on click; `collapse: locked` groups have no toggle. The toggle
   has `tabindex="-1"`: the tree keys open and close groups, so the toggle is for the mouse.
+- Root folders as group titles (D-156, owner 2026-10-22): a level-1 folder (no `schema`, with children) is shown like
+  the TailAdmin menu group title: `min-h-8 text-theme-xs uppercase tracking-wide text-gray-500 hover:text-gray-700
+  dark:text-gray-400 dark:hover:text-gray-300`, no icon, `mt-3` from the previous root row, its children without the
+  `ps-4` indent; the toggle, click and keyboard stay the same. Deeper folders and collections with children keep the
+  row style.
 - Dense (more than 5 visible collections, Directus `dense`): `min-h-8 text-theme-sm`; otherwise `min-h-9 text-sm`.
 - Bookmarks: child rows of their collection (`?bookmark=<id>` link), the bookmark icon (default `bookmark`) and color; a
   row menu button at the end
