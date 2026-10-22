@@ -535,11 +535,19 @@ src/directus-shim` (axe, bàn phím).
 
 **Goal**: bằng chứng SC-001..SC-009 trên toàn bộ.
 
-- [ ] T190 [US9] Parity đầy đủ: `env-up` với profile CI + `multi,extensions`, `nx run parity-tests:parity` (full) và
-      `parity-blackbox`; 0 khác biệt ngoài D-135..D-141 (SC-001); `guard-differences` xanh (entry mới có trong bảng spec)
+- [X] T190 [US9] Parity đầy đủ: `env-up` với profile CI + `multi,extensions`, `nx run parity-tests:parity` (full) và
+      `parity-blackbox`; 0 khác biệt ngoài D-135..D-144 (SC-001); `guard-differences` xanh (entry mới có trong bảng spec)
+      — CI run 39702265307 (cc3ecd44, 2026-10-22, 25/25 job xanh): parity postgres full 1 và 2 (profile có `multi`,
+      `extensions`), mysql, sqlite3, parity-blackbox hai app, guard-differences
 - [ ] T191 [US9] E2E đầy đủ ba cấu hình + `a11y.spec.ts` (SC-007), `DIRECTUS_APP_SPECS` (dùng chéo); benchmark
       `gh workflow run benchmark.yml` các job API và `benchmark-web` (SC-005, SC-006), ghi số vào research
-- [ ] T192 [US9] Acceptance `deploy` hai chế độ + `deploy-k8s` (SC-003), ghi thời gian readiness thực đo (FR-048)
+      — E2E xanh ở CI run 39702265307 (e2e-web 8 shard: proxy-api 4, proxy-directus 3, cors; e2e-directus-app).
+      Còn benchmark: chạy tay `benchmark.yml` chờ owner đồng ý
+- [X] T192 [US9] Acceptance `deploy` hai chế độ + `deploy-k8s` (SC-003), ghi thời gian readiness thực đo (FR-048)
+      — CI run 39702265307: deploy (shared-domain, separate-domain, standalone) và deploy-k8s xanh. Readiness thực đo
+      (container start → `/server/health` 200, có sync và nạp extension): 7,4 s và 19,4 s (`readyMs` của
+      shutdown.test.ts dưới tải); scale-up 3 → 6 replica: replica mới healthy và phục vụ extension trong 15,2 s; kind:
+      `Ready after 18s`
 
 ---
 
