@@ -172,7 +172,7 @@ const ROW = `flex min-w-0 flex-1 cursor-pointer items-center gap-3 rounded-lg px
 				<div class="relative">
 					<div
 						v-if="hasValidKey"
-						class="flex h-11 w-full items-center rounded-lg border border-gray-500 px-4 pe-12 shadow-theme-xs dark:border-gray-500 dark:bg-gray-900"
+						class="flex h-11 w-full items-center rounded-lg border border-gray-300 px-4 pe-12 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900"
 						:class="{ 'cursor-not-allowed bg-gray-50 dark:bg-white/[0.03]': disabled }"
 					>
 						<button

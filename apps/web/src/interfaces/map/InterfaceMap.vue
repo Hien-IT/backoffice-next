@@ -524,7 +524,7 @@ const CANVAS_FOCUS =
 <template>
 	<div class="interface-map">
 		<div
-			class="relative overflow-hidden rounded-lg border border-gray-500 dark:border-gray-500"
+			class="relative overflow-hidden rounded-lg border border-gray-300 dark:border-gray-700"
 			role="group"
 			:aria-labelledby="a11y?.labelId"
 			:aria-describedby="a11y?.describedBy"

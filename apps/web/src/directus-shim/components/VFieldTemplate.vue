@@ -320,7 +320,7 @@ function setContent() {
 }
 
 const FIELD =
-	'relative flex h-11 w-full items-center gap-2 rounded-lg border border-gray-500 bg-transparent ps-4 pe-1.5 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400';
+	'relative flex h-11 w-full items-center gap-2 rounded-lg border border-gray-300 bg-transparent ps-4 pe-1.5 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400';
 const DISABLED =
 	'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]';
 // Directus `.content` and `:deep(.selected-field)`: monospace text spans and the field chips (danger on hover).

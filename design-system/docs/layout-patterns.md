@@ -132,8 +132,8 @@ without Backdrop (section 7, owner 2026-10-20).
 - Container: `w-full p-4 pb-20 md:p-6 md:pb-6` (16px padding, 24px from `md`). Backoffice (owner 2026-10-18): no
   TailAdmin `mx-auto max-w-(--breakpoint-2xl)` cap; the content fills the width after the sidebar like Directus, so a
   wide screen shows no empty band on either side. The page header always spans the content width, its actions at the right edge; a body capped at `max-w-5xl` (Settings forms, D-82) stays
-  at the left like Directus. The item pages (Content, File, User) centre their body in a column as wide as the form shows
-  (`mx-auto max-w-[47.375rem]`: two 21.375rem columns and the gap plus the form card padding and border, D-150;
+  at the left like Directus. The item pages (Content, File, User) put their body at the left (owner 2026-10-22; centred from
+  2026-10-18) in a column as wide as the form shows (`max-w-[47.375rem]`: two 21.375rem columns and the gap plus the form card padding and border, D-150;
   `max-w-[67.125rem]` when a field is `fill`; `utils/form-column.ts`); their page header
   keeps the full width, title at the left and actions at the right (owner 2026-10-18).
 - Page header (`PageBreadcrumb.vue`): `flex flex-wrap items-center justify-between gap-3 mb-6`; title
@@ -300,14 +300,14 @@ surface changes.
   preset layout preview, Data Model fields list. The user box takes the card background
   `bg-white dark:bg-white/[0.03]` (it already had the card border) so the two blocks match.
 - Width: the fields keep their Directus widths (342px columns), so the card is the form column plus padding and border:
-  item pages `mx-auto max-w-[47.375rem]` (44.25rem + 2 × 1.5rem + 2px), `max-w-[67.125rem]` with a `fill` field (64rem +
+  item pages `max-w-[47.375rem]` at the left (44.25rem + 2 × 1.5rem + 2px), `max-w-[67.125rem]` with a `fill` field (64rem +
   the same). Settings: the card sits in the existing `max-w-5xl` wrapper; the form is then 974px wide and keeps the
   three-column `fill` grid (> 726px).
 - Inside the card: grid, dividers, the validation notice and loading skeletons are unchanged. Empty form (no visible
   fields): no card in the card, the info drops its border, background and padding (icon and the two lines stay
   centred).
 - Inputs keep their classes: on the white card they read white like TailAdmin; dark `bg-gray-900` on
-  `bg-white/[0.03]` like TailAdmin. Contrast unchanged (gray-500 boundary on white 4.97:1).
+  `bg-white/[0.03]` like TailAdmin. Their borders are the TailAdmin gray-300 (C-2 lifted 2026-10-22).
 - Accessibility: the card is a plain `div` (no role or landmark); focus order and labels unchanged.
 - The Directus divider (`presentation-divider`) keeps its look inside the card; the TailAdmin section title
   (`pb-4 text-base font-medium text-gray-800 border-b border-gray-200`) would change an interface every form uses and

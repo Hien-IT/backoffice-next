@@ -112,7 +112,7 @@ const FOCUS =
 					? 'border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/15'
 					: otherValue
 						? 'border-transparent bg-gray-100 dark:bg-white/5'
-						: 'border-dashed border-gray-500 dark:border-gray-500',
+						: 'border-dashed border-gray-300 dark:border-gray-700',
 				disabled && !nonEditable ? 'cursor-not-allowed bg-gray-50 dark:bg-white/[0.03]' : '',
 			]"
 			:style="otherActive && color ? { borderColor: color } : {}"

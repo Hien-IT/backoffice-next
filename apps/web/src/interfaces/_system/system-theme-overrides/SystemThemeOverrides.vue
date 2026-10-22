@@ -57,7 +57,7 @@ const validValue = computed(() => props.value === null || props.value === undefi
 
 <template>
 	<div
-		class="max-h-80 overflow-y-auto rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-theme-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400"
+		class="max-h-80 overflow-y-auto rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-theme-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400"
 		lang="en-US"
 		dir="ltr"
 		data-theme-overrides

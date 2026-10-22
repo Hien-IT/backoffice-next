@@ -316,7 +316,7 @@ const greyed = computed(() => props.disabled && !props.nonEditable);
 const FRAME =
 	'flex min-w-0 flex-1 items-center gap-2 rounded-lg border text-sm shadow-theme-xs focus-within:ring-3 dark:bg-gray-900 has-[input:focus-visible]:outline-2 has-[input:focus-visible]:outline-offset-2';
 const FRAME_VALID =
-	'border-gray-500 text-gray-800 focus-within:border-brand-500 focus-within:ring-brand-500/10 has-[input:focus-visible]:outline-brand-500 dark:border-gray-500 dark:text-white/90 dark:focus-within:border-brand-400 dark:has-[input:focus-visible]:outline-brand-400';
+	'border-gray-300 text-gray-800 focus-within:border-brand-500 focus-within:ring-brand-500/10 has-[input:focus-visible]:outline-brand-500 dark:border-gray-700 dark:text-white/90 dark:focus-within:border-brand-400 dark:has-[input:focus-visible]:outline-brand-400';
 const FRAME_INVALID =
 	'border-error-600 text-gray-800 focus-within:border-error-600 focus-within:ring-error-500/10 has-[input:focus-visible]:outline-error-600 dark:border-error-400 dark:text-white/90 dark:focus-within:border-error-400 dark:has-[input:focus-visible]:outline-error-400';
 const FRAME_ACTIVE = 'border-brand-500 ring-3 ring-brand-500/10 dark:border-brand-400';

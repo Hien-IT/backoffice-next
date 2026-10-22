@@ -49,7 +49,7 @@ const percRemaining = computed(() => {
 					? 'border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]'
 					: invalid
 						? 'border-error-600 bg-transparent focus-within:border-error-600 focus-within:ring-3 focus-within:ring-error-500/10 dark:border-error-400 dark:bg-gray-900'
-						: 'border-gray-500 bg-transparent focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:focus-within:border-brand-400'
+						: 'border-gray-300 bg-transparent focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:focus-within:border-brand-400'
 			"
 			:data-invalid="invalid || undefined"
 			:data-disabled="disabled || undefined"

@@ -222,7 +222,7 @@ const checkboxDisabled = computed(() => props.disabled || (!isCurrentUser.value 
 			:class="
 				checkboxDisabled
 					? 'border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]'
-					: 'border-gray-500 dark:border-gray-500 dark:bg-gray-900'
+					: 'border-gray-300 dark:border-gray-700 dark:bg-gray-900'
 			"
 		>
 			<BoCheckbox

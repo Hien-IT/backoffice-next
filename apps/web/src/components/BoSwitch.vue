@@ -27,7 +27,7 @@ const errorId = `${id}-error`;
 
 // component-specs Toggle (track + thumb); invalid adds the Checkbox invalid ring and FOCUS_ERROR.
 const TRACK =
-	'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-gray-500 data-[state=checked]:bg-brand-500 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-gray-500 dark:data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:bg-gray-100 data-[disabled]:data-[state=checked]:bg-brand-500 data-[disabled]:data-[state=checked]:opacity-50 dark:data-[disabled]:bg-gray-800';
+	'relative inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full bg-gray-200 data-[state=checked]:bg-brand-500 focus-visible:outline-2 focus-visible:outline-offset-2 dark:bg-white/10 dark:data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:bg-gray-100 data-[disabled]:data-[state=checked]:bg-brand-500 data-[disabled]:data-[state=checked]:opacity-50 dark:data-[disabled]:bg-gray-800';
 const FOCUS = 'focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const FOCUS_ERROR =
 	'ring-2 ring-error-600 dark:ring-error-400 focus-visible:outline-error-600 dark:focus-visible:outline-error-400';

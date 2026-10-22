@@ -125,7 +125,7 @@ const {
 
 const { templateData } = useTemplateData(collectionInfo, primaryKey);
 
-// Backoffice (owner 2026-10-18): the form is centred, the page header keeps the full width (layout-patterns §5).
+// Backoffice (owner 2026-10-18, 2026-10-22): the form sits at the left, the page header keeps the full width (layout-patterns §5).
 const formColumn = computed(() => formColumnClass(unref(fields)));
 
 const { confirmLeave, leaveTo } = useEditsGuard(hasEdits, { compareQuery: ['version'] });
@@ -766,7 +766,7 @@ function useItemNavigation() {
 		>
 			<template #start>
 				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page;
-				     centred (owner 2026-10-18, `formColumn`), in a card (D-150).
+				     at the left (owner 2026-10-22, `formColumn`), in a card (D-150).
 				     `fields` only, as Directus item.vue: with `collection` BoForm reads the fields store and drops the field
 				     permissions (read-only fields, presets) that useItemPermissions puts on `fields` (016 T111). -->
 				<BoForm

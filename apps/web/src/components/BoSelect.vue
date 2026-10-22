@@ -107,7 +107,7 @@ const LABEL = 'px-3 pt-2 pb-1 text-theme-xs font-medium uppercase text-gray-500 
 const DOT = 'size-2.5 shrink-0 rounded-full';
 // component-specs Select trigger = FIELD + FIELD_DISABLED.
 const TRIGGER =
-	'flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-start text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 data-[placeholder]:text-gray-500 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:data-[placeholder]:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03]';
+	'flex h-11 w-full items-center justify-between gap-2 rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-start text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400 data-[placeholder]:text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:data-[placeholder]:text-gray-400 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03]';
 </script>
 
 <template>

@@ -370,7 +370,7 @@ const ICON_BTN =
 					? 'border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/[0.12]'
 					: errors.length > 0
 						? 'border-error-600 bg-gray-50 dark:border-error-400 dark:bg-white/[0.03]'
-						: 'border-gray-500 bg-gray-50 dark:border-gray-500 dark:bg-white/[0.03]',
+						: 'border-gray-300 bg-gray-50 dark:border-gray-700 dark:bg-white/[0.03]',
 				{ 'disabled cursor-not-allowed opacity-50': disabled },
 			]"
 			:data-dragging="(dragging && fromUser) || undefined"

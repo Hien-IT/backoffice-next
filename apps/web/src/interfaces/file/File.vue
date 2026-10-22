@@ -281,7 +281,7 @@ const urlFormId = useId();
 const Plain: FunctionalComponent = (_, { slots }) => slots['trigger']?.();
 
 const ROW =
-	'flex h-11 w-full items-center gap-2 rounded-lg border border-gray-500 bg-transparent px-2 shadow-theme-xs dark:border-gray-500 dark:bg-gray-900';
+	'flex h-11 w-full items-center gap-2 rounded-lg border border-gray-300 bg-transparent px-2 shadow-theme-xs dark:border-gray-700 dark:bg-gray-900';
 const ROW_DISABLED = 'cursor-not-allowed border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]';
 const ACTIVATOR =
 	'flex min-w-0 flex-1 items-center gap-3 self-stretch rounded-md text-start text-sm text-gray-800 disabled:cursor-not-allowed disabled:text-gray-500 dark:text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';

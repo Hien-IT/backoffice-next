@@ -82,7 +82,7 @@ const invalid = computed(() => !!a11y?.value.invalid);
 		:class="[
 			invalid
 				? 'border-error-600 focus-visible:outline-error-600 dark:border-error-400 dark:focus-visible:outline-error-400'
-				: 'border-gray-500 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-500 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400',
+				: 'border-gray-300 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-700 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400',
 			greyed
 				? 'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-500 hover:border-gray-100 dark:border-gray-800 dark:bg-white/[0.03]'
 				: 'text-gray-800 dark:text-white/90',

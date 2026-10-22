@@ -221,7 +221,7 @@ const ICON_BTN =
 			:class="[
 				disabled && !nonEditable
 					? 'border-gray-100 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-white/[0.03] dark:text-gray-400'
-					: 'border-gray-500 bg-transparent text-gray-800 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90',
+					: 'border-gray-300 bg-transparent text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90',
 				{ 'border-error-600 dark:border-error-400': a11y?.invalid },
 			]"
 		>

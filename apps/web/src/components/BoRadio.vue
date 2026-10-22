@@ -53,7 +53,7 @@ const ITEM =
 const ICON_ITEM =
 	'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 data-[state=checked]:text-brand-500 dark:text-gray-400 dark:data-[state=checked]:text-brand-400 data-[disabled]:cursor-not-allowed data-[disabled]:text-gray-200 dark:data-[disabled]:text-gray-800';
 const VALID =
-	'border-gray-500 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-500 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400';
+	'border-gray-300 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-700 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400';
 const INVALID =
 	'border-error-600 focus-visible:outline-error-600 dark:border-error-400 dark:focus-visible:outline-error-400';
 

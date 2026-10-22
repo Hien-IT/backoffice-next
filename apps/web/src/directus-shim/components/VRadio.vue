@@ -84,7 +84,7 @@ const BLOCK = 'h-11 w-full rounded-lg border border-gray-200 px-4 dark:border-gr
 					? 'border-gray-200 dark:border-gray-800'
 					: isChecked
 						? 'border-brand-500 bg-brand-500'
-						: 'border-gray-500 group-hover:border-brand-500 dark:border-gray-500 dark:group-hover:border-brand-400',
+						: 'border-gray-300 group-hover:border-brand-500 dark:border-gray-700 dark:group-hover:border-brand-400',
 			]"
 		>
 			<span

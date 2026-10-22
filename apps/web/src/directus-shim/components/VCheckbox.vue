@@ -127,7 +127,7 @@ function toggleInput(): void {
 }
 
 const FIELD =
-	'h-9 min-w-0 flex-1 rounded-lg border border-gray-500 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03]';
+	'h-9 min-w-0 flex-1 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:cursor-not-allowed disabled:border-gray-100 disabled:bg-gray-50 disabled:text-gray-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:disabled:border-gray-800 dark:disabled:bg-white/[0.03]';
 const BLOCK = 'h-11 w-full rounded-lg border border-gray-200 px-4 dark:border-gray-800';
 </script>
 

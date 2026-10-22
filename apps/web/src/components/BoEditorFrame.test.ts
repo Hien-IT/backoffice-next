@@ -10,7 +10,7 @@ describe('BoEditorFrame', () => {
 		const wrapper = mount(BoEditorFrame, { slots: { default: () => h('div', { class: 'area' }, 'x') } });
 
 		expect(frame(wrapper).classes()).toEqual(
-			expect.arrayContaining(['border-gray-500', 'focus-within:border-brand-500', 'dark:bg-gray-900']),
+			expect.arrayContaining(['border-gray-300', 'focus-within:border-brand-500', 'dark:bg-gray-900']),
 		);
 		expect(wrapper.find('.area').exists()).toBe(true);
 		expect(wrapper.find('[role="toolbar"]').exists()).toBe(false);

@@ -302,12 +302,12 @@ const BOX = 'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border
 const BOX_STATE = {
 	true: 'border-brand-500 bg-brand-500',
 	mixed: 'border-brand-500 bg-brand-500',
-	false: 'border-gray-500 dark:border-gray-500',
+	false: 'border-gray-300 dark:border-gray-700',
 };
 const CHEVRON =
 	'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-transform hover:bg-gray-100 hover:text-gray-700 motion-reduce:transition-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300';
 const SEARCH =
-	'mb-3 h-9 w-full rounded-lg border border-gray-500 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400';
+	'mb-3 h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400';
 const STICKY_BG = 'bg-white dark:bg-gray-900';
 const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 </script>

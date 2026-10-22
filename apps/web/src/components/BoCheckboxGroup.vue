@@ -101,11 +101,11 @@ const BOX =
 const ICON_BOX =
 	'inline-flex shrink-0 cursor-pointer items-center justify-center rounded-md text-gray-500 focus-visible:outline-2 focus-visible:outline-offset-2 data-[state=checked]:text-brand-500 dark:text-gray-400 dark:data-[state=checked]:text-brand-400 data-[disabled]:cursor-not-allowed data-[disabled]:text-gray-200 dark:data-[disabled]:text-gray-800';
 const VALID =
-	'border-gray-500 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-500 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400';
+	'border-gray-300 hover:border-brand-500 focus-visible:outline-brand-500 dark:border-gray-700 dark:hover:border-brand-400 dark:focus-visible:outline-brand-400';
 const INVALID =
 	'border-error-600 focus-visible:outline-error-600 dark:border-error-400 dark:focus-visible:outline-error-400';
 const OTHER_INPUT =
-	'h-9 w-full min-w-0 rounded-lg border border-gray-500 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-white/[0.03]';
+	'h-9 w-full min-w-0 rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 disabled:cursor-not-allowed disabled:bg-gray-50 dark:disabled:bg-white/[0.03]';
 const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 ${FOCUS}`;
 const LINK_BTN = `mt-3 inline-flex items-center gap-1 rounded text-theme-sm font-medium text-brand-500 hover:text-brand-600 disabled:cursor-not-allowed disabled:opacity-50 dark:text-brand-400 ${FOCUS}`;
 

@@ -3,7 +3,8 @@
 Vue 3 + Reka UI + Tailwind CSS 4 with the TailAdmin theme (`tokens/theme.css`). The recipes below are **final**: copy
 them as they are. They start from the TailAdmin Vue sources (commit `6d5a365`, MIT, see `../LICENSE-TailAdmin.md`; the
 source file is named for each component) with the owner decisions of 2026-10-15 applied (`migration-guide.md`,
-Decisions): every text pair reaches 4.5:1, every input boundary and focus indicator reaches 3:1, and every interactive
+Decisions): every text pair reaches 4.5:1, every focus indicator reaches 3:1 (control borders
+follow TailAdmin since C-2 was lifted, 2026-10-22), and every interactive
 element has the focus-visible recipe. "Changed" lines say what differs from TailAdmin so reviewers do not "fix" it back.
 
 ## Conventions
@@ -47,7 +48,7 @@ mouse focus shows only the border change.
 `FIELD` (input, select trigger, textarea):
 
 ```text
-w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 FOCUS dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400
+w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 FOCUS dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400
 ```
 
 - `FIELD_INVALID` (replaces the border/focus/FOCUS part):
@@ -66,10 +67,10 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
 - Hint: `mt-1.5 text-theme-xs text-gray-500 dark:text-gray-400`
 - Error message: `mt-1.5 text-theme-xs text-error-600 dark:text-error-400`
 - Success message: `mt-1.5 text-theme-xs text-success-700 dark:text-success-400`
-- Changed from TailAdmin: border gray-300/dark gray-700 → gray-500 (C-2); focus border brand-300/brand-800 →
-  brand-500/brand-400; placeholder gray-400 / white/30 → gray-500 / gray-400; error and success text 500 → error-600 /
-  success-700 (dark error-400 / success-400); invalid border error-300 → error-600; valid border success-300 →
-  success-600.
+- Border gray-300 / dark gray-700 as TailAdmin: C-2 lifted by the owner (2026-10-22), the boundary stays below 3:1
+  (1.47:1 on white), accepted. Changed from TailAdmin: focus border brand-300/brand-800 → brand-500/brand-400;
+  placeholder gray-400 / white/30 → gray-500 / gray-400; error and success text 500 → error-600 / success-700 (dark
+  error-400 / success-400); invalid border error-300 → error-600; valid border success-300 → success-600.
 
 ## Tiers
 
@@ -132,13 +133,13 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
   `flex items-center gap-3 text-sm font-normal text-gray-700 cursor-pointer select-none dark:text-gray-300` (option
   label, see Label)
 - Box:
-  `flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-500 bg-transparent hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 dark:border-gray-500 dark:hover:border-brand-400`
+  `flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-300 bg-transparent hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 dark:border-gray-700 dark:hover:border-brand-400`
 - Indicator: white check (14px, stroke 1.94) or a dash for indeterminate, `text-white`
 - Invalid: box `border-error-600 dark:border-error-400` + `FOCUS_ERROR`, message linked
 - Disabled: label `text-gray-300 dark:text-gray-700`; box
   `data-[disabled]:border-gray-200 data-[disabled]:bg-transparent dark:data-[disabled]:border-gray-800`, check
   `text-gray-200 dark:text-gray-800`
-- Changed from TailAdmin: unchecked border gray-300 / gray-700 → gray-500.
+- Unchecked border gray-300 / gray-700 as TailAdmin (C-2 lifted, owner 2026-10-22; below 3:1, accepted).
 
 ### Toggle (`forms/FormElements/ToggleSwitch.vue`)
 
@@ -146,14 +147,14 @@ w-full rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text
   `flex cursor-pointer select-none items-center gap-3 text-sm font-normal text-gray-700 dark:text-gray-300` (option
   label, see Label)
 - Track:
-  `relative inline-flex h-6 w-11 shrink-0 rounded-full bg-gray-500 data-[state=checked]:bg-brand-500 FOCUS dark:bg-gray-500 dark:data-[state=checked]:bg-brand-500`
+  `relative inline-flex h-6 w-11 shrink-0 rounded-full bg-gray-200 data-[state=checked]:bg-brand-500 FOCUS dark:bg-white/10 dark:data-[state=checked]:bg-brand-500`
 - Thumb:
   `block h-5 w-5 translate-x-0.5 rounded-full bg-white shadow-theme-sm transition-transform duration-300 ease-linear data-[state=checked]:translate-x-[22px] rtl:-translate-x-0.5 rtl:data-[state=checked]:-translate-x-[22px] motion-reduce:transition-none`
   (top offset via `items-center` on the track)
 - Disabled: label `text-gray-400`; track `data-[disabled]:bg-gray-100 dark:data-[disabled]:bg-gray-800` (checked keeps
   `bg-brand-500` with `opacity-50`), thumb `data-[disabled]:bg-gray-50`
-- Changed from TailAdmin: off track gray-200 / white/10 → gray-500 (3:1 boundary; white thumb on it 4.97:1). The
-  gray-700 "neutral" variant is not used.
+- Off track gray-200 / white/10 as TailAdmin (C-2 lifted, owner 2026-10-22; below 3:1, accepted). The gray-700
+  "neutral" variant is not used.
 
 ### Textarea (`forms/FormElements/TextArea.vue`)
 
@@ -349,7 +350,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   `getMinimalGridClass` (longest label).
 - Row: `flex items-center gap-3 text-sm font-normal select-none text-gray-700 dark:text-gray-300` (disabled
   `text-gray-300 dark:text-gray-700`); item:
-  `flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.25px] bg-transparent border-gray-500 hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:border-gray-200 dark:border-gray-500 dark:hover:border-brand-400 dark:data-[disabled]:border-gray-800`;
+  `flex h-5 w-5 shrink-0 cursor-pointer items-center justify-center rounded-full border-[1.25px] bg-transparent border-gray-300 hover:border-brand-500 FOCUS data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[disabled]:cursor-not-allowed data-[disabled]:border-gray-200 dark:border-gray-700 dark:hover:border-brand-400 dark:data-[disabled]:border-gray-800`;
   indicator `block h-2 w-2 rounded-full bg-white`.
 - Custom icons (Directus `iconOn` / `iconOff` other than the radio defaults): the item is the icon only,
   `inline-flex shrink-0 cursor-pointer items-center justify-center rounded-full text-gray-500 data-[state=checked]:text-brand-500 dark:text-gray-400 dark:data-[state=checked]:text-brand-400 FOCUS`
@@ -359,7 +360,7 @@ Shared parts (each component declares the constants it uses locally; there is no
 - Invalid: item `border-error-600 dark:border-error-400` + `FOCUS_ERROR`; `ERROR_MSG`.
 - allowOther (Directus markup, in SelectRadio): a row under the grid
   `flex h-11 w-full items-center gap-2 rounded-lg border px-2 focus-within:ring-3 focus-within:ring-brand-500/10`: empty
-  `border-dashed border-gray-500 dark:border-gray-500`; text typed but not selected
+  `border-dashed border-gray-300 dark:border-gray-700`; text typed but not selected
   `border-transparent bg-gray-100 dark:bg-white/5`; selected
   `border-brand-500 bg-brand-50 dark:border-brand-400 dark:bg-brand-500/15` (data color on the border); a round icon
   button (`add`, else `iconOn` / `iconOff`; `aria-label` "Other", `aria-pressed`; `text-brand-500 dark:text-brand-400`
@@ -413,7 +414,7 @@ Shared parts (each component declares the constants it uses locally; there is no
 - Panel: Select Content classes; search `mb-2 h-9 FIELD px-3` (`aria-label` "Search", placeholder "Other" when
   allowOther).
 - Item: Select Item classes + `group gap-3` with a Checkbox box at the start
-  (`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-500 text-white group-data-[state=checked]:border-brand-500 group-data-[state=checked]:bg-brand-500 dark:border-gray-500`,
+  (`flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] border-gray-300 text-white group-data-[state=checked]:border-brand-500 group-data-[state=checked]:bg-brand-500 dark:border-gray-700`,
   `check` icon, `aria-hidden`; Reka sets `aria-selected`, `aria-multiselectable`); Space/Enter toggles and the list
   stays open; Esc closes.
 - allowNone: a first item "Deselect all" (`close` icon), disabled while nothing is selected. allowOther: an `add` item
@@ -461,7 +462,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   `chevron_right`, `rotate-90` when open, `rtl:rotate-180` when closed; leaves get a `w-6` spacer.
 - Box (`aria-hidden`): `flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] text-white`;
   checked and mixed `border-brand-500 bg-brand-500` with `check` / `remove` (dash) icons; unchecked
-  `border-gray-500 dark:border-gray-500`; disabled `border-gray-200 dark:border-gray-800`.
+  `border-gray-300 dark:border-gray-700`; disabled `border-gray-200 dark:border-gray-800`.
 - Search: only with more than 10 choices (Directus), `mb-3 h-9 FIELD px-3` `type="search"`, sr-only label "Search", 250
   ms debounce; matching branches open. "Show selected only": Toggle (`BoSwitch`, `mt-3`,
   `interfaces.select-multiple-checkbox-tree.show_selected`), disabled while nothing is selected.
@@ -500,7 +501,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   (today = weight + underline, selected = solid fill, not color alone). Type `date` closes on select.
 - Time (types `time`, `dateTime`, `timestamp`): Reka `TimeFieldRoot` (`hour-cycle` 24 when Directus `use24`, else the
   locale's; `granularity` `second` when `includeSeconds`, else `minute`; default 12:00), root
-  `mt-3 flex h-11 items-center gap-0.5 rounded-lg border border-gray-500 px-4 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400`;
+  `mt-3 flex h-11 items-center gap-0.5 rounded-lg border border-gray-300 px-4 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400`;
   segment
   `rounded px-0.5 tabular-nums outline-hidden focus:bg-brand-50 focus:text-brand-600 data-[placeholder]:text-gray-500 dark:focus:bg-brand-500/15 dark:focus:text-brand-400 dark:data-[placeholder]:text-gray-400`,
   literal segments `text-gray-500 dark:text-gray-400`. Type `time` shows only the TimeField.
@@ -718,7 +719,7 @@ Shared parts (each component declares the constants it uses locally; there is no
   `interfaces/input-code/InputCode.vue`; CodeMirror theme `styles/codemirror-theme.css`; Editor.js theme
   `interfaces/input-block-editor/editorjs-overrides.css`.
 - Frame: `overflow-hidden rounded-lg border shadow-theme-xs` +
-  `border-gray-500 bg-transparent focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:focus-within:border-brand-400`;
+  `border-gray-300 bg-transparent focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:focus-within:border-brand-400`;
   invalid
   `border-error-600 bg-transparent focus-within:border-error-600 focus-within:ring-3 focus-within:ring-error-500/10 dark:border-error-400 dark:bg-gray-900`;
   disabled `border-gray-100 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]`.
@@ -779,7 +780,7 @@ Shared parts (each component declares the constants it uses locally; there is no
 ### Map frame (`BoMapFrame`; Directus `map` interface and layout)
 
 - Built: `interfaces/map/InterfaceMap.vue` (MapLibre GL 6.14.0 + Mapbox Draw; no separate BoMapFrame component).
-- Frame `relative overflow-hidden rounded-lg border border-gray-500 dark:border-gray-500`, `role="group"` labelled by
+- Frame `relative overflow-hidden rounded-lg border border-gray-300 dark:border-gray-700`, `role="group"` labelled by
   the field label, `aria-describedby`, `aria-invalid`, `aria-busy` while loading; map area `relative h-112.5 w-full`
   (450px, Directus), `opacity-25` while loading or on error; the MapLibre canvas is labelled by the field label and gets
   the focus ring
@@ -849,7 +850,7 @@ Shared parts (each component declares the constants it uses locally; there is no
 
 - Built: `components/files/BoUpload.vue`; used by `file`, `files`, `file-image`, markdown and block editor images.
 - Dropzone:
-  `flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-500 bg-gray-50 px-6 py-8 text-center transition-colors motion-reduce:transition-none dark:border-gray-500 dark:bg-white/[0.03]`,
+  `flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-gray-300 bg-gray-50 px-6 py-8 text-center transition-colors motion-reduce:transition-none dark:border-gray-700 dark:bg-white/[0.03]`,
   `aria-busy` while uploading.
 - Idle: actions `flex items-center gap-2`: secondary Button `file_upload` "upload_from_device" (opens
   `<input type="file" class="sr-only" tabindex="-1" aria-hidden="true">`) and an `ICON_BTN` `more_vert` menu
@@ -1947,5 +1948,5 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
 - `FOCUS` (or `FOCUS_ERROR`) on every interactive element; keyboard works; labels, hints and errors linked; state not by
   color alone.
 - Default, hover, focus-visible, disabled, invalid, loading and empty states covered where relevant.
-- Any new color pair is added to the contrast table in `migration-guide.md` and passes (4.5:1 text, 3:1 boundaries and
-  focus).
+- Any new color pair is added to the contrast table in `migration-guide.md` and passes (4.5:1 text, 3:1 focus and
+  meaningful icons; control borders follow TailAdmin, C-2 lifted 2026-10-22).

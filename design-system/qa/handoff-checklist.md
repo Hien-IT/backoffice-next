@@ -42,7 +42,8 @@
 ## Accessibility
 
 - [ ] Every color pair used by the screen is in the contrast table of `docs/migration-guide.md` (all pass: 4.5:1 text,
-      3:1 input boundaries, toggle tracks, meaningful icons and focus); a new pair is added and passes.
+      3:1 meaningful icons and focus; control borders and toggle tracks follow TailAdmin, C-2 lifted 2026-10-22); a new
+      pair is added and passes.
 - [ ] Keyboard: every action reachable, `FOCUS` recipe on every interactive element, Esc closes menus, drawers and
       dialogs, focus returns to the trigger.
 - [ ] Skip link, landmarks, `aria-current="page"` on the active nav item, `aria-expanded` on toggles, labels on

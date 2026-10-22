@@ -51,7 +51,7 @@ const FOCUS = computed(() =>
 );
 const BOX =
 	'flex h-5 w-5 shrink-0 items-center justify-center rounded-md border-[1.25px] bg-transparent data-[state=checked]:border-brand-500 data-[state=checked]:bg-brand-500 data-[state=indeterminate]:border-brand-500 data-[state=indeterminate]:bg-brand-500 data-[disabled]:border-gray-200 data-[disabled]:bg-transparent dark:data-[disabled]:border-gray-800';
-const BOX_VALID = 'border-gray-500 hover:border-brand-500 dark:border-gray-500 dark:hover:border-brand-400';
+const BOX_VALID = 'border-gray-300 hover:border-brand-500 dark:border-gray-700 dark:hover:border-brand-400';
 const BOX_INVALID = 'border-error-600 dark:border-error-400';
 // CheckboxGroup recipe for custom icons: the icon only, brand when checked.
 const ICON =

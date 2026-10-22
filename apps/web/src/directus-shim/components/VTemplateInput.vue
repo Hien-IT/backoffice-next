@@ -326,7 +326,7 @@ const PREVIEW =
 	'[&_.preview]:inline-block [&_.preview]:rounded-md [&_.preview]:bg-brand-50 [&_.preview]:px-1 [&_.preview]:py-0.5 [&_.preview]:align-[-0.125rem] [&_.preview]:text-[length:0] [&_.preview]:leading-none [&_.preview]:text-brand-600 [&_.preview]:before:block [&_.preview]:before:text-theme-xs [&_.preview]:before:content-[attr(data-preview)] dark:[&_.preview]:bg-brand-500/15 dark:[&_.preview]:text-brand-400';
 // Input recipe (FIELD + FIELD_VALID of BoInput); the placeholder is the `:empty::before` of Directus.
 const FIELD =
-	'relative w-full overflow-hidden rounded-lg border border-gray-500 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 empty:before:pointer-events-none empty:before:text-gray-500 empty:before:content-[attr(data-placeholder)] dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:empty:before:text-gray-400';
+	'relative w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 empty:before:pointer-events-none empty:before:text-gray-500 empty:before:content-[attr(data-placeholder)] dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:empty:before:text-gray-400';
 </script>
 
 <template>

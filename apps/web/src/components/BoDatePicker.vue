@@ -367,7 +367,7 @@ const CELL = `flex h-9 w-9 items-center justify-center rounded-lg text-theme-sm 
 						:locale="userStore.language"
 						:disabled="disabled"
 						:dir="isRTL ? 'rtl' : 'ltr'"
-						class="mt-3 flex h-11 items-center gap-0.5 rounded-lg border border-gray-500 px-4 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-500 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400"
+						class="mt-3 flex h-11 items-center gap-0.5 rounded-lg border border-gray-300 px-4 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400"
 						@update:model-value="handleTimeChange"
 					>
 						<template v-for="item in segments" :key="item.part">
