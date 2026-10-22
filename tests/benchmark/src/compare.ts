@@ -11,8 +11,16 @@ export const TOLERANCE = 0.1;
  * Share of the Directus req/s at which both apps are measured for p95 (FR-113 and R18 of spec 001, revised by the owner
  * 2026-10-22; 0.8 before). At 0.8 a heavy endpoint kept one Node process ~90% busy, so p95 measured queueing: the
  * failing scenario changed every run while Backoffice used 4-6% less CPU per request (benchmark run 39755111256).
+ * The requests of that rate are spread over each second by paced.ts (owner 2026-10-23).
  */
 export const RATE_SHARE = 0.5;
+
+/**
+ * API p95 (owner 2026-10-23, FR-113): slower only when more than TOLERANCE and more than API_FLOOR_MS above Directus.
+ * With the requests spread over each second (paced.ts) p95 at RATE_SHARE is a few tens of ms, and one app moved by
+ * about 5 ms between two passes on the same machine; 10% of that is noise.
+ */
+export const API_FLOOR_MS = 10;
 
 /**
  * Web benchmarks (owner 2026-10-20): a step is slower only when it is both more than TOLERANCE and more than
@@ -110,8 +118,10 @@ export function compare(path: string, directus: Round[], backoffice: Round[], to
 		}
 	}
 
-	if (b.p95 > d.p95 * (1 + tolerance)) {
-		reasons.push(`p95 ${b.p95} ms is more than ${tolerance * 100}% above Directus (${d.p95} ms)`);
+	if (b.p95 > d.p95 * (1 + tolerance) && b.p95 - d.p95 > API_FLOOR_MS) {
+		reasons.push(
+			`p95 ${b.p95} ms is more than ${tolerance * 100}% and ${API_FLOOR_MS} ms above Directus (${d.p95} ms)`,
+		);
 	}
 
 	if (b.rps < d.rps * (1 - tolerance)) {

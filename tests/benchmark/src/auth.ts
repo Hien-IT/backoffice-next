@@ -3,7 +3,7 @@
 // errors fails):
 // - throughput: 2,000 connections send their requests at once (one login, five refreshes or TFA generations each);
 //   req/s = requests / time until the last answer;
-// - latency: p95 at a fixed rate of 80% of the Directus req/s, for BENCH_DURATION seconds of requests.
+// - latency: p95 at a fixed rate of 50% of the Directus req/s, for BENCH_DURATION seconds of requests.
 // Rounds count requests (`amount`), not time: at 2,000 connections no login answers within a 20 s round (every request
 // moves through the DB pool and argon2 queues in step), and the requests a timed round drops keep the server busy in
 // the next rounds (seen on CI, T064). autocannon resets the request context each time a connection loops over
@@ -26,6 +26,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { cleanup, PASSWORD, SECRET, type Seed, seed, sessions, USERS } from './seed-auth.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -148,7 +149,7 @@ async function measure(baseUrl: string, endpoint: Endpoint, amount: number, over
 			...(overallRate ? { overallRate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => {
 			recordLatency(histogram, responseTime);
 			last = performance.now();

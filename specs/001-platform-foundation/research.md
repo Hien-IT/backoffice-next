@@ -445,6 +445,13 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   (presets-list, `/collections` và `/relations` của user, dashboards-panels) trong khi API mới tốn ít CPU hơn 4–6% mỗi
   request và đọc Redis ngang Directus (benchmark run 39755111256: presets-list 13,9 so với 14,4 ms, dashboards-panels
   13,5 so với 14,3 ms; GET Redis 12–14/request ở cả hai). CPU của Directus tính cả tiến trình pm2 trong container.
+  **Sửa 2026-10-23 (owner):** (3) Request của pha đo p95 giãn đều trong mỗi giây (`src/paced.ts`: `rate` instance
+  autocannon, mỗi cái 1 kết nối 1 req/s, khởi động cách nhau 1000/rate ms). Với `overallRate`, autocannon 8 nạp lại
+  hạn mức của mọi kết nối cùng lúc mỗi giây (`lib/httpClient.js`), nên 42 req/s đến thành một loạt 42 request đầu mỗi
+  giây và p95 đo thời gian xử lý hết loạt đó (~500 ms ở cả hai app, lệch ±20% giữa các lần). (4) p95 chỉ đỏ khi
+  chậm hơn cả 10% lẫn 10 ms (`API_FLOOR_MS`, như web dùng 10% và 25 ms). Bằng chứng: benchmark schema run
+  39823743161 vẫn đỏ `/collections` và `/relations` của user no-store (p95 +12%, +33%) dù CPU/request của API mới
+  thấp hơn; đo ở máy cùng hai request đó không thấy API mới chậm hơn, và khi giãn đều p95 còn 17–23 ms ở cả hai app.
 - **Phạm vi ở feature này**: `/server/ping`, `/server/health`, `/server/info` so với Directus cấu hình
   mặc định. `/server/specs/oas` so với một container Directus thứ hai chạy `CACHE_SCHEMA=false`
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request

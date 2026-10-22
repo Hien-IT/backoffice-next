@@ -440,6 +440,9 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
 - Web "files: next page" (owner 2026-10-22): bên đỏ đổi qua lại giữa web → Directus và web → API với cùng request, và
   chỉ hai bên web đi qua nginx. App Directus giờ đo qua `bench-proxy-directus-app` (8173, cùng cấu hình nginx) để ba
   bên chịu cùng một chặng mạng (`9ac42bdf`).
+- Kết quả 2026-10-23 với tiêu chí mới: benchmark-system (run 39820055551) đạt 6/6, gồm presets-list; benchmark-schema
+  (run 39823743161) còn đỏ `/collections` và `/relations` của user no-store vì p95 đo thời gian xử lý một loạt request
+  dồn đầu mỗi giây. Owner chọn giãn đều request và thêm ngưỡng 10 ms (R18 của spec 001, sửa 2026-10-23).
 - Run đầu lộ lỗi script: `run.ts` gọi `GET /extensions` không token (403 ở hai app), sửa ở `bcb6d2c8`.
 
 **Lý do**: FR-090..FR-096, SC-001..SC-006.

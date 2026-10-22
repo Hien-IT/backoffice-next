@@ -1,5 +1,5 @@
 // Benchmark of /files and /assets against Directus 11.17.4 (feature 007, SC-006, contracts/parity.md §6), like items.ts:
-// per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput then p95 at 80% of the Directus
+// per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput then p95 at 50% of the Directus
 // req/s, compared by compare.ts (10%). Scenarios: the original of 200 jpeg images of about 1 MB in turn (20 connections), their
 // system-medium-cover made at seed, new transformations (20 widths of 10 images; the derived assets are deleted before
 // every run, and 10 connections stay under ASSETS_TRANSFORM_MAX_CONCURRENT), the list of 50 files as an admin and as a
@@ -20,6 +20,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, deleteDerived, deleteFiles, type FilesSeed, multipart, seed } from './seed-files.ts';
 
@@ -122,7 +123,7 @@ async function measure(seeded: FilesSeed, s: Scenario, app: App, duration: numbe
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 

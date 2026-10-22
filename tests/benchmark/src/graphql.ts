@@ -1,6 +1,6 @@
 // Benchmark of /graphql against Directus 11.17.4 (feature 011, FR-064, SC-007), on the data of items.ts
 // (seed-items.ts): per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections)
-// then p95 at 80% of the Directus req/s, compared by compare.ts (10%). Scenarios: a filtered, sorted list with an m2o
+// then p95 at 50% of the Directus req/s, compared by compare.ts (10%). Scenarios: a filtered, sorted list with an m2o
 // field, one item by id, an aggregate grouped by status (each as an admin and as a user whose read permission filters
 // on status, fresh and from the shared response cache), the introspection of the admin (schema already cached) and a
 // create mutation. Before the scenarios, the time of a first schema generation (system cache cleared) is printed only
@@ -21,6 +21,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { ARTICLES, cleanup, type ItemsSeed, seed } from './seed-items.ts';
 
@@ -145,7 +146,7 @@ async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: numbe
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 

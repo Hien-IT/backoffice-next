@@ -1,5 +1,5 @@
 // Benchmark of the system routes of feature 010 against Directus 11.17.4 (spec FR-104, contracts/parity.md §8), like
-// history.ts: per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput then p95 at 80% of the
+// history.ts: per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput then p95 at 50% of the
 // Directus req/s, compared by compare.ts (10%). Scenarios: the settings the app reads on every page, the presets of a
 // user with many of them, the unread count of the bell, the insights load (dashboards with their panels), the share
 // login (argon2 verify, 10 connections) and the manual sort (10 connections, not blocking: rows move under the
@@ -20,6 +20,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, diagLine, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, SHARE_PASSWORD, seed, type SystemSeed } from './seed-system.ts';
 
@@ -120,7 +121,7 @@ async function measure(seeded: SystemSeed, s: Scenario, app: App, duration: numb
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 

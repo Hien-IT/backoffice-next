@@ -1,5 +1,5 @@
 // Benchmark of permission-heavy reads against Directus 11.17.4 (SC-006, research R14 of spec 004), like run.ts: per
-// endpoint a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95 at 80% of
+// endpoint a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95 at 50% of
 // the Directus req/s, compared by compare.ts (10%). Requests carry the static tokens of 2,000 seeded users in turn,
 // and the permissions cache is emptied before every round so the recomputation is measured too. The reference is
 // Directus of the main pair; every request sends Cache-Control: no-store so neither app answers from the shared
@@ -20,6 +20,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, type Seed, seed } from './seed-permissions.ts';
 
@@ -58,7 +59,7 @@ async function measure(seeded: Seed, baseUrl: string, path: string, duration: nu
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 

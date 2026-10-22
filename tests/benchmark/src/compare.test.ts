@@ -51,10 +51,12 @@ describe('compare (median of the rounds, 10% tolerance)', () => {
 		expect(compare('/x', [round(10, 1000)], [round(11, 900)]).ok).toBe(true);
 	});
 
-	test('p95 more than 10% above fails', () => {
-		const v = compare('/x', [round(10, 1000)], [round(11.1, 1000)]);
+	test('p95 more than 10% and 10 ms above fails (API_FLOOR_MS, owner 2026-10-23)', () => {
+		const v = compare('/x', [round(100, 1000)], [round(111, 1000)]);
 		expect(v.ok).toBe(false);
-		expect(v.reasons[0]).toMatch(/p95 11.1 ms .* above Directus \(10 ms\)/);
+		expect(v.reasons[0]).toMatch(/p95 111 ms is more than 10% and 10 ms above Directus \(100 ms\)/);
+		expect(compare('/x', [round(30, 1000)], [round(29, 1000)]).ok).toBe(true);
+		expect(compare('/x', [round(200, 1000)], [round(219, 1000)]).ok).toBe(true);
 	});
 
 	test('req/s more than 10% below fails', () => {
@@ -77,9 +79,9 @@ describe('compare (median of the rounds, 10% tolerance)', () => {
 	});
 
 	test('table lists each endpoint with its result', () => {
-		const text = table([compare('/a', same, same), compare('/b', [round(10, 1000)], [round(20, 1000)])]);
+		const text = table([compare('/a', same, same), compare('/b', [round(10, 1000)], [round(30, 1000)])]);
 		expect(text).toContain('| /a | 11 | 11 | 950 | 950 | - | - | ok |');
-		expect(text).toMatch(/\| \/b \| 10 \| 20 \| 1000 \| 1000 \| - \| - \| FAIL: p95/);
+		expect(text).toMatch(/\| \/b \| 10 \| 30 \| 1000 \| 1000 \| - \| - \| FAIL: p95/);
 	});
 
 	test('CPU per request (FR-113 revised 2026-10-22): fails above Directus +10%, only when every round has a reading', () => {
@@ -96,20 +98,20 @@ describe('compare (median of the rounds, 10% tolerance)', () => {
 
 describe('non-blocking endpoints (accepted differences)', () => {
 	test('a failing non-blocking endpoint is reported but does not fail the run; a blocking one does', () => {
-		const slow = { ...compare('/server/specs/oas', [round(10, 100)], [round(20, 50)]), notBlocking: 'D-22' };
+		const slow = { ...compare('/server/specs/oas', [round(10, 100)], [round(30, 50)]), notBlocking: 'D-22' };
 		const ok = compare('/server/ping', same, same);
-		const failing = compare('/server/health', [round(10, 100)], [round(20, 50)]);
+		const failing = compare('/server/health', [round(10, 100)], [round(30, 50)]);
 
 		expect(gatePasses([ok, slow])).toBe(true);
 		expect(gatePasses([ok, slow, failing])).toBe(false);
-		expect(table([slow])).toContain('| not blocking (D-22): p95 20 ms');
-		expect(table([failing])).toContain('| FAIL: p95 20 ms');
+		expect(table([slow])).toContain('| not blocking (D-22): p95 30 ms');
+		expect(table([failing])).toContain('| FAIL: p95 30 ms');
 	});
 });
 
 describe('confirmed (a failure counts when most attempts fail)', () => {
 	const ok = compare('/x', same, same);
-	const slow = compare('/x', [round(10, 1000)], [round(20, 1000)]);
+	const slow = compare('/x', [round(10, 1000)], [round(30, 1000)]);
 	const runs = (...verdicts: Verdict[]) => {
 		let i = 0;
 		const measure = async () => verdicts[i++]!;
@@ -133,7 +135,7 @@ describe('confirmed (a failure counts when most attempts fail)', () => {
 		const r = runs(slow, slow, ok);
 		const v = await confirmed(r.measure);
 		expect([v.ok, v.attempts, r.count()]).toEqual([false, ['fail', 'fail'], 2]);
-		expect(table([v])).toContain('FAIL (attempts: fail, fail): p95 20 ms');
+		expect(table([v])).toContain('FAIL (attempts: fail, fail): p95 30 ms');
 		expect(gatePasses([v])).toBe(false);
 	});
 

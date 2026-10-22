@@ -595,7 +595,8 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
   chức năng, chỉ chạy tay (Complexity Tracking của plan).
 - **FR-113**: Bước benchmark PHẢI fail khi p95 latency hoặc throughput của API mới tệ hơn Directus
   quá 10% cho cùng request và dữ liệu, hoặc (owner 2026-10-22) khi thời gian CPU của container API mới cho mỗi request
-  cao hơn Directus quá 10%. p95 đo ở 50% req/s của Directus (trước 2026-10-22: 80%); xem research R18.
+  cao hơn Directus quá 10%. p95 đo ở 50% req/s của Directus (trước 2026-10-22: 80%), request giãn đều trong mỗi giây,
+  và chỉ tính là tệ hơn khi chậm hơn cả 10% lẫn 10 ms (owner 2026-10-23); xem research R18.
 
 ### Key Entities
 

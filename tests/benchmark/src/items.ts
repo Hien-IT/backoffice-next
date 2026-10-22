@@ -1,5 +1,5 @@
 // Benchmark of /items against Directus 11.17.4 (feature 005, FR-048, SC-006, research R11), like permissions.ts: per
-// scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95 at 80% of the
+// scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95 at 50% of the
 // Directus req/s, compared by compare.ts (10%). Scenarios: a filtered, sorted list with an m2o field, one item by id,
 // POST, PATCH by id, DELETE by id (each app its own rows); each as an admin and as a user whose read permission filters
 // on status. Reads run fresh (Cache-Control: no-store; CACHE_SKIP_ALLOWED=true in the vendor env) and from the shared
@@ -20,6 +20,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { ARTICLES, cleanup, type ItemsSeed, seed } from './seed-items.ts';
 
@@ -120,7 +121,7 @@ async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: numbe
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 

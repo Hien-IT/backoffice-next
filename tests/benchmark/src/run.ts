@@ -21,6 +21,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { envValue } from './web-shared.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -55,7 +56,7 @@ async function measure(baseUrl: string, path: string, duration: number, overallR
 			headers: { 'cache-control': 'no-store' },
 			...(overallRate ? { overallRate } : {}),
 		};
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});

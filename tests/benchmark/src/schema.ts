@@ -1,6 +1,6 @@
 // Benchmark of the data model reads against Directus 11.17.4 (feature 006, FR-065, SC-007, research R10), like
 // items.ts: per scenario a warm-up, then BENCH_ROUNDS rounds alternating the apps, throughput (50 connections) then p95
-// at 80% of the Directus req/s, compared by compare.ts (10%). Scenarios: GET /collections, /fields, /relations (the
+// at 50% of the Directus req/s, compared by compare.ts (10%). Scenarios: GET /collections, /fields, /relations (the
 // requests the Directus app makes when it starts) as an admin and as a user who reads part of the model, fresh
 // (Cache-Control: no-store) and from the shared response cache; GET /schema/snapshot and POST /schema/diff of that
 // snapshot (204) as an admin, and GET /fields without cache, with HEAVY_CONNECTIONS: a few hundred ms of CPU per request,
@@ -21,6 +21,7 @@ import {
 	RATE_SHARE,
 } from './compare.ts';
 import { cpuPerRequest, snapshot } from './diag.ts';
+import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, type SchemaSeed, seed } from './seed-schema.ts';
 
@@ -109,7 +110,7 @@ async function measure(seeded: SchemaSeed, s: Scenario, app: App, duration: numb
 			...(rate ? { overallRate: rate } : {}),
 		};
 
-		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
+		const instance = paced(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
 
