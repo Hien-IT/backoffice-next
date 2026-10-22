@@ -1073,12 +1073,15 @@ Built: `components/BoTable.vue`, `components/BoPagination.vue`,
   `POPOVER` (`w-80`, `align="end"`) with `FieldList` (fields already shown are disabled).
 - Manual sort: the 013 row drag handle; while the table is sorted manually each row also has a row menu (`ICON_BTN`
   `h-7 w-7` `more_vert`, `aria-label` `item_options`) with `move_up` / `move_down` (D-69).
-- Pagination (`BoPagination`): `nav aria-label` (collection name) `flex items-center gap-1`, hidden with one page or
-  none; buttons
-  `inline-flex h-9 min-w-9 items-center justify-center rounded-lg px-2 text-theme-sm FOCUS disabled:cursor-not-allowed disabled:opacity-50`,
-  idle `text-gray-700 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-white/5`, current
-  `bg-brand-500 text-white aria-current="page"`, gaps `…` (`text-gray-500`, `aria-hidden`), previous/next icon buttons
-  `chevron_left` / `chevron_right` with `aria-label` `previous` / `next`; `totalVisible` 7 plus the first and last page
+- Pagination (`BoPagination`, the TailAdmin data table pagination since D-160, owner 2026-10-22): `nav aria-label`
+  (collection name) `flex items-center gap-0.5`, hidden with one page or none; page buttons
+  `inline-flex h-10 min-w-10 items-center justify-center rounded-lg px-2 text-sm font-medium FOCUS disabled:cursor-not-allowed disabled:opacity-50`,
+  idle `text-gray-700 hover:bg-brand-500/[0.08] hover:text-brand-600 dark:text-gray-400 dark:hover:text-brand-400`,
+  current `bg-brand-500/[0.08] text-brand-600 dark:bg-brand-500/[0.12] dark:text-brand-400` + `aria-current="page"`
+  (TailAdmin: `blue-500/[0.08]` and brand-500 text, 4.35:1; brand-600 gives 5.84:1), gaps `…` (`text-gray-500`,
+  `aria-hidden`), previous/next bordered icon buttons
+  `size-10 rounded-lg border border-gray-300 bg-white text-gray-700 shadow-theme-xs hover:bg-gray-50 disabled:opacity-50 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:hover:bg-white/[0.03] FOCUS`
+  (`me-2.5` / `ms-2.5`) with `arrow_back` / `arrow_forward` (mirrored in RTL) and `aria-label` `previous` / `next`; `totalVisible` 7 plus the first and last page
   (`showFirstLast`, Directus tabular values). Compact variant (revisions): `totalVisible` 3, no first/last.
 - Footer row:
   `flex flex-wrap items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 dark:border-gray-800`:

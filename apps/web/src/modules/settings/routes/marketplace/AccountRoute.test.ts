@@ -100,7 +100,7 @@ test('pages: Math.round(13 / 6) = 2 pages; page 2 asks offset 6', async () => {
 	const { wrapper, fetch } = await mountRoute();
 
 	const nav = wrapper.get('nav[aria-label="Marketplace"]');
-	expect(nav.findAll('button').map((b) => b.text())).toEqual(['chevron_left', '1', '2', 'chevron_right']);
+	expect(nav.findAll('button').map((b) => b.text())).toEqual(['arrow_back', '1', '2', 'arrow_forward']);
 
 	await nav
 		.findAll('button')

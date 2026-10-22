@@ -53,7 +53,7 @@ describe('BoPagination', () => {
 		expect(wrapper.find('nav').attributes('aria-label')).toBe('Articles');
 		const current = wrapper.findAll('[aria-current="page"]');
 		expect(current.map((b) => b.text())).toEqual(['3']);
-		expect(current[0]!.classes()).toContain('bg-brand-500');
+		expect(current[0]!.classes()).toEqual(expect.arrayContaining(['bg-brand-500/[0.08]', 'text-brand-600']));
 	});
 
 	test('previous / next buttons are labelled, move one page and are disabled at the ends', async () => {

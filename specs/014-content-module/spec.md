@@ -949,6 +949,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-153 | Vị trí cột form của màn item | Form canh trái, chỉ có `--content-padding` (`modules/content/routes/item.vue`) | Cột form (card, 47.375rem / 67.125rem) canh trái vùng nội dung, bỏ căn giữa của owner 2026-10-18, về lại vị trí như Directus (`utils/form-column.ts`, layout-patterns §5) | Owner 2026-10-22 | khác | — |
 | D-155 | Vị trí menu phiên bản ở page header | Dòng headline trên tiêu đề, sau breadcrumb và dấu `•` | Ngay sau tiêu đề trên cùng dòng (`title-append`), bỏ dấu `•` thừa từ khi bỏ breadcrumb (D-101); header còn một dòng | Owner 2026-10-22 (lỗi hiển thị) | khác | — |
 | D-156 | Folder gốc trong cây collection của sidebar | Dòng folder như dòng collection (icon, tên), con thụt vào | Folder cấp 1 (không schema) là tiêu đề nhóm kiểu TailAdmin (`text-theme-xs uppercase tracking-wide text-gray-500`, không icon, cách nhóm trước `mt-3`), con không thụt; folder sâu hơn và collection có con giữ kiểu cũ; vẫn bấm để đóng/mở, bàn phím tree không đổi | Cây 3 cấp khó đọc, owner 2026-10-22 | khác | — |
+| D-160 | Giao diện phân trang (`BoPagination`, dùng ở tabular, cards, map, revisions, thông báo, marketplace) | `v-pagination` | Phân trang data table của TailAdmin: nút mũi tên có viền 40 px (`arrow_back` / `arrow_forward`), nút trang 40 px chữ `text-sm font-medium`, trang hiện tại nền `brand-500/[0.08]` chữ brand-600 (TailAdmin brand-500 chỉ 4.35:1); hành vi (số trang hiện, `…`, đầu/cuối) giữ như Directus | Giống TailAdmin, owner 2026-10-22 | khác | — |
 
 **Trạng thái khác biệt (T099, cuối lượt 4)**:
 
@@ -979,6 +980,7 @@ D-66 (notice tại chỗ thay snackbar, tới 018) áp dụng cho mọi màn c�
 | D-153 | `utils/form-column.ts` bỏ `mx-auto`; `form-column.test.ts`, `ItemRoute.test.ts`; layout-patterns §5, §8 | Owner yêu cầu (2026-10-22) |
 | D-155 | `modules/content/routes/ItemRoute.vue` (`#title-append`), `components/VersionMenu.vue` (bỏ `•`), `layout/PageHeader.vue` (chú thích); component-specs (Page header controls) | Owner yêu cầu (2026-10-22) |
 | D-156 | `modules/content/components/NavigationItem.vue` (`heading`), `NavigationItemContent.vue` (icon tùy chọn); layout-patterns §9 | Owner yêu cầu (2026-10-22) |
+| D-160 | `components/BoPagination.vue`, `BoPagination.test.ts`; component-specs (Data table and pagination) | Owner yêu cầu (2026-10-22) |
 
 **Rủi ro chấp nhận (tái tạo từ Directus)**: theo quy tắc của 004 (tái tạo hành vi Directus và ghi R), mã tiếp theo sau
 R-37; tech lead duyệt trước khi đóng.
