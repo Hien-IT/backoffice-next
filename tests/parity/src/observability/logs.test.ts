@@ -211,10 +211,10 @@ describe.runIf(suite === 'full' && profileUrls('metrics'))('auth log lines (LOG_
 				await capture(url, { ...post('/users/me/tfa/generate', { password: `log-pass2-${run}` }), headers: user })
 			).json as any;
 			const secret = generated.data.secret as string;
-			const otp = totp(secret);
+			const otp = await totp(secret);
 			secrets.push(secret);
 			await capture(url, { ...post('/users/me/tfa/enable', { secret, otp }), headers: user });
-			await capture(url, { ...post('/users/me/tfa/disable', { otp: totp(secret) }), headers: user });
+			await capture(url, { ...post('/users/me/tfa/disable', { otp: await totp(secret) }), headers: user });
 
 			// Invite and accept with the invite token.
 			const roles = await appRequest('directus', 'GET', '/roles?limit=1&fields=id');

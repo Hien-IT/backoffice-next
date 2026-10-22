@@ -52,7 +52,7 @@ describe('FR-048: enable and disable TFA', () => {
 			const secret = (generated.json as any).data.secret as string;
 			flow.name(secret, 'secret');
 			flow.name(user.email, 'email');
-			const otp = totp(secret);
+			const otp = await totp(secret);
 			flow.nameExact(otp, 'otp');
 
 			await flow.req('POST', '/users/me/tfa/disable', { otp: '000000' }, headers);
@@ -89,7 +89,7 @@ describe('FR-048: enable and disable TFA', () => {
 			flow.name(secret, 'secret');
 			flow.name(user.email, 'email');
 			flow.name(encodeURIComponent(user.email), 'email');
-			const otp = totp(secret);
+			const otp = await totp(secret);
 			flow.nameExact(otp, 'otp');
 
 			await flow.req('POST', '/users/me/tfa/enable', { secret, otp }, headers);

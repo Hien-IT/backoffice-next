@@ -76,8 +76,8 @@ describe('tokens', () => {
 		expect(jwt.verify(token, 's')).toMatchObject({ id: 'u', iss: 'directus', app_access: true });
 	});
 
-	test('generates OTPs that otplib accepts', () => {
+	test('generates OTPs that otplib accepts', async () => {
 		const secret = authenticator.generateSecret();
-		expect(authenticator.check(totp(secret), secret)).toBe(true);
+		expect(authenticator.check(await totp(secret), secret)).toBe(true);
 	});
 });

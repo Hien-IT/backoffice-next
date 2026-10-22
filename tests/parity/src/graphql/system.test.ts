@@ -232,7 +232,7 @@ describe('authentication (US3.2, FR-032)', () => {
 		await sameGql('system', login('000000'));
 
 		for (const app of ['directus', 'backoffice'] as const) {
-			const ok = await gql(app, 'system', login(totp(secret)));
+			const ok = await gql(app, 'system', login(await totp(secret)));
 			expect(data(ok).auth_login.expires).toMatch(/^\d+$/);
 		}
 	});

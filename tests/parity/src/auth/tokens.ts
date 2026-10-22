@@ -50,4 +50,12 @@ export function signAccessToken(
 	});
 }
 
-export const totp = (secret: string): string => authenticator.generate(secret);
+/**
+ * An OTP with at least 10 s left in its 30 s step. Both apps check it with no window (otplib default), so a code made at
+ * the end of a step fails when the login runs in the next one (parity CI 39749104927).
+ */
+export async function totp(secret: string): Promise<string> {
+	const remaining = authenticator.timeRemaining();
+	if (remaining < 10) await new Promise((resolve) => setTimeout(resolve, remaining * 1000 + 100));
+	return authenticator.generate(secret);
+}

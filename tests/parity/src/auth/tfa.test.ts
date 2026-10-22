@@ -51,7 +51,7 @@ describe('TFA', () => {
 		expect((await hostDb()('directus_users').where({ id: tfaUser.id }).first()).tfa_secret).toBeNull();
 
 		const enabled = await capture(process.env['DIRECTUS_URL']!, {
-			...post('/users/me/tfa/enable', { secret, otp: totp(secret) }),
+			...post('/users/me/tfa/enable', { secret, otp: await totp(secret) }),
 			headers: bearer(await tokenAt(process.env['DIRECTUS_URL']!, tfaUser)),
 		});
 
@@ -59,7 +59,7 @@ describe('TFA', () => {
 
 		const login = await capture(
 			process.env['BACKOFFICE_URL']!,
-			post('/auth/login', { email: tfaUser.email, password: PASSWORD, otp: totp(secret) }),
+			post('/auth/login', { email: tfaUser.email, password: PASSWORD, otp: await totp(secret) }),
 		);
 		expect(login.status).toBe(200);
 	});
@@ -74,7 +74,7 @@ describe('TFA', () => {
 			401,
 			'INVALID_OTP',
 		);
-		await expectParity(post('/auth/login', { email: user.email, password: PASSWORD, otp: totp(secret) }), 200);
+		await expectParity(post('/auth/login', { email: user.email, password: PASSWORD, otp: await totp(secret) }), 200);
 	});
 
 	it('US5.4: generate errors like Directus', async () => {
