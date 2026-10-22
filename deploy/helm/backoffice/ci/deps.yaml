@@ -26,6 +26,9 @@ data:
   WEBSOCKETS_ENABLED: 'false'
   # Spec 020 (FR-045): every pod loads the extensions from the shared storage.
   EXTENSIONS_LOCATION: s3
+  # The rolling update under load checks that no request fails while pods are replaced, not overload: no pressure
+  # limiter, like deps-standalone.yaml (503s from the limiter in the shared-mode rolling update on CI).
+  PRESSURE_LIMITER_ENABLED: 'false'
 ---
 apiVersion: v1
 kind: Secret
