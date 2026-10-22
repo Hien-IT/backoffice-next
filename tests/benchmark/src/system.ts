@@ -18,6 +18,7 @@ import {
 	table,
 	type Verdict,
 } from './compare.ts';
+import { diagLine, snapshot } from './diag.ts';
 import { flushPermissions, redis } from './redis.ts';
 import { cleanup, SHARE_PASSWORD, seed, type SystemSeed } from './seed-system.ts';
 
@@ -91,6 +92,7 @@ function scenarios(seeded: SystemSeed): Scenario[] {
 async function measure(seeded: SystemSeed, s: Scenario, app: App, duration: number, rate?: number): Promise<Round> {
 	// Without it the app warmed first keeps the permissions in memory and the other reads Redis on every lookup.
 	await flushPermissions();
+	const before = await snapshot(app);
 	const histogram = createLatencyHistogram();
 	let next = 0;
 
@@ -121,6 +123,10 @@ async function measure(seeded: SystemSeed, s: Scenario, app: App, duration: numb
 		const instance = autocannon(options, (err, res) => (err ? reject(err) : resolve(res)));
 		instance.on('response', (_client, _status, _bytes, responseTime) => recordLatency(histogram, responseTime));
 	});
+
+	process.stdout.write(
+		diagLine(`${s.name}${rate ? ` @${rate}` : ''}`, app, before, await snapshot(app), result.requests.total),
+	);
 
 	return {
 		p95: percentile(histogram, 95),
