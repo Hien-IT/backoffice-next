@@ -61,7 +61,9 @@ export function projectForegroundCss(color: string | null): string {
 
 	try {
 		const background = color === null ? null : Color(color);
-		darkText = !!background && background.contrast(Color('#101828')) > background.contrast(Color('#ffffff'));
+		// The gray-900 and white of theme.css, as contrast data.
+		const [gray900, white] = [Color('#101828'), Color('#ffffff')]; // raw-color-allowed: contrast data of theme.css
+		darkText = !!background && background.contrast(gray900) > background.contrast(white);
 	} catch {
 		darkText = false;
 	}
