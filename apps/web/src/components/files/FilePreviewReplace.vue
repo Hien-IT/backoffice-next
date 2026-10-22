@@ -36,7 +36,7 @@ function close() {
 <template>
 	<div class="file-preview-replace flex flex-col items-start gap-3">
 		<div
-			class="w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]"
+			class="w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]"
 		>
 			<FilePreview :file="file" @click="emit('click')" />
 		</div>

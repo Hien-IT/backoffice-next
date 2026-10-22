@@ -1452,8 +1452,9 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 
 ### File page and file details (Q-15; Directus `modules/files/routes/item.vue`, `file-info-sidebar-detail.vue`)
 
-- Preview block above the form, same width as the form (`max-w-5xl`, D-82): FilePreview (013) in
-  `overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 dark:border-gray-800 dark:bg-white/[0.03]`, max height
+- Preview block above the form, same width as the form (the form card column, D-150): FilePreview (013) in
+  `overflow-hidden rounded-2xl border border-gray-200 bg-gray-50 p-4 sm:p-6 dark:border-gray-800 dark:bg-white/[0.03]`
+  (the form card padding, owner 2026-10-22), max height
   `max-h-[60vh]` with `object-contain`; under it a secondary small Button `replace_file` (`swap_horiz`), hidden without
   update; the replace dialog is a BoDialog with BoUpload (`fileId`, from URL).
 - Header actions (page header L-5, right): delete (danger ghost icon, D-76 dialog), move to folder (`folder_move`,
