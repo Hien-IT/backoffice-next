@@ -2,10 +2,12 @@
 <script setup lang="ts">
 // Backoffice: the form of routes/setup/form.vue and the fields and validation of routes/setup/form.ts are folded in
 // as plain fields (no v-form); the email check is a plain pattern instead of zod (not a dependency of the app). The
-// license notice and checkbox are left out (no license step, D-53), so the payload has no `license` key;
-// the other keys and values are those of Directus. Requests go through the SDK.
+// license notice and checkbox are left out (no license step, D-53), so the payload has no `license` key; the usage
+// select and the organization name it shows for commercial use are left out too (owner 2026-10-22, D-165), so
+// `project_usage` and `org_name` are always null; the other keys and values are those of Directus. Requests go through
+// the SDK.
 import { useHead } from '@unhead/vue';
-import { computed, ref, watch } from 'vue';
+import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRouter } from 'vue-router';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
@@ -13,7 +15,6 @@ import { login } from '../auth.ts';
 import BoButton from '../components/BoButton.vue';
 import BoInput from '../components/BoInput.vue';
 import BoNotice from '../components/BoNotice.vue';
-import BoSelect from '../components/BoSelect.vue';
 import { translateAPIError } from '../lang/index.ts';
 import PublicView from '../layout/PublicView.vue';
 
@@ -23,8 +24,8 @@ type Form = {
 	project_owner: string | null;
 	password: string | null;
 	password_confirm: string | null;
-	project_usage: 'personal' | 'commercial' | 'community' | null;
-	org_name: string | null;
+	project_usage: null;
+	org_name: null;
 	product_updates: boolean;
 };
 
@@ -55,12 +56,6 @@ const router = useRouter();
 const errors = ref<ValidationError[]>([]);
 const error = ref<any>(null);
 const isSaving = ref(false);
-
-const usageItems = computed(() => [
-	{ value: 'personal', text: t('usage_personal') },
-	{ value: 'commercial', text: t('usage_commercial') },
-	{ value: 'community', text: t('usage_community') },
-]);
 
 // form.ts validate(register = true): the required fields are complete once the button is enabled (formComplete).
 function validate(value: Form): ValidationError[] {
@@ -113,23 +108,13 @@ const errorMessage = computed(() => {
 
 // FormValidator of form.ts without the license literal.
 const formComplete = computed(() => {
-	const { first_name, last_name, project_owner, password, password_confirm, project_usage, org_name } = form.value;
+	const { first_name, last_name, project_owner, password, password_confirm } = form.value;
 
 	return (
 		[first_name, last_name, password, password_confirm].every((value) => typeof value === 'string') &&
-		EMAIL_PATTERN.test(project_owner ?? '') &&
-		(project_usage !== 'commercial' || typeof org_name === 'string')
+		EMAIL_PATTERN.test(project_owner ?? '')
 	);
 });
-
-watch(
-	() => form.value.project_usage,
-	() => {
-		if (form.value.project_usage !== 'commercial') {
-			form.value.org_name = null;
-		}
-	},
-);
 </script>
 
 <template>
@@ -177,19 +162,6 @@ watch(
 				autocomplete="new-password"
 				:label="$t('confirm_password')"
 				:error="fieldError('password_confirm')"
-			/>
-			<BoSelect
-				:model-value="form.project_usage"
-				:items="usageItems"
-				:label="$t('how_do_you_use_directus')"
-				@update:model-value="form.project_usage = $event as Form['project_usage']"
-			/>
-			<BoInput
-				v-if="form.project_usage === 'commercial'"
-				v-model="form.org_name"
-				name="org_name"
-				autocomplete="organization"
-				:label="$t('organization_name')"
 			/>
 
 			<label class="flex items-start gap-3 font-medium text-gray-700 dark:text-gray-400">

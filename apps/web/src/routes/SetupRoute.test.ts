@@ -3,7 +3,6 @@ import { flushPromises, type VueWrapper } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { replaceQueue } from '../api/sdk.ts';
 import { login } from '../auth.ts';
-import BoSelect from '../components/BoSelect.vue';
 import { i18n } from '../lang/index.ts';
 import { json, mockApi } from '../test-utils/fetch.ts';
 import { mountLayout } from '../test-utils/layout.ts';
@@ -75,9 +74,10 @@ describe('SetupRoute', () => {
 			expect(wrapper.get(`label[for="${input.attributes('id')}"]`).text()).toBe(label);
 			expect(input.attributes('autocomplete')).toBe(autocomplete);
 		}
-		expect(wrapper.text()).toContain(t('how_do_you_use_directus'));
-		expect(wrapper.text()).toContain(t('setup_marketing_emails'));
+		// D-165: no usage select and no organization name.
+		expect(wrapper.text()).not.toContain(t('how_do_you_use_directus'));
 		expect(wrapper.find('input[name="org_name"]').exists()).toBe(false);
+		expect(wrapper.text()).toContain(t('setup_marketing_emails'));
 
 		const launch = wrapper.get('button[type="submit"]');
 		expect(launch.text()).toContain('Launch Backoffice');
@@ -86,13 +86,6 @@ describe('SetupRoute', () => {
 		await fill(wrapper, { ...admin, project_owner: 'not-an-email' });
 		expect(wrapper.get('button[type="submit"]').attributes('disabled')).toBeDefined();
 		await fill(wrapper, { project_owner: 'admin@example.com' });
-		expect(wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined();
-
-		// Commercial use needs an organization name
-		wrapper.getComponent(BoSelect).vm.$emit('update:modelValue', 'commercial');
-		await flushPromises();
-		expect(wrapper.get('button[type="submit"]').attributes('disabled')).toBeDefined();
-		await fill(wrapper, { org_name: 'Acme' });
 		expect(wrapper.get('button[type="submit"]').attributes('disabled')).toBeUndefined();
 		wrapper.unmount();
 	});
@@ -103,9 +96,6 @@ describe('SetupRoute', () => {
 		const { wrapper, router } = await mountRoute();
 
 		await fill(wrapper, admin);
-		wrapper.getComponent(BoSelect).vm.$emit('update:modelValue', 'commercial');
-		await flushPromises();
-		await fill(wrapper, { org_name: 'Acme' });
 		await wrapper.get('input[name="product_updates"]').setValue(true);
 		await wrapper.get('form').trigger('submit');
 		await flushPromises();
@@ -116,31 +106,12 @@ describe('SetupRoute', () => {
 			project_owner: 'admin@example.com',
 			password: 'secret',
 			password_confirm: 'secret',
-			project_usage: 'commercial',
-			org_name: 'Acme',
+			project_usage: null,
+			org_name: null,
 			product_updates: true,
 		});
 		expect(login).toHaveBeenCalledWith({ credentials: { email: 'admin@example.com', password: 'secret' } });
 		expect(router.currentRoute.value.fullPath).toBe('/content');
-		wrapper.unmount();
-	});
-
-	test('leaving commercial use clears the organization name', async () => {
-		const fetch = mockApi({ 'POST /server/setup': () => new Response(null, { status: 204 }) });
-		vi.mocked(login).mockResolvedValue();
-		const { wrapper } = await mountRoute();
-		const select = wrapper.getComponent(BoSelect);
-
-		await fill(wrapper, admin);
-		select.vm.$emit('update:modelValue', 'commercial');
-		await flushPromises();
-		await fill(wrapper, { org_name: 'Acme' });
-		select.vm.$emit('update:modelValue', 'personal');
-		await flushPromises();
-		await wrapper.get('form').trigger('submit');
-		await flushPromises();
-
-		expect(body(fetch)).toMatchObject({ project_usage: 'personal', org_name: null, product_updates: false });
 		wrapper.unmount();
 	});
 
