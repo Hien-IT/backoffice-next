@@ -154,6 +154,10 @@ without Backdrop (section 7, owner 2026-10-20).
 
 ## 5. Content area and page header
 
+- Primary (owner 2026-10-22, D-158): with a settings `project_color` the `--color-brand-25…950` scale is derived from it
+  (`theme/use-app-head.ts` `brandScaleCss`: 500 = the color, lighter steps `color-mix` with white at 6/9/16/30/49/72%,
+  darker with gray-950 at 91/77/60/47/21% of the color), so every `brand-*` utility follows it like the Directus
+  `primary: var(--project-color)`; without one the TailAdmin scale stays. Contrast then depends on that data color.
 - Page background (owner 2026-10-22, D-152): light `color-mix(in srgb, var(--color-white), var(--project-color) 5%)` on
   `body` (`styles/base.css`), the Directus Color Match background at 5% instead of 7% so brand-500 text keeps 4.5:1
   (4.53:1, gray-500 4.66:1 with the default project color; a very dark project color can still go below); dark keeps

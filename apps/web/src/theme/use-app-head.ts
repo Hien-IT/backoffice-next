@@ -1,5 +1,7 @@
 // Ported from directus/app/src/app.vue (useHead)
 // Backoffice: default name Backoffice and the design-system primary instead of the Directus name and color (D-39);
+// a set project_color is the primary like the Directus themes (`primary: var(--project-color)`, owner 2026-10-22,
+// D-158): the brand-* scale of the theme is derived from it;
 // project_color only when the browser reads it as a color (spec release-gate clarifications, CHK067); the default
 // favicon lives under /admin/. The dark/light class goes on html instead of body (D-43) and the theme overrides of
 // settings and user become design-system tokens in <style id="theme-overrides"> (override-map.ts) instead of
@@ -24,6 +26,29 @@ export function safeColor(color: string | null | undefined): string | null {
 	return CSS.supports('color', color) ? color : null;
 }
 
+/**
+ * The brand-* scale from a project color (D-158): 500 is the color, lighter steps mix it with white and darker steps
+ * with gray-950, at the ratios that give the theme scale back from its own brand-500.
+ */
+const BRAND_STEPS: [step: number, mix: string][] = [
+	[25, '6%, var(--color-white)'],
+	[50, '9%, var(--color-white)'],
+	[100, '16%, var(--color-white)'],
+	[200, '30%, var(--color-white)'],
+	[300, '49%, var(--color-white)'],
+	[400, '72%, var(--color-white)'],
+	[600, '91%, var(--color-gray-950)'],
+	[700, '77%, var(--color-gray-950)'],
+	[800, '60%, var(--color-gray-950)'],
+	[900, '47%, var(--color-gray-950)'],
+	[950, '21%, var(--color-gray-950)'],
+];
+
+export function brandScaleCss(color: string): string {
+	const steps = BRAND_STEPS.map(([step, mix]) => `--color-brand-${step}: color-mix(in srgb, ${color} ${mix});`);
+	return [`--color-brand-500: ${color};`, ...steps].join(' ');
+}
+
 export function useAppHead() {
 	const serverStore = useServerStore();
 	const userStore = useUserStore();
@@ -32,7 +57,8 @@ export function useAppHead() {
 	const projectColor = computed(() => safeColor(serverStore.info?.project?.project_color));
 
 	const brandStyleCss = computed(() => {
-		return `:root { --project-color: ${projectColor.value ?? 'var(--color-brand-500)'} }`;
+		if (!projectColor.value) return ':root { --project-color: var(--color-brand-500) }';
+		return `:root { --project-color: ${projectColor.value}; ${brandScaleCss(projectColor.value)} }`;
 	});
 
 	const themeOverridesCss = computed(() =>

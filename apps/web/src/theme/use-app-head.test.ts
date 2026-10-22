@@ -66,7 +66,11 @@ describe('useAppHead', () => {
 
 		expect(head.title).toBe('Content · Acme');
 		expect(head.themeColor).toBe('#336699');
-		expect(head.style).toBe(':root { --project-color: #336699 }');
+		// D-158: the project color is the primary, the brand-* scale derives from it.
+		expect(head.style).toMatch(/^:root \{ --project-color: #336699; --color-brand-500: #336699; /);
+		expect(head.style).toContain('--color-brand-50: color-mix(in srgb, #336699 9%, var(--color-white));');
+		expect(head.style).toContain('--color-brand-600: color-mix(in srgb, #336699 91%, var(--color-gray-950));');
+		expect(head.style!.match(/--color-brand-\d+:/g)).toHaveLength(12);
 		expect(head.icon).toMatch(/^data:image\/svg\+xml;base64,/);
 		expect(atob(head.icon!.split(',')[1]!)).toContain('<path');
 		expect(head.html).toMatchObject({ lang: 'vi-VN' });
