@@ -266,8 +266,11 @@ body; request dài cần timeout đọc đủ lâu (FR-051):
 
 - ingress-nginx: `nginx.ingress.kubernetes.io/proxy-body-size: "0"`,
   `nginx.ingress.kubernetes.io/proxy-request-buffering: "off"`, `nginx.ingress.kubernetes.io/proxy-read-timeout: "300"`.
-- Controller khác (Traefik...): đặt giới hạn body, đệm body và timeout đọc tương đương theo tài liệu của controller (CI
-  019 chạy Traefik với cấu hình mặc định).
+- Controller khác (Traefik...): đặt giới hạn body, đệm body và timeout đọc tương đương theo tài liệu của controller.
+- Keep-alive tới pod: API (như Directus) đóng kết nối rảnh sau 5 s (`keepAliveTimeout` mặc định của Node). Controller
+  giữ kết nối rảnh lâu hơn có thể hiếm khi trả 502 khi dùng lại đúng kết nối pod đang đóng; đặt idle timeout phía
+  controller dưới 5 s: Traefik `--serverstransport.forwardingtimeouts.idleconntimeout=4s` (CI kind dùng giá trị này),
+  ingress-nginx `upstream-keepalive-timeout: "4"` trong ConfigMap của controller.
 
 **SAML.** Backoffice không có SAML (D-24 của 003). Hệ thống có user SAML định tuyến login SAML về Directus qua
 `ingress.extraPaths`, ví dụ:
