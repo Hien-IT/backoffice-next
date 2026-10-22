@@ -443,6 +443,11 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
 - Kết quả 2026-10-23 với tiêu chí mới: benchmark-system (run 39820055551) đạt 6/6, gồm presets-list; benchmark-schema
   (run 39823743161) còn đỏ `/collections` và `/relations` của user no-store vì p95 đo thời gian xử lý một loạt request
   dồn đầu mỗi giây. Owner chọn giãn đều request và thêm ngưỡng 10 ms (R18 của spec 001, sửa 2026-10-23).
+- Chạy lại 2026-10-23 với request giãn đều (`322a7f23`): benchmark-web (run 39834195961) đạt, gồm "files: next page";
+  benchmark-system (run 39848122593) đạt 6/6 (p95 7–75 ms); benchmark-schema (run 39838831671) đạt 14/15, gồm
+  `/collections` và `/relations` của user no-store. Còn đỏ `GET /fields` admin no-store (4 req/s, ~155 ms CPU/request):
+  p95 140,7 so với 126,8 ms (+11 %, +13,8 ms) ở cả hai lần thử, CPU/request +3,9 % (trong ngưỡng), req/s −9 % (trong
+  ngưỡng); run trước cùng kịch bản API mới tốn ít CPU hơn (140,3 so với 144,7 ms).
 - Run đầu lộ lỗi script: `run.ts` gọi `GET /extensions` không token (403 ở hai app), sửa ở `bcb6d2c8`.
 
 **Lý do**: FR-090..FR-096, SC-001..SC-006.
