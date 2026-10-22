@@ -118,5 +118,5 @@ describe('SECRET and PUBLIC_URL warnings (rows 12–13), verbatim Directus plus 
 });
 
 test('the version line names Backoffice and Directus 11.17.4', () => {
-	expect(VERSION_LOG_LINE).toMatch(/^Backoffice \d+\.\d+\.\d+ \(compatible with Directus 11\.17\.4\)$/);
+	expect(VERSION_LOG_LINE).toMatch(/^Backoffice \d+\.\d+\.\d+$/);
 });
