@@ -9,9 +9,10 @@
 import { refDebounced } from '@vueuse/core';
 import { deburr as removeDiacritics } from 'lodash-es';
 import { TreeItem, TreeRoot } from 'reka-ui';
-import { computed, ref, useId, watch } from 'vue';
+import { computed, ref, useId, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from './BoIcon.vue';
+import BoSearchClear from './BoSearchClear.vue';
 import BoSwitch from './BoSwitch.vue';
 import { getVisibleChildrenValues } from './checkbox-tree/use-visible-children.ts';
 import { checkboxTreeNode, type ValueCombining } from './checkbox-tree/value-combining.ts';
@@ -98,6 +99,12 @@ const value = computed(() => modelValue ?? []);
 
 const search = ref('');
 const searchDebounced = refDebounced(search, 250);
+const searchInput = useTemplateRef<HTMLInputElement>('searchInput');
+
+function clearSearch() {
+	search.value = '';
+	searchInput.value?.focus();
+}
 const showSelectionToggle = ref(false);
 const showSelectionOnly = computed(() => showSelectionOnlyProp ?? showSelectionToggle.value);
 
@@ -307,7 +314,7 @@ const BOX_STATE = {
 const CHEVRON =
 	'inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-gray-500 transition-transform hover:bg-gray-100 hover:text-gray-700 motion-reduce:transition-none dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300';
 const SEARCH =
-	'mb-3 h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400';
+	'h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400';
 const STICKY_BG = 'bg-white dark:bg-gray-900';
 const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 </script>
@@ -332,14 +339,18 @@ const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 				:class="{ [`sticky top-0 z-2 -mx-2 -mt-2 px-2 pt-2 ${STICKY_BG}`]: scroll }"
 			>
 				<label :for="`${id}-search`" class="sr-only">{{ t('search') }}</label>
-				<input
-					:id="`${id}-search`"
-					v-model="search"
-					type="search"
-					:placeholder="t('search')"
-					:disabled="disabled"
-					:class="SEARCH"
-				/>
+				<div class="relative mb-3">
+					<input
+						:id="`${id}-search`"
+						ref="searchInput"
+						v-model="search"
+						type="search"
+						:placeholder="t('search')"
+						:disabled="disabled"
+						:class="[SEARCH, { 'pe-10!': search }]"
+					/>
+					<BoSearchClear v-if="search && !disabled" @click="clearSearch" />
+				</div>
 			</div>
 			<TreeRoot
 				v-slot="{ flattenItems }"

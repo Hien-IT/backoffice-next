@@ -1,11 +1,14 @@
 <script setup lang="ts">
-import { onMounted, useId, useTemplateRef } from 'vue';
+import { createReusableTemplate } from '@vueuse/core';
+import { computed, onMounted, useId, useTemplateRef } from 'vue';
 import BoIcon from './BoIcon.vue';
+import BoSearchClear from './BoSearchClear.vue';
 
 // Extra attributes (name, required, data-testid...) go to the <input>, not the wrapper.
 defineOptions({ inheritAttrs: false });
 
 const {
+	modelValue,
 	type = 'text',
 	autofocus = false,
 	disabled = false,
@@ -92,6 +95,20 @@ function onInput() {
 	emit('update:modelValue', value);
 }
 
+// D-169 (owner 2026-10-23): a search field with text gets the X button that clears it.
+const showClear = computed(
+	() =>
+		type === 'search' && modelValue !== null && modelValue !== undefined && modelValue !== '' && !disabled && !readonly,
+);
+
+function clear() {
+	emit('update:modelValue', '');
+	input.value?.focus();
+}
+
+// Only a search field gets the `relative` box for the X button; other fields keep the input as a child of the root.
+const [DefineInput, ReuseInput] = createReusableTemplate();
+
 // The autofocus attribute only works on page load, not when a view mounts later.
 onMounted(() => {
 	if (autofocus) input.value?.focus();
@@ -103,25 +120,32 @@ onMounted(() => {
 		<label v-if="label" :for="id" class="mb-1.5 block text-sm font-semibold text-gray-800 dark:text-white/90">
 			{{ label }}
 		</label>
-		<input
-			v-bind="$attrs"
-			:id="id"
-			ref="input"
-			:value="modelValue ?? ''"
-			:type="type"
-			:placeholder="placeholder"
-			:autocomplete="autocomplete"
-			:disabled="disabled"
-			:readonly="readonly"
-			:maxlength="maxlength"
-			:inputmode="inputmode"
-			:aria-invalid="invalid || !!error ? 'true' : undefined"
-			:aria-describedby="error ? errorId : undefined"
-			class="h-11"
-			:class="[FIELD, invalid || error ? FIELD_INVALID : FIELD_VALID]"
-			@keydown="onKeydown"
-			@input="onInput"
-		/>
+		<DefineInput>
+			<input
+				v-bind="$attrs"
+				:id="id"
+				ref="input"
+				:value="modelValue ?? ''"
+				:type="type"
+				:placeholder="placeholder"
+				:autocomplete="autocomplete"
+				:disabled="disabled"
+				:readonly="readonly"
+				:maxlength="maxlength"
+				:inputmode="inputmode"
+				:aria-invalid="invalid || !!error ? 'true' : undefined"
+				:aria-describedby="error ? errorId : undefined"
+				class="h-11"
+				:class="[FIELD, invalid || error ? FIELD_INVALID : FIELD_VALID, { 'pe-10!': showClear }]"
+				@keydown="onKeydown"
+				@input="onInput"
+			/>
+		</DefineInput>
+		<div v-if="type === 'search'" class="relative">
+			<ReuseInput />
+			<BoSearchClear v-if="showClear" @click="clear" />
+		</div>
+		<ReuseInput v-else />
 		<p
 			v-if="error"
 			:id="errorId"

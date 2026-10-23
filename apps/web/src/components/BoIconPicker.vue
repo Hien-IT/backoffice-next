@@ -6,6 +6,7 @@ import { computed, nextTick, onUnmounted, type Ref, ref, useId, useTemplateRef, 
 import { useI18n } from 'vue-i18n';
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import BoIcon from './BoIcon.vue';
+import BoSearchClear from './BoSearchClear.vue';
 import icons from './icon-picker/icons.json';
 import { socialIcons } from './icon-picker/social-icons.ts';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
@@ -41,6 +42,12 @@ const triggerId = props.id ?? useId();
 const valueId = `${triggerId}-value`;
 
 const searchQuery = ref('');
+const searchInput = useTemplateRef<HTMLInputElement>('searchInput');
+
+function clearSearchQuery() {
+	searchQuery.value = '';
+	searchInput.value?.focus();
+}
 const menuActive = ref(false);
 const contentRef = useTemplateRef<HTMLElement>('contentRef');
 
@@ -321,17 +328,19 @@ const ICON = `flex h-10 w-10 items-center justify-center rounded-lg text-gray-70
 				:collision-padding="8"
 				class="z-99999 max-h-(--reka-popover-content-available-height) w-[min(28rem,calc(100vw-2rem))] overflow-y-auto rounded-2xl border border-gray-200 bg-white p-0 shadow-theme-lg custom-scrollbar dark:border-gray-800 dark:bg-gray-dark"
 			>
-				<div class="m-3">
+				<div class="relative m-3">
 					<label :for="`${triggerId}-search`" class="sr-only">{{ t('search') }}</label>
 					<input
 						:id="`${triggerId}-search`"
+						ref="searchInput"
 						v-model="searchQuery"
 						type="search"
 						autocomplete="off"
 						:placeholder="t('interfaces.select-icon.search_for_icon')"
 						class="h-9 px-4"
-						:class="[FIELD, FIELD_VALID]"
+						:class="[FIELD, FIELD_VALID, { 'pe-10!': searchQuery }]"
 					/>
+					<BoSearchClear v-if="searchQuery" @click="clearSearchQuery" />
 				</div>
 
 				<div ref="contentRef" class="select-icon-popover" @keydown="onGridKeydown">

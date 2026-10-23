@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
+import { i18n } from '../lang/index.ts';
 import BoInput from './BoInput.vue';
 
 describe('BoInput', () => {
@@ -81,5 +82,26 @@ describe('BoInput', () => {
 		expect(wrapper.emitted('update:modelValue')!.at(-1)).toEqual(['Bai_viet2_x']);
 		expect(input.element.value).toBe('Bai_viet2_x');
 		expect(await key('1')).toBe(false);
+	});
+
+	test('type search with text: an X button clears it and focuses the input (D-169)', async () => {
+		const wrapper = mount(BoInput, {
+			props: { type: 'search', modelValue: 'abc' },
+			global: { plugins: [i18n] },
+			attachTo: document.body,
+		});
+		const clear = wrapper.get(`button[aria-label="${i18n.global.t('clear_value')}"]`);
+
+		await clear.trigger('click');
+		expect(wrapper.emitted('update:modelValue')).toEqual([['']]);
+		expect(document.activeElement).toBe(wrapper.get('input').element);
+
+		await wrapper.setProps({ modelValue: '' });
+		expect(wrapper.find('button').exists()).toBe(false);
+		await wrapper.setProps({ modelValue: 'x', disabled: true });
+		expect(wrapper.find('button').exists()).toBe(false);
+		await wrapper.setProps({ type: 'text', disabled: false });
+		expect(wrapper.find('button').exists()).toBe(false);
+		wrapper.unmount();
 	});
 });

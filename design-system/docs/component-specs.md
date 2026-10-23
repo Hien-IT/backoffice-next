@@ -111,6 +111,14 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
   `absolute end-4 top-1/2 -translate-y-1/2 rounded text-gray-500 dark:text-gray-400 FOCUS`
 - Search (header): `h-11 FIELD ps-12 pe-14 xl:w-[430px]` with a `sr-only` label; leading icon
   `text-gray-500 dark:text-gray-400`.
+- Clear button of a search field (D-169, owner 2026-10-23; `BoSearchClear`): every search field with text (`BoInput`
+  `type="search"`, the search inputs of the select dropdown, icon picker and checkbox tree; `SearchInput` has its own)
+  gets an X at the end, `absolute end-1.5 top-1/2 h-7 w-7 -translate-y-1/2 rounded-md text-gray-500
+  hover:bg-gray-100 hover:text-gray-700 FOCUS` (dark `text-gray-400 hover:bg-white/5 hover:text-gray-300`),
+  `aria-label` `clear_value`, input `pe-10`; a click empties the field and focuses it again (mousedown keeps the
+  focus, so a popover or select stays open). Hidden when empty, disabled or read-only. Directus has none.
+  A leading icon placed by the caller over a search `BoInput` takes `z-1`: the input sits in a `relative` box that
+  would paint over it (the Marketplace filter).
 
 ### Select (`forms/FormElements/SelectInput.vue`, example `components/SelectField.vue`)
 

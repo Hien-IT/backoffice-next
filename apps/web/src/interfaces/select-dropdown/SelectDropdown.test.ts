@@ -213,6 +213,13 @@ describe('select-dropdown', () => {
 		await settle();
 		expect(options().map((option) => option.textContent)).toEqual(['Item 3']);
 
+		// D-169: the X button clears the search and keeps the focus in it.
+		(document.body.querySelector(`button[aria-label="${i18n.global.t('clear_value')}"]`) as HTMLButtonElement).click();
+		await settle();
+		expect(search.value).toBe('');
+		expect(options()).toHaveLength(11);
+		expect(document.activeElement).toBe(search);
+
 		document.body.innerHTML = '';
 		const few = mountDropdown({ choices: many.slice(0, 10) });
 		await key(few.get('button').element, 'Enter');

@@ -20,6 +20,7 @@ import { computed, inject, ref, useId, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoCombobox from '../../components/BoCombobox.vue';
 import BoIcon from '../../components/BoIcon.vue';
+import BoSearchClear from '../../components/BoSearchClear.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 
 type Option = {
@@ -139,6 +140,11 @@ const selectItems = computed(() => items.value as (Option & { value: string | nu
 const open = ref(false);
 const search = ref('');
 const searchInput = useTemplateRef<HTMLInputElement>('searchInput');
+
+function clearSearch() {
+	search.value = '';
+	searchInput.value?.focus();
+}
 const showSearch = computed(() => selectItems.value.length > 10 || !!search.value);
 
 const visibleItems = computed(() => {
@@ -203,7 +209,7 @@ const CONTENT =
 const ITEM =
 	'relative flex cursor-pointer items-center justify-between gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden select-none data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 dark:text-gray-300 dark:data-[disabled]:text-white/15 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400';
 const SEARCH =
-	'mb-2 h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400';
+	'h-9 w-full rounded-lg border border-gray-300 bg-transparent px-3 text-sm text-gray-800 shadow-theme-xs placeholder:text-gray-500 focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:placeholder:text-gray-400 dark:focus:border-brand-400';
 const NOTE = 'px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400';
 const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 ${FOCUS}`;
 const DOT = 'h-3 w-3 shrink-0 rounded-full';
@@ -271,17 +277,19 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 		</SelectTrigger>
 		<SelectPortal>
 			<SelectContent position="popper" :side-offset="4" :class="CONTENT" @focusin="onContentFocusin">
-				<input
-					v-if="showSearch"
-					ref="searchInput"
-					v-model="search"
-					type="search"
-					autocomplete="off"
-					:aria-label="t('search')"
-					:placeholder="t('search')"
-					:class="SEARCH"
-					@keydown="onSearchKeydown"
-				/>
+				<div v-if="showSearch" class="relative mb-2">
+					<input
+						ref="searchInput"
+						v-model="search"
+						type="search"
+						autocomplete="off"
+						:aria-label="t('search')"
+						:placeholder="t('search')"
+						:class="[SEARCH, { 'pe-10!': search }]"
+						@keydown="onSearchKeydown"
+					/>
+					<BoSearchClear v-if="search" @click="clearSearch" />
+				</div>
 				<SelectViewport class="custom-scrollbar">
 					<template v-if="allowNone && !nonEditable">
 						<SelectItem :value="DESELECT" :disabled="value === null" :class="ITEM">
