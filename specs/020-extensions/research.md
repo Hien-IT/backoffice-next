@@ -454,6 +454,9 @@ thư mục mới. Test ghim D-93 phải đổi: `modules/settings.test.ts:76-83`
   ba vòng trong ±5 %). Không thấy chậm cố định: đỏ ở CI là đuôi của một request nặng ~155 ms CPU, lệch giữa các vòng
   lớn hơn ngưỡng 10 % và 10 ms. Code `FieldsService.readAll` và controller giống Directus. Owner chọn cho ca nặng thêm
   mẫu: CI đã chạy 5 vòng, nên pha đo p95 của ca nặng dài 30 s thay vì 10 s (R18 của spec 001, sửa 2026-10-23).
+- Benchmark-schema (run 39895843596, `daa29d77`) đạt 15/15: `GET /fields` admin no-store p95 110,0 so với 105,5 ms;
+  CPU/request của kịch bản này +9,7 % (165,4 so với 150,8 ms, sát ngưỡng 10 %), các kịch bản khác API mới tốn ít CPU
+  hơn. Cả ba kịch bản đỏ của R11 (system presets-list, schema user no-store, web files next page) đã đạt.
 - Run đầu lộ lỗi script: `run.ts` gọi `GET /extensions` không token (403 ở hai app), sửa ở `bcb6d2c8`.
 
 **Lý do**: FR-090..FR-096, SC-001..SC-006.
