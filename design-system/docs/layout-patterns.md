@@ -36,7 +36,8 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
   While API requests run the favicon plays drawn sprites, a runner, a cyclist and a swimmer whose limbs and wheels
   move, white strokes on a circle in the project color (D-173, `theme/favicon-sprites.ts`, 6 frames a gait cycle,
   2 cycles each, then a 6-frame change into the next sport: the runner hops on the bike, the cyclist dives into the
-  water, the swimmer climbs out; 100 ms a frame, a started cycle or change ends first; none with reduced motion).
+  water, the swimmer climbs out; 100 ms a frame, a started cycle or change ends first, then the previous favicon is back; none on Safari, phones and
+  tablets, two-core machines, without a PNG canvas or with reduced motion: `canAnimateFavicon`).
 - Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.

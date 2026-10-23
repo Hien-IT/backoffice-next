@@ -3,18 +3,34 @@ import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { effectScope, ref } from 'vue';
 import { useRequestsStore } from '../stores/requests.ts';
 import { knee, SPRITE_CYCLES, SPRITE_FRAMES, timeline, TRANSITION_FRAMES } from './favicon-sprites.ts';
-import { drawFaviconFrame, FAVICON_FRAME_MS, useFaviconLoader } from './use-favicon-loader.ts';
+import { canAnimateFavicon, drawFaviconFrame, FAVICON_FRAME_MS, useFaviconLoader } from './use-favicon-loader.ts';
 
 // Chromium: the frames need a canvas.
 const COLOR = '#465fff'; // raw-color-allowed: test color
 let scope: ReturnType<typeof effectScope>;
 
+const CHROME =
+	'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36';
+const faked: string[] = [];
+
+/** Overrides a navigator getter for one test (a desktop Chrome with 8 cores by default, whatever the runner is). */
+function fakeNavigator(name: 'userAgent' | 'hardwareConcurrency', value: string | number) {
+	Object.defineProperty(navigator, name, { get: () => value, configurable: true });
+	faked.push(name);
+}
+
 beforeEach(() => {
 	setActivePinia(createPinia());
 	scope = effectScope();
+	fakeNavigator('userAgent', CHROME);
+	fakeNavigator('hardwareConcurrency', 8);
 });
 
-afterEach(() => scope.stop());
+afterEach(() => {
+	scope.stop();
+	faked.splice(0).forEach((name) => delete (navigator as unknown as Record<string, unknown>)[name]);
+	vi.restoreAllMocks();
+});
 
 test('every frame of a gait cycle and of a change is a different drawing', () => {
 	const steps = timeline();
@@ -58,4 +74,58 @@ test('the sprites play while a request runs, then the gait cycle ends and the no
 
 	// The runner's frames and at least the start of the cyclist.
 	expect(seen.size).toBeGreaterThan(SPRITE_FRAMES);
+});
+
+test('desktop Chrome, Edge and Firefox get the animation', () => {
+	expect(canAnimateFavicon()).toBe(true);
+	fakeNavigator('userAgent', `${CHROME} Edg/131.0.0.0`);
+	expect(canAnimateFavicon()).toBe(true);
+	fakeNavigator('userAgent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 14.7; rv:132.0) Gecko/20100101 Firefox/132.0');
+	expect(canAnimateFavicon()).toBe(true);
+});
+
+test.each([
+	[
+		'Safari',
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+	],
+	[
+		'an iPhone',
+		'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0 Mobile/15E148 Safari/604.1',
+	],
+	[
+		'an Android phone',
+		'Mozilla/5.0 (Linux; Android 14; Pixel 8) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36',
+	],
+])('%s gets no animation', (_, userAgent) => {
+	fakeNavigator('userAgent', userAgent);
+	expect(canAnimateFavicon()).toBe(false);
+});
+
+test('a touch-only device, a two-core machine or reduced motion gets no animation', () => {
+	fakeNavigator('hardwareConcurrency', 2);
+	expect(canAnimateFavicon()).toBe(false);
+	fakeNavigator('hardwareConcurrency', 8);
+
+	const matchMedia = window.matchMedia.bind(window);
+	for (const query of ['(pointer: coarse)', '(prefers-reduced-motion: reduce)']) {
+		vi.spyOn(window, 'matchMedia').mockImplementation(
+			(q) => (q === query ? { matches: true } : matchMedia(q)) as MediaQueryList,
+		);
+		expect(canAnimateFavicon()).toBe(false);
+		vi.restoreAllMocks();
+	}
+});
+
+test('where the animation is not supported the favicon never changes', async () => {
+	fakeNavigator(
+		'userAgent',
+		'Mozilla/5.0 (Macintosh; Intel Mac OS X 14_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Safari/605.1.15',
+	);
+	const store = useRequestsStore();
+	const href = scope.run(() => useFaviconLoader(ref(COLOR)))!;
+
+	store.startRequest();
+	await new Promise((resolve) => setTimeout(resolve, FAVICON_FRAME_MS * 3));
+	expect(href.value).toBeNull();
 });
