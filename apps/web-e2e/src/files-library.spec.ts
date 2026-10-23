@@ -30,7 +30,9 @@ test.afterEach(async () => {
 });
 
 const title = (page: Page) => page.getByRole('main').getByRole('heading', { level: 1 });
-const folderCard = (page: Page, name: string) => page.getByRole('main').getByRole('link', { name, exact: true });
+// D-176: the link names the folder and its "Folder" subtitle.
+const folderCard = (page: Page, name: string) =>
+	page.getByRole('main').getByRole('link', { name: `${name} Folder`, exact: true });
 
 test('folder tree, special views and folder cards (US1-1 to US1-3) @core', async ({ page }) => {
 	await openFiles(page);
@@ -77,7 +79,12 @@ test('create a folder, open it empty, rename it from the tree, delete it (US1-5,
 
 	await expect(title(page)).toHaveText(name);
 	await expect(page.getByText('No Files', { exact: true })).toBeVisible();
-	const created = (await api.call<{ id: string; parent: string }[]>('GET', `/folders?fields=id,parent&filter[name][_eq]=${encodeURIComponent(name)}`))[0]!;
+	const created = (
+		await api.call<{ id: string; parent: string }[]>(
+			'GET',
+			`/folders?fields=id,parent&filter[name][_eq]=${encodeURIComponent(name)}`,
+		)
+	)[0]!;
 	expect(created.parent).toBe(root);
 
 	// Rename through the row menu of the tree.
@@ -108,7 +115,9 @@ test('download a folder from its row menu (FR-004)', async ({ page }) => {
 	expect(download.suggestedFilename()).toMatch(/\.zip$/);
 });
 
-test('select a folder card: only delete stays; the detail panel has layout and export (FR-011, FR-018)', async ({ page }) => {
+test('select a folder card: only delete stays; the detail panel has layout and export (FR-011, FR-018)', async ({
+	page,
+}) => {
 	await openFiles(page);
 	// The card checkbox is named after the card title (Q-14).
 	await page.getByRole('main').getByRole('checkbox', { name: 'Select bo-files', exact: true }).click({ force: true });
@@ -122,7 +131,9 @@ test('select a folder card: only delete stays; the detail panel has layout and e
 	await expect(page.getByRole('button', { name: 'Import / Export', exact: true })).toBeVisible();
 });
 
-test('a search without match shows No Results; Clear Filters brings the files back; no horizontal scroll (FR-015)', async ({ page }) => {
+test('a search without match shows No Results; Clear Filters brings the files back; no horizontal scroll (FR-015)', async ({
+	page,
+}) => {
 	const sub = await folderId(api, 'bo-files-sub');
 	await openFiles(page, `/files/folders/${sub}`);
 
@@ -135,5 +146,7 @@ test('a search without match shows No Results; Clear Filters brings the files ba
 	await expect(page.getByRole('searchbox', { name: 'Search Items...' })).toHaveValue('');
 
 	// The page itself never scrolls sideways, at 768 px too (the grid wraps).
-	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(true);
+	expect(await page.evaluate(() => document.documentElement.scrollWidth <= document.documentElement.clientWidth)).toBe(
+		true,
+	);
 });

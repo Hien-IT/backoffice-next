@@ -1483,7 +1483,9 @@ code (T006, T007, FR-110) and compared with the code at the end of the feature; 
 
 - Folder cards come first in the cards grid through the layout `prepend` slot (`hasPrependContent`), only on the cards
   layout and only without search, filter and special view (Directus). A folder card is the 014 Card with
-  `icon="folder"`, no image request, the folder name as title and no subtitle; the body is a link to
+  `icon="folder"` and `folder` (D-176, owner 2026-10-24: tile `bg-brand-50 dark:bg-brand-500/10`, the icon filled
+  `text-brand-500 dark:text-brand-400`), no image request, the folder name as title and the subtitle "Folder"
+  (`$t('folder')`, so the link reads "<name> Folder"); the body is a link to
   `/files/folders/<id>`; the selection BoCheckbox sits outside the link, named "Select <card title>". Selected folders
   and files share the header count (`selection + extraSelection`) and select-all.
 - Drop zone over the whole library page while files are dragged from the OS: four fixed bars around the `<main>` box

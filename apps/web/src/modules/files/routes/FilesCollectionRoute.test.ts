@@ -50,7 +50,10 @@ vi.mock('../../../layouts/index.ts', () => {
 							'data-test': 'select-files',
 							onClick: () => (attrs['onUpdate:selection'] as (v: unknown) => void)(['file-1', 'file-2']),
 						}),
-						h('button', { 'data-test': 'select-one', onClick: () => (attrs['onUpdate:selection'] as (v: unknown) => void)(['file-1']) }),
+						h('button', {
+							'data-test': 'select-one',
+							onClick: () => (attrs['onUpdate:selection'] as (v: unknown) => void)(['file-1']),
+						}),
 						h('button', { 'data-test': 'select-all', onClick: () => (attrs['onSelectAll'] as () => void)() }),
 						h('div', { 'data-prepend': '' }, slots['prepend']?.()),
 						slots['no-items']?.(),
@@ -120,8 +123,9 @@ async function setup(props: Record<string, unknown> = {}, user: 'admin' | 'bo-vi
 const layout = () => document.querySelector<HTMLElement>('[data-layout]')!;
 const buttonNamed = (name: string) =>
 	[...document.querySelectorAll<HTMLElement>('button, a')].find((el) => el.getAttribute('aria-label') === name);
+// The card titles (D-176: the card also shows the "Folder" subtitle).
 const folderCards = () =>
-	[...document.querySelectorAll('[data-prepend] a')].map((a) => a.textContent?.trim().replace(/^folder/, ''));
+	[...document.querySelectorAll('[data-prepend] a > div[id]')].map((title) => title.textContent?.trim());
 
 describe('library views', () => {
 	test('root: File Library, no breadcrumb, files without folder, the root folders as cards', async () => {
@@ -134,6 +138,10 @@ describe('library views', () => {
 		});
 		expect(layout().dataset['hasPrepend']).toBe('true');
 		expect(folderCards()).toEqual(expect.arrayContaining(['bo-files', 'bo-fixtures']));
+		// D-176: a folder card has the brand tile, the filled folder icon and the "Folder" subtitle.
+		const card = document.querySelector('[data-prepend] a')!;
+		expect(card.querySelector('.bg-brand-50 [data-icon="folder"]')).not.toBeNull();
+		expect(card.textContent).toContain('Folder');
 		assertOnlyKnownRequests(calls(fetch));
 	});
 
@@ -190,7 +198,9 @@ describe('selection and batch actions', () => {
 		await flushPromises();
 
 		expect(calls(fetch)).toContain('POST /assets/files?download=');
-		expect(JSON.parse(fetch.mock.calls.find(([url]) => String(url).includes('/assets/files'))![1]!.body as string)).toEqual({
+		expect(
+			JSON.parse(fetch.mock.calls.find(([url]) => String(url).includes('/assets/files'))![1]!.body as string),
+		).toEqual({
 			ids: ['file-1', 'file-2'],
 		});
 		expect(vi.mocked(fileSaver.saveAs).mock.calls[0]![1]).toBe('files.zip');
@@ -252,7 +262,9 @@ describe('drop zone', () => {
 		expect(document.querySelectorAll('[aria-hidden="true"].fixed').length).toBe(0);
 		expect(document.body.textContent).toContain('0/1');
 
-		resolve(new Response(JSON.stringify({ data: { id: 'up-1' } }), { headers: { 'Content-Type': 'application/json' } }));
+		resolve(
+			new Response(JSON.stringify({ data: { id: 'up-1' } }), { headers: { 'Content-Type': 'application/json' } }),
+		);
 		await flushPromises();
 		expect(document.body.textContent).not.toContain('0/1');
 	});
@@ -282,4 +294,3 @@ describe('search, filter and preset (FR-015, FR-018, US6-1)', () => {
 		expect(JSON.stringify(body.filter ?? null)).not.toContain(folder);
 	});
 });
-

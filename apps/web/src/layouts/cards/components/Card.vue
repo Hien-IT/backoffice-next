@@ -36,6 +36,8 @@ const props = withDefaults(
 		selectMode?: boolean;
 		to?: string | undefined;
 		readonly?: boolean;
+		/** Owner 2026-10-24 (D-176): a folder of the file library, its tile in the brand tint with a filled icon. */
+		folder?: boolean;
 	}>(),
 	{
 		icon: 'box',
@@ -146,7 +148,8 @@ const FOCUS =
 			@keydown.space.prevent="handleClick"
 		>
 			<div
-				class="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl bg-gray-100 dark:bg-gray-800"
+				class="relative flex aspect-square items-center justify-center overflow-hidden rounded-xl"
+				:class="folder ? 'bg-brand-50 dark:bg-brand-500/10' : 'bg-gray-100 dark:bg-gray-800'"
 			>
 				<span v-if="type || imgError" class="flex flex-col items-center gap-1 text-gray-500 dark:text-gray-400">
 					<BoIcon name="insert_drive_file" size="lg" />
@@ -163,6 +166,9 @@ const FOCUS =
 					"
 					@error="imgError = true"
 				/>
+				<span v-else-if="folder" class="text-brand-500 dark:text-brand-400">
+					<BoIcon :name="icon ?? 'folder'" size="lg" filled />
+				</span>
 				<span v-else class="text-gray-500 dark:text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>
 			</div>
 			<div
