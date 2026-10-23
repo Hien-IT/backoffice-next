@@ -250,8 +250,7 @@ const NOTE = 'flex items-center gap-2 px-3 py-2 text-theme-sm text-gray-500 dark
 									:class="ITEM"
 								>
 									<span :class="BOX" aria-hidden="true">
-										<!-- opacity, not hidden: the unlayered icon font display beats the utility. -->
-										<BoIcon name="check" size="sm" class="opacity-0 group-data-[state=checked]:opacity-100" />
+										<BoIcon name="check" size="sm" class="hidden group-data-[state=checked]:inline" />
 									</span>
 									{{ item.text }}
 								</ComboboxItem>

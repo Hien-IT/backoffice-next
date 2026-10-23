@@ -7,4 +7,5 @@
 @import '@fontsource/outfit/700.css';
 @import '@fontsource/noto-sans/400.css';
 @import '@fontsource/noto-sans/600.css';
-@import '@material-symbols/font-400/rounded.css';
+/* In the base layer: its `.material-symbols-rounded` display/size rule must not beat utilities on an icon (`hidden`). */
+@import '@material-symbols/font-400/rounded.css' layer(base);

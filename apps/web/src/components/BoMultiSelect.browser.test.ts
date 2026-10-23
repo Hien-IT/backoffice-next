@@ -4,7 +4,7 @@ import { i18n } from '../lang/index.ts';
 import '../styles/index.css';
 import BoMultiSelect from './BoMultiSelect.vue';
 
-// With the app CSS: the Material Symbols rule is unlayered, so a `hidden` utility on the check icon showed it anyway.
+// With the app CSS: the Material Symbols rule was unlayered, so the `hidden` utility on the check icon showed it anyway.
 enableAutoUnmount(afterEach);
 
 test('only checked options show the check icon', async () => {
@@ -23,8 +23,8 @@ test('only checked options show the check icon', async () => {
 	await wrapper.get('button').trigger('click');
 	await vi.waitFor(() => expect(document.querySelectorAll('[role="option"]')).toHaveLength(2));
 
-	const checkOpacity = [...document.querySelectorAll('[role="option"] [data-icon="check"]')].map(
-		(icon) => getComputedStyle(icon).opacity,
+	const checkDisplay = [...document.querySelectorAll('[role="option"] [data-icon="check"]')].map(
+		(icon) => getComputedStyle(icon).display,
 	);
-	expect(checkOpacity).toEqual(['0', '1']);
+	expect(checkDisplay).toEqual(['none', 'block']);
 });

@@ -23,7 +23,7 @@ const customIcon = computed(() => customIcons[name] ?? null);
 
 const socialIconName = computed(() => (socialIcons.includes(name) ? (name.replace(/_/g, '-') as IconName) : null));
 
-// Inline style: the font's own `.material-symbols-rounded { font-size: 24px }` is unlayered and beats utilities.
+// Inline style: one size per prop over the font's own `.material-symbols-rounded { font-size: 24px }` (base layer).
 // 18px, 24px (Modal title size) and 30px (TailAdmin title-sm).
 const FONT_SIZES = { sm: 'var(--text-lg)', md: 'var(--text-2xl)', lg: 'var(--text-title-sm)' };
 </script>

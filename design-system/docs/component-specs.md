@@ -24,6 +24,11 @@ element has the focus-visible recipe. "Changed" lines say what differs from Tail
 - Theme classes only (README, Rules). Every recipe includes its `dark:` classes.
 - Disabled controls are exempt from contrast (WCAG); they keep the TailAdmin disabled colors.
 - TailAdmin writes `dark:bg-dark-900` and `hover:text-dark-900`: not theme colors, no effect. Do not copy them.
+- Global CSS that styles classes the app's own templates also carry goes in a layer below `utilities` (the Material
+  Symbols font rule in `base`, the shim `.type-*` / `.form-grid` in `components`): unlayered CSS beats every utility, so
+  `hidden` on an icon did nothing (2026-10-23). Third-party CSS for the library's own elements stays as shipped.
+- Surfaces that content scrolls under (the CodeMirror gutter) use an opaque background in dark mode, not a
+  `white/[0.03]` tint.
 
 ### Focus-visible recipe (all interactive elements)
 

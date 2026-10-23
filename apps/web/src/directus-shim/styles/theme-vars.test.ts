@@ -70,3 +70,11 @@ test('dark values override the light ones; no raw hex color', () => {
 	expect(declared(css.slice(css.indexOf(':root.dark {'))).has('--theme--background')).toBe(true);
 	expect(css).not.toMatch(/#[0-9a-f]{3,8}\b/i);
 });
+
+test('.type-* and .form-grid are in the components layer, so utilities on shim components win', () => {
+	const layer = css.slice(css.indexOf('@layer components {'));
+	expect(css.indexOf('@layer components {')).toBeGreaterThan(-1);
+	for (const selector of ['.type-title {', '.type-label {', '.type-text {', '.type-note {', '.form-grid {']) {
+		expect(layer).toContain(selector);
+	}
+});
