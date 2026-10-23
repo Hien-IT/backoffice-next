@@ -440,6 +440,9 @@ jobs:
       - name: container logs
         if: failure()
         working-directory: deploy/compose
+        # The env_file of the services (an empty `deploy.log` without it, CI 39905974942).
+        env:
+          DEPLOY_ENV_FILE: .env.deploy-test
         run: >-
           docker compose -p bo-deploy --env-file .env.deploy-test -f docker-compose.yml -f docker-compose.standalone.yml
           --profile shared-only --profile extensions-test logs --no-color > deploy.log
@@ -450,6 +453,8 @@ jobs:
           path: deploy/compose/deploy.log
       - if: always()
         working-directory: deploy/compose
+        env:
+          DEPLOY_ENV_FILE: .env.deploy-test
         run: >-
           docker compose -p bo-deploy --env-file .env.deploy-test -f docker-compose.yml -f docker-compose.standalone.yml
           --profile shared-only --profile extensions-test down -v --remove-orphans || true
