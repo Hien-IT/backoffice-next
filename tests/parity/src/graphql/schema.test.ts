@@ -31,6 +31,7 @@ import {
 	introspection,
 	sameGql,
 	type Scope,
+	sdlByField,
 	seedGraphqlModel,
 	warnLines,
 } from './helpers.js';
@@ -62,6 +63,7 @@ async function sameSdl(scope: Scope, token: string | null) {
 		{
 			path: scope === 'system' ? '/server/specs/graphql/system' : '/server/specs/graphql',
 			headers: token ? { authorization: `Bearer ${token}` } : {},
+			normalize: sdlByField,
 		},
 		{ accepted: ACCEPTED },
 	);

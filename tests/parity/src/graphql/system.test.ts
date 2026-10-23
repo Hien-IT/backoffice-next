@@ -16,6 +16,7 @@ import {
 	createGraphqlModel,
 	createGraphqlUsers,
 	fieldsByName,
+	sdlByField,
 	gql,
 	gqlRequest,
 	type GraphqlModel,
@@ -99,7 +100,7 @@ describe('server, me, extensions, utils (US3.5, US3.6)', () => {
 		for (const token of [admin, users.a.token, null]) {
 			await sameGql('system', `{ server_ping }`, { token });
 			await sameGql('system', `{ server_info { project { project_name default_language } } }`, { token });
-			await sameGql('system', `{ server_specs_graphql(scope: system) }`, { token });
+			await sameGql('system', `{ server_specs_graphql(scope: system) }`, { token, normalize: sdlByField });
 			await sameGql('system', `{ users_me { email } }`, { token });
 		}
 

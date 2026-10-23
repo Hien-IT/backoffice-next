@@ -5,6 +5,7 @@ import { getIntrospectionQuery } from 'graphql';
 import { acceptedDifferences } from '../../accepted-differences.js';
 import { hostDb } from '../auth/db-effects.js';
 import { adminToken, type AppName, appRequest, appUrl } from '../directus-api.js';
+import { getDbsToTest } from '../get-dbs-to-test.js';
 import { assertParity, type Captured, capture, type ParityOptions, type ParityResult, parity } from '../parity.js';
 import {
 	attachPolicy,
@@ -66,6 +67,64 @@ export function fieldsByName(captured: Captured): Captured {
 		},
 		headers: { ...captured.headers, etag: captured.headers['etag']?.replace(/-[^-"]+"$/, '-<hash>"') ?? '' },
 	};
+}
+
+/**
+ * Sorts the field lines of every type, input, interface and enum block of an SDL (a description stays with its field,
+ * blank lines are dropped: printSchema puts one before a described field that is not the first). Same cause as
+ * fieldsByName: on MySQL each app builds its schema in the column order of its own INFORMATION_SCHEMA plan (CI
+ * 39901388416: `directus_access` ordinal at Backoffice, by name at Directus).
+ */
+export function sortSdlFields(sdl: string): string {
+	return sdl.replace(/^((?:type|input|interface|enum) [^\n]*\{\n)([\s\S]*?)(\n\})/gm, (_m, head, body, tail) => {
+		const entries: string[][] = [];
+		let current: string[] = [];
+		let inDescription = false;
+
+		for (const line of (body as string).split('\n')) {
+			if (line.trim() === '') continue;
+			current.push(line);
+			if ((line.split('"""').length - 1) % 2 === 1) inDescription = !inDescription;
+			if (!inDescription && !line.trimStart().startsWith('"""')) {
+				entries.push(current);
+				current = [];
+			}
+		}
+
+		const key = (entry: string[]) => entry.at(-1)!;
+		return (
+			head +
+			entries
+				.sort((a, b) => key(a).localeCompare(key(b)))
+				.map((e) => e.join('\n'))
+				.join('\n') +
+			tail
+		);
+	});
+}
+
+/**
+ * On MySQL only (verbatim elsewhere): the SDL of the route or of `server_specs_graphql` with sorted fields, the ETag
+ * hash masked. ponytail: introspection (`__schema` fields) is still compared in column order; sort it the same way if
+ * it flakes on MySQL.
+ */
+export function sdlByField(captured: Captured): Captured {
+	if (getDbsToTest()[0] !== 'mysql') return captured;
+	const json = captured.json as { data?: { server_specs_graphql?: string } } | null;
+	const etag = captured.headers['etag']?.replace(/-[^-"]+"$/, '-<hash>"') ?? '';
+	const sdl = json?.data?.server_specs_graphql;
+
+	if (typeof sdl === 'string') {
+		return {
+			...captured,
+			json: { ...json, data: { ...json!.data, server_specs_graphql: sortSdlFields(sdl) } },
+			headers: { ...captured.headers, etag },
+		};
+	}
+
+	return captured.isJson
+		? captured
+		: { ...captured, text: sortSdlFields(captured.text), headers: { ...captured.headers, etag } };
 }
 
 /** The parity request of a GraphQL document. */
