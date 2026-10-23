@@ -8,7 +8,7 @@ import { defineComponent, nextTick } from 'vue';
 import { createSdk } from '../api/sdk.ts';
 import { useServerStore } from '../stores/server.ts';
 import { useUserStore } from '../stores/user.ts';
-import { projectForegroundCss, safeColor, useAppHead } from './use-app-head.ts';
+import { projectForegroundCss, safeColor, setFavicon, useAppHead } from './use-app-head.ts';
 
 vi.mock('../lang/set-language.ts', () => ({ setLanguage: vi.fn() }));
 
@@ -40,7 +40,8 @@ async function resolve(project: Record<string, unknown> | null, pageTitle?: stri
 	return {
 		title: tags.find((t) => t.tag === 'title')?.textContent,
 		themeColor: (find('meta', 'name', 'theme-color')?.props as Record<string, string> | undefined)?.['content'],
-		icon: (find('link', 'rel', 'icon')?.props as Record<string, string> | undefined)?.['href'],
+		// D-173: the favicon is a link element of its own, not an unhead tag.
+		icon: document.head.querySelector('link[rel~="icon"]')?.getAttribute('href') ?? undefined,
 		style: tags.find((t) => t.tag === 'style')?.textContent,
 		overrides: tags.find((t) => t.tag === 'style' && (t.props as Record<string, string>)['id'] === 'theme-overrides')
 			?.textContent,
@@ -155,4 +156,16 @@ test('safeColor', () => {
 test('index.html has no icon link of its own: the app head is the only favicon (D-173)', () => {
 	const html = readFileSync(join(import.meta.dirname, '../../index.html'), 'utf8');
 	expect(html).not.toMatch(/<link[^>]+rel="icon"/);
+});
+
+test('each favicon change is a new link element, and only one icon link stays (D-173)', () => {
+	setFavicon('/admin/favicon.ico');
+	const first = document.head.querySelector('link[rel~="icon"]');
+	setFavicon('data:image/png;base64,AAAA');
+	setFavicon('/admin/favicon.ico');
+
+	const links = document.head.querySelectorAll('link[rel~="icon"]');
+	expect(links).toHaveLength(1);
+	expect(links[0]!.getAttribute('href')).toBe('/admin/favicon.ico');
+	expect(links[0]).not.toBe(first);
 });

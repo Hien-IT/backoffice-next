@@ -8,7 +8,7 @@
 // ThemeProvider of @directus/themes.
 import { useHead } from '@unhead/vue';
 import Color from 'color';
-import { computed } from 'vue';
+import { computed, watch } from 'vue';
 import { useServerStore } from '../stores/server.ts';
 import { useUserStore } from '../stores/user.ts';
 import { cssVar } from '../utils/css-var.ts';
@@ -20,6 +20,19 @@ import { useThemeConfiguration } from './use-theme-configuration.ts';
 
 export const DEFAULT_PROJECT_NAME = 'Backoffice';
 export const DEFAULT_FAVICON = '/admin/favicon.ico';
+
+/**
+ * Owner 2026-10-24 (D-173): the favicon is a new link element at each change instead of an unhead link whose href
+ * changes. Browsers repaint a changed href unreliably, above all back to a URL they loaded before: after the loading
+ * favicon the tab kept a loading frame or fell back to the default favicon.
+ */
+export function setFavicon(href: string) {
+	const link = document.createElement('link');
+	link.setAttribute('rel', 'icon');
+	link.setAttribute('href', href);
+	document.head.querySelectorAll('link[rel~="icon"]').forEach((old) => old.remove());
+	document.head.append(link);
+}
 
 /** project_color when it is a valid CSS color, null otherwise (a broken value must not break the head style). */
 export function safeColor(color: string | null | undefined): string | null {
@@ -129,27 +142,17 @@ export function useAppHead() {
 				},
 			];
 		}),
-		link: computed(() => {
-			let href: string;
-
-			if (loadingFavicon.value) {
-				href = loadingFavicon.value;
-			} else if (serverStore.info?.project?.public_favicon) {
-				href = getAssetUrl(serverStore.info.project.public_favicon);
-			} else if (projectColor.value) {
-				href = generateFavicon(projectColor.value, !!serverStore.info.project?.project_logo === false);
-			} else {
-				href = DEFAULT_FAVICON;
-			}
-
-			return [
-				{
-					rel: 'icon',
-					href,
-				},
-			];
-		}),
 	});
+
+	const favicon = computed(() => {
+		if (loadingFavicon.value) return loadingFavicon.value;
+		if (serverStore.info?.project?.public_favicon) return getAssetUrl(serverStore.info.project.public_favicon);
+		if (projectColor.value)
+			return generateFavicon(projectColor.value, !!serverStore.info.project?.project_logo === false);
+		return DEFAULT_FAVICON;
+	});
+
+	watch(favicon, setFavicon, { immediate: true });
 
 	const customCSS = computed(() => {
 		return serverStore.info?.project?.custom_css || '';
