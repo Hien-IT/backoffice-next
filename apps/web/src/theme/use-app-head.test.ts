@@ -1,6 +1,8 @@
 import { createHead, useHead } from '@unhead/vue';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { defineComponent, nextTick } from 'vue';
 import { createSdk } from '../api/sdk.ts';
@@ -148,4 +150,9 @@ test('safeColor', () => {
 	expect(safeColor('notacolor')).toBeNull();
 	expect(supports).toHaveBeenCalledWith('color', 'notacolor');
 	vi.unstubAllGlobals();
+});
+
+test('index.html has no icon link of its own: the app head is the only favicon (D-173)', () => {
+	const html = readFileSync(join(import.meta.dirname, '../../index.html'), 'utf8');
+	expect(html).not.toMatch(/<link[^>]+rel="icon"/);
 });
