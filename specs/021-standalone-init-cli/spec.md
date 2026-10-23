@@ -584,7 +584,7 @@ driver bằng `npm install` vì image đã có `pg` và `sqlite3`.
   không PM2 (D-19, D-121 sửa). `docker run` không env PHẢI bootstrap SQLite và phục vụ như image Directus.
 - **FR-061**: Image PHẢI chứa 15 seed và 101 migration ở vị trí `run.ts` tìm thấy lúc chạy (build swc hiện không copy
   yaml: plan chọn cách).
-- **FR-062**: Thư mục `/directus/migrations` PHẢI tồn tại trong image và mount được như `/directus/extensions`; đó là
+- **FR-062** (từ 2026-10-24 đường dẫn là `/backoffice/migrations`, D-174 của 019): Thư mục `/directus/migrations` PHẢI tồn tại trong image và mount được như `/directus/extensions`; đó là
   nơi mặc định `MIGRATIONS_PATH=./migrations` trỏ tới khi lệnh chạy ở `WORKDIR` `/directus` (CMD, compose, Helm,
   `docker exec` mặc định). Chạy ở thư mục khác thì đường dẫn tương đối giải theo cwd như Directus (Edge Cases).
 - **FR-063**: CMD mới PHẢI giữ đạt mọi test hiện có dựa vào image API: các cặp parity (cặp chính trên mọi vendor, các

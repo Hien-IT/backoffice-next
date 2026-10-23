@@ -65,7 +65,7 @@ describe('getDatabase() knex config per client', () => {
 		const { mod, config } = await load({
 			...pg,
 			DB_CLIENT: 'mysql',
-			DB_FILENAME: '/directus/database/database.sqlite',
+			DB_FILENAME: '/backoffice/database/database.sqlite',
 		});
 		mod.getDatabase();
 		expect(config().client).toBe('mysql2');

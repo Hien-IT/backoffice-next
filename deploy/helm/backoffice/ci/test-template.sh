@@ -59,7 +59,7 @@ check "separate domain: no other env entry" test "$(grep -cE '\{ name: [A-Z0-9_]
 check "separate domain: own pool label" grep -q 'backoffice.io/api-pool: backoffice-separate' "$s"
 
 o=$out/options.yaml
-check "existing PVC mounted at /directus/uploads" sh -c "grep -q 'claimName: pvc' '$o' && grep -q 'mountPath: /directus/uploads' '$o'"
+check "existing PVC mounted at /backoffice/uploads" sh -c "grep -q 'claimName: pvc' '$o' && grep -q 'mountPath: /backoffice/uploads' '$o'"
 check "fixed replicas when autoscaling is off" sh -c "grep -q 'replicas: 2' '$o' && ! grep -q HorizontalPodAutoscaler '$o'"
 check "extra path before /" sh -c "awk '/path: \\/auth\\/login\\/saml/{s=NR} /path: \\/\$/{r=NR} END{exit !(s && r && s<r)}' '$o'"
 
@@ -72,8 +72,8 @@ check "standalone: the Job bootstraps, the pods only start" sh -c "grep -q 'args
 check "standalone: secretRef on api and Job" test "$(count "$t" 'secretRef:')" -eq 2
 check "standalone: runAsNonRoot on api, web, Job" test "$(count "$t" 'runAsNonRoot: true')" -eq 3
 check "standalone: no privilege escalation on api, web, Job" test "$(count "$t" 'allowPrivilegeEscalation: false')" -eq 3
-check "standalone: migrations ConfigMap on api and Job" sh -c "test \"\$(grep -c 'configMap: { name: mig }' '$t')\" -eq 2 && test \"\$(grep -c 'mountPath: /directus/migrations' '$t')\" -eq 2"
-check "shared: migrations ConfigMap mounted too" sh -c "$helm template bo '$chart' $base --set migrations.configMap=mig | grep -q 'mountPath: /directus/migrations'"
+check "standalone: migrations ConfigMap on api and Job" sh -c "test \"\$(grep -c 'configMap: { name: mig }' '$t')\" -eq 2 && test \"\$(grep -c 'mountPath: /backoffice/migrations' '$t')\" -eq 2"
+check "shared: migrations ConfigMap mounted too" sh -c "$helm template bo '$chart' $base --set migrations.configMap=mig | grep -q 'mountPath: /backoffice/migrations'"
 check "mode must be shared or standalone" sh -c "! $helm template bo '$chart' $base --set mode=other"
 notes_has() { # notes_has <text> <helm args...>: the NOTES of a client dry run hold the text
 	text=$1
@@ -145,7 +145,7 @@ desc="021 FR-083: standalone without the Secret stops" expect_fail 'Secret "sec"
 	--set mode=standalone --set-string fakeLookup.namespace.kind=Namespace --set fakeLookup.noSecret=true
 desc="021 FR-083: standalone ignores cookie domains" expect_ok --set mode=standalone $sep \
 	--set-string fakeLookup.configMap.data.REFRESH_TOKEN_COOKIE_DOMAIN=cms.example.com
-desc="021 FR-085: MIGRATIONS_PATH elsewhere stops" expect_fail 'MIGRATIONS_PATH="/data/mig" in ConfigMap cm does not point to /directus/migrations' \
+desc="021 FR-085: MIGRATIONS_PATH elsewhere stops" expect_fail 'MIGRATIONS_PATH="/data/mig" in ConfigMap cm does not point to /backoffice/migrations' \
 	--set migrations.configMap=mig --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=/data/mig
 desc="021 FR-085: MIGRATIONS_PATH=./migrations passes" expect_ok --set migrations.configMap=mig --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=./migrations
 desc="021 FR-085: MIGRATIONS_PATH elsewhere without the ConfigMap passes" expect_ok --set-string fakeLookup.configMap.data.MIGRATIONS_PATH=/data/mig

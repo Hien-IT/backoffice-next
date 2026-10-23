@@ -23,7 +23,7 @@ const custom = () => psql("select version from directus_migrations where version
 
 describe.skipIf(!STANDALONE)('standalone compose: migrations through the bootstrap service', () => {
 	afterAll(() => {
-		compose('exec', '-T', 'backoffice-api', 'rm', '-f', '/directus/migrations/20990106A-throws.js');
+		compose('exec', '-T', 'backoffice-api', 'rm', '-f', '/backoffice/migrations/20990106A-throws.js');
 		compose('up', '-d', '--wait', '--wait-timeout', '300');
 	});
 
@@ -39,7 +39,7 @@ describe.skipIf(!STANDALONE)('standalone compose: migrations through the bootstr
 		const replicas = replicaStarts();
 		const before = custom();
 
-		compose('cp', fixture('ok/20990101A-create-sample.js'), 'bootstrap:/directus/migrations/');
+		compose('cp', fixture('ok/20990101A-create-sample.js'), 'bootstrap:/backoffice/migrations/');
 		compose('up', '-d', '--wait', '--wait-timeout', '300');
 
 		expect(custom()).toEqual([...before, '20990101A'].sort());
@@ -56,7 +56,7 @@ describe.skipIf(!STANDALONE)('standalone compose: migrations through the bootstr
 	it('a migration that throws stops up --wait; the running replicas keep serving (scenario 3)', async () => {
 		const replicas = replicaStarts();
 
-		compose('cp', fixture('fail/20990106A-throws.js'), 'bootstrap:/directus/migrations/');
+		compose('cp', fixture('fail/20990106A-throws.js'), 'bootstrap:/backoffice/migrations/');
 		expect(() => compose('up', '-d', '--wait', '--wait-timeout', '300')).toThrow(/bootstrap/);
 
 		expect(docker('inspect', '-f', '{{.State.ExitCode}}', containerName('bootstrap'))).not.toBe('0');

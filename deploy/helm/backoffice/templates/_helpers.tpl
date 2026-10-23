@@ -27,10 +27,10 @@ capabilities:
 {{- if or .Values.uploads.existingClaim .Values.migrations.configMap -}}
 volumeMounts:
 {{- if .Values.uploads.existingClaim }}
-  - { name: uploads, mountPath: /directus/uploads }
+  - { name: uploads, mountPath: /backoffice/uploads }
 {{- end }}
 {{- if .Values.migrations.configMap }}
-  - { name: migrations, mountPath: /directus/migrations, readOnly: true }
+  - { name: migrations, mountPath: /backoffice/migrations, readOnly: true }
 {{- end }}
 {{- end -}}
 {{- end }}

@@ -14,7 +14,7 @@ bootstrap:
   activeDeadlineSeconds: 600
   resources: {} # empty: the api resources
 
-# Spec 021 (FR-085): a ConfigMap of custom migrations (.js files), mounted at /directus/migrations (the default
+# Spec 021 (FR-085): a ConfigMap of custom migrations (.js files), mounted at /backoffice/migrations (the default
 # MIGRATIONS_PATH ./migrations) in the bootstrap Job and the api pods, in both modes. Run `helm upgrade` right after
 # changing it: the Job applies the new files, then the pods roll.
 migrations:
@@ -51,13 +51,13 @@ api:
 apiPool:
   name: '' # defaults to the release name
 
-# PVC already used by Directus for STORAGE_LOCATIONS=local (ReadWriteMany), mounted at /directus/uploads.
+# PVC already used by Directus for STORAGE_LOCATIONS=local (ReadWriteMany), mounted at /backoffice/uploads (D-174).
 uploads:
   existingClaim: ''
 
 # Spec 020 (FR-045): with several API replicas (or HPA) the chart requires EXTENSIONS_LOCATION in the Directus env, so
 # every pod loads the same extensions from the shared storage. true: the extensions are baked into the image
-# (/directus/extensions), the check is skipped and marketplace installs are not used.
+# (/backoffice/extensions), the check is skipped and marketplace installs are not used.
 extensions:
   inImage: false
 

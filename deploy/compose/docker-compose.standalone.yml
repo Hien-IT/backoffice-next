@@ -5,7 +5,7 @@
 #   docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
 #   BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
 #
-# Custom migrations: `docker compose -f ... cp <file>.js bootstrap:/directus/migrations/`, then `up -d --wait` again:
+# Custom migrations: `docker compose -f ... cp <file>.js bootstrap:/backoffice/migrations/`, then `up -d --wait` again:
 # bootstrap runs them, the replicas restart after it. MIGRATIONS_PATH keeps its default (./migrations = the volume).
 
 services:
@@ -20,7 +20,7 @@ services:
     command: ['node', 'cli.js', 'bootstrap']
     restart: 'no'
     volumes:
-      - migrations:/directus/migrations
+      - migrations:/backoffice/migrations
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
@@ -29,7 +29,7 @@ services:
   backoffice-api:
     command: ['node', 'cli.js', 'start']
     volumes:
-      - migrations:/directus/migrations
+      - migrations:/backoffice/migrations
     depends_on: !override
       bootstrap: { condition: service_completed_successfully }
       redis: { condition: service_healthy }

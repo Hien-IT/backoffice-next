@@ -13,7 +13,7 @@ RUN npm install --global corepack@latest
 
 RUN apk --no-cache add python3 py3-setuptools build-base
 
-WORKDIR /directus
+WORKDIR /backoffice
 
 COPY package.json .
 RUN corepack enable && corepack prepare
@@ -41,20 +41,21 @@ FROM node:${NODE_VERSION} AS runtime
 # FR-026: Node as PID 1 does not reap orphaned children (zombies); tini does and forwards signals to Node.
 RUN apk add --no-cache tini
 
-# FR-020, FR-025: uid/gid 1000 (`node`) like the Directus image, so files on a shared volume keep one owner.
+# FR-020, FR-025: uid/gid 1000 (`node`) like the DR image, so files on a shared volume keep one owner.
 USER node
 
-# Same working directory and defaults as the Directus image, so relative paths in a shared config
-# (./uploads, .env, DB_FILENAME) point to the same place (FR-017).
-WORKDIR /directus
+# Owner 2026-10-24 (D-174, revises FR-017 of 019): the working directory is /backoffice, not the /directus of the DR
+# image. Relative paths of a shared config (./uploads, ./extensions, ./migrations, .env) resolve here, so volumes mount
+# at /backoffice/...; swapping a Directus container for this image means moving its mounts.
+WORKDIR /backoffice
 
 ENV \
 	DB_CLIENT="sqlite3" \
-	DB_FILENAME="/directus/database/database.sqlite" \
+	DB_FILENAME="/backoffice/database/database.sqlite" \
 	NODE_ENV="production" \
 	NPM_CONFIG_UPDATE_NOTIFIER="false"
 
-COPY --from=builder --chown=node:node /directus/dist .
+COPY --from=builder --chown=node:node /backoffice/dist .
 
 EXPOSE 8055
 
@@ -68,7 +69,7 @@ LABEL \
 	maintainer="Hien Nguyen"
 
 ENTRYPOINT ["/sbin/tini", "--"]
-# Spec 021 (FR-001, FR-060): like `node cli.js bootstrap && pm2-runtime start` of the Directus image: bootstrap (install an
+# Spec 021 (FR-001, FR-060): like `node cli.js bootstrap && pm2-runtime start` of the DR image: bootstrap (install an
 # empty database, run pending migrations) then start; `exec` keeps node a direct child of tini. A failed bootstrap
 # exits with its code and the server never starts. `node dist/main.js` still works for an overridden command (019).
 CMD ["/bin/sh", "-c", "node cli.js bootstrap && exec node cli.js start"]

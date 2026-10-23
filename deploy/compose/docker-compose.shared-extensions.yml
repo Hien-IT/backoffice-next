@@ -1,5 +1,6 @@
 # Spec 020: extensions from one Docker volume instead of the shared storage (MinIO), for a single host. Directus and
-# every Backoffice replica mount the same `extensions` volume at /directus/extensions (EXTENSIONS_PATH keeps its
+# every Backoffice replica mount the same `extensions` volume (Directus at /directus/extensions, Backoffice at
+# /backoffice/extensions since D-174; EXTENSIONS_PATH keeps its
 # default ./extensions) and EXTENSIONS_LOCATION is emptied, so no node syncs from the bucket: a node that synced would
 # delete and rewrite the shared folder while the others read it. Installs from the Marketplace write into the volume
 # and every node reloads through the bus (extensions.reload). One host only: on several hosts or Kubernetes use
@@ -8,7 +9,7 @@
 #   docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d --wait
 #
 # Copy an extension built for Directus 11.17.4 (package.json + dist/) into the volume, then reload, e.g.:
-#   docker compose cp ./my-extension backoffice-api:/directus/extensions/my-extension
+#   docker compose cp ./my-extension backoffice-api:/backoffice/extensions/my-extension
 #   docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml restart directus backoffice-api
 
 services:
@@ -22,7 +23,7 @@ services:
     environment:
       EXTENSIONS_LOCATION: ''
     volumes:
-      - extensions:/directus/extensions
+      - extensions:/backoffice/extensions
 
 volumes:
   extensions:

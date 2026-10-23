@@ -19,6 +19,8 @@ const DIRS: Record<BootstrapApp, string> = {
 	backoffice: '/directus/database/bootstrap/init-backoffice',
 };
 const ADMIN_PASSWORD = 'init-admin-pass-5c1e';
+/** The CLI entry of each image: Directus works in /directus, Backoffice in /backoffice (D-174). */
+const CLI: Record<BootstrapApp, string> = { directus: '/directus/cli.js', backoffice: '/backoffice/cli.js' };
 // eslint-disable-next-line no-control-regex
 const ANSI = /\x1b\[[0-9;?]*[A-Za-z]/g;
 
@@ -57,7 +59,7 @@ describe.skipIf(!profileUrls('bootstrap'))('profile bootstrap: init (US8)', () =
 
 	test('both apps ask the same questions and install the same database', async () => {
 		for (const app of ['directus', 'backoffice'] as const) {
-			const script = `rm -rf ${DIRS[app]} && mkdir -p ${DIRS[app]} && cd ${DIRS[app]} && printf 'OLD=1\\n' > .env && node /directus/cli.js init`;
+			const script = `rm -rf ${DIRS[app]} && mkdir -p ${DIRS[app]} && cd ${DIRS[app]} && printf 'OLD=1\\n' > .env && node ${CLI[app]} init`;
 			runs[app] = await interactive(execArgs(SERVICES[app], script, { PROJECT_OWNER: '' }), steps(`${app}_partial`));
 			expect(runs[app].code, runs[app].stdout + runs[app].stderr).toBe(0);
 		}
@@ -110,7 +112,7 @@ describe.skipIf(!profileUrls('bootstrap'))('profile bootstrap: init (US8)', () =
 	test('Backoffice starts with that .env and the first admin signs in', async () => {
 		const login = JSON.stringify({ email: 'admin@example.com', password: ADMIN_PASSWORD });
 		const script = [
-			'(node /directus/cli.js start > /dev/null 2>&1 &)',
+			`(node ${CLI.backoffice} start > /dev/null 2>&1 &)`,
 			'for i in $(seq 1 60); do wget -qO- http://127.0.0.1:8055/server/ping > /dev/null 2>&1 && break; sleep 1; done',
 			`wget -qO- --header 'content-type: application/json' --post-data '${login}' http://127.0.0.1:8055/auth/login`,
 		].join('; ');
@@ -171,7 +173,7 @@ describe.skipIf(!profileUrls('bootstrap'))('profile bootstrap: init (US8)', () =
 					'--entrypoint',
 					'node',
 					SERVICES[app],
-					'/directus/cli.js',
+					CLI[app],
 					'init',
 				],
 				steps(`${app}_partial`),

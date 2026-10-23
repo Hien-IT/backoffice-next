@@ -34,8 +34,8 @@ env: the chart never overrides these variables. Rules follow how Directus 11.17.
 {{- /* Spec 021 (FR-085): the migrations ConfigMap is mounted where the default MIGRATIONS_PATH points. */ -}}
 {{- if .Values.migrations.configMap -}}
 {{- $path := get $env "MIGRATIONS_PATH" -}}
-{{- if and $path (not (has $path (list "./migrations" "migrations" "/directus/migrations"))) -}}
-{{- fail (printf "MIGRATIONS_PATH=%q in %s does not point to /directus/migrations, where migrations.configMap is mounted: remove the variable or set it to ./migrations, then install again." $path (get $from "MIGRATIONS_PATH")) -}}
+{{- if and $path (not (has $path (list "./migrations" "migrations" "/backoffice/migrations"))) -}}
+{{- fail (printf "MIGRATIONS_PATH=%q in %s does not point to /backoffice/migrations, where migrations.configMap is mounted: remove the variable or set it to ./migrations, then install again." $path (get $from "MIGRATIONS_PATH")) -}}
 {{- end -}}
 {{- end -}}
 

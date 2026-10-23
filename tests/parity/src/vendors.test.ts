@@ -145,7 +145,12 @@ test('every app container mounts the shared uploads volume and waits for files-f
 	const services = compose
 		.split(/\n(?= {2}\S)/)
 		.filter((b) => /image: (directus\/directus|hiennd23\/backoffice-api)/.test(b));
-	const withoutVolume = services.filter((b) => !b.includes('<<: *app') && !b.includes('uploads:/directus/uploads'));
+	// D-174: the Backoffice image works in /backoffice (STORAGE_LOCAL_ROOT=./uploads), Directus in /directus (the anchor).
+	const mount = (b: string) =>
+		b.includes('hiennd23/backoffice-api') ? 'uploads:/backoffice/uploads' : 'uploads:/directus/uploads';
+	const withoutVolume = services.filter(
+		(b) => !b.includes(mount(b)) && !(b.includes('<<: *app') && mount(b) === 'uploads:/directus/uploads'),
+	);
 	expect(withoutVolume).toEqual([]);
 	expect(compose).toMatch(/^x-app: &app[\s\S]*?- uploads:\/directus\/uploads/m);
 	expect(compose).toMatch(/^volumes:\n {2}uploads:$/m);

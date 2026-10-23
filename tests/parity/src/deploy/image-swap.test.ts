@@ -1,6 +1,7 @@
 // Feature 019, US1 (FR-020..FR-026): the BE image replaces the Directus image of a running service with no other change,
 // runs as a non-root user under tini (PID 1), reaps orphaned children and ends with 143 on SIGTERM. Spec 021: the image
 // bootstraps then starts, like the Directus image, so an empty database is installed instead of stopping the app.
+// D-174: the image works in /backoffice; this env stores files in S3, so only the image changes (local volumes would move).
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import {
 	adminToken,
@@ -75,9 +76,28 @@ describe.skipIf(SEPARATE || STANDALONE)('BE image in place of the Directus image
 		expect(docker('exec', swapped.id, 'id', '-u')).toBe(directusUid);
 		expect(directusUid).toBe('1000');
 		docker('volume', 'create', VOLUME);
-		const mount = ['-v', `${VOLUME}:/directus/uploads`, '--platform', 'linux/amd64', '--entrypoint', 'sh'];
-		docker('run', '--rm', ...mount, DIRECTUS_IMAGE, '-c', 'echo d > /directus/uploads/f');
-		docker('run', '--rm', ...mount, API_IMAGE, '-c', 'echo b >> /directus/uploads/f && rm /directus/uploads/f');
+		// The same volume at each image's own uploads folder (D-174: Backoffice works in /backoffice).
+		const run = ['--platform', 'linux/amd64', '--entrypoint', 'sh'];
+		docker(
+			'run',
+			'--rm',
+			'-v',
+			`${VOLUME}:/directus/uploads`,
+			...run,
+			DIRECTUS_IMAGE,
+			'-c',
+			'echo d > /directus/uploads/f',
+		);
+		docker(
+			'run',
+			'--rm',
+			'-v',
+			`${VOLUME}:/backoffice/uploads`,
+			...run,
+			API_IMAGE,
+			'-c',
+			'echo b >> /backoffice/uploads/f && rm /backoffice/uploads/f',
+		);
 	});
 
 	it('carries the version labels', () => {

@@ -27,9 +27,13 @@ Mục lục: [Thay image Directus bằng Backoffice](#thay-image-directus-bằng
 ## Thay image Directus bằng Backoffice
 
 Trong một service Directus đang chạy (compose hoặc Deployment Kubernetes), chỉ đổi `image:` thành
-`hiennd23/backoffice-api:<tag>`. Env, volume (`/directus/uploads`, `/directus/database`, `/directus/extensions`), cổng
-8055 và probe giữ nguyên: image Backoffice dùng cùng thư mục làm việc `/directus`, cùng uid/gid 1000, cùng cách đọc env,
-`.env`, `CONFIG_PATH`, hậu tố `_FILE`.
+`hiennd23/backoffice-api:<tag>`. Env, cổng 8055 và probe giữ nguyên; image Backoffice dùng cùng uid/gid 1000, cùng cách
+đọc env, `.env`, `CONFIG_PATH`, hậu tố `_FILE`. Thư mục làm việc là `/backoffice` (D-174, owner 2026-10-24), không phải
+`/directus`: volume mount của service phải dời theo (`/directus/uploads` → `/backoffice/uploads`, `/directus/database` →
+`/backoffice/database`, `/directus/extensions` → `/backoffice/extensions`, `/directus/migrations` →
+`/backoffice/migrations`), vì đường dẫn tương đối của env (`STORAGE_LOCAL_ROOT=./uploads`, `EXTENSIONS_PATH`,
+`MIGRATIONS_PATH`) tính từ `/backoffice`. Đường dẫn tuyệt đối trong env (ví dụ `DB_FILENAME=/directus/database/x.db`)
+thì mount đúng đường đó. Storage S3/MinIO không cần dời gì.
 
 Giới hạn (FR-024):
 
@@ -145,12 +149,12 @@ interface, display, layout, module, panel trong app web mới.
   nhiều replica (hoặc HPA) mà `EXTENSIONS_LOCATION` rỗng, trừ khi `extensions.inImage=true`.
 - **Một máy, không MinIO cho extension**:
   `docker compose -f docker-compose.yml -f docker-compose.shared-extensions.yml up -d --wait` gắn chung volume
-  `extensions` vào `/directus/extensions` của Directus và mọi replica Backoffice, để `EXTENSIONS_LOCATION` rỗng (không
+  `extensions` vào `/directus/extensions` của Directus và `/backoffice/extensions` của mọi replica Backoffice, để `EXTENSIONS_LOCATION` rỗng (không
   node nào sync, cài/gỡ ghi thẳng vào volume, nạp lại qua bus). Không dùng cho nhiều máy hay Kubernetes.
 - **Cài**: Settings > Marketplace của app web mới hoặc của Directus app (cùng bảng `directus_extensions`, cùng storage);
   cài ở một node thì node khác thấy trong vài giây.
 - **Nguồn `module`**: khai báo gói extension trong `dependencies` của `apps/api/package.json`, build lại image API.
-- **Đóng sẵn vào image**: image dẫn xuất chép extension vào `/directus/extensions`, đặt `extensions.inImage=true`, không
+- **Đóng sẵn vào image**: image dẫn xuất chép extension vào `/backoffice/extensions`, đặt `extensions.inImage=true`, không
   dùng marketplace (bản cài sẽ không tới các pod khác).
 - **Nâng cấp từ 019**: đặt `EXTENSIONS_LOCATION` trong ConfigMap/`.env` dùng chung (hoặc `extensions.inImage=true`)
   trước `helm upgrade`; compose: thêm `EXTENSIONS_LOCATION=s3` vào `.env`.
@@ -241,11 +245,11 @@ cấu hình của chart: tự kiểm theo mục "Ràng buộc khi chạy nhiều
 | `api.autoscaling.*`                                                 | bật, 2–10 replica, CPU 70 % | HPA `autoscaling/v2` (cần metrics-server)                                   |
 | `api.shutdownDelaySeconds`, `api.terminationGracePeriodSeconds`     | 10, 30                      | `preStop` và thời hạn tắt máy                                               |
 | `apiPool.name`                                                      | tên release                 | nhãn `backoffice.io/api-pool` mà Service của BE chọn                        |
-| `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/directus/uploads` |
+| `uploads.existingClaim`                                             | rỗng                        | PVC `ReadWriteMany` có sẵn cho storage `local`, mount ở `/backoffice/uploads` |
 | `ingress.host`, `.className`, `.tls`, `.annotations`, `.extraPaths` |                             | Ingress                                                                     |
 | `domain.publicUrl`                                                  | rỗng                        | chế độ domain riêng: `PUBLIC_URL` của Backoffice                            |
 | `mode`                                                              | `shared`                    | `shared` (cạnh Directus) hay `standalone` (mục "Chạy độc lập")              |
-| `migrations.configMap`                                              | rỗng                        | ConfigMap custom migration, mount ở `/directus/migrations`                  |
+| `migrations.configMap`                                              | rỗng                        | ConfigMap custom migration, mount ở `/backoffice/migrations`                |
 | `bootstrap.backoffLimit`, `.activeDeadlineSeconds`, `.resources`    | 3, 600, `api.resources`     | Job `bootstrap` của chế độ `standalone`                                     |
 
 Probe: readiness `/server/health`, liveness và startup `/server/ping` (DB hoặc Redis mất thì pod ra khỏi traffic, không
@@ -308,7 +312,7 @@ BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.sta
   mới đúng một lần:
 
   ```bash
-  docker compose -f docker-compose.yml -f docker-compose.standalone.yml cp 20990101A-my-change.js bootstrap:/directus/migrations/
+  docker compose -f docker-compose.yml -f docker-compose.standalone.yml cp 20990101A-my-change.js bootstrap:/backoffice/migrations/
   docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait
   ```
 
@@ -320,7 +324,7 @@ BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.sta
 - `bootstrap` lỗi (DB không tới được sau 5 lần × 5 giây, migration ném lỗi): `up --wait` thoát mã khác 0 với
   `service "bootstrap" didn't complete successfully`; replica đang chạy giữ nguyên. Xem
   `docker compose ... logs bootstrap`.
-- SQLite: mount volume cho `/directus/database` (và `DB_FILENAME` trong đó), nếu không DB mất khi container bị xóa.
+- SQLite: mount volume cho `/backoffice/database` (và `DB_FILENAME` trong đó), nếu không DB mất khi container bị xóa.
 
 **Kubernetes** (`mode: standalone`):
 

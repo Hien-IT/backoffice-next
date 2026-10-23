@@ -253,6 +253,10 @@ services:
       dockerfile: apps/api/Dockerfile
     image: hiennd23/backoffice-api:local
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
+    # D-174: the image works in /backoffice, so the relative STORAGE_LOCAL_ROOT=./uploads is /backoffice/uploads.
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/backoffice/uploads
     # Starts after Directus has bootstrapped the database (the API never writes it).
     depends_on:
       directus: { condition: service_healthy }
@@ -292,7 +296,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-ratelimit.env
@@ -351,7 +355,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-user-limits.env
@@ -393,7 +397,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cors-hsts.env
@@ -435,7 +439,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-pressure.env
@@ -477,7 +481,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-metrics.env
@@ -497,6 +501,10 @@ services:
     profiles: [multi]
     image: hiennd23/backoffice-api:local
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
+    # D-174: the image works in /backoffice, so the relative STORAGE_LOCAL_ROOT=./uploads is /backoffice/uploads.
+    volumes:
+      - ./.data/sqlite:/directus/database/sqlite
+      - uploads:/backoffice/uploads
     depends_on:
       directus: { condition: service_healthy }
     ports:
@@ -536,7 +544,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cache-config.env
@@ -612,7 +620,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-sso.env
@@ -673,7 +681,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cache-mem.env
@@ -715,7 +723,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cache-mem-purge.env
@@ -758,7 +766,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cache-redis.env
@@ -801,7 +809,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-cache-redis-purge.env
@@ -843,7 +851,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-websocket.env
@@ -886,7 +894,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -931,7 +939,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -977,7 +985,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -1023,7 +1031,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -1067,7 +1075,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -1113,7 +1121,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -1157,7 +1165,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-blackbox.env
@@ -1202,7 +1210,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): one image for every pair
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-retention.env
@@ -1248,7 +1256,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): one image for every pair
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-flows-schedule.env
@@ -1309,7 +1317,7 @@ services:
     image: hiennd23/backoffice-api:local
     platform: linux/amd64 # feature 007 (research R2): one image for every pair
     volumes:
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/postgres.env
       - ./env/profile-setup.env
@@ -1354,7 +1362,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-graphql-nointro.env
@@ -1397,7 +1405,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): Directus' architecture, sharp encodes AVIF to other bytes on arm64
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-extensions.env
@@ -1490,7 +1498,7 @@ services:
     volumes:
       - ./.data/bootstrap:/directus/database/bootstrap
       - ./fixtures/migrations:/directus/migrations:ro
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       - ./env/profile-bootstrap.env
@@ -1614,7 +1622,7 @@ services:
     platform: linux/amd64 # feature 007 (research R2): one image for every pair
     volumes:
       - ./.data/sqlite:/directus/database/sqlite
-      - uploads:/directus/uploads
+      - uploads:/backoffice/uploads
     env_file:
       - ./env/${TEST_DB:-postgres}.env
       # Spec 020: the same fixture extensions as the main pair (Settings > Extensions in the cors configuration).

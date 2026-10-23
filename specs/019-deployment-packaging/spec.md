@@ -345,7 +345,8 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 
 - **FR-020**: Image BE PHẢI thay được image `directus/directus:11.17.4` trong một service đang chạy mà chỉ đổi image:
   cùng cổng mặc định 8055, cùng thư mục làm việc `/directus`, cùng path volume (`/directus/uploads`,
-  `/directus/database`, `/directus/extensions`), cùng uid/gid 1000, cùng cách đọc env, `.env`, `CONFIG_PATH`, `_FILE`
+  `/directus/database`, `/directus/extensions`) (từ 2026-10-24 thư mục làm việc là `/backoffice` và volume mount ở
+  `/backoffice/...`, D-174: thay image phải dời mount), cùng uid/gid 1000, cùng cách đọc env, `.env`, `CONFIG_PATH`, `_FILE`
   (001).
 - **FR-021**: Image BE PHẢI chạy một process, không chạy migration hay ghi bảng hệ thống khi khởi động (D-19 của 001,
   Nguyên tắc II); biến Directus BE không dùng chỉ gây cảnh báo (001), biến `PM2_*` bị bỏ qua.
@@ -490,6 +491,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
 | D-122 | Khoảng trễ trước khi ngừng nhận kết nối khi SIGTERM | Không có; ngừng nhận ngay | Có, đặt ở cấu hình triển khai, không đổi code tắt máy: Kubernetes `preStop` `sleep` (chart); compose: `lb` chuyển request chưa gửi được sang replica khác (`proxy_next_upstream`, `proxy_connect_timeout 1s`) | FR-033: không lỗi request khi tắt replica | khác | Duyệt (chủ dự án, tech lead duyệt 2026-10-20) |
 | D-123 | Lệnh CLI (`bootstrap`, `database install`/`migrate:*`, `init`, `schema snapshot`/`apply`, `users create`/`passwd`, `roles create`, `cache clear`, `count`, `security key:generate`/`secret:generate`) | Có trong image Directus (`node cli.js <lệnh>` ở `/directus`) | Gỡ ở 021 (xem spec 021): image Backoffice có CLI của Directus 11.17.4 (`node cli.js <lệnh>`); `bootstrap`/`migrate` chỉ trên Postgres và SQLite (D-145) | — | ngoài phạm vi | Duyệt (chủ dự án, tech lead duyệt 2026-10-20); gỡ ở 021 |
 | D-134 | Nhãn `maintainer` và tag của target `container` | Image Directus có `maintainer` của nhóm Directus | `maintainer="Hien Nguyen"` ở image API và web (thay phần `maintainer` để rỗng của quyết định chủ dự án 2026-10-20, FR-022); target `container` gắn `hiennd23/backoffice-<app>:local` và `:latest`, không tự push (push khi cần bằng biến `INPUT_<APP>_PUSH=true`, CI vẫn thay tag bằng `INPUT_<APP>_TAGS`) | Chủ dự án 2026-10-21 | khác | — |
+| D-174 | Thư mục làm việc của image API | `WORKDIR /directus`; volume `/directus/uploads`, `/directus/database`, `/directus/extensions`, `/directus/migrations` | `WORKDIR /backoffice` (`/backoffice/cli.js`, `DB_FILENAME=/backoffice/database/database.sqlite`); Helm mount `/backoffice/uploads`, `/backoffice/migrations`, check `MIGRATIONS_PATH` theo `/backoffice/migrations`; compose standalone và shared-extensions mount `/backoffice/...`; parity env mount `uploads` của container Backoffice ở `/backoffice/uploads` (`STORAGE_LOCAL_ROOT=./uploads`). Thay image trên service Directus đang chạy phải dời các mount sang `/backoffice/...` (đường dẫn tuyệt đối trong env thì mount đúng đường đó); storage S3 không đổi gì. Sửa FR-020 | Owner 2026-10-24 chọn C (đổi hẳn, không symlink) | khác | — |
 
 **Cần xác nhận**: Không có.
 
