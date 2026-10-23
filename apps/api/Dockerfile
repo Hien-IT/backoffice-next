@@ -44,9 +44,9 @@ RUN apk add --no-cache tini
 # FR-020, FR-025: uid/gid 1000 (`node`) like the DR image, so files on a shared volume keep one owner.
 USER node
 
-# Owner 2026-10-24 (D-174, revises FR-017 of 019): the working directory is /backoffice, not the /directus of the DR
+# Owner 2026-10-24 (D-174, revises FR-017 of 019): the working directory is /backoffice
 # image. Relative paths of a shared config (./uploads, ./extensions, ./migrations, .env) resolve here, so volumes mount
-# at /backoffice/...; swapping a Directus container for this image means moving its mounts.
+# at /backoffice/...; swapping a DR container for this image means moving its mounts.
 WORKDIR /backoffice
 
 ENV \
