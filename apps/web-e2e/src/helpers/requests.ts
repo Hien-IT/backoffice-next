@@ -80,7 +80,10 @@ export const test = base.extend<{ apiUrl: string; apiRequests: ApiRequest[] }>({
 				const ignored =
 					NETWORK_ERROR.test(text) ||
 					CSP_EXTENSIONS.test(text) ||
-					(browserName === 'webkit' && (WEBKIT_WORKER.test(text) || WEBKIT_IMPORT_ABORT.test(text)));
+					// WebKit also logs the fetch a page.goto cut as a console error ("TypeError: Load failed"), as for pageerror
+					// above (settings-data-model.spec.ts:246, CI 39797665422 and 39938134838).
+					(browserName === 'webkit' &&
+						(WEBKIT_WORKER.test(text) || WEBKIT_IMPORT_ABORT.test(text) || NAVIGATION_ABORT.test(text)));
 				if (message.type() === 'error' && !ignored) problems.push(`console.error: ${text}`);
 				if (message.type() === 'warning' && MISSING_KEY.test(text) && !DIRECTUS_MISSING_KEY.test(text))
 					problems.push(`missing key: ${text}`);
