@@ -10,7 +10,12 @@ import type { Plugin } from 'vite';
 
 export const APP_SHARED_DEPS = ['vue', 'vue-router', 'vue-i18n', 'pinia', '@directus/extensions-sdk'] as const;
 
-const entryName = (dep: string) => dep.replace(/\//g, '_');
+/**
+ * The entry chunk name of a shared dependency: its npm scope dropped (owner 2026-10-24, D-177: no "@directus" in the
+ * file names), so `@directus/extensions-sdk` is `assets/extensions-sdk.<hash>.entry.js`. The import map keys stay the
+ * bare specifiers the extensions import.
+ */
+export const entryName = (dep: string) => dep.replace(/^@[^/]+\//, '').replace(/\//g, '_');
 
 const SHARED_PREFIX = 'bo-shared:';
 

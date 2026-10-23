@@ -20,11 +20,11 @@
   "vue-router":"/admin/assets/vue-router.<hash>.entry.js",
   "vue-i18n":"/admin/assets/vue-i18n.<hash>.entry.js",
   "pinia":"/admin/assets/pinia.<hash>.entry.js",
-  "@directus/extensions-sdk":"/admin/assets/@directus_extensions-sdk.<hash>.entry.js"}}</script>
+  "@directus/extensions-sdk":"/admin/assets/extensions-sdk.<hash>.entry.js"}}</script>
 ```
 
 Đứng trước mọi `<script type="module">`/`modulepreload`. Plugin Vite `backoffice-extensions-build`: `rollupOptions.input`
-thêm 5 entry (key `/`→`_`), `entryFileNames: 'assets/[name].[hash].entry.js'`, `preserveEntrySignatures: 'exports-only'`,
+thêm 5 entry (tên entry bỏ npm scope rồi `/`→`_`, nên `@directus/extensions-sdk` là `extensions-sdk`, D-177; trước 2026-10-24 là `@directus_extensions-sdk`), `entryFileNames: 'assets/[name].[hash].entry.js'`, `preserveEntrySignatures: 'exports-only'`,
 `generateBundle` (post) chèn import map vào asset `index.html`. Dev: `transformIndexHtml` chèn import map trỏ
 `/admin/@id/<dep>` [T143].
 

@@ -158,7 +158,7 @@ chèn layer vào `express.router.stack` sau `nest.init()` (chạm nội bộ rou
   TEMP_PATH/app-extensions`; `appExtensionChunks` = tên các chunk; `index.js` → chunk đầu (entry).
 - Web (`apps/web/vite.config.ts`, chưa có khối `build`) thêm plugin `backoffice-extensions-build` (`apply: 'build'`) như
   `directus-extensions-build` (`app/vite.config.js:136-154`): `rollupOptions.input = { index, ...5 shared dep (key thay
-  `/` bằng `_`) }`, `output.entryFileNames: 'assets/[name].[hash].entry.js'`, `preserveEntrySignatures: 'exports-only'`;
+  `/` bằng `_`; từ 2026-10-24 bỏ npm scope trước, D-177) }`, `output.entryFileNames: 'assets/[name].[hash].entry.js'`, `preserveEntrySignatures: 'exports-only'`;
   và ở `generateBundle` (`enforce: 'post'`) chèn `<script type="importmap">{"imports":{"vue":"/admin/assets/vue.<hash>.entry.js", "vue-router": …, "vue-i18n": …, "pinia": …, "@directus/extensions-sdk": …}}</script>` vào `index.html` trước
   script module đầu tiên (Vite 7 `config.js:24208-24213` cảnh báo và tự dời importmap lên trước; chèn sau build-html
   nên không bị cảnh báo). Mục `@directus/extensions-sdk` trỏ tới module cục bộ `src/extensions/sdk.ts`: re-export

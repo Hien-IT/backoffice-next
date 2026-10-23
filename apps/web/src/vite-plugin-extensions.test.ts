@@ -1,10 +1,14 @@
 // Spec 020 (T141, contracts/web.md §2): the import map of the shared dependencies goes before the first module script
 // or modulepreload, so the browser knows it before any module import.
 import { expect, test } from 'vitest';
-import { APP_SHARED_DEPS, insertImportMap } from '../vite-plugin-extensions.ts';
+import { APP_SHARED_DEPS, entryName, insertImportMap } from '../vite-plugin-extensions.ts';
 
 test('the five shared dependencies of Directus 11.17.4', () => {
 	expect(APP_SHARED_DEPS).toEqual(['vue', 'vue-router', 'vue-i18n', 'pinia', '@directus/extensions-sdk']);
+});
+
+test('entry chunk names drop the npm scope: no "@directus" in the file names (D-177)', () => {
+	expect(APP_SHARED_DEPS.map(entryName)).toEqual(['vue', 'vue-router', 'vue-i18n', 'pinia', 'extensions-sdk']);
 });
 
 test('inserted before the first modulepreload or module script', () => {
