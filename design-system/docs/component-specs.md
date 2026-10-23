@@ -777,6 +777,12 @@ Shared parts (each component declares the constants it uses locally; there is no
   lint: dashed underline + gutter icon (the shape carries the meaning) warning-600 / error-600 (dark -400); lint tooltip
   in Tooltip colors. The hidden textarea CodeMirror types into gets the form input id, `aria-labelledby`,
   `aria-describedby`, `aria-invalid` (FR-094).
+- Height (do not remove, guarded by `interfaces/input-code/InputCode.browser.test.ts`): the CodeMirror scroller stops at
+  56.25rem like Directus `_codemirror.scss` (`:where(.bo-codemirror) .CodeMirror-scroll`). Without a bound CodeMirror
+  renders every line: the 62k-line "Show code" of the Schema Management extension froze the page (2026-10-21). Inside a
+  dialog card (`.v-dialog-body`, card 90vh and scrolling) it stops at `min(56.25rem, calc(90vh - 10rem))`, the room
+  the title and actions leave, so the card does not scroll around it and only the editor scrollbar shows (D-175 of
+  020, owner 2026-10-24). Both rules use `:where()`: an editor or extension height still wins.
 - input-code: frame classes on the wrapper (`dir="ltr"`); "fill template" button `absolute end-2 top-2 z-4`, `ICON_BTN`
   variant
   `bg-white text-brand-500 hover:bg-gray-100 hover:text-brand-600 dark:bg-gray-900 dark:text-brand-400 dark:hover:bg-white/5 dark:hover:text-brand-300`
