@@ -113,17 +113,18 @@ function bike(ctx: CanvasRenderingContext2D, phase: number, frame: number) {
 	line(ctx, 4.5, hip, knee(hip, pedal(0), 11.5), pedal(0));
 }
 
+// Drawn facing left; drawSprite mirrors it so the swimmer heads right like the runner and the cyclist.
 function swim(ctx: CanvasRenderingContext2D, phase: number) {
 	const shoulder: Point = [23, 35];
 	const hip: Point = [43, 37];
 
-	// Water: two wave lines moving backward.
+	// Water: two wave lines flowing past the swimmer, toward its feet.
 	for (const [y, shift] of [
 		[44, 0],
 		[52, 1.5],
 	] as const) {
 		const points: Point[] = [];
-		for (let x = 2; x <= 62; x += 2) points.push([x, y + 2.2 * Math.sin(x * 0.35 + phase + shift)]);
+		for (let x = 2; x <= 62; x += 2) points.push([x, y + 2.2 * Math.sin(x * 0.35 - phase + shift)]);
 		line(ctx, 3, ...points);
 	}
 
@@ -152,5 +153,11 @@ export function drawSprite(ctx: CanvasRenderingContext2D, sprite: Sprite, frame:
 
 	if (sprite === 'run') run(ctx, phase);
 	else if (sprite === 'bike') bike(ctx, phase, frame);
-	else swim(ctx, phase);
+	else {
+		ctx.save();
+		ctx.translate(64, 0);
+		ctx.scale(-1, 1);
+		swim(ctx, phase);
+		ctx.restore();
+	}
 }
