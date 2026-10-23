@@ -19,7 +19,7 @@ const {
 	label?: string;
 	placeholder?: string;
 	rows?: number;
-	/** Directus input-multiline `font` option. */
+	/** DR input-multiline `font` option. */
 	font?: 'sans-serif' | 'serif' | 'monospace';
 	disabled?: boolean;
 	readonly?: boolean;

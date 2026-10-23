@@ -1,4 +1,4 @@
-// Directus has no test for translations.vue: spec FR-048 options, US3 scenario 4, Edge Cases (translations), fixture
+// DR has no test for translations.vue: spec FR-048 options, US3 scenario 4, Edge Cases (translations), fixture
 // bo_translations / bo_translations_translations / bo_languages, edit shapes ({create, update, delete}, FR-040),
 // nested validation (FR-018), states, permissions, keyboard.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
@@ -239,7 +239,7 @@ describe('translations', () => {
 		await input(wrapper, 'title').setValue('Hello');
 		await flushPromises();
 
-		// Directus updateValue: a created row of a saved parent also gets the parent key.
+		// DR updateValue: a created row of a saved parent also gets the parent key.
 		expect(lastInput(wrapper)).toEqual({
 			create: [{ bo_languages_code: { code: 'en-US' }, title: 'Hello', bo_translations_id: 2 }],
 			update: [],

@@ -1,5 +1,5 @@
-// FR-030, FR-082 (feature 012): no "Directus" the user could see in apps/web/src. Comments (`Ported from`, notes
-// about Directus behaviour), identifiers such as createDirectus and tests are ignored; translations/*.json are checked by sync-translations.test.ts.
+// FR-030, FR-082 (feature 012): no "DR" the user could see in apps/web/src. Comments (`Ported from`, notes
+// about DR behaviour), identifiers such as createDirectus and tests are ignored; translations/*.json are checked by sync-translations.test.ts.
 // JSON data is checked too (feature 015), except the files in PATH_EXCEPTIONS.
 // Usage: node scripts/check-brand.mjs [srcDir]
 import { readdirSync, readFileSync } from 'node:fs';
@@ -17,7 +17,7 @@ export function stripComments(source) {
 }
 
 // Paths relative to srcDir. lang/translations/: sync-translations.test.ts checks them. theme/theme-presets.json:
-// generated theme data whose ids ("Directus Default"...) are stored in directus_users and directus_settings (spec 015
+// generated theme data whose ids ("DR Default"...) are stored in directus_users and directus_settings (spec 015
 // D-88, D-89, principle IX); the labels shown come from the theme_directus_* translation keys.
 export const PATH_EXCEPTIONS = [
 	/^lang\/translations\//,
@@ -45,7 +45,7 @@ export function checkBrand(srcDir) {
 		stripComments(source)
 			.split('\n')
 			.forEach((line, index) => {
-				// A line that compares API data with a Directus value says so with `brand-allowed: <reason>`.
+				// A line that compares API data with a DR value says so with `brand-allowed: <reason>`.
 				if (original[index]?.includes('brand-allowed:')) return;
 				if (/(?<![A-Za-z])Directus(?![A-Za-z])/.test(line))
 					errors.push(`${relative(srcDir, file)}:${index + 1}: ${line.trim()}`);

@@ -158,7 +158,7 @@ describe('Integration Tests', () => {
 	});
 });
 
-// Backoffice: cases of spec FR-030 to FR-035 beyond the three of Directus (contracts/versions.md §2, §5, §7).
+// Backoffice: cases of spec FR-030 to FR-035 beyond the three of DR (contracts/versions.md §2, §5, §7).
 describe('Backoffice: validation, mapDelta and promote', async () => {
 	const { validateAccess } = await import('../permissions/modules/validate-access/validate-access.js');
 	const { CollectionsService } = await import('./collections.service.js');

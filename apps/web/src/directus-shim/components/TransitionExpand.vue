@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/transition/expand.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7 #67): the Directus height (or width) transition; see expand-methods.ts for
+// Backoffice (spec 020, data-model §7 #67): the DR height (or width) transition; see expand-methods.ts for
 // reduced motion.
 import ExpandMethods from './expand-methods.ts';
 

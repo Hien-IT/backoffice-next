@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: BoSelect with its label instead of `.type-label` + v-select; `show-deselect` is a "Deselect" first item
 // (emitted as null; Reka Select items cannot have an empty value); BoCheckbox with the `.type-label` text as its group label; v-detail -> BoDetail; the
-// advanced options stack in one column (the options sidebar is too narrow for the Directus two-column grid);
+// advanced options stack in one column (the options sidebar is too narrow for the DR two-column grid);
 // `useSync` = emit of the update.
 import { useI18n } from 'vue-i18n';
 import BoCheckbox from '../../components/BoCheckbox.vue';

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-template-input.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): the contenteditable template input of Directus with the Input recipe; the
+// Backoffice (spec 020, data-model §7): the contenteditable template input of DR with the Input recipe; the
 // caret helpers replace `caret-pos` (not a dependency): the position is the text length before the caret, as
 // caret-pos counts it. The element is a `textbox` (name from the extension's aria-label / aria-labelledby).
 import { useEventListener } from '@vueuse/core';
@@ -243,7 +243,7 @@ function parseHTML(innerText?: string, isDirectInput = false) {
 		hasTriggered = false;
 	}
 
-	// Backoffice: the text is escaped before it becomes HTML (Directus sets the raw text, so a stored value with markup
+	// Backoffice: the text is escaped before it becomes HTML (DR sets the raw text, so a stored value with markup
 	// would run); the escaped set is the one innerHTML serializes, so the comparison below still holds.
 	let newHTML = escapeHTML(input.value.innerText);
 	let caretPos = 0;
@@ -324,7 +324,7 @@ function parseHTML(innerText?: string, isDirectInput = false) {
 
 const PREVIEW =
 	'[&_.preview]:inline-block [&_.preview]:rounded-md [&_.preview]:bg-brand-50 [&_.preview]:px-1 [&_.preview]:py-0.5 [&_.preview]:align-[-0.125rem] [&_.preview]:text-[length:0] [&_.preview]:leading-none [&_.preview]:text-brand-600 [&_.preview]:before:block [&_.preview]:before:text-theme-xs [&_.preview]:before:content-[attr(data-preview)] dark:[&_.preview]:bg-brand-500/15 dark:[&_.preview]:text-brand-400';
-// Input recipe (FIELD + FIELD_VALID of BoInput); the placeholder is the `:empty::before` of Directus.
+// Input recipe (FIELD + FIELD_VALID of BoInput); the placeholder is the `:empty::before` of DR.
 const FIELD =
 	'relative w-full overflow-hidden rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text-gray-800 shadow-theme-xs focus:border-brand-500 focus:outline-hidden focus:ring-3 focus:ring-brand-500/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 empty:before:pointer-events-none empty:before:text-gray-500 empty:before:content-[attr(data-placeholder)] dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:empty:before:text-gray-400';
 </script>

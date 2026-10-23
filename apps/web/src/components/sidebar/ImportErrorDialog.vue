@@ -87,7 +87,7 @@ function closeDialog() {
 </script>
 
 <template>
-	<!-- Directus v-dialog is persistent; BoDialog has no such prop, Esc / outside click only dismiss like the button. -->
+	<!-- DR v-dialog is persistent; BoDialog has no such prop, Esc / outside click only dismiss like the button. -->
 	<BoDialog v-model:open="modelValue" :title="$t('import_data_errors')">
 		<BoNotice type="danger">
 			<p>{{ $t('import_data_validation_errors_notice') }}</p>

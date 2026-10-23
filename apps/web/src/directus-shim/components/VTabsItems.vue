@@ -2,7 +2,7 @@
 <script setup lang="ts">
 import VItemGroup from './VItemGroup.vue';
 
-// Backoffice (spec 020, data-model §7): a VItemGroup with the `v-tabs-items` scope, as in Directus.
+// Backoffice (spec 020, data-model §7): a VItemGroup with the `v-tabs-items` scope, as in DR.
 withDefaults(defineProps<{ modelValue?: (number | string)[] | undefined }>(), { modelValue: undefined });
 
 const emit = defineEmits(['update:modelValue']);

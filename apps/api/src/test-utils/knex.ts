@@ -162,7 +162,7 @@ export function createMockTableBuilder() {
 
 /**
  * Sets up common database operation mock handlers for all system collections
- * Automatically mocks CRUD operations (select, insert, update, delete) for all Directus system collections
+ * Automatically mocks CRUD operations (select, insert, update, delete) for all DR system collections
  *
  * @param tracker The knex-mock-client tracker instance
  *

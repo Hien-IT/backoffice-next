@@ -116,7 +116,7 @@ test('VResizeable: the bar is focusable and resizes with the arrows and with a p
 	await new Promise((resolve) => setTimeout(resolve, 100));
 
 	const pane = document.querySelector<HTMLElement>('.pane')!;
-	// The bar shows while the pane is in view (useElementVisibility, as Directus).
+	// The bar shows while the pane is in view (useElementVisibility, as DR).
 	pane.scrollIntoView();
 	await new Promise((resolve) => setTimeout(resolve, 100));
 	const bar = document.querySelector<HTMLElement>('[role="separator"]')!;

@@ -14,7 +14,7 @@ export let rateLimiter: RateLimiterRedis | RateLimiterMemory | undefined;
 
 /**
  * Backoffice (feature 011): the limiter, created on first use when RATE_LIMITER_REGISTRATION_ENABLED; undefined when it
- * is off, like the module-level `rateLimiter` of Directus that the GraphQL users_register resolver reads.
+ * is off, like the module-level `rateLimiter` of DR that the GraphQL users_register resolver reads.
  */
 export function registrationRateLimiter(): RateLimiterRedis | RateLimiterMemory | undefined {
 	const env = useEnv();

@@ -203,7 +203,7 @@ describe('InsightsOverviewRoute', () => {
 });
 
 describe('DashboardDialog', () => {
-	// Directus resets the icon to `space_dashboard` whenever the dialog opens (dashboard-dialog.vue watcher), so a new
+	// DR resets the icon to `space_dashboard` whenever the dialog opens (dashboard-dialog.vue watcher), so a new
 	// dashboard is saved with that icon, not the `dashboard` of the initial values.
 	test(
 		'create: name required, POST /dashboards {name, icon, color, note} fields=id, then the dashboard page',

@@ -1,6 +1,6 @@
-// Backoffice: Directus has no unit test for cli/commands/init (spec 021 T059, FR-030..FR-032, D-146, D-147). The
+// Backoffice: DR has no unit test for cli/commands/init (spec 021 T059, FR-030..FR-032, D-146, D-147). The
 // prompts are answered by a mocked inquirer; seeds, migrations and the admin rows go to a real SQLite file. Migration
-// 20251014A reads the schema through the global database (DB_* env), as in Directus, so the env points at that file
+// 20251014A reads the schema through the global database (DB_* env), as in DR, so the env points at that file
 // like the DB_* defaults of the image do.
 import { existsSync, mkdtempSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
@@ -23,7 +23,7 @@ const ENV_DB = await vi.hoisted(async () => {
 vi.mock('inquirer');
 
 // Under Node the default import of knex is module.exports, which has `.default` (create-db-connection.ts calls
-// `knex.default` like Directus); Vitest's interop gives the bare function.
+// `knex.default` like DR); Vitest's interop gives the bare function.
 vi.mock('knex', async (importOriginal) => {
 	const original = await importOriginal<any>();
 	original.default.default ??= original.default;
@@ -71,7 +71,7 @@ test('SQLite: installs the database, writes .env and the first admin, prints the
 
 	await expect(init()).rejects.toEqual(new Exit('0'));
 
-	// D-146: only the vendors Backoffice installs, Directus' labels.
+	// D-146: only the vendors Backoffice installs, DR' labels.
 	expect(questions[0]![0]).toMatchObject({
 		type: 'list',
 		name: 'client',

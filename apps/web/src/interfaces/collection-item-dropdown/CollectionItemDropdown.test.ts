@@ -1,4 +1,4 @@
-// Directus has no test for collection-item-dropdown.vue: the bo_rel `collection_item` field of the fixture snapshot
+// DR has no test for collection-item-dropdown.vue: the bo_rel `collection_item` field of the fixture snapshot
 // (FR-049, contracts/api-calls.md #36 `<endpoint>?filter[<pk>][_eq]=<key>`), its options, value shape, states, the
 // three fixture users and the missing / unreadable collection edge case.
 import type { FieldRaw } from '@directus/types';

@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US5-4, recipe Q-25): BoSortableList (mouse drag and the D-96 Up/Down menu) instead of
 // vuedraggable in a VList; module rows have a BoSwitch, the locked row a lock icon, link rows open the drawer on their
-// name and have a named remove button. The default and the module list are those of Directus 11.17.4, so a save writes
-// what the Directus app writes: the visual / deployments modules (D-41, owner 2026-10-21) and the Directus documentation
+// name and have a named remove button. The default and the module list are those of DR 11.17.4, so a save writes
+// what the DR app writes: the visual / deployments modules (D-41, owner 2026-10-21) and the DR documentation
 // link (D-100, D-49) are kept in the data but not listed; the sidebar skips them too.
 import type { DeepPartial, Field } from '@directus/types';
 import { assign } from 'lodash-es';
@@ -98,13 +98,13 @@ const availableModulesAsBarModule = computed<SettingsModuleBarModule[]>(() => {
 		);
 });
 
-/** Kept in the data but not listed: the Directus documentation link (D-100) and the modules without a port (D-41). */
+/** Kept in the data but not listed: the DR documentation link (D-100) and the modules without a port (D-41). */
 function isHiddenPart(part: { type: string; id: string; url?: string }) {
 	if (part.type === 'link') return part.id === 'docs' && part.url === DIRECTUS_DOCS_URL;
 	return OUT_OF_SCOPE_MODULES.some((module) => module.id === part.id);
 }
 
-/** Every part as the Directus app lists it: the saved bar, then the modules it does not have yet. */
+/** Every part as the DR app lists it: the saved bar, then the modules it does not have yet. */
 const allValuesWithData = computed<PreviewValue[]>(() => {
 	const savedModules = (
 		(props.value ?? MODULE_BAR_DEFAULT).filter((value) => value.type === 'module') as SettingsModuleBarModule[]
@@ -123,8 +123,8 @@ const valuesWithData = computed<PreviewValue[]>({
 		return allValuesWithData.value.filter((part) => !isHiddenPart(part));
 	},
 	set(previewValue: PreviewValue[]) {
-		// The hidden parts go back at their place, so the saved value is what the Directus app writes (valueToPreview
-		// translates link names: Directus writes the translated name).
+		// The hidden parts go back at their place, so the saved value is what the DR app writes (valueToPreview
+		// translates link names: DR writes the translated name).
 		const value = [...previewValue];
 		allValuesWithData.value.forEach((part, index) => {
 			if (isHiddenPart(part)) value.splice(Math.min(index, value.length), 0, part);

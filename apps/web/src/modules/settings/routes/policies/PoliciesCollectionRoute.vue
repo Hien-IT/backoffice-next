@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/policies/collection.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 US4-4, recipes Q-2 and Q-27): BoTable with the Directus headers and requests; the create button
+// Backoffice (spec 016 US4-4, recipes Q-2 and Q-27): BoTable with the DR headers and requests; the create button
 // is a BoButton link; the row menu is a BoMenu on a named `more_vert` icon button (an unnamed clickable icon in
-// Directus); the duplicate dialog is a BoDialog with a form, so Enter duplicates (Directus `apply`), Cancel first.
+// DR); the duplicate dialog is a BoDialog with a form, so Enter duplicates (DR `apply`), Cancel first.
 // BoTextOverflow has no `highlight` yet, so the search match is marked here (v-highlight: every match, any case). The
 // table is not `fixed-header` (it needs a bounded parent; the page scrolls). Errors open the error dialog (D-66).
 import { computed, ref } from 'vue';

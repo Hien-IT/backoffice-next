@@ -90,7 +90,7 @@ export const useCollectionsStore = defineStore('collectionsStore', () => {
 	);
 
 	/**
-	 * All non-system collections that have a meta object, i.e. are configured in Directus
+	 * All non-system collections that have a meta object, i.e. are configured in DR
 	 */
 	const configuredCollections = computed(() => allCollections.value.filter((collection) => collection.meta));
 
@@ -146,7 +146,7 @@ export const useCollectionsStore = defineStore('collectionsStore', () => {
 		const icon = collection.meta?.icon || 'database';
 		const color = collection.meta?.color;
 		// Backoffice (018 D-117, owner 2026-10-18; branding D-51): system collections drop the `directus_` prefix from their
-		// name ("Users", not "Directus Users"); translated names still win below.
+		// name ("Users", not "DR Users"); translated names still win below.
 		let name = formatTitle(collection.collection.replace(/^directus_/, ''));
 		const type = getCollectionType(collection);
 

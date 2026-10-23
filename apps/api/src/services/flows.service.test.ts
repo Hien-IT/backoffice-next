@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. FlowsService reloads the flows after every write and unlinks the operations of the
+// Backoffice: no test in DR. FlowsService reloads the flows after every write and unlinks the operations of the
 // deleted flows first (spec FR-002, R-22).
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import { afterEach, expect, test, vi } from 'vitest';

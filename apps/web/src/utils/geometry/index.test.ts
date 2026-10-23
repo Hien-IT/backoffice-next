@@ -1,4 +1,4 @@
-// Directus has no test for utils/geometry: every geometry type x storage format (spec FR-063), bbox and flatten.
+// DR has no test for utils/geometry: every geometry type x storage format (spec FR-063), bbox and flatten.
 import type { AnyGeometry, GeometryFormat, Type } from '@directus/types';
 import { describe, expect, test } from 'vitest';
 import {

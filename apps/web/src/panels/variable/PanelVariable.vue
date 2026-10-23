@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-051, FR-052, FR-055, FR-056): the interface comes from the registry (getInterface) instead
 // of the global `interface-${inter}` component; the padding is PanelTile's. The interface is labelled by the tile
-// label (PANEL_LABEL) through FORM_FIELD_A11Y, as FormField labels it (Directus has no label: a11y).
+// label (PANEL_LABEL) through FORM_FIELD_A11Y, as FormField labels it (DR has no label: a11y).
 import type { Type } from '@directus/types';
 import { computed, inject, provide, ref, useId } from 'vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';

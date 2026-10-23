@@ -4,7 +4,7 @@
 // registry imports every index.ts eagerly, SC-012), so `createCalendar` awaits the FullCalendar modules before
 // `new Calendar` and the plugins come from that import; `calendar` is a shallowRef (no deep proxy of the Calendar
 // instance); `api.patch` is `sdk.request(requestEndpoint(..., PATCH))`; the event lookup compares the keys as strings
-// (Directus `==` against the string event id); `dragRevertDuration` is 0 under `prefers-reduced-motion` (FR-110c: the
+// (DR `==` against the string event id); `dragRevertDuration` is 0 under `prefers-reduced-motion` (FR-110c: the
 // global `transition-duration: 0s` of styles/base.css would otherwise keep the reverting drag mirror waiting for a
 // `transitionend` that never fires).
 import type { Field, Item } from '@directus/types';
@@ -38,7 +38,7 @@ import type { LayoutOptions } from './types.ts';
 
 let fullCalendar: Promise<[typeof import('@fullcalendar/core'), PluginDef[]]> | undefined;
 
-/** FullCalendar and the four plugins of Directus, imported once on the first calendar. */
+/** FullCalendar and the four plugins of DR, imported once on the first calendar. */
 function loadFullCalendar() {
 	fullCalendar ??= Promise.all([
 		import('@fullcalendar/core'),

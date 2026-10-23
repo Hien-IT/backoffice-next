@@ -25,7 +25,7 @@ export type BoMenuItem = {
 	active?: boolean;
 	/** A separator after this item. */
 	divider?: boolean;
-	/** A destructive action (Directus `.danger` list item): error color. */
+	/** A destructive action (DR `.danger` list item): error color. */
 	danger?: boolean;
 };
 

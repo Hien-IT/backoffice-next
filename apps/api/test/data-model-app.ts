@@ -1,5 +1,5 @@
 // Feature 006: the app the controller tests of /collections, /fields, /relations and /schema talk to, on the SQLite
-// auth test database with one user collection (`articles`) so collection-exists answers like Directus. The services
+// auth test database with one user collection (`articles`) so collection-exists answers like DR. The services
 // are mocked by each test file; this file only builds the database and the agent.
 import jwt from 'jsonwebtoken';
 import type { Knex } from 'knex';

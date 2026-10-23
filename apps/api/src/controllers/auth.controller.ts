@@ -1,4 +1,4 @@
-// Ported from directus/api/src/controllers/auth.ts. Each driver router of Directus is a handler object in its driver
+// Ported from directus/api/src/controllers/auth.ts. Each driver router of DR is a handler object in its driver
 // file (research R3 of spec 003): a provider without a handler for the method and path is a 404, like a request that
 // falls through the Express routers.
 import { useEnv } from '@backoffice/env';
@@ -84,11 +84,11 @@ function createDriverRoutes(name: string, driver: string): DriverRoutes {
 		}
 	}
 
-	// Backoffice: no router for saml (D-24 of spec 003) nor for unknown drivers, like Directus logs and skips them.
+	// Backoffice: no router for saml (D-24 of spec 003) nor for unknown drivers, like DR logs and skips them.
 	return {};
 }
 
-/** The accountability the refresh and logout handlers of Directus build (not the one of `authenticate`). */
+/** The accountability the refresh and logout handlers of DR build (not the one of `authenticate`). */
 function requestAccountability(req: Request): Accountability {
 	const accountability: Accountability = createDefaultAccountability({ ip: getIPFromReq(req) });
 
@@ -103,7 +103,7 @@ function requestAccountability(req: Request): Accountability {
 
 @Controller('auth')
 export class AuthController {
-	// Directus builds each driver router once, when the controller module loads.
+	// DR builds each driver router once, when the controller module loads.
 	private readonly localRouter = memoize(createLocalAuthRouter);
 
 	private readonly driverRoutes = memoize(createDriverRoutes, (name, driver) => `${driver}:${name}`);
@@ -143,7 +143,7 @@ export class AuthController {
 		@Inject(UsersService) private readonly usersService: ServiceFactory<UsersService>,
 	) {}
 
-	// Nest answers POST with 201 by default; Directus answers 200.
+	// Nest answers POST with 201 by default; DR answers 200.
 	@Post('login')
 	@HttpCode(200)
 	async login(@Req() req: Request, @Res() res: Response): Promise<void> {

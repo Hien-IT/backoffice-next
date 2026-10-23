@@ -1,4 +1,4 @@
-// Backoffice: runs an Express middleware of Directus (validateBatch, useCollection...) inside a Nest handler, so the
+// Backoffice: runs an Express middleware of DR (validateBatch, useCollection...) inside a Nest handler, so the
 // ported middleware keeps its code and tests (research R3 of spec 004). Resolves when the middleware calls next(),
 // rejects with the error it passes to next(err).
 import type { Request, RequestHandler, Response } from 'express';

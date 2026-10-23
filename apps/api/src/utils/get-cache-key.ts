@@ -1,5 +1,5 @@
 // Ported from directus/api/src/utils/get-cache-key.ts
-// Backoffice: the key of every path is the same as Directus (spec FR-010 of 001): `version` is DIRECTUS_COMPAT_VERSION,
+// Backoffice: the key of every path is the same as DR (spec FR-010 of 001): `version` is DIRECTUS_COMPAT_VERSION,
 // not Backoffice's own version. The flow trigger part (cacheQueryParams of /flows/trigger/<uuid>) comes with feature
 // 009, the GraphQL part (getGraphqlQueryAndVariables) with feature 011.
 import url from 'url';

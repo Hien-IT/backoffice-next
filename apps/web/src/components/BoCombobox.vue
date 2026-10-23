@@ -36,9 +36,9 @@ const {
 } = defineProps<{
 	modelValue?: string | number | null;
 	items: ComboboxItemOption[];
-	/** Offer the typed text as a value when it matches no item (Directus allowOther). */
+	/** Offer the typed text as a value when it matches no item (DR allowOther). */
 	allowOther?: boolean;
-	/** Item keys of an icon name and a color (Directus v-select itemIcon / itemColor): shown before the item text when
+	/** Item keys of an icon name and a color (DR v-select itemIcon / itemColor): shown before the item text when
 	 * allowOther is off, and the selected item's icon or color dot is the default prepend. */
 	itemIcon?: string | null;
 	itemColor?: string | null;
@@ -55,7 +55,7 @@ const {
 	/** Form linking on the input (FormField ids), merged with the hint and error ids. */
 	ariaLabelledby?: string | undefined;
 	ariaDescribedby?: string | undefined;
-	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	/** Menu at most 30vh high (DR v-select without `menuFullHeight`); the room left otherwise. */
 	shortMenu?: boolean;
 }>();
 

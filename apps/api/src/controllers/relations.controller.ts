@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/relations.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R2 of spec 006). `validateCollection` is
+// Backoffice: one Nest handler per DR route, in the same order (research R2 of spec 006). `validateCollection` is
 // the collection-exists middleware (feature 005) run through runMiddleware; useCollection('directus_relations') is
 // applied in app.module.ts; `next()` to `respond` is respond().
 import { ErrorCode, InvalidPayloadError, isBackofficeError } from '@backoffice/errors';

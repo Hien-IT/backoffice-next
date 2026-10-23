@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/activity.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R4 of spec 008); validateBatch runs
+// Backoffice: one Nest handler per DR route, in the same order (research R4 of spec 008); validateBatch runs
 // through runMiddleware, useCollection('directus_activity') is applied in app.module.ts, `next()` to `respond` is
 // respond().
 import { Controller, Get, Inject, Req, Res, Search } from '@nestjs/common';

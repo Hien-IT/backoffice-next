@@ -107,7 +107,7 @@ export class CollectionsService {
 					}
 
 					/**
-					 * Directus heavily relies on the primary key of a collection, so we have to make sure that
+					 * DR heavily relies on the primary key of a collection, so we have to make sure that
 					 * every collection that is created has a primary key. If no primary key field is created
 					 * while making the collection, we default to an auto incremented id named `id`
 					 */
@@ -624,8 +624,8 @@ export class CollectionsService {
 			throw new ForbiddenError();
 		}
 
-		// Backoffice: D-32 (spec 006, Principle II). Directus drops the system table here (measured on 11.17.4); the
-		// database is shared with Directus, so a system collection is never deleted.
+		// Backoffice: D-32 (spec 006, Principle II). DR drops the system table here (measured on 11.17.4); the
+		// database is shared with DR, so a system collection is never deleted.
 		if (isSystemCollection(collectionKey)) {
 			throw new ForbiddenError();
 		}

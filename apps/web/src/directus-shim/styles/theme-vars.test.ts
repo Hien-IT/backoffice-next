@@ -1,5 +1,5 @@
-// Spec 020 (T107, data-model §8): theme-vars.css declares under :root every rule of the Directus ThemeSchema
-// (@directus/types, 173 names after rules-to-css-vars), the 11 variables the Directus app uses without a rule, the
+// Spec 020 (T107, data-model §8): theme-vars.css declares under :root every rule of the DR ThemeSchema
+// (@directus/types, 173 names after rules-to-css-vars), the 11 variables the DR app uses without a rule, the
 // palette of _colors.scss and the .type-* / .form-grid classes; no raw color (design-system tokens only).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

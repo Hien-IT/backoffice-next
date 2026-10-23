@@ -1,4 +1,4 @@
-// Directus has no test for the slider interface: fixture, options (contracts/tests.md §5), string types, keyboard.
+// DR has no test for the slider interface: fixture, options (contracts/tests.md §5), string types, keyboard.
 import type { FieldRaw } from '@directus/types';
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';

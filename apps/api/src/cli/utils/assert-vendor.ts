@@ -1,5 +1,5 @@
 // Backoffice (spec 021 D-145, FR-008, FR-026): Backoffice installs and migrates Postgres and SQLite databases only; the
-// other vendors are installed and migrated by the Directus 11.17.4 image. The migration and seed runners stay verbatim;
+// other vendors are installed and migrated by the DR 11.17.4 image. The migration and seed runners stay verbatim;
 // the gate is in the commands.
 import type { Knex } from 'knex';
 import { getDatabaseClient } from '../../database/index.js';

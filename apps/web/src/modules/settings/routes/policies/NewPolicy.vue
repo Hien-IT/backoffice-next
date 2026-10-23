@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/policies/add-new.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 US4-5, recipe Q-27): BoDialog with a form, so Enter saves (Directus `apply`); Cancel first; the
+// Backoffice (spec 016 US4-5, recipe Q-27): BoDialog with a form, so Enter saves (DR `apply`); Cancel first; the
 // two checkboxes are BoCheckbox rows under their field label. BoInput gives '' when emptied: it is kept as null like
-// the nullable v-input, so Save stays disabled. Persistent like Directus: only Esc and Cancel go back to the list.
+// the nullable v-input, so Save stays disabled. Persistent like DR: only Esc and Cancel go back to the list.
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import BoButton from '../../../../components/BoButton.vue';

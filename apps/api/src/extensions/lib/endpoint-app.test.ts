@@ -1,4 +1,4 @@
-// Spec 020 (D-139 revised 2026-10-21): routes of endpoint extensions behave as on Directus' Express 4.21.2 while the
+// Spec 020 (D-139 revised 2026-10-21): routes of endpoint extensions behave as on DR' Express 4.21.2 while the
 // host app is Express 5, and a request leaving the Express 4 app is an Express 5 request again.
 import { mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';

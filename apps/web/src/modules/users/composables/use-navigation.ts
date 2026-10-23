@@ -1,6 +1,6 @@
 // Ported from directus/app/src/modules/users/composables/use-navigation.ts
-// Backoffice: the request goes through the SDK; a failed read (403) opens the error dialog as Directus unexpectedError
-// does and leaves the tree empty (CHK018). The roles and the open roles are shared by every caller, as in Directus.
+// Backoffice: the request goes through the SDK; a failed read (403) opens the error dialog as DR unexpectedError
+// does and leaves the tree empty (CHK018). The roles and the open roles are shared by every caller, as in DR.
 import type { Role } from '@directus/types';
 import { groupBy } from 'lodash-es';
 import { computed, type Ref, ref, watch } from 'vue';
@@ -14,7 +14,7 @@ export type BasicRole = Pick<Role, 'id' | 'name' | 'icon' | 'parent'> & { childr
 
 const globalOpenRoles = ref<string[]>([]);
 
-/** Test helper: forget the shared roles (module state of Directus). */
+/** Test helper: forget the shared roles (module state of DR). */
 export function resetNavigationForTests() {
 	roles = null;
 	loading = null;

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: Field label row recipe (component-specs, Q-1): the name is a <label for> (no menu button around it),
 // the field menu is the `menu` slot (its chevron trigger); the collab indicator is removed (D-54). The hidden
-// indicator shows when a hidden field is rendered (Directus: comparison mode only). The comparison checkbox selects a
+// indicator shows when a hidden field is rendered (DR: comparison mode only). The comparison checkbox selects a
 // differing field to promote or restore (spec 014 FR-072, lifts D-55).
 import { computed } from 'vue';
 import BoCheckbox from '../BoCheckbox.vue';

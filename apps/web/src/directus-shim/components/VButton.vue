@@ -82,7 +82,7 @@ const isActiveRoute = computed(() => {
 	return false;
 });
 
-// Directus: the kind class on the button wins over the secondary/warning/danger classes of the wrapper, and of
+// DR: the kind class on the button wins over the secondary/warning/danger classes of the wrapper, and of
 // those `.secondary` comes last in the stylesheet.
 const variant = computed(() => {
 	if (props.kind !== 'normal') return props.kind;
@@ -100,7 +100,7 @@ const size = computed(() => {
 	return undefined;
 });
 
-// Directus v-button.vue:280-283,383-386,389-391 sizing hooks; the size classes set their own min width (:353-379).
+// DR v-button.vue:280-283,383-386,389-391 sizing hooks; the size classes set their own min width (:353-379).
 const MIN_WIDTHS = { xs: 'min-w-[3.375rem]', sm: 'min-w-[6.75rem]', lg: 'min-w-[8.6875rem]', xl: 'min-w-[10.125rem]' };
 const sizing = computed(() => {
 	if (props.icon) return size.value ? '' : 'w-(--v-button-height,2.5rem) h-(--v-button-height,2.5rem) min-w-0';
@@ -109,7 +109,7 @@ const sizing = computed(() => {
 	return [width, 'h-(--v-button-height,2.5rem)', !props.fullWidth && 'min-w-(--v-button-min-width,7.875rem)'];
 });
 
-// Directus: disabled → button, href → a, to → router-link, else button (BoButton renders the disabled button).
+// DR: disabled → button, href → a, to → router-link, else button (BoButton renders the disabled button).
 const link = computed(() => {
 	if (!isNil(props.href)) return { href: props.href, target: props.target, rel: 'noopener noreferrer' };
 	if (props.to) return { to: props.to };
@@ -149,7 +149,7 @@ function onClick(event: MouseEvent) {
 			:aria-label="icon ? tooltip : undefined"
 			@click="onClick"
 		>
-			<!-- Directus v-button.vue:393-398: the label stays on one line with an ellipsis. -->
+			<!-- DR v-button.vue:393-398: the label stays on one line with an ellipsis. -->
 			<span class="content flex max-w-full min-w-0 items-center gap-2 truncate">
 				<slot v-bind="{ active, toggle }" />
 			</span>

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/transition/dialog.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7 #66): the Directus dialog transition (fade, the content slides in from the
+// Backoffice (spec 020, data-model §7 #66): the DR dialog transition (fade, the content slides in from the
 // `center`/`left`/`right` side of its container); off under reduced motion. Not scoped on purpose: the children are
 // teleported.
 </script>

@@ -1,4 +1,4 @@
-// Directus has no test for use-relation-o2m.ts: relation info of the fixture o2m fields (data-model §2).
+// DR has no test for use-relation-o2m.ts: relation info of the fixture o2m fields (data-model §2).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ref } from 'vue';

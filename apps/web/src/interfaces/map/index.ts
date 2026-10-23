@@ -23,7 +23,7 @@ export default defineInterface({
 		'csv',
 	],
 	group: 'selection',
-	// Backoffice: the options component of Directus (D-56 lifted), async so it stays out of the main chunk.
+	// Backoffice: the options component of DR (D-56 lifted), async so it stays out of the main chunk.
 	options: defineAsyncComponent(() => import('./InterfaceMapOptions.vue')) as never,
 	recommendedDisplays: [],
 });

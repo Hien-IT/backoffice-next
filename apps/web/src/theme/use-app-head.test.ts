@@ -115,7 +115,7 @@ describe('theme', () => {
 	test('html class dark from the settings appearance', async () => {
 		const head = await resolve({ default_appearance: 'dark' });
 		expect(head.html).toMatchObject({ class: 'dark' });
-		// Also on body as the Directus app sets it (extension styles may target `body.dark`).
+		// Also on body as the DR app sets it (extension styles may target `body.dark`).
 		expect(head.body).toMatchObject({ class: 'dark' });
 	});
 

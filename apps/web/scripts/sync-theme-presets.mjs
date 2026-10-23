@@ -1,8 +1,8 @@
-// Copies the Directus 11.17.4 theme data (directus/packages/themes/src/themes/**) into
+// Copies the DR 11.17.4 theme data (directus/packages/themes/src/themes/**) into
 // apps/web/src/theme/theme-presets.json for the system-theme and system-theme-overrides interfaces (spec FR-084,
 // FR-085, D-89, research R6). The theme files are TypeScript, so the script runs under jiti (research "Kết quả kiểm
 // T002, T003"): `nx run web:sync-themes`, or `jiti scripts/sync-theme-presets.mjs [out]`. The output is committed;
-// src/theme/theme-presets.test.ts runs the script again into a temporary file and compares. Theme ids ("Directus
+// src/theme/theme-presets.test.ts runs the script again into a temporary file and compares. Theme ids ("DR
 // Default"...) are stored in directus_users and directus_settings, so they are copied as they are (check-brand.mjs
 // skips this file).
 import { writeFileSync } from 'node:fs';

@@ -16,7 +16,7 @@ export class ErrorHandlerFilter implements ExceptionFilter {
 		const res = http.getResponse<Response>();
 		const next = http.getNext<NextFunction>();
 
-		// Nest throws NotFoundException when no route matches: the not-found handler of Directus.
+		// Nest throws NotFoundException when no route matches: the not-found handler of DR.
 		if (!(exception instanceof NotFoundException)) return errorHandler(exception, req, res, next);
 
 		try {

@@ -144,7 +144,7 @@ describe('mockFixtureApi lists', () => {
 		setup();
 
 		expect(names(await get('/items/bo_rel_target', { search: 'THREE' }))).toEqual(['Target three']);
-		// Like Directus: a number matches every numeric field (id 1 and the rows whose parent is 1).
+		// Like DR: a number matches every numeric field (id 1 and the rows whose parent is 1).
 		expect(names(await get('/items/bo_rel_target', { search: '1' }))).toEqual([
 			'Target one',
 			'Target two',

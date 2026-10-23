@@ -1,5 +1,5 @@
 // Ported from directus/app/src/modules/insights/index.ts
-// Backoffice (spec 018 FR-001): the dashboard page loads the panel data in `beforeEnter` like Directus; the panel drawer
+// Backoffice (spec 018 FR-001): the dashboard page loads the panel data in `beforeEnter` like DR; the panel drawer
 // is a floating child route rendered in the page's `detail` view. D-40 lifted.
 import type { RouteLocationNormalized } from 'vue-router';
 import { useInsightsStore } from '../stores/insights.ts';

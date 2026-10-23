@@ -1,8 +1,8 @@
 // Ported from directus/app/src/composables/use-safe-redirect.ts
 // Backoffice: POST /utils/resolve-redirect through the SDK. getPublicURL and extractPath of utils/get-root-path.ts are
-// inlined: like Directus they read the page URL, whose root (before /admin/) is where the app is served. An absolute
+// inlined: like DR they read the page URL, whose root (before /admin/) is where the app is served. An absolute
 // URL on the app root becomes an app path; anything else (the API's PUBLIC_URL on another origin, an allow-listed
-// URL) stays absolute, and the caller leaves the app for it, as Directus does.
+// URL) stays absolute, and the caller leaves the app for it, as DR does.
 import { ref } from 'vue';
 import { requestEndpoint, sdk } from '../api/sdk.ts';
 

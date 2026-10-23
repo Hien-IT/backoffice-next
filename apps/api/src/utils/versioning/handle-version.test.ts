@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. Reading an item with `?version=` (spec FR-036, contracts/versions.md §6): the raw
+// Backoffice: no test in DR. Reading an item with `?version=` (spec FR-036, contracts/versions.md §6): the raw
 // merge, the transaction that applies the delta then rolls back, and the ids of rows created only for the read.
 import { ForbiddenError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';

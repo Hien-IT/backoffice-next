@@ -1,4 +1,4 @@
-// Directus has no test for system-raw-editor (spec FR-004): value display, emits, single-line rules, read-only.
+// DR has no test for system-raw-editor (spec FR-004): value display, emits, single-line rules, read-only.
 import { mount } from '@vue/test-utils';
 import type CodeMirror from 'codemirror';
 import { afterEach, describe, expect, test } from 'vitest';

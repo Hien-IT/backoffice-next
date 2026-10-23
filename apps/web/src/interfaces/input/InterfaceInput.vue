@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/input/input.vue -->
 <script setup lang="ts">
 // Backoffice: VInput is InputField.vue (port of v-input.vue); `font` maps to the theme font classes (BoTextarea);
-// the remaining-characters counter keeps the Directus thresholds (shown when focused, warning < 10 %, danger < 5 %).
+// the remaining-characters counter keeps the DR thresholds (shown when focused, warning < 10 %, danger < 5 %).
 import { computed } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
 import { APP_NUMERIC_TYPES } from '../../constants.ts';

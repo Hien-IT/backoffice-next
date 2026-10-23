@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: the Draggable VList is BoSortableList (drag handle and the D-96 Move up / Move down menu, which emit the
 // same reordered list), the remove `close` icon is a row action; VMenu + VFieldList is a popover with FieldList (as
-// the layout options of 014). Directus calls `t` without importing it for function fields; useI18n provides it here.
+// the layout options of 014). DR calls `t` without importing it for function fields; useI18n provides it here.
 import type { Field } from '@directus/types';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
 import { computed } from 'vue';

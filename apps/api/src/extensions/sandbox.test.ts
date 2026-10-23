@@ -1,4 +1,4 @@
-// Backoffice (spec 020, T080): Directus has no test for its API extension sandbox. Sandboxed extensions run through the
+// Backoffice (spec 020, T080): DR has no test for its API extension sandbox. Sandboxed extensions run through the
 // manager in a real isolated-vm isolate: the log, sleep and request scopes with the error messages of
 // lib/sandbox/sdk/generators, imports other than directus:api refused, process.env with NODE_ENV only, the timeout,
 // and the isolate disposed on unload. The out-of-memory abort (process.abort) is covered by the parity sandbox file.
@@ -142,7 +142,7 @@ test('a scope that was not requested is refused with the message of Directus', a
 });
 
 // Code busy past EXTENSIONS_SANDBOX_TIMEOUT (a handler, or a module while it loads) is not tested here: isolated-vm
-// 5.0.3 on Node 22 may report "Script failed to terminate" and the manager then aborts the process, like Directus (same
+// 5.0.3 on Node 22 may report "Script failed to terminate" and the manager then aborts the process, like DR (same
 // code and library; spec 020 notes, T081). On the CI runner it killed the Vitest worker (ERR_IPC_CHANNEL_CLOSED).
 test('a URL in scope whose IP is in IMPORT_IP_DENY_LIST is refused', async () => {
 	env['IMPORT_IP_DENY_LIST'] = ['127.0.0.1'];

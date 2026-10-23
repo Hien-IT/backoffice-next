@@ -5,7 +5,7 @@
 // Reka Popover, the edit/preview switch a toolbar toggle group; the image dialog is a BoDialog with BoUpload and its
 // files drawer (DrawerFiles). Shortcuts are a keydown handler on the interface (useShortcut of @directus/composables
 // also fires when the page body has focus) and do nothing while disabled or in preview. The counter counts the
-// rendered preview text from the start (Directus counts it only after the first preview change) and the preview is
+// rendered preview text from the start (DR counts it only after the first preview change) and the preview is
 // rendered only when shown (no hidden image requests). Label linked to CodeMirror's input (FORM_FIELD_A11Y, FR-094).
 import { useWindowSize } from '@vueuse/core';
 import CodeMirror from 'codemirror';
@@ -229,7 +229,7 @@ const markdownString = computed(() => {
 
 const html = computed(() => md(markdownString.value));
 
-// The preview text length (Directus counts the preview box textContent without its first line break); parsed in an
+// The preview text length (DR counts the preview box textContent without its first line break); parsed in an
 // inert document so images do not load.
 const count = computed(() => {
 	if (!props.softLength) return 0;
@@ -356,7 +356,7 @@ function createTable() {
 const BTN = EDITOR_TOOLBAR_BUTTON;
 const VIEW_ITEM =
 	'rounded-md px-2.5 py-1 text-theme-xs font-medium text-gray-500 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 data-[state=on]:bg-white data-[state=on]:text-gray-800 data-[state=on]:shadow-theme-xs dark:text-gray-400 dark:hover:text-gray-300 dark:data-[state=on]:bg-gray-800 dark:data-[state=on]:text-white/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
-// Same rich text classes as presentation-header HelperText (Directus `markdown` mixin).
+// Same rich text classes as presentation-header HelperText (DR `markdown` mixin).
 const PROSE =
 	'[&_*:not(:last-child):not(li)]:mb-4 [&_a]:text-brand-500 [&_a:hover]:underline dark:[&_a]:text-brand-400 [&_blockquote]:border-s-[3px] [&_blockquote]:border-brand-500 [&_blockquote]:ps-3 [&_blockquote]:italic [&_code]:rounded [&_code]:bg-gray-100 [&_code]:px-1 [&_code]:font-mono dark:[&_code]:bg-white/5 [&_h1]:text-2xl [&_h1]:font-semibold [&_h2]:text-xl [&_h2]:font-semibold [&_h3]:text-lg [&_h3]:font-semibold [&_h4]:font-semibold [&_img]:max-w-full [&_img]:rounded-lg [&_ol]:list-decimal [&_ol]:ps-6 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-gray-100 [&_pre]:p-2 dark:[&_pre]:bg-white/5 [&_td]:border [&_td]:border-gray-200 [&_td]:p-2 dark:[&_td]:border-gray-800 [&_th]:border [&_th]:border-gray-200 [&_th]:p-2 [&_th]:text-start dark:[&_th]:border-gray-800 [&_ul]:list-disc [&_ul]:ps-6 [&_code]:wrap-break-word [&_iframe]:max-w-full [&_img]:h-auto [&_video]:h-auto [&_video]:max-w-full';
 </script>
@@ -520,7 +520,7 @@ const PROSE =
 </template>
 
 <style>
-/* Backoffice: Directus scoped styles on the theme tokens (editor font, editor height, markdown mode colors). */
+/* Backoffice: DR scoped styles on the theme tokens (editor font, editor height, markdown mode colors). */
 .bo-codemirror.bo-md-editor .CodeMirror {
 	font-family: var(--bo-md-font);
 	font-size: 0.875rem;

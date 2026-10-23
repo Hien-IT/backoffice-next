@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/appearance/item.vue -->
 <script setup lang="ts">
 // Backoffice (spec 016 US5-5): as ProjectRoute, with the fields of `theming_group` only. Owner 2026-10-23 (D-168): no
-// Directus theme choice nor theme overrides (the Backoffice look does not follow them, D-43, D-88); the values stay in
-// the database for the Directus app.
+// DR theme choice nor theme overrides (the Backoffice look does not follow them, D-43, D-88); the values stay in
+// the database for the DR app.
 import { clone } from 'lodash-es';
 import { computed, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';

@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-checkbox.test.ts
-// Backoffice: the boolean cases of the Directus test on the Reka checkbox, plus label, attributes and invalid.
+// Backoffice: the boolean cases of the DR test on the Reka checkbox, plus label, attributes and invalid.
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import BoCheckbox from './BoCheckbox.vue';

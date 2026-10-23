@@ -1,4 +1,4 @@
-// Backoffice: Directus has no test for use-nested-validation.ts.
+// Backoffice: DR has no test for use-nested-validation.ts.
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { defineComponent, h } from 'vue';

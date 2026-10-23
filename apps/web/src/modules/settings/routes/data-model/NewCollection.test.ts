@@ -1,6 +1,6 @@
-// Directus has no test for new-collection.vue: the two steps, Enter, the db-safe key, the singleton lock on `sort`, the
+// DR has no test for new-collection.vue: the two steps, Enter, the db-safe key, the singleton lock on `sort`, the
 // POST /collections body per primary key type, the two POST /relations and router.replace (spec 016 US1-8, FR-014).
-// The body with every system field is compared with what the Directus app sent (baseline recorded by T003).
+// The body with every system field is compared with what the DR app sent (baseline recorded by T003).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';

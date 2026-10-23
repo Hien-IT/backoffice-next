@@ -38,7 +38,7 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
  *   without underline), kept as the library ships it (map layout, `location` map field of the item form).
  * - `color-contrast` when the element or an ancestor inside the field, cell or card gets its color from an inline
  *   style: data colors from the field options, the item or the flow (`color` of the manual flow icon in the flows
- *   section), applied as is like Directus.
+ *   section), applied as is like DR.
  * FullCalendar needs none (calendar.css maps its variables to the theme tokens).
  */
 const EXCEPTIONS: { rule: string; reason: string; applies: (el: Element) => boolean }[] = [
@@ -93,7 +93,7 @@ afterEach(() => {
 
 const admin = { id: 'bo-1', email: 'admin@example.com', first_name: 'Admin', last_name: 'User' };
 
-// The fixture revisions of bo_content/1 with a date and a user, as Directus lists them.
+// The fixture revisions of bo_content/1 with a date and a user, as DR lists them.
 const revisions = snapshot.revisions['bo_content']!.map(
 	(r, index): Row => ({
 		...r,

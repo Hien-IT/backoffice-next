@@ -6,9 +6,9 @@ import { RouterLink } from 'vue-router';
 import BoIcon from '../../components/BoIcon.vue';
 import { FOCUS, LIST, useRouteActive } from './list.ts';
 
-// Backoffice (spec 020, data-model §7): open state through the `v-list` group like Directus. The activator row holds
+// Backoffice (spec 020, data-model §7): open state through the `v-list` group like DR. The activator row holds
 // the main element (RouterLink with `to`, a button with `clickable` or to toggle, else a mouse target) and, with
-// children, a separate arrow button (`aria-expanded`) as Directus nests a clickable v-icon in the row (a button in a
+// children, a separate arrow button (`aria-expanded`) as DR nests a clickable v-icon in the row (a button in a
 // button is invalid). Outside a list the group root is a `div`.
 const props = withDefaults(
 	defineProps<{
@@ -23,7 +23,7 @@ const props = withDefaults(
 		value?: number | string | undefined;
 		dense?: boolean | undefined;
 		open?: boolean | undefined;
-		// eslint-disable-next-line vue/require-default-prop -- no default in Directus either; any value change collapses
+		// eslint-disable-next-line vue/require-default-prop -- no default in DR either; any value change collapses
 		collapseOnChange?: unknown;
 		arrowPlacement?: 'before' | 'after' | false | undefined;
 	}>(),

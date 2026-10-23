@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/content/components/navigation-bookmark.vue -->
 <script setup lang="ts">
 // Backoffice: recipe layout-patterns §9, a bookmark is a child row of its collection in the tree; the active state is
-// the Directus `query` match of v-list-item (same collection and `?bookmark=<id>`), computed by ContentNavigation.
+// the DR `query` match of v-list-item (same collection and `?bookmark=<id>`), computed by ContentNavigation.
 // The row menu is BoMenu (the button follows the row's roving tabindex so Tab reaches it); without permission a `lock`
 // icon carries the `cannot_edit_<scope>_bookmarks` tooltip, also as its accessible name. The dialogs are BoDialogs
 // (Esc and outside click cancel, Enter applies, the delete text is the dialog description and Cancel comes first,
@@ -38,7 +38,7 @@ const userStore = useUserStore();
 const presetsStore = usePresetsStore();
 
 const bookmark = computed(() => node.bookmark!);
-// Directus translates the whole name (translate-literal); the regex of `translate` cuts a `$t:` key at `_`.
+// DR translates the whole name (translate-literal); the regex of `translate` cuts a `$t:` key at `_`.
 const name = computed(() => translateString(bookmark.value.bookmark ?? ''));
 const active = computed(() => nav.isActive(node));
 
@@ -87,7 +87,7 @@ function useEditBookmark() {
 		editSaving.value = true;
 
 		try {
-			// Own bookmark: savePreset ends in presetsStore.update (PATCH /presets/:id), same payload as Directus.
+			// Own bookmark: savePreset ends in presetsStore.update (PATCH /presets/:id), same payload as DR.
 			await presetsStore.savePreset({
 				...bookmark.value,
 				bookmark: editValue.name,

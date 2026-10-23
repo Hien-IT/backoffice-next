@@ -4,7 +4,7 @@ import type { Filter } from '@backoffice/types';
 import { transform } from 'lodash-es';
 
 /**
- * Replace functions from GraphQL format to Directus-Filter format
+ * Replace functions from GraphQL format to DR-Filter format
  */
 export function replaceFuncs(filter: Filter): Filter {
 	return replaceFuncDeep(filter);

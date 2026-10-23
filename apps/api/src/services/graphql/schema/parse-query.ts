@@ -11,8 +11,8 @@ import { replaceFuncs } from '../utils/replace-funcs.js';
 import { parseArgs } from './parse-args.js';
 
 /**
- * Get a Directus Query object from the parsed arguments (rawQuery) and GraphQL AST selectionSet. Converts SelectionSet into
- * Directus' `fields` query for use in the resolver. Also applies variables where appropriate.
+ * Get a DR Query object from the parsed arguments (rawQuery) and GraphQL AST selectionSet. Converts SelectionSet into
+ * DR' `fields` query for use in the resolver. Also applies variables where appropriate.
  */
 export async function getQuery(
 	rawQuery: Query,

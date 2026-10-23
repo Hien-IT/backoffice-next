@@ -1,4 +1,4 @@
-// Directus has no test for apply-conditions.ts: cases of spec FR-013 (last matching rule wins, options arrays replaced,
+// DR has no test for apply-conditions.ts: cases of spec FR-013 (last matching rule wins, options arrays replaced,
 // $version, rule with one root key only).
 import type { Field } from '@directus/types';
 import { createPinia, setActivePinia } from 'pinia';

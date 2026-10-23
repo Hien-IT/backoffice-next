@@ -1,4 +1,4 @@
-// Directus has no test for the datetime display (spec FR-074, FR-075): every option, the 60 s refresh, the time zone
+// DR has no test for the datetime display (spec FR-074, FR-075): every option, the 60 s refresh, the time zone
 // tooltip and the handler, in en-US and vi-VN.
 import { mount } from '@vue/test-utils';
 import { afterAll, afterEach, beforeAll, describe, expect, test, vi } from 'vitest';

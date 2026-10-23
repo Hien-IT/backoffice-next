@@ -3,9 +3,9 @@
 // Backoffice (spec 018 FR-042..FR-046, recipe Q-36): default color `cssVar('--color-brand-500')` (D-108) instead of
 // `cssVar('--theme--primary')`; v-list/v-list-item become a `ul`/`li` list; look of the Q-36 recipe (label and value
 // row in `text-theme-sm`, value `font-medium tabular-nums`, a `h-1.5` bar on a `bg-gray-100` track instead of the
-// Directus 1.125rem bar under labels as wide as the bar); no own padding (PanelTile pads the body). `inheritAttrs:
-// false` (as the Directus label panel) keeps the tile context props it does not declare out of the DOM. Logic as
-// Directus, quirks kept: `data` is sorted in place, the last matching conditional rule wins, `<=` compares with `<`.
+// DR 1.125rem bar under labels as wide as the bar); no own padding (PanelTile pads the body). `inheritAttrs:
+// false` (as the DR label panel) keeps the tile context props it does not declare out of the DOM. Logic as
+// DR, quirks kept: `data` is sorted in place, the last matching conditional rule wins, `<=` compares with `<`.
 import { isNil } from 'lodash-es';
 import { computed, unref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -16,7 +16,7 @@ import { formatNumber } from '../../utils/format-number.ts';
 
 defineOptions({ inheritAttrs: false });
 
-// Backoffice: Directus `Aggregate & { group: Group }`; a plain record for the dynamic keys (strict index access).
+// Backoffice: DR `Aggregate & { group: Group }`; a plain record for the dynamic keys (strict index access).
 type DataPoint = Record<string, any>;
 
 const props = withDefaults(
@@ -139,7 +139,7 @@ function getColor(input?: number) {
 				case '<':
 					return value < compareValue;
 				case '<=':
-					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` (R-53).
+					// Backoffice (D-113, owner 2026-10-18): DR compares `<=` with `<` (R-53).
 					return value <= compareValue;
 			}
 		}

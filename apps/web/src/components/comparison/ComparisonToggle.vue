@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/comparison/comparison-toggle.vue -->
 <script setup lang="ts">
-// Backoffice: BoMenu with a chip-like trigger (Directus: v-menu with v-chip); "previous" is the solid brand chip,
-// "latest" the light one, as the Directus colors.
+// Backoffice: BoMenu with a chip-like trigger (DR: v-menu with v-chip); "previous" is the solid brand chip,
+// "latest" the light one, as the DR colors.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../BoIcon.vue';

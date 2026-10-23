@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/users/components/user-info-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: user story 4 of feature 015 (FR-074): a `dl` in the SidebarDetail section like the file details (Q-15);
-// the copy button is a named icon button (an unnamed clickable icon in Directus) and reports the result through the
+// the copy button is a named icon button (an unnamed clickable icon in DR) and reports the result through the
 // in-place notice of useClipboard.
 import type { User } from '@directus/types';
 import { ref, watch } from 'vue';

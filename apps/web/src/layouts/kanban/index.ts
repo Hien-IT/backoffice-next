@@ -2,7 +2,7 @@
 // Backoffice: no `useAiToolsStore().onSystemToolResult` refresh (D-70, no AI tools); `useSync` of @directus/composables
 // is a local writable computed (same get/emit); the components load async (the registry imports every index.ts
 // eagerly); api (axios) -> sdk; image URLs on the API URL (getApiUrl) instead of getRootPath (the API may be on another
-// origin); `canCreateGroups` added for the "Add group" column of recipe Q-5 (Directus has the dialog but no button).
+// origin); `canCreateGroups` added for the "Add group" column of recipe Q-5 (DR has the dialog but no button).
 import type { Field, PermissionsAction, User } from '@directus/types';
 import { getEndpoint, getRelationType, moveInArray } from '@directus/utils';
 import { uniq } from 'lodash-es';

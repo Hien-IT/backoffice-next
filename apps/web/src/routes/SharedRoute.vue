@@ -3,7 +3,7 @@
 // Backoffice: only the sign-in part. Once signed in (or already signed in as this share or as a user) the app opens
 // the item page of the Content module (feature 014) in the share session, instead of the read-only form of
 // share-item.vue (D-126, not ported); the page is a PublicView instead of shared-view.vue and the title does not read the collection name (the
-// collections store is empty before sign-in). A wrong password is read from the SDK error (`errors`, the Directus
+// collections store is empty before sign-in). A wrong password is read from the SDK error (`errors`, the DR
 // app reads `response.data.errors`, an axios shape) and shown under the field; other errors in a danger notice.
 import { readMe } from '@directus/sdk';
 import { useHead } from '@unhead/vue';
@@ -106,7 +106,7 @@ async function handleAuth() {
 			if (currentUser.share !== shareId) {
 				await logout({ navigate: false });
 			} else {
-				// Backoffice: signed in as this share, open its item route (Directus hydrates and shows share-item.vue).
+				// Backoffice: signed in as this share, open its item route (DR hydrates and shows share-item.vue).
 				router.replace(getItemRoute(share.value!.collection, share.value!.item));
 				return;
 			}

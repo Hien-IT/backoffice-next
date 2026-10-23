@@ -3,10 +3,10 @@
 // Backoffice: recipe layout-patterns §11 (rows without menus) and component-specs 015 "File page": one `role="tree"`
 // of rows with `aria-level` (FolderPickerListItem's recursion flattened), single select with `aria-selected`, the
 // WAI-ARIA tree keyboard (use-tree-keyboard), Enter or Space selects. Folders load once per picker with
-// `GET /folders?limit=-1&sort=name` as Directus. Directus computes the open parents before the folders load, so only
+// `GET /folders?limit=-1&sort=name` as DR. DR computes the open parents before the folders load, so only
 // the root opens; here the parents of the selected folder open once the folders are in (the evident intent). A disabled
 // folder (`disabledFolders`, the folder being moved) can neither be selected nor opened, so its sub folders stay out of
-// reach as with Directus' disabled v-list-group.
+// reach as with DR' disabled v-list-group.
 import { computed, ref, useTemplateRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { requestEndpoint, sdk } from '../../api/sdk.ts';

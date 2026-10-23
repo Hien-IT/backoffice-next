@@ -13,7 +13,7 @@ const { icon = false, type = 'info' } = defineProps<{
 	type?: 'info' | 'success' | 'warning' | 'danger' | 'primary';
 }>();
 
-// Directus `info` is the neutral foreground: the light Badge pair; the others are their Badge light pairs.
+// DR `info` is the neutral foreground: the light Badge pair; the others are their Badge light pairs.
 const ICON = {
 	info: 'bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80',
 	primary: 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400',

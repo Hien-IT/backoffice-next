@@ -15,17 +15,17 @@ const {
 	/** The label; the default slot replaces it. */
 	text?: string;
 	icon?: string;
-	/** Data colors (Directus choice foreground / background), applied with style. */
+	/** Data colors (DR choice foreground / background), applied with style. */
 	color?: string;
 	background?: string;
 	size?: 'sm' | 'md' | 'lg';
 	removable?: boolean;
 	disabled?: boolean;
-	// The options below come from Directus v-chip (spec 020, data-model §7); unset they keep the chip as it was.
+	// The options below come from DR v-chip (spec 020, data-model §7); unset they keep the chip as it was.
 	removeIcon?: string;
 	/** Transparent background with a ring. */
 	outlined?: boolean;
-	/** Theme radius instead of the pill (Directus `label`). */
+	/** Theme radius instead of the pill (DR `label`). */
 	squared?: boolean;
 	/** The chip is a button. */
 	clickable?: boolean | undefined;

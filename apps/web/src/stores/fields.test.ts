@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/fields.test.ts
 // Backoffice: the API is mocked with mockApi (fetch) instead of vi.mock('@/api'); translate-literal is inlined in the
-// store, so the tests check the translated values instead of spying on it. Tests after the Directus ones cover the
+// store, so the tests check the translated values instead of spying on it. Tests after the DR ones cover the
 // getters.
 import type { Field, FieldRaw, Relation } from '@directus/types';
 import { merge } from 'lodash-es';
@@ -278,7 +278,7 @@ describe('getters', () => {
 	});
 });
 
-// Feature 016 T013: the write actions of Directus stores/fields.ts.
+// Feature 016 T013: the write actions of DR stores/fields.ts.
 describe('write actions (016)', () => {
 	const raw = (field: string, extra: Record<string, unknown> = {}) =>
 		({ collection: 'a', field, type: 'string', schema: {}, meta: { collection: 'a', field, ...extra } }) as unknown as Field;

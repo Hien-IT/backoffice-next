@@ -79,7 +79,7 @@ describe('extensions (spec 020, FR-060..FR-069)', () => {
 		expect(extensions.interfaces.value.map(({ id }) => id)).toContain('parity-interface');
 		expect(extensions.themes.value).toEqual([]);
 
-		// Global components as the Directus app registers them (extensions render e.g. `interface-input-code`).
+		// Global components as the DR app registers them (extensions render e.g. `interface-input-code`).
 		for (const name of [
 			'interface-input',
 			'interface-parity-interface',

@@ -1,4 +1,4 @@
-// Directus has no test for layouts/tabular/index.ts: the layout state (T033) over the fixture API, collection
+// DR has no test for layouts/tabular/index.ts: the layout state (T033) over the fixture API, collection
 // bo_content (30 items, sort field `sort`, fields status, title, body, date_published, author, cover, tags, location).
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

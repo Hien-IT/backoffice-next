@@ -7,7 +7,7 @@ import type { DownloadOptions } from '../types/download-options.js';
  * Constructs a download URL for an extension version from the registry.
  *
  * This function creates a properly formatted URL for downloading a specific
- * extension version from the Directus extensions registry. It supports both
+ * extension version from the DR extensions registry. It supports both
  * production downloads and sandbox mode downloads for testing purposes.
  *
  * @param versionId - The unique identifier of the extension version to download

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-display/system-display.vue -->
 <script setup lang="ts">
-// Backoffice: VNotice is BoNotice, VSelect is BoSelect (`showDeselect` as Directus); the displays come from the apps/web registry with
-// their names translated (Directus translates them when it registers the extensions).
+// Backoffice: VNotice is BoNotice, VSelect is BoSelect (`showDeselect` as DR); the displays come from the apps/web registry with
+// their names translated (DR translates them when it registers the extensions).
 import { computed, inject, ref, watch } from 'vue';
 import BoNotice from '../../../components/BoNotice.vue';
 import BoSelect from '../../../components/BoSelect.vue';

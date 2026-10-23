@@ -1,4 +1,4 @@
-// Feature 008 (T019): the /revisions controller (port of directus/api/src/controllers/revisions.ts, which Directus
+// Feature 008 (T019): the /revisions controller (port of directus/api/src/controllers/revisions.ts, which DR
 // does not unit test) through the real app pipeline on SQLite, with RevisionsService mocked.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';

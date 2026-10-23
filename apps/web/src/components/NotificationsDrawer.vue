@@ -1,15 +1,15 @@
 <!-- Ported from directus/app/src/views/private/components/notifications-drawer.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-071 to FR-077, research R8, recipe Q-39): BoDrawer on `appStore.notificationsDrawerOpen`,
-// mounted once by PrivateView as a lazy chunk (`data-notifications-drawer`, FR-109). Differences from Directus:
+// mounted once by PrivateView as a lazy chunk (`data-notifications-drawer`, FR-109). Differences from DR:
 // - the Inbox/Archive tabs and the Activity link (to `/activity`) are a vertical BoTabs in the drawer body (horizontal
 //   below `lg`), with the list as the tab panel, instead of the VDrawer sidebar;
-// - Archive/Unarchive and load errors open the error dialog (Directus does not catch them), Delete errors too
-//   (Directus: try/finally only); selection and dialog state after an error stay as in Directus (R-57);
+// - Archive/Unarchive and load errors open the error dialog (DR does not catch them), Delete errors too
+//   (DR: try/finally only); selection and dialog state after an error stay as in DR (R-57);
 // - the request client is the SDK (useItems port); DELETE sends the key array (api-calls row 203);
 // - rows are NotificationItem (checkbox, highlight, relative time, open and expand buttons as buttons);
-// - no list of unfinished TUS uploads (Directus 11.17.4 has none either, FR-076).
-// The counts come from the memoized aggregate of useItems, as in Directus: they are not requested again after a write.
+// - no list of unfinished TUS uploads (DR 11.17.4 has none either, FR-076).
+// The counts come from the memoized aggregate of useItems, as in DR: they are not requested again after a write.
 import { useMediaQuery } from '@vueuse/core';
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
@@ -123,7 +123,7 @@ const allItemsSelected = computed(
 );
 
 // Backoffice (D-115, owner 2026-10-18): useItems memoizes the counts by their query, so after an archive or a delete
-// Directus shows the counts of before (an emptied tab can still say it has rows, a tab can say "No Notifications" over
+// DR shows the counts of before (an emptied tab can still say it has rows, a tab can say "No Notifications" over
 // its rows). The counts are recounted after every write.
 async function refresh() {
 	clearCountCache();

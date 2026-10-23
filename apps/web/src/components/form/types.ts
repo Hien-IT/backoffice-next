@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-form/types.ts
-// Backoffice: indicatorStyle is left out: no registered interface sets it, so the Directus default applies (groups
+// Backoffice: indicatorStyle is left out: no registered interface sets it, so the DR default applies (groups
 // `hidden`, other fields `active`, see BoForm.vue).
 import type { DeepPartial, Field, InterfaceConfig } from '@directus/types';
 import type { ComputedRef, InjectionKey } from 'vue';
@@ -21,7 +21,7 @@ export interface ComparisonContext {
 	showDifferencesOnly?: boolean | undefined;
 }
 
-/** Backoffice: a group's nested BoForm reads the comparison of its parent form (Directus passes it as a prop). */
+/** Backoffice: a group's nested BoForm reads the comparison of its parent form (DR passes it as a prop). */
 export const FORM_COMPARISON: InjectionKey<ComputedRef<ComparisonContext | undefined>> = Symbol('form-comparison');
 
 export type FieldValues = {
@@ -37,7 +37,7 @@ export type FormFieldA11y = { inputId: string; labelId: string; describedBy: str
 export const FORM_FIELD_A11Y: InjectionKey<ComputedRef<FormFieldA11y>> = Symbol('form-field-a11y');
 
 /**
- * Backoffice: grid placement of `meta.width` (layout-patterns §8, Directus `form-grid` mixin). The same classes work
+ * Backoffice: grid placement of `meta.width` (layout-patterns §8, DR `form-grid` mixin). The same classes work
  * in the two-column grid and in the `with-fill` grid (two 342px columns and the fill column).
  */
 export const WIDTH_CLASSES: Record<string, string> = {

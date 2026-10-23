@@ -85,7 +85,7 @@ describe('validateMigrations', () => {
 
 	test('reading directus_migrations fails → "Database migrations cannot be found", exit 1', async () => {
 		const error = new Error('relation "directus_migrations" does not exist');
-		// Like Directus: `throw process.exit(1)` (the mocked exit returns, so the throw surfaces here).
+		// Like DR: `throw process.exit(1)` (the mocked exit returns, so the throw surfaces here).
 		await validateMigrations(db(error)).catch(() => undefined);
 		expect(logger.error).toHaveBeenNthCalledWith(1, 'Database migrations cannot be found');
 		expect(logger.error).toHaveBeenNthCalledWith(2, error);
@@ -116,7 +116,7 @@ describe('custom migrations (FR-031, FR-035)', () => {
 		files('extensions/migrations', ['20990101A-x.js', 'utils.js', '20990102A-y.cjs']);
 		expect(getCustomMigrations().map((m) => m.version)).toEqual(['20990101A', 'utils.js']);
 
-		// utils.js is not in the database: reported as missing and the API stops, like Directus would never pass.
+		// utils.js is not in the database: reported as missing and the API stops, like DR would never pass.
 		await validateMigrations(db([...all, '20990101A']));
 		expect(logger.error).toHaveBeenCalledWith('Missing migrations (not run yet): utils.js');
 	});
@@ -154,7 +154,7 @@ describe('custom migrations (FR-031, FR-035)', () => {
 	});
 });
 
-// Spec 021 FR-043: the CLI loads extensions only when no migration is missing (Directus' boolean validateMigrations).
+// Spec 021 FR-043: the CLI loads extensions only when no migration is missing (DR' boolean validateMigrations).
 describe('migrationsValid', () => {
 	test('true with the exact list and with an unknown extra version', async () => {
 		await expect(migrationsValid(db([...DIRECTUS_MIGRATIONS]))).resolves.toBe(true);

@@ -1,7 +1,7 @@
 // Ported from directus/api/src/controllers/utils.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R7, R16 of spec 010). collectionExists
+// Backoffice: one Nest handler per DR route, in the same order (research R7, R16 of spec 010). collectionExists
 // runs through runMiddleware; `next()` to `respond` is respond(); the routes that answer with res.json or res.end do
-// the same here (no response cache, as in Directus). The import reads the raw multipart stream with busboy like
+// the same here (no response cache, as in DR). The import reads the raw multipart stream with busboy like
 // files.controller.ts (the JSON body parser leaves multipart requests alone).
 import { ForbiddenError, InvalidPayloadError, InvalidQueryError, UnsupportedMediaTypeError } from '@backoffice/errors';
 import { toBoolean } from '@backoffice/utils';
@@ -143,7 +143,7 @@ export class UtilsController {
 			};
 		}
 
-		// Backoffice: asyncHandler's next(err) of Directus is the rejection of this promise (Nest error filter).
+		// Backoffice: asyncHandler's next(err) of DR is the rejection of this promise (Nest error filter).
 		await new Promise<void>((resolve, reject) => {
 			const busboy = Busboy({ headers });
 

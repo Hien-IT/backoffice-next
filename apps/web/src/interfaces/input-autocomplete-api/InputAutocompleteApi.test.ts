@@ -1,4 +1,4 @@
-// Directus has no test for input-autocomplete-api: fixture, options (contracts/tests.md §5), both kinds of URL
+// DR has no test for input-autocomplete-api: fixture, options (contracts/tests.md §5), both kinds of URL
 // (FR-023, contracts/api-calls #43) and non-array results.
 import type { FieldRaw } from '@directus/types';
 import { flushPromises, mount } from '@vue/test-utils';

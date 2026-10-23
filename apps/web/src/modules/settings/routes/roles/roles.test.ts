@@ -1,4 +1,4 @@
-// Directus has no test for the roles routes (spec 016 T072, US4-1 to US4-3, FR-052, FR-053): the list request with
+// DR has no test for the roles routes (spec 016 T072, US4-1 to US4-3, FR-052, FR-053): the list request with
 // `deep`, the Public row, the client search, the create dialog (`POST /roles {name}`), the role page (`PATCH` with the
 // nested `{create, update, delete}`, invite with the role, delete, the `UNPROCESSABLE_CONTENT` error dialog) and the
 // Public page (`GET /access`, then the three `/access` writes). The directus_roles fields are given to the fields
@@ -152,7 +152,7 @@ describe('RolesCollectionRoute', () => {
 			expect(list[1]).toContain('Editor');
 			expect(list[1]).toContain('3');
 			expect(list[2]).toContain('Viewer');
-			// 0 users shows the null value like the Directus v-table cell.
+			// 0 users shows the null value like the DR v-table cell.
 			expect(list[2]).toContain(t('no_value'));
 			expect(button(t('create_role'))!.getAttribute('href')).toBe('/settings/roles/+');
 

@@ -1,4 +1,4 @@
-// Feature 016 (T090): system-folder as Directus: the path of the chosen folder from its parents (useFolders), the root
+// Feature 016 (T090): system-folder as DR: the path of the chosen folder from its parents (useFolders), the root
 // name without a value, the picker tree with that root name, choosing a folder emits its id and the root emits null.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

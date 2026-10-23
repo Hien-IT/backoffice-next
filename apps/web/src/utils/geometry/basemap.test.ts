@@ -1,4 +1,4 @@
-// Directus has no test for basemap.ts: basemap selection from settings, Mapbox light/dark, styles, tile URLs.
+// DR has no test for basemap.ts: basemap selection from settings, Mapbox light/dark, styles, tile URLs.
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { useSettingsStore, type Settings } from '../../stores/settings.ts';

@@ -1,4 +1,4 @@
-// Directus tests only useImage (useImage.test.ts); contracts/tests.md §5: the config, the content CSS and the toolbar
+// DR tests only useImage (useImage.test.ts); contracts/tests.md §5: the config, the content CSS and the toolbar
 // composables against a fake TinyMCE editor (the real editor runs in InputRichTextHtml.browser.test.ts).
 import type { SettingsStorageAssetPreset } from '@directus/types';
 import { afterEach, describe, expect, it, vi } from 'vitest';

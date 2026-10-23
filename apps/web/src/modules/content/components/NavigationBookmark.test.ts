@@ -1,4 +1,4 @@
-// Directus has no test for navigation-bookmark.vue: the row menu (personal edit dialog and delete confirmation, role and
+// DR has no test for navigation-bookmark.vue: the row menu (personal edit dialog and delete confirmation, role and
 // global bookmarks edited in Settings, lock without permission) and the focus after deleting the open bookmark
 // (FR-115c).
 import type { Preset } from '@directus/types';

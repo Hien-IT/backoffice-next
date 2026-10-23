@@ -337,7 +337,7 @@ export class ExtensionManager {
 	/**
 	 * Unregister all extensions from the current process
 	 */
-	// Backoffice: public so the shutdown tasks stop the schedule hooks (Directus relies on pm2)
+	// Backoffice: public so the shutdown tasks stop the schedule hooks (DR relies on pm2)
 	public async unload(): Promise<void> {
 		await this.unregisterApiExtensions();
 
@@ -377,7 +377,7 @@ export class ExtensionManager {
 			try {
 				await this.runReload(options, resolve!, reject!);
 			} catch (error) {
-				// Backoffice (R-64): Directus leaves reloadPromise pending, so GET /extensions would wait forever.
+				// Backoffice (R-64): DR leaves reloadPromise pending, so GET /extensions would wait forever.
 				logger.error(error);
 				reject!(error);
 			}
@@ -473,7 +473,7 @@ export class ExtensionManager {
 
 	/**
 	 * Backoffice (D-139): the router inside an Express 4 app, the handler the Express 5 Nest app mounts
-	 * (extensions.module.ts), so endpoint extensions get Express 4 requests and responses as in Directus.
+	 * (extensions.module.ts), so endpoint extensions get Express 4 requests and responses as in DR.
 	 */
 	public getEndpointApp(): RequestHandler {
 		this.endpointApp ??= createEndpointApp(this.endpointRouter);
@@ -651,7 +651,7 @@ export class ExtensionManager {
 			const rollDirection = (env['EXTENSIONS_ROLLDOWN'] ?? false) ? rolldown : rollup;
 
 			// Backoffice (research R4): the shared dependencies stay bare specifiers, resolved by the import map of the
-			// web app, instead of Directus' alias to /admin/assets/<dep>.<hash>.entry.js.
+			// web app, instead of DR' alias to /admin/assets/<dep>.<hash>.entry.js.
 			const bundle = await rollDirection({
 				input: 'entry',
 				external: [...APP_SHARED_DEPS],
@@ -965,7 +965,7 @@ export class ExtensionManager {
 				emitter.onInit(event, handler);
 
 				unregisterFunctions.push(() => {
-					// Backoffice (R-61): Directus passes the extension name here, so the listener is never removed.
+					// Backoffice (R-61): DR passes the extension name here, so the listener is never removed.
 					emitter.offInit(event, handler);
 				});
 			},
@@ -1104,7 +1104,7 @@ export class ExtensionManager {
 
 /**
  * Backoffice (research R3, D-141): every export of the service index, with the services that are not item services
- * here and the log-only MailService, like the `services` namespace Directus hands to extensions.
+ * here and the log-only MailService, like the `services` namespace DR hands to extensions.
  */
 async function loadServices(): Promise<Record<string, unknown>> {
 	const [index, extra] = await Promise.all([import('../services/index.js'), import('./services.js')]);

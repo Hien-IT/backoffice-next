@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/bookmark-add.vue -->
 <script setup lang="ts">
 // Backoffice: v-dialog is BoDialog (recipe "Bookmark dialog", component-specs 014): closing it (Esc, outside click)
-// is the Directus `@esc` cancel; Enter submits the form (Directus `@apply`). The activator slot gets `{ on }` like
+// is the DR `@esc` cancel; Enter submits the form (DR `@apply`). The activator slot gets `{ on }` like
 // v-dialog's.
 import { reactive, useId } from 'vue';
 import BoButton from '../../../components/BoButton.vue';

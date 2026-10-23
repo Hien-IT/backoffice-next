@@ -14,7 +14,7 @@ const {
 	center?: boolean;
 }>();
 
-// Icons as v-notice of Directus, colors from the component-specs Alert recipe (danger = error).
+// Icons as v-notice of DR, colors from the component-specs Alert recipe (danger = error).
 const TYPES = {
 	normal: {
 		icon: 'info',

@@ -1,4 +1,4 @@
-// Feature 009 (T021): the /flows controller (port of directus/api/src/controllers/flows.ts, which Directus does not
+// Feature 009 (T021): the /flows controller (port of directus/api/src/controllers/flows.ts, which DR does not
 // unit test) through the real app pipeline on SQLite, with FlowsService and the FlowManager mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

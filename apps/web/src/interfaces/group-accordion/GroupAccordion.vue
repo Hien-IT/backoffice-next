@@ -60,7 +60,7 @@ watch(
 		}
 
 		if (start === 'first') {
-			// Backoffice: an empty group opens nothing (Directus reads groupFields[0]! and throws).
+			// Backoffice: an empty group opens nothing (DR reads groupFields[0]! and throws).
 			selection.value = groupFields.value.slice(0, 1).map((field) => field.field);
 		}
 	},

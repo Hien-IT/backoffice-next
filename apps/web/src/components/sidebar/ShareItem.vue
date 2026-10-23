@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: recipe "Comments and shares" (Q-11): name, uses left and status `text-theme-xs`, a `lock` icon with a label
 // when password protected, used up and expired in error, upcoming in success; the menu is a BoMenu (no divider). The
-// role is not shown: the `/shares` request is the one of Directus (no `role.name` field). A share without date_created shows no date.
+// role is not shown: the `/shares` request is the one of DR (no `role.name` field). A share without date_created shows no date.
 import type { Share } from '@directus/types';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

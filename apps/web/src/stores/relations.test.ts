@@ -71,7 +71,7 @@ test('getRelationForField returns only the m2o of the field', () => {
 	expect(relationsStore.getRelationType).toBeTypeOf('function');
 });
 
-// Feature 016 T013: upsertRelation of Directus stores/relations.ts.
+// Feature 016 T013: upsertRelation of DR stores/relations.ts.
 describe('upsertRelation (016)', () => {
 	test('POST /relations when the field has no relation, PATCH /relations/:c/:f when it has one', async () => {
 		const fieldsStore = useFieldsStore();

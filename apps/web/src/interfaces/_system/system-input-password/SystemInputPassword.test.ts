@@ -1,4 +1,4 @@
-// Feature 015 (T071, FR-081): system-input-password, as Directus input-password.vue.
+// Feature 015 (T071, FR-081): system-input-password, as DR input-password.vue.
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import { i18n } from '../../../lang/index.ts';

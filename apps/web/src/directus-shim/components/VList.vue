@@ -4,7 +4,7 @@ import { useGroupableParent } from '@directus/composables';
 import { provide, toRefs } from 'vue';
 import { LIST } from './list.ts';
 
-// Backoffice (spec 020, data-model §7): same groupable parent as Directus (scope `v-list`); the list provides its
+// Backoffice (spec 020, data-model §7): same groupable parent as DR (scope `v-list`); the list provides its
 // `dense` / `nav` to the items, styled with the design-system menu item recipe.
 const props = withDefaults(
 	defineProps<{
@@ -41,7 +41,7 @@ useGroupableParent(
 	props.scope,
 );
 
-// Directus v-list.vue:80-83,85: sizing hooks and padding variable (`nav` sets its own).
+// DR v-list.vue:80-83,85: sizing hooks and padding variable (`nav` sets its own).
 </script>
 
 <template>

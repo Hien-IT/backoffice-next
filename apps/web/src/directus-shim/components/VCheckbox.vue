@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-checkbox.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): wraps BoCheckbox (extended with `icon` for custom iconOn/iconOff/
-// iconIndeterminate). The Directus logic (array model with `value`, `checked`, indeterminate when the model is null,
+// iconIndeterminate). The DR logic (array model with `value`, `checked`, indeterminate when the model is null,
 // toggleInput) runs here; BoCheckbox only reports the click. `customValue` puts a text input (v-model `value`) in place
 // of the label, the checkbox then gets that text (or "Other") as its name. The attrs go to the checkbox,
 // `class`/`style` to the root. Not honoured: the greyless look of `nonEditable` (a disabled checkbox stays greyed).
@@ -86,7 +86,7 @@ const icon = computed<string>(() => {
 	return isChecked.value ? props.iconOn : props.iconOff;
 });
 
-// The Directus defaults are the box of the Checkbox recipe; other icons are drawn as they are.
+// The DR defaults are the box of the Checkbox recipe; other icons are drawn as they are.
 const customIcons = computed(
 	() =>
 		props.iconOn !== 'check_box' ||

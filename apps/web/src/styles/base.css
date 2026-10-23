@@ -3,7 +3,7 @@
 :root {
 	/* project_color of the settings, set by the app head (FR-031); the theme primary until then. */
 	--project-color: var(--color-brand-500);
-	/* The light page and drawer background (D-152, D-167): a project color tint like the Directus Color Match theme. */
+	/* The light page and drawer background (D-152, D-167): a project color tint like the DR Color Match theme. */
 	--project-tint: color-mix(in srgb, var(--color-white), var(--project-color) 5%);
 	/* Text and module tiles on the project color (D-163), the values projectForegroundCss gives the theme primary. */
 	--project-foreground: var(--color-white);
@@ -11,7 +11,7 @@
 	--project-tile-hover: color-mix(in srgb, var(--project-color), var(--color-gray-950) 20%);
 }
 
-/* Directus theme variables used as colors in system field metadata (the `action` labels of directus_activity, spec 018
+/* DR theme variables used as colors in system field metadata (the `action` labels of directus_activity, spec 018
    FR-062; the danger divider of the user page), aliased to theme tokens as decided for Q-36: primary → brand, blue →
    blue-light, danger → error, purple → theme-purple; `-subdued` / `-25` are the light tints, a translucent tint in dark
    mode. The text shades are the ones with 4.5:1 on the page and on the tint (FR-106), not the -500 of the draft. */
@@ -49,14 +49,14 @@
 	body {
 		margin: 0;
 		min-height: 100vh;
-		/* Owner 2026-10-22 (D-152): the page background is a light project color tint like the Directus Color Match theme,
+		/* Owner 2026-10-22 (D-152): the page background is a light project color tint like the DR Color Match theme,
 		   5% instead of its 7% so brand-500 text on it keeps 4.5:1 (4.53:1 with the default project color); dark keeps
 		   the theme gray-900 (no dark Color Match). */
 		background-color: var(--project-tint);
 		@apply text-gray-800 dark:bg-gray-900 dark:text-white/90;
 	}
 
-	/* Directus _base.scss:153-159: no native spin buttons on number inputs nor clear/decoration on search inputs. */
+	/* DR _base.scss:153-159: no native spin buttons on number inputs nor clear/decoration on search inputs. */
 	input[type='number']::-webkit-inner-spin-button,
 	input[type='search']::-webkit-search-decoration,
 	input[type='search']::-webkit-search-cancel-button,
@@ -65,12 +65,12 @@
 		-webkit-appearance: none;
 	}
 
-	/* Directus _base.scss:161-164: iframes (live preview) ignore the pointer while a split panel divider drags. */
+	/* DR _base.scss:161-164: iframes (live preview) ignore the pointer while a split panel divider drags. */
 	.sp-dragging iframe {
 		pointer-events: none !important;
 	}
 
-	/* Spec 020: Directus _base.scss:11,86-88,121-143 element defaults that the Tailwind preflight resets, for what an
+	/* Spec 020: DR _base.scss:11,86-88,121-143 element defaults that the Tailwind preflight resets, for what an
 	   app extension renders. In the base layer so the utilities of the app's own components inside it still win. */
 	[data-bo-extension] {
 		tab-size: 2;
@@ -125,8 +125,8 @@
 	}
 }
 
-/* Spec 020: inside what an app extension renders (extensions.ts `marked`), an extension's own `.hidden` class (Directus
-   extensions use it for "hidden collection" styles) is not the Tailwind `display: none` utility: the Directus app has no
+/* Spec 020: inside what an app extension renders (extensions.ts `marked`), an extension's own `.hidden` class (DR
+   extensions use it for "hidden collection" styles) is not the Tailwind `display: none` utility: the DR app has no
    such global class. Utilities of the app's own components there always carry a variant (`hidden dark:block`), the
    map controls toggle a bare `hidden`. A layer after `utilities`: the extension's own CSS (not layered) still wins. */
 @layer bo-extensions {

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// Avatar image as module-bar-avatar.vue of Directus: system-medium-cover thumbnail, account_circle icon when there is
+// Avatar image as module-bar-avatar.vue of DR: system-medium-cover thumbnail, account_circle icon when there is
 // no avatar or the image fails to load.
 import { computed, ref, watch } from 'vue';
 import { getAssetUrl } from '../utils/get-asset-url.ts';

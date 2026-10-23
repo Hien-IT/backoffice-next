@@ -1,6 +1,6 @@
 // Spec 018 FR-024, FR-025 (T060): the resize of v-workspace-tile.vue. The 8 handles exist only in edit mode on a
 // resizable tile; a handle changes the size by whole cells, clamped to minWidth / minHeight and to cell 1; a top or
-// left resize keeps moving the tile once the size is at its minimum (R-54, as Directus); the W×H label shows while
+// left resize keeps moving the tile once the size is at its minimum (R-54, as DR); the W×H label shows while
 // resizing; `update` carries the changed keys; the corners follow `borderRadius`. The flows tile (not resizable) is
 // covered by BoWorkspace.browser.test.ts.
 import { mount } from '@vue/test-utils';
@@ -100,7 +100,7 @@ test('top-left at the minimum size keeps moving the tile, never above cell 1 (R-
 	const el = tile.element as HTMLElement;
 
 	await drag(tile.find('[data-resize="top-left"]').element, 6 * GRID, 6 * GRID);
-	// Width 10 - 6 = 4 is clamped to 6 but x still moves by 6, as Directus.
+	// Width 10 - 6 = 4 is clamped to 6 but x still moves by 6, as DR.
 	expect(el.dataset).toMatchObject({ width: '6', height: '4', posX: '11', posY: '11' });
 	await release();
 
@@ -120,7 +120,7 @@ test('the corners follow borderRadius and are all rounded while dragging', async
 });
 
 // `unselectable` (Insights): in edit mode the tile cannot be selected and starts no native drag (webkit turned a pointer
-// drag over a selection into a native one); out of edit mode, or without the prop (flows, as Directus), the browser's.
+// drag over a selection into a native one); out of edit mode, or without the prop (flows, as DR), the browser's.
 test('unselectable in edit mode: no text selection, no native drag', async () => {
 	const tile = mountTile({ unselectable: true });
 	expect(tile.classes()).toContain('select-none');

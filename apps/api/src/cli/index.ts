@@ -27,7 +27,7 @@ export async function createCli(): Promise<Command> {
 	await emitter.emitInit('cli.before', { program });
 
 	// Backoffice (spec 021 D-147): program name, version and the product name in two descriptions; the commands keep the
-	// Directus names and options. `start` runs the startup checks of main.ts before startServer (commands/start.ts).
+	// DR names and options. `start` runs the startup checks of main.ts before startServer (commands/start.ts).
 	program.name('backoffice').usage('[command] [options]');
 	program.version(BACKOFFICE_VERSION, '-v, --version');
 

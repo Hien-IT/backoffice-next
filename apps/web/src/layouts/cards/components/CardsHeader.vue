@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/layouts/cards/components/header.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Cards grid (Q-3)" header bar: the select-all button is a BoCheckbox (indeterminate while items are
-// selected, a click clears them as the Directus cancel icon); the sort field menu is a BoSelect with a screen reader
-// label and lists only the sortable fields (Directus shows the others disabled); size and direction are icon buttons
+// selected, a click clears them as the DR cancel icon); the sort field menu is a BoSelect with a screen reader
+// label and lists only the sortable fields (DR shows the others disabled); size and direction are icon buttons
 // (Material Symbols has no `grid_<n>` icon: `grid_view`); the `end` slot holds the per page select (recipe); not sticky.
 // `extraSelection` holds the selected folder cards of the Files module (feature 015, FR-012): counted with the selection
 // and cleared with it.

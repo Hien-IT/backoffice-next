@@ -63,7 +63,7 @@ const {
 </template>
 
 <style>
-/* Directus TransitionBounce on the panel: fade and grow from the activator side; off under reduced motion. */
+/* DR TransitionBounce on the panel: fade and grow from the activator side; off under reduced motion. */
 .bo-popover[data-state='open'] {
 	transform-origin: var(--reka-popover-content-transform-origin);
 	animation: bo-popover-in 125ms cubic-bezier(0, 0, 0.2, 1);

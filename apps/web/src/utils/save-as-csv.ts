@@ -1,6 +1,6 @@
 // Ported from directus/app/src/utils/save-as-csv.ts
 // Backoffice: displays come from the internal registry (`getDisplay`) instead of `useExtension`; the CSV text is built by
-// `buildCSV` so tests can compare it with the file the Directus app downloads (spec 014 FR-092, T010).
+// `buildCSV` so tests can compare it with the file the DR app downloads (spec 014 FR-092, T010).
 import type { Field, Item } from '@directus/types';
 import { Parser } from '@json2csv/plainjs';
 import fileSaver from 'file-saver';

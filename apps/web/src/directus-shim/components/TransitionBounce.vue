@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/transition/bounce.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7 #65): the Directus menu transition (fade, a `.v-menu-content` child grows from
+// Backoffice (spec 020, data-model §7 #65): the DR menu transition (fade, a `.v-menu-content` child grows from
 // its `data-placement` side); off under reduced motion. Not scoped on purpose: the children are teleported.
 </script>
 

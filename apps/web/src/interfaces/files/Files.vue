@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/files/files.vue -->
 <script setup lang="ts">
 // Backoffice: the draggable v-list is BoSortableList (SortableList row menu recipe, D-60): the row menu holds the
-// Directus items (open in a new tab, download) and "Move up" / "Move down", which emit the same order as a drag and
+// DR items (open in a new tab, download) and "Move up" / "Move down", which emit the same order as a drag and
 // go through sortItems. The row is a button that opens the drawer; deselect/remove sits next to it. v-pagination is
 // the previous / next pair of DrawerCollection. The menu download item opens the `?download` URL in a new tab (BoMenu
 // links), so the server names the file.
@@ -336,7 +336,7 @@ const allowDrag = computed(
 		updateAllowed.value,
 );
 
-/** Directus row v-menu (hidden when non-editable, disabled with the field). */
+/** DR row v-menu (hidden when non-editable, disabled with the field). */
 function rowActions(element: DisplayItem): BoMenuItem[] {
 	if (props.nonEditable) return [];
 

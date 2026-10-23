@@ -1,5 +1,5 @@
 // /access end to end (pipeline, authenticate, AccessService) on the SQLite auth test database (task T044).
-// Parity with Directus is checked by tests/parity/src/permissions/accountability.test.ts.
+// Parity with DR is checked by tests/parity/src/permissions/accountability.test.ts.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import jwt from 'jsonwebtoken';

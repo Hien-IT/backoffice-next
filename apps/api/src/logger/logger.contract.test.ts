@@ -1,4 +1,4 @@
-// T086, contracts/observability.md §1: HTTP log lines and logger options, as in Directus 11.17.4.
+// T086, contracts/observability.md §1: HTTP log lines and logger options, as in DR 11.17.4.
 import { useEnv } from '@backoffice/env';
 import express from 'express';
 import { pino } from 'pino';

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: template on the page header recipe (layout-patterns §5) with BoButton, BoDialog and BoMenu (Dropdown
 // menu recipe). Link types map to the Button variants
-// (primary, danger, else outline): the Directus info/success/warning button colors have no recipe. The narrow
+// (primary, danger, else outline): the DR info/success/warning button colors have no recipe. The narrow
 // container hides the "Actions" text instead of swapping buttons. A flow runs through useInjectRunManualFlow, which
 // falls back to its own useFlows and emits `ran` so the screen can reload the item (FR-057).
 import type { Collection } from '@directus/types';
@@ -148,7 +148,7 @@ const buttonProps = computed<Record<string, unknown>[]>(() =>
 		};
 
 		if (link.actionType === 'url' && link.href) {
-			// Backoffice: Directus also passes `to`, always undefined here (an internal link has no href).
+			// Backoffice: DR also passes `to`, always undefined here (an internal link has no href).
 			return {
 				...baseProps,
 				href: link.href,
@@ -250,7 +250,7 @@ function translateLabel(label: string) {
 	return label && te(label) ? t(label) : label;
 }
 
-// The v-list of the "Actions" menu: a url link without a target shows only its icon, as Directus.
+// The v-list of the "Actions" menu: a url link without a target shows only its icon, as DR.
 const menuItems = computed<BoMenuItem[]>(() =>
 	linksParsed.value.map((link) => ({
 		text: link.actionType === 'url' && !link.to && !link.href ? '' : translateLabel(link.label),

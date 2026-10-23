@@ -1,4 +1,4 @@
-// Directus has no test for modules/activity/routes/collection.vue and components/navigation.vue (spec 018 T080, US5-1
+// DR has no test for modules/activity/routes/collection.vue and components/navigation.vue (spec 018 T080, US5-1
 // to US5-3, FR-060, FR-061, contracts/api-calls.md #199): the real tabular layout over the fixture API with the default
 // directus_activity preset, the sub-menu filter sent as part of GET /activity and marked with aria-current, a stored
 // user filter merged with it by `_and`, no row selection, the empty state, a row click opening the detail view. The
@@ -171,7 +171,7 @@ describe('activity list (US5-1)', () => {
 
 			expect(document.querySelector('main h1')?.textContent?.trim()).toBe(t('activity_feed'));
 			expect(rows()).toHaveLength(12);
-			// The field names of directus_activity in the Directus translations (`timestamp` "Action On", `user` "Action By").
+			// The field names of directus_activity in the DR translations (`timestamp` "Action On", `user` "Action By").
 			expect(headers()).toEqual([
 				t('fields.directus_activity.action'),
 				t('fields.directus_activity.collection'),
@@ -240,7 +240,7 @@ describe('sub-menu (US5-2, FR-061)', () => {
 				expect(current()).toEqual([t(key)]);
 			}
 
-			// Only `create` rows in the fixture; a system filter alone gives the "no items" state (tabular, as Directus).
+			// Only `create` rows in the fixture; a system filter alone gives the "no items" state (tabular, as DR).
 			expect(document.querySelector('main')!.textContent).toContain(t('item_count', 0));
 
 			await click(navButton('all_activity'));

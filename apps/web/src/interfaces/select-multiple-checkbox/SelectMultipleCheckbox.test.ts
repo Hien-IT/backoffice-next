@@ -10,7 +10,7 @@ import { translate } from '../../utils/translate-object-values.ts';
 import config from './index.ts';
 import SelectMultipleCheckbox from './SelectMultipleCheckbox.vue';
 
-// Backoffice: mounted with our BoCheckboxGroup (no stubs); Directus classes become roles and labels.
+// Backoffice: mounted with our BoCheckboxGroup (no stubs); DR classes become roles and labels.
 const global = { plugins: [i18n] };
 
 describe('Interface', () => {
@@ -178,7 +178,7 @@ describe('select-multiple-checkbox', () => {
 	});
 
 	test('option:select-multiple-checkbox.color: checked boxes take the data color', () => {
-		const wrapper = mountGroup({ value: ['alpha'], choices, color: '#6644FF' }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountGroup({ value: ['alpha'], choices, color: '#6644FF' }); // raw-color-allowed: DR data default (Q-C)
 		expect(wrapper.get('[role="checkbox"][aria-checked="true"]').attributes('style')).toContain('background-color');
 	});
 

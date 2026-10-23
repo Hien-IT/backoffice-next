@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. RevisionsService.revert (spec FR-020; the route is POST /utils/revert of feature 010)
+// Backoffice: no test in DR. RevisionsService.revert (spec FR-020; the route is POST /utils/revert of feature 010)
 // and the defaults of its writes.
 import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';

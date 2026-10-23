@@ -1,7 +1,7 @@
 // Ported from directus/api/src/services/settings.ts
 // Backoffice: setOwner does not send the owner report to COMPLIANCE_URL (telemetry is out of scope, Principle XI;
-// D-38, Clarifications of spec 010). The owner fields are written as Directus writes them once the report was sent
-// (project_status null), so no `pending` status makes the `project` job of a Directus next to this app send it later.
+// D-38, Clarifications of spec 010). The owner fields are written as DR writes them once the report was sent
+// (project_status null), so no `pending` status makes the `project` job of a DR next to this app send it later.
 import type { AbstractServiceOptions, OwnerInformation } from '@backoffice/types';
 import { useLogger } from '../logger/index.js';
 import { ItemsService } from './items.service.js';

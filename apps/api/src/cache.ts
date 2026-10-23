@@ -36,7 +36,7 @@ interface CacheMessage {
 	autoPurgeCache: boolean | undefined;
 }
 
-/** The `schemaChanged` handler of Directus' cache.ts, registered once per process when Redis is configured. */
+/** The `schemaChanged` handler of DR' cache.ts, registered once per process when Redis is configured. */
 export function subscribeSchemaChanged(): void {
 	if (!redisConfigAvailable() || messengerSubscribed) return;
 
@@ -141,7 +141,7 @@ export function getMemorySchemaCache(): Readonly<SchemaOverview> | undefined {
 	return undefined;
 }
 
-/** Compressed like Directus (snappy), so both apps read what the other wrote. */
+/** Compressed like DR (snappy), so both apps read what the other wrote. */
 export async function setCacheValue(
 	cache: Keyv,
 	key: string,

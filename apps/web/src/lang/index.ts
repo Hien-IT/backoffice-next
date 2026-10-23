@@ -20,7 +20,7 @@ export const i18n = createI18n({
 	messages: {
 		[FALLBACK_LANGUAGE]: { ...enUSBase, ...enUSOverlay },
 	} as NonNullable<I18nOptions['messages']>,
-	// Backoffice: Directus sets silentTranslationWarn (legacy mode only); falling back to en-US stays silent, a key
+	// Backoffice: DR sets silentTranslationWarn (legacy mode only); falling back to en-US stays silent, a key
 	// missing from en-US as well warns once. vue-i18n calls `missing` for several locales of the chain per lookup.
 	missingWarn: false,
 	fallbackWarn: false,

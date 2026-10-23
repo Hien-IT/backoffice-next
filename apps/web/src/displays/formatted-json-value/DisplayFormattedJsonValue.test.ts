@@ -1,4 +1,4 @@
-// Directus has no test for the formatted-json-value display (spec FR-074): template, "N items" menu, handler.
+// DR has no test for the formatted-json-value display (spec FR-074): template, "N items" menu, handler.
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { i18n } from '../../lang/index.ts';
@@ -67,7 +67,7 @@ describe('handler', () => {
 	test('reproduces the Directus argument order: the value is the template, the format the view', () => {
 		// Strings are rendered as templates against the format string, so they come back unchanged.
 		expect(config.handler!(['a', 'b'], { format: '{{key}}' }, {})).toBe('a, b');
-		// An object is not a template: micromustache throws, as in Directus 11.17.4.
+		// An object is not a template: micromustache throws, as in DR 11.17.4.
 		expect(() => config.handler!({ key: 'value' }, { format: '{{key}}' }, {})).toThrow(TypeError);
 	});
 

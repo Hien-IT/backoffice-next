@@ -1,4 +1,4 @@
-// Directus has no test for use-flows.ts: the default run-manual-flow of `header`/`presentation-links` (FR-057,
+// DR has no test for use-flows.ts: the default run-manual-flow of `header`/`presentation-links` (FR-057,
 // contracts/api-calls.md #48) on the bo-flow fixture (snapshot flows.json, bo_groups item 1).
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

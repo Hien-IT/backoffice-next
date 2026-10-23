@@ -1,13 +1,13 @@
 <!-- Ported from directus/app/src/interfaces/list-o2m-tree-view/NestedDraggable.vue -->
 <script setup lang="ts">
 // Backoffice: each level is a BoSortableList in `tree` mode (SortableList row menu recipe, D-60) sharing the
-// vuedraggable group `g1` as Directus, so a mouse drag moves rows across levels (`added` / `removed` go to change());
-// deleted rows are not draggable (Directus `draggable=".draggable"`). A drag or Move up / Move down inside a level
-// emits the reordered array, which is the `moved` event of Directus (sort). "Indent" (make the row the last child of
+// vuedraggable group `g1` as DR, so a mouse drag moves rows across levels (`added` / `removed` go to change());
+// deleted rows are not draggable (DR `draggable=".draggable"`). A drag or Move up / Move down inside a level
+// emits the reordered array, which is the `moved` event of DR (sort). "Indent" (make the row the last child of
 // its previous sibling) and "Outdent" (move the row after its parent) replay the vuedraggable events of the
 // equivalent drag: `added` on the target level, then `removed` on the source level, through the same change()
 // handler, so the value is the one a drag gives. The edit icon and v-remove of item-preview.vue are row menu actions
-// here, with one item drawer per level. updateModelValue reads the row from the list shown (Directus reads
+// here, with one item drawer per level. updateModelValue reads the row from the list shown (DR reads
 // displayItems with the index of the filtered list).
 import type { ContentVersion, Filter } from '@directus/types';
 import { until } from '@vueuse/core';
@@ -179,7 +179,7 @@ function change(event: ChangeEvent) {
 	}
 }
 
-// The `moved` branch of change(): BoSortableList gives the reordered list (moveInArray of Directus) as
+// The `moved` branch of change(): BoSortableList gives the reordered list (moveInArray of DR) as
 // update:modelValue, also for Move up / Move down.
 function sort(sortedList: DisplayItem[]) {
 	const sortField = relationInfo.value.sortField;

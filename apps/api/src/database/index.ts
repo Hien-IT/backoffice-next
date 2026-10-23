@@ -273,7 +273,7 @@ export async function isInstalled(): Promise<boolean> {
 
 	// The existence of a directus_collections table alone isn't a "proper" check to see if everything
 	// is installed correctly of course, but it's safe enough to assume that this collection only
-	// exists when Directus is properly installed.
+	// exists when DR is properly installed.
 	return await inspector.hasTable('directus_collections');
 }
 

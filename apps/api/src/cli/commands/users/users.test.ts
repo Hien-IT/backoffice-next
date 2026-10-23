@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/users (spec 021 T045, FR-050, FR-051).
+// Backoffice: DR has no unit test for cli/commands/users (spec 021 T045, FR-050, FR-051).
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import getDatabase from '../../../database/index.js';
 import { useLogger } from '../../../logger/index.js';
@@ -38,7 +38,7 @@ beforeEach(() => {
 	vi.mocked(getDatabase).mockReturnValue(database as any);
 	vi.mocked(getSchema).mockResolvedValue({} as any);
 	vi.mocked(generateHash).mockResolvedValue('$argon2id$hash');
-	// process.exit is called inside try/catch like Directus: the mock returns so each path runs to its end.
+	// process.exit is called inside try/catch like DR: the mock returns so each path runs to its end.
 	exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
 	stdout = vi.spyOn(process.stdout, 'write').mockImplementation(() => true);
 });

@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-text-overflow.test.ts
-// Backoffice: no snapshot of the Directus markup; the title is set only when the text is cut (no highlight prop).
+// Backoffice: no snapshot of the DR markup; the title is set only when the text is cut (no highlight prop).
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { nextTick } from 'vue';

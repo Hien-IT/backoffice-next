@@ -1,4 +1,4 @@
-// list-o2m-tree-view on the fixture snapshot (Directus has no test for it): bo_tree.children (recursive o2m on
+// list-o2m-tree-view on the fixture snapshot (DR has no test for it): bo_tree.children (recursive o2m on
 // bo_tree.parent, sort field `sort`), the option checks of contracts/tests.md §5 (FR-047), the nested
 // {create, update, delete} values (FR-040) and Indent / Outdent (D-60) giving the value of the equivalent drag.
 // The keyboard paths through the row menu are in ListO2MTreeView.browser.test.ts.

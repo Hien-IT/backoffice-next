@@ -1,4 +1,4 @@
-// Repeater (`list`, spec FR-037, FR-084, FR-094 / D-60, Edge Cases): Directus has no list.test.ts; these are the
+// Repeater (`list`, spec FR-037, FR-084, FR-094 / D-60, Edge Cases): DR has no list.test.ts; these are the
 // contracts/tests.md §5 checks on the bo_std `list` fixture field and its seeded values (one is not an array).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

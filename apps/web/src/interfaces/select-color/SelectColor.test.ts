@@ -33,26 +33,26 @@ describe('Interface', () => {
 	});
 
 	it('should render remove button when value is set', () => {
-		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: DR data default (Q-C)
 
 		expect(wrapper.get('.item-actions button').attributes('aria-label')).toBe('Clear Value');
 	});
 
 	it('should mount', () => {
-		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: DR data default (Q-C)
 
 		expect(wrapper.exists()).toBe(true);
 	});
 
 	it('should render action buttons disabled when disabled is true', () => {
-		const wrapper = mountColor({ value: '#6644FF', width: 'half', disabled: true }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountColor({ value: '#6644FF', width: 'half', disabled: true }); // raw-color-allowed: DR data default (Q-C)
 
 		expect(wrapper.get('.item-actions button').attributes('disabled')).toBe('');
 	});
 
 	it('should hide action buttons when nonEditable is true', () => {
 		const wrapper = mountColor({
-			value: '#6644FF', // raw-color-allowed: Directus data default (Q-C)
+			value: '#6644FF', // raw-color-allowed: DR data default (Q-C)
 			width: 'half',
 			nonEditable: true,
 			// Note: if nonEditable is true, disabled prop will also be true
@@ -84,7 +84,7 @@ describe('select-color', () => {
 	test('fixture bo_std.select_color_default: shows the seeded color, no input on mount', () => {
 		const wrapper = mountColor(fixtureProps('select_color_default'));
 
-		expect(wrapper.get<HTMLInputElement>('input').element.value).toBe('#2ECDA7'); // raw-color-allowed: Directus data default (Q-C)
+		expect(wrapper.get<HTMLInputElement>('input').element.value).toBe('#2ECDA7'); // raw-color-allowed: DR data default (Q-C)
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
 
@@ -101,19 +101,19 @@ describe('select-color', () => {
 		const wrapper = mountColor(fixtureProps('select_color'));
 
 		expect(wrapper.findComponent(BoColorPicker).props('opacity')).toBe(true);
-		expect(wrapper.get<HTMLInputElement>('input').element.value).toBe('#6644FF80'); // raw-color-allowed: Directus data default (Q-C)
+		expect(wrapper.get<HTMLInputElement>('input').element.value).toBe('#6644FF80'); // raw-color-allowed: DR data default (Q-C)
 	});
 
 	test('typing a hex color emits it; clearing emits null', async () => {
-		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountColor({ value: '#6644FF', width: 'half' }); // raw-color-allowed: DR data default (Q-C)
 
 		await wrapper.get('.item-actions button').trigger('click');
 		expect(wrapper.emitted('input')).toEqual([[null]]);
 
 		const input = wrapper.get('input');
-		(input.element as HTMLInputElement).value = '#112233'; // raw-color-allowed: Directus data default (Q-C)
+		(input.element as HTMLInputElement).value = '#112233'; // raw-color-allowed: DR data default (Q-C)
 		await input.trigger('input');
-		expect(wrapper.emitted('input')?.at(-1)).toEqual(['#112233']); // raw-color-allowed: Directus data default (Q-C)
+		expect(wrapper.emitted('input')?.at(-1)).toEqual(['#112233']); // raw-color-allowed: DR data default (Q-C)
 	});
 
 	test('label linking and invalid from the form field', () => {

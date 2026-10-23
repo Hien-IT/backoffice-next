@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/graphql/utils/sanitize-gql-schema.test.ts
-// Backoffice: the app logger reads the env, so it is mocked here (Directus' logger works bare in its tests).
+// Backoffice: the app logger reads the env, so it is mocked here (DR' logger works bare in its tests).
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import { describe, expect, test, vi } from 'vitest';
 import { sanitizeGraphqlSchema } from './sanitize-gql-schema.js';

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/flow-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: recipe Q-9, one secondary BoButton per manual flow (`w-full justify-start`), the flow color as a data
-// color on its icon instead of the Directus button background; the tooltip sits on a wrapper because a disabled
+// color on its icon instead of the DR button background; the tooltip sits on a wrapper because a disabled
 // button gets no pointer events.
 import BoButton from '../BoButton.vue';
 import BoIcon from '../BoIcon.vue';

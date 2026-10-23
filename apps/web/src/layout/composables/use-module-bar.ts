@@ -1,5 +1,5 @@
 // Backoffice: the module list of the module bar (moved out of AppSidebar for the top tab bar, D-157). Module list as
-// Directus: registeredModules from modules/index.ts (no extensions store); the Documentation link of the Directus
+// DR: registeredModules from modules/index.ts (no extensions store); the Documentation link of the DR
 // default is dropped even from a saved module_bar (FR-081, D-49); links to other sites open in a new tab. Modules of app
 // extensions are kept apart (D-144): every registered module that is not internal is an extension.
 import { computed } from 'vue';
@@ -70,7 +70,7 @@ export function useModuleBar() {
 		return item.to !== undefined && (route.path === item.to || route.path.startsWith(`${item.to}/`));
 	}
 
-	// The open module, also one without a place in the bar (Activity is `hidden`, as in Directus, spec 018 FR-061):
+	// The open module, also one without a place in the bar (Activity is `hidden`, as in DR, spec 018 FR-061):
 	// its name heads the sidebar.
 	const currentModule = computed<ModuleBarItem | null>(() => {
 		const listed = modules.value.find((modulePart) => !modulePart.href && isActive(modulePart));

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: the VCheckbox list, VDetail "show more" and the custom value rows (useCustomSelectionMultiple) are
 // BoCheckboxGroup (CheckboxGroup recipe). nonEditable: every choice and the custom values show as plain disabled
-// checkboxes, without "show more", "add other" or remove buttons (Directus hides them). `color` defaults to the theme
+// checkboxes, without "show more", "add other" or remove buttons (DR hides them). `color` defaults to the theme
 // brand color instead of `var(--theme--primary)`; the default iconOn/iconOff draw the recipe box, other icons are shown.
 import { computed, inject, toRefs, useId } from 'vue';
 import BoCheckboxGroup from '../../components/BoCheckboxGroup.vue';

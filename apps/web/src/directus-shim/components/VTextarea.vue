@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-textarea.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): wraps BoTextarea; `nullable` and `trim` as in Directus (emitValue,
+// Backoffice (spec 020, data-model §7): wraps BoTextarea; `nullable` and `trim` as in DR (emitValue,
 // trimIfEnabled). The attrs go to the textarea, `class`/`style` to the root. `expandOnFocus`: input height until it is
 // focused or has content, the prepend/append slots shown then. Not honoured: the greyless look of `nonEditable` (a
 // disabled textarea stays greyed).
@@ -50,7 +50,7 @@ const root = useTemplateRef<HTMLElement>('root');
 
 const hasContent = computed(() => !!props.modelValue && props.modelValue.length > 0);
 
-// The autofocus attribute only works on page load (v-focus of Directus).
+// The autofocus attribute only works on page load (v-focus of DR).
 onMounted(() => {
 	if (props.autofocus) root.value?.querySelector('textarea')?.focus();
 });
@@ -69,7 +69,7 @@ function trimIfEnabled() {
 	}
 }
 
-// Directus v-textarea.vue:164: never user-resizable (resize-none on the textarea).
+// DR v-textarea.vue:164: never user-resizable (resize-none on the textarea).
 const EXPAND = 'h-11 transition-[height] focus:h-40 motion-reduce:transition-none';
 const SLOT = computed(() => [
 	'shrink-0 text-gray-500 dark:text-gray-400',

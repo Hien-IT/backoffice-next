@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice: VMenu + VInput + VList are BoCombobox (component-specs Combobox, `ignore-filter`: the API filters).
 // Requests (FR-023, contracts/api-calls #43): a URL starting with "/" goes through apiFetch (session, API base URL,
-// like the Directus `api` axios instance); any other URL is fetched directly with `credentials: 'omit'` and no session
-// header (Directus uses a bare axios). iconLeft is the combobox prepend, iconRight sits over the end of the input;
+// like the DR `api` axios instance); any other URL is fetched directly with `credentials: 'omit'` and no session
+// header (DR uses a bare axios). iconLeft is the combobox prepend, iconRight sits over the end of the input;
 // `font` maps to the theme font classes.
 import { debounce, get, throttle } from 'lodash-es';
 import { render } from 'micromustache';

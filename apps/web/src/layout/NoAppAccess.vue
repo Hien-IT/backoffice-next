@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/private-view/components/private-view-no-app-access.vue -->
 <script setup lang="ts">
 // Backoffice: the v-info layout as a centred full-screen page with the design-system theme (layout-patterns §6); the
-// button says sign_out (Directus: switch_user) and goes to /logout like Directus.
+// button says sign_out (DR: switch_user) and goes to /logout like DR.
 import BoButton from '../components/BoButton.vue';
 import BoIcon from '../components/BoIcon.vue';
 </script>

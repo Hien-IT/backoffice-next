@@ -468,7 +468,7 @@ export function globalResolvers(gql: GraphQLService, schemaComposer: SchemaCompo
 
 				if (ip) {
 					// Backoffice: the limiter is created on first use; undefined when RATE_LIMITER_REGISTRATION_ENABLED=false, which
-					// throws the same TypeError as Directus' uninitialised module variable (spec R-33).
+					// throws the same TypeError as DR' uninitialised module variable (spec R-33).
 					await registrationRateLimiter()!.consume(ip);
 				}
 

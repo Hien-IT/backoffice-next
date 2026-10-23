@@ -7,7 +7,7 @@ withDefaults(defineProps<{ disabled?: boolean | undefined; tile?: boolean | unde
 	tile: false,
 });
 
-// Directus v-card.vue:35: min width hook (v-dialog sets it on its cards).
+// DR v-card.vue:35: min width hook (v-dialog sets it on its cards).
 </script>
 
 <template>

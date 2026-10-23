@@ -1,8 +1,8 @@
-// Feature 016 (T091, US5-1, US5-2, US5-5, FR-072, FR-076): the Project and Appearance pages as Directus project.vue and
+// Feature 016 (T091, US5-1, US5-2, US5-5, FR-072, FR-076): the Project and Appearance pages as DR project.vue and
 // appearance/item.vue: the fields of directus_settings without the theming, AI and MCP groups (Appearance: theming
 // only), collaborative editing read-only without websockets, save sends `PATCH /settings` with the edited keys only
-// and reloads the server info. The fields come from settings.yaml of Directus 11.17.4: every interface it names is
-// registered, with its option keys, and the two special fields keep their Directus interface and options.
+// and reloads the server info. The fields come from settings.yaml of DR 11.17.4: every interface it names is
+// registered, with its option keys, and the two special fields keep their DR interface and options.
 import type { Field } from '@directus/types';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { load } from 'js-yaml';
@@ -154,8 +154,8 @@ describe('settings.yaml against the registry (FR-072, FR-076)', () => {
 					.map((key) => `${f.field}.${key}`),
 			);
 
-		// `icon` and `title` of mapbox_key are not options of the Directus input interface either (the registry fixture
-		// is extracted from Directus): both apps ignore them.
+		// `icon` and `title` of mapbox_key are not options of the DR input interface either (the registry fixture
+		// is extracted from DR): both apps ignore them.
 		expect(unknown).toEqual(['mapbox_key.icon', 'mapbox_key.title']);
 	});
 

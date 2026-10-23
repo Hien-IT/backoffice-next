@@ -14,7 +14,7 @@ vi.mock('./schedules/metrics.js', () => ({ default: vi.fn(async () => order.push
 
 beforeEach(() => vi.clearAllMocks());
 
-// Directus' server.ts:104 creates the REST and GraphQL WebSocket controllers only with WEBSOCKETS_ENABLED, each when
+// DR' server.ts:104 creates the REST and GraphQL WebSocket controllers only with WEBSOCKETS_ENABLED, each when
 // its own flag is on (websocket/controllers/index.ts), and each registers the bus bridge.
 test.each([
 	[{ WEBSOCKETS_ENABLED: true, WEBSOCKETS_REST_ENABLED: true, WEBSOCKETS_GRAPHQL_ENABLED: false }, true],
@@ -27,7 +27,7 @@ test.each([
 	expect(vi.mocked(registerWebSocketEvents).mock.calls.length).toBe(registered ? 1 : 0);
 });
 
-// Feature 008 (research R5): the jobs start in the order of Directus' createApp, retention first.
+// Feature 008 (research R5): the jobs start in the order of DR' createApp, retention first.
 test('schedules start in the order of Directus: retention, tus, metrics', async () => {
 	await startSchedules();
 	expect(order).toEqual(['retention', 'tus', 'metrics']);

@@ -4,8 +4,8 @@
 // v-menu -> Reka dropdown menus; the column menu also has "Move left" / "Move right" (keyboard path of the column drag,
 // D-69) and shows for `choices` groups when they can be reordered; each card is focusable (Enter / Space opens it, as a
 // table row) and has a menu "Move to group…" / "Move up" / "Move down" (keyboard path of the card drag, D-69) that
-// calls the same `change` / `changeGroupSort` as a drag; deleting a group asks first (D-74: Directus deletes at once);
-// an "Add group" column (recipe Q-5) opens the add dialog that Directus has without a button; the click handler and the
+// calls the same `change` / `changeGroupSort` as a drag; deleting a group asks first (D-74: DR deletes at once);
+// an "Add group" column (recipe Q-5) opens the add dialog that DR has without a button; the click handler and the
 // selection get the item row (`element.item`) so a primary key other than `id` works.
 import type { Field, PrimaryKey } from '@directus/types';
 import {

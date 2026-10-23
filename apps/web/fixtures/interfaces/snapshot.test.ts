@@ -1,5 +1,5 @@
-// T026 (contracts/tests.md §2): the fixture snapshot covers every interface and display id of Directus 11.17.4, and
-// every hand-written expected value names its Directus source (FR-100, CHK051).
+// T026 (contracts/tests.md §2): the fixture snapshot covers every interface and display id of DR 11.17.4, and
+// every hand-written expected value names its DR source (FR-100, CHK051).
 import { describe, expect, test } from 'vitest';
 import { loadSnapshot } from '../../src/test-utils/fixtures.ts';
 import registry from './directus-registry.json';

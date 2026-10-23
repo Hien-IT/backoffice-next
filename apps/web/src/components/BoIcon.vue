@@ -5,8 +5,8 @@ import { customIcons } from './custom-icons/index.ts';
 import { socialIcons } from './icon-picker/social-icons.ts';
 
 // Material Symbols Rounded icon (research R8). Decorative by default; `label` makes it an image with a name.
-// `filled`: the filled glyph (Directus v-icon `filled`, font-variation-settings FILL 1). `data-icon` names the icon as
-// Directus v-icon does (a custom SVG icon has no ligature text).
+// `filled`: the filled glyph (DR v-icon `filled`, font-variation-settings FILL 1). `data-icon` names the icon as
+// DR v-icon does (a custom SVG icon has no ligature text).
 const {
 	name,
 	size = 'md',
@@ -14,11 +14,11 @@ const {
 	filled = false,
 } = defineProps<{ name: string; size?: 'sm' | 'md' | 'lg'; label?: string; filled?: boolean }>();
 
-// Brand names of the Directus social set render the Font Awesome brand SVG like Directus v-icon.vue. The brands
+// Brand names of the DR social set render the Font Awesome brand SVG like DR v-icon.vue. The brands
 // library is a lazy chunk so it stays out of the main bundle (research R12).
 const SocialIcon = defineAsyncComponent(() => import('./icon-picker/SocialIcon.vue'));
 
-// Directus custom SVG icons (bookmark_save, folder_move, ...) win over the font glyph of the same name, as in v-icon.vue.
+// DR custom SVG icons (bookmark_save, folder_move, ...) win over the font glyph of the same name, as in v-icon.vue.
 const customIcon = computed(() => customIcons[name] ?? null);
 
 const socialIconName = computed(() => (socialIcons.includes(name) ? (name.replace(/_/g, '-') as IconName) : null));

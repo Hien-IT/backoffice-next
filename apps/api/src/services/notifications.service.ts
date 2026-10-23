@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/notifications.ts
-// Backoffice: no mail (Principle X, spec FR-042, D-33): sendEmail decides like Directus whether the recipient gets a
+// Backoffice: no mail (Principle X, spec FR-042, D-33): sendEmail decides like DR whether the recipient gets a
 // mail, then writes a warning instead of rendering and sending it. Gone with it: md, Url, fetchRolesTree,
 // fetchGlobalAccess, MailService and the EMAIL_* settings, until feature 010.
 import type { AbstractServiceOptions, MutationOptions, Notification, PrimaryKey } from '@backoffice/types';

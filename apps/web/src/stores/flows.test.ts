@@ -1,5 +1,5 @@
 // Ported from directus/app/src/stores/flows.test.ts
-// Backoffice: the API is mocked with mockApi (fetch); tests after the Directus ones cover the request, the
+// Backoffice: the API is mocked with mockApi (fetch); tests after the DR ones cover the request, the
 // permission and error paths and isActiveFlow.
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

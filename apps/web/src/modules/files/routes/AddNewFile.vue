@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/files/routes/add-new.vue -->
 <script setup lang="ts">
 // Backoffice: BoDialog with BoUpload (multiple, from URL, the folder and the allowed types of the server); closing goes
-// back to the library route (useDialogRoute). Each uploaded file emits `upload` so the library reloads (Directus
+// back to the library route (useDialogRoute). Each uploaded file emits `upload` so the library reloads (DR
 // reloads on the `upload` event); the upload goes on when the dialog closes (FR-020, CHK007).
 import { computed } from 'vue';
 import { useRouter } from 'vue-router';

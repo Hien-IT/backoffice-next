@@ -2,7 +2,7 @@
 // Backoffice: `@/sdk` (mockSdk of directus/app/src/test-utils/sdk.ts) -> src/api/sdk.ts with sdk.request as a spy
 // that answers from the command's path and params, as mockSdk does. unexpectedError is src/utils/unexpected-error.ts (a
 // console warning, D-45), so its throwing mock is gone; its error is the `error` ref.
-/* eslint-disable vue/one-component-per-file -- the o2m and m2a test components of Directus */
+/* eslint-disable vue/one-component-per-file -- the o2m and m2a test components of DR */
 import { flushPromises, mount } from '@vue/test-utils';
 import { cloneDeep } from 'lodash-es';
 import { describe, expect, test, vi } from 'vitest';

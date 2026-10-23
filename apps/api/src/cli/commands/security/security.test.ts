@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/security (spec 021 T048, FR-055).
+// Backoffice: DR has no unit test for cli/commands/security (spec 021 T048, FR-055).
 import { type MockInstance, afterEach, beforeEach, expect, test, vi } from 'vitest';
 import generateKey from './key.js';
 import generateSecret from './secret.js';

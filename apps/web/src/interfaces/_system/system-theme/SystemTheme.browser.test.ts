@@ -63,7 +63,7 @@ describe('system-theme', () => {
 
 		expect(labels()[0]).toBe('Default (Sync with Project)');
 		expect(checked().map(label)).toEqual(['Backoffice Color Match']);
-		// The project default is Directus Minimal: its navigation background, not the default theme's var().
+		// The project default is DR Minimal: its navigation background, not the default theme's var().
 		expect(previewVar(radios()[0]!, '--theme--navigation--background')).toBe('#FFFFFF');
 		expect(previewVar(radios()[1]!, '--theme--navigation--background')).toBe('var(--theme--background-normal)');
 

@@ -1,5 +1,5 @@
 // The committed app permission data (spec 016 FR-055): its shape. scripts/sync-permissions-data.test.ts checks that it
-// equals a new render of the Directus 11.17.4 sources.
+// equals a new render of the DR 11.17.4 sources.
 import { describe, expect, test } from 'vitest';
 import data from './app-permissions-data.json';
 

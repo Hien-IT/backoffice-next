@@ -229,7 +229,7 @@ function useVariableInput() {
 	}
 }
 
-// Directus `.list .value:not(:last-child)::after { content: ',' }`.
+// DR `.list .value:not(:last-child)::after { content: ',' }`.
 const COMMA = "after:me-1 after:text-gray-500 after:content-[','] dark:after:text-gray-400";
 const BRACES = 'font-mono text-theme-sm text-gray-500 dark:text-gray-400';
 </script>

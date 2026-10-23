@@ -1,6 +1,6 @@
 // Feature 010 (T020, T024, T043, T046): the five CRUD controllers of /presets, /notifications, /translations,
-// /dashboards and /panels (ports of directus/api/src/controllers/<name>.ts, which Directus does not unit test) through
-// the real app pipeline on SQLite, with their services mocked. Two families, as in Directus: presets, notifications and
+// /dashboards and /panels (ports of directus/api/src/controllers/<name>.ts, which DR does not unit test) through
+// the real app pipeline on SQLite, with their services mocked. Two families, as in DR: presets, notifications and
 // translations read with `singleton`, `keys` or the query; dashboards and panels read by query only, with
 // `records || null`, and their DELETE / has no validateBatch.
 import * as env from '@backoffice/env';

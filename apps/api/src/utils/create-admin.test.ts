@@ -1,4 +1,4 @@
-// Backoffice: Directus has no test for utils/create-admin.ts (spec 010 T011).
+// Backoffice: DR has no test for utils/create-admin.ts (spec 010 T011).
 import { useEnv } from '@backoffice/env';
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

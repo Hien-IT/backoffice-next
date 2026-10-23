@@ -1,4 +1,4 @@
-// Spec 020 (T114, data-model §7): the feedback shims bridge the Directus props onto the Bo components.
+// Spec 020 (T114, data-model §7): the feedback shims bridge the DR props onto the Bo components.
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';

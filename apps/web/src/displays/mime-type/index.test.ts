@@ -1,4 +1,4 @@
-// Directus has no test for the mime-type display: readable name, or the extension with showAsExtension.
+// DR has no test for the mime-type display: readable name, or the extension with showAsExtension.
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { fieldsOf, itemOf } from '../../test-utils/fixtures.ts';

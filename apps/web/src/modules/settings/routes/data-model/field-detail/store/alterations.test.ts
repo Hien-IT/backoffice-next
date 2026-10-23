@@ -1,5 +1,5 @@
 // Feature 016 (T050, SC-006): the ten alterations of the field detail store.
-// 1. The port is the Directus source: every alteration and data-model util differs from directus/app/src only in its
+// 1. The port is the DR source: every alteration and data-model util differs from directus/app/src only in its
 //    imports, the `_state` name of unused parameters and the one `return` of global.ts (noImplicitReturns).
 // 2. Twenty sample edits (the simple-mode order: interface, key, related collection) give the `fieldUpdates`,
 //    `collections`, `fields`, `relations` and `items` recorded in __snapshots__ (a change there is a behaviour change).

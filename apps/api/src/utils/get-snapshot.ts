@@ -1,6 +1,6 @@
 // Ported from directus/api/src/utils/get-snapshot.ts
 import type { Field, Relation, SchemaOverview, Snapshot } from '@backoffice/types';
-// Backoffice: the Directus version the shared database runs, instead of directus/package.json (same value, 11.17.4).
+// Backoffice: the DR version the shared database runs, instead of directus/package.json (same value, 11.17.4).
 import { DIRECTUS_COMPAT_VERSION as version } from '../constants.js';
 import type { Knex } from 'knex';
 import { fromPairs, isArray, isPlainObject, mapValues, omit, sortBy, toPairs } from 'lodash-es';

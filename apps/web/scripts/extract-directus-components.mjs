@@ -1,5 +1,5 @@
 // Spec 020 (T102, contracts/web.md, data-model §7): writes apps/web/fixtures/directus-components.json, the public
-// contract of every global component, view and directive the Directus 11.17.4 app registers
+// contract of every global component, view and directive the DR 11.17.4 app registers
 // (directus/app/src/{components,views,directives}/register.ts): for each component its props (name, runtime types,
 // required, default source), emits, slots (name and slot props from the template) and exposed members. The shim
 // contract test (src/directus-shim/contract.test.ts) compares the shims with it. Run: `node scripts/extract-directus-components.mjs`

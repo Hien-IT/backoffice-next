@@ -162,7 +162,7 @@ ${userName(userInfo)} has invited you to view an item in ${share['collection']}.
 [Open](${new Url(env['PUBLIC_URL'] as string).addPath('admin', 'shared', payload.share).toString()})
 `;
 
-		// Backoffice: no MailService (Principle X, D-36). The message is built as Directus builds it; each address gets a
+		// Backoffice: no MailService (Principle X, D-36). The message is built as DR builds it; each address gets a
 		// warning line instead of the mail, with the subject and the address only (the share link is no secret: anyone
 		// with the id can read GET /shares/info/:id).
 		void message;

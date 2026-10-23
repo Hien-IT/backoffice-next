@@ -25,12 +25,12 @@ export async function runStartupChecks(): Promise<void> {
 	warnUnsupportedVariables();
 	warnSingleInstance();
 
-	// Row 6: the rate limiter modules validate their configuration when loaded (exit 1 when invalid), like Directus.
+	// Row 6: the rate limiter modules validate their configuration when loaded (exit 1 when invalid), like DR.
 	await import('../middleware/rate-limiter-global.js');
 	await import('../middleware/rate-limiter-ip.js');
 
 	// Rows 7–9: required DB_* variables (validateEnv inside getDatabase), the connection; the MySQL collation
-	// check runs without await inside getDatabase, like Directus.
+	// check runs without await inside getDatabase, like DR.
 	await validateDatabaseConnection();
 
 	// Row 10
@@ -69,6 +69,6 @@ export async function runStartupChecks(): Promise<void> {
 	validateStorageDrivers();
 	await validateStorage();
 
-	// Row 16b (feature 003, contracts/startup-logs.md): auth providers, like createApp of Directus
+	// Row 16b (feature 003, contracts/startup-logs.md): auth providers, like createApp of DR
 	await registerAuthProviders();
 }

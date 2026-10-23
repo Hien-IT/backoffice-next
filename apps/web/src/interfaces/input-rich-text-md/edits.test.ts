@@ -1,4 +1,4 @@
-// Directus has no test for edits.ts: each alteration on a real CodeMirror 5 editor.
+// DR has no test for edits.ts: each alteration on a real CodeMirror 5 editor.
 import CodeMirror from 'codemirror';
 import { describe, expect, test } from 'vitest';
 import { applyEdit } from './edits.ts';

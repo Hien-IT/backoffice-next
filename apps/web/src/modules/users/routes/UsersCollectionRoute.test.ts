@@ -1,4 +1,4 @@
-// The user story 3 parts of directus/app/src/modules/users (no Directus test): routes/collection.vue (title and
+// The user story 3 parts of directus/app/src/modules/users (no DR test): routes/collection.vue (title and
 // breadcrumb by status or role, the system filter, the buttons by selection and permissions, batch delete with the
 // self-delete logout, the empty state), components/navigation.vue + NavigationRole.vue (status links, role tree, the
 // admin "edit role" menu) and views/private/components/users-invite.vue (FR-050 to FR-066, CHK018 to CHK020, D-83).
@@ -204,7 +204,7 @@ describe('invite (FR-063)', () => {
 
 	test('a RECORD_NOT_UNIQUE answer shows its message in the dialog', async () => {
 		await setup();
-		// Directus skips known users; the database answers RECORD_NOT_UNIQUE (for example a case-insensitive clash).
+		// DR skips known users; the database answers RECORD_NOT_UNIQUE (for example a case-insensitive clash).
 		named(t('invite_users'))!.click();
 		await flushPromises();
 

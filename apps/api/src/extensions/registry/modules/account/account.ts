@@ -12,7 +12,7 @@ export type { AccountOptions } from './types/account-options.js';
  * Retrieves account information from the extensions registry.
  *
  * This function fetches detailed account data for a specified user or organization
- * from the Directus extensions registry. It validates API version compatibility
+ * from the DR extensions registry. It validates API version compatibility
  * and returns structured account information including profile details, published
  * extensions, and other relevant metadata.
  *

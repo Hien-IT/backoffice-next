@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-icon/custom-icons.ts
-// Backoffice: keyed by the icon name (Directus builds `CustomIcon<PascalName>` from it).
+// Backoffice: keyed by the icon name (DR builds `CustomIcon<PascalName>` from it).
 import type { Component } from 'vue';
 import CustomIconBookmarkSave from './CustomIconBookmarkSave.vue';
 import CustomIconBox from './CustomIconBox.vue';

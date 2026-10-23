@@ -178,7 +178,7 @@ function matchNumber(left: number | bigint, right: number | bigint, operator: st
 	return;
 }
 
-// Backoffice: the Directus scoped styles as theme classes; the font families of `--theme--fonts--*`.
+// Backoffice: the DR scoped styles as theme classes; the font families of `--theme--fonts--*`.
 const FONTS = { 'sans-serif': 'font-outfit', serif: 'font-[serif]', monospace: 'font-[monospace]' };
 </script>
 

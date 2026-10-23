@@ -1,4 +1,4 @@
-// Directus has no test for add-new.vue: the dialog opens with its route, uploads into the folder with the allowed
+// DR has no test for add-new.vue: the dialog opens with its route, uploads into the folder with the allowed
 // types of the server, emits `upload` and goes back to the folder (FR-020).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

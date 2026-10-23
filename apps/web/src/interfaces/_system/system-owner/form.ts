@@ -16,7 +16,7 @@ export type OwnerForm = {
 
 export type ValidationError = { field: string; path: unknown[]; type: string; [key: string]: unknown };
 
-// shortcut: not a full RFC 5322 check (Directus uses z.email()), the API validates the address again.
+// shortcut: not a full RFC 5322 check (DR uses z.email()), the API validates the address again.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export function validate(value: Record<string, any>, fields: Field[]): ValidationError[] {

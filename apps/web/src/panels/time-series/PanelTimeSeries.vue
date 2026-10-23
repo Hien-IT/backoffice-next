@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/panels/time-series/panel-time-series.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-047..FR-050, recipe Q-35): ApexCharts loaded lazily (loadApexCharts) with an unmount/race
-// guard; Directus theme variables replaced by the chart theme tokens (THEME, D-108 default color); animations stay off
-// like Directus; the chart is aria-hidden with an sr-only ChartTable of the plotted points (ISO date, value; FR-106);
+// guard; DR theme variables replaced by the chart theme tokens (THEME, D-108 default color); animations stay off
+// like DR; the chart is aria-hidden with an sr-only ChartTable of the plotted points (ISO date, value; FR-106);
 // the global tooltip styles live in styles/apexcharts.css. Date parsing, fillGaps (at most 2 points per gap), the `now`
-// range and the nested yaxis options are Directus' unchanged.
+// range and the nested yaxis options are DR' unchanged.
 import type { Filter } from '@directus/types';
 import { abbreviateNumber, adjustDate } from '@directus/utils';
 import type ApexCharts from 'apexcharts';
@@ -81,7 +81,7 @@ const chart = ref<ApexCharts>();
 let unmounted = false;
 
 const valueLabel = computed(() => {
-	// Backoffice: optional chaining, the label is also the table header (rendered eagerly, Directus reads it in the tooltip)
+	// Backoffice: optional chaining, the label is also the table header (rendered eagerly, DR reads it in the tooltip)
 	const field = fieldsStore.getField(props.collection, props.valueField);
 	const operation = t(snakeCase(props.function));
 	return `${field?.name} (${operation})`;
@@ -208,7 +208,7 @@ async function setupChart() {
 
 	metrics.value = series;
 
-	// Backoffice (D-108): the Directus option default `var(--theme--primary)` maps to the chart theme token.
+	// Backoffice (D-108): the DR option default `var(--theme--primary)` maps to the chart theme token.
 	const color = props.color === 'var(--theme--primary)' ? THEME.primary : props.color;
 
 	const ApexChartsClass = await loadApexCharts();
@@ -232,7 +232,7 @@ async function setupChart() {
 			fontFamily: THEME.fontFamily,
 			foreColor: THEME.foregroundSubdued,
 			animations: {
-				// Directus value (off); reduced motion is therefore already honoured
+				// DR value (off); reduced motion is therefore already honoured
 				enabled: false,
 			},
 		},

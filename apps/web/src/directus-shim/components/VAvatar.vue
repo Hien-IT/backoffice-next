@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7, recipe Q-44 Avatar): new; round by default as the recipe, `tile` = rounded-lg
 // (so `round` changes nothing); sizes 24/32/40/48/56 px; a string `border` is the border color
-// (`--v-avatar-border-color` like Directus).
+// (`--v-avatar-border-color` like DR).
 import { computed } from 'vue';
 
 interface Props {
@@ -25,7 +25,7 @@ const size = computed(() => {
 	if (props.small) return 'size-8';
 	if (props.large) return 'size-12';
 	if (props.xLarge) return 'size-14';
-	// Directus v-avatar.vue:58-59: the default size reads --v-avatar-size.
+	// DR v-avatar.vue:58-59: the default size reads --v-avatar-size.
 	return 'size-(--v-avatar-size,2.5rem)';
 });
 </script>

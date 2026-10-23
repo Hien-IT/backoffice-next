@@ -1,5 +1,5 @@
 // Ported from directus/api/src/app.ts (the Express middleware chain, in the same order; research R5).
-// `authenticate` and `sanitizeQuery` run on every route like Directus (feature 004). Not ported here: the response cache (005), requestCounter (telemetry),
+// `authenticate` and `sanitizeQuery` run on every route like DR (feature 004). Not ported here: the response cache (005), requestCounter (telemetry),
 // extensions, WebSocket, AI/MCP, deployment webhooks and SERVE_APP (D-08, D-17).
 import { useEnv } from '@backoffice/env';
 import { ServiceUnavailableError } from '@backoffice/errors';

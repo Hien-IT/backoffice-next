@@ -354,7 +354,7 @@ test('a viewer gets no card or column menus and no add column', async () => {
 	expect(
 		[...document.querySelectorAll('button')].some((b) => b.textContent?.includes(t('layouts.kanban.add_group'))),
 	).toBe(false);
-	// The column menu stays (Directus shows it with disabled items).
+	// The column menu stays (DR shows it with disabled items).
 	await userEvent.click(document.querySelectorAll<HTMLElement>('.group-menu')[0]!);
 	await vi.waitFor(() => expect(document.querySelectorAll('[role="menuitem"][data-disabled]')).toHaveLength(2));
 });

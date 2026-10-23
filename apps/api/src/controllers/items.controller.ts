@@ -1,6 +1,6 @@
 // Ported from directus/api/src/controllers/items.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R2 of spec 005); `collectionExists` and
-// `validateBatch` run through runMiddleware in the order of the Directus router, `next()` to `respond` is respond().
+// Backoffice: one Nest handler per DR route, in the same order (research R2 of spec 005); `collectionExists` and
+// `validateBatch` run through runMiddleware in the order of the DR router, `next()` to `respond` is respond().
 import { ErrorCode, ForbiddenError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
 import { isSystemCollection } from '@backoffice/system-data';
 import type { PrimaryKey } from '@backoffice/types';
@@ -15,7 +15,7 @@ import { MetaService } from '../services/meta.service.js';
 import { runMiddleware } from '../utils/run-middleware.js';
 import { sanitizeQuery } from '../utils/sanitize-query.js';
 
-/** `req.path` inside the Directus router mounted at /items (Express strips the mount path, case-insensitively). */
+/** `req.path` inside the DR router mounted at /items (Express strips the mount path, case-insensitively). */
 const routerPath = (req: Request) => req.path.replace(/^\/items/i, '');
 
 @Controller('items')

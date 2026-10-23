@@ -1,11 +1,11 @@
 <!-- Ported from directus/app/src/interfaces/file-image/file-image.vue -->
 <script setup lang="ts">
 // Backoffice: Image preview recipe (component-specs Tier 3): the title and meta stay under the image and the action
-// row is always visible (Directus shows them on hover). Feature 015 (D-59 lifted): the `tune` button opens the shared
+// row is always visible (DR shows them on hover). Feature 015 (D-59 lifted): the `tune` button opens the shared
 // ImageEditor, a saved edit refreshes the preview and "save as new file" selects the new file. The error lookup of a broken image is a GET of the same asset URL
-// (contracts/api-calls.md #41) through apiFetch, reading the error code like Directus `api.get`. VUpload with
+// (contracts/api-calls.md #41) through apiFetch, reading the error code like DR `api.get`. VUpload with
 // `from-library` renders drawer-files itself; here BoUpload emits `library` and DrawerFiles (T069) answers through
-// the exposed `setSelection`, with the MIME type filter merged into `filter` as Directus does.
+// the exposed `setSelection`, with the MIME type filter merged into `filter` as DR does.
 import type { File, Filter } from '@directus/types';
 import { deepMap } from '@directus/utils';
 import { render } from 'micromustache';

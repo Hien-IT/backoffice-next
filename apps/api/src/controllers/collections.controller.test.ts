@@ -1,7 +1,7 @@
-// Feature 006 (T022): the /collections controller (port of directus/api/src/controllers/collections.ts, which Directus
+// Feature 006 (T022): the /collections controller (port of directus/api/src/controllers/collections.ts, which DR
 // does not unit test) through the real app pipeline on SQLite, with CollectionsService mocked: route order,
 // validateBatch, the query flag, the body forms, 204 when the read back is forbidden. Responses and DDL are compared
-// with Directus by tests/parity/src/schema-management.
+// with DR by tests/parity/src/schema-management.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';
 import { createInspector } from '@backoffice/schema';
@@ -127,7 +127,7 @@ describe('/collections', () => {
 		expect(list.status).toBe(200);
 		expect(list.body.data).toEqual([{ collection: 'articles' }]);
 		expect(service.readByQuery).toHaveBeenCalledWith();
-		// getMetaForQuery('directus_collections', {}) ignores ?meta=*, like Directus.
+		// getMetaForQuery('directus_collections', {}) ignores ?meta=*, like DR.
 		expect(list.body).not.toHaveProperty('meta');
 
 		const search = await http

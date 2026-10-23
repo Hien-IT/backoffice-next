@@ -1,5 +1,5 @@
-// Directus has no test for modules/activity/routes/item.vue (spec 018 T080, US5-4, FR-063, contracts/api-calls.md
-// #200): the drawer reads one activity with the Directus fields, translates the action label (raw key when there is
+// DR has no test for modules/activity/routes/item.vue (spec 018 T080, US5-4, FR-063, contracts/api-calls.md
+// #200): the drawer reads one activity with the DR fields, translates the action label (raw key when there is
 // no translation), shows the date in the local format and the user with its popover (an empty row without user), links
 // the related item except for system collections and deletes, shows a translated error notice, and closes back to the
 // list with the page query. directus_activity fields and relations come from directus/packages/system-data (the

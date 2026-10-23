@@ -360,7 +360,7 @@ const createCollections = computed(() => {
 	});
 });
 
-// Backoffice: Directus reads `updateAllowed` (a per-collection record) as a boolean, so any record is truthy.
+// Backoffice: DR reads `updateAllowed` (a per-collection record) as a boolean, so any record is truthy.
 const canDrag = computed(() => relationInfo.value?.sortField !== undefined && !!updateAllowed.value);
 const allowDrag = computed(() => canDrag.value && totalItemCount.value <= limitWritable.value);
 
@@ -380,7 +380,7 @@ const selectMenuItems = computed<BoMenuItem[]>(() =>
 	})),
 );
 
-// v-remove of each row, in the row menu (hidden when non-editable, as the Directus item-actions).
+// v-remove of each row, in the row menu (hidden when non-editable, as the DR item-actions).
 const confirmRemoveItem = ref<DisplayItem | null>(null);
 
 function rowActions(element: DisplayItem): BoMenuItem[] {

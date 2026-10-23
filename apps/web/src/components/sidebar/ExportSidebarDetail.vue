@@ -3,7 +3,7 @@
 // Backoffice: recipe Q-12 (export dialog = BoDialog with a 2-column grid, location radio, count notice that turns
 // warning when locked to files; import block with background checkbox and progress) inside a Q-9 SidebarDetail.
 // axios -> SDK / apiFetch (FR-001). The import upload uses XMLHttpRequest (uploadWithProgress) for byte progress
-// (research R10). The download is fetch -> blob -> saveAs (Directus: window.open of the export URL, which cannot send
+// (research R10). The download is fetch -> blob -> saveAs (DR: window.open of the export URL, which cannot send
 // the session cookie to another API origin); the file name is the server's Content-Disposition when exposed, else
 // `<collection>.<ext>`. VDrawer -> BoDialog (recipe), FolderPicker -> folder BoSelect as DrawerFiles (013),
 // InterfaceSystemField -> a BoSelect of the collection fields, InterfaceSystemFields -> chips + FieldList in a popover

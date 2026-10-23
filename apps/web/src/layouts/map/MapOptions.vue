@@ -3,7 +3,7 @@
 // Backoffice: BoSelect, BoInput and BoCheckbox with their labels instead of `.type-label` + v-select/v-checkbox; the
 // display template is a text input (the app has no v-collection-field-template yet), same `{{ field }}` syntax and
 // placeholder; the disabled "no compatible fields" input is a Card empty block (recipe Q-6). The basemap stays in
-// the app store like Directus (FR-039).
+// the app store like DR (FR-039).
 import type { GeometryOptions, Item } from '@directus/types';
 import { storeToRefs } from 'pinia';
 import BoCheckbox from '../../components/BoCheckbox.vue';

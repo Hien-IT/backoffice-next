@@ -1,10 +1,10 @@
 // Ported from directus/app/src/layouts/map/style.ts
 import { cssVar } from '../../utils/css-var.ts';
 
-// Backoffice: theme tokens instead of the Directus variables (recipe Q-6, like the 013 map interface style):
+// Backoffice: theme tokens instead of the DR variables (recipe Q-6, like the 013 map interface style):
 // `--theme--primary` = brand-500, `--theme--secondary` = orange-500, `--black` = gray-900, `--white` = white; the
 // cluster steps use brand-300, orange-200 and error-300 instead of the raw hex colors (Constitution XII). The values
-// are read once through getComputedStyle when the layout is set up, as Directus reads its variables.
+// are read once through getComputedStyle when the layout is set up, as DR reads its variables.
 export function getMapStyle() {
 	const primary = cssVar('--color-brand-500');
 	const secondary = cssVar('--color-orange-500');

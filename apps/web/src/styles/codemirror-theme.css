@@ -175,7 +175,7 @@
 	color: color-mix(in oklab, var(--color-white) 90%, transparent);
 }
 
-/* Opaque like the Directus gutter: text scrolled sideways must not show under the line numbers. */
+/* Opaque like the DR gutter: text scrolled sideways must not show under the line numbers. */
 .dark .bo-codemirror .CodeMirror-gutters {
 	background: color-mix(in oklab, var(--color-white) 3%, var(--color-gray-900));
 	border-inline-end-color: var(--color-gray-800);

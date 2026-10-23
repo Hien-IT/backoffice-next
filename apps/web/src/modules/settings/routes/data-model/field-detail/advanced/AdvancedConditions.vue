@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-conditions.vue -->
 <script setup lang="ts">
 // Backoffice: VForm is BoForm. The list `fields` option gets the repeater fields unwrapped (`.value`): the computed
-// ref of Directus is not unwrapped inside a plain options object.
+// ref of DR is not unwrapped inside a plain options object.
 import type { DeepPartial, Field } from '@directus/types';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';

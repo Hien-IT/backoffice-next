@@ -22,7 +22,7 @@ export class ServerController {
 
 	@Get('specs/oas')
 	async oas(@Req() req: Request, @Res() res: Response): Promise<void> {
-		// Directus only mounts this route when OPENAPI_ENABLED !== false (FR-043).
+		// DR only mounts this route when OPENAPI_ENABLED !== false (FR-043).
 		if (useEnv()['OPENAPI_ENABLED'] === false) throw new RouteNotFoundError({ path: req.path });
 
 		const service = this.specificationService({
@@ -34,7 +34,7 @@ export class ServerController {
 		await respond(req, res);
 	}
 
-	// Directus only mounts this route when GRAPHQL_INTROSPECTION !== false (spec FR-042, FR-043); the scope is optional
+	// DR only mounts this route when GRAPHQL_INTROSPECTION !== false (spec FR-042, FR-043); the scope is optional
 	// (`/specs/graphql/:scope?`), so Nest gets one handler per form.
 	@Get('specs/graphql')
 	async graphql(@Req() req: Request, @Res() res: Response): Promise<void> {
@@ -54,7 +54,7 @@ export class ServerController {
 
 		const scope = scopeParam || 'items';
 
-		// Inside the Directus router: the path is relative to its /server mount.
+		// Inside the DR router: the path is relative to its /server mount.
 		if (['items', 'system'].includes(scope) === false) {
 			throw new RouteNotFoundError({ path: req.path.replace(/^\/server/i, '') });
 		}
@@ -110,7 +110,7 @@ export class ServerController {
 
 			const settingsService = this.settingsService({ schema: req.schema });
 
-			// Not awaited, like Directus (the owner report it would send is out of scope here, D-38).
+			// Not awaited, like DR (the owner report it would send is out of scope here, D-38).
 			settingsService.setOwner(req.body);
 		} catch (error: any) {
 			if (isBackofficeError(error, ErrorCode.Forbidden)) {

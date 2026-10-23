@@ -1,4 +1,4 @@
-// Feature 010 (T035): the /utils controller (port of directus/api/src/controllers/utils.ts, which Directus does not unit
+// Feature 010 (T035): the /utils controller (port of directus/api/src/controllers/utils.ts, which DR does not unit
 // test) through the real app pipeline on SQLite, with the utils, revisions, import and export services mocked.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';

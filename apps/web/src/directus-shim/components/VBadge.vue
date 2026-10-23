@@ -20,7 +20,7 @@ withDefaults(
 	},
 );
 
-// Directus v-badge.vue:67-68,75-76: size and offset hooks (a dot keeps its 8 px size, offsets still apply).
+// DR v-badge.vue:67-68,75-76: size and offset hooks (a dot keeps its 8 px size, offsets still apply).
 const SIZE = 'h-(--v-badge-size,0.875rem) w-max min-w-(--v-badge-size,0.875rem) px-1.25 text-[0.5rem]';
 const X = {
 	start: 'start-[calc(var(--v-badge-size,0.875rem)/-2_+_var(--v-badge-offset-x,0rem))]',

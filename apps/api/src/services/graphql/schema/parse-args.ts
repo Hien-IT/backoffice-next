@@ -3,8 +3,8 @@ import type { ArgumentNode, GraphQLResolveInfo, ValueNode } from 'graphql';
 
 /**
  * GraphQL's regular resolver `args` variable only contains the "top-level" arguments. Seeing that we convert the
- * whole nested tree into one big query using Directus' own query resolver, we want to have a nested structure of
- * arguments for the whole resolving tree, which can later be transformed into Directus' AST using `deep`.
+ * whole nested tree into one big query using DR' own query resolver, we want to have a nested structure of
+ * arguments for the whole resolving tree, which can later be transformed into DR' AST using `deep`.
  * In order to do that, we'll parse over all ArgumentNodes and ObjectFieldNodes to manually recreate an object structure
  * of arguments
  */

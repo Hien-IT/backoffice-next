@@ -1,5 +1,5 @@
 // Feature 015 (FR-052, FR-053, D-85): directus/app/src/modules/users/components/navigation.vue and NavigationRole.vue
-// (no Directus test): the four status links, the divider and skeleton, the role tree with its keyboard, and the admin
+// (no DR test): the four status links, the divider and skeleton, the role tree with its keyboard, and the admin
 // "edit role" menu to /settings/roles/:id.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

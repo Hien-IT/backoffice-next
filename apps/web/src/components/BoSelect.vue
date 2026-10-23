@@ -39,16 +39,16 @@ const {
 	shortMenu = false,
 } = defineProps<{
 	modelValue?: string | null;
-	/** `icon`: an icon before the text, in the list and in the trigger (Directus v-select `item-icon`). */
+	/** `icon`: an icon before the text, in the list and in the trigger (DR v-select `item-icon`). */
 	items: BoSelectItem[];
-	/** Directus v-select `show-deselect`: a "Deselect" row first, which emits `deselect`. */
+	/** DR v-select `show-deselect`: a "Deselect" row first, which emits `deselect`. */
 	showDeselect?: boolean;
 	label?: string;
 	placeholder?: string;
 	disabled?: boolean;
 	/** Id of the trigger, for a label outside the component (a form field). */
 	id?: string | undefined;
-	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	/** Menu at most 30vh high (DR v-select without `menuFullHeight`); the room left otherwise. */
 	shortMenu?: boolean;
 }>();
 
@@ -67,7 +67,7 @@ const findItem = (list: BoSelectItem[]): BoSelectItem | undefined => {
 	}
 	return undefined;
 };
-// The trigger shows the chosen item with its icon (Directus v-select): Reka SelectValue would print the item text
+// The trigger shows the chosen item with its icon (DR v-select): Reka SelectValue would print the item text
 // content, where an icon is its ligature name ("table_rows Table").
 const selectedItem = computed(() => findItem(items));
 

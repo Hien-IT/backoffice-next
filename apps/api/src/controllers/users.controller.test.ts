@@ -1,5 +1,5 @@
 // GET /users/me end to end (pipeline, authenticate, permission engine) on the SQLite auth test database (task T037).
-// Parity with Directus is checked by tests/parity/src/permissions/accountability.test.ts.
+// Parity with DR is checked by tests/parity/src/permissions/accountability.test.ts.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import jwt from 'jsonwebtoken';
@@ -109,7 +109,7 @@ test('with a read permission: the fields of the query the permission allows', as
 		data: { email: 'user@example.com', first_name: 'Ann' },
 	});
 
-	// A field outside the permission is refused by the read, which answers with the id (Directus catches FORBIDDEN).
+	// A field outside the permission is refused by the read, which answers with the id (DR catches FORBIDDEN).
 	expect((await agent.get('/users/me?fields=last_name').set('Authorization', token())).body).toEqual({
 		data: { id: USER },
 	});

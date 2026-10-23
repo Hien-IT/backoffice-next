@@ -1,6 +1,6 @@
 // Ported from directus/api/src/operations/mail/index.ts
-// Backoffice: no mail is sent (Principle X, spec D-34). The rate limiter of the operation runs like in Directus, then
-// one warning line replaces MailService.send; the operation resolves to undefined, as Directus does once the mail is
+// Backoffice: no mail is sent (Principle X, spec D-34). The rate limiter of the operation runs like in DR, then
+// one warning line replaces MailService.send; the operation resolves to undefined, as DR does once the mail is
 // handed to the transport. Body, template and data are not rendered (no markdown, no liquid).
 import { defineOperationApi } from '../define-operation-api.js';
 import { useLogger } from '../../logger/index.js';

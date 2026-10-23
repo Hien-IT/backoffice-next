@@ -3,7 +3,7 @@
 import { useGroupableParent } from '@directus/composables';
 import { toRefs } from 'vue';
 
-// Backoffice (spec 020, data-model §7): same groupable parent as Directus (scope `item-group` by default).
+// Backoffice (spec 020, data-model §7): same groupable parent as DR (scope `item-group` by default).
 const props = withDefaults(
 	defineProps<{
 		mandatory?: boolean | undefined;

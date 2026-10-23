@@ -1,4 +1,4 @@
-// Directus has no test for use-relation-single.ts: the m2o value shapes of FR-040 (key, object, null) and the display
+// DR has no test for use-relation-single.ts: the m2o value shapes of FR-040 (key, object, null) and the display
 // item read on the fixture API (contracts/api-calls.md).
 import { flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

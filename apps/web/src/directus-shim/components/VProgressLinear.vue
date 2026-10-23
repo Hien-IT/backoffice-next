@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/components/v-progress-linear.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): v-progress-linear on BoProgressLinear (`colorful` and the `{ value }` slot
-// there); `absolute`, `fixed`, `top`, `bottom` position the bar as the Directus classes do, `rounded` rounds it. The
-// progressbar is named "Loading..." unless the caller gives an `aria-label` (Directus has no name).
+// there); `absolute`, `fixed`, `top`, `bottom` position the bar as the DR classes do, `rounded` rounds it. The
+// progressbar is named "Loading..." unless the caller gives an `aria-label` (DR has no name).
 import { computed } from 'vue';
 import BoProgressLinear from '../../components/BoProgressLinear.vue';
 

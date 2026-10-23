@@ -1,4 +1,4 @@
-// Backoffice: Directus has no test for save-options.vue.
+// Backoffice: DR has no test for save-options.vue.
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';

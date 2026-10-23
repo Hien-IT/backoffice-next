@@ -1,4 +1,4 @@
-// The committed interface previews equal the Directus 11.17.4 sources (spec 016 FR-033, CHK001).
+// The committed interface previews equal the DR 11.17.4 sources (spec 016 FR-033, CHK001).
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, test } from 'vitest';

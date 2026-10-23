@@ -1,4 +1,4 @@
-// Feature 016 (T070, US4-6, US4-7): the permissions matrix of the policy page, as Directus system-permissions.vue:
+// Feature 016 (T070, US4-6, US4-7): the permissions matrix of the policy page, as DR system-permissions.vue:
 // the level of each chip (none / all / custom), set all / none / remove row, the locked actions of directus_extensions,
 // the app-minimal rows with app_access (an unsaved form value), admin_access hides the table, the two resets, adding a
 // collection, the `{ create, update, delete }` value (or undefined without changes) and the reload after a save.
@@ -147,9 +147,9 @@ describe('loading and rows', () => {
 	test('loads the permissions of the policy, regular collections first, then the system divider', async () => {
 		const { wrapper } = await render();
 
-		// The detail drawer loads the policy when it mounts, as Directus (watch immediate), before it is opened.
+		// The detail drawer loads the policy when it mounts, as DR (watch immediate), before it is opened.
 		expect(calls(fetch)).toEqual([
-			// Directus sends `page: 0`; the SDK drops pages below 1 (query-to-params.ts). With limit -1 the rows are the same.
+			// DR sends `page: 0`; the SDK drops pages below 1 (query-to-params.ts). With limit -1 the rows are the same.
 			'GET /permissions?fields=*&filter={"_and":[{"policy":"p1"}]}&limit=-1',
 			'GET /policies/p1?deep={"users":{"_limit":0}}',
 		]);
@@ -240,7 +240,7 @@ describe('levels and actions', () => {
 
 		wrapper.findAllComponents(PermissionsRow)[0]!.vm.$emit('removeRow');
 		await flushPromises();
-		// Directus order: create (2, updated by the shortcut, then deleted) before read (1).
+		// DR order: create (2, updated by the shortcut, then deleted) before read (1).
 		expect(lastInput(wrapper)).toEqual({ create: [], update: [], delete: [2, 1] });
 		expect(rows(wrapper)).toEqual(['directus_users']);
 	});
@@ -315,7 +315,7 @@ describe('app access', () => {
 		await flushPromises();
 		expect(lastInput(wrapper)).toEqual({ create: [], update: [], delete: [3] });
 
-		// A second reset on the same staged value would undo the staged deletes (Directus removes the `deleted` items
+		// A second reset on the same staged value would undo the staged deletes (DR removes the `deleted` items
 		// too): the recommended reset starts from a fresh page.
 		wrapper.unmount();
 		const second = await render({}, { app_access: true, admin_access: false });

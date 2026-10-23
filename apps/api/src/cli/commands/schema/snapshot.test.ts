@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/schema/snapshot (spec 021 T049, FR-056).
+// Backoffice: DR has no unit test for cli/commands/schema/snapshot (spec 021 T049, FR-056).
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';

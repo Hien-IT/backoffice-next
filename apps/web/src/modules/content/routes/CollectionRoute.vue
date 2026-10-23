@@ -251,7 +251,7 @@ function useBatch() {
 }
 
 function useBreadcrumb() {
-	// Backoffice: the bookmark breadcrumb (`breadcrumb`) and the default one (`Content`) of the Directus headline.
+	// Backoffice: the bookmark breadcrumb (`breadcrumb`) and the default one (`Content`) of the DR headline.
 	const breadcrumb = computed(() =>
 		props.bookmark
 			? [{ name: currentCollection.value?.name ?? props.collection, to: getCollectionRoute(props.collection) }]

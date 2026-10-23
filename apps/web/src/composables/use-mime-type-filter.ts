@@ -70,7 +70,7 @@ function intersectMimeTypes(interfaceTypes: string[], globalTypes: string[]): st
 }
 
 /**
- * Creates a Directus filter for MIME type restrictions.
+ * Creates a DR filter for MIME type restrictions.
  * Supports wildcards like "image/*" and specific types like "image/jpeg".
  *
  * Global MIME type restrictions are automatically fetched from the server store.

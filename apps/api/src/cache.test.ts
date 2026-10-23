@@ -49,7 +49,7 @@ test('memory cache with CACHE_NAMESPACE and CACHE_TTL; set then delete works; re
 	const { cache } = getCache();
 	expect(cache!.namespace).toBe('system-cache');
 	expect(cache!.ttl).toBe(300_000);
-	// Directus's health check sets a 5 ms TTL; a slow runner expired it before the get (CI run 38894817992).
+	// DR's health check sets a 5 ms TTL; a slow runner expired it before the get (CI run 38894817992).
 	await cache!.set('directus-health-abcde', true, 60_000);
 	expect(await cache!.get('directus-health-abcde')).toBe(true);
 	await cache!.delete('directus-health-abcde');

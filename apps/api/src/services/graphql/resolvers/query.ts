@@ -11,7 +11,7 @@ import { replaceFragmentsInSelections } from '../utils/replace-fragments.js';
 
 /**
  * Generic resolver that's used for every "regular" items/system query. Converts the incoming GraphQL AST / fragments into
- * Directus' query structure which is then executed by the services.
+ * DR' query structure which is then executed by the services.
  */
 export async function resolveQuery(gql: GraphQLService, info: GraphQLResolveInfo): Promise<Partial<Item> | null> {
 	let collection = info.fieldName;

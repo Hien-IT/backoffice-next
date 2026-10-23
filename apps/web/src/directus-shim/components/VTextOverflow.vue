@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-text-overflow.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): a port rather than BoTextOverflow, whose cut text shows as a native `title`:
-// here it is the shim `v-tooltip` at `placement`, as Directus; `highlight` renders the globally registered VHighlight
+// here it is the shim `v-tooltip` at `placement`, as DR; `highlight` renders the globally registered VHighlight
 // shim (resolved by name, as the other shims are registered with it).
 import { useElementSize } from '@vueuse/core';
 import { ref, watch } from 'vue';

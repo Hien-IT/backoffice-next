@@ -93,7 +93,7 @@ watch(
 	{ immediate: true },
 );
 
-// Backoffice: also when the drawer opens again on the same flow (Directus remounts it), start from the stored values.
+// Backoffice: also when the drawer opens again on the same flow (DR remounts it), start from the stored values.
 watch(
 	() => props.active,
 	(active, wasActive) => {
@@ -160,7 +160,7 @@ const wide = useMediaQuery('(min-width: 1024px)');
 
 const saving = ref(false);
 
-/** The body the Directus drawer sends: every value, in its order (Directus posts the reactive `values`). */
+/** The body the DR drawer sends: every value, in its order (DR posts the reactive `values`). */
 function body(): Record<string, unknown> {
 	const { name, icon, color, description, status, accountability, trigger, options } = values;
 	return { name, icon, color, description, status, accountability, trigger, options };

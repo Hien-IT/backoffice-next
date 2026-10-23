@@ -12,7 +12,7 @@ interface ColorProps {
 
 const props = withDefaults(defineProps<ColorProps>(), {
 	value: null,
-	defaultColor: '#B0BEC5', // raw-color-allowed: Directus data default (Q-C)
+	defaultColor: '#B0BEC5', // raw-color-allowed: DR data default (Q-C)
 });
 
 const color = computed(() => props.value ?? props.defaultColor);

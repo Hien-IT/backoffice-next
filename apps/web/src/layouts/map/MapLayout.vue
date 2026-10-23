@@ -86,7 +86,7 @@ limitWritable.value = selectedSize;
 		data-layout="map"
 		:aria-busy="loading || geojsonLoading"
 	>
-		<!-- Fills the page content height like Directus `.layout-map { block-size: 100% }` (map.vue:153-157); 20rem at least outside a flex page,
+		<!-- Fills the page content height like DR `.layout-map { block-size: 100% }` (map.vue:153-157); 20rem at least outside a flex page,
 		     where the map is laid over the box (a percent height of a min-height box is 0). -->
 		<MapView
 			class="absolute! inset-0 transition-opacity motion-reduce:transition-none"

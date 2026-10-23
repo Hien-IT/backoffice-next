@@ -1,4 +1,4 @@
-// Directus has no test for fields-management.vue, FieldSelect.vue or field-select-menu.vue: the order (meta.sort then
+// DR has no test for fields-management.vue, FieldSelect.vue or field-select-menu.vue: the order (meta.sort then
 // meta.id, no `$` fields), locked system fields first, groups nesting their fields, widths, the sort saved as
 // PATCH /fields/:c (optimistic, undone with the error dialog), the D-96 moves, the row menu (hide, width, duplicate,
 // delete), a field without meta configured on open, and the create links (spec 016 US2-2 to US2-7, FR-021 to FR-027).

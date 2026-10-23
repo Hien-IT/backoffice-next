@@ -1,4 +1,4 @@
-// Backoffice: no Directus source. The Directus app posts uploads with axios `onUploadProgress`
+// Backoffice: no DR source. The DR app posts uploads with axios `onUploadProgress`
 // (views/private/components/export-sidebar-detail.vue, utils/upload-file.ts); fetch has no upload progress, so this
 // sends the multipart body with XMLHttpRequest to the API URL (`getApiUrl()`, may be another origin) with the session
 // cookie (research R10).
@@ -7,7 +7,7 @@ import { getApiUrl } from '../api/sdk.ts';
 /**
  * Sends `body` to `path` (relative to the API URL, query included) with `method` and resolves with the `data` of the
  * JSON answer.
- * `onProgress` gets the uploaded percentage (0-100, floored like Directus). A non-2xx answer rejects with
+ * `onProgress` gets the uploaded percentage (0-100, floored like DR). A non-2xx answer rejects with
  * `{ errors, response: { status } }` (the SDK error shape, read by extractErrorCode); an abort through `signal` rejects
  * with an `AbortError` DOMException.
  */

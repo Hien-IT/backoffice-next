@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice (recipe Q-22, field drawer Interface / Display tabs): a list of option buttons (`aria-pressed`) with an
 // icon, a name and a description; once one is chosen only it stays, with a `cancel` button to choose again. Dividers
-// between groups. No TransitionGroup. Feature 018 (recipe Q-37): `layout="grid"` is the type grid of the Directus panel
-// drawer (`panel-configuration.vue`): every item stays (not subdued as in Directus: faded text fails 4.5:1, FR-106),
+// between groups. No TransitionGroup. Feature 018 (recipe Q-37): `layout="grid"` is the type grid of the DR panel
+// drawer (`panel-configuration.vue`): every item stays (not subdued as in DR: faded text fails 4.5:1, FR-106),
 // pressing the chosen one clears it.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

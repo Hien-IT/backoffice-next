@@ -1,5 +1,5 @@
 // Ported from directus/app/src/interfaces/input-block-editor/plugins.ts
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Directus file: the tools are typed against `any` shims
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- DR file: the tools are typed against `any` shims
 // @ts-nocheck
 // Backoffice: unexpectedError has no notifications store before feature 018 (D-45): a local console warning.
 import BaseAttachesTool from '@editorjs/attaches';
@@ -12,9 +12,9 @@ function unexpectedError(error: unknown): void {
 }
 
 /**
- * This file is a modified version of the attaches and image tool from editorjs to work with the Directus file manager.
+ * This file is a modified version of the attaches and image tool from editorjs to work with the DR file manager.
  *
- * We include an uploader to directly use Directus file manager, along with a modified version of the attaches and image tools.
+ * We include an uploader to directly use DR file manager, along with a modified version of the attaches and image tools.
  */
 
 type Tune = {

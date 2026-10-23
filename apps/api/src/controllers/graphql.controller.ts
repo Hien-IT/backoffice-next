@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/graphql.ts
-// Backoffice: the Directus router mounts `/system` and `/` with `router.use`, which matches every method and every path
+// Backoffice: the DR router mounts `/system` and `/` with `router.use`, which matches every method and every path
 // below them (`/graphql/system/x` is the system scope, `/graphql/x` and `/graphql/systemx` the items scope; research
 // R12.4 of spec 011). Nest has no `use`, so each scope gets a handler for the exact path and one for `*splat`, the
 // system ones first. parseGraphQL (405 for every method but GET and POST) and respond run through the same helpers

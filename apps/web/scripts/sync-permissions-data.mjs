@@ -1,4 +1,4 @@
-// Copies the Directus 11.17.4 app permission data into apps/web/src/permissions/app-permissions-data.json for the
+// Copies the DR 11.17.4 app permission data into apps/web/src/permissions/app-permissions-data.json for the
 // policy pages and the system-permissions matrix (spec 016 FR-055, FR-105, research R5):
 // - `minimal`: appAccessMinimalPermissions of directus/packages/system-data/src/app-access-permissions/index.ts, built the
 //   same way from its two yaml files (the defaults first, then the row);

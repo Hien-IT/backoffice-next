@@ -1,4 +1,4 @@
-// Feature 016 (T042, D-57): system-field-tree, as Directus system-field-tree.vue: the field tree of the chosen
+// Feature 016 (T042, D-57): system-field-tree, as DR system-field-tree.vue: the field tree of the chosen
 // collection as an exclusive checkbox tree, relational groups loaded when opened (item_duplication_fields).
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

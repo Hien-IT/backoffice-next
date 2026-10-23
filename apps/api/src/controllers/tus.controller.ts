@@ -1,7 +1,7 @@
 // Ported from directus/api/src/controllers/tus.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R5 of spec 007). checkFileAccess is the
-// Directus middleware unchanged, run through runMiddleware; @tus/server writes the response itself, like in
-// Directus. The controller lives in TusModule, imported only when TUS_ENABLED is true (app.module.ts), like the
+// Backoffice: one Nest handler per DR route, in the same order (research R5 of spec 007). checkFileAccess is the
+// DR middleware unchanged, run through runMiddleware; @tus/server writes the response itself, like in
+// DR. The controller lives in TusModule, imported only when TUS_ENABLED is true (app.module.ts), like the
 // `app.use('/files/tus', tusRouter)` of directus/api/src/app.ts.
 import { createError } from '@backoffice/errors';
 import type { PermissionsAction } from '@backoffice/types';

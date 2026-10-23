@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/modules/settings/routes/roles/collection.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 US4-1, recipe Q-2): BoTable with the Directus headers and requests; the create button is a
+// Backoffice (spec 016 US4-1, recipe Q-2): BoTable with the DR headers and requests; the create button is a
 // BoButton link. BoTextOverflow has no `highlight` yet, so the search match is marked here (v-highlight: every match,
 // any case). The table is not `fixed-header` (it needs a bounded parent; the page scrolls). Errors open the error
 // dialog (D-66).
@@ -187,7 +187,7 @@ const MARK = 'bg-transparent font-semibold text-brand-500 dark:text-brand-400';
 					</div>
 				</template>
 
-				<!-- Directus: a slot with only a comment falls back to the v-table cell, which shows ValueNull for 0. -->
+				<!-- DR: a slot with only a comment falls back to the v-table cell, which shows ValueNull for 0. -->
 				<template #[`item.count`]="{ item }">
 					<ValueNull v-if="item.public || !item.count" />
 					<template v-else>{{ item.count }}</template>

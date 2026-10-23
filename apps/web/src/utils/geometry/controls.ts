@@ -104,7 +104,7 @@ export class BoxSelectControl {
 		this.map!.boxZoom.enable();
 		this.boxElement.remove();
 		this.groupElement.remove();
-		// Backoffice: same capture flag as addEventListener, otherwise the listener stays (Directus omits it).
+		// Backoffice: same capture flag as addEventListener, otherwise the listener stays (DR omits it).
 		this.map!.getContainer().removeEventListener('pointerdown', this.onMouseDownHandler, true);
 		document.removeEventListener('keydown', this.onKeyDownHandler);
 		document.removeEventListener('keyup', this.onKeyUpHandler);

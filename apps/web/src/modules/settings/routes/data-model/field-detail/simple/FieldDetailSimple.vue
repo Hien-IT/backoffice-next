@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-simple/field-detail-simple.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-22): the interface cards of a group are a Reka RadioGroup (arrow keys move, Enter/Space choose;
-// a click on the chosen card unchooses it, as Directus); the preview SVG loads on demand (src/interfaces/previews.ts),
-// else the icon. The configuration panel takes the grid row after the chosen card (same window widths as Directus).
+// a click on the chosen card unchooses it, as DR); the preview SVG loads on demand (src/interfaces/previews.ts),
+// else the icon. The configuration panel takes the grid row after the chosen card (same window widths as DR).
 // Interface names come translated from the registry `$t:` keys.
 import type { Collection } from '@directus/types';
 import { useWindowSize } from '@vueuse/core';
@@ -170,7 +170,7 @@ const FOCUS =
 						class="preview flex h-20 items-center justify-center overflow-hidden rounded-lg bg-gray-50 text-gray-500 dark:bg-white/[0.03] dark:text-gray-400 [&_svg]:h-full [&_svg]:w-full"
 						aria-hidden="true"
 					>
-						<!-- eslint-disable-next-line vue/no-v-html -- the preview SVG files are copied from the Directus source -->
+						<!-- eslint-disable-next-line vue/no-v-html -- the preview SVG files are copied from the DR source -->
 						<span v-if="previews[inter.id]" class="contents" v-html="previews[inter.id]" />
 						<BoIcon v-else :name="inter.icon" size="lg" class="text-brand-500" />
 					</span>
@@ -188,7 +188,7 @@ const FOCUS =
 </template>
 
 <style scoped>
-/* The Directus preview SVGs draw with its theme variables: map them to the design-system tokens. */
+/* The DR preview SVGs draw with its theme variables: map them to the design-system tokens. */
 .preview {
 	--theme--primary: var(--color-brand-500);
 	--theme--primary-subdued: var(--color-brand-100);

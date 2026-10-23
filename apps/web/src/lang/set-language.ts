@@ -23,7 +23,7 @@ export function getEffectiveLanguage(lang: string): Language {
 	return lang === FALLBACK_LANGUAGE || lang in bundled ? (lang as Language) : FALLBACK_LANGUAGE;
 }
 
-// Backoffice: `string` (callers pass user.language or settings.default_language); Directus' YAML import types make
+// Backoffice: `string` (callers pass user.language or settings.default_language); DR' YAML import types make
 // its Language just as wide. Unknown values are checked below.
 export async function setLanguage(lang: string): Promise<boolean> {
 	const collectionsStore = useCollectionsStore();

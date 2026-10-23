@@ -1,4 +1,4 @@
-// Directus has no test for shares-sidebar-detail.vue or share-item.vue: the Shares section (FR-083, recipe Q-11,
+// DR has no test for shares-sidebar-detail.vue or share-item.vue: the Shares section (FR-083, recipe Q-11,
 // contracts/api-calls.md #61, #87-#90) on the fixture API (share `bo-share` of bo_content item 1).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

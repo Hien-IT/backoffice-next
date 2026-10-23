@@ -3,7 +3,7 @@ import { TYPES } from '@backoffice/constants';
 import { InvalidPayloadError } from '@backoffice/errors';
 import type { Snapshot } from '@backoffice/types';
 import { DatabaseClients } from '@backoffice/types';
-// Backoffice: the Directus version the shared database runs, instead of directus/package.json (same value, 11.17.4).
+// Backoffice: the DR version the shared database runs, instead of directus/package.json (same value, 11.17.4).
 import { DIRECTUS_COMPAT_VERSION as version } from '../constants.js';
 import Joi from 'joi';
 import { ALIAS_TYPES } from '../constants.js';

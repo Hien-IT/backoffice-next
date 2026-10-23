@@ -1,4 +1,4 @@
-// Feature 016 (T071, US4-8): the permission detail drawer, as Directus permissions-detail.vue: the two loads (policy
+// Feature 016 (T071, US4-8): the permission detail drawer, as DR permissions-detail.vue: the two loads (policy
 // with `deep[users][_limit]=0`, then the permission) merged with the staged edits, the tabs by action with their dot,
 // the title, the fields tab (`*` shows every field checked, a selection is an explicit list, none is `null`), the
 // app-minimal values read-only and locked in the tree, the presets warning for relational arrays, and saving

@@ -13,7 +13,7 @@ beforeEach(() => {
 	setActivePinia(createPinia());
 });
 
-// Backoffice: typed loosely, as the Directus test (DeepPartial fields).
+// Backoffice: typed loosely, as the DR test (DeepPartial fields).
 const baseField: any = {
 	field: 'test',
 	name: 'Test Field',

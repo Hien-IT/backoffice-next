@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/components/v-workspace.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): v-workspace on BoWorkspace. Without a `tile` slot each tile is a VWorkspaceTile
-// holding the default slot `{ tile, gridSize }` and its six events are re-emitted with the tile, as Directus. Zoom to fit
-// measures the scroll container BoWorkspace sits in (the `main-element` of Directus).
+// holding the default slot `{ tile, gridSize }` and its six events are re-emitted with the tile, as DR. Zoom to fit
+// measures the scroll container BoWorkspace sits in (the `main-element` of DR).
 import BoWorkspace from '../../components/workspace/BoWorkspace.vue';
 import VWorkspaceTile, { type AppTile } from './VWorkspaceTile.vue';
 

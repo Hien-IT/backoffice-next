@@ -64,12 +64,12 @@ async function fetchUser() {
 	}
 }
 
-// Backoffice: Directus prints the axios error object; the SDK throws `{ errors }`, so its first message is shown.
+// Backoffice: DR prints the axios error object; the SDK throws `{ errors }`, so its first message is shown.
 function errorText(err: any): string {
 	return err?.errors?.[0]?.message ?? err?.message ?? String(err);
 }
 
-// Badge recipe colors per status (Directus status chip colors; draft has no pink in the theme, light instead).
+// Badge recipe colors per status (DR status chip colors; draft has no pink in the theme, light instead).
 const STATUS_CLASSES: Record<string, string> = {
 	active: 'bg-success-50 text-success-700 dark:bg-success-500/15 dark:text-success-400',
 	invited: 'bg-brand-50 text-brand-600 dark:bg-brand-500/15 dark:text-brand-400',

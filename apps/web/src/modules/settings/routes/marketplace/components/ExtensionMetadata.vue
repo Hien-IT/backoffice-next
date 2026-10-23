@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-author.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-compatibility.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-date.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-downloads.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-license.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-size.vue; Ported from directus/app/src/modules/settings/routes/marketplace/routes/extension/components/extension-metadata-version.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-43): one card `space-y-4 p-5` holding the install button, the author buttons (32 px avatar,
-// verified icon) and, below a divider, the metadata rows. The one-row Directus components (author, compatibility,
+// verified icon) and, below a divider, the metadata rows. The one-row DR components (author, compatibility,
 // date, downloads, license, size, version) are inlined here as MetadataItem rows.
 import { satisfies } from 'semver';
 import { computed } from 'vue';

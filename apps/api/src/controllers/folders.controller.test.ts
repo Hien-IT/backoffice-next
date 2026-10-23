@@ -1,4 +1,4 @@
-// Feature 007 (T032): the /folders controller (port of directus/api/src/controllers/folders.ts, which Directus does not
+// Feature 007 (T032): the /folders controller (port of directus/api/src/controllers/folders.ts, which DR does not
 // unit test) through the real app pipeline on SQLite, with FoldersService mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

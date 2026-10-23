@@ -37,7 +37,7 @@ import { MetricsModule } from './metrics/metrics.module.js';
 import useCollection from './middleware/use-collection.js';
 import { infrastructureProviders, serviceProviders } from './providers.js';
 
-/** Feature 007: the tus router of Directus, mounted only when TUS_ENABLED is true (directus/api/src/app.ts). */
+/** Feature 007: the tus router of DR, mounted only when TUS_ENABLED is true (directus/api/src/app.ts). */
 @Module({ controllers: [TusController] })
 export class TusModule implements NestModule {
 	configure(consumer: MiddlewareConsumer): void {
@@ -88,7 +88,7 @@ export class AppModule implements NestModule {
 		return { module: AppModule, imports: useEnv()['TUS_ENABLED'] === true ? [TusModule] : [] };
 	}
 
-	// `router.use(useCollection(...))` of each Directus router.
+	// `router.use(useCollection(...))` of each DR router.
 	configure(consumer: MiddlewareConsumer): void {
 		consumer.apply(useCollection('directus_access')).forRoutes(AccessController);
 		consumer.apply(useCollection('directus_comments')).forRoutes(CommentsController);

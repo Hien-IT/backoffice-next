@@ -3,7 +3,7 @@
 // Backoffice (spec 018 US1, FR-010 to FR-015, recipe Q-2): VTable is BoTable with multi-select in a `fill` page (D-99),
 // VMenu is BoMenu, VDialog BoDialog, VInfo BoInfo, header buttons BoButton. api -> SDK; errors open the error dialog.
 // Export: apiFetch + blob + saveAs like the 014 export (window.open cannot send the session cookie to another API
-// origin, research R2). Duplicate catches its error (R-49; Directus leaves the row spinning).
+// origin, research R2). Duplicate catches its error (R-49; DR leaves the row spinning).
 import { queryToParams } from '@directus/sdk';
 import fileSaver from 'file-saver';
 import { sortBy } from 'lodash-es';
@@ -324,7 +324,7 @@ const FOCUS =
 
 			<template #[`item.note`]="{ item }">
 				<div v-if="item.note" class="truncate" :title="item.note">{{ item.note }}</div>
-				<!-- Directus v-table default cell: ValueNull ("--") for an empty note (table-row.vue). -->
+				<!-- DR v-table default cell: ValueNull ("--") for an empty note (table-row.vue). -->
 				<ValueNull v-else />
 			</template>
 

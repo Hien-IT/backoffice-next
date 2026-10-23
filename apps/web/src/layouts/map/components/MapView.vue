@@ -2,10 +2,10 @@
 <script setup lang="ts">
 // Backoffice: Map frame recipe of 013 (recipe Q-6): zoom, location, fit data and box select are theme buttons with
 // aria-labels driving the map API and the BoxSelectControl (the library control groups are hidden), Shift + drag still
-// box-selects like Directus; the geocoder and its CSS load only with a Mapbox key (FR-039, FR-112).
+// box-selects like DR; the geocoder and its CSS load only with a Mapbox key (FR-039, FR-112).
 // Backoffice: maplibre-gl 6.14.0 instead of 1.15.3 (D-62): no `accessToken` option (getMapboxTransformRequest),
 // `maplibregl-*` classes, getClusterExpansionZoom returns a promise, the worker URL comes from the bundle.
-// Backoffice: `showSelect` comes from the layout props (Directus leaves the default `multiple`), so a single select
+// Backoffice: `showSelect` comes from the layout props (DR leaves the default `multiple`), so a single select
 // replaces the selection (FR-020).
 import type { ShowSelect } from '@directus/types';
 import { useResizeObserver } from '@vueuse/core';
@@ -154,7 +154,7 @@ function setupMap() {
 		});
 
 		// Backoffice (D-62): MapLibre 6 resizes on every container size change (ResizeObserver) and fires
-		// movestart/move/resize/moveend; Directus' MapLibre 1.15 only on window resize. A moveend right after a resize is
+		// movestart/move/resize/moveend; DR' MapLibre 1.15 only on window resize. A moveend right after a resize is
 		// not a camera move, so it does not save cameraOptions (it was an extra preset PATCH, CI 39629189282).
 		// While the camera moves, a resize fires no moveend of its own: the flag would eat the move's.
 		let resized = false;
@@ -249,7 +249,7 @@ function updateSource(newSource: Record<string, any>) {
 		}
 	}
 
-	// Backoffice: a copy, the layout state owns the source object (Directus mutates the prop).
+	// Backoffice: a copy, the layout state owns the source object (DR mutates the prop).
 	const source: Record<string, any> = { ...newSource };
 
 	if (props.featureId) {

@@ -1,6 +1,6 @@
 // Ported from directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.test.ts
 // Backoffice: mounted on the bo_rel m2o fields of the fixture snapshot with the real relation composables and stores
-// (mockFixtureApi) instead of mocked composables; the Directus cases are kept (disabled, nonEditable, enableLink, the
+// (mockFixtureApi) instead of mocked composables; the DR cases are kept (disabled, nonEditable, enableLink, the
 // click opening the select or edit drawer), plus FR-041/FR-042 options, notices, value shapes and the three users.
 import type { FieldRaw } from '@directus/types';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';

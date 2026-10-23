@@ -11,7 +11,7 @@ export type { DownloadOptions } from './types/download-options.js';
  * Downloads an extension version from the registry as a stream.
  *
  * This function retrieves the binary content of a specific extension version
- * from the Directus extensions registry. It validates API version compatibility
+ * from the DR extensions registry. It validates API version compatibility
  * and returns a ReadableStream that can be used to process the downloaded content,
  * such as saving to disk or streaming to a client.
  *

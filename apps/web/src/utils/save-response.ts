@@ -1,4 +1,4 @@
-// Backoffice: no Directus source. Directus downloads zips and assets with fetch -> blob -> a temporary <a download>
+// Backoffice: no DR source. DR downloads zips and assets with fetch -> blob -> a temporary <a download>
 // (modules/files/routes/collection.vue `downloadFiles`, files-navigation-folder.vue `downloadFolder`); this does the
 // same with file-saver like the 014 export (research R10). The file name comes from Content-Disposition, else the
 // fallback. A non-2xx answer rejects with the SDK error shape (read by translateAPIError).

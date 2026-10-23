@@ -1,7 +1,7 @@
 // Ported from directus/app/src/stores/presets.ts
-// Backoffice: the store is the Directus one (feature 014, FR-018); the system default presets of directus_files,
+// Backoffice: the store is the DR one (feature 014, FR-018); the system default presets of directus_files,
 // directus_users, directus_activity, directus_roles, directus_policies and directus_presets are injected on hydrate
-// as Directus does (feature 015, CHK001).
+// as DR does (feature 015, CHK001).
 import type { Preset } from '@directus/types';
 import { cloneDeep, merge, orderBy } from 'lodash-es';
 import { nanoid } from 'nanoid';

@@ -208,7 +208,7 @@ describe('NotificationsDrawer', () => {
 		expect(message.querySelector('strong')!.textContent).toBe('item');
 		const link = message.querySelector('a')!;
 		expect(link.getAttribute('href')).toBe('/admin/content/bo_content/1');
-		// Same origin: md() of 013 sets no target (Directus `_self`, research T001 (i)).
+		// Same origin: md() of 013 sets no target (DR `_self`, research T001 (i)).
 		expect(link.getAttribute('target')).toBeNull();
 
 		await click(row('bo_extra_10').querySelector<HTMLButtonElement>('button[aria-expanded]')!);
@@ -256,7 +256,7 @@ describe('NotificationsDrawer', () => {
 		const after = calls(fetch).slice(1);
 		expect(after.some((c) => c.includes('fields='))).toBe(true);
 		expect(after.some((c) => c.includes('aggregate={"count":"id"}'))).toBe(true);
-		// D-115: the drawer's own counts are recounted after the write (Directus reuses the memoized ones).
+		// D-115: the drawer's own counts are recounted after the write (DR reuses the memoized ones).
 		// (`count: *` here: the fixture fields store has no primary key for directus_notifications.)
 		expect(
 			after.some((c) => /aggregate=\{"(countDistinct|count)":"(id|\*)"\}/.test(c) && !c.includes('"count":"id"')),

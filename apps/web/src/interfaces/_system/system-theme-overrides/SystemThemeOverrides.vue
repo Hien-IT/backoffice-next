@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-theme-overrides/system-theme-overrides.vue -->
 <script setup lang="ts">
-// Backoffice: recipe Q-19 "Theme overrides". The rule tree is the Directus theme of the signed-in user (static data,
-// theme/use-theme-preset.ts, D-89); keys and values are written as in Directus, only the keys mapped in
+// Backoffice: recipe Q-19 "Theme overrides". The rule tree is the DR theme of the signed-in user (static data,
+// theme/use-theme-preset.ts, D-89); keys and values are written as in DR, only the keys mapped in
 // theme/override-map.ts change the Backoffice look (D-43). A stored value that is not an object shows an empty block and
-// is kept as it is (CHK082). Clearing a rule works on a deep clone (Directus unsets on a shallow clone, which also
+// is kept as it is (CHK082). Clearing a rule works on a deep clone (DR unsets on a shallow clone, which also
 // changes the nested objects of the current value).
 import type { DeepPartial, Theme } from '@directus/types';
 import { clone, cloneDeep, get, isEmpty, isPlainObject, setWith, unset } from 'lodash-es';

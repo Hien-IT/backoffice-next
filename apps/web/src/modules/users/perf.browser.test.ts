@@ -33,7 +33,7 @@ beforeEach(async () => {
 });
 
 // The fixture snapshot has no system relations (fetch.ts keeps `role` and `avatar` out of GET /relations) and no
-// fields of directus_access, directus_policies or directus_roles; Directus answers them on every instance. Added here
+// fields of directus_access, directus_policies or directus_roles; DR answers them on every instance. Added here
 // as directus/packages/system-data/src (relations.yaml, fields/access.yaml), so the form's Role, Avatar and Policies
 // fields are wired as in the real app.
 function field(collection: string, name: string, type: string, primary = false) {
@@ -140,7 +140,7 @@ test('the user page sends the item, policies, avatar and role requests, and no r
 	});
 
 	const role = user['role'] as string;
-	// SC-007 lists 1 item, 0 roles (the roles list is cached), 1 /access and 1 /files. The code sends, as Directus:
+	// SC-007 lists 1 item, 0 roles (the roles list is cached), 1 /access and 1 /files. The code sends, as DR:
 	// - /access twice: list-m2m (use-relation-multiple) reads the page of policies and their count (aggregate);
 	// - /files/<avatar> twice: the `file` interface (use-relation-single) and the template data of its inactive
 	//   DrawerItem (use-template-data, directus_files display template);

@@ -3,7 +3,7 @@
 // dark when `html.dark` is set, FR-095); the body is transparent, with the page's color-scheme, so the EditorFrame
 // background (and its disabled state) shows through. Fonts: Outfit + Noto Sans (Vietnamese) are self-hosted for the
 // iframe; serif and monospace use the system stacks of the other editors (no Merriweather / Fira Mono in the
-// design-system). As in Directus, the content CSS is read when the editor starts (a theme switch applies on the next
+// design-system). As in DR, the content CSS is read when the editor starts (a theme switch applies on the next
 // mount).
 import outfit400 from '@fontsource/outfit/files/outfit-latin-400-normal.woff2?url';
 import outfit500 from '@fontsource/outfit/files/outfit-latin-500-normal.woff2?url';
@@ -23,7 +23,7 @@ const FONTS = {
 
 const mix = (token: string, percent: number) => `color-mix(in oklab, ${cssVar(token)} ${percent}%, transparent)`;
 
-/** Directus theme variables of the content CSS on the design-system tokens, light and dark. */
+/** DR theme variables of the content CSS on the design-system tokens, light and dark. */
 function tokens() {
 	const dark = document.documentElement.classList.contains('dark');
 

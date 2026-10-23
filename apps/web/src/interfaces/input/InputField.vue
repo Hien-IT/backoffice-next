@@ -355,7 +355,7 @@ const ARROW = 'flex h-4 items-center text-gray-500 dark:text-gray-400';
 				<BoIcon name="warning" :label="inlineWarning" />
 			</span>
 		</BoTooltip>
-		<!-- Mouse helpers as in Directus; keyboard users have the native ArrowUp/ArrowDown of the number input. -->
+		<!-- Mouse helpers as in DR; keyboard users have the native ArrowUp/ArrowDown of the number input. -->
 		<span v-if="type === 'number' && !hideArrows && !nonEditable" aria-hidden="true" class="flex flex-col">
 			<button
 				type="button"

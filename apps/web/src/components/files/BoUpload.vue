@@ -3,10 +3,10 @@
 // Backoffice: Upload recipe (component-specs Tier 3). Uploads go through utils/upload-files.ts and upload-file.ts
 // (feature 015: TUS when the server enables it, otherwise multipart with byte progress, `maxConcurrency` from the
 // server). Spec 020 (VUpload shim): a TUS upload emits `start` with its controller (start/abort, all files at once with
-// `multiple`) and `abort` is exposed, as Directus. `fileId` replaces that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
-// dialogs comes with 018): invalid files as Directus words them, failed uploads one line per file with
+// `multiple`) and `abort` is exposed, as DR. `fileId` replaces that file (PATCH /files/:id, feature 015 FR-033). Errors show inline under the zone (the notifications store with
+// dialogs comes with 018): invalid files as DR words them, failed uploads one line per file with
 // translateAPIError. "Choose from library" emits `library`; the files drawer (T069) calls the exposed `setSelection`
-// (GET /files or /files/:id as Directus).
+// (GET /files or /files/:id as DR).
 import { readFile, readFiles } from '@directus/sdk';
 import type { File, Filter } from '@directus/types';
 import { computed, ref, useId } from 'vue';
@@ -171,7 +171,7 @@ function useUpload() {
 						progress.value = Math.round(percentages.reduce((total, p) => total + p, 0) / percentages.length);
 						done.value = percentages.filter((p) => p === 100).length;
 
-						// Directus: done uploads are not resumed after a pause.
+						// DR: done uploads are not resumed after a pause.
 						percentages.forEach((p, index) => p === 100 && (fileControllers[index] = null));
 					},
 					onChunkedUpload: (controllers) => {

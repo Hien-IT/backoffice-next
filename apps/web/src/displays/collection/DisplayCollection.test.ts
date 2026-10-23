@@ -1,4 +1,4 @@
-// Directus has no test for the collection display: fixture field bo_std.collection_name, the `icon` option, handler.
+// DR has no test for the collection display: fixture field bo_std.collection_name, the `icon` option, handler.
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

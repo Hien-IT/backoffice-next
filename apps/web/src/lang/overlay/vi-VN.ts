@@ -33,21 +33,21 @@ export default {
 	move_right: 'Chuyển phải',
 	move_to_group: 'Chuyển sang nhóm…',
 	move_item_to_group: 'Chuyển {item} sang nhóm',
-	// Feature 014: sort announcement of the table count line (FR-115b, no Directus key).
+	// Feature 014: sort announcement of the table count line (FR-115b, no DR key).
 	table_sorted_asc: 'Sắp theo {field} tăng dần',
 	table_sorted_desc: 'Sắp theo {field} giảm dần',
-	// Feature 014: label of the save split button menu (recipe Q-8, no Directus key).
+	// Feature 014: label of the save split button menu (recipe Q-8, no DR key).
 	more_save_options: 'Tùy chọn lưu khác',
-	// Feature 014: name of the card selection checkbox (recipe Q-3, no Directus key).
+	// Feature 014: name of the card selection checkbox (recipe Q-3, no DR key).
 	select_item_key: 'Chọn {item}',
-	// Feature 014: map layout controls and keyboard list (recipe Q-6, D-69, no Directus key).
+	// Feature 014: map layout controls and keyboard list (recipe Q-6, D-69, no DR key).
 	map_box_select: 'Chọn vùng (Shift + kéo)',
 	map_items_in_view: 'Các mục đang hiện',
-	// Feature 014: tooltip of the comment send button (recipe Q-11, no Directus key).
+	// Feature 014: tooltip of the comment send button (recipe Q-11, no DR key).
 	comment_submit_shortcut: 'Gửi (Ctrl + Enter)',
-	// Feature 014: checkbox of the version comparison footer (recipe Q-10, no Directus key).
+	// Feature 014: checkbox of the version comparison footer (recipe Q-10, no DR key).
 	delete_version_after_promote: 'Xóa “{version}” sau khi áp dụng',
-	// Feature 015 (D-88): the Directus theme names are shown as Backoffice names (the stored ids keep "Directus ..."),
+	// Feature 015 (D-88): the DR theme names are shown as Backoffice names (the stored ids keep "DR ..."),
 	// so these three keys replace the generated values on purpose.
 	theme_directus_default: 'Backoffice Mặc định',
 	theme_directus_minimal: 'Backoffice Tối giản',
@@ -67,7 +67,7 @@ export default {
 	notifications_mark_read: 'Đánh dấu đã xem',
 	notifications_mark_all_read: 'Đánh dấu tất cả đã xem',
 	notifications_view_all: 'Xem tất cả',
-	// VEmojiPicker shim (spec 020): name of the icon-only button (Directus has none).
+	// VEmojiPicker shim (spec 020): name of the icon-only button (DR has none).
 	insert_emoji: 'Chèn emoji',
 	// Spec 020: the nav label of the v-pagination shim of app extensions.
 	pagination: 'Phân trang',

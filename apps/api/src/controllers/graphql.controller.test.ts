@@ -1,6 +1,6 @@
-// Backoffice (feature 011, T017): Directus has no test for controllers/graphql.ts. The routing part mounts the controller
+// Backoffice (feature 011, T017): DR has no test for controllers/graphql.ts. The routing part mounts the controller
 // on a bare Nest app: `/graphql/system` and every path under it are the system scope, `/graphql` and every other path
-// under it (including `/graphql/systemx`) the items scope, as Directus' `router.use` (research R12.4); every method but
+// under it (including `/graphql/systemx`) the items scope, as DR' `router.use` (research R12.4); every method but
 // GET and POST is a 405 from parseGraphQL (R12.1); a GET mutation is a 405; a response with errors is not cached.
 import { useEnv } from '@backoffice/env';
 import { Module } from '@nestjs/common';
@@ -43,7 +43,7 @@ beforeAll(async () => {
 	});
 
 	app = await NestFactory.create<NestExpressApplication>(TestModule, new ExpressAdapter(server), { logger: false });
-	// The error filter of the app (app.ts): Directus' error handler writes the 405 and 400 of parseGraphQL.
+	// The error filter of the app (app.ts): DR' error handler writes the 405 and 400 of parseGraphQL.
 	app.useGlobalFilters(new ErrorHandlerFilter());
 	await app.init();
 });

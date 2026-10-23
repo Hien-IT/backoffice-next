@@ -1,5 +1,5 @@
 // Chart panels of spec 018 (FR-047..FR-050, FR-106): the ApexCharts options and the sr-only data table built from the
-// Directus GraphQL aggregate results, with the Directus quirks kept (panel-bar-chart.vue, panel-line-chart.vue,
+// DR GraphQL aggregate results, with the DR quirks kept (panel-bar-chart.vue, panel-line-chart.vue,
 // panel-pie-chart.vue, panel-time-series.vue).
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

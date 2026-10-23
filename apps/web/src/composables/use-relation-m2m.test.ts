@@ -1,4 +1,4 @@
-// Directus has no test for use-relation-m2m.ts: relation info of the fixture m2m fields (data-model §2), and the m2m
+// DR has no test for use-relation-m2m.ts: relation info of the fixture m2m fields (data-model §2), and the m2m
 // path of useRelationMultiple / useRelationPermissionsM2M on the fixture API (FR-040, FR-041, contracts/api-calls.md).
 import type { ContentVersion } from '@directus/types';
 import { flushPromises } from '@vue/test-utils';

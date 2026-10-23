@@ -1,4 +1,4 @@
-// Feature 015 (T071, FR-080): system-language, as Directus system-language.vue.
+// Feature 015 (T071, FR-080): system-language, as DR system-language.vue.
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import { computed } from 'vue';

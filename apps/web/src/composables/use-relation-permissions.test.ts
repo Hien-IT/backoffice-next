@@ -1,7 +1,7 @@
 // Ported from directus/app/src/composables/use-relation-permissions.test.ts
 // Backoffice: useCollectionPermissions is inlined in use-relation-permissions.ts (not ported on its own yet), so the
-// `related` / `junction` refs of the Directus tests become `access` rows of the permissions store (/permissions/me)
-// that `hasPermission` reads; the assertions are the Directus ones.
+// `related` / `junction` refs of the DR tests become `access` rows of the permissions store (/permissions/me)
+// that `hasPermission` reads; the assertions are the DR ones.
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, expect, test } from 'vitest';
 import { ref } from 'vue';

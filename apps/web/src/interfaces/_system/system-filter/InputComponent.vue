@@ -1,11 +1,11 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-filter/input-component.vue -->
 <script setup lang="ts">
-// Backoffice: recipe "Search and advanced filter (Q-7)": compact value controls. The text input keeps the Directus
+// Backoffice: recipe "Search and advanced filter (Q-7)": compact value controls. The text input keeps the DR
 // rules (pattern by type, dynamic variables such as `$NOW(-7 days)`, `$CURRENT_USER`, comma handling) and grows with
-// its text through `size` (no v-input-auto-width directive). Choices open a BoMenu (Directus v-select inline;
+// its text through `size` (no v-input-auto-width directive). Choices open a BoMenu (DR v-select inline;
 // `allow-other` is left out: a value outside the choices is typed after switching the operator). Dates open BoDatePicker
 // in a Reka popover; the other types (json, text, hash, geometry) open the 013 interface of the same id from the
-// registry in a popover, as Directus renders `<component :is="interface-…">` in a v-menu.
+// registry in a popover, as DR renders `<component :is="interface-…">` in a v-menu.
 import { isDynamicVariable } from '@directus/utils';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
 import { computed, onMounted, onUpdated, ref, watch } from 'vue';
@@ -50,7 +50,7 @@ const dateTimeMenu = ref(false);
 const inputEl = ref<HTMLInputElement | null>(null);
 const isInputValid = ref(true);
 
-// Backoffice: width of the text input in characters (Directus v-input-auto-width).
+// Backoffice: width of the text input in characters (DR v-input-auto-width).
 const text = ref('');
 
 const displayValue = computed(() => {

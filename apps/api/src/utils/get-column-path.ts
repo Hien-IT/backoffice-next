@@ -20,7 +20,7 @@ export type ColPathResult = {
 };
 
 /**
- * Converts a Directus field list path to the correct SQL names based on the constructed alias map.
+ * Converts a DR field list path to the correct SQL names based on the constructed alias map.
  * For example: ['author', 'role', 'name'] -> 'ljnsv.name'
  * Also returns the target collection of the column: 'directus_roles'
  * If the last filter path is an alias field, a nested PK is appended to the path

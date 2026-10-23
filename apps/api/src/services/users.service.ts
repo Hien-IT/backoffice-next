@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/users.ts
-// Backoffice: no MailService (Principle X): where Directus sends an invitation or a verification email, a `warn` log
+// Backoffice: no MailService (Principle X): where DR sends an invitation or a verification email, a `warn` log
 // line names the recipient, without token or link (research R9 of spec 004, D-27, D-28).
 import { performance } from 'perf_hooks';
 import { useEnv } from '@backoffice/env';

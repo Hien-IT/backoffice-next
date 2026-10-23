@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/panels/bar-chart/panel-bar-chart.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-047..FR-050, recipe Q-35): ApexCharts loaded lazily (loadApexCharts) with an unmount/race
-// guard; Directus theme variables replaced by the chart theme tokens (THEME, D-108 default color); animations stay off
-// like Directus; the chart is aria-hidden with an sr-only ChartTable of the plotted values (FR-106); the global tooltip
-// styles live in styles/apexcharts.css. Data transforms and conditional-fill quirks are Directus' unchanged.
+// guard; DR theme variables replaced by the chart theme tokens (THEME, D-108 default color); animations stay off
+// like DR; the chart is aria-hidden with an sr-only ChartTable of the plotted values (FR-106); the global tooltip
+// styles live in styles/apexcharts.css. Data transforms and conditional-fill quirks are DR' unchanged.
 import type { Filter } from '@directus/types';
 import type ApexCharts from 'apexcharts';
 import { isNil, snakeCase } from 'lodash-es';
@@ -40,7 +40,7 @@ type ConditionalFillFormat = {
 	value: number;
 };
 
-/* eslint-disable vue/require-default-prop -- the optional props have no default in Directus either */
+/* eslint-disable vue/require-default-prop -- the optional props have no default in DR either */
 const props = withDefaults(
 	defineProps<{
 		showHeader?: boolean;
@@ -84,7 +84,7 @@ const tableRows = ref<(string | number | null)[][]>([]);
 let unmounted = false;
 
 const yAxisLabel = computed(() => {
-	// Backoffice: optional chaining, the label is also the table header (rendered eagerly, Directus reads it in the tooltip)
+	// Backoffice: optional chaining, the label is also the table header (rendered eagerly, DR reads it in the tooltip)
 	const field = fieldsStore.getField(props.collection, props.yAxis);
 
 	if (!props.function) return `${field?.name}`;
@@ -127,7 +127,7 @@ const formatNumericValue = (val: any) => {
 	return val;
 };
 
-// Backoffice (D-108): the Directus option default `var(--theme--primary)` maps to the chart theme token.
+// Backoffice (D-108): the DR option default `var(--theme--primary)` maps to the chart theme token.
 const themeColor = (color: string) => (color === 'var(--theme--primary)' ? THEME.primary : color);
 
 const isTwoQueryResult = computed(() => {
@@ -212,7 +212,7 @@ async function setUpChart() {
 	chart.value = new ApexChartsClass(chartEl.value, {
 		chart: {
 			animations: {
-				// Directus value (off); reduced motion is therefore already honoured
+				// DR value (off); reduced motion is therefore already honoured
 				enabled: false,
 			},
 			type: 'bar',
@@ -377,7 +377,7 @@ async function setUpChart() {
 				case '<':
 					return Number(value) < compareValue;
 				case '<=':
-					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` and the string operators the
+					// Backoffice (D-113, owner 2026-10-18): DR compares `<=` with `<` and the string operators the
 					// other way round (`compareValue.includes(value)`, R-53); here the bar's value is tested against the rule.
 					return Number(value) <= compareValue;
 				case 'contains':

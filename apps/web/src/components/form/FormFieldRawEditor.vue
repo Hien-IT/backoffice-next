@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: BoDialog (Modal recipe) instead of v-dialog + v-card; input-code comes from the registry and, until it
 // is registered, objects are edited in system-raw-editor as multi-line text (the cast below parses the JSON).
-// Closing the dialog (Esc, overlay) cancels like the Directus `@esc`.
+// Closing the dialog (Esc, overlay) cancels like the DR `@esc`.
 import type { Field } from '@directus/types';
 import { isValidJSON, parseJSON } from '@directus/utils';
 import { isNil } from 'lodash-es';

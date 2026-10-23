@@ -1,4 +1,4 @@
-// Directus has no test for system-scope.vue (spec 016 T100, US6-2, contracts/api-calls.md #155): the three choices,
+// DR has no test for system-scope.vue (spec 016 T100, US6-2, contracts/api-calls.md #155): the three choices,
 // the current value first with the role or user name, DrawerCollection of directus_users / directus_roles and the
 // emitted `all` / `user_<id>` / `role_<id>`.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';

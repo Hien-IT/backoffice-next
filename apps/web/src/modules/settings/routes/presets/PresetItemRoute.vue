@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/modules/settings/routes/presets/item.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 US6-2, US6-3, recipe Q-26): the local form is BoForm with the Directus fields (name, icon and
+// Backoffice (spec 016 US6-2, US6-3, recipe Q-26): the local form is BoForm with the DR fields (name, icon and
 // color use the interfaces of the 014 BookmarkAdd dialog); the preview is the registry layout inside the read-only 014
 // layout wrapper, in a bordered box; the layout options and the layout sidebar go to the detail panel. Header actions
 // are named BoButtons and the confirmations BoDialogs; the unsaved-changes dialog puts "keep editing" first (D-76).
-// Requests through the SDK; errors open the error dialog (showUnexpectedError, D-66). As Directus, save always goes
+// Requests through the SDK; errors open the error dialog (showUnexpectedError, D-66). As DR, save always goes
 // back to the list, also after an error (R-41).
 import type { DeepPartial, Field, Filter, Preset } from '@directus/types';
 import { isEqual } from 'lodash-es';
@@ -55,7 +55,7 @@ const router = useRouter();
 
 const collectionsStore = useCollectionsStore();
 const presetsStore = usePresetsStore();
-// Backoffice: the layouts of the registry (useExtensions in Directus, names translated as its extensions store does).
+// Backoffice: the layouts of the registry (useExtensions in DR, names translated as its extensions store does).
 const layouts = computed(() => getLayouts().map((layout) => ({ id: layout.id, name: translate(layout.name) })));
 
 const isNew = computed(() => props.id === '+');
@@ -79,7 +79,7 @@ const layout = computed(() => values.value['layout']);
 
 const { layoutWrapper } = useLayout(layout);
 
-// Backoffice: the registry layout rendered in the preview (Directus `layout-${values.layout}`).
+// Backoffice: the registry layout rendered in the preview (DR `layout-${values.layout}`).
 const currentLayout = computed(() => getLayout(values.value['layout']));
 
 const layoutProps = computed(() => {

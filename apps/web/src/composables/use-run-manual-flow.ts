@@ -2,7 +2,7 @@
 // Backoffice: notify/unexpectedError have no snackbar store before feature 018 (D-45): the result is kept in
 // `flowDialogsContext.notice` and FlowDialogs.vue shows it as a BoNotice. useInjectRunManualFlow builds this
 // composable as a default when no screen provided one (FR-057, R10), so `header` and `presentation-links` run flows
-// on their own; Directus falls back to a no-op there.
+// on their own; DR falls back to a no-op there.
 import formatTitle from '@directus/format-title';
 import type { FlowRaw, Item, PrimaryKey } from '@directus/types';
 import { computed, inject, provide, type Ref, ref, unref } from 'vue';

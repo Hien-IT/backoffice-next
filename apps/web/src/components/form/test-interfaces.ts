@@ -66,7 +66,7 @@ const ValuesProbe = defineComponent({
 
 let groupForm: Component | null = null;
 
-/** The fake group renders a nested form like Directus group-detail (set to BoForm by the test). */
+/** The fake group renders a nested form like DR group-detail (set to BoForm by the test). */
 export function setGroupForm(component: Component) {
 	groupForm = component;
 }

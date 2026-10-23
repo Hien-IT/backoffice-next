@@ -1,7 +1,7 @@
 // Value panels of spec 018 (FR-042..FR-046): metric, metric-list, meter, label and list, fed with data shaped like the
-// Directus panel queries (aggregate `[{ count: { id: 12 } }]`, first/last `[{ amount: '12.50' }]`, grouped
+// DR panel queries (aggregate `[{ count: { id: 12 } }]`, first/last `[{ amount: '12.50' }]`, grouped
 // `[{ group: { country }, sum: { amount } }]`). Expected values follow directus/app/src/panels/*/panel-*.vue, quirks
-// included: metric(-list) takes the last matching rule, meter the first; `<=` includes the value (D-113, Directus
+// included: metric(-list) takes the last matching rule, meter the first; `<=` includes the value (D-113, DR
 // compares it with `<`).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -208,7 +208,7 @@ test('meter `<=` includes the value (D-113), with or without the panel color', (
 
 test('meter dash offset follows the percentage (full size)', () => {
 	const circle = meter({}).get('[data-meter-value]').element as SVGCircleElement;
-	// radius = (12 * 20 - 28) / 2 - 10 = 96 (Directus counts 20 px per cell)
+	// radius = (12 * 20 - 28) / 2 - 10 = 96 (DR counts 20 px per cell)
 	expect(circle.getAttribute('r')).toBe('96');
 	const circumference = 96 * 2 * Math.PI;
 	expect(parseFloat(circle.style.strokeDashoffset)).toBeCloseTo(circumference * 0.25, 3);

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: the row content of a BoSortableList row. The edit icon and v-remove move to the row menu of
 // NestedDraggable (SortableList row menu recipe), which also holds the item drawer, so this component emits `edit`
-// (click on a non-editable preview, as Directus opens the drawer there). The chevron is a button with
+// (click on a non-editable preview, as DR opens the drawer there). The chevron is a button with
 // `aria-expanded`; a removed item is struck through besides the danger color (state not by color alone).
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../components/BoIcon.vue';

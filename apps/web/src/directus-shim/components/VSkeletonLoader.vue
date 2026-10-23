@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): the seven v-skeleton-loader shapes with the app's loading placeholder
 // (animate-pulse on gray-100, still with reduced motion): input 44px like BoInput, the tall input as a textarea, list
-// items and text at the Directus sizes.
+// items and text at the DR sizes.
 withDefaults(
 	defineProps<{
 		/** Name of another component to mirror */

@@ -1,5 +1,5 @@
-// Directus has no test for its marketplace registry page (spec 020 T175, recipe Q-42, rows 204 and 210): the request
-// built from the route query (`search`, `type`, `sort`, `page`) like the Directus axios call, the debounced search
+// DR has no test for its marketplace registry page (spec 020 T175, recipe Q-42, rows 204 and 210): the request
+// built from the route query (`search`, `type`, `sort`, `page`) like the DR axios call, the debounced search
 // written back to the query, page reset on a filter change, rows (name, chips, installed), empty and error states.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';

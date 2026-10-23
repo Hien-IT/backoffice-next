@@ -1,5 +1,5 @@
-// Test helper: an in-memory SQLite database with the Directus system tables feature 001 reads (columns as created
-// by the Directus 11.17.4 migrations, reduced to what the queries touch).
+// Test helper: an in-memory SQLite database with the DR system tables feature 001 reads (columns as created
+// by the DR 11.17.4 migrations, reduced to what the queries touch).
 import knex, { type Knex } from 'knex';
 
 export async function createDirectusDb(): Promise<Knex> {
@@ -101,7 +101,7 @@ export const PUBLIC_POLICY = 'abf8a154-5b1c-4a46-ac9c-7300570f4f17';
 
 /**
  * Feature 003: the tables and columns the auth flows read and write, on top of createDirectusDb (columns as created
- * by the Directus 11.17.4 migrations, reduced to what the auth code touches).
+ * by the DR 11.17.4 migrations, reduced to what the auth code touches).
  */
 export async function createAuthDb(): Promise<Knex> {
 	const db = await createDirectusDb();

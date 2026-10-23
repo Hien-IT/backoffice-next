@@ -1,5 +1,5 @@
 // Rewrite of validateMigrations from directus/api/src/database/index.ts (FR-031, FR-035, FR-036, D-05, D-06):
-// missing AND unknown versions stop the API; custom migrations are accepted from the two folders Directus uses.
+// missing AND unknown versions stop the API; custom migrations are accepted from the two folders DR uses.
 import { existsSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { useEnv } from '@backoffice/env';
@@ -31,9 +31,9 @@ function readNames(directory: string): string[] {
 }
 
 /**
- * Custom migration versions, like Directus finds them:
+ * Custom migration versions, like DR finds them:
  * - MIGRATIONS_PATH (where `directus database migrate` runs them): names with "-" ending in .js/.cjs/.mjs
- * - <EXTENSIONS_PATH>/migrations (where Directus' startup check looks): every .js file
+ * - <EXTENSIONS_PATH>/migrations (where DR' startup check looks): every .js file
  * The version is the part before the first "-" (the whole file name when there is none).
  * A version found in both folders is reported with MIGRATIONS_PATH.
  */
@@ -76,9 +76,9 @@ export async function checkMigrations(database: Knex = getDatabase()): Promise<M
 }
 
 /**
- * The boolean check of Directus' validateMigrations (database/index.ts), used by the CLI before it loads extensions
- * (spec 021 FR-043): true when no required migration is missing; unknown versions do not count, as in Directus. A
- * failing read logs and exits with code 1, as Directus does.
+ * The boolean check of DR' validateMigrations (database/index.ts), used by the CLI before it loads extensions
+ * (spec 021 FR-043): true when no required migration is missing; unknown versions do not count, as in DR. A
+ * failing read logs and exits with code 1, as DR does.
  */
 export async function migrationsValid(database: Knex = getDatabase()): Promise<boolean> {
 	try {

@@ -1,4 +1,4 @@
-// Feature 006 (T013): directus/api/src/services/relations.ts has no unit test in Directus 11.17.4; these cases follow
+// Feature 006 (T013): directus/api/src/services/relations.ts has no unit test in DR 11.17.4; these cases follow
 // its code (input checks, foreign key DDL, metadata, events, cache) with the mocks of the ported collections tests.
 import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';

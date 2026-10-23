@@ -72,7 +72,7 @@ const { currentPreview, setCurrentPreview, fileHandler, setFileHandler, unsetFil
 
 const editorjsRef = ref<EditorJS>();
 const editorjsIsReady = ref(false);
-// Backoffice: set on unmount; destroy() empties the Editor.js instance, so a mount still starting must stop (Directus
+// Backoffice: set on unmount; destroy() empties the Editor.js instance, so a mount still starting must stop (DR
 // throws "editorjsRef.value.on is not a function" when the form closes before Editor.js is ready).
 let unmounted = false;
 const uploaderComponentElement = ref<InstanceType<typeof BoUpload>>();
@@ -95,7 +95,7 @@ const tools = getTools(
 
 bus.on(async (event) => {
 	if (event.type === 'open-url') {
-		// Backoffice: the payload is the API URL of the file; the app route is `/files/<id>` as in Directus.
+		// Backoffice: the payload is the API URL of the file; the app route is `/files/<id>` as in DR.
 		router.push(event.payload.startsWith(getApiUrl()) ? '/' + event.payload.slice(getApiUrl().length) : event.payload);
 	}
 });

@@ -4,9 +4,9 @@
 // `var(--theme--primary)`; the track is `stroke-gray-100 dark:stroke-gray-800` instead of
 // `var(--theme--background-subdued)`; the scoped `v-bind()` CSS (font size, dash array/offset, rotation, half-size
 // offset) is inline style; the SVG is aria-hidden (the output carries the value); no own padding (PanelTile pads the
-// body). `inheritAttrs: false` (as the Directus label panel) keeps the tile context props it does not declare out of
-// the DOM. Logic as Directus, quirks kept: the first matching rule wins (`find`), `<=` compares with `<`, the radius
-// counts 20 px per grid cell (Directus grid size).
+// body). `inheritAttrs: false` (as the DR label panel) keeps the tile context props it does not declare out of
+// the DOM. Logic as DR, quirks kept: the first matching rule wins (`find`), `<=` compares with `<`, the radius
+// counts 20 px per grid cell (DR grid size).
 import { computed, unref } from 'vue';
 import { useI18n } from 'vue-i18n';
 
@@ -137,7 +137,7 @@ const conditionalColor = computed(() => {
 				case '<':
 					return percentValue < compareValue;
 				case '<=':
-					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` (R-53).
+					// Backoffice (D-113, owner 2026-10-18): DR compares `<=` with `<` (R-53).
 					return percentValue <= compareValue;
 			}
 		})?.color ?? defaultColor

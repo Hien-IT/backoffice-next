@@ -4,7 +4,7 @@ import { computed, useId } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from './BoIcon.vue';
 
-// Raw tags only: the tags interface applies its Directus rules (trim, case, whitespace, alphabetize) on update.
+// Raw tags only: the tags interface applies its DR rules (trim, case, whitespace, alphabetize) on update.
 const {
 	modelValue = null,
 	presets = [],
@@ -16,7 +16,7 @@ const {
 	ariaDescribedby,
 } = defineProps<{
 	modelValue?: string[] | null;
-	/** Suggested tags shown as toggle chips (Directus tags `presets`). */
+	/** Suggested tags shown as toggle chips (DR tags `presets`). */
 	presets?: string[];
 	label?: string;
 	placeholder?: string;

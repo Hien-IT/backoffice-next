@@ -1,4 +1,4 @@
-// Directus has no test for bookmark-add.vue: activator, name required, save payload, cancel reset.
+// DR has no test for bookmark-add.vue: activator, name required, save payload, cancel reset.
 import { enableAutoUnmount, flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -50,7 +50,7 @@ describe('BookmarkAdd', () => {
 		await flushPromises();
 		expect(button('Save').disabled).toBe(false);
 
-		// Enter in the form applies (Directus @apply).
+		// Enter in the form applies (DR @apply).
 		dialog()!.querySelector('form')!.dispatchEvent(new Event('submit'));
 		expect(wrapper.emitted('save')).toEqual([[{ name: 'My view', icon: 'bookmark', color: null }]]);
 	});

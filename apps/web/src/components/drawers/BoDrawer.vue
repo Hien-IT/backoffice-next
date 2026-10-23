@@ -35,7 +35,7 @@ export interface Props {
 	flush?: boolean;
 	/** Feature 016 (recipe Q-22, field drawer): as wide as the window up to `max-w-5xl`. */
 	wide?: boolean;
-	/** Spec 020 (Directus v-drawer `sidebarLabel`): name of the sidebar, "Sidebar" when unset. */
+	/** Spec 020 (DR v-drawer `sidebarLabel`): name of the sidebar, "Sidebar" when unset. */
 	sidebarLabel?: string | undefined;
 }
 
@@ -210,7 +210,7 @@ const FOCUS =
 						<slot />
 					</main>
 					<!-- Below xl the open sidebar is above the content: at most half the height, scrolling, so main keeps room
-					     (Directus scrolls it with the content, v-drawer.vue:187-219). -->
+					     (DR scrolls it with the content, v-drawer.vue:187-219). -->
 					<aside
 						:aria-label="sidebarLabel || $t('sidebar')"
 						class="order-1 shrink-0 border-b border-gray-200 max-xl:max-h-[50%] max-xl:overflow-y-auto xl:order-2 xl:w-60 xl:overflow-y-auto xl:border-s xl:border-b-0 dark:border-gray-800"
@@ -242,7 +242,7 @@ const FOCUS =
 </template>
 
 <style scoped>
-/* Directus TransitionDialog (right placement): slide in from the end side; off under reduced motion. */
+/* DR TransitionDialog (right placement): slide in from the end side; off under reduced motion. */
 .bo-drawer[data-state='open'] {
 	animation: bo-drawer-in 250ms ease-out;
 }

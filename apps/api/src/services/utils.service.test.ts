@@ -1,4 +1,4 @@
-// Feature 010 (T035): UtilsService (port of directus/api/src/services/utils.ts, which Directus does not unit test). sort
+// Feature 010 (T035): UtilsService (port of directus/api/src/services/utils.ts, which DR does not unit test). sort
 // runs on an in-memory SQLite table; the permission checks, the caches and the emitter are mocked.
 import { ForbiddenError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';

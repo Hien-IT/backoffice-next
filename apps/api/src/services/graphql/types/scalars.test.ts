@@ -1,4 +1,4 @@
-// Backoffice (feature 011, T004): Directus has no tests for its GraphQL scalars; these pin the parse, serialize and
+// Backoffice (feature 011, T004): DR has no tests for its GraphQL scalars; these pin the parse, serialize and
 // error messages the parity suite compares (spec FR-052) and the type map of utils/get-graphql-type.ts.
 import { GraphQLBoolean, GraphQLFloat, GraphQLID, GraphQLInt, GraphQLList, GraphQLString, Kind } from 'graphql';
 import { GraphQLJSON } from 'graphql-compose';

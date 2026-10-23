@@ -142,7 +142,7 @@ function onSelection(selectedIds: (number | string)[] | null) {
 			<span class="sr-only">{{ t('loading') }}</span>
 		</div>
 
-		<!-- Not `list-item` (the Directus class): Tailwind reads it as `display: list-item` and drops the flex row. -->
+		<!-- Not `list-item` (the DR class): Tailwind reads it as `display: list-item` and drops the flex row. -->
 		<div
 			v-else
 			class="item-row relative flex min-h-11 w-full items-center gap-1 rounded-lg border py-1 ps-4 pe-2 text-sm shadow-theme-xs"

@@ -1,5 +1,5 @@
-// Spec 014 FR-092, US6-2 (T010): "Download Page as CSV" gives the same bytes as the Directus app for the same page.
-// The reference file was downloaded from the Directus app 11.17.4 (fixtures/interfaces/snapshot/expected.content.json
+// Spec 014 FR-092, US6-2 (T010): "Download Page as CSV" gives the same bytes as the DR app for the same page.
+// The reference file was downloaded from the DR app 11.17.4 (fixtures/interfaces/snapshot/expected.content.json
 // `pageCsv`): bo_content, columns title, status, date_published, sorted by `sort`, archived items filtered out.
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

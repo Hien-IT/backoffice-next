@@ -6,7 +6,7 @@ type Booleanish = boolean | 'true' | 'false';
 // every form of the app). Markup is the Input recipe on a frame around a bare <input>, as the input interface
 // (interfaces/input/InputField.vue): `small` is the h-9 field, `active` forces the focus look, `nonEditable` keeps a
 // disabled input from being greyed and hides the arrows and the warning. The attrs go to the <input>, `class` to the
-// root. The step arrows are mouse helpers (tabindex -1, as Directus); the keyboard has ArrowUp/ArrowDown of the
+// root. The step arrows are mouse helpers (tabindex -1, as DR); the keyboard has ArrowUp/ArrowDown of the
 // number input.
 import { keyMap, systemKeys } from '@directus/composables';
 import slugify from '@sindresorhus/slugify';
@@ -109,7 +109,7 @@ const isStepDownAllowed = computed(() => {
 
 const { isBadInput, setInvalidInput, inlineWarning } = useInlineWarning();
 
-// The autofocus attribute only works on page load (v-focus of Directus).
+// The autofocus attribute only works on page load (v-focus of DR).
 onMounted(() => {
 	if (props.autofocus) input.value?.focus();
 });
@@ -324,7 +324,7 @@ const FRAME_DISABLED =
 	'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]';
 const INPUT =
 	'h-full min-w-0 flex-1 bg-transparent outline-hidden placeholder:text-gray-500 disabled:cursor-not-allowed dark:placeholder:text-gray-400 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none';
-// Directus v-input.vue:561-567: a clickable input is not selectable.
+// DR v-input.vue:561-567: a clickable input is not selectable.
 const CLICKABLE_INPUT = 'pointer-events-none select-none selection:bg-transparent';
 const AFFIX = 'shrink-0 text-gray-500 dark:text-gray-400';
 const ARROW =

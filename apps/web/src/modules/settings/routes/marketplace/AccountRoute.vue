@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice (spec 020 US6, recipe Q-43): the banner (64 px avatar, name, verified chip, location and company) and
 // the metadata card (bio, npm, GitHub, website links) are inlined; the account's extensions use the Q-42 rows. The
-// list request is apiFetch (the SDK drops `meta`); its error, unhandled in Directus, opens the error dialog. The page
-// count keeps the Directus Math.round.
+// list request is apiFetch (the SDK drops `meta`); its error, unhandled in DR, opens the error dialog. The page
+// count keeps the DR Math.round.
 import { computed, ref, watchEffect } from 'vue';
 import { RouterLink } from 'vue-router';
 import { apiFetch, requestEndpoint, sdk } from '../../../../api/sdk.ts';

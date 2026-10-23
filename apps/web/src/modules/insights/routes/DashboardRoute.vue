@@ -3,7 +3,7 @@
 // Backoffice (spec 018 US2, US3, FR-020 to FR-029, recipe Q-34): VWorkspace is BoWorkspace (+ zoomToFit) with one
 // PanelTile per panel; header buttons are BoButton (zoom is a pressed toggle); VDialog is BoDialog with Keep Editing
 // first (D-76); InsightsNotFound is ContentNotFound of module `insights`. No breadcrumb (D-101). Panel components come
-// from the static registry (loaded by the store, FR-109). Save leaves edit mode even when it fails, as Directus (R-56).
+// from the static registry (loaded by the store, FR-109). Save leaves edit mode even when it fails, as DR (R-56).
 import { applyOptionsData } from '@directus/utils';
 import { assign } from 'lodash-es';
 import { computed, nextTick, ref, shallowRef, toRefs, unref, useTemplateRef, watch } from 'vue';
@@ -52,7 +52,7 @@ const zoomToFit = ref(false);
 
 const { updateAllowed } = useItemPermissions('directus_panels', props.primaryKey, false);
 
-// Backoffice (D-114, owner 2026-10-18): Directus takes `now` once per page, so auto refresh never moves the time series
+// Backoffice (D-114, owner 2026-10-18): DR takes `now` once per page, so auto refresh never moves the time series
 // window (R-50); here every refresh takes a new `now`.
 const now = ref(new Date());
 
@@ -207,7 +207,7 @@ const header = useTemplateRef<HTMLElement>('header');
 async function startEditing() {
 	editMode.value = true;
 	await nextTick();
-	// Save is disabled until something changes (as Directus), so "+" takes the focus then.
+	// Save is disabled until something changes (as DR), so "+" takes the focus then.
 	header.value?.querySelector<HTMLElement>('[data-action="save"]:not(:disabled), [data-action="create"]')?.focus();
 }
 

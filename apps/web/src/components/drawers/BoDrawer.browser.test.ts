@@ -9,7 +9,7 @@ import BoDrawer from './BoDrawer.vue';
 // Focus trap, Esc and focus return need real focus handling (chromium).
 enableAutoUnmount(afterEach);
 
-/** A page button opens drawer A; a button in A opens drawer B. Each drawer closes on cancel, like Directus parents. */
+/** A page button opens drawer A; a button in A opens drawer B. Each drawer closes on cancel, like DR parents. */
 const Harness = defineComponent({
 	props: { persistent: Boolean },
 	setup(props) {

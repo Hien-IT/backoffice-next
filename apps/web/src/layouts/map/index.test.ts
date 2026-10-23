@@ -1,4 +1,4 @@
-// Directus has no test for layouts/map/index.ts: the layout state (T061) over the fixture API, collection bo_content
+// DR has no test for layouts/map/index.ts: the layout state (T061) over the fixture API, collection bo_content
 // (30 items, `location` geometry.Point with the map interface, display template `{{ title }}`).
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

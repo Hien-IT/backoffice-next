@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-004, FR-061, layout-patterns §7): flat sub-menu rows like SettingsNavigation (016 Q-24), as
 // buttons since the filter is the page's `v-model:filter` (a local ref, not the URL, research T001 (e)); the active row
-// has `aria-current`. Same rows, icons and filters as Directus.
+// has `aria-current`. Same rows, icons and filters as DR.
 import type { Filter } from '@directus/types';
 import { computed } from 'vue';
 import BoIcon from '../../../components/BoIcon.vue';

@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/marketplace/routes/registry/components/inline-filter.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-42): the toolbar row (search BoInput with a leading icon, type and sort BoSelects with sr-only
-// labels, the item count at the end). The search debounce stays the Directus 300 ms. BoSelect values cannot be empty
-// (Reka), so "all types" is the `all` value here and null in the model, as in Directus.
+// labels, the item count at the end). The search debounce stays the DR 300 ms. BoSelect values cannot be empty
+// (Reka), so "all types" is the `all` value here and null in the model, as in DR.
 import { watchDebounced } from '@vueuse/core';
 import { computed, ref, toRefs, useId } from 'vue';
 import { useI18n } from 'vue-i18n';

@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/access.ts
-// Backoffice: one Nest handler per Directus route, in the same order; `router.use(useCollection(...))` is applied by
+// Backoffice: one Nest handler per DR route, in the same order; `router.use(useCollection(...))` is applied by
 // AppModule.configure, `validateBatch` runs through runMiddleware (research R3), `next()` to `respond` is respond().
 import { ErrorCode, isBackofficeError } from '@backoffice/errors';
 import type { PrimaryKey } from '@backoffice/types';

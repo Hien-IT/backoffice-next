@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/revisions-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: recipe Q-10 and Q-9; the section is open when `sidebarStore.activeAccordionItem` is `revisions`
-// (Directus also reads useGroupable). BoPagination is the compact one (3 pages, no first/last).
+// (DR also reads useGroupable). BoPagination is the compact one (3 pages, no first/last).
 import type { PrimaryKey } from '@directus/types';
 import { abbreviateNumber } from '@directus/utils';
 import { computed, onMounted, ref, toRefs, watch } from 'vue';

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): wraps BoCheckboxTree (extended with `search` and `showSelectionOnly`, which
 // replace its own search input and "show selected" switch). `group-toggle` gets a GroupableInstance-like
-// `{ value, active }` as the VList toggle of Directus. Not honoured: `nonEditable` (a style of the Directus checkboxes)
+// `{ value, active }` as the VList toggle of DR. Not honoured: `nonEditable` (a style of the DR checkboxes)
 // and the search highlight of the labels.
 import { ref } from 'vue';
 import BoCheckboxTree from '../../components/BoCheckboxTree.vue';

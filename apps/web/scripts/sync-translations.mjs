@@ -1,4 +1,4 @@
-// Copies the Directus 11.17.4 app strings into apps/web/src/lang as JSON and replaces the "Directus" brand with
+// Copies the DR 11.17.4 app strings into apps/web/src/lang as JSON and replaces the "DR" brand with
 // "Backoffice" (spec FR-062, FR-080, research R4). Run once with `nx run web:sync-translations`; the output is
 // committed and sync-translations.test.ts checks that a new run gives the same bytes.
 import { createHash } from 'node:crypto';
@@ -16,11 +16,11 @@ export const LOCALES = ['en-US', 'vi-VN'];
 
 // A value that names a technical identifier, a package, the directus.io site or the license is kept whole
 // (no partial replacement), and so are the theme names of the shared theme_light/theme_dark data. `\s` because the
-// source writes the license name with no-break spaces ("Directus\u00a0BSL\u00a01.1").
+// source writes the license name with no-break spaces ("DR\u00a0BSL\u00a01.1").
 export const KEEP = [/directus_/, /@directus/, /directus\.io/, /Directus\sBSL/];
 const KEEP_KEY = /^theme_directus_/;
 
-/** Replaces "Directus" in every string of `value`; pushes the dotted keys it keeps unchanged into `kept`. */
+/** Replaces "DR" in every string of `value`; pushes the dotted keys it keeps unchanged into `kept`. */
 export function rebrand(value, path, kept) {
 	if (typeof value === 'string') {
 		if (!value.includes('Directus')) return value;

@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-table/table-header.test.ts
-// Backoffice: BoTable is one component (header + rows); the Directus sort cases plus selection, resize, spacing,
+// Backoffice: BoTable is one component (header + rows); the DR sort cases plus selection, resize, spacing,
 // loading and empty states of the simple Table recipe, manual sort (v-table `manualSortKey`), `click:row` and the
 // `item-append` slot.
 import { mount } from '@vue/test-utils';

@@ -3,7 +3,7 @@
 import { useGroupableParent } from '@directus/composables';
 import { provide, ref, toRefs } from 'vue';
 
-// Backoffice (spec 020, data-model §7): same `v-tabs` group as Directus (single, mandatory) and `v-tabs-vertical`
+// Backoffice (spec 020, data-model §7): same `v-tabs` group as DR (single, mandatory) and `v-tabs-vertical`
 // provide. Rendered as a design-system tab list (BoTabs recipe) with roving focus: arrows (mirrored in rtl), Home and
 // End move to and select the next enabled tab. Vertical tabs are a column of tabs rather than a v-list (a tablist may
 // only hold tabs).

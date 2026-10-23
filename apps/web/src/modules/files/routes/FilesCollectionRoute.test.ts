@@ -1,4 +1,4 @@
-// The user stories 1 and 2 parts of directus/app/src/modules/files/routes/collection.vue (no Directus test): title and
+// The user stories 1 and 2 parts of directus/app/src/modules/files/routes/collection.vue (no DR test): title and
 // breadcrumb by folder or special view, the folder filter, folder cards in the layout `prepend` slot with
 // `extraSelection`, the buttons shown by the selection and permissions, batch move and delete, downloads, the drop
 // zone and the upload progress.
@@ -176,7 +176,7 @@ describe('selection and batch actions', () => {
 		(document.querySelector('[data-test="select-all"]') as HTMLElement).click();
 		await flushPromises();
 		expect(JSON.parse(layout().dataset['extra']!)).toEqual([folderId('bo-files-sub')]);
-		// With folders in the selection only delete stays (Directus).
+		// With folders in the selection only delete stays (DR).
 		expect(buttonNamed('Move to Folder')).toBeUndefined();
 		expect(buttonNamed('Delete')).toBeDefined();
 	});

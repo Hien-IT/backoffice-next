@@ -17,7 +17,7 @@ import BoChip from './BoChip.vue';
 import BoIcon from './BoIcon.vue';
 
 export type MultiSelectItem = { text: string; value: string | number; disabled?: boolean };
-/** A separator row (Directus v-select `{ divider: true }` choice). */
+/** A separator row (DR v-select `{ divider: true }` choice). */
 export type MultiSelectDivider = { divider: true };
 type Value = string | number;
 
@@ -41,17 +41,17 @@ const {
 } = defineProps<{
 	modelValue?: Value[] | null;
 	items: (MultiSelectItem | MultiSelectDivider)[];
-	/** From this many selected values the trigger shows a count instead of chips (Directus previewThreshold). */
+	/** From this many selected values the trigger shows a count instead of chips (DR previewThreshold). */
 	previewThreshold?: number;
-	/** Typed text that matches no item can be added as a value (Directus allowOther). */
+	/** Typed text that matches no item can be added as a value (DR allowOther). */
 	allowOther?: boolean;
-	/** A "Deselect All" row that clears the value to null (Directus allowNone / showDeselect). */
+	/** A "Deselect All" row that clears the value to null (DR allowNone / showDeselect). */
 	allowNone?: boolean;
 	loading?: boolean;
 	label?: string;
 	placeholder?: string;
 	disabled?: boolean;
-	/** Directus v-select nonEditable: the list still opens (even when disabled, once there is a value) to show the
+	/** DR v-select nonEditable: the list still opens (even when disabled, once there is a value) to show the
 	 * selected values, which cannot be changed. */
 	nonEditable?: boolean;
 	invalid?: boolean;
@@ -62,7 +62,7 @@ const {
 	 * hint and error ids. */
 	ariaLabelledby?: string | undefined;
 	ariaDescribedby?: string | undefined;
-	/** Menu at most 30vh high (Directus v-select without `menuFullHeight`); the room left otherwise. */
+	/** Menu at most 30vh high (DR v-select without `menuFullHeight`); the room left otherwise. */
 	shortMenu?: boolean;
 }>();
 
@@ -89,7 +89,7 @@ const search = ref('');
 const value = computed(() => modelValue ?? []);
 const options = computed(() => items.filter((item): item is MultiSelectItem => !('divider' in item)));
 
-// Directus v-select isDisabled.
+// DR v-select isDisabled.
 const isDisabled = computed(() => disabled && !(nonEditable && value.value.length > 0));
 
 // Selected values that are not items (added with allowOther) stay listed so they can be unchecked.
@@ -113,7 +113,7 @@ function textFor(val: Value) {
 	return options.value.find((item) => item.value === val)?.text ?? String(val);
 }
 
-// Directus v-select displayValue: "All Items" or the item count once previewThreshold is reached.
+// DR v-select displayValue: "All Items" or the item count once previewThreshold is reached.
 const countText = computed(() =>
 	value.value.length === options.value.length + otherValues.value.length
 		? t('all_items')

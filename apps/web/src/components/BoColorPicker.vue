@@ -62,39 +62,39 @@ const presetsWithDefaults = computed(
 		props.presets || [
 			{
 				name: t('colors.purple'),
-				color: '#6644FF', // raw-color-allowed: Directus data default (Q-C)
+				color: '#6644FF', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.blue'),
-				color: '#3399FF', // raw-color-allowed: Directus data default (Q-C)
+				color: '#3399FF', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.green'),
-				color: '#2ECDA7', // raw-color-allowed: Directus data default (Q-C)
+				color: '#2ECDA7', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.yellow'),
-				color: '#FFC23B', // raw-color-allowed: Directus data default (Q-C)
+				color: '#FFC23B', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.orange'),
-				color: '#FFA439', // raw-color-allowed: Directus data default (Q-C)
+				color: '#FFA439', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.red'),
-				color: '#E35169', // raw-color-allowed: Directus data default (Q-C)
+				color: '#E35169', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.black'),
-				color: '#18222F', // raw-color-allowed: Directus data default (Q-C)
+				color: '#18222F', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.gray'),
-				color: '#A2B5CD', // raw-color-allowed: Directus data default (Q-C)
+				color: '#A2B5CD', // raw-color-allowed: DR data default (Q-C)
 			},
 			{
 				name: t('colors.white'),
-				color: '#FFFFFF', // raw-color-allowed: Directus data default (Q-C)
+				color: '#FFFFFF', // raw-color-allowed: DR data default (Q-C)
 			},
 		],
 );
@@ -110,7 +110,7 @@ function isHex(hex: string): boolean {
 	return /^#(([a-f\d]{3,4}))$/i.test(hex) || /^#(([a-f\d]{2}){3,4})$/i.test(hex);
 }
 
-// Backoffice: the FIELD and POPOVER recipe backgrounds stand in for the Directus theme variables
+// Backoffice: the FIELD and POPOVER recipe backgrounds stand in for the DR theme variables
 // `--theme--form--field--input--background` and `--theme--popover--menu--background`.
 const isDark = () => document.documentElement.classList.contains('dark');
 const fieldBackground = () => cssVar(isDark() ? '--color-gray-900' : '--color-white');
@@ -150,7 +150,7 @@ const lowContrast = computed(() => {
 const getPresetContrast = (hex: string) => {
 	if (hex.startsWith('--')) hex = cssVar(hex);
 
-	// Backoffice: an unreadable color counts as low contrast (Directus throws while rendering).
+	// Backoffice: an unreadable color counts as low contrast (DR throws while rendering).
 	try {
 		const color = Color(hex);
 		return color.contrast(Color(popoverBackground())) < 1.1;
@@ -347,7 +347,7 @@ function useColor() {
 }
 
 // Backoffice: one slider and number input per channel (ColorPicker recipe); the labels are the channel letters of the
-// color type, as Directus labels the types themselves (RGB, HSL).
+// color type, as DR labels the types themselves (RGB, HSL).
 const channels = computed(() => {
 	const isRgb = colorType.value === 'RGB' || colorType.value === 'RGBA';
 	const values = isRgb ? rgb.value : hsl.value;

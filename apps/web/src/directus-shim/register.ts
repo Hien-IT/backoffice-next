@@ -1,6 +1,6 @@
 // Ported from directus/app/src/components/register.ts; Ported from directus/app/src/views/register.ts
-// Backoffice (spec 020, FR-073..FR-082, data-model §7): the global components, views and directives the Directus app
-// registers, so app extensions built for Directus 11.17.4 render inside the new app. Each name maps to a shim under
+// Backoffice (spec 020, FR-073..FR-082, data-model §7): the global components, views and directives the DR app
+// registers, so app extensions built for DR 11.17.4 render inside the new app. Each name maps to a shim under
 // ./components or ./views (on Bo* and the design-system) or to the port that already has the same contract. Imported
 // only when the extension bundle holds app extensions (main.ts), so the main bundle does not grow.
 import type { App, Component } from 'vue';
@@ -26,7 +26,7 @@ const byFileName = (modules: Record<string, Component>) =>
 		Object.entries(modules).map(([path, component]) => [path.split('/').pop()!.slice(0, -4), component]),
 	);
 
-/** Directus name → component: the shims (file name = registered name) and the ports with the same contract. */
+/** DR name → component: the shims (file name = registered name) and the ports with the same contract. */
 export const SHIM_COMPONENTS: Record<string, Component> = {
 	DrawerBatch,
 	DrawerFiles,

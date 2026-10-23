@@ -521,7 +521,7 @@ export class RelationsService {
 	}
 
 	/**
-	 * Combine raw schema foreign key information with Directus relations meta rows to form final
+	 * Combine raw schema foreign key information with DR relations meta rows to form final
 	 * Relation objects
 	 */
 	private stitchRelations(metaRows: RelationMeta[], schemaRows: ForeignKey[]) {

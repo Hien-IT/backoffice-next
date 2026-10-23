@@ -6,7 +6,7 @@
 // image and media drawers are BoDrawers (media: BoTabs instead of the drawer sidebar tabs), the image and media
 // uploads a BoUpload with its files drawer (DrawerFiles). Not ported: v-prevent-focusout and the focus trap pause
 // (Reka dialogs are portals that keep the focus), useFocusin and the `.focus` class (the frame uses focus-within).
-// tinymce.addI18n runs before the editor starts (Directus: onMounted, after the child editor began its init) so
+// tinymce.addI18n runs before the editor starts (DR: onMounted, after the child editor began its init) so
 // TinyMCE never requests a language file. The editor iframe is labelled by the form label (FORM_FIELD_A11Y, FR-094).
 // shortcut: TinyMCE's own menus and dialogs (style formats, table) open in a sink on <body>; inside a drawer, Reka's
 // modal focus scope and outside-click dismissal do not know that sink, so use them outside drawers until BoDrawer
@@ -437,7 +437,7 @@ tinymce.addI18n(i18n.global.locale.value, {
 const upload = ref<InstanceType<typeof BoUpload>>();
 const libraryOpen = ref(false);
 
-// Directus v-tabs keeps an array model; BoTabs takes the first value.
+// DR v-tabs keeps an array model; BoTabs takes the first value.
 const mediaTab = computed({
 	get: () => openMediaTab.value[0] ?? 'video',
 	set: (value: string) => (openMediaTab.value = [value]),

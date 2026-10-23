@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: one flat Reka Tree (roving focus, expand/collapse, role=tree) instead of nested VList groups; the
 // per-node logic of VCheckboxTreeCheckbox.vue lives in checkbox-tree/value-combining.ts. The search input (more than
-// 10 choices, 250 ms debounce) and the "show selected" toggle come from Directus select-multiple-checkbox-tree.vue, as
+// 10 choices, 250 ms debounce) and the "show selected" toggle come from DR select-multiple-checkbox-tree.vue, as
 // the Tier 3 CheckboxTree recipe puts them in the component. `openGroups` (016, the permission fields tab): a new
 // array opens exactly those groups; `null` leaves the open state to the user. Not ported: nonEditable and the search
 // highlight (v-highlight).
@@ -26,7 +26,7 @@ type TreeNode = {
 	disabled: boolean;
 	/** Rendered as a group (has visible children); a group whose children are all filtered out renders as a leaf. */
 	group: boolean;
-	/** The `checked` prop Directus passes down (branch combining). */
+	/** The `checked` prop DR passes down (branch combining). */
 	checked: boolean | null;
 	/** Every child, visible or not: the value logic uses them all. */
 	allChildren: Record<string, any>[];
@@ -70,12 +70,12 @@ const {
 	hint?: string;
 	error?: string;
 	id?: string;
-	/** Directus v-checkbox-tree `openGroups`: the values of the groups to open (expand / collapse all). */
+	/** DR v-checkbox-tree `openGroups`: the values of the groups to open (expand / collapse all). */
 	openGroups?: string[] | null;
-	/** Directus v-checkbox-tree `search` (spec 020): the caller's search text replaces the search input (`null` = no
+	/** DR v-checkbox-tree `search` (spec 020): the caller's search text replaces the search input (`null` = no
 	 * search); undefined keeps the input of select-multiple-checkbox-tree. */
 	search?: string | null | undefined;
-	/** Directus v-checkbox-tree `showSelectionOnly` (spec 020): set by the caller, the "show selected" switch is hidden;
+	/** DR v-checkbox-tree `showSelectionOnly` (spec 020): set by the caller, the "show selected" switch is hidden;
 	 * null keeps the switch. */
 	showSelectionOnly?: boolean | null;
 	/** select-multiple-checkbox-tree: the box scrolls past 28.125rem with a sticky search and footer. */
@@ -84,7 +84,7 @@ const {
 
 const emit = defineEmits<{
 	'update:modelValue': [value: Value[]];
-	/** A group was opened or closed (Directus v-checkbox-tree `group-toggle`, used to load relational fields). */
+	/** A group was opened or closed (DR v-checkbox-tree `group-toggle`, used to load relational fields). */
 	'group-toggle': [event: { value: string; open: boolean }];
 }>();
 
@@ -189,7 +189,7 @@ function nodeLogic(node: TreeNode) {
 	});
 }
 
-// v-checkbox isChecked / indeterminate as each Directus node passes them.
+// v-checkbox isChecked / indeterminate as each DR node passes them.
 function checkState(node: TreeNode): 'true' | 'false' | 'mixed' {
 	const logic = nodeLogic(node);
 	const checked = node.group ? logic.groupCheckedStateOverride() : node.checked;

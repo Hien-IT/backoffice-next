@@ -1,6 +1,6 @@
 // Variable panels of spec 018 (FR-051, FR-052, FR-055, FR-056): variable renders the chosen interface bound to the
 // insights variable; relational-variable shows the selected items, picks through the collection drawer and keeps
-// at most `limit` keys (Directus panel-variable.vue, panel-relational-variable.vue, use-display-items.ts).
+// at most `limit` keys (DR panel-variable.vue, panel-relational-variable.vue, use-display-items.ts).
 import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

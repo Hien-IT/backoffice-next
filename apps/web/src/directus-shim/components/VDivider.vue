@@ -3,7 +3,7 @@
 import BoDivider from '../../components/BoDivider.vue';
 
 // Backoffice (spec 020, data-model §7): wraps BoDivider (extended with `large` and the `icon` slot); the default slot
-// sits in `.type-text` like Directus, which here inherits the BoDivider title font and color.
+// sits in `.type-text` like DR, which here inherits the BoDivider title font and color.
 withDefaults(
 	defineProps<{ vertical?: boolean | undefined; inlineTitle?: boolean | undefined; large?: boolean | undefined }>(),
 	{

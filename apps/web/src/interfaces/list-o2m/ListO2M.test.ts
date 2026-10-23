@@ -479,7 +479,7 @@ describe('list-o2m (fixture bo_rel.o2m_table)', () => {
 		['bo-viewer', false],
 	])('permissions (FR-041) for %s: remove with deselect action delete needs delete', async (user, allowed) => {
 		await setup(user);
-		// bo-editor cannot read `status`: Directus requests it too and gets a 403, so only `name` here.
+		// bo-editor cannot read `status`: DR requests it too and gets a 403, so only `name` here.
 		const wrapper = await mountList('o2m_table', { fields: ['name'] });
 
 		expect(wrapper.find('tbody').text()).toContain('Target four');

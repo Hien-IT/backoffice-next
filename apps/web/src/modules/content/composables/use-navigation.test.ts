@@ -21,7 +21,7 @@ function bookmark(id: number, collectionName: string, name: string): Preset {
 	return { id, collection: collectionName, bookmark: name, user: null, role: null } as Preset;
 }
 
-// Module-level refs (shared like Directus): every test gets a fresh module and store.
+// Module-level refs (shared like DR): every test gets a fresh module and store.
 async function load() {
 	vi.resetModules();
 	const { useCollectionsStore } = await import('../../../stores/collections.ts');

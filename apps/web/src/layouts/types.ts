@@ -1,5 +1,5 @@
 // Ported from directus/packages/extensions/src/shared/utils/define-extension.ts
-// Backoffice: the layout types of @directus/types and `defineLayout` (an identity helper, as Directus); the five internal
+// Backoffice: the layout types of @directus/types and `defineLayout` (an identity helper, as DR); the five internal
 // layouts only, no layout extensions (D-41, spec 014 FR-020).
 import type { LayoutConfig, LayoutProps, ShowSelect } from '@directus/types';
 

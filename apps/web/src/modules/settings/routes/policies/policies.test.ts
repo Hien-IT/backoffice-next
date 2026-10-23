@@ -1,4 +1,4 @@
-// Directus has no test for the policies routes beyond use-duplicate (spec 016 T073, US4-4, US4-5, FR-055): the list
+// DR has no test for the policies routes beyond use-duplicate (spec 016 T073, US4-4, US4-5, FR-055): the list
 // request with the two counting `deep`, the duplicate dialog and its three requests, the create dialog with the app
 // minimal permissions (`system: true` on each row), the policy page (one `PATCH` with the nested `permissions`), the
 // edits guard with Keep Editing first and the Ctrl/Cmd+S and Ctrl/Cmd+Shift+S shortcuts. The directus_policies fields

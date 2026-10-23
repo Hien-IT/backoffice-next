@@ -1,6 +1,6 @@
 // Ported from directus/api/src/controllers/files.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R4 of spec 007). multipartHandler is the
-// Directus middleware unchanged, run through runMiddleware: the Nest app has no body parser of its own and jsonBody
+// Backoffice: one Nest handler per DR route, in the same order (research R4 of spec 007). multipartHandler is the
+// DR middleware unchanged, run through runMiddleware: the Nest app has no body parser of its own and jsonBody
 // only reads application/json, so busboy still gets the raw multipart stream. useCollection('directus_files') is
 // applied in app.module.ts; `next()` to `respond` is respond(); the env is read on use instead of at import (001).
 import path from 'path';

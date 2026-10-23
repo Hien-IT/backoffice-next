@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/permissions.ts
-// Backoffice: one Nest handler per Directus route, in the same order; `router.use(useCollection(...))` is applied by
+// Backoffice: one Nest handler per DR route, in the same order; `router.use(useCollection(...))` is applied by
 // AppModule.configure, `validateBatch` runs through runMiddleware (research R3), `next()` to `respond` is respond().
 import { ErrorCode, ForbiddenError, isBackofficeError } from '@backoffice/errors';
 import type { PrimaryKey } from '@backoffice/types';
@@ -221,7 +221,7 @@ export class PermissionsController {
 		return respond(req, res);
 	}
 
-	// Directus: '/me/:collection/:pk?' (Express 4 optional parameter).
+	// DR: '/me/:collection/:pk?' (Express 4 optional parameter).
 	@Get(['me/:collection', 'me/:collection/:pk'])
 	async readItemPermissions(@Req() req: Request, @Res() res: Response): Promise<void> {
 		const { collection, pk } = req.params as { collection: string; pk?: string };

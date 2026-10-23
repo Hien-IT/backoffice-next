@@ -93,7 +93,7 @@ const loadUsers = throttle(async (name: string) => {
 
 		if (search === lastSearch) searchResult.value = users;
 	} catch {
-		// Directus returns the error: no suggestions.
+		// DR returns the error: no suggestions.
 	}
 }, 200);
 
@@ -121,7 +121,7 @@ function insertUser(user: UserPreview) {
 
 	while (end < text.length && !/\s/.test(text.charAt(end))) end++;
 
-	// Directus: the mention always starts with a space, which the display regex (`\s@<uuid>`) needs.
+	// DR: the mention always starts with a space, which the display regex (`\s@<uuid>`) needs.
 	const before = text.slice(0, triggerPosition).replace(/ $/, '') + ' @' + user.id;
 	newCommentContent.value = before + text.slice(end);
 	showMentionDropDown.value = false;

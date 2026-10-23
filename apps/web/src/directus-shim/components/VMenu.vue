@@ -2,12 +2,12 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7 #38, Q-44): v-menu on BoPopover (Reka Popover, floating-ui) instead of Popper and
 // focus-trap. The popper `placement` maps to side/align, `offsetY`/`offsetX` to the side/align offsets; `attached`
-// draws the menu under the activator at its width. As Directus the activator slot opens the menu itself (toggle,
+// draws the menu under the activator at its width. As DR the activator slot opens the menu itself (toggle,
 // `trigger` click or hover) and the focus stays where it is on open; Tab from the activator moves into the menu. Esc
 // and an outside click close it (not a click on the activator, nor any click with `closeOnClick` false) and the focus
 // returns to the element focused before opening (unless `noFocusReturn`). Teleported to `body` instead of
 // #menu-outlet (BoPopover). Not honoured: `arrowPlacement` (the arrow points at the middle of the activator) and
-// `trigger: 'keyDown'` (no handler in Directus either).
+// `trigger: 'keyDown'` (no handler in DR either).
 import { debounce } from 'lodash-es';
 import { nanoid } from 'nanoid/non-secure';
 import { computed, ref, useTemplateRef, watch } from 'vue';
@@ -90,7 +90,7 @@ const isActive = computed<boolean>({
 	},
 });
 
-// Directus: the first element of the activator slot, else the point of the event given to activate().
+// DR: the first element of the activator slot, else the point of the event given to activate().
 const reference = computed(() => {
 	void isActive.value;
 	return (activator.value?.children[0] as HTMLElement | undefined) ?? virtualReference.value;

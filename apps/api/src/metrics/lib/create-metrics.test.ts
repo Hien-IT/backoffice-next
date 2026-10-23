@@ -1,4 +1,4 @@
-// Metric names, help texts and buckets of contracts/observability.md (identical to Directus 11.17.4).
+// Metric names, help texts and buckets of contracts/observability.md (identical to DR 11.17.4).
 import { useEnv } from '@backoffice/env';
 import { register } from 'prom-client';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

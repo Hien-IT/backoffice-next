@@ -1,6 +1,6 @@
 // T067 (contracts/tests.md §5, SC-002): BoForm on bo_rel, bo_tree and bo_translations of the fixture snapshot with the
 // real relational interfaces and the real drawers (DrawerCollection, DrawerItem): US3 scenarios 1-5 and the edit
-// scenarios of fixtures/interfaces/snapshot/expected.<id>.json (the emitted field value equals the Directus value),
+// scenarios of fixtures/interfaces/snapshot/expected.<id>.json (the emitted field value equals the DR value),
 // the permission table of FR-041 for the three fixture users, and a read-only form that still opens links.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, type Pinia, setActivePinia } from 'pinia';

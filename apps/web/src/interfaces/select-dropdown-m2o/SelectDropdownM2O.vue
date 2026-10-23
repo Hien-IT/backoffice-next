@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/select-dropdown-m2o/select-dropdown-m2o.vue -->
 <script setup lang="ts">
 // Backoffice: v-list-item is a field-styled row whose main control is a native button stretched over the row (the
-// whole row stays clickable as in Directus, actions are sibling buttons instead of nested ones); v-remove is BoRemove;
+// whole row stays clickable as in DR, actions are sibling buttons instead of nested ones); v-remove is BoRemove;
 // tooltips are BoTooltip; v-prevent-focusout is not needed (drawers are portals). A related collection missing from the collections store (no read permission)
 // shows `relationship_not_setup` instead of throwing.
 import type { Filter } from '@directus/types';
@@ -214,7 +214,7 @@ const ICON_BTN =
 			<span class="sr-only">{{ t('loading') }}</span>
 		</div>
 
-		<!-- Not `list-item` (the Directus class): Tailwind reads it as `display: list-item` and drops the flex row. -->
+		<!-- Not `list-item` (the DR class): Tailwind reads it as `display: list-item` and drops the flex row. -->
 		<div
 			v-else
 			class="item-row relative flex min-h-11 w-full items-center gap-1 rounded-lg border py-1 ps-4 pe-2 text-sm shadow-theme-xs"
@@ -306,7 +306,7 @@ const ICON_BTN =
 						</button>
 					</BoTooltip>
 
-					<!-- The row button opens the selection; the chevron only shows it (Directus `expand`). -->
+					<!-- The row button opens the selection; the chevron only shows it (DR `expand`). -->
 					<BoIcon
 						v-if="enableSelect"
 						class="expand pointer-events-none px-1.5 text-gray-500 dark:text-gray-400"

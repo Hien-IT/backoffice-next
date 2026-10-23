@@ -1,13 +1,13 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar.vue -->
 <script setup lang="ts">
-// Backoffice: the TailAdmin sidebar (design-system layout-patterns §2, D-52) holding the Directus module bar and the
+// Backoffice: the TailAdmin sidebar (design-system layout-patterns §2, D-52) holding the DR module bar and the
 // module navigation in one column, in the manner of the Arc browser sidebar and the owner's mock-up (2026-10-22, D-157):
 // a rounded card on the project color (flat; in dark mode the project color mixed into gray-900) with the logo, the
 // project name and descriptor and the
 // modules as a grid of icon-and-name tiles (ModuleTabs; the links and the D-144 extension modules in one menu tile,
 // D-162), then the open module's name with the actions it teleports to
 // `module-actions-<id>` (the Content hidden-collections toggle) and its `navigation` slot on white, then the notifications bell and the user menu at the
-// bottom (Directus module-bar-avatar.vue). From `xl` it is fixed inline, 290 px, and the header toggle hides it
+// bottom (DR module-bar-avatar.vue). From `xl` it is fixed inline, 290 px, and the header toggle hides it
 // (saved); below `xl` it is a drawer (Reka Dialog: backdrop, focus trap, Esc, focus back to the opener).
 import { createReusableTemplate } from '@vueuse/core';
 import { DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';

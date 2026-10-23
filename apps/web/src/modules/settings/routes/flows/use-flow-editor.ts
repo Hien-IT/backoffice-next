@@ -3,7 +3,7 @@
 // Backoffice (spec 017 FR-020 to FR-031, research R4): the logic of the flow page as a composable, so the staging and the
 // bodies of Save can be tested without the canvas (SC-006). Navigation goes through the `router` given by the page,
 // `api` through the SDK, `unexpectedError` is showUnexpectedError (D-66). One change of result-equivalent behaviour:
-// `getTrees` stops at an id it already went through, logs the error and saves nothing (Directus throws a RangeError on
+// `getTrees` stops at an id it already went through, logs the error and saves nothing (DR throws a RangeError on
 // cyclic data before its `try`, with the same visible result; T002).
 import type { FlowRaw, OperationRaw } from '@directus/types';
 import { cloneDeep, isEmpty, merge, omit } from 'lodash-es';
@@ -17,7 +17,7 @@ import { Vector2 } from '../../../../utils/vector2.ts';
 import { ATTACHMENT_OFFSET, GRID_SIZE, PANEL_HEIGHT, PANEL_WIDTH } from './constants.ts';
 import type { ArrowInfo, ParentInfo, Target } from './types.ts';
 
-// Backoffice: optional fields may hold undefined (exactOptionalPropertyTypes), as the staged edits of Directus do.
+// Backoffice: optional fields may hold undefined (exactOptionalPropertyTypes), as the staged edits of DR do.
 export type StagedPanel = { [K in keyof OperationRaw]?: OperationRaw[K] | undefined } & Record<string, any>;
 
 type Tree = {
@@ -347,7 +347,7 @@ export function useFlowEditor({ primaryKey, operationId, router, operationName, 
 		try {
 			requests = saveRequests();
 		} catch (error) {
-			// Backoffice: Directus throws here (outside its try): nothing is sent, no dialog, the page stays in edit mode.
+			// Backoffice: DR throws here (outside its try): nothing is sent, no dialog, the page stays in edit mode.
 			// eslint-disable-next-line no-console
 			console.error(error);
 			return;

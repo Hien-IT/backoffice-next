@@ -1,7 +1,7 @@
 // Ported from directus/api/src/middleware/cache.ts
 // Backoffice: the telemetry counter of cached requests (useBufferedCounter, TELEMETRY) is left out with telemetry
 // (D-17). getCache() still runs first on every request, which creates the system, deployment, schema and lock caches
-// when Directus does (feature 002, D-20).
+// when DR does (feature 002, D-20).
 import { useEnv } from '@backoffice/env';
 import type { RequestHandler } from 'express';
 import { getCache, getCacheValue } from '../cache.js';

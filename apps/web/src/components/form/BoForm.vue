@@ -4,8 +4,8 @@
 // use-ai-tools and the collab context are removed (D-54); `inline` only changes the no-fields info (spec 020). Comparison mode (spec 014 FR-072,
 // lifts D-55): a nested group form reads the parent's `comparison` through FORM_COMPARISON (group interfaces do not
 // pass it on), and a differing field gets the recipe Q-10 highlight instead of the field-indicator bar. Group interfaces come from the registry: a group field whose interface is null or
-// not registered is not rendered, nor its children, without a warning (measured on Directus, spec Edge Cases, T004).
-// The system divider is drawn here (Directus: presentation-divider interface without title). `hasEdits` is exposed
+// not registered is not rendered, nor its children, without a warning (measured on DR, spec Edge Cases, T004).
+// The system divider is drawn here (DR: presentation-divider interface without title). `hasEdits` is exposed
 // for the unsaved-changes guard (FR-084).
 import type { ContentVersion, Field, ValidationError } from '@directus/types';
 import { createReusableTemplate, useElementSize } from '@vueuse/core';
@@ -478,7 +478,7 @@ function isGroupFieldVisible(field: TFormField, groupFields: Field[]): boolean {
 	return isFieldVisible(field);
 }
 
-// Backoffice: recipe Q-10 highlight of a differing field (Directus: `indicator-active`; groups are `hidden`).
+// Backoffice: recipe Q-10 highlight of a differing field (DR: `indicator-active`; groups are `hidden`).
 const COMPARISON_DIFF =
 	'rounded-sm bg-warning-50 ring-8 ring-warning-50 dark:bg-warning-500/15 dark:ring-warning-500/15';
 

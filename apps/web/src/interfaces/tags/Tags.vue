@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice: TagsInput recipe (component-specs Tier 3). BoTagsInput (Reka) holds the input and the custom tags
 // (Enter, comma, blur, paste add; Backspace removes); the presets are toggle chips below it, so a selected preset is
-// shown once (Directus shows presets first, then the custom tags after a chevron). The icons sit over the input.
-// The processing rules (processArray) and the emitted values are those of Directus.
+// shown once (DR shows presets first, then the custom tags after a chevron). The icons sit over the input.
+// The processing rules (processArray) and the emitted values are those of DR.
 import formatTitle from '@directus/format-title';
 import { computed, inject, ref, watch } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
@@ -105,8 +105,8 @@ function processArray(array: string[]): string[] {
 	return array;
 }
 
-// Backoffice: replaces the Directus keydown/blur handler; BoTagsInput reports the new custom list (one tag added on
-// Enter, comma, blur or paste, or one removed), turned back into the Directus addTag/removeTag calls.
+// Backoffice: replaces the DR keydown/blur handler; BoTagsInput reports the new custom list (one tag added on
+// Enter, comma, blur or paste, or one removed), turned back into the DR addTag/removeTag calls.
 function onCustomUpdate(next: string[]) {
 	if (isVariableMode.value) return;
 

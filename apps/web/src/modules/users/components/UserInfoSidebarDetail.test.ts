@@ -1,4 +1,4 @@
-// Directus has no test for user-info-sidebar-detail.vue: the key with its copy button, the last page link, the last
+// DR has no test for user-info-sidebar-detail.vue: the key with its copy button, the last page link, the last
 // access date; nothing for a new user (FR-074).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, expect, test } from 'vitest';

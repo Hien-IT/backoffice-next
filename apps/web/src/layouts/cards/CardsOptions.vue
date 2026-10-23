@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: BoSelect with its label instead of `.type-label` + v-select (`show-deselect` = a "Deselect" item while a
 // source is set); v-collection-field-template is a BoInput with a field picker button (FieldList in a popover, as the
-// tabular "+" button) that appends `{{ field }}` to the template (Directus inserts at the caret of its chip editor);
+// tabular "+" button) that appends `{{ field }}` to the template (DR inserts at the caret of its chip editor);
 // InterfaceSelectIcon is its BoIconPicker; v-detail is BoDetail; `useSync` = emit of the update.
 import type { Field } from '@directus/types';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';

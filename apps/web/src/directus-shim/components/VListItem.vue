@@ -5,7 +5,7 @@ import { computed, inject, type FunctionalComponent } from 'vue';
 import { RouterLink, type RouteLocationRaw } from 'vue-router';
 import { FOCUS, LIST, useRouteActive } from './list.ts';
 
-// Backoffice (spec 020, data-model §7): RouterLink / `a` / `button` / `li` like Directus, joins the `v-list` group.
+// Backoffice (spec 020, data-model §7): RouterLink / `a` / `button` / `li` like DR, joins the `v-list` group.
 // Inside a list a link or button gets an `li` around it, outside a list the plain item is a `div` (a11y); attrs go
 // to the item element. Styled with the design-system menu item recipe.
 defineOptions({ inheritAttrs: false });
@@ -28,7 +28,7 @@ const props = withDefaults(
 		value?: number | string | undefined;
 		nav?: boolean | undefined;
 		scope?: string | undefined;
-		// eslint-disable-next-line vue/require-default-prop -- no default in Directus (Boolean casting gives false)
+		// eslint-disable-next-line vue/require-default-prop -- no default in DR (Boolean casting gives false)
 		activator?: boolean | undefined;
 	}>(),
 	{
@@ -95,7 +95,7 @@ function onClick(event: MouseEvent) {
 	emit('click', event);
 }
 
-// Directus v-list-item.vue:258-260 keeps a disabled item hoverable (cursor only); the link must not navigate either.
+// DR v-list-item.vue:258-260 keeps a disabled item hoverable (cursor only); the link must not navigate either.
 function onClickCapture(event: MouseEvent) {
 	if (props.disabled === true) event.preventDefault();
 }

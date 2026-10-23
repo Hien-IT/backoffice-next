@@ -1,4 +1,4 @@
-// SQL of the dialect helpers (tasks T010, T011 of spec 004). The helpers are ported verbatim from Directus 11.17.4, which
+// SQL of the dialect helpers (tasks T010, T011 of spec 004). The helpers are ported verbatim from DR 11.17.4, which
 // has tests for only a few of them; this file records the SQL every dialect produces so a later change cannot alter it
 // unnoticed. Knex compiles with the query compiler of each client through knex-mock-client (no database).
 import { SchemaBuilder } from '@backoffice/schema-builder';

@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/views/private/components/notifications-drawer.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-071, FR-072, FR-074, recipe Q-39): one row of the notifications list (the VListItem of
-// notifications-drawer.vue:356-394; Directus notification-item.vue is the snackbar, not ported, FR-080). Differences:
-// the subject and time toggle the message, the checkbox does not (Directus lets the checkbox click bubble to the
+// notifications-drawer.vue:356-394; DR notification-item.vue is the snackbar, not ported, FR-080). Differences:
+// the subject and time toggle the message, the checkbox does not (DR lets the checkbox click bubble to the
 // header and toggle it too); expand is a button with `aria-expanded`; the search highlight is v-highlight folded in
 // (diacritics removed per character with String.normalize instead of the `diacritics` package); the relative time is
 // computed when the row renders (UseDatetime refreshes it every minute; the drawer is not refreshed while open, FR-071).

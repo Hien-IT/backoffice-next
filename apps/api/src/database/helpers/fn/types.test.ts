@@ -53,7 +53,7 @@ class TestFnHelper extends FnHelper {
 }
 
 describe('FnHelper', () => {
-	// Backoffice: the Directus test types `db` as a mocked knex function and its schema with a `group` key that
+	// Backoffice: the DR test types `db` as a mocked knex function and its schema with a `group` key that
 	// CollectionOverview does not have; strict typecheck of this repo needs a plain Knex instance and no `group`.
 	let db: Knex;
 	let tracker: Tracker;

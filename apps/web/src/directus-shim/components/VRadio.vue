@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-radio.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): one radio (BoRadio is a whole group), drawn with the Radio recipe item; custom
-// `iconOn`/`iconOff` draw the icon only (Radio recipe). Directus renders a button with aria-pressed; here the button has
+// `iconOn`/`iconOff` draw the icon only (Radio recipe). DR renders a button with aria-pressed; here the button has
 // role=radio + aria-checked, its text is the label. `block` is the bordered row of the input height; `nonEditable`
 // keeps a disabled radio from being greyed.
 import { computed } from 'vue';

@@ -1,4 +1,4 @@
-// Feature 016 (T052, D-57): the system interfaces of the field drawer and the list options, as Directus:
+// Feature 016 (T052, D-57): the system interfaces of the field drawer and the list options, as DR:
 // system-interface / system-display (choices by the type of another form value, reset when it changes),
 // system-interface-options / system-display-options (the options form of the chosen one, batch mode for conditions,
 // the context for function options), system-fields (D-96 menu moves, remove, add), system-inline-fields (flat rows

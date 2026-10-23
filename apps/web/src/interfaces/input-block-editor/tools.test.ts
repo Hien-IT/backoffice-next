@@ -1,4 +1,4 @@
-// Directus has no test for tools.ts: the selection, the files permission rule and the alignment tunes (FR-062).
+// DR has no test for tools.ts: the selection, the files permission rule and the alignment tunes (FR-062).
 import ImageTool from '@editorjs/image';
 import { describe, expect, test } from 'vitest';
 import { Alignment } from './alignment.ts';

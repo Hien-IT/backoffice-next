@@ -1,4 +1,4 @@
-// Feature 008 (T018): the /activity controller (port of directus/api/src/controllers/activity.ts, which Directus does
+// Feature 008 (T018): the /activity controller (port of directus/api/src/controllers/activity.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with ActivityService mocked.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';

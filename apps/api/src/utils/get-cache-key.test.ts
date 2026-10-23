@@ -1,5 +1,5 @@
 // Ported from directus/api/src/utils/get-cache-key.test.ts
-// The version is mocked to 1.2.3 as in Directus, so the expected keys are Directus' own: same hash, same key (FR-010).
+// The version is mocked to 1.2.3 as in DR, so the expected keys are DR' own: same hash, same key (FR-010).
 import type { Request } from 'express';
 import type { Knex } from 'knex';
 import type { MockInstance } from 'vitest';

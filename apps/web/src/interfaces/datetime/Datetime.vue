@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/datetime/datetime.vue; Ported from directus/app/src/components/use-datetime.vue (formatting) -->
 <script setup lang="ts">
 // Backoffice: DatePicker recipe (component-specs Tier 3): a trigger button showing the formatted value opens BoDatePicker
-// in a Reka popover (Directus v-menu + v-list-item); the formatting of directus/app/src/components/use-datetime.vue is
+// in a Reka popover (DR v-menu + v-list-item); the formatting of directus/app/src/components/use-datetime.vue is
 // inlined below. The trigger is named by the field label and the value (FORM_FIELD_A11Y, FR-094).
 import { isValid, parseISO } from 'date-fns';
 import { fromZonedTime, toZonedTime } from 'date-fns-tz';

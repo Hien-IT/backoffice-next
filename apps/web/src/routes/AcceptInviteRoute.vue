@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/routes/accept-invite.vue -->
 <script setup lang="ts">
-// Backoffice: fields have visible labels (FR-067) and the password autocomplete is new-password (Directus: password);
+// Backoffice: fields have visible labels (FR-067) and the password autocomplete is new-password (DR: password);
 // a token that is not a JWT leaves the email empty instead of throwing while rendering, the form still posts and the
 // API error shows with a line telling to ask an administrator for a new link, as the system sends no email (FR-052,
 // D-42); requests go through the SDK.

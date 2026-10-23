@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Detail panel sections (Q-9)" and the L-4 section block (layout-patterns §7). Each section is its
-// own single, collapsible Reka AccordionRoot bound to `sidebarStore.activeAccordionItem` (Directus: one AccordionRoot
+// own single, collapsible Reka AccordionRoot bound to `sidebarStore.activeAccordionItem` (DR: one AccordionRoot
 // in private-view-sidebar.vue, which DetailPanel does not have), so one section is open at a time through the store.
 // No collapsed-rail tooltip: a collapsed panel is hidden (D-45). The badge is a light Badge (BoChip) or a dot.
 import { AccordionContent, AccordionHeader, AccordionItem, AccordionRoot, AccordionTrigger } from 'reka-ui';

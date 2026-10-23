@@ -1,5 +1,5 @@
 // Ported from directus/app/src/interfaces/input-block-editor/input-block-editor.test.ts
-// Backoffice: real pinia stores (collections set directly) instead of store mocks; the two Directus tests are kept
+// Backoffice: real pinia stores (collections set directly) instead of store mocks; the two DR tests are kept
 // as they are. Added (contracts/tests.md §5): config, fixture value, defaults, every FR-062 option, emitted shape,
 // disabled, the files drawer and the label linking. The real Editor.js runs in InputBlockEditor.browser.test.ts.
 import EditorJS from '@editorjs/editorjs';

@@ -4,7 +4,7 @@
 // BoForm on use-item of 014; no collaboration (D-68), so no collab header, collision modal or collab dialogs, and
 // "discard and stay" clears the edits; the unsaved-changes dialog puts "keep editing" first (D-76). The user box is
 // recipe Q-18 (same width as the form, role badge by status). The interfaces of the form get `discardAllChanges` and
-// `refresh` by inject as in Directus; BoForm provides `values`. Errors open the error dialog (D-66).
+// `refresh` by inject as in DR; BoForm provides `values`. Errors open the error dialog (D-66).
 import type { Field, PrimaryKey, User } from '@directus/types';
 import { computed, provide, ref, toRefs, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -130,8 +130,8 @@ const title = computed(() => {
 });
 
 // These fields will be shown in the sidebar instead
-// Backoffice (owner 2026-10-23, D-168): and no Directus theme choice nor theme overrides, which do not change the
-// Backoffice look (D-43, D-88); the values stay in the database for the Directus app.
+// Backoffice (owner 2026-10-23, D-168): and no DR theme choice nor theme overrides, which do not change the
+// Backoffice look (D-43, D-88); the values stay in the database for the DR app.
 const fieldsDenyList = [
 	'id',
 	'last_page',

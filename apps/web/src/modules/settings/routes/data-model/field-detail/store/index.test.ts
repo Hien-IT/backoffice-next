@@ -1,6 +1,6 @@
 // Ported from directus/app/src/modules/settings/routes/data-model/field-detail/store/index.test.ts
 // Backoffice: createPinia + vi.spyOn on the store functions instead of @pinia/testing (not a dependency); the SDK is
-// mocked instead of the Directus api module; no crypto stub (node has crypto.getRandomValues).
+// mocked instead of the DR api module; no crypto stub (node has crypto.getRandomValues).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useExtension } from '../../../../../../composables/use-extension.ts';

@@ -1,4 +1,4 @@
-// Backoffice (spec 020, D-139 revised 2026-10-21): endpoint extensions run on Express 4.21.2, as in Directus. The Nest
+// Backoffice (spec 020, D-139 revised 2026-10-21): endpoint extensions run on Express 4.21.2, as in DR. The Nest
 // app is Express 5; this Express 4 app is mounted in it, so a request that reaches it gets the Express 4 request and
 // response (Express 4 path syntax, req.param, res.send(status), writable req.query, req.host without the port, req.body
 // `{}`, a rejected async handler left to unhandledRejection) and gets the Express 5 ones back when it leaves.
@@ -11,7 +11,7 @@ export function createEndpointApp(router: Router): RequestHandler {
 	const env = useEnv();
 	const app = express4();
 
-	// The settings of the Directus app (directus/api/src/app.ts:134-144), which an Express 4 sub-app does not inherit.
+	// The settings of the DR app (directus/api/src/app.ts:134-144), which an Express 4 sub-app does not inherit.
 	app.disable('x-powered-by');
 	app.set('trust proxy', env['IP_TRUST_PROXY']);
 
@@ -22,7 +22,7 @@ export function createEndpointApp(router: Router): RequestHandler {
 		}),
 	);
 
-	// Directus parses bodies with the Express 4 body-parser, which leaves `{}` when the request has none.
+	// DR parses bodies with the Express 4 body-parser, which leaves `{}` when the request has none.
 	app.use((req, _res, next) => {
 		if (req.body === undefined) req.body = {};
 		next();

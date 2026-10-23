@@ -1,4 +1,4 @@
-// Feature 016 (T053, D-56 lifted): the options component of the list interface, as Directus interfaces/list/options.vue:
+// Feature 016 (T053, D-56 lifted): the options component of the list interface, as DR interfaces/list/options.vue:
 // template, add label, sort (from the defined fields, deselect), and the fields repeater whose rows are field metas.
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

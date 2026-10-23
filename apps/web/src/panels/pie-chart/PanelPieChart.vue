@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/panels/pie-chart/panel-pie-chart.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-047..FR-050, recipe Q-35): ApexCharts loaded lazily (loadApexCharts) with an unmount/race
-// guard; Directus theme variables replaced by the chart theme tokens (THEME; default color cssVar('--color-brand-500'),
+// guard; DR theme variables replaced by the chart theme tokens (THEME; default color cssVar('--color-brand-500'),
 // D-108); animations follow prefers-reduced-motion; the chart is aria-hidden with an sr-only ChartTable of the labels and
 // raw values (FR-106); the global tooltip styles live in styles/apexcharts.css. Labels, series (×100 only with decimals)
-// and conditional fill are Directus' unchanged.
+// and conditional fill are DR' unchanged.
 import type ApexCharts from 'apexcharts';
 import { isNil, snakeCase } from 'lodash-es';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
@@ -176,7 +176,7 @@ async function setupChart() {
 
 	chart.value = new ApexChartsClass(chartEl.value, {
 		chart: {
-			// Backoffice: Directus sets the unknown key `animation` (so ApexCharts animates); reduced motion turns it off
+			// Backoffice: DR sets the unknown key `animation` (so ApexCharts animates); reduced motion turns it off
 			animations: {
 				enabled: !prefersReducedMotion(),
 			},

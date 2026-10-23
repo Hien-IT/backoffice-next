@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice: no `collab` mode (D-68: no currentCollab, collabContext, `discard`/`collab_collision`). Recipe Q-10:
 // Reka dialog `max-w-6xl` (BoDialog is fixed at 700px), "show differences only" Switch, `outdated` as a warning
-// notice, and the "delete version after promote" Checkbox in the footer instead of the Directus keep/delete dialog
-// (`promote` still emits `deleteOnPromote`). `updateAllowed` (no Directus prop: version-menu hides the entry) disables
+// notice, and the "delete version after promote" Checkbox in the footer instead of the DR keep/delete dialog
+// (`promote` still emits `deleteOnPromote`). `updateAllowed` (no DR prop: version-menu hides the entry) disables
 // promoting without update permission on the main item (FR-072). The Apply hint of a disabled button is shown as text
 // (a tooltip on a disabled button cannot be reached). Focus returns to the element that opened the modal.
 import type { ContentVersion, PrimaryKey } from '@directus/types';

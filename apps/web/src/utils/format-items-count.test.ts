@@ -56,7 +56,7 @@ describe('formatItemsCountRelative', () => {
 		);
 	});
 
-	// Directus compares the formatted strings, so "10" > "9" is false and item_count shows {count}.
+	// DR compares the formatted strings, so "10" > "9" is false and item_count shows {count}.
 	test('compares the formatted strings like Directus', () => {
 		expect(formatItemsCountRelative({ totalItems: 10, currentItems: 9, i18n: i18nArg })).toBe('9 Items');
 	});

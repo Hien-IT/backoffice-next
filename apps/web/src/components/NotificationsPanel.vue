@@ -1,7 +1,7 @@
 <script setup lang="ts">
 // Backoffice (owner 2026-10-21, D-132): the TailAdmin notification panel under the bell (layout-patterns §4), in front
 // of the notifications drawer of 018: the latest inbox notifications of the user, each with a "mark as read" button,
-// "mark all as read", and "View all" opening the drawer (filters, search, archive tab, delete). Read is the Directus
+// "mark all as read", and "View all" opening the drawer (filters, search, archive tab, delete). Read is the DR
 // `archived` status (no read flag in directus_notifications); mark all is one PATCH by query, as the REST API allows.
 // Loaded when the panel opens (mounted with the popover content), not polled.
 import { onMounted, ref } from 'vue';

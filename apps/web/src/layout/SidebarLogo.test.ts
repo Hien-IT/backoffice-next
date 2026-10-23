@@ -19,7 +19,7 @@ async function render(settings: Partial<Settings>) {
 		await mountLayout(SidebarLogo, {
 			beforeMount: () => {
 				useSettingsStore().settings = settings as Settings;
-				// The name comes from the server info, where Directus defaults are already dropped (D-51).
+				// The name comes from the server info, where DR defaults are already dropped (D-51).
 				useServerStore().info.project = { project_name: settings.project_name ?? null } as never;
 			},
 		})

@@ -72,7 +72,7 @@ describe('settings module routes', () => {
 			'/settings/translations/7': 'settings-translations-item',
 			'/settings/flows': 'settings-flows-collection',
 			'/settings/extensions': 'settings-extensions',
-			// Spec 020 T175: the Directus marketplace routes.
+			// Spec 020 T175: the DR marketplace routes.
 			'/settings/marketplace': 'marketplace-registry',
 			'/settings/marketplace/account/acc-1': 'marketplace-account',
 			'/settings/marketplace/extension/ext-1': 'marketplace-extension',
@@ -152,7 +152,7 @@ test('/settings/flows/<id>(/<operation>): the flow page and the drawer for a sto
 	await r.push('/settings/flows/3f2a/+');
 	expect(r.currentRoute.value.name).toBe('settings-flows-operation');
 	expect(r.currentRoute.value.params).toEqual({ primaryKey: '3f2a', operationId: '+' });
-	// beforeEnter runs when the route is entered (not on a param change), as in Directus.
+	// beforeEnter runs when the route is entered (not on a param change), as in DR.
 	await r.push('/settings/flows');
 	await r.push('/settings/flows/nope');
 	expect(r.currentRoute.value.name).toBe('settings-not-found');

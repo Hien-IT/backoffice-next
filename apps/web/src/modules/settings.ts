@@ -9,7 +9,7 @@ import { useFieldsStore } from '../stores/fields.ts';
 import { useFlowsStore } from '../stores/flows.ts';
 import { defineModule } from './types.ts';
 
-/** Not-found of the module with the path that was asked for, as the Directus guards do. */
+/** Not-found of the module with the path that was asked for, as the DR guards do. */
 const notFound = (to: RouteLocationNormalized) => ({
 	name: 'settings-not-found',
 	params: { _: to.path.split('/').slice(1) },
@@ -43,7 +43,7 @@ export default defineModule({
 					path: '',
 					component: () => import('./settings/routes/data-model/CollectionsRoute.vue'),
 					beforeEnter() {
-						// Not awaited, as Directus: the list renders from the store and updates when the request answers.
+						// Not awaited, as DR: the list renders from the store and updates when the request answers.
 						void useCollectionsStore().hydrate();
 					},
 					children: [
@@ -65,7 +65,7 @@ export default defineModule({
 
 						if (!info) return notFound(to);
 
-						// A database table without directus_collections row: configure it on the way in (Directus).
+						// A database table without directus_collections row: configure it on the way in (DR).
 						if (!info.meta) {
 							await sdk.request(
 								requestEndpoint(`/collections/${to.params['collection']}`, { method: 'PATCH', body: { meta: {} } }),
@@ -162,7 +162,7 @@ export default defineModule({
 		},
 		{
 			// Feature 017 (FR-001, D-92 lifted): the flows overview, the flow page and its operation drawer (a child route drawn by
-			// the page's unnamed RouterView, as Directus flow.vue).
+			// the page's unnamed RouterView, as DR flow.vue).
 			path: 'flows',
 			children: [
 				{
@@ -175,7 +175,7 @@ export default defineModule({
 					path: ':primaryKey',
 					component: () => import('./settings/routes/flows/FlowRoute.vue'),
 					props: true,
-					// Directus: the flow comes from the store hydrated at sign-in; an unknown id is the not-found page.
+					// DR: the flow comes from the store hydrated at sign-in; an unknown id is the not-found page.
 					beforeEnter: (to) => {
 						if (!useFlowsStore().flows.some((flow) => flow.id === to.params['primaryKey'])) return notFound(to);
 						return;

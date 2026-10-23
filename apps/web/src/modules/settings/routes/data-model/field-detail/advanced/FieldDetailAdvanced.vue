@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced.vue; Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-tabs.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-22): the tab list (field-detail-advanced-tabs.vue, same tabs by local type) and the tab content
-// in one BoTabs: vertical from 1024px, horizontal above the content below. Directus puts the tabs in the drawer
+// in one BoTabs: vertical from 1024px, horizontal above the content below. DR puts the tabs in the drawer
 // sidebar; here they stay in the drawer body next to the content.
 import { useMediaQuery } from '@vueuse/core';
 import { storeToRefs } from 'pinia';
@@ -79,7 +79,7 @@ const tabs = computed(() => {
 </script>
 
 <template>
-	<!-- Owner 2026-10-23 (D-167): like the Directus drawer, the tab content sits on the project color tint of the page
+	<!-- Owner 2026-10-23 (D-167): like the DR drawer, the tab content sits on the project color tint of the page
 	     (scrolling on its own) and the tab list on white; below 1024px the tabs are above the content as before. -->
 	<div class="flex min-h-0 flex-1 flex-col" :class="{ 'custom-scrollbar overflow-y-auto p-6': !wide }">
 		<BoTabs

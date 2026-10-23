@@ -62,7 +62,7 @@ function onClick(event: MouseEvent) {
 }
 
 function onCloseClick(event: MouseEvent) {
-	// Directus @click.stop: the close button does not click the chip.
+	// DR @click.stop: the close button does not click the chip.
 	event.stopPropagation();
 	if (props.disabled) return;
 	internalActive.value = !internalActive.value;

@@ -177,7 +177,7 @@ describe('VForm', () => {
 			expect(renderedFields).toContain('inner_modified');
 			expect(renderedFields).toContain('inner_unmodified');
 		});
-		// Backoffice: the comparison checkbox of the label (Directus form-field-label.vue) and the comparison of a parent
+		// Backoffice: the comparison checkbox of the label (DR form-field-label.vue) and the comparison of a parent
 		// form read by a group's nested form (FORM_COMPARISON).
 		it('shows a checked checkbox on selected differing fields only when onToggleField is set', async () => {
 			const onToggleField = vi.fn();

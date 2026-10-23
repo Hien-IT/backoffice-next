@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/database (spec 021 T017).
+// Backoffice: DR has no unit test for cli/commands/database (spec 021 T017).
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import getDatabase, { getDatabaseClient } from '../../../database/index.js';
 import runMigrations from '../../../database/migrations/run.js';
@@ -20,7 +20,7 @@ beforeEach(() => {
 	vi.mocked(useLogger).mockReturnValue(logger as any);
 	vi.mocked(getDatabase).mockReturnValue(database as any);
 	vi.mocked(getDatabaseClient).mockReturnValue('postgres');
-	// process.exit is called inside try/catch like Directus: the mock returns so each path runs to its end.
+	// process.exit is called inside try/catch like DR: the mock returns so each path runs to its end.
 	exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
 });
 

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: BoDialog (Cancel first, recipe Q-20 / Q-27) instead of v-dialog with an activator slot: the page opens it.
 // The key is a db-safe BoInput (FR-007), disabled when editing; icon, color and the name translations use the 013
-// interfaces as Directus does. Errors go to the error dialog (D-66).
+// interfaces as DR does. Errors go to the error dialog (D-66).
 import type { DeepPartial, Field } from '@directus/types';
 import { isEqual } from 'lodash-es';
 import { reactive, ref, watch } from 'vue';

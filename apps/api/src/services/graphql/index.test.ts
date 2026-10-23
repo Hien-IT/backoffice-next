@@ -1,4 +1,4 @@
-// Backoffice (feature 011, T012): Directus has no test for GraphQLService.execute; these pin the validation error with
+// Backoffice (feature 011, T012): DR has no test for GraphQLService.execute; these pin the validation error with
 // its path, the resolver errors through processError, the execution error and the extensions pass-through (spec
 // FR-002, FR-050, FR-051).
 import { ForbiddenError } from '@backoffice/errors';

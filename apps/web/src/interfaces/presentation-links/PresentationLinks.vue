@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/presentation-links/presentation-links.vue -->
 <script setup lang="ts">
-// Backoffice: v-button is BoButton (link types map to its variants as in `header`: the Directus info/success/warning
+// Backoffice: v-button is BoButton (link types map to its variants as in `header`: the DR info/success/warning
 // button colors have no recipe); unexpectedError has no snackbar before feature 018 (D-45): the error shows as a
 // BoNotice. A flow runs through useInjectRunManualFlow, which falls back to its own useFlows and emits `ran`.
 import type { Item, PrimaryKey } from '@directus/types';

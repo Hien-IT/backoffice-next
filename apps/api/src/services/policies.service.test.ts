@@ -1,4 +1,4 @@
-// PoliciesService on real SQLite tables (task T025; Directus 11.17.4 has no test for this service): ip_access validation,
+// PoliciesService on real SQLite tables (task T025; DR 11.17.4 has no test for this service): ip_access validation,
 // integrity flags and the cache points of spec FR-082.
 import { createInspector } from '@backoffice/schema';
 import type { Accountability, SchemaOverview } from '@backoffice/types';

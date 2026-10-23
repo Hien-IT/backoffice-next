@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): wraps BoSlider (extended with `showThumbLabel`, `showTicks`, `change` and the
-// `value` slot of the bubble). Directus shows the bubble always when `alwaysShowValue` (or `nonEditable`), else while
+// `value` slot of the bubble). DR shows the bubble always when `alwaysShowValue` (or `nonEditable`), else while
 // dragging; here BoSlider shows it on hover and focus. `aria-label`/`aria-labelledby`/`id` go to the thumb, the other
 // attrs to the root. Not honoured: the greyless look of `nonEditable` (a disabled slider stays greyed).
 import { omit } from 'lodash-es';

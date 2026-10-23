@@ -96,7 +96,7 @@ export async function registerExtensions(app?: App): Promise<void> {
 	operationsRegistry.registerOperations(operations);
 	setModules(modules);
 
-	// Directus registers each config as a global component (interfaces/index.ts, displays/index.ts... of directus/app):
+	// DR registers each config as a global component (interfaces/index.ts, displays/index.ts... of directus/app):
 	// extensions render them by name (e.g. `interface-input-code`), so they are registered too, with the same checks:
 	// components and layout slots as they are (functional ones included, e.g. display-raw, layout-sidebar-tabular),
 	// options and operation overviews only when they are a component (not a function, an array or null).
@@ -156,7 +156,7 @@ export async function registerExtensions(app?: App): Promise<void> {
 /**
  * The DOM an app extension renders sits in `<div data-bo-extension style="display: contents">` (no box of its own):
  * there the Tailwind `hidden` utility of the app does not hide an extension's own `.hidden` class (styles/base.css),
- * as in the Directus app, which has no such global class. Component objects only: a function may be a lazy route or a
+ * as in the DR app, which has no such global class. Component objects only: a function may be a lazy route or a
  * functional display.
  */
 function marked<T>(component: T): T {

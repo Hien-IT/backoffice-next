@@ -1,4 +1,4 @@
-// Backoffice (feature 011, T006): Directus has no tests for its GraphQL errors; these pin the codes, status and the
+// Backoffice (feature 011, T006): DR has no tests for its GraphQL errors; these pin the codes, status and the
 // `extensions.errors` list the parity suite compares (spec FR-002, FR-050), and formatError's GraphQLError wrapping.
 import { createError, isBackofficeError } from '@backoffice/errors';
 import { GraphQLError } from 'graphql';

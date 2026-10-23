@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/files/routes/item.vue -->
 <script setup lang="ts">
 // Backoffice: user story 2 of feature 015 (FR-030 to FR-039), recipe "File page and file details" (Q-15). The form is
-// BoForm on use-item of 014 with the Directus field deny list; no collaboration (D-68), so no collab header, collision
+// BoForm on use-item of 014 with the DR field deny list; no collaboration (D-68), so no collab header, collision
 // modal or collab dialogs; the unsaved-changes dialog puts "keep editing" first (D-76). There is no new-file state:
 // `/files/+` is the upload dialog of the library (CHK014). The `tune` button opens the shared ImageEditor (wave 2,
 // D-59 lifted). Errors open the error dialog (showUnexpectedError, D-66); the move notice is in place.

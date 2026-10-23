@@ -1,4 +1,4 @@
-// Directus has no test for layouts/map/style.ts: the layer colors come from the theme tokens (recipe Q-6).
+// DR has no test for layouts/map/style.ts: the layer colors come from the theme tokens (recipe Q-6).
 import { afterEach, expect, test } from 'vitest';
 import { getMapStyle } from './style.ts';
 

@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/components/v-table/v-table.vue; Ported from directus/app/src/components/v-table/table-header.vue -->
 <script setup lang="ts">
 // Backoffice: the simple Table recipe (component-specs "Table, simple"): a real <table> with columns
-// { key, label, width, align, sortable }, selection by row key (Directus `selectionUseKeys`), sort and mouse resize
-// as v-table / table-header (no keyboard resize, not in Directus), row heights of the Directus `spacing`, manual sort
-// (drag handle column, `update:rows` with the reordered rows as v-table `update:items`; mouse only as in Directus, the
+// { key, label, width, align, sortable }, selection by row key (DR `selectionUseKeys`), sort and mouse resize
+// as v-table / table-header (no keyboard resize, not in DR), row heights of the DR `spacing`, manual sort
+// (drag handle column, `update:rows` with the reordered rows as v-table `update:items`; mouse only as in DR, the
 // callers give a keyboard path), `click:row` and the `item-append` / `header-append` slots.
 // 014 (recipe "Data table and pagination (Q-2)"), optional: `fixedHeader`, `rowHeight`, column `description`, the
 // `header-context-menu` slot (the header button opens a Dropdown menu, as table-header.vue opens its VMenu),
@@ -114,7 +114,7 @@ const hasClickListener = computed(
 
 const ROW_HEIGHTS = { compact: 'h-[29px]', cozy: 'h-[43px]', comfortable: 'h-[58px]' };
 const ALIGN = { left: 'text-start', center: 'text-center', right: 'text-end' };
-const DEFAULT_WIDTH = 130; // 8.125rem, Directus default column width
+const DEFAULT_WIDTH = 130; // 8.125rem, DR default column width
 const SELECT_WIDTH = 44;
 const MANUAL_SORT_WIDTH = 40;
 const FOCUS =

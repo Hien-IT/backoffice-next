@@ -3,8 +3,8 @@
 // Backoffice: recipe "Comments and shares" (Q-11) and the date headings of Q-10; axios -> sdk (FR-001). The section opens
 // through `sidebarStore.activeAccordionItem` (SidebarDetail, Q-9) instead of useGroupable. The display string is the
 // comment through DOMPurify with no tag, then each ` @<uuid>` becomes a `<mark>` with the HTML-escaped user name
-// (FR-110b; Directus inserts the name unescaped and drops the space before the mention); an unknown user shows
-// `private_user`. A failed load shows an error notice (Directus shadows `error` in the catch, so it never shows).
+// (FR-110b; DR inserts the name unescaped and drops the space before the mention); an unknown user shows
+// `private_user`. A failed load shows an error notice (DR shadows `error` in the catch, so it never shows).
 import type { Comment, PrimaryKey, User } from '@directus/types';
 import { abbreviateNumber } from '@directus/utils';
 import { isThisYear, isToday, isYesterday } from 'date-fns';

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-workspace-tile.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): v-workspace-tile on BoWorkspaceTile, resizable by default as Directus; `color`
-// colors the header icon, `note` is the header info tooltip. `preview` is declared as in Directus, which never emits it
+// Backoffice (spec 020, data-model §7): v-workspace-tile on BoWorkspaceTile, resizable by default as DR; `color`
+// colors the header icon, `note` is the header info tooltip. `preview` is declared as in DR, which never emits it
 // from the tile. Dragging and resizing stay pointer only (recorded a11y exception of BoWorkspaceTile).
 import BoIcon from '../../components/BoIcon.vue';
 import BoWorkspaceTile from '../../components/workspace/BoWorkspaceTile.vue';

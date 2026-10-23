@@ -279,7 +279,7 @@ describe('Integration Tests', () => {
 					service.login('default', { email: 'john@example.com', password: 'password' }),
 				).rejects.toBeInstanceOf(ServiceUnavailableError);
 
-				// Backoffice: no LOGIN_STALL_TIME wait before the 503, like Directus (T029 of spec 003)
+				// Backoffice: no LOGIN_STALL_TIME wait before the 503, like DR (T029 of spec 003)
 				expect(stall).not.toHaveBeenCalled();
 			});
 

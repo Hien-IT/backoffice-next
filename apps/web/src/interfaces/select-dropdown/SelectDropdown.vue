@@ -29,7 +29,7 @@ type Option = {
 	icon?: string | null;
 	color?: string | null;
 	children?: Option[];
-	/** A line between choices (`{ divider: true }`, the metric panel function), as the Directus v-select. */
+	/** A line between choices (`{ divider: true }`, the metric panel function), as the DR v-select. */
 	divider?: boolean;
 	disabled?: boolean;
 };
@@ -124,7 +124,7 @@ watch(
 const selectedItem = computed(() => items.value.find((item) => isChoice(item) && item.value === props.value));
 
 // A choice whose value is null (the appearance "Default (Sync with Project)" of directus_users) shows its text when the
-// value is null, as the Directus v-select does.
+// value is null, as the DR v-select does.
 const displayText = computed(() => {
 	if (selectedItem.value) return String(selectedItem.value.text || props.value);
 	return props.value === null || props.value === undefined ? '' : String(props.value);
@@ -141,7 +141,7 @@ const prepend = computed(() => {
 const selectItems = computed(() => items.value as (Option & { value: string | number })[]);
 const choiceItems = computed(() => selectItems.value.filter(isChoice));
 
-// Directus v-select: a search row when there are more than 10 items; it filters on text or value.
+// DR v-select: a search row when there are more than 10 items; it filters on text or value.
 // Backoffice: no 250ms debounce (local filter).
 const open = ref(false);
 const search = ref('');
@@ -167,7 +167,7 @@ const visibleItems = computed(() => {
 	);
 });
 
-// Directus autofocuses the search input: Reka focuses the selected item once the list is placed, the first focus
+// DR autofocuses the search input: Reka focuses the selected item once the list is placed, the first focus
 // that lands in the list after opening is moved to the input.
 let focusSearch = false;
 watch(open, (value) => (focusSearch = value));

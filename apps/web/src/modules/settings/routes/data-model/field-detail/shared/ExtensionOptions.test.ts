@@ -1,8 +1,8 @@
-// Feature 016 (T051): ExtensionOptions, as Directus extension-options.vue: the options form of an interface or a
+// Feature 016 (T051): ExtensionOptions, as DR extension-options.vue: the options form of an interface or a
 // display from an array, `{ standard, advanced }` (advanced only with showAdvanced) or the `options` prop (function
 // options are resolved by the caller), the "no options" notice, and an options component (list, map). For every
 // registered interface and display with array or standard/advanced options, the form has the option keys of the
-// Directus registry (fixtures/interfaces/directus-registry.json).
+// DR registry (fixtures/interfaces/directus-registry.json).
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test, vi } from 'vitest';

@@ -1,5 +1,5 @@
 // Ported from directus/app/src/stores/collections.test.ts
-// Backoffice: createPinia instead of @pinia/testing; tests after the Directus ones cover hydrate and the getters.
+// Backoffice: createPinia instead of @pinia/testing; tests after the DR ones cover hydrate and the getters.
 import type { Collection as CollectionRaw } from '@directus/types';
 import { merge } from 'lodash-es';
 import { createPinia, setActivePinia } from 'pinia';
@@ -160,7 +160,7 @@ test('translateCollections renames after the locale changes', () => {
 	}
 });
 
-// Feature 016 T013: the write actions of Directus stores/collections.ts.
+// Feature 016 T013: the write actions of DR stores/collections.ts.
 test('upsertCollection: POST without app-only keys when new, PATCH when existing, nothing when equal', async () => {
 	const store = useCollectionsStore();
 	const fetch = mockApi({

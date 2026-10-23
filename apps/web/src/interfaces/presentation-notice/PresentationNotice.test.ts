@@ -1,4 +1,4 @@
-// Directus has no test for presentation-notice: fixture fields bo_groups.notice / notice_default (FR-059, FR-065).
+// DR has no test for presentation-notice: fixture fields bo_groups.notice / notice_default (FR-059, FR-065).
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import { computed } from 'vue';

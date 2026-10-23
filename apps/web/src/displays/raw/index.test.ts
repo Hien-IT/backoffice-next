@@ -1,4 +1,4 @@
-// Directus has no test for the raw display: strings as-is, everything else as JSON.
+// DR has no test for the raw display: strings as-is, everything else as JSON.
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { itemOf } from '../../test-utils/fixtures.ts';

@@ -8,8 +8,8 @@ export interface AccordionItemDef {
 	label?: string | undefined;
 }
 
-// Tier 3 Accordion recipe (Directus group-accordion). `v-model` is the list of open items in both modes. With
-// `multiple`, Shift+click on a header opens every section, or closes them all when all are open (Directus toggleAll).
+// Tier 3 Accordion recipe (DR group-accordion). `v-model` is the list of open items in both modes. With
+// `multiple`, Shift+click on a header opens every section, or closes them all when all are open (DR toggleAll).
 const {
 	items,
 	multiple = false,

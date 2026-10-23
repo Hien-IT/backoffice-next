@@ -1,4 +1,4 @@
-// list-m2a on the fixture snapshot (Directus has no list-m2a.test.ts): bo_rel.m2a (junction bo_junction_m2a, allowed
+// list-m2a on the fixture snapshot (DR has no list-m2a.test.ts): bo_rel.m2a (junction bo_junction_m2a, allowed
 // bo_m2a_a and bo_m2a_b, sort field `sort`), the option checks of contracts/tests.md §5 (FR-045) and the emitted
 // {create, update, delete} values (FR-040). Menus are driven through BoMenu / BoSortableList props here; the keyboard
 // paths are in ListM2A.browser.test.ts.

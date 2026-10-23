@@ -1,11 +1,11 @@
 <!-- Ported from directus/app/src/layouts/cards/cards.vue -->
 <script setup lang="ts">
-// Backoffice: recipe "Cards grid (Q-3)": the grid columns are `size × 40` px (Directus `size × 2.25rem`; 40 px is the
+// Backoffice: recipe "Cards grid (Q-3)": the grid columns are `size × 40` px (DR `size × 2.25rem`; 40 px is the
 // width `isSingleRow` already uses) with `gap-6`; 12 skeleton cards while loading instead of v-progress-circular; the
 // per page select sits in the header bar (recipe) with the tabular rule (shown when items >= 25 or limit < 25); the
 // footer is BoPagination (no skeleton while the count loads, as tabular); no own padding (PrivateView pads the content).
 // `prepend` slot, `hasPrependContent` and `extraSelection` are the Files module's folder cards (feature 015, FR-012):
-// while loading with prepend content the grid keeps the prepend cards and shows skeletons for the items (Directus keeps
+// while loading with prepend content the grid keeps the prepend cards and shows skeletons for the items (DR keeps
 // the old items and no spinner).
 import type { AppCollection, Field, Filter, Item, ShowSelect } from '@directus/types';
 import { useElementSize } from '@vueuse/core';

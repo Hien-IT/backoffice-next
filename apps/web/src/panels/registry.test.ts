@@ -1,4 +1,4 @@
-// Registry parity with Directus 11.17.4 (spec 018 FR-040, FR-031, SC-006): every panel matches the config extracted from
+// Registry parity with DR 11.17.4 (spec 018 FR-040, FR-031, SC-006): every panel matches the config extracted from
 // directus/app/src/panels by scripts/extract-directus-registry.mjs (PANEL_FAKES), for the same sample arguments. The
 // stores and helpers below are mocked with the same fakes as the extract script.
 import { describe, expect, test, vi } from 'vitest';

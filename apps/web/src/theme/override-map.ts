@@ -1,9 +1,9 @@
-// Theme overrides of settings and user (Directus theme rule keys, `DeepPartial<Theme['rules']>` of @directus/themes)
+// Theme overrides of settings and user (DR theme rule keys, `DeepPartial<Theme['rules']>` of @directus/themes)
 // turned into theme variables of the design-system (FR-063, D-43). Keys without a token and values that are not plain CSS
 // values are dropped, with one console warning per key.
 import { isPlainObject } from 'lodash-es';
 
-// Directus keys mapped to the TailAdmin theme variables of design-system/tokens/theme.css (spec FR-063, D-43).
+// DR keys mapped to the TailAdmin theme variables of design-system/tokens/theme.css (spec FR-063, D-43).
 export const OVERRIDE_MAP: Readonly<Record<string, string>> = {
 	primary: '--color-brand-500',
 	success: '--color-success-500',

@@ -1,4 +1,4 @@
-// Directus has no test for the file display: thumbnail URL (FR-077), SVG raw asset, extension badge, image error.
+// DR has no test for the file display: thumbnail URL (FR-077), SVG raw asset, extension badge, image error.
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { mockApi } from '../../test-utils/fetch.ts';

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-overlay.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7 #41): the Directus overlay with the BoDialog overlay colors; `--v-overlay-z-index`
+// Backoffice (spec 020, data-model §7 #41): the DR overlay with the BoDialog overlay colors; `--v-overlay-z-index`
 // still sets its layer (default the dialog layer of the z-index scale). The fade is off under reduced motion.
 interface Props {
 	/** Show / hide the overlay */

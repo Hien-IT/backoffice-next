@@ -1,4 +1,4 @@
-// Directus has no test for get-special-for-type.ts: the special a field without meta gets when opened (FR-026).
+// DR has no test for get-special-for-type.ts: the special a field without meta gets when opened (FR-026).
 import { expect, test } from 'vitest';
 import { getSpecialForType } from './get-special-for-type.ts';
 

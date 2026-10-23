@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/insights/components/navigation.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-004, layout-patterns §7): flat sub-menu rows like SettingsNavigation (016 Q-24), the dashboard
-// color is user data (inline style); the create button when there is no dashboard, as Directus.
+// color is user data (inline style); the create button when there is no dashboard, as DR.
 import { computed } from 'vue';
 import { RouterLink, useRoute } from 'vue-router';
 import BoButton from '../../../components/BoButton.vue';

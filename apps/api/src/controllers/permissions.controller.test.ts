@@ -1,5 +1,5 @@
 // /permissions end to end (pipeline, authenticate, PermissionsService) on the SQLite auth test database (task T045).
-// Parity with Directus is checked by tests/parity/src/permissions/accountability.test.ts.
+// Parity with DR is checked by tests/parity/src/permissions/accountability.test.ts.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import jwt from 'jsonwebtoken';
@@ -87,7 +87,7 @@ beforeEach(async () => {
 });
 
 // An admin has app access (fetchGlobalAccessForQuery), so every read appends the app minimal permissions
-// after the stored rows (without id), like Directus.
+// after the stored rows (without id), like DR.
 const stored = (rows: any[]) => rows.filter((row) => row.id != null);
 
 test('GET ignores the limit of the query, meta counts the stored rows (directus/directus#18654)', async () => {

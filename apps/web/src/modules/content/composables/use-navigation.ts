@@ -62,7 +62,7 @@ export interface NavigationNode {
 	collection: Collection;
 	bookmark?: Preset;
 	children: NavigationNode[];
-	/** Has child collections or bookmarks (Directus `isGroup`, before the search filter). */
+	/** Has child collections or bookmarks (DR `isGroup`, before the search filter). */
 	group: boolean;
 }
 

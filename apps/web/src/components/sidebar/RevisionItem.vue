@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/revision-item.vue -->
 <script setup lang="ts">
 // Backoffice: recipe Q-10 row (button, action dot with the action written, time, user). The user name is plain text
-// inside the row button: Directus nests a user popover button in it, which is not valid HTML.
+// inside the row button: DR nests a user popover button in it, which is not valid HTML.
 import { format } from 'date-fns';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -59,7 +59,7 @@ const user = computed(() => {
 	return t('private_user');
 });
 
-// Backoffice: recipe Q-10 dot colors (Directus: primary for create/update/version_save, danger for delete).
+// Backoffice: recipe Q-10 dot colors (DR: primary for create/update/version_save, danger for delete).
 const DOT: Record<string, string> = {
 	create: 'bg-success-500',
 	update: 'bg-brand-500',

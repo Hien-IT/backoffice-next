@@ -1,4 +1,4 @@
-// Directus has no test for interfaces/file-image: contracts/tests.md §5 on the bo_rel `file_image` fixture field
+// DR has no test for interfaces/file-image: contracts/tests.md §5 on the bo_rel `file_image` fixture field
 // (FR-051, FR-053, FR-054; feature 015 lifts D-59, T051): mount without input, every option, image URLs, the error message by code, the
 // actions, the empty upload state, read-only and a11y.
 /* eslint-disable vue/one-component-per-file, vue/require-prop-types -- drawer stubs that only record their props */
@@ -274,7 +274,7 @@ describe('empty value: upload', () => {
 			accept: 'image/*',
 			disabled: false,
 		});
-		// parseFilter(undefined) is {} in Directus too, so the MIME type filter is joined to it.
+		// parseFilter(undefined) is {} in DR too, so the MIME type filter is joined to it.
 		const filter = { _and: [{}, { type: { _starts_with: 'image/' } }] };
 		expect(upload.props('filter')).toEqual(filter);
 		expect(wrapper.getComponent(DrawerFiles).props('filter')).toEqual(filter);

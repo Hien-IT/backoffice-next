@@ -1,7 +1,7 @@
 /*
  * Spec 020 (FR-080, data-model §8, draft recipe Q-46, design owner approval before 020 closes): the CSS variables the
- * Directus 11.17.4 app defines for its components, here on the TailAdmin theme, so app extensions that read them look
- * like the rest of the app. The 173 --theme--* rules of ThemeSchema (@directus/types) with the Directus Default values
+ * DR 11.17.4 app defines for its components, here on the TailAdmin theme, so app extensions that read them look
+ * like the rest of the app. The 173 --theme--* rules of ThemeSchema (@directus/types) with the DR Default values
  * where they chain other rules, the raw colors and sizes of the defaults replaced by design-system tokens; the variables
  * of directus/app/src/styles/{_variables,_colors,themes/_light,themes/_dark}.scss; .type-* and .form-grid. Loaded with
  * the shim only (directus-shim/register.ts). Settings theme overrides (012) set the design-system tokens these read.
@@ -193,7 +193,7 @@
 	--theme--banner--subtitle--font-weight: var(--theme--fonts--monospace--font-weight);
 	--theme--banner--art--foreground: var(--color-gray-700);
 
-	/* used by the Directus app without a ThemeSchema rule */
+	/* used by the DR app without a ThemeSchema rule */
 	--theme--banner--foreground: var(--color-white);
 	--theme--banner--foreground-subdued: var(--color-gray-400);
 	--theme--card--shadow: var(--shadow-theme-sm);

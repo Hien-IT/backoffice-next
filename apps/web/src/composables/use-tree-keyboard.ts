@@ -1,4 +1,4 @@
-// Backoffice: no Directus source (Directus trees are mouse lists). The WAI-ARIA tree keyboard of layout-patterns §9
+// Backoffice: no DR source (DR trees are mouse lists). The WAI-ARIA tree keyboard of layout-patterns §9
 // and §11 for the folder tree, the folder picker and the role tree (feature 015): one roving tabindex over the visible
 // rows, Up/Down/Home/End move, Right opens a closed parent or goes to its first child, Left closes an open parent or
 // goes to the parent, Enter is left to the row (links follow natively). The Content tree of 014 has its own copy.

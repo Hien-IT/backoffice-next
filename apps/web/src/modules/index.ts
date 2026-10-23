@@ -55,7 +55,7 @@ export function registerModules(initial: ModuleConfig[]): {
 		).filter((module): module is ModuleConfig => module !== null);
 
 		for (const module of registeredModules.value) {
-			// Backoffice: an extension that names a child route after its module id (Directus 11 builds allow it) would make
+			// Backoffice: an extension that names a child route after its module id (DR 11 builds allow it) would make
 			// the dev build of vue-router throw; the parent route stays unnamed then, its children keep their names.
 			const childNamed = module.routes.some((route) => route.name === module.id);
 			removeRoutes.push(

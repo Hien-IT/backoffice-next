@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. NotificationsService without mail (spec FR-042, D-33, Principle X): the row is
+// Backoffice: no test in DR. NotificationsService without mail (spec FR-042, D-33, Principle X): the row is
 // written, a recipient who wants mail gets a warning line instead.
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import { afterEach, expect, test, vi } from 'vitest';

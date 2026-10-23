@@ -11,7 +11,7 @@ export function getSingleInstanceReasons(): string[] {
 
 	if (!redisConfigAvailable()) reasons.push('No Redis configured');
 
-	// Directus always builds its system and lock caches on CACHE_STORE, whatever CACHE_ENABLED says.
+	// DR always builds its system and lock caches on CACHE_STORE, whatever CACHE_ENABLED says.
 	if (env['CACHE_STORE'] === 'memory') reasons.push('CACHE_STORE is "memory"');
 
 	// The failed-login counter always runs on RATE_LIMITER_STORE (FR-041 of spec 003), whatever the limiters say.

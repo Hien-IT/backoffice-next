@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/modules/activity/routes/item.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-063): VDrawer is BoDrawer, api (axios) is the SDK (api-calls row 200), the header action
-// button is BoButton. Deviations: an untranslated action shows its raw key (Directus leaves the row empty, research R8); a load
+// button is BoButton. Deviations: an untranslated action shows its raw key (DR leaves the row empty, research R8); a load
 // error shows its translated message (translateAPIError as 014) instead of the raw error object; closing keeps the
-// page query. The labels and values are a definition list (the Directus `@TODO add final design` paragraphs).
+// page query. The labels and values are a definition list (the DR `@TODO add final design` paragraphs).
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useRoute, useRouter } from 'vue-router';

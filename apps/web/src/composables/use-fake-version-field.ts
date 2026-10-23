@@ -46,7 +46,7 @@ export function useFakeVersionField(
 				},
 				readonly: true,
 				required: false,
-				// Backoffice: FieldMeta of @directus/types 15.0.3 requires it; true is the Directus default (use-schema.ts).
+				// Backoffice: FieldMeta of @directus/types 15.0.3 requires it; true is the DR default (use-schema.ts).
 				searchable: true,
 				sort: null,
 				special: null,

@@ -2,7 +2,7 @@
 import { DialogContent, DialogDescription, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 
 // Reka traps focus inside, closes on Esc and outside click, and returns focus to the element that opened it.
-// `persistent` keeps it open on an outside click, Esc still closes (Directus `v-dialog persistent`).
+// `persistent` keeps it open on an outside click, Esc still closes (DR `v-dialog persistent`).
 const open = defineModel<boolean>('open', { default: false });
 
 defineProps<{ title: string; description?: string; persistent?: boolean }>();

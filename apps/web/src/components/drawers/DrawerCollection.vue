@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/views/private/components/drawer-collection.vue -->
 <script setup lang="ts">
 // Backoffice: the layout of the collection preset (FR-029, D-58 lifted), rendered from the layout registry like
-// CollectionRoute. The temporary preset (FR-019) is never written. No layout options in the drawer, as Directus
+// CollectionRoute. The temporary preset (FR-019) is never written. No layout options in the drawer, as DR
 // drawer-collection.vue (016: the 014 sidebar section was removed). The layout is only mounted while the drawer is
 // open, so nothing is fetched while it is closed (013), unless `eager` (018: the relational variable panel loads it like
-// Directus). Every slot of the caller is passed to the drawer as Directus does (the files drawer gives `sidebar`;
+// DR). Every slot of the caller is passed to the drawer as DR does (the files drawer gives `sidebar`;
 // spec 020: extensions may give any BoDrawer slot).
 import type { Filter } from '@directus/types';
 import { mergeFilters } from '@directus/utils';
@@ -30,7 +30,7 @@ const props = withDefaults(
 		multiple?: boolean;
 		filter?: Filter | undefined;
 		drawerProps?: Partial<BoDrawerProps> | undefined;
-		/** Mount the layout (and fetch its items) while the drawer is closed, as Directus always does (018 relational
+		/** Mount the layout (and fetch its items) while the drawer is closed, as DR always does (018 relational
 		 * variable panel, owner 2026-10-18); off by default (013). */
 		eager?: boolean;
 	}>(),
@@ -214,7 +214,7 @@ function useActions() {
 					<BoInfo :title="t('item_count', 0)" :icon="collectionInfo?.icon ?? 'box'" />
 				</template>
 
-				<!-- Backoffice: the translated API error of the 013 drawer (FR-046 of 013); Directus shows nothing here. -->
+				<!-- Backoffice: the translated API error of the 013 drawer (FR-046 of 013); DR shows nothing here. -->
 				<template #error="{ error }">
 					<BoNotice type="danger">{{ translateAPIError(error) }}</BoNotice>
 				</template>

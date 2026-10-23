@@ -191,7 +191,7 @@ export default definePanel({
 		},
 		{
 			field: 'range',
-			// @ts-expect-error Directus data: `dropdown` is not a field type (kept as is for registry parity).
+			// @ts-expect-error DR data: `dropdown` is not a field type (kept as is for registry parity).
 			type: 'dropdown',
 			name: '$t:date_range',
 			schema: {

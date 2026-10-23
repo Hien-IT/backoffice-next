@@ -1,4 +1,4 @@
-// The user story 1 part of directus/app/src/modules/content/routes/collection.vue (no Directus test): page header,
+// The user story 1 part of directus/app/src/modules/content/routes/collection.vue (no DR test): page header,
 // layout and its slots from the registry, archive filter, create permission, not found, bookmark title.
 import type { Preset } from '@directus/types';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';

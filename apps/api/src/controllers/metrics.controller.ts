@@ -1,4 +1,4 @@
-// Ported from directus/api/src/controllers/metrics.ts. Directus mounts the route only when METRICS_ENABLED is true;
+// Ported from directus/api/src/controllers/metrics.ts. DR mounts the route only when METRICS_ENABLED is true;
 // otherwise /metrics is a 404 like any unknown route. No logged-in admin before feature 003, so only the
 // `Metrics <token>` header grants access (FR-044, FR-071).
 import { useEnv } from '@backoffice/env';

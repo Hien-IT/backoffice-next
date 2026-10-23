@@ -1,4 +1,4 @@
-// Directus has no test for fields.vue: the collection page header (back, breadcrumb, delete for non-system collections,
+// DR has no test for fields.vue: the collection page header (back, breadcrumb, delete for non-system collections,
 // save), the directus_collections form on `edits.meta` (locked for system collections), save and quit, Ctrl/Cmd+S
 // save and stay, the unsaved changes dialog with Keep Editing first, delete (spec 016 US2-1, FR-020).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';

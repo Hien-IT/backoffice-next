@@ -39,7 +39,7 @@ function translateLiteral(literal: any): string {
  * render out files as it if were a "normal" collection, where the actual file is a fake m2o to
  * itself.
  */
-// Backoffice: cast like Directus' object, which has no meta.searchable (exactOptionalPropertyTypes here).
+// Backoffice: cast like DR' object, which has no meta.searchable (exactOptionalPropertyTypes here).
 const fakeFilesField = {
 	collection: 'directus_files',
 	field: '$thumbnail',
@@ -76,7 +76,7 @@ const fakeFilesField = {
  * multiple updates at the same time. By keeping track which one is the last one that's fired, we
  * can ensure that only the last update gets used to flush the store with.
  */
-// Backoffice: one counter for every collection, as Directus (spec 016 FR-022, research "Kết quả kiểm T002").
+// Backoffice: one counter for every collection, as DR (spec 016 FR-022, research "Kết quả kiểm T002").
 let currentUpdate: string;
 
 export const useFieldsStore = defineStore('fieldsStore', () => {

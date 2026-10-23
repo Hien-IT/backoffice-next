@@ -98,7 +98,7 @@ class FlowManager {
 	}
 
 	public async initialize(): Promise<void> {
-		// Backoffice: Directus registers its built-in operations in ExtensionManager.initialize(), which runs right
+		// Backoffice: DR registers its built-in operations in ExtensionManager.initialize(), which runs right
 		// before this and does the same here since spec 020; registering them here too keeps this manager usable on its
 		// own (feature 009 research R2).
 		for (const operation of operations) this.addOperation(operation.id, operation.handler);
@@ -381,7 +381,7 @@ class FlowManager {
 		this.isLoaded = true;
 	}
 
-	// Backoffice: public so that app.ts stops the cron jobs on SIGTERM (spec FR-010); Directus relies on pm2.
+	// Backoffice: public so that app.ts stops the cron jobs on SIGTERM (spec FR-010); DR relies on pm2.
 	public async unload(): Promise<void> {
 		for (const trigger of this.triggerHandlers) {
 			for (const event of trigger.events) {

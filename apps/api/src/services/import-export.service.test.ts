@@ -1215,7 +1215,7 @@ describe('ImportService', () => {
 					...baseSchema,
 					collections: {
 						...baseSchema.collections,
-						// Backoffice: a partial collection, as in Directus (CollectionOverview is complete in @backoffice/types).
+						// Backoffice: a partial collection, as in DR (CollectionOverview is complete in @backoffice/types).
 						site_settings: {
 							singleton: true,
 						} as any,
@@ -1246,7 +1246,7 @@ describe('ImportService', () => {
 					...baseSchema,
 					collections: {
 						...baseSchema.collections,
-						// Backoffice: a partial collection, as in Directus (CollectionOverview is complete in @backoffice/types).
+						// Backoffice: a partial collection, as in DR (CollectionOverview is complete in @backoffice/types).
 						site_settings: {
 							singleton: true,
 						} as any,

@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US1-7, US1-8, FR-015, recipe Q-27): BoDrawer with horizontal BoTabs over the form instead of
 // v-drawer tabs in its sidebar (two steps; a vertical list leaves the 640px drawer too narrow); the payloads, the relations of user_created/user_updated, the store
-// hydrations and the notice are the Directus ones. Enter in a step goes to the next step or saves (Directus `apply`).
-// The choice colors of `status` are Directus theme variables stored as data (the Directus app reads them).
+// hydrations and the notice are the DR ones. Enter in a step goes to the next step or saves (DR `apply`).
+// The choice colors of `status` are DR theme variables stored as data (the DR app reads them).
 import type { DeepPartial, Field, Relation } from '@directus/types';
 import { cloneDeep } from 'lodash-es';
 import { computed, reactive, ref, watch } from 'vue';

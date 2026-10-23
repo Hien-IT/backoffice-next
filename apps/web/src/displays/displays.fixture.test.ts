@@ -191,7 +191,7 @@ describe('US2 scenarios', () => {
 		const wrapper = renderField(field, await seededValue(field));
 
 		expect(wrapper.findAll('.dot')).toHaveLength(1);
-		expect(wrapper.get('.dot').attributes('style')).toBe('background-color: #6644FF;'); // raw-color-allowed: Directus data default (Q-C)
+		expect(wrapper.get('.dot').attributes('style')).toBe('background-color: #6644FF;'); // raw-color-allowed: DR data default (Q-C)
 		expect(wrapper.getComponent(BoTooltip).props('text')).toBe('Alpha');
 		expect(wrapper.get('.display-labels').text().trim()).toBe(wrapper.get('.sr-only').text());
 	});

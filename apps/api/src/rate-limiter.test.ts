@@ -6,7 +6,7 @@ import { runShutdownTasks } from './shutdown.js';
 
 vi.mock('@backoffice/env');
 
-// rate-limiter.ts loads ioredis with require() (like Directus), so a real client is created: lazy, never used.
+// rate-limiter.ts loads ioredis with require() (like DR), so a real client is created: lazy, never used.
 
 beforeEach(() => vi.clearAllMocks());
 

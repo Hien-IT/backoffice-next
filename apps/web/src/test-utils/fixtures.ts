@@ -1,5 +1,5 @@
 // Fixture snapshot of feature 013 (apps/web/fixtures/interfaces/snapshot, data-model §6): configuration and data
-// written by Directus 11.17.4, loaded by component tests and served by mockFixtureApi (fetch.ts).
+// written by DR 11.17.4, loaded by component tests and served by mockFixtureApi (fetch.ts).
 import type { CollectionAccess, FieldRaw, FlowRaw, Relation } from '@directus/types';
 
 export type FixtureUser = 'admin' | 'bo-editor' | 'bo-viewer';
@@ -12,10 +12,10 @@ export interface FixtureAccount {
 	globals: { app_access: boolean; admin_access: boolean; enforce_tfa: boolean };
 }
 
-/** One scenario of an `expected.<interface>.json` file: the value Directus emits and where that comes from. */
+/** One scenario of an `expected.<interface>.json` file: the value DR emits and where that comes from. */
 export interface ExpectedScenario {
 	value: unknown;
-	/** Directus code line or test the value comes from (FR-100, CHK051). */
+	/** DR code line or test the value comes from (FR-100, CHK051). */
 	source: string;
 	description?: string;
 }
@@ -42,7 +42,7 @@ export interface Snapshot {
 	shares: Row[];
 	comments: Row[];
 	revisions: Record<string, Row[]>;
-	/** `expected.content.json`: values recorded on the Directus app for the Content module (not an interface). */
+	/** `expected.content.json`: values recorded on the DR app for the Content module (not an interface). */
 	contentExpected: Record<string, any>;
 	/** Feature 015: the bo-files folder tree, its files, the roles and the directory users (data-model §11). */
 	directoryFolders: Row[];

@@ -1,4 +1,4 @@
-// Spec 020 T115: axe (wcag2a/aa, wcag21a/aa; serious and critical) on the Directus views of extensions (PrivateView
+// Spec 020 T115: axe (wcag2a/aa, wcag21a/aa; serious and critical) on the DR views of extensions (PrivateView
 // with every slot and its detail panel open, PublicView, SharedView), light and `html.dark`.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import axe from 'axe-core';

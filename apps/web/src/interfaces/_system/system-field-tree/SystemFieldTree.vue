@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-field-tree/system-field-tree.vue -->
 <script setup lang="ts">
 // Backoffice: VNotice is BoNotice, VCheckboxTree is BoCheckboxTree (exclusive value combining); opening a relational
-// group loads its fields through `group-toggle`, as Directus. The frame of `.system-field-tree` is the form field frame.
+// group loads its fields through `group-toggle`, as DR. The frame of `.system-field-tree` is the form field frame.
 import { computed, inject, ref } from 'vue';
 import BoCheckboxTree from '../../../components/BoCheckboxTree.vue';
 import BoNotice from '../../../components/BoNotice.vue';

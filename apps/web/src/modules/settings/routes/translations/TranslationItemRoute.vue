@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US6-5, FR-086): the header actions are BoButtons (delete, save with the SaveOptions split button
 // of recipe Q-8) and the confirmations BoDialogs; the unsaved-changes dialog puts "keep editing" first (D-76). The form
-// is BoForm on use-item of 014. A load error shows the module not-found page (ContentNotFound `settings`, the Directus
+// is BoForm on use-item of 014. A load error shows the module not-found page (ContentNotFound `settings`, the DR
 // settings not-found.vue). RevisionsSidebarDetail of 014 takes no `scope` prop.
 import type { PrimaryKey } from '@directus/types';
 import { computed, ref, toRefs, unref, type ComponentPublicInstance, type Ref } from 'vue';

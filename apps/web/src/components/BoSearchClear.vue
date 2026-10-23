@@ -2,7 +2,7 @@
 // Owner 2026-10-23 (D-169): the X button of every search field (BoInput type="search" and the search inputs of the
 // select dropdown, icon picker and checkbox tree; SearchInput has its own). The parent shows it when the field has
 // text, sits it at the end of a `relative` box around the input and clears the text and focuses the input again on
-// click. Directus search fields have none (its native one is hidden by base.css, as Directus _base.scss). mousedown
+// click. DR search fields have none (its native one is hidden by base.css, as DR _base.scss). mousedown
 // keeps the focus in the input, so a popover or select around it stays open.
 import BoIcon from './BoIcon.vue';
 

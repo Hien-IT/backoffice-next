@@ -1,7 +1,7 @@
 // Ported from directus/app/src/modules/settings/routes/policies/use-save.ts
 // Backoffice: requests through the SDK (FR-001), which returns `data`; errors open the error dialog (D-66).
 // `appAccessMinimalPermissions` of @directus/system-data is the `minimal` list of src/permissions/app-permissions-data.json
-// (generated from the Directus 11.17.4 sources, with the same defaults on each row).
+// (generated from the DR 11.17.4 sources, with the same defaults on each row).
 import type { Ref } from 'vue';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';

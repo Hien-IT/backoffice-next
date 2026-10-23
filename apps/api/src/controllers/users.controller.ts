@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/users.ts
-// Backoffice: one Nest handler per Directus route, in the same order (like roles.controller.ts).
+// Backoffice: one Nest handler per DR route, in the same order (like roles.controller.ts).
 import {
 	ErrorCode,
 	ForbiddenError,

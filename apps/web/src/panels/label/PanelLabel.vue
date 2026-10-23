@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-042..FR-046, recipe Q-36): styles as Tailwind classes (text `text-gray-800
 // dark:text-white/90` instead of `var(--color-text)`, fonts `font-outfit`, `font-[serif]`, `font-[monospace]` as
-// DisplayFormattedValue: the theme has no `font-serif`/`font-mono`); the user color stays inline. Logic as Directus:
+// DisplayFormattedValue: the theme has no `font-serif`/`font-mono`); the user color stays inline. Logic as DR:
 // the text is plain interpolation (no HTML), `inheritAttrs: false` keeps the tile context out of the DOM.
 import { type CSSProperties, onBeforeUnmount, onMounted, onUpdated, type Ref, ref } from 'vue';
 import { useAutoFontFit } from '../../composables/use-auto-fit-text.ts';

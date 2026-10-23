@@ -1,4 +1,4 @@
-// Directus has no test for files-navigation.vue / files-navigation-folder.vue: tree rows, special views, the active
+// DR has no test for files-navigation.vue / files-navigation-folder.vue: tree rows, special views, the active
 // row, router targets or a custom handler, the folder row menu (rename, move, download, delete) and the tree keyboard.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import fileSaver from 'file-saver';

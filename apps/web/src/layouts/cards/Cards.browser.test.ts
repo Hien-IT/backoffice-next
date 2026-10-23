@@ -153,7 +153,7 @@ test('renders the cards with image, fallback icon and title template, the header
 	expect(cardLinks()[0]!.textContent).toContain('Content 01 (edited)');
 	expect(cardLinks()[0]!.textContent).toContain('Draft');
 
-	// Item 1 has the PNG cover: /assets/<id>?key=system-medium-cover (Directus card.vue); the others have no cover.
+	// Item 1 has the PNG cover: /assets/<id>?key=system-medium-cover (DR card.vue); the others have no cover.
 	const img = cardLinks()[0]!.querySelector('img');
 	if (img)
 		expect(new URL(img.src).pathname + new URL(img.src).search).toMatch(/\/assets\/bo-4\?key=system-medium-cover$/);
@@ -161,7 +161,7 @@ test('renders the cards with image, fallback icon and title template, the header
 	expect(
 		cardLinks()
 			.filter((_, i) => i > 0)
-			// `box` is a Directus custom SVG icon (BoIcon custom-icons), not a font glyph.
+			// `box` is a DR custom SVG icon (BoIcon custom-icons), not a font glyph.
 			.some((link) => link.querySelector('span:not(.material-symbols-rounded) > svg') !== null),
 	).toBe(true);
 
@@ -277,7 +277,7 @@ test('options: image source deselect, image fit, title template typed and from t
 	await choose(i18n.global.t('layouts.cards.image_source'), i18n.global.t('deselect'));
 	await vi.waitFor(() => expect(layoutOptions.value).toEqual({ imageSource: null }));
 
-	// Image fit (in Advanced) is disabled without an image source (Directus options.vue).
+	// Image fit (in Advanced) is disabled without an image source (DR options.vue).
 	await userEvent.click(
 		[...document.querySelectorAll<HTMLElement>('aside button')].find((el) =>
 			el.textContent?.trim().startsWith(i18n.global.t('advanced')),

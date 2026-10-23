@@ -33,7 +33,7 @@ const props = defineProps<{
 	/** Color of the icon (collection color) */
 	iconColor?: string | null | undefined;
 
-	/** Parent pages (the Directus `headline` breadcrumb); not shown, D-101 (PageHeader). */
+	/** Parent pages (the DR `headline` breadcrumb); not shown, D-101 (PageHeader). */
 	breadcrumb?: { name: string; to: RouteLocationRaw }[] | undefined;
 
 	/** Back button before the title: a route, or `true` for the browser history */
@@ -91,12 +91,12 @@ defineExpose({ scrollElement });
 		>
 			<div class="flex min-w-0 flex-1" :class="{ 'min-h-0': fill }">
 				<MainContent class="w-full p-4 pb-20 md:p-6 md:pb-6" :class="{ 'flex min-h-0 flex-col': fill }">
-					<!-- In main, as the Directus header bar (the page title is `main h1`); sticky, so it stays on top while the
+					<!-- In main, as the DR header bar (the page title is `main h1`); sticky, so it stays on top while the
 					     page scrolls. The negative margins span the content padding. -->
 					<AppHeader class="-mx-4 -mt-4 mb-4 shrink-0 md:-mx-6 md:-mt-6 md:mb-6">
 						<PageHeader :title="title" :icon="icon" :icon-color="iconColor" :breadcrumb="breadcrumb" :back="back">
 							<template v-if="$slots['title']" #title><slot name="title" /></template>
-							<!-- Spec 020 (Q-45): the extra title and action slots of the Directus view, for extensions. -->
+							<!-- Spec 020 (Q-45): the extra title and action slots of the DR view, for extensions. -->
 							<template v-if="$slots['heading']" #heading><slot name="heading" /></template>
 							<template v-if="$slots['title-outer:prepend']" #title-outer:prepend>
 								<slot name="title-outer:prepend" />

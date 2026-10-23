@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/list/options.vue -->
 <script setup lang="ts">
 // Backoffice (D-56 lifted): VInput is BoInput, VSelect is BoSelect (`showDeselect`), the form grid is two columns;
-// the repeater is the list interface itself, as Directus.
+// the repeater is the list interface itself, as DR.
 import type { DeepPartial, Field, FieldMeta } from '@directus/types';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

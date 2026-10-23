@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The horizontal split of the live preview (Directus routes/item.vue): @directus/vue-split-panel with the end panel as
+// The horizontal split of the live preview (DR routes/item.vue): @directus/vue-split-panel with the end panel as
 // primary, sizes in %, collapsible to 0; the divider looks like the 012 ResizeHandle (layout-patterns §10). Keyboard
 // (D-69): Left/Right ±5 %, Home/End = min/max of the end panel; Enter (collapse) stays the package's.
 import { SplitPanel } from '@directus/vue-split-panel';

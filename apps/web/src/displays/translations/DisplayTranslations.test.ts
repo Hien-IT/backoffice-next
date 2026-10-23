@@ -1,4 +1,4 @@
-// Directus has no test for the translations display (spec FR-072, FR-073, FR-074 `translations`): the item picked by
+// DR has no test for the translations display (spec FR-072, FR-073, FR-074 `translations`): the item picked by
 // userLanguage / defaultLanguage / first, the template, the info menu trigger, `fields`, `options` and `handler` on the
 // fixture bo_translations.
 import { readItem } from '@directus/sdk';

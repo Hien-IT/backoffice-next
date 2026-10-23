@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/server.ts. `email:connection` is always ok, no mail transport is created
-// (Principle X, D-07). releaseId and version report Directus 11.17.4 (FR-047). mcp_enabled, ai_enabled and websocket
+// (Principle X, D-07). releaseId and version report DR 11.17.4 (FR-047). mcp_enabled, ai_enabled and websocket
 // are always false: no AI, MCP or WebSocket here, whatever the shared env says (Principle XI, D-17).
 import { Readable } from 'node:stream';
 import { performance } from 'perf_hooks';

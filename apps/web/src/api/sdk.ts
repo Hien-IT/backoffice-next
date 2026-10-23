@@ -1,5 +1,5 @@
 // Ported from directus/app/src/sdk.ts
-// Backoffice: one client for every request (FR-001): the Directus app also has an axios client (api.ts), whose
+// Backoffice: one client for every request (FR-001): the DR app also has an axios client (api.ts), whose
 // request queue and requests store are folded into the fetch wrapper below. The base URL is apiUrl of config.json
 // (the API may be on another origin), not the page URL.
 import type { AuthenticationClient, DirectusClient, RequestOptions, RestClient, RestCommand } from '@directus/sdk';

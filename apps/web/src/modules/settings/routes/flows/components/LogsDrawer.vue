@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 017 FR-052, recipe Q-32): BoDrawer (not persistent), an ordered list of steps with a status dot
 // (default and resolve brand, reject orange), BoDetail sections with the JSON in <pre> (Vue prints objects as JSON with
-// two spaces, as Directus); every value is plain text; redacted values show as stored.
+// two spaces, as DR); every value is plain text; redacted values show as stored.
 import type { FlowRaw } from '@directus/types';
 import { computed, toRefs, unref } from 'vue';
 import BoDetail from '../../../../../components/BoDetail.vue';

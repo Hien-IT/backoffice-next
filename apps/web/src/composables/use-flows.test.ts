@@ -1,7 +1,7 @@
 // Ported from directus/app/src/composables/use-flows.test.ts
 // Backoffice: useFlows lives in use-run-manual-flow.ts (013, which has its own tests for the dialogs and the default
 // injection). Real i18n, translate, useCollection and sdk on the fixture API (collection bo_content, contracts
-// api-calls #95) instead of the Directus mocks; getManualFlowsForCollection is spied on the real flows store like the
+// api-calls #95) instead of the DR mocks; getManualFlowsForCollection is spied on the real flows store like the
 // mocked store; `primaryKey: undefined` is `ref(null)` (exactOptionalPropertyTypes). `api.post` failures are a 500
 // answer; the result is the notice instead of notify/unexpectedError.
 import { createPinia, setActivePinia } from 'pinia';
@@ -166,7 +166,7 @@ describe('manualFlows', () => {
 		expect(mockGetManualFlows).toHaveBeenCalledTimes(2);
 	});
 
-	// Backoffice: the tooltips of FR-089 (no Directus test).
+	// Backoffice: the tooltips of FR-089 (no DR test).
 	test('tooltips by location and selection', () => {
 		mockStore([mockFlows[0], mockFlows[4]]);
 		const selection = ref<unknown[]>([]);
@@ -228,7 +228,7 @@ describe('manualFlow.isFlowDisabled', () => {
 
 			const { manualFlows } = withSetup({ ...useFlowsOptions, primaryKey: ref(null) });
 
-			// Backoffice: Directus asserts in forEach; check the list is not empty so the test cannot pass vacuously.
+			// Backoffice: DR asserts in forEach; check the list is not empty so the test cannot pass vacuously.
 			expect(manualFlows.value).toHaveLength(1);
 
 			manualFlows.value.forEach((manualFlow) => {
@@ -385,7 +385,7 @@ describe('runManualFlow', () => {
 		expect(flowDialogsContext.value.displayCustomConfirmDialog).toBe(true);
 
 		flowDialogsContext.value.confirmCustomDialog(flowWithConfirm.id);
-		// Backoffice: the sdk request queue may hold the request up to 500ms (Directus: one nextTick on a mocked api).
+		// Backoffice: the sdk request queue may hold the request up to 500ms (DR: one nextTick on a mocked api).
 		await vi.waitFor(() => expect(flowDialogsContext.value.currentFlowId).toBeNull(), 2000);
 
 		await runManualFlow(flowWithConfirm.id);

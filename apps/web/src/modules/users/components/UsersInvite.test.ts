@@ -1,4 +1,4 @@
-// Directus has no test for users-invite.vue: emails split on commas and new lines, the roles loaded on open, and no
+// DR has no test for users-invite.vue: emails split on commas and new lines, the roles loaded on open, and no
 // role at all sends the invite without `role` (FR-063, CHK019).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

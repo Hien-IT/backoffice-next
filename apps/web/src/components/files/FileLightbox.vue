@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/file-lightbox.vue -->
 <script setup lang="ts">
 // Backoffice: Lightbox recipe (component-specs Tier 3) on a Reka Dialog (focus trap, Esc, focus return); a header with
-// the file title, a download link and a labelled close button (Directus has only an unlabelled close button).
+// the file title, a download link and a labelled close button (DR has only an unlabelled close button).
 import { DialogClose, DialogContent, DialogOverlay, DialogPortal, DialogRoot, DialogTitle } from 'reka-ui';
 import { computed } from 'vue';
 import { getAssetUrl } from '../../utils/get-asset-url.ts';

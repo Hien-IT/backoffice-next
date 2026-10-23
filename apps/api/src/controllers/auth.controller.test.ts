@@ -1,5 +1,5 @@
 // The routes of feature 003 end to end (pipeline, authenticate, controllers, drivers, services) on the SQLite auth
-// test database. Parity with Directus is checked by tests/parity/src/auth/*.test.ts.
+// test database. Parity with DR is checked by tests/parity/src/auth/*.test.ts.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import { getSimpleHash } from '@backoffice/utils';
@@ -461,7 +461,7 @@ describe('SSO and LDAP routes (research R3)', () => {
 		expect(posted.status).toBe(303);
 		expect(posted.headers['location']).toBe('./callback?code=c&state=s');
 
-		// Unlike openid, oauth2 answers 401 for a missing or bad state cookie (like Directus).
+		// Unlike openid, oauth2 answers 401 for a missing or bad state cookie (like DR).
 		const noCookie = await agent.get('/auth/login/gh/callback?code=c').set('Cookie', 'oauth2.gh=bad');
 		expect(noCookie.status).toBe(401);
 		expect(noCookie.body.errors[0].extensions.code).toBe('INVALID_CREDENTIALS');

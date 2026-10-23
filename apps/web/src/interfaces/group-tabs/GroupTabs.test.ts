@@ -1,4 +1,4 @@
-// group-tabs has no Directus test file; these follow contracts/tests.md §5 on the bo_groups fixture (tabs > tab_one
+// group-tabs has no DR test file; these follow contracts/tests.md §5 on the bo_groups fixture (tabs > tab_one
 // (group-raw), tab_two (group-tabs > tab_two_a (group-raw), tab_two_b (group-detail))).
 import { type DOMWrapper, flushPromises, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

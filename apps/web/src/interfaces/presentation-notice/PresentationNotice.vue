@@ -32,7 +32,7 @@ const html = computed(() => md(props.text ?? t('interfaces.presentation-notice.n
 </script>
 
 <template>
-	<!-- A wrapper as Directus: the form's `type` (field type) falls through to it, not to BoNotice's `type`. -->
+	<!-- A wrapper as DR: the form's `type` (field type) falls through to it, not to BoNotice's `type`. -->
 	<div class="presentation-notice">
 		<BoNotice
 			:id="a11y?.inputId"

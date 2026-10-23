@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-checkbox-tree/v-checkbox-tree.test.ts
-// Backoffice: the Directus test only snapshots an empty mount; the value-combining cases below are ours.
+// Backoffice: the DR test only snapshots an empty mount; the value-combining cases below are ours.
 import { flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { i18n } from '../lang/index.ts';

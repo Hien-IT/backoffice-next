@@ -1,6 +1,6 @@
 // Ported from directus/app/src/interfaces/tags/tags.test.ts
 // Backoffice: custom tags are BoTagsInput items (named "Remove <tag>" delete buttons) and presets are toggle buttons;
-// the Directus cases are kept, then the option, fixture, emitted-value and a11y checks of contracts/tests.md §5 (FR-027).
+// the DR cases are kept, then the option, fixture, emitted-value and a11y checks of contracts/tests.md §5 (FR-027).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, it } from 'vitest';
 import { computed } from 'vue';

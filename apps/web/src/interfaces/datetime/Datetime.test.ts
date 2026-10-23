@@ -1,5 +1,5 @@
 // Ported from directus/app/src/interfaces/datetime/datetime.test.ts
-// Backoffice: mounts our Datetime.vue (Reka popover + BoDatePicker); the Directus cases are kept, then the option,
+// Backoffice: mounts our Datetime.vue (Reka popover + BoDatePicker); the DR cases are kept, then the option,
 // fixture, emitted-format and a11y checks of contracts/tests.md §5 (FR-025).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -18,7 +18,7 @@ enableAutoUnmount(afterEach);
 
 const global = { plugins: [i18n] };
 
-// Directus stubs VMenu/VDatePicker; here the popover content is always rendered and the picker is a stub.
+// DR stubs VMenu/VDatePicker; here the popover content is always rendered and the picker is a stub.
 const tzGlobal = {
 	plugins: [i18n],
 	stubs: {

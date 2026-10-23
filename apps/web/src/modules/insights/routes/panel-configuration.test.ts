@@ -110,7 +110,7 @@ describe('PanelConfiguration', () => {
 			expect(typeCard(t('panels.metric.name')).getAttribute('aria-pressed')).toBe('true');
 			expect(done().disabled).toBe(false);
 			expect(dialog().textContent).toContain(t('panel_header'));
-			// As Directus: a new panel starts without a header (no `show_header` sent; the column default is false).
+			// As DR: a new panel starts without a header (no `show_header` sent; the column default is false).
 			expect(input(t('name'))!.disabled).toBe(true);
 
 			done().click();

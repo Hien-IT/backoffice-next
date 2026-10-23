@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/components/v-progress-circular.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): v-progress-circular on BoProgressCircular (1em, current color) in a box of the
-// Directus sizes; the default slot sits in the middle; `animationiteration` comes from the spinning svg. The progressbar
-// is named "Loading..." unless the caller gives an `aria-label` (Directus has no name).
+// DR sizes; the default slot sits in the middle; `animationiteration` comes from the spinning svg. The progressbar
+// is named "Loading..." unless the caller gives an `aria-label` (DR has no name).
 import { computed } from 'vue';
 import BoProgressCircular from '../../components/BoProgressCircular.vue';
 
@@ -32,7 +32,7 @@ const size = computed(() => {
 	if (props.small) return '1.125rem';
 	if (props.large) return '2.6875rem';
 	if (props.xLarge) return '3.625rem';
-	// Directus v-progress-circular.vue:77: the default size reads --v-progress-circular-size.
+	// DR v-progress-circular.vue:77: the default size reads --v-progress-circular-size.
 	return 'var(--v-progress-circular-size, 1.5625rem)';
 });
 </script>

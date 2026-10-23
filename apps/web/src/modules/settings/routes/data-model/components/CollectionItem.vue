@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (recipe Q-20, layout-patterns §12): the row content of one collection inside a BoSortableList row of the
 // page (drag handle and row menu come from BoSortableList), then its children in a nested BoSortableList of the same
-// `collections` group, so rows move across levels by mouse drag (Directus vuedraggable) or by the D-96 menu items.
+// `collections` group, so rows move across levels by mouse drag (DR vuedraggable) or by the D-96 menu items.
 // The row and its children are hidden when a search does not match them or a descendant.
 import { computed, inject } from 'vue';
 import { useI18n } from 'vue-i18n';

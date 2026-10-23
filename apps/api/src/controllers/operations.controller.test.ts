@@ -1,4 +1,4 @@
-// Feature 009 (T038): the /operations controller (port of directus/api/src/controllers/operations.ts, which Directus
+// Feature 009 (T038): the /operations controller (port of directus/api/src/controllers/operations.ts, which DR
 // does not unit test) through the real app pipeline on SQLite, with OperationsService and the FlowManager mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

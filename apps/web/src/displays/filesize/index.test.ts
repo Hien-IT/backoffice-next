@@ -1,4 +1,4 @@
-// Directus has no test for the filesize display: component and handler use formatFilesize.
+// DR has no test for the filesize display: component and handler use formatFilesize.
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { itemOf } from '../../test-utils/fixtures.ts';

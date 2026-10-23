@@ -24,11 +24,11 @@ const {
 	min?: number;
 	max?: number;
 	step?: number;
-	/** Directus slider `alwaysShowValue`; otherwise the value shows on hover, focus and drag. */
+	/** DR slider `alwaysShowValue`; otherwise the value shows on hover, focus and drag. */
 	alwaysShowValue?: boolean;
-	/** Directus v-slider `showThumbLabel`: the value bubble on the thumb (spec 020; on by default here). */
+	/** DR v-slider `showThumbLabel`: the value bubble on the thumb (spec 020; on by default here). */
 	showThumbLabel?: boolean;
-	/** Directus v-slider `showTicks`: a tick per step; null = ticks when there are at most 20 steps. */
+	/** DR v-slider `showTicks`: a tick per step; null = ticks when there are at most 20 steps. */
 	showTicks?: boolean | null;
 	label?: string;
 	disabled?: boolean;
@@ -45,7 +45,7 @@ const {
 
 const emit = defineEmits<{
 	'update:modelValue': [value: number];
-	/** The value at the end of a drag or a key press (Directus v-slider `change`). */
+	/** The value at the end of a drag or a key press (DR v-slider `change`). */
 	change: [value: number];
 }>();
 
@@ -57,7 +57,7 @@ const describedBy = computed(
 	() => [ariaDescribedby, hint && hintId, error && errorId].filter(Boolean).join(' ') || undefined,
 );
 
-// Directus v-slider: a null value puts the thumb on the step nearest the middle (nothing is emitted).
+// DR v-slider: a null value puts the thumb on the step nearest the middle (nothing is emitted).
 const position = computed(() => {
 	if (modelValue !== null) return modelValue;
 	const mid = min + (max - min) / 2;

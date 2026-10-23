@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US4-3, FR-053): requests through the SDK (FR-001); the save button with the SaveOptions split
 // button (recipe Q-8); the unsaved-changes dialog puts "keep editing" first (D-76). BoForm types `primaryKey` without
-// null; null is passed as Directus does (the list-m2m then loads the junction rows with `role _null`). Save and stay
-// does not refresh revisions: Directus binds no RevisionsSidebarDetail on this page. Errors open the error dialog (D-66).
+// null; null is passed as DR does (the list-m2m then loads the junction rows with `role _null`). Save and stay
+// does not refresh revisions: DR binds no RevisionsSidebarDetail on this page. Errors open the error dialog (D-66).
 import type { Alterations, Field, Item, Policy } from '@directus/types';
 import { cloneDeep, isEmpty, isEqual, isObjectLike } from 'lodash-es';
 import { computed, onMounted, ref } from 'vue';

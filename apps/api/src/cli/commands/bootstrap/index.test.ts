@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/bootstrap (spec 021 T016).
+// Backoffice: DR has no unit test for cli/commands/bootstrap (spec 021 T016).
 import { useEnv } from '@backoffice/env';
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import getDatabase, {

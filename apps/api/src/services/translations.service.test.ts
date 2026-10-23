@@ -1,4 +1,4 @@
-// Feature 010 (T043): TranslationsService (port of directus/api/src/services/translations.ts, which Directus does not
+// Feature 010 (T043): TranslationsService (port of directus/api/src/services/translations.ts, which DR does not
 // unit test): the duplicate key and language checks before createOne and updateMany.
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import knex, { type Knex } from 'knex';

@@ -8,7 +8,7 @@ export const EDITOR_TOOLBAR_BUTTON = `inline-flex h-8 w-8 shrink-0 items-center 
 
 <script setup lang="ts">
 // component-specs EditorFrame (nháp, 013), shared by the code, markdown and block editors: the FIELD border on the
-// frame, an optional Reka toolbar row (one Tab stop, arrows move) and the Directus `softLength` counter under the
+// frame, an optional Reka toolbar row (one Tab stop, arrows move) and the DR `softLength` counter under the
 // frame (thresholds of utils/percentage.ts: warning below 10 %, danger below 5 % remaining).
 import { ToolbarRoot } from 'reka-ui';
 import { computed, useId } from 'vue';

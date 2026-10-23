@@ -257,7 +257,7 @@ test(
 	SLOW,
 );
 
-// D-114 (owner 2026-10-18): every refresh (auto refresh, sidebar) takes a new `now` for the tiles; Directus keeps the
+// D-114 (owner 2026-10-18): every refresh (auto refresh, sidebar) takes a new `now` for the tiles; DR keeps the
 // page's first one (R-50).
 test(
 	'a refresh gives the tiles a new now',

@@ -54,7 +54,7 @@ const items = computed(() => {
 			}
 		}
 
-		// Backoffice: no choice color = BoChip's own theme colors (Directus `--theme--foreground` and
+		// Backoffice: no choice color = BoChip's own theme colors (DR `--theme--foreground` and
 		// `--theme--background-normal`), so `foreground`/`background` stay empty there.
 		if (choice === undefined) {
 			return {

@@ -1,4 +1,4 @@
-// The user story 4 part of directus/app/src/modules/users/routes/item.vue (no Directus test): the item query, the user
+// The user story 4 part of directus/app/src/modules/users/routes/item.vue (no DR test): the item query, the user
 // box, the form without the sidebar fields, save of the edited fields only, a new user from a role, archive, delete
 // (yourself logs out), the module not-found page (FR-070 to FR-076). The information panel has its own test
 // (UserInfoSidebarDetail.test.ts).

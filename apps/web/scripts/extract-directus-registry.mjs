@@ -1,7 +1,7 @@
-// Writes apps/web/fixtures/interfaces/directus-registry.json from the Directus 11.17.4 interface and display configs
+// Writes apps/web/fixtures/interfaces/directus-registry.json from the DR 11.17.4 interface and display configs
 // (`directus/app/src/{interfaces,displays}/<id>/index.ts`), for src/interfaces/registry.test.ts (contracts/registry.md
 // §3, research R2). Run once by hand: `node scripts/extract-directus-registry.mjs` from apps/web; NOT run in CI, since the
-// Directus files import the Directus app (i18n, stores, components). Those imports are stubbed through Vite's SSR loader:
+// DR files import the DR app (i18n, stores, components). Those imports are stubbed through Vite's SSR loader:
 // `@/...` modules export small fakes, `.vue` and `?raw` files are empty, `defineInterface`/`defineDisplay` are identity.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';

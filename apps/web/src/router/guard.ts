@@ -119,7 +119,7 @@ export const onAfterEach: NavigationHookAfter = (to) => {
 
 		trackTimeout = window.setTimeout(() => {
 			// Backoffice: a failed write (401 once the session is gone, e.g. after deleting yourself) is not an unhandled
-			// rejection; Directus leaves it unhandled, with the same result for the user.
+			// rejection; DR leaves it unhandled, with the same result for the user.
 			userStore.trackPage(to).catch(() => undefined);
 		}, 500);
 	}

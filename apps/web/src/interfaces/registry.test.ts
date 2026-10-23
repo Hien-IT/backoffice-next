@@ -1,5 +1,5 @@
-// Registry parity with Directus 11.17.4 (contracts/registry.md §3, spec FR-001, FR-005): every registered interface and
-// display matches the config extracted from Directus by scripts/extract-directus-registry.mjs.
+// Registry parity with DR 11.17.4 (contracts/registry.md §3, spec FR-001, FR-005): every registered interface and
+// display matches the config extracted from DR by scripts/extract-directus-registry.mjs.
 import type { ExtensionOptionsContext } from '@directus/types';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test } from 'vitest';
@@ -159,7 +159,7 @@ function checkConfig(config: InterfaceConfig | DisplayConfig, entry: Entry, fiel
 		expect((config as unknown as Record<string, unknown>)[key] ?? null, `${config.id}.${key}`).toEqual(entry[key]);
 	}
 
-	// Directus `list` and `map` use a Vue options component (keys in the JSON were read by hand): not compared, D-56.
+	// DR `list` and `map` use a Vue options component (keys in the JSON were read by hand): not compared, D-56.
 	if (entry.optionsKind === 'component') return;
 
 	expect(optionsKind(config.options), `${config.id} options kind`).toBe(entry.optionsKind);
@@ -179,7 +179,7 @@ function checkConfig(config: InterfaceConfig | DisplayConfig, entry: Entry, fiel
 }
 
 describe('registry parity with the Directus registry', () => {
-	// Some options functions read the stores (e.g. the translations display), as in the Directus app.
+	// Some options functions read the stores (e.g. the translations display), as in the DR app.
 	beforeEach(() => setActivePinia(createPinia()));
 
 	test('the fixture covers the expected ids', () => {

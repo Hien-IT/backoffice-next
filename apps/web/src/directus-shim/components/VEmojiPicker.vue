@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-emoji-picker.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): the Directus picker (@joeattardi/emoji-button 4.6.4, its own popup and styles)
+// Backoffice (spec 020, data-model §7): the DR picker (@joeattardi/emoji-button 4.6.4, its own popup and styles)
 // opened by a BoButton icon button named "Insert emoji". Its theme follows the `dark` class of `html` (the app
 // theme), not the OS setting; z-index of the menu layer.
 import { EmojiButton } from '@joeattardi/emoji-button';

@@ -1,5 +1,5 @@
 // Ported from directus/app/src/utils/extract-field-from-function.test.ts
-// Backoffice: Directus has no test for system-filter/utils.ts; the cases below follow the code of that file.
+// Backoffice: DR has no test for system-filter/utils.ts; the cases below follow the code of that file.
 import { describe, expect, test } from 'vitest';
 import {
 	extractFieldFromFunction,

@@ -113,7 +113,7 @@ describe('BoColorPicker', () => {
 	});
 
 	it('draws a ring on a swatch with low contrast against the field', () => {
-		// happy-dom has no theme variables: the background is unreadable, which counts as low contrast (Directus).
+		// happy-dom has no theme variables: the background is unreadable, which counts as low contrast (DR).
 		expect(mountPicker({ modelValue: '#FFFFFF' }).get('button.swatch').classes()).toContain('ring-1');
 		expect(mountPicker().get('button.swatch').classes()).toContain('bg-gray-100');
 	});

@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. CommentsService (spec FR-040, FR-041, contracts/history-api.md §3): the order of
+// Backoffice: no test in DR. CommentsService (spec FR-040, FR-041, contracts/history-api.md §3): the order of
 // the checks, mentions that notify readers of the item, and those that cannot read it.
 import { ForbiddenError } from '@backoffice/errors';
 import { SchemaBuilder } from '@backoffice/schema-builder';

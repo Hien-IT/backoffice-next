@@ -1,6 +1,6 @@
 // Behaviour of directus/app/src/composables/use-permissions/**/*.test.ts (collection, item, lib, utils) on the
-// Backoffice stores: the Directus tests mock the stores with @pinia/testing, these use real Pinia stores and mock only
-// useCollection, as the Directus tests mock @directus/composables.
+// Backoffice stores: the DR tests mock the stores with @pinia/testing, these use real Pinia stores and mock only
+// useCollection, as the DR tests mock @directus/composables.
 import type { Field } from '@directus/types';
 import { flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -119,7 +119,7 @@ describe('usePermissions (item)', () => {
 		expect(itemPermissions.deleteAllowed.value).toBe(false);
 		expect(itemPermissions.shareAllowed.value).toBe(true);
 
-		// The item permissions are fetched lazily, on the first read (computedAsync `lazy`), like Directus.
+		// The item permissions are fetched lazily, on the first read (computedAsync `lazy`), like DR.
 		expect(itemPermissions.updateAllowed.value).toBe(false);
 		await flushPromises();
 

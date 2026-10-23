@@ -2,7 +2,7 @@ import type { LoggerService } from '@nestjs/common';
 import { useLogger } from './index.js';
 
 /**
- * Nest's internal logger, routed to pino. Only warn/error/fatal are forwarded: Directus has no
+ * Nest's internal logger, routed to pino. Only warn/error/fatal are forwarded: DR has no
  * equivalent of Nest's startup and route-mapping logs (research R12).
  */
 export class NestLoggerService implements LoggerService {

@@ -34,7 +34,7 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
 
 /**
  * Accepted exceptions (FR-111): `color-contrast` of data colors set with an inline style (the theme preview cards of
- * system-theme draw the Directus theme colors on purpose, D-88; card colors from data), as the Content module test.
+ * system-theme draw the DR theme colors on purpose, D-88; card colors from data), as the Content module test.
  */
 const EXCEPTIONS: { rule: string; applies: (el: Element) => boolean }[] = [
 	{

@@ -8,7 +8,7 @@ export default {
 		coverageThreshold: 80,
 		swc: true,
 		// Entry point only (process start, listen, signals): exercised by tests/parity/src/startup.
-		// Test helpers ported with the Directus unit tests (feature 006).
+		// Test helpers ported with the DR unit tests (feature 006).
 		// Spec 021 FR-106: the 101 system migrations are verbatim copies checked by port.test.ts and run for real by the
 		// parity profile `bootstrap` (Postgres, SQLite); unit tests do not execute them.
 		coverageExclude: ['src/main.ts', 'src/test-utils/**', 'src/__utils__/**', 'src/database/migrations/2*.ts'],

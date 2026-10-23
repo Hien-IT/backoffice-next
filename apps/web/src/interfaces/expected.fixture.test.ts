@@ -1,6 +1,6 @@
 // T045 (SC-002, contracts/tests.md §5.4): every scenario of fixtures/interfaces/snapshot/expected.<id>.json mounts the
 // registered interface with the bo_std field's options and seeded value, runs the scenario's action and checks the
-// last emitted `input` value against the hand-written Directus value.
+// last emitted `input` value against the hand-written DR value.
 import type CodeMirror from 'codemirror';
 import { enableAutoUnmount, flushPromises, mount, type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -135,7 +135,7 @@ async function run(wrapper: VueWrapper, step: string) {
 			await vi.waitFor(() => {
 				editor = (wrapper.element.querySelector('.CodeMirror') as unknown as { CodeMirror: CodeMirror.Editor })
 					.CodeMirror;
-				// Directus sets the 'javascript ' placeholder mode, then the language, then listens to changes.
+				// DR sets the 'javascript ' placeholder mode, then the language, then listens to changes.
 				expect(editor.getOption('mode')).not.toEqual({ name: 'javascript ' });
 			});
 			await flushPromises();

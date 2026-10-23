@@ -1,4 +1,4 @@
-// Directus has no test for v-fancy-select: all items until one is chosen, then only it with a deselect button.
+// DR has no test for v-fancy-select: all items until one is chosen, then only it with a deselect button.
 import { mount } from '@vue/test-utils';
 import { expect, test } from 'vitest';
 import { i18n } from '../lang/index.ts';

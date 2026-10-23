@@ -34,7 +34,7 @@ const TAGS = ['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa'];
  *   to MapLibre and OpenStreetMap without underline); kept as the library ships it (FR-094).
  * - `color-contrast` when the element or an ancestor inside the field or cell gets its color from an inline style:
  *   data colors from the field options or the item (choices `color`, `colorOn`/`colorOff`, radio `color`,
- *   `conditionalFormatting`, `iconLeft` color...), applied as is like Directus (spec Edge Cases, Q-C).
+ *   `conditionalFormatting`, `iconLeft` color...), applied as is like DR (spec Edge Cases, Q-C).
  */
 const EXCEPTIONS: { rule: string; reason: string; applies: (el: Element) => boolean }[] = [
 	{

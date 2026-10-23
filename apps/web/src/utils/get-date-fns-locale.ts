@@ -1,6 +1,6 @@
 // Ported from directus/app/src/utils/get-date-fns-locale.ts
 // Backoffice: only the date-fns locales of the bundled languages (en-US, vi-VN, D-46); other languages fall back
-// through the language prefix to en-US as in Directus.
+// through the language prefix to en-US as in DR.
 import type { Locale } from 'date-fns';
 import { i18n } from '../lang/index.ts';
 

@@ -1,4 +1,4 @@
-// Feature 008 (T025): the /versions controller (port of directus/api/src/controllers/versions.ts, which Directus does
+// Feature 008 (T025): the /versions controller (port of directus/api/src/controllers/versions.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with VersionsService mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

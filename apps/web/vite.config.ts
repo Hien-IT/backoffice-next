@@ -8,7 +8,7 @@ import { backofficeExtensions } from './vite-plugin-extensions.ts';
 const API_PATHS =
 	'^/(auth|server|users|policies|roles|permissions|settings|collections|fields|relations|presets|translations|notifications|assets|shares|files|folders|utils|items|flows|revisions|versions|comments|activity|graphql|access|operations|dashboards|panels|extensions)([/?]|$)';
 
-// Served under /admin/ like the Directus app. In dev, API paths go to PUBLIC_URL (like Directus, default the local
+// Served under /admin/ like the DR app. In dev, API paths go to PUBLIC_URL (like DR, default the local
 // API) on the same origin, so the session cookie works without CORS. Route components are imported lazily, which
 // splits public, private and module code into their own chunks (research R12).
 export default defineConfig({

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-field-template/v-field-template.vue; Ported from directus/app/src/utils/flatten-field-groups.ts -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): the Directus chip editor (contenteditable with a button per field, removed by
+// Backoffice (spec 020, data-model §7): the DR chip editor (contenteditable with a button per field, removed by
 // click, Enter or Space) in the Input recipe; the field menu is a Reka popover with FieldList on the given `tree`
 // (FieldListItem: `depth`, `loadPathLevel` when a node opens). `{` or `}` opens the menu. The attributes (aria-label,
 // aria-labelledby) go to the `textbox`.
@@ -109,7 +109,7 @@ function onClick(event: MouseEvent) {
 }
 
 function onKeyDown(event: KeyboardEvent) {
-	// Backoffice: Directus reads currentTarget (always the content) with an inverted `isButton`, so Enter was never
+	// Backoffice: DR reads currentTarget (always the content) with an inverted `isButton`, so Enter was never
 	// blocked and Space ran removeField on the content; here Enter adds no line and Enter/Space on a field removes it.
 	const target = event.target as HTMLElement;
 	const isButton = target?.tagName.toLowerCase() === 'button';
@@ -323,7 +323,7 @@ const FIELD =
 	'relative flex h-11 w-full items-center gap-2 rounded-lg border border-gray-300 bg-transparent ps-4 pe-1.5 text-sm text-gray-800 shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90 dark:focus-within:border-brand-400';
 const DISABLED =
 	'cursor-not-allowed border-gray-100 bg-gray-50 text-gray-500 dark:border-gray-800 dark:bg-white/[0.03]';
-// Directus `.content` and `:deep(.selected-field)`: monospace text spans and the field chips (danger on hover).
+// DR `.content` and `:deep(.selected-field)`: monospace text spans and the field chips (danger on hover).
 const CONTENT =
 	'block min-w-0 flex-1 overflow-hidden py-2.5 font-mono text-theme-xs whitespace-nowrap outline-hidden [&>*]:inline-block [&>*]:whitespace-nowrap [&_br]:hidden [&_span]:min-h-[1em] [&_span]:min-w-px [&_span]:whitespace-pre [&_.selected-field]:mx-1 [&_.selected-field]:rounded-md [&_.selected-field]:bg-brand-50 [&_.selected-field]:px-1 [&_.selected-field]:text-brand-600 [&_.selected-field:not(:disabled)]:hover:bg-error-600 [&_.selected-field:not(:disabled)]:hover:text-white dark:[&_.selected-field]:bg-brand-500/15 dark:[&_.selected-field]:text-brand-400';
 const ICON_BTN =

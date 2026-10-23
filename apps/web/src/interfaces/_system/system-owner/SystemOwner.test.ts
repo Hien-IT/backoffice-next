@@ -1,4 +1,4 @@
-// Feature 016 (T090, US5-3): system-owner as Directus: the owner email with the edit button, the drawer with the owner
+// Feature 016 (T090, US5-3): system-owner as DR: the owner email with the edit button, the drawer with the owner
 // fields of the setup form (organisation only for commercial use), save disabled until something changes,
 // `POST /settings/owner` with the four keys and a settings reload, an invalid email blocks the request.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';

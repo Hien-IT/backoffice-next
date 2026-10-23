@@ -1,4 +1,4 @@
-// The committed permission data matches Directus 11.17.4 (spec 016 FR-055, FR-105): app-permissions.ts is loaded with
+// The committed permission data matches DR 11.17.4 (spec 016 FR-055, FR-105): app-permissions.ts is loaded with
 // jiti as the script does and rendered by `renderPermissions` with the yaml rows, which must give the committed file
 // apart from the date.
 import { readFileSync } from 'node:fs';

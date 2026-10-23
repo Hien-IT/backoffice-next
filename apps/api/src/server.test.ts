@@ -100,7 +100,7 @@ describe('createServer', () => {
 });
 
 describe('startServer', () => {
-	// startServer calls process.send?.('ready') like Directus (PM2); keep it off Vitest's IPC channel.
+	// startServer calls process.send?.('ready') like DR (PM2); keep it off Vitest's IPC channel.
 	const send = process.send;
 
 	beforeEach(() => {
@@ -160,7 +160,7 @@ describe('startServer', () => {
 	});
 });
 
-// Feature 009: the `response`, `server.start` and `server.stop` actions of Directus' server.ts (event flows).
+// Feature 009: the `response`, `server.start` and `server.stop` actions of DR' server.ts (event flows).
 describe('server events', () => {
 	test('response: one action per finished request with the request and response info', async () => {
 		const { default: emitter } = await import('./emitter.js');

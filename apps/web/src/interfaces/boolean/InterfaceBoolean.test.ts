@@ -1,4 +1,4 @@
-// Directus has no test for the boolean interface: fixture, options (contracts/tests.md §5), states and keyboard.
+// DR has no test for the boolean interface: fixture, options (contracts/tests.md §5), states and keyboard.
 import type { FieldRaw } from '@directus/types';
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';

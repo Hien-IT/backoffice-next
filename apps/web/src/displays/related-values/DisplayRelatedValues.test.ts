@@ -1,4 +1,4 @@
-// Directus has no test for the related-values display (spec FR-072, FR-073, FR-074 `related-values`, FR-078): inline
+// DR has no test for the related-values display (spec FR-072, FR-073, FR-074 `related-values`, FR-078): inline
 // m2o, "N item(s)" trigger for the to-many types, units, `fields`, `options` and `handler` on the fixture relations.
 import { readItem } from '@directus/sdk';
 import type { ExtensionOptionsContext } from '@directus/types';

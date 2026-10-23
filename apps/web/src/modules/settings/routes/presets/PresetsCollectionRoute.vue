@@ -3,7 +3,7 @@
 // Backoffice (spec 016 US6-1, recipe Q-26): the layout renders from the registry inside the 014 layout wrapper, as the
 // Content and Users lists (014 research R4); the page fills the window (D-99). Header buttons are named BoButtons and
 // the confirmations BoDialogs; the batch delete error opens the `something_went_wrong` dialog with translateAPIError
-// (v-error). As Directus, the layout is a local `tabular` ref (not the preset's).
+// (v-error). As DR, the layout is a local `tabular` ref (not the preset's).
 import type { PrimaryKey } from '@directus/types';
 import { computed, ref } from 'vue';
 import BoButton from '../../../../components/BoButton.vue';

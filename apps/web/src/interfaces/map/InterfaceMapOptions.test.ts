@@ -1,4 +1,4 @@
-// Feature 016 (T053, D-56 lifted): the options component of the map interface, as Directus interfaces/map/options.vue:
+// Feature 016 (T053, D-56 lifted): the options component of the map interface, as DR interfaces/map/options.vue:
 // the geometry type (only without a native geometry type) and the default view taken from the map on `moveend`.
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

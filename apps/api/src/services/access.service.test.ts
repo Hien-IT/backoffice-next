@@ -1,4 +1,4 @@
-// AccessService on real SQLite tables (task T024; Directus 11.17.4 has no test for this service): integrity flags and the
+// AccessService on real SQLite tables (task T024; DR 11.17.4 has no test for this service): integrity flags and the
 // cache points of spec FR-082 (system and permission caches through clearSystemCache, data cache always).
 import { createInspector } from '@backoffice/schema';
 import type { Accountability, SchemaOverview } from '@backoffice/types';

@@ -1,4 +1,4 @@
-// Spec 020 (T103, FR-075, FR-076, data-model §7): every global component, view and directive of the Directus 11.17.4
+// Spec 020 (T103, FR-075, FR-076, data-model §7): every global component, view and directive of the DR 11.17.4
 // app is registered by the shim with the same contract as apps/web/fixtures/directus-components.json (extracted from
 // directus/app by scripts/extract-directus-components.mjs): prop names, runtime types, required and defaults; emits;
 // slot names (from the shim template; a shim that forwards every slot covers them all) and exposed members.
@@ -56,7 +56,7 @@ const typeSet = (type: string) =>
 			.filter((t) => t !== 'null'),
 	);
 
-/** A shim type accepts what Directus accepts: `null` (any type), or a superset of the Directus types. */
+/** A shim type accepts what DR accepts: `null` (any type), or a superset of the DR types. */
 const accepts = (shim: string, directus: string) =>
 	shim === 'null' || directus === 'null' || [...typeSet(directus)].every((type) => typeSet(shim).has(type));
 

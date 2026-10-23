@@ -1,4 +1,4 @@
-// Directus has no test for layouts/kanban/index.ts: the layout state (T059) over the fixture API, collections bo_content
+// DR has no test for layouts/kanban/index.ts: the layout state (T059) over the fixture API, collections bo_content
 // (status choices draft/published/archived, not nullable; author m2o directus_users; tags csv; sort field `sort`) and
 // bo_groups (`target` m2o to bo_rel_target, sort field `sort`, title `name`).
 import { flushPromises, mount } from '@vue/test-utils';

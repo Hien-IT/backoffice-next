@@ -1,5 +1,5 @@
-// Feature 016 (T042, FR-028): system-collections-translations, as Directus system-collections-translations.vue and its
-// dialog: hidden for system collections, the enable mode with the Directus defaults, the manage mode, the two bodies
+// Feature 016 (T042, FR-028): system-collections-translations, as DR system-collections-translations.vue and its
+// dialog: hidden for system collections, the enable mode with the DR defaults, the manage mode, the two bodies
 // of POST /utils/translations/generate and the store reloads.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

@@ -8,7 +8,7 @@ export default async function start(): Promise<void> {
 	const database = getDatabase();
 	const logger = useLogger();
 
-	// Backoffice (spec 021 D-145): other vendors are installed by the Directus image.
+	// Backoffice (spec 021 D-145): other vendors are installed by the DR image.
 	const client = unsupportedClient(database);
 
 	if (client) {

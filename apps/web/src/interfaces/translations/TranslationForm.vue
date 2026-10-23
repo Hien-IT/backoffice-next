@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: v-form -> BoForm (no `inline` prop, D-55), v-remove -> BoRemove, usePermissions ->
 // ./use-permissions.ts (store only, see there). The activator icon is a button labelled `enable`; the secondary
-// colors are the theme blue-light tint (Directus `--theme--secondary`).
+// colors are the theme blue-light tint (DR `--theme--secondary`).
 import { isEmpty } from 'lodash-es';
 import { computed, nextTick, ref, watch } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
@@ -152,7 +152,7 @@ function onToggleDelete(item: DisplayItem, itemInitial?: DisplayItem) {
 	remove(itemInitial);
 }
 
-// Backoffice: Directus `rotate-in` / `rotate-out` transitions as Tailwind classes, off under reduced motion.
+// Backoffice: DR `rotate-in` / `rotate-out` transitions as Tailwind classes, off under reduced motion.
 const ROTATE = 'transition-transform duration-200 motion-reduce:transition-none';
 
 const transitionProps = computed(() => {

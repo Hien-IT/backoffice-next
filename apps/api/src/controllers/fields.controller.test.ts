@@ -1,4 +1,4 @@
-// Feature 006 (T023): the /fields controller (port of directus/api/src/controllers/fields.ts, which Directus does not
+// Feature 006 (T023): the /fields controller (port of directus/api/src/controllers/fields.ts, which DR does not
 // unit test) through the real app pipeline on SQLite, with FieldsService mocked: validateCollection first, Joi and the
 // zod schema of system fields, the query flag, the field of the URL, 204 when the read back is forbidden.
 import * as env from '@backoffice/env';

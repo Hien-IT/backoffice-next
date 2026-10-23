@@ -1,4 +1,4 @@
-// Directus has no test for utils/geometry/controls.ts: ButtonControl and BoxSelectControl against a fake MapLibre map
+// DR has no test for utils/geometry/controls.ts: ButtonControl and BoxSelectControl against a fake MapLibre map
 // (happy-dom has no WebGL; the real map runs in src/layouts/map/MapLayout.browser.test.ts).
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { BoxSelectControl, ButtonControl } from './controls.ts';

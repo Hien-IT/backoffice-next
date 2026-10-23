@@ -28,7 +28,7 @@ export function castJson(value: unknown): unknown {
 	return value;
 }
 
-/** cast-csv: arrays unchanged, '' → [], strings split on ','; other values unchanged (Directus returns undefined, which keeps the value). */
+/** cast-csv: arrays unchanged, '' → [], strings split on ','; other values unchanged (DR returns undefined, which keeps the value). */
 export function castCsv(value: unknown): unknown {
 	if (Array.isArray(value) === false && typeof value !== 'string') return value;
 	if (Array.isArray(value)) return value;

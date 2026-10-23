@@ -1,5 +1,5 @@
-// Directus has no test for its marketplace account page (spec 020 T175, recipe Q-43, rows 204, 210 and 212): the
-// banner and metadata of the account, its extensions (`filter[by][_eq]`, 6 per page, Directus Math.round page count)
+// DR has no test for its marketplace account page (spec 020 T175, recipe Q-43, rows 204, 210 and 212): the
+// banner and metadata of the account, its extensions (`filter[by][_eq]`, 6 per page, DR Math.round page count)
 // and the error state.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, expect, test, vi } from 'vitest';
@@ -92,7 +92,7 @@ test('banner, metadata links and the account extensions', async () => {
 		'/settings/marketplace/extension/one',
 		'/settings/marketplace/extension/two',
 	]);
-	// no type filter on this list: the type chip shows only when asked (Directus passes no show-type here)
+	// no type filter on this list: the type chip shows only when asked (DR passes no show-type here)
 	expect(wrapper.get('li a').text()).not.toContain('Display');
 });
 

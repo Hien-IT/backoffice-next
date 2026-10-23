@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: recipe "Comments and shares" (Q-11): the text is `whitespace-pre-wrap` plain text, not markdown (v-md):
 // `display` is the comment through DOMPurify with no tag plus the `<mark>` of the mentions (FR-110b). The unused
-// saveEdits of Directus is left out: CommentInput saves the edit.
+// saveEdits of DR is left out: CommentInput saves the edit.
 import type { Comment, User } from '@directus/types';
 import { ref } from 'vue';
 import CommentInput from './CommentInput.vue';

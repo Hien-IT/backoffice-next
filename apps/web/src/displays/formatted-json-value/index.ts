@@ -14,7 +14,7 @@ export default defineDisplay({
 	handler: (value, options) => {
 		return (
 			toArray(value)
-				// Backoffice: reproduces Directus 11.17.4 (R-xx at close): render(template, view) is called with the value as
+				// Backoffice: reproduces DR 11.17.4 (R-xx at close): render(template, view) is called with the value as
 				// the template and the format as the view, the reverse of the component (research R4).
 				.map((val) => (options['format'] ? render(val, options['format']) : val))
 				.join(', ')

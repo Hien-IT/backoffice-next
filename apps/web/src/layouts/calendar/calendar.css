@@ -1,7 +1,7 @@
 /* Ported from directus/app/src/styles/lib/_fullcalendar.scss
  * Backoffice: recipe "Calendar layout (Q-4)" of design-system/docs/component-specs.md: the FullCalendar variables are
  * set on `.fc` (they win over the `:root` defaults FullCalendar injects, research T002) from the TailAdmin tokens, light
- * and `.dark` (FR-110c); toolbar buttons are the Tier 1 outline Button (rounded-lg, h-9, FOCUS) instead of the Directus
+ * and `.dark` (FR-110c); toolbar buttons are the Tier 1 outline Button (rounded-lg, h-9, FOCUS) instead of the DR
  * text buttons; the toolbar is not sticky (the content box scrolls the layout, not the page); reduced motion: the global
  * rule of styles/base.css plus `dragRevertDuration: 0` in index.ts (no reverting drag mirror animation).
  */
@@ -224,7 +224,7 @@
 	box-shadow: 0 0 0 2px var(--color-brand-300);
 }
 
-/* Select mode: a check box (radio for select one) before the event title, as Directus. */
+/* Select mode: a check box (radio for select one) before the event title, as DR. */
 
 .bo-calendar.select-mode .fc .fc-event:not(.fc-daygrid-event) .fc-event-title::before,
 .bo-calendar.select-mode .fc .fc-event .fc-list-event-title::before,

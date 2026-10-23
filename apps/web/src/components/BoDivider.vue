@@ -3,7 +3,7 @@ import { Separator } from 'reka-ui';
 import { computed, useSlots } from 'vue';
 import BoIcon from './BoIcon.vue';
 
-// Tier 3 Divider recipe (Directus v-divider / presentation-divider). `color` is data (field options): applied to the
+// Tier 3 Divider recipe (DR v-divider / presentation-divider). `color` is data (field options): applied to the
 // icon and title with `style`, never a class. Spec 020 (VDivider shim): `large` title text and an `icon` slot that
 // replaces the `icon` prop.
 const {
@@ -17,10 +17,10 @@ const {
 	title?: string | null | undefined;
 	icon?: string | null | undefined;
 	color?: string | null | undefined;
-	/** Title and line on one row (Directus `inlineTitle`), else the title above a full-width line. */
+	/** Title and line on one row (DR `inlineTitle`), else the title above a full-width line. */
 	inlineTitle?: boolean | undefined;
 	vertical?: boolean | undefined;
-	/** Larger title text (Directus `large`). */
+	/** Larger title text (DR `large`). */
 	large?: boolean | undefined;
 }>();
 

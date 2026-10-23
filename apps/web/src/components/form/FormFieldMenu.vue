@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-form/components/form-field-menu.vue -->
 <script setup lang="ts">
-// Backoffice: the menu holds its own trigger, the chevron of the Field label row recipe (Directus opens it from the
-// whole label); items follow the Dropdown menu recipe on Reka DropdownMenu. Options and disable rules are Directus'
+// Backoffice: the menu holds its own trigger, the chevron of the Field label row recipe (DR opens it from the
+// whole label); items follow the Dropdown menu recipe on Reka DropdownMenu. Options and disable rules are DR'
 // (FR-017, FR-066: view and copy raw value stay available on read-only fields).
 import type { RelationalType } from '@directus/types';
 import {

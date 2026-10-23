@@ -1,4 +1,4 @@
-// Feature 016 (T042, D-57): system-display-template, as Directus system-display-template.vue: the chip editor
+// Feature 016 (T042, D-57): system-display-template, as DR system-display-template.vue: the chip editor
 // (VFieldTemplate, D-166) on the field tree of the chosen collection (the form value of collectionField, when that
 // collection exists); the notice when there is no collection.
 import { flushPromises, mount } from '@vue/test-utils';

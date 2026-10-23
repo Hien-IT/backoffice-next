@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-raw-editor/system-raw-editor.vue -->
 <script setup lang="ts">
 // Backoffice: template and CodeMirror styles follow the EditorFrame recipe (FIELD border on the frame, the shared
-// styles/codemirror-theme.css for the editor, light and dark, FR-095) instead of the global Directus
+// styles/codemirror-theme.css for the editor, light and dark, FR-095) instead of the global DR
 // `_codemirror.scss`; the placeholder addon is
-// imported here (Directus loads it through input-code). `id` and `aria-labelledby` reach the CodeMirror textarea (FR-094).
+// imported here (DR loads it through input-code). `id` and `aria-labelledby` reach the CodeMirror textarea (FR-094).
 import { isValidJSON, parseJSON } from '@directus/utils';
 import { useWindowSize } from '@vueuse/core';
 import CodeMirror from 'codemirror';

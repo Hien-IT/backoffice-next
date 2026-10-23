@@ -54,7 +54,7 @@ describe('useShortcut', () => {
 		wrapper.unmount();
 	});
 
-	// Backoffice: scoping to a reference element and unmount cleanup have no Directus test.
+	// Backoffice: scoping to a reference element and unmount cleanup have no DR test.
 	test('only fires when focus is inside the reference element or on body, and stops after unmount', async () => {
 		const Host = defineComponent({
 			setup() {

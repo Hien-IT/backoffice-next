@@ -1,6 +1,6 @@
-// Feature 016 (T114, T115): the system collections, fields and relations that Directus answers on every instance
+// Feature 016 (T114, T115): the system collections, fields and relations that DR answers on every instance
 // (`/collections`, `/fields`, `/relations`), built in the browser tests from directus/packages/system-data/src as
-// Directus builds them (collections/index.ts, fields/index.ts processFields with _defaults.yaml, relations/index.ts).
+// DR builds them (collections/index.ts, fields/index.ts processFields with _defaults.yaml, relations/index.ts).
 // The fixture snapshot holds only the system rows the bo_* fields point at. Field types are not in the yaml (they come
 // from the migrations): guessed from `special` (alias, cast-boolean, cast-json, uuid), enough for the forms to render.
 import type { Field, Relation } from '@directus/types';

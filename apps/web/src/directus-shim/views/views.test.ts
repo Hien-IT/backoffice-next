@@ -1,4 +1,4 @@
-// Spec 020 T115: the Directus views of extensions (PrivateView, PublicView, SharedView) on the app shell: slots land in
+// Spec 020 T115: the DR views of extensions (PrivateView, PublicView, SharedView) on the app shell: slots land in
 // the page header, the detail panel and the content; back button; `main-element`; SharedView title fallback.
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -163,7 +163,7 @@ describe('PublicView and SharedView', () => {
 		const fallback = mountView(SharedView, {}, { default: '<p data-content>c</p>' });
 		expect(fallback.get('h1.type-title').text()).toBe('Access Shared Page');
 		expect(fallback.find('[data-content]').exists()).toBe(true);
-		// The Directus shared container (48.125rem), wide content scrolls.
+		// The DR shared container (48.125rem), wide content scrolls.
 		expect(column(fallback)).toContain('max-w-[48.125rem]');
 		expect(column(fallback)).toContain('overflow-auto');
 

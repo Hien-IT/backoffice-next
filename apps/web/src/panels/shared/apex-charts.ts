@@ -1,5 +1,5 @@
-// Backoffice (spec 018 FR-109, research R1): ApexCharts 4.7.0 (the Directus version) loaded on demand, so the chart
-// library and its theme overrides stay in a lazy chunk; Directus imports it statically in each chart panel.
+// Backoffice (spec 018 FR-109, research R1): ApexCharts 4.7.0 (the DR version) loaded on demand, so the chart
+// library and its theme overrides stay in a lazy chunk; DR imports it statically in each chart panel.
 import type ApexChartsType from 'apexcharts';
 import '../../styles/apexcharts.css';
 
@@ -11,7 +11,7 @@ export function loadApexCharts(): Promise<typeof ApexChartsType> {
 }
 
 /**
- * The Directus theme variables the chart panels pass to ApexCharts, as the theme-token variables of
+ * The DR theme variables the chart panels pass to ApexCharts, as the theme-token variables of
  * styles/apexcharts.css (D-108: the default chart color is the brand token).
  */
 export const THEME = {

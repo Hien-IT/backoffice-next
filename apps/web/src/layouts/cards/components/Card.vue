@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/layouts/cards/components/card.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Cards grid (Q-3)". The card body is a link to the item (`href` from the router, Enter opens it,
-// Space and the click toggle the selection in select mode as Directus); the selector is a BoCheckbox outside the link
+// Space and the click toggle the selection in select mode as DR); the selector is a BoCheckbox outside the link
 // (no interactive element inside a link) named after the item key, visible on hover/focus or in select mode; the
 // selected card gets a 2px brand border drawn inside it (`border-brand-500` + `ring-1 ring-inset`, owner 2026-10-21: an
 // outer ring was clipped by the scrolling grid of `fill` pages) instead of the inner border; v-icon-file is inlined (file icon + extension).

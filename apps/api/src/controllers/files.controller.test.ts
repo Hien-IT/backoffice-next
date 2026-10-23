@@ -1,4 +1,4 @@
-// Feature 007 (T023): the /files controller (port of directus/api/src/controllers/files.ts, unit tested by Directus only
+// Feature 007 (T023): the /files controller (port of directus/api/src/controllers/files.ts, unit tested by DR only
 // for the multipart handler) through the real app pipeline on SQLite, with FilesService mocked: multipartHandler
 // (fields before files, payload reset, coercion, limits, errors), JSON create, import, read, batch update and delete.
 import { Readable } from 'node:stream';

@@ -3,8 +3,8 @@
 // Backoffice (spec 018 FR-042..FR-046, recipe Q-36): default color `var(--color-brand-500)` (D-108) instead of
 // `var(--theme--primary)`; styles as Tailwind classes (text `text-gray-800 dark:text-white/90`, fonts `font-outfit`,
 // `font-[serif]`, `font-[monospace]` as DisplayFormattedValue: the theme has no `font-serif`/`font-mono`);
-// `inheritAttrs: false` (as the Directus label panel) keeps the tile context props it does not declare out of the DOM.
-// Logic as Directus, quirks kept: the last matching conditional rule wins, `<=` compares with `<`.
+// `inheritAttrs: false` (as the DR label panel) keeps the tile context props it does not declare out of the DOM.
+// Logic as DR, quirks kept: the last matching conditional rule wins, `<=` compares with `<`.
 import type { Filter } from '@directus/types';
 import { isNil } from 'lodash-es';
 import { type CSSProperties, computed, onBeforeUnmount, onMounted, onUpdated, ref } from 'vue';
@@ -206,7 +206,7 @@ const color = computed(() => {
 				case '<':
 					return value < compareValue;
 				case '<=':
-					// Backoffice (D-113, owner 2026-10-18): Directus compares `<=` with `<` (R-53).
+					// Backoffice (D-113, owner 2026-10-18): DR compares `<=` with `<` (R-53).
 					return value <= compareValue;
 			}
 		}

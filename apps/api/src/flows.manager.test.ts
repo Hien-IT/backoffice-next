@@ -1,4 +1,4 @@
-// Backoffice: behaviour of the ported FlowManager beyond the two Directus tests of flows.test.ts (feature 009, tasks
+// Backoffice: behaviour of the ported FlowManager beyond the two DR tests of flows.test.ts (feature 009, tasks
 // T015, T024, T026; spec FR-010 to FR-024, contracts/flows-api.md). The flow tree, redaction and option rendering are
 // the real ported helpers; the database, bus, emitter, services and operations are mocks.
 import type { FlowRaw, OperationRaw } from '@backoffice/types';
@@ -383,7 +383,7 @@ describe('manual trigger', () => {
 	test('admin runs; return is forced to $last; requireSelection false needs no keys', async () => {
 		await loaded([manual({ return: '$all', requireSelection: false })]);
 
-		// A missing value inside a mustache renders as the string "undefined", as in Directus (micromustache).
+		// A missing value inside a mustache renders as the string "undefined", as in DR (micromustache).
 		await expect(run({ collection: 'articles' })).resolves.toEqual({ result: { keys: 'undefined' } });
 	});
 

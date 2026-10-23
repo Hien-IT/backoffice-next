@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): wraps BoUpload (extended with `start` and `abort`, it has the URL dialog);
 // "Choose from library" (`library` of BoUpload) opens DrawerFiles here, whose selection goes to BoUpload's
-// `setSelection` as Directus v-upload renders drawer-files itself.
+// `setSelection` as DR v-upload renders drawer-files itself.
 import type { Filter } from '@directus/types';
 import { ref } from 'vue';
 import DrawerFiles from '../../components/drawers/DrawerFiles.vue';

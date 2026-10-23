@@ -143,7 +143,7 @@ export function formatNumber(value: number, locales: string | string[], options?
 	}
 
 	try {
-		// Backoffice: the TS lib types roundingIncrement as a union; the Directus option type is a plain number.
+		// Backoffice: the TS lib types roundingIncrement as a union; the DR option type is a plain number.
 		const formatter: Intl.NumberFormat = new Intl.NumberFormat(locales, options as Intl.NumberFormatOptions);
 		return formatter.format(value);
 	} catch {

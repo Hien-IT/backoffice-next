@@ -91,7 +91,7 @@ export function calls(fetch: ReturnType<typeof mockApi>): string[] {
 	});
 }
 
-/** System m2o relations of the 015 user page, as Directus system-data defines them. */
+/** System m2o relations of the 015 user page, as DR system-data defines them. */
 const SYSTEM_M2O: Record<string, string> = {
 	'directus_users.role': 'directus_roles',
 	'directus_users.avatar': 'directus_files',
@@ -178,7 +178,7 @@ export const KNOWN_REQUESTS: { id: number; method: string; path: RegExp }[] = [
 	{ id: 105, method: 'GET', path: /^\/utils\/random\/string$/ },
 	{ id: 110, method: 'POST', path: /^\/(folders|users|users\/invite)$/ },
 	{ id: 111, method: 'PATCH', path: new RegExp(`^/(folders|files|users)(/${ID})?$`) },
-	// Not /users/me: the app deletes the current user by its id (Directus users/routes/item.vue).
+	// Not /users/me: the app deletes the current user by its id (DR users/routes/item.vue).
 	{ id: 113, method: 'DELETE', path: new RegExp(`^/(folders|files|users)(/(?!me$)${ID})?$`) },
 	{ id: 120, method: 'POST', path: /^\/files\/tus$/ },
 	{ id: 120, method: 'PATCH', path: new RegExp(`^/files/tus/${ID}$`) },
@@ -334,7 +334,7 @@ export interface FixtureApiOptions {
  * `/assets/<id>` (1x1 PNG), `POST /files` and `POST /files/import` (add a file row), `POST /flows/trigger/<id>`.
  * Feature 015: the bo-files folders, files, roles and directory users; `PATCH /files/<id>` multipart (replace),
  * `POST /assets/files|folder/<id>` (a zip), `POST /users/invite`, the TFA routes of `/users`, `GET /utils/random/string`.
- * Read permissions of the user apply like Directus: an explicit field or collection the user cannot read answers 403,
+ * Read permissions of the user apply like DR: an explicit field or collection the user cannot read answers 403,
  * `*` lists the readable fields. Returns the fetch mock; `fetch.db` holds the rows (flat, keys instead of objects).
  */
 export function mockFixtureApi(
@@ -482,7 +482,7 @@ export function mockFixtureApi(
 			if (key === '_or') return (value as unknown[]).some((f) => matches(collection, row, f));
 
 			// `$FOLLOW(collection,field[,collectionField])`: the rows of `collection` whose `field` points at this row
-			// (Directus getRelationInfo: an implicit o2m, or o2a with the collection field), filtered like an o2m.
+			// (DR getRelationInfo: an implicit o2m, or o2a with the collection field), filtered like an o2m.
 			if (key.startsWith('$FOLLOW(') && key.endsWith(')')) {
 				const [follow, field, collectionField] = key
 					.slice(8, -1)
@@ -674,7 +674,7 @@ export function mockFixtureApi(
 	}
 
 	/**
-	 * Feature 016: the data model endpoints over the snapshot (collections, fields, relations), admin only as in Directus.
+	 * Feature 016: the data model endpoints over the snapshot (collections, fields, relations), admin only as in DR.
 	 * Writes change the snapshot so the next GET answers what was written.
 	 */
 	function dataModelRoute(
@@ -879,7 +879,7 @@ export function mockFixtureApi(
 			return createFile({ filename_download: body.url.split('/').pop(), ...body.data });
 		}
 
-		// Directus answers a manual flow without operations with the trigger data ($trigger).
+		// DR answers a manual flow without operations with the trigger data ($trigger).
 		if (method === 'POST' && first === 'flows' && second === 'trigger' && third)
 			return { path: `/trigger/${third}`, query: {}, body: JSON.parse(String(init.body ?? '{}')), method, headers: {} };
 
@@ -921,7 +921,7 @@ export function mockFixtureApi(
 			}
 
 			if (method === 'DELETE') {
-				// The API takes the key array or `{ keys }` (Directus notifications drawer).
+				// The API takes the key array or `{ keys }` (DR notifications drawer).
 				const sent = body() as unknown[] | { keys: unknown[] };
 				const keys = key ? [decodeURIComponent(key)] : Array.isArray(sent) ? sent : sent.keys;
 				db[collection] = (db[collection] ?? []).filter((row) => !keys.some((k) => loose(row[pkOf(collection)], k)));
@@ -934,8 +934,8 @@ export function mockFixtureApi(
 
 	/* ---------------------------------------------------------------- 015 helpers */
 
-	/** Directus UsersService.inviteUser: one invited user per new email; known emails are RECORD_NOT_UNIQUE. */
-	// Directus UsersService.inviteUser: an unknown email becomes an invited user; an invited user gets the new role; any
+	/** DR UsersService.inviteUser: one invited user per new email; known emails are RECORD_NOT_UNIQUE. */
+	// DR UsersService.inviteUser: an unknown email becomes an invited user; an invited user gets the new role; any
 	// other known user is left as it is (no error). RECORD_NOT_UNIQUE only comes from the database, so tests that need it
 	// answer the request themselves.
 	function inviteUsers(body: { email: string | string[]; role: string }): Response | null {
@@ -1209,7 +1209,7 @@ function sorter(keys: string[]) {
 	};
 }
 
-/** Directus on Postgres answers counts as strings: `[{ count: "5" }]`, `[{ countDistinct: { id: "5" } }]`. */
+/** DR on Postgres answers counts as strings: `[{ count: "5" }]`, `[{ countDistinct: { id: "5" } }]`. */
 function aggregated(rows: Row[], aggregate: Record<string, unknown>): Row {
 	return Object.fromEntries(
 		Object.entries(aggregate).map(([fn, value]) => {

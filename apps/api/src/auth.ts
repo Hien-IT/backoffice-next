@@ -56,7 +56,7 @@ export async function registerAuthProviders(): Promise<void> {
 			return;
 		}
 
-		// Backoffice: SAML is out of scope (Principle XI); like Directus without the provider, refresh and logout of
+		// Backoffice: SAML is out of scope (Principle XI); like DR without the provider, refresh and logout of
 		// its users answer INVALID_PROVIDER_CONFIG (FR-078 of spec 003).
 		if (driver === 'saml') {
 			logger.warn(

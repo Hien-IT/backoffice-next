@@ -1,4 +1,4 @@
-// Directus has no test for file-info-sidebar-detail.vue: rows from the file, the owner and folder requests, the EXIF
+// DR has no test for file-info-sidebar-detail.vue: rows from the file, the owner and folder requests, the EXIF
 // rows of the fixture JPEG, a failing owner request that leaves its row out (CHK013).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

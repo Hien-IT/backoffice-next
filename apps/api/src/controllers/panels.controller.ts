@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/panels.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R16 of spec 010, R4 of spec 008);
+// Backoffice: one Nest handler per DR route, in the same order (research R16 of spec 010, R4 of spec 008);
 // validateBatch runs through runMiddleware, useCollection('directus_panels') is applied in app.module.ts,
 // `next()` to `respond` is respond().
 import { ErrorCode, isBackofficeError } from '@backoffice/errors';
@@ -150,7 +150,7 @@ export class PanelsController {
 		return respond(req, res);
 	}
 
-	// Backoffice: no validateBatch('delete') here, like the Directus router of this collection.
+	// Backoffice: no validateBatch('delete') here, like the DR router of this collection.
 	@Delete()
 	async deleteMany(@Req() req: Request, @Res() res: Response): Promise<void> {
 		const service = this.service(req);

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/collections/collections.vue (download-snapshot sidebar detail) -->
 <script setup lang="ts">
 // Backoffice (spec 016 FR-016): the file holds the whole answer body `{ data }` of GET /schema/snapshot, indented by two
-// spaces, named snapshot.json, as Directus `downloadSnapshot`. The SDK unwraps `data`, so it is wrapped again here.
+// spaces, named snapshot.json, as DR `downloadSnapshot`. The SDK unwraps `data`, so it is wrapped again here.
 import { saveAs } from 'file-saver';
 import { requestEndpoint, sdk } from '../../../../../api/sdk.ts';
 import BoButton from '../../../../../components/BoButton.vue';

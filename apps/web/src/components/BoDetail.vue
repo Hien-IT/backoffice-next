@@ -3,7 +3,7 @@ import { CollapsibleContent, CollapsibleRoot, CollapsibleTrigger } from 'reka-ui
 import BoIcon from './BoIcon.vue';
 import BoTooltip from './BoTooltip.vue';
 
-// Tier 3 Detail recipe (Directus v-detail as used by group-detail). `color` is data (Directus `headerColor`): icon and
+// Tier 3 Detail recipe (DR v-detail as used by group-detail). `color` is data (DR `headerColor`): icon and
 // title color by `style`; without it the theme classes apply. The `badge` slot sits after the title (error icon).
 // Spec 020 (VDetail shim): an `activator` slot replaces the header button, with `{ active, enable, disable, toggle }`.
 const {

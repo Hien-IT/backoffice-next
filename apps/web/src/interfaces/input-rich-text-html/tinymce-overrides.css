@@ -1,6 +1,6 @@
 /* Ported from directus/app/src/interfaces/input-rich-text-html/tinymce-overrides.css */
 /*
- * Backoffice: the Directus theme variables are mapped to the TailAdmin tokens through local `--bo-tx-*` variables, set
+ * Backoffice: the DR theme variables are mapped to the TailAdmin tokens through local `--bo-tx-*` variables, set
  * for light and again for dark (FR-095), on every `.tox` root (the editor and the popup sink TinyMCE appends to
  * <body>). The editor sits in BoEditorFrame (EditorFrame recipe), which draws the border, focus ring and disabled
  * background, so `.tox-tinymce` has no border of its own; the toolbar row uses the recipe toolbar colors and

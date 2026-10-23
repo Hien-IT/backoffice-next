@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/comment-item-header.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Comments and shares" (Q-11): avatar xs, name, time and a BoMenu (edit, delete) that stays visible
-// (Directus swaps the time for the menu on hover); the delete confirmation is a BoDialog with Cancel first. axios -> sdk.
+// (DR swaps the time for the menu on hover); the delete confirmation is a BoDialog with Cancel first. axios -> sdk.
 import type { Comment, User } from '@directus/types';
 import { computed, ref } from 'vue';
 import { useI18n } from 'vue-i18n';

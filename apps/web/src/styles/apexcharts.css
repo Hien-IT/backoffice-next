@@ -1,6 +1,6 @@
-/* Insights charts (spec 018 Q-35, layout-patterns §14): the Directus theme variables the ported panels read, mapped to
+/* Insights charts (spec 018 Q-35, layout-patterns §14): the DR theme variables the ported panels read, mapped to
    theme tokens with a dark variant (CSS variables resolve live, so a theme switch needs no chart re-render), and the
-   ApexCharts tooltip and legend restyled with theme variables only (Directus panel-bar-chart.vue global styles). Loaded
+   ApexCharts tooltip and legend restyled with theme variables only (DR panel-bar-chart.vue global styles). Loaded
    with the chart chunk (panels/shared/apex-charts.ts). */
 :root {
 	--chart-primary: var(--color-brand-500);

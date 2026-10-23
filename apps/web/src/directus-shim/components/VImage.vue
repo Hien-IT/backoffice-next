@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-image.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): new, as Directus: an empty pixel until the image enters the viewport, then
+// Backoffice (spec 020, data-model §7): new, as DR: an empty pixel until the image enters the viewport, then
 // `src` loads through the request queue; every other attribute goes to the `img`.
 import { omit } from 'lodash-es';
 import { computed, onMounted, onUnmounted, ref, useAttrs, watch } from 'vue';

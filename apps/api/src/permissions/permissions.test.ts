@@ -1,5 +1,5 @@
 // fetchPolicies, fetchPermissions and fetchAllowedFieldMap on real SQLite tables. Feature 004 reads them through
-// AccessService and PermissionsService like Directus (the knex shortcut of features 001 and 002 is gone), so the schema
+// AccessService and PermissionsService like DR (the knex shortcut of features 001 and 002 is gone), so the schema
 // is the one of the database (system collections and relations) plus the `articles` collection of the test.
 import { createInspector } from '@backoffice/schema';
 import { SchemaBuilder } from '@backoffice/schema-builder';

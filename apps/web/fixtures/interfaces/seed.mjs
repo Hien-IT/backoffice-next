@@ -1,4 +1,4 @@
-// Seeds the fixture set of feature 013 (data-model §6, FR-100) through the REST API of Directus 11.17.4 or the new API.
+// Seeds the fixture set of feature 013 (data-model §6, FR-100) through the REST API of DR 11.17.4 or the new API.
 // Idempotent: deletes then recreates the `bo_*` collections, the `bo-fixtures` folder and its files, the `bo-flow` flow
 // and the `bo-editor` / `bo-viewer` role, policy and user. Touches nothing else.
 // Feature 014 (data-model §9, T023) adds the Content module set: the `bo_folder` folder with `bo_content` (versioning,
@@ -38,7 +38,7 @@ import {
 const args = readArgs();
 const api = await Api.connect(args);
 
-// Data colors stored in options, like the Directus color presets.
+// Data colors stored in options, like the DR color presets.
 const PURPLE = '#6644FF';
 const GREEN = '#2ECDA7';
 const RED = '#E35169';
@@ -160,7 +160,7 @@ async function cleanup() {
 /* ---------------------------------------------------------------- field builders */
 
 /**
- * A field payload. `options`/`display_options` keys are the ones Directus stores (directus-registry.json).
+ * A field payload. `options`/`display_options` keys are the ones DR stores (directus-registry.json).
  * `meta` holds the remaining meta keys (width, group, hidden, readonly, required, note, conditions, validation...).
  */
 function field(name, type, iface, options = null, meta = {}, schema = {}) {
@@ -2255,7 +2255,7 @@ async function createExtensionsFixtures() {
 /* ---------------------------------------------------------------- flows (017) */
 
 /**
- * One operation node of a tree as the flows editor sends it (Directus flow.vue saveChanges): `flow` on every node, the
+ * One operation node of a tree as the flows editor sends it (DR flow.vue saveChanges): `flow` on every node, the
  * children nested in `resolve` / `reject`, no key for a missing child.
  */
 function op(flow, key, type, [x, y], options, children = {}) {

@@ -1,11 +1,11 @@
 <script setup lang="ts" generic="T">
-// SortableList row menu recipe (component-specs Tier 3, D-60): vuedraggable with a drag handle as the Directus list
+// SortableList row menu recipe (component-specs Tier 3, D-60): vuedraggable with a drag handle as the DR list
 // interfaces (`handle=".drag-handle"`, `force-fallback`), plus a row menu whose "Move up" / "Move down" emit the same
 // `update:modelValue` array as a drag (WCAG 2.1.1). `tree` adds "Indent" / "Outdent", emitted as events for the
 // tree view to change the parent. After a move, focus returns to the moved row's menu trigger and a live region
 // says the new position. `group` shares a vuedraggable group between nested lists (mouse drag across levels, whose
 // `added` / `removed` vuedraggable `change` events are passed on); `update:modelValue` is only a reorder inside the
-// list. `itemDisabled` rows (e.g. deleted ones) cannot be dragged or moved (Directus `draggable=".draggable"`).
+// list. `itemDisabled` rows (e.g. deleted ones) cannot be dragged or moved (DR `draggable=".draggable"`).
 import { moveInArray } from '@directus/utils';
 import { nextTick, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -145,7 +145,7 @@ const ICON_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 disabled:cursor-not-allowed disabled:opacity-50 dark:text-gray-400 dark:hover:bg-white/5 dark:hover:text-gray-300 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 
 // Lists of a `group` are nested trees: rows slide (`animation`), a row swaps once the pointer is 30% into its neighbour
-// (Directus `swap-threshold`), the dragged clone lives on `body` so it does not push the nested lists around, and an
+// (DR `swap-threshold`), the dragged clone lives on `body` so it does not push the nested lists around, and an
 // empty list takes a drop from 20px away (SortableJS nested-list settings; owner 2026-10-21, smoother drags).
 const NESTED_DRAG = {
 	animation: 150,

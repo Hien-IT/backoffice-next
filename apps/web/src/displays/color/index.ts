@@ -19,7 +19,7 @@ export default defineDisplay({
 				width: 'half',
 			},
 			schema: {
-				default_value: '#B0BEC5', // raw-color-allowed: Directus data default (Q-C)
+				default_value: '#B0BEC5', // raw-color-allowed: DR data default (Q-C)
 			},
 		},
 	],

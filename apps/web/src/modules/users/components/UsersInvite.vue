@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/users-invite.vue -->
 <script setup lang="ts">
 // Backoffice: user story 3 of feature 015 (FR-063, recipe Q-19). BoDialog with a BoTextarea and a BoSelect; the
-// `RECORD_NOT_UNIQUE` errors stay in the dialog (danger notice, as Directus), other errors open the error dialog
+// `RECORD_NOT_UNIQUE` errors stay in the dialog (danger notice, as DR), other errors open the error dialog
 // (D-66). The roles load when the dialog opens. No role at all leaves the select empty and the invite goes without
 // `role` (CHK019). A successful invite also emits `invited` so the screen can reload and then show the "no email"
 // notice (D-83): this system sends no invitation email.

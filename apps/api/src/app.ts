@@ -25,17 +25,17 @@ export interface App {
 
 /** Builds the Express pipeline, mounts the Nest routes on it and initialises Nest (no listen). */
 export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
-	// Directus subscribes when its cache module loads; Backoffice does it here, before any request (feature 002)
+	// DR subscribes when its cache module loads; Backoffice does it here, before any request (feature 002)
 	subscribeSchemaChanged();
 
-	// Directus initializes the flows after the auth providers (end of runStartupChecks here) and before express()
+	// DR initializes the flows after the auth providers (end of runStartupChecks here) and before express()
 	// (app.ts:128-131), so event flows see the first request (feature 009, research R2).
 	const extensionManager = getExtensionManager();
 	const flowManager = getFlowManager();
 
 	await extensionManager.initialize();
 	await flowManager.initialize();
-	// Backoffice: stop the extensions and the cron jobs of scheduled flows with the other shutdown tasks; Directus
+	// Backoffice: stop the extensions and the cron jobs of scheduled flows with the other shutdown tasks; DR
 	// relies on pm2.
 	onServerShutdown(() => extensionManager.unload());
 	onServerShutdown(() => flowManager.unload());
@@ -63,7 +63,7 @@ export async function createApp(options: ExpressAppOptions = {}): Promise<App> {
 }
 
 /**
- * The scheduled jobs, in the order of the end of Directus' createApp (retention, telemetry, tus, metrics, project;
+ * The scheduled jobs, in the order of the end of DR' createApp (retention, telemetry, tus, metrics, project;
  * telemetry and project are out of scope). Each job stops with the shutdown tasks.
  */
 export async function startSchedules(): Promise<void> {
@@ -73,9 +73,9 @@ export async function startSchedules(): Promise<void> {
 }
 
 /**
- * Directus registers the websocket.event bus bridge when it creates its REST (websocket/controllers/rest.ts:18) or
+ * DR registers the websocket.event bus bridge when it creates its REST (websocket/controllers/rest.ts:18) or
  * GraphQL (graphql.ts:26) WebSocket controller, in createServer (server.ts:104). Backoffice opens no WebSocket
- * (Principle XI, spec FR-033) but publishes the same messages under the same condition, so the Directus instances that
+ * (Principle XI, spec FR-033) but publishes the same messages under the same condition, so the DR instances that
  * hold the clients push the changes made here (feature 005, D-30).
  */
 export function registerWebSocketBridge(): void {

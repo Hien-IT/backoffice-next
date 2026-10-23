@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/insights/components/dashboard-dialog.vue -->
 <script setup lang="ts">
-// Backoffice (spec 018 FR-011, US1-3): VDialog persistent -> BoDialog persistent (a form, so Enter saves as Directus
-// @apply); fields get visible labels (Directus has placeholders only, XII label rule). api -> SDK; errors keep the dialog
+// Backoffice (spec 018 FR-011, US1-3): VDialog persistent -> BoDialog persistent (a form, so Enter saves as DR
+// @apply); fields get visible labels (DR has placeholders only, XII label rule). api -> SDK; errors keep the dialog
 // open with the values and open the error dialog. The `activator` slot is left out: callers open it with v-model.
 import { isEqual } from 'lodash-es';
 import { computed, reactive, ref, watch } from 'vue';

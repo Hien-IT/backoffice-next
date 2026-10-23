@@ -1,4 +1,4 @@
-// Directus has no test for select-dropdown: spec FR-030 options, fixture bo_std fields, edit shapes, states, keyboard.
+// DR has no test for select-dropdown: spec FR-030 options, fixture bo_std fields, edit shapes, states, keyboard.
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { computed } from 'vue';
@@ -15,7 +15,7 @@ afterEach(() => {
 });
 
 const choices = [
-	{ text: 'Alpha', value: 'alpha', icon: 'star', color: '#6644FF' }, // raw-color-allowed: Directus data default (Q-C)
+	{ text: 'Alpha', value: 'alpha', icon: 'star', color: '#6644FF' }, // raw-color-allowed: DR data default (Q-C)
 	{ text: 'Beta', value: 'beta' },
 ];
 
@@ -83,8 +83,8 @@ describe('select-dropdown', () => {
 	test('option:select-dropdown.choices: choices with icon and color dot, integer values emitted as numbers', async () => {
 		const wrapper = mountDropdown({
 			choices: [
-				{ text: 'One', value: 1, icon: 'star', color: '#6644FF' }, // raw-color-allowed: Directus data default (Q-C)
-				{ text: 'Two', value: 2, color: '#2ECDA7' }, // raw-color-allowed: Directus data default (Q-C)
+				{ text: 'One', value: 1, icon: 'star', color: '#6644FF' }, // raw-color-allowed: DR data default (Q-C)
+				{ text: 'Two', value: 2, color: '#2ECDA7' }, // raw-color-allowed: DR data default (Q-C)
 			],
 		});
 

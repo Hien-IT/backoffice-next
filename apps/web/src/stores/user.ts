@@ -114,7 +114,7 @@ export const useUserStore = defineStore('userStore', () => {
 		/**
 		 * We don't want to track the full screen preview from live previews as part of the user's
 		 * last page, as that'll cause a fresh login to navigate to the full screen preview where
-		 * you can't navigate away from #19160 (raw-color-allowed: Directus issue number)
+		 * you can't navigate away from #19160 (raw-color-allowed: DR issue number)
 		 */
 		if (to.path.endsWith('/preview')) {
 			return;

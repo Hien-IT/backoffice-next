@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-hover.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): new, the Directus component as is (no markup of its own to style).
+// Backoffice (spec 020, data-model §7): new, the DR component as is (no markup of its own to style).
 import { ref } from 'vue';
 
 const props = withDefaults(

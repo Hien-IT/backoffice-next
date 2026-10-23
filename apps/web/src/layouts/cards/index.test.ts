@@ -1,4 +1,4 @@
-// Directus has no test for layouts/cards/index.ts: the layout state (T057) over the fixture API, collection bo_content
+// DR has no test for layouts/cards/index.ts: the layout state (T057) over the fixture API, collection bo_content
 // (30 items, file field `cover` related to directus_files, title, status).
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
@@ -104,7 +104,7 @@ test('defaults: size 4, icon box, first file field as image source, crop, sort b
 	expect(state()['showingCount']).toBe(i18n.global.t('start_end_of_count_items', { start: 1, end: 25, count: 30 }));
 	expect(state()['getLinkForItem']({ id: 7 })).toBe('/content/bo_content/7');
 
-	// Same fields and query as Directus cards/index.ts: pk + image source file fields, sort pk, page 1, limit 25.
+	// Same fields and query as DR cards/index.ts: pk + image source file fields, sort pk, page 1, limit 25.
 	const query = listQuery();
 	expect(query.get('fields')).toBe('id,cover.modified_on,cover.type,cover.filename_disk,cover.storage,cover.id');
 	expect(query.get('limit')).toBe('25');
@@ -152,7 +152,7 @@ test('option and query writes go to layout_options and layout_query', async () =
 	state()['onUpdate:sort'](['-title']);
 	await flushPromises();
 	state()['onUpdate:limit'](50);
-	// useItems goes back to page 1 on a sort change (Directus use-items).
+	// useItems goes back to page 1 on a sort change (DR use-items).
 	expect(layoutQuery.value).toEqual({ sort: ['-title'], page: 1, limit: 50 });
 	await vi.waitFor(() => expect(state()['items']).toHaveLength(30));
 	expect(listQuery().get('sort')).toBe('-title');

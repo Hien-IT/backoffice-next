@@ -71,7 +71,7 @@ export type Auth = {
 type ServerInfoResponse = Partial<Info> & Record<string, unknown>;
 
 /**
- * Backoffice (D-51): the column defaults Directus writes in every database (its project name and purple project
+ * Backoffice (D-51): the column defaults DR writes in every database (its project name and purple project
  * color) count as unset, so the app shows Backoffice and the design-system primary until an admin sets its own
  * values. Display only: nothing is written back.
  */

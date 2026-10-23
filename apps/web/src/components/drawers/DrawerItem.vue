@@ -524,7 +524,7 @@ function useCancelGuard() {
 /**
  * Backoffice: use-permissions/item (getFields, isActionAllowed) and lib/is-save-allowed.ts on the permissions store.
  * shortcut: /permissions/me/<collection>/<pk> is not in contracts/api-calls.md, so a `partial` update permission
- * counts as allowed (Directus' own fallback when that request fails); the API still checks the item on save. Upgrade
+ * counts as allowed (DR' own fallback when that request fails); the API still checks the item on save. Upgrade
  * with the full port of use-permissions (014).
  */
 function usePermissions(collection: Ref<string | null>, isNew: Ref<boolean>) {

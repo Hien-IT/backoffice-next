@@ -14,7 +14,7 @@ test.each([
 	[column('boolean', 'false'), false],
 	[column('json', '{"a":1}'), { a: 1 }],
 	[column('json', '{bad'), '{bad'],
-	// Directus casts number-like defaults with Number(), even beyond 2^53.
+	// DR casts number-like defaults with Number(), even beyond 2^53.
 	[column('bigint', '9007199254740993'), 9007199254740992],
 	[column('integer', 'nextval()'), 'nextval()'],
 ])('%o → %o', (input, expected) => {

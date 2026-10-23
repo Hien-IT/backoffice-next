@@ -1,4 +1,4 @@
-// Feature 010 (T050): the /extensions controller (port of directus/api/src/controllers/extensions.ts, which Directus
+// Feature 010 (T050): the /extensions controller (port of directus/api/src/controllers/extensions.ts, which DR
 // does not unit test) through the real app pipeline on SQLite, with ExtensionsService and the registry client mocked:
 // the ListQuery of /registry, the uuid params, admin checks, install/reinstall/uninstall through the service (D-37 lifted), PATCH/DELETE /:pk and the empty app bundle.
 import * as env from '@backoffice/env';
@@ -111,7 +111,7 @@ describe('GET /extensions/registry', () => {
 		await request.get('/extensions/registry?filter[by][_eq]=me').set('Authorization', admin());
 		expect(list).toHaveBeenLastCalledWith({ by: 'me', sandbox: true }, { registry: 'http://registry:9100' });
 
-		// Two filter keys become { _and: [...] } in parseFilter, so neither is read (as in Directus).
+		// Two filter keys become { _and: [...] } in parseFilter, so neither is read (as in DR).
 		await request
 			.get('/extensions/registry?filter[by][_eq]=me&filter[type][_eq]=display')
 			.set('Authorization', admin());

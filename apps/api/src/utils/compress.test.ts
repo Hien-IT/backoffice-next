@@ -1,5 +1,5 @@
-// Compressed cache values (task T014): what setCacheValue stores is what getCacheValue reads, in the Directus format
-// (JSON compression of @directus/utils, then snappy). Byte equality with values Directus wrote is checked by the
+// Compressed cache values (task T014): what setCacheValue stores is what getCacheValue reads, in the DR format
+// (JSON compression of @directus/utils, then snappy). Byte equality with values DR wrote is checked by the
 // parity test of the filter-context-* keys (tasks T069).
 import Keyv from 'keyv';
 import { describe, expect, test } from 'vitest';

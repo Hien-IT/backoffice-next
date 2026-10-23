@@ -1,6 +1,6 @@
 // T035 (SC-011, FR-033): the tabular layout with 1 000 rows × 10 display columns (bo_std displays, data already in
 // memory) renders in under 2 s, and scrolling the table 10 times re-renders nothing (no DOM mutation in the body: the
-// rows are not redrawn on scroll; the table is not virtualised, as Directus). Runs with PERF=1 only (vitest.config.ts);
+// rows are not redrawn on scroll; the table is not virtualised, as DR). Runs with PERF=1 only (vitest.config.ts);
 // the budget holds on the reference machine and scales with machineFactor() elsewhere (test-utils/perf.ts).
 import { readItem } from '@directus/sdk';
 import { flushPromises } from '@vue/test-utils';

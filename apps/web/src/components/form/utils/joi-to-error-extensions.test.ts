@@ -1,4 +1,4 @@
-// Directus has no test for joi-to-error-extensions.ts; the Joi items come from validatePayload (as in validate-item).
+// DR has no test for joi-to-error-extensions.ts; the Joi items come from validatePayload (as in validate-item).
 import { validatePayload } from '@directus/utils';
 import { describe, expect, test } from 'vitest';
 import { joiValidationErrorItemToErrorExtensions } from './joi-to-error-extensions.ts';

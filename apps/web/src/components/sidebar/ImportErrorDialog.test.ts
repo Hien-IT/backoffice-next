@@ -1,4 +1,4 @@
-// Directus has no test for import-error-dialog.vue: the import error list (FR-090, recipe Q-12).
+// DR has no test for import-error-dialog.vue: the import error list (FR-090, recipe Q-12).
 import type { Field } from '@directus/types';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

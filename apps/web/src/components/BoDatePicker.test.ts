@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-date-picker/v-date-picker.test.ts
-/* eslint-disable vue/one-component-per-file, vue/require-prop-types, vue/order-in-components -- Directus test stubs kept as written */
+/* eslint-disable vue/one-component-per-file, vue/require-prop-types, vue/order-in-components -- DR test stubs kept as written */
 import { CalendarDate, Time } from '@internationalized/date';
 import { mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';

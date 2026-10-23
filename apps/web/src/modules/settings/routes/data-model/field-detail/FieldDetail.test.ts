@@ -1,5 +1,5 @@
-// Directus has no test for field-detail.vue: the simple mode (interface cards as a radiogroup, the configuration
-// panel, save), the request sequence of an m2m field compared with what the Directus app sent (baseline of T003),
+// DR has no test for field-detail.vue: the simple mode (interface cards as a radiogroup, the configuration
+// panel, save), the request sequence of an m2m field compared with what the DR app sent (baseline of T003),
 // the advanced mode tabs by local type, and D-97 (a missing field or an unknown ?type= goes back with the error dialog).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { readFileSync } from 'node:fs';

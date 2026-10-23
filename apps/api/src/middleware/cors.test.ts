@@ -7,7 +7,7 @@ beforeEach(() => {
 	vi.resetModules();
 });
 
-// cors.ts reads the env once, when the module loads (like Directus).
+// cors.ts reads the env once, when the module loads (like DR).
 test('no middleware when CORS is disabled', async () => {
 	vi.mocked(useEnv).mockReturnValue({ CORS_ENABLED: false });
 	const { default: cors } = await import('./cors.js');

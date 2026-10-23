@@ -18,7 +18,7 @@ export type LayoutQuery = {
 };
 
 // Backoffice: the header and sort types of components/v-table/types.ts (BoTable has its own column type, the layout
-// state keeps the Directus header shape).
+// state keeps the DR header shape).
 export type Alignment = 'left' | 'center' | 'right';
 
 export type HeaderRaw = {

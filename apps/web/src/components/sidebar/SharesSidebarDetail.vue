@@ -1,14 +1,14 @@
 <!-- Ported from directus/app/src/views/private/components/shares-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Comments and shares" (Q-11); axios -> sdk (FR-001). The section is hidden when `allowed` is false
-// (spec FR-083, US5-3; Directus only hides the New Share button) and loads nothing then. The section opens through
+// (spec FR-083, US5-3; DR only hides the New Share button) and loads nothing then. The section opens through
 // `sidebarStore.activeAccordionItem` (SidebarDetail, Q-9) instead of useGroupable. The link is
-// `<origin><base>shared/<id>` with the app base `/admin/` (Directus: getRootPath() + 'admin/shared/'). Copy uses
+// `<origin><base>shared/<id>` with the app base `/admin/` (DR: getRootPath() + 'admin/shared/'). Copy uses
 // navigator.clipboard with an in-place notice (D-66): no clipboard (insecure HTTP) is the `share_copy_link_error`
 // notice. The send dialog has the read-only link with a copy button (recipe) and posts `/shares/invite` (the API only
-// logs, D-36; no success notice, like Directus). DrawerItem gets `collection`/`item` in `input` like Directus: both
+// logs, D-36; no success notice, like DR). DrawerItem gets `collection`/`item` in `input` like DR: both
 // fields are hidden by the directus_shares field meta, and preset `edits` would make an untouched form ask before
-// closing. A failed load shows the error notice (Directus shadows `error` in the catch).
+// closing. A failed load shows the error notice (DR shadows `error` in the catch).
 import type { PrimaryKey, Share } from '@directus/types';
 import { abbreviateNumber } from '@directus/utils';
 import { computed, defineAsyncComponent, onMounted, type Ref, ref, toRefs, useId, watch } from 'vue';

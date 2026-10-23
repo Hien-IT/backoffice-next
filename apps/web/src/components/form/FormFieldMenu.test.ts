@@ -1,4 +1,4 @@
-// Directus has no test for form-field-menu.vue: the option rules of spec FR-017 (and FR-066 for read-only fields).
+// DR has no test for form-field-menu.vue: the option rules of spec FR-017 (and FR-066 for read-only fields).
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { i18n } from '../../lang/index.ts';

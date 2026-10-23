@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/flow-dialogs.vue -->
 <script setup lang="ts">
 // Backoffice: Modal recipe (BoDialog: Esc, outside click and focus return come from Reka); Enter does not confirm
-// (Directus `@apply`), the confirm button does. The result of the run is shown as a BoNotice under the dialogs
+// (DR `@apply`), the confirm button does. The result of the run is shown as a BoNotice under the dialogs
 // because there is no snackbar before feature 018 (D-45). Shared by `header` and `presentation-links`.
 import type { Field } from '@directus/types';
 import { defineAsyncComponent } from 'vue';

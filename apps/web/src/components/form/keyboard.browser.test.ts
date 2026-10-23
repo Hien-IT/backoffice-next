@@ -143,7 +143,7 @@ describe('text, number, date, select', () => {
 		await userEvent.keyboard('{ArrowRight}');
 		await userEvent.keyboard('{Enter}');
 		await vi.waitFor(() => expect(edits()).toEqual({ date: '2024-03-16' }));
-		// a date-only field closes on pick, like Directus
+		// a date-only field closes on pick, like DR
 		await vi.waitFor(() => expect(dialog()).toBeNull());
 		await vi.waitFor(() => expect(active()).toBe(trigger));
 
@@ -273,7 +273,7 @@ describe('groups', () => {
 });
 
 describe('third-party editors', () => {
-	// input-code (CodeMirror 5) keeps Tab for indentation like Directus (input-code.vue has no Tab key override), so
+	// input-code (CodeMirror 5) keeps Tab for indentation like DR (input-code.vue has no Tab key override), so
 	// Tab does not leave a code field; the design owner decides whether to change it (T094 report).
 	test('code: Tab reaches the CodeMirror input', async () => {
 		await mountForm('bo_std', ['code_json']);

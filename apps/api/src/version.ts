@@ -3,5 +3,5 @@ import { createRequire } from 'node:module';
 export const BACKOFFICE_VERSION: string = (createRequire(import.meta.url)('../package.json') as { version: string })
 	.version;
 
-// Owner 2026-10-22: no "Directus" in the startup log (D-18).
+// Owner 2026-10-22: no "DR" in the startup log (D-18).
 export const VERSION_LOG_LINE = `Backoffice ${BACKOFFICE_VERSION}`;

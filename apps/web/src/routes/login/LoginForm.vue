@@ -22,7 +22,7 @@ const { provider = DEFAULT_AUTH_PROVIDER } = defineProps<{
 	provider?: string;
 }>();
 
-// shortcut: not a full RFC 5322 check (Directus uses z.email()), only to skip requests for clearly invalid values.
+// shortcut: not a full RFC 5322 check (DR uses z.email()), only to skip requests for clearly invalid values.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const router = useRouter();

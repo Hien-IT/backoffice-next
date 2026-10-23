@@ -1,6 +1,6 @@
 import type { DisplayConfig as DirectusDisplayConfig } from '@directus/types';
 
-// Config of a display (`<id>/index.ts`), as in Directus. `options` keeps every Directus form for 016 (D-56).
+// Config of a display (`<id>/index.ts`), as in DR. `options` keeps every DR form for 016 (D-56).
 export type DisplayConfig = DirectusDisplayConfig;
 
 export type DisplayOptions = DisplayConfig['options'];

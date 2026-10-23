@@ -43,7 +43,7 @@ describe('shared permissions cache namespaces of feature 003', () => {
 		const access = await fetchGlobalAccess({ user: 'u', roles: ['r'], ip: '127.0.0.1' }, { knex: db });
 
 		expect(access).toEqual({ app: true, admin: true });
-		// Like Directus: the parts are keyed with the accountability IP, the result with the IP of the context (none
+		// Like DR: the parts are keyed with the accountability IP, the result with the IP of the context (none
 		// here, as in getAccountabilityForToken), and the roles part is the object the result mutates.
 		expect(store.get(key('global-access-roles', { roles: ['r'], ip: '127.0.0.1' }))).toBe(access);
 		expect(store.get(key('global-access-user', { user: 'u', ip: '127.0.0.1' }))).toEqual({ app: true, admin: true });

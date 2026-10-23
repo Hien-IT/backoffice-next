@@ -1,5 +1,5 @@
 // Ported from directus/packages/utils/shared/apply-options-data.test.ts
-// Backoffice: runs the Directus test against the installed @directus/utils (spec 018 FR-053, release-gate CHK051).
+// Backoffice: runs the DR test against the installed @directus/utils (spec 018 FR-053, release-gate CHK051).
 import { describe, expect, it } from 'vitest';
 import { applyOptionsData, optionToObject, optionToString } from '@directus/utils';
 

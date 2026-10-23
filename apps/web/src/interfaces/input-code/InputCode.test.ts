@@ -1,6 +1,6 @@
 // Ported from directus/app/src/interfaces/input-code/input-code.test.ts
 // Backoffice: the CodeMirror mock also returns an input field (the form ids are set on it); the inline snapshot of
-// the Directus v-button stub is replaced by checks on our template button. Real-editor tests: InputCode.editor.test.ts.
+// the DR v-button stub is replaced by checks on our template button. Real-editor tests: InputCode.editor.test.ts.
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { i18n } from '../../lang/index.ts';

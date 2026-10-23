@@ -4,7 +4,7 @@ import { computed, ref } from 'vue';
 import BoDetail from '../../components/BoDetail.vue';
 
 // Backoffice (spec 020, data-model §7): wraps BoDetail (extended with the `activator` slot). `label` → `title`
-// (default `$t('toggle')`); without `modelValue` the state is local and starts from `startOpen`, as in Directus.
+// (default `$t('toggle')`); without `modelValue` the state is local and starts from `startOpen`, as in DR.
 const props = withDefaults(
 	defineProps<{
 		modelValue?: boolean | undefined;

@@ -1,4 +1,4 @@
-// Feature 008 (T031): the /comments controller (port of directus/api/src/controllers/comments.ts, which Directus does
+// Feature 008 (T031): the /comments controller (port of directus/api/src/controllers/comments.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with CommentsService mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

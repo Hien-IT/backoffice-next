@@ -1,6 +1,6 @@
 // Ported from directus/app/src/interfaces/collection-item-multiple-dropdown/collection-item-multiple-dropdown.test.ts
 // Backoffice: mounted on the bo_rel `collection_items` field of the fixture snapshot with the real stores and
-// mockFixtureApi instead of mocked stores and `api.get`; the Directus cases are kept (mount, action buttons, disabled,
+// mockFixtureApi instead of mocked stores and `api.get`; the DR cases are kept (mount, action buttons, disabled,
 // nonEditable), plus FR-049 options, order, value shape (empty is null), reorder through BoSortableList (D-60),
 // contracts/api-calls.md #37 and the missing / unreadable collection edge case.
 import type { FieldRaw } from '@directus/types';

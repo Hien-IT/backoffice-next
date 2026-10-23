@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/content/routes/not-found.vue; Ported from directus/app/src/modules/files/routes/not-found.vue -->
 <script setup lang="ts">
 // Backoffice: v-info in the blank page card of the design-system, as PrivateNotFoundRoute. Feature 015 (FR-001,
-// FR-054): the same page serves the Files and Users modules, `module` picks the sub-menu (Directus has one not-found
+// FR-054): the same page serves the Files and Users modules, `module` picks the sub-menu (DR has one not-found
 // route per module, with the same content). Feature 016 adds the Settings module, 018 Insights and Activity (Activity has
 // no sub-menu until its navigation exists).
 import { type Component, defineAsyncComponent } from 'vue';

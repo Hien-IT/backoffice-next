@@ -1,4 +1,4 @@
-// Spec 017 FR-021, FR-025 (T017): the workspace is sized from its furthest tile as the Directus v-workspace, and a tile
+// Spec 017 FR-021, FR-025 (T017): the workspace is sized from its furthest tile as the DR v-workspace, and a tile
 // moves by whole grid cells while dragged in edit mode, never below cell 1, emitting its position as it moves.
 import { mount } from '@vue/test-utils';
 import { afterEach, expect, test } from 'vitest';

@@ -1,6 +1,6 @@
 // Ported from directus/app/src/views/private/private-view/stores/sidebar.ts
 // Backoffice: localStorage keys with the backoffice- prefix (Principle IX); storage that cannot be used (blocked,
-// private mode) keeps the value in memory; activeAccordionItem is `string | null` (Directus: `ref<string>()`, undefined).
+// private mode) keeps the value in memory; activeAccordionItem is `string | null` (DR: `ref<string>()`, undefined).
 import { createEventHook, useStorage } from '@vueuse/core';
 import { defineStore } from 'pinia';
 import { computed, type Ref, ref, watch } from 'vue';

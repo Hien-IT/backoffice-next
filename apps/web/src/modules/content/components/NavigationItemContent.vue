@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/content/components/navigation-item-content.vue -->
 <script setup lang="ts">
 // Backoffice: recipe layout-patterns §9. The color is data (Q-C of 013), set as an inline style; without one the icon
-// takes the row color (Directus: var(--theme--foreground)), which keeps the active row contrast (axe color-contrast). `hidden` adds the visibility_off marker of hidden
+// takes the row color (DR: var(--theme--foreground)), which keeps the active row contrast (axe color-contrast). `hidden` adds the visibility_off marker of hidden
 // collections. The search highlight of v-text-overflow is not ported (BoTextOverflow has no `highlight`).
 import BoIcon from '../../../components/BoIcon.vue';
 import BoTextOverflow from '../../../components/BoTextOverflow.vue';

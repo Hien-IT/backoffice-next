@@ -44,7 +44,7 @@ async function start(overrides: Record<string, unknown> = {}, options: Parameter
 
 beforeEach(() => {
 	vi.clearAllMocks();
-	// authenticate (every route since feature 004) opens the default connection on each request, like Directus;
+	// authenticate (every route since feature 004) opens the default connection on each request, like DR;
 	// without a token no query runs, so a placeholder is enough.
 	vi.mocked(getDatabase).mockReturnValue({} as never);
 });
@@ -239,14 +239,14 @@ describe('404 and errors', () => {
 	});
 });
 
-// Feature 004: authenticate on every route like Directus (D-10 and the D-18 warning of spec 001 are gone)
+// Feature 004: authenticate on every route like DR (D-10 and the D-18 warning of spec 001 are gone)
 describe('accountability step', () => {
 	const whoami: RequestHandler = (req, res, next) =>
 		req.path.toLowerCase().startsWith('/auth/x') || req.path === '/server/whoami'
 			? res.json(req.accountability)
 			: next();
 
-	// Signed with another secret: 403 INVALID_TOKEN like Directus (an unknown static token is 401), no query.
+	// Signed with another secret: 403 INVALID_TOKEN like DR (an unknown static token is 401), no query.
 	const foreign = jwt.sign({ id: 'u', role: null, app_access: false, admin_access: false }, 'other', {
 		issuer: 'directus',
 	});

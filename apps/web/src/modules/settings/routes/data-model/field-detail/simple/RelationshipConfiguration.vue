@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-simple/relationship-configuration.vue -->
 <script setup lang="ts">
 // Backoffice: the m2a multiple VSelect is BoMultiSelect (managed collections, then the CRUD-safe system ones; a flat
-// list instead of the Directus `system` group, singletons disabled); required marks are a star with an sr-only text.
+// list instead of the DR `system` group, singletons disabled); required marks are a star with an sr-only text.
 import { computed } from 'vue';
 import BoIcon from '../../../../../../components/BoIcon.vue';
 import BoMultiSelect from '../../../../../../components/BoMultiSelect.vue';

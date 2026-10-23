@@ -1,4 +1,4 @@
-// Directus has no test for the user display: `display`, `circle`, avatar URL, handler.
+// DR has no test for the user display: `display`, `circle`, avatar URL, handler.
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { createMemoryHistory, createRouter } from 'vue-router';

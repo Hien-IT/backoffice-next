@@ -66,7 +66,7 @@ const items = computed<BoMenuItem[]>(() =>
 );
 
 function onInput(value: string | number | null) {
-	// Directus VInput `nullable`: an emptied input gives null.
+	// DR VInput `nullable`: an emptied input gives null.
 	emit('update:modelValue', value === '' && props.nullable ? null : String(value ?? ''));
 }
 

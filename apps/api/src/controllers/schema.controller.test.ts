@@ -1,4 +1,4 @@
-// Feature 006 (T036): the /schema controller (port of directus/api/src/controllers/schema.ts, which Directus does not
+// Feature 006 (T036): the /schema controller (port of directus/api/src/controllers/schema.ts, which DR does not
 // unit test) through the real app pipeline on SQLite, with SchemaService mocked: the JSON and multipart bodies of
 // schemaMultipartHandler and their errors, the two readings of `force`, 204 when there is no difference.
 import * as env from '@backoffice/env';

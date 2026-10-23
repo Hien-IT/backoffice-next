@@ -21,7 +21,7 @@ describe('emitFilter', () => {
 	test('runs the listeners of every event in order, each on the previous result; undefined keeps the payload', async () => {
 		const calls: string[] = [];
 		emitter.onFilter<number[]>('items.create', async (payload) => (calls.push('a'), [...payload, 1]));
-		// A listener returning undefined keeps the payload (Directus' FilterHandler type does not say so).
+		// A listener returning undefined keeps the payload (DR' FilterHandler type does not say so).
 		emitter.onFilter<number[]>('items.create', () => (calls.push('b'), undefined) as unknown as number[]);
 		emitter.onFilter<number[]>(
 			'articles.items.create',
@@ -72,7 +72,7 @@ describe('emitAction', () => {
 			resolved = true;
 		});
 
-		// A rejected listener (eventemitter2 rethrows a synchronous throw out of emitAsync, in Directus too).
+		// A rejected listener (eventemitter2 rethrows a synchronous throw out of emitAsync, in DR too).
 		emitter.onAction('users.create', async () => {
 			throw error;
 		});

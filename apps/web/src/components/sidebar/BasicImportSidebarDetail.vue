@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/views/private/components/basic-import-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-014): the import block of ExportSidebarDetail (014, recipe Q-12) without the background option
-// or the export part, as Directus. axios -> uploadWithProgress (byte progress, research R10); success is an in-place
+// or the export part, as DR. axios -> uploadWithProgress (byte progress, research R10); success is an in-place
 // notice (D-66), errors go to ImportErrorDialog (validation) or the error dialog.
 import { computed, ref, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';

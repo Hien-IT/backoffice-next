@@ -26,7 +26,7 @@ const relatedCollectionData = computed(() => {
 	return getRelatedCollection(props.collection, props.field);
 });
 
-// Backoffice: `?.` so a field without relation reaches ValueNull (Directus throws in the computed there).
+// Backoffice: `?.` so a field without relation reaches ValueNull (DR throws in the computed there).
 const relatedCollection = computed(() => {
 	return relatedCollectionData.value?.relatedCollection ?? null;
 });

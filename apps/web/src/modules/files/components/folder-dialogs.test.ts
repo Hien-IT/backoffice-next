@@ -1,4 +1,4 @@
-// Directus has no tests for add-folder.vue, delete-folder-dialog.vue and folder-section.vue: the create request and
+// DR has no tests for add-folder.vue, delete-folder-dialog.vue and folder-section.vue: the create request and
 // navigation, the delete modes and their requests, and the folder cards with their selection.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

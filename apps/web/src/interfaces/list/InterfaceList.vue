@@ -60,7 +60,7 @@ const active = ref<number | null>(null);
 const drawerOpen = computed(() => active.value !== null);
 const { value } = toRefs(props);
 
-// Backoffice: DeepPartial<Field> as Field for RenderTemplate and BoForm (Directus passes them untyped).
+// Backoffice: DeepPartial<Field> as Field for RenderTemplate and BoForm (DR passes them untyped).
 const fieldDefinitions = computed(() => props.fields as Field[]);
 
 const templateWithDefaults = computed(() =>
@@ -117,7 +117,7 @@ const fieldsWithNames = computed(
 );
 
 const internalValue = computed(() => {
-	// Like Directus (list.vue): sortBy runs on any value, so with `sort` set a non-array value becomes the rows of its
+	// Like DR (list.vue): sortBy runs on any value, so with `sort` set a non-array value becomes the rows of its
 	// values and the incompatible-data notice is not shown (reproduced on purpose, R-xx of spec 013).
 	if (props.fields && props.sort) return sortBy(value.value, props.sort);
 	return value.value;

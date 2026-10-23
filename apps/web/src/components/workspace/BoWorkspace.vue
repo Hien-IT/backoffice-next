@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/components/v-workspace.vue -->
 <script setup lang="ts">
 // Backoffice (spec 017 FR-021, recipe Q-29 / layout-patterns §13): the tiles sit on an 18 px CSS grid, sized from the
-// furthest tile as in Directus (edit mode adds 25 cells). Only the `tile` slot rendering the flows editor uses is
+// furthest tile as in DR (edit mode adds 25 cells). Only the `tile` slot rendering the flows editor uses is
 // ported: no default tile rendering, no content padding (the scroller pads instead). Feature 018 (FR-022) adds
-// `zoomToFit`: one CSS scale of the grid from the top left corner (Directus `zoomScale`), measured against the scroll
+// `zoomToFit`: one CSS scale of the grid from the top left corner (DR `zoomScale`), measured against the scroll
 // container this workspace sits in (the app has no `main-element` injection: research T001 (b)); the outer box takes the
 // scaled size. Without zoom the outer box is `display: contents`, so the flows canvas keeps its layout.
 import { useElementSize, useParentElement } from '@vueuse/core';
@@ -71,7 +71,7 @@ const workspaceSize = computed(() => {
 const zoomScale = computed(() => {
 	if (props.zoomToFit === false || !scroller.value) return 1;
 
-	// useElementSize measures the content box: the scroller's padding plays the part of Directus --content-padding.
+	// useElementSize measures the content box: the scroller's padding plays the part of DR --content-padding.
 	const scaleWidth = scrollerWidth.value / workspaceSize.value.width;
 	const scaleHeight = scrollerHeight.value / workspaceSize.value.height;
 
@@ -113,7 +113,7 @@ const zoomScale = computed(() => {
 </template>
 
 <style scoped>
-/* The dot grid of the edit mode (Directus `.workspace::before`), in theme colors. */
+/* The dot grid of the edit mode (DR `.workspace::before`), in theme colors. */
 .bo-workspace::before {
 	position: absolute;
 	inset: -0.25rem;

@@ -1,4 +1,4 @@
-// The user story 2 part of directus/app/src/modules/content/routes/item.vue (no Directus test) on the fixture set and
+// The user story 2 part of directus/app/src/modules/content/routes/item.vue (no DR test) on the fixture set and
 // its mock API: savable states, save and quit, new item, singleton, read-only form, not found, live preview toggle.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

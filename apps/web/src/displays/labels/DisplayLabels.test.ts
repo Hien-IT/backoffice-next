@@ -1,4 +1,4 @@
-// Directus has no test for the labels display (spec FR-074, FR-079): chips, dots, format, choices, handler.
+// DR has no test for the labels display (spec FR-074, FR-079): chips, dots, format, choices, handler.
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import { i18n } from '../../lang/index.ts';

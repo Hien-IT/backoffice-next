@@ -119,7 +119,7 @@ export function usePreset(
 		localPreset.value.bookmark = newBookmark?.bookmark ?? null;
 	});
 
-	// Backoffice: `layout` is used by layoutOptions/layoutQuery before its declaration below (as in Directus).
+	// Backoffice: `layout` is used by layoutOptions/layoutQuery before its declaration below (as in DR).
 	const layoutOptions = computed<Record<string, any>>({
 		get() {
 			return localPreset.value.layout_options?.[layout.value] || null;

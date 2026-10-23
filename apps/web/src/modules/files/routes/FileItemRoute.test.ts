@@ -1,4 +1,4 @@
-// The user story 2 part of directus/app/src/modules/files/routes/item.vue (no Directus test): header, preview with
+// The user story 2 part of directus/app/src/modules/files/routes/item.vue (no DR test): header, preview with
 // replace, the form without the sidebar fields, save, move with its notice, save as copy, delete, the details panel.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -145,7 +145,7 @@ describe('FileItemRoute', () => {
 		expect(useNotices().queue.value.map((n) => n.type)).toContain('success');
 	});
 
-	// Directus use-item `remove` clears the item, so `to` falls back to /files (not the folder of the file).
+	// DR use-item `remove` clears the item, so `to` falls back to /files (not the folder of the file).
 	test('delete confirms then deletes and goes back to the library', async () => {
 		const { file, router } = await setup();
 

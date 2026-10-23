@@ -1,8 +1,8 @@
 // Ported from directus/api/src/controllers/extensions.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R6, R16 of spec 010);
+// Backoffice: one Nest handler per DR route, in the same order (research R6, R16 of spec 010);
 // useCollection('directus_extensions') is applied in app.module.ts, `next()` to `respond` is respond(), the uuid route
 // params are checked by uuidParam. Spec 020 (D-37 lifted): install, reinstall and uninstall go through ExtensionsService
-// like Directus; the app chunks are those of the extension manager's last build, streamed like Directus.
+// like DR; the app chunks are those of the extension manager's last build, streamed like DR.
 import { EXTENSION_TYPES } from '@backoffice/constants';
 import { useEnv } from '@backoffice/env';
 import { ErrorCode, ForbiddenError, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
@@ -258,7 +258,7 @@ export class ExtensionsController {
 		const source = await extensionManager.getAppExtensionChunk(chunk === 'index.js' ? undefined : chunk);
 
 		if (source === null) {
-			// req.path inside the Directus router: without the /extensions mount path.
+			// req.path inside the DR router: without the /extensions mount path.
 			throw new RouteNotFoundError({ path: req.path.slice('/extensions'.length) });
 		}
 

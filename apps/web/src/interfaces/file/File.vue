@@ -3,9 +3,9 @@
 // Backoffice: the attached v-menu is the Dropdown menu recipe (BoMenu) on a field-like trigger; the edit and deselect
 // buttons sit next to the trigger instead of inside it (no nested controls), always visible. The download item opens
 // the `?download` asset URL in a new tab (BoMenu links), so the server names the file. The menu divider is left out.
-// Import from URL shows its error in the dialog with translateAPIError like BoUpload (Directus: unexpectedError
+// Import from URL shows its error in the dialog with translateAPIError like BoUpload (DR: unexpectedError
 // snackbar, no notifications store before 018, D-45). The library is DrawerFiles (T069) with the MIME type filter
-// merged into `filter` as Directus does.
+// merged into `filter` as DR does.
 import type { Filter } from '@directus/types';
 import { deepMap } from '@directus/utils';
 import { render } from 'micromustache';
@@ -271,7 +271,7 @@ const menuItems = computed<BoMenuItem[]>(() => {
 	return items;
 });
 
-// Directus: the menu is disabled while loading or internalDisabled; a non-editable field opens the details instead.
+// DR: the menu is disabled while loading or internalDisabled; a non-editable field opens the details instead.
 const menuEnabled = computed(() => !props.nonEditable && !loading.value && !internalDisabled.value);
 const activatorDisabled = computed(() => !(props.nonEditable && file.value) && internalDisabled.value);
 

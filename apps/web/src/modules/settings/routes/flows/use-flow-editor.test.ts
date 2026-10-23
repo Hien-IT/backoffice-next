@@ -1,5 +1,5 @@
 // Spec 017 SC-006 (T041; FR-027 to FR-031, data-model §6): the staging of the flow page and the bodies of Save, in the
-// shape the Directus app sends (apps/web-e2e/src/payload/baselines/flows-*.json, T003): the tree under the trigger in
+// shape the DR app sends (apps/web-e2e/src/payload/baselines/flows-*.json, T003): the tree under the trigger in
 // `operation` as nested objects, `create` / `update` only for trees without a parent, `flow` on every node, only the
 // changed fields of an existing node, no key for a missing child and `null` for a removed link, `PATCH /operations`
 // only when a target that has a parent of the same type is linked again. Flow f1: trigger -> A (condition) which resolves

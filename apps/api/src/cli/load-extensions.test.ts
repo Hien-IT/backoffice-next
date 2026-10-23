@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/load-extensions.ts (spec 021 FR-043).
+// Backoffice: DR has no unit test for cli/load-extensions.ts (spec 021 FR-043).
 import { useEnv } from '@backoffice/env';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { isInstalled } from '../database/index.js';

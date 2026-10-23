@@ -1,7 +1,7 @@
 // Ported from directus/app/src/interfaces/map/style.ts
 import { cssVar } from '../../utils/css-var.ts';
 
-// Backoffice: theme tokens instead of the Directus `--theme--*` variables (FR-095): primary = brand, secondary =
+// Backoffice: theme tokens instead of the DR `--theme--*` variables (FR-095): primary = brand, secondary =
 // orange, black = gray-900; the dark appearance uses the 400 shades like the dark: classes of the design system.
 export function getMapStyle(dark = false) {
 	const primary = cssVar(dark ? '--color-brand-400' : '--color-brand-500');

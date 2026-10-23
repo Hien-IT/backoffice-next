@@ -40,20 +40,20 @@ import { UsersService } from './services/users.service.js';
 import { VersionsService } from './services/versions.service.js';
 
 /**
- * Infrastructure written as shared functions in Directus (useEnv, useLogger, getDatabase, useRedis) stays a
+ * Infrastructure written as shared functions in DR (useEnv, useLogger, getDatabase, useRedis) stays a
  * function, close to the ported code, and is exposed to Nest as providers (plan.md Constitution Check VI).
  */
-// Each token resolves to the accessor function, not its result: like in Directus, the configuration, the logger,
+// Each token resolves to the accessor function, not its result: like in DR, the configuration, the logger,
 // the knex instance and the Redis client are only created when first used (never while Nest boots).
 export const ENV = Symbol('ENV');
 export const LOGGER = Symbol('LOGGER');
 export const DATABASE = Symbol('DATABASE');
 export const REDIS = Symbol('REDIS');
 
-/** Directus creates its services per request with the request accountability and schema; so do these factories. */
+/** DR creates its services per request with the request accountability and schema; so do these factories. */
 export type ServiceFactory<T, O = ConstructorParameters<new (...args: any[]) => T>[0]> = (options?: O) => T;
 
-/** ItemsService takes the collection first, like `new ItemsService(req.collection, options)` in Directus. */
+/** ItemsService takes the collection first, like `new ItemsService(req.collection, options)` in DR. */
 export type ItemsServiceFactory = (
 	collection: string,
 	options: Omit<ConstructorParameters<typeof ItemsService>[1], 'knex'>,

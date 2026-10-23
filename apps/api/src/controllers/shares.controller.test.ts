@@ -1,4 +1,4 @@
-// Feature 010 (T028): the /shares controller (port of directus/api/src/controllers/shares.ts, which Directus does not
+// Feature 010 (T028): the /shares controller (port of directus/api/src/controllers/shares.ts, which DR does not
 // unit test) through the real app pipeline on SQLite, with SharesService mocked: /auth in its three modes, /invite,
 // /info/:pk, the uuid params, reads by query only without meta, and DELETE / without validateBatch.
 import * as env from '@backoffice/env';
@@ -202,7 +202,7 @@ test('POST, PATCH; DELETE / without validateBatch reads a body without keys as a
 	expect(byQuery.status).toBe(204);
 	expect(service.deleteByQuery).toHaveBeenCalledWith(expect.objectContaining({ filter: { id: { _eq: UUID } } }));
 
-	// Neither keys nor query: sanitizeQuery(undefined) throws, as in Directus (no validateBatch on this route); the
+	// Neither keys nor query: sanitizeQuery(undefined) throws, as in DR (no validateBatch on this route); the
 	// parity file compares the answer of both apps.
 	expect((await request.delete('/shares').set('Authorization', admin()).send({})).status).toBe(500);
 });

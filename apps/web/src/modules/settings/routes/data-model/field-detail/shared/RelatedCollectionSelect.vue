@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/shared/related-collection-select.vue -->
 <script setup lang="ts">
 // Backoffice: VInput with an append menu is a db-safe BoInput next to a BoMenu button (`list_alt`, `select_existing`):
-// the configured collections (singletons disabled), a divider, then the CRUD-safe system collections (Directus puts
-// them in a collapsed list group). An existing collection shows the key in the brand color (Directus `.matches`).
+// the configured collections (singletons disabled), a divider, then the CRUD-safe system collections (DR puts
+// them in a collapsed list group). An existing collection shows the key in the brand color (DR `.matches`).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../../../../../components/BoIcon.vue';

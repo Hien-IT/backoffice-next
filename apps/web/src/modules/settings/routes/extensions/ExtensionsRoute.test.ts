@@ -1,4 +1,4 @@
-// Directus has no test for its Settings > Extensions page (spec 020 T090, recipe Q-41): groups by schema.type in API
+// DR has no test for its Settings > Extensions page (spec 020 T090, recipe Q-41): groups by schema.type in API
 // order with missing rows last, bundle entries nested, the partial state, the menu by source, no confirmation.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
@@ -16,7 +16,7 @@ vi.mock('../../../../api/sdk.ts', async (importOriginal) => ({
 
 enableAutoUnmount(afterEach);
 
-// Directus locks the state of app extensions in dev mode (vite serves them); the tests run as a build.
+// DR locks the state of app extensions in dev mode (vite serves them); the tests run as a build.
 beforeEach(() => {
 	vi.stubEnv('DEV', false);
 });

@@ -1,4 +1,16 @@
 <!--
+Sync Impact Report (3.1.0, 2026-10-24)
+- Version change: 3.0.0 → 3.1.0
+- Modified principles: IX. Đổi thương hiệu Directus thành Backoffice: thêm quy ước viết tắt "DR" cho Directus trong
+  comment code của `apps/web` và `apps/api`; đọc "DR" trong comment là Directus. Ngoại lệ giữ chữ "Directus": file port
+  nguyên văn có test so với nguồn Directus (`apps/api/src/database/migrations/**`, seed `.yaml`), chuỗi trong code và
+  tên test, tên định danh và kiểu (`DirectusError`), package `@directus/*`, đường dẫn `directus/app/...`.
+- MINOR: thêm một quy ước mới trong nguyên tắc IX, không đổi ý nghĩa các quy định đã có.
+- Lý do: chủ dự án (kiêm tech lead) yêu cầu ngày 2026-10-24: comment trong code không ghi tên Directus; 1536 chỗ trong
+  845 file đã đổi cùng ngày.
+- Templates: ✅ .specify/templates/plan-template.md (phiên bản); spec, tasks, checklist template không nhắc mục này.
+- Tech lead duyệt ngày 2026-10-24 (chủ dự án; quy trình không có PR).
+
 Sync Impact Report (3.0.0, 2026-10-22)
 - Version change: 2.2.0 → 3.0.0
 - Modified principles: II. Dùng chung database với Directus: bỏ "KHÔNG ĐƯỢC chạy migration hệ thống. Chỉ Directus được
@@ -317,6 +329,11 @@ Lý do: đội vận hành chỉ duy trì một bộ cấu hình cho cả hai ap
   giám sát dùng chung cho cả hai app); tên biến môi trường; tên event; mã lỗi; tên type GraphQL;
   thư viện bên thứ ba (`@directus/sdk`); dữ liệu trong DB (không sửa `project_name` hay settings
   đang dùng chung).
+- Comment trong code của `apps/web` và `apps/api` viết Directus là "DR" (chủ dự án, 2026-10-24): đọc "DR"
+  trong comment là Directus ("the DR app" là app Directus, "DR image" là image `directus/directus`, "DR v-select" là
+  component `v-select` của Directus). Code mới PHẢI theo quy ước này. Giữ chữ "Directus" ở: file port nguyên văn có
+  test so với nguồn Directus (`apps/api/src/database/migrations/**`, seed `.yaml`), chuỗi trong code và tên test, tên
+  định danh và kiểu (`DirectusError`), package `@directus/*`, đường dẫn `directus/app/...`.
 - Khi không chắc một chỗ đổi tên có ảnh hưởng luồng hay không: giữ nguyên và ghi vào danh sách cần
   xác nhận.
 - Test đối chiếu ĐƯỢC bỏ qua các khác biệt do đổi thương hiệu, nhưng PHẢI liệt kê rõ trong danh sách
@@ -422,4 +439,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 3.0.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-22
+**Version**: 3.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-24

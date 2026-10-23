@@ -1,4 +1,4 @@
-// Directus has no test for user-popover.vue: request (contracts/api-calls #49), loading, content, link, error, focus,
+// DR has no test for user-popover.vue: request (contracts/api-calls #49), loading, content, link, error, focus,
 // hover.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-051, FR-052, FR-055, FR-056): unexpectedError is showUnexpectedError (error dialog); the
 // padding is PanelTile's; displayTemplate, filter and limit are optional props since the stored options may lack them
-// (Directus declares them required and reads undefined the same way).
+// (DR declares them required and reads undefined the same way).
 import type { Filter } from '@directus/types';
 import { computed, ref } from 'vue';
 import BoNotice from '../../components/BoNotice.vue';
@@ -93,7 +93,7 @@ function onSelection(data: (number | string)[] | null) {
 			@select="selectModalOpen = true"
 		/>
 
-		<!-- Backoffice: `eager` loads the items while the drawer is closed, as Directus (owner 2026-10-18, T002 baseline). -->
+		<!-- Backoffice: `eager` loads the items while the drawer is closed, as DR (owner 2026-10-18, T002 baseline). -->
 		<DrawerCollection
 			eager
 			:active="selectModalOpen"

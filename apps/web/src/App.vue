@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Shell of directus/app/src/app.vue: head (title, branding, favicon), hydrating screen, unexpected error screen,
-// routes, custom CSS. Each route picks its own view (PublicView or PrivateView), like Directus.
+// routes, custom CSS. Each route picks its own view (PublicView or PrivateView), like DR.
 import { computed } from 'vue';
 import BoButton from './components/BoButton.vue';
 import BoNotice from './components/BoNotice.vue';
@@ -47,6 +47,6 @@ function reload() {
 
 	<RouterView v-else-if="!appStore.hydrating" />
 
-	<!-- Text content of a <style>: the browser never parses it as markup (like Directus' Teleport). -->
+	<!-- Text content of a <style>: the browser never parses it as markup (like DR' Teleport). -->
 	<Teleport to="#custom-css">{{ customCSS }}</Teleport>
 </template>

@@ -1,5 +1,5 @@
-// Spec 020 (T102): the committed contract of the Directus global components is what the script extracts from directus/
-// today (a Directus upgrade or a hand edit fails here), and the extraction reads types, v-bind slot props and indexes.
+// Spec 020 (T102): the committed contract of the DR global components is what the script extracts from directus/
+// today (a DR upgrade or a hand edit fails here), and the extraction reads types, v-bind slot props and indexes.
 import { readFileSync } from 'node:fs';
 import { expect, test } from 'vitest';
 import { OUT, extract, render } from './extract-directus-components.mjs';

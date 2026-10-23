@@ -1,4 +1,4 @@
-// Directus has no test for its marketplace extension page (spec 020 T175, recipe Q-43, rows 204, 209 and 211): the
+// DR has no test for its marketplace extension page (spec 020 T175, recipe Q-43, rows 204, 209 and 211): the
 // banner, the readme (sanitized, links in a new tab), the metadata rows, compatibility with semver against the server
 // version, and the install button of extension-install.vue (install → refresh → Manage; disabled at the limit, R-60).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';

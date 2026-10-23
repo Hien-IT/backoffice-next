@@ -1,4 +1,4 @@
-// Backoffice: no test in Directus. OperationsService reloads the flows after every write (spec FR-002).
+// Backoffice: no test in DR. OperationsService reloads the flows after every write (spec FR-002).
 import { SchemaBuilder } from '@backoffice/schema-builder';
 import { afterEach, expect, test, vi } from 'vitest';
 import { ItemsService } from './items.service.js';

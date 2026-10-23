@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/views/private/components/module-bar-logo.vue -->
 <script setup lang="ts">
-// Backoffice: the logo at the top of the sidebar (layout-patterns §2, D-157; Directus module-bar-logo.vue and
+// Backoffice: the logo at the top of the sidebar (layout-patterns §2, D-157; DR module-bar-logo.vue and
 // private-view-nav-project-name.vue): the logo, the project name and the descriptor in white or gray-900, whichever
 // contrasts more with the project color (D-163), on the project color block of the sidebar (owner's mock-up
 // 2026-10-22; `Backoffice` when project_name is empty, FR-026). An uploaded project_logo sits on a white tile (D-159),
-// the default app icon on none. The Backoffice logo replaces the animated Directus sprite, so the loader is the
+// the default app icon on none. The Backoffice logo replaces the animated DR sprite, so the loader is the
 // progress bar for both logos; project_url is a link only with an http(s) scheme (FR-026).
 import { computed, ref, toRefs, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -51,7 +51,7 @@ const url = computed(() => {
 	}
 });
 
-// Backoffice: the name of the server info only, where the Directus default name is already dropped (D-51).
+// Backoffice: the name of the server info only, where the DR default name is already dropped (D-51).
 const name = computed(() => serverStore.info.project?.project_name || 'Backoffice');
 const descriptor = computed(() => serverStore.info.project?.project_descriptor);
 </script>

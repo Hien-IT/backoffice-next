@@ -2,15 +2,15 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): v-table on BoTable. Headers `{ text, value, ... }` become columns
 // `{ label, key, ... }` and back on `update:headers` (the caller's header objects with the new width and order); items
-// are the rows, `itemKey` the row key. BoTable selects by key; Directus selects row objects unless `selectionUseKeys`,
+// are the rows, `itemKey` the row key. BoTable selects by key; DR selects row objects unless `selectionUseKeys`,
 // so the selection is mapped both ways here, with `item-selected` for each row that changed (onItemSelected). Rows are
-// clickable (and focusable) when `clickable` and not `disabled`, as v-table (BoTable `clickable`). Slot props are the Directus ones
+// clickable (and focusable) when `clickable` and not `disabled`, as v-table (BoTable `clickable`). Slot props are the DR ones
 // (`header` for the header slots, `item` for the cells); `footer` goes below the table. `inline` has no effect: BoTable
 // is always the bordered box of an inline v-table.
 import { computed } from 'vue';
 import BoTable, { type BoTableColumn } from '../../components/BoTable.vue';
 
-// Directus v-table.vue:370-374, table-header.vue:406: a height given by the extension scrolls the table, the header
+// DR v-table.vue:370-374, table-header.vue:406: a height given by the extension scrolls the table, the header
 // sticks at the offset hook (with fixedHeader the inner BoTable box scrolls instead).
 type Alignment = 'left' | 'center' | 'right';
 type HeaderRaw = {

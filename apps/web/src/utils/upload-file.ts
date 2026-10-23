@@ -1,10 +1,10 @@
 // Ported from directus/app/src/utils/upload-file.ts
 // Backoffice: TUS (tus-js-client, loaded on demand) when the server enables it, otherwise multipart POST /files or
 // PATCH /files/:id through uploadWithProgress (XMLHttpRequest: fetch has no upload progress), which reports bytes like
-// axios `onUploadProgress` in Directus. The TUS endpoint is the SDK API URL (may be another origin; cookies go with
+// axios `onUploadProgress` in DR. The TUS endpoint is the SDK API URL (may be another origin; cookies go with
 // `withCredentials`). No `notifications` toasts and no `upload` / `tusResumableUploadsChanged` events (no listener in
 // the app; the resumable uploads list is 018, D-90): failures go to `onError` (shown in place by the caller, D-66), or
-// to unexpectedError, and resolve to undefined like Directus.
+// to unexpectedError, and resolve to undefined like DR.
 import type { File } from '@directus/types';
 import type { PreviousUpload, Upload } from 'tus-js-client';
 import { getApiUrl, requestEndpoint, sdk } from '../api/sdk.ts';

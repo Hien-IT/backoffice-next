@@ -19,12 +19,12 @@ const {
 	modelValue?: string | number | null;
 	items: RadioItem[];
 	label?: string;
-	/** Columns from sm up (Directus getMinimalGridClass: grid-2/3/4). */
+	/** Columns from sm up (DR getMinimalGridClass: grid-2/3/4). */
 	columns?: 1 | 2 | 3 | 4;
-	/** Custom Material Symbols names for the checked / unchecked states (Directus select-radio iconOn / iconOff). */
+	/** Custom Material Symbols names for the checked / unchecked states (DR select-radio iconOn / iconOff). */
 	iconOn?: string;
 	iconOff?: string;
-	/** Data color of the checked state (Directus `color` option), applied with style. */
+	/** Data color of the checked state (DR `color` option), applied with style. */
 	color?: string;
 	disabled?: boolean;
 	invalid?: boolean;

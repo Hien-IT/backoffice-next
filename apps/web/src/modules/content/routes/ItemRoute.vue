@@ -767,7 +767,7 @@ function useItemNavigation() {
 			<template #start>
 				<!-- Backoffice (D-82): the form stops at 64rem on wide screens, so `fill` fields do not run across the page;
 				     at the left (owner 2026-10-22, `formColumn`), in a card (D-150).
-				     `fields` only, as Directus item.vue: with `collection` BoForm reads the fields store and drops the field
+				     `fields` only, as DR item.vue: with `collection` BoForm reads the fields store and drops the field
 				     permissions (read-only fields, presets) that useItemPermissions puts on `fields` (016 T111). -->
 				<BoForm
 					ref="form"

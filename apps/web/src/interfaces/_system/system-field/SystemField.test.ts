@@ -1,4 +1,4 @@
-// Feature 016 (T042, D-57): system-field, as Directus system-field.vue: fields of the collection given by name or by
+// Feature 016 (T042, D-57): system-field, as DR system-field.vue: fields of the collection given by name or by
 // another form value, disabled by type / primary key / foreign key, reset when that collection changes.
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

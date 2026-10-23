@@ -10,7 +10,7 @@ import { translate } from '../../utils/translate-object-values.ts';
 import config from './index.ts';
 import SelectRadio from './SelectRadio.vue';
 
-// Backoffice: mounted with our BoRadio (no stubs); Directus classes become roles and data attributes.
+// Backoffice: mounted with our BoRadio (no stubs); DR classes become roles and data attributes.
 const global = { plugins: [i18n] };
 
 afterEach(() => {
@@ -153,9 +153,9 @@ describe('select-radio', () => {
 	});
 
 	test('option:select-radio.color: the checked radio and the active "other" row take the data color', () => {
-		const wrapper = mountRadio({ value: 'custom', choices, color: '#2ECDA7', allowOther: true }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountRadio({ value: 'custom', choices, color: '#2ECDA7', allowOther: true }); // raw-color-allowed: DR data default (Q-C)
 
-		expect(wrapper.findComponent(BoRadio).props('color')).toBe('#2ECDA7'); // raw-color-allowed: Directus data default (Q-C)
+		expect(wrapper.findComponent(BoRadio).props('color')).toBe('#2ECDA7'); // raw-color-allowed: DR data default (Q-C)
 		expect(wrapper.get('[data-custom]').attributes('style')).toContain('border-color');
 	});
 

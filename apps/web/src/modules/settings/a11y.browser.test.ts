@@ -1,6 +1,6 @@
 // Feature 016 T114 (SC-008, FR-106): axe on the 13 Settings screens of SC-004 and the four drawers and dialogs (new
 // collection, field drawer in both modes, permission detail, delete collection), light and `html.dark`, over the fixture
-// API with the system collections, fields and relations of Directus system-data and the Settings rows of the fixture
+// API with the system collections, fields and relations of DR system-data and the Settings rows of the fixture
 // set (settings.*.json). 0 serious or critical violations outside EXCEPTIONS.
 import { page } from '@vitest/browser/context';
 import type { Pinia } from 'pinia';

@@ -1,4 +1,4 @@
-// Backoffice: Directus has no unit test for cli/commands/count (spec 021 T048, FR-054).
+// Backoffice: DR has no unit test for cli/commands/count (spec 021 T048, FR-054).
 import { type MockInstance, afterEach, beforeEach, expect, test, vi } from 'vitest';
 import getDatabase from '../../../database/index.js';
 import { useLogger } from '../../../logger/index.js';

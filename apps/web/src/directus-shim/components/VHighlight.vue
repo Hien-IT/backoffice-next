@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-highlight.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): new, the Directus logic; diacritics removed per character with
+// Backoffice (spec 020, data-model §7): new, the DR logic; diacritics removed per character with
 // String.normalize instead of the `diacritics` package (as NotificationItem.vue), so the indices stay those of `text`;
 // the mark uses the search highlight colors of NotificationItem.
 import { toArray } from '@directus/utils';

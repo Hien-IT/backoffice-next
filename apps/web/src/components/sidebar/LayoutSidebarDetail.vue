@@ -22,7 +22,7 @@ const layouts = computed(() =>
 
 const layout = computed({
 	get() {
-		// Backoffice: an unknown layout id shows the tabular fallback, like currentLayout of Directus.
+		// Backoffice: an unknown layout id shows the tabular fallback, like currentLayout of DR.
 		return getLayout(props.modelValue ?? 'tabular') ? (props.modelValue ?? 'tabular') : 'tabular';
 	},
 	set(value) {

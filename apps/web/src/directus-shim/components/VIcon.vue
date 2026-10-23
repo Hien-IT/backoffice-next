@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/components/v-icon/v-icon.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): wraps BoIcon (Material Symbols, the Directus custom SVG and social icons,
-// `filled`, `data-icon`); the size comes from `--v-icon-size` (Directus sizes) and the color from `--v-icon-color`
-// like Directus. Deviation: a clickable icon without aria-label is named after the icon (Directus has no name).
+// Backoffice (spec 020, data-model §7): wraps BoIcon (Material Symbols, the DR custom SVG and social icons,
+// `filled`, `data-icon`); the size comes from `--v-icon-size` (DR sizes) and the color from `--v-icon-color`
+// like DR. Deviation: a clickable icon without aria-label is named after the icon (DR has no name).
 import { computed } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
 import { useUserStore } from '../../stores/user.ts';
@@ -113,7 +113,7 @@ const RTL_REVERSE_ICONS = [
 	'wrap_text',
 ];
 
-// Directus .sup, .x-small, .small, .large, .x-large; unset, an inherited --v-icon-size or 1.375rem applies.
+// DR .sup, .x-small, .small, .large, .x-large; unset, an inherited --v-icon-size or 1.375rem applies.
 const size = computed(() => {
 	if (props.sup) return '0.4375rem';
 	if (props.xSmall) return '0.6875rem';

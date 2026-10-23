@@ -1,4 +1,4 @@
-// SettingsService of feature 010 extends ItemsService like Directus (research R2). The /server/info cases of feature 001
+// SettingsService of feature 010 extends ItemsService like DR (research R2). The /server/info cases of feature 001
 // keep guarding the output of readSingleton with the field list of ServerService.serverInfo.
 import type { Knex } from 'knex';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

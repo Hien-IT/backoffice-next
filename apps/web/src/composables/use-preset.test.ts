@@ -1,5 +1,5 @@
-// Behaviour of directus/app/src/composables/use-preset.ts (no Directus test) on the Backoffice presets store, with the
-// first write measured on the Directus app (fixtures/interfaces/snapshot/expected.content.json, CHK001, FR-011).
+// Behaviour of directus/app/src/composables/use-preset.ts (no DR test) on the Backoffice presets store, with the
+// first write measured on the DR app (fixtures/interfaces/snapshot/expected.content.json, CHK001, FR-011).
 import type { Preset } from '@directus/types';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';

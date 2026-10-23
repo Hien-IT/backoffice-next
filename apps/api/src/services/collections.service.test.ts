@@ -596,7 +596,7 @@ describe('Integration Tests', () => {
 				await expect(service.deleteOne('test_collection')).rejects.toThrow(ForbiddenError);
 			});
 
-			// Backoffice: D-32 (spec 006). Directus drops the system table; the shared database must keep it.
+			// Backoffice: D-32 (spec 006). DR drops the system table; the shared database must keep it.
 			test('should throw ForbiddenError for a system collection, before reading or dropping anything', async () => {
 				const service = new CollectionsService({ knex: db, schema, accountability: null });
 				const readByQuery = vi.spyOn(service, 'readByQuery');

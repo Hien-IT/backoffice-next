@@ -1,5 +1,5 @@
 // /items end to end (pipeline, authenticate, collectionExists, ItemsService) on the SQLite auth test database
-// (feature 005, T011). Directus has no test for controllers/items.ts; parity is checked by tests/parity/src/items.
+// (feature 005, T011). DR has no test for controllers/items.ts; parity is checked by tests/parity/src/items.
 import * as env from '@backoffice/env';
 import { createInspector } from '@backoffice/schema';
 import jwt from 'jsonwebtoken';
@@ -159,7 +159,7 @@ describe('collections that do not answer', () => {
 			expect(res.body.errors[0].extensions.code).toBe('ROUTE_NOT_FOUND');
 		}
 
-		// The path of the Directus router mounted at /items.
+		// The path of the DR router mounted at /items.
 		const res = await agent.patch('/ITEMS/home/1').set('Authorization', admin()).send({});
 		expect(res.body.errors[0]).toEqual({
 			message: "Route /home/1 doesn't exist.",
@@ -206,7 +206,7 @@ describe('CRUD as admin (routes in the order of the Directus router)', () => {
 			.send({ query: { fields: ['id'], filter: { status: { _eq: 'published' } } } });
 		expect(query.body).toEqual({ data: [{ id: 1 }] });
 
-		// body-parser 1.20.3 (Directus' express.json) sets req.body to {}, so "Payload in body is required" never fires.
+		// body-parser 1.20.3 (DR' express.json) sets req.body to {}, so "Payload in body is required" never fires.
 		const noBody = await agent.search('/items/articles?fields=title&sort=title').set('Authorization', admin());
 		expect(noBody.body).toEqual({ data: [{ title: 'a' }, { title: 'b' }] });
 	});

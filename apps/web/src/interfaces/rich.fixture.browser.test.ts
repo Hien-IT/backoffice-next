@@ -22,7 +22,7 @@ import '../styles/index.css';
 
 interface Scenario extends ExpectedScenario {
 	field: string;
-	/** The value mounted: a seeded one (bo_std items 1-3), or a Directus-shaped value written for the scenario. */
+	/** The value mounted: a seeded one (bo_std items 1-3), or a DR-shaped value written for the scenario. */
 	initial: unknown;
 	/** Option values of the scenario over the seeded ones. */
 	options?: Record<string, unknown>;

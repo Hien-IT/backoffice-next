@@ -66,7 +66,7 @@ const isSSOUser = computed(() => {
 
 const effectiveTFAEnabled = computed(() => {
 	if (profileUser.value && !isCurrentUser.value) {
-		// Backoffice: OAuth and password users alike; Directus also reads the require_tfa_setup key here, but that key
+		// Backoffice: OAuth and password users alike; DR also reads the require_tfa_setup key here, but that key
 		// belongs to the browser of the signed-in user, not to the user being viewed (FR-082, CHK022).
 		return !!profileUser.value.tfa_secret;
 	}

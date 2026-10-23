@@ -1,4 +1,4 @@
-// Directus has no test for its extensions store (spec 020 T090): refresh with the "reload required" notice when the
+// DR has no test for its extensions store (spec 020 T090): refresh with the "reload required" notice when the
 // enabled app or hybrid extensions change, toggleState and remove call the API then refresh.
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, expect, test, vi } from 'vitest';

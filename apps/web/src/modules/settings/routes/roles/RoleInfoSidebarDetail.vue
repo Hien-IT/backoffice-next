@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/roles/role-info-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: a `dl` in the SidebarDetail section like UserInfoSidebarDetail (015); the copy button is a named icon
-// button (an unnamed clickable icon in Directus) and reports the result through the in-place notice of useClipboard.
+// button (an unnamed clickable icon in DR) and reports the result through the in-place notice of useClipboard.
 import type { Role } from '@directus/types';
 import BoButton from '../../../../components/BoButton.vue';
 import SidebarDetail from '../../../../components/sidebar/SidebarDetail.vue';

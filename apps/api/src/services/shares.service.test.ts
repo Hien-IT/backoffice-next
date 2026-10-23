@@ -1,4 +1,4 @@
-// Feature 010 (T027): SharesService (port of directus/api/src/services/shares.ts, which Directus does not unit test).
+// Feature 010 (T027): SharesService (port of directus/api/src/services/shares.ts, which DR does not unit test).
 // login runs on an in-memory SQLite with directus_shares and directus_sessions; createOne, updateMany, deleteMany and
 // invite with the item service, the permission checks and the cache mocked.
 import { ForbiddenError } from '@backoffice/errors';
@@ -15,7 +15,7 @@ import { UsersService } from './users.service.js';
 
 const logger = vi.hoisted(() => ({ warn: vi.fn(), error: vi.fn(), debug: vi.fn(), trace: vi.fn(), info: vi.fn() }));
 
-// services/shares.ts reads the env when it is imported, like Directus.
+// services/shares.ts reads the env when it is imported, like DR.
 const env = vi.hoisted(() => ({
 	SECRET: 'test-secret',
 	ACCESS_TOKEN_TTL: '15m',

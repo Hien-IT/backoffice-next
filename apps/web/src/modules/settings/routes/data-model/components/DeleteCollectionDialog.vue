@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/collections/components/collection-options.vue (delete dialog) -->
 <script setup lang="ts">
 // Backoffice: the delete dialog of the collection menu as its own BoDialog (Cancel first and focused, recipe Q-27). The
-// fields of other collections that point at this one are deleted first, as Directus does (a2o relations are ignored on
+// fields of other collections that point at this one are deleted first, as DR does (a2o relations are ignored on
 // purpose). Deleting a folder moves its children to the root (the API sets their group to null). The stores show
 // errors in the error dialog (D-66).
 import { computed, ref } from 'vue';

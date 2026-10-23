@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/modules/settings/routes/flows/components/operation.vue -->
 <script setup lang="ts">
 // Backoffice (spec 017 FR-022, FR-023, FR-026, recipe Q-30): VWorkspaceTile is BoWorkspaceTile; the resolve, reject and
-// input handles are buttons with a 32 px hit area centred on the Directus attachment points; colours from the theme
+// input handles are buttons with a 32 px hit area centred on the DR attachment points; colours from the theme
 // (resolve brand, reject orange, subdued gray); VSelect is BoSelect; VErrorBoundary is onErrorCaptured. The arrow drag
-// is pointer only, as Directus (recorded a11y exception, FR-106); no RTL mirroring. The workspace is found by its
+// is pointer only, as DR (recorded a11y exception, FR-106); no RTL mirroring. The workspace is found by its
 // `data-workspace` attribute instead of the `.workspace` class.
 import type { FlowRaw } from '@directus/types';
 import { computed, onErrorCaptured, ref, toRefs } from 'vue';
@@ -80,7 +80,7 @@ function pointerdown(target: Target | 'parent') {
 	const rect = document.querySelector('[data-workspace]')?.getBoundingClientRect();
 
 	if (rect) {
-		// Backoffice: pageX/pageY minus the page-relative workspace position (Directus reads `rect` the same way).
+		// Backoffice: pageX/pageY minus the page-relative workspace position (DR reads `rect` the same way).
 		workspaceOffset = new Vector2(rect.left + window.scrollX, rect.top + window.scrollY);
 	}
 

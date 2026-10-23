@@ -200,7 +200,7 @@ export default defineLayout<LayoutOptions, LayoutQuery>({
 					}
 				} catch (error: any) {
 					geojsonLoading.value = false;
-					// Backoffice: the message of the parser error (Directus keeps the Error object and prints it).
+					// Backoffice: the message of the parser error (DR keeps the Error object and prints it).
 					geojsonError.value = error?.message ?? String(error);
 					geojson.value = { type: 'FeatureCollection', features: [] };
 				}

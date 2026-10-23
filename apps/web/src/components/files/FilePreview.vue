@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/views/private/components/file-preview.vue -->
 <script setup lang="ts">
 // Backoffice: Image preview recipe (component-specs Tier 3). Outside a modal the click target is a button (keyboard
-// path to the lightbox); in a modal the whole preview emits click like Directus, except the native media controls.
+// path to the lightbox); in a modal the whole preview emits click like DR, except the native media controls.
 // The image loads with `loading="lazy"` instead of v-image's IntersectionObserver + request queue; loading and error
-// states come from the recipe (Directus shows none).
+// states come from the recipe (DR shows none).
 import type { File } from '@directus/types';
 import { computed, ref, toRef, watch } from 'vue';
 import { getAssetUrl } from '../../utils/get-asset-url.ts';

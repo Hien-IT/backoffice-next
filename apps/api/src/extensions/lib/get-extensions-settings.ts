@@ -19,7 +19,7 @@ export const getExtensionsSettings = (maps: {
 	module: Map<string, Extension>;
 	registry: Map<string, Extension>;
 }): Promise<ExtensionSettings[]> =>
-	// Backoffice: a read-only pass first, without the lock, as Directus reads the rows. Waiting for the lock while another
+	// Backoffice: a read-only pass first, without the lock, as DR reads the rows. Waiting for the lock while another
 	// node holds it let an extension uninstalled meanwhile get its row created again; the lock is taken only to write.
 	readAndCreateSettings(maps, false).then(
 		(settings) => settings ?? withSettingsLock(async () => (await readAndCreateSettings(maps, true))!),

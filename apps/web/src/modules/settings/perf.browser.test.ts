@@ -6,7 +6,7 @@
 // - the permissions matrix with 60 collections × 5 actions under 500 ms, 300 × 5 under 1 s;
 // - an existing field opens in the field drawer (store loaded, Schema tab drawn) under 300 ms after its request;
 // - requests: the collection page sends GET /collections/:c and GET /fields twice (guard and fields-management, as
-//   Directus); the policy page GET /policies/:id and
+//   DR); the policy page GET /policies/:id and
 //   GET /permissions; opening an existing field GET /fields/:c/:f only.
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
@@ -146,7 +146,7 @@ test('the field grid: 200 fields in 10 groups under 500 ms', async () => {
 	expect(fields).toHaveLength(201);
 
 	await measure('field grid 200', 500, async () => {
-		// fields-management hydrates the fields store on mount, as Directus: the same 200 fields.
+		// fields-management hydrates the fields store on mount, as DR: the same 200 fields.
 		mockApi({ 'GET /fields': fields });
 		const { time, wrapper } = await timeMount(
 			FieldsManagement,
@@ -301,7 +301,7 @@ test('requests: the collection page and the policy page', async () => {
 	});
 	const page = await mountLayout(shell, { path: '/settings/data-model/bo_perf', routes, beforeMount: dataModelSetup });
 	await flushPromises();
-	// Two GET /fields as Directus: the route guard and fields-management.vue onBeforeMount both hydrate the store.
+	// Two GET /fields as DR: the route guard and fields-management.vue onBeforeMount both hydrate the store.
 	expect(
 		calls(collectionFetch)
 			.map((call) => call.split('?')[0])

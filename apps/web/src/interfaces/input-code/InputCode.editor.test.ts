@@ -1,4 +1,4 @@
-// Directus has no real-editor test for input-code; contracts/tests.md §5 with the real CodeMirror 5 (FR-028).
+// DR has no real-editor test for input-code; contracts/tests.md §5 with the real CodeMirror 5 (FR-028).
 import type { Field } from '@directus/types';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import type CodeMirror from 'codemirror';

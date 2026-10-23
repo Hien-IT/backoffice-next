@@ -1,4 +1,4 @@
-// Directus has no test for the image display: thumbnail URL (FR-077), `circle`, error icon, null.
+// DR has no test for the image display: thumbnail URL (FR-077), `circle`, error icon, null.
 import { mount } from '@vue/test-utils';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { i18n } from '../../lang/index.ts';

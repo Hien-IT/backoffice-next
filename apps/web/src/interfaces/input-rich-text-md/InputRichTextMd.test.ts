@@ -1,4 +1,4 @@
-// Directus has no test for input-rich-text-md; contracts/tests.md §5 with the real CodeMirror 5 (FR-061).
+// DR has no test for input-rich-text-md; contracts/tests.md §5 with the real CodeMirror 5 (FR-061).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import type CodeMirror from 'codemirror';
 import { createPinia, setActivePinia } from 'pinia';

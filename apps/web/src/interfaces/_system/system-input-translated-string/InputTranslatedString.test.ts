@@ -1,4 +1,4 @@
-// Directus has no test for system-input-translated-string: behaviour of input-translated-string.vue (keys from
+// DR has no test for system-input-translated-string: behaviour of input-translated-string.vue (keys from
 // /translations grouped by key, `$t:` value shown as a chip, search from 25 keys, new translation through the drawer and
 // translationsStore.create).
 import { enableAutoUnmount, flushPromises, mount, type VueWrapper } from '@vue/test-utils';
@@ -38,7 +38,7 @@ beforeEach(() => {
 	fetchAllMock.mockReset();
 });
 
-// The parent writes the emitted value back (v-model of a form), as Directus' setValue relies on the props watcher.
+// The parent writes the emitted value back (v-model of a form), as DR' setValue relies on the props watcher.
 async function setup(props: Record<string, unknown> = {}, keys = ['greeting', 'farewell']) {
 	fetchAllMock.mockResolvedValue(keys.map((key) => ({ key })));
 	const wrapper: VueWrapper = mount(InputTranslatedString, {

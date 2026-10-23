@@ -173,7 +173,7 @@ test('page size and page change write the preset query; the size select hides on
 	expect(document.querySelector('[role="status"]')!.textContent).toContain(
 		i18n.global.t('start_end_of_count_items', { start: 26, end: 30, count: 30 }),
 	);
-	// Directus shows the size select when items >= 25 or limit < 25.
+	// DR shows the size select when items >= 25 or limit < 25.
 	expect([...document.querySelectorAll('label')].map((el) => el.textContent?.trim())).not.toContain(
 		i18n.global.t('per_page'),
 	);

@@ -1,4 +1,4 @@
-// The route a notification opens (notifications-drawer.vue of Directus): its item, the collection page of a singleton or
+// The route a notification opens (notifications-drawer.vue of DR): its item, the collection page of a singleton or
 // a notification without item, or the `item` itself when it is an app path. Shared by the drawer and the bell panel.
 import { useCollectionsStore } from '../stores/collections.ts';
 import { getCollectionRoute, getItemRoute } from './get-item-route.ts';

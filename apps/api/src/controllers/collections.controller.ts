@@ -1,7 +1,7 @@
 // Ported from directus/api/src/controllers/collections.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R2 of spec 006); `validateBatch` runs
+// Backoffice: one Nest handler per DR route, in the same order (research R2 of spec 006); `validateBatch` runs
 // through runMiddleware, `next()` to `respond` is respond(). No useCollection: req.collection stays undefined, as in
-// Directus (permissionsCacheable of the response cache).
+// DR (permissionsCacheable of the response cache).
 import { ErrorCode, isBackofficeError } from '@backoffice/errors';
 import type { Item } from '@backoffice/types';
 import { Controller, Delete, Get, HttpCode, Inject, Patch, Post, Req, Res, Search } from '@nestjs/common';

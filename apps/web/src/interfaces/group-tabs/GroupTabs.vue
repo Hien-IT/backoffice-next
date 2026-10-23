@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: TabsRoot/TabsList + tab-trigger.vue + tab-content.vue become BoTabs (Tier 3 Tabs recipe, underline
 // instead of the pill list); the trigger logic (edited, validationMessages) and the content field list are functions
-// here. `fillWidth` is the Directus `fill` grid class (the group spans every form column). Comparison and collab
+// here. `fillWidth` is the DR `fill` grid class (the group spans every form column). Comparison and collab
 // context removed (D-54, D-55). Not wrapped in FormField, so no FORM_FIELD_A11Y: the tab list is named by the group.
 import formatTitle from '@directus/format-title';
 import type { ContentVersion, Field, ValidationError } from '@directus/types';

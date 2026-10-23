@@ -1,6 +1,6 @@
 // Ported from directus/app/src/composables/use-relation-permissions.ts
 // Backoffice: use-permissions/collection/use-collection-permissions.ts is not ported yet (the item screens of feature
-// 014 need the rest of it); the create/update/delete part these composables read is inlined below, as in Directus
+// 014 need the rest of it); the create/update/delete part these composables read is inlined below, as in DR
 // (isActionAllowed: `hasPermission` of the permissions store, read from /permissions/me, FR-041).
 import { computed, type ComputedRef, type MaybeRef, type Ref, unref } from 'vue';
 import { type PermissionsAction, usePermissionsStore } from '../stores/permissions.ts';

@@ -1,4 +1,4 @@
-// PermissionsService on real SQLite tables (task T026; Directus 11.17.4 has no test for this service): minimal app
+// PermissionsService on real SQLite tables (task T026; DR 11.17.4 has no test for this service): minimal app
 // permissions on reads, cache points of spec FR-082, getItemPermissions.
 import { createInspector } from '@backoffice/schema';
 import type { Accountability, SchemaOverview } from '@backoffice/types';
@@ -101,7 +101,7 @@ describe('PermissionsService', () => {
 		await service().updateBatch([{ id: keys[0], fields: ['name'] }]);
 		await service().deleteMany([key, ...keys]);
 
-		// As in Directus, createMany and updateBatch go through the overridden createOne and updateMany, so the system
+		// As in DR, createMany and updateBatch go through the overridden createOne and updateMany, so the system
 		// caches are cleared twice for them (1 + 2 + 1 + 2 + 1); the inner calls get autoPurgeCache: false, so the data
 		// cache is cleared once per write.
 		expect(clearSystemCache).toHaveBeenCalledTimes(7);

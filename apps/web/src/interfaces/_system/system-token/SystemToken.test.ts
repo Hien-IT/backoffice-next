@@ -1,4 +1,4 @@
-// Feature 015 (T071, FR-083, CHK023, CHK073, CHK084): system-token, the cases of Directus system-token.test.ts checked
+// Feature 015 (T071, FR-083, CHK023, CHK073, CHK084): system-token, the cases of DR system-token.test.ts checked
 // on the rendered field and the requests it sends.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

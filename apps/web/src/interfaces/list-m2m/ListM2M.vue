@@ -8,7 +8,7 @@
 // previous/next (no v-pagination yet). v-prevent-focusout is not needed (the drawers are Reka dialogs that keep the focus).
 // Row keys are the junction primary key. localStorage key `directus-m2m-column-widths-*` ->
 // `backoffice-m2m-column-widths-*` (D-39). The ported helpers (column widths, items count, related primary keys,
-// v-remove) are shared with list-o2m as in Directus.
+// v-remove) are shared with list-o2m as in DR.
 import type { ContentVersion, Filter } from '@directus/types';
 import { deepMap, getFieldsFromTemplate } from '@directus/utils';
 import { clamp, get, isEmpty, isNil, merge, set } from 'lodash-es';

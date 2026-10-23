@@ -31,7 +31,7 @@ test('a notice shows as a toast at the bottom end and goes away after 3 s like D
 	await flushPromises();
 	const region = wrapper.get('[role="status"][aria-live="polite"]');
 	expect(region.text()).toContain('Item updated');
-	// Floats at the bottom end over the page and above drawers, like the Directus notifications-group overlay.
+	// Floats at the bottom end over the page and above drawers, like the DR notifications-group overlay.
 	expect(region.classes()).toEqual(expect.arrayContaining(['fixed', 'bottom-4', 'sm:end-6', 'z-999999']));
 
 	vi.advanceTimersByTime(NOTICE_TIMEOUT);
@@ -89,7 +89,7 @@ test('error dialog: Dismiss only, focused, closes; an error without a code is UN
 	expect(useNotices().dialogs.value).toHaveLength(0);
 });
 
-// Spec 020 (T092): the notice options of the Directus notifications store used by the extensions store.
+// Spec 020 (T092): the notice options of the DR notifications store used by the extensions store.
 test('a notice with an id already queued is not added twice', () => {
 	notify({ id: 'reload-required', title: 'Reload required', persist: true });
 	expect(notify({ id: 'reload-required', title: 'Reload required', persist: true })).toBe('reload-required');

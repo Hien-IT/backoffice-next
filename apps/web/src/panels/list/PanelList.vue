@@ -4,7 +4,7 @@
 // row is a `button` (keyboard access, focus ring) instead of a clickable div; borders `border-gray-100
 // dark:border-gray-800` instead of `--theme--border-color-subdued`; the PATCH goes through the SDK (`requestEndpoint`)
 // and errors through showUnexpectedError; no own side padding (PanelTile pads the body). `inheritAttrs: false` (as the
-// Directus label panel) keeps the tile context props it does not declare out of the DOM. Logic as Directus: a click
+// DR label panel) keeps the tile context props it does not declare out of the DOM. Logic as DR: a click
 // opens the item drawer, its input PATCHes the item, then the dashboard is refreshed (also after an error).
 import { getEndpoint } from '@directus/utils';
 import { computed, ref } from 'vue';

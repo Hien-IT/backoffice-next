@@ -1,4 +1,4 @@
-// Ported from directus/api/src/app.ts (JSON body middleware). Express 5 ships body-parser 2; Directus runs
+// Ported from directus/api/src/app.ts (JSON body middleware). Express 5 ships body-parser 2; DR runs
 // Express 4.21.2, whose express.json() is body-parser 1.20.3, so that version is used directly (research R4).
 import { useEnv } from '@backoffice/env';
 import { InvalidPayloadError } from '@backoffice/errors';

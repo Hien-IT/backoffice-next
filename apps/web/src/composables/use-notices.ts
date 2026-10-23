@@ -1,9 +1,9 @@
 // Ported from directus/app/src/stores/notifications.ts; Ported from directus/app/src/utils/notify.ts; Ported from directus/app/src/utils/unexpected-error.ts
 // From the store: add, remove, queue, dialogs.
 // Backoffice: in-place notices under the page header instead of the snackbar of feature 018 (D-66, spec 014 FR-054b);
-// a module-level queue shared by every screen, like the Directus store. `unexpectedError` of 013 stays a console warning
+// a module-level queue shared by every screen, like the DR store. `unexpectedError` of 013 stays a console warning
 // that returns the error (the 013 interfaces show it inline); 014 screens call `showUnexpectedError`, which opens the
-// error dialog like Directus.
+// error dialog like DR.
 import { nanoid } from 'nanoid';
 import { ref } from 'vue';
 import { i18n } from '../lang/index.ts';
@@ -12,7 +12,7 @@ import { extractErrorCode } from '../utils/extract-error-code.ts';
 export type NoticeType = 'info' | 'success' | 'warning' | 'error';
 
 export interface NoticeRaw {
-	/** Spec 020 (T092): a notice with the id of one already queued is not added again (Directus store `add`). */
+	/** Spec 020 (T092): a notice with the id of one already queued is not added again (DR store `add`). */
 	id?: string;
 	title: string;
 	text?: string;
@@ -41,7 +41,7 @@ export interface Notice extends NoticeRaw {
 	timestamp: number;
 }
 
-/** Directus notifications store: a notice that is not `persist` is removed after 3 s. */
+/** DR notifications store: a notice that is not `persist` is removed after 3 s. */
 export const NOTICE_TIMEOUT = 3000;
 
 const queue = ref<Notice[]>([]);

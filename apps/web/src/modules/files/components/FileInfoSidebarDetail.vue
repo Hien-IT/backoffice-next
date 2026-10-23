@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/files/components/file-info-sidebar-detail.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "File page and file details" (Q-15): a `dl` in the SidebarDetail section; dates in the short
-// form with the long form in a BoTooltip; the owner and editor requests that fail leave their row out (Directus does
-// not catch them either, CHK013); only the five EXIF rows of Directus (no other metadata such as GPS, CHK085); the
+// form with the long form in a BoTooltip; the owner and editor requests that fail leave their row out (DR does
+// not catch them either, CHK013); only the five EXIF rows of DR (no other metadata such as GPS, CHK085); the
 // "open in new window" link text already says it opens a new window (layout-patterns §7).
 import type { File } from '@directus/types';
 import { computed, ref, watch } from 'vue';

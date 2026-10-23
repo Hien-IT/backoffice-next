@@ -37,7 +37,7 @@ const OPTIONS: { value: SaveOption; icon: string; text: string; shortcut?: strin
 
 const options = computed(() => OPTIONS.filter((option) => !props.disabledOptions?.includes(option.value)));
 
-// Backoffice: one typed emit call per option; Directus writes four `$emit` calls in the template.
+// Backoffice: one typed emit call per option; DR writes four `$emit` calls in the template.
 function select(value: SaveOption) {
 	(emit as (e: SaveOption) => void)(value);
 }
@@ -45,7 +45,7 @@ function select(value: SaveOption) {
 
 <template>
 	<!-- Backoffice: split-button half of recipe Q-8 (secondary icon Button attached to the save Button) in place of the
-	Directus VMenu with a clickable VIcon. -->
+	DR VMenu with a clickable VIcon. -->
 	<DropdownMenuRoot>
 		<DropdownMenuTrigger as-child>
 			<BoButton variant="secondary" icon="more_vert" :aria-label="t('more_save_options')" class="rounded-s-none" />

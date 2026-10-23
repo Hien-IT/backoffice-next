@@ -1,6 +1,6 @@
 // Ported from directus/api/src/controllers/fields.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R2 of spec 006). `validateCollection` is
-// the collection-exists middleware (feature 005), run through runMiddleware first like in the Directus router;
+// Backoffice: one Nest handler per DR route, in the same order (research R2 of spec 006). `validateCollection` is
+// the collection-exists middleware (feature 005), run through runMiddleware first like in the DR router;
 // useCollection('directus_fields') is applied in app.module.ts; `next()` to `respond` is respond().
 import { TYPES } from '@backoffice/constants';
 import { ErrorCode, ForbiddenError, InvalidPayloadError, isBackofficeError } from '@backoffice/errors';

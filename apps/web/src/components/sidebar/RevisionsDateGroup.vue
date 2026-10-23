@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/views/private/components/revisions-date-group.vue -->
 <script setup lang="ts">
-// Backoffice: recipe Q-10, the date is a group heading above its rows (Directus: an expanded v-detail).
+// Backoffice: recipe Q-10, the date is a group heading above its rows (DR: an expanded v-detail).
 import type { Revision, RevisionsByDate } from '../../types/revisions.ts';
 import RevisionItem from './RevisionItem.vue';
 

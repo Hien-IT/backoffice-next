@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-display-template/system-display-template.vue -->
 <script setup lang="ts">
-// Backoffice: the Directus chip editor (VFieldTemplate of the spec 020 shim) on the field tree of the collection, the
+// Backoffice: the DR chip editor (VFieldTemplate of the spec 020 shim) on the field tree of the collection, the
 // version field injected when versioning is on (owner 2026-10-23, D-166: it replaced a text input with a field picker).
 // The form label names the textbox through aria-labelledby (a contenteditable is not labelable by `for`).
 import { computed, inject, ref } from 'vue';

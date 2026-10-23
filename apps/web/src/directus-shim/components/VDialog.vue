@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7 #14, Q-44): v-dialog on a Reka Dialog (focus trap, scroll lock, aria-hidden
 // siblings, Esc only on the top-most layer, focus return to the opener) instead of focus-trap and useShortcut. As
-// Directus the container covers the window: VOverlay behind, the slot (usually a VCard, which draws the panel) at the
+// DR the container covers the window: VOverlay behind, the slot (usually a VCard, which draws the panel) at the
 // `placement` edge or centred. The dialog has no title of its own: its name is the text of the first heading (or card
 // title) of the content, else "Dialog". Esc emits `esc` and closes; `persistent` keeps it open on Esc and on an overlay
 // click and nudges the content instead. The apply shortcut emits `apply`; meta+s does nothing else while it is open.
@@ -106,7 +106,7 @@ function onOpenAutoFocus() {
 				>
 					<DialogTitle class="sr-only">{{ label || $t('dialog') }}</DialogTitle>
 					<VOverlay active absolute style="--v-overlay-z-index: 1" @click="close" />
-					<!-- Directus v-dialog.vue:204,241 card min width, :230-233 sheet hooks of the dialog content. -->
+					<!-- DR v-dialog.vue:204,241 card min width, :230-233 sheet hooks of the dialog content. -->
 					<div
 						ref="body"
 						class="v-dialog-body relative z-2 flex *:shadow-theme-xl"
@@ -125,7 +125,7 @@ function onOpenAutoFocus() {
 </template>
 
 <style scoped>
-/* Directus TransitionDialog and the nudge of a persistent dialog; off under reduced motion. */
+/* DR TransitionDialog and the nudge of a persistent dialog; off under reduced motion. */
 .v-dialog-container[data-state='open'] {
 	animation: v-dialog-fade 200ms cubic-bezier(0.4, 0, 0.2, 1);
 }

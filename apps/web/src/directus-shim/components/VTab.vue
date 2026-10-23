@@ -3,7 +3,7 @@
 import { useGroupable } from '@directus/composables';
 import { inject, ref } from 'vue';
 
-// Backoffice (spec 020, data-model §7): joins the `v-tabs` group like Directus; a `button role="tab"` with the
+// Backoffice (spec 020, data-model §7): joins the `v-tabs` group like DR; a `button role="tab"` with the
 // BoTabs trigger classes (underline when horizontal, menu item when vertical), focusable when active (roving focus in
 // VTabs).
 const props = withDefaults(defineProps<{ value?: string | number | undefined; disabled?: boolean | undefined }>(), {
@@ -22,7 +22,7 @@ function onClick() {
 	if (props.disabled === false) toggle();
 }
 
-// Directus v-tab.vue:53-54: a disabled tab only shows the not-allowed cursor (hover and tooltips stay); onClick blocks it.
+// DR v-tab.vue:53-54: a disabled tab only shows the not-allowed cursor (hover and tooltips stay); onClick blocks it.
 const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const HORIZONTAL =

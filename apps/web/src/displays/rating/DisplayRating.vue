@@ -11,7 +11,7 @@ type InterfaceOptions = {
 };
 
 interface Props {
-	// Backoffice: `| undefined` for exactOptionalPropertyTypes (the Directus defaults are undefined).
+	// Backoffice: `| undefined` for exactOptionalPropertyTypes (the DR defaults are undefined).
 	value?: string | number | null | undefined;
 	simple?: boolean;
 	interfaceOptions?: InterfaceOptions | null | undefined;
@@ -38,7 +38,7 @@ const FILLED = { fontVariationSettings: "'FILL' 1" };
 </script>
 
 <template>
-	<!-- Backoffice: the warning Badge (light, sm) stands in for the Directus simple badge. -->
+	<!-- Backoffice: the warning Badge (light, sm) stands in for the DR simple badge. -->
 	<span
 		v-if="simple"
 		class="rating simple inline-flex items-center gap-1 rounded-full bg-warning-50 px-2.5 py-0.5 text-theme-xs font-semibold text-warning-700 dark:bg-warning-500/15 dark:text-warning-400"

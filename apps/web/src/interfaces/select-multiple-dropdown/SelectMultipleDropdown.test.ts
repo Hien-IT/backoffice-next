@@ -1,4 +1,4 @@
-// Directus has no test for select-multiple-dropdown: spec FR-031 options, fixture bo_std fields, edit shapes, states.
+// DR has no test for select-multiple-dropdown: spec FR-031 options, fixture bo_std fields, edit shapes, states.
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { computed } from 'vue';
@@ -93,7 +93,7 @@ describe('select-multiple-dropdown', () => {
 		const deselect = options()[0]!;
 		expect(deselect.textContent).toContain('Deselect All');
 
-		// Directus sortBy(null) of the v-select null emit gives [].
+		// DR sortBy(null) of the v-select null emit gives [].
 		wrapper.findComponent(BoMultiSelect).vm.$emit('update:modelValue', null);
 		expect(wrapper.emitted('input')).toEqual([[[]]]);
 	});
@@ -158,7 +158,7 @@ describe('select-multiple-dropdown', () => {
 	});
 });
 
-// Like Directus v-select (and the flow trigger scopes of 017): a string choice is its own text and value; a divider
+// Like DR v-select (and the flow trigger scopes of 017): a string choice is its own text and value; a divider
 // entry stays a separator row.
 test('string choices get their text; divider entries stay separators', () => {
 	const wrapper = mountDropdown({ value: null, choices: ['items.create', { divider: true }, 'server.start'] });

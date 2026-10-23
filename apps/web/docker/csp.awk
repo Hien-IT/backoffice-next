@@ -1,9 +1,9 @@
-# Builds the Content-Security-Policy that Directus 11.17.4 sends for /admin (directus/api/src/app.ts:166-195: helmet
+# Builds the Content-Security-Policy that DR 11.17.4 sends for /admin (directus/api/src/app.ts:166-195: helmet
 # with useDefaults, merged by lodash with CONTENT_SECURITY_POLICY_*), from `env | sort` on stdin. Rules measured on
-# Directus 11.17.4 (specs/019-deployment-packaging/research.md, T022):
-# - Directus directives first, then the variables in env order, then the helmet defaults not set yet;
-# - a list value ("array:a,b" or "a,b") overrides a Directus list item by item (lodash merge), a single value replaces it;
-# - `false` stops Directus from starting: skipped here with a warning, like the other unsupported variables.
+# DR 11.17.4 (specs/019-deployment-packaging/research.md, T022):
+# - DR directives first, then the variables in env order, then the helmet defaults not set yet;
+# - a list value ("array:a,b" or "a,b") overrides a DR list item by item (lodash merge), a single value replaces it;
+# - `false` stops DR from starting: skipped here with a warning, like the other unsupported variables.
 
 function warn(msg) { print "40-config.sh: " msg > "/dev/stderr" }
 

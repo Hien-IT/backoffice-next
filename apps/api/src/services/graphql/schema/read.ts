@@ -28,7 +28,7 @@ import { dedupeRelationalResolver } from '../utils/dedupe-resolvers.js';
 import { getTypes } from './get-types.js';
 
 /**
- * Backoffice: the Subscription type stays in the schema like Directus (spec FR-047, D-17), but there is no transport;
+ * Backoffice: the Subscription type stays in the schema like DR (spec FR-047, D-17), but there is no transport;
  * `execute` never calls `subscribe`, so this placeholder replaces subscription.ts' createSubscriptionGenerator.
  */
 function subscribeUnavailable(): never {

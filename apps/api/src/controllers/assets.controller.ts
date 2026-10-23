@@ -1,8 +1,8 @@
 // Ported from directus/api/src/controllers/assets.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R4 of spec 007). The three handlers of
+// Backoffice: one Nest handler per DR route, in the same order (research R4 of spec 007). The three handlers of
 // GET /:pk/:filename? (query validation, Content-Security-Policy, file) are one method, in the same order; the optional
 // segment is two Nest paths (Express 5 syntax). useCollection('directus_files') is applied in app.module.ts. The
-// responses are written directly, like in Directus (no respond()); the env is read on use instead of at import (001).
+// responses are written directly, like in DR (no respond()); the env is read on use instead of at import (001).
 import { useEnv } from '@backoffice/env';
 import { InvalidPayloadError, InvalidQueryError, RangeNotSatisfiableError } from '@backoffice/errors';
 import type { Range, TransformationFormat, TransformationParams } from '@backoffice/types';

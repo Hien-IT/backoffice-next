@@ -2,9 +2,9 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-029 to FR-032, recipe Q-37, research R6): VDrawer is BoDrawer (persistent, `apply` =
 // meta+Enter), the type grid is BoFancySelect `layout="grid"` without the preview images (D-110) and without the
-// Directus `configRow` placement (the options follow the grid); the types come from the static registry (no
+// DR `configRow` placement (the options follow the grid); the types come from the static registry (no
 // extensions, XI) translated here. Choosing another type resets the options (FR-030); a new panel starts without
-// a header, as Directus (no `show_header` sent, the column default is false; T002 baseline, FR-032). Done moves the focus to the tile that was created or edited (FR-029).
+// a header, as DR (no `show_header` sent, the column default is false; T002 baseline, FR-032). Done moves the focus to the tile that was created or edited (FR-029).
 import type { Field, Panel } from '@directus/types';
 import { assign, clone, isUndefined, omitBy } from 'lodash-es';
 import { nanoid } from 'nanoid/non-secure';
@@ -64,7 +64,7 @@ const panel = computed<Partial<Panel>>(() => {
 const currentTypeInfo = computed(() => panelTypes.value.find((type) => type.id === panel.value.type));
 
 // Backoffice: ExtensionOptions gets the fields itself (type `panel`, as the 017 operations): the array, or the result
-// of the options function called with the panel as Directus does.
+// of the options function called with the panel as DR does.
 const customOptionsFields = computed(() => {
 	const options = currentTypeInfo.value?.options;
 	const fields = typeof options === 'function' ? options(unref(panel)) : options;

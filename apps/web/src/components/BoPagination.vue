@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-pagination.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Data table and pagination (Q-2)": a `nav` with `aria-label`, hidden when there is one page or
-// none (Directus: the tabular layout hides v-pagination then), `aria-current="page"` on the current page, labelled
+// none (DR: the tabular layout hides v-pagination then), `aria-current="page"` on the current page, labelled
 // previous/next icon buttons, `…` gaps; `totalVisible` defaults to 7 and `showFirstLast` to true (tabular layout values).
 // Look of the TailAdmin data table pagination (owner 2026-10-22, D-160): bordered 40 px arrow buttons, 40 px page
 // buttons, the current page on a brand tint (brand-600 text for 4.5:1 where TailAdmin has brand-500).

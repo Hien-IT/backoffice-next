@@ -312,7 +312,7 @@ export class PayloadService {
 
 					const aggregateResult = { [fieldName]: item[key] };
 
-					// Backoffice: `?? 0` and `!` only satisfy strict null checks; same result as Directus.
+					// Backoffice: `?? 0` and `!` only satisfy strict null checks; same result as DR.
 					if ((fieldEntries[fieldName]?.special?.length ?? 0) > 0) {
 						const newValue = await this.processField(
 							fieldEntries[fieldName]!,

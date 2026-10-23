@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-interface/system-interface.vue -->
 <script setup lang="ts">
 // Backoffice: VNotice is BoNotice, VSelect is BoSelect; the interfaces come from the apps/web registry with
-// their names translated (Directus translates them when it registers the extensions).
+// their names translated (DR translates them when it registers the extensions).
 import { computed, inject, ref, watch } from 'vue';
 import BoNotice from '../../../components/BoNotice.vue';
 import BoSelect from '../../../components/BoSelect.vue';

@@ -1,4 +1,4 @@
-// Backoffice (feature 011, T013): Directus has no test for middleware/graphql.ts; these pin the method, query-string
+// Backoffice (feature 011, T013): DR has no test for middleware/graphql.ts; these pin the method, query-string
 // and body handling of parseGraphQL the parity suite compares (spec FR-001, contracts/graphql-api.md §1).
 import { useEnv } from '@backoffice/env';
 import type { Request, Response } from 'express';

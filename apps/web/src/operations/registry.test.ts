@@ -1,4 +1,4 @@
-// Registry parity with Directus 11.17.4 (spec 017 FR-041, FR-044, SC-006): every operation matches the config extracted
+// Registry parity with DR 11.17.4 (spec 017 FR-041, FR-044, SC-006): every operation matches the config extracted
 // from directus/app/src/operations by scripts/extract-directus-registry.mjs, for the same sample arguments.
 import type { FlowRaw } from '@directus/types';
 import { createPinia, setActivePinia } from 'pinia';

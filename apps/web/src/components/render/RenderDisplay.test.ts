@@ -1,4 +1,4 @@
-// Directus has no test for render-display.vue (spec FR-070): null, unknown display, display props, render error.
+// DR has no test for render-display.vue (spec FR-070): null, unknown display, display props, render error.
 import { mount } from '@vue/test-utils';
 import { describe, expect, test, vi } from 'vitest';
 import { nextTick } from 'vue';

@@ -48,7 +48,7 @@ export function extractError(error: MySQLError, data: Partial<Item>): MySQLError
 
 		/**
 		 * MySQL's error doesn't return the field name in the error. In case the field is created through
-		 * Directus (/ Knex), the key name will be `<collection>_<field>_unique` in which case we can pull
+		 * DR (/ Knex), the key name will be `<collection>_<field>_unique` in which case we can pull
 		 * the field name from the key name.
 		 * If the field is the primary key it instead will be `<collection>_PRIMARY` for MySQL 8+
 		 * and `PRIMARY` for MySQL 5.7 and MariaDB.

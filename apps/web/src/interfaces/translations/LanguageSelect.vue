@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/translations/language-select.vue -->
 <script setup lang="ts">
-// Backoffice: the Directus activator is one button holding the prepend and controls icons (nested interactive
+// Backoffice: the DR activator is one button holding the prepend and controls icons (nested interactive
 // elements); here the bar is a row with the prepend slot, the menu trigger (language name and chevron) and the
 // controls slot as siblings, so each control is its own focusable button. Menu: Reka DropdownMenu.
 import {
@@ -14,7 +14,7 @@ import { computed, ref, useId } from 'vue';
 import BoIcon from '../../components/BoIcon.vue';
 import BoProgressLinear from '../../components/BoProgressLinear.vue';
 
-// Backoffice: the Directus `Record<string, any>` items with their known keys named (strict index access).
+// Backoffice: the DR `Record<string, any>` items with their known keys named (strict index access).
 export type LanguageOption = {
 	[key: string]: any;
 	text?: any;

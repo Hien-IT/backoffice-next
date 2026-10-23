@@ -1,5 +1,5 @@
-// The committed theme data matches directus/packages/themes 11.17.4 (spec FR-084, FR-085, D-89, FR-121): the Directus
-// theme sources are loaded with jiti as the script does (Vite cannot: their tsconfig extends a package of the Directus
+// The committed theme data matches directus/packages/themes 11.17.4 (spec FR-084, FR-085, D-89, FR-121): the DR
+// theme sources are loaded with jiti as the script does (Vite cannot: their tsconfig extends a package of the DR
 // workspace) and rendered by `renderThemes`, which must give the committed file apart from the date.
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';

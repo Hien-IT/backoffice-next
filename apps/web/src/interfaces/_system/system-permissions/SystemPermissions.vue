@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-permissions/system-permissions.vue -->
 <script setup lang="ts">
 // Backoffice (spec 016 US4-6, US4-7, recipe Q-23): the table, chips and dialogs are the Bo components with the theme
-// tokens; the script is Directus's. @directus/constants and @directus/system-data are not dependencies of apps/web:
+// tokens; the script is DR's. @directus/constants and @directus/system-data are not dependencies of apps/web:
 // PERMISSION_ACTIONS is the same five actions (app-permissions.ts) and isSystemCollection comes from get-item-route.ts.
 // Adding a collection scrolls the injected `main-element` (a drawer) or the page itself when there is none.
 import type { Alterations, Filter, Permission, PermissionsAction } from '@directus/types';

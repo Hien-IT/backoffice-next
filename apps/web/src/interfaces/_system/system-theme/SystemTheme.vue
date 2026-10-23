@@ -1,12 +1,12 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-theme/system-theme.vue -->
 <script setup lang="ts">
-// Backoffice: recipe Q-19 "Theme picker": a Reka RadioGroup of cards (the buttons with radio icons of Directus), each
-// with the Directus theme preview. The themes are the static Directus theme data (D-89); labels go through the
-// theme_directus_* keys, which the overlay turns into "Backoffice Default"... while the stored ids stay "Directus
+// Backoffice: recipe Q-19 "Theme picker": a Reka RadioGroup of cards (the buttons with radio icons of DR), each
+// with the DR theme preview. The themes are the static DR theme data (D-89); labels go through the
+// theme_directus_* keys, which the overlay turns into "Backoffice Default"... while the stored ids stay "DR
 // Default"... (D-88). Choosing a theme does not change the Backoffice look, the note under the list says so (D-88).
-// A null value without `includeNull` selects the first theme by id (FR-084; Directus compares with its `name`, so no
+// A null value without `includeNull` selects the first theme by id (FR-084; DR compares with its `name`, so no
 // card is active there). An unknown id leaves every card unchecked and the value as it is (CHK024). `disabled` is
-// applied (Directus ignores it).
+// applied (DR ignores it).
 import { RadioGroupItem, RadioGroupRoot } from 'reka-ui';
 import { computed, inject, useId } from 'vue';
 import { useI18n } from 'vue-i18n';

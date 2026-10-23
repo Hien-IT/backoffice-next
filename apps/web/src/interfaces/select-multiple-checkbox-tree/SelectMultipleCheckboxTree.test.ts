@@ -1,4 +1,4 @@
-// Directus has no test for select-multiple-checkbox-tree: spec FR-034 options, fixture bo_std fields, edit shapes.
+// DR has no test for select-multiple-checkbox-tree: spec FR-034 options, fixture bo_std fields, edit shapes.
 import { flushPromises, mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test } from 'vitest';
 import { computed } from 'vue';

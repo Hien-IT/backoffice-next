@@ -24,7 +24,7 @@ const {
 	active = false,
 	align,
 } = defineProps<{
-	/** info, success, warning: the status-colored solid buttons (Directus v-button `kind`, spec 020). */
+	/** info, success, warning: the status-colored solid buttons (DR v-button `kind`, spec 020). */
 	variant?: Variant;
 	type?: 'button' | 'submit' | 'reset';
 	/** Material Symbols name shown before the text; without default slot content the button is icon-only. */
@@ -36,12 +36,12 @@ const {
 	to?: RouteLocationRaw;
 	href?: string;
 	fullWidth?: boolean | undefined;
-	// The options below come from Directus v-button (spec 020, data-model §7); unset they keep the compact button.
+	// The options below come from DR v-button (spec 020, data-model §7); unset they keep the compact button.
 	/** Height 24/32/48/56 px instead of the compact 40 px. */
 	size?: 'xs' | 'sm' | 'lg' | 'xl' | undefined;
-	/** Square icon button whatever the content (Directus `icon`). */
+	/** Square icon button whatever the content (DR `icon`). */
 	square?: boolean | undefined;
-	/** circle = Directus `rounded`, tile = no radius. */
+	/** circle = DR `rounded`, tile = no radius. */
 	shape?: 'circle' | 'tile' | undefined;
 	/** Transparent background with a ring in the variant color. */
 	outlined?: boolean | undefined;

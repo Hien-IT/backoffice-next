@@ -3,7 +3,7 @@
 // Backoffice: files-navigation.vue (folder tree sidebar) is a folder select above the table with the same targets
 // (the root or `folder`, its sub folders, all files, my files, recent files); folders come from GET /folders as
 // use-folders.ts, once per drawer when it first opens. utils/get-folder-filter.ts is inlined. The session storage key
-// prefix is `backoffice-` (D-39). The MIME type filter is merged into `filter` by the interface, as in Directus
+// prefix is `backoffice-` (D-39). The MIME type filter is merged into `filter` by the interface, as in DR
 // (file.vue customFilter with useMimeTypeFilter). Pattern for BoUpload: `@library` opens this drawer and its `input`
 // goes to the exposed `setSelection` of BoUpload (v-upload.vue renders drawer-files itself).
 import type { Filter } from '@directus/types';
@@ -39,7 +39,7 @@ const props = withDefaults(
 	},
 );
 
-// Backoffice: declaring `active` stops Vue from passing `onUpdate:active` through to DrawerCollection (Directus does
+// Backoffice: declaring `active` stops Vue from passing `onUpdate:active` through to DrawerCollection (DR does
 // not declare it), so Cancel, Esc and Save never closed the drawer: it is re-emitted (T094).
 const emit = defineEmits<{ (e: 'update:active', value: boolean): void }>();
 

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/components/v-checkbox.vue -->
 <script setup lang="ts">
-// Backoffice: boolean checkbox only (the Directus array mode, custom value and block style belong to the choice
-// interfaces, Tier 3 CheckboxGroup); markup is the Tier 1 Checkbox recipe on Reka CheckboxRoot. As in Directus a
+// Backoffice: boolean checkbox only (the DR array mode, custom value and block style belong to the choice
+// interfaces, Tier 3 CheckboxGroup); markup is the Tier 1 Checkbox recipe on Reka CheckboxRoot. As in DR a
 // `null` modelValue shows the indeterminate state.
 import { CheckboxIndicator, CheckboxRoot } from 'reka-ui';
 import { computed, useId } from 'vue';
@@ -25,7 +25,7 @@ const {
 	disabled?: boolean | undefined;
 	invalid?: boolean | undefined;
 	id?: string | undefined;
-	/** Material Symbols name drawn instead of the box (Directus v-checkbox custom iconOn / iconOff / iconIndeterminate,
+	/** Material Symbols name drawn instead of the box (DR v-checkbox custom iconOn / iconOff / iconIndeterminate,
 	 * CheckboxGroup recipe); the caller picks the name of the current state. */
 	icon?: string | undefined;
 }>();

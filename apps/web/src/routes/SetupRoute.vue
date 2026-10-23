@@ -4,7 +4,7 @@
 // as plain fields (no v-form); the email check is a plain pattern instead of zod (not a dependency of the app). The
 // license notice and checkbox are left out (no license step, D-53), so the payload has no `license` key; the usage
 // select and the organization name it shows for commercial use are left out too (owner 2026-10-22, D-165), so
-// `project_usage` and `org_name` are always null; the other keys and values are those of Directus. Requests go through
+// `project_usage` and `org_name` are always null; the other keys and values are those of DR. Requests go through
 // the SDK.
 import { useHead } from '@unhead/vue';
 import { computed, ref } from 'vue';
@@ -31,7 +31,7 @@ type Form = {
 
 type ValidationError = { field: keyof Form; type: string };
 
-// shortcut: not a full RFC 5322 check (Directus uses z.email()), the API validates the address again.
+// shortcut: not a full RFC 5322 check (DR uses z.email()), the API validates the address again.
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const { t } = useI18n();

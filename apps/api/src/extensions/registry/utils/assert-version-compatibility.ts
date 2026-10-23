@@ -11,7 +11,7 @@ export const assertVersionCompatibility = async (options?: ValidateApiVersionOpt
 	const version = await getApiVersion(options);
 
 	/**
-	 * The Registry API always targets the latest release of Directus. If the current installation is
+	 * The Registry API always targets the latest release of DR. If the current installation is
 	 * out of date, the registry operations should fail with an instance out-of-date error.
 	 */
 	if (version !== SUPPORTED_VERSION) {

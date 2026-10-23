@@ -1,4 +1,4 @@
-// Feature 006 (T029): the /relations controller (port of directus/api/src/controllers/relations.ts, which Directus does
+// Feature 006 (T029): the /relations controller (port of directus/api/src/controllers/relations.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with RelationsService mocked: validateCollection on the
 // routes that have it, the Joi schemas, the body passed as is, 204 when the read back is forbidden.
 import * as env from '@backoffice/env';

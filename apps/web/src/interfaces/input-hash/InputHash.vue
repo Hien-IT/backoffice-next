@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: VInput is ../input/InputField.vue (port of v-input.vue); the stored hash never reaches the input
 // (FR-066): the input starts empty and shows `value_securely_stored` with a lock icon while a hash is stored.
-// Monospace font and the primary (hashed) / warning (open) lock colors as in Directus, from the theme.
+// Monospace font and the primary (hashed) / warning (open) lock colors as in DR, from the theme.
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import BoIcon from '../../components/BoIcon.vue';

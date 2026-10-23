@@ -1,4 +1,4 @@
-// Directus has no test for presentation-divider: fixture fields bo_groups.divider / divider_default (FR-056).
+// DR has no test for presentation-divider: fixture fields bo_groups.divider / divider_default (FR-056).
 import { mount } from '@vue/test-utils';
 import { describe, expect, test } from 'vitest';
 import { computed } from 'vue';
@@ -45,7 +45,7 @@ describe('presentation-divider', () => {
 	});
 
 	test('option:presentation-divider.color is applied by style', () => {
-		const wrapper = mountDivider({ title: 'Details', color: '#6644FF' }); // raw-color-allowed: Directus data default (Q-C)
+		const wrapper = mountDivider({ title: 'Details', color: '#6644FF' }); // raw-color-allowed: DR data default (Q-C)
 
 		expect(wrapper.get('h3').element.parentElement!.getAttribute('style')).toContain('color');
 	});

@@ -32,7 +32,7 @@ const {
 	maxlength?: number;
 	inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
 	id?: string;
-	/** Database-safe key (collection, field): only a-z, 0-9 and _ as `dbSafe` of Directus `v-input.vue` (spec 016 FR-007). */
+	/** Database-safe key (collection, field): only a-z, 0-9 and _ as `dbSafe` of DR `v-input.vue` (spec 016 FR-007). */
 	dbSafe?: boolean;
 }>();
 

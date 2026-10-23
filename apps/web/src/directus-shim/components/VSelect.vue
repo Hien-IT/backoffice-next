@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): wraps by mode. Single choice is BoSelect (extended with groups, dividers,
 // item color and a `trigger` slot for `preview` and `inline`); its values are strings, so each item gets a string key
-// mapped back to the Directus value. `multiple` is BoMultiSelect (groups flattened, `showDeselect` = `allowNone`), a
+// mapped back to the DR value. `multiple` is BoMultiSelect (groups flattened, `showDeselect` = `allowNone`), a
 // single `allowOther` is BoCombobox (the typed text is the value). Not honoured: `group-toggle` (groups are always
 // open), the search row above 10 items in single mode (Reka typeahead instead), `closeOnContentClick: false`,
 // `placement`, `attached`, `showArrow`, `itemLabelFontFamily`, `mandatory`; `preview`/`inline` and
@@ -86,7 +86,7 @@ type Parsed = {
 	disabled?: boolean;
 };
 
-/** Directus useItems parseItem: the item keys read with `get`, a string item is its own text and value. */
+/** DR useItems parseItem: the item keys read with `get`, a string item is its own text and value. */
 function parse(item: any): Parsed & { selectable?: boolean; children?: any[] | null } {
 	if (typeof item === 'string') return { text: item, value: item };
 
@@ -103,7 +103,7 @@ function parse(item: any): Parsed & { selectable?: boolean; children?: any[] | n
 
 const isDivider = (item: any) => typeof item === 'object' && item?.divider === true;
 
-/** BoSelect items keyed by position, and the Directus value of each key. */
+/** BoSelect items keyed by position, and the DR value of each key. */
 const single = computed(() => {
 	const values = new Map<string, unknown>();
 
@@ -137,7 +137,7 @@ const flat = computed(() => {
 
 const choices = computed(() => flat.value.filter((item): item is Parsed => !('divider' in item)));
 
-// Directus displayValue (single): the item text, else the value itself.
+// DR displayValue (single): the item text, else the value itself.
 const displayText = computed(() => {
 	if (props.modelValue === null || props.modelValue === undefined) return '';
 	return String(choices.value.find((item) => item.value === props.modelValue)?.text || props.modelValue);

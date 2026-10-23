@@ -104,7 +104,7 @@ export async function createServer(): Promise<http.Server> {
 		onShutdown,
 	};
 
-	// Like Directus, no `logger` option: an error during shutdown exits with code 1 without a log line.
+	// Like DR, no `logger` option: an error during shutdown exits with code 1 without a log line.
 	createTerminus(server, terminusOptions);
 
 	return server;

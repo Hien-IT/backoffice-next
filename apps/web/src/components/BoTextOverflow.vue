@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/components/v-text-overflow.vue -->
 <script setup lang="ts">
-// Backoffice: the full text shows as the native `title` when it is cut (Directus: v-tooltip); `highlight` (v-highlight
+// Backoffice: the full text shows as the native `title` when it is cut (DR: v-tooltip); `highlight` (v-highlight
 // for search results) comes with the screens that search (014).
 import { useElementSize } from '@vueuse/core';
 import { ref, watch } from 'vue';

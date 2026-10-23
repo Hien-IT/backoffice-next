@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): template only, design-system classes (subdued surface).
 
-// Directus v-sheet.vue:24-30: sizing and padding hooks.
+// DR v-sheet.vue:24-30: sizing and padding hooks.
 </script>
 
 <template>

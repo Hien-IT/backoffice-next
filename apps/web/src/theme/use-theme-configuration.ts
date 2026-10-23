@@ -1,6 +1,6 @@
 // Ported from directus/app/src/composables/use-theme-configuration.ts
 // Backoffice: theme names (theme_light, theme_dark, default_theme_*) do not change the Backoffice look (D-43); themeLight
-// and themeDark are only read by the system-theme-overrides interface (015, FR-085) to show the Directus rules. The
+// and themeDark are only read by the system-theme-overrides interface (015, FR-085) to show the DR rules. The
 // overrides are turned into design-system tokens by override-map.ts.
 import { merge } from 'lodash-es';
 import { computed, ref } from 'vue';
@@ -61,7 +61,7 @@ export const useThemeConfiguration = () => {
 
 	const themeDark = computed(() => userSettings.value?.theme_dark ?? systemSettings.value?.default_theme_dark ?? null);
 
-	// The settings are merged last, so they win over the user overrides (owner chose the Directus order 2026-10-14).
+	// The settings are merged last, so they win over the user overrides (owner chose the DR order 2026-10-14).
 	const themeLightOverrides = computed(() =>
 		merge({}, userSettings.value?.theme_light_overrides, systemSettings.value?.theme_light_overrides),
 	);

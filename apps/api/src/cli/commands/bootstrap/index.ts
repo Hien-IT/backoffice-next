@@ -26,7 +26,7 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 
 	await waitForDatabase(database);
 
-	// Backoffice (spec 021 D-145): other vendors are installed and migrated by the Directus image.
+	// Backoffice (spec 021 D-145): other vendors are installed and migrated by the DR image.
 	const client = unsupportedClient(database);
 
 	if (client) {
@@ -61,7 +61,7 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 		const settingsService = new SettingsService({ schema });
 
 		// Backoffice (owner 2026-10-22, D-164): without PROJECT_NAME the new project is named Backoffice instead of the
-		// Directus column default.
+		// DR column default.
 		const projectName =
 			typeof env['PROJECT_NAME'] === 'string' && env['PROJECT_NAME'].length > 0 ? env['PROJECT_NAME'] : 'Backoffice';
 		await settingsService.upsertSingleton({ project_name: projectName });

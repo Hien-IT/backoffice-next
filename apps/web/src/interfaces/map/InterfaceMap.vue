@@ -7,7 +7,7 @@
 // prefers-reduced-motion, which covers fit, zoom, location and geocoder moves (FR-094).
 // Backoffice: maplibre-gl 6.14.0 instead of 1.15.3 (security: 1.15.3 has a critical XSS advisory fixed only in
 // >= 6.4.1). The stored values do not change: Mapbox Draw still gives GeoJSON, serialized by utils/geometry as WKT,
-// GeoJSON or [lng, lat] like Directus. v6 has no `accessToken`/`mapbox://` support (getMapboxTransformRequest) and
+// GeoJSON or [lng, lat] like DR. v6 has no `accessToken`/`mapbox://` support (getMapboxTransformRequest) and
 // uses `maplibregl-*` classes, so Mapbox Draw gets the usual MapLibre class patch below.
 import type {
 	Field,
@@ -79,7 +79,7 @@ const props = withDefaults(
 		loading?: boolean;
 		disabled?: boolean;
 		nonEditable?: boolean;
-		// Declared like Directus; drawing follows the subtype of the field type, not this option.
+		// Declared like DR; drawing follows the subtype of the field type, not this option.
 		geometryType?: GeometryType;
 		defaultView?: Record<string, unknown>;
 	}>(),
@@ -381,7 +381,7 @@ function fitDataBounds(options: CameraOptions & AnimationOptions = {}) {
 }
 
 // Backoffice: no library buttons (`controls` stays empty): the template renders the draw and delete buttons for the
-// modes Directus enables (one per subtype of the field type, or line, polygon and point).
+// modes DR enables (one per subtype of the field type, or line, polygon and point).
 function getDrawOptions(): any {
 	return {
 		styles: getMapStyle(darkMode.value),
@@ -501,7 +501,7 @@ function handleDrawUpdate() {
 	}
 }
 
-// Backoffice: Directus listens on window, so Backspace in another field deleted the selected shape; here only the
+// Backoffice: DR listens on window, so Backspace in another field deleted the selected shape; here only the
 // focused map canvas reacts.
 function handleKeyDown(event: KeyboardEvent) {
 	if (['Backspace', 'Delete'].includes(event.key)) {

@@ -3,9 +3,9 @@
 // Backoffice: recipe layout-patterns §9, rendered in the `navigation` slot of AppSidebar (FR-004). The tree is built
 // once here (buildNavigationTree) and walked with the WAI-ARIA tree keyboard (FR-004b): one roving tabindex over the
 // visible rows, Up/Down/Home/End move, Right opens or goes to the first child, Left closes or goes to the parent,
-// Enter follows the link (or toggles a folder). The Directus context menus are one Reka ContextMenu: `edit_collection`
+// Enter follows the link (or toggles a folder). The DR context menus are one Reka ContextMenu: `edit_collection`
 // on a table row for admins, otherwise show/hide hidden collections; a bookmark row keeps the browser menu
-// (Directus `@contextmenu.stop`). The hidden toggle is also a button with aria-pressed (keyboard path), and an
+// (DR `@contextmenu.stop`). The hidden toggle is also a button with aria-pressed (keyboard path), and an
 // empty search result is announced (`no_results`).
 import { isNil, orderBy } from 'lodash-es';
 import { ContextMenuContent, ContextMenuItem, ContextMenuPortal, ContextMenuRoot, ContextMenuTrigger } from 'reka-ui';

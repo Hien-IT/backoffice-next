@@ -1,5 +1,5 @@
 // Ported from directus/app/src/components/v-checkbox-tree/VCheckboxTreeCheckbox.vue
-// Backoffice: the <script setup> logic as plain functions over one node's props. Directus nests one component per
+// Backoffice: the <script setup> logic as plain functions over one node's props. DR nests one component per
 // group and every level rewrites the emitted value on its way up; BoCheckboxTree renders one flat Reka Tree and runs
 // `setTreeValue` for the node, then for each ancestor, which is the same chain. `emitValue` returns instead of emitting.
 import { difference } from 'lodash-es';
@@ -28,7 +28,7 @@ export function checkboxTreeNode(props: CheckboxTreeNodeProps) {
 
 	return { setTreeValue, groupCheckedStateOverride, groupIndeterminateState, childrenCheckedStateOverride };
 
-	// Directus `treeValue` computed setter.
+	// DR `treeValue` computed setter.
 	function setTreeValue(newValue: Value[]): Value[] {
 		const added = difference(newValue, props.modelValue);
 		const removed = difference(props.modelValue, newValue);

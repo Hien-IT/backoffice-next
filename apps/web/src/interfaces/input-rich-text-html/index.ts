@@ -283,7 +283,7 @@ export default defineInterface({
 									title: 'My Custom Format',
 									inline: 'span',
 									classes: 'custom-wrapper',
-									styles: { color: '#00ff00', 'font-size': '20px' }, // raw-color-allowed: Directus option template (data)
+									styles: { color: '#00ff00', 'font-size': '20px' }, // raw-color-allowed: DR option template (data)
 									attributes: { title: 'My Custom Wrapper' },
 								},
 							],

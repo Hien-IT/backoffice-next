@@ -1,4 +1,4 @@
-// Directus has no test for the map interface: fixture, options (contracts/tests.md §5), value shapes per field type,
+// DR has no test for the map interface: fixture, options (contracts/tests.md §5), value shapes per field type,
 // errors, disabled states and controls, with maplibre-gl, Mapbox Draw and the geocoder replaced by fakes (T005: the
 // real map runs in InterfaceMap.browser.test.ts when chromium has WebGL).
 import type { FieldRaw } from '@directus/types';
@@ -190,7 +190,7 @@ describe('map', () => {
 	test('is registered with the Directus config and an async component', () => {
 		expect(config).toMatchObject({ id: 'map', group: 'selection', icon: 'map', recommendedDisplays: [] });
 		expect((config.component as { __asyncLoader?: unknown }).__asyncLoader).toBeTypeOf('function');
-		// 016: the options component of Directus, async too (D-56 lifted).
+		// 016: the options component of DR, async too (D-56 lifted).
 		expect((config.options as unknown as { __asyncLoader?: unknown }).__asyncLoader).toBeTypeOf('function');
 	});
 
@@ -269,7 +269,7 @@ describe('map', () => {
 	});
 
 	test('option:map.geometryType (the subtype of the field type limits drawing, as in Directus)', async () => {
-		// json field with geometryType Point: Directus reads the type from the field only, so every mode is offered
+		// json field with geometryType Point: DR reads the type from the field only, so every mode is offered
 		const json = await mountMap(fieldProps('map_json'));
 		expect(json.findAll('[data-control^="draw-"]').map((b) => b.attributes('data-control'))).toEqual([
 			'draw-LineString',
@@ -435,7 +435,7 @@ describe('map', () => {
 	test('a WKT value that does not parse draws nothing, without error or emit', async () => {
 		const wrapper = await mountMap(fieldProps('map_text', 'POINT (1'));
 
-		// wellknown returns null: nothing to draw, no error, like Directus
+		// wellknown returns null: nothing to draw, no error, like DR
 		expect(draw().getAll().features).toHaveLength(0);
 		expect(wrapper.emitted('input')).toBeUndefined();
 	});
@@ -518,7 +518,7 @@ describe('map', () => {
 		map().canvas.dispatchEvent(new KeyboardEvent('keydown', { key: 'a' }));
 		expect(draw().trash).toHaveBeenCalledTimes(2);
 
-		// Backspace elsewhere on the page does not delete (Directus listened on window)
+		// Backspace elsewhere on the page does not delete (DR listened on window)
 		window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Backspace' }));
 		expect(draw().trash).toHaveBeenCalledTimes(2);
 	});

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/input-code/input-code.vue -->
 <script setup lang="ts">
 // Backoffice: EditorFrame recipe (FIELD border on the frame, CodeMirror colors from codemirror-theme.css on the theme
-// tokens, light and dark) instead of the global Directus `_codemirror.scss`; the template button is an ICON_BTN with a
+// tokens, light and dark) instead of the global DR `_codemirror.scss`; the template button is an ICON_BTN with a
 // Tooltip; the form ids reach the CodeMirror textarea like system-raw-editor (FORM_FIELD_A11Y, FR-094).
 import { useWindowSize } from '@vueuse/core';
 import CodeMirror, { type ModeSpec } from 'codemirror';
@@ -344,7 +344,7 @@ const ICON_BTN = `inline-flex h-8 w-8 shrink-0 items-center justify-center round
 		]"
 		dir="ltr"
 	>
-		<!-- An empty editor keeps the Directus min height (--input-height-md, _codemirror.scss:360). -->
+		<!-- An empty editor keeps the DR min height (--input-height-md, _codemirror.scss:360). -->
 		<div ref="codemirrorEl"></div>
 
 		<template v-if="!nonEditable && template">

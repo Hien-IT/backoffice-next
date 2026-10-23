@@ -1,4 +1,4 @@
-// Directus has no test for comments-sidebar-detail.vue, comment-input.vue, comment-item.vue or comment-item-header.vue:
+// DR has no test for comments-sidebar-detail.vue, comment-input.vue, comment-item.vue or comment-item-header.vue:
 // the Comments section (FR-082, FR-110b, recipe Q-11, contracts/api-calls.md #59, #60, #84-#86) on the fixture API.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

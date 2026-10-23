@@ -137,7 +137,7 @@ function getRootFolderOpenFolders(rootFolder: string | undefined) {
 	return rootFolder ? [rootFolder] : OPEN_FOLDERS_INITIAL;
 }
 
-/** Test helper: the folder state is module level (shared by the whole app, as Directus). */
+/** Test helper: the folder state is module level (shared by the whole app, as DR). */
 export function resetFoldersForTests() {
 	loading.value = false;
 	folders.value = null;

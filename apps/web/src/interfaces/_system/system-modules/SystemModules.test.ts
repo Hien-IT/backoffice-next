@@ -1,4 +1,4 @@
-// Feature 016 (T090, US5-4): system-modules as Directus: the saved bar (default MODULE_BAR_DEFAULT of Directus, with the
+// Feature 016 (T090, US5-4): system-modules as DR: the saved bar (default MODULE_BAR_DEFAULT of DR, with the
 // docs link, kept in the value but not listed, D-100) plus the modules it lacks (added disabled), the switch of a module,
 // the lock of settings, the link rows
 // (edit in the drawer, remove), add a link, the D-96 Up/Down menu, and the emitted value shape.
@@ -44,7 +44,7 @@ const lastInput = (wrapper: ReturnType<typeof render>) => wrapper.emitted('input
 test('no saved bar: the Directus default without the docs link (D-100) and the visual / deployments modules (owner 2026-10-21)', () => {
 	const wrapper = render();
 
-	// activity is hidden (Directus `hidden: true`), so not added.
+	// activity is hidden (DR `hidden: true`), so not added.
 	expect(rows(wrapper)).toEqual(['content:true', 'users:true', 'files:true', 'insights:true', 'settings:true']);
 	expect(wrapper.text()).not.toContain(t('documentation'));
 	expect(wrapper.text()).not.toContain(t('visual_editor'));
@@ -101,7 +101,7 @@ test('the switch of a module toggles `enabled`; settings is locked (no switch); 
 		{
 			type: 'link',
 			id: 'docs',
-			// Directus valueToPreview translates the link name, so the saved value has the translated text.
+			// DR valueToPreview translates the link name, so the saved value has the translated text.
 			name: t('documentation'),
 			url: 'https://docs.directus.io',
 			icon: 'help',

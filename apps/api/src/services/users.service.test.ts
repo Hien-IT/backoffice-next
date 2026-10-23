@@ -1,5 +1,5 @@
 // Tests of the UsersService subset of feature 003 (research R5) on the auth test database, with the SchemaOverview
-// of the system collections (specials from @backoffice/system-data, like Directus).
+// of the system collections (specials from @backoffice/system-data, like DR).
 import { createInspector } from '@backoffice/schema';
 import type { Accountability, SchemaOverview } from '@backoffice/types';
 import jwt from 'jsonwebtoken';
@@ -27,7 +27,7 @@ vi.mock('@backoffice/env', () => ({
 }));
 
 // translateDatabaseError asks the client of the default connection, and ItemsService puts the default connection in
-// the context of its action events (emitter stand-in, feature 004), like Directus.
+// the context of its action events (emitter stand-in, feature 004), like DR.
 vi.mock('../database/index.js', async (importOriginal) => {
 	const original = await importOriginal<typeof import('../database/index.js')>();
 	const getDatabase = () => db;
@@ -125,7 +125,7 @@ describe('deleteMany', () => {
 
 describe('updateMany', () => {
 	async function userWithSessions(): Promise<string> {
-		// A status change checks that an admin remains, like Directus.
+		// A status change checks that an admin remains, like DR.
 		await service().createOne({ email: 'keeper@example.com', role: ADMIN_ROLE });
 		const id = String(await service().createOne({ email: 's@example.com', password: 'old-password' }));
 		const expires = new Date(Date.now() + 60_000);
@@ -178,7 +178,7 @@ describe('inviteUser and acceptInvite', () => {
 		jwt.sign(payload, secret, { issuer: 'directus', expiresIn: '1d' });
 
 	test('creates invited users and logs instead of mailing; re-invites log again and change the role', async () => {
-		// A role change checks that an active admin remains, like Directus.
+		// A role change checks that an active admin remains, like DR.
 		await service().createOne({ email: 'keeper@example.com', role: ADMIN_ROLE });
 		logger.warn.mockClear();
 

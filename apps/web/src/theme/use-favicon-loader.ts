@@ -1,7 +1,7 @@
 // Owner 2026-10-23 (D-173): while API requests run (the requests store that drives the sidebar logo loader, like the
-// Directus module-bar logo sprite) the favicon plays drawn sprites: a runner, then a cyclist, then a swimmer, each
+// DR module-bar logo sprite) the favicon plays drawn sprites: a runner, then a cyclist, then a swimmer, each
 // sport changing into the next (favicon-sprites.ts), white on the favicon circle in the project color. A started gait
-// cycle or change plays to its end, as the Directus sprite does, then the normal favicon is back. Where the animation
+// cycle or change plays to its end, as the DR sprite does, then the normal favicon is back. Where the animation
 // is not shown well (canAnimateFavicon) the favicon never changes.
 import { usePreferredReducedMotion } from '@vueuse/core';
 import { onScopeDispose, ref, type Ref, watch } from 'vue';

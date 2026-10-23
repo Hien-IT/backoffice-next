@@ -150,7 +150,7 @@ describe.skipIf(!webgl)(SUITE, () => {
 		expect(wrapper.get('[data-control="select"]').attributes('aria-pressed')).toBe('true');
 		clickAt(map, [105.85, 21.03], { shiftKey: true });
 		await userEvent.keyboard('{/Shift}');
-		// the feature click in box select mode adds the item (the zero-size box before it selects nothing, as Directus)
+		// the feature click in box select mode adds the item (the zero-size box before it selects nothing, as DR)
 		await vi.waitFor(() => expect(handleSelect).toHaveBeenCalledWith({ ids: [1], replace: false }));
 		expect(handleClick).toHaveBeenCalledTimes(1);
 		// Outside a flex page (here, the test body) the map keeps the 20rem minimum of the layout box.

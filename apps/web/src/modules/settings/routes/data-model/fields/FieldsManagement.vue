@@ -2,10 +2,10 @@
 <script setup lang="ts">
 // Backoffice (recipe Q-21, spec 016 US2, FR-021 to FR-027):
 // - Locked system fields first in a plain grid, then the root BoSortableList of the `fields` group (two-column grid,
-//   rows spanning by `meta.width`); group fields nest their own list (FieldSelect.vue). The order is saved as Directus
+//   rows spanning by `meta.width`); group fields nest their own list (FieldSelect.vue). The order is saved as DR
 //   setSort / onGroupSortChange: PATCH /fields/:c with `{ field, meta: { sort, group } }` of the whole target list
 //   (fieldsStore.updateFields: optimistic, undone with the error dialog, only the latest answer applied). A mouse drop
-//   from another list saves the target list, then the source list, as vuedraggable does in Directus.
+//   from another list saves the target list, then the source list, as vuedraggable does in DR.
 // - D-96: the row menu adds Move up / Move down / Into the group above (only when the row above is a group) / Out of the
 //   group, sending the same bodies.
 // - field-select-menu.vue is the row menu built here (BoSortableList row actions); the duplicate and delete dialogs
@@ -75,7 +75,7 @@ const addOptions = computed<Array<{ type: LocalType; icon: string; text: string 
 	{ type: 'translations', icon: 'translate', text: t('translations') },
 ]);
 
-/** The BoMenu items of the advanced menu: a divider entry of Directus marks the item before it. */
+/** The BoMenu items of the advanced menu: a divider entry of DR marks the item before it. */
 const addMenu = computed(() =>
 	addOptions.value.reduce<BoMenuItem[]>((items, option) => {
 		if ('divider' in option) {

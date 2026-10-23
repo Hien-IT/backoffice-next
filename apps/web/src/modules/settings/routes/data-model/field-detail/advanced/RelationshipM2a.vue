@@ -235,7 +235,7 @@ const allowedCollectionItems = computed(() => [
 </template>
 
 <style scoped>
-/* The decorative arrows sit between the columns of the input row under the labels (Directus `.arrow`). */
+/* The decorative arrows sit between the columns of the input row under the labels (DR `.arrow`). */
 .arrow {
 	top: 6.4rem;
 	transform: translateX(-50%);

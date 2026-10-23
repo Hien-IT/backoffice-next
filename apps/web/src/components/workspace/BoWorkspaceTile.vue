@@ -4,13 +4,13 @@
 // app). Feature 018 (FR-024, recipe Q-34) adds the 8 resize handles of the Insights dashboard (`resizable`, off by
 // default so the flows editor keeps its behaviour), the min size clamp, the `W×H` label and the per-corner radius
 // (`borderRadius`). The tile exposes its cell and size in `data-pos-x/y`, `data-width/height` for the E2E comparison
-// with the Directus app (SC-002). Dragging and resizing are pointer only, as Directus (recorded a11y exceptions, 017
-// FR-106, 018 FR-027); the edit and options buttons are keyboard reachable. Unlike Directus the pointer listeners are
+// with the DR app (SC-002). Dragging and resizing are pointer only, as DR (recorded a11y exceptions, 017
+// FR-106, 018 FR-027); the edit and options buttons are keyboard reachable. Unlike DR the pointer listeners are
 // always removed on release (an empty edit leaves them attached there; no effect on the data). With `unselectable`
-// (Insights, owner 2026-10-18) the tile in edit mode is not selectable and starts no native drag (Directus:
+// (Insights, owner 2026-10-18) the tile in edit mode is not selectable and starts no native drag (DR:
 // `user-select: none` only once dragging): on webkit a text selection left by a previous drag turned the next pointer
 // drag into a native one, which stopped the pointer events after the first move (CI run 39076577997). The flows canvas
-// keeps the Directus behaviour.
+// keeps the DR behaviour.
 import { throttle } from 'lodash-es';
 import { computed, reactive, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -182,7 +182,7 @@ function useDragDrop() {
 			editedPosition.position_y = Math.max(1, panelStartPosY + gridDeltaY);
 			editedPosition.position_x = Math.max(1, panelStartPosX + gridDeltaX);
 		} else {
-			// Same as Directus v-workspace-tile: a top/left resize keeps moving x/y once the size hits the minimum (R-54).
+			// Same as DR v-workspace-tile: a top/left resize keeps moving x/y once the size hits the minimum (R-54).
 			if (operation.includes('top')) {
 				editedPosition.height = panelStartHeight - gridDeltaY;
 				editedPosition.position_y = panelStartPosY + gridDeltaY;

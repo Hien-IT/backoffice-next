@@ -11,6 +11,6 @@ export default defineInterface({
 	component: InterfaceList,
 	types: ['json'],
 	group: 'selection',
-	// Backoffice: the options component of Directus (D-56 lifted), async so it stays out of the main chunk.
+	// Backoffice: the options component of DR (D-56 lifted), async so it stays out of the main chunk.
 	options: defineAsyncComponent(() => import('./InterfaceListOptions.vue')) as never,
 });

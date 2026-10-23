@@ -159,8 +159,8 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'WEBSOCKETS_REST_ENABLED',
 	'WEBSOCKETS_GRAPHQL_ENABLED',
 	// Feature 007: files, assets, URL import, the synchronized TUS cleanup (specs/007 contracts/tus-storage.md §4). TUS_*,
-	// FILES_MIME_TYPE_ALLOW_LIST and the S3 options outside this list are not Directus-listed variables: no warning either.
-	// FILES_CONTENT_TYPE_ALLOW_LIST is listed by Directus but read by neither app.
+	// FILES_MIME_TYPE_ALLOW_LIST and the S3 options outside this list are not DR-listed variables: no warning either.
+	// FILES_CONTENT_TYPE_ALLOW_LIST is listed by DR but read by neither app.
 	'FILE_METADATA_ALLOW_LIST',
 	'FILES_MAX_UPLOAD_SIZE',
 	'FILES_MAX_UPLOAD_CONCURRENCY',
@@ -178,7 +178,7 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'SYNCHRONIZATION_STORE',
 	'SYNCHRONIZATION_NAMESPACE',
 	// Feature 008: schedules/retention.ts reads RETENTION_ENABLED, RETENTION_BATCH, RETENTION_SCHEDULE,
-	// ACTIVITY_RETENTION, REVISIONS_RETENTION and FLOW_LOGS_RETENTION. Directus does not list them in
+	// ACTIVITY_RETENTION, REVISIONS_RETENTION and FLOW_LOGS_RETENTION. DR does not list them in
 	// directus-variables.ts, so they never got a warning and need no entry here (like TUS_* in feature 007).
 	// Feature 009: flows (Run Script limits, $env allow list) and the rate limiter of the mail operation.
 	'FLOWS_ENV_ALLOW_LIST',
@@ -213,12 +213,12 @@ export const SUPPORTED_VARIABLES: RegExp[] = [
 	'EXTENSIONS_ROLLDOWN',
 	'PACKAGE_FILE_LOCATION',
 	// Feature 021: read by the bootstrap command and the ported migration 20251014A (setOwner). ACCEPT_TERMS, read by
-	// 20250609A and 20251014A, is not in the Directus variable list, so it is never warned about and needs no entry.
+	// 20250609A and 20251014A, is not in the DR variable list, so it is never warned about and needs no entry.
 	'PROJECT_OWNER',
 ].map((name) => new RegExp(`^${name}$`));
 
 /**
- * Group B: Directus variables the API ignores without a warning. Empty since feature 021 (PROJECT_OWNER moved to group A
+ * Group B: DR variables the API ignores without a warning. Empty since feature 021 (PROJECT_OWNER moved to group A
  * with the bootstrap command); kept so the contract table keeps its three groups.
  */
 export const NOT_APPLICABLE_VARIABLES: RegExp[] = [];

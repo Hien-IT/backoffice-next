@@ -19,7 +19,7 @@ export type UsableCollection = {
 /**
  * A Vue composable that provides reactive access to collection metadata, fields, and computed properties.
  *
- * This composable serves as a centralized way to access and work with Directus collections,
+ * This composable serves as a centralized way to access and work with DR collections,
  * providing reactive computed properties for collection information, field definitions,
  * default values, and various collection-specific metadata.
  *

@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 016 US5-1, US5-2): PrivateView with the breadcrumb, a BoButton save, BoForm `directus_settings`
 // without the theming, AI and MCP groups (D-93 for the last two), the unsaved changes dialog with Keep Editing first
-// (D-76). Directus calls serverStore.hydrate({ isLanguageUpdated }), an argument its hydrate does not take: the
+// (D-76). DR calls serverStore.hydrate({ isLanguageUpdated }), an argument its hydrate does not take: the
 // server store reloads the same way here.
 import { clone } from 'lodash-es';
 import { computed, ref, useTemplateRef } from 'vue';

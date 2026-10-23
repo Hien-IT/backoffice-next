@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/field-detail/field-detail-advanced/field-detail-advanced-display.vue -->
 <script setup lang="ts">
 // Backoffice: VFancySelect is BoFancySelect, VNotice BoNotice, VSkeletonLoader a pulsing block; registry names and
-// descriptions are `$t:` keys, translated here (Directus translates them when it registers the extensions).
+// descriptions are `$t:` keys, translated here (DR translates them when it registers the extensions).
 import { clone } from 'lodash-es';
 import { storeToRefs } from 'pinia';
 import { computed } from 'vue';

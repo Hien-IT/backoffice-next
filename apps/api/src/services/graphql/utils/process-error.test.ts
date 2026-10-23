@@ -1,5 +1,5 @@
 // Ported from directus/api/src/services/graphql/utils/process-error.test.ts
-// Backoffice: the app logger reads the env, so it is mocked here (Directus' logger works bare in its tests).
+// Backoffice: the app logger reads the env, so it is mocked here (DR' logger works bare in its tests).
 import { createError } from '@backoffice/errors';
 import type { Accountability } from '@backoffice/types';
 import { GraphQLError } from 'graphql';

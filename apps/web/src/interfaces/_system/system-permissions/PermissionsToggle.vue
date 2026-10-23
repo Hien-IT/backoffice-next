@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-permissions/permissions-toggle.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-23): the chip is a menu button (BoMenu) showing the action, with the level as its accessible
-// name and `title` (Directus tooltip) and as an icon: all `check`, custom `rule`, none `block`; an app-minimal chip with
-// full access is static with a `lock` icon. Menu items as Directus: all_access, no_access (not for app-minimal), a
+// name and `title` (DR tooltip) and as an icon: all `check`, custom `rule`, none `block`; an app-minimal chip with
+// full access is static with a `lock` icon. Menu items as DR: all_access, no_access (not for app-minimal), a
 // divider, use_custom.
 import type { Permission, PermissionsAction } from '@directus/types';
 import { computed, toRefs } from 'vue';

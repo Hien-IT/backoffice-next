@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/marketplace/routes/registry/registry.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020 US6, recipe Q-42): PrivateView with the settings sub-menu; the Directus banner (logo SVG) is
+// Backoffice (spec 020 US6, recipe Q-42): PrivateView with the settings sub-menu; the DR banner (logo SVG) is
 // the page title; skeleton cards until the first answer, the registry error in a danger BoNotice, BoInfo when empty.
-// The list request is apiFetch (the SDK drops `meta`) with the query of the Directus axios call (null values left
+// The list request is apiFetch (the SDK drops `meta`) with the query of the DR axios call (null values left
 // out, `filter[type][_eq]` bracket keys).
 import { isEqual } from 'lodash-es';
 import { useRouteQuery } from '@vueuse/router';

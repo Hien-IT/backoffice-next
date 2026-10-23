@@ -1,4 +1,4 @@
-// Directus has no test for the presets routes (spec 016 T101, US6-1 to US6-3, contracts/api-calls.md #151, #152,
+// DR has no test for the presets routes (spec 016 T101, US6-1 to US6-3, contracts/api-calls.md #151, #152,
 // #175): the list on the 014 layout wrapper with the systemDefaults of directus_presets, the info panel counts, batch
 // delete (and its error dialog) and batch edit, the empty state; the editor: the defaults of a new preset, the form
 // fields, `scope` → `{role, user}`, a body with only the edited keys, always back to the list (R-41), delete, and the
@@ -295,7 +295,7 @@ describe('PresetItemRoute', () => {
 			expect(button('Save')).toHaveProperty('disabled', true);
 			expect(document.querySelector('main')?.textContent).toContain('No layout/collection selected yet');
 
-			// The form fields of Directus item.vue: the collection choices keep three system collections.
+			// The form fields of DR item.vue: the collection choices keep three system collections.
 			const fields = form.props('fields') as Field[];
 			expect(fields.map((f) => f.field)).toEqual([
 				'meta-group',

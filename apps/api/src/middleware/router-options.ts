@@ -5,7 +5,7 @@ import { UUID_REGEX } from '../constants.js';
 import { getAuthProviders } from '../utils/get-auth-providers.js';
 
 /**
- * Directus mounts /server/* and /metrics on Express 4 sub-Routers, which answer OPTIONS themselves with
+ * DR mounts /server/* and /metrics on Express 4 sub-Routers, which answer OPTIONS themselves with
  * `Allow: GET,HEAD` (Router#handle → sendOptionsResponse). Nest mounts routes on the app, where OPTIONS would 404,
  * so this middleware reproduces the Router answer for exactly those paths (research R4, FR-048). /server/ping, / and
  * /robots.txt are app routes (404). Feature 011: /server/specs/graphql[/:scope] when GRAPHQL_INTROSPECTION is on.
@@ -27,7 +27,7 @@ export function createRouterOptions(): RequestHandler {
 		// Feature 003: the auth router (research R3 of spec 003, FR-034).
 		[/^\/auth\/(refresh|logout|password\/request|password\/reset)\/?$/i, 'POST'],
 		[/^\/users\/me\/tfa\/generate\/?$/i, 'POST'],
-		// Feature 004 (contracts/permissions-api.md §3): every route of the Directus router that matches the path.
+		// Feature 004 (contracts/permissions-api.md §3): every route of the DR router that matches the path.
 		[/^\/(users|roles|policies|access|permissions)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
 		[/^\/users\/(invite|register)\/?$/i, 'GET,HEAD,PATCH,DELETE,POST'],
 		[/^\/(users|roles|policies|access|permissions)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
@@ -36,7 +36,7 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/users\/register\/verify-email\/?$/i, 'GET,HEAD'],
 		[/^\/policies\/me\/globals\/?$/i, 'GET,HEAD'],
 		[/^\/permissions\/me\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
-		// Feature 006 (contracts/schema-api.md §3, measured on Directus 11.17.4): before validateCollection too.
+		// Feature 006 (contracts/schema-api.md §3, measured on DR 11.17.4): before validateCollection too.
 		[/^\/collections\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH'],
 		[/^\/collections\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/fields\/?$/i, 'GET,HEAD'],
@@ -47,7 +47,7 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/relations\/[^/]+\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/schema\/snapshot\/?$/i, 'GET,HEAD'],
 		[/^\/schema\/(diff|apply)\/?$/i, 'POST'],
-		// Feature 007 (contracts/files-api.md §4, measured on Directus 11.17.4). With TUS on, the tus router (mounted
+		// Feature 007 (contracts/files-api.md §4, measured on DR 11.17.4). With TUS on, the tus router (mounted
 		// before /files) answers /files/tus with its only collection route; /files/tus/:id goes to the tus handler.
 		...(env['TUS_ENABLED'] === true ? [[/^\/files\/tus\/?$/i, 'POST'] as [RegExp, string]] : []),
 		[/^\/(files|folders)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
@@ -55,8 +55,8 @@ export function createRouterOptions(): RequestHandler {
 		[/^\/(files|folders)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
 		[/^\/assets\/(folder\/[^/]+|files)\/?$/i, 'POST,GET,HEAD'],
 		[/^\/assets\/[^/]+(\/[^/]+)?\/?$/i, 'GET,HEAD'],
-		// Feature 008 (contracts/history-api.md §5): the methods of every route of each Directus router that matches, in
-		// route order, HEAD after GET; the parity files compare OPTIONS of each path with Directus 11.17.4.
+		// Feature 008 (contracts/history-api.md §5): the methods of every route of each DR router that matches, in
+		// route order, HEAD after GET; the parity files compare OPTIONS of each path with DR 11.17.4.
 		[/^\/activity\/?$/i, 'SEARCH,GET,HEAD'],
 		[/^\/revisions\/?$/i, 'GET,HEAD,SEARCH'],
 		[/^\/(activity|revisions)\/[^/]+\/?$/i, 'GET,HEAD'],
@@ -68,9 +68,9 @@ export function createRouterOptions(): RequestHandler {
 		[new RegExp(`^/flows/trigger/${UUID_REGEX}/?$`, 'i'), 'GET,HEAD,POST'],
 		[/^\/(flows|operations)\/?$/i, 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
 		[/^\/(flows|operations)\/[^/]+\/?$/i, 'GET,HEAD,PATCH,DELETE'],
-		// Feature 010 (contracts/system-api.md §10, utils-api.md §12): the methods of every route of each Directus router
+		// Feature 010 (contracts/system-api.md §10, utils-api.md §12): the methods of every route of each DR router
 		// that matches, in route order, HEAD after GET. The `:pk` of /shares and /extensions only match a uuid (Express 4
-		// regex params, case insensitive), so other paths match no route and get 404 like at Directus.
+		// regex params, case insensitive), so other paths match no route and get 404 like at DR.
 		[/^\/settings\/?$/i, 'GET,HEAD,PATCH'],
 		[/^\/settings\/owner\/?$/i, 'POST'],
 		[/^\/shares\/(auth|invite)\/?$/i, 'POST'],

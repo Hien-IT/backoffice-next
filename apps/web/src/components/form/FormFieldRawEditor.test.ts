@@ -1,4 +1,4 @@
-// Directus has no test for form-field-raw-editor.vue: the cast back by type (spec FR-017).
+// DR has no test for form-field-raw-editor.vue: the cast back by type (spec FR-017).
 import { flushPromises, mount } from '@vue/test-utils';
 import type CodeMirror from 'codemirror';
 import { afterEach, describe, expect, test, vi } from 'vitest';

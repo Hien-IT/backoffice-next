@@ -167,7 +167,7 @@ describe('FlowRoute', () => {
 			await flushPromises();
 			await flushPromises();
 			expect(router.currentRoute.value.name).toBe('settings-flows-item');
-			// No name typed: the name is the type's and the key `exec_<5 random>`, as Directus.
+			// No name typed: the name is the type's and the key `exec_<5 random>`, as DR.
 			const created = document.querySelector<HTMLElement>('[data-panel-key^="exec_"]')!;
 			expect(created).not.toBeNull();
 			expect(created.getAttribute('data-pos-x')).toBe('19');
@@ -279,7 +279,7 @@ describe('OperationDetail', () => {
 			expect(document.body.textContent).toContain(t('operations_mail_not_sent_notice'));
 			const inputs = [...document.querySelectorAll<HTMLInputElement>('[role="dialog"] input')];
 			const key = inputs[1]!;
-			// The fixture operations have no name: the immediate name watcher of Directus empties the key (Done would use
+			// The fixture operations have no name: the immediate name watcher of DR empties the key (Done would use
 			// the generated one).
 			expect(key.value).toBe('');
 			expect(key.placeholder).toMatch(/^mail_[a-z0-9]{5}$/);

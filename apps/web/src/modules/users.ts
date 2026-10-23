@@ -1,5 +1,5 @@
 // Ported from directus/app/src/modules/users/index.ts
-// Backoffice: route components are lazy (bundle budget). No `/users/me` route, as Directus (D-86, owner 2026-10-16):
+// Backoffice: route components are lazy (bundle budget). No `/users/me` route, as DR (D-86, owner 2026-10-16):
 // `me` is a `:primaryKey`. Routes that match nothing show the module not-found page (ContentNotFound with `module: 'users'`, FR-054). preRegisterCheck as
 // in feature 012.
 import { canRead, defineModule } from './types.ts';

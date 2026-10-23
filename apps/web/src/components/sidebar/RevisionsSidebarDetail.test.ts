@@ -1,4 +1,4 @@
-// Directus has no test for revisions-sidebar-detail.vue / revision-item.vue: FR-080 and FR-081 (count badge, load on
+// DR has no test for revisions-sidebar-detail.vue / revision-item.vue: FR-080 and FR-081 (count badge, load on
 // open, groups and rows, private user, created externally, pagination, comparison modal in revision mode, revert).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

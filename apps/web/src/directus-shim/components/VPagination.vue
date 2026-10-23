@@ -1,8 +1,8 @@
 <!-- Ported from directus/app/src/components/v-pagination.vue -->
 <script setup lang="ts">
-// Backoffice (spec 020, data-model §7): v-pagination on BoPagination with the Directus defaults: no page buttons without
+// Backoffice (spec 020, data-model §7): v-pagination on BoPagination with the DR defaults: no page buttons without
 // `totalVisible` (0 for BoPagination, whose default is 7), no first/last unless asked, shown with one page too. The nav
-// gets the `pagination` label (Directus has no accessible name here).
+// gets the `pagination` label (DR has no accessible name here).
 import BoPagination from '../../components/BoPagination.vue';
 
 defineProps<{

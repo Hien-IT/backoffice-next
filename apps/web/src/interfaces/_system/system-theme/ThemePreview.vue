@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-theme/theme-preview.vue -->
 <script setup lang="ts">
-// Backoffice: the theme comes from the static Directus theme data (theme/use-theme-preset.ts, D-89); the variables
+// Backoffice: the theme comes from the static DR theme data (theme/use-theme-preset.ts, D-89); the variables
 // are set inline on the preview only, so the Backoffice look does not change (D-88). Overrides are the saved ones of
 // useThemeConfiguration, not the values being edited in the form (CHK026). Decorative: the radio label names it.
 import { computed } from 'vue';

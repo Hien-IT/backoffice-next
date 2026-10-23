@@ -1,4 +1,4 @@
-// Directus has no test for render-template.vue (spec FR-071): template parts, displays per field, arrays, $thumbnail,
+// DR has no test for render-template.vue (spec FR-071): template parts, displays per field, arrays, $thumbnail,
 // m2a `field:collection`, literal translation, render errors.
 import type { Field, Relation } from '@directus/types';
 import { mount } from '@vue/test-utils';

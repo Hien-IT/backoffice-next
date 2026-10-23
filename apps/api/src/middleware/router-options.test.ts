@@ -141,7 +141,7 @@ test.each(['/items', '/items/', '/items/a/b/c'])('OPTIONS %s → not handled (40
 	expect((await app({}).options(path)).status).toBe(404);
 });
 
-// Feature 006 (contracts/schema-api.md §3): measured with OPTIONS on Directus 11.17.4 (T017).
+// Feature 006 (contracts/schema-api.md §3): measured with OPTIONS on DR 11.17.4 (T017).
 test.each([
 	['/collections', 'POST,GET,HEAD,SEARCH,PATCH'],
 	['/collections/', 'POST,GET,HEAD,SEARCH,PATCH'],
@@ -168,7 +168,7 @@ test.each(['/schema', '/schema/x', '/collections/a/b', '/fields/a/b/c'])(
 	},
 );
 
-// Feature 007 (contracts/files-api.md §4): measured with OPTIONS on Directus 11.17.4 (T018), TUS off and on.
+// Feature 007 (contracts/files-api.md §4): measured with OPTIONS on DR 11.17.4 (T018), TUS off and on.
 test.each([
 	['/files', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
 	['/files/', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
@@ -196,7 +196,7 @@ test('TUS off: /files/tus/:id and deeper asset paths are not handled (404)', asy
 
 test('TUS on: the tus router answers /files/tus, /files/tus/:id goes to the tus handler', async () => {
 	expect((await app({ TUS_ENABLED: true }).options('/files/tus')).headers['allow']).toBe('POST');
-	// Directus mounts the tus router on `env['TUS_ENABLED'] === true` (the env casts "true"); anything else is off.
+	// DR mounts the tus router on `env['TUS_ENABLED'] === true` (the env casts "true"); anything else is off.
 	expect((await app({ TUS_ENABLED: 'yes' }).options('/files/tus')).headers['allow']).toBe('GET,HEAD,PATCH,DELETE');
 	expect((await app({ TUS_ENABLED: true }).options('/files/tus/')).headers['allow']).toBe('POST');
 	expect((await app({ TUS_ENABLED: true }).options('/files/tus/abc')).status).toBe(404);
@@ -205,7 +205,7 @@ test('TUS on: the tus router answers /files/tus, /files/tus/:id goes to the tus 
 	);
 });
 
-// Feature 008 (contracts/history-api.md §5): from the route order of the Directus routers.
+// Feature 008 (contracts/history-api.md §5): from the route order of the DR routers.
 test.each([
 	['/activity', 'SEARCH,GET,HEAD'],
 	['/activity/12', 'GET,HEAD'],
@@ -230,7 +230,7 @@ test('deeper history paths are not handled (404)', async () => {
 	}
 });
 
-// Feature 009 (contracts/flows-api.md §9): from the route order of the Directus flows and operations routers.
+// Feature 009 (contracts/flows-api.md §9): from the route order of the DR flows and operations routers.
 test.each([
 	['/flows', 'POST,GET,HEAD,SEARCH,PATCH,DELETE'],
 	['/flows/3f1c', 'GET,HEAD,PATCH,DELETE'],
@@ -251,7 +251,7 @@ test('a trigger path without a uuid and deeper flows paths are not handled (404)
 	}
 });
 
-// Feature 010 (contracts/system-api.md §10, utils-api.md §12): from the route order of the nine Directus routers.
+// Feature 010 (contracts/system-api.md §10, utils-api.md §12): from the route order of the nine DR routers.
 const UUID = '3f1c2d4e-0000-4000-8000-00000000000a';
 
 test.each([

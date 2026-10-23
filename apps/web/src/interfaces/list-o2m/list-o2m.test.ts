@@ -78,7 +78,7 @@ vi.mock('../../composables/use-relation-multiple.ts', () => ({
 		cleanItem: vi.fn((item: any) => item),
 		isItemSelected: vi.fn(() => false),
 		isLocalItem: vi.fn(() => false),
-		// Backoffice: an object (Directus returns 0), the BoRemove stub checks the itemEdits prop type.
+		// Backoffice: an object (DR returns 0), the BoRemove stub checks the itemEdits prop type.
 		getItemEdits: vi.fn(() => ({})),
 	}),
 }));

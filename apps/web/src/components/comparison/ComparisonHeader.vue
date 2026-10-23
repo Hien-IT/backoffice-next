@@ -92,7 +92,7 @@ const selectedOption = computed(() => {
 const selectOptionTime = computed(() => getDeltaOptionTime(selectedOption.value));
 const selectOptionUser = computed(() => getDeltaOptionUser(selectedOption.value));
 
-// Backoffice: each option reads "<time> · edited by <user>" in the BoMenu (Directus: two lines in a v-list-item).
+// Backoffice: each option reads "<time> · edited by <user>" in the BoMenu (DR: two lines in a v-list-item).
 const menuItems = computed(() =>
 	deltaOptions.value.map((option) => ({
 		text: `${getDeltaOptionTime(option)} · ${t('edited_by')} ${getDeltaOptionUser(option)}`,

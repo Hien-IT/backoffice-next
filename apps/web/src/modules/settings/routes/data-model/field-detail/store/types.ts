@@ -9,7 +9,7 @@ export type HelperFunctions = {
 };
 
 /**
- * Backoffice: DeepPartial of @directus/types without `exactOptionalPropertyTypes` trouble: the Directus store and its
+ * Backoffice: DeepPartial of @directus/types without `exactOptionalPropertyTypes` trouble: the DR store and its
  * alterations set properties to `undefined` to reset them.
  */
 export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> | undefined } : T;

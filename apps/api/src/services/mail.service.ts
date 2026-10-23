@@ -1,6 +1,6 @@
 // Ported from directus/api/src/services/mail/index.ts (constructor, send and getDefaultTemplateData)
-// Backoffice (spec 020 D-141, D-33): no mail is sent (Principle X). Extensions get a MailService with Directus'
-// constructor; send() runs the `email.send` filter like Directus, then logs one warning instead of rendering and
+// Backoffice (spec 020 D-141, D-33): no mail is sent (Principle X). Extensions get a MailService with DR'
+// constructor; send() runs the `email.send` filter like DR, then logs one warning instead of rendering and
 // handing the mail to a transport, and resolves to null.
 import { useEnv } from '@backoffice/env';
 import type { AbstractServiceOptions, Accountability, SchemaOverview } from '@backoffice/types';

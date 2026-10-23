@@ -1,4 +1,4 @@
-// Directus has no test for layouts/calendar/index.ts: the layout state (T058) over the fixture API, collection
+// DR has no test for layouts/calendar/index.ts: the layout state (T058) over the fixture API, collection
 // bo_content (30 items, `date_published` dateTime from 2026-10-01T09:00:00 to 2026-10-30T09:00:00) plus a `date` field
 // `date_end` added here; FullCalendar is a fake that records the options (the browser test runs the real one).
 import type { Snapshot } from '../../test-utils/fixtures.ts';
@@ -377,7 +377,7 @@ test('a user filter merges with the view range; the count is relative; download,
 	expect(state()['showingCount']).toBe(i18n.global.t('filtered_item_count', { count, total: 30 }, count));
 
 	state()['download']();
-	// Directus queryFields: the fields, then adjustFieldsForDisplays of them (the same plain fields again).
+	// DR queryFields: the fields, then adjustFieldsForDisplays of them (the same plain fields again).
 	expect(saveAsCSV).toHaveBeenCalledWith(
 		'bo_content',
 		['id', 'date_published', 'id', 'date_published'],

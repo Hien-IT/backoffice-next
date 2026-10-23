@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/routes/reset-password/reset.vue -->
 <script setup lang="ts">
-// Backoffice: fields have visible labels (FR-067) and the password autocomplete is new-password (Directus: username);
+// Backoffice: fields have visible labels (FR-067) and the password autocomplete is new-password (DR: username);
 // a token that is not a JWT leaves the email empty instead of throwing while rendering, the API answers the error.
 import { computed, ref } from 'vue';
 import { requestEndpoint, sdk } from '../../api/sdk.ts';

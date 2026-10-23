@@ -1,6 +1,6 @@
 // Ported from directus/api/src/websocket/controllers/hooks.ts
-// Backoffice: called from createApp() under the condition of Directus' WebSocket controllers (app.ts); the messages go
-// to the Redis bus only, where the Directus instances that hold WebSocket clients push them (spec FR-030 to FR-033).
+// Backoffice: called from createApp() under the condition of DR' WebSocket controllers (app.ts); the messages go
+// to the Redis bus only, where the DR instances that hold WebSocket clients push them (spec FR-030 to FR-033).
 import { systemCollectionNames } from '@backoffice/system-data';
 import { useBus } from '../../bus/index.js';
 import emitter from '../../emitter.js';

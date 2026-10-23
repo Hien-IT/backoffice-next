@@ -1,4 +1,4 @@
-// Directus has no test for v-error-boundary.vue: fallback slot, warning, stopPropagation.
+// DR has no test for v-error-boundary.vue: fallback slot, warning, stopPropagation.
 import { mount } from '@vue/test-utils';
 import { afterEach, describe, expect, test, vi } from 'vitest';
 import { defineComponent, h, nextTick, onErrorCaptured } from 'vue';

@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/shares.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R4, R16 of spec 010); validateBatch runs
+// Backoffice: one Nest handler per DR route, in the same order (research R4, R16 of spec 010); validateBatch runs
 // through runMiddleware, useCollection('directus_shares') is applied in app.module.ts, `next()` to `respond` is
 // respond(). Express 5 has no regex params: `/info/:pk` and `/:pk` check the uuid in the handler (404 otherwise, like
 // Express 4 where no route matches), case insensitive like Express 4.
@@ -267,7 +267,7 @@ export class SharesController {
 		return respond(req, res);
 	}
 
-	// Backoffice: no validateBatch('delete') here, like the Directus router of this collection.
+	// Backoffice: no validateBatch('delete') here, like the DR router of this collection.
 	@Delete()
 	async deleteMany(@Req() req: Request, @Res() res: Response): Promise<void> {
 		const service = this.service(req);

@@ -1,4 +1,4 @@
-// Feature 016 T030: use-expand-collapse (no Directus test).
+// Feature 016 T030: use-expand-collapse (no DR test).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { nextTick } from 'vue';

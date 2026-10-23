@@ -1,5 +1,5 @@
 // Feature 015 US5 (T050; FR-040 to FR-046, CHK015 to CHK017, CHK037): the shared image editor on Cropper.js in
-// chromium, with a fixed 400×300 PNG. Requests and FormData as Directus image-editor.vue sends them.
+// chromium, with a fixed 400×300 PNG. Requests and FormData as DR image-editor.vue sends them.
 import { userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import axe from 'axe-core';

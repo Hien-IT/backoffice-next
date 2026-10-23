@@ -1,6 +1,6 @@
 /* Ported from directus/app/src/interfaces/input-block-editor/editorjs-overrides.css */
 /*
- * Backoffice: the Directus theme variables are mapped to the TailAdmin tokens through local `--bo-ej-*` variables, set
+ * Backoffice: the DR theme variables are mapped to the TailAdmin tokens through local `--bo-ej-*` variables, set
  * for light and again for dark (FR-095). The rule on the light blue inline style of the link fake selection is left
  * out (raw color in a selector); ::selection already uses the accent color.
  */

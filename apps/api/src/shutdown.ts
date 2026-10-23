@@ -2,8 +2,8 @@ import { setTimeout as sleep } from 'node:timers/promises';
 
 /**
  * Resources to close when the server shuts down (Redis clients of the cache and rate limiters, metrics job).
- * Directus only destroys knex; Backoffice also closes these before exiting (Principle VII). They must never
- * block or fail the Directus shutdown sequence, so each task is bounded and its errors are ignored.
+ * DR only destroys knex; Backoffice also closes these before exiting (Principle VII). They must never
+ * block or fail the DR shutdown sequence, so each task is bounded and its errors are ignored.
  */
 const tasks: (() => unknown)[] = [];
 

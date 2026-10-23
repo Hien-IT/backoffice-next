@@ -1,4 +1,4 @@
-// Feature 010 (T014): the /settings controller (port of directus/api/src/controllers/settings.ts, which Directus does
+// Feature 010 (T014): the /settings controller (port of directus/api/src/controllers/settings.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with SettingsService mocked.
 import * as env from '@backoffice/env';
 import { ForbiddenError } from '@backoffice/errors';

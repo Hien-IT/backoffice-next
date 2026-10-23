@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/marketplace/components/metadata-item.vue -->
 <script setup lang="ts">
 // Backoffice (recipe Q-43): a metadata row `flex items-center gap-3 text-theme-sm` with an 18 px icon (BoIcon sm);
-// `href` is an external link (new tab, rel noopener noreferrer). The unused `to` prop is not ported. Directus
+// `href` is an external link (new tab, rel noopener noreferrer). The unused `to` prop is not ported. DR
 // `has-tooltip` + `v-tooltip` become `tooltip`: the row is then focusable so the tooltip opens from the keyboard too.
 import BoIcon from '../../../../../components/BoIcon.vue';
 import BoTooltip from '../../../../../components/BoTooltip.vue';

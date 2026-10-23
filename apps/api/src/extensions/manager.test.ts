@@ -1,4 +1,4 @@
-// Backoffice (spec 020, T021): Directus has no test for extensions/manager.ts. Covers the lifecycle: settings looked up
+// Backoffice (spec 020, T021): DR has no test for extensions/manager.ts. Covers the lifecycle: settings looked up
 // by (source, folder), reload dedupe, the rejected reload (R-64), EXTENSIONS_MUST_LOAD, the bus subscription and the
 // chokidar watcher debounce.
 import { mkdtemp, rm, writeFile } from 'node:fs/promises';
@@ -326,7 +326,7 @@ describe('registration (T030-T032)', () => {
 		await emitter.emitInit('bo.manager.init', {});
 		expect(fired).toHaveBeenCalledWith('init');
 
-		// schedule: one synchronized job per valid cron, named <extension>:<index> like Directus
+		// schedule: one synchronized job per valid cron, named <extension>:<index> like DR
 		expect(jobs.map((job) => [job.name, job.cron])).toEqual([
 			['ctx-hook:0', '* * * * *'],
 			['ctx-hook:1', '*/5 * * * *'],
@@ -428,7 +428,7 @@ describe('filter order (T039, R-62)', () => {
 
 		await expect(emitter.emitFilter('bo.manager.filter', {}, {})).resolves.toEqual({ ext: true, flowSawExt: true });
 
-		// Backoffice: same as Directus (R-62): a reload registers the extension again, after the flow filter.
+		// Backoffice: same as DR (R-62): a reload registers the extension again, after the flow filter.
 		await manager.reload();
 		await expect(emitter.emitFilter('bo.manager.filter', {}, {})).resolves.toEqual({ ext: true, flowSawExt: false });
 

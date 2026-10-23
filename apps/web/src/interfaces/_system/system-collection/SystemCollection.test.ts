@@ -1,4 +1,4 @@
-// Feature 016 (T042, D-57): system-collection, as Directus system-collection.vue: collections that are not folders,
+// Feature 016 (T042, D-57): system-collection, as DR system-collection.vue: collections that are not folders,
 // singletons only with includeSingleton, the CRUD-safe system collections with includeSystem, deselect with allowNone.
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

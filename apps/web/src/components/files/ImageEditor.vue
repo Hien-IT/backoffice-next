@@ -5,7 +5,7 @@
 // menu is a BoMenu with a check on the current ratio. Cropper.js and its CSS load when the editor opens (lazy chunk,
 // research R10). Writes go through the SDK (`updateFile` / `uploadFiles` for FormData, PATCH JSON for the focal point
 // alone). An image that fails to load shows an error notice and keeps save disabled (CHK017). Dragging the crop box
-// and the focal point is mouse only, as in Directus (FR-046, owner 2026-10-15).
+// and the focal point is mouse only, as in DR (FR-046, owner 2026-10-15).
 import { updateFile, uploadFiles } from '@directus/sdk';
 import type { File } from '@directus/types';
 import type Cropper from 'cropperjs';
@@ -302,7 +302,7 @@ function useImage() {
 const localDragMode = ref<'move' | 'crop' | 'focal_point'>('move');
 
 function useCropper() {
-	// A deep ref as Directus: `hasEdits` reads getData() through the proxy, so rotate/flip/crop update it.
+	// A deep ref as DR: `hasEdits` reads getData() through the proxy, so rotate/flip/crop update it.
 	const cropperInstance = ref(null) as Ref<Cropper | null>;
 
 	const localAspectRatio = ref(NaN);
@@ -724,7 +724,7 @@ const PRESSED = 'bg-white text-gray-800 shadow-theme-xs dark:bg-gray-700 dark:te
 	opacity: 0.6;
 }
 
-/* Directus `.focal-point`: the focal point is a round box without handles or guides. */
+/* DR `.focal-point`: the focal point is a round box without handles or guides. */
 .image-editor.focal-point .cropper-point.point-nw,
 .image-editor.focal-point .cropper-point.point-ne,
 .image-editor.focal-point .cropper-point.point-se,

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// "N items" menu recipe (design-system component-specs, Tier 3): the Reka Popover that replaces the Directus
+// "N items" menu recipe (design-system component-specs, Tier 3): the Reka Popover that replaces the DR
 // `v-menu show-arrow` with a click activator in the relational and JSON displays. Attributes go to the trigger.
 import { PopoverArrow, PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
 
@@ -26,7 +26,7 @@ function onOpenAutoFocus(event: Event) {
 
 <template>
 	<PopoverRoot>
-		<!-- Directus stops the click so a table row under the display does not open. -->
+		<!-- DR stops the click so a table row under the display does not open. -->
 		<PopoverTrigger v-bind="$attrs" :class="triggerClass ?? TRIGGER" :disabled="disabled" @click.stop>
 			<slot name="trigger" />
 		</PopoverTrigger>

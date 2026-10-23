@@ -3,7 +3,7 @@
 import { useGroupable } from '@directus/composables';
 import { toRefs, type Ref } from 'vue';
 
-// Backoffice (spec 020, data-model §7): same groupable item as Directus; the slot gets `{ active, toggle }`.
+// Backoffice (spec 020, data-model §7): same groupable item as DR; the slot gets `{ active, toggle }`.
 const props = withDefaults(
 	defineProps<{
 		value?: string | number | undefined;

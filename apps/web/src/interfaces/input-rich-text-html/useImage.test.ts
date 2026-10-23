@@ -1,5 +1,5 @@
 // Ported from directus/app/src/interfaces/input-rich-text-html/useImage.test.ts
-// Backoffice: the asset URL is built on getApiUrl() (Directus: getPublicURL(), http://localhost:3000/ in its tests).
+// Backoffice: the asset URL is built on getApiUrl() (DR: getPublicURL(), http://localhost:3000/ in its tests).
 import type { File, SettingsStorageAssetPreset } from '@directus/types';
 import { expect, test } from 'vitest';
 import { ref } from 'vue';

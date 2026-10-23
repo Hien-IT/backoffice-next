@@ -1,4 +1,4 @@
-// The guards of directus/app/src/modules/content/index.ts (no Directus test): system collections, bookmark kept on
+// The guards of directus/app/src/modules/content/index.ts (no DR test): system collections, bookmark kept on
 // item routes, archive query, and the /content redirect (last accessed collection, then the first root collection).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, test } from 'vitest';

@@ -3,7 +3,7 @@
 // Backoffice: no visual editing (D-67): no editable elements toggle, editing layer, "open in visual editor", dynamic
 // URL, sidebar split, overlay/notification slots or header slots (all only used by the Visual Editor module). The
 // display options come as menu items (BoMenu) instead of a slot of list items. Toolbar and frame follow
-// layout-patterns §10; a top progress bar shows the refresh like the button spinner of Directus.
+// layout-patterns §10; a top progress bar shows the refresh like the button spinner of DR.
 import { useElementSize, useResizeObserver } from '@vueuse/core';
 import { computed, type CSSProperties, ref } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -34,7 +34,7 @@ const {
 	singleUrlSubdued?: boolean;
 	inPopup?: boolean;
 	isFullWidth?: boolean;
-	/** Items of the display options menu; "open in new window" is appended. No items: no menu (Directus slot). */
+	/** Items of the display options menu; "open in new window" is appended. No items: no menu (DR slot). */
 	displayOptions?: BoMenuItem[];
 }>();
 
@@ -71,7 +71,7 @@ const frameEl = ref<HTMLIFrameElement>();
 
 const livePreviewSize = useElementSize(livePreviewEl);
 
-// Backoffice: @vueuse useResizeObserver follows the handle when it appears after an invalid URL (Directus re-creates
+// Backoffice: @vueuse useResizeObserver follows the handle when it appears after an invalid URL (DR re-creates
 // the observer on that change) and disconnects on unmount.
 useResizeObserver(resizeHandle, () => {
 	if (!resizeHandle.value) return;
@@ -192,7 +192,7 @@ function useUrls() {
 	}
 }
 
-// Directus @container (max-width: 27rem): the size controls win over the left group, a disabled size block hides.
+// DR @container (max-width: 27rem): the size controls win over the left group, a disabled size block hides.
 const NARROW_HIDDEN = '@max-[27rem]:hidden';
 const INPUT =
 	'h-8 w-16 rounded-lg border border-gray-300 bg-transparent px-2 text-center text-theme-xs text-gray-800 focus:border-brand-500 focus:outline-hidden focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 disabled:cursor-not-allowed disabled:text-gray-400 dark:border-gray-700 dark:text-white/90 dark:focus:border-brand-400 dark:focus-visible:outline-brand-400 dark:disabled:text-gray-600';

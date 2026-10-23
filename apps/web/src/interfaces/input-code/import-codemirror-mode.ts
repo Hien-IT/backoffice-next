@@ -1,5 +1,5 @@
 // Ported from directus/app/src/interfaces/input-code/import-codemirror-mode.ts
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Directus file: the CodeMirror mode files ship no types
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment -- DR file: the CodeMirror mode files ship no types
 // @ts-nocheck
 export default function importCodemirrorMode(mode: string): Promise<void> {
 	switch (mode) {

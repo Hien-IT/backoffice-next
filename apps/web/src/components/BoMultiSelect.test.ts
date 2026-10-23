@@ -153,7 +153,7 @@ describe('BoMultiSelect', () => {
 	});
 });
 
-// Directus v-select `{ divider: true }` choice: a separator row, not an option; hidden while searching.
+// DR v-select `{ divider: true }` choice: a separator row, not an option; hidden while searching.
 test('divider items render separators, not options, and do not count as items', async () => {
 	const wrapper = mount(BoMultiSelect, {
 		props: { items: [items[0]!, { divider: true }, items[1]!], modelValue: ['red', 'green'], previewThreshold: 2 },

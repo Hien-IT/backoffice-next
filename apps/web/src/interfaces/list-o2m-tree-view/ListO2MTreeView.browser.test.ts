@@ -93,7 +93,7 @@ test('Indent then Outdent with the keyboard change the parent of a row', async (
 
 	await choose('Child B', 'Outdent');
 
-	// Back at the root. As after dragging the row back (Directus `added` with `exists`, then `removed`): the nested
+	// Back at the root. As after dragging the row back (DR `added` with `exists`, then `removed`): the nested
 	// change is gone, the reverse field and the parent's `children` are left as undefined keys (dropped in JSON).
 	await vi.waitFor(() =>
 		expect(wrapper.emitted('input')?.at(-1)?.[0]).toEqual({

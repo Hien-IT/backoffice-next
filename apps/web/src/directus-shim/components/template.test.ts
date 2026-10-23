@@ -1,6 +1,6 @@
 // Spec 020 T111: VTemplateInput (marks, trigger and navigation events, escaped text), VFieldTemplate (field buttons
 // from the value, field menu on the tree, removal, nullable) and VCollectionFieldTemplate (tree of a collection),
-// VEmojiPicker (emoji-selected from the Directus picker).
+// VEmojiPicker (emoji-selected from the DR picker).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
@@ -79,7 +79,7 @@ describe('VTemplateInput', () => {
 		await wrapper.trigger('input');
 
 		expect(wrapper.emitted('trigger')?.[0]?.[0]).toMatchObject({ searchQuery: 'ad' });
-		// The match is marked at once, between no-break spaces (Directus parseHTML).
+		// The match is marked at once, between no-break spaces (DR parseHTML).
 		expect(wrapper.emitted('update:modelValue')?.at(-1)).toEqual(['Hi\u00a0@ad\u00a0']);
 		expect(wrapper.find('mark.preview').exists()).toBe(true);
 

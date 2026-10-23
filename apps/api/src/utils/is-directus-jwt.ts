@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 
 /**
  * Check if a given string conforms to the structure of a JWT
- * and whether it is issued by Directus.
+ * and whether it is issued by DR.
  */
 export default function isDirectusJWT(string: string): boolean {
 	try {

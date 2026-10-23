@@ -1,6 +1,6 @@
-// Feature 010 (T029, spec FR-090, FR-091, SC-005, research R8): every place where Directus 11.17.4 sends a mail has a
+// Feature 010 (T029, spec FR-090, FR-091, SC-005, research R8): every place where DR 11.17.4 sends a mail has a
 // counterpart here that writes a warning line instead, and this app has no code that could open a mail connection. A
-// new `new MailService(` in a later Directus version makes this test fail, so no mail site is missed.
+// new `new MailService(` in a later DR version makes this test fail, so no mail site is missed.
 import { readdirSync, readFileSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -18,7 +18,7 @@ function files(dir: string): string[] {
 	});
 }
 
-/** Directus file → the file of this app that replaces its mail with a warning line (D-23, D-27, D-28, D-33, D-34, D-36). */
+/** DR file → the file of this app that replaces its mail with a warning line (D-23, D-27, D-28, D-33, D-34, D-36). */
 const COUNTERPARTS: Record<string, { sites: number; file: string }> = {
 	'services/users.ts': { sites: 3, file: 'services/users.service.ts' },
 	'services/notifications.ts': { sites: 1, file: 'services/notifications.service.ts' },

@@ -1,4 +1,4 @@
-// Directus has no test for drawer-collection.vue: the drawer on bo_rel_target of the fixture snapshot, in the layout
+// DR has no test for drawer-collection.vue: the drawer on bo_rel_target of the fixture snapshot, in the layout
 // of the preset (014 FR-029; tabular here): columns from the preset or the first 4 visible fields, search, pagination,
 // selection, interface filter and the empty/error states (FR-046 of 013, contracts/api-calls.md #34, #35).
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';

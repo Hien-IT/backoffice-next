@@ -1,4 +1,4 @@
-// Directus has no test for interfaces/files: contracts/tests.md §5 on the bo_rel `files` fixture field (FR-052, FR-053,
+// DR has no test for interfaces/files: contracts/tests.md §5 on the bo_rel `files` fixture field (FR-052, FR-053,
 // FR-054, D-60): mount without input, every option, the `{ create, update, delete }` value shapes (sort `index + 1`,
 // upload, library, remove, edit), the row menu, pagination, permissions of the fixture users, read-only and a11y.
 /* eslint-disable vue/one-component-per-file, vue/require-prop-types -- drawer stubs that only record their props */
@@ -347,7 +347,7 @@ describe('edits (emitted values)', () => {
 		const restore = rows(wrapper)[0]!.get('[aria-label="Undo Removed Item"]');
 		expect(rows(wrapper)[0]!.get('button').classes()).toContain('line-through');
 		await restore.trigger('click');
-		// No changes left: the value goes back to undefined (useRelationMultiple, as Directus).
+		// No changes left: the value goes back to undefined (useRelationMultiple, as DR).
 		expect(wrapper.emitted('input')![1]).toEqual([undefined]);
 	});
 

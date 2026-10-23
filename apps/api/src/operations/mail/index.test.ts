@@ -1,4 +1,4 @@
-// Backoffice: rewrite of directus/api/src/operations/mail/index.test.ts. The seven option sets of the Directus test,
+// Backoffice: rewrite of directus/api/src/operations/mail/index.test.ts. The seven option sets of the DR test,
 // which spy on MailService.send and md(); here no mail is sent (spec D-34, FR-036): each one writes the same warning
 // line once, after the rate limiter, and resolves to undefined.
 import { EmailLimitExceededError } from '@backoffice/errors';

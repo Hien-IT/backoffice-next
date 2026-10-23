@@ -3,7 +3,7 @@
 // through the SDK; panel types come from the static registry (no extensions, XI); isSystemCollection is the
 // get-item-route check; escapeRegExp of lodash-es replaces escape-string-regexp (research T001 (a)); errors open the
 // dialog of useNotices (FR-081); stagePanelUpdate ignores an id that is not in the store (spec Edge Cases, release-gate
-// CHK005) where Directus could throw; the panel registry is imported in `hydrate` (a lazy chunk, FR-109), since the store
+// CHK005) where DR could throw; the panel registry is imported in `hydrate` (a lazy chunk, FR-109), since the store
 // itself loads with the app entry.
 import type { Item, Panel } from '@directus/types';
 import { applyOptionsData, getSimpleHash, toArray } from '@directus/utils';
@@ -46,7 +46,7 @@ export type CreatePanel = Partial<Panel> &
 
 type GraphqlError = { extensions?: { code?: string; graphqlErrors?: { path?: string[] }[] } };
 
-/** Error thrown for a non-2xx GraphQL answer, shaped like the axios error Directus reads (`response.status`, `data`). */
+/** Error thrown for a non-2xx GraphQL answer, shaped like the axios error DR reads (`response.status`, `data`). */
 class GraphqlRequestError extends Error {
 	readonly errors: GraphqlError[];
 	readonly response: { status: number; data: { errors?: GraphqlError[] } };
@@ -271,7 +271,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 			const req = prepareQuery(panel);
 
 			// Backoffice (D-111, owner 2026-10-18): a collection the viewer cannot read is not in the collections and
-			// fields stores. Directus then throws in queryToGqlString (formatQuery) and the whole dashboard breaks, or the
+			// fields stores. DR then throws in queryToGqlString (formatQuery) and the whole dashboard breaks, or the
 			// panel's own query() returns nothing and the tile shows no data. Here only this tile shows a FORBIDDEN error.
 			const collections: string[] = req
 				? toArray(req).map(({ collection }) => collection)
@@ -512,7 +512,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 		data.value = omit(data.value, panelKey);
 	}
 
-	// Backoffice (D-112, owner 2026-10-18): Directus sends the three requests in parallel and on any error keeps every
+	// Backoffice (D-112, owner 2026-10-18): DR sends the three requests in parallel and on any error keeps every
 	// staged edit, so a second Save creates the already created panels again (R-56). Here the parts that succeeded leave
 	// the staging and the store is reloaded; only the failed parts stay staged for the next Save.
 	async function saveChanges() {
@@ -558,7 +558,7 @@ export const useInsightsStore = defineStore('insightsStore', () => {
 				}
 
 				// Fetch data for panels that now exist in the dashboard (from create) but haven't been fetched yet
-				// (like Directus, before the edits are cleared: the temporary created panels load once more).
+				// (like DR, before the edits are cleared: the temporary created panels load once more).
 				const panelsToLoad = unref(panelsWithEdits).filter(({ id }) => id in unref(data) === false);
 				loadPanelData(panelsToLoad);
 

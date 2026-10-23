@@ -1,4 +1,4 @@
-// Directus has no test for interfaces/file: contracts/tests.md §5 on the bo_rel `file` fixture field (FR-050, FR-053,
+// DR has no test for interfaces/file: contracts/tests.md §5 on the bo_rel `file` fixture field (FR-050, FR-053,
 // FR-054): mount without input, every option, the emitted value shapes, the menu, the dialogs, read-only and a11y.
 /* eslint-disable vue/one-component-per-file, vue/require-prop-types -- drawer stubs that only record their props */
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';

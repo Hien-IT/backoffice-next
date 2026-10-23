@@ -1,8 +1,8 @@
 // Ported from directus/api/src/utils/get-service.ts
-// Backoffice: the switch keeps the 23 collections of Directus, in three groups (research R6 of spec 004):
-// - the services this app has, imported one by one (Directus imports all of them from services/index.ts);
+// Backoffice: the switch keeps the 23 collections of DR, in three groups (research R6 of spec 004):
+// - the services this app has, imported one by one (DR imports all of them from services/index.ts);
 // - collections whose own service comes with a later feature: a plain ItemsService until then (D-31 of spec 004);
-// - any other directus_* collection: ForbiddenError, as in Directus.
+// - any other directus_* collection: ForbiddenError, as in DR.
 import { ForbiddenError } from '@backoffice/errors';
 import type { AbstractServiceOptions } from '@backoffice/types';
 import { AccessService } from '../services/access.service.js';
@@ -28,7 +28,7 @@ import { UsersService } from '../services/users.service.js';
 import { VersionsService } from '../services/versions.service.js';
 
 /**
- * Collections that have their own service in Directus 11.17.4 that this app does not port yet (D-31 of spec 004).
+ * Collections that have their own service in DR 11.17.4 that this app does not port yet (D-31 of spec 004).
  * Remove a collection from this list when the feature that ports its service adds a `case` above the default.
  */
 // Features 007 to 010 ported the services and shrank this list (007 removed directus_files and directus_folders; 008

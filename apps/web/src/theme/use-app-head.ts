@@ -1,6 +1,6 @@
 // Ported from directus/app/src/app.vue (useHead)
-// Backoffice: default name Backoffice and the design-system primary instead of the Directus name and color (D-39);
-// a set project_color is the primary like the Directus themes (`primary: var(--project-color)`, owner 2026-10-22,
+// Backoffice: default name Backoffice and the design-system primary instead of the DR name and color (D-39);
+// a set project_color is the primary like the DR themes (`primary: var(--project-color)`, owner 2026-10-22,
 // D-158): the brand-* scale of the theme is derived from it;
 // project_color only when the browser reads it as a color (spec release-gate clarifications, CHK067); the default
 // favicon lives under /admin/. The dark/light class goes on html instead of body (D-43) and the theme overrides of
@@ -126,7 +126,7 @@ export function useAppHead() {
 			dir: userStore.textDirection,
 			class: darkMode.value ? 'dark' : 'light',
 		})),
-		// The Directus app sets it on body (app.vue): extension styles may target `body.dark`.
+		// The DR app sets it on body (app.vue): extension styles may target `body.dark`.
 		bodyAttrs: computed(() => ({ class: darkMode.value ? 'dark' : 'light' })),
 		meta: computed(() => {
 			const content = projectColor.value ?? cssVar('--color-brand-500', document.documentElement);

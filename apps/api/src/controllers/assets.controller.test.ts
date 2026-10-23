@@ -1,4 +1,4 @@
-// Feature 007 (T024, T037): the /assets controller (port of directus/api/src/controllers/assets.ts, which Directus does
+// Feature 007 (T024, T037): the /assets controller (port of directus/api/src/controllers/assets.ts, which DR does
 // not unit test) through the real app pipeline on SQLite, with AssetsService and FilesService mocked: query validation
 // in the three storage_asset_transform modes, the preset merge, headers, ranges, revalidation, HEAD, zip routes.
 import { PassThrough, Readable } from 'node:stream';

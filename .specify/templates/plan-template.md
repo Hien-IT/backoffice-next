@@ -31,7 +31,7 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v3.0.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v3.1.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment

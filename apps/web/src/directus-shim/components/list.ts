@@ -11,7 +11,7 @@ export const LIST: InjectionKey<{ dense: Ref<boolean>; nav: Ref<boolean> }> = Sy
 export const FOCUS =
 	'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 
-/** Directus isActiveRoute: the `active` prop wins, else the `to` route matches (exactly with `exact`, query with `query`). */
+/** DR isActiveRoute: the `active` prop wins, else the `to` route matches (exactly with `exact`, query with `query`). */
 export function useRouteActive(props: {
 	to?: string | RouteLocationRaw | undefined;
 	active?: boolean | undefined;

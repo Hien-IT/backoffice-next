@@ -2,8 +2,8 @@
 <script setup lang="ts">
 // Backoffice: VTextarea (nullable and trim logic of directus/app/src/components/v-textarea.vue) is inlined on a
 // textarea with the component-specs Textarea classes, linked to the form label and messages (FR-094); `font` maps to
-// the theme font classes (BoTextarea); the counter keeps the Directus position and
-// threshold (only the warning color is styled below 10 %, as in Directus).
+// the theme font classes (BoTextarea); the counter keeps the DR position and
+// threshold (only the warning color is styled below 10 %, as in DR).
 import { computed, inject } from 'vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';
 

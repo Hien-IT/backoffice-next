@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/panels/line-chart/panel-line-chart.vue -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-047..FR-050, recipe Q-35): ApexCharts loaded lazily (loadApexCharts) with an unmount/race
-// guard; Directus theme variables replaced by the chart theme tokens (THEME, D-108 default color, resolved with cssVar
+// guard; DR theme variables replaced by the chart theme tokens (THEME, D-108 default color, resolved with cssVar
 // for the mono theme generator); animations follow prefers-reduced-motion; the chart is aria-hidden with an sr-only
 // ChartTable of the plotted values (FR-106); the global tooltip styles live in styles/apexcharts.css. Series and
-// categories are built like Directus (values passed raw).
+// categories are built like DR (values passed raw).
 import type { Filter } from '@directus/types';
 import { abbreviateNumber } from '@directus/utils';
 import type ApexCharts from 'apexcharts';
@@ -19,7 +19,7 @@ import { monoThemeGenerator } from '../shared/color-generator.ts';
 
 type PanelFunction = 'count' | 'countDistinct' | 'avg' | 'avgDistinct' | 'sum' | 'sumDistinct' | 'min' | 'max';
 
-/* eslint-disable vue/require-default-prop -- the optional props have no default in Directus either */
+/* eslint-disable vue/require-default-prop -- the optional props have no default in DR either */
 const props = withDefaults(
 	defineProps<{
 		showHeader?: boolean;
@@ -151,7 +151,7 @@ async function setUpChart() {
 		...series.map((serie: any) => serie.data[index] ?? null),
 	]);
 
-	// Backoffice (D-108): the Directus option default `var(--theme--primary)` maps to the chart theme token.
+	// Backoffice (D-108): the DR option default `var(--theme--primary)` maps to the chart theme token.
 	const color = props.color === 'var(--theme--primary)' ? THEME.primary : props.color;
 
 	// Generate monochrome color scheme
@@ -172,7 +172,7 @@ async function setUpChart() {
 		colors: colors,
 		chart: {
 			type: props.fillType === 'disabled' ? 'line' : 'area',
-			// Backoffice: Directus sets the unknown key `animation` (so ApexCharts animates); reduced motion turns it off
+			// Backoffice: DR sets the unknown key `animation` (so ApexCharts animates); reduced motion turns it off
 			animations: {
 				enabled: !prefersReducedMotion(),
 			},

@@ -33,7 +33,7 @@ const rulesGrouped = computed(() => {
 	};
 });
 
-// A rule leaf (or its stored value): a string or a number, cast as in the Directus template.
+// A rule leaf (or its stored value): a string or a number, cast as in the DR template.
 const leaf = (value: unknown) => value as string | number;
 
 const hasValue = computed(() => {

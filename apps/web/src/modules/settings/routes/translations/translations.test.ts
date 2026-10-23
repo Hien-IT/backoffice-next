@@ -1,4 +1,4 @@
-// Directus has no test for the translations routes (spec 016 T102, US6-4, US6-5, FR-086, contracts/api-calls.md
+// DR has no test for the translations routes (spec 016 T102, US6-4, US6-5, FR-086, contracts/api-calls.md
 // #153, #154, #176): the list on the 014 layout wrapper (create link, batch delete and edit, the empty state); the item
 // page on use-item with the translations.yaml form: create, save and stay (replace to the new id), delete, SaveOptions,
 // refreshCurrentLanguage after every write, revisions and comments for an existing item, a failed load → not found.
@@ -219,7 +219,7 @@ describe('TranslationItemRoute', () => {
 
 			expect(document.querySelector('h1')?.textContent).toContain('Create Custom Translation');
 			expect(button('Delete')).toBeUndefined();
-			// As Directus: the system fields have a `default_value` (null), so `isSavable` is already true for a new item.
+			// As DR: the system fields have a `default_value` (null), so `isSavable` is already true for a new item.
 			expect(button('Save')).toHaveProperty('disabled', false);
 			expect(wrapper.findComponent(BoForm).props('collection')).toBe('directus_translations');
 			expect(wrapper.findComponent(RevisionsSidebarDetail).exists()).toBe(false);

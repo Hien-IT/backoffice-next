@@ -84,17 +84,17 @@ const STATUS_FORBIDDEN = `You don't have permission to access field "status" in 
  */
 const EXPECTED_WARNINGS: Record<string, string[]> = Object.fromEntries([
 	// bo_std item 3 holds `list = {"not":"an array"}`, a value in the wrong shape written on purpose (CHK006); Vue checks
-	// the `value: Array | null` prop of the list interface as it does in Directus (the interface still renders).
+	// the `value: Array | null` prop of the list interface as it does in DR (the interface still renders).
 	...USERS.map((user) => [`${user} bo_std`, [LIST_PROP_WARNING]]),
 	// bo-editor cannot read bo_rel_target.status (permissions.bo-editor.json), which the m2o template of items 1 and 3
-	// and the table layouts of o2m_table and m2m_table ask for: the API answers 403 as Directus does and the relational
+	// and the table layouts of o2m_table and m2m_table ask for: the API answers 403 as DR does and the relational
 	// interfaces log it through unexpectedError (unexpected-error.ts).
 	['bo-editor bo_rel', [STATUS_FORBIDDEN, STATUS_FORBIDDEN, STATUS_FORBIDDEN, STATUS_FORBIDDEN]],
 	// bo-viewer reads only its own directus_users row; `owner` of item 1 points at the editor (bo-9), so the m2o
-	// lookup answers 403 as in Directus.
+	// lookup answers 403 as in DR.
 	['bo-viewer bo_rel', ["You don't have permission to access this."]],
 	// bo_content (014): `author` of the 15 even items points at the admin, whom neither bo-editor nor bo-viewer may
-	// read, so each m2o lookup answers 403 as in Directus.
+	// read, so each m2o lookup answers 403 as in DR.
 	...(['bo-editor', 'bo-viewer'] as const).map((user) => [
 		`${user} bo_content`,
 		Array.from({ length: 15 }, () => "You don't have permission to access this."),
@@ -213,7 +213,7 @@ describe.each(USERS)('user %s', { timeout: 30_000 }, (user) => {
 			),
 		);
 
-		// A singleton read answers its one row as an object, like Directus (014 mock API).
+		// A singleton read answers its one row as an object, like DR (014 mock API).
 		const tableRows = (Array.isArray(answer) ? answer : [answer]) as Record<string, unknown>[];
 
 		expect(tableRows).toHaveLength(rows.length);

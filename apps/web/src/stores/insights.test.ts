@@ -68,7 +68,7 @@ beforeEach(() => {
 	})) as never;
 });
 
-// Staging a create or a duplicate loads its data without awaiting it (as Directus); let that request settle on this
+// Staging a create or a duplicate loads its data without awaiting it (as DR); let that request settle on this
 // test's fetch mock, or its error dialog lands in the next test.
 afterEach(async () => {
 	await vi.waitFor(() => expect(useInsightsStore().loading).toEqual([]));
@@ -155,7 +155,7 @@ describe('panel data', () => {
 		expect(store.loading).toEqual([]);
 	});
 
-	// The failing alias has no data key (a key with data, even null, counts as succeeded and clears the error, as Directus).
+	// The failing alias has no data key (a key with data, even null, counts as succeeded and clears the error, as DR).
 	test('a panel on a collection the viewer cannot read gets its own FORBIDDEN error; the others load (D-111)', async () => {
 		const hidden = panel('h', 'metric', { collection: 'bo_secret', field: 'id', function: 'count' });
 		const { fetch, store } = await setup([metric('m1'), hidden], { 'POST /graphql': graphqlAnswer() });
@@ -299,7 +299,7 @@ describe('staging and Save (FR-028, R-56)', () => {
 		expect(store.hasEdits).toBe(false);
 	});
 
-	// Directus clears the edits after loadPanelData, so the temporary created panel loads once more with the real one.
+	// DR clears the edits after loadPanelData, so the temporary created panel loads once more with the real one.
 	test('after Save the created panel loads twice, temporary and saved, like Directus', async () => {
 		let hydrated = 0;
 		const { fetch, store } = await setup({

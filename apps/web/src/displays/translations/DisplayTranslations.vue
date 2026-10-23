@@ -100,7 +100,7 @@ function progressColor(value: number) {
 	return '[&_[role=progressbar]>div]:bg-success-500';
 }
 
-// Backoffice: Directus shows the icon on hover, focus or while open; touch screens always show it.
+// Backoffice: DR shows the icon on hover, focus or while open; touch screens always show it.
 const ICON_TRIGGER =
 	'flex shrink-0 rounded text-gray-500 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 aria-expanded:opacity-100 disabled:pointer-events-none pointer-coarse:opacity-100 motion-reduce:transition-none dark:text-gray-400 dark:focus-visible:outline-brand-400';
 </script>

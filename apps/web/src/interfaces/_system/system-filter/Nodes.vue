@@ -1,13 +1,13 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-filter/Nodes.vue -->
 <script setup lang="ts">
 // Backoffice: recipe "Search and advanced filter (Q-7)": rule rows and group rows with TailAdmin classes; the field
-// button opens FieldList in a Reka popover, the operator a BoMenu (Directus v-select inline). Drag and drop keeps the
-// Directus vuedraggable setup (`:list` changed in place, shared group `g1` so rules move between groups, `change` →
+// button opens FieldList in a Reka popover, the operator a BoMenu (DR v-select inline). Drag and drop keeps the
+// DR vuedraggable setup (`:list` changed in place, shared group `g1` so rules move between groups, `change` →
 // emit). D-69: each row also has a menu with "Move up" / "Move down" (same array as a drag inside the list, WCAG
 // 2.1.1, as BoSortableList), focus back on the row menu and a live region saying the new position. Icon buttons
-// are labelled buttons (FR-027). "Wrap in group" of the recipe is not added (no Directus equivalent). Owner 2026-10-23
+// are labelled buttons (FR-027). "Wrap in group" of the recipe is not added (no DR equivalent). Owner 2026-10-23
 // (D-170): while a row is dragged (`bo-filter-dragging` on body from start to end), every AND/OR group shows a faint
-// dashed frame, an empty one 32px high, so the drop target is clear; the Sortable options stay those of Directus.
+// dashed frame, an empty one 32px high, so the drop target is clear; the Sortable options stay those of DR.
 import type {
 	FieldFilter,
 	FieldFilterOperator,
@@ -319,7 +319,7 @@ function isExistingField(node: Record<string, any>): boolean {
 	return !!field;
 }
 
-// --- Backoffice: operator menu (Directus v-select inline) ---
+// --- Backoffice: operator menu (DR v-select inline) ---
 function comparatorItems(index: number): BoMenuItem[] {
 	const info = filterInfo.value[index] as FilterInfoField;
 
@@ -363,7 +363,7 @@ async function move(from: number, to: number) {
 	filterSync.value = next;
 	announcement.value = t('moved_to_position', { item: label, position: to + 1, total: next.length });
 
-	// Rows are keyed by index (as Directus), so Reka gives focus back to the trigger at the old index when the menu
+	// Rows are keyed by index (as DR), so Reka gives focus back to the trigger at the old index when the menu
 	// closes: that focus is sent on to the moved row's trigger (onFocusin).
 	focusTo.value = to;
 	await nextTick();
@@ -383,7 +383,7 @@ function onFocusin(event: FocusEvent) {
 	if (target && event.target !== target) target.focus();
 }
 
-// The Directus `.header` pill: input background and a subdued border, as wide as its content.
+// The DR `.header` pill: input background and a subdued border, as wide as its content.
 // Owner 2026-10-23 (D-171): an AND/OR group is a TailAdmin card holding its header row (flat, the card is its frame)
 // and its rows, with a 3px start border in the color of its logic chip (brand AND, orange OR); while a row is dragged
 // (D-170) the card border turns dashed brand on a light brand tint and an empty group keeps 32px to drop into.

@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-folder/folder.vue; Ported from directus/app/src/interfaces/_system/system-folder/FolderListItem.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016, recipe Q-25): a read-only input with the folder path (useFolders as Directus) and a trailing
+// Backoffice (spec 016, recipe Q-25): a read-only input with the folder path (useFolders as DR) and a trailing
 // folder button opening a Popover with the 015 FolderPicker tree (rows of FolderListItem, keyboard tree) whose root row
 // is `interfaces.system-folder.root_name`; choosing a row emits its id (root: null) and closes the popover.
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';

@@ -1,5 +1,5 @@
 // Backoffice (spec 020, D-141): the MailService of the extension context runs the email.send filter, then logs instead
-// of sending; getDefaultTemplateData reads the settings like Directus.
+// of sending; getDefaultTemplateData reads the settings like DR.
 import { beforeEach, expect, test, vi } from 'vitest';
 import emitter from '../emitter.js';
 import { MailService } from './mail.service.js';

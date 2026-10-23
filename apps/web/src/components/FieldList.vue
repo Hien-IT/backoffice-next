@@ -3,9 +3,9 @@
 // Backoffice: recipe "Search and advanced filter (Q-7)" → Field list and the tree rules of layout-patterns §9. The
 // VFieldListItem recursion becomes one flat `role="tree"` list of `treeitem` rows (aria-level, roving tabindex,
 // Up/Down/Left/Right/Home/End, Enter/Space) built from the same field tree (composables/use-field-tree.ts, 016). Groups
-// are opened while searching once per search change (Directus: open + collapse-on-change), then toggle freely. No
+// are opened while searching once per search change (DR: open + collapse-on-change), then toggle freely. No
 // search highlight (BoTextOverflow has no `highlight`). Readable fields only = the fields store, which holds what
-// `GET /fields` returns for the user, as in Directus. Spec 020 (VFieldTemplate shim): `fieldTree` lists a given field
+// `GET /fields` returns for the user, as in DR. Spec 020 (VFieldTemplate shim): `fieldTree` lists a given field
 // tree instead of the collection's, `loadPathLevel` loads a level when a node opens (with its key, as
 // v-field-template) and `depth` stops the nesting (0 = top level only).
 import formatTitle from '@directus/format-title';
@@ -177,7 +177,7 @@ function supportedFunctions(field: FieldInfo): string[] {
 	return getFunctionsForType(field.type);
 }
 
-/** Groups open while searching: a group whose parents are all groups (Directus openWhileSearching + parentOpen). */
+/** Groups open while searching: a group whose parents are all groups (DR openWhileSearching + parentOpen). */
 function groupPaths(nodes: FieldInfo[]): string[] {
 	return nodes.filter((node) => node.group).flatMap((node) => [node.path, ...groupPaths(node.children ?? [])]);
 }
@@ -228,7 +228,7 @@ function displayName(field: FieldInfo) {
 	return props.rawFieldNames ? field.field : field.name || formatTitle(field.field);
 }
 
-/** The row emits `add` on activation (Directus: clickable list item / list group activator). */
+/** The row emits `add` on activation (DR: clickable list item / list group activator). */
 function selectable(row: Row): boolean {
 	if (row.kind === 'select-all') {
 		return row.root

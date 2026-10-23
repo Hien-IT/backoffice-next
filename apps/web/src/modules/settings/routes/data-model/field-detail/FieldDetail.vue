@@ -3,7 +3,7 @@
 // Backoffice (recipe Q-22, spec 016 US3): BoDrawer (wide) with the simple mode (interface cards, a search in the header)
 // or the advanced mode (tabs, a save icon button in the header: field-detail-advanced-actions.vue). D-97: a field that
 // does not exist or a `?type=` that is not a local type shows the error dialog and goes back to the collection page
-// (Directus breaks on them).
+// (DR breaks on them).
 import formatTitle from '@directus/format-title';
 import type { LocalType } from '@directus/types';
 import { storeToRefs } from 'pinia';

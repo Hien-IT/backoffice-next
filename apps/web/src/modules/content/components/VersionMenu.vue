@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: recipe Q-8 (version menu in the breadcrumb line). The VMenu/VList is a Reka DropdownMenu: main and the
 // versions are radio items (the current one checked), the actions are items after a separator, delete/discard in the
-// danger colour. The edit dot carries a screen-reader text in place of the Directus tooltip. VDialogs are BoDialogs
+// danger colour. The edit dot carries a screen-reader text in place of the DR tooltip. VDialogs are BoDialogs
 // (Esc and outside click cancel, Enter submits the create/rename forms); the delete text is the dialog description. The
 // key input is slugified like v-input `slug`, empty inputs are null like its `nullable`; a reserved key also shows
 // `reserved_version_key` as the key field error (the tooltip of a disabled button is not reachable by keyboard).

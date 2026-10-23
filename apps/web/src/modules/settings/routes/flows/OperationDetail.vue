@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 017 FR-040 to FR-043, recipe Q-31): VDrawer is BoDrawer (persistent, `apply` = meta+Enter), VInput
 // is BoInput (`dbSafe` for the key, the uniqueness error linked to the field; no decorative `title` / `vpn_key` icons), VFancySelect is BoFancySelect, VNotice is
-// BoNotice; the operations come from the static registry (no extensions, XI) and are translated here, as the Directus
+// BoNotice; the operations come from the static registry (no extensions, XI) and are translated here, as the DR
 // extension store does when it registers them. `mail` shows the D-106 notice above its options.
 import type { Field, FlowRaw } from '@directus/types';
 import slugify from '@sindresorhus/slugify';

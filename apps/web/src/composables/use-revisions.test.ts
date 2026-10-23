@@ -1,4 +1,4 @@
-// Directus has no test for use-revisions.ts / use-revision.ts: the requests of contracts/api-calls.md #55 and #56
+// DR has no test for use-revisions.ts / use-revision.ts: the requests of contracts/api-calls.md #55 and #56
 // (count, page of 10 sorted -id, version filter, `created` lookup) and the grouping by date.
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';

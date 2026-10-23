@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/operations.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R3 of spec 009); validateBatch runs
+// Backoffice: one Nest handler per DR route, in the same order (research R3 of spec 009); validateBatch runs
 // through runMiddleware, useCollection('directus_operations') is applied in app.module.ts, `next()` to `respond` is
 // respond().
 import { ErrorCode, isBackofficeError } from '@backoffice/errors';

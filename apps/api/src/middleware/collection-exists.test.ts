@@ -1,4 +1,4 @@
-// Backoffice: Directus has no test for collection-exists.ts (feature 005, T009).
+// Backoffice: DR has no test for collection-exists.ts (feature 005, T009).
 import type { SchemaOverview } from '@backoffice/types';
 import type { Request, Response } from 'express';
 import { expect, test } from 'vitest';

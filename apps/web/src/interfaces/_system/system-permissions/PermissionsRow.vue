@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/_system/system-permissions/permissions-row.vue -->
 <script setup lang="ts">
-// Backoffice (recipe Q-23): the collection key in `font-mono` with the display name as `title` (Directus tooltip), the
+// Backoffice (recipe Q-23): the collection key in `font-mono` with the display name as `title` (DR tooltip), the
 // all / none shortcuts as text buttons, the remove icon as a named icon button.
 import type { Permission, PermissionsAction } from '@directus/types';
 import BoButton from '../../../components/BoButton.vue';

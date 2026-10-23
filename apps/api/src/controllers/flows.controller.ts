@@ -1,5 +1,5 @@
 // Ported from directus/api/src/controllers/flows.ts
-// Backoffice: one Nest handler per Directus route, in the same order (research R3 of spec 009); validateBatch runs
+// Backoffice: one Nest handler per DR route, in the same order (research R3 of spec 009); validateBatch runs
 // through runMiddleware, useCollection('directus_flows') is applied in app.module.ts, `next()` to `respond` is
 // respond(). Express 5 has no regular expression route parameters, so the trigger handlers check the uuid themselves.
 import { ErrorCode, isBackofficeError, RouteNotFoundError } from '@backoffice/errors';
@@ -34,7 +34,7 @@ export class FlowsController {
 	}
 
 	private async webhookFlowHandler(req: Request, res: Response): Promise<void> {
-		// Backoffice: no route matches a key that is not a uuid in Directus, so its 404 handler answers.
+		// Backoffice: no route matches a key that is not a uuid in DR, so its 404 handler answers.
 		if (!TRIGGER_PK.test(req.params['pk'] as string)) throw new RouteNotFoundError({ path: req.path });
 
 		const flowManager = getFlowManager();
@@ -42,7 +42,7 @@ export class FlowsController {
 		const { result, cacheEnabled } = await flowManager.runWebhookFlow(
 			`${req.method}-${req.params['pk']}`,
 			{
-				// Backoffice: the path inside the Directus router, without its /flows mount path.
+				// Backoffice: the path inside the DR router, without its /flows mount path.
 				path: req.path.replace(/^\/flows/i, ''),
 				query: req.query,
 				body: req.body,

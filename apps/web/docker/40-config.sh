@@ -1,13 +1,13 @@
 #!/bin/sh
 # Runs from the nginx image entrypoint (/docker-entrypoint.d) at container start: writes config.json and the CSP header
-# from the environment so one image serves every environment (FR-003 of 012, FR-005 of 019). The API URL is the Directus
-# variable PUBLIC_URL (Principle VIII: same env file as Directus, no new variable); default / (API on the same origin).
+# from the environment so one image serves every environment (FR-003 of 012, FR-005 of 019). The API URL is the DR
+# variable PUBLIC_URL (Principle VIII: same env file as DR, no new variable); default / (API on the same origin).
 set -eu
 
 api_url=$(printf '%s' "${PUBLIC_URL:-/}" | sed 's/\\/\\\\/g; s/"/\\"/g')
 printf '{ "apiUrl": "%s" }\n' "$api_url" > /usr/share/nginx/html/admin/config.json
 
-# Same Content-Security-Policy as Directus sends for /admin with the same CONTENT_SECURITY_POLICY_* (csp.awk).
+# Same Content-Security-Policy as DR sends for /admin with the same CONTENT_SECURITY_POLICY_* (csp.awk).
 # Spec 020 (FR-062): the import map of index.html is an inline script, allowed by its hash (written at build); app
 # extension chunks load from the API, so an absolute PUBLIC_URL (API on another origin) adds that origin to script-src.
 hash=$(cat /usr/share/nginx/html/admin/importmap.sha256 2>/dev/null || true)

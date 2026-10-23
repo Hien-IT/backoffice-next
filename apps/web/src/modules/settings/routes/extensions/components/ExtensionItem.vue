@@ -29,7 +29,7 @@ const props = withDefaults(
 	defineProps<{
 		extension: ApiOutput;
 		children?: ApiOutput[];
-		/** Entry of a bundle that is not partial: no menu (Directus hides `.options` there). */
+		/** Entry of a bundle that is not partial: no menu (DR hides `.options` there). */
 		hideOptions?: boolean;
 	}>(),
 	{

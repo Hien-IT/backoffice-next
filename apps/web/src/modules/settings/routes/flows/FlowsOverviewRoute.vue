@@ -1,10 +1,10 @@
 <!-- Ported from directus/app/src/modules/settings/routes/flows/overview.vue -->
 <script setup lang="ts">
 // Backoffice (spec 017 US1, FR-010 to FR-016, recipes Q-2 and Q-33): VTable is BoTable in a `fill` page (D-99: only the
-// table body scrolls, so the header stays fixed as Directus `fixed-header`), the status column is a Badge instead of
+// table body scrolls, so the header stays fixed as DR `fixed-header`), the status column is a Badge instead of
 // the formatted-value display (same two labels), VMenu is BoMenu on a named `more_vert` button, VDialog is BoDialog,
 // VInfo is BoInfo, the header button is BoButton. No breadcrumb (D-101). api goes through the SDK; errors open the error
-// dialog (D-66). The list reads the flows store only: opening the page sends no request, as in Directus (CHK021).
+// dialog (D-66). The list reads the flows store only: opening the page sends no request, as in DR (CHK021).
 import type { FlowRaw } from '@directus/types';
 import { sortBy } from 'lodash-es';
 import { computed, ref } from 'vue';

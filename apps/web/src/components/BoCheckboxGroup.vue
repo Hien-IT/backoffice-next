@@ -28,16 +28,16 @@ const {
 	modelValue?: Value[] | null;
 	items: CheckboxGroupItem[];
 	label?: string;
-	/** Columns from sm up (Directus getMinimalGridClass: grid-2/3/4). */
+	/** Columns from sm up (DR getMinimalGridClass: grid-2/3/4). */
 	columns?: 1 | 2 | 3 | 4;
-	/** Choices shown before "Show N more" (Directus select-multiple-checkbox itemsShown). */
+	/** Choices shown before "Show N more" (DR select-multiple-checkbox itemsShown). */
 	itemsShown?: number;
-	/** Rows with free text values (Directus allowOther). */
+	/** Rows with free text values (DR allowOther). */
 	allowOther?: boolean;
-	/** Custom Material Symbols names for the checked / unchecked states (Directus iconOn / iconOff). */
+	/** Custom Material Symbols names for the checked / unchecked states (DR iconOn / iconOff). */
 	iconOn?: string;
 	iconOff?: string;
-	/** Data color of checked boxes (Directus `color` option), applied with style. */
+	/** Data color of checked boxes (DR `color` option), applied with style. */
 	color?: string;
 	disabled?: boolean;
 	invalid?: boolean;
@@ -61,7 +61,7 @@ const root = useTemplateRef('root');
 
 const value = computed(() => modelValue ?? []);
 
-// Directus select-multiple-checkbox: show more / choicesDisplayed / hiddenCount.
+// DR select-multiple-checkbox: show more / choicesDisplayed / hiddenCount.
 const showAll = ref(false);
 const hideChoices = computed(() => items.length > itemsShown);
 const choicesDisplayed = computed(() => (showAll.value || !hideChoices.value ? items : items.slice(0, itemsShown)));
@@ -77,7 +77,7 @@ function onBlurCustomInput(otherVal: OtherValue) {
 	return (otherVal.value === null || otherVal.value?.length === 0) && setOtherValue(otherVal.key, null);
 }
 
-// Backoffice: Directus autofocuses the new row's input on mount (autofocus-custom-input).
+// Backoffice: DR autofocuses the new row's input on mount (autofocus-custom-input).
 async function addOther() {
 	addOtherValue('', true);
 	await nextTick();

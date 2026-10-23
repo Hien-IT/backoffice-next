@@ -8,8 +8,8 @@ import { sdk } from '../api/sdk.ts';
 import { calls, json, mockApi } from '../test-utils/fetch.ts';
 import { useItems } from './use-items.ts';
 
-// Backoffice: useApi (axios) -> sdk. sdk.request is a spy; the Directus assertions run on `mockApiGet(path, { params })`
-// called with the path and params of each GET command, so they stay as in Directus.
+// Backoffice: useApi (axios) -> sdk. sdk.request is a spy; the DR assertions run on `mockApiGet(path, { params })`
+// called with the path and params of each GET command, so they stay as in DR.
 vi.mock('../api/sdk.ts', async (importOriginal) => {
 	const actual = await importOriginal<typeof import('../api/sdk.ts')>();
 	return { ...actual, sdk: { request: vi.fn() } };
@@ -233,7 +233,7 @@ describe('useItems', () => {
 		);
 	});
 
-	// Backoffice: T017, page back to 1 for each query part the Directus watcher compares.
+	// Backoffice: T017, page back to 1 for each query part the DR watcher compares.
 	test.each([
 		['filter', { id: { _eq: 1 } }],
 		['search', 'x'],
@@ -299,7 +299,7 @@ describe('useItems', () => {
 	});
 
 	// Backoffice: T017, R-38: the aggregate is memoized per url, filter and search, so getItemCount() again (refresh)
-	// shows the cached count without a request, as in Directus.
+	// shows the cached count without a request, as in DR.
 	test('should return the memoized count on getItemCount() with the same key', async () => {
 		vi.mocked(mockApiGet).mockResolvedValue({ data: { data: [{ count: 3, countDistinct: { id: 3 } }] } });
 

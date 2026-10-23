@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/group-detail/group-detail.vue -->
 <script setup lang="ts">
 // Backoffice: VDetail + VDivider become BoDetail (Tier 3 Detail recipe); `headerColor` has no default: without it
-// BoDetail uses the theme title color (Directus: var(--theme--foreground-accent)). The comparison indicator and collab
+// BoDetail uses the theme title color (DR: var(--theme--foreground-accent)). The comparison indicator and collab
 // context are removed (D-54, D-55). Not wrapped in FormField, so no FORM_FIELD_A11Y: the header button is labelled
 // by the group name.
 import formatTitle from '@directus/format-title';

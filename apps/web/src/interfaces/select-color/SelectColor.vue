@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/select-color/select-color.vue -->
 <script setup lang="ts">
 // Backoffice: the picker (hex/RGB/HSL inputs, sliders, native picker, the 9 default presets, low contrast warning,
-// `var(--x)` values) is BoColorPicker; this maps `value`/`input`. `width` only laid out the Directus inputs grid.
+// `var(--x)` values) is BoColorPicker; this maps `value`/`input`. `width` only laid out the DR inputs grid.
 import { inject } from 'vue';
 import BoColorPicker from '../../components/BoColorPicker.vue';
 import { FORM_FIELD_A11Y } from '../../components/form/types.ts';

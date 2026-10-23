@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 018 FR-020, FR-021, FR-106, recipe Q-34): one dashboard tile. The header (icon in the panel color,
 // name, note) is drawn here instead of BoWorkspaceTile's, whose header keeps the flows look; the note is an icon button
-// with a tooltip on hover and focus (Directus: a span with a mouse-only tooltip, "Cần xác nhận"). States as Directus:
+// with a tooltip on hover and focus (DR: a span with a mouse-only tooltip, "Cần xác nhận"). States as DR:
 // spinner on the first load, 50 % opacity while reloading, the error with its code, `no_data`; VErrorBoundary is
 // onErrorCaptured. The tile is a region named after the panel (or its type).
 import { isEmpty } from 'lodash-es';

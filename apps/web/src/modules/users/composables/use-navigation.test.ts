@@ -1,4 +1,4 @@
-// Feature 015 (FR-052, CHK018): directus/app/src/modules/users/composables/use-navigation.ts (no Directus test).
+// Feature 015 (FR-052, CHK018): directus/app/src/modules/users/composables/use-navigation.ts (no DR test).
 import { flushPromises } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/insights/routes/dashboard.vue (Copy To dialog) -->
 <script setup lang="ts">
 // Backoffice (spec 018 FR-026): VDialog -> BoDialog, VSelect -> BoSelect, VNotice -> BoNotice. The copy is a staged
-// duplicate on the chosen dashboard (stagePanelDuplicate), saved with the current dashboard, as Directus.
+// duplicate on the chosen dashboard (stagePanelDuplicate), saved with the current dashboard, as DR.
 import { computed, ref, watch } from 'vue';
 import BoButton from '../../../components/BoButton.vue';
 import BoDialog from '../../../components/BoDialog.vue';

@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/components/v-resizeable.vue -->
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7): v-resizeable sets the width of its first child; the grab bar is dragged with the
-// pointer as in Directus (snap zones, double click resets) and is also a focusable `separator` (design-system XII):
+// pointer as in DR (snap zones, double click resets) and is also a focusable `separator` (design-system XII):
 // Left/Right ±10 px (±50 with Shift, mirrored in RTL), Home/End = min/max width, Enter = the default width. With
-// `alwaysShowHandle` the bar is a border line that turns brand on hover, as Directus.
+// `alwaysShowHandle` the bar is a border line that turns brand on hover, as DR.
 import { useElementVisibility, useEventListener } from '@vueuse/core';
 import { clamp } from 'lodash-es';
 import { computed, ref, watch } from 'vue';

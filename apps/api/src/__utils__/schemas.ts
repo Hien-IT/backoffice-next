@@ -1,5 +1,5 @@
 // Ported from directus/api/src/__utils__/schemas.ts
-// Backoffice: Directus does not typecheck src/__utils__ (tsconfig.prod.json); the fixtures predate FieldOverview.searchable,
+// Backoffice: DR does not typecheck src/__utils__ (tsconfig.prod.json); the fixtures predate FieldOverview.searchable,
 // so the assertions go through unknown.
 import type { CollectionsOverview, Relation } from '@backoffice/types';
 

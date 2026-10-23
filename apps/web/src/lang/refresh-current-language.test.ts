@@ -1,4 +1,4 @@
-// Directus has no test for refresh-current-language.ts (spec 016 T107, FR-086): the custom translations of the user's
+// DR has no test for refresh-current-language.ts (spec 016 T107, FR-086): the custom translations of the user's
 // language load again, then the fields store (field names translate on hydrate); a failure only logs.
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';

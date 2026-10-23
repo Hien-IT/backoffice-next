@@ -3,7 +3,7 @@
 // Backoffice (spec 018 FR-070, recipe Q-38): the notifications button of module-bar-avatar.vue (:56-65) as the round
 // TailAdmin header button with a count badge instead of VBadge (hidden at 0, the button stays usable for the Archive
 // tab; above 99 shows `99+`, the full number is in the accessible name). An sr-only `aria-live="polite"` region
-// announces a changed count (Directus has none). No avatar or sign-out here: those are the UserMenu (D-45). Owner
+// announces a changed count (DR has none). No avatar or sign-out here: those are the UserMenu (D-45). Owner
 // 2026-10-21 (D-132): the button opens the NotificationsPanel popover (latest inbox, mark as read), whose "View all"
 // opens the drawer. At the bottom of the sidebar next to the user menu since 2026-10-22 (D-157).
 import { useEventListener, useThrottleFn } from '@vueuse/core';
@@ -26,7 +26,7 @@ const { unread } = storeToRefs(useNotificationsStore());
 const announcement = ref('');
 watch(unread, (count) => (announcement.value = t('notifications_unread_count', { count })));
 
-// Backoffice (D-116, owner 2026-10-18): Directus never refreshes the count by itself (R-52). Here it is recounted when
+// Backoffice (D-116, owner 2026-10-18): DR never refreshes the count by itself (R-52). Here it is recounted when
 // the browser tab becomes visible again, at most once a minute (no polling while the tab stays open in front).
 const notificationsStore = useNotificationsStore();
 // A failed recount keeps the old count: an ended session is handled by the auth refresh on the same event.

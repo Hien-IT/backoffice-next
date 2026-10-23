@@ -1,4 +1,4 @@
-// Directus has no test for components/v-remove.vue: icon and name per item state, the confirmation when the item has
+// DR has no test for components/v-remove.vue: icon and name per item state, the confirmation when the item has
 // edits (m2o, o2m, m2m, m2a) or `confirm` is set, and the getRemoveAction rule used by the row menus.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
 import { afterEach, beforeEach, describe, expect, test } from 'vitest';

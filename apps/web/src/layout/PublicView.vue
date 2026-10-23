@@ -13,9 +13,9 @@ import { getAssetUrl } from '../utils/get-asset-url.ts';
 import { md } from '../utils/markdown.ts';
 
 defineProps<{
-	/** Spec 020 (Q-45): the wider form column of the Directus `wide` public view (40 rem). */
+	/** Spec 020 (Q-45): the wider form column of the DR `wide` public view (40 rem). */
 	wide?: boolean;
-	/** The Directus shared view of extensions: a 48.125rem column whose wide content scrolls (shared-view.vue:62-81). */
+	/** The DR shared view of extensions: a 48.125rem column whose wide content scrolls (shared-view.vue:62-81). */
 	shared?: boolean;
 }>();
 

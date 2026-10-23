@@ -1,4 +1,4 @@
-// Directus has no test for use-relation-m2o.ts: relation info of the fixture m2o fields (data-model §2).
+// DR has no test for use-relation-m2o.ts: relation info of the fixture m2o fields (data-model §2).
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, expect, test, vi } from 'vitest';
 import { ref } from 'vue';

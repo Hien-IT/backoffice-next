@@ -1,5 +1,5 @@
-// Directus has no test for system-filter (spec FR-041, SC-004). The samples below were recorded on 2026-10-15 on the
-// Directus 11.17.4 app (fixture set bo_*, admin): /admin/content/bo_content → search bar filter button → the steps
+// DR has no test for system-filter (spec FR-041, SC-004). The samples below were recorded on 2026-10-15 on the
+// DR 11.17.4 app (fixture set bo_*, admin): /admin/content/bo_content → search bar filter button → the steps
 // written next to each sample, then the `filter` of the `PATCH /presets/<admin preset of bo_content>` body the app
 // sent. The component must read each one and write it back unchanged, and the same steps here must give the same JSON.
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
@@ -30,7 +30,7 @@ beforeEach(() => {
 	useRelationsStore().relations = snapshot.relations;
 });
 
-/** Filters recorded on the Directus app (see the header), keyed by sample. */
+/** Filters recorded on the DR app (see the header), keyed by sample. */
 const SAMPLES = {
 	// Add Filter → Title; type "Content" (default operator of a string: Contains).
 	title: { _and: [{ title: { _contains: 'Content' } }] },
@@ -200,7 +200,7 @@ describe('system-filter', () => {
 	test.each(Object.keys(SAMPLES) as Sample[])('reads and writes back the Directus filter "%s"', async (name) => {
 		const { wrapper, last } = setup(SAMPLES[name]);
 
-		// A drop (vuedraggable `change`) emits the current tree, as in Directus.
+		// A drop (vuedraggable `change`) emits the current tree, as in DR.
 		wrapper.findComponent(Nodes).vm.$emit('change');
 		expect(last()).toEqual(SAMPLES[name]);
 

@@ -3,7 +3,7 @@
 // Backoffice: recipe layout-patterns §9. The node (child collections, bookmarks, search match) comes from
 // buildNavigationTree; the open state, active state and roving tabindex from ContentNavigation (provide/inject in place
 // of the useGroupable scope `content-navigation` of v-list-group). The admin `edit_collection` context menu is the one
-// menu of ContentNavigation. A group row has its toggle first (Directus: arrow after); a folder (no schema) is not a
+// menu of ContentNavigation. A group row has its toggle first (DR: arrow after); a folder (no schema) is not a
 // link and toggles on click like v-list-group without `to`.
 import { computed, inject } from 'vue';
 import { RouterLink } from 'vue-router';

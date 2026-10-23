@@ -1,6 +1,6 @@
 // Ported from directus/app/src/modules/files/index.ts
 // Backoffice: route components are lazy (bundle budget, plan §Performance); the add-file dialog is the named view
-// `addNew` of the library route (Directus `isFloatingView` meta kept); routes that match nothing show the module
+// `addNew` of the library route (DR `isFloatingView` meta kept); routes that match nothing show the module
 // not-found page (ContentNotFound with `module: 'files'`, FR-001, FR-054); preRegisterCheck as in feature 012.
 import { canRead, defineModule } from './types.ts';
 

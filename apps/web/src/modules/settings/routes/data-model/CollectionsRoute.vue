@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/modules/settings/routes/data-model/collections/collections.vue; Ported from directus/app/src/modules/settings/routes/data-model/collections/components/collection-options.vue -->
 <script setup lang="ts">
 // Backoffice (spec 016 US1, FR-010 to FR-019, recipe Q-20 of layout-patterns §12):
-// - The tree rows are BoSortableList rows of the `collections` group (mouse drag across levels like Directus
+// - The tree rows are BoSortableList rows of the `collections` group (mouse drag across levels like DR
 //   vuedraggable), with the D-96 keyboard items in the row menu after the collection options. The order is saved as
-//   Directus onSort: the store first, then PATCH /collections with `{ collection, meta: { sort, group } }` of the whole
+//   DR onSort: the store first, then PATCH /collections with `{ collection, meta: { sort, group } }` of the whole
 //   target list, not awaited and errors not shown (Clarifications 2026-10-16).
 // - While searching, rows that do not match (nor a descendant) are left out and dragging is off, so a sort never saves
 //   an order with hidden rows in it.
@@ -55,7 +55,7 @@ const childrenOf = (parent: string | null) =>
 
 const rootCollections = computed(() => childrenOf(null));
 
-/** Directus visibilityTree: a collection matches the search, or one of its descendants does. */
+/** DR visibilityTree: a collection matches the search, or one of its descendants does. */
 const visibleIds = computed(() => {
 	const query = search.value?.toLowerCase();
 	const all = collectionsStore.sortedCollections;
@@ -103,7 +103,7 @@ function sortList(list: Collection[], parent: string | null) {
 		return update ? merge({}, collection, update) : collection;
 	});
 
-	// Not awaited and errors not shown, as Directus onSort (spec FR-012, Clarifications 2026-10-16).
+	// Not awaited and errors not shown, as DR onSort (spec FR-012, Clarifications 2026-10-16).
 	sdk.request(requestEndpoint('/collections', { method: 'PATCH', body: updates })).catch(() => undefined);
 }
 

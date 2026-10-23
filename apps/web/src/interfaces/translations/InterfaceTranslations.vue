@@ -1,6 +1,6 @@
 <!-- Ported from directus/app/src/interfaces/translations/translations.vue -->
 <script setup lang="ts">
-// Backoffice: `useWindowSize` of @vueuse/core (same contract as Directus composables/use-window-size.ts);
+// Backoffice: `useWindowSize` of @vueuse/core (same contract as DR composables/use-window-size.ts);
 // use-nested-validation.ts is not ported yet, so its inject (string key `nestedValidation`, no-op default) is inlined
 // in useNestedValidation below; unexpectedError keeps only its console warning until the notifications store (D-45);
 // `getEndpoint` + `fetchAll` go through the SDK (#39). The interface is a group labelled by the field label
@@ -386,7 +386,7 @@ function useNestedValidation() {
 	}
 }
 
-// Backoffice: Directus `ICON_BTN` for the split view toggle (v-icon clickable + tooltip).
+// Backoffice: DR `ICON_BTN` for the split view toggle (v-icon clickable + tooltip).
 const ICON_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 </script>

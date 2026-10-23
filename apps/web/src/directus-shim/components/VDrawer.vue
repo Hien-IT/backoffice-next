@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice (spec 020, data-model §7 #39): v-drawer on BoDrawer, which is already its port (v-drawer-header folded
 // in, same slots and emits; extended with `sidebarLabel`). Every slot is forwarded. An unset `applyShortcut` takes the
-// BoDrawer default meta+enter, as v-dialog does in Directus. Not honoured: `sidebarResizeable` (the BoDrawer sidebar is
+// BoDrawer default meta+enter, as v-dialog does in DR. Not honoured: `sidebarResizeable` (the BoDrawer sidebar is
 // a fixed 240 px panel on the end side, 014 FR-029).
 import BoDrawer from '../../components/drawers/BoDrawer.vue';
 

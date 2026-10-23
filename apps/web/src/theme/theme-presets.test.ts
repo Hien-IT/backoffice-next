@@ -1,5 +1,5 @@
 // The committed theme data (spec FR-084, FR-085, D-89): its shape. scripts/sync-theme-presets.test.ts checks that it
-// equals a new render of the Directus 11.17.4 theme sources.
+// equals a new render of the DR 11.17.4 theme sources.
 import { describe, expect, test } from 'vitest';
 import data from './theme-presets.json';
 

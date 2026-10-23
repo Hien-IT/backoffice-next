@@ -1,9 +1,9 @@
 <!-- Ported from directus/app/src/views/private/components/notification-dialogs.vue; Ported from directus/app/src/views/private/components/notifications-group.vue -->
 <script setup lang="ts">
-// Backoffice: the queue renders as toasts at the bottom end of the screen like the Directus notifications-group (owner
+// Backoffice: the queue renders as toasts at the bottom end of the screen like the DR notifications-group (owner
 // 2026-10-23, D-172 replaces the in-place notices of D-66): opaque cards (recipe Toast of component-specs.md), the
 // type in the icon and a start border. Errors that are not validation errors open a dialog with the error code and
-// message, as Directus.
+// message, as DR.
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { useNotices, type Notice } from '../composables/use-notices.ts';
@@ -40,7 +40,7 @@ const TOAST_TYPES = {
 
 const firstDialog = computed<Notice | undefined>(() => dialogs.value[0]);
 
-/** Directus notification-item: a dismiss action replaces closing the notice. */
+/** DR notification-item: a dismiss action replaces closing the notice. */
 async function dismiss(notice: Notice) {
 	if (notice.dismissAction) await notice.dismissAction();
 	else remove(notice.id);
@@ -56,7 +56,7 @@ function errorMessage(error: unknown): string | null {
 
 <template>
 	<!-- Always in the page so screen readers announce the first notice too (design owner, recipe Q-8, 2026-10-15). Fixed
-	     above drawers and dialogs like the Directus `.overlay` group; full width below sm. -->
+	     above drawers and dialogs like the DR `.overlay` group; full width below sm. -->
 	<div
 		class="pointer-events-none fixed inset-x-4 bottom-4 z-999999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80"
 		role="status"

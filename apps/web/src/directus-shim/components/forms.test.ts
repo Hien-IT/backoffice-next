@@ -1,4 +1,4 @@
-// Spec 020 (T114, data-model §7 rows 21, 74, 76): VForm, DrawerCollection and DrawerItem pass the Directus props to the
+// Spec 020 (T114, data-model §7 rows 21, 74, 76): VForm, DrawerCollection and DrawerItem pass the DR props to the
 // app components; the ignored props (VForm.collabContext, DrawerItem.overlay/popoverProps) are not passed on.
 import { enableAutoUnmount, mount } from '@vue/test-utils';
 import { afterEach, expect, test } from 'vitest';

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/interfaces/select-radio/select-radio.vue -->
 <script setup lang="ts">
 // Backoffice: the VRadio list is BoRadio (Radio recipe, grid from getMinimalGridClass); the "other" row keeps the
-// Directus markup (icon button + input) with the recipe classes. `color` defaults to the theme brand color (BoRadio
+// DR markup (icon button + input) with the recipe classes. `color` defaults to the theme brand color (BoRadio
 // classes) instead of `var(--theme--primary)`; the default iconOn/iconOff draw the recipe radio, other icons are shown.
 import { computed, inject, toRefs, useId, useTemplateRef } from 'vue';
 import { useI18n } from 'vue-i18n';

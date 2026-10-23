@@ -1,4 +1,4 @@
-// Backoffice: Directus has no test for construct-flow-tree.ts (feature 009, research R6)
+// Backoffice: DR has no test for construct-flow-tree.ts (feature 009, research R6)
 import type { FlowRaw, OperationRaw } from '@backoffice/types';
 import { expect, test } from 'vitest';
 import { constructFlowTree } from './construct-flow-tree.js';

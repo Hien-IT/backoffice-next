@@ -98,7 +98,7 @@ export function getRemoveAction(props: RemoveActionProps): {
 
 <script setup lang="ts">
 // Backoffice: the clickable icon and the `button` form are both an icon button (an icon with a click handler is not
-// keyboard usable) whose aria-label is the Directus tooltip text (kept when disabled, where Directus has no tooltip);
+// keyboard usable) whose aria-label is the DR tooltip text (kept when disabled, where DR has no tooltip);
 // the `button` look comes from the `button` prop (spec 020) or the caller's classes through $attrs. The confirm dialog is
 // BoDialog (Reka keeps the focus inside it, so v-prevent-focusout is not needed).
 import { computed, ref } from 'vue';
@@ -126,7 +126,7 @@ const {
 	deselect?: boolean;
 	disabled?: boolean | undefined;
 	confirm?: boolean;
-	/** Directus v-remove `button`: a round filled button instead of the plain icon button (spec 020). */
+	/** DR v-remove `button`: a round filled button instead of the plain icon button (spec 020). */
 	button?: boolean | undefined;
 }>();
 
@@ -154,7 +154,7 @@ function onConfirmDelete() {
 	emit('action');
 }
 
-// Directus `button`: VButton icon rounded (primary kind).
+// DR `button`: VButton icon rounded (primary kind).
 const ROUND_BTN =
 	'inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-white hover:bg-brand-600 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400';
 const ICON_BTN =
