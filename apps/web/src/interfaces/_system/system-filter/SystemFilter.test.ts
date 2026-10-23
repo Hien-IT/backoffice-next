@@ -251,6 +251,23 @@ describe('system-filter', () => {
 		expect(s.last()).toBeNull();
 	});
 
+	test('while a rule is dragged the groups show their drop frame (D-170)', async () => {
+		const s = setup(SAMPLES.orGroup);
+		const lists = s.wrapper.findAllComponents({ name: 'draggable' });
+		const nested = s.wrapper.findAll('ul.group')[1]!;
+
+		expect(nested.classes()).toContain('in-[.bo-filter-dragging]:outline-dashed');
+		expect(document.body.classList.contains('bo-filter-dragging')).toBe(false);
+		lists[1]!.vm.$emit('start', {});
+		expect(document.body.classList.contains('bo-filter-dragging')).toBe(true);
+		lists[1]!.vm.$emit('end', {});
+		expect(document.body.classList.contains('bo-filter-dragging')).toBe(false);
+
+		lists[0]!.vm.$emit('start', {});
+		s.wrapper.unmount();
+		expect(document.body.classList.contains('bo-filter-dragging')).toBe(false);
+	});
+
 	test('And / Or group from the add menu; the field list holds readable fields only', async () => {
 		const s = setup();
 		await openAddFilter(s);

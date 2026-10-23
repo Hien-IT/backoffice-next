@@ -1271,7 +1271,10 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
   the end the row menu (`size-7` `more_vert`) and remove (`hover:text-error-500`). Group rows: a logic chip button
   (`and` `bg-brand-50 text-brand-500`, `or` `bg-orange-50 text-orange-500`, dark `/15`, `text-theme-xs font-semibold`)
   that toggles `_and` / `_or`, children indented `ms-4 border-s border-gray-200 ps-6 dark:border-gray-800`. Deviation:
-  the logic chip is brand / orange like the Directus primary / secondary, not a light Badge.
+  the logic chip is brand / orange like the Directus primary / secondary, not a light Badge. While a row is dragged
+  (D-170, owner 2026-10-23) every nested group shows a drop frame
+  `rounded-e-lg bg-brand-500/5 outline-1 outline-dashed outline-brand-300` (dark `outline-brand-500/40`), an empty one
+  `min-h-8`, through `bo-filter-dragging` on body from the drag start to its end; the Sortable options stay Directus's.
 - Value controls (`InputComponent`): a text input that grows with its text (`size`), Directus patterns and dynamic
   variables (`$NOW(-7 days)`, `$CURRENT_USER`); choices = BoMenu; dates = BoDatePicker in a Popover; json, text, hash,
   geometry = the 013 interface of the same id in a Popover. Deviation: no `allow-other` on choices.

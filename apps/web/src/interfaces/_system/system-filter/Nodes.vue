@@ -5,7 +5,9 @@
 // Directus vuedraggable setup (`:list` changed in place, shared group `g1` so rules move between groups, `change` →
 // emit). D-69: each row also has a menu with "Move up" / "Move down" (same array as a drag inside the list, WCAG
 // 2.1.1, as BoSortableList), focus back on the row menu and a live region saying the new position. Icon buttons
-// are labelled buttons (FR-027). "Wrap in group" of the recipe is not added (no Directus equivalent).
+// are labelled buttons (FR-027). "Wrap in group" of the recipe is not added (no Directus equivalent). Owner 2026-10-23
+// (D-170): while a row is dragged (`bo-filter-dragging` on body from start to end), every AND/OR group shows a faint
+// dashed frame, an empty one 32px high, so the drop target is clear; the Sortable options stay those of Directus.
 import type {
 	FieldFilter,
 	FieldFilterOperator,
@@ -18,7 +20,7 @@ import type {
 import { getFilterOperatorsForType, getOutputTypeForFunction, toArray } from '@directus/utils';
 import { get } from 'lodash-es';
 import { PopoverContent, PopoverPortal, PopoverRoot, PopoverTrigger } from 'reka-ui';
-import { computed, nextTick, ref, toRefs } from 'vue';
+import { computed, nextTick, onUnmounted, ref, toRefs } from 'vue';
 import { useI18n } from 'vue-i18n';
 import Draggable from 'vuedraggable';
 import BoIcon from '../../../components/BoIcon.vue';
@@ -87,6 +89,11 @@ const emit = defineEmits<{
 const { collection } = toRefs(props);
 
 // Backoffice: useSync of @directus/composables, inlined.
+// D-170: a body class while a row is dragged, read by the group frames of every nesting level.
+const DRAGGING = 'bo-filter-dragging';
+const setDragging = (on: boolean) => document.body.classList.toggle(DRAGGING, on);
+onUnmounted(() => setDragging(false));
+
 const filterSync = computed<Filter[]>({
 	get: () => props.filter,
 	set: (value) => emit('update:filter', value),
@@ -377,6 +384,9 @@ function onFocusin(event: FocusEvent) {
 }
 
 // The Directus `.header` pill: input background and a subdued border, as wide as its content.
+// D-170: the frame of a nested group while a row is dragged (an outline, so nothing moves but an empty group).
+const DROP_FRAME =
+	'rounded-e-lg in-[.bo-filter-dragging]:min-h-8 in-[.bo-filter-dragging]:bg-brand-500/5 in-[.bo-filter-dragging]:outline-1 in-[.bo-filter-dragging]:outline-dashed in-[.bo-filter-dragging]:outline-brand-300 dark:in-[.bo-filter-dragging]:outline-brand-500/40';
 const HEADER =
 	'rule-header flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-white py-0.5 ps-1.5 pe-1 text-theme-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
 const CHIP_BTN =
@@ -394,7 +404,7 @@ const POPOVER =
 			draggable=".row"
 			handle=".drag-handle"
 			class="group min-h-2 space-y-1"
-			:class="{ 'ms-4 border-s border-gray-200 ps-6 dark:border-gray-800': depth > 1 }"
+			:class="{ [`ms-4 border-s border-gray-200 ps-6 dark:border-gray-800 ${DROP_FRAME}`]: depth > 1 }"
 			:list="filterSync"
 			:group="{ name: 'g1' }"
 			:item-key="getIndex"
@@ -402,6 +412,8 @@ const POPOVER =
 			ghost-class="opacity-50"
 			v-bind="{ 'force-fallback': true }"
 			@change="$emit('change')"
+			@start="setDragging(true)"
+			@end="setDragging(false)"
 		>
 			<template #item="{ element, index }">
 				<li class="row">
