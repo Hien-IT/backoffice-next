@@ -150,7 +150,7 @@ màu.
 
 | Mục                                                | Spec               | Trạng thái                          |
 | -------------------------------------------------- | ------------------ | ----------------------------------- |
-| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533` | Chưa làm, không chặn đóng           |
+| T075: buổi dùng thử SC-003 với 5 người dùng nội bộ | 012 `tasks.md:533` | Đã làm (owner báo 2026-10-23)       |
 | Q-7: logo, favicon                                 | 012                | Đóng 2026-10-20: giữ chữ "B"        |
 | Q-1..Q-12: recipe design cho màn CMS, SC-009       | 014                | Đóng 2026-10-20: design owner duyệt |
 | D-44: `/register`                                  | 012                | Bỏ (owner 2026-10-20)               |

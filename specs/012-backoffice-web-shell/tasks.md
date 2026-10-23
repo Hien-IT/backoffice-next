@@ -530,9 +530,10 @@ Directus.
 - [X] T073 `graphify update .` sau khi code xong (CLAUDE.md), commit `graphify-out/` nếu thay đổi.
 - [X] T074 Kiểm cuối: `pnpm nx run-many -t lint typecheck test build --projects=web,web-e2e`; E2E ba cấu hình xanh;
   `web:test` coverage ≥ 60% in ra; không hex thô (`web:lint`); `git status` sạch trên `main`.
-- [ ] T075 Phiên dùng thử SC-003 sau khi CI xanh (không chặn đóng feature): 5 người dùng nội bộ quen Directus làm
+- [X] T075 Phiên dùng thử SC-003 sau khi CI xanh (không chặn đóng feature): 5 người dùng nội bộ quen Directus làm
   nhiệm vụ "đăng nhập, mở Files, mở Settings, mở hồ sơ, đăng xuất" không hướng dẫn trên môi trường `proxy-api`;
   ghi thời gian từng người và vướng mắc vào mục "Ghi chú khi làm" của `specs/012-backoffice-web-shell/tasks.md`.
+  — Owner báo đã làm buổi dùng thử với 5 người (2026-10-23); thời gian và vướng mắc chưa ghi vào đây.
 
 ---
 
