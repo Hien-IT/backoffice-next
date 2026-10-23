@@ -1351,8 +1351,9 @@ Built: `modules/content/routes/{CollectionRoute,ItemRoute}.vue`,
   `h-7 w-64 bg-gray-200`).
 - Notices (`NoticeStack` in PrivateView; toasts since D-172, owner 2026-10-23, were under the page header by D-66):
   a `role="status"` `aria-live="polite"` region
-  `pointer-events-none fixed inset-x-4 bottom-4 z-999999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80`
-  at the bottom end like the Directus notifications-group, above drawers and dialogs; one opaque card per notice
+  `pointer-events-none fixed inset-x-4 bottom-4 z-99999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80`
+  at the bottom end like the Directus notifications-group; at the z of menus, popovers, dialogs and drawers, which are
+  teleported after the app and so stay above it (a persistent toast must not block a menu, 2026-10-24); one opaque card per notice
   `pointer-events-auto flex w-full items-start gap-3 rounded-xl border border-s-4 border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900`
   with the type in the start border and the icon (`border-s-<type>-500` also under `dark:`, Alert recipe icon and
   color), title `font-medium`, text, a small ghost `close` Button (`dismiss`); slide in from the end (`motion-safe`).

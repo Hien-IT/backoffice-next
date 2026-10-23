@@ -31,8 +31,8 @@ test('a notice shows as a toast at the bottom end and goes away after 3 s like D
 	await flushPromises();
 	const region = wrapper.get('[role="status"][aria-live="polite"]');
 	expect(region.text()).toContain('Item updated');
-	// Floats at the bottom end over the page and above drawers, like the DR notifications-group overlay.
-	expect(region.classes()).toEqual(expect.arrayContaining(['fixed', 'bottom-4', 'sm:end-6', 'z-999999']));
+	// Floats at the bottom end over the page; z-99999 like menus and drawers, which come later in the DOM and stay above.
+	expect(region.classes()).toEqual(expect.arrayContaining(['fixed', 'bottom-4', 'sm:end-6', 'z-99999']));
 
 	vi.advanceTimersByTime(NOTICE_TIMEOUT);
 	await flushPromises();

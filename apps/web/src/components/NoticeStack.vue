@@ -55,10 +55,11 @@ function errorMessage(error: unknown): string | null {
 </script>
 
 <template>
-	<!-- Always in the page so screen readers announce the first notice too (design owner, recipe Q-8, 2026-10-15). Fixed
-	     above drawers and dialogs like the DR `.overlay` group; full width below sm. -->
+	<!-- Always in the page so screen readers announce the first notice too (design owner, recipe Q-8, 2026-10-15). Fixed at
+	     z-99999 like menus, popovers, dialogs and drawers: those are teleported after the app, so an open menu sits above
+	     a toast and a persistent toast never blocks it (CI 40002428631, row menu "Enable"); full width below sm. -->
 	<div
-		class="pointer-events-none fixed inset-x-4 bottom-4 z-999999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80"
+		class="pointer-events-none fixed inset-x-4 bottom-4 z-99999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80"
 		role="status"
 		aria-live="polite"
 	>
