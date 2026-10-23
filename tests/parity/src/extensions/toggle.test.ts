@@ -24,8 +24,14 @@ const pick = (rows: ExtensionRow[], ids: string[]) =>
 		return row ? { folder: row.folder, enabled: row.enabled } : null;
 	});
 
+// D-174: the synced extension folder is under the working directory of each image (/directus, /backoffice).
+const D174 = /"\/backoffice(\/node_modules\/\.directus\/extensions\/[^/"]+")/g;
+
 /** Status and body without the volatile parts (the response holds the row as stored). */
-const shape = (captured: Captured) => ({ status: captured.status, json: captured.json ?? null });
+const shape = (captured: Captured) => ({
+	status: captured.status,
+	json: JSON.parse(JSON.stringify(captured.json ?? null).replace(D174, '"/directus$1')),
+});
 
 async function scenario(steps: ParityRequest[], watched: string[]) {
 	const out: Record<AppName, unknown[]> = { directus: [], backoffice: [] };

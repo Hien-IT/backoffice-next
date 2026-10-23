@@ -1,11 +1,11 @@
 // Feature 002, research R8: runs clearSystemCache() of the built API inside a running Backoffice container (same
 // image and env), without HTTP. This is how the parity tests make "the new app changed the schema" until the
-// schema endpoints exist (006) and POST /utils/cache/clear (010).
+// schema endpoints exist (006) and POST /utils/cache/clear (010). The image works in /backoffice since D-174.
 import { compose } from '../docker.js';
 
 const SCRIPT = (opts: string) => `
-const { clearSystemCache } = await import('/directus/dist/cache.js');
-const { useRedis } = await import('/directus/dist/redis/index.js');
+const { clearSystemCache } = await import('/backoffice/dist/cache.js');
+const { useRedis } = await import('/backoffice/dist/redis/index.js');
 await clearSystemCache(${opts});
 // PUBLISH schemaChanged is not awaited by clearSystemCache (like Directus): QUIT runs after the pending commands.
 await useRedis().quit();
