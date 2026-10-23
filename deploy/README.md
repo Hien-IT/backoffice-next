@@ -367,7 +367,7 @@ custom migration mới, như N container Directus: thêm custom migration khi ch
 ## Lệnh CLI
 
 Image Backoffice có CLI của Directus 11.17.4 (021): cùng lệnh, option, log và mã thoát, tên chương trình `backoffice`
-(D-147). Chạy `node cli.js <lệnh>` trong thư mục `/directus` của image, trên cùng env với API (cùng DB, Redis, storage):
+(D-147). Chạy `node cli.js <lệnh>` trong thư mục `/backoffice` của image (D-174), trên cùng env với API (cùng DB, Redis, storage):
 
 | Việc                                | Lệnh                                                                                                                               |
 | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |

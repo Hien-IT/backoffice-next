@@ -145,7 +145,7 @@ phải chạy bằng tay.
 
 ### User Story 3 - Lệnh CLI giống Directus trong image Backoffice (Priority: P1)
 
-Đội vận hành chạy `node cli.js <lệnh>` trong thư mục `/directus` của image Backoffice đúng như với image Directus: tạo
+Đội vận hành chạy `node cli.js <lệnh>` trong thư mục `/directus` (từ 2026-10-24 là `/backoffice`, D-174 của 019) của image Backoffice đúng như với image Directus: tạo
 user, đổi mật khẩu, tạo role, xóa cache, đếm item, sinh `KEY`/`SECRET`, snapshot và apply schema, cài DB, chạy hoặc gỡ
 migration. Script và tài liệu viết cho Directus dùng được không sửa.
 

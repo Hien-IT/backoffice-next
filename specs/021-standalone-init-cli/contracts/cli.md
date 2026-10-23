@@ -1,6 +1,6 @@
 # Contract: CLI `node cli.js` (port `directus/api/src/cli`)
 
-Mọi lệnh chạy ở `/directus` của image (`WORKDIR`), đọc cùng env như server. Exit code, stdout và log như Directus
+Mọi lệnh chạy ở `/directus` của image (`WORKDIR`; từ 2026-10-24 là `/backoffice`, D-174 của 019), đọc cùng env như server. Exit code, stdout và log như Directus
 11.17.4 trừ các chuỗi ở mục "Thương hiệu".
 
 ## Cây lệnh (commander 14, `allowExcessArguments`)
