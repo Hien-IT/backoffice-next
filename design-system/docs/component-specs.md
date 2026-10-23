@@ -195,7 +195,10 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
 
 ### Alert (`ui/Alert.vue`)
 
-- Container: `rounded-xl border p-4`; layout `flex items-start gap-3`; icon wrapper `-mt-0.5`, `aria-hidden`
+- Container: `rounded-xl border p-4`; layout `flex items-start gap-3`; icon wrapper `-mt-0.5`, `aria-hidden`. In a form
+  field (`[data-interface]` of BoForm) `in-[[data-interface]]:min-h-11 in-[[data-interface]]:px-3.5 in-[[data-interface]]:py-2.5`:
+  a one-line notice is as high as an input (h-11), like the Directus v-notice, so it lines up with the field beside it
+  (D-178, owner 2026-10-24)
 - success `border-success-500 bg-success-50 dark:border-success-500/30 dark:bg-success-500/15`, icon
   `text-success-600 dark:text-success-500`
 - error `border-error-500 bg-error-50 dark:border-error-500/30 dark:bg-error-500/15`, icon

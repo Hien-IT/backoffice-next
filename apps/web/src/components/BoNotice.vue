@@ -45,12 +45,15 @@ const TYPES = {
 
 // An unknown type (e.g. a form field type falling through to a notice root) gets the normal look, as v-notice.
 const look = computed(() => TYPES[type as keyof typeof TYPES] ?? TYPES.normal);
+// Owner 2026-10-24 (D-178): in a form field (the interface slot of BoForm) a notice is as high as an input, like the DR
+// v-notice (min-block-size: input height, padding 0.6875rem 0.875rem), so it lines up with the field beside it;
+// elsewhere the TailAdmin Alert padding stays.
 </script>
 
 <template>
 	<div
 		:role="type === 'danger' ? 'alert' : type === 'normal' ? undefined : 'status'"
-		class="flex items-start gap-3 rounded-xl border p-4"
+		class="flex items-start gap-3 rounded-xl border p-4 in-[[data-interface]]:min-h-11 in-[[data-interface]]:px-3.5 in-[[data-interface]]:py-2.5"
 		:class="[look.box, { 'justify-center text-center': center }]"
 	>
 		<BoIcon v-if="icon !== false" :name="icon ?? look.icon" class="-mt-0.5" :class="look.iconColor" />
