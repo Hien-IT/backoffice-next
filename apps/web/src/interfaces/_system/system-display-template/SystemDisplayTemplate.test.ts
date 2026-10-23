@@ -1,14 +1,14 @@
-// Feature 016 (T042, D-57): system-display-template, as Directus system-display-template.vue: a template input whose
-// field picker lists the fields of the chosen collection (the form value of collectionField, when that collection
-// exists) and appends `{{ field }}`; the notice when there is no collection.
+// Feature 016 (T042, D-57): system-display-template, as Directus system-display-template.vue: the chip editor
+// (VFieldTemplate, D-166) on the field tree of the chosen collection (the form value of collectionField, when that
+// collection exists); the notice when there is no collection.
 import { flushPromises, mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test } from 'vitest';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
-import BoInput from '../../../components/BoInput.vue';
 import BoNotice from '../../../components/BoNotice.vue';
 import FieldList from '../../../components/FieldList.vue';
+import { FORM_FIELD_A11Y } from '../../../components/form/types.ts';
 import { i18n } from '../../../lang/index.ts';
 import { useCollectionsStore } from '../../../stores/collections.ts';
 import { useFieldsStore } from '../../../stores/fields.ts';
@@ -35,7 +35,15 @@ const mountTemplate = (props: Record<string, unknown>, values = ref<Record<strin
 		props: { value: null, ...props },
 		global: {
 			plugins: [i18n, createRouter({ history: createMemoryHistory(), routes: [{ path: '/', component: {} }] })],
-			provide: { values },
+			provide: {
+				values,
+				[FORM_FIELD_A11Y as symbol]: computed(() => ({
+					inputId: 'f-input',
+					labelId: 'f-label',
+					describedBy: 'f-note',
+					invalid: false,
+				})),
+			},
 		},
 		attachTo: document.body,
 	});
@@ -52,17 +60,22 @@ test('a notice when the form value is not an existing collection (option:system-
 	);
 });
 
-test('typing emits the template, picking a field appends it', async () => {
-	const wrapper = mountTemplate({ collectionField: 'collection', value: 'ID ' }, ref({ collection: 'articles' }));
+test('the value shows as field chips; the menu adds a field; the form label names the textbox (D-166)', async () => {
+	const wrapper = mountTemplate(
+		{ collectionField: 'collection', value: 'ID {{ title }}' },
+		ref({ collection: 'articles' }),
+	);
+	await flushPromises();
 
-	wrapper.findComponent(BoInput).vm.$emit('update:modelValue', '');
-	expect(wrapper.emitted('input')![0]).toEqual([null]);
+	const textbox = wrapper.get('[role="textbox"]');
+	expect(textbox.attributes()).toMatchObject({ 'aria-labelledby': 'f-label', 'aria-describedby': 'f-note' });
+	expect(textbox.get('button.selected-field').attributes('data-field')).toBe('title');
+	expect(textbox.text()).toBe('ID Title');
 
 	(document.querySelector(`button[aria-label="${i18n.global.t('add_field')}"]`) as HTMLButtonElement).click();
 	await flushPromises();
-	const list = wrapper.findComponent(FieldList);
-	expect(list.props('collection')).toBe('articles');
-	list.vm.$emit('add', ['title']);
+	wrapper.findComponent(FieldList).vm.$emit('add', ['title']);
+	await flushPromises();
 
-	expect(wrapper.emitted('input')![1]).toEqual(['ID {{ title }}']);
+	expect(wrapper.emitted('input')!.at(-1)![0]).toContain('{{title}}');
 });
