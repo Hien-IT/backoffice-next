@@ -57,7 +57,8 @@ let fetch: ReturnType<typeof mockApi>;
 
 async function open(component: typeof ProjectRoute) {
 	fetch = mockApi({
-		'PATCH /settings': ({ init }: { init: RequestInit }) => json({ data: { project_name: 'Old', ...JSON.parse(String(init.body)) } }),
+		'PATCH /settings': ({ init }: { init: RequestInit }) =>
+			json({ data: { project_name: 'Old', ...JSON.parse(String(init.body)) } }),
 		'GET /server/info': { project: {}, websocket: false },
 		'GET /auth': [],
 	});
@@ -119,14 +120,18 @@ describe('ProjectRoute', () => {
 	});
 });
 
-test('AppearanceRoute: the theming group and its children only', async () => {
+test('AppearanceRoute: the theming group and its children, without the Directus theme fields (D-168)', async () => {
 	const { wrapper } = await open(AppearanceRoute);
 	const names = formFields(wrapper).map((field) => field.field);
+	const themeFields = ['default_theme_light', 'theme_light_overrides', 'default_theme_dark', 'theme_dark_overrides'];
 
 	expect(names).toEqual(
-		SETTINGS_YAML.filter((f) => f.field === 'theming_group' || f.group === 'theming_group').map((f) => f.field),
+		SETTINGS_YAML.filter((f) => f.field === 'theming_group' || f.group === 'theming_group')
+			.map((f) => f.field)
+			.filter((field) => !themeFields.includes(field)),
 	);
-	expect(names).toEqual(expect.arrayContaining(['project_color', 'default_theme_light', 'custom_css']));
+	expect(names).toEqual(expect.arrayContaining(['project_color', 'default_appearance', 'custom_css']));
+	expect(names).not.toEqual(expect.arrayContaining(['default_theme_light']));
 });
 
 describe('settings.yaml against the registry (FR-072, FR-076)', () => {

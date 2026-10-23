@@ -130,7 +130,21 @@ const title = computed(() => {
 });
 
 // These fields will be shown in the sidebar instead
-const fieldsDenyList = ['id', 'last_page', 'created_on', 'created_by', 'modified_by', 'modified_on', 'last_access'];
+// Backoffice (owner 2026-10-23, D-168): and no Directus theme choice nor theme overrides, which do not change the
+// Backoffice look (D-43, D-88); the values stay in the database for the Directus app.
+const fieldsDenyList = [
+	'id',
+	'last_page',
+	'created_on',
+	'created_by',
+	'modified_by',
+	'modified_on',
+	'last_access',
+	'theme_light',
+	'theme_light_overrides',
+	'theme_dark',
+	'theme_dark_overrides',
+];
 
 const fieldsFiltered = computed(() => {
 	return fields.value

@@ -1,6 +1,6 @@
 // US6 (T064, contracts/e2e.md §2) moved to the user page by feature 015 (FR-051, D-48 lifted, T082): the own page is
-// /users/<id>; the form saves only the changed fields, shows API errors on the field, and language, appearance and
-// theme overrides apply at once and after a reload. "Save and Stay" keeps the page (Save goes to the directory, as in
+// /users/<id>; the form saves only the changed fields, shows API errors on the field, and language and appearance apply
+// at once and after a reload; the theme fields are hidden (D-168) and a stored override still applies. "Save and Stay" keeps the page (Save goes to the directory, as in
 // Directus).
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
@@ -157,15 +157,16 @@ test('appearance dark, light and auto with the system scheme (US6-3, FR-063)', a
 	await expect(page.locator('html')).toHaveClass(/(^|\s)dark(\s|$)/);
 });
 
-test('a light theme override changes the design-system token (US6-4, D-43)', async ({ page }) => {
+test('no Directus theme fields on the user page; a stored light override still sets the token (US6-4, D-43, D-168)', async ({
+	page,
+}) => {
 	await page.emulateMedia({ colorScheme: 'light' });
+	// Set as the Directus app would (D-168: Backoffice no longer edits the theme choice nor the overrides).
+	await api.call('PATCH', `/users/${user.id}`, { data: { theme_light_overrides: { primary: '#aa0000' } } });
 	await openProfile(page);
 
-	// system-theme-overrides (feature 015): the root rules sit in the collapsed "globals" group of the light overrides.
-	const light = page.locator('[data-theme-overrides]').first();
-	await light.getByRole('button', { name: 'globals' }).click();
-	await light.getByRole('textbox', { name: 'primary', exact: true }).fill('#aa0000');
-	await save(page);
+	await expect(page.locator('[data-theme-overrides]')).toHaveCount(0);
+	await expect(page.getByText('Light Theme Customization', { exact: true })).toHaveCount(0);
 	await expect
 		.poll(() =>
 			page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue('--color-brand-500').trim()),

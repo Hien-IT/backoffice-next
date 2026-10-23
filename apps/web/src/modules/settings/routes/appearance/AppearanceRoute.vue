@@ -1,6 +1,8 @@
 <!-- Ported from directus/app/src/modules/settings/routes/appearance/item.vue -->
 <script setup lang="ts">
-// Backoffice (spec 016 US5-5): as ProjectRoute, with the fields of `theming_group` only.
+// Backoffice (spec 016 US5-5): as ProjectRoute, with the fields of `theming_group` only. Owner 2026-10-23 (D-168): no
+// Directus theme choice nor theme overrides (the Backoffice look does not follow them, D-43, D-88); the values stay in
+// the database for the Directus app.
 import { clone } from 'lodash-es';
 import { computed, ref, useTemplateRef } from 'vue';
 import { useRouter } from 'vue-router';
@@ -22,8 +24,19 @@ const serverStore = useServerStore();
 
 const { fields: allFields } = useCollection('directus_settings');
 
+const DIRECTUS_THEME_FIELDS = [
+	'default_theme_light',
+	'theme_light_overrides',
+	'default_theme_dark',
+	'theme_dark_overrides',
+];
+
 const fields = computed(() =>
-	allFields.value.filter((field) => field.meta?.group === 'theming_group' || field.field === 'theming_group'),
+	allFields.value.filter(
+		(field) =>
+			(field.meta?.group === 'theming_group' || field.field === 'theming_group') &&
+			!DIRECTUS_THEME_FIELDS.includes(field.field),
+	),
 );
 
 const initialValues = ref(clone(settingsStore.settings));
