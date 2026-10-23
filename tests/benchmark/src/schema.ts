@@ -32,6 +32,10 @@ const DURATION = Number(process.env['BENCH_DURATION'] ?? 10);
 const WARMUP = 5;
 const CONNECTIONS = 50;
 const HEAVY_CONNECTIONS = 5;
+// A heavy scenario (HEAVY_CONNECTIONS, 150-400 ms of CPU per request) is measured for p95 at 1-4 req/s: in DURATION
+// a round has a few dozen requests, so p95 is about the second slowest and moves 10-15% between rounds of one app (R11
+// of spec 020, owner 2026-10-23). Its p95 rounds last HEAVY_LATENCY_DURATION.
+const HEAVY_LATENCY_DURATION = Number(process.env['BENCH_HEAVY_LATENCY_DURATION'] ?? 30);
 
 type App = 'directus' | 'backoffice';
 
@@ -140,6 +144,8 @@ try {
 		await measure(seeded, s, 'directus', WARMUP);
 		await measure(seeded, s, 'backoffice', WARMUP);
 
+		const latencyDuration = s.connections === HEAVY_CONNECTIONS ? HEAVY_LATENCY_DURATION : DURATION;
+
 		const verdict = await confirmed(async () => {
 			const throughput = { directus: [] as Round[], backoffice: [] as Round[] };
 
@@ -152,8 +158,8 @@ try {
 			const latency = { directus: [] as Round[], backoffice: [] as Round[] };
 
 			for (let i = 0; i < ROUNDS; i++) {
-				latency.directus.push(await measure(seeded, s, 'directus', DURATION, rate));
-				latency.backoffice.push(await measure(seeded, s, 'backoffice', DURATION, rate));
+				latency.directus.push(await measure(seeded, s, 'directus', latencyDuration, rate));
+				latency.backoffice.push(await measure(seeded, s, 'backoffice', latencyDuration, rate));
 			}
 
 			const combine = (t: Round[], l: Round[]) =>

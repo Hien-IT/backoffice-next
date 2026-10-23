@@ -452,6 +452,10 @@ DB mất kết nối khi `CACHE_SCHEMA=false` (D-13). Test: T050, T088.
   chậm hơn cả 10% lẫn 10 ms (`API_FLOOR_MS`, như web dùng 10% và 25 ms). Bằng chứng: benchmark schema run
   39823743161 vẫn đỏ `/collections` và `/relations` của user no-store (p95 +12%, +33%) dù CPU/request của API mới
   thấp hơn; đo ở máy cùng hai request đó không thấy API mới chậm hơn, và khi giãn đều p95 còn 17–23 ms ở cả hai app.
+  (5) Kịch bản nặng của bộ schema (`HEAVY_CONNECTIONS`: `/fields` no-store, `/schema/snapshot`, `/schema/diff`, 150–400
+  ms CPU/request, đo p95 ở 1–4 req/s) đo p95 30 s mỗi vòng thay vì 10 s (`BENCH_HEAVY_LATENCY_DURATION`, owner
+  2026-10-23): 10 s chỉ có vài chục request, p95 gần bằng request chậm thứ hai và lệch 10–15 % giữa các vòng của cùng
+  một app (R11 của spec 020).
 - **Phạm vi ở feature này**: `/server/ping`, `/server/health`, `/server/info` so với Directus cấu hình
   mặc định. `/server/specs/oas` so với một container Directus thứ hai chạy `CACHE_SCHEMA=false`
   (`directus-nocache` trong `tests/benchmark/docker-compose.yml`), vì API mới dựng schema mỗi request
