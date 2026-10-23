@@ -298,3 +298,26 @@ test('a choice whose value is null shows its text when the value is null and can
 	expect(wrapper.emitted('input')).toEqual([[null]]);
 	wrapper.unmount();
 });
+
+test('a divider choice is a line, not an option; disabled choices cannot be picked (metric panel function, Directus v-select)', async () => {
+	const choices = [
+		{ text: 'Count', value: 'count', disabled: false },
+		{ divider: true },
+		{ text: 'Average', value: 'avg', disabled: true },
+	];
+	const wrapper = mount(SelectDropdown, {
+		props: { value: undefined, choices } as never,
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
+
+	// No value: the placeholder, not the divider.
+	expect(wrapper.get('button').text()).toContain(i18n.global.t('select_an_item'));
+
+	await key(wrapper.get('button').element, 'Enter');
+	expect(options().map((option) => option.textContent?.trim())).toEqual(['Count', 'Average']);
+	expect(options()[1]!.hasAttribute('data-disabled')).toBe(true);
+	// Reka SelectSeparator: an aria-hidden line between the two options.
+	expect(options()[0]!.nextElementSibling?.getAttribute('aria-hidden')).toBe('true');
+	wrapper.unmount();
+});

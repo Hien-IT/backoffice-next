@@ -29,7 +29,12 @@ type Option = {
 	icon?: string | null;
 	color?: string | null;
 	children?: Option[];
+	/** A line between choices (`{ divider: true }`, the metric panel function), as the Directus v-select. */
+	divider?: boolean;
+	disabled?: boolean;
 };
+
+const isChoice = (item: Option) => item.divider !== true;
 
 const props = withDefaults(
 	defineProps<{
@@ -116,7 +121,7 @@ watch(
 );
 
 // Backoffice: VSelect displayValue and its prepend slot (global icon, else the choice icon, else its color dot).
-const selectedItem = computed(() => items.value.find((item) => item.value === props.value));
+const selectedItem = computed(() => items.value.find((item) => isChoice(item) && item.value === props.value));
 
 // A choice whose value is null (the appearance "Default (Sync with Project)" of directus_users) shows its text when the
 // value is null, as the Directus v-select does.
@@ -134,6 +139,7 @@ const prepend = computed(() => {
 
 // Backoffice: Reka and BoCombobox take string and number values (boolean choice values are not supported).
 const selectItems = computed(() => items.value as (Option & { value: string | number })[]);
+const choiceItems = computed(() => selectItems.value.filter(isChoice));
 
 // Directus v-select: a search row when there are more than 10 items; it filters on text or value.
 // Backoffice: no 250ms debounce (local filter).
@@ -183,7 +189,7 @@ const DESELECT = '__bo_deselect__';
 const EMPTY = '__bo_empty__';
 // ...nor a null value: a choice whose value is null uses this one.
 const NULL_CHOICE = '__bo_null__';
-const hasNullChoice = computed(() => items.value.some((item) => item.value === null));
+const hasNullChoice = computed(() => items.value.some((item) => isChoice(item) && item.value === null));
 
 /** The Reka value of a choice or of the field value. */
 function toSelectValue(value: unknown) {
@@ -222,7 +228,7 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 			class="min-w-0 flex-1"
 			:aria-describedby="a11y?.describedBy"
 			:model-value="value"
-			:items="selectItems"
+			:items="choiceItems"
 			item-icon="icon"
 			item-color="color"
 			allow-other
@@ -299,19 +305,17 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 						<SelectSeparator class="my-1 h-px bg-gray-200 dark:bg-gray-800" />
 					</template>
 					<p v-if="items.length === 0" :class="NOTE">{{ t('no_options_available') }}</p>
-					<SelectItem
-						v-for="item in visibleItems"
-						:key="String(item.value)"
-						:value="toSelectValue(item.value)"
-						:class="ITEM"
-					>
-						<span class="flex min-w-0 items-center gap-2">
-							<BoIcon v-if="item.icon" :name="item.icon" size="sm" :style="item.color ? { color: item.color } : {}" />
-							<span v-else-if="item.color" :class="DOT" :style="{ backgroundColor: item.color }" aria-hidden="true" />
-							<SelectItemText>{{ item.text }}</SelectItemText>
-						</span>
-						<SelectItemIndicator><BoIcon name="check" size="sm" /></SelectItemIndicator>
-					</SelectItem>
+					<template v-for="(item, index) in visibleItems" :key="item.divider ? `divider-${index}` : String(item.value)">
+						<SelectSeparator v-if="item.divider" class="my-1 h-px bg-gray-200 dark:bg-gray-800" />
+						<SelectItem v-else :value="toSelectValue(item.value)" :disabled="item.disabled === true" :class="ITEM">
+							<span class="flex min-w-0 items-center gap-2">
+								<BoIcon v-if="item.icon" :name="item.icon" size="sm" :style="item.color ? { color: item.color } : {}" />
+								<span v-else-if="item.color" :class="DOT" :style="{ backgroundColor: item.color }" aria-hidden="true" />
+								<SelectItemText>{{ item.text }}</SelectItemText>
+							</span>
+							<SelectItemIndicator><BoIcon name="check" size="sm" /></SelectItemIndicator>
+						</SelectItem>
+					</template>
 				</SelectViewport>
 			</SelectContent>
 		</SelectPortal>
