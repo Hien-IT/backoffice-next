@@ -117,9 +117,12 @@ watch(
 // Backoffice: VSelect displayValue and its prepend slot (global icon, else the choice icon, else its color dot).
 const selectedItem = computed(() => items.value.find((item) => item.value === props.value));
 
-const displayText = computed(() =>
-	props.value === null || props.value === undefined ? '' : String(selectedItem.value?.text || props.value),
-);
+// A choice whose value is null (the appearance "Default (Sync with Project)" of directus_users) shows its text when the
+// value is null, as the Directus v-select does.
+const displayText = computed(() => {
+	if (selectedItem.value) return String(selectedItem.value.text || props.value);
+	return props.value === null || props.value === undefined ? '' : String(props.value);
+});
 
 const prepend = computed(() => {
 	if (showGlobalIcon.value) return { icon: props.icon!, color: null };
@@ -143,8 +146,12 @@ const visibleItems = computed(() => {
 	if (!searchValue) return selectItems.value;
 	return selectItems.value.filter(
 		(item) =>
-			String(item.text ?? '').toLowerCase().includes(searchValue) ||
-			String(item.value ?? '').toLowerCase().includes(searchValue),
+			String(item.text ?? '')
+				.toLowerCase()
+				.includes(searchValue) ||
+			String(item.value ?? '')
+				.toLowerCase()
+				.includes(searchValue),
 	);
 });
 
@@ -168,9 +175,19 @@ function onSearchKeydown(event: KeyboardEvent) {
 const DESELECT = '__bo_deselect__';
 // ...nor an empty value: a choice whose value is '' (tags `whitespace` "remove") uses this one.
 const EMPTY = '__bo_empty__';
+// ...nor a null value: a choice whose value is null uses this one.
+const NULL_CHOICE = '__bo_null__';
+const hasNullChoice = computed(() => items.value.some((item) => item.value === null));
+
+/** The Reka value of a choice or of the field value. */
+function toSelectValue(value: unknown) {
+	if (value === '') return EMPTY;
+	if (value === null || value === undefined) return hasNullChoice.value && value === null ? NULL_CHOICE : '';
+	return value;
+}
 
 function onSelect(value: unknown) {
-	emit('input', value === DESELECT ? null : value === EMPTY ? '' : value);
+	emit('input', value === DESELECT || value === NULL_CHOICE ? null : value === EMPTY ? '' : value);
 }
 
 const FOCUS =
@@ -223,7 +240,13 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 			<BoIcon name="close" />
 		</button>
 	</div>
-	<SelectRoot v-else v-model:open="open" :model-value="value === '' ? EMPTY : (value ?? '')" :disabled="disabled" @update:model-value="onSelect">
+	<SelectRoot
+		v-else
+		v-model:open="open"
+		:model-value="toSelectValue(value)"
+		:disabled="disabled"
+		@update:model-value="onSelect"
+	>
 		<SelectTrigger
 			:id="fieldId"
 			:aria-labelledby="a11y ? `${a11y.labelId} ${fieldId}` : undefined"
@@ -271,7 +294,7 @@ const DOT = 'h-3 w-3 shrink-0 rounded-full';
 					<SelectItem
 						v-for="item in visibleItems"
 						:key="String(item.value)"
-						:value="item.value === '' ? EMPTY : item.value"
+						:value="toSelectValue(item.value)"
 						:class="ITEM"
 					>
 						<span class="flex min-w-0 items-center gap-2">

@@ -167,7 +167,12 @@ describe('select-dropdown', () => {
 		const invalid = mountDropdown(
 			{ choices },
 			{
-				[FORM_FIELD_A11Y]: computed(() => ({ inputId: 'f1', labelId: 'f1-label', describedBy: 'f1-error', invalid: true })),
+				[FORM_FIELD_A11Y]: computed(() => ({
+					inputId: 'f1',
+					labelId: 'f1-label',
+					describedBy: 'f1-error',
+					invalid: true,
+				})),
 			},
 		);
 		const trigger = invalid.get('button');
@@ -229,7 +234,12 @@ describe('select-dropdown', () => {
 		const wrapper = mountDropdown(
 			{ choices, allowOther: true },
 			{
-				[FORM_FIELD_A11Y]: computed(() => ({ inputId: 'f1', labelId: 'f1-label', describedBy: 'f1-error', invalid: true })),
+				[FORM_FIELD_A11Y]: computed(() => ({
+					inputId: 'f1',
+					labelId: 'f1-label',
+					describedBy: 'f1-error',
+					invalid: true,
+				})),
 			},
 		);
 		const input = wrapper.get('input');
@@ -244,10 +254,40 @@ test('a choice whose value is an empty string can be shown and chosen (tags whit
 		{ text: 'Hyphen', value: '-' },
 		{ text: 'Remove', value: '' },
 	];
-	const wrapper = mount(SelectDropdown, { props: { value: '', choices }, global: { plugins: [i18n] }, attachTo: document.body });
+	const wrapper = mount(SelectDropdown, {
+		props: { value: '', choices },
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
 
 	expect(wrapper.text()).toContain('Remove');
 	wrapper.findComponent({ name: 'SelectRoot' }).vm.$emit('update:modelValue', '__bo_empty__');
 	expect(wrapper.emitted('input')).toEqual([['']]);
+	wrapper.unmount();
+});
+
+test('a choice whose value is null shows its text when the value is null and can be chosen (directus_users.appearance)', async () => {
+	const choices = [
+		{ text: 'Default (Sync with Project)', value: null },
+		{ text: 'Light', value: 'light' },
+	];
+	const wrapper = mount(SelectDropdown, {
+		props: { value: null, choices } as never,
+		global: { plugins: [i18n] },
+		attachTo: document.body,
+	});
+
+	expect(wrapper.get('button').text()).toContain('Default (Sync with Project)');
+	expect(wrapper.get('button').text()).not.toContain(i18n.global.t('select_an_item'));
+
+	await key(wrapper.get('button').element, 'Enter');
+	const [nullChoice, light] = options();
+	expect(nullChoice!.textContent).toContain('Default (Sync with Project)');
+	expect(nullChoice!.getAttribute('aria-selected')).toBe('true');
+	expect(light!.getAttribute('aria-selected')).toBe('false');
+
+	await wrapper.setProps({ value: 'light' });
+	wrapper.findComponent({ name: 'SelectRoot' }).vm.$emit('update:modelValue', '__bo_null__');
+	expect(wrapper.emitted('input')).toEqual([[null]]);
 	wrapper.unmount();
 });
