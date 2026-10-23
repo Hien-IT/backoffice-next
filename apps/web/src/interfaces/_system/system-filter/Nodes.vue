@@ -384,9 +384,17 @@ function onFocusin(event: FocusEvent) {
 }
 
 // The Directus `.header` pill: input background and a subdued border, as wide as its content.
-// D-170: the frame of a nested group while a row is dragged (an outline, so nothing moves but an empty group).
-const DROP_FRAME =
-	'rounded-e-lg in-[.bo-filter-dragging]:min-h-8 in-[.bo-filter-dragging]:bg-brand-500/5 in-[.bo-filter-dragging]:outline-1 in-[.bo-filter-dragging]:outline-dashed in-[.bo-filter-dragging]:outline-brand-300 dark:in-[.bo-filter-dragging]:outline-brand-500/40';
+// Owner 2026-10-23 (D-171): an AND/OR group is a TailAdmin card holding its header row (flat, the card is its frame)
+// and its rows, with a 3px start border in the color of its logic chip (brand AND, orange OR); while a row is dragged
+// (D-170) the card border turns dashed brand on a light brand tint and an empty group keeps 32px to drop into.
+const GROUP_CARD =
+	'rounded-xl border border-s-[3px] border-gray-200 bg-gray-50 p-3 shadow-theme-xs dark:border-gray-800 dark:bg-white/[0.03] in-[.bo-filter-dragging]:border-dashed in-[.bo-filter-dragging]:border-brand-300 in-[.bo-filter-dragging]:bg-brand-500/5 dark:in-[.bo-filter-dragging]:border-brand-500/40';
+const GROUP_ACCENT = {
+	_and: 'border-s-brand-400 dark:border-s-brand-500',
+	_or: 'border-s-orange-400 dark:border-s-orange-500',
+};
+const GROUP_HEADER =
+	'rule-header flex w-full flex-wrap items-center gap-1 text-theme-sm text-gray-800 dark:text-white/90';
 const HEADER =
 	'rule-header flex w-fit max-w-full flex-wrap items-center gap-1 rounded-full border border-gray-200 bg-white py-0.5 ps-1.5 pe-1 text-theme-sm text-gray-800 dark:border-gray-700 dark:bg-gray-900 dark:text-white/90';
 const CHIP_BTN =
@@ -404,7 +412,7 @@ const POPOVER =
 			draggable=".row"
 			handle=".drag-handle"
 			class="group min-h-2 space-y-1"
-			:class="{ [`ms-4 border-s border-gray-200 ps-6 dark:border-gray-800 ${DROP_FRAME}`]: depth > 1 }"
+			:class="{ 'mt-2 ps-4 in-[.bo-filter-dragging]:min-h-8': depth > 1 }"
 			:list="filterSync"
 			:group="{ name: 'g1' }"
 			:item-key="getIndex"
@@ -490,8 +498,8 @@ const POPOVER =
 						</div>
 					</div>
 
-					<div v-else class="node logic">
-						<div :class="HEADER">
+					<div v-else class="node logic" :class="[GROUP_CARD, GROUP_ACCENT[filterInfo[index]!.name as '_and' | '_or']]">
+						<div :class="GROUP_HEADER">
 							<BoIcon
 								name="drag_indicator"
 								size="sm"

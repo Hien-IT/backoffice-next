@@ -251,12 +251,14 @@ describe('system-filter', () => {
 		expect(s.last()).toBeNull();
 	});
 
-	test('while a rule is dragged the groups show their drop frame (D-170)', async () => {
+	test('a group is a card with the color of its logic; while a rule is dragged the card is a drop frame (D-170, D-171)', async () => {
 		const s = setup(SAMPLES.orGroup);
 		const lists = s.wrapper.findAllComponents({ name: 'draggable' });
-		const nested = s.wrapper.findAll('ul.group')[1]!;
+		const card = s.wrapper.get('.node.logic');
 
-		expect(nested.classes()).toContain('in-[.bo-filter-dragging]:outline-dashed');
+		expect(card.classes()).toEqual(expect.arrayContaining(['rounded-xl', 'border-s-orange-400']));
+		expect(card.classes()).toContain('in-[.bo-filter-dragging]:border-dashed');
+		expect(s.wrapper.findAll('ul.group')[1]!.classes()).toContain('in-[.bo-filter-dragging]:min-h-8');
 		expect(document.body.classList.contains('bo-filter-dragging')).toBe(false);
 		lists[1]!.vm.$emit('start', {});
 		expect(document.body.classList.contains('bo-filter-dragging')).toBe(true);

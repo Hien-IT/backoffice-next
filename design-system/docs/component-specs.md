@@ -1270,11 +1270,14 @@ Built: `components/SearchInput.vue`, `components/FieldList.vue`,
   in a `POPOVER` `w-80`), operator button (same chip, `font-semibold`, BoMenu of `operators.*`), value control, then at
   the end the row menu (`size-7` `more_vert`) and remove (`hover:text-error-500`). Group rows: a logic chip button
   (`and` `bg-brand-50 text-brand-500`, `or` `bg-orange-50 text-orange-500`, dark `/15`, `text-theme-xs font-semibold`)
-  that toggles `_and` / `_or`, children indented `ms-4 border-s border-gray-200 ps-6 dark:border-gray-800`. Deviation:
-  the logic chip is brand / orange like the Directus primary / secondary, not a light Badge. While a row is dragged
-  (D-170, owner 2026-10-23) every nested group shows a drop frame
-  `rounded-e-lg bg-brand-500/5 outline-1 outline-dashed outline-brand-300` (dark `outline-brand-500/40`), an empty one
-  `min-h-8`, through `bo-filter-dragging` on body from the drag start to its end; the Sortable options stay Directus's.
+  that toggles `_and` / `_or`. Deviation: the logic chip is brand / orange like the Directus primary / secondary, not a
+  light Badge. A group (D-171, owner 2026-10-23; Directus indents the children under a pill header) is a card
+  `rounded-xl border border-s-[3px] border-gray-200 bg-gray-50 p-3 shadow-theme-xs` (dark `border-gray-800
+  bg-white/[0.03]`) whose start border takes the logic color (`border-s-brand-400` AND, `border-s-orange-400` OR; dark
+  `-500`); its header row is flat (`flex w-full items-center gap-1`, no pill, the menu and remove at the end) and its
+  rows sit inside (`mt-2 ps-4`). While a row is dragged (D-170) `bo-filter-dragging` is on body from the drag start to
+  its end: the card border turns `border-dashed border-brand-300` (dark `border-brand-500/40`) on `bg-brand-500/5` and an
+  empty group keeps `min-h-8`; the Sortable options stay Directus's.
 - Value controls (`InputComponent`): a text input that grows with its text (`size`), Directus patterns and dynamic
   variables (`$NOW(-7 days)`, `$CURRENT_USER`); choices = BoMenu; dates = BoDatePicker in a Popover; json, text, hash,
   geometry = the 013 interface of the same id in a Popover. Deviation: no `allow-other` on choices.
