@@ -229,6 +229,28 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason: 'No project owner report to COMPLIANCE_URL: a warning line, project_status null as after a sent report.',
 	},
 	{
+		id: 'D-174',
+		feature: '019',
+		kind: 'http',
+		endpoints: ['* /extensions', '* /extensions/*', '* /graphql/system'],
+		excludeEndpoints: ['* /extensions/sources/*'],
+		location: { jsonPointer: /\/schema\/path$/ },
+		// The matchers are checked one by one: each pins the whole shape, the extension folder name being free.
+		directus: /^\/directus\/node_modules\/\.directus\/extensions\/[^/]+$/,
+		backoffice: /^\/backoffice\/node_modules\/\.directus\/extensions\/[^/]+$/,
+		reason:
+			'The API image works in /backoffice (D-174): the synced extension folder is under its own working directory, the rest of the path is the same.',
+	},
+	{
+		id: 'D-174',
+		feature: '019',
+		kind: 'http',
+		endpoints: ['GET /extensions', 'GET /extensions/*'],
+		excludeEndpoints: ['* /extensions/sources/*'],
+		location: { header: 'etag' },
+		reason: 'The weak ETag of an /extensions body that differs only by the schema.path prefix of D-174.',
+	},
+	{
 		id: 'D-137',
 		feature: '020',
 		kind: 'http',
