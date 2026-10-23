@@ -74,13 +74,16 @@ function run(ctx: CanvasRenderingContext2D, phase: number) {
 	}
 }
 
+/** Wheel radius: the rims keep a margin inside the favicon circle. */
+const WHEEL = 9;
+
 function bike(ctx: CanvasRenderingContext2D, phase: number, frame: number) {
-	const rear: Point = [16, 45];
-	const front: Point = [48, 45];
-	const crank: Point = [31, 45];
-	const seat: Point = [27, 32];
-	const bar: Point = [43, 30];
-	const hip: Point = [27, 29];
+	const rear: Point = [18, 44];
+	const front: Point = [46, 44];
+	const crank: Point = [32, 44];
+	const seat: Point = [28, 32];
+	const bar: Point = [42, 30];
+	const hip: Point = [28, 29];
 	const shoulder: Point = [38, 20];
 	const pedal = (k: number): Point => [
 		crank[0] + 5.5 * Math.cos(phase + k * Math.PI),
@@ -91,12 +94,12 @@ function bike(ctx: CanvasRenderingContext2D, phase: number, frame: number) {
 	for (const center of [rear, front]) {
 		ctx.lineWidth = 3;
 		ctx.beginPath();
-		ctx.arc(center[0], center[1], 10.5, 0, TAU);
+		ctx.arc(center[0], center[1], WHEEL, 0, TAU);
 		ctx.stroke();
 
 		for (let j = 0; j < 3; j++) {
 			const angle = (frame * TAU) / 18 + (j * TAU) / 3;
-			line(ctx, 2, center, [center[0] + 10.5 * Math.cos(angle), center[1] + 10.5 * Math.sin(angle)]);
+			line(ctx, 2, center, [center[0] + WHEEL * Math.cos(angle), center[1] + WHEEL * Math.sin(angle)]);
 		}
 	}
 
@@ -108,7 +111,7 @@ function bike(ctx: CanvasRenderingContext2D, phase: number, frame: number) {
 	line(ctx, 4.5, hip, knee(hip, pedal(1), 11.5), pedal(1));
 	ctx.globalAlpha = 1;
 	line(ctx, 5.5, hip, shoulder);
-	line(ctx, 4, shoulder, [44, 27]);
+	line(ctx, 4, shoulder, [43, 28]);
 	dot(ctx, [42, 12], 5.5);
 	line(ctx, 4.5, hip, knee(hip, pedal(0), 11.5), pedal(0));
 }
