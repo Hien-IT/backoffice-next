@@ -33,6 +33,9 @@ Pages without the shell (sign in, 404) use `FullScreenLayout`: `div.min-h-screen
 - App icon (D-159): without a `project_logo` the default icon `src/assets/logo.png` (256 px, transparent) shows as is;
   the public pages show it at `size-12` and keep the project color tile for an uploaded `project_logo`. The default
   favicon is `public/favicon.ico` from the same icon.
+  While API requests run the favicon cycles three Material Symbols frames, run → bike → swim, white on a circle in
+  the project color (D-173, `theme/use-favicon-loader.ts`, 250 ms a frame, a started cycle ends first; none with
+  reduced motion).
 - Column `aside#navigation` (`aria-label` `navigation`): from `xl` `fixed inset-y-0 start-0 w-[290px]`, the content
   `xl:ms-[290px]`; the header toggle (always shown) hides the whole column (saved in `backoffice-nav-bar-collapsed`, no
   rail); below `xl` the same column is the drawer of §3.

@@ -15,6 +15,7 @@ import { cssVar } from '../utils/css-var.ts';
 import { generateFavicon } from '../utils/generate-favicon.ts';
 import { getAssetUrl } from '../utils/get-asset-url.ts';
 import { overridesToCss } from './override-map.ts';
+import { useFaviconLoader } from './use-favicon-loader.ts';
 import { useThemeConfiguration } from './use-theme-configuration.ts';
 
 export const DEFAULT_PROJECT_NAME = 'Backoffice';
@@ -86,6 +87,9 @@ export function useAppHead() {
 
 	const projectColor = computed(() => safeColor(serverStore.info?.project?.project_color));
 
+	// D-173: the running → cycling → swimming favicon while requests run.
+	const loadingFavicon = useFaviconLoader(computed(() => projectColor.value ?? cssVar('--color-brand-500')));
+
 	const brandStyleCss = computed(() => {
 		if (!projectColor.value) return `:root { --project-color: var(--color-brand-500); ${projectForegroundCss(null)} }`;
 		return `:root { --project-color: ${projectColor.value}; ${brandScaleCss(projectColor.value)} ${projectForegroundCss(projectColor.value)} }`;
@@ -128,7 +132,9 @@ export function useAppHead() {
 		link: computed(() => {
 			let href: string;
 
-			if (serverStore.info?.project?.public_favicon) {
+			if (loadingFavicon.value) {
+				href = loadingFavicon.value;
+			} else if (serverStore.info?.project?.public_favicon) {
 				href = getAssetUrl(serverStore.info.project.public_favicon);
 			} else if (projectColor.value) {
 				href = generateFavicon(projectColor.value, !!serverStore.info.project?.project_logo === false);
