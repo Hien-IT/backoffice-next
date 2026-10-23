@@ -2,8 +2,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { effectScope, ref } from 'vue';
 import { useRequestsStore } from '../stores/requests.ts';
-import { knee, SPRITE_FRAMES, SPRITES } from './favicon-sprites.ts';
-import { drawFaviconFrame, FAVICON_CYCLES, FAVICON_FRAME_MS, useFaviconLoader } from './use-favicon-loader.ts';
+import { knee, SPRITE_CYCLES, SPRITE_FRAMES, timeline, TRANSITION_FRAMES } from './favicon-sprites.ts';
+import { drawFaviconFrame, FAVICON_FRAME_MS, useFaviconLoader } from './use-favicon-loader.ts';
 
 // Chromium: the frames need a canvas.
 const COLOR = '#465fff'; // raw-color-allowed: test color
@@ -16,13 +16,21 @@ beforeEach(() => {
 
 afterEach(() => scope.stop());
 
-test('every frame of every sprite is a different drawing', () => {
-	const frames = SPRITES.flatMap((sprite) =>
-		Array.from({ length: SPRITE_FRAMES }, (_, frame) => drawFaviconFrame(sprite, frame, COLOR)),
-	);
+test('every frame of a gait cycle and of a change is a different drawing', () => {
+	const steps = timeline();
+	const frames = steps.map(({ scene }) => drawFaviconFrame(scene, COLOR));
 
+	expect(steps).toHaveLength(3 * (SPRITE_FRAMES * SPRITE_CYCLES + TRANSITION_FRAMES));
 	expect(frames.every((frame) => frame?.startsWith('data:image/png'))).toBe(true);
-	expect(new Set(frames).size).toBe(SPRITES.length * SPRITE_FRAMES);
+	// The second gait cycle of a sport repeats the first one.
+	expect(new Set(frames).size).toBe(3 * (SPRITE_FRAMES + TRANSITION_FRAMES));
+});
+
+test('the animation may stop at the start of a gait cycle only, never inside a change', () => {
+	const stops = timeline().flatMap(({ stop }, i) => (stop ? [i] : []));
+	const sport = SPRITE_FRAMES * SPRITE_CYCLES + TRANSITION_FRAMES;
+
+	expect(stops).toEqual([0, 6, sport, sport + 6, 2 * sport, 2 * sport + 6]);
 });
 
 test('the knee joins two equal segments and bends toward the front', () => {
@@ -43,7 +51,7 @@ test('the sprites play while a request runs, then the gait cycle ends and the no
 
 	const seen = new Set<string>();
 	const sample = setInterval(() => href.value && seen.add(href.value), 10);
-	await new Promise((resolve) => setTimeout(resolve, FAVICON_FRAME_MS * SPRITE_FRAMES * FAVICON_CYCLES * 1.5));
+	await new Promise((resolve) => setTimeout(resolve, FAVICON_FRAME_MS * SPRITE_FRAMES * SPRITE_CYCLES * 1.5));
 	store.endRequest(id);
 	await vi.waitFor(() => expect(href.value).toBeNull(), { timeout: FAVICON_FRAME_MS * (SPRITE_FRAMES + 2) });
 	clearInterval(sample);
