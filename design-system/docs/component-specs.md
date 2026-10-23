@@ -607,6 +607,23 @@ Shared parts (each component declares the constants it uses locally; there is no
 - Keyboard (Reka): Enter adds, Backspace in the empty input selects the last tag, Left/Right move between tags,
   Backspace/Delete remove the active tag.
 
+### FieldTemplate (`VFieldTemplate`; Directus `v-field-template`, `system-display-template`)
+
+- Built: `directus-shim/components/VFieldTemplate.vue` (spec 020, Q-44); used by `system-display-template` since
+  D-166 (owner 2026-10-23: the display template of relational fields and collections shows field chips like Directus)
+  and by `VCollectionFieldTemplate`.
+- Field: `relative flex h-11 w-full items-center gap-2 rounded-lg border border-gray-300 ps-4 pe-1.5 text-sm
+  shadow-theme-xs focus-within:border-brand-500 focus-within:ring-3 focus-within:ring-brand-500/10` (dark
+  `border-gray-700 bg-gray-900 text-white/90`); disabled `border-gray-100 bg-gray-50 text-gray-500`.
+- Content: a `contenteditable` `role="textbox"` in `font-mono text-theme-xs`, one line; the text between fields stays
+  text, each `{{ field }}` is a chip button `.selected-field` `mx-1 rounded-md bg-brand-50 px-1 text-brand-600` (dark
+  `bg-brand-500/15 text-brand-400`) with the field name, `data-field` the path; hover `bg-error-600 text-white` (a
+  click, Enter or Space removes it).
+- Field menu: the `add` icon button `h-8 w-8` at the end, or `{` / `}` typed in the textbox, opens a Reka popover with
+  `FieldList` on the collection tree (relational paths load per level); the chosen field is inserted at the caret.
+- Labels: the textbox takes `aria-label` or `aria-labelledby` (a form label names it through `aria-labelledby`, a
+  `contenteditable` is not labelable by `for`) and the form `aria-describedby`.
+
 ### Tabs (`BoTabs`; Directus `group-tabs`)
 
 - Built: `components/BoTabs.vue`, `interfaces/group-tabs/GroupTabs.vue`.

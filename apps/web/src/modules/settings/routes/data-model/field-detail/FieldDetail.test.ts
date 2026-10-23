@@ -160,6 +160,29 @@ test('advanced mode: the tabs of an m2m field; an existing field opens advanced'
 	expect(document.querySelector(`button[aria-label="${t('save')}"]`)!.hasAttribute('disabled')).toBe(true);
 });
 
+test('advanced mode from 1024px (D-167): the tab content on the page tint, the tab list white, the drawer 5xl wide', async () => {
+	const matchMedia = window.matchMedia;
+	window.matchMedia = ((query: string) => ({
+		matches: query.includes('min-width: 1024px'),
+		media: query,
+		addEventListener: () => {},
+		removeEventListener: () => {},
+	})) as never;
+
+	try {
+		await open(`/settings/data-model/${COLLECTION}/+?type=m2m`);
+
+		const panel = document.querySelector('[role="tabpanel"]')!;
+		expect(panel.className).toContain('bg-(--project-tint)');
+		expect(panel.className).toContain('overflow-y-auto');
+		expect(document.querySelector('[role="tablist"]')!.className).not.toContain('project-tint');
+		expect(document.querySelector('[role="tablist"]')!.getAttribute('aria-orientation')).toBe('vertical');
+		expect(document.querySelector('.bo-drawer')!.className).toContain('max-w-5xl');
+	} finally {
+		window.matchMedia = matchMedia;
+	}
+});
+
 test.each([
 	['a field that does not exist', `/settings/data-model/${COLLECTION}/nope`],
 	['an unknown ?type=', `/settings/data-model/${COLLECTION}/+?type=weird`],
