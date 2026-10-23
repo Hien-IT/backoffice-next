@@ -79,8 +79,18 @@ const tabs = computed(() => {
 </script>
 
 <template>
-	<div class="p-6">
-		<BoTabs v-model="currentTab" :items="tabs" :label="$t('field', 1)" :orientation="wide ? 'vertical' : 'horizontal'">
+	<!-- Owner 2026-10-23 (D-167): like the Directus drawer, the tab content sits on the project color tint of the page
+	     (scrolling on its own) and the tab list on white; below 1024px the tabs are above the content as before. -->
+	<div class="flex min-h-0 flex-1 flex-col" :class="{ 'custom-scrollbar overflow-y-auto p-6': !wide }">
+		<BoTabs
+			v-model="currentTab"
+			:items="tabs"
+			:label="$t('field', 1)"
+			:orientation="wide ? 'vertical' : 'horizontal'"
+			:class="{ 'min-h-0 flex-1 items-stretch! gap-0!': wide }"
+			:list-class="wide ? 'box-content p-6' : undefined"
+			:content-class="wide ? 'custom-scrollbar overflow-y-auto bg-(--project-tint) p-6 dark:bg-transparent' : undefined"
+		>
 			<template #content="{ item }">
 				<AdvancedSchema v-if="item.value === 'schema'" />
 				<AdvancedRelationship v-if="item.value === 'relationship'" />

@@ -12,13 +12,16 @@ export interface TabItem {
 // mirrors the arrow keys in rtl). `orientation="vertical"` (016, research R13): the list is a column at the start of
 // the drawer (Q-22, Q-23), Up/Down move between tabs; callers switch back to horizontal on narrow screens. Feature 018
 // (Q-39): `list-append` adds content under the list (the Activity link of the notifications drawer), outside the
-// tablist; the wrapper is `display: contents` in horizontal mode.
+// tablist; the wrapper is `display: contents` in horizontal mode. `listClass` and `contentClass` (D-167) add classes to
+// the tab list and the tab panels.
 const {
 	items,
 	label,
 	fillWidth = false,
 	dir,
 	orientation = 'horizontal',
+	listClass,
+	contentClass,
 } = defineProps<{
 	items: TabItem[];
 	/** Accessible name of the tab list. */
@@ -26,6 +29,8 @@ const {
 	fillWidth?: boolean | undefined;
 	dir?: 'ltr' | 'rtl' | undefined;
 	orientation?: 'horizontal' | 'vertical' | undefined;
+	listClass?: string | undefined;
+	contentClass?: string | undefined;
 }>();
 
 const HORIZONTAL_LIST = 'no-scrollbar flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800';
@@ -50,7 +55,7 @@ const [DefineList, ReuseList] = createReusableTemplate();
 		:class="{ 'flex items-start gap-6': orientation === 'vertical' }"
 	>
 		<DefineList>
-			<TabsList :aria-label="label" :class="orientation === 'vertical' ? VERTICAL_LIST : HORIZONTAL_LIST">
+			<TabsList :aria-label="label" :class="[orientation === 'vertical' ? VERTICAL_LIST : HORIZONTAL_LIST, listClass]">
 				<TabsTrigger
 					v-for="item in items"
 					:key="item.value"
@@ -81,7 +86,7 @@ const [DefineList, ReuseList] = createReusableTemplate();
 			:key="item.value"
 			:value="item.value"
 			class="focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 dark:focus-visible:outline-brand-400"
-			:class="orientation === 'vertical' ? 'min-w-0 flex-1' : 'pt-5'"
+			:class="[orientation === 'vertical' ? 'min-w-0 flex-1' : 'pt-5', contentClass]"
 		>
 			<slot name="content" :item="item" />
 		</TabsContent>

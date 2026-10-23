@@ -3,6 +3,8 @@
 :root {
 	/* project_color of the settings, set by the app head (FR-031); the theme primary until then. */
 	--project-color: var(--color-brand-500);
+	/* The light page and drawer background (D-152, D-167): a project color tint like the Directus Color Match theme. */
+	--project-tint: color-mix(in srgb, var(--color-white), var(--project-color) 5%);
 	/* Text and module tiles on the project color (D-163), the values projectForegroundCss gives the theme primary. */
 	--project-foreground: var(--color-white);
 	--project-tile: color-mix(in srgb, var(--project-color), var(--color-gray-950) 10%);
@@ -50,7 +52,7 @@
 		/* Owner 2026-10-22 (D-152): the page background is a light project color tint like the Directus Color Match theme,
 		   5% instead of its 7% so brand-500 text on it keeps 4.5:1 (4.53:1 with the default project color); dark keeps
 		   the theme gray-900 (no dark Color Match). */
-		background-color: color-mix(in srgb, var(--color-white), var(--project-color) 5%);
+		background-color: var(--project-tint);
 		@apply text-gray-800 dark:bg-gray-900 dark:text-white/90;
 	}
 

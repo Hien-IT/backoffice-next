@@ -382,6 +382,8 @@ surface changes.
   the page and the panel share `gray-900`, 016).
 - Panel:
   `fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden xl:w-[640px] dark:border-s dark:border-gray-800 dark:bg-gray-900`
+  (D-167, owner 2026-10-23: in the field detail drawer the tab content is on the project color tint of the page,
+  `--project-tint` in `base.css`, the header and the tab list on white, like the Directus drawer)
   (640px from `xl`; below `xl` full width like the L-4 drawer). Enter / exit: slide from the end side (250 ms in, 200 ms
   out, mirrored in RTL) and overlay fade, both off under `prefers-reduced-motion: reduce`.
 - Header: `flex items-center gap-3 border-b border-gray-200 px-6 py-4 dark:border-gray-800`:

@@ -143,7 +143,7 @@ const FOCUS =
 			/>
 			<DialogContent
 				class="bo-drawer fixed inset-y-0 end-0 z-99999 flex w-full flex-col bg-white shadow-theme-xl outline-hidden dark:border-s dark:border-gray-800 dark:bg-gray-900"
-				:class="flush ? '' : wide ? 'max-w-5xl' : $slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
+				:class="wide ? 'max-w-5xl' : flush ? '' : $slots['sidebar'] ? 'xl:w-[880px]' : 'xl:w-[640px]'"
 				:data-depth="depth"
 				v-bind="subtitle ? {} : { 'aria-describedby': undefined }"
 				@escape-key-down="onEscape"

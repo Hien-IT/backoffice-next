@@ -116,6 +116,7 @@ async function save() {
 		:title="title"
 		icon="add"
 		wide
+		:flush="showAdvanced"
 		persistent
 		@cancel="cancel"
 		@apply="save"
