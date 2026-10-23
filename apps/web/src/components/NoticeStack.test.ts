@@ -24,12 +24,15 @@ const mountStack = () => {
 	return wrapper;
 };
 
-test('a notice shows under the page header and goes away after 3 s like Directus', async () => {
+test('a notice shows as a toast at the bottom end and goes away after 3 s like Directus (D-172)', async () => {
 	const wrapper = mountStack();
 
 	notify({ title: 'Item updated' });
 	await flushPromises();
-	expect(wrapper.get('[role="status"][aria-live="polite"]').text()).toContain('Item updated');
+	const region = wrapper.get('[role="status"][aria-live="polite"]');
+	expect(region.text()).toContain('Item updated');
+	// Floats at the bottom end over the page and above drawers, like the Directus notifications-group overlay.
+	expect(region.classes()).toEqual(expect.arrayContaining(['fixed', 'bottom-4', 'sm:end-6', 'z-999999']));
 
 	vi.advanceTimersByTime(NOTICE_TIMEOUT);
 	await flushPromises();

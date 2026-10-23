@@ -1340,12 +1340,17 @@ Built: `modules/content/routes/{CollectionRoute,ItemRoute}.vue`,
   `inline-block h-6 w-48 animate-pulse rounded-lg bg-gray-100 align-middle motion-reduce:animate-none dark:bg-gray-800`
   with `aria-label` `loading`. Deviation: `h-6 w-48 bg-gray-100` like the drawer title skeleton of §8 (the draft said
   `h-7 w-64 bg-gray-200`).
-- Notices (D-66, `NoticeStack` in PrivateView): under the page header, `flex flex-col gap-2` `role="status"`
-  `aria-live="polite"`, one BoNotice per notice (title `font-medium`, text) with a ghost `close` Button (`dismiss`);
-  notices that are not `persist` go after 3 s (Directus notifications store); unexpected errors open a BoDialog with the
-  title, text and `[code] message` in a `pre` (`rounded-lg bg-gray-100 p-3 text-theme-xs`), Dismiss. The live region is
-  always in the page (empty without notices, `mb-4` only with notices) so the first notice is announced too (design
-  owner, 2026-10-15).
+- Notices (`NoticeStack` in PrivateView; toasts since D-172, owner 2026-10-23, were under the page header by D-66):
+  a `role="status"` `aria-live="polite"` region
+  `pointer-events-none fixed inset-x-4 bottom-4 z-999999 flex flex-col items-end gap-2 sm:start-auto sm:end-6 sm:bottom-6 sm:w-80`
+  at the bottom end like the Directus notifications-group, above drawers and dialogs; one opaque card per notice
+  `pointer-events-auto flex w-full items-start gap-3 rounded-xl border border-s-4 border-gray-200 bg-white p-3 shadow-theme-lg dark:border-gray-800 dark:bg-gray-900`
+  with the type in the start border and the icon (`border-s-<type>-500` also under `dark:`, Alert recipe icon and
+  color), title `font-medium`, text, a small ghost `close` Button (`dismiss`); slide in from the end (`motion-safe`).
+  Not a tinted BoNotice: a translucent dark background would show the page under it. Notices that are not `persist`
+  go after 3 s (Directus notifications store); unexpected errors open a BoDialog with the title, text and
+  `[code] message` in a `pre` (`rounded-lg bg-gray-100 p-3 text-theme-xs`), Dismiss. The live region is always in the
+  page (empty without notices) so the first notice is announced too (design owner, 2026-10-15).
 
 ### Detail panel sections (Q-9; `SidebarDetail`; Directus `sidebar-detail`)
 

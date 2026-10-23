@@ -649,7 +649,7 @@ của SC-002.
 
 **Thông báo thành công/lỗi toàn app (US7)**
 
-- **FR-080**: `notify` PHẢI giữ notice tại chỗ dưới page header (`NoticeStack` 012, recipe Q-8) cho mọi màn, gồm màn
+- **FR-080**: `notify` PHẢI giữ notice tại chỗ dưới page header (`NoticeStack` 012, recipe Q-8; từ 2026-10-23 là toast góc dưới phải, D-172) cho mọi màn, gồm màn
   mới của 018; không port snackbar `notifications-group.vue` (owner chọn A, Clarifications 2026-10-17). D-66 (013) giữ,
   phạm vi mở rộng sang 018; các màn 013–017 không đổi.
 - **FR-081**: `showUnexpectedError` (012, `use-notices`) PHẢI hiện hộp lỗi như `notification-dialogs.vue` (tiêu đề
@@ -779,6 +779,7 @@ giữ và áp cho màn mới của 018 (FR-080).
 | D-117 | Tên collection hệ thống (cột Collection của Activity, cây Content, Settings…) | `formatTitle("directus_users")` = "Directus Users" | Bỏ tiền tố `directus_`: "Users", "Dashboards"; bản dịch tên collection vẫn ưu tiên | Không hiện chữ "Directus" cho người dùng Backoffice (D-51 của 012); chủ dự án 2026-10-18 | đổi thương hiệu | — |
 | D-118 | Khóa collection hệ thống ở Settings → Data Model và ma trận quyền của policy | `directus_access`…; ghi chú chưa dịch hiện nguyên khóa (`directus_collection.directus_deployment_projects`) | Hiện `backoffice_access`… (chỉ hiển thị, khóa thật và route giữ `directus_`); ghi chú chỉ là khóa chưa dịch thì ẩn | Không hiện chữ "Directus" (D-51); chủ dự án 2026-10-18 | đổi thương hiệu | — |
 | D-119 | Chọn chữ và kéo-thả gốc trên tile dashboard ở chế độ sửa | `user-select: none` chỉ khi đang kéo; không chặn `dragstart` | Tile Insights ở chế độ sửa (`unselectable`) không chọn được chữ và chặn `dragstart`; canvas flows giữ như Directus | Trên webkit, vùng chữ bị chọn từ lần kéo trước biến lần kéo sau thành kéo-thả gốc, tile dừng sau ô đầu (CI 39076577997); chủ dự án 2026-10-18 chọn chỉ Insights | khác | — |
+| D-172 | Vị trí thông báo thành công/lỗi ngắn của `notify` (Item Deleted, lưu, nhập file...) | Snackbar `notifications-group.vue` ở góc dưới phải, rộng 14.375rem, trượt vào | Toast ở góc dưới phải (`NoticeStack`, `fixed bottom-4 sm:bottom-6 sm:end-6 sm:w-80`, trên drawer và dialog, rộng hết màn trừ lề dưới sm): card đặc trắng / gray-900, viền trái 4px và icon theo loại, nút đóng; tự ẩn sau 3000 ms trừ `persist`; vùng `role="status"` luôn trong trang. Thay notice tại chỗ dưới page header của D-66 (FR-080), notice không còn đẩy bảng/form xuống; hộp lỗi không đổi | Owner 2026-10-23: notice tại chỗ đẩy nội dung xuống; về gần Directus. Rộng 20rem (Directus 14.375rem) cho câu tiếng Việt | khác | — |
 
 **Đã xác nhận** (chủ dự án 2026-10-18, SC-010; trước đó ghi "Cần xác nhận"):
 

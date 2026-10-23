@@ -111,7 +111,7 @@ defineExpose({ scrollElement });
 							<template v-if="$slots['sidebar']" #sidebar><slot name="sidebar" /></template>
 						</PageHeader>
 					</AppHeader>
-					<!-- Backoffice: in-place notices and error dialogs of feature 014 (D-66, FR-054b). -->
+					<!-- Backoffice: notice toasts at the bottom end (D-172, was in place D-66) and error dialogs. -->
 					<NoticeStack />
 					<!-- One element either way: switching `fill` (item page live preview) keeps the page mounted. -->
 					<div ref="scroll" :class="fill ? 'flex min-h-0 flex-1 flex-col overflow-auto' : 'contents'">

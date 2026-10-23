@@ -2,7 +2,7 @@
 // notifications drawer for a temporary user with three notifications made in beforeAll (an item, a singleton and one
 // without a target; the admin's fixture notifications are never touched): the badge count, Inbox and Archive, Archive /
 // Unarchive moving a row and the badge, search, opening each kind of target, Delete after confirming, the Activity
-// link. Then the in-place notice after a dashboard import (role="status", gone after 3 s) and the error dialog when
+// link. Then the notice toast after a dashboard import (role="status", gone after 3 s, D-172) and the error dialog when
 // Save of a dashboard fails (Dismiss focused, no "Report error").
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
@@ -163,7 +163,7 @@ test('Delete after confirming; the Activity link (US6-4, FR-075)', async ({ page
 	await expect(page).toHaveURL(/\/admin\/activity$/);
 });
 
-test('in-place notice after a dashboard import, gone after 3 s (US7-1, FR-080)', async ({ page }) => {
+test('notice toast after a dashboard import, gone after 3 s (US7-1, FR-080, D-172)', async ({ page }) => {
 	await resetLastPage(api);
 	await openInsights(page);
 	await expect(page.getByRole('heading', { level: 1, name: 'Insights' })).toBeVisible();
