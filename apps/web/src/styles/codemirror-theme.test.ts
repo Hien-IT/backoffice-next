@@ -11,3 +11,9 @@ test('the dark gutter mixes into gray-900, not into transparent', () => {
 		/\.dark \.bo-codemirror \.CodeMirror-gutters \{ background: color-mix\(in oklab, var\(--color-white\) 3%, var\(--color-gray-900\)\);/,
 	);
 });
+
+test('in a dialog card the editor keeps to the room the card leaves (D-175)', () => {
+	expect(css).toContain(
+		':where(.v-dialog-body) :where(.bo-codemirror) .CodeMirror-scroll { max-height: min(56.25rem, calc(90vh - 10rem)); }',
+	);
+});

@@ -25,6 +25,15 @@
 	max-height: 56.25rem;
 }
 
+/*
+ * Owner 2026-10-24 (D-175): in a dialog card (v-dialog of the extension shim, 90vh at most) the editor keeps to the room
+ * the title and actions leave, so the card never scrolls around a taller editor: one scrollbar, inside the screen. DR
+ * keeps 56.25rem there too. Same specificity as above, later: an editor or extension height still wins.
+ */
+:where(.v-dialog-body) :where(.bo-codemirror) .CodeMirror-scroll {
+	max-height: min(56.25rem, calc(90vh - 10rem));
+}
+
 .bo-codemirror .CodeMirror-lines {
 	padding: 0.625rem 0;
 }
