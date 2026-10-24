@@ -479,7 +479,7 @@ nhiều instance.
 - **FR-040**: Mọi node trong pool (Directus và mọi replica Backoffice) PHẢI nạp cùng một bộ extension. Tài liệu triển khai
   PHẢI ghi: chạy nhiều replica thì bắt buộc `EXTENSIONS_LOCATION` trỏ tới storage dùng chung (S3 hoặc local trên volume
   dùng chung), hoặc bộ extension đóng sẵn vào mọi image và không cài qua marketplace. "Đóng sẵn" = image dẫn xuất chép
-  extension vào `/directus/extensions` (`EXTENSIONS_PATH`) hoặc khai báo nguồn `module`; không có công tắc tắt marketplace
+  extension vào `/directus/extensions` (`EXTENSIONS_PATH`; container Backoffice: `/backoffice/extensions` từ D-174 của 019) hoặc khai báo nguồn `module`; không có công tắc tắt marketplace
   (Directus cũng không), cài khi đó chỉ vào một pod. Directus và Backoffice PHẢI dùng cùng `EXTENSIONS_PATH`,
   `EXTENSIONS_LOCATION` (cùng ConfigMap ở Helm, cùng env file ở compose).
 - **FR-041**: Sync từ `EXTENSIONS_LOCATION` về `EXTENSIONS_PATH` lúc khởi động và khi nhận `partialSync`, như

@@ -9,7 +9,7 @@
 | User | `node`, uid/gid 1000 (giống image Directus, `directus/Dockerfile:56`); không bao giờ root lúc chạy | FR-020, FR-025 |
 | Entrypoint | `["/sbin/tini", "--"]` (PID 1: dọn zombie, chuyển tín hiệu) | FR-026 |
 | Lệnh | `["node", "dist/main.js"]`, một process Node; không `bootstrap`, không PM2 | 001 D-19, D-121 |
-| Env mặc định trong image | `DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite`, `NODE_ENV=production` (như Directus) | `apps/api/Dockerfile` |
+| Env mặc định trong image | `DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite`, `NODE_ENV=production` (như Directus; từ 2026-10-24 `WORKDIR /backoffice` và `DB_FILENAME=/backoffice/database/database.sqlite`, D-174) | `apps/api/Dockerfile` |
 | Nhãn OCI | `org.opencontainers.image.title=backoffice-api`, `.version=<BACKOFFICE_VERSION>`, `.revision=<VCS_REF>` (không `source`, không nhãn phiên bản Directus) | FR-022 |
 | Tín hiệu | SIGTERM/SIGINT/SIGHUP → trình tự 001 FR-080, mã thoát 143 với SIGTERM | 001 |
 | Probe | startup + liveness `GET /server/ping` (`200 pong`), readiness `GET /server/health` (`503` khi `error`, gồm lúc đang tắt) | FR-031, FR-032 |

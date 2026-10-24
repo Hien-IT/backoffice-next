@@ -28,12 +28,12 @@ cài hoặc chính DB sắp tạo (`deploy/README.md` mục "Lệnh CLI").
 docker exec <container> node cli.js database migrate:latest
 docker exec <container> node cli.js users passwd --email admin@example.com --password '<mới>'
 docker exec <container> node cli.js roles create --role Editors --app
-docker exec <container> node cli.js schema snapshot /directus/uploads/snapshot.yaml
+docker exec <container> node cli.js schema snapshot /backoffice/uploads/snapshot.yaml
 docker exec <container> node cli.js cache clear --system
 docker exec <container> node cli.js --version
 ```
 
-Custom migration: đặt file `<version>-<ten>.js` vào `MIGRATIONS_PATH` (`/directus/migrations`), rồi `database
+Custom migration: đặt file `<version>-<ten>.js` vào `MIGRATIONS_PATH` (`/backoffice/migrations` từ D-174 của 019; trước là `/directus/migrations`), rồi `database
 migrate:latest` hoặc khởi động lại container (`bootstrap` chạy `latest`).
 
 ## Compose chế độ độc lập (máy dev)
@@ -47,7 +47,7 @@ BACKOFFICE_REPLICAS=3 docker compose -f docker-compose.yml -f docker-compose.sta
 
 - App: http://localhost:8090/admin (`ADMIN_EMAIL` / `ADMIN_PASSWORD` trong `.env`). Không có container Directus.
 - Thêm migration: `docker compose -f docker-compose.yml -f docker-compose.standalone.yml cp ./20990101A-x.js
-  bootstrap:/directus/migrations/` rồi `up -d --wait` lại: `bootstrap` chạy lại, replica đang chạy giữ nguyên.
+  bootstrap:/backoffice/migrations/` rồi `up -d --wait` lại: `bootstrap` chạy lại, replica đang chạy giữ nguyên.
 - Scale: `up -d --wait --no-deps --scale backoffice-api=<n> backoffice-api`.
 - Chế độ chung của 019 không đổi: `docker compose up -d --wait`.
 

@@ -4,6 +4,11 @@
 feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
 **Created**: 2026-10-20
 **Status**: Done (2026-10-20; 56/56 task, CI 39371162920)
+
+> **2026-10-24 (D-174 của 019):** thư mục làm việc của image API là `/backoffice`, không còn `/directus`. Trong tài liệu
+> này, mọi đường dẫn `/directus/...` của image hay container Backoffice (`cli.js`, `uploads`, `database`, `extensions`,
+> `migrations`) đọc là `/backoffice/...`. Mount dùng chung theo đường dẫn tuyệt đối của môi trường parity
+> (`/directus/database/bootstrap`, `/directus/database/sqlite`) và container Directus giữ nguyên `/directus`.
 **Input**: User description: "Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load
 balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi
 trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không
@@ -64,7 +69,9 @@ trường cần một bộ cấu hình riêng, trái Nguyên tắc VIII.
 
 1. **Given** một service Directus 11.17.4 với env, volume `/directus/uploads`, `/directus/database`,
    `/directus/extensions` và probe `/server/health`, **When** chỉ đổi image sang BE mới, **Then** instance khởi động,
-   probe đạt, API trả như Directus (theo các spec 001–011), không có biến nào phải thêm, đổi tên hay xóa.
+   probe đạt, API trả như Directus (theo các spec 001–011), không có biến nào phải thêm, đổi tên hay xóa (từ 2026-10-24,
+   D-174: env, cổng, probe giữ nguyên; volume local dời mount sang `/backoffice/uploads`, `/backoffice/database`,
+   `/backoffice/extensions`; storage S3 như bộ test deploy không đổi gì).
 2. **Given** env có biến Directus mà BE không dùng (`SERVE_APP=true`, biến extension, websocket) và biến PM2 của image
    Directus (`PM2_INSTANCES`...), **When** BE khởi động, **Then** BE không dừng: biến Directus chưa hỗ trợ và
    `SERVE_APP=true` gây cảnh báo như 001 (D-08); biến `PM2_*` bị bỏ qua không cảnh báo, vì chúng không phải biến của
@@ -212,7 +219,7 @@ Directus; probe đạt; Ingress định tuyến đúng; rolling update dưới t
    mức CPU hiện tại (không `<unknown>`), có `minReplicas`/`maxReplicas`/ngưỡng CPU đã khai báo; số replica đổi (tăng hoặc
    giảm) dưới tải không làm lỗi request (US6). Quyết định khi nào scale là việc của Kubernetes, không kiểm.
 4. **Given** storage `local` trên volume dùng chung với Directus, **When** khai báo tên PVC đang dùng, **Then** pod BE
-   mount cùng PVC ở `/directus/uploads`.
+   mount cùng PVC ở `/directus/uploads` (từ 2026-10-24 `/backoffice/uploads`, D-174).
 
 ---
 
@@ -415,7 +422,7 @@ cổng hoặc host khác; đăng nhập, sửa dữ liệu, upload TUS trên Bac
   KHÔNG chứa biến môi trường nào của Directus hay biến mới, trừ các biến phụ thuộc domain ở chế độ domain riêng
   (`PUBLIC_URL`, FR-071). FE chỉ nhận ConfigMap (không nhận Secret).
 - **FR-047**: Chart PHẢI cho mount một PVC có sẵn (dùng chung với Directus) ở `/directus/uploads` khi storage là
-  `local`; mặc định không mount.
+  `local`; mặc định không mount (từ 2026-10-24 mount ở `/backoffice/uploads`, D-174).
 - **FR-048**: Pod BE và FE PHẢI có readiness, liveness (FR-031, FR-032), cấu hình tắt máy (FR-033, FR-034), giới hạn tài
   nguyên khai báo được, chạy không phải root.
 - **FR-049**: Chart PHẢI qua kiểm tra lint và kiểm schema manifest với Kubernetes [phiên bản hỗ trợ tối thiểu: xem

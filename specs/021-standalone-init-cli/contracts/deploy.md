@@ -25,14 +25,14 @@ services:
     platform: linux/amd64
     command: ["node", "cli.js", "bootstrap"]
     restart: "no"
-    volumes: [migrations:/directus/migrations]
+    volumes: [migrations:/backoffice/migrations]
     depends_on:
       postgres: { condition: service_healthy }
       redis: { condition: service_healthy }
       minio-init: { condition: service_completed_successfully }
   backoffice-api:
     command: ["node", "cli.js", "start"]
-    volumes: [migrations:/directus/migrations]
+    volumes: [migrations:/backoffice/migrations]
     depends_on: !override
       bootstrap: { condition: service_completed_successfully }
       redis: { condition: service_healthy }
@@ -51,7 +51,7 @@ volumes:
   chỗ volume `migrations` được mount; env vẫn chỉ đến từ `.env` (spec FR-070, Nguyên tắc VIII).
 - `lb/standalone.conf`: như `shared-domain.conf` nhưng `api_pool` chỉ `backoffice-api:8055 resolve`; `/admin` → web;
   `/extensions/sources/` → `bo_pool` (= api_pool).
-- Thêm migration: `docker compose cp <file> bootstrap:/directus/migrations/` (hoặc mount bind riêng) rồi `up -d` lại:
+- Thêm migration: `docker compose cp <file> bootstrap:/backoffice/migrations/` (hoặc mount bind riêng) rồi `up -d` lại:
   `bootstrap` chạy lại, replica khởi động lại sau khi xong.
 - Cổng: lb 8090; không có 8095.
 - Chế độ chung, `separate-domain`, `shared-extensions`: không đổi; replica dùng CMD image (bootstrap rồi start).
@@ -68,7 +68,7 @@ volumes:
 | `bootstrap.backoffLimit` | `3` | Job |
 | `bootstrap.activeDeadlineSeconds` | `600` | Job (ít nhất gấp 3 thời gian `bootstrap` của SC-010) |
 | `bootstrap.resources` | `{}` → dùng `api.resources` | Job |
-| `migrations.configMap` | `""` | ConfigMap chứa custom migration (`.js`), mount `/directus/migrations` ở Job và Deployment (cả hai chế độ) |
+| `migrations.configMap` | `""` | ConfigMap chứa custom migration (`.js`), mount `/backoffice/migrations` (D-174; trước là `/directus/migrations`) ở Job và Deployment (cả hai chế độ) |
 | `directus.configMap` / `directus.secret` | (bắt buộc) | như 019; ở `standalone` là ConfigMap/Secret env Backoffice (định dạng Directus) do đội vận hành tạo trước |
 
 Không key nào nhận map env tự do (019 FR-046 giữ).
@@ -90,7 +90,7 @@ Không key nào nhận map env tự do (019 FR-046 giữ).
 | Redis, `CACHE_STORE`, `RATE_LIMITER_STORE`, `SYNCHRONIZATION_STORE`, `SECRET`, `DB_CLIENT` ≠ sqlite, storage (019 FR-053) | có | có |
 | `EXTENSIONS_LOCATION` khi nhiều replica (020 FR-045) | có | có |
 | cookie domain với `domain.publicUrl` (019 FR-076) | có | không (không có domain Directus) |
-| `MIGRATIONS_PATH` khi đặt `migrations.configMap` (spec FR-085) | có | có: env có `MIGRATIONS_PATH` khác `./migrations`, `migrations`, `/directus/migrations` → `fail`: `MIGRATIONS_PATH="<v>" in <ConfigMap/Secret n> does not point to /directus/migrations, where migrations.configMap is mounted: remove the variable or set it to ./migrations, then install again.` |
+| `MIGRATIONS_PATH` khi đặt `migrations.configMap` (spec FR-085) | có | có: env có `MIGRATIONS_PATH` khác `./migrations`, `migrations`, `/backoffice/migrations` (D-174; trước là `/directus/migrations`) → `fail`: `MIGRATIONS_PATH="<v>" in <ConfigMap/Secret n> does not point to /directus/migrations, where migrations.configMap is mounted: remove the variable or set it to ./migrations, then install again.` |
 
 ## Trình tự Helm (`standalone`)
 

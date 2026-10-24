@@ -7,7 +7,7 @@ Mẫu theo contracts/parity.md của 006. Mọi test mới chạy với cả hai
 | Thay đổi | Nội dung |
 |----------|----------|
 | `tests/parity/env/<vendor>.env` (9 file) | `STORAGE_LOCATIONS=local,s3`, `STORAGE_LOCAL_DRIVER=local`, `STORAGE_LOCAL_ROOT=./uploads`; giữ `STORAGE_S3_*` |
-| `docker-compose.yml` anchor `x-app` | volume `uploads:/directus/uploads` (named volume, dùng chung mọi container Directus và app mới của vendor); `env-up` chmod `/directus/uploads` 777 trong container như tiền lệ `data.db` |
+| `docker-compose.yml` anchor `x-app` | volume `uploads:/directus/uploads` (named volume, dùng chung mọi container Directus và app mới của vendor; container Backoffice mount ở `/backoffice/uploads` từ D-174 của 019 vì `STORAGE_LOCAL_ROOT=./uploads`); `env-up` chmod `/directus/uploads` 777 trong container như tiền lệ `data.db` |
 | service `files-fixtures` | `nginx:alpine` phục vụ `tests/parity/fixtures/files/` (ảnh jpeg, png, webp, tiff, avif, gif, EXIF xoay, pdf, svg, `.gz`); URL `http://files-fixtures/<tên>` |
 | profile `assets-limit` (10055, 10056) | `ASSETS_TRANSFORM_MAX_CONCURRENT=2`, `ASSETS_CACHE_REVALIDATE=true`, `TUS_ENABLED=true`, `SYNCHRONIZATION_STORE=redis`, `CORS_ENABLED=false`, `FILES_MIME_TYPE_ALLOW_LIST=image/*,application/pdf`, `FILES_MAX_UPLOAD_SIZE=30mb`; blackbox assets, tus và ca revalidate, mime, `413`, TUS thường |
 | profile `assets-stress` (10155, 10156) | `ASSETS_TRANSFORM_MAX_CONCURRENT=1`, `ASSETS_TRANSFORM_TIMEOUT=100ms`, `TUS_ENABLED=true`, `TUS_UPLOAD_EXPIRATION=2s`, `TUS_CLEANUP_SCHEDULE=* * * * *`, `SYNCHRONIZATION_STORE=redis`, `CORS_ENABLED=false`; chỉ ca busy, timeout, hết hạn |

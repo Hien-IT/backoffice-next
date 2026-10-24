@@ -13,7 +13,7 @@
 | `api.shutdownDelaySeconds` | 10 | `preStop` `sleep` (R4) |
 | `api.terminationGracePeriodSeconds` | 30 | ≥ delay + `SERVER_SHUTDOWN_TIMEOUT` + đóng kết nối |
 | `apiPool.name` | tên release | giá trị nhãn `backoffice.io/api-pool`; Directus vào pool bằng nhãn này |
-| `uploads.existingClaim` | `""` | PVC có sẵn (RWX) mount ở `/directus/uploads` |
+| `uploads.existingClaim` | `""` | PVC có sẵn (RWX) mount ở `/directus/uploads` (từ 2026-10-24 `/backoffice/uploads`, D-174) |
 | `web.image.repository` / `.tag` | `hiennd23/backoffice-web` / `appVersion` | image FE |
 | `web.replicas` | 1 | FE một container theo yêu cầu |
 | `web.resources` | requests `cpu: 50m, memory: 64Mi` | |

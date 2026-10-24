@@ -6,6 +6,11 @@ feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify
 **Status**: Implemented (2026-10-22, ba lượt trên `main`); spec, plan, D-145..D-147, D-149, sửa D-19/D-121/D-123/D-141,
 ngoại lệ coverage FR-106, hai quy tắc FR-107 thêm khi làm và câu chữ US5 kịch bản 2 đã duyệt (chủ dự án kiêm tech
 lead, 2026-10-22)
+
+> **2026-10-24 (D-174 của 019):** thư mục làm việc của image API là `/backoffice`, không còn `/directus`. Trong tài liệu
+> này, mọi đường dẫn `/directus/...` của image hay container Backoffice (`cli.js`, `uploads`, `database`, `extensions`,
+> `migrations`) đọc là `/backoffice/...`. Mount dùng chung theo đường dẫn tuyệt đối của môi trường parity
+> (`/directus/database/bootstrap`, `/directus/database/sqlite`) và container Directus giữ nguyên `/directus`.
 **Input**: User description: "Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4.
 Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây,
 chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi
@@ -52,7 +57,7 @@ migration mẫu ở cả hai app; so sánh output và exit code của từng l�
   `apply-snapshot`, `apply-diff`, `validate-snapshot` (006); `clearSystemCache`, `getCache`, `flushCaches` (002, 005);
   `getDatabase`, `hasDatabaseConnection`, `validateDatabaseConnection`, `isInstalled` (001); database helpers theo
   vendor (001, 004, 006); extension manager với `initialize({ schedule, watch })` (020).
-- Image API (019): `/directus`, uid 1000, `tini`, `ENV DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite`
+- Image API (019): `/directus` (từ 2026-10-24 `/backoffice`, D-174 của 019), uid 1000, `tini`, `ENV DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite`
   như image Directus; CMD hiện là `node dist/main.js`. Compose `deploy/compose` và chart `deploy/helm/backoffice`
   (019, 020) chạy chung với Directus; bộ test chấp nhận `tests/parity/src/deploy` (`parity-tests:deploy`) và job CI
   `deploy`, `deploy-k8s` (kind).
@@ -76,7 +81,7 @@ image Backoffice. Người dùng cuối chỉ thấy kết quả: hệ thống k
 ### User Story 1 - Một container trên DB trống tự khởi tạo và chạy như image Directus (Priority: P1)
 
 Đội vận hành chạy image Backoffice với env của Directus (`DB_*`, `SECRET`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `PUBLIC_URL`)
-trên một Postgres trống, hoặc không env nào (SQLite ở `/directus/database`, như image Directus). Container tự tạo bảng hệ
+trên một Postgres trống, hoặc không env nào (SQLite ở `/directus/database`, như image Directus; từ 2026-10-24 `/backoffice/database`, D-174 của 019). Container tự tạo bảng hệ
 thống, chạy migration, tạo role, policy và user admin, rồi phục vụ API. Không có Directus trong hệ thống.
 
 **Why this priority**: Đây là lý do của feature: Backoffice chạy một mình. Mọi kịch bản khác (CLI, compose, Helm) xây

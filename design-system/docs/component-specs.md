@@ -139,6 +139,11 @@ w-full rounded-lg border border-gray-300 bg-transparent px-4 py-2.5 text-sm text
   `relative flex cursor-pointer select-none items-center justify-between gap-2 rounded-lg px-3 py-2 text-theme-sm font-medium text-gray-700 outline-hidden data-[highlighted]:bg-gray-100 data-[state=checked]:bg-brand-50 data-[state=checked]:text-brand-600 data-[disabled]:pointer-events-none data-[disabled]:text-gray-300 dark:text-gray-300 dark:data-[highlighted]:bg-white/5 dark:data-[state=checked]:bg-brand-500/15 dark:data-[state=checked]:text-brand-400 dark:data-[disabled]:text-white/15`;
   checked item shows a check icon (`SelectItemIndicator`)
 - Empty: `px-3 py-2 text-theme-sm text-gray-500 dark:text-gray-400` "No options".
+- Choices of `select-dropdown` as the Directus v-select (2026-10-23/24): a choice whose value is `null` (the appearance
+  "Default (Sync with Project)") shows its text when the value is `null` and maps to a Reka value of its own (Reka items
+  cannot be `null` or `''`); a `{ divider: true }` choice is a `SelectSeparator` `my-1 h-px bg-gray-200 dark:bg-gray-800`,
+  never an item or the selected text; a choice with `disabled: true` is a disabled item (the metric panel "Average" on
+  a field that is not a number). Tests: `interfaces/select-dropdown/SelectDropdown.test.ts`.
 
 ### Checkbox (`forms/FormElements/CheckboxInput.vue`)
 
