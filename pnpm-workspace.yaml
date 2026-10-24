@@ -68,7 +68,7 @@ catalog:
   '@types/cors': 2.8.19
   cookie-parser: 1.4.7
   '@types/cookie-parser': 1.4.10
-  body-parser: 1.20.3
+  body-parser: 1.20.9 # security patch (GHSA-27r3-jxmh-p828), Directus 11.17.4 has 1.20.3
   '@types/body-parser': 1.19.6
   qs: 6.14.2
   '@types/qs': 6.14.0
@@ -126,7 +126,7 @@ catalog:
   '@types/deep-diff': 1.0.5
   busboy: 1.6.0
   '@types/busboy': 1.5.4
-  zod: 4.1.12
+  zod: 4.6.6 # security patch (GHSA-mrhx-c7xc-m3w5), Directus 11.17.4 has 4.1.12, owner 2026-10-24
   # Files, folders, assets (feature 007), same versions as Directus 11.17.4
   sharp: 0.34.5
   # jiti 2.7.0 (already in the lockfile through eslint and vite): runs apps/web/scripts/sync-theme-presets.mjs (015, D-89)
@@ -299,6 +299,9 @@ overrides:
   path-to-regexp@<0.1.13: 0.1.13 # express4 (express@4.21.2 as Directus, spec 020 D-139) pins 0.1.12: GHSA-37ch-88jc-xwx2
   joi@>=18.0.0 <18.2.6: 18.2.6 # via @directus/utils 13.4.1 (apps/web, feature 013), same patch as apps/api
   nanoid@>=4.0.0 <5.1.16: 5.1.16 # via @directus/composables 11.4.1 (apps/web, spec 020): GHSA-28wg-ghj8-5hjv, GHSA-xwg4-73v4-xw9w, same patch as the catalog
+  multer@>=2.0.0 <2.5.0: 2.5.0 # @nestjs/platform-express 12.1.2 pins 2.4.0: GHSA-q7qp-rjg7-q26m
+  body-parser@<1.20.9: 1.20.9 # express4 (express@4.21.2 as Directus, spec 020 D-139) pins 1.20.3: GHSA-27r3-jxmh-p828
+  zod@>=4.0.0 <4.6.6: 4.6.6 # via @directus/utils 13.4.1 (apps/web, feature 013): GHSA-mrhx-c7xc-m3w5, same patch as the catalog
 
 # tar 6 comes with sqlite3 5.1.7 (same as Directus 11.17.4); only sqlite3/deps/extract.js loads it, to unpack the
 # bundled SQLite source when node-gyp builds from source. Runtime code never loads it, and tar 7 would change major
@@ -343,3 +346,8 @@ auditConfig:
     - GHSA-vg35-5wq7-3x7w # tinymce: XSS via media plugin (fixed 7.9.3)
     - GHSA-q742-qvgc-gc2f # tinymce: XSS via data-mce attributes (fixed 7.9.3)
     - GHSA-v98h-vmpc-fpqv # tinymce: XSS via mce:protected comments (fixed 7.9.3)
+    # @azure/msal-node 6 comes with tedious 18.6.1 (MSSQL, same as Directus 11.17.4) through @azure/identity, whose
+    # latest 4.14.0 still asks ^6; the fix is in msal-node 7. The advisory is in the authorization code flow; tedious
+    # only creates ClientSecret, DefaultAzure, ManagedIdentity and UsernamePassword credentials. Owner 2026-10-24;
+    # remove when @azure/identity takes msal-node 7.
+    - GHSA-xcx6-jx8p-x3h5 # @azure/msal-node: authorization code flow parameters (fixed 7.1.0)

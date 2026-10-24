@@ -12,7 +12,8 @@ import {
 vi.mock('ky');
 vi.mock('../../utils/assert-version-compatibility.js');
 vi.mock('./lib/construct-url.js');
-vi.mock('./schemas/registry-account-response.js');
+// Backoffice: an explicit mock, the automock of a zod 4.6 schema leaves parseAsync unmocked (GHSA-mrhx-c7xc-m3w5 patch).
+vi.mock('./schemas/registry-account-response.js', () => ({ RegistryAccountResponse: { parseAsync: vi.fn() } }));
 
 afterEach(() => {
 	vi.resetAllMocks();

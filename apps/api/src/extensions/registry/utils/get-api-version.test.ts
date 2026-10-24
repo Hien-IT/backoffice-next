@@ -5,7 +5,8 @@ import { RegistryVersionResponse } from '../schemas/registry-version-response.js
 import { _cache, getApiVersion } from './get-api-version.js';
 
 vi.mock('ky');
-vi.mock('../schemas/registry-version-response.js');
+// Backoffice: an explicit mock, the automock of a zod 4.6 schema leaves parseAsync unmocked (GHSA-mrhx-c7xc-m3w5 patch).
+vi.mock('../schemas/registry-version-response.js', () => ({ RegistryVersionResponse: { parseAsync: vi.fn() } }));
 
 vi.mock('../constants.js', () => ({
 	DEFAULT_REGISTRY: 'http://example.com',
