@@ -166,7 +166,7 @@ const FOCUS =
 					"
 					@error="imgError = true"
 				/>
-				<span v-else-if="folder" class="text-brand-500 dark:text-brand-400">
+				<span v-else-if="folder" class="text-brand-500 dark:text-brand-300">
 					<BoIcon :name="icon ?? 'folder'" size="lg" filled />
 				</span>
 				<span v-else class="text-gray-500 dark:text-gray-400"><BoIcon :name="icon ?? 'box'" size="lg" /></span>

@@ -207,6 +207,10 @@ points of feature 013 for the design owner, and the control border rows marked "
 | dark  | `brand-400`      | `brand-500` 15 % on `gray-900` | Activity `create` label, dark (Q-36, 018) | 5.33:1  | 4.5:1  | pass   |
 | dark  | `blue-light-400` | `blue-light-500` 15 % on `gray-900` | Activity `update` label, dark (Q-36, 018) | 6.74:1  | 4.5:1  | pass   |
 | dark  | `error-400`      | `error-500` 15 % on `gray-900` | Activity `delete` label, dark (Q-36, 018) | 5.52:1  | 4.5:1  | pass   |
+| light | `brand-500`      | `brand-50`            | Folder card icon (D-176, 2026-10-24; with a project color the scale follows D-158)                         | 4.34:1  |
+| dark  | `brand-300`      | `brand-500`/10 tile on the card | Folder card icon (D-176; brand-400 fell to 2.6:1 with a dark project color such as `#18222F`)  | 7.71:1  |
+| light | `success-600` / `error-600` / `warning-600` / `blue-light-600` | `white` | Notice toast type icon (D-172, the text says the type too) | 3.73 / 4.83 / 3.49 / 4.00:1 |
+| dark  | `success-500` / `error-500` / `warning-500` / `blue-light-500` | `gray-900` | Notice toast type icon (D-172) | 6.77 / 4.72 / 7.56 / 6.43:1 |
 
 TailAdmin values replaced because they failed: placeholder gray-400 (2.58) / white/30 (2.70); field error-500 (3.76) and
 success-500 (2.62) text; light badge text -500/-600 (2.59–4.44); active menu brand-500 on brand-50 (4.34); dark
