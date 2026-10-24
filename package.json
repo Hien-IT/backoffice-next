@@ -16,6 +16,7 @@
 		"check-port-headers": "node tools/check-port-headers.mjs",
 		"test:tools": "node --test tools/*.test.mjs",
 		"check-package-names": "node tools/check-package-names.mjs",
+		"check-dr-comments": "node tools/check-dr-comments.mjs",
 		"guard-directus": "node tools/guard-directus-unchanged.mjs",
 		"ci:local": "bash tools/ci-local.sh"
 	},

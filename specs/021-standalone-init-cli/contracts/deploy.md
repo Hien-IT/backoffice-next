@@ -6,8 +6,8 @@
 |-----|---------|
 | `ENTRYPOINT` | `["/sbin/tini", "--"]` (019) |
 | `CMD` | `["/bin/sh", "-c", "node cli.js bootstrap && exec node cli.js start"]` |
-| `WORKDIR` | `/directus`; `cli.js` ở `/directus/cli.js` |
-| env mặc định | `DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite` (như image Directus) → `docker run` không env bootstrap SQLite |
+| `WORKDIR` | `/directus`; `cli.js` ở `/directus/cli.js` (từ 2026-10-24 `/backoffice`, `/backoffice/cli.js`, D-174 của 019) |
+| env mặc định | `DB_CLIENT=sqlite3`, `DB_FILENAME=/directus/database/database.sqlite` (như image Directus; từ 2026-10-24 `/backoffice/database/database.sqlite`, D-174) → `docker run` không env bootstrap SQLite |
 | thư mục | `database/`, `extensions/`, `uploads/`, `migrations/` (mặc định `MIGRATIONS_PATH=./migrations`) |
 | tiến trình | `bootstrap`: tini → sh → node; `start`: tini → node (`exec`) |
 | mã thoát | `bootstrap` ≠ 0 → container thoát mã đó, không `start`; SIGTERM khi `start` → 143 (019) |
@@ -47,7 +47,7 @@ volumes:
 - Lệnh: `docker compose -f docker-compose.yml -f docker-compose.standalone.yml up -d --wait`; `BACKOFFICE_REPLICAS=3`.
 - Anchor YAML (`x-app-env: &app-env`) chỉ có hiệu lực trong file khai báo nó, nên service mới `bootstrap` ghi lại
   `env_file` cùng giá trị; các service có sẵn (`backoffice-api`, `lb`) được gộp với file gốc nên giữ `env_file` của chúng.
-- Không đặt `MIGRATIONS_PATH` trong override: mặc định `./migrations` ở `WORKDIR /directus` đã là `/directus/migrations`,
+- Không đặt `MIGRATIONS_PATH` trong override: mặc định `./migrations` ở `WORKDIR /directus` đã là `/directus/migrations` (từ 2026-10-24 `/backoffice/migrations`, D-174),
   chỗ volume `migrations` được mount; env vẫn chỉ đến từ `.env` (spec FR-070, Nguyên tắc VIII).
 - `lb/standalone.conf`: như `shared-domain.conf` nhưng `api_pool` chỉ `backoffice-api:8055 resolve`; `/admin` → web;
   `/extensions/sources/` → `bo_pool` (= api_pool).

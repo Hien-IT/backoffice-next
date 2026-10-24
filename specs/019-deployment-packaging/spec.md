@@ -20,7 +20,7 @@ không làm lỗi request."
 **Đã có từ các feature trước** (khảo sát 2026-10-20; 019 hoàn thiện, không làm lại):
 
 - `apps/api/Dockerfile`: image theo `directus/Dockerfile` (R20 của 001), một process `node dist/main.js`, không
-  `bootstrap`, không PM2 (D-19 của 001), `WORKDIR /directus`, cổng 8055, user `node`.
+  `bootstrap`, không PM2 (D-19 của 001), `WORKDIR /directus` (từ 2026-10-24 `/backoffice`, D-174), cổng 8055, user `node`.
 - `apps/web/Dockerfile`, `apps/web/nginx.conf`, `apps/web/docker/40-config.sh`: nginx-unprivileged (uid 101 lúc đó, cổng 8080)
   phục vụ build ở `/admin`, `/` → `302 /admin/`, `config.json` sinh từ `PUBLIC_URL` lúc khởi động (`no-store`), SPA
   fallback về `/admin/index.html`, MIME `.mjs` cho worker maplibre. Plan 001 ghi "hoàn thiện ở 019".

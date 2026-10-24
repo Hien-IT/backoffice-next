@@ -387,7 +387,7 @@ clone repo, cài dependency, chạy build, lint, test cho toàn workspace. Tất
 - **FR-017**: Mọi đường dẫn tương đối (`CONFIG_PATH`, giá trị `X_FILE`, `STORAGE_LOCAL_ROOT`,
   `EXTENSIONS_PATH`, `MIGRATIONS_PATH`, `DB_FILENAME`, `TEMP_PATH`) PHẢI được giải theo thư mục làm việc
   của process, giống Directus. Image của API mới PHẢI dùng thư mục làm việc `/directus` như image
-  Directus để cùng một cấu hình trỏ cùng chỗ.
+  Directus để cùng một cấu hình trỏ cùng chỗ (từ 2026-10-24 là `/backoffice`, D-174 của 019: mount dời theo).
 
 **Kết nối DB và Redis**
 
@@ -664,7 +664,7 @@ Giữ nguyên (không đổi thương hiệu): tên bảng `directus_*`; `projec
 `METRICS_NAME_PREFIX` mặc định `directus_`; `METRICS_HEALTH_CHECK_PREFIX` mặc định
 `directus-metric-`; key tạm của health check trong cache và rate limiter (`directus-health-<id>`)
 và file `directus-health-file` trong storage; namespace Redis mặc định; mã thoát của việc tắt máy theo
-tín hiệu; thư mục làm việc `/directus` và
+tín hiệu; thư mục làm việc `/directus` (từ 2026-10-24 là `/backoffice`, D-174 của 019: mount dời theo) và
 các biến mặc định của Docker image Directus (để đường dẫn tương đối như `./uploads`, `.env` trỏ cùng
 chỗ).
 

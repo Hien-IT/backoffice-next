@@ -30,6 +30,7 @@ quality() {
 		pnpm run test:tools &&
 		pnpm run check-port-headers &&
 		pnpm run check-package-names &&
+		pnpm run check-dr-comments &&
 		for f in specs/*/contracts/*.openapi.yaml; do pnpm --filter @backoffice/specs exec swagger-cli validate "$PWD/$f" || return 1; done
 }
 

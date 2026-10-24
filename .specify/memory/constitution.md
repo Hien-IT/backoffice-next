@@ -333,7 +333,8 @@ Lý do: đội vận hành chỉ duy trì một bộ cấu hình cho cả hai ap
   trong comment là Directus ("the DR app" là app Directus, "DR image" là image `directus/directus`, "DR v-select" là
   component `v-select` của Directus). Code mới PHẢI theo quy ước này. Giữ chữ "Directus" ở: file port nguyên văn có
   test so với nguồn Directus (`apps/api/src/database/migrations/**`, seed `.yaml`), chuỗi trong code và tên test, tên
-  định danh và kiểu (`DirectusError`), package `@directus/*`, đường dẫn `directus/app/...`.
+  định danh và kiểu (`DirectusError`), package `@directus/*`, đường dẫn `directus/app/...`. `pnpm run
+  check-dr-comments` (job `quality` của CI) chặn comment mới vi phạm.
 - Khi không chắc một chỗ đổi tên có ảnh hưởng luồng hay không: giữ nguyên và ghi vào danh sách cần
   xác nhận.
 - Test đối chiếu ĐƯỢC bỏ qua các khác biệt do đổi thương hiệu, nhưng PHẢI liệt kê rõ trong danh sách

@@ -20,7 +20,7 @@ table" cho unit test `libs/env/src/lib/directus-compat.test.ts`: nếu bản por
 - Đường dẫn tương đối của `CONFIG_PATH`, của giá trị `X_FILE`, và của mọi biến đường dẫn
   (`STORAGE_LOCAL_ROOT`, `EXTENSIONS_PATH`, `MIGRATIONS_PATH`, `DB_FILENAME`, `TEMP_PATH`) được giải theo
   **thư mục làm việc của process** (đo: `CONFIG_PATH=p.env` với cwd=`/cfg` đọc được `/cfg/p.env`).
-  Image API mới dùng thư mục làm việc `/directus`, như image Directus.
+  Image API mới dùng thư mục làm việc `/directus`, như image Directus (từ 2026-10-24 là `/backoffice`, D-174 của 019: mount dời theo).
 
 ## 2. Hành vi `X` và `X_FILE` (đã đo)
 

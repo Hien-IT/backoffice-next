@@ -70,6 +70,7 @@ jobs:
       - run: pnpm run test:tools
       - run: pnpm run check-port-headers
       - run: pnpm run check-package-names
+      - run: pnpm run check-dr-comments
       - name: OpenAPI contracts are valid
         run: |
           for f in specs/*/contracts/*.openapi.yaml; do
