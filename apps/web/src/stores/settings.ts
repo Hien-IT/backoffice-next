@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/settings.ts
 // Backoffice: hydrate, setOwner (the API writes the owner without the owner report, D-38) and updateSettings with the
-// in-place notice (D-66, added by 016); the AI providers getter is left out (D-41).
+// notice toast (D-172; in place by D-66 when 016 added it); the AI providers getter is left out (D-41).
 import type { OwnerInformation } from '@directus/types';
 import { merge } from 'lodash-es';
 import { defineStore } from 'pinia';

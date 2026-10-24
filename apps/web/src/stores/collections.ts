@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/collections.ts
 // Backoffice: the write actions (upsertCollection, updateCollection, deleteCollection) came with the Settings data model
-// screens (016); notices are the in-place notices of D-66; the AI tools hook is removed (D-54).
+// screens (016); notices are the toasts of D-172 (in place by D-66 before 2026-10-23); the AI tools hook is removed (D-54).
 import formatTitle from '@directus/format-title';
 import type { Collection as CollectionRaw, CollectionType, DeepPartial, Field } from '@directus/types';
 import { getCollectionType } from '@directus/utils';

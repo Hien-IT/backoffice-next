@@ -1,5 +1,5 @@
 // Ported from directus/app/src/composables/use-clipboard.ts
-// Backoffice: success and failure show as in-place notices (use-notices, D-66).
+// Backoffice: success and failure show as notice toasts (use-notices, D-172; in place by D-66 before 2026-10-23).
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { notify } from './use-notices.ts';

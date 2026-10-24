@@ -4,7 +4,7 @@
 // (spec FR-083, US5-3; DR only hides the New Share button) and loads nothing then. The section opens through
 // `sidebarStore.activeAccordionItem` (SidebarDetail, Q-9) instead of useGroupable. The link is
 // `<origin><base>shared/<id>` with the app base `/admin/` (DR: getRootPath() + 'admin/shared/'). Copy uses
-// navigator.clipboard with an in-place notice (D-66): no clipboard (insecure HTTP) is the `share_copy_link_error`
+// navigator.clipboard with a notice toast (D-172): no clipboard (insecure HTTP) is the `share_copy_link_error`
 // notice. The send dialog has the read-only link with a copy button (recipe) and posts `/shares/invite` (the API only
 // logs, D-36; no success notice, like DR). DrawerItem gets `collection`/`item` in `input` like DR: both
 // fields are hidden by the directus_shares field meta, and preset `edits` would make an untouched form ask before

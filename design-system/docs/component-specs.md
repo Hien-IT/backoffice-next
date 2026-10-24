@@ -1448,7 +1448,7 @@ Built:
   `share_send_link`, `edit`, `delete_label` (by permission); a line `text-theme-xs text-gray-500` with uses left
   (error-600 at 0), `lock` with the label `password` when protected, and the status `font-semibold uppercase` (expired
   error-600, upcoming success-600). Deviation: the role is not shown (the Directus `/shares` request has no role name);
-  copy uses the clipboard with an in-place notice (D-66).
+  copy uses the clipboard with a notice toast (D-172; in place by D-66 before 2026-10-23).
 - Send dialog: BoDialog `share_send_link`: read-only Input of the share link with a secondary icon Button
   `content_copy`, a Textarea of emails (4 rows, comma or new line); Cancel / Send (the API only logs, D-36).
 
@@ -1908,7 +1908,7 @@ approved by the owner and design owner on 2026-10-21 (SC-008, T201). Tokens and 
   bundle is not `partial`.
 - Loading: 6 skeleton rows `h-14 rounded-xl bg-gray-100 dark:bg-gray-800 animate-pulse` (`motion-reduce:animate-none`)
   until the first answer; empty: BoInfo icon `error`, title `no_extensions`, text `no_extensions_copy`.
-- "Reload required" (after a toggle changes the enabled app extensions): persistent in-place warning notice (D-66) with
+- "Reload required" (after a toggle changes the enabled app extensions): persistent warning notice toast (D-172; in place by D-66 before 2026-10-23) with
   title `reload_required`, text `extension_reload_required_copy` and a button `extension_reload_now` (`refresh`).
 
 ### Marketplace registry (Q-42; Directus `routes/marketplace/routes/registry/*`, `components/extension-list-item.vue`)

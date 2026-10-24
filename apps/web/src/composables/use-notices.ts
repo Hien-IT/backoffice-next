@@ -1,6 +1,7 @@
 // Ported from directus/app/src/stores/notifications.ts; Ported from directus/app/src/utils/notify.ts; Ported from directus/app/src/utils/unexpected-error.ts
 // From the store: add, remove, queue, dialogs.
-// Backoffice: in-place notices under the page header instead of the snackbar of feature 018 (D-66, spec 014 FR-054b);
+// Backoffice: notice toasts at the bottom end (NoticeStack, D-172 since 2026-10-23; in place under the page header by
+// D-66 before) instead of the snackbar of feature 018 (spec 014 FR-054b);
 // a module-level queue shared by every screen, like the DR store. `unexpectedError` of 013 stays a console warning
 // that returns the error (the 013 interfaces show it inline); 014 screens call `showUnexpectedError`, which opens the
 // error dialog like DR.

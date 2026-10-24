@@ -2,7 +2,7 @@
 <script setup lang="ts">
 // Backoffice: user story 4 of feature 015 (FR-074): a `dl` in the SidebarDetail section like the file details (Q-15);
 // the copy button is a named icon button (an unnamed clickable icon in DR) and reports the result through the
-// in-place notice of useClipboard.
+// notice toast of useClipboard (D-172).
 import type { User } from '@directus/types';
 import { ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';

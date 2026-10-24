@@ -1,5 +1,5 @@
 // Ported from directus/app/src/stores/extensions.ts
-// Backoffice: api (axios) -> sdk (012 FR-001); the "reload required" notice goes through notify (in-place notice, D-66);
+// Backoffice: api (axios) -> sdk (012 FR-001); the "reload required" notice goes through notify (a persistent notice toast, D-172);
 // APP_OR_HYBRID_EXTENSION_TYPES of @directus/constants is the list below (the web app does not depend on it).
 import type { ApiOutput } from '@directus/types';
 import { isIn } from '@directus/utils';

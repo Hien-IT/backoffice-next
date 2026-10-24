@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/fields.ts
 // Backoffice: the write actions (upsertField, createField, updateField, updateFields, deleteField) came with the
-// Settings data model screens (016); errors go to the in-place notices (D-66); the AI tools hook is removed (D-54).
+// Settings data model screens (016); errors go to the notice toasts (D-172); the AI tools hook is removed (D-54).
 import formatTitle from '@directus/format-title';
 import type { DeepPartial, Field, FieldRaw, Relation } from '@directus/types';
 import { isEmpty, isEqual, isNil, merge, omit, orderBy } from 'lodash-es';

@@ -1,7 +1,7 @@
 <!-- Ported from directus/app/src/modules/settings/routes/flows/components/options-overview.vue -->
 <script setup lang="ts">
 // Backoffice (spec 017 FR-022, recipe Q-30): the title (tooltip = the key) and the overview rows of the operation or
-// trigger, as plain text; the copy button only when the browser can copy (use-clipboard, in-place notice D-45).
+// trigger, as plain text; the copy button only when the browser can copy (use-clipboard, notice toast D-172).
 import type { FlowRaw } from '@directus/types';
 import BoIcon from '../../../../../components/BoIcon.vue';
 import { useClipboard } from '../../../../../composables/use-clipboard.ts';

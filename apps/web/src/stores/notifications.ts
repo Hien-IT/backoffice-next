@@ -1,6 +1,6 @@
 // Ported from directus/app/src/stores/notifications.ts
 // Backoffice: the drawer (018) lists the notifications itself; there are no snackbars: `queue`, `dialogs` and the
-// add/hide/remove/update actions are those of the in-place notices (use-notices, D-66), kept for app extensions
+// add/hide/remove/update actions are those of the notice toasts (use-notices, D-172), kept for app extensions
 // (spec 020, FR-079).
 import type { Notification } from '@directus/types';
 import { reverse, sortBy } from 'lodash-es';
