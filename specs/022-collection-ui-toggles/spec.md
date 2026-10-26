@@ -1,7 +1,7 @@
 # Feature Specification: Ẩn hiện ô tìm kiếm, Import, Export theo collection và migration riêng của Backoffice
 
-**Feature Branch**: `022-collection-ui-toggles` (làm trên `main` như 012–021, không tạo branch; `specs/022-*` là thư mục
-feature hiện tại theo quy tắc "thư mục số cao nhất" của `.specify/scripts/bash/common.sh`)
+**Feature Branch**: `022-collection-ui-toggles` (làm trên `main` như 012–021, không tạo branch; script `.specify` cần
+`SPECIFY_FEATURE=022-collection-ui-toggles`)
 **Created**: 2026-10-26
 **Status**: Draft (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa 2026-10-26; chờ duyệt
 D-179..D-181)

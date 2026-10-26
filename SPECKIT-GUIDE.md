@@ -558,7 +558,10 @@ duyệt.
 **Lưu ý chung:**
 
 - Làm trên `main`, không tạo branch: `create-new-feature.sh` chạy `git checkout -b`, sẽ đổi branch của các session khác
-  dùng chung checkout. Thư mục `specs/022-*` là feature hiện tại nhờ quy tắc "thư mục số cao nhất".
+  dùng chung checkout. Trên `main`, script của Spec Kit báo "Not on a feature branch" trừ khi đặt
+  `SPECIFY_FEATURE=022-collection-ui-toggles` (`.specify/scripts/bash/common.sh`; quy tắc "thư mục số cao nhất" chỉ dùng
+  khi không có git). Thêm câu "Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify." vào đầu prompt
+  của mỗi lệnh `/speckit.*`.
 - Không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
 
 **Prompt `/speckit.specify`:**
