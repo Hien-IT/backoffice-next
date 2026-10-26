@@ -14,9 +14,10 @@ const SERVICES: Record<BootstrapApp, string> = {
 	directus: 'directus-bootstrap',
 	backoffice: 'backoffice-api-bootstrap',
 };
+// Backoffice: the real path, since /directus links to /backoffice in its image (D-183) and `init` prints process.cwd().
 const DIRS: Record<BootstrapApp, string> = {
 	directus: '/directus/database/bootstrap/init-directus',
-	backoffice: '/directus/database/bootstrap/init-backoffice',
+	backoffice: '/backoffice/database/bootstrap/init-backoffice',
 };
 const ADMIN_PASSWORD = 'init-admin-pass-5c1e';
 /** The CLI entry of each image: Directus works in /directus, Backoffice in /backoffice (D-174). */
