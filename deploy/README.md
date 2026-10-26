@@ -290,7 +290,7 @@ ingress:
 ## Chạy độc lập (không Directus)
 
 Từ 021, Backoffice tự cài DB và chạy migration như Directus 11.17.4, nên chạy được một mình. DB vẫn dùng được với
-Directus 11.17.4 (không thêm bảng, cột hay migration riêng). Chỉ Postgres và SQLite (D-145); vendor khác cần image
+Directus 11.17.4 (từ 022 có thêm migration riêng của Backoffice, xem mục dưới). Chỉ Postgres và SQLite (D-145); vendor khác cần image
 Directus để cài và migrate. Chạy `bootstrap` ở **một** nơi (service một lần của compose, Job của Helm); các replica chỉ
 `start`.
 
@@ -363,6 +363,39 @@ custom migration mới, như N container Directus: thêm custom migration khi ch
 - `database migrate:down` với migration hệ thống làm DB không còn khớp Directus 11.17.4 (`start` dừng); chỉ dùng cho
   custom migration.
 - `init` ghi đè `.env` có sẵn trong thư mục đang chạy.
+
+## Migration riêng của Backoffice (spec 022)
+
+Backoffice có migration riêng (constitution 3.2.0), ghi trong bảng `backoffice_migrations`, không bao giờ trong
+`directus_migrations`. Migration đầu tiên `20261026A` thêm `bo_show_search`, `bo_show_import`, `bo_show_export` (boolean,
+mặc định `true`) vào `directus_collections` và ba dòng `directus_fields` để form collection có nhãn en-US/vi-VN.
+
+- **Không cần làm gì:** `bootstrap` (CMD của image, Job Helm, service `bootstrap` của compose) chạy migration Directus
+  (Postgres, SQLite) rồi migration riêng còn thiếu, trên **mọi** vendor. Vendor khác Postgres và SQLite: chỉ chạy khi DB
+  đã được Directus migrate đủ; nếu chưa, `start` dừng với `Missing migrations` của Directus như trước.
+- **Nhiều replica cùng lúc:** chạy dưới khóa Redis `backoffice-migrations` (namespace `REDIS_LOCK_NAMESPACE`); không có
+  Redis hoặc khác namespace thì mỗi bước vẫn chịu được việc process khác làm trước (bảng, cột, dòng đã có không lỗi;
+  dòng `directus_fields` trùng bị xóa, giữ dòng đầu).
+- **`start` thiếu migration riêng:** dừng với `Backoffice migrations do not match.` và `Missing Backoffice migrations
+  (not run yet): …`; chạy `node cli.js bootstrap` (hoặc khởi động lại container). Dòng lạ (DB của bản Backoffice mới hơn)
+  cũng dừng: dùng image mới hơn.
+- **Không có lệnh CLI riêng, không có down.** Gỡ tay khi cần (Postgres):
+
+  ```sql
+  ALTER TABLE directus_collections DROP COLUMN bo_show_search, DROP COLUMN bo_show_import, DROP COLUMN bo_show_export;
+  DELETE FROM directus_fields WHERE collection = 'directus_collections' AND field IN ('bo_show_search', 'bo_show_import', 'bo_show_export');
+  DELETE FROM backoffice_migrations WHERE version = '20261026A';
+  ```
+
+  rồi `node cli.js cache clear --system`. Bản Backoffice có migration này sẽ chạy lại nó ở `bootstrap` sau.
+- **Directus chạy chung:** không cần file, biến môi trường hay cấu hình mới; `migrate:latest|up|down` của Directus không
+  đổi. Directus app thấy ba cài đặt trong form collection (không có tác dụng ở Content của Directus app) và bảng
+  `backoffice_migrations` trong nhóm bảng chưa quản lý (admin). Backoffice coi bảng này là collection hệ thống (ẩn, 403 ở
+  `/items`, không có trong GraphQL và OAS: D-181). Muốn Directus app cũng không thấy bảng: thêm `backoffice_migrations`
+  vào `DB_EXCLUDE_TABLES` của **cả hai** app, giữ hai bảng mặc định
+  (`spatial_ref_sys,sysdiagrams,backoffice_migrations`; tùy chọn).
+- **Nâng Directus lên bản sau 11.17.4:** trước khi ghim bản mới, `grep -rn "bo_\|backoffice_"
+  directus/api/src/database/migrations` phải rỗng (tên cột hay bảng trùng sẽ làm migration của một bên lỗi).
 
 ## Lệnh CLI
 

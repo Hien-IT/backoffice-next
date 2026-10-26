@@ -76,4 +76,6 @@ export default {
 	insert_emoji: 'Insert emoji',
 	// Spec 020: the nav label of the v-pagination shim of app extensions.
 	pagination: 'Pagination',
+	// Spec 022 (D-182): the card title of the bo_show_* toggles in the Data Model collection form.
+	collection_content_toggles: 'Content: Search, Import, Export',
 };

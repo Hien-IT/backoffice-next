@@ -1,6 +1,8 @@
 // DR has no test for fields.vue: the collection page header (back, breadcrumb, delete for non-system collections,
 // save), the directus_collections form on `edits.meta` (locked for system collections), save and quit, Ctrl/Cmd+S
-// save and stay, the unsaved changes dialog with Keep Editing first, delete (spec 016 US2-1, FR-020).
+// save and stay, the unsaved changes dialog with Keep Editing first, delete (spec 016 US2-1, FR-020); the titled card
+// of the bo_show_* toggles (spec 022, D-182).
+import type { FieldRaw } from '@directus/types';
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import { h } from 'vue';
@@ -49,14 +51,15 @@ const routes: RouteRecordRaw[] = [
 	{ path: '/:p(.*)*', component: { render: () => null } },
 ];
 
-async function setup(collection: string) {
+async function setup(collection: string, extraFields: FieldRaw[] = []) {
 	const mounted = await mountLayout(
 		{ render: () => h(RouterView) },
 		{
 			routes,
 			path: `/settings/data-model/${collection}`,
 			async beforeMount() {
-				fetch = mockFixtureApi(loadSnapshot(), { user: 'admin' });
+				const snapshot = loadSnapshot();
+				fetch = mockFixtureApi({ ...snapshot, fields: [...snapshot.fields, ...extraFields] }, { user: 'admin' });
 				await useUserStore().hydrate();
 				await Promise.all([
 					useFieldsStore().hydrate(),
@@ -111,6 +114,7 @@ test(
 		expect(fields).not.toEqual(expect.arrayContaining(['sort']));
 		expect(fields).not.toContain('group');
 		expect(fields).not.toContain('collapse');
+		expect(document.body.textContent).not.toContain(t('collection_content_toggles'));
 	},
 	SLOW,
 );
@@ -181,6 +185,41 @@ test(
 
 		expect(button(t('delete_collection'))).toBeNull();
 		expect(noteInput()!.disabled).toBe(true);
+	},
+	SLOW,
+);
+
+// The three directus_fields rows of migration 20261026A: user fields (not system), no sort, no group.
+const toggleField = (field: string, index: number) =>
+	({
+		collection: 'directus_collections',
+		field,
+		type: 'boolean',
+		schema: { default_value: true, is_nullable: true },
+		meta: {
+			id: 9001 + index,
+			collection: 'directus_collections',
+			field,
+			special: ['cast-boolean'],
+			interface: 'boolean',
+			width: 'half',
+			sort: null,
+			group: null,
+			hidden: false,
+			system: false,
+		},
+	}) as unknown as FieldRaw;
+
+test(
+	'spec 022 (D-182): the bo_show_* toggles are one card with its title, after the DR fields',
+	async () => {
+		const toggles = ['bo_show_search', 'bo_show_import', 'bo_show_export'];
+		await setup('bo_std', toggles.map(toggleField));
+
+		const titles = [...document.querySelectorAll('main h3')].map((h) => h.textContent);
+		expect(titles.at(-1)).toBe(t('collection_content_toggles'));
+		const card = document.querySelectorAll('main h3')[titles.length - 1]!.closest('.rounded-2xl')!;
+		expect([...card.querySelectorAll('[data-field]')].map((el) => el.getAttribute('data-field'))).toEqual(toggles);
 	},
 	SLOW,
 );

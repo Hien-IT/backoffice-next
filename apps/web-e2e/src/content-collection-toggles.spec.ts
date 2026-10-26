@@ -1,7 +1,8 @@
 // Spec 022 (US1, US2, D-179): the per-collection toggles bo_show_search, bo_show_import, bo_show_export of
 // directus_collections on the Content page of bo_content, for the admin and a user reading bo_content (FR-006); the
-// Data Model form shows them with their labels (FR-002); the API still searches and exports (FR-008). The columns come
-// from the Backoffice migration 20261026A that the API pair ran at start; behind proxy-directus Directus returns them too.
+// Data Model form shows them with their labels in a card titled by the web app (FR-002, D-182); the API still searches
+// and exports (FR-008). The columns come from the Backoffice migration 20261026A that the API pair ran at start; behind
+// proxy-directus Directus returns them too.
 import type { Page } from '@playwright/test';
 import { AdminApi } from './helpers/api.js';
 import { ADMIN } from './helpers/config.js';
@@ -156,26 +157,36 @@ test('both false: no Import / Export section; the API still searches and exports
 	expect((await api.bytes('/items/bo_content?export=csv&limit=1')).toString('utf8')).toContain('id');
 });
 
-test('the Data Model form has the three toggles; saving one is read back (FR-002, US4-4)', async ({ page, apiRequests }) => {
+test('the Data Model form has the three toggles; saving one is read back (FR-002, US4-4)', async ({
+	page,
+	apiRequests,
+}) => {
 	await signIn(page);
 	await page.goto('/admin/settings/data-model/bo_content');
 
 	const form = page.getByRole('main');
+	await expect(form.getByRole('heading', { name: 'Content: Search, Import, Export', exact: true })).toBeVisible();
 	for (const label of ['Show Search', 'Show Import', 'Show Export']) {
 		await expect(form.getByText(label, { exact: true })).toBeVisible();
 	}
 
-	await form.getByRole('switch', { name: 'Show Export' }).or(form.getByRole('checkbox', { name: 'Show Export' })).click();
+	await form
+		.getByRole('switch', { name: 'Show Export' })
+		.or(form.getByRole('checkbox', { name: 'Show Export' }))
+		.click();
 	const patch = page.waitForRequest((r) => r.method() === 'PATCH' && r.url().includes('/collections/bo_content'));
 	await page.getByRole('button', { name: 'Save', exact: true }).first().click();
 	expect((await patch).postDataJSON()).toMatchObject({ meta: { bo_show_export: false } });
 	expect(apiRequests.some((r) => r.method === 'PATCH' && r.path === '/collections/bo_content')).toBe(true);
 	await expect
-		.poll(async () => (await api.call<{ meta: { bo_show_export: boolean } }>('GET', '/collections/bo_content')).meta.bo_show_export)
+		.poll(
+			async () =>
+				(await api.call<{ meta: { bo_show_export: boolean } }>('GET', '/collections/bo_content')).meta.bo_show_export,
+		)
 		.toBe(false);
 });
 
-test('the toggle labels in vi-VN (FR-002)', async ({ page }) => {
+test('the toggle labels and card title in vi-VN (FR-002, D-182)', async ({ page }) => {
 	// Its own admin in vi-VN: the shared admin keeps its language for the other specs.
 	const admin = await fixtures.user('toggles-vi', {
 		role: await fixtures.role('toggles vi admin', { admin: true }),
@@ -184,6 +195,9 @@ test('the toggle labels in vi-VN (FR-002)', async ({ page }) => {
 	await signIn(page, admin);
 	await page.goto('/admin/settings/data-model/bo_content');
 
+	await expect(
+		page.getByRole('main').getByRole('heading', { name: 'Content: tìm kiếm, Import, Export' }),
+	).toBeVisible();
 	for (const label of ['Hiện ô tìm kiếm', 'Hiện Import', 'Hiện Export']) {
 		await expect(page.getByRole('main').getByText(label, { exact: true })).toBeVisible();
 	}

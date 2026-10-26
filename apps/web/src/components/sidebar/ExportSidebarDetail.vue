@@ -66,7 +66,14 @@ const props = withDefaults(
 		showImport?: boolean;
 		showExport?: boolean;
 	}>(),
-	{ layoutQuery: undefined, filter: undefined, search: undefined, onDownload: undefined, showImport: true, showExport: true },
+	{
+		layoutQuery: undefined,
+		filter: undefined,
+		search: undefined,
+		onDownload: undefined,
+		showImport: true,
+		showExport: true,
+	},
 );
 
 const emit = defineEmits(['refresh']);

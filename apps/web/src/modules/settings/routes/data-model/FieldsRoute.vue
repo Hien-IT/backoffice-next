@@ -6,8 +6,9 @@
 // field drawer, then BoForm `directus_collections` bound to `edits.meta`, locked for system collections. The unsaved
 // changes dialog puts Keep Editing first (D-76). isSystemCollection is the `directus_` prefix (stores/collections.ts).
 import formatTitle from '@directus/format-title';
-import type { PrimaryKey } from '@directus/types';
+import type { Field, PrimaryKey } from '@directus/types';
 import { computed, ref, toRefs, useTemplateRef } from 'vue';
+import { useI18n } from 'vue-i18n';
 import { RouterView, useRouter } from 'vue-router';
 import BoButton from '../../../../components/BoButton.vue';
 import BoChip from '../../../../components/BoChip.vue';
@@ -30,6 +31,7 @@ const props = defineProps<{
 }>();
 
 const router = useRouter();
+const { t } = useI18n();
 
 const { collection } = toRefs(props);
 const collectionsStore = useCollectionsStore();
@@ -92,6 +94,33 @@ const meta = computed({
 	get: () => (edits.value['meta'] ?? {}) as Record<string, unknown>,
 	set: (value) => (edits.value = { ...edits.value, meta: value }),
 });
+
+// Backoffice (spec 022, D-182): the bo_show_* toggles of migration 20261026A have no divider row in the DB
+// (constitution II), so their card gets a titled divider here; sort 0 puts it before them (their sort is null).
+const formFields = computed<Field[]>(() => {
+	const fields = fieldsStore.getFieldsForCollection('directus_collections');
+	if (!fields.some((field) => field.field.startsWith('bo_show_'))) return fields;
+
+	const divider = {
+		collection: 'directus_collections',
+		field: 'bo_content_toggles_divider',
+		type: 'alias',
+		schema: null,
+		meta: {
+			field: 'bo_content_toggles_divider',
+			special: ['alias', 'no-data'],
+			interface: 'presentation-divider',
+			options: { icon: 'tune', title: t('collection_content_toggles') },
+			width: 'full',
+			sort: 0,
+			group: null,
+			hidden: false,
+			system: false,
+		},
+	};
+
+	return [...fields, divider as unknown as Field];
+});
 </script>
 
 <template>
@@ -144,7 +173,7 @@ const meta = computed({
 				ref="form"
 				v-model="meta"
 				card
-				collection="directus_collections"
+				:fields="formFields"
 				:loading="loading"
 				:initial-values="(item?.['meta'] as Record<string, unknown> | undefined) ?? null"
 				:primary-key="collection"

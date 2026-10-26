@@ -78,7 +78,7 @@ chạy trên 7 vendor như migration Directus `20211118A-add-notifications.ts`, 
 
 **Alternatives considered**: tạo qua API fields (cách A, chủ dự án bỏ); thêm divider `bo_*` alias để gom ba toggle
 (thêm dòng `directus_fields` không có cột: ngoài phạm vi constitution II "dòng `directus_fields` của các cột đó";
-có thể hỏi chủ dự án sau nếu vị trí cuối form không ổn).
+có thể hỏi chủ dự án sau nếu vị trí cuối form không ổn; lượt 3: chủ dự án chọn tiêu đề chỉ ở web, D-182).
 
 ## R4. `backoffice_migrations` là collection hệ thống (D-181)
 
@@ -283,6 +283,37 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   của một field `bo_*` bị xóa, giữ id nhỏ nhất. Kiểm local với profile của job blackbox: 9 service Backoffice chạy, 2
   service cùng áp migration, DB còn 1 dòng `20261026A` và 3 dòng `directus_fields`. Introspection scope `system` trên
   MySQL: `types` so theo tên khi không phải Postgres/SQLite.
+
+## Kết quả lượt 2 (2026-10-26, local)
+
+- Web unit (`unit` + `browser`, có axe cho trang Content với `bo_show_*` tắt): 4406 đạt.
+- E2E `content-collection-toggles.spec.ts` ở `proxy-api`: 9/9 đạt; ở `proxy-directus` (cùng các case
+  `settings-data-model.spec.ts`): 18 đạt. Bốn chỗ sửa khi chạy: reader mở layout cards nên đợi nút bộ lọc; tên mục
+  "Auto Refresh"; reset toggle về `null` làm switch của Data Model hiện tắt → reset về `true`; export
+  CSV không phải JSON → đọc `api.bytes`.
+- Data Model: Directus app liệt kê mọi collection hệ thống, kể cả `directus_migrations`; `COLLECTIONS_DENY_LIST` chỉ loại
+  khỏi `crudSafeSystemCollections`. Vì vậy `backoffice_migrations` ở nhóm System Collections như `directus_migrations`
+  (sửa FR-017, US4-6, D-181 so với câu chữ khi plan ở mục dưới).
+- Vị trí ba toggle (R12, xem trên app web local với API Backoffice, Settings > Data Model > một collection): một card
+  riêng không có tiêu đề, cuối form, sau card "Duplication"; "Show Search" và "Show Import" cùng hàng, "Show Export" hàng
+  dưới, mỗi ô nửa chiều rộng, checkbox "Enabled" bật sẵn. Card không tiêu đề vì ba dòng `directus_fields` không phải
+  field hệ thống: `getFormFields` (port của DR `v-form/utils/get-form-fields.ts`) chèn `$system_divider` (divider không
+  tiêu đề) giữa field hệ thống và field người dùng, và form card (D-150) mở card mới ở mỗi divider.
+- Chủ dự án 2026-10-26: thêm tiêu đề, chỉ ở web (D-182). `FieldsRoute.vue` truyền `fields` cho `BoForm` thay cho
+  `collection`: các field của `directus_collections` cộng một divider `bo_content_toggles_divider` (không có trong DB,
+  `meta.system` false, `sort` 0 nên đứng trước ba toggle có `sort` null) với tiêu đề từ overlay
+  `collection_content_toggles` và icon `tune`. Card của `$system_divider` không còn field nên bị bỏ. Không có toggle
+  `bo_show_*` (DB chưa chạy migration) thì form như cũ.
+
+## Kết quả lượt 3 (2026-10-26)
+
+- T042 (env parity Postgres local, DB đã có migration riêng): blackbox `routes/collections`, `routes/fields`,
+  `routes/schema`, `db/schema` (cùng `00-seed`) 310/310 đạt ở Backoffice và 310/310 ở Directus; không phải sửa
+  normalize. Phần GraphQL của T042 là lượt chạy của lượt 1 (request-set, schema, schema-management, GraphQL: 128 đạt).
+- D-182 (tiêu đề card ba toggle): unit `FieldsRoute.test.ts` 6/6 (case mới: card cuối có tiêu đề và đúng ba toggle);
+  unit Data Model, lang, Content, sidebar 239 đạt; axe trang collection đạt; xem trên app web local với API Backoffice:
+  card "Content: Search, Import, Export" có icon, ba toggle bên dưới, không còn card trống. E2E
+  `content-collection-toggles.spec.ts` thêm kiểm tiêu đề en-US và vi-VN, chạy ở CI.
 
 ## Sửa spec khi plan (2026-10-26)
 

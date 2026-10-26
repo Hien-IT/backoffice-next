@@ -39,3 +39,7 @@
 - Bảng "Đánh giá chạy song song" có mục [Inference]: plan PHẢI có test xác nhận từng mục.
 - Câu chữ sửa khi plan (FR-002, FR-017, FR-019, US4-6) và khi analyze (bảng Khác biệt cột `Mã`, edge case xóa bảng,
   FR-013 `init`, FR-019) ghi ở mục Clarifications của spec, 2026-10-26.
+- Mục [Inference] của bảng "Đánh giá chạy song song" đã có test (parity bootstrap, request-set, schema, GraphQL,
+  blackbox, deploy ba replica, E2E ba cấu hình); kết quả ở `research.md` "Kết quả lượt 1/2/3". Sửa khi implement
+  (FR-017, US4-6, D-181: `backoffice_migrations` trong nhóm System Collections như `directus_migrations`) ghi ở
+  Clarifications.
