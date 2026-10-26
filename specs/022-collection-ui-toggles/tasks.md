@@ -128,7 +128,11 @@ migration riêng tạo. Mỗi lượt kết thúc bằng task "đóng lượt" (
       `backoffice_migrations` với đúng một dòng `20261026A Add Collection UI Toggles` và `directus_collections` có ba
       cột; DB `directus_bootstrap` không có bảng và cột; (b) `cliRun('backoffice', ['bootstrap'])` lần nữa → log có
       `Backoffice migrations are up to date`, vẫn một dòng, `directus_migrations` 101 dòng không đổi; (c) case có sẵn
-      "Directus khởi động trên DB của Backoffice" vẫn xanh (US4 kịch bản 1).
+      "Directus khởi động trên DB của Backoffice" vẫn xanh (US4 kịch bản 1); (d) US3 kịch bản 5: xóa dòng `20261026A`
+      khỏi `backoffice_migrations` của DB `backoffice_bootstrap` qua knex, `cliRun('backoffice', ['start'])` (thoát mã 1
+      ngay ở kiểm tra migration; timeout 60 s) → log `Backoffice migrations do not match.` và `Missing Backoffice
+      migrations (not run yet): 20261026A`; rồi `cliRun('backoffice', ['bootstrap'])` → `Applying Add Collection UI
+      Toggles...` không lỗi (cột đã có, FR-014), dòng trở lại.
 - [ ] T017 [US3] Viết `parity/deploy/backoffice-migrations.test.ts` (mẫu `parity/deploy/smoke.test.ts`, `instances.ts`):
       qua DB của compose: `backoffice_migrations` đúng một dòng mỗi version của `BACKOFFICE_MIGRATIONS`; ba cột có; log
       của `REPLICAS` replica (`compose logs backoffice-api`) có đúng một `Applying Add Collection UI Toggles...` và các
@@ -172,7 +176,9 @@ Backoffice 403.
       /items/backoffice_migrations` admin → Backoffice 403 `FORBIDDEN`, Directus 200 (D-181, chỉ ghi nhận, không có
       trong request-set); `GET /collections/backoffice_migrations` hai app (Backoffice `meta.system true`, Directus
       `meta null`, normalize không áp vì path khác: thêm vào `normalizers.ts` nếu request-set có path này, hiện không);
-      `DELETE /collections/backoffice_migrations` Backoffice bị từ chối. Ghi kết quả vào `research.md` "Kết quả lượt 1".
+      `DELETE /collections/backoffice_migrations` **chỉ gửi tới Backoffice** (`BACKOFFICE_URL`) → bị từ chối; KHÔNG gửi
+      tới Directus: ở Directus lệnh này xóa bảng của DB dùng chung (spec Edge Cases, D-181). Ghi kết quả vào
+      `research.md` "Kết quả lượt 1".
 - [ ] T025 [US4] Chạy `parity-tests:test` cho `src/parity.test.ts` (request-set), `src/schema/overview.test.ts`,
       `src/schema-management/{cross-use,ddl-capture}.test.ts`, `src/graphql/*.test.ts` (SDL với `backoffice_migrations`,
       R4/T001) trên env Postgres; sửa normalize theo T001(b) nếu SDL lệch (ghi D-181).
@@ -221,7 +227,8 @@ preset/bookmark; mọi người dùng; `/content/backoffice_migrations` not foun
       `beforeEach` PATCH `/collections/bo_content` meta; `afterEach` PATCH ba cột `null`; case: tắt tìm kiếm với admin và
       user thường (không `textbox` tìm kiếm, nút `Filter` mở popover, thêm điều kiện lọc được); bookmark có `search`
       → request `/items/bo_content` không có `search=` (kiểm qua `helpers/requests.ts`), bookmark giữ `search` (GET
-      `/presets/:id`); bật lại → có `textbox`. Chạy ở cấu hình proxy-api local; ba cấu hình trên CI.
+      `/presets/:id`); bàn phím (SC-004): từ page header Tab tới nút `Filter`, Enter mở popover, Escape đóng; bật lại →
+      có `textbox`. Chạy ở cấu hình proxy-api local; ba cấu hình trên CI.
 - [ ] T034 [US1] Thêm case vào `e2e/settings-data-model.spec.ts` (cạnh case D-71 dòng 246): `/admin/content/
       backoffice_migrations` → not found; Data Model không liệt kê `backoffice_migrations` trong nhóm hệ thống.
 
@@ -255,7 +262,8 @@ collection có ba toggle với nhãn en-US/vi-VN.
       Export` trong detail panel, `Layout Options`, `Refresh` còn); Data Model `/settings/data-model/bo_content`: ba
       toggle `Show Search`, `Show Import`, `Show Export` ở card cuối, đổi ngôn ngữ vi-VN thấy `Hiện ô tìm kiếm`; tắt
       `Show Export` và lưu → PATCH `/collections/bo_content` có `meta.bo_show_export: false` (kiểm qua
-      `helpers/requests.ts`), trang Content phản ánh sau tải lại.
+      `helpers/requests.ts`), trang Content phản ánh sau tải lại; API khi cả ba tắt (FR-008, US2 kịch bản 4): AdminApi
+      `GET /items/bo_content?search=x` và `GET /items/bo_content?export=csv&limit=1` → 200 như trước.
 - [ ] T040 [P] [US2] Thêm test browser project (`web/components/SearchInput.browser.test.ts` mới hoặc file browser test
       có sẵn của component, cấu hình `apps/web/vitest.config.ts` project `browser`): `SearchInput` `showSearch=false`
       và `ExportSidebarDetail` `showImport=false` không vi phạm axe.

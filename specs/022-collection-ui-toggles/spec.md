@@ -131,6 +131,10 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - Ẩn ô nhập từ khóa không để lại khoảng trống hay điểm focus thừa; nút bộ lọc vẫn có tên đọc được cho screen reader.
 - Admin Directus bấm cấu hình `backoffice_migrations` trong Data Model của Directus app: bảng có dòng
   `directus_collections`; Backoffice vẫn coi nó là collection hệ thống; migration riêng chạy lại PHẢI không lỗi (FR-014).
+- Admin Directus xóa bảng `backoffice_migrations` (Data Model của Directus app, hoặc `DELETE
+  /collections/backoffice_migrations` ở Directus; Backoffice từ chối lệnh này, D-181): replica đang chạy không ảnh
+  hưởng; `start` của Backoffice sau đó báo thiếu migration riêng (FR-016); `bootstrap` lần sau tạo lại bảng và chạy
+  lại migration (FR-014). Test đối chiếu KHÔNG ĐƯỢC gửi lệnh xóa này tới Directus trên DB dùng chung.
 - Replica giữ lock bị dừng giữa chừng: lock hết hạn, replica sau chạy lại migration còn thiếu (FR-014 cho phép chạy lại).
 - Replica chờ lock quá lâu (redlock thử 100 lần cách 50 ms, `libs/memory/src/kv/lib/redis.ts:72-74`): `bootstrap` dừng
   với lỗi, container khởi động lại, lần sau thấy migration đã xong [Inference].
@@ -168,9 +172,11 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-012**: Backoffice PHẢI có bộ migration riêng: file trong thư mục riêng (không chung thư mục 101 migration port từ
   Directus), trạng thái trong bảng `backoffice_migrations` (`version`, `name`, `timestamp`, cùng dạng
   `directus_migrations`). Backoffice KHÔNG ĐƯỢC ghi hay xóa dòng nào trong `directus_migrations`.
-- **FR-013**: `bootstrap` PHẢI tạo `backoffice_migrations` nếu chưa có rồi chạy mọi migration riêng chưa chạy, theo thứ
-  tự version, sau khi migration Directus đã đủ, trên mọi vendor (sửa D-145: Backoffice vẫn chỉ cài và migrate Directus
-  trên Postgres, SQLite). Migration Directus chưa đủ thì không chạy migration riêng. Không có lệnh CLI riêng.
+- **FR-013**: `bootstrap` (và `init`, vì `init` tự cài DB rồi `start`; sửa khi analyze 2026-10-26) PHẢI tạo
+  `backoffice_migrations` nếu chưa có rồi chạy mọi migration riêng chưa chạy, theo thứ tự version, sau khi migration
+  Directus đã đủ, trên mọi vendor (sửa D-145: Backoffice vẫn chỉ cài và migrate Directus trên Postgres, SQLite).
+  Migration Directus chưa đủ thì không chạy migration riêng. Không có lệnh CLI riêng; `database install`,
+  `database migrate:*` không chạy migration riêng (output giữ giống Directus).
 - **FR-014**: Mỗi migration riêng PHẢI có `up` chỉ dùng knex, chạy được trên 7 vendor, chạy lại được trên DB đã có thay
   đổi của nó (bỏ qua bảng, cột, dòng đã có). Không có `down`.
 - **FR-015**: Migration riêng PHẢI chạy dưới lock dùng chung (Redis khi có cấu hình Redis, trong process khi không có):
@@ -184,9 +190,12 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-018**: Tên cột Backoffice thêm vào bảng `directus_*` PHẢI có tiền tố `bo_`; tên bảng riêng PHẢI có tiền tố
   `backoffice_`.
 - **FR-019**: Test: unit cho ẩn hiện và bộ chạy migration (SQLite); E2E Content ba cấu hình (proxy tới Directus, proxy
-  tới API mới, cross-site) với admin và user thường; profile `bootstrap` (chạy migration, chạy lại, ba replica cùng lúc;
-  so dump với Directus bỏ qua `backoffice_migrations`, cột `bo_*` và dòng `directus_fields` của chúng); bộ đối chiếu và
-  blackbox collections/fields/schema trên DB đã migrate (bỏ qua `backoffice_migrations`); vendor khác chạy hằng đêm.
+  tới API mới, cross-site) với admin và user thường, gồm bước bàn phím (Tab tới nút bộ lọc, Enter mở popover, SC-004)
+  và bước gọi API khi cài đặt tắt (`?search=`, `?export=` vẫn 200, FR-008); profile `bootstrap` (chạy migration, chạy
+  lại, `start` không `bootstrap` dừng với thông điệp rồi `bootstrap` phục hồi; so dump với Directus bỏ qua
+  `backoffice_migrations`, cột `bo_*` và dòng `directus_fields` của chúng); suite deploy (ba replica cùng lúc, một dòng
+  mỗi migration; sửa khi analyze 2026-10-26); bộ đối chiếu và blackbox collections/fields/schema trên DB đã migrate (bỏ
+  qua `backoffice_migrations`); vendor khác chạy hằng đêm.
   Quy tắc chuẩn hóa thêm vào FR-107 của 021 (sửa khi plan 2026-10-26): khi so output CLI và log `bootstrap`/`init` với
   Directus, bỏ các dòng của migration riêng (`Running Backoffice migrations...`, `Backoffice migrations are up to
   date`, `Applying <tên migration riêng>...`).
@@ -225,13 +234,15 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 
 ## Khác biệt so với Directus *(mandatory)*
 
-| Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
-|----------|------------------|---------|-------|-----------------------------------------------|
-| D-179 Ô tìm kiếm trang Content | Luôn hiện | Ẩn ô nhập từ khóa khi `bo_show_search` tắt, giữ nút bộ lọc | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) |
-| D-179 Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) |
-| D-180 Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; cần constitution 3.2.0, sửa D-145 | khác (duyệt 2026-10-26) |
-| D-181 `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, Data Model liệt kê | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, Data Model không liệt kê (như `directus_migrations`) | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) |
-| Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (duyệt 2026-10-26) |
+Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đứng đầu, cột `Gỡ ở` cuối, như spec 021).
+
+| Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
+|----|----------|------------------|---------|-------|-----------------------------------------------|-------|
+| D-179 | Ô tìm kiếm trang Content | Luôn hiện | Ẩn ô nhập từ khóa khi `bo_show_search` tắt, giữ nút bộ lọc | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) | — |
+| D-179 | Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) | — |
+| D-179.1 | Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (duyệt 2026-10-26) | — |
+| D-180 | Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` và `init` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; constitution 3.2.0, sửa D-145 | khác (duyệt 2026-10-26) | — |
+| D-181 | `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, Data Model liệt kê, `DELETE /collections/backoffice_migrations` xóa bảng | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, Data Model không liệt kê (như `directus_migrations`), xóa bị từ chối | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) | — |
 
 **Cần xác nhận**:
 
@@ -265,6 +276,12 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 
 - FR-002: chỉ nhãn, không ghi chú. FR-017, US4 kịch bản 6: ẩn khỏi Data Model như `directus_migrations`. FR-019: quy
   tắc chuẩn hóa log của migration riêng (FR-107 của 021).
+
+### Sửa khi `/speckit.analyze` (2026-10-26)
+
+- Bảng "Khác biệt" theo dạng cột `Mã` … `Gỡ ở` mà `tests/parity/src/spec-differences.ts` đọc; dòng Directus app thành
+  D-179.1. Edge case: admin Directus xóa bảng `backoffice_migrations`. FR-013: `init` cũng chạy migration riêng.
+  FR-019: bước bàn phím và bước API trong E2E, case `start` không `bootstrap`, ba replica ở suite deploy.
 
 ## Assumptions
 

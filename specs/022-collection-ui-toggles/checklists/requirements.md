@@ -37,3 +37,5 @@
 - 10 câu hỏi đã trả lời (Clarifications 2026-10-26). Constitution 3.2.0 đã sửa 2026-10-26 (ngoại lệ Nguyên tắc II cho
   migration riêng và bảng `backoffice_migrations`, ngoại lệ VII cho lock). D-179, D-180, D-181 duyệt 2026-10-26.
 - Bảng "Đánh giá chạy song song" có mục [Inference]: plan PHẢI có test xác nhận từng mục.
+- Câu chữ sửa khi plan (FR-002, FR-017, FR-019, US4-6) và khi analyze (bảng Khác biệt cột `Mã`, edge case xóa bảng,
+  FR-013 `init`, FR-019) ghi ở mục Clarifications của spec, 2026-10-26.
