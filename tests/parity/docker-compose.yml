@@ -581,7 +581,9 @@ services:
   # Admin DN cn=Manager,dc=my-domain,dc=com, password `secret`, base DN dc=my-domain,dc=com (blackbox defaults).
   ldap:
     profiles: [sso]
-    image: cleanstart/openldap:latest
+    # 2.7.1 (multi-arch digest): `latest` became 2.7.2 on 2026-10-26, whose slapd cannot read its own
+    # /etc/openldap/slapd.conf (Permission denied) and exits (CI 40294646712). The DR blackbox compose keeps `latest`.
+    image: cleanstart/openldap:2.7.1@sha256:e47bcd402e44b60b2639bbb7755af5611a48a21a25856659ad46c3de0e2b7354
     ports:
       - '6109:389'
     healthcheck:
