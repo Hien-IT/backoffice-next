@@ -115,8 +115,9 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
    mới.
 5. **Given** migration riêng đã chạy, **When** chạy `migrate:latest`, `migrate:up`, `migrate:down` của Directus, **Then**
    kết quả như DB chưa có migration riêng, vì `directus_migrations` không có dòng của Backoffice.
-6. **Given** migration riêng đã chạy, **When** admin mở Data Model, **Then** Backoffice liệt kê `backoffice_migrations`
-   trong nhóm collection hệ thống, còn Directus app liệt kê nó trong nhóm bảng chưa quản lý (meta null).
+6. **Given** migration riêng đã chạy, **When** admin mở Data Model, **Then** Backoffice không liệt kê
+   `backoffice_migrations` (như `directus_migrations`; sửa khi plan 2026-10-26), còn Directus app liệt kê nó trong nhóm
+   bảng chưa quản lý (meta null).
 
 ---
 
@@ -145,7 +146,8 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-001**: Mỗi collection PHẢI có ba cài đặt trong dòng `directus_collections`: "Hiện ô tìm kiếm", "Hiện Import",
   "Hiện Export", bật/tắt, mặc định bật.
 - **FR-002**: Admin PHẢI sửa được ba cài đặt trong form collection của Settings > Data Model, cùng chỗ với các tùy chọn
-  collection khác, nhãn en-US và vi-VN.
+  collection khác, nhãn en-US và vi-VN (không có ghi chú: `directus_fields.note` là một chuỗi, không dịch được cho cả
+  hai app; sửa khi plan 2026-10-26).
 - **FR-003**: Khi "Hiện ô tìm kiếm" tắt, trang Content của collection KHÔNG ĐƯỢC hiện ô nhập từ khóa và PHẢI giữ nút bộ
   lọc (cùng popover, cùng badge số bộ lọc).
 - **FR-004**: Khi "Hiện ô tìm kiếm" tắt, trang KHÔNG ĐƯỢC gửi từ khóa lấy từ preset, bookmark hay URL; preset giữ
@@ -176,14 +178,18 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-016**: Khởi động API (`start`) PHẢI kiểm tra mọi migration riêng đã chạy; thiếu thì dừng và báo rõ, giống
   migration Directus thiếu. Dòng lạ trong `backoffice_migrations` (DB của bản Backoffice mới hơn) cũng dừng và báo rõ.
 - **FR-017**: Backoffice PHẢI coi `backoffice_migrations` là collection hệ thống như `directus_migrations`: có trong danh
-  sách collection hệ thống của API (meta hệ thống, ẩn), không truy cập được qua `/items`, nằm trong nhóm collection hệ
-  thống ở Data Model, không vào snapshot.
+  sách collection hệ thống của API (meta hệ thống, ẩn), không truy cập được qua `/items`, ẩn khỏi Data Model như
+  `directus_migrations` (danh sách loại trừ của app; sửa khi plan 2026-10-26), `/content/backoffice_migrations` là
+  not found, không vào snapshot.
 - **FR-018**: Tên cột Backoffice thêm vào bảng `directus_*` PHẢI có tiền tố `bo_`; tên bảng riêng PHẢI có tiền tố
   `backoffice_`.
 - **FR-019**: Test: unit cho ẩn hiện và bộ chạy migration (SQLite); E2E Content ba cấu hình (proxy tới Directus, proxy
   tới API mới, cross-site) với admin và user thường; profile `bootstrap` (chạy migration, chạy lại, ba replica cùng lúc;
   so dump với Directus bỏ qua `backoffice_migrations`, cột `bo_*` và dòng `directus_fields` của chúng); bộ đối chiếu và
   blackbox collections/fields/schema trên DB đã migrate (bỏ qua `backoffice_migrations`); vendor khác chạy hằng đêm.
+  Quy tắc chuẩn hóa thêm vào FR-107 của 021 (sửa khi plan 2026-10-26): khi so output CLI và log `bootstrap`/`init` với
+  Directus, bỏ các dòng của migration riêng (`Running Backoffice migrations...`, `Backoffice migrations are up to
+  date`, `Applying <tên migration riêng>...`).
 
 ### Key Entities
 
@@ -224,7 +230,7 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 | D-179 Ô tìm kiếm trang Content | Luôn hiện | Ẩn ô nhập từ khóa khi `bo_show_search` tắt, giữ nút bộ lọc | Yêu cầu chủ dự án 2026-10-26 | khác (chờ duyệt) |
 | D-179 Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (chờ duyệt) |
 | D-180 Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; cần constitution 3.2.0, sửa D-145 | khác (chờ duyệt) |
-| D-181 `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items` | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items` | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (chờ duyệt) |
+| D-181 `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, Data Model liệt kê | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, Data Model không liệt kê (như `directus_migrations`) | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (chờ duyệt) |
 | Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (chờ duyệt) |
 
 **Cần xác nhận**:
@@ -249,6 +255,11 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 - Q: Migration riêng có lệnh CLI không? → A: không, chỉ chạy trong `bootstrap`; không có `down` (FR-013, FR-014).
 - Q: `backoffice_migrations` hiện trong Data Model thế nào? → A: Backoffice coi nó là bảng hệ thống như các bảng
   `directus_*` (FR-017, D-181).
+
+### Sửa câu chữ khi `/speckit.plan` (2026-10-26, research.md "Sửa spec khi plan")
+
+- FR-002: chỉ nhãn, không ghi chú. FR-017, US4 kịch bản 6: ẩn khỏi Data Model như `directus_migrations`. FR-019: quy
+  tắc chuẩn hóa log của migration riêng (FR-107 của 021).
 
 ## Assumptions
 
