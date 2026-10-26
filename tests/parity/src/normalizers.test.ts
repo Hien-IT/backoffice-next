@@ -35,9 +35,9 @@ describe('spec 022 D-181: backoffice_* collections are left out of /collections 
 
 	test('other paths and single items are not filtered', () => {
 		expect(names(normalizeBody('/items/articles', body))).toHaveLength(3);
-		expect(normalizeBody('/collections/backoffice_migrations', { data: { collection: 'backoffice_migrations' } })).toEqual(
-			{ data: { collection: 'backoffice_migrations' } },
-		);
+		expect(
+			normalizeBody('/collections/backoffice_migrations', { data: { collection: 'backoffice_migrations' } }),
+		).toEqual({ data: { collection: 'backoffice_migrations' } });
 	});
 
 	test('bodies without a data array are left as they are', () => {
@@ -51,7 +51,10 @@ describe('spec 022 D-181: backoffice_* collections are left out of /collections 
 			tags: [{ name: 'Users', 'x-collection': 'directus_users' }, tag],
 			paths: { '/items/backoffice_migrations': {}, '/items/backoffice_migrations/{id}': {}, '/users': {} },
 			components: {
-				schemas: { Users: { 'x-collection': 'directus_users' }, ItemsBackofficeMigrations: { 'x-collection': 'backoffice_migrations' } },
+				schemas: {
+					Users: { 'x-collection': 'directus_users' },
+					ItemsBackofficeMigrations: { 'x-collection': 'backoffice_migrations' },
+				},
 			},
 		};
 
@@ -128,9 +131,16 @@ describe('spec 022 D-181: backoffice_* collections are left out of /collections 
 					types: [
 						{
 							name: 'Query',
-							fields: [{ name: 'articles' }, { name: 'backoffice_migrations' }, { name: 'backoffice_migrations_by_id' }],
+							fields: [
+								{ name: 'articles' },
+								{ name: 'backoffice_migrations' },
+								{ name: 'backoffice_migrations_by_id' },
+							],
 						},
-						{ name: 'Mutation', fields: [{ name: 'create_backoffice_migrations_item' }, { name: 'create_articles_item' }] },
+						{
+							name: 'Mutation',
+							fields: [{ name: 'create_backoffice_migrations_item' }, { name: 'create_articles_item' }],
+						},
 						{ name: 'backoffice_migrations', fields: [{ name: 'version' }] },
 						{ name: 'backoffice_migrations_filter', inputFields: [] },
 						{ name: 'String', fields: null },
@@ -158,7 +168,10 @@ describe('spec 022 D-181: backoffice_* collections are left out of /collections 
 			data: {
 				__schema: {
 					types: [
-						{ name: 'Subscription', fields: [{ name: 'directus_users_mutated' }, { name: 'backoffice_migrations_mutated' }] },
+						{
+							name: 'Subscription',
+							fields: [{ name: 'directus_users_mutated' }, { name: 'backoffice_migrations_mutated' }],
+						},
 						{ name: 'backoffice_migrations_mutated', fields: [{ name: 'key' }] },
 						{ name: 'backoffice_migrations', fields: [{ name: 'version' }] },
 					],
@@ -168,6 +181,88 @@ describe('spec 022 D-181: backoffice_* collections are left out of /collections 
 
 		expect(normalizeBody('/graphql/system', body)).toEqual({
 			data: { __schema: { types: [{ name: 'Subscription', fields: [{ name: 'directus_users_mutated' }] }] } },
+		});
+	});
+});
+
+describe('spec 023 D-186: the json path filter type is left out of the GraphQL schema', () => {
+	const directusSdl = [
+		'input articles_filter {',
+		'  details: string_filter_operators',
+		'  details_func: count_function_filter_operators',
+		'  _and: [articles_filter]',
+		'}',
+		'',
+		'input boolean_filter_operators {',
+		'  _eq: Boolean',
+		'}',
+	].join('\n');
+	const backofficeSdl = [
+		'input articles_filter {',
+		'  details: string_filter_operators',
+		'  details_func: count_function_filter_operators',
+		'  details_json: json_path_filter_operators',
+		'  _and: [articles_filter]',
+		'}',
+		'',
+		'input json_path_filter_operators {',
+		'  path: String!',
+		'  text: string_filter_operators',
+		'  number: number_filter_operators',
+		'  boolean: boolean_filter_operators',
+		'}',
+		'',
+		'input boolean_filter_operators {',
+		'  _eq: Boolean',
+		'}',
+	].join('\n');
+
+	test('SDL text and server_specs_graphql: the input type and the <f>_json lines go, the rest verbatim', () => {
+		expect(normalizeText(backofficeSdl)).toBe(directusSdl);
+		expect(normalizeText(`${backofficeSdl}\n`)).toBe(`${directusSdl}\n`);
+		expect(normalizeText(directusSdl)).toBe(directusSdl);
+		expect(normalizeBody('/graphql/system', { data: { server_specs_graphql: backofficeSdl } })).toEqual({
+			data: { server_specs_graphql: directusSdl },
+		});
+	});
+
+	test('introspection: the type and the input fields of that type go (nullable or wrapped), other inputs stay', () => {
+		const jsonPath = { kind: 'INPUT_OBJECT', name: 'json_path_filter_operators', ofType: null };
+		const body = {
+			data: {
+				__schema: {
+					types: [
+						{
+							name: 'articles_filter',
+							fields: null,
+							inputFields: [
+								{ name: 'details', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+								{ name: 'details_json', type: jsonPath },
+								{ name: 'meta_json', type: { kind: 'NON_NULL', name: null, ofType: jsonPath } },
+								{ name: 'x_json', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+							],
+						},
+						{ name: 'json_path_filter_operators', fields: null, inputFields: [{ name: 'path' }] },
+					],
+				},
+			},
+		};
+
+		expect(normalizeBody('/graphql', body)).toEqual({
+			data: {
+				__schema: {
+					types: [
+						{
+							name: 'articles_filter',
+							fields: null,
+							inputFields: [
+								{ name: 'details', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+								{ name: 'x_json', type: { kind: 'INPUT_OBJECT', name: 'string_filter_operators', ofType: null } },
+							],
+						},
+					],
+				},
+			},
 		});
 	});
 });

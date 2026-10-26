@@ -317,35 +317,35 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T044 [P] [US4] Tạo `gql/utils/replace-funcs.test.ts` theo `contracts/tests.md`: top level, m2o lồng, `_and`/`_or`,
+- [X] T044 [P] [US4] Tạo `gql/utils/replace-funcs.test.ts` theo `contracts/tests.md`: top level, m2o lồng, `_and`/`_or`,
       `_some`, object prototype null (`Object.create(null)`), 0 hoặc 2 trong `text`/`number`/`boolean` →
       `InvalidQueryError` `"<f>_json" needs exactly one of text, number, boolean`, `{ x_json: { _eq: 1 } }` và `{ foo_json:
       { path: { _eq: 'x' } } }` giữ nguyên. Chạy đỏ.
-- [ ] T045 [P] [US4] Thêm vào `gql/utils/aggregate-query.test.ts` (không mock `sanitizeQuery`): `{ filter: { details_json:
+- [X] T045 [P] [US4] Thêm vào `gql/utils/aggregate-query.test.ts` (không mock `sanitizeQuery`): `{ filter: { details_json:
       { path: 'a', number: { _eq: 1 } } } }` → `query.filter` có `'json(details, a, number)': { _eq: 1 }` (đổi trước
       sanitize); sửa mock `../utils/replace-funcs.js` của `gql/schema/parse-query.test.ts` L50-52 thêm
       `replaceJsonPaths: vi.fn((v) => v)` và thêm case gọi trước `sanitizeQuery` (L25, L160). Chạy đỏ.
-- [ ] T046 [P] [US4] Thêm vào `gql/schema/index.test.ts`: `c.field('details').json()` cho `articles` (L29-33); scope
+- [X] T046 [P] [US4] Thêm vào `gql/schema/index.test.ts`: `c.field('details').json()` cho `articles` (L29-33); scope
       items có `articles_filter.details_json` kiểu `json_path_filter_operators` (field `path: String!`, `text`, `number`,
       `boolean`); SDL scope system không có `json_path_filter_operators`. Chạy đỏ.
-- [ ] T047 [P] [US4] Thêm vào `parity/normalizers.test.ts` (cạnh case D-181 L112-156) và `parity/parity.test.ts` (L149,
+- [X] T047 [P] [US4] Thêm vào `parity/normalizers.test.ts` (cạnh case D-181 L112-156) và `parity/parity.test.ts` (L149,
       L185): introspection bỏ type `json_path_filter_operators` và `inputFields` có `type.name` đó; SDL bỏ khối `input
       json_path_filter_operators {...}` và dòng `  <f>_json: json_path_filter_operators`; `server_specs_graphql`; bỏ so
       ETag khi body có `json_path_filter_operators`; sắp xếp type introspection. Chạy đỏ.
 
 ### Implementation for User Story 4
 
-- [ ] T048 [US4] Thêm `replaceJsonPaths` vào `gql/utils/replace-funcs.ts` theo R7 (lodash `isPlainObject`, `transform`).
+- [X] T048 [US4] Thêm `replaceJsonPaths` vào `gql/utils/replace-funcs.ts` theo R7 (lodash `isPlainObject`, `transform`).
       T044 xanh.
-- [ ] T049 [US4] Gọi `replaceJsonPaths` trước `sanitizeQuery` ở `gql/schema/parse-query.ts` (L25 cho `filter` của query
+- [X] T049 [US4] Gọi `replaceJsonPaths` trước `sanitizeQuery` ở `gql/schema/parse-query.ts` (L25 cho `filter` của query
       và mutation, L160 cho args field quan hệ) và `gql/utils/aggregate-query.ts` (L19). T045 xanh.
-- [ ] T050 [US4] Sửa `gql/schema/read.ts`: tạo `json_path_filter_operators` sau L433, thêm `<f>_json` trong reduce sau
+- [X] T050 [US4] Sửa `gql/schema/read.ts`: tạo `json_path_filter_operators` sau L433, thêm `<f>_json` trong reduce sau
       L506 khi `field.type === 'json'`, `gql.scope === 'items'` và collection không có field tên `<f>_json`. T046 xanh;
       `gql/schema/*.test.ts` hiện có xanh.
-- [ ] T051 [US4] Sửa `parity/normalizers.ts` (`withoutBackofficeIntrospection` lọc `inputFields`, `withoutBackofficeSdl`,
+- [X] T051 [US4] Sửa `parity/normalizers.ts` (`withoutBackofficeIntrospection` lọc `inputFields`, `withoutBackofficeSdl`,
       `withoutBackofficeSpecs`) và `parity/parity.ts` (L195-200 ETag, L225-230 sort) cho D-186; thêm `D-186` `kind:
       'doc'` (reason trỏ normalizer) vào `tests/parity/accepted-differences.ts`. T047 xanh.
-- [ ] T052 [US4] Thêm vào `parity/graphql/read.test.ts` case chỉ Backoffice (mẫu blackbox L128-137): `articles(filter: {
+- [X] T052 [US4] Thêm vào `parity/graphql/read.test.ts` case chỉ Backoffice (mẫu blackbox L128-137): `articles(filter: {
       details_json: { path: "order", number: { _gt: 2 } } })` và m2o `category { ... }`, `_and`/`_or`, aggregate → cùng
       tập id với REST `json(...)` ở Backoffice; mutation `update_articles_items(filter: ...)` trên item test. Chạy
       `parity/graphql/schema.test.ts`, `system.test.ts`, `read.test.ts` trên Postgres: xanh (SC-004).
@@ -356,7 +356,7 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
 
 **Purpose**: benchmark, vendor khác, tài liệu, đóng feature.
 
-- [ ] T053 [P] Sửa `bench/seed-items.ts` (field `payload` json `cast-json` ở L55-63; `json_build_object('Amount', g %
+- [X] T053 [P] Sửa `bench/seed-items.ts` (field `payload` json `cast-json` ở L55-63; `json_build_object('Amount', g %
       10000, 'Currency', 'VND')` trong INSERT L77-83; policy user đọc thêm `payload` L110) và `bench/items.ts` (khối sau
       các scenario so sánh: `measure(seeded, s, 'backoffice', ...)` cho `GET /items/bench_articles?filter={"json(payload,
       Amount, number)":{"_eq":6000}}&limit=25&fields=id,title`, admin, `ROUNDS` vòng; lần 1 không index, lần 2 sau
@@ -370,7 +370,7 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
       mssql, oracle, cockroachdb, postgres10: `json-path.test.ts` (vendor gate 400 có thông điệp; postgres10 lọc đúng);
       ghi kết quả vào `research.md` "Kết quả lượt 3". Bổ sung cho SC-002 (bắt buộc là T006 và MySQL `reduced`); chủ dự án
       quyết định có chạy nightly không (đang chạy tay).
-- [ ] T056 [P] Thêm gạch đầu dòng 023 vào `tests/parity/README.md` mục "Test items (feature 005)" (L115-133:
+- [X] T056 [P] Thêm gạch đầu dòng 023 vào `tests/parity/README.md` mục "Test items (feature 005)" (L115-133:
       `json-path.test.ts`, D-184..D-187, bước jsonb, vendor) và ghi chú vào `deploy/README.md` cạnh L160 (shared-domain:
       request có json path rơi vào Directus nhận 403, D-184; separate-domain, standalone không ảnh hưởng).
 - [ ] T057 Ghi `specs/023-json-path-filter/research.md` "Kết quả lượt 1/2/3" (T001, T002, T017, T054, T055);

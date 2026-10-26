@@ -33,6 +33,11 @@ const ACTIONS = {
 } satisfies Record<string, number | undefined>;
 type Action = keyof typeof ACTIONS;
 
+// Spec 023 (T053): a preset filter on a json path at the web app behind the new API only (Directus answers 403, D-184);
+// reported, not gated.
+const JSON_PATH_FILTER = { 'json(payload, Amount, number)': { _eq: 6000 } };
+const jsonPath = { timings: [] as number[], requests: [] as string[] };
+
 const timings = {} as Record<App, Record<Action, number[]>>;
 const requests = {} as Record<App, Record<Action, string[]>>;
 
@@ -163,6 +168,17 @@ async function measure(app: App, context: BrowserContext, me: string) {
 		await page.locator('table tbody tr:nth-child(25)').waitFor({ timeout: TIMEOUT });
 	});
 	await page.close();
+
+	if (app !== 'web → API') return;
+	await resetPreset(me, JSON_PATH_FILTER);
+	page = await context.newPage();
+	tracker = track(page);
+	const start = performance.now();
+	await page.goto(url);
+	await page.locator('table tbody tr:nth-child(25)').waitFor({ timeout: TIMEOUT });
+	jsonPath.timings.push(performance.now() - start);
+	jsonPath.requests.push(await tracker.take());
+	await page.close();
 }
 
 const seeded = await seed();
@@ -183,6 +199,8 @@ try {
 			timings[app][action] = [];
 			requests[app][action] = [];
 		}
+	jsonPath.timings = [];
+	jsonPath.requests = [];
 
 	for (let i = 0; i < RUNS; i++) {
 		for (const app of Object.keys(APPS) as App[]) await measure(app, contexts[app], me);
@@ -204,6 +222,10 @@ try {
 			`| ${action} | ${target ?? '-'} | ${cells.join(' | ')} | ${split} | ${reasons.length ? `FAIL: ${reasons.join('; ')}` : 'ok'} |`,
 		);
 	}
+
+	rows.push(
+		`| filter json path (preset, spec 023) | - | - | - | ${p95(jsonPath.timings)} | - / - / ${usual(jsonPath.requests)} | reported (403 at Directus, D-184) |`,
+	);
 } finally {
 	await browser.close();
 	await directus('DELETE', '/presets', { query: { filter: { collection: { _eq: ARTICLES } } } }).catch(() => undefined);

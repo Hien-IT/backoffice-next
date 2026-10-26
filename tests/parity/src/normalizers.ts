@@ -25,7 +25,8 @@ export function normalizeBody(path: string, body: unknown): unknown {
 	if (/^\/(collections|fields)\/?(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeCollections(body));
 	if (/^\/graphql(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeIntrospection(body));
 	// The system scope too: its Subscription type covers every collection, backoffice_migrations_mutated at Directus.
-	if (/^\/graphql\/system(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeIntrospection(withoutBackofficeSpecs(body)));
+	if (/^\/graphql\/system(\?|$)/.test(path))
+		return normalizeDeep(withoutBackofficeIntrospection(withoutBackofficeSpecs(body)));
 	return normalizeDeep(body);
 }
 
@@ -55,7 +56,8 @@ export function normalizeOas(body: unknown): unknown {
 
 	// Spec 022 D-181: Directus documents backoffice_migrations as an items collection (admin), Backoffice has no static
 	// system tag for it; both are compared without it.
-	const backoffice = (value: unknown) => isObject(value) && String(value['x-collection'] ?? '').startsWith('backoffice_');
+	const backoffice = (value: unknown) =>
+		isObject(value) && String(value['x-collection'] ?? '').startsWith('backoffice_');
 
 	if (Array.isArray(out['tags'])) {
 		out['tags'] = out['tags']
@@ -92,13 +94,22 @@ export function sortIntrospectionTypes(body: unknown): unknown {
 
 /** Spec 022 D-181: `server_specs_graphql` (the SDL through /graphql/system) without backoffice_migrations. */
 function withoutBackofficeSpecs(body: unknown): unknown {
-	if (!isObject(body) || !isObject(body['data']) || typeof body['data']['server_specs_graphql'] !== 'string') return body;
-	return { ...body, data: { ...body['data'], server_specs_graphql: withoutBackofficeSdl(body['data']['server_specs_graphql']) } };
+	if (!isObject(body) || !isObject(body['data']) || typeof body['data']['server_specs_graphql'] !== 'string')
+		return body;
+	return {
+		...body,
+		data: { ...body['data'], server_specs_graphql: withoutBackofficeSdl(body['data']['server_specs_graphql']) },
+	};
 }
+
+/** Spec 023 D-186: the GraphQL input type of a json path filter (Backoffice only). */
+export const JSON_PATH_TYPE = 'json_path_filter_operators';
 
 /**
  * Spec 022 D-181: an introspection result without the backoffice_migrations types and the root fields named after it
  * (Directus has them in /graphql for the admin, Backoffice in neither scope, like directus_migrations).
+ * Spec 023 D-186: also without the json_path_filter_operators type and the `<f>_json` input fields of that type, which
+ * only Backoffice has.
  */
 export function withoutBackofficeIntrospection(body: unknown): unknown {
 	if (!isObject(body) || !isObject(body['data']) || !isObject(body['data']['__schema'])) return body;
@@ -106,16 +117,28 @@ export function withoutBackofficeIntrospection(body: unknown): unknown {
 	const schema = body['data']['__schema'];
 	if (!Array.isArray(schema['types'])) return body;
 
-	const named = (value: unknown) => isObject(value) && String(value['name'] ?? '').includes('backoffice_migrations');
+	const named = (value: unknown) =>
+		isObject(value) &&
+		(String(value['name'] ?? '').includes('backoffice_migrations') || value['name'] === JSON_PATH_TYPE);
+	const jsonPathInput = (value: unknown) => isObject(value) && typeName(value['type']) === JSON_PATH_TYPE;
 	const types = schema['types']
 		.filter((type) => !named(type))
-		.map((type) =>
-			isObject(type) && Array.isArray(type['fields'])
-				? { ...type, fields: type['fields'].filter((field) => !named(field)) }
-				: type,
-		);
+		.map((type) => {
+			if (!isObject(type)) return type;
+			let kept = type;
+			if (Array.isArray(type['fields'])) kept = { ...kept, fields: type['fields'].filter((field) => !named(field)) };
+			if (Array.isArray(type['inputFields'])) {
+				kept = { ...kept, inputFields: type['inputFields'].filter((field) => !jsonPathInput(field)) };
+			}
+			return kept;
+		});
 
 	return { ...body, data: { ...body['data'], __schema: { ...schema, types } } };
+}
+
+/** The named type under NON_NULL / LIST wrappers of an introspection type reference. */
+function typeName(ref: unknown): unknown {
+	return isObject(ref) ? (ref['name'] ?? typeName(ref['ofType'])) : undefined;
 }
 
 /** extensions.reset, observedValue and the REQUESTS_EXCEEDED message depend on time: keep their type or shape. */
@@ -237,9 +260,10 @@ export function normalizeText(text: string): string {
 /**
  * Spec 022 D-181: an SDL without the definitions named after backoffice_migrations (with their one-line description)
  * and the root fields named after it; checked byte for byte against the Backoffice SDL of the same database.
+ * Spec 023 D-186: also without `input json_path_filter_operators` and the `<f>_json: json_path_filter_operators` lines.
  */
 export function withoutBackofficeSdl(sdl: string): string {
-	if (!sdl.includes('backoffice_migrations')) return sdl;
+	if (!sdl.includes('backoffice_migrations') && !sdl.includes(JSON_PATH_TYPE)) return sdl;
 
 	const trailing = /\n*$/.exec(sdl)![0];
 
@@ -250,6 +274,8 @@ export function withoutBackofficeSdl(sdl: string): string {
 				'',
 			)
 			.replace(/^ {2}\w*backoffice_migrations\w*[(:][^\n]*\n/gm, '')
+			.replace(/^input json_path_filter_operators \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm, '')
+			.replace(/^ {2}\w+_json: json_path_filter_operators\n/gm, '')
 			.replace(/\n+$/, '') + trailing
 	);
 }

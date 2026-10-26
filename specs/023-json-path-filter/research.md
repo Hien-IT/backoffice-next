@@ -499,3 +499,16 @@ lỗi 403; spec, contracts, quickstart sửa câu chữ 400 → 403 (không đ�
   `beforeEach`; sign-in cần `resetLastPage`.
 - `tests/parity/src/vendors.test.ts` mong glob cũ `src/items/{crud,export}.test.ts` (CI 40391510176 `quality` đỏ): sửa
   theo glob mới và thêm kiểm `json-path.test.ts` trong REDUCED.
+
+## Kết quả lượt 3 (2026-10-27, env parity Postgres local)
+
+- GraphQL: `replaceJsonPaths`/`withJsonPaths` (`gql/utils/replace-funcs.ts`) gọi trước `sanitizeQuery` ở
+  `parse-query.ts` (query, mutation, args field quan hệ) và `aggregate-query.ts`; `json_path_filter_operators` +
+  `<f>_json` trong `read.ts` (scope items, không đè field thật). Unit `gql/` xanh (119), `api:test` 4040 xanh, coverage
+  86 %.
+- Parity Postgres: `graphql/schema.test.ts` (introspection và SDL nguyên văn sau normalizer D-186, model có field json
+  `details`), `system.test.ts`, `read.test.ts` (2 case mới chỉ Backoffice: cùng tập id với REST `json(...)` ở top level,
+  `_or`, m2o, aggregate; mutation `ids` + filter; lỗi `INVALID_QUERY` khi thiếu/thừa kiểu, path sai) xanh: 30 test,
+  2 skip có sẵn. Mutation update của DR/Backoffice cần `ids`; filter chỉ lọc item trả về.
+- Index: trên Postgres 13 của env, `PREPARE` với tham số như knex (`ARRAY[$1]::text[]`, `$3` numeric) dùng
+  `Bitmap Index Scan` của index biểu thức trong `quickstart.md` "Index" (plan tùy biến, tham số được gập thành hằng).

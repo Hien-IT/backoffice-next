@@ -5,7 +5,13 @@ import http from 'node:http';
 import https from 'node:https';
 import type { AcceptedDifference, Matcher } from '../accepted-differences.js';
 import { getDbsToTest } from './get-dbs-to-test.js';
-import { normalizeBody, normalizeHeader, normalizeText, sortIntrospectionTypes } from './normalizers.js';
+import {
+	JSON_PATH_TYPE,
+	normalizeBody,
+	normalizeHeader,
+	normalizeText,
+	sortIntrospectionTypes,
+} from './normalizers.js';
 
 export interface ParityRequest {
 	method?: string;
@@ -194,9 +200,10 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 
 	// Spec 022 D-181: Directus lists backoffice_migrations (collections, fields, GraphQL items, SDL) where Backoffice
 	// does not; the bodies are compared without it, so the ETags of the raw bodies cannot match (a HEAD of the SDL
-	// route has no body to look at).
+	// route has no body to look at). Spec 023 D-186: the same for the json path filter type that only Backoffice has
+	// (its ETag differs, and graphql-js may reach a filter operator type earlier through it).
 	const backofficeCollections =
-		[directus, backoffice].some((c) => c.text.includes('backoffice_migrations')) ||
+		[directus, backoffice].some((c) => c.text.includes('backoffice_migrations') || c.text.includes(JSON_PATH_TYPE)) ||
 		(/^\/server\/specs\/graphql(\/system)?$/.test(path) && directus.text === '' && backoffice.text === '');
 
 	for (const name of [...names].sort()) {

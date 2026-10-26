@@ -265,6 +265,12 @@ không phủ host Backoffice. Thông báo nêu biến, giá trị và giá trị
 `backoffice.io/api-pool: <apiPool.name>` và `lifecycle.preStop.exec.command: ["sleep", "10"]`, rồi gỡ host đó khỏi
 Ingress của Directus (tránh hai Ingress cùng host). Bỏ nhãn để đưa Directus ra khỏi pool.
 
+**Lọc theo path trong field json (spec 023).** Chỉ API Backoffice nhận key `json(field, path[, type])` trong filter
+(Postgres, SQLite; vendor khác 400). Ở chế độ chung domain (pool có Directus: `api_pool` ở compose, Service `-api` ở
+Helm) request có json path rơi vào Directus nhận 403 `FORBIDDEN` (D-184), không định tuyến riêng ở lb; trang Content của
+app web mới hiện lỗi API như khi `/items` lỗi. Chế độ domain riêng và standalone (pool chỉ có Backoffice) không bị ảnh
+hưởng. Bookmark có json path lưu trong `directus_presets` dùng chung; Directus app mở bookmark đó cũng nhận 403 (D-184.1).
+
 **Ingress annotation.** Chart không đặt annotation riêng của controller. Upload lớn cần bỏ giới hạn body và không đệm
 body; request dài cần timeout đọc đủ lâu (FR-051):
 

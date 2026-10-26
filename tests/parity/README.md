@@ -127,6 +127,14 @@ pnpm nx run parity-tests:env-down --vendor=postgres
   chéo key và giá trị (`cache-cross`), Redis của cặp dừng và R-10 (`cache-redis-down`), thông điệp `websocket.event`
   (`bus`). Fixture của cặp cache tạo qua Directus của cặp; sau khi đổi schema gọi `POST /utils/cache/clear?system` ở
   Directus của mọi cặp (mỗi cặp một bus).
+- `src/items/json-path.test.ts` (spec 023, bộ `full` và `reduced` trên mọi vendor): filter `json(field, path[, type])`
+  qua `/items`, `SEARCH`, export, m2o, `[*]`, quyền trên field gốc. Directus trả 403 `FORBIDDEN` cho các request đó
+  (D-184, `http` theo collection `parity_json_path_*`); Backoffice kiểm theo tập id mong đợi. Postgres chạy lại sau khi
+  `ALTER` cột sang `jsonb` (`hostDb()` rồi xóa cache); SQLite cùng các case; vendor khác chỉ kiểm cổng vendor (400 có
+  thông điệp). `sort=json(...)` và `fields=json(f, p, type)` so riêng từng app (D-184.2); permission có json path bị từ
+  chối ở Backoffice (D-185). GraphQL `<f>_json` (D-186) ở `src/graphql/read.test.ts`, normalizer bỏ type
+  `json_path_filter_operators` khỏi introspection/SDL; D-187 là phần web. Request đọc gửi `Cache-Control: no-store` vì
+  key cache response dùng chung giữa hai app.
 - Cặp chính đặt `CACHE_SKIP_ALLOWED=true`, `CACHE_STATUS_HEADER=x-cache-status`; `capture()` gửi
   `Cache-Control: no-store` cho `GET`, `HEAD` khi request chưa đặt, nên bộ so sánh luôn đọc mới ở cả hai app và so
   header `x-cache-status`.

@@ -432,6 +432,26 @@ export async function getReadableTypes(
 		},
 	});
 
+	// Backoffice (spec 023, D-186): a path in a json field and the operators of one value type; "exactly one of text,
+	// number, boolean" is checked when replaceJsonPaths maps it to the REST key json(field, path, type).
+	const JsonPathFilterOperators = schemaComposer.createInputTC({
+		name: 'json_path_filter_operators',
+		fields: {
+			path: {
+				type: new GraphQLNonNull(GraphQLString),
+			},
+			text: {
+				type: StringFilterOperators,
+			},
+			number: {
+				type: NumberFilterOperators,
+			},
+			boolean: {
+				type: BooleanFilterOperators,
+			},
+		},
+	});
+
 	const subscriptionEventType = schemaComposer.createEnumTC({
 		name: 'EventEnum',
 		values: {
@@ -502,6 +522,13 @@ export async function getReadableTypes(
 				if (field.type === 'json' || field.type === 'alias') {
 					acc[`${field.field}_func`] = {
 						type: CountFunctionFilterOperators,
+					};
+				}
+
+				// Backoffice (spec 023, D-186): items scope only, and not over a real field of that name.
+				if (field.type === 'json' && gql.scope === 'items' && !(`${field.field}_json` in collection.fields)) {
+					acc[`${field.field}_json`] = {
+						type: JsonPathFilterOperators,
 					};
 				}
 

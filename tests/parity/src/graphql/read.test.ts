@@ -5,7 +5,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { closeHostDb } from '../auth/db-effects.js';
 import { appRequest, appUrl } from '../directus-api.js';
-import { capture } from '../parity.js';
+import { getDbsToTest } from '../get-dbs-to-test.js';
+import { capture, type Captured } from '../parity.js';
 import { attachPolicy, cleanup, CreateRole, createPolicy, createShare, uniqueName } from '../permissions/fixtures.js';
 import {
 	adminJwt,
@@ -241,5 +242,101 @@ describe('documents (US1.5, US1.6)', () => {
 		const get = await sameGql('items', document, { token: admin, method: 'GET', variables: { n: 2 } });
 		const post = await gql('backoffice', 'items', document, { token: admin, variables: { n: 2 } });
 		expect(get.backoffice.json).toEqual(post.json);
+	});
+});
+
+// Spec 023 (US4, D-186, SC-004): `<f>_json` filters exist at Backoffice only (Directus has no such input), so these
+// documents go to Backoffice and are checked against the REST json(...) key of the same filter at Backoffice.
+const [vendor] = getDbsToTest();
+const JSON_PATHS = ['postgres', 'postgres10', 'sqlite3'].includes(vendor!);
+
+describe('spec 023 D-186: json path filters (Backoffice only)', () => {
+	const ids = (captured: Captured, key: string): string[] => {
+		expect((captured.json as any).errors).toBeUndefined();
+		return (captured.json as any).data[key].map((row: { id: string | number }) => String(row.id));
+	};
+
+	const restIds = async (collection: string, filter: unknown) => {
+		const rest = await capture(appUrl('backoffice'), {
+			path: `/items/${collection}?sort=id&fields=id&filter=${encodeURIComponent(JSON.stringify(filter))}`,
+			headers: { authorization: `Bearer ${admin}`, 'cache-control': 'no-store' },
+		});
+		expect(rest.status).toBe(200);
+		return (rest.json as any).data.map((row: { id: number }) => String(row.id));
+	};
+
+	it.skipIf(!JSON_PATHS)('top level, _or, through m2o, aggregate: the ids of the REST json(...) key', async () => {
+		const cases: [string, string, unknown][] = [
+			[
+				m.articles,
+				'{ details_json: { path: "order", number: { _gt: 2 } } }',
+				{ 'json(details, order, number)': { _gt: 2 } },
+			],
+			[
+				m.articles,
+				'{ _or: [{ details_json: { path: "nested.flag", boolean: { _eq: true } } }, { title: { _eq: "beta" } }] }',
+				{ _or: [{ 'json(details, nested.flag, boolean)': { _eq: true } }, { title: { _eq: 'beta' } }] },
+			],
+			[
+				m.comments,
+				'{ article: { details_json: { path: "order", number: { _eq: 1 } } } }',
+				{ article: { 'json(details, order, number)': { _eq: 1 } } },
+			],
+		];
+
+		for (const [collection, filter, rest] of cases) {
+			const result = await gql('backoffice', 'items', `{ ${collection}(filter: ${filter}, sort: ["id"]) { id } }`, {
+				token: admin,
+			});
+			const got = ids(result, collection);
+			expect(got.length).toBeGreaterThan(0);
+			expect(got).toEqual(await restIds(collection, rest));
+		}
+
+		const aggregated = await gql(
+			'backoffice',
+			'items',
+			`{ ${m.articles}_aggregated(filter: { details_json: { path: "nested.flag", boolean: { _eq: true } } }) { count { id } } }`,
+			{ token: admin },
+		);
+		expect((aggregated.json as any).data[`${m.articles}_aggregated`][0].count.id).toBe(
+			(await restIds(m.articles, { 'json(details, nested.flag, boolean)': { _eq: true } })).length,
+		);
+
+		// A mutation: `ids` picks the item written (title unchanged), the json path filter the items returned.
+		const update = (order: number) =>
+			gql(
+				'backoffice',
+				'items',
+				`mutation { update_${m.articles}_items(ids: ["${articles[4]}"], filter: { details_json: { path: "order", number: { _eq: ${order} } } }, data: { title: "epsilon" }) { id title } }`,
+				{ token: admin },
+			);
+		expect((await update(4)).json).toEqual({
+			data: { [`update_${m.articles}_items`]: [{ id: String(articles[4]), title: 'epsilon' }] },
+		});
+		expect((await update(3)).json).toEqual({ data: { [`update_${m.articles}_items`]: [] } });
+	});
+
+	it('none or two value types, a wrong path; outside Postgres and SQLite the vendor gate', async () => {
+		const error = async (filter: string) => {
+			const result = await gql('backoffice', 'items', `{ ${m.articles}(filter: ${filter}) { id } }`, { token: admin });
+			return (result.json as any).errors?.[0];
+		};
+
+		const none = await error('{ details_json: { path: "order" } }');
+		expect(none.extensions.code).toBe('INVALID_QUERY');
+		expect(none.message).toContain('"details_json" needs exactly one of text, number, boolean');
+		expect(
+			(await error('{ details_json: { path: "order", text: { _eq: "1" }, number: { _eq: 1 } } }')).extensions.code,
+		).toBe('INVALID_QUERY');
+
+		const wrong = await error('{ details_json: { path: "items[", text: { _eq: "1" } } }');
+		expect(wrong.extensions.code).toBe('INVALID_QUERY');
+
+		if (!JSON_PATHS) {
+			const gate = await error('{ details_json: { path: "order", number: { _eq: 1 } } }');
+			expect(gate.extensions.code).toBe('INVALID_QUERY');
+			expect(gate.message).toContain('not supported');
+		}
 	});
 });

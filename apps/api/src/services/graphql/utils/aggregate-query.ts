@@ -4,7 +4,7 @@ import type { FieldNode, SelectionNode } from 'graphql';
 import { sanitizeQuery } from '../../../utils/sanitize-query.js';
 import { validateQuery } from '../../../utils/validate-query.js';
 import { filterReplaceM2A } from './filter-replace-m2a.js';
-import { replaceFuncs } from './replace-funcs.js';
+import { replaceFuncs, withJsonPaths } from './replace-funcs.js';
 
 /**
  * Resolve the aggregation query based on the requested aggregated fields
@@ -16,7 +16,7 @@ export async function getAggregateQuery(
 	accountability?: Accountability | null,
 	collection?: string,
 ): Promise<Query> {
-	const query: Query = await sanitizeQuery(rawQuery, schema, accountability);
+	const query: Query = await sanitizeQuery(withJsonPaths(rawQuery), schema, accountability);
 
 	query.aggregate = {};
 

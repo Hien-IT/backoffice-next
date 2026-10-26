@@ -22,6 +22,7 @@ import {
 import { cpuPerRequest, snapshot } from './diag.ts';
 import { paced } from './paced.ts';
 import { flushPermissions, redis } from './redis.ts';
+import { db } from './seed-permissions.ts';
 import { ARTICLES, cleanup, type ItemsSeed, seed } from './seed-items.ts';
 
 const DIRECTUS = process.env['DIRECTUS_URL'] ?? 'http://127.0.0.1:8155';
@@ -134,11 +135,61 @@ async function measure(seeded: ItemsSeed, s: Scenario, app: App, duration: numbe
 	};
 }
 
+// Spec 023 (T053, SC-006): a json path filter at Backoffice only (Directus answers 403, D-184), without and with an
+// expression index on the exact expression of the app (quickstart.md "Index"); reported, gated on errors only.
+const JSON_PATH_LIST = `/items/${ARTICLES}?filter=${encodeURIComponent(
+	JSON.stringify({ 'json(payload, Amount, number)': { _eq: 6000 } }),
+)}&limit=25&fields=id,title`;
+const JSON_PATH_INDEX = 'bench_articles_payload_amount';
+// The WHERE of the app for that key (postgres dialect, parameters bound like knex does).
+const JSON_PATH_SQL = `SELECT id, title FROM ${ARTICLES} WHERE CASE WHEN json_typeof("${ARTICLES}"."payload" #> ARRAY[?]::text[]) = 'number' THEN ("${ARTICLES}"."payload" #>> ARRAY[?]::text[])::numeric END = ? LIMIT 25`;
+
+interface JsonPathResult {
+	index: boolean;
+	rounds: Round[];
+	plan: string;
+}
+
+async function jsonPathRun(seeded: ItemsSeed, index: boolean): Promise<JsonPathResult> {
+	if (index) {
+		await db.raw(
+			`CREATE INDEX ${JSON_PATH_INDEX} ON ${ARTICLES} ((CASE WHEN json_typeof(payload #> ARRAY['Amount']) = 'number' THEN (payload #>> ARRAY['Amount'])::numeric END))`,
+		);
+		await db.raw(`ANALYZE ${ARTICLES}`);
+	}
+
+	const explain = await db.raw(`EXPLAIN ${JSON_PATH_SQL}`, ['Amount', 'Amount', 6000]);
+	const plan = explain.rows.map((row: Record<string, string>) => row['QUERY PLAN']).join('\n');
+	const s: Scenario = { name: 'json path', method: 'GET', path: () => JSON_PATH_LIST, user: 'admin', fresh: true };
+	await measure(seeded, s, 'backoffice', WARMUP);
+	const rounds: Round[] = [];
+	for (let i = 0; i < ROUNDS; i++) rounds.push(await measure(seeded, s, 'backoffice', DURATION));
+
+	return { index, rounds, plan };
+}
+
+function jsonPathTable(results: JsonPathResult[]): string {
+	const rows = results.map(({ index, rounds, plan }) => {
+		const p95 = median(rounds.map((r) => r.p95));
+		const rps = median(rounds.map((r) => r.rps));
+		const errors = rounds.reduce((sum, r) => sum + r.errors, 0);
+		const scan = /Index Scan|Bitmap Index Scan/.test(plan) ? 'index scan' : 'seq scan';
+		return `| ${index ? 'with' : 'without'} | ${rps} | ${p95} | ${errors} | ${scan} |`;
+	});
+
+	return [
+		'| expression index | req/s (50 connections) | p95 ms | errors | plan |',
+		'| --- | --- | --- | --- | --- |',
+		...rows,
+	].join('\n');
+}
+
 const seeded = await seed();
 process.stdout.write(
 	`seed: ${seeded.seconds} s, ${ARTICLES} ${(seeded.bytes / 1024 ** 3).toFixed(2)} GiB with indexes\n`,
 );
 const verdicts: Verdict[] = [];
+const jsonPath: JsonPathResult[] = [];
 
 try {
 	for (const s of scenarios(seeded)) {
@@ -173,17 +224,25 @@ try {
 		});
 		verdicts.push(verdict);
 	}
+
+	for (const index of [false, true]) jsonPath.push(await jsonPathRun(seeded, index));
 } finally {
+	await db.raw(`DROP INDEX IF EXISTS ${JSON_PATH_INDEX}`);
 	await cleanup(seeded);
 	await redis.quit();
 }
 
 const report = table(verdicts);
 process.stdout.write(`${report}\n`);
+const jsonPathReport = jsonPathTable(jsonPath);
+process.stdout.write(`\njson path filter (Backoffice only, admin, no-store):\n${jsonPathReport}\n`);
+for (const { index, plan } of jsonPath)
+	process.stdout.write(`\nEXPLAIN ${index ? 'with' : 'without'} index:\n${plan}\n`);
 if (process.env['GITHUB_STEP_SUMMARY'])
 	appendFileSync(
 		process.env['GITHUB_STEP_SUMMARY'],
-		`## Benchmark items\n\nSeed: ${seeded.seconds} s, ${(seeded.bytes / 1024 ** 3).toFixed(2)} GiB.\n\n${report}\n`,
+		`## Benchmark items\n\nSeed: ${seeded.seconds} s, ${(seeded.bytes / 1024 ** 3).toFixed(2)} GiB.\n\n${report}\n\n### json path filter (spec 023, Backoffice only, reported)\n\n${jsonPathReport}\n`,
 	);
 
-process.exit(gatePasses(verdicts) ? 0 : 1);
+const jsonPathErrors = jsonPath.some(({ rounds }) => rounds.some((r) => r.errors > 0));
+process.exit(gatePasses(verdicts) && !jsonPathErrors ? 0 : 1);

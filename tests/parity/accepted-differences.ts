@@ -377,6 +377,13 @@ export const acceptedDifferences: AcceptedDifference[] = [
 			'A permission whose row filter or validation uses a json path is refused at Backoffice (400), saved at Directus.',
 	},
 	{
+		id: 'D-186',
+		feature: '023',
+		kind: 'doc',
+		reason:
+			'GraphQL items scope: <collection>_filter has <f>_json: json_path_filter_operators for json fields at Backoffice only; introspection, SDL and server_specs_graphql are compared without that type and those input fields (withoutBackofficeIntrospection, withoutBackofficeSdl in src/normalizers.ts), with no ETag compare and types by name when one side has it (src/parity.ts).',
+	},
+	{
 		id: 'D-187',
 		feature: '023',
 		kind: 'doc',

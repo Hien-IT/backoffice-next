@@ -262,6 +262,20 @@ describe('getAggregateQuery', () => {
 			});
 		});
 
+		// Backoffice (spec 023, D-186): <f>_json inputs become json(...) keys before sanitizeQuery parses the filter.
+		test('maps <f>_json filters to json(...) keys before sanitizeQuery', async () => {
+			const filter = { details_json: { path: 'a', number: { _eq: 1 } } };
+
+			const result = await getAggregateQuery({ filter } as any, [], schema);
+
+			expect(sanitizeQuerySpy).toHaveBeenCalledWith(
+				{ filter: { 'json(details, a, number)': { _eq: 1 } } },
+				schema,
+				undefined,
+			);
+			expect(result.filter).toStrictEqual({ 'json(details, a, number)': { _eq: 1 } });
+		});
+
 		test('should not call filterReplaceM2A when collection is not provided', async () => {
 			const filter = { field: { _eq: 'value' } };
 

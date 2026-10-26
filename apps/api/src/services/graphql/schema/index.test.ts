@@ -4,7 +4,7 @@
 // which also exercises read.ts, write.ts, get-types.ts and the system resolvers.
 import { useEnv } from '@backoffice/env';
 import { SchemaBuilder } from '@backoffice/schema-builder';
-import { GraphQLSchema } from 'graphql';
+import { GraphQLInputObjectType, GraphQLSchema } from 'graphql';
 import { beforeEach, describe, expect, test, vi } from 'vitest';
 import { fetchAllowedFieldMap } from '../../../permissions/modules/fetch-allowed-field-map/fetch-allowed-field-map.js';
 import { fetchInconsistentFieldMap } from '../../../permissions/modules/fetch-inconsistent-field-map/fetch-inconsistent-field-map.js';
@@ -31,6 +31,7 @@ const schema = new SchemaBuilder()
 		c.field('id').integer().primary();
 		c.field('title').string();
 		c.field('author').m2o('directus_users');
+		c.field('details').json();
 	})
 	.collection('directus_users', (c) => {
 		c.field('id').uuid().primary();
@@ -91,6 +92,26 @@ describe('generateSchema', () => {
 		expect(sdl).toContain('server_ping');
 		expect(sdl).not.toContain('articles_by_id');
 		expect(cache.get('system_sdl_r_u')).toBe(sdl);
+	});
+
+	// Backoffice (spec 023, D-186): <f>_json on the filter of json fields, items scope only.
+	test('json fields get <f>_json: json_path_filter_operators in the items scope only', async () => {
+		const s = (await generateSchema(gql())) as GraphQLSchema;
+		const filter = s.getType('articles_filter') as GraphQLInputObjectType;
+
+		expect(String(filter.getFields()['details_json']!.type)).toBe('json_path_filter_operators');
+		expect(filter.getFields()['title_json']).toBeUndefined();
+		const operators = s.getType('json_path_filter_operators') as GraphQLInputObjectType;
+		expect(Object.fromEntries(Object.values(operators.getFields()).map((f) => [f.name, String(f.type)]))).toEqual({
+			path: 'String!',
+			text: 'string_filter_operators',
+			number: 'number_filter_operators',
+			boolean: 'boolean_filter_operators',
+		});
+
+		const sdl = await generateSchema(gql({ scope: 'system' }), 'sdl');
+		expect(sdl).not.toContain('json_path_filter_operators');
+		expect(sdl).not.toContain('_json:');
 	});
 
 	test('a cached schema is returned without generating again', async () => {
