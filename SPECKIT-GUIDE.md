@@ -199,54 +199,10 @@ XI. Ngoài phạm vi giai đoạn này
 Quy trình sửa constitution: mọi thay đổi phải ghi lý do, tăng phiên bản theo semver và cập nhật lại các template liên quan.
 ```
 
-### Sửa constitution cho 021 (2.2.0 → 3.0.0)
+### Sửa constitution theo feature
 
-Feature 021 trái với Nguyên tắc II ("Không chạy migration hệ thống. Chỉ Directus được migrate.") và VII ("KHÔNG ghi gì
-vào bảng hệ thống khi khởi động"). Chạy prompt sau trước `/speckit.specify` của 021, rồi cho tech lead duyệt. Đã chạy
-ngày 2026-10-22: constitution 3.0.0, prompt nguồn mục II, VII ở trên đã sửa theo; tech lead (chủ dự án) duyệt
-2026-10-22.
-
-```text
-/speckit.constitution Sửa constitution 2.2.0 thành 3.0.0 (MAJOR: định nghĩa lại Nguyên tắc II) cho feature 021: Backoffice chạy độc lập, tự khởi tạo DB và chạy migration giống Directus 11.17.4. Lý do: <lý do nghiệp vụ>.
-
-II. Dùng chung database với Directus
-- Backoffice chạy được cùng Directus trên một DB (như hiện nay) hoặc một mình, không cần Directus.
-- Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 101 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH.
-- Backoffice tự khởi tạo và migrate với Postgres và SQLite. Vendor khác: DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations.
-- Không thêm bảng, cột hay migration hệ thống riêng của Backoffice. DB do Backoffice tạo phải dùng được với Directus 11.17.4 và ngược lại.
-- Giữ nguyên: kiểm tra directus_migrations lúc khởi động (sau bootstrap), định dạng dữ liệu giống hệt Directus, cột người dùng trong collection hệ thống qua API fields.
-
-VII. Triển khai đa instance
-- Thêm ngoại lệ thứ hai cho câu "KHÔNG ghi gì vào bảng hệ thống khi khởi động": lệnh bootstrap. Image API mặc định chạy bootstrap rồi start như Dockerfile của Directus; ở chế độ chạy chung mỗi replica khởi động như một container Directus. Ở chế độ độc lập với nhiều replica, bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; các replica chỉ chạy start. Bootstrap không có lock, như Directus.
-
-Giữ nguyên V (Directus vẫn là mốc test đối chiếu) và XI (khi chạy độc lập, các tính năng ngoài phạm vi như gửi email, WebSocket, SAML, storage ngoài Local/S3 không có).
-
-Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
-```
-
-### Sửa constitution cho 022 (3.1.0 → 3.2.0)
-
-Feature 022 trái với Nguyên tắc II ("KHÔNG ĐƯỢC thêm bảng, cột hay migration hệ thống riêng của Backoffice") và VII
-("bootstrap không có lock, như Directus"). Chạy prompt sau trước `/speckit.plan` của 022, rồi cho tech lead duyệt. Đã
-chạy ngày 2026-10-26: constitution 3.2.0, theo yêu cầu của chủ dự án (kiêm tech lead).
-
-```text
-/speckit.constitution Sửa constitution 3.1.0 thành 3.2.0 (MINOR: thêm ngoại lệ vào Nguyên tắc II và VII) cho feature 022: Backoffice có migration riêng để thêm cấu hình mà Directus không có, bắt đầu bằng ba cột ẩn hiện ô tìm kiếm, Import, Export trên directus_collections. Lý do: chủ dự án cần nhiều migration riêng về sau và không muốn đụng vào Directus đang chạy chung DB.
-
-II. Dùng chung database với Directus (thêm các ý sau, giữ nguyên các ý còn lại)
-- Backoffice được có bộ migration riêng. Trạng thái ghi trong bảng hệ thống backoffice_migrations (version, name, timestamp, cùng dạng directus_migrations); Backoffice coi bảng này là collection hệ thống như directus_migrations. Backoffice không ghi, không xóa dòng nào trong directus_migrations; Directus không cần file, biến môi trường hay cấu hình mới.
-- Migration riêng chỉ được: tạo bảng tiền tố backoffice_; thêm cột tiền tố bo_ vào bảng directus_*; thêm dòng directus_fields của các cột đó. Không được sửa, xóa bảng hay cột gốc của Directus.
-- Mỗi migration riêng chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được trên DB đã có thay đổi của nó. Không có down và không có lệnh CLI riêng; rollback làm tay trên DB.
-- bootstrap chạy migration riêng còn thiếu trên mọi vendor, sau khi migration Directus đã đủ (sửa D-145 của 021: Backoffice vẫn chỉ cài và migrate Directus trên Postgres, SQLite). Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ, như migration Directus.
-- DB do Backoffice tạo vẫn dùng được với Directus 11.17.4 và ngược lại; Directus chỉ thấy thêm cột bo_* và bảng backoffice_* (bảng chưa quản lý trong Data Model). GET /collections của hai app khác nhau ở các bảng backoffice_* (ghi thành khác biệt).
-
-VII. Triển khai đa instance
-- Thêm ngoại lệ cho "bootstrap không có lock, như Directus": migration riêng của Backoffice chạy dưới lock dùng chung (Redis khi có cấu hình Redis), mỗi lúc một process; migration Directus trong bootstrap vẫn không có lock.
-
-Giữ nguyên V (test đối chiếu so dump DB, bỏ qua bảng backoffice_*, cột bo_* và dòng directus_fields của chúng).
-
-Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
-```
+Feature 021 (2.2.0 → 3.0.0) và 022 (3.1.0 → 3.2.0) đã sửa constitution. Prompt sửa nằm ở bước 0 của feature đó trong
+mục 6.
 
 ---
 
@@ -278,87 +234,615 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 020 | Extensions (API, app, marketplace, sandbox, nhiều instance)                                                     | 009–019   | BE, FE |
 | 021 | Chạy độc lập: khởi tạo DB, migration và CLI giống Directus                                                      | 001–019   | BE     |
 | 022 | Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng của Backoffice                              | 014, 021  | BE, FE |
+| 023 | Filter theo path trong field json (Content, /items, /graphql)                                                   | 005, 011, 014 | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
 
 ---
 
-## 6. Prompt `/speckit.specify` cho từng feature
+## 6. Lệnh Spec Kit cho từng feature
+
+Mỗi feature có đủ lệnh theo thứ tự ở mục 2. Dán từng khối vào Claude Code theo số bước, mỗi bước chạy xong mới sang bước
+sau. Model và effort của từng bước xem mục 8 (cột ghi ở dòng "Trạng thái" của feature).
+
+- **Bước 0** chỉ có ở feature phải sửa constitution (021, 022).
+- **`/speckit.plan`** đã gồm phần chung ở mục 7 và phần riêng của feature. Sửa phần chung thì sửa ở mục 7 rồi chép lại
+  vào các khối plan.
+- **Feature 001–011** làm trên branch do Spec Kit tạo, xong thì merge vào `main`. **Từ 012** làm trên `main`, không tạo
+  branch: `create-new-feature.sh` chạy `git checkout -b`, sẽ đổi branch của các session dùng chung checkout. Mỗi khối
+  lệnh đã có sẵn câu đặt `SPECIFY_FEATURE` (`.specify/scripts/bash/common.sh`).
+- **Feature đã xong**: khối `/speckit.specify` là prompt đã chạy (thêm câu `SPECIFY_FEATURE` từ 012). Các khối còn lại
+  soạn lại từ kết quả trong `specs/<feature>/` (tasks.md, checklists/) và CLAUDE.md, để tham khảo hoặc chạy lại; không
+  phải nguyên văn lệnh đã chạy.
 
 ### 001: Nền tảng workspace và kết nối hệ thống
+
+Trạng thái: Đã xong. Thư mục: `specs/001-platform-foundation/`. Làm trên: branch `001-platform-foundation` do Spec Kit tạo. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify Nền tảng cho app mới clone Directus 11.17.4. Cần có monorepo chứa app API, app web và các thư viện dùng chung. API đọc toàn bộ biến môi trường của Directus với cùng tên, cùng giá trị mặc định, cùng tiền tố ép kiểu (string:, number:, regex:, array:, json:, boolean:), hậu tố _FILE và CONFIG_PATH (file .env, .json, .yaml, .js), biến chưa hỗ trợ thì chỉ cảnh báo (tham chiếu directus/packages/env). Một file .env đang chạy được cho Directus phải chạy được ngay cho API mới. kết nối được tới mọi loại DB mà Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) và tới Redis. Khi khởi động, API đọc bảng directus_migrations và so với danh sách migration của Directus 11.17.4. Nếu thiếu hoặc thừa migration, API dừng và báo rõ migration nào lệch. API không bao giờ tạo hay sửa bảng directus_*. Có các endpoint /server/ping, /server/health, /server/info, /server/specs/oas trả về giống Directus. Lỗi trả về đúng format errors[] và mã lỗi của Directus (tham chiếu packages/errors). Log JSON giống Directus (LOG_LEVEL, LOG_STYLE, có request id) và endpoint /metrics Prometheus theo METRICS_*. Có bộ test đối chiếu: cùng request gửi tới Directus thật và app mới, rồi so sánh kết quả. Có pipeline GitHub Actions chạy lint, typecheck, unit test kèm ngưỡng coverage, test đối chiếu (Postgres đủ, MySQL và SQLite rút gọn), quét bảo mật và benchmark so với Directus. Tên hiển thị, log, header X-Powered-By và package nội bộ dùng tên Backoffice. Tiêu chí chấp nhận: chạy app mới bằng đúng file .env của Directus, cạnh Directus trên cùng DB và Redis; các endpoint /server/* trả về giống nhau, ngoại trừ các khác biệt do đổi thương hiệu đã liệt kê; DB không bị thay đổi.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: biến môi trường chưa hỗ trợ, kiểm tra directus_migrations lúc khởi động, khác biệt do đổi thương hiệu ở /server/*.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 001: tạo Nx workspace (Nx 23, TypeScript 5.9.3 theo strict flags của @directus/tsconfig 4.0.0, ESM); apps/api là NestJS 12 (Express 5) + Knex 3.1, ioredis, pino, prom-client; port directus/packages/env, errors, schema, storage thành @backoffice/*; endpoint /server/*; test Vitest 3.2.4, Playwright, benchmark autocannon; DB dùng chung chỉ đọc.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist parity-safety-config: kiểm yêu cầu đối chiếu, an toàn khi chạy chung DB, cấu hình env
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 001-platform-foundation vào main.
+```
+
 ### 002: Schema overview và cache dùng chung
+
+Trạng thái: Đã xong. Thư mục: `specs/002-schema-overview-cache/`. Làm trên: branch `002-schema-overview-cache` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify API cần dựng được bức tranh schema (collections, fields, relations, kiểu dữ liệu, khóa chính, alias field) từ DB và các bảng directus_collections, directus_fields, directus_relations, giống hệt SchemaOverview của Directus (tham chiếu directus/api/src/utils/get-schema.ts và packages/schema). Schema được cache trong Redis với cùng cache key và namespace như Directus. Khi Directus hoặc app mới đổi schema, instance còn lại nhận tín hiệu qua cùng kênh bus của Directus và xóa cache. Hỗ trợ CACHE_SCHEMA, CACHE_NAMESPACE, CACHE_STORE và các biến cache khác giống Directus. Tiêu chí chấp nhận: thêm field ở Directus thì app mới thấy field đó ngay mà không cần khởi động lại, và ngược lại.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: cache key, namespace và kênh bus dùng chung với Directus; khi nào cache bị xóa ở cả hai app.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 002: port @directus/memory thành @backoffice/memory (bus Redis, kv, cache nhiều tầng; lru-cache 11.2.2, @sesamecare-oss/redlock 1.4.0); cache SchemaOverview trong process, dùng chung lock và bus Redis với Directus; tham chiếu directus/api/src/utils/get-schema.ts, packages/schema, packages/memory.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist requirements: kiểm yêu cầu cache schema dùng chung
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 002-schema-overview-cache vào main.
+```
+
 ### 003: Xác thực và phiên đăng nhập
+
+Trạng thái: Đã xong. Thư mục: `specs/003-auth-session/`. Làm trên: branch `003-auth-session` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify Người dùng đăng nhập vào app mới bằng email và mật khẩu đã có trong directus_users, nhận access token và refresh token giống hệt Directus (cùng SECRET, cùng payload JWT, cùng TTL ACCESS_TOKEN_TTL và REFRESH_TOKEN_TTL). Hỗ trợ ba chế độ json, cookie, session như Directus, với cùng tên cookie. Session lưu trong directus_sessions. Token cấp ở Directus dùng được ở app mới và ngược lại. Hỗ trợ: /auth/login, /auth/refresh, /auth/logout, /auth/password/request, /auth/password/reset, static token của user, xác thực hai lớp (TFA, /users/me/tfa/*), kiểm tra trạng thái user (active, suspended, invited), giới hạn đăng nhập sai (LOGIN_STALL_TIME, rate limiter dùng chung Redis). Đăng nhập SSO chỉ hỗ trợ OpenID Connect (Azure AD/Entra ID, Keycloak...) theo các biến AUTH_* giống Directus. Provider cấu hình driver ldap, oauth2 hoặc saml thì bị bỏ qua và ghi cảnh báo khi khởi động. /auth/password/request trả về giống Directus nhưng không gửi email, chỉ ghi log. Tham chiếu directus/api/src/auth, services/authentication.ts, controllers/auth.ts. Tiêu chí chấp nhận: bộ test blackbox auth của Directus chạy qua trên app mới, và token dùng chéo được giữa hai bên.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: token dùng chéo, chế độ json/cookie/session, TFA, rate limiter dùng chung Redis, provider SSO chưa hỗ trợ.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 003: jsonwebtoken 9.0.3, argon2 0.44.0, otplib 12.0.1, openid-client 5.7.1, ldapts 8.1.3, joi, flat 6.0.1 cùng bản Directus; port @directus/validation thành @backoffice/validation; ghi directus_sessions, activity, revisions; dùng chung SECRET, session và bộ đếm đăng nhập sai trên Redis với Directus.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist auth-review: kiểm yêu cầu token dùng chéo, cookie, TFA, rate limiter
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 003-auth-session vào main.
+```
+
 ### 004: Phân quyền
+
+Trạng thái: Đã xong. Thư mục: `specs/004-permissions/`. Làm trên: branch `004-permissions` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify App mới áp dụng đúng mô hình phân quyền của Directus 11: users, roles (có cây role lồng nhau), policies, access (gán policy cho role hoặc user), permissions theo collection và action (create, read, update, delete, share) với filter điều kiện, danh sách field, validation, preset, cùng các cờ admin_access, app_access, ip_access, enforce_tfa. Accountability của mỗi request được tính giống Directus, kể cả biến động $CURRENT_USER, $CURRENT_ROLE, $CURRENT_ROLES, $CURRENT_POLICIES, $NOW. Cung cấp các endpoint /users, /roles, /policies, /access, /permissions (gồm /permissions/me và /policies/me/globals), CRUD giống Directus. /users/invite tạo user trạng thái invited giống Directus nhưng không gửi email, chỉ ghi log. Kết quả phân quyền được cache dùng chung Redis với Directus. Tham chiếu directus/api/src/permissions và các service users, roles, policies, access, permissions. Tiêu chí chấp nhận: với cùng user và dữ liệu, mọi request đọc và ghi bị chặn hoặc cho phép giống hệt Directus.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: accountability, biến động $CURRENT_*, cache quyền dùng chung, mời user không gửi email.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 004: port đầy đủ engine đọc ghi (get-ast-from-query, run-ast, ItemsService, PayloadService, MetaService, dialect helper) và các module permissions; snappy 7.3.3 nén giá trị cache, ip-matching 2.1.2; dùng chung namespace cache quyền và xóa data cache; E2E Directus app qua nginx reverse proxy với Playwright 1.64.0.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist permissions-review: kiểm yêu cầu accountability, quyền đọc ghi, cache quyền
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Xếp task theo 2 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5 đến 11. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Lượt 1 (Phase 1 đến 4). Test đối chiếu xanh, commit và push trên branch, CI xanh trước lượt sau.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Lượt 2 (Phase 5 đến 11). Test đối chiếu xanh, commit và push trên branch, CI xanh trước lượt sau.
+```
+
 ### 005: CRUD items, response cache, export, event
+
+Trạng thái: Đã xong. Thư mục: `specs/005-items/`. Làm trên: branch `005-items` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
 
 Engine đọc và ghi (`ItemsService`, `PayloadService`, `MetaService`, `get-ast-from-query`, `run-ast`, `apply-query`,
 dialect helper) và kiểm query đã port đủ ở feature 004. Feature này chỉ thêm phần còn lại.
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify Người dùng thao tác dữ liệu của mọi collection qua /items/:collection giống hệt Directus: đọc danh sách, đọc theo id, tạo, sửa, xóa từng cái hoặc hàng loạt, SEARCH, collection singleton. Engine đọc ghi (ItemsService, PayloadService, MetaService, run-ast, apply-query) và kiểm query đã port ở feature 004, nên feature này dùng lại, không port lại. Thêm: cache response khi CACHE_ENABLED=true (CACHE_TTL, CACHE_AUTO_PURGE, CACHE_STATUS_HEADER, Cache-Control, dùng chung key với Directus, gỡ D-11), xuất file qua query export (json, csv, xml, yaml, gỡ D-12), phát cùng tên event như Directus (items.create, items.update... và event của năm collection hệ thống, gỡ D-29 phần filter và action cho flow), và đẩy sự kiện lên kênh bus websocket.event của Directus (cùng format như directus/api/src/websocket/controllers/hooks.ts, gỡ D-30). Tham chiếu directus/api/src/controllers/items.ts, middleware/respond.ts, middleware/cache.ts, utils/get-cache-key.ts, services/import-export, emitter.ts. Tiêu chí chấp nhận: bộ blackbox test items, query và relational của Directus chạy qua trên app mới với Postgres, MySQL và SQLite.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: cache response dùng chung key với Directus, tên event, bus websocket.event, export.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 005: /items trên engine của 004; cache response dùng chung với Directus (key object-hash có version 11.17.4, Keyv data cache); export bằng json2csv 5.0.7, js2xmlparser 5.0.0, js-yaml; Emitter thật (eventemitter2 6.4.9) và cầu nối bus websocket.event theo WEBSOCKETS_*; port bộ blackbox items/query/relational vào tests/parity/src/items/blackbox.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist items-review: kiểm yêu cầu /items, cache response, export, event
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 005-items vào main.
+```
+
 ### 006: Quản lý data model
+
+Trạng thái: Đã xong. Thư mục: `specs/006-schema-management/`. Làm trên: branch `006-schema-management` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify Admin tạo, sửa, xóa collection, field và relation qua /collections, /fields, /relations giống hệt Directus. App mới tạo và sửa bảng, cột thật trong DB (đúng kiểu dữ liệu từng loại DB), đồng thời ghi metadata vào directus_collections, directus_fields, directus_relations, giống cách Directus làm. Hỗ trợ collection folder, alias field (o2m, m2m, m2a, presentation, group), field geometry, translations, archive và sort field. Hỗ trợ /schema/snapshot, /schema/diff, /schema/apply cùng format với Directus. Sau mỗi thay đổi, cache schema được xóa trên cả hai app. Tham chiếu directus/api/src/services/collections.ts, fields.ts, relations.ts, schema.ts, database/helpers. Tiêu chí chấp nhận: data model tạo ở app mới mở được và dùng bình thường trên Directus, và ngược lại.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: DDL từng vendor, schema snapshot/diff/apply, xóa cache schema ở cả hai app.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 006: port CollectionsService, FieldsService, RelationsService, SchemaService và các util snapshot; DDL thật qua dialect helper của 001/004; deep-diff 1.0.2, busboy 1.6.0, zod 4.1.12 cùng bản Directus; so DDL tuần tự trên DB dùng chung; blackbox collections/fields/schema/timezone với các profile schema-cache, schema-cache-nomsg, tz-asia, tz-america.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist schema-review: kiểm yêu cầu DDL từng vendor, snapshot/diff/apply
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 006-schema-management vào main.
+```
+
 ### 007: Files, folders, assets
+
+Trạng thái: Đã xong. Thư mục: `specs/007-files-assets/`. Làm trên: branch `007-files-assets` do Spec Kit tạo. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify Người dùng tải file lên, quản lý file và thư mục qua /files, /folders, và lấy file qua /assets/:id giống hệt Directus. Hỗ trợ upload multipart, upload resumable qua TUS, import từ URL, metadata ảnh (EXIF, IPTC, kích thước), và các storage location cấu hình bằng STORAGE_* giống Directus. Chỉ hỗ trợ driver local và s3 (gồm dịch vụ tương thích S3 như MinIO). Nếu cấu hình driver khác (gcs, azure, cloudinary, supabase) thì dừng khi khởi động và báo rõ location nào không hỗ trợ. Asset hỗ trợ transform (width, height, fit, quality, format, withoutEnlargement, key preset, transforms) với cùng cách đặt tên file phát sinh như Directus, để hai app dùng chung file đã sinh. Áp dụng ASSETS_* (giới hạn transform, cache-control) và phân quyền file giống Directus. Tham chiếu directus/api/src/services/files.ts, assets.ts, tus, packages/storage*. Tiêu chí chấp nhận: file tải lên ở app này xem và tải được ở app kia, và URL asset có transform trả về ảnh giống nhau.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: driver storage chưa hỗ trợ, tên file asset sinh ra, TUS nhiều instance, ASSETS_*.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 007: port FilesService, FoldersService, AssetsService, tus/*, request/* (IMPORT_IP_DENY_LIST), synchronization; @tus/server 2.3.0, sharp 0.34.5, object-hash 3.0.0 để tên và byte của asset sinh ra giống Directus; chỉ storage local và s3 (D-16); env đối chiếu thêm volume uploads, files-fixtures, profile assets-limit, assets-stress; service backoffice ghim linux/amd64.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist files-review: kiểm yêu cầu storage, asset transform, TUS
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 007-files-assets vào main.
+```
+
 ### 008: Activity, revisions, versions, comments
+
+Trạng thái: Đã xong. Thư mục: `specs/008-activity-revisions-versions/`. Làm trên: branch `008-activity-revisions-versions` do Spec Kit tạo. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify App mới ghi và cung cấp lịch sử thay đổi giống hệt Directus: /activity (ai làm gì, lúc nào, IP, user agent), /revisions (dữ liệu trước và sau, delta), khôi phục item về một revision, /versions (content versioning: tạo bản nháp, so sánh, promote về bản chính), /comments trên item. Áp dụng cấu hình ACTIVITY và REVISIONS giống Directus. Tham chiếu directus/api/src/services/activity.ts, revisions.ts, versions.ts, comments.ts. Tiêu chí chấp nhận: lịch sử do app mới ghi hiển thị đúng trong Directus, và version tạo ở bên này promote được ở bên kia.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: ACTIVITY/REVISIONS, promote version, mention trong comment không gửi email, retention.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 008: port ActivityService, RevisionsService, VersionsService, CommentsService, NotificationsService; mention ghi directus_notifications, không gửi email (D-33); job retention (RETENTION_*, lock dùng chung schedule--data-retention); object-hash 3.0.0 cho hash của version; suite tests/parity/src/history, profile retention.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist history-review: kiểm yêu cầu activity, revisions, versions, comments
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 008-activity-revisions-versions vào main.
+```
+
 ### 009: Flows và tự động hóa
+
+Trạng thái: Đã xong. Thư mục: `specs/009-flows-automation/`. Làm trên: branch `009-flows-automation` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify App mới chạy flows giống hệt Directus. Flow và operation lưu trong directus_flows và directus_operations. Hỗ trợ các trigger: event (hook action và filter trên items và các collection hệ thống, cùng tên event như Directus), schedule (cron), webhook (/flows/trigger/:id, GET/POST, đồng bộ hoặc bất đồng bộ), manual (nút bấm trên item) và another flow. Hỗ trợ mọi operation có sẵn: condition, exec, item-create/read/update/delete, json-web-token, log, mail, notification, request, sleep, transform, trigger flow, throw error. Operation exec (Run Script) chạy JavaScript trong sandbox isolated-vm với giới hạn FLOWS_RUN_SCRIPT_MAX_MEMORY và FLOWS_RUN_SCRIPT_TIMEOUT giống Directus. Operation mail không gửi email, chỉ ghi log và trả kết quả thành công như khi gửi xong. Hỗ trợ dữ liệu $trigger, $last, $accountability, $env và nhánh resolve/reject. Flow theo lịch dùng lock trên Redis, nên khi cả Directus và app mới cùng chạy thì mỗi lượt chỉ một bên thực thi. Khi flow thay đổi ở app này, app kia nạp lại flow qua bus. Log chạy flow ghi vào activity và revisions giống Directus. Tham chiếu directus/api/src/flows.ts, operations, services/flows.ts, operations.ts. Tiêu chí chấp nhận: cùng một flow cho kết quả giống nhau ở hai app, và flow theo lịch không bị chạy hai lần.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: lock flow theo lịch, operation mail không gửi, sandbox Run Script, nạp lại flow qua bus.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 009: port flows.ts (FlowManager: event filter/action, schedule qua SynchronizedClock trên Redis, webhook /flows/trigger/:id, manual, operation) và 15 operation có sẵn (exec trong isolated-vm 5.0.3 với FLOWS_RUN_SCRIPT_*, mail chỉ ghi log D-34); FlowsService/OperationsService nạp lại qua kênh bus flows; micromustache 8.0.3, p-queue 8.1.0; suite tests/parity/src/flows, profile flows-schedule.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist flows: kiểm yêu cầu trigger, operation, lock theo lịch
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 009-flows-automation vào main.
+```
+
 ### 010: Collection hệ thống còn lại
+
+Trạng thái: Đã xong. Thư mục: `specs/010-system-collections/`. Làm trên: branch `010-system-collections` do Spec Kit tạo. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify App mới cung cấp các endpoint hệ thống còn lại giống hệt Directus: /settings (cài đặt dự án, theme, branding), /presets (preset và bookmark của layout), /notifications (lưu và hiển thị trong app, không gửi email), /shares (chia sẻ item bằng link, mật khẩu, thời hạn, số lần xem, đăng nhập bằng share), /translations (chuỗi dịch tùy chỉnh), /dashboards và /panels (insights), /extensions (chỉ trả danh sách rỗng hoặc tối thiểu, vì chưa hỗ trợ extension), /utils (hash/generate, hash/verify, random/string, sort, revert, cache/clear, import, export với CSV, JSON, XML, YAML), Không gửi email: mọi chỗ Directus gửi mail thì bỏ qua bước gửi và ghi log cảnh báo, phần còn lại của luồng chạy như cũ. Tham chiếu các service tương ứng trong directus/api/src/services. Tiêu chí chấp nhận: blackbox test của các endpoint này chạy qua trên app mới.
 ```
 
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Tập trung: /server/setup, đăng nhập bằng share, /extensions khi chưa hỗ trợ extension, import/export của /utils.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 010: SettingsService, POST /server/setup, /presets, /notifications, /translations, /dashboards, /panels, /shares (invite chỉ ghi log, D-36), /extensions (đọc, registry qua client port với ky 1.14.0, cài gỡ trả 503 D-37), UtilsService, ImportService (papaparse 5.5.3, stream-json 1.9.1, async 3.2.6, bộ đếm import trên Redis), ExportService; suite tests/parity/src/system, profile setup, fake registry.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist system: kiểm yêu cầu các collection hệ thống còn lại
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 010-system-collections vào main.
+```
+
 ### 011: GraphQL
+
+Trạng thái: Đã xong. Thư mục: `specs/011-graphql-api/`. Làm trên: branch `011-graphql-api` do Spec Kit tạo. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
 
 ```text
 /speckit.specify App mới cung cấp /graphql (dữ liệu người dùng) và /graphql/system (dữ liệu hệ thống), có schema sinh động từ data model và phân quyền của từng user, giống hệt Directus: query, mutation, aggregate, quan hệ lồng nhau, filter, đặt tên type và field giống nhau. Không làm subscription. Tham chiếu directus/api/src/services/graphql. Tiêu chí chấp nhận: introspection schema của app mới khớp với Directus cho cùng user, và các blackbox test GraphQL chạy qua.
 ```
 
-### 012: Khung app web và đăng nhập
+**2. `/speckit.clarify`**
 
 ```text
-/speckit.specify Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+/speckit.clarify Tập trung: tên type và field, introspection theo user, subscription, cache schema GraphQL.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 011: port services/graphql (schema theo user bằng graphql-compose 9.1.0 + graphql 16.12.0, resolver trên engine 004/005 và service 003–010, giữ type Subscription không có transport D-17), middleware parseGraphQL, /server/specs/graphql; cache schema LRU trong process (mnemonist 0.40.3) xóa qua bus schemaChanged; async-mutex 0.5.0; suite tests/parity/src/graphql so introspection và SDL nguyên văn, profile graphql-nointro.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist api-compat: kiểm yêu cầu tương thích GraphQL (thêm operations, testing nếu cần)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze
+```
+
+**7. `/speckit.implement`**
+
+```text
+/speckit.implement Chạy test đối chiếu sau mỗi phase. Xong thì chạy đủ test đối chiếu, graphify update ., rồi merge branch 011-graphql-api vào main.
+```
+
+### 012: Khung app web và đăng nhập
+
+Trạng thái: Đã xong. Thư mục: `specs/012-backoffice-web-shell/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/012-backoffice-web-shell và đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Xây app web quản trị mới mang tên Backoffice thay cho Directus app, giữ nguyên luồng sử dụng. Mọi chữ Directus mà người dùng thấy (tiêu đề, logo, favicon, trang đăng nhập, chuỗi dịch, tên mặc định khi project_name trống) đổi thành Backoffice. Nếu settings trong DB đã có tên dự án, logo hoặc màu riêng thì dùng các giá trị đó, giống Directus. Người dùng đăng nhập bằng email và mật khẩu, TFA, LDAP hoặc SSO (OpenID Connect, OAuth2), rồi được giữ phiên bằng refresh token. Đăng xuất, quên mật khẩu, nhận lời mời (giữ màn hình như Directus; vì hệ thống không gửi email nên hiện thêm hướng dẫn liên hệ admin), cập nhật hồ sơ, theme sáng/tối, ngôn ngữ vi-VN và en-US (dùng chuỗi dịch của Directus). Bố cục gồm thanh module bên trái, thanh điều hướng, vùng nội dung và sidebar bên phải như Directus. Các route giống Directus (/admin/content, /admin/files, /admin/users, /admin/insights, /admin/activity, /admin/settings). App chỉ gọi API theo đúng chuẩn Directus, nên chạy được với cả Directus thật lẫn API mới chỉ bằng cách đổi URL. Hỗ trợ desktop và tablet từ 768px trên Chrome, Edge, Firefox, Safari bản mới. Phần nhìn (màu, chữ, khoảng cách, bo góc, component) theo bộ design-system/ của dự án; màu, logo trong settings áp lên trên design-system như Directus (project_color tô nền logo, trang đăng nhập, trang share, favicon; theme sáng/tối tùy chỉnh trong settings đè màu tương ứng); những chỗ design-system chưa chốt (màu primary, font, màu trạng thái, theme tối) ghi thành câu hỏi mở. Tham chiếu directus/app/src (router, auth, stores, views) và design-system/. Tiêu chí chấp nhận: đăng nhập vào Directus thật và vào API mới đều chạy, điều hướng giữa các module giống Directus.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Tập trung: màn chưa có mẫu trong design-system, branding từ settings, luồng cần email, ba cấu hình chạy (Directus, API mới, khác site).
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 012: apps/web là khung app (đăng nhập local/TFA/LDAP/SSO, chế độ session qua @directus/sdk 21.3.0 là client duy nhất; khung TailAdmin gồm sidebar, header, page header, panel chi tiết, sáu module giữ chỗ), branding từ settings trên theme design-system, chuỗi en-US/vi-VN sinh từ directus/app/src/lang bằng script commit sẵn; Reka UI 2.8.2, Tailwind CSS 4.3, @vueuse/core 14.0.0, @unhead/vue 1.11.20, qrcode 1.5.4, marked 16.4.1, dompurify; Playwright apps/web-e2e ba cấu hình (proxy tới Directus, proxy tới API mới, CORS khác site), profile web.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Xếp task theo 5 lượt commit: Đợt A = Phase 1, 2; Đợt B = Phase 3, 4, 5; Đợt C = Phase 6, 7, 8; Đợt D = Phase 9, 10; Phase 11 = Phase 11 (khung TailAdmin). Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Đợt A:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Đợt A (Phase 1, 2). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt B:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Đợt B (Phase 3, 4, 5). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt C:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Đợt C (Phase 6, 7, 8). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt D:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Đợt D (Phase 9, 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Phase 11:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=012-backoffice-web-shell khi chạy script .specify. Phase 11 (Phase 11 (khung TailAdmin)). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú: prompt trên là bản gốc. Sau Phase 11 của 012, bố cục khung và phần nhìn theo design-system TailAdmin (D-47,
@@ -366,14 +850,134 @@ D-52 trong spec 012), không còn giống Directus app.
 
 ### 013: Bộ interfaces và displays
 
+Trạng thái: Đã xong. Thư mục: `specs/013-interfaces-displays/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/013-interfaces-displays và đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. App web cần bộ interface (ô nhập dữ liệu) và display (cách hiển thị giá trị) tương đương Directus, để form và bảng hiển thị đúng theo cấu hình field trong directus_fields (interface, options, display, display_options). Interfaces: input, textarea, code, rich text HTML, markdown, block editor, hash, boolean, datetime, slider, select (dropdown, radio, checkbox, multi, icon, color, tree), tags, file, image, files, map, list (repeater), quan hệ m2o, o2m, m2m, m2a, tree view, translations, nhóm field (accordion, detail, raw, tabs), presentation (divider, header, links, notice), autocomplete từ API. Displays tương ứng. Đọc đúng options đã lưu bởi Directus, để field cấu hình ở Directus hiển thị đúng ở app mới. Tham chiếu directus/app/src/interfaces và displays. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: mọi interface và display có sẵn trong Directus đều có bản tương ứng, và đọc được cấu hình hiện có.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Tập trung: interface và display chưa có mẫu trong design-system, thư viện phải ghim theo Directus, options đã lưu.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 013: 40 interface + 18 display + system-raw-editor port từ directus/app/src/{interfaces,displays} (cùng id, type, khóa option), BoForm (port v-form), RenderDisplay/RenderTemplate, drawer item/collection/batch/files, BoUpload; thư viện ghim theo Directus 11.17.4 (tinymce 6.8.6, @editorjs/editorjs 2.31.2, codemirror 5.65.18, maplibre-gl, @mapbox/mapbox-gl-draw 1.5.1...); Vitest project unit (happy-dom) và browser (@vitest/browser, chromium, axe-core); bộ mẫu apps/web/fixtures/interfaces seed qua Directus REST.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Xếp task theo 4 lượt commit: Đợt A = Phase 1, 2, 3, 4, 8; Đợt B = Phase 5, 6; Đợt C = Phase 7, 9; Đợt D = Phase 10. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Đợt A:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Đợt A (Phase 1, 2, 3, 4, 8). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt B:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Đợt B (Phase 5, 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt C:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Đợt C (Phase 7, 9). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Đợt D:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=013-interfaces-displays khi chạy script .specify. Đợt D (Phase 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 ### 014: Module Content
 
+Trạng thái: Đã xong 2026-10-16 (bốn lượt, 91025bb). Thư mục: `specs/014-content-module/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Danh sách phải mượt với collection khoảng 10 triệu bản ghi (phân trang và đếm phía server). Tham chiếu directus/app/src/modules/content và layouts. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/014-content-module và đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Người dùng duyệt và chỉnh sửa dữ liệu trong module Content giống Directus: danh sách collection theo nhóm và folder, xem item với các layout table, cards, calendar, kanban và map (nguồn tile bản đồ cấu hình được như Directus: Mapbox key hoặc tile server riêng), tìm kiếm, lọc, sắp xếp, chọn cột, lưu bookmark và preset, xuất và nhập dữ liệu, thao tác hàng loạt. Trang chi tiết item có form theo cấu hình field, điều kiện ẩn hiện field, validation, lưu và lưu tiếp, xóa, archive, sidebar revisions, comments, versions và chia sẻ. Hỗ trợ collection singleton. Chỉ hiện những gì user có quyền. Danh sách phải mượt với collection khoảng 10 triệu bản ghi (phân trang và đếm phía server). Tham chiếu directus/app/src/modules/content và layouts. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của module Content trên Directus làm được tương tự trên app mới.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Tập trung: collection 10 triệu dòng, preset và bookmark dùng chung, layout chưa có mẫu, cách chia lượt.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 014: route /content, /content/:collection, /content/:collection/:primaryKey(/preview); cây collection trong sub-menu; preset và bookmark dùng chung (port use-preset); năm layout (tabular, cards, calendar trên @fullcalendar/* 6.1.19, kanban, map) sau wrapper use-layout; search + system-filter; trang item trên BoForm với use-item, versions, sidebar chi tiết, live preview (@directus/vue-split-panel 0.8.9); @json2csv/plainjs 7.0.6 + file-saver 2.0.5; E2E content-*.spec.ts ba cấu hình, bộ so payload với Directus app, benchmark web hằng tuần trên seed 10 triệu dòng.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Xếp task theo 4 lượt commit: Lượt 1 = Phase 1 đến 5; Lượt 2 = Phase 6; Lượt 3 = Phase 7; Lượt 4 = Phase 8 đến 10. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Lượt 1 (Phase 1 đến 5). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Lượt 2 (Phase 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Lượt 3 (Phase 7). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=014-content-module khi chạy script .specify. Lượt 4 (Phase 8 đến 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú từ 013 (đưa vào spec 014): 013 chỉ làm component (form, interface, display, drawer), không có màn hình. 014
@@ -384,8 +988,68 @@ module Content (D-40); sự kiện "flow đã chạy" của `header` để nạp
 
 ### 015: Module Files và Users
 
+Trạng thái: Đã xong 2026-10-16 (bốn lượt). Thư mục: `specs/015-files-users-modules/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước, sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo user, mời user (không gửi email), sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền giống Directus. Tham chiếu directus/app/src/modules/files và users. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của hai module chạy giống Directus.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/015-files-users-modules và đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Module Files: thư viện file theo thư mục, tải lên (kéo thả, nhiều file, từ URL), xem trước, sửa metadata, chỉnh sửa ảnh (cắt, xoay), di chuyển và xóa, lọc và tìm kiếm. Module Users: danh sách user theo role, tạo user, mời user (không gửi email), sửa hồ sơ, đổi role và policy, khóa user, tạo static token, bật tắt TFA. Luồng và quyền giống Directus. Tham chiếu directus/app/src/modules/files và users. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: các luồng chính của hai module chạy giống Directus.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Tập trung: TUS, chỉnh ảnh, interface _system của màn user, mời user không gửi email.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 015: route /files (thư viện theo folder, cây folder trong sub-menu, folder card, upload, TUS qua tus-js-client 4.3.1, màn file) và /users (danh bạ theo trạng thái và role, mời không gửi email, màn user với sáu interface _system); ImageEditor dùng chung trên cropperjs 1.6.2; E2E files-*/users-* ba cấu hình, payload suite files/users, so pixel ảnh đã sửa.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Xếp task theo 4 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5; Lượt 3 = Phase 6, 7; Lượt 4 = Phase 8 đến 10. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Lượt 1 (Phase 1 đến 4). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Lượt 2 (Phase 5). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Lượt 3 (Phase 6, 7). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=015-files-users-modules khi chạy script .specify. Lượt 4 (Phase 8 đến 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú từ 013 (đưa vào spec 015): làm interface `_system` của `directus_users` (`system-language`, `system-theme`,
@@ -405,8 +1069,74 @@ như ghi chú 013 (D-57).
 
 ### 016: Module Settings
 
+Trạng thái: Đã xong 2026-10-17 (năm lượt, 953c64b). Thư mục: `specs/016-settings-module/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Module Settings cho admin, giống Directus: data model (tạo và sửa collection, field, relation, sắp xếp và nhóm field, cấu hình interface và display, điều kiện, validation), roles và policies (gán quyền theo collection, action, field, điều kiện lọc), cài đặt dự án (tên, logo, màu, theme, ngôn ngữ, bản đồ, giới hạn file), presets và bookmarks, translations, thông tin hệ thống. Tham chiếu directus/app/src/modules/settings. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: data model và quyền tạo trên app mới dùng được ngay trên Directus.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/016-settings-module và đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Module Settings cho admin, giống Directus: data model (tạo và sửa collection, field, relation, sắp xếp và nhóm field, cấu hình interface và display, điều kiện, validation), roles và policies (gán quyền theo collection, action, field, điều kiện lọc), cài đặt dự án (tên, logo, màu, theme, ngôn ngữ, bản đồ, giới hạn file), presets và bookmarks, translations, thông tin hệ thống. Tham chiếu directus/app/src/modules/settings. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: data model và quyền tạo trên app mới dùng được ngay trên Directus.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Tập trung: drawer field, ma trận quyền, màn chưa có mẫu, các link từ Content và Users.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 016: /settings/{data-model,roles,policies,project,appearance,presets,translations} port từ directus/app/src/modules/settings (store field-detail + 10 alteration, ma trận system-permissions, ExtensionOptions), 18 interface _system còn lại, helper ghi trên store collections/fields/relations, dữ liệu quyền tĩnh đồng bộ từ Directus (web:sync-permissions-data); E2E settings-* ba cấu hình, bộ dùng chéo trên Directus app.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Xếp task theo 5 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5; Lượt 3 = Phase 6; Lượt 4 = Phase 7, 8; Lượt 5 = Phase 9, 10. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Lượt 1 (Phase 1 đến 4). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Lượt 2 (Phase 5). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Lượt 3 (Phase 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Lượt 4 (Phase 7, 8). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 5:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=016-settings-module khi chạy script .specify. Lượt 5 (Phase 9, 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú từ 013 (đưa vào spec 016): làm form options của interface và display (`options` trong `index.ts` của 013 giữ sẵn
@@ -431,8 +1161,68 @@ Ghi chú từ 015 (đưa vào spec 016): menu "sửa role" của cây role ở m
 
 ### 017: Trình chỉnh sửa Flows
 
+Trạng thái: Đã xong 2026-10-17 (e61eae1). Thư mục: `specs/017-flows-editor/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Admin tạo và chỉnh sửa flow bằng giao diện kéo thả như Directus: chọn trigger, thêm operation, nối nhánh resolve và reject, cấu hình từng operation, bật tắt flow, xem log các lần chạy. Nút chạy flow thủ công hiện trên trang item hoặc danh sách item. Tham chiếu directus/app/src/modules/settings/routes/flows và directus/app/src/operations. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: flow tạo ở app mới mở và sửa được trên Directus, và ngược lại.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/017-flows-editor và đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Admin tạo và chỉnh sửa flow bằng giao diện kéo thả như Directus: chọn trigger, thêm operation, nối nhánh resolve và reject, cấu hình từng operation, bật tắt flow, xem log các lần chạy. Nút chạy flow thủ công hiện trên trang item hoặc danh sách item. Tham chiếu directus/app/src/modules/settings/routes/flows và directus/app/src/operations. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: flow tạo ở app mới mở và sửa được trên Directus, và ngược lại.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Tập trung: canvas kéo thả và a11y, staging khi lưu, log flow.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 017: /settings/flows, /settings/flows/:primaryKey(/:operationId) port từ directus/app/src/modules/settings/routes/flows (bảng tổng quan, drawer flow 5 trigger, canvas lưới 18 px với mũi tên SVG, staging + một PATCH /flows/:id khi lưu, drawer operation với 15 operation dạng registry tĩnh src/operations, log từ /revisions); BoWorkspace/BoWorkspaceTile dùng chung với 018; canvas chỉ dùng chuột như Directus (ngoại lệ a11y); E2E settings-flows-*, payload suite flows.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Xếp task theo 4 lượt commit: Lượt 1 = Phase 1, 2, 3; Lượt 2 = Phase 4, 5; Lượt 3 = Phase 6, 7; Lượt 4 = Phase 8, 9. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Lượt 1 (Phase 1, 2, 3). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Lượt 2 (Phase 4, 5). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Lượt 3 (Phase 6, 7). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=017-flows-editor khi chạy script .specify. Lượt 4 (Phase 8, 9). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú từ 016 (đưa vào spec 017): mục "Flows" của sub-menu Settings và `/settings/flows(/*)` đang là khung của 012
@@ -441,8 +1231,68 @@ Ghi chú từ 016 (đưa vào spec 017): mục "Flows" của sub-menu Settings v
 
 ### 018: Insights, Activity, Notifications
 
+Trạng thái: Đã xong 2026-10-18 (12b7246). Thư mục: `specs/018-insights-activity-notifications/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Module Insights: tạo dashboard, thêm và sắp xếp panel (metric, metric list, meter, time series, line chart, bar chart, pie chart, list, label, variable, relational variable), lọc theo biến dashboard. Module Activity: xem nhật ký hoạt động, lọc theo user, collection, hành động. Notifications: chuông thông báo, đánh dấu đã đọc, mở item liên quan. Luồng giống Directus. Tham chiếu directus/app/src/modules/insights, activity, directus/app/src/panels. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: dashboard tạo ở Directus hiển thị đúng trên app mới.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/018-insights-activity-notifications và đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Module Insights: tạo dashboard, thêm và sắp xếp panel (metric, metric list, meter, time series, line chart, bar chart, pie chart, list, label, variable, relational variable), lọc theo biến dashboard. Module Activity: xem nhật ký hoạt động, lọc theo user, collection, hành động. Notifications: chuông thông báo, đánh dấu đã đọc, mở item liên quan. Luồng giống Directus. Tham chiếu directus/app/src/modules/insights, activity, directus/app/src/panels. Giao diện theo design-system/ (TailAdmin: theme, component-specs, layout-patterns; dùng khung app của 012); màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: dashboard tạo ở Directus hiển thị đúng trên app mới.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Tập trung: panel biểu đồ, biến dashboard, notifications, kéo thả và đổi cỡ tile.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 018: /insights, /insights/:primaryKey(/:panelKey), /activity(/:primaryKey) port từ directus/app/src/modules/{insights,activity} và stores/insights.ts; 11 panel dạng registry tĩnh src/panels (apexcharts 4.7.0, màu mặc định từ token D-108, bảng sr-only cho biểu đồ); dữ liệu panel qua một POST /graphql gộp; biến dashboard; danh sách activity trên layout wrapper của 014; chuông + drawer thông báo; E2E insights-*/activity/notifications, payload suite, fixture bo_insights.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature FE (design-system, a11y, ba cấu hình)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Xếp task theo 4 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5, 6; Lượt 3 = Phase 7, 8, 9; Lượt 4 = Phase 10, 11. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Lượt 1 (Phase 1 đến 4). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Lượt 2 (Phase 5, 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Lượt 3 (Phase 7, 8, 9). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=018-insights-activity-notifications khi chạy script .specify. Lượt 4 (Phase 10, 11). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Ghi chú từ 014 (đưa vào spec 018): `/content/directus_dashboards` và `/content/directus_activity` chuyển hướng sang
@@ -463,14 +1313,128 @@ xét lại cách hiển thị này.
 
 ### 019: Đóng gói và triển khai đa instance
 
+Trạng thái: Đã xong 2026-10-20 (56/56 task, CI 39371162920). Thư mục: `specs/019-deployment-packaging/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không cần sticky session, có readiness và liveness probe qua /server/health, tắt máy an toàn khi nhận SIGTERM (ngừng nhận request, chạy nốt request đang dở, đóng kết nối DB và Redis). Định tuyến chung một domain: /admin/* vào FE, các path còn lại vào BE. Cung cấp docker-compose cho máy dev (Directus 11.17.4, BE 2 replica, FE, Postgres, Redis, MinIO làm S3) và manifest Kubernetes hoặc Helm chart cho môi trường thật (Deployment, Service, Ingress, HPA cho BE, dùng lại nguyên ConfigMap và Secret đang cấp cho Directus, không khai báo lại biến). Thay một instance Directus bằng BE mới chỉ cần đổi image, giữ nguyên toàn bộ biến môi trường. Tiêu chí chấp nhận: với BE 3 replica cộng 1 Directus, các bài test sau đều đạt: đăng nhập rồi gọi API lần lượt vào từng replica; sửa schema ở một replica thì replica khác thấy ngay; flow theo lịch chỉ chạy một lần mỗi lượt; upload TUS nhiều chunk qua các replica khác nhau vẫn thành công; tắt một replica khi đang tải không làm lỗi request.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/019-deployment-packaging và đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Đóng gói app mới để triển khai: FE chạy 1 container, BE chạy nhiều container sau load balancer, cùng DB và Redis với Directus. FE: image nginx phục vụ file tĩnh ở /admin, đọc URL API và cấu hình từ biến môi trường lúc container khởi động, fallback về index.html cho route của SPA. BE: image chạy được với số replica tùy ý, không cần sticky session, có readiness và liveness probe qua /server/health, tắt máy an toàn khi nhận SIGTERM (ngừng nhận request, chạy nốt request đang dở, đóng kết nối DB và Redis). Định tuyến chung một domain: /admin/* vào FE, các path còn lại vào BE. Cung cấp docker-compose cho máy dev (Directus 11.17.4, BE 2 replica, FE, Postgres, Redis, MinIO làm S3) và manifest Kubernetes hoặc Helm chart cho môi trường thật (Deployment, Service, Ingress, HPA cho BE, dùng lại nguyên ConfigMap và Secret đang cấp cho Directus, không khai báo lại biến). Thay một instance Directus bằng BE mới chỉ cần đổi image, giữ nguyên toàn bộ biến môi trường. Tiêu chí chấp nhận: với BE 3 replica cộng 1 Directus, các bài test sau đều đạt: đăng nhập rồi gọi API lần lượt vào từng replica; sửa schema ở một replica thì replica khác thấy ngay; flow theo lịch chỉ chạy một lần mỗi lượt; upload TUS nhiều chunk qua các replica khác nhau vẫn thành công; tắt một replica khi đang tải không làm lỗi request.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Tập trung: uid container, CSP, lb có Directus trong pool, Helm dùng lại ConfigMap/Secret của Directus.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Node 22, pnpm 10, Nx monorepo. Feature 019 không đổi code API: image build bằng @nx-tools/nx-container 7.3.0 (target container, linux/amd64); image API chạy node uid 1000 dưới tini; image web nginx-unprivileged uid/gid 1001 phục vụ /admin (index no-cache, file immutable, CSP từ CONTENT_SECURITY_POLICY_* lúc start); deploy/compose (Directus 11.17.4, BE replica theo BACKOFFICE_REPLICAS, FE, Postgres, Redis, MinIO, lb nginx unprivileged có Directus trong pool; override separate-domain); deploy/helm/backoffice (Deployment/Service/Ingress/HPA, envFrom ConfigMap/Secret của Directus, label pool backoffice.io/api-pool, readiness /server/health, liveness /server/ping, preStop sleep, kiểm tra lúc install); suite tests/parity/src/deploy và job CI deploy, deploy-k8s (kind).
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. requirements: kiểm yêu cầu image, compose, Helm, acceptance nhiều replica
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Xếp task theo 4 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5 đến 8; Lượt 3 = Phase 9, 10; Lượt 4 = Phase 11. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Lượt 1 (Phase 1 đến 4). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Lượt 2 (Phase 5 đến 8). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Lượt 3 (Phase 9, 10). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 4:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=019-deployment-packaging khi chạy script .specify. Lượt 4 (Phase 11). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 ### 020: Extensions
 
+Trạng thái: Đã xong 2026-10-22 (100/100 task, CI 39736093957). Thư mục: `specs/020-extensions/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
+
 ```text
-/speckit.specify Hỗ trợ extension của Directus 11.17.4 trên API mới và app web mới: extension đã build cho Directus chạy được mà không cần build lại. Gỡ D-37, phần extensions của D-45, phần Extensions/Marketplace của D-93. Loại trong phạm vi: interface, display, layout, module, panel, hook, endpoint, operation, bundle; ngoài phạm vi: theme. API: port directus/api/src/extensions (manager, get-extensions, sync, installation, sandbox, wrap-embeds); nạp hook (filter, action, init, schedule, embed), endpoint, operation với cùng context như Directus (services, database, getSchema, env, logger, emitter...); env EXTENSIONS_PATH, EXTENSIONS_LOCATION, EXTENSIONS_MUST_LOAD, EXTENSIONS_AUTO_RELOAD, EXTENSIONS_SANDBOX_MEMORY, EXTENSIONS_SANDBOX_TIMEOUT; extension sandboxed chạy trong isolated-vm; /extensions trả schema thật, PATCH bật tắt, cài gỡ từ registry (bỏ 503), GraphQL extensions và update_extensions_item theo cùng hành vi. Nhiều instance (compose N replica, k8s nhiều pod, HPA): mọi node trong pool, cả Directus lẫn Backoffice, nạp cùng một bộ extension; bắt buộc EXTENSIONS_LOCATION khi chạy nhiều replica và Helm kiểm tra lúc install; reload qua kênh bus chung extensions.reload (cùng payload partialSync, origin); hook schedule dùng cùng tên lock <tên>:<index> với Directus; pod chỉ ready sau khi sync và nạp xong. Web, tương thích hoàn toàn: nạp /extensions/sources/index.js, đăng ký lúc chạy vào registry interface, display, layout, module, panel, operation; shim toàn bộ 77 component toàn cục v-* (directus/app/src/components/register.ts), PrivateView, PublicView, SharedView, 7 directive toàn cục, inject useStores, useApi (AxiosInstance), useSdk, useExtensions, shared deps vue, vue-router, vue-i18n, pinia, @directus/extensions-sdk, biến CSS --theme--* ánh xạ sang token. Shim theo design-system/ (TailAdmin): bọc Bo* khi đã có, giữ đủ props, slot, emit của v-*; component chưa có thì viết mới trên Reka UI và token theme, đủ trạng thái và bàn phím theo docs/component-specs.md. Màn Settings > Extensions và Marketplace theo design-system; màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: cùng một bộ extension mẫu (mỗi loại một cái) chạy giống nhau trên Directus và app mới; hook bắn cùng event, endpoint trả cùng response, flow có operation tùy biến cho cùng kết quả; props, slot, emit của từng v-* shim khớp Directus; với BE 3 replica cộng 1 Directus (compose và kind): cài ở một node thì mọi node thấy, gỡ thì mọi node trả 404, hook schedule chạy một lần mỗi lượt, scale lên thì pod mới có extension trước khi ready.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/020-extensions và đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Hỗ trợ extension của Directus 11.17.4 trên API mới và app web mới: extension đã build cho Directus chạy được mà không cần build lại. Gỡ D-37, phần extensions của D-45, phần Extensions/Marketplace của D-93. Loại trong phạm vi: interface, display, layout, module, panel, hook, endpoint, operation, bundle; ngoài phạm vi: theme. API: port directus/api/src/extensions (manager, get-extensions, sync, installation, sandbox, wrap-embeds); nạp hook (filter, action, init, schedule, embed), endpoint, operation với cùng context như Directus (services, database, getSchema, env, logger, emitter...); env EXTENSIONS_PATH, EXTENSIONS_LOCATION, EXTENSIONS_MUST_LOAD, EXTENSIONS_AUTO_RELOAD, EXTENSIONS_SANDBOX_MEMORY, EXTENSIONS_SANDBOX_TIMEOUT; extension sandboxed chạy trong isolated-vm; /extensions trả schema thật, PATCH bật tắt, cài gỡ từ registry (bỏ 503), GraphQL extensions và update_extensions_item theo cùng hành vi. Nhiều instance (compose N replica, k8s nhiều pod, HPA): mọi node trong pool, cả Directus lẫn Backoffice, nạp cùng một bộ extension; bắt buộc EXTENSIONS_LOCATION khi chạy nhiều replica và Helm kiểm tra lúc install; reload qua kênh bus chung extensions.reload (cùng payload partialSync, origin); hook schedule dùng cùng tên lock <tên>:<index> với Directus; pod chỉ ready sau khi sync và nạp xong. Web, tương thích hoàn toàn: nạp /extensions/sources/index.js, đăng ký lúc chạy vào registry interface, display, layout, module, panel, operation; shim toàn bộ 77 component toàn cục v-* (directus/app/src/components/register.ts), PrivateView, PublicView, SharedView, 7 directive toàn cục, inject useStores, useApi (AxiosInstance), useSdk, useExtensions, shared deps vue, vue-router, vue-i18n, pinia, @directus/extensions-sdk, biến CSS --theme--* ánh xạ sang token. Shim theo design-system/ (TailAdmin): bọc Bo* khi đã có, giữ đủ props, slot, emit của v-*; component chưa có thì viết mới trên Reka UI và token theme, đủ trạng thái và bàn phím theo docs/component-specs.md. Màn Settings > Extensions và Marketplace theo design-system; màn chưa có mẫu thì ghi câu hỏi mở. Tiêu chí chấp nhận: cùng một bộ extension mẫu (mỗi loại một cái) chạy giống nhau trên Directus và app mới; hook bắn cùng event, endpoint trả cùng response, flow có operation tùy biến cho cùng kết quả; props, slot, emit của từng v-* shim khớp Directus; với BE 3 replica cộng 1 Directus (compose và kind): cài ở một node thì mọi node thấy, gỡ thì mọi node trả 404, hook schedule chạy một lần mỗi lượt, scale lên thì pod mới có extension trước khi ready.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Tập trung: shim v-*, shared dep của bundle, nhiều instance, marketplace, sandbox.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 020: port directus/api/src/extensions (manager, get-extensions, dòng settings, sync từ EXTENSIONS_LOCATION có lock theo máy, cài từ registry qua tar 7.5.19, sandbox isolated-vm, app bundle bằng rollup 4.59.0/rolldown với shared dep dạng bare specifier); 8 init event; endpoint trên app Express 4.21.2 (alias express4) gắn vào Nest Express 5; web: import map trong index.html cho vue, vue-router, vue-i18n, pinia 2.3.1, @directus/extensions-sdk; registry lúc chạy; apps/web/src/directus-shim (77 v-*, 3 view, 7 directive, 4 inject, useApi trên axios 1.15.0); 173 biến --theme--*; Settings > Extensions và Marketplace; fixtures tests/fixtures/extensions, profile extensions.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. release-gate: kiểm yêu cầu trước khi đóng feature (shim, nhiều instance, marketplace)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Xếp task theo 3 lượt commit: Lượt 1 = Phase 1 đến 6, trừ T096; Lượt 2 = Phase 7 đến 9; Lượt 3 = Phase 10 đến 12 và T096. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Lượt 1 (Phase 1 đến 6, trừ T096). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Lượt 2 (Phase 7 đến 9). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=020-extensions khi chạy script .specify. Lượt 3 (Phase 10 đến 12 và T096). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Quyết định của owner (2026-10-21): tương thích hoàn toàn với extension app của Directus (phương án A: shim toàn bộ
@@ -507,10 +1471,84 @@ Ghi chú đưa vào spec và plan 020:
 
 ### 021: Chạy độc lập: khởi tạo DB, migration và CLI
 
-Chạy `/speckit.constitution` ở mục 4 ("Sửa constitution cho 021") trước.
+Trạng thái: Đã xong 2026-10-22 (ba lượt trên `main`). Thư mục: `specs/021-standalone-init-cli/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
+
+**0. `/speckit.constitution`**
+
+Feature 021 trái với Nguyên tắc II ("Không chạy migration hệ thống. Chỉ Directus được migrate.") và VII ("KHÔNG ghi gì vào bảng hệ thống khi khởi động"). Chạy prompt sau trước `/speckit.specify` của 021, rồi cho tech lead duyệt. Đã chạy ngày 2026-10-22: constitution 3.0.0, prompt nguồn mục II, VII ở trên đã sửa theo; tech lead (chủ dự án) duyệt 2026-10-22.
 
 ```text
-/speckit.specify Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4. Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây, chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi PROJECT_OWNER là email (không gửi report, D-38). DB đã cài: chỉ migrate latest. Không có lock, giống Directus. Vendor: Backoffice tự khởi tạo và migrate với Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations như hiện nay (ghi thành khác biệt). CLI cho apps/api, port directus/api/src/cli với cùng lệnh, option, log và exit code: start, init, bootstrap [--skipAdminInit], database install, database migrate:latest|up|down, users create|passwd, roles create, cache clear [--system|--data], count <collection>, schema snapshot|apply, security key:generate|secret:generate. Lệnh init chỉ hiện các vendor Backoffice hỗ trợ khởi tạo (Postgres, SQLite) và không chạy npm install driver vì driver đã có trong image (ghi thành khác biệt); dùng DB khác thì khởi tạo bằng Directus. Migration: port nguyên văn directus/api/src/database/migrations/run.ts và 101 file của 11.17.4, cùng custom migration trong MIGRATIONS_PATH; ghim 11.17.4. Tương thích: DB do Backoffice bootstrap thì Directus 11.17.4 khởi động, đăng nhập và migrate được, và ngược lại; validate-migrations.ts vẫn đạt. Deploy chế độ độc lập: compose có service chạy bootstrap một lần rồi mới start các replica API, không có Directus; Helm có Job hook pre-install/pre-upgrade tạo pod riêng chạy bootstrap một lần, Deployment chỉ tạo sau khi Job xong và pod API chỉ chạy start, ConfigMap/Secret mà Job cần phải có trước Job, không cần ConfigMap, Secret hay PVC của Directus; chế độ chạy chung của 019 giữ nguyên. Ngoài phạm vi khi chạy độc lập: gửi email, WebSocket, SAML, storage ngoài Local/S3 và các mục XI khác; liệt kê trong "Khác biệt so với Directus". Test đối chiếu trên Postgres và SQLite: bootstrap DB trống bằng Directus và bằng Backoffice rồi so sánh schema, các hàng hệ thống (bỏ qua uuid, thời gian, hash) và directus_migrations; chạy migrate latest/up/down với bộ custom migration mẫu ở cả hai app; so sánh output và exit code của từng lệnh CLI; acceptance deploy độc lập trên compose và kind (install, rồi upgrade có custom migration mới).
+/speckit.constitution Sửa constitution 2.2.0 thành 3.0.0 (MAJOR: định nghĩa lại Nguyên tắc II) cho feature 021: Backoffice chạy độc lập, tự khởi tạo DB và chạy migration giống Directus 11.17.4. Lý do: <lý do nghiệp vụ>.
+
+II. Dùng chung database với Directus
+- Backoffice chạy được cùng Directus trên một DB (như hiện nay) hoặc một mình, không cần Directus.
+- Được khởi tạo DB và chạy migration giống Directus 11.17.4: CLI bootstrap, database install, database migrate:latest|up|down. Seed và 101 migration hệ thống là bản port nguyên văn từ directus/api/src/database/{seeds,migrations}, ghim ở 11.17.4, cùng custom migration trong MIGRATIONS_PATH.
+- Backoffice tự khởi tạo và migrate với Postgres và SQLite. Vendor khác: DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations.
+- Không thêm bảng, cột hay migration hệ thống riêng của Backoffice. DB do Backoffice tạo phải dùng được với Directus 11.17.4 và ngược lại.
+- Giữ nguyên: kiểm tra directus_migrations lúc khởi động (sau bootstrap), định dạng dữ liệu giống hệt Directus, cột người dùng trong collection hệ thống qua API fields.
+
+VII. Triển khai đa instance
+- Thêm ngoại lệ thứ hai cho câu "KHÔNG ghi gì vào bảng hệ thống khi khởi động": lệnh bootstrap. Image API mặc định chạy bootstrap rồi start như Dockerfile của Directus; ở chế độ chạy chung mỗi replica khởi động như một container Directus. Ở chế độ độc lập với nhiều replica, bootstrap chạy một lần trong Helm Job pre-install/pre-upgrade hoặc service chạy một lần của compose; các replica chỉ chạy start. Bootstrap không có lock, như Directus.
+
+Giữ nguyên V (Directus vẫn là mốc test đối chiếu) và XI (khi chạy độc lập, các tính năng ngoài phạm vi như gửi email, WebSocket, SAML, storage ngoài Local/S3 không có).
+
+Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
+```
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/021-standalone-init-cli và đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Backoffice chạy độc lập: tự khởi tạo DB, chạy migration và có CLI giống Directus 11.17.4. Khởi động: image API chạy bootstrap rồi start giống directus/Dockerfile, không hỏi gì. DB trống: chờ DB 5 lần x 5 giây, chạy 15 seed yaml, migrate latest, createAdmin từ ADMIN_EMAIL/ADMIN_PASSWORD/ADMIN_TOKEN, ghi PROJECT_NAME, setOwner khi PROJECT_OWNER là email (không gửi report, D-38). DB đã cài: chỉ migrate latest. Không có lock, giống Directus. Vendor: Backoffice tự khởi tạo và migrate với Postgres và SQLite; vendor khác thì DB do Directus khởi tạo và migrate, Backoffice chỉ kiểm tra directus_migrations như hiện nay (ghi thành khác biệt). CLI cho apps/api, port directus/api/src/cli với cùng lệnh, option, log và exit code: start, init, bootstrap [--skipAdminInit], database install, database migrate:latest|up|down, users create|passwd, roles create, cache clear [--system|--data], count <collection>, schema snapshot|apply, security key:generate|secret:generate. Lệnh init chỉ hiện các vendor Backoffice hỗ trợ khởi tạo (Postgres, SQLite) và không chạy npm install driver vì driver đã có trong image (ghi thành khác biệt); dùng DB khác thì khởi tạo bằng Directus. Migration: port nguyên văn directus/api/src/database/migrations/run.ts và 101 file của 11.17.4, cùng custom migration trong MIGRATIONS_PATH; ghim 11.17.4. Tương thích: DB do Backoffice bootstrap thì Directus 11.17.4 khởi động, đăng nhập và migrate được, và ngược lại; validate-migrations.ts vẫn đạt. Deploy chế độ độc lập: compose có service chạy bootstrap một lần rồi mới start các replica API, không có Directus; Helm có Job hook pre-install/pre-upgrade tạo pod riêng chạy bootstrap một lần, Deployment chỉ tạo sau khi Job xong và pod API chỉ chạy start, ConfigMap/Secret mà Job cần phải có trước Job, không cần ConfigMap, Secret hay PVC của Directus; chế độ chạy chung của 019 giữ nguyên. Ngoài phạm vi khi chạy độc lập: gửi email, WebSocket, SAML, storage ngoài Local/S3 và các mục XI khác; liệt kê trong "Khác biệt so với Directus". Test đối chiếu trên Postgres và SQLite: bootstrap DB trống bằng Directus và bằng Backoffice rồi so sánh schema, các hàng hệ thống (bỏ qua uuid, thời gian, hash) và directus_migrations; chạy migrate latest/up/down với bộ custom migration mẫu ở cả hai app; so sánh output và exit code của từng lệnh CLI; acceptance deploy độc lập trên compose và kind (install, rồi upgrade có custom migration mới).
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Tập trung: vendor ngoài Postgres/SQLite, chạy bootstrap nhiều replica, Helm Job, output và exit code của CLI.
+```
+
+**3. `/speckit.plan`**
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Feature 021: port directus/api/src/cli (commander 14.0.2, inquirer 12.11.0, chalk 5.6.2, liquidjs 10.27.2); apps/api/cli.js; image CMD node cli.js bootstrap && exec node cli.js start dưới tini; 15 seed yaml + seeds/run.ts; 101 migration 11.17.4 port nguyên văn + migrations/run.ts (port.test.ts kiểm); bootstrap, install, migrate chỉ Postgres và SQLite (D-145); compose override docker-compose.standalone.yml, Helm mode: standalone với Job pre-install/pre-upgrade; profile bootstrap.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. pre-tasks: kiểm yêu cầu trước khi chia task (bootstrap, migrate, CLI, deploy độc lập)
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Xếp task theo 3 lượt commit: Lượt 1 = Phase 1 đến 6; Lượt 2 = Phase 7, 8; Lượt 3 = Phase 9 đến 11. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Lượt 1 (Phase 1 đến 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Lượt 2 (Phase 7, 8). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=021-standalone-init-cli khi chạy script .specify. Lượt 3 (Phase 9 đến 11). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Quyết định của owner (2026-10-22): chạy độc lập nhưng DB vẫn dùng được với Directus 11.17.4; port toàn bộ CLI của
@@ -538,43 +1576,87 @@ Ghi chú đưa vào spec và plan 021:
 
 ### 022: Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng
 
-Trạng thái 2026-10-26: đã xong. Ba lượt trên `main` (`a948e3f0`..`173403ae`), 46/46 task, CI 40308977164 xanh,
-parity-matrix 40320127600 và benchmark-web 40320123598 xanh; D-179..D-182 đã duyệt (D-182: tiêu đề card ba toggle chỉ
-ở web). Chủ dự án 2026-10-26: MySQL tạm bỏ khỏi CI rồi bật lại cùng ngày. Kết quả từng lượt ở `research.md` "Kết quả lượt
-1/2/3".
+Trạng thái: đã xong. Ba lượt trên `main` (`a948e3f0`..`173403ae`), 46/46 task, CI 40308977164 xanh, parity-matrix 40320127600 và benchmark-web 40320123598 xanh; D-179..D-182 đã duyệt (D-182: tiêu đề card ba toggle chỉ ở web). Chủ dự án 2026-10-26: MySQL tạm bỏ khỏi CI rồi bật lại cùng ngày. Kết quả từng lượt ở `research.md` "Kết quả lượt 1/2/3". Thư mục: `specs/022-collection-ui-toggles/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature còn lại".
 
-**Thứ tự chạy:**
+Lưu ý: không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác). Bước 0 chạy
+trước `/speckit.plan`.
 
-| Bước | Lệnh                                     | Model (mục 8)          | Ghi chú                                                                      |
-| ---- | ---------------------------------------- | ---------------------- | ---------------------------------------------------------------------------- |
-| 1    | `/speckit.specify` (prompt dưới)         | Opus 5.5, effort high  | Đã chạy 2026-10-26. Chạy lại chỉ khi muốn viết lại spec từ đầu.              |
-| 2    | `/speckit.constitution` (mục 4, cho 022) | Opus 5.5, effort high  | Đã chạy 2026-10-26 (3.2.0). D-179, D-180, D-181 duyệt 2026-10-26.            |
-| 3    | `/speckit.clarify`                       | Opus 5.5, effort high  | Bỏ qua được: 10 câu đã chốt ngày 2026-10-26.                                 |
-| 4    | `/speckit.plan` (prompt dưới)            | Opus 5.5, effort xhigh | Ra `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`. |
-| 5    | `/speckit.checklist`                     | Sonnet 5.5             | Tùy chọn.                                                                    |
-| 6    | `/speckit.tasks`                         | Sonnet 5.5             | Chia ba lượt (dưới).                                                         |
-| 7    | `/speckit.analyze`                       | Opus 5.5, effort high  | Sửa chỗ spec, plan, tasks lệch nhau trước khi code.                          |
-| 8    | `/speckit.implement`                     | Opus 5.5, effort high  | Mỗi lượt: test xanh, `graphify update .`, commit lên `main`, xem CI.         |
+**0. `/speckit.constitution`**
 
-**Lưu ý chung:**
-
-- Làm trên `main`, không tạo branch: `create-new-feature.sh` chạy `git checkout -b`, sẽ đổi branch của các session khác
-  dùng chung checkout. Trên `main`, script của Spec Kit báo "Not on a feature branch" trừ khi đặt
-  `SPECIFY_FEATURE=022-collection-ui-toggles` (`.specify/scripts/bash/common.sh`; quy tắc "thư mục số cao nhất" chỉ dùng
-  khi không có git). Thêm câu "Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify." vào đầu prompt
-  của mỗi lệnh `/speckit.*`.
-- Không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
-
-**Prompt `/speckit.specify`:**
+Feature 022 trái với Nguyên tắc II ("KHÔNG ĐƯỢC thêm bảng, cột hay migration hệ thống riêng của Backoffice") và VII ("bootstrap không có lock, như Directus"). Chạy prompt sau trước `/speckit.plan` của 022, rồi cho tech lead duyệt. Đã chạy ngày 2026-10-26: constitution 3.2.0, theo yêu cầu của chủ dự án (kiêm tech lead).
 
 ```text
-/speckit.specify Ẩn hiện ô tìm kiếm, Import, Export theo từng collection trong module Content của Backoffice, kèm bộ migration riêng của Backoffice. Dữ liệu: thêm ba cột vào directus_collections: bo_show_search, bo_show_import, bo_show_export, boolean, mặc định true, cho phép null; null hoặc chưa có cột thì hiểu là hiện (như hiện nay). Admin sửa ba cài đặt trong form collection của Settings > Data Model; nhãn en-US, vi-VN lấy từ ba dòng directus_fields (interface boolean, width half), nên Backoffice và Directus app cùng hiện ba toggle. Cài đặt áp dụng cho mọi người dùng, kể cả admin. Ô tìm kiếm: khi bo_show_search tắt, trang /content/:collection chỉ ẩn ô nhập từ khóa, giữ nút bộ lọc (cùng popover, cùng badge số bộ lọc); không gửi từ khóa lấy từ preset, bookmark hay URL; preset giữ nguyên; bộ lọc vẫn áp dụng. Import, Export: khi bo_show_import tắt, mục Import/Export của detail panel không có phần import (chọn file, chạy nền, nút Import); khi bo_show_export tắt, không có nút Export và link tải CSV của trang hiện tại; cả hai tắt thì không có mục. Chỉ là giao diện: API search, export, /utils/import, /utils/export không đổi, quyền vẫn do permission. Phạm vi: chỉ trang collection của Content; DrawerCollection, module khác và Directus app không đổi. Migration riêng: thư mục riêng apps/api/src/database/backoffice-migrations (không chung 101 migration port từ Directus), trạng thái trong bảng hệ thống backoffice_migrations cùng dạng directus_migrations; không ghi directus_migrations. bootstrap tạo bảng nếu chưa có rồi chạy migration riêng còn thiếu, trên mọi vendor, sau khi migration Directus đã đủ, dưới lock dùng chung (Redis khi có cấu hình) để nhiều replica khởi động cùng lúc chỉ một process chạy; migration Directus chưa đủ thì không chạy. Mỗi migration chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được; không có down, không có lệnh CLI riêng. Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ. Backoffice coi backoffice_migrations là collection hệ thống như directus_migrations (danh sách collection hệ thống của API, ẩn, không truy cập qua /items, nhóm hệ thống ở Data Model, không vào snapshot). Migration đầu tiên 20261026A thêm ba cột và ba dòng directus_fields. Chạy song song: Directus 11.17.4 trên cùng DB không cần file, biến môi trường hay cấu hình mới; khởi động, đăng nhập, đọc ghi collection, snapshot/diff/apply, migrate:latest|up|down như trước; GET /collections và GET /fields/directus_collections của hai app giống nhau trừ backoffice_migrations (Directus trả meta null); Directus thấy ba cột (ba toggle không có tác dụng ở Content của Directus app) và bảng backoffice_migrations trong danh sách bảng chưa quản lý. Ghi thành khác biệt D-179 (giao diện Content), D-180 (migration riêng), D-181 (backoffice_migrations là collection hệ thống). Test: unit cho ẩn hiện và bộ chạy migration; E2E Content ba cấu hình với admin và user thường; profile bootstrap chạy migration, chạy lại, ba replica cùng lúc, so dump với Directus bỏ qua backoffice_migrations, cột bo_* và dòng directus_fields của chúng; bộ đối chiếu, blackbox collections/fields/schema trên DB đã migrate; vendor khác chạy hằng đêm.
+/speckit.constitution Sửa constitution 3.1.0 thành 3.2.0 (MINOR: thêm ngoại lệ vào Nguyên tắc II và VII) cho feature 022: Backoffice có migration riêng để thêm cấu hình mà Directus không có, bắt đầu bằng ba cột ẩn hiện ô tìm kiếm, Import, Export trên directus_collections. Lý do: chủ dự án cần nhiều migration riêng về sau và không muốn đụng vào Directus đang chạy chung DB.
+
+II. Dùng chung database với Directus (thêm các ý sau, giữ nguyên các ý còn lại)
+- Backoffice được có bộ migration riêng. Trạng thái ghi trong bảng hệ thống backoffice_migrations (version, name, timestamp, cùng dạng directus_migrations); Backoffice coi bảng này là collection hệ thống như directus_migrations. Backoffice không ghi, không xóa dòng nào trong directus_migrations; Directus không cần file, biến môi trường hay cấu hình mới.
+- Migration riêng chỉ được: tạo bảng tiền tố backoffice_; thêm cột tiền tố bo_ vào bảng directus_*; thêm dòng directus_fields của các cột đó. Không được sửa, xóa bảng hay cột gốc của Directus.
+- Mỗi migration riêng chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được trên DB đã có thay đổi của nó. Không có down và không có lệnh CLI riêng; rollback làm tay trên DB.
+- bootstrap chạy migration riêng còn thiếu trên mọi vendor, sau khi migration Directus đã đủ (sửa D-145 của 021: Backoffice vẫn chỉ cài và migrate Directus trên Postgres, SQLite). Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ, như migration Directus.
+- DB do Backoffice tạo vẫn dùng được với Directus 11.17.4 và ngược lại; Directus chỉ thấy thêm cột bo_* và bảng backoffice_* (bảng chưa quản lý trong Data Model). GET /collections của hai app khác nhau ở các bảng backoffice_* (ghi thành khác biệt).
+
+VII. Triển khai đa instance
+- Thêm ngoại lệ cho "bootstrap không có lock, như Directus": migration riêng của Backoffice chạy dưới lock dùng chung (Redis khi có cấu hình Redis), mỗi lúc một process; migration Directus trong bootstrap vẫn không có lock.
+
+Giữ nguyên V (test đối chiếu so dump DB, bỏ qua bảng backoffice_*, cột bo_* và dòng directus_fields của chúng).
+
+Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
 ```
 
-**Prompt `/speckit.plan`:** dán phần chung BE và FE ở mục 7, rồi thêm:
+**1. `/speckit.specify`**
 
 ```text
-Feature 022 có cả BE và FE. BE: bộ chạy migration riêng là file mới apps/api/src/database/backoffice-migrations/index.ts (danh sách import tĩnh, không readdir) và run.ts (chỉ latest trên backoffice_migrations, tạo bảng nếu chưa có, chạy trong useLock().usingLock('backoffice-migrations', ...) của apps/api/src/lock (redlock khi có Redis, local khi không), đọc lại bảng sau khi lấy lock, flushCaches(true) sau khi chạy như run.ts của Directus); không sửa migrations/run.ts và 101 file port (port.test.ts giữ nguyên); không thêm lệnh CLI. Nối vào cli/commands/bootstrap/index.ts (cuối nhánh Postgres/SQLite, và nhánh vendor D-145 khi migrationsValid), database/validate-migrations.ts (kiểm tra thêm backoffice_migrations: thiếu hoặc lạ thì dừng). backoffice_migrations là collection hệ thống: thêm vào libs/system-data/src/collections/collections.yaml (hidden) và sửa isSystemCollection của libs/system-data (đang chỉ nhận tiền tố directus_) và của apps/web/src/stores/collections.ts. Migration 20261026A: hasColumn trước khi thêm cột, kiểm tra dòng directus_fields trước khi insert. FE: prop showSearch cho components/SearchInput.vue (giống showFilter: ẩn nút search, input, nút xóa; pill w-11; activate không mở khi tắt); prop showImport, showExport cho components/sidebar/ExportSidebarDetail.vue (phần import đang ở v-if="createAllowed", phần export gồm nút Export và link CSV); modules/content/routes/CollectionRoute.vue đọc meta.bo_show_search, meta.bo_show_import, meta.bo_show_export (!== false), activeSearch thay search cho layout wrapper và ExportSidebarDetail, v-if="showImport || showExport" cho ExportSidebarDetail. Test: dump của profile bootstrap (tests/parity/src/bootstrap) và cli.test.ts bỏ qua phần của Backoffice; bộ đối chiếu collections bỏ qua backoffice_migrations; test migration chạy trên SQLite in-memory.
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/022-collection-ui-toggles và đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Ẩn hiện ô tìm kiếm, Import, Export theo từng collection trong module Content của Backoffice, kèm bộ migration riêng của Backoffice. Dữ liệu: thêm ba cột vào directus_collections: bo_show_search, bo_show_import, bo_show_export, boolean, mặc định true, cho phép null; null hoặc chưa có cột thì hiểu là hiện (như hiện nay). Admin sửa ba cài đặt trong form collection của Settings > Data Model; nhãn en-US, vi-VN lấy từ ba dòng directus_fields (interface boolean, width half), nên Backoffice và Directus app cùng hiện ba toggle. Cài đặt áp dụng cho mọi người dùng, kể cả admin. Ô tìm kiếm: khi bo_show_search tắt, trang /content/:collection chỉ ẩn ô nhập từ khóa, giữ nút bộ lọc (cùng popover, cùng badge số bộ lọc); không gửi từ khóa lấy từ preset, bookmark hay URL; preset giữ nguyên; bộ lọc vẫn áp dụng. Import, Export: khi bo_show_import tắt, mục Import/Export của detail panel không có phần import (chọn file, chạy nền, nút Import); khi bo_show_export tắt, không có nút Export và link tải CSV của trang hiện tại; cả hai tắt thì không có mục. Chỉ là giao diện: API search, export, /utils/import, /utils/export không đổi, quyền vẫn do permission. Phạm vi: chỉ trang collection của Content; DrawerCollection, module khác và Directus app không đổi. Migration riêng: thư mục riêng apps/api/src/database/backoffice-migrations (không chung 101 migration port từ Directus), trạng thái trong bảng hệ thống backoffice_migrations cùng dạng directus_migrations; không ghi directus_migrations. bootstrap tạo bảng nếu chưa có rồi chạy migration riêng còn thiếu, trên mọi vendor, sau khi migration Directus đã đủ, dưới lock dùng chung (Redis khi có cấu hình) để nhiều replica khởi động cùng lúc chỉ một process chạy; migration Directus chưa đủ thì không chạy. Mỗi migration chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được; không có down, không có lệnh CLI riêng. Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ. Backoffice coi backoffice_migrations là collection hệ thống như directus_migrations (danh sách collection hệ thống của API, ẩn, không truy cập qua /items, nhóm hệ thống ở Data Model, không vào snapshot). Migration đầu tiên 20261026A thêm ba cột và ba dòng directus_fields. Chạy song song: Directus 11.17.4 trên cùng DB không cần file, biến môi trường hay cấu hình mới; khởi động, đăng nhập, đọc ghi collection, snapshot/diff/apply, migrate:latest|up|down như trước; GET /collections và GET /fields/directus_collections của hai app giống nhau trừ backoffice_migrations (Directus trả meta null); Directus thấy ba cột (ba toggle không có tác dụng ở Content của Directus app) và bảng backoffice_migrations trong danh sách bảng chưa quản lý. Ghi thành khác biệt D-179 (giao diện Content), D-180 (migration riêng), D-181 (backoffice_migrations là collection hệ thống). Test: unit cho ẩn hiện và bộ chạy migration; E2E Content ba cấu hình với admin và user thường; profile bootstrap chạy migration, chạy lại, ba replica cùng lúc, so dump với Directus bỏ qua backoffice_migrations, cột bo_* và dòng directus_fields của chúng; bộ đối chiếu, blackbox collections/fields/schema trên DB đã migrate; vendor khác chạy hằng đêm.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Bỏ qua được: 10 câu đã chốt với chủ dự án ngày 2026-10-26.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 022 có cả BE và FE. BE: bộ chạy migration riêng là file mới apps/api/src/database/backoffice-migrations/index.ts (danh sách import tĩnh, không readdir) và run.ts (chỉ latest trên backoffice_migrations, tạo bảng nếu chưa có, chạy trong useLock().usingLock('backoffice-migrations', ...) của apps/api/src/lock (redlock khi có Redis, local khi không), đọc lại bảng sau khi lấy lock, flushCaches(true) sau khi chạy như run.ts của Directus); không sửa migrations/run.ts và 101 file port (port.test.ts giữ nguyên); không thêm lệnh CLI. Nối vào cli/commands/bootstrap/index.ts (cuối nhánh Postgres/SQLite, và nhánh vendor D-145 khi migrationsValid), database/validate-migrations.ts (kiểm tra thêm backoffice_migrations: thiếu hoặc lạ thì dừng). backoffice_migrations là collection hệ thống: thêm vào libs/system-data/src/collections/collections.yaml (hidden) và sửa isSystemCollection của libs/system-data (đang chỉ nhận tiền tố directus_) và của apps/web/src/stores/collections.ts. Migration 20261026A: hasColumn trước khi thêm cột, kiểm tra dòng directus_fields trước khi insert. FE: prop showSearch cho components/SearchInput.vue (giống showFilter: ẩn nút search, input, nút xóa; pill w-11; activate không mở khi tắt); prop showImport, showExport cho components/sidebar/ExportSidebarDetail.vue (phần import đang ở v-if="createAllowed", phần export gồm nút Export và link CSV); modules/content/routes/CollectionRoute.vue đọc meta.bo_show_search, meta.bo_show_import, meta.bo_show_export (!== false), activeSearch thay search cho layout wrapper và ExportSidebarDetail, v-if="showImport || showExport" cho ExportSidebarDetail. Test: dump của profile bootstrap (tests/parity/src/bootstrap) và cli.test.ts bỏ qua phần của Backoffice; bộ đối chiếu collections bỏ qua backoffice_migrations; test migration chạy trên SQLite in-memory.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. requirements: kiểm yêu cầu migration riêng và ba toggle
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Xếp task theo 3 lượt commit: Lượt 1 = Phase 1 đến 4; Lượt 2 = Phase 5, 6; Lượt 3 = Phase 7. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E hiện có + mới xanh, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Lượt 1 (Phase 1 đến 4). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Lượt 2 (Phase 5, 6). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=022-collection-ui-toggles khi chạy script .specify. Lượt 3 (Phase 7). Test xanh, graphify update ., commit lên main theo Conventional Commits, xem CI.
 ```
 
 Quyết định của owner (2026-10-26):
@@ -618,11 +1700,114 @@ Ghi chú đưa vào spec và plan 022 (đọc code ngày 2026-10-26, chưa chạ
   `ExportSidebarDetail`, `CollectionRoute`, `isSystemCollection` của web, unit và E2E Content; (3) đối chiếu
   collections/fields/schema trên DB đã migrate, vendor khác hằng đêm.
 
+### 023: Filter theo path trong field json
+
+Trạng thái: Chưa chạy. Soạn 2026-10-27 cùng chủ dự án. Thư mục: `specs/023-json-path-filter/`. Làm trên: `main`, không tạo branch. Model: mục 8, cột "feature lõi".
+
+**1. `/speckit.specify`**
+
+```text
+/speckit.specify Làm trên main, không tạo branch (không chạy git checkout -b): tạo thư mục specs/023-json-path-filter và đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Feature 023: filter theo path trong field json (json-path-filter). Bối cảnh: field kiểu json (cột json hoặc jsonb) hiện chỉ filter được _null/_nnull. API trả 400 "Invalid filter key" cho key json(field, path) trong filter; FieldList có mục "functions.json" nhưng gửi json(field) không có path nên cũng 400. Directus 11.17.4 giống vậy. Ví dụ: field transaction_data = {"Amount": 6000, "ApprovalCode": "940172", "Currency": "VND", "GatewayCode": "00", "GatewayID": "7051273", "RefCode": "0fb07794-..."}; người dùng cần lọc item có Amount = 6000. Mục tiêu: lọc item theo giá trị tại một path trong field json; field vẫn là json, schema và dữ liệu không đổi, chạy song song với Directus. Phạm vi: REST /items và mọi chỗ dùng chung query (export theo filter hiện tại) nhận key json(field, path), path cùng cú pháp với json() của fields: Amount, a.b, items[0].sku; thêm [*] nghĩa là khớp khi một phần tử bất kỳ của mảng khớp (VD items[*].sku). Người dùng chọn kiểu giá trị tại path: Text, Number, Boolean; toán tử theo kiểu (Text như string, Number như integer/float, Boolean như boolean). Dòng không có path hoặc giá trị khác kiểu thì không khớp, không làm lỗi cả query. Kiểu nằm trong query để bookmark giữ được. Field json ở collection hiện tại và qua quan hệ m2o. GraphQL /graphql có filter tương đương. Vendor: Postgres (cột json và jsonb) và SQLite; MySQL/MariaDB, MSSQL, Oracle, CockroachDB trả 400 với thông báo rõ. Quyền: kiểm quyền đọc trên field gốc như filter thường; path chỉ đi qua binding, không ghép chuỗi SQL. UI: filter của trang Content (sidebar filter, bookmark/preset) và DrawerCollection: khi chọn hàm json của field json thì gõ path và chọn kiểu; nhãn functions.json có en-US và vi-VN. Mọi chỗ khác dùng filter (permission/policy, flow, insights, validation của field) không hiện hàm json; API từ chối json path trong filter của permission. Khác biệt với Directus, chủ dự án đã chấp nhận ngày 2026-10-27, ghi từ D-184: 1. Bookmark/preset có json path lưu vào directus_presets dùng chung; Directus app mở bookmark đó bị lỗi 400: chấp nhận. 2. Chỉ dùng trong filter của Content và drawer chọn item. 3. Với request có json path, Directus trả 400 còn Backoffice trả 200; parity suite ghi nhận khác biệt này, mọi request khác vẫn phải giống Directus, kể cả GraphQL introspection/SDL. 4. Chỉ cần API Backoffice hỗ trợ: ở chế độ shared-domain (compose api_pool, Helm Service -api) pool có cả Directus nên request có json path rơi vào Directus sẽ nhận 400; không thêm định tuyến ở lb. Ngoài phạm vi: tự tạo index; search trong json; aggregate/groupBy theo path; MySQL, MSSQL, Oracle, CockroachDB.
+```
+
+**2. `/speckit.clarify`**
+
+```text
+/speckit.clarify Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Tập trung vào: cú pháp mang kiểu giá trị trong query (VD json(field, path, number) hay cách khác) dùng chung cho REST, GraphQL và bookmark; ngữ nghĩa [*] với _neq, _nin, _null (một phần tử khớp hay mọi phần tử); Text có phân biệt hoa thường không; Number có khớp chuỗi số "6000" không; API có chặn json path trong filter của flow condition và validation của field không; input GraphQL mới ảnh hưởng introspection parity thế nào.
+```
+
+**3. `/speckit.plan`** (sau bước này, chủ dự án duyệt các khác biệt D-xxx)
+
+```text
+/speckit.plan Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Phần chung BE: Node 22, pnpm 10, Nx monorepo, apps/api là NestJS (TypeScript strict), truy cập DB bằng Knex với các dialect như directus/api/src/database/helpers, cache và bus bằng Redis (ioredis) theo đúng key và kênh của Directus, validate bằng Joi hoặc Zod giống directus/packages/validation. Port logic từ file tương ứng trong directus/api/src, ghi đường dẫn file gốc ở đầu file. Thư viện nội bộ đặt tên @backoffice/*. Cấu hình đọc bằng thư viện env port từ directus/packages/env, không đổi tên biến. Mỗi service Directus thành một provider NestJS, controller mỏng. Test: Vitest cho unit, test đối chiếu chạy cùng request với Directus 11.17.4 thật và API mới (copy từ directus/tests/blackbox), Docker Compose cho Postgres, MySQL, SQLite và Redis. CI trên GitHub Actions, coverage BE tối thiểu 80%. Phần chung FE: Node 22, pnpm 10, Nx monorepo, apps/web là Vue 3 (Composition API, script setup, TypeScript strict), Vite, Pinia, Vue Router, Reka UI 2.8.2 (headless, MIT, cùng bản Directus app) + Tailwind CSS 4.3 (style và bố cục khung theo design-system/ dựa trên TailAdmin: theme design-system/tokens/theme.css chép bằng @theme, dùng tên brand-*, gray-*, success-*..., không dùng hex thô hay màu palette ngoài theme; bố cục theo docs/layout-patterns.md, component theo docs/component-specs.md; theme là mặc định, settings áp lên trên như directus/app/src/app.vue: project_color vào --project-color cho logo, trang public/share, favicon, theme_light_overrides/theme_dark_overrides đè biến theme có ánh xạ), vue-i18n dùng file dịch copy từ directus/app/src/lang (đổi chữ Directus thành Backoffice), gọi API bằng @directus/sdk. Được copy composable hoặc utils từ directus/app/src khi cần, nhưng viết lại component bằng Reka UI. Test: Vitest + Vue Test Utils cho component, Playwright cho luồng E2E chạy với cả Directus thật và API mới. CI trên GitHub Actions, coverage FE tối thiểu 60%. Feature 023 có cả BE và FE, không thêm dependency. API: parse-filter-key.ts, get-filter-type.ts, filter/operator.ts (key.split('.') hỏng với path có dấu chấm), filter/index.ts (m2o qua getColumnPath), helpers/fn/json và dialects postgres.ts (json và jsonb, ->> và ép kiểu an toàn theo json_typeof/jsonb_typeof, json_array_elements cho [*]) và sqlite.ts (json_extract, json_type, json_each cho [*]); dialect khác ném InvalidQueryError; permissions extract-fields-from-query.ts kiểm quyền trên field gốc; filter input của GraphQL và normalizer parity cho introspection/SDL. Web: FieldList.vue gõ path và chọn kiểu khi chọn hàm json, chỉ bật bằng prop; filter của Content và DrawerCollection bật prop đó; nhãn functions.json en-US/vi-VN ngoài script sync. Test: unit API cho Postgres và SQLite, parity tests/parity/src/items ghi khác biệt D-184+, blackbox json-fields giữ nguyên, E2E filter Content trong ba cấu hình, benchmark 10 triệu dòng có và không có expression index. Ghi D-184+ vào spec và migration-guide.
+```
+
+**4. `/speckit.checklist`** (tùy chọn)
+
+```text
+/speckit.checklist Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. api-compat: kiểm khác biệt D-184+ có ghi đủ, request không có json path vẫn giống Directus, quyền trên field gốc, path chỉ qua binding, Postgres và SQLite
+```
+
+**5. `/speckit.tasks`**
+
+```text
+/speckit.tasks Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Chia ba lượt như 020–022: lượt 1 API REST (Postgres, SQLite, m2o, [*], quyền, chặn json path trong permission) với unit và parity; lượt 2 Web (FieldList, Content, DrawerCollection, nhãn) với E2E; lượt 3 GraphQL, parity introspection, benchmark, tài liệu. Mỗi lượt kết thúc bằng task "đóng lượt" (lint, typecheck, test, build, E2E, commit, push, CI xanh, graphify update .).
+```
+
+**6. `/speckit.analyze`**
+
+```text
+/speckit.analyze Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify.
+```
+
+**7. `/speckit.implement`** (mỗi lượt một lần chạy)
+
+Lượt 1:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Lượt 1: API REST (Postgres, SQLite, m2o, [*], quyền, chặn json path trong permission) với unit và parity. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 2:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Lượt 2: Web (FieldList, Content, DrawerCollection, nhãn) với E2E. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Lượt 3:
+
+```text
+/speckit.implement Đặt SPECIFY_FEATURE=023-json-path-filter khi chạy script .specify. Lượt 3: GraphQL, parity introspection, benchmark, tài liệu. Commit thẳng main theo Conventional Commits, chạy graphify update . sau khi sửa code, xem CI.
+```
+
+Quyết định của owner (2026-10-27):
+
+| Câu hỏi                          | Chốt                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------- |
+| Kiểu field                       | Giữ `json`, không đổi schema hay dữ liệu                                          |
+| DB vendor                        | Postgres và SQLite; vendor khác trả 400                                           |
+| Kiểu giá trị tại path            | Người dùng chọn trong UI: Text, Number, Boolean                                   |
+| Nhập path                        | Gõ tay, cùng cú pháp với `json(field, path)` của `fields`                         |
+| Phạm vi thêm                     | Field json qua m2o, phần tử bất kỳ của mảng `[*]`, GraphQL, DrawerCollection      |
+| Bookmark mở trên Directus app    | Lỗi 400, chấp nhận                                                                |
+| Chỗ dùng filter json             | Chỉ filter của Content (và drawer chọn item)                                      |
+| Khác biệt parity                 | Đồng ý ghi thành khác biệt D-184+                                                 |
+| Định tuyến lb chế độ shared-domain | Không thêm; API Backoffice hỗ trợ là đủ, request rơi vào Directus nhận 400      |
+
+Không sửa constitution: Nguyên tắc III cho phép khác biệt API khi đã ghi theo Nguyên tắc X (ghi trong spec, nêu lý do,
+tech lead duyệt).
+
+Ghi chú đưa vào spec và plan 023 (đọc code ngày 2026-10-27; SQL thử bằng test tạm với Knex `pg`, chưa chạy trên DB
+thật):
+
+- Field `json` trên Postgres tạo cột `json`, không phải `jsonb` (`table.json()` ở
+  `apps/api/src/services/fields.service.ts:955`); cột `jsonb` tạo tay vẫn đọc là field `json`
+  (`apps/api/src/schema/get-local-type.ts:73`).
+- Filter `json(metadata, color)` trả 400 `Invalid filter key`: `parseFilterKey` lấy tên field là `"metadata, color"`
+  (`apps/api/src/utils/parse-filter-key.ts`, giống hệt Directus). Field json chỉ có toán tử `null`, `nnull`
+  (`getFilterOperatorsForType`).
+- Sort theo `json()` đã chạy: `order by "products"."metadata"::json->$1 desc` (`::jsonb` với cột jsonb). `fields=json(...)`
+  có blackbox `json-fields`.
+- UI: `FieldList.vue` hiện mục `functions.json` vì `getFunctionsForType('json')` = `['count', 'json']`, gửi `json(field)`
+  không có path, API trả 400 `requires json(field, path) format`
+  (`apps/api/src/database/helpers/fn/json/parse-function.ts:48`). Directus app giống vậy (`VFieldListItem.vue:45`); en-US
+  của Directus thiếu `functions.json`. `getOutputTypeForFunction('json')` = `undefined` nên UI hiện danh sách toán tử mặc
+  định.
+- `apps/api/src/database/run-ast/lib/apply-query/filter/operator.ts:35` tách key bằng `split('.')`, hỏng với path có dấu
+  chấm.
+- Kiểu `json` của Postgres không có toán tử `=`: so sánh phải dùng `->>` rồi ép kiểu; Number cần ép an toàn theo
+  `json_typeof`/`jsonb_typeof` để một dòng không phải số không làm lỗi cả query.
+- Hàm `json()` đã có cho postgres (cả cockroachdb, redshift), mysql, sqlite, mssql, oracle
+  (`apps/api/src/database/helpers/fn/dialects/*.ts`).
+- Lb: `deploy/compose/lb/shared-domain.conf` có `directus:8055` và `backoffice-api` trong `api_pool`; Helm Service `-api`
+  chọn pod theo label pool dùng chung. Chế độ separate-domain chỉ có Backoffice.
+- Hiệu năng [Inference]: `->>` không dùng index thường; expression index (VD `((transaction_data->>'Amount'))`) tạo tay.
+
 ---
 
-## 7. Prompt `/speckit.plan`
+## 7. Phần chung của `/speckit.plan`
 
-Dùng phần chung dưới đây cho mọi feature, rồi thêm 1–2 câu riêng cho feature đó.
+Phần chung dưới đây đã chép vào khối `/speckit.plan` của từng feature ở mục 6. Sửa ở đây thì chép lại vào mục 6.
 
 **BE (001–011):**
 
@@ -657,7 +1842,7 @@ bước khó.
 khuôn có sẵn thì dùng model rẻ hơn.
 
 **Feature lõi** là những feature khó giữ tương thích với Directus nhất: **002, 003, 004, 005, 006, 009, 011** (BE) và
-**013, 014** (FE), và **020** (cả hai).
+**013, 014** (FE), **020** và **023** (cả hai).
 
 | Bước                    | Feature lõi                                                                                                                                | Feature còn lại                                                                | Lý do                                                                          |
 | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ |
