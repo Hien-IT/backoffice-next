@@ -5,6 +5,8 @@ import type { FieldFunction, Filter, Permission, Query, SchemaOverview } from '@
 import { getFunctionsForType } from '@backoffice/utils';
 import type { Knex } from 'knex';
 import { parseJsonFunction } from '../../helpers/fn/json/parse-function.js';
+import type { FnHelperOptions } from '../../helpers/fn/types.js';
+import type { JsonFilterType } from '../../helpers/fn/json/parse-function.js';
 import { getFunctions } from '../../helpers/index.js';
 import { applyFunctionToColumnName } from './apply-function-to-column-name.js';
 
@@ -16,6 +18,8 @@ type FunctionColumnOptions = {
 
 type OriginalCollectionName = {
 	originalCollectionName?: string | undefined;
+	/** Backoffice (spec 023): the column is a filter key, so json(field, path[, type]) is read as a filter (FR-001). */
+	jsonFilter?: boolean | undefined;
 };
 
 type GetColumnOptions = OriginalCollectionName | (FunctionColumnOptions & OriginalCollectionName);
@@ -51,13 +55,15 @@ export function getColumn(
 
 			let fieldName = columnName!;
 			let jsonPath: string | undefined;
+			let jsonType: JsonFilterType | undefined;
 
 			// For json function, extract the base field name from the arguments
 			// json(metadata, color) -> metadata
 			if (functionName === 'json') {
-				const result = parseJsonFunction(column);
+				const result = parseJsonFunction(column, { filter: options?.jsonFilter === true });
 				fieldName = result.field;
 				jsonPath = result.path;
+				jsonType = result.type;
 			}
 
 			const type = schema?.collections[collectionName]?.fields?.[fieldName]?.type ?? 'unknown';
@@ -67,7 +73,13 @@ export function getColumn(
 				throw new InvalidQueryError({ reason: `Invalid function specified "${functionName}"` });
 			}
 
-			const result = fn[functionName as keyof typeof fn](table, fieldName, {
+			const helper = fn[functionName as FieldFunction] as (
+				table: string,
+				column: string,
+				options: FnHelperOptions,
+			) => Knex.Raw;
+
+			const result = helper.call(fn, table, fieldName, {
 				type,
 				relationalCountOptions: isFunctionColumnOptions(options)
 					? {
@@ -78,7 +90,8 @@ export function getColumn(
 					: undefined,
 				originalCollectionName: options?.originalCollectionName,
 				jsonPath,
-			}) as Knex.Raw;
+				jsonType,
+			});
 
 			if (alias) {
 				return knex.raw(result + ' AS ??', [alias]);

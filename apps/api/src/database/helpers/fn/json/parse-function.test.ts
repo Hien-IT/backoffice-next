@@ -1,6 +1,6 @@
 // Ported from directus/api/src/database/helpers/fn/json/parse-function.test.ts
 import { describe, expect, test, vi } from 'vitest';
-import { calculateJsonPathDepth, parseJsonFunction } from './parse-function.js';
+import { calculateJsonPathDepth, jsonFilterType, parseJsonFunction, splitWildcard } from './parse-function.js';
 
 vi.mock('@backoffice/env', () => ({
 	useEnv: vi.fn().mockReturnValue({
@@ -119,5 +119,65 @@ describe('JsonHelper', () => {
 				expect(() => parseJsonFunction(input)).toThrow(expectedError);
 			});
 		});
+	});
+});
+
+// Backoffice (spec 023, D-184): json(field, path, type) in filters, one [*] (FR-001, FR-002).
+describe('parseJsonFunction with a type and [*] (spec 023)', () => {
+	test.each([
+		{ input: 'json(a, b)', expected: { field: 'a', path: '.b', type: 'text' } },
+		{ input: 'json(a, b.c, number)', expected: { field: 'a', path: '.b.c', type: 'number' } },
+		{ input: 'json(a, b, boolean)', expected: { field: 'a', path: '.b', type: 'boolean' } },
+		{ input: 'json(a, b, text)', expected: { field: 'a', path: '.b', type: 'text' } },
+		{ input: 'json( a , items[0].sku , number )', expected: { field: 'a', path: '.items[0].sku', type: 'number' } },
+		{ input: 'json(a, items[*].sku, text)', expected: { field: 'a', path: '.items[*].sku', type: 'text' } },
+		{ input: 'json(a, [*], text)', expected: { field: 'a', path: '[*]', type: 'text' } },
+		{ input: 'json(a, [*].b, number)', expected: { field: 'a', path: '[*].b', type: 'number' } },
+		{ input: "json(a, a'b;--, text)", expected: { field: 'a', path: ".a'b;--", type: 'text' } },
+	])('filter mode parses "$input"', ({ input, expected }) => {
+		expect(parseJsonFunction(input, { filter: true })).toEqual(expected);
+	});
+
+	test.each([
+		{ input: 'json(a, b, money)', error: 'Invalid json() syntax: unknown type "money"' },
+		{ input: 'json(a, b, c, d)', error: 'Invalid json() syntax: unknown type "d"' },
+		{ input: 'json(a, b,)', error: 'Invalid json() syntax: unknown type ""' },
+		{ input: 'json(a, a[*].b[*], text)', error: 'Invalid json() syntax: only one [*] is allowed' },
+		{ input: 'json(a, items[, number)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a, items[x].b, text)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a, a..b, text)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a, items.*, text)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a, $.b, text)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a, "x, text)', error: 'Invalid json() syntax: unsupported path expression' },
+		{ input: 'json(a)', error: 'Invalid json() syntax: requires json(field, path) format' },
+		{
+			input: 'json(a, a[*].b.c.d.e.f.g.h.i.j, number)',
+			error: 'Invalid query. JSON path depth (11) exceeds allowed maximum of 10.',
+		},
+	])('filter mode throws for "$input"', ({ input, error }) => {
+		expect(() => parseJsonFunction(input, { filter: true })).toThrow(error);
+	});
+
+	test('outside filters a known type is read, [*] is refused and an unknown third part stays in the path (DR)', () => {
+		expect(parseJsonFunction('json(a, b, number)')).toEqual({ field: 'a', path: '.b', type: 'number' });
+		expect(parseJsonFunction('json(a, b)')).toEqual({ field: 'a', path: '.b' });
+		expect(parseJsonFunction('json(a, b, c)')).toEqual({ field: 'a', path: '.b, c' });
+		expect(() => parseJsonFunction('json(a, items[*].sku, text)')).toThrow('unsupported path expression');
+	});
+
+	test.each([
+		{ path: '.items[*].sku', expected: { before: '.items', after: '.sku' } },
+		{ path: '[*]', expected: { before: '', after: '' } },
+		{ path: '[*].b', expected: { before: '', after: '.b' } },
+		{ path: '.a.b[*]', expected: { before: '.a.b', after: '' } },
+		{ path: '.items[0].sku', expected: null },
+	])('splitWildcard("$path")', ({ path, expected }) => {
+		expect(splitWildcard(path)).toEqual(expected);
+	});
+
+	test('jsonFilterType maps to the field types whose operators apply', () => {
+		expect(jsonFilterType('text')).toBe('string');
+		expect(jsonFilterType('number')).toBe('float');
+		expect(jsonFilterType('boolean')).toBe('boolean');
 	});
 });

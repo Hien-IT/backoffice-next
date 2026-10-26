@@ -654,3 +654,60 @@ test(`filter with partial field permissions`, async () => {
 	expect(rawQuery.sql).toEqual(`select * where "article"."title" = ?`);
 	expect(rawQuery.bindings).toEqual([1]);
 });
+
+// Backoffice (spec 023, FR-005, FR-006): json path keys at the root, through m2o and inside _and/_or.
+describe('json path keys (spec 023)', () => {
+	const schema = new SchemaBuilder()
+		.collection('orders_jp', (c) => {
+			c.field('id').id();
+			c.field('details').json();
+		})
+		.collection('payments_jp', (c) => {
+			c.field('id').id();
+			c.field('data').json();
+			c.field('order').m2o('orders_jp');
+		})
+		.build();
+
+	const sql = (filter: Record<string, unknown>) => {
+		const db = vi.mocked(knex.default({ client: Client_SQLite3 }));
+		const queryBuilder = db.queryBuilder();
+		applyFilter(db, schema, queryBuilder, filter as any, 'payments_jp', {}, [], []);
+		return queryBuilder.toSQL();
+	};
+
+	test('root key', () => {
+		const { sql: text, bindings } = sql({ 'json(data, Amount, number)': { _eq: 6000 } });
+		expect(text).toContain(
+			`json_type(CASE WHEN json_valid("payments_jp"."data") THEN "payments_jp"."data" END, ?) IN ('integer', 'real')`,
+		);
+		expect(text).toMatch(/ END = \?$/);
+		expect(bindings).toEqual(['$.Amount', '$.Amount', 6000]);
+	});
+
+	test('through m2o: join, then the json field of the related collection', () => {
+		const { sql: text, bindings } = sql({ order: { 'json(details, a.b, text)': { _starts_with: 'x' } } });
+		expect(text).toMatch(
+			/^select \* left join "orders_jp" as "(\w+)" on "payments_jp"."order" = "\1"."id" where CASE WHEN json_type\(CASE WHEN json_valid\("\1"."details"\)/,
+		);
+		expect(bindings).toEqual(['$.a.b', '$.a.b', 'x%']);
+	});
+
+	test('_and/_or and [*] through m2o', () => {
+		const { sql: text } = sql({
+			_or: [
+				{ 'json(data, flag, boolean)': { _eq: true } },
+				{ _and: [{ order: { 'json(details, items[*].sku, text)': { _eq: 'A' } } }] },
+			],
+		});
+
+		expect(text).toContain(` or (exists (select 1 from json_each(`);
+		expect(text).toContain(`"bo_json_elem"."fullkey" || ?`);
+	});
+
+	test('an operator of another type is refused', () => {
+		expect(() => sql({ 'json(data, Amount, number)': { _contains: '6' } })).toThrow(
+			'"float" field type does not contain the "_contains" filter operator',
+		);
+	});
+});

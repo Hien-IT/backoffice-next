@@ -54,6 +54,9 @@ export class FnHelperMySQL extends FnHelper {
 	}
 
 	json(table: string, column: string, options?: FnHelperOptions): Knex.Raw {
+		// Backoffice (spec 023, FR-008): json(field, path, type) runs on Postgres and SQLite only.
+		if (options?.jsonType) this.assertJsonFilterSupported();
+
 		const collectionName = options?.originalCollectionName || table;
 		const fieldSchema = this.schema.collections?.[collectionName]?.fields?.[column];
 

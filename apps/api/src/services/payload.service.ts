@@ -26,6 +26,7 @@ import { clone, cloneDeep, isNil, isObject, isPlainObject } from 'lodash-es';
 import { parse as wktToGeoJSON } from 'wellknown';
 import type { Helpers } from '../database/helpers/index.js';
 import { getFunctions, getHelpers } from '../database/helpers/index.js';
+import { parseJsonFunction } from '../database/helpers/fn/json/parse-function.js';
 import getDatabase from '../database/index.js';
 import { useLogger } from '../logger/index.js';
 import { decrypt, encrypt } from '../utils/encrypt.js';
@@ -404,8 +405,11 @@ export class PayloadService {
 		for (const [aliasField, originalField] of Object.entries(aliasMap)) {
 			if (!originalField.startsWith('json(') || !originalField.endsWith(')')) continue;
 
+			// Backoffice (spec 023, D-184.2): json(field, path, type) values come back as JSON scalars on every vendor.
+			const type = jsonFunctionType(originalField);
+
 			for (const payload of payloads) {
-				payload[aliasField] = fn.parseJsonResult(payload[aliasField]);
+				payload[aliasField] = fn.parseJsonResult(payload[aliasField], type);
 			}
 		}
 	}
@@ -1094,5 +1098,14 @@ export class PayloadService {
 		if (Object.keys(payload).length === 0) return null;
 
 		return payload;
+	}
+}
+
+/** Backoffice (spec 023, D-184.2): the type argument of a json() selection, if any. */
+function jsonFunctionType(selection: string) {
+	try {
+		return parseJsonFunction(selection).type;
+	} catch {
+		return undefined;
 	}
 }

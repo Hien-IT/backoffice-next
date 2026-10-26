@@ -341,4 +341,39 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'backoffice_migrations is a hidden system collection in Backoffice (403 on /items, not in GraphQL) and a table with meta null in Directus; /collections and /fields are compared without backoffice_* collections (normalizeBody in src/normalizers.ts).',
 	},
+	{
+		id: 'D-184',
+		feature: '023',
+		kind: 'http',
+		// Only the collections of src/items/json-path.test.ts, and only where Directus refused the request.
+		endpoints: ['GET /items/parity_json_path_*', 'SEARCH /items/parity_json_path_*'],
+		location: { any: true },
+		when: { directusStatus: 403, directusCode: 'FORBIDDEN' },
+		reason:
+			'Filters on a path in a json field, json(field, path[, type]): Backoffice filters (Postgres json/jsonb, SQLite; 400 on other vendors), Directus answers 403 because its path check reads "field, path, type" as a field name (spec 023 T002). Also covers sort=json(...) (D-184.2).',
+	},
+	{
+		id: 'D-184.1',
+		feature: '023',
+		kind: 'doc',
+		reason:
+			'A bookmark with a json path is saved in the shared directus_presets; the Directus app opening it gets 403.',
+	},
+	{
+		id: 'D-184.2',
+		feature: '023',
+		kind: 'doc',
+		reason:
+			'sort=json(field, path[, type]) sorts at Backoffice (403 at Directus); fields=json(field, path, type) returns the typed value at Backoffice (null at Directus); compared per app in src/items/json-path.test.ts.',
+	},
+	{
+		id: 'D-185',
+		feature: '023',
+		kind: 'http',
+		endpoints: ['POST /permissions', 'PATCH /permissions', 'PATCH /permissions/*'],
+		location: { any: true },
+		when: { backofficeCode: 'INVALID_PAYLOAD' },
+		reason:
+			'A permission whose row filter or validation uses a json path is refused at Backoffice (400), saved at Directus.',
+	},
 ];

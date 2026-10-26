@@ -109,13 +109,18 @@ describe('PermissionsService', () => {
 	});
 
 	test('autoPurgeCache: false keeps the data cache', async () => {
-		await service().createOne({ collection: 'directus_users', action: 'read', policy: OTHER_POLICY }, { autoPurgeCache: false });
+		await service().createOne(
+			{ collection: 'directus_users', action: 'read', policy: OTHER_POLICY },
+			{ autoPurgeCache: false },
+		);
 		expect(clearSystemCache).toHaveBeenCalledTimes(1);
 		expect(dataCache.clear).not.toHaveBeenCalled();
 	});
 
 	test('getItemPermissions: no user is forbidden, an admin may do everything', async () => {
-		await expect(service({ ...createDefaultAccountability() }).getItemPermissions('directus_users')).rejects.toMatchObject({
+		await expect(
+			service({ ...createDefaultAccountability() }).getItemPermissions('directus_users'),
+		).rejects.toMatchObject({
 			code: 'FORBIDDEN',
 		});
 
@@ -124,5 +129,36 @@ describe('PermissionsService', () => {
 			delete: { access: true },
 			share: { access: true },
 		});
+	});
+
+	// Backoffice (spec 023, D-185)
+	test.each([
+		['permissions', { 'json(meta, a, number)': { _eq: 1 } }],
+		['validation', { _and: [{ title: { _nnull: true } }, { 'json(meta, a)': { _eq: 'x' } }] }],
+		['permissions', JSON.stringify({ _or: [{ owner: { 'json(details, x, text)': { _eq: 'y' } } }] })],
+	])('a json path in %s is refused on create and update', async (key, value) => {
+		const message = 'Permission filters cannot use a JSON path';
+
+		await expect(
+			service().createOne({ collection: 'directus_users', action: 'read', policy: OTHER_POLICY, [key]: value }),
+		).rejects.toThrow(message);
+
+		const id = await service().createOne({ collection: 'directus_users', action: 'read', policy: OTHER_POLICY });
+		await expect(service().updateOne(id, { [key]: value })).rejects.toThrow(message);
+		await expect(
+			service().createMany([{ collection: 'directus_roles', action: 'read', policy: OTHER_POLICY, [key]: value }]),
+		).rejects.toThrow(message);
+		expect(await db('directus_permissions').where({ id }).first()).toMatchObject({ [key]: null });
+	});
+
+	test('filters without a json path are saved as before', async () => {
+		const id = await service().createOne({
+			collection: 'directus_users',
+			action: 'read',
+			policy: OTHER_POLICY,
+			permissions: { _and: [{ id: { _eq: '$CURRENT_USER' } }, { 'count(tags)': { _gt: 0 } }] },
+		});
+
+		expect(id).toBeDefined();
 	});
 });

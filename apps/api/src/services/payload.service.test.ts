@@ -666,6 +666,19 @@ describe('Integration Tests', () => {
 				});
 			});
 
+			// Backoffice (spec 023, D-184.2)
+			test('Normalizes typed json(field, path, type) values', () => {
+				const payload = [{ id: 1, m_n_number_json: '6000.5', m_f_boolean_json: 1, m_t_text_json: 'x' }];
+
+				service.processJsonFunctionResults(payload, {
+					m_n_number_json: 'json(m, n, number)',
+					m_f_boolean_json: 'json(m, f, boolean)',
+					m_t_text_json: 'json(m, t, text)',
+				});
+
+				expect(payload[0]).toEqual({ id: 1, m_n_number_json: 6000.5, m_f_boolean_json: true, m_t_text_json: 'x' });
+			});
+
 			test('Parses stringified JSON objects from json() function results', () => {
 				const payload = [
 					{

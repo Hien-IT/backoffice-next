@@ -6,16 +6,16 @@ Không path, query, response, status, header mới. Chỉ `filter` nhận thêm 
 
 | Request | Postgres, SQLite | MySQL, MSSQL, Oracle, CockroachDB, Redshift | Directus 11.17.4 |
 |---------|------------------|---------------------------------------------|------------------|
-| `GET /items/c?filter={"json(transaction_data, Amount, number)":{"_eq":6000}}` | 200, item có số 6000 tại path | 400 `INVALID_QUERY` `Filtering by a JSON path is not supported on <client>` | 400 `INVALID_QUERY` `Invalid filter key "json(transaction_data, Amount, number)" on "c"` |
-| `...{"json(transaction_data, items[*].sku, text)":{"_eq":"A"}}` | 200, item có phần tử `sku` = "A" | 400 | 400 |
-| `...{"order":{"json(transaction_data, Amount, number)":{"_gt":100}}}` (m2o) | 200 | 400 | 400 |
-| `...{"json(transaction_data, Amount, money)":{"_eq":6000}}` | 400 `INVALID_QUERY` `Invalid json() syntax: unknown type "money"` | 400 | 400 |
-| `...{"json(transaction_data, items[, number)":{"_eq":1}}` | 400 `INVALID_QUERY` `Invalid json() syntax: unsupported path expression` | 400 | 400 |
-| `...{"json(transaction_data, a[*].b[*], number)":...}` | 400 (chỉ một `[*]`) | 400 | 400 |
-| `...{"json(title, x, text)":...}` (field không phải json) | 400 `Invalid function specified "json"` (như hôm nay) | 400 | 400 |
-| `...{"json(transaction_data, Amount, number)":{"_contains":"6"}}` | 400 `"float" field type does not contain the "_contains" filter operator` | 400 | 400 |
+| `GET /items/c?filter={"json(transaction_data, Amount, number)":{"_eq":6000}}` | 200, item có số 6000 tại path | 400 `INVALID_QUERY` `Filtering by a JSON path is not supported on <client>` | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(transaction_data, items[*].sku, text)":{"_eq":"A"}}` | 200, item có phần tử `sku` = "A" | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"order":{"json(transaction_data, Amount, number)":{"_gt":100}}}` (m2o) | 200 | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(transaction_data, Amount, money)":{"_eq":6000}}` | 400 `INVALID_QUERY` `Invalid json() syntax: unknown type "money"` | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(transaction_data, items[, number)":{"_eq":1}}` | 400 `INVALID_QUERY` `Invalid json() syntax: unsupported path expression` | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(transaction_data, a[*].b[*], number)":...}` | 400 (chỉ một `[*]`) | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(title, x, text)":...}` (field không phải json) | 400 `Invalid function specified "json"` (như hôm nay) | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
+| `...{"json(transaction_data, Amount, number)":{"_contains":"6"}}` | 400 `"float" field type does not contain the "_contains" filter operator` | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
 | user không có quyền đọc `transaction_data` | 403 như lọc trực tiếp field | 403 | 403 |
-| `filter[json(t, items[0].sku, text)][_eq]=A` (dạng ngoặc của `qs`) | 400 (`qs` cắt key; dùng `filter={...}`) | 400 | 400 |
+| `filter[json(t, items[0].sku, text)][_eq]=A` (dạng ngoặc của `qs`) | 400 (`qs` cắt key; dùng `filter={...}`) | 400 | 403 `FORBIDDEN` (kiểm quyền path đọc `"field, path, type"` là tên field; T002) |
 
 `meta=filter_count,total_count`: `filter_count` đếm theo cùng điều kiện. `_and`/`_or`: như mọi key. Response cache:
 key riêng theo query, không đổi hành vi.
@@ -51,7 +51,7 @@ protected assertJsonFilterSupported(): void;                  // getDatabaseClie
 |--------|------------------------------------------------------------|
 | Postgres, cột `json` | `CASE WHEN json_typeof("t"."c" #> ARRAY[?]::text[]) = 'number' THEN ("t"."c" #>> ARRAY[?]::text[])::numeric END` (bindings `['Amount', 'Amount']`) |
 | Postgres, cột `jsonb` | như trên với `jsonb_typeof` |
-| SQLite | `CASE WHEN json_valid("t"."c") AND json_type("t"."c", ?) IN ('integer', 'real') THEN json_extract("t"."c", ?) END` (bindings `['$.Amount', '$.Amount']`) |
+| SQLite | `CASE WHEN json_type(V, ?) IN ('integer', 'real') THEN json_extract(V, ?) END` với `V = CASE WHEN json_valid("t"."c") THEN "t"."c" END` (bindings `['$.Amount', '$.Amount']`; T001: `json_valid(c) AND` không đủ chặn `malformed JSON`) |
 
 text: `= 'string'` / `#>> '{}'`; SQLite `= 'text'`. boolean: `= 'boolean'` / `::boolean`; SQLite `CASE WHEN ... = 'true'
 THEN 1 WHEN ... = 'false' THEN 0 END`.
@@ -65,10 +65,11 @@ EXISTS (SELECT 1 FROM json_array_elements(CASE WHEN json_typeof("t"."c" #> ARRAY
         WHERE (CASE WHEN json_typeof(bo_json_elem.v #> ARRAY['sku']::text[]) = 'string'
                THEN bo_json_elem.v #>> ARRAY['sku']::text[] END) = 'A')
 -- SQLite
-json_valid("t"."c") AND EXISTS (SELECT 1 FROM json_each("t"."c", '$.items') AS bo_json_elem
-        WHERE json_type("t"."c", '$.items') = 'array'
-          AND (CASE WHEN json_type("t"."c", bo_json_elem.fullkey || '.sku') = 'text'
-               THEN json_extract("t"."c", bo_json_elem.fullkey || '.sku') END) = 'A')
+-- V = CASE WHEN json_valid("t"."c") THEN "t"."c" END
+EXISTS (SELECT 1 FROM json_each(V, '$.items') AS bo_json_elem
+        WHERE json_type(V, '$.items') = 'array'
+          AND (CASE WHEN json_type(V, bo_json_elem.fullkey || '.sku') = 'text'
+               THEN json_extract(V, bo_json_elem.fullkey || '.sku') END) = 'A')
 ```
 
 ### `applyOperator` (`apps/api/src/database/run-ast/lib/apply-query/filter/operator.ts`)
@@ -85,15 +86,15 @@ json_valid("t"."c") AND EXISTS (SELECT 1 FROM json_each("t"."c", '$.items') AS b
 `createOne(data)`, `updateMany(keys, data)`: `assertNoJsonPathFilter(data)` trước `super`: `permissions`/`validation`
 (chuỗi → `parseJSON`) qua `flattenFilter`; path part bắt đầu `json(` → `InvalidPayloadError` `Permission filters cannot
 use a JSON path (json(...))` → 400 `INVALID_PAYLOAD`. Áp dụng cho REST `/permissions` (mọi đường ghi) và GraphQL system
-`create_permissions_item`, `update_permissions_item(s)`. Directus: lưu được (D-185).
+`create_permissions_item`, `update_permissions_item(s)`. Directus: lưu được, 200 (D-185, T002).
 
 ### Sort, fields (D-184.2)
 
 | Request | Backoffice | Directus 11.17.4 |
 |---------|------------|------------------|
-| `sort=json(f, p)` | sắp xếp theo giá trị json (như `applySort` hôm nay) | lỗi kiểm quyền path [Inference R6; kiểm lượt 1] |
-| `sort=json(f, p, number)` | sắp xếp theo số | như trên |
-| `fields=json(f, p, number)` | giá trị số (JSON number); boolean → `true`/`false` trên cả Postgres và SQLite (`parseJsonResult` chuẩn hóa) | 200, giá trị `null` (path `"p, number"`) |
+| `sort=json(f, p)` | sắp xếp theo giá trị json (như `applySort` hôm nay) | 403 `FORBIDDEN` (T002) |
+| `sort=json(f, p, number)` | sắp xếp theo số | 403 `FORBIDDEN` (T002) |
+| `fields=json(f, p, number)` | giá trị số (JSON number); boolean → `true`/`false` trên cả Postgres và SQLite (`parseJsonResult` chuẩn hóa) | 200, giá trị `null` (path `"p, number"`; T002, khóa `metadata_n_number_json`) |
 | `fields=json(f, p[*], text)` | 400 (`[*]` chỉ trong filter) | 200 null |
 
 Parity: không đưa các request này vào `sameGql`/`assertParity`; test gửi riêng từng app và ghi D-184.2 (`doc`).

@@ -52,7 +52,7 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
 
 **Purpose**: chốt các điểm chưa kiểm trước khi viết code; kết quả có thể đổi chi tiết SQL của R4.
 
-- [ ] T001 Kiểm SQL và ghi "Kết quả T001" vào `specs/023-json-path-filter/research.md`: (a) `knex.raw('??.?? #>
+- [X] T001 Kiểm SQL và ghi "Kết quả T001" vào `specs/023-json-path-filter/research.md`: (a) `knex.raw('??.?? #>
       ARRAY[?, ?]::text[]', [t, c, 'items', '0'])` với client `pg` (`toSQL().toNative()`) sinh `$1`, `$2` và chạy đúng
       trên env parity Postgres (qua `hostDb()` của `parity/auth/db-effects.ts`) với `'0'` là chỉ số mảng; (b)
       `whereExists(function () { this.select(knex.raw('1')).from(knex.raw('json_array_elements(...) as bo_json_elem(v)'))
@@ -60,7 +60,7 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
       `json_type(col, bo_json_elem.fullkey || '.sku')` với `fullkey` = `$.items[1]`, `json_valid(NULL)` trong `AND`, và
       `json_each(col, '$.items')` trên mảng chuỗi; (d) knex bind `true` trên `sqlite3` thành `1`. Sai chỗ nào thì sửa R4
       và `contracts/api.md` trước khi làm Phase 2.
-- [ ] T002 [P] Đo hành vi Directus 11.17.4 trên env parity (Postgres) cho D-184.2 và ghi "Kết quả T002" vào
+- [X] T002 [P] Đo hành vi Directus 11.17.4 trên env parity (Postgres) cho D-184.2 và ghi "Kết quả T002" vào
       `specs/023-json-path-filter/research.md`: `GET /items/<c>?sort=json(metadata,color)` (JSON array `sort=["json(metadata,
       color)"]` và chuỗi), `fields=json(metadata, color, number)`, `filter={"json(metadata, color, text)":{...}}` (status,
       `errors[0].extensions.code`, message). Khác với [Inference] của spec (D-184.2) thì sửa dòng D-184.2 và Edge Cases.
@@ -73,20 +73,20 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
 
 ### Tests (MANDATORY) ⚠️
 
-- [ ] T003 [P] Thêm vào `fn/json/parse-function.test.ts`: `json(a, b)` → `{ field: 'a', path: '.b', type: 'text' }`;
+- [X] T003 [P] Thêm vào `fn/json/parse-function.test.ts`: `json(a, b)` → `{ field: 'a', path: '.b', type: 'text' }`;
       `json(a, b.c, number)`, `json(a, b, boolean)`; `json(a, b, money)` → `InvalidQueryError` `Invalid json() syntax:
       unknown type "money"`; `json(a)`, `json(a, b, c, d)` → lỗi; `json(a, items[*].sku, text)` lỗi khi không
       `allowWildcard`, đúng khi có; `a[*].b[*]` → lỗi; depth `[*]` tính 1 so với `MAX_JSON_QUERY_DEPTH`; `splitWildcard`
       (`items[*].sku` → `{ before: '.items', after: '.sku' }`; `[*]` ở gốc → `{ before: '', after: '' }`, dùng cho mảng
       chuỗi như `directus_users.tags`; không `[*]` → `null`); `jsonFilterType`. Chạy đỏ.
-- [ ] T004 [P] Thêm vào `api/utils/parse-filter-key.test.ts`: `json(transaction_data, Amount, number)` → `{ fieldName:
+- [X] T004 [P] Thêm vào `api/utils/parse-filter-key.test.ts`: `json(transaction_data, Amount, number)` → `{ fieldName:
       'transaction_data', functionName: 'json' }`; `json(a, b)` → `a`; `year(date)`, `count(links)`, `title` không đổi;
       option giữ hành vi DR (`fieldName` = toàn bộ trong ngoặc) cho `convert-wildcards`. Chạy đỏ.
-- [ ] T005 [P] Thêm vào `aq/filter/get-filter-type.test.ts`: key `json(meta, a, text|number|boolean)` trên field json →
+- [X] T005 [P] Thêm vào `aq/filter/get-filter-type.test.ts`: key `json(meta, a, text|number|boolean)` trên field json →
       `{ type: 'string' | 'float' | 'boolean' }`; thiếu type → `string`; type lạ → `InvalidQueryError`; field không
       phải json → lỗi như hôm nay; key `meta` (field json, không hàm) → `{ type: 'json' }` (chỉ `null`/`nnull`). Chạy đỏ.
-- [ ] T006 [P] Thêm vào `fn/types.test.ts`, `fn/dialects/postgres.test.ts` và tạo `fn/dialects/sqlite.test.ts` (dùng
-      `knex-mock-client` như `fn/types.test.ts`): `json(table, col, { jsonPath, jsonType })` cho text/number/boolean
+- [X] T006 [P] Tạo `fn/json/json-filter.test.ts` (`postgres.test.ts` mock `FnHelper` nên không dùng được; dùng
+      `knex-mock-client` với `Client_PG`, `Client_SQLite3` và client giả mysql, cockroachdb, redshift): `json(table, col, { jsonPath, jsonType })` cho text/number/boolean
       đúng SQL và bindings của `contracts/api.md` "Biểu thức theo vendor" (Postgres `dbType` `json` và `jsonb`, SQLite
       có `json_valid`); không `jsonType` → SQL như hôm nay; `jsonArrayElements` và `jsonElement` (Postgres guard `CASE
       ... 'array'`, `'[]'::json`/`'[]'::jsonb`; SQLite `json_each` + `fullkey || ?`; `before`, `after` rỗng: chính cột
@@ -94,7 +94,7 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
       `postgres`, `sqlite` qua, `cockroachdb`, `redshift`, `mysql`, `mssql`, `oracle` ném `Filtering by a JSON path is
       not supported on <client>`; `parseJsonResult` chuẩn hóa boolean (`1`/`0` SQLite → `true`/`false`) và number
       (D-184.2). Chạy đỏ.
-- [ ] T007 [P] Thêm `Client_PG` (`class Client_PG extends MockClient {}`) vào `aq/mock.ts` và thêm vào
+- [X] T007 [P] Thêm `Client_PG` (`class Client_PG extends MockClient {}`) vào `aq/mock.ts` và thêm vào
       `aq/filter/operator.test.ts`: key `alias.json(t, a.b, number)` giữ nguyên path sau dấu chấm đầu; giá trị `'5'` ép số
       với `number`; mỗi toán tử của `string`, `float`, `boolean` (`_eq`, `_neq`, `_in`, `_nin`, `_contains`, `_icontains`,
       `_starts_with`, `_ends_with`, `_gt`...`_between`, `_null`, `_nnull`, `_empty`, `_nempty`) áp trên biểu thức có
@@ -104,21 +104,21 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
 
 ### Implementation
 
-- [ ] T008 Sửa `fn/json/parse-function.ts` theo R2 và `contracts/api.md` "Parse key": trả `{ field, path, type }`, option
+- [X] T008 Sửa `fn/json/parse-function.ts` theo R2 và `contracts/api.md` "Parse key": trả `{ field, path, type }`, option
       `allowWildcard`, `splitWildcard`, `jsonFilterType`, type `JsonFilterType`; cập nhật mọi caller đọc `{ field, path }`
       (`api/database/run-ast/lib/parse-current-level.ts`, `api/permissions/utils/get-unaliased-field-key.ts`,
       `api/database/run-ast/utils/get-column.ts`) không bật `allowWildcard`. T003 xanh; `parse-function.test.ts` cũ xanh.
-- [ ] T009 Sửa `api/utils/parse-filter-key.ts` (R1: `json` → tham số đầu) và
+- [X] T009 Sửa `api/utils/parse-filter-key.ts` (R1: `json` → tham số đầu) và
       `api/database/get-ast-from-query/lib/convert-wildcards.ts` (giữ hành vi DR với alias `json(...)`, checklist
       CHK009). T004 xanh; `convert-wildcards.test.ts`, `extract-fields-from-query.test.ts` hiện có xanh.
-- [ ] T010 Sửa `aq/filter/get-filter-type.ts`: nhánh `functionName === 'json'` → `parseJsonFunction(key, {
+- [X] T010 Sửa `aq/filter/get-filter-type.ts`: nhánh `functionName === 'json'` → `parseJsonFunction(key, {
       allowWildcard: true })` → `jsonFilterType(type)`. T005 xanh.
-- [ ] T011 Sửa `fn/types.ts` (`JsonFilterType`, `FnHelperOptions.jsonType`, `jsonArrayElements`, `jsonElement` mặc định
+- [X] T011 Sửa `fn/types.ts` (`JsonFilterType`, `FnHelperOptions.jsonType`, `jsonArrayElements`, `jsonElement` mặc định
       ném, `assertJsonFilterSupported` qua `getDatabaseClient(this.knex)` của `api/database/index.ts`, `parseJsonResult`
       chuẩn hóa), `fn/dialects/postgres.ts` (biểu thức `#>`/`#>>` + `json_typeof`/`jsonb_typeof` theo `dbType` khi có
       `jsonType`; `json()` không `jsonType` giữ nguyên `->`), `fn/dialects/sqlite.ts`, và `fn/dialects/{mysql,mssql,
       oracle}.ts` (gọi assert ở đầu `json()` khi có `jsonType`). T006 xanh; test dialect hiện có xanh.
-- [ ] T012 Sửa `api/database/run-ast/utils/get-column.ts` (truyền `jsonType` và `allowWildcard` từ option filter vào
+- [X] T012 Sửa `api/database/run-ast/utils/get-column.ts` (truyền `jsonType` và `allowWildcard` từ option filter vào
       `parseJsonFunction`/`fn.json`) và `aq/filter/operator.ts` theo R3 và `contracts/api.md` "applyOperator": tách key ở
       dấu chấm đầu (L34, L96); ép số cho json `number`; tách thân toán tử thành `applyWhere(builder, selectionRaw,
       operator, compareValue, logical)`; key có `[*]` → `dbQuery[logical === 'and' ? 'whereExists' : 'orWhereExists']`
@@ -134,14 +134,14 @@ liên quan xanh, commit, push khi `main` rảnh, gửi số run cho phiên 021, 
 trên Postgres (json, jsonb) và SQLite, qua m2o, với `[*]`; request không json path giống Directus.
 
 **Independent Test**: `parity/items/json-path.test.ts` trên Postgres và `TEST_DB=sqlite3`: tập item của Backoffice đúng
-tập mong đợi, Directus 400 `INVALID_QUERY` (D-184 chấp nhận), request đối chứng `assertParity`.
+tập mong đợi, Directus 403 `FORBIDDEN` (D-184 chấp nhận, T002), request đối chứng `assertParity`.
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T013 [P] [US1] Thêm vào `aq/filter/index.test.ts` (mẫu `count(links)` L522-556 và m2o L149-199): key gốc
+- [X] T013 [P] [US1] Thêm vào `aq/filter/index.test.ts` (mẫu `count(links)` L522-556 và m2o L149-199): key gốc
       `json(meta, Amount, number)`, m2o `{ order: { 'json(meta, Amount, number)': { _gt: 100 } } }` (join + alias đúng),
       `_and`/`_or` lồng, `[*]` qua m2o. Chạy đỏ nếu thiếu gì ở T012.
-- [ ] T014 [P] [US1] Tạo `parity/items/json-path.test.ts` (mẫu fixture `parity/permissions/fixtures.ts`
+- [X] T014 [P] [US1] Tạo `parity/items/json-path.test.ts` (mẫu fixture `parity/permissions/fixtures.ts`
       `createUserCollection`, `createField`, `cleanup`): collection `parity_json_path_<run>` (field `transaction_data` json
       `cast-json`, m2o `order` tới `parity_json_path_orders_<run>` có field json `details`) với dữ liệu: `Amount` 6000,
       7000, `"6000"`, `"abc"`, thiếu, JSON null, field null; `dimensions.width`; `items` = `[{"sku":"A"},{"sku":2},"z"]`,
@@ -153,17 +153,17 @@ tập mong đợi, Directus 400 `INVALID_QUERY` (D-184 chấp nhận), request �
       ..., number|boolean)` gửi riêng từng app theo `contracts/api.md` "Sort, fields" (Directus theo "Kết quả T002").
       Thêm file vào `REDUCED_FILES` và `FULL_FILES` của `parity/suite.ts`. Chạy đỏ (Directus/Backoffice chưa có mục
       chấp nhận).
-- [ ] T015 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts` (sau D-181): `D-184` `kind: 'http'`, `feature:
+- [X] T015 [P] [US1] Thêm vào `tests/parity/accepted-differences.ts` (sau D-181): `D-184` `kind: 'http'`, `feature:
       '023'`, `endpoints: ['GET /items/parity_json_path_*', 'SEARCH /items/parity_json_path_*', 'POST
-      /utils/export/parity_json_path_*']`, `location: { any: true }`, `when: { directusStatus: 400, directusCode:
-      'INVALID_QUERY' }`, reason theo spec; `D-184.1`, `D-184.2` `kind: 'doc'`. `parity/accepted-differences.test.ts` xanh.
+      /utils/export/parity_json_path_*']`, `location: { any: true }`, `when: { directusStatus: 403, directusCode:
+      'FORBIDDEN' }`, reason theo spec; `D-184.1`, `D-184.2` `kind: 'doc'`. `parity/accepted-differences.test.ts` xanh.
 
 ### Implementation for User Story 1
 
-- [ ] T016 [US1] Chạy `json-path.test.ts` trên env parity Postgres (cột `json`), sửa code Phase 2 tới khi xanh; thêm bước
+- [X] T016 [US1] Chạy `json-path.test.ts` trên env parity Postgres (cột `json`), sửa code Phase 2 tới khi xanh; thêm bước
       Postgres-only trong test: `hostDb().raw('ALTER TABLE ?? ALTER COLUMN ?? TYPE jsonb USING ??::jsonb', ...)` rồi `POST
       /utils/cache/clear?system` ở Directus (tiền lệ `parity/schema/sync.test.ts:114-116`), chạy lại cùng case (FR-008).
-- [ ] T017 [US1] Chạy `json-path.test.ts` với `TEST_DB=sqlite3` (bộ `reduced`), sửa tới khi xanh; chạy lại
+- [X] T017 [US1] Chạy `json-path.test.ts` với `TEST_DB=sqlite3` (bộ `reduced`), sửa tới khi xanh; chạy lại
       `parity/items/crud.test.ts`, `export.test.ts` và blackbox `json-fields` (`parity-blackbox`, hai lượt app) trên
       Postgres: không đổi (SC-003). Ghi "Kết quả lượt 1" (US1) vào `specs/023-json-path-filter/research.md`.
 
@@ -179,28 +179,28 @@ D-185 trên Postgres và SQLite.
 
 ### Tests for User Story 5 (MANDATORY) ⚠️
 
-- [ ] T018 [P] [US5] Thêm vào `api/permissions/modules/process-ast/lib/extract-fields-from-query.test.ts`: filter
+- [X] T018 [P] [US5] Thêm vào `api/permissions/modules/process-ast/lib/extract-fields-from-query.test.ts`: filter
       `json(transaction_data, Amount, number)` và m2o `order.json(details, x, text)`, sort `json(meta, a)` → field map có
       `transaction_data`, `order` + `details` của collection đích, `meta`. Chạy đỏ nếu T009 chưa đủ.
-- [ ] T019 [P] [US5] Thêm vào `api/services/permissions.service.test.ts` (describe L76): `createOne`, `updateMany`,
+- [X] T019 [P] [US5] Thêm vào `api/services/permissions.service.test.ts` (describe L76): `createOne`, `updateMany`,
       `updateOne` (qua `updateMany`), `createMany` với `permissions` hoặc `validation` có key `json(` ở gốc, trong
       `_and`/`_or`/`_some`/`_none`, dạng object và chuỗi JSON → `InvalidPayloadError` `Permission filters cannot use a
       JSON path`, không gọi `super`; không có `json(` → gọi `super` như cũ. Chạy đỏ.
-- [ ] T020 [US5] Thêm vào `parity/items/json-path.test.ts` (sau T014, cùng file): user có quyền đọc collection nhưng không có
+- [X] T020 [US5] Thêm vào `parity/items/json-path.test.ts` (sau T014, cùng file): user có quyền đọc collection nhưng không có
       `transaction_data` → cả hai app 403 (cùng code); user có row filter `status = published` → Backoffice chỉ trả item
       vừa khớp path vừa thuộc quyền; path có `'`, `;`, `--`, `"` → 200 không khớp hoặc 400 cú pháp, không 500; D-185:
       `POST /permissions` với `permissions: { "json(transaction_data, Amount, number)": { "_eq": 1 } }` gửi riêng từng app:
       Directus 200 (xóa ngay sau), Backoffice 400 `INVALID_PAYLOAD`, `PATCH` tương tự; vendor ngoài
-      `postgres`/`sqlite3` (`getDbsToTest()[0]`): cả hai 400 `INVALID_QUERY`, message Backoffice nêu vendor (MySQL ở bộ
+      `postgres`/`sqlite3` (`getDbsToTest()[0]`): Directus 403 `FORBIDDEN`, Backoffice 400 `INVALID_QUERY` nêu vendor (MySQL ở bộ
       `reduced` của CI mỗi PR, SC-002; vendor khác ở nightly). Chạy đỏ.
 
 ### Implementation for User Story 5
 
-- [ ] T021 [US5] Thêm `assertNoJsonPathFilter(data)` vào `api/services/permissions.service.ts` (mẫu
+- [X] T021 [US5] Thêm `assertNoJsonPathFilter(data)` vào `api/services/permissions.service.ts` (mẫu
       `PoliciesService.assertValidIpAccess`, `api/services/policies.service.ts:41-47`; `parseJSON` chuỗi; đi
       `flattenFilter` của `api/permissions/modules/process-ast/utils/flatten-filter.ts`; `InvalidPayloadError`) và gọi
       trước `super` ở `createOne` và `updateMany`. T019 xanh.
-- [ ] T022 [US5] Thêm `D-185` `kind: 'http'` vào `tests/parity/accepted-differences.ts` (`endpoints: ['POST
+- [X] T022 [US5] Thêm `D-185` `kind: 'http'` vào `tests/parity/accepted-differences.ts` (`endpoints: ['POST
       /permissions', 'PATCH /permissions/*', 'PATCH /permissions']`, `when: { backofficeCode: 'INVALID_PAYLOAD' }`,
       `location: { any: true }`); chạy T018, T020 và `json-path.test.ts` đủ trên Postgres và SQLite, xanh.
 - [ ] T023 Đóng lượt 1: `pnpm nx run-many -t lint,typecheck -p api parity-tests`; `api:test` các file đã sửa và cả
@@ -372,7 +372,7 @@ lại), `proxy-directus` (lỗi D-184.1, bảng giữ nguyên).
       quyết định có chạy nightly không (đang chạy tay).
 - [ ] T056 [P] Thêm gạch đầu dòng 023 vào `tests/parity/README.md` mục "Test items (feature 005)" (L115-133:
       `json-path.test.ts`, D-184..D-187, bước jsonb, vendor) và ghi chú vào `deploy/README.md` cạnh L160 (shared-domain:
-      request có json path rơi vào Directus nhận 400, D-184; separate-domain, standalone không ảnh hưởng).
+      request có json path rơi vào Directus nhận 403, D-184; separate-domain, standalone không ảnh hưởng).
 - [ ] T057 Ghi `specs/023-json-path-filter/research.md` "Kết quả lượt 1/2/3" (T001, T002, T017, T054, T055);
       `spec.md` Status → Implemented (ngày, ba lượt, CI run); `checklists/requirements.md` note; `SPECKIT-GUIDE.md` mục
       023 trạng thái; `CLAUDE.md` Recent Changes thêm dòng 023.

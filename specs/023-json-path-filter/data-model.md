@@ -54,7 +54,7 @@ _eq: 6000 } }`. Đúng một trong `text`/`number`/`boolean`; thiếu hoặc th�
 |-----|----------|
 | `filter` (json) | không đổi cấu trúc; chứa key `json(field, path, type)` nguyên văn như mọi key khác, ví dụ `{"_and": [{"json(transaction_data, Amount, number)": {"_eq": "6000"}}]}` |
 
-Directus app mở preset này gửi cùng filter tới Directus API → 400 (D-184.1). Backoffice mở lại → cùng kết quả (FR-016).
+Directus app mở preset này gửi cùng filter tới Directus API → 403 `FORBIDDEN` (D-184.1, đo ở T002). Backoffice mở lại → cùng kết quả (FR-016).
 
 ## Field json (`directus_fields.type = 'json'`)
 

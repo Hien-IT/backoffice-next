@@ -59,7 +59,8 @@ export async function convertWildcards(options: ConvertWildcardsOptions, context
 			} else {
 				// Set to all allowed fields
 				const allowedAliases = aliases.filter((fieldKey) => {
-					const { fieldName } = parseFilterKey(options.alias![fieldKey]!);
+					// Backoffice (spec 023, checklist CHK009): keep the DR field name of json() aliases here.
+					const { fieldName } = parseFilterKey(options.alias![fieldKey]!, { jsonBaseField: false });
 					return allowedFields!.includes(fieldName);
 				});
 

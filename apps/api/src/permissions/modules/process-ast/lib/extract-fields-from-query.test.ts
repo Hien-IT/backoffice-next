@@ -181,3 +181,31 @@ test('All together now', () => {
 		]),
 	);
 });
+
+// Backoffice (spec 023, FR-009): a json path is checked against the read permission of its base json field.
+test('json(field, path[, type]) keys add the base json field, also through m2o and in sort', () => {
+	const fieldMap = { read: new Map(), other: new Map() };
+
+	const query: Query = {
+		filter: {
+			_and: [
+				{ 'json(transaction_data, Amount, number)': { _eq: 6000 } },
+				{ order: { 'json(details, items[*].sku, text)': { _eq: 'A' } } },
+			],
+		},
+		sort: ['json(meta, color)'],
+	};
+
+	const schema: DeepPartial<SchemaOverview> = {
+		relations: [{ collection: 'payments', field: 'order', related_collection: 'orders' }],
+	};
+
+	extractFieldsFromQuery('payments', query, fieldMap, schema as SchemaOverview);
+
+	expect(fieldMap.read).toEqual(
+		new Map([
+			['', { collection: 'payments', fields: new Set(['transaction_data', 'order', 'meta']) }],
+			['order', { collection: 'orders', fields: new Set(['details']) }],
+		]),
+	);
+});

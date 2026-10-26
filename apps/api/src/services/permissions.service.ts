@@ -1,7 +1,8 @@
 // Ported from directus/api/src/services/permissions.ts
-import { ForbiddenError } from '@backoffice/errors';
+import { ForbiddenError, InvalidPayloadError } from '@backoffice/errors';
 import type {
 	AbstractServiceOptions,
+	Filter,
 	Item,
 	ItemPermissions,
 	MutationOptions,
@@ -10,6 +11,7 @@ import type {
 	Query,
 	QueryOptions,
 } from '@backoffice/types';
+import { parseJSON } from '@backoffice/utils';
 import { uniq } from 'lodash-es';
 import { clearSystemCache } from '../cache.js';
 import { fetchPermissions } from '../permissions/lib/fetch-permissions.js';
@@ -17,6 +19,7 @@ import { fetchPolicies } from '../permissions/lib/fetch-policies.js';
 import { withAppMinimalPermissions } from '../permissions/lib/with-app-minimal-permissions.js';
 import type { ValidateAccessOptions } from '../permissions/modules/validate-access/validate-access.js';
 import { validateAccess } from '../permissions/modules/validate-access/validate-access.js';
+import { flattenFilter } from '../permissions/modules/process-ast/utils/flatten-filter.js';
 import { ItemsService } from './items.service.js';
 
 export class PermissionsService extends ItemsService {
@@ -39,6 +42,8 @@ export class PermissionsService extends ItemsService {
 	}
 
 	override async createOne(data: Partial<Item>, opts?: MutationOptions) {
+		assertNoJsonPathFilter(data);
+
 		const res = await super.createOne(data, opts);
 
 		await this.clearCaches(opts);
@@ -63,6 +68,8 @@ export class PermissionsService extends ItemsService {
 	}
 
 	override async updateMany(keys: PrimaryKey[], data: Partial<Item>, opts?: MutationOptions) {
+		assertNoJsonPathFilter(data);
+
 		const res = await super.updateMany(keys, data, opts);
 
 		await this.clearCaches(opts);
@@ -186,5 +193,25 @@ export class PermissionsService extends ItemsService {
 		}
 
 		return itemPermissions;
+	}
+}
+
+/**
+ * Backoffice (spec 023, D-185): a permission whose row filter or validation uses a json(field, path[, type]) key is
+ * refused, as DR cannot run it and every request of the role would fail there. createMany, updateBatch, upsertMany and
+ * nested writes from policies go through createOne and updateMany.
+ */
+function assertNoJsonPathFilter(data: Partial<Item>) {
+	for (const key of ['permissions', 'validation'] as const) {
+		const value = data[key];
+		if (value === undefined || value === null) continue;
+
+		const filter = (typeof value === 'string' ? parseJSON(value) : value) as Filter;
+		const paths: string[][] = [];
+		flattenFilter(paths, filter);
+
+		if (paths.some((path) => path.some((part) => part.trim().startsWith('json(')))) {
+			throw new InvalidPayloadError({ reason: 'Permission filters cannot use a JSON path (json(...))' });
+		}
 	}
 }

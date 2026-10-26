@@ -3,7 +3,7 @@
 ## Bật
 
 Không cấu hình, không migration: chỉ cần API Backoffice (Postgres hoặc SQLite). Ở chế độ shared-domain (lb có cả
-Directus trong `api_pool`), request có path json rơi vào Directus nhận 400 (D-184): gọi qua domain riêng của Backoffice
+Directus trong `api_pool`), request có path json rơi vào Directus nhận 403 `FORBIDDEN` (D-184): gọi qua domain riêng của Backoffice
 (separate-domain) hoặc chấp nhận.
 
 ## REST
@@ -64,7 +64,7 @@ ANALYZE transactions;
 
 | Thông báo | Nguyên nhân |
 |-----------|-------------|
-| `Invalid filter key "json(...)"` (400) | request tới Directus (shared-domain hoặc Directus app) |
+| `You don't have permission to access field "transaction_data, Amount, number"` (403 `FORBIDDEN`) | request tới Directus (shared-domain hoặc Directus app); Directus đọc cả `"field, path, type"` là tên field |
 | `Filtering by a JSON path is not supported on mysql` | vendor ngoài Postgres, SQLite |
 | `Invalid json() syntax: unknown type "money"` | `type` phải là `text`, `number`, `boolean` |
 | `"float" field type does not contain the "_contains" filter operator` | toán tử không thuộc kiểu đã chọn |

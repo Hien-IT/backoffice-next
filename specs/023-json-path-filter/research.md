@@ -129,7 +129,7 @@ suffix sau `[*]` dùng `e.fullkey || ?` trên cột gốc thay vì `e.value`.
 
 | `type` | Biểu thức (`P` = `'$' + path` bind) |
 |--------|-------------------------------------|
-| text | `CASE WHEN json_valid(??.??) AND json_type(??.??, P) = 'text' THEN json_extract(??.??, P) END` |
+| text | `CASE WHEN json_type(V, P) = 'text' THEN json_extract(V, P) END`, `V = CASE WHEN json_valid(??.??) THEN ??.?? END` (Kết quả T001 c) |
 | number | `... json_type(...) IN ('integer', 'real') THEN json_extract(...) END` |
 | boolean | `CASE WHEN ... json_type(...) = 'true' THEN 1 WHEN ... = 'false' THEN 0 END` (knex bind `true` → 1) |
 
@@ -312,11 +312,11 @@ Backoffice). Vendor: `getDbsToTest()[0]` (`src/get-dbs-to-test.ts:17`); CI `pari
   `SEARCH /items`, `?export=csv`, `POST /utils/export`, `meta=filter_count`; kiểm `result.accepted` có `D-184` cho
   request json path và `[]` + `assertParity` cho request đối chứng (cùng collection, không json path). Trên Postgres:
   sau các case với cột `json`, `ALTER TABLE ... ALTER COLUMN transaction_data TYPE jsonb USING ...::jsonb` qua
-  `hostDb()`, xóa cache hệ thống, chạy lại cùng case (FR-008). Vendor ngoài postgres/sqlite3: hai app cùng 400
-  `INVALID_QUERY`, thông điệp khác (D-184 cũng chấp nhận), kiểm message của Backoffice nêu vendor.
+  `hostDb()`, xóa cache hệ thống, chạy lại cùng case (FR-008). Vendor ngoài postgres/sqlite3: Directus 403 `FORBIDDEN`,
+  Backoffice 400 `INVALID_QUERY` (D-184 cũng chấp nhận), kiểm message của Backoffice nêu vendor.
 - `accepted-differences.ts`: `D-184` `kind: 'http'`, `feature: '023'`, `endpoints: ['GET /items/parity_json_path_*',
   'SEARCH /items/parity_json_path_*', 'POST /utils/export/parity_json_path_*']`, `location: { any: true }`, `when: {
-  directusStatus: 400, directusCode: 'INVALID_QUERY' }` (scope theo tiền tố collection, tránh chấp nhận mọi 400);
+  directusStatus: 403, directusCode: 'FORBIDDEN' }` (T002; scope theo tiền tố collection, tránh chấp nhận mọi 403);
   `D-185` `http` cho `POST /permissions`, `PATCH /permissions/*` với `when: { backofficeCode: 'INVALID_PAYLOAD' }` và
   test gửi riêng từng app (xóa permission Directus đã lưu); `D-184.1`, `D-186`, `D-187` `kind: 'doc'`, lý do trỏ
   normalizer (D-186). `spec-differences.ts` đọc cột `Mã` và cột cuối của bảng spec 023 (7 cột, `—`) như hiện có.
@@ -378,7 +378,7 @@ chỉ ở 8172, reported-only (preset filter json path, 8171/8173 trả 400).
 - `tests/parity/README.md`: mục "Test items (feature 005)" thêm gạch đầu dòng 023 (`json-path.test.ts`, D-184..D-187,
   jsonb, vendor); quy trình "Thêm khác biệt được chấp nhận" đã có (L292-302).
 - `deploy/README.md`: gạch đầu dòng cạnh L160 (tiền lệ D-137 `/extensions/sources/*` → `bo_pool`): ở shared-domain,
-  request có json path rơi vào Directus nhận 400 (D-184), không thêm định tuyến; separate-domain và standalone không
+  request có json path rơi vào Directus nhận 403 (D-184), không thêm định tuyến; separate-domain và standalone không
   ảnh hưởng.
 - `design-system/docs/migration-guide.md`: chỉ có dòng theo mã D khi có cặp màu mới (D-172, D-176); form JSON path dùng
   recipe Input/Select có sẵn → không có dòng; `component-specs.md` Q-7 thêm gạch đầu dòng (R8-7).
@@ -426,3 +426,56 @@ chỉ ở 8172, reported-only (preset filter json path, 8171/8173 trả 400).
   `filter` JSON với chuỗi để lọc chuỗi `"true"`).
 - D-186: `*_json` cũng có trên collection hệ thống có field json chạm tới từ scope items (`directus_users.tags`...);
   normalizer bỏ (R7).
+
+## Kết quả T001 (2026-10-27, env parity Postgres 13 + package `sqlite3` 5.1.7 / SQLite 3.44.2)
+
+- (a) `knex.raw('?::json #>> ARRAY[?, ?, ?]::text[]', ...)` với client `pg` sinh `$1..$4`; `'0'` là chỉ số mảng (kết quả
+  `"A"`). `ARRAY[]::text[]` (path rỗng, `[*]` ở gốc) trả chính giá trị. Biểu thức có kiểu với binding JS number `6000` và
+  boolean `true` so đúng. `numeric` về JS là **chuỗi** (`"6000.5"`) → `parseJsonResult` của `fields`/sort ép số theo `type`.
+- (b) `whereExists(function () { this.select(knex.raw('1')).from(knex.raw('json_array_elements(CASE ... END) as ??(??)',
+  [..., 'bo_json_elem', 'v'])).where(knex.raw(...), '=', 'A') })` sinh `where exists (select 1 from json_array_elements(...)
+  as "bo_json_elem"("v") where CASE ... END = $8)` và chạy đúng (chỉ dòng có phần tử `sku` = "A"; `[]`, `"x"`, null không
+  khớp).
+- (c) SQLite: `json_type(col, ...)` trên text không phải JSON **lỗi `malformed JSON` kể cả khi có `json_valid(col) AND`
+  phía trước** (optimizer tính `json_type(col, P)` của subquery trước, không theo thứ tự `AND`). Sửa R4: mọi chỗ dùng
+  `V = CASE WHEN json_valid(col) THEN col END` thay cho `col` (`json_type(NULL, P)` = NULL, `json_each(NULL)` 0 dòng).
+  Đã thử: number/text/boolean, `_null`, `[*]` với `fullkey || '.sku'`, `[*]` ở gốc (`$`, suffix rỗng), `!=` trên `[*]`,
+  dòng `'not json'` không làm lỗi.
+- (d) knex bind `true` trên `sqlite3` so được với `1` (`CASE ... WHEN 'true' THEN 1 ...`).
+- Khóa có dấu chấm (`"a.b"`) không gọi được bằng path `a.b` ở cả hai vendor (Postgres `toPath` tách chấm, SQLite cần
+  `$."a.b"`), giống `json()` của `fields` hiện nay; không thêm cú pháp (Edge Cases).
+
+## Kết quả T002 (2026-10-27, Directus 11.17.4 ở env parity, admin)
+
+| Request | Directus |
+|---------|----------|
+| `filter={"json(metadata, color)":{"_eq":"red"}}` | 403 `FORBIDDEN` `You don't have permission to access field "metadata, color" ...` |
+| `filter={"json(metadata, n, number)":{"_eq":2}}` | 403 `FORBIDDEN` (field `"metadata, n, number"`) |
+| `filter={"json(metadata)":{"_contains":"1"}}` | 400 `INVALID_QUERY` `Invalid json() syntax: requires json(field, path) format` |
+| `sort=json(metadata,color)` (chuỗi, có/không khoảng trắng) và `sort=["json(metadata, color)"]` | 403 `FORBIDDEN` |
+| `fields=id,json(metadata, n)` | 200, `metadata_n_json` = 2, 10 |
+| `fields=id,json(metadata, n, number)` | 200, `metadata_n_number_json` = null |
+| `POST /permissions` với `permissions: {"json(metadata, n, number)": {"_eq": 1}}` | 200 (lưu được) |
+
+Hệ quả: D-184 `http` dùng `when: { directusStatus: 403, directusCode: 'FORBIDDEN' }`; E2E `proxy-directus` mong notice
+lỗi 403; spec, contracts, quickstart sửa câu chữ 400 → 403 (không đổi khác biệt). Alias của `fields` ba tham số giữ
+`metadata_n_number_json` như Directus.
+
+## Kết quả lượt 1 (2026-10-27, env parity local)
+
+- Unit API: 4030 test xanh (361 file), coverage đạt ngưỡng; test mới: `parse-function.test.ts` (ngữ pháp 2–3 tham số,
+  `[*]`, `"` bị từ chối), `parse-filter-key.test.ts`, `get-filter-type.test.ts`, `fn/json/json-filter.test.ts` (SQL theo
+  vendor, gate, `normalizeTypedJsonValue`), `operator.test.ts`, `filter/index.test.ts`, `extract-fields-from-query.test.ts`,
+  `permissions.service.test.ts`, `payload.service.test.ts`.
+- Parity `src/items/json-path.test.ts`: Postgres 31/31 (cột `json` rồi `jsonb` sau `ALTER`), SQLite 39/41 cùng
+  `crud.test.ts` (2 case chỉ Postgres bỏ qua); `items/{crud,export}`, `permissions/{accountability,write-rules}` trên
+  Postgres xanh (78). MySQL (vendor gate) và blackbox `json-fields` để CI.
+- Lỗi tìm thấy khi chạy thật: knex `whereIn(raw, values)` đặt binding của cột raw **sau** giá trị (`_in`/`_nin` lỗi
+  `invalid input syntax for type numeric`); `applyWhere` viết danh sách `IN` bằng `whereRaw` cho cột raw có binding, cột
+  thường giữ `whereIn` (SQL như DR).
+- Response cache dùng chung: `fields=json(f, p, number)` gửi tới Directus trước rồi Backoffice nhận lại response null
+  của Directus từ cache (cùng key) → helper `at()` của test gửi `Cache-Control: no-store`; ghi Edge Case trong spec.
+- Ký tự `"` trong tên khóa của path bị từ chối ở filter (SQLite đọc `$."...` là nhãn có ngoặc kép và lỗi khi không đóng).
+- Vòng import: `fn/types.ts` không import `getDatabaseClient` (database/index → helpers → fn → types), dùng bảng tên client
+  cục bộ cho gate.
+- `sort=json(f, p[, type])`: dạng chuỗi bị `sanitizeSort` tách ở dấu phẩy ở cả hai app; test dùng `sort[0]=...`.

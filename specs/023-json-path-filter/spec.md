@@ -151,11 +151,12 @@ nhận path json.
 - Key json có dấu chấm hoặc ký tự đặc biệt trong tên (ví dụ `"a.b"`): theo cú pháp path hiện có của `json(field, path)`
   cho `fields`; không thêm cú pháp mới; tên khóa chứa `)` không hỗ trợ (400, như `json()` hiện có; sửa khi checklist
   2026-10-27).
-- Permission đã có sẵn chứa path json (ghi tay ở Directus, D-185 không chặn được): request của role đó bị 400 ở cả hai
-  app cho tới khi sửa hoặc xóa permission đó (sửa khi checklist 2026-10-27).
+- Permission đã có sẵn chứa path json (ghi tay ở Directus, D-185 không chặn được): ở Directus request của role đó lỗi
+  403; ở Backoffice điều kiện hàng chạy như lọc theo path thường (cùng bộ lọc), cho tới khi sửa hoặc xóa permission đó
+  (sửa khi checklist 2026-10-27; sửa theo T002 2026-10-27).
 - Cột `jsonb` tạo tay và cột `json` do app tạo đều là field kiểu json, đều phải lọc được.
-- Bookmark có path json mở trên Directus app: Directus trả 400 (D-184.1, chấp nhận).
-- Ở chế độ shared-domain (lb có cả Directus), request có path json rơi vào Directus nhận 400 (D-184, chấp nhận, không
+- Bookmark có path json mở trên Directus app: Directus trả 403 `FORBIDDEN` (D-184.1, chấp nhận; đo ở T002).
+- Ở chế độ shared-domain (lb có cả Directus), request có path json rơi vào Directus nhận 403 (D-184, chấp nhận, không
   thêm định tuyến).
 - Settings > Presets mở một bookmark có path json: điều kiện hiện đọc được (field, path, kiểu); không có mục thêm path json
   mới ở màn này.
@@ -164,15 +165,19 @@ nhận path json.
   như Directus: condition đi nhánh reject, validation báo lỗi field, vì key không có trong dữ liệu.
 - Hàm `count` của field json (độ dài mảng) giữ nguyên như hiện nay.
 - `sort=json(field, path[, type])` và `fields=json(field, path, type)` (D-184.2, sửa khi checklist 2026-10-27): ở Directus,
-  `sort=json(f, p)` không chạy hết đường request (kiểm quyền path đọc tên field là `"f, p"` → lỗi [Inference, research
-  R6; kiểm ở parity lượt 1]) và `fields=json(f, p, type)` đọc path `"p, type"` → giá trị null; ở Backoffice, sort chạy
+  `sort=json(f, p)` không chạy hết đường request (kiểm quyền path đọc tên field là `"f, p"` → 403 `FORBIDDEN`, đo ở
+  T002) và `fields=json(f, p, type)` đọc path `"p, type"` → giá trị null; ở Backoffice, sort chạy
   (giá trị có kiểu khi có `type`, sort số đúng thứ tự) và `fields` ba tham số trả giá trị có kiểu, chuẩn hóa về JSON
   (boolean → `true`/`false`, number → số) giống nhau trên Postgres và SQLite. `[*]` vẫn bị từ chối ở `fields`/`sort`;
   aggregate và groupBy theo path ngoài phạm vi.
 - Giá trị Text `true`, `false`, `null` gửi qua query string bị đổi kiểu như với field chuỗi hiện nay (`parseFilter`);
   muốn lọc chuỗi `"true"` thì gửi `filter` JSON với chuỗi (sửa khi plan 2026-10-27).
-- Response cache dùng chung với Directus: key cache tính từ query nên request có path json có key riêng, không đụng cache
-  của request khác.
+- Response cache dùng chung với Directus (feature 005, cùng key cho cùng request và user): request có path json có key
+  riêng, không đụng cache của request khác. Hệ quả khi bật cache [Inference từ code của 005; thấy khi implement lượt 1]:
+  response 200 của Backoffice cho một request có path json (filter, sort, `fields` có type) có thể được Directus trả lại
+  từ cache cho cùng request và user, và response 200 của Directus cho `fields=json(f, p, type)` (giá trị null) có thể
+  được Backoffice trả lại; response lỗi (403 của Directus) không vào cache. Không đổi khác biệt D-184, D-184.2 (sửa khi
+  implement lượt 1 2026-10-27).
 
 ## Requirements *(mandatory)*
 
@@ -263,8 +268,8 @@ plan PHẢI có test xác nhận.
 |---|---------------|---------|-------|
 | 1 | Field json tạo trên Postgres | Cột `json` (không phải `jsonb`); cột `jsonb` tạo tay vẫn đọc là field `json` | `apps/api/src/services/fields.service.ts:955`, `apps/api/src/schema/get-local-type.ts:72-73` |
 | 2 | Toán tử filter của field json | Chỉ `null`, `nnull` | `getFilterOperatorsForType` (`@directus/utils`, `libs/utils`) |
-| 3 | Key `json(metadata, color)` trong filter | 400 `Invalid filter key`: tên field đọc ra là `"metadata, color"`; file giống hệt Directus | `apps/api/src/utils/parse-filter-key.ts:9` |
-| 4 | Sort và `fields` với `json()` | `fields=json(f, p)`: chạy (blackbox `json-fields`); `sort=json(f, p)`: `applySort` sinh `order by "products"."metadata"::json->$1 desc`, nhưng cả đường request hỏng ở kiểm quyền path (`parseFilterKey` đọc tên field `"f, p"`) [Inference, research R6; D-184.2; kiểm ở T002] (sửa khi analyze 2026-10-27) | `apps/api/src/database/helpers/fn/dialects/postgres.ts:82-85`, `apps/api/src/permissions/modules/process-ast/utils/extract-paths-from-query.ts:34` |
+| 3 | Key `json(metadata, color)` trong filter | Cả request: 403 `FORBIDDEN` ở bước kiểm quyền path (tên field đọc ra là `"metadata, color"`), kể cả admin; riêng `applyFilter`: 400 `Invalid filter key`; file giống hệt Directus (đo ở T002 trên Directus 11.17.4) | `apps/api/src/utils/parse-filter-key.ts:9` |
+| 4 | Sort và `fields` với `json()` | `fields=json(f, p)`: chạy (blackbox `json-fields`); `sort=json(f, p)`: `applySort` sinh `order by "products"."metadata"::json->$1 desc`, nhưng cả đường request trả 403 `FORBIDDEN` ở kiểm quyền path (`parseFilterKey` đọc tên field `"f, p"`; D-184.2; đo ở T002) (sửa khi analyze 2026-10-27) | `apps/api/src/database/helpers/fn/dialects/postgres.ts:82-85`, `apps/api/src/permissions/modules/process-ast/utils/extract-paths-from-query.ts:34` |
 | 5 | Mục `functions.json` ở UI | Hiện vì `getFunctionsForType('json')` = `['count', 'json']`, gửi `json(field)` không path → 400 `requires json(field, path) format`; Directus app giống vậy; en-US của Directus thiếu nhãn | `apps/web/src/components/FieldList.vue:177`, `:280`; `apps/api/src/database/helpers/fn/json/parse-function.ts:48`; `directus/app/src/components/v-field-list/VFieldListItem.vue:45` |
 | 6 | Tách key trong filter | `key.split('.')` hỏng với path có dấu chấm | `apps/api/src/database/run-ast/lib/apply-query/filter/operator.ts:35` |
 | 7 | So sánh trên kiểu `json` của Postgres | Không có toán tử `=`; cần lấy giá trị dạng text rồi ép kiểu an toàn [Inference] | — |
@@ -283,10 +288,10 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 | Mã | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) | Gỡ ở |
 |----|----------|------------------|---------|-------|-----------------------------------------------|-------|
-| D-184 | Lọc theo path trong field json (`/items`, export, `SEARCH`) | 400 `Invalid filter key` | Lọc theo field, path, kiểu trên Postgres và SQLite; vendor khác 400 với thông báo riêng. Ở shared-domain, request rơi vào Directus vẫn nhận 400 (không thêm định tuyến ở lb) | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
-| D-184.2 | `sort=json(field, path[, type])`, `fields=json(field, path, type)` | `sort`: lỗi kiểm quyền path [Inference]; `fields` ba tham số: giá trị null | `sort` chạy (có kiểu khi có `type`); `fields` ba tham số trả giá trị có kiểu, chuẩn hóa JSON | Hệ quả của D-184 (cùng parser `json(...)`); checklist 2026-10-27 CHK002, CHK026 | khác (duyệt 2026-10-27) | — |
-| D-184.1 | Bookmark/preset có path json mở ở Directus app | Không tạo được | Lưu vào `directus_presets` dùng chung; Directus app mở bookmark đó nhận 400 | Chủ dự án 2026-10-27: chấp nhận | khác (duyệt 2026-10-27) | — |
-| D-185 | Permission có filter chứa path json | Lưu được, lỗi khi chạy query [Inference] | 400 khi lưu; chỉ permission, không kiểm `/fields`, `/flows`, `/operations` | Tránh làm hỏng mọi request của role ở cả hai app; clarify 2026-10-27 câu 5 | khác (duyệt 2026-10-27) | — |
+| D-184 | Lọc theo path trong field json (`/items`, export, `SEARCH`) | 403 `FORBIDDEN` (tên field `"field, path, type"` không tồn tại; T002) | Lọc theo field, path, kiểu trên Postgres và SQLite; vendor khác 400 với thông báo riêng. Ở shared-domain, request rơi vào Directus vẫn nhận 403 (không thêm định tuyến ở lb) | Yêu cầu chủ dự án 2026-10-27 | khác (duyệt 2026-10-27) | — |
+| D-184.2 | `sort=json(field, path[, type])`, `fields=json(field, path, type)` | `sort`: 403 `FORBIDDEN` (kiểm quyền path); `fields` ba tham số: 200, giá trị null (T002) | `sort` chạy (có kiểu khi có `type`); `fields` ba tham số trả giá trị có kiểu, chuẩn hóa JSON | Hệ quả của D-184 (cùng parser `json(...)`); checklist 2026-10-27 CHK002, CHK026 | khác (duyệt 2026-10-27) | — |
+| D-184.1 | Bookmark/preset có path json mở ở Directus app | Không tạo được | Lưu vào `directus_presets` dùng chung; Directus app mở bookmark đó nhận 403 | Chủ dự án 2026-10-27: chấp nhận | khác (duyệt 2026-10-27) | — |
+| D-185 | Permission có filter chứa path json | Lưu được (200, T002); request của role đó lỗi 403 | 400 khi lưu; chỉ permission, không kiểm `/fields`, `/flows`, `/operations` | Tránh làm hỏng mọi request của role ở cả hai app; clarify 2026-10-27 câu 5 | khác (duyệt 2026-10-27) | — |
 | D-186 | GraphQL | Input `<collection>_filter` của field json chỉ có `<field>_func` (`count`) | Thêm `<field>_json: json_path_filter_operators` (path, text/number/boolean) ánh xạ về `json(field, path, type)`; introspection và SDL khác ở các field `*_json` và type `json_path_filter_operators` (kể cả collection hệ thống có field json chạm tới từ scope items qua quan hệ), bộ đối chiếu bỏ hai thứ đó và bỏ so ETag của introspection/SDL | Chủ dự án 2026-10-27: thêm GraphQL; clarify 2026-10-27 chọn input có kiểu | khác (duyệt 2026-10-27) | — |
 | D-187 | Mục hàm `json` trong danh sách field của bộ lọc | Hiện ở mọi chỗ với nhãn thô `functions.json`, gửi `json(field)` → 400 | Chỉ ở Content và drawer chọn item, nhãn "JSON path"/"Đường dẫn JSON", nhập path và kiểu; chỗ khác ẩn | Chủ dự án 2026-10-27: chỉ dùng ở filter của Content (và drawer) | khác (duyệt 2026-10-27) | — |
 
@@ -335,6 +340,13 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - D-184, D-184.1, D-185, D-186, D-187: duyệt sau `/speckit.plan`, gồm các câu chữ sửa khi plan ở dưới. D-184.2: duyệt
   sau `/speckit.checklist` api-compat (cùng ngày).
 
+### Kết quả T001, T002 khi implement lượt 1 (2026-10-27)
+
+- T002 trên Directus 11.17.4 (env parity Postgres): filter `json(...)` (2 hoặc 3 tham số) và `sort=json(...)` trả **403
+  `FORBIDDEN`** (không phải 400 như ghi trước đó): bước kiểm quyền path đọc `"field, path[, type]"` là tên field, kể cả
+  admin; `fields=json(f, p, number)` 200 giá trị null; `json(f)` 400 `INVALID_QUERY`; `POST /permissions` có path json
+  200. Đã sửa D-184, D-184.1, D-184.2, D-185, Edge Cases, bảng Đánh giá hiện trạng #3; khác biệt không đổi về bản chất.
+
 ### Sửa khi `/speckit.analyze` (2026-10-27)
 
 - C1 (Nguyên tắc XII): chủ dự án (design owner) quyết định form path + kiểu ghép từ recipe Q-7, Input, Select (FR-017,
@@ -363,7 +375,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 - Postgres từ 10 (profile parity `postgres10`; không dùng jsonpath của PG 12), SQLite có JSON1 (`json_type`, `json_each`,
   `json_valid`; bản bundled của package `sqlite3` là 3.44) (sửa khi checklist 2026-10-27).
 - Lọc theo path không dùng được index thường; admin tự tạo index nếu cần (ngoài phạm vi), ghi cách làm trong quickstart.
-- Người dùng gọi qua lb shared-domain có thể nhận 400 từ Directus; muốn chắc chắn thì gọi qua domain riêng của Backoffice
+- Người dùng gọi qua lb shared-domain có thể nhận 403 từ Directus; muốn chắc chắn thì gọi qua domain riêng của Backoffice
   (chế độ separate-domain) hoặc qua Backoffice trực tiếp.
 
 ## Success Criteria *(mandatory)*
