@@ -538,9 +538,10 @@ Ghi chú đưa vào spec và plan 021:
 
 ### 022: Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng
 
-Trạng thái 2026-10-26: `specs/022-collection-ui-toggles/spec.md` và `checklists/requirements.md` đã viết, 10 câu hỏi đã
-chốt (mục Clarifications của spec), constitution 3.2.0 đã sửa, plan và tasks (46 task, ba lượt) đã viết, D-179..D-181 đã
-duyệt. Bước tiếp theo bắt đầu từ bước 7 (`/speckit.analyze`).
+Trạng thái 2026-10-26: đã xong. Ba lượt trên `main` (`a948e3f0`..`173403ae`), 46/46 task, CI 40308977164 xanh,
+parity-matrix 40320127600 và benchmark-web 40320123598 xanh; D-179..D-182 đã duyệt (D-182: tiêu đề card ba toggle chỉ
+ở web). Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite. Kết quả từng lượt ở `research.md` "Kết quả lượt
+1/2/3".
 
 **Thứ tự chạy:**
 

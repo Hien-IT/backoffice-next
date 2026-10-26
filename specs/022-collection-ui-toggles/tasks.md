@@ -182,7 +182,7 @@ Backoffice 403.
 - [X] T025 [US4] Chạy `parity-tests:test` cho `src/parity.test.ts` (request-set), `src/schema/overview.test.ts`,
       `src/schema-management/{cross-use,ddl-capture}.test.ts`, `src/graphql/*.test.ts` (SDL với `backoffice_migrations`,
       R4/T001) trên env Postgres; sửa normalize theo T001(b) nếu SDL lệch (ghi D-181).
-- [ ] T026 Đóng lượt 1: `pnpm nx run api:lint`, `api:typecheck`, `system-data:lint`, `parity-tests:lint`; test các file
+- [X] T026 Đóng lượt 1: `pnpm nx run api:lint`, `api:typecheck`, `system-data:lint`, `parity-tests:lint`; test các file
       của Phase 2–4 xanh; `git add` theo đường dẫn (`apps/api/src/database`, `apps/api/src/cli`, `libs/system-data`,
       `tests/parity`, `specs/022-*`); commit `feat(022): Backoffice migrations runner, migration 20261026A and the
       backoffice_migrations system collection (wave 1)`; kiểm `gh run list --branch main --status in_progress` rỗng rồi
@@ -269,7 +269,7 @@ collection có ba toggle với nhãn en-US/vi-VN.
 - [X] T040 [P] [US2] Thêm test browser project (`web/components/SearchInput.browser.test.ts` mới hoặc file browser test
       có sẵn của component, cấu hình `apps/web/vitest.config.ts` project `browser`): `SearchInput` `showSearch=false`
       và `ExportSidebarDetail` `showImport=false` không vi phạm axe.
-- [ ] T041 Đóng lượt 2: `pnpm nx run web:lint`, `web:typecheck`, `web:test` các file T027–T036, T040; `web-e2e` spec
+- [X] T041 Đóng lượt 2: `pnpm nx run web:lint`, `web:typecheck`, `web:test` các file T027–T036, T040; `web-e2e` spec
       T033/T034/T039 ở cấu hình proxy-api local; `git add` theo đường dẫn (`apps/web/src`, `apps/web-e2e/src`,
       `specs/022-*`); commit `feat(022): per-collection search, import and export toggles in the Content module (wave
       2)`; push khi `main` rảnh; gửi số run cho phiên 021; theo dõi `e2e-web (proxy-directus|proxy-api|cors)`, `quality`
@@ -281,21 +281,21 @@ collection có ba toggle với nhãn en-US/vi-VN.
 
 **Purpose**: đối chiếu đầy đủ trên DB đã migrate, tài liệu, đóng feature.
 
-- [ ] T042 [P] Chạy blackbox collections/fields/schema trên env Postgres (`parity-tests:test` với `profiles=blackbox`,
+- [X] T042 [P] Chạy blackbox collections/fields/schema trên env Postgres (`parity-tests:test` với `profiles=blackbox`,
       `src/items/blackbox` collections/fields/schema theo README `tests/parity`) và GraphQL (`src/graphql`): 0 fail ở
       cả hai app (SC-003); nếu một test đếm field của `directus_collections` hoặc so toàn bộ `GET /collections` thì sửa
       normalize (D-181) chứ không sửa test blackbox.
-- [ ] T043 [P] Chạy `gh workflow run parity-matrix.yml` (vendor MySQL, MariaDB, MSSQL, Oracle, CockroachDB: nhánh D-145
+- [X] T043 [P] Chạy `gh workflow run parity-matrix.yml` (vendor MySQL, MariaDB, MSSQL, Oracle, CockroachDB: nhánh D-145
       chạy migration riêng, SC-006) và `gh workflow run benchmark.yml -f job=benchmark-web` (trang Content không thêm
       request); ghi kết quả vào `research.md` "Kết quả lượt 3". Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite,
       phần vendor khác bỏ cho tới khi bật lại; `parity-matrix.yml` còn ma trận quyền Postgres và blackbox SQLite.
-- [ ] T044 [P] Thêm mục "Migration riêng của Backoffice" vào `deploy/README.md` theo `quickstart.md` (bootstrap tự chạy,
+- [X] T044 [P] Thêm mục "Migration riêng của Backoffice" vào `deploy/README.md` theo `quickstart.md` (bootstrap tự chạy,
       lock, vendor khác, `start` báo thiếu, rollback tay, D-181, `DB_EXCLUDE_TABLES` tùy chọn, nâng Directus phải grep
       `bo_`/`backoffice_`).
-- [ ] T045 Ghi `research.md`: "Kết quả lượt 1/2/3" (T001, T018, T024, T025, T043), vị trí ba toggle trong form (ảnh chụp
+- [X] T045 Ghi `research.md`: "Kết quả lượt 1/2/3" (T001, T018, T024, T025, T043), vị trí ba toggle trong form (ảnh chụp
       hoặc mô tả, R12); `spec.md` Status → Implemented (ngày, ba lượt, CI run); `checklists/requirements.md` note;
       `SPECKIT-GUIDE.md` mục 022 trạng thái; `CLAUDE.md` Recent Changes thêm dòng 022.
-- [ ] T046 Đóng lượt 3: lint, typecheck; `git add` theo đường dẫn; commit `docs(022): deploy README, research results and
+- [X] T046 Đóng lượt 3: lint, typecheck; `git add` theo đường dẫn; commit `docs(022): deploy README, research results and
       feature close`; push khi `main` rảnh; gửi số run cho phiên 021; CI xanh; `graphify update .`; báo chủ dự án kết
       quả SC-001..SC-006.
 

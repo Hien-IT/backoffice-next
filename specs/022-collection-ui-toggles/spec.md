@@ -3,8 +3,9 @@
 **Feature Branch**: `022-collection-ui-toggles` (làm trên `main` như 012–021, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=022-collection-ui-toggles`)
 **Created**: 2026-10-26
-**Status**: Planned (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa 2026-10-26; D-179..D-181
-duyệt 2026-10-26, chủ dự án kiêm tech lead)
+**Status**: Implemented 2026-10-26, ba lượt trên `main` (`a948e3f0`..`173403ae`), CI 40308977164 xanh, parity-matrix
+40320127600 và benchmark-web 40320123598 xanh (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa
+2026-10-26; D-179..D-182 duyệt 2026-10-26, chủ dự án kiêm tech lead; CI tạm chỉ Postgres, SQLite)
 **Input**: User description: "hỗ trợ tôi viết speckit làm tính năng mở rộng cho backoffice, với chức năng thêm 2 trường
 mới vào directus_collections để cấu hình ẩn hiện khung search và ẩn hiện nút inport export, thêm xem có thể chạy song
 song với directus cũ"
