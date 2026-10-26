@@ -97,8 +97,9 @@ export async function checkMigrations(database: Knex = getDatabase()): Promise<M
  */
 export async function migrationsValid(database: Knex = getDatabase()): Promise<boolean> {
 	try {
-		const result = await checkMigrations(database);
-		return result.missing.length === 0 && result.boMissing.length === 0;
+		// DR' answer only: bootstrap gates the Backoffice migrations on it (spec 022 FR-013), so a pending Backoffice
+		// migration must not make it false; start checks those (validateMigrations).
+		return (await checkMigrations(database)).missing.length === 0;
 	} catch (error: any) {
 		const logger = useLogger();
 		logger.error(`Database migrations cannot be found`);

@@ -45,7 +45,8 @@ như Directus (chủ dự án chọn lock); lệnh CLI riêng (chủ dự án b�
   `backoffice_migrations` qua `knex.schema.hasTable` rồi `select version`; không có bảng = chưa chạy gì);
   `validateMigrations` (gọi từ `startup/run-startup-checks.ts:43`) dừng với thông điệp riêng
   `Backoffice migrations do not match. Missing: …; unknown: …` và gợi ý `node cli.js bootstrap`; `migrationsValid`
-  (CLI `load-extensions.ts:18`) trả false khi thiếu migration riêng.
+  (CLI `load-extensions.ts:18`, cổng của nhánh D-145 trong `bootstrap`) chỉ xét migration Directus như Directus (sửa sau
+  CI 40294646712: tính cả migration riêng làm `bootstrap` trên MySQL không bao giờ chạy chúng).
 - `database migrate:latest|up|down` và `database install` không đổi (output so với Directus ở `cli.test.ts`); sau
   `database install` + `migrate:latest` thủ công, `start` báo thiếu migration riêng và chỉ sang `bootstrap`
   (quickstart).
@@ -95,14 +96,15 @@ có thể hỏi chủ dự án sau nếu vị trí cuối form không ổn).
 - Không thêm yaml field hệ thống (`fields/backoffice-migrations.yaml`): cột của bảng có meta null ở cả hai app, nên
   `GET /fields` của hai app giống nhau hơn; snapshot bỏ field meta null (`excludeUntracked`).
 - Web: `stores/collections.ts` `isSystemCollection` thêm tiền tố `backoffice_` và `COLLECTIONS_DENY_LIST` thêm
-  `backoffice_migrations` (như `directus_migrations`, dòng 25-35, 113: không hiện trong Data Model);
+  `backoffice_migrations` (như `directus_migrations`, dòng 25-35, 113: ngoài `crudSafeSystemCollections`; vẫn hiện
+  trong nhóm System Collections của Data Model như `directus_migrations`, sửa khi implement lượt 2);
   `utils/get-item-route.ts` `isSystemCollection` thêm tiền tố `backoffice_` để `/content/backoffice_migrations` ra
   ContentNotFound như `/content/directus_collections` (E2E `settings-data-model.spec.ts:246`).
 
 **Khác biệt với Directus (D-181)**: Directus trả `backoffice_migrations` với `meta: null` trong `GET /collections`
 (`directus/api/src/services/collections.ts:382-391`), cho admin đọc qua `/items`, Data Model của Directus app liệt
-kê trong bảng chưa quản lý (`collections.vue:108`). Backoffice: meta hệ thống, 403 ở `/items`, ẩn khỏi Data Model. Spec
-FR-017 và US4 kịch bản 6 sửa câu chữ theo đây (xem "Sửa spec khi plan").
+kê trong bảng chưa quản lý (`collections.vue:108`). Backoffice: meta hệ thống, 403 ở `/items`, nhóm System Collections
+của Data Model như `directus_migrations`. Spec FR-017 và US4 kịch bản 6 theo đây (sửa lại khi implement lượt 2).
 
 **GraphQL** [Unverified]: `/graphql` (items) của cả hai app có type `backoffice_migrations` vì bảng có khóa chính và nằm
 trong schema overview; nếu Backoffice xếp nó vào `/graphql/system` theo `isSystemCollection` thì SDL hai app lệch →
@@ -110,7 +112,7 @@ parity graphql (so SDL nguyên văn) báo; lượt 1 kiểm, và nếu lệch th
 tố `directus_` cho GraphQL. Tìm: `grep -rn "startsWith('directus_')\|isSystemCollection" apps/api/src/services/graphql`.
 
 **Alternatives considered**: `DB_EXCLUDE_TABLES` ở cả hai app (chủ dự án bỏ: muốn Backoffice coi là bảng hệ thống);
-hiện trong nhóm hệ thống của Data Model (Directus ẩn `directus_migrations` bằng deny list, làm giống).
+ẩn khỏi Data Model (không giống `directus_migrations`, Directus app liệt kê nó trong nhóm System Collections).
 
 ## R5. Web: `SearchInput`, `ExportSidebarDetail`, `CollectionRoute`
 

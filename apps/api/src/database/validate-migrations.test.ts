@@ -168,10 +168,13 @@ describe('Backoffice migrations (spec 022 FR-016, D-180)', () => {
 		expect(exit).not.toHaveBeenCalled();
 	});
 
-	test('migrationsValid is false while a Backoffice migration is missing; an unknown one does not count', async () => {
+	// CI 40294646712 (MySQL): bootstrap gates the Backoffice migrations on migrationsValid; counting them there kept
+	// them from ever running on the vendors DR migrates.
+	test('migrationsValid answers for the DR migrations only: a pending Backoffice migration keeps it true', async () => {
 		expect(await migrationsValid(db(all, BO))).toBe(true);
-		expect(await migrationsValid(db(all, null))).toBe(false);
-		expect(await migrationsValid(db(all, [...BO, '20990101A']))).toBe(true);
+		expect(await migrationsValid(db(all, null))).toBe(true);
+		expect(await migrationsValid(db(all, []))).toBe(true);
+		expect(await migrationsValid(db(all.slice(1), null))).toBe(false);
 	});
 });
 

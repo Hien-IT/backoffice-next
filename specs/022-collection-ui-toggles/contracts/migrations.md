@@ -37,7 +37,7 @@ Unknown Backoffice migrations (newer Backoffice?): ...
 Run "node cli.js bootstrap" to apply them.
 ```
 
-rồi `process.exit(1)`. `migrationsValid` = `missing.length === 0 && boMissing.length === 0`.
+rồi `process.exit(1)`. `migrationsValid` = `missing.length === 0` (chỉ migration Directus và custom, như Directus): `bootstrap` dùng nó làm cổng trước khi chạy migration riêng, nên không được tính migration riêng (CI 40294646712, MySQL).
 
 ## Migration `20261026A-add-collection-ui-toggles.ts`
 
