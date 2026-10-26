@@ -47,6 +47,8 @@ export function compose(...args: string[]): string {
 		cwd: COMPOSE_DIR,
 		encoding: 'utf8',
 		env: { ...process.env, DEPLOY_ENV_FILE: ENV_FILE },
+		// `logs` of 3 replicas after the whole suite passes the 1 MB default (ENOBUFS, CI 40391510176); as docker.ts.
+		maxBuffer: 256 * 1024 * 1024,
 	});
 }
 
