@@ -1,4 +1,27 @@
 <!--
+Sync Impact Report (3.2.0, 2026-10-26)
+- Version change: 3.1.0 → 3.2.0
+- Modified principles: II. Dùng chung database với Directus: thêm migration riêng của Backoffice (bảng hệ thống
+  `backoffice_migrations` cùng dạng `directus_migrations`, coi là collection hệ thống; không ghi `directus_migrations`;
+  Directus không cần file hay cấu hình mới; chỉ được tạo bảng `backoffice_*`, thêm cột `bo_*` vào bảng `directus_*` và
+  dòng `directus_fields` của chúng; chỉ có `up`, Knex, 7 vendor, chạy lại được; không có `down` hay lệnh CLI; `bootstrap`
+  chạy trên mọi vendor sau migration Directus, sửa D-145 của 021); kiểm tra lúc khởi động thêm `backoffice_migrations`;
+  `GET /collections` khác Directus ở bảng `backoffice_*` (ghi khác biệt).
+  VII. Triển khai đa instance: migration riêng trong `bootstrap` chạy dưới lock dùng chung (Redis khi có cấu hình);
+  migration Directus trong `bootstrap` vẫn không có lock.
+- Modified sections: "Quy trình phát triển và cổng kiểm tra": Reviewer chấp nhận ghi vào `directus_*` qua migration
+  riêng của Backoffice theo Nguyên tắc II.
+- Không đổi: V (test đối chiếu so dump DB, bỏ qua bảng `backoffice_*`, cột `bo_*` và dòng `directus_fields` của chúng).
+- MINOR: thêm ngoại lệ có điều kiện cho II và VII; mọi thứ hợp lệ theo 3.1.0 vẫn hợp lệ.
+- Lý do: chủ dự án (kiêm tech lead) chọn ngày 2026-10-26 khi viết spec 022 (ẩn hiện ô tìm kiếm, Import, Export theo
+  collection): cần nhiều migration riêng về sau và không đụng vào Directus đang chạy chung DB.
+- Templates: ✅ .specify/templates/plan-template.md (phiên bản, dòng II, VII); ✅ SPECKIT-GUIDE.md (bảng quyết định,
+  trạng thái prompt 022); spec, tasks, checklist template không nhắc các mục này.
+- Follow-up: feature 022 (`specs/022-collection-ui-toggles/spec.md`, D-179..D-181). Plan các feature 001–021 giữ
+  Constitution Check theo phiên bản lúc viết.
+- Chủ dự án (kiêm tech lead) yêu cầu chạy và commit sửa đổi này ngày 2026-10-26 (quy trình không có PR). D-179..D-181
+  của spec 022 vẫn chờ duyệt riêng.
+
 Sync Impact Report (3.1.0, 2026-10-24)
 - Version change: 3.0.0 → 3.1.0
 - Modified principles: IX. Đổi thương hiệu Directus thành Backoffice: thêm quy ước viết tắt "DR" cho Directus trong
@@ -200,15 +223,29 @@ Lý do: `directus/` là mốc so sánh cho mọi test đối chiếu. Sửa nó 
   `database migrate:latest|up|down`. Seed và 101 migration hệ thống PHẢI là bản port nguyên văn từ
   `directus/api/src/database/{seeds,migrations}`, ghim ở 11.17.4; custom migration trong
   `MIGRATIONS_PATH` chạy như Directus.
-- Backoffice tự khởi tạo và migrate với Postgres và SQLite. Vendor khác: DB PHẢI do Directus khởi tạo
-  và migrate; Backoffice chỉ kiểm tra `directus_migrations`.
-- KHÔNG ĐƯỢC thêm bảng, cột hay migration hệ thống riêng của Backoffice. Ngoài seed và migration port
-  từ Directus 11.17.4, KHÔNG ĐƯỢC tạo, sửa, xóa bảng hệ thống `directus_*` hay cột gốc của chúng. DB do
-  Backoffice tạo PHẢI dùng được với Directus 11.17.4 và ngược lại. ĐƯỢC, như Directus: thêm, sửa, xóa
-  cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên cột hệ thống qua
-  `schema.is_indexed`.
+- Backoffice tự khởi tạo và migrate Directus với Postgres và SQLite. Vendor khác: DB PHẢI do Directus
+  khởi tạo và migrate; Backoffice chỉ kiểm tra `directus_migrations` (migration riêng ở dưới vẫn chạy).
+- Ngoài seed, migration port từ Directus 11.17.4 và migration riêng của Backoffice (ý dưới), KHÔNG ĐƯỢC
+  thêm bảng, cột hay migration hệ thống, và KHÔNG ĐƯỢC tạo, sửa, xóa bảng hệ thống `directus_*` hay cột
+  gốc của chúng. DB do Backoffice tạo PHẢI dùng được với Directus 11.17.4 và ngược lại. ĐƯỢC, như
+  Directus: thêm, sửa, xóa cột người dùng trong collection hệ thống qua API fields; tạo, xóa index trên
+  cột hệ thống qua `schema.is_indexed`.
+- Migration riêng của Backoffice (từ 3.2.0, feature 022):
+  - Trạng thái ghi trong bảng hệ thống `backoffice_migrations` (`version`, `name`, `timestamp`, cùng
+    dạng `directus_migrations`); Backoffice coi bảng này là collection hệ thống như
+    `directus_migrations`. Backoffice KHÔNG ĐƯỢC ghi, xóa dòng nào trong `directus_migrations`;
+    Directus KHÔNG cần file, biến môi trường hay cấu hình mới.
+  - Migration riêng chỉ ĐƯỢC: tạo bảng tiền tố `backoffice_`; thêm cột tiền tố `bo_` vào bảng
+    `directus_*`; thêm dòng `directus_fields` của các cột đó. KHÔNG ĐƯỢC sửa, xóa bảng hay cột gốc của
+    Directus.
+  - Mỗi migration riêng chỉ có `up`, chỉ dùng Knex, chạy được trên 7 vendor, chạy lại được trên DB đã
+    có thay đổi của nó. Không có `down` và không có lệnh CLI riêng; rollback làm tay trên DB.
+  - `bootstrap` chạy migration riêng còn thiếu trên mọi vendor, sau khi migration Directus đã đủ.
+  - Directus chỉ thấy thêm cột `bo_*` và bảng `backoffice_*` (bảng chưa quản lý trong Data Model).
+    `GET /collections` của hai app khác nhau ở các bảng `backoffice_*`; spec PHẢI ghi khác biệt này.
 - Khi khởi động (sau `bootstrap`), app mới PHẢI đối chiếu bảng `directus_migrations` với danh sách
-  migration của 11.17.4. Nếu lệch, app PHẢI dừng và báo lỗi rõ ràng (migration thiếu hoặc thừa).
+  migration của 11.17.4, và `backoffice_migrations` với danh sách migration riêng. Nếu lệch, app PHẢI
+  dừng và báo lỗi rõ ràng (migration thiếu hoặc thừa).
 - Dữ liệu app mới ghi ra (users, sessions, activity, revisions, files, hash mật khẩu argon2, uuid,
   ngày giờ, JSON) PHẢI có định dạng giống hệt Directus, để hai bên đọc ghi lẫn nhau được.
 - ĐƯỢC tạo và sửa bảng dữ liệu người dùng qua API collections/fields/relations, giống Directus.
@@ -289,7 +326,9 @@ Lý do: bám cấu trúc service và Knex của Directus giúp port code trực 
   - lệnh `bootstrap`: image API mặc định chạy `bootstrap` rồi `start` như Dockerfile của Directus; ở chế độ
     chạy chung, mỗi replica khởi động như một container Directus. Ở chế độ độc lập với nhiều replica,
     `bootstrap` PHẢI chạy một lần trong Helm Job `pre-install`/`pre-upgrade` hoặc service chạy một lần của
-    compose; các replica chỉ chạy `start`. `bootstrap` không có lock, như Directus.
+    compose; các replica chỉ chạy `start`. Migration Directus trong `bootstrap` không có lock, như
+    Directus; migration riêng của Backoffice (Nguyên tắc II, từ 3.2.0) PHẢI chạy dưới lock dùng chung
+    (Redis khi có cấu hình Redis), mỗi lúc một process.
 - PHẢI có `/server/health` cho readiness và liveness probe. Khi nhận SIGTERM: ngừng nhận request
   mới, chạy nốt request đang dở, đóng kết nối DB và Redis rồi mới thoát.
 - FE và BE nên đặt chung một domain: `/admin/*` vào FE, các path API còn lại vào BE, giống bố cục
@@ -421,7 +460,7 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - `tasks.md` PHẢI có task test đối chiếu cho mỗi endpoint thêm hoặc sửa (V), và test cho mỗi thay
   đổi (VI).
 - Reviewer PHẢI từ chối PR khi: có file trong `directus/` bị đổi; có ghi vào bảng hoặc cột hệ thống
-  `directus_*` ngoài luồng API, seed và migration của Directus (Nguyên tắc II); có lock hoặc state quan trọng trong bộ nhớ process, hoặc
+  `directus_*` ngoài luồng API, seed, migration của Directus và migration riêng của Backoffice (Nguyên tắc II); có lock hoặc state quan trọng trong bộ nhớ process, hoặc
   cache trong process không dựng lại được từ DB/Redis hay không bị xóa qua bus Redis (Nguyên tắc VII);
   có khác biệt với Directus chưa ghi trong spec; CI chưa pass đủ các cổng ở Nguyên tắc X; component
   FE dùng mã hex thô hay màu palette Tailwind ngoài theme TailAdmin của `design-system/` (Nguyên tắc XII).
@@ -440,4 +479,4 @@ này PHẢI giống Directus khi tính năng đó tắt.
 - Mỗi PR và mỗi lần review PHẢI kiểm tra tuân thủ. Vi phạm chỉ được chấp nhận khi ghi trong bảng
   "Complexity Tracking" của plan, có lý do và được tech lead duyệt.
 
-**Version**: 3.1.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-24
+**Version**: 3.2.0 | **Ratified**: 2026-10-08 | **Last Amended**: 2026-10-26

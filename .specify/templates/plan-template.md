@@ -31,21 +31,25 @@
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-Check each principle in `.specify/memory/constitution.md` (v3.1.0). Mark PASS, or VIOLATION with
+Check each principle in `.specify/memory/constitution.md` (v3.2.0). Mark PASS, or VIOLATION with
 a row in Complexity Tracking.
 
 - [ ] I. No file under `directus/` changed; ported files name their source path in a header comment
 - [ ] II. No DDL on `directus_*` base tables/columns outside the ported Directus 11.17.4 seeds/migrations
   (`bootstrap`/`migrate` on Postgres and SQLite, 3.0.0); no Backoffice-only system table, column or migration (user
-  columns and `is_indexed` on system columns allowed, as Directus does); written data matches Directus format; the DB
-  stays usable by Directus 11.17.4
+  columns and `is_indexed` on system columns allowed, as Directus does) except Backoffice migrations (3.2.0): tracked in
+  system table `backoffice_migrations`, never in `directus_migrations`; only `backoffice_*` tables, `bo_*` columns on
+  `directus_*` and their `directus_fields` rows; `up` only, Knex, 7 vendors, re-runnable; run by `bootstrap` on every
+  vendor after the Directus migrations; checked at start; written data matches Directus format; the DB stays usable by
+  Directus 11.17.4 with no new file or config
 - [ ] III. REST/GraphQL path, query, response, error, status, header, cookie identical to Directus
 - [ ] IV. Shared SECRET/JWT/Redis keys; no critical in-process state; scheduled flows use Redis lock
 - [ ] V. Parity tests (Directus vs new app) planned for every endpoint added or changed
 - [ ] VI. Nx layout, NestJS provider per Directus service, Knex (no ORM), Vue 3 Composition API
 - [ ] VII. Multi-instance safe: runtime FE config, shared storage (files and extensions), read-only startup (except new
   `directus_extensions` rows, 2.2.0, and `bootstrap`, 3.0.0: in standalone mode with several replicas run once by a Helm
-  Job or compose one-shot service; in shared mode each replica starts like a Directus container), graceful SIGTERM; in-process caches only if rebuilt from DB/Redis and cleared via
+  Job or compose one-shot service; in shared mode each replica starts like a Directus container; Backoffice migrations
+  under a shared Redis lock, 3.2.0), graceful SIGTERM; in-process caches only if rebuilt from DB/Redis and cleared via
   the Redis bus on every instance
 - [ ] VIII. Only Directus env vars (same names/defaults); new ones prefixed `BACKOFFICE_` with safe default
 - [ ] IX. Rebranding limited to allowed surfaces; compatibility identifiers kept

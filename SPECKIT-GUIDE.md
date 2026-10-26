@@ -7,35 +7,35 @@ prompt sẵn để dán vào Claude Code (mở ở thư mục `backoffice-next/`
 
 ## 1. Các quyết định đã chốt
 
-| Chủ đề             | Quyết định                                                                                                                                                                                                                                      |
-| ------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Code mẫu           | `directus/` (Directus 11.17.4, api 35.2.0, app 15.10.0). **Chỉ đọc, không sửa.** Được copy code sang app mới.                                                                                                                                   |
-| Cấu trúc           | Nx monorepo tại `backoffice-next/`: `apps/api` (NestJS), `apps/web` (Vue 3), `libs/*` dùng chung.                                                                                                                                               |
-| Database           | Dùng **chung DB** với Directus. Hỗ trợ mọi DB Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) qua **Knex**.                                                                                                       |
-| Migration          | Directus chạy migration cho bảng `directus_*`. **Feature 021** (constitution 3.0.0): Backoffice cũng tự khởi tạo DB và migrate như Directus với Postgres, SQLite. App mới kiểm tra phiên bản migration khi khởi động.                           |
-| API                | REST **giống hệt** Directus: path, query, response, mã lỗi. `@directus/sdk` dùng được.                                                                                                                                                          |
-| Auth               | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token.                                                                                                                                                        |
-| Cache              | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay.                                                                                                                                                   |
-| Flows              | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy.                                                                                                                         |
-| FE                 | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0). |
-| Extensions         | **Feature 020**: extension đã build cho Directus chạy trên API và app mới (mọi loại trừ `theme`), marketplace, sandbox, nhiều instance (constitution 2.1.0).                                                                                    |
-| Biến môi trường    | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy.                                                                                      |
-| Ngôn ngữ           | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**.                                                                                                                                                    |
-| Runtime            | **Node 22 + pnpm 10**, giống Directus.                                                                                                                                                                                                          |
-| CI                 | **GitHub Actions**. Coverage tối thiểu **80% BE, 60% FE**.                                                                                                                                                                                      |
-| DB chính           | **PostgreSQL**: chạy đủ test ở mọi PR. MySQL, SQLite chạy bộ rút gọn. MSSQL, Oracle, CockroachDB chạy hằng đêm.                                                                                                                                 |
-| Hiệu năng          | p95 latency và throughput **không tệ hơn Directus quá 10%**.                                                                                                                                                                                    |
-| Ngôn ngữ giao diện | **vi-VN và en-US**.                                                                                                                                                                                                                             |
-| Giám sát           | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`).                                                                                                                                                                             |
-| SSO                | **OpenID Connect, OAuth2, LDAP** (từ constitution 1.3.0). SAML chưa làm.                                                                                                                                                                        |
-| Storage            | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm.                                                                                                                                                                           |
-| Email              | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo.                                                                                                                                        |
-| Flow Run Script    | **Có**, chạy trong sandbox isolated-vm giống Directus.                                                                                                                                                                                          |
-| Layouts            | Table, Cards, Calendar, Kanban, Map: đủ cả 5.                                                                                                                                                                                                   |
-| Quy mô             | **Lớn**: 200–2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi.                                                                                                                                                                 |
-| Thiết bị           | **Desktop và tablet** (từ 768px), Chrome, Edge, Firefox, Safari bản mới.                                                                                                                                                                        |
-| Thương hiệu        | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...).                                                       |
-| Phạm vi            | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.**                                                                                               |
+| Chủ đề             | Quyết định                                                                                                                                                                                                                                                                                                                                                     |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Code mẫu           | `directus/` (Directus 11.17.4, api 35.2.0, app 15.10.0). **Chỉ đọc, không sửa.** Được copy code sang app mới.                                                                                                                                                                                                                                                  |
+| Cấu trúc           | Nx monorepo tại `backoffice-next/`: `apps/api` (NestJS), `apps/web` (Vue 3), `libs/*` dùng chung.                                                                                                                                                                                                                                                              |
+| Database           | Dùng **chung DB** với Directus. Hỗ trợ mọi DB Directus hỗ trợ (Postgres, MySQL/MariaDB, SQLite, MSSQL, Oracle, CockroachDB) qua **Knex**.                                                                                                                                                                                                                      |
+| Migration          | Directus chạy migration cho bảng `directus_*`. **Feature 021** (constitution 3.0.0): Backoffice cũng tự khởi tạo DB và migrate như Directus với Postgres, SQLite. App mới kiểm tra phiên bản migration khi khởi động. **Feature 022** (constitution 3.2.0): Backoffice có migration riêng trong bảng `backoffice_migrations`, không ghi `directus_migrations`. |
+| API                | REST **giống hệt** Directus: path, query, response, mã lỗi. `@directus/sdk` dùng được.                                                                                                                                                                                                                                                                         |
+| Auth               | **Token dùng chéo**: chung `SECRET`, chung bảng `directus_sessions`, chung static token.                                                                                                                                                                                                                                                                       |
+| Cache              | **Chung Redis**: cùng format cache key và kênh bus, sửa ở app này thì app kia xóa cache ngay.                                                                                                                                                                                                                                                                  |
+| Flows              | Flow theo lịch: **lock qua Redis**, mỗi lượt chỉ một app chạy. Flow theo sự kiện: app nào nhận request thì app đó chạy.                                                                                                                                                                                                                                        |
+| FE                 | **Viết mới** bằng Vue 3 + **Reka UI** (cùng thư viện Directus app dùng), giữ nguyên luồng màn hình của Directus. Phần nhìn và bố cục khung theo **`design-system/`** (dựa trên TailAdmin, theme `brand-*`/`gray-*`, constitution XII từ 2.0.0).                                                                                                                |
+| Extensions         | **Feature 020**: extension đã build cho Directus chạy trên API và app mới (mọi loại trừ `theme`), marketplace, sandbox, nhiều instance (constitution 2.1.0).                                                                                                                                                                                                   |
+| Biến môi trường    | **Kế thừa toàn bộ** biến của Directus: cùng tên, cùng mặc định, cùng cách ép kiểu. Dùng lại nguyên file `.env`, ConfigMap, Secret của Directus khi deploy.                                                                                                                                                                                                     |
+| Ngôn ngữ           | spec, plan, tasks viết **tiếng Việt**. Tên biến, comment, commit message viết **tiếng Anh**.                                                                                                                                                                                                                                                                   |
+| Runtime            | **Node 22 + pnpm 10**, giống Directus.                                                                                                                                                                                                                                                                                                                         |
+| CI                 | **GitHub Actions**. Coverage tối thiểu **80% BE, 60% FE**.                                                                                                                                                                                                                                                                                                     |
+| DB chính           | **PostgreSQL**: chạy đủ test ở mọi PR. MySQL, SQLite chạy bộ rút gọn. MSSQL, Oracle, CockroachDB chạy hằng đêm.                                                                                                                                                                                                                                                |
+| Hiệu năng          | p95 latency và throughput **không tệ hơn Directus quá 10%**.                                                                                                                                                                                                                                                                                                   |
+| Ngôn ngữ giao diện | **vi-VN và en-US**.                                                                                                                                                                                                                                                                                                                                            |
+| Giám sát           | **Log JSON** giống Directus và **metrics Prometheus** (`/metrics`).                                                                                                                                                                                                                                                                                            |
+| SSO                | **OpenID Connect, OAuth2, LDAP** (từ constitution 1.3.0). SAML chưa làm.                                                                                                                                                                                                                                                                                       |
+| Storage            | **S3/MinIO** và **Local**. Azure, GCS, Cloudinary, Supabase chưa làm.                                                                                                                                                                                                                                                                                          |
+| Email              | **Không gửi email.** Luồng cần email vẫn chạy như Directus, phần gửi mail bị bỏ qua và ghi log cảnh báo.                                                                                                                                                                                                                                                       |
+| Flow Run Script    | **Có**, chạy trong sandbox isolated-vm giống Directus.                                                                                                                                                                                                                                                                                                         |
+| Layouts            | Table, Cards, Calendar, Kanban, Map: đủ cả 5.                                                                                                                                                                                                                                                                                                                  |
+| Quy mô             | **Lớn**: 200–2.000 user đồng thời, collection lớn nhất khoảng 10 triệu bản ghi.                                                                                                                                                                                                                                                                                |
+| Thiết bị           | **Desktop và tablet** (từ 768px), Chrome, Edge, Firefox, Safari bản mới.                                                                                                                                                                                                                                                                                       |
+| Thương hiệu        | Chữ "Directus" trong app mới đổi thành **"Backoffice"**, trừ những chỗ ảnh hưởng luồng hoặc tương thích (bảng `directus_*`, JWT issuer, cookie, namespace Redis, tên biến môi trường...).                                                                                                                                                                      |
+| Phạm vi            | Lõi dữ liệu, Files & assets, Flows & tự động hóa, Insights/dashboards, GraphQL, Translations, Versions, Shares. **Không làm Realtime WebSocket.**                                                                                                                                                                                                              |
 
 ---
 
@@ -224,6 +224,30 @@ Giữ nguyên V (Directus vẫn là mốc test đối chiếu) và XI (khi chạ
 Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
 ```
 
+### Sửa constitution cho 022 (3.1.0 → 3.2.0)
+
+Feature 022 trái với Nguyên tắc II ("KHÔNG ĐƯỢC thêm bảng, cột hay migration hệ thống riêng của Backoffice") và VII
+("bootstrap không có lock, như Directus"). Chạy prompt sau trước `/speckit.plan` của 022, rồi cho tech lead duyệt. Đã
+chạy ngày 2026-10-26: constitution 3.2.0, theo yêu cầu của chủ dự án (kiêm tech lead).
+
+```text
+/speckit.constitution Sửa constitution 3.1.0 thành 3.2.0 (MINOR: thêm ngoại lệ vào Nguyên tắc II và VII) cho feature 022: Backoffice có migration riêng để thêm cấu hình mà Directus không có, bắt đầu bằng ba cột ẩn hiện ô tìm kiếm, Import, Export trên directus_collections. Lý do: chủ dự án cần nhiều migration riêng về sau và không muốn đụng vào Directus đang chạy chung DB.
+
+II. Dùng chung database với Directus (thêm các ý sau, giữ nguyên các ý còn lại)
+- Backoffice được có bộ migration riêng. Trạng thái ghi trong bảng hệ thống backoffice_migrations (version, name, timestamp, cùng dạng directus_migrations); Backoffice coi bảng này là collection hệ thống như directus_migrations. Backoffice không ghi, không xóa dòng nào trong directus_migrations; Directus không cần file, biến môi trường hay cấu hình mới.
+- Migration riêng chỉ được: tạo bảng tiền tố backoffice_; thêm cột tiền tố bo_ vào bảng directus_*; thêm dòng directus_fields của các cột đó. Không được sửa, xóa bảng hay cột gốc của Directus.
+- Mỗi migration riêng chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được trên DB đã có thay đổi của nó. Không có down và không có lệnh CLI riêng; rollback làm tay trên DB.
+- bootstrap chạy migration riêng còn thiếu trên mọi vendor, sau khi migration Directus đã đủ (sửa D-145 của 021: Backoffice vẫn chỉ cài và migrate Directus trên Postgres, SQLite). Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ, như migration Directus.
+- DB do Backoffice tạo vẫn dùng được với Directus 11.17.4 và ngược lại; Directus chỉ thấy thêm cột bo_* và bảng backoffice_* (bảng chưa quản lý trong Data Model). GET /collections của hai app khác nhau ở các bảng backoffice_* (ghi thành khác biệt).
+
+VII. Triển khai đa instance
+- Thêm ngoại lệ cho "bootstrap không có lock, như Directus": migration riêng của Backoffice chạy dưới lock dùng chung (Redis khi có cấu hình Redis), mỗi lúc một process; migration Directus trong bootstrap vẫn không có lock.
+
+Giữ nguyên V (test đối chiếu so dump DB, bỏ qua bảng backoffice_*, cột bo_* và dòng directus_fields của chúng).
+
+Cập nhật Sync Impact Report, .specify/templates/plan-template.md (dòng II, VII) và SPECKIT-GUIDE.md (prompt nguồn mục II, VII).
+```
+
 ---
 
 ## 5. Lộ trình feature
@@ -253,6 +277,7 @@ Làm theo thứ tự. Mỗi dòng là một lần `/speckit.specify`.
 | 019 | Đóng gói và triển khai đa instance (Docker, K8s)                                                                | 001, 012  | DevOps |
 | 020 | Extensions (API, app, marketplace, sandbox, nhiều instance)                                                     | 009–019   | BE, FE |
 | 021 | Chạy độc lập: khởi tạo DB, migration và CLI giống Directus                                                      | 001–019   | BE     |
+| 022 | Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng của Backoffice                              | 014, 021  | BE, FE |
 
 **Mẹo:** API mới giống hệt Directus, nên FE (012–018) có thể bắt đầu ngay, trỏ vào Directus thật. Khi BE xong thì đổi
 URL sang NestJS. Hai mảng chạy song song được.
@@ -510,6 +535,84 @@ Ghi chú đưa vào spec và plan 021:
   SchemaService của 006 được không.
 - Chia lượt khi `/speckit.tasks`: (1) bootstrap, database install, migrate; (2) các lệnh CLI còn lại; (3) deploy độc
   lập.
+
+### 022: Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng
+
+Trạng thái 2026-10-26: `specs/022-collection-ui-toggles/spec.md` và `checklists/requirements.md` đã viết, 10 câu hỏi đã
+chốt (mục Clarifications của spec), constitution 3.2.0 đã sửa. Bước tiếp theo bắt đầu từ bước 4; D-179..D-181 còn chờ
+duyệt.
+
+**Thứ tự chạy:**
+
+| Bước | Lệnh                                     | Model (mục 8)          | Ghi chú                                                                      |
+| ---- | ---------------------------------------- | ---------------------- | ---------------------------------------------------------------------------- |
+| 1    | `/speckit.specify` (prompt dưới)         | Opus 5.5, effort high  | Đã chạy 2026-10-26. Chạy lại chỉ khi muốn viết lại spec từ đầu.              |
+| 2    | `/speckit.constitution` (mục 4, cho 022) | Opus 5.5, effort high  | Đã chạy 2026-10-26 (3.2.0). D-179, D-180, D-181 còn chờ duyệt.               |
+| 3    | `/speckit.clarify`                       | Opus 5.5, effort high  | Bỏ qua được: 10 câu đã chốt ngày 2026-10-26.                                 |
+| 4    | `/speckit.plan` (prompt dưới)            | Opus 5.5, effort xhigh | Ra `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`. |
+| 5    | `/speckit.checklist`                     | Sonnet 5.5             | Tùy chọn.                                                                    |
+| 6    | `/speckit.tasks`                         | Sonnet 5.5             | Chia ba lượt (dưới).                                                         |
+| 7    | `/speckit.analyze`                       | Opus 5.5, effort high  | Sửa chỗ spec, plan, tasks lệch nhau trước khi code.                          |
+| 8    | `/speckit.implement`                     | Opus 5.5, effort high  | Mỗi lượt: test xanh, `graphify update .`, commit lên `main`, xem CI.         |
+
+**Lưu ý chung:**
+
+- Làm trên `main`, không tạo branch: `create-new-feature.sh` chạy `git checkout -b`, sẽ đổi branch của các session khác
+  dùng chung checkout. Thư mục `specs/022-*` là feature hiện tại nhờ quy tắc "thư mục số cao nhất".
+- Không stage `apps/api/project.json`, `apps/web/project.json` (thay đổi của session khác).
+
+**Prompt `/speckit.specify`:**
+
+```text
+/speckit.specify Ẩn hiện ô tìm kiếm, Import, Export theo từng collection trong module Content của Backoffice, kèm bộ migration riêng của Backoffice. Dữ liệu: thêm ba cột vào directus_collections: bo_show_search, bo_show_import, bo_show_export, boolean, mặc định true, cho phép null; null hoặc chưa có cột thì hiểu là hiện (như hiện nay). Admin sửa ba cài đặt trong form collection của Settings > Data Model; nhãn en-US, vi-VN lấy từ ba dòng directus_fields (interface boolean, width half), nên Backoffice và Directus app cùng hiện ba toggle. Cài đặt áp dụng cho mọi người dùng, kể cả admin. Ô tìm kiếm: khi bo_show_search tắt, trang /content/:collection chỉ ẩn ô nhập từ khóa, giữ nút bộ lọc (cùng popover, cùng badge số bộ lọc); không gửi từ khóa lấy từ preset, bookmark hay URL; preset giữ nguyên; bộ lọc vẫn áp dụng. Import, Export: khi bo_show_import tắt, mục Import/Export của detail panel không có phần import (chọn file, chạy nền, nút Import); khi bo_show_export tắt, không có nút Export và link tải CSV của trang hiện tại; cả hai tắt thì không có mục. Chỉ là giao diện: API search, export, /utils/import, /utils/export không đổi, quyền vẫn do permission. Phạm vi: chỉ trang collection của Content; DrawerCollection, module khác và Directus app không đổi. Migration riêng: thư mục riêng apps/api/src/database/backoffice-migrations (không chung 101 migration port từ Directus), trạng thái trong bảng hệ thống backoffice_migrations cùng dạng directus_migrations; không ghi directus_migrations. bootstrap tạo bảng nếu chưa có rồi chạy migration riêng còn thiếu, trên mọi vendor, sau khi migration Directus đã đủ, dưới lock dùng chung (Redis khi có cấu hình) để nhiều replica khởi động cùng lúc chỉ một process chạy; migration Directus chưa đủ thì không chạy. Mỗi migration chỉ có up, chỉ dùng knex, chạy được trên 7 vendor, chạy lại được; không có down, không có lệnh CLI riêng. Lúc start, migration riêng thiếu hoặc lạ thì dừng và báo rõ. Backoffice coi backoffice_migrations là collection hệ thống như directus_migrations (danh sách collection hệ thống của API, ẩn, không truy cập qua /items, nhóm hệ thống ở Data Model, không vào snapshot). Migration đầu tiên 20261026A thêm ba cột và ba dòng directus_fields. Chạy song song: Directus 11.17.4 trên cùng DB không cần file, biến môi trường hay cấu hình mới; khởi động, đăng nhập, đọc ghi collection, snapshot/diff/apply, migrate:latest|up|down như trước; GET /collections và GET /fields/directus_collections của hai app giống nhau trừ backoffice_migrations (Directus trả meta null); Directus thấy ba cột (ba toggle không có tác dụng ở Content của Directus app) và bảng backoffice_migrations trong danh sách bảng chưa quản lý. Ghi thành khác biệt D-179 (giao diện Content), D-180 (migration riêng), D-181 (backoffice_migrations là collection hệ thống). Test: unit cho ẩn hiện và bộ chạy migration; E2E Content ba cấu hình với admin và user thường; profile bootstrap chạy migration, chạy lại, ba replica cùng lúc, so dump với Directus bỏ qua backoffice_migrations, cột bo_* và dòng directus_fields của chúng; bộ đối chiếu, blackbox collections/fields/schema trên DB đã migrate; vendor khác chạy hằng đêm.
+```
+
+**Prompt `/speckit.plan`:** dán phần chung BE và FE ở mục 7, rồi thêm:
+
+```text
+Feature 022 có cả BE và FE. BE: bộ chạy migration riêng là file mới apps/api/src/database/backoffice-migrations/index.ts (danh sách import tĩnh, không readdir) và run.ts (chỉ latest trên backoffice_migrations, tạo bảng nếu chưa có, chạy trong useLock().usingLock('backoffice-migrations', ...) của apps/api/src/lock (redlock khi có Redis, local khi không), đọc lại bảng sau khi lấy lock, flushCaches(true) sau khi chạy như run.ts của Directus); không sửa migrations/run.ts và 101 file port (port.test.ts giữ nguyên); không thêm lệnh CLI. Nối vào cli/commands/bootstrap/index.ts (cuối nhánh Postgres/SQLite, và nhánh vendor D-145 khi migrationsValid), database/validate-migrations.ts (kiểm tra thêm backoffice_migrations: thiếu hoặc lạ thì dừng). backoffice_migrations là collection hệ thống: thêm vào libs/system-data/src/collections/collections.yaml (hidden) và sửa isSystemCollection của libs/system-data (đang chỉ nhận tiền tố directus_) và của apps/web/src/stores/collections.ts. Migration 20261026A: hasColumn trước khi thêm cột, kiểm tra dòng directus_fields trước khi insert. FE: prop showSearch cho components/SearchInput.vue (giống showFilter: ẩn nút search, input, nút xóa; pill w-11; activate không mở khi tắt); prop showImport, showExport cho components/sidebar/ExportSidebarDetail.vue (phần import đang ở v-if="createAllowed", phần export gồm nút Export và link CSV); modules/content/routes/CollectionRoute.vue đọc meta.bo_show_search, meta.bo_show_import, meta.bo_show_export (!== false), activeSearch thay search cho layout wrapper và ExportSidebarDetail, v-if="showImport || showExport" cho ExportSidebarDetail. Test: dump của profile bootstrap (tests/parity/src/bootstrap) và cli.test.ts bỏ qua phần của Backoffice; bộ đối chiếu collections bỏ qua backoffice_migrations; test migration chạy trên SQLite in-memory.
+```
+
+Quyết định của owner (2026-10-26):
+
+| Câu hỏi                              | Chốt                                                                                     |
+| ------------------------------------ | ---------------------------------------------------------------------------------------- |
+| Tạo cột bằng cách nào                | Migration riêng của Backoffice (không tạo qua API fields)                                |
+| Bảng theo dõi migration              | `backoffice_migrations` riêng: nhiều migration về sau, không đụng Directus cũ            |
+| Tắt ô tìm kiếm thì ẩn gì             | Chỉ ô nhập từ khóa, giữ nút bộ lọc                                                       |
+| Admin có bị ẩn không                 | Có, ẩn với mọi người                                                                     |
+| Import và Export                     | Hai cài đặt riêng: `bo_show_import`, `bo_show_export`                                    |
+| Tắt Export thì link CSV của trang    | Ẩn theo                                                                                  |
+| DrawerCollection                     | Không theo cài đặt, chỉ trang Content                                                    |
+| Nhiều replica khởi động cùng lúc     | Lock qua Redis                                                                           |
+| Lệnh CLI cho migration riêng         | Không có, chỉ chạy trong `bootstrap`; không có down                                      |
+| `backoffice_migrations` ở Data Model | Backoffice coi là bảng hệ thống như `directus_*` (D-181); Directus vẫn thấy chưa quản lý |
+
+Ghi chú đưa vào spec và plan 022 (đọc code ngày 2026-10-26, chưa chạy thử):
+
+- Directus nạp schema chỉ đọc 5 cột của `directus_collections` (`directus/api/src/utils/get-schema.ts:129-131`), nên cột
+  thêm không ảnh hưởng schema cache. `GET /collections` đọc bảng qua ItemsService không giới hạn field
+  (`services/collections.ts:319-329`), nên `meta` có ba khóa mới; quyền app-access đọc với `fields: ['*']`.
+- Lý do không ghi `directus_migrations`: `migrate:down` của Directus báo `Couldn't find migration` khi dòng chạy cuối
+  không có file (`database/migrations/run.ts:97-106`); `migrate:up` một bước có thể bỏ qua migration Directus có version
+  nhỏ hơn (`run.ts:61-72`).
+- Bảng không có dòng `directus_collections`: API trả về với `meta: null` (`services/collections.ts:382-391`), Data Model
+  của Directus app liệt kê (`app/src/modules/settings/routes/data-model/collections/collections.vue:108`), snapshot bỏ
+  qua (`utils/get-snapshot.ts:71-74`). Backoffice coi `backoffice_migrations` là collection hệ thống (D-181), nên
+  `GET /collections` của hai app khác nhau ở dòng này.
+- Lock: `useLock()` (`apps/api/src/lock/lib/use-lock.ts`) có `usingLock`; bản Redis dùng redlock thử 100 lần cách 50 ms
+  (`libs/memory/src/kv/lib/redis.ts:72-74`), nên replica chờ quá khoảng 5 giây sẽ lỗi và container khởi động lại
+  [Inference].
+- `isSystemCollection` của `libs/system-data` và `apps/web/src/stores/collections.ts` hiện chỉ nhận tiền tố `directus_`.
+- Image Backoffice chạy `node cli.js bootstrap && exec node cli.js start` (`apps/api/Dockerfile:75`); nhánh vendor ngoài
+  Postgres, SQLite của `bootstrap` thoát sớm (`apps/api/src/cli/commands/bootstrap/index.ts:29-42`).
+- `SearchInput.vue` đã có prop `showFilter`; `CollectionRoute.vue` dùng `SearchInput` (khoảng dòng 409) và
+  `ExportSidebarDetail` (khoảng dòng 552, phần import trong `v-if="createAllowed"`, phần export gồm nút Export và link
+  CSV).
+- Chia lượt khi `/speckit.tasks`: (1) BE: bộ chạy migration có lock, migration 20261026A, bootstrap, kiểm tra lúc start,
+  `backoffice_migrations` là collection hệ thống, test SQLite, cập nhật profile `bootstrap`; (2) FE: `SearchInput`,
+  `ExportSidebarDetail`, `CollectionRoute`, `isSystemCollection` của web, unit và E2E Content; (3) đối chiếu
+  collections/fields/schema trên DB đã migrate, vendor khác hằng đêm.
 
 ---
 
