@@ -5,7 +5,7 @@
 **Created**: 2026-10-26
 **Status**: Implemented 2026-10-26, ba lượt trên `main` (`a948e3f0`..`173403ae`), CI 40308977164 xanh, parity-matrix
 40320127600 và benchmark-web 40320123598 xanh (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa
-2026-10-26; D-179..D-182 duyệt 2026-10-26, chủ dự án kiêm tech lead; CI tạm chỉ Postgres, SQLite)
+2026-10-26; D-179..D-182 duyệt 2026-10-26, chủ dự án kiêm tech lead; MySQL tạm bỏ khỏi CI rồi bật lại cùng ngày)
 **Input**: User description: "hỗ trợ tôi viết speckit làm tính năng mở rộng cho backoffice, với chức năng thêm 2 trường
 mới vào directus_collections để cấu hình ẩn hiện khung search và ẩn hiện nút inport export, thêm xem có thể chạy song
 song với directus cũ"
@@ -300,7 +300,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 - CI tạm thời bỏ các test có vendor DB khác Postgres và SQLite: dòng MySQL của ma trận `parity` trong `ci.yml` và
   MySQL của `blackbox-full` trong `parity-matrix.yml` (`nightly.yml` vốn chỉ chạy tay). SC-006 và T043 chỉ còn Postgres,
-  SQLite; bật lại theo chú thích trong hai workflow.
+  SQLite; bật lại theo chú thích trong hai workflow. Cùng ngày chủ dự án bật lại MySQL ở cả hai workflow (kết quả ở
+  research "Kết quả lượt 3").
 
 - Q: Sau lượt 2, nhóm System Collections của Data Model có hai dòng cùng tên "backoffice_migrations": `directus_migrations`
   hiển thị theo D-118 và bảng thật (CI 40298326039, `settings-parity-ui.spec.ts`). Xử lý thế nào? → A: Data Model của
@@ -346,4 +347,5 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   `backoffice_migrations`.
 - **SC-006**: Migration riêng chạy lần đầu và chạy lại không lỗi trên 7 vendor (Postgres, SQLite ở mọi PR; vendor khác
   hằng đêm); ba replica khởi động cùng lúc cho đúng một dòng mỗi migration; `directus_migrations` giống hệt trước và sau.
-  Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite; phần "vendor khác" của SC-006 chưa kiểm cho tới khi bật lại.
+  Chủ dự án 2026-10-26: MySQL tạm bỏ khỏi CI rồi bật lại cùng ngày; MariaDB, MSSQL, Oracle, CockroachDB chỉ có ở
+  `nightly.yml` (chạy tay).

@@ -56,8 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # Owner 2026-10-26: only Postgres and SQLite for now; to turn MySQL back on: [mysql, sqlite3].
-        vendor: [sqlite3]
+        vendor: [mysql, sqlite3]
         # Feature 006 (FR-064): the model of the seeds made through Directus, then through the new app.
         setup: [directus, backoffice]
     env:

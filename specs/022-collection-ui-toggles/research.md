@@ -318,7 +318,8 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   chỉ có code lượt 1, nên không có kết quả cho web lượt 2 và lượt 3.
 - CI 40308977164 (`173403ae`, ba lượt và sửa Data Model): xanh hết sau khi chạy lại `quality` (lần 1 đỏ ở hai test
   browser chạy local đạt: `Kanban.browser.test.ts` "a viewer gets no card or column menus", flake đã biết, và
-  `keyboard.browser.test.ts` đổi độ rộng cột). Không còn job MySQL (CI tạm chỉ Postgres, SQLite).
+  `keyboard.browser.test.ts` đổi độ rộng cột). Không có job MySQL (CI tạm chỉ Postgres, SQLite; bật lại sau
+  đó cùng ngày).
 - T043: `parity-matrix` 40320127600 xanh (4 shard ma trận quyền Postgres, `blackbox-full` SQLite với seed của cả hai
   app); vendor khác bỏ theo chủ dự án. `benchmark-web` 40320123598 xanh; trang Content (items 10 triệu dòng): request
   list + count bằng nhau ở Directus app, web → Directus và web → API (trang đầu 1 + 1, trang sau 1 + 0, sort 2 + 0,

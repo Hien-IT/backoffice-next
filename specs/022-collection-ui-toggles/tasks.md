@@ -288,7 +288,8 @@ collection có ba toggle với nhãn en-US/vi-VN.
 - [X] T043 [P] Chạy `gh workflow run parity-matrix.yml` (vendor MySQL, MariaDB, MSSQL, Oracle, CockroachDB: nhánh D-145
       chạy migration riêng, SC-006) và `gh workflow run benchmark.yml -f job=benchmark-web` (trang Content không thêm
       request); ghi kết quả vào `research.md` "Kết quả lượt 3". Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite,
-      phần vendor khác bỏ cho tới khi bật lại; `parity-matrix.yml` còn ma trận quyền Postgres và blackbox SQLite.
+      phần vendor khác bỏ cho tới khi bật lại; `parity-matrix.yml` còn ma trận quyền Postgres và blackbox SQLite. MySQL
+      bật lại cùng ngày.
 - [X] T044 [P] Thêm mục "Migration riêng của Backoffice" vào `deploy/README.md` theo `quickstart.md` (bootstrap tự chạy,
       lock, vendor khác, `start` báo thiếu, rollback tay, D-181, `DB_EXCLUDE_TABLES` tùy chọn, nâng Directus phải grep
       `bo_`/`backoffice_`).

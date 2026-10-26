@@ -540,7 +540,7 @@ Ghi chú đưa vào spec và plan 021:
 
 Trạng thái 2026-10-26: đã xong. Ba lượt trên `main` (`a948e3f0`..`173403ae`), 46/46 task, CI 40308977164 xanh,
 parity-matrix 40320127600 và benchmark-web 40320123598 xanh; D-179..D-182 đã duyệt (D-182: tiêu đề card ba toggle chỉ
-ở web). Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite. Kết quả từng lượt ở `research.md` "Kết quả lượt
+ở web). Chủ dự án 2026-10-26: MySQL tạm bỏ khỏi CI rồi bật lại cùng ngày. Kết quả từng lượt ở `research.md` "Kết quả lượt
 1/2/3".
 
 **Thứ tự chạy:**
