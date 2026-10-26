@@ -297,6 +297,10 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 
 ### Khi implement lượt 3 (2026-10-26, chủ dự án)
 
+- CI tạm thời bỏ các test có vendor DB khác Postgres và SQLite: dòng MySQL của ma trận `parity` trong `ci.yml` và
+  MySQL của `blackbox-full` trong `parity-matrix.yml` (`nightly.yml` vốn chỉ chạy tay). SC-006 và T043 chỉ còn Postgres,
+  SQLite; bật lại theo chú thích trong hai workflow.
+
 - Q: Sau lượt 2, nhóm System Collections của Data Model có hai dòng cùng tên "backoffice_migrations": `directus_migrations`
   hiển thị theo D-118 và bảng thật (CI 40298326039, `settings-parity-ui.spec.ts`). Xử lý thế nào? → A: Data Model của
   Backoffice không liệt kê bảng thật; API vẫn coi nó là collection hệ thống (D-181). Sửa FR-017, US4-6, D-181 viết khi
@@ -341,3 +345,4 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   `backoffice_migrations`.
 - **SC-006**: Migration riêng chạy lần đầu và chạy lại không lỗi trên 7 vendor (Postgres, SQLite ở mọi PR; vendor khác
   hằng đêm); ba replica khởi động cùng lúc cho đúng một dòng mỗi migration; `directus_migrations` giống hệt trước và sau.
+  Chủ dự án 2026-10-26: CI tạm chỉ chạy Postgres và SQLite; phần "vendor khác" của SC-006 chưa kiểm cho tới khi bật lại.

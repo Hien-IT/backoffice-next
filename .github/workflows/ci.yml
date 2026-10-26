@@ -114,13 +114,9 @@ jobs:
               storages: 'local,s3',
             }
           # Feature 005 (spec FR-041): the reduced blackbox port (integer keys) runs on the blackbox pair after `reduced`.
-          - {
-              vendor: mysql,
-              suite: reduced,
-              profiles: 'blackbox,assets-limit,assets-stress,cache-mem',
-              blackbox: integer,
-              storages: s3,
-            }
+          # Owner 2026-10-26: only Postgres and SQLite for now. To turn MySQL back on, add:
+          #   - { vendor: mysql, suite: reduced, profiles: 'blackbox,assets-limit,assets-stress,cache-mem',
+          #       blackbox: integer, storages: s3 }
           # Spec 021: profile bootstrap (two empty databases, one per app) on Postgres (full) and SQLite (reduced).
           - {
               vendor: sqlite3,
