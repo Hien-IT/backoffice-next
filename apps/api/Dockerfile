@@ -39,7 +39,9 @@ EOF
 FROM node:${NODE_VERSION} AS runtime
 
 # FR-026: Node as PID 1 does not reap orphaned children (zombies); tini does and forwards signals to Node.
-RUN apk add --no-cache tini
+# D-183: /directus links to /backoffice, so extensions that load files of the DR image by absolute path
+# (createRequire('/directus/package.json'), /directus/node_modules/.pnpm/...) find the same files here.
+RUN apk add --no-cache tini && ln -s /backoffice /directus
 
 # FR-020, FR-025: uid/gid 1000 (`node`) like the DR image, so files on a shared volume keep one owner.
 USER node

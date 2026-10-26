@@ -162,6 +162,19 @@ describe.skipIf(SEPARATE || STANDALONE)('BE image in place of the Directus image
 		expect(docker('exec', swapped.id, 'node', 'cli.js', '--help')).toContain('Usage: backoffice [command] [options]');
 	});
 
+	it('resolves the DR image paths an extension may hard-code: /directus links to /backoffice (D-183)', () => {
+		// As directus-extension-password-policy loads argon2: from /directus/package.json, else the pnpm store path.
+		const script = [
+			"import { createRequire } from 'node:module';",
+			"const require = createRequire('/directus/package.json');",
+			"const argon2 = require('argon2');",
+			"const stored = require('/directus/node_modules/.pnpm/argon2@0.44.0/node_modules/argon2');",
+			"console.log(argon2 === stored && (await argon2.verify(await argon2.hash('p'), 'p')));",
+		].join('\n');
+		expect(docker('exec', swapped.id, 'readlink', '/directus').trim()).toBe('/backoffice');
+		expect(docker('exec', swapped.id, 'node', '--input-type=module', '-e', script).trim()).toBe('true');
+	});
+
 	it('ends with 143 after the shutdown sequence on SIGTERM', () => {
 		docker('stop', '-t', '30', swapped.id);
 		expect(docker('inspect', swapped.id, '--format', '{{.State.ExitCode}}')).toBe('143');
