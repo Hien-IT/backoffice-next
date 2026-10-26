@@ -5,7 +5,7 @@
 import type { Field } from '@directus/types';
 import { page, userEvent } from '@vitest/browser/context';
 import { enableAutoUnmount, flushPromises, mount } from '@vue/test-utils';
-import { createPinia, setActivePinia } from 'pinia';
+import { createPinia, type Pinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, test, vi } from 'vitest';
 import { defineComponent, h, ref } from 'vue';
 import { createMemoryHistory, createRouter } from 'vue-router';
@@ -138,10 +138,13 @@ describe('Kanban layout', () => {
 
 let fetch: ReturnType<typeof mockFixtureApi>;
 
+let pinia: Pinia;
+
 async function setup(user: FixtureUser = 'admin') {
 	vi.unstubAllGlobals();
 	await replaceQueue();
-	setActivePinia(createPinia());
+	pinia = createPinia();
+	setActivePinia(pinia);
 	fetch = mockFixtureApi(loadSnapshot(), { user });
 	await useUserStore().hydrate();
 	await Promise.all([
@@ -187,7 +190,9 @@ async function mountLayout(collection = 'bo_content', initial: { layoutOptions?:
 
 	const router = createRouter({ history: createMemoryHistory(), routes: [{ path: '/:p(.*)*', component: {} }] });
 	await router.push(`/content/${collection}`);
-	const wrapper = mount(Harness, { global: { plugins: [router, i18n] }, attachTo: document.body });
+	// The test pinia is installed in the app: a late action of an earlier pinia (beforeEach as admin) resets the active
+	// pinia, and stores read without it would show admin permissions to the viewer (CI 40308977164).
+	const wrapper = mount(Harness, { global: { plugins: [router, i18n, pinia] }, attachTo: document.body });
 	await vi.waitFor(() => expect(document.querySelectorAll('[data-card]').length).toBeGreaterThan(0));
 	await flushPromises();
 
@@ -349,8 +354,7 @@ test('a viewer gets no card or column menus and no add column', async () => {
 	await setup('bo-viewer');
 	await mountLayout('bo_groups', { layoutOptions: { groupField: 'target', groupTitle: 'name' } });
 
-	// The viewer's permissions can land after the first cards on a loaded runner (run 39076577997).
-	await vi.waitFor(() => expect(document.querySelector('.card-menu')).toBeNull(), { timeout: 5000 });
+	expect(document.querySelector('.card-menu')).toBeNull();
 	expect(
 		[...document.querySelectorAll('button')].some((b) => b.textContent?.includes(t('layouts.kanban.add_group'))),
 	).toBe(false);
