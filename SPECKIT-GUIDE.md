@@ -539,15 +539,15 @@ Ghi chú đưa vào spec và plan 021:
 ### 022: Ẩn hiện ô tìm kiếm, Import, Export theo collection, migration riêng
 
 Trạng thái 2026-10-26: `specs/022-collection-ui-toggles/spec.md` và `checklists/requirements.md` đã viết, 10 câu hỏi đã
-chốt (mục Clarifications của spec), constitution 3.2.0 đã sửa. Bước tiếp theo bắt đầu từ bước 4; D-179..D-181 còn chờ
-duyệt.
+chốt (mục Clarifications của spec), constitution 3.2.0 đã sửa, plan và tasks (46 task, ba lượt) đã viết, D-179..D-181 đã
+duyệt. Bước tiếp theo bắt đầu từ bước 7 (`/speckit.analyze`).
 
 **Thứ tự chạy:**
 
 | Bước | Lệnh                                     | Model (mục 8)          | Ghi chú                                                                      |
 | ---- | ---------------------------------------- | ---------------------- | ---------------------------------------------------------------------------- |
 | 1    | `/speckit.specify` (prompt dưới)         | Opus 5.5, effort high  | Đã chạy 2026-10-26. Chạy lại chỉ khi muốn viết lại spec từ đầu.              |
-| 2    | `/speckit.constitution` (mục 4, cho 022) | Opus 5.5, effort high  | Đã chạy 2026-10-26 (3.2.0). D-179, D-180, D-181 còn chờ duyệt.               |
+| 2    | `/speckit.constitution` (mục 4, cho 022) | Opus 5.5, effort high  | Đã chạy 2026-10-26 (3.2.0). D-179, D-180, D-181 duyệt 2026-10-26.            |
 | 3    | `/speckit.clarify`                       | Opus 5.5, effort high  | Bỏ qua được: 10 câu đã chốt ngày 2026-10-26.                                 |
 | 4    | `/speckit.plan` (prompt dưới)            | Opus 5.5, effort xhigh | Ra `plan.md`, `research.md`, `data-model.md`, `contracts/`, `quickstart.md`. |
 | 5    | `/speckit.checklist`                     | Sonnet 5.5             | Tùy chọn.                                                                    |

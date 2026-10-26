@@ -3,8 +3,8 @@
 **Feature Branch**: `022-collection-ui-toggles` (làm trên `main` như 012–021, không tạo branch; script `.specify` cần
 `SPECIFY_FEATURE=022-collection-ui-toggles`)
 **Created**: 2026-10-26
-**Status**: Draft (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa 2026-10-26; chờ duyệt
-D-179..D-181)
+**Status**: Planned (10 câu hỏi đã chốt với chủ dự án 2026-10-26; constitution 3.2.0 đã sửa 2026-10-26; D-179..D-181
+duyệt 2026-10-26, chủ dự án kiêm tech lead)
 **Input**: User description: "hỗ trợ tôi viết speckit làm tính năng mở rộng cho backoffice, với chức năng thêm 2 trường
 mới vào directus_collections để cấu hình ẩn hiện khung search và ẩn hiện nút inport export, thêm xem có thể chạy song
 song với directus cũ"
@@ -17,7 +17,7 @@ song với directus cũ"
     `bo_` vào bảng `directus_*` và dòng `directus_fields` của các cột đó; KHÔNG ĐƯỢC ghi `directus_migrations`. D-145
     (021) sửa: migration riêng chạy trên mọi vendor.
   - Nguyên tắc VII ("bootstrap không có lock, như Directus"): thêm ngoại lệ, migration riêng chạy dưới lock.
-- Khác biệt so với Directus D-179, D-180, D-181: chủ dự án kiêm tech lead duyệt.
+- Khác biệt so với Directus D-179, D-180, D-181: chủ dự án kiêm tech lead duyệt 2026-10-26 (sau `/speckit.plan`).
 
 ## User Scenarios & Testing *(mandatory)*
 
@@ -227,11 +227,11 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 
 | Hạng mục | Directus 11.17.4 | App mới | Lý do | Loại (đổi thương hiệu / ngoài phạm vi / khác) |
 |----------|------------------|---------|-------|-----------------------------------------------|
-| D-179 Ô tìm kiếm trang Content | Luôn hiện | Ẩn ô nhập từ khóa khi `bo_show_search` tắt, giữ nút bộ lọc | Yêu cầu chủ dự án 2026-10-26 | khác (chờ duyệt) |
-| D-179 Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (chờ duyệt) |
-| D-180 Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; cần constitution 3.2.0, sửa D-145 | khác (chờ duyệt) |
-| D-181 `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, Data Model liệt kê | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, Data Model không liệt kê (như `directus_migrations`) | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (chờ duyệt) |
-| Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (chờ duyệt) |
+| D-179 Ô tìm kiếm trang Content | Luôn hiện | Ẩn ô nhập từ khóa khi `bo_show_search` tắt, giữ nút bộ lọc | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) |
+| D-179 Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) |
+| D-180 Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; cần constitution 3.2.0, sửa D-145 | khác (duyệt 2026-10-26) |
+| D-181 `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, Data Model liệt kê | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, Data Model không liệt kê (như `directus_migrations`) | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) |
+| Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (duyệt 2026-10-26) |
 
 **Cần xác nhận**:
 
@@ -255,6 +255,11 @@ và bảng `backoffice_migrations` trong danh sách bảng chưa quản lý củ
 - Q: Migration riêng có lệnh CLI không? → A: không, chỉ chạy trong `bootstrap`; không có `down` (FR-013, FR-014).
 - Q: `backoffice_migrations` hiện trong Data Model thế nào? → A: Backoffice coi nó là bảng hệ thống như các bảng
   `directus_*` (FR-017, D-181).
+
+### Duyệt 2026-10-26 (chủ dự án kiêm tech lead)
+
+- D-179 (giao diện Content), D-180 (migration riêng), D-181 (`backoffice_migrations` là collection hệ thống) và dòng
+  "Directus app với ba trường": duyệt sau `/speckit.plan`, gồm các câu chữ sửa khi plan ở dưới.
 
 ### Sửa câu chữ khi `/speckit.plan` (2026-10-26, research.md "Sửa spec khi plan")
 

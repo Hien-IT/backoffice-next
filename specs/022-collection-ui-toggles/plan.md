@@ -88,7 +88,7 @@ a row in Complexity Tracking.
 - [x] IX. PASS: comment "DR"; nhãn toggle là chuỗi của Backoffice (không có trong Directus); bảng `backoffice_*`, cột
   `bo_*` là tên mới, không đổi tên gì của Directus.
 - [x] X. PASS: coverage qua unit test R8; hiệu năng không đổi (không request thêm); log pino cho migration riêng;
-  không email; khác biệt D-179..D-181 trong spec (chờ duyệt).
+  không email; khác biệt D-179..D-181 trong spec (duyệt 2026-10-26).
 - [x] XI. PASS: không chạm mục ngoài phạm vi.
 - [x] XII. PASS: prop mới không thêm style; pill `w-11` là class có sẵn của `SearchInput`; không hex, không palette
   ngoài theme; không màn hình mới; `design-system/docs/component-specs.md` không cần thêm mục (không component mới).
@@ -160,4 +160,4 @@ project Nx mới; parity và deploy ở `tests/parity` như 019–021; E2E trong
 > **Fill ONLY if Constitution Check has violations that must be justified**
 
 Không có vi phạm: II và VII đi theo ngoại lệ 3.2.0 (chủ dự án yêu cầu 2026-10-26); D-179..D-181 là khác biệt ghi trong
-spec theo X, chờ duyệt.
+spec theo X, duyệt 2026-10-26.
