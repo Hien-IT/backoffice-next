@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
 import type { AcceptedDifference, Matcher } from '../accepted-differences.js';
+import { getDbsToTest } from './get-dbs-to-test.js';
 import { normalizeBody, normalizeHeader, normalizeText, sortIntrospectionTypes } from './normalizers.js';
 
 export interface ParityRequest {
@@ -217,9 +218,13 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 		let a = normalizeBody(path, directus.json);
 		let b = normalizeBody(path, backoffice.json);
 
-		// D-181: graphql-js lists introspection types in traversal order from Query, whose first fields at Directus are
-		// the backoffice_migrations ones: with them left out, the types are compared by name.
-		if (backofficeCollections && /^\/graphql(\?|$)/.test(path)) {
+		// D-181: graphql-js lists introspection types in traversal order from Query (and Subscription), where Directus has
+		// the backoffice_migrations fields in table order: first in the items scope (every vendor), and in the system
+		// scope where the catalog has no table order (MySQL, CI 40298326039; not Postgres or SQLite, compared verbatim
+		// there): with them left out, the types are compared by name.
+		const systemByName = /^\/graphql\/system(\?|$)/.test(path) && !['postgres', 'sqlite3'].includes(getDbsToTest()[0]!);
+
+		if (backofficeCollections && (/^\/graphql(\?|$)/.test(path) || systemByName)) {
 			a = sortIntrospectionTypes(a);
 			b = sortIntrospectionTypes(b);
 		}
@@ -228,7 +233,12 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 	} else if (/^\/server\/specs\/graphql(\/system)?$/.test(path)) {
 		// D-181: the SDL download (application/octet-stream) is text; compared byte for byte without backoffice_migrations.
 		if (normalizeText(directus.text) !== normalizeText(backoffice.text)) {
-			differences.push({ kind: 'body', location: '', directus: bodyDigest(directus), backoffice: bodyDigest(backoffice) });
+			differences.push({
+				kind: 'body',
+				location: '',
+				directus: bodyDigest(directus),
+				backoffice: bodyDigest(backoffice),
+			});
 		}
 	} else if (isBinary(directus) || isBinary(backoffice)) {
 		const a = bodyDigest(directus);

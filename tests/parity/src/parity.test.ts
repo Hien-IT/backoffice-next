@@ -1,6 +1,6 @@
 import http from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { afterAll, beforeAll, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, describe, expect, test, vi } from 'vitest';
 import type { AcceptedDifference } from '../accepted-differences.js';
 import {
 	assertParity,
@@ -147,7 +147,12 @@ describe('compare()', () => {
 	});
 
 	test('spec 022 D-181: no ETag compare when one body lists backoffice_migrations, or on a HEAD of the SDL route', () => {
-		const json = (data: unknown[]) => ({ ...base, isJson: true, json: { data }, headers: { etag: `W/"${data.length}-x"` } });
+		const json = (data: unknown[]) => ({
+			...base,
+			isJson: true,
+			json: { data },
+			headers: { etag: `W/"${data.length}-x"` },
+		});
 		const directus = json([{ collection: 'articles' }, { collection: 'backoffice_migrations' }]);
 		const backoffice = json([{ collection: 'articles' }]);
 		directus.text = JSON.stringify(directus.json);
@@ -156,7 +161,12 @@ describe('compare()', () => {
 		expect(compare('GET /collections', directus, backoffice)).toEqual([]);
 
 		// The SDL download is octet-stream: compared as text without backoffice_migrations, not by its sha256.
-		const sdl = (text: string) => ({ ...base, text, bytes: Buffer.from(text), headers: { 'content-type': 'application/octet-stream' } });
+		const sdl = (text: string) => ({
+			...base,
+			text,
+			bytes: Buffer.from(text),
+			headers: { 'content-type': 'application/octet-stream' },
+		});
 		const query = 'type Query {\n  articles: [articles]\n}';
 		expect(
 			compare(
@@ -177,12 +187,41 @@ describe('compare()', () => {
 			const captured = { ...base, isJson: true, headers: {}, json: { data: { __schema: { types } } } };
 			return { ...captured, text: JSON.stringify(captured.json) };
 		};
-		const directus = schema([{ name: 'Query' }, { name: 'backoffice_migrations' }, { name: 'ID' }, { name: 'articles' }]);
+		const directus = schema([
+			{ name: 'Query' },
+			{ name: 'backoffice_migrations' },
+			{ name: 'ID' },
+			{ name: 'articles' },
+		]);
 		const backoffice = schema([{ name: 'Query' }, { name: 'articles' }, { name: 'ID' }]);
 
 		expect(compare('POST /graphql', directus, backoffice)).toEqual([]);
+		// The system scope on MySQL (CI 40298326039): EventEnum found through backoffice_migrations_mutated first; types by
+		// name there, verbatim on Postgres and SQLite.
+		const system = () =>
+			compare(
+				'POST /graphql/system',
+				schema([
+					{ name: 'Subscription' },
+					{ name: 'backoffice_migrations_mutated' },
+					{ name: 'EventEnum' },
+					{ name: 'directus_access_mutated' },
+				]),
+				schema([{ name: 'Subscription' }, { name: 'directus_access_mutated' }, { name: 'EventEnum' }]),
+			);
+		vi.stubEnv('TEST_DB', 'mysql');
+		expect(system()).toEqual([]);
+		vi.stubEnv('TEST_DB', 'postgres');
+		expect(system()).not.toEqual([]);
+		vi.unstubAllEnvs();
 		// Without backoffice_migrations at either side the order is compared as before.
-		expect(compare('POST /graphql', schema([{ name: 'Query' }, { name: 'ID' }]), schema([{ name: 'ID' }, { name: 'Query' }]))).not.toEqual([]);
+		expect(
+			compare(
+				'POST /graphql',
+				schema([{ name: 'Query' }, { name: 'ID' }]),
+				schema([{ name: 'ID' }, { name: 'Query' }]),
+			),
+		).not.toEqual([]);
 	});
 
 	test('compares access-control-* headers and Retry-After by format', () => {

@@ -1,7 +1,7 @@
 // Backoffice (spec 022, D-179, D-180): migration 20261026A on SQLite in memory, on the tables the seeds create.
 import { createInspector } from '@backoffice/schema';
 import knex, { type Knex } from 'knex';
-import { afterEach, beforeEach, expect, test } from 'vitest';
+import { afterEach, beforeEach, expect, test, vi } from 'vitest';
 import runSeed from '../seeds/run.js';
 import { name, up, version } from './20261026A-add-collection-ui-toggles.js';
 
@@ -45,7 +45,10 @@ test('adds three nullable boolean columns defaulting to true; existing rows get 
 		expect(String(info!.default_value), column).toMatch(/^(true|1|'1')$/);
 	}
 
-	const [row] = await db.select(...COLUMNS).from('directus_collections').where({ collection: 'articles' });
+	const [row] = await db
+		.select(...COLUMNS)
+		.from('directus_collections')
+		.where({ collection: 'articles' });
 	expect(COLUMNS.map((c) => Boolean(row[c]))).toEqual([true, true, true]);
 });
 
@@ -100,6 +103,23 @@ test('runs again without error and without duplicate rows (FR-014)', async () =>
 	await up(db);
 
 	expect(await fieldRows()).toHaveLength(3);
+});
+
+// CI 40298326039: two processes without a shared lock run up at once (profile schema-cache-nomsg, no Redis).
+test('concurrent runs: a column another process added first and its duplicate field rows are not errors', async () => {
+	// This process read "no column" just before the other one added it.
+	await db.schema.alterTable('directus_collections', (table) => table.boolean('bo_show_search').defaultTo(true));
+	const hasColumn = vi.spyOn(db.schema, 'hasColumn').mockResolvedValueOnce(false);
+	// Both processes inserted the row of bo_show_import.
+	const row = { collection: 'directus_collections', field: 'bo_show_import', interface: 'boolean' };
+	await db.insert([row, row]).into('directus_fields');
+
+	await up(db);
+	hasColumn.mockRestore();
+
+	expect(await fieldRows()).toHaveLength(3);
+	const columns = (await createInspector(db).columnInfo('directus_collections')).map((c) => c.name);
+	expect(columns).toEqual(expect.arrayContaining(COLUMNS));
 });
 
 test('a column created before (schema apply) is kept; the missing ones and the rows are added', async () => {

@@ -99,6 +99,33 @@ test('a failing up writes no row and throws; the earlier ones stay', async () =>
 	expect(flushCaches).not.toHaveBeenCalled();
 });
 
+// CI 40298326039: profiles without Redis (schema-cache-nomsg) take an in-process lock only, so several processes on
+// one database run the same steps at once; a step another process did first is not an error.
+test('without a shared lock: the table and the row another process wrote first are not errors', async () => {
+	lock.usingLock.mockImplementationOnce(async (_key, callback) => {
+		const createTable = db.schema.createTable.bind(db.schema);
+		// The other process creates the table between this one's hasTable and createTable.
+		vi.spyOn(db.schema, 'hasTable').mockResolvedValueOnce(false);
+		await createTable(TABLE, (table) => {
+			table.string('version', 255).primary();
+			table.string('name', 255).notNullable();
+			table.timestamp('timestamp').defaultTo(db.fn.now());
+		});
+		return callback();
+	});
+
+	const racing = migration('20261026A', async () => {
+		applied.push('20261026A');
+		// The other process ran the same migration and wrote its row while this one ran up.
+		await db.insert({ version: '20261026A', name: 'Migration 20261026A' }).into(TABLE);
+	});
+
+	await runBackofficeMigrations(db, [racing]);
+
+	expect(applied).toEqual(['20261026A']);
+	expect(await versions()).toEqual(['20261026A']);
+});
+
 test('reads the table again under the lock: a migration another process ran while waiting is not run twice', async () => {
 	lock.usingLock.mockImplementationOnce(async (_key, callback) => {
 		// The other replica held the lock first: it created the table and ran 20261026A.

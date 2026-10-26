@@ -15,9 +15,14 @@ const FIELDS = [
 export async function up(knex: Knex): Promise<void> {
 	for (const { field, en, vi } of FIELDS) {
 		if (!(await knex.schema.hasColumn('directus_collections', field))) {
-			await knex.schema.alterTable('directus_collections', (table) => {
-				table.boolean(field).defaultTo(true);
-			});
+			try {
+				await knex.schema.alterTable('directus_collections', (table) => {
+					table.boolean(field).defaultTo(true);
+				});
+			} catch (error) {
+				// Another process without a shared lock added it first (CI 40298326039).
+				if (!(await knex.schema.hasColumn('directus_collections', field))) throw error;
+			}
 		}
 
 		const row = await knex.select('id').from('directus_fields').where({ collection: 'directus_collections', field });
@@ -38,6 +43,22 @@ export async function up(knex: Knex): Promise<void> {
 					]),
 				})
 				.into('directus_fields');
+		}
+
+		// Two processes without a shared lock may both have inserted it: keep the first row.
+		const rows = await knex
+			.select('id')
+			.from('directus_fields')
+			.where({ collection: 'directus_collections', field })
+			.orderBy('id');
+
+		if (rows.length > 1) {
+			await knex('directus_fields')
+				.whereIn(
+					'id',
+					rows.slice(1).map((r) => r.id),
+				)
+				.delete();
 		}
 	}
 }
