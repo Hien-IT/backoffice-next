@@ -14,6 +14,8 @@ import { useUserStore } from '../../../stores/user.ts';
 import type { AppUser } from '../../../types/user.ts';
 import CollectionRoute from './CollectionRoute.vue';
 import PageHeader from '../../../layout/PageHeader.vue';
+import SearchInput from '../../../components/SearchInput.vue';
+import ExportSidebarDetail from '../../../components/sidebar/ExportSidebarDetail.vue';
 
 vi.mock('../../../layouts/index.ts', () => {
 	const slot = (name: string) =>
@@ -132,5 +134,67 @@ describe('CollectionRoute', () => {
 
 		expect(wrapper.get('h1').text()).toBe('Drafts');
 		expect((wrapper.findComponent(PageHeader).props('breadcrumb') as { name: string }[]).at(-1)!.name).toBe('Articles');
+	});
+
+	test('the system collection backoffice_migrations shows not found (spec 022 D-181)', async () => {
+		expect((await setup({ collection: 'backoffice_migrations' })).wrapper.get('h1').text()).toBe('Page Not Found');
+	});
+});
+
+// Spec 022 D-179: the toggles of directus_collections (bo_show_*); null or missing means shown (FR-007).
+describe('CollectionRoute toggles', () => {
+	async function mountWith(meta: Record<string, unknown>) {
+		return mountLayout(CollectionRoute, {
+			props: { collection: 'articles', bookmark: '4' },
+			beforeMount() {
+				useCollectionsStore().collections = [{ ...articles, meta: { ...articles.meta, ...meta } } as Collection];
+				useUserStore().currentUser = { id: 'u1', admin_access: true, app_access: true, role: null } as AppUser;
+				usePermissionsStore().permissions = { articles: { read: { access: 'full', fields: ['*'] } } };
+				usePresetsStore().collectionPresets = [
+					{ id: 4, collection: 'articles', user: 'u1', role: null, bookmark: 'Drafts', layout: 'tabular', search: 'abc' },
+				] as Preset[];
+			},
+		});
+	}
+
+	const layoutSearch = (wrapper: Awaited<ReturnType<typeof mountWith>>['wrapper']) =>
+		wrapper.findComponent({ name: 'tabular-wrapper' }).props('search');
+
+	test('bo_show_search false: no keyword box, the bookmark search is not sent and stays in the bookmark (FR-003, FR-004)', async () => {
+		const { wrapper } = await mountWith({ bo_show_search: false });
+
+		expect(wrapper.findComponent(SearchInput).props('showSearch')).toBe(false);
+		expect(layoutSearch(wrapper)).toBeNull();
+		expect(usePresetsStore().collectionPresets[0]!.search).toBe('abc');
+	});
+
+	test.each([{ bo_show_search: null }, { bo_show_search: true }, {}])('%o: the keyword box and the search as before', async (meta) => {
+		const { wrapper } = await mountWith(meta);
+
+		expect(wrapper.findComponent(SearchInput).props('showSearch')).toBe(true);
+		expect(layoutSearch(wrapper)).toBe('abc');
+	});
+
+	// FR-005: the Import / Export section of the detail panel.
+	const exportPanel = async (meta: Record<string, unknown>) => {
+		const { wrapper } = await mountWith(meta);
+		useSidebarStore().activeAccordionItem = 'export';
+		await flushPromises();
+		return wrapper.findComponent(ExportSidebarDetail);
+	};
+
+	test('bo_show_import and bo_show_export false: no Import / Export section', async () => {
+		expect((await exportPanel({ bo_show_import: false, bo_show_export: false })).exists()).toBe(false);
+	});
+
+	test('one of them false: the section with that part hidden; the search sent is the one the layout gets', async () => {
+		const importHidden = await exportPanel({ bo_show_import: false });
+		expect(importHidden.props()).toMatchObject({ showImport: false, showExport: true, search: 'abc' });
+
+		const exportHidden = await exportPanel({ bo_show_export: null, bo_show_import: true, bo_show_search: false });
+		expect(exportHidden.props()).toMatchObject({ showImport: true, showExport: true, search: undefined });
+
+		const both = await exportPanel({ bo_show_export: false });
+		expect(both.props()).toMatchObject({ showImport: true, showExport: false });
 	});
 });

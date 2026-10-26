@@ -1,6 +1,6 @@
 // Ported from directus/app/src/utils/get-route.test.ts
 import { describe, expect, it } from 'vitest';
-import { getCollectionRoute, getItemRoute, getSystemCollectionRoute } from './get-item-route.ts';
+import { getCollectionRoute, getItemRoute, getSystemCollectionRoute, isSystemCollection } from './get-item-route.ts';
 
 describe('getSystemCollectionRoute', () => {
 	it('Returns an empty string when collection is not a system collection', () => {
@@ -37,6 +37,14 @@ describe('getCollectionRoute', () => {
 		const systemCollection = 'directus_users';
 
 		expect(getCollectionRoute(systemCollection)).toBe(`/users`);
+	});
+
+	// Backoffice (spec 022, D-181): a system collection with no page, like directus_migrations.
+	it('Returns an empty string for backoffice_migrations', () => {
+		expect(getCollectionRoute('backoffice_migrations')).toBe('');
+		expect(isSystemCollection('backoffice_migrations')).toBe(true);
+		expect(isSystemCollection('backoffice_x')).toBe(true);
+		expect(isSystemCollection('backoffice')).toBe(false);
 	});
 });
 

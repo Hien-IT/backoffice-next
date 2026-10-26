@@ -18,6 +18,8 @@ const props = withDefaults(
 	defineProps<{
 		modelValue: string | null;
 		disabled?: boolean;
+		/** Backoffice (spec 022 D-179): false hides the keyword box (bo_show_search of the collection); the filter stays. */
+		showSearch?: boolean;
 		showFilter?: boolean;
 		collection?: string | undefined;
 		filter?: Filter | null;
@@ -25,6 +27,7 @@ const props = withDefaults(
 		placeholder?: string | undefined;
 	}>(),
 	{
+		showSearch: true,
 		showFilter: true,
 		collection: undefined,
 		filter: null,
@@ -73,14 +76,15 @@ const activeFilterCount = computed(() => {
 });
 
 function activate() {
-	if (props.disabled) return;
+	// Without the keyword box the pill has nothing to widen for.
+	if (props.disabled || !props.showSearch) return;
 	if (!active.value) input.value?.focus();
 	active.value = true;
 }
 
 function onFilterOpen(open: boolean) {
 	filterActive.value = open;
-	active.value = true;
+	if (props.showSearch) active.value = true;
 	if (!open) input.value?.focus();
 }
 
@@ -132,59 +136,61 @@ const collisionBoundary = computed(() => drawerBody?.value ?? null);
 </script>
 
 <template>
-	<PopoverRoot :open="filterActive" @update:open="onFilterOpen">
+	<PopoverRoot v-if="showSearch || showFilter" :open="filterActive" @update:open="onFilterOpen">
 		<PopoverAnchor as-child>
 			<div
 				class="search-input relative flex h-11 items-center rounded-full border border-gray-200 bg-white px-1 transition-[width] duration-200 motion-reduce:transition-none dark:border-gray-800 dark:bg-gray-900"
 				:class="[
 					{ active, disabled, 'filter-active': filterActive, 'has-content': !!modelValue, 'show-filter': showFilter },
-					active || modelValue ? 'w-72 max-w-[calc(100vw-2rem)]' : showFilter ? 'w-20' : 'w-11',
+					!showSearch ? 'w-11' : active || modelValue ? 'w-72 max-w-[calc(100vw-2rem)]' : showFilter ? 'w-20' : 'w-11',
 				]"
 				role="search"
 				@click="activate"
 				@focusout="onFocusOut"
 			>
-				<button
-					type="button"
-					class="icon-search"
-					:class="ICON_BTN"
-					:disabled
-					:aria-label="$t('search')"
-					@click.stop="activate"
-				>
-					<BoIcon name="search" size="sm" />
-				</button>
-				<input
-					ref="input"
-					:value="modelValue"
-					:placeholder="placeholder ?? $t('search_items')"
-					:aria-label="placeholder ?? $t('search_items')"
-					type="search"
-					spellcheck="false"
-					autocapitalize="off"
-					autocorrect="off"
-					autocomplete="off"
-					class="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-sm text-gray-800 outline-hidden placeholder:text-gray-500 dark:text-white/90 dark:placeholder:text-gray-400 [&::-webkit-search-cancel-button]:appearance-none"
-					:class="{ 'w-0 flex-none p-0': !active && !modelValue }"
-					:tabindex="!active && !modelValue ? -1 : undefined"
-					:disabled
-					@input="emitValue"
-					@paste="emitValue"
-					@keydown.esc="disable"
-					@focusin="activate"
-				/>
-				<button
-					v-if="modelValue"
-					type="button"
-					class="icon-clear"
-					:class="ICON_BTN"
-					:disabled
-					:aria-label="$t('clear_value')"
-					:title="$t('clear_value')"
-					@click.stop="clear"
-				>
-					<BoIcon name="close" size="sm" />
-				</button>
+				<template v-if="showSearch">
+					<button
+						type="button"
+						class="icon-search"
+						:class="ICON_BTN"
+						:disabled
+						:aria-label="$t('search')"
+						@click.stop="activate"
+					>
+						<BoIcon name="search" size="sm" />
+					</button>
+					<input
+						ref="input"
+						:value="modelValue"
+						:placeholder="placeholder ?? $t('search_items')"
+						:aria-label="placeholder ?? $t('search_items')"
+						type="search"
+						spellcheck="false"
+						autocapitalize="off"
+						autocorrect="off"
+						autocomplete="off"
+						class="h-full min-w-0 flex-1 border-0 bg-transparent px-1 text-sm text-gray-800 outline-hidden placeholder:text-gray-500 dark:text-white/90 dark:placeholder:text-gray-400 [&::-webkit-search-cancel-button]:appearance-none"
+						:class="{ 'w-0 flex-none p-0': !active && !modelValue }"
+						:tabindex="!active && !modelValue ? -1 : undefined"
+						:disabled
+						@input="emitValue"
+						@paste="emitValue"
+						@keydown.esc="disable"
+						@focusin="activate"
+					/>
+					<button
+						v-if="modelValue"
+						type="button"
+						class="icon-clear"
+						:class="ICON_BTN"
+						:disabled
+						:aria-label="$t('clear_value')"
+						:title="$t('clear_value')"
+						@click.stop="clear"
+					>
+						<BoIcon name="close" size="sm" />
+					</button>
+				</template>
 				<template v-if="showFilter">
 					<PopoverTrigger
 						class="icon-filter relative"

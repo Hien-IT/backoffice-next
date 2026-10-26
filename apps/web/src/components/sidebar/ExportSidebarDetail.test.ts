@@ -23,6 +23,7 @@ import { assertOnlyKnownRequests, calls, json, mockFixtureApi } from '../../test
 import { loadSnapshot } from '../../test-utils/fixtures.ts';
 import { uploadWithProgress } from '../../utils/upload-with-progress.ts';
 import BoChip from '../BoChip.vue';
+import BoDivider from '../BoDivider.vue';
 import BoInput from '../BoInput.vue';
 import BoRadio from '../BoRadio.vue';
 import FieldList from '../FieldList.vue';
@@ -374,4 +375,44 @@ test('download page as CSV calls onDownload, disabled without it', async () => {
 	expect(onDownload).toHaveBeenCalledTimes(1);
 
 	expect(button(mountComponent(), 'Download Page as CSV').attributes('disabled')).toBeDefined();
+});
+
+// Spec 022 D-179 (FR-005): the import part and the export part are hidden apart (bo_show_import, bo_show_export).
+describe('showImport and showExport', () => {
+	const has = (wrapper: Wrapper, text: string) => wrapper.findAll('button').some((b) => b.text() === text);
+	const divider = (wrapper: Wrapper) => wrapper.findComponent(BoDivider).exists();
+
+	test('both shown (the default): import, then a divider, then export', async () => {
+		const wrapper = mountComponent();
+		await flushPromises();
+
+		expect(wrapper.find('#import-file').exists()).toBe(true);
+		expect(has(wrapper, 'Start Import')).toBe(true);
+		expect(has(wrapper, 'Export Items')).toBe(true);
+		expect(has(wrapper, 'Download Page as CSV')).toBe(true);
+		expect(divider(wrapper)).toBe(true);
+	});
+
+	test('showImport false: no file input, background option or import button; export stays', async () => {
+		const wrapper = mountComponent({ showImport: false });
+		await flushPromises();
+
+		expect(wrapper.find('#import-file').exists()).toBe(false);
+		expect(wrapper.text()).not.toContain('Import in background');
+		expect(has(wrapper, 'Start Import')).toBe(false);
+		expect(has(wrapper, 'Export Items')).toBe(true);
+		expect(has(wrapper, 'Download Page as CSV')).toBe(true);
+		expect(divider(wrapper)).toBe(false);
+	});
+
+	test('showExport false: no export button and no CSV link; import stays, without the divider', async () => {
+		const wrapper = mountComponent({ showExport: false });
+		await flushPromises();
+
+		expect(has(wrapper, 'Export Items')).toBe(false);
+		expect(has(wrapper, 'Download Page as CSV')).toBe(false);
+		expect(wrapper.find('#import-file').exists()).toBe(true);
+		expect(has(wrapper, 'Start Import')).toBe(true);
+		expect(divider(wrapper)).toBe(false);
+	});
 });

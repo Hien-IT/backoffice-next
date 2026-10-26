@@ -208,3 +208,29 @@ test('system collection names drop the directus_ prefix; user collections keep t
 	expect(users!.name).toBe('Users');
 	expect(content!.name).toBe('Bo Content');
 });
+
+// Spec 022 D-181: backoffice_migrations is a system collection like directus_migrations: listed with the system
+// collections (Data Model), kept out of the user collections and of crudSafeSystemCollections.
+test('backoffice_migrations is a system collection like directus_migrations', () => {
+	const collectionsStore = useCollectionsStore();
+
+	collectionsStore.collections = [
+		raw('directus_users'),
+		raw('directus_migrations'),
+		raw('backoffice_migrations', { hidden: true }),
+		raw('backoffice_x', null),
+		raw('articles'),
+	].map(collectionsStore.prepareCollectionForApp);
+
+	const keys = (list: Collection[]) => list.map(({ collection }) => collection).sort();
+
+	expect(keys(collectionsStore.systemCollections)).toEqual([
+		'backoffice_migrations',
+		'backoffice_x',
+		'directus_migrations',
+		'directus_users',
+	]);
+	expect(keys(collectionsStore.allCollections)).toEqual(['articles']);
+	expect(keys(collectionsStore.crudSafeSystemCollections)).toEqual(['backoffice_x', 'directus_users']);
+	expect(collectionsStore.getCollection('backoffice_migrations')?.name).toBe('Backoffice Migrations');
+});

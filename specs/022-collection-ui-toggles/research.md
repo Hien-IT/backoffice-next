@@ -271,6 +271,19 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   `/graphql/system` (thứ tự còn lại khớp, không cần sắp). Kết quả: request-set, schema, schema-management, GraphQL trên
   Postgres local 128 đạt, 24 bỏ qua (profile khác).
 
+## Sau CI lượt 1 (2026-10-26)
+
+- CI 40294646712: (1) `cleanstart/openldap:latest` lên 2.7.2 không đọc được `slapd.conf` (không do 022; phiên 021 ghim
+  2.7.1 theo digest, `3d559222`); (2) `migrationsValid()` tính cả migration riêng nên nhánh D-145 của `bootstrap` không
+  bao giờ chạy chúng trên MySQL → trả `migrationsValid()` về chỉ migration Directus (`9914401a`); (3) log deploy dạng
+  pretty → test deploy đếm theo chuỗi.
+- CI 40298326039: các service Backoffice chung một DB mà không chung lock (profile `schema-cache-nomsg` tắt Redis,
+  `web-cors` namespace riêng) cùng chạy migration riêng → `CREATE TABLE backoffice_migrations` trùng `pg_type` → container
+  thoát. Sửa (`764c4e01`): bảng, cột `bo_*`, dòng `backoffice_migrations` kiểm lại sau lỗi; dòng `directus_fields` trùng
+  của một field `bo_*` bị xóa, giữ id nhỏ nhất. Kiểm local với profile của job blackbox: 9 service Backoffice chạy, 2
+  service cùng áp migration, DB còn 1 dòng `20261026A` và 3 dòng `directus_fields`. Introspection scope `system` trên
+  MySQL: `types` so theo tên khi không phải Postgres/SQLite.
+
 ## Sửa spec khi plan (2026-10-26)
 
 - FR-002: "nhãn en-US và vi-VN" (bỏ "ghi chú": `directus_fields.note` là một chuỗi, không dịch được cho cả hai app).

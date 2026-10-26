@@ -261,6 +261,20 @@ test('Content links open the real pages: edit collection, /content/directus_coll
 	await expect(page.getByRole('heading', { level: 1, name: 'Data Model' })).toBeVisible();
 });
 
+// Spec 022 (FR-017, US4-6, D-181): backoffice_migrations is a system collection like directus_migrations: listed with
+// the system collections, no Content page.
+test('backoffice_migrations: with the system collections like directus_migrations, no Content page', async ({ page }) => {
+	await signIn(page);
+	await page.goto('/admin/settings/data-model');
+	await page.getByRole('button', { name: 'System Collections' }).click();
+
+	await expect(page.locator('a[href="/admin/settings/data-model/directus_migrations"]')).toBeVisible();
+	await expect(page.locator('a[href="/admin/settings/data-model/backoffice_migrations"]')).toBeVisible();
+
+	await page.goto('/admin/content/backoffice_migrations');
+	await expect(page.getByRole('heading', { level: 1, name: 'Page Not Found' })).toBeVisible();
+});
+
 /* ------------------------------------------------------------------------------------------------- US2 (T043) */
 
 type FieldRow = { field: string; meta: Record<string, any> | null };

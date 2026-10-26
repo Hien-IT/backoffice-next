@@ -55,13 +55,19 @@ type LayoutQuery = {
 
 type APIError = { message?: string; extensions?: Record<string, any> };
 
-const props = defineProps<{
-	collection: string;
-	layoutQuery?: LayoutQuery | undefined;
-	filter?: Filter | undefined;
-	search?: string | undefined;
-	onDownload?: (() => Promise<void>) | undefined;
-}>();
+const props = withDefaults(
+	defineProps<{
+		collection: string;
+		layoutQuery?: LayoutQuery | undefined;
+		filter?: Filter | undefined;
+		search?: string | undefined;
+		onDownload?: (() => Promise<void>) | undefined;
+		/** Backoffice (spec 022 D-179): bo_show_import and bo_show_export of the collection. */
+		showImport?: boolean;
+		showExport?: boolean;
+	}>(),
+	{ layoutQuery: undefined, filter: undefined, search: undefined, onDownload: undefined, showImport: true, showExport: true },
+);
 
 const emit = defineEmits(['refresh']);
 
@@ -516,7 +522,7 @@ const POPOVER =
 <template>
 	<SidebarDetail id="export" icon="import_export" :title="$t('import_export')">
 		<div class="flex flex-col gap-4">
-			<template v-if="createAllowed">
+			<template v-if="createAllowed && showImport">
 				<div>
 					<div
 						v-if="uploading || importing"
@@ -579,10 +585,10 @@ const POPOVER =
 					{{ $t('import_data_button') }}
 				</BoButton>
 
-				<BoDivider />
+				<BoDivider v-if="showExport" />
 			</template>
 
-			<div class="flex flex-col gap-2">
+			<div v-if="showExport" class="flex flex-col gap-2">
 				<BoButton full-width @click="openExportDialog">
 					{{ $t('export_items') }}
 				</BoButton>

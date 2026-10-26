@@ -116,6 +116,10 @@ function revisionsAnswer({ url }: { url: URL }) {
 	return new Response(JSON.stringify({ data }), { headers: { 'Content-Type': 'application/json' } });
 }
 
+/** Spec 022 D-179: bo_show_* values set on the bo_content metadata of the next hydrate (reset after each test). */
+let collectionMeta: Record<string, unknown> = {};
+afterEach(() => (collectionMeta = {}));
+
 /** Fixture API with the admin's own bo_content preset on `layout` (and its options), stores hydrated. */
 async function hydrate(layout = 'tabular', layoutOptions: Record<string, unknown> = {}) {
 	// Stores taken before any await: a late component of the previous test can make its own pinia the active one.
@@ -136,6 +140,7 @@ async function hydrate(layout = 'tabular', layoutOptions: Record<string, unknown
 	preset['layout_query'] = null;
 	// The live preview iframe (if a mode is stored) on about:blank: no request leaves the test.
 	source.collections.find((c) => c['collection'] === 'bo_content')!['meta'].preview_url = 'about:blank#{{ id }}';
+	Object.assign(source.collections.find((c) => c['collection'] === 'bo_content')!['meta'], collectionMeta);
 	// The API sets date_created; the fixture rows have none.
 	for (const [index, comment] of source.comments.entries())
 		comment['date_created'] = new Date(2026, 9, 1 + index).toISOString();
@@ -275,6 +280,22 @@ describe('collection page', () => {
 		await openSection(t('import_export'));
 		await userEvent.click(await found(() => byText('button', t('export_items'))));
 		await vi.waitFor(() => expect(document.querySelector('[role="dialog"]')).not.toBeNull());
+		await settle();
+
+		await bothSchemes();
+	}, 30_000);
+
+	test('spec 022 D-179: keyword box and import part hidden, the filter button and export stay', async () => {
+		collectionMeta = { bo_show_search: false, bo_show_import: false };
+		await mountPage('/content/bo_content');
+		await vi.waitFor(() => expect(document.querySelector('tbody tr')).not.toBeNull(), { timeout: 10000 });
+
+		expect(document.querySelector('.search-input input')).toBeNull();
+		expect(document.querySelector('.search-input .icon-filter')).not.toBeNull();
+
+		const region = await openSection(t('import_export'));
+		expect(region.querySelector('#import-file')).toBeNull();
+		expect(byText('button', t('export_items'))).toBeDefined();
 		await settle();
 
 		await bothSchemes();

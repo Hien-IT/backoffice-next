@@ -135,6 +135,14 @@ async function refresh() {
 
 const downloadHandler = computed(() => layoutRef.value?.state?.download);
 
+// Backoffice (spec 022 D-179): the toggles of directus_collections (bo_show_*); null or missing means shown (FR-007).
+const toggles = computed(() => (currentCollection.value?.meta ?? {}) as Record<string, unknown>);
+const showSearch = computed(() => toggles.value['bo_show_search'] !== false);
+const showImport = computed(() => toggles.value['bo_show_import'] !== false);
+const showExport = computed(() => toggles.value['bo_show_export'] !== false);
+// FR-004: a hidden keyword box sends no preset, bookmark or URL search; the stored preset keeps it.
+const activeSearch = computed(() => (showSearch.value ? search.value : null));
+
 const permissionsStore = usePermissionsStore();
 const userStore = useUserStore();
 // Backoffice: a share session writes no presets, so it gets no bookmark controls (FR-084).
@@ -333,7 +341,7 @@ function clearFilters() {
 		:filter-user="filter"
 		:filter-system="archiveFilter"
 		:filter="mergeFilters(filter, archiveFilter)"
-		:search="search"
+		:search="activeSearch"
 		:collection="collection"
 		:reset-preset="resetPreset"
 		:clear-filters="clearFilters"
@@ -406,7 +414,7 @@ function clearFilters() {
 			<template #actions>
 				<component :is="currentLayout?.slots.actions" v-if="currentLayout?.slots.actions" v-bind="layoutState" />
 
-				<SearchInput v-model="search" v-model:filter="filter" :collection="collection" />
+				<SearchInput v-model="search" v-model:filter="filter" :collection="collection" :show-search="showSearch" />
 
 				<template v-if="selection.length > 0">
 					<BoButton
@@ -550,9 +558,12 @@ function clearFilters() {
 				<ArchiveSidebarDetail v-if="hasArchive" :collection="collection" :archive="archive" />
 				<RefreshSidebarDetail v-model="refreshInterval" @refresh="refresh" />
 				<ExportSidebarDetail
+					v-if="showImport || showExport"
 					:collection="collection"
+					:show-import="showImport"
+					:show-export="showExport"
 					:filter="mergeFilters(filter, archiveFilter) ?? undefined"
-					:search="search ?? undefined"
+					:search="activeSearch ?? undefined"
 					:layout-query="layoutQuery"
 					:on-download="downloadHandler"
 					@refresh="refresh"

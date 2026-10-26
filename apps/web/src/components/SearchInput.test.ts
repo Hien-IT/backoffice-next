@@ -172,4 +172,30 @@ describe('Backoffice', () => {
 
 		expect(wrapper.emitted('update:modelValue')).toEqual([['abc'], [null]]);
 	});
+
+	// Spec 022 D-179 (FR-003): the collection hides its keyword box, the filter button stays.
+	it('showSearch false: no keyword box, the filter button and its count stay, the pill stays narrow', async () => {
+		const wrapper = mount(SearchInput, {
+			props: { modelValue: 'abc', showSearch: false, filter: { title: { _contains: 'a' } } },
+			global,
+		});
+
+		expect(wrapper.find('input').exists()).toBe(false);
+		expect(wrapper.find('.icon-search').exists()).toBe(false);
+		expect(wrapper.find('.icon-clear').exists()).toBe(false);
+		expect(wrapper.find('.icon-filter').text()).toBe('filter_list1');
+		expect(wrapper.find('.search-input').classes()).toContain('w-11');
+
+		await wrapper.find('.search-input').trigger('click');
+
+		expect(wrapper.find('.search-input').classes()).toContain('w-11');
+		expect(wrapper.find('.search-input').classes()).not.toContain('active');
+		expect(wrapper.emitted('update:modelValue')).toBeUndefined();
+	});
+
+	it('showSearch and showFilter false: nothing is rendered', () => {
+		const wrapper = mount(SearchInput, { props: { modelValue: null, showSearch: false, showFilter: false }, global });
+
+		expect(wrapper.find('.search-input').exists()).toBe(false);
+	});
 });

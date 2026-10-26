@@ -200,37 +200,39 @@ preset/bookmark; mọi người dùng; `/content/backoffice_migrations` not foun
 
 ### Tests for User Story 1 (MANDATORY) ⚠️
 
-- [ ] T027 [P] [US1] Thêm vào `web/components/SearchInput.test.ts` (describe `Backoffice`): `showSearch: false` → không
+- [X] T027 [P] [US1] Thêm vào `web/components/SearchInput.test.ts` (describe `Backoffice`): `showSearch: false` → không
       `textbox`, không nút `search`/`clear_value`, có nút `filter` với badge số bộ lọc, pill có class `w-11`; click pill
       không ném lỗi, không emit; `showSearch: false, showFilter: false` → không render pill; đóng popover không focus.
       Chạy đỏ.
-- [ ] T028 [P] [US1] Thêm vào `web/modules/content/routes/CollectionRoute.test.ts`: collection có `meta.bo_show_search:
+- [X] T028 [P] [US1] Thêm vào `web/modules/content/routes/CollectionRoute.test.ts`: collection có `meta.bo_show_search:
       false` và preset `search: 'abc'` → layout wrapper nhận `search: null`, `SearchInput` nhận `showSearch false`,
       `ExportSidebarDetail` nhận `search undefined`; `meta.bo_show_search: null` hoặc không có → `search: 'abc'` như nay;
       `/content/backoffice_migrations` → `ContentNotFound`. Chạy đỏ.
-- [ ] T029 [P] [US1] Thêm vào `web/stores/collections.test.ts` và `web/utils/get-item-route.test.ts`: `backoffice_migrations`
-      là hệ thống (không trong `allCollections`, không trong danh sách Data Model vì deny list; `getCollectionRoute` trả
-      `''`); `backoffice_x` (không trong deny list) vẫn hệ thống theo tiền tố. Chạy đỏ.
+- [X] T029 [P] [US1] Thêm vào `web/stores/collections.test.ts` và `web/utils/get-item-route.test.ts`: `backoffice_migrations`
+      là hệ thống (trong `systemCollections` như `directus_migrations`, không trong `allCollections`, không trong
+      `crudSafeSystemCollections` vì deny list; `getCollectionRoute` trả `''`); `backoffice_x` (không trong deny list)
+      vẫn hệ thống theo tiền tố. Chạy đỏ.
 
 ### Implementation for User Story 1
 
-- [ ] T030 [US1] Sửa `web/components/SearchInput.vue` theo `contracts/web.md` (prop `showSearch`, template, `activate`,
+- [X] T030 [US1] Sửa `web/components/SearchInput.vue` theo `contracts/web.md` (prop `showSearch`, template, `activate`,
       `onFilterOpen`; comment D-179). T027 xanh.
-- [ ] T031 [P] [US1] Sửa `web/stores/collections.ts` (`isSystemCollection` + `backoffice_`, `COLLECTIONS_DENY_LIST` +
+- [X] T031 [P] [US1] Sửa `web/stores/collections.ts` (`isSystemCollection` + `backoffice_`, `COLLECTIONS_DENY_LIST` +
       `backoffice_migrations`) và `web/utils/get-item-route.ts` (`isSystemCollection` + `backoffice_`); comment D-181.
       T029 xanh.
-- [ ] T032 [US1] Sửa `web/modules/content/routes/CollectionRoute.vue`: `toggles`, `showSearch`, `activeSearch`;
+- [X] T032 [US1] Sửa `web/modules/content/routes/CollectionRoute.vue`: `toggles`, `showSearch`, `activeSearch`;
       `:search="activeSearch"` ở layout wrapper; `:show-search` ở `SearchInput`; `:search="activeSearch ?? undefined"` ở
       `ExportSidebarDetail` (comment D-179, FR-004). T028 xanh (phần tìm kiếm).
-- [ ] T033 [US1] Viết `e2e/content-collection-toggles.spec.ts` (mẫu `e2e/content-export-import.spec.ts`,
+- [X] T033 [US1] Viết `e2e/content-collection-toggles.spec.ts` (mẫu `e2e/content-export-import.spec.ts`,
       `e2e/content-permissions.spec.ts` cho user thường `fixtures.role('content reader', { read: ['bo_content'] })`):
       `beforeEach` PATCH `/collections/bo_content` meta; `afterEach` PATCH ba cột `null`; case: tắt tìm kiếm với admin và
       user thường (không `textbox` tìm kiếm, nút `Filter` mở popover, thêm điều kiện lọc được); bookmark có `search`
       → request `/items/bo_content` không có `search=` (kiểm qua `helpers/requests.ts`), bookmark giữ `search` (GET
       `/presets/:id`); bàn phím (SC-004): từ page header Tab tới nút `Filter`, Enter mở popover, Escape đóng; bật lại →
       có `textbox`. Chạy ở cấu hình proxy-api local; ba cấu hình trên CI.
-- [ ] T034 [US1] Thêm case vào `e2e/settings-data-model.spec.ts` (cạnh case D-71 dòng 246): `/admin/content/
-      backoffice_migrations` → not found; Data Model không liệt kê `backoffice_migrations` trong nhóm hệ thống.
+- [X] T034 [US1] Thêm case vào `e2e/settings-data-model.spec.ts` (cạnh case D-71 dòng 246): `/admin/content/
+      backoffice_migrations` → not found; Data Model liệt kê `backoffice_migrations` trong nhóm System Collections như
+      `directus_migrations` (sửa khi implement lượt 2).
 
 **Checkpoint**: tìm kiếm ẩn hiện theo cài đặt ở ba cấu hình.
 
@@ -243,28 +245,28 @@ collection có ba toggle với nhãn en-US/vi-VN.
 
 ### Tests for User Story 2 (MANDATORY) ⚠️
 
-- [ ] T035 [P] [US2] Thêm vào `web/components/sidebar/ExportSidebarDetail.test.ts`: `showImport: false` → không
+- [X] T035 [P] [US2] Thêm vào `web/components/sidebar/ExportSidebarDetail.test.ts`: `showImport: false` → không
       `label_import`, không input file, không nút `import_data_button`, còn `export_items` và `download_page_as_csv`;
       `showExport: false` → không hai nút đó, còn phần import (với `createAllowed`); cả hai bật → như nay (không
       `BoDivider` thừa khi ẩn export). Chạy đỏ.
-- [ ] T036 [P] [US2] Thêm vào `web/modules/content/routes/CollectionRoute.test.ts`: `bo_show_import: false,
+- [X] T036 [P] [US2] Thêm vào `web/modules/content/routes/CollectionRoute.test.ts`: `bo_show_import: false,
       bo_show_export: false` → không render `ExportSidebarDetail`; chỉ một tắt → render với prop tương ứng. Chạy đỏ.
 
 ### Implementation for User Story 2
 
-- [ ] T037 [US2] Sửa `web/components/sidebar/ExportSidebarDetail.vue` theo `contracts/web.md` (prop `showImport`,
+- [X] T037 [US2] Sửa `web/components/sidebar/ExportSidebarDetail.vue` theo `contracts/web.md` (prop `showImport`,
       `showExport`; `v-if="createAllowed && showImport"`; `BoDivider` khi `showExport`; phần export `v-if="showExport"`;
       comment D-179). T035 xanh.
-- [ ] T038 [US2] Sửa `web/modules/content/routes/CollectionRoute.vue`: `showImport`, `showExport`; `ExportSidebarDetail`
+- [X] T038 [US2] Sửa `web/modules/content/routes/CollectionRoute.vue`: `showImport`, `showExport`; `ExportSidebarDetail`
       `v-if="showImport || showExport"`, `:show-import`, `:show-export`. T036 xanh.
-- [ ] T039 [US2] Thêm vào `e2e/content-collection-toggles.spec.ts`: tắt import (mục có `Export Items`, `Download Page as
+- [X] T039 [US2] Thêm vào `e2e/content-collection-toggles.spec.ts`: tắt import (mục có `Export Items`, `Download Page as
       CSV`, không `Import Data`); tắt export (còn phần import, không hai nút export); cả hai tắt (không nút `Import /
       Export` trong detail panel, `Layout Options`, `Refresh` còn); Data Model `/settings/data-model/bo_content`: ba
       toggle `Show Search`, `Show Import`, `Show Export` ở card cuối, đổi ngôn ngữ vi-VN thấy `Hiện ô tìm kiếm`; tắt
       `Show Export` và lưu → PATCH `/collections/bo_content` có `meta.bo_show_export: false` (kiểm qua
       `helpers/requests.ts`), trang Content phản ánh sau tải lại; API khi cả ba tắt (FR-008, US2 kịch bản 4): AdminApi
       `GET /items/bo_content?search=x` và `GET /items/bo_content?export=csv&limit=1` → 200 như trước.
-- [ ] T040 [P] [US2] Thêm test browser project (`web/components/SearchInput.browser.test.ts` mới hoặc file browser test
+- [X] T040 [P] [US2] Thêm test browser project (`web/components/SearchInput.browser.test.ts` mới hoặc file browser test
       có sẵn của component, cấu hình `apps/web/vitest.config.ts` project `browser`): `SearchInput` `showSearch=false`
       và `ExportSidebarDetail` `showImport=false` không vi phạm axe.
 - [ ] T041 Đóng lượt 2: `pnpm nx run web:lint`, `web:typecheck`, `web:test` các file T027–T036, T040; `web-e2e` spec

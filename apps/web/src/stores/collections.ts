@@ -28,6 +28,8 @@ const COLLECTIONS_DENY_LIST = [
 	'directus_extensions',
 	'directus_fields',
 	'directus_migrations',
+	// Backoffice (spec 022, D-181): the table of the Backoffice migrations, like directus_migrations.
+	'backoffice_migrations',
 	'directus_relations',
 	'directus_revisions',
 	'directus_sessions',
@@ -35,9 +37,9 @@ const COLLECTIONS_DENY_LIST = [
 ];
 
 // Backoffice: @directus/system-data is not a dependency; the API reserves the `directus_` prefix for system
-// collections, so the prefix alone tells them apart.
+// collections, so the prefix alone tells them apart. Spec 022 (D-181): `backoffice_` too (backoffice_migrations).
 function isSystemCollection(collection: string): boolean {
-	return collection.startsWith('directus_');
+	return collection.startsWith('directus_') || collection.startsWith('backoffice_');
 }
 
 /**

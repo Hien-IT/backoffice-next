@@ -4,7 +4,8 @@
 import { getEndpoint } from '@directus/utils';
 
 export function isSystemCollection(collection: string): boolean {
-	return getEndpoint(collection) !== `/items/${collection}`;
+	// Backoffice (spec 022, D-181): backoffice_migrations is a system collection with no page, like directus_migrations.
+	return collection.startsWith('backoffice_') || getEndpoint(collection) !== `/items/${collection}`;
 }
 
 const accessibleSystemCollections = {
