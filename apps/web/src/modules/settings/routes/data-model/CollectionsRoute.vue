@@ -85,10 +85,14 @@ const tableCollections = computed(
 	() => translate(collectionsStore.databaseCollections.filter((collection) => !collection.meta)) as Collection[],
 );
 
+// Backoffice (spec 022, D-181, owner 2026-10-26): backoffice_migrations is left out, its D-118 key would repeat the
+// one shown for directus_migrations.
 const systemCollections = computed(
 	() =>
 		translate(
-			collectionsStore.systemCollections.map((collection) => ({ ...collection, icon: 'settings' })),
+			collectionsStore.systemCollections
+				.filter(({ collection }) => collection !== 'backoffice_migrations')
+				.map((collection) => ({ ...collection, icon: 'settings' })),
 		) as Collection[],
 );
 

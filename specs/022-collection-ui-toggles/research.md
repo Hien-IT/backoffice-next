@@ -96,15 +96,15 @@ có thể hỏi chủ dự án sau nếu vị trí cuối form không ổn; lư�
 - Không thêm yaml field hệ thống (`fields/backoffice-migrations.yaml`): cột của bảng có meta null ở cả hai app, nên
   `GET /fields` của hai app giống nhau hơn; snapshot bỏ field meta null (`excludeUntracked`).
 - Web: `stores/collections.ts` `isSystemCollection` thêm tiền tố `backoffice_` và `COLLECTIONS_DENY_LIST` thêm
-  `backoffice_migrations` (như `directus_migrations`, dòng 25-35, 113: ngoài `crudSafeSystemCollections`; vẫn hiện
-  trong nhóm System Collections của Data Model như `directus_migrations`, sửa khi implement lượt 2);
+  `backoffice_migrations` (như `directus_migrations`, dòng 25-35, 113: ngoài `crudSafeSystemCollections`; Data Model
+  không liệt kê nó, `CollectionsRoute.vue`, sửa khi implement lượt 3);
   `utils/get-item-route.ts` `isSystemCollection` thêm tiền tố `backoffice_` để `/content/backoffice_migrations` ra
   ContentNotFound như `/content/directus_collections` (E2E `settings-data-model.spec.ts:246`).
 
 **Khác biệt với Directus (D-181)**: Directus trả `backoffice_migrations` với `meta: null` trong `GET /collections`
 (`directus/api/src/services/collections.ts:382-391`), cho admin đọc qua `/items`, Data Model của Directus app liệt
-kê trong bảng chưa quản lý (`collections.vue:108`). Backoffice: meta hệ thống, 403 ở `/items`, nhóm System Collections
-của Data Model như `directus_migrations`. Spec FR-017 và US4 kịch bản 6 theo đây (sửa lại khi implement lượt 2).
+kê trong bảng chưa quản lý (`collections.vue:108`). Backoffice: meta hệ thống, 403 ở `/items`, không có trong danh sách
+của Data Model. Spec FR-017 và US4 kịch bản 6 theo đây (sửa lại khi implement lượt 2 và lượt 3).
 
 **GraphQL** [Unverified]: `/graphql` (items) của cả hai app có type `backoffice_migrations` vì bảng có khóa chính và nằm
 trong schema overview; nếu Backoffice xếp nó vào `/graphql/system` theo `isSystemCollection` thì SDL hai app lệch →
@@ -292,8 +292,8 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   "Auto Refresh"; reset toggle về `null` làm switch của Data Model hiện tắt → reset về `true`; export
   CSV không phải JSON → đọc `api.bytes`.
 - Data Model: Directus app liệt kê mọi collection hệ thống, kể cả `directus_migrations`; `COLLECTIONS_DENY_LIST` chỉ loại
-  khỏi `crudSafeSystemCollections`. Vì vậy `backoffice_migrations` ở nhóm System Collections như `directus_migrations`
-  (sửa FR-017, US4-6, D-181 so với câu chữ khi plan ở mục dưới).
+  khỏi `crudSafeSystemCollections`. Vì vậy lượt 2 đưa `backoffice_migrations` vào nhóm System Collections như
+  `directus_migrations`; lượt 3 bỏ nó khỏi danh sách (xem "Kết quả lượt 3").
 - Vị trí ba toggle (R12, xem trên app web local với API Backoffice, Settings > Data Model > một collection): một card
   riêng không có tiêu đề, cuối form, sau card "Duplication"; "Show Search" và "Show Import" cùng hàng, "Show Export" hàng
   dưới, mỗi ô nửa chiều rộng, checkbox "Enabled" bật sẵn. Card không tiêu đề vì ba dòng `directus_fields` không phải
@@ -310,6 +310,12 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
 - T042 (env parity Postgres local, DB đã có migration riêng): blackbox `routes/collections`, `routes/fields`,
   `routes/schema`, `db/schema` (cùng `00-seed`) 310/310 đạt ở Backoffice và 310/310 ở Directus; không phải sửa
   normalize. Phần GraphQL của T042 là lượt chạy của lượt 1 (request-set, schema, schema-management, GraphQL: 128 đạt).
+- CI 40298326039, `settings-parity-ui.spec.ts` (proxy-api): cây Data Model của Backoffice có thêm `directus_migrations`.
+  Test đổi khóa hiển thị `backoffice_*` (D-118) về `directus_*` trước khi so, nên bảng thật `backoffice_migrations` thành
+  một `directus_migrations` thứ hai. Với web của lượt 2, nhóm System Collections có hai dòng cùng hiện
+  "backoffice_migrations" (theo code `display-collection-key.ts`). Chủ dự án chọn bỏ bảng thật khỏi danh sách của
+  Data Model (`CollectionsRoute.vue`); unit `CollectionsRoute.test.ts` và E2E `settings-data-model.spec.ts` kiểm. Run này
+  chỉ có code lượt 1, nên không có kết quả cho web lượt 2 và lượt 3.
 - D-182 (tiêu đề card ba toggle): unit `FieldsRoute.test.ts` 6/6 (case mới: card cuối có tiêu đề và đúng ba toggle);
   unit Data Model, lang, Content, sidebar 239 đạt; axe trang collection đạt; xem trên app web local với API Backoffice:
   card "Content: Search, Import, Export" có icon, ba toggle bên dưới, không còn card trống. E2E

@@ -1,7 +1,7 @@
 // DR has no test for collections.vue: the tree of roots and children, the search that keeps the parents, the
 // tables without meta, the system collections, the sort saved as onSort (PATCH /collections with the whole list, not
 // awaited), the D-96 menu moves, the collection options, the delete dialog with peer dependencies, the folder dialog,
-// the snapshot download and the empty state (spec 016 US1, FR-010 to FR-019).
+// the snapshot download and the empty state (spec 016 US1, FR-010 to FR-019); backoffice_migrations left out (022).
 import { enableAutoUnmount, flushPromises } from '@vue/test-utils';
 import { saveAs } from 'file-saver';
 import { afterEach, beforeEach, expect, test, vi } from 'vitest';
@@ -130,6 +130,27 @@ test('the tree shows roots with nested children, tables without meta and the sys
 	[...document.querySelectorAll('button')].find((b) => b.textContent?.includes(t('system_collections')))!.click();
 	await flushPromises();
 	expect(document.querySelector('a[href="/settings/data-model/directus_users"]')).not.toBeNull();
+});
+
+test('spec 022 (D-181): backoffice_migrations is not listed, its D-118 key repeats directus_migrations', async () => {
+	await mountRoute([
+		...RAW,
+		{
+			collection: 'directus_migrations',
+			schema: { name: 'directus_migrations' },
+			meta: meta(1, null, { system: true }),
+		},
+		{
+			collection: 'backoffice_migrations',
+			schema: { name: 'backoffice_migrations' },
+			meta: meta(1, null, { system: true, hidden: true }),
+		},
+	]);
+
+	[...document.querySelectorAll('button')].find((b) => b.textContent?.includes(t('system_collections')))!.click();
+	await flushPromises();
+	expect(document.querySelector('a[href="/settings/data-model/directus_migrations"]')).not.toBeNull();
+	expect(document.querySelector('a[href="/settings/data-model/backoffice_migrations"]')).toBeNull();
 });
 
 test('a folder row stands out; an empty folder shows a drop area, an empty table none (owner 2026-10-21)', async () => {

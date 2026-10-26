@@ -231,8 +231,8 @@ preset/bookmark; mọi người dùng; `/content/backoffice_migrations` not foun
       `/presets/:id`); bàn phím (SC-004): từ page header Tab tới nút `Filter`, Enter mở popover, Escape đóng; bật lại →
       có `textbox`. Chạy ở cấu hình proxy-api local; ba cấu hình trên CI.
 - [X] T034 [US1] Thêm case vào `e2e/settings-data-model.spec.ts` (cạnh case D-71 dòng 246): `/admin/content/
-      backoffice_migrations` → not found; Data Model liệt kê `backoffice_migrations` trong nhóm System Collections như
-      `directus_migrations` (sửa khi implement lượt 2).
+      backoffice_migrations` → not found; Data Model liệt kê `directus_migrations`, không liệt kê `backoffice_migrations`
+      (sửa khi implement lượt 3: khóa hiển thị D-118 trùng).
 
 **Checkpoint**: tìm kiếm ẩn hiện theo cài đặt ở ba cấu hình.
 

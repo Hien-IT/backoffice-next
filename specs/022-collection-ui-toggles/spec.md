@@ -115,9 +115,9 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
    mới.
 5. **Given** migration riêng đã chạy, **When** chạy `migrate:latest`, `migrate:up`, `migrate:down` của Directus, **Then**
    kết quả như DB chưa có migration riêng, vì `directus_migrations` không có dòng của Backoffice.
-6. **Given** migration riêng đã chạy, **When** admin mở Data Model, **Then** Backoffice liệt kê `backoffice_migrations`
-   trong nhóm System Collections như `directus_migrations` (sửa khi implement lượt 2, 2026-10-26), còn Directus app
-   liệt kê nó trong nhóm bảng chưa quản lý (meta null).
+6. **Given** migration riêng đã chạy, **When** admin mở Data Model, **Then** Backoffice không liệt kê
+   `backoffice_migrations` (khóa hiển thị D-118 của nó trùng với `directus_migrations`; sửa khi implement lượt 3,
+   2026-10-26), còn Directus app liệt kê nó trong nhóm bảng chưa quản lý (meta null).
 
 ---
 
@@ -185,9 +185,10 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-016**: Khởi động API (`start`) PHẢI kiểm tra mọi migration riêng đã chạy; thiếu thì dừng và báo rõ, giống
   migration Directus thiếu. Dòng lạ trong `backoffice_migrations` (DB của bản Backoffice mới hơn) cũng dừng và báo rõ.
 - **FR-017**: Backoffice PHẢI coi `backoffice_migrations` là collection hệ thống như `directus_migrations`: có trong danh
-  sách collection hệ thống của API (meta hệ thống, ẩn), không truy cập được qua `/items`, trong nhóm System Collections
-  của Data Model và ngoài `crudSafeSystemCollections` như `directus_migrations` (sửa khi implement lượt 2, 2026-10-26),
-  `/content/backoffice_migrations` là not found, không vào snapshot.
+  sách collection hệ thống của API (meta hệ thống, ẩn), không truy cập được qua `/items`, ngoài
+  `crudSafeSystemCollections` như `directus_migrations`, không có trong danh sách của Data Model (sửa khi implement lượt
+  3, 2026-10-26: khóa hiển thị D-118 trùng với `directus_migrations`), `/content/backoffice_migrations` là not found,
+  không vào snapshot.
 - **FR-018**: Tên cột Backoffice thêm vào bảng `directus_*` PHẢI có tiền tố `bo_`; tên bảng riêng PHẢI có tiền tố
   `backoffice_`.
 - **FR-019**: Test: unit cho ẩn hiện và bộ chạy migration (SQLite); E2E Content ba cấu hình (proxy tới Directus, proxy
@@ -244,7 +245,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | D-179 | Import, Export trang Content | Luôn hiện | Ẩn phần import khi `bo_show_import` tắt; ẩn Export và link CSV khi `bo_show_export` tắt | Yêu cầu chủ dự án 2026-10-26 | khác (duyệt 2026-10-26) | — |
 | D-179.1 | Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (duyệt 2026-10-26) | — |
 | D-180 | Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` và `init` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; constitution 3.2.0, sửa D-145 | khác (duyệt 2026-10-26) | — |
-| D-181 | `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, có type trong `/graphql` và tag, path, schema trong `/server/specs/oas` (admin), Data Model liệt kê, `DELETE /collections/backoffice_migrations` xóa bảng | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, không có trong GraphQL (`SYSTEM_DENY_LIST` như `directus_migrations`, research T001) và OAS (không có tag hệ thống tĩnh), trong nhóm System Collections của Data Model (như `directus_migrations`), xóa bị từ chối | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) | — |
+| D-181 | `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, có type trong `/graphql` và tag, path, schema trong `/server/specs/oas` (admin), Data Model liệt kê, `DELETE /collections/backoffice_migrations` xóa bảng | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, không có trong GraphQL (`SYSTEM_DENY_LIST` như `directus_migrations`, research T001) và OAS (không có tag hệ thống tĩnh), không có trong danh sách của Data Model (khóa hiển thị D-118 trùng với `directus_migrations`), xóa bị từ chối | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) | — |
 | D-182 | Tiêu đề nhóm ba cài đặt trong form collection | Ba cài đặt sau đường kẻ hệ thống (divider không tiêu đề) ở cuối form | Card riêng có tiêu đề "Content: Search, Import, Export" (vi-VN "Content: tìm kiếm, Import, Export"), icon `tune`; app web tự thêm divider, DB không có dòng divider (Nguyên tắc II chỉ cho dòng `directus_fields` của cột `bo_*`) | Chủ dự án 2026-10-26: card ba toggle cần tiêu đề, chỉ làm ở web | khác (duyệt 2026-10-26) | — |
 
 **Cần xác nhận**:
@@ -295,6 +296,11 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   trong nhóm System Collections, đúng câu trả lời của chủ dự án ("xem như các bảng `directus_*`").
 
 ### Khi implement lượt 3 (2026-10-26, chủ dự án)
+
+- Q: Sau lượt 2, nhóm System Collections của Data Model có hai dòng cùng tên "backoffice_migrations": `directus_migrations`
+  hiển thị theo D-118 và bảng thật (CI 40298326039, `settings-parity-ui.spec.ts`). Xử lý thế nào? → A: Data Model của
+  Backoffice không liệt kê bảng thật; API vẫn coi nó là collection hệ thống (D-181). Sửa FR-017, US4-6, D-181 viết khi
+  implement lượt 2.
 
 - Q: Card ba toggle trong form collection không có tiêu đề (`$system_divider` của form, research "Kết quả lượt 2").
   Thêm tiêu đề bằng migration riêng (dòng divider `bo_*`, phải sửa constitution) hay chỉ ở web? → A: chỉ ở web

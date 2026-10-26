@@ -41,5 +41,5 @@
   FR-013 `init`, FR-019) ghi ở mục Clarifications của spec, 2026-10-26.
 - Mục [Inference] của bảng "Đánh giá chạy song song" đã có test (parity bootstrap, request-set, schema, GraphQL,
   blackbox, deploy ba replica, E2E ba cấu hình); kết quả ở `research.md` "Kết quả lượt 1/2/3". Sửa khi implement
-  (FR-017, US4-6, D-181: `backoffice_migrations` trong nhóm System Collections như `directus_migrations`) ghi ở
-  Clarifications.
+  (FR-017, US4-6, D-181: Data Model không liệt kê `backoffice_migrations`; D-182: tiêu đề card ba toggle chỉ ở web)
+  ghi ở Clarifications.
