@@ -300,10 +300,11 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   field hệ thống: `getFormFields` (port của DR `v-form/utils/get-form-fields.ts`) chèn `$system_divider` (divider không
   tiêu đề) giữa field hệ thống và field người dùng, và form card (D-150) mở card mới ở mỗi divider.
 - Chủ dự án 2026-10-26: thêm tiêu đề, chỉ ở web (D-182). `FieldsRoute.vue` truyền `fields` cho `BoForm` thay cho
-  `collection`: các field của `directus_collections` cộng một divider `bo_content_toggles_divider` (không có trong DB,
-  `meta.system` false, `sort` 0 nên đứng trước ba toggle có `sort` null) với tiêu đề từ overlay
-  `collection_content_toggles` và icon `tune`. Card của `$system_divider` không còn field nên bị bỏ. Không có toggle
-  `bo_show_*` (DB chưa chạy migration) thì form như cũ.
+  `collection`: các field của `directus_collections` cộng một divider `bo_content_toggles_divider` (không có trong DB)
+  với tiêu đề từ overlay `collection_content_toggles` và icon `tune`. Chủ dự án 2026-10-27: card đặt ngay trên
+  Duplication, nên form coi divider và ba toggle là field hệ thống, `sort` của divider = `sort` của `duplication_divider`
+  − 0,5, ba toggle − 0,25 (giữ thứ tự theo `id`); không còn `$system_divider` vì không còn field người dùng. Không có
+  toggle `bo_show_*` (DB chưa chạy migration) thì form như cũ.
 
 ## Kết quả lượt 3 (2026-10-26)
 

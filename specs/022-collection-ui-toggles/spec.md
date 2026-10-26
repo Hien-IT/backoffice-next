@@ -153,7 +153,8 @@ hai app; mở Directus app, sửa một collection, tạo một collection mới
 - **FR-002**: Admin PHẢI sửa được ba cài đặt trong form collection của Settings > Data Model, cùng chỗ với các tùy chọn
   collection khác, nhãn en-US và vi-VN (không có ghi chú: `directus_fields.note` là một chuỗi, không dịch được cho cả
   hai app; sửa khi plan 2026-10-26). Ở app web Backoffice, ba cài đặt nằm trong một card có tiêu đề "Content: Search,
-  Import, Export" / "Content: tìm kiếm, Import, Export" (D-182, chủ dự án 2026-10-26).
+  Import, Export" / "Content: tìm kiếm, Import, Export", ngay trước card Duplication (D-182, chủ dự án 2026-10-26,
+  vị trí 2026-10-27).
 - **FR-003**: Khi "Hiện ô tìm kiếm" tắt, trang Content của collection KHÔNG ĐƯỢC hiện ô nhập từ khóa và PHẢI giữ nút bộ
   lọc (cùng popover, cùng badge số bộ lọc).
 - **FR-004**: Khi "Hiện ô tìm kiếm" tắt, trang KHÔNG ĐƯỢC gửi từ khóa lấy từ preset, bookmark hay URL; preset giữ
@@ -247,7 +248,7 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
 | D-179.1 | Directus app với ba trường | Không có | Hiện ba cài đặt trong form collection, không áp dụng ở Content của Directus app | Không sửa `directus/` (Nguyên tắc I) | khác (duyệt 2026-10-26) | — |
 | D-180 | Migration riêng | Chỉ migration Directus và custom, trong `directus_migrations` | Bộ migration riêng trong `backoffice_migrations`, chạy trong `bootstrap` và `init` trên mọi vendor dưới lock; không có lệnh CLI | Clarifications 2026-10-26; constitution 3.2.0, sửa D-145 | khác (duyệt 2026-10-26) | — |
 | D-181 | `backoffice_migrations` trong API | Bảng chưa quản lý: `GET /collections` trả `meta: null`, admin đọc được qua `/items`, có type trong `/graphql` và tag, path, schema trong `/server/specs/oas` (admin), Data Model liệt kê, `DELETE /collections/backoffice_migrations` xóa bảng | Collection hệ thống: meta hệ thống, ẩn, không truy cập qua `/items`, không có trong GraphQL (`SYSTEM_DENY_LIST` như `directus_migrations`, research T001) và OAS (không có tag hệ thống tĩnh), không có trong danh sách của Data Model (khóa hiển thị D-118 trùng với `directus_migrations`), xóa bị từ chối | Chủ dự án 2026-10-26: coi như bảng `directus_*` | khác (duyệt 2026-10-26) | — |
-| D-182 | Tiêu đề nhóm ba cài đặt trong form collection | Ba cài đặt sau đường kẻ hệ thống (divider không tiêu đề) ở cuối form | Card riêng có tiêu đề "Content: Search, Import, Export" (vi-VN "Content: tìm kiếm, Import, Export"), icon `tune`; app web tự thêm divider, DB không có dòng divider (Nguyên tắc II chỉ cho dòng `directus_fields` của cột `bo_*`) | Chủ dự án 2026-10-26: card ba toggle cần tiêu đề, chỉ làm ở web | khác (duyệt 2026-10-26) | — |
+| D-182 | Tiêu đề nhóm ba cài đặt trong form collection | Ba cài đặt sau đường kẻ hệ thống (divider không tiêu đề) ở cuối form | Card riêng có tiêu đề "Content: Search, Import, Export" (vi-VN "Content: tìm kiếm, Import, Export"), icon `tune`, ngay trước card Duplication (2026-10-27); app web tự thêm divider và xếp ba cài đặt cùng các field hệ thống, DB không có dòng divider (Nguyên tắc II chỉ cho dòng `directus_fields` của cột `bo_*`) | Chủ dự án 2026-10-26: card ba toggle cần tiêu đề, chỉ làm ở web | khác (duyệt 2026-10-26) | — |
 
 **Cần xác nhận**:
 
@@ -314,6 +315,8 @@ Bảng theo dạng `tests/parity/src/spec-differences.ts` đọc (cột `Mã` đ
   nguyên.
 - Q: Directus app có cần tiêu đề không? → A: không, Directus app không có chức năng này; ba toggle vẫn hiện ở cuối form
   collection của Directus app, không tiêu đề, không có tác dụng (D-179.1 giữ nguyên).
+- 2026-10-27: card "Content: Search, Import, Export" đặt ngay trên card Duplication (trước đó ở cuối form). Chỉ ở web
+  Backoffice; Directus app giữ nguyên.
 
 ### Khi implement lượt 1 (2026-10-26, chủ dự án)
 

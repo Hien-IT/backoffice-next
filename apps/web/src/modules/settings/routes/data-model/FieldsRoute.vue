@@ -96,10 +96,13 @@ const meta = computed({
 });
 
 // Backoffice (spec 022, D-182): the bo_show_* toggles of migration 20261026A have no divider row in the DB
-// (constitution II), so their card gets a titled divider here; sort 0 puts it before them (their sort is null).
+// (constitution II), so their card gets a titled divider here. Owner 2026-10-27: the card goes before Duplication, so
+// the form sorts the divider and the toggles among the system fields, just before duplication_divider.
 const formFields = computed<Field[]>(() => {
 	const fields = fieldsStore.getFieldsForCollection('directus_collections');
 	if (!fields.some((field) => field.field.startsWith('bo_show_'))) return fields;
+
+	const sort = Number(fields.find((field) => field.field === 'duplication_divider')?.meta?.sort ?? 1000);
 
 	const divider = {
 		collection: 'directus_collections',
@@ -112,14 +115,20 @@ const formFields = computed<Field[]>(() => {
 			interface: 'presentation-divider',
 			options: { icon: 'tune', title: t('collection_content_toggles') },
 			width: 'full',
-			sort: 0,
+			sort: sort - 0.5,
 			group: null,
 			hidden: false,
-			system: false,
+			system: true,
 		},
 	};
 
-	return [...fields, divider as unknown as Field];
+	// The toggles keep their order by id; the divider has no id, so it needs the lower sort.
+	const toggles = (field: Field): Field =>
+		field.field.startsWith('bo_show_')
+			? { ...field, meta: { ...field.meta!, system: true, sort: sort - 0.25 } }
+			: field;
+
+	return [...fields.map(toggles), divider as unknown as Field];
 });
 </script>
 

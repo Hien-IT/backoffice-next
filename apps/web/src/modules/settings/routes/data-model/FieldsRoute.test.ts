@@ -211,14 +211,15 @@ const toggleField = (field: string, index: number) =>
 	}) as unknown as FieldRaw;
 
 test(
-	'spec 022 (D-182): the bo_show_* toggles are one card with its title, after the DR fields',
+	'spec 022 (D-182): the bo_show_* toggles are one card with its title, just before Duplication (owner 2026-10-27)',
 	async () => {
 		const toggles = ['bo_show_search', 'bo_show_import', 'bo_show_export'];
 		await setup('bo_std', toggles.map(toggleField));
 
 		const titles = [...document.querySelectorAll('main h3')].map((h) => h.textContent);
-		expect(titles.at(-1)).toBe(t('collection_content_toggles'));
-		const card = document.querySelectorAll('main h3')[titles.length - 1]!.closest('.rounded-2xl')!;
+		const title = t('collection_content_toggles');
+		expect(titles.slice(-2)).toEqual([title, t('field_options.directus_collections.duplication_divider')]);
+		const card = document.querySelectorAll('main h3')[titles.indexOf(title)]!.closest('.rounded-2xl')!;
 		expect([...card.querySelectorAll('[data-field]')].map((el) => el.getAttribute('data-field'))).toEqual(toggles);
 	},
 	SLOW,
