@@ -46,3 +46,24 @@ test('directus_* tables only, with columns, primary key, foreign keys, indexes a
 	expect(result.rows['directus_roles']).toEqual([{ id: '11111111-1111-4111-8111-111111111111', name: 'Admin' }]);
 	expect(result.rows['bo_other']).toBeUndefined();
 });
+
+test('the Backoffice migrations are left out: backoffice_* tables, bo_* columns and their directus_fields rows (D-180)', async () => {
+	await db.schema.createTable('directus_fields', (t) => {
+		t.increments('id');
+		t.string('collection');
+		t.string('field');
+	});
+	await db.schema.alterTable('directus_roles', (t) => t.boolean('bo_flag').defaultTo(true));
+	await db.schema.createTable('backoffice_migrations', (t) => t.string('version').primary());
+	await db('directus_fields').insert([
+		{ collection: 'directus_roles', field: 'name' },
+		{ collection: 'directus_roles', field: 'bo_flag' },
+	]);
+
+	const result = await dump(db);
+
+	expect(result.tables.map((t) => t.name)).not.toContain('backoffice_migrations');
+	expect(result.tables.find((t) => t.name === 'directus_roles')!.columns.map((c) => c.name)).toEqual(['id', 'name']);
+	expect(result.rows['directus_roles']).toEqual([{ id: '11111111-1111-4111-8111-111111111111', name: 'Admin' }]);
+	expect(result.rows['directus_fields']).toEqual([{ id: 1, collection: 'directus_roles', field: 'name' }]);
+});

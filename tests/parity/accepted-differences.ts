@@ -327,4 +327,18 @@ export const acceptedDifferences: AcceptedDifference[] = [
 		reason:
 			'A new project is named Backoffice: bootstrap writes PROJECT_NAME or "Backoffice", init sets "Backoffice" (Directus keeps its column default "Directus").',
 	},
+	{
+		id: 'D-180',
+		feature: '022',
+		kind: 'doc',
+		reason:
+			'Backoffice migrations: bootstrap and init run them on every vendor under a shared lock, tracked in backoffice_migrations (never directus_migrations); the bootstrap dump leaves out their bo_* columns and directus_fields rows, the CLI log compare their lines (src/bootstrap/dump.ts, normalize.ts).',
+	},
+	{
+		id: 'D-181',
+		feature: '022',
+		kind: 'doc',
+		reason:
+			'backoffice_migrations is a hidden system collection in Backoffice (403 on /items, not in GraphQL) and a table with meta null in Directus; /collections and /fields are compared without backoffice_* collections (normalizeBody in src/normalizers.ts).',
+	},
 ];

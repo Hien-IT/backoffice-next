@@ -220,6 +220,55 @@ lock" bằng một migration giả. `validate-migrations.test.ts`: thêm `schema
   hỏi lại (divider `bo_*`, R3).
 - GraphQL SDL với `backoffice_migrations` (R4).
 
+## Kết quả T001 (2026-10-26)
+
+- (a) `@sesamecare-oss/redlock` 1.4.0: `using` chạy routine "in the context of an auto-extending lock" (README dòng
+  68), gia hạn khi còn dưới `automaticExtensionThreshold` = 500 ms (`src/index.ts:62`); gia hạn hỏng thì `signal`
+  báo hủy. Vậy `usingLock` của `@backoffice/memory` (gọi `redlock.using`) đủ cho migration dài hơn 5 giây; R1 giữ
+  nguyên, không cần `acquireLock` + `extend`.
+- (b) `apps/api/src/services/graphql/schema/index.ts:187-190` tách scope bằng `isSystemCollection` y như Directus
+  (`directus/api/src/services/graphql/schema/index.ts:185-188`). Sau khi `libs/system-data` nhận `backoffice_`,
+  `backoffice_migrations` sang `/graphql/system` ở Backoffice, còn Directus (tiền tố `directus_`) giữ nó ở `/graphql`
+  như collection chưa quản lý. SDL hai app lệch ở type này ở cả hai endpoint → D-181 thêm GraphQL; T025 normalize SDL
+  (bỏ type `backoffice_migrations` và các field/query của nó ở cả hai bên) trong `tests/parity/src/graphql`.
+- (b, khi làm T022) scope `system` đặt tên type bằng `collection.substring(9)` (cắt `directus_`,
+  `apps/api/src/services/graphql/schema/index.ts:209,250,275,310`) và resolver ghép lại `directus_${name}`
+  (`resolvers/query.ts:18`, `mutation.ts:17`): `backoffice_migrations` sẽ thành type `e_migrations` không truy vấn
+  được. Sửa: thêm `backoffice_migrations` vào `SYSTEM_DENY_LIST` (`schema/index.ts:42`), như Directus làm với
+  `directus_migrations`; Backoffice không có nó ở cả `/graphql` lẫn `/graphql/system`, Directus có ở `/graphql` (admin).
+  Ghi vào dòng D-181 của spec.
+
+## Kết quả lượt 1 (2026-10-26, env parity Postgres local)
+
+- T018: profile `bootstrap` trên DB trống: 72 test đạt, 3 bỏ qua. Migration riêng chạy ở `backoffice-api-bootstrap`
+  (DB trống) và ở `backoffice-api` (DB do Directus cài) mất khoảng 0,1 giây (log pino 06.392 → 06.508). Hai chỗ phải
+  sửa khi chạy: `indexesOf` của Postgres trả mọi index của schema (`backoffice_migrations_pkey`) → `dump.ts` chỉ giữ
+  index của bảng `directus_*`; `schema snapshot` của DB Backoffice có ba field `bo_*` → `cli.test.ts` so snapshot đã
+  parse, bỏ field `bo_*` của bảng `directus_*` (spec FR-019). Suite deploy (T017) để CI chạy.
+- T024 (gửi `Cache-Control: no-store`; không có header này thì app thứ hai trả response của app thứ nhất từ cache
+  dùng chung): `GET /items/backoffice_migrations` Backoffice 403, Directus 200; `GET /collections/backoffice_migrations`
+  Backoffice `meta.system true, hidden true`, Directus `meta: null`; `DELETE /collections/backoffice_migrations` ở
+  Backoffice 403 `FORBIDDEN` (không gửi tới Directus). Collection tạo ở Directus có `bo_show_* = true` ở cả hai app;
+  PATCH `bo_show_search: false` ở Backoffice, Directus đọc `false`; `GET /fields/directus_collections/bo_show_search`:
+  `type boolean`, `interface boolean`, `special ["cast-boolean"]`, nhãn en-US/vi-VN.
+- SDL: trên DB có một collection người dùng, SDL `/server/specs/graphql` của Directus sau `withoutBackofficeSdl` bằng
+  từng byte SDL của Backoffice. Trên DB không có collection người dùng hai SDL còn khác ở `Query`/`Mutation` rỗng
+  (Backoffice in placeholder `_empty: Void`, Directus có field của `backoffice_migrations`); `schema.test.ts` luôn tạo
+  collection trước khi so nên không gặp.
+- T025 lần 1 (request-set, schema, schema-management, GraphQL): 8 đỏ, đều do D-181. (1) SchemaOverview dùng chung qua
+  Redis có `note: "Backoffice migrations"` ở Backoffice, null ở Directus → bỏ `note` khỏi dòng yaml (Directus không có
+  dòng `directus_collections` nên note null). (2) ETag của `/collections`, `/graphql`, `/graphql/system`, route SDL:
+  body Directus dài hơn nên phần độ dài khác → `compare()` bỏ so ETag khi body thô một bên có `backoffice_migrations`
+  hoặc khi `HEAD` route SDL (không có body). (3) Introspection admin: graphql-js xếp `types` theo thứ tự duyệt từ
+  `Query`, mà field đầu của `Query` ở Directus là `backoffice_migrations` → sau khi lọc vẫn lệch thứ tự → trong trường
+  hợp đó `compare()` so `types` theo tên. Hệ quả: với admin, thứ tự `types` của introspection không còn được so; với
+  user không có quyền trên bảng này vẫn so nguyên văn.
+- T025 lần 2–3: route SDL trả `application/octet-stream` (file `.graphql`) nên `compare()` so sha256 → so dạng text sau
+  `withoutBackofficeSdl`; `system.test.ts` so danh sách path OAS lấy qua GraphQL → bỏ `/items/backoffice_*` ở hai bên;
+  scope `system` của Directus có `Subscription.backoffice_migrations_mutated` và hai type đi kèm → lọc cả introspection
+  `/graphql/system` (thứ tự còn lại khớp, không cần sắp). Kết quả: request-set, schema, schema-management, GraphQL trên
+  Postgres local 128 đạt, 24 bỏ qua (profile khác).
+
 ## Sửa spec khi plan (2026-10-26)
 
 - FR-002: "nhãn en-US và vi-VN" (bỏ "ghi chú": `directus_fields.note` là một chuỗi, không dịch được cho cả hai app).

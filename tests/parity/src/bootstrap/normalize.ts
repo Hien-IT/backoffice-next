@@ -73,9 +73,28 @@ export function pinoLines(output: string): LogLine[] {
 	return lines;
 }
 
-/** pinoLines with each message normalized (FR-006: only `level` and `msg` are compared). */
+/**
+ * pinoLines with each message normalized (FR-006: only `level` and `msg` are compared). Spec 022 FR-019: the lines of
+ * the Backoffice migrations (D-180) are dropped: "Running Backoffice migrations...", the "Applying ..." lines right
+ * after it and "Backoffice migrations are up to date".
+ */
 export function normalizeLogs(output: string, options: TextOptions = {}): LogLine[] {
-	return pinoLines(output).map(({ level, msg }) => ({ level, msg: normalizeText(msg, options) }));
+	const lines: LogLine[] = [];
+	let backoffice = false;
+
+	for (const { level, msg } of pinoLines(output)) {
+		if (msg === 'Running Backoffice migrations...' || msg === 'Backoffice migrations are up to date') {
+			backoffice = true;
+			continue;
+		}
+
+		if (backoffice && msg.startsWith('Applying ')) continue;
+
+		backoffice = false;
+		lines.push({ level, msg: normalizeText(msg, options) });
+	}
+
+	return lines;
 }
 
 /**

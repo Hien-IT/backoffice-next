@@ -2,6 +2,7 @@
 import { useEnv } from '@backoffice/env';
 import type { Knex } from 'knex';
 import { email } from 'zod';
+import runBackofficeMigrations from '../../../database/backoffice-migrations/run.js';
 import getDatabase, {
 	hasDatabaseConnection,
 	isInstalled,
@@ -9,6 +10,7 @@ import getDatabase, {
 } from '../../../database/index.js';
 import runMigrations from '../../../database/migrations/run.js';
 import installDatabase from '../../../database/seeds/run.js';
+import { migrationsValid } from '../../../database/validate-migrations.js';
 import { useLogger } from '../../../logger/index.js';
 import { SettingsService } from '../../../services/settings.service.js';
 import { createAdmin } from '../../../utils/create-admin.js';
@@ -37,6 +39,8 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 		}
 
 		logger.info(vendorMessages.bootstrapInstalled(client));
+		// Backoffice (spec 022 FR-013): the Backoffice migrations run on every vendor, once DR has migrated the database.
+		if (await migrationsValid(database)) await runBackofficeMigrations(database);
 		await database.destroy();
 		logger.info('Done');
 		return process.exit(0);
@@ -49,6 +53,7 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 
 		logger.info('Running migrations...');
 		await runMigrations(database, 'latest');
+		await runBackofficeMigrations(database);
 
 		const schema = await getSchema();
 
@@ -78,6 +83,7 @@ export default async function bootstrap({ skipAdminInit }: { skipAdminInit?: boo
 		logger.info('Database already initialized, skipping install');
 		logger.info('Running migrations...');
 		await runMigrations(database, 'latest');
+		await runBackofficeMigrations(database);
 	}
 
 	await database.destroy();

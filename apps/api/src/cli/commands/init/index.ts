@@ -4,6 +4,7 @@ import chalk from 'chalk';
 import inquirer from 'inquirer';
 import Joi from 'joi';
 import type { Knex } from 'knex';
+import runBackofficeMigrations from '../../../database/backoffice-migrations/run.js';
 import runMigrations from '../../../database/migrations/run.js';
 import runSeed from '../../../database/seeds/run.js';
 import { defaultAdminPolicy, defaultAdminRole, defaultAdminUser } from '../../../utils/create-admin.js';
@@ -46,6 +47,8 @@ export default async function init(): Promise<void> {
 		try {
 			await runSeed(db);
 			await runMigrations(db, 'latest', false);
+			// Backoffice (spec 022 FR-013): init installs the database without bootstrap, so the Backoffice migrations run here.
+			await runBackofficeMigrations(db, undefined, false);
 		} catch (err: any) {
 			process.stdout.write('\nSomething went wrong while seeding the database:\n');
 			process.stdout.write(`\n${chalk.red(`[${err.code || 'Error'}]`)} ${err.message}\n`);

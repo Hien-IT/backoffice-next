@@ -8,6 +8,7 @@ import { join } from 'node:path';
 import inquirer from 'inquirer';
 import knex from 'knex';
 import { type MockInstance, afterEach, beforeEach, expect, test, vi } from 'vitest';
+import { BACKOFFICE_MIGRATIONS } from '../../../database/backoffice-migrations/index.js';
 import { DIRECTUS_MIGRATIONS } from '../../../database/migrations/directus-11.17.4.js';
 import init from './index.js';
 
@@ -95,6 +96,13 @@ test('SQLite: installs the database, writes .env and the first admin, prints the
 	try {
 		const versions = (await db('directus_migrations').select('version')).map((r) => r.version).sort();
 		expect(versions).toEqual([...DIRECTUS_MIGRATIONS].sort());
+
+		// Spec 022 FR-013: init installs the database itself, so it runs the Backoffice migrations too.
+		expect(BACKOFFICE_MIGRATIONS.length).toBeGreaterThan(0);
+		expect((await db('backoffice_migrations').select('version')).map((r) => r.version)).toEqual(
+			BACKOFFICE_MIGRATIONS.map((m) => m.version),
+		);
+		expect(await db.schema.hasColumn('directus_collections', 'bo_show_search')).toBe(true);
 
 		const [user] = await db('directus_users').select('*');
 		const access = await db('directus_access').where({ role: user.role }).first();

@@ -17,7 +17,8 @@ export const systemCollectionNames: string[] = (systemData['data'] as DataCollec
 );
 
 export function isSystemCollection(collection: string): boolean {
-	if (!collection.startsWith('directus_')) return false;
+	// Backoffice (spec 022, D-181): backoffice_migrations is listed too.
+	if (!collection.startsWith('directus_') && !collection.startsWith('backoffice_')) return false;
 
 	return systemCollectionNames.includes(collection);
 }

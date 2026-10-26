@@ -33,9 +33,19 @@ describe('systemCollectionRows', () => {
 		}
 	});
 
-	test('should have all collections start with directus_', () => {
+	// Backoffice (spec 022, D-181): backoffice_migrations is a system collection too.
+	test('should have all collections start with directus_ or backoffice_', () => {
 		systemCollectionRows.forEach((row) => {
-			expect(row.collection?.startsWith('directus_')).toBe(true);
+			expect(row.collection?.startsWith('directus_') || row.collection?.startsWith('backoffice_')).toBe(true);
+		});
+	});
+
+	test('backoffice_migrations is a hidden system collection (spec 022, D-181)', () => {
+		expect(systemCollectionRows.find((row) => row.collection === 'backoffice_migrations')).toMatchObject({
+			collection: 'backoffice_migrations',
+			hidden: true,
+			system: true,
+			note: null,
 		});
 	});
 
@@ -110,6 +120,13 @@ describe('isSystemCollection', () => {
 		expect(isSystemCollection('my_collection')).toBe(false);
 		expect(isSystemCollection('test')).toBe(false);
 		expect(isSystemCollection('a')).toBe(false);
+	});
+
+	test('Backoffice system collections (spec 022, D-181): listed backoffice_ names only', () => {
+		expect(isSystemCollection('backoffice_migrations')).toBe(true);
+		expect(isSystemCollection('backoffice_x')).toBe(false);
+		expect(isSystemCollection('backoffice_')).toBe(false);
+		expect(isSystemCollection('Backoffice_migrations')).toBe(false);
 	});
 
 	test('should return false for strings with directus_ in the middle', () => {

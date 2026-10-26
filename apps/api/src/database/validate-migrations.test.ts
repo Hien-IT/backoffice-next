@@ -4,6 +4,7 @@ import { join } from 'node:path';
 import { useEnv } from '@backoffice/env';
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { useLogger } from '../logger/index.js';
+import { BACKOFFICE_MIGRATIONS } from './backoffice-migrations/index.js';
 import { DIRECTUS_MIGRATIONS } from './migrations/directus-11.17.4.js';
 import { checkMigrations, getCustomMigrations, migrationsValid, validateMigrations } from './validate-migrations.js';
 
@@ -15,10 +16,15 @@ const logger = { warn: vi.fn(), error: vi.fn() };
 let dir: string;
 let exit: MockInstance<typeof process.exit>;
 
-function db(versions: string[] | Error) {
+const BO_ALL = BACKOFFICE_MIGRATIONS.map((m) => m.version);
+
+/** directus_migrations holds `versions`; backoffice_migrations holds `bo` (null: the table does not exist). */
+function db(versions: string[] | Error, bo: string[] | null = BO_ALL) {
 	return {
+		schema: { hasTable: async (table: string) => table === 'backoffice_migrations' && bo !== null },
 		select: () => ({
-			from: async () => {
+			from: async (table: string) => {
+				if (table === 'backoffice_migrations') return (bo ?? []).map((version) => ({ version }));
 				if (versions instanceof Error) throw versions;
 				return versions.map((version) => ({ version }));
 			},
@@ -90,6 +96,82 @@ describe('validateMigrations', () => {
 		expect(logger.error).toHaveBeenNthCalledWith(1, 'Database migrations cannot be found');
 		expect(logger.error).toHaveBeenNthCalledWith(2, error);
 		expect(exit).toHaveBeenCalledWith(1);
+	});
+});
+
+describe('Backoffice migrations (spec 022 FR-016, D-180)', () => {
+	// The list is static; these cases use a stand-in version so they hold whatever the list contains.
+	const BO = ['20261026A'];
+	const original = [...BACKOFFICE_MIGRATIONS];
+
+	beforeEach(() => {
+		(BACKOFFICE_MIGRATIONS as unknown as object[]).splice(0, Infinity, { version: '20261026A', name: 'x', up: vi.fn() });
+	});
+
+	afterEach(() => {
+		(BACKOFFICE_MIGRATIONS as unknown as object[]).splice(0, Infinity, ...original);
+	});
+
+	test('checkMigrations reports the Backoffice versions apart from the DR ones', async () => {
+		const result = await checkMigrations(db(all, null));
+
+		expect(result.boRequired).toEqual(BO);
+		expect(result.boCompleted).toEqual([]);
+		expect(result.boMissing).toEqual(BO);
+		expect(result.boExtra).toEqual([]);
+		expect(result.missing).toEqual([]);
+	});
+
+	test('no backoffice_migrations table → every Backoffice migration is missing, exit 1 with the bootstrap hint', async () => {
+		await validateMigrations(db(all, null));
+
+		expect(logger.error.mock.calls.map(([m]) => m)).toEqual([
+			'Backoffice migrations do not match.',
+			'Missing Backoffice migrations (not run yet): 20261026A',
+			'Run "node cli.js bootstrap" to apply them.',
+		]);
+
+		expect(exit).toHaveBeenCalledWith(1);
+	});
+
+	test('an unknown Backoffice version (newer Backoffice) → exit 1', async () => {
+		await validateMigrations(db(all, [...BO, '20990101A']));
+
+		expect(logger.error.mock.calls.map(([m]) => m)).toEqual([
+			'Backoffice migrations do not match.',
+			'Unknown Backoffice migrations (newer Backoffice?): 20990101A',
+			'Run "node cli.js bootstrap" to apply them.',
+		]);
+
+		expect(exit).toHaveBeenCalledWith(1);
+	});
+
+	test('DR and Backoffice mismatches are reported together, DR first', async () => {
+		await validateMigrations(db(all.slice(1), null));
+
+		expect(logger.error.mock.calls.map(([m]) => m)).toEqual([
+			'Database migrations do not match Directus 11.17.4.',
+			'Missing migrations (not run yet): 20201028A',
+			'If Directus is still migrating, restart Backoffice after it finishes.',
+			'Backoffice migrations do not match.',
+			'Missing Backoffice migrations (not run yet): 20261026A',
+			'Run "node cli.js bootstrap" to apply them.',
+		]);
+
+		expect(exit).toHaveBeenCalledOnce();
+		expect(exit).toHaveBeenCalledWith(1);
+	});
+
+	test('all present → passes silently', async () => {
+		await validateMigrations(db(all, BO));
+		expect(logger.error).not.toHaveBeenCalled();
+		expect(exit).not.toHaveBeenCalled();
+	});
+
+	test('migrationsValid is false while a Backoffice migration is missing; an unknown one does not count', async () => {
+		expect(await migrationsValid(db(all, BO))).toBe(true);
+		expect(await migrationsValid(db(all, null))).toBe(false);
+		expect(await migrationsValid(db(all, [...BO, '20990101A']))).toBe(true);
 	});
 });
 

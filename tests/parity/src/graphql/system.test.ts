@@ -115,9 +115,10 @@ describe('server, me, extensions, utils (US3.5, US3.6)', () => {
 			(['directus', 'backoffice'] as const).map((app) => gql(app, 'system', '{ server_specs_oas }', { token: admin })),
 		);
 		expect(oas.map((c) => c.status)).toEqual([200, 200]);
-		expect(Object.keys(data(oas[1]!).server_specs_oas.paths)).toEqual(
-			Object.keys(data(oas[0]!).server_specs_oas.paths),
-		);
+		// Spec 022 D-181: Directus documents /items/backoffice_migrations for the admin, Backoffice does not.
+		const paths = (captured: (typeof oas)[number]) =>
+			Object.keys(data(captured).server_specs_oas.paths).filter((path) => !path.startsWith('/items/backoffice_'));
+		expect(paths(oas[1]!)).toEqual(paths(oas[0]!));
 	});
 
 	it('utils: random string, hash generated at one app verified at the other, sort, revert, cache clear', async () => {

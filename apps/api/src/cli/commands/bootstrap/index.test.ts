@@ -1,6 +1,7 @@
 // Backoffice: DR has no unit test for cli/commands/bootstrap (spec 021 T016).
 import { useEnv } from '@backoffice/env';
 import { type MockInstance, afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
+import runBackofficeMigrations from '../../../database/backoffice-migrations/run.js';
 import getDatabase, {
 	getDatabaseClient,
 	hasDatabaseConnection,
@@ -9,6 +10,7 @@ import getDatabase, {
 } from '../../../database/index.js';
 import runMigrations from '../../../database/migrations/run.js';
 import installDatabase from '../../../database/seeds/run.js';
+import { migrationsValid } from '../../../database/validate-migrations.js';
 import { useLogger } from '../../../logger/index.js';
 import { getSchema } from '../../../schema/get-database-schema.js';
 import { SettingsService } from '../../../services/settings.service.js';
@@ -16,6 +18,8 @@ import { createAdmin } from '../../../utils/create-admin.js';
 import bootstrap from './index.js';
 
 vi.mock('@backoffice/env');
+vi.mock('../../../database/backoffice-migrations/run.js');
+vi.mock('../../../database/validate-migrations.js');
 vi.mock('../../../database/index.js');
 vi.mock('../../../database/migrations/run.js');
 vi.mock('../../../database/seeds/run.js');
@@ -41,6 +45,8 @@ beforeEach(() => {
 	vi.mocked(getSchema).mockResolvedValue({} as any);
 	vi.mocked(installDatabase).mockImplementation(async () => void calls.push('seed'));
 	vi.mocked(runMigrations).mockImplementation(async (_db, direction) => void calls.push(`migrate:${direction}`));
+	vi.mocked(runBackofficeMigrations).mockImplementation(async () => void calls.push('bo-migrate'));
+	vi.mocked(migrationsValid).mockResolvedValue(true);
 	vi.mocked(createAdmin).mockImplementation(async () => void calls.push('admin'));
 	vi.mocked(SettingsService.prototype.upsertSingleton).mockImplementation(async (data: any) => {
 		calls.push(`settings:${data.project_name}`);
@@ -72,7 +78,7 @@ describe('empty database', () => {
 		const error = await run();
 
 		expect(error).toEqual(new Exit('0'));
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'bo-migrate', 'admin', 'settings:Backoffice']);
 		expect(messages()).toEqual([
 			'Initializing bootstrap...',
 			'Installing Backoffice system tables...',
@@ -85,7 +91,7 @@ describe('empty database', () => {
 	test('--skipAdminInit skips createAdmin with the Directus log line', async () => {
 		await run({ skipAdminInit: true });
 
-		expect(calls).toEqual(['seed', 'migrate:latest', 'settings:Backoffice']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'bo-migrate', 'settings:Backoffice']);
 		expect(messages()).toContain('Skipping creation of default Admin user and role...');
 	});
 
@@ -94,7 +100,7 @@ describe('empty database', () => {
 
 		await run();
 
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Acme', 'owner:owner@example.com']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'bo-migrate', 'admin', 'settings:Acme', 'owner:owner@example.com']);
 		expect(SettingsService.prototype.setOwner).toHaveBeenCalledWith({
 			project_owner: 'owner@example.com',
 			org_name: null,
@@ -108,7 +114,7 @@ describe('empty database', () => {
 
 		await run();
 
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'bo-migrate', 'admin', 'settings:Backoffice']);
 	});
 });
 
@@ -119,7 +125,7 @@ describe('installed database', () => {
 		const error = await run();
 
 		expect(error).toEqual(new Exit('0'));
-		expect(calls).toEqual(['migrate:latest']);
+		expect(calls).toEqual(['migrate:latest', 'bo-migrate']);
 		expect(messages()).toEqual([
 			'Initializing bootstrap...',
 			'Database already initialized, skipping install',
@@ -174,12 +180,13 @@ describe('vendors Backoffice does not install or migrate (D-145)', () => {
 		},
 	);
 
-	test('installed database: no migration, "Done", exit 0', async () => {
+	test('installed database, DR migrations complete: only the Backoffice migrations, "Done", exit 0 (spec 022 FR-013)', async () => {
 		vi.mocked(getDatabaseClient).mockReturnValue('mysql');
 		vi.mocked(isInstalled).mockResolvedValue(true);
 
 		expect(await run()).toEqual(new Exit('0'));
-		expect(calls).toEqual([]);
+		expect(migrationsValid).toHaveBeenCalledWith(database);
+		expect(calls).toEqual(['bo-migrate']);
 		expect(messages()).toEqual([
 			'Initializing bootstrap...',
 			'Database on mysql is migrated by Directus 11.17.4 (D-145); skipping migrations',
@@ -187,11 +194,20 @@ describe('vendors Backoffice does not install or migrate (D-145)', () => {
 		]);
 	});
 
+	test('installed database, DR still migrating: nothing runs, exit 0; start reports the missing ones', async () => {
+		vi.mocked(getDatabaseClient).mockReturnValue('oracle');
+		vi.mocked(isInstalled).mockResolvedValue(true);
+		vi.mocked(migrationsValid).mockResolvedValue(false);
+
+		expect(await run()).toEqual(new Exit('0'));
+		expect(calls).toEqual([]);
+	});
+
 	test('sqlite is bootstrapped by Backoffice', async () => {
 		vi.mocked(getDatabaseClient).mockReturnValue('sqlite');
 		vi.mocked(isInstalled).mockResolvedValue(false);
 
 		await run();
-		expect(calls).toEqual(['seed', 'migrate:latest', 'admin', 'settings:Backoffice']);
+		expect(calls).toEqual(['seed', 'migrate:latest', 'bo-migrate', 'admin', 'settings:Backoffice']);
 	});
 });

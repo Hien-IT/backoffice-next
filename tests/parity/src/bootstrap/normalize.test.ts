@@ -17,6 +17,30 @@ test('branding, start command and program name (D-147)', () => {
 	);
 });
 
+test('the log lines of the Backoffice migrations are dropped (spec 022 FR-019)', () => {
+	const line = (msg: string) => JSON.stringify({ level: 30, time: 1, msg });
+	const output = [
+		'Running migrations...',
+		'Applying Remove Collection Foreign Keys...',
+		'Running Backoffice migrations...',
+		'Applying Add Collection UI Toggles...',
+		'Applying Some Later Backoffice Migration...',
+		'Done',
+		'Running Backoffice migrations...',
+		'Backoffice migrations are up to date',
+		'Done',
+	]
+		.map(line)
+		.join('\n');
+
+	expect(normalizeLogs(output).map((l) => l.msg)).toEqual([
+		'Running migrations...',
+		'Applying Remove Collection Foreign Keys...',
+		'Done',
+		'Done',
+	]);
+});
+
 test('the Directus table names stay', () => {
 	expect(normalizeText('directus_users')).toBe('directus_users');
 	expect(normalizeText("Database doesn't have Directus tables installed.")).toBe(

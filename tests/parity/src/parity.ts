@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import http from 'node:http';
 import https from 'node:https';
 import type { AcceptedDifference, Matcher } from '../accepted-differences.js';
-import { normalizeBody, normalizeHeader, normalizeText } from './normalizers.js';
+import { normalizeBody, normalizeHeader, normalizeText, sortIntrospectionTypes } from './normalizers.js';
 
 export interface ParityRequest {
 	method?: string;
@@ -191,8 +191,16 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 		(c) => c.isJson && JSON.stringify(normalizeBody(path, c.json)) !== JSON.stringify(c.json),
 	);
 
+	// Spec 022 D-181: Directus lists backoffice_migrations (collections, fields, GraphQL items, SDL) where Backoffice
+	// does not; the bodies are compared without it, so the ETags of the raw bodies cannot match (a HEAD of the SDL
+	// route has no body to look at).
+	const backofficeCollections =
+		[directus, backoffice].some((c) => c.text.includes('backoffice_migrations')) ||
+		(/^\/server\/specs\/graphql(\/system)?$/.test(path) && directus.text === '' && backoffice.text === '');
+
 	for (const name of [...names].sort()) {
 		if (name === 'etag' && NO_ETAG.some((r) => r.test(path))) continue;
+		if (name === 'etag' && backofficeCollections) continue;
 
 		let a = normalizeHeader(name, directus.headers[name]);
 		let b = normalizeHeader(name, backoffice.headers[name]);
@@ -206,7 +214,22 @@ export function compare(endpoint: string, directus: Captured, backoffice: Captur
 	}
 
 	if (directus.isJson && backoffice.isJson) {
-		diffJson(normalizeBody(path, directus.json), normalizeBody(path, backoffice.json), '', differences);
+		let a = normalizeBody(path, directus.json);
+		let b = normalizeBody(path, backoffice.json);
+
+		// D-181: graphql-js lists introspection types in traversal order from Query, whose first fields at Directus are
+		// the backoffice_migrations ones: with them left out, the types are compared by name.
+		if (backofficeCollections && /^\/graphql(\?|$)/.test(path)) {
+			a = sortIntrospectionTypes(a);
+			b = sortIntrospectionTypes(b);
+		}
+
+		diffJson(a, b, '', differences);
+	} else if (/^\/server\/specs\/graphql(\/system)?$/.test(path)) {
+		// D-181: the SDL download (application/octet-stream) is text; compared byte for byte without backoffice_migrations.
+		if (normalizeText(directus.text) !== normalizeText(backoffice.text)) {
+			differences.push({ kind: 'body', location: '', directus: bodyDigest(directus), backoffice: bodyDigest(backoffice) });
+		}
 	} else if (isBinary(directus) || isBinary(backoffice)) {
 		const a = bodyDigest(directus);
 		const b = bodyDigest(backoffice);

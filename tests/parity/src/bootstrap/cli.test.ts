@@ -2,6 +2,7 @@
 // backoffice-api-bootstrap with the same arguments, each on its own database bootstrapped the same way; exit code,
 // stdout and the (level, msg) log lines must be equal after the FR-107 rules. Commands that write (users, roles,
 // schema apply) run on both databases and their rows are compared; the file removes what it wrote.
+import yaml from 'js-yaml';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { getDbsToTest } from '../get-dbs-to-test.js';
 import { profileUrls } from '../profiles.js';
@@ -66,6 +67,28 @@ function expectSame(results: Record<BootstrapApp, CliResult>, code?: number) {
 	if (code !== undefined) expect(directus.code).toBe(code);
 	return directus;
 }
+
+type SnapshotDocument = { fields: { collection: string; field: string }[] } & Record<string, unknown>;
+
+/** The snapshot a `schema snapshot` printed to stdout (pino lines left out), versions normalized, parsed. */
+function snapshotOf(result: CliResult, format: 'yaml' | 'json'): SnapshotDocument {
+	const text = result.stdout
+		.split('\n')
+		.filter((line) => !/^\s*\{"level":/.test(line))
+		.join('\n');
+	const normalized = normalizeText(text, { versions });
+
+	return (format === 'json' ? JSON.parse(normalized) : yaml.load(normalized)) as SnapshotDocument;
+}
+
+/** Spec 022 FR-019 (D-180): the bo_* fields the Backoffice migrations add to directus_* tables. */
+const isBackofficeField = (f: { collection: string; field: string }) =>
+	f.collection.startsWith('directus_') && f.field.startsWith('bo_');
+
+const withoutBackofficeFields = (snapshot: SnapshotDocument): SnapshotDocument => ({
+	...snapshot,
+	fields: snapshot.fields.filter((f) => !isBackofficeField(f)),
+});
 
 /** The last line of stdout: what the command prints after the "Extensions loaded" log line. */
 const lastLine = (result: CliResult) => result.stdout.trim().split('\n').at(-1)!.trim();
@@ -164,8 +187,23 @@ describe.skipIf(!pair)('profile bootstrap: the CLI of both apps (US3)', { timeou
 		});
 
 		test('schema snapshot to stdout, in YAML and JSON', async () => {
-			expectSame(await both(['schema', 'snapshot']), 0);
-			expectSame(await both(['schema', 'snapshot', '--format', 'json']), 0);
+			for (const format of ['yaml', 'json'] as const) {
+				const results = await both(['schema', 'snapshot', ...(format === 'json' ? ['--format', 'json'] : [])]);
+				const backoffice = snapshotOf(results.backoffice, format);
+
+				expect(results.directus.code).toBe(0);
+				expect(results.backoffice.code).toBe(0);
+				// D-180: the Backoffice database also has the three bo_* fields of migration 20261026A.
+				expect(backoffice.fields.filter(isBackofficeField).map((f) => f.field).sort()).toEqual([
+					'bo_show_export',
+					'bo_show_import',
+					'bo_show_search',
+				]);
+				expect(withoutBackofficeFields(backoffice)).toEqual(snapshotOf(results.directus, format));
+				expect(comparable(results.backoffice, new UuidMap()).logs).toEqual(
+					comparable(results.directus, new UuidMap()).logs,
+				);
+			}
 		});
 	});
 

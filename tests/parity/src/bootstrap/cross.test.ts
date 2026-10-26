@@ -244,4 +244,55 @@ describe.skipIf(!pair)('profile bootstrap: installed database and shared migrati
 			await dbs.backoffice('directus_migrations').where({ version: '20990199A' }).delete();
 		}
 	});
+
+	describe('Backoffice migrations (spec 022 US3, US4, D-180)', () => {
+		const BO_COLUMNS = ['bo_show_search', 'bo_show_import', 'bo_show_export'];
+		const boVersions = async (db: Knex) =>
+			(await db.select('version', 'name').from('backoffice_migrations').orderBy('version')).map(
+				(r) => `${r.version} ${r.name}`,
+			);
+
+		test('the database Backoffice bootstrapped has them; the one Directus bootstrapped has none of them', async () => {
+			expect(await boVersions(dbs.backoffice)).toEqual(['20261026A Add Collection UI Toggles']);
+
+			const columns = (await createInspector(dbs.backoffice).columnInfo('directus_collections')).map((c) => c.name);
+			expect(columns).toEqual(expect.arrayContaining(BO_COLUMNS));
+
+			expect(await createInspector(dbs.directus).hasTable('backoffice_migrations')).toBe(false);
+			const directusColumns = (await createInspector(dbs.directus).columnInfo('directus_collections')).map(
+				(c) => c.name,
+			);
+			expect(directusColumns.filter((c) => c.startsWith('bo_'))).toEqual([]);
+
+			// directus_migrations: the 101 versions only, never a Backoffice row.
+			expect((await versions(dbs.backoffice)).filter((v) => !OK_VERSIONS.includes(v.split(' ')[0]!))).toHaveLength(101);
+		});
+
+		test('bootstrap again: "up to date", still one row (FR-014)', async () => {
+			const bootstrap = cliRun(SERVICES.backoffice, ['bootstrap']);
+			expect(bootstrap.code, output(bootstrap)).toBe(0);
+			expect(output(bootstrap)).toContain('Backoffice migrations are up to date');
+			expect(await boVersions(dbs.backoffice)).toEqual(['20261026A Add Collection UI Toggles']);
+		});
+
+		test('start without bootstrap stops on a missing one; bootstrap runs it again over the existing columns', async () => {
+			await dbs.backoffice('backoffice_migrations').where({ version: '20261026A' }).delete();
+
+			try {
+				const start = cliRun(SERVICES.backoffice, ['start']);
+				expect(start.code).toBe(1);
+				expect(output(start)).toContain('Backoffice migrations do not match.');
+				expect(output(start)).toContain('Missing Backoffice migrations (not run yet): 20261026A');
+			} finally {
+				const bootstrap = cliRun(SERVICES.backoffice, ['bootstrap']);
+				expect(bootstrap.code, output(bootstrap)).toBe(0);
+				expect(output(bootstrap)).toContain('Applying Add Collection UI Toggles...');
+			}
+
+			expect(await boVersions(dbs.backoffice)).toEqual(['20261026A Add Collection UI Toggles']);
+			expect(
+				await dbs.backoffice('directus_fields').where({ collection: 'directus_collections' }).whereIn('field', BO_COLUMNS),
+			).toHaveLength(3);
+		});
+	});
 });

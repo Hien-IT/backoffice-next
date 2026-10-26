@@ -146,6 +146,45 @@ describe('compare()', () => {
 		expect(compare('GET /server/info', a, b)).toHaveLength(1);
 	});
 
+	test('spec 022 D-181: no ETag compare when one body lists backoffice_migrations, or on a HEAD of the SDL route', () => {
+		const json = (data: unknown[]) => ({ ...base, isJson: true, json: { data }, headers: { etag: `W/"${data.length}-x"` } });
+		const directus = json([{ collection: 'articles' }, { collection: 'backoffice_migrations' }]);
+		const backoffice = json([{ collection: 'articles' }]);
+		directus.text = JSON.stringify(directus.json);
+		backoffice.text = JSON.stringify(backoffice.json);
+
+		expect(compare('GET /collections', directus, backoffice)).toEqual([]);
+
+		// The SDL download is octet-stream: compared as text without backoffice_migrations, not by its sha256.
+		const sdl = (text: string) => ({ ...base, text, bytes: Buffer.from(text), headers: { 'content-type': 'application/octet-stream' } });
+		const query = 'type Query {\n  articles: [articles]\n}';
+		expect(
+			compare(
+				'GET /server/specs/graphql',
+				sdl('type Query {\n  articles: [articles]\n  backoffice_migrations: [backoffice_migrations]\n}'),
+				sdl(query),
+			),
+		).toEqual([]);
+		expect(compare('GET /server/specs/graphql', sdl(query), sdl('type Query {\n  other: [other]\n}'))).toHaveLength(1);
+
+		const head = { ...base, headers: { etag: 'W/"1"' } };
+		expect(compare('HEAD /server/specs/graphql', head, { ...head, headers: { etag: 'W/"2"' } })).toEqual([]);
+		expect(compare('HEAD /server/info', head, { ...head, headers: { etag: 'W/"2"' } })).toHaveLength(1);
+	});
+
+	test('spec 022 D-181: introspection types are compared by name when Directus had backoffice_migrations', () => {
+		const schema = (types: { name: string }[]) => {
+			const captured = { ...base, isJson: true, headers: {}, json: { data: { __schema: { types } } } };
+			return { ...captured, text: JSON.stringify(captured.json) };
+		};
+		const directus = schema([{ name: 'Query' }, { name: 'backoffice_migrations' }, { name: 'ID' }, { name: 'articles' }]);
+		const backoffice = schema([{ name: 'Query' }, { name: 'articles' }, { name: 'ID' }]);
+
+		expect(compare('POST /graphql', directus, backoffice)).toEqual([]);
+		// Without backoffice_migrations at either side the order is compared as before.
+		expect(compare('POST /graphql', schema([{ name: 'Query' }, { name: 'ID' }]), schema([{ name: 'ID' }, { name: 'Query' }]))).not.toEqual([]);
+	});
+
 	test('compares access-control-* headers and Retry-After by format', () => {
 		const a = { ...base, headers: { 'access-control-allow-origin': '*', 'retry-after': '10' } };
 		const b = { ...base, headers: { 'access-control-allow-origin': '*', 'retry-after': '3' } };

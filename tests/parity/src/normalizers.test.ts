@@ -18,6 +18,160 @@ const jwt = (payload: Record<string, unknown>) =>
 
 const token64 = 'a'.repeat(32) + 'B-_9'.repeat(8);
 
+describe('spec 022 D-181: backoffice_* collections are left out of /collections and /fields', () => {
+	const body = {
+		data: [
+			{ collection: 'articles', meta: null },
+			{ collection: 'backoffice_migrations', meta: null },
+			{ collection: 'directus_users', meta: { system: true } },
+		],
+	};
+	const kept = ['articles', 'directus_users'];
+	const names = (b: unknown) => (b as { data: { collection: string }[] }).data.map((d) => d.collection);
+
+	test.each(['/collections', '/collections/', '/collections?limit=-1', '/fields', '/fields?limit=-1'])('%s', (path) => {
+		expect(names(normalizeBody(path, body))).toEqual(kept);
+	});
+
+	test('other paths and single items are not filtered', () => {
+		expect(names(normalizeBody('/items/articles', body))).toHaveLength(3);
+		expect(normalizeBody('/collections/backoffice_migrations', { data: { collection: 'backoffice_migrations' } })).toEqual(
+			{ data: { collection: 'backoffice_migrations' } },
+		);
+	});
+
+	test('bodies without a data array are left as they are', () => {
+		expect(normalizeBody('/collections', { errors: [{ message: 'x' }] })).toEqual({ errors: [{ message: 'x' }] });
+	});
+
+	test('OAS: the tag, the /items path and the schema of backoffice_migrations are left out', () => {
+		const tag = { name: 'ItemsBackofficeMigrations', 'x-collection': 'backoffice_migrations' };
+		const oas = {
+			info: { title: 'x', version: 'abc' },
+			tags: [{ name: 'Users', 'x-collection': 'directus_users' }, tag],
+			paths: { '/items/backoffice_migrations': {}, '/items/backoffice_migrations/{id}': {}, '/users': {} },
+			components: {
+				schemas: { Users: { 'x-collection': 'directus_users' }, ItemsBackofficeMigrations: { 'x-collection': 'backoffice_migrations' } },
+			},
+		};
+
+		expect(normalizeBody('/server/specs/oas', oas)).toEqual({
+			info: { title: 'x' },
+			tags: [{ name: 'Users', 'x-collection': 'directus_users' }],
+			paths: { '/users': {} },
+			components: { schemas: { Users: { 'x-collection': 'directus_users' } } },
+		});
+	});
+
+	// An excerpt of the admin items SDL of Directus 11.17.4 on a database with backoffice_migrations (2026-10-26).
+	const directusSdl = [
+		'type Query {',
+		'  bo_sdl_check(filter: bo_sdl_check_filter): [bo_sdl_check!]!',
+		'  backoffice_migrations(filter: backoffice_migrations_filter, sort: [String]): [backoffice_migrations!]!',
+		'  backoffice_migrations_by_version(version: String!, id: ID!): version_backoffice_migrations',
+		'}',
+		'',
+		'type backoffice_migrations {',
+		'  version: ID!',
+		'  name: String!',
+		'}',
+		'',
+		'type bo_sdl_check {',
+		'  id: ID!',
+		'}',
+		'',
+		'""""""',
+		'type version_backoffice_migrations {',
+		'  version: ID',
+		'}',
+		'',
+		'""""""',
+		'type version_bo_sdl_check {',
+		'  id: ID',
+		'}',
+		'',
+		'input update_backoffice_migrations_input {',
+		'  version: String',
+		'}',
+	].join('\n');
+	const backofficeSdl = [
+		'type Query {',
+		'  bo_sdl_check(filter: bo_sdl_check_filter): [bo_sdl_check!]!',
+		'}',
+		'',
+		'type bo_sdl_check {',
+		'  id: ID!',
+		'}',
+		'',
+		'""""""',
+		'type version_bo_sdl_check {',
+		'  id: ID',
+		'}',
+	].join('\n');
+
+	test('SDL text: definitions and root fields named after backoffice_migrations are left out, the rest verbatim', () => {
+		expect(normalizeText(directusSdl)).toBe(backofficeSdl);
+		expect(normalizeText(backofficeSdl)).toBe(backofficeSdl);
+		expect(normalizeText(`${directusSdl}\n`)).toBe(`${backofficeSdl}\n`);
+	});
+
+	test('server_specs_graphql through /graphql/system', () => {
+		expect(normalizeBody('/graphql/system', { data: { server_specs_graphql: directusSdl } })).toEqual({
+			data: { server_specs_graphql: backofficeSdl },
+		});
+	});
+
+	test('GraphQL introspection: the backoffice_migrations types and root fields are left out', () => {
+		const body = {
+			data: {
+				__schema: {
+					types: [
+						{
+							name: 'Query',
+							fields: [{ name: 'articles' }, { name: 'backoffice_migrations' }, { name: 'backoffice_migrations_by_id' }],
+						},
+						{ name: 'Mutation', fields: [{ name: 'create_backoffice_migrations_item' }, { name: 'create_articles_item' }] },
+						{ name: 'backoffice_migrations', fields: [{ name: 'version' }] },
+						{ name: 'backoffice_migrations_filter', inputFields: [] },
+						{ name: 'String', fields: null },
+					],
+				},
+			},
+		};
+
+		expect(normalizeBody('/graphql', body)).toEqual({
+			data: {
+				__schema: {
+					types: [
+						{ name: 'Query', fields: [{ name: 'articles' }] },
+						{ name: 'Mutation', fields: [{ name: 'create_articles_item' }] },
+						{ name: 'String', fields: null },
+					],
+				},
+			},
+		});
+		expect(normalizeBody('/graphql', { data: { articles: [] } })).toEqual({ data: { articles: [] } });
+	});
+
+	test('GraphQL system scope: the Subscription field and types of backoffice_migrations are left out', () => {
+		const body = {
+			data: {
+				__schema: {
+					types: [
+						{ name: 'Subscription', fields: [{ name: 'directus_users_mutated' }, { name: 'backoffice_migrations_mutated' }] },
+						{ name: 'backoffice_migrations_mutated', fields: [{ name: 'key' }] },
+						{ name: 'backoffice_migrations', fields: [{ name: 'version' }] },
+					],
+				},
+			},
+		};
+
+		expect(normalizeBody('/graphql/system', body)).toEqual({
+			data: { __schema: { types: [{ name: 'Subscription', fields: [{ name: 'directus_users_mutated' }] }] } },
+		});
+	});
+});
+
 describe('tokens', () => {
 	test('classifies empty values, JWTs and 64-character tokens', () => {
 		expect(tokenKind('')).toBe('<empty>');

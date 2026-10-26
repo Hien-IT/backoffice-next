@@ -36,10 +36,14 @@ export async function dump(db: Knex): Promise<Dump> {
 	const inspector = createInspector(db);
 	const tables = (await inspector.tables()).filter((t) => t.startsWith('directus_')).sort();
 
-	const out: Dump = { tables: [], foreignKeys: [], indexes: await indexesOf(db, tables), rows: {} };
+	// Postgres lists every index of the schema: keep the directus_* ones (D-180: not backoffice_migrations_pkey).
+	const indexes = (await indexesOf(db, tables)).filter((index) => tables.includes(index.table));
+	const out: Dump = { tables: [], foreignKeys: [], indexes, rows: {} };
 
 	for (const table of tables) {
 		const columns = (await inspector.columnInfo(table))
+			// D-180: the bo_* columns of the Backoffice migrations are not in a database Directus bootstrapped.
+			.filter((c) => !c.name.startsWith('bo_'))
 			.map((c) => ({
 				name: c.name,
 				data_type: c.data_type,
@@ -64,7 +68,11 @@ export async function dump(db: Knex): Promise<Dump> {
 			});
 		}
 
-		out.rows[table] = await db.select('*').from(table);
+		const kept = columns.map((c) => c.name);
+		const rows = await db.select(kept).from(table);
+		// D-180: the directus_fields rows of those columns.
+		out.rows[table] =
+			table === 'directus_fields' ? rows.filter((row) => !String(row['field'] ?? '').startsWith('bo_')) : rows;
 	}
 
 	out.foreignKeys.sort((a, b) => JSON.stringify(a).localeCompare(JSON.stringify(b)));

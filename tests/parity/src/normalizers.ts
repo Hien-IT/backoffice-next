@@ -22,7 +22,24 @@ export function normalizeContentDisposition(value: string): string {
 
 export function normalizeBody(path: string, body: unknown): unknown {
 	if (/^\/server\/specs\/oas$/i.test(path)) return normalizeOas(body);
+	if (/^\/(collections|fields)\/?(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeCollections(body));
+	if (/^\/graphql(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeIntrospection(body));
+	// The system scope too: its Subscription type covers every collection, backoffice_migrations_mutated at Directus.
+	if (/^\/graphql\/system(\?|$)/.test(path)) return normalizeDeep(withoutBackofficeIntrospection(withoutBackofficeSpecs(body)));
 	return normalizeDeep(body);
+}
+
+/**
+ * Spec 022 D-181: Backoffice lists backoffice_migrations as a hidden system collection, Directus as a table with
+ * `meta: null`; the lists of both apps are compared without the backoffice_* collections and their fields.
+ */
+function withoutBackofficeCollections(body: unknown): unknown {
+	if (!isObject(body) || !Array.isArray(body['data'])) return body;
+
+	return {
+		...body,
+		data: body['data'].filter((item) => !(isObject(item) && String(item['collection']).startsWith('backoffice_'))),
+	};
 }
 
 /** OAS: info.version is a hash of the request time; tags and paths follow catalog order (no ORDER BY). */
@@ -36,15 +53,69 @@ export function normalizeOas(body: unknown): unknown {
 		out['info'] = info;
 	}
 
+	// Spec 022 D-181: Directus documents backoffice_migrations as an items collection (admin), Backoffice has no static
+	// system tag for it; both are compared without it.
+	const backoffice = (value: unknown) => isObject(value) && String(value['x-collection'] ?? '').startsWith('backoffice_');
+
 	if (Array.isArray(out['tags'])) {
-		out['tags'] = [...out['tags']].sort((a, b) => String(nameOf(a)).localeCompare(String(nameOf(b))));
+		out['tags'] = out['tags']
+			.filter((tag) => !backoffice(tag))
+			.sort((a, b) => String(nameOf(a)).localeCompare(String(nameOf(b))));
 	}
 
 	if (isObject(out['paths'])) {
-		out['paths'] = Object.fromEntries(Object.entries(out['paths']).sort(([a], [b]) => a.localeCompare(b)));
+		out['paths'] = Object.fromEntries(
+			Object.entries(out['paths'])
+				.filter(([path]) => !path.startsWith('/items/backoffice_'))
+				.sort(([a], [b]) => a.localeCompare(b)),
+		);
+	}
+
+	if (isObject(out['components']) && isObject(out['components']['schemas'])) {
+		const schemas = Object.entries(out['components']['schemas']).filter(([, schema]) => !backoffice(schema));
+		out['components'] = { ...out['components'], schemas: Object.fromEntries(schemas) };
 	}
 
 	return out;
+}
+
+/** Spec 022 D-181: the introspection types sorted by name (used when one side had backoffice_migrations types). */
+export function sortIntrospectionTypes(body: unknown): unknown {
+	if (!isObject(body) || !isObject(body['data']) || !isObject(body['data']['__schema'])) return body;
+
+	const schema = body['data']['__schema'];
+	if (!Array.isArray(schema['types'])) return body;
+
+	const types = [...schema['types']].sort((a, b) => String(nameOf(a)).localeCompare(String(nameOf(b))));
+	return { ...body, data: { ...body['data'], __schema: { ...schema, types } } };
+}
+
+/** Spec 022 D-181: `server_specs_graphql` (the SDL through /graphql/system) without backoffice_migrations. */
+function withoutBackofficeSpecs(body: unknown): unknown {
+	if (!isObject(body) || !isObject(body['data']) || typeof body['data']['server_specs_graphql'] !== 'string') return body;
+	return { ...body, data: { ...body['data'], server_specs_graphql: withoutBackofficeSdl(body['data']['server_specs_graphql']) } };
+}
+
+/**
+ * Spec 022 D-181: an introspection result without the backoffice_migrations types and the root fields named after it
+ * (Directus has them in /graphql for the admin, Backoffice in neither scope, like directus_migrations).
+ */
+export function withoutBackofficeIntrospection(body: unknown): unknown {
+	if (!isObject(body) || !isObject(body['data']) || !isObject(body['data']['__schema'])) return body;
+
+	const schema = body['data']['__schema'];
+	if (!Array.isArray(schema['types'])) return body;
+
+	const named = (value: unknown) => isObject(value) && String(value['name'] ?? '').includes('backoffice_migrations');
+	const types = schema['types']
+		.filter((type) => !named(type))
+		.map((type) =>
+			isObject(type) && Array.isArray(type['fields'])
+				? { ...type, fields: type['fields'].filter((field) => !named(field)) }
+				: type,
+		);
+
+	return { ...body, data: { ...body['data'], __schema: { ...schema, types } } };
 }
 
 /** extensions.reset, observedValue and the REQUESTS_EXCEEDED message depend on time: keep their type or shape. */
@@ -158,9 +229,28 @@ export function normalizeLocation(value: string): string {
 
 /** Text body of an Express redirect ("Found. Redirecting to <url>"): the URL like the Location header. */
 export function normalizeText(text: string): string {
-	return text.replace(
-		/^(.+\. Redirecting to )(\S+)$/,
-		(_m, prefix: string, url: string) => prefix + normalizeLocation(url),
+	return withoutBackofficeSdl(
+		text.replace(/^(.+\. Redirecting to )(\S+)$/, (_m, prefix: string, url: string) => prefix + normalizeLocation(url)),
+	);
+}
+
+/**
+ * Spec 022 D-181: an SDL without the definitions named after backoffice_migrations (with their one-line description)
+ * and the root fields named after it; checked byte for byte against the Backoffice SDL of the same database.
+ */
+export function withoutBackofficeSdl(sdl: string): string {
+	if (!sdl.includes('backoffice_migrations')) return sdl;
+
+	const trailing = /\n*$/.exec(sdl)![0];
+
+	return (
+		sdl
+			.replace(
+				/^(?:"""[^\n]*"""\n)?(?:type|input|enum|interface) \w*backoffice_migrations\w* \{\n[\s\S]*?^\}(?:\n\n|\n|$)/gm,
+				'',
+			)
+			.replace(/^ {2}\w*backoffice_migrations\w*[(:][^\n]*\n/gm, '')
+			.replace(/\n+$/, '') + trailing
 	);
 }
 

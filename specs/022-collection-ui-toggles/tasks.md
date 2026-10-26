@@ -48,7 +48,7 @@ migration riêng tạo. Mỗi lượt kết thúc bằng task "đóng lượt" (
 
 **Purpose**: chốt hai điểm chưa kiểm của R1 và R4 trước khi viết code.
 
-- [ ] T001 Kiểm và ghi "Kết quả T001" vào `specs/022-collection-ui-toggles/research.md`: (a) `redlock.using` của
+- [X] T001 Kiểm và ghi "Kết quả T001" vào `specs/022-collection-ui-toggles/research.md`: (a) `redlock.using` của
       `@sesamecare-oss/redlock` 1.4.0 có tự gia hạn lock khi callback còn chạy không (đọc `node_modules/@sesamecare-oss/
       redlock/dist/*.js` hoặc README: `using` và `automaticExtensionThreshold`); nếu không, R1 đổi sang `acquireLock` +
       `extend` theo chu kỳ trong `bo-mig/run.ts`; (b) `grep -rn "startsWith('directus_')\|isSystemCollection"
@@ -60,23 +60,23 @@ migration riêng tạo. Mỗi lượt kết thúc bằng task "đóng lượt" (
 
 **Purpose**: runner, danh sách, lock và kiểm tra: mọi user story cần.
 
-- [ ] T002 [P] Viết `bo-mig/run.test.ts` (SQLite in-memory như `api/database/seeds/run.test.ts`; mock `../../cache.js`
+- [X] T002 [P] Viết `bo-mig/run.test.ts` (SQLite in-memory như `api/database/seeds/run.test.ts`; mock `../../cache.js`
       `flushCaches`, `../../logger/index.js`, `../../lock/index.js` `useLock` trả kv local): tạo bảng
       `backoffice_migrations` khi chưa có; chạy migration thiếu theo thứ tự với danh sách giả hai phần tử; bỏ qua đã
       chạy; không thiếu → không lock, không flush, log `Backoffice migrations are up to date`; có áp → `flushCaches(true)`
       đúng một lần; `up` ném lỗi → không ghi dòng, lỗi ném ra; đọc lại bảng sau khi lấy lock (migration giả ghi dòng
       trong lúc chờ lock → không chạy lại). Chạy đỏ.
-- [ ] T003 Viết `bo-mig/index.ts` (interface `BackofficeMigration { version; name; up }`, `BACKOFFICE_MIGRATIONS` rỗng tạm,
+- [X] T003 Viết `bo-mig/index.ts` (interface `BackofficeMigration { version; name; up }`, `BACKOFFICE_MIGRATIONS` rỗng tạm,
       comment D-180) và `bo-mig/run.ts` (`runBackofficeMigrations(knex, migrations = BACKOFFICE_MIGRATIONS)`: theo
       `contracts/migrations.md` bước 1–5; bảng: `version` string(255) primary, `name` string(255) notNullable,
       `timestamp` timestamp default `knex.fn.now()`; lock `useLock().usingLock('backoffice-migrations', ...)`;
       log `Running Backoffice migrations...` trước bước 2). T002 xanh.
-- [ ] T004 [P] Thêm vào `api/database/validate-migrations.test.ts`: db giả có `schema.hasTable` và `select('version')
+- [X] T004 [P] Thêm vào `api/database/validate-migrations.test.ts`: db giả có `schema.hasTable` và `select('version')
       .from('backoffice_migrations')`; case không có bảng → `boMissing` = danh sách; thiếu một → `validateMigrations`
       exit 1 với `Backoffice migrations do not match.` và dòng `Missing Backoffice migrations (not run yet): ...`,
       `Run "node cli.js bootstrap" to apply them.`; dòng lạ → exit 1 `Unknown Backoffice migrations (newer
       Backoffice?): ...`; `migrationsValid` false khi thiếu migration riêng; các case Directus cũ giữ. Chạy đỏ.
-- [ ] T005 Sửa `api/database/validate-migrations.ts`: `checkMigrations` thêm `boRequired` (version của
+- [X] T005 Sửa `api/database/validate-migrations.ts`: `checkMigrations` thêm `boRequired` (version của
       `BACKOFFICE_MIGRATIONS`), `boCompleted` (`hasTable` rồi select; không bảng = `[]`), `boMissing`, `boExtra`;
       `validateMigrations` và `migrationsValid` theo `contracts/migrations.md`. T004 xanh; `api/startup/run-startup-checks.ts`
       và `api/cli/load-extensions.ts` không cần sửa (gọi hàm cũ).
@@ -93,38 +93,38 @@ migration riêng tạo. Mỗi lượt kết thúc bằng task "đóng lượt" (
 
 ### Tests for User Story 3 (MANDATORY) ⚠️
 
-- [ ] T006 [P] [US3] Viết `bo-mig/20261026A-add-collection-ui-toggles.test.ts` (SQLite in-memory: tạo
+- [X] T006 [P] [US3] Viết `bo-mig/20261026A-add-collection-ui-toggles.test.ts` (SQLite in-memory: tạo
       `directus_collections(collection)`, `directus_fields(id, collection, field, special, interface, width,
       translations, sort, ...)` tối thiểu): `up` hai lần → ba cột `bo_show_search`, `bo_show_import`, `bo_show_export`
       default true nullable (kiểm `columnInfo`), ba dòng `directus_fields` với `special = cast-boolean`, `interface =
       boolean`, `width = half`, `translations` en-US/vi-VN đúng chữ của `research.md` R3, không dòng trùng; cột có sẵn
       trước `up` → không lỗi. Chạy đỏ.
-- [ ] T007 [P] [US3] Thêm vào `api/cli/commands/bootstrap/index.test.ts` (mock `../../../database/backoffice-migrations/
+- [X] T007 [P] [US3] Thêm vào `api/cli/commands/bootstrap/index.test.ts` (mock `../../../database/backoffice-migrations/
       run.js` và `../../../database/validate-migrations.js` `migrationsValid`): nhánh Postgres DB trống và DB đã cài gọi
       runner một lần sau `runMigrations latest`; nhánh vendor khác (`unsupportedClient`) gọi runner khi `migrationsValid`
       true, không gọi khi false, vẫn exit 0. Chạy đỏ.
-- [ ] T008 [P] [US3] Thêm vào `api/cli/commands/init/index.test.ts`: sau `runMigrations(db, 'latest', false)` gọi
+- [X] T008 [P] [US3] Thêm vào `api/cli/commands/init/index.test.ts`: sau `runMigrations(db, 'latest', false)` gọi
       `runBackofficeMigrations(db)` một lần. Chạy đỏ.
-- [ ] T009 [P] [US3] Thêm vào `parity/bootstrap/normalize.test.ts`: `normalizeLogs` bỏ dòng `Running Backoffice
+- [X] T009 [P] [US3] Thêm vào `parity/bootstrap/normalize.test.ts`: `normalizeLogs` bỏ dòng `Running Backoffice
       migrations...`, `Backoffice migrations are up to date`, `Applying Add Collection UI Toggles...` (quy tắc FR-019 của
       spec 022), giữ `Applying Remove Collection Foreign Keys...` của Directus. Chạy đỏ.
-- [ ] T010 [P] [US3] Thêm vào `parity/bootstrap/dump.test.ts`: dump bỏ cột `bo_*` khỏi `tables[].columns` và bỏ dòng
+- [X] T010 [P] [US3] Thêm vào `parity/bootstrap/dump.test.ts`: dump bỏ cột `bo_*` khỏi `tables[].columns` và bỏ dòng
       `directus_fields` có `field` bắt đầu `bo_` khỏi `rows`; bảng `backoffice_*` không có trong `tables`. Chạy đỏ.
 
 ### Implementation for User Story 3
 
-- [ ] T011 [US3] Viết `bo-mig/20261026A-add-collection-ui-toggles.ts` (export `version`, `name = 'Add Collection UI
+- [X] T011 [US3] Viết `bo-mig/20261026A-add-collection-ui-toggles.ts` (export `version`, `name = 'Add Collection UI
       Toggles'`, `up`: `hasColumn` → `alterTable` `boolean(col).defaultTo(true)`; dòng `directus_fields` nếu chưa có,
       `translations` là object như `api/database/migrations/20201029C-remove-system-fields.ts:1650`) và thêm vào
       `BACKOFFICE_MIGRATIONS` của `bo-mig/index.ts`. T006 xanh.
-- [ ] T012 [US3] Sửa `api/cli/commands/bootstrap/index.ts` theo `contracts/migrations.md` "Gọi từ đâu" (hai nhánh
+- [X] T012 [US3] Sửa `api/cli/commands/bootstrap/index.ts` theo `contracts/migrations.md` "Gọi từ đâu" (hai nhánh
       Postgres/SQLite trước `database.destroy()`; nhánh D-145 sau `bootstrapInstalled` khi `await migrationsValid(database)`).
       T007 xanh.
-- [ ] T013 [US3] Sửa `api/cli/commands/init/index.ts`: gọi `runBackofficeMigrations(db)` sau dòng 48. T008 xanh.
-- [ ] T014 [US3] Thêm quy tắc log vào `parity/bootstrap/normalize.ts` `normalizeLogs` (comment: spec 022 FR-019). T009
+- [X] T013 [US3] Sửa `api/cli/commands/init/index.ts`: gọi `runBackofficeMigrations(db)` sau dòng 48. T008 xanh.
+- [X] T014 [US3] Thêm quy tắc log vào `parity/bootstrap/normalize.ts` `normalizeLogs` (comment: spec 022 FR-019). T009
       xanh.
-- [ ] T015 [US3] Sửa `parity/bootstrap/dump.ts` (comment D-180). T010 xanh.
-- [ ] T016 [US3] Thêm vào `parity/bootstrap/cross.test.ts`: (a) sau baseline, DB `backoffice_bootstrap` có bảng
+- [X] T015 [US3] Sửa `parity/bootstrap/dump.ts` (comment D-180). T010 xanh.
+- [X] T016 [US3] Thêm vào `parity/bootstrap/cross.test.ts`: (a) sau baseline, DB `backoffice_bootstrap` có bảng
       `backoffice_migrations` với đúng một dòng `20261026A Add Collection UI Toggles` và `directus_collections` có ba
       cột; DB `directus_bootstrap` không có bảng và cột; (b) `cliRun('backoffice', ['bootstrap'])` lần nữa → log có
       `Backoffice migrations are up to date`, vẫn một dòng, `directus_migrations` 101 dòng không đổi; (c) case có sẵn
@@ -133,12 +133,12 @@ migration riêng tạo. Mỗi lượt kết thúc bằng task "đóng lượt" (
       ngay ở kiểm tra migration; timeout 60 s) → log `Backoffice migrations do not match.` và `Missing Backoffice
       migrations (not run yet): 20261026A`; rồi `cliRun('backoffice', ['bootstrap'])` → `Applying Add Collection UI
       Toggles...` không lỗi (cột đã có, FR-014), dòng trở lại.
-- [ ] T017 [US3] Viết `parity/deploy/backoffice-migrations.test.ts` (mẫu `parity/deploy/smoke.test.ts`, `instances.ts`):
+- [X] T017 [US3] Viết `parity/deploy/backoffice-migrations.test.ts` (mẫu `parity/deploy/smoke.test.ts`, `instances.ts`):
       qua DB của compose: `backoffice_migrations` đúng một dòng mỗi version của `BACKOFFICE_MIGRATIONS`; ba cột có; log
       của `REPLICAS` replica (`compose logs backoffice-api`) có đúng một `Applying Add Collection UI Toggles...` và các
       replica còn lại `Backoffice migrations are up to date` (chế độ standalone: dòng ở log service `bootstrap`, replica
       không có `Applying`); cả replica healthy; `directus_migrations` không có version ngoài `DIRECTUS_MIGRATIONS`.
-- [ ] T018 [US3] Chạy local: `pnpm nx run api:test` cho các file T002–T008; `pnpm nx run parity-tests:env-up
+- [X] T018 [US3] Chạy local: `pnpm nx run api:test` cho các file T002–T008; `pnpm nx run parity-tests:env-up
       --vendor=postgres --profiles=bootstrap` rồi `parity-tests:test` cho `src/bootstrap/{schema,cross,cli,init,partial}
       .test.ts`; `parity-tests:deploy` (3 replica, kiểm T017; nếu máy local không chạy được deploy thì ghi "kiểm trên CI"
       vào task đóng lượt). Ghi số đo thời gian migration riêng (log pino `time`) vào `research.md` "Kết quả lượt 1".
@@ -156,30 +156,30 @@ Backoffice 403.
 
 ### Tests for User Story 4 (MANDATORY) ⚠️
 
-- [ ] T019 [P] [US4] Sửa `sysdata/collections/index.test.ts`: `isSystemCollection('backoffice_migrations')` true,
+- [X] T019 [P] [US4] Sửa `sysdata/collections/index.test.ts`: `isSystemCollection('backoffice_migrations')` true,
       `'backoffice_x'` false, `'directus_custom'` false; test "all collections start with directus_" thành "directus_
       hoặc backoffice_"; `systemCollectionRows` có `backoffice_migrations` với `system: true`, `hidden: true`. Chạy đỏ.
-- [ ] T020 [P] [US4] Thêm vào `parity/normalizers.test.ts`: `normalizeBody('/collections', body)` và `SEARCH /collections`
+- [X] T020 [P] [US4] Thêm vào `parity/normalizers.test.ts`: `normalizeBody('/collections', body)` và `SEARCH /collections`
       bỏ phần tử `collection` bắt đầu `backoffice_`; `/fields` bỏ phần tử `collection` bắt đầu `backoffice_`; các path
       khác không đổi. Chạy đỏ.
-- [ ] T021 [P] [US4] Thêm `D-180` (kind `doc`, feature `022`, reason trỏ `contracts/migrations.md`) và `D-181` (kind `doc`,
+- [X] T021 [P] [US4] Thêm `D-180` (kind `doc`, feature `022`, reason trỏ `contracts/migrations.md`) và `D-181` (kind `doc`,
       reason: normalize `/collections`, `/fields` ở `normalizers.ts`) vào `tests/parity/accepted-differences.ts`; chạy
       `parity/accepted-differences.test.ts` (đọc bảng "Khác biệt" của spec 022).
 
 ### Implementation for User Story 4
 
-- [ ] T022 [US4] Sửa `sysdata/collections/collections.yaml` (+ dòng `collection: backoffice_migrations`, `hidden: true`,
+- [X] T022 [US4] Sửa `sysdata/collections/collections.yaml` (+ dòng `collection: backoffice_migrations`, `hidden: true`,
       `note: Backoffice migrations`) và `sysdata/collections/index.ts` `isSystemCollection` (tiền tố `directus_` hoặc
       `backoffice_`, comment D-181). T019 xanh; `pnpm nx run system-data:test`.
-- [ ] T023 [US4] Sửa `parity/normalizers.ts` `normalizeBody` (comment D-181). T020 xanh.
-- [ ] T024 [US4] Kiểm API trên env parity Postgres sau `env-up` (service `backoffice-api` tự `bootstrap`): `GET
+- [X] T023 [US4] Sửa `parity/normalizers.ts` `normalizeBody` (comment D-181). T020 xanh.
+- [X] T024 [US4] Kiểm API trên env parity Postgres sau `env-up` (service `backoffice-api` tự `bootstrap`): `GET
       /items/backoffice_migrations` admin → Backoffice 403 `FORBIDDEN`, Directus 200 (D-181, chỉ ghi nhận, không có
       trong request-set); `GET /collections/backoffice_migrations` hai app (Backoffice `meta.system true`, Directus
       `meta null`, normalize không áp vì path khác: thêm vào `normalizers.ts` nếu request-set có path này, hiện không);
       `DELETE /collections/backoffice_migrations` **chỉ gửi tới Backoffice** (`BACKOFFICE_URL`) → bị từ chối; KHÔNG gửi
       tới Directus: ở Directus lệnh này xóa bảng của DB dùng chung (spec Edge Cases, D-181). Ghi kết quả vào
       `research.md` "Kết quả lượt 1".
-- [ ] T025 [US4] Chạy `parity-tests:test` cho `src/parity.test.ts` (request-set), `src/schema/overview.test.ts`,
+- [X] T025 [US4] Chạy `parity-tests:test` cho `src/parity.test.ts` (request-set), `src/schema/overview.test.ts`,
       `src/schema-management/{cross-use,ddl-capture}.test.ts`, `src/graphql/*.test.ts` (SDL với `backoffice_migrations`,
       R4/T001) trên env Postgres; sửa normalize theo T001(b) nếu SDL lệch (ghi D-181).
 - [ ] T026 Đóng lượt 1: `pnpm nx run api:lint`, `api:typecheck`, `system-data:lint`, `parity-tests:lint`; test các file
